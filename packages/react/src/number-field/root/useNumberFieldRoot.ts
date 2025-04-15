@@ -29,14 +29,14 @@ export function useNumberFieldRoot(
     min,
     max,
     smallStep = 0.1,
-    step,
+    step = 1,
     largeStep = 10,
     required = false,
     disabled: disabledProp = false,
     invalid = false,
     readOnly = false,
-    autoFocus = false,
     allowWheelScrub = false,
+    snapOnStep = false,
     format,
     value: externalValue,
     onValueChange: onValueChangeProp,
@@ -151,13 +151,16 @@ export function useNumberFieldRoot(
   });
 
   const setValue = useEventCallback(
-    (unvalidatedValue: number | null, event?: React.MouseEvent | Event) => {
+    (unvalidatedValue: number | null, event?: React.MouseEvent | Event, dir?: 1 | -1) => {
+      const eventWithOptionalKeyState = event as EventWithOptionalKeyState;
       const validatedValue = toValidatedNumber(unvalidatedValue, {
-        step: getStepAmount(event as EventWithOptionalKeyState),
+        step: dir ? getStepAmount(eventWithOptionalKeyState) * dir : undefined,
         format: formatOptionsRef.current,
         minWithDefault,
         maxWithDefault,
         minWithZeroDefault,
+        snapOnStep,
+        small: eventWithOptionalKeyState?.altKey ?? false,
       });
 
       onValueChange?.(validatedValue, event && 'nativeEvent' in event ? event.nativeEvent : event);
@@ -185,7 +188,7 @@ export function useNumberFieldRoot(
       const prevValue = currentValue == null ? valueRef.current : currentValue;
       const nextValue =
         typeof prevValue === 'number' ? prevValue + amount * dir : Math.max(0, min ?? 0);
-      setValue(nextValue, event);
+      setValue(nextValue, event, dir);
     },
   );
 
@@ -357,7 +360,6 @@ export function useNumberFieldRoot(
       name,
       required,
       invalid,
-      autoFocus,
       inputMode,
       getAllowedNonNumericKeys,
       min,
@@ -391,7 +393,6 @@ export function useNumberFieldRoot(
       name,
       required,
       invalid,
-      autoFocus,
       inputMode,
       getAllowedNonNumericKeys,
       min,
@@ -452,11 +453,6 @@ export namespace useNumberFieldRoot {
      */
     invalid?: boolean;
     /**
-     * Whether to focus the element on page load.
-     * @default false
-     */
-    autoFocus?: boolean;
-    /**
      * Whether the user should be unable to change the field value.
      * @default false
      */
@@ -481,6 +477,11 @@ export namespace useNumberFieldRoot {
      * @default false
      */
     allowWheelScrub?: boolean;
+    /**
+     * Whether the value should snap to the nearest step when incrementing or decrementing.
+     * @default false
+     */
+    snapOnStep?: boolean;
     /**
      * Options to format the input value.
      */
@@ -517,7 +518,7 @@ export namespace useNumberFieldRoot {
     disabled: boolean;
     readOnly: boolean;
     id: string | undefined;
-    setValue: (unvalidatedValue: number | null, event?: Event) => void;
+    setValue: (unvalidatedValue: number | null, event?: Event, dir?: 1 | -1) => void;
     getStepAmount: (event?: EventWithOptionalKeyState) => number | undefined;
     incrementValue: (
       amount: number,
@@ -536,7 +537,6 @@ export namespace useNumberFieldRoot {
     name: string | undefined;
     required: boolean;
     invalid: boolean;
-    autoFocus: boolean;
     inputMode: InputMode;
     getAllowedNonNumericKeys: () => (string | undefined)[];
     min: number | undefined;

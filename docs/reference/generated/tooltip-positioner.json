@@ -2,10 +2,6 @@
   "name": "TooltipPositioner",
   "description": "Positions the tooltip against the trigger.\nRenders a `<div>` element.",
   "props": {
-    "open": {
-      "type": "boolean",
-      "description": "Whether the popup is currently open."
-    },
     "align": {
       "type": "'center' | 'end' | 'start'",
       "default": "'center'",

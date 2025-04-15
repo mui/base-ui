@@ -26,7 +26,7 @@ const GoogleAnalytics = React.memo(function GoogleAnalytics(props: GoogleAnalyti
 
     function gtag(...args: unknown[]) {
       // @ts-expect-error
-      window.dataLayer.push(...args);
+      window.dataLayer.push([...args]);
     }
 
     window.gtag = gtag;

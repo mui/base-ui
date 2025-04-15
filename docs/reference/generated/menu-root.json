@@ -17,7 +17,7 @@
     },
     "actionsRef": {
       "type": "RefObject<{ unmount: () => void; }>",
-      "description": "A ref to imperative actions."
+      "description": "A ref to imperative actions.\n- `unmount`: When specified, the menu will not be unmounted when closed.\nInstead, the `unmount` function must be called to unmount the menu manually.\nUseful when the menu's animation is controlled by an external library."
     },
     "closeParentOnEsc": {
       "type": "boolean",

@@ -54,6 +54,12 @@
     },
     "data-unchecked": {
       "description": "Present when the menu checkbox item is not checked."
+    },
+    "data-highlighted": {
+      "description": "Present when the menu checkbox item is highlighted."
+    },
+    "data-disabled": {
+      "description": "Present when the menu checkbox item is disabled."
     }
   },
   "cssVariables": {}

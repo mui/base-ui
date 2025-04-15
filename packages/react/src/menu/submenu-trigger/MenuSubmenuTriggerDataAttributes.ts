@@ -1,6 +1,8 @@
+import { CommonTriggerDataAttributes } from '../../utils/popupStateMapping';
+
 export enum MenuSubmenuTriggerDataAttributes {
   /**
    * Present when the corresponding submenu is open.
    */
-  popupOpen = 'data-popup-open',
+  popupOpen = CommonTriggerDataAttributes.popupOpen,
 }

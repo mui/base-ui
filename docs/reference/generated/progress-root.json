@@ -6,10 +6,6 @@
       "type": "string",
       "description": "The label for the Indicator component."
     },
-    "aria-labelledby": {
-      "type": "string",
-      "description": "An id or space-separated list of ids of elements that label the Indicator component."
-    },
     "value": {
       "type": "number | null",
       "default": "null",

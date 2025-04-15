@@ -213,9 +213,12 @@ interface InnerMenuCheckboxItemProps extends MenuCheckboxItem.Props {
 namespace MenuCheckboxItem {
   export type State = {
     /**
-     * Whether the component should ignore user interaction.
+     * Whether the checkbox item should ignore user interaction.
      */
     disabled: boolean;
+    /**
+     * Whether the checkbox item is currently highlighted.
+     */
     highlighted: boolean;
     /**
      * Whether the checkbox item is currently ticked.

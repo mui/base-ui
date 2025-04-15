@@ -12,6 +12,12 @@ import { mergeProps } from '../../merge-props';
 import { DEFAULT_STEP } from '../utils/constants';
 import { ARABIC_RE, HAN_RE, getNumberLocaleDetails, parseNumber } from '../utils/parse';
 import type { NumberFieldRoot } from '../root/NumberFieldRoot';
+import { styleHookMapping } from '../utils/styleHooks';
+
+const customStyleHookMapping = {
+  ...fieldValidityMapping,
+  ...styleHookMapping,
+};
 
 /**
  * The native input control in the number field.
@@ -27,7 +33,6 @@ const NumberFieldInput = React.forwardRef(function NumberFieldInput(
 
   const {
     allowInputSyncRef,
-    autoFocus,
     disabled,
     formatOptionsRef,
     getAllowedNonNumericKeys,
@@ -69,7 +74,6 @@ const NumberFieldInput = React.forwardRef(function NumberFieldInput(
         {
           id,
           required,
-          autoFocus,
           name,
           disabled,
           readOnly,
@@ -267,7 +271,6 @@ const NumberFieldInput = React.forwardRef(function NumberFieldInput(
       getValidationProps,
       id,
       required,
-      autoFocus,
       name,
       disabled,
       readOnly,
@@ -303,7 +306,7 @@ const NumberFieldInput = React.forwardRef(function NumberFieldInput(
     className,
     state,
     extraProps: otherProps,
-    customStyleHookMapping: fieldValidityMapping,
+    customStyleHookMapping,
   });
 
   return renderElement();

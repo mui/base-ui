@@ -20,14 +20,14 @@ const AlertDialogTrigger = React.forwardRef(function AlertDialogTrigger(
 ) {
   const { render, className, disabled = false, ...other } = props;
 
-  const { mounted, setTriggerElement, getTriggerProps } = useAlertDialogRootContext();
+  const { open, setTriggerElement, getTriggerProps } = useAlertDialogRootContext();
 
   const state: AlertDialogTrigger.State = React.useMemo(
     () => ({
       disabled,
-      open: mounted,
+      open,
     }),
-    [disabled, mounted],
+    [disabled, open],
   );
 
   const mergedRef = useForkRef(forwardedRef, setTriggerElement);

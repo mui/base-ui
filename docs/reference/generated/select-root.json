@@ -34,7 +34,7 @@
     },
     "actionsRef": {
       "type": "RefObject<Actions>",
-      "description": "A ref to imperative actions."
+      "description": "A ref to imperative actions.\n- `unmount`: When specified, the select will not be unmounted when closed.\nInstead, the `unmount` function must be called to unmount the select manually.\nUseful when the select's animation is controlled by an external library."
     },
     "alignItemToTrigger": {
       "type": "boolean",
@@ -52,7 +52,7 @@
     },
     "transitionStatus": {
       "type": "TransitionStatus",
-      "description": "The transition status of the Select."
+      "description": "The transition status of the select."
     },
     "disabled": {
       "type": "boolean",

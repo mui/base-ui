@@ -25,6 +25,9 @@
     "data-open": {
       "description": "Present when the accordion panel is open."
     },
+    "data-orientation": {
+      "description": "Indicates the orientation of the accordion."
+    },
     "data-disabled": {
       "description": "Present when the accordion item is disabled."
     },

@@ -17,7 +17,7 @@
     },
     "actionsRef": {
       "type": "RefObject<Actions>",
-      "description": "A ref to imperative actions."
+      "description": "A ref to imperative actions.\n- `unmount`: When specified, the preview card will not be unmounted when closed.\nInstead, the `unmount` function must be called to unmount the preview card manually.\nUseful when the preview card's animation is controlled by an external library."
     },
     "onOpenChangeComplete": {
       "type": "((open: boolean) => void)",

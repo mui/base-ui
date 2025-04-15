@@ -2,14 +2,6 @@
   "name": "Toggle",
   "description": "A two-state button that can be on or off.\nRenders a `<button>` element.",
   "props": {
-    "aria-label": {
-      "type": "string",
-      "description": "The label for the Toggle."
-    },
-    "aria-labelledby": {
-      "type": "string",
-      "description": "An id or space-separated list of ids of elements that label the Toggle."
-    },
     "value": {
       "type": "string",
       "description": "A unique string that identifies the component when used\ninside a ToggleGroup."

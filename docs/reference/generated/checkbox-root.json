@@ -35,11 +35,6 @@
       "default": "false",
       "description": "Whether the checkbox controls a group of child checkboxes.\n\nMust be used in a [Checkbox Group](https://base-ui.com/react/components/checkbox-group)."
     },
-    "autoFocus": {
-      "type": "boolean",
-      "default": "false",
-      "description": "Whether to focus the element on page load."
-    },
     "disabled": {
       "type": "boolean",
       "default": "false",
