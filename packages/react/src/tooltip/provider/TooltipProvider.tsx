@@ -2,6 +2,7 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { NextFloatingDelayGroup } from '@floating-ui/react';
+import { TooltipProviderContext } from './TooltipProviderContext';
 
 /**
  * Provides a shared delay for multiple tooltips. The grouping logic ensures that
@@ -11,10 +12,21 @@ import { NextFloatingDelayGroup } from '@floating-ui/react';
  */
 const TooltipProvider: React.FC<TooltipProvider.Props> = function TooltipProvider(props) {
   const { delay, closeDelay, timeout = 400 } = props;
+
+  const contextValue: TooltipProviderContext = React.useMemo(
+    () => ({
+      delay,
+      closeDelay,
+    }),
+    [delay, closeDelay],
+  );
+
   return (
-    <NextFloatingDelayGroup delay={{ open: delay, close: closeDelay }} timeoutMs={timeout}>
-      {props.children}
-    </NextFloatingDelayGroup>
+    <TooltipProviderContext.Provider value={contextValue}>
+      <NextFloatingDelayGroup delay={{ open: delay, close: closeDelay }} timeoutMs={timeout}>
+        {props.children}
+      </NextFloatingDelayGroup>
+    </TooltipProviderContext.Provider>
   );
 };
 

@@ -22,6 +22,7 @@ import {
   type OpenChangeReason,
 } from '../../utils/translateOpenChangeReason';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
+import { useTooltipProviderContext } from '../provider/TooltipProviderContext';
 
 export function useTooltipRoot(params: useTooltipRoot.Parameters): useTooltipRoot.ReturnValue {
   const {
@@ -115,6 +116,7 @@ export function useTooltipRoot(params: useTooltipRoot.Parameters): useTooltipRoo
     },
   });
 
+  const providerContext = useTooltipProviderContext();
   const { delayRef, isInstantPhase, hasProvider } = useNextDelayGroup(context);
 
   const instantType = isInstantPhase ? ('delay' as const) : instantTypeState;
@@ -125,11 +127,20 @@ export function useTooltipRoot(params: useTooltipRoot.Parameters): useTooltipRoo
     move: false,
     handleClose: hoverable && trackCursorAxis !== 'both' ? safePolygon() : null,
     restMs() {
-      // We only pass an object to `FloatingDelayGroup`. A number means the Provider is not
-      // present, so we should ignore the value by using `undefined`.
-      const computedRestMs =
+      const providerDelay = providerContext?.delay;
+      const groupOpenValue =
         typeof delayRef.current === 'object' ? delayRef.current.open : undefined;
-      return computedRestMs ?? delayWithDefault;
+
+      let computedRestMs = delayWithDefault;
+      if (hasProvider) {
+        if (groupOpenValue !== 0) {
+          computedRestMs = delay ?? providerDelay ?? delayWithDefault;
+        } else {
+          computedRestMs = 0;
+        }
+      }
+
+      return computedRestMs;
     },
     delay() {
       const closeValue = typeof delayRef.current === 'object' ? delayRef.current.close : undefined;
