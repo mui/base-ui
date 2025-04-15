@@ -33,6 +33,8 @@ const RadioGroup = React.forwardRef(function RadioGroup(
     required,
     onValueChange: onValueChangeProp,
     name,
+    value,
+    defaultValue,
     ...otherProps
   } = props;
 
@@ -99,8 +101,7 @@ namespace RadioGroup {
     readOnly: boolean | undefined;
   }
 
-  export interface Props
-    extends Omit<BaseUIComponentProps<'div', State>, 'value' | 'defaultValue'> {
+  export interface Props extends Omit<BaseUIComponentProps<'div', State>, 'value'> {
     /**
      * Whether the component should ignore user interaction.
      * @default false

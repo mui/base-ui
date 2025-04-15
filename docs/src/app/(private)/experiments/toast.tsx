@@ -83,10 +83,8 @@ function Toasts() {
   const { toasts } = Toast.useToastManager();
   return toasts.map((toast) => (
     <Toast.Root key={toast.id} toast={toast} className={styles.root}>
-      {toast.title && <Toast.Title>{toast.title}</Toast.Title>}
-      {toast.description && (
-        <Toast.Description>{toast.description}</Toast.Description>
-      )}
+      <Toast.Title />
+      <Toast.Description />
       {toast.type === 'undo' && (
         <button
           className={styles.button}

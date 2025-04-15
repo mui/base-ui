@@ -8,6 +8,8 @@ import { useForkRef } from '../../utils/useForkRef';
 import { useOnMount } from '../../utils/useOnMount';
 import { warn } from '../../utils/warn';
 import type { AnimationType, Dimensions } from '../root/useCollapsibleRoot';
+import { CollapsiblePanelDataAttributes } from './CollapsiblePanelDataAttributes';
+import { AccordionRootDataAttributes } from '../../accordion/root/AccordionRootDataAttributes';
 
 export function useCollapsiblePanel(
   parameters: useCollapsiblePanel.Parameters,
@@ -98,7 +100,7 @@ export function useCollapsiblePanel(
        * Setting both to `0px` will break layout.
        */
       if (
-        element.getAttribute('data-orientation') === 'horizontal' ||
+        element.getAttribute(AccordionRootDataAttributes.orientation) === 'horizontal' ||
         panelStyles.transitionProperty.indexOf('width') > -1
       ) {
         transitionDimensionRef.current = 'width';
@@ -189,7 +191,7 @@ export function useCollapsiblePanel(
        * be mis-timed and appear to be complete skipped.
        */
       if (!shouldCancelInitialOpenTransitionRef.current && !keepMounted) {
-        panel.setAttribute('data-starting-style', '');
+        panel.setAttribute(CollapsiblePanelDataAttributes.startingStyle, '');
       }
 
       setDimensions({ height: panel.scrollHeight, width: panel.scrollWidth });
@@ -332,7 +334,7 @@ export function useCollapsiblePanel(
        * https://github.com/tailwindlabs/tailwindcss/pull/14625
        */
       if (animationTypeRef.current === 'css-transition') {
-        panel.setAttribute('data-starting-style', '');
+        panel.setAttribute(CollapsiblePanelDataAttributes.startingStyle, '');
       }
     }
   }, [hiddenUntilFound, hidden, animationTypeRef, panelRef]);

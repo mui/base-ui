@@ -58,7 +58,7 @@ function ToastList() {
       {isCustomToast(toast) && toast.data ? (
         <Toast.Description>`data.userId` is {toast.data.userId}</Toast.Description>
       ) : (
-        <Toast.Description>{toast.description}</Toast.Description>
+        <Toast.Description />
       )}
       <Toast.Close className={styles.Close} aria-label="Close">
         <XIcon className={styles.Icon} />
