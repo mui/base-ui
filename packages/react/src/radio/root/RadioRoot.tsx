@@ -27,6 +27,7 @@ const RadioRoot = React.forwardRef(function RadioRoot(
     disabled: disabledProp = false,
     readOnly: readOnlyProp = false,
     required: requiredProp = false,
+    value,
     ...otherProps
   } = props;
 
@@ -85,7 +86,7 @@ namespace RadioRoot {
     /**
      * The unique identifying value of the radio in a group.
      */
-    value: unknown;
+    value: any;
     /**
      * Whether the component should ignore user interaction.
      * @default false
