@@ -43,7 +43,7 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
     delay,
     openOnHover,
     onTypingChange,
-    modal = true,
+    modal,
   } = parameters;
 
   const [triggerElement, setTriggerElement] = React.useState<HTMLElement | null>(null);

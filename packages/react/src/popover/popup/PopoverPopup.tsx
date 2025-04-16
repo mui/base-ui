@@ -46,6 +46,7 @@ const PopoverPopup = React.forwardRef(function PopoverPopup(
     mounted,
     openReason,
     onOpenChangeComplete,
+    modal,
   } = usePopoverRootContext();
   const positioner = usePopoverPositionerContext();
 
@@ -100,7 +101,7 @@ const PopoverPopup = React.forwardRef(function PopoverPopup(
   return (
     <FloatingFocusManager
       context={positioner.context}
-      modal={false}
+      modal={modal !== false}
       disabled={!mounted || openReason === 'hover'}
       initialFocus={resolvedInitialFocus}
       returnFocus={finalFocus}
