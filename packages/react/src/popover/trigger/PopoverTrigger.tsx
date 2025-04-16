@@ -3,14 +3,13 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
 import { useButton } from '../../use-button/useButton';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { useForkRef } from '../../utils/useForkRef';
 import type { BaseUIComponentProps } from '../../utils/types';
 import {
   triggerOpenStateMapping,
   pressableTriggerOpenStateMapping,
 } from '../../utils/popupStateMapping';
 import { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
+import { useRenderElement } from '../../utils/useRenderElement';
 
 /**
  * A button that opens the popover.
@@ -19,12 +18,12 @@ import { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
  * Documentation: [Base UI Popover](https://base-ui.com/react/components/popover)
  */
 const PopoverTrigger = React.forwardRef(function PopoverTrigger(
-  props: PopoverTrigger.Props,
+  componentProps: PopoverTrigger.Props,
   forwardedRef: React.ForwardedRef<any>,
 ) {
-  const { render, className, disabled = false, ...otherProps } = props;
+  const { render, className, disabled = false, ...elementProps } = componentProps;
 
-  const { open, setTriggerElement, getRootTriggerProps, openReason } = usePopoverRootContext();
+  const { open, setTriggerElement, getTriggerProps, openReason } = usePopoverRootContext();
 
   const state: PopoverTrigger.State = React.useMemo(
     () => ({
@@ -39,8 +38,6 @@ const PopoverTrigger = React.forwardRef(function PopoverTrigger(
     buttonRef: forwardedRef,
   });
 
-  const mergedRef = useForkRef(buttonRef, setTriggerElement);
-
   const customStyleHookMapping: CustomStyleHookMapping<{ open: boolean }> = React.useMemo(
     () => ({
       open(value) {
@@ -54,13 +51,10 @@ const PopoverTrigger = React.forwardRef(function PopoverTrigger(
     [openReason],
   );
 
-  const { renderElement } = useComponentRenderer({
-    propGetter: (externalProps) => getButtonProps(getRootTriggerProps(externalProps)),
-    render: render ?? 'button',
-    className,
+  const renderElement = useRenderElement('button', componentProps, {
     state,
-    ref: mergedRef,
-    extraProps: otherProps,
+    ref: [buttonRef, setTriggerElement],
+    props: [getTriggerProps, elementProps, getButtonProps],
     customStyleHookMapping,
   });
 

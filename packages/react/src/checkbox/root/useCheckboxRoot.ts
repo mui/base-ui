@@ -24,6 +24,7 @@ export function useCheckboxRoot(params: useCheckboxRoot.Parameters): useCheckbox
     readOnly = false,
     required = false,
     indeterminate = false,
+    parent = false,
     disabled: disabledProp = false,
   } = params;
 
@@ -58,8 +59,9 @@ export function useCheckboxRoot(params: useCheckboxRoot.Parameters): useCheckbox
   } = useFieldControlValidation();
 
   const [checked, setCheckedState] = useControlled({
-    controlled: name && groupValue ? groupValue.includes(name) : externalChecked,
-    default: name && defaultGroupValue ? defaultGroupValue.includes(name) : defaultChecked,
+    controlled: name && groupValue && !parent ? groupValue.includes(name) : externalChecked,
+    default:
+      name && defaultGroupValue && !parent ? defaultGroupValue.includes(name) : defaultChecked,
     name: 'Checkbox',
     state: 'checked',
   });
@@ -186,7 +188,7 @@ export function useCheckboxRoot(params: useCheckboxRoot.Parameters): useCheckbox
               }
             }
 
-            if (name && groupValue && setGroupValue) {
+            if (name && groupValue && setGroupValue && !parent) {
               const nextGroupValue = nextChecked
                 ? [...groupValue, name]
                 : groupValue.filter((item) => item !== name);
@@ -203,23 +205,24 @@ export function useCheckboxRoot(params: useCheckboxRoot.Parameters): useCheckbox
         getInputValidationProps(externalProps),
       ),
     [
-      getInputValidationProps,
       checked,
       disabled,
       name,
       value,
       required,
       mergedInputRef,
-      groupContext,
+      getInputValidationProps,
       setDirty,
       validityData.initialValue,
       setCheckedState,
       onCheckedChange,
-      validationMode,
+      groupContext,
       groupValue,
       setGroupValue,
-      commitValidation,
+      parent,
       setFilled,
+      validationMode,
+      commitValidation,
     ],
   );
 
