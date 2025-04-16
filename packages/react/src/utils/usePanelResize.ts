@@ -54,9 +54,7 @@ export function usePanelResize(
     });
 
     function handleWindowResize() {
-      if (panel) {
-        recalculateSize();
-      }
+      recalculateSize();
     }
 
     const win = ownerWindow(panel);
