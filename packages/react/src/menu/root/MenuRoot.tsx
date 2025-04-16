@@ -110,7 +110,11 @@ namespace MenuRoot {
     /**
      * Event handler called when the menu is opened or closed.
      */
-    onOpenChange?: (open: boolean, event?: Event, reason?: OpenChangeReason) => void;
+    onOpenChange?: (
+      open: boolean,
+      event: Event | undefined,
+      reason: OpenChangeReason | undefined,
+    ) => void;
     /**
      * Event handler called after any animations complete when the menu is closed.
      */

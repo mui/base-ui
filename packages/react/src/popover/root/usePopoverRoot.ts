@@ -72,7 +72,7 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
   });
 
   const setOpen = useEventCallback(
-    (nextOpen: boolean, event?: Event, reason?: OpenChangeReason) => {
+    (nextOpen: boolean, event: Event | undefined, reason: OpenChangeReason | undefined) => {
       onOpenChange(nextOpen, event, reason);
       setOpenUnwrapped(nextOpen);
 
@@ -239,7 +239,11 @@ export namespace usePopoverRoot {
     /**
      * Event handler called when the popover is opened or closed.
      */
-    onOpenChange?: (open: boolean, event?: Event, reason?: OpenChangeReason) => void;
+    onOpenChange?: (
+      open: boolean,
+      event: Event | undefined,
+      reason: OpenChangeReason | undefined,
+    ) => void;
     /**
      * Event handler called after any animations complete when the popover is opened or closed.
      */
