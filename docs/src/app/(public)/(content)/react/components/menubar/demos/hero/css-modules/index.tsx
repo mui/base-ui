@@ -18,9 +18,7 @@ export default function ExampleMenubar() {
               <Menu.Root>
                 <Menu.SubmenuTrigger className={styles.MenuItem}>
                   Export
-                  <span className={styles.RightSlot}>
-                    <ChevronRightIcon className={styles.ChevronIcon} />
-                  </span>
+                  <ChevronRightIcon />
                 </Menu.SubmenuTrigger>
                 <Menu.Portal>
                   <Menu.Positioner>
@@ -64,9 +62,7 @@ export default function ExampleMenubar() {
               <Menu.Root>
                 <Menu.SubmenuTrigger className={styles.MenuItem}>
                   Layout
-                  <span className={styles.RightSlot}>
-                    <ChevronRightIcon className={styles.ChevronIcon} />
-                  </span>
+                  <ChevronRightIcon />
                 </Menu.SubmenuTrigger>
                 <Menu.Portal>
                   <Menu.Positioner>
