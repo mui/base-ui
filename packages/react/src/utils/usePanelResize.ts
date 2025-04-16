@@ -29,11 +29,10 @@ export function usePanelResize(
       return undefined;
     }
 
-    const observer = new ResizeObserver(() => {
-      if (panel.getAnimations().length > 0) {
+    function recalculateSize() {
+      if (!panel) {
         return;
       }
-
       const cleanup = setAutoSize(panel);
       const scrollHeight = panel.scrollHeight;
       const scrollWidth = panel.scrollWidth;
@@ -45,16 +44,18 @@ export function usePanelResize(
         }
         return prev;
       });
+    }
+
+    const observer = new ResizeObserver(() => {
+      if (panel.getAnimations().length > 0) {
+        return;
+      }
+      recalculateSize();
     });
 
-    let frame = -1;
-
     function handleWindowResize() {
-      // Avoid size transitions when the window is resized.
       if (panel) {
-        cancelAnimationFrame(frame);
-        const cleanup = setAutoSize(panel);
-        frame = requestAnimationFrame(cleanup);
+        recalculateSize();
       }
     }
 
@@ -64,7 +65,6 @@ export function usePanelResize(
     return () => {
       observer.disconnect();
       win.removeEventListener('resize', handleWindowResize);
-      cancelAnimationFrame(frame);
     };
   }, [panelRef, setDimensions, open]);
 }
