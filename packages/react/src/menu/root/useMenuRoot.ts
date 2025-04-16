@@ -84,8 +84,8 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
   });
 
   const setOpen = useEventCallback(
-    (nextOpen: boolean, event?: Event, reason?: OpenChangeReason) => {
-      onOpenChange?.(nextOpen, event);
+    (nextOpen: boolean, event: Event | undefined, reason: OpenChangeReason | undefined) => {
+      onOpenChange?.(nextOpen, event, reason);
       setOpenUnwrapped(nextOpen);
 
       if (nextOpen) {
@@ -318,7 +318,9 @@ export namespace useMenuRoot {
     /**
      * Event handler called when the menu is opened or closed.
      */
-    onOpenChange: ((open: boolean, event?: Event, reason?: OpenChangeReason) => void) | undefined;
+    onOpenChange:
+      | ((open: boolean, event: Event | undefined, reason: OpenChangeReason | undefined) => void)
+      | undefined;
     /**
      * Event handler called after any animations complete when the menu is opened or closed.
      */
@@ -391,7 +393,11 @@ export namespace useMenuRoot {
     mounted: boolean;
     open: boolean;
     popupRef: React.RefObject<HTMLElement | null>;
-    setOpen: (open: boolean, event: Event | undefined) => void;
+    setOpen: (
+      open: boolean,
+      event: Event | undefined,
+      reason: OpenChangeReason | undefined,
+    ) => void;
     positionerRef: React.RefObject<HTMLElement | null>;
     setPositionerElement: (element: HTMLElement | null) => void;
     setTriggerElement: (element: HTMLElement | null) => void;

@@ -24,7 +24,7 @@ const PopoverClose = React.forwardRef(function PopoverClose(
     props: [
       {
         onClick() {
-          setOpen(false);
+          setOpen(false, undefined, undefined);
         },
       },
       elementProps,

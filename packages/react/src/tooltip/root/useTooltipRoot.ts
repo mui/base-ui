@@ -56,7 +56,7 @@ export function useTooltipRoot(params: useTooltipRoot.Parameters): useTooltipRoo
   const onOpenChange = useEventCallback(onOpenChangeProp);
 
   const setOpen = React.useCallback(
-    (nextOpen: boolean, event?: Event, reason?: OpenChangeReason) => {
+    (nextOpen: boolean, event: Event | undefined, reason: OpenChangeReason | undefined) => {
       onOpenChange(nextOpen, event, reason);
       setOpenUnwrapped(nextOpen);
     },
@@ -64,7 +64,7 @@ export function useTooltipRoot(params: useTooltipRoot.Parameters): useTooltipRoo
   );
 
   if (open && disabled) {
-    setOpen(false);
+    setOpen(false, undefined, undefined);
   }
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
@@ -219,7 +219,11 @@ export namespace useTooltipRoot {
     /**
      * Event handler called when the tooltip is opened or closed.
      */
-    onOpenChange?: (open: boolean, event?: Event, reason?: OpenChangeReason) => void;
+    onOpenChange?: (
+      open: boolean,
+      event: Event | undefined,
+      reason: OpenChangeReason | undefined,
+    ) => void;
     /**
      * Event handler called after any animations complete when the tooltip is opened or closed.
      */

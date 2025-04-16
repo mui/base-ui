@@ -9,7 +9,7 @@ import type { OpenChangeReason } from '../../utils/translateOpenChangeReason';
 export interface PopoverRootContext {
   open: boolean;
   openOnHover: boolean;
-  setOpen: (open: boolean, event?: Event, reason?: OpenChangeReason) => void;
+  setOpen: (open: boolean, event: Event | undefined, reason: OpenChangeReason | undefined) => void;
   setTriggerElement: (el: Element | null) => void;
   positionerElement: HTMLElement | null;
   setPositionerElement: (el: HTMLElement | null) => void;
