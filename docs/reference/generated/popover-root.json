@@ -20,7 +20,7 @@
       "description": "A ref to imperative actions.\n- `unmount`: When specified, the popover will not be unmounted when closed.\nInstead, the `unmount` function must be called to unmount the popover manually.\nUseful when the popover's animation is controlled by an external library."
     },
     "modal": {
-      "type": "'trap-focus' | bool",
+      "type": "boolean | 'trap-focus'",
       "default": "false",
       "description": "Determines if the popover enters a modal state when open.\n- `true`: user interaction is limited to just the popover: focus is trapped, document page scroll is locked, and pointer interactions on outside elements are disabled.\n- `false`: user interaction with the rest of the document is allowed.\n- `'trap-focus'`: focus is trapped inside the popover, but document page scroll is not locked and pointer interactions outside of it remain enabled."
     },
