@@ -72,12 +72,14 @@ export function focusThumb(
     return;
   }
 
-  const doc = ownerDocument(sliderRef.current);
+  const activeEl = activeElement(ownerDocument(sliderRef.current));
 
   if (
-    !sliderRef.current.contains(doc.activeElement) ||
-    Number(doc?.activeElement?.getAttribute(SliderThumbDataAttributes.index)) !== thumbIndex
+    activeEl == null ||
+    !sliderRef.current.contains(activeEl) ||
+    Number(activeEl.getAttribute(SliderThumbDataAttributes.index)) !== thumbIndex
   ) {
+    // TODO: possibly simplify with thumbRefs as it already exists
     (
       sliderRef.current.querySelector(
         `[type="range"][${SliderThumbDataAttributes.index}="${thumbIndex}"]`,
