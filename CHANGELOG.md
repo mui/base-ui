@@ -12,8 +12,8 @@ _Apr 16, 2025_
 ### AlertDialog
 
 - Rename `data-has-nested-dialogs` to `data-nested-dialog-open` (#1686) @mj12albert
-- [popups] Fix `onOpenChange` types for `event`/`reason` passing (#1721) @atomiks
-- [popups] Use consistent `inert` attr and map `[data-popup-open]` back to `open` (#1650) @atomiks
+- Fix `onOpenChange` types for `event`/`reason` passing (#1721) @atomiks
+- Use consistent `inert` attr and map `[data-popup-open]` back to `open` (#1650) @atomiks
 - Fix text selection & right-clicks (#1702) @mj12albert
 
 ### CheckboxGroup
