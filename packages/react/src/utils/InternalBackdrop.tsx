@@ -38,6 +38,8 @@ const InternalBackdrop = React.forwardRef(function InternalBackdrop(
       style={{
         position: 'fixed',
         inset: 0,
+        userSelect: 'none',
+        WebkitUserSelect: 'none',
         clipPath,
       }}
     />

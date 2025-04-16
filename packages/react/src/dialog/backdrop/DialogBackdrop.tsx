@@ -2,6 +2,7 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { useDialogRootContext } from '../root/DialogRootContext';
+import { mergeProps } from '../../merge-props';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { type TransitionStatus } from '../../utils/useTransitionStatus';
 import { type BaseUIComponentProps } from '../../utils/types';
@@ -43,11 +44,17 @@ const DialogBackdrop = React.forwardRef(function DialogBackdrop(
     className,
     state,
     ref: mergedRef,
-    extraProps: {
-      role: 'presentation',
-      hidden: !mounted,
-      ...other,
-    },
+    extraProps: mergeProps(
+      {
+        role: 'presentation',
+        hidden: !mounted,
+        style: {
+          userSelect: 'none',
+          WebkitUserSelect: 'none',
+        },
+      },
+      other,
+    ),
     customStyleHookMapping,
   });
 

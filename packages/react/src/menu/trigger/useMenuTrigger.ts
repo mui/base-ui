@@ -7,6 +7,7 @@ import { GenericHTMLProps } from '../../utils/types';
 import { mergeProps } from '../../merge-props';
 import { ownerDocument } from '../../utils/owner';
 import { getPseudoElementBounds } from '../../utils/getPseudoElementBounds';
+import type { OpenChangeReason } from '../../utils/translateOpenChangeReason';
 
 export function useMenuTrigger(parameters: useMenuTrigger.Parameters): useMenuTrigger.ReturnValue {
   const BOUNDARY_OFFSET = 2;
@@ -89,7 +90,7 @@ export function useMenuTrigger(parameters: useMenuTrigger.Parameters): useMenuTr
                 return;
               }
 
-              setOpen(false, mouseEvent);
+              setOpen(false, mouseEvent, undefined);
             }
 
             doc.addEventListener('mouseup', handleMouseUp, { once: true });
@@ -133,7 +134,11 @@ export namespace useMenuTrigger {
     /**
      * A callback to set the open state of the Menu.
      */
-    setOpen: (open: boolean, event: Event | undefined) => void;
+    setOpen: (
+      open: boolean,
+      event: Event | undefined,
+      reason: OpenChangeReason | undefined,
+    ) => void;
     allowMouseUpTriggerRef: React.RefObject<boolean>;
     positionerRef: React.RefObject<HTMLElement | null>;
   }

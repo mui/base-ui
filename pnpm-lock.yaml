@@ -51,16 +51,16 @@ importers:
         specifier: ^7.25.9
         version: 7.25.9(@babel/core@7.26.10)
       '@mui/internal-docs-utils':
-        specifier: ^1.0.16
-        version: 1.0.16
+        specifier: ^2.0.1
+        version: 2.0.1
       '@mui/internal-markdown':
-        specifier: ^2.0.3
-        version: 2.0.3
+        specifier: ^2.0.4
+        version: 2.0.4
       '@mui/internal-scripts':
-        specifier: ^2.0.6
-        version: 2.0.6
+        specifier: ^2.0.7
+        version: 2.0.7
       '@mui/internal-test-utils':
-        specifier: ^2.0.6
+        specifier: ^2.0.7
         version: 2.0.7(@babel/core@7.26.10)(@types/react-dom@19.0.2(@types/react@19.0.12))(@types/react@19.0.12)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@mui/monorepo':
         specifier: github:mui/material-ui#v7.0.2
@@ -357,8 +357,8 @@ importers:
         specifier: ^3.1.0
         version: 3.1.0(@types/react@19.0.12)(react@19.1.0)
       '@mui/system':
-        specifier: 7.0.1
-        version: 7.0.1(@emotion/react@11.14.0(@types/react@19.0.12)(react@19.1.0))(@emotion/styled@11.14.0(@emotion/react@11.14.0(@types/react@19.0.12)(react@19.1.0))(@types/react@19.0.12)(react@19.1.0))(@types/react@19.0.12)(react@19.1.0)
+        specifier: 7.0.2
+        version: 7.0.2(@emotion/react@11.14.0(@types/react@19.0.12)(react@19.1.0))(@emotion/styled@11.14.0(@emotion/react@11.14.0(@types/react@19.0.12)(react@19.1.0))(@types/react@19.0.12)(react@19.1.0))(@types/react@19.0.12)(react@19.1.0)
       '@next/mdx':
         specifier: ^15.2.4
         version: 15.2.4(@mdx-js/loader@3.1.0(acorn@8.14.1)(webpack@5.98.0(webpack-cli@5.1.4(webpack-bundle-analyzer@4.10.2)(webpack@5.98.0))))(@mdx-js/react@3.1.0(@types/react@19.0.12)(react@19.1.0))
@@ -496,13 +496,13 @@ importers:
         specifier: ^7.27.0
         version: 7.27.0(@babel/core@7.26.10)
       '@mui/internal-docs-utils':
-        specifier: ^1.0.16
-        version: 1.0.16
+        specifier: ^2.0.1
+        version: 2.0.1
       '@mui/internal-scripts':
-        specifier: ^2.0.6
-        version: 2.0.6
+        specifier: ^2.0.7
+        version: 2.0.7
       '@mui/internal-test-utils':
-        specifier: ^2.0.6
+        specifier: ^2.0.7
         version: 2.0.7(@babel/core@7.26.10)(@types/react-dom@19.0.2(@types/react@19.0.12))(@types/react@19.0.12)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@tailwindcss/postcss':
         specifier: 4.1.0
@@ -577,8 +577,8 @@ importers:
         specifier: ^5.62.0
         version: 5.62.0(eslint@9.8.0)(typescript@5.8.3)
       '@typescript-eslint/parser':
-        specifier: ^8.29.1
-        version: 8.29.1(eslint@9.8.0)(typescript@5.8.3)
+        specifier: ^8.30.1
+        version: 8.30.1(eslint@9.8.0)(typescript@5.8.3)
 
   packages/react:
     dependencies:
@@ -592,8 +592,8 @@ importers:
         specifier: ^0.2.9
         version: 0.2.9
       '@react-aria/overlays':
-        specifier: ^3.26.1
-        version: 3.26.1(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+        specifier: ^3.27.0
+        version: 3.27.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       prop-types:
         specifier: ^15.8.1
         version: 15.8.1
@@ -644,8 +644,8 @@ importers:
         specifier: ^4.17.21
         version: 4.17.21
       publint:
-        specifier: ^0.3.11
-        version: 0.3.11
+        specifier: ^0.3.12
+        version: 0.3.12
       react:
         specifier: ^19.1.0
         version: 19.1.0
@@ -699,7 +699,7 @@ importers:
         specifier: workspace:*
         version: link:../packages/react/build
       '@mui/internal-test-utils':
-        specifier: ^2.0.6
+        specifier: ^2.0.7
         version: 2.0.7(@babel/core@7.26.10)(@types/react-dom@19.0.2(@types/react@19.0.12))(@types/react@19.0.12)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@playwright/test':
         specifier: 1.51.1
@@ -1928,17 +1928,17 @@ packages:
       '@types/node':
         optional: true
 
-  '@internationalized/date@3.7.0':
-    resolution: {integrity: sha512-VJ5WS3fcVx0bejE/YHfbDKR/yawZgKqn/if+oEeLqNwBtPzVB06olkfcnojTmEMX+gTpH+FlQ69SHNitJ8/erQ==}
+  '@internationalized/date@3.8.0':
+    resolution: {integrity: sha512-J51AJ0fEL68hE4CwGPa6E0PO6JDaVLd8aln48xFCSy7CZkZc96dGEGmLs2OEEbBxcsVZtfrqkXJwI2/MSG8yKw==}
 
-  '@internationalized/message@3.1.6':
-    resolution: {integrity: sha512-JxbK3iAcTIeNr1p0WIFg/wQJjIzJt9l/2KNY/48vXV7GRGZSv3zMxJsce008fZclk2cDC8y0Ig3odceHO7EfNQ==}
+  '@internationalized/message@3.1.7':
+    resolution: {integrity: sha512-gLQlhEW4iO7DEFPf/U7IrIdA3UyLGS0opeqouaFwlMObLUzwexRjbygONHDVbC9G9oFLXsLyGKYkJwqXw/QADg==}
 
-  '@internationalized/number@3.6.0':
-    resolution: {integrity: sha512-PtrRcJVy7nw++wn4W2OuePQQfTqDzfusSuY1QTtui4wa7r+rGVtR75pO8CyKvHvzyQYi3Q1uO5sY0AsB4e65Bw==}
+  '@internationalized/number@3.6.1':
+    resolution: {integrity: sha512-UVsb4bCwbL944E0SX50CHFtWEeZ2uB5VozZ5yDXJdq6iPZsZO5p+bjVMZh2GxHf4Bs/7xtDCcPwEa2NU9DaG/g==}
 
-  '@internationalized/string@3.2.5':
-    resolution: {integrity: sha512-rKs71Zvl2OKOHM+mzAFMIyqR5hI1d1O6BBkMK2/lkfg3fkmVh9Eeg0awcA8W2WqYqDOv6a86DIOlFpggwLtbuw==}
+  '@internationalized/string@3.2.6':
+    resolution: {integrity: sha512-LR2lnM4urJta5/wYJVV7m8qk5DrMZmLRTuFhbQO5b9/sKLHgty6unQy1Li4+Su2DWydmB4aZdS5uxBRXIq2aAw==}
 
   '@isaacs/cliui@8.0.2':
     resolution: {integrity: sha512-O8jcjabXaleOG9DQ0+ARXWZBTfnP4WNAqzuiJK7ll44AmxGKv/J2M4TPjxjY3znBCfvBXFzucm1twdyFybFqEA==}
@@ -2007,17 +2007,14 @@ packages:
     resolution: {integrity: sha512-wK+5pLK5XFmgtH3aQ2YVvA3HohS3xqV/OxuVOdNx9Wpnz7VE/fnC+e1A7ln6LFYeck7gOJ/dsZV6OLplOtAJ2w==}
     engines: {node: '>=18'}
 
-  '@mui/internal-docs-utils@1.0.16':
-    resolution: {integrity: sha512-GEq4dG9+10WGlQVrmXUfCWNe1FiWoMr2KXbgn2/00Da5hdvp4nIa3PXYYZF08Wh+FtnBbLHKGkPmZ7iw9WKtjQ==}
+  '@mui/internal-docs-utils@2.0.1':
+    resolution: {integrity: sha512-Rf5BpL4W8X1NAoKz9Alwe0mD+2vk9pdeLEaof3iGEB7Ghgj/x8DKUjLObQUfHv8reiQs7r0mz0qOyxAtPbB1Eg==}
 
-  '@mui/internal-docs-utils@2.0.0':
-    resolution: {integrity: sha512-RBRywDnwCDEhRcEXuLbXiIieCwx7yRBZTHvPX7xttEwncc8aWJsZvZgl2B+CkwHWWInJNARjnk7/77rdgnOykQ==}
+  '@mui/internal-markdown@2.0.4':
+    resolution: {integrity: sha512-b4QJ1G1qh4BBC0ezxYbWTzzQ4tCYjUdUTzFbv6WgXTSxmWETq583cPj6mXLXa1fS5u/9u7PX15hsNFNv2g0QDg==}
 
-  '@mui/internal-markdown@2.0.3':
-    resolution: {integrity: sha512-CjjV4s5XpFvXOa6wBZc+7Df6fg2xK0rxku5pvbJs35YbmNvHKG54tlrXHwFoGbyZ22QXQ7a7fHdBB1P+6v3/vQ==}
-
-  '@mui/internal-scripts@2.0.6':
-    resolution: {integrity: sha512-ZE26/4oR/jNW/S/KD/fMtaTeJ0ksDjCG42qJT3NGwhKSKypj633wfp1JNwoQo0aG2PCoxLwoKLaBtji6ePGPEw==}
+  '@mui/internal-scripts@2.0.7':
+    resolution: {integrity: sha512-74PmRI9vr2++U1rZh+SXwThJ7yD/jZuBdBk0mruc0vcsD/dfO+yaEgIe9uOD64j9x7Djm/t5R/0as4V0UwPagg==}
 
   '@mui/internal-test-utils@2.0.7':
     resolution: {integrity: sha512-YoB4zl/DcZMP1W0cmF6WgEzFj6t+ytIUUlLOvCdZOnQFuXGPW9H3EHZtqPPzNnzb9e7zgXK5MjRMrYQSVB79kw==}
@@ -2030,8 +2027,8 @@ packages:
     version: 7.0.2
     engines: {pnpm: 10.8.0}
 
-  '@mui/private-theming@7.0.1':
-    resolution: {integrity: sha512-1kQ7REYjjzDukuMfTbAjm3pLEhD7gUMC2bWhg9VD6f6sHzyokKzX0XHzlr3IdzNWBjPytGkzHpPIRQrUOoPLCQ==}
+  '@mui/private-theming@7.0.2':
+    resolution: {integrity: sha512-6lt8heDC9wN8YaRqEdhqnm0cFCv08AMf4IlttFvOVn7ZdKd81PNpD/rEtPGLLwQAFyyKSxBG4/2XCgpbcdNKiA==}
     engines: {node: '>=14.0.0'}
     peerDependencies:
       '@types/react': ^19.0.12
@@ -2040,8 +2037,8 @@ packages:
       '@types/react':
         optional: true
 
-  '@mui/styled-engine@7.0.1':
-    resolution: {integrity: sha512-BeGe4xZmF7tESKhmctYrL54Kl25kGHPKVdZYM5qj5Xz76WM/poY+d8EmAqUesT6k2rbJWPp2gtOAXXinNCGunQ==}
+  '@mui/styled-engine@7.0.2':
+    resolution: {integrity: sha512-11Bt4YdHGlh7sB8P75S9mRCUxTlgv7HGbr0UKz6m6Z9KLeiw1Bm9y/t3iqLLVMvSHYB6zL8X8X+LmfTE++gyBw==}
     engines: {node: '>=14.0.0'}
     peerDependencies:
       '@emotion/react': ^11.4.1
@@ -2053,8 +2050,8 @@ packages:
       '@emotion/styled':
         optional: true
 
-  '@mui/system@7.0.1':
-    resolution: {integrity: sha512-pK+puz0hRPHEKGlcPd80mKYD3jpyi0uVIwWffox1WZgPTQMw2dCKLcD+9ndMDJADnrKzmKlpoH756PPFh2UvWA==}
+  '@mui/system@7.0.2':
+    resolution: {integrity: sha512-yFUraAWYWuKIISPPEVPSQ1NLeqmTT4qiQ+ktmyS8LO/KwHxB+NNVOacEZaIofh5x1NxY8rzphvU5X2heRZ/RDA==}
     engines: {node: '>=14.0.0'}
     peerDependencies:
       '@emotion/react': ^11.5.0
@@ -2069,16 +2066,16 @@ packages:
       '@types/react':
         optional: true
 
-  '@mui/types@7.4.0':
-    resolution: {integrity: sha512-TxJ4ezEeedWHBjOmLtxI203a9DII9l4k83RXmz1PYSAmnyEcK2PglTNmJGxswC/wM5cdl9ap2h8lnXvt2swAGQ==}
+  '@mui/types@7.4.1':
+    resolution: {integrity: sha512-gUL8IIAI52CRXP/MixT1tJKt3SI6tVv4U/9soFsTtAsHzaJQptZ42ffdHZV3niX1ei0aUgMvOxBBN0KYqdG39g==}
     peerDependencies:
       '@types/react': ^19.0.12
     peerDependenciesMeta:
       '@types/react':
         optional: true
 
-  '@mui/utils@7.0.1':
-    resolution: {integrity: sha512-SJKrrebNpmK9rJCnVL29nGPhPXQYtBZmb7Dsp0f58uIUhQfAKcBXHE4Kjs06SX4CwqeCuwEVgcHY+MgAO6XQ/g==}
+  '@mui/utils@7.0.2':
+    resolution: {integrity: sha512-72gcuQjPzhj/MLmPHLCgZjy2VjOH4KniR/4qRtXTTXIEwbkgcN+Y5W/rC90rWtMmZbjt9svZev/z+QHUI4j74w==}
     engines: {node: '>=14.0.0'}
     peerDependencies:
       '@types/react': ^19.0.12
@@ -2542,44 +2539,44 @@ packages:
     resolution: {integrity: sha512-S+9ANAvUmjutrshV4jZjaiG8XQyuJIZ8a4utWmN/vW1sgQ9IfBnPndwkmQYw53QmouOIytT874u65HEmu6H5jw==}
     engines: {node: '>=18'}
 
-  '@react-aria/focus@3.20.1':
-    resolution: {integrity: sha512-lgYs+sQ1TtBrAXnAdRBQrBo0/7o5H6IrfDxec1j+VRpcXL0xyk0xPq+m3lZp8typzIghqDgpnKkJ5Jf4OrzPIw==}
+  '@react-aria/focus@3.20.2':
+    resolution: {integrity: sha512-Q3rouk/rzoF/3TuH6FzoAIKrl+kzZi9LHmr8S5EqLAOyP9TXIKG34x2j42dZsAhrw7TbF9gA8tBKwnCNH4ZV+Q==}
     peerDependencies:
       react: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0 || ^19.0.0-rc.1
       react-dom: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0 || ^19.0.0-rc.1
 
-  '@react-aria/i18n@3.12.7':
-    resolution: {integrity: sha512-eLbYO2xrpeOKIEmLv2KD5LFcB0wltFqS+pUjsOzkKZg6H3b6AFDmJPxr/a0x2KGHtpGJvuHwCSbpPi9PzSSQLg==}
+  '@react-aria/i18n@3.12.8':
+    resolution: {integrity: sha512-V/Nau9WuwTwxfFffQL4URyKyY2HhRlu9zmzkF2Hw/j5KmEQemD+9jfaLueG2CJu85lYL06JrZXUdnhZgKnqMkA==}
     peerDependencies:
       react: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0 || ^19.0.0-rc.1
       react-dom: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0 || ^19.0.0-rc.1
 
-  '@react-aria/interactions@3.24.1':
-    resolution: {integrity: sha512-OWEcIC6UQfWq4Td5Ptuh4PZQ4LHLJr/JL2jGYvuNL6EgL3bWvzPrRYIF/R64YbfVxIC7FeZpPSkS07sZ93/NoA==}
+  '@react-aria/interactions@3.25.0':
+    resolution: {integrity: sha512-GgIsDLlO8rDU/nFn6DfsbP9rfnzhm8QFjZkB9K9+r+MTSCn7bMntiWQgMM+5O6BiA8d7C7x4zuN4bZtc0RBdXQ==}
     peerDependencies:
       react: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0 || ^19.0.0-rc.1
       react-dom: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0 || ^19.0.0-rc.1
 
-  '@react-aria/overlays@3.26.1':
-    resolution: {integrity: sha512-AtQ0mp+H0alFFkojKBADEUIc1AKFsSobH4QNoxQa3V4bZKQoXxga7cRhD5RRYanu3XCQOkIxZJ3vdVK/LVVBXA==}
+  '@react-aria/overlays@3.27.0':
+    resolution: {integrity: sha512-2vZVgL7FrloN5Rh8sAhadGADJbuWg69DdSJB3fd2/h5VvcEhnIfNPu9Ma5XmdkApDoTboIEsKZ4QLYwRl98w6w==}
     peerDependencies:
       react: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0 || ^19.0.0-rc.1
       react-dom: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0 || ^19.0.0-rc.1
 
-  '@react-aria/ssr@3.9.7':
-    resolution: {integrity: sha512-GQygZaGlmYjmYM+tiNBA5C6acmiDWF52Nqd40bBp0Znk4M4hP+LTmI0lpI1BuKMw45T8RIhrAsICIfKwZvi2Gg==}
+  '@react-aria/ssr@3.9.8':
+    resolution: {integrity: sha512-lQDE/c9uTfBSDOjaZUJS8xP2jCKVk4zjQeIlCH90xaLhHDgbpCdns3xvFpJJujfj3nI4Ll9K7A+ONUBDCASOuw==}
     engines: {node: '>= 12'}
     peerDependencies:
       react: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0 || ^19.0.0-rc.1
 
-  '@react-aria/utils@3.28.1':
-    resolution: {integrity: sha512-mnHFF4YOVu9BRFQ1SZSKfPhg3z+lBRYoW5mLcYTQihbKhz48+I1sqRkP7ahMITr8ANH3nb34YaMME4XWmK2Mgg==}
+  '@react-aria/utils@3.28.2':
+    resolution: {integrity: sha512-J8CcLbvnQgiBn54eeEvQQbIOfBF3A1QizxMw9P4cl9MkeR03ug7RnjTIdJY/n2p7t59kLeAB3tqiczhcj+Oi5w==}
     peerDependencies:
       react: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0 || ^19.0.0-rc.1
       react-dom: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0 || ^19.0.0-rc.1
 
-  '@react-aria/visually-hidden@3.8.21':
-    resolution: {integrity: sha512-iii5qO+cVHrHiOeiBYCnTRUQG2eOgEPFmiMG4dAuby8+pJJ8U4BvffX2sDTYWL6ztLLBYyrsUHPSw1Ld03JhmA==}
+  '@react-aria/visually-hidden@3.8.22':
+    resolution: {integrity: sha512-EO3R8YTKZ7HkLl9k1Y2uBKYBgpJagth4/4W7mfpJZE24A3fQnCP8zx1sweXiAm0mirR4J6tNaK7Ia8ssP5TpOw==}
     peerDependencies:
       react: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0 || ^19.0.0-rc.1
       react-dom: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0 || ^19.0.0-rc.1
@@ -2611,31 +2608,31 @@ packages:
       react: ^16.8.0 || ^17.0.0 || ^18.0.0
       react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
 
-  '@react-stately/flags@3.1.0':
-    resolution: {integrity: sha512-KSHOCxTFpBtxhIRcKwsD1YDTaNxFtCYuAUb0KEihc16QwqZViq4hasgPBs2gYm7fHRbw7WYzWKf6ZSo/+YsFlg==}
+  '@react-stately/flags@3.1.1':
+    resolution: {integrity: sha512-XPR5gi5LfrPdhxZzdIlJDz/B5cBf63l4q6/AzNqVWFKgd0QqY5LvWJftXkklaIUpKSJkIKQb8dphuZXDtkWNqg==}
 
-  '@react-stately/overlays@3.6.14':
-    resolution: {integrity: sha512-RRalTuHdwrKO1BmXKaqBtE1GGUXU4VUAWwgh4lsP2EFSixDHmOVLxHFDWYvOPChBhpi8KXfLEgm6DEgPBvLBZQ==}
+  '@react-stately/overlays@3.6.15':
+    resolution: {integrity: sha512-LBaGpXuI+SSd5HSGzyGJA0Gy09V2tl2G/r0lllTYqwt0RDZR6p7IrhdGVXZm6vI0oWEnih7yLC32krkVQrffgQ==}
     peerDependencies:
       react: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0 || ^19.0.0-rc.1
 
-  '@react-stately/utils@3.10.5':
-    resolution: {integrity: sha512-iMQSGcpaecghDIh3mZEpZfoFH3ExBwTtuBEcvZ2XnGzCgQjeYXcMdIUwAfVQLXFTdHUHGF6Gu6/dFrYsCzySBQ==}
+  '@react-stately/utils@3.10.6':
+    resolution: {integrity: sha512-O76ip4InfTTzAJrg8OaZxKU4vvjMDOpfA/PGNOytiXwBbkct2ZeZwaimJ8Bt9W1bj5VsZ81/o/tW4BacbdDOMA==}
     peerDependencies:
       react: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0 || ^19.0.0-rc.1
 
-  '@react-types/button@3.11.0':
-    resolution: {integrity: sha512-gJh5i0JiBiZGZGDo+tXMp6xbixPM7IKZ0sDuxTYBG49qNzzWJq0uNYltO3emwSVXFSsBgRV/Wu8kQGhfuN7wIw==}
+  '@react-types/button@3.12.0':
+    resolution: {integrity: sha512-YrASNa+RqGQpzJcxNAahzNuTYVID1OE6HCorrEOXIyGS3EGogHsQmFs9OyThXnGHq6q4rLlA806/jWbP9uZdxA==}
     peerDependencies:
       react: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0 || ^19.0.0-rc.1
 
-  '@react-types/overlays@3.8.13':
-    resolution: {integrity: sha512-xgT843KIh1otvYPQ6kCGTVUICiMF5UQ7SZUQZd4Zk3VtiFIunFVUvTvL03cpt0026UmY7tbv7vFrPKcT6xjsjw==}
+  '@react-types/overlays@3.8.14':
+    resolution: {integrity: sha512-XJS67KHYhdMvPNHXNGdmc85gE+29QT5TwC58V4kxxHVtQh9fYzEEPzIV8K84XWSz04rRGe3fjDgRNbcqBektWQ==}
     peerDependencies:
       react: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0 || ^19.0.0-rc.1
 
-  '@react-types/shared@3.28.0':
-    resolution: {integrity: sha512-9oMEYIDc3sk0G5rysnYvdNrkSg7B04yTKl50HHSZVbokeHpnU0yRmsDaWb9B/5RprcKj8XszEk5guBO8Sa/Q+Q==}
+  '@react-types/shared@3.29.0':
+    resolution: {integrity: sha512-IDQYu/AHgZimObzCFdNl1LpZvQW/xcfLt3v20sorl5qRucDVj4S9os98sVTZ4IRIBjmS+MkjqpR5E70xan7ooA==}
     peerDependencies:
       react: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0 || ^19.0.0-rc.1
 
@@ -3174,8 +3171,8 @@ packages:
       typescript:
         optional: true
 
-  '@typescript-eslint/parser@8.29.1':
-    resolution: {integrity: sha512-zczrHVEqEaTwh12gWBIJWj8nx+ayDcCJs06yoNMY0kwjMWDM6+kppljY+BxWI06d2Ja+h4+WdufDcwMnnMEWmg==}
+  '@typescript-eslint/parser@8.30.1':
+    resolution: {integrity: sha512-H+vqmWwT5xoNrXqWs/fesmssOW70gxFlgcMlYcBaWNPIEWDgLa4W9nkSPmhuOgLnXq9QYgkZ31fhDyLhleCsAg==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
     peerDependencies:
       eslint: ^8.57.0 || ^9.0.0
@@ -3189,8 +3186,8 @@ packages:
     resolution: {integrity: sha512-jjhdIE/FPF2B7Z1uzc6i3oWKbGcHb87Qw7AWj6jmEqNOfDFbJWtjt/XfwCpvNkpGWlcJaog5vTR+VV8+w9JflA==}
     engines: {node: ^18.18.0 || >=20.0.0}
 
-  '@typescript-eslint/scope-manager@8.29.1':
-    resolution: {integrity: sha512-2nggXGX5F3YrsGN08pw4XpMLO1Rgtnn4AzTegC2MDesv6q3QaTU5yU7IbS1tf1IwCR0Hv/1EFygLn9ms6LIpDA==}
+  '@typescript-eslint/scope-manager@8.30.1':
+    resolution: {integrity: sha512-+C0B6ChFXZkuaNDl73FJxRYT0G7ufVPOSQkqkpM/U198wUwUFOtgo1k/QzFh1KjpBitaK7R1tgjVz6o9HmsRPg==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
 
   '@typescript-eslint/type-utils@7.18.0':
@@ -3211,8 +3208,8 @@ packages:
     resolution: {integrity: sha512-iZqi+Ds1y4EDYUtlOOC+aUmxnE9xS/yCigkjA7XpTKV6nCBd3Hp/PRGGmdwnfkV2ThMyYldP1wRpm/id99spTQ==}
     engines: {node: ^18.18.0 || >=20.0.0}
 
-  '@typescript-eslint/types@8.29.1':
-    resolution: {integrity: sha512-VT7T1PuJF1hpYC3AGm2rCgJBjHL3nc+A/bhOp9sGMKfi5v0WufsX/sHCFBfNTx2F+zA6qBc/PD0/kLRLjdt8mQ==}
+  '@typescript-eslint/types@8.30.1':
+    resolution: {integrity: sha512-81KawPfkuulyWo5QdyG/LOKbspyyiW+p4vpn4bYO7DM/hZImlVnFwrpCTnmNMOt8CvLRr5ojI9nU1Ekpw4RcEw==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
 
   '@typescript-eslint/typescript-estree@5.62.0':
@@ -3233,8 +3230,8 @@ packages:
       typescript:
         optional: true
 
-  '@typescript-eslint/typescript-estree@8.29.1':
-    resolution: {integrity: sha512-l1enRoSaUkQxOQnbi0KPUtqeZkSiFlqrx9/3ns2rEDhGKfTa+88RmXqedC1zmVTOWrLc2e6DEJrTA51C9iLH5g==}
+  '@typescript-eslint/typescript-estree@8.30.1':
+    resolution: {integrity: sha512-kQQnxymiUy9tTb1F2uep9W6aBiYODgq5EMSk6Nxh4Z+BDUoYUSa029ISs5zTzKBFnexQEh71KqwjKnRz58lusQ==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
     peerDependencies:
       typescript: '>=4.8.4 <5.9.0'
@@ -3259,8 +3256,8 @@ packages:
     resolution: {integrity: sha512-cDF0/Gf81QpY3xYyJKDV14Zwdmid5+uuENhjH2EqFaF0ni+yAyq/LzMaIJdhNJXZI7uLzwIlA+V7oWoyn6Curg==}
     engines: {node: ^18.18.0 || >=20.0.0}
 
-  '@typescript-eslint/visitor-keys@8.29.1':
-    resolution: {integrity: sha512-RGLh5CRaUEf02viP5c1Vh1cMGffQscyHe7HPAzGpfmfflFg1wUz2rYxd+OZqwpeypYvZ8UxSxuIpF++fmOzEcg==}
+  '@typescript-eslint/visitor-keys@8.30.1':
+    resolution: {integrity: sha512-aEhgas7aJ6vZnNFC7K4/vMGDGyOiqWcYZPpIWrTKuTAlsvDNKy2GFDqh9smL+iq069ZvR0YzEeq0B8NJlLzjFA==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
 
   '@ungap/structured-clone@1.2.0':
@@ -7449,8 +7446,8 @@ packages:
   psl@1.15.0:
     resolution: {integrity: sha512-JZd3gMVBAVQkSs6HdNZo9Sdo0LNcQeMNP3CozBJb3JYC/QUYZTnKxP+f8oWRX4rHP5EurWxqAHTSwUCjlNKa1w==}
 
-  publint@0.3.11:
-    resolution: {integrity: sha512-snArkBXO8Sl1Nlnqr3Y3DCT9CzNw8QxzlFXZ6nRkyEPEUGPRg25lM4IjNQyIyp3vRwpsZ24EEexmKSIZdVMizA==}
+  publint@0.3.12:
+    resolution: {integrity: sha512-1w3MMtL9iotBjm1mmXtG3Nk06wnq9UhGNRpQ2j6n1Zq7YAD6gnxMMZMIxlRPAydVjVbjSm+n0lhwqsD1m4LD5w==}
     engines: {node: '>=18'}
     hasBin: true
 
@@ -10380,20 +10377,20 @@ snapshots:
       '@types/node': 18.19.86
     optional: true
 
-  '@internationalized/date@3.7.0':
+  '@internationalized/date@3.8.0':
     dependencies:
       '@swc/helpers': 0.5.15
 
-  '@internationalized/message@3.1.6':
+  '@internationalized/message@3.1.7':
     dependencies:
       '@swc/helpers': 0.5.15
       intl-messageformat: 10.7.10
 
-  '@internationalized/number@3.6.0':
+  '@internationalized/number@3.6.1':
     dependencies:
       '@swc/helpers': 0.5.15
 
-  '@internationalized/string@3.2.5':
+  '@internationalized/string@3.2.6':
     dependencies:
       '@swc/helpers': 0.5.15
 
@@ -10582,31 +10579,26 @@ snapshots:
       strict-event-emitter: 0.5.1
     optional: true
 
-  '@mui/internal-docs-utils@1.0.16':
+  '@mui/internal-docs-utils@2.0.1':
     dependencies:
       rimraf: 6.0.1
       typescript: 5.8.3
 
-  '@mui/internal-docs-utils@2.0.0':
-    dependencies:
-      rimraf: 6.0.1
-      typescript: 5.8.3
-
-  '@mui/internal-markdown@2.0.3':
+  '@mui/internal-markdown@2.0.4':
     dependencies:
       '@babel/runtime': 7.27.0
       lodash: 4.17.21
       marked: 15.0.7
       prismjs: 1.30.0
 
-  '@mui/internal-scripts@2.0.6':
+  '@mui/internal-scripts@2.0.7':
     dependencies:
       '@babel/core': 7.26.10
       '@babel/plugin-syntax-class-properties': 7.12.13(@babel/core@7.26.10)
       '@babel/plugin-syntax-jsx': 7.25.9(@babel/core@7.26.10)
       '@babel/plugin-syntax-typescript': 7.25.9(@babel/core@7.26.10)
       '@babel/types': 7.27.0
-      '@mui/internal-docs-utils': 2.0.0
+      '@mui/internal-docs-utils': 2.0.1
       doctrine: 3.0.0
       lodash: 4.17.21
       typescript: 5.8.3
@@ -10664,16 +10656,16 @@ snapshots:
       - supports-color
       - utf-8-validate
 
-  '@mui/private-theming@7.0.1(@types/react@19.0.12)(react@19.1.0)':
+  '@mui/private-theming@7.0.2(@types/react@19.0.12)(react@19.1.0)':
     dependencies:
       '@babel/runtime': 7.27.0
-      '@mui/utils': 7.0.1(@types/react@19.0.12)(react@19.1.0)
+      '@mui/utils': 7.0.2(@types/react@19.0.12)(react@19.1.0)
       prop-types: 15.8.1
       react: 19.1.0
     optionalDependencies:
       '@types/react': 19.0.12
 
-  '@mui/styled-engine@7.0.1(@emotion/react@11.14.0(@types/react@19.0.12)(react@19.1.0))(@emotion/styled@11.14.0(@emotion/react@11.14.0(@types/react@19.0.12)(react@19.1.0))(@types/react@19.0.12)(react@19.1.0))(react@19.1.0)':
+  '@mui/styled-engine@7.0.2(@emotion/react@11.14.0(@types/react@19.0.12)(react@19.1.0))(@emotion/styled@11.14.0(@emotion/react@11.14.0(@types/react@19.0.12)(react@19.1.0))(@types/react@19.0.12)(react@19.1.0))(react@19.1.0)':
     dependencies:
       '@babel/runtime': 7.27.0
       '@emotion/cache': 11.14.0
@@ -10686,13 +10678,13 @@ snapshots:
       '@emotion/react': 11.14.0(@types/react@19.0.12)(react@19.1.0)
       '@emotion/styled': 11.14.0(@emotion/react@11.14.0(@types/react@19.0.12)(react@19.1.0))(@types/react@19.0.12)(react@19.1.0)
 
-  '@mui/system@7.0.1(@emotion/react@11.14.0(@types/react@19.0.12)(react@19.1.0))(@emotion/styled@11.14.0(@emotion/react@11.14.0(@types/react@19.0.12)(react@19.1.0))(@types/react@19.0.12)(react@19.1.0))(@types/react@19.0.12)(react@19.1.0)':
+  '@mui/system@7.0.2(@emotion/react@11.14.0(@types/react@19.0.12)(react@19.1.0))(@emotion/styled@11.14.0(@emotion/react@11.14.0(@types/react@19.0.12)(react@19.1.0))(@types/react@19.0.12)(react@19.1.0))(@types/react@19.0.12)(react@19.1.0)':
     dependencies:
       '@babel/runtime': 7.27.0
-      '@mui/private-theming': 7.0.1(@types/react@19.0.12)(react@19.1.0)
-      '@mui/styled-engine': 7.0.1(@emotion/react@11.14.0(@types/react@19.0.12)(react@19.1.0))(@emotion/styled@11.14.0(@emotion/react@11.14.0(@types/react@19.0.12)(react@19.1.0))(@types/react@19.0.12)(react@19.1.0))(react@19.1.0)
-      '@mui/types': 7.4.0(@types/react@19.0.12)
-      '@mui/utils': 7.0.1(@types/react@19.0.12)(react@19.1.0)
+      '@mui/private-theming': 7.0.2(@types/react@19.0.12)(react@19.1.0)
+      '@mui/styled-engine': 7.0.2(@emotion/react@11.14.0(@types/react@19.0.12)(react@19.1.0))(@emotion/styled@11.14.0(@emotion/react@11.14.0(@types/react@19.0.12)(react@19.1.0))(@types/react@19.0.12)(react@19.1.0))(react@19.1.0)
+      '@mui/types': 7.4.1(@types/react@19.0.12)
+      '@mui/utils': 7.0.2(@types/react@19.0.12)(react@19.1.0)
       clsx: 2.1.1
       csstype: 3.1.3
       prop-types: 15.8.1
@@ -10702,16 +10694,16 @@ snapshots:
       '@emotion/styled': 11.14.0(@emotion/react@11.14.0(@types/react@19.0.12)(react@19.1.0))(@types/react@19.0.12)(react@19.1.0)
       '@types/react': 19.0.12
 
-  '@mui/types@7.4.0(@types/react@19.0.12)':
+  '@mui/types@7.4.1(@types/react@19.0.12)':
     dependencies:
       '@babel/runtime': 7.27.0
     optionalDependencies:
       '@types/react': 19.0.12
 
-  '@mui/utils@7.0.1(@types/react@19.0.12)(react@19.1.0)':
+  '@mui/utils@7.0.2(@types/react@19.0.12)(react@19.1.0)':
     dependencies:
       '@babel/runtime': 7.27.0
-      '@mui/types': 7.4.0(@types/react@19.0.12)
+      '@mui/types': 7.4.1(@types/react@19.0.12)
       '@types/prop-types': 15.7.14
       clsx: 2.1.1
       prop-types: 15.8.1
@@ -11188,76 +11180,76 @@ snapshots:
 
   '@publint/pack@0.1.2': {}
 
-  '@react-aria/focus@3.20.1(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
+  '@react-aria/focus@3.20.2(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
     dependencies:
-      '@react-aria/interactions': 3.24.1(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
-      '@react-aria/utils': 3.28.1(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
-      '@react-types/shared': 3.28.0(react@19.1.0)
+      '@react-aria/interactions': 3.25.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@react-aria/utils': 3.28.2(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@react-types/shared': 3.29.0(react@19.1.0)
       '@swc/helpers': 0.5.15
       clsx: 2.1.1
       react: 19.1.0
       react-dom: 19.1.0(react@19.1.0)
 
-  '@react-aria/i18n@3.12.7(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
+  '@react-aria/i18n@3.12.8(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
     dependencies:
-      '@internationalized/date': 3.7.0
-      '@internationalized/message': 3.1.6
-      '@internationalized/number': 3.6.0
-      '@internationalized/string': 3.2.5
-      '@react-aria/ssr': 3.9.7(react@19.1.0)
-      '@react-aria/utils': 3.28.1(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
-      '@react-types/shared': 3.28.0(react@19.1.0)
+      '@internationalized/date': 3.8.0
+      '@internationalized/message': 3.1.7
+      '@internationalized/number': 3.6.1
+      '@internationalized/string': 3.2.6
+      '@react-aria/ssr': 3.9.8(react@19.1.0)
+      '@react-aria/utils': 3.28.2(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@react-types/shared': 3.29.0(react@19.1.0)
       '@swc/helpers': 0.5.15
       react: 19.1.0
       react-dom: 19.1.0(react@19.1.0)
 
-  '@react-aria/interactions@3.24.1(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
+  '@react-aria/interactions@3.25.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
     dependencies:
-      '@react-aria/ssr': 3.9.7(react@19.1.0)
-      '@react-aria/utils': 3.28.1(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
-      '@react-stately/flags': 3.1.0
-      '@react-types/shared': 3.28.0(react@19.1.0)
+      '@react-aria/ssr': 3.9.8(react@19.1.0)
+      '@react-aria/utils': 3.28.2(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@react-stately/flags': 3.1.1
+      '@react-types/shared': 3.29.0(react@19.1.0)
       '@swc/helpers': 0.5.15
       react: 19.1.0
       react-dom: 19.1.0(react@19.1.0)
 
-  '@react-aria/overlays@3.26.1(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
+  '@react-aria/overlays@3.27.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
     dependencies:
-      '@react-aria/focus': 3.20.1(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
-      '@react-aria/i18n': 3.12.7(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
-      '@react-aria/interactions': 3.24.1(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
-      '@react-aria/ssr': 3.9.7(react@19.1.0)
-      '@react-aria/utils': 3.28.1(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
-      '@react-aria/visually-hidden': 3.8.21(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
-      '@react-stately/overlays': 3.6.14(react@19.1.0)
-      '@react-types/button': 3.11.0(react@19.1.0)
-      '@react-types/overlays': 3.8.13(react@19.1.0)
-      '@react-types/shared': 3.28.0(react@19.1.0)
+      '@react-aria/focus': 3.20.2(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@react-aria/i18n': 3.12.8(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@react-aria/interactions': 3.25.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@react-aria/ssr': 3.9.8(react@19.1.0)
+      '@react-aria/utils': 3.28.2(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@react-aria/visually-hidden': 3.8.22(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@react-stately/overlays': 3.6.15(react@19.1.0)
+      '@react-types/button': 3.12.0(react@19.1.0)
+      '@react-types/overlays': 3.8.14(react@19.1.0)
+      '@react-types/shared': 3.29.0(react@19.1.0)
       '@swc/helpers': 0.5.15
       react: 19.1.0
       react-dom: 19.1.0(react@19.1.0)
 
-  '@react-aria/ssr@3.9.7(react@19.1.0)':
+  '@react-aria/ssr@3.9.8(react@19.1.0)':
     dependencies:
       '@swc/helpers': 0.5.15
       react: 19.1.0
 
-  '@react-aria/utils@3.28.1(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
+  '@react-aria/utils@3.28.2(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
     dependencies:
-      '@react-aria/ssr': 3.9.7(react@19.1.0)
-      '@react-stately/flags': 3.1.0
-      '@react-stately/utils': 3.10.5(react@19.1.0)
-      '@react-types/shared': 3.28.0(react@19.1.0)
+      '@react-aria/ssr': 3.9.8(react@19.1.0)
+      '@react-stately/flags': 3.1.1
+      '@react-stately/utils': 3.10.6(react@19.1.0)
+      '@react-types/shared': 3.29.0(react@19.1.0)
       '@swc/helpers': 0.5.15
       clsx: 2.1.1
       react: 19.1.0
       react-dom: 19.1.0(react@19.1.0)
 
-  '@react-aria/visually-hidden@3.8.21(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
+  '@react-aria/visually-hidden@3.8.22(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
     dependencies:
-      '@react-aria/interactions': 3.24.1(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
-      '@react-aria/utils': 3.28.1(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
-      '@react-types/shared': 3.28.0(react@19.1.0)
+      '@react-aria/interactions': 3.25.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@react-aria/utils': 3.28.2(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@react-types/shared': 3.29.0(react@19.1.0)
       '@swc/helpers': 0.5.15
       react: 19.1.0
       react-dom: 19.1.0(react@19.1.0)
@@ -11294,33 +11286,33 @@ snapshots:
       react: 19.1.0
       react-dom: 19.1.0(react@19.1.0)
 
-  '@react-stately/flags@3.1.0':
+  '@react-stately/flags@3.1.1':
     dependencies:
       '@swc/helpers': 0.5.15
 
-  '@react-stately/overlays@3.6.14(react@19.1.0)':
+  '@react-stately/overlays@3.6.15(react@19.1.0)':
     dependencies:
-      '@react-stately/utils': 3.10.5(react@19.1.0)
-      '@react-types/overlays': 3.8.13(react@19.1.0)
+      '@react-stately/utils': 3.10.6(react@19.1.0)
+      '@react-types/overlays': 3.8.14(react@19.1.0)
       '@swc/helpers': 0.5.15
       react: 19.1.0
 
-  '@react-stately/utils@3.10.5(react@19.1.0)':
+  '@react-stately/utils@3.10.6(react@19.1.0)':
     dependencies:
       '@swc/helpers': 0.5.15
       react: 19.1.0
 
-  '@react-types/button@3.11.0(react@19.1.0)':
+  '@react-types/button@3.12.0(react@19.1.0)':
     dependencies:
-      '@react-types/shared': 3.28.0(react@19.1.0)
+      '@react-types/shared': 3.29.0(react@19.1.0)
       react: 19.1.0
 
-  '@react-types/overlays@3.8.13(react@19.1.0)':
+  '@react-types/overlays@3.8.14(react@19.1.0)':
     dependencies:
-      '@react-types/shared': 3.28.0(react@19.1.0)
+      '@react-types/shared': 3.29.0(react@19.1.0)
       react: 19.1.0
 
-  '@react-types/shared@3.28.0(react@19.1.0)':
+  '@react-types/shared@3.29.0(react@19.1.0)':
     dependencies:
       react: 19.1.0
 
@@ -11890,12 +11882,12 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@typescript-eslint/parser@8.29.1(eslint@9.8.0)(typescript@5.8.3)':
+  '@typescript-eslint/parser@8.30.1(eslint@9.8.0)(typescript@5.8.3)':
     dependencies:
-      '@typescript-eslint/scope-manager': 8.29.1
-      '@typescript-eslint/types': 8.29.1
-      '@typescript-eslint/typescript-estree': 8.29.1(typescript@5.8.3)
-      '@typescript-eslint/visitor-keys': 8.29.1
+      '@typescript-eslint/scope-manager': 8.30.1
+      '@typescript-eslint/types': 8.30.1
+      '@typescript-eslint/typescript-estree': 8.30.1(typescript@5.8.3)
+      '@typescript-eslint/visitor-keys': 8.30.1
       debug: 4.4.0(supports-color@8.1.1)
       eslint: 9.8.0
       typescript: 5.8.3
@@ -11912,10 +11904,10 @@ snapshots:
       '@typescript-eslint/types': 7.18.0
       '@typescript-eslint/visitor-keys': 7.18.0
 
-  '@typescript-eslint/scope-manager@8.29.1':
+  '@typescript-eslint/scope-manager@8.30.1':
     dependencies:
-      '@typescript-eslint/types': 8.29.1
-      '@typescript-eslint/visitor-keys': 8.29.1
+      '@typescript-eslint/types': 8.30.1
+      '@typescript-eslint/visitor-keys': 8.30.1
 
   '@typescript-eslint/type-utils@7.18.0(eslint@8.57.1)(typescript@5.8.3)':
     dependencies:
@@ -11933,7 +11925,7 @@ snapshots:
 
   '@typescript-eslint/types@7.18.0': {}
 
-  '@typescript-eslint/types@8.29.1': {}
+  '@typescript-eslint/types@8.30.1': {}
 
   '@typescript-eslint/typescript-estree@5.62.0(typescript@5.8.3)':
     dependencies:
@@ -11964,10 +11956,10 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@typescript-eslint/typescript-estree@8.29.1(typescript@5.8.3)':
+  '@typescript-eslint/typescript-estree@8.30.1(typescript@5.8.3)':
     dependencies:
-      '@typescript-eslint/types': 8.29.1
-      '@typescript-eslint/visitor-keys': 8.29.1
+      '@typescript-eslint/types': 8.30.1
+      '@typescript-eslint/visitor-keys': 8.30.1
       debug: 4.4.0(supports-color@8.1.1)
       fast-glob: 3.3.3
       is-glob: 4.0.3
@@ -12029,9 +12021,9 @@ snapshots:
       '@typescript-eslint/types': 7.18.0
       eslint-visitor-keys: 3.4.3
 
-  '@typescript-eslint/visitor-keys@8.29.1':
+  '@typescript-eslint/visitor-keys@8.30.1':
     dependencies:
-      '@typescript-eslint/types': 8.29.1
+      '@typescript-eslint/types': 8.30.1
       eslint-visitor-keys: 4.2.0
 
   '@ungap/structured-clone@1.2.0': {}
@@ -17055,7 +17047,7 @@ snapshots:
       punycode: 2.3.1
     optional: true
 
-  publint@0.3.11:
+  publint@0.3.12:
     dependencies:
       '@publint/pack': 0.1.2
       package-manager-detector: 1.1.0

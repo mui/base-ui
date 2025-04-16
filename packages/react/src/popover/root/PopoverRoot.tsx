@@ -108,10 +108,13 @@ PopoverRoot.propTypes /* remove-proptypes */ = {
    */
   delay: PropTypes.number,
   /**
-   * Whether the popover should prevent outside clicks and lock page scroll when open.
+   * Determines if the popover enters a modal state when open.
+   * - `true`: user interaction is limited to the popover: document page scroll is locked, and pointer interactions on outside elements are disabled.
+   * - `false`: user interaction with the rest of the document is allowed.
+   * - `'trap-focus'`: focus is trapped inside the popover, but document page scroll is not locked and pointer interactions outside of it remain enabled.
    * @default false
    */
-  modal: PropTypes.bool,
+  modal: PropTypes.oneOfType([PropTypes.oneOf(['trap-focus']), PropTypes.bool]),
   /**
    * Event handler called when the popover is opened or closed.
    */
