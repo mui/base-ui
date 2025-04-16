@@ -16,6 +16,14 @@ interface Settings {
   orientation: 'horizontal' | 'vertical';
 }
 
+function getSubmenuPositionProps(parentOrientation: Menu.Root.Props['orientation']) {
+  return {
+    side: parentOrientation === 'horizontal' ? 'bottom' : 'right',
+    align: 'start',
+    sideOffset: 8,
+  } as const;
+}
+
 export default function MenubarExperiment() {
   const { settings } = useExperimentSettings<Settings>();
 
@@ -34,9 +42,7 @@ export default function MenubarExperiment() {
           <Menu.Portal>
             <Menu.Positioner
               className={menuClasses.Positioner}
-              side="bottom"
-              align="start"
-              sideOffset={8}
+              {...getSubmenuPositionProps(settings.orientation)}
             >
               <Menu.Popup className={menuClasses.Popup}>
                 <Menu.Item className={menuClasses.Item}>Open...</Menu.Item>
@@ -81,9 +87,7 @@ export default function MenubarExperiment() {
           <Menu.Portal>
             <Menu.Positioner
               className={menuClasses.Positioner}
-              side="bottom"
-              align="start"
-              sideOffset={8}
+              {...getSubmenuPositionProps(settings.orientation)}
             >
               <Menu.Popup className={menuClasses.Popup}>
                 <Menu.Item className={menuClasses.Item}>Cut</Menu.Item>
@@ -121,9 +125,7 @@ export default function MenubarExperiment() {
           <Menu.Portal>
             <Menu.Positioner
               className={menuClasses.Positioner}
-              side="bottom"
-              align="start"
-              sideOffset={8}
+              {...getSubmenuPositionProps(settings.orientation)}
             >
               <Menu.Popup className={menuClasses.Popup}>
                 <Menu.RadioGroup value="light">
@@ -152,7 +154,10 @@ export default function MenubarExperiment() {
         <Menu.Root disabled>
           <Menu.Trigger className={classes.Item}>Develop</Menu.Trigger>
           <Menu.Portal>
-            <Menu.Positioner className={menuClasses.Positioner} sideOffset={8}>
+            <Menu.Positioner
+              className={menuClasses.Positioner}
+              {...getSubmenuPositionProps(settings.orientation)}
+            >
               <Menu.Popup className={menuClasses.Popup}>
                 <Menu.Item className={menuClasses.Item}>
                   This should not appear
