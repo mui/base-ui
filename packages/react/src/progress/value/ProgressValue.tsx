@@ -1,9 +1,8 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { mergeProps } from '../../merge-props';
 import type { BaseUIComponentProps } from '../../utils/types';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import { useRenderElement } from '../../utils/useRenderElement';
 import { useProgressRootContext } from '../root/ProgressRootContext';
 import type { ProgressRoot } from '../root/ProgressRoot';
 import { progressStyleHookMapping } from '../root/styleHooks';
@@ -14,43 +13,43 @@ import { progressStyleHookMapping } from '../root/styleHooks';
  * Documentation: [Base UI Progress](https://base-ui.com/react/components/progress)
  */
 const ProgressValue = React.forwardRef(function ProgressValue(
-  props: ProgressValue.Props,
+  componentProps: ProgressValue.Props,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
-  const { className, render, children, ...otherProps } = props;
+  const { className, render, children, ...elementProps } = componentProps;
 
   const { value, formattedValue, state } = useProgressRootContext();
 
-  const getValueProps = React.useCallback(
-    (externalProps = {}) => {
-      const formattedValueArg = value == null ? 'indeterminate' : formattedValue;
-      const formattedValueDisplay = value == null ? null : formattedValue;
-      return mergeProps(
-        {
-          'aria-hidden': true,
-          children:
-            typeof children === 'function'
-              ? children(formattedValueArg, value)
-              : formattedValueDisplay,
-        },
-        externalProps,
-      );
-    },
-    [children, value, formattedValue],
-  );
+  const formattedValueArg = value == null ? 'indeterminate' : formattedValue;
+  const formattedValueDisplay = value == null ? null : formattedValue;
 
-  const { renderElement } = useComponentRenderer({
-    propGetter: getValueProps,
-    render: render ?? 'span',
-    className,
+  const renderElement = useRenderElement('span', componentProps, {
     state,
     ref: forwardedRef,
-    extraProps: otherProps,
+    props: [
+      {
+        'aria-hidden': true,
+        children:
+          typeof children === 'function'
+            ? children(formattedValueArg, value)
+            : formattedValueDisplay,
+      },
+      elementProps,
+    ],
     customStyleHookMapping: progressStyleHookMapping,
   });
 
   return renderElement();
 });
+
+namespace ProgressValue {
+  export interface Props
+    extends Omit<BaseUIComponentProps<'span', ProgressRoot.State>, 'children'> {
+    children?: null | ((formattedValue: string | null, value: number | null) => React.ReactNode);
+  }
+}
+
+export { ProgressValue };
 
 ProgressValue.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
@@ -74,13 +73,3 @@ ProgressValue.propTypes /* remove-proptypes */ = {
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;
-
-namespace ProgressValue {
-  export interface State extends ProgressRoot.State {}
-
-  export interface Props extends Omit<BaseUIComponentProps<'span', State>, 'children'> {
-    children?: null | ((formattedValue: string | null, value: number | null) => React.ReactNode);
-  }
-}
-
-export { ProgressValue };

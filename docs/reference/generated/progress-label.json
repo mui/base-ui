@@ -1,10 +1,7 @@
 {
-  "name": "ProgressValue",
-  "description": "A text label displaying the current value.\nRenders a `<span>` element.",
+  "name": "ProgressLabel",
+  "description": "An accessible label for the progress bar.\nRenders a `<span>` element.",
   "props": {
-    "children": {
-      "type": "((formattedValue: string | null, value: number | null) => ReactNode) | null"
-    },
     "className": {
       "type": "string | ((state: State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."

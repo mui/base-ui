@@ -1,12 +1,12 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { useProgressIndicator } from './useProgressIndicator';
-import { ProgressRoot } from '../root/ProgressRoot';
+import { useRenderElement } from '../../utils/useRenderElement';
+import { valueToPercent } from '../../utils/valueToPercent';
+import type { ProgressRoot } from '../root/ProgressRoot';
 import { useProgressRootContext } from '../root/ProgressRootContext';
 import { progressStyleHookMapping } from '../root/styleHooks';
-import { BaseUIComponentProps } from '../../utils/types';
+import type { BaseUIComponentProps } from '../../utils/types';
 
 /**
  * Visualizes the completion status of the task.
@@ -15,26 +15,37 @@ import { BaseUIComponentProps } from '../../utils/types';
  * Documentation: [Base UI Progress](https://base-ui.com/react/components/progress)
  */
 const ProgressIndicator = React.forwardRef(function ProgressIndicator(
-  props: ProgressIndicator.Props,
-  forwardedRef: React.ForwardedRef<HTMLSpanElement>,
+  componentProps: ProgressIndicator.Props,
+  forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, ...otherProps } = props;
+  const { render, className, ...elementProps } = componentProps;
 
   const { max, min, value, state } = useProgressRootContext();
 
-  const { getRootProps } = useProgressIndicator({
-    max,
-    min,
-    value,
-  });
+  const percentageValue =
+    Number.isFinite(value) && value !== null ? valueToPercent(value, min, max) : null;
 
-  const { renderElement } = useComponentRenderer({
-    propGetter: getRootProps,
-    render: render ?? 'div',
+  const getStyles = React.useCallback(() => {
+    if (percentageValue == null) {
+      return {};
+    }
+
+    return {
+      insetInlineStart: 0,
+      height: 'inherit',
+      width: `${percentageValue}%`,
+    };
+  }, [percentageValue]);
+
+  const renderElement = useRenderElement('div', componentProps, {
     state,
-    className,
     ref: forwardedRef,
-    extraProps: otherProps,
+    props: [
+      {
+        style: getStyles(),
+      },
+      elementProps,
+    ],
     customStyleHookMapping: progressStyleHookMapping,
   });
 
@@ -42,10 +53,10 @@ const ProgressIndicator = React.forwardRef(function ProgressIndicator(
 });
 
 namespace ProgressIndicator {
-  export interface State extends ProgressRoot.State {}
-
-  export interface Props extends BaseUIComponentProps<'div', State> {}
+  export interface Props extends BaseUIComponentProps<'div', ProgressRoot.State> {}
 }
+
+export { ProgressIndicator };
 
 ProgressIndicator.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
@@ -69,5 +80,3 @@ ProgressIndicator.propTypes /* remove-proptypes */ = {
    */
   render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
 } as any;
-
-export { ProgressIndicator };

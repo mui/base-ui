@@ -1,11 +1,36 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { ProgressStatus, useProgressRoot } from './useProgressRoot';
+import { formatNumber } from '../../utils/formatNumber';
+import { useRenderElement } from '../../utils/useRenderElement';
+import { useLatestRef } from '../../utils/useLatestRef';
 import { ProgressRootContext } from './ProgressRootContext';
 import { progressStyleHookMapping } from './styleHooks';
 import { BaseUIComponentProps } from '../../utils/types';
+
+function formatValue(
+  value: number | null,
+  locale?: Intl.LocalesArgument,
+  format?: Intl.NumberFormatOptions,
+): string {
+  if (value == null) {
+    return '';
+  }
+
+  if (!format) {
+    return formatNumber(value / 100, locale, { style: 'percent' });
+  }
+
+  return formatNumber(value, locale, format);
+}
+
+function getDefaultAriaValueText(formattedValue: string | null, value: number | null) {
+  if (value == null) {
+    return 'indeterminate progress';
+  }
+
+  return formattedValue || `${value}%`;
+}
 
 /**
  * Groups all parts of the progress bar and provides the task completion status to screen readers.
@@ -14,56 +39,67 @@ import { BaseUIComponentProps } from '../../utils/types';
  * Documentation: [Base UI Progress](https://base-ui.com/react/components/progress)
  */
 const ProgressRoot = React.forwardRef(function ProgressRoot(
-  props: ProgressRoot.Props,
+  componentProps: ProgressRoot.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const {
     format,
-    getAriaLabel,
     getAriaValueText,
+    locale,
     max = 100,
     min = 0,
     value,
     render,
     className,
-    ...otherProps
-  } = props;
+    ...elementProps
+  } = componentProps;
 
-  const { getRootProps, ...progress } = useProgressRoot({
-    'aria-label': props['aria-label'],
-    'aria-valuetext': props['aria-valuetext'],
-    format,
-    getAriaLabel,
-    getAriaValueText,
-    max,
-    min,
-    value,
-  });
+  const [labelId, setLabelId] = React.useState<string | undefined>();
+
+  const formatOptionsRef = useLatestRef(format);
+
+  let status: ProgressStatus = 'indeterminate';
+  if (Number.isFinite(value)) {
+    status = value === max ? 'complete' : 'progressing';
+  }
+  const formattedValue = formatValue(value, locale, formatOptionsRef.current);
 
   const state: ProgressRoot.State = React.useMemo(
     () => ({
-      max,
-      min,
-      status: progress.status,
+      status,
     }),
-    [max, min, progress.status],
+    [status],
   );
 
   const contextValue: ProgressRootContext = React.useMemo(
     () => ({
-      ...progress,
+      formattedValue,
+      max,
+      min,
+      setLabelId,
       state,
+      status,
+      value,
     }),
-    [progress, state],
+    [formattedValue, max, min, setLabelId, state, status, value],
   );
 
-  const { renderElement } = useComponentRenderer({
-    propGetter: getRootProps,
-    render: render ?? 'div',
+  const renderElement = useRenderElement('div', componentProps, {
     state,
-    className,
     ref: forwardedRef,
-    extraProps: otherProps,
+    props: [
+      {
+        'aria-labelledby': labelId,
+        'aria-valuemax': max,
+        'aria-valuemin': min,
+        'aria-valuenow': value ?? undefined,
+        'aria-valuetext': getAriaValueText
+          ? getAriaValueText(formattedValue, value)
+          : (componentProps['aria-valuetext'] ?? getDefaultAriaValueText(formattedValue, value)),
+        role: 'progressbar',
+      },
+      elementProps,
+    ],
     customStyleHookMapping: progressStyleHookMapping,
   });
 
@@ -74,15 +110,49 @@ const ProgressRoot = React.forwardRef(function ProgressRoot(
   );
 });
 
+export type ProgressStatus = 'indeterminate' | 'progressing' | 'complete';
+
 namespace ProgressRoot {
   export type State = {
-    max: number;
-    min: number;
     status: ProgressStatus;
   };
 
-  export interface Props extends useProgressRoot.Parameters, BaseUIComponentProps<'div', State> {}
+  export interface Props extends BaseUIComponentProps<'div', State> {
+    /**
+     * Options to format the value.
+     */
+    format?: Intl.NumberFormatOptions;
+    /**
+     * Accepts a function which returns a string value that provides a human-readable text alternative for the current value of the progress bar.
+     * @param {string} formattedValue The component's formatted value.
+     * @param {number | null} value The component's numerical value.
+     * @returns {string}
+     */
+    getAriaValueText?: (formattedValue: string | null, value: number | null) => string;
+    /**
+     * The locale used by `Intl.NumberFormat` when formatting the value.
+     * Defaults to the user's runtime locale.
+     */
+    locale?: Intl.LocalesArgument;
+    /**
+     * The maximum value.
+     * @default 100
+     */
+    max?: number;
+    /**
+     * The minimum value.
+     * @default 0
+     */
+    min?: number;
+    /**
+     * The current value. The component is indeterminate when value is `null`.
+     * @default null
+     */
+    value: number | null;
+  }
 }
+
+export { ProgressRoot };
 
 ProgressRoot.propTypes /* remove-proptypes */ = {
   // ┌────────────────────────────── Warning ──────────────────────────────┐
@@ -121,18 +191,54 @@ ProgressRoot.propTypes /* remove-proptypes */ = {
     useGrouping: PropTypes.bool,
   }),
   /**
-   * Accepts a function which returns a string value that provides an accessible name for the Indicator component.
-   * @param {number | null} value The component's value.
-   * @returns {string}
-   */
-  getAriaLabel: PropTypes.func,
-  /**
-   * Accepts a function which returns a string value that provides a human-readable text alternative for the current value of the progress indicator.
+   * Accepts a function which returns a string value that provides a human-readable text alternative for the current value of the progress bar.
    * @param {string} formattedValue The component's formatted value.
    * @param {number | null} value The component's numerical value.
    * @returns {string}
    */
   getAriaValueText: PropTypes.func,
+  /**
+   * The locale used by `Intl.NumberFormat` when formatting the value.
+   * Defaults to the user's runtime locale.
+   */
+  locale: PropTypes.oneOfType([
+    PropTypes.arrayOf(
+      PropTypes.oneOfType([
+        PropTypes.shape({
+          baseName: PropTypes.string.isRequired,
+          calendar: PropTypes.string,
+          caseFirst: PropTypes.oneOf(['false', 'lower', 'upper']),
+          collation: PropTypes.string,
+          hourCycle: PropTypes.oneOf(['h11', 'h12', 'h23', 'h24']),
+          language: PropTypes.string.isRequired,
+          maximize: PropTypes.func.isRequired,
+          minimize: PropTypes.func.isRequired,
+          numberingSystem: PropTypes.string,
+          numeric: PropTypes.bool,
+          region: PropTypes.string,
+          script: PropTypes.string,
+          toString: PropTypes.func.isRequired,
+        }),
+        PropTypes.string,
+      ]).isRequired,
+    ),
+    PropTypes.shape({
+      baseName: PropTypes.string.isRequired,
+      calendar: PropTypes.string,
+      caseFirst: PropTypes.oneOf(['false', 'lower', 'upper']),
+      collation: PropTypes.string,
+      hourCycle: PropTypes.oneOf(['h11', 'h12', 'h23', 'h24']),
+      language: PropTypes.string.isRequired,
+      maximize: PropTypes.func.isRequired,
+      minimize: PropTypes.func.isRequired,
+      numberingSystem: PropTypes.string,
+      numeric: PropTypes.bool,
+      region: PropTypes.string,
+      script: PropTypes.string,
+      toString: PropTypes.func.isRequired,
+    }),
+    PropTypes.string,
+  ]),
   /**
    * The maximum value.
    * @default 100
@@ -156,5 +262,3 @@ ProgressRoot.propTypes /* remove-proptypes */ = {
    */
   value: PropTypes.number,
 } as any;
-
-export { ProgressRoot };
