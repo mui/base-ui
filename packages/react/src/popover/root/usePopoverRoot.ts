@@ -65,7 +65,7 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
 
   useScrollLock({
-    enabled: open && modal && openReason !== 'hover',
+    enabled: open && modal === true && openReason !== 'hover',
     mounted,
     open,
     referenceElement: positionerElement,
@@ -281,10 +281,13 @@ export namespace usePopoverRoot {
      */
     actionsRef?: React.RefObject<Actions>;
     /**
-     * Whether the popover should prevent outside clicks and lock page scroll when open.
+     * Determines if the popover enters a modal state when open.
+     * - `true`: user interaction is limited to the popover: document page scroll is locked, and pointer interactions on outside elements are disabled.
+     * - `false`: user interaction with the rest of the document is allowed.
+     * - `'trap-focus'`: focus is trapped inside the popover, but document page scroll is not locked and pointer interactions outside of it remain enabled.
      * @default false
      */
-    modal?: boolean;
+    modal?: boolean | 'trap-focus';
   }
 
   export interface ReturnValue {

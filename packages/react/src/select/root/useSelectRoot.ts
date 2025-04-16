@@ -442,7 +442,9 @@ export namespace useSelectRoot {
      */
     transitionStatus?: TransitionStatus;
     /**
-     * Whether the select should prevent outside clicks and lock page scroll when open.
+     * Determines if the select enters a modal state when open.
+     * - `true`: user interaction is limited to the select: document page scroll is locked and and pointer interactions on outside elements are disabled.
+     * - `false`: user interaction with the rest of the document is allowed.
      * @default true
      */
     modal?: boolean;

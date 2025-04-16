@@ -372,6 +372,12 @@ export namespace useMenuRoot {
      * Callback fired when the user begins or finishes typing (for typeahead search).
      */
     onTypingChange: (typing: boolean) => void;
+    /**
+     * Determines if the menu enters a modal state when open.
+     * - `true`: user interaction is limited to the menu: document page scroll is locked and and pointer interactions on outside elements are disabled.
+     * - `false`: doesn't lock document scroll or block pointer interactions.
+     * @default true
+     */
     modal: boolean;
     /**
      * A ref to imperative actions.

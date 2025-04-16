@@ -103,7 +103,9 @@ namespace MenuRoot {
      */
     loop?: boolean;
     /**
-     * Whether the menu should prevent outside clicks and lock page scroll when open.
+     * Determines if the menu enters a modal state when open.
+     * - `true`: user interaction is limited to the menu: document page scroll is locked and and pointer interactions on outside elements are disabled.
+     * - `false`: user interaction with the rest of the document is allowed.
      * @default true
      */
     modal?: boolean;
@@ -219,7 +221,9 @@ MenuRoot.propTypes /* remove-proptypes */ = {
    */
   loop: PropTypes.bool,
   /**
-   * Whether the menu should prevent outside clicks and lock page scroll when open.
+   * Determines if the menu enters a modal state when open.
+   * - `true`: user interaction is limited to the menu: document page scroll is locked and and pointer interactions on outside elements are disabled.
+   * - `false`: user interaction with the rest of the document is allowed.
    * @default true
    */
   modal: PropTypes.bool,
