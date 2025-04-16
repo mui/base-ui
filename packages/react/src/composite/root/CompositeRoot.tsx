@@ -31,6 +31,7 @@ function CompositeRoot<Metadata extends {}>(props: CompositeRoot.Props<Metadata>
     rootRef,
     disabledIndices,
     modifierKeys,
+    ignoreNavigationFromPopups = false,
     ...otherProps
   } = props;
 
@@ -49,6 +50,7 @@ function CompositeRoot<Metadata extends {}>(props: CompositeRoot.Props<Metadata>
       direction,
       disabledIndices,
       modifierKeys,
+      ignoreNavigationFromPopups,
     });
 
   const { renderElement } = useComponentRenderer({
@@ -91,6 +93,7 @@ namespace CompositeRoot {
     rootRef?: React.RefObject<HTMLElement | null>;
     disabledIndices?: number[];
     modifierKeys?: ModifierKey[];
+    ignoreNavigationFromPopups?: boolean;
   }
 }
 
