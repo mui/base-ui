@@ -23,8 +23,8 @@ import { inertValue } from '../../utils/inertValue';
 const customStyleHookMapping: CustomStyleHookMapping<DialogPopup.State> = {
   ...baseMapping,
   ...transitionStatusMapping,
-  hasNestedDialogs(value) {
-    return value ? { [DialogPopupDataAttributes.hasNestedDialogs]: '' } : null;
+  nestedDialogOpen(value) {
+    return value ? { [DialogPopupDataAttributes.nestedDialogOpen]: '' } : null;
   },
 };
 
@@ -38,7 +38,7 @@ const DialogPopup = React.forwardRef(function DialogPopup(
   props: DialogPopup.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { className, finalFocus, id, initialFocus, render, ...other } = props;
+  const { className, finalFocus, initialFocus, render, ...other } = props;
 
   const {
     descriptionElementId,
@@ -77,7 +77,6 @@ const DialogPopup = React.forwardRef(function DialogPopup(
   const { getRootProps, resolvedInitialFocus } = useDialogPopup({
     descriptionElementId,
     getPopupProps,
-    id,
     initialFocus,
     modal,
     mounted,
@@ -88,12 +87,17 @@ const DialogPopup = React.forwardRef(function DialogPopup(
     titleElementId,
   });
 
-  const state: DialogPopup.State = {
-    open,
-    nested,
-    transitionStatus,
-    hasNestedDialogs: nestedOpenDialogCount > 0,
-  };
+  const nestedDialogOpen = nestedOpenDialogCount > 0;
+
+  const state: DialogPopup.State = React.useMemo(
+    () => ({
+      open,
+      nested,
+      transitionStatus,
+      nestedDialogOpen,
+    }),
+    [open, nested, transitionStatus, nestedDialogOpen],
+  );
 
   const { renderElement } = useComponentRenderer({
     render: render ?? 'div',
@@ -152,7 +156,7 @@ namespace DialogPopup {
     /**
      * Whether the dialog has nested dialogs open.
      */
-    hasNestedDialogs: boolean;
+    nestedDialogOpen: boolean;
   }
 }
 
@@ -175,10 +179,6 @@ DialogPopup.propTypes /* remove-proptypes */ = {
    * By default, focus returns to the trigger.
    */
   finalFocus: refType,
-  /**
-   * @ignore
-   */
-  id: PropTypes.string,
   /**
    * Determines the element to focus when the dialog is opened.
    * By default, the first focusable element is focused.

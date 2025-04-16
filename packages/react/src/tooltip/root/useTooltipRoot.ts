@@ -3,7 +3,7 @@ import * as ReactDOM from 'react-dom';
 import {
   safePolygon,
   useClientPoint,
-  useDelayGroup,
+  useNextDelayGroup,
   useDismiss,
   useFloatingRootContext,
   useFocus,
@@ -22,6 +22,7 @@ import {
   type OpenChangeReason,
 } from '../../utils/translateOpenChangeReason';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
+import { useTooltipProviderContext } from '../provider/TooltipProviderContext';
 
 export function useTooltipRoot(params: useTooltipRoot.Parameters): useTooltipRoot.ReturnValue {
   const {
@@ -115,33 +116,44 @@ export function useTooltipRoot(params: useTooltipRoot.Parameters): useTooltipRoo
     },
   });
 
-  const { delay: groupDelay, isInstantPhase, currentId } = useDelayGroup(context);
-  // We only pass an object to `FloatingDelayGroup`. A number means the Provider is not
-  // present, so we should ignore the value by using `undefined`.
-  const openGroupDelay = typeof groupDelay === 'object' ? groupDelay.open : undefined;
-  const closeGroupDelay = typeof groupDelay === 'object' ? groupDelay.close : undefined;
+  const providerContext = useTooltipProviderContext();
+  const { delayRef, isInstantPhase, hasProvider } = useNextDelayGroup(context);
 
-  let instantType = isInstantPhase ? ('delay' as const) : instantTypeState;
-  if (!open && context.floatingId === currentId) {
-    instantType = instantTypeState;
-  }
-
-  const computedRestMs = openGroupDelay ?? delayWithDefault;
-  let computedCloseDelay: number | undefined = closeDelayWithDefault;
-
-  // A provider is present and the close delay is not set.
-  if (closeDelay == null && groupDelay !== 0) {
-    computedCloseDelay = closeGroupDelay;
-  }
+  const instantType = isInstantPhase ? ('delay' as const) : instantTypeState;
 
   const hover = useHover(context, {
     enabled: !disabled,
     mouseOnly: true,
     move: false,
     handleClose: hoverable && trackCursorAxis !== 'both' ? safePolygon() : null,
-    restMs: computedRestMs,
-    delay: {
-      close: computedCloseDelay,
+    restMs() {
+      const providerDelay = providerContext?.delay;
+      const groupOpenValue =
+        typeof delayRef.current === 'object' ? delayRef.current.open : undefined;
+
+      let computedRestMs = delayWithDefault;
+      if (hasProvider) {
+        if (groupOpenValue !== 0) {
+          computedRestMs = delay ?? providerDelay ?? delayWithDefault;
+        } else {
+          computedRestMs = 0;
+        }
+      }
+
+      return computedRestMs;
+    },
+    delay() {
+      const closeValue = typeof delayRef.current === 'object' ? delayRef.current.close : undefined;
+
+      let computedCloseDelay: number | undefined = closeDelayWithDefault;
+      // A provider is present and the close delay is not set.
+      if (closeDelay == null && hasProvider) {
+        computedCloseDelay = closeValue;
+      }
+
+      return {
+        close: computedCloseDelay,
+      };
     },
   });
   const focus = useFocus(context, { enabled: !disabled });
@@ -151,8 +163,12 @@ export function useTooltipRoot(params: useTooltipRoot.Parameters): useTooltipRoo
     axis: trackCursorAxis === 'none' ? undefined : trackCursorAxis,
   });
 
-  const { getReferenceProps: getRootTriggerProps, getFloatingProps: getRootPopupProps } =
-    useInteractions([hover, focus, dismiss, clientPoint]);
+  const { getReferenceProps: getTriggerProps, getFloatingProps: getPopupProps } = useInteractions([
+    hover,
+    focus,
+    dismiss,
+    clientPoint,
+  ]);
 
   return React.useMemo(
     () => ({
@@ -164,8 +180,8 @@ export function useTooltipRoot(params: useTooltipRoot.Parameters): useTooltipRoo
       positionerElement,
       setPositionerElement,
       popupRef,
-      getRootTriggerProps,
-      getRootPopupProps,
+      getTriggerProps,
+      getPopupProps,
       floatingRootContext: context,
       instantType,
       transitionStatus,
@@ -177,8 +193,8 @@ export function useTooltipRoot(params: useTooltipRoot.Parameters): useTooltipRoo
       setMounted,
       positionerElement,
       setOpen,
-      getRootTriggerProps,
-      getRootPopupProps,
+      getTriggerProps,
+      getPopupProps,
       context,
       instantType,
       transitionStatus,
@@ -251,8 +267,8 @@ export namespace useTooltipRoot {
     setOpen: (value: boolean, event?: Event, reason?: OpenChangeReason) => void;
     mounted: boolean;
     setMounted: React.Dispatch<React.SetStateAction<boolean>>;
-    getRootTriggerProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
-    getRootPopupProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
+    getTriggerProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
+    getPopupProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
     floatingRootContext: FloatingRootContext;
     instantType: 'delay' | 'dismiss' | 'focus' | undefined;
     transitionStatus: TransitionStatus;

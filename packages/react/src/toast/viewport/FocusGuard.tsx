@@ -5,7 +5,7 @@ import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { visuallyHidden } from '../../utils/visuallyHidden';
 
 /**
- * @ignore - internal component.
+ * @internal
  */
 const FocusGuard = React.forwardRef(function FocusGuard(
   props: React.ComponentPropsWithoutRef<'span'>,
