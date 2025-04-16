@@ -65,7 +65,7 @@
     "@babel/preset-react": "^7.26.3",
     "@babel/preset-typescript": "^7.27.0",
     "@babel/register": "^7.25.9",
-    "@mui/internal-docs-utils": "^1.0.16",
+    "@mui/internal-docs-utils": "^2.0.1",
     "@mui/internal-markdown": "^2.0.3",
     "@mui/internal-scripts": "^2.0.6",
     "@mui/internal-test-utils": "^2.0.6",

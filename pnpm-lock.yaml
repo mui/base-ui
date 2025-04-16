@@ -51,8 +51,8 @@ importers:
         specifier: ^7.25.9
         version: 7.25.9(@babel/core@7.26.10)
       '@mui/internal-docs-utils':
-        specifier: ^1.0.16
-        version: 1.0.16
+        specifier: ^2.0.1
+        version: 2.0.1
       '@mui/internal-markdown':
         specifier: ^2.0.3
         version: 2.0.3
@@ -496,8 +496,8 @@ importers:
         specifier: ^7.27.0
         version: 7.27.0(@babel/core@7.26.10)
       '@mui/internal-docs-utils':
-        specifier: ^1.0.16
-        version: 1.0.16
+        specifier: ^2.0.1
+        version: 2.0.1
       '@mui/internal-scripts':
         specifier: ^2.0.6
         version: 2.0.6
@@ -1996,11 +1996,8 @@ packages:
     resolution: {integrity: sha512-wK+5pLK5XFmgtH3aQ2YVvA3HohS3xqV/OxuVOdNx9Wpnz7VE/fnC+e1A7ln6LFYeck7gOJ/dsZV6OLplOtAJ2w==}
     engines: {node: '>=18'}
 
-  '@mui/internal-docs-utils@1.0.16':
-    resolution: {integrity: sha512-GEq4dG9+10WGlQVrmXUfCWNe1FiWoMr2KXbgn2/00Da5hdvp4nIa3PXYYZF08Wh+FtnBbLHKGkPmZ7iw9WKtjQ==}
-
-  '@mui/internal-docs-utils@2.0.0':
-    resolution: {integrity: sha512-RBRywDnwCDEhRcEXuLbXiIieCwx7yRBZTHvPX7xttEwncc8aWJsZvZgl2B+CkwHWWInJNARjnk7/77rdgnOykQ==}
+  '@mui/internal-docs-utils@2.0.1':
+    resolution: {integrity: sha512-Rf5BpL4W8X1NAoKz9Alwe0mD+2vk9pdeLEaof3iGEB7Ghgj/x8DKUjLObQUfHv8reiQs7r0mz0qOyxAtPbB1Eg==}
 
   '@mui/internal-markdown@2.0.3':
     resolution: {integrity: sha512-CjjV4s5XpFvXOa6wBZc+7Df6fg2xK0rxku5pvbJs35YbmNvHKG54tlrXHwFoGbyZ22QXQ7a7fHdBB1P+6v3/vQ==}
@@ -10569,12 +10566,7 @@ snapshots:
       strict-event-emitter: 0.5.1
     optional: true
 
-  '@mui/internal-docs-utils@1.0.16':
-    dependencies:
-      rimraf: 6.0.1
-      typescript: 5.8.3
-
-  '@mui/internal-docs-utils@2.0.0':
+  '@mui/internal-docs-utils@2.0.1':
     dependencies:
       rimraf: 6.0.1
       typescript: 5.8.3
@@ -10593,7 +10585,7 @@ snapshots:
       '@babel/plugin-syntax-jsx': 7.25.9(@babel/core@7.26.10)
       '@babel/plugin-syntax-typescript': 7.25.9(@babel/core@7.26.10)
       '@babel/types': 7.27.0
-      '@mui/internal-docs-utils': 2.0.0
+      '@mui/internal-docs-utils': 2.0.1
       doctrine: 3.0.0
       lodash: 4.17.21
       typescript: 5.8.3
