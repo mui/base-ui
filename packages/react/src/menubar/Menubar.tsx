@@ -135,7 +135,18 @@ function MenubarContent(props: React.PropsWithChildren<{}>) {
         openSubmenus.current.delete(event.nodeId);
       }
 
-      rootContext.setHasSubmenuOpen(openSubmenus.current.size > 0);
+      const isAnyOpen = openSubmenus.current.size > 0;
+      if (isAnyOpen) {
+        rootContext.setHasSubmenuOpen(true);
+      } else if (rootContext.hasSubmenuOpen) {
+        // wait for the next frame to set the state to make sure another menu doesn't open
+        // immediately after the previous one is closed
+        requestAnimationFrame(() => {
+          if (openSubmenus.current.size === 0) {
+            rootContext.setHasSubmenuOpen(false);
+          }
+        });
+      }
     }
 
     menuEvents.on('openchange', onSubmenuOpenChange);
