@@ -91,6 +91,7 @@ Menubar.propTypes /* remove-proptypes */ = {
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
    * Whether the whole menubar is disabled.
+   * @default false
    */
   disabled: PropTypes.bool,
   /**

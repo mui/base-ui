@@ -140,6 +140,10 @@ CompositeRoot.propTypes /* remove-proptypes */ = {
   /**
    * @ignore
    */
+  ignoreNavigationFromPopups: PropTypes.bool,
+  /**
+   * @ignore
+   */
   itemSizes: PropTypes.arrayOf(
     PropTypes.shape({
       height: PropTypes.number.isRequired,
