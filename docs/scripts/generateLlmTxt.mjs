@@ -55,8 +55,8 @@ async function generateLlmsTxt() {
       // Read MDX content
       const mdxContent = await fs.readFile(mdxFile, 'utf-8');
       
-      // Convert to markdown
-      const markdown = await mdxToMarkdown(mdxContent);
+      // Convert to markdown and extract metadata
+      const { markdown, title, subtitle, description } = await mdxToMarkdown(mdxContent);
       
       // Get output file path
       const outputFilePath = path.join(OUTPUT_DIR, `${dirPath.replace(/\\/g, '-')}.md`);
@@ -64,8 +64,19 @@ async function generateLlmsTxt() {
       // Create directories for output if needed
       await fs.mkdir(path.dirname(outputFilePath), { recursive: true });
       
+      // Create markdown content with frontmatter
+      const frontmatter = [
+        '---',
+        `title: ${title || 'Untitled'}`,
+        subtitle ? `subtitle: ${subtitle}` : '',
+        description ? `description: ${description}` : '',
+        '---',
+        '',
+        markdown
+      ].filter(Boolean).join('\n');
+      
       // Write markdown file
-      await fs.writeFile(outputFilePath, markdown, 'utf-8');
+      await fs.writeFile(outputFilePath, frontmatter, 'utf-8');
       
       // Add entry to llms.txt
       llmsEntries.push(`${url} ${outputFilePath}`);

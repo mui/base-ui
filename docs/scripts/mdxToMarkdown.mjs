@@ -1,6 +1,6 @@
 /**
  * mdxToMarkdown.mjs - Converts MDX content to Markdown
- *
+ * 
  * This module provides functions to transform MDX content to Markdown format
  * using a custom React-like reconciler.
  */
@@ -16,35 +16,35 @@ import * as jsxRuntime from 'react/jsx-runtime';
 function createMarkdownRenderer() {
   // Track the current heading level
   let headingLevel = 0;
-
+  
   // Track whether we're in a list
   let inList = false;
   let listType = null;
   let listItemNumber = 0;
-
+  
   // Track table state
   let inTable = false;
   let tableHeader = [];
   let tableRows = [];
   let currentRow = [];
-
+  
   // Keep track of parent elements
   const elementStack = [];
-
+  
   const renderChildren = (children) => {
     if (!children) return '';
-
+    
     if (typeof children === 'string') {
       return children;
     }
-
+    
     if (Array.isArray(children)) {
-      return children.map((child) => renderElement(child)).join('');
+      return children.map(child => renderElement(child)).join('');
     }
-
+    
     return renderElement(children);
   };
-
+  
   const renderElement = (element) => {
     if (element == null) return '';
 
@@ -62,7 +62,7 @@ function createMarkdownRenderer() {
 
     // Track element hierarchy for parent-child relationships
     elementStack.push(element);
-
+    
     try {
       // Handle different element types
       if (typeof type === 'string') {
@@ -92,10 +92,9 @@ function createMarkdownRenderer() {
             return `*${renderChildren(children)}*`;
           case 'code': {
             // Check if parent is a 'pre' element to determine if this is a code block
-            const parentElement =
-              elementStack.length > 1 ? elementStack[elementStack.length - 2] : null;
+            const parentElement = elementStack.length > 1 ? elementStack[elementStack.length - 2] : null;
             const isCodeBlock = parentElement && parentElement.type === 'pre';
-
+            
             if (isCodeBlock) {
               // This is part of a code block, just return content
               return renderChildren(children);
@@ -106,7 +105,14 @@ function createMarkdownRenderer() {
           }
           case 'pre': {
             const codeContent = renderChildren(children);
-            return `\`\`\`\n${codeContent}\n\`\`\`\n\n`;
+            
+            // Extract language from data-language attribute if available
+            let language = '';
+            if (otherProps['data-language']) {
+              language = otherProps['data-language'];
+            }
+            
+            return `\`\`\`${language}\n${codeContent}\n\`\`\`\n\n`;
           }
           case 'ul':
             inList = true;
@@ -137,17 +143,17 @@ function createMarkdownRenderer() {
             tableRows = [];
             renderChildren(children);
             inTable = false;
-
+            
             // Build the markdown table
             if (tableHeader.length === 0) return '';
-
+            
             // Create header and separator
             const headerRow = `| ${tableHeader.join(' | ')} |`;
             const separator = `| ${tableHeader.map(() => '---').join(' | ')} |`;
-
+            
             // Create data rows
             const dataRows = tableRows
-              .map((row) => {
+              .map(row => {
                 // Fill missing cells with empty strings
                 while (row.length < tableHeader.length) {
                   row.push('');
@@ -155,7 +161,7 @@ function createMarkdownRenderer() {
                 return `| ${row.join(' | ')} |`;
               })
               .join('\n');
-
+            
             result = `${headerRow}\n${separator}\n${dataRows}\n\n`;
             return result;
           case 'thead':
@@ -188,7 +194,7 @@ function createMarkdownRenderer() {
             const rawContent = renderChildren(children);
             const quotedContent = rawContent
               .split('\n')
-              .map((line) => (line ? `> ${line}` : '>'))
+              .map(line => line ? `> ${line}` : '>')
               .join('\n');
             return `${quotedContent}\n\n`;
           case 'hr':
@@ -202,13 +208,10 @@ function createMarkdownRenderer() {
       }
 
       // Handle React fragments
-      if (
-        type === React.Fragment ||
-        (jsxRuntime && jsxRuntime.Fragment && type === jsxRuntime.Fragment)
-      ) {
+      if (type === React.Fragment || (jsxRuntime && jsxRuntime.Fragment && type === jsxRuntime.Fragment)) {
         return renderChildren(children);
       }
-
+      
       // Handle function components by calling them with props
       if (typeof type === 'function') {
         const renderedResult = type({ ...otherProps, children });
@@ -225,46 +228,84 @@ function createMarkdownRenderer() {
   return {
     render: (element) => {
       return renderElement(element);
-    },
+    }
   };
 }
 
 /**
- * Converts MDX content to markdown
+ * Converts MDX content to markdown and extracts metadata
  * @param {string} mdxContent - The MDX content to convert
- * @returns {Promise<string>} The converted markdown
+ * @returns {Promise<Object>} An object containing the markdown and metadata
  */
 export async function mdxToMarkdown(mdxContent) {
   try {
+    // Store extracted metadata
+    let title = '';
+    let subtitle = '';
+    let description = '';
+    
     // Evaluate MDX to get React component
     const { default: MDXComponent } = await evaluate(mdxContent, {
       ...jsxRuntime,
       development: false,
     });
 
-    // Create simple props for MDX component
+    // Create props for MDX component with metadata extraction
     const props = {
       components: {
-        Meta: () => '--- Meta ---',
+        Meta: (props) => {
+          // Extract description from Meta component
+          if (props.name === 'description') {
+            description = props.content;
+            // Render description as a paragraph
+            return React.createElement('p', {}, props.content);
+          }
+          return null;
+        },
         Demo: () => '--- Demo ---',
-        Subtitle: () => '--- Subtitle ---',
+        Subtitle: (props) => {
+          // Extract subtitle from Subtitle component
+          subtitle = props.children;
+          // Render subtitle as italic paragraph
+          return React.createElement('p', {}, 
+            React.createElement('em', {}, props.children)
+          );
+        },
         Reference: () => '--- Reference ---',
         PropsReferenceTable: () => '--- PropsReferenceTable ---',
+        h1: (props) => {
+          // Extract title from h1 element
+          if (typeof props.children === 'string') {
+            title = props.children;
+          }
+          return React.createElement('h1', props);
+        }
       },
     };
-
+    
     // Create a markdown renderer
     const markdownRenderer = createMarkdownRenderer();
-
+    
     // Create a React element from the MDX component
     const element = React.createElement(MDXComponent, props);
-
+    
     // Render to markdown
     const markdown = markdownRenderer.render(element);
-
-    return markdown;
+    
+    // Return markdown and metadata
+    return {
+      markdown,
+      title,
+      subtitle,
+      description
+    };
   } catch (error) {
     console.error('Error converting MDX to Markdown:', error);
-    return `Error converting MDX to Markdown: ${error.message}`;
+    return {
+      markdown: `Error converting MDX to Markdown: ${error.message}`,
+      title: '',
+      subtitle: '',
+      description: ''
+    };
   }
 }
