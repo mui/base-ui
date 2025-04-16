@@ -13,6 +13,7 @@ import type { AccordionItem } from '../item/AccordionItem';
 import { useAccordionItemContext } from '../item/AccordionItemContext';
 import { accordionStyleHookMapping } from '../item/styleHooks';
 import { AccordionPanelCssVars } from './AccordionPanelCssVars';
+import { usePanelResize } from '../../utils/usePanelResize';
 
 /**
  * A collapsible panel with the accordion item contents.
@@ -81,6 +82,8 @@ const AccordionPanel = React.forwardRef(function AccordionPanel(
     setKeepMounted(keepMounted);
   }, [setKeepMounted, keepMounted]);
 
+  usePanelResize(panelRef, setDimensions, open);
+
   const { getRootProps } = useCollapsiblePanel({
     abortControllerRef,
     animationTypeRef,
@@ -111,6 +114,7 @@ const AccordionPanel = React.forwardRef(function AccordionPanel(
     render: render ?? 'div',
     state,
     className,
+    ref: [forwardedRef, panelRef],
     extraProps: {
       ...otherProps,
       'aria-labelledby': triggerId,
@@ -124,11 +128,12 @@ const AccordionPanel = React.forwardRef(function AccordionPanel(
     customStyleHookMapping: accordionStyleHookMapping,
   });
 
-  if (keepMounted || hiddenUntilFound || (!keepMounted && mounted)) {
-    return renderElement();
+  const shouldRender = keepMounted || hiddenUntilFound || (!keepMounted && mounted);
+  if (!shouldRender) {
+    return null;
   }
 
-  return null;
+  return renderElement();
 });
 
 namespace AccordionPanel {

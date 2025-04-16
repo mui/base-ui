@@ -10,6 +10,7 @@ import type { CollapsibleRoot } from '../root/CollapsibleRoot';
 import { collapsibleStyleHookMapping } from '../root/styleHooks';
 import { useCollapsiblePanel } from './useCollapsiblePanel';
 import { CollapsiblePanelCssVars } from './CollapsiblePanelCssVars';
+import { usePanelResize } from '../../utils/usePanelResize';
 
 /**
  * A panel with the collapsible contents.
@@ -98,11 +99,14 @@ const CollapsiblePanel = React.forwardRef(function CollapsiblePanel(
     width,
   });
 
+  usePanelResize(panelRef, setDimensions, open);
+
   const { renderElement } = useComponentRenderer({
     propGetter: getRootProps,
     render: render ?? 'div',
     state,
     className,
+    ref: [forwardedRef, panelRef],
     extraProps: {
       ...otherProps,
       style: {
@@ -114,11 +118,12 @@ const CollapsiblePanel = React.forwardRef(function CollapsiblePanel(
     customStyleHookMapping: collapsibleStyleHookMapping,
   });
 
-  if (keepMounted || hiddenUntilFound || (!keepMounted && mounted)) {
-    return renderElement();
+  const shouldRender = keepMounted || hiddenUntilFound || (!keepMounted && mounted);
+  if (!shouldRender) {
+    return null;
   }
 
-  return null;
+  return renderElement();
 });
 
 export { CollapsiblePanel };
