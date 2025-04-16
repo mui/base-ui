@@ -18,7 +18,7 @@ _Apr 16, 2025_
 
 ### CheckboxGroup
 
-- [CheckboxGroup] Parent checkbox/nested demos (#1610) @atomiks
+- Parent checkbox/nested demos (#1610) @atomiks
 
 ### Collapsible
 
