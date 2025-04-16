@@ -5,11 +5,13 @@ import { useRenderElement } from '../utils/useRenderElement';
 
 /**
  * Returns an object with a `renderElement` function that renders a Base UI element.
+ *
+ * @public
  */
 export function useRender<
   State extends Record<string, unknown>,
   RenderedElementType extends Element,
->(params: useRender.Parameters<State, RenderedElementType>) {
+>(params: useRender.Parameters<State, RenderedElementType>): useRender.ReturnValue {
   const { render, props, state, refs } = params;
   const { ref: intrinsicRefProp, ...intrinsicProps } = props || {};
 
@@ -75,5 +77,9 @@ export namespace useRender {
      * internal ones.
      */
     props?: Record<string, unknown> & { ref?: React.Ref<RenderedElementType> };
+  }
+
+  export interface ReturnValue {
+    renderElement: () => React.ReactElement;
   }
 }

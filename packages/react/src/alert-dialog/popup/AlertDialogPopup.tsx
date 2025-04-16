@@ -22,8 +22,8 @@ import { inertValue } from '../../utils/inertValue';
 const customStyleHookMapping: CustomStyleHookMapping<AlertDialogPopup.State> = {
   ...baseMapping,
   ...transitionStatusMapping,
-  hasNestedDialogs(value) {
-    return value ? { [AlertDialogPopupDataAttributes.hasNestedDialogs]: '' } : null;
+  nestedDialogOpen(value) {
+    return value ? { [AlertDialogPopupDataAttributes.nestedDialogOpen]: '' } : null;
   },
 };
 
@@ -37,7 +37,7 @@ const AlertDialogPopup = React.forwardRef(function AlertDialogPopup(
   props: AlertDialogPopup.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { className, id, render, initialFocus, finalFocus, ...other } = props;
+  const { className, render, initialFocus, finalFocus, ...other } = props;
 
   const {
     descriptionElementId,
@@ -75,7 +75,6 @@ const AlertDialogPopup = React.forwardRef(function AlertDialogPopup(
   const { getRootProps, resolvedInitialFocus } = useDialogPopup({
     descriptionElementId,
     getPopupProps,
-    id,
     initialFocus,
     modal: true,
     mounted,
@@ -86,16 +85,16 @@ const AlertDialogPopup = React.forwardRef(function AlertDialogPopup(
     titleElementId,
   });
 
-  const hasNestedDialogs = nestedOpenDialogCount > 0;
+  const nestedDialogOpen = nestedOpenDialogCount > 0;
 
   const state: AlertDialogPopup.State = React.useMemo(
     () => ({
       open,
       nested,
       transitionStatus,
-      hasNestedDialogs,
+      nestedDialogOpen,
     }),
-    [open, nested, transitionStatus, hasNestedDialogs],
+    [open, nested, transitionStatus, nestedDialogOpen],
   );
 
   const { renderElement } = useComponentRenderer({
@@ -155,7 +154,7 @@ namespace AlertDialogPopup {
     /**
      * Whether the dialog has nested dialogs open.
      */
-    hasNestedDialogs: boolean;
+    nestedDialogOpen: boolean;
   }
 }
 
@@ -178,10 +177,6 @@ AlertDialogPopup.propTypes /* remove-proptypes */ = {
    * By default, focus returns to the trigger.
    */
   finalFocus: refType,
-  /**
-   * @ignore
-   */
-  id: PropTypes.string,
   /**
    * Determines the element to focus when the dialog is opened.
    * By default, the first focusable element is focused.
