@@ -169,6 +169,7 @@ namespace Menubar {
     modal?: boolean;
     /**
      * Whether the whole menubar is disabled.
+     * @default false
      */
     disabled?: boolean;
     /**

@@ -9,6 +9,7 @@
     },
     "disabled": {
       "type": "boolean",
+      "default": "false",
       "description": "Whether the whole menubar is disabled."
     },
     "loop": {
