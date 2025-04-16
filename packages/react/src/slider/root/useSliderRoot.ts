@@ -37,23 +37,21 @@ function areValuesEqual(
   return false;
 }
 
-function findClosest(values: readonly number[], currentValue: number) {
-  const { index: closestIndex } =
-    values.reduce<{ distance: number; index: number } | null>(
-      (acc, value: number, index: number) => {
-        const distance = Math.abs(currentValue - value);
+function getClosestThumbIndex(values: readonly number[], currentValue: number, min: number) {
+  let closestIndex;
+  let minDistance;
+  for (let i = 0; i < values.length; i += 1) {
+    const distance = Math.abs(currentValue - values[i]);
+    if (
+      minDistance === undefined ||
+      distance < minDistance ||
+      (values[i] === min && distance === minDistance)
+    ) {
+      closestIndex = i;
+      minDistance = distance;
+    }
+  }
 
-        if (acc === null || distance < acc.distance || distance === acc.distance) {
-          return {
-            distance,
-            index,
-          };
-        }
-
-        return acc;
-      },
-      null,
-    ) ?? {};
   return closestIndex;
 }
 
@@ -371,7 +369,7 @@ export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRo
       }
 
       if (shouldCaptureThumbIndex) {
-        closestThumbIndexRef.current = findClosest(values, newValue) ?? 0;
+        closestThumbIndexRef.current = getClosestThumbIndex(values, newValue, min) ?? 0;
       }
 
       const closestThumbIndex = closestThumbIndexRef.current ?? 0;
