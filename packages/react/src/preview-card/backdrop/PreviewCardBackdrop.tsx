@@ -48,6 +48,8 @@ const PreviewCardBackdrop = React.forwardRef(function PreviewCardBackdrop(
         hidden: !mounted,
         style: {
           pointerEvents: 'none',
+          userSelect: 'none',
+          WebkitUserSelect: 'none',
         },
       },
       other,

@@ -192,6 +192,27 @@ describe('<Dialog.Root />', () => {
         expect(handleOpenChange.callCount).to.equal(1);
         expect(handleOpenChange.firstCall.args[2]).to.equal('outside-press');
       });
+
+      it('does not change open state on non-main button clicks', async () => {
+        const handleOpenChange = spy();
+
+        const { user } = await render(
+          <Dialog.Root defaultOpen onOpenChange={handleOpenChange}>
+            <Dialog.Trigger>Open</Dialog.Trigger>
+            <Dialog.Portal>
+              <Dialog.Backdrop data-backdrop style={{ position: 'fixed', zIndex: 10, inset: 0 }} />
+              <Dialog.Popup style={{ position: 'fixed', zIndex: 10 }}>
+                <Dialog.Close>Close</Dialog.Close>
+              </Dialog.Popup>
+            </Dialog.Portal>
+          </Dialog.Root>,
+        );
+
+        const backdrop = document.querySelector('[data-backdrop]') as HTMLElement;
+        await user.pointer([{ target: backdrop }, { keys: '[MouseRight]', target: backdrop }]);
+
+        expect(handleOpenChange.callCount).to.equal(0);
+      });
     });
   });
 
