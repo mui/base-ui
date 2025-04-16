@@ -8,12 +8,12 @@
       "description": "If `true`, the component will not only prevent server-side rendering.\nIt will also defer the rendering of the children into a different screen frame."
     },
     "fallback": {
-      "type": "React.ReactNode",
+      "type": "ReactNode",
       "default": "null",
       "description": "The fallback content to display."
     },
     "children": {
-      "type": "React.ReactNode",
+      "type": "ReactNode",
       "description": "You can wrap a node."
     }
   },

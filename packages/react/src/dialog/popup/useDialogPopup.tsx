@@ -70,10 +70,6 @@ export function useDialogPopup(parameters: useDialogPopup.Parameters): useDialog
 export namespace useDialogPopup {
   export interface Parameters {
     /**
-     * The id of the dialog element.
-     */
-    id?: string;
-    /**
      * The ref to the dialog element.
      */
     ref: React.Ref<HTMLElement>;

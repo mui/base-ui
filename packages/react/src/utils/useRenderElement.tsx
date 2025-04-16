@@ -22,8 +22,6 @@ const emptyObject = {};
 
 /**
  * Returns a function that renders a Base UI element.
- *
- * @ignore - internal hook.
  */
 export function useRenderElement<
   State extends Record<string, any>,
@@ -113,7 +111,7 @@ export namespace useRenderElement {
     /**
      * The render prop or React element to override the default element.
      */
-    render:
+    render?:
       | undefined
       | ComponentRenderFn<React.HTMLAttributes<any>, State>
       | React.ReactElement<Record<string, unknown>>;

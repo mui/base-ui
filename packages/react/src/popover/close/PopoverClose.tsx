@@ -1,12 +1,9 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
-import { usePopoverClose } from './usePopoverClose';
-
-const state = {};
+import { useRenderElement } from '../../utils/useRenderElement';
 
 /**
  * A button that closes the popover.
@@ -18,23 +15,20 @@ const PopoverClose = React.forwardRef(function PopoverClose(
   props: PopoverClose.Props,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
-  const { render, className, ...otherProps } = props;
+  const { render, className, ...elementProps } = props;
 
   const { setOpen } = usePopoverRootContext();
 
-  const { getCloseProps } = usePopoverClose({
-    onClose() {
-      setOpen(false);
-    },
-  });
-
-  const { renderElement } = useComponentRenderer({
-    propGetter: getCloseProps,
-    render: render ?? 'button',
-    className,
-    state,
-    extraProps: otherProps,
+  const renderElement = useRenderElement('button', props, {
     ref: forwardedRef,
+    props: [
+      {
+        onClick() {
+          setOpen(false);
+        },
+      },
+      elementProps,
+    ],
   });
 
   return renderElement();
