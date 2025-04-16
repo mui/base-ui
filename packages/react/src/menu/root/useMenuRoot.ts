@@ -55,7 +55,7 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
   const [positionerElement, setPositionerElementUnwrapped] = React.useState<HTMLElement | null>(
     null,
   );
-  const [instantType, setInstantType] = React.useState<'dismiss' | 'click'>();
+  const [instantType, setInstantType] = React.useState<'dismiss' | 'click' | 'group'>();
   const [hoverEnabled, setHoverEnabled] = React.useState(true);
   const [activeIndex, setActiveIndex] = React.useState<number | null>(null);
   const [openReason, setOpenReason] = React.useState<OpenChangeReason | null>(null);
@@ -147,6 +147,7 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
     open,
     onOpenChange(openValue, eventValue, reasonValue) {
       const isHover = reasonValue === 'hover' || reasonValue === 'safe-polygon';
+      const isFocus = reasonValue === 'focus' || reasonValue === 'focus-out';
       const isKeyboardClick = reasonValue === 'click' && (eventValue as MouseEvent).detail === 0;
       const isDismissClose = !openValue && (reasonValue === 'escape-key' || reasonValue == null);
 
@@ -168,7 +169,9 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
         changeState();
       }
 
-      if (isKeyboardClick || isDismissClose) {
+      if (parentType === 'menubar' && (isHover || isFocus)) {
+        setInstantType('group');
+      } else if (isKeyboardClick || isDismissClose) {
         setInstantType(isKeyboardClick ? 'click' : 'dismiss');
       } else {
         setInstantType(undefined);
@@ -435,7 +438,7 @@ export namespace useMenuRoot {
     transitionStatus: TransitionStatus;
     allowMouseUpTriggerRef: React.RefObject<boolean>;
     openReason: OpenChangeReason | null;
-    instantType: 'dismiss' | 'click' | undefined;
+    instantType: 'dismiss' | 'click' | 'group' | undefined;
     onOpenChangeComplete: ((open: boolean) => void) | undefined;
     setHoverEnabled: React.Dispatch<React.SetStateAction<boolean>>;
     setActiveIndex: React.Dispatch<React.SetStateAction<number | null>>;
