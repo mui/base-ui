@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { MenuOrientation } from '../menu/root/useMenuRoot';
+import { type MenuOrientation } from '../menu/root/useMenuRoot';
 
 export interface MenubarContext {
   modal: boolean;

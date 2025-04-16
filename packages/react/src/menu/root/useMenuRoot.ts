@@ -176,6 +176,8 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
     },
   });
 
+  const isNestedOrInMenubar = nested || parentType === 'menubar';
+
   const hover = useHover(floatingRootContext, {
     enabled:
       hoverEnabled &&
@@ -185,9 +187,9 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
       (parentType !== 'menubar' || ((parentContext as MenubarContext).hasSubmenuOpen && !open)),
     handleClose: safePolygon({ blockPointerEvents: true }),
     mouseOnly: true,
-    move: nested,
-    restMs: nested ? undefined : delay,
-    delay: nested ? { open: delay } : undefined,
+    move: isNestedOrInMenubar,
+    restMs: isNestedOrInMenubar ? undefined : delay,
+    delay: nested ? { open: delay } : 0,
   });
 
   const focus = useFocus(floatingRootContext, {
