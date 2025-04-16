@@ -154,7 +154,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
 
             if ((event.target as HTMLElement).closest('[data-floating-ui-portal]') != null) {
               // don't navigate if the event came from a popup
-              return;
+              // return;
             }
 
             if (textDirectionRef?.current == null) {

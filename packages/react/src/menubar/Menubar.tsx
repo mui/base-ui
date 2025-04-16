@@ -2,18 +2,13 @@
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import {
-  Composite,
-  FloatingNode,
-  FloatingTree,
-  useFloatingNodeId,
-  useFloatingTree,
-} from '@floating-ui/react';
+import { FloatingNode, FloatingTree, useFloatingNodeId, useFloatingTree } from '@floating-ui/react';
 import { MenuOrientation } from '../menu/root/useMenuRoot';
 import { BaseUIComponentProps } from '../utils/types';
 import { MenubarContext, useMenubarContext } from './MenubarContext';
-import { useForkRef, useScrollLock } from '../utils';
-import { useComponentRenderer } from '../utils/useComponentRenderer';
+import { useScrollLock } from '../utils';
+import { CompositeRoot } from '../composite/root/CompositeRoot';
+import { useRenderElement } from '../utils/useRenderElement';
 
 /**
  * The container for menus.
@@ -36,8 +31,6 @@ const Menubar = React.forwardRef(function Menubar(
   const [contentElement, setContentElement] = React.useState<HTMLElement | null>(null);
   const [hasSubmenuOpen, setHasSubmenuOpen] = React.useState(false);
 
-  const mergedRef = useForkRef(forwardedRef, setContentElement);
-
   useScrollLock({
     enabled: modal && hasSubmenuOpen,
     open: hasSubmenuOpen,
@@ -53,11 +46,10 @@ const Menubar = React.forwardRef(function Menubar(
     [orientation, modal],
   );
 
-  const { renderElement } = useComponentRenderer({
-    render: render ?? 'div',
-    className,
+  const renderElement = useRenderElement('div', props, {
     state,
-    extraProps: otherProps,
+    props: otherProps,
+    ref: [forwardedRef, setContentElement],
   });
 
   const context = React.useMemo(
@@ -76,12 +68,7 @@ const Menubar = React.forwardRef(function Menubar(
     <MenubarContext.Provider value={context}>
       <FloatingTree>
         <MenubarContent>
-          <Composite
-            render={renderElement()}
-            orientation={orientation}
-            loop={loop}
-            ref={mergedRef}
-          />
+          <CompositeRoot render={renderElement()} orientation={orientation} loop={loop} />
         </MenubarContent>
       </FloatingTree>
     </MenubarContext.Provider>
