@@ -11,7 +11,8 @@
     "deploy": "git push -f upstream master:docs-v1",
     "serve": "serve ./export -l 3010",
     "typescript": "tsc -b tsconfig.json",
-    "link-check": "tsx ./scripts/reportBrokenLinks.mts"
+    "link-check": "tsx ./scripts/reportBrokenLinks.mts",
+    "generate-llms": "node ./scripts/generateLlmTxt.mjs"
   },
   "dependencies": {
     "@babel/core": "^7.26.9",

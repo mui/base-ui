@@ -21,6 +21,7 @@
     "docs:size-why": "cross-env DOCS_STATS_ENABLED=true pnpm docs:build",
     "docs:start": "pnpm --filter docs serve",
     "docs:link-check": "pnpm --filter docs link-check",
+    "docs:generate-llms": "pnpm --filter docs run generate-llms",
     "extract-error-codes": "cross-env MUI_EXTRACT_ERROR_CODES=true lerna run --concurrency 8 build:modern",
     "install:codesandbox": "pnpm install --no-frozen-lockfile",
     "jsonlint": "node ./scripts/jsonlint.mjs",
