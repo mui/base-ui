@@ -19,6 +19,7 @@ const SelectScrollDownArrow = React.forwardRef(function SelectScrollDownArrow(
 
 namespace SelectScrollDownArrow {
   export interface State {}
+
   export interface Props extends BaseUIComponentProps<'div', State> {
     /**
      * Whether to keep the HTML element in the DOM while the select menu is not scrollable.

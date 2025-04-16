@@ -7,10 +7,9 @@ import { clamp } from '../../utils/clamp';
 import { useScrollAreaRootContext } from '../root/ScrollAreaRootContext';
 import { MIN_THUMB_SIZE } from '../constants';
 import { getOffset } from '../utils/getOffset';
+import { onVisible } from '../utils/onVisible';
 
-export function useScrollAreaViewport(params: useScrollAreaViewport.Parameters) {
-  const { children } = params;
-
+export function useScrollAreaViewport() {
   const {
     viewportRef,
     scrollbarYRef,
@@ -29,9 +28,7 @@ export function useScrollAreaViewport(params: useScrollAreaViewport.Parameters) 
 
   const direction = useDirection();
 
-  const contentWrapperRef = React.useRef<HTMLDivElement | null>(null);
-
-  const computeThumb = useEventCallback(() => {
+  const computeThumbPosition = useEventCallback(() => {
     const viewportEl = viewportRef.current;
     const scrollbarYEl = scrollbarYRef.current;
     const scrollbarXEl = scrollbarXRef.current;
@@ -50,26 +47,34 @@ export function useScrollAreaViewport(params: useScrollAreaViewport.Parameters) 
     const scrollTop = viewportEl.scrollTop;
     const scrollLeft = viewportEl.scrollLeft;
 
+    if (scrollableContentHeight === 0 || scrollableContentWidth === 0) {
+      return;
+    }
+
     const scrollbarYHidden = viewportHeight >= scrollableContentHeight;
     const scrollbarXHidden = viewportWidth >= scrollableContentWidth;
-
-    const nextWidth = scrollbarXHidden
-      ? 0
-      : (viewportWidth / scrollableContentWidth) * viewportWidth;
-    const nextHeight = scrollbarYHidden
-      ? 0
-      : (viewportHeight / scrollableContentHeight) * viewportHeight;
+    const ratioX = viewportWidth / scrollableContentWidth;
+    const ratioY = viewportHeight / scrollableContentHeight;
+    const nextWidth = scrollbarXHidden ? 0 : viewportWidth;
+    const nextHeight = scrollbarYHidden ? 0 : viewportHeight;
 
     const scrollbarXOffset = getOffset(scrollbarXEl, 'padding', 'x');
     const scrollbarYOffset = getOffset(scrollbarYEl, 'padding', 'y');
     const thumbXOffset = getOffset(thumbXEl, 'margin', 'x');
     const thumbYOffset = getOffset(thumbYEl, 'margin', 'y');
 
-    const clampedNextWidth = Math.max(MIN_THUMB_SIZE, nextWidth - scrollbarXOffset - thumbXOffset);
-    const clampedNextHeight = Math.max(
-      MIN_THUMB_SIZE,
-      nextHeight - scrollbarYOffset - thumbYOffset,
-    );
+    const idealNextWidth = nextWidth - scrollbarXOffset - thumbXOffset;
+    const idealNextHeight = nextHeight - scrollbarYOffset - thumbYOffset;
+
+    const maxNextWidth = scrollbarXEl
+      ? Math.min(scrollbarXEl.offsetWidth, idealNextWidth)
+      : idealNextWidth;
+    const maxNextHeight = scrollbarYEl
+      ? Math.min(scrollbarYEl.offsetHeight, idealNextHeight)
+      : idealNextHeight;
+
+    const clampedNextWidth = Math.max(MIN_THUMB_SIZE, maxNextWidth * ratioX);
+    const clampedNextHeight = Math.max(MIN_THUMB_SIZE, maxNextHeight * ratioY);
 
     setThumbSize((prevSize) => {
       if (prevSize.height === clampedNextHeight && prevSize.width === clampedNextWidth) {
@@ -141,14 +146,18 @@ export function useScrollAreaViewport(params: useScrollAreaViewport.Parameters) 
   });
 
   useEnhancedEffect(() => {
-    // First load computation.
-    // Wait for the scrollbar-related refs to be set.
-    queueMicrotask(computeThumb);
-  }, [computeThumb]);
+    if (!viewportRef.current) {
+      return undefined;
+    }
+
+    const cleanup = onVisible(viewportRef.current, computeThumbPosition);
+    return cleanup;
+  }, [computeThumbPosition, viewportRef]);
 
   useEnhancedEffect(() => {
-    computeThumb();
-  }, [computeThumb, hiddenState, direction]);
+    // Wait for scrollbar-related refs to be set
+    queueMicrotask(computeThumbPosition);
+  }, [computeThumbPosition, hiddenState, direction]);
 
   useEnhancedEffect(() => {
     // `onMouseEnter` doesn't fire upon load, so we need to check if the viewport is already
@@ -159,27 +168,26 @@ export function useScrollAreaViewport(params: useScrollAreaViewport.Parameters) 
   }, [viewportRef, setHovering]);
 
   React.useEffect(() => {
-    if (
-      !contentWrapperRef.current ||
-      !viewportRef.current ||
-      typeof ResizeObserver === 'undefined'
-    ) {
+    if (typeof ResizeObserver === 'undefined') {
       return undefined;
     }
 
-    const ro = new ResizeObserver(computeThumb);
-    ro.observe(contentWrapperRef.current);
-    ro.observe(viewportRef.current);
+    const ro = new ResizeObserver(computeThumbPosition);
+
+    if (viewportRef.current) {
+      ro.observe(viewportRef.current);
+    }
 
     return () => {
       ro.disconnect();
     };
-  }, [computeThumb, viewportRef]);
+  }, [computeThumbPosition, viewportRef]);
 
   const getViewportProps = React.useCallback(
     (externalProps = {}) =>
       mergeProps<'div'>(
         {
+          role: 'presentation',
           ...(rootId && { 'data-id': `${rootId}-viewport` }),
           // https://accessibilityinsights.io/info-examples/web/scrollable-region-focusable/
           ...((!hiddenState.scrollbarXHidden || !hiddenState.scrollbarYHidden) && { tabIndex: 0 }),
@@ -191,23 +199,13 @@ export function useScrollAreaViewport(params: useScrollAreaViewport.Parameters) 
               return;
             }
 
-            computeThumb();
+            computeThumbPosition();
 
             handleScroll({
               x: viewportRef.current.scrollLeft,
               y: viewportRef.current.scrollTop,
             });
           },
-          children: (
-            <div
-              ref={contentWrapperRef}
-              style={{
-                minWidth: 'fit-content',
-              }}
-            >
-              {children}
-            </div>
-          ),
         },
         externalProps,
       ),
@@ -215,8 +213,7 @@ export function useScrollAreaViewport(params: useScrollAreaViewport.Parameters) 
       rootId,
       hiddenState.scrollbarXHidden,
       hiddenState.scrollbarYHidden,
-      children,
-      computeThumb,
+      computeThumbPosition,
       handleScroll,
       viewportRef,
     ],
@@ -225,13 +222,8 @@ export function useScrollAreaViewport(params: useScrollAreaViewport.Parameters) 
   return React.useMemo(
     () => ({
       getViewportProps,
+      computeThumbPosition,
     }),
-    [getViewportProps],
+    [getViewportProps, computeThumbPosition],
   );
-}
-
-namespace useScrollAreaViewport {
-  export interface Parameters {
-    children?: React.ReactNode;
-  }
 }

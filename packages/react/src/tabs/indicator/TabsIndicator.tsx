@@ -10,6 +10,7 @@ import { tabsStyleHookMapping } from '../root/styleHooks';
 import { useTabsListContext } from '../list/TabsListContext';
 import { ActiveTabPosition, ActiveTabSize, useTabsIndicator } from './useTabsIndicator';
 import { script as prehydrationScript } from './prehydrationScript.min';
+import { generateId } from '../../utils/generateId';
 
 const noop = () => null;
 
@@ -28,7 +29,7 @@ const TabsIndicator = React.forwardRef<HTMLSpanElement, TabsIndicator.Props>(
 
     const { tabsListRef } = useTabsListContext();
 
-    const [instanceId] = React.useState(() => Math.random().toString(36).slice(2));
+    const [instanceId] = React.useState(() => generateId('tab'));
     const [isMounted, setIsMounted] = React.useState(false);
     const { value: activeTabValue } = useTabsRootContext();
 

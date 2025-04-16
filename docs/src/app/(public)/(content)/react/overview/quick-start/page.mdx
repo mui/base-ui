@@ -7,7 +7,7 @@
 
 Install Base UI using a package manager.
 
-```jsx title="Terminal"
+```bash title="Terminal"
 npm i @base-ui-components/react
 ```
 
@@ -20,7 +20,7 @@ To make portalled components always appear on top of the entire page, add the fo
 
 ```tsx title="layout.tsx"
 <body>
-  <div className="Root">
+  <div className="root">
     {/* prettier-ignore */}
     {children}
   </div>
@@ -28,12 +28,12 @@ To make portalled components always appear on top of the entire page, add the fo
 ```
 
 ```css title="styles.css"
-.Root {
+.root {
   isolation: isolate;
 }
 ```
 
-This style creates a separate stacking context for your application's `.Root` element.
+This style creates a separate stacking context for your application's `.root` element.
 This way, popups will always appear above the page contents, and any `z-index` property in your styles won't interfere with them.
 
 ## Assemble a component

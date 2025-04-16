@@ -2,14 +2,6 @@
   "name": "Toggle",
   "description": "A two-state button that can be on or off.\nRenders a `<button>` element.",
   "props": {
-    "aria-label": {
-      "type": "string",
-      "description": "The label for the Toggle."
-    },
-    "aria-labelledby": {
-      "type": "string",
-      "description": "An id or space-separated list of ids of elements that label the Toggle."
-    },
     "value": {
       "type": "string",
       "description": "A unique string that identifies the component when used\ninside a ToggleGroup."
@@ -24,7 +16,7 @@
       "description": "Whether the toggle button is currently active."
     },
     "onPressedChange": {
-      "type": "function(pressed: boolean, event: Event) => void",
+      "type": "((pressed: boolean, event: Event) => void)",
       "description": "Callback fired when the pressed state is changed."
     },
     "disabled": {
@@ -33,11 +25,11 @@
       "description": "Whether the component should ignore user interaction."
     },
     "className": {
-      "type": "string | (state) => string",
+      "type": "string | ((state: State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "render": {
-      "type": "React.ReactElement | (props, state) => React.ReactElement",
+      "type": "ReactElement | ((props: GenericHTMLProps, state: State) => ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
     }
   },
