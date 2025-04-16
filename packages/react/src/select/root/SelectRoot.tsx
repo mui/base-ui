@@ -177,7 +177,7 @@ SelectRoot.propTypes /* remove-proptypes */ = {
   disabled: PropTypes.bool,
   /**
    * Determines if the select enters a modal state when open.
-   * - `true`: user interaction is limited to just the select: document page scroll is locked and and pointer interactions on outside elements are disabled.
+   * - `true`: user interaction is limited to the select: document page scroll is locked and and pointer interactions on outside elements are disabled.
    * - `false`: user interaction with the rest of the document is allowed.
    * @default true
    */
