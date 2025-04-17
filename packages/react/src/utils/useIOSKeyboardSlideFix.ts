@@ -5,6 +5,7 @@ import { useEnhancedEffect } from './useEnhancedEffect';
 import { isIOS } from './detectBrowser';
 import { ownerDocument } from './owner';
 import { useEventCallback } from './useEventCallback';
+import { getPreventScrollCount } from './useScrollLock';
 
 /**
  * Temporarily allows disabling the scroll lock when a typeable element (e.g. input or textarea)
@@ -27,7 +28,7 @@ export function useIOSKeyboardSlideFix(params: {
 
   useEnhancedEffect(() => {
     if (!isIOS()) {
-      return;
+      return undefined;
     }
 
     if (enabled) {
@@ -35,17 +36,22 @@ export function useIOSKeyboardSlideFix(params: {
     }
 
     if (!hasBeenEnabledRef.current) {
-      return;
+      return undefined;
     }
 
     const doc = ownerDocument(popupRef.current);
     const html = doc.documentElement;
     if (enabled) {
       scrollRef.current = { x: html.scrollLeft, y: html.scrollTop };
-    } else {
-      html.scrollTop = scrollRef.current.y;
-      html.scrollLeft = scrollRef.current.x;
+      return () => {
+        if (getPreventScrollCount() === 0) {
+          html.scrollTop = scrollRef.current.y;
+          html.scrollLeft = scrollRef.current.x;
+        }
+      };
     }
+
+    return undefined;
   }, [enabled, popupRef]);
 
   const handlePress = useEventCallback((event: React.FocusEvent | React.MouseEvent) => {

@@ -19,6 +19,23 @@ export default function ExampleDialog() {
             <div className={styles.Actions}>
               <Dialog.Close className={styles.Button}>Close</Dialog.Close>
             </div>
+            <Dialog.Root>
+              <Dialog.Trigger className={styles.Button}>
+                View notifications
+              </Dialog.Trigger>
+              <Dialog.Portal>
+                <Dialog.Backdrop className={styles.Backdrop} />
+                <Dialog.Popup className={styles.Popup}>
+                  <textarea
+                    placeholder="What's on your mind?"
+                    style={{ width: '100%', height: 300 }}
+                  />
+                  <div className={styles.Actions}>
+                    <Dialog.Close className={styles.Button}>Close</Dialog.Close>
+                  </div>
+                </Dialog.Popup>
+              </Dialog.Portal>
+            </Dialog.Root>
           </Dialog.Popup>
         </Dialog.Portal>
       </Dialog.Root>
