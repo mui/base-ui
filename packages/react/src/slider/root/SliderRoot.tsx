@@ -1,15 +1,25 @@
 'use client';
 import * as React from 'react';
 import { NOOP } from '../../utils/noop';
+import { clamp } from '../../utils/clamp';
 import type { BaseUIComponentProps, Orientation } from '../../utils/types';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import { valueToPercent } from '../../utils/valueToPercent';
 import type { FieldRoot } from '../../field/root/FieldRoot';
 import { CompositeList } from '../../composite/list/CompositeList';
 import { sliderStyleHookMapping } from './styleHooks';
 import { useSliderRoot } from './useSliderRoot';
 import { SliderRootContext } from './SliderRootContext';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
+
+export function valueArrayToPercentages(values: number[], min: number, max: number) {
+  const output = [];
+  for (let i = 0; i < values.length; i += 1) {
+    output.push(clamp(valueToPercent(values[i], min, max), 0, 100));
+  }
+  return output;
+}
 
 /**
  * Groups all parts of the slider.
