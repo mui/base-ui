@@ -68,10 +68,10 @@ async function generateLlmsTxt() {
         ]
           .filter(Boolean)
           .join('\n');
-          
+
         // Format markdown with frontmatter using prettier
         const prettierOptions = await prettier.resolveConfig(outputFilePath);
-        
+
         content = await prettier.format(content, {
           ...prettierOptions,
           filepath: outputFilePath,
@@ -83,7 +83,7 @@ async function generateLlmsTxt() {
 
         // Extract the filename without extension to use as id
         const fileId = path.basename(dirPath);
-        
+
         // Store metadata for this file in the appropriate section
         metadataBySection[sectionName].push({
           id: fileId,
@@ -122,35 +122,37 @@ async function generateLlmsTxt() {
     // Define specific orders for sections
     const overviewOrder = ['quick-start', 'accessibility', 'releases', 'about'];
     const handbookOrder = ['styling', 'animation', 'composition'];
-    
+
     // Validate that all expected overview items exist
-    overviewOrder.forEach(id => {
-      if (!metadataBySection.overview.some(item => item.id === id)) {
+    overviewOrder.forEach((id) => {
+      if (!metadataBySection.overview.some((item) => item.id === id)) {
         throw new Error(`Missing expected overview item: ${id}`);
       }
     });
-    
+
     // Validate that all expected handbook items exist
-    handbookOrder.forEach(id => {
-      if (!metadataBySection.handbook.some(item => item.id === id)) {
+    handbookOrder.forEach((id) => {
+      if (!metadataBySection.handbook.some((item) => item.id === id)) {
         throw new Error(`Missing expected handbook item: ${id}`);
       }
     });
-    
+
     // Sort overview by predefined order
     const sortedOverview = [...metadataBySection.overview].sort((a, b) => {
       return overviewOrder.indexOf(a.id) - overviewOrder.indexOf(b.id);
     });
-    
+
     // Sort handbook by predefined order
     const sortedHandbook = [...metadataBySection.handbook].sort((a, b) => {
       return handbookOrder.indexOf(a.id) - handbookOrder.indexOf(b.id);
     });
-    
+
     // Sort components and utilities alphabetically by id
-    const sortedComponents = [...metadataBySection.components].sort((a, b) => a.id.localeCompare(b.id));
+    const sortedComponents = [...metadataBySection.components].sort((a, b) =>
+      a.id.localeCompare(b.id),
+    );
     const sortedUtils = [...metadataBySection.utils].sort((a, b) => a.id.localeCompare(b.id));
-    
+
     // Add sections in the required order
     formatSection(sortedOverview, 'Overview');
     formatSection(sortedHandbook, 'Handbook');
