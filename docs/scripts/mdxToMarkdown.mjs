@@ -152,7 +152,7 @@ export async function mdxToMarkdown(mdxContent, mdxFilePath) {
   try {
     // Process the MDX content and include file path for context
     const vfile = {
-      path: filePath,
+      path: mdxFilePath,
       value: mdxContent,
     };
 

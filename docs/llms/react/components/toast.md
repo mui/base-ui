@@ -114,10 +114,12 @@ This example shows how to implement the component using CSS Modules.
       transform: translateY(calc(var(--toast-swipe-movement-y) - 150%));
     }
     &[data-swipe-direction='left'] {
-      transform: translateX(calc(var(--toast-swipe-movement-x) - 150%)) translateY(var(--offset-y));
+      transform: translateX(calc(var(--toast-swipe-movement-x) - 150%))
+        translateY(var(--offset-y));
     }
     &[data-swipe-direction='right'] {
-      transform: translateX(calc(var(--toast-swipe-movement-x) + 150%)) translateY(var(--offset-y));
+      transform: translateX(calc(var(--toast-swipe-movement-x) + 150%))
+        translateY(var(--offset-y));
     }
     &[data-swipe-direction='down'] {
       transform: translateY(calc(var(--toast-swipe-movement-y) + 150%));
@@ -646,7 +648,8 @@ The `--toast-swipe-movement-x` and `--toast-swipe-movement-y` CSS variables are 
 
 ```css "--toast-swipe-movement-x" "--toast-swipe-movement-y"
 .Toast {
-  transform: scale(1 - calc(0.1 * var(--toast-index))) + translateX(var(--toast-swipe-movement-x)) +
+  transform: scale(1 - calc(0.1 * var(--toast-index))) +
+    translateX(var(--toast-swipe-movement-x)) +
     translateY(calc(var(--toast-swipe-movement-y) + (var(--toast-index) * -20%)));
 }
 ```
@@ -664,10 +667,12 @@ The `data-swipe-direction` attribute can be used to determine the swipe directio
     transform: translateY(calc(var(--toast-swipe-movement-y) + 150%));
   }
   &[data-swipe-direction='left'] {
-    transform: translateX(calc(var(--toast-swipe-movement-x) - 150%)) translateY(var(--offset-y));
+    transform: translateX(calc(var(--toast-swipe-movement-x) - 150%))
+      translateY(var(--offset-y));
   }
   &[data-swipe-direction='right'] {
-    transform: translateX(calc(var(--toast-swipe-movement-x) + 150%)) translateY(var(--offset-y));
+    transform: translateX(calc(var(--toast-swipe-movement-x) + 150%))
+      translateY(var(--offset-y));
   }
 }
 ```
@@ -737,7 +742,8 @@ This example shows how to implement the component using CSS Modules.
 .Toast {
   --gap: 0.75rem;
   --offset-y: calc(
-    var(--toast-offset-y) + (var(--toast-index) * var(--gap)) + var(--toast-swipe-movement-y)
+    var(--toast-offset-y) + (var(--toast-index) * var(--gap)) +
+      var(--toast-swipe-movement-y)
   );
   position: absolute;
   left: 0;
@@ -773,7 +779,8 @@ This example shows how to implement the component using CSS Modules.
   }
 
   &[data-expanded] {
-    transform: translateX(var(--toast-swipe-movement-x)) translateY(calc(var(--offset-y)));
+    transform: translateX(var(--toast-swipe-movement-x))
+      translateY(calc(var(--offset-y)));
   }
 
   &[data-starting-style],
@@ -788,10 +795,12 @@ This example shows how to implement the component using CSS Modules.
       transform: translateY(calc(var(--toast-swipe-movement-y) - 150%));
     }
     &[data-swipe-direction='left'] {
-      transform: translateX(calc(var(--toast-swipe-movement-x) - 150%)) translateY(var(--offset-y));
+      transform: translateX(calc(var(--toast-swipe-movement-x) - 150%))
+        translateY(var(--offset-y));
     }
     &[data-swipe-direction='right'] {
-      transform: translateX(calc(var(--toast-swipe-movement-x) + 150%)) translateY(var(--offset-y));
+      transform: translateX(calc(var(--toast-swipe-movement-x) + 150%))
+        translateY(var(--offset-y));
     }
     &[data-swipe-direction='down'] {
       transform: translateY(calc(var(--toast-swipe-movement-y) + 150%));
@@ -884,7 +893,12 @@ function ToastButton() {
 function ToastList() {
   const { toasts } = Toast.useToastManager();
   return toasts.map((toast) => (
-    <Toast.Root key={toast.id} toast={toast} swipeDirection="up" className={styles.Toast}>
+    <Toast.Root
+      key={toast.id}
+      toast={toast}
+      swipeDirection="up"
+      className={styles.Toast}
+    >
       <Toast.Title className={styles.Title} />
       <Toast.Description className={styles.Description} />
       <Toast.Close className={styles.Close} aria-label="Close">
@@ -1117,10 +1131,12 @@ This example shows how to implement the component using CSS Modules.
       transform: translateY(calc(var(--toast-swipe-movement-y) - 150%));
     }
     &[data-swipe-direction='left'] {
-      transform: translateX(calc(var(--toast-swipe-movement-x) - 150%)) translateY(var(--offset-y));
+      transform: translateX(calc(var(--toast-swipe-movement-x) - 150%))
+        translateY(var(--offset-y));
     }
     &[data-swipe-direction='right'] {
-      transform: translateX(calc(var(--toast-swipe-movement-x) + 150%)) translateY(var(--offset-y));
+      transform: translateX(calc(var(--toast-swipe-movement-x) + 150%))
+        translateY(var(--offset-y));
     }
     &[data-swipe-direction='down'] {
       transform: translateY(calc(var(--toast-swipe-movement-y) + 150%));
@@ -1391,10 +1407,12 @@ This example shows how to implement the component using CSS Modules.
       transform: translateY(calc(var(--toast-swipe-movement-y) - 150%));
     }
     &[data-swipe-direction='left'] {
-      transform: translateX(calc(var(--toast-swipe-movement-x) - 150%)) translateY(var(--offset-y));
+      transform: translateX(calc(var(--toast-swipe-movement-x) - 150%))
+        translateY(var(--offset-y));
     }
     &[data-swipe-direction='right'] {
-      transform: translateX(calc(var(--toast-swipe-movement-x) + 150%)) translateY(var(--offset-y));
+      transform: translateX(calc(var(--toast-swipe-movement-x) + 150%))
+        translateY(var(--offset-y));
     }
     &[data-swipe-direction='down'] {
       transform: translateY(calc(var(--toast-swipe-movement-y) + 150%));
@@ -1651,10 +1669,12 @@ This example shows how to implement the component using CSS Modules.
       transform: translateY(calc(var(--toast-swipe-movement-y) - 150%));
     }
     &[data-swipe-direction='left'] {
-      transform: translateX(calc(var(--toast-swipe-movement-x) - 150%)) translateY(var(--offset-y));
+      transform: translateX(calc(var(--toast-swipe-movement-x) - 150%))
+        translateY(var(--offset-y));
     }
     &[data-swipe-direction='right'] {
-      transform: translateX(calc(var(--toast-swipe-movement-x) + 150%)) translateY(var(--offset-y));
+      transform: translateX(calc(var(--toast-swipe-movement-x) + 150%))
+        translateY(var(--offset-y));
     }
     &[data-swipe-direction='down'] {
       transform: translateY(calc(var(--toast-swipe-movement-y) + 150%));
@@ -1759,7 +1779,12 @@ function CustomToast() {
 function ToastList() {
   const { toasts } = Toast.useToastManager();
   return toasts.map((toast) => (
-    <Toast.Root key={toast.id} toast={toast} className={styles.Toast} data-position="top">
+    <Toast.Root
+      key={toast.id}
+      toast={toast}
+      className={styles.Toast}
+      data-position="top"
+    >
       <Toast.Title className={styles.Title}>{toast.title}</Toast.Title>
       {isCustomToast(toast) && toast.data ? (
         <Toast.Description>`data.userId` is {toast.data.userId}</Toast.Description>

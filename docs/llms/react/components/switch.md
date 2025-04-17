@@ -28,7 +28,11 @@ This example shows how to implement the component using CSS Modules.
   outline: 1px solid;
   outline-offset: -1px;
   background-color: transparent;
-  background-image: linear-gradient(to right, var(--color-gray-700) 35%, var(--color-gray-200) 65%);
+  background-image: linear-gradient(
+    to right,
+    var(--color-gray-700) 35%,
+    var(--color-gray-200) 65%
+  );
   background-size: 6.5rem 100%;
   background-position-x: 100%;
   background-repeat: no-repeat;

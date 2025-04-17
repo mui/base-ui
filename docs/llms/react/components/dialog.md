@@ -162,7 +162,9 @@ export default function ExampleDialog() {
       <Dialog.Portal>
         <Dialog.Backdrop className="fixed inset-0 bg-black opacity-20 transition-all duration-150 data-[ending-style]:opacity-0 data-[starting-style]:opacity-0 dark:opacity-70" />
         <Dialog.Popup className="fixed top-1/2 left-1/2 -mt-8 w-96 max-w-[calc(100vw-3rem)] -translate-x-1/2 -translate-y-1/2 rounded-lg bg-gray-50 p-6 text-gray-900 outline outline-1 outline-gray-200 transition-all duration-150 data-[ending-style]:scale-90 data-[ending-style]:opacity-0 data-[starting-style]:scale-90 data-[starting-style]:opacity-0 dark:outline-gray-300">
-          <Dialog.Title className="-mt-1.5 mb-1 text-lg font-medium">Notifications</Dialog.Title>
+          <Dialog.Title className="-mt-1.5 mb-1 text-lg font-medium">
+            Notifications
+          </Dialog.Title>
           <Dialog.Description className="mb-6 text-base text-gray-600">
             You are all caught up. Good job!
           </Dialog.Description>
@@ -647,10 +649,14 @@ export default function ExampleDialog() {
           <div className={styles.Actions}>
             <div className={styles.ActionsLeft}>
               <Dialog.Root>
-                <Dialog.Trigger className={styles.GhostButton}>Customize</Dialog.Trigger>
+                <Dialog.Trigger className={styles.GhostButton}>
+                  Customize
+                </Dialog.Trigger>
                 <Dialog.Portal>
                   <Dialog.Popup className={styles.Popup}>
-                    <Dialog.Title className={styles.Title}>Customize notifications</Dialog.Title>
+                    <Dialog.Title className={styles.Title}>
+                      Customize notifications
+                    </Dialog.Title>
                     <Dialog.Description className={styles.Description}>
                       Review your settings here.
                     </Dialog.Description>
@@ -689,7 +695,9 @@ export default function ExampleDialog() {
       <Dialog.Portal>
         <Dialog.Backdrop className="fixed inset-0 bg-black opacity-20 transition-all duration-150 data-[ending-style]:opacity-0 data-[starting-style]:opacity-0 dark:opacity-70" />
         <Dialog.Popup className="fixed top-[calc(50%+1.25rem*var(--nested-dialogs))] left-1/2 -mt-8 w-96 max-w-[calc(100vw-3rem)] -translate-x-1/2 -translate-y-1/2 scale-[calc(1-0.1*var(--nested-dialogs))] rounded-lg bg-gray-50 p-6 text-gray-900 outline outline-1 outline-gray-200 transition-all duration-150 data-[ending-style]:scale-90 data-[ending-style]:opacity-0 data-[nested-dialog-open]:after:absolute data-[nested-dialog-open]:after:inset-0 data-[nested-dialog-open]:after:rounded-[inherit] data-[nested-dialog-open]:after:bg-black/5 data-[starting-style]:scale-90 data-[starting-style]:opacity-0 dark:outline-gray-300">
-          <Dialog.Title className="-mt-1.5 mb-1 text-lg font-medium">Notifications</Dialog.Title>
+          <Dialog.Title className="-mt-1.5 mb-1 text-lg font-medium">
+            Notifications
+          </Dialog.Title>
           <Dialog.Description className="mb-6 text-base text-gray-600">
             You are all caught up. Good job!
           </Dialog.Description>
@@ -988,12 +996,16 @@ export default function ExampleDialog() {
       <AlertDialog.Root open={confirmationOpen} onOpenChange={setConfirmationOpen}>
         <AlertDialog.Portal>
           <AlertDialog.Popup className={styles.Popup}>
-            <AlertDialog.Title className={styles.Title}>Discard tweet?</AlertDialog.Title>
+            <AlertDialog.Title className={styles.Title}>
+              Discard tweet?
+            </AlertDialog.Title>
             <AlertDialog.Description className={styles.Description}>
               Your tweet will be lost.
             </AlertDialog.Description>
             <div className={styles.Actions}>
-              <AlertDialog.Close className={styles.Button}>Go back</AlertDialog.Close>
+              <AlertDialog.Close className={styles.Button}>
+                Go back
+              </AlertDialog.Close>
               <button
                 type="button"
                 className={styles.Button}
@@ -1049,7 +1061,9 @@ export default function ExampleDialog() {
       <Dialog.Portal>
         <Dialog.Backdrop className="fixed inset-0 bg-black opacity-20 transition-all duration-150 data-[ending-style]:opacity-0 data-[starting-style]:opacity-0 dark:opacity-70" />
         <Dialog.Popup className="fixed top-[calc(50%+1.25rem*var(--nested-dialogs))] left-1/2 -mt-8 w-96 max-w-[calc(100vw-3rem)] -translate-x-1/2 -translate-y-1/2 scale-[calc(1-0.1*var(--nested-dialogs))] rounded-lg bg-gray-50 p-6 text-gray-900 outline outline-1 outline-gray-200 transition-all duration-150 data-[ending-style]:scale-90 data-[ending-style]:opacity-0 data-[nested-dialog-open]:after:absolute data-[nested-dialog-open]:after:inset-0 data-[nested-dialog-open]:after:rounded-[inherit] data-[nested-dialog-open]:after:bg-black/5 data-[starting-style]:scale-90 data-[starting-style]:opacity-0 dark:outline-gray-300">
-          <Dialog.Title className="-mt-1.5 mb-1 text-lg font-medium">New tweet</Dialog.Title>
+          <Dialog.Title className="-mt-1.5 mb-1 text-lg font-medium">
+            New tweet
+          </Dialog.Title>
           <form
             className="mt-4 flex flex-col gap-6"
             onSubmit={(event) => {

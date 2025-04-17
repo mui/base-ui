@@ -209,7 +209,9 @@ export default function ExampleForm() {
       }}
     >
       <Field.Root name="url" className="flex flex-col items-start gap-1">
-        <Field.Label className="text-sm font-medium text-gray-900">Homepage</Field.Label>
+        <Field.Label className="text-sm font-medium text-gray-900">
+          Homepage
+        </Field.Label>
         <Field.Control
           type="url"
           required

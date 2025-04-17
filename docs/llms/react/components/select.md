@@ -252,7 +252,9 @@ export default function ExampleSelect() {
               <Select.ItemIndicator className={styles.ItemIndicator}>
                 <CheckIcon className={styles.ItemIndicatorIcon} />
               </Select.ItemIndicator>
-              <Select.ItemText className={styles.ItemText}>Sans-serif</Select.ItemText>
+              <Select.ItemText className={styles.ItemText}>
+                Sans-serif
+              </Select.ItemText>
             </Select.Item>
             <Select.Item className={styles.Item} value="serif">
               <Select.ItemIndicator className={styles.ItemIndicator}>
@@ -264,7 +266,9 @@ export default function ExampleSelect() {
               <Select.ItemIndicator className={styles.ItemIndicator}>
                 <CheckIcon className={styles.ItemIndicatorIcon} />
               </Select.ItemIndicator>
-              <Select.ItemText className={styles.ItemText}>Monospace</Select.ItemText>
+              <Select.ItemText className={styles.ItemText}>
+                Monospace
+              </Select.ItemText>
             </Select.Item>
             <Select.Item className={styles.Item} value="cursive">
               <Select.ItemIndicator className={styles.ItemIndicator}>

@@ -225,7 +225,9 @@ export default function ExamplePopover() {
             <Popover.Arrow className="data-[side=bottom]:top-[-8px] data-[side=left]:right-[-13px] data-[side=left]:rotate-90 data-[side=right]:left-[-13px] data-[side=right]:-rotate-90 data-[side=top]:bottom-[-8px] data-[side=top]:rotate-180">
               <ArrowSvg />
             </Popover.Arrow>
-            <Popover.Title className="text-base font-medium">Notifications</Popover.Title>
+            <Popover.Title className="text-base font-medium">
+              Notifications
+            </Popover.Title>
             <Popover.Description className="text-base text-gray-600">
               You are all caught up. Good job!
             </Popover.Description>
