@@ -60,7 +60,7 @@ export function processDemo(node, mdxFilePath) {
   // Resolve demo path relative to the MDX file
   const mdxDir = path.dirname(mdxFilePath);
   const demoPath = path.resolve(mdxDir, pathAttr);
-  
+
   // Check if the demo folder exists
   if (!fs.existsSync(demoPath)) {
     throw new Error(`Demo folder not found at "${demoPath}"`);
@@ -69,52 +69,52 @@ export function processDemo(node, mdxFilePath) {
   // Define paths for CSS Modules and Tailwind folders
   const cssModulesPath = path.join(demoPath, 'css-modules');
   const tailwindPath = path.join(demoPath, 'tailwind');
-  
+
   // Check if at least one of the folders exists
   const hasCssModules = fs.existsSync(cssModulesPath);
   const hasTailwind = fs.existsSync(tailwindPath);
-  
+
   // Throw error if neither folder exists
   if (!hasCssModules && !hasTailwind) {
     throw new Error(`Neither CSS Modules nor Tailwind folders found at "${demoPath}"`);
   }
-  
+
   const result = [];
-  
+
   // Add main Demo heading
   result.push(mdx.heading(2, 'Demo'));
-  
+
   // Process CSS Modules section if it exists
   if (hasCssModules) {
     result.push(mdx.heading(3, 'CSS Modules'));
-    
+
     // Add brief explanation paragraph
-    result.push(mdx.paragraph(
-      'This example shows how to implement the component using CSS Modules.'
-    ));
-    
+    result.push(
+      mdx.paragraph('This example shows how to implement the component using CSS Modules.'),
+    );
+
     // Get all files in the CSS Modules folder
     const cssModulesFiles = readDirFiles(cssModulesPath);
-    
+
     // Add code blocks for each file
     cssModulesFiles.forEach((file) => {
       const relativePath = path.relative(cssModulesPath, file);
       result.push(createFileCodeBlock(file, relativePath));
     });
   }
-  
+
   // Process Tailwind section if it exists
   if (hasTailwind) {
     result.push(mdx.heading(3, 'Tailwind'));
-    
+
     // Add brief explanation paragraph
-    result.push(mdx.paragraph(
-      'This example shows how to implement the component using Tailwind CSS.'
-    ));
-    
+    result.push(
+      mdx.paragraph('This example shows how to implement the component using Tailwind CSS.'),
+    );
+
     // Get all files in the Tailwind folder
     const tailwindFiles = readDirFiles(tailwindPath);
-    
+
     // Add code blocks for each file
     tailwindFiles.forEach((file) => {
       const relativePath = path.relative(tailwindPath, file);
