@@ -134,6 +134,11 @@ const SliderRoot = React.forwardRef(function SliderRoot<Value extends number | r
   ): React.JSX.Element;
 };
 
+export interface FingerPosition {
+  x: number;
+  y: number;
+}
+
 namespace SliderRoot {
   export interface State extends FieldRoot.State {
     /**
