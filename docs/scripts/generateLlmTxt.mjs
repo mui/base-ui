@@ -81,8 +81,12 @@ async function generateLlmsTxt() {
         // Write formatted markdown file
         await fs.writeFile(outputFilePath, content, 'utf-8');
 
+        // Extract the filename without extension to use as id
+        const fileId = path.basename(dirPath);
+        
         // Store metadata for this file in the appropriate section
         metadataBySection[sectionName].push({
+          id: fileId,
           title: title || 'Untitled',
           subtitle: subtitle || '',
           urlPath: `./react/${urlPath}.md`,
@@ -115,11 +119,43 @@ async function generateLlmsTxt() {
       }
     };
 
+    // Define specific orders for sections
+    const overviewOrder = ['quick-start', 'accessibility', 'releases', 'about'];
+    const handbookOrder = ['styling', 'animation', 'composition'];
+    
+    // Validate that all expected overview items exist
+    overviewOrder.forEach(id => {
+      if (!metadataBySection.overview.some(item => item.id === id)) {
+        throw new Error(`Missing expected overview item: ${id}`);
+      }
+    });
+    
+    // Validate that all expected handbook items exist
+    handbookOrder.forEach(id => {
+      if (!metadataBySection.handbook.some(item => item.id === id)) {
+        throw new Error(`Missing expected handbook item: ${id}`);
+      }
+    });
+    
+    // Sort overview by predefined order
+    const sortedOverview = [...metadataBySection.overview].sort((a, b) => {
+      return overviewOrder.indexOf(a.id) - overviewOrder.indexOf(b.id);
+    });
+    
+    // Sort handbook by predefined order
+    const sortedHandbook = [...metadataBySection.handbook].sort((a, b) => {
+      return handbookOrder.indexOf(a.id) - handbookOrder.indexOf(b.id);
+    });
+    
+    // Sort components and utilities alphabetically by id
+    const sortedComponents = [...metadataBySection.components].sort((a, b) => a.id.localeCompare(b.id));
+    const sortedUtils = [...metadataBySection.utils].sort((a, b) => a.id.localeCompare(b.id));
+    
     // Add sections in the required order
-    formatSection(metadataBySection.overview, 'Overview');
-    formatSection(metadataBySection.handbook, 'Handbook');
-    formatSection(metadataBySection.components, 'Components');
-    formatSection(metadataBySection.utils, 'Utilities');
+    formatSection(sortedOverview, 'Overview');
+    formatSection(sortedHandbook, 'Handbook');
+    formatSection(sortedComponents, 'Components');
+    formatSection(sortedUtils, 'Utilities');
 
     // Create llms.txt content and format with prettier
     let llmsTxtContent = sections.join('\n');
