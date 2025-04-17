@@ -4,46 +4,46 @@
 
 - [About Base UI](./react/overview/about.md): An open-source React component library for building accessible user interfaces.
 - [Accessibility](./react/overview/accessibility.md): Learn how to make the most of Base UI's accessibility features and guidelines.
-- [Releases](./react/overview/releases.md): Changelogs for each Base UI release.
 - [Quick start](./react/overview/quick-start.md): A quick guide to getting started with Base UI.
+- [Releases](./react/overview/releases.md): Changelogs for each Base UI release.
 
 ## Handbook
 
-- [Animation](./react/handbook/animation.md): A guide to animating Base UI components.
 - [Composition](./react/handbook/composition.md): A guide to composing Base UI components with your own React components.
+- [Animation](./react/handbook/animation.md): A guide to animating Base UI components.
 - [Styling](./react/handbook/styling.md): A guide to styling Base UI components with your preferred styling engine.
 
 ## Components
 
 - [Accordion](./react/components/accordion.md): A set of collapsible panels with headings.
 - [Alert Dialog](./react/components/alert-dialog.md): A dialog that requires user response to proceed.
-- [Checkbox](./react/components/checkbox.md): An easily stylable checkbox component.
 - [Avatar](./react/components/avatar.md): An easily stylable avatar component.
 - [Checkbox Group](./react/components/checkbox-group.md): Provides shared state to a series of checkboxes.
+- [Checkbox](./react/components/checkbox.md): An easily stylable checkbox component.
 - [Collapsible](./react/components/collapsible.md): A collapsible panel controlled by a button.
 - [Dialog](./react/components/dialog.md): A popup that opens on top of the entire page.
 - [Field](./react/components/field.md): A component that provides labelling and validation for form controls.
-- [Form](./react/components/form.md): A native form element with consolidated error handling.
 - [Fieldset](./react/components/fieldset.md): A native fieldset element with an easily stylable legend.
+- [Form](./react/components/form.md): A native form element with consolidated error handling.
 - [Input](./react/components/input.md): A native input element that automatically works with Field.
-- [Number Field](./react/components/number-field.md): A numeric input element with increment and decrement buttons, and a scrub area.
-- [Preview Card](./react/components/preview-card.md): A popup that appears when a link is hovered, showing a preview for sighted users.
 - [Menu](./react/components/menu.md): A list of actions in a dropdown, enhanced with keyboard navigation.
 - [Meter](./react/components/meter.md): A graphical display of a numeric value within a range.
-- [Progress](./react/components/progress.md): Displays the status of a task that takes a long time.
+- [Number Field](./react/components/number-field.md): A numeric input element with increment and decrement buttons, and a scrub area.
 - [Popover](./react/components/popover.md): An accessible popup anchored to a button.
-- [Select](./react/components/select.md): A common form component for choosing a predefined value in a dropdown menu.
+- [Preview Card](./react/components/preview-card.md): A popup that appears when a link is hovered, showing a preview for sighted users.
+- [Progress](./react/components/progress.md): Displays the status of a task that takes a long time.
 - [Radio](./react/components/radio.md): An easily stylable radio button component.
-- [Separator](./react/components/separator.md): A separator element accessible to screen readers.
 - [Scroll Area](./react/components/scroll-area.md): A native scroll container with custom scrollbars.
+- [Select](./react/components/select.md): A common form component for choosing a predefined value in a dropdown menu.
+- [Separator](./react/components/separator.md): A separator element accessible to screen readers.
 - [Slider](./react/components/slider.md): An easily stylable range input.
+- [Switch](./react/components/switch.md): A control that indicates whether a setting is on or off.
 - [Tabs](./react/components/tabs.md): A component for toggling between related panels on the same page.
 - [Toggle](./react/components/toggle.md): A two-state button that can be on or off.
-- [Toast](./react/components/toast.md): Generates toast notifications.
-- [Switch](./react/components/switch.md): A control that indicates whether a setting is on or off.
 - [Toggle Group](./react/components/toggle-group.md): Provides a shared state to a series of toggle buttons.
 - [Toolbar](./react/components/toolbar.md): A container for grouping a set of buttons and controls.
 - [Tooltip](./react/components/tooltip.md): A popup that appears when an element is hovered or focused, showing a hint for sighted users.
+- [Toast](./react/components/toast.md): Generates toast notifications.
 
 ## Utilities
 

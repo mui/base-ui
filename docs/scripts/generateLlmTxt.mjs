@@ -43,23 +43,15 @@ async function generateLlmsTxt() {
 
       console.log(`Found ${mdxFiles.length} files in ${sectionName}`);
 
-      // Process each MDX file in this section
       for (const mdxFile of mdxFiles) {
-        // Get relative path for URL generation
         const relativePath = path.relative(MDX_SOURCE_DIR, mdxFile);
         const dirPath = path.dirname(relativePath);
-
-        // Create URL for llms.txt (without /page.mdx)
         const urlPath = dirPath.replace(/\\/g, '/');
+        const outputFilePath = path.join(OUTPUT_REACT_DIR, `${dirPath}.md`);
 
-        // Read MDX content
         const mdxContent = await fs.readFile(mdxFile, 'utf-8');
 
-        // Convert to markdown and extract metadata
         const { markdown, title, subtitle, description } = await mdxToMarkdown(mdxContent, mdxFile);
-
-        // Get output file path - maintain the original directory structure under react
-        const outputFilePath = path.join(OUTPUT_REACT_DIR, `${dirPath}.md`);
 
         // Create directories for output if needed
         await fs.mkdir(path.dirname(outputFilePath), { recursive: true });
@@ -126,7 +118,7 @@ async function generateLlmsTxt() {
     // Apply prettier formatting using the project's configuration
     const llmsFilePath = path.join(OUTPUT_BASE_DIR, 'llms.txt');
     const prettierOptions = await prettier.resolveConfig(llmsFilePath);
-    
+
     llmsTxtContent = await prettier.format(llmsTxtContent, {
       ...prettierOptions,
       filepath: llmsFilePath,
