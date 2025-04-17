@@ -5,10 +5,6 @@ description: A high-quality, unstyled React toolbar component that groups a set 
 ---
 # Toolbar
 
-ffre
-
-frewf
-
 A high-quality, unstyled React toolbar component that groups a set of buttons and controls.
 
 ## Demo

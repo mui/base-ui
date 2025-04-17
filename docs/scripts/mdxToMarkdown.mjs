@@ -145,10 +145,10 @@ function transformJsx() {
 /**
  * Converts MDX content to markdown and extracts metadata
  * @param {string} mdxContent - The MDX content to convert
- * @param {string} filePath - Optional path to the MDX file for context
+ * @param {string} mdxFilePath - Optional path to the MDX file for context
  * @returns {Promise<Object>} An object containing the markdown and metadata
  */
-export async function mdxToMarkdown(mdxContent, filePath) {
+export async function mdxToMarkdown(mdxContent, mdxFilePath) {
   try {
     // Process the MDX content and include file path for context
     const vfile = {
@@ -178,10 +178,13 @@ export async function mdxToMarkdown(mdxContent, filePath) {
     // Get markdown content as string
     let markdown = String(file);
 
-    // Format markdown with prettier
-    const prettierConfig = await prettier.resolveConfig(process.cwd());
+    // Format markdown with prettier using the proper config resolution
+    const outputFilePath = mdxFilePath ? mdxFilePath.replace(/\.mdx$/, '.md') : '';
+    const prettierOptions = await prettier.resolveConfig(outputFilePath);
+    
     markdown = await prettier.format(markdown, {
-      ...prettierConfig,
+      ...prettierOptions,
+      filepath: outputFilePath,
       parser: 'markdown',
     });
 

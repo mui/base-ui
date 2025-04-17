@@ -123,10 +123,13 @@ async function generateLlmsTxt() {
     // Create llms.txt content and format with prettier
     let llmsTxtContent = sections.join('\n');
 
-    // Apply prettier formatting
-    const prettierConfig = await prettier.resolveConfig(process.cwd());
+    // Apply prettier formatting using the project's configuration
+    const llmsFilePath = path.join(OUTPUT_BASE_DIR, 'llms.txt');
+    const prettierOptions = await prettier.resolveConfig(llmsFilePath);
+    
     llmsTxtContent = await prettier.format(llmsTxtContent, {
-      ...prettierConfig,
+      ...prettierOptions,
+      filepath: llmsFilePath,
       parser: 'markdown',
     });
 
