@@ -17,6 +17,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { processReference } from './referenceProcessor.mjs';
 import { processDemo } from './demoProcessor.mjs';
+import * as prettier from 'prettier';
 
 /**
  * Plugin to extract metadata from the MDX content
@@ -188,7 +189,14 @@ export async function mdxToMarkdown(mdxContent, filePath) {
       .process(vfile);
 
     // Get markdown content as string
-    const markdown = String(file);
+    let markdown = String(file);
+
+    // Format markdown with prettier
+    const prettierConfig = await prettier.resolveConfig(process.cwd());
+    markdown = await prettier.format(markdown, {
+      ...prettierConfig,
+      parser: 'markdown'
+    });
 
     // Extract metadata from the file's data
     const { title = '', subtitle = '', description = '' } = file.data.metadata || {};
