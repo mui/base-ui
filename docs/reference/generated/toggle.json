@@ -4,16 +4,16 @@
   "props": {
     "value": {
       "type": "string",
-      "description": "A unique string that identifies the component when used\ninside a ToggleGroup."
+      "description": "A unique string that identifies the toggle when used\ninside a toggle group."
     },
     "defaultPressed": {
       "type": "boolean",
       "default": "false",
-      "description": "The default pressed state. Use when the component is not controlled."
+      "description": "Whether the toggle button is currently pressed.\nThis is the uncontrolled counterpart of `pressed`."
     },
     "pressed": {
       "type": "boolean",
-      "description": "Whether the toggle button is currently active."
+      "description": "Whether the toggle button is currently pressed.\nThis is the controlled counterpart of `defaultPressed`."
     },
     "onPressedChange": {
       "type": "((pressed: boolean, event: Event) => void)",

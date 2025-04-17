@@ -4,15 +4,15 @@
   "props": {
     "defaultValue": {
       "type": "any[]",
-      "description": "The open state of the ToggleGroup represented by an array of\nthe values of all pressed `<ToggleGroup.Item/>`s.\nThis is the uncontrolled counterpart of `value`."
+      "description": "The open state of the toggle group represented by an array of\nthe values of all pressed toggle buttons.\nThis is the uncontrolled counterpart of `value`."
     },
     "value": {
       "type": "any[]",
-      "description": "The open state of the ToggleGroup represented by an array of\nthe values of all pressed `<ToggleGroup.Item/>`s\nThis is the controlled counterpart of `defaultValue`."
+      "description": "The open state of the toggle group represented by an array of\nthe values of all pressed toggle buttons.\nThis is the controlled counterpart of `defaultValue`."
     },
     "onValueChange": {
       "type": "((groupValue: any[], event: Event) => void)",
-      "description": "Callback fired when the pressed states of the ToggleGroup changes."
+      "description": "Callback fired when the pressed states of the toggle group changes."
     },
     "toggleMultiple": {
       "type": "boolean",
@@ -22,7 +22,7 @@
     "disabled": {
       "type": "boolean",
       "default": "false",
-      "description": "Whether the component should ignore user interaction."
+      "description": "Whether the toggle group should ignore user interaction."
     },
     "loop": {
       "type": "boolean",
@@ -30,7 +30,7 @@
       "description": "Whether to loop keyboard focus back to the first item\nwhen the end of the list is reached while using the arrow keys."
     },
     "orientation": {
-      "type": "ToggleGroupOrientation",
+      "type": "Orientation",
       "default": "'horizontal'"
     },
     "className": {
