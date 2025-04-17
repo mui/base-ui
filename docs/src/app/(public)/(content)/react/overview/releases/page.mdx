@@ -5,7 +5,7 @@
 
 ## v1.0.0-alpha.8
 
-**Apr 16, 2025**
+**Apr 17, 2025**
 
 ### Accordion
 
@@ -69,7 +69,9 @@
 
 ### Progress
 
-- **Breaking change:** Add `Progress.Label` and `locale` prop ([#1666](https://github.com/mui/base-ui/pull/1666))
+- **Breaking change:** Add `Progress.Label` and `locale` prop
+  The `getAriaLabel` prop was removed as `Progress.Label` should be used to provide an accessible name.
+  ([#1666](https://github.com/mui/base-ui/pull/1666))
 
 ### Radio
 
@@ -77,13 +79,17 @@
 
 ### ScrollArea
 
-- **Breaking change:** Add `Content` part ([#1607](https://github.com/mui/base-ui/pull/1607))
+- **Breaking change:** Add `Content` part
+  It is now required to include the ScrollArea.Content within ScrollArea.Viewport part.
+  ([#1607](https://github.com/mui/base-ui/pull/1607))
 - Handle visibility change and nesting ([#1598](https://github.com/mui/base-ui/pull/1598))
 - Correct thumb sizing with scrollbar margins ([#1606](https://github.com/mui/base-ui/pull/1606))
 
 ### Select
 
-- **Breaking change:** Improve item highlight performance ([#1570](https://github.com/mui/base-ui/pull/1570))
+- **Breaking change:** Improve item highlight performance
+  The highlighted state is now removed. It's not possible to customize the `data-highlighted` attribute anymore.
+  ([#1570](https://github.com/mui/base-ui/pull/1570))
 - Avoid double commit on value change ([#1597](https://github.com/mui/base-ui/pull/1597))
 - Reset `selectedIndex` when set to `null` ([#1596](https://github.com/mui/base-ui/pull/1596))
 - Add missing item data attributes docs ([#1691](https://github.com/mui/base-ui/pull/1691))
@@ -106,7 +112,6 @@
 
 - Avoid re-rendering unrelated consumers ([#1677](https://github.com/mui/base-ui/pull/1677))
 - Add `disabled` prop ([#1682](https://github.com/mui/base-ui/pull/1682))
-- Refactor to `useRenderElement` ([#1701](https://github.com/mui/base-ui/pull/1701))
 - Fix `onOpenChange` types for `event`/`reason` passing ([#1721](https://github.com/mui/base-ui/pull/1721))
 - Use consistent `inert` attr and map `[data-popup-open]` back to `open` ([#1650](https://github.com/mui/base-ui/pull/1650))
 - Fix text selection & right-clicks ([#1702](https://github.com/mui/base-ui/pull/1702))

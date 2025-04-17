@@ -2,7 +2,7 @@
 
 ## v1.0.0-alpha.8
 
-_Apr 16, 2025_
+_Apr 17, 2025_
 
 ### Accordion
 
@@ -66,7 +66,9 @@ _Apr 16, 2025_
 
 ### Progress
 
-- **Breaking change:** Add `Progress.Label` and `locale` prop (#1666) @mj12albert
+- **Breaking change:** Add `Progress.Label` and `locale` prop
+  The `getAriaLabel` prop was removed as `Progress.Label` should be used to provide an accessible name.
+  (#1666) @mj12albert
 
 ### Radio
 
@@ -74,13 +76,17 @@ _Apr 16, 2025_
 
 ### ScrollArea
 
-- **Breaking change:** Add `Content` part (#1607) @atomiks
+- **Breaking change:** Add `Content` part
+  It is now required to include the ScrollArea.Content within ScrollArea.Viewport part.
+  (#1607) @atomiks
 - Handle visibility change and nesting (#1598) @atomiks
 - Correct thumb sizing with scrollbar margins (#1606) @atomiks
 
 ### Select
 
-- **Breaking change:** Improve item highlight performance (#1570) @atomiks
+- **Breaking change:** Improve item highlight performance
+  The highlighted state is now removed. It's not possible to customize the `data-highlighted` attribute anymore.
+  (#1570) @atomiks
 - Avoid double commit on value change (#1597) @atomiks
 - Reset `selectedIndex` when set to `null` (#1596) @atomiks
 - Add missing item data attributes docs (#1691) @atomiks
@@ -103,7 +109,6 @@ _Apr 16, 2025_
 
 - Avoid re-rendering unrelated consumers (#1677) @atomiks
 - Add `disabled` prop (#1682) @atomiks
-- Refactor to `useRenderElement` (#1701) @atomiks
 - Fix `onOpenChange` types for `event`/`reason` passing (#1721) @atomiks
 - Use consistent `inert` attr and map `[data-popup-open]` back to `open` (#1650) @atomiks
 - Fix text selection & right-clicks (#1702) @mj12albert
