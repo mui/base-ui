@@ -16,8 +16,7 @@ import { fileURLToPath } from 'url';
 import glob from 'fast-glob';
 import { mdxToMarkdown } from './mdxToMarkdown.mjs';
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const PROJECT_ROOT = path.resolve(__dirname, '..');
+const PROJECT_ROOT = path.resolve(import.meta.dirname, '..');
 const MDX_SOURCE_DIR = path.join(PROJECT_ROOT, 'src/app/(public)/(content)/react');
 const OUTPUT_DIR = path.join(PROJECT_ROOT, 'llms');
 

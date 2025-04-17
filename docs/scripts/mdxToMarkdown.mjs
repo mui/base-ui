@@ -82,8 +82,8 @@ function transformJsx() {
           const subtitleText = mdx.textContent(node);
 
           if (subtitleText) {
-            // Create a paragraph with proper emphasis node structure
-            parent.children.splice(index, 1, mdx.paragraph(mdx.emphasis(subtitleText)));
+            // Create a paragraph with proper strong emphasis node structure
+            parent.children.splice(index, 1, mdx.paragraph(mdx.strong(subtitleText)));
           } else {
             // Remove empty subtitle
             parent.children.splice(index, 1);
