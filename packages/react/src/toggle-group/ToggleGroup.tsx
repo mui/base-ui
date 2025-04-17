@@ -132,26 +132,26 @@ namespace ToggleGroup {
 
   export interface Props extends Omit<BaseUIComponentProps<'div', State>, 'defaultValue'> {
     /**
-     * The open state of the ToggleGroup represented by an array of
-     * the values of all pressed toggle buttons
+     * The open state of the toggle group represented by an array of
+     * the values of all pressed toggle buttons.
      * This is the controlled counterpart of `defaultValue`.
      */
     value?: readonly any[];
     /**
-     * The open state of the ToggleGroup represented by an array of
+     * The open state of the toggle group represented by an array of
      * the values of all pressed toggle buttons.
      * This is the uncontrolled counterpart of `value`.
      */
     defaultValue?: readonly any[];
     /**
-     * Callback fired when the pressed states of the ToggleGroup changes.
+     * Callback fired when the pressed states of the toggle group changes.
      *
      * @param {any[]} groupValue An array of the `value`s of all the pressed items.
      * @param {Event} event The corresponding event that initiated the change.
      */
     onValueChange?: (groupValue: any[], event: Event) => void;
     /**
-     * Whether the component should ignore user interaction.
+     * Whether the toggle group should ignore user interaction.
      * @default false
      */
     disabled?: boolean;
@@ -190,13 +190,13 @@ ToggleGroup.propTypes /* remove-proptypes */ = {
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * The open state of the ToggleGroup represented by an array of
+   * The open state of the toggle group represented by an array of
    * the values of all pressed toggle buttons.
    * This is the uncontrolled counterpart of `value`.
    */
   defaultValue: PropTypes.array,
   /**
-   * Whether the component should ignore user interaction.
+   * Whether the toggle group should ignore user interaction.
    * @default false
    */
   disabled: PropTypes.bool,
@@ -207,7 +207,7 @@ ToggleGroup.propTypes /* remove-proptypes */ = {
    */
   loop: PropTypes.bool,
   /**
-   * Callback fired when the pressed states of the ToggleGroup changes.
+   * Callback fired when the pressed states of the toggle group changes.
    *
    * @param {any[]} groupValue An array of the `value`s of all the pressed items.
    * @param {Event} event The corresponding event that initiated the change.
@@ -232,8 +232,8 @@ ToggleGroup.propTypes /* remove-proptypes */ = {
    */
   toggleMultiple: PropTypes.bool,
   /**
-   * The open state of the ToggleGroup represented by an array of
-   * the values of all pressed toggle buttons
+   * The open state of the toggle group represented by an array of
+   * the values of all pressed toggle buttons.
    * This is the controlled counterpart of `defaultValue`.
    */
   value: PropTypes.array,

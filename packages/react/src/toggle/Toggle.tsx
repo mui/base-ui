@@ -104,11 +104,13 @@ namespace Toggle {
 
   export interface Props extends Omit<BaseUIComponentProps<'button', State>, 'value'> {
     /**
-     * Whether the toggle button is currently active.
+     * Whether the toggle button is currently pressed.
+     * This is the controlled counterpart of `defaultPressed`.
      */
     pressed?: boolean;
     /**
-     * The default pressed state. Use when the component is not controlled.
+     * Whether the toggle button is currently pressed.
+     * This is the uncontrolled counterpart of `pressed`.
      * @default false
      */
     defaultPressed?: boolean;
@@ -125,8 +127,8 @@ namespace Toggle {
      */
     onPressedChange?: (pressed: boolean, event: Event) => void;
     /**
-     * A unique string that identifies the component when used
-     * inside a ToggleGroup.
+     * A unique string that identifies the toggle when used
+     * inside a toggle group.
      */
     value?: string;
   }
@@ -147,7 +149,8 @@ Toggle.propTypes /* remove-proptypes */ = {
    */
   className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
   /**
-   * The default pressed state. Use when the component is not controlled.
+   * Whether the toggle button is currently pressed.
+   * This is the uncontrolled counterpart of `pressed`.
    * @default false
    */
   defaultPressed: PropTypes.bool,
@@ -168,7 +171,8 @@ Toggle.propTypes /* remove-proptypes */ = {
    */
   onPressedChange: PropTypes.func,
   /**
-   * Whether the toggle button is currently active.
+   * Whether the toggle button is currently pressed.
+   * This is the controlled counterpart of `defaultPressed`.
    */
   pressed: PropTypes.bool,
   /**
@@ -183,8 +187,8 @@ Toggle.propTypes /* remove-proptypes */ = {
    */
   type: PropTypes.oneOf(['button', 'reset', 'submit']),
   /**
-   * A unique string that identifies the component when used
-   * inside a ToggleGroup.
+   * A unique string that identifies the toggle when used
+   * inside a toggle group.
    */
   value: PropTypes.string,
 } as any;
