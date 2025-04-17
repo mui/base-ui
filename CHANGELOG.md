@@ -29,7 +29,9 @@ _Apr 17, 2025_
 ### Dialog
 
 - **Breaking change:** Rename `data-has-nested-dialogs` to `data-nested-dialog-open` (#1686) @mj12albert
-- **Breaking change:** Add new `trap-focus` value to `modal` prop (#1571) @atomiks
+- **Breaking change:** Add new `trap-focus` value to `modal` prop.
+  Dialogs with `modal=false` no longer trap focus.
+  (#1571) @atomiks
 - Fix `onOpenChange` types for `event`/`reason` passing (#1721) @atomiks
 - Use consistent `inert` attr and map `[data-popup-open]` back to `open` (#1650) @atomiks
 - Fix text selection & right-clicks (#1702) @mj12albert
