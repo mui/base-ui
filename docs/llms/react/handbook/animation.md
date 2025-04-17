@@ -1,0 +1,205 @@
+---
+title: Animation
+subtitle: A guide to animating Base UI components.
+description: A guide to animating Base UI components.
+---
+# Animation
+
+A guide to animating Base UI components.
+
+Base UI components can be animated using CSS transitions, CSS animations, or JavaScript animation libraries. Each component provides a number of data attributes to target its states, as well as a few attributes specifically for animation.
+
+## CSS transitions
+
+Use the following Base UI attributes for creating transitions when a component becomes visible or hidden:
+
+- `[data-starting-style]` corresponds to the initial style to transition from.
+- `[data-ending-style]` corresponds the final style to transition to.
+
+Transitions are recommended over CSS animations, because a transition can be smoothly cancelled midway.
+For example, if the user closes a popup before it finishes opening, with CSS transitions it will smoothly animate to its closed state without any abrupt changes.
+
+```css title="popover.css"
+.Popup {
+  box-sizing: border-box;
+  padding: 1rem 1.5rem;
+  background-color: canvas;
+  transform-origin: var(--transform-origin);
+  transition:
+    transform 150ms,
+    opacity 150ms;
+
+  &[data-starting-style],
+  &[data-ending-style] {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+}
+```
+
+## CSS animations
+
+Use the following Base UI attributes for creating CSS animations when a component becomes visible or hidden:
+
+- `[data-open]` corresponds to the style applied when a component becomes visible.
+- `[data-closed]` corresponds the style applied before a component becomes hidden.
+
+```css title="popover.css"
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes scaleOut {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+}
+
+.Popup[data-open] {
+  animation: scaleIn 250ms ease-out;
+}
+
+.Popup[data-closed] {
+  animation: scaleOut 250ms ease-in;
+}
+```
+
+## JavaScript animations
+
+JavaScript animation libraries such as [Motion](https://motion.dev) require control of the mounting and unmounting lifecycle of components in order for exit animations to play.
+
+Base UI relies on [`element.getAnimations()`](https://developer.mozilla.org/en-US/docs/Web/API/Element/getAnimations) to detect if animations have finished on an element.
+When using Motion, the `opacity` property lets this detection work easily, so always animating `opacity` to a new value for exit animations will work.
+If it shouldn't be animated, you can use a value close to `1`, such as `opacity: 0.9999`.
+
+### Elements removed from the DOM when closed
+
+Most components like Popover are unmounted from the DOM when they are closed. To animate them:
+
+- Make the component controlled with the `open` prop so `AnimatePresence` can see the state as a child
+- Specify `keepMounted` on the `Portal` part
+- Use the `render` prop to compose the `Popup` with `motion.div`
+
+```jsx title="animated-popover.tsx" {12-18} "keepMounted"
+function App() {
+  const [open, setOpen] = React.useState(false);
+
+  return (
+    <Popover.Root open={open} onOpenChange={setOpen}>
+      <Popover.Trigger>Trigger</Popover.Trigger>
+      <AnimatePresence>
+        {open && (
+          <Popover.Portal keepMounted>
+            <Popover.Positioner>
+              <Popover.Popup
+                render={
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.8 }}
+                  />
+                }
+              >
+                Popup
+              </Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
+        )}
+      </AnimatePresence>
+    </Popover.Root>
+  );
+}
+```
+
+### Elements kept in the DOM when closed
+
+The `Select` component must be kept mounted in the DOM even when closed. In this case, a
+different approach is needed to animate it with Motion.
+
+- Make the component controlled with the `open` prop
+- Use the `render` prop to compose the `Popup` with `motion.div`
+- Animate the properties based on the `open` state, avoiding `AnimatePresence`
+
+```jsx title="animated-select.tsx" {12-20}
+function App() {
+  const [open, setOpen] = React.useState(false);
+
+  return (
+    <Select.Root open={open} onOpenChange={setOpen}>
+      <Select.Trigger>
+        <Select.Value />
+      </Select.Trigger>
+      <Select.Portal>
+        <Select.Positioner>
+          <Select.Popup
+            render={
+              <motion.div
+                initial={false}
+                animate={{
+                  opacity: open ? 1 : 0,
+                  scale: open ? 1 : 0.8,
+                }}
+              />
+            }
+          >
+            Popup
+          </Select.Popup>
+        </Select.Positioner>
+      </Select.Portal>
+    </Select.Root>
+  );
+}
+```
+
+### Manual unmounting
+
+For full control, you can manually unmount the component when it's closed once animations have finished using an `actionsRef` passed to the `Root`:
+
+```jsx title="manual-unmount.tsx" "actionsRef"
+function App() {
+  const [open, setOpen] = React.useState(false);
+  const actionsRef = React.useRef({ unmount: () => {} });
+
+  return (
+    <Popover.Root open={open} onOpenChange={setOpen} actionsRef={actionsRef}>
+      <Popover.Trigger>Trigger</Popover.Trigger>
+      <AnimatePresence>
+        {open && (
+          <Popover.Portal keepMounted>
+            <Popover.Positioner>
+              <Popover.Popup
+                render={
+                  <motion.div
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    exit={{ scale: 0 }}
+                    onAnimationComplete={() => {
+                      if (!open) {
+                        actionsRef.current.unmount();
+                      }
+                    }}
+                  />
+                }
+              >
+                Popup
+              </Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
+        )}
+      </AnimatePresence>
+    </Popover.Root>
+  );
+}
+```

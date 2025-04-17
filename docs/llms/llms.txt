@@ -1,0 +1,49 @@
+# Base UI
+
+## Overview
+
+- [About Base UI](./react/overview/about): An open-source React component library for building accessible user interfaces.
+- [Accessibility](./react/overview/accessibility): Learn how to make the most of Base UI's accessibility features and guidelines.
+- [Quick start](./react/overview/quick-start): A quick guide to getting started with Base UI.
+- [Releases](./react/overview/releases): Changelogs for each Base UI release.
+
+## Handbook
+
+- [Animation](./react/handbook/animation): A guide to animating Base UI components.
+- [Composition](./react/handbook/composition): A guide to composing Base UI components with your own React components.
+- [Styling](./react/handbook/styling): A guide to styling Base UI components with your preferred styling engine.
+
+## Components
+
+- [Accordion](./react/components/accordion): A set of collapsible panels with headings.
+- [Alert Dialog](./react/components/alert-dialog): A dialog that requires user response to proceed.
+- [Checkbox](./react/components/checkbox): An easily stylable checkbox component.
+- [Avatar](./react/components/avatar): An easily stylable avatar component.
+- [Checkbox Group](./react/components/checkbox-group): Provides shared state to a series of checkboxes.
+- [Collapsible](./react/components/collapsible): A collapsible panel controlled by a button.
+- [Dialog](./react/components/dialog): A popup that opens on top of the entire page.
+- [Field](./react/components/field): A component that provides labelling and validation for form controls.
+- [Fieldset](./react/components/fieldset): A native fieldset element with an easily stylable legend.
+- [Form](./react/components/form): A native form element with consolidated error handling.
+- [Input](./react/components/input): A native input element that automatically works with Field.
+- [Menu](./react/components/menu): A list of actions in a dropdown, enhanced with keyboard navigation.
+- [Number Field](./react/components/number-field): A numeric input element with increment and decrement buttons, and a scrub area.
+- [Popover](./react/components/popover): An accessible popup anchored to a button.
+- [Preview Card](./react/components/preview-card): A popup that appears when a link is hovered, showing a preview for sighted users.
+- [Progress](./react/components/progress): Displays the status of a task that takes a long time.
+- [Radio](./react/components/radio): An easily stylable radio button component.
+- [Scroll Area](./react/components/scroll-area): A native scroll container with custom scrollbars.
+- [Select](./react/components/select): A common form component for choosing a predefined value in a dropdown menu.
+- [Separator](./react/components/separator): A separator element accessible to screen readers.
+- [Slider](./react/components/slider): An easily stylable range input.
+- [Switch](./react/components/switch): A control that indicates whether a setting is on or off.
+- [Tabs](./react/components/tabs): A component for toggling between related panels on the same page.
+- [Toggle](./react/components/toggle): A two-state button that can be on or off.
+- [Toggle Group](./react/components/toggle-group): Provides a shared state to a series of toggle buttons.
+- [Tooltip](./react/components/tooltip): A popup that appears when an element is hovered or focused, showing a hint for sighted users.
+- [Toolbar](./react/components/toolbar): A container for grouping a set of buttons and controls.
+
+## Utilities
+
+- [Direction Provider](./react/utils/direction-provider): Enables RTL behavior for Base UI components.
+- [useRender](./react/utils/use-render): Hook for enabling a render prop in custom components.
