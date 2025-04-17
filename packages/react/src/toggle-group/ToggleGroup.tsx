@@ -130,7 +130,7 @@ namespace ToggleGroup {
     multiple: boolean;
   }
 
-  export interface Props extends Omit<BaseUIComponentProps<'div', State>, 'defaultValue'> {
+  export interface Props extends BaseUIComponentProps<'div', State> {
     /**
      * The open state of the toggle group represented by an array of
      * the values of all pressed toggle buttons.

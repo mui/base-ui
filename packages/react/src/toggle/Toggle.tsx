@@ -102,7 +102,7 @@ namespace Toggle {
     disabled: boolean;
   }
 
-  export interface Props extends Omit<BaseUIComponentProps<'button', State>, 'value'> {
+  export interface Props extends BaseUIComponentProps<'button', State> {
     /**
      * Whether the toggle button is currently pressed.
      * This is the controlled counterpart of `defaultPressed`.
