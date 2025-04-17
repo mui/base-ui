@@ -23,9 +23,18 @@ export function useIOSDocumentSlide(params: {
   const setLock = useEventCallback(setLockParam);
 
   const scrollRef = React.useRef({ x: 0, y: 0 });
+  const hasBeenEnabledRef = React.useRef(enabled);
 
   useEnhancedEffect(() => {
     if (!isIOS()) {
+      return;
+    }
+
+    if (enabled) {
+      hasBeenEnabledRef.current = true;
+    }
+
+    if (!hasBeenEnabledRef.current) {
       return;
     }
 
