@@ -101,6 +101,26 @@ export function code(value, lang) {
   };
 }
 
+/**
+ * Creates a markdown table as a single string
+ * @param {Array<string>} headers - Array of header strings
+ * @param {Array<Array<string>>} rows - Array of row data, each row is an array of cell content
+ * @returns {string} A markdown table string
+ */
+export function markdownTable(headers, rows) {
+  // Create header row
+  const headerRow = `| ${headers.join(' | ')} |`;
+  
+  // Create separator row
+  const separatorRow = `| ${headers.map(() => '-------').join(' | ')} |`;
+  
+  // Create data rows
+  const dataRows = rows.map(row => `| ${row.join(' | ')} |`);
+  
+  // Join all rows with newlines
+  return [headerRow, separatorRow, ...dataRows].join('\n');
+}
+
 // textParagraph has been removed as paragraph() can now handle string inputs directly
 
 /**

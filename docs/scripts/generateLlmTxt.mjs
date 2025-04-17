@@ -63,7 +63,7 @@ async function generateLlmsTxt() {
       // Create directories for output if needed
       await fs.mkdir(path.dirname(outputFilePath), { recursive: true });
 
-      // Create markdown content with frontmatter and include subtitle/description both in frontmatter and as markdown
+      // Create markdown content with frontmatter, placing subtitle/description only in frontmatter
       const frontmatter = [
         '---',
         `title: ${title || 'Untitled'}`,

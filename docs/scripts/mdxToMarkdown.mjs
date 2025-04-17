@@ -61,60 +61,121 @@ function extractMetadata() {
 function transformJsx() {
   return (tree) => {
     // Handle JSX flow elements (block-level JSX)
-    visit(tree, ['mdxjsEsm', 'mdxFlowExpression', 'mdxTextExpression'], (node, index, parent) => {
-      if (!parent) return;
-      // Process different component types
-      switch (node.name) {
-        case 'Demo':
-          parent.children.splice(index, 1, mdx.paragraph('--- Demo ---'));
-          return;
+    visit(
+      tree,
+      [
+        'mdxJsxFlowElement',
+        'mdxjsEsm',
+        'mdxFlowExpression',
+        'mdxTextExpression',
+        'mdxJsxTextElement',
+      ],
+      (node, index, parent) => {
+        if (!parent) return;
+        // Process different component types
+        switch (node.name) {
+          case 'Demo':
+            parent.children.splice(index, 1, mdx.paragraph('--- Demo ---'));
+            return;
 
-        case 'Reference':
-          parent.children.splice(index, 1, mdx.paragraph('--- Reference ---'));
-          return;
+          case 'Reference': {
+            // Extract component name and parts from attributes
+            const componentAttr = node.attributes?.find((attr) => attr.name === 'component')?.value;
+            const partsAttr = node.attributes?.find((attr) => attr.name === 'parts')?.value;
 
-        case 'PropsReferenceTable':
-          parent.children.splice(index, 1, mdx.paragraph('--- PropsReferenceTable ---'));
-          return;
+            if (!componentAttr) {
+              parent.children.splice(
+                index,
+                1,
+                mdx.paragraph('--- Reference: Missing component attribute ---'),
+              );
+              return;
+            }
 
-        case 'Subtitle': {
-          // Extract text from all child nodes
-          const subtitleText = mdx.textContent(node);
+            // Create reference table in markdown
+            try {
+              const tables = [];
 
-          if (subtitleText) {
-            // Create a paragraph with proper strong emphasis node structure
-            parent.children.splice(index, 1, mdx.paragraph(mdx.strong(subtitleText)));
-          } else {
-            // Remove empty subtitle
-            parent.children.splice(index, 1);
-          }
-          return;
-        }
+              // Add heading for API Reference
+              tables.push(mdx.heading(2, 'API Reference'));
 
-        case 'Meta': {
-          // Check if it's a description meta tag
-          const nameAttr = node.attributes?.find(
-            (attr) => attr.name === 'name' && attr.value === 'description',
-          );
-          const contentAttr = node.attributes?.find((attr) => attr.name === 'content');
+              // Process each component part
+              const parts = partsAttr
+                ? partsAttr.split(/,\s*/).map((p) => p.trim())
+                : [componentAttr];
 
-          if (nameAttr && contentAttr && contentAttr.value) {
-            // Replace with a paragraph containing the description
-            parent.children.splice(index, 1, mdx.paragraph(contentAttr.value));
+              for (const part of parts) {
+                // Add subheading for the part
+                if (parts.length > 1) {
+                  tables.push(mdx.heading(3, part));
+                }
+
+                // Add reference table as markdown table
+                tables.push(mdx.paragraph(`**${part} Props**:`));
+                const tableContent = mdx.markdownTable(
+                  ['Prop', 'Type', 'Default', 'Description'],
+                  [['(props will be generated)', 'string', '-', 'Component properties']],
+                );
+                tables.push(mdx.paragraph(tableContent));
+
+                // Add separator between parts
+                if (parts.length > 1) {
+                  tables.push(mdx.paragraph(''));
+                }
+              }
+
+              // Replace the reference component with our generated tables
+              parent.children.splice(index, 1, ...tables);
+            } catch (error) {
+              console.error(`Error creating reference table for ${componentAttr}:`, error);
+              parent.children.splice(
+                index,
+                1,
+                mdx.paragraph(`--- Reference Error: ${error.message} ---`),
+              );
+            }
+
             return;
           }
 
-          // Remove other Meta tags
-          parent.children.splice(index, 1);
-          return [visit.SKIP, index];
-        }
+          case 'PropsReferenceTable':
+            parent.children.splice(index, 1, mdx.paragraph('--- PropsReferenceTable ---'));
+            return;
 
-        default:
-          // For other components, remove them to keep only standard markdown elements
-          parent.children.splice(index, 1);
-          return [visit.SKIP, index];
-      }
-    });
+          case 'Subtitle': {
+            // Extract text from all child nodes
+            const subtitleText = mdx.textContent(node);
+
+            // Subtitle is now in frontmatter, so remove from the content
+            parent.children.splice(index, 1);
+            return;
+          }
+
+          case 'Meta': {
+            // Check if it's a description meta tag
+            const nameAttr = node.attributes?.find(
+              (attr) => attr.name === 'name' && attr.value === 'description',
+            );
+            const contentAttr = node.attributes?.find((attr) => attr.name === 'content');
+
+            if (nameAttr && contentAttr && contentAttr.value) {
+              // Replace with a paragraph containing the description
+              parent.children.splice(index, 1, mdx.paragraph(contentAttr.value));
+              return;
+            }
+
+            // Remove other Meta tags
+            parent.children.splice(index, 1);
+            return [visit.SKIP, index];
+          }
+
+          default:
+            // For other components, remove them to keep only standard markdown elements
+            parent.children.splice(index, 1);
+            return [visit.SKIP, index];
+        }
+      },
+    );
 
     return tree;
   };
