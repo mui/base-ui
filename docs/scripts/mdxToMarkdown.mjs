@@ -34,7 +34,7 @@ function extractMetadata() {
     // Extract title from first h1
     visit(tree, 'heading', (node) => {
       if (node.depth === 1 && node.children?.[0]?.value) {
-        file.data.metadata.title = node.children[0].value;
+        file.data.metadata.title = mdx.textContent(node);
         return;
       }
     });
@@ -43,8 +43,7 @@ function extractMetadata() {
     visit(tree, ['mdxJsxFlowElement', 'mdxFlowExpression', 'mdxJsxTextElement'], (node) => {
       // Extract from Subtitle component
       if (node.name === 'Subtitle') {
-        const subtitleText = mdx.textContent(node);
-        file.data.metadata.subtitle = subtitleText;
+        file.data.metadata.subtitle = mdx.textContent(node);
       }
       // Extract from Meta component
       else if (node.name === 'Meta') {
@@ -181,7 +180,7 @@ export async function mdxToMarkdown(mdxContent, mdxFilePath) {
     // Format markdown with prettier using the proper config resolution
     const outputFilePath = mdxFilePath ? mdxFilePath.replace(/\.mdx$/, '.md') : '';
     const prettierOptions = await prettier.resolveConfig(outputFilePath);
-    
+
     markdown = await prettier.format(markdown, {
       ...prettierOptions,
       filepath: outputFilePath,

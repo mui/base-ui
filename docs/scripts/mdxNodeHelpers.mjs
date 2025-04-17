@@ -117,29 +117,9 @@ export function inlineCode(value) {
  * @returns {Object} Table cell node
  */
 function tableCell(content) {
-  let children;
-
-  // Handle different content types
-  if (typeof content === 'string') {
-    // Convert string to text node
-    children = [text(content)];
-  } else if (content && content.type) {
-    // Use node directly
-    children = [content];
-  } else if (Array.isArray(content)) {
-    // Process array of nodes
-    children = content.map((c) => (typeof c === 'string' ? text(c) : c));
-  } else if (content === null || content === undefined) {
-    // Handle null/undefined
-    children = [text('-')];
-  } else {
-    // Unexpected content type
-    throw new Error(`Unexpected content type in table cell: ${typeof content}`);
-  }
-
   return {
     type: 'tableCell',
-    children,
+    children: normalizeChildren(content),
   };
 }
 
@@ -190,20 +170,6 @@ export function table(headers, rows, alignment = null) {
     children: [headerRow, ...dataRows],
   };
 }
-
-/**
- * Backwards compatibility function for existing code
- * Creates a markdown table node
- * @param {Array<string|Object>} headers - Array of header strings or nodes
- * @param {Array<Array<string|Object>>} rows - Array of row data, each row is an array of cell content
- * @param {Array<string>} [alignment] - Optional array of alignments ('left', 'center', 'right') for each column
- * @returns {Object} A table node
- */
-export function markdownTable(headers, rows, alignment = null) {
-  return table(headers, rows, alignment);
-}
-
-// textParagraph has been removed as paragraph() can now handle string inputs directly
 
 /**
  * Function to extract all text from a node and its children recursively

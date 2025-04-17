@@ -66,17 +66,31 @@ export function processDemo(node, mdxFilePath) {
     throw new Error(`Demo folder not found at "${demoPath}"`);
   }
 
-  // Define paths for CSS Modules and Tailwind folders
-  const cssModulesPath = path.join(demoPath, 'css-modules');
-  const tailwindPath = path.join(demoPath, 'tailwind');
+  // Define implementation types and their configurations
+  const implementationTypes = [
+    {
+      id: 'css-modules',
+      title: 'CSS Modules',
+      description: 'This example shows how to implement the component using CSS Modules.',
+    },
+    {
+      id: 'tailwind',
+      title: 'Tailwind',
+      description: 'This example shows how to implement the component using Tailwind CSS.',
+    },
+  ];
 
-  // Check if at least one of the folders exists
-  const hasCssModules = fs.existsSync(cssModulesPath);
-  const hasTailwind = fs.existsSync(tailwindPath);
+  // Find which implementation types exist in the demo folder
+  const availableImplementations = implementationTypes.filter((type) => {
+    const typePath = path.join(demoPath, type.id);
+    return fs.existsSync(typePath);
+  });
 
-  // Throw error if neither folder exists
-  if (!hasCssModules && !hasTailwind) {
-    throw new Error(`Neither CSS Modules nor Tailwind folders found at "${demoPath}"`);
+  // Throw error if no implementation types are found
+  if (availableImplementations.length === 0) {
+    throw new Error(
+      `No implementation types found at "${demoPath}". Expected one of: ${implementationTypes.map((t) => t.id).join(', ')}`,
+    );
   }
 
   const result = [];
@@ -84,43 +98,29 @@ export function processDemo(node, mdxFilePath) {
   // Add main Demo heading
   result.push(mdx.heading(2, 'Demo'));
 
-  // Process CSS Modules section if it exists
-  if (hasCssModules) {
-    result.push(mdx.heading(3, 'CSS Modules'));
+  /**
+   * Process a specific implementation type
+   * @param {string} folderPath - Path to the implementation folder
+   * @param {string} title - Title for the section heading
+   * @param {string} description - Description text for the section
+   */
+  function processImplementation(folderPath, title, description) {
+    result.push(mdx.heading(3, title));
+    result.push(mdx.paragraph(description));
 
-    // Add brief explanation paragraph
-    result.push(
-      mdx.paragraph('This example shows how to implement the component using CSS Modules.'),
-    );
+    const files = readDirFiles(folderPath);
 
-    // Get all files in the CSS Modules folder
-    const cssModulesFiles = readDirFiles(cssModulesPath);
-
-    // Add code blocks for each file
-    cssModulesFiles.forEach((file) => {
-      const relativePath = path.relative(cssModulesPath, file);
+    files.forEach((file) => {
+      const relativePath = path.relative(folderPath, file);
       result.push(createFileCodeBlock(file, relativePath));
     });
   }
 
-  // Process Tailwind section if it exists
-  if (hasTailwind) {
-    result.push(mdx.heading(3, 'Tailwind'));
-
-    // Add brief explanation paragraph
-    result.push(
-      mdx.paragraph('This example shows how to implement the component using Tailwind CSS.'),
-    );
-
-    // Get all files in the Tailwind folder
-    const tailwindFiles = readDirFiles(tailwindPath);
-
-    // Add code blocks for each file
-    tailwindFiles.forEach((file) => {
-      const relativePath = path.relative(tailwindPath, file);
-      result.push(createFileCodeBlock(file, relativePath));
-    });
-  }
+  // Process each available implementation type
+  availableImplementations.forEach((impl) => {
+    const implPath = path.join(demoPath, impl.id);
+    processImplementation(implPath, impl.title, impl.description);
+  });
 
   return result;
 }
