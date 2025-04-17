@@ -23,7 +23,6 @@ import {
   type OpenChangeReason,
   translateOpenChangeReason,
 } from '../../utils/translateOpenChangeReason';
-import { isIOS } from '../../utils/detectBrowser';
 import { useIOSDocumentSlide } from '../../utils/useIOSDocumentSlide';
 
 export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.ReturnValue {
@@ -131,17 +130,8 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
 
   const iOSDocumentSlide = useIOSDocumentSlide({
     enabled: enableScrollLock,
+    setLock: setAllowIOSLock,
     popupRef,
-    onDisableLock() {
-      if (isIOS()) {
-        setAllowIOSLock(false);
-      }
-    },
-    onEnableLock() {
-      if (isIOS()) {
-        setAllowIOSLock(true);
-      }
-    },
   });
 
   useScrollLock({

@@ -16,18 +16,11 @@ import { useEventCallback } from './useEventCallback';
 export function useIOSDocumentSlide(params: {
   enabled: boolean;
   popupRef: React.RefObject<HTMLElement | null>;
-  onDisableLock: () => void;
-  onEnableLock: () => void;
+  setLock: (lock: boolean) => void;
 }) {
-  const {
-    enabled,
-    onDisableLock: onDisableLockParam,
-    onEnableLock: onEnableLockParam,
-    popupRef,
-  } = params;
+  const { enabled, setLock: setLockParam, popupRef } = params;
 
-  const onDisableLock = useEventCallback(onDisableLockParam);
-  const onEnableLock = useEventCallback(onEnableLockParam);
+  const setLock = useEventCallback(setLockParam);
 
   const scrollRef = React.useRef({ x: 0, y: 0 });
 
@@ -51,12 +44,12 @@ export function useIOSDocumentSlide(params: {
       onFocus(event) {
         const target = getTarget(event.nativeEvent) as Element | null;
         if (isTypeableElement(target)) {
-          onDisableLock();
-          window.setTimeout(onEnableLock);
+          setLock(false);
+          setTimeout(() => setLock(true));
         }
       },
     }),
-    [onDisableLock, onEnableLock],
+    [setLock],
   );
 
   return React.useMemo(() => ({ floating }), [floating]);
