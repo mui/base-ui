@@ -9,7 +9,7 @@ export default function ExampleMenubar() {
       <Menu.Root>
         <Menu.Trigger className={styles.MenuTrigger}>File</Menu.Trigger>
         <Menu.Portal>
-          <Menu.Positioner className={styles.MenuPositioner}>
+          <Menu.Positioner className={styles.MenuPositioner} sideOffset={6}>
             <Menu.Popup className={styles.MenuPopup}>
               <Menu.Item className={styles.MenuItem}>New</Menu.Item>
               <Menu.Item className={styles.MenuItem}>Open</Menu.Item>
@@ -41,7 +41,7 @@ export default function ExampleMenubar() {
       <Menu.Root>
         <Menu.Trigger className={styles.MenuTrigger}>Edit</Menu.Trigger>
         <Menu.Portal>
-          <Menu.Positioner className={styles.MenuPositioner}>
+          <Menu.Positioner className={styles.MenuPositioner} sideOffset={6}>
             <Menu.Popup className={styles.MenuPopup}>
               <Menu.Item className={styles.MenuItem}>Cut</Menu.Item>
               <Menu.Item className={styles.MenuItem}>Copy</Menu.Item>
@@ -54,7 +54,7 @@ export default function ExampleMenubar() {
       <Menu.Root>
         <Menu.Trigger className={styles.MenuTrigger}>View</Menu.Trigger>
         <Menu.Portal>
-          <Menu.Positioner className={styles.MenuPositioner}>
+          <Menu.Positioner className={styles.MenuPositioner} sideOffset={6}>
             <Menu.Popup className={styles.MenuPopup}>
               <Menu.Item className={styles.MenuItem}>Zoom In</Menu.Item>
               <Menu.Item className={styles.MenuItem}>Zoom Out</Menu.Item>
