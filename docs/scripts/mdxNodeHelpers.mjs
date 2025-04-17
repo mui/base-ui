@@ -1,6 +1,6 @@
 /**
  * mdxNodeHelpers.mjs - Helper functions for creating MDX AST nodes
- * 
+ *
  * This module provides utility functions to create nodes for MDX/Markdown
  * abstract syntax trees, making transformer code more readable and maintainable.
  */
@@ -13,7 +13,7 @@
 export function text(value) {
   return {
     type: 'text',
-    value: value || ''
+    value: value || '',
   };
 }
 
@@ -27,14 +27,12 @@ function normalizeChildren(children) {
   if (!children) {
     return [];
   }
-  
+
   // Convert to array if not already
   const childArray = Array.isArray(children) ? children : [children];
-  
+
   // Convert strings to text nodes
-  return childArray.map(child => 
-    typeof child === 'string' ? text(child) : child
-  );
+  return childArray.map((child) => (typeof child === 'string' ? text(child) : child));
 }
 
 /**
@@ -45,7 +43,7 @@ function normalizeChildren(children) {
 export function paragraph(children) {
   return {
     type: 'paragraph',
-    children: normalizeChildren(children)
+    children: normalizeChildren(children),
   };
 }
 
@@ -57,7 +55,7 @@ export function paragraph(children) {
 export function emphasis(children) {
   return {
     type: 'emphasis',
-    children: normalizeChildren(children)
+    children: normalizeChildren(children),
   };
 }
 
@@ -69,7 +67,7 @@ export function emphasis(children) {
 export function strong(children) {
   return {
     type: 'strong',
-    children: normalizeChildren(children)
+    children: normalizeChildren(children),
   };
 }
 
@@ -83,7 +81,7 @@ export function heading(depth, children) {
   return {
     type: 'heading',
     depth: depth || 1,
-    children: normalizeChildren(children)
+    children: normalizeChildren(children),
   };
 }
 
@@ -97,39 +95,112 @@ export function code(value, lang) {
   return {
     type: 'code',
     lang: lang || null,
-    value: value || ''
+    value: value || '',
   };
 }
 
 /**
- * Creates a markdown table as a single string
- * @param {Array<string>} headers - Array of header strings
- * @param {Array<Array<string>>} rows - Array of row data, each row is an array of cell content
- * @param {Array<string>} [alignment] - Optional array of alignments ('left', 'center', 'right') for each column
- * @returns {string} A markdown table string
+ * Create an inline code node
+ * @param {string} value - Code content
+ * @returns {Object} An inline code node
  */
-export function markdownTable(headers, rows, alignment = null) {
-  // Create header row
-  const headerRow = `| ${headers.join(' | ')} |`;
-  
-  // Create separator row with alignment
-  const separators = headers.map((_, index) => {
-    if (!alignment || !alignment[index]) return '-------';
-    
-    switch(alignment[index]) {
-      case 'center': return ':-----:';
-      case 'right': return '------:';
-      default: return ':------'; // left alignment is default
+export function inlineCode(value) {
+  return {
+    type: 'inlineCode',
+    value: value || '',
+  };
+}
+
+/**
+ * Creates a table cell node
+ * @param {string|Object} content - Cell content
+ * @returns {Object} Table cell node
+ */
+function tableCell(content) {
+  let children;
+
+  // Handle different content types
+  if (typeof content === 'string') {
+    // Convert string to text node
+    children = [text(content)];
+  } else if (content && content.type) {
+    // Use node directly
+    children = [content];
+  } else if (Array.isArray(content)) {
+    // Process array of nodes
+    children = content.map((c) => (typeof c === 'string' ? text(c) : c));
+  } else if (content === null || content === undefined) {
+    // Handle null/undefined
+    children = [text('-')];
+  } else {
+    // Unexpected content type
+    throw new Error(`Unexpected content type in table cell: ${typeof content}`);
+  }
+
+  return {
+    type: 'tableCell',
+    children,
+  };
+}
+
+/**
+ * Creates a table row node
+ * @param {Array<string|Object>} cells - Array of cell contents
+ * @returns {Object} Table row node
+ */
+function tableRow(cells) {
+  return {
+    type: 'tableRow',
+    children: cells.map((cell) => tableCell(cell)),
+  };
+}
+
+/**
+ * Creates a markdown table node (GFM)
+ * @param {Array<string|Object>} headers - Array of header strings or nodes
+ * @param {Array<Array<string|Object>>} rows - Array of row data, each row is an array of cell content
+ * @param {Array<string>} [alignment] - Optional array of alignments ('left', 'center', 'right') for each column
+ * @returns {Object} A table node
+ */
+export function table(headers, rows, alignment = null) {
+  // Convert alignment strings to AST format
+  const align = headers.map((_, index) => {
+    if (!alignment || !alignment[index]) return null;
+
+    switch (alignment[index]) {
+      case 'center':
+        return 'center';
+      case 'right':
+        return 'right';
+      default:
+        return 'left';
     }
   });
-  
-  const separatorRow = `| ${separators.join(' | ')} |`;
-  
+
+  // Create header row
+  const headerRow = tableRow(headers);
+
   // Create data rows
-  const dataRows = rows.map(row => `| ${row.join(' | ')} |`);
-  
-  // Join all rows with newlines
-  return [headerRow, separatorRow, ...dataRows].join('\n');
+  const dataRows = rows.map((row) => tableRow(row));
+
+  // Return table node
+  return {
+    type: 'table',
+    align,
+    children: [headerRow, ...dataRows],
+  };
+}
+
+/**
+ * Backwards compatibility function for existing code
+ * Creates a markdown table node
+ * @param {Array<string|Object>} headers - Array of header strings or nodes
+ * @param {Array<Array<string|Object>>} rows - Array of row data, each row is an array of cell content
+ * @param {Array<string>} [alignment] - Optional array of alignments ('left', 'center', 'right') for each column
+ * @returns {Object} A table node
+ */
+export function markdownTable(headers, rows, alignment = null) {
+  return table(headers, rows, alignment);
 }
 
 // textParagraph has been removed as paragraph() can now handle string inputs directly
@@ -141,18 +212,18 @@ export function markdownTable(headers, rows, alignment = null) {
  */
 export function textContent(node) {
   if (!node) return '';
-  
+
   if (typeof node === 'string') {
     return node;
   }
-  
+
   if (node.type === 'text') {
     return node.value || '';
   }
-  
+
   if (node.children && Array.isArray(node.children)) {
     return node.children.map(textContent).join('');
   }
-  
+
   return '';
 }

@@ -8,8 +8,52 @@
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { unified } from 'unified';
+import remarkParse from 'remark-parse';
+import remarkGfm from 'remark-gfm';
 
 import * as mdx from './mdxNodeHelpers.mjs';
+
+/**
+ * Parse a markdown string into an AST
+ * @param {string} markdown - Markdown string to parse
+ * @returns {Object} The root content node of the parsed AST
+ */
+function parseMarkdown(markdown) {
+  if (!markdown || markdown === '-') {
+    return mdx.text('-');
+  }
+
+  try {
+    // Parse markdown into an AST
+    const processor = unified()
+      .use(remarkParse)
+      .use(remarkGfm);
+    
+    const result = processor.parse(markdown);
+    
+    // If there's only one paragraph with one child, just return that child
+    if (result.children.length === 1 && 
+        result.children[0].type === 'paragraph' && 
+        result.children[0].children.length === 1) {
+      return result.children[0].children[0];
+    }
+    
+    // Otherwise return all children wrapped in a paragraph
+    if (result.children.length === 1 && result.children[0].type === 'paragraph') {
+      return result.children[0];
+    }
+    
+    // Return the whole tree
+    return {
+      type: 'paragraph',
+      children: result.children
+    };
+  } catch (error) {
+    console.error('Error parsing markdown:', error);
+    return mdx.text(markdown); // Fallback to plain text
+  }
+}
 
 /**
  * Transforms a Reference component into markdown tables
@@ -73,7 +117,9 @@ export function processReference(node, parent, index) {
     
     // Add description if available
     if (def.description) {
-      tables.push(mdx.paragraph(def.description));
+      // Parse the description as markdown
+      const descriptionNode = parseMarkdown(def.description);
+      tables.push(descriptionNode);
     }
     
     // Props table
@@ -82,20 +128,20 @@ export function processReference(node, parent, index) {
       
       const propsRows = Object.entries(def.props).map(([propName, propDef]) => [
         propName,
-        propDef.type || '-',
-        propDef.default || '-',
-        propDef.description || '-'
+        propDef.type ? mdx.inlineCode(propDef.type) : '-',
+        propDef.default ? mdx.inlineCode(propDef.default) : '-',
+        parseMarkdown(propDef.description || '-')
       ]);
       
       // Define column alignments: prop name left-aligned, others left-aligned
       const alignments = ['left', 'left', 'left', 'left'];
       
-      const tableContent = mdx.markdownTable(
+      const tableNode = mdx.table(
         ['Prop', 'Type', 'Default', 'Description'],
         propsRows,
         alignments
       );
-      tables.push(mdx.paragraph(tableContent));
+      tables.push(tableNode);
     }
     
     // Data attributes table
@@ -104,19 +150,19 @@ export function processReference(node, parent, index) {
       
       const attrRows = Object.entries(def.dataAttributes).map(([attrName, attrDef]) => [
         attrName,
-        attrDef.type || '-',
-        attrDef.description || '-'
+        attrDef.type ? mdx.inlineCode(attrDef.type) : '-',
+        parseMarkdown(attrDef.description || '-')
       ]);
       
       // Define column alignments
       const alignments = ['left', 'left', 'left'];
       
-      const tableContent = mdx.markdownTable(
+      const tableNode = mdx.table(
         ['Attribute', 'Type', 'Description'],
         attrRows,
         alignments
       );
-      tables.push(mdx.paragraph(tableContent));
+      tables.push(tableNode);
     }
     
     // CSS variables table
@@ -125,20 +171,20 @@ export function processReference(node, parent, index) {
       
       const cssRows = Object.entries(def.cssVariables).map(([varName, varDef]) => [
         varName,
-        varDef.type || '-',
-        varDef.default || '-',
-        varDef.description || '-'
+        varDef.type ? mdx.inlineCode(varDef.type) : '-',
+        varDef.default ? mdx.inlineCode(varDef.default) : '-',
+        parseMarkdown(varDef.description || '-')
       ]);
       
       // Define column alignments
       const alignments = ['left', 'left', 'left', 'left'];
       
-      const tableContent = mdx.markdownTable(
+      const tableNode = mdx.table(
         ['Variable', 'Type', 'Default', 'Description'],
         cssRows,
         alignments
       );
-      tables.push(mdx.paragraph(tableContent));
+      tables.push(tableNode);
     }
     
     // Add separator between parts

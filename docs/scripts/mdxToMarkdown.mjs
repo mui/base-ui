@@ -8,6 +8,7 @@
 import { unified } from 'unified';
 import remarkParse from 'remark-parse';
 import remarkMdx from 'remark-mdx';
+import remarkGfm from 'remark-gfm';
 import remarkStringify from 'remark-stringify';
 import { visit } from 'unist-util-visit';
 import * as mdx from './mdxNodeHelpers.mjs';
@@ -154,6 +155,7 @@ export async function mdxToMarkdown(mdxContent) {
     const file = await unified()
       .use(remarkParse)
       .use(remarkMdx)
+      .use(remarkGfm)  // Add GitHub Flavored Markdown support
       .use(extractMetadata)
       .use(transformJsx)
       .use(remarkStringify, {
@@ -164,6 +166,9 @@ export async function mdxToMarkdown(mdxContent) {
         fences: true,
         listItemIndent: 'one',
         rule: '-',
+        // Enable GitHub Flavored Markdown features
+        commonmark: true, 
+        gfm: true
       })
       .process(mdxContent);
 
