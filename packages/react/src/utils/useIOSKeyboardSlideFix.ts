@@ -48,21 +48,24 @@ export function useIOSKeyboardSlideFix(params: {
     }
   }, [enabled, popupRef]);
 
+  const handlePress = useEventCallback((event: React.FocusEvent | React.MouseEvent) => {
+    if (!isIOS()) {
+      return;
+    }
+
+    const target = getTarget(event.nativeEvent) as Element | null;
+    if (isTypeableElement(target)) {
+      setLock(false);
+      setTimeout(() => setLock(true));
+    }
+  });
+
   const floating: ElementProps['floating'] = React.useMemo(
     () => ({
-      onFocus(event) {
-        if (!isIOS()) {
-          return;
-        }
-
-        const target = getTarget(event.nativeEvent) as Element | null;
-        if (isTypeableElement(target)) {
-          setLock(false);
-          setTimeout(() => setLock(true));
-        }
-      },
+      onFocus: handlePress,
+      onClick: handlePress,
     }),
-    [setLock],
+    [handlePress],
   );
 
   return React.useMemo(() => ({ floating }), [floating]);
