@@ -40,10 +40,11 @@ function extractMetadata() {
     });
 
     // Extract from MDX components
-    visit(tree, 'mdxJsxFlowElement', (node) => {
+    visit(tree, ['mdxJsxFlowElement', 'mdxFlowExpression', 'mdxJsxTextElement'], (node) => {
       // Extract from Subtitle component
-      if (node.name === 'Subtitle' && node.children?.[0]?.value) {
-        file.data.metadata.subtitle = node.children[0].value;
+      if (node.name === 'Subtitle') {
+        const subtitleText = mdx.textContent(node);
+        file.data.metadata.subtitle = subtitleText;
       }
       // Extract from Meta component
       else if (node.name === 'Meta') {
@@ -116,9 +117,6 @@ function transformJsx() {
             return;
 
           case 'Subtitle': {
-            // Extract text from all child nodes
-            const subtitleText = mdx.textContent(node);
-
             // Subtitle is now in frontmatter, so remove from the content
             parent.children.splice(index, 1);
             return;
@@ -195,7 +193,7 @@ export async function mdxToMarkdown(mdxContent, filePath) {
     const prettierConfig = await prettier.resolveConfig(process.cwd());
     markdown = await prettier.format(markdown, {
       ...prettierConfig,
-      parser: 'markdown'
+      parser: 'markdown',
     });
 
     // Extract metadata from the file's data

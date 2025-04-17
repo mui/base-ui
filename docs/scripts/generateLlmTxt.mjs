@@ -15,10 +15,12 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import glob from 'fast-glob';
 import { mdxToMarkdown } from './mdxToMarkdown.mjs';
+import * as prettier from 'prettier';
 
 const PROJECT_ROOT = path.resolve(import.meta.dirname, '..');
 const MDX_SOURCE_DIR = path.join(PROJECT_ROOT, 'src/app/(public)/(content)/react');
-const OUTPUT_DIR = path.join(PROJECT_ROOT, 'llms');
+const OUTPUT_BASE_DIR = path.join(PROJECT_ROOT, 'llms');
+const OUTPUT_REACT_DIR = path.join(OUTPUT_BASE_DIR, 'react');
 
 /**
  * Generate llms.txt and markdown files from MDX content
@@ -27,69 +29,135 @@ async function generateLlmsTxt() {
   console.log('Generating llms.txt and markdown files...');
 
   try {
-    // Create output directory if it doesn't exist
-    await fs.mkdir(OUTPUT_DIR, { recursive: true });
-
-    // Find all MDX files
-    const mdxFiles = await glob('**/*/page.mdx', {
-      cwd: MDX_SOURCE_DIR,
-      absolute: true,
-    });
-
-    console.log(`Found ${mdxFiles.length} MDX files`);
+    // Create output directories if they don't exist
+    await fs.mkdir(OUTPUT_BASE_DIR, { recursive: true });
+    await fs.mkdir(OUTPUT_REACT_DIR, { recursive: true });
 
     // Generate llms.txt entries
     const llmsEntries = [];
 
-    // Process each MDX file
-    for (const mdxFile of mdxFiles) {
-      // Get relative path for URL generation
-      const relativePath = path.relative(MDX_SOURCE_DIR, mdxFile);
-      const dirPath = path.dirname(relativePath);
+    // Store metadata for each section
+    const metadataBySection = {
+      overview: [],
+      handbook: [],
+      components: [],
+      utils: [],
+    };
 
-      // Create URL for llms.txt (without /page.mdx)
-      const urlPath = dirPath.replace(/\\/g, '/');
-      const url = `https://base-ui.org/react/${urlPath}`;
+    // Process files from a specific section
+    async function processSection(sectionName) {
+      console.log(`Processing ${sectionName} section...`);
 
-      // Read MDX content
-      const mdxContent = await fs.readFile(mdxFile, 'utf-8');
+      // Find all MDX files in this section
+      const sectionPath = path.join(MDX_SOURCE_DIR, sectionName);
+      const mdxFiles = await glob('**/*/page.mdx', {
+        cwd: sectionPath,
+        absolute: true,
+      });
 
-      // Convert to markdown and extract metadata
-      const { markdown, title, subtitle, description } = await mdxToMarkdown(mdxContent, mdxFile);
+      console.log(`Found ${mdxFiles.length} files in ${sectionName}`);
 
-      // Get output file path
-      const outputFilePath = path.join(OUTPUT_DIR, `${dirPath.replace(/\\/g, '-')}.md`);
+      // Process each MDX file in this section
+      for (const mdxFile of mdxFiles) {
+        // Get relative path for URL generation
+        const relativePath = path.relative(MDX_SOURCE_DIR, mdxFile);
+        const dirPath = path.dirname(relativePath);
 
-      // Create directories for output if needed
-      await fs.mkdir(path.dirname(outputFilePath), { recursive: true });
+        // Create URL for llms.txt (without /page.mdx)
+        const urlPath = dirPath.replace(/\\/g, '/');
+        const url = `https://base-ui.org/react/${urlPath}`;
 
-      // Create markdown content with frontmatter, placing subtitle/description only in frontmatter
-      const frontmatter = [
-        '---',
-        `title: ${title || 'Untitled'}`,
-        subtitle ? `subtitle: ${subtitle}` : '',
-        description ? `description: ${description}` : '',
-        '---',
-        '',
-        markdown,
-      ]
-        .filter(Boolean)
-        .join('\n');
+        // Read MDX content
+        const mdxContent = await fs.readFile(mdxFile, 'utf-8');
 
-      // Write markdown file
-      await fs.writeFile(outputFilePath, frontmatter, 'utf-8');
+        // Convert to markdown and extract metadata
+        const { markdown, title, subtitle, description } = await mdxToMarkdown(mdxContent, mdxFile);
 
-      // Add entry to llms.txt
-      llmsEntries.push(`${url} ${outputFilePath}`);
+        // Get output file path - maintain the original directory structure under react
+        const outputFilePath = path.join(OUTPUT_REACT_DIR, `${dirPath}.md`);
 
-      console.log(`Processed: ${relativePath}`);
+        // Create directories for output if needed
+        await fs.mkdir(path.dirname(outputFilePath), { recursive: true });
+
+        // Create markdown content with frontmatter
+        const frontmatter = [
+          '---',
+          `title: ${title || 'Untitled'}`,
+          subtitle ? `subtitle: ${subtitle}` : '',
+          description ? `description: ${description}` : '',
+          '---',
+          '',
+          markdown,
+        ]
+          .filter(Boolean)
+          .join('\n');
+
+        // Write markdown file
+        await fs.writeFile(outputFilePath, frontmatter, 'utf-8');
+
+        // Add entry to llms.txt
+        llmsEntries.push(`${url} ${outputFilePath}`);
+
+        // Store metadata for this file in the appropriate section
+        metadataBySection[sectionName].push({
+          title: title || 'Untitled',
+          subtitle: subtitle || '',
+          urlPath: `./react/${urlPath}`,
+        });
+
+        console.log(`Processed: ${relativePath}`);
+      }
     }
 
-    // Create llms.txt
-    const llmsTxtContent = llmsEntries.join('\n');
-    await fs.writeFile(path.join(OUTPUT_DIR, 'llms.txt'), llmsTxtContent, 'utf-8');
+    // Process each section
+    await processSection('overview');
+    await processSection('handbook');
+    await processSection('components');
+    await processSection('utils');
 
-    console.log(`Successfully generated ${mdxFiles.length} markdown files and llms.txt`);
+    // Build structured content for llms.txt
+    const sections = ['# Base UI', ''];
+
+    // Create formatted sections in specific order
+    const formatSection = (items, title) => {
+      if (items.length > 0) {
+        sections.push(`## ${title}`, '');
+
+        // Add each item as a link with subtitle, starting with a bullet (-)
+        items.forEach((item) => {
+          sections.push(`- [${item.title}](${item.urlPath}): ${item.subtitle}`);
+        });
+
+        sections.push(''); // Add empty line after section
+      }
+    };
+
+    // Add sections in the required order
+    formatSection(metadataBySection.overview, 'Overview');
+    formatSection(metadataBySection.handbook, 'Handbook');
+    formatSection(metadataBySection.components, 'Components');
+    formatSection(metadataBySection.utils, 'Utilities');
+
+    // Create llms.txt content and format with prettier
+    let llmsTxtContent = sections.join('\n');
+
+    // Apply prettier formatting
+    const prettierConfig = await prettier.resolveConfig(process.cwd());
+    llmsTxtContent = await prettier.format(llmsTxtContent, {
+      ...prettierConfig,
+      parser: 'markdown',
+    });
+
+    await fs.writeFile(path.join(OUTPUT_BASE_DIR, 'llms.txt'), llmsTxtContent, 'utf-8');
+
+    // Calculate the total number of files processed
+    const totalFiles =
+      metadataBySection.overview.length +
+      metadataBySection.handbook.length +
+      metadataBySection.components.length +
+      metadataBySection.utils.length;
+
+    console.log(`Successfully generated ${totalFiles} markdown files and llms.txt`);
   } catch (error) {
     console.error('Error generating llms.txt:', error);
     process.exit(1);
