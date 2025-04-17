@@ -124,7 +124,11 @@ export function processReference(node, parent, index) {
     
     // Props table
     if (Object.keys(def.props || {}).length > 0) {
-      tables.push(mdx.paragraph(`**${part} Props**:`));
+      // Create a proper heading with strong node
+      tables.push(mdx.paragraph([
+        mdx.strong(`${part} Props`),
+        mdx.text(':')
+      ]));
       
       const propsRows = Object.entries(def.props).map(([propName, propDef]) => [
         propName,
@@ -146,7 +150,10 @@ export function processReference(node, parent, index) {
     
     // Data attributes table
     if (Object.keys(def.dataAttributes || {}).length > 0) {
-      tables.push(mdx.paragraph(`**${part} Data Attributes**:`));
+      tables.push(mdx.paragraph([
+        mdx.strong(`${part} Data Attributes`),
+        mdx.text(':')
+      ]));
       
       const attrRows = Object.entries(def.dataAttributes).map(([attrName, attrDef]) => [
         attrName,
@@ -167,7 +174,10 @@ export function processReference(node, parent, index) {
     
     // CSS variables table
     if (Object.keys(def.cssVariables || {}).length > 0) {
-      tables.push(mdx.paragraph(`**${part} CSS Variables**:`));
+      tables.push(mdx.paragraph([
+        mdx.strong(`${part} CSS Variables`),
+        mdx.text(':')
+      ]));
       
       const cssRows = Object.entries(def.cssVariables).map(([varName, varDef]) => [
         varName,
