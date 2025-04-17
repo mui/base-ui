@@ -1,8 +1,0 @@
-{
-  "name": "AvatarImage",
-  "props": {
-    "onLoadingStatusChange": {
-      "type": "(status) => void"
-    }
-  }
-}

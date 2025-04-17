@@ -24,6 +24,7 @@ describe('<AlertDialog.Root />', () => {
     render,
     triggerMouseAction: 'click',
     expectedPopupRole: 'alertdialog',
+    expectedAriaHasPopupValue: 'dialog',
   });
 
   it('ARIA attributes', async () => {

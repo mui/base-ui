@@ -9,7 +9,7 @@ import type { OpenChangeReason } from '../../utils/translateOpenChangeReason';
 export interface PopoverRootContext {
   open: boolean;
   openOnHover: boolean;
-  setOpen: (open: boolean, event?: Event, reason?: OpenChangeReason) => void;
+  setOpen: (open: boolean, event: Event | undefined, reason: OpenChangeReason | undefined) => void;
   setTriggerElement: (el: Element | null) => void;
   positionerElement: HTMLElement | null;
   setPositionerElement: (el: HTMLElement | null) => void;
@@ -25,12 +25,12 @@ export interface PopoverRootContext {
   descriptionId: string | undefined;
   setDescriptionId: React.Dispatch<React.SetStateAction<string | undefined>>;
   floatingRootContext: FloatingRootContext;
-  getRootTriggerProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
-  getRootPopupProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
+  getTriggerProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
+  getPopupProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
   openMethod: InteractionType | null;
   openReason: OpenChangeReason | null;
   onOpenChangeComplete: ((open: boolean) => void) | undefined;
-  modal: boolean;
+  modal: boolean | 'trap-focus';
 }
 
 export const PopoverRootContext = React.createContext<PopoverRootContext | undefined>(undefined);

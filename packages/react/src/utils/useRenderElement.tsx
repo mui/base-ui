@@ -22,8 +22,6 @@ const emptyObject = {};
 
 /**
  * Returns a function that renders a Base UI element.
- *
- * @ignore - internal hook.
  */
 export function useRenderElement<
   State extends Record<string, any>,

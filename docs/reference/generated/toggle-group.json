@@ -3,15 +3,15 @@
   "description": "Provides a shared state to a series of toggle buttons.",
   "props": {
     "defaultValue": {
-      "type": "array",
+      "type": "any[]",
       "description": "The open state of the ToggleGroup represented by an array of\nthe values of all pressed toggle buttons.\nThis is the uncontrolled counterpart of `value`."
     },
     "value": {
-      "type": "array",
+      "type": "any[]",
       "description": "The open state of the ToggleGroup represented by an array of\nthe values of all pressed toggle buttons\nThis is the controlled counterpart of `defaultValue`."
     },
     "onValueChange": {
-      "type": "function(groupValue: Array<any>, event: Event) => void",
+      "type": "((groupValue: any[], event: Event) => void)",
       "description": "Callback fired when the pressed states of the ToggleGroup changes."
     },
     "toggleMultiple": {
@@ -29,12 +29,16 @@
       "default": "true",
       "description": "Whether to loop keyboard focus back to the first item\nwhen the end of the list is reached while using the arrow keys."
     },
+    "orientation": {
+      "type": "Orientation",
+      "default": "'horizontal'"
+    },
     "className": {
-      "type": "string | (state) => string",
+      "type": "string | ((state: State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "render": {
-      "type": "React.ReactElement | (props, state) => React.ReactElement",
+      "type": "ReactElement | ((props: GenericHTMLProps, state: State) => ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
     }
   },

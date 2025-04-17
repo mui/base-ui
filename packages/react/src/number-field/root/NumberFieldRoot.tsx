@@ -26,10 +26,8 @@ const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
     smallStep,
     step,
     largeStep,
-    autoFocus,
     required = false,
     disabled: disabledProp = false,
-    invalid = false,
     readOnly = false,
     name,
     defaultValue,
@@ -53,7 +51,6 @@ const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
     () => ({
       ...fieldState,
       disabled,
-      invalid,
       readOnly,
       required,
       value: numberField.value,
@@ -63,7 +60,6 @@ const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
     [
       fieldState,
       disabled,
-      invalid,
       readOnly,
       required,
       numberField.value,
@@ -99,7 +95,7 @@ const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
 namespace NumberFieldRoot {
   export interface Props
     extends useNumberFieldRoot.Parameters,
-      Omit<BaseUIComponentProps<'div', State>, 'onChange' | 'defaultValue'> {}
+      Omit<BaseUIComponentProps<'div', State>, 'onChange'> {}
 
   export interface State extends FieldRoot.State {
     /**
@@ -118,10 +114,6 @@ namespace NumberFieldRoot {
      * Whether the component should ignore user interaction.
      */
     disabled: boolean;
-    /**
-     * Whether the field is currently invalid.
-     */
-    invalid: boolean;
     /**
      * Whether the user should be unable to change the field value.
      */
@@ -144,11 +136,6 @@ NumberFieldRoot.propTypes /* remove-proptypes */ = {
    * @default false
    */
   allowWheelScrub: PropTypes.bool,
-  /**
-   * Whether to focus the element on page load.
-   * @default false
-   */
-  autoFocus: PropTypes.bool,
   /**
    * @ignore
    */
@@ -195,11 +182,6 @@ NumberFieldRoot.propTypes /* remove-proptypes */ = {
    * The id of the input element.
    */
   id: PropTypes.string,
-  /**
-   * Whether the field is forcefully marked as invalid.
-   * @default false
-   */
-  invalid: PropTypes.bool,
   /**
    * The large step value of the input element when incrementing while the shift key is held. Snaps
    * to multiples of this value.

@@ -7,16 +7,16 @@
       "description": "Identifies the field when a form is submitted."
     },
     "defaultValue": {
-      "type": "any",
+      "type": "Value | null",
       "default": "null",
       "description": "The uncontrolled value of the select when it’s initially rendered.\n\nTo render a controlled select, use the `value` prop instead."
     },
     "value": {
-      "type": "any",
+      "type": "Value | null",
       "description": "The value of the select."
     },
     "onValueChange": {
-      "type": "(value, event) => void",
+      "type": "((value: Value, event: Event | undefined) => void)",
       "description": "Callback fired when the value of the select changes. Use when controlled."
     },
     "defaultOpen": {
@@ -29,11 +29,11 @@
       "description": "Whether the select menu is currently open."
     },
     "onOpenChange": {
-      "type": "(open, event) => void",
+      "type": "((open: boolean, event: Event | undefined, reason: OpenChangeReason | undefined) => void)",
       "description": "Event handler called when the select menu is opened or closed."
     },
     "actionsRef": {
-      "type": "{ current: { unmount: func } }",
+      "type": "RefObject<Actions>",
       "description": "A ref to imperative actions.\n- `unmount`: When specified, the select will not be unmounted when closed.\nInstead, the `unmount` function must be called to unmount the select manually.\nUseful when the select's animation is controlled by an external library."
     },
     "alignItemToTrigger": {
@@ -44,11 +44,15 @@
     "modal": {
       "type": "boolean",
       "default": "true",
-      "description": "Whether the select should prevent outside clicks and lock page scroll when open."
+      "description": "Determines if the select enters a modal state when open.\n- `true`: user interaction is limited to the select: document page scroll is locked and and pointer interactions on outside elements are disabled.\n- `false`: user interaction with the rest of the document is allowed."
     },
     "onOpenChangeComplete": {
-      "type": "(open) => void",
+      "type": "((open: boolean) => void)",
       "description": "Event handler called after any animations complete when the select menu is opened or closed."
+    },
+    "transitionStatus": {
+      "type": "TransitionStatus",
+      "description": "The transition status of the select."
     },
     "disabled": {
       "type": "boolean",
@@ -64,6 +68,13 @@
       "type": "boolean",
       "default": "false",
       "description": "Whether the user must choose a value before submitting a form."
+    },
+    "id": {
+      "type": "string",
+      "description": "The id of the Select."
+    },
+    "children": {
+      "type": "ReactNode"
     }
   },
   "dataAttributes": {},

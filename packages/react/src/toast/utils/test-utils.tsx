@@ -1,6 +1,9 @@
 import * as React from 'react';
 import { Toast } from '@base-ui-components/react/toast';
 
+/**
+ * @internal
+ */
 export function Button() {
   const { add } = Toast.useToastManager();
   return (
@@ -22,6 +25,9 @@ export function Button() {
   );
 }
 
+/**
+ * @internal
+ */
 export function List() {
   return Toast.useToastManager().toasts.map((toastItem) => (
     <Toast.Root key={toastItem.id} toast={toastItem} data-testid="root">
