@@ -77,7 +77,7 @@ _Apr 17, 2025_
 ### ScrollArea
 
 - **Breaking change:** Add `Content` part.
-  It is now required to include the ScrollArea.Content within ScrollArea.Viewport part when the content is horizontally scrollable.
+  It is now required to include the `ScrollArea.Content` within `ScrollArea.Viewport` part when the content is horizontally scrollable.
   (#1607) @atomiks
 - Handle visibility change and nesting (#1598) @atomiks
 - Correct thumb sizing with scrollbar margins (#1606) @atomiks
