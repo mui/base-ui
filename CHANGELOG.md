@@ -11,7 +11,7 @@ _Apr 16, 2025_
 
 ### AlertDialog
 
-- Rename `data-has-nested-dialogs` to `data-nested-dialog-open` (#1686) @mj12albert
+- **Breaking change:** Rename `data-has-nested-dialogs` to `data-nested-dialog-open` (#1686) @mj12albert
 - Fix `onOpenChange` types for `event`/`reason` passing (#1721) @atomiks
 - Use consistent `inert` attr and map `[data-popup-open]` back to `open` (#1650) @atomiks
 - Fix text selection & right-clicks (#1702) @mj12albert
@@ -28,8 +28,8 @@ _Apr 16, 2025_
 
 ### Dialog
 
-- Rename `data-has-nested-dialogs` to `data-nested-dialog-open` (#1686) @mj12albert
-- `modal="trap-focus"` prop value (#1571) @atomiks
+- **Breaking change:** Rename `data-has-nested-dialogs` to `data-nested-dialog-open` (#1686) @mj12albert
+- **Breaking change:** Add new `trap-focus` value to `modal` prop (#1571) @atomiks
 - Fix `onOpenChange` types for `event`/`reason` passing (#1721) @atomiks
 - Use consistent `inert` attr and map `[data-popup-open]` back to `open` (#1650) @atomiks
 - Fix text selection & right-clicks (#1702) @mj12albert
@@ -40,7 +40,7 @@ _Apr 16, 2025_
 
 ### Menu
 
-- Missing item data attributes docs (#1691) @atomiks
+- Add missing item data attributes docs (#1691) @atomiks
 - Fix `inert` prop compatibility in React <19 (#1618) @sebinsua
 - Fix stuck highlight on submenu trigger when submenu opens with keyboard (#1698) @atomiks
 - Fix `onOpenChange` types for `event`/`reason` passing (#1721) @atomiks
@@ -49,16 +49,16 @@ _Apr 16, 2025_
 
 ### Meter
 
-- Add Meter component (#1435) @mj12albert
+- New Meter component (#1435) @mj12albert
 
 ### NumberField
 
 - Correct percentage parse handling (#1676) @atomiks
-- `snapOnStep` prop (#1560) @atomiks
+- New `snapOnStep` prop (#1560) @atomiks
 
 ### Popover
 
-- `modal="trap-focus"` prop value (#1571) @atomiks
+- **Breaking change:** Add new `trap-focus` value to `modal` prop (#1571) @atomiks
 - Fix `inert` prop compatibility in React <19 (#1618) @sebinsua
 - Fix `onOpenChange` types for `event`/`reason` passing (#1721) @atomiks
 - Use consistent `inert` attr and map `[data-popup-open]` back to `open` (#1650) @atomiks
@@ -66,7 +66,7 @@ _Apr 16, 2025_
 
 ### Progress
 
-- Add `Progress.Label` and `locale` prop (#1666) @mj12albert
+- **Breaking change:** Add `Progress.Label` and `locale` prop (#1666) @mj12albert
 
 ### Radio
 
@@ -74,16 +74,16 @@ _Apr 16, 2025_
 
 ### ScrollArea
 
+- **Breaking change:** Add `Content` part (#1607) @atomiks
 - Handle visibility change and nesting (#1598) @atomiks
 - Correct thumb sizing with scrollbar margins (#1606) @atomiks
-- `Content` part (#1607) @atomiks
 
 ### Select
 
-- Fast hover highlight perf (#1570) @atomiks
+- **Breaking change:** Improve item highlight performance (#1570) @atomiks
 - Avoid double commit on value change (#1597) @atomiks
 - Reset `selectedIndex` when set to `null` (#1596) @atomiks
-- Missing item data attributes docs (#1691) @atomiks
+- Add missing item data attributes docs (#1691) @atomiks
 - Fix `onOpenChange` types for `event`/`reason` passing (#1721) @atomiks
 - Use consistent `inert` attr and map `[data-popup-open]` back to `open` (#1650) @atomiks
 - Fix text selection & right-clicks (#1702) @mj12albert
@@ -97,7 +97,7 @@ _Apr 16, 2025_
 
 ### Toast
 
-- Create new Toast component (#1467) @atomiks
+- New Toast component (#1467) @atomiks
 
 ### Tooltip
 
