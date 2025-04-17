@@ -56,7 +56,7 @@ export function useTooltipRoot(params: useTooltipRoot.Parameters): useTooltipRoo
   const onOpenChange = useEventCallback(onOpenChangeProp);
 
   const setOpen = React.useCallback(
-    (nextOpen: boolean, event?: Event, reason?: OpenChangeReason) => {
+    (nextOpen: boolean, event: Event | undefined, reason: OpenChangeReason | undefined) => {
       onOpenChange(nextOpen, event, reason);
       setOpenUnwrapped(nextOpen);
     },
@@ -64,7 +64,7 @@ export function useTooltipRoot(params: useTooltipRoot.Parameters): useTooltipRoo
   );
 
   if (open && disabled) {
-    setOpen(false);
+    setOpen(false, undefined, undefined);
   }
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
@@ -163,8 +163,12 @@ export function useTooltipRoot(params: useTooltipRoot.Parameters): useTooltipRoo
     axis: trackCursorAxis === 'none' ? undefined : trackCursorAxis,
   });
 
-  const { getReferenceProps: getRootTriggerProps, getFloatingProps: getRootPopupProps } =
-    useInteractions([hover, focus, dismiss, clientPoint]);
+  const { getReferenceProps: getTriggerProps, getFloatingProps: getPopupProps } = useInteractions([
+    hover,
+    focus,
+    dismiss,
+    clientPoint,
+  ]);
 
   return React.useMemo(
     () => ({
@@ -176,8 +180,8 @@ export function useTooltipRoot(params: useTooltipRoot.Parameters): useTooltipRoo
       positionerElement,
       setPositionerElement,
       popupRef,
-      getRootTriggerProps,
-      getRootPopupProps,
+      getTriggerProps,
+      getPopupProps,
       floatingRootContext: context,
       instantType,
       transitionStatus,
@@ -189,8 +193,8 @@ export function useTooltipRoot(params: useTooltipRoot.Parameters): useTooltipRoo
       setMounted,
       positionerElement,
       setOpen,
-      getRootTriggerProps,
-      getRootPopupProps,
+      getTriggerProps,
+      getPopupProps,
       context,
       instantType,
       transitionStatus,
@@ -215,7 +219,11 @@ export namespace useTooltipRoot {
     /**
      * Event handler called when the tooltip is opened or closed.
      */
-    onOpenChange?: (open: boolean, event?: Event, reason?: OpenChangeReason) => void;
+    onOpenChange?: (
+      open: boolean,
+      event: Event | undefined,
+      reason: OpenChangeReason | undefined,
+    ) => void;
     /**
      * Event handler called after any animations complete when the tooltip is opened or closed.
      */
@@ -259,8 +267,8 @@ export namespace useTooltipRoot {
     setOpen: (value: boolean, event?: Event, reason?: OpenChangeReason) => void;
     mounted: boolean;
     setMounted: React.Dispatch<React.SetStateAction<boolean>>;
-    getRootTriggerProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
-    getRootPopupProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
+    getTriggerProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
+    getPopupProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
     floatingRootContext: FloatingRootContext;
     instantType: 'delay' | 'dismiss' | 'focus' | undefined;
     transitionStatus: TransitionStatus;

@@ -1,12 +1,11 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
-import { usePopoverTitle } from './usePopoverTitle';
-
-const state = {};
+import { useRenderElement } from '../../utils/useRenderElement';
+import { useEnhancedEffect } from '../../utils';
+import { useBaseUiId } from '../../utils/useBaseUiId';
 
 /**
  * A heading that labels the popover.
@@ -15,25 +14,25 @@ const state = {};
  * Documentation: [Base UI Popover](https://base-ui.com/react/components/popover)
  */
 const PopoverTitle = React.forwardRef(function PopoverTitle(
-  props: PopoverTitle.Props,
+  componentProps: PopoverTitle.Props,
   forwardedRef: React.ForwardedRef<HTMLHeadingElement>,
 ) {
-  const { render, className, ...otherProps } = props;
+  const { render, className, ...elementProps } = componentProps;
 
   const { setTitleId } = usePopoverRootContext();
 
-  const { getTitleProps } = usePopoverTitle({
-    titleId: otherProps.id,
-    setTitleId,
-  });
+  const id = useBaseUiId(elementProps.id);
 
-  const { renderElement } = useComponentRenderer({
-    propGetter: getTitleProps,
-    render: render ?? 'h2',
-    className,
-    state,
+  useEnhancedEffect(() => {
+    setTitleId(id);
+    return () => {
+      setTitleId(undefined);
+    };
+  }, [setTitleId, id]);
+
+  const renderElement = useRenderElement('h2', componentProps, {
     ref: forwardedRef,
-    extraProps: otherProps,
+    props: [{ id }, elementProps],
   });
 
   return renderElement();

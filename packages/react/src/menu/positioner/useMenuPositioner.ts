@@ -40,7 +40,7 @@ export function useMenuPositioner(
           setHoverEnabled(false);
         }
         if (event.nodeId !== nodeId && event.parentNodeId === parentNodeId) {
-          setOpen(false, undefined);
+          setOpen(false, undefined, undefined);
         }
       } else if (event.parentNodeId === nodeId) {
         setHoverEnabled(true);

@@ -778,7 +778,7 @@ describe('<Menu.Root />', () => {
     it('should render an internal backdrop when `true`', async () => {
       await render(
         <div>
-          <Menu.Root>
+          <Menu.Root modal>
             <Menu.Trigger>Open</Menu.Trigger>
             <Menu.Portal>
               <Menu.Positioner data-testid="positioner">

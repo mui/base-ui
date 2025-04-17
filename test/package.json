@@ -8,7 +8,7 @@
   "devDependencies": {
     "@babel/runtime": "^7.27.0",
     "@base-ui-components/react": "workspace:*",
-    "@mui/internal-test-utils": "^2.0.6",
+    "@mui/internal-test-utils": "^2.0.7",
     "@playwright/test": "1.51.1",
     "@testing-library/dom": "^10.4.0",
     "@types/chai": "^4.3.20",

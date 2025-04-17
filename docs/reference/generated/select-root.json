@@ -29,7 +29,7 @@
       "description": "Whether the select menu is currently open."
     },
     "onOpenChange": {
-      "type": "((open: boolean, event: Event | undefined) => void)",
+      "type": "((open: boolean, event: Event | undefined, reason: OpenChangeReason | undefined) => void)",
       "description": "Event handler called when the select menu is opened or closed."
     },
     "actionsRef": {
@@ -44,7 +44,7 @@
     "modal": {
       "type": "boolean",
       "default": "true",
-      "description": "Whether the select should prevent outside clicks and lock page scroll when open."
+      "description": "Determines if the select enters a modal state when open.\n- `true`: user interaction is limited to the select: document page scroll is locked and and pointer interactions on outside elements are disabled.\n- `false`: user interaction with the rest of the document is allowed."
     },
     "onOpenChangeComplete": {
       "type": "((open: boolean) => void)",

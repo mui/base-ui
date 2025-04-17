@@ -14,6 +14,16 @@
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
     }
   },
-  "dataAttributes": {},
+  "dataAttributes": {
+    "data-complete": {
+      "description": "Present when the progress has completed."
+    },
+    "data-indeterminate": {
+      "description": "Present when the progress is in interminate state."
+    },
+    "data-progressing": {
+      "description": "Present while the progress is progressing."
+    }
+  },
   "cssVariables": {}
 }

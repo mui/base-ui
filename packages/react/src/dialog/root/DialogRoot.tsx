@@ -3,7 +3,7 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import { DialogRootContext, useOptionalDialogRootContext } from './DialogRootContext';
 import { DialogContext } from '../utils/DialogContext';
-import { type SharedParameters, useDialogRoot } from './useDialogRoot';
+import { useDialogRoot } from './useDialogRoot';
 
 /**
  * Groups all parts of the dialog.
@@ -59,7 +59,7 @@ const DialogRoot: React.FC<DialogRoot.Props> = function DialogRoot(props) {
 };
 
 namespace DialogRoot {
-  export interface Props extends SharedParameters {
+  export interface Props extends useDialogRoot.SharedParameters {
     children?: React.ReactNode;
   }
 
@@ -99,10 +99,13 @@ DialogRoot.propTypes /* remove-proptypes */ = {
    */
   dismissible: PropTypes.bool,
   /**
-   * Whether the dialog should prevent outside clicks and lock page scroll when open.
+   * Determines if the dialog enters a modal state when open.
+   * - `true`: user interaction is limited to just the dialog: focus is trapped, document page scroll is locked, and pointer interactions on outside elements are disabled.
+   * - `false`: user interaction with the rest of the document is allowed.
+   * - `'trap-focus'`: focus is trapped inside the dialog, but document page scroll is not locked and pointer interactions outside of it remain enabled.
    * @default true
    */
-  modal: PropTypes.bool,
+  modal: PropTypes.oneOfType([PropTypes.oneOf(['trap-focus']), PropTypes.bool]),
   /**
    * Event handler called when the dialog is opened or closed.
    */
