@@ -49,7 +49,7 @@ const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
 
   const openOnHover =
     openOnHoverProp ??
-    (parentContext != null || (menubarContext != null && menubarContext.hasSubmenuOpen));
+    (parentContext != null || (menubarContext != null && menubarContext.shouldOpenOnHover));
   const typingRef = React.useRef(false);
 
   const onTypingChange = React.useCallback((nextTyping: boolean) => {

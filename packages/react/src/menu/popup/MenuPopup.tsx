@@ -101,7 +101,6 @@ const MenuPopup = React.forwardRef(function MenuPopup(
       disabled={!mounted}
       returnFocus={!nested && !isInMenubar}
       initialFocus={nested ? -1 : 0}
-      closeOnFocusOut
     >
       {renderElement()}
     </FloatingFocusManager>

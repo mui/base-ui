@@ -23,15 +23,15 @@
   font-weight: 500;
 
   &:focus-visible {
-    outline: 2px solid var(--color-blue);
-    outline-offset: -1px;
+    outline: none;
   }
 
   &:active {
     background-color: var(--color-gray-200);
   }
 
-  &[data-pressed] {
+  &[data-pressed],
+  &:focus {
     background-color: var(--color-gray-100);
   }
 

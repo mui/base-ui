@@ -9,6 +9,7 @@ import { MenubarContext, useMenubarContext } from './MenubarContext';
 import { useScrollLock } from '../utils';
 import { CompositeRoot } from '../composite/root/CompositeRoot';
 import { useRenderElement } from '../utils/useRenderElement';
+import { useEventCallback } from '../utils/useEventCallback';
 
 /**
  * The container for menus.
@@ -30,6 +31,7 @@ const Menubar = React.forwardRef(function Menubar(
 
   const [contentElement, setContentElement] = React.useState<HTMLElement | null>(null);
   const [hasSubmenuOpen, setHasSubmenuOpen] = React.useState(false);
+  const [hasFocusWithin, setHasFocusWithin] = React.useState(false);
 
   useScrollLock({
     enabled: modal && hasSubmenuOpen,
@@ -46,29 +48,49 @@ const Menubar = React.forwardRef(function Menubar(
     [orientation, modal],
   );
 
-  const renderElement = useRenderElement('div', props, {
-    state,
-    props: otherProps,
-    ref: [forwardedRef, setContentElement],
+  const contentRef = React.useRef<HTMLDivElement>(null);
+
+  const handleFocus = React.useCallback(() => {
+    setHasFocusWithin(true);
+  }, []);
+
+  const handleBlur = useEventCallback((event: React.FocusEvent) => {
+    if (!contentElement || !contentElement.contains(event.relatedTarget as Node)) {
+      setHasFocusWithin(false);
+    }
   });
 
-  const context = React.useMemo(
+  const renderElement = useRenderElement('div', props, {
+    state,
+    props: [otherProps, { onFocus: handleFocus, onBlur: handleBlur }],
+    ref: [forwardedRef, setContentElement, contentRef],
+  });
+
+  const shouldOpenOnHover = hasFocusWithin || hasSubmenuOpen;
+
+  const context: MenubarContext = React.useMemo(
     () => ({
       contentElement,
       setContentElement,
-      hasSubmenuOpen,
       setHasSubmenuOpen,
+      hasSubmenuOpen,
+      shouldOpenOnHover,
       modal,
       orientation,
     }),
-    [contentElement, hasSubmenuOpen, modal, orientation],
+    [contentElement, shouldOpenOnHover, hasSubmenuOpen, modal, orientation],
   );
 
   return (
     <MenubarContext.Provider value={context}>
       <FloatingTree>
         <MenubarContent>
-          <CompositeRoot render={renderElement()} orientation={orientation} loop={loop} />
+          <CompositeRoot
+            render={renderElement()}
+            orientation={orientation}
+            loop={loop}
+            highlightItemOnHover={shouldOpenOnHover}
+          />
         </MenubarContent>
       </FloatingTree>
     </MenubarContext.Provider>

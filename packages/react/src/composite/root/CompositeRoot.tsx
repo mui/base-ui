@@ -32,6 +32,7 @@ function CompositeRoot<Metadata extends {}>(props: CompositeRoot.Props<Metadata>
     disabledIndices,
     modifierKeys,
     ignoreNavigationFromPopups = false,
+    highlightItemOnHover = false,
     ...otherProps
   } = props;
 
@@ -62,8 +63,8 @@ function CompositeRoot<Metadata extends {}>(props: CompositeRoot.Props<Metadata>
   });
 
   const contextValue: CompositeRootContext = React.useMemo(
-    () => ({ highlightedIndex, onHighlightedIndexChange }),
-    [highlightedIndex, onHighlightedIndexChange],
+    () => ({ highlightedIndex, onHighlightedIndexChange, highlightItemOnHover }),
+    [highlightedIndex, onHighlightedIndexChange, highlightItemOnHover],
   );
 
   return (
@@ -94,6 +95,7 @@ namespace CompositeRoot {
     disabledIndices?: number[];
     modifierKeys?: ModifierKey[];
     ignoreNavigationFromPopups?: boolean;
+    highlightItemOnHover?: boolean;
   }
 }
 
