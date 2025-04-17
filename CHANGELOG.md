@@ -93,6 +93,7 @@ _Apr 16, 2025_
 - Correct thumb positioning when control has padding (#1661) @mj12albert
 - Prevent range slider thumbs from being dragged past each other (#1612) @mj12albert
 - Fix incorrect CSS position on vertical slider indicator (#1599) @ZeeshanTamboli
+- Fix overlapping slider thumbs stuck at min or max (#1732) @mj12albert
 
 ### Toast
 
