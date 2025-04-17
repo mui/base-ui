@@ -20,39 +20,10 @@ import * as mdx from './mdxNodeHelpers.mjs';
  * @returns {Object} The root content node of the parsed AST
  */
 function parseMarkdown(markdown) {
-  if (!markdown || markdown === '-') {
-    return mdx.text('-');
-  }
-
-  try {
-    // Parse markdown into an AST
-    const processor = unified().use(remarkParse).use(remarkGfm);
-
-    const result = processor.parse(markdown);
-
-    // If there's only one paragraph with one child, just return that child
-    if (
-      result.children.length === 1 &&
-      result.children[0].type === 'paragraph' &&
-      result.children[0].children.length === 1
-    ) {
-      return result.children[0].children[0];
-    }
-
-    // Otherwise return all children wrapped in a paragraph
-    if (result.children.length === 1 && result.children[0].type === 'paragraph') {
-      return result.children[0];
-    }
-
-    // Return the whole tree
-    return {
-      type: 'paragraph',
-      children: result.children,
-    };
-  } catch (error) {
-    console.error('Error parsing markdown:', error);
-    return mdx.text(markdown); // Fallback to plain text
-  }
+  // Parse markdown into an AST
+  const processor = unified().use(remarkParse);
+  const result = processor.parse(markdown);
+  return result.children;
 }
 
 /**
@@ -61,7 +32,7 @@ function parseMarkdown(markdown) {
  * @param {Array} ancestors - The ancestry chain of the node
  * @returns {Array} Array of markdown nodes to replace the Reference component
  */
-export function processReference(node, parent, index) {
+export function processReference(node) {
   // Extract component name and parts from attributes
   const componentAttr = node.attributes?.find((attr) => attr.name === 'component')?.value;
   const partsAttr = node.attributes?.find((attr) => attr.name === 'parts')?.value;
@@ -114,13 +85,13 @@ export function processReference(node, parent, index) {
     if (def.description) {
       // Parse the description as markdown
       const descriptionNode = parseMarkdown(def.description);
-      tables.push(descriptionNode);
+      tables.push(mdx.paragraph(descriptionNode));
     }
 
     // Props table
     if (Object.keys(def.props || {}).length > 0) {
       // Create a proper heading with strong node
-      tables.push(mdx.paragraph([mdx.strong(`${part} Props`), mdx.text(':')]));
+      tables.push(mdx.paragraph([mdx.strong(`${part} Props:`)]));
 
       const propsRows = Object.entries(def.props).map(([propName, propDef]) => [
         propName,
@@ -142,7 +113,7 @@ export function processReference(node, parent, index) {
 
     // Data attributes table
     if (Object.keys(def.dataAttributes || {}).length > 0) {
-      tables.push(mdx.paragraph([mdx.strong(`${part} Data Attributes`), mdx.text(':')]));
+      tables.push(mdx.paragraph([mdx.strong(`${part} Data Attributes:`)]));
 
       const attrRows = Object.entries(def.dataAttributes).map(([attrName, attrDef]) => [
         attrName,
@@ -159,7 +130,7 @@ export function processReference(node, parent, index) {
 
     // CSS variables table
     if (Object.keys(def.cssVariables || {}).length > 0) {
-      tables.push(mdx.paragraph([mdx.strong(`${part} CSS Variables`), mdx.text(':')]));
+      tables.push(mdx.paragraph([mdx.strong(`${part} CSS Variables:`)]));
 
       const cssRows = Object.entries(def.cssVariables).map(([varName, varDef]) => [
         varName,

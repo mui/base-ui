@@ -1,15 +1,5 @@
 #!/usr/bin/env node
 
-/**
- * generateLlmTxt.mjs - Generates llms.txt and markdown files from MDX content
- *
- * This script performs the following:
- * 1. Scans all MDX files in the docs/src/app/(public)/(content)/react folder
- * 2. Converts each MDX file to markdown using a custom React reconciler
- * 3. Outputs the files to docs/llms directory
- * 4. Creates llms.txt according to https://llmstxt.org/ format
- */
-
 import fs from 'fs/promises';
 import path from 'path';
 import { fileURLToPath } from 'url';

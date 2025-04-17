@@ -79,7 +79,6 @@ function transformJsx() {
         'mdxJsxTextElement',
       ],
       (node, index, parent) => {
-        if (!parent) return;
         // Process different component types
         switch (node.name) {
           case 'Demo': {
@@ -95,20 +94,12 @@ function transformJsx() {
           }
 
           case 'Reference': {
-            try {
-              // Process the reference component using our dedicated processor
-              const tables = processReference(node, parent, index);
+            // Process the reference component using our dedicated processor
+            const tables = processReference(node, parent, index);
 
-              // Replace the reference component with the generated tables
-              parent.children.splice(index, 1, ...tables);
-            } catch (error) {
-              console.error(`Error processing Reference component:`, error);
-              parent.children.splice(
-                index,
-                1,
-                mdx.paragraph(`--- Reference Error: ${error.message} ---`),
-              );
-            }
+            // Replace the reference component with the generated tables
+            parent.children.splice(index, 1, ...tables);
+
             return;
           }
 
@@ -117,7 +108,6 @@ function transformJsx() {
             return;
 
           case 'Subtitle': {
-            // Subtitle is now in frontmatter, so remove from the content
             parent.children.splice(index, 1);
             return;
           }
@@ -180,7 +170,6 @@ export async function mdxToMarkdown(mdxContent, filePath) {
         fences: true,
         listItemIndent: 'one',
         rule: '-',
-        // Enable GitHub Flavored Markdown features
         commonmark: true,
         gfm: true,
       })
