@@ -155,7 +155,7 @@ export async function mdxToMarkdown(mdxContent) {
     const file = await unified()
       .use(remarkParse)
       .use(remarkMdx)
-      .use(remarkGfm)  // Add GitHub Flavored Markdown support
+      .use(remarkGfm) // Add GitHub Flavored Markdown support
       .use(extractMetadata)
       .use(transformJsx)
       .use(remarkStringify, {
@@ -167,8 +167,8 @@ export async function mdxToMarkdown(mdxContent) {
         listItemIndent: 'one',
         rule: '-',
         // Enable GitHub Flavored Markdown features
-        commonmark: true, 
-        gfm: true
+        commonmark: true,
+        gfm: true,
       })
       .process(mdxContent);
 
