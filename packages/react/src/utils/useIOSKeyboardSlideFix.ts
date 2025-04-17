@@ -44,6 +44,7 @@ export function useIOSKeyboardSlideFix(params: {
       const scrollX = html.scrollLeft;
       const scrollY = html.scrollTop;
       return () => {
+        // Doesn't work on Chrome iOS; Safari and Edge work correctly
         if (getPreventScrollCount() === 0) {
           html.scrollTop = scrollY;
           html.scrollLeft = scrollX;
