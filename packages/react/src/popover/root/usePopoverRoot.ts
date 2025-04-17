@@ -26,6 +26,7 @@ import {
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { PATIENT_CLICK_THRESHOLD } from '../../utils/constants';
 import { useScrollLock } from '../../utils/useScrollLock';
+import { useIOSKeyboardSlideFix } from '../../utils/useIOSKeyboardSlideFix';
 
 export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoot.ReturnValue {
   const {
@@ -49,6 +50,7 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
   const [positionerElement, setPositionerElement] = React.useState<HTMLElement | null>(null);
   const [openReason, setOpenReason] = React.useState<OpenChangeReason | null>(null);
   const [stickIfOpen, setStickIfOpen] = React.useState(true);
+  const [allowIOSLock, setAllowIOSLock] = React.useState(true);
 
   const popupRef = React.useRef<HTMLElement>(null);
   const stickIfOpenTimeoutRef = React.useRef(-1);
@@ -164,20 +166,32 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
       close: closeDelayWithDefault,
     },
   });
+  const click = useClick(context, { stickIfOpen });
+  const dismiss = useDismiss(context);
+  const role = useRole(context);
 
-  const click = useClick(context, {
-    stickIfOpen,
+  const enableScrollLock = open && modal === true;
+  const enableScrollLockIOS = enableScrollLock && allowIOSLock;
+
+  const iOSDocumentSlide = useIOSKeyboardSlideFix({
+    enabled: enableScrollLock,
+    setLock: setAllowIOSLock,
+    popupRef,
   });
 
-  const dismiss = useDismiss(context);
-
-  const role = useRole(context);
+  useScrollLock({
+    enabled: enableScrollLockIOS,
+    mounted,
+    open,
+    referenceElement: positionerElement,
+  });
 
   const { getReferenceProps, getFloatingProps: getPopupProps } = useInteractions([
     hover,
     click,
     dismiss,
     role,
+    iOSDocumentSlide,
   ]);
 
   const getTriggerProps = React.useCallback(

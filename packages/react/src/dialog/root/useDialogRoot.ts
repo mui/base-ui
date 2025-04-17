@@ -23,7 +23,7 @@ import {
   type OpenChangeReason,
   translateOpenChangeReason,
 } from '../../utils/translateOpenChangeReason';
-import { useIOSDocumentSlide } from '../../utils/useIOSDocumentSlide';
+import { useIOSKeyboardSlideFix } from '../../utils/useIOSKeyboardSlideFix';
 
 export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.ReturnValue {
   const {
@@ -128,7 +128,7 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
   const enableScrollLock = open && modal === true;
   const enableScrollLockIOS = enableScrollLock && allowIOSLock;
 
-  const iOSDocumentSlide = useIOSDocumentSlide({
+  const iOSKeyboardSlideFix = useIOSKeyboardSlideFix({
     enabled: enableScrollLock,
     setLock: setAllowIOSLock,
     popupRef,
@@ -145,7 +145,7 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
     role,
     click,
     dismiss,
-    iOSDocumentSlide,
+    iOSKeyboardSlideFix,
   ]);
 
   React.useEffect(() => {

@@ -13,7 +13,7 @@ import { useEventCallback } from './useEventCallback';
  * background.
  * https://github.com/mui/base-ui/issues/1455
  */
-export function useIOSDocumentSlide(params: {
+export function useIOSKeyboardSlideFix(params: {
   enabled: boolean;
   popupRef: React.RefObject<HTMLElement | null>;
   setLock: (lock: boolean) => void;
