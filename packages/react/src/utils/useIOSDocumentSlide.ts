@@ -42,6 +42,10 @@ export function useIOSDocumentSlide(params: {
   const floating: ElementProps['floating'] = React.useMemo(
     () => ({
       onFocus(event) {
+        if (!isIOS()) {
+          return;
+        }
+
         const target = getTarget(event.nativeEvent) as Element | null;
         if (isTypeableElement(target)) {
           setLock(false);
