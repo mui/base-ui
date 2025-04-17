@@ -37,23 +37,23 @@ function areValuesEqual(
   return false;
 }
 
-function findClosest(values: readonly number[], currentValue: number) {
-  const { index: closestIndex } =
-    values.reduce<{ distance: number; index: number } | null>(
-      (acc, value: number, index: number) => {
-        const distance = Math.abs(currentValue - value);
+function getClosestThumbIndex(values: readonly number[], currentValue: number, max: number) {
+  let closestIndex;
+  let minDistance;
+  for (let i = 0; i < values.length; i += 1) {
+    const distance = Math.abs(currentValue - values[i]);
+    if (
+      minDistance === undefined ||
+      // when the value is at max, the lowest index thumb has to be dragged
+      // first or it will block higher index thumbs from moving
+      // otherwise consider higher index thumbs to be closest when their values are identical
+      (values[i] === max ? distance < minDistance : distance <= minDistance)
+    ) {
+      closestIndex = i;
+      minDistance = distance;
+    }
+  }
 
-        if (acc === null || distance < acc.distance || distance === acc.distance) {
-          return {
-            distance,
-            index,
-          };
-        }
-
-        return acc;
-      },
-      null,
-    ) ?? {};
   return closestIndex;
 }
 
@@ -74,12 +74,14 @@ export function focusThumb(
     return;
   }
 
-  const doc = ownerDocument(sliderRef.current);
+  const activeEl = activeElement(ownerDocument(sliderRef.current));
 
   if (
-    !sliderRef.current.contains(doc.activeElement) ||
-    Number(doc?.activeElement?.getAttribute(SliderThumbDataAttributes.index)) !== thumbIndex
+    activeEl == null ||
+    !sliderRef.current.contains(activeEl) ||
+    Number(activeEl.getAttribute(SliderThumbDataAttributes.index)) !== thumbIndex
   ) {
+    // TODO: possibly simplify with thumbRefs as it already exists
     (
       sliderRef.current.querySelector(
         `[type="range"][${SliderThumbDataAttributes.index}="${thumbIndex}"]`,
@@ -371,7 +373,7 @@ export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRo
       }
 
       if (shouldCaptureThumbIndex) {
-        closestThumbIndexRef.current = findClosest(values, newValue) ?? 0;
+        closestThumbIndexRef.current = getClosestThumbIndex(values, newValue, max) ?? 0;
       }
 
       const closestThumbIndex = closestThumbIndexRef.current ?? 0;
