@@ -23,7 +23,6 @@ export function useIOSKeyboardSlideFix(params: {
 
   const setLock = useEventCallback(setLockParam);
 
-  const scrollRef = React.useRef({ x: 0, y: 0 });
   const hasBeenEnabledRef = React.useRef(enabled);
 
   useEnhancedEffect(() => {
@@ -42,11 +41,12 @@ export function useIOSKeyboardSlideFix(params: {
     const doc = ownerDocument(popupRef.current);
     const html = doc.documentElement;
     if (enabled) {
-      scrollRef.current = { x: html.scrollLeft, y: html.scrollTop };
+      const scrollX = html.scrollLeft;
+      const scrollY = html.scrollTop;
       return () => {
         if (getPreventScrollCount() === 0) {
-          html.scrollTop = scrollRef.current.y;
-          html.scrollLeft = scrollRef.current.x;
+          html.scrollTop = scrollY;
+          html.scrollLeft = scrollX;
         }
       };
     }
