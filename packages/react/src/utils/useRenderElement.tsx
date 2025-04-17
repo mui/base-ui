@@ -26,10 +26,11 @@ const emptyObject = {};
 export function useRenderElement<
   State extends Record<string, any>,
   RenderedElementType extends Element,
+  RenderFunctionProps extends GenericHTMLProps,
 >(
   element: keyof React.JSX.IntrinsicElements | undefined,
   componentProps: useRenderElement.ComponentProps<State>,
-  params: useRenderElement.Parameters<State, RenderedElementType> = {},
+  params: useRenderElement.Parameters<State, RenderedElementType, RenderFunctionProps> = {},
 ) {
   const { className: classNameProp, render: renderProp } = componentProps;
   const {
@@ -73,7 +74,11 @@ export function useRenderElement<
 }
 
 export namespace useRenderElement {
-  export interface Parameters<State, RenderedElementType extends Element> {
+  export interface Parameters<
+    State,
+    RenderedElementType extends Element,
+    RenderFunctionProps extends GenericHTMLProps,
+  > {
     /**
      * @deprecated
      */
@@ -90,8 +95,8 @@ export namespace useRenderElement {
      * Intrinsic props to be spread on the rendered element.
      */
     props?:
-      | GenericHTMLProps
-      | Array<GenericHTMLProps | ((props: GenericHTMLProps) => GenericHTMLProps)>;
+      | RenderFunctionProps
+      | Array<RenderFunctionProps | ((props: RenderFunctionProps) => RenderFunctionProps)>;
     /**
      * A mapping of state to style hooks.
      */
