@@ -23,6 +23,8 @@ import {
   type OpenChangeReason,
   translateOpenChangeReason,
 } from '../../utils/translateOpenChangeReason';
+import { isIOS } from '../../utils/detectBrowser';
+import { useIOSDocumentSlide } from '../../utils/useIOSDocumentSlide';
 
 export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.ReturnValue {
   const {
@@ -81,8 +83,12 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
 
   React.useImperativeHandle(params.actionsRef, () => ({ unmount: handleUnmount }), [handleUnmount]);
 
+  const [allowIOSLock, setAllowIOSLock] = React.useState(true);
+  const enableScrollLock = open && modal === true;
+  const enableScrollLockIOS = enableScrollLock && allowIOSLock;
+
   useScrollLock({
-    enabled: open && modal === true,
+    enabled: enableScrollLockIOS,
     mounted,
     open,
     referenceElement: popupElement,
@@ -130,7 +136,27 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
     escapeKey: isTopmost,
   });
 
-  const { getReferenceProps, getFloatingProps } = useInteractions([role, click, dismiss]);
+  const iOSDocumentSlide = useIOSDocumentSlide({
+    enabled: enableScrollLock,
+    popupRef,
+    onDisableLock() {
+      if (isIOS()) {
+        setAllowIOSLock(false);
+      }
+    },
+    onEnableLock() {
+      if (isIOS()) {
+        setAllowIOSLock(true);
+      }
+    },
+  });
+
+  const { getReferenceProps, getFloatingProps } = useInteractions([
+    role,
+    click,
+    dismiss,
+    iOSDocumentSlide,
+  ]);
 
   React.useEffect(() => {
     if (onNestedDialogOpen && open) {
