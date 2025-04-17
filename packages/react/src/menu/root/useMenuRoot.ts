@@ -76,11 +76,16 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
 
-  useScrollLock(open && modal && openReason !== 'hover', triggerElement);
+  useScrollLock({
+    enabled: open && modal && openReason !== 'hover',
+    mounted,
+    open,
+    referenceElement: positionerElement,
+  });
 
   const setOpen = useEventCallback(
-    (nextOpen: boolean, event?: Event, reason?: OpenChangeReason) => {
-      onOpenChange?.(nextOpen, event);
+    (nextOpen: boolean, event: Event | undefined, reason: OpenChangeReason | undefined) => {
+      onOpenChange?.(nextOpen, event, reason);
       setOpenUnwrapped(nextOpen);
 
       if (nextOpen) {
@@ -148,6 +153,7 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
         // Only allow "patient" clicks to close the menu if it's open.
         // If they clicked within 500ms of the menu opening, keep it open.
         clearStickIfOpenTimeout();
+        setStickIfOpen(true);
         stickIfOpenTimeoutRef.current = window.setTimeout(() => {
           setStickIfOpen(false);
         }, PATIENT_CLICK_THRESHOLD);
@@ -169,17 +175,16 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
     enabled: hoverEnabled && openOnHover && !disabled && openReason !== 'click',
     handleClose: safePolygon({ blockPointerEvents: true }),
     mouseOnly: true,
-    move: false,
-    delay: {
-      open: delay,
-    },
+    move: nested,
+    restMs: nested ? undefined : delay,
+    delay: nested ? { open: delay } : undefined,
   });
 
   const click = useClick(floatingRootContext, {
     enabled: !disabled,
     event: 'mousedown',
-    toggle: !nested,
-    ignoreMouse: nested,
+    toggle: !openOnHover || !nested,
+    ignoreMouse: openOnHover && nested,
     stickIfOpen,
   });
 
@@ -260,6 +265,7 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
   return React.useMemo(
     () => ({
       activeIndex,
+      setActiveIndex,
       allowMouseUpTriggerRef,
       floatingRootContext,
       itemProps,
@@ -312,7 +318,9 @@ export namespace useMenuRoot {
     /**
      * Event handler called when the menu is opened or closed.
      */
-    onOpenChange: ((open: boolean, event?: Event, reason?: OpenChangeReason) => void) | undefined;
+    onOpenChange:
+      | ((open: boolean, event: Event | undefined, reason: OpenChangeReason | undefined) => void)
+      | undefined;
     /**
      * Event handler called after any animations complete when the menu is opened or closed.
      */
@@ -364,9 +372,18 @@ export namespace useMenuRoot {
      * Callback fired when the user begins or finishes typing (for typeahead search).
      */
     onTypingChange: (typing: boolean) => void;
+    /**
+     * Determines if the menu enters a modal state when open.
+     * - `true`: user interaction is limited to the menu: document page scroll is locked and and pointer interactions on outside elements are disabled.
+     * - `false`: doesn't lock document scroll or block pointer interactions.
+     * @default true
+     */
     modal: boolean;
     /**
      * A ref to imperative actions.
+     * - `unmount`: When specified, the menu will not be unmounted when closed.
+     * Instead, the `unmount` function must be called to unmount the menu manually.
+     * Useful when the menu's animation is controlled by an external library.
      */
     actionsRef: React.RefObject<Actions> | undefined;
   }
@@ -382,7 +399,11 @@ export namespace useMenuRoot {
     mounted: boolean;
     open: boolean;
     popupRef: React.RefObject<HTMLElement | null>;
-    setOpen: (open: boolean, event: Event | undefined) => void;
+    setOpen: (
+      open: boolean,
+      event: Event | undefined,
+      reason: OpenChangeReason | undefined,
+    ) => void;
     positionerRef: React.RefObject<HTMLElement | null>;
     setPositionerElement: (element: HTMLElement | null) => void;
     setTriggerElement: (element: HTMLElement | null) => void;
@@ -392,6 +413,7 @@ export namespace useMenuRoot {
     instantType: 'dismiss' | 'click' | undefined;
     onOpenChangeComplete: ((open: boolean) => void) | undefined;
     setHoverEnabled: React.Dispatch<React.SetStateAction<boolean>>;
+    setActiveIndex: React.Dispatch<React.SetStateAction<number | null>>;
   }
 
   export interface Actions {

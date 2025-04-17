@@ -138,6 +138,9 @@ SelectRoot.propTypes /* remove-proptypes */ = {
   // └─────────────────────────────────────────────────────────────────────┘
   /**
    * A ref to imperative actions.
+   * - `unmount`: When specified, the select will not be unmounted when closed.
+   * Instead, the `unmount` function must be called to unmount the select manually.
+   * Useful when the select's animation is controlled by an external library.
    */
   actionsRef: PropTypes.shape({
     current: PropTypes.shape({
@@ -173,7 +176,9 @@ SelectRoot.propTypes /* remove-proptypes */ = {
    */
   disabled: PropTypes.bool,
   /**
-   * Whether the select should prevent outside clicks and lock page scroll when open.
+   * Determines if the select enters a modal state when open.
+   * - `true`: user interaction is limited to the select: document page scroll is locked and and pointer interactions on outside elements are disabled.
+   * - `false`: user interaction with the rest of the document is allowed.
    * @default true
    */
   modal: PropTypes.bool,

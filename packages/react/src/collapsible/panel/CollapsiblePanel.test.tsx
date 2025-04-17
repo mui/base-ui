@@ -4,26 +4,8 @@ import { spy } from 'sinon';
 import { act, fireEvent, flushMicrotasks } from '@mui/internal-test-utils';
 import { Collapsible } from '@base-ui-components/react/collapsible';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
-import { NOOP } from '../../utils/noop';
-import { CollapsibleRootContext } from '../root/CollapsibleRootContext';
 
 const PANEL_CONTENT = 'This is panel content';
-
-const contextValue: CollapsibleRootContext = {
-  panelId: 'PanelId',
-  disabled: false,
-  mounted: true,
-  open: true,
-  setPanelId: NOOP,
-  setMounted: NOOP,
-  setOpen: NOOP,
-  transitionStatus: undefined,
-  state: {
-    open: true,
-    disabled: false,
-    transitionStatus: undefined,
-  },
-};
 
 describe('<Collapsible.Panel />', () => {
   const { render } = createRenderer();
@@ -31,11 +13,7 @@ describe('<Collapsible.Panel />', () => {
   describeConformance(<Collapsible.Panel />, () => ({
     refInstanceof: window.HTMLDivElement,
     render: (node) => {
-      return render(
-        <CollapsibleRootContext.Provider value={contextValue}>
-          {node}
-        </CollapsibleRootContext.Provider>,
-      );
+      return render(<Collapsible.Root defaultOpen>{node}</Collapsible.Root>);
     },
   }));
 

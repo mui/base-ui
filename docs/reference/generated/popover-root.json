@@ -12,20 +12,20 @@
       "description": "Whether the popover is currently open."
     },
     "onOpenChange": {
-      "type": "(open, event, reason) => void",
+      "type": "((open: boolean, event: Event | undefined, reason: OpenChangeReason | undefined) => void)",
       "description": "Event handler called when the popover is opened or closed."
     },
     "actionsRef": {
-      "type": "{ current: { unmount: func } }",
-      "description": "A ref to imperative actions."
+      "type": "RefObject<Actions>",
+      "description": "A ref to imperative actions.\n- `unmount`: When specified, the popover will not be unmounted when closed.\nInstead, the `unmount` function must be called to unmount the popover manually.\nUseful when the popover's animation is controlled by an external library."
     },
     "modal": {
-      "type": "boolean",
+      "type": "boolean | 'trap-focus'",
       "default": "false",
-      "description": "Whether the popover should prevent outside clicks and lock page scroll when open."
+      "description": "Determines if the popover enters a modal state when open.\n- `true`: user interaction is limited to the popover: document page scroll is locked, and pointer interactions on outside elements are disabled.\n- `false`: user interaction with the rest of the document is allowed.\n- `'trap-focus'`: focus is trapped inside the popover, but document page scroll is not locked and pointer interactions outside of it remain enabled."
     },
     "onOpenChangeComplete": {
-      "type": "(open) => void",
+      "type": "((open: boolean) => void)",
       "description": "Event handler called after any animations complete when the popover is opened or closed."
     },
     "openOnHover": {
@@ -42,6 +42,9 @@
       "type": "number",
       "default": "0",
       "description": "How long to wait before closing the popover that was opened on hover.\nSpecified in milliseconds.\n\nRequires the `openOnHover` prop."
+    },
+    "children": {
+      "type": "ReactNode"
     }
   },
   "dataAttributes": {},

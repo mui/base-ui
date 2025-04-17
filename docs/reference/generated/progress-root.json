@@ -2,30 +2,19 @@
   "name": "ProgressRoot",
   "description": "Groups all parts of the progress bar and provides the task completion status to screen readers.\nRenders a `<div>` element.",
   "props": {
-    "aria-label": {
-      "type": "string",
-      "description": "The label for the Indicator component."
-    },
-    "aria-labelledby": {
-      "type": "string",
-      "description": "An id or space-separated list of ids of elements that label the Indicator component."
-    },
     "value": {
-      "type": "number",
+      "type": "number | null",
       "default": "null",
+      "required": true,
       "description": "The current value. The component is indeterminate when value is `null`."
     },
-    "aria-valuetext": {
-      "type": "string",
-      "description": "A string value that provides a human-readable text alternative for the current value of the progress indicator."
-    },
-    "getAriaLabel": {
-      "type": "(value) => string",
-      "description": "Accepts a function which returns a string value that provides an accessible name for the Indicator component."
-    },
     "getAriaValueText": {
-      "type": "(value) => string",
-      "description": "Accepts a function which returns a string value that provides a human-readable text alternative for the current value of the progress indicator."
+      "type": "((formattedValue: string | null, value: number | null) => string)",
+      "description": "Accepts a function which returns a string value that provides a human-readable text alternative for the current value of the progress bar."
+    },
+    "locale": {
+      "type": "LocalesArgument",
+      "description": "The locale used by `Intl.NumberFormat` when formatting the value.\nDefaults to the user's runtime locale."
     },
     "min": {
       "type": "number",
@@ -38,15 +27,15 @@
       "description": "The maximum value."
     },
     "format": {
-      "type": "{ compactDisplay?: 'long' | 'short', currency?: string, currencyDisplay?: 'code' | 'name' | 'narrowSymbol' | 'symbol', currencySign?: 'accounting' | 'standard', localeMatcher?: 'best fit' | 'lookup', maximumFractionDigits?: number, maximumSignificantDigits?: number, minimumFractionDigits?: number, minimumIntegerDigits?: number, minimumSignificantDigits?: number, notation?: 'compact' | 'engineering' | 'scientific' | 'standard', numberingSystem?: string, signDisplay?: 'always' | 'auto' | 'exceptZero' | 'never', style?: 'currency' | 'decimal' | 'percent' | 'unit', unit?: string, unitDisplay?: 'long' | 'narrow' | 'short', useGrouping?: bool }",
+      "type": "NumberFormatOptions",
       "description": "Options to format the value."
     },
     "className": {
-      "type": "string | (state) => string",
+      "type": "string | ((state: State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "render": {
-      "type": "React.ReactElement | (props, state) => React.ReactElement",
+      "type": "ReactElement | ((props: GenericHTMLProps, state: State) => ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
     }
   },

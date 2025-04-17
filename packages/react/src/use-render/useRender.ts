@@ -1,31 +1,36 @@
 import * as React from 'react';
 import type { ComponentRenderFn } from '../utils/types';
-import { useComponentRenderer } from '../utils/useComponentRenderer';
 import { GenericHTMLProps } from '../utils/types';
-
-const emptyObject = {};
+import { useRenderElement } from '../utils/useRenderElement';
 
 /**
  * Returns an object with a `renderElement` function that renders a Base UI element.
+ *
+ * @public
  */
 export function useRender<
   State extends Record<string, unknown>,
   RenderedElementType extends Element,
->(params: useRender.Parameters<State, RenderedElementType>) {
+>(params: useRender.Parameters<State, RenderedElementType>): useRender.ReturnValue {
   const { render, props, state, refs } = params;
-  const { ref, ...extraProps } = props ?? {};
+  const { ref: intrinsicRefProp, ...intrinsicProps } = props || {};
 
-  const refsArray = React.useMemo(() => {
-    return [...(refs ?? []), ref].filter(Boolean);
-  }, [refs, ref]) as React.Ref<RenderedElementType>[];
+  const renderElement = useRenderElement(
+    undefined,
+    { render },
+    {
+      props: intrinsicProps,
+      state,
+      ref: [intrinsicRefProp, ...(refs || [])].filter(
+        (x): x is React.Ref<RenderedElementType> => x != null,
+      ),
+      styleHooks: false,
+    },
+  );
 
-  return useComponentRenderer({
-    render,
-    state: (state ?? emptyObject) as State,
-    ref: refsArray,
-    extraProps,
-    styleHooks: false,
-  });
+  return {
+    renderElement,
+  };
 }
 
 export namespace useRender {
@@ -72,5 +77,9 @@ export namespace useRender {
      * internal ones.
      */
     props?: Record<string, unknown> & { ref?: React.Ref<RenderedElementType> };
+  }
+
+  export interface ReturnValue {
+    renderElement: () => React.ReactElement;
   }
 }

@@ -54,7 +54,7 @@ export function usePreviewCardRoot(
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
 
   const setOpen = useEventCallback(
-    (nextOpen: boolean, event?: Event, reason?: OpenChangeReason) => {
+    (nextOpen: boolean, event: Event | undefined, reason: OpenChangeReason | undefined) => {
       onOpenChange(nextOpen, event, reason);
       setOpenUnwrapped(nextOpen);
     },
@@ -174,7 +174,11 @@ export namespace usePreviewCardRoot {
     /**
      * Event handler called when the preview card is opened or closed.
      */
-    onOpenChange?: (open: boolean, event?: Event, reason?: OpenChangeReason) => void;
+    onOpenChange?: (
+      open: boolean,
+      event: Event | undefined,
+      reason: OpenChangeReason | undefined,
+    ) => void;
     /**
      * Event handler called after any animations complete when the preview card is opened or closed.
      */
@@ -191,6 +195,9 @@ export namespace usePreviewCardRoot {
     closeDelay?: number;
     /**
      * A ref to imperative actions.
+     * - `unmount`: When specified, the preview card will not be unmounted when closed.
+     * Instead, the `unmount` function must be called to unmount the preview card manually.
+     * Useful when the preview card's animation is controlled by an external library.
      */
     actionsRef?: React.RefObject<Actions>;
   }

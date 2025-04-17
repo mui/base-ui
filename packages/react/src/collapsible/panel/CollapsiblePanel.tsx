@@ -10,6 +10,7 @@ import type { CollapsibleRoot } from '../root/CollapsibleRoot';
 import { collapsibleStyleHookMapping } from '../root/styleHooks';
 import { useCollapsiblePanel } from './useCollapsiblePanel';
 import { CollapsiblePanelCssVars } from './CollapsiblePanelCssVars';
+import { usePanelResize } from '../../utils/usePanelResize';
 
 /**
  * A panel with the collapsible contents.
@@ -19,7 +20,7 @@ import { CollapsiblePanelCssVars } from './CollapsiblePanelCssVars';
  */
 const CollapsiblePanel = React.forwardRef(function CollapsiblePanel(
   props: CollapsiblePanel.Props,
-  forwardedRef: React.ForwardedRef<HTMLButtonElement>,
+  forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const {
     className,
@@ -41,34 +42,71 @@ const CollapsiblePanel = React.forwardRef(function CollapsiblePanel(
     }, [hiddenUntilFoundProp, keepMountedProp]);
   }
 
-  const { mounted, open, panelId, setPanelId, setMounted, setOpen, state } =
-    useCollapsibleRootContext();
-
-  useEnhancedEffect(() => {
-    if (idProp) {
-      setPanelId(idProp);
-    }
-  }, [idProp, setPanelId]);
-
-  const hiddenUntilFound = hiddenUntilFoundProp ?? false;
-
-  const { getRootProps, height, width, isOpen } = useCollapsiblePanel({
-    hiddenUntilFound,
-    panelId,
-    keepMounted: keepMountedProp ?? false,
+  const {
+    abortControllerRef,
+    animationTypeRef,
+    height,
     mounted,
+    onOpenChange,
     open,
-    ref: forwardedRef,
-    setPanelId,
+    panelId,
+    panelRef,
+    runOnceAnimationsFinish,
+    setDimensions,
+    setHiddenUntilFound,
+    setKeepMounted,
     setMounted,
     setOpen,
+    setPanelId,
+    setVisible,
+    state,
+    transitionDimensionRef,
+    visible,
+    width,
+  } = useCollapsibleRootContext();
+
+  const hiddenUntilFound = hiddenUntilFoundProp ?? false;
+  const keepMounted = keepMountedProp ?? false;
+
+  useEnhancedEffect(() => {
+    setHiddenUntilFound(hiddenUntilFound);
+  }, [setHiddenUntilFound, hiddenUntilFound]);
+
+  useEnhancedEffect(() => {
+    setKeepMounted(keepMounted);
+  }, [setKeepMounted, keepMounted]);
+
+  const { getRootProps } = useCollapsiblePanel({
+    abortControllerRef,
+    animationTypeRef,
+    externalRef: forwardedRef,
+    height,
+    hiddenUntilFound,
+    id: idProp ?? panelId,
+    keepMounted,
+    mounted,
+    onOpenChange,
+    open,
+    panelRef,
+    runOnceAnimationsFinish,
+    setDimensions,
+    setMounted,
+    setOpen,
+    setPanelId,
+    setVisible,
+    transitionDimensionRef,
+    visible,
+    width,
   });
+
+  usePanelResize(panelRef, setDimensions, open);
 
   const { renderElement } = useComponentRenderer({
     propGetter: getRootProps,
     render: render ?? 'div',
     state,
     className,
+    ref: [forwardedRef, panelRef],
     extraProps: {
       ...otherProps,
       style: {
@@ -80,7 +118,8 @@ const CollapsiblePanel = React.forwardRef(function CollapsiblePanel(
     customStyleHookMapping: collapsibleStyleHookMapping,
   });
 
-  if (!keepMountedProp && !isOpen && !hiddenUntilFound) {
+  const shouldRender = keepMounted || hiddenUntilFound || (!keepMounted && mounted);
+  if (!shouldRender) {
     return null;
   }
 

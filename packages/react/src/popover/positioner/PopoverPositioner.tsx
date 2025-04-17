@@ -1,8 +1,6 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { useForkRef } from '../../utils/useForkRef';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
 import { usePopoverPositioner } from './usePopoverPositioner';
 import { PopoverPositionerContext } from './PopoverPositionerContext';
@@ -11,7 +9,9 @@ import type { Side, Align } from '../../utils/useAnchorPositioning';
 import { popupStateMapping } from '../../utils/popupStateMapping';
 import { HTMLElementType, refType } from '../../utils/proptypes';
 import { usePopoverPortalContext } from '../portal/PopoverPortalContext';
+import { inertValue } from '../../utils/inertValue';
 import { InternalBackdrop } from '../../utils/InternalBackdrop';
+import { useRenderElement } from '../../utils/useRenderElement';
 
 /**
  * Positions the popover against the trigger.
@@ -20,7 +20,7 @@ import { InternalBackdrop } from '../../utils/InternalBackdrop';
  * Documentation: [Base UI Popover](https://base-ui.com/react/components/popover)
  */
 const PopoverPositioner = React.forwardRef(function PopoverPositioner(
-  props: PopoverPositioner.Props,
+  componentProps: PopoverPositioner.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const {
@@ -37,11 +37,18 @@ const PopoverPositioner = React.forwardRef(function PopoverPositioner(
     arrowPadding = 5,
     sticky = false,
     trackAnchor = true,
-    ...otherProps
-  } = props;
+    ...elementProps
+  } = componentProps;
 
-  const { floatingRootContext, open, mounted, setPositionerElement, modal, openReason } =
-    usePopoverRootContext();
+  const {
+    floatingRootContext,
+    open,
+    mounted,
+    setPositionerElement,
+    modal,
+    openReason,
+    openMethod,
+  } = usePopoverRootContext();
   const keepMounted = usePopoverPortalContext();
 
   const positioner = usePopoverPositioner({
@@ -72,21 +79,18 @@ const PopoverPositioner = React.forwardRef(function PopoverPositioner(
     [open, positioner.side, positioner.align, positioner.anchorHidden],
   );
 
-  const mergedRef = useForkRef(forwardedRef, setPositionerElement);
-
-  const { renderElement } = useComponentRenderer({
-    propGetter: positioner.getPositionerProps,
-    render: render ?? 'div',
-    className,
+  const renderElement = useRenderElement('div', componentProps, {
     state,
-    ref: mergedRef,
-    extraProps: otherProps,
+    props: [positioner.props, elementProps],
+    ref: [forwardedRef, setPositionerElement],
     customStyleHookMapping: popupStateMapping,
   });
 
   return (
     <PopoverPositionerContext.Provider value={positioner}>
-      {mounted && modal && openReason !== 'hover' && <InternalBackdrop />}
+      {mounted && modal === true && openReason !== 'hover' && openMethod !== 'touch' && (
+        <InternalBackdrop inert={inertValue(!open)} />
+      )}
       {renderElement()}
     </PopoverPositionerContext.Provider>
   );

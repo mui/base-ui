@@ -13,6 +13,7 @@ import type { AccordionItem } from '../item/AccordionItem';
 import { useAccordionItemContext } from '../item/AccordionItemContext';
 import { accordionStyleHookMapping } from '../item/styleHooks';
 import { AccordionPanelCssVars } from './AccordionPanelCssVars';
+import { usePanelResize } from '../../utils/usePanelResize';
 
 /**
  * A collapsible panel with the accordion item contents.
@@ -22,7 +23,7 @@ import { AccordionPanelCssVars } from './AccordionPanelCssVars';
  */
 const AccordionPanel = React.forwardRef(function AccordionPanel(
   props: AccordionPanel.Props,
-  forwardedRef: React.ForwardedRef<HTMLButtonElement>,
+  forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const {
     className,
@@ -37,7 +38,30 @@ const AccordionPanel = React.forwardRef(function AccordionPanel(
   const { hiddenUntilFound: contextHiddenUntilFound, keepMounted: contextKeepMounted } =
     useAccordionRootContext();
 
+  const {
+    abortControllerRef,
+    animationTypeRef,
+    height,
+    mounted,
+    onOpenChange,
+    open,
+    panelId,
+    panelRef,
+    runOnceAnimationsFinish,
+    setDimensions,
+    setHiddenUntilFound,
+    setKeepMounted,
+    setMounted,
+    setOpen,
+    setPanelId,
+    setVisible,
+    transitionDimensionRef,
+    visible,
+    width,
+  } = useCollapsibleRootContext();
+
   const hiddenUntilFound = hiddenUntilFoundProp ?? contextHiddenUntilFound;
+  const keepMounted = keepMountedProp ?? contextKeepMounted;
 
   if (process.env.NODE_ENV !== 'production') {
     // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -50,20 +74,37 @@ const AccordionPanel = React.forwardRef(function AccordionPanel(
     }, [hiddenUntilFound, keepMountedProp]);
   }
 
-  const { mounted, open, panelId, setPanelId, setMounted, setOpen } = useCollapsibleRootContext();
+  useEnhancedEffect(() => {
+    setHiddenUntilFound(hiddenUntilFound);
+  }, [setHiddenUntilFound, hiddenUntilFound]);
 
-  const keepMounted = keepMountedProp ?? contextKeepMounted;
+  useEnhancedEffect(() => {
+    setKeepMounted(keepMounted);
+  }, [setKeepMounted, keepMounted]);
 
-  const { getRootProps, height, width, isOpen } = useCollapsiblePanel({
+  usePanelResize(panelRef, setDimensions, open);
+
+  const { getRootProps } = useCollapsiblePanel({
+    abortControllerRef,
+    animationTypeRef,
+    externalRef: forwardedRef,
+    height,
     hiddenUntilFound,
-    panelId: idProp ?? panelId,
+    id: idProp ?? panelId,
     keepMounted,
     mounted,
+    onOpenChange,
     open,
-    ref: forwardedRef,
-    setPanelId,
+    panelRef,
+    runOnceAnimationsFinish,
+    setDimensions,
     setMounted,
     setOpen,
+    setPanelId,
+    setVisible,
+    transitionDimensionRef,
+    visible,
+    width,
   });
 
   const { state, triggerId } = useAccordionItemContext();
@@ -73,6 +114,7 @@ const AccordionPanel = React.forwardRef(function AccordionPanel(
     render: render ?? 'div',
     state,
     className,
+    ref: [forwardedRef, panelRef],
     extraProps: {
       ...otherProps,
       'aria-labelledby': triggerId,
@@ -86,7 +128,8 @@ const AccordionPanel = React.forwardRef(function AccordionPanel(
     customStyleHookMapping: accordionStyleHookMapping,
   });
 
-  if (!isOpen && !keepMounted && !hiddenUntilFound) {
+  const shouldRender = keepMounted || hiddenUntilFound || (!keepMounted && mounted);
+  if (!shouldRender) {
     return null;
   }
 

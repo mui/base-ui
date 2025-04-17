@@ -13,9 +13,6 @@ import { NumberFieldRootDataAttributes } from './NumberFieldRootDataAttributes';
 import { useEventCallback } from '../../utils/useEventCallback';
 import type { EventWithOptionalKeyState } from '../utils/types';
 
-/**
- * @ignore - internal hook.
- */
 export function useScrub(params: useScrub.Parameters) {
   const { disabled, readOnly, value, inputRef, incrementValue, getStepAmount } = params;
 
@@ -170,16 +167,14 @@ export function useScrub(params: useScrub.Parameters) {
       let cumulativeDelta = 0;
 
       function handleScrubPointerUp(event: PointerEvent) {
-        if (!isWebKit()) {
-          try {
-            // Avoid errors in testing environments.
-            ownerDocument(scrubAreaRef.current).exitPointerLock();
-          } catch {
-            //
-          } finally {
-            isScrubbingRef.current = false;
-            onScrubbingChange(false, event);
-          }
+        try {
+          // Avoid errors in testing environments.
+          ownerDocument(scrubAreaRef.current).exitPointerLock();
+        } catch {
+          //
+        } finally {
+          isScrubbingRef.current = false;
+          onScrubbingChange(false, event);
         }
       }
 

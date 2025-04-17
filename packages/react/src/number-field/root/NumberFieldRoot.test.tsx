@@ -151,14 +151,6 @@ describe('<NumberField />', () => {
     });
   });
 
-  describe('prop: autoFocus', () => {
-    it('should focus the input', async () => {
-      await render(<NumberField autoFocus />);
-      const input = screen.getByRole('textbox');
-      expect(document.activeElement).to.equal(input);
-    });
-  });
-
   describe('prop: required', () => {
     it('should mark the input as required', async () => {
       await render(<NumberField required />);
@@ -334,14 +326,14 @@ describe('<NumberField />', () => {
       await render(<NumberField defaultValue={5} />);
       const input = screen.getByRole('textbox');
       fireEvent.pointerDown(screen.getByLabelText('Increase'), { shiftKey: true });
-      expect(input).to.have.value('20');
+      expect(input).to.have.value('15');
     });
 
     it('should decrement the value by the default `largeStep` prop of 10 while holding the shift key', async () => {
       await render(<NumberField defaultValue={6} />);
       const input = screen.getByRole('textbox');
       fireEvent.pointerDown(screen.getByLabelText('Decrease'), { shiftKey: true });
-      expect(input).to.have.value('0');
+      expect(input).to.have.value('-4');
     });
 
     it('should use explicit `largeStep` value if provided while holding the shift key', async () => {
