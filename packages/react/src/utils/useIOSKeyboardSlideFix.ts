@@ -67,13 +67,13 @@ export function useIOSKeyboardSlideFix(params: {
     }
   });
 
-  const floating: ElementProps['floating'] = React.useMemo(
+  return React.useMemo(
     () => ({
-      onFocus: handlePress,
-      onClick: handlePress,
+      floating: {
+        onFocus: handlePress,
+        onClick: handlePress,
+      } satisfies ElementProps['floating'],
     }),
     [handlePress],
   );
-
-  return React.useMemo(() => ({ floating }), [floating]);
 }
