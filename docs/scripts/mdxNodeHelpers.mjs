@@ -105,14 +105,25 @@ export function code(value, lang) {
  * Creates a markdown table as a single string
  * @param {Array<string>} headers - Array of header strings
  * @param {Array<Array<string>>} rows - Array of row data, each row is an array of cell content
+ * @param {Array<string>} [alignment] - Optional array of alignments ('left', 'center', 'right') for each column
  * @returns {string} A markdown table string
  */
-export function markdownTable(headers, rows) {
+export function markdownTable(headers, rows, alignment = null) {
   // Create header row
   const headerRow = `| ${headers.join(' | ')} |`;
   
-  // Create separator row
-  const separatorRow = `| ${headers.map(() => '-------').join(' | ')} |`;
+  // Create separator row with alignment
+  const separators = headers.map((_, index) => {
+    if (!alignment || !alignment[index]) return '-------';
+    
+    switch(alignment[index]) {
+      case 'center': return ':-----:';
+      case 'right': return '------:';
+      default: return ':------'; // left alignment is default
+    }
+  });
+  
+  const separatorRow = `| ${separators.join(' | ')} |`;
   
   // Create data rows
   const dataRows = rows.map(row => `| ${row.join(' | ')} |`);
