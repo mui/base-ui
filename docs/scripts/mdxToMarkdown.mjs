@@ -10,6 +10,7 @@ import remarkParse from 'remark-parse';
 import remarkMdx from 'remark-mdx';
 import remarkStringify from 'remark-stringify';
 import { visit } from 'unist-util-visit';
+import * as mdx from './mdxNodeHelpers.mjs';
 
 /**
  * Plugin to extract metadata from the MDX content
@@ -20,7 +21,7 @@ function extractMetadata() {
     file.data.metadata = {
       title: '',
       subtitle: '',
-      description: ''
+      description: '',
     };
 
     // Extract title from first h1
@@ -39,11 +40,11 @@ function extractMetadata() {
       }
       // Extract from Meta component
       else if (node.name === 'Meta') {
-        const nameAttr = node.attributes?.find(attr => 
-          attr.name === 'name' && attr.value === 'description');
-        const contentAttr = node.attributes?.find(attr => 
-          attr.name === 'content');
-          
+        const nameAttr = node.attributes?.find(
+          (attr) => attr.name === 'name' && attr.value === 'description',
+        );
+        const contentAttr = node.attributes?.find((attr) => attr.name === 'content');
+
         if (nameAttr && contentAttr) {
           file.data.metadata.description = contentAttr.value;
         }
@@ -55,60 +56,63 @@ function extractMetadata() {
 }
 
 /**
- * Plugin to remove or simplify MDX-specific syntax
+ * Plugin to transform JSX elements to markdown or remove them from the tree
  */
-function simplifyMdx() {
+function transformJsx() {
   return (tree) => {
-    // Handle special components by replacing them with markdown equivalents
-    visit(tree, 'mdxJsxFlowElement', (node, index, parent) => {
+    // Handle JSX flow elements (block-level JSX)
+    visit(tree, ['mdxjsEsm', 'mdxFlowExpression', 'mdxTextExpression'], (node, index, parent) => {
       if (!parent) return;
-
+      // Process different component types
       switch (node.name) {
         case 'Demo':
-          parent.children.splice(index, 1, {
-            type: 'paragraph',
-            children: [{ type: 'text', value: '--- Demo ---' }]
-          });
+          parent.children.splice(index, 1, mdx.paragraph('--- Demo ---'));
           return;
+
         case 'Reference':
-          parent.children.splice(index, 1, {
-            type: 'paragraph',
-            children: [{ type: 'text', value: '--- Reference ---' }]
-          });
+          parent.children.splice(index, 1, mdx.paragraph('--- Reference ---'));
           return;
+
         case 'PropsReferenceTable':
-          parent.children.splice(index, 1, {
-            type: 'paragraph',
-            children: [{ type: 'text', value: '--- PropsReferenceTable ---' }]
-          });
+          parent.children.splice(index, 1, mdx.paragraph('--- PropsReferenceTable ---'));
           return;
-        case 'Subtitle':
-          if (node.children?.[0]?.value) {
-            parent.children.splice(index, 1, {
-              type: 'paragraph',
-              children: [{ 
-                type: 'emphasis', 
-                children: [{ type: 'text', value: node.children[0].value }]
-              }]
-            });
+
+        case 'Subtitle': {
+          // Extract text from all child nodes
+          const subtitleText = mdx.textContent(node);
+
+          if (subtitleText) {
+            // Create a paragraph with proper emphasis node structure
+            parent.children.splice(index, 1, mdx.paragraph(mdx.emphasis(subtitleText)));
+          } else {
+            // Remove empty subtitle
+            parent.children.splice(index, 1);
           }
           return;
-      }
-    });
+        }
 
-    // Remove imports and exports
-    visit(tree, ['mdxjsEsm', 'mdxFlowExpression'], (node, index, parent) => {
-      if (parent) {
-        parent.children.splice(index, 1);
-        return [visit.SKIP, index];
-      }
-    });
+        case 'Meta': {
+          // Check if it's a description meta tag
+          const nameAttr = node.attributes?.find(
+            (attr) => attr.name === 'name' && attr.value === 'description',
+          );
+          const contentAttr = node.attributes?.find((attr) => attr.name === 'content');
 
-    // Remove inline expressions
-    visit(tree, 'mdxTextExpression', (node, index, parent) => {
-      if (parent) {
-        parent.children.splice(index, 1);
-        return [visit.SKIP, index];
+          if (nameAttr && contentAttr && contentAttr.value) {
+            // Replace with a paragraph containing the description
+            parent.children.splice(index, 1, mdx.paragraph(contentAttr.value));
+            return;
+          }
+
+          // Remove other Meta tags
+          parent.children.splice(index, 1);
+          return [visit.SKIP, index];
+        }
+
+        default:
+          // For other components, remove them to keep only standard markdown elements
+          parent.children.splice(index, 1);
+          return [visit.SKIP, index];
       }
     });
 
@@ -128,7 +132,7 @@ export async function mdxToMarkdown(mdxContent) {
       .use(remarkParse)
       .use(remarkMdx)
       .use(extractMetadata)
-      .use(simplifyMdx)
+      .use(transformJsx)
       .use(remarkStringify, {
         bullet: '-',
         emphasis: '*',
@@ -136,21 +140,21 @@ export async function mdxToMarkdown(mdxContent) {
         fence: '`',
         fences: true,
         listItemIndent: 'one',
-        rule: '-'
+        rule: '-',
       })
       .process(mdxContent);
 
     // Get markdown content as string
     const markdown = String(file);
-    
+
     // Extract metadata from the file's data
     const { title = '', subtitle = '', description = '' } = file.data.metadata || {};
-    
+
     return {
       markdown,
       title,
       subtitle,
-      description
+      description,
     };
   } catch (error) {
     console.error('Error converting MDX to Markdown:', error);
@@ -158,7 +162,7 @@ export async function mdxToMarkdown(mdxContent) {
       markdown: `Error converting MDX to Markdown: ${error.message}`,
       title: '',
       subtitle: '',
-      description: ''
+      description: '',
     };
   }
 }
