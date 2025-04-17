@@ -66,7 +66,7 @@ _Apr 17, 2025_
 
 ### Progress
 
-- **Breaking change:** Add `Progress.Label` and `locale` prop
+- **Breaking change:** Add `Progress.Label` and `locale` prop.
   The `getAriaLabel` prop was removed as `Progress.Label` should be used to provide an accessible name.
   (#1666) @mj12albert
 
@@ -76,15 +76,15 @@ _Apr 17, 2025_
 
 ### ScrollArea
 
-- **Breaking change:** Add `Content` part
-  It is now required to include the ScrollArea.Content within ScrollArea.Viewport part.
+- **Breaking change:** Add `Content` part.
+  It is now required to include the ScrollArea.Content within ScrollArea.Viewport part when the content is horizontally scrollable.
   (#1607) @atomiks
 - Handle visibility change and nesting (#1598) @atomiks
 - Correct thumb sizing with scrollbar margins (#1606) @atomiks
 
 ### Select
 
-- **Breaking change:** Improve item highlight performance
+- **Breaking change:** Improve item highlight performance.
   The highlighted state is now removed. It's not possible to customize the `data-highlighted` attribute anymore.
   (#1570) @atomiks
 - Avoid double commit on value change (#1597) @atomiks
