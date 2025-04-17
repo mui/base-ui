@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { BaseUIComponentProps } from '../../utils/types';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import { useRenderElement } from '../../utils/useRenderElement';
 import { useSliderRootContext } from '../root/SliderRootContext';
 import type { SliderRoot } from '../root/SliderRoot';
 import { sliderStyleHookMapping } from '../root/styleHooks';
@@ -13,25 +13,24 @@ import { sliderStyleHookMapping } from '../root/styleHooks';
  * Documentation: [Base UI Slider](https://base-ui.com/react/components/slider)
  */
 const SliderTrack = React.forwardRef(function SliderTrack(
-  props: SliderTrack.Props,
+  componentProps: SliderTrack.Props,
   forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
-  const { render, className, ...otherProps } = props;
+  const { render, className, ...elementProps } = componentProps;
 
   const { state } = useSliderRootContext();
 
-  const { renderElement } = useComponentRenderer({
-    render: render ?? 'div',
+  const renderElement = useRenderElement('div', componentProps, {
     state,
-    className,
     ref: forwardedRef,
-    extraProps: {
-      ...otherProps,
-      style: {
-        position: 'relative',
-        ...otherProps.style,
+    props: [
+      {
+        style: {
+          position: 'relative',
+        },
       },
-    },
+      elementProps,
+    ],
     customStyleHookMapping: sliderStyleHookMapping,
   });
 
