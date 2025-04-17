@@ -33,6 +33,7 @@ _Apr 17, 2025_
 - Fix `onOpenChange` types for `event`/`reason` passing (#1721) @atomiks
 - Use consistent `inert` attr and map `[data-popup-open]` back to `open` (#1650) @atomiks
 - Fix text selection & right-clicks (#1702) @mj12albert
+- Allow document to slide input into view on iOS when keyboard opens (#1735) @atomiks
 
 ### Field
 
