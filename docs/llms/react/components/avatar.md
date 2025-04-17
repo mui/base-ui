@@ -3,6 +3,7 @@ title: Avatar
 subtitle: An easily stylable avatar component.
 description: A high-quality, unstyled React avatar component that is easy to customize.
 ---
+
 # Avatar
 
 A high-quality, unstyled React avatar component that is easy to customize.

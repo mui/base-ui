@@ -3,6 +3,7 @@ title: Toggle
 subtitle: A two-state button that can be on or off.
 description: A high-quality, unstyled React toggle component that displays a two-state button that can be on or off.
 ---
+
 # Toggle
 
 A high-quality, unstyled React toggle component that displays a two-state button that can be on or off.

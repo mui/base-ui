@@ -3,6 +3,7 @@ title: Select
 subtitle: A common form component for choosing a predefined value in a dropdown menu.
 description: A high-quality, unstyled React select component that allows you for choosing a predefined value in a dropdown menu.
 ---
+
 # Select
 
 A high-quality, unstyled React select component that allows you for choosing a predefined value in a dropdown menu.

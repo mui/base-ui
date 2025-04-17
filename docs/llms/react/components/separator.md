@@ -3,6 +3,7 @@ title: Separator
 subtitle: A separator element accessible to screen readers.
 description: A high-quality, unstyled React separator component that is accessible to screen readers.
 ---
+
 # Separator
 
 A high-quality, unstyled React separator component that is accessible to screen readers.

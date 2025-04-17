@@ -3,6 +3,7 @@ title: Preview Card
 subtitle: A popup that appears when a link is hovered, showing a preview for sighted users.
 description: A high-quality, unstyled React preview card component that appears when a link is hovered, showing a preview for sighted users.
 ---
+
 # Preview Card
 
 <Meta name="description" content="A high-quality, unstyled React preview card component that appears when a link is hovered, showing a preview for sighted users." />

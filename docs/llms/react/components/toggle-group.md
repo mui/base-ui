@@ -3,6 +3,7 @@ title: Toggle Group
 subtitle: Provides a shared state to a series of toggle buttons.
 description: A high-quality, unstyled React toggle group component that provides shared state to a series of toggle buttons.
 ---
+
 # Toggle Group
 
 A high-quality, unstyled React toggle group component that provides shared state to a series of toggle buttons.

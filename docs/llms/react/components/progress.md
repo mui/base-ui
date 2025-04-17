@@ -3,6 +3,7 @@ title: Progress
 subtitle: Displays the status of a task that takes a long time.
 description: A high-quality, unstyled React progress bar component that displays the status of a task that takes a long time.
 ---
+
 # Progress
 
 A high-quality, unstyled React progress bar component that displays the status of a task that takes a long time.

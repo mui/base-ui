@@ -3,6 +3,7 @@ title: Collapsible
 subtitle: A collapsible panel controlled by a button.
 description: A high-quality, unstyled React collapsible component that displays a panel controlled by a button.
 ---
+
 # Collapsible
 
 A high-quality, unstyled React collapsible component that displays a panel controlled by a button.

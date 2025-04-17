@@ -175,17 +175,7 @@ export async function mdxToMarkdown(mdxContent, mdxFilePath) {
       .process(vfile);
 
     // Get markdown content as string
-    let markdown = String(file);
-
-    // Format markdown with prettier using the proper config resolution
-    const outputFilePath = mdxFilePath ? mdxFilePath.replace(/\.mdx$/, '.md') : '';
-    const prettierOptions = await prettier.resolveConfig(outputFilePath);
-
-    markdown = await prettier.format(markdown, {
-      ...prettierOptions,
-      filepath: outputFilePath,
-      parser: 'markdown',
-    });
+    const markdown = String(file);
 
     // Extract metadata from the file's data
     const { title = '', subtitle = '', description = '' } = file.data.metadata || {};

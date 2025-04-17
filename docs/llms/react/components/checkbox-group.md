@@ -3,6 +3,7 @@ title: Checkbox Group
 subtitle: Provides shared state to a series of checkboxes.
 description: A high-quality, unstyled React checkbox group component that provides a shared state for a series of checkboxes.
 ---
+
 # Checkbox Group
 
 A high-quality, unstyled React checkbox group component that provides a shared state for a series of checkboxes.

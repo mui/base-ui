@@ -3,6 +3,7 @@ title: Number Field
 subtitle: A numeric input element with increment and decrement buttons, and a scrub area.
 description: A high-quality, unstyled React number field component with increment and decrement buttons, and a scrub area.
 ---
+
 # Number Field
 
 A high-quality, unstyled React number field component with increment and decrement buttons, and a scrub area.

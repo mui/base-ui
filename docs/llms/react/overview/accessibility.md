@@ -3,6 +3,7 @@ title: Accessibility
 subtitle: Learn how to make the most of Base UI's accessibility features and guidelines.
 description: Learn how to make the most of Base UI's accessibility features and guidelines.
 ---
+
 # Accessibility
 
 Learn how to make the most of Base UI's accessibility features and guidelines.

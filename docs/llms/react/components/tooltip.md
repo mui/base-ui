@@ -3,6 +3,7 @@ title: Tooltip
 subtitle: A popup that appears when an element is hovered or focused, showing a hint for sighted users.
 description: A high-quality, unstyled React tooltip component that appears when an element is hovered or focused, showing a hint for sighted users.
 ---
+
 # Tooltip
 
 <Meta name="description" content="A high-quality, unstyled React tooltip component that appears when an element is hovered or focused, showing a hint for sighted users." />

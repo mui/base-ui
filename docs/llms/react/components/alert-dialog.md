@@ -3,6 +3,7 @@ title: Alert Dialog
 subtitle: A dialog that requires user response to proceed.
 description: A high-quality, unstyled React alert dialog component that requires user response to proceed.
 ---
+
 # Alert Dialog
 
 A high-quality, unstyled React alert dialog component that requires user response to proceed.

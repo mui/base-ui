@@ -3,6 +3,7 @@ title: Checkbox
 subtitle: An easily stylable checkbox component.
 description: A high-quality, unstyled React checkbox component that is easy to customize.
 ---
+
 # Checkbox
 
 A high-quality, unstyled React checkbox component that is easy to customize.

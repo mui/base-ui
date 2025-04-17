@@ -3,6 +3,7 @@ title: Dialog
 subtitle: A popup that opens on top of the entire page.
 description: A high-quality, unstyled React dialog component that opens on top of the entire page.
 ---
+
 # Dialog
 
 A high-quality, unstyled React dialog component that opens on top of the entire page.

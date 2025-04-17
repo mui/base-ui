@@ -3,6 +3,7 @@ title: Toolbar
 subtitle: A container for grouping a set of buttons and controls.
 description: A high-quality, unstyled React toolbar component that groups a set of buttons and controls.
 ---
+
 # Toolbar
 
 A high-quality, unstyled React toolbar component that groups a set of buttons and controls.

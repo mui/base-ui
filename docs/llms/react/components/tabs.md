@@ -3,6 +3,7 @@ title: Tabs
 subtitle: A component for toggling between related panels on the same page.
 description: A high-quality, unstyled React scroll area that provides a native scroll container with custom scrollbars.
 ---
+
 # Tabs
 
 A high-quality, unstyled React scroll area that provides a native scroll container with custom scrollbars.

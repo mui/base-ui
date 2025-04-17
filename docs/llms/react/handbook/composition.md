@@ -3,6 +3,7 @@ title: Composition
 subtitle: A guide to composing Base UI components with your own React components.
 description: A guide to composing Base UI components with your own React components.
 ---
+
 # Composition
 
 A guide to composing Base UI components with your own React components.

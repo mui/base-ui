@@ -57,7 +57,7 @@ async function generateLlmsTxt() {
         await fs.mkdir(path.dirname(outputFilePath), { recursive: true });
 
         // Create markdown content with frontmatter
-        const frontmatter = [
+        let content = [
           '---',
           `title: ${title || 'Untitled'}`,
           subtitle ? `subtitle: ${subtitle}` : '',
@@ -68,9 +68,18 @@ async function generateLlmsTxt() {
         ]
           .filter(Boolean)
           .join('\n');
+          
+        // Format markdown with frontmatter using prettier
+        const prettierOptions = await prettier.resolveConfig(outputFilePath);
+        
+        content = await prettier.format(content, {
+          ...prettierOptions,
+          filepath: outputFilePath,
+          parser: 'markdown',
+        });
 
-        // Write markdown file
-        await fs.writeFile(outputFilePath, frontmatter, 'utf-8');
+        // Write formatted markdown file
+        await fs.writeFile(outputFilePath, content, 'utf-8');
 
         // Store metadata for this file in the appropriate section
         metadataBySection[sectionName].push({

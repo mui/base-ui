@@ -3,6 +3,7 @@ title: Quick start
 subtitle: A quick guide to getting started with Base UI.
 description: A quick guide to getting started with Base UI.
 ---
+
 # Quick start
 
 A quick guide to getting started with Base UI.

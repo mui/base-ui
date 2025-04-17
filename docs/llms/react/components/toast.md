@@ -3,6 +3,7 @@ title: Toast
 subtitle: Generates toast notifications.
 description: A high-quality, unstyled React toast component to generate notifications.
 ---
+
 # Toast
 
 A high-quality, unstyled React toast component to generate notifications.

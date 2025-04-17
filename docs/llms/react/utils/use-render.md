@@ -3,6 +3,7 @@ title: useRender
 subtitle: Hook for enabling a render prop in custom components.
 description: Hook for enabling a render prop in custom components.
 ---
+
 # useRender
 
 Hook for enabling a render prop in custom components.

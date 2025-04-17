@@ -3,6 +3,7 @@ title: Switch
 subtitle: A control that indicates whether a setting is on or off.
 description: A high-quality, unstyled React switch component that indicates whether a setting is on or off.
 ---
+
 # Switch
 
 A high-quality, unstyled React switch component that indicates whether a setting is on or off.

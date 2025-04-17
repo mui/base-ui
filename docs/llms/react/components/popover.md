@@ -3,6 +3,7 @@ title: Popover
 subtitle: An accessible popup anchored to a button.
 description: A high-quality, unstyled React popover component that displays an accessible popup anchored to a button.
 ---
+
 # Popover
 
 A high-quality, unstyled React popover component that displays an accessible popup anchored to a button.

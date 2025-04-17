@@ -3,6 +3,7 @@ title: Direction Provider
 subtitle: Enables RTL behavior for Base UI components.
 description: A direction provider component that enables RTL behavior for Base UI components.
 ---
+
 # Direction Provider
 
 A direction provider component that enables RTL behavior for Base UI components.

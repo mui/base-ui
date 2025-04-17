@@ -3,6 +3,7 @@ title: Accordion
 subtitle: A set of collapsible panels with headings.
 description: A high-quality, unstyled React accordion component that displays a set of collapsible panels with headings.
 ---
+
 # Accordion
 
 A high-quality, unstyled React accordion component that displays a set of collapsible panels with headings.

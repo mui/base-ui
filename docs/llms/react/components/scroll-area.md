@@ -3,6 +3,7 @@ title: Scroll Area
 subtitle: A native scroll container with custom scrollbars.
 description: A high-quality, unstyled React scroll area that provides a native scroll container with custom scrollbars.
 ---
+
 # Scroll Area
 
 A high-quality, unstyled React scroll area that provides a native scroll container with custom scrollbars.

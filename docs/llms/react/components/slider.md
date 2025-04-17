@@ -3,6 +3,7 @@ title: Slider
 subtitle: An easily stylable range input.
 description: A high-quality, unstyled React slider component that works like a range input and is easy to style.
 ---
+
 # Slider
 
 A high-quality, unstyled React slider component that works like a range input and is easy to style.

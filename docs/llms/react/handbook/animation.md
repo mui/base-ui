@@ -3,6 +3,7 @@ title: Animation
 subtitle: A guide to animating Base UI components.
 description: A guide to animating Base UI components.
 ---
+
 # Animation
 
 A guide to animating Base UI components.

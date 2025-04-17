@@ -3,6 +3,7 @@ title: About Base UI
 subtitle: An open-source React component library for building accessible user interfaces.
 description: An overview of Base UI, providing information on its history, team, and goals.
 ---
+
 # About Base UI
 
 An overview of Base UI, providing information on its history, team, and goals.

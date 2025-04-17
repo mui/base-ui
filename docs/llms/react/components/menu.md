@@ -3,6 +3,7 @@ title: Menu
 subtitle: A list of actions in a dropdown, enhanced with keyboard navigation.
 description: A high-quality, unstyled React menu component that displays list of actions in a dropdown, enhanced with keyboard navigation.
 ---
+
 # Menu
 
 A high-quality, unstyled React menu component that displays list of actions in a dropdown, enhanced with keyboard navigation.
