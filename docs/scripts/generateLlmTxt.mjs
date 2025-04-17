@@ -2,7 +2,6 @@
 
 import fs from 'fs/promises';
 import path from 'path';
-import { fileURLToPath } from 'url';
 import glob from 'fast-glob';
 import { mdxToMarkdown } from './mdxToMarkdown.mjs';
 import * as prettier from 'prettier';
@@ -22,9 +21,6 @@ async function generateLlmsTxt() {
     // Create output directories if they don't exist
     await fs.mkdir(OUTPUT_BASE_DIR, { recursive: true });
     await fs.mkdir(OUTPUT_REACT_DIR, { recursive: true });
-
-    // Generate llms.txt entries
-    const llmsEntries = [];
 
     // Store metadata for each section
     const metadataBySection = {
@@ -55,7 +51,6 @@ async function generateLlmsTxt() {
 
         // Create URL for llms.txt (without /page.mdx)
         const urlPath = dirPath.replace(/\\/g, '/');
-        const url = `https://base-ui.org/react/${urlPath}`;
 
         // Read MDX content
         const mdxContent = await fs.readFile(mdxFile, 'utf-8');
@@ -84,9 +79,6 @@ async function generateLlmsTxt() {
 
         // Write markdown file
         await fs.writeFile(outputFilePath, frontmatter, 'utf-8');
-
-        // Add entry to llms.txt
-        llmsEntries.push(`${url} ${outputFilePath}`);
 
         // Store metadata for this file in the appropriate section
         metadataBySection[sectionName].push({
