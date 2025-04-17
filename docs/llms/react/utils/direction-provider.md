@@ -52,10 +52,10 @@ This example shows how to implement the component using CSS Modules.
 
 ```tsx
 /* index.tsx */
-import * as React from "react";
-import { DirectionProvider } from "@base-ui-components/react/direction-provider";
-import { Slider } from "@base-ui-components/react/slider";
-import styles from "./index.module.css";
+import * as React from 'react';
+import { DirectionProvider } from '@base-ui-components/react/direction-provider';
+import { Slider } from '@base-ui-components/react/slider';
+import styles from './index.module.css';
 
 export default function ExampleDirectionProvider() {
   return (
@@ -81,9 +81,9 @@ This example shows how to implement the component using Tailwind CSS.
 
 ```tsx
 /* index.tsx */
-import * as React from "react";
-import { Slider } from "@base-ui-components/react/slider";
-import { DirectionProvider } from "@base-ui-components/react/direction-provider";
+import * as React from 'react';
+import { Slider } from '@base-ui-components/react/slider';
+import { DirectionProvider } from '@base-ui-components/react/direction-provider';
 
 export default function ExampleDirectionProvider() {
   return (
@@ -108,7 +108,7 @@ export default function ExampleDirectionProvider() {
 Import the component and wrap it around your app:
 
 ```jsx title="Anatomy"
-import { DirectionProvider } from "@base-ui-components/react/direction-provider";
+import { DirectionProvider } from '@base-ui-components/react/direction-provider';
 
 // prettier-ignore
 <DirectionProvider>
@@ -120,6 +120,7 @@ Enables RTL behavior for Base UI components.
 
 **DirectionProvider Props:**
 
-| Prop      | Type             | Default | Description                       |
-| :-------- | :--------------- | :------ | :-------------------------------- |
-| direction | `'ltr' \| 'rtl'` | `'ltr'` | The reading direction of the text |
+| Prop      | Type            | Default | Description                       |
+| :-------- | :-------------- | :------ | :-------------------------------- |
+| direction | `TextDirection` | `'ltr'` | The reading direction of the text |
+| children  | `ReactNode`     | -       | -                                 |

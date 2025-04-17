@@ -52,20 +52,20 @@ This example shows how to implement the component using CSS Modules.
 
 ```tsx
 /* index.tsx */
-"use client";
-import * as React from "react";
-import { useRender } from "@base-ui-components/react/use-render";
-import { mergeProps } from "@base-ui-components/react/merge-props";
-import styles from "./index.module.css";
+'use client';
+import * as React from 'react';
+import { useRender } from '@base-ui-components/react/use-render';
+import { mergeProps } from '@base-ui-components/react/merge-props';
+import styles from './index.module.css';
 
-interface TextProps extends useRender.ComponentProps<"p"> {}
+interface TextProps extends useRender.ComponentProps<'p'> {}
 
 function Text(props: TextProps) {
   const { render = <p />, ...otherProps } = props;
 
   const { renderElement } = useRender({
     render,
-    props: mergeProps<"p">({ className: styles.Text }, otherProps),
+    props: mergeProps<'p'>({ className: styles.Text }, otherProps),
   });
 
   return renderElement();
@@ -140,18 +140,17 @@ This example shows how to implement the component using CSS Modules.
 
 ```tsx
 /* index.tsx */
-"use client";
-import * as React from "react";
-import { useRender } from "@base-ui-components/react/use-render";
-import { mergeProps } from "@base-ui-components/react/merge-props";
-import styles from "./index.module.css";
+'use client';
+import * as React from 'react';
+import { useRender } from '@base-ui-components/react/use-render';
+import { mergeProps } from '@base-ui-components/react/merge-props';
+import styles from './index.module.css';
 
 interface CounterState {
   odd: boolean;
 }
 
-interface CounterProps
-  extends useRender.ComponentProps<"button", CounterState> {}
+interface CounterProps extends useRender.ComponentProps<'button', CounterState> {}
 
 function Counter(props: CounterProps) {
   const { render = <button />, ...otherProps } = props;
@@ -160,9 +159,9 @@ function Counter(props: CounterProps) {
   const odd = count % 2 === 1;
   const state = React.useMemo(() => ({ odd }), [odd]);
 
-  const defaultProps: useRender.ElementProps<"button"> = {
+  const defaultProps: useRender.ElementProps<'button'> = {
     className: styles.Button,
-    type: "button",
+    type: 'button',
     children: (
       <React.Fragment>
         Counter: <span>{count}</span>
@@ -171,13 +170,13 @@ function Counter(props: CounterProps) {
     onClick() {
       setCount((prev) => prev + 1);
     },
-    "aria-label": `Count is ${count}, click to increase.`,
+    'aria-label': `Count is ${count}, click to increase.`,
   };
 
   const { renderElement } = useRender({
     render,
     state,
-    props: mergeProps<"button">(defaultProps, otherProps),
+    props: mergeProps<'button'>(defaultProps, otherProps),
   });
 
   return renderElement();
@@ -189,7 +188,7 @@ export default function ExampleCounter() {
       render={(props, state) => (
         <button {...props}>
           {props.children}
-          <span className={styles.suffix}>{state.odd ? "👎" : "👍"}</span>
+          <span className={styles.suffix}>{state.odd ? '👎' : '👍'}</span>
         </button>
       )}
     />
@@ -208,15 +207,15 @@ The `mergeProps` function merges two or more sets of React props together. It sa
 `mergeProps` merges objects from left to right, so that subsequent objects' properties in the arguments overwrite previous ones. Merging props is useful when creating custom components, as well as inside the callback version of the `render` prop for any Base UI component.
 
 ```tsx title="Using mergeProps in the render callback"
-import { mergeProps } from "@base-ui-components/react/merge-props";
-import styles from "./index.module.css";
+import { mergeProps } from '@base-ui-components/react/merge-props';
+import styles from './index.module.css';
 
 function Button() {
   return (
     <Component
       render={(props, state) => (
         <button
-          {...mergeProps<"button">(props, {
+          {...mergeProps<'button'>(props, {
             className: styles.Button,
           })}
         />
@@ -275,18 +274,18 @@ To type props, there are two interfaces:
 - `useRender.ElementProps` for the element's internal (private) props. It types HTML attributes alone.
 
 ```tsx title="Typing props" {1,4}
-interface ButtonProps extends useRender.ComponentProps<"button"> {}
+interface ButtonProps extends useRender.ComponentProps<'button'> {}
 
 function Button({ render = <button />, ...props }: ButtonProps) {
-  const defaultProps: useRender.ElementProps<"button"> = {
+  const defaultProps: useRender.ElementProps<'button'> = {
     className: styles.Button,
-    type: "button",
-    children: "Click me",
+    type: 'button',
+    children: 'Click me',
   };
 
   const { renderElement } = useRender({
     render,
-    props: mergeProps<"button">(defaultProps, props),
+    props: mergeProps<'button'>(defaultProps, props),
   });
 
   return renderElement();
@@ -300,10 +299,10 @@ Radix UI uses an `asChild` prop, while Base UI uses a `render` prop. Learn more 
 In Radix UI, the `Slot` component lets you implement an `asChild` prop.
 
 ```jsx title="Radix UI Slot component"
-import { Slot } from "radix-ui";
+import { Slot } from 'radix-ui';
 
 function Button({ asChild, ...props }) {
-  const Comp = asChild ? Slot.Root : "button";
+  const Comp = asChild ? Slot.Root : 'button';
   return <Comp {...props} />;
 }
 
@@ -316,7 +315,7 @@ function Button({ asChild, ...props }) {
 In Base UI, `useRender` lets you implement a `render` prop. The example below is the equivalent implementation to the Radix example above.
 
 ```jsx title="Base UI render prop"
-import { useRender } from "@base-ui-components/react/use-render";
+import { useRender } from '@base-ui-components/react/use-render';
 
 function Button({ render = <button />, ...props }) {
   const { renderElement } = useRender({ render, props });

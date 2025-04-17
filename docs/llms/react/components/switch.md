@@ -28,11 +28,7 @@ This example shows how to implement the component using CSS Modules.
   outline: 1px solid;
   outline-offset: -1px;
   background-color: transparent;
-  background-image: linear-gradient(
-    to right,
-    var(--color-gray-700) 35%,
-    var(--color-gray-200) 65%
-  );
+  background-image: linear-gradient(to right, var(--color-gray-700) 35%, var(--color-gray-200) 65%);
   background-size: 6.5rem 100%;
   background-position-x: 100%;
   background-repeat: no-repeat;
@@ -73,7 +69,7 @@ This example shows how to implement the component using CSS Modules.
 
   &:focus-visible {
     &::before {
-      content: "";
+      content: '';
       inset: 0;
       position: absolute;
       border-radius: inherit;
@@ -112,9 +108,9 @@ This example shows how to implement the component using CSS Modules.
 
 ```tsx
 /* index.tsx */
-import * as React from "react";
-import { Switch } from "@base-ui-components/react/switch";
-import styles from "./index.module.css";
+import * as React from 'react';
+import { Switch } from '@base-ui-components/react/switch';
+import styles from './index.module.css';
 
 export default function ExampleSwitch() {
   return (
@@ -131,8 +127,8 @@ This example shows how to implement the component using Tailwind CSS.
 
 ```tsx
 /* index.tsx */
-import * as React from "react";
-import { Switch } from "@base-ui-components/react/switch";
+import * as React from 'react';
+import { Switch } from '@base-ui-components/react/switch';
 
 export default function ExampleSwitch() {
   return (
@@ -151,7 +147,7 @@ export default function ExampleSwitch() {
 Import the component and assemble its parts:
 
 ```jsx title="Anatomy"
-import { Switch } from "@base-ui-components/react/switch";
+import { Switch } from '@base-ui-components/react/switch';
 
 <Switch.Root>
   <Switch.Thumb />
@@ -165,18 +161,19 @@ Renders a `<button>` element and a hidden `<input>` beside.
 
 **Root Props:**
 
-| Prop            | Type                                                         | Default | Description                                                                                                                                                                                  |
-| :-------------- | :----------------------------------------------------------- | :------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| name            | `string`                                                     | -       | Identifies the field when a form is submitted.                                                                                                                                               |
-| defaultChecked  | `boolean`                                                    | `false` | Whether the switch is initially active.To render a controlled switch, use the `checked` prop instead.                                                                                        |
-| checked         | `boolean`                                                    | -       | Whether the switch is currently active.To render an uncontrolled switch, use the `defaultChecked` prop instead.                                                                              |
-| onCheckedChange | `(checked, event) => void`                                   | -       | Event handler called when the switch is activated or deactivated.                                                                                                                            |
-| disabled        | `boolean`                                                    | `false` | Whether the component should ignore user interaction.                                                                                                                                        |
-| readOnly        | `boolean`                                                    | `false` | Whether the user should be unable to activate or deactivate the switch.                                                                                                                      |
-| required        | `boolean`                                                    | `false` | Whether the user must activate the switch before submitting a form.                                                                                                                          |
-| inputRef        | `React.Ref`                                                  | -       | A React ref to access the hidden `<input>` element.                                                                                                                                          |
-| className       | `string \| (state) => string`                                | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component’s state.                                                                                     |
-| render          | `React.ReactElement \| (props, state) => React.ReactElement` | -       | Allows you to replace the component’s HTML element&#xA;with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop            | Type                                                                        | Default | Description                                                                                                                                                                                  |
+| :-------------- | :-------------------------------------------------------------------------- | :------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| name            | `string`                                                                    | -       | Identifies the field when a form is submitted.                                                                                                                                               |
+| defaultChecked  | `boolean`                                                                   | `false` | Whether the switch is initially active.To render a controlled switch, use the `checked` prop instead.                                                                                        |
+| checked         | `boolean`                                                                   | -       | Whether the switch is currently active.To render an uncontrolled switch, use the `defaultChecked` prop instead.                                                                              |
+| onCheckedChange | `((checked: boolean, event: Event) => void)`                                | -       | Event handler called when the switch is activated or deactivated.                                                                                                                            |
+| disabled        | `boolean`                                                                   | `false` | Whether the component should ignore user interaction.                                                                                                                                        |
+| readOnly        | `boolean`                                                                   | `false` | Whether the user should be unable to activate or deactivate the switch.                                                                                                                      |
+| required        | `boolean`                                                                   | `false` | Whether the user must activate the switch before submitting a form.                                                                                                                          |
+| inputRef        | `Ref<HTMLInputElement>`                                                     | -       | A React ref to access the hidden `<input>` element.                                                                                                                                          |
+| id              | `string`                                                                    | -       | The id of the switch element.                                                                                                                                                                |
+| className       | `string \| ((state: State) => string)`                                      | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component’s state.                                                                                     |
+| render          | `ReactElement \| ((props: GenericHTMLProps, state: State) => ReactElement)` | -       | Allows you to replace the component’s HTML element&#xA;with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
 
 **Root Data Attributes:**
 
@@ -201,10 +198,10 @@ Renders a `<span>`.
 
 **Thumb Props:**
 
-| Prop      | Type                                                         | Default | Description                                                                                                                                                                                  |
-| :-------- | :----------------------------------------------------------- | :------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| className | `string \| (state) => string`                                | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component’s state.                                                                                     |
-| render    | `React.ReactElement \| (props, state) => React.ReactElement` | -       | Allows you to replace the component’s HTML element&#xA;with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop      | Type                                                                        | Default | Description                                                                                                                                                                                  |
+| :-------- | :-------------------------------------------------------------------------- | :------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| className | `string \| ((state: State) => string)`                                      | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component’s state.                                                                                     |
+| render    | `ReactElement \| ((props: GenericHTMLProps, state: State) => ReactElement)` | -       | Allows you to replace the component’s HTML element&#xA;with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
 
 **Thumb Data Attributes:**
 

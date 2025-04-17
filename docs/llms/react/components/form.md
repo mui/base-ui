@@ -106,10 +106,10 @@ This example shows how to implement the component using CSS Modules.
 
 ```tsx
 /* index.tsx */
-import * as React from "react";
-import { Field } from "@base-ui-components/react/field";
-import { Form } from "@base-ui-components/react/form";
-import styles from "./index.module.css";
+import * as React from 'react';
+import { Field } from '@base-ui-components/react/field';
+import { Form } from '@base-ui-components/react/form';
+import styles from './index.module.css';
 
 export default function ExampleForm() {
   const [errors, setErrors] = React.useState({});
@@ -123,7 +123,7 @@ export default function ExampleForm() {
       onSubmit={async (event) => {
         event.preventDefault();
         const formData = new FormData(event.currentTarget);
-        const value = formData.get("url") as string;
+        const value = formData.get('url') as string;
 
         setLoading(true);
         const response = await submitForm(value);
@@ -163,11 +163,11 @@ async function submitForm(value: string) {
   try {
     const url = new URL(value);
 
-    if (url.hostname.endsWith("example.com")) {
-      return { error: "The example domain is not allowed" };
+    if (url.hostname.endsWith('example.com')) {
+      return { error: 'The example domain is not allowed' };
     }
   } catch {
-    return { error: "This is not a valid URL" };
+    return { error: 'This is not a valid URL' };
   }
 
   return { success: true };
@@ -180,9 +180,9 @@ This example shows how to implement the component using Tailwind CSS.
 
 ```tsx
 /* index.tsx */
-import * as React from "react";
-import { Field } from "@base-ui-components/react/field";
-import { Form } from "@base-ui-components/react/form";
+import * as React from 'react';
+import { Field } from '@base-ui-components/react/field';
+import { Form } from '@base-ui-components/react/form';
 
 export default function ExampleForm() {
   const [errors, setErrors] = React.useState({});
@@ -196,7 +196,7 @@ export default function ExampleForm() {
       onSubmit={async (event) => {
         event.preventDefault();
         const formData = new FormData(event.currentTarget);
-        const value = formData.get("url") as string;
+        const value = formData.get('url') as string;
 
         setLoading(true);
         const response = await submitForm(value);
@@ -209,9 +209,7 @@ export default function ExampleForm() {
       }}
     >
       <Field.Root name="url" className="flex flex-col items-start gap-1">
-        <Field.Label className="text-sm font-medium text-gray-900">
-          Homepage
-        </Field.Label>
+        <Field.Label className="text-sm font-medium text-gray-900">Homepage</Field.Label>
         <Field.Control
           type="url"
           required
@@ -242,11 +240,11 @@ async function submitForm(value: string) {
   try {
     const url = new URL(value);
 
-    if (url.hostname.endsWith("example.com")) {
-      return { error: "The example domain is not allowed" };
+    if (url.hostname.endsWith('example.com')) {
+      return { error: 'The example domain is not allowed' };
     }
   } catch {
-    return { error: "This is not a valid URL" };
+    return { error: 'This is not a valid URL' };
   }
 
   return { success: true };
@@ -258,8 +256,8 @@ async function submitForm(value: string) {
 Form is composed together with [Field](/react/components/field). Import the components and place them together:
 
 ```jsx title="Anatomy"
-import { Field } from "@base-ui-components/react/field";
-import { Form } from "@base-ui-components/react/form";
+import { Field } from '@base-ui-components/react/field';
+import { Form } from '@base-ui-components/react/form';
 
 <Form>
   <Field.Root>
@@ -275,12 +273,12 @@ Renders a `<form>` element.
 
 **Form Props:**
 
-| Prop          | Type                                                         | Default | Description                                                                                                                                                                                  |
-| :------------ | :----------------------------------------------------------- | :------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| errors        | `Record<string, string \| string[]>`                         | -       | An object where the keys correspond to the `name` attribute of the form fields,&#xA;and the values correspond to the error(s) related to that field.                                         |
-| onClearErrors | `(errors) => void`                                           | -       | Event handler called when the `errors` object is cleared.                                                                                                                                    |
-| className     | `string \| (state) => string`                                | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component’s state.                                                                                     |
-| render        | `React.ReactElement \| (props, state) => React.ReactElement` | -       | Allows you to replace the component’s HTML element&#xA;with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop          | Type                                                                        | Default | Description                                                                                                                                                                                  |
+| :------------ | :-------------------------------------------------------------------------- | :------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| errors        | `Errors`                                                                    | -       | An object where the keys correspond to the `name` attribute of the form fields,&#xA;and the values correspond to the error(s) related to that field.                                         |
+| onClearErrors | `((errors: Errors) => void)`                                                | -       | Event handler called when the `errors` object is cleared.                                                                                                                                    |
+| className     | `string \| ((state: State) => string)`                                      | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component’s state.                                                                                     |
+| render        | `ReactElement \| ((props: GenericHTMLProps, state: State) => ReactElement)` | -       | Allows you to replace the component’s HTML element&#xA;with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
 
 ## Examples
 
@@ -387,11 +385,11 @@ This example shows how to implement the component using CSS Modules.
 
 ```tsx
 /* index.tsx */
-import * as React from "react";
-import { z } from "zod";
-import { Field } from "@base-ui-components/react/field";
-import { Form } from "@base-ui-components/react/form";
-import styles from "./index.module.css";
+import * as React from 'react';
+import { z } from 'zod';
+import { Field } from '@base-ui-components/react/field';
+import { Form } from '@base-ui-components/react/form';
+import styles from './index.module.css';
 
 const schema = z.object({
   name: z.string().min(1),
@@ -452,10 +450,10 @@ This example shows how to implement the component using Tailwind CSS.
 
 ```tsx
 /* index.tsx */
-import * as React from "react";
-import { z } from "zod";
-import { Field } from "@base-ui-components/react/field";
-import { Form } from "@base-ui-components/react/form";
+import * as React from 'react';
+import { z } from 'zod';
+import { Field } from '@base-ui-components/react/field';
+import { Form } from '@base-ui-components/react/form';
 
 const schema = z.object({
   name: z.string().min(1),
@@ -493,9 +491,7 @@ export default function Page() {
       }}
     >
       <Field.Root name="name" className="flex flex-col items-start gap-1">
-        <Field.Label className="text-sm font-medium text-gray-900">
-          Name
-        </Field.Label>
+        <Field.Label className="text-sm font-medium text-gray-900">Name</Field.Label>
         <Field.Control
           placeholder="Enter name"
           className="h-10 w-full rounded-md border border-gray-200 pl-3.5 text-base text-gray-900 focus:outline focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800"
@@ -503,9 +499,7 @@ export default function Page() {
         <Field.Error className="text-sm text-red-800" />
       </Field.Root>
       <Field.Root name="age" className="flex flex-col items-start gap-1">
-        <Field.Label className="text-sm font-medium text-gray-900">
-          Age
-        </Field.Label>
+        <Field.Label className="text-sm font-medium text-gray-900">Age</Field.Label>
         <Field.Control
           placeholder="Enter age"
           className="h-10 w-full rounded-md border border-gray-200 pl-3.5 text-base text-gray-900 focus:outline focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800"

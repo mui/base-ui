@@ -50,13 +50,13 @@ This example shows how to implement the component using CSS Modules.
 
 ```tsx
 /* index.tsx */
-import * as React from "react";
-import { Avatar } from "@base-ui-components/react/avatar";
-import styles from "./index.module.css";
+import * as React from 'react';
+import { Avatar } from '@base-ui-components/react/avatar';
+import styles from './index.module.css';
 
 export default function ExampleAvatar() {
   return (
-    <div style={{ display: "flex", gap: 20 }}>
+    <div style={{ display: 'flex', gap: 20 }}>
       <Avatar.Root className={styles.Root}>
         <Avatar.Image
           src="https://images.unsplash.com/photo-1543610892-0b1f7e6d8ac1?w=128&h=128&dpr=2&q=80"
@@ -78,12 +78,12 @@ This example shows how to implement the component using Tailwind CSS.
 
 ```tsx
 /* index.tsx */
-import * as React from "react";
-import { Avatar } from "@base-ui-components/react/avatar";
+import * as React from 'react';
+import { Avatar } from '@base-ui-components/react/avatar';
 
 export default function ExampleAvatar() {
   return (
-    <div style={{ display: "flex", gap: 20 }}>
+    <div style={{ display: 'flex', gap: 20 }}>
       <Avatar.Root className="inline-flex size-12 items-center justify-center overflow-hidden rounded-full bg-gray-100 align-middle text-base font-medium text-black select-none">
         <Avatar.Image
           src="https://images.unsplash.com/photo-1543610892-0b1f7e6d8ac1?w=128&h=128&dpr=2&q=80"
@@ -108,7 +108,7 @@ export default function ExampleAvatar() {
 Import the component and assemble its parts:
 
 ```jsx title="Anatomy"
-import { Avatar } from "@base-ui-components/react/avatar";
+import { Avatar } from '@base-ui-components/react/avatar';
 
 <Avatar.Root>
   <Avatar.Image src="" />
@@ -123,10 +123,10 @@ Renders a `<span>` element.
 
 **Root Props:**
 
-| Prop      | Type                                                         | Default | Description                                                                                                                                                                                  |
-| :-------- | :----------------------------------------------------------- | :------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| className | `string \| (state) => string`                                | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component’s state.                                                                                     |
-| render    | `React.ReactElement \| (props, state) => React.ReactElement` | -       | Allows you to replace the component’s HTML element&#xA;with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop      | Type                                                                        | Default | Description                                                                                                                                                                                  |
+| :-------- | :-------------------------------------------------------------------------- | :------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| className | `string \| ((state: State) => string)`                                      | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component’s state.                                                                                     |
+| render    | `ReactElement \| ((props: GenericHTMLProps, state: State) => ReactElement)` | -       | Allows you to replace the component’s HTML element&#xA;with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
 
 ### Image
 
@@ -135,11 +135,11 @@ Renders an `<img>` element.
 
 **Image Props:**
 
-| Prop                  | Type                                                         | Default | Description                                                                                                                                                                                  |
-| :-------------------- | :----------------------------------------------------------- | :------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| onLoadingStatusChange | `(status) => void`                                           | -       | Callback fired when the loading status changes.                                                                                                                                              |
-| className             | `string \| (state) => string`                                | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component’s state.                                                                                     |
-| render                | `React.ReactElement \| (props, state) => React.ReactElement` | -       | Allows you to replace the component’s HTML element&#xA;with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop                  | Type                                                                        | Default | Description                                                                                                                                                                                  |
+| :-------------------- | :-------------------------------------------------------------------------- | :------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| onLoadingStatusChange | `((status: ImageLoadingStatus) => void)`                                    | -       | Callback fired when the loading status changes.                                                                                                                                              |
+| className             | `string \| ((state: State) => string)`                                      | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component’s state.                                                                                     |
+| render                | `ReactElement \| ((props: GenericHTMLProps, state: State) => ReactElement)` | -       | Allows you to replace the component’s HTML element&#xA;with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
 
 ### Fallback
 
@@ -148,8 +148,8 @@ Renders a `<span>` element.
 
 **Fallback Props:**
 
-| Prop      | Type                                                         | Default | Description                                                                                                                                                                                  |
-| :-------- | :----------------------------------------------------------- | :------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| delay     | `number`                                                     | -       | How long to wait before showing the fallback. Specified in milliseconds.                                                                                                                     |
-| className | `string \| (state) => string`                                | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component’s state.                                                                                     |
-| render    | `React.ReactElement \| (props, state) => React.ReactElement` | -       | Allows you to replace the component’s HTML element&#xA;with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop      | Type                                                                        | Default | Description                                                                                                                                                                                  |
+| :-------- | :-------------------------------------------------------------------------- | :------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| delay     | `number`                                                                    | -       | How long to wait before showing the fallback. Specified in milliseconds.                                                                                                                     |
+| className | `string \| ((state: State) => string)`                                      | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component’s state.                                                                                     |
+| render    | `ReactElement \| ((props: GenericHTMLProps, state: State) => ReactElement)` | -       | Allows you to replace the component’s HTML element&#xA;with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |

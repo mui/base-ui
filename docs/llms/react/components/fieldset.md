@@ -85,32 +85,24 @@ This example shows how to implement the component using CSS Modules.
 
 ```tsx
 /* index.tsx */
-import * as React from "react";
-import { Field } from "@base-ui-components/react/field";
-import { Fieldset } from "@base-ui-components/react/fieldset";
-import styles from "./index.module.css";
+import * as React from 'react';
+import { Field } from '@base-ui-components/react/field';
+import { Fieldset } from '@base-ui-components/react/fieldset';
+import styles from './index.module.css';
 
 export default function ExampleField() {
   return (
     <Fieldset.Root className={styles.Fieldset}>
-      <Fieldset.Legend className={styles.Legend}>
-        Billing details
-      </Fieldset.Legend>
+      <Fieldset.Legend className={styles.Legend}>Billing details</Fieldset.Legend>
 
       <Field.Root className={styles.Field}>
         <Field.Label className={styles.Label}>Company</Field.Label>
-        <Field.Control
-          placeholder="Enter company name"
-          className={styles.Input}
-        />
+        <Field.Control placeholder="Enter company name" className={styles.Input} />
       </Field.Root>
 
       <Field.Root className={styles.Field}>
         <Field.Label className={styles.Label}>Tax ID</Field.Label>
-        <Field.Control
-          placeholder="Enter fiscal number"
-          className={styles.Input}
-        />
+        <Field.Control placeholder="Enter fiscal number" className={styles.Input} />
       </Field.Root>
     </Fieldset.Root>
   );
@@ -123,9 +115,9 @@ This example shows how to implement the component using Tailwind CSS.
 
 ```tsx
 /* index.tsx */
-import * as React from "react";
-import { Field } from "@base-ui-components/react/field";
-import { Fieldset } from "@base-ui-components/react/fieldset";
+import * as React from 'react';
+import { Field } from '@base-ui-components/react/field';
+import { Fieldset } from '@base-ui-components/react/fieldset';
 
 export default function ExampleField() {
   return (
@@ -135,9 +127,7 @@ export default function ExampleField() {
       </Fieldset.Legend>
 
       <Field.Root className="flex flex-col items-start gap-1">
-        <Field.Label className="text-sm font-medium text-gray-900">
-          Company
-        </Field.Label>
+        <Field.Label className="text-sm font-medium text-gray-900">Company</Field.Label>
         <Field.Control
           placeholder="Enter company name"
           className="h-10 w-full rounded-md border border-gray-200 pl-3.5 text-base text-gray-900 focus:outline focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800"
@@ -145,9 +135,7 @@ export default function ExampleField() {
       </Field.Root>
 
       <Field.Root className="flex flex-col items-start gap-1">
-        <Field.Label className="text-sm font-medium text-gray-900">
-          Tax ID
-        </Field.Label>
+        <Field.Label className="text-sm font-medium text-gray-900">Tax ID</Field.Label>
         <Field.Control
           placeholder="Enter fiscal number"
           className="h-10 w-full rounded-md border border-gray-200 pl-3.5 text-base text-gray-900 focus:outline focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800"
@@ -163,7 +151,7 @@ export default function ExampleField() {
 Import the component and assemble its parts:
 
 ```jsx title="Anatomy"
-import { Fieldset } from "@base-ui-components/react/fieldset";
+import { Fieldset } from '@base-ui-components/react/fieldset';
 
 <Fieldset.Root>
   <Fieldset.Legend />
@@ -177,10 +165,10 @@ Renders a `<fieldset>` element.
 
 **Root Props:**
 
-| Prop      | Type                                                         | Default | Description                                                                                                                                                                                  |
-| :-------- | :----------------------------------------------------------- | :------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| className | `string \| (state) => string`                                | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component’s state.                                                                                     |
-| render    | `React.ReactElement \| (props, state) => React.ReactElement` | -       | Allows you to replace the component’s HTML element&#xA;with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop      | Type                                                                        | Default | Description                                                                                                                                                                                  |
+| :-------- | :-------------------------------------------------------------------------- | :------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| className | `string \| ((state: State) => string)`                                      | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component’s state.                                                                                     |
+| render    | `ReactElement \| ((props: GenericHTMLProps, state: State) => ReactElement)` | -       | Allows you to replace the component’s HTML element&#xA;with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
 
 ### Legend
 
@@ -189,7 +177,7 @@ Renders a `<div>` element.
 
 **Legend Props:**
 
-| Prop      | Type                                                         | Default | Description                                                                                                                                                                                  |
-| :-------- | :----------------------------------------------------------- | :------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| className | `string \| (state) => string`                                | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component’s state.                                                                                     |
-| render    | `React.ReactElement \| (props, state) => React.ReactElement` | -       | Allows you to replace the component’s HTML element&#xA;with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop      | Type                                                                        | Default | Description                                                                                                                                                                                  |
+| :-------- | :-------------------------------------------------------------------------- | :------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| className | `string \| ((state: State) => string)`                                      | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component’s state.                                                                                     |
+| render    | `ReactElement \| ((props: GenericHTMLProps, state: State) => ReactElement)` | -       | Allows you to replace the component’s HTML element&#xA;with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |

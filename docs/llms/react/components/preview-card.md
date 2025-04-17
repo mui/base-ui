@@ -29,11 +29,7 @@ This example shows how to implement the component using CSS Modules.
   color: var(--color-blue);
   text-decoration-line: none;
   text-decoration-thickness: 1px;
-  text-decoration-color: color-mix(
-    in oklab,
-    var(--color-blue),
-    transparent 40%
-  );
+  text-decoration-color: color-mix(in oklab, var(--color-blue), transparent 40%);
   text-underline-offset: 2px;
 
   @media (hover: hover) {
@@ -89,22 +85,22 @@ This example shows how to implement the component using CSS Modules.
 .Arrow {
   display: flex;
 
-  &[data-side="top"] {
+  &[data-side='top'] {
     bottom: -8px;
     rotate: 180deg;
   }
 
-  &[data-side="bottom"] {
+  &[data-side='bottom'] {
     top: -8px;
     rotate: 0deg;
   }
 
-  &[data-side="left"] {
+  &[data-side='left'] {
     right: -13px;
     rotate: 90deg;
   }
 
-  &[data-side="right"] {
+  &[data-side='right'] {
     left: -13px;
     rotate: -90deg;
   }
@@ -144,21 +140,21 @@ This example shows how to implement the component using CSS Modules.
 
 ```tsx
 /* index.tsx */
-import * as React from "react";
-import { PreviewCard } from "@base-ui-components/react/preview-card";
-import styles from "./index.module.css";
+import * as React from 'react';
+import { PreviewCard } from '@base-ui-components/react/preview-card';
+import styles from './index.module.css';
 
 export default function ExamplePreviewCard() {
   return (
     <PreviewCard.Root>
       <p className={styles.Paragraph}>
-        The principles of good{" "}
+        The principles of good{' '}
         <PreviewCard.Trigger
           className={styles.Link}
           href="https://en.wikipedia.org/wiki/Typography"
         >
           typography
-        </PreviewCard.Trigger>{" "}
+        </PreviewCard.Trigger>{' '}
         remain into the digital age.
       </p>
 
@@ -176,9 +172,8 @@ export default function ExamplePreviewCard() {
               alt="Station Hofplein signage in Rotterdam, Netherlands"
             />
             <p className={styles.Summary}>
-              <strong>Typography</strong> is the art and science of arranging
-              type to make written language clear, visually appealing, and
-              effective in communication.
+              <strong>Typography</strong> is the art and science of arranging type to make written
+              language clear, visually appealing, and effective in communication.
             </p>
           </PreviewCard.Popup>
         </PreviewCard.Positioner>
@@ -187,7 +182,7 @@ export default function ExamplePreviewCard() {
   );
 }
 
-function ArrowSvg(props: React.ComponentProps<"svg">) {
+function ArrowSvg(props: React.ComponentProps<'svg'>) {
   return (
     <svg width="20" height="10" viewBox="0 0 20 10" fill="none" {...props}>
       <path
@@ -213,20 +208,20 @@ This example shows how to implement the component using Tailwind CSS.
 
 ```tsx
 /* index.tsx */
-import * as React from "react";
-import { PreviewCard } from "@base-ui-components/react/preview-card";
+import * as React from 'react';
+import { PreviewCard } from '@base-ui-components/react/preview-card';
 
 export default function ExamplePreviewCard() {
   return (
     <PreviewCard.Root>
       <p className="max-w-64 text-base text-balance text-gray-900">
-        The principles of good{" "}
+        The principles of good{' '}
         <PreviewCard.Trigger
           className="text-blue-800 no-underline decoration-blue-800/60 decoration-1 underline-offset-2 outline-none hover:underline focus-visible:rounded-sm focus-visible:no-underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-800 data-[popup-open]:underline data-[popup-open]:focus-visible:no-underline"
           href="https://en.wikipedia.org/wiki/Typography"
         >
           typography
-        </PreviewCard.Trigger>{" "}
+        </PreviewCard.Trigger>{' '}
         remain into the digital age.
       </p>
 
@@ -244,9 +239,8 @@ export default function ExamplePreviewCard() {
               alt="Station Hofplein signage in Rotterdam, Netherlands"
             />
             <p className="text-sm text-pretty text-gray-900">
-              <strong>Typography</strong> is the art and science of arranging
-              type to make written language clear, visually appealing, and
-              effective in communication.
+              <strong>Typography</strong> is the art and science of arranging type to make written
+              language clear, visually appealing, and effective in communication.
             </p>
           </PreviewCard.Popup>
         </PreviewCard.Positioner>
@@ -255,7 +249,7 @@ export default function ExamplePreviewCard() {
   );
 }
 
-function ArrowSvg(props: React.ComponentProps<"svg">) {
+function ArrowSvg(props: React.ComponentProps<'svg'>) {
   return (
     <svg width="20" height="10" viewBox="0 0 20 10" fill="none" {...props}>
       <path
@@ -280,7 +274,7 @@ function ArrowSvg(props: React.ComponentProps<"svg">) {
 Import the component and assemble its parts:
 
 ```jsx title="Anatomy"
-import { PreviewCard } from "@base-ui-components/react/previewCard";
+import { PreviewCard } from '@base-ui-components/react/previewCard';
 
 <PreviewCard.Root>
   <PreviewCard.Trigger />
@@ -302,15 +296,16 @@ Doesn’t render its own HTML element.
 
 **Root Props:**
 
-| Prop                 | Type                             | Default | Description                                                                                                  |
-| :------------------- | :------------------------------- | :------ | :----------------------------------------------------------------------------------------------------------- |
-| defaultOpen          | `boolean`                        | `false` | Whether the preview card is initially open.To render a controlled preview card, use the `open` prop instead. |
-| open                 | `boolean`                        | -       | Whether the preview card is currently open.                                                                  |
-| onOpenChange         | `(open, event, reason) => void`  | -       | Event handler called when the preview card is opened or closed.                                              |
-| actionsRef           | `{ current: { unmount: func } }` | -       | A ref to imperative actions.                                                                                 |
-| onOpenChangeComplete | `(open) => void`                 | -       | Event handler called after any animations complete when the preview card is opened or closed.                |
-| delay                | `number`                         | `600`   | How long to wait before the preview card opens. Specified in milliseconds.                                   |
-| closeDelay           | `number`                         | `300`   | How long to wait before closing the preview card. Specified in milliseconds.                                 |
+| Prop                 | Type                                                                                          | Default | Description                                                                                                                                                                                                                                                                               |
+| :------------------- | :-------------------------------------------------------------------------------------------- | :------ | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| defaultOpen          | `boolean`                                                                                     | `false` | Whether the preview card is initially open.To render a controlled preview card, use the `open` prop instead.                                                                                                                                                                              |
+| open                 | `boolean`                                                                                     | -       | Whether the preview card is currently open.                                                                                                                                                                                                                                               |
+| onOpenChange         | `((open: boolean, event: Event \| undefined, reason: OpenChangeReason \| undefined) => void)` | -       | Event handler called when the preview card is opened or closed.                                                                                                                                                                                                                           |
+| actionsRef           | `RefObject<Actions>`                                                                          | -       | A ref to imperative actions.\* `unmount`: When specified, the preview card will not be unmounted when closed.&#xA;Instead, the `unmount` function must be called to unmount the preview card manually.&#xA;Useful when the preview card's animation is controlled by an external library. |
+| onOpenChangeComplete | `((open: boolean) => void)`                                                                   | -       | Event handler called after any animations complete when the preview card is opened or closed.                                                                                                                                                                                             |
+| delay                | `number`                                                                                      | `600`   | How long to wait before the preview card opens. Specified in milliseconds.                                                                                                                                                                                                                |
+| closeDelay           | `number`                                                                                      | `300`   | How long to wait before closing the preview card. Specified in milliseconds.                                                                                                                                                                                                              |
+| children             | `ReactNode`                                                                                   | -       | -                                                                                                                                                                                                                                                                                         |
 
 ### Trigger
 
@@ -319,10 +314,10 @@ Renders an `<a>` element.
 
 **Trigger Props:**
 
-| Prop      | Type                                                         | Default | Description                                                                                                                                                                                  |
-| :-------- | :----------------------------------------------------------- | :------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| className | `string \| (state) => string`                                | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component’s state.                                                                                     |
-| render    | `React.ReactElement \| (props, state) => React.ReactElement` | -       | Allows you to replace the component’s HTML element&#xA;with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop      | Type                                                                        | Default | Description                                                                                                                                                                                  |
+| :-------- | :-------------------------------------------------------------------------- | :------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| className | `string \| ((state: State) => string)`                                      | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component’s state.                                                                                     |
+| render    | `ReactElement \| ((props: GenericHTMLProps, state: State) => ReactElement)` | -       | Allows you to replace the component’s HTML element&#xA;with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
 
 **Trigger Data Attributes:**
 
@@ -337,10 +332,11 @@ By default, the portal element is appended to `<body>`.
 
 **Portal Props:**
 
-| Prop        | Type                               | Default | Description                                                              |
-| :---------- | :--------------------------------- | :------ | :----------------------------------------------------------------------- |
-| container   | `React.Ref \| HTMLElement \| null` | -       | A parent element to render the portal element into.                      |
-| keepMounted | `boolean`                          | `false` | Whether to keep the portal mounted in the DOM while the popup is hidden. |
+| Prop        | Type                                                    | Default | Description                                                              |
+| :---------- | :------------------------------------------------------ | :------ | :----------------------------------------------------------------------- |
+| container   | `HTMLElement \| RefObject<HTMLElement \| null> \| null` | -       | A parent element to render the portal element into.                      |
+| children    | `ReactNode`                                             | -       | -                                                                        |
+| keepMounted | `boolean`                                               | `false` | Whether to keep the portal mounted in the DOM while the popup is hidden. |
 
 ### Backdrop
 
@@ -349,10 +345,10 @@ Renders a `<div>` element.
 
 **Backdrop Props:**
 
-| Prop      | Type                                                         | Default | Description                                                                                                                                                                                  |
-| :-------- | :----------------------------------------------------------- | :------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| className | `string \| (state) => string`                                | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component’s state.                                                                                     |
-| render    | `React.ReactElement \| (props, state) => React.ReactElement` | -       | Allows you to replace the component’s HTML element&#xA;with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop      | Type                                                                        | Default | Description                                                                                                                                                                                  |
+| :-------- | :-------------------------------------------------------------------------- | :------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| className | `string \| ((state: State) => string)`                                      | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component’s state.                                                                                     |
+| render    | `ReactElement \| ((props: GenericHTMLProps, state: State) => ReactElement)` | -       | Allows you to replace the component’s HTML element&#xA;with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
 
 **Backdrop Data Attributes:**
 
@@ -372,26 +368,26 @@ Renders a `<div>` element.
 
 | Prop        | Type                           | Default    | Description                                                                                                                                                                                                                                                                                                |
 | :---------- | :----------------------------- | :--------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| align       | `'start' \| 'center' \| 'end'` | `'center'` | How to align the popup relative to the specified side.                                                                                                                                                                                                                                                     |
-| alignOffset | `number \| (data) => number`   | `0`        | Additional offset along the alignment axis in pixels.&#xA;Also accepts a function that returns the offset to read the dimensions of the anchor&#xA;and positioner elements, along with its side and alignment.\* `data.anchor`: the dimensions of the anchor element with properties `width` and `height`. |
+| align       | `'center' \| 'end' \| 'start'` | `'center'` | How to align the popup relative to the specified side.                                                                                                                                                                                                                                                     |
+| alignOffset | `number \| OffsetFunction`     | `0`        | Additional offset along the alignment axis in pixels.&#xA;Also accepts a function that returns the offset to read the dimensions of the anchor&#xA;and positioner elements, along with its side and alignment.\* `data.anchor`: the dimensions of the anchor element with properties `width` and `height`. |
 
 - `data.positioner`: the dimensions of the positioner element with properties `width` and `height`.
 - `data.side`: which side of the anchor element the positioner is aligned against.
 - `data.align`: how the positioner is aligned relative to the specified side. |
-  | side | `'bottom' \| 'inline-end' \| 'inline-start' \| 'left' \| 'right' \| 'top'` | `'bottom'` | Which side of the anchor element to align the popup against.&#xA;May automatically change to avoid collisions. |
-  | sideOffset | `number \| (data) => number` | `0` | Distance between the anchor and the popup in pixels.&#xA;Also accepts a function that returns the distance to read the dimensions of the anchor&#xA;and positioner elements, along with its side and alignment.\* `data.anchor`: the dimensions of the anchor element with properties `width` and `height`.
+  | side | `Side` | `'bottom'` | Which side of the anchor element to align the popup against.&#xA;May automatically change to avoid collisions. |
+  | sideOffset | `number \| OffsetFunction` | `0` | Distance between the anchor and the popup in pixels.&#xA;Also accepts a function that returns the distance to read the dimensions of the anchor&#xA;and positioner elements, along with its side and alignment.\* `data.anchor`: the dimensions of the anchor element with properties `width` and `height`.
 - `data.positioner`: the dimensions of the positioner element with properties `width` and `height`.
 - `data.side`: which side of the anchor element the positioner is aligned against.
 - `data.align`: how the positioner is aligned relative to the specified side. |
   | arrowPadding | `number` | `5` | Minimum distance to maintain between the arrow and the edges of the popup.Use it to prevent the arrow element from hanging out of the rounded corners of a popup. |
-  | anchor | `React.Ref \| Element \| VirtualElement \| (() => Element \| VirtualElement \| null) \| null` | - | An element to position the popup against.&#xA;By default, the popup will be positioned against the trigger. |
-  | collisionBoundary | `'clipping-ancestors' \| Element \| Element[] \| Rect` | `'clipping-ancestors'` | An element or a rectangle that delimits the area that the popup is confined to. |
-  | collisionPadding | `number \| Rect` | `5` | Additional space to maintain from the edge of the collision boundary. |
+  | anchor | `Element \| RefObject<Element \| null> \| VirtualElement \| (() => Element \| VirtualElement \| null) \| null` | - | An element to position the popup against.&#xA;By default, the popup will be positioned against the trigger. |
+  | collisionBoundary | `Boundary` | `'clipping-ancestors'` | An element or a rectangle that delimits the area that the popup is confined to. |
+  | collisionPadding | `Padding` | `5` | Additional space to maintain from the edge of the collision boundary. |
   | sticky | `boolean` | `false` | Whether to maintain the popup in the viewport after&#xA;the anchor element was scrolled out of view. |
-  | positionMethod | `'absolute' \| 'fixed'` | `'absolute'` | Determines which CSS `position` property to use. |
+  | positionMethod | `'fixed' \| 'absolute'` | `'absolute'` | Determines which CSS `position` property to use. |
   | trackAnchor | `boolean` | `true` | Whether the popup tracks any layout shift of its positioning anchor. |
-  | className | `string \| (state) => string` | - | CSS class applied to the element, or a function that&#xA;returns a class based on the component’s state. |
-  | render | `React.ReactElement \| (props, state) => React.ReactElement` | - | Allows you to replace the component’s HTML element&#xA;with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+  | className | `string \| ((state: State) => string)` | - | CSS class applied to the element, or a function that&#xA;returns a class based on the component’s state. |
+  | render | `ReactElement \| ((props: GenericHTMLProps, state: State) => ReactElement)` | - | Allows you to replace the component’s HTML element&#xA;with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
 
 **Positioner Data Attributes:**
 
@@ -419,10 +415,10 @@ Renders a `<div>` element.
 
 **Popup Props:**
 
-| Prop      | Type                                                         | Default | Description                                                                                                                                                                                  |
-| :-------- | :----------------------------------------------------------- | :------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| className | `string \| (state) => string`                                | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component’s state.                                                                                     |
-| render    | `React.ReactElement \| (props, state) => React.ReactElement` | -       | Allows you to replace the component’s HTML element&#xA;with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop      | Type                                                                        | Default | Description                                                                                                                                                                                  |
+| :-------- | :-------------------------------------------------------------------------- | :------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| className | `string \| ((state: State) => string)`                                      | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component’s state.                                                                                     |
+| render    | `ReactElement \| ((props: GenericHTMLProps, state: State) => ReactElement)` | -       | Allows you to replace the component’s HTML element&#xA;with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
 
 **Popup Data Attributes:**
 
@@ -441,10 +437,10 @@ Renders a `<div>` element.
 
 **Arrow Props:**
 
-| Prop      | Type                                                         | Default | Description                                                                                                                                                                                  |
-| :-------- | :----------------------------------------------------------- | :------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| className | `string \| (state) => string`                                | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component’s state.                                                                                     |
-| render    | `React.ReactElement \| (props, state) => React.ReactElement` | -       | Allows you to replace the component’s HTML element&#xA;with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop      | Type                                                                        | Default | Description                                                                                                                                                                                  |
+| :-------- | :-------------------------------------------------------------------------- | :------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| className | `string \| ((state: State) => string)`                                      | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component’s state.                                                                                     |
+| render    | `ReactElement \| ((props: GenericHTMLProps, state: State) => ReactElement)` | -       | Allows you to replace the component’s HTML element&#xA;with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
 
 **Arrow Data Attributes:**
 

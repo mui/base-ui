@@ -70,16 +70,6 @@ This example shows how to implement the component using CSS Modules.
   }
 }
 
-.Decrement {
-  border-top-right-radius: 0;
-  border-bottom-right-radius: 0;
-}
-
-.Increment {
-  border-top-left-radius: 0;
-  border-bottom-left-radius: 0;
-}
-
 .Decrement,
 .Increment {
   box-sizing: border-box;
@@ -108,13 +98,23 @@ This example shows how to implement the component using CSS Modules.
     background-color: var(--color-gray-100);
   }
 }
+
+.Decrement {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.Increment {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
 ```
 
 ```tsx
 /* index.tsx */
-import * as React from "react";
-import { NumberField } from "@base-ui-components/react/number-field";
-import styles from "./index.module.css";
+import * as React from 'react';
+import { NumberField } from '@base-ui-components/react/number-field';
+import styles from './index.module.css';
 
 export default function ExampleNumberField() {
   const id = React.useId();
@@ -142,7 +142,7 @@ export default function ExampleNumberField() {
   );
 }
 
-function CursorGrowIcon(props: React.ComponentProps<"svg">) {
+function CursorGrowIcon(props: React.ComponentProps<'svg'>) {
   return (
     <svg
       width="26"
@@ -158,7 +158,7 @@ function CursorGrowIcon(props: React.ComponentProps<"svg">) {
   );
 }
 
-function PlusIcon(props: React.ComponentProps<"svg">) {
+function PlusIcon(props: React.ComponentProps<'svg'>) {
   return (
     <svg
       width="10"
@@ -175,7 +175,7 @@ function PlusIcon(props: React.ComponentProps<"svg">) {
   );
 }
 
-function MinusIcon(props: React.ComponentProps<"svg">) {
+function MinusIcon(props: React.ComponentProps<'svg'>) {
   return (
     <svg
       width="10"
@@ -199,22 +199,15 @@ This example shows how to implement the component using Tailwind CSS.
 
 ```tsx
 /* index.tsx */
-import * as React from "react";
-import { NumberField } from "@base-ui-components/react/number-field";
+import * as React from 'react';
+import { NumberField } from '@base-ui-components/react/number-field';
 
 export default function ExampleNumberField() {
   const id = React.useId();
   return (
-    <NumberField.Root
-      id={id}
-      defaultValue={100}
-      className="flex flex-col items-start gap-1"
-    >
+    <NumberField.Root id={id} defaultValue={100} className="flex flex-col items-start gap-1">
       <NumberField.ScrubArea className="cursor-ew-resize">
-        <label
-          htmlFor={id}
-          className="cursor-ew-resize text-sm font-medium text-gray-900"
-        >
+        <label htmlFor={id} className="cursor-ew-resize text-sm font-medium text-gray-900">
           Amount
         </label>
         <NumberField.ScrubAreaCursor className="drop-shadow-[0_1px_1px_#0008] filter">
@@ -235,7 +228,7 @@ export default function ExampleNumberField() {
   );
 }
 
-function CursorGrowIcon(props: React.ComponentProps<"svg">) {
+function CursorGrowIcon(props: React.ComponentProps<'svg'>) {
   return (
     <svg
       width="26"
@@ -251,7 +244,7 @@ function CursorGrowIcon(props: React.ComponentProps<"svg">) {
   );
 }
 
-function PlusIcon(props: React.ComponentProps<"svg">) {
+function PlusIcon(props: React.ComponentProps<'svg'>) {
   return (
     <svg
       width="10"
@@ -268,7 +261,7 @@ function PlusIcon(props: React.ComponentProps<"svg">) {
   );
 }
 
-function MinusIcon(props: React.ComponentProps<"svg">) {
+function MinusIcon(props: React.ComponentProps<'svg'>) {
   return (
     <svg
       width="10"
@@ -291,7 +284,7 @@ function MinusIcon(props: React.ComponentProps<"svg">) {
 Import the component and assemble its parts:
 
 ```jsx title="Anatomy"
-import { NumberField } from "@base-ui-components/react/number-field";
+import { NumberField } from '@base-ui-components/react/number-field';
 
 <NumberField.Root>
   <NumberField.ScrubArea>
@@ -312,28 +305,28 @@ Renders a `<div>` element.
 
 **Root Props:**
 
-| Prop            | Type                                                         | Default | Description                                                                                                                                                                                  |
-| :-------------- | :----------------------------------------------------------- | :------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| name            | `string`                                                     | -       | Identifies the field when a form is submitted.                                                                                                                                               |
-| defaultValue    | `number`                                                     | -       | The uncontrolled value of the field when it’s initially rendered.To render a controlled number field, use the `value` prop instead.                                                          |
-| value           | `number`                                                     | -       | The raw numeric value of the field.                                                                                                                                                          |
-| onValueChange   | `(value, event) => void`                                     | -       | Callback fired when the number value changes.                                                                                                                                                |
-| locale          | `Intl.LocalesArgument`                                       | -       | The locale of the input element.&#xA;Defaults to the user's runtime locale.                                                                                                                  |
-| step            | `number`                                                     | `1`     | Amount to increment and decrement with the buttons and arrow keys,&#xA;or to scrub with pointer movement in the scrub area.                                                                  |
-| smallStep       | `number`                                                     | `0.1`   | The small step value of the input element when incrementing while the meta key is held. Snaps&#xA;to multiples of this value.                                                                |
-| largeStep       | `number`                                                     | `10`    | The large step value of the input element when incrementing while the shift key is held. Snaps&#xA;to multiples of this value.                                                               |
-| min             | `number`                                                     | -       | The minimum value of the input element.                                                                                                                                                      |
-| max             | `number`                                                     | -       | The maximum value of the input element.                                                                                                                                                      |
-| allowWheelScrub | `boolean`                                                    | `false` | Whether to allow the user to scrub the input value with the mouse wheel while focused and&#xA;hovering over the input.                                                                       |
-| format          | `Intl.NumberFormatOptions`                                   | -       | Options to format the input value.                                                                                                                                                           |
-| autoFocus       | `boolean`                                                    | `false` | Whether to focus the element on page load.                                                                                                                                                   |
-| disabled        | `boolean`                                                    | `false` | Whether the component should ignore user interaction.                                                                                                                                        |
-| readOnly        | `boolean`                                                    | `false` | Whether the user should be unable to change the field value.                                                                                                                                 |
-| required        | `boolean`                                                    | `false` | Whether the user must enter a value before submitting a form.                                                                                                                                |
-| invalid         | `boolean`                                                    | `false` | Whether the field is forcefully marked as invalid.                                                                                                                                           |
-| id              | `string`                                                     | -       | The id of the input element.                                                                                                                                                                 |
-| className       | `string \| (state) => string`                                | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component’s state.                                                                                     |
-| render          | `React.ReactElement \| (props, state) => React.ReactElement` | -       | Allows you to replace the component’s HTML element&#xA;with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop            | Type                                                                        | Default | Description                                                                                                                                                                                  |
+| :-------------- | :-------------------------------------------------------------------------- | :------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| name            | `string`                                                                    | -       | Identifies the field when a form is submitted.                                                                                                                                               |
+| defaultValue    | `number`                                                                    | -       | The uncontrolled value of the field when it’s initially rendered.To render a controlled number field, use the `value` prop instead.                                                          |
+| value           | `number \| null`                                                            | -       | The raw numeric value of the field.                                                                                                                                                          |
+| onValueChange   | `((value: number \| null, event: Event \| undefined) => void)`              | -       | Callback fired when the number value changes.                                                                                                                                                |
+| locale          | `LocalesArgument`                                                           | -       | The locale of the input element.&#xA;Defaults to the user's runtime locale.                                                                                                                  |
+| snapOnStep      | `boolean`                                                                   | `false` | Whether the value should snap to the nearest step when incrementing or decrementing.                                                                                                         |
+| step            | `number`                                                                    | `1`     | Amount to increment and decrement with the buttons and arrow keys,&#xA;or to scrub with pointer movement in the scrub area.                                                                  |
+| smallStep       | `number`                                                                    | `0.1`   | The small step value of the input element when incrementing while the meta key is held. Snaps&#xA;to multiples of this value.                                                                |
+| largeStep       | `number`                                                                    | `10`    | The large step value of the input element when incrementing while the shift key is held. Snaps&#xA;to multiples of this value.                                                               |
+| min             | `number`                                                                    | -       | The minimum value of the input element.                                                                                                                                                      |
+| max             | `number`                                                                    | -       | The maximum value of the input element.                                                                                                                                                      |
+| allowWheelScrub | `boolean`                                                                   | `false` | Whether to allow the user to scrub the input value with the mouse wheel while focused and&#xA;hovering over the input.                                                                       |
+| format          | `NumberFormatOptions`                                                       | -       | Options to format the input value.                                                                                                                                                           |
+| disabled        | `boolean`                                                                   | `false` | Whether the component should ignore user interaction.                                                                                                                                        |
+| readOnly        | `boolean`                                                                   | `false` | Whether the user should be unable to change the field value.                                                                                                                                 |
+| required        | `boolean`                                                                   | `false` | Whether the user must enter a value before submitting a form.                                                                                                                                |
+| invalid         | `boolean`                                                                   | `false` | Whether the field is forcefully marked as invalid.                                                                                                                                           |
+| id              | `string`                                                                    | -       | The id of the input element.                                                                                                                                                                 |
+| className       | `string \| ((state: State) => string)`                                      | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component’s state.                                                                                     |
+| render          | `ReactElement \| ((props: GenericHTMLProps, state: State) => ReactElement)` | -       | Allows you to replace the component’s HTML element&#xA;with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
 
 **Root Data Attributes:**
 
@@ -357,13 +350,13 @@ Renders a `<span>` element.
 
 **ScrubArea Props:**
 
-| Prop             | Type                                                         | Default        | Description                                                                                                                                                                                  |
-| :--------------- | :----------------------------------------------------------- | :------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| direction        | `'horizontal' \| 'vertical'`                                 | `'horizontal'` | Cursor movement direction in the scrub area.                                                                                                                                                 |
-| pixelSensitivity | `number`                                                     | `2`            | Determines how many pixels the cursor must move before the value changes.&#xA;A higher value will make scrubbing less sensitive.                                                             |
-| teleportDistance | `number`                                                     | -              | If specified, determines the distance that the cursor may move from the center&#xA;of the scrub area before it will loop back around.                                                        |
-| className        | `string \| (state) => string`                                | -              | CSS class applied to the element, or a function that&#xA;returns a class based on the component’s state.                                                                                     |
-| render           | `React.ReactElement \| (props, state) => React.ReactElement` | -              | Allows you to replace the component’s HTML element&#xA;with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop             | Type                                                                        | Default        | Description                                                                                                                                                                                  |
+| :--------------- | :-------------------------------------------------------------------------- | :------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| direction        | `'horizontal' \| 'vertical'`                                                | `'horizontal'` | Cursor movement direction in the scrub area.                                                                                                                                                 |
+| pixelSensitivity | `number`                                                                    | `2`            | Determines how many pixels the cursor must move before the value changes.&#xA;A higher value will make scrubbing less sensitive.                                                             |
+| teleportDistance | `number`                                                                    | -              | If specified, determines the distance that the cursor may move from the center&#xA;of the scrub area before it will loop back around.                                                        |
+| className        | `string \| ((state: State) => string)`                                      | -              | CSS class applied to the element, or a function that&#xA;returns a class based on the component’s state.                                                                                     |
+| render           | `ReactElement \| ((props: GenericHTMLProps, state: State) => ReactElement)` | -              | Allows you to replace the component’s HTML element&#xA;with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
 
 **ScrubArea Data Attributes:**
 
@@ -388,10 +381,10 @@ in Safari to avoid a layout shift that this notification causes there.
 
 **ScrubAreaCursor Props:**
 
-| Prop      | Type                                                         | Default | Description                                                                                                                                                                                  |
-| :-------- | :----------------------------------------------------------- | :------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| className | `string \| (state) => string`                                | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component’s state.                                                                                     |
-| render    | `React.ReactElement \| (props, state) => React.ReactElement` | -       | Allows you to replace the component’s HTML element&#xA;with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop      | Type                                                                        | Default | Description                                                                                                                                                                                  |
+| :-------- | :-------------------------------------------------------------------------- | :------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| className | `string \| ((state: State) => string)`                                      | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component’s state.                                                                                     |
+| render    | `ReactElement \| ((props: GenericHTMLProps, state: State) => ReactElement)` | -       | Allows you to replace the component’s HTML element&#xA;with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
 
 **ScrubAreaCursor Data Attributes:**
 
@@ -415,10 +408,10 @@ Renders a `<div>` element.
 
 **Group Props:**
 
-| Prop      | Type                                                         | Default | Description                                                                                                                                                                                  |
-| :-------- | :----------------------------------------------------------- | :------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| className | `string \| (state) => string`                                | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component’s state.                                                                                     |
-| render    | `React.ReactElement \| (props, state) => React.ReactElement` | -       | Allows you to replace the component’s HTML element&#xA;with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop      | Type                                                                        | Default | Description                                                                                                                                                                                  |
+| :-------- | :-------------------------------------------------------------------------- | :------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| className | `string \| ((state: State) => string)`                                      | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component’s state.                                                                                     |
+| render    | `ReactElement \| ((props: GenericHTMLProps, state: State) => ReactElement)` | -       | Allows you to replace the component’s HTML element&#xA;with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
 
 **Group Data Attributes:**
 
@@ -442,10 +435,10 @@ Renders an `<button>` element.
 
 **Decrement Props:**
 
-| Prop      | Type                                                         | Default | Description                                                                                                                                                                                  |
-| :-------- | :----------------------------------------------------------- | :------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| className | `string \| (state) => string`                                | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component’s state.                                                                                     |
-| render    | `React.ReactElement \| (props, state) => React.ReactElement` | -       | Allows you to replace the component’s HTML element&#xA;with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop      | Type                                                                        | Default | Description                                                                                                                                                                                  |
+| :-------- | :-------------------------------------------------------------------------- | :------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| className | `string \| ((state: State) => string)`                                      | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component’s state.                                                                                     |
+| render    | `ReactElement \| ((props: GenericHTMLProps, state: State) => ReactElement)` | -       | Allows you to replace the component’s HTML element&#xA;with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
 
 **Decrement Data Attributes:**
 
@@ -469,10 +462,10 @@ Renders an `<input>` element.
 
 **Input Props:**
 
-| Prop      | Type                                                         | Default | Description                                                                                                                                                                                  |
-| :-------- | :----------------------------------------------------------- | :------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| className | `string \| (state) => string`                                | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component’s state.                                                                                     |
-| render    | `React.ReactElement \| (props, state) => React.ReactElement` | -       | Allows you to replace the component’s HTML element&#xA;with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop      | Type                                                                        | Default | Description                                                                                                                                                                                  |
+| :-------- | :-------------------------------------------------------------------------- | :------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| className | `string \| ((state: State) => string)`                                      | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component’s state.                                                                                     |
+| render    | `ReactElement \| ((props: GenericHTMLProps, state: State) => ReactElement)` | -       | Allows you to replace the component’s HTML element&#xA;with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
 
 **Input Data Attributes:**
 
@@ -496,10 +489,10 @@ Renders an `<button>` element.
 
 **Increment Props:**
 
-| Prop      | Type                                                         | Default | Description                                                                                                                                                                                  |
-| :-------- | :----------------------------------------------------------- | :------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| className | `string \| (state) => string`                                | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component’s state.                                                                                     |
-| render    | `React.ReactElement \| (props, state) => React.ReactElement` | -       | Allows you to replace the component’s HTML element&#xA;with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop      | Type                                                                        | Default | Description                                                                                                                                                                                  |
+| :-------- | :-------------------------------------------------------------------------- | :------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| className | `string \| ((state: State) => string)`                                      | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component’s state.                                                                                     |
+| render    | `ReactElement \| ((props: GenericHTMLProps, state: State) => ReactElement)` | -       | Allows you to replace the component’s HTML element&#xA;with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
 
 **Increment Data Attributes:**
 

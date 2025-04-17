@@ -34,7 +34,7 @@ This example shows how to implement the component using CSS Modules.
   color: var(--color-gray-900);
   user-select: none;
 
-  &[data-color="red"] {
+  &[data-color='red'] {
     color: var(--color-red);
   }
 
@@ -123,9 +123,9 @@ This example shows how to implement the component using CSS Modules.
 
 ```tsx
 /* index.tsx */
-import * as React from "react";
-import { AlertDialog } from "@base-ui-components/react/alert-dialog";
-import styles from "./index.module.css";
+import * as React from 'react';
+import { AlertDialog } from '@base-ui-components/react/alert-dialog';
+import styles from './index.module.css';
 
 export default function ExampleAlertDialog() {
   return (
@@ -136,16 +136,12 @@ export default function ExampleAlertDialog() {
       <AlertDialog.Portal>
         <AlertDialog.Backdrop className={styles.Backdrop} />
         <AlertDialog.Popup className={styles.Popup}>
-          <AlertDialog.Title className={styles.Title}>
-            Discard draft?
-          </AlertDialog.Title>
+          <AlertDialog.Title className={styles.Title}>Discard draft?</AlertDialog.Title>
           <AlertDialog.Description className={styles.Description}>
             You can't undo this action.
           </AlertDialog.Description>
           <div className={styles.Actions}>
-            <AlertDialog.Close className={styles.Button}>
-              Cancel
-            </AlertDialog.Close>
+            <AlertDialog.Close className={styles.Button}>Cancel</AlertDialog.Close>
             <AlertDialog.Close data-color="red" className={styles.Button}>
               Discard
             </AlertDialog.Close>
@@ -163,8 +159,8 @@ This example shows how to implement the component using Tailwind CSS.
 
 ```tsx
 /* index.tsx */
-import * as React from "react";
-import { AlertDialog } from "@base-ui-components/react/alert-dialog";
+import * as React from 'react';
+import { AlertDialog } from '@base-ui-components/react/alert-dialog';
 
 export default function ExampleAlertDialog() {
   return (
@@ -201,7 +197,7 @@ export default function ExampleAlertDialog() {
 Import the component and assemble its parts:
 
 ```jsx title="Anatomy"
-import { AlertDialog } from "@base-ui-components/react/alert-dialog";
+import { AlertDialog } from '@base-ui-components/react/alert-dialog';
 
 <AlertDialog.Root>
   <AlertDialog.Trigger />
@@ -223,13 +219,14 @@ Doesn’t render its own HTML element.
 
 **Root Props:**
 
-| Prop                 | Type                             | Default | Description                                                                                      |
-| :------------------- | :------------------------------- | :------ | :----------------------------------------------------------------------------------------------- |
-| defaultOpen          | `boolean`                        | `false` | Whether the dialog is initially open.To render a controlled dialog, use the `open` prop instead. |
-| open                 | `boolean`                        | -       | Whether the dialog is currently open.                                                            |
-| onOpenChange         | `(open, event, reason) => void`  | -       | Event handler called when the dialog is opened or closed.                                        |
-| actionsRef           | `{ current: { unmount: func } }` | -       | A ref to imperative actions.                                                                     |
-| onOpenChangeComplete | `(open) => void`                 | -       | Event handler called after any animations complete when the dialog is opened or closed.          |
+| Prop                 | Type                                                                                          | Default | Description                                                                                                                                                                                                                                                             |
+| :------------------- | :-------------------------------------------------------------------------------------------- | :------ | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| defaultOpen          | `boolean`                                                                                     | `false` | Whether the dialog is initially open.To render a controlled dialog, use the `open` prop instead.                                                                                                                                                                        |
+| open                 | `boolean`                                                                                     | -       | Whether the dialog is currently open.                                                                                                                                                                                                                                   |
+| onOpenChange         | `((open: boolean, event: Event \| undefined, reason: OpenChangeReason \| undefined) => void)` | -       | Event handler called when the dialog is opened or closed.                                                                                                                                                                                                               |
+| actionsRef           | `RefObject<{ unmount: () => void; }>`                                                         | -       | A ref to imperative actions.\* `unmount`: When specified, the dialog will not be unmounted when closed.&#xA;Instead, the `unmount` function must be called to unmount the dialog manually.&#xA;Useful when the dialog's animation is controlled by an external library. |
+| onOpenChangeComplete | `((open: boolean) => void)`                                                                   | -       | Event handler called after any animations complete when the dialog is opened or closed.                                                                                                                                                                                 |
+| children             | `ReactNode`                                                                                   | -       | -                                                                                                                                                                                                                                                                       |
 
 ### Trigger
 
@@ -238,10 +235,10 @@ Renders a `<button>` element.
 
 **Trigger Props:**
 
-| Prop      | Type                                                         | Default | Description                                                                                                                                                                                  |
-| :-------- | :----------------------------------------------------------- | :------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| className | `string \| (state) => string`                                | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component’s state.                                                                                     |
-| render    | `React.ReactElement \| (props, state) => React.ReactElement` | -       | Allows you to replace the component’s HTML element&#xA;with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop      | Type                                                                        | Default | Description                                                                                                                                                                                  |
+| :-------- | :-------------------------------------------------------------------------- | :------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| className | `string \| ((state: State) => string)`                                      | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component’s state.                                                                                     |
+| render    | `ReactElement \| ((props: GenericHTMLProps, state: State) => ReactElement)` | -       | Allows you to replace the component’s HTML element&#xA;with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
 
 **Trigger Data Attributes:**
 
@@ -257,10 +254,11 @@ By default, the portal element is appended to `<body>`.
 
 **Portal Props:**
 
-| Prop        | Type                               | Default | Description                                                              |
-| :---------- | :--------------------------------- | :------ | :----------------------------------------------------------------------- |
-| container   | `React.Ref \| HTMLElement \| null` | -       | A parent element to render the portal element into.                      |
-| keepMounted | `boolean`                          | `false` | Whether to keep the portal mounted in the DOM while the popup is hidden. |
+| Prop        | Type                                                    | Default | Description                                                              |
+| :---------- | :------------------------------------------------------ | :------ | :----------------------------------------------------------------------- |
+| container   | `HTMLElement \| RefObject<HTMLElement \| null> \| null` | -       | A parent element to render the portal element into.                      |
+| children    | `ReactNode`                                             | -       | -                                                                        |
+| keepMounted | `boolean`                                               | `false` | Whether to keep the portal mounted in the DOM while the popup is hidden. |
 
 ### Backdrop
 
@@ -269,10 +267,10 @@ Renders a `<div>` element.
 
 **Backdrop Props:**
 
-| Prop      | Type                                                         | Default | Description                                                                                                                                                                                  |
-| :-------- | :----------------------------------------------------------- | :------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| className | `string \| (state) => string`                                | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component’s state.                                                                                     |
-| render    | `React.ReactElement \| (props, state) => React.ReactElement` | -       | Allows you to replace the component’s HTML element&#xA;with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop      | Type                                                                        | Default | Description                                                                                                                                                                                  |
+| :-------- | :-------------------------------------------------------------------------- | :------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| className | `string \| ((state: State) => string)`                                      | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component’s state.                                                                                     |
+| render    | `ReactElement \| ((props: GenericHTMLProps, state: State) => ReactElement)` | -       | Allows you to replace the component’s HTML element&#xA;with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
 
 **Backdrop Data Attributes:**
 
@@ -290,12 +288,12 @@ Renders a `<div>` element.
 
 **Popup Props:**
 
-| Prop         | Type                                                         | Default | Description                                                                                                                                                                                  |
-| :----------- | :----------------------------------------------------------- | :------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| initialFocus | `React.Ref \| (interactionType => HTMLElement \| null)`      | -       | Determines the element to focus when the dialog is opened.&#xA;By default, the first focusable element is focused.                                                                           |
-| finalFocus   | `React.Ref`                                                  | -       | Determines the element to focus when the dialog is closed.&#xA;By default, focus returns to the trigger.                                                                                     |
-| className    | `string \| (state) => string`                                | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component’s state.                                                                                     |
-| render       | `React.ReactElement \| (props, state) => React.ReactElement` | -       | Allows you to replace the component’s HTML element&#xA;with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop         | Type                                                                                                       | Default | Description                                                                                                                                                                                  |
+| :----------- | :--------------------------------------------------------------------------------------------------------- | :------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| initialFocus | `RefObject<HTMLElement \| null> \| ((interactionType: InteractionType) => RefObject<HTMLElement \| null>)` | -       | Determines the element to focus when the dialog is opened.&#xA;By default, the first focusable element is focused.                                                                           |
+| finalFocus   | `RefObject<HTMLElement \| null>`                                                                           | -       | Determines the element to focus when the dialog is closed.&#xA;By default, focus returns to the trigger.                                                                                     |
+| className    | `string \| ((state: State) => string)`                                                                     | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component’s state.                                                                                     |
+| render       | `ReactElement \| ((props: GenericHTMLProps, state: State) => ReactElement)`                                | -       | Allows you to replace the component’s HTML element&#xA;with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
 
 **Popup Data Attributes:**
 
@@ -303,8 +301,8 @@ Renders a `<div>` element.
 | :---------------------- | :--- | :--------------------------------------------------------------- |
 | data-open               | -    | Present when the dialog is open.                                 |
 | data-closed             | -    | Present when the dialog is closed.                               |
-| data-has-nested-dialogs | -    | Present when the dialog has other open dialogs nested within it. |
 | data-nested             | -    | Present when the dialog is nested within another dialog.         |
+| data-nested-dialog-open | -    | Present when the dialog has other open dialogs nested within it. |
 | data-starting-style     | -    | Present when the dialog is animating in.                         |
 | data-ending-style       | -    | Present when the dialog is animating out.                        |
 
@@ -315,10 +313,10 @@ Renders an `<h2>` element.
 
 **Title Props:**
 
-| Prop      | Type                                                         | Default | Description                                                                                                                                                                                  |
-| :-------- | :----------------------------------------------------------- | :------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| className | `string \| (state) => string`                                | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component’s state.                                                                                     |
-| render    | `React.ReactElement \| (props, state) => React.ReactElement` | -       | Allows you to replace the component’s HTML element&#xA;with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop      | Type                                                                        | Default | Description                                                                                                                                                                                  |
+| :-------- | :-------------------------------------------------------------------------- | :------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| className | `string \| ((state: State) => string)`                                      | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component’s state.                                                                                     |
+| render    | `ReactElement \| ((props: GenericHTMLProps, state: State) => ReactElement)` | -       | Allows you to replace the component’s HTML element&#xA;with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
 
 ### Description
 
@@ -327,10 +325,10 @@ Renders a `<p>` element.
 
 **Description Props:**
 
-| Prop      | Type                                                         | Default | Description                                                                                                                                                                                  |
-| :-------- | :----------------------------------------------------------- | :------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| className | `string \| (state) => string`                                | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component’s state.                                                                                     |
-| render    | `React.ReactElement \| (props, state) => React.ReactElement` | -       | Allows you to replace the component’s HTML element&#xA;with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop      | Type                                                                        | Default | Description                                                                                                                                                                                  |
+| :-------- | :-------------------------------------------------------------------------- | :------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| className | `string \| ((state: State) => string)`                                      | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component’s state.                                                                                     |
+| render    | `ReactElement \| ((props: GenericHTMLProps, state: State) => ReactElement)` | -       | Allows you to replace the component’s HTML element&#xA;with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
 
 ### Close
 
@@ -339,10 +337,10 @@ Renders a `<button>` element.
 
 **Close Props:**
 
-| Prop      | Type                                                         | Default | Description                                                                                                                                                                                  |
-| :-------- | :----------------------------------------------------------- | :------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| className | `string \| (state) => string`                                | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component’s state.                                                                                     |
-| render    | `React.ReactElement \| (props, state) => React.ReactElement` | -       | Allows you to replace the component’s HTML element&#xA;with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop      | Type                                                                        | Default | Description                                                                                                                                                                                  |
+| :-------- | :-------------------------------------------------------------------------- | :------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| className | `string \| ((state: State) => string)`                                      | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component’s state.                                                                                     |
+| render    | `ReactElement \| ((props: GenericHTMLProps, state: State) => ReactElement)` | -       | Allows you to replace the component’s HTML element&#xA;with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
 
 **Close Data Attributes:**
 
@@ -359,9 +357,9 @@ In order to open a dialog using a menu, control the dialog state and open it imp
 Make sure to also use the dialog's `finalFocus` prop to return focus back to the menu trigger.
 
 ```tsx {12-13,17-18,24-25,28-29} title="Connecting a dialog to a menu"
-import * as React from "react";
-import { AlertDialog } from "@base-ui/components/alert-dialog";
-import { Menu } from "@base-ui/components/menu";
+import * as React from 'react';
+import { AlertDialog } from '@base-ui/components/alert-dialog';
+import { Menu } from '@base-ui/components/menu';
 
 function ExampleMenu() {
   const menuTriggerRef = React.useRef<HTMLButtonElement>(null);
@@ -376,9 +374,7 @@ function ExampleMenu() {
           <Menu.Positioner>
             <Menu.Popup>
               {/* Open the dialog when the menu item is clicked */}
-              <Menu.Item onClick={() => setDialogOpen(true)}>
-                Open dialog
-              </Menu.Item>
+              <Menu.Item onClick={() => setDialogOpen(true)}>Open dialog</Menu.Item>
             </Menu.Popup>
           </Menu.Positioner>
         </Menu.Portal>
@@ -406,7 +402,7 @@ This example shows a nested confirmation dialog that opens if the text entered i
 
 To implement this, both dialogs should be controlled. The confirmation dialog may be opened when `onOpenChange` callback of the parent dialog receives a request to close. This way, the confirmation is automatically shown when the user clicks the backdrop, presses the Esc key, or clicks a close button.
 
-Use the `[data-has-nested-dialogs]` selector and the `var(--nested-dialogs)` CSS variable to customize the styling of the parent dialog. Backdrops of the child dialogs won't be rendered so that you can present the parent dialog in a clean way behind the one on top of it.
+Use the `[data-nested-dialog-open]` selector and the `var(--nested-dialogs)` CSS variable to customize the styling of the parent dialog. Backdrops of the child dialogs won't be rendered so that you can present the parent dialog in a clean way behind the one on top of it.
 
 ## Demo
 
@@ -480,11 +476,7 @@ This example shows how to implement the component using CSS Modules.
   @media (prefers-color-scheme: dark) {
     @media (hover: hover) {
       &:hover {
-        background-color: color-mix(
-          in oklch,
-          var(--color-red),
-          transparent 85%
-        );
+        background-color: color-mix(in oklch, var(--color-red), transparent 85%);
       }
     }
 
@@ -538,9 +530,9 @@ This example shows how to implement the component using CSS Modules.
     outline: 1px solid var(--color-gray-300);
   }
 
-  &[data-has-nested-dialogs] {
+  &[data-nested-dialog-open] {
     &::after {
-      content: "";
+      content: '';
       inset: 0;
       position: absolute;
       border-radius: inherit;
@@ -607,15 +599,15 @@ This example shows how to implement the component using CSS Modules.
 
 ```tsx
 /* index.tsx */
-import * as React from "react";
-import { AlertDialog } from "@base-ui-components/react/alert-dialog";
-import { Dialog } from "@base-ui-components/react/dialog";
-import styles from "./index.module.css";
+import * as React from 'react';
+import { AlertDialog } from '@base-ui-components/react/alert-dialog';
+import { Dialog } from '@base-ui-components/react/dialog';
+import styles from './index.module.css';
 
 export default function ExampleDialog() {
   const [dialogOpen, setDialogOpen] = React.useState(false);
   const [confirmationOpen, setConfirmationOpen] = React.useState(false);
-  const [textareaValue, setTextareaValue] = React.useState("");
+  const [textareaValue, setTextareaValue] = React.useState('');
 
   return (
     <Dialog.Root
@@ -626,7 +618,7 @@ export default function ExampleDialog() {
           setConfirmationOpen(true);
         } else {
           // Reset the text area value
-          setTextareaValue("");
+          setTextareaValue('');
           // Open or close the dialog normally
           setDialogOpen(open);
         }
@@ -663,22 +655,15 @@ export default function ExampleDialog() {
       </Dialog.Portal>
 
       {/* Confirmation dialog */}
-      <AlertDialog.Root
-        open={confirmationOpen}
-        onOpenChange={setConfirmationOpen}
-      >
+      <AlertDialog.Root open={confirmationOpen} onOpenChange={setConfirmationOpen}>
         <AlertDialog.Portal>
           <AlertDialog.Popup className={styles.Popup}>
-            <AlertDialog.Title className={styles.Title}>
-              Discard tweet?
-            </AlertDialog.Title>
+            <AlertDialog.Title className={styles.Title}>Discard tweet?</AlertDialog.Title>
             <AlertDialog.Description className={styles.Description}>
               Your tweet will be lost.
             </AlertDialog.Description>
             <div className={styles.Actions}>
-              <AlertDialog.Close className={styles.Button}>
-                Go back
-              </AlertDialog.Close>
+              <AlertDialog.Close className={styles.Button}>Go back</AlertDialog.Close>
               <button
                 type="button"
                 className={styles.Button}
@@ -704,14 +689,14 @@ This example shows how to implement the component using Tailwind CSS.
 
 ```tsx
 /* index.tsx */
-import * as React from "react";
-import { AlertDialog } from "@base-ui-components/react/alert-dialog";
-import { Dialog } from "@base-ui-components/react/dialog";
+import * as React from 'react';
+import { AlertDialog } from '@base-ui-components/react/alert-dialog';
+import { Dialog } from '@base-ui-components/react/dialog';
 
 export default function ExampleDialog() {
   const [dialogOpen, setDialogOpen] = React.useState(false);
   const [confirmationOpen, setConfirmationOpen] = React.useState(false);
-  const [textareaValue, setTextareaValue] = React.useState("");
+  const [textareaValue, setTextareaValue] = React.useState('');
 
   return (
     <Dialog.Root
@@ -722,7 +707,7 @@ export default function ExampleDialog() {
           setConfirmationOpen(true);
         } else {
           // Reset the text area value
-          setTextareaValue("");
+          setTextareaValue('');
           // Open or close the dialog normally
           setDialogOpen(open);
         }
@@ -733,10 +718,8 @@ export default function ExampleDialog() {
       </Dialog.Trigger>
       <Dialog.Portal>
         <Dialog.Backdrop className="fixed inset-0 bg-black opacity-20 transition-all duration-150 data-[ending-style]:opacity-0 data-[starting-style]:opacity-0 dark:opacity-70" />
-        <Dialog.Popup className="fixed top-[calc(50%+1.25rem*var(--nested-dialogs))] left-1/2 -mt-8 w-96 max-w-[calc(100vw-3rem)] -translate-x-1/2 -translate-y-1/2 scale-[calc(1-0.1*var(--nested-dialogs))] rounded-lg bg-gray-50 p-6 text-gray-900 outline outline-1 outline-gray-200 transition-all duration-150 data-[ending-style]:scale-90 data-[ending-style]:opacity-0 data-[has-nested-dialogs]:after:absolute data-[has-nested-dialogs]:after:inset-0 data-[has-nested-dialogs]:after:rounded-[inherit] data-[has-nested-dialogs]:after:bg-black/5 data-[starting-style]:scale-90 data-[starting-style]:opacity-0 dark:outline-gray-300">
-          <Dialog.Title className="-mt-1.5 mb-1 text-lg font-medium">
-            New tweet
-          </Dialog.Title>
+        <Dialog.Popup className="fixed top-[calc(50%+1.25rem*var(--nested-dialogs))] left-1/2 -mt-8 w-96 max-w-[calc(100vw-3rem)] -translate-x-1/2 -translate-y-1/2 scale-[calc(1-0.1*var(--nested-dialogs))] rounded-lg bg-gray-50 p-6 text-gray-900 outline outline-1 outline-gray-200 transition-all duration-150 data-[ending-style]:scale-90 data-[ending-style]:opacity-0 data-[nested-dialog-open]:after:absolute data-[nested-dialog-open]:after:inset-0 data-[nested-dialog-open]:after:rounded-[inherit] data-[nested-dialog-open]:after:bg-black/5 data-[starting-style]:scale-90 data-[starting-style]:opacity-0 dark:outline-gray-300">
+          <Dialog.Title className="-mt-1.5 mb-1 text-lg font-medium">New tweet</Dialog.Title>
           <form
             className="mt-4 flex flex-col gap-6"
             onSubmit={(event) => {
@@ -768,12 +751,9 @@ export default function ExampleDialog() {
       </Dialog.Portal>
 
       {/* Confirmation dialog */}
-      <AlertDialog.Root
-        open={confirmationOpen}
-        onOpenChange={setConfirmationOpen}
-      >
+      <AlertDialog.Root open={confirmationOpen} onOpenChange={setConfirmationOpen}>
         <AlertDialog.Portal>
-          <AlertDialog.Popup className="fixed top-[calc(50%+1.25rem*var(--nested-dialogs))] left-1/2 -mt-8 w-96 max-w-[calc(100vw-3rem)] -translate-x-1/2 -translate-y-1/2 scale-[calc(1-0.1*var(--nested-dialogs))] rounded-lg bg-gray-50 p-6 text-gray-900 outline outline-1 outline-gray-200 transition-all duration-150 data-[ending-style]:scale-90 data-[ending-style]:opacity-0 data-[has-nested-dialogs]:after:absolute data-[has-nested-dialogs]:after:inset-0 data-[has-nested-dialogs]:after:rounded-[inherit] data-[has-nested-dialogs]:after:bg-black/5 data-[starting-style]:scale-90 data-[starting-style]:opacity-0 dark:outline-gray-300">
+          <AlertDialog.Popup className="fixed top-[calc(50%+1.25rem*var(--nested-dialogs))] left-1/2 -mt-8 w-96 max-w-[calc(100vw-3rem)] -translate-x-1/2 -translate-y-1/2 scale-[calc(1-0.1*var(--nested-dialogs))] rounded-lg bg-gray-50 p-6 text-gray-900 outline outline-1 outline-gray-200 transition-all duration-150 data-[ending-style]:scale-90 data-[ending-style]:opacity-0 data-[nested-dialog-open]:after:absolute data-[nested-dialog-open]:after:inset-0 data-[nested-dialog-open]:after:rounded-[inherit] data-[nested-dialog-open]:after:bg-black/5 data-[starting-style]:scale-90 data-[starting-style]:opacity-0 dark:outline-gray-300">
             <AlertDialog.Title className="-mt-1.5 mb-1 text-lg font-medium">
               Discard tweet?
             </AlertDialog.Title>

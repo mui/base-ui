@@ -57,8 +57,8 @@ For example, `Menu.Item` renders a `<div>` by default.
 The code snippet below shows how to render it as an `<a>` element so that it works like a link.
 
 ```tsx title="index.tsx"
-import * as React from "react";
-import { Menu } from "@base-ui-components/react/menu";
+import * as React from 'react';
+import { Menu } from '@base-ui-components/react/menu';
 
 export default () => (
   <Menu.Root>

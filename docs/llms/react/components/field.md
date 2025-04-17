@@ -66,9 +66,9 @@ This example shows how to implement the component using CSS Modules.
 
 ```tsx
 /* index.tsx */
-import * as React from "react";
-import { Field } from "@base-ui-components/react/field";
-import styles from "./index.module.css";
+import * as React from 'react';
+import { Field } from '@base-ui-components/react/field';
+import styles from './index.module.css';
 
 export default function ExampleField() {
   return (
@@ -80,9 +80,7 @@ export default function ExampleField() {
         Please enter your name
       </Field.Error>
 
-      <Field.Description className={styles.Description}>
-        Visible on your profile
-      </Field.Description>
+      <Field.Description className={styles.Description}>Visible on your profile</Field.Description>
     </Field.Root>
   );
 }
@@ -94,15 +92,13 @@ This example shows how to implement the component using Tailwind CSS.
 
 ```tsx
 /* index.tsx */
-import * as React from "react";
-import { Field } from "@base-ui-components/react/field";
+import * as React from 'react';
+import { Field } from '@base-ui-components/react/field';
 
 export default function ExampleField() {
   return (
     <Field.Root className="flex w-full max-w-64 flex-col items-start gap-1">
-      <Field.Label className="text-sm font-medium text-gray-900">
-        Name
-      </Field.Label>
+      <Field.Label className="text-sm font-medium text-gray-900">Name</Field.Label>
       <Field.Control
         required
         placeholder="Required"
@@ -125,7 +121,7 @@ export default function ExampleField() {
 Import the component and assemble its parts:
 
 ```jsx title="Anatomy"
-import { Field } from "@base-ui-components/react/field";
+import { Field } from '@base-ui-components/react/field';
 
 <Field.Root>
   <Field.Label />
@@ -143,17 +139,17 @@ Renders a `<div>` element.
 
 **Root Props:**
 
-| Prop                                                                     | Type                                                         | Default    | Description                                                                                                                                                                                  |
-| :----------------------------------------------------------------------- | :----------------------------------------------------------- | :--------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| name                                                                     | `string`                                                     | -          | Identifies the field when a form is submitted.&#xA;Takes precedence over the `name` prop on the `<Field.Control>` component.                                                                 |
-| disabled                                                                 | `boolean`                                                    | `false`    | Whether the component should ignore user interaction.&#xA;Takes precedence over the `disabled` prop on the `<Field.Control>` component.                                                      |
-| invalid                                                                  | `boolean`                                                    | -          | Whether the field is forcefully marked as invalid.                                                                                                                                           |
-| validate                                                                 | `(value) => string \| string[] \| null \| Promise`           | -          | A function for custom validation. Return a string or an array of strings with&#xA;the error message(s) if the value is invalid, or `null` if the value is valid.                             |
-| validationMode                                                           | `'onBlur' \| 'onChange'`                                     | `'onBlur'` | Determines when the field should be validated.\* **onBlur** triggers validation when the control loses focus                                                                                 |
+| Prop                                                                     | Type                                                                                      | Default    | Description                                                                                                                                                                                  |
+| :----------------------------------------------------------------------- | :---------------------------------------------------------------------------------------- | :--------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| name                                                                     | `string`                                                                                  | -          | Identifies the field when a form is submitted.&#xA;Takes precedence over the `name` prop on the `<Field.Control>` component.                                                                 |
+| disabled                                                                 | `boolean`                                                                                 | `false`    | Whether the component should ignore user interaction.&#xA;Takes precedence over the `disabled` prop on the `<Field.Control>` component.                                                      |
+| invalid                                                                  | `boolean`                                                                                 | -          | Whether the field is forcefully marked as invalid.                                                                                                                                           |
+| validate                                                                 | `((value: unknown) => string \| string[] \| Promise<string \| string[] \| null> \| null)` | -          | A function for custom validation. Return a string or an array of strings with&#xA;the error message(s) if the value is invalid, or `null` if the value is valid.                             |
+| validationMode                                                           | `'onBlur' \| 'onChange'`                                                                  | `'onBlur'` | Determines when the field should be validated.\* **onBlur** triggers validation when the control loses focus                                                                                 |
 | \* **onChange** triggers validation on every change to the control value |
-| validationDebounceTime                                                   | `number`                                                     | `0`        | How long to wait between `validate` callbacks if&#xA;`validationMode="onChange"` is used. Specified in milliseconds.                                                                         |
-| className                                                                | `string \| (state) => string`                                | -          | CSS class applied to the element, or a function that&#xA;returns a class based on the component’s state.                                                                                     |
-| render                                                                   | `React.ReactElement \| (props, state) => React.ReactElement` | -          | Allows you to replace the component’s HTML element&#xA;with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+| validationDebounceTime                                                   | `number`                                                                                  | `0`        | How long to wait between `validate` callbacks if&#xA;`validationMode="onChange"` is used. Specified in milliseconds.                                                                         |
+| className                                                                | `string \| ((state: State) => string)`                                                    | -          | CSS class applied to the element, or a function that&#xA;returns a class based on the component’s state.                                                                                     |
+| render                                                                   | `ReactElement \| ((props: GenericHTMLProps, state: State) => ReactElement)`               | -          | Allows you to replace the component’s HTML element&#xA;with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
 
 **Root Data Attributes:**
 
@@ -174,10 +170,10 @@ Renders a `<label>` element.
 
 **Label Props:**
 
-| Prop      | Type                                                         | Default | Description                                                                                                                                                                                  |
-| :-------- | :----------------------------------------------------------- | :------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| className | `string \| (state) => string`                                | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component’s state.                                                                                     |
-| render    | `React.ReactElement \| (props, state) => React.ReactElement` | -       | Allows you to replace the component’s HTML element&#xA;with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop      | Type                                                                        | Default | Description                                                                                                                                                                                  |
+| :-------- | :-------------------------------------------------------------------------- | :------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| className | `string \| ((state: State) => string)`                                      | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component’s state.                                                                                     |
+| render    | `ReactElement \| ((props: GenericHTMLProps, state: State) => ReactElement)` | -       | Allows you to replace the component’s HTML element&#xA;with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
 
 **Label Data Attributes:**
 
@@ -200,11 +196,12 @@ or [Select](https://base-ui.com/react/components/select), among others, will wor
 
 **Control Props:**
 
-| Prop          | Type                                                         | Default | Description                                                                                                                                                                                  |
-| :------------ | :----------------------------------------------------------- | :------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| onValueChange | `(value, event) => void`                                     | -       | Callback fired when the `value` changes. Use when controlled.                                                                                                                                |
-| className     | `string \| (state) => string`                                | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component’s state.                                                                                     |
-| render        | `React.ReactElement \| (props, state) => React.ReactElement` | -       | Allows you to replace the component’s HTML element&#xA;with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop          | Type                                                                         | Default | Description                                                                                                                                                                                  |
+| :------------ | :--------------------------------------------------------------------------- | :------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| defaultValue  | `string \| number \| string[]`                                               | -       | -                                                                                                                                                                                            |
+| onValueChange | `((value: string \| number \| string[] \| undefined, event: Event) => void)` | -       | Callback fired when the `value` changes. Use when controlled.                                                                                                                                |
+| className     | `string \| ((state: State) => string)`                                       | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component’s state.                                                                                     |
+| render        | `ReactElement \| ((props: GenericHTMLProps, state: State) => ReactElement)`  | -       | Allows you to replace the component’s HTML element&#xA;with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
 
 **Control Data Attributes:**
 
@@ -225,10 +222,10 @@ Renders a `<p>` element.
 
 **Description Props:**
 
-| Prop      | Type                                                         | Default | Description                                                                                                                                                                                  |
-| :-------- | :----------------------------------------------------------- | :------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| className | `string \| (state) => string`                                | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component’s state.                                                                                     |
-| render    | `React.ReactElement \| (props, state) => React.ReactElement` | -       | Allows you to replace the component’s HTML element&#xA;with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop      | Type                                                                        | Default | Description                                                                                                                                                                                  |
+| :-------- | :-------------------------------------------------------------------------- | :------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| className | `string \| ((state: State) => string)`                                      | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component’s state.                                                                                     |
+| render    | `ReactElement \| ((props: GenericHTMLProps, state: State) => ReactElement)` | -       | Allows you to replace the component’s HTML element&#xA;with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
 
 **Description Data Attributes:**
 
@@ -251,10 +248,10 @@ Renders a `<div>` element.
 
 | Prop      | Type                                                                                                                                                                                  | Default | Description                                                                                                                                                                                  |
 | :-------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | :------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| match     | `'badInput' \| 'customError' \| 'patternMismatch' \| 'rangeOverflow' \| 'rangeUnderflow' \| 'stepMismatch' \| 'tooLong' \| 'tooShort' \| 'typeMismatch' \| 'valid' \| 'valueMissing'` | -       | Determines whether to show the error message according to the field’s&#xA;[ValidityState](https://developer.mozilla.org/en-US/docs/Web/API/ValidityState).                                   |
+| match     | `'valid' \| 'badInput' \| 'customError' \| 'patternMismatch' \| 'rangeOverflow' \| 'rangeUnderflow' \| 'stepMismatch' \| 'tooLong' \| 'tooShort' \| 'typeMismatch' \| 'valueMissing'` | -       | Determines whether to show the error message according to the field’s&#xA;[ValidityState](https://developer.mozilla.org/en-US/docs/Web/API/ValidityState).                                   |
 | forceShow | `boolean`                                                                                                                                                                             | -       | Whether the error message should be shown regardless of the field’s validity.                                                                                                                |
-| className | `string \| (state) => string`                                                                                                                                                         | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component’s state.                                                                                     |
-| render    | `React.ReactElement \| (props, state) => React.ReactElement`                                                                                                                          | -       | Allows you to replace the component’s HTML element&#xA;with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+| className | `string \| ((state: State) => string)`                                                                                                                                                | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component’s state.                                                                                     |
+| render    | `ReactElement \| ((props: GenericHTMLProps, state: State) => ReactElement)`                                                                                                           | -       | Allows you to replace the component’s HTML element&#xA;with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
 
 **Error Data Attributes:**
 
@@ -275,9 +272,9 @@ Requires `children` to be a function that accepts field validity state as an arg
 
 **Validity Props:**
 
-| Prop     | Type                            | Default | Description                                                            |
-| :------- | :------------------------------ | :------ | :--------------------------------------------------------------------- |
-| children | `(validity) => React.ReactNode` | -       | A function that accepts the field validity state as an argument.```jsx |
+| Prop     | Type                                         | Default | Description                                                            |
+| :------- | :------------------------------------------- | :------ | :--------------------------------------------------------------------- |
+| children | `((state: FieldValidityState) => ReactNode)` | -       | A function that accepts the field validity state as an argument.```jsx |
 
 <Field.Validity>
 {(validity) => {

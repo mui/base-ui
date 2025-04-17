@@ -39,9 +39,9 @@ This example shows how to implement the component using CSS Modules.
 
 ```tsx
 /* index.tsx */
-import * as React from "react";
-import { Input } from "@base-ui-components/react/input";
-import styles from "./index.module.css";
+import * as React from 'react';
+import { Input } from '@base-ui-components/react/input';
+import styles from './index.module.css';
 
 export default function ExampleInput() {
   return <Input placeholder="Name" className={styles.Input} />;
@@ -54,8 +54,8 @@ This example shows how to implement the component using Tailwind CSS.
 
 ```tsx
 /* index.tsx */
-import * as React from "react";
-import { Input } from "@base-ui-components/react/input";
+import * as React from 'react';
+import { Input } from '@base-ui-components/react/input';
 
 export default function ExampleInput() {
   return (
@@ -72,7 +72,7 @@ export default function ExampleInput() {
 Import the component and use it as a single part:
 
 ```jsx title="Anatomy"
-import { Input } from "@base-ui-components/react/input";
+import { Input } from '@base-ui-components/react/input';
 
 <Input />;
 ```
@@ -82,10 +82,10 @@ Renders an `<input>` element.
 
 **Input Props:**
 
-| Prop      | Type                                                         | Default | Description                                                                                                                                                                                  |
-| :-------- | :----------------------------------------------------------- | :------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| className | `string \| (state) => string`                                | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component’s state.                                                                                     |
-| render    | `React.ReactElement \| (props, state) => React.ReactElement` | -       | Allows you to replace the component’s HTML element&#xA;with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop      | Type                                                                        | Default | Description                                                                                                                                                                                  |
+| :-------- | :-------------------------------------------------------------------------- | :------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| className | `string \| ((state: State) => string)`                                      | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component’s state.                                                                                     |
+| render    | `ReactElement \| ((props: GenericHTMLProps, state: State) => ReactElement)` | -       | Allows you to replace the component’s HTML element&#xA;with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
 
 **Input Data Attributes:**
 

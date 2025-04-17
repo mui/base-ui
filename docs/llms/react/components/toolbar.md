@@ -27,6 +27,7 @@ This example shows how to implement the component using CSS Modules.
   background-color: var(--color-gray-50);
   border-radius: 0.375rem;
   padding: 0.125rem;
+  width: 37.5rem;
 }
 
 .Group {
@@ -78,7 +79,7 @@ This example shows how to implement the component using CSS Modules.
     padding: 0 0.75rem;
   }
 
-  &[role="combobox"] {
+  &[role='combobox'] {
     min-width: 8rem;
     justify-content: space-between;
     padding: 0 0.75rem;
@@ -99,7 +100,7 @@ This example shows how to implement the component using CSS Modules.
   text-decoration: none;
   align-self: center;
   flex: 0 0 auto;
-  margin-inline: 4rem 0.875rem;
+  margin-inline: auto 0.875rem;
 
   &:focus-visible {
     outline: 2px solid var(--color-blue);
@@ -176,7 +177,7 @@ This example shows how to implement the component using CSS Modules.
     transform: scale(0.9);
   }
 
-  &[data-side="none"] {
+  &[data-side='none'] {
     transition: none;
     transform: none;
     opacity: 1;
@@ -198,22 +199,22 @@ This example shows how to implement the component using CSS Modules.
 .Arrow {
   display: flex;
 
-  &[data-side="top"] {
+  &[data-side='top'] {
     bottom: -8px;
     rotate: 180deg;
   }
 
-  &[data-side="bottom"] {
+  &[data-side='bottom'] {
     top: -8px;
     rotate: 0deg;
   }
 
-  &[data-side="left"] {
+  &[data-side='left'] {
     right: -13px;
     rotate: 90deg;
   }
 
-  &[data-side="right"] {
+  &[data-side='right'] {
     left: -13px;
     rotate: -90deg;
   }
@@ -251,7 +252,7 @@ This example shows how to implement the component using CSS Modules.
   cursor: default;
   user-select: none;
 
-  [data-side="none"] & {
+  [data-side='none'] & {
     font-size: 1rem;
     padding-right: 3rem;
     min-width: calc(var(--anchor-width) + 1rem);
@@ -264,7 +265,7 @@ This example shows how to implement the component using CSS Modules.
   }
 
   &[data-highlighted]::before {
-    content: "";
+    content: '';
     z-index: -1;
     position: absolute;
     inset-block: 0;
@@ -291,12 +292,12 @@ This example shows how to implement the component using CSS Modules.
 
 ```tsx
 /* index.tsx */
-import * as React from "react";
-import { Toolbar } from "@base-ui-components/react/toolbar";
-import { ToggleGroup } from "@base-ui-components/react/toggle-group";
-import { Toggle } from "@base-ui-components/react/toggle";
-import { Select } from "@base-ui-components/react/select";
-import styles from "./index.module.css";
+import * as React from 'react';
+import { Toolbar } from '@base-ui-components/react/toolbar';
+import { ToggleGroup } from '@base-ui-components/react/toggle-group';
+import { Toggle } from '@base-ui-components/react/toggle';
+import { Select } from '@base-ui-components/react/select';
+import styles from './index.module.css';
 
 export default function ExampleToolbar() {
   return (
@@ -321,16 +322,10 @@ export default function ExampleToolbar() {
       </ToggleGroup>
       <Toolbar.Separator className={styles.Separator} />
       <Toolbar.Group className={styles.Group} aria-label="Numerical format">
-        <Toolbar.Button
-          className={styles.Button}
-          aria-label="Format as currency"
-        >
+        <Toolbar.Button className={styles.Button} aria-label="Format as currency">
           $
         </Toolbar.Button>
-        <Toolbar.Button
-          className={styles.Button}
-          aria-label="Format as percent"
-        >
+        <Toolbar.Button className={styles.Button} aria-label="Format as percent">
           %
         </Toolbar.Button>
       </Toolbar.Group>
@@ -352,17 +347,13 @@ export default function ExampleToolbar() {
                 <Select.ItemIndicator className={styles.ItemIndicator}>
                   <CheckIcon className={styles.ItemIndicatorIcon} />
                 </Select.ItemIndicator>
-                <Select.ItemText className={styles.ItemText}>
-                  Helvetica
-                </Select.ItemText>
+                <Select.ItemText className={styles.ItemText}>Helvetica</Select.ItemText>
               </Select.Item>
               <Select.Item className={styles.Item} value="arial">
                 <Select.ItemIndicator className={styles.ItemIndicator}>
                   <CheckIcon className={styles.ItemIndicatorIcon} />
                 </Select.ItemIndicator>
-                <Select.ItemText className={styles.ItemText}>
-                  Arial
-                </Select.ItemText>
+                <Select.ItemText className={styles.ItemText}>Arial</Select.ItemText>
               </Select.Item>
             </Select.Popup>
           </Select.Positioner>
@@ -376,7 +367,7 @@ export default function ExampleToolbar() {
   );
 }
 
-function ArrowSvg(props: React.ComponentProps<"svg">) {
+function ArrowSvg(props: React.ComponentProps<'svg'>) {
   return (
     <svg width="20" height="10" viewBox="0 0 20 10" fill="none" {...props}>
       <path
@@ -395,7 +386,7 @@ function ArrowSvg(props: React.ComponentProps<"svg">) {
   );
 }
 
-function ChevronUpDownIcon(props: React.ComponentProps<"svg">) {
+function ChevronUpDownIcon(props: React.ComponentProps<'svg'>) {
   return (
     <svg
       width="8"
@@ -412,15 +403,9 @@ function ChevronUpDownIcon(props: React.ComponentProps<"svg">) {
   );
 }
 
-function CheckIcon(props: React.ComponentProps<"svg">) {
+function CheckIcon(props: React.ComponentProps<'svg'>) {
   return (
-    <svg
-      fill="currentcolor"
-      width="10"
-      height="10"
-      viewBox="0 0 10 10"
-      {...props}
-    >
+    <svg fill="currentcolor" width="10" height="10" viewBox="0 0 10 10" {...props}>
       <path d="M9.1603 1.12218C9.50684 1.34873 9.60427 1.81354 9.37792 2.16038L5.13603 8.66012C5.01614 8.8438 4.82192 8.96576 4.60451 8.99384C4.3871 9.02194 4.1683 8.95335 4.00574 8.80615L1.24664 6.30769C0.939709 6.02975 0.916013 5.55541 1.19372 5.24822C1.47142 4.94102 1.94536 4.91731 2.2523 5.19524L4.36085 7.10461L8.12299 1.33999C8.34934 0.993152 8.81376 0.895638 9.1603 1.12218Z" />
     </svg>
   );
@@ -433,15 +418,15 @@ This example shows how to implement the component using Tailwind CSS.
 
 ```tsx
 /* index.tsx */
-import * as React from "react";
-import { Toolbar } from "@base-ui-components/react/toolbar";
-import { ToggleGroup } from "@base-ui-components/react/toggle-group";
-import { Toggle } from "@base-ui-components/react/toggle";
-import { Select } from "@base-ui-components/react/select";
+import * as React from 'react';
+import { Toolbar } from '@base-ui-components/react/toolbar';
+import { ToggleGroup } from '@base-ui-components/react/toggle-group';
+import { Toggle } from '@base-ui-components/react/toggle';
+import { Select } from '@base-ui-components/react/select';
 
 export default function ExampleToolbar() {
   return (
-    <Toolbar.Root className="flex items-center gap-px rounded-md border border-gray-200 bg-gray-50 p-0.5">
+    <Toolbar.Root className="flex w-150 items-center gap-px rounded-md border border-gray-200 bg-gray-50 p-0.5">
       <ToggleGroup className="flex gap-1" aria-label="Alignment">
         <Toolbar.Button
           render={<Toggle />}
@@ -499,9 +484,7 @@ export default function ExampleToolbar() {
                 <Select.ItemIndicator className="col-start-1">
                   <CheckIcon className="size-3" />
                 </Select.ItemIndicator>
-                <Select.ItemText className="col-start-2">
-                  Helvetica
-                </Select.ItemText>
+                <Select.ItemText className="col-start-2">Helvetica</Select.ItemText>
               </Select.Item>
               <Select.Item
                 className="grid min-w-[var(--anchor-width)] cursor-default grid-cols-[0.75rem_1fr] items-center gap-2 py-2 pr-4 pl-2.5 text-sm leading-4 outline-none select-none group-data-[side=none]:min-w-[calc(var(--anchor-width)+1rem)] group-data-[side=none]:pr-12 group-data-[side=none]:text-base group-data-[side=none]:leading-4 data-[highlighted]:relative data-[highlighted]:z-0 data-[highlighted]:text-gray-50 data-[highlighted]:before:absolute data-[highlighted]:before:inset-x-1 data-[highlighted]:before:inset-y-0 data-[highlighted]:before:z-[-1] data-[highlighted]:before:rounded-sm data-[highlighted]:before:bg-gray-900"
@@ -518,7 +501,7 @@ export default function ExampleToolbar() {
       </Select.Root>
       <Toolbar.Separator className="m-1 h-4 w-px bg-gray-300" />
       <Toolbar.Link
-        className="mr-[0.875rem] ml-16 flex-none self-center text-sm text-gray-500 no-underline hover:text-blue-800 focus-visible:rounded-sm focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800"
+        className="mr-[0.875rem] ml-auto flex-none self-center text-sm text-gray-500 no-underline hover:text-blue-800 focus-visible:rounded-sm focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800"
         href="#"
       >
         Edited 51m ago
@@ -527,7 +510,7 @@ export default function ExampleToolbar() {
   );
 }
 
-function ArrowSvg(props: React.ComponentProps<"svg">) {
+function ArrowSvg(props: React.ComponentProps<'svg'>) {
   return (
     <svg width="20" height="10" viewBox="0 0 20 10" fill="none" {...props}>
       <path
@@ -546,7 +529,7 @@ function ArrowSvg(props: React.ComponentProps<"svg">) {
   );
 }
 
-function ChevronUpDownIcon(props: React.ComponentProps<"svg">) {
+function ChevronUpDownIcon(props: React.ComponentProps<'svg'>) {
   return (
     <svg
       width="8"
@@ -563,15 +546,9 @@ function ChevronUpDownIcon(props: React.ComponentProps<"svg">) {
   );
 }
 
-function CheckIcon(props: React.ComponentProps<"svg">) {
+function CheckIcon(props: React.ComponentProps<'svg'>) {
   return (
-    <svg
-      fill="currentcolor"
-      width="10"
-      height="10"
-      viewBox="0 0 10 10"
-      {...props}
-    >
+    <svg fill="currentcolor" width="10" height="10" viewBox="0 0 10 10" {...props}>
       <path d="M9.1603 1.12218C9.50684 1.34873 9.60427 1.81354 9.37792 2.16038L5.13603 8.66012C5.01614 8.8438 4.82192 8.96576 4.60451 8.99384C4.3871 9.02194 4.1683 8.95335 4.00574 8.80615L1.24664 6.30769C0.939709 6.02975 0.916013 5.55541 1.19372 5.24822C1.47142 4.94102 1.94536 4.91731 2.2523 5.19524L4.36085 7.10461L8.12299 1.33999C8.34934 0.993152 8.81376 0.895638 9.1603 1.12218Z" />
     </svg>
   );
@@ -610,13 +587,14 @@ Renders a `<div>` element.
 
 **Root Props:**
 
-| Prop        | Type                                                         | Default        | Description                                                                                                                                                                                  |
-| :---------- | :----------------------------------------------------------- | :------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| cols        | `number`                                                     | `1`            | The number of columns. When greater than 1, the toolbar is arranged into&#xA;a grid.                                                                                                         |
-| loop        | `boolean`                                                    | `true`         | If `true`, using keyboard navigation will wrap focus to the other end of the toolbar once the end is reached.                                                                                |
-| orientation | `'horizontal' \| 'vertical'`                                 | `'horizontal'` | The orientation of the toolbar.                                                                                                                                                              |
-| className   | `string \| (state) => string`                                | -              | CSS class applied to the element, or a function that&#xA;returns a class based on the component’s state.                                                                                     |
-| render      | `React.ReactElement \| (props, state) => React.ReactElement` | -              | Allows you to replace the component’s HTML element&#xA;with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop        | Type                                                                        | Default        | Description                                                                                                                                                                                  |
+| :---------- | :-------------------------------------------------------------------------- | :------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| cols        | `number`                                                                    | `1`            | The number of columns. When greater than 1, the toolbar is arranged into&#xA;a grid.                                                                                                         |
+| disabled    | `boolean`                                                                   | -              | -                                                                                                                                                                                            |
+| loop        | `boolean`                                                                   | `true`         | If `true`, using keyboard navigation will wrap focus to the other end of the toolbar once the end is reached.                                                                                |
+| orientation | `Orientation`                                                               | `'horizontal'` | The orientation of the toolbar.                                                                                                                                                              |
+| className   | `string \| ((state: State) => string)`                                      | -              | CSS class applied to the element, or a function that&#xA;returns a class based on the component’s state.                                                                                     |
+| render      | `ReactElement \| ((props: GenericHTMLProps, state: State) => ReactElement)` | -              | Allows you to replace the component’s HTML element&#xA;with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
 
 **Root Data Attributes:**
 
@@ -632,12 +610,12 @@ Renders a `<button>` element.
 
 **Button Props:**
 
-| Prop                  | Type                                                         | Default | Description                                                                                                                                                                                  |
-| :-------------------- | :----------------------------------------------------------- | :------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| focusableWhenDisabled | `boolean`                                                    | `true`  | When `true` the item remains focuseable when disabled.                                                                                                                                       |
-| disabled              | `boolean`                                                    | `false` | When `true` the item is disabled.                                                                                                                                                            |
-| className             | `string \| (state) => string`                                | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component’s state.                                                                                     |
-| render                | `React.ReactElement \| (props, state) => React.ReactElement` | -       | Allows you to replace the component’s HTML element&#xA;with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop                  | Type                                                                        | Default | Description                                                                                                                                                                                  |
+| :-------------------- | :-------------------------------------------------------------------------- | :------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| focusableWhenDisabled | `boolean`                                                                   | `true`  | When `true` the item remains focuseable when disabled.                                                                                                                                       |
+| disabled              | `boolean`                                                                   | `false` | When `true` the item is disabled.                                                                                                                                                            |
+| className             | `string \| ((state: State) => string)`                                      | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component’s state.                                                                                     |
+| render                | `ReactElement \| ((props: GenericHTMLProps, state: State) => ReactElement)` | -       | Allows you to replace the component’s HTML element&#xA;with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
 
 **Button Data Attributes:**
 
@@ -655,10 +633,10 @@ Renders an `<a>` element.
 
 **Link Props:**
 
-| Prop      | Type                                                         | Default | Description                                                                                                                                                                                  |
-| :-------- | :----------------------------------------------------------- | :------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| className | `string \| (state) => string`                                | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component’s state.                                                                                     |
-| render    | `React.ReactElement \| (props, state) => React.ReactElement` | -       | Allows you to replace the component’s HTML element&#xA;with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop      | Type                                                                        | Default | Description                                                                                                                                                                                  |
+| :-------- | :-------------------------------------------------------------------------- | :------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| className | `string \| ((state: State) => string)`                                      | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component’s state.                                                                                     |
+| render    | `ReactElement \| ((props: GenericHTMLProps, state: State) => ReactElement)` | -       | Allows you to replace the component’s HTML element&#xA;with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
 
 **Link Data Attributes:**
 
@@ -674,12 +652,13 @@ Renders an `<input>` element.
 
 **Input Props:**
 
-| Prop                  | Type                                                         | Default | Description                                                                                                                                                                                  |
-| :-------------------- | :----------------------------------------------------------- | :------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| focusableWhenDisabled | `boolean`                                                    | `true`  | When `true` the item remains focuseable when disabled.                                                                                                                                       |
-| disabled              | `boolean`                                                    | `false` | When `true` the item is disabled.                                                                                                                                                            |
-| className             | `string \| (state) => string`                                | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component’s state.                                                                                     |
-| render                | `React.ReactElement \| (props, state) => React.ReactElement` | -       | Allows you to replace the component’s HTML element&#xA;with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop                  | Type                                                                        | Default | Description                                                                                                                                                                                  |
+| :-------------------- | :-------------------------------------------------------------------------- | :------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| defaultValue          | `string \| number \| string[]`                                              | -       | -                                                                                                                                                                                            |
+| focusableWhenDisabled | `boolean`                                                                   | `true`  | When `true` the item remains focuseable when disabled.                                                                                                                                       |
+| disabled              | `boolean`                                                                   | `false` | When `true` the item is disabled.                                                                                                                                                            |
+| className             | `string \| ((state: State) => string)`                                      | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component’s state.                                                                                     |
+| render                | `ReactElement \| ((props: GenericHTMLProps, state: State) => ReactElement)` | -       | Allows you to replace the component’s HTML element&#xA;with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
 
 **Input Data Attributes:**
 
@@ -697,11 +676,11 @@ Renders a `<div>` element.
 
 **Group Props:**
 
-| Prop      | Type                                                         | Default | Description                                                                                                                                                                                  |
-| :-------- | :----------------------------------------------------------- | :------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| disabled  | `boolean`                                                    | `false` | When `true` all toolbar items in the group are disabled.                                                                                                                                     |
-| className | `string \| (state) => string`                                | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component’s state.                                                                                     |
-| render    | `React.ReactElement \| (props, state) => React.ReactElement` | -       | Allows you to replace the component’s HTML element&#xA;with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop      | Type                                                                        | Default | Description                                                                                                                                                                                  |
+| :-------- | :-------------------------------------------------------------------------- | :------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| disabled  | `boolean`                                                                   | `false` | When `true` all toolbar items in the group are disabled.                                                                                                                                     |
+| className | `string \| ((state: State) => string)`                                      | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component’s state.                                                                                     |
+| render    | `ReactElement \| ((props: GenericHTMLProps, state: State) => ReactElement)` | -       | Allows you to replace the component’s HTML element&#xA;with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
 
 **Group Data Attributes:**
 
@@ -717,10 +696,11 @@ Renders a `<div>` element.
 
 **Separator Props:**
 
-| Prop      | Type                                                         | Default | Description                                                                                                                                                                                  |
-| :-------- | :----------------------------------------------------------- | :------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| className | `string \| (state) => string`                                | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component’s state.                                                                                     |
-| render    | `React.ReactElement \| (props, state) => React.ReactElement` | -       | Allows you to replace the component’s HTML element&#xA;with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop        | Type                                                                        | Default        | Description                                                                                                                                                                                  |
+| :---------- | :-------------------------------------------------------------------------- | :------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| orientation | `Orientation`                                                               | `'horizontal'` | The orientation of the separator.                                                                                                                                                            |
+| className   | `string \| ((state: State) => string)`                                      | -              | CSS class applied to the element, or a function that&#xA;returns a class based on the component’s state.                                                                                     |
+| render      | `ReactElement \| ((props: GenericHTMLProps, state: State) => ReactElement)` | -              | Allows you to replace the component’s HTML element&#xA;with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
 
 **Separator Data Attributes:**
 

@@ -14,33 +14,47 @@ You retain total control of your styling layer.
 
 ### CSS classes
 
-Every component accepts a `className` prop which you can use to pass CSS classes to its DOM element.
-The `className` prop, in addition to accepting a string, can be defined as a function that takes a component state as an argument:
+Components that render an HTML element accept a `className` prop to style the element with CSS classes.
 
 ```tsx title="switch.tsx"
-<Switch.Thumb
-  className={(state) => (state.checked ? "checked" : "unchecked")}
-/>
+<Switch.Thumb className="SwitchThumb" />
+```
+
+The prop can also be passed a function that takes the component's state as an argument.
+
+```tsx title="switch.tsx"
+<Switch.Thumb className={(state) => (state.checked ? 'checked' : 'unchecked')} />
+```
+
+### Data attributes
+
+Components provide data attributes designed for styling their states. For example, [Switch](/react/components/switch) can be styled using its `[data-checked]` and `[data-unchecked]` attributes, among others.
+
+```css title="switch.css"
+.SwitchThumb[data-checked] {
+  background-color: green;
+}
 ```
 
 ### CSS variables
 
-Some components expose CSS custom properties to aid with styling, such as `--accordion-panel-height`, `--transform-origin`, or `--active-tab-width`.
+Components expose CSS variables to aid in styling, often containing dynamic numeric values to be used in sizing or transform calculations. For example, [Popover](/react/components/popover) exposes CSS variables on its `Popup` component like `--available-height` and `--anchor-width`.
 
-### Data attributes
+```css title="popover.css"
+.Popup {
+  max-height: var(--available-height);
+}
+```
 
-Base UI components provide data attributes designed for styling their states.
-For example, a [Switch](/react/components/switch) may be styled using its `[data-checked]` and `[data-unchecked]` attributes, among others.
+Check out each component's API reference for a complete list of available data attributes and CSS variables.
 
-Check out each component's API reference for a complete list of available data attributes.
-
-## Tailwind
+## Tailwind CSS
 
 Apply Tailwind classes to each part via the `className` prop.
 
 ```tsx title="menu.tsx"
-import * as React from "react";
-import { Menu } from "@base-ui-components/react/menu";
+import * as React from 'react';
+import { Menu } from '@base-ui-components/react/menu';
 
 export default function ExampleMenu() {
   return (
@@ -71,9 +85,9 @@ Apply custom CSS classes to each part via the `className` prop.
 Then style those classes in a CSS Modules file.
 
 ```tsx title="menu.tsx"
-import * as React from "react";
-import { Menu } from "@base-ui-components/react/menu";
-import styles from "./menu.module.css";
+import * as React from 'react';
+import { Menu } from '@base-ui-components/react/menu';
+import styles from './menu.module.css';
 
 export default function ExampleMenu() {
   return (

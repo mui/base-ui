@@ -70,22 +70,18 @@ This example shows how to implement the component using CSS Modules.
 
 ```tsx
 /* index.tsx */
-import * as React from "react";
-import { Toggle } from "@base-ui-components/react/toggle";
-import { ToggleGroup } from "@base-ui-components/react/toggle-group";
-import styles from "./index.module.css";
+import * as React from 'react';
+import { Toggle } from '@base-ui-components/react/toggle';
+import { ToggleGroup } from '@base-ui-components/react/toggle-group';
+import styles from './index.module.css';
 
 export default function ExampleToggleGroup() {
   return (
-    <ToggleGroup defaultValue={["left"]} className={styles.Panel}>
+    <ToggleGroup defaultValue={['left']} className={styles.Panel}>
       <Toggle aria-label="Align left" value="left" className={styles.Button}>
         <AlignLeftIcon className={styles.Icon} />
       </Toggle>
-      <Toggle
-        aria-label="Align center"
-        value="center"
-        className={styles.Button}
-      >
+      <Toggle aria-label="Align center" value="center" className={styles.Button}>
         <AlignCenterIcon className={styles.Icon} />
       </Toggle>
       <Toggle aria-label="Align right" value="right" className={styles.Button}>
@@ -95,7 +91,7 @@ export default function ExampleToggleGroup() {
   );
 }
 
-function AlignLeftIcon(props: React.ComponentProps<"svg">) {
+function AlignLeftIcon(props: React.ComponentProps<'svg'>) {
   return (
     <svg
       width="16"
@@ -113,7 +109,7 @@ function AlignLeftIcon(props: React.ComponentProps<"svg">) {
   );
 }
 
-function AlignCenterIcon(props: React.ComponentProps<"svg">) {
+function AlignCenterIcon(props: React.ComponentProps<'svg'>) {
   return (
     <svg
       width="16"
@@ -131,7 +127,7 @@ function AlignCenterIcon(props: React.ComponentProps<"svg">) {
   );
 }
 
-function AlignRightIcon(props: React.ComponentProps<"svg">) {
+function AlignRightIcon(props: React.ComponentProps<'svg'>) {
   return (
     <svg
       width="16"
@@ -156,14 +152,14 @@ This example shows how to implement the component using Tailwind CSS.
 
 ```tsx
 /* index.tsx */
-import * as React from "react";
-import { Toggle } from "@base-ui-components/react/toggle";
-import { ToggleGroup } from "@base-ui-components/react/toggle-group";
+import * as React from 'react';
+import { Toggle } from '@base-ui-components/react/toggle';
+import { ToggleGroup } from '@base-ui-components/react/toggle-group';
 
 export default function ExampleToggleGroup() {
   return (
     <ToggleGroup
-      defaultValue={["left"]}
+      defaultValue={['left']}
       className="flex gap-px rounded-md border border-gray-200 bg-gray-50 p-0.5"
     >
       <Toggle
@@ -191,7 +187,7 @@ export default function ExampleToggleGroup() {
   );
 }
 
-function AlignLeftIcon(props: React.ComponentProps<"svg">) {
+function AlignLeftIcon(props: React.ComponentProps<'svg'>) {
   return (
     <svg
       width="16"
@@ -209,7 +205,7 @@ function AlignLeftIcon(props: React.ComponentProps<"svg">) {
   );
 }
 
-function AlignCenterIcon(props: React.ComponentProps<"svg">) {
+function AlignCenterIcon(props: React.ComponentProps<'svg'>) {
   return (
     <svg
       width="16"
@@ -227,7 +223,7 @@ function AlignCenterIcon(props: React.ComponentProps<"svg">) {
   );
 }
 
-function AlignRightIcon(props: React.ComponentProps<"svg">) {
+function AlignRightIcon(props: React.ComponentProps<'svg'>) {
   return (
     <svg
       width="16"
@@ -251,7 +247,7 @@ function AlignRightIcon(props: React.ComponentProps<"svg">) {
 Import the component and use it as a single part:
 
 ```jsx title="Anatomy"
-import { ToggleGroup } from "@base-ui-components/react/toggle-group";
+import { ToggleGroup } from '@base-ui-components/react/toggle-group';
 
 <ToggleGroup />;
 ```
@@ -260,16 +256,17 @@ Provides a shared state to a series of toggle buttons.
 
 **ToggleGroup Props:**
 
-| Prop           | Type                                                         | Default | Description                                                                                                                                                                                  |
-| :------------- | :----------------------------------------------------------- | :------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| defaultValue   | `array`                                                      | -       | The open state of the ToggleGroup represented by an array of&#xA;the values of all pressed `<ToggleGroup.Item/>`s.&#xA;This is the uncontrolled counterpart of `value`.                      |
-| value          | `array`                                                      | -       | The open state of the ToggleGroup represented by an array of&#xA;the values of all pressed `<ToggleGroup.Item/>`s&#xA;This is the controlled counterpart of `defaultValue`.                  |
-| onValueChange  | `function(groupValue: Array<any>, event: Event) => void`     | -       | Callback fired when the pressed states of the ToggleGroup changes.                                                                                                                           |
-| toggleMultiple | `boolean`                                                    | `false` | When `false` only one item in the group can be pressed. If any item in&#xA;the group becomes pressed, the others will become unpressed.&#xA;When `true` multiple items can be pressed.       |
-| disabled       | `boolean`                                                    | `false` | Whether the component should ignore user interaction.                                                                                                                                        |
-| loop           | `boolean`                                                    | `true`  | Whether to loop keyboard focus back to the first item&#xA;when the end of the list is reached while using the arrow keys.                                                                    |
-| className      | `string \| (state) => string`                                | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component’s state.                                                                                     |
-| render         | `React.ReactElement \| (props, state) => React.ReactElement` | -       | Allows you to replace the component’s HTML element&#xA;with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop           | Type                                                                        | Default        | Description                                                                                                                                                                                  |
+| :------------- | :-------------------------------------------------------------------------- | :------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| defaultValue   | `any[]`                                                                     | -              | The open state of the ToggleGroup represented by an array of&#xA;the values of all pressed `<ToggleGroup.Item/>`s.&#xA;This is the uncontrolled counterpart of `value`.                      |
+| value          | `any[]`                                                                     | -              | The open state of the ToggleGroup represented by an array of&#xA;the values of all pressed `<ToggleGroup.Item/>`s&#xA;This is the controlled counterpart of `defaultValue`.                  |
+| onValueChange  | `((groupValue: any[], event: Event) => void)`                               | -              | Callback fired when the pressed states of the ToggleGroup changes.                                                                                                                           |
+| toggleMultiple | `boolean`                                                                   | `false`        | When `false` only one item in the group can be pressed. If any item in&#xA;the group becomes pressed, the others will become unpressed.&#xA;When `true` multiple items can be pressed.       |
+| disabled       | `boolean`                                                                   | `false`        | Whether the component should ignore user interaction.                                                                                                                                        |
+| loop           | `boolean`                                                                   | `true`         | Whether to loop keyboard focus back to the first item&#xA;when the end of the list is reached while using the arrow keys.                                                                    |
+| orientation    | `ToggleGroupOrientation`                                                    | `'horizontal'` | -                                                                                                                                                                                            |
+| className      | `string \| ((state: State) => string)`                                      | -              | CSS class applied to the element, or a function that&#xA;returns a class based on the component’s state.                                                                                     |
+| render         | `ReactElement \| ((props: GenericHTMLProps, state: State) => ReactElement)` | -              | Allows you to replace the component’s HTML element&#xA;with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
 
 **ToggleGroup Data Attributes:**
 

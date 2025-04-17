@@ -51,9 +51,9 @@ This example shows how to implement the component using CSS Modules.
 
 ```tsx
 /* index.tsx */
-import * as React from "react";
-import { Separator } from "@base-ui-components/react/separator";
-import styles from "./index.module.css";
+import * as React from 'react';
+import { Separator } from '@base-ui-components/react/separator';
+import styles from './index.module.css';
 
 export default function ExampleSeparator() {
   return (
@@ -90,8 +90,8 @@ This example shows how to implement the component using Tailwind CSS.
 
 ```tsx
 /* index.tsx */
-import * as React from "react";
-import { Separator } from "@base-ui-components/react/separator";
+import * as React from 'react';
+import { Separator } from '@base-ui-components/react/separator';
 
 export default function ExampleSeparator() {
   return (
@@ -145,7 +145,7 @@ export default function ExampleSeparator() {
 Import the component and use it as a single part:
 
 ```jsx title="Anatomy"
-import { Separator } from "@base-ui-components/react/separator";
+import { Separator } from '@base-ui-components/react/separator';
 
 <Separator />;
 ```
@@ -155,8 +155,8 @@ Renders a `<div>` element.
 
 **Separator Props:**
 
-| Prop        | Type                                                         | Default        | Description                                                                                                                                                                                  |
-| :---------- | :----------------------------------------------------------- | :------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| orientation | `'horizontal' \| 'vertical'`                                 | `'horizontal'` | The orientation of the separator.                                                                                                                                                            |
-| className   | `string \| (state) => string`                                | -              | CSS class applied to the element, or a function that&#xA;returns a class based on the component’s state.                                                                                     |
-| render      | `React.ReactElement \| (props, state) => React.ReactElement` | -              | Allows you to replace the component’s HTML element&#xA;with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop        | Type                                                                        | Default        | Description                                                                                                                                                                                  |
+| :---------- | :-------------------------------------------------------------------------- | :------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| orientation | `Orientation`                                                               | `'horizontal'` | The orientation of the separator.                                                                                                                                                            |
+| className   | `string \| ((state: State) => string)`                                      | -              | CSS class applied to the element, or a function that&#xA;returns a class based on the component’s state.                                                                                     |
+| render      | `ReactElement \| ((props: GenericHTMLProps, state: State) => ReactElement)` | -              | Allows you to replace the component’s HTML element&#xA;with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |

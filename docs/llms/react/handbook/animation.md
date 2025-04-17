@@ -14,12 +14,12 @@ Base UI components can be animated using CSS transitions, CSS animations, or Ja
 Use the following Base UI attributes for creating transitions when a component becomes visible or hidden:
 
 - `[data-starting-style]` corresponds to the initial style to transition from.
-- `[data-ending-style]` corresponds the final style to transition to.
+- `[data-ending-style]` corresponds to the final style to transition to.
 
 Transitions are recommended over CSS animations, because a transition can be smoothly cancelled midway.
 For example, if the user closes a popup before it finishes opening, with CSS transitions it will smoothly animate to its closed state without any abrupt changes.
 
-```css title="popover.css"
+```css title="popover.css" {10-14}
 .Popup {
   box-sizing: border-box;
   padding: 1rem 1.5rem;
@@ -42,7 +42,7 @@ For example, if the user closes a popup before it finishes opening, with CSS tra
 Use the following Base UI attributes for creating CSS animations when a component becomes visible or hidden:
 
 - `[data-open]` corresponds to the style applied when a component becomes visible.
-- `[data-closed]` corresponds the style applied before a component becomes hidden.
+- `[data-closed]` corresponds to the style applied before a component becomes hidden.
 
 ```css title="popover.css"
 @keyframes scaleIn {

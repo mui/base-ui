@@ -92,7 +92,7 @@ async function generateLlmsTxt() {
         metadataBySection[sectionName].push({
           title: title || 'Untitled',
           subtitle: subtitle || '',
-          urlPath: `./react/${urlPath}`,
+          urlPath: `./react/${urlPath}.md`,
         });
 
         console.log(`Processed: ${relativePath}`);
