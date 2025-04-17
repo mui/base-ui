@@ -20,7 +20,7 @@ import { asc } from '../utils/asc';
 import { getSliderValue } from '../utils/getSliderValue';
 import { replaceArrayItemAtIndex } from '../utils/replaceArrayItemAtIndex';
 import { roundValueToStep } from '../utils/roundValueToStep';
-import type { ThumbMetadata } from '../thumb/useSliderThumb';
+import type { ThumbMetadata } from '../thumb/SliderThumb';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { SliderThumbDataAttributes } from '../thumb/SliderThumbDataAttributes';
 
