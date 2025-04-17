@@ -137,6 +137,7 @@
     "react-dom": "^19.0.0",
     "recast": "^0.23.11",
     "remark": "^15.0.1",
+    "remark-mdx": "^3.1.0",
     "rimraf": "^5.0.10",
     "serve": "^14.2.4",
     "style-loader": "^4.0.0",
