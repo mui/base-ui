@@ -16,6 +16,7 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { processReference } from './referenceProcessor.mjs';
+import { processDemo } from './demoProcessor.mjs';
 
 /**
  * Plugin to extract metadata from the MDX content
@@ -64,7 +65,7 @@ function extractMetadata() {
  * Plugin to transform JSX elements to markdown or remove them from the tree
  */
 function transformJsx() {
-  return (tree) => {
+  return (tree, file) => {
     // Handle JSX flow elements (block-level JSX)
     visit(
       tree,
@@ -79,9 +80,17 @@ function transformJsx() {
         if (!parent) return;
         // Process different component types
         switch (node.name) {
-          case 'Demo':
-            parent.children.splice(index, 1, mdx.paragraph('--- Demo ---'));
+          case 'Demo': {
+            // Get the file path for context
+            const filePath = file.path || '';
+
+            // Process the demo component using our dedicated processor
+            const demoContent = processDemo(node, filePath);
+
+            // Replace the demo component with the generated content
+            parent.children.splice(index, 1, ...demoContent);
             return;
+          }
 
           case 'Reference': {
             try {
@@ -147,11 +156,17 @@ function transformJsx() {
 /**
  * Converts MDX content to markdown and extracts metadata
  * @param {string} mdxContent - The MDX content to convert
+ * @param {string} filePath - Optional path to the MDX file for context
  * @returns {Promise<Object>} An object containing the markdown and metadata
  */
-export async function mdxToMarkdown(mdxContent) {
+export async function mdxToMarkdown(mdxContent, filePath) {
   try {
-    // Process the MDX content
+    // Process the MDX content and include file path for context
+    const vfile = {
+      path: filePath,
+      value: mdxContent,
+    };
+
     const file = await unified()
       .use(remarkParse)
       .use(remarkMdx)
@@ -170,7 +185,7 @@ export async function mdxToMarkdown(mdxContent) {
         commonmark: true,
         gfm: true,
       })
-      .process(mdxContent);
+      .process(vfile);
 
     // Get markdown content as string
     const markdown = String(file);

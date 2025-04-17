@@ -55,7 +55,7 @@ async function generateLlmsTxt() {
       const mdxContent = await fs.readFile(mdxFile, 'utf-8');
 
       // Convert to markdown and extract metadata
-      const { markdown, title, subtitle, description } = await mdxToMarkdown(mdxContent);
+      const { markdown, title, subtitle, description } = await mdxToMarkdown(mdxContent, mdxFile);
 
       // Get output file path
       const outputFilePath = path.join(OUTPUT_DIR, `${dirPath.replace(/\\/g, '-')}.md`);
