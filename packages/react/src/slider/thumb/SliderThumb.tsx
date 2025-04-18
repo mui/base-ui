@@ -102,10 +102,10 @@ const SliderThumb = React.forwardRef(function SliderThumb(
 
   const {
     active: activeIndex,
-    'aria-labelledby': ariaLabelledby,
     handleInputChange,
     disabled: contextDisabled,
     format = null,
+    labelId,
     largeStep,
     max,
     min,
@@ -287,7 +287,7 @@ const SliderThumb = React.forwardRef(function SliderThumb(
         typeof getAriaLabelProp === 'function'
           ? getAriaLabelProp(index)
           : elementProps['aria-label'],
-      'aria-labelledby': ariaLabelledby,
+      'aria-labelledby': labelId,
       'aria-orientation': orientation,
       'aria-valuemax': max,
       'aria-valuemin': min,
