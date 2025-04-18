@@ -144,7 +144,7 @@
     "tailwindcss": "4.1.0",
     "terser": "^5.39.0",
     "terser-webpack-plugin": "^5.3.14",
-    "tsc-alias": "^1.8.15",
+    "tsc-alias": "1.8.13",
     "tsx": "^4.19.3",
     "typescript": "^5.8.3",
     "unist-util-visit": "^5.0.0",
