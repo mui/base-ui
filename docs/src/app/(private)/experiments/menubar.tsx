@@ -20,7 +20,7 @@ function getSubmenuPositionProps(parentOrientation: Menu.Root.Props['orientation
   return {
     side: parentOrientation === 'horizontal' ? 'bottom' : 'right',
     align: 'start',
-    sideOffset: 8,
+    sideOffset: 6,
   } as const;
 }
 

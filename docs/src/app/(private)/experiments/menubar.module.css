@@ -1,10 +1,13 @@
 .Root {
   display: flex;
+  gap: 1px;
+  background-color: var(--color-gray-50);
+  border: 1px solid var(--color-gray-200);
+  border-radius: 0.375rem;
+  padding: 0.125rem;
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
-  border: 1px solid var(--color-gray-200);
-  border-radius: 0.375rem;
 
   &:focus-visible {
     outline: none;
@@ -17,52 +20,35 @@
 }
 
 .Item {
+  box-sizing: border-box;
+  background: none;
+  padding: 0 0.75rem;
+  margin: 0;
   outline: 0;
-  cursor: default;
+  border: 0;
+  color: var(--color-gray-600);
+  border-radius: 0.25rem;
   user-select: none;
-  padding-block: 0.5rem;
-  padding-inline: 1rem;
-  display: block;
+  height: 2rem;
+  font-family: inherit;
   font-size: 0.875rem;
-  line-height: 1.25rem;
-  z-index: 0;
-  position: relative;
+  font-weight: 500;
 
   &:focus-visible {
     outline: none;
   }
 
-  &:hover,
-  &[data-popup-open] {
-    color: var(--color-gray-50);
+  &:active {
+    background-color: var(--color-gray-200);
   }
 
-  &:disabled {
-    color: var(--color-gray-400);
+  &[data-pressed],
+  &:focus {
+    background-color: var(--color-gray-100);
   }
 
-  &[data-popup-open]::before,
-  &:hover::before,
-  &:focus-visible::before {
-    content: '';
-    z-index: -1;
-    position: absolute;
-    inset-block: 0.15rem;
-    inset-inline: 0.15rem;
-    border-radius: 0.25rem;
-  }
-
-  &:hover::before,
-  &:focus-visible::before {
-    background-color: var(--color-gray-600);
-  }
-
-  &:disabled:hover::before {
-    background-color: var(--color-gray-300);
-  }
-
-  &[data-popup-open]::before {
-    background-color: var(--color-gray-900);
+  &[data-disabled] {
+    opacity: 0.5;
   }
 }
 
