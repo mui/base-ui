@@ -142,6 +142,10 @@ CompositeRoot.propTypes /* remove-proptypes */ = {
   /**
    * @ignore
    */
+  highlightItemOnHover: PropTypes.bool,
+  /**
+   * @ignore
+   */
   ignoreNavigationFromPopups: PropTypes.bool,
   /**
    * @ignore
