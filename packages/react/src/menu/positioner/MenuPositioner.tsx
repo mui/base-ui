@@ -139,10 +139,6 @@ const MenuPositioner = React.forwardRef(function MenuPositioner(
     ((parent.type !== 'menubar' && modal && openReason !== 'hover') ||
       (parent.type === 'menubar' && parent.context.modal));
 
-  if (open) {
-    console.log({ shouldRenderBackdrop, parent, modal, openReason });
-  }
-
   const backdropCutout = parent.type === 'menubar' ? parent.context.contentElement : undefined;
 
   return (
