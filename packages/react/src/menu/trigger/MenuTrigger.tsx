@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import PropTypes from 'prop-types';
+import { CompositeItem } from '../../composite/item/CompositeItem';
 import { useMenuTrigger } from './useMenuTrigger';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { pressableTriggerOpenStateMapping } from '../../utils/popupStateMapping';
@@ -28,6 +29,7 @@ const MenuTrigger = React.forwardRef(function MenuTrigger(
     setOpen,
     allowMouseUpTriggerRef,
     positionerRef,
+    parent,
   } = useMenuRootContext();
 
   const { getTriggerProps } = useMenuTrigger({
@@ -38,6 +40,7 @@ const MenuTrigger = React.forwardRef(function MenuTrigger(
     setOpen,
     allowMouseUpTriggerRef,
     positionerRef,
+    menuParent: parent,
   });
 
   const state: MenuTrigger.State = React.useMemo(
@@ -62,6 +65,10 @@ const MenuTrigger = React.forwardRef(function MenuTrigger(
     customStyleHookMapping: pressableTriggerOpenStateMapping,
     extraProps: other,
   });
+
+  if (parent.type === 'menubar') {
+    return <CompositeItem render={renderElement()} />;
+  }
 
   return renderElement();
 });

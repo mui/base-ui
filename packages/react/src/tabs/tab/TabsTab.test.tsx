@@ -9,9 +9,10 @@ import { TabsListContext } from '../list/TabsListContext';
 describe('<Tabs.Tab />', () => {
   const { render } = createRenderer();
 
-  const testCompositeContext = {
+  const testCompositeContext: CompositeRootContext = {
     highlightedIndex: 0,
     onHighlightedIndexChange: NOOP,
+    highlightItemOnHover: false,
   };
 
   const testTabsListContext: TabsListContext = {

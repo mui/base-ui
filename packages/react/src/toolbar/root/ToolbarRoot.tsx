@@ -61,6 +61,7 @@ const ToolbarRoot = React.forwardRef(function ToolbarRoot(
         onMapChange={setItemMap}
         orientation={orientation}
         render={renderElement()}
+        ignoreNavigationFromPopups
       />
     </ToolbarRootContext.Provider>
   );

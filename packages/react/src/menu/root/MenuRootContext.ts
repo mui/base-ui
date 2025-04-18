@@ -1,18 +1,8 @@
 'use client';
 import * as React from 'react';
 import type { useMenuRoot } from './useMenuRoot';
-import type { OpenChangeReason } from '../../utils/translateOpenChangeReason';
 
-export interface MenuRootContext extends useMenuRoot.ReturnValue {
-  disabled: boolean;
-  nested: boolean;
-  parentContext: MenuRootContext | undefined;
-  typingRef: React.RefObject<boolean>;
-  modal: boolean;
-  openReason: OpenChangeReason | null;
-  onOpenChangeComplete: ((open: boolean) => void) | undefined;
-  setHoverEnabled: React.Dispatch<React.SetStateAction<boolean>>;
-}
+export interface MenuRootContext extends useMenuRoot.ReturnValue {}
 
 export const MenuRootContext = React.createContext<MenuRootContext | undefined>(undefined);
 
