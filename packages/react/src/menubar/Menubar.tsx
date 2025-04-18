@@ -67,7 +67,7 @@ const Menubar = React.forwardRef(function Menubar(
     ref: [forwardedRef, setContentElement, contentRef],
   });
 
-  const shouldOpenOnHover = hasSubmenuOpen;
+  const shouldOpenOnHover = hasSubmenuOpen || hasFocusWithin;
 
   const context: MenubarContext = React.useMemo(
     () => ({
@@ -168,7 +168,6 @@ function MenubarContent(props: React.PropsWithChildren<{}>) {
         requestAnimationFrame(() => {
           if (openSubmenus.current.size === 0) {
             rootContext.setHasSubmenuOpen(false);
-            console.log('focus body');
             ownerDocument(rootContext.contentElement).body.focus();
           }
         });
