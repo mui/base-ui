@@ -164,13 +164,8 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
       close: closeDelayWithDefault,
     },
   });
-
-  const click = useClick(context, {
-    stickIfOpen,
-  });
-
+  const click = useClick(context, { stickIfOpen });
   const dismiss = useDismiss(context);
-
   const role = useRole(context);
 
   const { getReferenceProps, getFloatingProps: getPopupProps } = useInteractions([

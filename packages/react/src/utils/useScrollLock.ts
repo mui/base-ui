@@ -10,6 +10,10 @@ let originalHtmlScrollBehavior = '';
 let preventScrollCount = 0;
 let restore: () => void = () => {};
 
+export function getPreventScrollCount() {
+  return preventScrollCount;
+}
+
 function supportsDvh() {
   return (
     typeof CSS !== 'undefined' &&
