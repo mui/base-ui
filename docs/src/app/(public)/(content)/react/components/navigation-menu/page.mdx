@@ -19,19 +19,25 @@ import { NavigationMenu } from '@base-ui-components/react/navigation-menu';
   <NavigationMenu.List>
     <NavigationMenu.Item>
       <NavigationMenu.Trigger />
-      <NavigationMenu.Portal>
-        <NavigationMenu.Backdrop />
-        <NavigationMenu.Positioner>
-          <NavigationMenu.Popup>
-            <NavigationMenu.Arrow />
-          </NavigationMenu.Popup>
-        </NavigationMenu.Positioner>
+      <NavigationMenu.Content>
+        <NavigationMenu.Link />
+      </NavigationMenu.Content>
     </NavigationMenu.Item>
   </NavigationMenu.List>
+
+  <NavigationMenu.Portal>
+    <NavigationMenu.Backdrop />
+    <NavigationMenu.Positioner>
+      <NavigationMenu.Popup>
+        <NavigationMenu.Arrow />
+        <NavigationMenu.Viewport />
+      </NavigationMenu.Popup>
+    </NavigationMenu.Positioner>
+  </NavigationMenu.Portal>
 </NavigationMenu.Root>;
 ```
 
 <Reference
   component="NavigationMenu"
-  parts="Root, List, Item, Trigger, Backdrop, Portal, Positioner, Popup, Content"
+  parts="Root, List, Item, Trigger, Content, Link, Backdrop, Portal, Positioner, Popup, Viewport, Arrow"
 />
