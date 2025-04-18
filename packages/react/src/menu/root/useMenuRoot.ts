@@ -176,7 +176,6 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
     open,
     onOpenChange(openValue, eventValue, reasonValue) {
       const isHover = reasonValue === 'hover' || reasonValue === 'safe-polygon';
-      const isFocus = reasonValue === 'focus' || reasonValue === 'focus-out';
       const isKeyboardClick = reasonValue === 'click' && (eventValue as MouseEvent).detail === 0;
       const isDismissClose = !openValue && (reasonValue === 'escape-key' || reasonValue == null);
 
@@ -198,7 +197,7 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
         changeState();
       }
 
-      if (parent.type === 'menubar' && (isHover || isFocus)) {
+      if (parent.type === 'menubar' && !open && parent.context.hasSubmenuOpen) {
         setInstantType('group');
       } else if (isKeyboardClick || isDismissClose) {
         setInstantType(isKeyboardClick ? 'click' : 'dismiss');
