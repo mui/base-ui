@@ -10,7 +10,6 @@ import { useScrollLock } from '../utils';
 import { CompositeRoot } from '../composite/root/CompositeRoot';
 import { useRenderElement } from '../utils/useRenderElement';
 import { useEventCallback } from '../utils/useEventCallback';
-import { ownerDocument } from '../utils/owner';
 
 /**
  * The container for menus.
@@ -56,7 +55,7 @@ const Menubar = React.forwardRef(function Menubar(
   }, []);
 
   const handleBlur = useEventCallback((event: React.FocusEvent) => {
-    if (!contentElement || !contentElement.contains(event.relatedTarget as Node)) {
+    if (!contentElement || !contentElement.contains(event.relatedTarget as Node | null)) {
       setHasFocusWithin(false);
     }
   });
@@ -168,7 +167,6 @@ function MenubarContent(props: React.PropsWithChildren<{}>) {
         requestAnimationFrame(() => {
           if (openSubmenus.current.size === 0) {
             rootContext.setHasSubmenuOpen(false);
-            ownerDocument(rootContext.contentElement).body.focus();
           }
         });
       }
