@@ -46,7 +46,7 @@ const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
 
   const content = <MenuRootContext.Provider value={menuRoot}>{children}</MenuRootContext.Provider>;
 
-  if (!menuRoot.nested && !menuRoot.isInMenubar) {
+  if (menuRoot.parent.type === undefined) {
     // set up a FloatingTree to provide the context to nested menus
     return <FloatingTree>{content}</FloatingTree>;
   }

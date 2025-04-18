@@ -29,7 +29,7 @@ const MenuTrigger = React.forwardRef(function MenuTrigger(
     setOpen,
     allowMouseUpTriggerRef,
     positionerRef,
-    isInMenubar,
+    parent,
   } = useMenuRootContext();
 
   const { getTriggerProps } = useMenuTrigger({
@@ -40,7 +40,7 @@ const MenuTrigger = React.forwardRef(function MenuTrigger(
     setOpen,
     allowMouseUpTriggerRef,
     positionerRef,
-    isInMenubar,
+    menuParent: parent,
   });
 
   const state: MenuTrigger.State = React.useMemo(
@@ -66,7 +66,7 @@ const MenuTrigger = React.forwardRef(function MenuTrigger(
     extraProps: other,
   });
 
-  if (isInMenubar) {
+  if (parent.type === 'menubar') {
     return <CompositeItem render={renderElement()} />;
   }
 

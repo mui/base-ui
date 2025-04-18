@@ -3,7 +3,7 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import { useFloatingTree } from '@floating-ui/react';
 import { BaseUIComponentProps, GenericHTMLProps } from '../../utils/types';
-import { MenuRootContext, useMenuRootContext } from '../root/MenuRootContext';
+import { useMenuRootContext } from '../root/MenuRootContext';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useMenuSubmenuTrigger } from './useMenuSubmenuTrigger';
@@ -11,7 +11,6 @@ import { useForkRef } from '../../utils/useForkRef';
 import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
 import { useCompositeListItem } from '../../composite/list/useCompositeListItem';
 import { mergeProps } from '../../merge-props';
-import { MenubarContext } from '../../menubar/MenubarContext';
 
 /**
  * A menu item that opens a submenu.
@@ -28,7 +27,7 @@ const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerComponent(
 
   const {
     triggerProps: rootTriggerProps,
-    parentContext,
+    parent,
     setTriggerElement,
     allowMouseUpTriggerRef,
     open,
@@ -36,11 +35,11 @@ const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerComponent(
     disabled,
   } = useMenuRootContext();
 
-  if (parentContext === undefined || !isMenuRootContext(parentContext)) {
+  if (parent.type !== 'menu') {
     throw new Error('Base UI: SubmenuTrigger must be placed in a nested Menu.');
   }
 
-  const { activeIndex, itemProps, setActiveIndex } = parentContext;
+  const { activeIndex, itemProps, setActiveIndex } = parent.context;
   const item = useCompositeListItem();
 
   const highlighted = activeIndex === item.index;
@@ -78,10 +77,6 @@ const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerComponent(
 
   return renderElement();
 });
-
-function isMenuRootContext(context: MenuRootContext | MenubarContext): context is MenuRootContext {
-  return 'activeIndex' in context;
-}
 
 namespace MenuSubmenuTrigger {
   export interface Props extends BaseUIComponentProps<'div', State> {

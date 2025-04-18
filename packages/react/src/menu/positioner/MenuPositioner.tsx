@@ -15,7 +15,6 @@ import { inertValue } from '../../utils/inertValue';
 import { InternalBackdrop } from '../../utils/InternalBackdrop';
 import { HTMLElementType, refType } from '../../utils/proptypes';
 import { useMenuPortalContext } from '../portal/MenuPortalContext';
-import { useMenubarContext } from '../../menubar/MenubarContext';
 
 /**
  * Positions the menu popup against the trigger.
@@ -51,24 +50,21 @@ const MenuPositioner = React.forwardRef(function MenuPositioner(
     itemDomElements,
     itemLabels,
     mounted,
-    nested,
     modal,
     openReason,
+    parent,
   } = useMenuRootContext();
 
   const keepMounted = useMenuPortalContext();
   const nodeId = useFloatingNodeId();
   const parentNodeId = useFloatingParentNodeId();
 
-  const menubarContext = useMenubarContext(true);
-  const isInMenubar = menubarContext != null;
-
   let computedSide = side;
   let computedAlign = align;
-  if (nested) {
+  if (parent.type === 'menu') {
     computedSide = computedSide ?? 'inline-end';
     computedAlign = computedAlign ?? 'start';
-  } else if (isInMenubar) {
+  } else if (parent.type === 'menubar') {
     computedSide = computedSide ?? 'bottom';
     computedAlign = computedAlign ?? 'start';
   }
@@ -99,9 +95,9 @@ const MenuPositioner = React.forwardRef(function MenuPositioner(
       side: positioner.side,
       align: positioner.align,
       anchorHidden: positioner.anchorHidden,
-      nested,
+      nested: parent.type === 'menu',
     }),
-    [open, positioner.side, positioner.align, positioner.anchorHidden, nested],
+    [open, positioner.side, positioner.align, positioner.anchorHidden, parent.type],
   );
 
   const contextValue: MenuPositionerContext = React.useMemo(
@@ -139,9 +135,15 @@ const MenuPositioner = React.forwardRef(function MenuPositioner(
 
   const shouldRenderBackdrop =
     open &&
-    !nested &&
-    ((!isInMenubar && modal && openReason !== 'hover') || (isInMenubar && menubarContext.modal));
-  const backdropCutout = isInMenubar ? menubarContext.contentElement : undefined;
+    parent.type !== 'menu' &&
+    ((parent.type !== 'menubar' && modal && openReason !== 'hover') ||
+      (parent.type === 'menubar' && parent.context.modal));
+
+  if (open) {
+    console.log({ shouldRenderBackdrop, parent, modal, openReason });
+  }
+
+  const backdropCutout = parent.type === 'menubar' ? parent.context.contentElement : undefined;
 
   return (
     <MenuPositionerContext.Provider value={contextValue}>
