@@ -134,7 +134,7 @@ const MenuPositioner = React.forwardRef(function MenuPositioner(
   });
 
   const shouldRenderBackdrop =
-    open &&
+    mounted &&
     parent.type !== 'menu' &&
     ((parent.type !== 'menubar' && modal && openReason !== 'hover') ||
       (parent.type === 'menubar' && parent.context.modal));
