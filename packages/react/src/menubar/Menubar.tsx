@@ -10,6 +10,7 @@ import { useScrollLock } from '../utils';
 import { CompositeRoot } from '../composite/root/CompositeRoot';
 import { useRenderElement } from '../utils/useRenderElement';
 import { useEventCallback } from '../utils/useEventCallback';
+import { ownerDocument } from '../utils/owner';
 
 /**
  * The container for menus.
@@ -66,7 +67,7 @@ const Menubar = React.forwardRef(function Menubar(
     ref: [forwardedRef, setContentElement, contentRef],
   });
 
-  const shouldOpenOnHover = hasFocusWithin || hasSubmenuOpen;
+  const shouldOpenOnHover = hasSubmenuOpen;
 
   const context: MenubarContext = React.useMemo(
     () => ({
@@ -167,6 +168,8 @@ function MenubarContent(props: React.PropsWithChildren<{}>) {
         requestAnimationFrame(() => {
           if (openSubmenus.current.size === 0) {
             rootContext.setHasSubmenuOpen(false);
+            console.log('focus body');
+            ownerDocument(rootContext.contentElement).body.focus();
           }
         });
       }
