@@ -4,7 +4,8 @@ import type { BaseUIComponentProps, Orientation } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useSliderRootContext } from '../root/SliderRootContext';
 import { sliderStyleHookMapping } from '../root/styleHooks';
-import { valueArrayToPercentages, type SliderRoot } from '../root/SliderRoot';
+import type { SliderRoot } from '../root/SliderRoot';
+import { valueArrayToPercentages } from '../utils/valueArrayToPercentages';
 
 function getRangeStyles(
   orientation: Orientation,

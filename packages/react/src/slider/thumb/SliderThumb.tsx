@@ -23,7 +23,8 @@ import { useFieldControlValidation } from '../../field/control/useFieldControlVa
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { getSliderValue } from '../utils/getSliderValue';
 import { roundValueToStep } from '../utils/roundValueToStep';
-import { valueArrayToPercentages, type SliderRoot } from '../root/SliderRoot';
+import { valueArrayToPercentages } from '../utils/valueArrayToPercentages';
+import type { SliderRoot } from '../root/SliderRoot';
 import { useSliderRootContext } from '../root/SliderRootContext';
 import { SliderThumbDataAttributes } from './SliderThumbDataAttributes';
 

@@ -3,7 +3,7 @@ import * as React from 'react';
 import type { Orientation } from '../../utils/types';
 import { type CompositeMetadata } from '../../composite/list/CompositeList';
 import type { ThumbMetadata } from '../thumb/SliderThumb';
-import type { SliderRoot, FingerPosition, FingerState } from './SliderRoot';
+import type { SliderRoot } from './SliderRoot';
 
 export interface SliderRootContext {
   /**
@@ -14,14 +14,10 @@ export interface SliderRootContext {
    * Function to be called when drag ends. Invokes onValueCommitted.
    */
   commitValue: (newValue: number | readonly number[], event: Event) => void;
+  controlStylesRef: React.RefObject<CSSStyleDeclaration | null>;
   dragging: boolean;
   disabled: boolean;
   format?: Intl.NumberFormatOptions;
-  getFingerState: (
-    fingerPosition: FingerPosition | null,
-    shouldCaptureThumbIndex?: boolean,
-    offset?: number,
-  ) => FingerState | null;
   handleInputChange: (
     valueInput: number,
     index: number,
@@ -53,13 +49,13 @@ export interface SliderRootContext {
    * @default 'horizontal'
    */
   orientation: Orientation;
+  /**
+   * Whether the slider is a range slider.
+   */
+  range: boolean;
   registerSliderControl: (element: HTMLElement | null) => void;
   setActive: React.Dispatch<React.SetStateAction<number>>;
   setDragging: React.Dispatch<React.SetStateAction<boolean>>;
-  setThumbMap: React.Dispatch<
-    React.SetStateAction<Map<Node, CompositeMetadata<ThumbMetadata> | null>>
-  >;
-
   /**
    * Callback fired when dragging and invokes onValueChange.
    */

@@ -10,26 +10,17 @@ import { useControlled } from '../../utils/useControlled';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { useRenderElement } from '../../utils/useRenderElement';
-import { valueToPercent } from '../../utils/valueToPercent';
 import { warn } from '../../utils/warn';
-
 import { CompositeList, type CompositeMetadata } from '../../composite/list/CompositeList';
-import { useDirection } from '../../direction-provider/DirectionContext';
-
 import type { FieldRoot } from '../../field/root/FieldRoot';
 import { useField } from '../../field/useField';
 import { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
-
 import { asc } from '../utils/asc';
 import { focusThumb } from '../utils/focusThumb';
 import { getSliderValue } from '../utils/getSliderValue';
-import { replaceArrayItemAtIndex } from '../utils/replaceArrayItemAtIndex';
-import { roundValueToStep } from '../utils/roundValueToStep';
 import { validateMinimumDistance } from '../utils/validateMinimumDistance';
-
 import type { ThumbMetadata } from '../thumb/SliderThumb';
-
 import { sliderStyleHookMapping } from './styleHooks';
 import { SliderRootContext } from './SliderRootContext';
 
@@ -44,51 +35,6 @@ function areValuesEqual(
     return areArraysEqual(newValue, oldValue);
   }
   return false;
-}
-
-function getClosestThumbIndex(values: readonly number[], currentValue: number, max: number) {
-  let closestIndex;
-  let minDistance;
-  for (let i = 0; i < values.length; i += 1) {
-    const distance = Math.abs(currentValue - values[i]);
-    if (
-      minDistance === undefined ||
-      // when the value is at max, the lowest index thumb has to be dragged
-      // first or it will block higher index thumbs from moving
-      // otherwise consider higher index thumbs to be closest when their values are identical
-      (values[i] === max ? distance < minDistance : distance <= minDistance)
-    ) {
-      closestIndex = i;
-      minDistance = distance;
-    }
-  }
-
-  return closestIndex;
-}
-
-function getControlOffset(styles: CSSStyleDeclaration | null, orientation: Orientation) {
-  if (!styles) {
-    return {
-      start: 0,
-      end: 0,
-    };
-  }
-
-  const start = orientation === 'horizontal' ? 'InlineStart' : 'Top';
-  const end = orientation === 'horizontal' ? 'InlineEnd' : 'Bottom';
-
-  return {
-    start: parseFloat(styles[`border${start}Width`]) + parseFloat(styles[`padding${start}`]),
-    end: parseFloat(styles[`border${end}Width`]) + parseFloat(styles[`padding${end}`]),
-  };
-}
-
-export function valueArrayToPercentages(values: number[], min: number, max: number) {
-  const output = [];
-  for (let i = 0; i < values.length; i += 1) {
-    output.push(clamp(valueToPercent(values[i], min, max), 0, 100));
-  }
-  return output;
 }
 
 /**
@@ -123,6 +69,7 @@ const SliderRoot = React.forwardRef(function SliderRoot<Value extends number | r
     ...elementProps
   } = componentProps;
 
+  const id = useBaseUiId(idProp);
   const onValueChange = useEventCallback(
     onValueChangeProp as (value: number | number[], event: Event, activeThumbIndex: number) => void,
   );
@@ -130,8 +77,6 @@ const SliderRoot = React.forwardRef(function SliderRoot<Value extends number | r
     onValueCommittedProp as (value: number | readonly number[], event: Event) => void,
   );
 
-  const id = useBaseUiId(idProp);
-  const direction = useDirection();
   const {
     labelId,
     state: fieldState,
@@ -165,7 +110,6 @@ const SliderRoot = React.forwardRef(function SliderRoot<Value extends number | r
   const sliderRef = React.useRef<HTMLElement>(null);
   const controlRef: React.RefObject<HTMLElement | null> = React.useRef(null);
   const thumbRefs = React.useRef<(HTMLElement | null)[]>([]);
-  const closestThumbIndexRef = React.useRef<number | null>(null);
   const controlStylesRef = React.useRef<CSSStyleDeclaration | null>(null);
   const lastChangedValueRef = React.useRef<number | readonly number[] | null>(null);
 
@@ -265,84 +209,6 @@ const SliderRoot = React.forwardRef(function SliderRoot<Value extends number | r
     },
   );
 
-  const getFingerState = useEventCallback(
-    (
-      fingerPosition: FingerPosition | null,
-      /**
-       * When `true`, closestThumbIndexRef is updated.
-       * It's `true` when called by touchstart or pointerdown.
-       */
-      shouldCaptureThumbIndex: boolean = false,
-      /**
-       * The difference between the value at the finger origin and the value at
-       * the center of the thumb scaled down to fit the range [0, 1]
-       */
-      thumbOffset: number = 0,
-    ): FingerState | null => {
-      if (fingerPosition == null) {
-        return null;
-      }
-
-      const control = controlRef.current;
-
-      if (!control) {
-        return null;
-      }
-
-      const isRtl = direction === 'rtl';
-      const isVertical = orientation === 'vertical';
-
-      const { width, height, bottom, left, right } = control.getBoundingClientRect();
-
-      const controlOffset = getControlOffset(controlStylesRef.current, orientation);
-
-      // the value at the finger origin scaled down to fit the range [0, 1]
-      let valueRescaled = isVertical
-        ? (bottom - controlOffset.end - fingerPosition.y) /
-            (height - controlOffset.start - controlOffset.end) +
-          thumbOffset
-        : (isRtl
-            ? right - controlOffset.start - fingerPosition.x
-            : fingerPosition.x - left - controlOffset.start) /
-            (width - controlOffset.start - controlOffset.end) +
-          thumbOffset * (isRtl ? -1 : 1);
-
-      valueRescaled = clamp(valueRescaled, 0, 1);
-
-      let newValue = (max - min) * valueRescaled + min;
-      newValue = roundValueToStep(newValue, step, min);
-      newValue = clamp(newValue, min, max);
-
-      if (!range) {
-        return {
-          value: newValue,
-          valueRescaled,
-          thumbIndex: 0,
-        };
-      }
-
-      if (shouldCaptureThumbIndex) {
-        closestThumbIndexRef.current = getClosestThumbIndex(values, newValue, max) ?? 0;
-      }
-
-      const closestThumbIndex = closestThumbIndexRef.current ?? 0;
-      const minValueDifference = minStepsBetweenValues * step;
-
-      // Bound the new value to the thumb's neighbours.
-      newValue = clamp(
-        newValue,
-        values[closestThumbIndex - 1] + minValueDifference || -Infinity,
-        values[closestThumbIndex + 1] - minValueDifference || Infinity,
-      );
-
-      return {
-        value: replaceArrayItemAtIndex(values, closestThumbIndex, newValue),
-        valueRescaled,
-        thumbIndex: closestThumbIndex,
-      };
-    },
-  );
-
   useEnhancedEffect(() => {
     if (valueProp === undefined || dragging) {
       return;
@@ -399,10 +265,10 @@ const SliderRoot = React.forwardRef(function SliderRoot<Value extends number | r
     () => ({
       active,
       commitValue,
+      controlStylesRef,
       disabled,
       dragging,
       format,
-      getFingerState,
       handleInputChange,
       labelId: ariaLabelledby,
       largeStep,
@@ -416,7 +282,6 @@ const SliderRoot = React.forwardRef(function SliderRoot<Value extends number | r
       registerSliderControl,
       setActive,
       setDragging,
-      setThumbMap,
       setValue,
       state,
       step,
@@ -429,11 +294,11 @@ const SliderRoot = React.forwardRef(function SliderRoot<Value extends number | r
       active,
       ariaLabelledby,
       commitValue,
+      controlStylesRef,
       disabled,
       dragging,
       externalTabIndex,
       format,
-      getFingerState,
       handleInputChange,
       largeStep,
       lastChangedValueRef,
@@ -446,7 +311,6 @@ const SliderRoot = React.forwardRef(function SliderRoot<Value extends number | r
       registerSliderControl,
       setActive,
       setDragging,
-      setThumbMap,
       setValue,
       state,
       step,
@@ -485,17 +349,6 @@ const SliderRoot = React.forwardRef(function SliderRoot<Value extends number | r
     },
   ): React.JSX.Element;
 };
-
-export interface FingerPosition {
-  x: number;
-  y: number;
-}
-
-export interface FingerState {
-  value: number | number[];
-  valueRescaled: number;
-  thumbIndex: number;
-}
 
 namespace SliderRoot {
   export interface State extends FieldRoot.State {
