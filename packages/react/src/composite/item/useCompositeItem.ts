@@ -23,7 +23,6 @@ export function useCompositeItem<Metadata>(params: UseCompositeItemParameters<Me
       mergeProps<T>(
         // @ts-ignore tabIndex as number
         {
-          tabIndex: isHighlighted ? 0 : -1,
           onFocus() {
             onHighlightedIndexChange(index);
           },
@@ -40,6 +39,9 @@ export function useCompositeItem<Metadata>(params: UseCompositeItemParameters<Me
           },
         },
         externalProps,
+        {
+          tabIndex: isHighlighted ? 0 : -1,
+        },
       ),
     [isHighlighted, index, onHighlightedIndexChange, highlightItemOnHover],
   );

@@ -20,6 +20,7 @@ export function useMenuTrigger(parameters: useMenuTrigger.Parameters): useMenuTr
     setTriggerElement,
     positionerRef,
     allowMouseUpTriggerRef,
+    isInMenubar,
   } = parameters;
 
   const triggerRef = React.useRef<HTMLElement | null>(null);
@@ -44,7 +45,7 @@ export function useMenuTrigger(parameters: useMenuTrigger.Parameters): useMenuTr
       return mergeProps(
         {
           'aria-haspopup': 'menu' as const,
-          tabIndex: 0, // this is needed to make the button focused after click in Safari
+          ...(isInMenubar ? {} : { tabIndex: 0 }), // this is needed to make the button focused after click in Safari
           ref: handleRef,
           onMouseDown: (event: React.MouseEvent) => {
             if (open) {
@@ -100,7 +101,7 @@ export function useMenuTrigger(parameters: useMenuTrigger.Parameters): useMenuTr
         getButtonProps,
       );
     },
-    [getButtonProps, handleRef, open, setOpen, positionerRef, allowMouseUpTriggerRef],
+    [getButtonProps, handleRef, open, setOpen, positionerRef, allowMouseUpTriggerRef, isInMenubar],
   );
 
   return React.useMemo(
@@ -141,6 +142,7 @@ export namespace useMenuTrigger {
     ) => void;
     allowMouseUpTriggerRef: React.RefObject<boolean>;
     positionerRef: React.RefObject<HTMLElement | null>;
+    isInMenubar: boolean;
   }
 
   export interface ReturnValue {

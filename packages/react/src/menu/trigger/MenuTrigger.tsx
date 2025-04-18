@@ -40,6 +40,7 @@ const MenuTrigger = React.forwardRef(function MenuTrigger(
     setOpen,
     allowMouseUpTriggerRef,
     positionerRef,
+    isInMenubar,
   });
 
   const state: MenuTrigger.State = React.useMemo(
