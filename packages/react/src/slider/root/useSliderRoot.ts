@@ -367,7 +367,7 @@ export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRo
         return {
           value: newValue,
           valueRescaled,
-          percentageValues: [valueRescaled * 100],
+          percentageValues: [valueToPercent(newValue, min, max)],
           thumbIndex: 0,
         };
       }
@@ -388,7 +388,7 @@ export function useSliderRoot(parameters: useSliderRoot.Parameters): useSliderRo
       );
 
       const newPercentageValue = clamp(
-        valueRescaled * 100,
+        valueToPercent(newValue, min, max),
         percentageValues[closestThumbIndex - 1] + minPercentageDifference || -Infinity,
         percentageValues[closestThumbIndex + 1] - minPercentageDifference || Infinity,
       );
