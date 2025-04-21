@@ -5,6 +5,7 @@ import { createRenderer, isJSDOM, popupConformanceTests } from '#test-utils';
 import { expect } from 'chai';
 import { spy } from 'sinon';
 import { Field } from '@base-ui-components/react/field';
+import { Form } from '@base-ui-components/react/form';
 
 describe('<Select.Root />', () => {
   beforeEach(() => {
@@ -763,6 +764,61 @@ describe('<Select.Root />', () => {
         'data-selected',
         '',
       );
+    });
+  });
+
+  describe('Form', () => {
+    const { render: renderFakeTimers, clock } = createRenderer({
+      clockOptions: {
+        shouldAdvanceTime: true,
+      },
+    });
+
+    clock.withFakeTimers();
+
+    it('clears errors on change', async () => {
+      function App() {
+        const [errors, setErrors] = React.useState<Record<string, string | string[]>>({
+          select: 'test',
+        });
+        return (
+          <Form errors={errors} onClearErrors={setErrors}>
+            <Field.Root name="select">
+              <Select.Root>
+                <Select.Trigger data-testid="trigger">
+                  <Select.Value />
+                </Select.Trigger>
+                <Select.Portal>
+                  <Select.Positioner>
+                    <Select.Popup>
+                      <Select.Item value="a">a</Select.Item>
+                      <Select.Item value="b">b</Select.Item>
+                    </Select.Popup>
+                  </Select.Positioner>
+                </Select.Portal>
+              </Select.Root>
+              <Field.Error data-testid="error" />
+            </Field.Root>
+          </Form>
+        );
+      }
+
+      const { user } = await renderFakeTimers(<App />);
+
+      expect(screen.getByTestId('error')).to.have.text('test');
+
+      const trigger = screen.getByTestId('trigger');
+      expect(trigger).to.have.attribute('aria-invalid', 'true');
+
+      await user.click(trigger);
+      await flushMicrotasks();
+
+      const option = screen.getByRole('option', { name: 'b' });
+      clock.tick(200);
+      await user.click(option);
+
+      expect(screen.queryByTestId('error')).to.equal(null);
+      expect(trigger).not.to.have.attribute('aria-invalid');
     });
   });
 });

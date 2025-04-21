@@ -133,8 +133,17 @@ export function useRadioGroup(params: useRadioGroup.Parameters) {
       touched,
       setTouched,
       fieldControlValidation,
+      name,
     }),
-    [getRootProps, getInputProps, checkedValue, setCheckedValue, touched, fieldControlValidation],
+    [
+      getRootProps,
+      getInputProps,
+      checkedValue,
+      setCheckedValue,
+      touched,
+      fieldControlValidation,
+      name,
+    ],
   );
 }
 

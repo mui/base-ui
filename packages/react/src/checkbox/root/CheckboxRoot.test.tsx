@@ -1,9 +1,10 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import { act, fireEvent } from '@mui/internal-test-utils';
+import { act, fireEvent, screen } from '@mui/internal-test-utils';
 import { Checkbox } from '@base-ui-components/react/checkbox';
 import { Field } from '@base-ui-components/react/field';
+import { Form } from '@base-ui-components/react/form';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 
 describe('<Checkbox.Root />', () => {
@@ -229,7 +230,7 @@ describe('<Checkbox.Root />', () => {
     expect(input).to.have.attribute('name', 'checkbox-name');
   });
 
-  describe('form handling', () => {
+  describe('Form', () => {
     it('should toggle the checkbox when a parent label is clicked', async () => {
       const { getByTestId, getAllByRole } = await render(
         <label data-testid="label">
@@ -271,9 +272,37 @@ describe('<Checkbox.Root />', () => {
 
       expect(checkbox).to.have.attribute('aria-checked', 'true');
     });
+
+    it('clears errors on change', async () => {
+      function App() {
+        const [errors, setErrors] = React.useState<Record<string, string | string[]>>({
+          test: 'test',
+        });
+        return (
+          <Form errors={errors} onClearErrors={setErrors}>
+            <Field.Root name="test" data-testid="field">
+              <Checkbox.Root data-testid="checkbox" />
+              <Field.Error data-testid="error" />
+            </Field.Root>
+          </Form>
+        );
+      }
+
+      await render(<App />);
+
+      const checkbox = screen.getByTestId('checkbox');
+
+      expect(checkbox).to.have.attribute('aria-invalid', 'true');
+      expect(screen.queryByTestId('error')).to.have.text('test');
+
+      fireEvent.click(checkbox);
+
+      expect(checkbox).not.to.have.attribute('aria-invalid');
+      expect(screen.queryByTestId('error')).to.equal(null);
+    });
   });
 
-  describe('with Field.Root parent', () => {
+  describe('Field', () => {
     it('should receive disabled prop from Field.Root', async () => {
       const { getAllByRole } = await render(
         <Field.Root disabled>

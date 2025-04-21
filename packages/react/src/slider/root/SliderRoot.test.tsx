@@ -8,6 +8,7 @@ import {
 } from '@base-ui-components/react/direction-provider';
 import { Field } from '@base-ui-components/react/field';
 import { Slider } from '@base-ui-components/react/slider';
+import { Form } from '@base-ui-components/react/form';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import {
   ARROW_RIGHT,
@@ -1803,7 +1804,7 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
     });
   });
 
-  describe('with Field.Root parent', () => {
+  describe('Field', () => {
     it('should receive disabled prop from Field.Root', async () => {
       const { getByTestId } = await render(
         <Field.Root disabled>
@@ -1833,6 +1834,39 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
       const thumb = getByTestId('thumb');
       const input = thumb.querySelector('input');
       expect(input).to.have.attribute('name', 'field-slider');
+    });
+  });
+
+  describe('Form', () => {
+    it('clears errors on change', async () => {
+      function App() {
+        const [errors, setErrors] = React.useState<Record<string, string | string[]>>({
+          test: 'test',
+        });
+        return (
+          <Form errors={errors} onClearErrors={setErrors}>
+            <Field.Root name="test" data-testid="field">
+              <TestSlider data-testid="slider" defaultValue={50} />
+              <Field.Error data-testid="error" />
+            </Field.Root>
+          </Form>
+        );
+      }
+
+      const { user } = await render(<App />);
+
+      const slider = screen.getByRole('slider');
+
+      expect(slider).to.have.attribute('aria-invalid', 'true');
+      expect(screen.getByTestId('error')).to.have.text('test');
+
+      await user.keyboard('[Tab]');
+      expect(screen.getByTestId('thumb')).toHaveFocus();
+
+      await user.keyboard(`{Shift>}{ArrowRight}`);
+
+      expect(slider).not.to.have.attribute('aria-invalid');
+      expect(screen.queryByTestId('error')).to.equal(null);
     });
   });
 });
