@@ -25,7 +25,7 @@ export function useCompositeListItem<Metadata>(
 
   const [index, setIndex] = React.useState<number | null>(null);
 
-  const componentRef = React.useRef<Node | null>(null);
+  const componentRef = React.useRef<Element | null>(null);
 
   const ref = React.useCallback(
     (node: HTMLElement | null) => {
