@@ -34,7 +34,7 @@ import {
   type ModifierKey,
 } from '../composite';
 import { ACTIVE_COMPOSITE_ITEM } from '../constants';
-import { useEnhancedEffect } from '../../utils';
+import { CompositeMetadata } from '../list/CompositeList';
 
 export interface UseCompositeRootParameters {
   orientation?: 'horizontal' | 'vertical' | 'both';
@@ -115,19 +115,22 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
   const mergedRef = useForkRef(rootRef, externalRef);
 
   const elementsRef = React.useRef<Array<HTMLDivElement | null>>([]);
+  const hasSetDefaultIndexRef = React.useRef(false);
 
-  useEnhancedEffect(() => {
-    // Wait for the refs to be registered with their DOM index.
-    queueMicrotask(() => {
-      // Set the default highlighted index of an arbitrary composite item.
-      const activeIndex = elementsRef.current.findIndex((compositeElement) =>
-        compositeElement?.hasAttribute(ACTIVE_COMPOSITE_ITEM),
-      );
-      if (activeIndex !== -1) {
-        onHighlightedIndexChange(activeIndex);
-      }
-    });
-  }, [elementsRef, onHighlightedIndexChange]);
+  const onMapChange = useEventCallback((map: Map<Element, CompositeMetadata<any>>) => {
+    if (map.size === 0 || hasSetDefaultIndexRef.current) {
+      return;
+    }
+    hasSetDefaultIndexRef.current = true;
+    const sortedElements = Array.from(map.keys());
+    // Set the default highlighted index of an arbitrary composite item.
+    const activeIndex = sortedElements.findIndex((compositeElement) =>
+      compositeElement?.hasAttribute(ACTIVE_COMPOSITE_ITEM),
+    );
+    if (activeIndex !== -1) {
+      onHighlightedIndexChange(activeIndex);
+    }
+  });
 
   const getRootProps = React.useCallback(
     (externalProps = {}) =>
@@ -370,7 +373,15 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
       onHighlightedIndexChange,
       elementsRef,
       disabledIndices,
+      onMapChange,
     }),
-    [getRootProps, highlightedIndex, onHighlightedIndexChange, elementsRef, disabledIndices],
+    [
+      getRootProps,
+      highlightedIndex,
+      onHighlightedIndexChange,
+      elementsRef,
+      disabledIndices,
+      onMapChange,
+    ],
   );
 }
