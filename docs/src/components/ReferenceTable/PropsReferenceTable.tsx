@@ -46,10 +46,13 @@ export async function PropsReferenceTable({
             useMDXComponents: () => ({ code: TableCode }),
           });
 
-          const PropDefault = await createMdxComponent(`\`${prop.default}\``, {
-            rehypePlugins: rehypeSyntaxHighlighting,
-            useMDXComponents: () => ({ code: TableCode }),
-          });
+          const PropDefault = await createMdxComponent(
+            `\`${prop.required ? '—' : prop.default}\``,
+            {
+              rehypePlugins: rehypeSyntaxHighlighting,
+              useMDXComponents: () => ({ code: TableCode }),
+            },
+          );
 
           const PropDescription = await createMdxComponent(prop.description, {
             rehypePlugins: rehypeSyntaxHighlighting,
@@ -59,7 +62,9 @@ export async function PropsReferenceTable({
           return (
             <Table.Row key={name}>
               <Table.RowHeader>
-                <TableCode className="text-navy">{name}</TableCode>
+                <TableCode className="text-navy">
+                  {name} {prop.required ? '*' : ''}
+                </TableCode>
               </Table.RowHeader>
               <Table.Cell className="max-xs:hidden">
                 <PropType />
