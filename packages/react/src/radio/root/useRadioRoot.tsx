@@ -6,6 +6,8 @@ import { useRadioGroupContext } from '../../radio-group/RadioGroupContext';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { ACTIVE_COMPOSITE_ITEM } from '../../composite/constants';
+import { useFormContext } from '../../form/FormContext';
+import { clearErrors } from '../../form/clearErrors';
 
 export function useRadioRoot(params: useRadioRoot.Parameters) {
   const { disabled, readOnly, value, required } = params;
@@ -17,8 +19,10 @@ export function useRadioRoot(params: useRadioRoot.Parameters) {
     touched,
     setTouched,
     fieldControlValidation,
+    name,
   } = useRadioGroupContext();
 
+  const { onClearErrors } = useFormContext();
   const {
     setDirty,
     validityData,
@@ -108,6 +112,7 @@ export function useRadioRoot(params: useRadioRoot.Parameters) {
             setCheckedValue(value);
             setFilled(true);
             onValueChange?.(value, event.nativeEvent);
+            clearErrors(name, onClearErrors);
 
             if (validationMode === 'onChange') {
               fieldControlValidation?.commitValidation(value);
@@ -128,6 +133,8 @@ export function useRadioRoot(params: useRadioRoot.Parameters) {
       setCheckedValue,
       setFilled,
       onValueChange,
+      name,
+      onClearErrors,
       validationMode,
       fieldControlValidation,
     ],

@@ -19,6 +19,8 @@ import { useForkRef } from '../../utils/useForkRef';
 import { useField } from '../../field/useField';
 import type { ScrubHandle } from './useScrub';
 import type { EventWithOptionalKeyState } from '../utils/types';
+import { useFormContext } from '../../form/FormContext';
+import { clearErrors } from '../../form/clearErrors';
 
 export function useNumberFieldRoot(
   params: useNumberFieldRoot.Parameters,
@@ -44,6 +46,7 @@ export function useNumberFieldRoot(
     locale,
   } = params;
 
+  const { onClearErrors } = useFormContext();
   const {
     setControlId,
     validationMode,
@@ -166,6 +169,7 @@ export function useNumberFieldRoot(
       onValueChange?.(validatedValue, event && 'nativeEvent' in event ? event.nativeEvent : event);
       setValueUnwrapped(validatedValue);
       setDirty(validatedValue !== validityData.initialValue);
+      clearErrors(name, onClearErrors);
 
       if (validationMode === 'onChange') {
         commitValidation(validatedValue);

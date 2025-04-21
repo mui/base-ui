@@ -23,6 +23,8 @@ import {
   type OpenChangeReason,
 } from '../../utils/translateOpenChangeReason';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
+import { clearErrors } from '../../form/clearErrors';
+import { useFormContext } from '../../form/FormContext';
 
 const EMPTY_ARRAY: never[] = [];
 
@@ -38,6 +40,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     onOpenChangeComplete,
   } = params;
 
+  const { onClearErrors } = useFormContext();
   const {
     setDirty,
     validityData,
@@ -166,6 +169,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     setValueUnwrapped(nextValue);
 
     setDirty(nextValue !== validityData.initialValue);
+    clearErrors(name, onClearErrors);
 
     if (validationMode === 'onChange') {
       fieldControlValidation.commitValidation(nextValue);

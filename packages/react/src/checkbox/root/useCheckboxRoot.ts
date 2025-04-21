@@ -12,6 +12,8 @@ import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
 import { useField } from '../../field/useField';
 import { useCheckboxGroupContext } from '../../checkbox-group/CheckboxGroupContext';
+import { useFormContext } from '../../form/FormContext';
+import { clearErrors } from '../../form/clearErrors';
 
 export function useCheckboxRoot(params: useCheckboxRoot.Parameters): useCheckboxRoot.ReturnValue {
   const {
@@ -36,6 +38,7 @@ export function useCheckboxRoot(params: useCheckboxRoot.Parameters): useCheckbox
   const setGroupValue = groupContext?.setValue;
   const defaultGroupValue = groupContext?.defaultValue;
 
+  const { onClearErrors } = useFormContext();
   const {
     labelId,
     setControlId,
@@ -189,6 +192,7 @@ export function useCheckboxRoot(params: useCheckboxRoot.Parameters): useCheckbox
             setDirty(nextChecked !== validityData.initialValue);
             setCheckedState(nextChecked);
             onCheckedChange?.(nextChecked, event.nativeEvent);
+            clearErrors(name, onClearErrors);
 
             if (!groupContext) {
               setFilled(nextChecked);
@@ -226,6 +230,7 @@ export function useCheckboxRoot(params: useCheckboxRoot.Parameters): useCheckbox
       validityData.initialValue,
       setCheckedState,
       onCheckedChange,
+      onClearErrors,
       groupContext,
       groupValue,
       setGroupValue,

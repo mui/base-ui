@@ -65,8 +65,9 @@ const RadioGroup = React.forwardRef(function RadioGroup(
       disabled,
       readOnly,
       required,
+      name,
     }),
-    [fieldState, disabled, onValueChange, radioGroup, readOnly, required],
+    [fieldState, disabled, onValueChange, radioGroup, readOnly, required, name],
   );
 
   const { renderElement } = useComponentRenderer({

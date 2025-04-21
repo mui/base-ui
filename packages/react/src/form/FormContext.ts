@@ -3,11 +3,11 @@
 import * as React from 'react';
 import type { FieldValidityData } from '../field/root/FieldRoot';
 
-type Errors = Record<string, string | string[]>;
+export type Errors = Record<string, string | string[]>;
 
 export interface FormContext {
   errors: Errors;
-  onClearErrors: (errors: Errors) => void;
+  onClearErrors: React.Dispatch<React.SetStateAction<Errors>>;
   formRef: React.MutableRefObject<{
     fields: Map<
       string,
