@@ -33,6 +33,8 @@ import {
   type Dimensions,
   type ModifierKey,
 } from '../composite';
+import { ACTIVE_COMPOSITE_ITEM } from '../constants';
+import { useEnhancedEffect } from '../../utils';
 
 export interface UseCompositeRootParameters {
   orientation?: 'horizontal' | 'vertical' | 'both';
@@ -113,6 +115,19 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
   const mergedRef = useForkRef(rootRef, externalRef);
 
   const elementsRef = React.useRef<Array<HTMLDivElement | null>>([]);
+
+  useEnhancedEffect(() => {
+    // Wait for the refs to be registered with their DOM index.
+    queueMicrotask(() => {
+      // Set the default highlighted index of an arbitrary composite item.
+      const activeIndex = elementsRef.current.findIndex((compositeElement) =>
+        compositeElement?.hasAttribute(ACTIVE_COMPOSITE_ITEM),
+      );
+      if (activeIndex !== -1) {
+        onHighlightedIndexChange(activeIndex);
+      }
+    });
+  }, [elementsRef, onHighlightedIndexChange]);
 
   const getRootProps = React.useCallback(
     (externalProps = {}) =>
