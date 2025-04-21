@@ -20,14 +20,13 @@ import { useField } from '../../field/useField';
 import type { ScrubHandle } from './useScrub';
 import type { EventWithOptionalKeyState } from '../utils/types';
 import { useFormContext } from '../../form/FormContext';
-import { clearErrors } from '../../form/clearErrors';
 
 export function useNumberFieldRoot(
   params: useNumberFieldRoot.Parameters,
 ): useNumberFieldRoot.ReturnValue {
   const {
     id: idProp,
-    name,
+    name: nameProp,
     min,
     max,
     smallStep = 0.1,
@@ -35,7 +34,6 @@ export function useNumberFieldRoot(
     largeStep = 10,
     required = false,
     disabled: disabledProp = false,
-    invalid = false,
     readOnly = false,
     allowWheelScrub = false,
     snapOnStep = false,
@@ -46,7 +44,7 @@ export function useNumberFieldRoot(
     locale,
   } = params;
 
-  const { onClearErrors } = useFormContext();
+  const { clearErrors } = useFormContext();
   const {
     setControlId,
     validationMode,
@@ -55,11 +53,14 @@ export function useNumberFieldRoot(
     setValidityData,
     disabled: fieldDisabled,
     setFilled,
+    invalid,
+    name: fieldName,
   } = useFieldRootContext();
 
   const { inputRef: inputValidationRef, commitValidation } = useFieldControlValidation();
 
   const disabled = fieldDisabled || disabledProp;
+  const name = fieldName ?? nameProp;
 
   const minWithDefault = min ?? Number.MIN_SAFE_INTEGER;
   const maxWithDefault = max ?? Number.MAX_SAFE_INTEGER;
@@ -169,7 +170,7 @@ export function useNumberFieldRoot(
       onValueChange?.(validatedValue, event && 'nativeEvent' in event ? event.nativeEvent : event);
       setValueUnwrapped(validatedValue);
       setDirty(validatedValue !== validityData.initialValue);
-      clearErrors(name, onClearErrors);
+      clearErrors(name);
 
       if (validationMode === 'onChange') {
         commitValidation(validatedValue);
@@ -540,7 +541,7 @@ export namespace useNumberFieldRoot {
     movesAfterTouchRef: React.RefObject<number | null>;
     name: string | undefined;
     required: boolean;
-    invalid: boolean;
+    invalid: boolean | undefined;
     inputMode: InputMode;
     getAllowedNonNumericKeys: () => (string | undefined)[];
     min: number | undefined;

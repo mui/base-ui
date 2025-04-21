@@ -37,7 +37,7 @@ describe('<Form />', () => {
 
   describe('prop: errors', () => {
     function App() {
-      const [errors, setErrors] = React.useState<Record<string, string | string[]>>({
+      const [errors, setErrors] = React.useState<Form.Props['errors']>({
         foo: 'bar',
       });
 
@@ -159,7 +159,7 @@ describe('<Form />', () => {
   describe('prop: onClearErrors', () => {
     it('should clear errors if no matching name keys exist', () => {
       function App() {
-        const [errors, setErrors] = React.useState<Record<string, string | string[]>>({
+        const [errors, setErrors] = React.useState<Form.Props['errors']>({
           foo: 'bar',
         });
         return (

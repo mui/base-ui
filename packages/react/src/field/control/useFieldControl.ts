@@ -9,11 +9,11 @@ import { useFormContext } from '../../form/FormContext';
 import { useField } from '../useField';
 import { useControlled } from '../../utils/useControlled';
 import { useEventCallback } from '../../utils/useEventCallback';
-import { clearErrors } from '../../form/clearErrors';
 
 export function useFieldControl(params: useFieldControl.Parameters) {
   const { id: idProp, name, value: valueProp, defaultValue, onValueChange, disabled } = params;
 
+  const { clearErrors } = useFormContext();
   const {
     setControlId,
     labelId,
@@ -24,8 +24,6 @@ export function useFieldControl(params: useFieldControl.Parameters) {
     setFilled,
     validationMode,
   } = useFieldRootContext();
-
-  const { onClearErrors } = useFormContext();
 
   const { getValidationProps, getInputValidationProps, commitValidation, inputRef } =
     useFieldControlValidation();
@@ -87,7 +85,7 @@ export function useFieldControl(params: useFieldControl.Parameters) {
 
             setDirty(event.currentTarget.value !== validityData.initialValue);
             setFilled(event.currentTarget.value !== '');
-            clearErrors(name, onClearErrors);
+            clearErrors(name);
           },
           onFocus() {
             setFocused(true);
@@ -110,19 +108,19 @@ export function useFieldControl(params: useFieldControl.Parameters) {
         getValidationProps(getInputValidationProps(externalProps)),
       ),
     [
-      getValidationProps,
-      getInputValidationProps,
       id,
       disabled,
       name,
       inputRef,
       labelId,
       value,
+      getValidationProps,
+      getInputValidationProps,
       setDirty,
       validityData.initialValue,
       setFilled,
+      clearErrors,
       setValue,
-      onClearErrors,
       setFocused,
       setTouched,
       validationMode,

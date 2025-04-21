@@ -91,9 +91,22 @@ const Form = React.forwardRef(function Form(
     extraProps: otherProps,
   });
 
+  const clearErrors = useEventCallback((name: string | undefined) => {
+    if (name && {}.hasOwnProperty.call(errors, name)) {
+      const nextErrors = { ...errors };
+      delete nextErrors[name];
+      onClearErrors(nextErrors);
+    }
+  });
+
   const contextValue: FormContext = React.useMemo(
-    () => ({ formRef, errors: errors ?? {}, onClearErrors }),
-    [formRef, errors, onClearErrors],
+    () => ({
+      formRef,
+      errors: errors ?? {},
+      onClearErrors,
+      clearErrors,
+    }),
+    [formRef, errors, onClearErrors, clearErrors],
   );
 
   return <FormContext.Provider value={contextValue}>{renderElement()}</FormContext.Provider>;

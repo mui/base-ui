@@ -40,7 +40,6 @@ const NumberFieldInput = React.forwardRef(function NumberFieldInput(
     incrementValue,
     inputMode,
     inputValue,
-    invalid,
     max,
     mergedRef,
     min,
@@ -54,7 +53,7 @@ const NumberFieldInput = React.forwardRef(function NumberFieldInput(
     locale,
   } = useNumberFieldRootContext();
 
-  const { labelId, validationMode, setTouched, setFocused } = useFieldRootContext();
+  const { labelId, validationMode, setTouched, setFocused, invalid } = useFieldRootContext();
 
   const {
     getInputValidationProps,

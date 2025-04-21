@@ -2,12 +2,14 @@
 
 import * as React from 'react';
 import type { FieldValidityData } from '../field/root/FieldRoot';
+import { NOOP } from '../utils/noop';
 
 export type Errors = Record<string, string | string[]>;
 
 export interface FormContext {
   errors: Errors;
-  onClearErrors: React.Dispatch<React.SetStateAction<Errors>>;
+  onClearErrors: (errors: Errors) => void;
+  clearErrors: (name: string | undefined) => void;
   formRef: React.MutableRefObject<{
     fields: Map<
       string,
@@ -27,7 +29,8 @@ export const FormContext = React.createContext<FormContext>({
     },
   },
   errors: {},
-  onClearErrors: () => {},
+  clearErrors: NOOP,
+  onClearErrors: NOOP,
 });
 
 if (process.env.NODE_ENV !== 'production') {

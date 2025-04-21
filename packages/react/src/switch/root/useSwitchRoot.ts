@@ -11,7 +11,6 @@ import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
 import { useField } from '../../field/useField';
 import { useFormContext } from '../../form/FormContext';
-import { clearErrors } from '../../form/clearErrors';
 
 export function useSwitchRoot(params: useSwitchRoot.Parameters): useSwitchRoot.ReturnValue {
   const {
@@ -26,7 +25,7 @@ export function useSwitchRoot(params: useSwitchRoot.Parameters): useSwitchRoot.R
     inputRef: externalInputRef,
   } = params;
 
-  const { onClearErrors } = useFormContext();
+  const { clearErrors } = useFormContext();
   const {
     labelId,
     setControlId,
@@ -163,7 +162,7 @@ export function useSwitchRoot(params: useSwitchRoot.Parameters): useSwitchRoot.R
             setFilled(nextChecked);
             setCheckedState(nextChecked);
             onCheckedChange?.(nextChecked, event.nativeEvent);
-            clearErrors(name, onClearErrors);
+            clearErrors(name);
 
             if (validationMode === 'onChange') {
               commitValidation(nextChecked);
@@ -184,7 +183,7 @@ export function useSwitchRoot(params: useSwitchRoot.Parameters): useSwitchRoot.R
       setFilled,
       setCheckedState,
       onCheckedChange,
-      onClearErrors,
+      clearErrors,
       validationMode,
       commitValidation,
     ],

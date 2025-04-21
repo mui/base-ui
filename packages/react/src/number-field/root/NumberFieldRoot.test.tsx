@@ -3,6 +3,8 @@ import { expect } from 'chai';
 import { spy } from 'sinon';
 import { act, screen, fireEvent } from '@mui/internal-test-utils';
 import { NumberField as NumberFieldBase } from '@base-ui-components/react/number-field';
+import { Field } from '@base-ui-components/react/field';
+import { Form } from '@base-ui-components/react/form';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 
 describe('<NumberField />', () => {
@@ -156,14 +158,6 @@ describe('<NumberField />', () => {
       await render(<NumberField required />);
       const input = screen.getByRole('textbox');
       expect(input).to.have.attribute('required');
-    });
-  });
-
-  describe('prop: invalid', () => {
-    it('sets `aria-invalid` on the input', async () => {
-      await render(<NumberField invalid />);
-      const input = screen.getByRole('textbox');
-      expect(input).to.have.attribute('aria-invalid', 'true');
     });
   });
 
@@ -425,7 +419,7 @@ describe('<NumberField />', () => {
     });
   });
 
-  describe('form handling', () => {
+  describe('Form', () => {
     it('should include the input value in the form submission', async ({ skip }) => {
       if (isJSDOM) {
         // FormData is not available in JSDOM
@@ -461,6 +455,34 @@ describe('<NumberField />', () => {
       await act(async () => submitButton.click());
 
       expect(stringifiedFormData).to.equal('test-number-field=5');
+    });
+
+    it('clears errors on change', async () => {
+      function App() {
+        const [errors, setErrors] = React.useState<Form.Props['errors']>({
+          test: 'test',
+        });
+        return (
+          <Form errors={errors} onClearErrors={setErrors}>
+            <Field.Root name="test" data-testid="field">
+              <NumberField defaultValue={1} />
+              <Field.Error data-testid="error" />
+            </Field.Root>
+          </Form>
+        );
+      }
+
+      await render(<App />);
+
+      const input = screen.getByRole('textbox');
+
+      expect(input).to.have.attribute('aria-invalid', 'true');
+      expect(screen.queryByTestId('error')).to.have.text('test');
+
+      fireEvent.change(input, { target: { value: '5' } });
+
+      expect(input).not.to.have.attribute('aria-invalid');
+      expect(screen.queryByTestId('error')).to.equal(null);
     });
   });
 
