@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import PropTypes from 'prop-types';
 import { useSelectRoot } from './useSelectRoot';
 import { SelectRootContext } from './SelectRootContext';
 import { SelectIndexContext } from './SelectIndexContext';
@@ -128,94 +127,6 @@ namespace SelectRoot {
 
 interface SelectRoot {
   <Value>(props: SelectRoot.Props<Value>): React.JSX.Element;
-  propTypes?: any;
 }
-
-SelectRoot.propTypes /* remove-proptypes */ = {
-  // ┌────────────────────────────── Warning ──────────────────────────────┐
-  // │ These PropTypes are generated from the TypeScript type definitions. │
-  // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
-  // └─────────────────────────────────────────────────────────────────────┘
-  /**
-   * A ref to imperative actions.
-   * - `unmount`: When specified, the select will not be unmounted when closed.
-   * Instead, the `unmount` function must be called to unmount the select manually.
-   * Useful when the select's animation is controlled by an external library.
-   */
-  actionsRef: PropTypes.shape({
-    current: PropTypes.shape({
-      unmount: PropTypes.func.isRequired,
-    }).isRequired,
-  }),
-  /**
-   * Determines if the selected item inside the popup should align to the trigger element.
-   * @default true
-   */
-  alignItemToTrigger: PropTypes.bool,
-  /**
-   * @ignore
-   */
-  children: PropTypes.node,
-  /**
-   * Whether the select menu is initially open.
-   *
-   * To render a controlled select menu, use the `open` prop instead.
-   * @default false
-   */
-  defaultOpen: PropTypes.bool,
-  /**
-   * The uncontrolled value of the select when it’s initially rendered.
-   *
-   * To render a controlled select, use the `value` prop instead.
-   * @default null
-   */
-  defaultValue: PropTypes.any,
-  /**
-   * Whether the component should ignore user interaction.
-   * @default false
-   */
-  disabled: PropTypes.bool,
-  /**
-   * Determines if the select enters a modal state when open.
-   * - `true`: user interaction is limited to the select: document page scroll is locked and and pointer interactions on outside elements are disabled.
-   * - `false`: user interaction with the rest of the document is allowed.
-   * @default true
-   */
-  modal: PropTypes.bool,
-  /**
-   * Identifies the field when a form is submitted.
-   */
-  name: PropTypes.string,
-  /**
-   * Event handler called when the select menu is opened or closed.
-   */
-  onOpenChange: PropTypes.func,
-  /**
-   * Event handler called after any animations complete when the select menu is opened or closed.
-   */
-  onOpenChangeComplete: PropTypes.func,
-  /**
-   * Callback fired when the value of the select changes. Use when controlled.
-   */
-  onValueChange: PropTypes.func,
-  /**
-   * Whether the select menu is currently open.
-   */
-  open: PropTypes.bool,
-  /**
-   * Whether the user should be unable to choose a different option from the select menu.
-   * @default false
-   */
-  readOnly: PropTypes.bool,
-  /**
-   * Whether the user must choose a value before submitting a form.
-   * @default false
-   */
-  required: PropTypes.bool,
-  /**
-   * The value of the select.
-   */
-  value: PropTypes.any,
-} as any;
 
 export { SelectRoot };
