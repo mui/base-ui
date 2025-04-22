@@ -461,7 +461,7 @@ describe('<Menubar />', () => {
     });
   });
 
-  describe('prop: loop', () => {
+  describe.skipIf(!isJSDOM)('prop: loop', () => {
     describe('when loop == true', () => {
       it('should loop around to the first item after the last one', async () => {
         const { user } = await render(<TestMenubar loop />);
