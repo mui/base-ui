@@ -14,7 +14,7 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
     disabled = false,
     focusableWhenDisabled,
     tabIndex,
-    type,
+    type = 'button',
     elementName: elementNameProp,
   } = parameters;
   const buttonRef = React.useRef<HTMLButtonElement | HTMLAnchorElement | HTMLElement | null>(null);
@@ -104,7 +104,7 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
 
       return mergeProps<'button' | 'input'>(
         {
-          type,
+          type: elementName === 'BUTTON' || elementName === 'INPUT' ? type : undefined,
           onClick(event: React.MouseEvent) {
             if (disabled) {
               event.preventDefault();
@@ -182,7 +182,16 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
         otherExternalProps,
       );
     },
-    [buttonProps, disabled, focusableWhenDisabled, isNativeButton, isValidLink, mergedRef, type],
+    [
+      buttonProps,
+      disabled,
+      elementName,
+      focusableWhenDisabled,
+      isNativeButton,
+      isValidLink,
+      mergedRef,
+      type,
+    ],
   );
 
   return {

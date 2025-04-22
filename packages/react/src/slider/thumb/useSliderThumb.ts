@@ -20,6 +20,7 @@ import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { getSliderValue } from '../utils/getSliderValue';
 import { roundValueToStep } from '../utils/roundValueToStep';
 import type { useSliderRoot } from '../root/useSliderRoot';
+import { SliderThumbDataAttributes } from './SliderThumbDataAttributes';
 
 export interface ThumbMetadata {
   inputId: string | undefined;
@@ -128,8 +129,6 @@ export function useSliderThumb(parameters: useSliderThumb.Parameters): useSlider
       }[orientation]]: `${percent}%`,
       [isVertical ? 'left' : 'top']: '50%',
       transform: `translate(${(isVertical || !isRtl ? -1 : 1) * 50}%, ${(isVertical ? 1 : -1) * 50}%)`,
-      // So the non active thumb doesn't show its label on hover.
-      pointerEvents: activeIndex !== -1 && activeIndex !== index ? 'none' : undefined,
       zIndex: activeIndex === index ? 1 : undefined,
     } satisfies React.CSSProperties;
   }, [activeIndex, isRtl, orientation, percent, index]);
@@ -138,7 +137,7 @@ export function useSliderThumb(parameters: useSliderThumb.Parameters): useSlider
     (externalProps = {}) => {
       return mergeProps(
         {
-          ['data-index' as string]: index,
+          [SliderThumbDataAttributes.index]: index,
           id: thumbId,
           onFocus() {
             setFocused(true);
@@ -284,7 +283,7 @@ export function useSliderThumb(parameters: useSliderThumb.Parameters): useSlider
                   index,
                 )
               : ariaValuetext || getDefaultAriaValueText(sliderValues, index, format ?? undefined),
-          ['data-index' as string]: index,
+          [SliderThumbDataAttributes.index as string]: index,
           disabled,
           id: inputId,
           max,
@@ -364,11 +363,11 @@ export namespace useSliderThumb {
     /**
      * The label for the input element.
      */
-    'aria-label': string;
+    'aria-label': string | undefined;
     /**
      * A string value that provides a user-friendly name for the current value of the slider.
      */
-    'aria-valuetext': string;
+    'aria-valuetext': string | undefined;
     /**
      * Options to format the input value.
      * @default null
@@ -391,8 +390,8 @@ export namespace useSliderThumb {
      * @type {((formattedValue: string, value: number, index: number) => string) | null}
      */
     getAriaValueText: ((formattedValue: string, value: number, index: number) => string) | null;
-    id: string;
-    inputId: string;
+    id: string | undefined;
+    inputId: string | undefined;
     disabled: boolean;
     onBlur: React.FocusEventHandler;
     onFocus: React.FocusEventHandler;

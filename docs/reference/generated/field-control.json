@@ -2,16 +2,19 @@
   "name": "FieldControl",
   "description": "The form control to label and validate.\nRenders an `<input>` element.\n\nYou can omit this part and use any Base UI input component instead. For example,\n[Input](https://base-ui.com/react/components/input), [Checkbox](https://base-ui.com/react/components/checkbox),\nor [Select](https://base-ui.com/react/components/select), among others, will work with Field out of the box.",
   "props": {
+    "defaultValue": {
+      "type": "string | number | string[]"
+    },
     "onValueChange": {
-      "type": "(value, event) => void",
+      "type": "((value: string | number | string[] | undefined, event: Event) => void)",
       "description": "Callback fired when the `value` changes. Use when controlled."
     },
     "className": {
-      "type": "string | (state) => string",
+      "type": "string | ((state: State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "render": {
-      "type": "React.ReactElement | (props, state) => React.ReactElement",
+      "type": "ReactElement | ((props: GenericHTMLProps, state: State) => ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
     }
   },

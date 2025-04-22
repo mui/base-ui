@@ -2,25 +2,21 @@
 import * as React from 'react';
 import { useEnhancedEffect } from './useEnhancedEffect';
 
-export type TransitionStatus = 'starting' | 'ending' | undefined;
+export type TransitionStatus = 'starting' | 'ending' | 'idle' | undefined;
 
 /**
  * Provides a status string for CSS animations.
  * @param open - a boolean that determines if the element is open.
- * @param delayStartingStatus - a boolean that set the `starting` status one
- *     tick later. Example use-case: collapsible needs an extra frame in order
- *     to measure the panel contents.
- * @ignore - internal hook.
  */
-export function useTransitionStatus(open: boolean, delayStartingStatus = false) {
-  const [transitionStatus, setTransitionStatus] = React.useState<TransitionStatus>();
+export function useTransitionStatus(open: boolean) {
+  const [transitionStatus, setTransitionStatus] = React.useState<TransitionStatus>(
+    open ? 'idle' : undefined,
+  );
   const [mounted, setMounted] = React.useState(open);
 
   if (open && !mounted) {
     setMounted(true);
-    if (transitionStatus !== 'starting' && !delayStartingStatus) {
-      setTransitionStatus('starting');
-    }
+    setTransitionStatus('starting');
   }
 
   if (!open && mounted && transitionStatus !== 'ending') {
@@ -35,19 +31,18 @@ export function useTransitionStatus(open: boolean, delayStartingStatus = false) 
     if (!open) {
       return undefined;
     }
-
-    if (delayStartingStatus) {
+    if (open && mounted && transitionStatus !== 'idle') {
       setTransitionStatus('starting');
     }
 
     const frame = requestAnimationFrame(() => {
-      setTransitionStatus(undefined);
+      setTransitionStatus('idle');
     });
 
     return () => {
       cancelAnimationFrame(frame);
     };
-  }, [open, delayStartingStatus]);
+  }, [open, mounted, setTransitionStatus, transitionStatus]);
 
   return React.useMemo(
     () => ({

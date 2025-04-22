@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import PropTypes from 'prop-types';
 import { useAlertDialogRootContext } from '../root/AlertDialogRootContext';
 import { useButton } from '../../use-button/useButton';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
@@ -20,14 +19,14 @@ const AlertDialogTrigger = React.forwardRef(function AlertDialogTrigger(
 ) {
   const { render, className, disabled = false, ...other } = props;
 
-  const { mounted, setTriggerElement, getTriggerProps } = useAlertDialogRootContext();
+  const { open, setTriggerElement, getTriggerProps } = useAlertDialogRootContext();
 
   const state: AlertDialogTrigger.State = React.useMemo(
     () => ({
       disabled,
-      open: mounted,
+      open,
     }),
-    [disabled, mounted],
+    [disabled, open],
   );
 
   const mergedRef = useForkRef(forwardedRef, setTriggerElement);
@@ -64,32 +63,5 @@ namespace AlertDialogTrigger {
     open: boolean;
   }
 }
-
-AlertDialogTrigger.propTypes /* remove-proptypes */ = {
-  // ┌────────────────────────────── Warning ──────────────────────────────┐
-  // │ These PropTypes are generated from the TypeScript type definitions. │
-  // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
-  // └─────────────────────────────────────────────────────────────────────┘
-  /**
-   * @ignore
-   */
-  children: PropTypes.node,
-  /**
-   * CSS class applied to the element, or a function that
-   * returns a class based on the component’s state.
-   */
-  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
-  /**
-   * @ignore
-   */
-  disabled: PropTypes.bool,
-  /**
-   * Allows you to replace the component’s HTML element
-   * with a different tag, or compose it with another component.
-   *
-   * Accepts a `ReactElement` or a function that returns the element to render.
-   */
-  render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
-} as any;
 
 export { AlertDialogTrigger };

@@ -38,12 +38,6 @@ module.exports = function getBabelConfig(api) {
       },
     ],
     ['@babel/plugin-transform-runtime', { regenerator: false, version: '^7.26.10' }],
-    [
-      'babel-plugin-transform-react-remove-prop-types',
-      {
-        mode: 'unsafe-wrap',
-      },
-    ],
     'babel-plugin-add-import-extension',
     '@babel/plugin-transform-react-constant-elements',
   ];
