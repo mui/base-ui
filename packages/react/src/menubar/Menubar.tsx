@@ -63,7 +63,7 @@ const Menubar = React.forwardRef(function Menubar(
 
   const renderElement = useRenderElement('div', props, {
     state,
-    props: [otherProps, { onFocus: handleFocus, onBlur: handleBlur }],
+    props: [otherProps, { onFocus: handleFocus, onBlur: handleBlur, role: 'menubar' }],
     ref: [forwardedRef, setContentElement, contentRef],
   });
 
