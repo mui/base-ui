@@ -12,8 +12,6 @@ import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { useLatestRef } from '../../utils/useLatestRef';
 import { SelectItemContext } from './SelectItemContext';
 
-/* eslint-disable react/no-unused-prop-types */
-/* false positives */
 interface InnerSelectItemProps extends Omit<SelectItem.Props, 'value'> {
   highlighted: boolean;
   selected: boolean;
@@ -35,7 +33,6 @@ interface InnerSelectItemProps extends Omit<SelectItem.Props, 'value'> {
   keyboardActiveRef: React.RefObject<boolean>;
   events: FloatingEvents;
 }
-/* eslint-enable react/no-unused-prop-types */
 
 const InnerSelectItem = React.memo(
   React.forwardRef(function InnerSelectItem(

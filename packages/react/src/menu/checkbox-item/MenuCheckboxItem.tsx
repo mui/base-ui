@@ -111,8 +111,6 @@ const MenuCheckboxItem = React.forwardRef(function MenuCheckboxItem(
   );
 });
 
-/* eslint-disable react/no-unused-prop-types */
-/* false positives */
 interface InnerMenuCheckboxItemProps extends MenuCheckboxItem.Props {
   highlighted: boolean;
   itemProps: GenericHTMLProps;
@@ -121,8 +119,6 @@ interface InnerMenuCheckboxItemProps extends MenuCheckboxItem.Props {
   typingRef: React.RefObject<boolean>;
   closeOnClick: boolean;
 }
-
-/* eslint-enable react/no-unused-prop-types */
 
 namespace MenuCheckboxItem {
   export type State = {

@@ -40,6 +40,8 @@ module.exports = {
     // We LOVE non-breaking spaces, and both straight and curly quotes here
     'no-irregular-whitespace': [1, { skipJSXText: true, skipStrings: true }],
     'react/no-unescaped-entities': [1, { forbid: ['>', '}'] }],
+    'react/prop-types': 'off',
+    'react/no-unused-prop-types': 'off',
     'material-ui/straight-quotes': 'off',
     // This prevents us from creating components like `<h1 {...props} />`
     'jsx-a11y/heading-has-content': 'off',
