@@ -13,7 +13,7 @@ import { useSliderControl } from './useSliderControl';
  *
  * Documentation: [Base UI Slider](https://base-ui.com/react/components/slider)
  */
-const SliderControl = React.forwardRef(function SliderControl(
+export const SliderControl = React.forwardRef(function SliderControl(
   props: SliderControl.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
@@ -65,8 +65,6 @@ const SliderControl = React.forwardRef(function SliderControl(
   return renderElement();
 });
 
-namespace SliderControl {
+export namespace SliderControl {
   export interface Props extends BaseUIComponentProps<'div', SliderRoot.State> {}
 }
-
-export { SliderControl };

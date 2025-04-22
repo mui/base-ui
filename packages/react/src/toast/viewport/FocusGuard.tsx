@@ -6,7 +6,7 @@ import { visuallyHidden } from '../../utils/visuallyHidden';
 /**
  * @internal
  */
-const FocusGuard = React.forwardRef(function FocusGuard(
+export const FocusGuard = React.forwardRef(function FocusGuard(
   props: React.ComponentPropsWithoutRef<'span'>,
   ref: React.ForwardedRef<HTMLSpanElement>,
 ) {
@@ -32,5 +32,3 @@ const FocusGuard = React.forwardRef(function FocusGuard(
 
   return <span {...props} {...restProps} />;
 });
-
-export { FocusGuard };

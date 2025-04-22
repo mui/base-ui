@@ -14,7 +14,7 @@ import { useSelectIndexContext } from '../root/SelectIndexContext';
 /**
  * @internal
  */
-const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
+export const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
   props: SelectScrollArrow.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
@@ -206,7 +206,7 @@ const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
   return renderElement();
 });
 
-namespace SelectScrollArrow {
+export namespace SelectScrollArrow {
   export interface State {
     direction: 'up' | 'down';
     visible: boolean;
@@ -223,5 +223,3 @@ namespace SelectScrollArrow {
     keepMounted?: boolean;
   }
 }
-
-export { SelectScrollArrow };

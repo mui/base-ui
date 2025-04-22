@@ -21,7 +21,7 @@ import { accordionStyleHookMapping } from './styleHooks';
  *
  * Documentation: [Base UI Accordion](https://base-ui.com/react/components/accordion)
  */
-const AccordionItem = React.forwardRef(function AccordionItem(
+export const AccordionItem = React.forwardRef(function AccordionItem(
   props: AccordionItem.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
@@ -135,7 +135,7 @@ const AccordionItem = React.forwardRef(function AccordionItem(
 
 export type AccordionItemValue = any | null;
 
-namespace AccordionItem {
+export namespace AccordionItem {
   export interface State extends AccordionRoot.State {
     index: number;
     open: boolean;
@@ -148,5 +148,3 @@ namespace AccordionItem {
     value?: AccordionItemValue;
   }
 }
-
-export { AccordionItem };

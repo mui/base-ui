@@ -13,7 +13,7 @@ import { useTabsListContext } from '../list/TabsListContext';
  *
  * Documentation: [Base UI Tabs](https://base-ui.com/react/components/tabs)
  */
-const TabsTab = React.forwardRef(function Tab(
+export const TabsTab = React.forwardRef(function Tab(
   props: TabsTab.Props,
   forwardedRef: React.ForwardedRef<Element>,
 ) {
@@ -64,7 +64,7 @@ const TabsTab = React.forwardRef(function Tab(
   return renderElement();
 });
 
-namespace TabsTab {
+export namespace TabsTab {
   export interface Props extends BaseUIComponentProps<'button', TabsTab.State> {
     /**
      * The value of the Tab.
@@ -82,5 +82,3 @@ namespace TabsTab {
     orientation: TabsOrientation;
   }
 }
-
-export { TabsTab };

@@ -15,56 +15,55 @@ import { useImageLoadingStatus, ImageLoadingStatus } from './useImageLoadingStat
  *
  * Documentation: [Base UI Avatar](https://base-ui.com/react/components/avatar)
  */
-const AvatarImage = React.forwardRef<HTMLImageElement, AvatarImage.Props>(function AvatarImage(
-  props: AvatarImage.Props,
-  forwardedRef,
-) {
-  const {
-    className,
-    render,
-    onLoadingStatusChange: onLoadingStatusChangeProp,
-    referrerPolicy,
-    crossOrigin,
-    ...otherProps
-  } = props;
+export const AvatarImage = React.forwardRef<HTMLImageElement, AvatarImage.Props>(
+  function AvatarImage(props: AvatarImage.Props, forwardedRef) {
+    const {
+      className,
+      render,
+      onLoadingStatusChange: onLoadingStatusChangeProp,
+      referrerPolicy,
+      crossOrigin,
+      ...otherProps
+    } = props;
 
-  const context = useAvatarRootContext();
-  const imageLoadingStatus = useImageLoadingStatus(props.src, {
-    referrerPolicy,
-    crossOrigin,
-  });
+    const context = useAvatarRootContext();
+    const imageLoadingStatus = useImageLoadingStatus(props.src, {
+      referrerPolicy,
+      crossOrigin,
+    });
 
-  const handleLoadingStatusChange = useEventCallback((status: ImageLoadingStatus) => {
-    onLoadingStatusChangeProp?.(status);
-    context.setImageLoadingStatus(status);
-  });
+    const handleLoadingStatusChange = useEventCallback((status: ImageLoadingStatus) => {
+      onLoadingStatusChangeProp?.(status);
+      context.setImageLoadingStatus(status);
+    });
 
-  useEnhancedEffect(() => {
-    if (imageLoadingStatus !== 'idle') {
-      handleLoadingStatusChange(imageLoadingStatus);
-    }
-  }, [imageLoadingStatus, handleLoadingStatusChange]);
+    useEnhancedEffect(() => {
+      if (imageLoadingStatus !== 'idle') {
+        handleLoadingStatusChange(imageLoadingStatus);
+      }
+    }, [imageLoadingStatus, handleLoadingStatusChange]);
 
-  const state: AvatarRoot.State = React.useMemo(
-    () => ({
-      imageLoadingStatus,
-    }),
-    [imageLoadingStatus],
-  );
+    const state: AvatarRoot.State = React.useMemo(
+      () => ({
+        imageLoadingStatus,
+      }),
+      [imageLoadingStatus],
+    );
 
-  const { renderElement } = useComponentRenderer({
-    render: render ?? 'img',
-    state,
-    className,
-    ref: forwardedRef,
-    extraProps: otherProps,
-    customStyleHookMapping: avatarStyleHookMapping,
-  });
+    const { renderElement } = useComponentRenderer({
+      render: render ?? 'img',
+      state,
+      className,
+      ref: forwardedRef,
+      extraProps: otherProps,
+      customStyleHookMapping: avatarStyleHookMapping,
+    });
 
-  return imageLoadingStatus === 'loaded' ? renderElement() : null;
-});
+    return imageLoadingStatus === 'loaded' ? renderElement() : null;
+  },
+);
 
-namespace AvatarImage {
+export namespace AvatarImage {
   export interface Props extends BaseUIComponentProps<'img', AvatarRoot.State> {
     /**
      * Callback fired when the loading status changes.
@@ -72,5 +71,3 @@ namespace AvatarImage {
     onLoadingStatusChange?: (status: ImageLoadingStatus) => void;
   }
 }
-
-export { AvatarImage };

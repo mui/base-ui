@@ -12,7 +12,7 @@ import { useSliderValue } from './useSliderValue';
  *
  * Documentation: [Base UI Slider](https://base-ui.com/react/components/slider)
  */
-const SliderValue = React.forwardRef(function SliderValue(
+export const SliderValue = React.forwardRef(function SliderValue(
   props: SliderValue.Props,
   forwardedRef: React.ForwardedRef<HTMLOutputElement>,
 ) {
@@ -52,7 +52,7 @@ const SliderValue = React.forwardRef(function SliderValue(
   return renderElement();
 });
 
-namespace SliderValue {
+export namespace SliderValue {
   export interface Props
     extends Omit<BaseUIComponentProps<'output', SliderRoot.State>, 'children'> {
     /**
@@ -64,5 +64,3 @@ namespace SliderValue {
       | ((formattedValues: readonly string[], values: readonly number[]) => React.ReactNode);
   }
 }
-
-export { SliderValue };

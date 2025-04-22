@@ -10,7 +10,7 @@ import { useRenderElement } from '../../utils/useRenderElement';
  *
  * Documentation: [Base UI Popover](https://base-ui.com/react/components/popover)
  */
-const PopoverClose = React.forwardRef(function PopoverClose(
+export const PopoverClose = React.forwardRef(function PopoverClose(
   props: PopoverClose.Props,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
@@ -33,10 +33,8 @@ const PopoverClose = React.forwardRef(function PopoverClose(
   return renderElement();
 });
 
-namespace PopoverClose {
+export namespace PopoverClose {
   export interface State {}
 
   export interface Props extends BaseUIComponentProps<'button', State> {}
 }
-
-export { PopoverClose };

@@ -12,7 +12,7 @@ import { useRenderElement } from '../../utils/useRenderElement';
  *
  * Documentation: [Base UI Popover](https://base-ui.com/react/components/popover)
  */
-const PopoverDescription = React.forwardRef(function PopoverDescription(
+export const PopoverDescription = React.forwardRef(function PopoverDescription(
   componentProps: PopoverDescription.Props,
   forwardedRef: React.ForwardedRef<HTMLParagraphElement>,
 ) {
@@ -37,10 +37,8 @@ const PopoverDescription = React.forwardRef(function PopoverDescription(
   return renderElement();
 });
 
-namespace PopoverDescription {
+export namespace PopoverDescription {
   export interface State {}
 
   export interface Props extends BaseUIComponentProps<'p', State> {}
 }
-
-export { PopoverDescription };

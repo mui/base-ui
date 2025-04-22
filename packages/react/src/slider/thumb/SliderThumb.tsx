@@ -31,7 +31,7 @@ function defaultRender(
  *
  * Documentation: [Base UI Slider](https://base-ui.com/react/components/slider)
  */
-const SliderThumb = React.forwardRef(function SliderThumb(
+export const SliderThumb = React.forwardRef(function SliderThumb(
   props: SliderThumb.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
@@ -150,7 +150,7 @@ const SliderThumb = React.forwardRef(function SliderThumb(
   });
 });
 
-namespace SliderThumb {
+export namespace SliderThumb {
   export interface State extends SliderRoot.State {}
 
   export interface Props
@@ -176,5 +176,3 @@ namespace SliderThumb {
       | (React.ReactElement & { ref: React.Ref<Element> });
   }
 }
-
-export { SliderThumb };

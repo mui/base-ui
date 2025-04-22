@@ -14,7 +14,7 @@ import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
  *
  * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
  */
-const SelectItemIndicator = React.forwardRef(function SelectItemIndicator(
+export const SelectItemIndicator = React.forwardRef(function SelectItemIndicator(
   props: SelectItemIndicator.Props,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
@@ -77,7 +77,7 @@ const SelectItemIndicator = React.forwardRef(function SelectItemIndicator(
   return renderElement();
 });
 
-namespace SelectItemIndicator {
+export namespace SelectItemIndicator {
   export interface Props extends BaseUIComponentProps<'span', State> {
     children?: React.ReactNode;
     /**
@@ -92,5 +92,3 @@ namespace SelectItemIndicator {
     transitionStatus: TransitionStatus;
   }
 }
-
-export { SelectItemIndicator };

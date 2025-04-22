@@ -24,7 +24,7 @@ const rootStyleHookMapping = {
  *
  * Documentation: [Base UI Accordion](https://base-ui.com/react/components/accordion)
  */
-const AccordionRoot = React.forwardRef(function AccordionRoot(
+export const AccordionRoot = React.forwardRef(function AccordionRoot(
   props: AccordionRoot.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
@@ -113,7 +113,7 @@ const AccordionRoot = React.forwardRef(function AccordionRoot(
   );
 });
 
-namespace AccordionRoot {
+export namespace AccordionRoot {
   export interface State {
     value: AccordionValue;
     /**
@@ -153,5 +153,3 @@ namespace AccordionRoot {
     keepMounted?: boolean;
   }
 }
-
-export { AccordionRoot };

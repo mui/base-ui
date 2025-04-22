@@ -12,7 +12,7 @@ import { useId } from '../../utils/useId';
  *
  * Documentation: [Base UI Toast](https://base-ui.com/react/components/toast)
  */
-const ToastTitle = React.forwardRef(function ToastTitle(
+export const ToastTitle = React.forwardRef(function ToastTitle(
   props: ToastTitle.Props,
   forwardedRef: React.ForwardedRef<HTMLHeadingElement>,
 ) {
@@ -66,7 +66,7 @@ const ToastTitle = React.forwardRef(function ToastTitle(
   return renderElement();
 });
 
-namespace ToastTitle {
+export namespace ToastTitle {
   export interface State {
     /**
      * The type of the toast.
@@ -76,5 +76,3 @@ namespace ToastTitle {
 
   export interface Props extends BaseUIComponentProps<'h2', State> {}
 }
-
-export { ToastTitle };

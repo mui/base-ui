@@ -19,7 +19,7 @@ const noop = () => null;
  *
  * Documentation: [Base UI Tabs](https://base-ui.com/react/components/tabs)
  */
-const TabsIndicator = React.forwardRef<HTMLSpanElement, TabsIndicator.Props>(
+export const TabsIndicator = React.forwardRef<HTMLSpanElement, TabsIndicator.Props>(
   function TabIndicator(props, forwardedRef) {
     const { className, render, renderBeforeHydration = false, ...other } = props;
 
@@ -91,7 +91,7 @@ const TabsIndicator = React.forwardRef<HTMLSpanElement, TabsIndicator.Props>(
   },
 );
 
-namespace TabsIndicator {
+export namespace TabsIndicator {
   export interface State extends TabsRoot.State {
     selectedTabPosition: ActiveTabPosition | null;
     selectedTabSize: ActiveTabSize | null;
@@ -107,5 +107,3 @@ namespace TabsIndicator {
     renderBeforeHydration?: boolean;
   }
 }
-
-export { TabsIndicator };

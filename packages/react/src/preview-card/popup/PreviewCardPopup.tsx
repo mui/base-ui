@@ -25,7 +25,7 @@ const customStyleHookMapping: CustomStyleHookMapping<PreviewCardPopup.State> = {
  *
  * Documentation: [Base UI Preview Card](https://base-ui.com/react/components/preview-card)
  */
-const PreviewCardPopup = React.forwardRef(function PreviewCardPopup(
+export const PreviewCardPopup = React.forwardRef(function PreviewCardPopup(
   props: PreviewCardPopup.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
@@ -82,7 +82,7 @@ const PreviewCardPopup = React.forwardRef(function PreviewCardPopup(
   return renderElement();
 });
 
-namespace PreviewCardPopup {
+export namespace PreviewCardPopup {
   export interface State {
     /**
      * Whether the preview card is currently open.
@@ -95,5 +95,3 @@ namespace PreviewCardPopup {
 
   export interface Props extends BaseUIComponentProps<'div', State> {}
 }
-
-export { PreviewCardPopup };

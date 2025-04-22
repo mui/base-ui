@@ -15,7 +15,7 @@ const state = {};
  *
  * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
  */
-const SelectGroupLabel = React.forwardRef(function SelectGroupLabel(
+export const SelectGroupLabel = React.forwardRef(function SelectGroupLabel(
   props: SelectGroupLabel.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
@@ -52,10 +52,8 @@ const SelectGroupLabel = React.forwardRef(function SelectGroupLabel(
   return renderElement();
 });
 
-namespace SelectGroupLabel {
+export namespace SelectGroupLabel {
   export interface State {}
 
   export interface Props extends BaseUIComponentProps<'div', State> {}
 }
-
-export { SelectGroupLabel };

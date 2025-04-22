@@ -15,7 +15,7 @@ const EMPTY = {};
  *
  * Documentation: [Base UI Meter](https://base-ui.com/react/components/meter)
  */
-const MeterLabel = React.forwardRef(function MeterLabel(
+export const MeterLabel = React.forwardRef(function MeterLabel(
   props: MeterLabel.Props,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
@@ -41,8 +41,6 @@ const MeterLabel = React.forwardRef(function MeterLabel(
   return renderElement();
 });
 
-namespace MeterLabel {
+export namespace MeterLabel {
   export interface Props extends BaseUIComponentProps<'span', MeterRoot.State> {}
 }
-
-export { MeterLabel };

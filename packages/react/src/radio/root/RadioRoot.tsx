@@ -16,7 +16,7 @@ import { customStyleHookMapping } from '../utils/customStyleHookMapping';
  *
  * Documentation: [Base UI Radio](https://base-ui.com/react/components/radio)
  */
-const RadioRoot = React.forwardRef(function RadioRoot(
+export const RadioRoot = React.forwardRef(function RadioRoot(
   props: RadioRoot.Props,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
@@ -80,7 +80,7 @@ const RadioRoot = React.forwardRef(function RadioRoot(
   );
 });
 
-namespace RadioRoot {
+export namespace RadioRoot {
   export interface Props extends Omit<BaseUIComponentProps<'button', State>, 'value'> {
     /**
      * The unique identifying value of the radio in a group.
@@ -119,5 +119,3 @@ namespace RadioRoot {
     required: boolean;
   }
 }
-
-export { RadioRoot };

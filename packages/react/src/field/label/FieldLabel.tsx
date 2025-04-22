@@ -15,7 +15,7 @@ import type { BaseUIComponentProps } from '../../utils/types';
  *
  * Documentation: [Base UI Field](https://base-ui.com/react/components/field)
  */
-const FieldLabel = React.forwardRef(function FieldLabel(
+export const FieldLabel = React.forwardRef(function FieldLabel(
   props: FieldLabel.Props,
   forwardedRef: React.ForwardedRef<any>,
 ) {
@@ -47,10 +47,8 @@ const FieldLabel = React.forwardRef(function FieldLabel(
   return renderElement();
 });
 
-namespace FieldLabel {
+export namespace FieldLabel {
   export type State = FieldRoot.State;
 
   export interface Props extends BaseUIComponentProps<'div', State> {}
 }
-
-export { FieldLabel };

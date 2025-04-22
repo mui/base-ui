@@ -12,7 +12,7 @@ import { useBaseUiId } from '../../utils/useBaseUiId';
  *
  * Documentation: [Base UI Popover](https://base-ui.com/react/components/popover)
  */
-const PopoverTitle = React.forwardRef(function PopoverTitle(
+export const PopoverTitle = React.forwardRef(function PopoverTitle(
   componentProps: PopoverTitle.Props,
   forwardedRef: React.ForwardedRef<HTMLHeadingElement>,
 ) {
@@ -37,11 +37,9 @@ const PopoverTitle = React.forwardRef(function PopoverTitle(
   return renderElement();
 });
 
-namespace PopoverTitle {
+export namespace PopoverTitle {
   export interface State {}
 
   export interface Props
     extends BaseUIComponentProps<'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6', State> {}
 }
-
-export { PopoverTitle };

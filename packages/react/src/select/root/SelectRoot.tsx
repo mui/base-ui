@@ -12,7 +12,7 @@ import { visuallyHidden } from '../../utils/visuallyHidden';
  *
  * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
  */
-const SelectRoot: SelectRoot = function SelectRoot<Value>(
+export const SelectRoot: SelectRoot = function SelectRoot<Value>(
   props: SelectRoot.Props<Value>,
 ): React.JSX.Element {
   const {
@@ -115,7 +115,7 @@ const SelectRoot: SelectRoot = function SelectRoot<Value>(
   );
 };
 
-namespace SelectRoot {
+export namespace SelectRoot {
   export interface Props<Value> extends useSelectRoot.Parameters<Value> {
     children?: React.ReactNode;
   }
@@ -125,8 +125,6 @@ namespace SelectRoot {
   export type Actions = useSelectRoot.Actions;
 }
 
-interface SelectRoot {
+export interface SelectRoot {
   <Value>(props: SelectRoot.Props<Value>): React.JSX.Element;
 }
-
-export { SelectRoot };

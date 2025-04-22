@@ -13,7 +13,7 @@ const EMPTY = {};
  *
  * Documentation: [Base UI Meter](https://base-ui.com/react/components/meter)
  */
-const MeterValue = React.forwardRef(function MeterValue(
+export const MeterValue = React.forwardRef(function MeterValue(
   props: MeterValue.Props,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
@@ -48,10 +48,8 @@ const MeterValue = React.forwardRef(function MeterValue(
   return renderElement();
 });
 
-namespace MeterValue {
+export namespace MeterValue {
   export interface Props extends Omit<BaseUIComponentProps<'span', MeterRoot.State>, 'children'> {
     children?: null | ((formattedValue: string, value: number) => React.ReactNode);
   }
 }
-
-export { MeterValue };
