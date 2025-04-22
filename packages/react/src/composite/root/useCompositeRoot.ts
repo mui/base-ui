@@ -67,10 +67,6 @@ export interface UseCompositeRootParameters {
    * @default []
    */
   modifierKeys?: ModifierKey[];
-  /**
-   * Ignore navigation events that were propagated from nested popups.
-   */
-  ignoreNavigationFromPopups: boolean;
 }
 
 function getDisallowedModifierKeys(modifierKeys: ModifierKey[]) {
@@ -100,7 +96,6 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
     stopEventPropagation = false,
     disabledIndices,
     modifierKeys = EMPTY_ARRAY,
-    ignoreNavigationFromPopups,
   } = params;
 
   const [internalHighlightedIndex, internalSetHighlightedIndex] = React.useState(0);
@@ -154,14 +149,6 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
 
             const element = rootRef.current;
             if (!element) {
-              return;
-            }
-
-            if (
-              ignoreNavigationFromPopups &&
-              (event.target as HTMLElement).closest('[data-floating-ui-portal]') != null
-            ) {
-              // don't navigate if the event came from a popup
               return;
             }
 
@@ -353,7 +340,6 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
       onHighlightedIndexChange,
       orientation,
       stopEventPropagation,
-      ignoreNavigationFromPopups,
     ],
   );
 

@@ -227,6 +227,7 @@ export function useSliderThumb(parameters: useSliderThumb.Parameters): useSlider
 
             if (newValue !== null) {
               handleInputChange(newValue, index, event);
+              event.stopPropagation();
               event.preventDefault();
             }
           },
