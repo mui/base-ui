@@ -1,7 +1,6 @@
 'use client';
 
 import * as React from 'react';
-import PropTypes from 'prop-types';
 import { FloatingNode, FloatingTree, useFloatingNodeId, useFloatingTree } from '@floating-ui/react';
 import { MenuOrientation } from '../menu/root/useMenuRoot';
 import { BaseUIComponentProps } from '../utils/types';
@@ -97,50 +96,6 @@ const Menubar = React.forwardRef(function Menubar(
   );
 });
 
-Menubar.propTypes /* remove-proptypes */ = {
-  // ┌────────────────────────────── Warning ──────────────────────────────┐
-  // │ These PropTypes are generated from the TypeScript type definitions. │
-  // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
-  // └─────────────────────────────────────────────────────────────────────┘
-  /**
-   * @ignore
-   */
-  children: PropTypes.node,
-  /**
-   * CSS class applied to the element, or a function that
-   * returns a class based on the component’s state.
-   */
-  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
-  /**
-   * Whether the whole menubar is disabled.
-   * @default false
-   */
-  disabled: PropTypes.bool,
-  /**
-   * Whether to loop keyboard focus back to the first item
-   * when the end of the list is reached while using the arrow keys.
-   * @default true
-   */
-  loop: PropTypes.bool,
-  /**
-   * Whether the menubar is modal.
-   * @default true
-   */
-  modal: PropTypes.bool,
-  /**
-   * The orientation of the menubar.
-   * @default 'horizontal'
-   */
-  orientation: PropTypes.oneOf(['horizontal', 'vertical']),
-  /**
-   * Allows you to replace the component’s HTML element
-   * with a different tag, or compose it with another component.
-   *
-   * Accepts a `ReactElement` or a function that returns the element to render.
-   */
-  render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
-} as any;
-
 function MenubarContent(props: React.PropsWithChildren<{}>) {
   const nodeId = useFloatingNodeId();
   const { events: menuEvents } = useFloatingTree()!;
@@ -208,16 +163,5 @@ namespace Menubar {
     loop?: boolean;
   }
 }
-
-MenubarContent.propTypes /* remove-proptypes */ = {
-  // ┌────────────────────────────── Warning ──────────────────────────────┐
-  // │ These PropTypes are generated from the TypeScript type definitions. │
-  // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
-  // └─────────────────────────────────────────────────────────────────────┘
-  /**
-   * @ignore
-   */
-  children: PropTypes.node,
-} as any;
 
 export { Menubar };

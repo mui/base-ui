@@ -131,9 +131,6 @@ importers:
       babel-plugin-react-remove-properties:
         specifier: ^0.3.0
         version: 0.3.0
-      babel-plugin-transform-react-remove-prop-types:
-        specifier: ^0.4.24
-        version: 0.4.24
       chai-dom:
         specifier: ^1.12.1
         version: 1.12.1(chai@5.2.0)
@@ -380,9 +377,6 @@ importers:
       babel-plugin-react-remove-properties:
         specifier: ^0.3.0
         version: 0.3.0
-      babel-plugin-transform-react-remove-prop-types:
-        specifier: ^0.4.24
-        version: 0.4.24
       clipboard-copy:
         specifier: ^4.0.1
         version: 4.0.1
@@ -428,9 +422,6 @@ importers:
       postcss-import:
         specifier: ^16.1.0
         version: 16.1.0(postcss@8.5.3)
-      prop-types:
-        specifier: ^15.8.1
-        version: 15.8.1
       react:
         specifier: ^19.1.0
         version: 19.1.0
@@ -519,9 +510,6 @@ importers:
       '@types/node':
         specifier: ^18.19.85
         version: 18.19.86
-      '@types/prop-types':
-        specifier: ^15.7.14
-        version: 15.7.14
       '@types/react':
         specifier: ^19.0.12
         version: 19.0.12
@@ -594,9 +582,6 @@ importers:
       '@react-aria/overlays':
         specifier: ^3.27.0
         version: 3.27.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
-      prop-types:
-        specifier: ^15.8.1
-        version: 15.8.1
       use-sync-external-store:
         specifier: ^1.5.0
         version: 1.5.0(react@19.1.0)
@@ -619,9 +604,6 @@ importers:
       '@types/chai-dom':
         specifier: ^1.11.3
         version: 1.11.3
-      '@types/prop-types':
-        specifier: ^15.7.14
-        version: 15.7.14
       '@types/react':
         specifier: ^19.0.12
         version: 19.0.12
@@ -3761,9 +3743,6 @@ packages:
     resolution: {integrity: sha512-902o4GiQqI1GqAXfD5rEoz0PJamUfJ3VllpdWaNsFTwdaNjFSFHawvBO+cp5K2j+g2h3bZ4lnM1Xb6yFYGihtA==}
     peerDependencies:
       '@babel/core': ^7.26.10
-
-  babel-plugin-transform-react-remove-prop-types@0.4.24:
-    resolution: {integrity: sha512-eqj0hVcJUR57/Ug2zE1Yswsw4LhuqqHhD+8v120T1cl3kjg76QwtyBrdIk4WVwK+lAhBJVYCd/v+4nc4y+8JsA==}
 
   bail@2.0.2:
     resolution: {integrity: sha512-0xO6mYd7JB2YesxDKplafRpsiOzPt9V02ddPCLbY1xYGPOX24NTyN50qnUxgCPcSoYMhKpAuBTjQoRZCAkUDRw==}
@@ -12578,8 +12557,6 @@ snapshots:
       '@babel/core': 7.26.10
       '@babel/template': 7.27.0
       tslib: 2.8.1
-
-  babel-plugin-transform-react-remove-prop-types@0.4.24: {}
 
   bail@2.0.2: {}
 

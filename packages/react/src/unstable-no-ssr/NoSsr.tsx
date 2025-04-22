@@ -1,8 +1,6 @@
 'use client';
 import * as React from 'react';
-import PropTypes from 'prop-types';
 import { useEnhancedEffect } from '../utils/useEnhancedEffect';
-import { exactProp } from '../utils/proptypes';
 import { NoSsrProps } from './NoSsr.types';
 
 /**
@@ -37,33 +35,6 @@ function NoSsr(props: NoSsrProps): React.JSX.Element {
   // We could replace React.JSX.Element with React.ReactNode.
   // But first, we need to bump min typescript support to version to 5.1 and enough people to adopt the above change.
   return (mountedState ? children : fallback) as React.JSX.Element;
-}
-
-NoSsr.propTypes /* remove-proptypes */ = {
-  // ┌────────────────────────────── Warning ──────────────────────────────┐
-  // │ These PropTypes are generated from the TypeScript type definitions. │
-  // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
-  // └─────────────────────────────────────────────────────────────────────┘
-  /**
-   * You can wrap a node.
-   */
-  children: PropTypes.node,
-  /**
-   * If `true`, the component will not only prevent server-side rendering.
-   * It will also defer the rendering of the children into a different screen frame.
-   * @default false
-   */
-  defer: PropTypes.bool,
-  /**
-   * The fallback content to display.
-   * @default null
-   */
-  fallback: PropTypes.node,
-} as any;
-
-if (process.env.NODE_ENV !== 'production') {
-  // eslint-disable-next-line
-  (NoSsr as any)['propTypes' + ''] = exactProp(NoSsr.propTypes);
 }
 
 export { NoSsr };

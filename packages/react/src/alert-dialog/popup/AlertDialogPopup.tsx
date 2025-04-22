@@ -1,11 +1,9 @@
 'use client';
 import * as React from 'react';
-import PropTypes from 'prop-types';
 import { FloatingFocusManager } from '@floating-ui/react';
 import { useDialogPopup } from '../../dialog/popup/useDialogPopup';
 import { useAlertDialogRootContext } from '../root/AlertDialogRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { refType } from '../../utils/proptypes';
 import type { BaseUIComponentProps } from '../../utils/types';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
@@ -157,45 +155,5 @@ namespace AlertDialogPopup {
     nestedDialogOpen: boolean;
   }
 }
-
-AlertDialogPopup.propTypes /* remove-proptypes */ = {
-  // ┌────────────────────────────── Warning ──────────────────────────────┐
-  // │ These PropTypes are generated from the TypeScript type definitions. │
-  // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
-  // └─────────────────────────────────────────────────────────────────────┘
-  /**
-   * @ignore
-   */
-  children: PropTypes.node,
-  /**
-   * CSS class applied to the element, or a function that
-   * returns a class based on the component’s state.
-   */
-  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
-  /**
-   * Determines the element to focus when the dialog is closed.
-   * By default, focus returns to the trigger.
-   */
-  finalFocus: refType,
-  /**
-   * Determines the element to focus when the dialog is opened.
-   * By default, the first focusable element is focused.
-   */
-  initialFocus: PropTypes /* @typescript-to-proptypes-ignore */.oneOfType([
-    PropTypes.func,
-    refType,
-  ]),
-  /**
-   * Allows you to replace the component’s HTML element
-   * with a different tag, or compose it with another component.
-   *
-   * Accepts a `ReactElement` or a function that returns the element to render.
-   */
-  render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
-  /**
-   * @ignore
-   */
-  style: PropTypes.object,
-} as any;
 
 export { AlertDialogPopup };

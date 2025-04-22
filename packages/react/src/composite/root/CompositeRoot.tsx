@@ -1,10 +1,8 @@
 'use client';
 import * as React from 'react';
-import PropTypes from 'prop-types';
 import { CompositeList, type CompositeMetadata } from '../list/CompositeList';
 import { useCompositeRoot } from './useCompositeRoot';
 import { CompositeRootContext } from './CompositeRootContext';
-import { refType } from '../../utils/proptypes';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import type { BaseUIComponentProps } from '../../utils/types';
 import type { TextDirection } from '../../direction-provider/DirectionContext';
@@ -97,91 +95,3 @@ namespace CompositeRoot {
 }
 
 export { CompositeRoot };
-
-CompositeRoot.propTypes /* remove-proptypes */ = {
-  // ┌────────────────────────────── Warning ──────────────────────────────┐
-  // │ These PropTypes are generated from the TypeScript type definitions. │
-  // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
-  // └─────────────────────────────────────────────────────────────────────┘
-  /**
-   * @ignore
-   */
-  children: PropTypes.node,
-  /**
-   * CSS class applied to the element, or a function that
-   * returns a class based on the component’s state.
-   */
-  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
-  /**
-   * @ignore
-   */
-  cols: PropTypes.number,
-  /**
-   * @ignore
-   */
-  dense: PropTypes.bool,
-  /**
-   * @ignore
-   */
-  direction: PropTypes.oneOf(['ltr', 'rtl']),
-  /**
-   * @ignore
-   */
-  disabledIndices: PropTypes.arrayOf(PropTypes.number),
-  /**
-   * @ignore
-   */
-  enableHomeAndEndKeys: PropTypes.bool,
-  /**
-   * @ignore
-   */
-  highlightedIndex: PropTypes.number,
-  /**
-   * @ignore
-   */
-  highlightItemOnHover: PropTypes.bool,
-  /**
-   * @ignore
-   */
-  itemSizes: PropTypes.arrayOf(
-    PropTypes.shape({
-      height: PropTypes.number.isRequired,
-      width: PropTypes.number.isRequired,
-    }),
-  ),
-  /**
-   * @ignore
-   */
-  loop: PropTypes.bool,
-  /**
-   * @ignore
-   */
-  modifierKeys: PropTypes.arrayOf(PropTypes.oneOf(['Alt', 'Control', 'Meta', 'Shift']).isRequired),
-  /**
-   * @ignore
-   */
-  onHighlightedIndexChange: PropTypes.func,
-  /**
-   * @ignore
-   */
-  onMapChange: PropTypes.func,
-  /**
-   * @ignore
-   */
-  orientation: PropTypes.oneOf(['both', 'horizontal', 'vertical']),
-  /**
-   * Allows you to replace the component’s HTML element
-   * with a different tag, or compose it with another component.
-   *
-   * Accepts a `ReactElement` or a function that returns the element to render.
-   */
-  render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
-  /**
-   * @ignore
-   */
-  rootRef: refType,
-  /**
-   * @ignore
-   */
-  stopEventPropagation: PropTypes.bool,
-} as any;
