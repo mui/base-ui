@@ -82,10 +82,8 @@ export default function ExampleMenubar() {
         </Menu.Portal>
       </Menu.Root>
 
-      <Menu.Root>
-        <Menu.Trigger className={styles.MenuTrigger} disabled>
-          Help
-        </Menu.Trigger>
+      <Menu.Root disabled>
+        <Menu.Trigger className={styles.MenuTrigger}>Help</Menu.Trigger>
       </Menu.Root>
     </Menubar>
   );

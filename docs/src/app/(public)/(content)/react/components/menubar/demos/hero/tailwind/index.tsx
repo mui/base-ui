@@ -119,11 +119,8 @@ export default function ExampleMenubar() {
         </Menu.Portal>
       </Menu.Root>
 
-      <Menu.Root>
-        <Menu.Trigger
-          className="focus-visible:outline-blue-500 h-8 rounded px-3 text-sm font-medium text-gray-600 outline-none select-none focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-1 active:bg-gray-200 disabled:cursor-not-allowed data-[disabled]:opacity-50 data-[popup-open]:bg-gray-100"
-          disabled
-        >
+      <Menu.Root disabled>
+        <Menu.Trigger className="focus-visible:outline-blue-500 h-8 rounded px-3 text-sm font-medium text-gray-600 outline-none select-none focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-1 active:bg-gray-200 disabled:cursor-not-allowed data-[disabled]:opacity-50 data-[popup-open]:bg-gray-100">
           Help
         </Menu.Trigger>
       </Menu.Root>
