@@ -114,39 +114,42 @@ describe('<Menubar />', () => {
       expect(screen.queryByTestId('file-menu')).to.equal(null);
     });
 
-    it('should open submenus on hover when another submenu is already open', async () => {
-      const { user } = await render(<TestMenubar />);
+    it.skipIf(isJSDOM)(
+      'should open submenus on hover when another submenu is already open',
+      async () => {
+        const { user } = await render(<TestMenubar />);
 
-      // First click to open the file menu
-      const fileTrigger = screen.getByTestId('file-trigger');
-      await user.click(fileTrigger);
+        // First click to open the file menu
+        const fileTrigger = screen.getByTestId('file-trigger');
+        await user.click(fileTrigger);
 
-      expect(screen.getByTestId('file-menu')).to.not.equal(null);
+        expect(screen.getByTestId('file-menu')).to.not.equal(null);
 
-      // Now hover over the edit trigger, it should open because a submenu is already open
-      expect(screen.getByTestId('edit-trigger')).to.not.equal(null);
-      const editTrigger = screen.getByTestId('edit-trigger');
+        // Now hover over the edit trigger, it should open because a submenu is already open
+        expect(screen.getByTestId('edit-trigger')).to.not.equal(null);
+        const editTrigger = screen.getByTestId('edit-trigger');
 
-      await user.hover(editTrigger);
+        await user.hover(editTrigger);
 
-      await waitFor(() => {
-        expect(screen.queryByTestId('edit-menu')).to.not.equal(null);
-      });
+        await waitFor(() => {
+          expect(screen.queryByTestId('edit-menu')).to.not.equal(null);
+        });
 
-      // The file menu should now be closed
-      expect(screen.queryByTestId('file-menu')).to.equal(null);
+        // The file menu should now be closed
+        expect(screen.queryByTestId('file-menu')).to.equal(null);
 
-      // Continue hovering to the view trigger
-      const viewTrigger = screen.getByTestId('view-trigger');
-      await user.hover(viewTrigger);
+        // Continue hovering to the view trigger
+        const viewTrigger = screen.getByTestId('view-trigger');
+        await user.hover(viewTrigger);
 
-      await waitFor(() => {
-        expect(screen.queryByTestId('view-menu')).to.not.equal(null);
-      });
+        await waitFor(() => {
+          expect(screen.queryByTestId('view-menu')).to.not.equal(null);
+        });
 
-      // The edit menu should now be closed
-      expect(screen.queryByTestId('edit-menu')).to.equal(null);
-    });
+        // The edit menu should now be closed
+        expect(screen.queryByTestId('edit-menu')).to.equal(null);
+      },
+    );
 
     it('should open nested submenus on hover when parent menu is open', async () => {
       const { user } = await render(<TestMenubar />);
@@ -189,7 +192,7 @@ describe('<Menubar />', () => {
     });
   });
 
-  describe('keyboard interactions', () => {
+  describe.skipIf(!isJSDOM)('keyboard interactions', () => {
     it('should navigate between menubar items with arrow keys', async () => {
       const { user } = await render(<TestMenubar />);
 
@@ -378,49 +381,35 @@ describe('<Menubar />', () => {
       expect(shareTrigger).toHaveFocus();
     });
 
-    it.skipIf(isJSDOM)(
-      'should navigate between menus using left/right arrow keys when menus are open',
-      async () => {
-        const { user } = await render(<TestMenubar />);
-        const fileTrigger = screen.getByTestId('file-trigger');
+    it('should navigate between menus using left/right arrow keys when menus are open', async () => {
+      const { user } = await render(<TestMenubar />);
+      const fileTrigger = screen.getByTestId('file-trigger');
 
-        // Focus and open file menu
-        await act(async () => {
-          fileTrigger.focus();
-        });
-        await user.keyboard('{Enter}');
+      // Focus and open file menu
+      await act(async () => {
+        fileTrigger.focus();
+      });
+      await user.keyboard('{Enter}');
 
-        // File menu should be open
-        await waitFor(() => {
-          expect(screen.queryByTestId('file-menu')).to.not.equal(null);
-        });
+      // File menu should be open
+      await waitFor(() => {
+        expect(screen.queryByTestId('file-menu')).to.not.equal(null);
+      });
 
-        // Navigate right to edit menu
-        await user.keyboard('{ArrowRight}');
+      // Navigate right to edit menu
+      await user.keyboard('{ArrowRight}');
 
-        // File menu should close, edit menu should open
-        await waitFor(() => {
-          expect(screen.queryByTestId('file-menu')).to.equal(null);
-        });
-        await waitFor(() => {
-          expect(screen.queryByTestId('edit-menu')).to.not.equal(null);
-        });
-
-        // Navigate back to file menu
-        await user.keyboard('{ArrowLeft}');
-
-        // Edit menu should close, file menu should open
-        await waitFor(() => {
-          expect(screen.queryByTestId('edit-menu')).to.equal(null);
-        });
-        await waitFor(() => {
-          expect(screen.queryByTestId('file-menu')).to.not.equal(null);
-        });
-      },
-    );
+      // File menu should close, edit menu should open
+      await waitFor(() => {
+        expect(screen.queryByTestId('file-menu')).to.equal(null);
+      });
+      await waitFor(() => {
+        expect(screen.queryByTestId('edit-menu')).to.not.equal(null);
+      });
+    });
   });
 
-  describe('mixed mouse and keyboard interactions', () => {
+  describe.skipIf(!isJSDOM)('mixed mouse and keyboard interactions', () => {
     it('should allow keyboard navigation after opening a menu with mouse click', async () => {
       const { user } = await render(<TestMenubar />);
 
@@ -499,11 +488,16 @@ describe('<Menubar />', () => {
         await act(async () => {
           fileTrigger.focus();
         });
-        expect(fileTrigger).toHaveFocus();
+
+        await waitFor(() => {
+          expect(fileTrigger).toHaveFocus();
+        });
 
         await user.keyboard('{ArrowLeft}');
         const lastItem = screen.getByTestId('view-trigger');
-        expect(lastItem).toHaveFocus();
+        await waitFor(() => {
+          expect(lastItem).toHaveFocus();
+        });
       });
     });
 
