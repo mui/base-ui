@@ -10,54 +10,54 @@ import { useForkRef } from '../../utils/useForkRef';
 import { useCompositeListItem } from '../../composite/list/useCompositeListItem';
 import { mergeProps } from '../../merge-props';
 
-const InnerMenuItem = React.forwardRef(function InnerMenuItem(
-  props: InnerMenuItemProps,
-  forwardedRef: React.ForwardedRef<Element>,
-) {
-  const {
-    className,
-    closeOnClick = true,
-    disabled = false,
-    highlighted,
-    id,
-    menuEvents,
-    itemProps,
-    render,
-    allowMouseUpTriggerRef,
-    typingRef,
-    ...other
-  } = props;
+const InnerMenuItem = React.memo(
+  React.forwardRef(function InnerMenuItem(
+    props: InnerMenuItemProps,
+    forwardedRef: React.ForwardedRef<Element>,
+  ) {
+    const {
+      className,
+      closeOnClick = true,
+      disabled = false,
+      highlighted,
+      id,
+      menuEvents,
+      itemProps,
+      render,
+      allowMouseUpTriggerRef,
+      typingRef,
+      ...other
+    } = props;
 
-  const { getItemProps } = useMenuItem({
-    closeOnClick,
-    disabled,
-    highlighted,
-    id,
-    menuEvents,
-    ref: forwardedRef,
-    allowMouseUpTriggerRef,
-    typingRef,
-  });
-
-  const state: MenuItem.State = React.useMemo(
-    () => ({
+    const { getItemProps } = useMenuItem({
+      closeOnClick,
       disabled,
-    }),
-    [disabled],
-  );
+      highlighted,
+      id,
+      menuEvents,
+      ref: forwardedRef,
+      allowMouseUpTriggerRef,
+      typingRef,
+    });
 
-  const { renderElement } = useComponentRenderer({
-    render: render || 'div',
-    className,
-    state,
-    propGetter: (externalProps) => mergeProps(itemProps, externalProps, getItemProps),
-    extraProps: other,
-  });
+    const state: MenuItem.State = React.useMemo(
+      () => ({
+        disabled,
+      }),
+      [disabled],
+    );
 
-  return renderElement();
-});
+    const { renderElement } = useComponentRenderer({
+      render: render || 'div',
+      className,
+      state,
+      propGetter: (externalProps) => mergeProps(itemProps, externalProps, getItemProps),
+      extraProps: other,
+    });
 
-const MemoizedInnerMenuItem = React.memo(InnerMenuItem);
+    return renderElement();
+  }),
+);
 
 /**
  * An individual interactive item in the menu.
@@ -86,7 +86,7 @@ const MenuItem = React.forwardRef(function MenuItem(
   // only when it needs to.
 
   return (
-    <MemoizedInnerMenuItem
+    <InnerMenuItem
       {...other}
       id={id}
       ref={mergedRef}

@@ -12,63 +12,63 @@ import { itemMapping } from '../utils/styleHookMapping';
 import { useCompositeListItem } from '../../composite/list/useCompositeListItem';
 import { mergeProps } from '../../merge-props';
 
-const InnerMenuCheckboxItem = React.forwardRef(function InnerMenuItem(
-  props: InnerMenuCheckboxItemProps,
-  forwardedRef: React.ForwardedRef<Element>,
-) {
-  const {
-    checked: checkedProp,
-    defaultChecked,
-    onCheckedChange,
-    className,
-    closeOnClick,
-    disabled = false,
-    highlighted,
-    id,
-    menuEvents,
-    itemProps,
-    render,
-    allowMouseUpTriggerRef,
-    typingRef,
-    ...other
-  } = props;
+const InnerMenuCheckboxItem = React.memo(
+  React.forwardRef(function InnerMenuCheckboxItem(
+    props: InnerMenuCheckboxItemProps,
+    forwardedRef: React.ForwardedRef<Element>,
+  ) {
+    const {
+      checked: checkedProp,
+      defaultChecked,
+      onCheckedChange,
+      className,
+      closeOnClick,
+      disabled = false,
+      highlighted,
+      id,
+      menuEvents,
+      itemProps,
+      render,
+      allowMouseUpTriggerRef,
+      typingRef,
+      ...other
+    } = props;
 
-  const { getItemProps, checked } = useMenuCheckboxItem({
-    closeOnClick,
-    disabled,
-    highlighted,
-    id,
-    menuEvents,
-    ref: forwardedRef,
-    allowMouseUpTriggerRef,
-    checked: checkedProp,
-    defaultChecked,
-    onCheckedChange,
-    typingRef,
-  });
+    const { getItemProps, checked } = useMenuCheckboxItem({
+      closeOnClick,
+      disabled,
+      highlighted,
+      id,
+      menuEvents,
+      ref: forwardedRef,
+      allowMouseUpTriggerRef,
+      checked: checkedProp,
+      defaultChecked,
+      onCheckedChange,
+      typingRef,
+    });
 
-  const state: MenuCheckboxItem.State = React.useMemo(
-    () => ({ disabled, highlighted, checked }),
-    [disabled, highlighted, checked],
-  );
+    const state: MenuCheckboxItem.State = React.useMemo(
+      () => ({ disabled, highlighted, checked }),
+      [disabled, highlighted, checked],
+    );
 
-  const { renderElement } = useComponentRenderer({
-    render: render || 'div',
-    className,
-    state,
-    propGetter: (externalProps) => mergeProps(itemProps, externalProps, getItemProps),
-    customStyleHookMapping: itemMapping,
-    extraProps: other,
-  });
+    const { renderElement } = useComponentRenderer({
+      render: render || 'div',
+      className,
+      state,
+      propGetter: (externalProps) => mergeProps(itemProps, externalProps, getItemProps),
+      customStyleHookMapping: itemMapping,
+      extraProps: other,
+    });
 
-  return (
-    <MenuCheckboxItemContext.Provider value={state}>
-      {renderElement()}
-    </MenuCheckboxItemContext.Provider>
-  );
-});
-
-const MemoizedInnerMenuCheckboxItem = React.memo(InnerMenuCheckboxItem);
+    return (
+      <MenuCheckboxItemContext.Provider value={state}>
+        {renderElement()}
+      </MenuCheckboxItemContext.Provider>
+    );
+  }),
+);
 
 /**
  * A menu item that toggles a setting on or off.
@@ -97,7 +97,7 @@ const MenuCheckboxItem = React.forwardRef(function MenuCheckboxItem(
   // only when it needs to.
 
   return (
-    <MemoizedInnerMenuCheckboxItem
+    <InnerMenuCheckboxItem
       {...other}
       id={id}
       ref={mergedRef}
@@ -111,6 +111,8 @@ const MenuCheckboxItem = React.forwardRef(function MenuCheckboxItem(
   );
 });
 
+/* eslint-disable react/no-unused-prop-types */
+/* false positives */
 interface InnerMenuCheckboxItemProps extends MenuCheckboxItem.Props {
   highlighted: boolean;
   itemProps: GenericHTMLProps;
@@ -119,6 +121,8 @@ interface InnerMenuCheckboxItemProps extends MenuCheckboxItem.Props {
   typingRef: React.RefObject<boolean>;
   closeOnClick: boolean;
 }
+
+/* eslint-enable react/no-unused-prop-types */
 
 namespace MenuCheckboxItem {
   export type State = {

@@ -13,54 +13,54 @@ import { itemMapping } from '../utils/styleHookMapping';
 import { useCompositeListItem } from '../../composite/list/useCompositeListItem';
 import { mergeProps } from '../../merge-props';
 
-const InnerMenuRadioItem = React.forwardRef(function InnerMenuItem(
-  props: InnerMenuRadioItemProps,
-  forwardedRef: React.ForwardedRef<Element>,
-) {
-  const {
-    checked,
-    setChecked,
-    className,
-    closeOnClick,
-    disabled = false,
-    highlighted,
-    id,
-    menuEvents,
-    itemProps,
-    render,
-    allowMouseUpTriggerRef,
-    typingRef,
-    ...other
-  } = props;
+const InnerMenuRadioItem = React.memo(
+  React.forwardRef(function InnerMenuRadioItem(
+    props: InnerMenuRadioItemProps,
+    forwardedRef: React.ForwardedRef<Element>,
+  ) {
+    const {
+      checked,
+      setChecked,
+      className,
+      closeOnClick,
+      disabled = false,
+      highlighted,
+      id,
+      menuEvents,
+      itemProps,
+      render,
+      allowMouseUpTriggerRef,
+      typingRef,
+      ...other
+    } = props;
 
-  const { getItemProps } = useMenuRadioItem({
-    checked,
-    setChecked,
-    closeOnClick,
-    disabled,
-    highlighted,
-    id,
-    menuEvents,
-    ref: forwardedRef,
-    allowMouseUpTriggerRef,
-    typingRef,
-  });
+    const { getItemProps } = useMenuRadioItem({
+      checked,
+      setChecked,
+      closeOnClick,
+      disabled,
+      highlighted,
+      id,
+      menuEvents,
+      ref: forwardedRef,
+      allowMouseUpTriggerRef,
+      typingRef,
+    });
 
-  const state: MenuRadioItem.State = { disabled, highlighted, checked };
+    const state: MenuRadioItem.State = { disabled, highlighted, checked };
 
-  const { renderElement } = useComponentRenderer({
-    render: render || 'div',
-    className,
-    state,
-    propGetter: (externalProps) => mergeProps(itemProps, externalProps, getItemProps),
-    customStyleHookMapping: itemMapping,
-    extraProps: other,
-  });
+    const { renderElement } = useComponentRenderer({
+      render: render || 'div',
+      className,
+      state,
+      propGetter: (externalProps) => mergeProps(itemProps, externalProps, getItemProps),
+      customStyleHookMapping: itemMapping,
+      extraProps: other,
+    });
 
-  return renderElement();
-});
-
-const MemoizedInnerMenuRadioItem = React.memo(InnerMenuRadioItem);
+    return renderElement();
+  }),
+);
 
 /**
  * A menu item that works like a radio button in a given group.
@@ -119,7 +119,7 @@ const MenuRadioItem = React.forwardRef(function MenuRadioItem(
 
   return (
     <MenuRadioItemContext.Provider value={contextValue}>
-      <MemoizedInnerMenuRadioItem
+      <InnerMenuRadioItem
         {...other}
         id={id}
         ref={mergedRef}

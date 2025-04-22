@@ -12,44 +12,44 @@ interface InnerSelectItemTextProps extends SelectItemText.Props {
   indexRef: React.RefObject<number>;
 }
 
-const InnerSelectItemText = React.forwardRef(function InnerSelectItemText(
-  props: InnerSelectItemTextProps,
-  forwardedRef: React.ForwardedRef<HTMLDivElement>,
-) {
-  const { className, render, selected, selectedItemTextRef, indexRef, ...otherProps } = props;
+const InnerSelectItemText = React.memo(
+  React.forwardRef(function InnerSelectItemText(
+    props: InnerSelectItemTextProps,
+    forwardedRef: React.ForwardedRef<HTMLDivElement>,
+  ) {
+    const { className, render, selected, selectedItemTextRef, indexRef, ...otherProps } = props;
 
-  const mergedRef = useForkRef<HTMLElement>(forwardedRef);
+    const mergedRef = useForkRef<HTMLElement>(forwardedRef);
 
-  const state: SelectItemText.State = React.useMemo(() => ({}), []);
+    const state: SelectItemText.State = React.useMemo(() => ({}), []);
 
-  const ref = React.useCallback(
-    (node: HTMLElement | null) => {
-      if (mergedRef) {
-        mergedRef(node);
-      }
-
-      // Wait for the DOM indices to be set.
-      queueMicrotask(() => {
-        if (selected || (selectedItemTextRef.current === null && indexRef.current === 0)) {
-          selectedItemTextRef.current = node;
+    const ref = React.useCallback(
+      (node: HTMLElement | null) => {
+        if (mergedRef) {
+          mergedRef(node);
         }
-      });
-    },
-    [mergedRef, selected, selectedItemTextRef, indexRef],
-  );
 
-  const { renderElement } = useComponentRenderer({
-    ref,
-    render: render ?? 'div',
-    className,
-    state,
-    extraProps: otherProps,
-  });
+        // Wait for the DOM indices to be set.
+        queueMicrotask(() => {
+          if (selected || (selectedItemTextRef.current === null && indexRef.current === 0)) {
+            selectedItemTextRef.current = node;
+          }
+        });
+      },
+      [mergedRef, selected, selectedItemTextRef, indexRef],
+    );
 
-  return renderElement();
-});
+    const { renderElement } = useComponentRenderer({
+      ref,
+      render: render ?? 'div',
+      className,
+      state,
+      extraProps: otherProps,
+    });
 
-const MemoizedInnerSelectItemText = React.memo(InnerSelectItemText);
+    return renderElement();
+  }),
+);
 
 /**
  * A text label of the select item.
@@ -66,7 +66,7 @@ const SelectItemText = React.forwardRef(function SelectItemText(
   const mergedRef = useForkRef<HTMLElement>(forwardedRef);
 
   return (
-    <MemoizedInnerSelectItemText
+    <InnerSelectItemText
       ref={mergedRef}
       selected={selected}
       selectedItemTextRef={selectedItemTextRef}
