@@ -19,7 +19,7 @@ const MenuTrigger = React.forwardRef(function MenuTrigger(
   props: MenuTrigger.Props,
   forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
-  const { render, className, disabled = false, ...other } = props;
+  const { render, className, disabled: disabledProp = false, ...other } = props;
 
   const {
     triggerProps: rootTriggerProps,
@@ -32,8 +32,10 @@ const MenuTrigger = React.forwardRef(function MenuTrigger(
     parent,
   } = useMenuRootContext();
 
+  const disabled = disabledProp || menuDisabled;
+
   const { getTriggerProps } = useMenuTrigger({
-    disabled: disabled || menuDisabled,
+    disabled,
     rootRef: forwardedRef,
     setTriggerElement,
     open,
