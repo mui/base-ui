@@ -57,7 +57,7 @@ function getClosestThumbIndex(values: readonly number[], currentValue: number, m
   return closestIndex;
 }
 
-function valueArrayToPercentages(values: number[], min: number, max: number) {
+export function valueArrayToPercentages(values: number[], min: number, max: number) {
   const output = [];
   for (let i = 0; i < values.length; i += 1) {
     output.push(clamp(valueToPercent(values[i], min, max), 0, 100));
