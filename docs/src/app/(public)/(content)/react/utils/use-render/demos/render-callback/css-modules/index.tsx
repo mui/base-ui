@@ -43,7 +43,7 @@ function Counter(props: CounterProps) {
 export default function ExampleCounter() {
   return (
     <Counter
-      render={(props, state) => (
+      render={(props: React.ComponentProps<'button'>, state) => (
         <button {...props}>
           {props.children}
           <span className={styles.suffix}>{state.odd ? '👎' : '👍'}</span>

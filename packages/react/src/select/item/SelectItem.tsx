@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import PropTypes from 'prop-types';
 import type { FloatingEvents, UseInteractionsReturn } from '@floating-ui/react';
 import { SelectRootContext, useSelectRootContext } from '../root/SelectRootContext';
 import { SelectIndexContext, useSelectIndexContext } from '../root/SelectIndexContext';
@@ -121,119 +120,6 @@ const InnerSelectItem = React.forwardRef(function InnerSelectItem(
   );
 });
 
-InnerSelectItem.propTypes /* remove-proptypes */ = {
-  // ┌────────────────────────────── Warning ──────────────────────────────┐
-  // │ These PropTypes are generated from the TypeScript type definitions. │
-  // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
-  // └─────────────────────────────────────────────────────────────────────┘
-  /**
-   * @ignore
-   */
-  children: PropTypes.node,
-  /**
-   * CSS class applied to the element, or a function that
-   * returns a class based on the component’s state.
-   */
-  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
-  /**
-   * Whether the component should ignore user interaction.
-   * @default false
-   */
-  disabled: PropTypes.bool,
-  /**
-   * @ignore
-   */
-  events: PropTypes.shape({
-    emit: PropTypes.func.isRequired,
-    off: PropTypes.func.isRequired,
-    on: PropTypes.func.isRequired,
-  }).isRequired,
-  /**
-   * @ignore
-   */
-  getRootItemProps: PropTypes.func.isRequired,
-  /**
-   * @ignore
-   */
-  highlighted: PropTypes.bool.isRequired,
-  /**
-   * @ignore
-   */
-  indexRef: PropTypes.shape({
-    current: PropTypes.number.isRequired,
-  }).isRequired,
-  /**
-   * @ignore
-   */
-  keyboardActiveRef: PropTypes.shape({
-    current: PropTypes.bool.isRequired,
-  }).isRequired,
-  /**
-   * Overrides the text label to use on the trigger when this item is selected
-   * and when the item is matched during keyboard text navigation.
-   */
-  label: PropTypes.string,
-  /**
-   * @ignore
-   */
-  open: PropTypes.bool.isRequired,
-  /**
-   * @ignore
-   */
-  popupRef: PropTypes.shape({
-    current: PropTypes.object,
-  }).isRequired,
-  /**
-   * Allows you to replace the component’s HTML element
-   * with a different tag, or compose it with another component.
-   *
-   * Accepts a `ReactElement` or a function that returns the element to render.
-   */
-  render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
-  /**
-   * @ignore
-   */
-  selected: PropTypes.bool.isRequired,
-  /**
-   * @ignore
-   */
-  selectedIndexRef: PropTypes.shape({
-    current: PropTypes.number,
-  }).isRequired,
-  /**
-   * @ignore
-   */
-  selectionRef: PropTypes.shape({
-    current: PropTypes.shape({
-      allowSelect: PropTypes.bool.isRequired,
-      allowSelectedMouseUp: PropTypes.bool.isRequired,
-      allowUnselectedMouseUp: PropTypes.bool.isRequired,
-    }).isRequired,
-  }).isRequired,
-  /**
-   * @ignore
-   */
-  setActiveIndex: PropTypes.func.isRequired,
-  /**
-   * @ignore
-   */
-  setOpen: PropTypes.func.isRequired,
-  /**
-   * @ignore
-   */
-  setValue: PropTypes.func.isRequired,
-  /**
-   * @ignore
-   */
-  typingRef: PropTypes.shape({
-    current: PropTypes.bool.isRequired,
-  }).isRequired,
-  /**
-   * @ignore
-   */
-  value: PropTypes.any.isRequired,
-} as any;
-
 const MemoizedInnerSelectItem = React.memo(InnerSelectItem);
 
 /**
@@ -349,43 +235,5 @@ namespace SelectItem {
     label?: string;
   }
 }
-
-SelectItem.propTypes /* remove-proptypes */ = {
-  // ┌────────────────────────────── Warning ──────────────────────────────┐
-  // │ These PropTypes are generated from the TypeScript type definitions. │
-  // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
-  // └─────────────────────────────────────────────────────────────────────┘
-  /**
-   * @ignore
-   */
-  children: PropTypes.node,
-  /**
-   * CSS class applied to the element, or a function that
-   * returns a class based on the component’s state.
-   */
-  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
-  /**
-   * Whether the component should ignore user interaction.
-   * @default false
-   */
-  disabled: PropTypes.bool,
-  /**
-   * Overrides the text label to use on the trigger when this item is selected
-   * and when the item is matched during keyboard text navigation.
-   */
-  label: PropTypes.string,
-  /**
-   * Allows you to replace the component’s HTML element
-   * with a different tag, or compose it with another component.
-   *
-   * Accepts a `ReactElement` or a function that returns the element to render.
-   */
-  render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
-  /**
-   * A unique value that identifies this select item.
-   * @default null
-   */
-  value: PropTypes.any,
-} as any;
 
 export { SelectItem };

@@ -1,5 +1,4 @@
 import * as React from 'react';
-import PropTypes from 'prop-types';
 import { MenuRadioGroupContext } from './MenuRadioGroupContext';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
@@ -102,53 +101,6 @@ namespace MenuRadioGroup {
     disabled: boolean;
   };
 }
-
-MenuRadioGroup.propTypes /* remove-proptypes */ = {
-  // ┌────────────────────────────── Warning ──────────────────────────────┐
-  // │ These PropTypes are generated from the TypeScript type definitions. │
-  // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
-  // └─────────────────────────────────────────────────────────────────────┘
-  /**
-   * The content of the component.
-   */
-  children: PropTypes.node,
-  /**
-   * CSS class applied to the element, or a function that
-   * returns a class based on the component’s state.
-   */
-  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
-  /**
-   * The uncontrolled value of the radio item that should be initially selected.
-   *
-   * To render a controlled radio group, use the `value` prop instead.
-   */
-  defaultValue: PropTypes.any,
-  /**
-   * Whether the component should ignore user interaction.
-   *
-   * @default false
-   */
-  disabled: PropTypes.bool,
-  /**
-   * Function called when the selected value changes.
-   *
-   * @default () => {}
-   */
-  onValueChange: PropTypes.func,
-  /**
-   * Allows you to replace the component’s HTML element
-   * with a different tag, or compose it with another component.
-   *
-   * Accepts a `ReactElement` or a function that returns the element to render.
-   */
-  render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
-  /**
-   * The controlled value of the radio item that should be currently selected.
-   *
-   * To render an uncontrolled radio group, use the `defaultValue` prop instead.
-   */
-  value: PropTypes.any,
-} as any;
 
 /**
  * Groups related radio items.

@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import PropTypes from 'prop-types';
 import { useForkRef } from '../../utils/useForkRef';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import type { BaseUIComponentProps } from '../../utils/types';
@@ -50,53 +49,6 @@ const InnerSelectItemText = React.forwardRef(function InnerSelectItemText(
   return renderElement();
 });
 
-InnerSelectItemText.propTypes /* remove-proptypes */ = {
-  // ┌────────────────────────────── Warning ──────────────────────────────┐
-  // │ These PropTypes are generated from the TypeScript type definitions. │
-  // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
-  // └─────────────────────────────────────────────────────────────────────┘
-  /**
-   * @ignore
-   */
-  children: PropTypes.node,
-  /**
-   * CSS class applied to the element, or a function that
-   * returns a class based on the component’s state.
-   */
-  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
-  /**
-   * @ignore
-   */
-  indexRef: PropTypes.shape({
-    current: PropTypes.number.isRequired,
-  }).isRequired,
-  /**
-   * Allows you to replace the component’s HTML element
-   * with a different tag, or compose it with another component.
-   *
-   * Accepts a `ReactElement` or a function that returns the element to render.
-   */
-  render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
-  /**
-   * @ignore
-   */
-  selected: PropTypes.bool.isRequired,
-  /**
-   * @ignore
-   */
-  selectedItemTextRef: PropTypes.shape({
-    current: (props, propName) => {
-      if (props[propName] == null) {
-        return null;
-      }
-      if (typeof props[propName] !== 'object' || props[propName].nodeType !== 1) {
-        return new Error(`Expected prop '${propName}' to be of type Element`);
-      }
-      return null;
-    },
-  }).isRequired,
-} as any;
-
 const MemoizedInnerSelectItemText = React.memo(InnerSelectItemText);
 
 /**
@@ -129,28 +81,5 @@ namespace SelectItemText {
 
   export interface State {}
 }
-
-SelectItemText.propTypes /* remove-proptypes */ = {
-  // ┌────────────────────────────── Warning ──────────────────────────────┐
-  // │ These PropTypes are generated from the TypeScript type definitions. │
-  // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
-  // └─────────────────────────────────────────────────────────────────────┘
-  /**
-   * @ignore
-   */
-  children: PropTypes.node,
-  /**
-   * CSS class applied to the element, or a function that
-   * returns a class based on the component’s state.
-   */
-  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
-  /**
-   * Allows you to replace the component’s HTML element
-   * with a different tag, or compose it with another component.
-   *
-   * Accepts a `ReactElement` or a function that returns the element to render.
-   */
-  render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
-} as any;
 
 export { SelectItemText };
