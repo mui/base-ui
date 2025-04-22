@@ -333,7 +333,7 @@ describe.skipIf(isJSDOM)('<Menubar />', () => {
       });
       await user.keyboard('{Enter}');
       await waitFor(() => {
-        expect(screen.queryByTestId('file-menu')).to.not.equal(null);
+        expect(screen.getByTestId('file-item-1')).toHaveFocus();
       });
 
       // Navigate to submenu trigger
@@ -499,13 +499,21 @@ describe.skipIf(isJSDOM)('<Menubar />', () => {
         });
 
         await user.keyboard('{ArrowRight}');
+        await waitFor(() => {
+          expect(screen.queryByTestId('edit-trigger')).to.not.equal(null);
+        });
+
         await user.keyboard('{ArrowRight}');
 
         const lastItem = screen.getByTestId('view-trigger');
-        expect(lastItem).toHaveFocus();
+        await waitFor(() => {
+          expect(lastItem).toHaveFocus();
+        });
 
         await user.keyboard('{ArrowRight}');
-        expect(lastItem).toHaveFocus();
+        await waitFor(() => {
+          expect(lastItem).toHaveFocus();
+        });
       });
 
       it('should stay on the first item when navigating before it', async () => {
