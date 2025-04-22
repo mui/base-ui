@@ -86,7 +86,6 @@
     "@floating-ui/react": "^0.27.7",
     "@floating-ui/utils": "^0.2.9",
     "@react-aria/overlays": "^3.27.0",
-    "prop-types": "^15.8.1",
     "use-sync-external-store": "^1.5.0"
   },
   "devDependencies": {
@@ -96,7 +95,6 @@
     "@testing-library/user-event": "^14.6.1",
     "@types/chai": "^4.3.20",
     "@types/chai-dom": "^1.11.3",
-    "@types/prop-types": "^15.7.14",
     "@types/react": "^19.0.12",
     "@types/react-dom": "^19.0.2",
     "@types/sinon": "^17.0.4",
