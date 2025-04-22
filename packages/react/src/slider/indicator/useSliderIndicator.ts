@@ -82,7 +82,7 @@ export namespace useSliderIndicator {
   export interface Parameters
     extends Pick<
       useSliderRoot.ReturnValue,
-      'disabled' | 'orientation' | 'percentageValues' | 'values' | 'max' | 'min'
+      'disabled' | 'orientation' | 'values' | 'max' | 'min'
     > {}
 
   export interface ReturnValue {
