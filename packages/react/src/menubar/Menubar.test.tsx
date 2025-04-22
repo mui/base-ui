@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import { act, screen, waitFor } from '@mui/internal-test-utils';
-import { createRenderer, isJSDOM } from '#test-utils';
+import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { Menubar } from '@base-ui-components/react/menubar';
 import { Menu } from '@base-ui-components/react/menu';
 
@@ -56,12 +56,19 @@ function TestMenubar(props: Menubar.Props) {
   );
 }
 
-describe.skipIf(isJSDOM)('<Menubar />', () => {
+describe('<Menubar />', () => {
   beforeEach(() => {
     globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
   });
 
   const { render } = createRenderer();
+
+  describeConformance(<Menubar />, () => ({
+    render: (node) => {
+      return render(<Menubar>{node}</Menubar>);
+    },
+    refInstanceof: window.HTMLDivElement,
+  }));
 
   describe('click interactions', () => {
     it('should open the menu after clicking on its trigger', async () => {
@@ -195,13 +202,17 @@ describe.skipIf(isJSDOM)('<Menubar />', () => {
       });
 
       // Check that file trigger has focus
-      expect(fileTrigger).toHaveFocus();
+      await waitFor(() => {
+        expect(fileTrigger).toHaveFocus();
+      });
 
       // Use arrow right to navigate to edit trigger
       await user.keyboard('{ArrowRight}');
 
       // Wait for the edit trigger to get focus
-      expect(editTrigger).toHaveFocus();
+      await waitFor(() => {
+        expect(editTrigger).toHaveFocus();
+      });
     });
 
     it('should open the menu with Space key', async () => {
@@ -367,43 +378,46 @@ describe.skipIf(isJSDOM)('<Menubar />', () => {
       expect(shareTrigger).toHaveFocus();
     });
 
-    it('should navigate between menus using left/right arrow keys when menus are open', async () => {
-      const { user } = await render(<TestMenubar />);
-      const fileTrigger = screen.getByTestId('file-trigger');
+    it.skipIf(isJSDOM)(
+      'should navigate between menus using left/right arrow keys when menus are open',
+      async () => {
+        const { user } = await render(<TestMenubar />);
+        const fileTrigger = screen.getByTestId('file-trigger');
 
-      // Focus and open file menu
-      await act(async () => {
-        fileTrigger.focus();
-      });
-      await user.keyboard('{Enter}');
+        // Focus and open file menu
+        await act(async () => {
+          fileTrigger.focus();
+        });
+        await user.keyboard('{Enter}');
 
-      // File menu should be open
-      await waitFor(() => {
-        expect(screen.queryByTestId('file-menu')).to.not.equal(null);
-      });
+        // File menu should be open
+        await waitFor(() => {
+          expect(screen.queryByTestId('file-menu')).to.not.equal(null);
+        });
 
-      // Navigate right to edit menu
-      await user.keyboard('{ArrowRight}');
+        // Navigate right to edit menu
+        await user.keyboard('{ArrowRight}');
 
-      // File menu should close, edit menu should open
-      await waitFor(() => {
-        expect(screen.queryByTestId('file-menu')).to.equal(null);
-      });
-      await waitFor(() => {
-        expect(screen.queryByTestId('edit-menu')).to.not.equal(null);
-      });
+        // File menu should close, edit menu should open
+        await waitFor(() => {
+          expect(screen.queryByTestId('file-menu')).to.equal(null);
+        });
+        await waitFor(() => {
+          expect(screen.queryByTestId('edit-menu')).to.not.equal(null);
+        });
 
-      // Navigate back to file menu
-      await user.keyboard('{ArrowLeft}');
+        // Navigate back to file menu
+        await user.keyboard('{ArrowLeft}');
 
-      // Edit menu should close, file menu should open
-      await waitFor(() => {
-        expect(screen.queryByTestId('edit-menu')).to.equal(null);
-      });
-      await waitFor(() => {
-        expect(screen.queryByTestId('file-menu')).to.not.equal(null);
-      });
-    });
+        // Edit menu should close, file menu should open
+        await waitFor(() => {
+          expect(screen.queryByTestId('edit-menu')).to.equal(null);
+        });
+        await waitFor(() => {
+          expect(screen.queryByTestId('file-menu')).to.not.equal(null);
+        });
+      },
+    );
   });
 
   describe('mixed mouse and keyboard interactions', () => {
@@ -422,12 +436,16 @@ describe.skipIf(isJSDOM)('<Menubar />', () => {
       // Navigate with keyboard
       await user.keyboard('{ArrowDown}');
       const firstItem = screen.getByTestId('file-item-1');
-      expect(firstItem).toHaveFocus();
+      await waitFor(() => {
+        expect(firstItem).toHaveFocus();
+      });
 
       // Continue navigation
       await user.keyboard('{ArrowDown}');
       const secondItem = screen.getByTestId('file-item-2');
-      expect(secondItem).toHaveFocus();
+      await waitFor(() => {
+        expect(secondItem).toHaveFocus();
+      });
     });
 
     it('should allow clicking a menu trigger then navigating to another menu with keyboard', async () => {
