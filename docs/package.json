@@ -85,7 +85,7 @@
     "chai": "^4.5.0",
     "fs-extra": "^11.3.0",
     "mdast-util-mdx-jsx": "^3.2.0",
-    "motion": "^11.18.2",
+    "motion": "^12.8.0",
     "prettier": "^3.5.3",
     "rimraf": "^6.0.1",
     "serve": "^14.2.4",
