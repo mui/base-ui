@@ -42,10 +42,10 @@
   left: auto;
   top: auto;
 
-  @media (min-width: 400px) {
+  @media (min-width: 500px) {
     bottom: 2rem;
     right: 2rem;
-    max-width: 300px;
+    width: 300px;
   }
 }
 
