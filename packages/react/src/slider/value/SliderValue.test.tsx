@@ -42,7 +42,6 @@ const testRootContext: SliderRootContext = {
     filled: false,
     focused: false,
   },
-  percentageValues: [0],
   registerSliderControl: NOOP,
   setActive: NOOP,
   setDragging: NOOP,
