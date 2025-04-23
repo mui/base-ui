@@ -12,7 +12,7 @@ import { useFieldControlValidation } from '../../field/control/useFieldControlVa
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useControlled } from '../../utils/useControlled';
-import { type TransitionStatus, useTransitionStatus } from '../../utils';
+import { useTransitionStatus } from '../../utils';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { warn } from '../../utils/warn';
@@ -437,10 +437,6 @@ export namespace useSelectRoot {
      * @default true
      */
     alignItemToTrigger?: boolean;
-    /**
-     * The transition status of the select.
-     */
-    transitionStatus?: TransitionStatus;
     /**
      * Determines if the select enters a modal state when open.
      * - `true`: user interaction is limited to the select: document page scroll is locked and and pointer interactions on outside elements are disabled.
