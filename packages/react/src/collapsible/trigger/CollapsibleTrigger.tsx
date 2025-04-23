@@ -3,11 +3,11 @@ import * as React from 'react';
 import { triggerOpenStateMapping } from '../../utils/collapsibleOpenStateMapping';
 import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 import { transitionStatusMapping } from '../../utils/styleHookMapping';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import { useRenderElement } from '../../utils/useRenderElement';
 import { BaseUIComponentProps } from '../../utils/types';
+import { useButton } from '../../use-button';
 import { useCollapsibleRootContext } from '../root/CollapsibleRootContext';
 import { CollapsibleRoot } from '../root/CollapsibleRoot';
-import { useCollapsibleTrigger } from './useCollapsibleTrigger';
 
 const styleHookMapping: CustomStyleHookMapping<CollapsibleRoot.State> = {
   ...triggerOpenStateMapping,
@@ -21,7 +21,7 @@ const styleHookMapping: CustomStyleHookMapping<CollapsibleRoot.State> = {
  * Documentation: [Base UI Collapsible](https://base-ui.com/react/components/collapsible)
  */
 const CollapsibleTrigger = React.forwardRef(function CollapsibleTrigger(
-  props: CollapsibleTrigger.Props,
+  componentProps: CollapsibleTrigger.Props,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
   const {
@@ -32,22 +32,27 @@ const CollapsibleTrigger = React.forwardRef(function CollapsibleTrigger(
     disabled: contextDisabled,
   } = useCollapsibleRootContext();
 
-  const { className, disabled = contextDisabled, id, render, ...otherProps } = props;
+  const { className, disabled = contextDisabled, id, render, ...elementProps } = componentProps;
 
-  const { getRootProps } = useCollapsibleTrigger({
+  const { getButtonProps, buttonRef } = useButton({
     disabled,
-    panelId,
-    open,
-    handleTrigger,
-    rootRef: forwardedRef,
+    focusableWhenDisabled: true,
   });
 
-  const { renderElement } = useComponentRenderer({
-    propGetter: getRootProps,
-    render: render ?? 'button',
+  const props = React.useMemo(
+    () => ({
+      'aria-controls': panelId,
+      'aria-expanded': open,
+      disabled,
+      onClick: handleTrigger,
+    }),
+    [panelId, disabled, open, handleTrigger],
+  );
+
+  const renderElement = useRenderElement('button', componentProps, {
     state,
-    className,
-    extraProps: otherProps,
+    ref: [forwardedRef, buttonRef],
+    props: [props, elementProps, getButtonProps],
     customStyleHookMapping: styleHookMapping,
   });
 
