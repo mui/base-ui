@@ -35,13 +35,18 @@
 
 .Viewport {
   position: fixed;
-  width: 100%;
-  max-width: 300px;
+  width: 275px;
   margin: 0 auto;
-  bottom: 2rem;
-  right: 2rem;
+  bottom: 1rem;
+  right: 1rem;
   left: auto;
   top: auto;
+
+  @media (min-width: 400px) {
+    bottom: 2rem;
+    right: 2rem;
+    max-width: 300px;
+  }
 }
 
 .Toast {
@@ -59,7 +64,7 @@
   color: var(--color-gray-900);
   border: 1px solid var(--color-gray-200);
   padding: 1rem;
-  width: 300px;
+  width: 100%;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   background-clip: padding-box;
   border-radius: 0.5rem;
