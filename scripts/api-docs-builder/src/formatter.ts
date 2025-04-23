@@ -111,7 +111,13 @@ export function formatType(
   }
 
   if (type instanceof rae.ArrayNode) {
-    return `${formatType(type.elementType, false)}[]`;
+    const formattedMemberType = formatType(type.elementType, false);
+
+    if (formattedMemberType.includes(' ')) {
+      return `(${formattedMemberType})[]`;
+    }
+
+    return `${formattedMemberType}[]`;
   }
 
   if (type instanceof rae.FunctionNode) {
