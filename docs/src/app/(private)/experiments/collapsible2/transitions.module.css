@@ -1,0 +1,76 @@
+.Root {
+  --width: 320px;
+  --duration: 800ms;
+
+  width: var(--width);
+
+  & + .Root {
+    margin-top: 2rem;
+  }
+}
+
+.Panel {
+  display: grid;
+  box-sizing: border-box;
+  width: 100%;
+  grid-template-rows: 1fr;
+
+  transition: all var(--duration);
+
+  &[data-starting-style],
+  &[data-ending-style] {
+    opacity: 0;
+    grid-template-rows: 0fr;
+  }
+}
+
+.Content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 0.25rem;
+  padding: 0.5rem;
+  border-radius: 0.25rem;
+  background-color: var(--color-gray-200);
+  cursor: text;
+
+  & p {
+    overflow-wrap: break-word;
+  }
+}
+
+.Trigger {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  background-color: var(--color-gray-200);
+  color: var(--color-gray-900);
+
+  &[data-panel-open] .Icon {
+    transform: rotate(90deg);
+  }
+}
+
+.Icon {
+  width: 0.75rem;
+  height: 0.75rem;
+  transition: transform var(--duration) ease-out;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-gap: 5rem;
+}
+
+.wrapper {
+  font-family: system-ui, sans-serif;
+  line-height: 1.4;
+  display: flex;
+  flex-flow: column nowrap;
+  align-items: stretch;
+  gap: 1rem;
+  align-self: flex-start;
+}
