@@ -3,7 +3,7 @@ import * as React from 'react';
 /**
  * @internal
  */
-const InternalBackdrop = React.forwardRef(function InternalBackdrop(
+export const InternalBackdrop = React.forwardRef(function InternalBackdrop(
   props: InternalBackdrop.Props,
   ref: React.ForwardedRef<HTMLDivElement>,
 ) {
@@ -45,4 +45,12 @@ const InternalBackdrop = React.forwardRef(function InternalBackdrop(
   );
 });
 
-export { InternalBackdrop };
+export namespace InternalBackdrop {
+  export interface Props extends React.HTMLAttributes<HTMLDivElement> {
+    /**
+     * The element to cut out of the backdrop.
+     * This is useful for allowing certain elements to be interactive while the backdrop is present.
+     */
+    cutout?: HTMLElement | null;
+  }
+}
