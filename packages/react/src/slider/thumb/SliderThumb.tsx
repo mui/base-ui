@@ -113,6 +113,7 @@ const SliderThumb = React.forwardRef(function SliderThumb(
     minStepsBetweenValues,
     name,
     orientation,
+    setActive,
     state,
     step,
     tabIndex: contextTabIndex,
@@ -191,6 +192,7 @@ const SliderThumb = React.forwardRef(function SliderThumb(
       className: resolveClassName(className, state),
       id,
       onFocus() {
+        setActive(index);
         setFocused(true);
       },
       onBlur() {
@@ -198,6 +200,7 @@ const SliderThumb = React.forwardRef(function SliderThumb(
           return;
         }
 
+        setActive(-1);
         setTouched(true);
         setFocused(false);
 

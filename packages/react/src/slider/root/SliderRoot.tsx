@@ -17,7 +17,6 @@ import { useField } from '../../field/useField';
 import { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { asc } from '../utils/asc';
-import { focusThumb } from '../utils/focusThumb';
 import { getSliderValue } from '../utils/getSliderValue';
 import { validateMinimumDistance } from '../utils/validateMinimumDistance';
 import type { ThumbMetadata } from '../thumb/SliderThumb';
@@ -191,10 +190,6 @@ const SliderRoot = React.forwardRef(function SliderRoot<Value extends number | r
   const handleInputChange = useEventCallback(
     (valueInput: number, index: number, event: React.KeyboardEvent | React.ChangeEvent) => {
       const newValue = getSliderValue(valueInput, index, min, max, range, values);
-
-      if (range) {
-        focusThumb(index, sliderRef);
-      }
 
       if (validateMinimumDistance(newValue, step, minStepsBetweenValues)) {
         setValue(newValue, index, event.nativeEvent);
