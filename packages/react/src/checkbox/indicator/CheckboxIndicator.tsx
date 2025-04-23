@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import PropTypes from 'prop-types';
 import { useCheckboxRootContext } from '../root/CheckboxRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useCustomStyleHookMapping } from '../utils/useCustomStyleHookMapping';
@@ -93,33 +92,5 @@ namespace CheckboxIndicator {
     keepMounted?: boolean;
   }
 }
-
-CheckboxIndicator.propTypes /* remove-proptypes */ = {
-  // ┌────────────────────────────── Warning ──────────────────────────────┐
-  // │ These PropTypes are generated from the TypeScript type definitions. │
-  // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
-  // └─────────────────────────────────────────────────────────────────────┘
-  /**
-   * @ignore
-   */
-  children: PropTypes.node,
-  /**
-   * CSS class applied to the element, or a function that
-   * returns a class based on the component’s state.
-   */
-  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
-  /**
-   * Whether to keep the element in the DOM when the checkbox is not checked.
-   * @default false
-   */
-  keepMounted: PropTypes.bool,
-  /**
-   * Allows you to replace the component’s HTML element
-   * with a different tag, or compose it with another component.
-   *
-   * Accepts a `ReactElement` or a function that returns the element to render.
-   */
-  render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
-} as any;
 
 export { CheckboxIndicator };

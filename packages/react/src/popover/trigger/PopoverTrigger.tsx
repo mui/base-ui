@@ -1,16 +1,14 @@
 'use client';
 import * as React from 'react';
-import PropTypes from 'prop-types';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
 import { useButton } from '../../use-button/useButton';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { useForkRef } from '../../utils/useForkRef';
 import type { BaseUIComponentProps } from '../../utils/types';
 import {
   triggerOpenStateMapping,
   pressableTriggerOpenStateMapping,
 } from '../../utils/popupStateMapping';
 import { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
+import { useRenderElement } from '../../utils/useRenderElement';
 
 /**
  * A button that opens the popover.
@@ -19,12 +17,12 @@ import { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
  * Documentation: [Base UI Popover](https://base-ui.com/react/components/popover)
  */
 const PopoverTrigger = React.forwardRef(function PopoverTrigger(
-  props: PopoverTrigger.Props,
+  componentProps: PopoverTrigger.Props,
   forwardedRef: React.ForwardedRef<any>,
 ) {
-  const { render, className, disabled = false, ...otherProps } = props;
+  const { render, className, disabled = false, ...elementProps } = componentProps;
 
-  const { open, setTriggerElement, getRootTriggerProps, openReason } = usePopoverRootContext();
+  const { open, setTriggerElement, getTriggerProps, openReason } = usePopoverRootContext();
 
   const state: PopoverTrigger.State = React.useMemo(
     () => ({
@@ -39,8 +37,6 @@ const PopoverTrigger = React.forwardRef(function PopoverTrigger(
     buttonRef: forwardedRef,
   });
 
-  const mergedRef = useForkRef(buttonRef, setTriggerElement);
-
   const customStyleHookMapping: CustomStyleHookMapping<{ open: boolean }> = React.useMemo(
     () => ({
       open(value) {
@@ -54,13 +50,10 @@ const PopoverTrigger = React.forwardRef(function PopoverTrigger(
     [openReason],
   );
 
-  const { renderElement } = useComponentRenderer({
-    propGetter: (externalProps) => getButtonProps(getRootTriggerProps(externalProps)),
-    render: render ?? 'button',
-    className,
+  const renderElement = useRenderElement('button', componentProps, {
     state,
-    ref: mergedRef,
-    extraProps: otherProps,
+    ref: [buttonRef, setTriggerElement],
+    props: [getTriggerProps, elementProps, getButtonProps],
     customStyleHookMapping,
   });
 
@@ -81,32 +74,5 @@ namespace PopoverTrigger {
 
   export interface Props extends BaseUIComponentProps<'button', State> {}
 }
-
-PopoverTrigger.propTypes /* remove-proptypes */ = {
-  // ┌────────────────────────────── Warning ──────────────────────────────┐
-  // │ These PropTypes are generated from the TypeScript type definitions. │
-  // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
-  // └─────────────────────────────────────────────────────────────────────┘
-  /**
-   * @ignore
-   */
-  children: PropTypes.node,
-  /**
-   * CSS class applied to the element, or a function that
-   * returns a class based on the component’s state.
-   */
-  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
-  /**
-   * @ignore
-   */
-  disabled: PropTypes.bool,
-  /**
-   * Allows you to replace the component’s HTML element
-   * with a different tag, or compose it with another component.
-   *
-   * Accepts a `ReactElement` or a function that returns the element to render.
-   */
-  render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
-} as any;
 
 export { PopoverTrigger };

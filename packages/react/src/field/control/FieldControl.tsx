@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import PropTypes from 'prop-types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useFieldControl } from './useFieldControl';
 import { FieldRoot } from '../root/FieldRoot';
@@ -73,63 +72,9 @@ namespace FieldControl {
     /**
      * Callback fired when the `value` changes. Use when controlled.
      */
-    onValueChange?: (value: string | number | readonly string[] | undefined, event: Event) => void;
+    onValueChange?: (value: React.ComponentProps<'input'>['value'], event: Event) => void;
+    defaultValue?: React.ComponentProps<'input'>['defaultValue'];
   }
 }
-
-FieldControl.propTypes /* remove-proptypes */ = {
-  // ┌────────────────────────────── Warning ──────────────────────────────┐
-  // │ These PropTypes are generated from the TypeScript type definitions. │
-  // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
-  // └─────────────────────────────────────────────────────────────────────┘
-  /**
-   * @ignore
-   */
-  children: PropTypes.node,
-  /**
-   * CSS class applied to the element, or a function that
-   * returns a class based on the component’s state.
-   */
-  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
-  /**
-   * @ignore
-   */
-  defaultValue: PropTypes.oneOfType([
-    PropTypes.arrayOf(PropTypes.string),
-    PropTypes.number,
-    PropTypes.string,
-  ]),
-  /**
-   * @ignore
-   */
-  disabled: PropTypes.bool,
-  /**
-   * @ignore
-   */
-  id: PropTypes.string,
-  /**
-   * @ignore
-   */
-  name: PropTypes.string,
-  /**
-   * Callback fired when the `value` changes. Use when controlled.
-   */
-  onValueChange: PropTypes.func,
-  /**
-   * Allows you to replace the component’s HTML element
-   * with a different tag, or compose it with another component.
-   *
-   * Accepts a `ReactElement` or a function that returns the element to render.
-   */
-  render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
-  /**
-   * @ignore
-   */
-  value: PropTypes.oneOfType([
-    PropTypes.arrayOf(PropTypes.string),
-    PropTypes.number,
-    PropTypes.string,
-  ]),
-} as any;
 
 export { FieldControl };

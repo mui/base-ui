@@ -12,12 +12,16 @@ import { useFieldControlValidation } from '../../field/control/useFieldControlVa
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useControlled } from '../../utils/useControlled';
-import { type TransitionStatus, useTransitionStatus } from '../../utils';
+import { useTransitionStatus } from '../../utils';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { warn } from '../../utils/warn';
 import type { SelectRootContext } from './SelectRootContext';
 import type { SelectIndexContext } from './SelectIndexContext';
+import {
+  translateOpenChangeReason,
+  type OpenChangeReason,
+} from '../../utils/translateOpenChangeReason';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 
 const EMPTY_ARRAY: never[] = [];
@@ -118,23 +122,25 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     }
   }
 
-  const setOpen = useEventCallback((nextOpen: boolean, event?: Event) => {
-    params.onOpenChange?.(nextOpen, event);
-    setOpenUnwrapped(nextOpen);
+  const setOpen = useEventCallback(
+    (nextOpen: boolean, event: Event | undefined, reason: OpenChangeReason | undefined) => {
+      params.onOpenChange?.(nextOpen, event, reason);
+      setOpenUnwrapped(nextOpen);
 
-    // Workaround `enableFocusInside` in Floating UI setting `tabindex=0` of a non-highlighted
-    // option upon close when tabbing out due to `keepMounted=true`:
-    // https://github.com/floating-ui/floating-ui/pull/3004/files#diff-962a7439cdeb09ea98d4b622a45d517bce07ad8c3f866e089bda05f4b0bbd875R194-R199
-    // This otherwise causes options to retain `tabindex=0` incorrectly when the popup is closed
-    // when tabbing outside.
-    if (!nextOpen && activeIndex !== null) {
-      const activeOption = listRef.current[activeIndex];
-      // Wait for Floating UI's focus effect to have fired
-      queueMicrotask(() => {
-        activeOption?.setAttribute('tabindex', '-1');
-      });
-    }
-  });
+      // Workaround `enableFocusInside` in Floating UI setting `tabindex=0` of a non-highlighted
+      // option upon close when tabbing out due to `keepMounted=true`:
+      // https://github.com/floating-ui/floating-ui/pull/3004/files#diff-962a7439cdeb09ea98d4b622a45d517bce07ad8c3f866e089bda05f4b0bbd875R194-R199
+      // This otherwise causes options to retain `tabindex=0` incorrectly when the popup is closed
+      // when tabbing outside.
+      if (!nextOpen && activeIndex !== null) {
+        const activeOption = listRef.current[activeIndex];
+        // Wait for Floating UI's focus effect to have fired
+        queueMicrotask(() => {
+          activeOption?.setAttribute('tabindex', '-1');
+        });
+      }
+    },
+  );
 
   const handleUnmount = useEventCallback(() => {
     setMounted(false);
@@ -199,7 +205,9 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
 
   const floatingRootContext = useFloatingRootContext({
     open,
-    onOpenChange: setOpen,
+    onOpenChange(nextOpen, event, reason) {
+      setOpen(nextOpen, event, translateOpenChangeReason(reason));
+    },
     elements: {
       reference: triggerElement,
       floating: positionerElement,
@@ -411,7 +419,11 @@ export namespace useSelectRoot {
     /**
      * Event handler called when the select menu is opened or closed.
      */
-    onOpenChange?: (open: boolean, event: Event | undefined) => void;
+    onOpenChange?: (
+      open: boolean,
+      event: Event | undefined,
+      reason: OpenChangeReason | undefined,
+    ) => void;
     /**
      * Event handler called after any animations complete when the select menu is opened or closed.
      */
@@ -426,16 +438,17 @@ export namespace useSelectRoot {
      */
     alignItemToTrigger?: boolean;
     /**
-     * The transition status of the Select.
-     */
-    transitionStatus?: TransitionStatus;
-    /**
-     * Whether the select should prevent outside clicks and lock page scroll when open.
+     * Determines if the select enters a modal state when open.
+     * - `true`: user interaction is limited to the select: document page scroll is locked and and pointer interactions on outside elements are disabled.
+     * - `false`: user interaction with the rest of the document is allowed.
      * @default true
      */
     modal?: boolean;
     /**
      * A ref to imperative actions.
+     * - `unmount`: When specified, the select will not be unmounted when closed.
+     * Instead, the `unmount` function must be called to unmount the select manually.
+     * Useful when the select's animation is controlled by an external library.
      */
     actionsRef?: React.RefObject<Actions>;
   }

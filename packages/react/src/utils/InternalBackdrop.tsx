@@ -1,8 +1,7 @@
 import * as React from 'react';
-import PropTypes from 'prop-types';
 
 /**
- * @ignore - internal component.
+ * @internal
  */
 const InternalBackdrop = React.forwardRef(function InternalBackdrop(
   props: React.ComponentPropsWithoutRef<'div'>,
@@ -19,27 +18,11 @@ const InternalBackdrop = React.forwardRef(function InternalBackdrop(
       style={{
         position: 'fixed',
         inset: 0,
-        // https://github.com/mui/base-ui/pull/1665#issuecomment-2783470701
-        WebkitUserSelect: 'none',
         userSelect: 'none',
+        WebkitUserSelect: 'none',
       }}
     />
   );
 });
-
-InternalBackdrop.propTypes /* remove-proptypes */ = {
-  // ┌────────────────────────────── Warning ──────────────────────────────┐
-  // │ These PropTypes are generated from the TypeScript type definitions. │
-  // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
-  // └─────────────────────────────────────────────────────────────────────┘
-  /**
-   * @ignore
-   */
-  children: PropTypes.node,
-  /**
-   * @ignore
-   */
-  className: PropTypes.string,
-} as any;
 
 export { InternalBackdrop };

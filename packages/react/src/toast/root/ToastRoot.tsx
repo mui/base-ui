@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import PropTypes from 'prop-types';
 import type { BaseUIComponentProps } from '../../utils/types';
 import type { ToastObject as ToastObjectType } from '../useToastManager';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
@@ -100,7 +99,7 @@ const ToastRoot = React.forwardRef(function ToastRoot(
   return <ToastRootContext.Provider value={toastRoot}>{renderElement()}</ToastRootContext.Provider>;
 });
 
-export namespace ToastRoot {
+namespace ToastRoot {
   export type ToastObject<Data extends object = any> = ToastObjectType<Data>;
 
   export interface State {
@@ -139,54 +138,5 @@ export namespace ToastRoot {
     swipeDirection?: 'up' | 'down' | 'left' | 'right' | ('up' | 'down' | 'left' | 'right')[];
   }
 }
-
-ToastRoot.propTypes /* remove-proptypes */ = {
-  // ┌────────────────────────────── Warning ──────────────────────────────┐
-  // │ These PropTypes are generated from the TypeScript type definitions. │
-  // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
-  // └─────────────────────────────────────────────────────────────────────┘
-  /**
-   * @ignore
-   */
-  children: PropTypes.node,
-  /**
-   * CSS class applied to the element, or a function that
-   * returns a class based on the component’s state.
-   */
-  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
-  /**
-   * Allows you to replace the component’s HTML element
-   * with a different tag, or compose it with another component.
-   *
-   * Accepts a `ReactElement` or a function that returns the element to render.
-   */
-  render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
-  /**
-   * Direction(s) in which the toast can be swiped to dismiss.
-   * Defaults to `['down', 'right']`.
-   */
-  swipeDirection: PropTypes.oneOfType([
-    PropTypes.oneOf(['down', 'left', 'right', 'up']),
-    PropTypes.arrayOf(PropTypes.oneOf(['down', 'left', 'right', 'up']).isRequired),
-  ]),
-  /**
-   * The toast to render.
-   */
-  toast: PropTypes.shape({
-    actionProps: PropTypes.object,
-    data: PropTypes.any,
-    description: PropTypes.string,
-    height: PropTypes.number,
-    id: PropTypes.string.isRequired,
-    limited: PropTypes.bool,
-    onClose: PropTypes.func,
-    onRemove: PropTypes.func,
-    priority: PropTypes.oneOf(['high', 'low']),
-    timeout: PropTypes.number,
-    title: PropTypes.string,
-    transitionStatus: PropTypes.oneOf(['ending', 'starting']),
-    type: PropTypes.string,
-  }).isRequired,
-} as any;
 
 export { ToastRoot };

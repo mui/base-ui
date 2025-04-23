@@ -1,7 +1,6 @@
 'use client';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import PropTypes from 'prop-types';
 import { useNumberFieldRootContext } from '../root/NumberFieldRootContext';
 import { isWebKit } from '../../utils/detectBrowser';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
@@ -10,6 +9,7 @@ import type { BaseUIComponentProps, GenericHTMLProps } from '../../utils/types';
 import type { NumberFieldRoot } from '../root/NumberFieldRoot';
 import { ownerDocument } from '../../utils/owner';
 import { mergeProps } from '../../merge-props';
+import { styleHookMapping } from '../utils/styleHooks';
 
 /**
  * A custom element to display instead of the native cursor while using the scrub area.
@@ -57,6 +57,7 @@ const NumberFieldScrubAreaCursor = React.forwardRef(function NumberFieldScrubAre
     state,
     className,
     extraProps: otherProps,
+    customStyleHookMapping: styleHookMapping,
   });
 
   if (!isScrubbing || isWebKit() || isTouchInput || isPointerLockDenied) {
@@ -70,28 +71,5 @@ namespace NumberFieldScrubAreaCursor {
   export interface State extends NumberFieldRoot.State {}
   export interface Props extends BaseUIComponentProps<'span', State> {}
 }
-
-NumberFieldScrubAreaCursor.propTypes /* remove-proptypes */ = {
-  // ┌────────────────────────────── Warning ──────────────────────────────┐
-  // │ These PropTypes are generated from the TypeScript type definitions. │
-  // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
-  // └─────────────────────────────────────────────────────────────────────┘
-  /**
-   * @ignore
-   */
-  children: PropTypes.node,
-  /**
-   * CSS class applied to the element, or a function that
-   * returns a class based on the component’s state.
-   */
-  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
-  /**
-   * Allows you to replace the component’s HTML element
-   * with a different tag, or compose it with another component.
-   *
-   * Accepts a `ReactElement` or a function that returns the element to render.
-   */
-  render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
-} as any;
 
 export { NumberFieldScrubAreaCursor };

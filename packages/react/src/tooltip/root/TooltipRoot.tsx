@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import PropTypes from 'prop-types';
 import { TooltipRootContext } from './TooltipRootContext';
 import { useTooltipRoot } from './useTooltipRoot';
 import { OPEN_DELAY } from '../utils/constants';
@@ -13,6 +12,7 @@ import { OPEN_DELAY } from '../utils/constants';
  */
 const TooltipRoot: React.FC<TooltipRoot.Props> = function TooltipRoot(props) {
   const {
+    disabled = false,
     defaultOpen = false,
     onOpenChange,
     open,
@@ -38,6 +38,7 @@ const TooltipRoot: React.FC<TooltipRoot.Props> = function TooltipRoot(props) {
     closeDelay,
     actionsRef,
     onOpenChangeComplete,
+    disabled,
   });
 
   const contextValue: TooltipRootContext = React.useMemo(
@@ -64,63 +65,5 @@ namespace TooltipRoot {
 
   export type Actions = useTooltipRoot.Actions;
 }
-
-TooltipRoot.propTypes /* remove-proptypes */ = {
-  // ┌────────────────────────────── Warning ──────────────────────────────┐
-  // │ These PropTypes are generated from the TypeScript type definitions. │
-  // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
-  // └─────────────────────────────────────────────────────────────────────┘
-  /**
-   * A ref to imperative actions.
-   */
-  actionsRef: PropTypes.shape({
-    current: PropTypes.shape({
-      unmount: PropTypes.func.isRequired,
-    }).isRequired,
-  }),
-  /**
-   * @ignore
-   */
-  children: PropTypes.node,
-  /**
-   * How long to wait before closing the tooltip. Specified in milliseconds.
-   * @default 0
-   */
-  closeDelay: PropTypes.number,
-  /**
-   * Whether the tooltip is initially open.
-   *
-   * To render a controlled tooltip, use the `open` prop instead.
-   * @default false
-   */
-  defaultOpen: PropTypes.bool,
-  /**
-   * How long to wait before opening the tooltip. Specified in milliseconds.
-   * @default 600
-   */
-  delay: PropTypes.number,
-  /**
-   * Whether the tooltip contents can be hovered without closing the tooltip.
-   * @default true
-   */
-  hoverable: PropTypes.bool,
-  /**
-   * Event handler called when the tooltip is opened or closed.
-   */
-  onOpenChange: PropTypes.func,
-  /**
-   * Event handler called after any animations complete when the tooltip is opened or closed.
-   */
-  onOpenChangeComplete: PropTypes.func,
-  /**
-   * Whether the tooltip is currently open.
-   */
-  open: PropTypes.bool,
-  /**
-   * Determines which axis the tooltip should track the cursor on.
-   * @default 'none'
-   */
-  trackCursorAxis: PropTypes.oneOf(['both', 'none', 'x', 'y']),
-} as any;
 
 export { TooltipRoot };

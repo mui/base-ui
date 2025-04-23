@@ -50,7 +50,6 @@ export type OffsetFunction = (data: {
 /**
  * Provides standardized anchor positioning behavior for floating elements. Wraps Floating UI's
  * `useFloating` hook.
- * @ignore - internal hook.
  */
 export function useAnchorPositioning(
   params: useAnchorPositioning.Parameters,
@@ -369,10 +368,6 @@ export namespace useAnchorPositioning {
       | React.RefObject<Element | null>
       | (() => Element | VirtualElement | null);
     /**
-     * Whether the popup is currently open.
-     */
-    open?: boolean;
-    /**
      * Determines which CSS `position` property to use.
      * @default 'absolute'
      */
@@ -443,6 +438,7 @@ export namespace useAnchorPositioning {
   }
 
   export interface Parameters extends SharedParameters {
+    open?: boolean;
     keepMounted?: boolean;
     trackCursorAxis?: 'none' | 'x' | 'y' | 'both';
     floatingRootContext?: FloatingRootContext;

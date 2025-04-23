@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import PropTypes from 'prop-types';
 import { NOOP } from '../../utils/noop';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
@@ -156,79 +155,3 @@ namespace AccordionRoot {
 }
 
 export { AccordionRoot };
-
-AccordionRoot.propTypes /* remove-proptypes */ = {
-  // ┌────────────────────────────── Warning ──────────────────────────────┐
-  // │ These PropTypes are generated from the TypeScript type definitions. │
-  // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
-  // └─────────────────────────────────────────────────────────────────────┘
-  /**
-   * @ignore
-   */
-  children: PropTypes.node,
-  /**
-   * CSS class applied to the element, or a function that
-   * returns a class based on the component’s state.
-   */
-  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
-  /**
-   * The uncontrolled value of the item(s) that should be initially expanded.
-   *
-   * To render a controlled accordion, use the `value` prop instead.
-   */
-  defaultValue: PropTypes.array,
-  /**
-   * Whether the component should ignore user interaction.
-   * @default false
-   */
-  disabled: PropTypes.bool,
-  /**
-   * Allows the browser’s built-in page search to find and expand the panel contents.
-   *
-   * Overrides the `keepMounted` prop and uses `hidden="until-found"`
-   * to hide the element without removing it from the DOM.
-   * @default false
-   */
-  hiddenUntilFound: PropTypes.bool,
-  /**
-   * Whether to keep the element in the DOM while the panel is closed.
-   * This prop is ignored when `hiddenUntilFound` is used.
-   * @default false
-   */
-  keepMounted: PropTypes.bool,
-  /**
-   * Whether to loop keyboard focus back to the first item
-   * when the end of the list is reached while using the arrow keys.
-   * @default true
-   */
-  loop: PropTypes.bool,
-  /**
-   * Event handler called when an accordion item is expanded or collapsed.
-   * Provides the new value as an argument.
-   */
-  onValueChange: PropTypes.func,
-  /**
-   * Whether multiple items can be open at the same time.
-   * @default true
-   */
-  openMultiple: PropTypes.bool,
-  /**
-   * The visual orientation of the accordion.
-   * Controls whether roving focus uses left/right or up/down arrow keys.
-   * @default 'vertical'
-   */
-  orientation: PropTypes.oneOf(['horizontal', 'vertical']),
-  /**
-   * Allows you to replace the component’s HTML element
-   * with a different tag, or compose it with another component.
-   *
-   * Accepts a `ReactElement` or a function that returns the element to render.
-   */
-  render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
-  /**
-   * The controlled value of the item(s) that should be expanded.
-   *
-   * To render an uncontrolled accordion, use the `defaultValue` prop instead.
-   */
-  value: PropTypes.array,
-} as any;

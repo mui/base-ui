@@ -1,8 +1,0 @@
-{
-  "name": "ToastRoot",
-  "props": {
-    "toast": {
-      "type": "ToastObject"
-    }
-  }
-}

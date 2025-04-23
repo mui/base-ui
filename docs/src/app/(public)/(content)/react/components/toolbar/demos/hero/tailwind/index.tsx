@@ -6,7 +6,7 @@ import { Select } from '@base-ui-components/react/select';
 
 export default function ExampleToolbar() {
   return (
-    <Toolbar.Root className="flex items-center gap-px rounded-md border border-gray-200 bg-gray-50 p-0.5">
+    <Toolbar.Root className="flex w-150 items-center gap-px rounded-md border border-gray-200 bg-gray-50 p-0.5">
       <ToggleGroup className="flex gap-1" aria-label="Alignment">
         <Toolbar.Button
           render={<Toggle />}
@@ -81,7 +81,7 @@ export default function ExampleToolbar() {
       </Select.Root>
       <Toolbar.Separator className="m-1 h-4 w-px bg-gray-300" />
       <Toolbar.Link
-        className="mr-[0.875rem] ml-16 flex-none self-center text-sm text-gray-500 no-underline hover:text-blue-800 focus-visible:rounded-sm focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800"
+        className="mr-[0.875rem] ml-auto flex-none self-center text-sm text-gray-500 no-underline hover:text-blue-800 focus-visible:rounded-sm focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800"
         href="#"
       >
         Edited 51m ago

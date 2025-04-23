@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import PropTypes from 'prop-types';
 import { PreviewCardRootContext } from './PreviewCardContext';
 import { usePreviewCardRoot } from './usePreviewCardRoot';
 import { CLOSE_DELAY, OPEN_DELAY } from '../utils/constants';
@@ -52,53 +51,5 @@ namespace PreviewCardRoot {
 
   export type Actions = usePreviewCardRoot.Actions;
 }
-
-PreviewCardRoot.propTypes /* remove-proptypes */ = {
-  // ┌────────────────────────────── Warning ──────────────────────────────┐
-  // │ These PropTypes are generated from the TypeScript type definitions. │
-  // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
-  // └─────────────────────────────────────────────────────────────────────┘
-  /**
-   * A ref to imperative actions.
-   */
-  actionsRef: PropTypes.shape({
-    current: PropTypes.shape({
-      unmount: PropTypes.func.isRequired,
-    }).isRequired,
-  }),
-  /**
-   * @ignore
-   */
-  children: PropTypes.node,
-  /**
-   * How long to wait before closing the preview card. Specified in milliseconds.
-   * @default 300
-   */
-  closeDelay: PropTypes.number,
-  /**
-   * Whether the preview card is initially open.
-   *
-   * To render a controlled preview card, use the `open` prop instead.
-   * @default false
-   */
-  defaultOpen: PropTypes.bool,
-  /**
-   * How long to wait before the preview card opens. Specified in milliseconds.
-   * @default 600
-   */
-  delay: PropTypes.number,
-  /**
-   * Event handler called when the preview card is opened or closed.
-   */
-  onOpenChange: PropTypes.func,
-  /**
-   * Event handler called after any animations complete when the preview card is opened or closed.
-   */
-  onOpenChangeComplete: PropTypes.func,
-  /**
-   * Whether the preview card is currently open.
-   */
-  open: PropTypes.bool,
-} as any;
 
 export { PreviewCardRoot };

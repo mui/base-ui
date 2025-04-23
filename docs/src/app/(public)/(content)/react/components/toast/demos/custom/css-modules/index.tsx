@@ -17,7 +17,7 @@ export default function CustomToastExample() {
   return (
     <Toast.Provider>
       <CustomToast />
-      <Toast.Viewport className={styles.Viewport} data-position="top">
+      <Toast.Viewport className={styles.Viewport}>
         <ToastList />
       </Toast.Viewport>
     </Toast.Provider>
@@ -48,17 +48,12 @@ function CustomToast() {
 function ToastList() {
   const { toasts } = Toast.useToastManager();
   return toasts.map((toast) => (
-    <Toast.Root
-      key={toast.id}
-      toast={toast}
-      className={styles.Toast}
-      data-position="top"
-    >
+    <Toast.Root key={toast.id} toast={toast} className={styles.Toast}>
       <Toast.Title className={styles.Title}>{toast.title}</Toast.Title>
       {isCustomToast(toast) && toast.data ? (
         <Toast.Description>`data.userId` is {toast.data.userId}</Toast.Description>
       ) : (
-        <Toast.Description>{toast.description}</Toast.Description>
+        <Toast.Description />
       )}
       <Toast.Close className={styles.Close} aria-label="Close">
         <XIcon className={styles.Icon} />

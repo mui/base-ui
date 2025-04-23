@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import PropTypes from 'prop-types';
 import { FloatingFocusManager, useFloatingTree } from '@floating-ui/react';
 import { useMenuPopup } from './useMenuPopup';
 import { useMenuRootContext } from '../root/MenuRootContext';
@@ -44,7 +43,6 @@ const MenuPopup = React.forwardRef(function MenuPopup(
     transitionStatus,
     nested,
     popupProps,
-    modal,
     mounted,
     instantType,
     onOpenChangeComplete,
@@ -102,8 +100,8 @@ const MenuPopup = React.forwardRef(function MenuPopup(
       context={floatingContext}
       modal={false}
       disabled={!mounted}
-      visuallyHiddenDismiss={modal ? 'Dismiss popup' : undefined}
       returnFocus={!hasContextMenuParent}
+      initialFocus={nested ? -1 : 0}
     >
       {renderElement()}
     </FloatingFocusManager>
@@ -130,32 +128,5 @@ namespace MenuPopup {
     nested: boolean;
   };
 }
-
-MenuPopup.propTypes /* remove-proptypes */ = {
-  // ┌────────────────────────────── Warning ──────────────────────────────┐
-  // │ These PropTypes are generated from the TypeScript type definitions. │
-  // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
-  // └─────────────────────────────────────────────────────────────────────┘
-  /**
-   * @ignore
-   */
-  children: PropTypes.node,
-  /**
-   * CSS class applied to the element, or a function that
-   * returns a class based on the component’s state.
-   */
-  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
-  /**
-   * @ignore
-   */
-  id: PropTypes.string,
-  /**
-   * Allows you to replace the component’s HTML element
-   * with a different tag, or compose it with another component.
-   *
-   * Accepts a `ReactElement` or a function that returns the element to render.
-   */
-  render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
-} as any;
 
 export { MenuPopup };
