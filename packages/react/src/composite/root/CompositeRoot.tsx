@@ -3,7 +3,7 @@ import * as React from 'react';
 import { CompositeList, type CompositeMetadata } from '../list/CompositeList';
 import { useCompositeRoot } from './useCompositeRoot';
 import { CompositeRootContext } from './CompositeRootContext';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import { useRenderElement } from '../../utils/useRenderElement';
 import type { BaseUIComponentProps } from '../../utils/types';
 import type { TextDirection } from '../../direction-provider/DirectionContext';
 import type { Dimensions, ModifierKey } from '../composite';
@@ -11,7 +11,7 @@ import type { Dimensions, ModifierKey } from '../composite';
 /**
  * @internal
  */
-function CompositeRoot<Metadata extends {}>(props: CompositeRoot.Props<Metadata>) {
+function CompositeRoot<Metadata extends {}>(componentProps: CompositeRoot.Props<Metadata>) {
   const {
     render,
     className,
@@ -29,8 +29,8 @@ function CompositeRoot<Metadata extends {}>(props: CompositeRoot.Props<Metadata>
     rootRef,
     disabledIndices,
     modifierKeys,
-    ...otherProps
-  } = props;
+    ...elementProps
+  } = componentProps;
 
   const { getRootProps, highlightedIndex, onHighlightedIndexChange, elementsRef } =
     useCompositeRoot({
@@ -49,12 +49,9 @@ function CompositeRoot<Metadata extends {}>(props: CompositeRoot.Props<Metadata>
       modifierKeys,
     });
 
-  const { renderElement } = useComponentRenderer({
-    propGetter: getRootProps,
-    render: render ?? 'div',
+  const renderElement = useRenderElement('div', componentProps, {
     state: {},
-    className,
-    extraProps: otherProps,
+    props: [getRootProps, elementProps],
   });
 
   const contextValue: CompositeRootContext = React.useMemo(
