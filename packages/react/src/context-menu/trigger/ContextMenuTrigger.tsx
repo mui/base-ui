@@ -1,16 +1,13 @@
 'use client';
 import * as React from 'react';
-import PropTypes from 'prop-types';
 import { contains, getTarget } from '@floating-ui/react/utils';
 import type { BaseUIComponentProps } from '../../utils/types';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { useContextMenuRootContext } from '../root/ContextMenuRootContext';
-import { mergeProps } from '../../merge-props';
 import { ownerDocument } from '../../utils/owner';
+import { useRenderElement } from '../../utils/useRenderElement';
 
 const LONG_PRESS_DELAY = 500;
-const state = {};
 
 /**
  * An area that opens the menu on right click or long press.
@@ -19,10 +16,10 @@ const state = {};
  * Documentation: [Base UI Context Menu](https://base-ui.com/react/components/context-menu)
  */
 const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
-  props: ContextMenuTrigger.Props,
+  componentProps: ContextMenuTrigger.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, ...other } = props;
+  const { render, className, ...elementProps } = componentProps;
 
   const { setAnchor, actionsRef, internalBackdropRef, backdropRef } =
     useContextMenuRootContext(false);
@@ -119,31 +116,21 @@ const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
     };
   }, []);
 
-  const getTriggerProps = React.useCallback(
-    (externalProps = {}) =>
-      mergeProps<'div'>(
-        {
-          onContextMenu: handleContextMenu,
-          onTouchStart: handleTouchStart,
-          onTouchMove: handleTouchMove,
-          onTouchEnd: handleTouchEnd,
-          onTouchCancel: handleTouchEnd,
-          style: {
-            WebkitTouchCallout: 'none',
-          },
-        },
-        externalProps,
-      ),
-    [handleContextMenu, handleTouchStart, handleTouchMove, handleTouchEnd],
-  );
-
-  const { renderElement } = useComponentRenderer({
-    propGetter: getTriggerProps,
-    render: render ?? 'div',
+  const renderElement = useRenderElement('div', componentProps, {
     ref: [triggerRef, forwardedRef],
-    className,
-    state,
-    extraProps: other,
+    props: [
+      {
+        onContextMenu: handleContextMenu,
+        onTouchStart: handleTouchStart,
+        onTouchMove: handleTouchMove,
+        onTouchEnd: handleTouchEnd,
+        onTouchCancel: handleTouchEnd,
+        style: {
+          WebkitTouchCallout: 'none',
+        },
+      },
+      elementProps,
+    ],
   });
 
   return renderElement();
@@ -154,28 +141,5 @@ namespace ContextMenuTrigger {
 
   export interface Props extends BaseUIComponentProps<'div', State> {}
 }
-
-ContextMenuTrigger.propTypes /* remove-proptypes */ = {
-  // ┌────────────────────────────── Warning ──────────────────────────────┐
-  // │ These PropTypes are generated from the TypeScript type definitions. │
-  // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
-  // └─────────────────────────────────────────────────────────────────────┘
-  /**
-   * @ignore
-   */
-  children: PropTypes.node,
-  /**
-   * CSS class applied to the element, or a function that
-   * returns a class based on the component’s state.
-   */
-  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
-  /**
-   * Allows you to replace the component’s HTML element
-   * with a different tag, or compose it with another component.
-   *
-   * Accepts a `ReactElement` or a function that returns the element to render.
-   */
-  render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
-} as any;
 
 export { ContextMenuTrigger };
