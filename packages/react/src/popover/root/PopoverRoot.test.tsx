@@ -638,7 +638,7 @@ describe('<Popover.Root />', () => {
               opacity: 0;
             }
           }
-  
+
           .animation-test-indicator[data-starting-style] {
             animation: test-anim 1ms;
           }

@@ -1,8 +1,0 @@
-{
-  "name": "FieldControl",
-  "props": {
-    "onValueChange": {
-      "type": "(value, event) => void"
-    }
-  }
-}

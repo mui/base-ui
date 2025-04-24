@@ -1,17 +1,17 @@
 'use client';
 import * as React from 'react';
 import { mergeProps } from '../../merge-props';
-import type { GenericHTMLProps } from '../../utils/types';
-import type { useSliderRoot } from '../root/useSliderRoot';
+import type { GenericHTMLProps, Orientation } from '../../utils/types';
+import { valueArrayToPercentages, type useSliderRoot } from '../root/useSliderRoot';
 
 function getRangeStyles(
-  orientation: useSliderRoot.Orientation,
+  orientation: Orientation,
   offset: number,
   leap: number,
 ): React.CSSProperties {
   if (orientation === 'vertical') {
     return {
-      position: 'relative',
+      position: 'absolute',
       bottom: `${offset}%`,
       height: `${leap}%`,
       width: 'inherit',
@@ -31,7 +31,9 @@ function getRangeStyles(
 export function useSliderIndicator(
   parameters: useSliderIndicator.Parameters,
 ): useSliderIndicator.ReturnValue {
-  const { orientation, percentageValues } = parameters;
+  const { max, min, orientation, values } = parameters;
+
+  const percentageValues = valueArrayToPercentages(values.slice(), min, max);
 
   let internalStyles: React.CSSProperties;
 
@@ -42,7 +44,7 @@ export function useSliderIndicator(
     internalStyles = getRangeStyles(orientation, trackOffset, trackLeap);
   } else if (orientation === 'vertical') {
     internalStyles = {
-      position: 'relative',
+      position: 'absolute',
       bottom: 0,
       height: `${percentageValues[0]}%`,
       width: 'inherit',
@@ -78,7 +80,10 @@ export function useSliderIndicator(
 
 export namespace useSliderIndicator {
   export interface Parameters
-    extends Pick<useSliderRoot.ReturnValue, 'disabled' | 'orientation' | 'percentageValues'> {}
+    extends Pick<
+      useSliderRoot.ReturnValue,
+      'disabled' | 'orientation' | 'values' | 'max' | 'min'
+    > {}
 
   export interface ReturnValue {
     getRootProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;

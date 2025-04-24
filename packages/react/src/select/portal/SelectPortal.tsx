@@ -1,8 +1,6 @@
 'use client';
 import * as React from 'react';
-import PropTypes from 'prop-types';
 import { FloatingPortal } from '@floating-ui/react';
-import { HTMLElementType, refType } from '../../utils/proptypes';
 import { SelectPortalContext } from './SelectPortalContext';
 
 /**
@@ -30,20 +28,5 @@ namespace SelectPortal {
     container?: HTMLElement | null | React.RefObject<HTMLElement | null>;
   }
 }
-
-SelectPortal.propTypes /* remove-proptypes */ = {
-  // ┌────────────────────────────── Warning ──────────────────────────────┐
-  // │ These PropTypes are generated from the TypeScript type definitions. │
-  // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
-  // └─────────────────────────────────────────────────────────────────────┘
-  /**
-   * @ignore
-   */
-  children: PropTypes.node,
-  /**
-   * A parent element to render the portal element into.
-   */
-  container: PropTypes /* @typescript-to-proptypes-ignore */.oneOfType([HTMLElementType, refType]),
-} as any;
 
 export { SelectPortal };

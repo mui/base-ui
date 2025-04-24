@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import PropTypes from 'prop-types';
 import { useForkRef } from '../../utils/useForkRef';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
@@ -87,9 +86,10 @@ const AccordionItem = React.forwardRef(function AccordionItem(
   const collapsibleContext: CollapsibleRootContext = React.useMemo(
     () => ({
       ...collapsible,
+      onOpenChange,
       state: collapsibleState,
     }),
-    [collapsible, collapsibleState],
+    [collapsible, collapsibleState, onOpenChange],
   );
 
   const state: AccordionItem.State = React.useMemo(
@@ -150,39 +150,3 @@ namespace AccordionItem {
 }
 
 export { AccordionItem };
-
-AccordionItem.propTypes /* remove-proptypes */ = {
-  // ┌────────────────────────────── Warning ──────────────────────────────┐
-  // │ These PropTypes are generated from the TypeScript type definitions. │
-  // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
-  // └─────────────────────────────────────────────────────────────────────┘
-  /**
-   * @ignore
-   */
-  children: PropTypes.node,
-  /**
-   * CSS class applied to the element, or a function that
-   * returns a class based on the component’s state.
-   */
-  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
-  /**
-   * Whether the component should ignore user interaction.
-   * @default false
-   */
-  disabled: PropTypes.bool,
-  /**
-   * Event handler called when the panel is opened or closed.
-   */
-  onOpenChange: PropTypes.func,
-  /**
-   * Allows you to replace the component’s HTML element
-   * with a different tag, or compose it with another component.
-   *
-   * Accepts a `ReactElement` or a function that returns the element to render.
-   */
-  render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
-  /**
-   * @ignore
-   */
-  value: PropTypes.any,
-} as any;

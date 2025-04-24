@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import PropTypes from 'prop-types';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useEventCallback } from '../../utils/useEventCallback';
@@ -75,52 +74,3 @@ namespace AvatarImage {
 }
 
 export { AvatarImage };
-
-AvatarImage.propTypes /* remove-proptypes */ = {
-  // ┌────────────────────────────── Warning ──────────────────────────────┐
-  // │ These PropTypes are generated from the TypeScript type definitions. │
-  // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
-  // └─────────────────────────────────────────────────────────────────────┘
-  /**
-   * @ignore
-   */
-  children: PropTypes.node,
-  /**
-   * CSS class applied to the element, or a function that
-   * returns a class based on the component’s state.
-   */
-  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
-  /**
-   * @ignore
-   */
-  crossOrigin: PropTypes.oneOf(['', 'anonymous', 'use-credentials']),
-  /**
-   * Callback fired when the loading status changes.
-   */
-  onLoadingStatusChange: PropTypes.func,
-  /**
-   * @ignore
-   */
-  referrerPolicy: PropTypes.oneOf([
-    '',
-    'no-referrer-when-downgrade',
-    'no-referrer',
-    'origin-when-cross-origin',
-    'origin',
-    'same-origin',
-    'strict-origin-when-cross-origin',
-    'strict-origin',
-    'unsafe-url',
-  ]),
-  /**
-   * Allows you to replace the component’s HTML element
-   * with a different tag, or compose it with another component.
-   *
-   * Accepts a `ReactElement` or a function that returns the element to render.
-   */
-  render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
-  /**
-   * @ignore
-   */
-  src: PropTypes.string,
-} as any;

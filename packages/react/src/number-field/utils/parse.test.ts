@@ -44,5 +44,13 @@ describe('NumberField parse', () => {
     it('returns null for an invalid number', () => {
       expect(parseNumber('invalid')).to.equal(null);
     });
+
+    it('handles percentages with style: "percent"', () => {
+      expect(parseNumber('12%', 'en-US', { style: 'percent' })).to.equal(0.12);
+    });
+
+    it('handles percentages with style: "unit" and unit: "percent"', () => {
+      expect(parseNumber('12%', 'en-US', { style: 'unit', unit: 'percent' })).to.equal(12);
+    });
   });
 });

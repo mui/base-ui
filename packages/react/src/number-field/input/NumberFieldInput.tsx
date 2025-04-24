@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import PropTypes from 'prop-types';
 import { useNumberFieldRootContext } from '../root/NumberFieldRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useForkRef } from '../../utils/useForkRef';
@@ -12,6 +11,12 @@ import { mergeProps } from '../../merge-props';
 import { DEFAULT_STEP } from '../utils/constants';
 import { ARABIC_RE, HAN_RE, getNumberLocaleDetails, parseNumber } from '../utils/parse';
 import type { NumberFieldRoot } from '../root/NumberFieldRoot';
+import { styleHookMapping } from '../utils/styleHooks';
+
+const customStyleHookMapping = {
+  ...fieldValidityMapping,
+  ...styleHookMapping,
+};
 
 /**
  * The native input control in the number field.
@@ -27,7 +32,6 @@ const NumberFieldInput = React.forwardRef(function NumberFieldInput(
 
   const {
     allowInputSyncRef,
-    autoFocus,
     disabled,
     formatOptionsRef,
     getAllowedNonNumericKeys,
@@ -69,7 +73,6 @@ const NumberFieldInput = React.forwardRef(function NumberFieldInput(
         {
           id,
           required,
-          autoFocus,
           name,
           disabled,
           readOnly,
@@ -267,7 +270,6 @@ const NumberFieldInput = React.forwardRef(function NumberFieldInput(
       getValidationProps,
       id,
       required,
-      autoFocus,
       name,
       disabled,
       readOnly,
@@ -303,7 +305,7 @@ const NumberFieldInput = React.forwardRef(function NumberFieldInput(
     className,
     state,
     extraProps: otherProps,
-    customStyleHookMapping: fieldValidityMapping,
+    customStyleHookMapping,
   });
 
   return renderElement();
@@ -313,28 +315,5 @@ namespace NumberFieldInput {
   export interface State extends NumberFieldRoot.State {}
   export interface Props extends BaseUIComponentProps<'input', State> {}
 }
-
-NumberFieldInput.propTypes /* remove-proptypes */ = {
-  // ┌────────────────────────────── Warning ──────────────────────────────┐
-  // │ These PropTypes are generated from the TypeScript type definitions. │
-  // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
-  // └─────────────────────────────────────────────────────────────────────┘
-  /**
-   * @ignore
-   */
-  children: PropTypes.node,
-  /**
-   * CSS class applied to the element, or a function that
-   * returns a class based on the component’s state.
-   */
-  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
-  /**
-   * Allows you to replace the component’s HTML element
-   * with a different tag, or compose it with another component.
-   *
-   * Accepts a `ReactElement` or a function that returns the element to render.
-   */
-  render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
-} as any;
 
 export { NumberFieldInput };

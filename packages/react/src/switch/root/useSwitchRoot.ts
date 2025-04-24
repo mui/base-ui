@@ -17,10 +17,10 @@ export function useSwitchRoot(params: useSwitchRoot.Parameters): useSwitchRoot.R
     checked: checkedProp,
     onCheckedChange: onCheckedChangeProp,
     defaultChecked,
-    name,
+    name: nameProp,
     readOnly,
     required,
-    disabled = false,
+    disabled: disabledProp = false,
     inputRef: externalInputRef,
   } = params;
 
@@ -33,7 +33,12 @@ export function useSwitchRoot(params: useSwitchRoot.Parameters): useSwitchRoot.R
     setFilled,
     setFocused,
     validationMode,
+    disabled: fieldDisabled,
+    name: fieldName,
   } = useFieldRootContext();
+
+  const disabled = fieldDisabled || disabledProp;
+  const name = fieldName ?? nameProp;
 
   const {
     getValidationProps,

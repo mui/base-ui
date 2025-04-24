@@ -1,5 +1,123 @@
 # Versions
 
+## v1.0.0-alpha.8
+
+_Apr 17, 2025_
+
+### Accordion
+
+- Recalculate panel dimensions on layout resize (#1704) @atomiks
+- Rework animations and transitions (#1601) @mj12albert
+
+### AlertDialog
+
+- **Breaking change:** Rename `data-has-nested-dialogs` to `data-nested-dialog-open` (#1686) @mj12albert
+- Fix `onOpenChange` types for `event`/`reason` passing (#1721) @atomiks
+- Use consistent `inert` attr and map `[data-popup-open]` back to `open` (#1650) @atomiks
+- Fix text selection & right-clicks (#1702) @mj12albert
+
+### CheckboxGroup
+
+- Parent checkbox/nested demos (#1610) @atomiks
+
+### Collapsible
+
+- Fix ForwardedRef type of CollapsiblePanel (#1595) @megos
+- Recalculate panel dimensions on layout resize (#1704) @atomiks
+- Rework animations and transitions (#1601) @mj12albert
+
+### Dialog
+
+- **Breaking change:** Rename `data-has-nested-dialogs` to `data-nested-dialog-open` (#1686) @mj12albert
+- **Breaking change:** Add new `trap-focus` value to `modal` prop.
+  Dialogs with `modal=false` no longer trap focus.
+  (#1571) @atomiks
+- Fix `onOpenChange` types for `event`/`reason` passing (#1721) @atomiks
+- Use consistent `inert` attr and map `[data-popup-open]` back to `open` (#1650) @atomiks
+- Fix text selection & right-clicks (#1702) @mj12albert
+- Allow document to slide input into view on iOS when keyboard opens (#1735) @atomiks
+
+### Field
+
+- Fix forwarding of `name` and `disabled` props (#1616) @atomiks
+
+### Menu
+
+- Add missing item data attributes docs (#1691) @atomiks
+- Fix `inert` prop compatibility in React <19 (#1618) @sebinsua
+- Fix stuck highlight on submenu trigger when submenu opens with keyboard (#1698) @atomiks
+- Fix `onOpenChange` types for `event`/`reason` passing (#1721) @atomiks
+- Use consistent `inert` attr and map `[data-popup-open]` back to `open` (#1650) @atomiks
+- Fix text selection & right-clicks (#1702) @mj12albert
+
+### Meter
+
+- New Meter component (#1435) @mj12albert
+
+### NumberField
+
+- Correct percentage parse handling (#1676) @atomiks
+- New `snapOnStep` prop (#1560) @atomiks
+
+### Popover
+
+- **Breaking change:** Add new `trap-focus` value to `modal` prop (#1571) @atomiks
+- Fix `inert` prop compatibility in React <19 (#1618) @sebinsua
+- Fix `onOpenChange` types for `event`/`reason` passing (#1721) @atomiks
+- Use consistent `inert` attr and map `[data-popup-open]` back to `open` (#1650) @atomiks
+- Fix text selection & right-clicks (#1702) @mj12albert
+
+### Progress
+
+- **Breaking change:** Add `Progress.Label` and `locale` prop.
+  The `getAriaLabel` prop was removed as `Progress.Label` should be used to provide an accessible name.
+  (#1666) @mj12albert
+
+### Radio
+
+- Fix value forwarding and null handling (#1697) @atomiks
+
+### ScrollArea
+
+- **Breaking change:** Add `Content` part.
+  It is now required to include the `ScrollArea.Content` within `ScrollArea.Viewport` part when the content is horizontally scrollable.
+  (#1607) @atomiks
+- Handle visibility change and nesting (#1598) @atomiks
+- Correct thumb sizing with scrollbar margins (#1606) @atomiks
+
+### Select
+
+- **Breaking change:** Improve item highlight performance.
+  The highlighted state is now removed. It's not possible to customize the `data-highlighted` attribute anymore.
+  (#1570) @atomiks
+- Avoid double commit on value change (#1597) @atomiks
+- Reset `selectedIndex` when set to `null` (#1596) @atomiks
+- Add missing item data attributes docs (#1691) @atomiks
+- Fix `onOpenChange` types for `event`/`reason` passing (#1721) @atomiks
+- Use consistent `inert` attr and map `[data-popup-open]` back to `open` (#1650) @atomiks
+- Fix text selection & right-clicks (#1702) @mj12albert
+
+### Slider
+
+- Correct thumb positioning when control has padding (#1661) @mj12albert
+- Prevent range slider thumbs from being dragged past each other (#1612) @mj12albert
+- Fix incorrect CSS position on vertical slider indicator (#1599) @ZeeshanTamboli
+- Fix overlapping slider thumbs stuck at min or max (#1732) @mj12albert
+
+### Toast
+
+- New Toast component (#1467) @atomiks
+
+### Tooltip
+
+- Avoid re-rendering unrelated consumers (#1677) @atomiks
+- Add `disabled` prop (#1682) @atomiks
+- Fix `onOpenChange` types for `event`/`reason` passing (#1721) @atomiks
+- Use consistent `inert` attr and map `[data-popup-open]` back to `open` (#1650) @atomiks
+- Fix text selection & right-clicks (#1702) @mj12albert
+
+All contributors of this release in alphabetical order: @atomiks, @megos, @michaldudak, @mj12albert, @oliviertassinari, @sebinsua, @ZeeshanTamboli
+
 ## v1.0.0-alpha.7
 
 _Mar 20, 2025_

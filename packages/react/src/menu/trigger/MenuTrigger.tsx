@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import PropTypes from 'prop-types';
 import { useMenuTrigger } from './useMenuTrigger';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { pressableTriggerOpenStateMapping } from '../../utils/popupStateMapping';
@@ -25,7 +24,6 @@ const MenuTrigger = React.forwardRef(function MenuTrigger(
     disabled: menuDisabled,
     setTriggerElement,
     open,
-    mounted,
     setOpen,
     allowMouseUpTriggerRef,
     positionerRef,
@@ -44,9 +42,9 @@ const MenuTrigger = React.forwardRef(function MenuTrigger(
   const state: MenuTrigger.State = React.useMemo(
     () => ({
       disabled,
-      open: mounted,
+      open,
     }),
-    [disabled, mounted],
+    [disabled, open],
   );
 
   const propGetter = React.useCallback(
@@ -84,33 +82,5 @@ namespace MenuTrigger {
     open: boolean;
   };
 }
-
-MenuTrigger.propTypes /* remove-proptypes */ = {
-  // ┌────────────────────────────── Warning ──────────────────────────────┐
-  // │ These PropTypes are generated from the TypeScript type definitions. │
-  // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
-  // └─────────────────────────────────────────────────────────────────────┘
-  /**
-   * @ignore
-   */
-  children: PropTypes.node,
-  /**
-   * CSS class applied to the element, or a function that
-   * returns a class based on the component’s state.
-   */
-  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
-  /**
-   * Whether the component should ignore user interaction.
-   * @default false
-   */
-  disabled: PropTypes.bool,
-  /**
-   * Allows you to replace the component’s HTML element
-   * with a different tag, or compose it with another component.
-   *
-   * Accepts a `ReactElement` or a function that returns the element to render.
-   */
-  render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
-} as any;
 
 export { MenuTrigger };

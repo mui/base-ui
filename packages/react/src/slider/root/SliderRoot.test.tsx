@@ -2,9 +2,22 @@ import { expect } from 'chai';
 import * as React from 'react';
 import { spy, stub } from 'sinon';
 import { act, fireEvent, screen } from '@mui/internal-test-utils';
-import { DirectionProvider } from '@base-ui-components/react/direction-provider';
+import {
+  DirectionProvider,
+  type TextDirection,
+} from '@base-ui-components/react/direction-provider';
+import { Field } from '@base-ui-components/react/field';
 import { Slider } from '@base-ui-components/react/slider';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
+import {
+  ARROW_RIGHT,
+  ARROW_LEFT,
+  ARROW_UP,
+  ARROW_DOWN,
+  HOME,
+  END,
+} from '../../composite/composite';
+import type { Orientation } from '../../utils/types';
 import type { SliderRoot } from './SliderRoot';
 import { isWebKit } from '../../utils/detectBrowser';
 
@@ -18,7 +31,7 @@ const GETBOUNDINGCLIENTRECT_HORIZONTAL_SLIDER_RETURN_VAL = {
   x: 0,
   y: 0,
   top: 0,
-  right: 0,
+  right: 100,
   toJSON() {},
 };
 
@@ -197,106 +210,6 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
       expect(handleValueChange.args[0][0]).to.equal(80);
       expect(handleValueChange.args[1][0]).to.equal(78);
     });
-
-    it('increments on ArrowUp', async () => {
-      const handleValueChange = spy();
-      const { container } = await render(
-        <DirectionProvider direction="rtl">
-          <TestSlider defaultValue={20} onValueChange={handleValueChange} />
-        </DirectionProvider>,
-      );
-
-      const input = container.querySelector('input');
-
-      fireEvent.keyDown(document.body, { key: 'TAB' });
-
-      await act(async () => {
-        (input as HTMLInputElement).focus();
-      });
-
-      fireEvent.keyDown(input!, { key: 'ArrowUp' });
-      expect(handleValueChange.callCount).to.equal(1);
-      expect(handleValueChange.args[0][0]).to.deep.equal(21);
-
-      fireEvent.keyDown(input!, { key: 'ArrowUp', shiftKey: true });
-      expect(handleValueChange.callCount).to.equal(2);
-      expect(handleValueChange.args[1][0]).to.deep.equal(31);
-    });
-
-    it('increments on ArrowLeft', async () => {
-      const handleValueChange = spy();
-      const { container } = await render(
-        <DirectionProvider direction="rtl">
-          <TestSlider defaultValue={20} onValueChange={handleValueChange} />
-        </DirectionProvider>,
-      );
-
-      const input = container.querySelector('input');
-
-      fireEvent.keyDown(document.body, { key: 'TAB' });
-
-      await act(async () => {
-        (input as HTMLInputElement).focus();
-      });
-
-      fireEvent.keyDown(input!, { key: 'ArrowLeft' });
-      expect(handleValueChange.callCount).to.equal(1);
-      expect(handleValueChange.args[0][0]).to.deep.equal(21);
-
-      fireEvent.keyDown(input!, { key: 'ArrowLeft', shiftKey: true });
-      expect(handleValueChange.callCount).to.equal(2);
-      expect(handleValueChange.args[1][0]).to.deep.equal(31);
-    });
-
-    it('decrements on ArrowDown', async () => {
-      const handleValueChange = spy();
-      const { container } = await render(
-        <DirectionProvider direction="rtl">
-          <TestSlider defaultValue={20} onValueChange={handleValueChange} />
-        </DirectionProvider>,
-      );
-
-      const input = container.querySelector('input');
-
-      fireEvent.keyDown(document.body, { key: 'TAB' });
-
-      await act(async () => {
-        (input as HTMLInputElement).focus();
-      });
-
-      fireEvent.keyDown(input!, { key: 'ArrowDown' });
-      expect(handleValueChange.callCount).to.equal(1);
-      expect(handleValueChange.args[0][0]).to.deep.equal(19);
-
-      fireEvent.keyDown(input!, { key: 'ArrowDown', shiftKey: true });
-      expect(handleValueChange.callCount).to.equal(2);
-      expect(handleValueChange.args[1][0]).to.deep.equal(9);
-    });
-
-    it('decrements on ArrowRight', async () => {
-      const handleValueChange = spy();
-      const { container } = await render(
-        <DirectionProvider direction="rtl">
-          <TestSlider defaultValue={20} onValueChange={handleValueChange} />
-        </DirectionProvider>,
-      );
-
-      const input = container.querySelector('input');
-
-      fireEvent.keyDown(document.body, { key: 'TAB' });
-
-      await act(async () => {
-        (input as HTMLInputElement).focus();
-      });
-
-      fireEvent.keyDown(input!, { key: 'ArrowRight' });
-      expect(handleValueChange.callCount).to.equal(1);
-      expect(handleValueChange.args[0][0]).to.deep.equal(19);
-
-      fireEvent.keyDown(input!, { key: 'ArrowRight', shiftKey: true });
-      expect(handleValueChange.callCount).to.equal(2);
-      expect(handleValueChange.args[1][0]).to.deep.equal(9);
-    });
   });
 
   describe('prop: disabled', () => {
@@ -394,7 +307,7 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
   });
 
   describe('prop: orientation', () => {
-    it('sets the orientation via ARIA', async () => {
+    it('sets the `aria-orientation` attribute', async () => {
       await render(<TestSlider orientation="vertical" />);
 
       const sliderRoot = screen.getByRole('slider');
@@ -412,23 +325,22 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
       expect(sliderOutput).to.have.attribute('data-orientation', 'horizontal');
     });
 
-    it('does not set the orientation via appearance for WebKit browsers', async ({ skip }) => {
-      if (isJSDOM || !/WebKit/.test(window.navigator.userAgent)) {
-        skip();
-      }
+    it.skipIf(isJSDOM || !/WebKit/.test(window.navigator.userAgent))(
+      'does not set the orientation via appearance for WebKit browsers',
+      async () => {
+        await render(<TestSlider orientation="vertical" />);
 
-      await render(<TestSlider orientation="vertical" />);
+        const slider = screen.getByRole('slider');
 
-      const slider = screen.getByRole('slider');
+        expect(slider).to.have.property('tagName', 'INPUT');
+        expect(slider).to.have.property('type', 'range');
+        // Only relevant if we implement `[role="slider"]` with `input[type="range"]`
+        // We're not setting this by default because it changes horizontal keyboard navigation in WebKit: https://issues.chromium.org/issues/40739626
+        expect(slider).not.toHaveComputedStyle({ webkitAppearance: 'slider-vertical' });
+      },
+    );
 
-      expect(slider).to.have.property('tagName', 'INPUT');
-      expect(slider).to.have.property('type', 'range');
-      // Only relevant if we implement `[role="slider"]` with `input[type="range"]`
-      // We're not setting this by default because it changes horizontal keyboard navigation in WebKit: https://issues.chromium.org/issues/40739626
-      expect(slider).not.toHaveComputedStyle({ webkitAppearance: 'slider-vertical' });
-    });
-
-    it.skipIf(isWebKit())('should report the right position', async () => {
+    it.skipIf(isJSDOM || isWebKit())('should report the right position', async () => {
       const handleValueChange = spy();
       const { getByTestId } = await render(
         <TestSlider orientation="vertical" defaultValue={20} onValueChange={handleValueChange} />,
@@ -443,7 +355,7 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
         x: 0,
         y: 0,
         top: 0,
-        right: 0,
+        right: 10,
         toJSON() {},
       }));
 
@@ -483,7 +395,7 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
       expect(slider).to.have.attribute('aria-valuenow', '1e-7');
     });
 
-    it.skipIf(isWebKit())('should round value to step precision', async () => {
+    it.skipIf(isJSDOM || isWebKit())('should round value to step precision', async () => {
       const { getByRole, getByTestId } = await render(
         <TestSlider defaultValue={0.2} min={0} max={1} step={0.1} />,
       );
@@ -522,7 +434,7 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
       expect(slider).to.have.attribute('aria-valuenow', '0.4');
     });
 
-    it.skipIf(isWebKit())(
+    it.skipIf(isJSDOM || isWebKit())(
       'should not fail to round value to step precision when step is very small',
       async () => {
         const { getByRole, getByTestId } = await render(
@@ -558,7 +470,7 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
       },
     );
 
-    it.skipIf(isWebKit())(
+    it.skipIf(isJSDOM || isWebKit())(
       'should not fail to round value to step precision when step is very small and negative',
       async () => {
         const { getByRole, getByTestId } = await render(
@@ -622,7 +534,7 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
       expect(slider).to.have.attribute('aria-valuenow', String(MAX));
     });
 
-    it.skipIf(isWebKit())('should reach right edge value', async () => {
+    it.skipIf(isJSDOM || isWebKit())('should reach right edge value', async () => {
       const { getByRole, getByTestId } = await render(
         <TestSlider defaultValue={90} min={6} max={108} step={10} />,
       );
@@ -751,7 +663,7 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
   });
 
   describe('events', () => {
-    it('should call handlers', async () => {
+    it.skipIf(isJSDOM)('should call handlers', async () => {
       const handleValueChange = spy();
       const handleValueCommitted = spy();
 
@@ -794,7 +706,7 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
       expect(handleValueCommitted.callCount).to.equal(2);
     });
 
-    it.skipIf(isWebKit())('should support touch events', async () => {
+    it.skipIf(isJSDOM || isWebKit())('should support touch events', async () => {
       const handleValueChange = spy();
       const { getByTestId } = await render(
         <TestRangeSlider defaultValue={[20, 30]} onValueChange={handleValueChange} />,
@@ -854,58 +766,64 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
       expect(handleValueChange.args[1][0]).to.deep.equal([22, 30]);
     });
 
-    it.skipIf(isWebKit())('should only listen to changes from the same touchpoint', async () => {
-      const handleValueChange = spy();
-      const handleValueCommitted = spy();
+    it.skipIf(isJSDOM || isWebKit())(
+      'should only listen to changes from the same touchpoint',
+      async () => {
+        const handleValueChange = spy();
+        const handleValueCommitted = spy();
 
-      const { getByTestId } = await render(
-        <TestSlider
-          onValueChange={handleValueChange}
-          onValueCommitted={handleValueCommitted}
-          value={0}
-        />,
-      );
+        const { getByTestId } = await render(
+          <TestSlider
+            onValueChange={handleValueChange}
+            onValueCommitted={handleValueCommitted}
+            value={0}
+          />,
+        );
 
-      const sliderControl = getByTestId('control');
+        const sliderControl = getByTestId('control');
 
-      stub(sliderControl, 'getBoundingClientRect').callsFake(
-        () => GETBOUNDINGCLIENTRECT_HORIZONTAL_SLIDER_RETURN_VAL,
-      );
+        stub(sliderControl, 'getBoundingClientRect').callsFake(
+          () => GETBOUNDINGCLIENTRECT_HORIZONTAL_SLIDER_RETURN_VAL,
+        );
 
-      fireEvent.touchStart(
-        sliderControl,
-        createTouches([{ identifier: 1, clientX: 0, clientY: 0 }]),
-      );
-      expect(handleValueChange.callCount).to.equal(0);
-      expect(handleValueCommitted.callCount).to.equal(0);
+        fireEvent.touchStart(
+          sliderControl,
+          createTouches([{ identifier: 1, clientX: 0, clientY: 0 }]),
+        );
+        expect(handleValueChange.callCount).to.equal(0);
+        expect(handleValueCommitted.callCount).to.equal(0);
 
-      fireEvent.touchStart(
-        document.body,
-        createTouches([{ identifier: 2, clientX: 40, clientY: 0 }]),
-      );
-      expect(handleValueChange.callCount).to.equal(0);
-      expect(handleValueCommitted.callCount).to.equal(0);
+        fireEvent.touchStart(
+          document.body,
+          createTouches([{ identifier: 2, clientX: 40, clientY: 0 }]),
+        );
+        expect(handleValueChange.callCount).to.equal(0);
+        expect(handleValueCommitted.callCount).to.equal(0);
 
-      fireEvent.touchMove(
-        document.body,
-        createTouches([{ identifier: 1, clientX: 1, clientY: 0 }]),
-      );
-      expect(handleValueChange.callCount).to.equal(1);
-      expect(handleValueCommitted.callCount).to.equal(0);
+        fireEvent.touchMove(
+          document.body,
+          createTouches([{ identifier: 1, clientX: 1, clientY: 0 }]),
+        );
+        expect(handleValueChange.callCount).to.equal(1);
+        expect(handleValueCommitted.callCount).to.equal(0);
 
-      fireEvent.touchMove(
-        document.body,
-        createTouches([{ identifier: 2, clientX: 41, clientY: 0 }]),
-      );
-      expect(handleValueChange.callCount).to.equal(1);
-      expect(handleValueCommitted.callCount).to.equal(0);
+        fireEvent.touchMove(
+          document.body,
+          createTouches([{ identifier: 2, clientX: 41, clientY: 0 }]),
+        );
+        expect(handleValueChange.callCount).to.equal(1);
+        expect(handleValueCommitted.callCount).to.equal(0);
 
-      fireEvent.touchEnd(document.body, createTouches([{ identifier: 1, clientX: 2, clientY: 0 }]));
-      expect(handleValueChange.callCount).to.equal(1);
-      expect(handleValueCommitted.callCount).to.equal(1);
-    });
+        fireEvent.touchEnd(
+          document.body,
+          createTouches([{ identifier: 1, clientX: 2, clientY: 0 }]),
+        );
+        expect(handleValueChange.callCount).to.equal(1);
+        expect(handleValueCommitted.callCount).to.equal(1);
+      },
+    );
 
-    it('should hedge against a dropped mouseup event', async () => {
+    it.skipIf(isJSDOM)('should hedge against a dropped mouseup event', async () => {
       const handleValueChange = spy();
 
       const { getByTestId } = await render(
@@ -1105,42 +1023,8 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
     });
   });
 
-  describe('form submission', () => {
-    // doesn't work with two `<input type="range" />` elements with the same name attribute
-    it('includes the slider value in formData when the `name` attribute is provided', async ({
-      skip,
-    }) => {
-      if (isJSDOM) {
-        // FormData is not available in JSDOM
-        skip();
-      }
-
-      const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-        event.preventDefault();
-        const formData = new FormData(event.currentTarget);
-        expect(formData.get('sliderField')).to.equal('51');
-
-        // @ts-ignore
-        const formDataAsObject = Object.fromEntries(formData.entries());
-        expect(Object.keys(formDataAsObject).length).to.equal(1);
-      };
-
-      const { getByText } = await render(
-        <form onSubmit={handleSubmit}>
-          <TestSlider defaultValue={51} name="sliderField" />
-          <button type="submit">Submit</button>
-        </form>,
-      );
-
-      const button = getByText('Submit');
-      await act(async () => {
-        button.click();
-      });
-    });
-  });
-
   describe('prop: onValueChange', () => {
-    it('is called when clicking on the control', async () => {
+    it.skipIf(isJSDOM)('is called when clicking on the control', async () => {
       const handleValueChange = spy();
       await render(<TestSlider defaultValue={50} onValueChange={handleValueChange} />);
 
@@ -1195,7 +1079,7 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
       expect(handleValueChange.callCount).to.equal(0);
     });
 
-    it('should fire only when the value changes', async () => {
+    it.skipIf(isJSDOM)('should fire only when the value changes', async () => {
       const handleValueChange = spy();
       await render(<TestSlider defaultValue={20} onValueChange={handleValueChange} />);
 
@@ -1232,7 +1116,7 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
       ['range', [2, 1]],
     ] as Values;
     values.forEach(([valueLabel, value]) => {
-      it(`is called even if the ${valueLabel} did not change`, async () => {
+      it.skipIf(isJSDOM)(`is called even if the ${valueLabel} did not change`, async () => {
         const handleValueChange = spy();
 
         await render(
@@ -1287,383 +1171,580 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
       });
     });
 
-    it('onValueCommitted is called with the same value as the latest onValueChange when pointerUp occurs at a different location than onValueChange', async () => {
-      const handleValueChange = spy();
-      const handleValueCommitted = spy();
+    it.skipIf(isJSDOM)(
+      'onValueCommitted is called with the same value as the latest onValueChange when pointerUp occurs at a different location than onValueChange',
+      async () => {
+        const handleValueChange = spy();
+        const handleValueCommitted = spy();
 
-      await render(
-        <TestSlider
-          onValueChange={handleValueChange}
-          onValueCommitted={handleValueCommitted}
-          defaultValue={0}
-        />,
-      );
+        await render(
+          <TestSlider
+            onValueChange={handleValueChange}
+            onValueCommitted={handleValueCommitted}
+            defaultValue={0}
+          />,
+        );
 
-      const sliderControl = screen.getByTestId('control');
+        const sliderControl = screen.getByTestId('control');
 
-      stub(sliderControl, 'getBoundingClientRect').callsFake(
-        () => GETBOUNDINGCLIENTRECT_HORIZONTAL_SLIDER_RETURN_VAL,
-      );
+        stub(sliderControl, 'getBoundingClientRect').callsFake(
+          () => GETBOUNDINGCLIENTRECT_HORIZONTAL_SLIDER_RETURN_VAL,
+        );
 
-      fireEvent.pointerDown(sliderControl, {
-        buttons: 1,
-        clientX: 10,
-      });
-      fireEvent.pointerMove(sliderControl, {
-        buttons: 1,
-        clientX: 15,
-      });
-      fireEvent.pointerUp(sliderControl, {
-        buttons: 1,
-        clientX: 20,
-      });
+        fireEvent.pointerDown(sliderControl, {
+          buttons: 1,
+          clientX: 10,
+        });
+        fireEvent.pointerMove(sliderControl, {
+          buttons: 1,
+          clientX: 15,
+        });
+        fireEvent.pointerUp(sliderControl, {
+          buttons: 1,
+          clientX: 20,
+        });
 
-      expect(handleValueChange.callCount).to.equal(2);
-      expect(handleValueChange.args[0][0]).to.equal(10);
-      expect(handleValueChange.args[1][0]).to.equal(15);
-      expect(handleValueCommitted.callCount).to.equal(1);
-      expect(handleValueCommitted.args[0][0]).to.equal(15);
-    });
+        expect(handleValueChange.callCount).to.equal(2);
+        expect(handleValueChange.args[0][0]).to.equal(10);
+        expect(handleValueChange.args[1][0]).to.equal(15);
+        expect(handleValueCommitted.callCount).to.equal(1);
+        expect(handleValueCommitted.args[0][0]).to.equal(15);
+      },
+    );
   });
 
   describe('keyboard interactions', () => {
-    it('increments on ArrowUp', async () => {
-      const handleValueChange = spy();
-      const { container } = await render(
-        <TestSlider defaultValue={20} onValueChange={handleValueChange} />,
-      );
+    [
+      ['ltr', 'horizontal', [ARROW_LEFT, ARROW_DOWN], [ARROW_RIGHT, ARROW_UP]],
+      ['ltr', 'vertical', [ARROW_LEFT, ARROW_DOWN], [ARROW_RIGHT, ARROW_UP]],
+      ['rtl', 'horizontal', [ARROW_RIGHT, ARROW_DOWN], [ARROW_LEFT, ARROW_UP]],
+      ['rtl', 'vertical', [ARROW_RIGHT, ARROW_DOWN], [ARROW_LEFT, ARROW_UP]],
+    ].forEach((entry) => {
+      const [direction, orientation, decrementKeys, incrementKeys] = entry as [
+        direction: TextDirection,
+        orientation: Orientation,
+        decrementKeys: string[],
+        incrementKeys: string[],
+      ];
 
-      const input = container.querySelector('input');
+      describe(String(direction), () => {
+        describe(`orientation: ${orientation}`, () => {
+          decrementKeys.forEach((key) => {
+            it(`key: ${key} decrements the value`, async () => {
+              const handleValueChange = spy();
+              const { user } = await render(
+                <div dir={direction}>
+                  <DirectionProvider direction={direction}>
+                    <Slider.Root
+                      orientation={orientation}
+                      defaultValue={20}
+                      onValueChange={handleValueChange}
+                    >
+                      <Slider.Control>
+                        <Slider.Track>
+                          <Slider.Indicator />
+                          <Slider.Thumb data-testid="thumb" />
+                        </Slider.Track>
+                      </Slider.Control>
+                    </Slider.Root>
+                  </DirectionProvider>
+                </div>,
+              );
 
-      fireEvent.keyDown(document.body, { key: 'TAB' });
+              const input = screen.getByRole('slider');
 
-      await act(async () => {
-        (input as HTMLInputElement).focus();
-      });
+              await user.keyboard('[Tab]');
+              expect(screen.getByTestId('thumb')).toHaveFocus();
 
-      fireEvent.keyDown(input!, { key: 'ArrowUp' });
-      expect(handleValueChange.callCount).to.equal(1);
-      expect(handleValueChange.args[0][0]).to.deep.equal(21);
+              await user.keyboard(`[${key}]`);
+              expect(handleValueChange.callCount).to.equal(1);
+              expect(handleValueChange.args[0][0]).to.deep.equal(19);
+              expect(input).to.have.attribute('aria-valuenow', '19');
+            });
 
-      fireEvent.keyDown(input!, { key: 'ArrowUp', shiftKey: true });
-      expect(handleValueChange.callCount).to.equal(2);
-      expect(handleValueChange.args[1][0]).to.deep.equal(31);
-    });
+            it(`key: ${key} decrements the value by largeStep when Shift is pressed`, async () => {
+              const handleValueChange = spy();
+              const { user } = await render(
+                <div dir={direction}>
+                  <DirectionProvider direction={direction}>
+                    <Slider.Root
+                      orientation={orientation}
+                      defaultValue={20}
+                      largeStep={10}
+                      onValueChange={handleValueChange}
+                    >
+                      <Slider.Control>
+                        <Slider.Track>
+                          <Slider.Indicator />
+                          <Slider.Thumb data-testid="thumb" />
+                        </Slider.Track>
+                      </Slider.Control>
+                    </Slider.Root>
+                  </DirectionProvider>
+                </div>,
+              );
 
-    it('increments on ArrowRight', async () => {
-      const handleValueChange = spy();
-      const { container } = await render(
-        <TestSlider defaultValue={20} onValueChange={handleValueChange} />,
-      );
+              const input = screen.getByRole('slider');
 
-      const input = container.querySelector('input');
+              await user.keyboard('[Tab]');
+              expect(screen.getByTestId('thumb')).toHaveFocus();
 
-      fireEvent.keyDown(document.body, { key: 'TAB' });
+              await user.keyboard(`{Shift>}{${key}}`);
+              expect(handleValueChange.callCount).to.equal(1);
+              expect(handleValueChange.args[0][0]).to.deep.equal(10);
+              expect(input).to.have.attribute('aria-valuenow', '10');
+            });
 
-      await act(async () => {
-        (input as HTMLInputElement).focus();
-      });
+            it(`key: ${key} stops at min when decrementing while Shift is pressed`, async () => {
+              const handleValueChange = spy();
+              const { user } = await render(
+                <div dir={direction}>
+                  <DirectionProvider direction={direction}>
+                    <Slider.Root
+                      orientation={orientation}
+                      defaultValue={20}
+                      largeStep={10}
+                      min={15}
+                      onValueChange={handleValueChange}
+                    >
+                      <Slider.Control>
+                        <Slider.Track>
+                          <Slider.Indicator />
+                          <Slider.Thumb data-testid="thumb" />
+                        </Slider.Track>
+                      </Slider.Control>
+                    </Slider.Root>
+                  </DirectionProvider>
+                </div>,
+              );
 
-      fireEvent.keyDown(input!, { key: 'ArrowRight' });
-      expect(handleValueChange.callCount).to.equal(1);
-      expect(handleValueChange.args[0][0]).to.deep.equal(21);
+              const input = screen.getByRole('slider');
 
-      fireEvent.keyDown(input!, { key: 'ArrowRight', shiftKey: true });
-      expect(handleValueChange.callCount).to.equal(2);
-      expect(handleValueChange.args[1][0]).to.deep.equal(31);
-    });
+              await user.keyboard('[Tab]');
+              expect(screen.getByTestId('thumb')).toHaveFocus();
 
-    it('decrements on ArrowDown', async () => {
-      const handleValueChange = spy();
-      const { container } = await render(
-        <TestSlider defaultValue={20} onValueChange={handleValueChange} />,
-      );
+              await user.keyboard(`{Shift>}{${key}}`);
+              expect(handleValueChange.callCount).to.equal(1);
+              expect(handleValueChange.args[0][0]).to.deep.equal(15);
+              expect(input).to.have.attribute('aria-valuenow', '15');
+            });
+          });
 
-      const input = container.querySelector('input');
+          incrementKeys.forEach((key) => {
+            it(`key: ${key} increments the value`, async () => {
+              const handleValueChange = spy();
+              const { user } = await render(
+                <div dir={direction}>
+                  <DirectionProvider direction={direction}>
+                    <Slider.Root
+                      orientation={orientation}
+                      defaultValue={20}
+                      onValueChange={handleValueChange}
+                    >
+                      <Slider.Control>
+                        <Slider.Track>
+                          <Slider.Indicator />
+                          <Slider.Thumb data-testid="thumb" />
+                        </Slider.Track>
+                      </Slider.Control>
+                    </Slider.Root>
+                  </DirectionProvider>
+                </div>,
+              );
 
-      fireEvent.keyDown(document.body, { key: 'TAB' });
+              const input = screen.getByRole('slider');
 
-      await act(async () => {
-        (input as HTMLInputElement).focus();
-      });
+              await user.keyboard('[Tab]');
+              expect(screen.getByTestId('thumb')).toHaveFocus();
 
-      fireEvent.keyDown(input!, { key: 'ArrowDown' });
-      expect(handleValueChange.callCount).to.equal(1);
-      expect(handleValueChange.args[0][0]).to.deep.equal(19);
+              await user.keyboard(`[${key}]`);
+              expect(handleValueChange.callCount).to.equal(1);
+              expect(handleValueChange.args[0][0]).to.deep.equal(21);
+              expect(input).to.have.attribute('aria-valuenow', '21');
+            });
 
-      fireEvent.keyDown(input!, { key: 'ArrowDown', shiftKey: true });
-      expect(handleValueChange.callCount).to.equal(2);
-      expect(handleValueChange.args[1][0]).to.deep.equal(9);
-    });
+            it(`key: ${key} increments the value by largeStep when Shift is pressed`, async () => {
+              const handleValueChange = spy();
+              const { user } = await render(
+                <div dir={direction}>
+                  <DirectionProvider direction={direction}>
+                    <Slider.Root
+                      orientation={orientation}
+                      defaultValue={20}
+                      largeStep={10}
+                      onValueChange={handleValueChange}
+                    >
+                      <Slider.Control>
+                        <Slider.Track>
+                          <Slider.Indicator />
+                          <Slider.Thumb data-testid="thumb" />
+                        </Slider.Track>
+                      </Slider.Control>
+                    </Slider.Root>
+                  </DirectionProvider>
+                </div>,
+              );
 
-    it('decrements on ArrowLeft', async () => {
-      const handleValueChange = spy();
-      const { container } = await render(
-        <TestSlider defaultValue={20} onValueChange={handleValueChange} />,
-      );
+              const input = screen.getByRole('slider');
 
-      const input = container.querySelector('input');
+              await user.keyboard('[Tab]');
+              expect(screen.getByTestId('thumb')).toHaveFocus();
 
-      fireEvent.keyDown(document.body, { key: 'TAB' });
+              await user.keyboard(`{Shift>}{${key}}`);
+              expect(handleValueChange.callCount).to.equal(1);
+              expect(handleValueChange.args[0][0]).to.deep.equal(30);
+              expect(input).to.have.attribute('aria-valuenow', '30');
+            });
 
-      await act(async () => {
-        (input as HTMLInputElement).focus();
-      });
+            it(`key: ${key} stops at max when incrementing while Shift is pressed`, async () => {
+              const handleValueChange = spy();
+              const { user } = await render(
+                <div dir={direction}>
+                  <DirectionProvider direction={direction}>
+                    <Slider.Root
+                      orientation={orientation}
+                      defaultValue={20}
+                      largeStep={10}
+                      max={21}
+                      onValueChange={handleValueChange}
+                    >
+                      <Slider.Control>
+                        <Slider.Track>
+                          <Slider.Indicator />
+                          <Slider.Thumb data-testid="thumb" />
+                        </Slider.Track>
+                      </Slider.Control>
+                    </Slider.Root>
+                  </DirectionProvider>
+                </div>,
+              );
 
-      fireEvent.keyDown(input!, { key: 'ArrowLeft' });
-      expect(handleValueChange.callCount).to.equal(1);
-      expect(handleValueChange.args[0][0]).to.deep.equal(19);
+              const input = screen.getByRole('slider');
 
-      fireEvent.keyDown(input!, { key: 'ArrowLeft', shiftKey: true });
-      expect(handleValueChange.callCount).to.equal(2);
-      expect(handleValueChange.args[1][0]).to.deep.equal(9);
-    });
+              await user.keyboard('[Tab]');
+              expect(screen.getByTestId('thumb')).toHaveFocus();
 
-    describe('key: End', () => {
-      it('sets value to max in a single value slider', async () => {
-        const handleValueChange = spy();
-        const { container } = await render(
-          <TestSlider defaultValue={20} onValueChange={handleValueChange} max={77} />,
-        );
+              await user.keyboard(`{Shift>}{${key}}`);
+              expect(handleValueChange.callCount).to.equal(1);
+              expect(handleValueChange.args[0][0]).to.deep.equal(21);
+              expect(input).to.have.attribute('aria-valuenow', '21');
+            });
+          });
 
-        const input = container.querySelector('input');
+          describe('key: End', () => {
+            it('sets value to max in a single value slider', async () => {
+              const handleValueChange = spy();
+              const { user } = await render(
+                <div dir={direction}>
+                  <DirectionProvider direction={direction}>
+                    <Slider.Root
+                      orientation={orientation}
+                      defaultValue={20}
+                      max={77}
+                      onValueChange={handleValueChange}
+                    >
+                      <Slider.Control>
+                        <Slider.Track>
+                          <Slider.Indicator />
+                          <Slider.Thumb data-testid="thumb" />
+                        </Slider.Track>
+                      </Slider.Control>
+                    </Slider.Root>
+                  </DirectionProvider>
+                </div>,
+              );
 
-        fireEvent.keyDown(document.body, { key: 'TAB' });
+              const input = screen.getByRole('slider');
 
-        await act(async () => {
-          (input as HTMLInputElement).focus();
+              await user.keyboard('[Tab]');
+              expect(screen.getByTestId('thumb')).toHaveFocus();
+
+              await user.keyboard(`[${END}]`);
+              expect(handleValueChange.callCount).to.equal(1);
+              expect(handleValueChange.args[0][0]).to.deep.equal(77);
+              expect(input).to.have.attribute('aria-valuenow', '77');
+            });
+
+            it('sets value to the maximum possible value in a range slider', async () => {
+              const handleValueChange = spy();
+              const { user } = await render(
+                <div dir={direction}>
+                  <DirectionProvider direction={direction}>
+                    <Slider.Root defaultValue={[20, 50]} max={77} onValueChange={handleValueChange}>
+                      <Slider.Control>
+                        <Slider.Track>
+                          <Slider.Indicator />
+                          <Slider.Thumb data-testid="thumb1" />
+                          <Slider.Thumb data-testid="thumb2" />
+                        </Slider.Track>
+                      </Slider.Control>
+                    </Slider.Root>
+                  </DirectionProvider>
+                </div>,
+              );
+
+              const thumb1 = screen.getByTestId('thumb1');
+              const thumb2 = screen.getByTestId('thumb2');
+
+              await user.keyboard('[Tab]');
+              expect(thumb1).toHaveFocus();
+
+              await user.keyboard(`[${END}]`);
+              expect(handleValueChange.callCount).to.equal(1);
+              expect(handleValueChange.args[0][0]).to.deep.equal([50, 50]);
+              await user.keyboard(`[${END}]`);
+              expect(handleValueChange.callCount).to.equal(1);
+
+              await user.keyboard('[Tab]');
+              expect(thumb2).toHaveFocus();
+
+              await user.keyboard(`[${END}]`);
+              expect(handleValueChange.callCount).to.equal(2);
+              expect(handleValueChange.args[1][0]).to.deep.equal([50, 77]);
+            });
+          });
+
+          describe('key: Home', () => {
+            it('sets value to min in a single value slider', async () => {
+              const handleValueChange = spy();
+              const { user } = await render(
+                <div dir={direction}>
+                  <DirectionProvider direction={direction}>
+                    <Slider.Root
+                      orientation={orientation}
+                      defaultValue={20}
+                      min={17}
+                      onValueChange={handleValueChange}
+                    >
+                      <Slider.Control>
+                        <Slider.Track>
+                          <Slider.Indicator />
+                          <Slider.Thumb data-testid="thumb" />
+                        </Slider.Track>
+                      </Slider.Control>
+                    </Slider.Root>
+                  </DirectionProvider>
+                </div>,
+              );
+
+              const input = screen.getByRole('slider');
+
+              await user.keyboard('[Tab]');
+              expect(screen.getByTestId('thumb')).toHaveFocus();
+
+              await user.keyboard(`[${HOME}]`);
+              expect(handleValueChange.callCount).to.equal(1);
+              expect(handleValueChange.args[0][0]).to.deep.equal(17);
+              expect(input).to.have.attribute('aria-valuenow', '17');
+            });
+
+            it('sets value to the minimum possible value in a range slider', async () => {
+              const handleValueChange = spy();
+              const { user } = await render(
+                <div dir={direction}>
+                  <DirectionProvider direction={direction}>
+                    <Slider.Root defaultValue={[20, 50]} min={7} onValueChange={handleValueChange}>
+                      <Slider.Control>
+                        <Slider.Track>
+                          <Slider.Indicator />
+                          <Slider.Thumb data-testid="thumb1" />
+                          <Slider.Thumb data-testid="thumb2" />
+                        </Slider.Track>
+                      </Slider.Control>
+                    </Slider.Root>
+                  </DirectionProvider>
+                </div>,
+              );
+
+              const thumb1 = screen.getByTestId('thumb1');
+              const thumb2 = screen.getByTestId('thumb2');
+
+              await user.keyboard('[Tab]');
+              await user.keyboard('[Tab]');
+              expect(thumb2).toHaveFocus();
+
+              await user.keyboard(`[${HOME}]`);
+              expect(handleValueChange.callCount).to.equal(1);
+              expect(handleValueChange.args[0][0]).to.deep.equal([20, 20]);
+              await user.keyboard(`[${HOME}]`);
+              expect(handleValueChange.callCount).to.equal(1);
+
+              await user.keyboard('{Shift>}{Tab}');
+              expect(thumb1).toHaveFocus();
+
+              await user.keyboard(`[${HOME}]`);
+              expect(handleValueChange.callCount).to.equal(2);
+              expect(handleValueChange.args[1][0]).to.deep.equal([7, 20]);
+            });
+          });
+
+          describe('key: PageUp', () => {
+            it('increments the value by largeStep', async () => {
+              const handleValueChange = spy();
+              const { user } = await render(
+                <div dir={direction}>
+                  <DirectionProvider direction={direction}>
+                    <Slider.Root
+                      orientation={orientation}
+                      defaultValue={20}
+                      largeStep={5}
+                      onValueChange={handleValueChange}
+                    >
+                      <Slider.Control>
+                        <Slider.Track>
+                          <Slider.Indicator />
+                          <Slider.Thumb data-testid="thumb" />
+                        </Slider.Track>
+                      </Slider.Control>
+                    </Slider.Root>
+                  </DirectionProvider>
+                </div>,
+              );
+
+              const input = screen.getByRole('slider');
+
+              await user.keyboard('[Tab]');
+              expect(screen.getByTestId('thumb')).toHaveFocus();
+
+              await user.keyboard('[PageUp]');
+              expect(handleValueChange.callCount).to.equal(1);
+              expect(handleValueChange.args[0][0]).to.deep.equal(25);
+              expect(input).to.have.attribute('aria-valuenow', '25');
+            });
+
+            it('does not exceed max', async () => {
+              const handleValueChange = spy();
+              const { user } = await render(
+                <div dir={direction}>
+                  <DirectionProvider direction={direction}>
+                    <Slider.Root
+                      orientation={orientation}
+                      defaultValue={20}
+                      largeStep={5}
+                      max={21}
+                      onValueChange={handleValueChange}
+                    >
+                      <Slider.Control>
+                        <Slider.Track>
+                          <Slider.Indicator />
+                          <Slider.Thumb data-testid="thumb" />
+                        </Slider.Track>
+                      </Slider.Control>
+                    </Slider.Root>
+                  </DirectionProvider>
+                </div>,
+              );
+
+              const input = screen.getByRole('slider');
+
+              await user.keyboard('[Tab]');
+              expect(screen.getByTestId('thumb')).toHaveFocus();
+
+              await user.keyboard('[PageUp]');
+              expect(handleValueChange.callCount).to.equal(1);
+              expect(handleValueChange.args[0][0]).to.deep.equal(21);
+              expect(input).to.have.attribute('aria-valuenow', '21');
+            });
+          });
+
+          describe('key: PageDown', () => {
+            it('decrements the value by largeStep', async () => {
+              const handleValueChange = spy();
+              const { user } = await render(
+                <div dir={direction}>
+                  <DirectionProvider direction={direction}>
+                    <Slider.Root
+                      orientation={orientation}
+                      defaultValue={20}
+                      largeStep={5}
+                      onValueChange={handleValueChange}
+                    >
+                      <Slider.Control>
+                        <Slider.Track>
+                          <Slider.Indicator />
+                          <Slider.Thumb data-testid="thumb" />
+                        </Slider.Track>
+                      </Slider.Control>
+                    </Slider.Root>
+                  </DirectionProvider>
+                </div>,
+              );
+
+              const input = screen.getByRole('slider');
+
+              await user.keyboard('[Tab]');
+              expect(screen.getByTestId('thumb')).toHaveFocus();
+
+              await user.keyboard('[PageDown]');
+              expect(handleValueChange.callCount).to.equal(1);
+              expect(handleValueChange.args[0][0]).to.deep.equal(15);
+              expect(input).to.have.attribute('aria-valuenow', '15');
+            });
+
+            it('does not go below min', async () => {
+              const handleValueChange = spy();
+              const { user } = await render(
+                <div dir={direction}>
+                  <DirectionProvider direction={direction}>
+                    <Slider.Root
+                      orientation={orientation}
+                      defaultValue={20}
+                      largeStep={5}
+                      min={17}
+                      onValueChange={handleValueChange}
+                    >
+                      <Slider.Control>
+                        <Slider.Track>
+                          <Slider.Indicator />
+                          <Slider.Thumb data-testid="thumb" />
+                        </Slider.Track>
+                      </Slider.Control>
+                    </Slider.Root>
+                  </DirectionProvider>
+                </div>,
+              );
+
+              const input = screen.getByRole('slider');
+
+              await user.keyboard('[Tab]');
+              expect(screen.getByTestId('thumb')).toHaveFocus();
+
+              await user.keyboard('[PageDown]');
+              expect(handleValueChange.callCount).to.equal(1);
+              expect(handleValueChange.args[0][0]).to.deep.equal(17);
+              expect(input).to.have.attribute('aria-valuenow', '17');
+            });
+          });
         });
-
-        fireEvent.keyDown(input!, { key: 'End' });
-        expect(handleValueChange.callCount).to.equal(1);
-        expect(handleValueChange.args[0][0]).to.deep.equal(77);
       });
 
-      it('sets value to the maximum possible value in a range slider', async () => {
-        const handleValueChange = spy();
-        const { getByTestId } = await render(
-          <TestRangeSlider defaultValue={[20, 50]} onValueChange={handleValueChange} max={77} />,
-        );
-
-        const thumbOne = getByTestId('thumb-0');
-        const thumbTwo = getByTestId('thumb-1');
-
-        await act(async () => {
-          thumbOne.focus();
-        });
-
-        fireEvent.keyDown(thumbOne, { key: 'End' });
-        expect(handleValueChange.callCount).to.equal(1);
-        expect(handleValueChange.args[0][0]).to.deep.equal([50, 50]);
-        fireEvent.keyDown(thumbOne, { key: 'End' });
-        expect(handleValueChange.callCount).to.equal(1);
-
-        await act(async () => {
-          thumbTwo.focus();
-        });
-
-        fireEvent.keyDown(thumbTwo, { key: 'End' });
-        expect(handleValueChange.callCount).to.equal(2);
-        expect(handleValueChange.args[1][0]).to.deep.equal([50, 77]);
-      });
-    });
-
-    describe('key: Home', () => {
-      it('sets value to min on Home', async () => {
-        const handleValueChange = spy();
-        const { container } = await render(
-          <TestSlider defaultValue={55} onValueChange={handleValueChange} min={17} />,
-        );
-
-        const input = container.querySelector('input');
-
-        fireEvent.keyDown(document.body, { key: 'TAB' });
-
-        await act(async () => {
-          (input as HTMLInputElement).focus();
-        });
-
-        fireEvent.keyDown(input!, { key: 'Home' });
-        expect(handleValueChange.callCount).to.equal(1);
-        expect(handleValueChange.args[0][0]).to.deep.equal(17);
+      it('can be removed from the tab sequence', async () => {
+        await render(<TestSlider tabIndex={-1} value={30} />);
+        expect(screen.getByRole('slider')).to.have.property('tabIndex', -1);
       });
 
-      it('sets value to the minimum possible value in a range slider', async () => {
-        const handleValueChange = spy();
-        const { getByTestId } = await render(
-          <TestRangeSlider defaultValue={[20, 50]} onValueChange={handleValueChange} min={7} />,
-        );
+      it('keypresses should correct invalid values', async () => {
+        function App() {
+          const [val, setVal] = React.useState(5.4698);
+          return (
+            <Slider.Root value={val} onValueChange={setVal} min={0} max={10} step={1}>
+              <Slider.Control>
+                <Slider.Track>
+                  <Slider.Indicator />
+                  <Slider.Thumb data-testid="thumb" />
+                </Slider.Track>
+              </Slider.Control>
+            </Slider.Root>
+          );
+        }
+        const { user } = await render(<App />);
 
-        const thumbOne = getByTestId('thumb-0');
-        const thumbTwo = getByTestId('thumb-1');
-
-        await act(async () => {
-          thumbTwo.focus();
-        });
-
-        fireEvent.keyDown(thumbTwo, { key: 'Home' });
-        expect(handleValueChange.callCount).to.equal(1);
-        expect(handleValueChange.args[0][0]).to.deep.equal([20, 20]);
-        fireEvent.keyDown(thumbTwo, { key: 'Home' });
-        expect(handleValueChange.callCount).to.equal(1);
-
-        await act(async () => {
-          thumbOne.focus();
-        });
-
-        fireEvent.keyDown(thumbOne, { key: 'Home' });
-        expect(handleValueChange.callCount).to.equal(2);
-        expect(handleValueChange.args[1][0]).to.deep.equal([7, 20]);
+        expect(screen.getByRole('slider')).to.have.attribute('aria-valuenow', '5.4698');
+        await user.keyboard('[Tab]');
+        expect(screen.getByTestId('thumb')).toHaveFocus();
+        await user.keyboard(`[${ARROW_RIGHT}]`);
+        expect(screen.getByRole('slider')).to.have.attribute('aria-valuenow', '6');
       });
-    });
-
-    it('should support Shift + Left Arrow / Right Arrow keys', async () => {
-      const handleValueChange = spy();
-      const { container } = await render(
-        <TestSlider defaultValue={20} onValueChange={handleValueChange} />,
-      );
-
-      const input = container.querySelector('input');
-
-      fireEvent.keyDown(document.body, { key: 'TAB' });
-
-      await act(async () => {
-        (input as HTMLInputElement).focus();
-      });
-
-      fireEvent.keyDown(input!, { key: 'ArrowLeft', shiftKey: true });
-      expect(handleValueChange.callCount).to.equal(1);
-      expect(handleValueChange.args[0][0]).to.deep.equal(10);
-
-      fireEvent.keyDown(input!, { key: 'ArrowRight', shiftKey: true });
-      expect(handleValueChange.callCount).to.equal(2);
-      expect(handleValueChange.args[1][0]).to.deep.equal(20);
-    });
-
-    it('should support Shift + Up Arrow / Down Arrow keys', async () => {
-      const handleValueChange = spy();
-      const { container } = await render(
-        <TestSlider defaultValue={20} onValueChange={handleValueChange} />,
-      );
-
-      const input = container.querySelector('input');
-
-      fireEvent.keyDown(document.body, { key: 'TAB' });
-      await act(async () => {
-        (input as HTMLInputElement).focus();
-      });
-
-      fireEvent.keyDown(input!, { key: 'ArrowDown', shiftKey: true });
-      expect(handleValueChange.callCount).to.equal(1);
-      expect(handleValueChange.args[0][0]).to.deep.equal(10);
-
-      fireEvent.keyDown(input!, { key: 'ArrowUp', shiftKey: true });
-      expect(handleValueChange.callCount).to.equal(2);
-      expect(handleValueChange.args[1][0]).to.deep.equal(20);
-    });
-
-    it('should support PageUp / PageDown keys', async () => {
-      const handleValueChange = spy();
-      const { container } = await render(
-        <TestSlider defaultValue={20} onValueChange={handleValueChange} />,
-      );
-
-      const input = container.querySelector('input');
-
-      fireEvent.keyDown(document.body, { key: 'TAB' });
-      await act(async () => {
-        (input as HTMLInputElement).focus();
-      });
-
-      fireEvent.keyDown(input!, { key: 'PageDown' });
-      expect(handleValueChange.callCount).to.equal(1);
-      expect(handleValueChange.args[0][0]).to.deep.equal(10);
-
-      fireEvent.keyDown(input!, { key: 'PageUp' });
-      expect(handleValueChange.callCount).to.equal(2);
-      expect(handleValueChange.args[1][0]).to.deep.equal(20);
-    });
-
-    it('should support Shift + Left Arrow / Right Arrow keys by taking acount step and largeStep', async () => {
-      const handleValueChange = spy();
-      const DEFAULT_VALUE = 20;
-      const LARGE_STEP = 15;
-      const STEP = 5;
-      const { container } = await render(
-        <TestSlider
-          defaultValue={DEFAULT_VALUE}
-          onValueChange={handleValueChange}
-          step={STEP}
-          largeStep={LARGE_STEP}
-        />,
-      );
-
-      const input = container.querySelector('input');
-
-      fireEvent.keyDown(document.body, { key: 'TAB' });
-      await act(async () => {
-        (input as HTMLInputElement).focus();
-      });
-
-      fireEvent.keyDown(input!, { key: 'ArrowLeft', shiftKey: true });
-      expect(handleValueChange.callCount).to.equal(1);
-      expect(handleValueChange.args[0][0]).to.deep.equal(DEFAULT_VALUE - LARGE_STEP);
-      expect(input).to.have.attribute('aria-valuenow', `${DEFAULT_VALUE - LARGE_STEP}`);
-
-      fireEvent.keyDown(input!, { key: 'ArrowRight', shiftKey: true });
-      expect(handleValueChange.callCount).to.equal(2);
-      expect(handleValueChange.args[1][0]).to.deep.equal(DEFAULT_VALUE);
-      expect(input).to.have.attribute('aria-valuenow', `${DEFAULT_VALUE}`);
-    });
-
-    it('should stop at max/min when using Shift + Left Arrow / Right Arrow keys', async () => {
-      const handleValueChange = spy();
-      const { container } = await render(
-        <TestSlider defaultValue={5} max={8} onValueChange={handleValueChange} />,
-      );
-
-      const input = container.querySelector('input');
-
-      fireEvent.keyDown(document.body, { key: 'TAB' });
-      await act(async () => {
-        (input as HTMLInputElement).focus();
-      });
-
-      fireEvent.keyDown(input!, { key: 'ArrowLeft', shiftKey: true });
-      expect(handleValueChange.callCount).to.equal(1);
-      expect(handleValueChange.args[0][0]).to.deep.equal(0);
-
-      fireEvent.keyDown(input!, { key: 'ArrowRight', shiftKey: true });
-      expect(handleValueChange.callCount).to.equal(2);
-      expect(handleValueChange.args[1][0]).to.deep.equal(8);
-    });
-
-    it('can be removed from the tab sequence', async () => {
-      await render(<TestSlider tabIndex={-1} value={30} />);
-      expect(screen.getByRole('slider')).to.have.property('tabIndex', -1);
-    });
-
-    it('keypresses should correct invalid values', async () => {
-      function App() {
-        const [val, setVal] = React.useState(5.4698);
-        return (
-          <Slider.Root value={val} onValueChange={setVal} min={0} max={10} step={1}>
-            <Slider.Control>
-              <Slider.Track>
-                <Slider.Indicator />
-                <Slider.Thumb data-testid="thumb" />
-              </Slider.Track>
-            </Slider.Control>
-          </Slider.Root>
-        );
-      }
-      const { user } = await render(<App />);
-
-      expect(screen.getByRole('slider')).to.have.attribute('aria-valuenow', '5.4698');
-      await user.keyboard('[Tab]');
-      expect(screen.getByTestId('thumb')).toHaveFocus();
-      await user.keyboard('[ArrowRight]');
-      expect(screen.getByRole('slider')).to.have.attribute('aria-valuenow', '6');
     });
   });
 
@@ -1701,6 +1782,67 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
       const [slider1, slider2] = getAllByRole('slider');
       expect(slider1).to.have.attribute('aria-valuetext', `${formatValue(50)} start range`);
       expect(slider2).to.have.attribute('aria-valuetext', `${formatValue(75)} end range`);
+    });
+  });
+
+  describe.skipIf(isJSDOM)('form handling', () => {
+    it('should include the slider value in the form submission', async () => {
+      let stringifiedFormData = '';
+
+      const { getByRole } = await render(
+        <form
+          onSubmit={(event) => {
+            event.preventDefault();
+            const formData = new FormData(event.currentTarget);
+            stringifiedFormData = new URLSearchParams(formData as any).toString();
+          }}
+        >
+          <Slider.Root name="slider" defaultValue={25}>
+            <Slider.Control>
+              <Slider.Thumb />
+            </Slider.Control>
+          </Slider.Root>
+          <button type="submit">Submit</button>
+        </form>,
+      );
+
+      const submit = getByRole('button');
+      fireEvent.click(submit);
+
+      expect(stringifiedFormData).to.equal('slider=25');
+    });
+  });
+
+  describe('with Field.Root parent', () => {
+    it('should receive disabled prop from Field.Root', async () => {
+      const { getByTestId } = await render(
+        <Field.Root disabled>
+          <Slider.Root data-testid="root">
+            <Slider.Control>
+              <Slider.Thumb />
+            </Slider.Control>
+          </Slider.Root>
+        </Field.Root>,
+      );
+
+      const root = getByTestId('root');
+      expect(root).to.have.attribute('data-disabled', '');
+    });
+
+    it('should receive name prop from Field.Root', async () => {
+      const { getByTestId } = await render(
+        <Field.Root name="field-slider">
+          <Slider.Root>
+            <Slider.Control>
+              <Slider.Thumb data-testid="thumb" />
+            </Slider.Control>
+          </Slider.Root>
+        </Field.Root>,
+      );
+
+      const thumb = getByTestId('thumb');
+      const input = thumb.querySelector('input');
+      expect(input).to.have.attribute('name', 'field-slider');
     });
   });
 });
