@@ -30,7 +30,7 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
     floatingRootContext,
   } = useSelectRootContext();
   const { setActiveIndex } = useSelectIndexContext();
-  const { usingItemAnchor, setControlledItemAnchor } = useSelectPositionerContext();
+  const { overlapAnchorMode, setControlledItemAnchor } = useSelectPositionerContext();
 
   const initialHeightRef = React.useRef(0);
   const reachedMaxHeightRef = React.useRef(false);
@@ -39,7 +39,7 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
   const originalPositionerStylesRef = React.useRef<React.CSSProperties>({});
 
   const handleScrollArrowVisibility = useEventCallback(() => {
-    if (!usingItemAnchor || !popupRef.current) {
+    if (!overlapAnchorMode || !popupRef.current) {
       return;
     }
 
@@ -58,7 +58,7 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
 
   useEnhancedEffect(() => {
     if (
-      usingItemAnchor ||
+      overlapAnchorMode ||
       !positionerElement ||
       Object.keys(originalPositionerStylesRef.current).length
     ) {
@@ -76,10 +76,10 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
       marginTop: positionerElement.style.marginTop,
       marginBottom: positionerElement.style.marginBottom,
     };
-  }, [usingItemAnchor, positionerElement]);
+  }, [overlapAnchorMode, positionerElement]);
 
   useEnhancedEffect(() => {
-    if (mounted || usingItemAnchor) {
+    if (mounted || overlapAnchorMode) {
       return;
     }
 
@@ -91,12 +91,12 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
     if (positionerElement) {
       clearPositionerStyles(positionerElement, originalPositionerStylesRef.current);
     }
-  }, [mounted, usingItemAnchor, positionerElement]);
+  }, [mounted, overlapAnchorMode, positionerElement]);
 
   useEnhancedEffect(() => {
     if (
       !mounted ||
-      !usingItemAnchor ||
+      !overlapAnchorMode ||
       !triggerElement ||
       !positionerElement ||
       !popupRef.current
@@ -216,12 +216,12 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
     setScrollUpArrowVisible,
     setScrollDownArrowVisible,
     handleScrollArrowVisibility,
-    usingItemAnchor,
+    overlapAnchorMode,
     setControlledItemAnchor,
   ]);
 
   React.useEffect(() => {
-    if (!usingItemAnchor || !positionerElement || !mounted) {
+    if (!overlapAnchorMode || !positionerElement || !mounted) {
       return undefined;
     }
 
@@ -236,7 +236,7 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
     return () => {
       win.removeEventListener('resize', handleResize);
     };
-  }, [setOpen, usingItemAnchor, positionerElement, mounted]);
+  }, [setOpen, overlapAnchorMode, positionerElement, mounted]);
 
   const getPopupProps: useSelectPopup.ReturnValue['getPopupProps'] = React.useCallback(
     (externalProps = {}) => {
@@ -259,7 +259,7 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
           },
           onScroll(event) {
             if (
-              !usingItemAnchor ||
+              !overlapAnchorMode ||
               !positionerElement ||
               !popupRef.current ||
               !initialPlacedRef.current
@@ -267,7 +267,7 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
               return;
             }
 
-            if (reachedMaxHeightRef.current || !usingItemAnchor) {
+            if (reachedMaxHeightRef.current || !overlapAnchorMode) {
               handleScrollArrowVisibility();
               return;
             }
@@ -318,7 +318,7 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
 
             handleScrollArrowVisibility();
           },
-          ...(usingItemAnchor && {
+          ...(overlapAnchorMode && {
             style: {
               position: 'relative',
               maxHeight: '100%',
@@ -332,7 +332,7 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
     },
     [
       id,
-      usingItemAnchor,
+      overlapAnchorMode,
       getRootPositionerProps,
       keyboardActiveRef,
       setActiveIndex,

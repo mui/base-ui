@@ -71,7 +71,11 @@ function SelectDemo({ modal }: Props) {
       </Tooltip.Root>
 
       <Select.Portal>
-        <Select.Positioner sideOffset={5} render={<Positioner />} anchor="trigger">
+        <Select.Positioner
+          sideOffset={5}
+          render={<Positioner />}
+          anchorMode="beside-trigger"
+        >
           <SelectPopup>
             <SelectItem value="system">
               <SelectItemIndicator render={<CheckIcon />} />

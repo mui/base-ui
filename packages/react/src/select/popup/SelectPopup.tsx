@@ -96,7 +96,7 @@ const SelectPopup = React.forwardRef(function SelectPopup(
 
   return (
     <React.Fragment>
-      {id && positioner.usingItemAnchor && (
+      {id && positioner.overlapAnchorMode && (
         <style
           // eslint-disable-next-line react/no-danger
           dangerouslySetInnerHTML={html}

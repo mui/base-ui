@@ -8,32 +8,24 @@ import { useScrollLock } from '../../utils/useScrollLock';
 export function useSelectPositioner(
   params: useSelectPositioner.Parameters,
 ): useSelectPositioner.ReturnValue {
-  const { anchor, usingItemAnchor } = params;
+  const { overlapAnchorMode } = params;
   const { open, mounted, triggerElement, modal } = useSelectRootContext();
 
   useScrollLock({
-    enabled: (usingItemAnchor || modal) && open,
+    enabled: (overlapAnchorMode || modal) && open,
     mounted,
     open,
     referenceElement: triggerElement,
   });
 
-  let anchorValue = anchor;
-  if (anchorValue === 'trigger') {
-    anchorValue = triggerElement;
-  } else if (anchorValue === 'item') {
-    anchorValue = null;
-  }
-
   const positioning = useAnchorPositioning({
     ...params,
-    anchor: anchorValue,
-    trackAnchor: params.trackAnchor ?? !usingItemAnchor,
+    trackAnchor: params.trackAnchor ?? !overlapAnchorMode,
   });
 
   const positionerStyles: React.CSSProperties = React.useMemo(
-    () => (usingItemAnchor ? { position: 'fixed' } : positioning.positionerStyles),
-    [usingItemAnchor, positioning.positionerStyles],
+    () => (overlapAnchorMode ? { position: 'fixed' } : positioning.positionerStyles),
+    [overlapAnchorMode, positioning.positionerStyles],
   );
 
   const getPositionerProps: useSelectPositioner.ReturnValue['getPositionerProps'] =
@@ -63,27 +55,26 @@ export function useSelectPositioner(
   return React.useMemo(
     () => ({
       ...positioning,
-      side: usingItemAnchor ? 'none' : positioning.side,
+      side: overlapAnchorMode ? 'none' : positioning.side,
       getPositionerProps,
     }),
-    [getPositionerProps, positioning, usingItemAnchor],
+    [getPositionerProps, positioning, overlapAnchorMode],
   );
 }
 
 export namespace useSelectPositioner {
-  export interface Parameters extends Omit<useAnchorPositioning.Parameters, 'anchor'> {
-    anchor?: 'item' | 'trigger' | useAnchorPositioning.Parameters['anchor'];
-    usingItemAnchor: boolean;
+  export interface Parameters extends useAnchorPositioning.Parameters {
+    overlapAnchorMode: boolean;
   }
 
-  export interface SharedParameters extends Omit<useAnchorPositioning.SharedParameters, 'anchor'> {
+  export interface SharedParameters extends useAnchorPositioning.SharedParameters {
     /**
-     * An element to position the popup against.
-     * By default, the popup will be positioned over the top of the trigger so that
-     * the selected item's text is aligned with the trigger's value text.
-     * @default 'item'
+     * Determines how the positioner is anchored to the trigger.
+     * - `'beside-trigger'`: Anchors beside the trigger.
+     * - `'overlap-trigger'`: Anchors over the trigger, aligning the selected item with the trigger's value.
+     * @default 'overlap-trigger'
      */
-    anchor?: 'item' | 'trigger' | useAnchorPositioning.Parameters['anchor'];
+    anchorMode?: 'beside-trigger' | 'overlap-trigger';
   }
 
   export interface ReturnValue extends Omit<useAnchorPositioning.ReturnValue, 'side'> {

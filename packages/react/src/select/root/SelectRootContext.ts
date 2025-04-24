@@ -57,7 +57,7 @@ export interface SelectRootContext {
   registerSelectedItem: (index: number) => void;
   onOpenChangeComplete?: (open: boolean) => void;
   keyboardActiveRef: React.MutableRefObject<boolean>;
-  usingItemAnchorRef: React.RefObject<boolean>;
+  overlapAnchorModeRef: React.RefObject<boolean>;
 }
 
 export const SelectRootContext = React.createContext<SelectRootContext | null>(null);

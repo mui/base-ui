@@ -26,7 +26,7 @@ export function useSelectTrigger(
     setTouchModality,
     positionerElement,
     readOnly,
-    usingItemAnchorRef,
+    overlapAnchorModeRef,
   } = useSelectRootContext();
 
   const { labelId, setTouched, setFocused, validationMode } = useFieldRootContext();
@@ -82,7 +82,7 @@ export function useSelectTrigger(
           onFocus(event) {
             setFocused(true);
             // The popup element shouldn't obscure the focused trigger.
-            if (open && usingItemAnchorRef.current) {
+            if (open && overlapAnchorModeRef.current) {
               setOpen(false, event.nativeEvent, undefined);
             }
           },
@@ -159,7 +159,7 @@ export function useSelectTrigger(
       getButtonProps,
       setFocused,
       open,
-      usingItemAnchorRef,
+      overlapAnchorModeRef,
       setOpen,
       setTouched,
       validationMode,

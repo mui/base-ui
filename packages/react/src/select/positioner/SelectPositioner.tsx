@@ -23,7 +23,7 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
   ref: React.ForwardedRef<HTMLDivElement>,
 ) {
   const {
-    anchor = 'item',
+    anchor,
     positionMethod = 'absolute',
     className,
     render,
@@ -36,6 +36,7 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
     arrowPadding = 5,
     sticky = false,
     trackAnchor = true,
+    anchorMode = 'overlap-trigger',
     ...otherProps
   } = props;
 
@@ -52,21 +53,21 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
     setScrollUpArrowVisible,
     scrollDownArrowVisible,
     setScrollDownArrowVisible,
-    usingItemAnchorRef,
+    overlapAnchorModeRef,
   } = useSelectRootContext();
 
-  const isItemAnchor = anchor === 'item';
+  const isItemAnchor = anchorMode === 'overlap-trigger';
 
   const [controlledItemAnchor, setControlledItemAnchor] = React.useState(isItemAnchor);
-  const usingItemAnchor = mounted && controlledItemAnchor && !touchModality;
+  const overlapAnchorMode = mounted && controlledItemAnchor && !touchModality;
 
-  React.useImperativeHandle(usingItemAnchorRef, () => usingItemAnchor);
+  React.useImperativeHandle(overlapAnchorModeRef, () => overlapAnchorMode);
 
   if (!mounted && controlledItemAnchor !== isItemAnchor) {
     setControlledItemAnchor(isItemAnchor);
   }
 
-  if (anchor !== 'item' || !mounted) {
+  if (!isItemAnchor || !mounted) {
     if (scrollUpArrowVisible) {
       setScrollUpArrowVisible(false);
     }
@@ -89,7 +90,7 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
     collisionPadding,
     sticky,
     trackAnchor,
-    usingItemAnchor,
+    overlapAnchorMode,
     keepMounted: true,
   });
 
@@ -118,11 +119,11 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
   const contextValue: SelectPositionerContext = React.useMemo(
     () => ({
       ...positioner,
-      usingItemAnchor,
+      overlapAnchorMode,
       controlledItemAnchor,
       setControlledItemAnchor,
     }),
-    [positioner, usingItemAnchor, controlledItemAnchor],
+    [positioner, overlapAnchorMode, controlledItemAnchor],
   );
 
   return (

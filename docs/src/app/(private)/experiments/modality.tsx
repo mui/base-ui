@@ -46,7 +46,11 @@ function SelectDemo({ modal, withBackdrop }: Props) {
       {withBackdrop && <Select.Backdrop render={<Backdrop />} />}
 
       <Select.Portal>
-        <Select.Positioner sideOffset={5} render={<Positioner />} anchor="trigger">
+        <Select.Positioner
+          sideOffset={5}
+          render={<Positioner />}
+          anchorMode="beside-trigger"
+        >
           <SelectPopup>
             <SelectItem value="system">
               <SelectItemIndicator render={<CheckIcon />} />

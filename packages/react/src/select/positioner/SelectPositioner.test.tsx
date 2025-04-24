@@ -47,7 +47,7 @@ describe('<Select.Positioner />', () => {
               data-testid="positioner"
               align="center"
               sideOffset={sideOffset}
-              anchor="trigger"
+              anchorMode="beside-trigger"
             >
               <Select.Popup style={popupStyle}>Popup</Select.Popup>
             </Select.Positioner>
@@ -69,7 +69,7 @@ describe('<Select.Positioner />', () => {
               data-testid="positioner"
               align="center"
               sideOffset={(data) => data.positioner.width + data.anchor.width}
-              anchor="trigger"
+              anchorMode="beside-trigger"
             >
               <Select.Popup style={popupStyle}>Popup</Select.Popup>
             </Select.Positioner>
@@ -92,7 +92,7 @@ describe('<Select.Positioner />', () => {
               side="left"
               align="center"
               data-testid="positioner"
-              anchor="trigger"
+              anchorMode="beside-trigger"
               sideOffset={(data) => {
                 side = data.side;
                 return 0;
@@ -118,7 +118,7 @@ describe('<Select.Positioner />', () => {
               side="right"
               align="start"
               data-testid="positioner"
-              anchor="trigger"
+              anchorMode="beside-trigger"
               sideOffset={(data) => {
                 align = data.align;
                 return 0;
@@ -143,7 +143,7 @@ describe('<Select.Positioner />', () => {
             <Select.Positioner
               side="inline-start"
               data-testid="positioner"
-              anchor="trigger"
+              anchorMode="beside-trigger"
               sideOffset={(data) => {
                 side = data.side;
                 return 0;
@@ -171,7 +171,7 @@ describe('<Select.Positioner />', () => {
               data-testid="positioner"
               align="center"
               alignOffset={alignOffset}
-              anchor="trigger"
+              anchorMode="beside-trigger"
             >
               <Select.Popup style={popupStyle}>Popup</Select.Popup>
             </Select.Positioner>
@@ -192,7 +192,7 @@ describe('<Select.Positioner />', () => {
             <Select.Positioner
               data-testid="positioner"
               align="center"
-              anchor="trigger"
+              anchorMode="beside-trigger"
               alignOffset={(data) => data.positioner.width}
             >
               <Select.Popup style={popupStyle}>Popup</Select.Popup>
@@ -216,7 +216,7 @@ describe('<Select.Positioner />', () => {
               side="left"
               align="center"
               data-testid="positioner"
-              anchor="trigger"
+              anchorMode="beside-trigger"
               alignOffset={(data) => {
                 side = data.side;
                 return 0;
@@ -242,7 +242,7 @@ describe('<Select.Positioner />', () => {
               side="right"
               align="start"
               data-testid="positioner"
-              anchor="trigger"
+              anchorMode="beside-trigger"
               alignOffset={(data) => {
                 align = data.align;
                 return 0;
@@ -267,7 +267,7 @@ describe('<Select.Positioner />', () => {
             <Select.Positioner
               side="inline-start"
               data-testid="positioner"
-              anchor="trigger"
+              anchorMode="beside-trigger"
               alignOffset={(data) => {
                 side = data.side;
                 return 0;
