@@ -71,7 +71,7 @@ export namespace useSelectPositioner {
     /**
      * Determines how the positioner is anchored to the trigger.
      * - `'beside-trigger'`: Anchors beside the trigger.
-     * - `'overlap-trigger'`: Anchors over the trigger, aligning the selected item with the trigger's value.
+     * - `'overlap-trigger'`: Anchors over the trigger, aligning the selected item label with the trigger's value. This only applies to mouse input and is automatically disabled if there is not enough space.
      * @default 'overlap-trigger'
      */
     anchorMode?: 'beside-trigger' | 'overlap-trigger';

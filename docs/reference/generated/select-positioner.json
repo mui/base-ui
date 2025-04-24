@@ -5,7 +5,7 @@
     "anchorMode": {
       "type": "'beside-trigger' | 'overlap-trigger'",
       "default": "'overlap-trigger'",
-      "description": "Determines how the positioner is anchored to the trigger.\n- `'beside-trigger'`: Anchors beside the trigger.\n- `'overlap-trigger'`: Anchors over the trigger, aligning the selected item with the trigger's value."
+      "description": "Determines how the positioner is anchored to the trigger.\n- `'beside-trigger'`: Anchors beside the trigger.\n- `'overlap-trigger'`: Anchors over the trigger, aligning the selected item label with the trigger's value. This only applies to mouse input and is automatically disabled if there is not enough space."
     },
     "align": {
       "type": "'center' | 'end' | 'start'",
