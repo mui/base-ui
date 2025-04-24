@@ -24,6 +24,8 @@ import {
 } from '../../utils/translateOpenChangeReason';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useFormContext } from '../../form/FormContext';
+import { useLatestRef } from '../../utils/useLatestRef';
+import { useField } from '../../field/useField';
 
 const EMPTY_ARRAY: never[] = [];
 
@@ -123,6 +125,15 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
       setScrollDownArrowVisible(false);
     }
   }
+
+  const controlRef = useLatestRef(triggerElement);
+
+  useField({
+    id,
+    commitValidation: fieldControlValidation.commitValidation,
+    value,
+    controlRef,
+  });
 
   const setOpen = useEventCallback(
     (nextOpen: boolean, event: Event | undefined, reason: OpenChangeReason | undefined) => {
