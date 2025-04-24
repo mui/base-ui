@@ -776,6 +776,36 @@ describe('<Select.Root />', () => {
 
     clock.withFakeTimers();
 
+    it('triggers native HTML validation on submit', async () => {
+      const { user } = await render(
+        <Form>
+          <Field.Root name="test" data-testid="field">
+            <Select.Root required>
+              <Select.Trigger data-testid="trigger">
+                <Select.Value />
+              </Select.Trigger>
+              <Select.Portal>
+                <Select.Positioner />
+              </Select.Portal>
+            </Select.Root>
+            <Field.Error match="valueMissing" data-testid="error">
+              required
+            </Field.Error>
+          </Field.Root>
+          <button type="submit">Submit</button>
+        </Form>,
+      );
+
+      const submit = screen.getByText('Submit');
+
+      expect(screen.queryByTestId('error')).to.equal(null);
+
+      await user.click(submit);
+
+      const error = screen.getByTestId('error');
+      expect(error).to.have.text('required');
+    });
+
     it('clears errors on change', async () => {
       function App() {
         const [errors, setErrors] = React.useState<Record<string, string | string[]>>({

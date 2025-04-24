@@ -5,6 +5,10 @@ import { Form } from '@base-ui-components/react/form';
 import { Select } from '@base-ui-components/react/select';
 import { Radio } from '@base-ui-components/react/radio';
 import { RadioGroup } from '@base-ui-components/react/radio-group';
+import { Checkbox } from '@base-ui-components/react/checkbox';
+import { Switch } from '@base-ui-components/react/switch';
+import { NumberField } from '@base-ui-components/react/number-field';
+import { Slider } from '@base-ui-components/react/slider';
 import styles from './form.module.css';
 
 export default function Page() {
@@ -21,17 +25,63 @@ export default function Page() {
         console.log('submitted form!', Object.fromEntries(formData as any));
       }}
     >
-      <Field.Root name="name" className={styles.Field}>
-        <Field.Label className={styles.Label}>Name</Field.Label>
-        <Field.Control required placeholder="Enter name" className={styles.Input} />
+      <h1>Form</h1>
+      <Field.Root name="input" className={styles.Field}>
+        <Field.Label className={styles.Label}>Input</Field.Label>
+        <Field.Control required placeholder="Enter input" className={styles.Input} />
         <Field.Error className={styles.Error} />
       </Field.Root>
 
-      <Field.Root name="font" className={styles.Field}>
-        <Field.Label className={styles.Label}>Font</Field.Label>
+      <Field.Root name="checkbox" className={styles.Field}>
+        <Field.Label className={styles.Label}>Checkbox</Field.Label>
+        <Checkbox.Root required className={styles.Checkbox}>
+          <Checkbox.Indicator className={styles.CheckboxIndicator} />
+        </Checkbox.Root>
+        <Field.Error className={styles.Error} />
+      </Field.Root>
+
+      <Field.Root name="switch" className={styles.Field}>
+        <Field.Label className={styles.Label}>Switch</Field.Label>
+        <Switch.Root required className={styles.Switch}>
+          <Switch.Thumb className={styles.Thumb} />
+        </Switch.Root>
+        <Field.Error className={styles.Error} />
+      </Field.Root>
+
+      <Field.Root name="slider" className={styles.Field}>
+        <Field.Label className={styles.Label}>Slider</Field.Label>
+        <Slider.Root defaultValue={25}>
+          <Slider.Control className={styles.SliderControl}>
+            <Slider.Track className={styles.SliderTrack}>
+              <Slider.Indicator className={styles.SliderIndicator} />
+              <Slider.Thumb className={styles.SliderThumb} />
+            </Slider.Track>
+          </Slider.Control>
+        </Slider.Root>
+        <Field.Error className={styles.Error} />
+      </Field.Root>
+
+      <Field.Root name="number-field" className={styles.Field}>
+        <Field.Label className={styles.Label}>Number Field</Field.Label>
+        <NumberField.Root required className={styles.Field}>
+          <NumberField.Group className={styles.Group}>
+            <NumberField.Decrement className={styles.Decrement}>
+              -
+            </NumberField.Decrement>
+            <NumberField.Input className={styles.Input} />
+            <NumberField.Increment className={styles.Increment}>
+              +
+            </NumberField.Increment>
+          </NumberField.Group>
+        </NumberField.Root>
+        <Field.Error className={styles.Error} />
+      </Field.Root>
+
+      <Field.Root name="select" className={styles.Field}>
+        <Field.Label className={styles.Label}>Select</Field.Label>
         <Select.Root required>
           <Select.Trigger className={styles.Select}>
-            <Select.Value placeholder="Choose font" />
+            <Select.Value placeholder="Select value" />
             <Select.Icon className={styles.SelectIcon}>
               <ChevronUpDownIcon />
             </Select.Icon>
@@ -80,13 +130,9 @@ export default function Page() {
         <Field.Error className={styles.Error} />
       </Field.Root>
 
-      <Field.Root name="apples" className={styles.Field}>
-        <Field.Label className={styles.Label}>Apple</Field.Label>
-        <RadioGroup
-          required
-          aria-labelledby="apples-caption"
-          className={styles.RadioGroup}
-        >
+      <Field.Root name="radio-group" className={styles.Field}>
+        <Field.Label className={styles.Label}>Radio Group</Field.Label>
+        <RadioGroup required className={styles.RadioGroup}>
           <label className={styles.Item}>
             <Radio.Root value="fuji-apple" className={styles.Radio}>
               <Radio.Indicator className={styles.Indicator} />
