@@ -53,7 +53,7 @@ export function useField(params: useField.Parameters) {
   ]);
 }
 
-namespace useField {
+export namespace useField {
   export interface Parameters {
     value: unknown;
     getValue?: () => unknown;

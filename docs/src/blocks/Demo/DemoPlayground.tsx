@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { DemoContext } from './DemoContext';
 
-const DemoPlayground = React.forwardRef(function DemoPlayground(
+export const DemoPlayground = React.forwardRef(function DemoPlayground(
   props: DemoPlayground.Props,
   ref: React.ForwardedRef<HTMLDivElement>,
 ) {
@@ -22,10 +22,8 @@ const DemoPlayground = React.forwardRef(function DemoPlayground(
   );
 });
 
-namespace DemoPlayground {
+export namespace DemoPlayground {
   export interface Props extends React.HTMLAttributes<HTMLDivElement> {
     className?: string;
   }
 }
-
-export { DemoPlayground };

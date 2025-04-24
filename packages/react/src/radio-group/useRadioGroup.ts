@@ -138,7 +138,7 @@ export function useRadioGroup(params: useRadioGroup.Parameters) {
   );
 }
 
-namespace useRadioGroup {
+export namespace useRadioGroup {
   export interface Parameters {
     name?: string;
     disabled?: boolean;

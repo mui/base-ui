@@ -141,7 +141,7 @@ export function useRadioRoot(params: useRadioRoot.Parameters) {
   );
 }
 
-namespace useRadioRoot {
+export namespace useRadioRoot {
   export interface Parameters {
     value: any;
     disabled?: boolean;

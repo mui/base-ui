@@ -351,7 +351,7 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
   );
 }
 
-namespace useSelectPopup {
+export namespace useSelectPopup {
   export interface ReturnValue {
     getPopupProps: (props?: GenericHTMLProps) => GenericHTMLProps;
   }
