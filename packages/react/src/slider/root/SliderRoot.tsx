@@ -138,7 +138,6 @@ const SliderRoot = React.forwardRef(function SliderRoot<Value extends number | r
     (element: HTMLElement | null) => {
       if (element) {
         controlRef.current = element;
-
         inputValidationRef.current = element.querySelector<HTMLInputElement>('input[type="range"]');
       }
     },
@@ -177,11 +176,6 @@ const SliderRoot = React.forwardRef(function SliderRoot<Value extends number | r
       onValueChange(newValue, clonedEvent, thumbIndex);
     },
   );
-
-  // for pointer drag only
-  const commitValue = useEventCallback((value: number | readonly number[], event: Event) => {
-    onValueCommitted(value, event);
-  });
 
   // for keypresses only
   const handleInputChange = useEventCallback(
@@ -256,7 +250,6 @@ const SliderRoot = React.forwardRef(function SliderRoot<Value extends number | r
   const contextValue = React.useMemo(
     () => ({
       active,
-      commitValue,
       disabled,
       dragging,
       format,
@@ -268,6 +261,7 @@ const SliderRoot = React.forwardRef(function SliderRoot<Value extends number | r
       min,
       minStepsBetweenValues,
       name,
+      onValueCommitted,
       orientation,
       range,
       registerInputValidationRef,
@@ -284,7 +278,6 @@ const SliderRoot = React.forwardRef(function SliderRoot<Value extends number | r
     [
       active,
       ariaLabelledby,
-      commitValue,
       disabled,
       dragging,
       externalTabIndex,
@@ -296,6 +289,7 @@ const SliderRoot = React.forwardRef(function SliderRoot<Value extends number | r
       min,
       minStepsBetweenValues,
       name,
+      onValueCommitted,
       orientation,
       range,
       registerInputValidationRef,

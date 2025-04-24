@@ -96,13 +96,13 @@ const SliderControl = React.forwardRef(function SliderControl(
 
   const {
     active: activeThumbIndex,
-    commitValue,
     disabled,
     dragging,
     lastChangedValueRef,
     max,
     min,
     minStepsBetweenValues,
+    onValueCommitted,
     orientation,
     range,
     registerInputValidationRef,
@@ -282,7 +282,7 @@ const SliderControl = React.forwardRef(function SliderControl(
     setActive(-1);
 
     commitValidation(lastChangedValueRef.current ?? finger.value);
-    commitValue(lastChangedValueRef.current ?? finger.value, nativeEvent);
+    onValueCommitted(lastChangedValueRef.current ?? finger.value, nativeEvent);
 
     touchIdRef.current = null;
     // eslint-disable-next-line @typescript-eslint/no-use-before-define

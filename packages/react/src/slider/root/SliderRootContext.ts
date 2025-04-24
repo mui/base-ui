@@ -10,10 +10,6 @@ export interface SliderRootContext {
    * The index of the active thumb.
    */
   active: number;
-  /**
-   * Function to be called when drag ends. Invokes onValueCommitted.
-   */
-  commitValue: (newValue: number | readonly number[], event: Event) => void;
   dragging: boolean;
   disabled: boolean;
   format?: Intl.NumberFormatOptions;
@@ -43,6 +39,10 @@ export interface SliderRootContext {
    */
   minStepsBetweenValues: number;
   name: string;
+  /**
+   * Function to be called when drag ends and the pointer is released.
+   */
+  onValueCommitted: (newValue: number | readonly number[], event: Event) => void;
   /**
    * The component orientation.
    * @default 'horizontal'
