@@ -35,7 +35,7 @@ function getRangeStyles(
  *
  * Documentation: [Base UI Slider](https://base-ui.com/react/components/slider)
  */
-const SliderIndicator = React.forwardRef(function SliderIndicator(
+export const SliderIndicator = React.forwardRef(function SliderIndicator(
   componentProps: SliderIndicator.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
@@ -78,8 +78,6 @@ const SliderIndicator = React.forwardRef(function SliderIndicator(
   return renderElement();
 });
 
-namespace SliderIndicator {
+export namespace SliderIndicator {
   export interface Props extends BaseUIComponentProps<'div', SliderRoot.State> {}
 }
-
-export { SliderIndicator };

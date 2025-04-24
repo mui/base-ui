@@ -42,10 +42,9 @@ function areValuesEqual(
  *
  * Documentation: [Base UI Slider](https://base-ui.com/react/components/slider)
  */
-const SliderRoot = React.forwardRef(function SliderRoot<Value extends number | readonly number[]>(
-  componentProps: SliderRoot.Props<Value>,
-  forwardedRef: React.ForwardedRef<HTMLDivElement>,
-) {
+export const SliderRoot = React.forwardRef(function SliderRoot<
+  Value extends number | readonly number[],
+>(componentProps: SliderRoot.Props<Value>, forwardedRef: React.ForwardedRef<HTMLDivElement>) {
   const {
     'aria-labelledby': ariaLabelledbyProp,
     className,
@@ -334,7 +333,7 @@ const SliderRoot = React.forwardRef(function SliderRoot<Value extends number | r
   ): React.JSX.Element;
 };
 
-namespace SliderRoot {
+export namespace SliderRoot {
   export interface State extends FieldRoot.State {
     /**
      * The index of the active thumb.
@@ -458,5 +457,3 @@ namespace SliderRoot {
     onValueCommitted?: (value: Value extends number ? number : Value, event: Event) => void;
   }
 }
-
-export { SliderRoot };

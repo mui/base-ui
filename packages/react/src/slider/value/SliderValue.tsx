@@ -13,7 +13,7 @@ import type { SliderRoot } from '../root/SliderRoot';
  *
  * Documentation: [Base UI Slider](https://base-ui.com/react/components/slider)
  */
-const SliderValue = React.forwardRef(function SliderValue(
+export const SliderValue = React.forwardRef(function SliderValue(
   componentProps: SliderValue.Props,
   forwardedRef: React.ForwardedRef<HTMLOutputElement>,
 ) {
@@ -73,7 +73,7 @@ const SliderValue = React.forwardRef(function SliderValue(
   return renderElement();
 });
 
-namespace SliderValue {
+export namespace SliderValue {
   export interface Props
     extends Omit<BaseUIComponentProps<'output', SliderRoot.State>, 'children'> {
     /**
@@ -85,5 +85,3 @@ namespace SliderValue {
       | ((formattedValues: readonly string[], values: readonly number[]) => React.ReactNode);
   }
 }
-
-export { SliderValue };

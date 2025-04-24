@@ -83,7 +83,7 @@ function getNewValue(
  *
  * Documentation: [Base UI Slider](https://base-ui.com/react/components/slider)
  */
-const SliderThumb = React.forwardRef(function SliderThumb(
+export const SliderThumb = React.forwardRef(function SliderThumb(
   componentProps: SliderThumb.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
@@ -374,7 +374,7 @@ export interface ThumbMetadata {
   inputId: string | undefined;
 }
 
-namespace SliderThumb {
+export namespace SliderThumb {
   export interface State extends SliderRoot.State {}
 
   export interface Props extends Omit<BaseUIComponentProps<'div', State>, 'render'> {
@@ -416,5 +416,3 @@ namespace SliderThumb {
       | (React.ReactElement & { ref: React.Ref<Element> });
   }
 }
-
-export { SliderThumb };
