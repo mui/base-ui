@@ -27,17 +27,7 @@ export default function Page() {
         <Field.Error className={styles.Error} />
       </Field.Root>
 
-      <Field.Root
-        validationMode="onBlur"
-        validate={(value) => {
-          if (value == null) {
-            return 'This field is required';
-          }
-          return null;
-        }}
-        name="font"
-        className={styles.Field}
-      >
+      <Field.Root name="font" className={styles.Field}>
         <Field.Label className={styles.Label}>Font</Field.Label>
         <Select.Root required>
           <Select.Trigger className={styles.Select}>

@@ -1947,7 +1947,6 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
         </Field.Root>,
       );
 
-      // eslint-disable-next-line testing-library/no-node-access
       const input = container.querySelector<HTMLInputElement>('input')!;
       const thumb = screen.getByTestId('thumb');
 
