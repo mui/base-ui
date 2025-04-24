@@ -990,5 +990,67 @@ describe('<Select.Root />', () => {
 
       expect(trigger).not.to.have.attribute('data-focused');
     });
+
+    it('prop: validate', async () => {
+      await render(
+        <Field.Root validate={() => 'error'}>
+          <Select.Root>
+            <Select.Trigger data-testid="trigger" />
+            <Select.Portal>
+              <Select.Positioner />
+            </Select.Portal>
+          </Select.Root>
+        </Field.Root>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+
+      expect(trigger).not.to.have.attribute('aria-invalid');
+
+      fireEvent.focus(trigger);
+      fireEvent.blur(trigger);
+
+      await flushMicrotasks();
+
+      expect(trigger).to.have.attribute('aria-invalid', 'true');
+    });
+
+    it('Field.Label', async () => {
+      await render(
+        <Field.Root>
+          <Select.Root>
+            <Select.Trigger data-testid="trigger" />
+            <Select.Portal>
+              <Select.Positioner />
+            </Select.Portal>
+          </Select.Root>
+          <Field.Label data-testid="label" render={<span />} />
+        </Field.Root>,
+      );
+
+      expect(screen.getByTestId('trigger')).to.have.attribute(
+        'aria-labelledby',
+        screen.getByTestId('label').id,
+      );
+    });
+
+    it('Field.Description', async () => {
+      await render(
+        <Field.Root>
+          <Select.Root>
+            <Select.Trigger data-testid="trigger" />
+            <Select.Portal>
+              <Select.Positioner />
+            </Select.Portal>
+          </Select.Root>
+          <Field.Description data-testid="description" />
+        </Field.Root>,
+      );
+
+      expect(screen.getByTestId('trigger')).to.have.attribute(
+        'aria-describedby',
+        screen.getByTestId('description').id,
+      );
+    });
   });
 });

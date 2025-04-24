@@ -1804,39 +1804,6 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
     });
   });
 
-  describe('Field', () => {
-    it('should receive disabled prop from Field.Root', async () => {
-      const { getByTestId } = await render(
-        <Field.Root disabled>
-          <Slider.Root data-testid="root">
-            <Slider.Control>
-              <Slider.Thumb />
-            </Slider.Control>
-          </Slider.Root>
-        </Field.Root>,
-      );
-
-      const root = getByTestId('root');
-      expect(root).to.have.attribute('data-disabled', '');
-    });
-
-    it('should receive name prop from Field.Root', async () => {
-      const { getByTestId } = await render(
-        <Field.Root name="field-slider">
-          <Slider.Root>
-            <Slider.Control>
-              <Slider.Thumb data-testid="thumb" />
-            </Slider.Control>
-          </Slider.Root>
-        </Field.Root>,
-      );
-
-      const thumb = getByTestId('thumb');
-      const input = thumb.querySelector('input');
-      expect(input).to.have.attribute('name', 'field-slider');
-    });
-  });
-
   describe('Form', () => {
     it('clears errors on change', async () => {
       function App() {
@@ -1871,6 +1838,37 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
   });
 
   describe('Field', () => {
+    it('should receive disabled prop from Field.Root', async () => {
+      const { getByTestId } = await render(
+        <Field.Root disabled>
+          <Slider.Root data-testid="root">
+            <Slider.Control>
+              <Slider.Thumb />
+            </Slider.Control>
+          </Slider.Root>
+        </Field.Root>,
+      );
+
+      const root = getByTestId('root');
+      expect(root).to.have.attribute('data-disabled', '');
+    });
+
+    it('should receive name prop from Field.Root', async () => {
+      const { getByTestId } = await render(
+        <Field.Root name="field-slider">
+          <Slider.Root>
+            <Slider.Control>
+              <Slider.Thumb data-testid="thumb" />
+            </Slider.Control>
+          </Slider.Root>
+        </Field.Root>,
+      );
+
+      const thumb = getByTestId('thumb');
+      const input = thumb.querySelector('input');
+      expect(input).to.have.attribute('name', 'field-slider');
+    });
+
     it('[data-touched]', async () => {
       await render(
         <Field.Root>
@@ -1935,6 +1933,62 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
       fireEvent.blur(input);
 
       expect(root).not.to.have.attribute('data-focused');
+    });
+
+    it('prop: validate', async () => {
+      const { container } = await render(
+        <Field.Root validate={() => 'error'}>
+          <Slider.Root>
+            <Slider.Control>
+              <Slider.Thumb data-testid="thumb" />
+            </Slider.Control>
+          </Slider.Root>
+          <Field.Error data-testid="error" />
+        </Field.Root>,
+      );
+
+      // eslint-disable-next-line testing-library/no-node-access
+      const input = container.querySelector<HTMLInputElement>('input')!;
+      const thumb = screen.getByTestId('thumb');
+
+      expect(input).not.to.have.attribute('aria-invalid');
+
+      fireEvent.focus(thumb);
+      fireEvent.blur(thumb);
+
+      expect(input).to.have.attribute('aria-invalid', 'true');
+    });
+
+    it('Field.Label', async () => {
+      await render(
+        <Field.Root>
+          <Slider.Root data-testid="slider">
+            <Slider.Control />
+          </Slider.Root>
+          <Field.Label data-testid="label" render={<span />} />
+        </Field.Root>,
+      );
+
+      expect(screen.getByTestId('slider')).to.have.attribute(
+        'aria-labelledby',
+        screen.getByTestId('label').id,
+      );
+    });
+
+    it('Field.Description', async () => {
+      await render(
+        <Field.Root>
+          <Slider.Root data-testid="slider">
+            <Slider.Control />
+          </Slider.Root>
+          <Field.Description data-testid="description" />
+        </Field.Root>,
+      );
+
+      expect(screen.getByTestId('slider')).to.have.attribute(
+        'aria-describedby',
+        screen.getByTestId('description').id,
+      );
     });
   });
 });

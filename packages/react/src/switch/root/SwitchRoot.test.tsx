@@ -423,5 +423,53 @@ describe('<Switch.Root />', () => {
 
       expect(button).not.to.have.attribute('data-focused');
     });
+
+    it('prop: validate', async () => {
+      await render(
+        <Field.Root validate={() => 'error'}>
+          <Switch.Root data-testid="button" />
+          <Field.Error data-testid="error" />
+        </Field.Root>,
+      );
+
+      const button = screen.getByTestId('button');
+
+      expect(button).not.to.have.attribute('aria-invalid');
+
+      fireEvent.focus(button);
+      fireEvent.blur(button);
+
+      expect(button).to.have.attribute('aria-invalid', 'true');
+    });
+
+    it('Field.Label', async () => {
+      await render(
+        <Field.Root>
+          <Switch.Root data-testid="button" />
+          <Field.Label data-testid="label" />
+        </Field.Root>,
+      );
+
+      const button = screen.getByTestId('button');
+
+      expect(screen.getByTestId('label')).to.have.attribute('for', button.id);
+    });
+
+    it('Field.Description', async () => {
+      const { container } = await render(
+        <Field.Root>
+          <Switch.Root data-testid="button" />
+          <Field.Description data-testid="description" />
+        </Field.Root>,
+      );
+
+      // eslint-disable-next-line testing-library/no-node-access
+      const internalInput = container.querySelector<HTMLInputElement>('input[type="checkbox"]');
+
+      expect(internalInput).to.have.attribute(
+        'aria-describedby',
+        screen.getByTestId('description').id,
+      );
+    });
   });
 });

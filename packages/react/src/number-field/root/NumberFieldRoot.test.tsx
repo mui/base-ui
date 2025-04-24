@@ -585,6 +585,55 @@ describe('<NumberField />', () => {
 
       expect(input).not.to.have.attribute('data-focused');
     });
+
+    it('prop: validate', async () => {
+      await render(
+        <Field.Root validate={() => 'error'}>
+          <NumberFieldBase.Root>
+            <NumberFieldBase.Input />
+          </NumberFieldBase.Root>
+          <Field.Error data-testid="error" />
+        </Field.Root>,
+      );
+
+      const input = screen.getByRole('textbox');
+
+      expect(input).not.to.have.attribute('aria-invalid');
+
+      fireEvent.focus(input);
+      fireEvent.blur(input);
+
+      expect(input).to.have.attribute('aria-invalid', 'true');
+    });
+
+    it('Field.Label', async () => {
+      await render(
+        <Field.Root>
+          <NumberFieldBase.Root>
+            <NumberFieldBase.Input />
+          </NumberFieldBase.Root>
+          <Field.Label data-testid="label" />
+        </Field.Root>,
+      );
+
+      expect(screen.getByTestId('label')).to.have.attribute('for', screen.getByRole('textbox').id);
+    });
+
+    it('Field.Description', async () => {
+      await render(
+        <Field.Root>
+          <NumberFieldBase.Root>
+            <NumberFieldBase.Input />
+          </NumberFieldBase.Root>
+          <Field.Description data-testid="description" />
+        </Field.Root>,
+      );
+
+      expect(screen.getByRole('textbox')).to.have.attribute(
+        'aria-describedby',
+        screen.getByTestId('description').id,
+      );
+    });
   });
 
   describe('inputMode', () => {
