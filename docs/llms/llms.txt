@@ -1,51 +1,55 @@
 # Base UI
 
+This is the documentation for the `@base-ui-components/react` package.
+It contains a collection of components and utilities for building user interfaces in React.
+The library is designed to be composable and styling agnostic.
+
 ## Overview
 
 - [Quick start](./react/overview/quick-start.md): A quick guide to getting started with Base UI.
 - [Accessibility](./react/overview/accessibility.md): Learn how to make the most of Base UI's accessibility features and guidelines.
 - [Releases](./react/overview/releases.md): Changelogs for each Base UI release.
-- [About Base UI](./react/overview/about.md): An open-source React component library for building accessible user interfaces.
+- [About Base UI](./react/overview/about.md): An overview of Base UI, providing information on its history, team, and goals.
 
 ## Handbook
 
-- [Styling](./react/handbook/styling.md): A guide to styling Base UI components with your preferred styling engine.
+- [Styling](./react/handbook/styling.md): Learn how to style Base UI components with your preferred styling engine.
 - [Animation](./react/handbook/animation.md): A guide to animating Base UI components.
 - [Composition](./react/handbook/composition.md): A guide to composing Base UI components with your own React components.
 
 ## Components
 
-- [Accordion](./react/components/accordion.md): A set of collapsible panels with headings.
-- [Alert Dialog](./react/components/alert-dialog.md): A dialog that requires user response to proceed.
-- [Avatar](./react/components/avatar.md): An easily stylable avatar component.
-- [Checkbox](./react/components/checkbox.md): An easily stylable checkbox component.
-- [Checkbox Group](./react/components/checkbox-group.md): Provides shared state to a series of checkboxes.
-- [Collapsible](./react/components/collapsible.md): A collapsible panel controlled by a button.
-- [Dialog](./react/components/dialog.md): A popup that opens on top of the entire page.
-- [Field](./react/components/field.md): A component that provides labelling and validation for form controls.
-- [Fieldset](./react/components/fieldset.md): A native fieldset element with an easily stylable legend.
-- [Form](./react/components/form.md): A native form element with consolidated error handling.
-- [Input](./react/components/input.md): A native input element that automatically works with Field.
-- [Menu](./react/components/menu.md): A list of actions in a dropdown, enhanced with keyboard navigation.
-- [Meter](./react/components/meter.md): A graphical display of a numeric value within a range.
-- [Number Field](./react/components/number-field.md): A numeric input element with increment and decrement buttons, and a scrub area.
-- [Popover](./react/components/popover.md): An accessible popup anchored to a button.
-- [Preview Card](./react/components/preview-card.md): A popup that appears when a link is hovered, showing a preview for sighted users.
-- [Progress](./react/components/progress.md): Displays the status of a task that takes a long time.
-- [Radio](./react/components/radio.md): An easily stylable radio button component.
-- [Scroll Area](./react/components/scroll-area.md): A native scroll container with custom scrollbars.
-- [Select](./react/components/select.md): A common form component for choosing a predefined value in a dropdown menu.
-- [Separator](./react/components/separator.md): A separator element accessible to screen readers.
-- [Slider](./react/components/slider.md): An easily stylable range input.
-- [Switch](./react/components/switch.md): A control that indicates whether a setting is on or off.
-- [Tabs](./react/components/tabs.md): A component for toggling between related panels on the same page.
-- [Toast](./react/components/toast.md): Generates toast notifications.
-- [Toggle](./react/components/toggle.md): A two-state button that can be on or off.
-- [Toggle Group](./react/components/toggle-group.md): Provides a shared state to a series of toggle buttons.
-- [Toolbar](./react/components/toolbar.md): A container for grouping a set of buttons and controls.
-- [Tooltip](./react/components/tooltip.md): A popup that appears when an element is hovered or focused, showing a hint for sighted users.
+- [Accordion](./react/components/accordion.md): A high-quality, unstyled React accordion component that displays a set of collapsible panels with headings.
+- [Alert Dialog](./react/components/alert-dialog.md): A high-quality, unstyled React alert dialog component that requires user response to proceed.
+- [Avatar](./react/components/avatar.md): A high-quality, unstyled React avatar component that is easy to customize.
+- [Checkbox](./react/components/checkbox.md): A high-quality, unstyled React checkbox component that is easy to customize.
+- [Checkbox Group](./react/components/checkbox-group.md): A high-quality, unstyled React checkbox group component that provides a shared state for a series of checkboxes.
+- [Collapsible](./react/components/collapsible.md): A high-quality, unstyled React collapsible component that displays a panel controlled by a button.
+- [Dialog](./react/components/dialog.md): A high-quality, unstyled React dialog component that opens on top of the entire page.
+- [Field](./react/components/field.md): A high-quality, unstyled React field component that provides labelling and validation for form controls.
+- [Fieldset](./react/components/fieldset.md): A high-quality, unstyled React fieldset component with an easily stylable legend.
+- [Form](./react/components/form.md): A high-quality, unstyled React form component with consolidated error handling.
+- [Input](./react/components/input.md): A high-quality, unstyled React input component.
+- [Menu](./react/components/menu.md): A high-quality, unstyled React menu component that displays list of actions in a dropdown, enhanced with keyboard navigation.
+- [Meter](./react/components/meter.md): A high-quality, unstyled React meter component that provides a graphical display of a numeric value.
+- [Number Field](./react/components/number-field.md): A high-quality, unstyled React number field component with increment and decrement buttons, and a scrub area.
+- [Popover](./react/components/popover.md): A high-quality, unstyled React popover component that displays an accessible popup anchored to a button.
+- [Preview Card](./react/components/preview-card.md): A high-quality, unstyled React preview card component that appears when a link is hovered, showing a preview for sighted users.
+- [Progress](./react/components/progress.md): A high-quality, unstyled React progress bar component that displays the status of a task that takes a long time.
+- [Radio](./react/components/radio.md): A high-quality, unstyled React radio button component that is easy to style.
+- [Scroll Area](./react/components/scroll-area.md): A high-quality, unstyled React scroll area that provides a native scroll container with custom scrollbars.
+- [Select](./react/components/select.md): A high-quality, unstyled React select component that allows you for choosing a predefined value in a dropdown menu.
+- [Separator](./react/components/separator.md): A high-quality, unstyled React separator component that is accessible to screen readers.
+- [Slider](./react/components/slider.md): A high-quality, unstyled React slider component that works like a range input and is easy to style.
+- [Switch](./react/components/switch.md): A high-quality, unstyled React switch component that indicates whether a setting is on or off.
+- [Tabs](./react/components/tabs.md): A high-quality, unstyled React scroll area that provides a native scroll container with custom scrollbars.
+- [Toast](./react/components/toast.md): A high-quality, unstyled React toast component to generate notifications.
+- [Toggle](./react/components/toggle.md): A high-quality, unstyled React toggle component that displays a two-state button that can be on or off.
+- [Toggle Group](./react/components/toggle-group.md): A high-quality, unstyled React toggle group component that provides shared state to a series of toggle buttons.
+- [Toolbar](./react/components/toolbar.md): A high-quality, unstyled React toolbar component that groups a set of buttons and controls.
+- [Tooltip](./react/components/tooltip.md): A high-quality, unstyled React tooltip component that appears when an element is hovered or focused, showing a hint for sighted users.
 
 ## Utilities
 
-- [Direction Provider](./react/utils/direction-provider.md): Enables RTL behavior for Base UI components.
+- [Direction Provider](./react/utils/direction-provider.md): A direction provider component that enables RTL behavior for Base UI components.
 - [useRender](./react/utils/use-render.md): Hook for enabling a render prop in custom components.

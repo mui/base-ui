@@ -89,6 +89,7 @@ async function generateLlmsTxt() {
           id: fileId,
           title: title || 'Untitled',
           subtitle: subtitle || '',
+          description: description || '',
           urlPath: `./react/${urlPath}.md`,
         });
 
