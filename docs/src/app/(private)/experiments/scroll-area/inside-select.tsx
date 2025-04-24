@@ -5,7 +5,7 @@ import styles from './inside-select.module.css';
 
 export default function ExampleSelect() {
   return (
-    <Select.Root defaultValue="item-1" alignItemToTrigger={false}>
+    <Select.Root defaultValue="item-1">
       <Select.Trigger className={styles.Select}>
         <Select.Value placeholder="Item 1" />
         <Select.Icon className={styles.SelectIcon}>
@@ -13,7 +13,11 @@ export default function ExampleSelect() {
         </Select.Icon>
       </Select.Trigger>
       <Select.Portal>
-        <Select.Positioner className={styles.Positioner} sideOffset={8}>
+        <Select.Positioner
+          className={styles.Positioner}
+          sideOffset={8}
+          anchorMode="beside-trigger"
+        >
           <Select.ScrollUpArrow className={styles.ScrollArrow} />
           <Select.Popup className={styles.Popup}>
             <ScrollArea.Root className={styles.ScrollArea}>
