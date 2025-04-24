@@ -53,11 +53,7 @@ const SliderValue = React.forwardRef(function SliderValue(
     return arr.join(' – ');
   }, [values, formattedValues]);
 
-  const renderElement = useRenderElement<
-    SliderRoot.State,
-    HTMLOutputElement,
-    React.OutputHTMLAttributes<any>
-  >('output', componentProps, {
+  const renderElement = useRenderElement('output', componentProps, {
     state,
     ref: forwardedRef,
     props: [
