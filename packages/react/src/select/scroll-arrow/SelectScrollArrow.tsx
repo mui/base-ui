@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import PropTypes from 'prop-types';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { mergeProps } from '../../merge-props';
@@ -13,7 +12,7 @@ import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useSelectIndexContext } from '../root/SelectIndexContext';
 
 /**
- * @ignore - internal component.
+ * @internal
  */
 const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
   props: SelectScrollArrow.Props,
@@ -223,37 +222,5 @@ namespace SelectScrollArrow {
     keepMounted?: boolean;
   }
 }
-
-SelectScrollArrow.propTypes /* remove-proptypes */ = {
-  // ┌────────────────────────────── Warning ──────────────────────────────┐
-  // │ These PropTypes are generated from the TypeScript type definitions. │
-  // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
-  // └─────────────────────────────────────────────────────────────────────┘
-  /**
-   * @ignore
-   */
-  children: PropTypes.node,
-  /**
-   * CSS class applied to the element, or a function that
-   * returns a class based on the component’s state.
-   */
-  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
-  /**
-   * @ignore
-   */
-  direction: PropTypes.oneOf(['down', 'up']).isRequired,
-  /**
-   * Whether to keep the HTML element in the DOM while the select menu is not scrollable.
-   * @default false
-   */
-  keepMounted: PropTypes.bool,
-  /**
-   * Allows you to replace the component’s HTML element
-   * with a different tag, or compose it with another component.
-   *
-   * Accepts a `ReactElement` or a function that returns the element to render.
-   */
-  render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
-} as any;
 
 export { SelectScrollArrow };

@@ -181,12 +181,6 @@ jobs:
       - install_js:
           react-version: << parameters.react-version >>
       - run:
-          name: Generate PropTypes
-          command: pnpm proptypes
-      - run:
-          name: '`pnpm proptypes` changes committed?'
-          command: git add -A && git diff --exit-code --staged
-      - run:
           name: Generate the documentation
           command: pnpm docs:api
       - run:
@@ -269,7 +263,7 @@ jobs:
     <<: *default-job
     resource_class: 'medium+'
     docker:
-      - image: mcr.microsoft.com/playwright:v1.51.1-noble
+      - image: mcr.microsoft.com/playwright:v1.52.0-noble
     steps:
       - checkout
       - install_js:
@@ -294,7 +288,7 @@ jobs:
   test_regressions:
     <<: *default-job
     docker:
-      - image: mcr.microsoft.com/playwright:v1.51.1-noble
+      - image: mcr.microsoft.com/playwright:v1.52.0-noble
     steps:
       - checkout
       - install_js:
@@ -309,7 +303,7 @@ jobs:
   test_e2e:
     <<: *default-job
     docker:
-      - image: mcr.microsoft.com/playwright:v1.51.1-noble
+      - image: mcr.microsoft.com/playwright:v1.52.0-noble
     steps:
       - checkout
       - install_js:

@@ -79,11 +79,11 @@ export function useSelectTrigger(
           'aria-readonly': readOnly || undefined,
           tabIndex: disabled ? -1 : 0, // this is needed to make the button focused after click in Safari
           ref: handleRef,
-          onFocus() {
+          onFocus(event) {
             setFocused(true);
             // The popup element shouldn't obscure the focused trigger.
             if (open && usingItemAnchorRef.current) {
-              setOpen(false);
+              setOpen(false, event.nativeEvent, undefined);
             }
           },
           onBlur() {
@@ -134,7 +134,7 @@ export function useSelectTrigger(
                 return;
               }
 
-              setOpen(false, mouseEvent);
+              setOpen(false, mouseEvent, undefined);
             }
 
             // Firefox can fire this upon mousedown

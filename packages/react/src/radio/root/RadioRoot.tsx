@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import PropTypes from 'prop-types';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useRadioGroupContext } from '../../radio-group/RadioGroupContext';
@@ -27,6 +26,7 @@ const RadioRoot = React.forwardRef(function RadioRoot(
     disabled: disabledProp = false,
     readOnly: readOnlyProp = false,
     required: requiredProp = false,
+    value,
     ...otherProps
   } = props;
 
@@ -85,7 +85,7 @@ namespace RadioRoot {
     /**
      * The unique identifying value of the radio in a group.
      */
-    value: unknown;
+    value: any;
     /**
      * Whether the component should ignore user interaction.
      * @default false
@@ -119,47 +119,5 @@ namespace RadioRoot {
     required: boolean;
   }
 }
-
-RadioRoot.propTypes /* remove-proptypes */ = {
-  // ┌────────────────────────────── Warning ──────────────────────────────┐
-  // │ These PropTypes are generated from the TypeScript type definitions. │
-  // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
-  // └─────────────────────────────────────────────────────────────────────┘
-  /**
-   * @ignore
-   */
-  children: PropTypes.node,
-  /**
-   * CSS class applied to the element, or a function that
-   * returns a class based on the component’s state.
-   */
-  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
-  /**
-   * Whether the component should ignore user interaction.
-   * @default false
-   */
-  disabled: PropTypes.bool,
-  /**
-   * Whether the user should be unable to select the radio button.
-   * @default false
-   */
-  readOnly: PropTypes.bool,
-  /**
-   * Allows you to replace the component’s HTML element
-   * with a different tag, or compose it with another component.
-   *
-   * Accepts a `ReactElement` or a function that returns the element to render.
-   */
-  render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
-  /**
-   * Whether the user must choose a value before submitting a form.
-   * @default false
-   */
-  required: PropTypes.bool,
-  /**
-   * The unique identifying value of the radio in a group.
-   */
-  value: PropTypes.any.isRequired,
-} as any;
 
 export { RadioRoot };

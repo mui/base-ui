@@ -228,7 +228,7 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
     const win = ownerWindow(positionerElement);
 
     function handleResize() {
-      setOpen(false);
+      setOpen(false, undefined, undefined);
     }
 
     win.addEventListener('resize', handleResize);

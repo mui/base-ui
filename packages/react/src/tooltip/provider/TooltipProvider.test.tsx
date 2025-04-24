@@ -66,6 +66,38 @@ describe('<Tooltip.Provider />', () => {
 
       expect(screen.queryByText('Content')).not.to.equal(null);
     });
+
+    it('respects root delay prop over provider delay prop', async () => {
+      await render(
+        <Tooltip.Provider delay={10}>
+          <Tooltip.Root delay={100}>
+            <Tooltip.Trigger />
+            <Tooltip.Portal>
+              <Tooltip.Positioner>
+                <Tooltip.Popup>Content</Tooltip.Popup>
+              </Tooltip.Positioner>
+            </Tooltip.Portal>
+          </Tooltip.Root>
+        </Tooltip.Provider>,
+      );
+
+      const trigger = screen.getByRole('button');
+
+      fireEvent.mouseEnter(trigger);
+      fireEvent.mouseMove(trigger);
+
+      expect(screen.queryByText('Content')).to.equal(null);
+
+      clock.tick(99);
+
+      expect(screen.queryByText('Content')).to.equal(null);
+
+      clock.tick(1);
+
+      await flushMicrotasks();
+
+      expect(screen.queryByText('Content')).not.to.equal(null);
+    });
   });
 
   describe('prop: closeDelay', () => {

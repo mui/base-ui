@@ -7,13 +7,17 @@ import { Dialog } from '@base-ui-components/react/dialog';
 import { styled } from '@mui/system';
 
 export default function Modality() {
-  const [modal, setModal] = React.useState(false);
+  const [modal, setModal] = React.useState(true);
   const [withBackdrop, setWithBackdrop] = React.useState(false);
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '30px' }}>
       <label>
-        <input type="checkbox" checked={modal} onChange={() => setModal(!modal)} />{' '}
+        <input
+          type="checkbox"
+          checked={modal}
+          onChange={(event) => setModal(event.target.checked)}
+        />{' '}
         Modal
       </label>
       <label>

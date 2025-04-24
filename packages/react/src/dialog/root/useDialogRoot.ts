@@ -23,6 +23,7 @@ import {
   type OpenChangeReason,
   translateOpenChangeReason,
 } from '../../utils/translateOpenChangeReason';
+import { useIOSKeyboardSlideFix } from '../../utils/useIOSKeyboardSlideFix';
 
 export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.ReturnValue {
   const {
@@ -53,6 +54,7 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
   );
   const [triggerElement, setTriggerElement] = React.useState<Element | null>(null);
   const [popupElement, setPopupElement] = React.useState<HTMLElement | null>(null);
+  const [allowIOSLock, setAllowIOSLock] = React.useState(true);
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
 
@@ -81,13 +83,6 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
 
   React.useImperativeHandle(params.actionsRef, () => ({ unmount: handleUnmount }), [handleUnmount]);
 
-  useScrollLock({
-    enabled: open && modal,
-    mounted,
-    open,
-    referenceElement: popupElement,
-  });
-
   const handleFloatingUIOpenChange = (
     nextOpen: boolean,
     event: Event | undefined,
@@ -109,6 +104,9 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
   const dismiss = useDismiss(context, {
     outsidePressEvent: 'mousedown',
     outsidePress(event) {
+      if (event.button !== 0) {
+        return false;
+      }
       const target = getTarget(event) as Element | null;
       if (isTopmost && dismissible) {
         const backdrop = target as HTMLDivElement | null;
@@ -127,7 +125,28 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
     escapeKey: isTopmost,
   });
 
-  const { getReferenceProps, getFloatingProps } = useInteractions([role, click, dismiss]);
+  const enableScrollLock = open && modal === true;
+  const enableScrollLockIOS = enableScrollLock && allowIOSLock;
+
+  const iOSKeyboardSlideFix = useIOSKeyboardSlideFix({
+    enabled: enableScrollLock,
+    setLock: setAllowIOSLock,
+    popupRef,
+  });
+
+  useScrollLock({
+    enabled: enableScrollLockIOS,
+    mounted,
+    open,
+    referenceElement: popupElement,
+  });
+
+  const { getReferenceProps, getFloatingProps } = useInteractions([
+    role,
+    click,
+    dismiss,
+    iOSKeyboardSlideFix,
+  ]);
 
   React.useEffect(() => {
     if (onNestedDialogOpen && open) {
@@ -202,50 +221,53 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
   ]);
 }
 
-export interface SharedParameters {
-  /**
-   * Whether the dialog is currently open.
-   */
-  open?: boolean;
-  /**
-   * Whether the dialog is initially open.
-   *
-   * To render a controlled dialog, use the `open` prop instead.
-   * @default false
-   */
-  defaultOpen?: boolean;
-  /**
-   * Whether the dialog should prevent outside clicks and lock page scroll when open.
-   * @default true
-   */
-  modal?: boolean;
-  /**
-   * Event handler called when the dialog is opened or closed.
-   */
-  onOpenChange?: (
-    open: boolean,
-    event: Event | undefined,
-    reason: OpenChangeReason | undefined,
-  ) => void;
-  /**
-   * Event handler called after any animations complete when the dialog is opened or closed.
-   */
-  onOpenChangeComplete?: (open: boolean) => void;
-  /**
-   * Determines whether the dialog should close on outside clicks.
-   * @default true
-   */
-  dismissible?: boolean;
-  /**
-   * A ref to imperative actions.
-   * - `unmount`: When specified, the dialog will not be unmounted when closed.
-   * Instead, the `unmount` function must be called to unmount the dialog manually.
-   * Useful when the dialog's animation is controlled by an external library.
-   */
-  actionsRef?: React.RefObject<{ unmount: () => void }>;
-}
-
 export namespace useDialogRoot {
+  export interface SharedParameters {
+    /**
+     * Whether the dialog is currently open.
+     */
+    open?: boolean;
+    /**
+     * Whether the dialog is initially open.
+     *
+     * To render a controlled dialog, use the `open` prop instead.
+     * @default false
+     */
+    defaultOpen?: boolean;
+    /**
+     * Determines if the dialog enters a modal state when open.
+     * - `true`: user interaction is limited to just the dialog: focus is trapped, document page scroll is locked, and pointer interactions on outside elements are disabled.
+     * - `false`: user interaction with the rest of the document is allowed.
+     * - `'trap-focus'`: focus is trapped inside the dialog, but document page scroll is not locked and pointer interactions outside of it remain enabled.
+     * @default true
+     */
+    modal?: boolean | 'trap-focus';
+    /**
+     * Event handler called when the dialog is opened or closed.
+     */
+    onOpenChange?: (
+      open: boolean,
+      event: Event | undefined,
+      reason: OpenChangeReason | undefined,
+    ) => void;
+    /**
+     * Event handler called after any animations complete when the dialog is opened or closed.
+     */
+    onOpenChangeComplete?: (open: boolean) => void;
+    /**
+     * Determines whether the dialog should close on outside clicks.
+     * @default true
+     */
+    dismissible?: boolean;
+    /**
+     * A ref to imperative actions.
+     * - `unmount`: When specified, the dialog will not be unmounted when closed.
+     * Instead, the `unmount` function must be called to unmount the dialog manually.
+     * Useful when the dialog's animation is controlled by an external library.
+     */
+    actionsRef?: React.RefObject<{ unmount: () => void }>;
+  }
+
   export interface Parameters
     extends RequiredExcept<
       SharedParameters,
@@ -271,9 +293,9 @@ export namespace useDialogRoot {
      */
     descriptionElementId: string | undefined;
     /**
-     * Whether the dialog should prevent outside clicks and lock page scroll when open.
+     * Whether the dialog enters a modal state when open.
      */
-    modal: boolean;
+    modal: boolean | 'trap-focus';
     /**
      * Number of nested dialogs that are currently open.
      */

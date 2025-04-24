@@ -11,7 +11,7 @@
       "description": "The controlled value of the radio item that should be currently selected.\n\nTo render an uncontrolled radio group, use the `defaultValue` prop instead."
     },
     "onValueChange": {
-      "type": "(value, event) => void",
+      "type": "((value: any, event: Event) => void)",
       "default": "() => {}",
       "description": "Function called when the selected value changes."
     },
@@ -21,15 +21,15 @@
       "description": "Whether the component should ignore user interaction."
     },
     "children": {
-      "type": "React.ReactNode",
+      "type": "ReactNode",
       "description": "The content of the component."
     },
     "className": {
-      "type": "string | (state) => string",
+      "type": "string | ((state: State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "render": {
-      "type": "React.ReactElement | (props, state) => React.ReactElement",
+      "type": "ReactElement | ((props: GenericHTMLProps, state: State) => ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
     }
   },

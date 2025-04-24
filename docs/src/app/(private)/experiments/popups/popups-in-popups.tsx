@@ -14,7 +14,11 @@ export default function PopupsInPopups() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '30px' }}>
       <label>
-        <input type="checkbox" checked={modal} onChange={() => setModal(!modal)} />{' '}
+        <input
+          type="checkbox"
+          checked={modal}
+          onChange={(event) => setModal(event.target.checked)}
+        />{' '}
         Modal
       </label>
       <label>

@@ -1,18 +1,15 @@
 'use client';
 import * as React from 'react';
-import PropTypes from 'prop-types';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useTooltipRootContext } from '../root/TooltipRootContext';
 import { useTooltipPositionerContext } from '../positioner/TooltipPositionerContext';
-import { useForkRef } from '../../utils/useForkRef';
 import type { BaseUIComponentProps } from '../../utils/types';
 import type { Align, Side } from '../../utils/useAnchorPositioning';
 import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
-import { mergeProps } from '../../merge-props';
 import { transitionStatusMapping } from '../../utils/styleHookMapping';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
+import { useRenderElement } from '../../utils/useRenderElement';
 
 const customStyleHookMapping: CustomStyleHookMapping<TooltipPopup.State> = {
   ...baseMapping,
@@ -26,12 +23,12 @@ const customStyleHookMapping: CustomStyleHookMapping<TooltipPopup.State> = {
  * Documentation: [Base UI Tooltip](https://base-ui.com/react/components/tooltip)
  */
 const TooltipPopup = React.forwardRef(function TooltipPopup(
-  props: TooltipPopup.Props,
+  componentProps: TooltipPopup.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { className, render, ...otherProps } = props;
+  const { className, render, ...elementProps } = componentProps;
 
-  const { open, instantType, transitionStatus, getRootPopupProps, popupRef, onOpenChangeComplete } =
+  const { open, instantType, transitionStatus, getPopupProps, popupRef, onOpenChangeComplete } =
     useTooltipRootContext();
   const { side, align } = useTooltipPositionerContext();
 
@@ -56,25 +53,16 @@ const TooltipPopup = React.forwardRef(function TooltipPopup(
     [open, side, align, instantType, transitionStatus],
   );
 
-  const mergedRef = useForkRef(popupRef, forwardedRef);
-
-  // The content element needs to be a child of a wrapper floating element in order to avoid
-  // conflicts with CSS transitions and the positioning transform.
-  const { renderElement } = useComponentRenderer({
-    propGetter: getRootPopupProps,
-    render: render ?? 'div',
-    className,
+  const renderElement = useRenderElement('div', componentProps, {
     state,
-    ref: mergedRef,
-    extraProps:
-      transitionStatus === 'starting'
-        ? mergeProps(
-            {
-              style: { transition: 'none' },
-            },
-            otherProps,
-          )
-        : otherProps,
+    ref: [forwardedRef, popupRef],
+    props: [
+      getPopupProps,
+      {
+        style: transitionStatus === 'starting' ? { transition: 'none' } : {},
+      },
+      elementProps,
+    ],
     customStyleHookMapping,
   });
 
@@ -95,28 +83,5 @@ namespace TooltipPopup {
 
   export interface Props extends BaseUIComponentProps<'div', State> {}
 }
-
-TooltipPopup.propTypes /* remove-proptypes */ = {
-  // ┌────────────────────────────── Warning ──────────────────────────────┐
-  // │ These PropTypes are generated from the TypeScript type definitions. │
-  // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
-  // └─────────────────────────────────────────────────────────────────────┘
-  /**
-   * @ignore
-   */
-  children: PropTypes.node,
-  /**
-   * CSS class applied to the element, or a function that
-   * returns a class based on the component’s state.
-   */
-  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
-  /**
-   * Allows you to replace the component’s HTML element
-   * with a different tag, or compose it with another component.
-   *
-   * Accepts a `ReactElement` or a function that returns the element to render.
-   */
-  render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
-} as any;
 
 export { TooltipPopup };

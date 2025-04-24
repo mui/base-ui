@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import PropTypes from 'prop-types';
 import { useFloatingTree } from '@floating-ui/react';
 import { BaseUIComponentProps, GenericHTMLProps } from '../../utils/types';
 import { useMenuRootContext } from '../root/MenuRootContext';
@@ -39,7 +38,7 @@ const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerComponent(
     throw new Error('Base UI: ItemTrigger must be placed in a nested Menu.');
   }
 
-  const { activeIndex, itemProps } = parentContext;
+  const { activeIndex, itemProps, setActiveIndex } = parentContext;
   const item = useCompositeListItem();
 
   const highlighted = activeIndex === item.index;
@@ -57,6 +56,7 @@ const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerComponent(
     setTriggerElement,
     allowMouseUpTriggerRef,
     typingRef,
+    setActiveIndex,
   });
 
   const state: MenuSubmenuTrigger.State = React.useMemo(
@@ -103,40 +103,5 @@ namespace MenuSubmenuTrigger {
     open: boolean;
   }
 }
-
-MenuSubmenuTrigger.propTypes /* remove-proptypes */ = {
-  // ┌────────────────────────────── Warning ──────────────────────────────┐
-  // │ These PropTypes are generated from the TypeScript type definitions. │
-  // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
-  // └─────────────────────────────────────────────────────────────────────┘
-  /**
-   * @ignore
-   */
-  children: PropTypes.node,
-  /**
-   * CSS class applied to the element, or a function that
-   * returns a class based on the component’s state.
-   */
-  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
-  /**
-   * @ignore
-   */
-  id: PropTypes.string,
-  /**
-   * Overrides the text label to use when the item is matched during keyboard text navigation.
-   */
-  label: PropTypes.string,
-  /**
-   * @ignore
-   */
-  onClick: PropTypes.func,
-  /**
-   * Allows you to replace the component’s HTML element
-   * with a different tag, or compose it with another component.
-   *
-   * Accepts a `ReactElement` or a function that returns the element to render.
-   */
-  render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
-} as any;
 
 export { MenuSubmenuTrigger };

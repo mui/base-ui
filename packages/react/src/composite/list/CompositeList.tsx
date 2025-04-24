@@ -1,7 +1,6 @@
 /* eslint-disable no-bitwise */
 'use client';
 import * as React from 'react';
-import PropTypes from 'prop-types';
 import { CompositeListContext } from './CompositeListContext';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 
@@ -26,7 +25,7 @@ export type CompositeMetadata<CustomMetadata> = { index?: number | null } & Cust
 
 /**
  * Provides context for a list of items in a composite component.
- * @ignore - internal component.
+ * @internal
  */
 function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
   const { children, elementsRef, labelsRef, onMapChange } = props;
@@ -89,30 +88,3 @@ namespace CompositeList {
 }
 
 export { CompositeList };
-
-CompositeList.propTypes /* remove-proptypes */ = {
-  // ┌────────────────────────────── Warning ──────────────────────────────┐
-  // │ These PropTypes are generated from the TypeScript type definitions. │
-  // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
-  // └─────────────────────────────────────────────────────────────────────┘
-  /**
-   * @ignore
-   */
-  children: PropTypes.node,
-  /**
-   * A ref to the list of HTML elements, ordered by their index.
-   * `useListNavigation`'s `listRef` prop.
-   */
-  elementsRef: PropTypes /* @typescript-to-proptypes-ignore */.any,
-  /**
-   * A ref to the list of element labels, ordered by their index.
-   * `useTypeahead`'s `listRef` prop.
-   */
-  labelsRef: PropTypes.shape({
-    current: PropTypes.arrayOf(PropTypes.string).isRequired,
-  }),
-  /**
-   * @ignore
-   */
-  onMapChange: PropTypes.func,
-} as any;

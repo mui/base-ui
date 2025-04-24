@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import PropTypes from 'prop-types';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
@@ -13,6 +12,7 @@ import type { AccordionItem } from '../item/AccordionItem';
 import { useAccordionItemContext } from '../item/AccordionItemContext';
 import { accordionStyleHookMapping } from '../item/styleHooks';
 import { AccordionPanelCssVars } from './AccordionPanelCssVars';
+import { usePanelResize } from '../../utils/usePanelResize';
 
 /**
  * A collapsible panel with the accordion item contents.
@@ -81,6 +81,8 @@ const AccordionPanel = React.forwardRef(function AccordionPanel(
     setKeepMounted(keepMounted);
   }, [setKeepMounted, keepMounted]);
 
+  usePanelResize(panelRef, setDimensions, open);
+
   const { getRootProps } = useCollapsiblePanel({
     abortControllerRef,
     animationTypeRef,
@@ -111,6 +113,7 @@ const AccordionPanel = React.forwardRef(function AccordionPanel(
     render: render ?? 'div',
     state,
     className,
+    ref: [forwardedRef, panelRef],
     extraProps: {
       ...otherProps,
       'aria-labelledby': triggerId,
@@ -124,11 +127,12 @@ const AccordionPanel = React.forwardRef(function AccordionPanel(
     customStyleHookMapping: accordionStyleHookMapping,
   });
 
-  if (keepMounted || hiddenUntilFound || (!keepMounted && mounted)) {
-    return renderElement();
+  const shouldRender = keepMounted || hiddenUntilFound || (!keepMounted && mounted);
+  if (!shouldRender) {
+    return null;
   }
 
-  return null;
+  return renderElement();
 });
 
 namespace AccordionPanel {
@@ -138,48 +142,3 @@ namespace AccordionPanel {
 }
 
 export { AccordionPanel };
-
-AccordionPanel.propTypes /* remove-proptypes */ = {
-  // ┌────────────────────────────── Warning ──────────────────────────────┐
-  // │ These PropTypes are generated from the TypeScript type definitions. │
-  // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
-  // └─────────────────────────────────────────────────────────────────────┘
-  /**
-   * @ignore
-   */
-  children: PropTypes.node,
-  /**
-   * CSS class applied to the element, or a function that
-   * returns a class based on the component’s state.
-   */
-  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
-  /**
-   * Allows the browser’s built-in page search to find and expand the panel contents.
-   *
-   * Overrides the `keepMounted` prop and uses `hidden="until-found"`
-   * to hide the element without removing it from the DOM.
-   * @default false
-   */
-  hiddenUntilFound: PropTypes.bool,
-  /**
-   * @ignore
-   */
-  id: PropTypes.string,
-  /**
-   * Whether to keep the element in the DOM while the panel is closed.
-   * This prop is ignored when `hiddenUntilFound` is used.
-   * @default false
-   */
-  keepMounted: PropTypes.bool,
-  /**
-   * Allows you to replace the component’s HTML element
-   * with a different tag, or compose it with another component.
-   *
-   * Accepts a `ReactElement` or a function that returns the element to render.
-   */
-  render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
-  /**
-   * @ignore
-   */
-  style: PropTypes.object,
-} as any;

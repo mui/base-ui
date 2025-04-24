@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import PropTypes from 'prop-types';
 import { PopoverRootContext } from './PopoverRootContext';
 import { usePopoverRoot } from './usePopoverRoot';
 import { OPEN_DELAY } from '../utils/constants';
@@ -64,71 +63,5 @@ namespace PopoverRoot {
 
   export type Actions = usePopoverRoot.Actions;
 }
-
-PopoverRoot.propTypes /* remove-proptypes */ = {
-  // ┌────────────────────────────── Warning ──────────────────────────────┐
-  // │ These PropTypes are generated from the TypeScript type definitions. │
-  // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
-  // └─────────────────────────────────────────────────────────────────────┘
-  /**
-   * A ref to imperative actions.
-   * - `unmount`: When specified, the popover will not be unmounted when closed.
-   * Instead, the `unmount` function must be called to unmount the popover manually.
-   * Useful when the popover's animation is controlled by an external library.
-   */
-  actionsRef: PropTypes.shape({
-    current: PropTypes.shape({
-      unmount: PropTypes.func.isRequired,
-    }).isRequired,
-  }),
-  /**
-   * @ignore
-   */
-  children: PropTypes.node,
-  /**
-   * How long to wait before closing the popover that was opened on hover.
-   * Specified in milliseconds.
-   *
-   * Requires the `openOnHover` prop.
-   * @default 0
-   */
-  closeDelay: PropTypes.number,
-  /**
-   * Whether the popover is initially open.
-   *
-   * To render a controlled popover, use the `open` prop instead.
-   * @default false
-   */
-  defaultOpen: PropTypes.bool,
-  /**
-   * How long to wait before the popover may be opened on hover. Specified in milliseconds.
-   *
-   * Requires the `openOnHover` prop.
-   * @default 300
-   */
-  delay: PropTypes.number,
-  /**
-   * Whether the popover should prevent outside clicks and lock page scroll when open.
-   * @default false
-   */
-  modal: PropTypes.bool,
-  /**
-   * Event handler called when the popover is opened or closed.
-   */
-  onOpenChange: PropTypes.func,
-  /**
-   * Event handler called after any animations complete when the popover is opened or closed.
-   */
-  onOpenChangeComplete: PropTypes.func,
-  /**
-   * Whether the popover is currently open.
-   */
-  open: PropTypes.bool,
-  /**
-   * Whether the popover should also open when the trigger is hovered.
-   * @default false
-   */
-  openOnHover: PropTypes.bool,
-} as any;
 
 export { PopoverRoot };

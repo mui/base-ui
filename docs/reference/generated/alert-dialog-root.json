@@ -12,16 +12,19 @@
       "description": "Whether the dialog is currently open."
     },
     "onOpenChange": {
-      "type": "(open, event, reason) => void",
+      "type": "((open: boolean, event: Event | undefined, reason: OpenChangeReason | undefined) => void)",
       "description": "Event handler called when the dialog is opened or closed."
     },
     "actionsRef": {
-      "type": "{ current: { unmount: func } }",
+      "type": "RefObject<{ unmount: () => void; }>",
       "description": "A ref to imperative actions.\n- `unmount`: When specified, the dialog will not be unmounted when closed.\nInstead, the `unmount` function must be called to unmount the dialog manually.\nUseful when the dialog's animation is controlled by an external library."
     },
     "onOpenChangeComplete": {
-      "type": "(open) => void",
+      "type": "((open: boolean) => void)",
       "description": "Event handler called after any animations complete when the dialog is opened or closed."
+    },
+    "children": {
+      "type": "ReactNode"
     }
   },
   "dataAttributes": {},
