@@ -26,7 +26,15 @@ async function submitForm(event: React.FormEvent<HTMLFormElement>) {
   event.preventDefault();
 
   const formData = new FormData(event.currentTarget);
-  const result = schema.safeParse(Object.fromEntries(formData as any));
+
+  const entries = Object.fromEntries(formData as any);
+
+  entries.checkbox = formData.get('checkbox') === 'on';
+  entries.switch = formData.get('switch') === 'on';
+  entries['number-field'] = Number(entries['number-field']);
+  entries.slider = Number(entries.slider);
+
+  const result = schema.safeParse(entries);
 
   if (!result.success) {
     return {
@@ -66,7 +74,7 @@ export default function Page() {
         errors={errors}
         onClearErrors={setErrors}
         onSubmit={async (event) => {
-          console.log('submitting');
+          console.log('Submitting form');
           const response = await submitForm(event);
           setErrors(response.errors);
         }}
