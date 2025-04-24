@@ -64,7 +64,7 @@ export async function PropsReferenceTable({
               <Table.RowHeader>
                 <TableCode className="text-navy">
                   {name}
-                  {prop.required ? ' *' : ''}
+                  {prop.required ? <sup className="text-xs text-red-800">*</sup> : ''}
                 </TableCode>
               </Table.RowHeader>
               <Table.Cell className="max-xs:hidden">
