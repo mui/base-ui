@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import PropTypes from 'prop-types';
 import { getStyleHookProps } from '../../utils/getStyleHookProps';
 import { mergeProps } from '../../merge-props';
 import { NOOP } from '../../utils/noop';
@@ -69,7 +68,6 @@ const SliderThumb = React.forwardRef(function SliderThumb(
     name,
     orientation,
     state,
-    percentageValues,
     step,
     tabIndex: contextTabIndex,
     values,
@@ -103,7 +101,6 @@ const SliderThumb = React.forwardRef(function SliderThumb(
     onFocus: onFocusProp ?? NOOP,
     onKeyDown: onKeyDownProp ?? NOOP,
     orientation,
-    percentageValues,
     rootRef: mergedRef,
     step,
     tabIndex: tabIndexProp ?? contextTabIndex,
@@ -179,83 +176,3 @@ namespace SliderThumb {
 }
 
 export { SliderThumb };
-
-SliderThumb.propTypes /* remove-proptypes */ = {
-  // ┌────────────────────────────── Warning ──────────────────────────────┐
-  // │ These PropTypes are generated from the TypeScript type definitions. │
-  // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
-  // └─────────────────────────────────────────────────────────────────────┘
-  /**
-   * @ignore
-   */
-  children: PropTypes.node,
-  /**
-   * CSS class applied to the element, or a function that
-   * returns a class based on the component’s state.
-   */
-  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
-  /**
-   * @ignore
-   */
-  disabled: PropTypes.bool,
-  /**
-   * Accepts a function which returns a string value that provides a user-friendly name for the input associated with the thumb
-   * @param {number} index The index of the input
-   * @returns {string}
-   * @type {((index: number) => string) | null}
-   */
-  getAriaLabel: PropTypes.func,
-  /**
-   * Accepts a function which returns a string value that provides a user-friendly name for the current value of the slider.
-   * This is important for screen reader users.
-   * @param {string} formattedValue The thumb's formatted value.
-   * @param {number} value The thumb's numerical value.
-   * @param {number} index The thumb's index.
-   * @returns {string}
-   * @type {((formattedValue: string, value: number, index: number) => string) | null}
-   */
-  getAriaValueText: PropTypes.func,
-  /**
-   * @ignore
-   */
-  id: PropTypes.string,
-  /**
-   * @ignore
-   */
-  inputId: PropTypes.string,
-  /**
-   * @ignore
-   */
-  onBlur: PropTypes.func,
-  /**
-   * @ignore
-   */
-  onFocus: PropTypes.func,
-  /**
-   * @ignore
-   */
-  onKeyDown: PropTypes.func,
-  /**
-   * @ignore
-   */
-  onPointerLeave: PropTypes.func,
-  /**
-   * @ignore
-   */
-  onPointerOver: PropTypes.func,
-  /**
-   * Allows you to replace the component’s HTML element
-   * with a different tag, or compose it with another component.
-   *
-   * Accepts a `ReactElement` or a function that returns the element to render.
-   */
-  render: PropTypes /* @typescript-to-proptypes-ignore */.oneOfType([
-    PropTypes.func,
-    PropTypes.node,
-  ]),
-  /**
-   * Optional tab index attribute for the thumb components.
-   * @default null
-   */
-  tabIndex: PropTypes.number,
-} as any;

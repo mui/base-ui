@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import PropTypes from 'prop-types';
 import { FloatingEvents, useFloatingTree } from '@floating-ui/react';
 import { useMenuRadioItem } from './useMenuRadioItem';
 import { useMenuRootContext } from '../root/MenuRootContext';
@@ -14,141 +13,54 @@ import { itemMapping } from '../utils/styleHookMapping';
 import { useCompositeListItem } from '../../composite/list/useCompositeListItem';
 import { mergeProps } from '../../merge-props';
 
-const InnerMenuRadioItem = React.forwardRef(function InnerMenuItem(
-  props: InnerMenuRadioItemProps,
-  forwardedRef: React.ForwardedRef<Element>,
-) {
-  const {
-    checked,
-    setChecked,
-    className,
-    closeOnClick,
-    disabled = false,
-    highlighted,
-    id,
-    menuEvents,
-    itemProps,
-    render,
-    allowMouseUpTriggerRef,
-    typingRef,
-    ...other
-  } = props;
+const InnerMenuRadioItem = React.memo(
+  React.forwardRef(function InnerMenuRadioItem(
+    props: InnerMenuRadioItemProps,
+    forwardedRef: React.ForwardedRef<Element>,
+  ) {
+    const {
+      checked,
+      setChecked,
+      className,
+      closeOnClick,
+      disabled = false,
+      highlighted,
+      id,
+      menuEvents,
+      itemProps,
+      render,
+      allowMouseUpTriggerRef,
+      typingRef,
+      ...other
+    } = props;
 
-  const { getItemProps } = useMenuRadioItem({
-    checked,
-    setChecked,
-    closeOnClick,
-    disabled,
-    highlighted,
-    id,
-    menuEvents,
-    ref: forwardedRef,
-    allowMouseUpTriggerRef,
-    typingRef,
-  });
+    const { getItemProps } = useMenuRadioItem({
+      checked,
+      setChecked,
+      closeOnClick,
+      disabled,
+      highlighted,
+      id,
+      menuEvents,
+      ref: forwardedRef,
+      allowMouseUpTriggerRef,
+      typingRef,
+    });
 
-  const state: MenuRadioItem.State = { disabled, highlighted, checked };
+    const state: MenuRadioItem.State = { disabled, highlighted, checked };
 
-  const { renderElement } = useComponentRenderer({
-    render: render || 'div',
-    className,
-    state,
-    propGetter: (externalProps) => mergeProps(itemProps, externalProps, getItemProps),
-    customStyleHookMapping: itemMapping,
-    extraProps: other,
-  });
+    const { renderElement } = useComponentRenderer({
+      render: render || 'div',
+      className,
+      state,
+      propGetter: (externalProps) => mergeProps(itemProps, externalProps, getItemProps),
+      customStyleHookMapping: itemMapping,
+      extraProps: other,
+    });
 
-  return renderElement();
-});
-
-/**
- * A menu item that works like a radio button in a given group.
- * Renders a `<div>` element.
- *
- * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
- */
-
-InnerMenuRadioItem.propTypes /* remove-proptypes */ = {
-  // ┌────────────────────────────── Warning ──────────────────────────────┐
-  // │ These PropTypes are generated from the TypeScript type definitions. │
-  // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
-  // └─────────────────────────────────────────────────────────────────────┘
-  /**
-   * @ignore
-   */
-  allowMouseUpTriggerRef: PropTypes.shape({
-    current: PropTypes.bool.isRequired,
-  }).isRequired,
-  /**
-   * @ignore
-   */
-  checked: PropTypes.bool.isRequired,
-  /**
-   * @ignore
-   */
-  children: PropTypes.node,
-  /**
-   * CSS class applied to the element, or a function that
-   * returns a class based on the component’s state.
-   */
-  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
-  /**
-   * Whether to close the menu when the item is clicked.
-   */
-  closeOnClick: PropTypes.bool.isRequired,
-  /**
-   * Whether the component should ignore user interaction.
-   * @default false
-   */
-  disabled: PropTypes.bool,
-  /**
-   * @ignore
-   */
-  highlighted: PropTypes.bool.isRequired,
-  /**
-   * @ignore
-   */
-  id: PropTypes.string,
-  /**
-   * @ignore
-   */
-  itemProps: PropTypes.object.isRequired,
-  /**
-   * Overrides the text label to use when the item is matched during keyboard text navigation.
-   */
-  label: PropTypes.string,
-  /**
-   * @ignore
-   */
-  menuEvents: PropTypes.shape({
-    emit: PropTypes.func.isRequired,
-    off: PropTypes.func.isRequired,
-    on: PropTypes.func.isRequired,
-  }).isRequired,
-  /**
-   * The click handler for the menu item.
-   */
-  onClick: PropTypes.func,
-  /**
-   * Allows you to replace the component’s HTML element
-   * with a different tag, or compose it with another component.
-   *
-   * Accepts a `ReactElement` or a function that returns the element to render.
-   */
-  render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
-  /**
-   * @ignore
-   */
-  setChecked: PropTypes.func.isRequired,
-  /**
-   * @ignore
-   */
-  typingRef: PropTypes.shape({
-    current: PropTypes.bool.isRequired,
-  }).isRequired,
-} as any;
-
-const MemoizedInnerMenuRadioItem = React.memo(InnerMenuRadioItem);
+    return renderElement();
+  }),
+);
 
 /**
  * A menu item that works like a radio button in a given group.
@@ -207,7 +119,7 @@ const MenuRadioItem = React.forwardRef(function MenuRadioItem(
 
   return (
     <MenuRadioItemContext.Provider value={contextValue}>
-      <MemoizedInnerMenuRadioItem
+      <InnerMenuRadioItem
         {...other}
         id={id}
         ref={mergedRef}
@@ -283,55 +195,5 @@ namespace MenuRadioItem {
     closeOnClick?: boolean;
   }
 }
-
-MenuRadioItem.propTypes /* remove-proptypes */ = {
-  // ┌────────────────────────────── Warning ──────────────────────────────┐
-  // │ These PropTypes are generated from the TypeScript type definitions. │
-  // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
-  // └─────────────────────────────────────────────────────────────────────┘
-  /**
-   * @ignore
-   */
-  children: PropTypes.node,
-  /**
-   * CSS class applied to the element, or a function that
-   * returns a class based on the component’s state.
-   */
-  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
-  /**
-   * Whether to close the menu when the item is clicked.
-   * @default false
-   */
-  closeOnClick: PropTypes.bool,
-  /**
-   * Whether the component should ignore user interaction.
-   * @default false
-   */
-  disabled: PropTypes.bool,
-  /**
-   * @ignore
-   */
-  id: PropTypes.string,
-  /**
-   * Overrides the text label to use when the item is matched during keyboard text navigation.
-   */
-  label: PropTypes.string,
-  /**
-   * The click handler for the menu item.
-   */
-  onClick: PropTypes.func,
-  /**
-   * Allows you to replace the component’s HTML element
-   * with a different tag, or compose it with another component.
-   *
-   * Accepts a `ReactElement` or a function that returns the element to render.
-   */
-  render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
-  /**
-   * Value of the radio item.
-   * This is the value that will be set in the MenuRadioGroup when the item is selected.
-   */
-  value: PropTypes.any.isRequired,
-} as any;
 
 export { MenuRadioItem };

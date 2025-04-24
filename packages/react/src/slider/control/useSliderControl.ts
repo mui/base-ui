@@ -5,6 +5,7 @@ import { ownerDocument } from '../../utils/owner';
 import type { GenericHTMLProps } from '../../utils/types';
 import { useForkRef } from '../../utils/useForkRef';
 import { useEventCallback } from '../../utils/useEventCallback';
+import { valueToPercent } from '../../utils/valueToPercent';
 import {
   focusThumb,
   validateMinimumDistance,
@@ -50,9 +51,10 @@ export function useSliderControl(
     dragging,
     getFingerState,
     lastChangedValueRef,
+    max,
+    min,
     minStepsBetweenValues,
     commitValue,
-    percentageValues,
     registerSliderControl,
     rootRef: externalRef,
     setActive,
@@ -60,6 +62,7 @@ export function useSliderControl(
     setValue,
     step,
     thumbRefs,
+    values,
   } = parameters;
 
   const { commitValidation } = useFieldControlValidation();
@@ -107,7 +110,7 @@ export function useSliderControl(
         setDragging(true);
       }
 
-      setValue(finger.value, finger.percentageValues, finger.thumbIndex, nativeEvent);
+      setValue(finger.value, finger.thumbIndex, nativeEvent);
     }
   });
 
@@ -157,7 +160,7 @@ export function useSliderControl(
 
       focusThumb(finger.thumbIndex, controlRef, setActive);
 
-      setValue(finger.value, finger.percentageValues, finger.thumbIndex, nativeEvent);
+      setValue(finger.value, finger.thumbIndex, nativeEvent);
     }
 
     moveCountRef.current = 0;
@@ -236,14 +239,9 @@ export function useSliderControl(
               // and the coordinates of the value on the track area
               if (thumbRefs.current.includes(event.target as HTMLElement)) {
                 offsetRef.current =
-                  percentageValues[finger.thumbIndex] / 100 - finger.valueRescaled;
+                  valueToPercent(values[finger.thumbIndex], min, max) / 100 - finger.valueRescaled;
               } else {
-                setValue(
-                  finger.value,
-                  finger.percentageValues,
-                  finger.thumbIndex,
-                  event.nativeEvent,
-                );
+                setValue(finger.value, finger.thumbIndex, event.nativeEvent);
               }
             }
 
@@ -263,10 +261,12 @@ export function useSliderControl(
       handleRootRef,
       handleTouchMove,
       handleTouchEnd,
+      max,
+      min,
       setValue,
-      percentageValues,
       setActive,
       thumbRefs,
+      values,
     ],
   );
 
@@ -286,15 +286,17 @@ export namespace useSliderControl {
       | 'dragging'
       | 'getFingerState'
       | 'lastChangedValueRef'
+      | 'max'
+      | 'min'
       | 'minStepsBetweenValues'
       | 'commitValue'
-      | 'percentageValues'
       | 'registerSliderControl'
       | 'setActive'
       | 'setDragging'
       | 'setValue'
       | 'step'
       | 'thumbRefs'
+      | 'values'
     > {
     /**
      * The ref attached to the control area of the Slider.

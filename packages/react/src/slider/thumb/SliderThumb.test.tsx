@@ -89,7 +89,7 @@ describe('<Slider.Thumb />', () => {
           createTouches([{ identifier: 1, clientX: 199, clientY: 0 }]),
         );
 
-        expect(thumbStyles.getPropertyValue('left')).to.equal('199px');
+        expect(thumbStyles.getPropertyValue('left')).to.equal('200px');
         fireEvent.touchEnd(
           document.body,
           createTouches([{ identifier: 1, clientX: 0, clientY: 0 }]),
@@ -144,7 +144,7 @@ describe('<Slider.Thumb />', () => {
           createTouches([{ identifier: 1, clientX: 699, clientY: 0 }]),
         );
 
-        expect(computedStyles.thumb2.getPropertyValue('left')).to.equal('699px');
+        expect(computedStyles.thumb2.getPropertyValue('left')).to.equal('700px');
         fireEvent.touchEnd(
           document.body,
           createTouches([{ identifier: 1, clientX: 0, clientY: 0 }]),
