@@ -152,7 +152,7 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
                 cursorMovementTimerRef.current = -1;
               }
 
-              // With `anchor="item"`, avoid re-rendering the root due to `onMouseLeave`
+              // With `anchorMode="overlap-trigger"`, avoid re-rendering the root due to `onMouseLeave`
               // firing and causing a performance issue when expanding the popup.
               if (popup.offsetHeight === prevPopupHeightRef.current) {
                 // Prevent `onFocus` from causing the highlight to be stuck when quickly moving
