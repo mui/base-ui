@@ -3,8 +3,8 @@
 import fs from 'fs/promises';
 import path from 'path';
 import glob from 'fast-glob';
-import { mdxToMarkdown } from './mdxToMarkdown.mjs';
 import * as prettier from 'prettier';
+import { mdxToMarkdown } from './mdxToMarkdown.mjs';
 
 const PROJECT_ROOT = path.resolve(import.meta.dirname, '..');
 const MDX_SOURCE_DIR = path.join(PROJECT_ROOT, 'src/app/(public)/(content)/react');
@@ -105,14 +105,21 @@ async function generateLlmsTxt() {
     // Build structured content for llms.txt
     const sections = ['# Base UI', ''];
 
+    sections.push(
+      'This is the documentation for the `@base-ui-components/react` package.',
+      'It contains a collection of components and utilities for building user interfaces in React.',
+      'The library is designed to be composable and styling agnostic.',
+      '',
+    );
+
     // Create formatted sections in specific order
     const formatSection = (items, title) => {
       if (items.length > 0) {
         sections.push(`## ${title}`, '');
 
-        // Add each item as a link with subtitle, starting with a bullet (-)
+        // Add each item as a link with description, starting with a bullet (-)
         items.forEach((item) => {
-          sections.push(`- [${item.title}](${item.urlPath}): ${item.subtitle}`);
+          sections.push(`- [${item.title}](${item.urlPath}): ${item.description}`);
         });
 
         sections.push(''); // Add empty line after section
