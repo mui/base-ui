@@ -181,12 +181,6 @@ jobs:
       - install_js:
           react-version: << parameters.react-version >>
       - run:
-          name: Generate PropTypes
-          command: pnpm proptypes
-      - run:
-          name: '`pnpm proptypes` changes committed?'
-          command: git add -A && git diff --exit-code --staged
-      - run:
           name: Generate the documentation
           command: pnpm docs:api
       - run:

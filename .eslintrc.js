@@ -40,6 +40,8 @@ module.exports = {
     // We LOVE non-breaking spaces, and both straight and curly quotes here
     'no-irregular-whitespace': [1, { skipJSXText: true, skipStrings: true }],
     'react/no-unescaped-entities': [1, { forbid: ['>', '}'] }],
+    'react/prop-types': 'off',
+    'react/no-unused-prop-types': 'off',
     'material-ui/straight-quotes': 'off',
     // This prevents us from creating components like `<h1 {...props} />`
     'jsx-a11y/heading-has-content': 'off',
@@ -77,19 +79,12 @@ module.exports = {
 
         // In tests this is generally intended.
         'react/button-has-type': 'off',
-        // They are accessed to test custom validator implementation with PropTypes.checkPropTypes
-        'react/forbid-foreign-prop-types': 'off',
-        // components that are defined in test are isolated enough
-        // that they don't need type-checking
-        'react/prop-types': 'off',
-        'react/no-unused-prop-types': 'off',
       },
     },
     {
       files: ['docs/src/app/(private)/experiments/**/*{.tsx,.js}'],
       rules: {
         '@typescript-eslint/no-use-before-define': 'off',
-        'react/prop-types': 'off',
         'no-alert': 'off',
         'no-console': 'off',
         'import/no-relative-packages': 'off',
@@ -120,14 +115,12 @@ module.exports = {
             patterns: NO_RESTRICTED_IMPORTS_PATTERNS_DEEPLY_NESTED,
           },
         ],
-        'react/prop-types': 'off',
         '@typescript-eslint/no-use-before-define': 'off',
       },
     },
     {
       files: ['test/**/*{.ts,.tsx}'],
       rules: {
-        'react/prop-types': 'off',
         'guard-for-in': 'off',
       },
     },

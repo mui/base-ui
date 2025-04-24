@@ -4,7 +4,6 @@
   "private": true,
   "scripts": {
     "preinstall": "npx only-allow pnpm",
-    "proptypes": "tsx ./scripts/generateProptypes.ts",
     "deduplicate": "pnpm dedupe",
     "build": "lerna run --no-private build",
     "build:codesandbox": "NODE_OPTIONS=\"--max_old_space_size=4096\" lerna run --concurrency 8 --no-private build",
@@ -13,7 +12,7 @@
     "release:changelog": "node scripts/releaseChangelog.mjs",
     "release:publish": "pnpm publish --recursive --tag latest",
     "release:publish:dry-run": "pnpm publish --recursive --tag latest --registry=\"http://localhost:4873/\"",
-    "release:tag": "node scripts/releaseTag.mjs",
+    "release:tag": "node scripts/releaseTag.mjs --repo base-ui",
     "docs:api": "pnpm --filter api-docs-builder start",
     "docs:build": "pnpm --filter docs build",
     "docs:deploy": "pnpm --filter docs run deploy",
@@ -55,6 +54,7 @@
     "inline-scripts": "tsx ./scripts/inlineScripts.mts"
   },
   "devDependencies": {
+    "@arethetypeswrong/cli": "^0.17.4",
     "@argos-ci/core": "^3.1.1",
     "@babel/cli": "^7.27.0",
     "@babel/core": "^7.26.10",
@@ -65,6 +65,7 @@
     "@babel/preset-react": "^7.26.3",
     "@babel/preset-typescript": "^7.27.0",
     "@babel/register": "^7.25.9",
+    "@mui/internal-babel-plugin-resolve-imports": "2.0.0",
     "@mui/internal-docs-utils": "^2.0.1",
     "@mui/internal-markdown": "^2.0.4",
     "@mui/internal-scripts": "^2.0.7",
@@ -92,7 +93,6 @@
     "babel-plugin-module-resolver": "^5.0.2",
     "babel-plugin-optimize-clsx": "^2.6.2",
     "babel-plugin-react-remove-properties": "^0.3.0",
-    "babel-plugin-transform-react-remove-prop-types": "^0.4.24",
     "chai-dom": "^1.12.1",
     "chalk": "^5.4.1",
     "compression-webpack-plugin": "^11.1.0",
@@ -131,6 +131,7 @@
     "prettier-plugin-tailwindcss": "^0.6.11",
     "pretty-quick": "^4.1.1",
     "process": "^0.11.10",
+    "publint": "^0.3.9",
     "react": "^19.1.0",
     "react-docgen": "^5.4.3",
     "react-dom": "^19.1.0",
