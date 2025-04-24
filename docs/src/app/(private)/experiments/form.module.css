@@ -409,7 +409,7 @@
   }
 }
 
-.Indicator {
+.CheckboxIndicator {
   display: flex;
   color: var(--color-gray-50);
 

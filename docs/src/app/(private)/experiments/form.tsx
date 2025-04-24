@@ -9,158 +9,210 @@ import { Checkbox } from '@base-ui-components/react/checkbox';
 import { Switch } from '@base-ui-components/react/switch';
 import { NumberField } from '@base-ui-components/react/number-field';
 import { Slider } from '@base-ui-components/react/slider';
+import { z } from 'zod';
 import styles from './form.module.css';
+
+const schema = z.object({
+  input: z.string().min(1, 'Input is required'),
+  checkbox: z.boolean(),
+  switch: z.boolean(),
+  slider: z.number().min(0).max(100),
+  'number-field': z.number().min(0).max(100),
+  select: z.enum(['sans', 'serif', 'mono', 'cursive']),
+  'radio-group': z.enum(['fuji-apple', 'gala-apple', 'granny-smith-apple']),
+});
+
+async function submitForm(event: React.FormEvent<HTMLFormElement>) {
+  event.preventDefault();
+
+  const formData = new FormData(event.currentTarget);
+  const result = schema.safeParse(Object.fromEntries(formData as any));
+
+  if (!result.success) {
+    return {
+      errors: result.error.flatten().fieldErrors,
+    };
+  }
+
+  return {
+    errors: {},
+  };
+}
 
 export default function Page() {
   const [errors, setErrors] = React.useState({});
+  const [native, setNative] = React.useState(true);
 
   return (
-    <Form
-      className={styles.Form}
-      errors={errors}
-      onClearErrors={setErrors}
-      onSubmit={(event) => {
-        event.preventDefault();
-        const formData = new FormData(event.currentTarget);
-        console.log('submitted form!', Object.fromEntries(formData as any));
-      }}
-    >
+    <div>
       <h1>Form</h1>
-      <Field.Root name="input" className={styles.Field}>
-        <Field.Label className={styles.Label}>Input</Field.Label>
-        <Field.Control required placeholder="Enter input" className={styles.Input} />
-        <Field.Error className={styles.Error} />
-      </Field.Root>
-
-      <Field.Root name="checkbox" className={styles.Field}>
-        <Field.Label className={styles.Label}>Checkbox</Field.Label>
-        <Checkbox.Root required className={styles.Checkbox}>
-          <Checkbox.Indicator className={styles.CheckboxIndicator} />
+      <label>
+        Use native validation
+        <Checkbox.Root
+          checked={native}
+          onCheckedChange={setNative}
+          className={styles.Checkbox}
+        >
+          <Checkbox.Indicator className={styles.CheckboxIndicator}>
+            <CheckIcon />
+          </Checkbox.Indicator>
         </Checkbox.Root>
-        <Field.Error className={styles.Error} />
-      </Field.Root>
+      </label>
 
-      <Field.Root name="switch" className={styles.Field}>
-        <Field.Label className={styles.Label}>Switch</Field.Label>
-        <Switch.Root required className={styles.Switch}>
-          <Switch.Thumb className={styles.Thumb} />
-        </Switch.Root>
-        <Field.Error className={styles.Error} />
-      </Field.Root>
+      <hr style={{ margin: '1rem 0' }} />
 
-      <Field.Root name="slider" className={styles.Field}>
-        <Field.Label className={styles.Label}>Slider</Field.Label>
-        <Slider.Root defaultValue={25}>
-          <Slider.Control className={styles.SliderControl}>
-            <Slider.Track className={styles.SliderTrack}>
-              <Slider.Indicator className={styles.SliderIndicator} />
-              <Slider.Thumb className={styles.SliderThumb} />
-            </Slider.Track>
-          </Slider.Control>
-        </Slider.Root>
-        <Field.Error className={styles.Error} />
-      </Field.Root>
+      <Form
+        className={styles.Form}
+        errors={errors}
+        onClearErrors={setErrors}
+        onSubmit={async (event) => {
+          console.log('submitting');
+          const response = await submitForm(event);
+          setErrors(response.errors);
+        }}
+      >
+        <Field.Root name="input" className={styles.Field}>
+          <Field.Label className={styles.Label}>Input</Field.Label>
+          <Field.Control
+            required={native}
+            placeholder="Enter input"
+            className={styles.Input}
+          />
+          <Field.Error className={styles.Error} />
+        </Field.Root>
 
-      <Field.Root name="number-field" className={styles.Field}>
-        <Field.Label className={styles.Label}>Number Field</Field.Label>
-        <NumberField.Root required className={styles.Field}>
-          <NumberField.Group className={styles.Group}>
-            <NumberField.Decrement className={styles.Decrement}>
-              -
-            </NumberField.Decrement>
-            <NumberField.Input className={styles.Input} />
-            <NumberField.Increment className={styles.Increment}>
-              +
-            </NumberField.Increment>
-          </NumberField.Group>
-        </NumberField.Root>
-        <Field.Error className={styles.Error} />
-      </Field.Root>
+        <Field.Root name="checkbox" className={styles.Field}>
+          <Field.Label className={styles.Label}>Checkbox</Field.Label>
+          <Checkbox.Root required={native} className={styles.Checkbox}>
+            <Checkbox.Indicator className={styles.CheckboxIndicator}>
+              <CheckIcon />
+            </Checkbox.Indicator>
+          </Checkbox.Root>
+          <Field.Error className={styles.Error} />
+        </Field.Root>
 
-      <Field.Root name="select" className={styles.Field}>
-        <Field.Label className={styles.Label}>Select</Field.Label>
-        <Select.Root required>
-          <Select.Trigger className={styles.Select}>
-            <Select.Value placeholder="Select value" />
-            <Select.Icon className={styles.SelectIcon}>
-              <ChevronUpDownIcon />
-            </Select.Icon>
-          </Select.Trigger>
-          <Select.Portal>
-            <Select.Positioner className={styles.Positioner} sideOffset={8}>
-              <Select.ScrollUpArrow className={styles.ScrollArrow} />
-              <Select.Popup className={styles.Popup}>
-                <Select.Item className={styles.Item} value="sans">
-                  <Select.ItemIndicator className={styles.ItemIndicator}>
-                    <CheckIcon className={styles.ItemIndicatorIcon} />
-                  </Select.ItemIndicator>
-                  <Select.ItemText className={styles.ItemText}>
-                    Sans-serif
-                  </Select.ItemText>
-                </Select.Item>
-                <Select.Item className={styles.Item} value="serif">
-                  <Select.ItemIndicator className={styles.ItemIndicator}>
-                    <CheckIcon className={styles.ItemIndicatorIcon} />
-                  </Select.ItemIndicator>
-                  <Select.ItemText className={styles.ItemText}>
-                    Serif
-                  </Select.ItemText>
-                </Select.Item>
-                <Select.Item className={styles.Item} value="mono">
-                  <Select.ItemIndicator className={styles.ItemIndicator}>
-                    <CheckIcon className={styles.ItemIndicatorIcon} />
-                  </Select.ItemIndicator>
-                  <Select.ItemText className={styles.ItemText}>
-                    Monospace
-                  </Select.ItemText>
-                </Select.Item>
-                <Select.Item className={styles.Item} value="cursive">
-                  <Select.ItemIndicator className={styles.ItemIndicator}>
-                    <CheckIcon className={styles.ItemIndicatorIcon} />
-                  </Select.ItemIndicator>
-                  <Select.ItemText className={styles.ItemText}>
-                    Cursive
-                  </Select.ItemText>
-                </Select.Item>
-              </Select.Popup>
-              <Select.ScrollDownArrow className={styles.ScrollArrow} />
-            </Select.Positioner>
-          </Select.Portal>
-        </Select.Root>
-        <Field.Error className={styles.Error} />
-      </Field.Root>
+        <Field.Root name="switch" className={styles.Field}>
+          <Field.Label className={styles.Label}>Switch</Field.Label>
+          <Switch.Root required={native} className={styles.Switch}>
+            <Switch.Thumb className={styles.Thumb} />
+          </Switch.Root>
+          <Field.Error className={styles.Error} />
+        </Field.Root>
 
-      <Field.Root name="radio-group" className={styles.Field}>
-        <Field.Label className={styles.Label}>Radio Group</Field.Label>
-        <RadioGroup required className={styles.RadioGroup}>
-          <label className={styles.Item}>
-            <Radio.Root value="fuji-apple" className={styles.Radio}>
-              <Radio.Indicator className={styles.Indicator} />
-            </Radio.Root>
-            Fuji
-          </label>
+        <Field.Root name="slider" className={styles.Field}>
+          <Field.Label className={styles.Label}>Slider</Field.Label>
+          <Slider.Root defaultValue={25}>
+            <Slider.Control className={styles.SliderControl}>
+              <Slider.Track className={styles.SliderTrack}>
+                <Slider.Indicator className={styles.SliderIndicator} />
+                <Slider.Thumb className={styles.SliderThumb} />
+              </Slider.Track>
+            </Slider.Control>
+          </Slider.Root>
+          <Field.Error className={styles.Error} />
+        </Field.Root>
 
-          <label className={styles.Item}>
-            <Radio.Root value="gala-apple" className={styles.Radio}>
-              <Radio.Indicator className={styles.Indicator} />
-            </Radio.Root>
-            Gala
-          </label>
+        <Field.Root name="number-field" className={styles.Field}>
+          <Field.Label className={styles.Label}>Number Field</Field.Label>
+          <NumberField.Root required={native} className={styles.Field}>
+            <NumberField.Group className={styles.Group}>
+              <NumberField.Decrement className={styles.Decrement}>
+                -
+              </NumberField.Decrement>
+              <NumberField.Input className={styles.Input} />
+              <NumberField.Increment className={styles.Increment}>
+                +
+              </NumberField.Increment>
+            </NumberField.Group>
+          </NumberField.Root>
+          <Field.Error className={styles.Error} />
+        </Field.Root>
 
-          <label className={styles.Item}>
-            <Radio.Root value="granny-smith-apple" className={styles.Radio}>
-              <Radio.Indicator className={styles.Indicator} />
-            </Radio.Root>
-            Granny Smith
-          </label>
-        </RadioGroup>
-        <Field.Error className={styles.Error} />
-      </Field.Root>
+        <Field.Root name="select" className={styles.Field}>
+          <Field.Label className={styles.Label}>Select</Field.Label>
+          <Select.Root required={native}>
+            <Select.Trigger className={styles.Select}>
+              <Select.Value placeholder="Select value" />
+              <Select.Icon className={styles.SelectIcon}>
+                <ChevronUpDownIcon />
+              </Select.Icon>
+            </Select.Trigger>
+            <Select.Portal>
+              <Select.Positioner className={styles.Positioner} sideOffset={8}>
+                <Select.ScrollUpArrow className={styles.ScrollArrow} />
+                <Select.Popup className={styles.Popup}>
+                  <Select.Item className={styles.Item} value="sans">
+                    <Select.ItemIndicator className={styles.ItemIndicator}>
+                      <CheckIcon className={styles.ItemIndicatorIcon} />
+                    </Select.ItemIndicator>
+                    <Select.ItemText className={styles.ItemText}>
+                      Sans-serif
+                    </Select.ItemText>
+                  </Select.Item>
+                  <Select.Item className={styles.Item} value="serif">
+                    <Select.ItemIndicator className={styles.ItemIndicator}>
+                      <CheckIcon className={styles.ItemIndicatorIcon} />
+                    </Select.ItemIndicator>
+                    <Select.ItemText className={styles.ItemText}>
+                      Serif
+                    </Select.ItemText>
+                  </Select.Item>
+                  <Select.Item className={styles.Item} value="mono">
+                    <Select.ItemIndicator className={styles.ItemIndicator}>
+                      <CheckIcon className={styles.ItemIndicatorIcon} />
+                    </Select.ItemIndicator>
+                    <Select.ItemText className={styles.ItemText}>
+                      Monospace
+                    </Select.ItemText>
+                  </Select.Item>
+                  <Select.Item className={styles.Item} value="cursive">
+                    <Select.ItemIndicator className={styles.ItemIndicator}>
+                      <CheckIcon className={styles.ItemIndicatorIcon} />
+                    </Select.ItemIndicator>
+                    <Select.ItemText className={styles.ItemText}>
+                      Cursive
+                    </Select.ItemText>
+                  </Select.Item>
+                </Select.Popup>
+                <Select.ScrollDownArrow className={styles.ScrollArrow} />
+              </Select.Positioner>
+            </Select.Portal>
+          </Select.Root>
+          <Field.Error className={styles.Error} />
+        </Field.Root>
 
-      <button type="submit" className={styles.Button}>
-        Submit
-      </button>
-    </Form>
+        <Field.Root name="radio-group" className={styles.Field}>
+          <Field.Label className={styles.Label}>Radio Group</Field.Label>
+          <RadioGroup required={native} className={styles.RadioGroup}>
+            <label className={styles.Item}>
+              <Radio.Root value="fuji-apple" className={styles.Radio}>
+                <Radio.Indicator className={styles.Indicator} />
+              </Radio.Root>
+              Fuji
+            </label>
+
+            <label className={styles.Item}>
+              <Radio.Root value="gala-apple" className={styles.Radio}>
+                <Radio.Indicator className={styles.Indicator} />
+              </Radio.Root>
+              Gala
+            </label>
+
+            <label className={styles.Item}>
+              <Radio.Root value="granny-smith-apple" className={styles.Radio}>
+                <Radio.Indicator className={styles.Indicator} />
+              </Radio.Root>
+              Granny Smith
+            </label>
+          </RadioGroup>
+          <Field.Error className={styles.Error} />
+        </Field.Root>
+
+        <button type="submit" className={styles.Button}>
+          Submit
+        </button>
+      </Form>
+    </div>
   );
 }
 
