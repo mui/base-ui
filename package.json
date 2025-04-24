@@ -46,7 +46,7 @@
     "test:_unit": "cross-env NODE_ENV=test vitest --project @base-ui-components/react --project docs",
     "test:jsdom": "cross-env VITEST_ENV=jsdom pnpm test:_unit",
     "test:jsdom:coverage": "pnpm test:jsdom --coverage",
-    "test:chromium": "cross-env VITEST_ENV=chromium ",
+    "test:chromium": "cross-env VITEST_ENV=chromium pnpm test:_unit",
     "test:chromium:ui": "pnpm test:chromium --browser.headless=false",
     "test:firefox": "cross-env VITEST_ENV=firefox pnpm test:_unit",
     "test:firefox:ui": "pnpm test:firefox --browser.headless=false",
