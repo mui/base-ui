@@ -829,6 +829,8 @@ describe('<Select.Root />', () => {
       },
     });
 
+    clock.withFakeTimers();
+
     it('[data-touched]', async () => {
       await render(
         <Field.Root>

@@ -1903,7 +1903,6 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
       );
 
       const root = screen.getByTestId('root');
-      // eslint-disable-next-line testing-library/no-node-access
       const input = container.querySelector<HTMLInputElement>('input')!;
 
       expect(root).not.to.have.attribute('data-dirty');
@@ -1925,7 +1924,6 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
       );
 
       const root = screen.getByTestId('root');
-      // eslint-disable-next-line testing-library/no-node-access
       const input = container.querySelector<HTMLInputElement>('input')!;
 
       expect(root).not.to.have.attribute('data-focused');

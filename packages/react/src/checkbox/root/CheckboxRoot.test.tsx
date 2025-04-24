@@ -496,26 +496,24 @@ describe('<Checkbox.Root />', () => {
       });
     });
 
-    it('[data-focused]', () => {
-      it('supports Checkbox', async () => {
-        await render(
-          <Field.Root>
-            <Checkbox.Root data-testid="button" />
-          </Field.Root>,
-        );
+    it('[data-focused]', async () => {
+      await render(
+        <Field.Root>
+          <Checkbox.Root data-testid="button" />
+        </Field.Root>,
+      );
 
-        const button = screen.getByTestId('button');
+      const button = screen.getByTestId('button');
 
-        expect(button).not.to.have.attribute('data-focused');
+      expect(button).not.to.have.attribute('data-focused');
 
-        fireEvent.focus(button);
+      fireEvent.focus(button);
 
-        expect(button).to.have.attribute('data-focused', '');
+      expect(button).to.have.attribute('data-focused', '');
 
-        fireEvent.blur(button);
+      fireEvent.blur(button);
 
-        expect(button).not.to.have.attribute('data-focused');
-      });
+      expect(button).not.to.have.attribute('data-focused');
     });
   });
 

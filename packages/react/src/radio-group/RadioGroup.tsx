@@ -33,6 +33,7 @@ const RadioGroup = React.forwardRef(function RadioGroup(
     onValueChange: onValueChangeProp,
     value,
     defaultValue,
+    name: nameProp,
     ...otherProps
   } = props;
 
@@ -40,9 +41,10 @@ const RadioGroup = React.forwardRef(function RadioGroup(
 
   const radioGroup = useRadioGroup(props);
 
-  const { state: fieldState, disabled: fieldDisabled } = useFieldRootContext();
+  const { state: fieldState, disabled: fieldDisabled, name: fieldName } = useFieldRootContext();
 
   const disabled = fieldDisabled || disabledProp;
+  const name = fieldName ?? nameProp;
 
   const onValueChange = useEventCallback(onValueChangeProp ?? (() => {}));
 
