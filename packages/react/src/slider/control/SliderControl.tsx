@@ -97,7 +97,6 @@ const SliderControl = React.forwardRef(function SliderControl(
   const {
     active: activeThumbIndex,
     commitValue,
-    controlStylesRef,
     disabled,
     dragging,
     lastChangedValueRef,
@@ -106,7 +105,7 @@ const SliderControl = React.forwardRef(function SliderControl(
     minStepsBetweenValues,
     orientation,
     range,
-    registerSliderControl,
+    registerInputValidationRef,
     setActive,
     setDragging,
     setValue,
@@ -117,7 +116,14 @@ const SliderControl = React.forwardRef(function SliderControl(
   } = useSliderRootContext();
 
   const controlRef = React.useRef<HTMLElement>(null);
-
+  const stylesRef = React.useRef<CSSStyleDeclaration | null>(null);
+  const setStylesRef = useEventCallback((element: HTMLElement | null) => {
+    if (element && stylesRef.current == null) {
+      if (stylesRef.current == null) {
+        stylesRef.current = getComputedStyle(element);
+      }
+    }
+  });
   const closestThumbIndexRef = React.useRef<number | null>(null);
   // A number that uniquely identifies the current finger in the touch session.
   const touchIdRef = React.useRef<number | null>(null);
@@ -160,7 +166,7 @@ const SliderControl = React.forwardRef(function SliderControl(
 
       const { width, height, bottom, left, right } = control.getBoundingClientRect();
 
-      const controlOffset = getControlOffset(controlStylesRef.current, orientation);
+      const controlOffset = getControlOffset(stylesRef.current, orientation);
 
       // the value at the finger origin scaled down to fit the range [0, 1]
       let valueRescaled = isVertical
@@ -324,18 +330,17 @@ const SliderControl = React.forwardRef(function SliderControl(
   });
 
   React.useEffect(() => {
-    const { current: sliderControl } = controlRef;
-
-    if (!sliderControl) {
+    const control = controlRef.current;
+    if (!control) {
       return () => stopListening();
     }
 
-    sliderControl.addEventListener('touchstart', handleTouchStart, {
+    control.addEventListener('touchstart', handleTouchStart, {
       passive: true,
     });
 
     return () => {
-      sliderControl.removeEventListener('touchstart', handleTouchStart);
+      control.removeEventListener('touchstart', handleTouchStart);
 
       stopListening();
     };
@@ -349,7 +354,7 @@ const SliderControl = React.forwardRef(function SliderControl(
 
   const renderElement = useRenderElement('div', componentProps, {
     state,
-    ref: [forwardedRef, registerSliderControl, controlRef],
+    ref: [forwardedRef, registerInputValidationRef, controlRef, setStylesRef],
     props: [
       {
         onPointerDown(event: React.PointerEvent<HTMLDivElement>) {

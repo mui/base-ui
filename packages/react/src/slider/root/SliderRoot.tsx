@@ -109,7 +109,6 @@ const SliderRoot = React.forwardRef(function SliderRoot<Value extends number | r
   const sliderRef = React.useRef<HTMLElement>(null);
   const controlRef: React.RefObject<HTMLElement | null> = React.useRef(null);
   const thumbRefs = React.useRef<(HTMLElement | null)[]>([]);
-  const controlStylesRef = React.useRef<CSSStyleDeclaration | null>(null);
   const lastChangedValueRef = React.useRef<number | readonly number[] | null>(null);
 
   // We can't use the :active browser pseudo-classes.
@@ -135,13 +134,11 @@ const SliderRoot = React.forwardRef(function SliderRoot<Value extends number | r
     controlRef,
   });
 
-  const registerSliderControl = React.useCallback(
+  const registerInputValidationRef = React.useCallback(
     (element: HTMLElement | null) => {
       if (element) {
         controlRef.current = element;
-        if (controlStylesRef.current == null) {
-          controlStylesRef.current = getComputedStyle(element);
-        }
+
         inputValidationRef.current = element.querySelector<HTMLInputElement>('input[type="range"]');
       }
     },
@@ -260,7 +257,6 @@ const SliderRoot = React.forwardRef(function SliderRoot<Value extends number | r
     () => ({
       active,
       commitValue,
-      controlStylesRef,
       disabled,
       dragging,
       format,
@@ -274,7 +270,7 @@ const SliderRoot = React.forwardRef(function SliderRoot<Value extends number | r
       name,
       orientation,
       range,
-      registerSliderControl,
+      registerInputValidationRef,
       setActive,
       setDragging,
       setValue,
@@ -289,7 +285,6 @@ const SliderRoot = React.forwardRef(function SliderRoot<Value extends number | r
       active,
       ariaLabelledby,
       commitValue,
-      controlStylesRef,
       disabled,
       dragging,
       externalTabIndex,
@@ -303,7 +298,7 @@ const SliderRoot = React.forwardRef(function SliderRoot<Value extends number | r
       name,
       orientation,
       range,
-      registerSliderControl,
+      registerInputValidationRef,
       setActive,
       setDragging,
       setValue,

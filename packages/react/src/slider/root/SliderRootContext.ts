@@ -14,7 +14,6 @@ export interface SliderRootContext {
    * Function to be called when drag ends. Invokes onValueCommitted.
    */
   commitValue: (newValue: number | readonly number[], event: Event) => void;
-  controlStylesRef: React.RefObject<CSSStyleDeclaration | null>;
   dragging: boolean;
   disabled: boolean;
   format?: Intl.NumberFormatOptions;
@@ -53,7 +52,7 @@ export interface SliderRootContext {
    * Whether the slider is a range slider.
    */
   range: boolean;
-  registerSliderControl: (element: HTMLElement | null) => void;
+  registerInputValidationRef: (element: HTMLElement | null) => void;
   setActive: React.Dispatch<React.SetStateAction<number>>;
   setDragging: React.Dispatch<React.SetStateAction<boolean>>;
   /**
