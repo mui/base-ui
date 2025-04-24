@@ -3,6 +3,7 @@ import { expect } from 'chai';
 import { spy } from 'sinon';
 import { act, fireEvent, screen } from '@mui/internal-test-utils';
 import { Checkbox } from '@base-ui-components/react/checkbox';
+import { CheckboxGroup } from '@base-ui-components/react/checkbox-group';
 import { Field } from '@base-ui-components/react/field';
 import { Form } from '@base-ui-components/react/form';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
@@ -300,6 +301,80 @@ describe('<Checkbox.Root />', () => {
       expect(checkbox).not.to.have.attribute('aria-invalid');
       expect(screen.queryByTestId('error')).to.equal(null);
     });
+
+    it('should include the checkbox value in the form submission', async ({ skip }) => {
+      if (isJSDOM) {
+        // FormData is not available in JSDOM
+        skip();
+      }
+
+      let stringifiedFormData = '';
+
+      const { getAllByRole, getByRole } = await render(
+        <form
+          onSubmit={(event) => {
+            event.preventDefault();
+            const formData = new FormData(event.currentTarget);
+            stringifiedFormData = new URLSearchParams(formData as any).toString();
+          }}
+        >
+          <Checkbox.Root name="test-checkbox" />
+          <button type="submit">Submit</button>
+        </form>,
+      );
+
+      const [checkbox] = getAllByRole('checkbox');
+      const submitButton = getByRole('button')!;
+
+      submitButton.click();
+
+      expect(stringifiedFormData).to.equal('test-checkbox=off');
+
+      await act(async () => {
+        checkbox.click();
+      });
+
+      submitButton.click();
+
+      expect(stringifiedFormData).to.equal('test-checkbox=on');
+    });
+
+    it('should include the custom checkbox value in the form submission', async ({ skip }) => {
+      if (isJSDOM) {
+        // FormData is not available in JSDOM
+        skip();
+      }
+
+      let stringifiedFormData = '';
+
+      const { getAllByRole, getByRole } = await render(
+        <form
+          onSubmit={(event) => {
+            event.preventDefault();
+            const formData = new FormData(event.currentTarget);
+            stringifiedFormData = new URLSearchParams(formData as any).toString();
+          }}
+        >
+          <Checkbox.Root name="test-checkbox" value="test-value" />
+          <button type="submit">Submit</button>
+        </form>,
+      );
+
+      const [checkbox] = getAllByRole('checkbox');
+      const submitButton = getByRole('button')!;
+
+      submitButton.click();
+
+      expect(stringifiedFormData).to.equal('test-checkbox=off');
+
+      await act(async () => {
+        checkbox.click();
+      });
+
+      submitButton.click();
+
+      expect(stringifiedFormData).to.equal('test-checkbox=test-value');
+    });
   });
 
   describe('Field', () => {
@@ -324,80 +399,124 @@ describe('<Checkbox.Root />', () => {
       const input = container.querySelector('input[type="checkbox"]');
       expect(input).to.have.attribute('name', 'field-checkbox');
     });
-  });
 
-  it('should include the checkbox value in the form submission', async ({ skip }) => {
-    if (isJSDOM) {
-      // FormData is not available in JSDOM
-      skip();
-    }
+    it('[data-touched]', async () => {
+      await render(
+        <Field.Root>
+          <Checkbox.Root data-testid="button" />
+        </Field.Root>,
+      );
 
-    let stringifiedFormData = '';
+      const button = screen.getByTestId('button');
 
-    const { getAllByRole, getByRole } = await render(
-      <form
-        onSubmit={(event) => {
-          event.preventDefault();
-          const formData = new FormData(event.currentTarget);
-          stringifiedFormData = new URLSearchParams(formData as any).toString();
-        }}
-      >
-        <Checkbox.Root name="test-checkbox" />
-        <button type="submit">Submit</button>
-      </form>,
-    );
+      fireEvent.focus(button);
+      fireEvent.blur(button);
 
-    const [checkbox] = getAllByRole('checkbox');
-    const submitButton = getByRole('button')!;
-
-    submitButton.click();
-
-    expect(stringifiedFormData).to.equal('test-checkbox=off');
-
-    await act(async () => {
-      checkbox.click();
+      expect(button).to.have.attribute('data-touched', '');
     });
 
-    submitButton.click();
+    it('[data-dirty]', async () => {
+      await render(
+        <Field.Root>
+          <Checkbox.Root data-testid="button" />
+        </Field.Root>,
+      );
 
-    expect(stringifiedFormData).to.equal('test-checkbox=on');
-  });
+      const button = screen.getByTestId('button');
 
-  it('should include the custom checkbox value in the form submission', async ({ skip }) => {
-    if (isJSDOM) {
-      // FormData is not available in JSDOM
-      skip();
-    }
+      expect(button).not.to.have.attribute('data-dirty');
 
-    let stringifiedFormData = '';
+      fireEvent.click(button);
 
-    const { getAllByRole, getByRole } = await render(
-      <form
-        onSubmit={(event) => {
-          event.preventDefault();
-          const formData = new FormData(event.currentTarget);
-          stringifiedFormData = new URLSearchParams(formData as any).toString();
-        }}
-      >
-        <Checkbox.Root name="test-checkbox" value="test-value" />
-        <button type="submit">Submit</button>
-      </form>,
-    );
-
-    const [checkbox] = getAllByRole('checkbox');
-    const submitButton = getByRole('button')!;
-
-    submitButton.click();
-
-    expect(stringifiedFormData).to.equal('test-checkbox=off');
-
-    await act(async () => {
-      checkbox.click();
+      expect(button).to.have.attribute('data-dirty', '');
     });
 
-    submitButton.click();
+    describe('[data-filled]', () => {
+      it('adds [data-filled] attribute when checked after being initially unchecked', async () => {
+        await render(
+          <Field.Root>
+            <Checkbox.Root data-testid="button" />
+          </Field.Root>,
+        );
 
-    expect(stringifiedFormData).to.equal('test-checkbox=test-value');
+        const button = screen.getByTestId('button');
+
+        expect(button).not.to.have.attribute('data-filled');
+
+        fireEvent.click(button);
+
+        expect(button).to.have.attribute('data-filled', '');
+
+        fireEvent.click(button);
+
+        expect(button).not.to.have.attribute('data-filled');
+      });
+
+      it('removes [data-filled] attribute when unchecked after being initially checked', async () => {
+        await render(
+          <Field.Root>
+            <Checkbox.Root data-testid="button" defaultChecked />
+          </Field.Root>,
+        );
+
+        const button = screen.getByTestId('button');
+
+        expect(button).to.have.attribute('data-filled');
+
+        fireEvent.click(button);
+
+        expect(button).not.to.have.attribute('data-filled', '');
+      });
+
+      it('adds [data-filled] attribute when any checkbox is filled when inside a group', async () => {
+        await render(
+          <Field.Root>
+            <CheckboxGroup defaultValue={['1', '2']}>
+              <Checkbox.Root name="1" data-testid="button-1" />
+              <Checkbox.Root name="2" data-testid="button-2" />
+            </CheckboxGroup>
+          </Field.Root>,
+        );
+
+        const button1 = screen.getByTestId('button-1');
+        const button2 = screen.getByTestId('button-2');
+
+        expect(button1).to.have.attribute('data-filled');
+        expect(button2).to.have.attribute('data-filled');
+
+        fireEvent.click(button1);
+
+        expect(button1).to.have.attribute('data-filled');
+        expect(button2).to.have.attribute('data-filled');
+
+        fireEvent.click(button2);
+
+        expect(button1).not.to.have.attribute('data-filled');
+        expect(button2).not.to.have.attribute('data-filled');
+      });
+    });
+
+    it('[data-focused]', () => {
+      it('supports Checkbox', async () => {
+        await render(
+          <Field.Root>
+            <Checkbox.Root data-testid="button" />
+          </Field.Root>,
+        );
+
+        const button = screen.getByTestId('button');
+
+        expect(button).not.to.have.attribute('data-focused');
+
+        fireEvent.focus(button);
+
+        expect(button).to.have.attribute('data-focused', '');
+
+        fireEvent.blur(button);
+
+        expect(button).not.to.have.attribute('data-focused');
+      });
+    });
   });
 
   it('should change state when clicking the checkbox if it has a wrapping label', async () => {

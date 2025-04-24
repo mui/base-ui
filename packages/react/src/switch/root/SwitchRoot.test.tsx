@@ -334,5 +334,94 @@ describe('<Switch.Root />', () => {
       const input = getByRole('checkbox', { hidden: true });
       expect(input).to.have.attribute('name', 'field-switch');
     });
+
+    it('[data-touched]', async () => {
+      await render(
+        <Field.Root>
+          <Switch.Root data-testid="button" />
+        </Field.Root>,
+      );
+
+      const button = screen.getByTestId('button');
+
+      fireEvent.focus(button);
+      fireEvent.blur(button);
+
+      expect(button).to.have.attribute('data-touched', '');
+    });
+
+    it('[data-dirty]', async () => {
+      await render(
+        <Field.Root>
+          <Switch.Root data-testid="button" />
+        </Field.Root>,
+      );
+
+      const button = screen.getByTestId('button');
+
+      expect(button).not.to.have.attribute('data-dirty');
+
+      fireEvent.click(button);
+
+      expect(button).to.have.attribute('data-dirty', '');
+    });
+
+    describe('[data-filled]', () => {
+      it('adds [data-filled] attribute when checked after being initially unchecked', async () => {
+        await render(
+          <Field.Root>
+            <Switch.Root data-testid="button" />
+          </Field.Root>,
+        );
+
+        const button = screen.getByTestId('button');
+
+        expect(button).not.to.have.attribute('data-filled');
+
+        fireEvent.click(button);
+
+        expect(button).to.have.attribute('data-filled', '');
+
+        fireEvent.click(button);
+
+        expect(button).not.to.have.attribute('data-filled');
+      });
+
+      it('removes [data-filled] attribute when unchecked after being initially checked', async () => {
+        await render(
+          <Field.Root>
+            <Switch.Root data-testid="button" defaultChecked />
+          </Field.Root>,
+        );
+
+        const button = screen.getByTestId('button');
+
+        expect(button).to.have.attribute('data-filled');
+
+        fireEvent.click(button);
+
+        expect(button).not.to.have.attribute('data-filled', '');
+      });
+    });
+
+    it('[data-focused]', async () => {
+      await render(
+        <Field.Root>
+          <Switch.Root data-testid="button" />
+        </Field.Root>,
+      );
+
+      const button = screen.getByTestId('button');
+
+      expect(button).not.to.have.attribute('data-focused');
+
+      fireEvent.focus(button);
+
+      expect(button).to.have.attribute('data-focused', '');
+
+      fireEvent.blur(button);
+
+      expect(button).not.to.have.attribute('data-focused');
+    });
   });
 });

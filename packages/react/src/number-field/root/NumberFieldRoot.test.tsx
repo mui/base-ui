@@ -486,6 +486,107 @@ describe('<NumberField />', () => {
     });
   });
 
+  describe('Field', () => {
+    it('[data-touched]', async () => {
+      await render(
+        <Field.Root>
+          <NumberFieldBase.Root>
+            <NumberFieldBase.Input />
+          </NumberFieldBase.Root>
+        </Field.Root>,
+      );
+
+      const input = screen.getByRole<HTMLInputElement>('textbox');
+
+      fireEvent.focus(input);
+      fireEvent.blur(input);
+
+      expect(input).to.have.attribute('data-touched', '');
+    });
+
+    it('[data-dirty]', async () => {
+      await render(
+        <Field.Root>
+          <NumberFieldBase.Root>
+            <NumberFieldBase.Input />
+          </NumberFieldBase.Root>
+        </Field.Root>,
+      );
+
+      const input = screen.getByRole<HTMLInputElement>('textbox');
+
+      expect(input).not.to.have.attribute('data-dirty');
+
+      fireEvent.change(input, { target: { value: '1' } });
+
+      expect(input).to.have.attribute('data-dirty', '');
+    });
+
+    describe('[data-filled]', () => {
+      it('adds [data-filled] attribute when filled', async () => {
+        await render(
+          <Field.Root>
+            <NumberFieldBase.Root>
+              <NumberFieldBase.Input data-testid="input" />
+            </NumberFieldBase.Root>
+          </Field.Root>,
+        );
+
+        const input = screen.getByTestId('input');
+
+        expect(input).not.to.have.attribute('data-filled');
+
+        fireEvent.change(input, { target: { value: '1' } });
+
+        expect(input).to.have.attribute('data-filled', '');
+
+        fireEvent.change(input, { target: { value: '' } });
+
+        expect(input).not.to.have.attribute('data-filled');
+      });
+
+      it('has [data-filled] attribute when already filled', async () => {
+        await render(
+          <Field.Root>
+            <NumberFieldBase.Root defaultValue={1}>
+              <NumberFieldBase.Input data-testid="input" />
+            </NumberFieldBase.Root>
+          </Field.Root>,
+        );
+
+        const input = screen.getByTestId('input');
+
+        expect(input).to.have.attribute('data-filled');
+
+        fireEvent.change(input, { target: { value: '' } });
+
+        expect(input).not.to.have.attribute('data-filled');
+      });
+    });
+
+    it('[data-filled]', async () => {
+      await render(
+        <Field.Root>
+          <NumberFieldBase.Root>
+            <NumberFieldBase.Input data-testid="input" />
+          </NumberFieldBase.Root>
+        </Field.Root>,
+      );
+
+      const input = screen.getByTestId('input');
+
+      expect(input).not.to.have.attribute('data-focused');
+
+      fireEvent.focus(input);
+
+      expect(input).to.have.attribute('data-focused', '');
+
+      fireEvent.blur(input);
+
+      expect(input).not.to.have.attribute('data-focused');
+    });
+  });
+
   describe('inputMode', () => {
     it('should set the inputMode to numeric', async () => {
       await render(<NumberField />);

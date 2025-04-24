@@ -1869,4 +1869,74 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
       expect(screen.queryByTestId('error')).to.equal(null);
     });
   });
+
+  describe('Field', () => {
+    it('[data-touched]', async () => {
+      await render(
+        <Field.Root>
+          <Slider.Root data-testid="root">
+            <Slider.Control>
+              <Slider.Thumb data-testid="thumb" />
+            </Slider.Control>
+          </Slider.Root>
+        </Field.Root>,
+      );
+
+      const root = screen.getByTestId('root');
+      const thumb = screen.getByTestId('thumb');
+
+      fireEvent.focus(thumb);
+      fireEvent.blur(thumb);
+
+      expect(root).to.have.attribute('data-touched', '');
+    });
+
+    it('[data-dirty]', async () => {
+      const { container } = await render(
+        <Field.Root>
+          <Slider.Root data-testid="root">
+            <Slider.Control>
+              <Slider.Thumb />
+            </Slider.Control>
+          </Slider.Root>
+        </Field.Root>,
+      );
+
+      const root = screen.getByTestId('root');
+      // eslint-disable-next-line testing-library/no-node-access
+      const input = container.querySelector<HTMLInputElement>('input')!;
+
+      expect(root).not.to.have.attribute('data-dirty');
+
+      fireEvent.change(input, { target: { value: 'value' } });
+
+      expect(root).to.have.attribute('data-dirty', '');
+    });
+
+    it('[data-focused]', async () => {
+      const { container } = await render(
+        <Field.Root>
+          <Slider.Root data-testid="root">
+            <Slider.Control>
+              <Slider.Thumb />
+            </Slider.Control>
+          </Slider.Root>
+        </Field.Root>,
+      );
+
+      const root = screen.getByTestId('root');
+      // eslint-disable-next-line testing-library/no-node-access
+      const input = container.querySelector<HTMLInputElement>('input')!;
+
+      expect(root).not.to.have.attribute('data-focused');
+
+      fireEvent.focus(input);
+
+      expect(root).to.have.attribute('data-focused', '');
+
+      fireEvent.blur(input);
+
+      expect(root).not.to.have.attribute('data-focused');
+    });
+  });
 });

@@ -821,4 +821,172 @@ describe('<Select.Root />', () => {
       expect(trigger).not.to.have.attribute('aria-invalid');
     });
   });
+
+  describe('Field', () => {
+    const { render: renderFakeTimers, clock } = createRenderer({
+      clockOptions: {
+        shouldAdvanceTime: true,
+      },
+    });
+
+    it('[data-touched]', async () => {
+      await render(
+        <Field.Root>
+          <Select.Root>
+            <Select.Trigger data-testid="trigger" />
+            <Select.Portal>
+              <Select.Positioner>
+                <Select.Popup>
+                  <Select.Item value="">Select</Select.Item>
+                  <Select.Item value="1">Option 1</Select.Item>
+                </Select.Popup>
+              </Select.Positioner>
+            </Select.Portal>
+          </Select.Root>
+        </Field.Root>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+
+      expect(trigger).not.to.have.attribute('data-dirty');
+
+      fireEvent.focus(trigger);
+      fireEvent.blur(trigger);
+
+      await flushMicrotasks();
+
+      expect(trigger).to.have.attribute('data-touched', '');
+    });
+
+    it('[data-dirty]', async () => {
+      const { user } = await renderFakeTimers(
+        <Field.Root>
+          <Select.Root>
+            <Select.Trigger data-testid="trigger" />
+            <Select.Portal>
+              <Select.Positioner>
+                <Select.Popup>
+                  <Select.Item value="">Select</Select.Item>
+                  <Select.Item value="1">Option 1</Select.Item>
+                </Select.Popup>
+              </Select.Positioner>
+            </Select.Portal>
+          </Select.Root>
+        </Field.Root>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+
+      expect(trigger).not.to.have.attribute('data-dirty');
+
+      await user.click(trigger);
+      await flushMicrotasks();
+      clock.tick(200);
+
+      const option = screen.getByRole('option', { name: 'Option 1' });
+
+      // Arrow Down to focus the Option 1
+      await user.keyboard('{ArrowDown}');
+      await user.click(option);
+      await flushMicrotasks();
+
+      expect(trigger).to.have.attribute('data-dirty', '');
+    });
+
+    describe('[data-filled]', () => {
+      it('adds [data-filled] attribute when filled', async () => {
+        const { user } = await renderFakeTimers(
+          <Field.Root>
+            <Select.Root>
+              <Select.Trigger data-testid="trigger" />
+              <Select.Portal>
+                <Select.Positioner>
+                  <Select.Popup>
+                    <Select.Item value="">Select</Select.Item>
+                    <Select.Item value="1">Option 1</Select.Item>
+                  </Select.Popup>
+                </Select.Positioner>
+              </Select.Portal>
+            </Select.Root>
+          </Field.Root>,
+        );
+
+        const trigger = screen.getByTestId('trigger');
+
+        expect(trigger).not.to.have.attribute('data-filled');
+
+        await user.click(trigger);
+        await flushMicrotasks();
+        clock.tick(200);
+
+        const option = screen.getByRole('option', { name: 'Option 1' });
+
+        // Arrow Down to focus the Option 1
+        await user.keyboard('{ArrowDown}');
+        await user.click(option);
+        await flushMicrotasks();
+
+        expect(trigger).to.have.attribute('data-filled', '');
+
+        await user.click(trigger);
+
+        await flushMicrotasks();
+
+        const select = screen.getByRole('listbox');
+
+        expect(select).not.to.have.attribute('data-filled');
+      });
+
+      it('adds [data-filled] attribute when already filled', async () => {
+        await render(
+          <Field.Root>
+            <Select.Root defaultValue="1">
+              <Select.Trigger data-testid="trigger" />
+              <Select.Portal>
+                <Select.Positioner>
+                  <Select.Popup>
+                    <Select.Item value="1">Option 1</Select.Item>
+                  </Select.Popup>
+                </Select.Positioner>
+              </Select.Portal>
+            </Select.Root>
+          </Field.Root>,
+        );
+
+        const trigger = screen.getByTestId('trigger');
+
+        expect(trigger).to.have.attribute('data-filled');
+      });
+    });
+
+    it('[data-focused]', async () => {
+      await render(
+        <Field.Root>
+          <Select.Root>
+            <Select.Trigger data-testid="trigger" />
+            <Select.Portal>
+              <Select.Positioner>
+                <Select.Popup>
+                  <Select.Item value="">Select</Select.Item>
+                  <Select.Item value="1">Option 1</Select.Item>
+                </Select.Popup>
+              </Select.Positioner>
+            </Select.Portal>
+          </Select.Root>
+        </Field.Root>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+
+      expect(trigger).not.to.have.attribute('data-focused');
+
+      fireEvent.focus(trigger);
+
+      expect(trigger).to.have.attribute('data-focused', '');
+
+      fireEvent.blur(trigger);
+
+      expect(trigger).not.to.have.attribute('data-focused');
+    });
+  });
 });
