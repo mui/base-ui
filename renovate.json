@@ -55,12 +55,7 @@
     },
     {
       "groupName": "MUI",
-      "matchPackagePatterns": [
-        "@mui/*",
-        "playwright",
-        "@playwright/test",
-        "mcr.microsoft.com/playwright"
-      ],
+      "matchPackagePatterns": ["@mui/*", "@playwright/test", "mcr.microsoft.com/playwright"],
       "allowedVersions": "!/-dev/",
       "schedule": "before 6:00am on Wednesday"
     },
