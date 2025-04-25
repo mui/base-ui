@@ -792,6 +792,62 @@ describe('<Field.Root />', () => {
         expect(button3).to.have.attribute('aria-invalid', 'true');
       });
     });
+
+    describe('computed validity state', () => {
+      it('should not mark field as invalid for valueMissing if not dirty', async () => {
+        await render(
+          <Field.Root>
+            <Field.Control data-testid="control" required />
+          </Field.Root>,
+        );
+
+        const control = screen.getByTestId('control');
+
+        fireEvent.focus(control);
+        fireEvent.blur(control);
+
+        expect(control).not.to.have.attribute('data-invalid');
+        expect(control).not.to.have.attribute('aria-invalid');
+      });
+
+      it('should mark field as invalid for valueMissing if dirty', async () => {
+        await render(
+          <Field.Root>
+            <Field.Control data-testid="control" required />
+          </Field.Root>,
+        );
+
+        const control = screen.getByTestId('control');
+
+        // Mark as touched and dirtied
+        fireEvent.focus(control);
+        fireEvent.change(control, { target: { value: 'a' } });
+        fireEvent.change(control, { target: { value: '' } });
+        fireEvent.blur(control);
+
+        // valueMissing is true, and markedDirtyRef is true, so valid should be false
+        expect(control).to.have.attribute('data-invalid', '');
+        expect(control).to.have.attribute('aria-invalid', 'true');
+      });
+
+      it('should mark field as invalid for other errors (e.g., typeMismatch) even if not dirty', async () => {
+        await render(
+          <Field.Root>
+            <Field.Control data-testid="control" type="email" defaultValue="not_an_email@" />
+          </Field.Root>,
+        );
+
+        const control = screen.getByTestId('control');
+
+        // Mark as touched but not dirty
+        fireEvent.focus(control);
+        fireEvent.blur(control);
+
+        // typeMismatch is true, so valid should be false regardless of dirty state
+        expect(control).to.have.attribute('data-invalid', '');
+        expect(control).to.have.attribute('aria-invalid', 'true');
+      });
+    });
   });
 
   describe('prop: validateDebounceTime', () => {
