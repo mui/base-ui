@@ -9,7 +9,7 @@ import { Menu } from '../../menu';
  *
  * Documentation: [Base UI Context Menu](https://base-ui.com/react/components/context-menu)
  */
-const ContextMenuRoot: React.FC<ContextMenuRoot.Props> = function ContextMenu(props) {
+export const ContextMenuRoot: React.FC<ContextMenuRoot.Props> = function ContextMenu(props) {
   const { children, ...otherProps } = props;
 
   const [anchor, setAnchor] = React.useState<ContextMenuRootContext['anchor']>({
@@ -40,12 +40,10 @@ const ContextMenuRoot: React.FC<ContextMenuRoot.Props> = function ContextMenu(pr
   );
 };
 
-namespace ContextMenuRoot {
+export namespace ContextMenuRoot {
   export interface State {}
 
   export interface Props extends Menu.Root.Props {
     children: React.ReactNode;
   }
 }
-
-export { ContextMenuRoot };

@@ -15,7 +15,7 @@ const LONG_PRESS_DELAY = 500;
  *
  * Documentation: [Base UI Context Menu](https://base-ui.com/react/components/context-menu)
  */
-const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
+export const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
   componentProps: ContextMenuTrigger.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
@@ -136,10 +136,8 @@ const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
   return renderElement();
 });
 
-namespace ContextMenuTrigger {
+export namespace ContextMenuTrigger {
   export interface State {}
 
   export interface Props extends BaseUIComponentProps<'div', State> {}
 }
-
-export { ContextMenuTrigger };
