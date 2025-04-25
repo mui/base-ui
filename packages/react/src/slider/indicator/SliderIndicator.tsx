@@ -19,12 +19,14 @@ const SliderIndicator = React.forwardRef(function SliderIndicator(
 ) {
   const { render, className, ...otherProps } = props;
 
-  const { disabled, orientation, state, percentageValues } = useSliderRootContext();
+  const { disabled, max, min, orientation, state, values } = useSliderRootContext();
 
   const { getRootProps } = useSliderIndicator({
     disabled,
+    max,
+    min,
     orientation,
-    percentageValues,
+    values,
   });
 
   const { renderElement } = useComponentRenderer({

@@ -7,7 +7,7 @@ export default function PromiseToastExample() {
   return (
     <Toast.Provider>
       <PromiseDemo />
-      <Toast.Viewport className={styles.Viewport} data-position="top">
+      <Toast.Viewport className={styles.Viewport}>
         <ToastList />
       </Toast.Viewport>
     </Toast.Provider>

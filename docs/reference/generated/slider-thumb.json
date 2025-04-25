@@ -49,10 +49,6 @@
     "onPointerOver": {
       "type": "PointerEventHandler<Element>"
     },
-    "percentageValues": {
-      "type": "number[]",
-      "description": "The value(s) of the slider as percentages"
-    },
     "tabIndex": {
       "type": "number | null",
       "default": "null",

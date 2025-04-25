@@ -19,7 +19,7 @@ import { useFieldControlValidation } from '../../field/control/useFieldControlVa
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { getSliderValue } from '../utils/getSliderValue';
 import { roundValueToStep } from '../utils/roundValueToStep';
-import type { useSliderRoot } from '../root/useSliderRoot';
+import { valueArrayToPercentages, type useSliderRoot } from '../root/useSliderRoot';
 import { SliderThumbDataAttributes } from './SliderThumbDataAttributes';
 
 export interface ThumbMetadata {
@@ -75,7 +75,6 @@ export function useSliderThumb(parameters: useSliderThumb.Parameters): useSlider
     minStepsBetweenValues,
     name,
     orientation,
-    percentageValues,
     rootRef: externalRef,
     step,
     tabIndex: externalTabIndex,
@@ -109,6 +108,7 @@ export function useSliderThumb(parameters: useSliderThumb.Parameters): useSlider
 
   const thumbValue = sliderValues[index];
 
+  const percentageValues = valueArrayToPercentages(sliderValues.slice(), min, max);
   // for SSR, don't wait for the index if there's only one thumb
   const percent = percentageValues.length === 1 ? percentageValues[0] : percentageValues[index];
 
@@ -357,7 +357,6 @@ export namespace useSliderThumb {
       | 'minStepsBetweenValues'
       | 'name'
       | 'orientation'
-      | 'percentageValues'
       | 'step'
       | 'values'
     > {
