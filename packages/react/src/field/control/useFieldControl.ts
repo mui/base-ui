@@ -5,7 +5,6 @@ import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useFieldRootContext } from '../root/FieldRootContext';
 import { useFieldControlValidation } from './useFieldControlValidation';
-import { useFormContext } from '../../form/FormContext';
 import { useField } from '../useField';
 import { useControlled } from '../../utils/useControlled';
 import { useEventCallback } from '../../utils/useEventCallback';
@@ -13,7 +12,6 @@ import { useEventCallback } from '../../utils/useEventCallback';
 export function useFieldControl(params: useFieldControl.Parameters) {
   const { id: idProp, name, value: valueProp, defaultValue, onValueChange, disabled } = params;
 
-  const { clearErrors } = useFormContext();
   const {
     setControlId,
     labelId,
@@ -85,7 +83,6 @@ export function useFieldControl(params: useFieldControl.Parameters) {
 
             setDirty(event.currentTarget.value !== validityData.initialValue);
             setFilled(event.currentTarget.value !== '');
-            clearErrors(name);
           },
           onFocus() {
             setFocused(true);
@@ -119,7 +116,6 @@ export function useFieldControl(params: useFieldControl.Parameters) {
       setDirty,
       validityData.initialValue,
       setFilled,
-      clearErrors,
       setValue,
       setFocused,
       setTouched,

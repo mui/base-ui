@@ -22,9 +22,10 @@ export function useFieldControlValidation() {
     markedDirtyRef,
     controlId,
     state,
+    name,
   } = useFieldRootContext();
 
-  const { formRef } = useFormContext();
+  const { formRef, clearErrors } = useFormContext();
 
   const timeoutRef = React.useRef(-1);
   const inputRef = React.useRef<HTMLInputElement | null>(null);
@@ -150,6 +151,9 @@ export function useFieldControlValidation() {
               return;
             }
 
+            clearErrors(name);
+            commitValidation(event.currentTarget.value, true);
+
             if (invalid || validationMode !== 'onChange') {
               return;
             }
@@ -175,7 +179,15 @@ export function useFieldControlValidation() {
         },
         getValidationProps(externalProps),
       ),
-    [getValidationProps, invalid, validationMode, validationDebounceTime, commitValidation],
+    [
+      getValidationProps,
+      clearErrors,
+      name,
+      commitValidation,
+      invalid,
+      validationMode,
+      validationDebounceTime,
+    ],
   );
 
   return React.useMemo(
