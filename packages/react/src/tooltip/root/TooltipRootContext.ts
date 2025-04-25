@@ -3,11 +3,11 @@ import * as React from 'react';
 import type { FloatingRootContext } from '@floating-ui/react';
 import type { GenericHTMLProps } from '../../utils/types';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
-import type { OpenChangeReason } from '../../utils/translateOpenChangeReason';
+import type { OpenChangeReason } from './useTooltipRoot';
 
 export interface TooltipRootContext {
   open: boolean;
-  setOpen: (open: boolean, event?: Event, reason?: OpenChangeReason) => void;
+  setOpen: (open: boolean, event: Event | undefined, reason: OpenChangeReason | undefined) => void;
   setTriggerElement: (el: Element | null) => void;
   positionerElement: HTMLElement | null;
   setPositionerElement: (el: HTMLElement | null) => void;

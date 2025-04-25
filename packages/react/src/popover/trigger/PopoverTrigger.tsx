@@ -40,7 +40,7 @@ const PopoverTrigger = React.forwardRef(function PopoverTrigger(
   const customStyleHookMapping: CustomStyleHookMapping<{ open: boolean }> = React.useMemo(
     () => ({
       open(value) {
-        if (value && openReason === 'click') {
+        if (value && openReason === 'trigger-press') {
           return pressableTriggerOpenStateMapping.open(value);
         }
 

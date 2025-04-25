@@ -2,9 +2,9 @@
 import * as React from 'react';
 import { useForkRef } from '../../utils/useForkRef';
 import { mergeProps } from '../../merge-props';
-import { type InteractionType } from '../../utils/useEnhancedClickHandler';
-import { GenericHTMLProps } from '../../utils/types';
-import { type OpenChangeReason } from '../../utils/translateOpenChangeReason';
+import type { InteractionType } from '../../utils/useEnhancedClickHandler';
+import type { GenericHTMLProps } from '../../utils/types';
+import type { OpenChangeReason } from '../root/useDialogRoot';
 
 export function useDialogPopup(parameters: useDialogPopup.Parameters): useDialogPopup.ReturnValue {
   const {

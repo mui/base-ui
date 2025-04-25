@@ -22,11 +22,12 @@ import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import type { TextDirection } from '../../direction-provider/DirectionContext';
 import { useScrollLock } from '../../utils/useScrollLock';
 import {
-  type OpenChangeReason,
+  type BaseOpenChangeReason,
   translateOpenChangeReason,
 } from '../../utils/translateOpenChangeReason';
 
 const EMPTY_ARRAY: never[] = [];
+export type OpenChangeReason = BaseOpenChangeReason | 'item-select' | 'cancel-open';
 
 export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.ReturnValue {
   const {
@@ -77,7 +78,7 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
 
   useScrollLock({
-    enabled: open && modal && openReason !== 'hover',
+    enabled: open && modal && openReason !== 'trigger-hover',
     mounted,
     open,
     referenceElement: positionerElement,
@@ -172,7 +173,7 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
   });
 
   const hover = useHover(floatingRootContext, {
-    enabled: hoverEnabled && openOnHover && !disabled && openReason !== 'click',
+    enabled: hoverEnabled && openOnHover && !disabled && openReason !== 'trigger-press',
     handleClose: safePolygon({ blockPointerEvents: true }),
     mouseOnly: true,
     move: nested,

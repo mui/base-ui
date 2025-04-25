@@ -20,11 +20,16 @@ import type { SelectRootContext } from './SelectRootContext';
 import type { SelectIndexContext } from './SelectIndexContext';
 import {
   translateOpenChangeReason,
-  type OpenChangeReason,
+  type BaseOpenChangeReason,
 } from '../../utils/translateOpenChangeReason';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 
 const EMPTY_ARRAY: never[] = [];
+export type OpenChangeReason =
+  | BaseOpenChangeReason
+  | 'window-resize'
+  | 'item-select'
+  | 'cancel-open';
 
 export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelectRoot.ReturnValue {
   const {

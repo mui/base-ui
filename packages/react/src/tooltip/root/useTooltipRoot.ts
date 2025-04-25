@@ -19,10 +19,12 @@ import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import type { GenericHTMLProps } from '../../utils/types';
 import {
   translateOpenChangeReason,
-  type OpenChangeReason,
+  type BaseOpenChangeReason,
 } from '../../utils/translateOpenChangeReason';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useTooltipProviderContext } from '../provider/TooltipProviderContext';
+
+export type OpenChangeReason = BaseOpenChangeReason | 'disabled';
 
 export function useTooltipRoot(params: useTooltipRoot.Parameters): useTooltipRoot.ReturnValue {
   const {
@@ -64,7 +66,7 @@ export function useTooltipRoot(params: useTooltipRoot.Parameters): useTooltipRoo
   );
 
   if (open && disabled) {
-    setOpen(false, undefined, undefined);
+    setOpen(false, undefined, 'disabled');
   }
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
@@ -264,7 +266,7 @@ export namespace useTooltipRoot {
 
   export interface ReturnValue {
     open: boolean;
-    setOpen: (value: boolean, event?: Event, reason?: OpenChangeReason) => void;
+    setOpen: (open: boolean, event?: Event, reason?: OpenChangeReason) => void;
     mounted: boolean;
     setMounted: React.Dispatch<React.SetStateAction<boolean>>;
     getTriggerProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;

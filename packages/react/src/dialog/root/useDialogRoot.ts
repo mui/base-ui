@@ -20,10 +20,12 @@ import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
 import { mergeProps } from '../../merge-props';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import {
-  type OpenChangeReason,
+  type BaseOpenChangeReason,
   translateOpenChangeReason,
 } from '../../utils/translateOpenChangeReason';
 import { useIOSKeyboardSlideFix } from '../../utils/useIOSKeyboardSlideFix';
+
+export type OpenChangeReason = BaseOpenChangeReason | 'close-button';
 
 export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.ReturnValue {
   const {

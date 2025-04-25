@@ -4,7 +4,7 @@ import type { FloatingRootContext } from '@floating-ui/react';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import type { GenericHTMLProps } from '../../utils/types';
 import type { InteractionType } from '../../utils/useEnhancedClickHandler';
-import type { OpenChangeReason } from '../../utils/translateOpenChangeReason';
+import { OpenChangeReason } from './usePopoverRoot';
 
 export interface PopoverRootContext {
   open: boolean;

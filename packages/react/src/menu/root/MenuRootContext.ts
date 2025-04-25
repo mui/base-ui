@@ -1,7 +1,6 @@
 'use client';
 import * as React from 'react';
-import type { useMenuRoot } from './useMenuRoot';
-import type { OpenChangeReason } from '../../utils/translateOpenChangeReason';
+import type { OpenChangeReason, useMenuRoot } from './useMenuRoot';
 
 export interface MenuRootContext extends useMenuRoot.ReturnValue {
   disabled: boolean;

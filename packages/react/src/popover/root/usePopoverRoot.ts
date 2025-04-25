@@ -21,11 +21,13 @@ import { mergeProps } from '../../merge-props';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
 import {
   translateOpenChangeReason,
-  type OpenChangeReason,
+  type BaseOpenChangeReason,
 } from '../../utils/translateOpenChangeReason';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { PATIENT_CLICK_THRESHOLD } from '../../utils/constants';
 import { useScrollLock } from '../../utils/useScrollLock';
+
+export type OpenChangeReason = BaseOpenChangeReason | 'close-button';
 
 export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoot.ReturnValue {
   const {
@@ -65,7 +67,7 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
 
   useScrollLock({
-    enabled: open && modal === true && openReason !== 'hover',
+    enabled: open && modal === true && openReason !== 'trigger-hover',
     mounted,
     open,
     referenceElement: positionerElement,
@@ -155,7 +157,7 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
   const computedRestMs = delayWithDefault;
 
   const hover = useHover(context, {
-    enabled: openOnHover && (openMethod !== 'touch' || openReason !== 'click'),
+    enabled: openOnHover && (openMethod !== 'touch' || openReason !== 'trigger-press'),
     mouseOnly: true,
     move: false,
     handleClose: safePolygon({ blockPointerEvents: true }),
@@ -287,7 +289,11 @@ export namespace usePopoverRoot {
 
   export interface ReturnValue {
     open: boolean;
-    setOpen: (open: boolean, event?: Event, reason?: OpenChangeReason) => void;
+    setOpen: (
+      open: boolean,
+      event: Event | undefined,
+      reason: OpenChangeReason | undefined,
+    ) => void;
     mounted: boolean;
     setMounted: React.Dispatch<React.SetStateAction<boolean>>;
     transitionStatus: TransitionStatus;

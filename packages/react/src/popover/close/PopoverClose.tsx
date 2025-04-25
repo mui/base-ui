@@ -22,8 +22,8 @@ const PopoverClose = React.forwardRef(function PopoverClose(
     ref: forwardedRef,
     props: [
       {
-        onClick() {
-          setOpen(false, undefined, undefined);
+        onClick(event) {
+          setOpen(false, event.nativeEvent, 'close-button');
         },
       },
       elementProps,

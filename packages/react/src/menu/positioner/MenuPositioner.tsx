@@ -132,7 +132,7 @@ const MenuPositioner = React.forwardRef(function MenuPositioner(
 
   return (
     <MenuPositionerContext.Provider value={contextValue}>
-      {mounted && modal && openReason !== 'hover' && parentNodeId === null && (
+      {mounted && modal && openReason !== 'trigger-hover' && parentNodeId === null && (
         <InternalBackdrop inert={inertValue(!open)} />
       )}
       <FloatingNode id={nodeId}>

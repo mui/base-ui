@@ -17,7 +17,7 @@ import type { GenericHTMLProps } from '../../utils/types';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import {
   translateOpenChangeReason,
-  type OpenChangeReason,
+  type BaseOpenChangeReason as OpenChangeReason,
 } from '../../utils/translateOpenChangeReason';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 
@@ -204,7 +204,11 @@ export namespace usePreviewCardRoot {
 
   export interface ReturnValue {
     open: boolean;
-    setOpen: (value: boolean, event?: Event, reason?: OpenChangeReason) => void;
+    setOpen: (
+      value: boolean,
+      event: Event | undefined,
+      reason: OpenChangeReason | undefined,
+    ) => void;
     mounted: boolean;
     setMounted: React.Dispatch<React.SetStateAction<boolean>>;
     getRootTriggerProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;

@@ -83,7 +83,7 @@ export function useSelectTrigger(
             setFocused(true);
             // The popup element shouldn't obscure the focused trigger.
             if (open && alignItemToTrigger) {
-              setOpen(false, event.nativeEvent, undefined);
+              setOpen(false, event.nativeEvent, 'focus-out');
             }
           },
           onBlur() {
@@ -134,7 +134,7 @@ export function useSelectTrigger(
                 return;
               }
 
-              setOpen(false, mouseEvent, undefined);
+              setOpen(false, mouseEvent, 'cancel-open');
             }
 
             // Firefox can fire this upon mousedown

@@ -7,7 +7,7 @@ import { GenericHTMLProps } from '../../utils/types';
 import { mergeProps } from '../../merge-props';
 import { ownerDocument } from '../../utils/owner';
 import { getPseudoElementBounds } from '../../utils/getPseudoElementBounds';
-import type { OpenChangeReason } from '../../utils/translateOpenChangeReason';
+import { OpenChangeReason } from '../root/useMenuRoot';
 
 export function useMenuTrigger(parameters: useMenuTrigger.Parameters): useMenuTrigger.ReturnValue {
   const BOUNDARY_OFFSET = 2;
@@ -90,7 +90,7 @@ export function useMenuTrigger(parameters: useMenuTrigger.Parameters): useMenuTr
                 return;
               }
 
-              setOpen(false, mouseEvent, undefined);
+              setOpen(false, mouseEvent, 'cancel-open');
             }
 
             doc.addEventListener('mouseup', handleMouseUp, { once: true });
