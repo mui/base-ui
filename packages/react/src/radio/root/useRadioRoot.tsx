@@ -41,21 +41,6 @@ export function useRadioRoot(params: useRadioRoot.Parameters) {
     }
   }, [setFilled]);
 
-  const mountedRef = React.useRef(false);
-
-  useEnhancedEffect(() => {
-    if (!mountedRef.current) {
-      mountedRef.current = true;
-      return;
-    }
-
-    clearErrors(name);
-    commitValidation?.(value, true);
-    if (validationMode === 'onChange') {
-      commitValidation?.(value);
-    }
-  }, [clearErrors, commitValidation, name, validationMode, value]);
-
   const getRootProps: useRadioRoot.ReturnValue['getRootProps'] = React.useCallback(
     (externalProps) =>
       mergeProps<'button'>(
@@ -127,6 +112,12 @@ export function useRadioRoot(params: useRadioRoot.Parameters) {
             setCheckedValue(value);
             setFilled(true);
             onValueChange?.(value, event.nativeEvent);
+            clearErrors(name);
+            commitValidation?.(value, true);
+
+            if (validationMode === 'onChange') {
+              commitValidation?.(value);
+            }
           },
         },
         externalProps,
@@ -143,6 +134,10 @@ export function useRadioRoot(params: useRadioRoot.Parameters) {
       setCheckedValue,
       setFilled,
       onValueChange,
+      clearErrors,
+      name,
+      commitValidation,
+      validationMode,
     ],
   );
 
