@@ -193,9 +193,9 @@ function getFormattedChangelogEntries(
         : `([#${prNumber}](https://github.com/mui/base-ui/pull/${prNumber}))`;
     let line: string;
     if (isBreakingChange) {
-      line = `- **Breaking change:** ${title}.\n  ${chalk.red('TODO: DESCRIBE THE BREAKING CHANGE.')}\n  ${formattedPrNumber}${format === 'changelog' ? `by @${author}` : ''}`;
+      line = `- **Breaking change:** ${title}.\n  ${chalk.red('TODO: DESCRIBE THE BREAKING CHANGE.')}\n  ${formattedPrNumber}${format === 'changelog' ? ` by @${author}` : ''}`;
     } else {
-      line = `- ${title} ${formattedPrNumber}${format === 'changelog' ? `by @${author}` : ''}`;
+      line = `- ${title} ${formattedPrNumber}${format === 'changelog' ? ` by @${author}` : ''}`;
     }
 
     for (const component of components) {
@@ -221,7 +221,7 @@ function getFormattedChangelogEntries(
       return '';
     }
 
-    return `### ${_.startCase(component)}\n\n${componentChanges.breaking.join('\n')}${componentChanges.breaking.length > 0 ? '\n' : ''}${componentChanges.nonBreaking.join('\n')}\n`;
+    return `### ${_.startCase(component)}\n\n${componentChanges.breaking.join('\n')}${componentChanges.breaking.length > 0 && componentChanges.nonBreaking.length > 0 ? '\n' : ''}${componentChanges.nonBreaking.join('\n')}\n`;
   });
 }
 
