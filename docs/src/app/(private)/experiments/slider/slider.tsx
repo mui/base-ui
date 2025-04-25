@@ -9,6 +9,7 @@ import {
 import '../../../../demo-theme.css';
 import styles from './slider.module.css';
 import verticalStyles from './vertical.module.css';
+import smallStyles from './small.module.css';
 
 interface Settings extends Record<string, boolean> {}
 
@@ -21,28 +22,37 @@ export const settingsMetadata: SettingsMetadata<Settings> = {
 };
 
 function DelayUntilRepeat() {
+  // small numeric range with a small number of steps
   return (
     <Slider.Root
       defaultValue={0}
       min={0}
       max={5}
       step={1}
-      className={styles.Root}
+      className={smallStyles.Root}
       aria-labelledby="label-5"
     >
-      <span
-        className={styles.Label}
-        id="label-5"
-        style={{ fontWeight: 400, gridColumn: '1/3' }}
-      >
+      <span className={smallStyles.Label} id="label-5">
         Delay until repeat
       </span>
-      <Slider.Control className={styles.Control}>
-        <Slider.Track className={styles.Track}>
-          <Slider.Indicator className={styles.Indicator} />
-          <Slider.Thumb className={styles.Thumb} />
+      <Slider.Control className={smallStyles.Control}>
+        <Slider.Track className={smallStyles.Track}>
+          <span className={smallStyles.Marks}>
+            <span className={smallStyles.Mark} />
+            <span className={smallStyles.Mark} />
+            <span className={smallStyles.Mark} />
+            <span className={smallStyles.Mark} />
+            <span className={smallStyles.Mark} />
+            <span className={smallStyles.Mark} />
+          </span>
+          <Slider.Thumb
+            /* getAriaValueText could be used so more meaningful values are announced  */
+            className={smallStyles.Thumb}
+          />
         </Slider.Track>
       </Slider.Control>
+      <small className={smallStyles.Small}>Long</small>
+      <small className={smallStyles.Small}>Short</small>
     </Slider.Root>
   );
 }
