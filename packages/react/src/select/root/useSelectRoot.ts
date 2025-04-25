@@ -1,5 +1,4 @@
 import * as React from 'react';
-import * as ReactDOM from 'react-dom';
 import {
   useClick,
   useDismiss,
@@ -128,13 +127,22 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
   }
 
   const controlRef = useLatestRef(triggerElement);
+  const commitValidation = fieldControlValidation.commitValidation;
 
   useField({
     id,
-    commitValidation: fieldControlValidation.commitValidation,
+    commitValidation,
     value,
     controlRef,
   });
+
+  useEnhancedEffect(() => {
+    clearErrors(name);
+    commitValidation?.(value, true);
+    if (validationMode === 'onChange') {
+      commitValidation?.(value);
+    }
+  }, [value, commitValidation, clearErrors, name, validationMode]);
 
   const setOpen = useEventCallback(
     (nextOpen: boolean, event: Event | undefined, reason: OpenChangeReason | undefined) => {
@@ -176,24 +184,15 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
   React.useImperativeHandle(params.actionsRef, () => ({ unmount: handleUnmount }), [handleUnmount]);
 
   const setValue = useEventCallback((nextValue: any, event?: Event) => {
-    // The hidden `<input>` value needs to be updated synchronously for validation.
-    ReactDOM.flushSync(() => {
-      params.onValueChange?.(nextValue, event);
-      setValueUnwrapped(nextValue);
+    params.onValueChange?.(nextValue, event);
+    setValueUnwrapped(nextValue);
 
-      setDirty(nextValue !== validityData.initialValue);
-      clearErrors(name);
+    setDirty(nextValue !== validityData.initialValue);
+    clearErrors(name);
 
-      const index = valuesRef.current.indexOf(nextValue);
-      setSelectedIndex(index);
-      setLabel(labelsRef.current[index] ?? '');
-    });
-
-    fieldControlValidation.commitValidation(nextValue, true);
-
-    if (validationMode === 'onChange') {
-      fieldControlValidation.commitValidation(nextValue);
-    }
+    const index = valuesRef.current.indexOf(nextValue);
+    setSelectedIndex(index);
+    setLabel(labelsRef.current[index] ?? '');
   });
 
   const hasRegisteredRef = React.useRef(false);

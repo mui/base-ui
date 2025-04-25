@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import * as ReactDOM from 'react-dom';
 import { mergeProps } from '../../merge-props';
 import { visuallyHidden } from '../../utils/visuallyHidden';
 import { useRadioGroupContext } from '../../radio-group/RadioGroupContext';
@@ -21,6 +20,7 @@ export function useRadioRoot(params: useRadioRoot.Parameters) {
     fieldControlValidation,
     name,
   } = useRadioGroupContext();
+  const commitValidation = fieldControlValidation?.commitValidation;
 
   const { clearErrors } = useFormContext();
   const {
@@ -40,6 +40,14 @@ export function useRadioRoot(params: useRadioRoot.Parameters) {
       setFilled(true);
     }
   }, [setFilled]);
+
+  useEnhancedEffect(() => {
+    clearErrors(name);
+    commitValidation?.(value, true);
+    if (validationMode === 'onChange') {
+      commitValidation?.(value);
+    }
+  }, [clearErrors, commitValidation, name, validationMode, value]);
 
   const getRootProps: useRadioRoot.ReturnValue['getRootProps'] = React.useCallback(
     (externalProps) =>
@@ -107,21 +115,11 @@ export function useRadioRoot(params: useRadioRoot.Parameters) {
               return;
             }
 
-            // The hidden group `<input>` value needs to be updated synchronously for validation.
-            ReactDOM.flushSync(() => {
-              setFieldTouched(true);
-              setDirty(value !== validityData.initialValue);
-              setCheckedValue(value);
-              setFilled(true);
-              onValueChange?.(value, event.nativeEvent);
-              clearErrors(name);
-            });
-
-            fieldControlValidation?.commitValidation(value, true);
-
-            if (validationMode === 'onChange') {
-              fieldControlValidation?.commitValidation(value);
-            }
+            setFieldTouched(true);
+            setDirty(value !== validityData.initialValue);
+            setCheckedValue(value);
+            setFilled(true);
+            onValueChange?.(value, event.nativeEvent);
           },
         },
         externalProps,
@@ -138,10 +136,6 @@ export function useRadioRoot(params: useRadioRoot.Parameters) {
       setCheckedValue,
       setFilled,
       onValueChange,
-      clearErrors,
-      name,
-      validationMode,
-      fieldControlValidation,
     ],
   );
 
