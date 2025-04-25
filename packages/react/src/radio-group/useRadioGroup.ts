@@ -7,7 +7,8 @@ import { useFieldRootContext } from '../field/root/FieldRootContext';
 import { useBaseUiId } from '../utils/useBaseUiId';
 import { useFieldControlValidation } from '../field/control/useFieldControlValidation';
 import { useField } from '../field/useField';
-import { visuallyHidden } from '../utils';
+import { useEnhancedEffect, visuallyHidden } from '../utils';
+import { useFormContext } from '../form/FormContext';
 
 export function useRadioGroup(params: useRadioGroup.Parameters) {
   const {
@@ -27,6 +28,7 @@ export function useRadioGroup(params: useRadioGroup.Parameters) {
     name: fieldName,
     disabled: fieldDisabled,
   } = useFieldRootContext();
+  const { clearErrors } = useFormContext();
 
   const disabled = fieldDisabled || disabledProp;
   const name = fieldName ?? nameProp;
@@ -48,6 +50,25 @@ export function useRadioGroup(params: useRadioGroup.Parameters) {
     value: checkedValue,
     controlRef: fieldControlValidation.inputRef,
   });
+
+  const prevValueRef = React.useRef(checkedValue);
+
+  useEnhancedEffect(() => {
+    if (prevValueRef.current === checkedValue) {
+      return;
+    }
+
+    clearErrors(name);
+    fieldControlValidation.commitValidation(checkedValue, true);
+
+    if (validationMode === 'onChange') {
+      fieldControlValidation.commitValidation(checkedValue);
+    }
+  }, [name, clearErrors, validationMode, checkedValue, fieldControlValidation]);
+
+  useEnhancedEffect(() => {
+    prevValueRef.current = checkedValue;
+  }, [checkedValue]);
 
   const [touched, setTouched] = React.useState(false);
 

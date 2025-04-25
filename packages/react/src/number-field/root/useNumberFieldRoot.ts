@@ -100,6 +100,25 @@ export function useNumberFieldRoot(
     controlRef: inputRef,
   });
 
+  const prevValueRef = React.useRef(value);
+
+  useEnhancedEffect(() => {
+    if (prevValueRef.current === value) {
+      return;
+    }
+
+    clearErrors(name);
+    commitValidation(value, true);
+
+    if (validationMode === 'onChange') {
+      commitValidation(value);
+    }
+  }, [value, name, clearErrors, validationMode, commitValidation]);
+
+  useEnhancedEffect(() => {
+    prevValueRef.current = value;
+  }, [value]);
+
   const forceRender = useForcedRerendering();
 
   const formatOptionsRef = useLatestRef(format);
@@ -170,12 +189,6 @@ export function useNumberFieldRoot(
       onValueChange?.(validatedValue, event && 'nativeEvent' in event ? event.nativeEvent : event);
       setValueUnwrapped(validatedValue);
       setDirty(validatedValue !== validityData.initialValue);
-      clearErrors(name);
-      commitValidation(validatedValue, true);
-
-      if (validationMode === 'onChange') {
-        commitValidation(validatedValue);
-      }
 
       // We need to force a re-render, because while the value may be unchanged, the formatting may
       // be different. This forces the `useModernLayoutEffect` to run which acts as a single source of

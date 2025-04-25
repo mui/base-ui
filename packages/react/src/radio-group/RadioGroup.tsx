@@ -46,7 +46,7 @@ const RadioGroup = React.forwardRef(function RadioGroup(
   const disabled = fieldDisabled || disabledProp;
   const name = fieldName ?? nameProp;
 
-  const onValueChange = useEventCallback(onValueChangeProp ?? (() => {}));
+  const onValueChange = useEventCallback(onValueChangeProp);
 
   const state: RadioGroup.State = React.useMemo(
     () => ({

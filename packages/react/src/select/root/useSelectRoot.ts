@@ -136,11 +136,10 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     controlRef,
   });
 
-  const mountedRef = React.useRef(false);
+  const prevValueRef = React.useRef(value);
 
   useEnhancedEffect(() => {
-    if (!mountedRef.current) {
-      mountedRef.current = true;
+    if (prevValueRef.current === value) {
       return;
     }
 
@@ -150,6 +149,10 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
       commitValidation?.(value);
     }
   }, [value, commitValidation, clearErrors, name, validationMode]);
+
+  useEnhancedEffect(() => {
+    prevValueRef.current = value;
+  }, [value]);
 
   const setOpen = useEventCallback(
     (nextOpen: boolean, event: Event | undefined, reason: OpenChangeReason | undefined) => {

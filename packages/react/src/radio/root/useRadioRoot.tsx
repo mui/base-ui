@@ -6,7 +6,6 @@ import { useRadioGroupContext } from '../../radio-group/RadioGroupContext';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { ACTIVE_COMPOSITE_ITEM } from '../../composite/constants';
-import { useFormContext } from '../../form/FormContext';
 
 export function useRadioRoot(params: useRadioRoot.Parameters) {
   const { disabled, readOnly, value, required } = params;
@@ -18,18 +17,9 @@ export function useRadioRoot(params: useRadioRoot.Parameters) {
     touched,
     setTouched,
     fieldControlValidation,
-    name,
   } = useRadioGroupContext();
-  const commitValidation = fieldControlValidation?.commitValidation;
 
-  const { clearErrors } = useFormContext();
-  const {
-    setDirty,
-    validityData,
-    setTouched: setFieldTouched,
-    setFilled,
-    validationMode,
-  } = useFieldRootContext();
+  const { setDirty, validityData, setTouched: setFieldTouched, setFilled } = useFieldRootContext();
 
   const checked = checkedValue === value;
 
@@ -112,12 +102,6 @@ export function useRadioRoot(params: useRadioRoot.Parameters) {
             setCheckedValue(value);
             setFilled(true);
             onValueChange?.(value, event.nativeEvent);
-            clearErrors(name);
-            commitValidation?.(value, true);
-
-            if (validationMode === 'onChange') {
-              commitValidation?.(value);
-            }
           },
         },
         externalProps,
@@ -134,10 +118,6 @@ export function useRadioRoot(params: useRadioRoot.Parameters) {
       setCheckedValue,
       setFilled,
       onValueChange,
-      clearErrors,
-      name,
-      commitValidation,
-      validationMode,
     ],
   );
 

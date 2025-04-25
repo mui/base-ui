@@ -41,7 +41,7 @@ export function useFieldControlValidation() {
       return;
     }
 
-    if (revalidate && state.valid) {
+    if (revalidate && state.valid !== false) {
       return;
     }
 
