@@ -629,6 +629,82 @@ describe('<NumberField />', () => {
       expect(input).to.have.attribute('aria-invalid', 'true');
     });
 
+    it('prop: validationMode=onChange', async () => {
+      await render(
+        <Field.Root
+          validationMode="onChange"
+          validate={(value) => {
+            return value === 1 ? 'error' : null;
+          }}
+        >
+          <NumberFieldBase.Root>
+            <NumberFieldBase.Input data-testid="input" />
+          </NumberFieldBase.Root>
+        </Field.Root>,
+      );
+
+      const input = screen.getByTestId('input');
+
+      expect(input).not.to.have.attribute('aria-invalid');
+
+      fireEvent.change(input, { target: { value: '1' } });
+
+      expect(input).to.have.attribute('aria-invalid', 'true');
+    });
+
+    it('prop: validationMode=onBlur', async () => {
+      await render(
+        <Field.Root
+          validationMode="onBlur"
+          validate={(value) => {
+            return value === 1 ? 'error' : null;
+          }}
+        >
+          <NumberFieldBase.Root>
+            <NumberFieldBase.Input data-testid="input" />
+          </NumberFieldBase.Root>
+          <Field.Error data-testid="error" />
+        </Field.Root>,
+      );
+
+      const input = screen.getByTestId('input');
+
+      expect(input).not.to.have.attribute('aria-invalid');
+
+      fireEvent.change(input, { target: { value: '1' } });
+      fireEvent.blur(input);
+
+      expect(input).to.have.attribute('aria-invalid', 'true');
+    });
+
+    it('disables the input when disabled=true', async () => {
+      await render(
+        <Field.Root disabled>
+          <NumberFieldBase.Root>
+            <NumberFieldBase.Input />
+          </NumberFieldBase.Root>
+        </Field.Root>,
+      );
+
+      const input = screen.getByRole<HTMLInputElement>('textbox');
+
+      expect(input).to.have.attribute('disabled', '');
+    });
+
+    it('does not disable the input when disabled=false', async () => {
+      await render(
+        <Field.Root disabled={false}>
+          <NumberFieldBase.Root>
+            <NumberFieldBase.Input />
+          </NumberFieldBase.Root>
+        </Field.Root>,
+      );
+
+      const input = screen.getByRole<HTMLInputElement>('textbox');
+
+      expect(input).not.to.have.attribute('disabled');
+    });
+
     it('Field.Label', async () => {
       await render(
         <Field.Root>

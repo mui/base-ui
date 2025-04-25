@@ -41,7 +41,14 @@ export function useRadioRoot(params: useRadioRoot.Parameters) {
     }
   }, [setFilled]);
 
+  const mountedRef = React.useRef(false);
+
   useEnhancedEffect(() => {
+    if (!mountedRef.current) {
+      mountedRef.current = true;
+      return;
+    }
+
     clearErrors(name);
     commitValidation?.(value, true);
     if (validationMode === 'onChange') {

@@ -1958,6 +1958,61 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
       expect(input).to.have.attribute('aria-invalid', 'true');
     });
 
+    it('prop: validationMode=onChange', async () => {
+      const { container } = await render(
+        <Field.Root
+          validationMode="onChange"
+          validate={(value) => {
+            return value === 1 ? 'error' : null;
+          }}
+        >
+          <Slider.Root>
+            <Slider.Control>
+              <Slider.Thumb data-testid="thumb" />
+            </Slider.Control>
+          </Slider.Root>
+        </Field.Root>,
+      );
+
+      // eslint-disable-next-line testing-library/no-node-access
+      const input = container.querySelector<HTMLInputElement>('input')!;
+
+      expect(input).not.to.have.attribute('aria-invalid');
+
+      fireEvent.change(input, { target: { value: '1' } });
+
+      expect(input).to.have.attribute('aria-invalid', 'true');
+    });
+
+    it('prop: validationMode=onBlur', async () => {
+      const { container } = await render(
+        <Field.Root
+          validationMode="onBlur"
+          validate={(value) => {
+            return value === 1 ? 'error' : null;
+          }}
+        >
+          <Slider.Root>
+            <Slider.Control>
+              <Slider.Thumb data-testid="thumb" />
+            </Slider.Control>
+          </Slider.Root>
+          <Field.Error data-testid="error" />
+        </Field.Root>,
+      );
+
+      // eslint-disable-next-line testing-library/no-node-access
+      const input = container.querySelector<HTMLInputElement>('input')!;
+      const thumb = screen.getByTestId('thumb');
+
+      expect(input).not.to.have.attribute('aria-invalid');
+
+      fireEvent.change(input, { target: { value: '1' } });
+      fireEvent.blur(thumb);
+
+      expect(input).to.have.attribute('aria-invalid', 'true');
+    });
+
     it('Field.Label', async () => {
       await render(
         <Field.Root>

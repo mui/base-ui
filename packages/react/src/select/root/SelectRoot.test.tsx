@@ -1045,6 +1045,91 @@ describe('<Select.Root />', () => {
       expect(trigger).to.have.attribute('aria-invalid', 'true');
     });
 
+    // flaky in real browser
+    it.skipIf(!isJSDOM)('prop: validationMode=onChange', async () => {
+      const { user } = await render(
+        <Field.Root
+          validationMode="onChange"
+          validate={(value) => {
+            return value === '1' ? 'error' : null;
+          }}
+        >
+          <Select.Root>
+            <Select.Trigger data-testid="trigger">
+              <Select.Value placeholder="Select an option" />
+            </Select.Trigger>
+            <Select.Portal>
+              <Select.Positioner>
+                <Select.Popup>
+                  <Select.Item value="1">Option 1</Select.Item>
+                </Select.Popup>
+              </Select.Positioner>
+            </Select.Portal>
+          </Select.Root>
+        </Field.Root>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+
+      expect(trigger).not.to.have.attribute('aria-invalid');
+
+      await user.click(trigger);
+
+      await flushMicrotasks();
+
+      // Arrow Down to focus the Option 1
+      await user.keyboard('{ArrowDown}');
+      await user.keyboard('{Enter}');
+
+      expect(trigger).to.have.attribute('aria-invalid', 'true');
+    });
+
+    // flaky in real browser
+    it.skipIf(!isJSDOM)('prop: validationMode=onBlur', async () => {
+      const { user } = await render(
+        <Field.Root
+          validationMode="onBlur"
+          validate={(value) => {
+            return value === '1' ? 'error' : null;
+          }}
+        >
+          <Select.Root>
+            <Select.Trigger data-testid="trigger">
+              <Select.Value placeholder="Select an option" />
+            </Select.Trigger>
+            <Select.Portal>
+              <Select.Positioner>
+                <Select.Popup>
+                  <Select.Item value="1">Option 1</Select.Item>
+                </Select.Popup>
+              </Select.Positioner>
+            </Select.Portal>
+          </Select.Root>
+          <Field.Error data-testid="error" />
+        </Field.Root>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+
+      expect(trigger).not.to.have.attribute('aria-invalid');
+
+      await user.click(trigger);
+
+      await flushMicrotasks();
+
+      // Arrow Down to focus the Option 1
+      await user.keyboard('{ArrowDown}');
+      await user.keyboard('{Enter}');
+
+      fireEvent.blur(trigger);
+
+      await flushMicrotasks();
+
+      await waitFor(() => {
+        expect(trigger).to.have.attribute('aria-invalid', 'true');
+      });
+    });
+
     it('Field.Label', async () => {
       await render(
         <Field.Root>

@@ -136,7 +136,14 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     controlRef,
   });
 
+  const mountedRef = React.useRef(false);
+
   useEnhancedEffect(() => {
+    if (!mountedRef.current) {
+      mountedRef.current = true;
+      return;
+    }
+
     clearErrors(name);
     commitValidation?.(value, true);
     if (validationMode === 'onChange') {
