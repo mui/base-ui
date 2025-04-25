@@ -7,6 +7,7 @@ import { mergeProps } from '../../merge-props';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
+import { useButton } from '../../use-button/useButton';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
 import { useField } from '../../field/useField';
@@ -50,6 +51,11 @@ export function useCheckboxRoot(params: useCheckboxRoot.Parameters): useCheckbox
 
   const disabled = fieldDisabled || disabledProp;
   const name = fieldName ?? nameProp;
+
+  const { getButtonProps } = useButton({
+    disabled,
+    buttonRef,
+  });
 
   const {
     getValidationProps,
@@ -95,7 +101,7 @@ export function useCheckboxRoot(params: useCheckboxRoot.Parameters): useCheckbox
     }
   }, [checked, indeterminate, setFilled]);
 
-  const getButtonProps: useCheckboxRoot.ReturnValue['getButtonProps'] = React.useCallback(
+  const getRootProps: useCheckboxRoot.ReturnValue['getRootProps'] = React.useCallback(
     (externalProps = {}) =>
       mergeProps<'button'>(
         {
@@ -106,6 +112,7 @@ export function useCheckboxRoot(params: useCheckboxRoot.Parameters): useCheckbox
           disabled,
           'aria-checked': indeterminate ? 'mixed' : checked,
           'aria-readonly': readOnly || undefined,
+          'aria-required': required || undefined,
           'aria-labelledby': labelId,
           onFocus() {
             setFocused(true);
@@ -134,14 +141,17 @@ export function useCheckboxRoot(params: useCheckboxRoot.Parameters): useCheckbox
           },
         },
         getValidationProps(externalProps),
+        getButtonProps,
       ),
     [
       getValidationProps,
+      getButtonProps,
       id,
       disabled,
       indeterminate,
       checked,
       readOnly,
+      required,
       labelId,
       setFocused,
       setTouched,
@@ -229,10 +239,10 @@ export function useCheckboxRoot(params: useCheckboxRoot.Parameters): useCheckbox
   return React.useMemo(
     () => ({
       checked,
-      getButtonProps,
+      getRootProps,
       getInputProps,
     }),
-    [checked, getButtonProps, getInputProps],
+    [checked, getRootProps, getInputProps],
   );
 }
 
@@ -323,7 +333,7 @@ export namespace useCheckboxRoot {
      * @param externalProps custom props for the button element
      * @returns props that should be spread on the button element
      */
-    getButtonProps: (
+    getRootProps: (
       externalProps?: React.ComponentPropsWithRef<'button'>,
     ) => React.ComponentPropsWithRef<'button'>;
   }
