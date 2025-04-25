@@ -1,4 +1,5 @@
 import * as React from 'react';
+import * as ReactDOM from 'react-dom';
 import {
   useClick,
   useDismiss,
@@ -175,19 +176,24 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
   React.useImperativeHandle(params.actionsRef, () => ({ unmount: handleUnmount }), [handleUnmount]);
 
   const setValue = useEventCallback((nextValue: any, event?: Event) => {
-    params.onValueChange?.(nextValue, event);
-    setValueUnwrapped(nextValue);
+    // The hidden `<input>` value needs to be updated synchronously for validation.
+    ReactDOM.flushSync(() => {
+      params.onValueChange?.(nextValue, event);
+      setValueUnwrapped(nextValue);
 
-    setDirty(nextValue !== validityData.initialValue);
-    clearErrors(name);
+      setDirty(nextValue !== validityData.initialValue);
+      clearErrors(name);
+
+      const index = valuesRef.current.indexOf(nextValue);
+      setSelectedIndex(index);
+      setLabel(labelsRef.current[index] ?? '');
+    });
+
+    fieldControlValidation.commitValidation(nextValue, true);
 
     if (validationMode === 'onChange') {
       fieldControlValidation.commitValidation(nextValue);
     }
-
-    const index = valuesRef.current.indexOf(nextValue);
-    setSelectedIndex(index);
-    setLabel(labelsRef.current[index] ?? '');
   });
 
   const hasRegisteredRef = React.useRef(false);

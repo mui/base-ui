@@ -35,9 +35,13 @@ export function useFieldControlValidation() {
     };
   }, []);
 
-  const commitValidation = useEventCallback(async (value: unknown) => {
+  const commitValidation = useEventCallback(async (value: unknown, revalidate = false) => {
     const element = inputRef.current;
     if (!element) {
+      return;
+    }
+
+    if (revalidate && state.valid) {
       return;
     }
 
@@ -190,6 +194,6 @@ export namespace useFieldControlValidation {
     getValidationProps: (props?: GenericHTMLProps) => GenericHTMLProps;
     getInputValidationProps: (props?: GenericHTMLProps) => GenericHTMLProps;
     inputRef: React.MutableRefObject<any>;
-    commitValidation: (value: unknown) => void;
+    commitValidation: (value: unknown, revalidate?: boolean) => void;
   }
 }

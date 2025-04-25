@@ -14,8 +14,8 @@ import styles from './form.module.css';
 
 const schema = z.object({
   input: z.string().min(1, 'Input is required'),
-  checkbox: z.boolean(),
-  switch: z.boolean(),
+  checkbox: z.enum(['on']),
+  switch: z.enum(['on']),
   slider: z.number().min(0).max(100),
   'number-field': z.number().min(0).max(100),
   select: z.enum(['sans', 'serif', 'mono', 'cursive']),
@@ -29,9 +29,8 @@ async function submitForm(event: React.FormEvent<HTMLFormElement>) {
 
   const entries = Object.fromEntries(formData as any);
 
-  entries.checkbox = formData.get('checkbox') === 'on';
-  entries.switch = formData.get('switch') === 'on';
-  entries['number-field'] = Number(entries['number-field']);
+  entries['number-field'] =
+    entries['number-field'] === '' ? null : Number(entries['number-field']);
   entries.slider = Number(entries.slider);
 
   const result = schema.safeParse(entries);

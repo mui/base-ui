@@ -171,6 +171,7 @@ export function useNumberFieldRoot(
       setValueUnwrapped(validatedValue);
       setDirty(validatedValue !== validityData.initialValue);
       clearErrors(name);
+      commitValidation(validatedValue, true);
 
       if (validationMode === 'onChange') {
         commitValidation(validatedValue);

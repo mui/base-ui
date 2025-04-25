@@ -86,6 +86,7 @@ export function useFieldControl(params: useFieldControl.Parameters) {
             setDirty(event.currentTarget.value !== validityData.initialValue);
             setFilled(event.currentTarget.value !== '');
             clearErrors(name);
+            commitValidation(event.currentTarget.value, true);
           },
           onFocus() {
             setFocused(true);

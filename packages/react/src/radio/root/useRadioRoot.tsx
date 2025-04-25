@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import * as ReactDOM from 'react-dom';
 import { mergeProps } from '../../merge-props';
 import { visuallyHidden } from '../../utils/visuallyHidden';
 import { useRadioGroupContext } from '../../radio-group/RadioGroupContext';
@@ -106,12 +107,17 @@ export function useRadioRoot(params: useRadioRoot.Parameters) {
               return;
             }
 
-            setFieldTouched(true);
-            setDirty(value !== validityData.initialValue);
-            setCheckedValue(value);
-            setFilled(true);
-            onValueChange?.(value, event.nativeEvent);
-            clearErrors(name);
+            // The hidden group `<input>` value needs to be updated synchronously for validation.
+            ReactDOM.flushSync(() => {
+              setFieldTouched(true);
+              setDirty(value !== validityData.initialValue);
+              setCheckedValue(value);
+              setFilled(true);
+              onValueChange?.(value, event.nativeEvent);
+              clearErrors(name);
+            });
+
+            fieldControlValidation?.commitValidation(value, true);
 
             if (validationMode === 'onChange') {
               fieldControlValidation?.commitValidation(value);
