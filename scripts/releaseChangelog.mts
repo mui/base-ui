@@ -11,7 +11,7 @@ import packageJson from '../package.json';
 const exec = promisify(childProcess.exec);
 
 async function main(parameters: CommandParameters) {
-  const { githubToken, lastRelease: previousReleaseParam, release } = parameters;
+  const { githubToken, lastRelease: previousReleaseParam, release, format } = parameters;
 
   if (!githubToken) {
     throw new TypeError(
@@ -39,6 +39,7 @@ async function main(parameters: CommandParameters) {
   const changelogEntries = await getChangelogEntries(commits, octokit);
   const changesList = getFormattedChangelogEntries(
     changelogEntries.filter((entry) => entry.scope === 'public-api'),
+    format,
   );
 
   const allContributors = getAllContributors(commits);
@@ -52,11 +53,11 @@ async function main(parameters: CommandParameters) {
   const changelog = `
 ## v${packageJson.version}
 
-_${today}_
+${format === 'changelog' ? `_${today}_` : `**${today}**`}
 
 ${changesList.join('\n')}
 
-All contributors of this release in alphabetical order: ${allContributors}
+${format === 'changelog' ? `All contributors of this release in alphabetical order: ${allContributors}` : ''}
 `;
 
   console.log(changelog);
@@ -90,8 +91,7 @@ async function findCommits(
     octokit.repos.compareCommitsWithBasehead.endpoint.merge({
       owner: 'mui',
       repo: 'base-ui',
-      base: previousRelease,
-      head: release,
+      basehead: `${previousRelease}...${release}`,
     }),
   );
 
@@ -178,13 +178,25 @@ async function getChangelogEntries(
   return (await Promise.all(promises)).filter((entry) => entry !== null);
 }
 
-function getFormattedChangelogEntries(changelogEntries: ChangelogEntry[]) {
+function getFormattedChangelogEntries(
+  changelogEntries: ChangelogEntry[],
+  format: 'changelog' | 'docs',
+) {
   const changes = new Map<string, { breaking: string[]; nonBreaking: string[] }>();
 
   for (const entry of changelogEntries) {
     const { title, prNumber, author, components, isBreakingChange } = entry;
 
-    const line = `- ${isBreakingChange ? '**Breaking change:** ' : ''}${title} (#${prNumber}) by @${author}`;
+    const formattedPrNumber =
+      format === 'changelog'
+        ? `(#${prNumber})`
+        : `([#${prNumber}](https://github.com/mui/base-ui/pull/${prNumber}))`;
+    let line: string;
+    if (isBreakingChange) {
+      line = `- **Breaking change:** ${title}.\n  ${chalk.red('TODO: DESCRIBE THE BREAKING CHANGE.')}\n  ${formattedPrNumber}${format === 'changelog' ? `by @${author}` : ''}`;
+    } else {
+      line = `- ${title} ${formattedPrNumber}${format === 'changelog' ? `by @${author}` : ''}`;
+    }
 
     for (const component of components) {
       if (!changes.has(component)) {
@@ -257,6 +269,8 @@ function cleanCommitMessage(commitMessage: string) {
     .split('\n')[0]
     .replace(/^(\[[A-Za-z0-9 ,]+\])+ /, '') // remove the leading tags
     .replace(/\(#\d+\)/, '') // remove the PR number
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
     .trim();
 }
 
@@ -270,6 +284,7 @@ interface CommandParameters {
   lastRelease?: string;
   githubToken: string;
   release: string;
+  format: 'changelog' | 'docs';
 }
 
 type ChangeScope = 'docs' | 'infra' | 'public-api' | 'refactoring' | 'dependencies' | 'release';
@@ -305,6 +320,12 @@ yargs(hideBin(process.argv))
           default: 'master',
           describe: 'Ref which we want to release',
           type: 'string',
+        })
+        .option('format', {
+          default: 'changelog',
+          describe: 'Format of the generated text. Either "changelog" or "docs"',
+          type: 'string',
+          choices: ['changelog', 'docs'],
         });
     },
     main,
