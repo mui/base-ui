@@ -22,15 +22,18 @@ const schema = z.object({
   'radio-group': z.enum(['fuji-apple', 'gala-apple', 'granny-smith-apple']),
 });
 
-async function submitForm(event: React.FormEvent<HTMLFormElement>) {
+interface Values {
+  numberField: number | null;
+}
+
+async function submitForm(event: React.FormEvent<HTMLFormElement>, values: Values) {
   event.preventDefault();
 
   const formData = new FormData(event.currentTarget);
 
   const entries = Object.fromEntries(formData as any);
 
-  entries['number-field'] =
-    entries['number-field'] === '' ? null : Number(entries['number-field']);
+  entries['number-field'] = values.numberField;
   entries.slider = Number(entries.slider);
 
   const result = schema.safeParse(entries);
@@ -49,6 +52,7 @@ async function submitForm(event: React.FormEvent<HTMLFormElement>) {
 export default function Page() {
   const [errors, setErrors] = React.useState({});
   const [native, setNative] = React.useState(true);
+  const numberFieldValueRef = React.useRef<number | null>(null);
 
   return (
     <div>
@@ -73,8 +77,9 @@ export default function Page() {
         errors={errors}
         onClearErrors={setErrors}
         onSubmit={async (event) => {
-          console.log('Submitting form');
-          const response = await submitForm(event);
+          const response = await submitForm(event, {
+            numberField: numberFieldValueRef.current,
+          });
           setErrors(response.errors);
         }}
       >
@@ -121,7 +126,13 @@ export default function Page() {
 
         <Field.Root name="number-field" className={styles.Field}>
           <Field.Label className={styles.Label}>Number Field</Field.Label>
-          <NumberField.Root required={native} className={styles.Field}>
+          <NumberField.Root
+            required={native}
+            className={styles.Field}
+            onValueChange={(value) => {
+              numberFieldValueRef.current = value;
+            }}
+          >
             <NumberField.Group className={styles.Group}>
               <NumberField.Decrement className={styles.Decrement}>
                 -
