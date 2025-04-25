@@ -12,24 +12,24 @@ import {
   ARROW_LEFT,
   ARROW_RIGHT,
   ARROW_UP,
-  buildCellMap,
   END,
-  findNonDisabledIndex,
-  getCellIndexOfCorner,
-  getCellIndices,
-  getGridNavigatedIndex,
-  getMaxIndex,
-  getMinIndex,
-  getTextDirection,
   HOME,
   HORIZONTAL_KEYS,
   HORIZONTAL_KEYS_WITH_EXTRA_KEYS,
-  isDisabled,
-  isIndexOutOfBounds,
-  isNativeInput,
   MODIFIER_KEYS,
   VERTICAL_KEYS,
   VERTICAL_KEYS_WITH_EXTRA_KEYS,
+  createGridCellMap,
+  findNonDisabledListIndex,
+  getGridCellIndexOfCorner,
+  getGridCellIndices,
+  getGridNavigatedIndex,
+  getMaxListIndex,
+  getMinListIndex,
+  isListIndexDisabled,
+  isIndexOutOfListBounds,
+  getTextDirection,
+  isNativeInput,
   type Dimensions,
   type ModifierKey,
 } from '../composite';
@@ -195,8 +195,8 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
             }
 
             let nextIndex = highlightedIndex;
-            const minIndex = getMinIndex(elementsRef, disabledIndices);
-            const maxIndex = getMaxIndex(elementsRef, disabledIndices);
+            const minIndex = getMinListIndex(elementsRef, disabledIndices);
+            const maxIndex = getMaxListIndex(elementsRef, disabledIndices);
 
             if (isGrid) {
               const sizes =
@@ -207,15 +207,15 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
                 }));
               // To calculate movements on the grid, we use hypothetical cell indices
               // as if every item was 1x1, then convert back to real indices.
-              const cellMap = buildCellMap(sizes, cols, dense);
+              const cellMap = createGridCellMap(sizes, cols, dense);
               const minGridIndex = cellMap.findIndex(
                 (index) =>
-                  index != null && !isDisabled(elementsRef.current, index, disabledIndices),
+                  index != null && !isListIndexDisabled(elementsRef, index, disabledIndices),
               );
               // last enabled index
               const maxGridIndex = cellMap.reduce(
                 (foundIndex: number, index, cellIndex) =>
-                  index != null && !isDisabled(elementsRef.current, index, disabledIndices)
+                  index != null && !isListIndexDisabled(elementsRef, index, disabledIndices)
                     ? cellIndex
                     : foundIndex,
                 -1,
@@ -235,11 +235,11 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
                     cols,
                     // treat undefined (empty grid spaces) as disabled indices so we
                     // don't end up in them
-                    disabledIndices: getCellIndices(
+                    disabledIndices: getGridCellIndices(
                       [
                         ...(disabledIndices ||
                           elementsRef.current.map((_, index) =>
-                            isDisabled(elementsRef.current, index) ? index : undefined,
+                            isListIndexDisabled(elementsRef, index) ? index : undefined,
                           )),
                         undefined,
                       ],
@@ -247,7 +247,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
                     ),
                     minIndex: minGridIndex,
                     maxIndex: maxGridIndex,
-                    prevIndex: getCellIndexOfCorner(
+                    prevIndex: getGridCellIndexOfCorner(
                       highlightedIndex > maxIndex ? minIndex : highlightedIndex,
                       sizes,
                       cellMap,
@@ -303,7 +303,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
               } else if (loop && nextIndex === minIndex && backwardKeys.includes(event.key)) {
                 nextIndex = maxIndex;
               } else {
-                nextIndex = findNonDisabledIndex(elementsRef, {
+                nextIndex = findNonDisabledListIndex(elementsRef, {
                   startingIndex: nextIndex,
                   decrement: backwardKeys.includes(event.key),
                   disabledIndices,
@@ -311,7 +311,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
               }
             }
 
-            if (nextIndex !== highlightedIndex && !isIndexOutOfBounds(elementsRef, nextIndex)) {
+            if (nextIndex !== highlightedIndex && !isIndexOutOfListBounds(elementsRef, nextIndex)) {
               if (stopEventPropagation) {
                 event.stopPropagation();
               }
