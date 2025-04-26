@@ -40,7 +40,7 @@
     "test:e2e:server": "serve test/e2e -p 5173",
     "test:regressions": "cross-env NODE_ENV=production pnpm test:regressions:build && concurrently --success first --kill-others \"pnpm test:regressions:run\" \"pnpm test:regressions:server\"",
     "test:regressions:build": "vite build --config test/regressions/vite.config.mjs",
-    "test:regressions:dev": "vite --config test/regressions/vite.config.mjs",
+    "test:regressions:dev": "vite --config test/regressions/vite.config.mjs --port 5173",
     "test:regressions:run": "cross-env VITEST_ENV=chromium vitest --project regressions",
     "test:regressions:server": "serve test/regressions -p 5173",
     "test:jsdom": "cross-env NODE_ENV=test VITEST_ENV=jsdom vitest --project @base-ui-components/react --project docs",
