@@ -14,12 +14,8 @@ import { useForcedRerendering } from '../../utils/useForcedRerendering';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useLatestRef } from '../../utils/useLatestRef';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
-import { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
-import { useForkRef } from '../../utils/useForkRef';
-import { useField } from '../../field/useField';
 import type { ScrubHandle } from './useScrub';
 import type { EventWithOptionalKeyState } from '../utils/types';
-import { useFormContext } from '../../form/FormContext';
 
 export function useNumberFieldRoot(
   params: useNumberFieldRoot.Parameters,
@@ -44,10 +40,8 @@ export function useNumberFieldRoot(
     locale,
   } = params;
 
-  const { clearErrors } = useFormContext();
   const {
     setControlId,
-    validationMode,
     setDirty,
     validityData,
     setValidityData,
@@ -56,8 +50,6 @@ export function useNumberFieldRoot(
     invalid,
     name: fieldName,
   } = useFieldRootContext();
-
-  const { inputRef: inputValidationRef, commitValidation } = useFieldControlValidation();
 
   const disabled = fieldDisabled || disabledProp;
   const name = fieldName ?? nameProp;
@@ -68,7 +60,6 @@ export function useNumberFieldRoot(
   const formatStyle = format?.style;
 
   const inputRef = React.useRef<HTMLInputElement>(null);
-  const mergedRef = useForkRef(inputRef, inputValidationRef);
 
   const id = useBaseUiId(idProp);
 
@@ -92,32 +83,6 @@ export function useNumberFieldRoot(
   useModernLayoutEffect(() => {
     setFilled(value !== null);
   }, [setFilled, value]);
-
-  useField({
-    id,
-    commitValidation,
-    value,
-    controlRef: inputRef,
-  });
-
-  const prevValueRef = React.useRef(value);
-
-  useEnhancedEffect(() => {
-    if (prevValueRef.current === value) {
-      return;
-    }
-
-    clearErrors(name);
-    commitValidation(value, true);
-
-    if (validationMode === 'onChange') {
-      commitValidation(value);
-    }
-  }, [value, name, clearErrors, validationMode, commitValidation]);
-
-  useEnhancedEffect(() => {
-    prevValueRef.current = value;
-  }, [value]);
 
   const forceRender = useForcedRerendering();
 
@@ -357,7 +322,6 @@ export function useNumberFieldRoot(
   return React.useMemo(
     () => ({
       inputRef,
-      mergedRef,
       inputValue,
       value,
       startAutoChange,
@@ -389,7 +353,6 @@ export function useNumberFieldRoot(
     }),
     [
       inputRef,
-      mergedRef,
       inputValue,
       value,
       scrub,
@@ -546,7 +509,6 @@ export namespace useNumberFieldRoot {
       event?: Event,
     ) => void;
     inputRef: React.RefObject<HTMLInputElement | null>;
-    mergedRef: ((instance: HTMLInputElement | null) => void) | null;
     allowInputSyncRef: React.RefObject<boolean | null>;
     formatOptionsRef: React.RefObject<Intl.NumberFormatOptions | undefined>;
     valueRef: React.RefObject<number | null>;

@@ -12,6 +12,9 @@ import { DEFAULT_STEP } from '../utils/constants';
 import { ARABIC_RE, HAN_RE, getNumberLocaleDetails, parseNumber } from '../utils/parse';
 import type { NumberFieldRoot } from '../root/NumberFieldRoot';
 import { styleHookMapping } from '../utils/styleHooks';
+import { useField } from '../../field/useField';
+import { useEnhancedEffect } from '../../utils';
+import { useFormContext } from '../../form/FormContext';
 
 const customStyleHookMapping = {
   ...fieldValidityMapping,
@@ -41,7 +44,6 @@ const NumberFieldInput = React.forwardRef(function NumberFieldInput(
     inputMode,
     inputValue,
     max,
-    mergedRef,
     min,
     name,
     readOnly,
@@ -51,8 +53,11 @@ const NumberFieldInput = React.forwardRef(function NumberFieldInput(
     valueRef,
     setInputValue,
     locale,
+    inputRef,
+    value,
   } = useNumberFieldRootContext();
 
+  const { clearErrors } = useFormContext();
   const { labelId, validationMode, setTouched, setFocused, invalid } = useFieldRootContext();
 
   const {
@@ -64,7 +69,34 @@ const NumberFieldInput = React.forwardRef(function NumberFieldInput(
 
   const hasTouchedInputRef = React.useRef(false);
 
-  const handleInputRef = useForkRef(forwardedRef, inputValidationRef, mergedRef);
+  const handleInputRef = useForkRef(forwardedRef, inputRef, inputValidationRef);
+
+  useField({
+    id,
+    commitValidation,
+    value,
+    controlRef: inputRef,
+  });
+
+  const prevValueRef = React.useRef(value);
+
+  useEnhancedEffect(() => {
+    if (prevValueRef.current === value) {
+      return;
+    }
+
+    clearErrors(name);
+
+    if (validationMode === 'onChange') {
+      commitValidation(value);
+    } else {
+      commitValidation(value, true);
+    }
+  }, [value, name, clearErrors, validationMode, commitValidation]);
+
+  useEnhancedEffect(() => {
+    prevValueRef.current = value;
+  }, [value]);
 
   const getInputProps = React.useCallback(
     (externalProps = {}) =>
@@ -295,7 +327,7 @@ const NumberFieldInput = React.forwardRef(function NumberFieldInput(
     ],
   );
 
-  const mergedInputRef = useForkRef(forwardedRef, mergedRef);
+  const mergedInputRef = useForkRef(forwardedRef, inputRef);
 
   const { renderElement } = useComponentRenderer({
     propGetter: getInputProps,
