@@ -29,7 +29,6 @@ const defaultTestContext = {
   isPointerLockDenied: false,
   max: undefined,
   maxWithDefault: 100,
-  mergedRef: (_node) => {},
   min: undefined,
   minWithDefault: 0,
   name: 'NumberField',
