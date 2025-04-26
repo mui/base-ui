@@ -22,6 +22,7 @@ import { validateMinimumDistance } from '../utils/validateMinimumDistance';
 import type { ThumbMetadata } from '../thumb/SliderThumb';
 import { sliderStyleHookMapping } from './styleHooks';
 import { SliderRootContext } from './SliderRootContext';
+import { useFormContext } from '../../form/FormContext';
 
 function areValuesEqual(
   newValue: number | readonly number[],
@@ -75,6 +76,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
     onValueCommittedProp as (value: number | readonly number[], event: Event) => void,
   );
 
+  const { clearErrors } = useFormContext();
   const {
     labelId,
     state: fieldState,
@@ -173,6 +175,8 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
 
       lastChangedValueRef.current = newValue;
       onValueChange(newValue, clonedEvent, thumbIndex);
+      clearErrors(name);
+      commitValidation(newValue, true);
     },
   );
 
@@ -185,10 +189,15 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
         setValue(newValue, index, event.nativeEvent);
         setDirty(newValue !== validityData.initialValue);
         setTouched(true);
-        onValueCommitted(lastChangedValueRef.current ?? newValue, event.nativeEvent);
+
+        const nextValue = lastChangedValueRef.current ?? newValue;
+        onValueCommitted(nextValue, event.nativeEvent);
+        clearErrors(name);
 
         if (validationMode === 'onChange') {
-          commitValidation(lastChangedValueRef.current ?? newValue);
+          commitValidation(nextValue ?? newValue);
+        } else {
+          commitValidation(nextValue ?? newValue, true);
         }
       }
     },

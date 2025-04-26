@@ -138,7 +138,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
 
   const prevValueRef = React.useRef(value);
 
-  useEnhancedEffect(() => {
+  useModernLayoutEffect(() => {
     if (prevValueRef.current === value) {
       return;
     }
@@ -150,7 +150,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     }
   }, [value, commitValidation, clearErrors, name, validationMode]);
 
-  useEnhancedEffect(() => {
+  useModernLayoutEffect(() => {
     prevValueRef.current = value;
   }, [value]);
 

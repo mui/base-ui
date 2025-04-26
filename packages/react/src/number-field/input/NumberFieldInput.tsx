@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { useModernLayoutEffect } from '@floating-ui/react/utils';
 import { useNumberFieldRootContext } from '../root/NumberFieldRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useForkRef } from '../../utils/useForkRef';
@@ -13,7 +14,6 @@ import { ARABIC_RE, HAN_RE, getNumberLocaleDetails, parseNumber } from '../utils
 import type { NumberFieldRoot } from '../root/NumberFieldRoot';
 import { styleHookMapping } from '../utils/styleHooks';
 import { useField } from '../../field/useField';
-import { useEnhancedEffect } from '../../utils';
 import { useFormContext } from '../../form/FormContext';
 
 const customStyleHookMapping = {
@@ -79,9 +79,10 @@ const NumberFieldInput = React.forwardRef(function NumberFieldInput(
   });
 
   const prevValueRef = React.useRef(value);
+  const prevInputValueRef = React.useRef(inputValue);
 
-  useEnhancedEffect(() => {
-    if (prevValueRef.current === value) {
+  useModernLayoutEffect(() => {
+    if (prevValueRef.current === value && prevInputValueRef.current === inputValue) {
       return;
     }
 
@@ -92,11 +93,12 @@ const NumberFieldInput = React.forwardRef(function NumberFieldInput(
     } else {
       commitValidation(value, true);
     }
-  }, [value, name, clearErrors, validationMode, commitValidation]);
+  }, [value, inputValue, name, clearErrors, validationMode, commitValidation]);
 
-  useEnhancedEffect(() => {
+  useModernLayoutEffect(() => {
     prevValueRef.current = value;
-  }, [value]);
+    prevInputValueRef.current = inputValue;
+  }, [value, inputValue]);
 
   const getInputProps = React.useCallback(
     (externalProps = {}) =>

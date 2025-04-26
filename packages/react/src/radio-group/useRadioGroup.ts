@@ -1,13 +1,13 @@
 'use client';
 import * as React from 'react';
-import { contains } from '@floating-ui/react/utils';
+import { contains, useModernLayoutEffect } from '@floating-ui/react/utils';
 import { mergeProps } from '../merge-props';
 import { useControlled } from '../utils/useControlled';
 import { useFieldRootContext } from '../field/root/FieldRootContext';
 import { useBaseUiId } from '../utils/useBaseUiId';
 import { useFieldControlValidation } from '../field/control/useFieldControlValidation';
 import { useField } from '../field/useField';
-import { useEnhancedEffect, visuallyHidden } from '../utils';
+import { visuallyHidden } from '../utils/visuallyHidden';
 import { useFormContext } from '../form/FormContext';
 
 export function useRadioGroup(params: useRadioGroup.Parameters) {
@@ -53,20 +53,21 @@ export function useRadioGroup(params: useRadioGroup.Parameters) {
 
   const prevValueRef = React.useRef(checkedValue);
 
-  useEnhancedEffect(() => {
+  useModernLayoutEffect(() => {
     if (prevValueRef.current === checkedValue) {
       return;
     }
 
     clearErrors(name);
-    fieldControlValidation.commitValidation(checkedValue, true);
 
     if (validationMode === 'onChange') {
       fieldControlValidation.commitValidation(checkedValue);
+    } else {
+      fieldControlValidation.commitValidation(checkedValue, true);
     }
   }, [name, clearErrors, validationMode, checkedValue, fieldControlValidation]);
 
-  useEnhancedEffect(() => {
+  useModernLayoutEffect(() => {
     prevValueRef.current = checkedValue;
   }, [checkedValue]);
 

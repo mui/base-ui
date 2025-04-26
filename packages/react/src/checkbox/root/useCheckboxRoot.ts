@@ -195,10 +195,11 @@ export function useCheckboxRoot(params: useCheckboxRoot.Parameters): useCheckbox
 
             if (!groupContext) {
               setFilled(nextChecked);
-              commitValidation(nextChecked, true);
 
               if (validationMode === 'onChange') {
                 commitValidation(nextChecked);
+              } else {
+                commitValidation(nextChecked, true);
               }
             }
 
@@ -210,9 +211,10 @@ export function useCheckboxRoot(params: useCheckboxRoot.Parameters): useCheckbox
               setGroupValue(nextGroupValue, event.nativeEvent);
               setFilled(nextGroupValue.length > 0);
 
-              commitValidation(nextGroupValue, true);
               if (validationMode === 'onChange') {
                 commitValidation(nextGroupValue);
+              } else {
+                commitValidation(nextGroupValue, true);
               }
             }
           },

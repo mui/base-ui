@@ -163,10 +163,11 @@ export function useSwitchRoot(params: useSwitchRoot.Parameters): useSwitchRoot.R
             setCheckedState(nextChecked);
             onCheckedChange?.(nextChecked, event.nativeEvent);
             clearErrors(name);
-            commitValidation(nextChecked, true);
 
             if (validationMode === 'onChange') {
               commitValidation(nextChecked);
+            } else {
+              commitValidation(nextChecked, true);
             }
           },
         },
