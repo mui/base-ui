@@ -147,9 +147,23 @@ describe('<Toast.Root />', () => {
       });
       // Fire an initial move event close to the start to trigger the isFirstPointerMoveRef logic correctly.
       // This simulates the finger moving slightly before the main swipe movement is registered.
+      let deltaX = 0;
+      if (endX > startX) {
+        deltaX = 1;
+      } else if (endX < startX) {
+        deltaX = -1;
+      }
+
+      let deltaY = 0;
+      if (endY > startY) {
+        deltaY = 1;
+      } else if (endY < startY) {
+        deltaY = -1;
+      }
+
       fireEvent.pointerMove(element, {
-        clientX: startX + (endX > startX ? 1 : endX < startX ? -1 : 0),
-        clientY: startY + (endY > startY ? 1 : endY < startY ? -1 : 0),
+        clientX: startX + deltaX,
+        clientY: startY + deltaY,
         bubbles: true,
         pointerId: 1,
       });
