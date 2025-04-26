@@ -16,7 +16,7 @@ const schema = z.object({
   input: z.string().min(1, 'Input is required'),
   checkbox: z.enum(['on']),
   switch: z.enum(['on']),
-  slider: z.number().min(0).max(100),
+  slider: z.number().min(40),
   'number-field': z.number().min(0).max(100),
   select: z.enum(['sans', 'serif', 'mono', 'cursive']),
   'radio-group': z.enum(['fuji-apple', 'gala-apple', 'granny-smith-apple']),
