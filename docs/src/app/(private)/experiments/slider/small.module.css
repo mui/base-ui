@@ -27,9 +27,21 @@
 
 .Track {
   width: 100%;
-  height: 0.25rem;
-  background-color: var(--color-gray-200);
+  height: 0.625rem;
+
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: space-between;
   user-select: none;
+
+  &:before {
+    content: '';
+    width: 100%;
+    height: 0.25rem;
+    position: absolute;
+    top: 30%;
+    background-color: var(--color-gray-200);
+  }
 }
 
 .Indicator {
@@ -51,27 +63,17 @@
   }
 }
 
-.Marks {
-  position: absolute;
-  width: 100%;
-  height: 180%;
-  top: -40%;
-  left: 0;
-  right: 0;
-  display: flex;
-  flex-flow: row nowrap;
-  justify-content: space-between;
-}
-
 .Mark {
+  z-index: 0;
   width: 1px;
   height: 100%;
   background-color: var(--color-gray-500);
 }
 
-.Small:last-of-type {
-  text-align: right;
-  &:dir(rtl) {
-    text-align: left;
+.Small {
+  font-size: 0.75rem;
+
+  &:last-of-type {
+    text-align: end;
   }
 }

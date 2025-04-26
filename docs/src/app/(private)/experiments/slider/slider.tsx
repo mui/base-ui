@@ -37,14 +37,12 @@ function DelayUntilRepeat() {
       </span>
       <Slider.Control className={smallStyles.Control}>
         <Slider.Track className={smallStyles.Track}>
-          <span className={smallStyles.Marks}>
-            <span className={smallStyles.Mark} />
-            <span className={smallStyles.Mark} />
-            <span className={smallStyles.Mark} />
-            <span className={smallStyles.Mark} />
-            <span className={smallStyles.Mark} />
-            <span className={smallStyles.Mark} />
-          </span>
+          <span className={smallStyles.Mark} />
+          <span className={smallStyles.Mark} />
+          <span className={smallStyles.Mark} />
+          <span className={smallStyles.Mark} />
+          <span className={smallStyles.Mark} />
+          <span className={smallStyles.Mark} />
           <Slider.Thumb
             /* getAriaValueText could be used so more meaningful values are announced  */
             className={smallStyles.Thumb}
