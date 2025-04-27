@@ -256,18 +256,13 @@ export function useAnchorPositioning(
   const registeredPositionReferenceRef = React.useRef<Element | VirtualElement | null>(null);
 
   useEnhancedEffect(() => {
-    if (!mounted) {
-      return;
-    }
-
     const anchorValue = anchorValueRef.current;
     const resolvedAnchor = typeof anchorValue === 'function' ? anchorValue() : anchorValue;
+    const unwrappedElement =
+      (isRef(resolvedAnchor) ? resolvedAnchor.current : resolvedAnchor) || null;
 
-    if (resolvedAnchor) {
-      const unwrappedElement = isRef(resolvedAnchor) ? resolvedAnchor.current : resolvedAnchor;
-      refs.setPositionReference(unwrappedElement);
-      registeredPositionReferenceRef.current = unwrappedElement;
-    }
+    refs.setPositionReference(unwrappedElement);
+    registeredPositionReferenceRef.current = unwrappedElement;
   }, [mounted, refs, anchorDep, anchorValueRef]);
 
   React.useEffect(() => {
