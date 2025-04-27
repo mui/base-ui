@@ -22,6 +22,7 @@ import { getSide, getAlignment, type Rect } from '@floating-ui/utils';
 import { useEnhancedEffect } from './useEnhancedEffect';
 import { useDirection } from '../direction-provider/DirectionContext';
 import { useLatestRef } from './useLatestRef';
+import { useEventCallback } from './useEventCallback';
 
 function getLogicalSide(sideParam: Side, renderedSide: PhysicalSide, isRtl: boolean): Side {
   const isLogicalSideParam = sideParam === 'inline-start' || sideParam === 'inline-end';
@@ -73,6 +74,11 @@ export function useAnchorPositioning(
     trackAnchor = true,
     nodeId,
   } = params;
+
+  const anchorFn = typeof anchor === 'function' ? anchor : undefined;
+  const anchorFnCallback = useEventCallback(anchorFn);
+  const anchorFnDep = anchorFn ? anchorFnCallback : undefined;
+  const anchorValueRef = useLatestRef(anchor);
 
   const direction = useDirection();
   const isRtl = direction === 'rtl';
@@ -254,6 +260,7 @@ export function useAnchorPositioning(
       return;
     }
 
+    const anchor = anchorValueRef.current;
     const resolvedAnchor = typeof anchor === 'function' ? anchor() : anchor;
 
     if (resolvedAnchor) {
@@ -261,12 +268,14 @@ export function useAnchorPositioning(
       refs.setPositionReference(unwrappedElement);
       registeredPositionReferenceRef.current = unwrappedElement;
     }
-  }, [mounted, refs, anchor]);
+  }, [mounted, refs, anchorFnDep]);
 
   React.useEffect(() => {
     if (!mounted) {
       return;
     }
+
+    const anchor = anchorValueRef.current;
 
     // Refs from parent components are set after useLayoutEffect runs and are available in useEffect.
     // Therefore, if the anchor is a ref, we need to update the position reference in useEffect.
@@ -278,7 +287,7 @@ export function useAnchorPositioning(
       refs.setPositionReference(anchor.current);
       registeredPositionReferenceRef.current = anchor.current;
     }
-  }, [mounted, refs, anchor]);
+  }, [mounted, refs, anchorFnDep]);
 
   React.useEffect(() => {
     if (keepMounted && mounted && elements.domReference && elements.floating) {
