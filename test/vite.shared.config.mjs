@@ -5,7 +5,6 @@ import react from '@vitejs/plugin-react';
 export default defineConfig({
   mode: process.env.NODE_ENV || 'development',
   plugins: [react()],
-
   resolve: {
     alias: {
       '@base-ui-components/react': path.join(process.cwd(), 'packages/react/src'),
@@ -15,6 +14,5 @@ export default defineConfig({
       zlib: null,
     },
   },
-
   build: { outDir: 'build', chunkSizeWarningLimit: 9999 },
 });
