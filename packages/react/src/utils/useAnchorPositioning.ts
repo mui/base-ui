@@ -77,7 +77,7 @@ export function useAnchorPositioning(
 
   const anchorFn = typeof anchor === 'function' ? anchor : undefined;
   const anchorFnCallback = useEventCallback(anchorFn);
-  const anchorFnDep = anchorFn ? anchorFnCallback : undefined;
+  const anchorDep = anchorFn ? anchorFnCallback : anchor;
   const anchorValueRef = useLatestRef(anchor);
 
   const direction = useDirection();
@@ -268,7 +268,7 @@ export function useAnchorPositioning(
       refs.setPositionReference(unwrappedElement);
       registeredPositionReferenceRef.current = unwrappedElement;
     }
-  }, [mounted, refs, anchorFnDep]);
+  }, [mounted, refs, anchorDep]);
 
   React.useEffect(() => {
     if (!mounted) {
@@ -287,7 +287,7 @@ export function useAnchorPositioning(
       refs.setPositionReference(anchor.current);
       registeredPositionReferenceRef.current = anchor.current;
     }
-  }, [mounted, refs, anchorFnDep]);
+  }, [mounted, refs, anchorDep]);
 
   React.useEffect(() => {
     if (keepMounted && mounted && elements.domReference && elements.floating) {
