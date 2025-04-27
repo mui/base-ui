@@ -61,7 +61,7 @@
     "disabled": {
       "type": "boolean",
       "default": "false",
-      "description": "Whether the component should ignore user interaction."
+      "description": "Whether the slider should ignore user interaction."
     },
     "orientation": {
       "type": "Orientation",
