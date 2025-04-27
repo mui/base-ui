@@ -260,34 +260,34 @@ export function useAnchorPositioning(
       return;
     }
 
-    const anchor = anchorValueRef.current;
-    const resolvedAnchor = typeof anchor === 'function' ? anchor() : anchor;
+    const anchorValue = anchorValueRef.current;
+    const resolvedAnchor = typeof anchorValue === 'function' ? anchorValue() : anchorValue;
 
     if (resolvedAnchor) {
       const unwrappedElement = isRef(resolvedAnchor) ? resolvedAnchor.current : resolvedAnchor;
       refs.setPositionReference(unwrappedElement);
       registeredPositionReferenceRef.current = unwrappedElement;
     }
-  }, [mounted, refs, anchorDep]);
+  }, [mounted, refs, anchorDep, anchorValueRef]);
 
   React.useEffect(() => {
     if (!mounted) {
       return;
     }
 
-    const anchor = anchorValueRef.current;
+    const anchorValue = anchorValueRef.current;
 
     // Refs from parent components are set after useLayoutEffect runs and are available in useEffect.
     // Therefore, if the anchor is a ref, we need to update the position reference in useEffect.
-    if (typeof anchor === 'function') {
+    if (typeof anchorValue === 'function') {
       return;
     }
 
-    if (isRef(anchor) && anchor.current !== registeredPositionReferenceRef.current) {
-      refs.setPositionReference(anchor.current);
-      registeredPositionReferenceRef.current = anchor.current;
+    if (isRef(anchorValue) && anchorValue.current !== registeredPositionReferenceRef.current) {
+      refs.setPositionReference(anchorValue.current);
+      registeredPositionReferenceRef.current = anchorValue.current;
     }
-  }, [mounted, refs, anchorDep]);
+  }, [mounted, refs, anchorDep, anchorValueRef]);
 
   React.useEffect(() => {
     if (keepMounted && mounted && elements.domReference && elements.floating) {
