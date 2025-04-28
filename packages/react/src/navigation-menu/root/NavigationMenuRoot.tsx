@@ -212,6 +212,8 @@ function TreeContext(props: {
     value: valueParam,
     onValueChange,
     actionsRef,
+    delay,
+    closeDelay,
     ...elementProps
   } = props.componentProps;
 

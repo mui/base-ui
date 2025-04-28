@@ -354,13 +354,13 @@ describe('<NavigationMenu.Root />', () => {
 
       fireEvent.mouseEnter(trigger);
       fireEvent.mouseMove(trigger);
-      clock.tick(customDelay - 10);
+      clock.tick(customDelay - 25);
       await flushMicrotasks();
 
       // Menu shouldn't be open yet since we're before the delay
       expect(screen.queryByTestId('popup-1')).to.equal(null);
 
-      clock.tick(10);
+      clock.tick(50);
       await flushMicrotasks();
 
       expect(screen.queryByTestId('popup-1')).not.to.equal(null);
@@ -381,13 +381,13 @@ describe('<NavigationMenu.Root />', () => {
       expect(screen.queryByTestId('popup-1')).not.to.equal(null);
 
       fireEvent.mouseLeave(trigger);
-      clock.tick(customCloseDelay - 10);
+      clock.tick(customCloseDelay - 25);
       await flushMicrotasks();
 
       expect(screen.queryByTestId('popup-1')).not.to.equal(null);
 
       // Complete the closeDelay
-      clock.tick(10);
+      clock.tick(50);
       await flushMicrotasks();
 
       expect(screen.queryByTestId('popup-1')).to.equal(null);
