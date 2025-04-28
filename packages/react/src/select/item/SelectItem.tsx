@@ -8,7 +8,7 @@ import { useForkRef } from '../../utils/useForkRef';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useSelectItem } from './useSelectItem';
-import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
+import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { useLatestRef } from '../../utils/useLatestRef';
 import { SelectItemContext } from './SelectItemContext';
 
@@ -161,7 +161,7 @@ const SelectItem = React.forwardRef(function SelectItem(
 
   const hasRegistered = listItem.index !== -1;
 
-  useEnhancedEffect(() => {
+  useModernLayoutEffect(() => {
     if (!hasRegistered) {
       return undefined;
     }
@@ -174,7 +174,7 @@ const SelectItem = React.forwardRef(function SelectItem(
     };
   }, [hasRegistered, listItem.index, valueProp, valuesRef]);
 
-  useEnhancedEffect(() => {
+  useModernLayoutEffect(() => {
     if (hasRegistered && valueProp === value) {
       registerSelectedItem(listItem.index);
     }

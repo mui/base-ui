@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useEnhancedEffect } from './useEnhancedEffect';
+import { useModernLayoutEffect } from './useModernLayoutEffect';
 
 export type TransitionStatus = 'starting' | 'ending' | 'idle' | undefined;
 
@@ -27,7 +27,7 @@ export function useTransitionStatus(open: boolean) {
     setTransitionStatus(undefined);
   }
 
-  useEnhancedEffect(() => {
+  useModernLayoutEffect(() => {
     if (!open) {
       return undefined;
     }

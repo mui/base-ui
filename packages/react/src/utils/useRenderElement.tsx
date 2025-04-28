@@ -26,10 +26,11 @@ const emptyObject = {};
 export function useRenderElement<
   State extends Record<string, any>,
   RenderedElementType extends Element,
+  TagName extends keyof React.JSX.IntrinsicElements | undefined,
 >(
-  element: keyof React.JSX.IntrinsicElements | undefined,
+  element: TagName,
   componentProps: useRenderElement.ComponentProps<State>,
-  params: useRenderElement.Parameters<State, RenderedElementType> = {},
+  params: useRenderElement.Parameters<State, RenderedElementType, TagName> = {},
 ) {
   const { className: classNameProp, render: renderProp } = componentProps;
   const {
@@ -72,8 +73,12 @@ export function useRenderElement<
   return () => evaluateRenderProp(render, propsWithRef, state);
 }
 
+type RenderFunctionProps<TagName> = TagName extends keyof React.JSX.IntrinsicElements
+  ? React.JSX.IntrinsicElements[TagName]
+  : React.HTMLAttributes<any>;
+
 export namespace useRenderElement {
-  export interface Parameters<State, RenderedElementType extends Element> {
+  export interface Parameters<State, RenderedElementType extends Element, TagName> {
     /**
      * @deprecated
      */
@@ -90,8 +95,11 @@ export namespace useRenderElement {
      * Intrinsic props to be spread on the rendered element.
      */
     props?:
-      | GenericHTMLProps
-      | Array<GenericHTMLProps | ((props: GenericHTMLProps) => GenericHTMLProps)>;
+      | RenderFunctionProps<TagName>
+      | Array<
+          | RenderFunctionProps<TagName>
+          | ((props: RenderFunctionProps<TagName>) => RenderFunctionProps<TagName>)
+        >;
     /**
      * A mapping of state to style hooks.
      */

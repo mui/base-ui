@@ -41,6 +41,12 @@ module.exports = {
     'no-irregular-whitespace': [1, { skipJSXText: true, skipStrings: true }],
     'react/no-unescaped-entities': [1, { forbid: ['>', '}'] }],
     'react/prop-types': 'off',
+    'react-hooks/exhaustive-deps': [
+      'error',
+      {
+        additionalHooks: 'useModernLayoutEffect',
+      },
+    ],
     'react/no-unused-prop-types': 'off',
     'material-ui/straight-quotes': 'off',
     // This prevents us from creating components like `<h1 {...props} />`

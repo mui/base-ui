@@ -5,7 +5,7 @@ import { useButton } from '../../use-button';
 import { mergeProps } from '../../merge-props';
 import { GenericHTMLProps, BaseUIEvent } from '../../utils/types';
 import { useForkRef } from '../../utils/useForkRef';
-import { useEnhancedEffect } from '../../utils';
+import { useModernLayoutEffect } from '../../utils';
 import { addHighlight, removeHighlight } from '../../utils/highlighted';
 
 export function useMenuItem(params: useMenuItem.Parameters): useMenuItem.ReturnValue {
@@ -28,7 +28,7 @@ export function useMenuItem(params: useMenuItem.Parameters): useMenuItem.ReturnV
     buttonRef: useForkRef(externalRef, itemRef),
   });
 
-  useEnhancedEffect(() => {
+  useModernLayoutEffect(() => {
     if (highlighted) {
       addHighlight(itemRef);
     } else {

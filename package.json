@@ -9,7 +9,7 @@
     "build:codesandbox": "NODE_OPTIONS=\"--max_old_space_size=4096\" lerna run --concurrency 8 --no-private build",
     "release:version": "lerna version --no-changelog --no-push --no-git-tag-version --no-private",
     "release:build": "lerna run --concurrency 8 --no-private build --skip-nx-cache",
-    "release:changelog": "node scripts/releaseChangelog.mjs",
+    "release:changelog": "tsx scripts/releaseChangelog.mts",
     "release:publish": "pnpm publish --recursive --tag latest",
     "release:publish:dry-run": "pnpm publish --recursive --tag latest --registry=\"http://localhost:4873/\"",
     "release:tag": "node scripts/releaseTag.mjs --repo base-ui",
