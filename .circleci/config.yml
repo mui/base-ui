@@ -27,7 +27,7 @@ default-job: &default-job
     COREPACK_ENABLE_DOWNLOAD_PROMPT: '0'
   working_directory: /tmp/base-ui
   docker:
-    - image: cimg/node:18.20
+    - image: cimg/node:20.17
 
 default-context: &default-context
   context:
