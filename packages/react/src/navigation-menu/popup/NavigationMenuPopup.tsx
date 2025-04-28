@@ -10,6 +10,7 @@ import { transitionStatusMapping } from '../../utils/styleHookMapping';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { FocusGuard } from '../../toast/viewport/FocusGuard';
 import { useNavigationMenuPositionerContext } from '../positioner/NavigationMenuPositionerContext';
+import { useDirection } from '../../direction-provider/DirectionContext';
 
 /**
  * A container for the navigation menu contents.
@@ -36,6 +37,7 @@ export const NavigationMenuPopup = React.forwardRef(function NavigationMenuPopup
     afterOutsideRef,
   } = useNavigationMenuRootContext();
   const positioning = useNavigationMenuPositionerContext();
+  const direction = useDirection();
 
   const id = useBaseUiId(idProp);
 
@@ -89,7 +91,7 @@ export const NavigationMenuPopup = React.forwardRef(function NavigationMenuPopup
     return () => {
       cancelAnimationFrame(frame);
     };
-  }, [positionerElement, popupElement, value]);
+  }, [positionerElement, value, popupElement]);
 
   // Allow the arrow to transition while the popup's size transitions.
   useModernLayoutEffect(() => {
@@ -104,10 +106,34 @@ export const NavigationMenuPopup = React.forwardRef(function NavigationMenuPopup
     };
   }, [popupElement, positioning.update]);
 
+  // Ensure popup size transitions correctly when anchored to `bottom` (side=top) or `right` (side=left).
+  let isOriginSide = positioning.side === 'top';
+  let isPhysicalLeft = positioning.side === 'left';
+  if (direction === 'rtl') {
+    isOriginSide = isOriginSide || positioning.side === 'inline-end';
+    isPhysicalLeft = isPhysicalLeft || positioning.side === 'inline-end';
+  } else {
+    isOriginSide = isOriginSide || positioning.side === 'inline-start';
+    isPhysicalLeft = isPhysicalLeft || positioning.side === 'inline-start';
+  }
+
   const renderElement = useRenderElement('nav', componentProps, {
     state,
     ref: [forwardedRef, setPopupElement],
-    props: [{ id, tabIndex: -1 }, elementProps],
+    props: [
+      {
+        id,
+        tabIndex: -1,
+        style: isOriginSide
+          ? {
+              position: 'absolute',
+              [positioning.side === 'top' ? 'bottom' : 'top']: '0',
+              [isPhysicalLeft ? 'right' : 'left']: '0',
+            }
+          : {},
+      },
+      elementProps,
+    ],
     customStyleHookMapping: transitionStatusMapping,
   });
 
