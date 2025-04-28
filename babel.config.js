@@ -38,8 +38,7 @@ module.exports = function getBabelConfig(api) {
       },
     ],
     ['@babel/plugin-transform-runtime', { regenerator: false, version: '^7.26.10' }],
-    'babel-plugin-add-import-extension',
-    '@babel/plugin-transform-react-constant-elements',
+    ...(useESModules ? ['babel-plugin-add-import-extension'] : []),
   ];
 
   return {
@@ -58,5 +57,16 @@ module.exports = function getBabelConfig(api) {
       /@babel[\\|/]runtime/, // Fix a Windows issue.
       '**/*.template.js',
     ],
+    overrides: [
+      {
+        exclude: /\.test\.(js|ts|tsx)$/,
+        plugins: ['@babel/plugin-transform-react-constant-elements'],
+      },
+    ],
+    env: {
+      test: {
+        sourceMaps: 'both',
+      },
+    },
   };
 };

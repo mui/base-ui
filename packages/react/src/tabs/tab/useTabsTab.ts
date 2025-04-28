@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { mergeProps } from '../../merge-props';
 import { ownerDocument } from '../../utils/owner';
-import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
+import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { useForkRef } from '../../utils/useForkRef';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useButton } from '../../use-button';
@@ -60,7 +60,7 @@ function useTabsTab(parameters: useTabsTab.Parameters): useTabsTab.ReturnValue {
 
   const isSelectionSyncedWithHighlightRef = React.useRef(false);
 
-  useEnhancedEffect(() => {
+  useModernLayoutEffect(() => {
     if (isSelectionSyncedWithHighlightRef.current === true) {
       return;
     }

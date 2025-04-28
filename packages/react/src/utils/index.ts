@@ -2,7 +2,7 @@
 
 export * from './getReactElementRef';
 export * from './useControlled';
-export * from './useEnhancedEffect';
+export * from './useModernLayoutEffect';
 export * from './useForkRef';
 export * from './useId';
 export * from './useScrollLock';
