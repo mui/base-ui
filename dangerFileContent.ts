@@ -5,7 +5,7 @@ declare const danger: (typeof dangerModule)['danger'];
 declare const markdown: (typeof dangerModule)['markdown'];
 
 const circleCIBuildNumber = process.env.CIRCLE_BUILD_NUM;
-const circleCIBuildUrl = `https://app.circleci.com/pipelines/github/mui/material-ui/jobs/${circleCIBuildNumber}`;
+const circleCIBuildUrl = `https://app.circleci.com/pipelines/github/mui/base-ui/jobs/${circleCIBuildNumber}`;
 const dangerCommand = process.env.DANGER_COMMAND;
 
 function prepareBundleSizeReport() {
