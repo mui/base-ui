@@ -36,6 +36,16 @@
       "type": "((open: boolean) => void)",
       "description": "Event handler called after any animations complete when the navigation menu is closed."
     },
+    "delay": {
+      "type": "number",
+      "default": "50",
+      "description": "The amount of time in milliseconds to wait before opening the menu on hover."
+    },
+    "closeDelay": {
+      "type": "number",
+      "default": "100",
+      "description": "The amount of time in milliseconds to wait before closing the menu on mouse leave."
+    },
     "className": {
       "type": "string | ((state: State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
