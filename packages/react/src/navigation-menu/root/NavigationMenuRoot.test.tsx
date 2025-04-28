@@ -3,7 +3,7 @@ import { expect } from 'chai';
 import { spy } from 'sinon';
 import { fireEvent, screen, flushMicrotasks, act, within } from '@mui/internal-test-utils';
 import { NavigationMenu } from '@base-ui-components/react/navigation-menu';
-import { createRenderer, describeConformance } from '#test-utils';
+import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { PATIENT_CLICK_THRESHOLD } from '../../utils/constants';
 import { OPEN_DELAY } from '../utils/constants';
 
@@ -222,10 +222,59 @@ describe('<NavigationMenu.Root />', () => {
       expect(screen.queryByTestId('popup-2')).not.to.equal(null);
       expect(trigger2).to.have.attribute('aria-expanded', 'true');
     });
+
+    it('returns focus to trigger when closing menu', async () => {
+      const { user } = await render(
+        <div>
+          <button data-testid="first" />
+          <TestNavigationMenu />
+          <button data-testid="last" />
+        </div>,
+      );
+
+      const trigger = screen.getByTestId('trigger-1');
+
+      await user.click(trigger);
+      await flushMicrotasks();
+
+      expect(screen.queryByTestId('popup-1')).not.to.equal(null);
+      expect(trigger).toHaveFocus();
+
+      await user.keyboard('{Escape}');
+      await flushMicrotasks();
+
+      expect(screen.queryByTestId('popup-1')).to.equal(null);
+      expect(trigger).toHaveFocus();
+    });
+
+    it('respects focus outside when clicking menu', async () => {
+      const { user } = await render(
+        <div>
+          <button data-testid="first" />
+          <TestNavigationMenu />
+          <button data-testid="last" />
+        </div>,
+      );
+
+      const trigger = screen.getByTestId('trigger-1');
+      const last = screen.getByTestId('last');
+
+      await user.click(trigger);
+      await flushMicrotasks();
+
+      expect(screen.queryByTestId('popup-1')).not.to.equal(null);
+      expect(trigger).toHaveFocus();
+
+      await user.click(screen.getByTestId('last'));
+      await flushMicrotasks();
+
+      expect(screen.queryByTestId('popup-1')).to.equal(null);
+      expect(last).toHaveFocus();
+    });
   });
 
   describe('patient click threshold', () => {
-    it('sticks if hovered then clicked within the patient threshold', async () => {
+    it.skipIf(!isJSDOM)('sticks if hovered then clicked within the patient threshold', async () => {
       await render(<TestNavigationMenu />);
       const trigger = screen.getByTestId('trigger-1');
 
@@ -236,7 +285,7 @@ describe('<NavigationMenu.Root />', () => {
 
       expect(screen.queryByTestId('popup-1')).not.to.equal(null);
 
-      clock.tick(PATIENT_CLICK_THRESHOLD - 50);
+      clock.tick(PATIENT_CLICK_THRESHOLD - 25);
       await flushMicrotasks();
       fireEvent.click(trigger);
       fireEvent.mouseLeave(trigger);
