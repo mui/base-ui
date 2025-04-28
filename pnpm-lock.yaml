@@ -747,6 +747,12 @@ importers:
         specifier: ^17.7.2
         version: 17.7.2
 
+  test/node-resolution:
+    dependencies:
+      '@base-ui-components/react':
+        specifier: workspace:*
+        version: link:../../packages/react/build
+
 packages:
 
   '@alloc/quick-lru@5.2.0':

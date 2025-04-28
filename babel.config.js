@@ -3,21 +3,8 @@ const path = require('path');
 const errorCodesPath = path.resolve(__dirname, './docs/public/static/error-codes.json');
 const missingError = process.env.MUI_EXTRACT_ERROR_CODES === 'true' ? 'write' : 'annotate';
 
-function resolveAliasPath(relativeToBabelConf) {
-  const resolvedPath = path.relative(process.cwd(), path.resolve(__dirname, relativeToBabelConf));
-  return `./${resolvedPath.replace('\\', '/')}`;
-}
-
 module.exports = function getBabelConfig(api) {
   const useESModules = !api.env(['node']);
-
-  const defaultAlias = {
-    docs: resolveAliasPath('./docs'),
-    test: resolveAliasPath('./test'),
-    '@mui-internal/api-docs-builder': resolveAliasPath(
-      './node_modules/@mui/monorepo/packages/api-docs-builder',
-    ),
-  };
 
   const presets = [
     [
@@ -57,17 +44,7 @@ module.exports = function getBabelConfig(api) {
         version: '^7.4.4',
       },
     ],
-  ];
-
-  const devPlugins = [
-    [
-      'babel-plugin-module-resolver',
-      {
-        root: ['./'],
-        alias: defaultAlias,
-      },
-    ],
-    'babel-plugin-add-import-extension',
+    ...(useESModules ? ['babel-plugin-add-import-extension'] : []),
   ];
 
   return {
@@ -93,15 +70,8 @@ module.exports = function getBabelConfig(api) {
       },
     ],
     env: {
-      development: {
-        plugins: devPlugins,
-      },
       test: {
         sourceMaps: 'both',
-        plugins: devPlugins,
-      },
-      production: {
-        plugins: ['babel-plugin-add-import-extension'],
       },
     },
   };
