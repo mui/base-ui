@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { mergeProps } from '../../merge-props';
-import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
+import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import type { GenericHTMLProps } from '../../utils/types';
 
@@ -22,7 +22,7 @@ export function usePopoverTitle(params: usePopoverTitle.Parameters): usePopoverT
     [id],
   );
 
-  useEnhancedEffect(() => {
+  useModernLayoutEffect(() => {
     setTitleId(id);
     return () => {
       setTitleId(undefined);

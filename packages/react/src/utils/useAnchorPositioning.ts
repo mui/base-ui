@@ -19,7 +19,7 @@ import {
   type Side as PhysicalSide,
 } from '@floating-ui/react';
 import { getSide, getAlignment, type Rect } from '@floating-ui/utils';
-import { useEnhancedEffect } from './useEnhancedEffect';
+import { useModernLayoutEffect } from './useModernLayoutEffect';
 import { useDirection } from '../direction-provider/DirectionContext';
 import { useLatestRef } from './useLatestRef';
 import { useEventCallback } from './useEventCallback';
@@ -255,7 +255,11 @@ export function useAnchorPositioning(
 
   const registeredPositionReferenceRef = React.useRef<Element | VirtualElement | null>(null);
 
-  useEnhancedEffect(() => {
+  useModernLayoutEffect(() => {
+    if (!mounted) {
+      return;
+    }
+
     const anchorValue = anchorValueRef.current;
     const resolvedAnchor = typeof anchorValue === 'function' ? anchorValue() : anchorValue;
     const unwrappedElement =

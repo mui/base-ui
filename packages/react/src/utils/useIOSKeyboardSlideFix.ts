@@ -1,7 +1,7 @@
 import * as React from 'react';
 import type { ElementProps } from '@floating-ui/react';
 import { getTarget, isTypeableElement } from '@floating-ui/react/utils';
-import { useEnhancedEffect } from './useEnhancedEffect';
+import { useModernLayoutEffect } from './useModernLayoutEffect';
 import { isIOS } from './detectBrowser';
 import { ownerDocument } from './owner';
 import { useEventCallback } from './useEventCallback';
@@ -25,7 +25,7 @@ export function useIOSKeyboardSlideFix(params: {
 
   const hasBeenEnabledRef = React.useRef(enabled);
 
-  useEnhancedEffect(() => {
+  useModernLayoutEffect(() => {
     if (!isIOS()) {
       return undefined;
     }

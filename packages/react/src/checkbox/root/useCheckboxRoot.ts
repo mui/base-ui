@@ -6,7 +6,7 @@ import { useForkRef } from '../../utils/useForkRef';
 import { mergeProps } from '../../merge-props';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useEventCallback } from '../../utils/useEventCallback';
-import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
+import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { useButton } from '../../use-button/useButton';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
@@ -75,7 +75,7 @@ export function useCheckboxRoot(params: useCheckboxRoot.Parameters): useCheckbox
   const onCheckedChange = useEventCallback(onCheckedChangeProp);
   const id = useBaseUiId(idProp);
 
-  useEnhancedEffect(() => {
+  useModernLayoutEffect(() => {
     setControlId(id);
     return () => {
       setControlId(undefined);
@@ -92,7 +92,7 @@ export function useCheckboxRoot(params: useCheckboxRoot.Parameters): useCheckbox
   const inputRef = React.useRef<HTMLInputElement>(null);
   const mergedInputRef = useForkRef(externalInputRef, inputRef, inputValidationRef);
 
-  useEnhancedEffect(() => {
+  useModernLayoutEffect(() => {
     if (inputRef.current) {
       inputRef.current.indeterminate = indeterminate;
       if (checked) {
