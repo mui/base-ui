@@ -14,6 +14,19 @@ describe('<Checkbox.Root />', () => {
     render,
   }));
 
+  describe('ARIA attributes', () => {
+    it('sets the correct aria attributes', async () => {
+      const { getByRole, getByTestId, setProps } = await render(
+        <Checkbox.Root data-testid="test" required={false} />,
+      );
+
+      expect(getByRole('checkbox')).to.equal(getByTestId('test'));
+      expect(getByRole('checkbox')).to.have.attribute('aria-checked');
+      await setProps({ required: true });
+      expect(getByRole('checkbox')).to.have.attribute('aria-required', 'true');
+    });
+  });
+
   describe('extra props', () => {
     it('can override the built-in attributes', async () => {
       const { container } = await render(<Checkbox.Root role="switch" />);

@@ -39,7 +39,7 @@ namespace TooltipTrigger {
     open: boolean;
   }
 
-  export interface Props extends BaseUIComponentProps<'div', State> {}
+  export interface Props extends BaseUIComponentProps<'button', State> {}
 }
 
 export { TooltipTrigger };

@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useRenderElement } from '../../utils/useRenderElement';
-import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
+import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { useProgressRootContext } from '../root/ProgressRootContext';
 import { progressStyleHookMapping } from '../root/styleHooks';
 import type { ProgressRoot } from '../root/ProgressRoot';
@@ -24,7 +24,7 @@ const ProgressLabel = React.forwardRef(function ProgressLabel(
 
   const { setLabelId, state } = useProgressRootContext();
 
-  useEnhancedEffect(() => {
+  useModernLayoutEffect(() => {
     setLabelId(id);
     return () => setLabelId(undefined);
   }, [id, setLabelId]);
