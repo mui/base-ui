@@ -69,7 +69,10 @@ export const NavigationMenuPositioner = React.forwardRef(function NavigationMenu
   useModernLayoutEffect(() => {
     const currentTriggerElement = floatingRootContext?.elements.domReference;
     const prevTriggerElement = prevTriggerElementRef.current;
-    prevTriggerElementRef.current = currentTriggerElement || null;
+
+    if (currentTriggerElement) {
+      prevTriggerElementRef.current = currentTriggerElement;
+    }
 
     if (
       prevTriggerElement &&
