@@ -65,7 +65,8 @@ const Menubar = React.forwardRef(function Menubar(
     ref: [forwardedRef, setContentElement, contentRef],
   });
 
-  const shouldOpenOnHover = hasSubmenuOpen || hasFocusWithin;
+  // TODO: use hasSubmenuOpen instead
+  const shouldOpenOnHover = hasSubmenuOpen;
 
   const context: MenubarContext = React.useMemo(
     () => ({
