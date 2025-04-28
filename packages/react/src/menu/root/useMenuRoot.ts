@@ -117,17 +117,6 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
     referenceElement: positionerElement,
   });
 
-  const setOpen = useEventCallback(
-    (nextOpen: boolean, event: Event | undefined, reason: OpenChangeReason | undefined) => {
-      onOpenChange?.(nextOpen, event, reason);
-      setOpenUnwrapped(nextOpen);
-
-      if (nextOpen) {
-        setOpenReason(reason ?? null);
-      }
-    },
-  );
-
   if (!open && !hoverEnabled) {
     setHoverEnabled(true);
   }
@@ -168,19 +157,19 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
     return clearStickIfOpenTimeout;
   }, [clearStickIfOpenTimeout]);
 
-  const floatingRootContext = useFloatingRootContext({
-    elements: {
-      reference: triggerElement,
-      floating: positionerElement,
-    },
-    open,
-    onOpenChange(openValue, eventValue, reasonValue) {
-      const isHover = reasonValue === 'hover' || reasonValue === 'safe-polygon';
-      const isKeyboardClick = reasonValue === 'click' && (eventValue as MouseEvent).detail === 0;
-      const isDismissClose = !openValue && (reasonValue === 'escape-key' || reasonValue == null);
+  const setOpen = useEventCallback(
+    (nextOpen: boolean, event: Event | undefined, reason: OpenChangeReason | undefined) => {
+      const isHover = reason === 'hover';
+      const isKeyboardClick = reason === 'click' && (event as MouseEvent).detail === 0;
+      const isDismissClose = !nextOpen && (reason === 'escape-key' || reason == null);
 
       function changeState() {
-        setOpen(openValue, eventValue, translateOpenChangeReason(reasonValue));
+        onOpenChange?.(nextOpen, event, reason);
+        setOpenUnwrapped(nextOpen);
+
+        if (nextOpen) {
+          setOpenReason(reason ?? null);
+        }
       }
 
       if (isHover) {
@@ -197,13 +186,27 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
         changeState();
       }
 
-      if (parent.type === 'menubar' && !open && parent.context.hasSubmenuOpen) {
+      if (
+        (parent.type === 'menubar' && (reason === 'focus' || reason === 'hover')) ||
+        reason === 'sibling-open'
+      ) {
         setInstantType('group');
       } else if (isKeyboardClick || isDismissClose) {
         setInstantType(isKeyboardClick ? 'click' : 'dismiss');
       } else {
         setInstantType(undefined);
       }
+    },
+  );
+
+  const floatingRootContext = useFloatingRootContext({
+    elements: {
+      reference: triggerElement,
+      floating: positionerElement,
+    },
+    open,
+    onOpenChange(openValue, eventValue, reasonValue) {
+      setOpen(openValue, eventValue, translateOpenChangeReason(reasonValue));
     },
   });
 
