@@ -44,7 +44,7 @@ module.exports = function getBabelConfig(api) {
         version: '^7.4.4',
       },
     ],
-    'babel-plugin-add-import-extension',
+    ...(useESModules ? ['babel-plugin-add-import-extension'] : []),
   ];
 
   return {
