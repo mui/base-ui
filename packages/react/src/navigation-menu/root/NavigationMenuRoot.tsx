@@ -23,7 +23,7 @@ import { ownerDocument } from '../../utils/owner';
 
 /**
  * Groups all parts of the navigation menu.
- * Renders a `<nav>` element.
+ * Renders a `<nav>` element at the root, or `<div>` element when nested.
  *
  * Documentation: [Base UI Navigation Menu](https://base-ui.com/react/components/navigation-menu)
  */
@@ -280,12 +280,12 @@ export namespace NavigationMenuRoot {
      */
     onValueChange?: (value: any) => void;
     /**
-     * The amount of time in milliseconds to wait before opening the menu on hover.
+     * How long to wait before opening the navigation menu. Specified in milliseconds.
      * @default 50
      */
     delay?: number;
     /**
-     * The amount of time in milliseconds to wait before closing the menu on mouse leave.
+     * How long to wait before closing the navigation menu. Specified in milliseconds.
      * @default 100
      */
     closeDelay?: number;

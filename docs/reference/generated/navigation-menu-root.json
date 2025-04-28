@@ -1,6 +1,6 @@
 {
   "name": "NavigationMenuRoot",
-  "description": "Groups all parts of the navigation menu.\nRenders a `<nav>` element.",
+  "description": "Groups all parts of the navigation menu.\nRenders a `<nav>` element at the root, or `<div>` element when nested.",
   "props": {
     "defaultValue": {
       "type": "any",
@@ -39,12 +39,12 @@
     "delay": {
       "type": "number",
       "default": "50",
-      "description": "The amount of time in milliseconds to wait before opening the menu on hover."
+      "description": "How long to wait before opening the navigation menu. Specified in milliseconds."
     },
     "closeDelay": {
       "type": "number",
       "default": "100",
-      "description": "The amount of time in milliseconds to wait before closing the menu on mouse leave."
+      "description": "How long to wait before closing the navigation menu. Specified in milliseconds."
     },
     "className": {
       "type": "string | ((state: State) => string)",
