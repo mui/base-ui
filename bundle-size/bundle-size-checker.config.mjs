@@ -17,14 +17,15 @@ export default defineConfig(async () => {
   const packageJsonPath = path.join(rootDir, 'packages/react/package.json');
   const packageJsonContent = await fs.readFile(packageJsonPath, 'utf8');
   const packageJson = JSON.parse(packageJsonContent);
-  
+
   // Get all export paths from package.json
   const exports = packageJson.exports;
-  const entrypoints = Object.keys(exports).map(exportKey => {
+  const entrypoints = Object.keys(exports).map((exportKey) => {
     // Convert from "./accordion" to "@base-ui-components/react/accordion"
-    const entrypoint = exportKey === '.' 
-      ? '@base-ui-components/react' 
-      : `@base-ui-components/react${exportKey.slice(1)}`;
+    const entrypoint =
+      exportKey === '.'
+        ? '@base-ui-components/react'
+        : `@base-ui-components/react${exportKey.slice(1)}`;
     return entrypoint;
   });
 
