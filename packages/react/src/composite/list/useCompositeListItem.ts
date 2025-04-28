@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
+import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { useCompositeListContext } from './CompositeListContext';
 
 export interface UseCompositeListItemParameters<Metadata> {
@@ -42,7 +42,7 @@ export function useCompositeListItem<Metadata>(
     [index, elementsRef, labelsRef, label],
   );
 
-  useEnhancedEffect(() => {
+  useModernLayoutEffect(() => {
     const node = componentRef.current;
     if (node) {
       register(node, metadata);
@@ -53,7 +53,7 @@ export function useCompositeListItem<Metadata>(
     return undefined;
   }, [register, unregister, metadata]);
 
-  useEnhancedEffect(() => {
+  useModernLayoutEffect(() => {
     const i = componentRef.current ? map.get(componentRef.current)?.index : null;
 
     if (i != null) {

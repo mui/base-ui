@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
+import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { warn } from '../../utils/warn';
 import { useCollapsibleRootContext } from '../../collapsible/root/CollapsibleRootContext';
 import { useCollapsiblePanel } from '../../collapsible/panel/useCollapsiblePanel';
@@ -64,7 +64,7 @@ const AccordionPanel = React.forwardRef(function AccordionPanel(
 
   if (process.env.NODE_ENV !== 'production') {
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    useEnhancedEffect(() => {
+    useModernLayoutEffect(() => {
       if (keepMountedProp === false && hiddenUntilFound) {
         warn(
           'The `keepMounted={false}` prop on a Accordion.Panel will be ignored when using `contextHiddenUntilFound` on the Panel or the Root since it requires the panel to remain mounted when closed.',
@@ -73,11 +73,11 @@ const AccordionPanel = React.forwardRef(function AccordionPanel(
     }, [hiddenUntilFound, keepMountedProp]);
   }
 
-  useEnhancedEffect(() => {
+  useModernLayoutEffect(() => {
     setHiddenUntilFound(hiddenUntilFound);
   }, [setHiddenUntilFound, hiddenUntilFound]);
 
-  useEnhancedEffect(() => {
+  useModernLayoutEffect(() => {
     setKeepMounted(keepMounted);
   }, [setKeepMounted, keepMounted]);
 

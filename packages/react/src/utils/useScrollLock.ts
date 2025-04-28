@@ -2,7 +2,7 @@ import * as React from 'react';
 import { usePreventScroll } from '@react-aria/overlays';
 import { isFirefox, isIOS, isWebKit } from './detectBrowser';
 import { ownerDocument, ownerWindow } from './owner';
-import { useEnhancedEffect } from './useEnhancedEffect';
+import { useModernLayoutEffect } from './useModernLayoutEffect';
 
 let originalHtmlStyles: Partial<CSSStyleDeclaration> = {};
 let originalBodyStyles: Partial<CSSStyleDeclaration> = {};
@@ -159,7 +159,7 @@ export function useScrollLock(params: {
     [enabled, referenceElement],
   );
 
-  useEnhancedEffect(() => {
+  useModernLayoutEffect(() => {
     // https://github.com/mui/base-ui/issues/1135
     if (mounted && !open && isWebKit()) {
       const doc = ownerDocument(referenceElement);
@@ -182,7 +182,7 @@ export function useScrollLock(params: {
     isDisabled: !isReactAriaHook,
   });
 
-  useEnhancedEffect(() => {
+  useModernLayoutEffect(() => {
     if (!enabled || isReactAriaHook) {
       return undefined;
     }

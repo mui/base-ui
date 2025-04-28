@@ -7,7 +7,7 @@ import { ownerDocument } from '../../utils/owner';
 import type { BaseUIComponentProps, Orientation } from '../../utils/types';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useControlled } from '../../utils/useControlled';
-import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
+import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { warn } from '../../utils/warn';
@@ -119,7 +119,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
     () => new Map<Node, CompositeMetadata<ThumbMetadata> | null>(),
   );
 
-  useEnhancedEffect(() => {
+  useModernLayoutEffect(() => {
     setControlId(id);
     return () => {
       setControlId(undefined);
@@ -194,7 +194,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
     },
   );
 
-  useEnhancedEffect(() => {
+  useModernLayoutEffect(() => {
     if (valueProp === undefined || dragging) {
       return;
     }
@@ -204,7 +204,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
     }
   }, [dragging, min, max, valueProp]);
 
-  useEnhancedEffect(() => {
+  useModernLayoutEffect(() => {
     const activeEl = activeElement(ownerDocument(sliderRef.current));
     if (disabled && sliderRef.current?.contains(activeEl)) {
       // This is necessary because Firefox and Safari will keep focus

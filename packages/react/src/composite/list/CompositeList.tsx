@@ -2,7 +2,7 @@
 'use client';
 import * as React from 'react';
 import { CompositeListContext } from './CompositeListContext';
-import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
+import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 
 function sortByDocumentPosition(a: Element, b: Element) {
   const position = a.compareDocumentPosition(b);
@@ -58,7 +58,7 @@ function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
     return newMap;
   }, [map]);
 
-  useEnhancedEffect(() => {
+  useModernLayoutEffect(() => {
     onMapChange?.(sortedMap);
   }, [sortedMap, onMapChange]);
 

@@ -4,7 +4,7 @@ import { mergeProps } from '../../merge-props';
 import { visuallyHidden } from '../../utils/visuallyHidden';
 import { useRadioGroupContext } from '../../radio-group/RadioGroupContext';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
-import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
+import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { ACTIVE_COMPOSITE_ITEM } from '../../composite/constants';
 
 export function useRadioRoot(params: useRadioRoot.Parameters) {
@@ -31,7 +31,7 @@ export function useRadioRoot(params: useRadioRoot.Parameters) {
 
   const inputRef = React.useRef<HTMLInputElement>(null);
 
-  useEnhancedEffect(() => {
+  useModernLayoutEffect(() => {
     if (inputRef.current?.checked) {
       setFilled(true);
     }
