@@ -152,16 +152,6 @@ const overviewLinks = [
     title: 'Releases',
     description: 'See what’s new in the latest Base UI versions.',
   },
-  {
-    href: '/react/overview/about',
-    title: 'About',
-    description: 'Learn more about Base UI and our mission.',
-  },
-  {
-    href: 'https://github.com/mui/base-ui',
-    title: 'GitHub',
-    description: 'Browse the source code on GitHub.',
-  },
 ] as const;
 
 const handbookLinks = [

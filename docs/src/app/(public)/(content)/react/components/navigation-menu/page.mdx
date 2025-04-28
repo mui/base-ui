@@ -67,3 +67,31 @@ function Link(props: NavigationMenu.Link.Props) {
   );
 }
 ```
+
+### Large menus
+
+When you have large menu content, you usually have two choices:
+
+1. Compress the navigation menu content
+
+You can change the layout of the navigation menu to render less content or be more compact by reducing the space it takes up. If your content is flexible, you can use the `max-height` property on `Popup` to limit the height of the navigation menu to let it compress itself while preventing overflow.
+
+```css title="Compact layout"
+.Popup {
+  max-height: var(--available-height);
+}
+```
+
+2. Make the navigation menu scrollable
+
+```css title="Scrollable layout"
+.Popup {
+  max-height var(--available-height);
+}
+
+.Content {
+  overflow-y: auto;
+}
+```
+
+Native scrollbars will be visible while transitioning content, so we recommend using our [Scroll Area](/react/components/scroll-area) component instead of native scrollbars to keep them hidden, which will also allow the `Arrow` to be centered correctly.

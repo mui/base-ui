@@ -76,7 +76,7 @@ export default function ExampleNavigationMenu() {
                       }}
                     >
                       <NavigationMenu.Popup
-                        className="relative h-[var(--popup-height)] max-h-[var(--available-height)] w-[300px] origin-[var(--transform-origin)] overflow-visible rounded-lg bg-[canvas] text-gray-900 shadow-lg shadow-gray-200 outline outline-1 outline-gray-200 transition-[opacity,transform,width,height,scale,translate] ease-[var(--easing)] data-[ending-style]:scale-90 data-[ending-style]:opacity-0 data-[starting-style]:scale-90 data-[starting-style]:opacity-0 min-[500px]:w-[var(--popup-width)] min-[500px]:min-w-max dark:shadow-none dark:-outline-offset-1 dark:outline-gray-300"
+                        className="relative h-[var(--popup-height)] w-[300px] origin-[var(--transform-origin)] rounded-lg bg-[canvas] text-gray-900 shadow-lg shadow-gray-200 outline outline-1 outline-gray-200 transition-[opacity,transform,width,height,scale,translate] ease-[var(--easing)] data-[ending-style]:scale-90 data-[ending-style]:opacity-0 data-[starting-style]:scale-90 data-[starting-style]:opacity-0 min-[500px]:w-[var(--popup-width)] min-[500px]:min-w-max dark:shadow-none dark:-outline-offset-1 dark:outline-gray-300"
                         style={{
                           transitionDuration:
                             'calc(var(--duration)*.5), calc(var(--duration)*.5), var(--duration), var(--duration)',
@@ -178,7 +178,7 @@ const triggerClassName =
   'focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 focus-visible:relative';
 
 const contentClassName =
-  'overflow-y-auto w-[300px] h-full p-4 sm:p-6 sm:w-max ' +
+  'w-[300px] h-full p-4 sm:p-6 sm:w-max ' +
   'transition-[opacity,transform,translate] duration-[var(--duration)] ease-[var(--easing)] ' +
   'data-[starting-style]:opacity-0 data-[ending-style]:opacity-0 ' +
   'data-[starting-style]:data-[activation-direction=left]:translate-x-[-75%] ' +
@@ -207,16 +207,6 @@ const overviewLinks = [
     href: '/react/overview/releases',
     title: 'Releases',
     description: 'See what’s new in the latest Base UI versions.',
-  },
-  {
-    href: '/react/overview/about',
-    title: 'About',
-    description: 'Learn more about Base UI and our mission.',
-  },
-  {
-    href: 'https://github.com/mui/base-ui',
-    title: 'GitHub',
-    description: 'Browse the source code on GitHub.',
   },
 ] as const;
 

@@ -71,7 +71,6 @@
 
 .Popup {
   position: relative;
-  overflow: visible;
   box-sizing: border-box;
   border-radius: 0.5rem;
   background-color: canvas;
@@ -84,7 +83,6 @@
     height var(--duration) var(--easing);
   width: 300px;
   height: var(--popup-height);
-  max-height: var(--available-height);
 
   @media (min-width: 500px) {
     min-width: max-content;
@@ -119,7 +117,6 @@
     opacity calc(var(--duration) * 0.5) ease,
     transform var(--duration) var(--easing);
   padding: 1rem;
-  overflow-y: auto;
   width: 300px;
   height: 100%;
 
