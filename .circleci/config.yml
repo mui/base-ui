@@ -323,6 +323,13 @@ jobs:
       - checkout
       - install_js:
           react-version: << parameters.react-version >>
+
+      - run:
+          name: prepare danger on PRs
+          command: pnpm danger ci
+          environment:
+            DANGER_COMMAND: prepareBundleSizeReport
+
       - run:
           name: Build packages
           command: pnpm release:build
@@ -333,6 +340,25 @@ jobs:
           name: Verify built packages
           command: pnpm -r test:package
 
+      - run:
+          name: create and upload a size snapshot
+          command: |
+            export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID_ARTIFACTS
+            export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY_ARTIFACTS
+            export AWS_REGION=$AWS_REGION_ARTIFACTS
+            pnpm size:snapshot
+
+      # Keep the artifact storage as a CircleCI artifact (TODO: remove once UI understands S3 artifacts)
+      - store_artifacts:
+          name: persist size snapshot as pipeline artifact
+          path: size-snapshot.json
+          destination: size-snapshot.json
+
+      - run:
+          name: Run danger on PRs
+          command: pnpm danger ci --fail-on-errors
+          environment:
+            DANGER_COMMAND: reportBundleSize
 workflows:
   pipeline:
     when:

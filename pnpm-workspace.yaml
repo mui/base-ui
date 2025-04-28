@@ -4,3 +4,4 @@ packages:
   - 'test'
   - 'test/*'
   - 'scripts/*'
+  - 'bundle-size'
