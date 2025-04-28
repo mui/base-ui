@@ -4,7 +4,7 @@ import * as React from 'react';
 import { CompositeListContext } from './CompositeListContext';
 import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 
-function sortByDocumentPosition(a: Node, b: Node) {
+function sortByDocumentPosition(a: Element, b: Element) {
   const position = a.compareDocumentPosition(b);
 
   if (
@@ -30,13 +30,15 @@ export type CompositeMetadata<CustomMetadata> = { index?: number | null } & Cust
 function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
   const { children, elementsRef, labelsRef, onMapChange } = props;
 
-  const [map, setMap] = React.useState(() => new Map<Node, CompositeMetadata<Metadata> | null>());
+  const [map, setMap] = React.useState(
+    () => new Map<Element, CompositeMetadata<Metadata> | null>(),
+  );
 
-  const register = React.useCallback((node: Node, metadata: Metadata) => {
+  const register = React.useCallback((node: Element, metadata: Metadata) => {
     setMap((prevMap) => new Map(prevMap).set(node, metadata ?? null));
   }, []);
 
-  const unregister = React.useCallback((node: Node) => {
+  const unregister = React.useCallback((node: Element) => {
     setMap((prevMap) => {
       const nextMap = new Map(prevMap);
       nextMap.delete(node);
@@ -45,7 +47,7 @@ function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
   }, []);
 
   const sortedMap = React.useMemo(() => {
-    const newMap = new Map<Node, CompositeMetadata<Metadata>>();
+    const newMap = new Map<Element, CompositeMetadata<Metadata>>();
     const sortedNodes = Array.from(map.keys()).sort(sortByDocumentPosition);
 
     sortedNodes.forEach((node, index) => {
@@ -83,7 +85,7 @@ namespace CompositeList {
      * `useTypeahead`'s `listRef` prop.
      */
     labelsRef?: React.RefObject<Array<string | null>>;
-    onMapChange?: (newMap: Map<Node, CompositeMetadata<Metadata> | null>) => void;
+    onMapChange?: (newMap: Map<Element, CompositeMetadata<Metadata> | null>) => void;
   }
 }
 
