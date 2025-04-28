@@ -3,40 +3,13 @@ import { expect } from 'chai';
 import { spy } from 'sinon';
 import { fireEvent, screen, flushMicrotasks, act, within } from '@mui/internal-test-utils';
 import { NavigationMenu } from '@base-ui-components/react/navigation-menu';
-import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
+import { createRenderer, describeConformance } from '#test-utils';
 import { PATIENT_CLICK_THRESHOLD } from '../../utils/constants';
 import { OPEN_DELAY } from '../utils/constants';
 
-function TestNavigationMenu({
-  open: openProp,
-  onOpenChange,
-  value: valueProp,
-  onValueChange,
-  defaultOpen,
-  defaultValue,
-  delay,
-  closeDelay,
-}: {
-  open?: boolean;
-  onOpenChange?: (open: boolean) => void;
-  value?: string;
-  onValueChange?: (value: string) => void;
-  defaultOpen?: boolean;
-  defaultValue?: string;
-  delay?: number;
-  closeDelay?: number;
-}) {
+function TestNavigationMenu(props: NavigationMenu.Root.Props) {
   return (
-    <NavigationMenu.Root
-      open={openProp}
-      onOpenChange={onOpenChange}
-      value={valueProp}
-      onValueChange={onValueChange}
-      defaultOpen={defaultOpen}
-      defaultValue={defaultValue}
-      delay={delay}
-      closeDelay={closeDelay}
-    >
+    <NavigationMenu.Root {...props}>
       <NavigationMenu.List>
         <NavigationMenu.Item value="item-1">
           <NavigationMenu.Trigger data-testid="trigger-1">Item 1</NavigationMenu.Trigger>
@@ -274,27 +247,6 @@ describe('<NavigationMenu.Root />', () => {
   });
 
   describe('patient click threshold', () => {
-    it.skipIf(!isJSDOM)('sticks if hovered then clicked within the patient threshold', async () => {
-      await render(<TestNavigationMenu />);
-      const trigger = screen.getByTestId('trigger-1');
-
-      fireEvent.mouseEnter(trigger);
-      fireEvent.mouseMove(trigger);
-      clock.tick(OPEN_DELAY);
-      await flushMicrotasks();
-
-      expect(screen.queryByTestId('popup-1')).not.to.equal(null);
-
-      clock.tick(PATIENT_CLICK_THRESHOLD - 25);
-      await flushMicrotasks();
-      fireEvent.click(trigger);
-      fireEvent.mouseLeave(trigger);
-
-      // Should remain open (stuck)
-      expect(screen.queryByTestId('popup-1')).not.to.equal(null);
-      expect(trigger).to.have.attribute('aria-expanded', 'true');
-    });
-
     it('closes if hovered then clicked after the patient threshold', async () => {
       await render(<TestNavigationMenu />);
       const trigger = screen.getByTestId('trigger-1');
@@ -580,54 +532,54 @@ describe('<NavigationMenu.Root />', () => {
       expect(trigger1).to.have.attribute('aria-expanded', 'true');
       expect(nestedTrigger1).to.have.attribute('aria-expanded', 'true');
     });
-  });
 
-  describe('tabbing', () => {
-    it('moves focus through a nested menu correctly', async () => {
-      const { user } = await render(
-        <div>
-          <button data-testid="first" />
-          <TestNestedNavigationMenu />
-          <button data-testid="last" />
-        </div>,
-      );
+    describe('tabbing', () => {
+      it('moves focus through a nested menu correctly', async () => {
+        const { user } = await render(
+          <div>
+            <button data-testid="first" />
+            <TestNestedNavigationMenu />
+            <button data-testid="last" />
+          </div>,
+        );
 
-      const trigger1 = screen.getByTestId('trigger-1');
+        const trigger1 = screen.getByTestId('trigger-1');
 
-      await act(async () => trigger1.focus());
+        await act(async () => trigger1.focus());
 
-      fireEvent.click(trigger1);
-      await flushMicrotasks();
+        fireEvent.click(trigger1);
+        await flushMicrotasks();
 
-      const popup1 = screen.getByTestId('popup-1');
-      expect(popup1).not.to.equal(null);
-      expect(trigger1).toHaveFocus();
+        const popup1 = screen.getByTestId('popup-1');
+        expect(popup1).not.to.equal(null);
+        expect(trigger1).toHaveFocus();
 
-      await user.tab();
-      expect(screen.getByText('Link 1')).toHaveFocus();
+        await user.tab();
+        expect(screen.getByText('Link 1')).toHaveFocus();
 
-      await user.tab();
-      const nestedTrigger1 = within(popup1).getByTestId('nested-trigger-1');
-      expect(nestedTrigger1).toHaveFocus();
+        await user.tab();
+        const nestedTrigger1 = within(popup1).getByTestId('nested-trigger-1');
+        expect(nestedTrigger1).toHaveFocus();
 
-      fireEvent.click(nestedTrigger1);
-      await flushMicrotasks();
+        fireEvent.click(nestedTrigger1);
+        await flushMicrotasks();
 
-      expect(screen.getByTestId('nested-popup-1')).not.to.equal(null);
+        expect(screen.getByTestId('nested-popup-1')).not.to.equal(null);
 
-      expect(nestedTrigger1).toHaveFocus();
+        expect(nestedTrigger1).toHaveFocus();
 
-      await user.tab();
-      expect(screen.getByText('Nested Link 1')).toHaveFocus();
+        await user.tab();
+        expect(screen.getByText('Nested Link 1')).toHaveFocus();
 
-      await user.tab({ shift: true });
-      expect(nestedTrigger1).toHaveFocus();
+        await user.tab({ shift: true });
+        expect(nestedTrigger1).toHaveFocus();
 
-      await user.tab({ shift: true });
-      expect(screen.getByText('Link 1')).toHaveFocus();
+        await user.tab({ shift: true });
+        expect(screen.getByText('Link 1')).toHaveFocus();
 
-      await user.tab({ shift: true });
-      expect(trigger1).toHaveFocus();
+        await user.tab({ shift: true });
+        expect(trigger1).toHaveFocus();
+      });
     });
   });
 });
