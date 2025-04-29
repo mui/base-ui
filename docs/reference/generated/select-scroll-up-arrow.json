@@ -16,6 +16,24 @@
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
     }
   },
-  "dataAttributes": {},
+  "dataAttributes": {
+    "data-direction": {
+      "description": "Indicates the direction of the scroll arrow.",
+      "type": "'up'"
+    },
+    "data-side": {
+      "description": "Indicates which side the popup is positioned relative to the trigger.",
+      "type": "'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start'"
+    },
+    "data-visible": {
+      "description": "Present when the scroll arrow is visible."
+    },
+    "data-starting-style": {
+      "description": "Present when the scroll arrow is animating in."
+    },
+    "data-ending-style": {
+      "description": "Present when the scroll arrow is animating out."
+    }
+  },
   "cssVariables": {}
 }
