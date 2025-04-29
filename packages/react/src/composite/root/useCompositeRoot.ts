@@ -34,6 +34,7 @@ import {
 } from '../composite';
 import { ACTIVE_COMPOSITE_ITEM } from '../constants';
 import { CompositeMetadata } from '../list/CompositeList';
+import { GenericHTMLProps } from '../../utils/types';
 
 export interface UseCompositeRootParameters {
   orientation?: 'horizontal' | 'vertical' | 'both';
@@ -131,7 +132,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
     }
   });
 
-  const props = React.useMemo(
+  const props = React.useMemo<GenericHTMLProps>(
     () => ({
       'aria-orientation': orientation === 'both' ? undefined : orientation,
       ref: mergedRef,
