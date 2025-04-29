@@ -1,6 +1,5 @@
 import * as React from 'react';
 import type { GenericHTMLProps } from '../../utils/types';
-import { mergeProps } from '../../merge-props';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { ownerDocument, ownerWindow } from '../../utils/owner';
@@ -16,7 +15,6 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
     mounted,
     id,
     setOpen,
-    getRootPositionerProps,
     triggerElement,
     positionerElement,
     valueRef,
@@ -238,121 +236,99 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
     };
   }, [setOpen, alignItemWithTriggerActive, positionerElement, mounted]);
 
-  const getPopupProps: useSelectPopup.ReturnValue['getPopupProps'] = React.useCallback(
-    (externalProps = {}) => {
-      return mergeProps<'div'>(
-        {
-          ['data-id' as string]: `${id}-popup`,
-          onKeyDown() {
-            keyboardActiveRef.current = true;
-          },
-          onMouseMove() {
-            keyboardActiveRef.current = false;
-          },
-          onMouseLeave(event) {
-            if (isMouseWithinBounds(event)) {
-              return;
-            }
-            setActiveIndex(null);
-            event.currentTarget.focus({ preventScroll: true });
-            floatingRootContext.events.emit('popupleave');
-          },
-          onScroll(event) {
-            if (
-              !alignItemWithTriggerActive ||
-              !positionerElement ||
-              !popupRef.current ||
-              !initialPlacedRef.current
-            ) {
-              return;
-            }
-
-            if (reachedMaxHeightRef.current || !alignItemWithTriggerActive) {
-              handleScrollArrowVisibility();
-              return;
-            }
-
-            const isTopPositioned = positionerElement.style.top === '0px';
-            const isBottomPositioned = positionerElement.style.bottom === '0px';
-            const currentHeight = positionerElement.getBoundingClientRect().height;
-            const doc = ownerDocument(positionerElement);
-            const positionerStyles = getComputedStyle(positionerElement);
-            const marginTop = parseFloat(positionerStyles.marginTop);
-            const marginBottom = parseFloat(positionerStyles.marginBottom);
-            const viewportHeight = doc.documentElement.clientHeight - marginTop - marginBottom;
-
-            if (isTopPositioned) {
-              const scrollTop = event.currentTarget.scrollTop;
-              const maxScrollTop =
-                event.currentTarget.scrollHeight - event.currentTarget.clientHeight;
-              const diff = maxScrollTop - scrollTop;
-              const nextHeight = Math.min(currentHeight + diff, viewportHeight);
-              positionerElement.style.height = `${Math.min(currentHeight + diff, viewportHeight)}px`;
-
-              if (nextHeight !== viewportHeight) {
-                event.currentTarget.scrollTop = maxScrollTop;
-              } else {
-                reachedMaxHeightRef.current = true;
-              }
-            } else if (isBottomPositioned) {
-              const scrollTop = event.currentTarget.scrollTop;
-              const minScrollTop = 0;
-              const diff = scrollTop - minScrollTop;
-              const nextHeight = Math.min(currentHeight + diff, viewportHeight);
-              const idealHeight = currentHeight + diff;
-              const overshoot = idealHeight - viewportHeight;
-              positionerElement.style.height = `${Math.min(idealHeight, viewportHeight)}px`;
-
-              if (nextHeight !== viewportHeight) {
-                event.currentTarget.scrollTop = 0;
-              } else {
-                reachedMaxHeightRef.current = true;
-                if (
-                  event.currentTarget.scrollTop <
-                  event.currentTarget.scrollHeight - event.currentTarget.clientHeight
-                ) {
-                  event.currentTarget.scrollTop -= diff - overshoot;
-                }
-              }
-            }
-
-            handleScrollArrowVisibility();
-          },
-          ...(alignItemWithTriggerActive && {
-            style: {
-              position: 'relative',
-              maxHeight: '100%',
-              overflowX: 'hidden',
-              overflowY: 'auto',
-            },
-          }),
-        },
-        getRootPositionerProps(externalProps),
-      );
+  const props: GenericHTMLProps = {
+    ['data-id' as string]: `${id}-popup`,
+    onKeyDown() {
+      keyboardActiveRef.current = true;
     },
-    [
-      id,
-      alignItemWithTriggerActive,
-      getRootPositionerProps,
-      keyboardActiveRef,
-      setActiveIndex,
-      floatingRootContext.events,
-      positionerElement,
-      popupRef,
-      handleScrollArrowVisibility,
-    ],
-  );
+    onMouseMove() {
+      keyboardActiveRef.current = false;
+    },
+    onMouseLeave(event) {
+      if (isMouseWithinBounds(event)) {
+        return;
+      }
+      setActiveIndex(null);
+      event.currentTarget.focus({ preventScroll: true });
+      floatingRootContext.events.emit('popupleave');
+    },
+    onScroll(event) {
+      if (
+        !alignItemWithTriggerActive ||
+        !positionerElement ||
+        !popupRef.current ||
+        !initialPlacedRef.current
+      ) {
+        return;
+      }
 
-  return React.useMemo(
-    () => ({
-      getPopupProps,
+      if (reachedMaxHeightRef.current || !alignItemWithTriggerActive) {
+        handleScrollArrowVisibility();
+        return;
+      }
+
+      const isTopPositioned = positionerElement.style.top === '0px';
+      const isBottomPositioned = positionerElement.style.bottom === '0px';
+      const currentHeight = positionerElement.getBoundingClientRect().height;
+      const doc = ownerDocument(positionerElement);
+      const positionerStyles = getComputedStyle(positionerElement);
+      const marginTop = parseFloat(positionerStyles.marginTop);
+      const marginBottom = parseFloat(positionerStyles.marginBottom);
+      const viewportHeight = doc.documentElement.clientHeight - marginTop - marginBottom;
+
+      if (isTopPositioned) {
+        const scrollTop = event.currentTarget.scrollTop;
+        const maxScrollTop = event.currentTarget.scrollHeight - event.currentTarget.clientHeight;
+        const diff = maxScrollTop - scrollTop;
+        const nextHeight = Math.min(currentHeight + diff, viewportHeight);
+        positionerElement.style.height = `${Math.min(currentHeight + diff, viewportHeight)}px`;
+
+        if (nextHeight !== viewportHeight) {
+          event.currentTarget.scrollTop = maxScrollTop;
+        } else {
+          reachedMaxHeightRef.current = true;
+        }
+      } else if (isBottomPositioned) {
+        const scrollTop = event.currentTarget.scrollTop;
+        const minScrollTop = 0;
+        const diff = scrollTop - minScrollTop;
+        const nextHeight = Math.min(currentHeight + diff, viewportHeight);
+        const idealHeight = currentHeight + diff;
+        const overshoot = idealHeight - viewportHeight;
+        positionerElement.style.height = `${Math.min(idealHeight, viewportHeight)}px`;
+
+        if (nextHeight !== viewportHeight) {
+          event.currentTarget.scrollTop = 0;
+        } else {
+          reachedMaxHeightRef.current = true;
+          if (
+            event.currentTarget.scrollTop <
+            event.currentTarget.scrollHeight - event.currentTarget.clientHeight
+          ) {
+            event.currentTarget.scrollTop -= diff - overshoot;
+          }
+        }
+      }
+
+      handleScrollArrowVisibility();
+    },
+    ...(alignItemWithTriggerActive && {
+      style: {
+        position: 'relative',
+        maxHeight: '100%',
+        overflowX: 'hidden',
+        overflowY: 'auto',
+      },
     }),
-    [getPopupProps],
-  );
+  };
+
+  return {
+    props,
+  };
 }
 
-namespace useSelectPopup {
+export namespace useSelectPopup {
   export interface ReturnValue {
-    getPopupProps: (props?: GenericHTMLProps) => GenericHTMLProps;
+    props: GenericHTMLProps;
   }
 }

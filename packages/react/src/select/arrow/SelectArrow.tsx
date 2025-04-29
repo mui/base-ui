@@ -2,14 +2,12 @@
 import * as React from 'react';
 import { useSelectPositionerContext } from '../positioner/SelectPositionerContext';
 import { useSelectRootContext } from '../root/SelectRootContext';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { useForkRef } from '../../utils/useForkRef';
-import { mergeProps } from '../../merge-props';
 import type { BaseUIComponentProps } from '../../utils/types';
 import type { Align, Side } from '../../utils/useAnchorPositioning';
 import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping';
 import { transitionStatusMapping } from '../../utils/styleHookMapping';
+import { useRenderElement } from '../../utils/useRenderElement';
 
 const customStyleHookMapping: CustomStyleHookMapping<SelectArrow.State> = {
   ...baseMapping,
@@ -23,26 +21,14 @@ const customStyleHookMapping: CustomStyleHookMapping<SelectArrow.State> = {
  * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
  */
 const SelectArrow = React.forwardRef(function SelectArrow(
-  props: SelectArrow.Props,
+  componentProps: SelectArrow.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { className, render, ...otherProps } = props;
+  const { className, render, ...elementProps } = componentProps;
 
   const { open } = useSelectRootContext();
   const { arrowRef, side, align, arrowUncentered, arrowStyles, alignItemWithTriggerActive } =
     useSelectPositionerContext();
-
-  const getArrowProps = React.useCallback(
-    (externalProps = {}) =>
-      mergeProps<'div'>(
-        {
-          style: arrowStyles,
-          'aria-hidden': true,
-        },
-        externalProps,
-      ),
-    [arrowStyles],
-  );
 
   const state: SelectArrow.State = React.useMemo(
     () => ({
@@ -54,15 +40,10 @@ const SelectArrow = React.forwardRef(function SelectArrow(
     [open, side, align, arrowUncentered],
   );
 
-  const mergedRef = useForkRef(arrowRef, forwardedRef);
-
-  const { renderElement } = useComponentRenderer({
-    propGetter: getArrowProps,
-    render: render ?? 'div',
-    className,
+  const renderElement = useRenderElement('div', componentProps, {
     state,
-    ref: mergedRef,
-    extraProps: otherProps,
+    ref: [arrowRef, forwardedRef],
+    props: [{ style: arrowStyles, 'aria-hidden': true }, elementProps],
     customStyleHookMapping,
   });
 

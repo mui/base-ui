@@ -5,12 +5,12 @@ import { SelectRootContext, useSelectRootContext } from '../root/SelectRootConte
 import { SelectIndexContext, useSelectIndexContext } from '../root/SelectIndexContext';
 import { useCompositeListItem } from '../../composite/list/useCompositeListItem';
 import { useForkRef } from '../../utils/useForkRef';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useSelectItem } from './useSelectItem';
 import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { useLatestRef } from '../../utils/useLatestRef';
 import { SelectItemContext } from './SelectItemContext';
+import { useRenderElement } from '../../utils/useRenderElement';
 
 interface InnerSelectItemProps extends Omit<SelectItem.Props, 'value'> {
   highlighted: boolean;
@@ -36,7 +36,7 @@ interface InnerSelectItemProps extends Omit<SelectItem.Props, 'value'> {
 
 const InnerSelectItem = React.memo(
   React.forwardRef(function InnerSelectItem(
-    props: InnerSelectItemProps,
+    componentProps: InnerSelectItemProps,
     forwardedRef: React.ForwardedRef<HTMLDivElement>,
   ) {
     const {
@@ -58,8 +58,8 @@ const InnerSelectItem = React.memo(
       popupRef,
       keyboardActiveRef,
       events,
-      ...otherProps
-    } = props;
+      ...elementProps
+    } = componentProps;
 
     const state: SelectItem.State = React.useMemo(
       () => ({
@@ -69,7 +69,15 @@ const InnerSelectItem = React.memo(
       [disabled, selected],
     );
 
-    const { getItemProps, rootRef } = useSelectItem({
+    const rootProps = getRootItemProps({
+      active: highlighted,
+      selected,
+      // With our custom `focusItemOnHover` implementation, this interferes with the logic and can
+      // cause the index state to be stuck when leaving the select popup.
+      onFocus: undefined,
+    });
+
+    const { props, rootRef } = useSelectItem({
       open,
       setOpen,
       disabled,
@@ -85,27 +93,14 @@ const InnerSelectItem = React.memo(
       popupRef,
       keyboardActiveRef,
       events,
+      rootProps,
+      elementProps,
     });
 
-    const mergedRef = useForkRef(rootRef, forwardedRef);
-
-    const { renderElement } = useComponentRenderer({
-      propGetter(externalProps = {}) {
-        const rootProps = getRootItemProps({
-          ...externalProps,
-          active: highlighted,
-          selected,
-        });
-        // With our custom `focusItemOnHover` implementation, this interferes with the logic and can
-        // cause the index state to be stuck when leaving the select popup.
-        delete rootProps.onFocus;
-        return getItemProps(rootProps);
-      },
-      render: render ?? 'div',
-      ref: mergedRef,
-      className,
+    const renderElement = useRenderElement('div', componentProps, {
+      ref: [rootRef, forwardedRef],
       state,
-      extraProps: otherProps,
+      props,
     });
 
     const contextValue = React.useMemo(
