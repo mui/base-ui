@@ -1,22 +1,49 @@
 'use client';
 import * as React from 'react';
-import { NOOP } from '../../utils/noop';
-import { BaseUIComponentProps } from '../../utils/types';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import { BaseUIComponentProps, Orientation } from '../../utils/types';
+import { isElementDisabled } from '../../utils/isElementDisabled';
+import { useControlled } from '../../utils/useControlled';
+import { useEventCallback } from '../../utils/useEventCallback';
 import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
+import { useRenderElement } from '../../utils/useRenderElement';
 import { warn } from '../../utils/warn';
+import {
+  ARROW_DOWN,
+  ARROW_UP,
+  ARROW_RIGHT,
+  ARROW_LEFT,
+  HOME,
+  END,
+} from '../../composite/composite';
 import { CompositeList } from '../../composite/list/CompositeList';
 import { useDirection } from '../../direction-provider/DirectionContext';
-import {
-  useAccordionRoot,
-  type AccordionOrientation,
-  type AccordionValue,
-} from './useAccordionRoot';
 import { AccordionRootContext } from './AccordionRootContext';
+
+const SUPPORTED_KEYS = [ARROW_DOWN, ARROW_UP, ARROW_RIGHT, ARROW_LEFT, HOME, END];
 
 const rootStyleHookMapping = {
   value: () => null,
 };
+
+function getActiveTriggers(accordionItemRefs: {
+  current: (HTMLElement | null)[];
+}): HTMLButtonElement[] {
+  const { current: accordionItemElements } = accordionItemRefs;
+
+  const output: HTMLButtonElement[] = [];
+
+  for (let i = 0; i < accordionItemElements.length; i += 1) {
+    const section = accordionItemElements[i];
+    if (!isElementDisabled(section)) {
+      const trigger = section?.querySelector('[type="button"]') as HTMLButtonElement;
+      if (!isElementDisabled(trigger)) {
+        output.push(trigger);
+      }
+    }
+  }
+
+  return output;
+}
 
 /**
  * Groups all parts of the accordion.
@@ -25,7 +52,7 @@ const rootStyleHookMapping = {
  * Documentation: [Base UI Accordion](https://base-ui.com/react/components/accordion)
  */
 const AccordionRoot = React.forwardRef(function AccordionRoot(
-  props: AccordionRoot.Props,
+  componentProps: AccordionRoot.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const {
@@ -37,11 +64,10 @@ const AccordionRoot = React.forwardRef(function AccordionRoot(
     onValueChange: onValueChangeProp,
     openMultiple = true,
     orientation = 'vertical',
-    value,
+    value: valueProp,
     defaultValue: defaultValueProp,
-    render,
-    ...otherProps
-  } = props;
+    ...elementProps
+  } = componentProps;
 
   const direction = useDirection();
 
@@ -59,59 +85,176 @@ const AccordionRoot = React.forwardRef(function AccordionRoot(
   // memoized to allow omitting both defaultValue and value
   // which would otherwise trigger a warning in useControlled
   const defaultValue = React.useMemo(() => {
-    if (value === undefined) {
+    if (valueProp === undefined) {
       return defaultValueProp ?? [];
     }
 
     return undefined;
-  }, [value, defaultValueProp]);
+  }, [valueProp, defaultValueProp]);
 
-  const { getRootProps, ...accordion } = useAccordionRoot({
-    direction,
-    disabled,
-    defaultValue,
-    loop,
-    orientation,
-    onValueChange: onValueChangeProp ?? NOOP,
-    openMultiple,
-    value,
+  const onValueChange = useEventCallback(onValueChangeProp);
+
+  const accordionItemRefs = React.useRef<(HTMLElement | null)[]>([]);
+
+  const [value, setValue] = useControlled({
+    controlled: valueProp,
+    default: defaultValue,
+    name: 'Accordion',
+    state: 'value',
   });
+
+  const handleValueChange = React.useCallback(
+    (newValue: number | string, nextOpen: boolean) => {
+      if (!openMultiple) {
+        const nextValue = value[0] === newValue ? [] : [newValue];
+        setValue(nextValue);
+        onValueChange(nextValue);
+      } else if (nextOpen) {
+        const nextOpenValues = value.slice();
+        nextOpenValues.push(newValue);
+        setValue(nextOpenValues);
+        onValueChange(nextOpenValues);
+      } else {
+        const nextOpenValues = value.filter((v) => v !== newValue);
+        setValue(nextOpenValues);
+        onValueChange(nextOpenValues);
+      }
+    },
+    [onValueChange, openMultiple, setValue, value],
+  );
+
+  const isRtl = direction === 'rtl';
+  const isHorizontal = orientation === 'horizontal';
 
   const state: AccordionRoot.State = React.useMemo(
     () => ({
-      value: accordion.value,
-      disabled: accordion.disabled,
-      orientation: accordion.orientation,
+      value,
+      disabled,
+      orientation,
     }),
-    [accordion.value, accordion.disabled, accordion.orientation],
+    [value, disabled, orientation],
   );
 
   const contextValue: AccordionRootContext = React.useMemo(
     () => ({
-      ...accordion,
+      accordionItemRefs,
+      direction,
+      disabled,
+      handleValueChange,
       hiddenUntilFound: hiddenUntilFoundProp ?? false,
       keepMounted: keepMountedProp ?? false,
+      orientation,
       state,
+      value,
     }),
-    [accordion, hiddenUntilFoundProp, keepMountedProp, state],
+    [
+      direction,
+      disabled,
+      handleValueChange,
+      hiddenUntilFoundProp,
+      keepMountedProp,
+      orientation,
+      state,
+      value,
+    ],
   );
 
-  const { renderElement } = useComponentRenderer({
-    propGetter: getRootProps,
-    render: render ?? 'div',
-    className,
+  const renderElement = useRenderElement('div', componentProps, {
     state,
     ref: forwardedRef,
-    extraProps: otherProps,
+    props: [
+      {
+        dir: direction,
+        role: 'region',
+        onKeyDown(event: React.KeyboardEvent) {
+          if (!SUPPORTED_KEYS.includes(event.key)) {
+            return;
+          }
+
+          event.preventDefault();
+
+          const triggers = getActiveTriggers(accordionItemRefs);
+
+          const numOfEnabledTriggers = triggers.length;
+          const lastIndex = numOfEnabledTriggers - 1;
+
+          let nextIndex = -1;
+
+          const thisIndex = triggers.indexOf(event.target as HTMLButtonElement);
+
+          function toNext() {
+            if (loop) {
+              nextIndex = thisIndex + 1 > lastIndex ? 0 : thisIndex + 1;
+            } else {
+              nextIndex = Math.min(thisIndex + 1, lastIndex);
+            }
+          }
+
+          function toPrev() {
+            if (loop) {
+              nextIndex = thisIndex === 0 ? lastIndex : thisIndex - 1;
+            } else {
+              nextIndex = thisIndex - 1;
+            }
+          }
+
+          switch (event.key) {
+            case ARROW_DOWN:
+              if (!isHorizontal) {
+                toNext();
+              }
+              break;
+            case ARROW_UP:
+              if (!isHorizontal) {
+                toPrev();
+              }
+              break;
+            case ARROW_RIGHT:
+              if (isHorizontal) {
+                if (isRtl) {
+                  toPrev();
+                } else {
+                  toNext();
+                }
+              }
+              break;
+            case ARROW_LEFT:
+              if (isHorizontal) {
+                if (isRtl) {
+                  toNext();
+                } else {
+                  toPrev();
+                }
+              }
+              break;
+            case 'Home':
+              nextIndex = 0;
+              break;
+            case 'End':
+              nextIndex = lastIndex;
+              break;
+            default:
+              break;
+          }
+
+          if (nextIndex > -1) {
+            triggers[nextIndex].focus();
+          }
+        },
+      },
+      elementProps,
+    ],
     customStyleHookMapping: rootStyleHookMapping,
   });
 
   return (
     <AccordionRootContext.Provider value={contextValue}>
-      <CompositeList elementsRef={accordion.accordionItemRefs}>{renderElement()}</CompositeList>
+      <CompositeList elementsRef={accordionItemRefs}>{renderElement()}</CompositeList>
     </AccordionRootContext.Provider>
   );
 });
+
+export type AccordionValue = (any | null)[];
 
 namespace AccordionRoot {
   export interface State {
@@ -120,23 +263,27 @@ namespace AccordionRoot {
      * Whether the component should ignore user interaction.
      */
     disabled: boolean;
-    orientation: AccordionOrientation;
+    orientation: Orientation;
   }
 
-  export interface Props
-    extends Partial<
-        Pick<
-          useAccordionRoot.Parameters,
-          | 'value'
-          | 'defaultValue'
-          | 'disabled'
-          | 'loop'
-          | 'onValueChange'
-          | 'openMultiple'
-          | 'orientation'
-        >
-      >,
-      Omit<BaseUIComponentProps<'div', State>, 'defaultValue'> {
+  export interface Props extends BaseUIComponentProps<'div', State> {
+    /**
+     * The controlled value of the item(s) that should be expanded.
+     *
+     * To render an uncontrolled accordion, use the `defaultValue` prop instead.
+     */
+    value?: AccordionValue;
+    /**
+     * The uncontrolled value of the item(s) that should be initially expanded.
+     *
+     * To render a controlled accordion, use the `value` prop instead.
+     */
+    defaultValue?: AccordionValue;
+    /**
+     * Whether the component should ignore user interaction.
+     * @default false
+     */
+    disabled?: boolean;
     /**
      * Allows the browser’s built-in page search to find and expand the panel contents.
      *
@@ -151,6 +298,28 @@ namespace AccordionRoot {
      * @default false
      */
     keepMounted?: boolean;
+    /**
+     * Whether to loop keyboard focus back to the first item
+     * when the end of the list is reached while using the arrow keys.
+     * @default true
+     */
+    loop?: boolean;
+    /**
+     * Event handler called when an accordion item is expanded or collapsed.
+     * Provides the new value as an argument.
+     */
+    onValueChange?: (value: AccordionValue) => void;
+    /**
+     * Whether multiple items can be open at the same time.
+     * @default true
+     */
+    openMultiple?: boolean;
+    /**
+     * The visual orientation of the accordion.
+     * Controls whether roving focus uses left/right or up/down arrow keys.
+     * @default 'vertical'
+     */
+    orientation?: Orientation;
   }
 }
 
