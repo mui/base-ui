@@ -69,7 +69,7 @@ export namespace useSelectPositioner {
 
   export interface SharedParameters extends useAnchorPositioning.SharedParameters {
     /**
-     * Determines if the positioner should align itself so that the selected item label is aligned with the trigger's value. This only applies to mouse input and is automatically disabled if there is not enough space.
+     * Whether the positioner overlaps the trigger so the selected item's text is aligned with the trigger's value text. This only applies to mouse input and is automatically disabled if there is not enough space.
      * @default true
      */
     alignItemWithTrigger?: boolean;
