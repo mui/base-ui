@@ -39,7 +39,7 @@ function useTabsTab(parameters: useTabsTab.Parameters): useTabsTab.ReturnValue {
   );
 
   const {
-    getItemProps,
+    props: compositeItemProps,
     ref: compositeItemRef,
     index,
     // hook is used instead of the CompositeItem component
@@ -140,13 +140,13 @@ function useTabsTab(parameters: useTabsTab.Parameters): useTabsTab.ReturnValue {
         },
         externalProps,
         getButtonProps,
-        getItemProps<'button'>,
+        compositeItemProps,
       );
     },
     [
       activateOnFocus,
       getButtonProps,
-      getItemProps,
+      compositeItemProps,
       handleRef,
       id,
       onTabActivation,

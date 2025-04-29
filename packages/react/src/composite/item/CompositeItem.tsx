@@ -12,7 +12,7 @@ function CompositeItem<Metadata>(componentProps: CompositeItem.Props<Metadata>) 
   const { render, className, itemRef = null, metadata, ...elementProps } = componentProps;
 
   const { highlightedIndex } = useCompositeRootContext();
-  const { getItemProps, ref, index } = useCompositeItem({ metadata });
+  const { props, ref, index } = useCompositeItem({ metadata });
 
   const state: CompositeItem.State = React.useMemo(
     () => ({
@@ -24,7 +24,7 @@ function CompositeItem<Metadata>(componentProps: CompositeItem.Props<Metadata>) 
   const renderElement = useRenderElement('div', componentProps, {
     state,
     ref: [itemRef, ref],
-    props: [getItemProps, elementProps],
+    props: [props, elementProps],
   });
 
   return renderElement();

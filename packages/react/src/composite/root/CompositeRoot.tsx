@@ -8,6 +8,8 @@ import type { BaseUIComponentProps } from '../../utils/types';
 import type { TextDirection } from '../../direction-provider/DirectionContext';
 import type { Dimensions, ModifierKey } from '../composite';
 
+const COMPOSITE_ROOT_STATE = {};
+
 /**
  * @internal
  */
@@ -50,7 +52,7 @@ function CompositeRoot<Metadata extends {}>(componentProps: CompositeRoot.Props<
     });
 
   const renderElement = useRenderElement('div', componentProps, {
-    state: {},
+    state: COMPOSITE_ROOT_STATE,
     props: [getRootProps, elementProps],
   });
 
