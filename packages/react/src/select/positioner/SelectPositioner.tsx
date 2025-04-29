@@ -36,7 +36,7 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
     arrowPadding = 5,
     sticky = false,
     trackAnchor = true,
-    anchorMode = 'overlap-trigger',
+    alignItemWithTrigger = true,
     ...otherProps
   } = props;
 
@@ -53,15 +53,15 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
     setScrollUpArrowVisible,
     scrollDownArrowVisible,
     setScrollDownArrowVisible,
-    overlapAnchorModeRef,
+    alignItemWithTriggerModeRef,
   } = useSelectRootContext();
 
-  const isItemAnchor = anchorMode === 'overlap-trigger';
+  const isItemAnchor = alignItemWithTrigger;
 
   const [controlledItemAnchor, setControlledItemAnchor] = React.useState(isItemAnchor);
-  const overlapAnchorMode = mounted && controlledItemAnchor && !touchModality;
+  const alignItemWithTriggerMode = mounted && controlledItemAnchor && !touchModality;
 
-  React.useImperativeHandle(overlapAnchorModeRef, () => overlapAnchorMode);
+  React.useImperativeHandle(alignItemWithTriggerModeRef, () => alignItemWithTriggerMode);
 
   if (!mounted && controlledItemAnchor !== isItemAnchor) {
     setControlledItemAnchor(isItemAnchor);
@@ -90,7 +90,7 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
     collisionPadding,
     sticky,
     trackAnchor,
-    overlapAnchorMode,
+    alignItemWithTriggerMode,
     keepMounted: true,
   });
 
@@ -119,11 +119,11 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
   const contextValue: SelectPositionerContext = React.useMemo(
     () => ({
       ...positioner,
-      overlapAnchorMode,
+      alignItemWithTriggerMode,
       controlledItemAnchor,
       setControlledItemAnchor,
     }),
-    [positioner, overlapAnchorMode, controlledItemAnchor],
+    [positioner, alignItemWithTriggerMode, controlledItemAnchor],
   );
 
   return (

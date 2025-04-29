@@ -28,7 +28,7 @@ const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
     setScrollDownArrowVisible,
     listRef,
   } = useSelectRootContext();
-  const { side, overlapAnchorMode } = useSelectPositionerContext();
+  const { side, alignItemWithTriggerMode } = useSelectPositionerContext();
   const { setActiveIndex } = useSelectIndexContext();
 
   const visible = direction === 'up' ? scrollUpArrowVisible : scrollDownArrowVisible;
@@ -71,7 +71,7 @@ const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
           onMouseMove(event) {
             if (
               (event.movementX === 0 && event.movementY === 0) ||
-              !overlapAnchorMode ||
+              !alignItemWithTriggerMode ||
               timeoutRef.current !== -1
             ) {
               return;
@@ -176,7 +176,7 @@ const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
       ),
     [
       direction,
-      overlapAnchorMode,
+      alignItemWithTriggerMode,
       setActiveIndex,
       popupRef,
       setScrollUpArrowVisible,

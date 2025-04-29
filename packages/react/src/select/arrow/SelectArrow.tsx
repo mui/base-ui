@@ -22,7 +22,7 @@ const SelectArrow = React.forwardRef(function SelectArrow(
   const { className, render, ...otherProps } = props;
 
   const { open } = useSelectRootContext();
-  const { arrowRef, side, align, arrowUncentered, arrowStyles, overlapAnchorMode } =
+  const { arrowRef, side, align, arrowUncentered, arrowStyles, alignItemWithTriggerMode } =
     useSelectPositionerContext();
 
   const getArrowProps = React.useCallback(
@@ -59,7 +59,7 @@ const SelectArrow = React.forwardRef(function SelectArrow(
     customStyleHookMapping: popupStateMapping,
   });
 
-  if (overlapAnchorMode) {
+  if (alignItemWithTriggerMode) {
     return null;
   }
 

@@ -8,11 +8,11 @@ import { useScrollLock } from '../../utils/useScrollLock';
 export function useSelectPositioner(
   params: useSelectPositioner.Parameters,
 ): useSelectPositioner.ReturnValue {
-  const { overlapAnchorMode } = params;
+  const { alignItemWithTriggerMode } = params;
   const { open, mounted, triggerElement, modal } = useSelectRootContext();
 
   useScrollLock({
-    enabled: (overlapAnchorMode || modal) && open,
+    enabled: (alignItemWithTriggerMode || modal) && open,
     mounted,
     open,
     referenceElement: triggerElement,
@@ -20,12 +20,12 @@ export function useSelectPositioner(
 
   const positioning = useAnchorPositioning({
     ...params,
-    trackAnchor: params.trackAnchor ?? !overlapAnchorMode,
+    trackAnchor: params.trackAnchor ?? !alignItemWithTriggerMode,
   });
 
   const positionerStyles: React.CSSProperties = React.useMemo(
-    () => (overlapAnchorMode ? { position: 'fixed' } : positioning.positionerStyles),
-    [overlapAnchorMode, positioning.positionerStyles],
+    () => (alignItemWithTriggerMode ? { position: 'fixed' } : positioning.positionerStyles),
+    [alignItemWithTriggerMode, positioning.positionerStyles],
   );
 
   const getPositionerProps: useSelectPositioner.ReturnValue['getPositionerProps'] =
@@ -55,26 +55,24 @@ export function useSelectPositioner(
   return React.useMemo(
     () => ({
       ...positioning,
-      side: overlapAnchorMode ? 'none' : positioning.side,
+      side: alignItemWithTriggerMode ? 'none' : positioning.side,
       getPositionerProps,
     }),
-    [getPositionerProps, positioning, overlapAnchorMode],
+    [getPositionerProps, positioning, alignItemWithTriggerMode],
   );
 }
 
 export namespace useSelectPositioner {
   export interface Parameters extends useAnchorPositioning.Parameters {
-    overlapAnchorMode: boolean;
+    alignItemWithTriggerMode: boolean;
   }
 
   export interface SharedParameters extends useAnchorPositioning.SharedParameters {
     /**
-     * Determines how the positioner is anchored to the trigger.
-     * - `'beside-trigger'`: Anchors beside the trigger.
-     * - `'overlap-trigger'`: Anchors over the trigger, aligning the selected item label with the trigger's value. This only applies to mouse input and is automatically disabled if there is not enough space.
-     * @default 'overlap-trigger'
+     * Determines if the positioner should align itself so that the selected item label is aligned with the trigger's value. This only applies to mouse input and is automatically disabled if there is not enough space.
+     * @default true
      */
-    anchorMode?: 'beside-trigger' | 'overlap-trigger';
+    alignItemWithTrigger?: boolean;
   }
 
   export interface ReturnValue extends Omit<useAnchorPositioning.ReturnValue, 'side'> {
