@@ -31,7 +31,7 @@ import { FocusGuard } from '../../toast/viewport/FocusGuard';
 import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { visuallyHidden } from '../../utils/visuallyHidden';
 import { CompositeItem } from '../../composite/item/CompositeItem';
-import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
+import { pressableTriggerOpenStateMapping } from '../../utils/popupStateMapping';
 import { isOutsideMenuEvent } from '../utils/isOutsideMenuEvent';
 
 const TRIGGER_IDENTIFIER = 'data-navigation-menu-trigger';
@@ -247,7 +247,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
       },
       elementProps,
     ],
-    customStyleHookMapping: triggerOpenStateMapping,
+    customStyleHookMapping: pressableTriggerOpenStateMapping,
   });
 
   return (

@@ -15,6 +15,7 @@ import { NavigationMenuPositionerContext } from './NavigationMenuPositionerConte
 import { ownerDocument, ownerWindow } from '../../utils/owner';
 import { useAnimationsFinished } from '../../utils/useAnimationsFinished';
 import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
+import { popupStateMapping } from '../../utils/popupStateMapping';
 
 /**
  * Positions the navigation menu against the currently active trigger.
@@ -229,6 +230,7 @@ export const NavigationMenuPositioner = React.forwardRef(function NavigationMenu
     state,
     ref: [forwardedRef, setPositionerElement, positionerRef],
     props: [positioning.props, elementProps],
+    customStyleHookMapping: popupStateMapping,
   });
 
   return (

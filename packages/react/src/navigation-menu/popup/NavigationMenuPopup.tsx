@@ -11,6 +11,13 @@ import { useBaseUiId } from '../../utils/useBaseUiId';
 import { FocusGuard } from '../../toast/viewport/FocusGuard';
 import { useNavigationMenuPositionerContext } from '../positioner/NavigationMenuPositionerContext';
 import { useDirection } from '../../direction-provider/DirectionContext';
+import { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
+import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping';
+
+const customStyleHookMapping: CustomStyleHookMapping<NavigationMenuPopup.State> = {
+  ...baseMapping,
+  ...transitionStatusMapping,
+};
 
 /**
  * A container for the navigation menu contents.
@@ -134,7 +141,7 @@ export const NavigationMenuPopup = React.forwardRef(function NavigationMenuPopup
       },
       elementProps,
     ],
-    customStyleHookMapping: transitionStatusMapping,
+    customStyleHookMapping,
   });
 
   return (

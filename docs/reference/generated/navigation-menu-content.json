@@ -11,6 +11,22 @@
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
     }
   },
-  "dataAttributes": {},
+  "dataAttributes": {
+    "data-open": {
+      "description": "Present when the popup is open."
+    },
+    "data-closed": {
+      "description": "Present when the popup is closed."
+    },
+    "data-activation-direction": {
+      "description": "Which direction another trigger was activated from."
+    },
+    "data-starting-style": {
+      "description": "Present when the content is animating in."
+    },
+    "data-ending-style": {
+      "description": "Present when the content is animating out."
+    }
+  },
   "cssVariables": {}
 }
