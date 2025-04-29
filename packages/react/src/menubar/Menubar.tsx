@@ -8,7 +8,6 @@ import { MenubarContext, useMenubarContext } from './MenubarContext';
 import { useScrollLock } from '../utils';
 import { CompositeRoot } from '../composite/root/CompositeRoot';
 import { useRenderElement } from '../utils/useRenderElement';
-import { useEventCallback } from '../utils/useEventCallback';
 
 /**
  * The container for menus.
@@ -30,7 +29,6 @@ const Menubar = React.forwardRef(function Menubar(
 
   const [contentElement, setContentElement] = React.useState<HTMLElement | null>(null);
   const [hasSubmenuOpen, setHasSubmenuOpen] = React.useState(false);
-  const [hasFocusWithin, setHasFocusWithin] = React.useState(false);
 
   useScrollLock({
     enabled: modal && hasSubmenuOpen,
@@ -49,19 +47,9 @@ const Menubar = React.forwardRef(function Menubar(
 
   const contentRef = React.useRef<HTMLDivElement>(null);
 
-  const handleFocus = React.useCallback(() => {
-    setHasFocusWithin(true);
-  }, []);
-
-  const handleBlur = useEventCallback((event: React.FocusEvent) => {
-    if (!contentElement || !contentElement.contains(event.relatedTarget as Node | null)) {
-      setHasFocusWithin(false);
-    }
-  });
-
   const renderElement = useRenderElement('div', props, {
     state,
-    props: [{ onFocus: handleFocus, onBlur: handleBlur, role: 'menubar' }, otherProps],
+    props: [{ role: 'menubar' }, otherProps],
     ref: [forwardedRef, setContentElement, contentRef],
   });
 
