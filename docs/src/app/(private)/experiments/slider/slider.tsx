@@ -107,17 +107,18 @@ function Brightness() {
 function PriceRange() {
   return (
     <Slider.Root
-      defaultValue={[20000, 30000]}
-      min={7000}
-      max={70000}
+      defaultValue={[500, 1200]}
+      min={100}
+      max={2000}
       step={1}
-      minStepsBetweenValues={100}
+      minStepsBetweenValues={1}
       className={styles.Root}
       aria-labelledby="label-3"
       format={{
         style: 'currency',
-        currency: 'JPY',
+        currency: 'EUR',
       }}
+      locale="de-DE"
       style={{ width: '18rem' }}
     >
       <span className={styles.Label} id="label-3">
