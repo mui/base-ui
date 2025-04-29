@@ -15,7 +15,7 @@ export enum SelectArrowDataAttributes {
   anchorHidden = CommonPopupDataAttributes.anchorHidden,
   /**
    * Indicates which side the popup is positioned relative to the trigger.
-   * @type {'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start'}
+   * @type {'none' | 'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start'}
    */
   side = 'data-side',
   /**
