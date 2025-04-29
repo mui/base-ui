@@ -246,7 +246,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
     ],
   );
 
-  const contextValue = React.useMemo(
+  const contextValue: SliderRootContext = React.useMemo(
     () => ({
       active,
       disabled,

@@ -65,6 +65,10 @@
       "default": "false",
       "description": "Whether the user must choose a value before submitting a form."
     },
+    "inputRef": {
+      "type": "Ref<HTMLInputElement>",
+      "description": "A ref to access the hidden input element."
+    },
     "id": {
       "type": "string",
       "description": "The id of the Select."
