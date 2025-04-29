@@ -99,6 +99,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     onFocus: onFocusProp,
     onKeyDown: onKeyDownProp,
     tabIndex: tabIndexProp,
+    inputRef: inputRefProp,
     ...elementProps
   } = componentProps;
 
@@ -145,7 +146,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
 
   const thumbRef = React.useRef<HTMLElement>(null);
   const inputRef = React.useRef<HTMLInputElement>(null);
-  const mergedInputRef = useForkRef(inputRef, inputValidationRef);
+  const mergedInputRef = useForkRef(inputRef, inputRefProp, inputValidationRef);
 
   const thumbMetadata = React.useMemo(
     () => ({
@@ -378,6 +379,10 @@ export namespace SliderThumb {
   export interface State extends SliderRoot.State {}
 
   export interface Props extends Omit<BaseUIComponentProps<'div', State>, 'render'> {
+    /**
+     * A ref to access the hidden input element.
+     */
+    inputRef?: React.Ref<HTMLInputElement>;
     /**
      * Whether the thumb should ignore user interaction.
      * @default false

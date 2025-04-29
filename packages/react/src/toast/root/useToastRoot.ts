@@ -103,6 +103,7 @@ export function useToastRoot(props: useToastRoot.Parameters): useToastRoot.Retur
   const maxSwipeDisplacementRef = React.useRef(0);
   const cancelledSwipeRef = React.useRef(false);
   const swipeCancelBaselineRef = React.useRef({ x: 0, y: 0 });
+  const isFirstPointerMoveRef = React.useRef(false);
 
   const domIndex = React.useMemo(() => toasts.indexOf(toast), [toast, toasts]);
   const visibleIndex = React.useMemo(
@@ -220,6 +221,7 @@ export function useToastRoot(props: useToastRoot.Parameters): useToastRoot.Retur
     setIsSwiping(true);
     setIsRealSwipe(false);
     setLockedDirection(null);
+    isFirstPointerMoveRef.current = true;
 
     rootRef.current?.setPointerCapture(event.pointerId);
   });
@@ -231,6 +233,13 @@ export function useToastRoot(props: useToastRoot.Parameters): useToastRoot.Retur
 
     // Prevent text selection on Safari
     event.preventDefault();
+
+    if (isFirstPointerMoveRef.current) {
+      // Adjust the starting position to the current position on the first move
+      // to account for the delay between pointerdown and the first pointermove on iOS.
+      dragStartPosRef.current = { x: event.clientX, y: event.clientY };
+      isFirstPointerMoveRef.current = false;
+    }
 
     const { clientY, clientX, movementX, movementY } = event;
 
