@@ -6,8 +6,15 @@ import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useForkRef } from '../../utils/useForkRef';
 import { mergeProps } from '../../merge-props';
 import type { BaseUIComponentProps } from '../../utils/types';
-import { popupStateMapping } from '../../utils/popupStateMapping';
 import type { Align, Side } from '../../utils/useAnchorPositioning';
+import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
+import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping';
+import { transitionStatusMapping } from '../../utils/styleHookMapping';
+
+const customStyleHookMapping: CustomStyleHookMapping<SelectArrow.State> = {
+  ...baseMapping,
+  ...transitionStatusMapping,
+};
 
 /**
  * Displays an element positioned against the select menu anchor.
@@ -55,7 +62,7 @@ const SelectArrow = React.forwardRef(function SelectArrow(
     state,
     ref: mergedRef,
     extraProps: otherProps,
-    customStyleHookMapping: popupStateMapping,
+    customStyleHookMapping,
   });
 
   if (alignItemToTrigger) {
