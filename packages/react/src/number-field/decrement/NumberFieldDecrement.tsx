@@ -1,10 +1,11 @@
 'use client';
 import * as React from 'react';
+import { BaseUIComponentProps } from '../../utils/types';
+import { useRenderElement } from '../../utils/useRenderElement';
+import { useButton } from '../../use-button';
 import { useNumberFieldRootContext } from '../root/NumberFieldRootContext';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import type { NumberFieldRoot } from '../root/NumberFieldRoot';
 import { useNumberFieldButton } from '../root/useNumberFieldButton';
-import { BaseUIComponentProps, GenericHTMLProps } from '../../utils/types';
 import { styleHookMapping } from '../utils/styleHooks';
 
 /**
@@ -14,14 +15,14 @@ import { styleHookMapping } from '../utils/styleHooks';
  * Documentation: [Base UI Number Field](https://base-ui.com/react/components/number-field)
  */
 export const NumberFieldDecrement = React.forwardRef(function NumberFieldDecrement(
-  props: NumberFieldDecrement.Props,
+  componentProps: NumberFieldDecrement.Props,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
-  const { render, className, disabled: disabledProp = false, ...otherProps } = props;
+  const { render, className, disabled: disabledProp = false, ...elementProps } = componentProps;
 
   const {
     allowInputSyncRef,
-    disabled,
+    disabled: contextDisabled,
     formatOptionsRef,
     getStepAmount,
     id,
@@ -43,7 +44,10 @@ export const NumberFieldDecrement = React.forwardRef(function NumberFieldDecreme
     locale,
   } = useNumberFieldRootContext();
 
-  const { getCommonButtonProps } = useNumberFieldButton({
+  const disabled = disabledProp || contextDisabled;
+
+  const { props } = useNumberFieldButton({
+    isIncrement: false,
     inputRef,
     startAutoChange,
     stopAutoChange,
@@ -51,7 +55,7 @@ export const NumberFieldDecrement = React.forwardRef(function NumberFieldDecreme
     maxWithDefault,
     value,
     inputValue,
-    disabled: disabledProp || disabled,
+    disabled,
     readOnly,
     id,
     setValue,
@@ -66,18 +70,15 @@ export const NumberFieldDecrement = React.forwardRef(function NumberFieldDecreme
     locale,
   });
 
-  const propGetter = React.useCallback(
-    (externalProps: GenericHTMLProps) => getCommonButtonProps(false, externalProps),
-    [getCommonButtonProps],
-  );
+  const { getButtonProps, buttonRef } = useButton({
+    disabled,
+    buttonRef: forwardedRef,
+  });
 
-  const { renderElement } = useComponentRenderer({
-    propGetter,
-    ref: forwardedRef,
-    render: render ?? 'button',
+  const renderElement = useRenderElement('button', componentProps, {
     state,
-    className,
-    extraProps: otherProps,
+    ref: buttonRef,
+    props: [props, elementProps, getButtonProps],
     customStyleHookMapping: styleHookMapping,
   });
 
