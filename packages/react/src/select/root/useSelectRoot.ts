@@ -225,7 +225,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
       setActiveIndex(nextActiveIndex);
     },
     // Implement our own listeners since `onPointerLeave` on each option fires while scrolling with
-    // the `anchorMode="overlap-trigger"`, causing a performance issue on Chrome.
+    // the `alignItemWithTrigger=true`, causing a performance issue on Chrome.
     focusItemOnHover: false,
   });
 

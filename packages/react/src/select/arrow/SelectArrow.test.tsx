@@ -10,7 +10,7 @@ describe('<Select.Arrow />', () => {
     render(node) {
       return render(
         <Select.Root open>
-          <Select.Positioner anchorMode="beside-trigger">{node}</Select.Positioner>
+          <Select.Positioner alignItemWithTrigger={false}>{node}</Select.Positioner>
         </Select.Root>,
       );
     },

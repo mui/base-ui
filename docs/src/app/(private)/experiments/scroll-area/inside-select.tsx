@@ -16,7 +16,7 @@ export default function ExampleSelect() {
         <Select.Positioner
           className={styles.Positioner}
           sideOffset={8}
-          anchorMode="beside-trigger"
+          alignItemWithTrigger={false}
         >
           <Select.ScrollUpArrow className={styles.ScrollArrow} />
           <Select.Popup className={styles.Popup}>

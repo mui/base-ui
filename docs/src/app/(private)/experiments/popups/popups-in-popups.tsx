@@ -74,7 +74,7 @@ function SelectDemo({ modal }: Props) {
         <Select.Positioner
           sideOffset={5}
           render={<Positioner />}
-          anchorMode="beside-trigger"
+          alignItemWithTrigger={false}
         >
           <SelectPopup>
             <SelectItem value="system">
