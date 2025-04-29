@@ -63,7 +63,6 @@ export function useNumberFieldButton(
   const props: GenericHTMLProps = React.useMemo(
     () => ({
       disabled: disabled || (isIncrement ? isMax : isMin),
-      type: 'button',
       'aria-readonly': readOnly || undefined,
       'aria-label': isIncrement ? 'Increase' : 'Decrease',
       'aria-controls': id,

@@ -187,7 +187,7 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
             }
           },
         },
-        getInputValidationProps(),
+        getInputValidationProps,
       ),
     [
       getInputValidationProps,

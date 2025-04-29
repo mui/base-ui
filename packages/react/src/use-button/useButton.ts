@@ -224,6 +224,9 @@ export namespace useButton {
      * @default false
      */
     focusableWhenDisabled?: boolean;
+    /**
+     * @deprecated pass the returned `buttonRef` to `useRenderElement` instead
+     */
     buttonRef?: React.Ref<Element>;
     tabIndex?: NonNullable<React.HTMLAttributes<any>['tabIndex']>;
     /**

@@ -73,12 +73,11 @@ export const NumberFieldIncrement = React.forwardRef(function NumberFieldIncreme
 
   const { getButtonProps, buttonRef } = useButton({
     disabled,
-    buttonRef: forwardedRef,
   });
 
   const renderElement = useRenderElement('button', componentProps, {
     state,
-    ref: buttonRef,
+    ref: [forwardedRef, buttonRef],
     props: [props, elementProps, getButtonProps],
     customStyleHookMapping: styleHookMapping,
   });

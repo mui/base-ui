@@ -69,7 +69,6 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
   const rootProps: React.ComponentPropsWithRef<'button'> = React.useMemo(
     () => ({
       role: 'radio',
-      type: 'button',
       'aria-checked': checked,
       'aria-required': required || undefined,
       'aria-disabled': disabled || undefined,
@@ -105,7 +104,6 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
 
   const { getButtonProps, buttonRef } = useButton({
     disabled,
-    buttonRef: forwardedRef,
   });
 
   const inputProps: React.ComponentPropsWithRef<'input'> = React.useMemo(
@@ -167,7 +165,7 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
 
   const renderElement = useRenderElement('button', componentProps, {
     state,
-    ref: buttonRef,
+    ref: [forwardedRef, buttonRef],
     props: [
       rootProps,
       fieldControlValidation?.getValidationProps ?? NOOP,
