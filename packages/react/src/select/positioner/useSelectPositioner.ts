@@ -8,11 +8,11 @@ import { useScrollLock } from '../../utils/useScrollLock';
 export function useSelectPositioner(
   params: useSelectPositioner.Parameters,
 ): useSelectPositioner.ReturnValue {
-  const { alignItemWithTriggerMode } = params;
+  const { alignItemWithTriggerActive } = params;
   const { open, mounted, triggerElement, modal } = useSelectRootContext();
 
   useScrollLock({
-    enabled: (alignItemWithTriggerMode || modal) && open,
+    enabled: (alignItemWithTriggerActive || modal) && open,
     mounted,
     open,
     referenceElement: triggerElement,
@@ -20,12 +20,12 @@ export function useSelectPositioner(
 
   const positioning = useAnchorPositioning({
     ...params,
-    trackAnchor: params.trackAnchor ?? !alignItemWithTriggerMode,
+    trackAnchor: params.trackAnchor ?? !alignItemWithTriggerActive,
   });
 
   const positionerStyles: React.CSSProperties = React.useMemo(
-    () => (alignItemWithTriggerMode ? { position: 'fixed' } : positioning.positionerStyles),
-    [alignItemWithTriggerMode, positioning.positionerStyles],
+    () => (alignItemWithTriggerActive ? { position: 'fixed' } : positioning.positionerStyles),
+    [alignItemWithTriggerActive, positioning.positionerStyles],
   );
 
   const getPositionerProps: useSelectPositioner.ReturnValue['getPositionerProps'] =
@@ -55,16 +55,16 @@ export function useSelectPositioner(
   return React.useMemo(
     () => ({
       ...positioning,
-      side: alignItemWithTriggerMode ? 'none' : positioning.side,
+      side: alignItemWithTriggerActive ? 'none' : positioning.side,
       getPositionerProps,
     }),
-    [getPositionerProps, positioning, alignItemWithTriggerMode],
+    [getPositionerProps, positioning, alignItemWithTriggerActive],
   );
 }
 
 export namespace useSelectPositioner {
   export interface Parameters extends useAnchorPositioning.Parameters {
-    alignItemWithTriggerMode: boolean;
+    alignItemWithTriggerActive: boolean;
   }
 
   export interface SharedParameters extends useAnchorPositioning.SharedParameters {

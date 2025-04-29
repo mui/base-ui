@@ -30,7 +30,7 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
     floatingRootContext,
   } = useSelectRootContext();
   const { setActiveIndex } = useSelectIndexContext();
-  const { alignItemWithTriggerMode, setControlledItemAnchor } = useSelectPositionerContext();
+  const { alignItemWithTriggerActive, setControlledItemAnchor } = useSelectPositionerContext();
 
   const initialHeightRef = React.useRef(0);
   const reachedMaxHeightRef = React.useRef(false);
@@ -39,7 +39,7 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
   const originalPositionerStylesRef = React.useRef<React.CSSProperties>({});
 
   const handleScrollArrowVisibility = useEventCallback(() => {
-    if (!alignItemWithTriggerMode || !popupRef.current) {
+    if (!alignItemWithTriggerActive || !popupRef.current) {
       return;
     }
 
@@ -58,7 +58,7 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
 
   useModernLayoutEffect(() => {
     if (
-      alignItemWithTriggerMode ||
+      alignItemWithTriggerActive ||
       !positionerElement ||
       Object.keys(originalPositionerStylesRef.current).length
     ) {
@@ -76,10 +76,10 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
       marginTop: positionerElement.style.marginTop,
       marginBottom: positionerElement.style.marginBottom,
     };
-  }, [alignItemWithTriggerMode, positionerElement]);
+  }, [alignItemWithTriggerActive, positionerElement]);
 
   useModernLayoutEffect(() => {
-    if (mounted || alignItemWithTriggerMode) {
+    if (mounted || alignItemWithTriggerActive) {
       return;
     }
 
@@ -91,12 +91,12 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
     if (positionerElement) {
       clearPositionerStyles(positionerElement, originalPositionerStylesRef.current);
     }
-  }, [mounted, alignItemWithTriggerMode, positionerElement]);
+  }, [mounted, alignItemWithTriggerActive, positionerElement]);
 
   useModernLayoutEffect(() => {
     if (
       !mounted ||
-      !alignItemWithTriggerMode ||
+      !alignItemWithTriggerActive ||
       !triggerElement ||
       !positionerElement ||
       !popupRef.current
@@ -216,12 +216,12 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
     setScrollUpArrowVisible,
     setScrollDownArrowVisible,
     handleScrollArrowVisibility,
-    alignItemWithTriggerMode,
+    alignItemWithTriggerActive,
     setControlledItemAnchor,
   ]);
 
   React.useEffect(() => {
-    if (!alignItemWithTriggerMode || !positionerElement || !mounted) {
+    if (!alignItemWithTriggerActive || !positionerElement || !mounted) {
       return undefined;
     }
 
@@ -236,7 +236,7 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
     return () => {
       win.removeEventListener('resize', handleResize);
     };
-  }, [setOpen, alignItemWithTriggerMode, positionerElement, mounted]);
+  }, [setOpen, alignItemWithTriggerActive, positionerElement, mounted]);
 
   const getPopupProps: useSelectPopup.ReturnValue['getPopupProps'] = React.useCallback(
     (externalProps = {}) => {
@@ -259,7 +259,7 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
           },
           onScroll(event) {
             if (
-              !alignItemWithTriggerMode ||
+              !alignItemWithTriggerActive ||
               !positionerElement ||
               !popupRef.current ||
               !initialPlacedRef.current
@@ -267,7 +267,7 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
               return;
             }
 
-            if (reachedMaxHeightRef.current || !alignItemWithTriggerMode) {
+            if (reachedMaxHeightRef.current || !alignItemWithTriggerActive) {
               handleScrollArrowVisibility();
               return;
             }
@@ -318,7 +318,7 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
 
             handleScrollArrowVisibility();
           },
-          ...(alignItemWithTriggerMode && {
+          ...(alignItemWithTriggerActive && {
             style: {
               position: 'relative',
               maxHeight: '100%',
@@ -332,7 +332,7 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
     },
     [
       id,
-      alignItemWithTriggerMode,
+      alignItemWithTriggerActive,
       getRootPositionerProps,
       keyboardActiveRef,
       setActiveIndex,

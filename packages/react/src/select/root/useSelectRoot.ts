@@ -91,7 +91,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     allowUnselectedMouseUp: false,
     allowSelect: false,
   });
-  const alignItemWithTriggerModeRef = React.useRef(false);
+  const alignItemWithTriggerActiveRef = React.useRef(false);
 
   const [triggerElement, setTriggerElement] = React.useState<HTMLElement | null>(null);
   const [positionerElement, setPositionerElement] = React.useState<HTMLElement | null>(null);
@@ -297,7 +297,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
       registerSelectedItem,
       onOpenChangeComplete,
       keyboardActiveRef,
-      alignItemWithTriggerModeRef,
+      alignItemWithTriggerActiveRef,
     }),
     [
       id,

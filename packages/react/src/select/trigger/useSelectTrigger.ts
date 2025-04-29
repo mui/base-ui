@@ -26,7 +26,7 @@ export function useSelectTrigger(
     setTouchModality,
     positionerElement,
     readOnly,
-    alignItemWithTriggerModeRef,
+    alignItemWithTriggerActiveRef,
   } = useSelectRootContext();
 
   const { labelId, setTouched, setFocused, validationMode } = useFieldRootContext();
@@ -82,7 +82,7 @@ export function useSelectTrigger(
           onFocus(event) {
             setFocused(true);
             // The popup element shouldn't obscure the focused trigger.
-            if (open && alignItemWithTriggerModeRef.current) {
+            if (open && alignItemWithTriggerActiveRef.current) {
               setOpen(false, event.nativeEvent, undefined);
             }
           },
@@ -159,7 +159,7 @@ export function useSelectTrigger(
       getButtonProps,
       setFocused,
       open,
-      alignItemWithTriggerModeRef,
+      alignItemWithTriggerActiveRef,
       setOpen,
       setTouched,
       validationMode,

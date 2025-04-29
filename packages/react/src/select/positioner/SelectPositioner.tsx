@@ -53,21 +53,19 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
     setScrollUpArrowVisible,
     scrollDownArrowVisible,
     setScrollDownArrowVisible,
-    alignItemWithTriggerModeRef,
+    alignItemWithTriggerActiveRef,
   } = useSelectRootContext();
 
-  const isItemAnchor = alignItemWithTrigger;
+  const [controlledItemAnchor, setControlledItemAnchor] = React.useState(alignItemWithTrigger);
+  const alignItemWithTriggerActive = mounted && controlledItemAnchor && !touchModality;
 
-  const [controlledItemAnchor, setControlledItemAnchor] = React.useState(isItemAnchor);
-  const alignItemWithTriggerMode = mounted && controlledItemAnchor && !touchModality;
+  React.useImperativeHandle(alignItemWithTriggerActiveRef, () => alignItemWithTriggerActive);
 
-  React.useImperativeHandle(alignItemWithTriggerModeRef, () => alignItemWithTriggerMode);
-
-  if (!mounted && controlledItemAnchor !== isItemAnchor) {
-    setControlledItemAnchor(isItemAnchor);
+  if (!mounted && controlledItemAnchor !== alignItemWithTrigger) {
+    setControlledItemAnchor(alignItemWithTrigger);
   }
 
-  if (!isItemAnchor || !mounted) {
+  if (!alignItemWithTrigger || !mounted) {
     if (scrollUpArrowVisible) {
       setScrollUpArrowVisible(false);
     }
@@ -90,7 +88,7 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
     collisionPadding,
     sticky,
     trackAnchor,
-    alignItemWithTriggerMode,
+    alignItemWithTriggerActive,
     keepMounted: true,
   });
 
@@ -119,11 +117,11 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
   const contextValue: SelectPositionerContext = React.useMemo(
     () => ({
       ...positioner,
-      alignItemWithTriggerMode,
+      alignItemWithTriggerActive,
       controlledItemAnchor,
       setControlledItemAnchor,
     }),
-    [positioner, alignItemWithTriggerMode, controlledItemAnchor],
+    [positioner, alignItemWithTriggerActive, controlledItemAnchor],
   );
 
   return (

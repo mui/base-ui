@@ -89,7 +89,7 @@ const SelectPopup = React.forwardRef(function SelectPopup(
 
   return (
     <React.Fragment>
-      {id && positioner.alignItemWithTriggerMode && (
+      {id && positioner.alignItemWithTriggerActive && (
         <style
           // eslint-disable-next-line react/no-danger
           dangerouslySetInnerHTML={html}
