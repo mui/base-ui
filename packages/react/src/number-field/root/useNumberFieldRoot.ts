@@ -8,7 +8,7 @@ import { CHANGE_VALUE_TICK_DELAY, DEFAULT_STEP, START_AUTO_CHANGE_DELAY } from '
 import { isIOS } from '../../utils/detectBrowser';
 import { ownerDocument, ownerWindow } from '../../utils/owner';
 import { useControlled } from '../../utils/useControlled';
-import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
+import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { useForcedRerendering } from '../../utils/useForcedRerendering';
 import { useBaseUiId } from '../../utils/useBaseUiId';
@@ -68,7 +68,7 @@ export function useNumberFieldRoot(
 
   const id = useBaseUiId(idProp);
 
-  useEnhancedEffect(() => {
+  useModernLayoutEffect(() => {
     setControlId(id);
     return () => {
       setControlId(undefined);
@@ -85,7 +85,7 @@ export function useNumberFieldRoot(
   const value = valueUnwrapped ?? null;
   const valueRef = useLatestRef(value);
 
-  useEnhancedEffect(() => {
+  useModernLayoutEffect(() => {
     setFilled(value !== null);
   }, [setFilled, value]);
 
@@ -109,7 +109,7 @@ export function useNumberFieldRoot(
   const allowInputSyncRef = React.useRef(true);
   const unsubscribeFromGlobalContextMenuRef = React.useRef<() => void>(() => {});
 
-  useEnhancedEffect(() => {
+  useModernLayoutEffect(() => {
     if (validityData.initialValue === null && value !== validityData.initialValue) {
       setValidityData((prev) => ({ ...prev, initialValue: value }));
     }
@@ -172,7 +172,7 @@ export function useNumberFieldRoot(
       }
 
       // We need to force a re-render, because while the value may be unchanged, the formatting may
-      // be different. This forces the `useEnhancedEffect` to run which acts as a single source of
+      // be different. This forces the `useModernLayoutEffect` to run which acts as a single source of
       // truth to sync the input value.
       forceRender();
     },
@@ -253,7 +253,7 @@ export function useNumberFieldRoot(
   // ESLint is disabled because it needs to run even if the parsed value hasn't changed, since the
   // value still can be formatted differently.
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEnhancedEffect(function syncFormattedInputValueOnValueChange() {
+  useModernLayoutEffect(function syncFormattedInputValueOnValueChange() {
     // This ensures the value is only updated on blur rather than every keystroke, but still
     // allows the input value to be updated when the value is changed externally.
     if (!allowInputSyncRef.current) {
@@ -267,7 +267,7 @@ export function useNumberFieldRoot(
     }
   });
 
-  useEnhancedEffect(
+  useModernLayoutEffect(
     function setDynamicInputModeForIOS() {
       if (!isIOS()) {
         return;

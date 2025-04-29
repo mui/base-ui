@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { triggerOpenStateMapping } from '../../utils/collapsibleOpenStateMapping';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
+import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useCollapsibleRootContext } from '../../collapsible/root/CollapsibleRootContext';
 import { useCollapsibleTrigger } from '../../collapsible/trigger/useCollapsibleTrigger';
@@ -34,7 +34,7 @@ const AccordionTrigger = React.forwardRef(function AccordionTrigger(
 
   const { state, setTriggerId, triggerId } = useAccordionItemContext();
 
-  useEnhancedEffect(() => {
+  useModernLayoutEffect(() => {
     if (id) {
       setTriggerId(id);
     }

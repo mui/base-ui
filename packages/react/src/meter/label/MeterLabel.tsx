@@ -3,7 +3,7 @@ import * as React from 'react';
 import { mergeProps } from '../../merge-props';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
+import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { useMeterRootContext } from '../root/MeterRootContext';
 import type { MeterRoot } from '../root/MeterRoot';
 import { BaseUIComponentProps } from '../../utils/types';
@@ -25,7 +25,7 @@ const MeterLabel = React.forwardRef(function MeterLabel(
 
   const { setLabelId } = useMeterRootContext();
 
-  useEnhancedEffect(() => {
+  useModernLayoutEffect(() => {
     setLabelId(id);
     return () => setLabelId(undefined);
   }, [id, setLabelId]);

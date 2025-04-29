@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
+import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { warn } from '../../utils/warn';
 import { useCollapsibleRootContext } from '../root/CollapsibleRootContext';
 import type { CollapsibleRoot } from '../root/CollapsibleRoot';
@@ -32,7 +32,7 @@ const CollapsiblePanel = React.forwardRef(function CollapsiblePanel(
 
   if (process.env.NODE_ENV !== 'production') {
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    useEnhancedEffect(() => {
+    useModernLayoutEffect(() => {
       if (hiddenUntilFoundProp && keepMountedProp === false) {
         warn(
           'The `keepMounted={false}` prop on a Collapsible will be ignored when using `hiddenUntilFound` since it requires the Panel to remain mounted even when closed.',
@@ -67,11 +67,11 @@ const CollapsiblePanel = React.forwardRef(function CollapsiblePanel(
   const hiddenUntilFound = hiddenUntilFoundProp ?? false;
   const keepMounted = keepMountedProp ?? false;
 
-  useEnhancedEffect(() => {
+  useModernLayoutEffect(() => {
     setHiddenUntilFound(hiddenUntilFound);
   }, [setHiddenUntilFound, hiddenUntilFound]);
 
-  useEnhancedEffect(() => {
+  useModernLayoutEffect(() => {
     setKeepMounted(keepMounted);
   }, [setKeepMounted, keepMounted]);
 

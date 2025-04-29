@@ -50,10 +50,6 @@
       "type": "((open: boolean) => void)",
       "description": "Event handler called after any animations complete when the select menu is opened or closed."
     },
-    "transitionStatus": {
-      "type": "TransitionStatus",
-      "description": "The transition status of the select."
-    },
     "disabled": {
       "type": "boolean",
       "default": "false",

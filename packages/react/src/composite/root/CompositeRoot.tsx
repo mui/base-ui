@@ -7,6 +7,7 @@ import { useRenderElement } from '../../utils/useRenderElement';
 import type { BaseUIComponentProps } from '../../utils/types';
 import type { TextDirection } from '../../direction-provider/DirectionContext';
 import type { Dimensions, ModifierKey } from '../composite';
+import { useEventCallback } from '../../utils/useEventCallback';
 
 const COMPOSITE_ROOT_STATE = {};
 
@@ -26,7 +27,7 @@ function CompositeRoot<Metadata extends {}>(componentProps: CompositeRoot.Props<
     cols,
     direction,
     enableHomeAndEndKeys,
-    onMapChange,
+    onMapChange: onMapChangeProp,
     stopEventPropagation,
     rootRef,
     disabledIndices,
@@ -34,7 +35,13 @@ function CompositeRoot<Metadata extends {}>(componentProps: CompositeRoot.Props<
     ...elementProps
   } = componentProps;
 
-  const { props, highlightedIndex, onHighlightedIndexChange, elementsRef } = useCompositeRoot({
+  const {
+    props,
+    highlightedIndex,
+    onHighlightedIndexChange,
+    elementsRef,
+    onMapChange: onMapChangeUnwrapped,
+  } = useCompositeRoot({
     itemSizes,
     cols,
     loop,
@@ -49,6 +56,13 @@ function CompositeRoot<Metadata extends {}>(componentProps: CompositeRoot.Props<
     disabledIndices,
     modifierKeys,
   });
+
+  const onMapChange = useEventCallback(
+    (newMap: Map<Element, CompositeMetadata<Metadata> | null>) => {
+      onMapChangeProp?.(newMap);
+      onMapChangeUnwrapped(newMap);
+    },
+  );
 
   const renderElement = useRenderElement('div', componentProps, {
     state: COMPOSITE_ROOT_STATE,

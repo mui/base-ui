@@ -327,6 +327,9 @@ jobs:
           name: Build packages
           command: pnpm release:build
       - run:
+          name: Test Node.js module resolution
+          command: pnpm -F @base-ui/test-node-resolution test
+      - run:
           name: Verify built packages
           command: pnpm -r test:package
 
