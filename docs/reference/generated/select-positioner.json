@@ -1,7 +1,12 @@
 {
   "name": "SelectPositioner",
-  "description": "Positions the select menu popup against the trigger.\nRenders a `<div>` element.",
+  "description": "Positions the select menu popup.\nRenders a `<div>` element.",
   "props": {
+    "alignItemWithTrigger": {
+      "type": "boolean",
+      "default": "true",
+      "description": "Whether the positioner overlaps the trigger so the selected item's text is aligned with the trigger's value text. This only applies to mouse input and is automatically disabled if there is not enough space."
+    },
     "align": {
       "type": "'center' | 'end' | 'start'",
       "default": "'center'",

@@ -8,10 +8,11 @@ import { useScrollLock } from '../../utils/useScrollLock';
 export function useSelectPositioner(
   params: useSelectPositioner.Parameters,
 ): useSelectPositioner.ReturnValue {
-  const { open, alignItemToTrigger, mounted, triggerElement, modal } = useSelectRootContext();
+  const { alignItemWithTriggerActive } = params;
+  const { open, mounted, triggerElement, modal } = useSelectRootContext();
 
   useScrollLock({
-    enabled: (alignItemToTrigger || modal) && open,
+    enabled: (alignItemWithTriggerActive || modal) && open,
     mounted,
     open,
     referenceElement: triggerElement,
@@ -19,12 +20,12 @@ export function useSelectPositioner(
 
   const positioning = useAnchorPositioning({
     ...params,
-    trackAnchor: params.trackAnchor ?? !alignItemToTrigger,
+    trackAnchor: params.trackAnchor ?? !alignItemWithTriggerActive,
   });
 
   const positionerStyles: React.CSSProperties = React.useMemo(
-    () => (alignItemToTrigger ? { position: 'fixed' } : positioning.positionerStyles),
-    [alignItemToTrigger, positioning.positionerStyles],
+    () => (alignItemWithTriggerActive ? { position: 'fixed' } : positioning.positionerStyles),
+    [alignItemWithTriggerActive, positioning.positionerStyles],
   );
 
   const getPositionerProps: useSelectPositioner.ReturnValue['getPositionerProps'] =
@@ -54,17 +55,25 @@ export function useSelectPositioner(
   return React.useMemo(
     () => ({
       ...positioning,
-      side: alignItemToTrigger ? 'none' : positioning.side,
+      side: alignItemWithTriggerActive ? 'none' : positioning.side,
       getPositionerProps,
     }),
-    [alignItemToTrigger, getPositionerProps, positioning],
+    [getPositionerProps, positioning, alignItemWithTriggerActive],
   );
 }
 
 export namespace useSelectPositioner {
-  export interface Parameters extends useAnchorPositioning.Parameters {}
+  export interface Parameters extends useAnchorPositioning.Parameters {
+    alignItemWithTriggerActive: boolean;
+  }
 
-  export interface SharedParameters extends useAnchorPositioning.SharedParameters {}
+  export interface SharedParameters extends useAnchorPositioning.SharedParameters {
+    /**
+     * Whether the positioner overlaps the trigger so the selected item's text is aligned with the trigger's value text. This only applies to mouse input and is automatically disabled if there is not enough space.
+     * @default true
+     */
+    alignItemWithTrigger?: boolean;
+  }
 
   export interface ReturnValue extends Omit<useAnchorPositioning.ReturnValue, 'side'> {
     getPositionerProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
