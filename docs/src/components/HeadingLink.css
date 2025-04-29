@@ -5,22 +5,12 @@
     border-radius: var(--radius-sm);
   }
 
-  @media (pointer: fine) {
-    & svg {
-      visibility: hidden;
-    }
-  }
-
   @media (hover: hover) {
     &:hover {
       text-decoration: underline;
-      text-underline-offset: 2px;
+      text-underline-offset: 4px;
       text-decoration-thickness: 1px;
-      text-decoration-color: color-mix(in oklab, var(--color-gray), transparent);
-    }
-
-    &:hover svg {
-      visibility: visible;
+      text-decoration-color: currentColor;
     }
   }
 }
