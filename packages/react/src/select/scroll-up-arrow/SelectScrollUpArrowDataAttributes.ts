@@ -1,7 +1,17 @@
-export enum SelectScrollUpArrowDataAttributes {
+import { CommonPopupDataAttributes } from '../../utils/popupStateMapping';
+
+export enum SelectScrollDownArrowDataAttributes {
+  /**
+   * Present when the scroll arrow is animating in.
+   */
+  startingStyle = CommonPopupDataAttributes.startingStyle,
+  /**
+   * Present when the scroll arrow is animating out.
+   */
+  endingStyle = CommonPopupDataAttributes.endingStyle,
   /**
    * Indicates the direction of the arrow.
-   * @type {'up'}
+   * @type {'up' | 'down'}
    */
   direction = 'data-direction',
   /**
@@ -13,9 +23,4 @@ export enum SelectScrollUpArrowDataAttributes {
    * @type {'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start'}
    */
   side = 'data-side',
-  /**
-   * Indicates how the popup is aligned relative to specified side.
-   * @type {'start' | 'center' | 'end'}
-   */
-  align = 'data-align',
 }

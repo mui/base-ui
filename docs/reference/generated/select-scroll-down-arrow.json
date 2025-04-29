@@ -17,13 +17,9 @@
     }
   },
   "dataAttributes": {
-    "data-align": {
-      "description": "Indicates how the popup is aligned relative to specified side.",
-      "type": "'start' | 'center' | 'end'"
-    },
     "data-direction": {
       "description": "Indicates the direction of the arrow.",
-      "type": "'down'"
+      "type": "'up' | 'down'"
     },
     "data-side": {
       "description": "Indicates which side the popup is positioned relative to the trigger.",
@@ -31,6 +27,12 @@
     },
     "data-visible": {
       "description": "Present when the arrow is visible."
+    },
+    "data-starting-style": {
+      "description": "Present when the scroll arrow is animating in."
+    },
+    "data-ending-style": {
+      "description": "Present when the scroll arrow is animating out."
     }
   },
   "cssVariables": {}
