@@ -1,11 +1,11 @@
 'use client';
 import * as React from 'react';
 import { triggerOpenStateMapping } from '../../utils/collapsibleOpenStateMapping';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
+import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
+import { useRenderElement } from '../../utils/useRenderElement';
 import { BaseUIComponentProps } from '../../utils/types';
+import { useButton } from '../../use-button';
 import { useCollapsibleRootContext } from '../../collapsible/root/CollapsibleRootContext';
-import { useCollapsibleTrigger } from '../../collapsible/trigger/useCollapsibleTrigger';
 import type { AccordionItem } from '../item/AccordionItem';
 import { useAccordionItemContext } from '../item/AccordionItemContext';
 
@@ -17,43 +17,46 @@ import { useAccordionItemContext } from '../item/AccordionItemContext';
  */
 
 const AccordionTrigger = React.forwardRef(function AccordionTrigger(
-  props: AccordionTrigger.Props,
+  componentProps: AccordionTrigger.Props,
   forwardedRef: React.ForwardedRef<Element>,
 ) {
-  const { disabled: disabledProp, className, id, render, ...otherProps } = props;
+  const { disabled: disabledProp, className, id: idProp, render, ...elementProps } = componentProps;
 
   const { panelId, open, handleTrigger, disabled: contextDisabled } = useCollapsibleRootContext();
 
-  const { getRootProps } = useCollapsibleTrigger({
-    disabled: disabledProp ?? contextDisabled,
-    panelId,
-    open,
-    handleTrigger,
-    rootRef: forwardedRef,
+  const disabled = disabledProp ?? contextDisabled;
+
+  const { getButtonProps, buttonRef } = useButton({
+    disabled,
+    focusableWhenDisabled: true,
   });
 
-  const { state, setTriggerId, triggerId } = useAccordionItemContext();
+  const { state, setTriggerId, triggerId: id } = useAccordionItemContext();
 
-  useEnhancedEffect(() => {
-    if (id) {
-      setTriggerId(id);
+  useModernLayoutEffect(() => {
+    if (idProp) {
+      setTriggerId(idProp);
     }
     return () => {
       setTriggerId(undefined);
     };
-  }, [id, setTriggerId]);
+  }, [idProp, setTriggerId]);
 
-  const { renderElement } = useComponentRenderer({
-    propGetter: getRootProps,
-    render: render ?? 'button',
+  const props = React.useMemo(
+    () => ({
+      'aria-controls': panelId,
+      'aria-expanded': open,
+      disabled,
+      id,
+      onClick: handleTrigger,
+    }),
+    [panelId, disabled, id, open, handleTrigger],
+  );
+
+  const renderElement = useRenderElement('button', componentProps, {
     state,
-    className,
-    extraProps: {
-      ...otherProps,
-      // the `id` prop doesn't go here directly, it updates a context
-      // and becomes `triggerId`
-      id: triggerId,
-    },
+    ref: [forwardedRef, buttonRef],
+    props: [props, elementProps, getButtonProps],
     customStyleHookMapping: triggerOpenStateMapping,
   });
 

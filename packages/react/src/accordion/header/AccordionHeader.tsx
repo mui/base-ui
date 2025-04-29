@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { BaseUIComponentProps } from '../../utils/types';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import { useRenderElement } from '../../utils/useRenderElement';
 import type { AccordionItem } from '../item/AccordionItem';
 import { useAccordionItemContext } from '../item/AccordionItemContext';
 import { accordionStyleHookMapping } from '../item/styleHooks';
@@ -13,19 +13,17 @@ import { accordionStyleHookMapping } from '../item/styleHooks';
  * Documentation: [Base UI Accordion](https://base-ui.com/react/components/accordion)
  */
 const AccordionHeader = React.forwardRef(function AccordionHeader(
-  props: AccordionHeader.Props,
+  componentProps: AccordionHeader.Props,
   forwardedRef: React.ForwardedRef<HTMLHeadingElement>,
 ) {
-  const { render, className, ...other } = props;
+  const { render, className, ...elementProps } = componentProps;
 
   const { state } = useAccordionItemContext();
 
-  const { renderElement } = useComponentRenderer({
-    render: render ?? 'h3',
+  const renderElement = useRenderElement('h3', componentProps, {
     state,
-    className,
     ref: forwardedRef,
-    extraProps: other,
+    props: elementProps,
     customStyleHookMapping: accordionStyleHookMapping,
   });
 

@@ -2,7 +2,7 @@ import * as React from 'react';
 import { usePreventScroll } from '@react-aria/overlays';
 import { isFirefox, isIOS, isWebKit } from './detectBrowser';
 import { ownerDocument, ownerWindow } from './owner';
-import { useEnhancedEffect } from './useEnhancedEffect';
+import { useModernLayoutEffect } from './useModernLayoutEffect';
 
 let originalHtmlStyles: Partial<CSSStyleDeclaration> = {};
 let originalBodyStyles: Partial<CSSStyleDeclaration> = {};
@@ -22,7 +22,7 @@ function supportsDvh() {
   );
 }
 
-function hasInsetScrollbars(referenceElement?: Element | null) {
+function hasInsetScrollbars(referenceElement: Element | null) {
   if (typeof document === 'undefined') {
     return false;
   }
@@ -31,7 +31,7 @@ function hasInsetScrollbars(referenceElement?: Element | null) {
   return win.innerWidth - doc.documentElement.clientWidth > 0;
 }
 
-function preventScrollStandard(referenceElement?: Element | null) {
+function preventScrollStandard(referenceElement: Element | null) {
   const doc = ownerDocument(referenceElement);
   const html = doc.documentElement;
   const body = doc.body;
@@ -147,7 +147,7 @@ export function useScrollLock(params: {
   open: boolean;
   referenceElement?: Element | null;
 }) {
-  const { enabled = true, mounted, open, referenceElement } = params;
+  const { enabled = true, mounted, open, referenceElement = null } = params;
 
   const isReactAriaHook = React.useMemo(
     () =>
@@ -159,7 +159,7 @@ export function useScrollLock(params: {
     [enabled, referenceElement],
   );
 
-  useEnhancedEffect(() => {
+  useModernLayoutEffect(() => {
     // https://github.com/mui/base-ui/issues/1135
     if (mounted && !open && isWebKit()) {
       const doc = ownerDocument(referenceElement);
@@ -182,7 +182,7 @@ export function useScrollLock(params: {
     isDisabled: !isReactAriaHook,
   });
 
-  useEnhancedEffect(() => {
+  useModernLayoutEffect(() => {
     if (!enabled || isReactAriaHook) {
       return undefined;
     }

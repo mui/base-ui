@@ -2,13 +2,14 @@ import * as React from 'react';
 import type { GenericHTMLProps } from '../../utils/types';
 import { mergeProps } from '../../merge-props';
 import { useSelectRootContext } from '../root/SelectRootContext';
-import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
+import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { ownerDocument, ownerWindow } from '../../utils/owner';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { clearPositionerStyles } from './utils';
 import { isWebKit } from '../../utils/detectBrowser';
 import { useSelectIndexContext } from '../root/SelectIndexContext';
 import { isMouseWithinBounds } from '../../utils/isMouseWithinBounds';
+import { useSelectPositionerContext } from '../positioner/SelectPositionerContext';
 
 export function useSelectPopup(): useSelectPopup.ReturnValue {
   const {
@@ -16,7 +17,6 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
     id,
     setOpen,
     getRootPositionerProps,
-    alignItemToTrigger,
     triggerElement,
     positionerElement,
     valueRef,
@@ -26,11 +26,11 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
     scrollDownArrowVisible,
     setScrollUpArrowVisible,
     setScrollDownArrowVisible,
-    setControlledAlignItemToTrigger,
     keyboardActiveRef,
     floatingRootContext,
   } = useSelectRootContext();
   const { setActiveIndex } = useSelectIndexContext();
+  const { alignItemWithTriggerActive, setControlledItemAnchor } = useSelectPositionerContext();
 
   const initialHeightRef = React.useRef(0);
   const reachedMaxHeightRef = React.useRef(false);
@@ -39,7 +39,7 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
   const originalPositionerStylesRef = React.useRef<React.CSSProperties>({});
 
   const handleScrollArrowVisibility = useEventCallback(() => {
-    if (!alignItemToTrigger || !popupRef.current) {
+    if (!alignItemWithTriggerActive || !popupRef.current) {
       return;
     }
 
@@ -56,9 +56,9 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
     }
   });
 
-  useEnhancedEffect(() => {
+  useModernLayoutEffect(() => {
     if (
-      alignItemToTrigger ||
+      alignItemWithTriggerActive ||
       !positionerElement ||
       Object.keys(originalPositionerStylesRef.current).length
     ) {
@@ -76,10 +76,10 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
       marginTop: positionerElement.style.marginTop,
       marginBottom: positionerElement.style.marginBottom,
     };
-  }, [alignItemToTrigger, positionerElement]);
+  }, [alignItemWithTriggerActive, positionerElement]);
 
-  useEnhancedEffect(() => {
-    if (mounted || alignItemToTrigger) {
+  useModernLayoutEffect(() => {
+    if (mounted || alignItemWithTriggerActive) {
       return;
     }
 
@@ -91,12 +91,12 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
     if (positionerElement) {
       clearPositionerStyles(positionerElement, originalPositionerStylesRef.current);
     }
-  }, [mounted, alignItemToTrigger, positionerElement]);
+  }, [mounted, alignItemWithTriggerActive, positionerElement]);
 
-  useEnhancedEffect(() => {
+  useModernLayoutEffect(() => {
     if (
       !mounted ||
-      !alignItemToTrigger ||
+      !alignItemWithTriggerActive ||
       !triggerElement ||
       !positionerElement ||
       !popupRef.current
@@ -180,7 +180,7 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
     if (fallbackToAlignPopupToTrigger || isPinchZoomed) {
       initialPlacedRef.current = true;
       clearPositionerStyles(positionerElement, originalPositionerStylesRef.current);
-      setControlledAlignItemToTrigger(false);
+      setControlledItemAnchor(false);
       return;
     }
 
@@ -208,7 +208,6 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
     });
   }, [
     mounted,
-    alignItemToTrigger,
     positionerElement,
     triggerElement,
     valueRef,
@@ -217,11 +216,12 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
     setScrollUpArrowVisible,
     setScrollDownArrowVisible,
     handleScrollArrowVisibility,
-    setControlledAlignItemToTrigger,
+    alignItemWithTriggerActive,
+    setControlledItemAnchor,
   ]);
 
   React.useEffect(() => {
-    if (!alignItemToTrigger || !positionerElement || !mounted) {
+    if (!alignItemWithTriggerActive || !positionerElement || !mounted) {
       return undefined;
     }
 
@@ -236,7 +236,7 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
     return () => {
       win.removeEventListener('resize', handleResize);
     };
-  }, [setOpen, alignItemToTrigger, positionerElement, mounted]);
+  }, [setOpen, alignItemWithTriggerActive, positionerElement, mounted]);
 
   const getPopupProps: useSelectPopup.ReturnValue['getPopupProps'] = React.useCallback(
     (externalProps = {}) => {
@@ -259,7 +259,7 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
           },
           onScroll(event) {
             if (
-              !alignItemToTrigger ||
+              !alignItemWithTriggerActive ||
               !positionerElement ||
               !popupRef.current ||
               !initialPlacedRef.current
@@ -267,7 +267,7 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
               return;
             }
 
-            if (reachedMaxHeightRef.current || !alignItemToTrigger) {
+            if (reachedMaxHeightRef.current || !alignItemWithTriggerActive) {
               handleScrollArrowVisibility();
               return;
             }
@@ -318,7 +318,7 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
 
             handleScrollArrowVisibility();
           },
-          ...(alignItemToTrigger && {
+          ...(alignItemWithTriggerActive && {
             style: {
               position: 'relative',
               maxHeight: '100%',
@@ -332,7 +332,7 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
     },
     [
       id,
-      alignItemToTrigger,
+      alignItemWithTriggerActive,
       getRootPositionerProps,
       keyboardActiveRef,
       setActiveIndex,

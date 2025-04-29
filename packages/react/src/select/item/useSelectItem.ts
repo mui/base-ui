@@ -7,7 +7,7 @@ import type { SelectRootContext } from '../root/SelectRootContext';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { SelectIndexContext } from '../root/SelectIndexContext';
 import { useForkRef } from '../../utils/useForkRef';
-import { useEnhancedEffect } from '../../utils';
+import { useModernLayoutEffect } from '../../utils';
 import { addHighlight, hasHighlight, removeHighlight } from '../../utils/highlighted';
 import { isMouseWithinBounds } from '../../utils/isMouseWithinBounds';
 
@@ -63,7 +63,7 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
     return handlePopupLeave;
   }, [handlePopupLeave]);
 
-  useEnhancedEffect(() => {
+  useModernLayoutEffect(() => {
     if (!open) {
       return;
     }
@@ -152,7 +152,7 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
                 cursorMovementTimerRef.current = -1;
               }
 
-              // With `alignItemToTrigger`, avoid re-rendering the root due to `onMouseLeave`
+              // With `alignItemWithTrigger=true`, avoid re-rendering the root due to `onMouseLeave`
               // firing and causing a performance issue when expanding the popup.
               if (popup.offsetHeight === prevPopupHeightRef.current) {
                 // Prevent `onFocus` from causing the highlight to be stuck when quickly moving

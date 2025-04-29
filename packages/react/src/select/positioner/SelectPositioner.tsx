@@ -13,7 +13,7 @@ import { InternalBackdrop } from '../../utils/InternalBackdrop';
 import { inertValue } from '../../utils/inertValue';
 
 /**
- * Positions the select menu popup against the trigger.
+ * Positions the select menu popup.
  * Renders a `<div>` element.
  *
  * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
@@ -36,11 +36,43 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
     arrowPadding = 5,
     sticky = false,
     trackAnchor = true,
+    alignItemWithTrigger = true,
     ...otherProps
   } = props;
 
-  const { open, mounted, setPositionerElement, listRef, labelsRef, floatingRootContext, modal } =
-    useSelectRootContext();
+  const {
+    open,
+    mounted,
+    setPositionerElement,
+    listRef,
+    labelsRef,
+    floatingRootContext,
+    modal,
+    touchModality,
+    scrollUpArrowVisible,
+    setScrollUpArrowVisible,
+    scrollDownArrowVisible,
+    setScrollDownArrowVisible,
+    alignItemWithTriggerActiveRef,
+  } = useSelectRootContext();
+
+  const [controlledItemAnchor, setControlledItemAnchor] = React.useState(alignItemWithTrigger);
+  const alignItemWithTriggerActive = mounted && controlledItemAnchor && !touchModality;
+
+  React.useImperativeHandle(alignItemWithTriggerActiveRef, () => alignItemWithTriggerActive);
+
+  if (!mounted && controlledItemAnchor !== alignItemWithTrigger) {
+    setControlledItemAnchor(alignItemWithTrigger);
+  }
+
+  if (!alignItemWithTrigger || !mounted) {
+    if (scrollUpArrowVisible) {
+      setScrollUpArrowVisible(false);
+    }
+    if (scrollDownArrowVisible) {
+      setScrollDownArrowVisible(false);
+    }
+  }
 
   const positioner = useSelectPositioner({
     anchor,
@@ -56,6 +88,7 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
     collisionPadding,
     sticky,
     trackAnchor,
+    alignItemWithTriggerActive,
     keepMounted: true,
   });
 
@@ -81,9 +114,19 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
     extraProps: otherProps,
   });
 
+  const contextValue: SelectPositionerContext = React.useMemo(
+    () => ({
+      ...positioner,
+      alignItemWithTriggerActive,
+      controlledItemAnchor,
+      setControlledItemAnchor,
+    }),
+    [positioner, alignItemWithTriggerActive, controlledItemAnchor],
+  );
+
   return (
     <CompositeList elementsRef={listRef} labelsRef={labelsRef}>
-      <SelectPositionerContext.Provider value={positioner}>
+      <SelectPositionerContext.Provider value={contextValue}>
         {mounted && modal && <InternalBackdrop inert={inertValue(!open)} />}
         {renderElement()}
       </SelectPositionerContext.Provider>

@@ -7,7 +7,7 @@ import { mergeProps } from '../../merge-props';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { useBaseUiId } from '../../utils/useBaseUiId';
-import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
+import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
 import { useField } from '../../field/useField';
 
@@ -51,7 +51,7 @@ export function useSwitchRoot(params: useSwitchRoot.Parameters): useSwitchRoot.R
 
   const id = useBaseUiId(idProp);
 
-  useEnhancedEffect(() => {
+  useModernLayoutEffect(() => {
     setControlId(id);
     return () => {
       setControlId(undefined);
@@ -77,7 +77,7 @@ export function useSwitchRoot(params: useSwitchRoot.Parameters): useSwitchRoot.R
     controlRef: buttonRef,
   });
 
-  useEnhancedEffect(() => {
+  useModernLayoutEffect(() => {
     if (inputRef.current) {
       setFilled(inputRef.current.checked);
     }
@@ -220,7 +220,7 @@ export namespace useSwitchRoot {
      */
     disabled?: boolean;
     /**
-     * A React ref to access the hidden `<input>` element.
+     * A ref to access the hidden `<input>` element.
      */
     inputRef?: React.Ref<HTMLInputElement>;
     /**
