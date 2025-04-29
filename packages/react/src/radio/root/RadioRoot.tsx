@@ -104,7 +104,7 @@ namespace RadioRoot {
      */
     readOnly?: boolean;
     /**
-     * The ref to the hidden input element.
+     * A ref to the hidden input element.
      */
     inputRef?: React.Ref<HTMLInputElement>;
   }

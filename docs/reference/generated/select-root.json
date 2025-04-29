@@ -67,7 +67,7 @@
     },
     "inputRef": {
       "type": "Ref<HTMLInputElement>",
-      "description": "The ref to the hidden input element."
+      "description": "A ref to the hidden input element."
     },
     "id": {
       "type": "string",

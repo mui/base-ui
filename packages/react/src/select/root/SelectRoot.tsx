@@ -123,7 +123,7 @@ namespace SelectRoot {
   export interface Props<Value> extends useSelectRoot.Parameters<Value> {
     children?: React.ReactNode;
     /**
-     * The ref to the hidden input element.
+     * A ref to the hidden input element.
      */
     inputRef?: React.Ref<HTMLInputElement>;
   }
