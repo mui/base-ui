@@ -34,26 +34,25 @@ function CompositeRoot<Metadata extends {}>(componentProps: CompositeRoot.Props<
     ...elementProps
   } = componentProps;
 
-  const { getRootProps, highlightedIndex, onHighlightedIndexChange, elementsRef } =
-    useCompositeRoot({
-      itemSizes,
-      cols,
-      loop,
-      dense,
-      orientation,
-      highlightedIndex: highlightedIndexProp,
-      onHighlightedIndexChange: onHighlightedIndexChangeProp,
-      rootRef,
-      stopEventPropagation,
-      enableHomeAndEndKeys,
-      direction,
-      disabledIndices,
-      modifierKeys,
-    });
+  const { props, highlightedIndex, onHighlightedIndexChange, elementsRef } = useCompositeRoot({
+    itemSizes,
+    cols,
+    loop,
+    dense,
+    orientation,
+    highlightedIndex: highlightedIndexProp,
+    onHighlightedIndexChange: onHighlightedIndexChangeProp,
+    rootRef,
+    stopEventPropagation,
+    enableHomeAndEndKeys,
+    direction,
+    disabledIndices,
+    modifierKeys,
+  });
 
   const renderElement = useRenderElement('div', componentProps, {
     state: COMPOSITE_ROOT_STATE,
-    props: [getRootProps, elementProps],
+    props: [props, elementProps],
   });
 
   const contextValue: CompositeRootContext = React.useMemo(
