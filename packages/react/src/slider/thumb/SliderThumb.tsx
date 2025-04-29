@@ -380,7 +380,7 @@ export namespace SliderThumb {
 
   export interface Props extends Omit<BaseUIComponentProps<'div', State>, 'render'> {
     /**
-     * A ref to the hidden input element.
+     * A ref to access the hidden input element.
      */
     inputRef?: React.Ref<HTMLInputElement>;
     /**

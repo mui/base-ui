@@ -138,7 +138,7 @@ namespace RadioGroup {
      */
     onValueChange?: (value: unknown, event: Event) => void;
     /**
-     * A ref to the hidden input element.
+     * A ref to access the hidden input element.
      */
     inputRef?: React.Ref<HTMLInputElement>;
   }

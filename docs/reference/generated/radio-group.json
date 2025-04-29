@@ -35,7 +35,7 @@
     },
     "inputRef": {
       "type": "Ref<HTMLInputElement>",
-      "description": "A ref to the hidden input element."
+      "description": "A ref to access the hidden input element."
     },
     "className": {
       "type": "string | ((state: State) => string)",

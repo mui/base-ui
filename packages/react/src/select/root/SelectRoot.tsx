@@ -5,7 +5,7 @@ import { SelectRootContext } from './SelectRootContext';
 import { SelectIndexContext } from './SelectIndexContext';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { visuallyHidden } from '../../utils/visuallyHidden';
-import { useForkRef } from '../../utils';
+import { useForkRef } from '../../utils/useForkRef';
 
 /**
  * Groups all parts of the select.
@@ -123,7 +123,7 @@ namespace SelectRoot {
   export interface Props<Value> extends useSelectRoot.Parameters<Value> {
     children?: React.ReactNode;
     /**
-     * A ref to the hidden input element.
+     * A ref to access the hidden input element.
      */
     inputRef?: React.Ref<HTMLInputElement>;
   }

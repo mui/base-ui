@@ -7,7 +7,8 @@ import { useFieldRootContext } from '../field/root/FieldRootContext';
 import { useBaseUiId } from '../utils/useBaseUiId';
 import { useFieldControlValidation } from '../field/control/useFieldControlValidation';
 import { useField } from '../field/useField';
-import { useForkRef, visuallyHidden } from '../utils';
+import { useForkRef } from '../utils/useForkRef';
+import { visuallyHidden } from '../utils/visuallyHidden';
 
 export function useRadioGroup(params: useRadioGroup.Parameters) {
   const {

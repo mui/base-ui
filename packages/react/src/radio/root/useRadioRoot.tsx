@@ -6,7 +6,7 @@ import { useRadioGroupContext } from '../../radio-group/RadioGroupContext';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { ACTIVE_COMPOSITE_ITEM } from '../../composite/constants';
-import { useForkRef } from '../../utils';
+import { useForkRef } from '../../utils/useForkRef';
 
 export function useRadioRoot(params: useRadioRoot.Parameters) {
   const { disabled, readOnly, value, required, inputRef: inputRefProp } = params;
