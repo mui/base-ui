@@ -5,7 +5,7 @@ import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { mergeProps } from '../../merge-props';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useSelectGroupContext } from '../group/SelectGroupContext';
-import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
+import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 
 const state = {};
 
@@ -25,7 +25,7 @@ const SelectGroupLabel = React.forwardRef(function SelectGroupLabel(
 
   const id = useBaseUiId(idProp);
 
-  useEnhancedEffect(() => {
+  useModernLayoutEffect(() => {
     setLabelId(id);
   }, [id, setLabelId]);
 

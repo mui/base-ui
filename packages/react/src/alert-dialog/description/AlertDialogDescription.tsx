@@ -3,7 +3,7 @@ import * as React from 'react';
 import { useAlertDialogRootContext } from '../root/AlertDialogRootContext';
 import { mergeProps } from '../../merge-props';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
+import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import type { BaseUIComponentProps } from '../../utils/types';
 
@@ -24,7 +24,7 @@ const AlertDialogDescription = React.forwardRef(function AlertDialogDescription(
 
   const id = useBaseUiId(idProp);
 
-  useEnhancedEffect(() => {
+  useModernLayoutEffect(() => {
     setDescriptionElementId(id);
     return () => {
       setDescriptionElementId(undefined);

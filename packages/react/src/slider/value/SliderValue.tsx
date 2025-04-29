@@ -1,31 +1,49 @@
 'use client';
 import * as React from 'react';
+import { formatNumber } from '../../utils/formatNumber';
 import type { BaseUIComponentProps } from '../../utils/types';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import { useRenderElement } from '../../utils/useRenderElement';
 import { useSliderRootContext } from '../root/SliderRootContext';
 import { sliderStyleHookMapping } from '../root/styleHooks';
 import type { SliderRoot } from '../root/SliderRoot';
-import { useSliderValue } from './useSliderValue';
+
 /**
  * Displays the current value of the slider as text.
  * Renders an `<output>` element.
  *
  * Documentation: [Base UI Slider](https://base-ui.com/react/components/slider)
  */
-const SliderValue = React.forwardRef(function SliderValue(
-  props: SliderValue.Props,
+export const SliderValue = React.forwardRef(function SliderValue(
+  componentProps: SliderValue.Props,
   forwardedRef: React.ForwardedRef<HTMLOutputElement>,
 ) {
-  const { 'aria-live': ariaLive = 'off', render, className, children, ...otherProps } = props;
+  const {
+    'aria-live': ariaLive = 'off',
+    render,
+    className,
+    children,
+    ...elementProps
+  } = componentProps;
 
   const { thumbMap, state, values, format } = useSliderRootContext();
 
-  const { getRootProps, formattedValues } = useSliderValue({
-    'aria-live': ariaLive,
-    format: format ?? null,
-    thumbMap,
-    values,
-  });
+  const outputFor = React.useMemo(() => {
+    let htmlFor = '';
+    for (const thumbMetadata of thumbMap.values()) {
+      if (thumbMetadata?.inputId) {
+        htmlFor += `${thumbMetadata.inputId} `;
+      }
+    }
+    return htmlFor.trim() === '' ? undefined : htmlFor.trim();
+  }, [thumbMap]);
+
+  const formattedValues = React.useMemo(() => {
+    const arr = [];
+    for (let i = 0; i < values.length; i += 1) {
+      arr.push(formatNumber(values[i], [], format ?? undefined));
+    }
+    return arr;
+  }, [format, values]);
 
   const defaultDisplayValue = React.useMemo(() => {
     const arr = [];
@@ -35,24 +53,27 @@ const SliderValue = React.forwardRef(function SliderValue(
     return arr.join(' – ');
   }, [values, formattedValues]);
 
-  const { renderElement } = useComponentRenderer({
-    propGetter: getRootProps,
-    render: render ?? 'output',
+  const renderElement = useRenderElement('output', componentProps, {
     state,
-    className,
     ref: forwardedRef,
-    extraProps: {
-      children:
-        typeof children === 'function' ? children(formattedValues, values) : defaultDisplayValue,
-      ...otherProps,
-    },
+    props: [
+      {
+        // off by default because it will keep announcing when the slider is being dragged
+        // and also when the value is changing (but not yet committed)
+        'aria-live': ariaLive,
+        children:
+          typeof children === 'function' ? children(formattedValues, values) : defaultDisplayValue,
+        htmlFor: outputFor,
+      },
+      elementProps,
+    ],
     customStyleHookMapping: sliderStyleHookMapping,
   });
 
   return renderElement();
 });
 
-namespace SliderValue {
+export namespace SliderValue {
   export interface Props
     extends Omit<BaseUIComponentProps<'output', SliderRoot.State>, 'children'> {
     /**
@@ -64,5 +85,3 @@ namespace SliderValue {
       | ((formattedValues: readonly string[], values: readonly number[]) => React.ReactNode);
   }
 }
-
-export { SliderValue };
