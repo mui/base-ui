@@ -2,6 +2,7 @@ const { resolve } = require('node:path');
 
 const errorCodesPath = resolve(__dirname, './docs/public/static/error-codes.json');
 const missingError = process.env.MUI_EXTRACT_ERROR_CODES === 'true' ? 'write' : 'annotate';
+const baseUIPackageJson = require('./packages/react/package.json');
 
 module.exports = function getBabelConfig(api) {
   const useESModules = !api.env(['node']);
@@ -37,7 +38,10 @@ module.exports = function getBabelConfig(api) {
         },
       },
     ],
-    ['@babel/plugin-transform-runtime', { regenerator: false, version: '^7.26.10' }],
+    [
+      '@babel/plugin-transform-runtime',
+      { regenerator: false, version: baseUIPackageJson.dependencies['@babel/runtime'] },
+    ],
     ...(useESModules ? ['babel-plugin-add-import-extension'] : []),
   ];
 
