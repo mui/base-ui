@@ -1775,6 +1775,36 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
     });
   });
 
+  describe('prop: locale', () => {
+    it('sets the locale when formatting a single value', async () => {
+      const format: Intl.NumberFormatOptions = {
+        style: 'decimal',
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      };
+      const expectedValue = new Intl.NumberFormat('de-DE', format).format(70.51);
+      const { getByTestId } = await render(
+        <TestSlider value={70.51} format={format} step={0.01} locale="de-DE" />,
+      );
+
+      expect(getByTestId('value')).to.have.text(expectedValue);
+    });
+
+    it('sets the locale when formatting a range value', async () => {
+      const format: Intl.NumberFormatOptions = {
+        style: 'decimal',
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      };
+      const expectedValue = `${new Intl.NumberFormat('de-DE', format).format(24.8)} – ${new Intl.NumberFormat('de-DE', format).format(70.51)}`;
+      const { getByTestId } = await render(
+        <TestRangeSlider value={[24.8, 70.51]} format={format} step={0.01} locale="de-DE" />,
+      );
+
+      expect(getByTestId('value')).to.have.text(expectedValue);
+    });
+  });
+
   describe.skipIf(isJSDOM)('form handling', () => {
     it('should include the slider value in the form submission', async () => {
       let stringifiedFormData = '';

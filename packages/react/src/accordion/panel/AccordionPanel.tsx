@@ -1,8 +1,8 @@
 'use client';
 import * as React from 'react';
 import { BaseUIComponentProps } from '../../utils/types';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
+import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
+import { useRenderElement } from '../../utils/useRenderElement';
 import { warn } from '../../utils/warn';
 import { useCollapsibleRootContext } from '../../collapsible/root/CollapsibleRootContext';
 import { useCollapsiblePanel } from '../../collapsible/panel/useCollapsiblePanel';
@@ -21,7 +21,7 @@ import { usePanelResize } from '../../utils/usePanelResize';
  * Documentation: [Base UI Accordion](https://base-ui.com/react/components/accordion)
  */
 const AccordionPanel = React.forwardRef(function AccordionPanel(
-  props: AccordionPanel.Props,
+  componentProps: AccordionPanel.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const {
@@ -30,9 +30,8 @@ const AccordionPanel = React.forwardRef(function AccordionPanel(
     keepMounted: keepMountedProp,
     id: idProp,
     render,
-    style: styleProp,
-    ...otherProps
-  } = props;
+    ...elementProps
+  } = componentProps;
 
   const { hiddenUntilFound: contextHiddenUntilFound, keepMounted: contextKeepMounted } =
     useAccordionRootContext();
@@ -64,7 +63,7 @@ const AccordionPanel = React.forwardRef(function AccordionPanel(
 
   if (process.env.NODE_ENV !== 'production') {
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    useEnhancedEffect(() => {
+    useModernLayoutEffect(() => {
       if (keepMountedProp === false && hiddenUntilFound) {
         warn(
           'The `keepMounted={false}` prop on a Accordion.Panel will be ignored when using `contextHiddenUntilFound` on the Panel or the Root since it requires the panel to remain mounted when closed.',
@@ -73,17 +72,17 @@ const AccordionPanel = React.forwardRef(function AccordionPanel(
     }, [hiddenUntilFound, keepMountedProp]);
   }
 
-  useEnhancedEffect(() => {
+  useModernLayoutEffect(() => {
     setHiddenUntilFound(hiddenUntilFound);
   }, [setHiddenUntilFound, hiddenUntilFound]);
 
-  useEnhancedEffect(() => {
+  useModernLayoutEffect(() => {
     setKeepMounted(keepMounted);
   }, [setKeepMounted, keepMounted]);
 
   usePanelResize(panelRef, setDimensions, open);
 
-  const { getRootProps } = useCollapsiblePanel({
+  const { props } = useCollapsiblePanel({
     abortControllerRef,
     animationTypeRef,
     externalRef: forwardedRef,
@@ -108,22 +107,23 @@ const AccordionPanel = React.forwardRef(function AccordionPanel(
 
   const { state, triggerId } = useAccordionItemContext();
 
-  const { renderElement } = useComponentRenderer({
-    propGetter: getRootProps,
-    render: render ?? 'div',
+  const renderElement = useRenderElement('div', componentProps, {
     state,
-    className,
     ref: [forwardedRef, panelRef],
-    extraProps: {
-      ...otherProps,
-      'aria-labelledby': triggerId,
-      role: 'region',
-      style: {
-        [AccordionPanelCssVars.accordionPanelHeight]: height ? `${height}px` : undefined,
-        [AccordionPanelCssVars.accordionPanelWidth]: width ? `${width}px` : undefined,
-        ...styleProp,
+    props: [
+      props,
+      {
+        'aria-labelledby': triggerId,
+        role: 'region',
+        style: {
+          [AccordionPanelCssVars.accordionPanelHeight as string]: height
+            ? `${height}px`
+            : undefined,
+          [AccordionPanelCssVars.accordionPanelWidth as string]: width ? `${width}px` : undefined,
+        },
       },
-    },
+      elementProps,
+    ],
     customStyleHookMapping: accordionStyleHookMapping,
   });
 

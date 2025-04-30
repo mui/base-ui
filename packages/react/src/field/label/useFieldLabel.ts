@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { getTarget } from '@floating-ui/react/utils';
 import { mergeProps } from '../../merge-props';
 import { useFieldRootContext } from '../root/FieldRootContext';
 
@@ -13,15 +14,15 @@ export function useFieldLabel() {
           id: labelId,
           htmlFor: controlId,
           onMouseDown(event) {
-            const selection = window.getSelection();
-
-            // If text is selected elsewhere on the document when clicking the label, it will not
-            // activate. Ensure the selection is not the label text so that selection remains.
-            if (selection && !selection.anchorNode?.contains(event.currentTarget)) {
-              selection.empty();
+            const target = getTarget(event.nativeEvent) as HTMLElement | null;
+            if (target?.closest('button,input,select,textarea')) {
+              return;
             }
 
-            event.preventDefault();
+            // Prevent text selection when double clicking label.
+            if (!event.defaultPrevented && event.detail > 1) {
+              event.preventDefault();
+            }
           },
         },
         externalProps,

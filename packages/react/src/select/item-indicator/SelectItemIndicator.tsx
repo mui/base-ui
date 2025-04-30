@@ -1,12 +1,10 @@
 'use client';
 import * as React from 'react';
 import type { BaseUIComponentProps } from '../../utils/types';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useSelectItemContext } from '../item/SelectItemContext';
-import { mergeProps } from '../../merge-props';
-import { useForkRef } from '../../utils/useForkRef';
 import { type TransitionStatus, useTransitionStatus } from '../../utils/useTransitionStatus';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
+import { useRenderElement } from '../../utils/useRenderElement';
 
 /**
  * Indicates whether the select item is selected.
@@ -15,29 +13,16 @@ import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
  * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
  */
 const SelectItemIndicator = React.forwardRef(function SelectItemIndicator(
-  props: SelectItemIndicator.Props,
+  componentProps: SelectItemIndicator.Props,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
-  const { render, className, keepMounted = false, ...otherProps } = props;
+  const { render, className, keepMounted = false, ...elementProps } = componentProps;
 
   const { selected } = useSelectItemContext();
 
   const indicatorRef = React.useRef<HTMLSpanElement | null>(null);
-  const mergedRef = useForkRef(forwardedRef, indicatorRef);
 
   const { mounted, transitionStatus, setMounted } = useTransitionStatus(selected);
-
-  const getItemProps = React.useCallback(
-    (externalProps = {}) =>
-      mergeProps(
-        {
-          'aria-hidden': true,
-          children: '✔️',
-        },
-        externalProps,
-      ),
-    [],
-  );
 
   const state: SelectItemIndicator.State = React.useMemo(
     () => ({
@@ -47,16 +32,17 @@ const SelectItemIndicator = React.forwardRef(function SelectItemIndicator(
     [selected, transitionStatus],
   );
 
-  const { renderElement } = useComponentRenderer({
-    propGetter: getItemProps,
-    render: render ?? 'span',
-    ref: mergedRef,
-    className,
+  const renderElement = useRenderElement('span', componentProps, {
+    ref: [forwardedRef, indicatorRef],
     state,
-    extraProps: {
-      hidden: !mounted,
-      ...otherProps,
-    },
+    props: [
+      {
+        hidden: !mounted,
+        'aria-hidden': true,
+        children: '✔️',
+      },
+      elementProps,
+    ],
   });
 
   useOpenChangeComplete({

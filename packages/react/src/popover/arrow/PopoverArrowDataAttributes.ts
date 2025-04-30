@@ -19,7 +19,12 @@ export enum PopoverArrowDataAttributes {
    */
   side = 'data-side',
   /**
+   * Indicates how the popup is aligned relative to specified side.
+   * @type {'start' | 'center' | 'end'}
+   */
+  align = 'data-align',
+  /**
    * Present when the popover arrow is uncentered.
    */
-  uncetered = 'data-uncentered',
+  uncentered = 'data-uncentered',
 }

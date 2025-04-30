@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { mergeProps } from '../../merge-props';
-import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
+import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useFieldRootContext } from '../root/FieldRootContext';
 import { useFieldControlValidation } from './useFieldControlValidation';
@@ -31,14 +31,14 @@ export function useFieldControl(params: useFieldControl.Parameters) {
 
   const id = useBaseUiId(idProp);
 
-  useEnhancedEffect(() => {
+  useModernLayoutEffect(() => {
     setControlId(id);
     return () => {
       setControlId(undefined);
     };
   }, [id, setControlId]);
 
-  useEnhancedEffect(() => {
+  useModernLayoutEffect(() => {
     const hasExternalValue = valueProp != null;
     if (inputRef.current?.value || (hasExternalValue && valueProp !== '')) {
       setFilled(true);

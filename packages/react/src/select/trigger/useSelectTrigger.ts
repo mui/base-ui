@@ -9,12 +9,12 @@ import { ownerDocument } from '../../utils/owner';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { getPseudoElementBounds } from '../../utils/getPseudoElementBounds';
 
+const BOUNDARY_OFFSET = 2;
+
 export function useSelectTrigger(
   parameters: useSelectTrigger.Parameters,
 ): useSelectTrigger.ReturnValue {
-  const BOUNDARY_OFFSET = 2;
-
-  const { disabled = false, rootRef: externalRef } = parameters;
+  const { elementProps, disabled = false, rootRef: externalRef } = parameters;
 
   const {
     open,
@@ -25,8 +25,9 @@ export function useSelectTrigger(
     fieldControlValidation,
     setTouchModality,
     positionerElement,
-    alignItemToTrigger,
     readOnly,
+    alignItemWithTriggerActiveRef,
+    getRootTriggerProps,
   } = useSelectRootContext();
 
   const { labelId, setTouched, setFocused, validationMode } = useFieldRootContext();
@@ -71,111 +72,89 @@ export function useSelectTrigger(
     return undefined;
   }, [open, selectionRef]);
 
-  const getTriggerProps = React.useCallback(
-    (externalProps?: GenericHTMLProps): GenericHTMLProps => {
-      return mergeProps<'button'>(
-        {
-          'aria-labelledby': labelId,
-          'aria-readonly': readOnly || undefined,
-          tabIndex: disabled ? -1 : 0, // this is needed to make the button focused after click in Safari
-          ref: handleRef,
-          onFocus(event) {
-            setFocused(true);
-            // The popup element shouldn't obscure the focused trigger.
-            if (open && alignItemToTrigger) {
-              setOpen(false, event.nativeEvent, 'focus-out');
-            }
-          },
-          onBlur() {
-            setTouched(true);
-            setFocused(false);
+  const props: GenericHTMLProps = mergeProps<'button'>(
+    {
+      'aria-labelledby': labelId,
+      'aria-readonly': readOnly || undefined,
+      tabIndex: disabled ? -1 : 0, // this is needed to make the button focused after click in Safari
+      ref: handleRef,
+      onFocus(event) {
+        setFocused(true);
+        // The popup element shouldn't obscure the focused trigger.
+        if (open && alignItemWithTriggerActiveRef.current) {
+          setOpen(false, event.nativeEvent, 'focus-out');
+        }
+      },
+      onBlur() {
+        setTouched(true);
+        setFocused(false);
 
-            if (validationMode === 'onBlur') {
-              fieldControlValidation.commitValidation(value);
-            }
-          },
-          onPointerMove({ pointerType }) {
-            setTouchModality(pointerType === 'touch');
-          },
-          onPointerDown({ pointerType }) {
-            setTouchModality(pointerType === 'touch');
-          },
-          onMouseDown(event) {
-            if (open) {
-              return;
-            }
+        if (validationMode === 'onBlur') {
+          fieldControlValidation.commitValidation(value);
+        }
+      },
+      onPointerMove({ pointerType }) {
+        setTouchModality(pointerType === 'touch');
+      },
+      onPointerDown({ pointerType }) {
+        setTouchModality(pointerType === 'touch');
+      },
+      onMouseDown(event) {
+        if (open) {
+          return;
+        }
 
-            const doc = ownerDocument(event.currentTarget);
+        const doc = ownerDocument(event.currentTarget);
 
-            function handleMouseUp(mouseEvent: MouseEvent) {
-              if (!triggerRef.current) {
-                return;
-              }
+        function handleMouseUp(mouseEvent: MouseEvent) {
+          if (!triggerRef.current) {
+            return;
+          }
 
-              const mouseUpTarget = mouseEvent.target as Element | null;
+          const mouseUpTarget = mouseEvent.target as Element | null;
 
-              // Early return if clicked on trigger element or its children
-              if (
-                contains(triggerRef.current, mouseUpTarget) ||
-                contains(positionerElement, mouseUpTarget) ||
-                mouseUpTarget === triggerRef.current
-              ) {
-                return;
-              }
+          // Early return if clicked on trigger element or its children
+          if (
+            contains(triggerRef.current, mouseUpTarget) ||
+            contains(positionerElement, mouseUpTarget) ||
+            mouseUpTarget === triggerRef.current
+          ) {
+            return;
+          }
 
-              const bounds = getPseudoElementBounds(triggerRef.current);
+          const bounds = getPseudoElementBounds(triggerRef.current);
 
-              if (
-                mouseEvent.clientX >= bounds.left - BOUNDARY_OFFSET &&
-                mouseEvent.clientX <= bounds.right + BOUNDARY_OFFSET &&
-                mouseEvent.clientY >= bounds.top - BOUNDARY_OFFSET &&
-                mouseEvent.clientY <= bounds.bottom + BOUNDARY_OFFSET
-              ) {
-                return;
-              }
+          if (
+            mouseEvent.clientX >= bounds.left - BOUNDARY_OFFSET &&
+            mouseEvent.clientX <= bounds.right + BOUNDARY_OFFSET &&
+            mouseEvent.clientY >= bounds.top - BOUNDARY_OFFSET &&
+            mouseEvent.clientY <= bounds.bottom + BOUNDARY_OFFSET
+          ) {
+            return;
+          }
 
-              setOpen(false, mouseEvent, 'cancel-open');
-            }
+          setOpen(false, mouseEvent, undefined);
+        }
 
-            // Firefox can fire this upon mousedown
-            timeoutRef.current = window.setTimeout(() => {
-              doc.addEventListener('mouseup', handleMouseUp, { once: true });
-            });
-          },
-        },
-        fieldControlValidation.getValidationProps(externalProps),
-        getButtonProps,
-        // ensure nested useButton does not overwrite the combobox role:
-        // <Toolbar.Button render={<Select.Trigger />} />
-        { role: 'combobox' },
-      );
+        // Firefox can fire this upon mousedown
+        timeoutRef.current = window.setTimeout(() => {
+          doc.addEventListener('mouseup', handleMouseUp, { once: true });
+        });
+      },
     },
-    [
-      getButtonProps,
-      fieldControlValidation,
-      labelId,
-      readOnly,
-      disabled,
-      handleRef,
-      setFocused,
-      open,
-      alignItemToTrigger,
-      setOpen,
-      setTouched,
-      setTouchModality,
-      validationMode,
-      value,
-      positionerElement,
-    ],
+    fieldControlValidation.getValidationProps,
+    elementProps,
+    getRootTriggerProps,
+    getButtonProps,
+    // ensure nested useButton does not overwrite the combobox role:
+    // <Toolbar.Button render={<Select.Trigger />} />
+    { role: 'combobox' },
   );
 
-  return React.useMemo(
-    () => ({
-      getTriggerProps,
-      rootRef: handleRef,
-    }),
-    [getTriggerProps, handleRef],
-  );
+  return {
+    props,
+    rootRef: handleRef,
+  };
 }
 
 export namespace useSelectTrigger {
@@ -189,10 +168,11 @@ export namespace useSelectTrigger {
      * The ref to the root element.
      */
     rootRef?: React.Ref<HTMLElement>;
+    elementProps: GenericHTMLProps;
   }
 
   export interface ReturnValue {
-    getTriggerProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
+    props: GenericHTMLProps;
     rootRef: React.RefCallback<Element> | null;
   }
 }

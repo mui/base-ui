@@ -2,9 +2,9 @@
 import * as React from 'react';
 
 export interface CompositeListContextValue<Metadata> {
-  register: (node: Node, metadata: Metadata) => void;
-  unregister: (node: Node) => void;
-  map: Map<Node, Metadata | null>;
+  register: (node: Element, metadata: Metadata) => void;
+  unregister: (node: Element) => void;
+  map: Map<Element, Metadata | null>;
   elementsRef: React.RefObject<Array<HTMLElement | null>>;
   labelsRef?: React.RefObject<Array<string | null>>;
 }
