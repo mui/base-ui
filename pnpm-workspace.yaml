@@ -1,6 +1,14 @@
 packages:
-  - 'packages/*'
-  - 'docs'
-  - 'test'
-  - 'test/*'
-  - 'scripts/*'
+  - packages/*
+  - docs
+  - test
+  - test/*
+  - scripts/*
+
+onlyBuiltDependencies:
+  - '@mui/monorepo'
+  - core-js
+  - esbuild
+  - nx
+  - sharp
+  - unrs-resolver
