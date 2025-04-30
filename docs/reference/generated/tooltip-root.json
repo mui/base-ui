@@ -12,7 +12,7 @@
       "description": "Whether the tooltip is currently open."
     },
     "onOpenChange": {
-      "type": "((open: boolean, event: Event | undefined, reason: {} | undefined) => void)",
+      "type": "((open: boolean, event: Event | undefined, reason: OpenChangeReason | undefined) => void)",
       "description": "Event handler called when the tooltip is opened or closed."
     },
     "actionsRef": {
