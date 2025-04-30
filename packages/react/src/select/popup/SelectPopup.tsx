@@ -32,15 +32,8 @@ const SelectPopup = React.forwardRef(function SelectPopup(
 ) {
   const { render, className, ...otherProps } = props;
 
-  const {
-    id,
-    open,
-    popupRef,
-    transitionStatus,
-    alignItemToTrigger,
-    mounted,
-    onOpenChangeComplete,
-  } = useSelectRootContext();
+  const { id, open, popupRef, transitionStatus, mounted, onOpenChangeComplete } =
+    useSelectRootContext();
   const positioner = useSelectPositionerContext();
 
   useOpenChangeComplete({
@@ -96,7 +89,7 @@ const SelectPopup = React.forwardRef(function SelectPopup(
 
   return (
     <React.Fragment>
-      {id && alignItemToTrigger && (
+      {id && positioner.alignItemWithTriggerActive && (
         <style
           // eslint-disable-next-line react/no-danger
           dangerouslySetInnerHTML={html}
