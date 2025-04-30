@@ -11,9 +11,9 @@ import { avatarStyleHookMapping } from './styleHooks';
  *
  * Documentation: [Base UI Avatar](https://base-ui.com/react/components/avatar)
  */
-export const AvatarRoot = React.forwardRef<HTMLSpanElement, AvatarRoot.Props>(function AvatarRoot(
+export const AvatarRoot = React.forwardRef(function AvatarRoot(
   props: AvatarRoot.Props,
-  forwardedRef,
+  forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
   const { className, render, ...otherProps } = props;
 
