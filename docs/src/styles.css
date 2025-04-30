@@ -222,6 +222,11 @@
   [data-demo]:not([data-demo='tailwind']) * {
     all: revert-layer;
   }
+
+  [data-demo='tailwind'] {
+    --text-sm--letter-spacing: 0em;
+    --text-md--letter-spacing: 0em;
+  }
 }
 
 @layer all {
