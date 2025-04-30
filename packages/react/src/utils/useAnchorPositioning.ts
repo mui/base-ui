@@ -23,9 +23,32 @@ import { useModernLayoutEffect } from './useModernLayoutEffect';
 import { useDirection } from '../direction-provider/DirectionContext';
 import { useLatestRef } from './useLatestRef';
 import { useEventCallback } from './useEventCallback';
+import { InteractionType } from './useEnhancedClickHandler';
 
-function getLogicalSide(sideParam: Side, renderedSide: PhysicalSide, isRtl: boolean): Side {
-  const isLogicalSideParam = sideParam === 'inline-start' || sideParam === 'inline-end';
+function getData() {
+  if (typeof document === 'undefined') {
+    return {
+      viewportSize: { width: 0, height: 0 },
+      interactionType: '',
+    } as const;
+  }
+
+  return {
+    viewportSize: {
+      width: document.documentElement.clientWidth,
+      height: document.documentElement.clientHeight,
+    },
+    interactionType: '',
+  } as const;
+}
+
+function getLogicalSide(
+  sideParam: Side | SideFunction,
+  renderedSide: PhysicalSide,
+  isRtl: boolean,
+): Side {
+  const side = typeof sideParam === 'function' ? sideParam(getData()) : sideParam;
+  const isLogicalSideParam = side === 'inline-start' || side === 'inline-end';
   const logicalRight = isRtl ? 'inline-start' : 'inline-end';
   const logicalLeft = isRtl ? 'inline-end' : 'inline-start';
   return (
@@ -38,6 +61,20 @@ function getLogicalSide(sideParam: Side, renderedSide: PhysicalSide, isRtl: bool
   )[renderedSide];
 }
 
+function translateSide(sideParam: Side | SideFunction, isRtl: boolean): PhysicalSide {
+  const side = typeof sideParam === 'function' ? sideParam(getData()) : sideParam;
+  return (
+    {
+      top: 'top',
+      right: 'right',
+      bottom: 'bottom',
+      left: 'left',
+      'inline-end': isRtl ? 'left' : 'right',
+      'inline-start': isRtl ? 'right' : 'left',
+    } satisfies Record<Side, PhysicalSide>
+  )[side];
+}
+
 export type Side = 'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start';
 export type Align = 'start' | 'center' | 'end';
 export type Boundary = 'clipping-ancestors' | Element | Element[] | Rect;
@@ -47,6 +84,20 @@ export type OffsetFunction = (data: {
   anchor: { width: number; height: number };
   positioner: { width: number; height: number };
 }) => number;
+export type SideFunction = (data: {
+  viewportSize: {
+    width: number;
+    height: number;
+  };
+  interactionType: InteractionType;
+}) => Side;
+export type AlignFunction = (data: {
+  viewportSize: {
+    width: number;
+    height: number;
+  };
+  interactionType: InteractionType;
+}) => Align;
 
 /**
  * Provides standardized anchor positioning behavior for floating elements. Wraps Floating UI's
@@ -61,7 +112,7 @@ export function useAnchorPositioning(
     positionMethod = 'absolute',
     side: sideParam = 'bottom',
     sideOffset = 0,
-    align = 'center',
+    align: alignParam = 'center',
     alignOffset = 0,
     collisionBoundary,
     collisionPadding = 5,
@@ -82,19 +133,8 @@ export function useAnchorPositioning(
 
   const direction = useDirection();
   const isRtl = direction === 'rtl';
-
-  const side = (
-    {
-      top: 'top',
-      right: 'right',
-      bottom: 'bottom',
-      left: 'left',
-      'inline-end': isRtl ? 'left' : 'right',
-      'inline-start': isRtl ? 'right' : 'left',
-    } satisfies Record<Side, PhysicalSide>
-  )[sideParam];
-
-  const placement = align === 'center' ? side : (`${side}-${align}` as Placement);
+  const side = translateSide(sideParam, isRtl);
+  const placement = alignParam === 'center' ? side : (`${side}-${alignParam}` as Placement);
 
   const commonCollisionProps = {
     boundary: collisionBoundary === 'clipping-ancestors' ? 'clippingAncestors' : collisionBoundary,
@@ -113,6 +153,39 @@ export function useAnchorPositioning(
   const alignOffsetDep = typeof alignOffset !== 'function' ? alignOffset : 0;
 
   const middleware: UseFloatingOptions['middleware'] = [
+    typeof sideParam === 'function' || typeof alignParam === 'function'
+      ? {
+          name: 'placement',
+          fn({ middlewareData }) {
+            if (middlewareData.placement) {
+              return {};
+            }
+
+            let resetSide = sideParam;
+            let resetAlign = alignParam;
+
+            const data = getData();
+            if (typeof resetSide === 'function') {
+              resetSide = resetSide(data);
+            }
+            if (typeof resetAlign === 'function') {
+              resetAlign = resetAlign(data);
+            }
+
+            const translatedResetSide = translateSide(resetSide, isRtl);
+            const resetPlacement =
+              resetAlign === 'center'
+                ? translatedResetSide
+                : (`${translatedResetSide}-${resetAlign}` as Placement);
+
+            return {
+              reset: {
+                placement: resetPlacement,
+              },
+            };
+          },
+        }
+      : false,
     offset(
       ({ rects, placement: currentPlacement }) => {
         const data = {
@@ -159,7 +232,7 @@ export function useAnchorPositioning(
   });
 
   // https://floating-ui.com/docs/flip#combining-with-shift
-  if (align !== 'center') {
+  if (alignParam !== 'center') {
     middleware.push(flipMiddleware, shiftMiddleware);
   } else {
     middleware.push(shiftMiddleware, flipMiddleware);
@@ -367,7 +440,7 @@ export namespace useAnchorPositioning {
      * May automatically change to avoid collisions.
      * @default 'bottom'
      */
-    side?: Side;
+    side?: Side | SideFunction;
     /**
      * Distance between the anchor and the popup in pixels.
      * Also accepts a function that returns the distance to read the dimensions of the anchor
@@ -384,7 +457,7 @@ export namespace useAnchorPositioning {
      * How to align the popup relative to the specified side.
      * @default 'center'
      */
-    align?: 'start' | 'end' | 'center';
+    align?: Align | AlignFunction;
     /**
      * Additional offset along the alignment axis in pixels.
      * Also accepts a function that returns the offset to read the dimensions of the anchor
