@@ -24,7 +24,5 @@ node_modules
 package-lock.json
 size-snapshot.json
 # vale downloaded config
-.github/styles/Google
-.github/styles/MUI
-.github/styles/.vale-config
+.github/styles/
 .nx/cache
