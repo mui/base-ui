@@ -4,7 +4,7 @@ import type { BaseUIComponentProps } from '../../utils/types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useMenuGroupRootContext } from '../group/MenuGroupContext';
-import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
+import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 
 const state = {};
 
@@ -24,7 +24,7 @@ export const MenuGroupLabel = React.forwardRef(function MenuGroupLabelComponent(
 
   const { setLabelId } = useMenuGroupRootContext();
 
-  useEnhancedEffect(() => {
+  useModernLayoutEffect(() => {
     setLabelId(id);
     return () => {
       setLabelId(undefined);

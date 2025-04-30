@@ -7,7 +7,8 @@ import { useFieldRootContext } from '../field/root/FieldRootContext';
 import { useBaseUiId } from '../utils/useBaseUiId';
 import { useFieldControlValidation } from '../field/control/useFieldControlValidation';
 import { useField } from '../field/useField';
-import { visuallyHidden } from '../utils';
+import { useForkRef } from '../utils/useForkRef';
+import { visuallyHidden } from '../utils/visuallyHidden';
 
 export function useRadioGroup(params: useRadioGroup.Parameters) {
   const {
@@ -17,6 +18,7 @@ export function useRadioGroup(params: useRadioGroup.Parameters) {
     defaultValue,
     readOnly,
     value: externalValue,
+    inputRef: inputRefProp,
   } = params;
 
   const {
@@ -34,6 +36,8 @@ export function useRadioGroup(params: useRadioGroup.Parameters) {
   const fieldControlValidation = useFieldControlValidation();
 
   const id = useBaseUiId();
+
+  const ref = useForkRef(fieldControlValidation.inputRef, inputRefProp);
 
   const [checkedValue, setCheckedValue] = useControlled({
     controlled: externalValue,
@@ -109,7 +113,7 @@ export function useRadioGroup(params: useRadioGroup.Parameters) {
       mergeProps<'input'>(
         {
           value: serializedCheckedValue,
-          ref: fieldControlValidation.inputRef,
+          ref,
           id,
           name,
           disabled,
@@ -121,7 +125,7 @@ export function useRadioGroup(params: useRadioGroup.Parameters) {
         },
         fieldControlValidation.getInputValidationProps(externalProps),
       ),
-    [fieldControlValidation, serializedCheckedValue, id, name, disabled, readOnly, required],
+    [serializedCheckedValue, ref, id, name, disabled, readOnly, required, fieldControlValidation],
   );
 
   return React.useMemo(
@@ -146,5 +150,6 @@ export namespace useRadioGroup {
     readOnly?: boolean;
     defaultValue?: unknown;
     value?: unknown;
+    inputRef?: React.Ref<HTMLInputElement>;
   }
 }

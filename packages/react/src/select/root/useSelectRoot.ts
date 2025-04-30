@@ -13,7 +13,7 @@ import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useControlled } from '../../utils/useControlled';
 import { useTransitionStatus } from '../../utils';
-import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
+import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { warn } from '../../utils/warn';
 import type { SelectRootContext } from './SelectRootContext';
@@ -32,7 +32,6 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     disabled: disabledProp = false,
     readOnly = false,
     required = false,
-    alignItemToTrigger: alignItemToTriggerParam = true,
     modal = false,
     name: nameProp,
     onOpenChangeComplete,
@@ -54,7 +53,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
   const disabled = fieldDisabled || disabledProp;
   const name = fieldName ?? nameProp;
 
-  useEnhancedEffect(() => {
+  useModernLayoutEffect(() => {
     setControlId(id);
     return () => {
       setControlId(undefined);
@@ -75,12 +74,9 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     state: 'open',
   });
 
-  useEnhancedEffect(() => {
+  useModernLayoutEffect(() => {
     setFilled(value !== null);
   }, [setFilled, value]);
-
-  const [controlledAlignItemToTrigger, setControlledAlignItemToTrigger] =
-    React.useState(alignItemToTriggerParam);
 
   const listRef = React.useRef<Array<HTMLElement | null>>([]);
   const labelsRef = React.useRef<Array<string | null>>([]);
@@ -95,6 +91,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     allowUnselectedMouseUp: false,
     allowSelect: false,
   });
+  const alignItemWithTriggerActiveRef = React.useRef(false);
 
   const [triggerElement, setTriggerElement] = React.useState<HTMLElement | null>(null);
   const [positionerElement, setPositionerElement] = React.useState<HTMLElement | null>(null);
@@ -106,21 +103,6 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
   const [scrollDownArrowVisible, setScrollDownArrowVisible] = React.useState(false);
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
-
-  const alignItemToTrigger = Boolean(mounted && controlledAlignItemToTrigger && !touchModality);
-
-  if (!mounted && controlledAlignItemToTrigger !== alignItemToTriggerParam) {
-    setControlledAlignItemToTrigger(alignItemToTriggerParam);
-  }
-
-  if (!alignItemToTriggerParam || !mounted) {
-    if (scrollUpArrowVisible) {
-      setScrollUpArrowVisible(false);
-    }
-    if (scrollDownArrowVisible) {
-      setScrollDownArrowVisible(false);
-    }
-  }
 
   const setOpen = useEventCallback(
     (nextOpen: boolean, event: Event | undefined, reason: OpenChangeReason | undefined) => {
@@ -195,7 +177,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     }
   });
 
-  useEnhancedEffect(() => {
+  useModernLayoutEffect(() => {
     if (!hasRegisteredRef.current) {
       return;
     }
@@ -243,7 +225,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
       setActiveIndex(nextActiveIndex);
     },
     // Implement our own listeners since `onPointerLeave` on each option fires while scrolling with
-    // the `alignItemToTrigger` prop enabled, causing a performance issue on Chrome.
+    // the `alignItemWithTrigger=true`, causing a performance issue on Chrome.
     focusItemOnHover: false,
   });
 
@@ -268,7 +250,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
 
   const {
     getReferenceProps: getRootTriggerProps,
-    getFloatingProps: getRootPositionerProps,
+    getFloatingProps: getRootPopupProps,
     getItemProps,
   } = useInteractions([click, dismiss, role, listNavigation, typeahead]);
 
@@ -287,7 +269,6 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
       setScrollUpArrowVisible,
       scrollDownArrowVisible,
       setScrollDownArrowVisible,
-      setControlledAlignItemToTrigger,
       value,
       setValue,
       open,
@@ -301,7 +282,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
       labelsRef,
       typingRef,
       selectionRef,
-      getRootPositionerProps,
+      getRootPopupProps,
       getRootTriggerProps,
       getItemProps,
       listRef,
@@ -310,13 +291,13 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
       floatingRootContext,
       touchModality,
       setTouchModality,
-      alignItemToTrigger,
       transitionStatus,
       fieldControlValidation,
       modal,
       registerSelectedItem,
       onOpenChangeComplete,
       keyboardActiveRef,
+      alignItemWithTriggerActiveRef,
     }),
     [
       id,
@@ -335,12 +316,11 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
       mounted,
       setMounted,
       label,
-      getRootPositionerProps,
+      getRootPopupProps,
       getRootTriggerProps,
       getItemProps,
       floatingRootContext,
       touchModality,
-      alignItemToTrigger,
       transitionStatus,
       fieldControlValidation,
       modal,
@@ -432,11 +412,6 @@ export namespace useSelectRoot {
      * Whether the select menu is currently open.
      */
     open?: boolean;
-    /**
-     * Determines if the selected item inside the popup should align to the trigger element.
-     * @default true
-     */
-    alignItemToTrigger?: boolean;
     /**
      * Determines if the select enters a modal state when open.
      * - `true`: user interaction is limited to the select: document page scroll is locked and and pointer interactions on outside elements are disabled.

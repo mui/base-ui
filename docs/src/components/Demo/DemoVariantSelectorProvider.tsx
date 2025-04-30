@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useEnhancedEffect } from '@base-ui-components/react/utils';
+import { useModernLayoutEffect } from '@base-ui-components/react/utils';
 
 export interface DemoVariantSelectorContext {
   selectedVariant: string;
@@ -46,7 +46,7 @@ export function DemoVariantSelectorProvider(props: DemoVariantSelectorProviderPr
     localStorage.setItem(LANGUAGE_STORAGE_KEY, value);
   }, []);
 
-  useEnhancedEffect(() => {
+  useModernLayoutEffect(() => {
     const variantPreference = localStorage.getItem(VARIANT_STORAGE_KEY);
     const languagePreference = localStorage.getItem(LANGUAGE_STORAGE_KEY);
 

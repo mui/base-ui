@@ -2,9 +2,9 @@
 import * as React from 'react';
 import { useForkRef } from '../../utils/useForkRef';
 import { BaseUIComponentProps } from '../../utils/types';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { useEventCallback } from '../../utils/useEventCallback';
 import { useBaseUiId } from '../../utils/useBaseUiId';
+import { useEventCallback } from '../../utils/useEventCallback';
+import { useRenderElement } from '../../utils/useRenderElement';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import { useCollapsibleRoot } from '../../collapsible/root/useCollapsibleRoot';
 import type { CollapsibleRoot } from '../../collapsible/root/CollapsibleRoot';
@@ -22,7 +22,7 @@ import { accordionStyleHookMapping } from './styleHooks';
  * Documentation: [Base UI Accordion](https://base-ui.com/react/components/accordion)
  */
 export const AccordionItem = React.forwardRef(function AccordionItem(
-  props: AccordionItem.Props,
+  componentProps: AccordionItem.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const {
@@ -31,8 +31,8 @@ export const AccordionItem = React.forwardRef(function AccordionItem(
     onOpenChange: onOpenChangeProp,
     render,
     value: valueProp,
-    ...other
-  } = props;
+    ...elementProps
+  } = componentProps;
 
   const { ref: listItemRef, index } = useCompositeListItem();
   const mergedRef = useForkRef(forwardedRef, listItemRef);
@@ -115,12 +115,10 @@ export const AccordionItem = React.forwardRef(function AccordionItem(
     [isOpen, state, setTriggerId, triggerId],
   );
 
-  const { renderElement } = useComponentRenderer({
-    render: render ?? 'div',
-    className,
+  const renderElement = useRenderElement('div', componentProps, {
     state,
     ref: mergedRef,
-    extraProps: other,
+    props: elementProps,
     customStyleHookMapping: accordionStyleHookMapping,
   });
 

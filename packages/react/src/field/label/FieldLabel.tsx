@@ -6,7 +6,7 @@ import { useFieldRootContext } from '../root/FieldRootContext';
 import { useFieldLabel } from './useFieldLabel';
 import { fieldValidityMapping } from '../utils/constants';
 import { useBaseUiId } from '../../utils/useBaseUiId';
-import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
+import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import type { BaseUIComponentProps } from '../../utils/types';
 
 /**
@@ -25,7 +25,7 @@ export const FieldLabel = React.forwardRef(function FieldLabel(
 
   const id = useBaseUiId(idProp);
 
-  useEnhancedEffect(() => {
+  useModernLayoutEffect(() => {
     setLabelId(id);
     return () => {
       setLabelId(undefined);

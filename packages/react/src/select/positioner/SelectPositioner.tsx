@@ -1,26 +1,25 @@
 'use client';
 import * as React from 'react';
-import { useForkRef } from '../../utils/useForkRef';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import { CompositeList } from '../../composite/list/CompositeList';
 import type { BaseUIComponentProps } from '../../utils/types';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { popupStateMapping } from '../../utils/popupStateMapping';
 import { useSelectPositioner } from './useSelectPositioner';
 import type { Align, Side } from '../../utils/useAnchorPositioning';
 import { SelectPositionerContext } from './SelectPositionerContext';
 import { InternalBackdrop } from '../../utils/InternalBackdrop';
 import { inertValue } from '../../utils/inertValue';
+import { useRenderElement } from '../../utils/useRenderElement';
 
 /**
- * Positions the select menu popup against the trigger.
+ * Positions the select menu popup.
  * Renders a `<div>` element.
  *
  * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
  */
 export const SelectPositioner = React.forwardRef(function SelectPositioner(
-  props: SelectPositioner.Props,
-  ref: React.ForwardedRef<HTMLDivElement>,
+  componentProps: SelectPositioner.Props,
+  forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const {
     anchor,
@@ -36,11 +35,43 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
     arrowPadding = 5,
     sticky = false,
     trackAnchor = true,
-    ...otherProps
-  } = props;
+    alignItemWithTrigger = true,
+    ...elementProps
+  } = componentProps;
 
-  const { open, mounted, setPositionerElement, listRef, labelsRef, floatingRootContext, modal } =
-    useSelectRootContext();
+  const {
+    open,
+    mounted,
+    setPositionerElement,
+    listRef,
+    labelsRef,
+    floatingRootContext,
+    modal,
+    touchModality,
+    scrollUpArrowVisible,
+    setScrollUpArrowVisible,
+    scrollDownArrowVisible,
+    setScrollDownArrowVisible,
+    alignItemWithTriggerActiveRef,
+  } = useSelectRootContext();
+
+  const [controlledItemAnchor, setControlledItemAnchor] = React.useState(alignItemWithTrigger);
+  const alignItemWithTriggerActive = mounted && controlledItemAnchor && !touchModality;
+
+  React.useImperativeHandle(alignItemWithTriggerActiveRef, () => alignItemWithTriggerActive);
+
+  if (!mounted && controlledItemAnchor !== alignItemWithTrigger) {
+    setControlledItemAnchor(alignItemWithTrigger);
+  }
+
+  if (!alignItemWithTrigger || !mounted) {
+    if (scrollUpArrowVisible) {
+      setScrollUpArrowVisible(false);
+    }
+    if (scrollDownArrowVisible) {
+      setScrollDownArrowVisible(false);
+    }
+  }
 
   const positioner = useSelectPositioner({
     anchor,
@@ -56,10 +87,9 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
     collisionPadding,
     sticky,
     trackAnchor,
+    alignItemWithTriggerActive,
     keepMounted: true,
   });
-
-  const mergedRef = useForkRef(ref, setPositionerElement);
 
   const state: SelectPositioner.State = React.useMemo(
     () => ({
@@ -71,19 +101,26 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
     [open, positioner.side, positioner.align, positioner.anchorHidden],
   );
 
-  const { renderElement } = useComponentRenderer({
-    propGetter: positioner.getPositionerProps,
-    render: render ?? 'div',
-    ref: mergedRef,
-    className,
+  const renderElement = useRenderElement('div', componentProps, {
+    ref: [forwardedRef, setPositionerElement],
     state,
     customStyleHookMapping: popupStateMapping,
-    extraProps: otherProps,
+    props: [positioner.getPositionerProps, elementProps],
   });
+
+  const contextValue: SelectPositionerContext = React.useMemo(
+    () => ({
+      ...positioner,
+      alignItemWithTriggerActive,
+      controlledItemAnchor,
+      setControlledItemAnchor,
+    }),
+    [positioner, alignItemWithTriggerActive, controlledItemAnchor],
+  );
 
   return (
     <CompositeList elementsRef={listRef} labelsRef={labelsRef}>
-      <SelectPositionerContext.Provider value={positioner}>
+      <SelectPositionerContext.Provider value={contextValue}>
         {mounted && modal && <InternalBackdrop inert={inertValue(!open)} />}
         {renderElement()}
       </SelectPositionerContext.Provider>

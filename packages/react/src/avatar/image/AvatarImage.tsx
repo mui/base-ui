@@ -3,7 +3,7 @@ import * as React from 'react';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useEventCallback } from '../../utils/useEventCallback';
-import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
+import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { useAvatarRootContext } from '../root/AvatarRootContext';
 import type { AvatarRoot } from '../root/AvatarRoot';
 import { avatarStyleHookMapping } from '../root/styleHooks';
@@ -37,7 +37,7 @@ export const AvatarImage = React.forwardRef<HTMLImageElement, AvatarImage.Props>
       context.setImageLoadingStatus(status);
     });
 
-    useEnhancedEffect(() => {
+    useModernLayoutEffect(() => {
       if (imageLoadingStatus !== 'idle') {
         handleLoadingStatusChange(imageLoadingStatus);
       }

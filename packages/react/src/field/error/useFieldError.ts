@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { mergeProps } from '../../merge-props';
 import { useBaseUiId } from '../../utils/useBaseUiId';
-import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
+import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { useFieldRootContext } from '../root/FieldRootContext';
 
 export function useFieldError(params: useFieldError.Parameters) {
@@ -12,7 +12,7 @@ export function useFieldError(params: useFieldError.Parameters) {
 
   const id = useBaseUiId(idProp);
 
-  useEnhancedEffect(() => {
+  useModernLayoutEffect(() => {
     if (!rendered || !id) {
       return undefined;
     }

@@ -4,7 +4,7 @@ import type { BaseUIComponentProps } from '../../utils/types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useToastRootContext } from '../root/ToastRootContext';
 import { useId } from '../../utils/useId';
-import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
+import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 
 /**
  * A description that describes the toast.
@@ -29,7 +29,7 @@ export const ToastDescription = React.forwardRef(function ToastDescription(
 
   const { setDescriptionId } = useToastRootContext();
 
-  useEnhancedEffect(() => {
+  useModernLayoutEffect(() => {
     if (!shouldRender) {
       return undefined;
     }

@@ -271,7 +271,7 @@ jobs:
           browsers: true
       - run:
           name: Run tests on headless Chromium
-          command: pnpm test:chromium:coverage
+          command: pnpm test:chromium --coverage
       - run:
           name: Check if coverage report is generated
           command: |
@@ -326,6 +326,9 @@ jobs:
       - run:
           name: Build packages
           command: pnpm release:build
+      - run:
+          name: Test Node.js module resolution
+          command: pnpm -F @base-ui/test-node-resolution test
       - run:
           name: Verify built packages
           command: pnpm -r test:package

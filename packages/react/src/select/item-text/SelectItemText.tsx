@@ -1,10 +1,10 @@
 'use client';
 import * as React from 'react';
 import { useForkRef } from '../../utils/useForkRef';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import { useSelectItemContext } from '../item/SelectItemContext';
+import { useRenderElement } from '../../utils/useRenderElement';
 
 interface InnerSelectItemTextProps extends SelectItemText.Props {
   selected: boolean;
@@ -14,14 +14,13 @@ interface InnerSelectItemTextProps extends SelectItemText.Props {
 
 const InnerSelectItemText = React.memo(
   React.forwardRef(function InnerSelectItemText(
-    props: InnerSelectItemTextProps,
+    componentProps: InnerSelectItemTextProps,
     forwardedRef: React.ForwardedRef<HTMLDivElement>,
   ) {
-    const { className, render, selected, selectedItemTextRef, indexRef, ...otherProps } = props;
+    const { className, render, selected, selectedItemTextRef, indexRef, ...elementProps } =
+      componentProps;
 
     const mergedRef = useForkRef<HTMLElement>(forwardedRef);
-
-    const state: SelectItemText.State = React.useMemo(() => ({}), []);
 
     const ref = React.useCallback(
       (node: HTMLElement | null) => {
@@ -39,12 +38,9 @@ const InnerSelectItemText = React.memo(
       [mergedRef, selected, selectedItemTextRef, indexRef],
     );
 
-    const { renderElement } = useComponentRenderer({
+    const renderElement = useRenderElement('div', componentProps, {
       ref,
-      render: render ?? 'div',
-      className,
-      state,
-      extraProps: otherProps,
+      props: elementProps,
     });
 
     return renderElement();

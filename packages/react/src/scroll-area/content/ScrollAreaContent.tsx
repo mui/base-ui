@@ -3,7 +3,7 @@ import * as React from 'react';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { mergeProps } from '../../merge-props';
-import { useEnhancedEffect } from '../../utils';
+import { useModernLayoutEffect } from '../../utils';
 import { useScrollAreaViewportContext } from '../viewport/ScrollAreaViewportContext';
 
 const state = {};
@@ -24,7 +24,7 @@ export const ScrollAreaContent = React.forwardRef(function ScrollAreaContent(
 
   const { computeThumbPosition } = useScrollAreaViewportContext();
 
-  useEnhancedEffect(() => {
+  useModernLayoutEffect(() => {
     if (typeof ResizeObserver === 'undefined') {
       return undefined;
     }

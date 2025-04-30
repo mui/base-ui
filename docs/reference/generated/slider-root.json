@@ -22,6 +22,10 @@
       "type": "((value: any, event: Event) => void)",
       "description": "Callback function that is fired when the `pointerup` is triggered."
     },
+    "locale": {
+      "type": "LocalesArgument",
+      "description": "The locale used by `Intl.NumberFormat` when formatting the value.\nDefaults to the user's runtime locale."
+    },
     "ref": {
       "type": "RefObject<HTMLDivElement>"
     },
@@ -61,7 +65,7 @@
     "disabled": {
       "type": "boolean",
       "default": "false",
-      "description": "Whether the component should ignore user interaction."
+      "description": "Whether the slider should ignore user interaction."
     },
     "orientation": {
       "type": "Orientation",

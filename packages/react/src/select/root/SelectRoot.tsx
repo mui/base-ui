@@ -5,6 +5,7 @@ import { SelectRootContext } from './SelectRootContext';
 import { SelectIndexContext } from './SelectIndexContext';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { visuallyHidden } from '../../utils/visuallyHidden';
+import { useForkRef } from '../../utils/useForkRef';
 
 /**
  * Groups all parts of the select.
@@ -22,13 +23,13 @@ export const SelectRoot: SelectRoot = function SelectRoot<Value>(
     open,
     defaultOpen = false,
     onOpenChange,
-    alignItemToTrigger = true,
     name,
     disabled = false,
     readOnly = false,
     required = false,
     modal = true,
     actionsRef,
+    inputRef,
     onOpenChangeComplete,
   } = props;
 
@@ -39,7 +40,6 @@ export const SelectRoot: SelectRoot = function SelectRoot<Value>(
     open,
     defaultOpen,
     onOpenChange,
-    alignItemToTrigger,
     name,
     disabled,
     readOnly,
@@ -53,6 +53,8 @@ export const SelectRoot: SelectRoot = function SelectRoot<Value>(
 
   const { rootContext } = selectRoot;
   const value = rootContext.value;
+
+  const ref = useForkRef(inputRef, rootContext.fieldControlValidation.inputRef);
 
   const serializedValue = React.useMemo(() => {
     if (value == null) {
@@ -104,7 +106,7 @@ export const SelectRoot: SelectRoot = function SelectRoot<Value>(
             required: rootContext.required,
             readOnly: rootContext.readOnly,
             value: serializedValue,
-            ref: rootContext.fieldControlValidation.inputRef,
+            ref,
             style: visuallyHidden,
             tabIndex: -1,
             'aria-hidden': true,
@@ -118,6 +120,10 @@ export const SelectRoot: SelectRoot = function SelectRoot<Value>(
 export namespace SelectRoot {
   export interface Props<Value> extends useSelectRoot.Parameters<Value> {
     children?: React.ReactNode;
+    /**
+     * A ref to access the hidden input element.
+     */
+    inputRef?: React.Ref<HTMLInputElement>;
   }
 
   export interface State {}

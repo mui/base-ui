@@ -60,7 +60,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
 
   const disabled = fieldDisabled || groupContext?.disabled || disabledProp;
 
-  const { checked, getInputProps, getButtonProps } = useCheckboxRoot({
+  const { checked, getInputProps, getRootProps } = useCheckboxRoot({
     ...props,
     disabled,
     inputRef,
@@ -93,7 +93,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
   const customStyleHookMapping = useCustomStyleHookMapping(state);
 
   const { renderElement } = useComponentRenderer({
-    propGetter: getButtonProps,
+    propGetter: getRootProps,
     render: render ?? 'button',
     ref: forwardedRef,
     state,
