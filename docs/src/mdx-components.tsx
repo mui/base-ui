@@ -21,17 +21,14 @@ export const mdxComponents: MDXComponents = {
   a: (props) => <Link {...props} />,
   code: (props) => <Code className="data-[inline]:mx-[0.1em]" {...props} />,
   h1: (props) => (
+    // Do not wrap heading tags in divs, that confuses Safari Reader
     <React.Fragment>
       <h1 className="mb-4 text-3xl font-bold text-balance" {...props} />
       <title>{`${getChildrenText(props.children)} · Base UI`}</title>
     </React.Fragment>
   ),
   h2: (props) => (
-    // Do not wrap heading tags in divs, that confuses Safari Reader
-    <React.Fragment>
-      <h2 className="mt-10 mb-4 scroll-mt-6 text-xl font-medium text-balance" {...props} />
-      <div className="mb-5 border-t border-gray-200" />
-    </React.Fragment>
+    <h2 className="mt-10 mb-4 scroll-mt-6 text-xl font-medium text-balance" {...props} />
   ),
   h3: (props) => (
     <h3 className="mt-8 mb-1.5 scroll-mt-6 text-lg font-medium text-balance" {...props} />
