@@ -16,7 +16,7 @@ const TOOLBAR_LINK_METADATA = {
  *
  * Documentation: [Base UI Toolbar](https://base-ui.com/react/components/toolbar)
  */
-const ToolbarLink = React.forwardRef(function ToolbarLink(
+export const ToolbarLink = React.forwardRef(function ToolbarLink(
   props: ToolbarLink.Props,
   forwardedRef: React.ForwardedRef<HTMLAnchorElement>,
 ) {
@@ -49,12 +49,10 @@ const ToolbarLink = React.forwardRef(function ToolbarLink(
   );
 });
 
-namespace ToolbarLink {
+export namespace ToolbarLink {
   export interface State {
     orientation: Orientation;
   }
 
   export interface Props extends BaseUIComponentProps<'a', State> {}
 }
-
-export { ToolbarLink };

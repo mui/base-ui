@@ -70,7 +70,7 @@ describe('<Toolbar.Input />', () => {
             <Toolbar.Button />
           </Toolbar.Root>,
         );
-        const input = getByRole('textbox');
+        const input = getByRole('textbox') as HTMLInputElement;
         const [button1, button2] = getAllByRole('button');
 
         await user.keyboard('[Tab]');
@@ -79,7 +79,9 @@ describe('<Toolbar.Input />', () => {
         await user.keyboard(`[${nextKey}]`);
         expect(input).toHaveFocus();
 
-        expect(document.getSelection()?.toString()).to.equal('abcd');
+        // Firefox doesn't support document.getSelection() in inputs
+        expect(input.selectionStart).to.equal(0);
+        expect(input.selectionEnd).to.equal(4);
 
         await user.keyboard(`[${ARROW_RIGHT}]`);
         await user.keyboard(`[${nextKey}]`);

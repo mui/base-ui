@@ -12,7 +12,7 @@ export function FloatingPortalLite(props: FloatingPortalLite.Props) {
   return node && ReactDOM.createPortal(props.children, node);
 }
 
-namespace FloatingPortalLite {
+export namespace FloatingPortalLite {
   export interface Props {
     children?: React.ReactNode;
     root?: HTMLElement | null | React.RefObject<HTMLElement | null>;

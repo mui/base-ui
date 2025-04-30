@@ -1,8 +1,8 @@
 'use client';
 import * as React from 'react';
 import { BaseUIComponentProps } from '../../utils/types';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
+import { useRenderElement } from '../../utils/useRenderElement';
 import { warn } from '../../utils/warn';
 import { useCollapsibleRootContext } from '../../collapsible/root/CollapsibleRootContext';
 import { useCollapsiblePanel } from '../../collapsible/panel/useCollapsiblePanel';
@@ -20,8 +20,8 @@ import { usePanelResize } from '../../utils/usePanelResize';
  *
  * Documentation: [Base UI Accordion](https://base-ui.com/react/components/accordion)
  */
-const AccordionPanel = React.forwardRef(function AccordionPanel(
-  props: AccordionPanel.Props,
+export const AccordionPanel = React.forwardRef(function AccordionPanel(
+  componentProps: AccordionPanel.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const {
@@ -30,9 +30,8 @@ const AccordionPanel = React.forwardRef(function AccordionPanel(
     keepMounted: keepMountedProp,
     id: idProp,
     render,
-    style: styleProp,
-    ...otherProps
-  } = props;
+    ...elementProps
+  } = componentProps;
 
   const { hiddenUntilFound: contextHiddenUntilFound, keepMounted: contextKeepMounted } =
     useAccordionRootContext();
@@ -83,7 +82,7 @@ const AccordionPanel = React.forwardRef(function AccordionPanel(
 
   usePanelResize(panelRef, setDimensions, open);
 
-  const { getRootProps } = useCollapsiblePanel({
+  const { props } = useCollapsiblePanel({
     abortControllerRef,
     animationTypeRef,
     externalRef: forwardedRef,
@@ -108,22 +107,23 @@ const AccordionPanel = React.forwardRef(function AccordionPanel(
 
   const { state, triggerId } = useAccordionItemContext();
 
-  const { renderElement } = useComponentRenderer({
-    propGetter: getRootProps,
-    render: render ?? 'div',
+  const renderElement = useRenderElement('div', componentProps, {
     state,
-    className,
     ref: [forwardedRef, panelRef],
-    extraProps: {
-      ...otherProps,
-      'aria-labelledby': triggerId,
-      role: 'region',
-      style: {
-        [AccordionPanelCssVars.accordionPanelHeight]: height ? `${height}px` : undefined,
-        [AccordionPanelCssVars.accordionPanelWidth]: width ? `${width}px` : undefined,
-        ...styleProp,
+    props: [
+      props,
+      {
+        'aria-labelledby': triggerId,
+        role: 'region',
+        style: {
+          [AccordionPanelCssVars.accordionPanelHeight as string]: height
+            ? `${height}px`
+            : undefined,
+          [AccordionPanelCssVars.accordionPanelWidth as string]: width ? `${width}px` : undefined,
+        },
       },
-    },
+      elementProps,
+    ],
     customStyleHookMapping: accordionStyleHookMapping,
   });
 
@@ -135,10 +135,8 @@ const AccordionPanel = React.forwardRef(function AccordionPanel(
   return renderElement();
 });
 
-namespace AccordionPanel {
+export namespace AccordionPanel {
   export interface Props
     extends BaseUIComponentProps<'div', AccordionItem.State>,
       Pick<AccordionRoot.Props, 'hiddenUntilFound' | 'keepMounted'> {}
 }
-
-export { AccordionPanel };

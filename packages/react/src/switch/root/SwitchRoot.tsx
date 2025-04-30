@@ -14,7 +14,7 @@ import type { BaseUIComponentProps } from '../../utils/types';
  *
  * Documentation: [Base UI Switch](https://base-ui.com/react/components/switch)
  */
-const SwitchRoot = React.forwardRef(function SwitchRoot(
+export const SwitchRoot = React.forwardRef(function SwitchRoot(
   props: SwitchRoot.Props,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
@@ -66,7 +66,7 @@ const SwitchRoot = React.forwardRef(function SwitchRoot(
   );
 });
 
-namespace SwitchRoot {
+export namespace SwitchRoot {
   export interface Props
     extends useSwitchRoot.Parameters,
       Omit<BaseUIComponentProps<'button', SwitchRoot.State>, 'onChange'> {}
@@ -90,5 +90,3 @@ namespace SwitchRoot {
     required: boolean;
   }
 }
-
-export { SwitchRoot };

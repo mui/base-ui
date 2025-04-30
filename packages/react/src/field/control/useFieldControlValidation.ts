@@ -42,18 +42,34 @@ export function useFieldControlValidation() {
     }
 
     function getState(el: HTMLInputElement) {
-      return validityKeys.reduce(
+      const computedState = validityKeys.reduce(
         (acc, key) => {
           acc[key] = el.validity[key];
-
-          if (!el.validity.customError && !markedDirtyRef.current) {
-            acc[key] = key === 'valid';
-          }
-
           return acc;
         },
         {} as Record<keyof ValidityState, boolean>,
       );
+
+      let hasOnlyValueMissingError = false;
+
+      for (const key of validityKeys) {
+        if (key === 'valid') {
+          continue;
+        }
+        if (key === 'valueMissing' && computedState[key]) {
+          hasOnlyValueMissingError = true;
+        } else if (computedState[key]) {
+          return computedState;
+        }
+      }
+
+      // Only make `valueMissing` mark the field invalid if it's been changed
+      // to reduce error noise.
+      if (hasOnlyValueMissingError && !markedDirtyRef.current) {
+        computedState.valid = true;
+      }
+
+      return computedState;
     }
 
     window.clearTimeout(timeoutRef.current);

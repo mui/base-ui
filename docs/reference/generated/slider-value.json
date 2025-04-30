@@ -2,10 +2,6 @@
   "name": "SliderValue",
   "description": "Displays the current value of the slider as text.\nRenders an `<output>` element.",
   "props": {
-    "aria-live": {
-      "type": "'off' | 'assertive' | 'polite'",
-      "default": "'off'"
-    },
     "children": {
       "type": "((formattedValues: string[], values: number[]) => ReactNode) | null"
     },

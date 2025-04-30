@@ -16,7 +16,7 @@ import { usePreviewCardPortalContext } from '../portal/PreviewCardPortalContext'
  *
  * Documentation: [Base UI Preview Card](https://base-ui.com/react/components/preview-card)
  */
-const PreviewCardPositioner = React.forwardRef(function PreviewCardPositioner(
+export const PreviewCardPositioner = React.forwardRef(function PreviewCardPositioner(
   props: PreviewCardPositioner.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
@@ -104,7 +104,7 @@ const PreviewCardPositioner = React.forwardRef(function PreviewCardPositioner(
   );
 });
 
-namespace PreviewCardPositioner {
+export namespace PreviewCardPositioner {
   export interface State {
     /**
      * Whether the preview card is currently open.
@@ -119,5 +119,3 @@ namespace PreviewCardPositioner {
     extends usePreviewCardPositioner.SharedParameters,
       BaseUIComponentProps<'div', State> {}
 }
-
-export { PreviewCardPositioner };

@@ -37,7 +37,7 @@ function getDefaultAriaValueText(formattedValue: string | null, value: number | 
  *
  * Documentation: [Base UI Progress](https://base-ui.com/react/components/progress)
  */
-const ProgressRoot = React.forwardRef(function ProgressRoot(
+export const ProgressRoot = React.forwardRef(function ProgressRoot(
   componentProps: ProgressRoot.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
@@ -111,7 +111,7 @@ const ProgressRoot = React.forwardRef(function ProgressRoot(
 
 export type ProgressStatus = 'indeterminate' | 'progressing' | 'complete';
 
-namespace ProgressRoot {
+export namespace ProgressRoot {
   export type State = {
     status: ProgressStatus;
   };
@@ -150,5 +150,3 @@ namespace ProgressRoot {
     value: number | null;
   }
 }
-
-export { ProgressRoot };

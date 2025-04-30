@@ -27,7 +27,7 @@ export type CompositeMetadata<CustomMetadata> = { index?: number | null } & Cust
  * Provides context for a list of items in a composite component.
  * @internal
  */
-function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
+export function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
   const { children, elementsRef, labelsRef, onMapChange } = props;
 
   const [map, setMap] = React.useState(
@@ -72,7 +72,7 @@ function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
   );
 }
 
-namespace CompositeList {
+export namespace CompositeList {
   export interface Props<Metadata> {
     children: React.ReactNode;
     /**
@@ -88,5 +88,3 @@ namespace CompositeList {
     onMapChange?: (newMap: Map<Element, CompositeMetadata<Metadata> | null>) => void;
   }
 }
-
-export { CompositeList };
