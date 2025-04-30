@@ -17,7 +17,7 @@ import { usePanelResize } from '../../utils/usePanelResize';
  *
  * Documentation: [Base UI Collapsible](https://base-ui.com/react/components/collapsible)
  */
-const CollapsiblePanel = React.forwardRef(function CollapsiblePanel(
+export const CollapsiblePanel = React.forwardRef(function CollapsiblePanel(
   componentProps: CollapsiblePanel.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
@@ -129,9 +129,7 @@ const CollapsiblePanel = React.forwardRef(function CollapsiblePanel(
   return renderElement();
 });
 
-export { CollapsiblePanel };
-
-namespace CollapsiblePanel {
+export namespace CollapsiblePanel {
   export interface Props extends BaseUIComponentProps<'div', CollapsibleRoot.State> {
     /**
      * Allows the browser’s built-in page search to find and expand the panel contents.

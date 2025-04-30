@@ -24,7 +24,7 @@ const customStyleHookMapping: CustomStyleHookMapping<SelectPopup.State> = {
  *
  * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
  */
-const SelectPopup = React.forwardRef(function SelectPopup(
+export const SelectPopup = React.forwardRef(function SelectPopup(
   componentProps: SelectPopup.Props,
   forwardedRef: React.ForwardedRef<Element>,
 ) {
@@ -92,7 +92,7 @@ const SelectPopup = React.forwardRef(function SelectPopup(
   );
 });
 
-namespace SelectPopup {
+export namespace SelectPopup {
   export interface Props extends BaseUIComponentProps<'div', State> {
     children?: React.ReactNode;
     /**
@@ -108,5 +108,3 @@ namespace SelectPopup {
     transitionStatus: TransitionStatus;
   }
 }
-
-export { SelectPopup };

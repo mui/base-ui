@@ -12,7 +12,7 @@ import { useEventCallback } from '../utils/useEventCallback';
  *
  * Documentation: [Base UI Form](https://base-ui.com/react/components/form)
  */
-const Form = React.forwardRef(function Form(
+export const Form = React.forwardRef(function Form(
   props: Form.Props,
   forwardedRef: React.ForwardedRef<HTMLFormElement>,
 ) {
@@ -99,7 +99,7 @@ const Form = React.forwardRef(function Form(
   return <FormContext.Provider value={contextValue}>{renderElement()}</FormContext.Provider>;
 });
 
-namespace Form {
+export namespace Form {
   export interface Props extends BaseUIComponentProps<'form', State> {
     /**
      * An object where the keys correspond to the `name` attribute of the form fields,
@@ -113,5 +113,3 @@ namespace Form {
   }
   export interface State {}
 }
-
-export { Form };

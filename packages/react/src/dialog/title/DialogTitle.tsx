@@ -15,7 +15,7 @@ const state = {};
  *
  * Documentation: [Base UI Dialog](https://base-ui.com/react/components/dialog)
  */
-const DialogTitle = React.forwardRef(function DialogTitle(
+export const DialogTitle = React.forwardRef(function DialogTitle(
   props: DialogTitle.Props,
   forwardedRef: React.ForwardedRef<HTMLParagraphElement>,
 ) {
@@ -54,10 +54,8 @@ const DialogTitle = React.forwardRef(function DialogTitle(
   return renderElement();
 });
 
-namespace DialogTitle {
+export namespace DialogTitle {
   export interface Props extends BaseUIComponentProps<'h2', State> {}
 
   export interface State {}
 }
-
-export { DialogTitle };

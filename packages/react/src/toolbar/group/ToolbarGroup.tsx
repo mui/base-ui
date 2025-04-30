@@ -12,7 +12,7 @@ import { ToolbarGroupContext } from './ToolbarGroupContext';
  *
  * Documentation: [Base UI Toolbar](https://base-ui.com/react/components/toolbar)
  */
-const ToolbarGroup = React.forwardRef(function ToolbarGroup(
+export const ToolbarGroup = React.forwardRef(function ToolbarGroup(
   props: ToolbarGroup.Props,
   forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
@@ -55,7 +55,7 @@ const ToolbarGroup = React.forwardRef(function ToolbarGroup(
   );
 });
 
-namespace ToolbarGroup {
+export namespace ToolbarGroup {
   export interface Props extends BaseUIComponentProps<'div', ToolbarRoot.State> {
     /**
      * When `true` all toolbar items in the group are disabled.
@@ -64,5 +64,3 @@ namespace ToolbarGroup {
     disabled?: boolean;
   }
 }
-
-export { ToolbarGroup };

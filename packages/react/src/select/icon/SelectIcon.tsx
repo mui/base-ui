@@ -9,7 +9,7 @@ import { useRenderElement } from '../../utils/useRenderElement';
  *
  * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
  */
-const SelectIcon = React.forwardRef(function SelectIcon(
+export const SelectIcon = React.forwardRef(function SelectIcon(
   componentProps: SelectIcon.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
@@ -29,10 +29,8 @@ const SelectIcon = React.forwardRef(function SelectIcon(
   return renderElement();
 });
 
-namespace SelectIcon {
+export namespace SelectIcon {
   export interface State {}
 
   export interface Props extends BaseUIComponentProps<'span', State> {}
 }
-
-export { SelectIcon };

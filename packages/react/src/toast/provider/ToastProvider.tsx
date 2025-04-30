@@ -8,7 +8,7 @@ import { useToastProvider } from './useToastProvider';
  *
  * Documentation: [Base UI Toast](https://base-ui.com/react/components/toast)
  */
-const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvider(props) {
+export const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvider(props) {
   const { children, timeout = 5000, limit = 3, toastManager } = props;
 
   const contextValue = useToastProvider({
@@ -20,10 +20,8 @@ const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvider(prop
   return <ToastContext.Provider value={contextValue}>{children}</ToastContext.Provider>;
 };
 
-namespace ToastProvider {
+export namespace ToastProvider {
   export interface Props extends useToastProvider.Parameters {
     children?: React.ReactNode;
   }
 }
-
-export { ToastProvider };

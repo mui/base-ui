@@ -19,7 +19,7 @@ const customStyleHookMapping: CustomStyleHookMapping<SelectBackdrop.State> = {
  *
  * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
  */
-const SelectBackdrop = React.forwardRef(function SelectBackdrop(
+export const SelectBackdrop = React.forwardRef(function SelectBackdrop(
   componentProps: SelectBackdrop.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
@@ -55,7 +55,7 @@ const SelectBackdrop = React.forwardRef(function SelectBackdrop(
   return renderElement();
 });
 
-namespace SelectBackdrop {
+export namespace SelectBackdrop {
   export interface Props extends BaseUIComponentProps<'div', State> {}
 
   export interface State {
@@ -66,5 +66,3 @@ namespace SelectBackdrop {
     transitionStatus: TransitionStatus;
   }
 }
-
-export { SelectBackdrop };

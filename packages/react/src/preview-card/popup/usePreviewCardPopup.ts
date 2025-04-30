@@ -30,7 +30,7 @@ export function usePreviewCardPopup(
   );
 }
 
-namespace usePreviewCardPopup {
+export namespace usePreviewCardPopup {
   export interface Parameters {
     getProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
   }

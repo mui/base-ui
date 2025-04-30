@@ -13,7 +13,7 @@ import { useButton } from '../../use-button/useButton';
  *
  * Documentation: [Base UI Toast](https://base-ui.com/react/components/toast)
  */
-const ToastClose = React.forwardRef(function ToastClose(
+export const ToastClose = React.forwardRef(function ToastClose(
   props: ToastClose.Props,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
@@ -53,7 +53,7 @@ const ToastClose = React.forwardRef(function ToastClose(
   return renderElement();
 });
 
-namespace ToastClose {
+export namespace ToastClose {
   export interface State {
     /**
      * The type of the toast.
@@ -63,5 +63,3 @@ namespace ToastClose {
 
   export interface Props extends BaseUIComponentProps<'button', State> {}
 }
-
-export { ToastClose };

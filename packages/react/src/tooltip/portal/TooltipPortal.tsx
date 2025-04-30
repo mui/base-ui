@@ -10,7 +10,7 @@ import { FloatingPortalLite } from '../../utils/FloatingPortalLite';
  *
  * Documentation: [Base UI Tooltip](https://base-ui.com/react/components/tooltip)
  */
-function TooltipPortal(props: TooltipPortal.Props) {
+export function TooltipPortal(props: TooltipPortal.Props) {
   const { children, keepMounted = false, container } = props;
 
   const { mounted } = useTooltipRootContext();
@@ -27,7 +27,7 @@ function TooltipPortal(props: TooltipPortal.Props) {
   );
 }
 
-namespace TooltipPortal {
+export namespace TooltipPortal {
   export interface Props {
     children?: React.ReactNode;
     /**
@@ -41,5 +41,3 @@ namespace TooltipPortal {
     container?: HTMLElement | null | React.RefObject<HTMLElement | null>;
   }
 }
-
-export { TooltipPortal };
