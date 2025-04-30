@@ -6,9 +6,10 @@ import { useRadioGroupContext } from '../../radio-group/RadioGroupContext';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { ACTIVE_COMPOSITE_ITEM } from '../../composite/constants';
+import { useForkRef } from '../../utils/useForkRef';
 
 export function useRadioRoot(params: useRadioRoot.Parameters) {
-  const { disabled, readOnly, value, required } = params;
+  const { disabled, readOnly, value, required, inputRef: inputRefProp } = params;
 
   const {
     checkedValue,
@@ -24,6 +25,7 @@ export function useRadioRoot(params: useRadioRoot.Parameters) {
   const checked = checkedValue === value;
 
   const inputRef = React.useRef<HTMLInputElement>(null);
+  const ref = useForkRef(inputRefProp, inputRef);
 
   useModernLayoutEffect(() => {
     if (inputRef.current?.checked) {
@@ -79,7 +81,7 @@ export function useRadioRoot(params: useRadioRoot.Parameters) {
       mergeProps<'input'>(
         {
           type: 'radio',
-          ref: inputRef,
+          ref,
           tabIndex: -1,
           style: visuallyHidden,
           'aria-hidden': true,
@@ -107,6 +109,7 @@ export function useRadioRoot(params: useRadioRoot.Parameters) {
         externalProps,
       ),
     [
+      ref,
       disabled,
       checked,
       required,
@@ -137,6 +140,7 @@ namespace useRadioRoot {
     disabled?: boolean;
     readOnly?: boolean;
     required?: boolean;
+    inputRef?: React.Ref<HTMLInputElement>;
   }
 
   export interface ReturnValue {

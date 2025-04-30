@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import { MemoryRouter, Route, Routes, Link, useLocation } from 'react-router-dom';
+import { MemoryRouter, Route, Routes, Link, useLocation } from 'react-router';
 import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { Menu } from '@base-ui-components/react/menu';
 import { describeConformance, createRenderer, isJSDOM } from '#test-utils';

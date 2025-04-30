@@ -7,8 +7,9 @@ import { ownerDocument } from '../../utils/owner';
 import type { BaseUIComponentProps, Orientation } from '../../utils/types';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useControlled } from '../../utils/useControlled';
-import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { useEventCallback } from '../../utils/useEventCallback';
+import { useLatestRef } from '../../utils/useLatestRef';
+import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { warn } from '../../utils/warn';
 import { CompositeList, type CompositeMetadata } from '../../composite/list/CompositeList';
@@ -54,6 +55,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
     id: idProp,
     format,
     largeStep = 10,
+    locale,
     render,
     max = 100,
     min = 0,
@@ -111,6 +113,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
   const controlRef: React.RefObject<HTMLElement | null> = React.useRef(null);
   const thumbRefs = React.useRef<(HTMLElement | null)[]>([]);
   const lastChangedValueRef = React.useRef<number | readonly number[] | null>(null);
+  const formatOptionsRef = useLatestRef(format);
 
   // We can't use the :active browser pseudo-classes.
   // - The active state isn't triggered when clicking on the rail.
@@ -255,16 +258,17 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
     ],
   );
 
-  const contextValue = React.useMemo(
+  const contextValue: SliderRootContext = React.useMemo(
     () => ({
       active,
       disabled,
       dragging,
-      format,
+      formatOptionsRef,
       handleInputChange,
       labelId: ariaLabelledby,
       largeStep,
       lastChangedValueRef,
+      locale,
       max,
       min,
       minStepsBetweenValues,
@@ -289,10 +293,11 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       disabled,
       dragging,
       externalTabIndex,
-      format,
+      formatOptionsRef,
       handleInputChange,
       largeStep,
       lastChangedValueRef,
+      locale,
       max,
       min,
       minStepsBetweenValues,
@@ -396,6 +401,11 @@ export namespace SliderRoot {
      * Options to format the input value.
      */
     format?: Intl.NumberFormatOptions;
+    /**
+     * The locale used by `Intl.NumberFormat` when formatting the value.
+     * Defaults to the user's runtime locale.
+     */
+    locale?: Intl.LocalesArgument;
     /**
      * The maximum allowed value of the slider.
      * Should not be equal to min.

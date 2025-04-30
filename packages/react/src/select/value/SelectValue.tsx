@@ -1,10 +1,8 @@
 'use client';
 import * as React from 'react';
 import { useSelectRootContext } from '../root/SelectRootContext';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import type { BaseUIComponentProps } from '../../utils/types';
-import { useForkRef } from '../../utils/useForkRef';
-import { mergeProps } from '../../merge-props';
+import { useRenderElement } from '../../utils/useRenderElement';
 
 /**
  * A text label of the currently selected item.
@@ -13,38 +11,24 @@ import { mergeProps } from '../../merge-props';
  * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
  */
 const SelectValue = React.forwardRef(function SelectValue(
-  props: SelectValue.Props,
+  componentProps: SelectValue.Props,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
-  const { className, render, children, placeholder, ...otherProps } = props;
+  const { className, render, children, placeholder, ...elementProps } = componentProps;
 
   const { value, label, valueRef } = useSelectRootContext();
 
-  const mergedRef = useForkRef(forwardedRef, valueRef);
-
-  const state: SelectValue.State = React.useMemo(() => ({}), []);
-
-  const getValueProps = React.useCallback(
-    (externalProps = {}) =>
-      mergeProps(
-        {
-          children:
-            typeof children === 'function'
-              ? children(!label && placeholder ? placeholder : label, value)
-              : label || placeholder,
-        },
-        externalProps,
-      ),
-    [children, label, placeholder, value],
-  );
-
-  const { renderElement } = useComponentRenderer({
-    propGetter: getValueProps,
-    render: render ?? 'span',
-    className,
-    state,
-    ref: mergedRef,
-    extraProps: otherProps,
+  const renderElement = useRenderElement('span', componentProps, {
+    ref: [forwardedRef, valueRef],
+    props: [
+      {
+        children:
+          typeof children === 'function'
+            ? children(!label && placeholder ? placeholder : label, value)
+            : label || placeholder,
+      },
+      elementProps,
+    ],
   });
 
   return renderElement();

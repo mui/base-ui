@@ -27,6 +27,7 @@ const RadioRoot = React.forwardRef(function RadioRoot(
     readOnly: readOnlyProp = false,
     required: requiredProp = false,
     value,
+    inputRef,
     ...otherProps
   } = props;
 
@@ -47,6 +48,7 @@ const RadioRoot = React.forwardRef(function RadioRoot(
     ...props,
     disabled,
     readOnly,
+    inputRef,
   });
 
   const state: RadioRoot.State = React.useMemo(
@@ -101,6 +103,10 @@ namespace RadioRoot {
      * @default false
      */
     readOnly?: boolean;
+    /**
+     * A ref to access the hidden input element.
+     */
+    inputRef?: React.Ref<HTMLInputElement>;
   }
 
   export interface State {

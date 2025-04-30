@@ -226,7 +226,7 @@ export namespace useSwitchRoot {
      */
     disabled?: boolean;
     /**
-     * A React ref to access the hidden `<input>` element.
+     * A ref to access the hidden `<input>` element.
      */
     inputRef?: React.Ref<HTMLInputElement>;
     /**

@@ -25,7 +25,7 @@ export const SliderValue = React.forwardRef(function SliderValue(
     ...elementProps
   } = componentProps;
 
-  const { thumbMap, state, values, format } = useSliderRootContext();
+  const { thumbMap, state, values, formatOptionsRef, locale } = useSliderRootContext();
 
   const outputFor = React.useMemo(() => {
     let htmlFor = '';
@@ -40,10 +40,10 @@ export const SliderValue = React.forwardRef(function SliderValue(
   const formattedValues = React.useMemo(() => {
     const arr = [];
     for (let i = 0; i < values.length; i += 1) {
-      arr.push(formatNumber(values[i], [], format ?? undefined));
+      arr.push(formatNumber(values[i], locale, formatOptionsRef.current ?? undefined));
     }
     return arr;
-  }, [format, values]);
+  }, [formatOptionsRef, locale, values]);
 
   const defaultDisplayValue = React.useMemo(() => {
     const arr = [];
@@ -76,10 +76,6 @@ export const SliderValue = React.forwardRef(function SliderValue(
 export namespace SliderValue {
   export interface Props
     extends Omit<BaseUIComponentProps<'output', SliderRoot.State>, 'children'> {
-    /**
-     * @default 'off'
-     */
-    'aria-live'?: React.AriaAttributes['aria-live'];
     children?:
       | null
       | ((formattedValues: readonly string[], values: readonly number[]) => React.ReactNode);

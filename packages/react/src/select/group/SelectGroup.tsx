@@ -1,11 +1,8 @@
 'use client';
 import * as React from 'react';
 import type { BaseUIComponentProps } from '../../utils/types';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { mergeProps } from '../../merge-props';
 import { SelectGroupContext } from './SelectGroupContext';
-
-const state = {};
+import { useRenderElement } from '../../utils/useRenderElement';
 
 /**
  * Groups related select items with the corresponding label.
@@ -14,24 +11,12 @@ const state = {};
  * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
  */
 const SelectGroup = React.forwardRef(function SelectGroup(
-  props: SelectGroup.Props,
+  componentProps: SelectGroup.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { className, render, ...otherProps } = props;
+  const { className, render, ...elementProps } = componentProps;
 
   const [labelId, setLabelId] = React.useState<string | undefined>();
-
-  const getSelectItemGroupProps = React.useCallback(
-    (externalProps = {}) =>
-      mergeProps(
-        {
-          role: 'group',
-          'aria-labelledby': labelId,
-        },
-        externalProps,
-      ),
-    [labelId],
-  );
 
   const contextValue: SelectGroupContext = React.useMemo(
     () => ({
@@ -41,13 +26,15 @@ const SelectGroup = React.forwardRef(function SelectGroup(
     [labelId, setLabelId],
   );
 
-  const { renderElement } = useComponentRenderer({
-    propGetter: getSelectItemGroupProps,
-    render: render ?? 'div',
+  const renderElement = useRenderElement('div', componentProps, {
     ref: forwardedRef,
-    state,
-    className,
-    extraProps: otherProps,
+    props: [
+      {
+        role: 'group',
+        'aria-labelledby': labelId,
+      },
+      elementProps,
+    ],
   });
 
   return (
