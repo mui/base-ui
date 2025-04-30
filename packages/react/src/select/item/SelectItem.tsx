@@ -69,13 +69,11 @@ const InnerSelectItem = React.memo(
       [disabled, selected],
     );
 
-    const rootProps = getRootItemProps({
-      active: highlighted,
-      selected,
-      // With our custom `focusItemOnHover` implementation, this interferes with the logic and can
-      // cause the index state to be stuck when leaving the select popup.
-      onFocus: undefined,
-    });
+    const rootProps = getRootItemProps({ active: highlighted, selected });
+    // With our custom `focusItemOnHover` implementation, this interferes with the logic and can
+    // cause the index state to be stuck when leaving the select popup.
+    delete rootProps.onFocus;
+    delete rootProps.id;
 
     const { props, rootRef } = useSelectItem({
       open,

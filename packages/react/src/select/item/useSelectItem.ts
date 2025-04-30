@@ -91,6 +91,7 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
   }, [events, setActiveIndex, indexRef]);
 
   const props = mergeProps<'div'>(
+    rootProps,
     {
       'aria-disabled': disabled || undefined,
       tabIndex: highlighted ? 0 : -1,
@@ -238,7 +239,6 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
         selectionRef.current.allowSelect = true;
       },
     },
-    rootProps,
     elementProps,
     getButtonProps,
   );
