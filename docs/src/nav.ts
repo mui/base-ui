@@ -91,6 +91,7 @@ export const nav = [
       {
         label: 'Meter',
         href: '/react/components/meter',
+        isNew: true,
       },
       {
         label: 'Number Field',
@@ -139,6 +140,7 @@ export const nav = [
       {
         label: 'Toast',
         href: '/react/components/toast',
+        isNew: true,
       },
       {
         label: 'Toggle',
