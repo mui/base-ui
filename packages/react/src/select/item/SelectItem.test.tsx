@@ -145,7 +145,9 @@ describe('<Select.Item />', () => {
 
     const item = screen.getByText('two');
     await act(() => item.focus());
-    expect(item).toHaveFocus();
+    await waitFor(() => {
+      expect(item).toHaveFocus();
+    });
   });
 
   it('should not select disabled item', async () => {

@@ -1,16 +1,15 @@
 'use client';
 import * as React from 'react';
-import { useForkRef } from '../../utils/useForkRef';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import { CompositeList } from '../../composite/list/CompositeList';
 import type { BaseUIComponentProps } from '../../utils/types';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { popupStateMapping } from '../../utils/popupStateMapping';
 import { useSelectPositioner } from './useSelectPositioner';
 import type { Align, Side } from '../../utils/useAnchorPositioning';
 import { SelectPositionerContext } from './SelectPositionerContext';
 import { InternalBackdrop } from '../../utils/InternalBackdrop';
 import { inertValue } from '../../utils/inertValue';
+import { useRenderElement } from '../../utils/useRenderElement';
 
 /**
  * Positions the select menu popup.
@@ -19,8 +18,8 @@ import { inertValue } from '../../utils/inertValue';
  * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
  */
 const SelectPositioner = React.forwardRef(function SelectPositioner(
-  props: SelectPositioner.Props,
-  ref: React.ForwardedRef<HTMLDivElement>,
+  componentProps: SelectPositioner.Props,
+  forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const {
     anchor,
@@ -37,8 +36,8 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
     sticky = false,
     trackAnchor = true,
     alignItemWithTrigger = true,
-    ...otherProps
-  } = props;
+    ...elementProps
+  } = componentProps;
 
   const {
     open,
@@ -92,8 +91,6 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
     keepMounted: true,
   });
 
-  const mergedRef = useForkRef(ref, setPositionerElement);
-
   const state: SelectPositioner.State = React.useMemo(
     () => ({
       open,
@@ -104,14 +101,11 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
     [open, positioner.side, positioner.align, positioner.anchorHidden],
   );
 
-  const { renderElement } = useComponentRenderer({
-    propGetter: positioner.getPositionerProps,
-    render: render ?? 'div',
-    ref: mergedRef,
-    className,
+  const renderElement = useRenderElement('div', componentProps, {
+    ref: [forwardedRef, setPositionerElement],
     state,
     customStyleHookMapping: popupStateMapping,
-    extraProps: otherProps,
+    props: [positioner.getPositionerProps, elementProps],
   });
 
   const contextValue: SelectPositionerContext = React.useMemo(
