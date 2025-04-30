@@ -5,14 +5,14 @@ const missingError = process.env.MUI_EXTRACT_ERROR_CODES === 'true' ? 'write' : 
 const baseUIPackageJson = require('./packages/react/package.json');
 
 module.exports = function getBabelConfig(api) {
-  const useESModules = !api.env(['node']);
+  const useESModules = !api.env('node');
 
   const presets = [
     [
       '@babel/preset-env',
       {
         bugfixes: true,
-        browserslistEnv: process.env.NODE_ENV,
+        browserslistEnv: api.env(),
         debug: process.env.MUI_BUILD_VERBOSE === 'true',
         modules: useESModules ? false : 'commonjs',
       },
