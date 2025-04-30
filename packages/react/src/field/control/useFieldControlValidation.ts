@@ -67,6 +67,7 @@ export function useFieldControlValidation() {
       // to reduce error noise.
       if (hasOnlyValueMissingError && !markedDirtyRef.current) {
         computedState.valid = true;
+        computedState.valueMissing = false;
       }
 
       return computedState;

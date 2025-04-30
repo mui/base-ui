@@ -21,6 +21,40 @@ describe('<Field.Root />', () => {
     render,
   }));
 
+  it('should not mark invalid if `valueMissing` is the only error and not yet dirtied', async () => {
+    await render(
+      <Field.Root>
+        <Field.Control data-testid="control" required />
+      </Field.Root>,
+    );
+
+    const control = screen.getByTestId('control');
+
+    fireEvent.focus(control);
+    fireEvent.blur(control);
+
+    expect(control).not.to.have.attribute('data-invalid');
+    expect(control).not.to.have.attribute('aria-invalid');
+  });
+
+  it('should mark invalid if `valueMissing` is the only error and dirtied', async () => {
+    await render(
+      <Field.Root>
+        <Field.Control data-testid="control" required />
+      </Field.Root>,
+    );
+
+    const control = screen.getByTestId('control');
+
+    fireEvent.focus(control);
+    fireEvent.change(control, { target: { value: 'a' } });
+    fireEvent.change(control, { target: { value: '' } });
+    fireEvent.blur(control);
+
+    expect(control).to.have.attribute('data-invalid', '');
+    expect(control).to.have.attribute('aria-invalid', 'true');
+  });
+
   describe('prop: disabled', () => {
     it('should add data-disabled style hook to all components', async () => {
       await render(
