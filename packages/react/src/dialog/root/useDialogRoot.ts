@@ -25,7 +25,7 @@ import {
 } from '../../utils/translateOpenChangeReason';
 import { useIOSKeyboardSlideFix } from '../../utils/useIOSKeyboardSlideFix';
 
-export type OpenChangeReason = BaseOpenChangeReason | 'close-button';
+export type DialogOpenChangeReason = BaseOpenChangeReason | 'close-press';
 
 export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.ReturnValue {
   const {
@@ -61,7 +61,7 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
 
   const setOpen = useEventCallback(
-    (nextOpen: boolean, event: Event | undefined, reason: OpenChangeReason | undefined) => {
+    (nextOpen: boolean, event: Event | undefined, reason: DialogOpenChangeReason | undefined) => {
       onOpenChangeParameter?.(nextOpen, event, reason);
       setOpenUnwrapped(nextOpen);
     },
@@ -250,7 +250,7 @@ export namespace useDialogRoot {
     onOpenChange?: (
       open: boolean,
       event: Event | undefined,
-      reason: OpenChangeReason | undefined,
+      reason: DialogOpenChangeReason | undefined,
     ) => void;
     /**
      * Event handler called after any animations complete when the dialog is opened or closed.
@@ -316,7 +316,7 @@ export namespace useDialogRoot {
     setOpen: (
       open: boolean,
       event: Event | undefined,
-      reason: OpenChangeReason | undefined,
+      reason: DialogOpenChangeReason | undefined,
     ) => void;
     /**
      * Whether the dialog is currently open.

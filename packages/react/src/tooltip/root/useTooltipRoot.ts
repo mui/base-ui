@@ -24,7 +24,7 @@ import {
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useTooltipProviderContext } from '../provider/TooltipProviderContext';
 
-export type OpenChangeReason = BaseOpenChangeReason | 'disabled';
+export type TooltipOpenChangeReason = BaseOpenChangeReason | 'disabled';
 
 export function useTooltipRoot(params: useTooltipRoot.Parameters): useTooltipRoot.ReturnValue {
   const {
@@ -58,7 +58,7 @@ export function useTooltipRoot(params: useTooltipRoot.Parameters): useTooltipRoo
   const onOpenChange = useEventCallback(onOpenChangeProp);
 
   const setOpen = React.useCallback(
-    (nextOpen: boolean, event: Event | undefined, reason: OpenChangeReason | undefined) => {
+    (nextOpen: boolean, event: Event | undefined, reason: TooltipOpenChangeReason | undefined) => {
       onOpenChange(nextOpen, event, reason);
       setOpenUnwrapped(nextOpen);
     },
@@ -224,7 +224,7 @@ export namespace useTooltipRoot {
     onOpenChange?: (
       open: boolean,
       event: Event | undefined,
-      reason: OpenChangeReason | undefined,
+      reason: TooltipOpenChangeReason | undefined,
     ) => void;
     /**
      * Event handler called after any animations complete when the tooltip is opened or closed.
@@ -266,7 +266,11 @@ export namespace useTooltipRoot {
 
   export interface ReturnValue {
     open: boolean;
-    setOpen: (open: boolean, event?: Event, reason?: OpenChangeReason) => void;
+    setOpen: (
+      open: boolean,
+      event: Event | undefined,
+      reason: TooltipOpenChangeReason | undefined,
+    ) => void;
     mounted: boolean;
     setMounted: React.Dispatch<React.SetStateAction<boolean>>;
     getTriggerProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;

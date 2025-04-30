@@ -108,7 +108,7 @@ describe('<Dialog.Root />', () => {
       await user.click(closeButton);
 
       expect(handleOpenChange.callCount).to.equal(2);
-      expect(handleOpenChange.secondCall.args[2]).to.equal('close-button');
+      expect(handleOpenChange.secondCall.args[2]).to.equal('close-press');
     });
 
     it('calls onOpenChange with the reason for change when pressed Esc while the dialog is open', async () => {

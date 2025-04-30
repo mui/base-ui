@@ -25,7 +25,7 @@ import {
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 
 const EMPTY_ARRAY: never[] = [];
-export type OpenChangeReason =
+export type SelectOpenChangeReason =
   | BaseOpenChangeReason
   | 'window-resize'
   | 'item-select'
@@ -110,7 +110,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
 
   const setOpen = useEventCallback(
-    (nextOpen: boolean, event: Event | undefined, reason: OpenChangeReason | undefined) => {
+    (nextOpen: boolean, event: Event | undefined, reason: SelectOpenChangeReason | undefined) => {
       params.onOpenChange?.(nextOpen, event, reason);
       setOpenUnwrapped(nextOpen);
 
@@ -407,7 +407,7 @@ export namespace useSelectRoot {
     onOpenChange?: (
       open: boolean,
       event: Event | undefined,
-      reason: OpenChangeReason | undefined,
+      reason: SelectOpenChangeReason | undefined,
     ) => void;
     /**
      * Event handler called after any animations complete when the select menu is opened or closed.

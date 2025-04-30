@@ -4,7 +4,7 @@ import { useForkRef } from '../../utils/useForkRef';
 import { mergeProps } from '../../merge-props';
 import type { InteractionType } from '../../utils/useEnhancedClickHandler';
 import type { GenericHTMLProps } from '../../utils/types';
-import type { OpenChangeReason } from '../root/useDialogRoot';
+import type { DialogOpenChangeReason } from '../root/useDialogRoot';
 
 export function useDialogPopup(parameters: useDialogPopup.Parameters): useDialogPopup.ReturnValue {
   const {
@@ -81,7 +81,7 @@ export namespace useDialogPopup {
     setOpen: (
       open: boolean,
       event: Event | undefined,
-      reason: OpenChangeReason | undefined,
+      reason: DialogOpenChangeReason | undefined,
     ) => void;
     /**
      * The id of the title element associated with the dialog.

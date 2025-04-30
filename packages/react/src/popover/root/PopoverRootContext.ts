@@ -4,12 +4,16 @@ import type { FloatingRootContext } from '@floating-ui/react';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import type { GenericHTMLProps } from '../../utils/types';
 import type { InteractionType } from '../../utils/useEnhancedClickHandler';
-import { OpenChangeReason } from './usePopoverRoot';
+import { PopoverOpenChangeReason } from './usePopoverRoot';
 
 export interface PopoverRootContext {
   open: boolean;
   openOnHover: boolean;
-  setOpen: (open: boolean, event: Event | undefined, reason: OpenChangeReason | undefined) => void;
+  setOpen: (
+    open: boolean,
+    event: Event | undefined,
+    reason: PopoverOpenChangeReason | undefined,
+  ) => void;
   setTriggerElement: (el: Element | null) => void;
   positionerElement: HTMLElement | null;
   setPositionerElement: (el: HTMLElement | null) => void;
@@ -28,7 +32,7 @@ export interface PopoverRootContext {
   getTriggerProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
   getPopupProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
   openMethod: InteractionType | null;
-  openReason: OpenChangeReason | null;
+  openReason: PopoverOpenChangeReason | null;
   onOpenChangeComplete: ((open: boolean) => void) | undefined;
   modal: boolean | 'trap-focus';
 }

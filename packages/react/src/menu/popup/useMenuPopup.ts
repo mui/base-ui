@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import type { FloatingEvents } from '@floating-ui/react';
-import type { OpenChangeReason } from '../root/useMenuRoot';
+import type { MenuOpenChangeReason } from '../root/useMenuRoot';
 
 export function useMenuPopup(parameters: useMenuPopup.Parameters): useMenuPopup.ReturnValue {
   const { menuEvents, setOpen } = parameters;
@@ -31,7 +31,7 @@ export namespace useMenuPopup {
     setOpen: (
       open: boolean,
       event: Event | undefined,
-      reason: OpenChangeReason | undefined,
+      reason: MenuOpenChangeReason | undefined,
     ) => void;
   }
 

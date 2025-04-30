@@ -27,7 +27,7 @@ import {
 } from '../../utils/translateOpenChangeReason';
 
 const EMPTY_ARRAY: never[] = [];
-export type OpenChangeReason = BaseOpenChangeReason | 'item-select' | 'cancel-open';
+export type MenuOpenChangeReason = BaseOpenChangeReason | 'item-select' | 'cancel-open';
 
 export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.ReturnValue {
   const {
@@ -54,7 +54,7 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
   const [instantType, setInstantType] = React.useState<'dismiss' | 'click'>();
   const [hoverEnabled, setHoverEnabled] = React.useState(true);
   const [activeIndex, setActiveIndex] = React.useState<number | null>(null);
-  const [openReason, setOpenReason] = React.useState<OpenChangeReason | null>(null);
+  const [openReason, setOpenReason] = React.useState<MenuOpenChangeReason | null>(null);
   const [stickIfOpen, setStickIfOpen] = React.useState(true);
 
   const popupRef = React.useRef<HTMLElement>(null);
@@ -85,7 +85,7 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
   });
 
   const setOpen = useEventCallback(
-    (nextOpen: boolean, event: Event | undefined, reason: OpenChangeReason | undefined) => {
+    (nextOpen: boolean, event: Event | undefined, reason: MenuOpenChangeReason | undefined) => {
       onOpenChange?.(nextOpen, event, reason);
       setOpenUnwrapped(nextOpen);
 
@@ -320,7 +320,11 @@ export namespace useMenuRoot {
      * Event handler called when the menu is opened or closed.
      */
     onOpenChange:
-      | ((open: boolean, event: Event | undefined, reason: OpenChangeReason | undefined) => void)
+      | ((
+          open: boolean,
+          event: Event | undefined,
+          reason: MenuOpenChangeReason | undefined,
+        ) => void)
       | undefined;
     /**
      * Event handler called after any animations complete when the menu is opened or closed.
@@ -403,14 +407,14 @@ export namespace useMenuRoot {
     setOpen: (
       open: boolean,
       event: Event | undefined,
-      reason: OpenChangeReason | undefined,
+      reason: MenuOpenChangeReason | undefined,
     ) => void;
     positionerRef: React.RefObject<HTMLElement | null>;
     setPositionerElement: (element: HTMLElement | null) => void;
     setTriggerElement: (element: HTMLElement | null) => void;
     transitionStatus: TransitionStatus;
     allowMouseUpTriggerRef: React.RefObject<boolean>;
-    openReason: OpenChangeReason | null;
+    openReason: MenuOpenChangeReason | null;
     instantType: 'dismiss' | 'click' | undefined;
     onOpenChangeComplete: ((open: boolean) => void) | undefined;
     setHoverEnabled: React.Dispatch<React.SetStateAction<boolean>>;

@@ -27,7 +27,7 @@ import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { PATIENT_CLICK_THRESHOLD } from '../../utils/constants';
 import { useScrollLock } from '../../utils/useScrollLock';
 
-export type OpenChangeReason = BaseOpenChangeReason | 'close-button';
+export type PopoverOpenChangeReason = BaseOpenChangeReason | 'close-press';
 
 export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoot.ReturnValue {
   const {
@@ -49,7 +49,7 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
   const [descriptionId, setDescriptionId] = React.useState<string>();
   const [triggerElement, setTriggerElement] = React.useState<Element | null>(null);
   const [positionerElement, setPositionerElement] = React.useState<HTMLElement | null>(null);
-  const [openReason, setOpenReason] = React.useState<OpenChangeReason | null>(null);
+  const [openReason, setOpenReason] = React.useState<PopoverOpenChangeReason | null>(null);
   const [stickIfOpen, setStickIfOpen] = React.useState(true);
 
   const popupRef = React.useRef<HTMLElement>(null);
@@ -74,7 +74,7 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
   });
 
   const setOpen = useEventCallback(
-    (nextOpen: boolean, event: Event | undefined, reason: OpenChangeReason | undefined) => {
+    (nextOpen: boolean, event: Event | undefined, reason: PopoverOpenChangeReason | undefined) => {
       onOpenChange(nextOpen, event, reason);
       setOpenUnwrapped(nextOpen);
 
@@ -244,7 +244,7 @@ export namespace usePopoverRoot {
     onOpenChange?: (
       open: boolean,
       event: Event | undefined,
-      reason: OpenChangeReason | undefined,
+      reason: PopoverOpenChangeReason | undefined,
     ) => void;
     /**
      * Event handler called after any animations complete when the popover is opened or closed.
@@ -292,7 +292,7 @@ export namespace usePopoverRoot {
     setOpen: (
       open: boolean,
       event: Event | undefined,
-      reason: OpenChangeReason | undefined,
+      reason: PopoverOpenChangeReason | undefined,
     ) => void;
     mounted: boolean;
     setMounted: React.Dispatch<React.SetStateAction<boolean>>;
@@ -310,7 +310,7 @@ export namespace usePopoverRoot {
     setPositionerElement: React.Dispatch<React.SetStateAction<HTMLElement | null>>;
     popupRef: React.RefObject<HTMLElement | null>;
     openMethod: InteractionType | null;
-    openReason: OpenChangeReason | null;
+    openReason: PopoverOpenChangeReason | null;
     onOpenChangeComplete: ((open: boolean) => void) | undefined;
   }
 
