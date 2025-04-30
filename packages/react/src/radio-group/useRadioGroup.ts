@@ -10,7 +10,6 @@ import { useField } from '../field/useField';
 import { visuallyHidden } from '../utils/visuallyHidden';
 import { useFormContext } from '../form/FormContext';
 import { useForkRef } from '../utils/useForkRef';
-import { visuallyHidden } from '../utils/visuallyHidden';
 
 export function useRadioGroup(params: useRadioGroup.Parameters) {
   const {
