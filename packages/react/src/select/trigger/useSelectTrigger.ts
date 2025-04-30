@@ -133,7 +133,7 @@ export function useSelectTrigger(
             return;
           }
 
-          setOpen(false, mouseEvent, undefined);
+          setOpen(false, mouseEvent, 'cancel-open');
         }
 
         // Firefox can fire this upon mousedown
