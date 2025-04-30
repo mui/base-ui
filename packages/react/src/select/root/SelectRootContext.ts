@@ -32,7 +32,7 @@ export interface SelectRootContext {
   listRef: React.MutableRefObject<Array<HTMLElement | null>>;
   popupRef: React.MutableRefObject<HTMLDivElement | null>;
   getRootTriggerProps: (props?: GenericHTMLProps) => GenericHTMLProps;
-  getRootPositionerProps: (props?: GenericHTMLProps) => GenericHTMLProps;
+  getRootPopupProps: (props?: GenericHTMLProps) => GenericHTMLProps;
   getItemProps: (
     props?: GenericHTMLProps & { active?: boolean; selected?: boolean },
   ) => Record<string, unknown>;
