@@ -68,9 +68,18 @@ export function List({ className, ...props }: React.ComponentProps<'ul'>) {
   return <ul className={clsx('SideNavList', className)} {...props} />;
 }
 
+export function Label({ className, ...props }: React.ComponentProps<'span'>) {
+  return <span className={clsx('SideNavLabel', className)} {...props} />;
+}
+
+export function Badge({ className, ...props }: React.ComponentProps<'span'>) {
+  return <span className={clsx('SideNavBadge', className)} {...props} />;
+}
+
 interface ItemProps extends React.ComponentProps<'li'> {
   active?: boolean;
   href: string;
+  isNew?: boolean;
 }
 
 const SCROLL_MARGIN = 48;
@@ -132,7 +141,7 @@ export function Item({ children, className, href, ...props }: ItemProps) {
           }
         }}
       >
-        <span className="SideNavLinkInner">{children}</span>
+        {children}
       </NextLink>
     </li>
   );
