@@ -20,13 +20,7 @@ export function useRadioRoot(params: useRadioRoot.Parameters) {
     fieldControlValidation,
   } = useRadioGroupContext();
 
-  const {
-    setDirty,
-    validityData,
-    setTouched: setFieldTouched,
-    setFilled,
-    validationMode,
-  } = useFieldRootContext();
+  const { setDirty, validityData, setTouched: setFieldTouched, setFilled } = useFieldRootContext();
 
   const checked = checkedValue === value;
 
@@ -110,10 +104,6 @@ export function useRadioRoot(params: useRadioRoot.Parameters) {
             setCheckedValue(value);
             setFilled(true);
             onValueChange?.(value, event.nativeEvent);
-
-            if (validationMode === 'onChange') {
-              fieldControlValidation?.commitValidation(value);
-            }
           },
         },
         externalProps,
@@ -131,8 +121,6 @@ export function useRadioRoot(params: useRadioRoot.Parameters) {
       setCheckedValue,
       setFilled,
       onValueChange,
-      validationMode,
-      fieldControlValidation,
     ],
   );
 
