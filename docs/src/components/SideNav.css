@@ -124,7 +124,7 @@
       outline: 1px solid var(--color-gray-200);
       outline-offset: -1px;
       font-weight: 500;
-      letter-spacing: calc(var(--text-md--letter-spacing) * -1);
+      letter-spacing: 0;
       word-spacing: -0.005em;
       cursor: default;
     }
