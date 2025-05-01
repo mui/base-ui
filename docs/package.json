@@ -24,7 +24,7 @@
     "@mui/system": "7.0.2",
     "@next/mdx": "^15.3.1",
     "@react-spring/web": "^9.7.5",
-    "@stefanprobst/rehype-extract-toc": "^2.2.1",
+    "@stefanprobst/rehype-extract-toc": "^3.0.0",
     "@types/mdx": "^2.0.13",
     "clipboard-copy": "^4.0.1",
     "clsx": "^2.1.1",
