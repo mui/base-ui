@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Field } from '@base-ui-components/react/field';
 import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
 import { expect } from 'chai';
-import { createRenderer, describeConformance } from '#test-utils';
+import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 
 describe('<Field.Root />', () => {
   const { render } = createRenderer();
@@ -363,7 +363,7 @@ describe('<Field.Root />', () => {
       expect(control).to.have.attribute('aria-invalid');
     });
 
-    it('does not revalidate on change for `typeMismatch`', async () => {
+    it.skipIf(isJSDOM)('does not revalidate on change for `typeMismatch`', async () => {
       await render(
         <Field.Root>
           <Field.Control type="email" />
