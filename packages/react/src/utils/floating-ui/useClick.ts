@@ -28,13 +28,6 @@ export interface UseClickProps {
    */
   ignoreMouse?: boolean;
   /**
-   * Whether to add keyboard handlers (Enter and Space key functionality) for
-   * non-button elements (to open/close the floating element via keyboard
-   * “click”).
-   * @default true
-   */
-  keyboardHandlers?: boolean;
-  /**
    * If already open from another event such as the `useHover()` Hook,
    * determines whether to keep the floating element open when clicking the
    * reference element for the first time.
@@ -48,18 +41,12 @@ export interface UseClickProps {
  * @see https://floating-ui.com/docs/useClick
  */
 export function useClick(context: FloatingRootContext, props: UseClickProps = {}): ElementProps {
-  const {
-    open,
-    onOpenChange,
-    dataRef,
-    elements: { domReference },
-  } = context;
+  const { open, onOpenChange, dataRef } = context;
   const {
     enabled = true,
     event: eventOption = 'click',
     toggle = true,
     ignoreMouse = false,
-    keyboardHandlers = true,
     stickIfOpen = true,
   } = props;
 
@@ -75,9 +62,13 @@ export function useClick(context: FloatingRootContext, props: UseClickProps = {}
 
         // Ignore all buttons except for the "main" button.
         // https://developer.mozilla.org/en-US/docs/Web/API/MouseEvent/button
-        if (event.button !== 0) return;
-        if (eventOption === 'click') return;
-        if (isMouseLikePointerType(pointerType, true) && ignoreMouse) return;
+        if (
+          event.button !== 0 ||
+          eventOption === 'click' ||
+          (isMouseLikePointerType(pointerType, true) && ignoreMouse)
+        ) {
+          return;
+        }
 
         const nextOpen = !(
           open &&
@@ -96,7 +87,9 @@ export function useClick(context: FloatingRootContext, props: UseClickProps = {}
           return;
         }
 
-        if (isMouseLikePointerType(pointerType, true) && ignoreMouse) return;
+        if (isMouseLikePointerType(pointerType, true) && ignoreMouse) {
+          return;
+        }
 
         const nextOpen = !(
           open &&
@@ -108,17 +101,7 @@ export function useClick(context: FloatingRootContext, props: UseClickProps = {}
         onOpenChange(nextOpen, event.nativeEvent, 'click');
       },
     }),
-    [
-      dataRef,
-      domReference,
-      eventOption,
-      ignoreMouse,
-      keyboardHandlers,
-      onOpenChange,
-      open,
-      stickIfOpen,
-      toggle,
-    ],
+    [dataRef, eventOption, ignoreMouse, onOpenChange, open, stickIfOpen, toggle],
   );
 
   return React.useMemo(() => (enabled ? { reference } : {}), [enabled, reference]);
