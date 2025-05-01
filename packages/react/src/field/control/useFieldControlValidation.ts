@@ -22,9 +22,10 @@ export function useFieldControlValidation() {
     markedDirtyRef,
     controlId,
     state,
+    name,
   } = useFieldRootContext();
 
-  const { formRef } = useFormContext();
+  const { formRef, clearErrors } = useFormContext();
 
   const timeoutRef = React.useRef(-1);
   const inputRef = React.useRef<HTMLInputElement | null>(null);
@@ -35,9 +36,13 @@ export function useFieldControlValidation() {
     };
   }, []);
 
-  const commitValidation = useEventCallback(async (value: unknown) => {
+  const commitValidation = useEventCallback(async (value: unknown, revalidate = false) => {
     const element = inputRef.current;
     if (!element) {
+      return;
+    }
+
+    if (revalidate && state.valid !== false) {
       return;
     }
 
@@ -146,6 +151,9 @@ export function useFieldControlValidation() {
               return;
             }
 
+            clearErrors(name);
+            commitValidation(event.currentTarget.value, true);
+
             if (invalid || validationMode !== 'onChange') {
               return;
             }
@@ -171,7 +179,15 @@ export function useFieldControlValidation() {
         },
         getValidationProps(externalProps),
       ),
-    [getValidationProps, invalid, validationMode, validationDebounceTime, commitValidation],
+    [
+      getValidationProps,
+      clearErrors,
+      name,
+      commitValidation,
+      invalid,
+      validationMode,
+      validationDebounceTime,
+    ],
   );
 
   return React.useMemo(
@@ -190,6 +206,6 @@ export namespace useFieldControlValidation {
     getValidationProps: (props?: GenericHTMLProps) => GenericHTMLProps;
     getInputValidationProps: (props?: GenericHTMLProps) => GenericHTMLProps;
     inputRef: React.MutableRefObject<any>;
-    commitValidation: (value: unknown) => void;
+    commitValidation: (value: unknown, revalidate?: boolean) => void;
   }
 }
