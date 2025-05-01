@@ -12,3 +12,4 @@ onlyBuiltDependencies:
   - nx
   - sharp
   - unrs-resolver
+  - '@vvago/vale'
