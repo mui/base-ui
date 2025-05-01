@@ -3,7 +3,6 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import {
   safePolygon,
-  useClick,
   useDismiss,
   useFloatingRootContext,
   useHover,
@@ -13,6 +12,7 @@ import {
   useTypeahead,
   type FloatingRootContext,
 } from '@floating-ui/react';
+import { useClick } from '../../utils/floating-ui/useClick';
 import { GenericHTMLProps } from '../../utils/types';
 import { useTransitionStatus, type TransitionStatus } from '../../utils/useTransitionStatus';
 import { useEventCallback } from '../../utils/useEventCallback';
