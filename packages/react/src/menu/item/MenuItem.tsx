@@ -65,7 +65,7 @@ const InnerMenuItem = React.memo(
  *
  * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
  */
-const MenuItem = React.forwardRef(function MenuItem(
+export const MenuItem = React.forwardRef(function MenuItem(
   props: MenuItem.Props,
   forwardedRef: React.ForwardedRef<Element>,
 ) {
@@ -107,7 +107,7 @@ interface InnerMenuItemProps extends MenuItem.Props {
   typingRef: React.RefObject<boolean>;
 }
 
-namespace MenuItem {
+export namespace MenuItem {
   export interface State {
     /**
      * Whether the item should ignore user interaction.
@@ -142,5 +142,3 @@ namespace MenuItem {
     closeOnClick?: boolean;
   }
 }
-
-export { MenuItem };

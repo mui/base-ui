@@ -28,6 +28,8 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
     popupRef,
     keyboardActiveRef,
     events,
+    elementProps,
+    rootProps,
   } = params;
 
   const ref = React.useRef<HTMLDivElement | null>(null);
@@ -88,190 +90,163 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
     };
   }, [events, setActiveIndex, indexRef]);
 
-  const getItemProps = React.useCallback(
-    (externalProps?: GenericHTMLProps): GenericHTMLProps => {
-      return getButtonProps(
-        mergeProps<'div'>(
-          {
-            'aria-disabled': disabled || undefined,
-            tabIndex: highlighted ? 0 : -1,
-            onFocus() {
-              if (
-                allowFocusSyncRef.current &&
-                keyboardActiveRef.current &&
-                cursorMovementTimerRef.current === -1
-              ) {
-                setActiveIndex(indexRef.current);
-              }
-            },
-            onMouseEnter() {
-              if (!keyboardActiveRef.current && selectedIndexRef.current === null) {
-                addHighlight(ref);
-                events.emit('itemhover', ref.current);
-              }
-            },
-            onMouseMove() {
-              if (keyboardActiveRef.current) {
-                setActiveIndex(indexRef.current);
-              } else {
-                addHighlight(ref);
-                events.emit('itemhover', ref.current);
-              }
+  const props = mergeProps<'div'>(
+    rootProps,
+    {
+      'aria-disabled': disabled || undefined,
+      tabIndex: highlighted ? 0 : -1,
+      onFocus() {
+        if (
+          allowFocusSyncRef.current &&
+          keyboardActiveRef.current &&
+          cursorMovementTimerRef.current === -1
+        ) {
+          setActiveIndex(indexRef.current);
+        }
+      },
+      onMouseEnter() {
+        if (!keyboardActiveRef.current && selectedIndexRef.current === null) {
+          addHighlight(ref);
+          events.emit('itemhover', ref.current);
+        }
+      },
+      onMouseMove() {
+        if (keyboardActiveRef.current) {
+          setActiveIndex(indexRef.current);
+        } else {
+          addHighlight(ref);
+          events.emit('itemhover', ref.current);
+        }
 
-              if (popupRef.current) {
-                prevPopupHeightRef.current = popupRef.current.offsetHeight;
-              }
+        if (popupRef.current) {
+          prevPopupHeightRef.current = popupRef.current.offsetHeight;
+        }
 
-              if (cursorMovementTimerRef.current !== -1) {
-                events.off('popupleave', handlePopupLeave);
-                clearTimeout(cursorMovementTimerRef.current);
-              }
-              events.on('popupleave', handlePopupLeave);
-              // When this fires, the cursor has stopped moving.
-              cursorMovementTimerRef.current = window.setTimeout(() => {
-                setActiveIndex(indexRef.current);
-                cursorMovementTimerRef.current = -1;
-              }, 50);
-            },
-            onMouseLeave(event) {
-              const popup = popupRef.current;
-              if (!popup || !open || keyboardActiveRef.current) {
-                return;
-              }
+        if (cursorMovementTimerRef.current !== -1) {
+          events.off('popupleave', handlePopupLeave);
+          clearTimeout(cursorMovementTimerRef.current);
+        }
+        events.on('popupleave', handlePopupLeave);
+        // When this fires, the cursor has stopped moving.
+        cursorMovementTimerRef.current = window.setTimeout(() => {
+          setActiveIndex(indexRef.current);
+          cursorMovementTimerRef.current = -1;
+        }, 50);
+      },
+      onMouseLeave(event) {
+        const popup = popupRef.current;
+        if (!popup || !open || keyboardActiveRef.current) {
+          return;
+        }
 
-              if (isMouseWithinBounds(event)) {
-                return;
-              }
+        if (isMouseWithinBounds(event)) {
+          return;
+        }
 
-              removeHighlight(ref);
-              events.off('popupleave', handlePopupLeave);
+        removeHighlight(ref);
+        events.off('popupleave', handlePopupLeave);
 
-              const wasCursorStationary = cursorMovementTimerRef.current === -1;
-              if (!wasCursorStationary) {
-                clearTimeout(cursorMovementTimerRef.current);
-                cursorMovementTimerRef.current = -1;
-              }
+        const wasCursorStationary = cursorMovementTimerRef.current === -1;
+        if (!wasCursorStationary) {
+          clearTimeout(cursorMovementTimerRef.current);
+          cursorMovementTimerRef.current = -1;
+        }
 
-              // With `alignItemWithTrigger=true`, avoid re-rendering the root due to `onMouseLeave`
-              // firing and causing a performance issue when expanding the popup.
-              if (popup.offsetHeight === prevPopupHeightRef.current) {
-                // Prevent `onFocus` from causing the highlight to be stuck when quickly moving
-                // the mouse out of the popup.
-                allowFocusSyncRef.current = false;
+        // With `alignItemWithTrigger=true`, avoid re-rendering the root due to `onMouseLeave`
+        // firing and causing a performance issue when expanding the popup.
+        if (popup.offsetHeight === prevPopupHeightRef.current) {
+          // Prevent `onFocus` from causing the highlight to be stuck when quickly moving
+          // the mouse out of the popup.
+          allowFocusSyncRef.current = false;
 
-                if (keyboardActiveRef.current || wasCursorStationary) {
-                  setActiveIndex(null);
-                }
+          if (keyboardActiveRef.current || wasCursorStationary) {
+            setActiveIndex(null);
+          }
 
-                requestAnimationFrame(() => {
-                  if (cursorMovementTimerRef.current !== -1) {
-                    clearTimeout(cursorMovementTimerRef.current);
-                  }
-                  allowFocusSyncRef.current = true;
-                });
-              }
-            },
-            onTouchStart() {
-              selectionRef.current = {
-                allowSelectedMouseUp: false,
-                allowUnselectedMouseUp: false,
-                allowSelect: true,
-              };
-            },
-            onKeyDown(event) {
-              selectionRef.current.allowSelect = true;
-              lastKeyRef.current = event.key;
-              setActiveIndex(indexRef.current);
-            },
-            onClick(event) {
-              didPointerDownRef.current = false;
+          requestAnimationFrame(() => {
+            if (cursorMovementTimerRef.current !== -1) {
+              clearTimeout(cursorMovementTimerRef.current);
+            }
+            allowFocusSyncRef.current = true;
+          });
+        }
+      },
+      onTouchStart() {
+        selectionRef.current = {
+          allowSelectedMouseUp: false,
+          allowUnselectedMouseUp: false,
+          allowSelect: true,
+        };
+      },
+      onKeyDown(event) {
+        selectionRef.current.allowSelect = true;
+        lastKeyRef.current = event.key;
+        setActiveIndex(indexRef.current);
+      },
+      onClick(event) {
+        didPointerDownRef.current = false;
 
-              // Prevent double commit on {Enter}
-              if (event.type === 'keydown' && lastKeyRef.current === null) {
-                return;
-              }
+        // Prevent double commit on {Enter}
+        if (event.type === 'keydown' && lastKeyRef.current === null) {
+          return;
+        }
 
-              if (
-                disabled ||
-                (lastKeyRef.current === ' ' && typingRef.current) ||
-                (pointerTypeRef.current !== 'touch' && !hasHighlight(ref))
-              ) {
-                return;
-              }
+        if (
+          disabled ||
+          (lastKeyRef.current === ' ' && typingRef.current) ||
+          (pointerTypeRef.current !== 'touch' && !hasHighlight(ref))
+        ) {
+          return;
+        }
 
-              if (selectionRef.current.allowSelect) {
-                lastKeyRef.current = null;
-                commitSelection(event.nativeEvent);
-              }
-            },
-            onPointerEnter(event) {
-              pointerTypeRef.current = event.pointerType;
-            },
-            onPointerDown(event) {
-              pointerTypeRef.current = event.pointerType;
-              didPointerDownRef.current = true;
-            },
-            onMouseUp(event) {
-              if (disabled) {
-                return;
-              }
+        if (selectionRef.current.allowSelect) {
+          lastKeyRef.current = null;
+          commitSelection(event.nativeEvent);
+        }
+      },
+      onPointerEnter(event) {
+        pointerTypeRef.current = event.pointerType;
+      },
+      onPointerDown(event) {
+        pointerTypeRef.current = event.pointerType;
+        didPointerDownRef.current = true;
+      },
+      onMouseUp(event) {
+        if (disabled) {
+          return;
+        }
 
-              if (didPointerDownRef.current) {
-                didPointerDownRef.current = false;
-                return;
-              }
+        if (didPointerDownRef.current) {
+          didPointerDownRef.current = false;
+          return;
+        }
 
-              const disallowSelectedMouseUp =
-                !selectionRef.current.allowSelectedMouseUp && selected;
-              const disallowUnselectedMouseUp =
-                !selectionRef.current.allowUnselectedMouseUp && !selected;
+        const disallowSelectedMouseUp = !selectionRef.current.allowSelectedMouseUp && selected;
+        const disallowUnselectedMouseUp = !selectionRef.current.allowUnselectedMouseUp && !selected;
 
-              if (
-                disallowSelectedMouseUp ||
-                disallowUnselectedMouseUp ||
-                (pointerTypeRef.current !== 'touch' && !hasHighlight(ref))
-              ) {
-                return;
-              }
+        if (
+          disallowSelectedMouseUp ||
+          disallowUnselectedMouseUp ||
+          (pointerTypeRef.current !== 'touch' && !hasHighlight(ref))
+        ) {
+          return;
+        }
 
-              if (selectionRef.current.allowSelect || !selected) {
-                commitSelection(event.nativeEvent);
-              }
+        if (selectionRef.current.allowSelect || !selected) {
+          commitSelection(event.nativeEvent);
+        }
 
-              selectionRef.current.allowSelect = true;
-            },
-          },
-          externalProps,
-          getButtonProps,
-        ),
-      );
+        selectionRef.current.allowSelect = true;
+      },
     },
-    [
-      commitSelection,
-      disabled,
-      events,
-      getButtonProps,
-      handlePopupLeave,
-      highlighted,
-      indexRef,
-      keyboardActiveRef,
-      open,
-      popupRef,
-      selected,
-      selectedIndexRef,
-      selectionRef,
-      setActiveIndex,
-      typingRef,
-    ],
+    elementProps,
+    getButtonProps,
   );
 
-  return React.useMemo(
-    () => ({
-      getItemProps,
-      rootRef: buttonRef,
-    }),
-    [getItemProps, buttonRef],
-  );
+  return {
+    rootRef: buttonRef,
+    props,
+  };
 }
 
 export namespace useSelectItem {
@@ -328,10 +303,12 @@ export namespace useSelectItem {
     popupRef: React.RefObject<HTMLDivElement | null>;
     keyboardActiveRef: React.RefObject<boolean>;
     events: FloatingEvents;
+    elementProps: GenericHTMLProps;
+    rootProps: GenericHTMLProps;
   }
 
   export interface ReturnValue {
-    getItemProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
+    props: GenericHTMLProps;
     rootRef: React.RefCallback<Element> | null;
   }
 }

@@ -18,9 +18,9 @@ if (process.env.NODE_ENV !== 'production') {
   ToolbarRootContext.displayName = 'ToolbarRootContext';
 }
 
-function useToolbarRootContext(optional?: false): ToolbarRootContext;
-function useToolbarRootContext(optional: true): ToolbarRootContext | undefined;
-function useToolbarRootContext(optional?: boolean) {
+export function useToolbarRootContext(optional?: false): ToolbarRootContext;
+export function useToolbarRootContext(optional: true): ToolbarRootContext | undefined;
+export function useToolbarRootContext(optional?: boolean) {
   const context = React.useContext(ToolbarRootContext);
   if (context === undefined && !optional) {
     throw new Error(
@@ -30,5 +30,3 @@ function useToolbarRootContext(optional?: boolean) {
 
   return context;
 }
-
-export { useToolbarRootContext };

@@ -12,7 +12,7 @@ import { useEventCallback } from '../../utils/useEventCallback';
 /**
  * @internal
  */
-function CompositeRoot<Metadata extends {}>(props: CompositeRoot.Props<Metadata>) {
+export function CompositeRoot<Metadata extends {}>(props: CompositeRoot.Props<Metadata>) {
   const {
     render,
     className,
@@ -84,7 +84,7 @@ function CompositeRoot<Metadata extends {}>(props: CompositeRoot.Props<Metadata>
   );
 }
 
-namespace CompositeRoot {
+export namespace CompositeRoot {
   export interface State {}
 
   export interface Props<Metadata> extends BaseUIComponentProps<'div', State> {
@@ -104,5 +104,3 @@ namespace CompositeRoot {
     modifierKeys?: ModifierKey[];
   }
 }
-
-export { CompositeRoot };

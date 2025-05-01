@@ -13,7 +13,7 @@ import { useRenderElement } from '../../utils/useRenderElement';
  *
  * Documentation: [Base UI Popover](https://base-ui.com/react/components/popover)
  */
-const PopoverArrow = React.forwardRef(function PopoverArrow(
+export const PopoverArrow = React.forwardRef(function PopoverArrow(
   componentProps: PopoverArrow.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
@@ -42,7 +42,7 @@ const PopoverArrow = React.forwardRef(function PopoverArrow(
   return renderElement();
 });
 
-namespace PopoverArrow {
+export namespace PopoverArrow {
   export interface State {
     /**
      * Whether the popover is currently open.
@@ -55,5 +55,3 @@ namespace PopoverArrow {
 
   export interface Props extends BaseUIComponentProps<'div', State> {}
 }
-
-export { PopoverArrow };

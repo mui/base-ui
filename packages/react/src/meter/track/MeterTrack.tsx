@@ -11,7 +11,7 @@ const EMPTY = {};
  *
  * Documentation: [Base UI Meter](https://base-ui.com/react/components/meter)
  */
-const MeterTrack = React.forwardRef(function MeterTrack(
+export const MeterTrack = React.forwardRef(function MeterTrack(
   props: MeterTrack.Props,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
@@ -28,8 +28,6 @@ const MeterTrack = React.forwardRef(function MeterTrack(
   return renderElement();
 });
 
-namespace MeterTrack {
+export namespace MeterTrack {
   export interface Props extends BaseUIComponentProps<'div', MeterRoot.State> {}
 }
-
-export { MeterTrack };

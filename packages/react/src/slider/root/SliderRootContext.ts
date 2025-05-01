@@ -12,7 +12,7 @@ export interface SliderRootContext {
   active: number;
   dragging: boolean;
   disabled: boolean;
-  format?: Intl.NumberFormatOptions;
+  formatOptionsRef: React.RefObject<Intl.NumberFormatOptions | undefined>;
   handleInputChange: (
     valueInput: number,
     index: number,
@@ -26,6 +26,11 @@ export interface SliderRootContext {
    */
   largeStep: number;
   lastChangedValueRef: React.RefObject<number | readonly number[] | null>;
+  /**
+   * The locale used by `Intl.NumberFormat` when formatting the value.
+   * Defaults to the user's runtime locale.
+   */
+  locale?: Intl.LocalesArgument;
   /**
    * The maximum allowed value of the slider.
    */

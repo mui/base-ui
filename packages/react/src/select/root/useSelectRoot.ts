@@ -250,7 +250,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
 
   const {
     getReferenceProps: getRootTriggerProps,
-    getFloatingProps: getRootPositionerProps,
+    getFloatingProps: getRootPopupProps,
     getItemProps,
   } = useInteractions([click, dismiss, role, listNavigation, typeahead]);
 
@@ -282,7 +282,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
       labelsRef,
       typingRef,
       selectionRef,
-      getRootPositionerProps,
+      getRootPopupProps,
       getRootTriggerProps,
       getItemProps,
       listRef,
@@ -316,7 +316,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
       mounted,
       setMounted,
       label,
-      getRootPositionerProps,
+      getRootPopupProps,
       getRootTriggerProps,
       getItemProps,
       floatingRootContext,

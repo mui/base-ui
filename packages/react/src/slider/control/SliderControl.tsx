@@ -410,7 +410,7 @@ export const SliderControl = React.forwardRef(function SliderControl(
   return renderElement();
 });
 
-interface FingerPosition {
+export interface FingerPosition {
   x: number;
   y: number;
 }

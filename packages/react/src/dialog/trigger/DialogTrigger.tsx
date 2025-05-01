@@ -13,7 +13,7 @@ import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
  *
  * Documentation: [Base UI Dialog](https://base-ui.com/react/components/dialog)
  */
-const DialogTrigger = React.forwardRef(function DialogTrigger(
+export const DialogTrigger = React.forwardRef(function DialogTrigger(
   props: DialogTrigger.Props,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
@@ -48,7 +48,7 @@ const DialogTrigger = React.forwardRef(function DialogTrigger(
   return renderElement();
 });
 
-namespace DialogTrigger {
+export namespace DialogTrigger {
   export interface Props extends BaseUIComponentProps<'button', State> {}
 
   export interface State {
@@ -62,5 +62,3 @@ namespace DialogTrigger {
     open: boolean;
   }
 }
-
-export { DialogTrigger };

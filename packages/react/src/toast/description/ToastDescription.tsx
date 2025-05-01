@@ -13,7 +13,7 @@ import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
  *
  * Documentation: [Base UI Toast](https://base-ui.com/react/components/toast)
  */
-const ToastDescription = React.forwardRef(function ToastDescription(
+export const ToastDescription = React.forwardRef(function ToastDescription(
   props: ToastDescription.Props,
   forwardedRef: React.ForwardedRef<HTMLParagraphElement>,
 ) {
@@ -67,7 +67,7 @@ const ToastDescription = React.forwardRef(function ToastDescription(
   return renderElement();
 });
 
-namespace ToastDescription {
+export namespace ToastDescription {
   export interface State {
     /**
      * The type of the toast.
@@ -77,5 +77,3 @@ namespace ToastDescription {
 
   export interface Props extends BaseUIComponentProps<'p', State> {}
 }
-
-export { ToastDescription };

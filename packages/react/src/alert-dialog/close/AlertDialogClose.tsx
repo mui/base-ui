@@ -11,7 +11,7 @@ import type { BaseUIComponentProps } from '../../utils/types';
  *
  * Documentation: [Base UI Alert Dialog](https://base-ui.com/react/components/alert-dialog)
  */
-const AlertDialogClose = React.forwardRef(function AlertDialogClose(
+export const AlertDialogClose = React.forwardRef(function AlertDialogClose(
   props: AlertDialogClose.Props,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
@@ -32,7 +32,7 @@ const AlertDialogClose = React.forwardRef(function AlertDialogClose(
   return renderElement();
 });
 
-namespace AlertDialogClose {
+export namespace AlertDialogClose {
   export interface Props extends BaseUIComponentProps<'button', State> {}
 
   export interface State {
@@ -42,5 +42,3 @@ namespace AlertDialogClose {
     disabled: boolean;
   }
 }
-
-export { AlertDialogClose };

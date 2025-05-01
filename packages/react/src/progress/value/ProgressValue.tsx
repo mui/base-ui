@@ -11,7 +11,7 @@ import { progressStyleHookMapping } from '../root/styleHooks';
  *
  * Documentation: [Base UI Progress](https://base-ui.com/react/components/progress)
  */
-const ProgressValue = React.forwardRef(function ProgressValue(
+export const ProgressValue = React.forwardRef(function ProgressValue(
   componentProps: ProgressValue.Props,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
@@ -41,11 +41,9 @@ const ProgressValue = React.forwardRef(function ProgressValue(
   return renderElement();
 });
 
-namespace ProgressValue {
+export namespace ProgressValue {
   export interface Props
     extends Omit<BaseUIComponentProps<'span', ProgressRoot.State>, 'children'> {
     children?: null | ((formattedValue: string | null, value: number | null) => React.ReactNode);
   }
 }
-
-export { ProgressValue };
