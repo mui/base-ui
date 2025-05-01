@@ -69,6 +69,7 @@ export function useClick(context: FloatingRootContext, props: UseClickProps = {}
       },
       onMouseDown(event) {
         const pointerType = pointerTypeRef.current;
+        const nativeEvent = event.nativeEvent;
 
         // Ignore all buttons except for the "main" button.
         // https://developer.mozilla.org/en-US/docs/Web/API/MouseEvent/button
@@ -90,7 +91,7 @@ export function useClick(context: FloatingRootContext, props: UseClickProps = {}
         // Wait until focus is set on the element. This is an alternative to
         // `event.preventDefault()` to avoid :focus-visible from appearing when using a pointer.
         frameRef.current = requestAnimationFrame(() => {
-          onOpenChange(nextOpen, event.nativeEvent, 'click');
+          onOpenChange(nextOpen, nativeEvent, 'click');
         });
       },
       onClick(event) {
