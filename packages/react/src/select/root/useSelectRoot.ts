@@ -23,6 +23,9 @@ import {
   type OpenChangeReason,
 } from '../../utils/translateOpenChangeReason';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
+import { useFormContext } from '../../form/FormContext';
+import { useLatestRef } from '../../utils/useLatestRef';
+import { useField } from '../../field/useField';
 
 const EMPTY_ARRAY: never[] = [];
 
@@ -37,6 +40,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     onOpenChangeComplete,
   } = params;
 
+  const { clearErrors } = useFormContext();
   const {
     setDirty,
     validityData,
@@ -104,6 +108,34 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
 
+  const controlRef = useLatestRef(triggerElement);
+  const commitValidation = fieldControlValidation.commitValidation;
+
+  useField({
+    id,
+    commitValidation,
+    value,
+    controlRef,
+  });
+
+  const prevValueRef = React.useRef(value);
+
+  useModernLayoutEffect(() => {
+    if (prevValueRef.current === value) {
+      return;
+    }
+
+    clearErrors(name);
+    commitValidation?.(value, true);
+    if (validationMode === 'onChange') {
+      commitValidation?.(value);
+    }
+  }, [value, commitValidation, clearErrors, name, validationMode]);
+
+  useModernLayoutEffect(() => {
+    prevValueRef.current = value;
+  }, [value]);
+
   const setOpen = useEventCallback(
     (nextOpen: boolean, event: Event | undefined, reason: OpenChangeReason | undefined) => {
       params.onOpenChange?.(nextOpen, event, reason);
@@ -148,10 +180,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     setValueUnwrapped(nextValue);
 
     setDirty(nextValue !== validityData.initialValue);
-
-    if (validationMode === 'onChange') {
-      fieldControlValidation.commitValidation(nextValue);
-    }
+    clearErrors(name);
 
     const index = valuesRef.current.indexOf(nextValue);
     setSelectedIndex(index);

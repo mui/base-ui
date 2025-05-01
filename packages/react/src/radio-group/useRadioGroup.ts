@@ -1,14 +1,15 @@
 'use client';
 import * as React from 'react';
-import { contains } from '@floating-ui/react/utils';
+import { contains, useModernLayoutEffect } from '@floating-ui/react/utils';
 import { mergeProps } from '../merge-props';
 import { useControlled } from '../utils/useControlled';
 import { useFieldRootContext } from '../field/root/FieldRootContext';
 import { useBaseUiId } from '../utils/useBaseUiId';
 import { useFieldControlValidation } from '../field/control/useFieldControlValidation';
 import { useField } from '../field/useField';
-import { useForkRef } from '../utils/useForkRef';
 import { visuallyHidden } from '../utils/visuallyHidden';
+import { useFormContext } from '../form/FormContext';
+import { useForkRef } from '../utils/useForkRef';
 
 export function useRadioGroup(params: useRadioGroup.Parameters) {
   const {
@@ -29,6 +30,7 @@ export function useRadioGroup(params: useRadioGroup.Parameters) {
     name: fieldName,
     disabled: fieldDisabled,
   } = useFieldRootContext();
+  const { clearErrors } = useFormContext();
 
   const disabled = fieldDisabled || disabledProp;
   const name = fieldName ?? nameProp;
@@ -52,6 +54,26 @@ export function useRadioGroup(params: useRadioGroup.Parameters) {
     value: checkedValue,
     controlRef: fieldControlValidation.inputRef,
   });
+
+  const prevValueRef = React.useRef(checkedValue);
+
+  useModernLayoutEffect(() => {
+    if (prevValueRef.current === checkedValue) {
+      return;
+    }
+
+    clearErrors(name);
+
+    if (validationMode === 'onChange') {
+      fieldControlValidation.commitValidation(checkedValue);
+    } else {
+      fieldControlValidation.commitValidation(checkedValue, true);
+    }
+  }, [name, clearErrors, validationMode, checkedValue, fieldControlValidation]);
+
+  useModernLayoutEffect(() => {
+    prevValueRef.current = checkedValue;
+  }, [checkedValue]);
 
   const [touched, setTouched] = React.useState(false);
 
@@ -137,8 +159,17 @@ export function useRadioGroup(params: useRadioGroup.Parameters) {
       touched,
       setTouched,
       fieldControlValidation,
+      name,
     }),
-    [getRootProps, getInputProps, checkedValue, setCheckedValue, touched, fieldControlValidation],
+    [
+      getRootProps,
+      getInputProps,
+      checkedValue,
+      setCheckedValue,
+      touched,
+      fieldControlValidation,
+      name,
+    ],
   );
 }
 
