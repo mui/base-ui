@@ -1,3 +1,4 @@
+'use client';
 import * as React from 'react';
 import type { ElementProps, FloatingRootContext } from '@floating-ui/react';
 import { isMouseLikePointerType } from '@floating-ui/react/utils';
