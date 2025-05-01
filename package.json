@@ -177,6 +177,6 @@
     "@babel/types": "^7.27.0",
     "@types/node": "^18.19.86",
     "@types/react": "^19.1.2",
-    "@types/react-dom": "^19.1.2"
+    "@types/react-dom": "^19.1.3"
   }
 }

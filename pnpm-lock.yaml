@@ -13,7 +13,7 @@ overrides:
   '@babel/types': ^7.27.0
   '@types/node': ^18.19.86
   '@types/react': ^19.1.2
-  '@types/react-dom': ^19.1.2
+  '@types/react-dom': ^19.1.3
 
 importers:
 
@@ -498,7 +498,7 @@ importers:
         specifier: ^19.1.2
         version: 19.1.2
       '@types/react-dom':
-        specifier: ^19.1.2
+        specifier: ^19.1.3
         version: 19.1.3(@types/react@19.1.2)
       '@types/unist':
         specifier: ^3.0.3
@@ -589,7 +589,7 @@ importers:
         specifier: ^19.1.2
         version: 19.1.2
       '@types/react-dom':
-        specifier: ^19.1.2
+        specifier: ^19.1.3
         version: 19.1.3(@types/react@19.1.2)
       '@types/sinon':
         specifier: ^17.0.4
@@ -671,7 +671,7 @@ importers:
         specifier: ^19.1.2
         version: 19.1.2
       '@types/react-dom':
-        specifier: ^19.1.2
+        specifier: ^19.1.3
         version: 19.1.3(@types/react@19.1.2)
       '@types/sinon':
         specifier: ^17.0.4
@@ -3011,7 +3011,7 @@ packages:
     peerDependencies:
       '@testing-library/dom': ^10.0.0
       '@types/react': ^19.1.2
-      '@types/react-dom': ^19.1.2
+      '@types/react-dom': ^19.1.3
       react: ^18.0.0 || ^19.0.0
       react-dom: ^18.0.0 || ^19.0.0
     peerDependenciesMeta:
@@ -12866,7 +12866,7 @@ snapshots:
 
   '@vvago/vale@3.11.2':
     dependencies:
-      axios: 1.8.4(debug@4.4.0)
+      axios: 1.9.0(debug@4.4.0)
       rimraf: 5.0.10
       tar: 6.2.1
       unzipper: 0.10.14
