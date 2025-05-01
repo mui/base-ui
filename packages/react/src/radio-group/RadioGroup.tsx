@@ -20,7 +20,7 @@ const MODIFIER_KEYS = [SHIFT];
  *
  * Documentation: [Base UI Radio Group](https://base-ui.com/react/components/radio)
  */
-const RadioGroup = React.forwardRef(function RadioGroup(
+export const RadioGroup = React.forwardRef(function RadioGroup(
   props: RadioGroup.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
@@ -95,7 +95,7 @@ const RadioGroup = React.forwardRef(function RadioGroup(
   );
 });
 
-namespace RadioGroup {
+export namespace RadioGroup {
   export interface State extends FieldRoot.State {
     /**
      * Whether the user should be unable to select a different radio button in the group.
@@ -145,5 +145,3 @@ namespace RadioGroup {
     inputRef?: React.Ref<HTMLInputElement>;
   }
 }
-
-export { RadioGroup };

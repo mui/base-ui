@@ -10,7 +10,7 @@ import { MenuPortalContext } from './MenuPortalContext';
  *
  * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
  */
-function MenuPortal(props: MenuPortal.Props) {
+export function MenuPortal(props: MenuPortal.Props) {
   const { children, keepMounted = false, container } = props;
 
   const { mounted } = useMenuRootContext();
@@ -27,7 +27,7 @@ function MenuPortal(props: MenuPortal.Props) {
   );
 }
 
-namespace MenuPortal {
+export namespace MenuPortal {
   export interface Props {
     children?: React.ReactNode;
     /**
@@ -41,5 +41,3 @@ namespace MenuPortal {
     container?: HTMLElement | null | React.RefObject<HTMLElement | null>;
   }
 }
-
-export { MenuPortal };

@@ -12,7 +12,7 @@ import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
  *
  * Documentation: [Base UI Preview Card](https://base-ui.com/react/components/preview-card)
  */
-const PreviewCardTrigger = React.forwardRef(function PreviewCardTrigger(
+export const PreviewCardTrigger = React.forwardRef(function PreviewCardTrigger(
   props: PreviewCardTrigger.Props,
   forwardedRef: React.ForwardedRef<HTMLAnchorElement>,
 ) {
@@ -37,7 +37,7 @@ const PreviewCardTrigger = React.forwardRef(function PreviewCardTrigger(
   return renderElement();
 });
 
-namespace PreviewCardTrigger {
+export namespace PreviewCardTrigger {
   export interface State {
     /**
      * Whether the preview card is currently open.
@@ -47,5 +47,3 @@ namespace PreviewCardTrigger {
 
   export interface Props extends BaseUIComponentProps<'a', State> {}
 }
-
-export { PreviewCardTrigger };

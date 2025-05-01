@@ -14,7 +14,7 @@ import type { BaseUIComponentProps } from '../../utils/types';
  *
  * Documentation: [Base UI Progress](https://base-ui.com/react/components/progress)
  */
-const ProgressLabel = React.forwardRef(function ProgressLabel(
+export const ProgressLabel = React.forwardRef(function ProgressLabel(
   componentProps: ProgressLabel.Props,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
@@ -44,8 +44,6 @@ const ProgressLabel = React.forwardRef(function ProgressLabel(
   return renderElement();
 });
 
-namespace ProgressLabel {
+export namespace ProgressLabel {
   export interface Props extends BaseUIComponentProps<'span', ProgressRoot.State> {}
 }
-
-export { ProgressLabel };

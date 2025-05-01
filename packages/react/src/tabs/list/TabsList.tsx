@@ -18,7 +18,7 @@ const EMPTY_ARRAY: number[] = [];
  *
  * Documentation: [Base UI Tabs](https://base-ui.com/react/components/tabs)
  */
-const TabsList = React.forwardRef(function TabsList(
+export const TabsList = React.forwardRef(function TabsList(
   props: TabsList.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
@@ -101,7 +101,7 @@ const TabsList = React.forwardRef(function TabsList(
   );
 });
 
-namespace TabsList {
+export namespace TabsList {
   export type State = TabsRoot.State;
 
   export interface Props extends BaseUIComponentProps<'div', TabsList.State> {
@@ -119,5 +119,3 @@ namespace TabsList {
     loop?: boolean;
   }
 }
-
-export { TabsList };

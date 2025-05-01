@@ -20,7 +20,7 @@ const customStyleHookMapping: CustomStyleHookMapping<SelectTrigger.State> = {
  *
  * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
  */
-const SelectTrigger = React.forwardRef(function SelectTrigger(
+export const SelectTrigger = React.forwardRef(function SelectTrigger(
   componentProps: SelectTrigger.Props,
   forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
@@ -58,7 +58,7 @@ const SelectTrigger = React.forwardRef(function SelectTrigger(
   return renderElement();
 });
 
-namespace SelectTrigger {
+export namespace SelectTrigger {
   export interface Props extends BaseUIComponentProps<'div', State> {
     children?: React.ReactNode;
     /**
@@ -75,5 +75,3 @@ namespace SelectTrigger {
     open: boolean;
   }
 }
-
-export { SelectTrigger };

@@ -15,7 +15,7 @@ import { useToastContext } from '../provider/ToastProviderContext';
  *
  * Documentation: [Base UI Toast](https://base-ui.com/react/components/toast)
  */
-const ToastViewport = React.forwardRef(function ToastViewport(
+export const ToastViewport = React.forwardRef(function ToastViewport(
   props: ToastViewport.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
@@ -68,7 +68,7 @@ const ToastViewport = React.forwardRef(function ToastViewport(
   );
 });
 
-namespace ToastViewport {
+export namespace ToastViewport {
   export interface State {
     /**
      * Whether toasts are expanded in the viewport.
@@ -78,5 +78,3 @@ namespace ToastViewport {
 
   export interface Props extends BaseUIComponentProps<'div', State> {}
 }
-
-export { ToastViewport };

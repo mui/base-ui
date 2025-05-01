@@ -123,7 +123,7 @@ const InnerSelectItem = React.memo(
  *
  * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
  */
-const SelectItem = React.forwardRef(function SelectItem(
+export const SelectItem = React.forwardRef(function SelectItem(
   props: SelectItem.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
@@ -199,7 +199,7 @@ const SelectItem = React.forwardRef(function SelectItem(
   );
 });
 
-namespace SelectItem {
+export namespace SelectItem {
   export interface State {
     /**
      * Whether the item should ignore user interaction.
@@ -230,5 +230,3 @@ namespace SelectItem {
     label?: string;
   }
 }
-
-export { SelectItem };

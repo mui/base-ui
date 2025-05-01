@@ -68,7 +68,7 @@ const InnerMenuRadioItem = React.memo(
  *
  * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
  */
-const MenuRadioItem = React.forwardRef(function MenuRadioItem(
+export const MenuRadioItem = React.forwardRef(function MenuRadioItem(
   props: MenuRadioItem.Props,
   forwardedRef: React.ForwardedRef<Element>,
 ) {
@@ -148,7 +148,7 @@ interface InnerMenuRadioItemProps extends Omit<MenuRadioItem.Props, 'value'> {
   closeOnClick: boolean;
 }
 
-namespace MenuRadioItem {
+export namespace MenuRadioItem {
   export type State = {
     /**
      * Whether the radio item should ignore user interaction.
@@ -195,5 +195,3 @@ namespace MenuRadioItem {
     closeOnClick?: boolean;
   }
 }
-
-export { MenuRadioItem };

@@ -53,7 +53,7 @@ const InnerSelectItemText = React.memo(
  *
  * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
  */
-const SelectItemText = React.forwardRef(function SelectItemText(
+export const SelectItemText = React.forwardRef(function SelectItemText(
   props: SelectItemText.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
@@ -72,10 +72,8 @@ const SelectItemText = React.forwardRef(function SelectItemText(
   );
 });
 
-namespace SelectItemText {
+export namespace SelectItemText {
   export interface Props extends BaseUIComponentProps<'div', State> {}
 
   export interface State {}
 }
-
-export { SelectItemText };

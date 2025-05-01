@@ -12,7 +12,7 @@ import { useToolbarRoot } from './useToolbarRoot';
  *
  * Documentation: [Base UI Toolbar](https://base-ui.com/react/components/toolbar)
  */
-const ToolbarRoot = React.forwardRef(function ToolbarRoot(
+export const ToolbarRoot = React.forwardRef(function ToolbarRoot(
   props: ToolbarRoot.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
@@ -69,7 +69,7 @@ export interface ToolbarItemMetadata {
   focusableWhenDisabled: boolean;
 }
 
-namespace ToolbarRoot {
+export namespace ToolbarRoot {
   export type State = {
     disabled: boolean;
     orientation: Orientation;
@@ -96,5 +96,3 @@ namespace ToolbarRoot {
     loop?: boolean;
   }
 }
-
-export { ToolbarRoot };

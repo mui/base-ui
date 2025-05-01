@@ -25,7 +25,7 @@ const customStyleHookMapping: CustomStyleHookMapping<ToastRoot.State> = {
  *
  * Documentation: [Base UI Toast](https://base-ui.com/react/components/toast)
  */
-const ToastRoot = React.forwardRef(function ToastRoot(
+export const ToastRoot = React.forwardRef(function ToastRoot(
   props: ToastRoot.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
@@ -99,7 +99,7 @@ const ToastRoot = React.forwardRef(function ToastRoot(
   return <ToastRootContext.Provider value={toastRoot}>{renderElement()}</ToastRootContext.Provider>;
 });
 
-namespace ToastRoot {
+export namespace ToastRoot {
   export type ToastObject<Data extends object = any> = ToastObjectType<Data>;
 
   export interface State {
@@ -138,5 +138,3 @@ namespace ToastRoot {
     swipeDirection?: 'up' | 'down' | 'left' | 'right' | ('up' | 'down' | 'left' | 'right')[];
   }
 }
-
-export { ToastRoot };

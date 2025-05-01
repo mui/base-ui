@@ -10,7 +10,7 @@ import { AlertDialogPortalContext } from './AlertDialogPortalContext';
  *
  * Documentation: [Base UI Alert Dialog](https://base-ui.com/react/components/alert-dialog)
  */
-function AlertDialogPortal(props: AlertDialogPortal.Props) {
+export function AlertDialogPortal(props: AlertDialogPortal.Props) {
   const { children, keepMounted = false, container } = props;
 
   const { mounted } = useAlertDialogRootContext();
@@ -27,7 +27,7 @@ function AlertDialogPortal(props: AlertDialogPortal.Props) {
   );
 }
 
-namespace AlertDialogPortal {
+export namespace AlertDialogPortal {
   export interface Props {
     children?: React.ReactNode;
     /**
@@ -41,5 +41,3 @@ namespace AlertDialogPortal {
     container?: HTMLElement | null | React.RefObject<HTMLElement | null>;
   }
 }
-
-export { AlertDialogPortal };

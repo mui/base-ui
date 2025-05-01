@@ -14,7 +14,7 @@ export interface TabPanelMetadata {
   value: useTabsPanel.Parameters['value'];
 }
 
-function useTabsPanel(parameters: useTabsPanel.Parameters): useTabsPanel.ReturnValue {
+export function useTabsPanel(parameters: useTabsPanel.Parameters): useTabsPanel.ReturnValue {
   const {
     getTabIdByPanelValueOrIndex,
     rootRef: externalRef,
@@ -72,7 +72,7 @@ function useTabsPanel(parameters: useTabsPanel.Parameters): useTabsPanel.ReturnV
   };
 }
 
-namespace useTabsPanel {
+export namespace useTabsPanel {
   export interface Parameters extends Pick<TabsRootContext, 'getTabIdByPanelValueOrIndex'> {
     /**
      * The id of the TabPanel.
@@ -106,5 +106,3 @@ namespace useTabsPanel {
     rootRef: React.RefCallback<HTMLElement> | null;
   }
 }
-
-export { useTabsPanel };

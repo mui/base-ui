@@ -16,7 +16,7 @@ import { useAccordionItemContext } from '../item/AccordionItemContext';
  * Documentation: [Base UI Accordion](https://base-ui.com/react/components/accordion)
  */
 
-const AccordionTrigger = React.forwardRef(function AccordionTrigger(
+export const AccordionTrigger = React.forwardRef(function AccordionTrigger(
   componentProps: AccordionTrigger.Props,
   forwardedRef: React.ForwardedRef<Element>,
 ) {
@@ -63,8 +63,6 @@ const AccordionTrigger = React.forwardRef(function AccordionTrigger(
   return renderElement();
 });
 
-namespace AccordionTrigger {
+export namespace AccordionTrigger {
   export interface Props extends BaseUIComponentProps<'button', AccordionItem.State> {}
 }
-
-export { AccordionTrigger };

@@ -27,7 +27,7 @@ const customStyleHookMapping = {
  *
  * Documentation: [Base UI Number Field](https://base-ui.com/react/components/number-field)
  */
-const NumberFieldInput = React.forwardRef(function NumberFieldInput(
+export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
   props: NumberFieldInput.Props,
   forwardedRef: React.ForwardedRef<HTMLInputElement>,
 ) {
@@ -344,9 +344,7 @@ const NumberFieldInput = React.forwardRef(function NumberFieldInput(
   return renderElement();
 });
 
-namespace NumberFieldInput {
+export namespace NumberFieldInput {
   export interface State extends NumberFieldRoot.State {}
   export interface Props extends BaseUIComponentProps<'input', State> {}
 }
-
-export { NumberFieldInput };

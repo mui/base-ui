@@ -15,7 +15,7 @@ import { TabPanelMetadata } from '../panel/useTabsPanel';
  *
  * Documentation: [Base UI Tabs](https://base-ui.com/react/components/tabs)
  */
-const TabsRoot = React.forwardRef(function TabsRoot(
+export const TabsRoot = React.forwardRef(function TabsRoot(
   props: TabsRoot.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
@@ -99,7 +99,7 @@ export type TabsOrientation = 'horizontal' | 'vertical';
 export type TabActivationDirection = 'left' | 'right' | 'up' | 'down' | 'none';
 export type TabValue = any | null;
 
-namespace TabsRoot {
+export namespace TabsRoot {
   export type State = {
     orientation: TabsOrientation;
     tabActivationDirection: TabActivationDirection;
@@ -128,5 +128,3 @@ namespace TabsRoot {
     onValueChange?: (value: TabValue, event?: Event) => void;
   }
 }
-
-export { TabsRoot };
