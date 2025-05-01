@@ -97,7 +97,7 @@ export function useClick(context: FloatingRootContext, props: UseClickProps = {}
       onClick(event) {
         const pointerType = pointerTypeRef.current;
 
-        if (eventOption === 'mousedown' && pointerTypeRef.current) {
+        if (eventOption === 'mousedown' && pointerType) {
           pointerTypeRef.current = undefined;
           return;
         }
@@ -114,6 +114,9 @@ export function useClick(context: FloatingRootContext, props: UseClickProps = {}
             : true)
         );
         onOpenChange(nextOpen, event.nativeEvent, 'click');
+      },
+      onKeyDown() {
+        pointerTypeRef.current = undefined;
       },
     }),
     [dataRef, eventOption, ignoreMouse, onOpenChange, open, stickIfOpen, toggle],
