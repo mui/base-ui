@@ -159,6 +159,10 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
 
   const setOpen = useEventCallback(
     (nextOpen: boolean, event: Event | undefined, reason: OpenChangeReason | undefined) => {
+      if (open === nextOpen) {
+        return;
+      }
+
       const isHover = reason === 'hover';
       const isKeyboardClick = reason === 'click' && (event as MouseEvent).detail === 0;
       const isDismissClose = !nextOpen && (reason === 'escape-key' || reason == null);
