@@ -317,7 +317,7 @@ importers:
         specifier: ^3.1.2
         version: 3.1.2(@types/debug@4.1.12)(@types/node@18.19.87)(@vitest/browser@3.1.2)(@vitest/ui@3.1.1)(jiti@2.4.2)(jsdom@26.1.0)(lightningcss@1.29.2)(terser@5.39.0)(tsx@4.19.4)(yaml@2.7.1)
       webpack:
-        specifier: ^5.99.6
+        specifier: ^5.99.7
         version: 5.99.7(webpack-cli@5.1.4(webpack-bundle-analyzer@4.10.2)(webpack@5.99.7))
       webpack-bundle-analyzer:
         specifier: ^4.10.2
@@ -710,7 +710,7 @@ importers:
         specifier: ^0.12.5
         version: 0.12.5
       webpack:
-        specifier: ^5.99.6
+        specifier: ^5.99.7
         version: 5.99.7(webpack-cli@5.1.4(webpack-bundle-analyzer@4.10.2)(webpack@5.99.7))
       yargs:
         specifier: ^17.7.2
@@ -12866,7 +12866,7 @@ snapshots:
 
   '@vvago/vale@3.11.2':
     dependencies:
-      axios: 1.8.4(debug@4.4.0)
+      axios: 1.9.0(debug@4.4.0)
       rimraf: 5.0.10
       tar: 6.2.1
       unzipper: 0.10.14
