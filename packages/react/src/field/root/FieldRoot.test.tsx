@@ -336,6 +336,103 @@ describe('<Field.Root />', () => {
     });
   });
 
+  describe('revalidation', () => {
+    it('revalidates on change for `valueMissing`', async () => {
+      await render(
+        <Field.Root>
+          <Field.Control required />
+          <Field.Error />
+        </Field.Root>,
+      );
+
+      const control = screen.getByRole('textbox');
+      const message = screen.queryByText('error');
+
+      expect(message).to.equal(null);
+
+      fireEvent.focus(control);
+      fireEvent.change(control, { target: { value: 't' } });
+      fireEvent.blur(control);
+
+      expect(control).not.to.have.attribute('aria-invalid', 'true');
+
+      fireEvent.focus(control);
+      fireEvent.change(control, { target: { value: '' } });
+      fireEvent.blur(control);
+
+      expect(control).to.have.attribute('aria-invalid');
+    });
+
+    it('does not revalidate on change for `typeMismatch`', async () => {
+      await render(
+        <Field.Root>
+          <Field.Control type="email" />
+          <Field.Error data-testid="error" />
+        </Field.Root>,
+      );
+
+      const control = screen.getByRole('textbox');
+      const message = screen.queryByTestId('error');
+
+      expect(message).to.equal(null);
+
+      fireEvent.focus(control);
+      fireEvent.change(control, { target: { value: 't' } });
+      fireEvent.blur(control);
+
+      expect(control).to.have.attribute('aria-invalid', 'true');
+      const currentErrorText = screen.getByTestId('error').textContent || '';
+
+      fireEvent.focus(control);
+      fireEvent.change(control, { target: { value: 'tt' } });
+
+      expect(control).to.have.attribute('aria-invalid', 'true');
+      expect(screen.getByTestId('error')).to.have.text(currentErrorText);
+
+      fireEvent.blur(control);
+
+      expect(control).to.have.attribute('aria-invalid', 'true');
+      expect(screen.getByTestId('error')).not.to.have.text(currentErrorText);
+    });
+
+    it('handles both `required` and `typeMismatch`', async () => {
+      await render(
+        <Field.Root>
+          <Field.Control type="email" required />
+          <Field.Error data-testid="error" />
+        </Field.Root>,
+      );
+
+      const control = screen.getByRole('textbox');
+      const message = screen.queryByTestId('error');
+
+      expect(message).to.equal(null);
+
+      fireEvent.focus(control);
+      fireEvent.blur(control);
+
+      expect(control).not.to.have.attribute('aria-invalid');
+
+      fireEvent.focus(control);
+      fireEvent.change(control, { target: { value: 'tt' } });
+      fireEvent.blur(control);
+
+      expect(control).to.have.attribute('aria-invalid', 'true');
+
+      fireEvent.focus(control);
+      fireEvent.change(control, { target: { value: '' } });
+      fireEvent.blur(control);
+
+      expect(control).to.have.attribute('aria-invalid', 'true');
+
+      fireEvent.focus(control);
+      fireEvent.change(control, { target: { value: 'email@email.com' } });
+      fireEvent.blur(control);
+
+      expect(control).not.to.have.attribute('aria-invalid');
+    });
+  });
+
   describe('style hooks', () => {
     describe('touched', () => {
       it('should apply [data-touched] style hook to all components when touched', async () => {

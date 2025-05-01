@@ -11,6 +11,28 @@ import type { HTMLProps } from '../../utils/types';
 
 const validityKeys = Object.keys(DEFAULT_VALIDITY_STATE) as Array<keyof ValidityState>;
 
+function isOnlyValueMissing(state: Record<keyof ValidityState, boolean> | undefined) {
+  if (!state || state.valid || !state.valueMissing) {
+    return false;
+  }
+
+  let onlyValueMissing = false;
+
+  for (const key of validityKeys) {
+    if (key === 'valid') {
+      continue;
+    }
+    if (key === 'valueMissing') {
+      onlyValueMissing = state[key];
+    }
+    if (state[key]) {
+      onlyValueMissing = false;
+    }
+  }
+
+  return onlyValueMissing;
+}
+
 export function useFieldControlValidation() {
   const {
     setValidityData,
@@ -37,8 +59,14 @@ export function useFieldControlValidation() {
       return;
     }
 
-    if (revalidate && state.valid !== false) {
-      return;
+    if (revalidate) {
+      if (state.valid !== false) {
+        return;
+      }
+
+      if (!element.validity.valid && !isOnlyValueMissing(element.validity)) {
+        return;
+      }
     }
 
     function getState(el: HTMLInputElement) {
@@ -148,9 +176,13 @@ export function useFieldControlValidation() {
             }
 
             clearErrors(name);
-            commitValidation(event.currentTarget.value, true);
 
-            if (invalid || validationMode !== 'onChange') {
+            if (validationMode !== 'onChange') {
+              commitValidation(event.currentTarget.value, true);
+              return;
+            }
+
+            if (invalid) {
               return;
             }
 
