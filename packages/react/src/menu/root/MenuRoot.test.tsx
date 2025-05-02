@@ -1193,4 +1193,75 @@ describe('<Menu.Root />', () => {
       });
     });
   });
+
+  describe('dynamic items', () => {
+    const { render: renderFakeTimers, clock } = createRenderer({
+      clockOptions: {
+        shouldAdvanceTime: true,
+      },
+    });
+
+    clock.withFakeTimers();
+
+    it('skips null items when navigating', async () => {
+      function DynamicMenu() {
+        const [itemsFiltered, setItemsFiltered] = React.useState(false);
+
+        return (
+          <Menu.Root
+            onOpenChange={(newOpen) => {
+              if (newOpen) {
+                setTimeout(() => {
+                  setItemsFiltered(true);
+                }, 0);
+              }
+            }}
+            onOpenChangeComplete={(newOpen) => {
+              if (!newOpen) {
+                setItemsFiltered(false);
+              }
+            }}
+          >
+            <Menu.Trigger>Toggle</Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner sideOffset={8}>
+                <Menu.Popup>
+                  <Menu.Item>Add to Library</Menu.Item>
+                  {!itemsFiltered && (
+                    <React.Fragment>
+                      <Menu.Item>Add to Playlist</Menu.Item>
+                      <Menu.Item>Play Next</Menu.Item>
+                      <Menu.Item>Play Last</Menu.Item>
+                    </React.Fragment>
+                  )}
+                  <Menu.Item>Favorite</Menu.Item>
+                  <Menu.Item>Share</Menu.Item>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        );
+      }
+
+      await renderFakeTimers(<DynamicMenu />);
+
+      const trigger = screen.getByText('Toggle');
+
+      await act(async () => {
+        trigger.focus();
+      });
+
+      await user.keyboard('{ArrowDown}');
+
+      await waitFor(() => {
+        expect(screen.queryByRole('menu')).not.to.equal(null);
+      });
+
+      await user.keyboard('{ArrowDown}');
+      await user.keyboard('{ArrowDown}'); // Share
+      await user.keyboard('{ArrowDown}'); // loops back to Add to Library
+
+      expect(screen.queryByRole('menuitem', { name: 'Add to Library' })).toHaveFocus();
+    });
+  });
 });
