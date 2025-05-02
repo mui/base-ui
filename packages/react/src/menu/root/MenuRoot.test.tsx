@@ -1257,8 +1257,6 @@ describe('<Menu.Root />', () => {
         expect(screen.queryByRole('menu')).not.to.equal(null);
       });
 
-      clock.tick(1);
-
       await user.keyboard('{ArrowDown}');
       await user.keyboard('{ArrowDown}'); // Share
       await user.keyboard('{ArrowDown}'); // loops back to Add to Library
