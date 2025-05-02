@@ -65,6 +65,7 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
     sticky,
     trackAnchor,
     keepMounted,
+    fallbackAxisSideDirection: 'end',
   });
 
   const state: PopoverPositioner.State = React.useMemo(

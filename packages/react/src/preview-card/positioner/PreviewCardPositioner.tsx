@@ -56,6 +56,7 @@ export const PreviewCardPositioner = React.forwardRef(function PreviewCardPositi
     sticky,
     trackAnchor,
     keepMounted,
+    fallbackAxisSideDirection: 'start',
   });
 
   const state: PreviewCardPositioner.State = React.useMemo(

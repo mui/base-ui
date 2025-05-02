@@ -84,6 +84,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
     parentNodeId,
     keepMounted,
     trackAnchor,
+    fallbackAxisSideDirection: 'end',
   });
 
   const state: MenuPositioner.State = React.useMemo(

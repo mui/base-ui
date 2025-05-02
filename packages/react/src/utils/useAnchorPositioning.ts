@@ -72,6 +72,7 @@ export function useAnchorPositioning(
     floatingRootContext,
     mounted,
     trackAnchor = true,
+    fallbackAxisSideDirection = 'none',
     nodeId,
   } = params;
 
@@ -141,7 +142,11 @@ export function useAnchorPositioning(
     ),
   ];
 
-  const flipMiddleware = flip(commonCollisionProps);
+  const flipMiddleware = flip({
+    ...commonCollisionProps,
+    crossAxis: 'alignment',
+    fallbackAxisSideDirection,
+  });
   const shiftMiddleware = shift({
     ...commonCollisionProps,
     crossAxis: sticky,
@@ -435,6 +440,7 @@ export namespace useAnchorPositioning {
     mounted: boolean;
     trackAnchor: boolean;
     nodeId?: string;
+    fallbackAxisSideDirection?: 'none' | 'start' | 'end';
   }
 
   export interface ReturnValue {

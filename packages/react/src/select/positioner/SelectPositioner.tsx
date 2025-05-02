@@ -89,6 +89,7 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
     trackAnchor,
     alignItemWithTriggerActive,
     keepMounted: true,
+    fallbackAxisSideDirection: 'end',
   });
 
   const state: SelectPositioner.State = React.useMemo(
