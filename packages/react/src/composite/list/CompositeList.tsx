@@ -66,7 +66,7 @@ export function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
       labelsRef.current.length = sortedMap.size;
     }
     onMapChange?.(sortedMap);
-  }, [sortedMap, onMapChange, elementsRef]);
+  }, [sortedMap, onMapChange, elementsRef, labelsRef]);
 
   const contextValue = React.useMemo(
     () => ({ register, unregister, map: sortedMap, elementsRef, labelsRef }),
