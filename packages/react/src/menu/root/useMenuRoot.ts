@@ -53,7 +53,9 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
   const [instantType, setInstantType] = React.useState<'dismiss' | 'click' | 'group'>();
   const [hoverEnabled, setHoverEnabled] = React.useState(true);
   const [activeIndex, setActiveIndex] = React.useState<number | null>(null);
-  const [openReason, setOpenReason] = React.useState<OpenChangeReason | null>(null);
+  const [lastOpenChangeReason, setLastOpenChangeReason] = React.useState<OpenChangeReason | null>(
+    null,
+  );
   const [stickIfOpen, setStickIfOpen] = React.useState(true);
 
   const popupRef = React.useRef<HTMLElement>(null);
@@ -111,7 +113,7 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
 
   useScrollLock({
-    enabled: open && modal && openReason !== 'hover',
+    enabled: open && modal && lastOpenChangeReason !== 'hover',
     mounted,
     open,
     referenceElement: positionerElement,
@@ -123,7 +125,6 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
 
   const handleUnmount = useEventCallback(() => {
     setMounted(false);
-    setOpenReason(null);
     setStickIfOpen(true);
     onOpenChangeComplete?.(false);
   });
@@ -171,9 +172,7 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
         onOpenChange?.(nextOpen, event, reason);
         setOpenUnwrapped(nextOpen);
 
-        if (nextOpen) {
-          setOpenReason(reason ?? null);
-        }
+        setLastOpenChangeReason(reason ?? null);
       }
 
       if (isHover) {
@@ -219,7 +218,7 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
       hoverEnabled &&
       openOnHover &&
       !disabled &&
-      openReason !== 'click' &&
+      lastOpenChangeReason !== 'click' &&
       (parent.type !== 'menubar' || (parent.context.shouldOpenOnHover && !open)),
     handleClose: safePolygon({ blockPointerEvents: true }),
     mouseOnly: true,
@@ -346,7 +345,7 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
       setPositionerElement,
       setTriggerElement,
       transitionStatus,
-      openReason,
+      lastOpenChangeReason,
       instantType,
       onOpenChangeComplete,
       setHoverEnabled,
@@ -369,7 +368,7 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
       setOpen,
       transitionStatus,
       setPositionerElement,
-      openReason,
+      lastOpenChangeReason,
       instantType,
       onOpenChangeComplete,
       modal,
@@ -469,7 +468,7 @@ export namespace useMenuRoot {
     setTriggerElement: (element: HTMLElement | null) => void;
     transitionStatus: TransitionStatus;
     allowMouseUpTriggerRef: React.RefObject<boolean>;
-    openReason: OpenChangeReason | null;
+    lastOpenChangeReason: OpenChangeReason | null;
     instantType: 'dismiss' | 'click' | 'group' | undefined;
     onOpenChangeComplete: ((open: boolean) => void) | undefined;
     setHoverEnabled: React.Dispatch<React.SetStateAction<boolean>>;

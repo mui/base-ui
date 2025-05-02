@@ -49,7 +49,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
     itemLabels,
     mounted,
     modal,
-    openReason,
+    lastOpenChangeReason,
     parent,
   } = useMenuRootContext();
 
@@ -134,7 +134,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
   const shouldRenderBackdrop =
     mounted &&
     parent.type !== 'menu' &&
-    ((parent.type !== 'menubar' && modal && openReason !== 'hover') ||
+    ((parent.type !== 'menubar' && modal && lastOpenChangeReason !== 'hover') ||
       (parent.type === 'menubar' && parent.context.modal));
 
   const backdropCutout = parent.type === 'menubar' ? parent.context.contentElement : undefined;
