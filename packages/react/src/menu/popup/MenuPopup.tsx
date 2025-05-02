@@ -98,7 +98,10 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
       context={floatingContext}
       modal={false}
       disabled={!mounted}
-      returnFocus={parent.type !== 'menu' && lastOpenChangeReason !== 'outside-press'}
+      returnFocus={
+        parent.type === undefined ||
+        (parent.type === 'menubar' && lastOpenChangeReason !== 'outside-press')
+      }
       initialFocus={parent.type === 'menu' ? -1 : 0}
     >
       {renderElement()}

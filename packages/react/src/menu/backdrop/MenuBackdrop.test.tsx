@@ -33,7 +33,7 @@ describe('<Menu.Backdrop />', () => {
 
   it('does not set `pointer-events: none` style on backdrop if opened by click', async () => {
     const { user } = await render(
-      <Menu.Root delay={0} openOnHover>
+      <Menu.Root delay={0}>
         <Menu.Trigger>Open</Menu.Trigger>
         <Menu.Portal>
           <Menu.Backdrop data-testid="backdrop" />
