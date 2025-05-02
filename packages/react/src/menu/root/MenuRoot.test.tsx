@@ -1224,7 +1224,7 @@ describe('<Menu.Root />', () => {
           >
             <Menu.Trigger>Toggle</Menu.Trigger>
             <Menu.Portal>
-              <Menu.Positioner sideOffset={8}>
+              <Menu.Positioner>
                 <Menu.Popup>
                   <Menu.Item>Add to Library</Menu.Item>
                   {!itemsFiltered && (
@@ -1256,6 +1256,8 @@ describe('<Menu.Root />', () => {
       await waitFor(() => {
         expect(screen.queryByRole('menu')).not.to.equal(null);
       });
+
+      clock.tick(1);
 
       await user.keyboard('{ArrowDown}');
       await user.keyboard('{ArrowDown}'); // Share

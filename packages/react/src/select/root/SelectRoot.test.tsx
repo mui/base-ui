@@ -1199,7 +1199,7 @@ describe('<Select.Root />', () => {
           >
             <Select.Trigger>Toggle</Select.Trigger>
             <Select.Portal>
-              <Select.Positioner sideOffset={8}>
+              <Select.Positioner>
                 <Select.Popup>
                   <Select.Item>Add to Library</Select.Item>
                   {!itemsFiltered && (

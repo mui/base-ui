@@ -208,7 +208,7 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
     loop,
     orientation,
     rtl: direction === 'rtl',
-    disabledIndices: (index) => (itemDomElements.current[index] == null ? [index] : EMPTY_ARRAY),
+    disabledIndices: EMPTY_ARRAY,
     onNavigate: setActiveIndex,
   });
 
