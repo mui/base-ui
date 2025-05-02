@@ -190,7 +190,8 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
       }
 
       if (
-        (parent.type === 'menubar' && (reason === 'focus' || reason === 'hover')) ||
+        (parent.type === 'menubar' &&
+          (reason === 'focus' || reason === 'hover' || reason === 'list-navigation')) ||
         reason === 'sibling-open'
       ) {
         setInstantType('group');
