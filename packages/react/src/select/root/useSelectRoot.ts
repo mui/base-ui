@@ -244,7 +244,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     listRef,
     activeIndex,
     selectedIndex,
-    disabledIndices: EMPTY_ARRAY,
+    disabledIndices: (index) => (listRef.current[index] == null ? [index] : EMPTY_ARRAY),
     onNavigate(nextActiveIndex) {
       // Retain the highlight while transitioning out.
       if (nextActiveIndex === null && !open) {
