@@ -6,7 +6,7 @@ export default function ExampleMenubar() {
   return (
     <Menubar className="flex gap-px rounded-md border border-gray-200 bg-gray-50 p-0.5">
       <Menu.Root>
-        <Menu.Trigger className="focus-visible:outline-blue-500 h-8 rounded px-3 text-sm font-medium text-gray-600 outline-none select-none focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-1 active:bg-gray-200 disabled:cursor-not-allowed data-[disabled]:opacity-50 data-[popup-open]:bg-gray-100">
+        <Menu.Trigger className="h-8 rounded px-3 text-sm font-medium text-gray-600 outline-none select-none focus-visible:bg-gray-100 data-[disabled]:opacity-50 data-[popup-open]:bg-gray-100">
           File
         </Menu.Trigger>
         <Menu.Portal>
@@ -54,7 +54,7 @@ export default function ExampleMenubar() {
       </Menu.Root>
 
       <Menu.Root>
-        <Menu.Trigger className="focus-visible:outline-blue-500 h-8 rounded px-3 text-sm font-medium text-gray-600 outline-none select-none focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-1 active:bg-gray-200 disabled:cursor-not-allowed data-[disabled]:opacity-50 data-[popup-open]:bg-gray-100">
+        <Menu.Trigger className="h-8 rounded px-3 text-sm font-medium text-gray-600 outline-none select-none focus-visible:bg-gray-100 data-[disabled]:opacity-50 data-[popup-open]:bg-gray-100">
           Edit
         </Menu.Trigger>
         <Menu.Portal>
@@ -75,7 +75,7 @@ export default function ExampleMenubar() {
       </Menu.Root>
 
       <Menu.Root>
-        <Menu.Trigger className="focus-visible:outline-blue-500 h-8 rounded px-3 text-sm font-medium text-gray-600 outline-none select-none focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-1 active:bg-gray-200 disabled:cursor-not-allowed data-[disabled]:opacity-50 data-[popup-open]:bg-gray-100">
+        <Menu.Trigger className="h-8 rounded px-3 text-sm font-medium text-gray-600 outline-none select-none focus-visible:bg-gray-100 data-[disabled]:opacity-50 data-[popup-open]:bg-gray-100">
           View
         </Menu.Trigger>
         <Menu.Portal>
@@ -120,7 +120,7 @@ export default function ExampleMenubar() {
       </Menu.Root>
 
       <Menu.Root disabled>
-        <Menu.Trigger className="focus-visible:outline-blue-500 h-8 rounded px-3 text-sm font-medium text-gray-600 outline-none select-none focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-1 active:bg-gray-200 disabled:cursor-not-allowed data-[disabled]:opacity-50 data-[popup-open]:bg-gray-100">
+        <Menu.Trigger className="h-8 rounded px-3 text-sm font-medium text-gray-600 outline-none select-none focus-visible:bg-gray-100 data-[disabled]:opacity-50 data-[popup-open]:bg-gray-100">
           Help
         </Menu.Trigger>
       </Menu.Root>
