@@ -20,7 +20,7 @@ const customStyleHookMapping: CustomStyleHookMapping<PreviewCardBackdrop.State> 
  *
  * Documentation: [Base UI Preview Card](https://base-ui.com/react/components/preview-card)
  */
-const PreviewCardBackdrop = React.forwardRef(function PreviewCardBackdrop(
+export const PreviewCardBackdrop = React.forwardRef(function PreviewCardBackdrop(
   props: PreviewCardBackdrop.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
@@ -59,7 +59,7 @@ const PreviewCardBackdrop = React.forwardRef(function PreviewCardBackdrop(
   return renderElement();
 });
 
-namespace PreviewCardBackdrop {
+export namespace PreviewCardBackdrop {
   export interface State {
     /**
      * Whether the preview card is currently open.
@@ -70,5 +70,3 @@ namespace PreviewCardBackdrop {
 
   export interface Props extends BaseUIComponentProps<'div', State> {}
 }
-
-export { PreviewCardBackdrop };

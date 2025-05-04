@@ -12,7 +12,7 @@ import { useRenderElement } from '../../utils/useRenderElement';
 /**
  * @internal
  */
-const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
+export const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
   componentProps: SelectScrollArrow.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
@@ -182,7 +182,7 @@ const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
   return renderElement();
 });
 
-namespace SelectScrollArrow {
+export namespace SelectScrollArrow {
   export interface State {
     direction: 'up' | 'down';
     visible: boolean;
@@ -199,5 +199,3 @@ namespace SelectScrollArrow {
     keepMounted?: boolean;
   }
 }
-
-export { SelectScrollArrow };

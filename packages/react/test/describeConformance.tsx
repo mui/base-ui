@@ -58,6 +58,4 @@ function describeConformanceFn(
   });
 }
 
-const describeConformance = createDescribe('Base UI component API', describeConformanceFn);
-
-export { describeConformance };
+export const describeConformance = createDescribe('Base UI component API', describeConformanceFn);

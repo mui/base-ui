@@ -1,3 +1,4 @@
+'use client';
 import * as React from 'react';
 import { MenuRadioGroupContext } from './MenuRadioGroupContext';
 import { BaseUIComponentProps } from '../../utils/types';
@@ -11,7 +12,7 @@ import { useEventCallback } from '../../utils/useEventCallback';
  *
  * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
  */
-const MenuRadioGroup = React.memo(
+export const MenuRadioGroup = React.memo(
   React.forwardRef(function MenuRadioGroup(
     props: MenuRadioGroup.Props,
     forwardedRef: React.ForwardedRef<Element>,
@@ -73,7 +74,7 @@ const MenuRadioGroup = React.memo(
   }),
 );
 
-namespace MenuRadioGroup {
+export namespace MenuRadioGroup {
   export interface Props extends BaseUIComponentProps<'div', State> {
     /**
      * The content of the component.
@@ -109,5 +110,3 @@ namespace MenuRadioGroup {
     disabled: boolean;
   };
 }
-
-export { MenuRadioGroup };

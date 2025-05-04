@@ -29,7 +29,6 @@ const defaultTestContext = {
   isPointerLockDenied: false,
   max: undefined,
   maxWithDefault: 100,
-  mergedRef: (_node) => {},
   min: undefined,
   minWithDefault: 0,
   name: 'NumberField',
@@ -68,13 +67,9 @@ const defaultTestContext = {
   locale: 'en',
 } as NumberFieldRootContext;
 
-describe('<NumberField.ScrubAreaCursor />', () => {
+// This component doesn't render on WebKit.
+describe.skipIf(isWebKit())('<NumberField.ScrubAreaCursor />', () => {
   const { render } = createRenderer();
-
-  // This component doesn't render on WebKit.
-  if (isWebKit()) {
-    return;
-  }
 
   describeConformance(<NumberField.ScrubAreaCursor />, () => ({
     refInstanceof: window.HTMLSpanElement,

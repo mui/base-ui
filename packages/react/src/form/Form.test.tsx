@@ -162,7 +162,6 @@ describe('<Form />', () => {
         const [errors, setErrors] = React.useState<Form.Props['errors']>({
           foo: 'bar',
         });
-
         return (
           <Form errors={errors} onClearErrors={setErrors}>
             <Field.Root name="foo">

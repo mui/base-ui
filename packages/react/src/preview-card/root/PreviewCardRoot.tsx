@@ -11,7 +11,7 @@ import type { BaseOpenChangeReason } from '../../utils/translateOpenChangeReason
  *
  * Documentation: [Base UI Preview Card](https://base-ui.com/react/components/preview-card)
  */
-const PreviewCardRoot: React.FC<PreviewCardRoot.Props> = function PreviewCardRoot(props) {
+export const PreviewCardRoot: React.FC<PreviewCardRoot.Props> = function PreviewCardRoot(props) {
   const { delay, closeDelay, onOpenChangeComplete, actionsRef } = props;
 
   const delayWithDefault = delay ?? OPEN_DELAY;
@@ -43,7 +43,7 @@ const PreviewCardRoot: React.FC<PreviewCardRoot.Props> = function PreviewCardRoo
   );
 };
 
-namespace PreviewCardRoot {
+export namespace PreviewCardRoot {
   export interface State {}
 
   export interface Props extends usePreviewCardRoot.Parameters {
@@ -54,5 +54,3 @@ namespace PreviewCardRoot {
 
   export type OpenChangeReason = BaseOpenChangeReason;
 }
-
-export { PreviewCardRoot };

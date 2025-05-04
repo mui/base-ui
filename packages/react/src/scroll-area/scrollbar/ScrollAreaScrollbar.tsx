@@ -13,7 +13,7 @@ import { useScrollAreaScrollbar } from './useScrollAreaScrollbar';
  *
  * Documentation: [Base UI Scroll Area](https://base-ui.com/react/components/scroll-area)
  */
-const ScrollAreaScrollbar = React.forwardRef(function ScrollAreaScrollbar(
+export const ScrollAreaScrollbar = React.forwardRef(function ScrollAreaScrollbar(
   props: ScrollAreaScrollbar.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
@@ -69,7 +69,7 @@ const ScrollAreaScrollbar = React.forwardRef(function ScrollAreaScrollbar(
   );
 });
 
-namespace ScrollAreaScrollbar {
+export namespace ScrollAreaScrollbar {
   export interface State {
     hovering: boolean;
     scrolling: boolean;
@@ -89,5 +89,3 @@ namespace ScrollAreaScrollbar {
     keepMounted?: boolean;
   }
 }
-
-export { ScrollAreaScrollbar };

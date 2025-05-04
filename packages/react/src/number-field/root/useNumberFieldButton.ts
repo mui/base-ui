@@ -215,7 +215,7 @@ export function useNumberFieldButton(
   );
 }
 
-namespace useNumberFieldButton {
+export namespace useNumberFieldButton {
   export interface Parameters {
     allowInputSyncRef: React.RefObject<boolean | null>;
     disabled: boolean;

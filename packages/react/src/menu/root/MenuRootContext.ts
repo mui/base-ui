@@ -19,9 +19,9 @@ if (process.env.NODE_ENV !== 'production') {
   MenuRootContext.displayName = 'MenuRootContext';
 }
 
-function useMenuRootContext(optional?: false): MenuRootContext;
-function useMenuRootContext(optional: true): MenuRootContext | undefined;
-function useMenuRootContext(optional?: boolean) {
+export function useMenuRootContext(optional?: false): MenuRootContext;
+export function useMenuRootContext(optional: true): MenuRootContext | undefined;
+export function useMenuRootContext(optional?: boolean) {
   const context = React.useContext(MenuRootContext);
   if (context === undefined && !optional) {
     throw new Error(
@@ -31,5 +31,3 @@ function useMenuRootContext(optional?: boolean) {
 
   return context;
 }
-
-export { useMenuRootContext };

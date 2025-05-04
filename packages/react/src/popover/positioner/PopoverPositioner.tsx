@@ -17,7 +17,7 @@ import { useRenderElement } from '../../utils/useRenderElement';
  *
  * Documentation: [Base UI Popover](https://base-ui.com/react/components/popover)
  */
-const PopoverPositioner = React.forwardRef(function PopoverPositioner(
+export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
   componentProps: PopoverPositioner.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
@@ -94,7 +94,7 @@ const PopoverPositioner = React.forwardRef(function PopoverPositioner(
   );
 });
 
-namespace PopoverPositioner {
+export namespace PopoverPositioner {
   export interface State {
     /**
      * Whether the popover is currently open.
@@ -109,5 +109,3 @@ namespace PopoverPositioner {
     extends usePopoverPositioner.SharedParameters,
       BaseUIComponentProps<'div', State> {}
 }
-
-export { PopoverPositioner };

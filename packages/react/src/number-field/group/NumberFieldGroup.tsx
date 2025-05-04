@@ -13,7 +13,7 @@ import { styleHookMapping } from '../utils/styleHooks';
  *
  * Documentation: [Base UI Number Field](https://base-ui.com/react/components/number-field)
  */
-const NumberFieldGroup = React.forwardRef(function NumberFieldGroup(
+export const NumberFieldGroup = React.forwardRef(function NumberFieldGroup(
   props: NumberFieldGroup.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
@@ -45,9 +45,7 @@ const NumberFieldGroup = React.forwardRef(function NumberFieldGroup(
   return renderElement();
 });
 
-namespace NumberFieldGroup {
+export namespace NumberFieldGroup {
   export interface State extends NumberFieldRoot.State {}
   export interface Props extends BaseUIComponentProps<'div', State> {}
 }
-
-export { NumberFieldGroup };

@@ -10,7 +10,7 @@ import { OPEN_DELAY } from '../utils/constants';
  *
  * Documentation: [Base UI Popover](https://base-ui.com/react/components/popover)
  */
-const PopoverRoot: React.FC<PopoverRoot.Props> = function PopoverRoot(props) {
+export const PopoverRoot: React.FC<PopoverRoot.Props> = function PopoverRoot(props) {
   const {
     defaultOpen = false,
     onOpenChange,
@@ -54,7 +54,7 @@ const PopoverRoot: React.FC<PopoverRoot.Props> = function PopoverRoot(props) {
   );
 };
 
-namespace PopoverRoot {
+export namespace PopoverRoot {
   export interface State {}
 
   export interface Props extends usePopoverRoot.Parameters {
@@ -65,5 +65,3 @@ namespace PopoverRoot {
 
   export type OpenChangeReason = PopoverOpenChangeReason;
 }
-
-export { PopoverRoot };

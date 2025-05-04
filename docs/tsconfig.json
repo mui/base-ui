@@ -13,7 +13,7 @@
   "compilerOptions": {
     "allowJs": true,
     "isolatedModules": true,
-    /* files are emitted by babel */
+    /* files are emitted by webpack */
     "noEmit": true,
     "noUnusedLocals": true,
     "resolveJsonModule": true,
