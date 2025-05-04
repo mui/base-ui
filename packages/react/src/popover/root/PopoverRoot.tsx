@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { PopoverRootContext } from './PopoverRootContext';
-import { usePopoverRoot } from './usePopoverRoot';
+import { type PopoverOpenChangeReason, usePopoverRoot } from './usePopoverRoot';
 import { OPEN_DELAY } from '../utils/constants';
 
 /**
@@ -62,6 +62,8 @@ namespace PopoverRoot {
   }
 
   export type Actions = usePopoverRoot.Actions;
+
+  export type OpenChangeReason = PopoverOpenChangeReason;
 }
 
 export { PopoverRoot };

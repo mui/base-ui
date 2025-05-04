@@ -3,6 +3,7 @@ import * as React from 'react';
 import { PreviewCardRootContext } from './PreviewCardContext';
 import { usePreviewCardRoot } from './usePreviewCardRoot';
 import { CLOSE_DELAY, OPEN_DELAY } from '../utils/constants';
+import type { BaseOpenChangeReason } from '../../utils/translateOpenChangeReason';
 
 /**
  * Groups all parts of the preview card.
@@ -50,6 +51,8 @@ namespace PreviewCardRoot {
   }
 
   export type Actions = usePreviewCardRoot.Actions;
+
+  export type OpenChangeReason = BaseOpenChangeReason;
 }
 
 export { PreviewCardRoot };

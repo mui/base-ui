@@ -165,6 +165,8 @@ namespace MenuRoot {
   export interface Actions {
     unmount: () => void;
   }
+
+  export type OpenChangeReason = MenuOpenChangeReason;
 }
 
 export { MenuRoot };

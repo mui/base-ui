@@ -2,7 +2,7 @@
 import * as React from 'react';
 import type { DialogRoot } from '../../dialog/root/DialogRoot';
 import { AlertDialogRootContext } from './AlertDialogRootContext';
-import { useDialogRoot } from '../../dialog/root/useDialogRoot';
+import { type DialogOpenChangeReason, useDialogRoot } from '../../dialog/root/useDialogRoot';
 
 /**
  * Groups all parts of the alert dialog.
@@ -56,6 +56,8 @@ namespace AlertDialogRoot {
   export interface Props extends Omit<DialogRoot.Props, 'modal' | 'dismissible'> {}
 
   export type Actions = DialogRoot.Actions;
+
+  export type OpenChangeReason = DialogOpenChangeReason;
 }
 
 export { AlertDialogRoot };

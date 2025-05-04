@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useSelectRoot } from './useSelectRoot';
+import { type SelectOpenChangeReason, useSelectRoot } from './useSelectRoot';
 import { SelectRootContext } from './SelectRootContext';
 import { SelectIndexContext } from './SelectIndexContext';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
@@ -129,6 +129,8 @@ namespace SelectRoot {
   export interface State {}
 
   export type Actions = useSelectRoot.Actions;
+
+  export type OpenChangeReason = SelectOpenChangeReason;
 }
 
 interface SelectRoot {
