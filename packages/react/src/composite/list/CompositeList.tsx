@@ -59,8 +59,14 @@ export function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
   }, [map]);
 
   useModernLayoutEffect(() => {
+    if (elementsRef.current.length !== sortedMap.size) {
+      elementsRef.current.length = sortedMap.size;
+    }
+    if (labelsRef && labelsRef.current.length !== sortedMap.size) {
+      labelsRef.current.length = sortedMap.size;
+    }
     onMapChange?.(sortedMap);
-  }, [sortedMap, onMapChange]);
+  }, [sortedMap, onMapChange, elementsRef, labelsRef]);
 
   const contextValue = React.useMemo(
     () => ({ register, unregister, map: sortedMap, elementsRef, labelsRef }),
