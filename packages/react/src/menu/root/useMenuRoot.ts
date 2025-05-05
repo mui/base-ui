@@ -164,7 +164,6 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
         return;
       }
 
-      const isHover = reason === 'hover';
       const isKeyboardClick =
         (reason === 'click' || reason === 'item-press') && (event as MouseEvent).detail === 0;
       const isDismissClose = !nextOpen && (reason === 'escape-key' || reason == null);
@@ -176,7 +175,7 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
         setLastOpenChangeReason(reason ?? null);
       }
 
-      if (isHover) {
+      if (reason === 'hover') {
         // Only allow "patient" clicks to close the menu if it's open.
         // If they clicked within 500ms of the menu opening, keep it open.
         clearStickIfOpenTimeout();
