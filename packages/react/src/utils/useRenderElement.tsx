@@ -98,6 +98,7 @@ export namespace useRenderElement {
       | RenderFunctionProps<TagName>
       | Array<
           | RenderFunctionProps<TagName>
+          | undefined
           | ((props: RenderFunctionProps<TagName>) => RenderFunctionProps<TagName>)
         >;
     /**
