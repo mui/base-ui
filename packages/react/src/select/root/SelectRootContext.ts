@@ -25,10 +25,6 @@ export interface SelectRootContext {
   setTriggerElement: React.Dispatch<React.SetStateAction<HTMLElement | null>>;
   positionerElement: HTMLElement | null;
   setPositionerElement: React.Dispatch<React.SetStateAction<HTMLElement | null>>;
-  scrollUpArrowVisible: boolean;
-  setScrollUpArrowVisible: React.Dispatch<React.SetStateAction<boolean>>;
-  scrollDownArrowVisible: boolean;
-  setScrollDownArrowVisible: React.Dispatch<React.SetStateAction<boolean>>;
   listRef: React.MutableRefObject<Array<HTMLElement | null>>;
   popupRef: React.MutableRefObject<HTMLDivElement | null>;
   getRootTriggerProps: (props?: GenericHTMLProps) => GenericHTMLProps;

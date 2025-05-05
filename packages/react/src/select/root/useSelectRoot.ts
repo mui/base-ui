@@ -103,8 +103,6 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
   const [selectedIndex, setSelectedIndex] = React.useState<number | null>(null);
   const [label, setLabel] = React.useState('');
   const [touchModality, setTouchModality] = React.useState(false);
-  const [scrollUpArrowVisible, setScrollUpArrowVisible] = React.useState(false);
-  const [scrollDownArrowVisible, setScrollDownArrowVisible] = React.useState(false);
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
 
@@ -183,7 +181,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     clearErrors(name);
 
     const index = valuesRef.current.indexOf(nextValue);
-    setSelectedIndex(index);
+    setSelectedIndex(index === -1 ? null : index);
     setLabel(labelsRef.current[index] ?? '');
   });
 
@@ -194,15 +192,21 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
       hasRegisteredRef.current = true;
     }
 
-    const stringValue = typeof value === 'string' || value === null ? value : JSON.stringify(value);
-    const index = suppliedIndex ?? valuesRef.current.indexOf(stringValue);
+    const index = suppliedIndex ?? valuesRef.current.indexOf(value);
     const hasIndex = index !== -1;
 
     if (hasIndex || value === null) {
       setSelectedIndex(hasIndex ? index : null);
       setLabel(hasIndex ? (labelsRef.current[index] ?? '') : '');
-    } else if (value) {
-      warn(`The value \`${stringValue}\` is not present in the select items.`);
+      return;
+    }
+
+    if (process.env.NODE_ENV !== 'production') {
+      if (value) {
+        const stringValue =
+          typeof value === 'string' || value === null ? value : JSON.stringify(value);
+        warn(`The value \`${stringValue}\` is not present in the select items.`);
+      }
     }
   });
 
@@ -294,10 +298,6 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
       setTriggerElement,
       positionerElement,
       setPositionerElement,
-      scrollUpArrowVisible,
-      setScrollUpArrowVisible,
-      scrollDownArrowVisible,
-      setScrollDownArrowVisible,
       value,
       setValue,
       open,
@@ -336,8 +336,6 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
       readOnly,
       triggerElement,
       positionerElement,
-      scrollUpArrowVisible,
-      scrollDownArrowVisible,
       value,
       setValue,
       open,
