@@ -2,6 +2,7 @@ import * as React from 'react';
 import { createRenderer, screen, fireEvent } from '@mui/internal-test-utils';
 import { CheckboxGroup } from '@base-ui-components/react/checkbox-group';
 import { Checkbox } from '@base-ui-components/react/checkbox';
+import { Field } from '@base-ui-components/react/field';
 import { spy } from 'sinon';
 import { expect } from 'chai';
 import { describeConformance } from '#test-utils';
@@ -197,6 +198,106 @@ describe('<CheckboxGroup />', () => {
       expect(red).to.have.attribute('disabled', '');
       expect(green).to.have.attribute('disabled', '');
       expect(blue).to.have.attribute('disabled', '');
+    });
+  });
+
+  describe('Field', () => {
+    it('prop: validationMode=onChange', async () => {
+      render(
+        <Field.Root
+          validationMode="onChange"
+          validate={(value) => {
+            const v = value as string[];
+            return v.includes('fuji-apple') ? 'error' : null;
+          }}
+        >
+          <CheckboxGroup defaultValue={['fuji-apple']}>
+            <Checkbox.Root name="fuji-apple" data-testid="button-1" />
+            <Checkbox.Root name="gala-apple" data-testid="button-2" />
+            <Checkbox.Root name="granny-smith-apple" data-testid="button-3" />
+          </CheckboxGroup>
+        </Field.Root>,
+      );
+
+      const button1 = screen.getByTestId('button-1');
+      const button2 = screen.getByTestId('button-2');
+      const button3 = screen.getByTestId('button-3');
+
+      expect(button1).not.to.have.attribute('aria-invalid');
+      expect(button2).not.to.have.attribute('aria-invalid');
+      expect(button3).not.to.have.attribute('aria-invalid');
+
+      fireEvent.click(button1);
+
+      expect(button1).not.to.have.attribute('aria-invalid');
+      expect(button2).not.to.have.attribute('aria-invalid');
+      expect(button3).not.to.have.attribute('aria-invalid');
+
+      fireEvent.click(button2);
+
+      expect(button1).not.to.have.attribute('aria-invalid');
+      expect(button2).not.to.have.attribute('aria-invalid');
+      expect(button3).not.to.have.attribute('aria-invalid');
+
+      fireEvent.click(button1);
+
+      expect(button1).to.have.attribute('aria-invalid', 'true');
+      expect(button2).to.have.attribute('aria-invalid', 'true');
+      expect(button3).to.have.attribute('aria-invalid', 'true');
+
+      fireEvent.click(button3);
+
+      expect(button1).to.have.attribute('aria-invalid', 'true');
+      expect(button2).to.have.attribute('aria-invalid', 'true');
+      expect(button3).to.have.attribute('aria-invalid', 'true');
+    });
+
+    it('prop: validationMode=onBlur', async () => {
+      render(
+        <Field.Root
+          validationMode="onBlur"
+          validate={(value) => {
+            const v = value as string[];
+            return v.includes('fuji-apple') ? 'error' : null;
+          }}
+        >
+          <CheckboxGroup defaultValue={['fuji-apple']}>
+            <Checkbox.Root name="fuji-apple" data-testid="button-1" />
+            <Checkbox.Root name="gala-apple" data-testid="button-2" />
+            <Checkbox.Root name="granny-smith-apple" data-testid="button-3" />
+          </CheckboxGroup>
+          <Field.Error data-testid="error" />
+        </Field.Root>,
+      );
+
+      const button1 = screen.getByTestId('button-1');
+      const button2 = screen.getByTestId('button-2');
+      const button3 = screen.getByTestId('button-3');
+
+      expect(button1).not.to.have.attribute('aria-invalid');
+      expect(button2).not.to.have.attribute('aria-invalid');
+      expect(button3).not.to.have.attribute('aria-invalid');
+
+      fireEvent.click(button1);
+      fireEvent.blur(button1);
+
+      expect(button1).not.to.have.attribute('aria-invalid');
+      expect(button2).not.to.have.attribute('aria-invalid');
+      expect(button3).not.to.have.attribute('aria-invalid');
+
+      fireEvent.click(button3);
+      fireEvent.blur(button3);
+
+      expect(button1).not.to.have.attribute('aria-invalid');
+      expect(button2).not.to.have.attribute('aria-invalid');
+      expect(button3).not.to.have.attribute('aria-invalid');
+
+      fireEvent.click(button1);
+      fireEvent.blur(button1);
+
+      expect(button1).to.have.attribute('aria-invalid', 'true');
+      expect(button2).to.have.attribute('aria-invalid', 'true');
+      expect(button3).to.have.attribute('aria-invalid', 'true');
     });
   });
 });

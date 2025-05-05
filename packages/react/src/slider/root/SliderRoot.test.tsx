@@ -8,6 +8,7 @@ import {
 } from '@base-ui-components/react/direction-provider';
 import { Field } from '@base-ui-components/react/field';
 import { Slider } from '@base-ui-components/react/slider';
+import { Form } from '@base-ui-components/react/form';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import {
   ARROW_RIGHT,
@@ -1843,7 +1844,40 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
     });
   });
 
-  describe('with Field.Root parent', () => {
+  describe('Form', () => {
+    it('clears errors on change', async () => {
+      function App() {
+        const [errors, setErrors] = React.useState<Record<string, string | string[]>>({
+          test: 'test',
+        });
+        return (
+          <Form errors={errors} onClearErrors={setErrors}>
+            <Field.Root name="test" data-testid="field">
+              <TestSlider data-testid="slider" defaultValue={50} />
+              <Field.Error data-testid="error" />
+            </Field.Root>
+          </Form>
+        );
+      }
+
+      const { user } = await render(<App />);
+
+      const slider = screen.getByRole('slider');
+
+      expect(slider).to.have.attribute('aria-invalid', 'true');
+      expect(screen.getByTestId('error')).to.have.text('test');
+
+      await user.keyboard('[Tab]');
+      expect(screen.getByTestId('thumb')).toHaveFocus();
+
+      await user.keyboard(`{Shift>}{ArrowRight}`);
+
+      expect(slider).not.to.have.attribute('aria-invalid');
+      expect(screen.queryByTestId('error')).to.equal(null);
+    });
+  });
+
+  describe('Field', () => {
     it('should receive disabled prop from Field.Root', async () => {
       const { getByTestId } = await render(
         <Field.Root disabled>
@@ -1873,6 +1907,180 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
       const thumb = getByTestId('thumb');
       const input = thumb.querySelector('input');
       expect(input).to.have.attribute('name', 'field-slider');
+    });
+
+    it('[data-touched]', async () => {
+      await render(
+        <Field.Root>
+          <Slider.Root data-testid="root">
+            <Slider.Control>
+              <Slider.Thumb data-testid="thumb" />
+            </Slider.Control>
+          </Slider.Root>
+        </Field.Root>,
+      );
+
+      const root = screen.getByTestId('root');
+      const thumb = screen.getByTestId('thumb');
+
+      fireEvent.focus(thumb);
+      fireEvent.blur(thumb);
+
+      expect(root).to.have.attribute('data-touched', '');
+    });
+
+    it('[data-dirty]', async () => {
+      const { container } = await render(
+        <Field.Root>
+          <Slider.Root data-testid="root">
+            <Slider.Control>
+              <Slider.Thumb />
+            </Slider.Control>
+          </Slider.Root>
+        </Field.Root>,
+      );
+
+      const root = screen.getByTestId('root');
+      const input = container.querySelector<HTMLInputElement>('input')!;
+
+      expect(root).not.to.have.attribute('data-dirty');
+
+      fireEvent.change(input, { target: { value: 'value' } });
+
+      expect(root).to.have.attribute('data-dirty', '');
+    });
+
+    it('[data-focused]', async () => {
+      const { container } = await render(
+        <Field.Root>
+          <Slider.Root data-testid="root">
+            <Slider.Control>
+              <Slider.Thumb />
+            </Slider.Control>
+          </Slider.Root>
+        </Field.Root>,
+      );
+
+      const root = screen.getByTestId('root');
+      const input = container.querySelector<HTMLInputElement>('input')!;
+
+      expect(root).not.to.have.attribute('data-focused');
+
+      fireEvent.focus(input);
+
+      expect(root).to.have.attribute('data-focused', '');
+
+      fireEvent.blur(input);
+
+      expect(root).not.to.have.attribute('data-focused');
+    });
+
+    it('prop: validate', async () => {
+      const { container } = await render(
+        <Field.Root validate={() => 'error'}>
+          <Slider.Root>
+            <Slider.Control>
+              <Slider.Thumb data-testid="thumb" />
+            </Slider.Control>
+          </Slider.Root>
+          <Field.Error data-testid="error" />
+        </Field.Root>,
+      );
+
+      const input = container.querySelector<HTMLInputElement>('input')!;
+      const thumb = screen.getByTestId('thumb');
+
+      expect(input).not.to.have.attribute('aria-invalid');
+
+      fireEvent.focus(thumb);
+      fireEvent.blur(thumb);
+
+      expect(input).to.have.attribute('aria-invalid', 'true');
+    });
+
+    it('prop: validationMode=onChange', async () => {
+      const { container } = await render(
+        <Field.Root
+          validationMode="onChange"
+          validate={(value) => {
+            return value === 1 ? 'error' : null;
+          }}
+        >
+          <Slider.Root>
+            <Slider.Control>
+              <Slider.Thumb data-testid="thumb" />
+            </Slider.Control>
+          </Slider.Root>
+        </Field.Root>,
+      );
+
+      const input = container.querySelector<HTMLInputElement>('input')!;
+
+      expect(input).not.to.have.attribute('aria-invalid');
+
+      fireEvent.change(input, { target: { value: '1' } });
+
+      expect(input).to.have.attribute('aria-invalid', 'true');
+    });
+
+    it('prop: validationMode=onBlur', async () => {
+      const { container } = await render(
+        <Field.Root
+          validationMode="onBlur"
+          validate={(value) => {
+            return value === 1 ? 'error' : null;
+          }}
+        >
+          <Slider.Root>
+            <Slider.Control>
+              <Slider.Thumb data-testid="thumb" />
+            </Slider.Control>
+          </Slider.Root>
+          <Field.Error data-testid="error" />
+        </Field.Root>,
+      );
+
+      const input = container.querySelector<HTMLInputElement>('input')!;
+      const thumb = screen.getByTestId('thumb');
+
+      expect(input).not.to.have.attribute('aria-invalid');
+
+      fireEvent.change(input, { target: { value: '1' } });
+      fireEvent.blur(thumb);
+
+      expect(input).to.have.attribute('aria-invalid', 'true');
+    });
+
+    it('Field.Label', async () => {
+      await render(
+        <Field.Root>
+          <Slider.Root data-testid="slider">
+            <Slider.Control />
+          </Slider.Root>
+          <Field.Label data-testid="label" render={<span />} />
+        </Field.Root>,
+      );
+
+      expect(screen.getByTestId('slider')).to.have.attribute(
+        'aria-labelledby',
+        screen.getByTestId('label').id,
+      );
+    });
+
+    it('Field.Description', async () => {
+      await render(
+        <Field.Root>
+          <Slider.Root data-testid="slider">
+            <Slider.Control />
+          </Slider.Root>
+          <Field.Description data-testid="description" />
+        </Field.Root>,
+      );
+
+      expect(screen.getByTestId('slider')).to.have.attribute(
+        'aria-describedby',
+        screen.getByTestId('description').id,
+      );
     });
   });
 });
