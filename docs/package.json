@@ -10,7 +10,7 @@
     "serve": "serve ./export -l 3010",
     "typescript": "tsc -b tsconfig.json",
     "link-check": "tsx ./scripts/reportBrokenLinks.mts",
-    "generate-llms": "node ./scripts/generateLlmTxt.mjs"
+    "generate-llms": "node ./scripts/generateLlmTxt/index.mjs"
   },
   "dependencies": {
     "@base-ui-components/react": "workspace:*",

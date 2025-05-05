@@ -1,4 +1,6 @@
 #!/usr/bin/env node
+/* eslint-disable no-await-in-loop */
+/* eslint-disable no-console */
 
 import fs from 'fs/promises';
 import path from 'path';
@@ -6,7 +8,7 @@ import glob from 'fast-glob';
 import * as prettier from 'prettier';
 import { mdxToMarkdown } from './mdxToMarkdown.mjs';
 
-const PROJECT_ROOT = path.resolve(import.meta.dirname, '..');
+const PROJECT_ROOT = path.resolve(import.meta.dirname, '../..');
 const MDX_SOURCE_DIR = path.join(PROJECT_ROOT, 'src/app/(public)/(content)/react');
 const OUTPUT_BASE_DIR = path.join(PROJECT_ROOT, 'public');
 const OUTPUT_REACT_DIR = path.join(OUTPUT_BASE_DIR, 'react');
@@ -31,7 +33,7 @@ async function generateLlmsTxt() {
     };
 
     // Process files from a specific section
-    async function processSection(sectionName) {
+    const processSection = async (sectionName) => {
       console.log(`Processing ${sectionName} section...`);
 
       // Find all MDX files in this section
@@ -95,7 +97,7 @@ async function generateLlmsTxt() {
 
         console.log(`Processed: ${relativePath}`);
       }
-    }
+    };
 
     // Process each section
     await processSection('overview');

@@ -11,13 +11,9 @@ import remarkMdx from 'remark-mdx';
 import remarkGfm from 'remark-gfm';
 import remarkStringify from 'remark-stringify';
 import { visit } from 'unist-util-visit';
-import * as mdx from './mdxNodeHelpers.mjs';
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
 import { processReference } from './referenceProcessor.mjs';
 import { processDemo } from './demoProcessor.mjs';
-import * as prettier from 'prettier';
+import * as mdx from './mdxNodeHelpers.mjs';
 
 /**
  * Plugin to extract metadata from the MDX content
@@ -35,7 +31,6 @@ function extractMetadata() {
     visit(tree, 'heading', (node) => {
       if (node.depth === 1 && node.children?.[0]?.value) {
         file.data.metadata.title = mdx.textContent(node);
-        return;
       }
     });
 
@@ -89,7 +84,7 @@ function transformJsx() {
 
             // Replace the demo component with the generated content
             parent.children.splice(index, 1, ...demoContent);
-            return;
+            return visit.CONTINUE;
           }
 
           case 'Reference': {
@@ -99,16 +94,16 @@ function transformJsx() {
             // Replace the reference component with the generated tables
             parent.children.splice(index, 1, ...tables);
 
-            return;
+            return visit.CONTINUE;
           }
 
           case 'PropsReferenceTable':
             parent.children.splice(index, 1, mdx.paragraph('--- PropsReferenceTable ---'));
-            return;
+            return visit.CONTINUE;
 
           case 'Subtitle': {
             parent.children.splice(index, 1);
-            return;
+            return visit.CONTINUE;
           }
 
           case 'Meta': {
@@ -121,7 +116,7 @@ function transformJsx() {
             if (nameAttr && contentAttr && contentAttr.value) {
               // Replace with a paragraph containing the description
               parent.children.splice(index, 1, mdx.paragraph(contentAttr.value));
-              return;
+              return visit.CONTINUE;
             }
 
             // Remove other Meta tags

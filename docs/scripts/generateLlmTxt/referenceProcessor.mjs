@@ -7,10 +7,8 @@
 
 import fs from 'fs';
 import path from 'path';
-import { fileURLToPath } from 'url';
 import { unified } from 'unified';
 import remarkParse from 'remark-parse';
-import remarkGfm from 'remark-gfm';
 
 import * as mdx from './mdxNodeHelpers.mjs';
 
@@ -49,7 +47,7 @@ export function processReference(node) {
   // Load component definitions from JSON files
   const componentDefs = [];
   const kebabCase = (str) => str.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
-  const projectRoot = path.resolve(import.meta.dirname, '..');
+  const projectRoot = path.resolve(import.meta.dirname, '../..');
 
   for (const part of parts) {
     // Construct file path for this component part

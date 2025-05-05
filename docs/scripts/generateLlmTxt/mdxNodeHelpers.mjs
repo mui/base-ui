@@ -145,7 +145,9 @@ function tableRow(cells) {
 export function table(headers, rows, alignment = null) {
   // Convert alignment strings to AST format
   const align = headers.map((_, index) => {
-    if (!alignment || !alignment[index]) return null;
+    if (!alignment || !alignment[index]) {
+      return null;
+    }
 
     switch (alignment[index]) {
       case 'center':
@@ -177,7 +179,9 @@ export function table(headers, rows, alignment = null) {
  * @returns {string} Extracted text content
  */
 export function textContent(node) {
-  if (!node) return '';
+  if (!node) {
+    return '';
+  }
 
   if (typeof node === 'string') {
     return node;
