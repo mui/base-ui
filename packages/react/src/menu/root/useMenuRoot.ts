@@ -214,9 +214,12 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
       }
 
       if (
-        (parent.type === 'menubar' &&
-          (reason === 'focus' || reason === 'hover' || reason === 'list-navigation')) ||
-        reason === 'sibling-open'
+        parent.type === 'menubar' &&
+        (reason === 'focus' ||
+          reason === 'focus-out' ||
+          reason === 'hover' ||
+          reason === 'list-navigation' ||
+          reason === 'sibling-open')
       ) {
         setInstantType('group');
       } else if (isKeyboardClick || isDismissClose) {
