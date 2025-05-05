@@ -35,3 +35,5 @@ jobs:
       - run: pnpm install
       - run: pnpm release:build
       - run: pnpm validate-declarations
+      - name: Publish to pkg-pr-new
+        run: pnpm dlx pkg-pr-new publish './packages/react' './packages/dom' './packages/react' --compact --pnpm
