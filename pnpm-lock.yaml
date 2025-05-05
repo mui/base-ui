@@ -94,9 +94,6 @@ importers:
       '@types/react':
         specifier: ^19.1.2
         version: 19.1.2
-      '@types/url-join':
-        specifier: ^5.0.0
-        version: 5.0.0
       '@types/yargs':
         specifier: ^17.0.33
         version: 17.0.33
@@ -306,9 +303,6 @@ importers:
         version: 5.8.3
       unist-util-visit:
         specifier: ^5.0.0
-        version: 5.0.0
-      url-join:
-        specifier: 5.0.0
         version: 5.0.0
       vite:
         specifier: ^6.3.4
@@ -3203,10 +3197,6 @@ packages:
 
   '@types/unist@3.0.3':
     resolution: {integrity: sha512-ko/gIFJRv177XgZsZcBwnqJN5x/Gien8qNOn0D5bQU/zAzVf9Zt3BlcUiLqhV9y4ARk0GbT3tnUiPNgnTXzc/Q==}
-
-  '@types/url-join@5.0.0':
-    resolution: {integrity: sha512-hvwpcDQdoMBPdra8zIxnmsIWFtkc6fUwY2E90MKNvYfZBgRQDQRgiLmhdNOcWUlfMviq8gOYWRmMKzBBCOe8sg==}
-    deprecated: This is a stub types definition. url-join provides its own type definitions, so you do not need this installed.
 
   '@types/use-sync-external-store@1.5.0':
     resolution: {integrity: sha512-5dyB8nLC/qogMrlCizZnYWQTA4lnb/v+It+sqNl5YnSRAPMlIqY/X0Xn+gZw8vOL+TgTTr28VEbn3uf8fUtAkw==}
@@ -9226,10 +9216,6 @@ packages:
   uri-js@4.4.1:
     resolution: {integrity: sha512-7rKUyy33Q1yc98pQ1DAmLtwX109F7TIfWlW1Ydo8Wl1ii1SeHieeh0HHfPeL2fMXK6z0s8ecKs9frCuLJvndBg==}
 
-  url-join@5.0.0:
-    resolution: {integrity: sha512-n2huDr9h9yzd6exQVnH/jU5mr+Pfx08LRXXZhkLLetAMESRj+anQsTAh940iMrIetKAmry9coFuZQ2jY8/p3WA==}
-    engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
-
   url-template@2.0.8:
     resolution: {integrity: sha512-XdVKMF4SJ0nP/O7XIPB0JwAEuT9lDIYnNsK8yGVe43y0AWoKeJNdv3ZNWh7ksJ6KqQFjOO6ox/VEitLnaVNufw==}
 
@@ -12507,10 +12493,6 @@ snapshots:
   '@types/unist@2.0.11': {}
 
   '@types/unist@3.0.3': {}
-
-  '@types/url-join@5.0.0':
-    dependencies:
-      url-join: 5.0.0
 
   '@types/use-sync-external-store@1.5.0': {}
 
@@ -19790,8 +19772,6 @@ snapshots:
   uri-js@4.4.1:
     dependencies:
       punycode: 2.3.1
-
-  url-join@5.0.0: {}
 
   url-template@2.0.8: {}
 
