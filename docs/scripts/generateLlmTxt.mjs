@@ -4,11 +4,9 @@ import fs from 'fs/promises';
 import path from 'path';
 import glob from 'fast-glob';
 import * as prettier from 'prettier';
-import { fileURLToPath } from 'url';
 import { mdxToMarkdown } from './mdxToMarkdown.mjs';
 
-const dirname = path.dirname(fileURLToPath(import.meta.url));
-const PROJECT_ROOT = path.resolve(dirname, '..');
+const PROJECT_ROOT = path.resolve(import.meta.dirname, '..');
 const MDX_SOURCE_DIR = path.join(PROJECT_ROOT, 'src/app/(public)/(content)/react');
 const OUTPUT_BASE_DIR = path.join(PROJECT_ROOT, 'public');
 const OUTPUT_REACT_DIR = path.join(OUTPUT_BASE_DIR, 'react');
