@@ -14,7 +14,7 @@ import { useRenderElement } from '../utils/useRenderElement';
  *
  * Documentation: [Base UI Menubar](https://base-ui.com/react/components/menubar)
  */
-const Menubar = React.forwardRef(function Menubar(
+export const Menubar = React.forwardRef(function Menubar(
   props: Menubar.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
@@ -126,7 +126,7 @@ function MenubarContent(props: React.PropsWithChildren<{}>) {
   return <FloatingNode id={nodeId}>{props.children}</FloatingNode>;
 }
 
-namespace Menubar {
+export namespace Menubar {
   export interface State {}
   export interface Props extends BaseUIComponentProps<'div', State> {
     /**
@@ -152,5 +152,3 @@ namespace Menubar {
     loop?: boolean;
   }
 }
-
-export { Menubar };
