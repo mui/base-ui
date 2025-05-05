@@ -1,0 +1,58 @@
+name: Comment on fixed issues
+
+on:
+  issues:
+    types: [closed]
+
+jobs:
+  add-comment:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get associated PRs
+        id: get-prs
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const issue_number = context.payload.issue.number;
+
+            // Search for PRs that mention the issue number
+            const query = `repo:${context.repo.owner}/${context.repo.repo} is:pr is:merged linked:issue-${issue_number}`;
+            const searchResult = await github.rest.search.issuesAndPullRequests({
+              q: query
+            });
+
+            if (searchResult.data.items.length === 0) {
+              console.log('No merged PRs found for this issue');
+              return;
+            }
+
+            // Get the first merged PR number
+            const prNumber = searchResult.data.items[0].number;
+            console.log(`Found merged PR #${prNumber} associated with issue #${issue_number}`);
+
+            // Set output for the next step
+            core.setOutput('pr_number', prNumber);
+            core.setOutput('has_pr', 'true');
+
+      - name: Add comment to issue
+        if: steps.get-prs.outputs.has_pr == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const issueNumber = context.payload.issue.number;
+            const prNumber = steps.get-prs.outputs.pr_number;
+
+            const commentBody = `This fix or feature will be available in the next npm release of Base UI.
+
+            In the meantime, you can try it out on our Canary release channel:
+
+            npm i https://pkg.pr.new/@base-ui-components/react@${prNumber}`;
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issueNumber,
+              body: commentBody
+            });
+
+            console.log(`Added comment to issue #${issueNumber}`);
