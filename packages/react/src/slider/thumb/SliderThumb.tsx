@@ -51,6 +51,7 @@ function getDefaultAriaValueText(
   values: readonly number[],
   index: number,
   format: Intl.NumberFormatOptions | undefined,
+  locale: Intl.LocalesArgument | undefined,
 ): string | undefined {
   if (index < 0) {
     return undefined;
@@ -58,13 +59,13 @@ function getDefaultAriaValueText(
 
   if (values.length === 2) {
     if (index === 0) {
-      return `${formatNumber(values[index], [], format)} start range`;
+      return `${formatNumber(values[index], locale, format)} start range`;
     }
 
-    return `${formatNumber(values[index], [], format)} end range`;
+    return `${formatNumber(values[index], locale, format)} end range`;
   }
 
-  return format ? formatNumber(values[index], [], format) : undefined;
+  return format ? formatNumber(values[index], locale, format) : undefined;
 }
 
 function getNewValue(
@@ -99,6 +100,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     onFocus: onFocusProp,
     onKeyDown: onKeyDownProp,
     tabIndex: tabIndexProp,
+    inputRef: inputRefProp,
     ...elementProps
   } = componentProps;
 
@@ -111,9 +113,10 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     active: activeIndex,
     handleInputChange,
     disabled: contextDisabled,
-    format = null,
+    formatOptionsRef,
     labelId,
     largeStep,
+    locale,
     max,
     min,
     minStepsBetweenValues,
@@ -145,7 +148,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
 
   const thumbRef = React.useRef<HTMLElement>(null);
   const inputRef = React.useRef<HTMLInputElement>(null);
-  const mergedInputRef = useForkRef(inputRef, inputValidationRef);
+  const mergedInputRef = useForkRef(inputRef, inputRefProp, inputValidationRef);
 
   const thumbMetadata = React.useMemo(
     () => ({
@@ -311,12 +314,17 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
       'aria-valuetext':
         typeof getAriaValueTextProp === 'function'
           ? getAriaValueTextProp(
-              formatNumber(thumbValue, [], format ?? undefined),
+              formatNumber(thumbValue, locale, formatOptionsRef.current ?? undefined),
               thumbValue,
               index,
             )
           : elementProps['aria-valuetext'] ||
-            getDefaultAriaValueText(sliderValues, index, format ?? undefined),
+            getDefaultAriaValueText(
+              sliderValues,
+              index,
+              formatOptionsRef.current ?? undefined,
+              locale,
+            ),
       [SliderThumbDataAttributes.index as string]: index,
       disabled,
       id: inputId,
@@ -378,6 +386,10 @@ export namespace SliderThumb {
   export interface State extends SliderRoot.State {}
 
   export interface Props extends Omit<BaseUIComponentProps<'div', State>, 'render'> {
+    /**
+     * A ref to access the hidden input element.
+     */
+    inputRef?: React.Ref<HTMLInputElement>;
     /**
      * Whether the thumb should ignore user interaction.
      * @default false

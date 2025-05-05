@@ -1,13 +1,12 @@
 'use client';
 import * as React from 'react';
 import type { BaseUIComponentProps } from '../../utils/types';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import { popupStateMapping } from '../../utils/popupStateMapping';
 import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import { transitionStatusMapping } from '../../utils/styleHookMapping';
-import { mergeProps } from '../../merge-props';
+import { useRenderElement } from '../../utils/useRenderElement';
 
 const customStyleHookMapping: CustomStyleHookMapping<SelectBackdrop.State> = {
   ...popupStateMapping,
@@ -20,25 +19,26 @@ const customStyleHookMapping: CustomStyleHookMapping<SelectBackdrop.State> = {
  *
  * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
  */
-const SelectBackdrop = React.forwardRef(function SelectBackdrop(
-  props: SelectBackdrop.Props,
+export const SelectBackdrop = React.forwardRef(function SelectBackdrop(
+  componentProps: SelectBackdrop.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { className, render, ...other } = props;
+  const { className, render, ...elementProps } = componentProps;
 
   const { open, mounted, transitionStatus } = useSelectRootContext();
 
   const state: SelectBackdrop.State = React.useMemo(
-    () => ({ open, transitionStatus }),
+    () => ({
+      open,
+      transitionStatus,
+    }),
     [open, transitionStatus],
   );
 
-  const { renderElement } = useComponentRenderer({
-    render: render ?? 'div',
-    className,
+  const renderElement = useRenderElement('div', componentProps, {
     state,
     ref: forwardedRef,
-    extraProps: mergeProps(
+    props: [
       {
         role: 'presentation',
         hidden: !mounted,
@@ -47,15 +47,15 @@ const SelectBackdrop = React.forwardRef(function SelectBackdrop(
           WebkitUserSelect: 'none',
         },
       },
-      other,
-    ),
+      elementProps,
+    ],
     customStyleHookMapping,
   });
 
   return renderElement();
 });
 
-namespace SelectBackdrop {
+export namespace SelectBackdrop {
   export interface Props extends BaseUIComponentProps<'div', State> {}
 
   export interface State {
@@ -66,5 +66,3 @@ namespace SelectBackdrop {
     transitionStatus: TransitionStatus;
   }
 }
-
-export { SelectBackdrop };

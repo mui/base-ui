@@ -12,6 +12,7 @@ import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
 import { useField } from '../../field/useField';
 import { useCheckboxGroupContext } from '../../checkbox-group/CheckboxGroupContext';
+import { useFormContext } from '../../form/FormContext';
 
 export function useCheckboxRoot(params: useCheckboxRoot.Parameters): useCheckboxRoot.ReturnValue {
   const {
@@ -36,6 +37,7 @@ export function useCheckboxRoot(params: useCheckboxRoot.Parameters): useCheckbox
   const setGroupValue = groupContext?.setValue;
   const defaultGroupValue = groupContext?.defaultValue;
 
+  const { clearErrors } = useFormContext();
   const {
     labelId,
     setControlId,
@@ -189,12 +191,15 @@ export function useCheckboxRoot(params: useCheckboxRoot.Parameters): useCheckbox
             setDirty(nextChecked !== validityData.initialValue);
             setCheckedState(nextChecked);
             onCheckedChange?.(nextChecked, event.nativeEvent);
+            clearErrors(name);
 
             if (!groupContext) {
               setFilled(nextChecked);
 
               if (validationMode === 'onChange') {
                 commitValidation(nextChecked);
+              } else {
+                commitValidation(nextChecked, true);
               }
             }
 
@@ -208,6 +213,8 @@ export function useCheckboxRoot(params: useCheckboxRoot.Parameters): useCheckbox
 
               if (validationMode === 'onChange') {
                 commitValidation(nextGroupValue);
+              } else {
+                commitValidation(nextGroupValue, true);
               }
             }
           },
@@ -226,6 +233,7 @@ export function useCheckboxRoot(params: useCheckboxRoot.Parameters): useCheckbox
       validityData.initialValue,
       setCheckedState,
       onCheckedChange,
+      clearErrors,
       groupContext,
       groupValue,
       setGroupValue,
@@ -299,7 +307,7 @@ export namespace useCheckboxRoot {
      */
     indeterminate?: boolean;
     /**
-     * A React ref to access the hidden `<input>` element.
+     * A ref to access the hidden `<input>` element.
      */
     inputRef?: React.Ref<HTMLInputElement>;
     /**

@@ -14,7 +14,7 @@ import { useButton } from '../use-button/useButton';
  *
  * Documentation: [Base UI Toggle](https://base-ui.com/react/components/toggle)
  */
-const Toggle = React.forwardRef(function Toggle(
+export const Toggle = React.forwardRef(function Toggle(
   componentProps: Toggle.Props,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
@@ -87,9 +87,7 @@ const Toggle = React.forwardRef(function Toggle(
   return groupContext ? <CompositeItem render={renderElement()} /> : renderElement();
 });
 
-export { Toggle };
-
-namespace Toggle {
+export namespace Toggle {
   export interface State {
     /**
      * Whether the toggle is currently pressed.

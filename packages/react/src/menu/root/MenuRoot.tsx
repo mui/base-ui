@@ -12,7 +12,7 @@ import type { OpenChangeReason } from '../../utils/translateOpenChangeReason';
  *
  * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
  */
-const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
+export const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
   const {
     children,
     defaultOpen = false,
@@ -85,7 +85,7 @@ const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
   return <MenuRootContext.Provider value={context}>{children}</MenuRootContext.Provider>;
 };
 
-namespace MenuRoot {
+export namespace MenuRoot {
   export interface Props {
     children: React.ReactNode;
     /**
@@ -167,5 +167,3 @@ namespace MenuRoot {
     unmount: () => void;
   }
 }
-
-export { MenuRoot };

@@ -56,7 +56,7 @@ export interface TabsRootContext {
 /**
  * @internal
  */
-const TabsRootContext = React.createContext<TabsRootContext | undefined>(undefined);
+export const TabsRootContext = React.createContext<TabsRootContext | undefined>(undefined);
 
 if (process.env.NODE_ENV !== 'production') {
   TabsRootContext.displayName = 'TabsRootContext';
@@ -72,5 +72,3 @@ export function useTabsRootContext() {
 
   return context;
 }
-
-export { TabsRootContext };

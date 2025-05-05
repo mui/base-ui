@@ -18,7 +18,7 @@ import { fieldValidityMapping } from '../../field/utils/constants';
  *
  * Documentation: [Base UI Checkbox](https://base-ui.com/react/components/checkbox)
  */
-const CheckboxIndicator = React.forwardRef(function CheckboxIndicator(
+export const CheckboxIndicator = React.forwardRef(function CheckboxIndicator(
   props: CheckboxIndicator.Props,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
@@ -79,7 +79,7 @@ const CheckboxIndicator = React.forwardRef(function CheckboxIndicator(
   return renderElement();
 });
 
-namespace CheckboxIndicator {
+export namespace CheckboxIndicator {
   export interface State extends CheckboxRoot.State {
     transitionStatus: TransitionStatus;
   }
@@ -92,5 +92,3 @@ namespace CheckboxIndicator {
     keepMounted?: boolean;
   }
 }
-
-export { CheckboxIndicator };

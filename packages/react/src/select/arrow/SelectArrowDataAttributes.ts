@@ -14,12 +14,17 @@ export enum SelectArrowDataAttributes {
    */
   anchorHidden = CommonPopupDataAttributes.anchorHidden,
   /**
-   * Indicates which side the select is positioned relative to the trigger.
+   * Indicates which side the popup is positioned relative to the trigger.
    * @type {'none' | 'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start'}
    */
   side = 'data-side',
   /**
+   * Indicates how the popup is aligned relative to specified side.
+   * @type {'start' | 'center' | 'end'}
+   */
+  align = 'data-align',
+  /**
    * Present when the select arrow is uncentered.
    */
-  uncetered = 'data-uncentered',
+  uncentered = 'data-uncentered',
 }

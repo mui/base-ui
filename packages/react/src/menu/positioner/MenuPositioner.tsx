@@ -20,7 +20,7 @@ import { useMenuPortalContext } from '../portal/MenuPortalContext';
  *
  * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
  */
-const MenuPositioner = React.forwardRef(function MenuPositioner(
+export const MenuPositioner = React.forwardRef(function MenuPositioner(
   props: MenuPositioner.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
@@ -143,7 +143,7 @@ const MenuPositioner = React.forwardRef(function MenuPositioner(
   );
 });
 
-namespace MenuPositioner {
+export namespace MenuPositioner {
   export interface State {
     /**
      * Whether the menu is currently open.
@@ -159,5 +159,3 @@ namespace MenuPositioner {
     extends useMenuPositioner.SharedParameters,
       BaseUIComponentProps<'div', State> {}
 }
-
-export { MenuPositioner };

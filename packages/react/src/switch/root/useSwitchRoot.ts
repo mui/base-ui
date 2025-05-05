@@ -10,6 +10,7 @@ import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
 import { useField } from '../../field/useField';
+import { useFormContext } from '../../form/FormContext';
 
 export function useSwitchRoot(params: useSwitchRoot.Parameters): useSwitchRoot.ReturnValue {
   const {
@@ -24,6 +25,7 @@ export function useSwitchRoot(params: useSwitchRoot.Parameters): useSwitchRoot.R
     inputRef: externalInputRef,
   } = params;
 
+  const { clearErrors } = useFormContext();
   const {
     labelId,
     setControlId,
@@ -160,26 +162,30 @@ export function useSwitchRoot(params: useSwitchRoot.Parameters): useSwitchRoot.R
             setFilled(nextChecked);
             setCheckedState(nextChecked);
             onCheckedChange?.(nextChecked, event.nativeEvent);
+            clearErrors(name);
 
             if (validationMode === 'onChange') {
               commitValidation(nextChecked);
+            } else {
+              commitValidation(nextChecked, true);
             }
           },
         },
         getInputValidationProps(otherProps),
       ),
     [
-      getInputValidationProps,
       checked,
       disabled,
       name,
       required,
       handleInputRef,
+      getInputValidationProps,
       setDirty,
       validityData.initialValue,
       setFilled,
       setCheckedState,
       onCheckedChange,
+      clearErrors,
       validationMode,
       commitValidation,
     ],
@@ -220,7 +226,7 @@ export namespace useSwitchRoot {
      */
     disabled?: boolean;
     /**
-     * A React ref to access the hidden `<input>` element.
+     * A ref to access the hidden `<input>` element.
      */
     inputRef?: React.Ref<HTMLInputElement>;
     /**

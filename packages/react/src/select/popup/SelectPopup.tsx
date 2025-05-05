@@ -5,15 +5,13 @@ import type { BaseUIComponentProps } from '../../utils/types';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import { popupStateMapping } from '../../utils/popupStateMapping';
 import type { Side } from '../../utils/useAnchorPositioning';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { useForkRef } from '../../utils/useForkRef';
 import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 import { useSelectPopup } from './useSelectPopup';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import { useSelectPositionerContext } from '../positioner/SelectPositionerContext';
-import { mergeProps } from '../../merge-props';
 import { transitionStatusMapping } from '../../utils/styleHookMapping';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
+import { useRenderElement } from '../../utils/useRenderElement';
 
 const customStyleHookMapping: CustomStyleHookMapping<SelectPopup.State> = {
   ...popupStateMapping,
@@ -26,21 +24,14 @@ const customStyleHookMapping: CustomStyleHookMapping<SelectPopup.State> = {
  *
  * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
  */
-const SelectPopup = React.forwardRef(function SelectPopup(
-  props: SelectPopup.Props,
+export const SelectPopup = React.forwardRef(function SelectPopup(
+  componentProps: SelectPopup.Props,
   forwardedRef: React.ForwardedRef<Element>,
 ) {
-  const { render, className, ...otherProps } = props;
+  const { render, className, ...elementProps } = componentProps;
 
-  const {
-    id,
-    open,
-    popupRef,
-    transitionStatus,
-    alignItemToTrigger,
-    mounted,
-    onOpenChangeComplete,
-  } = useSelectRootContext();
+  const { id, open, popupRef, transitionStatus, mounted, onOpenChangeComplete, getRootPopupProps } =
+    useSelectRootContext();
   const positioner = useSelectPositionerContext();
 
   useOpenChangeComplete({
@@ -53,10 +44,6 @@ const SelectPopup = React.forwardRef(function SelectPopup(
     },
   });
 
-  const { getPopupProps } = useSelectPopup();
-
-  const mergedRef = useForkRef(forwardedRef, popupRef);
-
   const state: SelectPopup.State = React.useMemo(
     () => ({
       open,
@@ -67,22 +54,18 @@ const SelectPopup = React.forwardRef(function SelectPopup(
     [open, transitionStatus, positioner],
   );
 
-  const { renderElement } = useComponentRenderer({
-    propGetter: getPopupProps,
-    render: render ?? 'div',
-    ref: mergedRef,
-    className,
+  const { props } = useSelectPopup();
+
+  const renderElement = useRenderElement('div', componentProps, {
+    ref: [forwardedRef, popupRef],
     state,
     customStyleHookMapping,
-    extraProps:
-      transitionStatus === 'starting'
-        ? mergeProps(
-            {
-              style: { transition: 'none' },
-            },
-            otherProps,
-          )
-        : otherProps,
+    props: [
+      props,
+      transitionStatus === 'starting' ? { style: { transition: 'none' } } : {},
+      getRootPopupProps,
+      elementProps,
+    ],
   });
 
   const popupSelector = `[data-id="${id}-popup"]`;
@@ -96,7 +79,7 @@ const SelectPopup = React.forwardRef(function SelectPopup(
 
   return (
     <React.Fragment>
-      {id && alignItemToTrigger && (
+      {id && positioner.alignItemWithTriggerActive && (
         <style
           // eslint-disable-next-line react/no-danger
           dangerouslySetInnerHTML={html}
@@ -109,7 +92,7 @@ const SelectPopup = React.forwardRef(function SelectPopup(
   );
 });
 
-namespace SelectPopup {
+export namespace SelectPopup {
   export interface Props extends BaseUIComponentProps<'div', State> {
     children?: React.ReactNode;
     /**
@@ -125,5 +108,3 @@ namespace SelectPopup {
     transitionStatus: TransitionStatus;
   }
 }
-
-export { SelectPopup };

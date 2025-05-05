@@ -9,7 +9,7 @@ import { TooltipProviderContext } from './TooltipProviderContext';
  *
  * Documentation: [Base UI Tooltip](https://base-ui.com/react/components/tooltip)
  */
-const TooltipProvider: React.FC<TooltipProvider.Props> = function TooltipProvider(props) {
+export const TooltipProvider: React.FC<TooltipProvider.Props> = function TooltipProvider(props) {
   const { delay, closeDelay, timeout = 400 } = props;
 
   const contextValue: TooltipProviderContext = React.useMemo(
@@ -29,7 +29,7 @@ const TooltipProvider: React.FC<TooltipProvider.Props> = function TooltipProvide
   );
 };
 
-namespace TooltipProvider {
+export namespace TooltipProvider {
   export interface Props {
     children?: React.ReactNode;
     /**
@@ -48,5 +48,3 @@ namespace TooltipProvider {
     timeout?: number;
   }
 }
-
-export { TooltipProvider };

@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import { mergeProps } from '../../merge-props';
 import { GenericHTMLProps } from '../../utils/types';
 import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { useEventCallback } from '../../utils/useEventCallback';
@@ -361,25 +360,15 @@ export function useCollapsiblePanel(
     [onOpenChange, panelRef, setOpen],
   );
 
-  const getRootProps = React.useCallback(
-    (externalProps?: GenericHTMLProps): GenericHTMLProps => {
-      return mergeProps(
-        {
-          hidden,
-          id: idParam,
-          ref: mergedPanelRef,
-        },
-        externalProps,
-      );
-    },
-    [hidden, idParam, mergedPanelRef],
-  );
-
   return React.useMemo(
     () => ({
-      getRootProps,
+      props: {
+        hidden,
+        id: idParam,
+        ref: mergedPanelRef,
+      },
     }),
-    [getRootProps],
+    [hidden, idParam, mergedPanelRef],
   );
 }
 
@@ -437,6 +426,6 @@ export namespace useCollapsiblePanel {
   }
 
   export interface ReturnValue {
-    getRootProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
+    props: GenericHTMLProps;
   }
 }

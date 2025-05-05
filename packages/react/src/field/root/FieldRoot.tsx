@@ -14,7 +14,7 @@ import { BaseUIComponentProps } from '../../utils/types';
  *
  * Documentation: [Base UI Field](https://base-ui.com/react/components/field)
  */
-const FieldRoot = React.forwardRef(function FieldRoot(
+export const FieldRoot = React.forwardRef(function FieldRoot(
   props: FieldRoot.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
@@ -163,7 +163,7 @@ export interface FieldValidityData {
   initialValue: unknown;
 }
 
-namespace FieldRoot {
+export namespace FieldRoot {
   export interface State {
     /**
      * Whether the component should ignore user interaction.
@@ -213,5 +213,3 @@ namespace FieldRoot {
     invalid?: boolean;
   }
 }
-
-export { FieldRoot };

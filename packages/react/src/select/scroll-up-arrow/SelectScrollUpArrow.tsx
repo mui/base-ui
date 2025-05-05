@@ -9,14 +9,14 @@ import type { BaseUIComponentProps } from '../../utils/types';
  *
  * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
  */
-const SelectScrollUpArrow = React.forwardRef(function SelectScrollUpArrow(
+export const SelectScrollUpArrow = React.forwardRef(function SelectScrollUpArrow(
   props: SelectScrollUpArrow.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   return <SelectScrollArrow {...props} ref={forwardedRef} direction="up" />;
 });
 
-namespace SelectScrollUpArrow {
+export namespace SelectScrollUpArrow {
   export interface State {}
 
   export interface Props extends BaseUIComponentProps<'div', State> {
@@ -27,5 +27,3 @@ namespace SelectScrollUpArrow {
     keepMounted?: boolean;
   }
 }
-
-export { SelectScrollUpArrow };
