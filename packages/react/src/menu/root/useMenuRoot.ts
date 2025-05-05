@@ -28,6 +28,7 @@ import {
   type OpenChangeReason,
   translateOpenChangeReason,
 } from '../../utils/translateOpenChangeReason';
+import { ownerDocument } from '../../utils/owner';
 
 const EMPTY_ARRAY: never[] = [];
 
@@ -158,10 +159,33 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
     return clearStickIfOpenTimeout;
   }, [clearStickIfOpenTimeout]);
 
+  const ignoreClickRef = React.useRef(false);
+
   const setOpen = useEventCallback(
     (nextOpen: boolean, event: Event | undefined, reason: OpenChangeReason | undefined) => {
       if (open === nextOpen) {
         return;
+      }
+
+      // As the menu opens on mousedown and closes on click,
+      // we need to ignore the click event immediately following mousedown.
+      if (event?.type === 'click' && ignoreClickRef.current) {
+        ignoreClickRef.current = false;
+        return;
+      }
+
+      if (nextOpen && event?.type === 'mousedown') {
+        ignoreClickRef.current = true;
+
+        ownerDocument(event.currentTarget as Element).addEventListener(
+          'click',
+          () => {
+            ignoreClickRef.current = false;
+          },
+          { once: true },
+        );
+      } else {
+        ignoreClickRef.current = false;
       }
 
       const isKeyboardClick =
@@ -233,7 +257,7 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
 
   const click = useClick(floatingRootContext, {
     enabled: !disabled,
-    event: 'mousedown',
+    event: open ? 'click' : 'mousedown',
     toggle: !openOnHover || parent.type !== 'menu',
     ignoreMouse: openOnHover && parent.type === 'menu',
     stickIfOpen: parent.type === undefined ? stickIfOpen : false,
