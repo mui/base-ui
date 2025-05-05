@@ -107,8 +107,9 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
+            // Get PR number from the previous step's output
+            const prNumber = '${{ steps.get-prs.outputs.pr_number }}';
             const issueNumber = context.payload.issue.number;
-            const prNumber = steps.get-prs.outputs.pr_number;
 
             // Get issue labels
             const issue = context.payload.issue;
