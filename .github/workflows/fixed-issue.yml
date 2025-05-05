@@ -42,7 +42,17 @@ jobs:
             const issueNumber = context.payload.issue.number;
             const prNumber = steps.get-prs.outputs.pr_number;
 
-            const commentBody = `This fix or feature will be available in the next npm release of Base UI.
+            // Get issue labels
+            const issue = context.payload.issue;
+            const labels = issue.labels.map(label => label.name);
+
+            // Check if this is a bug/regression or a feature
+            const isBug = labels.some(label =>
+              label.includes("bug 🐛") || label.includes("regression 🐛"));
+
+            const typeText = isBug ? "fix" : "feature";
+
+            const commentBody = `This ${typeText} will be available in the next npm release of Base UI.
 
             In the meantime, you can try it out on our Canary release channel:
 
