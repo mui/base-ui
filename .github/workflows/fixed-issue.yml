@@ -117,15 +117,17 @@ jobs:
 
             // Check if this is a bug/regression or a feature
             const isBug = labels.some(label =>
-              label.includes("bug 🐛") || label.includes("regression 🐛"));
+              label.includes('bug 🐛') || label.includes('regression 🐛'));
 
-            const typeText = isBug ? "fix" : "feature";
+            const typeText = isBug ? 'fix' : 'feature';
 
             const commentBody = `This ${typeText} will be available in the next npm release of Base UI.
 
             In the meantime, you can try it out on our Canary release channel:
 
-            npm i https://pkg.pr.new/@base-ui-components/react@${prNumber}`;
+            \`\`\`sh
+            npm i https://pkg.pr.new/@base-ui-components/react@${prNumber}
+            \`\`\``;
 
             await github.rest.issues.createComment({
               owner: context.repo.owner,
