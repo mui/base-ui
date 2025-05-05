@@ -22,10 +22,6 @@
   font-size: 0.875rem;
   font-weight: 500;
 
-  &:active {
-    background-color: var(--color-gray-200);
-  }
-
   &[data-pressed],
   &:focus-visible {
     background-color: var(--color-gray-100);

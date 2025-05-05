@@ -9,7 +9,11 @@ export default function ExampleMenubar() {
       <Menu.Root>
         <Menu.Trigger className={styles.MenuTrigger}>File</Menu.Trigger>
         <Menu.Portal>
-          <Menu.Positioner className={styles.MenuPositioner} sideOffset={6}>
+          <Menu.Positioner
+            className={styles.MenuPositioner}
+            sideOffset={6}
+            alignOffset={-2}
+          >
             <Menu.Popup className={styles.MenuPopup}>
               <Menu.Item className={styles.MenuItem}>New</Menu.Item>
               <Menu.Item className={styles.MenuItem}>Open</Menu.Item>
@@ -21,7 +25,7 @@ export default function ExampleMenubar() {
                   <ChevronRightIcon />
                 </Menu.SubmenuTrigger>
                 <Menu.Portal>
-                  <Menu.Positioner>
+                  <Menu.Positioner alignOffset={-4}>
                     <Menu.Popup className={styles.MenuPopup}>
                       <Menu.Item className={styles.MenuItem}>PDF</Menu.Item>
                       <Menu.Item className={styles.MenuItem}>PNG</Menu.Item>
@@ -65,7 +69,7 @@ export default function ExampleMenubar() {
                   <ChevronRightIcon />
                 </Menu.SubmenuTrigger>
                 <Menu.Portal>
-                  <Menu.Positioner>
+                  <Menu.Positioner alignOffset={-4}>
                     <Menu.Popup className={styles.MenuPopup}>
                       <Menu.Item className={styles.MenuItem}>Single Page</Menu.Item>
                       <Menu.Item className={styles.MenuItem}>Two Pages</Menu.Item>
