@@ -281,7 +281,7 @@ importers:
         specifier: ^4.0.0
         version: 4.0.0(webpack@5.99.7)
       stylelint:
-        specifier: ^16.19.0
+        specifier: ^16.19.1
         version: 16.19.1(typescript@5.8.3)
       stylelint-config-standard:
         specifier: ^36.0.1
