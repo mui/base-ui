@@ -220,7 +220,6 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
       hoverEnabled &&
       openOnHover &&
       !disabled &&
-      lastOpenChangeReason !== 'click' &&
       (parent.type !== 'menubar' || (parent.context.shouldOpenOnHover && !open)),
     handleClose: safePolygon({ blockPointerEvents: true }),
     mouseOnly: true,
@@ -235,10 +234,10 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
 
   const click = useClick(floatingRootContext, {
     enabled: !disabled,
-    event: open ? 'click' : 'mousedown',
+    event: 'mousedown',
     toggle: !openOnHover || parent.type !== 'menu',
     ignoreMouse: openOnHover && parent.type === 'menu',
-    stickIfOpen,
+    stickIfOpen: parent.type === undefined ? stickIfOpen : false,
   });
 
   const dismiss = useDismiss(floatingRootContext, {
