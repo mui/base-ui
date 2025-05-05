@@ -55,12 +55,14 @@ const nextConfig = {
     SOURCE_CODE_REPO: 'https://github.com/mui/base-ui',
   },
   ...(process.env.NODE_ENV === 'production' && { distDir: 'export', output: 'export' }),
-  experimental: {
-    workerThreads: false,
-  },
   devIndicators: false,
 };
 
-// Remove deprecated options that come from `withDocsInfra()` and cause warnings
-const { optimizeFonts, ...result } = withMdx(withDocsInfra(nextConfig));
-export default result;
+const mergedConfig = withMdx(withDocsInfra(nextConfig));
+
+delete mergedConfig.experimental?.esmExternals;
+if (!process.env.CI) {
+  delete mergedConfig.experimental?.cpus;
+}
+
+export default mergedConfig;

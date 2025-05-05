@@ -22,7 +22,7 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
 ) {
   const { render, className, disabled = false, ...elementProps } = componentProps;
 
-  const { open, setTriggerElement, getTriggerProps, openReason } = usePopoverRootContext();
+  const { open, setTriggerElement, triggerProps, openReason } = usePopoverRootContext();
 
   const state: PopoverTrigger.State = React.useMemo(
     () => ({
@@ -53,7 +53,7 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
   const renderElement = useRenderElement('button', componentProps, {
     state,
     ref: [buttonRef, setTriggerElement],
-    props: [getTriggerProps, elementProps, getButtonProps],
+    props: [triggerProps, elementProps, getButtonProps],
     customStyleHookMapping,
   });
 

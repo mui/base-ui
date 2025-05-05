@@ -33,6 +33,13 @@ export const Form = React.forwardRef(function Form(
   const onSubmit = useEventCallback(onSubmitProp);
   const onClearErrors = useEventCallback(onClearErrorsProp);
 
+  const focusControl = useEventCallback((control: HTMLElement) => {
+    control.focus();
+    if (control.tagName === 'INPUT') {
+      (control as HTMLInputElement).select();
+    }
+  });
+
   React.useEffect(() => {
     if (!submittedRef.current) {
       return;
@@ -45,9 +52,9 @@ export const Form = React.forwardRef(function Form(
     );
 
     if (invalidFields.length) {
-      invalidFields[0]?.controlRef.current?.focus();
+      focusControl(invalidFields[0].controlRef.current);
     }
-  }, [errors]);
+  }, [errors, focusControl]);
 
   const state = React.useMemo<Form.State>(() => ({}), []);
 
@@ -70,7 +77,7 @@ export const Form = React.forwardRef(function Form(
 
           if (invalidFields.length) {
             event.preventDefault();
-            invalidFields[0]?.controlRef.current?.focus();
+            focusControl(invalidFields[0].controlRef.current);
           } else {
             submittedRef.current = true;
             onSubmit(event as any);
@@ -83,7 +90,7 @@ export const Form = React.forwardRef(function Form(
   });
 
   const clearErrors = useEventCallback((name: string | undefined) => {
-    if (name && {}.hasOwnProperty.call(errors, name)) {
+    if (name && errors && {}.hasOwnProperty.call(errors, name)) {
       const nextErrors = { ...errors };
       delete nextErrors[name];
       onClearErrors(nextErrors);

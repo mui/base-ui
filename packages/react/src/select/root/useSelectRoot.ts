@@ -277,11 +277,13 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     },
   });
 
-  const {
-    getReferenceProps: getRootTriggerProps,
-    getFloatingProps: getRootPopupProps,
-    getItemProps,
-  } = useInteractions([click, dismiss, role, listNavigation, typeahead]);
+  const { getReferenceProps, getFloatingProps, getItemProps } = useInteractions([
+    click,
+    dismiss,
+    role,
+    listNavigation,
+    typeahead,
+  ]);
 
   const rootContext: SelectRootContext = React.useMemo(
     () => ({
@@ -311,8 +313,8 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
       labelsRef,
       typingRef,
       selectionRef,
-      getRootPopupProps,
-      getRootTriggerProps,
+      triggerProps: getReferenceProps(),
+      popupProps: getFloatingProps(),
       getItemProps,
       listRef,
       popupRef,
@@ -345,8 +347,8 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
       mounted,
       setMounted,
       label,
-      getRootPopupProps,
-      getRootTriggerProps,
+      getReferenceProps,
+      getFloatingProps,
       getItemProps,
       floatingRootContext,
       touchModality,

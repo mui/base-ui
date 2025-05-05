@@ -674,6 +674,29 @@ describe('<Select.Root />', () => {
     });
   });
 
+  describe('prop: id', () => {
+    it('sets the id on the hidden input', async () => {
+      const { container } = await render(
+        <Select.Root id="test-id">
+          <Select.Trigger>
+            <Select.Value />
+          </Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup>
+                <Select.Item value="a">a</Select.Item>
+                <Select.Item value="b">b</Select.Item>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>,
+      );
+
+      const input = container.querySelector('input');
+      expect(input).to.have.attribute('id', 'test-id');
+    });
+  });
+
   describe('with Field.Root parent', () => {
     it('should receive disabled prop from Field.Root', async () => {
       await render(
@@ -1166,6 +1189,77 @@ describe('<Select.Root />', () => {
         'aria-describedby',
         screen.getByTestId('description').id,
       );
+    });
+  });
+
+  describe('dynamic items', () => {
+    const { render: renderFakeTimers, clock } = createRenderer({
+      clockOptions: {
+        shouldAdvanceTime: true,
+      },
+    });
+
+    clock.withFakeTimers();
+
+    it('skips null items when navigating', async () => {
+      function DynamicMenu() {
+        const [itemsFiltered, setItemsFiltered] = React.useState(false);
+
+        return (
+          <Select.Root
+            onOpenChange={(newOpen) => {
+              if (newOpen) {
+                setTimeout(() => {
+                  setItemsFiltered(true);
+                }, 0);
+              }
+            }}
+            onOpenChangeComplete={(newOpen) => {
+              if (!newOpen) {
+                setItemsFiltered(false);
+              }
+            }}
+          >
+            <Select.Trigger>Toggle</Select.Trigger>
+            <Select.Portal>
+              <Select.Positioner>
+                <Select.Popup>
+                  <Select.Item>Add to Library</Select.Item>
+                  {!itemsFiltered && (
+                    <React.Fragment>
+                      <Select.Item>Add to Playlist</Select.Item>
+                      <Select.Item>Play Next</Select.Item>
+                      <Select.Item>Play Last</Select.Item>
+                    </React.Fragment>
+                  )}
+                  <Select.Item>Favorite</Select.Item>
+                  <Select.Item>Share</Select.Item>
+                </Select.Popup>
+              </Select.Positioner>
+            </Select.Portal>
+          </Select.Root>
+        );
+      }
+
+      const { user } = await renderFakeTimers(<DynamicMenu />);
+
+      const trigger = screen.getByText('Toggle');
+
+      await act(async () => {
+        trigger.focus();
+      });
+
+      await user.keyboard('{ArrowDown}');
+
+      await waitFor(() => {
+        expect(screen.queryByRole('listbox')).not.to.equal(null);
+      });
+
+      await user.keyboard('{ArrowDown}');
+      await user.keyboard('{ArrowDown}'); // Share
+      await user.keyboard('{ArrowDown}'); // Share still
+
+      expect(screen.queryByRole('option', { name: 'Share' })).toHaveFocus();
     });
   });
 });

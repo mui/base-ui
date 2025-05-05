@@ -27,7 +27,7 @@ export function useSelectTrigger(
     positionerElement,
     readOnly,
     alignItemWithTriggerActiveRef,
-    getRootTriggerProps,
+    triggerProps,
   } = useSelectRootContext();
 
   const { labelId, setTouched, setFocused, validationMode } = useFieldRootContext();
@@ -73,6 +73,7 @@ export function useSelectTrigger(
   }, [open, selectionRef]);
 
   const props: GenericHTMLProps = mergeProps<'button'>(
+    triggerProps,
     {
       'aria-labelledby': labelId,
       'aria-readonly': readOnly || undefined,
@@ -144,7 +145,6 @@ export function useSelectTrigger(
     },
     fieldControlValidation.getValidationProps,
     elementProps,
-    getRootTriggerProps,
     getButtonProps,
     // ensure nested useButton does not overwrite the combobox role:
     // <Toolbar.Button render={<Select.Trigger />} />

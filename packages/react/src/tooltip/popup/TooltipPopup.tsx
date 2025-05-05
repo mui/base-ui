@@ -28,7 +28,7 @@ export const TooltipPopup = React.forwardRef(function TooltipPopup(
 ) {
   const { className, render, ...elementProps } = componentProps;
 
-  const { open, instantType, transitionStatus, getPopupProps, popupRef, onOpenChangeComplete } =
+  const { open, instantType, transitionStatus, popupProps, popupRef, onOpenChangeComplete } =
     useTooltipRootContext();
   const { side, align } = useTooltipPositionerContext();
 
@@ -57,7 +57,7 @@ export const TooltipPopup = React.forwardRef(function TooltipPopup(
     state,
     ref: [forwardedRef, popupRef],
     props: [
-      getPopupProps,
+      popupProps,
       {
         style: transitionStatus === 'starting' ? { transition: 'none' } : {},
       },
