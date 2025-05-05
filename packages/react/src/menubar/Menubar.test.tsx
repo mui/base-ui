@@ -72,7 +72,10 @@ describe('<Menubar />', () => {
 
   describe.skipIf(isJSDOM)('click interactions', () => {
     it('should open the menu after clicking on its trigger and close it when clicking again', async () => {
-      const { user } = await render(<TestMenubar />);
+      const { userEvent: user } = await import('@vitest/browser/context');
+      const { render: vbrRender, cleanup } = await import('vitest-browser-react');
+
+      vbrRender(<TestMenubar />);
 
       const fileTrigger = screen.getByTestId('file-trigger');
 
@@ -84,6 +87,8 @@ describe('<Menubar />', () => {
       await waitFor(() => {
         expect(screen.queryByTestId('file-menu')).to.equal(null);
       });
+
+      cleanup();
     });
   });
 
