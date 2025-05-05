@@ -14,7 +14,7 @@ import { useForkRef } from '../../utils/useForkRef';
  *
  * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
  */
-const MenuCheckboxItemIndicator = React.forwardRef(function MenuCheckboxItemIndicator(
+export const MenuCheckboxItemIndicator = React.forwardRef(function MenuCheckboxItemIndicator(
   props: MenuCheckboxItemIndicator.Props,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
@@ -67,7 +67,7 @@ const MenuCheckboxItemIndicator = React.forwardRef(function MenuCheckboxItemIndi
   return renderElement();
 });
 
-namespace MenuCheckboxItemIndicator {
+export namespace MenuCheckboxItemIndicator {
   export interface Props extends BaseUIComponentProps<'span', State> {
     /**
      * Whether to keep the HTML element in the DOM when the checkbox item is not checked.
@@ -89,5 +89,3 @@ namespace MenuCheckboxItemIndicator {
     transitionStatus: TransitionStatus;
   }
 }
-
-export { MenuCheckboxItemIndicator };

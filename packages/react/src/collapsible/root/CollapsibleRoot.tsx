@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { BaseUIComponentProps } from '../../utils/types';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import { useRenderElement } from '../../utils/useRenderElement';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { useCollapsibleRoot } from './useCollapsibleRoot';
 import { CollapsibleRootContext } from './CollapsibleRootContext';
@@ -13,8 +13,8 @@ import { collapsibleStyleHookMapping } from './styleHooks';
  *
  * Documentation: [Base UI Collapsible](https://base-ui.com/react/components/collapsible)
  */
-const CollapsibleRoot = React.forwardRef(function CollapsibleRoot(
-  props: CollapsibleRoot.Props,
+export const CollapsibleRoot = React.forwardRef(function CollapsibleRoot(
+  componentProps: CollapsibleRoot.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const {
@@ -23,9 +23,8 @@ const CollapsibleRoot = React.forwardRef(function CollapsibleRoot(
     disabled = false,
     onOpenChange: onOpenChangeProp,
     open,
-    render: renderProp,
-    ...otherProps
-  } = props;
+    ...elementProps
+  } = componentProps;
 
   const onOpenChange = useEventCallback(onOpenChangeProp);
 
@@ -54,16 +53,15 @@ const CollapsibleRoot = React.forwardRef(function CollapsibleRoot(
     [collapsible, onOpenChange, state],
   );
 
-  const { renderElement } = useComponentRenderer({
-    render: renderProp ?? 'div',
-    className,
+  // @ts-expect-error Collapsible accepts `render={null}`
+  const renderElement = useRenderElement('div', componentProps, {
     state,
     ref: forwardedRef,
-    extraProps: otherProps,
+    props: elementProps,
     customStyleHookMapping: collapsibleStyleHookMapping,
   });
 
-  if (renderProp !== null) {
+  if (componentProps.render !== null) {
     return (
       <CollapsibleRootContext.Provider value={contextValue}>
         {renderElement()}
@@ -73,12 +71,12 @@ const CollapsibleRoot = React.forwardRef(function CollapsibleRoot(
 
   return (
     <CollapsibleRootContext.Provider value={contextValue}>
-      {otherProps.children}
+      {elementProps.children}
     </CollapsibleRootContext.Provider>
   );
 });
 
-namespace CollapsibleRoot {
+export namespace CollapsibleRoot {
   export interface State
     extends Pick<useCollapsibleRoot.ReturnValue, 'open' | 'disabled' | 'transitionStatus'> {}
 
@@ -108,5 +106,3 @@ namespace CollapsibleRoot {
     render?: BaseUIComponentProps<'div', State>['render'] | null;
   }
 }
-
-export { CollapsibleRoot };

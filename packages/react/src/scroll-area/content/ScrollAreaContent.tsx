@@ -3,7 +3,7 @@ import * as React from 'react';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { mergeProps } from '../../merge-props';
-import { useEnhancedEffect } from '../../utils';
+import { useModernLayoutEffect } from '../../utils';
 import { useScrollAreaViewportContext } from '../viewport/ScrollAreaViewportContext';
 
 const state = {};
@@ -14,7 +14,7 @@ const state = {};
  *
  * Documentation: [Base UI Scroll Area](https://base-ui.com/react/components/scroll-area)
  */
-const ScrollAreaContent = React.forwardRef(function ScrollAreaContent(
+export const ScrollAreaContent = React.forwardRef(function ScrollAreaContent(
   props: ScrollAreaContent.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
@@ -24,7 +24,7 @@ const ScrollAreaContent = React.forwardRef(function ScrollAreaContent(
 
   const { computeThumbPosition } = useScrollAreaViewportContext();
 
-  useEnhancedEffect(() => {
+  useModernLayoutEffect(() => {
     if (typeof ResizeObserver === 'undefined') {
       return undefined;
     }
@@ -56,10 +56,8 @@ const ScrollAreaContent = React.forwardRef(function ScrollAreaContent(
   return renderElement();
 });
 
-namespace ScrollAreaContent {
+export namespace ScrollAreaContent {
   export interface State {}
 
   export interface Props extends BaseUIComponentProps<'div', State> {}
 }
-
-export { ScrollAreaContent };

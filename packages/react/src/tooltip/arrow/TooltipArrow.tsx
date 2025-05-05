@@ -12,7 +12,7 @@ import { useRenderElement } from '../../utils/useRenderElement';
  *
  * Documentation: [Base UI Tooltip](https://base-ui.com/react/components/tooltip)
  */
-const TooltipArrow = React.forwardRef(function TooltipArrow(
+export const TooltipArrow = React.forwardRef(function TooltipArrow(
   componentProps: TooltipArrow.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
@@ -41,7 +41,7 @@ const TooltipArrow = React.forwardRef(function TooltipArrow(
   return renderElement();
 });
 
-namespace TooltipArrow {
+export namespace TooltipArrow {
   export interface State {
     /**
      * Whether the tooltip is currently open.
@@ -54,5 +54,3 @@ namespace TooltipArrow {
 
   export interface Props extends BaseUIComponentProps<'div', State> {}
 }
-
-export { TooltipArrow };

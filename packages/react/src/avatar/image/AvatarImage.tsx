@@ -3,7 +3,7 @@ import * as React from 'react';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useEventCallback } from '../../utils/useEventCallback';
-import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
+import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { useAvatarRootContext } from '../root/AvatarRootContext';
 import type { AvatarRoot } from '../root/AvatarRoot';
 import { avatarStyleHookMapping } from '../root/styleHooks';
@@ -15,9 +15,9 @@ import { useImageLoadingStatus, ImageLoadingStatus } from './useImageLoadingStat
  *
  * Documentation: [Base UI Avatar](https://base-ui.com/react/components/avatar)
  */
-const AvatarImage = React.forwardRef<HTMLImageElement, AvatarImage.Props>(function AvatarImage(
+export const AvatarImage = React.forwardRef(function AvatarImage(
   props: AvatarImage.Props,
-  forwardedRef,
+  forwardedRef: React.ForwardedRef<HTMLImageElement>,
 ) {
   const {
     className,
@@ -39,7 +39,7 @@ const AvatarImage = React.forwardRef<HTMLImageElement, AvatarImage.Props>(functi
     context.setImageLoadingStatus(status);
   });
 
-  useEnhancedEffect(() => {
+  useModernLayoutEffect(() => {
     if (imageLoadingStatus !== 'idle') {
       handleLoadingStatusChange(imageLoadingStatus);
     }
@@ -64,7 +64,7 @@ const AvatarImage = React.forwardRef<HTMLImageElement, AvatarImage.Props>(functi
   return imageLoadingStatus === 'loaded' ? renderElement() : null;
 });
 
-namespace AvatarImage {
+export namespace AvatarImage {
   export interface Props extends BaseUIComponentProps<'img', AvatarRoot.State> {
     /**
      * Callback fired when the loading status changes.
@@ -72,5 +72,3 @@ namespace AvatarImage {
     onLoadingStatusChange?: (status: ImageLoadingStatus) => void;
   }
 }
-
-export { AvatarImage };

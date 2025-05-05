@@ -3,7 +3,7 @@ import * as React from 'react';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
 import { useRenderElement } from '../../utils/useRenderElement';
-import { useEnhancedEffect } from '../../utils';
+import { useModernLayoutEffect } from '../../utils';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 
 /**
@@ -12,7 +12,7 @@ import { useBaseUiId } from '../../utils/useBaseUiId';
  *
  * Documentation: [Base UI Popover](https://base-ui.com/react/components/popover)
  */
-const PopoverTitle = React.forwardRef(function PopoverTitle(
+export const PopoverTitle = React.forwardRef(function PopoverTitle(
   componentProps: PopoverTitle.Props,
   forwardedRef: React.ForwardedRef<HTMLHeadingElement>,
 ) {
@@ -22,7 +22,7 @@ const PopoverTitle = React.forwardRef(function PopoverTitle(
 
   const id = useBaseUiId(elementProps.id);
 
-  useEnhancedEffect(() => {
+  useModernLayoutEffect(() => {
     setTitleId(id);
     return () => {
       setTitleId(undefined);
@@ -37,11 +37,9 @@ const PopoverTitle = React.forwardRef(function PopoverTitle(
   return renderElement();
 });
 
-namespace PopoverTitle {
+export namespace PopoverTitle {
   export interface State {}
 
   export interface Props
     extends BaseUIComponentProps<'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6', State> {}
 }
-
-export { PopoverTitle };

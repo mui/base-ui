@@ -15,7 +15,7 @@ import { CheckboxRootContext } from './CheckboxRootContext';
  *
  * Documentation: [Base UI Checkbox](https://base-ui.com/react/components/checkbox)
  */
-const CheckboxRoot = React.forwardRef(function CheckboxRoot(
+export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
   props: CheckboxRoot.Props,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
@@ -60,7 +60,7 @@ const CheckboxRoot = React.forwardRef(function CheckboxRoot(
 
   const disabled = fieldDisabled || groupContext?.disabled || disabledProp;
 
-  const { checked, getInputProps, getButtonProps } = useCheckboxRoot({
+  const { checked, getInputProps, getRootProps } = useCheckboxRoot({
     ...props,
     disabled,
     inputRef,
@@ -93,7 +93,7 @@ const CheckboxRoot = React.forwardRef(function CheckboxRoot(
   const customStyleHookMapping = useCustomStyleHookMapping(state);
 
   const { renderElement } = useComponentRenderer({
-    propGetter: getButtonProps,
+    propGetter: getRootProps,
     render: render ?? 'button',
     ref: forwardedRef,
     state,
@@ -114,7 +114,7 @@ const CheckboxRoot = React.forwardRef(function CheckboxRoot(
   );
 });
 
-namespace CheckboxRoot {
+export namespace CheckboxRoot {
   export interface State extends FieldRoot.State {
     /**
      * Whether the checkbox is currently ticked.
@@ -141,5 +141,3 @@ namespace CheckboxRoot {
     extends useCheckboxRoot.Parameters,
       Omit<BaseUIComponentProps<'button', State>, 'onChange' | 'value'> {}
 }
-
-export { CheckboxRoot };

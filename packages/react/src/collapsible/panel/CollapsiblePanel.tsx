@@ -1,8 +1,8 @@
 'use client';
 import * as React from 'react';
 import { BaseUIComponentProps } from '../../utils/types';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
+import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
+import { useRenderElement } from '../../utils/useRenderElement';
 import { warn } from '../../utils/warn';
 import { useCollapsibleRootContext } from '../root/CollapsibleRootContext';
 import type { CollapsibleRoot } from '../root/CollapsibleRoot';
@@ -17,8 +17,8 @@ import { usePanelResize } from '../../utils/usePanelResize';
  *
  * Documentation: [Base UI Collapsible](https://base-ui.com/react/components/collapsible)
  */
-const CollapsiblePanel = React.forwardRef(function CollapsiblePanel(
-  props: CollapsiblePanel.Props,
+export const CollapsiblePanel = React.forwardRef(function CollapsiblePanel(
+  componentProps: CollapsiblePanel.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const {
@@ -27,12 +27,12 @@ const CollapsiblePanel = React.forwardRef(function CollapsiblePanel(
     id: idProp,
     keepMounted: keepMountedProp,
     render,
-    ...otherProps
-  } = props;
+    ...elementProps
+  } = componentProps;
 
   if (process.env.NODE_ENV !== 'production') {
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    useEnhancedEffect(() => {
+    useModernLayoutEffect(() => {
       if (hiddenUntilFoundProp && keepMountedProp === false) {
         warn(
           'The `keepMounted={false}` prop on a Collapsible will be ignored when using `hiddenUntilFound` since it requires the Panel to remain mounted even when closed.',
@@ -67,15 +67,15 @@ const CollapsiblePanel = React.forwardRef(function CollapsiblePanel(
   const hiddenUntilFound = hiddenUntilFoundProp ?? false;
   const keepMounted = keepMountedProp ?? false;
 
-  useEnhancedEffect(() => {
+  useModernLayoutEffect(() => {
     setHiddenUntilFound(hiddenUntilFound);
   }, [setHiddenUntilFound, hiddenUntilFound]);
 
-  useEnhancedEffect(() => {
+  useModernLayoutEffect(() => {
     setKeepMounted(keepMounted);
   }, [setKeepMounted, keepMounted]);
 
-  const { getRootProps } = useCollapsiblePanel({
+  const { props } = useCollapsiblePanel({
     abortControllerRef,
     animationTypeRef,
     externalRef: forwardedRef,
@@ -100,24 +100,28 @@ const CollapsiblePanel = React.forwardRef(function CollapsiblePanel(
 
   usePanelResize(panelRef, setDimensions, open);
 
-  const { renderElement } = useComponentRenderer({
-    propGetter: getRootProps,
-    render: render ?? 'div',
+  const renderElement = useRenderElement('div', componentProps, {
     state,
-    className,
     ref: [forwardedRef, panelRef],
-    extraProps: {
-      ...otherProps,
-      style: {
-        ...otherProps.style,
-        [CollapsiblePanelCssVars.collapsiblePanelHeight]: height ? `${height}px` : undefined,
-        [CollapsiblePanelCssVars.collapsiblePanelWidth]: width ? `${width}px` : undefined,
+    props: [
+      props,
+      {
+        style: {
+          [CollapsiblePanelCssVars.collapsiblePanelHeight as string]: height
+            ? `${height}px`
+            : undefined,
+          [CollapsiblePanelCssVars.collapsiblePanelWidth as string]: width
+            ? `${width}px`
+            : undefined,
+        },
       },
-    },
+      elementProps,
+    ],
     customStyleHookMapping: collapsibleStyleHookMapping,
   });
 
   const shouldRender = keepMounted || hiddenUntilFound || (!keepMounted && mounted);
+
   if (!shouldRender) {
     return null;
   }
@@ -125,9 +129,7 @@ const CollapsiblePanel = React.forwardRef(function CollapsiblePanel(
   return renderElement();
 });
 
-export { CollapsiblePanel };
-
-namespace CollapsiblePanel {
+export namespace CollapsiblePanel {
   export interface Props extends BaseUIComponentProps<'div', CollapsibleRoot.State> {
     /**
      * Allows the browser’s built-in page search to find and expand the panel contents.

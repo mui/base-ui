@@ -3,7 +3,7 @@ import * as React from 'react';
 import { useDialogRootContext } from '../root/DialogRootContext';
 import { mergeProps } from '../../merge-props';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
+import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import type { BaseUIComponentProps } from '../../utils/types';
 
@@ -15,7 +15,7 @@ const state = {};
  *
  * Documentation: [Base UI Dialog](https://base-ui.com/react/components/dialog)
  */
-const DialogDescription = React.forwardRef(function DialogDescription(
+export const DialogDescription = React.forwardRef(function DialogDescription(
   props: DialogDescription.Props,
   forwardedRef: React.ForwardedRef<HTMLParagraphElement>,
 ) {
@@ -24,7 +24,7 @@ const DialogDescription = React.forwardRef(function DialogDescription(
 
   const id = useBaseUiId(idProp);
 
-  useEnhancedEffect(() => {
+  useModernLayoutEffect(() => {
     setDescriptionElementId(id);
     return () => {
       setDescriptionElementId(undefined);
@@ -54,10 +54,8 @@ const DialogDescription = React.forwardRef(function DialogDescription(
   return renderElement();
 });
 
-namespace DialogDescription {
+export namespace DialogDescription {
   export interface Props extends BaseUIComponentProps<'p', State> {}
 
   export interface State {}
 }
-
-export { DialogDescription };

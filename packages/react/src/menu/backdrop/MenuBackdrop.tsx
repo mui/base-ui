@@ -21,7 +21,7 @@ const customStyleHookMapping: CustomStyleHookMapping<MenuBackdrop.State> = {
  *
  * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
  */
-const MenuBackdrop = React.forwardRef(function MenuBackdrop(
+export const MenuBackdrop = React.forwardRef(function MenuBackdrop(
   props: MenuBackdrop.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
@@ -63,7 +63,7 @@ const MenuBackdrop = React.forwardRef(function MenuBackdrop(
   return renderElement();
 });
 
-namespace MenuBackdrop {
+export namespace MenuBackdrop {
   export interface State {
     /**
      * Whether the menu is currently open.
@@ -74,5 +74,3 @@ namespace MenuBackdrop {
 
   export interface Props extends BaseUIComponentProps<'div', State> {}
 }
-
-export { MenuBackdrop };

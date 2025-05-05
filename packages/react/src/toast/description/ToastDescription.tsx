@@ -4,7 +4,7 @@ import type { BaseUIComponentProps } from '../../utils/types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useToastRootContext } from '../root/ToastRootContext';
 import { useId } from '../../utils/useId';
-import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
+import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 
 /**
  * A description that describes the toast.
@@ -13,7 +13,7 @@ import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
  *
  * Documentation: [Base UI Toast](https://base-ui.com/react/components/toast)
  */
-const ToastDescription = React.forwardRef(function ToastDescription(
+export const ToastDescription = React.forwardRef(function ToastDescription(
   props: ToastDescription.Props,
   forwardedRef: React.ForwardedRef<HTMLParagraphElement>,
 ) {
@@ -29,7 +29,7 @@ const ToastDescription = React.forwardRef(function ToastDescription(
 
   const { setDescriptionId } = useToastRootContext();
 
-  useEnhancedEffect(() => {
+  useModernLayoutEffect(() => {
     if (!shouldRender) {
       return undefined;
     }
@@ -67,7 +67,7 @@ const ToastDescription = React.forwardRef(function ToastDescription(
   return renderElement();
 });
 
-namespace ToastDescription {
+export namespace ToastDescription {
   export interface State {
     /**
      * The type of the toast.
@@ -77,5 +77,3 @@ namespace ToastDescription {
 
   export interface Props extends BaseUIComponentProps<'p', State> {}
 }
-
-export { ToastDescription };

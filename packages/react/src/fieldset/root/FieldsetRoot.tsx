@@ -11,7 +11,7 @@ import type { BaseUIComponentProps } from '../../utils/types';
  *
  * Documentation: [Base UI Fieldset](https://base-ui.com/react/components/fieldset)
  */
-const FieldsetRoot = React.forwardRef(function FieldsetRoot(
+export const FieldsetRoot = React.forwardRef(function FieldsetRoot(
   props: FieldsetRoot.Props,
   forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
@@ -51,7 +51,7 @@ const FieldsetRoot = React.forwardRef(function FieldsetRoot(
   );
 });
 
-namespace FieldsetRoot {
+export namespace FieldsetRoot {
   export type State = {
     /**
      * Whether the component should ignore user interaction.
@@ -61,5 +61,3 @@ namespace FieldsetRoot {
 
   export interface Props extends BaseUIComponentProps<'fieldset', State> {}
 }
-
-export { FieldsetRoot };

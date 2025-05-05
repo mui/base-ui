@@ -30,7 +30,7 @@ const EMPTY_OBJ = {};
  *
  * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
  */
-const MenuPopup = React.forwardRef(function MenuPopup(
+export const MenuPopup = React.forwardRef(function MenuPopup(
   props: MenuPopup.Props,
   forwardedRef: React.ForwardedRef<Element>,
 ) {
@@ -108,7 +108,7 @@ const MenuPopup = React.forwardRef(function MenuPopup(
   );
 });
 
-namespace MenuPopup {
+export namespace MenuPopup {
   export interface Props extends BaseUIComponentProps<'div', State> {
     children?: React.ReactNode;
     /**
@@ -128,5 +128,3 @@ namespace MenuPopup {
     nested: boolean;
   };
 }
-
-export { MenuPopup };

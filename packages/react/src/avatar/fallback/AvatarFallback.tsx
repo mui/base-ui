@@ -12,48 +12,49 @@ import { avatarStyleHookMapping } from '../root/styleHooks';
  *
  * Documentation: [Base UI Avatar](https://base-ui.com/react/components/avatar)
  */
-const AvatarFallback = React.forwardRef<HTMLSpanElement, AvatarFallback.Props>(
-  function AvatarFallback(props: AvatarFallback.Props, forwardedRef) {
-    const { className, render, delay, ...otherProps } = props;
+export const AvatarFallback = React.forwardRef(function AvatarFallback(
+  props: AvatarFallback.Props,
+  forwardedRef: React.ForwardedRef<HTMLSpanElement>,
+) {
+  const { className, render, delay, ...otherProps } = props;
 
-    const { imageLoadingStatus } = useAvatarRootContext();
-    const [delayPassed, setDelayPassed] = React.useState(delay === undefined);
+  const { imageLoadingStatus } = useAvatarRootContext();
+  const [delayPassed, setDelayPassed] = React.useState(delay === undefined);
 
-    React.useEffect(() => {
-      let timerId: number | undefined;
+  React.useEffect(() => {
+    let timerId: number | undefined;
 
-      if (delay !== undefined) {
-        timerId = window.setTimeout(() => setDelayPassed(true), delay);
-      }
+    if (delay !== undefined) {
+      timerId = window.setTimeout(() => setDelayPassed(true), delay);
+    }
 
-      return () => {
-        window.clearTimeout(timerId);
-      };
-    }, [delay]);
+    return () => {
+      window.clearTimeout(timerId);
+    };
+  }, [delay]);
 
-    const state: AvatarRoot.State = React.useMemo(
-      () => ({
-        imageLoadingStatus,
-      }),
-      [imageLoadingStatus],
-    );
+  const state: AvatarRoot.State = React.useMemo(
+    () => ({
+      imageLoadingStatus,
+    }),
+    [imageLoadingStatus],
+  );
 
-    const { renderElement } = useComponentRenderer({
-      render: render ?? 'span',
-      state,
-      className,
-      ref: forwardedRef,
-      extraProps: otherProps,
-      customStyleHookMapping: avatarStyleHookMapping,
-    });
+  const { renderElement } = useComponentRenderer({
+    render: render ?? 'span',
+    state,
+    className,
+    ref: forwardedRef,
+    extraProps: otherProps,
+    customStyleHookMapping: avatarStyleHookMapping,
+  });
 
-    const shouldRender = imageLoadingStatus !== 'loaded' && delayPassed;
+  const shouldRender = imageLoadingStatus !== 'loaded' && delayPassed;
 
-    return shouldRender ? renderElement() : null;
-  },
-);
+  return shouldRender ? renderElement() : null;
+});
 
-namespace AvatarFallback {
+export namespace AvatarFallback {
   export interface Props extends BaseUIComponentProps<'span', AvatarRoot.State> {
     /**
      * How long to wait before showing the fallback. Specified in milliseconds.
@@ -61,5 +62,3 @@ namespace AvatarFallback {
     delay?: number;
   }
 }
-
-export { AvatarFallback };

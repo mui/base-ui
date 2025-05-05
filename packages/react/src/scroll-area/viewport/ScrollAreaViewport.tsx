@@ -15,7 +15,7 @@ const state = {};
  *
  * Documentation: [Base UI Scroll Area](https://base-ui.com/react/components/scroll-area)
  */
-const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
+export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
   props: ScrollAreaViewport.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
@@ -49,10 +49,8 @@ const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
   );
 });
 
-namespace ScrollAreaViewport {
+export namespace ScrollAreaViewport {
   export interface Props extends BaseUIComponentProps<'div', State> {}
 
   export interface State {}
 }
-
-export { ScrollAreaViewport };

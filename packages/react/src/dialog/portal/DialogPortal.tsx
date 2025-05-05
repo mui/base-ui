@@ -10,7 +10,7 @@ import { DialogPortalContext } from './DialogPortalContext';
  *
  * Documentation: [Base UI Dialog](https://base-ui.com/react/components/dialog)
  */
-function DialogPortal(props: DialogPortal.Props) {
+export function DialogPortal(props: DialogPortal.Props) {
   const { children, keepMounted = false, container } = props;
 
   const { mounted } = useDialogRootContext();
@@ -27,7 +27,7 @@ function DialogPortal(props: DialogPortal.Props) {
   );
 }
 
-namespace DialogPortal {
+export namespace DialogPortal {
   export interface Props {
     children?: React.ReactNode;
     /**
@@ -41,5 +41,3 @@ namespace DialogPortal {
     container?: HTMLElement | null | React.RefObject<HTMLElement | null>;
   }
 }
-
-export { DialogPortal };

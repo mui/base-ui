@@ -13,7 +13,7 @@ import { fieldValidityMapping } from '../field/utils/constants';
  *
  * Documentation: [Base UI Checkbox Group](https://base-ui.com/react/components/checkbox-group)
  */
-const CheckboxGroup = React.forwardRef(function CheckboxGroup(
+export const CheckboxGroup = React.forwardRef(function CheckboxGroup(
   props: CheckboxGroup.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
@@ -76,7 +76,7 @@ const CheckboxGroup = React.forwardRef(function CheckboxGroup(
   );
 });
 
-namespace CheckboxGroup {
+export namespace CheckboxGroup {
   export interface State extends FieldRoot.State {
     /**
      * Whether the component should ignore user interaction.
@@ -113,5 +113,3 @@ namespace CheckboxGroup {
     disabled?: boolean;
   }
 }
-
-export { CheckboxGroup };

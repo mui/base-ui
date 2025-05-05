@@ -12,7 +12,7 @@ import { useButton } from '../../use-button/useButton';
  *
  * Documentation: [Base UI Toast](https://base-ui.com/react/components/toast)
  */
-const ToastAction = React.forwardRef(function ToastAction(
+export const ToastAction = React.forwardRef(function ToastAction(
   props: ToastAction.Props,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
@@ -52,7 +52,7 @@ const ToastAction = React.forwardRef(function ToastAction(
   return renderElement();
 });
 
-namespace ToastAction {
+export namespace ToastAction {
   export interface State {
     /**
      * The type of the toast.
@@ -62,5 +62,3 @@ namespace ToastAction {
 
   export interface Props extends BaseUIComponentProps<'button', State> {}
 }
-
-export { ToastAction };

@@ -10,13 +10,11 @@ export interface DemoContext {
   variants: DemoVariant[];
 }
 
-const DemoContext = React.createContext<DemoContext | undefined>(undefined);
+export const DemoContext = React.createContext<DemoContext | undefined>(undefined);
 
 if (process.env.NODE_ENV !== 'production') {
   DemoContext.displayName = 'DemoContext';
 }
-
-export { DemoContext };
 
 export function useDemoContext() {
   const context = React.useContext(DemoContext);

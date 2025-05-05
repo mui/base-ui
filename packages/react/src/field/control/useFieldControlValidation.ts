@@ -22,9 +22,10 @@ export function useFieldControlValidation() {
     markedDirtyRef,
     controlId,
     state,
+    name,
   } = useFieldRootContext();
 
-  const { formRef } = useFormContext();
+  const { formRef, clearErrors } = useFormContext();
 
   const timeoutRef = React.useRef(-1);
   const inputRef = React.useRef<HTMLInputElement | null>(null);
@@ -35,25 +36,45 @@ export function useFieldControlValidation() {
     };
   }, []);
 
-  const commitValidation = useEventCallback(async (value: unknown) => {
+  const commitValidation = useEventCallback(async (value: unknown, revalidate = false) => {
     const element = inputRef.current;
     if (!element) {
       return;
     }
 
+    if (revalidate && state.valid !== false) {
+      return;
+    }
+
     function getState(el: HTMLInputElement) {
-      return validityKeys.reduce(
+      const computedState = validityKeys.reduce(
         (acc, key) => {
           acc[key] = el.validity[key];
-
-          if (!el.validity.customError && !markedDirtyRef.current) {
-            acc[key] = key === 'valid';
-          }
-
           return acc;
         },
         {} as Record<keyof ValidityState, boolean>,
       );
+
+      let hasOnlyValueMissingError = false;
+
+      for (const key of validityKeys) {
+        if (key === 'valid') {
+          continue;
+        }
+        if (key === 'valueMissing' && computedState[key]) {
+          hasOnlyValueMissingError = true;
+        } else if (computedState[key]) {
+          return computedState;
+        }
+      }
+
+      // Only make `valueMissing` mark the field invalid if it's been changed
+      // to reduce error noise.
+      if (hasOnlyValueMissingError && !markedDirtyRef.current) {
+        computedState.valid = true;
+      }
+
+      return computedState;
     }
 
     window.clearTimeout(timeoutRef.current);
@@ -130,6 +151,9 @@ export function useFieldControlValidation() {
               return;
             }
 
+            clearErrors(name);
+            commitValidation(event.currentTarget.value, true);
+
             if (invalid || validationMode !== 'onChange') {
               return;
             }
@@ -155,7 +179,15 @@ export function useFieldControlValidation() {
         },
         getValidationProps(externalProps),
       ),
-    [getValidationProps, invalid, validationMode, validationDebounceTime, commitValidation],
+    [
+      getValidationProps,
+      clearErrors,
+      name,
+      commitValidation,
+      invalid,
+      validationMode,
+      validationDebounceTime,
+    ],
   );
 
   return React.useMemo(
@@ -174,6 +206,6 @@ export namespace useFieldControlValidation {
     getValidationProps: (props?: GenericHTMLProps) => GenericHTMLProps;
     getInputValidationProps: (props?: GenericHTMLProps) => GenericHTMLProps;
     inputRef: React.MutableRefObject<any>;
-    commitValidation: (value: unknown) => void;
+    commitValidation: (value: unknown, revalidate?: boolean) => void;
   }
 }

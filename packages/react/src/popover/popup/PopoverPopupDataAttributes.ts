@@ -23,6 +23,11 @@ export enum PopoverPopupDataAttributes {
    */
   side = 'data-side',
   /**
+   * Indicates how the popup is aligned relative to specified side.
+   * @type {'start' | 'center' | 'end'}
+   */
+  align = 'data-align',
+  /**
    * Present if animations should be instant.
    * @type {'click' | 'dismiss'}
    */

@@ -2,9 +2,7 @@ import * as React from 'react';
 import { Select } from '@base-ui-components/react/select';
 import { describeSkipIf, screen } from '@mui/internal-test-utils';
 import { expect } from 'chai';
-import { createRenderer, describeConformance } from '#test-utils';
-
-const isJSDOM = /jsdom/.test(window.navigator.userAgent);
+import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 
 const Trigger = React.forwardRef(function Trigger(
   props: Select.Trigger.Props,
@@ -40,10 +38,15 @@ describe('<Select.Positioner />', () => {
     it('offsets the side when a number is specified', async () => {
       const sideOffset = 7;
       await render(
-        <Select.Root open alignItemToTrigger={false}>
+        <Select.Root open>
           <Trigger style={triggerStyle}>Trigger</Trigger>
           <Select.Portal>
-            <Select.Positioner data-testid="positioner" align="center" sideOffset={sideOffset}>
+            <Select.Positioner
+              data-testid="positioner"
+              align="center"
+              sideOffset={sideOffset}
+              alignItemWithTrigger={false}
+            >
               <Select.Popup style={popupStyle}>Popup</Select.Popup>
             </Select.Positioner>
           </Select.Portal>
@@ -57,13 +60,14 @@ describe('<Select.Positioner />', () => {
 
     it('offsets the side when a function is specified', async () => {
       await render(
-        <Select.Root open alignItemToTrigger={false}>
+        <Select.Root open>
           <Trigger style={triggerStyle}>Trigger</Trigger>
           <Select.Portal>
             <Select.Positioner
               data-testid="positioner"
               align="center"
               sideOffset={(data) => data.positioner.width + data.anchor.width}
+              alignItemWithTrigger={false}
             >
               <Select.Popup style={popupStyle}>Popup</Select.Popup>
             </Select.Positioner>
@@ -79,13 +83,14 @@ describe('<Select.Positioner />', () => {
     it('can read the latest side inside sideOffset', async () => {
       let side = 'none';
       await render(
-        <Select.Root open alignItemToTrigger={false}>
+        <Select.Root open>
           <Trigger style={triggerStyle}>Trigger</Trigger>
           <Select.Portal>
             <Select.Positioner
               side="left"
               align="center"
               data-testid="positioner"
+              alignItemWithTrigger={false}
               sideOffset={(data) => {
                 side = data.side;
                 return 0;
@@ -104,13 +109,14 @@ describe('<Select.Positioner />', () => {
     it('can read the latest align inside sideOffset', async () => {
       let align = 'none';
       await render(
-        <Select.Root open alignItemToTrigger={false}>
+        <Select.Root open>
           <Trigger style={triggerStyle}>Trigger</Trigger>
           <Select.Portal>
             <Select.Positioner
               side="right"
               align="start"
               data-testid="positioner"
+              alignItemWithTrigger={false}
               sideOffset={(data) => {
                 align = data.align;
                 return 0;
@@ -135,6 +141,7 @@ describe('<Select.Positioner />', () => {
             <Select.Positioner
               side="inline-start"
               data-testid="positioner"
+              alignItemWithTrigger={false}
               sideOffset={(data) => {
                 side = data.side;
                 return 0;
@@ -155,10 +162,15 @@ describe('<Select.Positioner />', () => {
     it('offsets the align when a number is specified', async () => {
       const alignOffset = 7;
       await render(
-        <Select.Root open alignItemToTrigger={false}>
+        <Select.Root open>
           <Trigger style={triggerStyle}>Trigger</Trigger>
           <Select.Portal>
-            <Select.Positioner data-testid="positioner" align="center" alignOffset={alignOffset}>
+            <Select.Positioner
+              data-testid="positioner"
+              align="center"
+              alignOffset={alignOffset}
+              alignItemWithTrigger={false}
+            >
               <Select.Popup style={popupStyle}>Popup</Select.Popup>
             </Select.Positioner>
           </Select.Portal>
@@ -172,12 +184,13 @@ describe('<Select.Positioner />', () => {
 
     it('offsets the align when a function is specified', async () => {
       await render(
-        <Select.Root open alignItemToTrigger={false}>
+        <Select.Root open>
           <Trigger style={triggerStyle}>Trigger</Trigger>
           <Select.Portal>
             <Select.Positioner
               data-testid="positioner"
               align="center"
+              alignItemWithTrigger={false}
               alignOffset={(data) => data.positioner.width}
             >
               <Select.Popup style={popupStyle}>Popup</Select.Popup>
@@ -194,13 +207,14 @@ describe('<Select.Positioner />', () => {
     it('can read the latest side inside alignOffset', async () => {
       let side = 'none';
       await render(
-        <Select.Root open alignItemToTrigger={false}>
+        <Select.Root open>
           <Trigger style={triggerStyle}>Trigger</Trigger>
           <Select.Portal>
             <Select.Positioner
               side="left"
               align="center"
               data-testid="positioner"
+              alignItemWithTrigger={false}
               alignOffset={(data) => {
                 side = data.side;
                 return 0;
@@ -219,13 +233,14 @@ describe('<Select.Positioner />', () => {
     it('can read the latest align inside alignOffset', async () => {
       let align = 'none';
       await render(
-        <Select.Root open alignItemToTrigger={false}>
+        <Select.Root open>
           <Trigger style={triggerStyle}>Trigger</Trigger>
           <Select.Portal>
             <Select.Positioner
               side="right"
               align="start"
               data-testid="positioner"
+              alignItemWithTrigger={false}
               alignOffset={(data) => {
                 align = data.align;
                 return 0;
@@ -250,6 +265,7 @@ describe('<Select.Positioner />', () => {
             <Select.Positioner
               side="inline-start"
               data-testid="positioner"
+              alignItemWithTrigger={false}
               alignOffset={(data) => {
                 side = data.side;
                 return 0;

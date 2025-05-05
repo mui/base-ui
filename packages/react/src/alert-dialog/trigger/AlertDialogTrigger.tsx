@@ -13,7 +13,7 @@ import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
  *
  * Documentation: [Base UI Alert Dialog](https://base-ui.com/react/components/alert-dialog)
  */
-const AlertDialogTrigger = React.forwardRef(function AlertDialogTrigger(
+export const AlertDialogTrigger = React.forwardRef(function AlertDialogTrigger(
   props: AlertDialogTrigger.Props,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
@@ -49,7 +49,7 @@ const AlertDialogTrigger = React.forwardRef(function AlertDialogTrigger(
   return renderElement();
 });
 
-namespace AlertDialogTrigger {
+export namespace AlertDialogTrigger {
   export interface Props extends BaseUIComponentProps<'button', State> {}
 
   export interface State {
@@ -63,5 +63,3 @@ namespace AlertDialogTrigger {
     open: boolean;
   }
 }
-
-export { AlertDialogTrigger };

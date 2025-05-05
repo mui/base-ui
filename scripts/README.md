@@ -19,16 +19,16 @@ A typical release goes like this:
 
 ### Prepare the release of the packages
 
-1. Generate the changelog with `pnpm release:changelog`
-   The output must be prepended to the top level `CHANGELOG.md`
-   `pnpm release:changelog --help` for more information. If your GitHub token is not in your env, pass it as `--githubToken <my-token>` to the above command.
-
-2. Clean the generated changelog matching the format of https://github.com/mui/base-ui/releases. Include only changes to the public packages (ignore docs, core, and similar PRs).
-3. Copy the clean changelog into `docs/src/app/(public)/(content)/react/overview/releases/page.mdx`. Remove the author handles from PRs (like "@michaldudak") and update links.
-4. Update the root `/package.json`'s version.
-5. Run `pnpm release:version`. Keep the package versions of stable public packages the same as the root `package.json` version.
-6. Open a PR with changes and wait for review and green CI.
-7. Merge the PR once the CI is green and it has been approved.
+1. Update the root `/package.json`'s version.
+2. Generate the changelog with `pnpm release:changelog`
+   The output must be prepended to the top level `CHANGELOG.md`.
+   Run `pnpm release:changelog --help` for more information. If your GitHub token is not in your env, pass it as `--githubToken <my-token>` to the above command.
+3. Update the changelog as necessary. In particular, describe all the breaking changes.
+4. Generate the changelog in a format suitable for the docs with `pnpm release:changelog --format docs` and copy it to `docs/src/app/(public)/(content)/react/overview/releases/page.mdx`.
+5. Copy the changes made in point 3 to the new changelog.
+6. Run `pnpm release:version`. Keep the package versions of stable public packages the same as the root `package.json` version.
+7. Open a PR with changes and wait for review and green CI.
+8. Merge the PR once the CI is green and it has been approved.
 
 ### Release the packages
 

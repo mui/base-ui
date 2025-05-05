@@ -4,7 +4,7 @@ import type { BaseUIComponentProps } from '../../utils/types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useMenuGroupRootContext } from '../group/MenuGroupContext';
-import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
+import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 
 const state = {};
 
@@ -14,7 +14,7 @@ const state = {};
  *
  * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
  */
-const MenuGroupLabel = React.forwardRef(function MenuGroupLabelComponent(
+export const MenuGroupLabel = React.forwardRef(function MenuGroupLabelComponent(
   props: MenuGroupLabel.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
@@ -24,7 +24,7 @@ const MenuGroupLabel = React.forwardRef(function MenuGroupLabelComponent(
 
   const { setLabelId } = useMenuGroupRootContext();
 
-  useEnhancedEffect(() => {
+  useModernLayoutEffect(() => {
     setLabelId(id);
     return () => {
       setLabelId(undefined);
@@ -42,10 +42,8 @@ const MenuGroupLabel = React.forwardRef(function MenuGroupLabelComponent(
   return renderElement();
 });
 
-namespace MenuGroupLabel {
+export namespace MenuGroupLabel {
   export interface Props extends BaseUIComponentProps<'div', State> {}
 
   export interface State {}
 }
-
-export { MenuGroupLabel };

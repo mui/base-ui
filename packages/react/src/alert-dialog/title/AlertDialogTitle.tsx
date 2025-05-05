@@ -3,7 +3,7 @@ import * as React from 'react';
 import { useAlertDialogRootContext } from '../root/AlertDialogRootContext';
 import { mergeProps } from '../../merge-props';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
+import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import type { BaseUIComponentProps } from '../../utils/types';
 
@@ -15,7 +15,7 @@ const state = {};
  *
  * Documentation: [Base UI Alert Dialog](https://base-ui.com/react/components/alert-dialog)
  */
-const AlertDialogTitle = React.forwardRef(function AlertDialogTitle(
+export const AlertDialogTitle = React.forwardRef(function AlertDialogTitle(
   props: AlertDialogTitle.Props,
   forwardedRef: React.ForwardedRef<HTMLParagraphElement>,
 ) {
@@ -24,7 +24,7 @@ const AlertDialogTitle = React.forwardRef(function AlertDialogTitle(
 
   const id = useBaseUiId(idProp);
 
-  useEnhancedEffect(() => {
+  useModernLayoutEffect(() => {
     setTitleElementId(id);
     return () => {
       setTitleElementId(undefined);
@@ -54,10 +54,8 @@ const AlertDialogTitle = React.forwardRef(function AlertDialogTitle(
   return renderElement();
 });
 
-namespace AlertDialogTitle {
+export namespace AlertDialogTitle {
   export interface Props extends BaseUIComponentProps<'h2', State> {}
 
   export interface State {}
 }
-
-export { AlertDialogTitle };

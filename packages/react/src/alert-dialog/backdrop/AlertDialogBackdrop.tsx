@@ -21,7 +21,7 @@ const customStyleHookMapping: CustomStyleHookMapping<AlertDialogBackdrop.State> 
  *
  * Documentation: [Base UI Alert Dialog](https://base-ui.com/react/components/alert-dialog)
  */
-const AlertDialogBackdrop = React.forwardRef(function AlertDialogBackdrop(
+export const AlertDialogBackdrop = React.forwardRef(function AlertDialogBackdrop(
   props: AlertDialogBackdrop.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
@@ -66,7 +66,7 @@ const AlertDialogBackdrop = React.forwardRef(function AlertDialogBackdrop(
   return renderElement();
 });
 
-namespace AlertDialogBackdrop {
+export namespace AlertDialogBackdrop {
   export interface Props extends BaseUIComponentProps<'div', State> {}
 
   export interface State {
@@ -77,5 +77,3 @@ namespace AlertDialogBackdrop {
     transitionStatus: TransitionStatus;
   }
 }
-
-export { AlertDialogBackdrop };

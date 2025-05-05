@@ -1,8 +1,7 @@
 'use client';
 import * as React from 'react';
-import { mergeProps } from '../../merge-props';
 import { GenericHTMLProps } from '../../utils/types';
-import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
+import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { useForkRef } from '../../utils/useForkRef';
 import { useOnMount } from '../../utils/useOnMount';
@@ -54,7 +53,7 @@ export function useCollapsiblePanel(
     return !open && !mounted;
   }, [open, mounted, visible, animationTypeRef]);
 
-  useEnhancedEffect(() => {
+  useModernLayoutEffect(() => {
     if (!keepMounted && !open) {
       setPanelId(undefined);
     } else {
@@ -161,7 +160,7 @@ export function useCollapsiblePanel(
    * 1. When `keepMounted={false}`, the panel may not exist in the DOM
    * 2. When controlled, the open state may change externally without involving the trigger
    */
-  useEnhancedEffect(() => {
+  useModernLayoutEffect(() => {
     if (animationTypeRef.current !== 'css-transition' || keepMounted) {
       return undefined;
     }
@@ -231,7 +230,7 @@ export function useCollapsiblePanel(
     transitionDimensionRef,
   ]);
 
-  useEnhancedEffect(() => {
+  useModernLayoutEffect(() => {
     if (animationTypeRef.current !== 'css-animation') {
       return;
     }
@@ -285,7 +284,7 @@ export function useCollapsiblePanel(
     return () => cancelAnimationFrame(frame);
   });
 
-  useEnhancedEffect(() => {
+  useModernLayoutEffect(() => {
     if (!hiddenUntilFound) {
       return undefined;
     }
@@ -317,7 +316,7 @@ export function useCollapsiblePanel(
     };
   }, [hiddenUntilFound, open, panelRef, setDimensions]);
 
-  useEnhancedEffect(() => {
+  useModernLayoutEffect(() => {
     const panel = panelRef.current;
 
     if (panel && hiddenUntilFound && hidden) {
@@ -361,25 +360,15 @@ export function useCollapsiblePanel(
     [onOpenChange, panelRef, setOpen],
   );
 
-  const getRootProps = React.useCallback(
-    (externalProps?: GenericHTMLProps): GenericHTMLProps => {
-      return mergeProps(
-        {
-          hidden,
-          id: idParam,
-          ref: mergedPanelRef,
-        },
-        externalProps,
-      );
-    },
-    [hidden, idParam, mergedPanelRef],
-  );
-
   return React.useMemo(
     () => ({
-      getRootProps,
+      props: {
+        hidden,
+        id: idParam,
+        ref: mergedPanelRef,
+      },
     }),
-    [getRootProps],
+    [hidden, idParam, mergedPanelRef],
   );
 }
 
@@ -437,6 +426,6 @@ export namespace useCollapsiblePanel {
   }
 
   export interface ReturnValue {
-    getRootProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
+    props: GenericHTMLProps;
   }
 }

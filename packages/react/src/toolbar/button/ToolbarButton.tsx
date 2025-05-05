@@ -14,7 +14,7 @@ import { useToolbarGroupContext } from '../group/ToolbarGroupContext';
  *
  * Documentation: [Base UI Toolbar](https://base-ui.com/react/components/toolbar)
  */
-const ToolbarButton = React.forwardRef(function ToolbarButton(
+export const ToolbarButton = React.forwardRef(function ToolbarButton(
   props: ToolbarButton.Props,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
@@ -60,7 +60,7 @@ const ToolbarButton = React.forwardRef(function ToolbarButton(
   return <CompositeItem<ToolbarItemMetadata> metadata={itemMetadata} render={renderElement()} />;
 });
 
-namespace ToolbarButton {
+export namespace ToolbarButton {
   export interface State extends ToolbarRoot.State {
     disabled: boolean;
     focusable: boolean;
@@ -79,5 +79,3 @@ namespace ToolbarButton {
     focusableWhenDisabled?: boolean;
   }
 }
-
-export { ToolbarButton };

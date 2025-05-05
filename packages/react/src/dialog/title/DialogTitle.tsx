@@ -3,7 +3,7 @@ import * as React from 'react';
 import { useDialogRootContext } from '../root/DialogRootContext';
 import { mergeProps } from '../../merge-props';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
+import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { type BaseUIComponentProps } from '../../utils/types';
 
@@ -15,7 +15,7 @@ const state = {};
  *
  * Documentation: [Base UI Dialog](https://base-ui.com/react/components/dialog)
  */
-const DialogTitle = React.forwardRef(function DialogTitle(
+export const DialogTitle = React.forwardRef(function DialogTitle(
   props: DialogTitle.Props,
   forwardedRef: React.ForwardedRef<HTMLParagraphElement>,
 ) {
@@ -24,7 +24,7 @@ const DialogTitle = React.forwardRef(function DialogTitle(
 
   const id = useBaseUiId(idProp);
 
-  useEnhancedEffect(() => {
+  useModernLayoutEffect(() => {
     setTitleElementId(id);
     return () => {
       setTitleElementId(undefined);
@@ -54,10 +54,8 @@ const DialogTitle = React.forwardRef(function DialogTitle(
   return renderElement();
 });
 
-namespace DialogTitle {
+export namespace DialogTitle {
   export interface Props extends BaseUIComponentProps<'h2', State> {}
 
   export interface State {}
 }
-
-export { DialogTitle };

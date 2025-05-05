@@ -53,39 +53,9 @@ const nextConfig = {
     // docs-infra
     LIB_VERSION: rootPackage.version,
     SOURCE_CODE_REPO: 'https://github.com/mui/base-ui',
-    SOURCE_GITHUB_BRANCH: 'master',
-    GITHUB_TEMPLATE_DOCS_FEEDBACK: '6.docs-feedback.yml',
   },
-  webpack: (config, options) => {
-    const plugins = config.plugins.slice();
-    const includesMonorepo = [/(@mui[\\/]monorepo)$/, /(@mui[\\/]monorepo)[\\/](?!.*node_modules)/];
-
-    return {
-      ...config,
-      plugins,
-      resolve: {
-        ...config.resolve,
-        alias: {
-          ...config.resolve.alias,
-          docs: path.resolve(workspaceRoot, 'docs'),
-        },
-      },
-      module: {
-        ...config.module,
-        rules: config.module.rules.concat([
-          {
-            test: /\.+(js|jsx|mjs|ts|tsx)$/,
-            include: includesMonorepo,
-            use: options.defaultLoaders.babel,
-          },
-        ]),
-      },
-    };
-  },
-  transpilePackages: ['@mui/monorepo'],
   ...(process.env.NODE_ENV === 'production' && { distDir: 'export', output: 'export' }),
   experimental: {
-    esmExternals: true,
     workerThreads: false,
   },
   devIndicators: false,
