@@ -11,6 +11,7 @@ import { getChildrenText } from './utils/getChildrenText';
 import { Link } from './components/Link';
 import { Subtitle } from './components/Subtitle/Subtitle';
 import { Kbd } from './components/Kbd/Kbd';
+import { MarkdownLink } from './components/MarkdownLink';
 
 interface MDXComponents {
   [key: string]: React.FC<any> | MDXComponents;
@@ -22,7 +23,10 @@ export const mdxComponents: MDXComponents = {
   code: (props) => <Code className="data-[inline]:mx-[0.1em]" {...props} />,
   h1: (props) => (
     <React.Fragment>
-      <h1 className="mb-4 text-3xl font-bold text-balance" {...props} />
+      <div className="flex items-center justify-between">
+        <h1 className="mb-4 text-3xl font-bold text-balance" {...props} />
+        <MarkdownLink />
+      </div>
       <title>{`${getChildrenText(props.children)} · Base UI`}</title>
     </React.Fragment>
   ),
