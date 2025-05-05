@@ -1,11 +1,11 @@
 import * as React from 'react';
 import { useEventCallback } from '../../utils/useEventCallback';
-import { mergeProps } from '../../merge-props';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { SCROLL_TIMEOUT } from '../constants';
 import { getOffset } from '../utils/getOffset';
 import { ScrollAreaRootCssVars } from './ScrollAreaRootCssVars';
 import { ScrollAreaScrollbarDataAttributes } from '../scrollbar/ScrollAreaScrollbarDataAttributes';
+import { GenericHTMLProps } from '../../utils/types';
 
 interface Size {
   width: number;
@@ -179,33 +179,29 @@ export function useScrollAreaRoot() {
     }
   });
 
-  const getRootProps = React.useCallback(
-    (externalProps = {}) =>
-      mergeProps<'div'>(
-        {
-          role: 'presentation',
-          onPointerEnter: handlePointerEnterOrMove,
-          onPointerMove: handlePointerEnterOrMove,
-          onPointerDown({ pointerType }) {
-            setTouchModality(pointerType === 'touch');
-          },
-          onPointerLeave() {
-            setHovering(false);
-          },
-          style: {
-            position: 'relative',
-            [ScrollAreaRootCssVars.scrollAreaCornerHeight as string]: `${cornerSize.height}px`,
-            [ScrollAreaRootCssVars.scrollAreaCornerWidth as string]: `${cornerSize.width}px`,
-          },
-        },
-        externalProps,
-      ),
+  const props: GenericHTMLProps = React.useMemo(
+    () => ({
+      role: 'presentation',
+      onPointerEnter: handlePointerEnterOrMove,
+      onPointerMove: handlePointerEnterOrMove,
+      onPointerDown({ pointerType }) {
+        setTouchModality(pointerType === 'touch');
+      },
+      onPointerLeave() {
+        setHovering(false);
+      },
+      style: {
+        position: 'relative',
+        [ScrollAreaRootCssVars.scrollAreaCornerHeight as string]: `${cornerSize.height}px`,
+        [ScrollAreaRootCssVars.scrollAreaCornerWidth as string]: `${cornerSize.width}px`,
+      },
+    }),
     [cornerSize, handlePointerEnterOrMove],
   );
 
   return React.useMemo(
     () => ({
-      getRootProps,
+      props,
       handlePointerDown,
       handlePointerMove,
       handlePointerUp,
@@ -232,7 +228,7 @@ export function useScrollAreaRoot() {
       setHiddenState,
     }),
     [
-      getRootProps,
+      props,
       handlePointerDown,
       handlePointerMove,
       handlePointerUp,
@@ -257,5 +253,3 @@ export function useScrollAreaRoot() {
     ],
   );
 }
-
-export namespace useScrollAreaRoot {}

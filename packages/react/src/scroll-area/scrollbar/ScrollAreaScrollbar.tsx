@@ -1,11 +1,10 @@
 'use client';
 import * as React from 'react';
 import type { BaseUIComponentProps } from '../../utils/types';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useScrollAreaRootContext } from '../root/ScrollAreaRootContext';
-import { useForkRef } from '../../utils/useForkRef';
 import { ScrollAreaScrollbarContext } from './ScrollAreaScrollbarContext';
 import { useScrollAreaScrollbar } from './useScrollAreaScrollbar';
+import { useRenderElement } from '../../utils/useRenderElement';
 
 /**
  * A vertical or horizontal scrollbar for the scroll area.
@@ -14,18 +13,19 @@ import { useScrollAreaScrollbar } from './useScrollAreaScrollbar';
  * Documentation: [Base UI Scroll Area](https://base-ui.com/react/components/scroll-area)
  */
 export const ScrollAreaScrollbar = React.forwardRef(function ScrollAreaScrollbar(
-  props: ScrollAreaScrollbar.Props,
+  componentProps: ScrollAreaScrollbar.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, orientation = 'vertical', keepMounted = false, ...otherProps } = props;
+  const {
+    render,
+    className,
+    orientation = 'vertical',
+    keepMounted = false,
+    ...elementProps
+  } = componentProps;
 
   const { hovering, scrollingX, scrollingY, hiddenState, scrollbarYRef, scrollbarXRef } =
     useScrollAreaRootContext();
-
-  const mergedRef = useForkRef(
-    forwardedRef,
-    orientation === 'vertical' ? scrollbarYRef : scrollbarXRef,
-  );
 
   const state: ScrollAreaScrollbar.State = React.useMemo(
     () => ({
@@ -39,17 +39,14 @@ export const ScrollAreaScrollbar = React.forwardRef(function ScrollAreaScrollbar
     [hovering, scrollingX, scrollingY, orientation],
   );
 
-  const { getScrollbarProps } = useScrollAreaScrollbar({
+  const { props } = useScrollAreaScrollbar({
     orientation,
   });
 
-  const { renderElement } = useComponentRenderer({
-    propGetter: getScrollbarProps,
-    render: render ?? 'div',
-    ref: mergedRef,
-    className,
+  const renderElement = useRenderElement('div', componentProps, {
+    ref: [forwardedRef, orientation === 'vertical' ? scrollbarYRef : scrollbarXRef],
     state,
-    extraProps: otherProps,
+    props: [props, elementProps],
   });
 
   const contextValue = React.useMemo(() => ({ orientation }), [orientation]);

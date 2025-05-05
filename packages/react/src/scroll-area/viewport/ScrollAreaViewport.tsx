@@ -1,13 +1,10 @@
 'use client';
 import * as React from 'react';
 import type { BaseUIComponentProps } from '../../utils/types';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { useForkRef } from '../../utils/useForkRef';
 import { useScrollAreaRootContext } from '../root/ScrollAreaRootContext';
 import { useScrollAreaViewport } from './useScrollAreaViewport';
 import { ScrollAreaViewportContext } from './ScrollAreaViewportContext';
-
-const state = {};
+import { useRenderElement } from '../../utils/useRenderElement';
 
 /**
  * The actual scrollable container of the scroll area.
@@ -16,23 +13,17 @@ const state = {};
  * Documentation: [Base UI Scroll Area](https://base-ui.com/react/components/scroll-area)
  */
 export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
-  props: ScrollAreaViewport.Props,
+  componentProps: ScrollAreaViewport.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, ...otherProps } = props;
+  const { render, className, ...elementProps } = componentProps;
 
   const { viewportRef } = useScrollAreaRootContext();
-  const { getViewportProps, computeThumbPosition } = useScrollAreaViewport();
+  const { props, computeThumbPosition } = useScrollAreaViewport();
 
-  const mergedRef = useForkRef(forwardedRef, viewportRef);
-
-  const { renderElement } = useComponentRenderer({
-    propGetter: getViewportProps,
-    render: render ?? 'div',
-    ref: mergedRef,
-    className,
-    state,
-    extraProps: otherProps,
+  const renderElement = useRenderElement('div', componentProps, {
+    ref: [forwardedRef, viewportRef],
+    props: [props, elementProps],
   });
 
   const contextValue: ScrollAreaViewportContext = React.useMemo(

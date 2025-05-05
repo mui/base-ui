@@ -2,7 +2,6 @@ import * as React from 'react';
 import { useDirection } from '../../direction-provider/DirectionContext';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
-import { mergeProps } from '../../merge-props';
 import { clamp } from '../../utils/clamp';
 import { useScrollAreaRootContext } from '../root/ScrollAreaRootContext';
 import { MIN_THUMB_SIZE } from '../constants';
@@ -183,47 +182,30 @@ export function useScrollAreaViewport() {
     };
   }, [computeThumbPosition, viewportRef]);
 
-  const getViewportProps = React.useCallback(
-    (externalProps = {}) =>
-      mergeProps<'div'>(
-        {
-          role: 'presentation',
-          ...(rootId && { 'data-id': `${rootId}-viewport` }),
-          // https://accessibilityinsights.io/info-examples/web/scrollable-region-focusable/
-          ...((!hiddenState.scrollbarXHidden || !hiddenState.scrollbarYHidden) && { tabIndex: 0 }),
-          style: {
-            overflow: 'scroll',
-          },
-          onScroll() {
-            if (!viewportRef.current) {
-              return;
-            }
+  const props = {
+    role: 'presentation',
+    ...(rootId && { 'data-id': `${rootId}-viewport` }),
+    // https://accessibilityinsights.io/info-examples/web/scrollable-region-focusable/
+    ...((!hiddenState.scrollbarXHidden || !hiddenState.scrollbarYHidden) && { tabIndex: 0 }),
+    style: {
+      overflow: 'scroll',
+    },
+    onScroll() {
+      if (!viewportRef.current) {
+        return;
+      }
 
-            computeThumbPosition();
+      computeThumbPosition();
 
-            handleScroll({
-              x: viewportRef.current.scrollLeft,
-              y: viewportRef.current.scrollTop,
-            });
-          },
-        },
-        externalProps,
-      ),
-    [
-      rootId,
-      hiddenState.scrollbarXHidden,
-      hiddenState.scrollbarYHidden,
-      computeThumbPosition,
-      handleScroll,
-      viewportRef,
-    ],
-  );
+      handleScroll({
+        x: viewportRef.current.scrollLeft,
+        y: viewportRef.current.scrollTop,
+      });
+    },
+  };
 
-  return React.useMemo(
-    () => ({
-      getViewportProps,
-      computeThumbPosition,
-    }),
-    [getViewportProps, computeThumbPosition],
-  );
+  return {
+    props,
+    computeThumbPosition,
+  };
 }

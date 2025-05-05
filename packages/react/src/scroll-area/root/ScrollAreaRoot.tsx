@@ -1,11 +1,9 @@
 'use client';
 import * as React from 'react';
 import type { BaseUIComponentProps } from '../../utils/types';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { ScrollAreaRootContext } from './ScrollAreaRootContext';
 import { useScrollAreaRoot } from './useScrollAreaRoot';
-
-const state = {};
+import { useRenderElement } from '../../utils/useRenderElement';
 
 /**
  * Groups all parts of the scroll area.
@@ -14,22 +12,18 @@ const state = {};
  * Documentation: [Base UI Scroll Area](https://base-ui.com/react/components/scroll-area)
  */
 export const ScrollAreaRoot = React.forwardRef(function ScrollAreaRoot(
-  props: ScrollAreaRoot.Props,
+  componentProps: ScrollAreaRoot.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, ...otherProps } = props;
+  const { render, className, ...elementProps } = componentProps;
 
   const scrollAreaRoot = useScrollAreaRoot();
 
   const { rootId } = scrollAreaRoot;
 
-  const { renderElement } = useComponentRenderer({
-    propGetter: scrollAreaRoot.getRootProps,
-    render: render ?? 'div',
+  const renderElement = useRenderElement('div', componentProps, {
     ref: forwardedRef,
-    className,
-    state,
-    extraProps: otherProps,
+    props: [scrollAreaRoot.props, elementProps],
   });
 
   const contextValue = React.useMemo(() => scrollAreaRoot, [scrollAreaRoot]);
