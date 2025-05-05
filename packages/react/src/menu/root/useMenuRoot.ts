@@ -96,7 +96,7 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
 
   const openOnHover =
     openOnHoverParam ??
-    (parent.type === 'menu' || (parent.type === 'menubar' && parent.context.shouldOpenOnHover));
+    (parent.type === 'menu' || (parent.type === 'menubar' && parent.context.hasSubmenuOpen));
 
   const [open, setOpenUnwrapped] = useControlled({
     controlled: openParam,
@@ -220,7 +220,7 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
       hoverEnabled &&
       openOnHover &&
       !disabled &&
-      (parent.type !== 'menubar' || (parent.context.shouldOpenOnHover && !open)),
+      (parent.type !== 'menubar' || (parent.context.hasSubmenuOpen && !open)),
     handleClose: safePolygon({ blockPointerEvents: true }),
     mouseOnly: true,
     move: parent.type === 'menu',

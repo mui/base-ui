@@ -6,7 +6,6 @@ export interface MenubarContext {
   modal: boolean;
   contentElement: HTMLElement | null;
   setContentElement: (element: HTMLElement | null) => void;
-  shouldOpenOnHover: boolean;
   hasSubmenuOpen: boolean;
   setHasSubmenuOpen: (open: boolean) => void;
   orientation: MenuOrientation;

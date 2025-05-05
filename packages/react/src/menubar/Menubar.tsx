@@ -53,20 +53,16 @@ export const Menubar = React.forwardRef(function Menubar(
     ref: [forwardedRef, setContentElement, contentRef],
   });
 
-  // TODO: use hasSubmenuOpen instead
-  const shouldOpenOnHover = hasSubmenuOpen;
-
   const context: MenubarContext = React.useMemo(
     () => ({
       contentElement,
       setContentElement,
       setHasSubmenuOpen,
       hasSubmenuOpen,
-      shouldOpenOnHover,
       modal,
       orientation,
     }),
-    [contentElement, shouldOpenOnHover, hasSubmenuOpen, modal, orientation],
+    [contentElement, hasSubmenuOpen, modal, orientation],
   );
 
   return (
@@ -77,7 +73,7 @@ export const Menubar = React.forwardRef(function Menubar(
             render={renderElement()}
             orientation={orientation}
             loop={loop}
-            highlightItemOnHover={shouldOpenOnHover}
+            highlightItemOnHover={hasSubmenuOpen}
           />
         </MenubarContent>
       </FloatingTree>
@@ -88,8 +84,9 @@ export const Menubar = React.forwardRef(function Menubar(
 function MenubarContent(props: React.PropsWithChildren<{}>) {
   const nodeId = useFloatingNodeId();
   const { events: menuEvents } = useFloatingTree()!;
-  const openSubmenus = React.useRef(new Set<string>());
+  const openSubmenusRef = React.useRef(new Set<string>());
   const rootContext = useMenubarContext();
+
   React.useEffect(() => {
     function onSubmenuOpenChange(event: { open: boolean; nodeId: string; parentNodeId: string }) {
       if (event.parentNodeId !== nodeId) {
@@ -97,19 +94,19 @@ function MenubarContent(props: React.PropsWithChildren<{}>) {
       }
 
       if (event.open) {
-        openSubmenus.current.add(event.nodeId);
+        openSubmenusRef.current.add(event.nodeId);
       } else {
-        openSubmenus.current.delete(event.nodeId);
+        openSubmenusRef.current.delete(event.nodeId);
       }
 
-      const isAnyOpen = openSubmenus.current.size > 0;
+      const isAnyOpen = openSubmenusRef.current.size > 0;
       if (isAnyOpen) {
         rootContext.setHasSubmenuOpen(true);
       } else if (rootContext.hasSubmenuOpen) {
         // wait for the next frame to set the state to make sure another menu doesn't open
         // immediately after the previous one is closed
         requestAnimationFrame(() => {
-          if (openSubmenus.current.size === 0) {
+          if (openSubmenusRef.current.size === 0) {
             rootContext.setHasSubmenuOpen(false);
           }
         });
