@@ -50,7 +50,7 @@ export function useMenuItem(params: useMenuItem.Parameters): useMenuItem.ReturnV
           },
           onClick: (event: React.MouseEvent | React.KeyboardEvent) => {
             if (closeOnClick) {
-              menuEvents.emit('close', { domEvent: event, reason: 'item-click' });
+              menuEvents.emit('close', { domEvent: event, reason: 'item-press' });
             }
           },
           onMouseUp: (event: React.MouseEvent) => {
@@ -58,7 +58,7 @@ export function useMenuItem(params: useMenuItem.Parameters): useMenuItem.ReturnV
               // This fires whenever the user clicks on the trigger, moves the cursor, and releases it over the item.
               // We trigger the click and override the `closeOnClick` preference to always close the menu.
               itemRef.current.click();
-              menuEvents.emit('close', { domEvent: event, reason: 'item-click' });
+              menuEvents.emit('close', { domEvent: event, reason: 'item-press' });
             }
           },
         },

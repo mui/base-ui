@@ -165,7 +165,8 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
       }
 
       const isHover = reason === 'hover';
-      const isKeyboardClick = reason === 'click' && (event as MouseEvent).detail === 0;
+      const isKeyboardClick =
+        reason === 'click' || (reason === 'item-press' && (event as MouseEvent).detail === 0);
       const isDismissClose = !nextOpen && (reason === 'escape-key' || reason == null);
 
       function changeState() {
