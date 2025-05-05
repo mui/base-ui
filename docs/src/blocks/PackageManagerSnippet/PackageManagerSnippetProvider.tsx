@@ -1,5 +1,5 @@
 'use client';
-import { useEnhancedEffect } from '@base-ui-components/react/utils';
+import { useModernLayoutEffect } from '@base-ui-components/react/utils';
 import * as React from 'react';
 
 export interface PackageManagerSnippetContext {
@@ -35,7 +35,7 @@ export function PackageManagerSnippetProvider(props: PackageManagerSnippetProvid
     localStorage.setItem(STORAGE_KEY, newValue);
   }, []);
 
-  useEnhancedEffect(() => {
+  useModernLayoutEffect(() => {
     const savedValue = localStorage.getItem(STORAGE_KEY);
 
     if (savedValue) {

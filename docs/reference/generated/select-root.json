@@ -36,11 +36,6 @@
       "type": "RefObject<Actions>",
       "description": "A ref to imperative actions.\n- `unmount`: When specified, the select will not be unmounted when closed.\nInstead, the `unmount` function must be called to unmount the select manually.\nUseful when the select's animation is controlled by an external library."
     },
-    "alignItemToTrigger": {
-      "type": "boolean",
-      "default": "true",
-      "description": "Determines if the selected item inside the popup should align to the trigger element."
-    },
     "modal": {
       "type": "boolean",
       "default": "true",
@@ -49,10 +44,6 @@
     "onOpenChangeComplete": {
       "type": "((open: boolean) => void)",
       "description": "Event handler called after any animations complete when the select menu is opened or closed."
-    },
-    "transitionStatus": {
-      "type": "TransitionStatus",
-      "description": "The transition status of the select."
     },
     "disabled": {
       "type": "boolean",
@@ -68,6 +59,10 @@
       "type": "boolean",
       "default": "false",
       "description": "Whether the user must choose a value before submitting a form."
+    },
+    "inputRef": {
+      "type": "Ref<HTMLInputElement>",
+      "description": "A ref to access the hidden input element."
     },
     "id": {
       "type": "string",

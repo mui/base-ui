@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import PropTypes from 'prop-types';
 import { useDialogRootContext } from '../root/DialogRootContext';
 import { mergeProps } from '../../merge-props';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
@@ -22,7 +21,7 @@ const customStyleHookMapping: CustomStyleHookMapping<DialogBackdrop.State> = {
  *
  * Documentation: [Base UI Dialog](https://base-ui.com/react/components/dialog)
  */
-const DialogBackdrop = React.forwardRef(function DialogBackdrop(
+export const DialogBackdrop = React.forwardRef(function DialogBackdrop(
   props: DialogBackdrop.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
@@ -67,7 +66,7 @@ const DialogBackdrop = React.forwardRef(function DialogBackdrop(
   return renderElement();
 });
 
-namespace DialogBackdrop {
+export namespace DialogBackdrop {
   export interface Props extends BaseUIComponentProps<'div', State> {}
 
   export interface State {
@@ -78,28 +77,3 @@ namespace DialogBackdrop {
     transitionStatus: TransitionStatus;
   }
 }
-
-DialogBackdrop.propTypes /* remove-proptypes */ = {
-  // ┌────────────────────────────── Warning ──────────────────────────────┐
-  // │ These PropTypes are generated from the TypeScript type definitions. │
-  // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
-  // └─────────────────────────────────────────────────────────────────────┘
-  /**
-   * @ignore
-   */
-  children: PropTypes.node,
-  /**
-   * CSS class applied to the element, or a function that
-   * returns a class based on the component’s state.
-   */
-  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
-  /**
-   * Allows you to replace the component’s HTML element
-   * with a different tag, or compose it with another component.
-   *
-   * Accepts a `ReactElement` or a function that returns the element to render.
-   */
-  render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
-} as any;
-
-export { DialogBackdrop };

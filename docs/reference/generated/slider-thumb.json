@@ -2,24 +2,6 @@
   "name": "SliderThumb",
   "description": "The draggable part of the the slider at the tip of the indicator.\nRenders a `<div>` element.",
   "props": {
-    "aria-label": {
-      "type": "string",
-      "description": "The label for the input element."
-    },
-    "aria-labelledby": {
-      "type": "string"
-    },
-    "name": {
-      "type": "string"
-    },
-    "active": {
-      "type": "number",
-      "description": "The index of the active thumb."
-    },
-    "aria-valuetext": {
-      "type": "string",
-      "description": "A string value that provides a user-friendly name for the current value of the slider."
-    },
     "getAriaLabel": {
       "type": "((index: number) => string) | null",
       "description": "Accepts a function which returns a string value that provides a user-friendly name for the input associated with the thumb"
@@ -28,77 +10,17 @@
       "type": "((formattedValue: string, value: number, index: number) => string) | null",
       "description": "Accepts a function which returns a string value that provides a user-friendly name for the current value of the slider.\nThis is important for screen reader users."
     },
-    "handleInputChange": {
-      "type": "((valueInput: number, index: number, event: KeyboardEvent<Element> | ChangeEvent<Element>) => void)"
-    },
     "inputId": {
       "type": "string"
     },
-    "onBlur": {
-      "type": "FocusEventHandler<Element>"
-    },
-    "onFocus": {
-      "type": "FocusEventHandler<Element>"
-    },
-    "onKeyDown": {
-      "type": "KeyboardEventHandler<Element>"
-    },
-    "onPointerLeave": {
-      "type": "PointerEventHandler<Element>"
-    },
-    "onPointerOver": {
-      "type": "PointerEventHandler<Element>"
-    },
-    "percentageValues": {
-      "type": "number[]",
-      "description": "The value(s) of the slider as percentages"
-    },
-    "tabIndex": {
-      "type": "number | null",
-      "default": "null",
-      "description": "Optional tab index attribute for the thumb components."
-    },
-    "values": {
-      "type": "number[]",
-      "description": "The value(s) of the slider"
-    },
-    "step": {
-      "type": "number",
-      "default": "1",
-      "description": "The step increment of the slider when incrementing or decrementing. It will snap\nto multiples of this value. Decimal values are supported."
-    },
-    "largeStep": {
-      "type": "number",
-      "default": "10",
-      "description": "The large step value of the slider when incrementing or decrementing while the shift key is held,\nor when using Page-Up or Page-Down keys. Snaps to multiples of this value."
-    },
-    "minStepsBetweenValues": {
-      "type": "number",
-      "description": "The minimum steps between values in a range slider."
-    },
-    "min": {
-      "type": "number",
-      "description": "The minimum allowed value of the slider."
-    },
-    "max": {
-      "type": "number",
-      "description": "The maximum allowed value of the slider."
-    },
-    "format": {
-      "type": "NumberFormatOptions | null",
-      "default": "null",
-      "description": "Options to format the input value."
-    },
     "disabled": {
-      "type": "boolean"
+      "type": "boolean",
+      "default": "false",
+      "description": "Whether the thumb should ignore user interaction."
     },
-    "orientation": {
-      "type": "Orientation",
-      "default": "'horizontal'",
-      "description": "The component orientation."
-    },
-    "id": {
-      "type": "string"
+    "inputRef": {
+      "type": "Ref<HTMLInputElement>",
+      "description": "A ref to access the hidden input element."
     },
     "className": {
       "type": "string | ((state: State) => string)",

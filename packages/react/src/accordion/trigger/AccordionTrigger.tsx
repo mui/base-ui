@@ -1,12 +1,11 @@
 'use client';
 import * as React from 'react';
-import PropTypes from 'prop-types';
 import { triggerOpenStateMapping } from '../../utils/collapsibleOpenStateMapping';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
+import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
+import { useRenderElement } from '../../utils/useRenderElement';
 import { BaseUIComponentProps } from '../../utils/types';
+import { useButton } from '../../use-button';
 import { useCollapsibleRootContext } from '../../collapsible/root/CollapsibleRootContext';
-import { useCollapsibleTrigger } from '../../collapsible/trigger/useCollapsibleTrigger';
 import type { AccordionItem } from '../item/AccordionItem';
 import { useAccordionItemContext } from '../item/AccordionItemContext';
 
@@ -17,83 +16,53 @@ import { useAccordionItemContext } from '../item/AccordionItemContext';
  * Documentation: [Base UI Accordion](https://base-ui.com/react/components/accordion)
  */
 
-const AccordionTrigger = React.forwardRef(function AccordionTrigger(
-  props: AccordionTrigger.Props,
+export const AccordionTrigger = React.forwardRef(function AccordionTrigger(
+  componentProps: AccordionTrigger.Props,
   forwardedRef: React.ForwardedRef<Element>,
 ) {
-  const { disabled: disabledProp, className, id, render, ...otherProps } = props;
+  const { disabled: disabledProp, className, id: idProp, render, ...elementProps } = componentProps;
 
   const { panelId, open, handleTrigger, disabled: contextDisabled } = useCollapsibleRootContext();
 
-  const { getRootProps } = useCollapsibleTrigger({
-    disabled: disabledProp ?? contextDisabled,
-    panelId,
-    open,
-    handleTrigger,
-    rootRef: forwardedRef,
+  const disabled = disabledProp ?? contextDisabled;
+
+  const { getButtonProps, buttonRef } = useButton({
+    disabled,
+    focusableWhenDisabled: true,
   });
 
-  const { state, setTriggerId, triggerId } = useAccordionItemContext();
+  const { state, setTriggerId, triggerId: id } = useAccordionItemContext();
 
-  useEnhancedEffect(() => {
-    if (id) {
-      setTriggerId(id);
+  useModernLayoutEffect(() => {
+    if (idProp) {
+      setTriggerId(idProp);
     }
     return () => {
       setTriggerId(undefined);
     };
-  }, [id, setTriggerId]);
+  }, [idProp, setTriggerId]);
 
-  const { renderElement } = useComponentRenderer({
-    propGetter: getRootProps,
-    render: render ?? 'button',
+  const props = React.useMemo(
+    () => ({
+      'aria-controls': panelId,
+      'aria-expanded': open,
+      disabled,
+      id,
+      onClick: handleTrigger,
+    }),
+    [panelId, disabled, id, open, handleTrigger],
+  );
+
+  const renderElement = useRenderElement('button', componentProps, {
     state,
-    className,
-    extraProps: {
-      ...otherProps,
-      // the `id` prop doesn't go here directly, it updates a context
-      // and becomes `triggerId`
-      id: triggerId,
-    },
+    ref: [forwardedRef, buttonRef],
+    props: [props, elementProps, getButtonProps],
     customStyleHookMapping: triggerOpenStateMapping,
   });
 
   return renderElement();
 });
 
-namespace AccordionTrigger {
+export namespace AccordionTrigger {
   export interface Props extends BaseUIComponentProps<'button', AccordionItem.State> {}
 }
-
-export { AccordionTrigger };
-
-AccordionTrigger.propTypes /* remove-proptypes */ = {
-  // ┌────────────────────────────── Warning ──────────────────────────────┐
-  // │ These PropTypes are generated from the TypeScript type definitions. │
-  // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
-  // └─────────────────────────────────────────────────────────────────────┘
-  /**
-   * @ignore
-   */
-  children: PropTypes.node,
-  /**
-   * CSS class applied to the element, or a function that
-   * returns a class based on the component’s state.
-   */
-  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
-  /**
-   * @ignore
-   */
-  disabled: PropTypes.bool,
-  /**
-   * @ignore
-   */
-  id: PropTypes.string,
-  /**
-   * Allows you to replace the component’s HTML element
-   * with a different tag, or compose it with another component.
-   *
-   * Accepts a `ReactElement` or a function that returns the element to render.
-   */
-  render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
-} as any;

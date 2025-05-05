@@ -8,15 +8,12 @@ import { CHANGE_VALUE_TICK_DELAY, DEFAULT_STEP, START_AUTO_CHANGE_DELAY } from '
 import { isIOS } from '../../utils/detectBrowser';
 import { ownerDocument, ownerWindow } from '../../utils/owner';
 import { useControlled } from '../../utils/useControlled';
-import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
+import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { useForcedRerendering } from '../../utils/useForcedRerendering';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useLatestRef } from '../../utils/useLatestRef';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
-import { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
-import { useForkRef } from '../../utils/useForkRef';
-import { useField } from '../../field/useField';
 import type { ScrubHandle } from './useScrub';
 import type { EventWithOptionalKeyState } from '../utils/types';
 
@@ -25,7 +22,7 @@ export function useNumberFieldRoot(
 ): useNumberFieldRoot.ReturnValue {
   const {
     id: idProp,
-    name,
+    name: nameProp,
     min,
     max,
     smallStep = 0.1,
@@ -33,7 +30,6 @@ export function useNumberFieldRoot(
     largeStep = 10,
     required = false,
     disabled: disabledProp = false,
-    invalid = false,
     readOnly = false,
     allowWheelScrub = false,
     snapOnStep = false,
@@ -46,17 +42,17 @@ export function useNumberFieldRoot(
 
   const {
     setControlId,
-    validationMode,
     setDirty,
     validityData,
     setValidityData,
     disabled: fieldDisabled,
     setFilled,
+    invalid,
+    name: fieldName,
   } = useFieldRootContext();
 
-  const { inputRef: inputValidationRef, commitValidation } = useFieldControlValidation();
-
   const disabled = fieldDisabled || disabledProp;
+  const name = fieldName ?? nameProp;
 
   const minWithDefault = min ?? Number.MIN_SAFE_INTEGER;
   const maxWithDefault = max ?? Number.MAX_SAFE_INTEGER;
@@ -64,11 +60,10 @@ export function useNumberFieldRoot(
   const formatStyle = format?.style;
 
   const inputRef = React.useRef<HTMLInputElement>(null);
-  const mergedRef = useForkRef(inputRef, inputValidationRef);
 
   const id = useBaseUiId(idProp);
 
-  useEnhancedEffect(() => {
+  useModernLayoutEffect(() => {
     setControlId(id);
     return () => {
       setControlId(undefined);
@@ -85,16 +80,9 @@ export function useNumberFieldRoot(
   const value = valueUnwrapped ?? null;
   const valueRef = useLatestRef(value);
 
-  useEnhancedEffect(() => {
+  useModernLayoutEffect(() => {
     setFilled(value !== null);
   }, [setFilled, value]);
-
-  useField({
-    id,
-    commitValidation,
-    value,
-    controlRef: inputRef,
-  });
 
   const forceRender = useForcedRerendering();
 
@@ -109,7 +97,7 @@ export function useNumberFieldRoot(
   const allowInputSyncRef = React.useRef(true);
   const unsubscribeFromGlobalContextMenuRef = React.useRef<() => void>(() => {});
 
-  useEnhancedEffect(() => {
+  useModernLayoutEffect(() => {
     if (validityData.initialValue === null && value !== validityData.initialValue) {
       setValidityData((prev) => ({ ...prev, initialValue: value }));
     }
@@ -167,12 +155,8 @@ export function useNumberFieldRoot(
       setValueUnwrapped(validatedValue);
       setDirty(validatedValue !== validityData.initialValue);
 
-      if (validationMode === 'onChange') {
-        commitValidation(validatedValue);
-      }
-
       // We need to force a re-render, because while the value may be unchanged, the formatting may
-      // be different. This forces the `useEnhancedEffect` to run which acts as a single source of
+      // be different. This forces the `useModernLayoutEffect` to run which acts as a single source of
       // truth to sync the input value.
       forceRender();
     },
@@ -253,7 +237,7 @@ export function useNumberFieldRoot(
   // ESLint is disabled because it needs to run even if the parsed value hasn't changed, since the
   // value still can be formatted differently.
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEnhancedEffect(function syncFormattedInputValueOnValueChange() {
+  useModernLayoutEffect(function syncFormattedInputValueOnValueChange() {
     // This ensures the value is only updated on blur rather than every keystroke, but still
     // allows the input value to be updated when the value is changed externally.
     if (!allowInputSyncRef.current) {
@@ -267,7 +251,7 @@ export function useNumberFieldRoot(
     }
   });
 
-  useEnhancedEffect(
+  useModernLayoutEffect(
     function setDynamicInputModeForIOS() {
       if (!isIOS()) {
         return;
@@ -338,7 +322,6 @@ export function useNumberFieldRoot(
   return React.useMemo(
     () => ({
       inputRef,
-      mergedRef,
       inputValue,
       value,
       startAutoChange,
@@ -370,7 +353,6 @@ export function useNumberFieldRoot(
     }),
     [
       inputRef,
-      mergedRef,
       inputValue,
       value,
       scrub,
@@ -527,7 +509,6 @@ export namespace useNumberFieldRoot {
       event?: Event,
     ) => void;
     inputRef: React.RefObject<HTMLInputElement | null>;
-    mergedRef: ((instance: HTMLInputElement | null) => void) | null;
     allowInputSyncRef: React.RefObject<boolean | null>;
     formatOptionsRef: React.RefObject<Intl.NumberFormatOptions | undefined>;
     valueRef: React.RefObject<number | null>;
@@ -536,7 +517,7 @@ export namespace useNumberFieldRoot {
     movesAfterTouchRef: React.RefObject<number | null>;
     name: string | undefined;
     required: boolean;
-    invalid: boolean;
+    invalid: boolean | undefined;
     inputMode: InputMode;
     getAllowedNonNumericKeys: () => (string | undefined)[];
     min: number | undefined;

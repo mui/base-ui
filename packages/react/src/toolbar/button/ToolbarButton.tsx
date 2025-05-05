@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import PropTypes from 'prop-types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useButton } from '../../use-button';
@@ -15,7 +14,7 @@ import { useToolbarGroupContext } from '../group/ToolbarGroupContext';
  *
  * Documentation: [Base UI Toolbar](https://base-ui.com/react/components/toolbar)
  */
-const ToolbarButton = React.forwardRef(function ToolbarButton(
+export const ToolbarButton = React.forwardRef(function ToolbarButton(
   props: ToolbarButton.Props,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
@@ -61,7 +60,7 @@ const ToolbarButton = React.forwardRef(function ToolbarButton(
   return <CompositeItem<ToolbarItemMetadata> metadata={itemMetadata} render={renderElement()} />;
 });
 
-namespace ToolbarButton {
+export namespace ToolbarButton {
   export interface State extends ToolbarRoot.State {
     disabled: boolean;
     focusable: boolean;
@@ -80,38 +79,3 @@ namespace ToolbarButton {
     focusableWhenDisabled?: boolean;
   }
 }
-
-export { ToolbarButton };
-
-ToolbarButton.propTypes /* remove-proptypes */ = {
-  // ┌────────────────────────────── Warning ──────────────────────────────┐
-  // │ These PropTypes are generated from the TypeScript type definitions. │
-  // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
-  // └─────────────────────────────────────────────────────────────────────┘
-  /**
-   * @ignore
-   */
-  children: PropTypes.node,
-  /**
-   * CSS class applied to the element, or a function that
-   * returns a class based on the component’s state.
-   */
-  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
-  /**
-   * When `true` the item is disabled.
-   * @default false
-   */
-  disabled: PropTypes.bool,
-  /**
-   * When `true` the item remains focuseable when disabled.
-   * @default true
-   */
-  focusableWhenDisabled: PropTypes.bool,
-  /**
-   * Allows you to replace the component’s HTML element
-   * with a different tag, or compose it with another component.
-   *
-   * Accepts a `ReactElement` or a function that returns the element to render.
-   */
-  render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
-} as any;

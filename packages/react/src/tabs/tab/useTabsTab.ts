@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { mergeProps } from '../../merge-props';
 import { ownerDocument } from '../../utils/owner';
-import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
+import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { useForkRef } from '../../utils/useForkRef';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useButton } from '../../use-button';
@@ -17,7 +17,7 @@ export interface TabMetadata {
   value: any | undefined;
 }
 
-function useTabsTab(parameters: useTabsTab.Parameters): useTabsTab.ReturnValue {
+export function useTabsTab(parameters: useTabsTab.Parameters): useTabsTab.ReturnValue {
   const {
     activateOnFocus,
     disabled = false,
@@ -60,7 +60,7 @@ function useTabsTab(parameters: useTabsTab.Parameters): useTabsTab.ReturnValue {
 
   const isSelectionSyncedWithHighlightRef = React.useRef(false);
 
-  useEnhancedEffect(() => {
+  useModernLayoutEffect(() => {
     if (isSelectionSyncedWithHighlightRef.current === true) {
       return;
     }
@@ -168,7 +168,7 @@ function useTabsTab(parameters: useTabsTab.Parameters): useTabsTab.ReturnValue {
   };
 }
 
-namespace useTabsTab {
+export namespace useTabsTab {
   export interface Parameters
     extends Pick<TabsRootContext, 'getTabPanelIdByTabValueOrIndex'>,
       Pick<TabsList.Props, 'activateOnFocus'>,
@@ -224,5 +224,3 @@ namespace useTabsTab {
     selected: boolean;
   }
 }
-
-export { useTabsTab };

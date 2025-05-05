@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import PropTypes from 'prop-types';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useProgressRootContext } from '../root/ProgressRootContext';
@@ -12,7 +11,7 @@ import { progressStyleHookMapping } from '../root/styleHooks';
  *
  * Documentation: [Base UI Progress](https://base-ui.com/react/components/progress)
  */
-const ProgressValue = React.forwardRef(function ProgressValue(
+export const ProgressValue = React.forwardRef(function ProgressValue(
   componentProps: ProgressValue.Props,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
@@ -42,34 +41,9 @@ const ProgressValue = React.forwardRef(function ProgressValue(
   return renderElement();
 });
 
-namespace ProgressValue {
+export namespace ProgressValue {
   export interface Props
     extends Omit<BaseUIComponentProps<'span', ProgressRoot.State>, 'children'> {
     children?: null | ((formattedValue: string | null, value: number | null) => React.ReactNode);
   }
 }
-
-export { ProgressValue };
-
-ProgressValue.propTypes /* remove-proptypes */ = {
-  // ┌────────────────────────────── Warning ──────────────────────────────┐
-  // │ These PropTypes are generated from the TypeScript type definitions. │
-  // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
-  // └─────────────────────────────────────────────────────────────────────┘
-  /**
-   * @ignore
-   */
-  children: PropTypes.func,
-  /**
-   * CSS class applied to the element, or a function that
-   * returns a class based on the component’s state.
-   */
-  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
-  /**
-   * Allows you to replace the component’s HTML element
-   * with a different tag, or compose it with another component.
-   *
-   * Accepts a `ReactElement` or a function that returns the element to render.
-   */
-  render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
-} as any;

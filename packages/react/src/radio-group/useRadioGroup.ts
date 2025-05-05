@@ -1,13 +1,15 @@
 'use client';
 import * as React from 'react';
-import { contains } from '@floating-ui/react/utils';
+import { contains, useModernLayoutEffect } from '@floating-ui/react/utils';
 import { mergeProps } from '../merge-props';
 import { useControlled } from '../utils/useControlled';
 import { useFieldRootContext } from '../field/root/FieldRootContext';
 import { useBaseUiId } from '../utils/useBaseUiId';
 import { useFieldControlValidation } from '../field/control/useFieldControlValidation';
 import { useField } from '../field/useField';
-import { visuallyHidden } from '../utils';
+import { visuallyHidden } from '../utils/visuallyHidden';
+import { useFormContext } from '../form/FormContext';
+import { useForkRef } from '../utils/useForkRef';
 
 export function useRadioGroup(params: useRadioGroup.Parameters) {
   const {
@@ -17,6 +19,7 @@ export function useRadioGroup(params: useRadioGroup.Parameters) {
     defaultValue,
     readOnly,
     value: externalValue,
+    inputRef: inputRefProp,
   } = params;
 
   const {
@@ -27,6 +30,7 @@ export function useRadioGroup(params: useRadioGroup.Parameters) {
     name: fieldName,
     disabled: fieldDisabled,
   } = useFieldRootContext();
+  const { clearErrors } = useFormContext();
 
   const disabled = fieldDisabled || disabledProp;
   const name = fieldName ?? nameProp;
@@ -34,6 +38,8 @@ export function useRadioGroup(params: useRadioGroup.Parameters) {
   const fieldControlValidation = useFieldControlValidation();
 
   const id = useBaseUiId();
+
+  const ref = useForkRef(fieldControlValidation.inputRef, inputRefProp);
 
   const [checkedValue, setCheckedValue] = useControlled({
     controlled: externalValue,
@@ -48,6 +54,26 @@ export function useRadioGroup(params: useRadioGroup.Parameters) {
     value: checkedValue,
     controlRef: fieldControlValidation.inputRef,
   });
+
+  const prevValueRef = React.useRef(checkedValue);
+
+  useModernLayoutEffect(() => {
+    if (prevValueRef.current === checkedValue) {
+      return;
+    }
+
+    clearErrors(name);
+
+    if (validationMode === 'onChange') {
+      fieldControlValidation.commitValidation(checkedValue);
+    } else {
+      fieldControlValidation.commitValidation(checkedValue, true);
+    }
+  }, [name, clearErrors, validationMode, checkedValue, fieldControlValidation]);
+
+  useModernLayoutEffect(() => {
+    prevValueRef.current = checkedValue;
+  }, [checkedValue]);
 
   const [touched, setTouched] = React.useState(false);
 
@@ -109,7 +135,7 @@ export function useRadioGroup(params: useRadioGroup.Parameters) {
       mergeProps<'input'>(
         {
           value: serializedCheckedValue,
-          ref: fieldControlValidation.inputRef,
+          ref,
           id,
           name,
           disabled,
@@ -121,7 +147,7 @@ export function useRadioGroup(params: useRadioGroup.Parameters) {
         },
         fieldControlValidation.getInputValidationProps(externalProps),
       ),
-    [fieldControlValidation, serializedCheckedValue, id, name, disabled, readOnly, required],
+    [serializedCheckedValue, ref, id, name, disabled, readOnly, required, fieldControlValidation],
   );
 
   return React.useMemo(
@@ -133,12 +159,21 @@ export function useRadioGroup(params: useRadioGroup.Parameters) {
       touched,
       setTouched,
       fieldControlValidation,
+      name,
     }),
-    [getRootProps, getInputProps, checkedValue, setCheckedValue, touched, fieldControlValidation],
+    [
+      getRootProps,
+      getInputProps,
+      checkedValue,
+      setCheckedValue,
+      touched,
+      fieldControlValidation,
+      name,
+    ],
   );
 }
 
-namespace useRadioGroup {
+export namespace useRadioGroup {
   export interface Parameters {
     name?: string;
     disabled?: boolean;
@@ -146,5 +181,6 @@ namespace useRadioGroup {
     readOnly?: boolean;
     defaultValue?: unknown;
     value?: unknown;
+    inputRef?: React.Ref<HTMLInputElement>;
   }
 }

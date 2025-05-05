@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import PropTypes from 'prop-types';
 import { useMenuCheckboxItemContext } from '../checkbox-item/MenuCheckboxItemContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { BaseUIComponentProps } from '../../utils/types';
@@ -15,7 +14,7 @@ import { useForkRef } from '../../utils/useForkRef';
  *
  * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
  */
-const MenuCheckboxItemIndicator = React.forwardRef(function MenuCheckboxItemIndicator(
+export const MenuCheckboxItemIndicator = React.forwardRef(function MenuCheckboxItemIndicator(
   props: MenuCheckboxItemIndicator.Props,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
@@ -68,7 +67,7 @@ const MenuCheckboxItemIndicator = React.forwardRef(function MenuCheckboxItemIndi
   return renderElement();
 });
 
-namespace MenuCheckboxItemIndicator {
+export namespace MenuCheckboxItemIndicator {
   export interface Props extends BaseUIComponentProps<'span', State> {
     /**
      * Whether to keep the HTML element in the DOM when the checkbox item is not checked.
@@ -90,33 +89,3 @@ namespace MenuCheckboxItemIndicator {
     transitionStatus: TransitionStatus;
   }
 }
-
-MenuCheckboxItemIndicator.propTypes /* remove-proptypes */ = {
-  // ┌────────────────────────────── Warning ──────────────────────────────┐
-  // │ These PropTypes are generated from the TypeScript type definitions. │
-  // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
-  // └─────────────────────────────────────────────────────────────────────┘
-  /**
-   * @ignore
-   */
-  children: PropTypes.node,
-  /**
-   * CSS class applied to the element, or a function that
-   * returns a class based on the component’s state.
-   */
-  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
-  /**
-   * Whether to keep the HTML element in the DOM when the checkbox item is not checked.
-   * @default false
-   */
-  keepMounted: PropTypes.bool,
-  /**
-   * Allows you to replace the component’s HTML element
-   * with a different tag, or compose it with another component.
-   *
-   * Accepts a `ReactElement` or a function that returns the element to render.
-   */
-  render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
-} as any;
-
-export { MenuCheckboxItemIndicator };

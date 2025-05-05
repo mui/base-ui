@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { NOOP } from '../../utils/noop';
-import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
+import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 
 export type ImageLoadingStatus = 'idle' | 'loading' | 'loaded' | 'error';
 
@@ -16,7 +16,7 @@ export function useImageLoadingStatus(
 ): ImageLoadingStatus {
   const [loadingStatus, setLoadingStatus] = React.useState<ImageLoadingStatus>('idle');
 
-  useEnhancedEffect(() => {
+  useModernLayoutEffect(() => {
     if (!src) {
       setLoadingStatus('error');
       return NOOP;

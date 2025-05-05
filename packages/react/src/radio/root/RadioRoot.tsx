@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import PropTypes from 'prop-types';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useRadioGroupContext } from '../../radio-group/RadioGroupContext';
@@ -17,7 +16,7 @@ import { customStyleHookMapping } from '../utils/customStyleHookMapping';
  *
  * Documentation: [Base UI Radio](https://base-ui.com/react/components/radio)
  */
-const RadioRoot = React.forwardRef(function RadioRoot(
+export const RadioRoot = React.forwardRef(function RadioRoot(
   props: RadioRoot.Props,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
@@ -28,6 +27,7 @@ const RadioRoot = React.forwardRef(function RadioRoot(
     readOnly: readOnlyProp = false,
     required: requiredProp = false,
     value,
+    inputRef,
     ...otherProps
   } = props;
 
@@ -48,6 +48,7 @@ const RadioRoot = React.forwardRef(function RadioRoot(
     ...props,
     disabled,
     readOnly,
+    inputRef,
   });
 
   const state: RadioRoot.State = React.useMemo(
@@ -81,7 +82,7 @@ const RadioRoot = React.forwardRef(function RadioRoot(
   );
 });
 
-namespace RadioRoot {
+export namespace RadioRoot {
   export interface Props extends Omit<BaseUIComponentProps<'button', State>, 'value'> {
     /**
      * The unique identifying value of the radio in a group.
@@ -102,6 +103,10 @@ namespace RadioRoot {
      * @default false
      */
     readOnly?: boolean;
+    /**
+     * A ref to access the hidden input element.
+     */
+    inputRef?: React.Ref<HTMLInputElement>;
   }
 
   export interface State {
@@ -120,47 +125,3 @@ namespace RadioRoot {
     required: boolean;
   }
 }
-
-RadioRoot.propTypes /* remove-proptypes */ = {
-  // ┌────────────────────────────── Warning ──────────────────────────────┐
-  // │ These PropTypes are generated from the TypeScript type definitions. │
-  // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
-  // └─────────────────────────────────────────────────────────────────────┘
-  /**
-   * @ignore
-   */
-  children: PropTypes.node,
-  /**
-   * CSS class applied to the element, or a function that
-   * returns a class based on the component’s state.
-   */
-  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
-  /**
-   * Whether the component should ignore user interaction.
-   * @default false
-   */
-  disabled: PropTypes.bool,
-  /**
-   * Whether the user should be unable to select the radio button.
-   * @default false
-   */
-  readOnly: PropTypes.bool,
-  /**
-   * Allows you to replace the component’s HTML element
-   * with a different tag, or compose it with another component.
-   *
-   * Accepts a `ReactElement` or a function that returns the element to render.
-   */
-  render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
-  /**
-   * Whether the user must choose a value before submitting a form.
-   * @default false
-   */
-  required: PropTypes.bool,
-  /**
-   * The unique identifying value of the radio in a group.
-   */
-  value: PropTypes.any.isRequired,
-} as any;
-
-export { RadioRoot };

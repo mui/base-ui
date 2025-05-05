@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import PropTypes from 'prop-types';
 import { FloatingFocusManager, useFloatingTree } from '@floating-ui/react';
 import { useMenuPopup } from './useMenuPopup';
 import { useMenuRootContext } from '../root/MenuRootContext';
@@ -30,7 +29,7 @@ const EMPTY_OBJ = {};
  *
  * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
  */
-const MenuPopup = React.forwardRef(function MenuPopup(
+export const MenuPopup = React.forwardRef(function MenuPopup(
   props: MenuPopup.Props,
   forwardedRef: React.ForwardedRef<Element>,
 ) {
@@ -105,7 +104,7 @@ const MenuPopup = React.forwardRef(function MenuPopup(
   );
 });
 
-namespace MenuPopup {
+export namespace MenuPopup {
   export interface Props extends BaseUIComponentProps<'div', State> {
     children?: React.ReactNode;
     /**
@@ -125,32 +124,3 @@ namespace MenuPopup {
     nested: boolean;
   };
 }
-
-MenuPopup.propTypes /* remove-proptypes */ = {
-  // ┌────────────────────────────── Warning ──────────────────────────────┐
-  // │ These PropTypes are generated from the TypeScript type definitions. │
-  // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
-  // └─────────────────────────────────────────────────────────────────────┘
-  /**
-   * @ignore
-   */
-  children: PropTypes.node,
-  /**
-   * CSS class applied to the element, or a function that
-   * returns a class based on the component’s state.
-   */
-  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
-  /**
-   * @ignore
-   */
-  id: PropTypes.string,
-  /**
-   * Allows you to replace the component’s HTML element
-   * with a different tag, or compose it with another component.
-   *
-   * Accepts a `ReactElement` or a function that returns the element to render.
-   */
-  render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
-} as any;
-
-export { MenuPopup };

@@ -1,15 +1,14 @@
 {
   "name": "api-docs-builder",
-  "version": "1.0.0",
   "private": true,
   "type": "module",
   "dependencies": {
-    "@types/lodash": "^4.17.15",
+    "@types/lodash": "^4.17.16",
     "@types/yargs": "^17.0.33",
     "lodash": "^4.17.21",
-    "rimraf": "^6.0.1",
     "react-api-extractor": "https://pkg.pr.new/michaldudak/react-api-extractor@c19166f",
-    "tsx": "^4.19.3",
+    "rimraf": "^6.0.1",
+    "tsx": "^4.19.4",
     "yargs": "^17.7.2"
   },
   "scripts": {

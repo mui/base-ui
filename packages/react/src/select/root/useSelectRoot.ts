@@ -12,8 +12,8 @@ import { useFieldControlValidation } from '../../field/control/useFieldControlVa
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useControlled } from '../../utils/useControlled';
-import { type TransitionStatus, useTransitionStatus } from '../../utils';
-import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
+import { useTransitionStatus } from '../../utils';
+import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { warn } from '../../utils/warn';
 import type { SelectRootContext } from './SelectRootContext';
@@ -23,6 +23,9 @@ import {
   type OpenChangeReason,
 } from '../../utils/translateOpenChangeReason';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
+import { useFormContext } from '../../form/FormContext';
+import { useLatestRef } from '../../utils/useLatestRef';
+import { useField } from '../../field/useField';
 
 const EMPTY_ARRAY: never[] = [];
 
@@ -32,12 +35,12 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     disabled: disabledProp = false,
     readOnly = false,
     required = false,
-    alignItemToTrigger: alignItemToTriggerParam = true,
     modal = false,
     name: nameProp,
     onOpenChangeComplete,
   } = params;
 
+  const { clearErrors } = useFormContext();
   const {
     setDirty,
     validityData,
@@ -54,7 +57,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
   const disabled = fieldDisabled || disabledProp;
   const name = fieldName ?? nameProp;
 
-  useEnhancedEffect(() => {
+  useModernLayoutEffect(() => {
     setControlId(id);
     return () => {
       setControlId(undefined);
@@ -75,12 +78,9 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     state: 'open',
   });
 
-  useEnhancedEffect(() => {
+  useModernLayoutEffect(() => {
     setFilled(value !== null);
   }, [setFilled, value]);
-
-  const [controlledAlignItemToTrigger, setControlledAlignItemToTrigger] =
-    React.useState(alignItemToTriggerParam);
 
   const listRef = React.useRef<Array<HTMLElement | null>>([]);
   const labelsRef = React.useRef<Array<string | null>>([]);
@@ -95,6 +95,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     allowUnselectedMouseUp: false,
     allowSelect: false,
   });
+  const alignItemWithTriggerActiveRef = React.useRef(false);
 
   const [triggerElement, setTriggerElement] = React.useState<HTMLElement | null>(null);
   const [positionerElement, setPositionerElement] = React.useState<HTMLElement | null>(null);
@@ -107,20 +108,33 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
 
-  const alignItemToTrigger = Boolean(mounted && controlledAlignItemToTrigger && !touchModality);
+  const controlRef = useLatestRef(triggerElement);
+  const commitValidation = fieldControlValidation.commitValidation;
 
-  if (!mounted && controlledAlignItemToTrigger !== alignItemToTriggerParam) {
-    setControlledAlignItemToTrigger(alignItemToTriggerParam);
-  }
+  useField({
+    id,
+    commitValidation,
+    value,
+    controlRef,
+  });
 
-  if (!alignItemToTriggerParam || !mounted) {
-    if (scrollUpArrowVisible) {
-      setScrollUpArrowVisible(false);
+  const prevValueRef = React.useRef(value);
+
+  useModernLayoutEffect(() => {
+    if (prevValueRef.current === value) {
+      return;
     }
-    if (scrollDownArrowVisible) {
-      setScrollDownArrowVisible(false);
+
+    clearErrors(name);
+    commitValidation?.(value, true);
+    if (validationMode === 'onChange') {
+      commitValidation?.(value);
     }
-  }
+  }, [value, commitValidation, clearErrors, name, validationMode]);
+
+  useModernLayoutEffect(() => {
+    prevValueRef.current = value;
+  }, [value]);
 
   const setOpen = useEventCallback(
     (nextOpen: boolean, event: Event | undefined, reason: OpenChangeReason | undefined) => {
@@ -166,10 +180,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     setValueUnwrapped(nextValue);
 
     setDirty(nextValue !== validityData.initialValue);
-
-    if (validationMode === 'onChange') {
-      fieldControlValidation.commitValidation(nextValue);
-    }
+    clearErrors(name);
 
     const index = valuesRef.current.indexOf(nextValue);
     setSelectedIndex(index);
@@ -195,7 +206,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     }
   });
 
-  useEnhancedEffect(() => {
+  useModernLayoutEffect(() => {
     if (!hasRegisteredRef.current) {
       return;
     }
@@ -243,7 +254,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
       setActiveIndex(nextActiveIndex);
     },
     // Implement our own listeners since `onPointerLeave` on each option fires while scrolling with
-    // the `alignItemToTrigger` prop enabled, causing a performance issue on Chrome.
+    // the `alignItemWithTrigger=true`, causing a performance issue on Chrome.
     focusItemOnHover: false,
   });
 
@@ -268,7 +279,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
 
   const {
     getReferenceProps: getRootTriggerProps,
-    getFloatingProps: getRootPositionerProps,
+    getFloatingProps: getRootPopupProps,
     getItemProps,
   } = useInteractions([click, dismiss, role, listNavigation, typeahead]);
 
@@ -287,7 +298,6 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
       setScrollUpArrowVisible,
       scrollDownArrowVisible,
       setScrollDownArrowVisible,
-      setControlledAlignItemToTrigger,
       value,
       setValue,
       open,
@@ -301,7 +311,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
       labelsRef,
       typingRef,
       selectionRef,
-      getRootPositionerProps,
+      getRootPopupProps,
       getRootTriggerProps,
       getItemProps,
       listRef,
@@ -310,13 +320,13 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
       floatingRootContext,
       touchModality,
       setTouchModality,
-      alignItemToTrigger,
       transitionStatus,
       fieldControlValidation,
       modal,
       registerSelectedItem,
       onOpenChangeComplete,
       keyboardActiveRef,
+      alignItemWithTriggerActiveRef,
     }),
     [
       id,
@@ -335,12 +345,11 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
       mounted,
       setMounted,
       label,
-      getRootPositionerProps,
+      getRootPopupProps,
       getRootTriggerProps,
       getItemProps,
       floatingRootContext,
       touchModality,
-      alignItemToTrigger,
       transitionStatus,
       fieldControlValidation,
       modal,
@@ -432,15 +441,6 @@ export namespace useSelectRoot {
      * Whether the select menu is currently open.
      */
     open?: boolean;
-    /**
-     * Determines if the selected item inside the popup should align to the trigger element.
-     * @default true
-     */
-    alignItemToTrigger?: boolean;
-    /**
-     * The transition status of the select.
-     */
-    transitionStatus?: TransitionStatus;
     /**
      * Determines if the select enters a modal state when open.
      * - `true`: user interaction is limited to the select: document page scroll is locked and and pointer interactions on outside elements are disabled.

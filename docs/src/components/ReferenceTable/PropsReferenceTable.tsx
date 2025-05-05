@@ -46,10 +46,13 @@ export async function PropsReferenceTable({
             useMDXComponents: () => ({ code: TableCode }),
           });
 
-          const PropDefault = await createMdxComponent(`\`${prop.default}\``, {
-            rehypePlugins: rehypeSyntaxHighlighting,
-            useMDXComponents: () => ({ code: TableCode }),
-          });
+          const PropDefault = await createMdxComponent(
+            `\`${prop.required ? '—' : prop.default}\``,
+            {
+              rehypePlugins: rehypeSyntaxHighlighting,
+              useMDXComponents: () => ({ code: TableCode }),
+            },
+          );
 
           const PropDescription = await createMdxComponent(prop.description, {
             rehypePlugins: rehypeSyntaxHighlighting,
@@ -59,7 +62,10 @@ export async function PropsReferenceTable({
           return (
             <Table.Row key={name}>
               <Table.RowHeader>
-                <TableCode className="text-navy">{name}</TableCode>
+                <TableCode className="text-navy">
+                  {name}
+                  {prop.required ? <sup className="top-[-0.3em] text-xs text-red-800">*</sup> : ''}
+                </TableCode>
               </Table.RowHeader>
               <Table.Cell className="max-xs:hidden">
                 <PropType />
@@ -70,21 +76,23 @@ export async function PropsReferenceTable({
                 </Table.Cell>
               )}
               <Table.Cell>
-                <ReferenceTablePopover>
-                  <PropDescription />
-                  <div className="flex flex-col gap-2 text-md md:hidden">
-                    <div className="border-t border-gray-200 pt-2 xs:hidden">
-                      <div className="mb-1 font-bold">Type</div>
-                      <PropType />
-                    </div>
-                    {type === 'props' && (
-                      <div className="border-t border-gray-200 pt-2">
-                        <div className="mb-1 font-bold">Default</div>
-                        <PropDefault />
+                {prop.description && (
+                  <ReferenceTablePopover>
+                    <PropDescription />
+                    <div className="flex flex-col gap-2 text-md md:hidden">
+                      <div className="border-t border-gray-200 pt-2 xs:hidden">
+                        <div className="mb-1 font-bold">Type</div>
+                        <PropType />
                       </div>
-                    )}
-                  </div>
-                </ReferenceTablePopover>
+                      {type === 'props' && (
+                        <div className="border-t border-gray-200 pt-2">
+                          <div className="mb-1 font-bold">Default</div>
+                          <PropDefault />
+                        </div>
+                      )}
+                    </div>
+                  </ReferenceTablePopover>
+                )}
               </Table.Cell>
             </Table.Row>
           );

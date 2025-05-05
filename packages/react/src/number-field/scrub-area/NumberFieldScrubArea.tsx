@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import PropTypes from 'prop-types';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useNumberFieldRootContext } from '../root/NumberFieldRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
@@ -14,7 +13,7 @@ import { styleHookMapping } from '../utils/styleHooks';
  *
  * Documentation: [Base UI Number Field](https://base-ui.com/react/components/number-field)
  */
-const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubArea(
+export const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubArea(
   props: NumberFieldScrubArea.Props,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
@@ -50,7 +49,7 @@ const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubArea(
   return renderElement();
 });
 
-namespace NumberFieldScrubArea {
+export namespace NumberFieldScrubArea {
   export interface State extends NumberFieldRoot.State {}
   export interface Props extends BaseUIComponentProps<'span', State> {
     /**
@@ -71,44 +70,3 @@ namespace NumberFieldScrubArea {
     teleportDistance?: number | undefined;
   }
 }
-
-NumberFieldScrubArea.propTypes /* remove-proptypes */ = {
-  // ┌────────────────────────────── Warning ──────────────────────────────┐
-  // │ These PropTypes are generated from the TypeScript type definitions. │
-  // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
-  // └─────────────────────────────────────────────────────────────────────┘
-  /**
-   * @ignore
-   */
-  children: PropTypes.node,
-  /**
-   * CSS class applied to the element, or a function that
-   * returns a class based on the component’s state.
-   */
-  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
-  /**
-   * Cursor movement direction in the scrub area.
-   * @default 'horizontal'
-   */
-  direction: PropTypes.oneOf(['horizontal', 'vertical']),
-  /**
-   * Determines how many pixels the cursor must move before the value changes.
-   * A higher value will make scrubbing less sensitive.
-   * @default 2
-   */
-  pixelSensitivity: PropTypes.number,
-  /**
-   * Allows you to replace the component’s HTML element
-   * with a different tag, or compose it with another component.
-   *
-   * Accepts a `ReactElement` or a function that returns the element to render.
-   */
-  render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
-  /**
-   * If specified, determines the distance that the cursor may move from the center
-   * of the scrub area before it will loop back around.
-   */
-  teleportDistance: PropTypes.number,
-} as any;
-
-export { NumberFieldScrubArea };

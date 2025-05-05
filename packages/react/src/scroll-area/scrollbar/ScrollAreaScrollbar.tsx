@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import PropTypes from 'prop-types';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useScrollAreaRootContext } from '../root/ScrollAreaRootContext';
@@ -14,7 +13,7 @@ import { useScrollAreaScrollbar } from './useScrollAreaScrollbar';
  *
  * Documentation: [Base UI Scroll Area](https://base-ui.com/react/components/scroll-area)
  */
-const ScrollAreaScrollbar = React.forwardRef(function ScrollAreaScrollbar(
+export const ScrollAreaScrollbar = React.forwardRef(function ScrollAreaScrollbar(
   props: ScrollAreaScrollbar.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
@@ -70,7 +69,7 @@ const ScrollAreaScrollbar = React.forwardRef(function ScrollAreaScrollbar(
   );
 });
 
-namespace ScrollAreaScrollbar {
+export namespace ScrollAreaScrollbar {
   export interface State {
     hovering: boolean;
     scrolling: boolean;
@@ -90,38 +89,3 @@ namespace ScrollAreaScrollbar {
     keepMounted?: boolean;
   }
 }
-
-ScrollAreaScrollbar.propTypes /* remove-proptypes */ = {
-  // ┌────────────────────────────── Warning ──────────────────────────────┐
-  // │ These PropTypes are generated from the TypeScript type definitions. │
-  // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
-  // └─────────────────────────────────────────────────────────────────────┘
-  /**
-   * @ignore
-   */
-  children: PropTypes.node,
-  /**
-   * CSS class applied to the element, or a function that
-   * returns a class based on the component’s state.
-   */
-  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
-  /**
-   * Whether to keep the HTML element in the DOM when the viewport isn’t scrollable.
-   * @default false
-   */
-  keepMounted: PropTypes.bool,
-  /**
-   * Whether the scrollbar controls vertical or horizontal scroll.
-   * @default 'vertical'
-   */
-  orientation: PropTypes.oneOf(['horizontal', 'vertical']),
-  /**
-   * Allows you to replace the component’s HTML element
-   * with a different tag, or compose it with another component.
-   *
-   * Accepts a `ReactElement` or a function that returns the element to render.
-   */
-  render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
-} as any;
-
-export { ScrollAreaScrollbar };

@@ -1,11 +1,10 @@
 'use client';
 import * as React from 'react';
-import PropTypes from 'prop-types';
 import type { BaseUIComponentProps } from '../utils/types';
-import { useComponentRenderer } from '../utils/useComponentRenderer';
 import { mergeProps } from '../merge-props';
 import { FormContext } from './FormContext';
 import { useEventCallback } from '../utils/useEventCallback';
+import { useRenderElement } from '../utils/useRenderElement';
 
 /**
  * A native form element with consolidated error handling.
@@ -13,8 +12,8 @@ import { useEventCallback } from '../utils/useEventCallback';
  *
  * Documentation: [Base UI Form](https://base-ui.com/react/components/form)
  */
-const Form = React.forwardRef(function Form(
-  props: Form.Props,
+export const Form = React.forwardRef(function Form(
+  componentProps: Form.Props,
   forwardedRef: React.ForwardedRef<HTMLFormElement>,
 ) {
   const {
@@ -23,8 +22,8 @@ const Form = React.forwardRef(function Form(
     errors,
     onClearErrors: onClearErrorsProp,
     onSubmit: onSubmitProp,
-    ...otherProps
-  } = props;
+    ...elementProps
+  } = componentProps;
 
   const formRef = React.useRef<FormContext['formRef']['current']>({
     fields: new Map(),
@@ -33,37 +32,6 @@ const Form = React.forwardRef(function Form(
 
   const onSubmit = useEventCallback(onSubmitProp);
   const onClearErrors = useEventCallback(onClearErrorsProp);
-
-  const getFormProps = React.useCallback(
-    (externalProps = {}) =>
-      mergeProps<'form'>(
-        {
-          noValidate: true,
-          onSubmit(event) {
-            let values = Array.from(formRef.current.fields.values());
-
-            // Async validation isn't supported to stop the submit event.
-            values.forEach((field) => {
-              field.validate();
-            });
-
-            values = Array.from(formRef.current.fields.values());
-
-            const invalidFields = values.filter((field) => !field.validityData.state.valid);
-
-            if (invalidFields.length) {
-              event.preventDefault();
-              invalidFields[0]?.controlRef.current?.focus();
-            } else {
-              submittedRef.current = true;
-              onSubmit(event as any);
-            }
-          },
-        },
-        externalProps,
-      ),
-    [onSubmit],
-  );
 
   React.useEffect(() => {
     if (!submittedRef.current) {
@@ -83,24 +51,58 @@ const Form = React.forwardRef(function Form(
 
   const state = React.useMemo<Form.State>(() => ({}), []);
 
-  const { renderElement } = useComponentRenderer({
-    propGetter: getFormProps,
-    render: render ?? 'form',
-    ref: forwardedRef,
+  const renderElement = useRenderElement('form', componentProps, {
     state,
-    className,
-    extraProps: otherProps,
+    props: mergeProps<'form'>(
+      {
+        noValidate: true,
+        onSubmit(event) {
+          let values = Array.from(formRef.current.fields.values());
+
+          // Async validation isn't supported to stop the submit event.
+          values.forEach((field) => {
+            field.validate();
+          });
+
+          values = Array.from(formRef.current.fields.values());
+
+          const invalidFields = values.filter((field) => !field.validityData.state.valid);
+
+          if (invalidFields.length) {
+            event.preventDefault();
+            invalidFields[0]?.controlRef.current?.focus();
+          } else {
+            submittedRef.current = true;
+            onSubmit(event as any);
+          }
+        },
+      },
+      elementProps,
+    ),
+    ref: forwardedRef,
+  });
+
+  const clearErrors = useEventCallback((name: string | undefined) => {
+    if (name && {}.hasOwnProperty.call(errors, name)) {
+      const nextErrors = { ...errors };
+      delete nextErrors[name];
+      onClearErrors(nextErrors);
+    }
   });
 
   const contextValue: FormContext = React.useMemo(
-    () => ({ formRef, errors: errors ?? {}, onClearErrors }),
-    [formRef, errors, onClearErrors],
+    () => ({
+      formRef,
+      errors: errors ?? {},
+      clearErrors,
+    }),
+    [formRef, errors, clearErrors],
   );
 
   return <FormContext.Provider value={contextValue}>{renderElement()}</FormContext.Provider>;
 });
 
-namespace Form {
+export namespace Form {
   export interface Props extends BaseUIComponentProps<'form', State> {
     /**
      * An object where the keys correspond to the `name` attribute of the form fields,
@@ -110,45 +112,7 @@ namespace Form {
     /**
      * Event handler called when the `errors` object is cleared.
      */
-    onClearErrors?: FormContext['onClearErrors'];
+    onClearErrors?: (errors: FormContext['errors']) => void;
   }
   export interface State {}
 }
-
-Form.propTypes /* remove-proptypes */ = {
-  // ┌────────────────────────────── Warning ──────────────────────────────┐
-  // │ These PropTypes are generated from the TypeScript type definitions. │
-  // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
-  // └─────────────────────────────────────────────────────────────────────┘
-  /**
-   * @ignore
-   */
-  children: PropTypes.node,
-  /**
-   * CSS class applied to the element, or a function that
-   * returns a class based on the component’s state.
-   */
-  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
-  /**
-   * An object where the keys correspond to the `name` attribute of the form fields,
-   * and the values correspond to the error(s) related to that field.
-   */
-  errors: PropTypes.object,
-  /**
-   * Event handler called when the `errors` object is cleared.
-   */
-  onClearErrors: PropTypes.func,
-  /**
-   * @ignore
-   */
-  onSubmit: PropTypes.func,
-  /**
-   * Allows you to replace the component’s HTML element
-   * with a different tag, or compose it with another component.
-   *
-   * Accepts a `ReactElement` or a function that returns the element to render.
-   */
-  render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
-} as any;
-
-export { Form };

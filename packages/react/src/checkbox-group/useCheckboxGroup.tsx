@@ -55,7 +55,7 @@ export function useCheckboxGroup(
   );
 }
 
-namespace useCheckboxGroup {
+export namespace useCheckboxGroup {
   export interface Parameters {
     value?: string[];
     defaultValue?: string[];

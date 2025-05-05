@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import PropTypes from 'prop-types';
+import { useModernLayoutEffect } from '@floating-ui/react/utils';
 import { useNumberFieldRootContext } from '../root/NumberFieldRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useForkRef } from '../../utils/useForkRef';
@@ -13,6 +13,8 @@ import { DEFAULT_STEP } from '../utils/constants';
 import { ARABIC_RE, HAN_RE, getNumberLocaleDetails, parseNumber } from '../utils/parse';
 import type { NumberFieldRoot } from '../root/NumberFieldRoot';
 import { styleHookMapping } from '../utils/styleHooks';
+import { useField } from '../../field/useField';
+import { useFormContext } from '../../form/FormContext';
 
 const customStyleHookMapping = {
   ...fieldValidityMapping,
@@ -25,7 +27,7 @@ const customStyleHookMapping = {
  *
  * Documentation: [Base UI Number Field](https://base-ui.com/react/components/number-field)
  */
-const NumberFieldInput = React.forwardRef(function NumberFieldInput(
+export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
   props: NumberFieldInput.Props,
   forwardedRef: React.ForwardedRef<HTMLInputElement>,
 ) {
@@ -41,9 +43,7 @@ const NumberFieldInput = React.forwardRef(function NumberFieldInput(
     incrementValue,
     inputMode,
     inputValue,
-    invalid,
     max,
-    mergedRef,
     min,
     name,
     readOnly,
@@ -53,9 +53,12 @@ const NumberFieldInput = React.forwardRef(function NumberFieldInput(
     valueRef,
     setInputValue,
     locale,
+    inputRef,
+    value,
   } = useNumberFieldRootContext();
 
-  const { labelId, validationMode, setTouched, setFocused } = useFieldRootContext();
+  const { clearErrors } = useFormContext();
+  const { labelId, validationMode, setTouched, setFocused, invalid } = useFieldRootContext();
 
   const {
     getInputValidationProps,
@@ -66,7 +69,36 @@ const NumberFieldInput = React.forwardRef(function NumberFieldInput(
 
   const hasTouchedInputRef = React.useRef(false);
 
-  const handleInputRef = useForkRef(forwardedRef, inputValidationRef, mergedRef);
+  const handleInputRef = useForkRef(forwardedRef, inputRef, inputValidationRef);
+
+  useField({
+    id,
+    commitValidation,
+    value,
+    controlRef: inputRef,
+  });
+
+  const prevValueRef = React.useRef(value);
+  const prevInputValueRef = React.useRef(inputValue);
+
+  useModernLayoutEffect(() => {
+    if (prevValueRef.current === value && prevInputValueRef.current === inputValue) {
+      return;
+    }
+
+    clearErrors(name);
+
+    if (validationMode === 'onChange') {
+      commitValidation(value);
+    } else {
+      commitValidation(value, true);
+    }
+  }, [value, inputValue, name, clearErrors, validationMode, commitValidation]);
+
+  useModernLayoutEffect(() => {
+    prevValueRef.current = value;
+    prevInputValueRef.current = inputValue;
+  }, [value, inputValue]);
 
   const getInputProps = React.useCallback(
     (externalProps = {}) =>
@@ -297,7 +329,7 @@ const NumberFieldInput = React.forwardRef(function NumberFieldInput(
     ],
   );
 
-  const mergedInputRef = useForkRef(forwardedRef, mergedRef);
+  const mergedInputRef = useForkRef(forwardedRef, inputRef);
 
   const { renderElement } = useComponentRenderer({
     propGetter: getInputProps,
@@ -312,32 +344,7 @@ const NumberFieldInput = React.forwardRef(function NumberFieldInput(
   return renderElement();
 });
 
-namespace NumberFieldInput {
+export namespace NumberFieldInput {
   export interface State extends NumberFieldRoot.State {}
   export interface Props extends BaseUIComponentProps<'input', State> {}
 }
-
-NumberFieldInput.propTypes /* remove-proptypes */ = {
-  // ┌────────────────────────────── Warning ──────────────────────────────┐
-  // │ These PropTypes are generated from the TypeScript type definitions. │
-  // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
-  // └─────────────────────────────────────────────────────────────────────┘
-  /**
-   * @ignore
-   */
-  children: PropTypes.node,
-  /**
-   * CSS class applied to the element, or a function that
-   * returns a class based on the component’s state.
-   */
-  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
-  /**
-   * Allows you to replace the component’s HTML element
-   * with a different tag, or compose it with another component.
-   *
-   * Accepts a `ReactElement` or a function that returns the element to render.
-   */
-  render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
-} as any;
-
-export { NumberFieldInput };

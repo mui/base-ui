@@ -10,9 +10,9 @@ if (process.env.NODE_ENV !== 'production') {
   ToolbarGroupContext.displayName = 'ToolbarGroupContext';
 }
 
-function useToolbarGroupContext(optional?: false): ToolbarGroupContext;
-function useToolbarGroupContext(optional: true): ToolbarGroupContext | undefined;
-function useToolbarGroupContext(optional?: boolean) {
+export function useToolbarGroupContext(optional?: false): ToolbarGroupContext;
+export function useToolbarGroupContext(optional: true): ToolbarGroupContext | undefined;
+export function useToolbarGroupContext(optional?: boolean) {
   const context = React.useContext(ToolbarGroupContext);
   if (context === undefined && !optional) {
     throw new Error(
@@ -21,5 +21,3 @@ function useToolbarGroupContext(optional?: boolean) {
   }
   return context;
 }
-
-export { useToolbarGroupContext };

@@ -1,8 +1,6 @@
 'use client';
 import * as React from 'react';
-import PropTypes from 'prop-types';
-import { useEnhancedEffect } from '../utils/useEnhancedEffect';
-import { exactProp } from '../utils/proptypes';
+import { useModernLayoutEffect } from '../utils/useModernLayoutEffect';
 import { NoSsrProps } from './NoSsr.types';
 
 /**
@@ -17,11 +15,11 @@ import { NoSsrProps } from './NoSsr.types';
  *
  * Documentation: [Base UI Unstable No Ssr](https://base-ui.com/react/components/unstable-no-ssr)
  */
-function NoSsr(props: NoSsrProps): React.JSX.Element {
+export function NoSsr(props: NoSsrProps): React.JSX.Element {
   const { children, defer = false, fallback = null } = props;
   const [mountedState, setMountedState] = React.useState(false);
 
-  useEnhancedEffect(() => {
+  useModernLayoutEffect(() => {
     if (!defer) {
       setMountedState(true);
     }
@@ -38,32 +36,3 @@ function NoSsr(props: NoSsrProps): React.JSX.Element {
   // But first, we need to bump min typescript support to version to 5.1 and enough people to adopt the above change.
   return (mountedState ? children : fallback) as React.JSX.Element;
 }
-
-NoSsr.propTypes /* remove-proptypes */ = {
-  // ┌────────────────────────────── Warning ──────────────────────────────┐
-  // │ These PropTypes are generated from the TypeScript type definitions. │
-  // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
-  // └─────────────────────────────────────────────────────────────────────┘
-  /**
-   * You can wrap a node.
-   */
-  children: PropTypes.node,
-  /**
-   * If `true`, the component will not only prevent server-side rendering.
-   * It will also defer the rendering of the children into a different screen frame.
-   * @default false
-   */
-  defer: PropTypes.bool,
-  /**
-   * The fallback content to display.
-   * @default null
-   */
-  fallback: PropTypes.node,
-} as any;
-
-if (process.env.NODE_ENV !== 'production') {
-  // eslint-disable-next-line
-  (NoSsr as any)['propTypes' + ''] = exactProp(NoSsr.propTypes);
-}
-
-export { NoSsr };

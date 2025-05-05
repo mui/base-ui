@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import PropTypes from 'prop-types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { FieldRootContext } from './FieldRootContext';
 import { DEFAULT_VALIDITY_STATE, fieldValidityMapping } from '../utils/constants';
@@ -15,7 +14,7 @@ import { BaseUIComponentProps } from '../../utils/types';
  *
  * Documentation: [Base UI Field](https://base-ui.com/react/components/field)
  */
-const FieldRoot = React.forwardRef(function FieldRoot(
+export const FieldRoot = React.forwardRef(function FieldRoot(
   props: FieldRoot.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
@@ -164,7 +163,7 @@ export interface FieldValidityData {
   initialValue: unknown;
 }
 
-namespace FieldRoot {
+export namespace FieldRoot {
   export interface State {
     /**
      * Whether the component should ignore user interaction.
@@ -214,62 +213,3 @@ namespace FieldRoot {
     invalid?: boolean;
   }
 }
-
-FieldRoot.propTypes /* remove-proptypes */ = {
-  // ┌────────────────────────────── Warning ──────────────────────────────┐
-  // │ These PropTypes are generated from the TypeScript type definitions. │
-  // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
-  // └─────────────────────────────────────────────────────────────────────┘
-  /**
-   * @ignore
-   */
-  children: PropTypes.node,
-  /**
-   * CSS class applied to the element, or a function that
-   * returns a class based on the component’s state.
-   */
-  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
-  /**
-   * Whether the component should ignore user interaction.
-   * Takes precedence over the `disabled` prop on the `<Field.Control>` component.
-   * @default false
-   */
-  disabled: PropTypes.bool,
-  /**
-   * Whether the field is forcefully marked as invalid.
-   */
-  invalid: PropTypes.bool,
-  /**
-   * Identifies the field when a form is submitted.
-   * Takes precedence over the `name` prop on the `<Field.Control>` component.
-   */
-  name: PropTypes.string,
-  /**
-   * Allows you to replace the component’s HTML element
-   * with a different tag, or compose it with another component.
-   *
-   * Accepts a `ReactElement` or a function that returns the element to render.
-   */
-  render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
-  /**
-   * A function for custom validation. Return a string or an array of strings with
-   * the error message(s) if the value is invalid, or `null` if the value is valid.
-   */
-  validate: PropTypes.func,
-  /**
-   * How long to wait between `validate` callbacks if
-   * `validationMode="onChange"` is used. Specified in milliseconds.
-   * @default 0
-   */
-  validationDebounceTime: PropTypes.number,
-  /**
-   * Determines when the field should be validated.
-   *
-   * - **onBlur** triggers validation when the control loses focus
-   * - **onChange** triggers validation on every change to the control value
-   * @default 'onBlur'
-   */
-  validationMode: PropTypes.oneOf(['onBlur', 'onChange']),
-} as any;
-
-export { FieldRoot };

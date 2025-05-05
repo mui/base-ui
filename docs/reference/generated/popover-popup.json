@@ -26,6 +26,10 @@
     "data-closed": {
       "description": "Present when the popup is closed."
     },
+    "data-align": {
+      "description": "Indicates how the popup is aligned relative to specified side.",
+      "type": "'start' | 'center' | 'end'"
+    },
     "data-instant": {
       "description": "Present if animations should be instant.",
       "type": "'click' | 'dismiss'"

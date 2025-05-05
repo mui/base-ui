@@ -2,9 +2,7 @@ import * as React from 'react';
 import { PreviewCard } from '@base-ui-components/react/preview-card';
 import { describeSkipIf, screen } from '@mui/internal-test-utils';
 import { expect } from 'chai';
-import { createRenderer, describeConformance } from '#test-utils';
-
-const isJSDOM = /jsdom/.test(window.navigator.userAgent);
+import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 
 const Trigger = React.forwardRef(function Trigger(
   props: PreviewCard.Trigger.Props,

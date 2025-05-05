@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import PropTypes from 'prop-types';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
 import { useButton } from '../../use-button/useButton';
 import type { BaseUIComponentProps } from '../../utils/types';
@@ -17,7 +16,7 @@ import { useRenderElement } from '../../utils/useRenderElement';
  *
  * Documentation: [Base UI Popover](https://base-ui.com/react/components/popover)
  */
-const PopoverTrigger = React.forwardRef(function PopoverTrigger(
+export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
   componentProps: PopoverTrigger.Props,
   forwardedRef: React.ForwardedRef<any>,
 ) {
@@ -61,7 +60,7 @@ const PopoverTrigger = React.forwardRef(function PopoverTrigger(
   return renderElement();
 });
 
-namespace PopoverTrigger {
+export namespace PopoverTrigger {
   export interface State {
     /**
      * Whether the popover is currently disabled.
@@ -75,32 +74,3 @@ namespace PopoverTrigger {
 
   export interface Props extends BaseUIComponentProps<'button', State> {}
 }
-
-PopoverTrigger.propTypes /* remove-proptypes */ = {
-  // ┌────────────────────────────── Warning ──────────────────────────────┐
-  // │ These PropTypes are generated from the TypeScript type definitions. │
-  // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
-  // └─────────────────────────────────────────────────────────────────────┘
-  /**
-   * @ignore
-   */
-  children: PropTypes.node,
-  /**
-   * CSS class applied to the element, or a function that
-   * returns a class based on the component’s state.
-   */
-  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
-  /**
-   * @ignore
-   */
-  disabled: PropTypes.bool,
-  /**
-   * Allows you to replace the component’s HTML element
-   * with a different tag, or compose it with another component.
-   *
-   * Accepts a `ReactElement` or a function that returns the element to render.
-   */
-  render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
-} as any;
-
-export { PopoverTrigger };
