@@ -15,24 +15,92 @@ jobs:
           script: |
             const issue_number = context.payload.issue.number;
 
-            // Search for PRs that mention the issue number
-            const query = `repo:${context.repo.owner}/${context.repo.repo} is:pr is:merged linked:issue-${issue_number}`;
-            const searchResult = await github.rest.search.issuesAndPullRequests({
-              q: query
-            });
+            console.log(`Processing issue #${issue_number}`);
 
-            if (searchResult.data.items.length === 0) {
-              console.log('No merged PRs found for this issue');
-              return;
+            // Use GraphQL to find PRs that close this issue
+            const query = `
+              query($owner:String!, $repo:String!, $issueNumber:Int!) {
+                repository(owner: $owner, name: $repo) {
+                  issue(number: $issueNumber) {
+                    timelineItems(last: 100, itemTypes: [CONNECTED_EVENT, CROSS_REFERENCED_EVENT]) {
+                      nodes {
+                        __typename
+                        ... on ConnectedEvent {
+                          subject {
+                            ... on PullRequest {
+                              number
+                              merged
+                              mergedAt
+                            }
+                          }
+                        }
+                        ... on CrossReferencedEvent {
+                          source {
+                            ... on PullRequest {
+                              number
+                              merged
+                              mergedAt
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            `;
+
+            const variables = {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issueNumber: parseInt(issue_number)
+            };
+
+            try {
+              const result = await github.graphql(query, variables);
+              console.log('GraphQL query completed successfully');
+
+              // Extract all merged PRs that are linked to this issue
+              const relatedPRs = [];
+              if (result.repository.issue) {
+                const timelineItems = result.repository.issue.timelineItems.nodes;
+
+                for (const item of timelineItems) {
+                  let pr = null;
+
+                  if (item.__typename === 'ConnectedEvent' && item.subject) {
+                    pr = item.subject;
+                  } else if (item.__typename === 'CrossReferencedEvent' && item.source) {
+                    pr = item.source;
+                  }
+
+                  if (pr && pr.merged) {
+                    relatedPRs.push({
+                      number: pr.number,
+                      mergedAt: pr.mergedAt
+                    });
+                  }
+                }
+              }
+
+              // Sort by merge date (newest first) and take the first one
+              relatedPRs.sort((a, b) => new Date(b.mergedAt) - new Date(a.mergedAt));
+
+              if (relatedPRs.length === 0) {
+                console.log('No merged PRs found for this issue');
+                return;
+              }
+
+              const prNumber = relatedPRs[0].number;
+              console.log(`Found merged PR #${prNumber} associated with issue #${issue_number}`);
+
+              // Set output for the next step
+              core.setOutput('pr_number', prNumber);
+              core.setOutput('has_pr', 'true');
+
+            } catch (error) {
+              console.error('Error fetching related PRs:', error);
             }
-
-            // Get the first merged PR number
-            const prNumber = searchResult.data.items[0].number;
-            console.log(`Found merged PR #${prNumber} associated with issue #${issue_number}`);
-
-            // Set output for the next step
-            core.setOutput('pr_number', prNumber);
-            core.setOutput('has_pr', 'true');
 
       - name: Add comment to issue
         if: steps.get-prs.outputs.has_pr == 'true'
