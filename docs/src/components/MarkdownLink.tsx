@@ -10,7 +10,7 @@ export function MarkdownLink() {
   return (
     <a
       href={`${pathname}.md`}
-      className="text-base text-gray-500 transition-colors hover:text-gray-800 inline-flex items-center"
+      className="inline-flex items-center text-base text-gray-500 transition-colors hover:text-gray-800"
       aria-label="View markdown source"
     >
       <MarkdownIcon />
