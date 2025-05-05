@@ -5,7 +5,6 @@ import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useFieldRootContext } from '../root/FieldRootContext';
 import { useFieldControlValidation } from './useFieldControlValidation';
-import { useFormContext } from '../../form/FormContext';
 import { useField } from '../useField';
 import { useControlled } from '../../utils/useControlled';
 import { useEventCallback } from '../../utils/useEventCallback';
@@ -23,8 +22,6 @@ export function useFieldControl(params: useFieldControl.Parameters) {
     setFilled,
     validationMode,
   } = useFieldRootContext();
-
-  const { errors, onClearErrors } = useFormContext();
 
   const { getValidationProps, getInputValidationProps, commitValidation, inputRef } =
     useFieldControlValidation();
@@ -86,12 +83,6 @@ export function useFieldControl(params: useFieldControl.Parameters) {
 
             setDirty(event.currentTarget.value !== validityData.initialValue);
             setFilled(event.currentTarget.value !== '');
-
-            if (name && {}.hasOwnProperty.call(errors, name)) {
-              const nextErrors = { ...errors };
-              delete nextErrors[name];
-              onClearErrors(nextErrors);
-            }
           },
           onFocus() {
             setFocused(true);
@@ -114,20 +105,18 @@ export function useFieldControl(params: useFieldControl.Parameters) {
         getValidationProps(getInputValidationProps(externalProps)),
       ),
     [
-      getValidationProps,
-      getInputValidationProps,
       id,
       disabled,
       name,
       inputRef,
       labelId,
       value,
+      getValidationProps,
+      getInputValidationProps,
       setDirty,
       validityData.initialValue,
       setFilled,
-      errors,
       setValue,
-      onClearErrors,
       setFocused,
       setTouched,
       validationMode,
