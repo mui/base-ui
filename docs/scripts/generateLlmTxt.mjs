@@ -8,7 +8,7 @@ import { mdxToMarkdown } from './mdxToMarkdown.mjs';
 
 const PROJECT_ROOT = path.resolve(import.meta.dirname, '..');
 const MDX_SOURCE_DIR = path.join(PROJECT_ROOT, 'src/app/(public)/(content)/react');
-const OUTPUT_BASE_DIR = path.join(PROJECT_ROOT, 'llms');
+const OUTPUT_BASE_DIR = path.join(PROJECT_ROOT, 'public');
 const OUTPUT_REACT_DIR = path.join(OUTPUT_BASE_DIR, 'react');
 
 /**

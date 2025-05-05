@@ -14,7 +14,7 @@
     "release:publish:dry-run": "pnpm publish --recursive --tag latest --registry=\"http://localhost:4873/\"",
     "release:tag": "node scripts/releaseTag.mjs --repo base-ui",
     "docs:api": "pnpm --filter api-docs-builder start",
-    "docs:build": "pnpm --filter docs build",
+    "docs:build": "pnpm --filter docs build && pnpm --filter docs generate-llms",
     "docs:deploy": "pnpm --filter docs run deploy",
     "docs:dev": "pnpm --filter docs dev",
     "docs:size-why": "cross-env DOCS_STATS_ENABLED=true pnpm docs:build",
