@@ -31,7 +31,7 @@ export const mdxComponents: MDXComponents = {
   h2: ({ children, id, ...otherProps }) => {
     return (
       <h2
-        className="mt-10 mb-4 scroll-mt-12 text-xl font-medium text-balance show-side-nav:scroll-mt-6"
+        className="mt-10 mb-4 scroll-mt-18 text-xl font-medium text-balance show-side-nav:scroll-mt-6"
         id={id}
         {...otherProps}
       >
@@ -42,7 +42,7 @@ export const mdxComponents: MDXComponents = {
   h3: ({ children, id, ...otherProps }) => {
     return (
       <h3
-        className="mt-8 mb-1.5 scroll-mt-12 text-lg font-medium text-balance show-side-nav:scroll-mt-6"
+        className="mt-8 mb-1.5 scroll-mt-18 text-lg font-medium text-balance show-side-nav:scroll-mt-6"
         id={id}
         {...otherProps}
       >
