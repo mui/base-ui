@@ -21,12 +21,14 @@ export const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
 ) {
   const { render, className, ...elementProps } = componentProps;
 
-  const { setAnchor, actionsRef, internalBackdropRef, backdropRef } =
+  const { setAnchor, actionsRef, internalBackdropRef, backdropRef, positionerRef } =
     useContextMenuRootContext(false);
 
   const triggerRef = React.useRef<HTMLDivElement | null>(null);
   const longPressTimerRef = React.useRef(-1);
   const touchPositionRef = React.useRef<{ x: number; y: number } | null>(null);
+  const allowMouseUpTimeoutRef = React.useRef(-1);
+  const allowMouseUpRef = React.useRef(false);
 
   const handleLongPress = useEventCallback((x: number, y: number, event: Event) => {
     setAnchor({
@@ -41,12 +43,40 @@ export const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
       },
     });
 
+    allowMouseUpRef.current = false;
     actionsRef.current?.setOpen(true, event);
+
+    allowMouseUpTimeoutRef.current = window.setTimeout(() => {
+      allowMouseUpRef.current = true;
+    }, 400);
   });
 
   const handleContextMenu = useEventCallback((event: React.MouseEvent) => {
     event.preventDefault();
     handleLongPress(event.clientX, event.clientY, event.nativeEvent);
+    const doc = ownerDocument(triggerRef.current);
+    doc.addEventListener(
+      'mouseup',
+      (mouseEvent: MouseEvent) => {
+        if (!allowMouseUpRef.current) {
+          return;
+        }
+
+        if (allowMouseUpTimeoutRef.current !== -1) {
+          clearTimeout(allowMouseUpTimeoutRef.current);
+          allowMouseUpTimeoutRef.current = -1;
+        }
+
+        allowMouseUpRef.current = false;
+
+        if (contains(positionerRef.current, getTarget(mouseEvent) as Element | null)) {
+          return;
+        }
+
+        actionsRef.current?.setOpen(false, mouseEvent);
+      },
+      { once: true },
+    );
   });
 
   const handleTouchStart = useEventCallback((event: React.TouchEvent) => {

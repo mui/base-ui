@@ -9,6 +9,7 @@ export interface ContextMenuRootContext {
   actionsRef: React.RefObject<{
     setOpen: (nextOpen: boolean, event?: Event, reason?: OpenChangeReason) => void;
   } | null>;
+  positionerRef: React.RefObject<HTMLElement | null>;
 }
 
 export const ContextMenuRootContext = React.createContext<ContextMenuRootContext | undefined>(

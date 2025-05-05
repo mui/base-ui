@@ -64,6 +64,12 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
   const positionerRef = React.useRef<HTMLElement | null>(null);
   const stickIfOpenTimeoutRef = React.useRef(-1);
 
+  React.useImperativeHandle<HTMLElement | null, HTMLElement | null>(
+    contextMenuContext?.positionerRef,
+    () => positionerElement,
+    [positionerElement],
+  );
+
   const [open, setOpenUnwrapped] = useControlled({
     controlled: openParam,
     default: defaultOpen,

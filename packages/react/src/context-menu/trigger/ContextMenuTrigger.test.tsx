@@ -57,6 +57,62 @@ describe('<ContextMenu.Trigger />', () => {
     expect(onOpenChange.lastCall.args[0]).to.equal(true);
   });
 
+  it('does not cancel opening menu on mouseup after mousedown outside before 400ms', async () => {
+    const onOpenChange = spy();
+
+    await render(
+      <ContextMenu.Root onOpenChange={onOpenChange}>
+        <ContextMenu.Trigger data-testid="trigger">Right click me</ContextMenu.Trigger>
+        <ContextMenu.Portal>
+          <ContextMenu.Positioner>
+            <ContextMenu.Popup />
+          </ContextMenu.Positioner>
+        </ContextMenu.Portal>
+      </ContextMenu.Root>,
+    );
+
+    const trigger = screen.getByTestId('trigger');
+    fireEvent.mouseDown(trigger);
+    fireEvent.contextMenu(trigger);
+
+    clock.tick(399);
+
+    expect(onOpenChange.callCount).to.equal(1);
+    expect(onOpenChange.lastCall.args[0]).to.equal(true);
+
+    fireEvent.mouseUp(document.body);
+
+    clock.tick(1);
+
+    expect(onOpenChange.callCount).to.equal(1);
+  });
+
+  it('cancels opening menu on mouseup after mousedown outside after 400ms', async () => {
+    const onOpenChange = spy();
+
+    await render(
+      <ContextMenu.Root onOpenChange={onOpenChange}>
+        <ContextMenu.Trigger data-testid="trigger">Right click me</ContextMenu.Trigger>
+        <ContextMenu.Portal>
+          <ContextMenu.Positioner>
+            <ContextMenu.Popup />
+          </ContextMenu.Positioner>
+        </ContextMenu.Portal>
+      </ContextMenu.Root>,
+    );
+
+    const trigger = screen.getByTestId('trigger');
+    fireEvent.mouseDown(trigger);
+    fireEvent.contextMenu(trigger);
+
+    clock.tick(401);
+
+    fireEvent.mouseUp(document.body);
+
+    expect(onOpenChange.callCount).to.equal(2);
+    expect(onOpenChange.lastCall.args[0]).to.equal(false);
+  });
+
   describe.skipIf(isJSDOM)('long press', () => {
     it('should open menu on long press on touchscreen devices', async () => {
       await render(

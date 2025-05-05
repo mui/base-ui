@@ -21,6 +21,7 @@ export const ContextMenuRoot: React.FC<ContextMenuRoot.Props> = function Context
   const backdropRef = React.useRef<HTMLDivElement | null>(null);
   const internalBackdropRef = React.useRef<HTMLDivElement | null>(null);
   const actionsRef: ContextMenuRootContext['actionsRef'] = React.useRef(null);
+  const positionerRef = React.useRef<HTMLElement | null>(null);
 
   const contextValue: ContextMenuRootContext = React.useMemo(
     () => ({
@@ -29,6 +30,7 @@ export const ContextMenuRoot: React.FC<ContextMenuRoot.Props> = function Context
       actionsRef,
       backdropRef,
       internalBackdropRef,
+      positionerRef,
     }),
     [anchor],
   );
