@@ -17,7 +17,7 @@ export const TabsPanel = React.forwardRef(function TabPanel(
   props: TabsPanel.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { children, className, value: valueProp, render, keepMounted = false, ...other } = props;
+  const {  className, value: valueProp, render, keepMounted = false, ...other } = props;
 
   const {
     value: selectedValue,
@@ -47,7 +47,7 @@ export const TabsPanel = React.forwardRef(function TabPanel(
     render: render ?? 'div',
     className,
     state,
-    extraProps: { ...other, children },
+    extraProps: other,
     customStyleHookMapping: tabsStyleHookMapping,
   });
 
