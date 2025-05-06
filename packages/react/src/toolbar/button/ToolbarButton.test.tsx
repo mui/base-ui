@@ -517,17 +517,14 @@ describe('<Toolbar.Button />', () => {
         expect(onOpenChange.callCount).to.equal(0);
       });
 
-      it.only('prevents composite keydowns from escaping', async () => {
+      it('prevents composite keydowns from escaping', async () => {
         const onOpenChange = spy();
         const { user } = await render(
           <Toolbar.Root>
             <Dialog.Root modal={false} onOpenChange={onOpenChange}>
               <Toolbar.Button render={<Dialog.Trigger />}>dialog</Toolbar.Button>
               <Dialog.Portal>
-                <Dialog.Backdrop />
-                <Dialog.Popup>
-                  <Dialog.Title>title</Dialog.Title>
-                </Dialog.Popup>
+                <Dialog.Popup />
               </Dialog.Portal>
             </Dialog.Root>
 
@@ -535,7 +532,7 @@ describe('<Toolbar.Button />', () => {
           </Toolbar.Root>,
         );
 
-        expect(screen.queryByText('title')).to.equal(null);
+        expect(screen.queryByRole('dialog')).to.equal(null);
 
         const trigger = screen.getByRole('button', { name: 'dialog' });
         await user.click(trigger);
@@ -648,10 +645,7 @@ describe('<Toolbar.Button />', () => {
             <AlertDialog.Root onOpenChange={onOpenChange}>
               <Toolbar.Button render={<Dialog.Trigger />}>dialog</Toolbar.Button>
               <AlertDialog.Portal>
-                <AlertDialog.Backdrop />
-                <AlertDialog.Popup>
-                  <AlertDialog.Title>title</AlertDialog.Title>
-                </AlertDialog.Popup>
+                <AlertDialog.Popup />
               </AlertDialog.Portal>
             </AlertDialog.Root>
 
@@ -659,13 +653,13 @@ describe('<Toolbar.Button />', () => {
           </Toolbar.Root>,
         );
 
-        expect(screen.queryByText('title')).to.equal(null);
+        expect(screen.queryByRole('dialog')).to.equal(null);
 
         const trigger = screen.getByRole('button', { name: 'dialog' });
         await user.click(trigger);
 
         await waitFor(() => {
-          expect(screen.queryByRole('dialog')).toHaveFocus();
+          expect(screen.queryByRole('alertdialog')).toHaveFocus();
         });
 
         await user.keyboard('{ArrowRight}');

@@ -1065,8 +1065,8 @@ describe('<Tabs.Root />', () => {
     });
   });
 
-  describe('inside popup', () => {
-    it('Popover', async () => {
+  describe('popups', () => {
+    it('works inside Popover', async () => {
       function ExamplePopover() {
         return (
           <Popover.Root>
@@ -1075,7 +1075,7 @@ describe('<Tabs.Root />', () => {
               <Popover.Positioner sideOffset={8}>
                 <Popover.Popup>
                   <Tabs.Root defaultValue="overview">
-                    <Tabs.List className="relative z-0 flex gap-1 px-1 shadow-[inset_0_-1px] shadow-gray-200">
+                    <Tabs.List>
                       <Tabs.Tab value="overview">Overview</Tabs.Tab>
                       <Tabs.Tab value="projects">Projects</Tabs.Tab>
                       <Tabs.Tab value="account">Account</Tabs.Tab>
@@ -1106,7 +1106,7 @@ describe('<Tabs.Root />', () => {
       expect(tab2).toHaveFocus();
     });
 
-    it('Dialog', async () => {
+    it('works inside Dialog', async () => {
       function ExampleDialog() {
         return (
           <Dialog.Root>
@@ -1114,7 +1114,7 @@ describe('<Tabs.Root />', () => {
             <Dialog.Portal>
               <Dialog.Popup>
                 <Tabs.Root defaultValue="overview">
-                  <Tabs.List className="relative z-0 flex gap-1 px-1 shadow-[inset_0_-1px] shadow-gray-200">
+                  <Tabs.List>
                     <Tabs.Tab value="overview">Overview</Tabs.Tab>
                     <Tabs.Tab value="projects">Projects</Tabs.Tab>
                     <Tabs.Tab value="account">Account</Tabs.Tab>
