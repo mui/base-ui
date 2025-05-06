@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useScrub } from '../root/useScrub';
+import { useScrub } from './useScrub';
 
 export interface NumberFieldScrubAreaContext extends ReturnType<typeof useScrub> {
   direction: 'horizontal' | 'vertical';
