@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import { useScrub } from './useScrub';
 import { formatNumber } from '../../utils/formatNumber';
 import { toValidatedNumber } from '../utils/validate';
 import { PERCENTAGES, getNumberLocaleDetails } from '../utils/parse';
@@ -14,7 +13,6 @@ import { useForcedRerendering } from '../../utils/useForcedRerendering';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useLatestRef } from '../../utils/useLatestRef';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
-import type { ScrubHandle } from './useScrub';
 import type { EventWithOptionalKeyState } from '../utils/types';
 
 export function useNumberFieldRoot(
@@ -53,6 +51,8 @@ export function useNumberFieldRoot(
 
   const disabled = fieldDisabled || disabledProp;
   const name = fieldName ?? nameProp;
+
+  const [isScrubbing, setIsScrubbing] = React.useState(false);
 
   const minWithDefault = min ?? Number.MIN_SAFE_INTEGER;
   const maxWithDefault = max ?? Number.MAX_SAFE_INTEGER;
@@ -310,15 +310,6 @@ export function useNumberFieldRoot(
     [allowWheelScrub, incrementValue, disabled, readOnly, largeStep, step, getStepAmount],
   );
 
-  const scrub = useScrub({
-    disabled,
-    readOnly,
-    value,
-    inputRef,
-    incrementValue,
-    getStepAmount,
-  });
-
   return React.useMemo(
     () => ({
       inputRef,
@@ -349,13 +340,13 @@ export function useNumberFieldRoot(
       max,
       setInputValue,
       locale,
-      ...scrub,
+      isScrubbing,
+      setIsScrubbing,
     }),
     [
       inputRef,
       inputValue,
       value,
-      scrub,
       startAutoChange,
       stopAutoChange,
       minWithDefault,
@@ -381,6 +372,7 @@ export function useNumberFieldRoot(
       max,
       setInputValue,
       locale,
+      isScrubbing,
     ],
   );
 }
@@ -482,17 +474,8 @@ export namespace useNumberFieldRoot {
   }
 
   export interface ReturnValue {
-    getScrubAreaProps: (
-      externalProps?: React.ComponentPropsWithRef<'span'>,
-    ) => React.ComponentPropsWithRef<'span'>;
     inputValue: string;
     value: number | null;
-    isScrubbing: boolean;
-    isTouchInput: boolean;
-    isPointerLockDenied: boolean;
-    scrubHandleRef: React.RefObject<ScrubHandle | null>;
-    scrubAreaRef: React.RefObject<HTMLSpanElement | null>;
-    scrubAreaCursorRef: React.RefObject<HTMLSpanElement | null>;
     startAutoChange: (isIncrement: boolean, event?: React.MouseEvent | Event) => void;
     stopAutoChange: () => void;
     minWithDefault: number;
@@ -524,5 +507,7 @@ export namespace useNumberFieldRoot {
     max: number | undefined;
     setInputValue: React.Dispatch<React.SetStateAction<string>>;
     locale: Intl.LocalesArgument;
+    isScrubbing: boolean;
+    setIsScrubbing: React.Dispatch<React.SetStateAction<boolean>>;
   }
 }

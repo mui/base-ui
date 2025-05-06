@@ -674,6 +674,29 @@ describe('<Select.Root />', () => {
     });
   });
 
+  describe('prop: id', () => {
+    it('sets the id on the hidden input', async () => {
+      const { container } = await render(
+        <Select.Root id="test-id">
+          <Select.Trigger>
+            <Select.Value />
+          </Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup>
+                <Select.Item value="a">a</Select.Item>
+                <Select.Item value="b">b</Select.Item>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>,
+      );
+
+      const input = container.querySelector('input');
+      expect(input).to.have.attribute('id', 'test-id');
+    });
+  });
+
   describe('with Field.Root parent', () => {
     it('should receive disabled prop from Field.Root', async () => {
       await render(
