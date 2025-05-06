@@ -3,6 +3,8 @@ import * as React from 'react';
 import type { ElementProps, FloatingRootContext } from '@floating-ui/react';
 import { isMouseLikePointerType } from '@floating-ui/react/utils';
 
+const EMPTY_OBJECT = {};
+
 export interface UseClickProps {
   /**
    * Whether the Hook is enabled, including all internal Effects and event
@@ -122,5 +124,5 @@ export function useClick(context: FloatingRootContext, props: UseClickProps = {}
     [dataRef, eventOption, ignoreMouse, onOpenChange, open, stickIfOpen, toggle],
   );
 
-  return React.useMemo(() => (enabled ? { reference } : {}), [enabled, reference]);
+  return React.useMemo(() => (enabled ? { reference } : EMPTY_OBJECT), [enabled, reference]);
 }
