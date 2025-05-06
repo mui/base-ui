@@ -46,6 +46,7 @@ export const Menubar = React.forwardRef(function Menubar(
   );
 
   const contentRef = React.useRef<HTMLDivElement>(null);
+  const allowMouseUpTriggerRef = React.useRef(false);
 
   const renderElement = useRenderElement('div', props, {
     state,
@@ -61,6 +62,7 @@ export const Menubar = React.forwardRef(function Menubar(
       hasSubmenuOpen,
       modal,
       orientation,
+      allowMouseUpTriggerRef,
     }),
     [contentElement, hasSubmenuOpen, modal, orientation],
   );

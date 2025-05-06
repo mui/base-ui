@@ -10,7 +10,8 @@ export type OpenChangeReason =
   | 'trigger-press'
   | 'list-navigation'
   | 'sibling-open'
-  | 'item-press';
+  | 'item-press'
+  | 'cancel-open';
 
 export function translateOpenChangeReason(
   nativeReason?: NativeReason,

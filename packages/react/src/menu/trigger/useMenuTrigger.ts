@@ -9,6 +9,7 @@ import { ownerDocument } from '../../utils/owner';
 import { getPseudoElementBounds } from '../../utils/getPseudoElementBounds';
 import type { OpenChangeReason } from '../../utils/translateOpenChangeReason';
 import { useMenuRoot } from '../root/useMenuRoot';
+import { useEventCallback } from '../../utils/useEventCallback';
 
 export function useMenuTrigger(parameters: useMenuTrigger.Parameters): useMenuTrigger.ReturnValue {
   const BOUNDARY_OFFSET = 2;
@@ -22,6 +23,7 @@ export function useMenuTrigger(parameters: useMenuTrigger.Parameters): useMenuTr
     positionerRef,
     allowMouseUpTriggerRef,
     menuParent,
+    lastOpenChangeReason,
   } = parameters;
 
   const triggerRef = React.useRef<HTMLElement | null>(null);
@@ -36,10 +38,53 @@ export function useMenuTrigger(parameters: useMenuTrigger.Parameters): useMenuTr
   const handleRef = useForkRef(buttonRef, setTriggerElement);
 
   React.useEffect(() => {
-    if (!open) {
+    if (!open && menuParent.type === undefined) {
       allowMouseUpTriggerRef.current = false;
     }
-  }, [allowMouseUpTriggerRef, open]);
+  }, [allowMouseUpTriggerRef, open, menuParent.type]);
+
+  const handleMouseUp = useEventCallback((mouseEvent: MouseEvent) => {
+    if (!triggerRef.current) {
+      return;
+    }
+
+    if (allowMouseUpTriggerTimeoutRef.current !== -1) {
+      clearTimeout(allowMouseUpTriggerTimeoutRef.current);
+      allowMouseUpTriggerTimeoutRef.current = -1;
+    }
+
+    allowMouseUpTriggerRef.current = false;
+
+    const mouseUpTarget = mouseEvent.target as Element | null;
+
+    if (
+      contains(triggerRef.current, mouseUpTarget) ||
+      contains(positionerRef.current, mouseUpTarget) ||
+      mouseUpTarget === triggerRef.current
+    ) {
+      return;
+    }
+
+    const bounds = getPseudoElementBounds(triggerRef.current);
+
+    if (
+      mouseEvent.clientX >= bounds.left - BOUNDARY_OFFSET &&
+      mouseEvent.clientX <= bounds.right + BOUNDARY_OFFSET &&
+      mouseEvent.clientY >= bounds.top - BOUNDARY_OFFSET &&
+      mouseEvent.clientY <= bounds.bottom + BOUNDARY_OFFSET
+    ) {
+      return;
+    }
+
+    setOpen(false, mouseEvent, 'cancel-open');
+  });
+
+  React.useEffect(() => {
+    if (open && lastOpenChangeReason === 'hover') {
+      const doc = ownerDocument(triggerRef.current);
+      doc.addEventListener('mouseup', handleMouseUp, { once: true });
+    }
+  }, [open, handleMouseUp, lastOpenChangeReason]);
 
   const getTriggerProps = React.useCallback(
     (externalProps?: GenericHTMLProps): GenericHTMLProps => {
@@ -59,42 +104,6 @@ export function useMenuTrigger(parameters: useMenuTrigger.Parameters): useMenuTr
             }, 200);
 
             const doc = ownerDocument(event.currentTarget);
-
-            function handleMouseUp(mouseEvent: MouseEvent) {
-              if (!triggerRef.current) {
-                return;
-              }
-
-              if (allowMouseUpTriggerTimeoutRef.current !== -1) {
-                clearTimeout(allowMouseUpTriggerTimeoutRef.current);
-                allowMouseUpTriggerTimeoutRef.current = -1;
-              }
-              allowMouseUpTriggerRef.current = false;
-
-              const mouseUpTarget = mouseEvent.target as Element | null;
-
-              if (
-                contains(triggerRef.current, mouseUpTarget) ||
-                contains(positionerRef.current, mouseUpTarget) ||
-                mouseUpTarget === triggerRef.current
-              ) {
-                return;
-              }
-
-              const bounds = getPseudoElementBounds(triggerRef.current);
-
-              if (
-                mouseEvent.clientX >= bounds.left - BOUNDARY_OFFSET &&
-                mouseEvent.clientX <= bounds.right + BOUNDARY_OFFSET &&
-                mouseEvent.clientY >= bounds.top - BOUNDARY_OFFSET &&
-                mouseEvent.clientY <= bounds.bottom + BOUNDARY_OFFSET
-              ) {
-                return;
-              }
-
-              setOpen(false, mouseEvent, undefined);
-            }
-
             doc.addEventListener('mouseup', handleMouseUp, { once: true });
           },
         },
@@ -102,15 +111,7 @@ export function useMenuTrigger(parameters: useMenuTrigger.Parameters): useMenuTr
         getButtonProps,
       );
     },
-    [
-      getButtonProps,
-      handleRef,
-      open,
-      setOpen,
-      positionerRef,
-      allowMouseUpTriggerRef,
-      menuParent.type,
-    ],
+    [getButtonProps, handleRef, open, allowMouseUpTriggerRef, menuParent.type, handleMouseUp],
   );
 
   return React.useMemo(
@@ -152,6 +153,7 @@ export namespace useMenuTrigger {
     allowMouseUpTriggerRef: React.RefObject<boolean>;
     positionerRef: React.RefObject<HTMLElement | null>;
     menuParent: useMenuRoot.MenuParent;
+    lastOpenChangeReason: OpenChangeReason | null;
   }
 
   export interface ReturnValue {

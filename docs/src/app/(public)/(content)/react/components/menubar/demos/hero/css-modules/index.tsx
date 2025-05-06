@@ -15,9 +15,15 @@ export default function ExampleMenubar() {
             alignOffset={-2}
           >
             <Menu.Popup className={styles.MenuPopup}>
-              <Menu.Item className={styles.MenuItem}>New</Menu.Item>
-              <Menu.Item className={styles.MenuItem}>Open</Menu.Item>
-              <Menu.Item className={styles.MenuItem}>Save</Menu.Item>
+              <Menu.Item className={styles.MenuItem} onClick={handleClick}>
+                New
+              </Menu.Item>
+              <Menu.Item className={styles.MenuItem} onClick={handleClick}>
+                Open
+              </Menu.Item>
+              <Menu.Item className={styles.MenuItem} onClick={handleClick}>
+                Save
+              </Menu.Item>
 
               <Menu.Root>
                 <Menu.SubmenuTrigger className={styles.MenuItem}>
@@ -27,16 +33,24 @@ export default function ExampleMenubar() {
                 <Menu.Portal>
                   <Menu.Positioner alignOffset={-4}>
                     <Menu.Popup className={styles.MenuPopup}>
-                      <Menu.Item className={styles.MenuItem}>PDF</Menu.Item>
-                      <Menu.Item className={styles.MenuItem}>PNG</Menu.Item>
-                      <Menu.Item className={styles.MenuItem}>SVG</Menu.Item>
+                      <Menu.Item className={styles.MenuItem} onClick={handleClick}>
+                        PDF
+                      </Menu.Item>
+                      <Menu.Item className={styles.MenuItem} onClick={handleClick}>
+                        PNG
+                      </Menu.Item>
+                      <Menu.Item className={styles.MenuItem} onClick={handleClick}>
+                        SVG
+                      </Menu.Item>
                     </Menu.Popup>
                   </Menu.Positioner>
                 </Menu.Portal>
               </Menu.Root>
 
               <Menu.Separator className={styles.MenuSeparator} />
-              <Menu.Item className={styles.MenuItem}>Print</Menu.Item>
+              <Menu.Item className={styles.MenuItem} onClick={handleClick}>
+                Print
+              </Menu.Item>
             </Menu.Popup>
           </Menu.Positioner>
         </Menu.Portal>
@@ -47,9 +61,15 @@ export default function ExampleMenubar() {
         <Menu.Portal>
           <Menu.Positioner className={styles.MenuPositioner} sideOffset={6}>
             <Menu.Popup className={styles.MenuPopup}>
-              <Menu.Item className={styles.MenuItem}>Cut</Menu.Item>
-              <Menu.Item className={styles.MenuItem}>Copy</Menu.Item>
-              <Menu.Item className={styles.MenuItem}>Paste</Menu.Item>
+              <Menu.Item className={styles.MenuItem} onClick={handleClick}>
+                Cut
+              </Menu.Item>
+              <Menu.Item className={styles.MenuItem} onClick={handleClick}>
+                Copy
+              </Menu.Item>
+              <Menu.Item className={styles.MenuItem} onClick={handleClick}>
+                Paste
+              </Menu.Item>
             </Menu.Popup>
           </Menu.Positioner>
         </Menu.Portal>
@@ -60,8 +80,12 @@ export default function ExampleMenubar() {
         <Menu.Portal>
           <Menu.Positioner className={styles.MenuPositioner} sideOffset={6}>
             <Menu.Popup className={styles.MenuPopup}>
-              <Menu.Item className={styles.MenuItem}>Zoom In</Menu.Item>
-              <Menu.Item className={styles.MenuItem}>Zoom Out</Menu.Item>
+              <Menu.Item className={styles.MenuItem} onClick={handleClick}>
+                Zoom In
+              </Menu.Item>
+              <Menu.Item className={styles.MenuItem} onClick={handleClick}>
+                Zoom Out
+              </Menu.Item>
 
               <Menu.Root>
                 <Menu.SubmenuTrigger className={styles.MenuItem}>
@@ -71,16 +95,24 @@ export default function ExampleMenubar() {
                 <Menu.Portal>
                   <Menu.Positioner alignOffset={-4}>
                     <Menu.Popup className={styles.MenuPopup}>
-                      <Menu.Item className={styles.MenuItem}>Single Page</Menu.Item>
-                      <Menu.Item className={styles.MenuItem}>Two Pages</Menu.Item>
-                      <Menu.Item className={styles.MenuItem}>Continuous</Menu.Item>
+                      <Menu.Item className={styles.MenuItem} onClick={handleClick}>
+                        Single Page
+                      </Menu.Item>
+                      <Menu.Item className={styles.MenuItem} onClick={handleClick}>
+                        Two Pages
+                      </Menu.Item>
+                      <Menu.Item className={styles.MenuItem} onClick={handleClick}>
+                        Continuous
+                      </Menu.Item>
                     </Menu.Popup>
                   </Menu.Positioner>
                 </Menu.Portal>
               </Menu.Root>
 
               <Menu.Separator className={styles.MenuSeparator} />
-              <Menu.Item className={styles.MenuItem}>Full Screen</Menu.Item>
+              <Menu.Item className={styles.MenuItem} onClick={handleClick}>
+                Full Screen
+              </Menu.Item>
             </Menu.Popup>
           </Menu.Positioner>
         </Menu.Portal>
@@ -91,6 +123,11 @@ export default function ExampleMenubar() {
       </Menu.Root>
     </Menubar>
   );
+}
+
+function handleClick(event: React.MouseEvent) {
+  // eslint-disable-next-line no-console
+  console.log(`${(event.currentTarget as HTMLElement).innerText} clicked`);
 }
 
 function ChevronRightIcon(props: React.ComponentProps<'svg'>) {

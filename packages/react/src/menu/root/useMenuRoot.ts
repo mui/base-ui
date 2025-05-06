@@ -357,7 +357,7 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
       activeIndex,
       setActiveIndex,
       allowMouseUpTriggerRef:
-        parent.type === 'menu' ? parent.context.allowMouseUpTriggerRef : allowMouseUpTriggerRef,
+        parent.type !== undefined ? parent.context.allowMouseUpTriggerRef : allowMouseUpTriggerRef,
       floatingRootContext,
       itemProps,
       popupProps,

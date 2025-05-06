@@ -29,6 +29,7 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
     allowMouseUpTriggerRef,
     positionerRef,
     parent,
+    lastOpenChangeReason,
   } = useMenuRootContext();
 
   const disabled = disabledProp || menuDisabled;
@@ -42,6 +43,7 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
     allowMouseUpTriggerRef,
     positionerRef,
     menuParent: parent,
+    lastOpenChangeReason,
   });
 
   const state: MenuTrigger.State = React.useMemo(
