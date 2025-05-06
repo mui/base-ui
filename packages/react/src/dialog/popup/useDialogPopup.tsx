@@ -5,6 +5,7 @@ import { mergeProps } from '../../merge-props';
 import { type InteractionType } from '../../utils/useEnhancedClickHandler';
 import { GenericHTMLProps } from '../../utils/types';
 import { type OpenChangeReason } from '../../utils/translateOpenChangeReason';
+import { COMPOSITE_KEYS } from '../../composite/composite';
 
 export function useDialogPopup(parameters: useDialogPopup.Parameters): useDialogPopup.ReturnValue {
   const {
@@ -57,6 +58,11 @@ export function useDialogPopup(parameters: useDialogPopup.Parameters): useDialog
         ...getPopupProps(),
         ref: handleRef,
         hidden: !mounted,
+        onKeyDown(event) {
+          if (COMPOSITE_KEYS.includes(event.key)) {
+            event.stopPropagation();
+          }
+        },
       },
       externalProps,
     );
