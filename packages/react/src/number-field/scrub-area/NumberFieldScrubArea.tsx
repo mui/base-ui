@@ -6,7 +6,7 @@ import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useForkRef } from '../../utils/useForkRef';
 import type { NumberFieldRoot } from '../root/NumberFieldRoot';
 import { styleHookMapping } from '../utils/styleHooks';
-import { useScrub } from '../root/useScrub';
+import { useScrub } from './useScrub';
 import { NumberFieldScrubAreaContext } from './NumberFieldScrubAreaContext';
 
 /**

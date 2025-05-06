@@ -8,10 +8,9 @@ import { ownerDocument, ownerWindow } from '../../utils/owner';
 import { useLatestRef } from '../../utils/useLatestRef';
 import { isWebKit } from '../../utils/detectBrowser';
 import { mergeProps } from '../../merge-props';
-import { NumberFieldRootDataAttributes } from './NumberFieldRootDataAttributes';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { GenericHTMLProps } from '../../utils/types';
-import { useNumberFieldRootContext } from './NumberFieldRootContext';
+import { useNumberFieldRootContext } from '../root/NumberFieldRootContext';
 
 export function useScrub(params: useScrub.Parameters) {
   const { pixelSensitivity, direction, teleportDistance } = params;
@@ -120,7 +119,6 @@ export function useScrub(params: useScrub.Parameters) {
       mergeProps<'span'>(
         {
           role: 'presentation',
-          [NumberFieldRootDataAttributes.scrubbing as string]: isScrubbing || undefined,
           style: {
             touchAction: 'none',
             WebkitUserSelect: 'none',
