@@ -3,14 +3,12 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { useNumberFieldRootContext } from '../root/NumberFieldRootContext';
 import { isWebKit } from '../../utils/detectBrowser';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { useForkRef } from '../../utils/useForkRef';
-import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
+import type { BaseUIComponentProps } from '../../utils/types';
 import type { NumberFieldRoot } from '../root/NumberFieldRoot';
 import { ownerDocument } from '../../utils/owner';
-import { mergeProps } from '../../merge-props';
 import { styleHookMapping } from '../utils/styleHooks';
 import { useNumberFieldScrubAreaContext } from '../scrub-area/NumberFieldScrubAreaContext';
+import { useRenderElementLazy } from '../../utils/useRenderElement';
 
 /**
  * A custom element to display instead of the native cursor while using the scrub area.
@@ -22,10 +20,10 @@ import { useNumberFieldScrubAreaContext } from '../scrub-area/NumberFieldScrubAr
  * Documentation: [Base UI Number Field](https://base-ui.com/react/components/number-field)
  */
 export const NumberFieldScrubAreaCursor = React.forwardRef(function NumberFieldScrubAreaCursor(
-  props: NumberFieldScrubAreaCursor.Props,
+  componentProps: NumberFieldScrubAreaCursor.Props,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
-  const { render, className, ...otherProps } = props;
+  const { render, className, ...elementProps } = componentProps;
 
   const { state } = useNumberFieldRootContext();
   const { isScrubbing, isTouchInput, isPointerLockDenied, scrubAreaCursorRef } =
@@ -33,32 +31,21 @@ export const NumberFieldScrubAreaCursor = React.forwardRef(function NumberFieldS
 
   const [element, setElement] = React.useState<Element | null>(null);
 
-  const mergedRef = useForkRef(forwardedRef, scrubAreaCursorRef, setElement);
-
-  const propGetter = React.useCallback(
-    (externalProps: HTMLProps) =>
-      mergeProps<'span'>(
-        {
-          role: 'presentation',
-          style: {
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            pointerEvents: 'none',
-          },
-        },
-        externalProps,
-      ),
-    [],
-  );
-
-  const { renderElement } = useComponentRenderer({
-    propGetter,
-    ref: mergedRef,
-    render: render ?? 'span',
+  const renderElement = useRenderElementLazy('span', componentProps, {
+    ref: [forwardedRef, scrubAreaCursorRef, setElement],
     state,
-    className,
-    extraProps: otherProps,
+    props: [
+      {
+        role: 'presentation',
+        style: {
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          pointerEvents: 'none',
+        },
+      },
+      elementProps,
+    ],
     customStyleHookMapping: styleHookMapping,
   });
 
@@ -71,5 +58,6 @@ export const NumberFieldScrubAreaCursor = React.forwardRef(function NumberFieldS
 
 export namespace NumberFieldScrubAreaCursor {
   export interface State extends NumberFieldRoot.State {}
+
   export interface Props extends BaseUIComponentProps<'span', State> {}
 }
