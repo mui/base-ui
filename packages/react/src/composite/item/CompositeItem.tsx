@@ -1,7 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { useForkRef } from '../../utils/useForkRef';
+import { useRenderElement } from '../../utils/useRenderElement';
 import { useCompositeRootContext } from '../root/CompositeRootContext';
 import { useCompositeItem } from './useCompositeItem';
 import type { BaseUIComponentProps } from '../../utils/types';
@@ -9,11 +8,11 @@ import type { BaseUIComponentProps } from '../../utils/types';
 /**
  * @internal
  */
-export function CompositeItem<Metadata>(props: CompositeItem.Props<Metadata>) {
-  const { render, className, itemRef, metadata, ...otherProps } = props;
+export function CompositeItem<Metadata>(componentProps: CompositeItem.Props<Metadata>) {
+  const { render, className, itemRef = null, metadata, ...elementProps } = componentProps;
 
   const { highlightedIndex } = useCompositeRootContext();
-  const { getItemProps, ref, index } = useCompositeItem({ metadata });
+  const { props, ref, index } = useCompositeItem({ metadata });
 
   const state: CompositeItem.State = React.useMemo(
     () => ({
@@ -22,15 +21,10 @@ export function CompositeItem<Metadata>(props: CompositeItem.Props<Metadata>) {
     [index, highlightedIndex],
   );
 
-  const mergedRef = useForkRef(itemRef, ref);
-
-  const { renderElement } = useComponentRenderer({
-    propGetter: getItemProps,
-    ref: mergedRef,
-    render: render ?? 'div',
+  const renderElement = useRenderElement('div', componentProps, {
     state,
-    className,
-    extraProps: otherProps,
+    ref: [itemRef, ref],
+    props: [props, elementProps],
   });
 
   return renderElement();
