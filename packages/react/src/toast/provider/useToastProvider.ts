@@ -5,6 +5,7 @@ import { generateId } from '../../utils/generateId';
 import { resolvePromiseOptions } from '../utils/resolvePromiseOptions';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { useToastManager, type ToastObject } from '../useToastManager';
+import { Timeout } from '../../utils/useTimeout';
 import { useLatestRef } from '../../utils/useLatestRef';
 import { ownerDocument } from '../../utils/owner';
 import { isFocusVisible } from '../utils/focusVisible';
@@ -12,7 +13,7 @@ import { createToastManager } from '../createToastManager';
 import { ToastContext } from './ToastProviderContext';
 
 interface TimerInfo {
-  timeoutId?: ReturnType<typeof setTimeout>;
+  timeout?: Timeout;
   start: number;
   delay: number;
   remaining: number;
@@ -101,8 +102,8 @@ export function useToastProvider(props: useToastProvider.Parameters): ToastConte
     }
     isPausedRef.current = true;
     timersRef.current.forEach((timer) => {
-      if (timer.timeoutId) {
-        clearTimeout(timer.timeoutId);
+      if (timer.timeout) {
+        timer.timeout.clear();
         const elapsed = Date.now() - timer.start;
         const remaining = timer.delay - elapsed;
         timer.remaining = remaining > 0 ? remaining : 0;
@@ -117,10 +118,11 @@ export function useToastProvider(props: useToastProvider.Parameters): ToastConte
     isPausedRef.current = false;
     timersRef.current.forEach((timer, id) => {
       timer.remaining = timer.remaining > 0 ? timer.remaining : timer.delay;
-      timer.timeoutId = setTimeout(() => {
+      timer.timeout ??= Timeout.create();
+      timer.timeout.start(timer.remaining, () => {
         timersRef.current.delete(id);
         timer.callback();
-      }, timer.remaining);
+      });
       timer.start = Date.now();
     });
   });
@@ -133,8 +135,8 @@ export function useToastProvider(props: useToastProvider.Parameters): ToastConte
     );
 
     const timer = timersRef.current.get(toastId);
-    if (timer && timer.timeoutId) {
-      clearTimeout(timer.timeoutId);
+    if (timer && timer.timeout) {
+      timer.timeout.clear();
       timersRef.current.delete(toastId);
     }
 
@@ -161,15 +163,15 @@ export function useToastProvider(props: useToastProvider.Parameters): ToastConte
     const shouldStartActive =
       windowFocusedRef.current && !hoveringRef.current && !focusedRef.current;
 
-    const timeoutId = shouldStartActive
-      ? setTimeout(() => {
-          timersRef.current.delete(id);
-          callback();
-        }, delay)
-      : undefined;
+    const timeout = shouldStartActive ? Timeout.create() : undefined;
+
+    timeout?.start(delay, () => {
+      timersRef.current.delete(id);
+      callback();
+    });
 
     timersRef.current.set(id, {
-      timeoutId,
+      timeout,
       start: shouldStartActive ? start : 0,
       delay,
       remaining: delay,
@@ -197,9 +199,7 @@ export function useToastProvider(props: useToastProvider.Parameters): ToastConte
 
           oldestActiveToasts.forEach((t) => {
             const timer = timersRef.current.get(t.id);
-            if (timer && timer.timeoutId) {
-              clearTimeout(timer.timeoutId);
-            }
+            timer?.timeout?.clear();
             timersRef.current.delete(t.id);
           });
 

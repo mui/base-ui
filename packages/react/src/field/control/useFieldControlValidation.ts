@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { useTimeout } from '../../utils/useTimeout';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { useFieldRootContext } from '../root/FieldRootContext';
 import { mergeProps } from '../../merge-props';
@@ -27,14 +28,8 @@ export function useFieldControlValidation() {
 
   const { formRef, clearErrors } = useFormContext();
 
-  const timeoutRef = React.useRef(-1);
+  const timeout = useTimeout();
   const inputRef = React.useRef<HTMLInputElement | null>(null);
-
-  React.useEffect(() => {
-    return () => {
-      window.clearTimeout(timeoutRef.current);
-    };
-  }, []);
 
   const commitValidation = useEventCallback(async (value: unknown, revalidate = false) => {
     const element = inputRef.current;
@@ -78,7 +73,7 @@ export function useFieldControlValidation() {
       return computedState;
     }
 
-    window.clearTimeout(timeoutRef.current);
+    timeout.clear();
 
     const resultOrPromise = validate(value);
     let result: null | string | string[] = null;
@@ -167,12 +162,12 @@ export function useFieldControlValidation() {
               return;
             }
 
-            window.clearTimeout(timeoutRef.current);
+            timeout.clear();
 
             if (validationDebounceTime) {
-              timeoutRef.current = window.setTimeout(() => {
+              timeout.start(validationDebounceTime, () => {
                 commitValidation(element.value);
-              }, validationDebounceTime);
+              });
             } else {
               commitValidation(element.value);
             }

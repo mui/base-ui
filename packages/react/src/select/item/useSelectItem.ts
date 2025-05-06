@@ -4,6 +4,7 @@ import type { GenericHTMLProps } from '../../utils/types';
 import { useButton } from '../../use-button';
 import { mergeProps } from '../../merge-props';
 import type { SelectRootContext } from '../root/SelectRootContext';
+import { useTimeout } from '../../utils/useTimeout';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { SelectIndexContext } from '../root/SelectIndexContext';
 import { useForkRef } from '../../utils/useForkRef';
@@ -38,7 +39,7 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
   const didPointerDownRef = React.useRef(false);
   const prevPopupHeightRef = React.useRef(0);
   const allowFocusSyncRef = React.useRef(true);
-  const cursorMovementTimerRef = React.useRef(-1);
+  const cursorMovementTimeout = useTimeout();
 
   const mergedRef = useForkRef(externalRef, ref);
 
@@ -54,9 +55,8 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
   });
 
   const handlePopupLeave = useEventCallback(() => {
-    if (cursorMovementTimerRef.current !== -1) {
-      clearTimeout(cursorMovementTimerRef.current);
-      cursorMovementTimerRef.current = -1;
+    if (cursorMovementTimeout.isStarted()) {
+      cursorMovementTimeout.clear();
       removeHighlight(ref);
     }
   });
@@ -99,7 +99,7 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
         if (
           allowFocusSyncRef.current &&
           keyboardActiveRef.current &&
-          cursorMovementTimerRef.current === -1
+          cursorMovementTimeout.isStarted() === false
         ) {
           setActiveIndex(indexRef.current);
         }
@@ -122,16 +122,12 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
           prevPopupHeightRef.current = popupRef.current.offsetHeight;
         }
 
-        if (cursorMovementTimerRef.current !== -1) {
-          events.off('popupleave', handlePopupLeave);
-          clearTimeout(cursorMovementTimerRef.current);
-        }
+        events.off('popupleave', handlePopupLeave);
         events.on('popupleave', handlePopupLeave);
         // When this fires, the cursor has stopped moving.
-        cursorMovementTimerRef.current = window.setTimeout(() => {
+        cursorMovementTimeout.start(50, () => {
           setActiveIndex(indexRef.current);
-          cursorMovementTimerRef.current = -1;
-        }, 50);
+        });
       },
       onMouseLeave(event) {
         const popup = popupRef.current;
@@ -146,10 +142,9 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
         removeHighlight(ref);
         events.off('popupleave', handlePopupLeave);
 
-        const wasCursorStationary = cursorMovementTimerRef.current === -1;
+        const wasCursorStationary = cursorMovementTimeout.isStarted() === false;
         if (!wasCursorStationary) {
-          clearTimeout(cursorMovementTimerRef.current);
-          cursorMovementTimerRef.current = -1;
+          cursorMovementTimeout.clear();
         }
 
         // With `alignItemWithTrigger=true`, avoid re-rendering the root due to `onMouseLeave`
@@ -164,9 +159,7 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
           }
 
           requestAnimationFrame(() => {
-            if (cursorMovementTimerRef.current !== -1) {
-              clearTimeout(cursorMovementTimerRef.current);
-            }
+            cursorMovementTimeout.clear();
             allowFocusSyncRef.current = true;
           });
         }

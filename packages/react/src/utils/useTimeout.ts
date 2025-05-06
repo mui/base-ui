@@ -24,6 +24,10 @@ export class Timeout {
     }, delay);
   }
 
+  isStarted() {
+    return this.currentId !== EMPTY;
+  }
+
   clear = () => {
     if (this.currentId !== EMPTY) {
       clearTimeout(this.currentId as TimeoutId);
