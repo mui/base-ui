@@ -7,7 +7,6 @@ import { subscribeToVisualViewportResize } from '../utils/subscribeToVisualViewp
 import { ownerDocument, ownerWindow } from '../../utils/owner';
 import { useLatestRef } from '../../utils/useLatestRef';
 import { isWebKit } from '../../utils/detectBrowser';
-import { mergeProps } from '../../merge-props';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { GenericHTMLProps } from '../../utils/types';
 import { useNumberFieldRootContext } from '../root/NumberFieldRootContext';
@@ -114,54 +113,50 @@ export function useScrub(params: useScrub.Parameters) {
     [setIsScrubbing, updateCursorTransform],
   );
 
-  const getScrubAreaProps = React.useCallback(
-    (externalProps = {}): GenericHTMLProps =>
-      mergeProps<'span'>(
-        {
-          role: 'presentation',
-          style: {
-            touchAction: 'none',
-            WebkitUserSelect: 'none',
-            userSelect: 'none',
-          },
-          async onPointerDown(event) {
-            const isMainButton = !event.button || event.button === 0;
-            if (event.defaultPrevented || readOnly || !isMainButton || disabled) {
-              return;
-            }
+  const props: GenericHTMLProps = React.useMemo(
+    () => ({
+      role: 'presentation',
+      style: {
+        touchAction: 'none',
+        WebkitUserSelect: 'none',
+        userSelect: 'none',
+      },
+      async onPointerDown(event) {
+        const isMainButton = !event.button || event.button === 0;
+        if (event.defaultPrevented || readOnly || !isMainButton || disabled) {
+          return;
+        }
 
-            const isTouch = event.pointerType === 'touch';
-            setIsTouchInput(isTouch);
+        const isTouch = event.pointerType === 'touch';
+        setIsTouchInput(isTouch);
 
-            if (event.pointerType === 'mouse') {
-              event.preventDefault();
-              inputRef.current?.focus();
-            }
+        if (event.pointerType === 'mouse') {
+          event.preventDefault();
+          inputRef.current?.focus();
+        }
 
-            isScrubbingRef.current = true;
-            onScrubbingChange(true, event.nativeEvent);
+        isScrubbingRef.current = true;
+        onScrubbingChange(true, event.nativeEvent);
 
-            // WebKit causes significant layout shift with the native message, so we can't use it.
-            if (!isTouch && !isWebKit()) {
-              try {
-                // Avoid non-deterministic errors in testing environments. This error sometimes
-                // appears:
-                // "The root document of this element is not valid for pointer lock."
-                await ownerDocument(scrubAreaRef.current).body.requestPointerLock();
-                setIsPointerLockDenied(false);
-              } catch (error) {
-                setIsPointerLockDenied(true);
-              } finally {
-                ReactDOM.flushSync(() => {
-                  onScrubbingChange(true, event.nativeEvent);
-                });
-              }
-            }
-          },
-        },
-        externalProps,
-      ),
-    [readOnly, disabled, onScrubbingChange, inputRef],
+        // WebKit causes significant layout shift with the native message, so we can't use it.
+        if (!isTouch && !isWebKit()) {
+          try {
+            // Avoid non-deterministic errors in testing environments. This error sometimes
+            // appears:
+            // "The root document of this element is not valid for pointer lock."
+            await ownerDocument(scrubAreaRef.current).body.requestPointerLock();
+            setIsPointerLockDenied(false);
+          } catch (error) {
+            setIsPointerLockDenied(true);
+          } finally {
+            ReactDOM.flushSync(() => {
+              onScrubbingChange(true, event.nativeEvent);
+            });
+          }
+        }
+      },
+    }),
+    [readOnly, disabled, onScrubbingChange],
   );
 
   React.useEffect(
@@ -257,11 +252,11 @@ export function useScrub(params: useScrub.Parameters) {
       isScrubbing,
       isTouchInput,
       isPointerLockDenied,
-      getScrubAreaProps,
+      props,
       scrubAreaCursorRef,
       scrubAreaRef,
     }),
-    [isScrubbing, isTouchInput, isPointerLockDenied, getScrubAreaProps],
+    [isScrubbing, isTouchInput, isPointerLockDenied, props],
   );
 }
 

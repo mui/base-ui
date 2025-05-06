@@ -2,12 +2,11 @@
 import * as React from 'react';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useNumberFieldRootContext } from '../root/NumberFieldRootContext';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { useForkRef } from '../../utils/useForkRef';
 import type { NumberFieldRoot } from '../root/NumberFieldRoot';
 import { styleHookMapping } from '../utils/styleHooks';
 import { useScrub } from './useScrub';
 import { NumberFieldScrubAreaContext } from './NumberFieldScrubAreaContext';
+import { useRenderElement } from '../../utils/useRenderElement';
 
 /**
  * An interactive area where the user can click and drag to change the field value.
@@ -16,7 +15,7 @@ import { NumberFieldScrubAreaContext } from './NumberFieldScrubAreaContext';
  * Documentation: [Base UI Number Field](https://base-ui.com/react/components/number-field)
  */
 export const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubArea(
-  props: NumberFieldScrubArea.Props,
+  componentProps: NumberFieldScrubArea.Props,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
   const {
@@ -25,8 +24,8 @@ export const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubAr
     direction = 'horizontal',
     pixelSensitivity = 2,
     teleportDistance,
-    ...otherProps
-  } = props;
+    ...elementProps
+  } = componentProps;
 
   const { state } = useNumberFieldRootContext();
 
@@ -36,15 +35,10 @@ export const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubAr
     teleportDistance,
   });
 
-  const mergedRef = useForkRef(scrub.scrubAreaRef, forwardedRef);
-
-  const { renderElement } = useComponentRenderer({
-    propGetter: scrub.getScrubAreaProps,
-    ref: mergedRef,
-    render: render ?? 'span',
+  const renderElement = useRenderElement('span', componentProps, {
+    ref: [forwardedRef, scrub.scrubAreaRef],
     state,
-    className,
-    extraProps: otherProps,
+    props: [scrub.props, elementProps],
     customStyleHookMapping: styleHookMapping,
   });
 

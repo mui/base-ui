@@ -14,7 +14,7 @@ const defaultScrubAreaContext: NumberFieldScrubAreaContext = {
   direction: 'horizontal',
   pixelSensitivity: 2,
   teleportDistance: undefined,
-  getScrubAreaProps: (p = {}) => p,
+  props: {},
   scrubAreaCursorRef: React.createRef<HTMLSpanElement>(),
   scrubAreaRef: React.createRef<HTMLDivElement>(),
 };
