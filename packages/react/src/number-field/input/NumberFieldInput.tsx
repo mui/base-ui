@@ -50,7 +50,6 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
     required,
     setValue,
     state,
-    valueRef,
     setInputValue,
     locale,
     inputRef,
@@ -144,14 +143,13 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
             setTouched(true);
             setFocused(false);
 
-            if (validationMode === 'onBlur') {
-              commitValidation(valueRef.current);
-            }
-
             allowInputSyncRef.current = true;
 
             if (inputValue.trim() === '') {
               setValue(null);
+              if (validationMode === 'onBlur') {
+                commitValidation(null);
+              }
               return;
             }
 
@@ -159,6 +157,9 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
 
             if (parsedValue !== null) {
               setValue(parsedValue, event.nativeEvent);
+              if (validationMode === 'onBlur') {
+                commitValidation(parsedValue);
+              }
             }
           },
           onChange(event) {
@@ -315,7 +316,6 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
       validationMode,
       formatOptionsRef,
       commitValidation,
-      valueRef,
       setValue,
       getAllowedNonNumericKeys,
       getStepAmount,
