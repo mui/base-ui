@@ -13,7 +13,7 @@ import { mergeProps } from '../../merge-props';
  *
  * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
  */
-const MenuTrigger = React.forwardRef(function MenuTrigger(
+export const MenuTrigger = React.forwardRef(function MenuTrigger(
   props: MenuTrigger.Props,
   forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
@@ -65,7 +65,7 @@ const MenuTrigger = React.forwardRef(function MenuTrigger(
   return renderElement();
 });
 
-namespace MenuTrigger {
+export namespace MenuTrigger {
   export interface Props extends BaseUIComponentProps<'button', State> {
     children?: React.ReactNode;
     /**
@@ -82,5 +82,3 @@ namespace MenuTrigger {
     open: boolean;
   };
 }
-
-export { MenuTrigger };

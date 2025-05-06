@@ -1,17 +1,18 @@
-const path = require('path');
+const { resolve } = require('node:path');
 
-const errorCodesPath = path.resolve(__dirname, './docs/public/static/error-codes.json');
+const errorCodesPath = resolve(__dirname, './docs/public/static/error-codes.json');
 const missingError = process.env.MUI_EXTRACT_ERROR_CODES === 'true' ? 'write' : 'annotate';
+const baseUIPackageJson = require('./packages/react/package.json');
 
 module.exports = function getBabelConfig(api) {
-  const useESModules = !api.env(['node']);
+  const useESModules = !api.env('node');
 
   const presets = [
     [
       '@babel/preset-env',
       {
         bugfixes: true,
-        browserslistEnv: process.env.BABEL_ENV || process.env.NODE_ENV,
+        browserslistEnv: api.env(),
         debug: process.env.MUI_BUILD_VERBOSE === 'true',
         modules: useESModules ? false : 'commonjs',
       },
@@ -20,6 +21,8 @@ module.exports = function getBabelConfig(api) {
       '@babel/preset-react',
       {
         runtime: 'automatic',
+        useBuiltIns: true,
+        useSpread: true,
       },
     ],
     '@babel/preset-typescript',
@@ -35,14 +38,9 @@ module.exports = function getBabelConfig(api) {
         },
       },
     ],
-    'babel-plugin-optimize-clsx',
     [
       '@babel/plugin-transform-runtime',
-      {
-        useESModules,
-        // any package needs to declare 7.4.4 as a runtime dependency. default is ^7.0.0
-        version: '^7.4.4',
-      },
+      { regenerator: false, version: baseUIPackageJson.dependencies['@babel/runtime'] },
     ],
     ...(useESModules ? ['babel-plugin-add-import-extension'] : []),
   ];

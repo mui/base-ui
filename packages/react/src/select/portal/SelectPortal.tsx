@@ -9,7 +9,7 @@ import { SelectPortalContext } from './SelectPortalContext';
  *
  * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
  */
-function SelectPortal(props: SelectPortal.Props) {
+export function SelectPortal(props: SelectPortal.Props) {
   const { children, container } = props;
 
   return (
@@ -19,7 +19,7 @@ function SelectPortal(props: SelectPortal.Props) {
   );
 }
 
-namespace SelectPortal {
+export namespace SelectPortal {
   export interface Props {
     children?: React.ReactNode;
     /**
@@ -28,5 +28,3 @@ namespace SelectPortal {
     container?: HTMLElement | null | React.RefObject<HTMLElement | null>;
   }
 }
-
-export { SelectPortal };

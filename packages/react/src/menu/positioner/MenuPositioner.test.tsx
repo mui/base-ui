@@ -26,12 +26,8 @@ describe('<Menu.Positioner />', () => {
     refInstanceof: window.HTMLDivElement,
   }));
 
-  describe('prop: anchor', () => {
-    it('should be placed near the specified element when a ref is passed', async ({ skip }) => {
-      if (isJSDOM) {
-        skip();
-      }
-
+  describe.skipIf(isJSDOM)('prop: anchor', () => {
+    it('should be placed near the specified element when a ref is passed', async () => {
       function TestComponent() {
         const anchor = React.useRef<HTMLDivElement | null>(null);
 
@@ -72,13 +68,7 @@ describe('<Menu.Positioner />', () => {
       );
     });
 
-    it('should be placed near the specified element when an element is passed', async ({
-      skip,
-    }) => {
-      if (isJSDOM) {
-        skip();
-      }
-
+    it('should be placed near the specified element when an element is passed', async () => {
       function TestComponent() {
         const [anchor, setAnchor] = React.useState<HTMLDivElement | null>(null);
         const handleRef = React.useCallback((element: HTMLDivElement | null) => {
@@ -122,13 +112,7 @@ describe('<Menu.Positioner />', () => {
       );
     });
 
-    it('should be placed near the specified element when a function returning an element is passed', async ({
-      skip,
-    }) => {
-      if (isJSDOM) {
-        skip();
-      }
-
+    it('should be placed near the specified element when a function returning an element is passed', async () => {
       function TestComponent() {
         const [anchor, setAnchor] = React.useState<HTMLDivElement | null>(null);
         const handleRef = React.useCallback((element: HTMLDivElement | null) => {
@@ -174,11 +158,7 @@ describe('<Menu.Positioner />', () => {
       );
     });
 
-    it('should be placed at the specified position', async ({ skip }) => {
-      if (isJSDOM) {
-        skip();
-      }
-
+    it('should be placed at the specified position', async () => {
       const boundingRect = {
         x: 200,
         y: 100,
@@ -214,6 +194,106 @@ describe('<Menu.Positioner />', () => {
 
       const positioner = getByTestId('positioner');
       expect(positioner.style.getPropertyValue('transform')).to.equal(`translate(200px, 100px)`);
+    });
+
+    it('should accept a non-memoized function as an anchor', async () => {
+      function TestComponent() {
+        return (
+          <div style={{ margin: '50px' }}>
+            <Menu.Root open>
+              <Menu.Portal>
+                <Menu.Positioner
+                  side="bottom"
+                  align="start"
+                  anchor={() => null}
+                  arrowPadding={0}
+                  data-testid="positioner"
+                >
+                  <Menu.Popup>
+                    <Menu.Item>1</Menu.Item>
+                    <Menu.Item>2</Menu.Item>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+          </div>
+        );
+      }
+
+      await render(<TestComponent />);
+    });
+
+    it('should react to the anchor changing from a ref to undefined and back', async () => {
+      function TestComponent() {
+        const anchorRef = React.useRef<HTMLDivElement | null>(null);
+        const [currentAnchor, setCurrentAnchor] = React.useState<
+          React.RefObject<HTMLDivElement | null> | undefined
+        >(anchorRef);
+
+        return (
+          <div style={{ margin: '50px' }}>
+            <button type="button" onClick={() => setCurrentAnchor(undefined)}>
+              undefined
+            </button>
+            <button type="button" onClick={() => setCurrentAnchor(anchorRef)}>
+              ref
+            </button>
+            <Menu.Root open>
+              <Menu.Trigger>trigger</Menu.Trigger>
+              <Menu.Portal>
+                <Menu.Positioner
+                  side="bottom"
+                  align="start"
+                  anchor={currentAnchor}
+                  arrowPadding={0}
+                  data-testid="positioner"
+                >
+                  <Menu.Popup>
+                    <Menu.Item>1</Menu.Item>
+                    <Menu.Item>2</Menu.Item>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+            <div
+              data-testid="anchor"
+              style={{ marginTop: '100px', width: 10, height: 10 }}
+              ref={anchorRef}
+            />
+          </div>
+        );
+      }
+
+      const { getByTestId, getByRole } = await render(<TestComponent />);
+
+      const positioner = getByTestId('positioner');
+      const anchorElement = getByTestId('anchor');
+
+      const setUndefinedButton = getByRole('button', { name: 'undefined' });
+      const setRefButton = getByRole('button', { name: 'ref' });
+      const trigger = getByRole('button', { name: 'trigger' });
+
+      let anchorRect = anchorElement.getBoundingClientRect();
+      await flushMicrotasks();
+      expect(positioner.style.getPropertyValue('transform')).to.equal(
+        `translate(${anchorRect.left}px, ${anchorRect.bottom}px)`,
+      );
+
+      await userEvent.click(setUndefinedButton);
+      await flushMicrotasks();
+
+      const triggerRect = trigger.getBoundingClientRect();
+      expect(positioner.style.getPropertyValue('transform')).to.equal(
+        `translate(${Math.floor(triggerRect.left)}px, ${triggerRect.bottom}px)`,
+      );
+
+      await userEvent.click(setRefButton);
+      await flushMicrotasks();
+
+      anchorRect = anchorElement.getBoundingClientRect();
+      expect(positioner.style.getPropertyValue('transform')).to.equal(
+        `translate(${anchorRect.left}px, ${anchorRect.bottom}px)`,
+      );
     });
   });
 

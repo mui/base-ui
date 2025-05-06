@@ -1,8 +1,7 @@
 'use client';
 import * as React from 'react';
 import type { BaseUIComponentProps } from '../../utils/types';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { mergeProps } from '../../merge-props';
+import { useRenderElement } from '../../utils/useRenderElement';
 
 /**
  * An icon that indicates that the trigger button opens a select menu.
@@ -10,40 +9,28 @@ import { mergeProps } from '../../merge-props';
  *
  * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
  */
-const SelectIcon = React.forwardRef(function SelectIcon(
-  props: SelectIcon.Props,
+export const SelectIcon = React.forwardRef(function SelectIcon(
+  componentProps: SelectIcon.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { className, render, ...otherProps } = props;
+  const { className, render, ...elementProps } = componentProps;
 
-  const state: SelectIcon.State = React.useMemo(() => ({}), []);
-
-  const getIconProps = React.useCallback((externalProps: React.ComponentProps<'span'>) => {
-    return mergeProps<'span'>(
+  const renderElement = useRenderElement('span', componentProps, {
+    ref: forwardedRef,
+    props: [
       {
         'aria-hidden': true,
         children: '▼',
       },
-      externalProps,
-    );
-  }, []);
-
-  const { renderElement } = useComponentRenderer({
-    propGetter: getIconProps,
-    render: render ?? 'span',
-    ref: forwardedRef,
-    className,
-    state,
-    extraProps: otherProps,
+      elementProps,
+    ],
   });
 
   return renderElement();
 });
 
-namespace SelectIcon {
+export namespace SelectIcon {
   export interface State {}
 
   export interface Props extends BaseUIComponentProps<'span', State> {}
 }
-
-export { SelectIcon };

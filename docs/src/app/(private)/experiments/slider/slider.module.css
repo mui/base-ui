@@ -20,6 +20,7 @@
   line-height: 1.25rem;
   color: var(--color-gray-900);
   text-align: end;
+  white-space: nowrap;
 }
 
 .Control {

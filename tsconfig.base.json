@@ -17,10 +17,6 @@
     "paths": {
       "@base-ui-components/react": ["./packages/react/src"],
       "@base-ui-components/react/*": ["./packages/react/src/*"],
-      "@mui-internal/api-docs-builder": ["./node_modules/@mui/monorepo/packages/api-docs-builder"],
-      "@mui-internal/api-docs-builder/*": [
-        "./node_modules/@mui/monorepo/packages/api-docs-builder/*"
-      ],
       "docs/*": ["./docs/*"]
     }
   },

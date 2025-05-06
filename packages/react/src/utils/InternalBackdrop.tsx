@@ -3,7 +3,7 @@ import * as React from 'react';
 /**
  * @internal
  */
-const InternalBackdrop = React.forwardRef(function InternalBackdrop(
+export const InternalBackdrop = React.forwardRef(function InternalBackdrop(
   props: React.ComponentPropsWithoutRef<'div'>,
   ref: React.ForwardedRef<HTMLDivElement>,
 ) {
@@ -24,5 +24,3 @@ const InternalBackdrop = React.forwardRef(function InternalBackdrop(
     />
   );
 });
-
-export { InternalBackdrop };

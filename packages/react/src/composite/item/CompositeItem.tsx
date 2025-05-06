@@ -8,7 +8,7 @@ import type { BaseUIComponentProps } from '../../utils/types';
 /**
  * @internal
  */
-function CompositeItem<Metadata>(componentProps: CompositeItem.Props<Metadata>) {
+export function CompositeItem<Metadata>(componentProps: CompositeItem.Props<Metadata>) {
   const { render, className, itemRef = null, metadata, ...elementProps } = componentProps;
 
   const { highlightedIndex } = useCompositeRootContext();
@@ -30,7 +30,7 @@ function CompositeItem<Metadata>(componentProps: CompositeItem.Props<Metadata>) 
   return renderElement();
 }
 
-namespace CompositeItem {
+export namespace CompositeItem {
   export interface State {
     highlighted: boolean;
   }
@@ -41,5 +41,3 @@ namespace CompositeItem {
     metadata?: Metadata;
   }
 }
-
-export { CompositeItem };

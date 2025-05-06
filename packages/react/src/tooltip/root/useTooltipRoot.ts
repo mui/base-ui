@@ -163,7 +163,7 @@ export function useTooltipRoot(params: useTooltipRoot.Parameters): useTooltipRoo
     axis: trackCursorAxis === 'none' ? undefined : trackCursorAxis,
   });
 
-  const { getReferenceProps: getTriggerProps, getFloatingProps: getPopupProps } = useInteractions([
+  const { getReferenceProps, getFloatingProps } = useInteractions([
     hover,
     focus,
     dismiss,
@@ -180,8 +180,8 @@ export function useTooltipRoot(params: useTooltipRoot.Parameters): useTooltipRoo
       positionerElement,
       setPositionerElement,
       popupRef,
-      getTriggerProps,
-      getPopupProps,
+      triggerProps: getReferenceProps(),
+      popupProps: getFloatingProps(),
       floatingRootContext: context,
       instantType,
       transitionStatus,
@@ -193,8 +193,8 @@ export function useTooltipRoot(params: useTooltipRoot.Parameters): useTooltipRoo
       setMounted,
       positionerElement,
       setOpen,
-      getTriggerProps,
-      getPopupProps,
+      getReferenceProps,
+      getFloatingProps,
       context,
       instantType,
       transitionStatus,
@@ -267,8 +267,8 @@ export namespace useTooltipRoot {
     setOpen: (value: boolean, event?: Event, reason?: OpenChangeReason) => void;
     mounted: boolean;
     setMounted: React.Dispatch<React.SetStateAction<boolean>>;
-    getTriggerProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
-    getPopupProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
+    triggerProps: GenericHTMLProps;
+    popupProps: GenericHTMLProps;
     floatingRootContext: FloatingRootContext;
     instantType: 'delay' | 'dismiss' | 'focus' | undefined;
     transitionStatus: TransitionStatus;

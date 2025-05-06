@@ -16,7 +16,7 @@ import { customStyleHookMapping } from '../utils/customStyleHookMapping';
  *
  * Documentation: [Base UI Radio](https://base-ui.com/react/components/radio)
  */
-const RadioRoot = React.forwardRef(function RadioRoot(
+export const RadioRoot = React.forwardRef(function RadioRoot(
   props: RadioRoot.Props,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
@@ -27,6 +27,7 @@ const RadioRoot = React.forwardRef(function RadioRoot(
     readOnly: readOnlyProp = false,
     required: requiredProp = false,
     value,
+    inputRef,
     ...otherProps
   } = props;
 
@@ -47,6 +48,7 @@ const RadioRoot = React.forwardRef(function RadioRoot(
     ...props,
     disabled,
     readOnly,
+    inputRef,
   });
 
   const state: RadioRoot.State = React.useMemo(
@@ -80,7 +82,7 @@ const RadioRoot = React.forwardRef(function RadioRoot(
   );
 });
 
-namespace RadioRoot {
+export namespace RadioRoot {
   export interface Props extends Omit<BaseUIComponentProps<'button', State>, 'value'> {
     /**
      * The unique identifying value of the radio in a group.
@@ -101,6 +103,10 @@ namespace RadioRoot {
      * @default false
      */
     readOnly?: boolean;
+    /**
+     * A ref to access the hidden input element.
+     */
+    inputRef?: React.Ref<HTMLInputElement>;
   }
 
   export interface State {
@@ -119,5 +125,3 @@ namespace RadioRoot {
     required: boolean;
   }
 }
-
-export { RadioRoot };

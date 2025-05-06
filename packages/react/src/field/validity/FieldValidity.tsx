@@ -10,7 +10,7 @@ import { FieldValidityData } from '../root/FieldRoot';
  *
  * Documentation: [Base UI Field](https://base-ui.com/react/components/field)
  */
-const FieldValidity: React.FC<FieldValidity.Props> = function FieldValidity(props) {
+export const FieldValidity: React.FC<FieldValidity.Props> = function FieldValidity(props) {
   const { children } = props;
   const { validityData, invalid } = useFieldRootContext(false);
 
@@ -29,7 +29,7 @@ export interface FieldValidityState extends Omit<FieldValidityData, 'state'> {
   validity: FieldValidityData['state'];
 }
 
-namespace FieldValidity {
+export namespace FieldValidity {
   export interface State {}
 
   export interface Props {
@@ -47,5 +47,3 @@ namespace FieldValidity {
     children: (state: FieldValidityState) => React.ReactNode;
   }
 }
-
-export { FieldValidity };

@@ -14,7 +14,7 @@ import { useToolbarInput } from './useToolbarInput';
  *
  * Documentation: [Base UI Toolbar](https://base-ui.com/react/components/toolbar)
  */
-const ToolbarInput = React.forwardRef(function ToolbarInput(
+export const ToolbarInput = React.forwardRef(function ToolbarInput(
   props: ToolbarInput.Props,
   forwardedRef: React.ForwardedRef<HTMLInputElement>,
 ) {
@@ -60,7 +60,7 @@ const ToolbarInput = React.forwardRef(function ToolbarInput(
   return <CompositeItem<ToolbarItemMetadata> metadata={itemMetadata} render={renderElement()} />;
 });
 
-namespace ToolbarInput {
+export namespace ToolbarInput {
   export interface State extends ToolbarRoot.State {
     disabled: boolean;
     focusable: boolean;
@@ -80,5 +80,3 @@ namespace ToolbarInput {
     defaultValue?: React.ComponentProps<'input'>['defaultValue'];
   }
 }
-
-export { ToolbarInput };

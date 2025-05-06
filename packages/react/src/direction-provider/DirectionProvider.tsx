@@ -7,7 +7,9 @@ import { DirectionContext, type TextDirection } from './DirectionContext';
  *
  * Documentation: [Base UI Direction Provider](https://base-ui.com/react/utils/direction-provider)
  */
-const DirectionProvider: React.FC<DirectionProvider.Props> = function DirectionProvider(props) {
+export const DirectionProvider: React.FC<DirectionProvider.Props> = function DirectionProvider(
+  props,
+) {
   const { direction = 'ltr' } = props;
   const contextValue = React.useMemo(() => ({ direction }), [direction]);
   return (
@@ -15,7 +17,7 @@ const DirectionProvider: React.FC<DirectionProvider.Props> = function DirectionP
   );
 };
 
-namespace DirectionProvider {
+export namespace DirectionProvider {
   export interface Props {
     children?: React.ReactNode;
     /**
@@ -25,5 +27,3 @@ namespace DirectionProvider {
     direction?: TextDirection;
   }
 }
-
-export { DirectionProvider };

@@ -3,6 +3,8 @@ import { expect } from 'chai';
 import { spy } from 'sinon';
 import { act, screen, fireEvent } from '@mui/internal-test-utils';
 import { NumberField as NumberFieldBase } from '@base-ui-components/react/number-field';
+import { Field } from '@base-ui-components/react/field';
+import { Form } from '@base-ui-components/react/form';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 
 describe('<NumberField />', () => {
@@ -156,14 +158,6 @@ describe('<NumberField />', () => {
       await render(<NumberField required />);
       const input = screen.getByRole('textbox');
       expect(input).to.have.attribute('required');
-    });
-  });
-
-  describe('prop: invalid', () => {
-    it('sets `aria-invalid` on the input', async () => {
-      await render(<NumberField invalid />);
-      const input = screen.getByRole('textbox');
-      expect(input).to.have.attribute('aria-invalid', 'true');
     });
   });
 
@@ -425,7 +419,7 @@ describe('<NumberField />', () => {
     });
   });
 
-  describe('form handling', () => {
+  describe('Form', () => {
     it('should include the input value in the form submission', async ({ skip }) => {
       if (isJSDOM) {
         // FormData is not available in JSDOM
@@ -461,6 +455,304 @@ describe('<NumberField />', () => {
       await act(async () => submitButton.click());
 
       expect(stringifiedFormData).to.equal('test-number-field=5');
+    });
+
+    it('triggers native HTML validation on submit', async () => {
+      const { user } = await render(
+        <Form>
+          <Field.Root name="test" data-testid="field">
+            <NumberField required />
+            <Field.Error match="valueMissing" data-testid="error">
+              required
+            </Field.Error>
+          </Field.Root>
+          <button type="submit">Submit</button>
+        </Form>,
+      );
+
+      const submit = screen.getByText('Submit');
+
+      expect(screen.queryByTestId('error')).to.equal(null);
+
+      await user.click(submit);
+
+      const error = screen.getByTestId('error');
+      expect(error).to.have.text('required');
+    });
+
+    it('clears errors on change', async () => {
+      function App() {
+        const [errors, setErrors] = React.useState<Form.Props['errors']>({
+          test: 'test',
+        });
+        return (
+          <Form errors={errors} onClearErrors={setErrors}>
+            <Field.Root name="test" data-testid="field">
+              <NumberField defaultValue={1} />
+              <Field.Error data-testid="error" />
+            </Field.Root>
+          </Form>
+        );
+      }
+
+      await render(<App />);
+
+      const input = screen.getByRole('textbox');
+
+      expect(input).to.have.attribute('aria-invalid', 'true');
+      expect(screen.queryByTestId('error')).to.have.text('test');
+
+      fireEvent.change(input, { target: { value: '5' } });
+
+      expect(input).not.to.have.attribute('aria-invalid');
+      expect(screen.queryByTestId('error')).to.equal(null);
+    });
+  });
+
+  describe('Field', () => {
+    it('[data-touched]', async () => {
+      await render(
+        <Field.Root>
+          <NumberFieldBase.Root>
+            <NumberFieldBase.Input />
+          </NumberFieldBase.Root>
+        </Field.Root>,
+      );
+
+      const input = screen.getByRole<HTMLInputElement>('textbox');
+
+      fireEvent.focus(input);
+      fireEvent.blur(input);
+
+      expect(input).to.have.attribute('data-touched', '');
+    });
+
+    it('[data-dirty]', async () => {
+      await render(
+        <Field.Root>
+          <NumberFieldBase.Root>
+            <NumberFieldBase.Input />
+          </NumberFieldBase.Root>
+        </Field.Root>,
+      );
+
+      const input = screen.getByRole<HTMLInputElement>('textbox');
+
+      expect(input).not.to.have.attribute('data-dirty');
+
+      fireEvent.change(input, { target: { value: '1' } });
+
+      expect(input).to.have.attribute('data-dirty', '');
+    });
+
+    describe('[data-filled]', () => {
+      it('adds [data-filled] attribute when filled', async () => {
+        await render(
+          <Field.Root>
+            <NumberFieldBase.Root>
+              <NumberFieldBase.Input data-testid="input" />
+            </NumberFieldBase.Root>
+          </Field.Root>,
+        );
+
+        const input = screen.getByTestId('input');
+
+        expect(input).not.to.have.attribute('data-filled');
+
+        fireEvent.change(input, { target: { value: '1' } });
+
+        expect(input).to.have.attribute('data-filled', '');
+
+        fireEvent.change(input, { target: { value: '' } });
+
+        expect(input).not.to.have.attribute('data-filled');
+      });
+
+      it('has [data-filled] attribute when already filled', async () => {
+        await render(
+          <Field.Root>
+            <NumberFieldBase.Root defaultValue={1}>
+              <NumberFieldBase.Input data-testid="input" />
+            </NumberFieldBase.Root>
+          </Field.Root>,
+        );
+
+        const input = screen.getByTestId('input');
+
+        expect(input).to.have.attribute('data-filled');
+
+        fireEvent.change(input, { target: { value: '' } });
+
+        expect(input).not.to.have.attribute('data-filled');
+      });
+    });
+
+    it('[data-filled]', async () => {
+      await render(
+        <Field.Root>
+          <NumberFieldBase.Root>
+            <NumberFieldBase.Input data-testid="input" />
+          </NumberFieldBase.Root>
+        </Field.Root>,
+      );
+
+      const input = screen.getByTestId('input');
+
+      expect(input).not.to.have.attribute('data-focused');
+
+      fireEvent.focus(input);
+
+      expect(input).to.have.attribute('data-focused', '');
+
+      fireEvent.blur(input);
+
+      expect(input).not.to.have.attribute('data-focused');
+    });
+
+    it('prop: validate', async () => {
+      await render(
+        <Field.Root validate={() => 'error'}>
+          <NumberFieldBase.Root>
+            <NumberFieldBase.Input />
+          </NumberFieldBase.Root>
+          <Field.Error data-testid="error" />
+        </Field.Root>,
+      );
+
+      const input = screen.getByRole('textbox');
+
+      expect(input).not.to.have.attribute('aria-invalid');
+
+      fireEvent.focus(input);
+      fireEvent.blur(input);
+
+      expect(input).to.have.attribute('aria-invalid', 'true');
+    });
+
+    it('prop: validationMode=onChange', async () => {
+      await render(
+        <Field.Root
+          validationMode="onChange"
+          validate={(value) => {
+            return value === 1 ? 'error' : null;
+          }}
+        >
+          <NumberFieldBase.Root>
+            <NumberFieldBase.Input data-testid="input" />
+          </NumberFieldBase.Root>
+        </Field.Root>,
+      );
+
+      const input = screen.getByTestId('input');
+
+      expect(input).not.to.have.attribute('aria-invalid');
+
+      fireEvent.change(input, { target: { value: '1' } });
+
+      expect(input).to.have.attribute('aria-invalid', 'true');
+    });
+
+    it('prop: validationMode=onBlur', async () => {
+      await render(
+        <Field.Root
+          validationMode="onBlur"
+          validate={(value) => {
+            return value === 1 ? 'error' : null;
+          }}
+        >
+          <NumberFieldBase.Root>
+            <NumberFieldBase.Input data-testid="input" />
+          </NumberFieldBase.Root>
+          <Field.Error data-testid="error" />
+        </Field.Root>,
+      );
+
+      const input = screen.getByTestId('input');
+
+      expect(input).not.to.have.attribute('aria-invalid');
+
+      fireEvent.change(input, { target: { value: '1' } });
+      fireEvent.blur(input);
+
+      expect(input).to.have.attribute('aria-invalid', 'true');
+    });
+
+    it('disables the input when disabled=true', async () => {
+      await render(
+        <Field.Root disabled>
+          <NumberFieldBase.Root>
+            <NumberFieldBase.Input />
+          </NumberFieldBase.Root>
+        </Field.Root>,
+      );
+
+      const input = screen.getByRole<HTMLInputElement>('textbox');
+
+      expect(input).to.have.attribute('disabled', '');
+    });
+
+    it('does not disable the input when disabled=false', async () => {
+      await render(
+        <Field.Root disabled={false}>
+          <NumberFieldBase.Root>
+            <NumberFieldBase.Input />
+          </NumberFieldBase.Root>
+        </Field.Root>,
+      );
+
+      const input = screen.getByRole<HTMLInputElement>('textbox');
+
+      expect(input).not.to.have.attribute('disabled');
+    });
+
+    it('is validated with latest value when validationMode=onBlur', async () => {
+      const validate = spy(() => 'error');
+
+      await render(
+        <Field.Root validationMode="onBlur" validate={validate}>
+          <NumberFieldBase.Root>
+            <NumberFieldBase.Input />
+          </NumberFieldBase.Root>
+        </Field.Root>,
+      );
+
+      const input = screen.getByRole('textbox');
+
+      fireEvent.focus(input);
+      fireEvent.change(input, { target: { value: '1' } });
+      fireEvent.blur(input);
+
+      expect(validate.callCount).to.equal(1);
+      expect(validate.firstCall.args).to.deep.equal([1]);
+    });
+
+    it('Field.Label', async () => {
+      await render(
+        <Field.Root>
+          <NumberFieldBase.Root>
+            <NumberFieldBase.Input />
+          </NumberFieldBase.Root>
+          <Field.Label data-testid="label" />
+        </Field.Root>,
+      );
+
+      expect(screen.getByTestId('label')).to.have.attribute('for', screen.getByRole('textbox').id);
+    });
+
+    it('Field.Description', async () => {
+      await render(
+        <Field.Root>
+          <NumberFieldBase.Root>
+            <NumberFieldBase.Input />
+          </NumberFieldBase.Root>
+          <Field.Description data-testid="description" />
+        </Field.Root>,
+      );
+
+      expect(screen.getByRole('textbox')).to.have.attribute(
+        'aria-describedby',
+        screen.getByTestId('description').id,
+      );
     });
   });
 

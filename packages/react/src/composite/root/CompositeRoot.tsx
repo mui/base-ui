@@ -14,7 +14,7 @@ const COMPOSITE_ROOT_STATE = {};
 /**
  * @internal
  */
-function CompositeRoot<Metadata extends {}>(componentProps: CompositeRoot.Props<Metadata>) {
+export function CompositeRoot<Metadata extends {}>(componentProps: CompositeRoot.Props<Metadata>) {
   const {
     render,
     className,
@@ -83,7 +83,7 @@ function CompositeRoot<Metadata extends {}>(componentProps: CompositeRoot.Props<
   );
 }
 
-namespace CompositeRoot {
+export namespace CompositeRoot {
   export interface State {}
 
   export interface Props<Metadata> extends BaseUIComponentProps<'div', State> {
@@ -103,5 +103,3 @@ namespace CompositeRoot {
     modifierKeys?: ModifierKey[];
   }
 }
-
-export { CompositeRoot };

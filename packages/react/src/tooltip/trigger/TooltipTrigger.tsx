@@ -11,27 +11,27 @@ import { useRenderElement } from '../../utils/useRenderElement';
  *
  * Documentation: [Base UI Tooltip](https://base-ui.com/react/components/tooltip)
  */
-const TooltipTrigger = React.forwardRef(function TooltipTrigger(
+export const TooltipTrigger = React.forwardRef(function TooltipTrigger(
   componentProps: TooltipTrigger.Props,
   forwardedRef: React.ForwardedRef<any>,
 ) {
   const { className, render, ...elementProps } = componentProps;
 
-  const { open, setTriggerElement, getTriggerProps } = useTooltipRootContext();
+  const { open, setTriggerElement, triggerProps } = useTooltipRootContext();
 
   const state: TooltipTrigger.State = React.useMemo(() => ({ open }), [open]);
 
   const renderElement = useRenderElement('button', componentProps, {
     state,
     ref: [forwardedRef, setTriggerElement],
-    props: [getTriggerProps, elementProps],
+    props: [triggerProps, elementProps],
     customStyleHookMapping: triggerOpenStateMapping,
   });
 
   return renderElement();
 });
 
-namespace TooltipTrigger {
+export namespace TooltipTrigger {
   export interface State {
     /**
      * Whether the tooltip is currently open.
@@ -41,5 +41,3 @@ namespace TooltipTrigger {
 
   export interface Props extends BaseUIComponentProps<'button', State> {}
 }
-
-export { TooltipTrigger };

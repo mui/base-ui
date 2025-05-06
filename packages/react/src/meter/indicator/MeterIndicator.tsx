@@ -13,7 +13,7 @@ const EMPTY = {};
  *
  * Documentation: [Base UI Meter](https://base-ui.com/react/components/meter)
  */
-const MeterIndicator = React.forwardRef(function MeterIndicator(
+export const MeterIndicator = React.forwardRef(function MeterIndicator(
   props: MeterIndicator.Props,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
@@ -52,8 +52,6 @@ const MeterIndicator = React.forwardRef(function MeterIndicator(
   return renderElement();
 });
 
-namespace MeterIndicator {
+export namespace MeterIndicator {
   export interface Props extends BaseUIComponentProps<'div', MeterRoot.State> {}
 }
-
-export { MeterIndicator };
