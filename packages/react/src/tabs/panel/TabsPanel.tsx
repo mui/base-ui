@@ -47,9 +47,13 @@ export const TabsPanel = React.forwardRef(function TabPanel(
     render: render ?? 'div',
     className,
     state,
-    extraProps: { ...other, children: hidden && !keepMounted ? undefined : children },
+    extraProps: { ...other, children },
     customStyleHookMapping: tabsStyleHookMapping,
   });
+
+  if (hidden && !keepMounted) {
+    return null;
+  }
 
   return renderElement();
 });
