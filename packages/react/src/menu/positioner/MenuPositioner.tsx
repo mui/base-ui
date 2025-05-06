@@ -38,6 +38,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
     arrowPadding = 5,
     sticky = false,
     trackAnchor = true,
+    collisionAvoidance,
     ...otherProps
   } = props;
 
@@ -84,7 +85,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
     parentNodeId,
     keepMounted,
     trackAnchor,
-    fallbackAxisSideDirection: 'end',
+    collisionAvoidance,
   });
 
   const state: MenuPositioner.State = React.useMemo(

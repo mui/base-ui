@@ -33,6 +33,7 @@ export const TooltipPositioner = React.forwardRef(function TooltipPositioner(
     arrowPadding = 5,
     sticky = false,
     trackAnchor = true,
+    collisionAvoidance,
     ...elementProps
   } = componentProps;
 
@@ -54,7 +55,7 @@ export const TooltipPositioner = React.forwardRef(function TooltipPositioner(
     sticky,
     arrowPadding,
     keepMounted,
-    fallbackAxisSideDirection: 'start',
+    collisionAvoidance,
   });
 
   const state: TooltipPositioner.State = React.useMemo(

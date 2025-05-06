@@ -34,6 +34,7 @@ export const PreviewCardPositioner = React.forwardRef(function PreviewCardPositi
     arrowPadding = 5,
     sticky = false,
     trackAnchor = true,
+    collisionAvoidance,
     ...otherProps
   } = props;
 
@@ -56,7 +57,7 @@ export const PreviewCardPositioner = React.forwardRef(function PreviewCardPositi
     sticky,
     trackAnchor,
     keepMounted,
-    fallbackAxisSideDirection: 'start',
+    collisionAvoidance,
   });
 
   const state: PreviewCardPositioner.State = React.useMemo(

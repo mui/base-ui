@@ -72,7 +72,11 @@ export function useAnchorPositioning(
     floatingRootContext,
     mounted,
     trackAnchor = true,
-    fallbackAxisSideDirection = 'none',
+    collisionAvoidance = {
+      side: 'flip',
+      align: 'flip',
+      fallbackAxisSide: 'end',
+    },
     nodeId,
   } = params;
 
@@ -142,29 +146,36 @@ export function useAnchorPositioning(
     ),
   ];
 
-  const flipMiddleware = flip({
-    ...commonCollisionProps,
-    crossAxis: 'alignment',
-    fallbackAxisSideDirection,
-  });
-  const shiftMiddleware = shift({
-    ...commonCollisionProps,
-    crossAxis: sticky,
-    limiter: sticky
-      ? undefined
-      : limitShift(() => {
-          if (!arrowRef.current) {
-            return {};
-          }
-          const { height } = arrowRef.current.getBoundingClientRect();
-          return {
-            offset: height / 2 + (typeof collisionPadding === 'number' ? collisionPadding : 0),
-          };
-        }),
-  });
+  const flipMiddleware =
+    collisionAvoidance.side === 'none'
+      ? null
+      : flip({
+          ...commonCollisionProps,
+          crossAxis: 'alignment',
+          fallbackAxisSideDirection: collisionAvoidance.fallbackAxisSide,
+        });
+  const shiftMiddleware =
+    collisionAvoidance.align === 'none'
+      ? null
+      : shift({
+          ...commonCollisionProps,
+          crossAxis: sticky || collisionAvoidance.side === 'shift',
+          limiter: sticky
+            ? undefined
+            : limitShift(() => {
+                if (!arrowRef.current) {
+                  return {};
+                }
+                const { height } = arrowRef.current.getBoundingClientRect();
+                return {
+                  offset:
+                    height / 2 + (typeof collisionPadding === 'number' ? collisionPadding : 0),
+                };
+              }),
+        });
 
   // https://floating-ui.com/docs/flip#combining-with-shift
-  if (align !== 'center') {
+  if (align !== 'center' && collisionAvoidance.align === 'flip') {
     middleware.push(flipMiddleware, shiftMiddleware);
   } else {
     middleware.push(shiftMiddleware, flipMiddleware);
@@ -430,6 +441,14 @@ export namespace useAnchorPositioning {
      * @default true
      */
     trackAnchor?: boolean;
+    /**
+     * Determines how to handle collisions when positioning the popup.
+     */
+    collisionAvoidance?: {
+      side: 'flip' | 'shift' | 'none';
+      align: 'flip' | 'shift' | 'none';
+      fallbackAxisSide: 'start' | 'end' | 'none';
+    };
   }
 
   export interface Parameters extends SharedParameters {
@@ -440,7 +459,6 @@ export namespace useAnchorPositioning {
     mounted: boolean;
     trackAnchor: boolean;
     nodeId?: string;
-    fallbackAxisSideDirection?: 'none' | 'start' | 'end';
   }
 
   export interface ReturnValue {

@@ -36,6 +36,7 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
     sticky = false,
     trackAnchor = true,
     alignItemWithTrigger = true,
+    collisionAvoidance,
     ...elementProps
   } = componentProps;
 
@@ -88,8 +89,8 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
     sticky,
     trackAnchor,
     alignItemWithTriggerActive,
+    collisionAvoidance,
     keepMounted: true,
-    fallbackAxisSideDirection: 'end',
   });
 
   const state: SelectPositioner.State = React.useMemo(

@@ -35,6 +35,7 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
     arrowPadding = 5,
     sticky = false,
     trackAnchor = true,
+    collisionAvoidance,
     ...elementProps
   } = componentProps;
 
@@ -65,7 +66,7 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
     sticky,
     trackAnchor,
     keepMounted,
-    fallbackAxisSideDirection: 'end',
+    collisionAvoidance,
   });
 
   const state: PopoverPositioner.State = React.useMemo(
