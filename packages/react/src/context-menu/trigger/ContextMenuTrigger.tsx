@@ -48,7 +48,7 @@ export const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
 
     allowMouseUpTimeoutRef.current = window.setTimeout(() => {
       allowMouseUpRef.current = true;
-    }, 400);
+    }, LONG_PRESS_DELAY);
   });
 
   const handleContextMenu = useEventCallback((event: React.MouseEvent) => {
