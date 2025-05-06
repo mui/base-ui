@@ -517,7 +517,7 @@ describe('<Toolbar.Button />', () => {
         expect(onOpenChange.callCount).to.equal(0);
       });
 
-      it('prevents composite keydowns from escaping', async () => {
+      it.only('prevents composite keydowns from escaping', async () => {
         const onOpenChange = spy();
         const { user } = await render(
           <Toolbar.Root>
@@ -526,7 +526,7 @@ describe('<Toolbar.Button />', () => {
               <Dialog.Portal>
                 <Dialog.Backdrop />
                 <Dialog.Popup>
-                  <Dialog.Title>title text</Dialog.Title>
+                  <Dialog.Title>title</Dialog.Title>
                 </Dialog.Popup>
               </Dialog.Portal>
             </Dialog.Root>
@@ -535,13 +535,18 @@ describe('<Toolbar.Button />', () => {
           </Toolbar.Root>,
         );
 
-        expect(screen.queryByText('title text')).to.equal(null);
+        expect(screen.queryByText('title')).to.equal(null);
 
         const trigger = screen.getByRole('button', { name: 'dialog' });
         await user.click(trigger);
+
+        await waitFor(() => {
+          expect(screen.queryByRole('dialog')).toHaveFocus();
+        });
+
         await user.keyboard('{ArrowRight}');
 
-        expect(onOpenChange.callCount).to.equal(1);
+        expect(onOpenChange.lastCall.args[0]).to.equal(true);
       });
     });
 
@@ -645,7 +650,7 @@ describe('<Toolbar.Button />', () => {
               <AlertDialog.Portal>
                 <AlertDialog.Backdrop />
                 <AlertDialog.Popup>
-                  <AlertDialog.Title>title text</AlertDialog.Title>
+                  <AlertDialog.Title>title</AlertDialog.Title>
                 </AlertDialog.Popup>
               </AlertDialog.Portal>
             </AlertDialog.Root>
@@ -654,13 +659,18 @@ describe('<Toolbar.Button />', () => {
           </Toolbar.Root>,
         );
 
-        expect(screen.queryByText('title text')).to.equal(null);
+        expect(screen.queryByText('title')).to.equal(null);
 
         const trigger = screen.getByRole('button', { name: 'dialog' });
         await user.click(trigger);
+
+        await waitFor(() => {
+          expect(screen.queryByRole('dialog')).toHaveFocus();
+        });
+
         await user.keyboard('{ArrowRight}');
 
-        expect(onOpenChange.callCount).to.equal(1);
+        expect(onOpenChange.lastCall.args[0]).to.equal(true);
       });
     });
 
