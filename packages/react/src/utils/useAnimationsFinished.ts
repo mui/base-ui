@@ -12,12 +12,18 @@ export function useAnimationsFinished(
   ref: React.RefObject<HTMLElement | null>,
   waitForNextTick = false,
 ) {
-  const frameRef = React.useRef(-1);
-  const timeoutRef = React.useRef(-1);
+  const frameRef = React.useRef(0);
+  const timeoutRef = React.useRef(0);
 
   const cancelTasks = useEventCallback(() => {
-    cancelAnimationFrame(frameRef.current);
-    clearTimeout(timeoutRef.current);
+    if (frameRef.current) {
+      cancelAnimationFrame(frameRef.current);
+      frameRef.current = 0;
+    }
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+      timeoutRef.current = 0;
+    }
   });
 
   React.useEffect(() => cancelTasks, [cancelTasks]);
