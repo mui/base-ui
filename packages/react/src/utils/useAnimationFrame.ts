@@ -15,13 +15,13 @@ class Scheduler {
    * But in the case of "request-request-…-cancel-cancel-…", it leaves the final animation
    * frame to run anyway. We turn that frame into a `O(1)` no-op via `callbacksCount`. */
 
-  static callbacks = [] as (FrameRequestCallback | null)[];
-  static callbacksCount = 0;
-  static nextId = 1;
-  static startId = 1;
-  static isScheduled = false;
+  callbacks = [] as (FrameRequestCallback | null)[];
+  callbacksCount = 0;
+  nextId = 1;
+  startId = 1;
+  isScheduled = false;
 
-  static tick(timestamp: number) {
+  tick(timestamp: number) {
     this.isScheduled = false;
 
     let currentCallbacks = this.callbacks;
@@ -39,7 +39,7 @@ class Scheduler {
     }
   }
 
-  static request(fn: FrameRequestCallback) {
+  request(fn: FrameRequestCallback) {
     const id = this.nextId++;
     this.callbacks.push(fn);
     this.callbacksCount += 1;
@@ -50,7 +50,7 @@ class Scheduler {
     return id;
   }
 
-  static cancel(id: number) {
+  cancel(id: number) {
     const index = id - this.startId;
     if (index < 0 || index >= this.callbacks.length) {
       return;
@@ -60,8 +60,10 @@ class Scheduler {
   }
 }
 
+const scheduler = new Scheduler();
+
 export class AnimationFrame {
-  static scheduler = Scheduler;
+  static scheduler = scheduler;
 
   static create() {
     return new AnimationFrame();
@@ -74,7 +76,7 @@ export class AnimationFrame {
    */
   request(fn: Function) {
     this.cancel();
-    this.currentId = Scheduler.request(() => {
+    this.currentId = scheduler.request(() => {
       this.currentId = EMPTY;
       fn();
     });
@@ -82,7 +84,7 @@ export class AnimationFrame {
 
   cancel = () => {
     if (this.currentId !== EMPTY) {
-      Scheduler.cancel(this.currentId as AnimationFrameId);
+      scheduler.cancel(this.currentId as AnimationFrameId);
       this.currentId = EMPTY;
     }
   };
