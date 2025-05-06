@@ -124,10 +124,36 @@ function transformJsx() {
             return [visit.SKIP, index];
           }
 
-          default:
-            // For other components, remove them to keep only standard markdown elements
+          case 'a':
+          case 'abbr':
+          case 'b':
+          case 'br':
+          case 'code':
+          case 'del':
+          case 'em':
+          case 'i':
+          case 'img':
+          case 'kbd':
+          case 'mark':
+          case 's':
+          case 'span':
+          case 'strong':
+          case 'sub':
+          case 'sup':
+          case 'time': {
+            // Support some HTML elements from GitHub flavored markdown
+            return visit.CONTINUE;
+          }
+
+          case 'link': {
+            // Ignore some hidden elements
             parent.children.splice(index, 1);
             return [visit.SKIP, index];
+          }
+
+          default: {
+            throw new Error(`Unknown component: ${node.name}`);
+          }
         }
       },
     );
@@ -143,51 +169,41 @@ function transformJsx() {
  * @returns {Promise<Object>} An object containing the markdown and metadata
  */
 export async function mdxToMarkdown(mdxContent, mdxFilePath) {
-  try {
-    // Process the MDX content and include file path for context
-    const vfile = {
-      path: mdxFilePath,
-      value: mdxContent,
-    };
+  // Process the MDX content and include file path for context
+  const vfile = {
+    path: mdxFilePath,
+    value: mdxContent,
+  };
 
-    const file = await unified()
-      .use(remarkParse)
-      .use(remarkMdx)
-      .use(remarkGfm) // Add GitHub Flavored Markdown support
-      .use(extractMetadata)
-      .use(transformJsx)
-      .use(remarkStringify, {
-        bullet: '-',
-        emphasis: '*',
-        strong: '*',
-        fence: '`',
-        fences: true,
-        listItemIndent: 'one',
-        rule: '-',
-        commonmark: true,
-        gfm: true,
-      })
-      .process(vfile);
+  const file = await unified()
+    .use(remarkParse)
+    .use(remarkMdx)
+    .use(remarkGfm) // Add GitHub Flavored Markdown support
+    .use(extractMetadata)
+    .use(transformJsx)
+    .use(remarkStringify, {
+      bullet: '-',
+      emphasis: '*',
+      strong: '*',
+      fence: '`',
+      fences: true,
+      listItemIndent: 'one',
+      rule: '-',
+      commonmark: true,
+      gfm: true,
+    })
+    .process(vfile);
 
-    // Get markdown content as string
-    const markdown = String(file);
+  // Get markdown content as string
+  const markdown = String(file);
 
-    // Extract metadata from the file's data
-    const { title = '', subtitle = '', description = '' } = file.data.metadata || {};
+  // Extract metadata from the file's data
+  const { title = '', subtitle = '', description = '' } = file.data.metadata || {};
 
-    return {
-      markdown,
-      title,
-      subtitle,
-      description,
-    };
-  } catch (error) {
-    console.error('Error converting MDX to Markdown:', error);
-    return {
-      markdown: `Error converting MDX to Markdown: ${error.message}`,
-      title: '',
-      subtitle: '',
-      description: '',
-    };
-  }
+  return {
+    markdown,
+    title,
+    subtitle,
+    description,
+  };
 }
