@@ -16,6 +16,7 @@ import {
   ARROW_LEFT,
   HOME,
   END,
+  stopEvent,
 } from '../../composite/composite';
 import { useCompositeListItem } from '../../composite/list/useCompositeListItem';
 import { useDirection } from '../../direction-provider/DirectionContext';
@@ -284,7 +285,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
 
         if (newValue !== null) {
           handleInputChange(newValue, index, event);
-          event.preventDefault();
+          stopEvent(event);
         }
       },
       ref: mergedThumbRef,

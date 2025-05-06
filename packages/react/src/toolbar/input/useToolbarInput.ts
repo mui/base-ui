@@ -3,7 +3,7 @@ import * as React from 'react';
 import { mergeProps } from '../../merge-props';
 import { GenericHTMLProps } from '../../utils/types';
 import { useButton } from '../../use-button';
-import { ARROW_LEFT, ARROW_RIGHT } from '../../composite/composite';
+import { ARROW_LEFT, ARROW_RIGHT, stopEvent } from '../../composite/composite';
 
 export function useToolbarInput(
   parameters: useToolbarInput.Parameters,
@@ -29,7 +29,7 @@ export function useToolbarInput(
           },
           onKeyDown(event) {
             if (event.key !== ARROW_LEFT && event.key !== ARROW_RIGHT && disabled) {
-              event.preventDefault();
+              stopEvent(event);
             }
           },
           onPointerDown(event) {
