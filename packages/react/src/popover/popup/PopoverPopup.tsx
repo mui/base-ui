@@ -35,7 +35,7 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
     open,
     instantType,
     transitionStatus,
-    getPopupProps,
+    popupProps,
     titleId,
     descriptionId,
     popupRef,
@@ -77,8 +77,8 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
     state,
     ref: [forwardedRef, popupRef],
     props: [
+      popupProps,
       props,
-      getPopupProps,
       {
         style: transitionStatus === 'starting' ? { transition: 'none' } : {},
       },
