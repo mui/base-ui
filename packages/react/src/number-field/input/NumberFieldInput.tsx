@@ -241,6 +241,7 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
               'ArrowRight',
               'Tab',
               'Enter',
+              'Escape',
             ].includes(event.key);
 
             if (
