@@ -11,6 +11,7 @@ import { useForkRef } from '../../utils/useForkRef';
 import { useModernLayoutEffect } from '../../utils';
 import { addHighlight, hasHighlight, removeHighlight } from '../../utils/highlighted';
 import { isMouseWithinBounds } from '../../utils/isMouseWithinBounds';
+import { AnimationFrame } from '../../utils/useAnimationFrame';
 
 export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.ReturnValue {
   const {
@@ -158,7 +159,7 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
             setActiveIndex(null);
           }
 
-          requestAnimationFrame(() => {
+          AnimationFrame.scheduler.request(() => {
             cursorMovementTimeout.clear();
             allowFocusSyncRef.current = true;
           });

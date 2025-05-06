@@ -21,7 +21,7 @@ class Scheduler {
   static startId = 1;
   static isScheduled = false;
 
-  static onAnimationFrame(timestamp: number) {
+  static tick(timestamp: number) {
     this.isScheduled = false;
 
     let currentCallbacks = this.callbacks;
@@ -39,18 +39,18 @@ class Scheduler {
     }
   }
 
-  static requestAnimationFrame(fn: FrameRequestCallback) {
+  static request(fn: FrameRequestCallback) {
     const id = this.nextId++;
     this.callbacks.push(fn);
     this.callbacksCount += 1;
     if (!this.isScheduled) {
-      requestAnimationFrame(this.onAnimationFrame);
+      requestAnimationFrame(this.tick);
       this.isScheduled = true;
     }
     return id;
   }
 
-  static cancelAnimationFrame(id: number) {
+  static cancel(id: number) {
     const index = id - this.startId;
     if (index < 0 || index >= this.callbacks.length) {
       return;
@@ -61,6 +61,8 @@ class Scheduler {
 }
 
 export class AnimationFrame {
+  static scheduler = Scheduler;
+
   static create() {
     return new AnimationFrame();
   }
@@ -72,7 +74,7 @@ export class AnimationFrame {
    */
   request(fn: Function) {
     this.cancel();
-    this.currentId = Scheduler.requestAnimationFrame(() => {
+    this.currentId = Scheduler.request(() => {
       this.currentId = EMPTY;
       fn();
     });
@@ -80,7 +82,7 @@ export class AnimationFrame {
 
   cancel = () => {
     if (this.currentId !== EMPTY) {
-      Scheduler.cancelAnimationFrame(this.currentId as AnimationFrameId);
+      Scheduler.cancel(this.currentId as AnimationFrameId);
       this.currentId = EMPTY;
     }
   };

@@ -363,7 +363,7 @@ export function useNumberFieldRoot(
       formatOptionsRef,
       valueRef,
       isPressedRef,
-      intentionalTouchCheckTimeoutRef,
+      intentionalTouchCheckTimeout,
       movesAfterTouchRef,
       name,
       required,
