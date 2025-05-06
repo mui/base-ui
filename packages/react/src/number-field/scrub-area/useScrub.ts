@@ -156,7 +156,7 @@ export function useScrub(params: useScrub.Parameters) {
         }
       },
     }),
-    [readOnly, disabled, onScrubbingChange],
+    [readOnly, disabled, onScrubbingChange, inputRef],
   );
 
   React.useEffect(
