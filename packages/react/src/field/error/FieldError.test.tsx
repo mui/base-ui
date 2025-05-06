@@ -48,8 +48,8 @@ describe('<Field.Error />', () => {
     expect(screen.queryByText('Message')).not.to.equal(null);
   });
 
-  describe('prop: show', () => {
-    it('should only render when `show` matches constraint validation', () => {
+  describe('prop: match', () => {
+    it('should only render when `match` matches constraint validation', () => {
       render(
         <Field.Root>
           <Field.Control required />
