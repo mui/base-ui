@@ -516,6 +516,33 @@ describe('<Toolbar.Button />', () => {
         await user.keyboard('[ArrowDown]');
         expect(onOpenChange.callCount).to.equal(0);
       });
+
+      it('prevents composite keydowns from escaping', async () => {
+        const onOpenChange = spy();
+        const { user } = await render(
+          <Toolbar.Root>
+            <Dialog.Root modal={false} onOpenChange={onOpenChange}>
+              <Toolbar.Button render={<Dialog.Trigger />}>dialog</Toolbar.Button>
+              <Dialog.Portal>
+                <Dialog.Backdrop />
+                <Dialog.Popup>
+                  <Dialog.Title>title text</Dialog.Title>
+                </Dialog.Popup>
+              </Dialog.Portal>
+            </Dialog.Root>
+
+            <Toolbar.Button>empty</Toolbar.Button>
+          </Toolbar.Root>,
+        );
+
+        expect(screen.queryByText('title text')).to.equal(null);
+
+        const trigger = screen.getByRole('button', { name: 'dialog' });
+        await user.click(trigger);
+        await user.keyboard('{ArrowRight}');
+
+        expect(onOpenChange.callCount).to.equal(1);
+      });
     });
 
     describe('AlertDialog', () => {
@@ -607,6 +634,33 @@ describe('<Toolbar.Button />', () => {
         await user.keyboard('[ArrowUp]');
         await user.keyboard('[ArrowDown]');
         expect(onOpenChange.callCount).to.equal(0);
+      });
+
+      it('prevents composite keydowns from escaping', async () => {
+        const onOpenChange = spy();
+        const { user } = await render(
+          <Toolbar.Root>
+            <AlertDialog.Root onOpenChange={onOpenChange}>
+              <Toolbar.Button render={<Dialog.Trigger />}>dialog</Toolbar.Button>
+              <AlertDialog.Portal>
+                <AlertDialog.Backdrop />
+                <AlertDialog.Popup>
+                  <AlertDialog.Title>title text</AlertDialog.Title>
+                </AlertDialog.Popup>
+              </AlertDialog.Portal>
+            </AlertDialog.Root>
+
+            <Toolbar.Button>empty</Toolbar.Button>
+          </Toolbar.Root>,
+        );
+
+        expect(screen.queryByText('title text')).to.equal(null);
+
+        const trigger = screen.getByRole('button', { name: 'dialog' });
+        await user.click(trigger);
+        await user.keyboard('{ArrowRight}');
+
+        expect(onOpenChange.callCount).to.equal(1);
       });
     });
 
