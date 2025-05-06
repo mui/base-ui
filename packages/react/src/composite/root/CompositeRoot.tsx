@@ -3,16 +3,18 @@ import * as React from 'react';
 import { CompositeList, type CompositeMetadata } from '../list/CompositeList';
 import { useCompositeRoot } from './useCompositeRoot';
 import { CompositeRootContext } from './CompositeRootContext';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import { useRenderElement } from '../../utils/useRenderElement';
 import type { BaseUIComponentProps } from '../../utils/types';
 import type { TextDirection } from '../../direction-provider/DirectionContext';
 import type { Dimensions, ModifierKey } from '../composite';
 import { useEventCallback } from '../../utils/useEventCallback';
 
+const COMPOSITE_ROOT_STATE = {};
+
 /**
  * @internal
  */
-function CompositeRoot<Metadata extends {}>(props: CompositeRoot.Props<Metadata>) {
+export function CompositeRoot<Metadata extends {}>(componentProps: CompositeRoot.Props<Metadata>) {
   const {
     render,
     className,
@@ -30,11 +32,11 @@ function CompositeRoot<Metadata extends {}>(props: CompositeRoot.Props<Metadata>
     rootRef,
     disabledIndices,
     modifierKeys,
-    ...otherProps
-  } = props;
+    ...elementProps
+  } = componentProps;
 
   const {
-    getRootProps,
+    props,
     highlightedIndex,
     onHighlightedIndexChange,
     elementsRef,
@@ -62,12 +64,9 @@ function CompositeRoot<Metadata extends {}>(props: CompositeRoot.Props<Metadata>
     },
   );
 
-  const { renderElement } = useComponentRenderer({
-    propGetter: getRootProps,
-    render: render ?? 'div',
-    state: {},
-    className,
-    extraProps: otherProps,
+  const renderElement = useRenderElement('div', componentProps, {
+    state: COMPOSITE_ROOT_STATE,
+    props: [props, elementProps],
   });
 
   const contextValue: CompositeRootContext = React.useMemo(
@@ -84,7 +83,7 @@ function CompositeRoot<Metadata extends {}>(props: CompositeRoot.Props<Metadata>
   );
 }
 
-namespace CompositeRoot {
+export namespace CompositeRoot {
   export interface State {}
 
   export interface Props<Metadata> extends BaseUIComponentProps<'div', State> {
@@ -104,5 +103,3 @@ namespace CompositeRoot {
     modifierKeys?: ModifierKey[];
   }
 }
-
-export { CompositeRoot };

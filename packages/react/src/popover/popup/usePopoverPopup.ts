@@ -51,7 +51,7 @@ export function usePopoverPopup(params: usePopoverPopup.Parameters): usePopoverP
   );
 }
 
-namespace usePopoverPopup {
+export namespace usePopoverPopup {
   export interface Parameters {
     titleId: string | undefined;
     descriptionId: string | undefined;

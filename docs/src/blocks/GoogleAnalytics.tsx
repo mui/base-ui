@@ -10,7 +10,7 @@ let boundDataGaListener = false;
  * However, it needs the redux store which is created
  * in the same component this "hook" is used.
  */
-const GoogleAnalytics = React.memo(function GoogleAnalytics(props: GoogleAnalytics.Props) {
+export const GoogleAnalytics = React.memo(function GoogleAnalytics(props: GoogleAnalytics.Props) {
   const {
     productId,
     productCategoryId,
@@ -121,7 +121,7 @@ const GoogleAnalytics = React.memo(function GoogleAnalytics(props: GoogleAnalyti
   return null;
 });
 
-namespace GoogleAnalytics {
+export namespace GoogleAnalytics {
   export interface Props {
     productId: string;
     productCategoryId: string;
@@ -166,5 +166,3 @@ function handleDocumentClick(event: MouseEvent) {
     node = element.parentElement;
   }
 }
-
-export { GoogleAnalytics };

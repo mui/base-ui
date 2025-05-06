@@ -20,7 +20,7 @@ const MODIFIER_KEYS = [SHIFT];
  *
  * Documentation: [Base UI Radio Group](https://base-ui.com/react/components/radio)
  */
-const RadioGroup = React.forwardRef(function RadioGroup(
+export const RadioGroup = React.forwardRef(function RadioGroup(
   props: RadioGroup.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
@@ -31,9 +31,10 @@ const RadioGroup = React.forwardRef(function RadioGroup(
     readOnly,
     required,
     onValueChange: onValueChangeProp,
-    name,
     value,
     defaultValue,
+    name: nameProp,
+    inputRef,
     ...otherProps
   } = props;
 
@@ -41,11 +42,12 @@ const RadioGroup = React.forwardRef(function RadioGroup(
 
   const radioGroup = useRadioGroup(props);
 
-  const { state: fieldState, disabled: fieldDisabled } = useFieldRootContext();
+  const { state: fieldState, disabled: fieldDisabled, name: fieldName } = useFieldRootContext();
 
   const disabled = fieldDisabled || disabledProp;
+  const name = fieldName ?? nameProp;
 
-  const onValueChange = useEventCallback(onValueChangeProp ?? (() => {}));
+  const onValueChange = useEventCallback(onValueChangeProp);
 
   const state: RadioGroup.State = React.useMemo(
     () => ({
@@ -65,8 +67,9 @@ const RadioGroup = React.forwardRef(function RadioGroup(
       disabled,
       readOnly,
       required,
+      name,
     }),
-    [fieldState, disabled, onValueChange, radioGroup, readOnly, required],
+    [fieldState, disabled, onValueChange, radioGroup, readOnly, required, name],
   );
 
   const { renderElement } = useComponentRenderer({
@@ -92,7 +95,7 @@ const RadioGroup = React.forwardRef(function RadioGroup(
   );
 });
 
-namespace RadioGroup {
+export namespace RadioGroup {
   export interface State extends FieldRoot.State {
     /**
      * Whether the user should be unable to select a different radio button in the group.
@@ -136,7 +139,9 @@ namespace RadioGroup {
      * Callback fired when the value changes.
      */
     onValueChange?: (value: unknown, event: Event) => void;
+    /**
+     * A ref to access the hidden input element.
+     */
+    inputRef?: React.Ref<HTMLInputElement>;
   }
 }
-
-export { RadioGroup };

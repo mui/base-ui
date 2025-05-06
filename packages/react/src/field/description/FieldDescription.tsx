@@ -13,7 +13,7 @@ import type { BaseUIComponentProps } from '../../utils/types';
  *
  * Documentation: [Base UI Field](https://base-ui.com/react/components/field)
  */
-const FieldDescription = React.forwardRef(function FieldDescription(
+export const FieldDescription = React.forwardRef(function FieldDescription(
   props: FieldDescription.Props,
   forwardedRef: React.ForwardedRef<HTMLParagraphElement>,
 ) {
@@ -36,10 +36,8 @@ const FieldDescription = React.forwardRef(function FieldDescription(
   return renderElement();
 });
 
-namespace FieldDescription {
+export namespace FieldDescription {
   export type State = FieldRoot.State;
 
   export interface Props extends BaseUIComponentProps<'p', State> {}
 }
-
-export { FieldDescription };

@@ -1,7 +1,16 @@
 packages:
-  - 'packages/*'
-  - 'docs'
-  - 'test'
-  - 'test/*'
-  - 'scripts/*'
-  - 'bundle-size'
+  - packages/*
+  - docs
+  - test
+  - test/*
+  - scripts/*
+  - bundle-size
+
+onlyBuiltDependencies:
+  - '@mui/monorepo'
+  - core-js
+  - esbuild
+  - nx
+  - sharp
+  - unrs-resolver
+  - '@vvago/vale'

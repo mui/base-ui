@@ -27,7 +27,7 @@ function formatValue(
  *
  * Documentation: [Base UI Meter](https://base-ui.com/react/components/meter)
  */
-const MeterRoot = React.forwardRef(function MeterRoot(
+export const MeterRoot = React.forwardRef(function MeterRoot(
   props: MeterRoot.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
@@ -100,7 +100,7 @@ const MeterRoot = React.forwardRef(function MeterRoot(
   );
 });
 
-namespace MeterRoot {
+export namespace MeterRoot {
   export interface State {}
 
   export interface Props extends BaseUIComponentProps<'div', State> {
@@ -136,5 +136,3 @@ namespace MeterRoot {
     value: number;
   }
 }
-
-export { MeterRoot };

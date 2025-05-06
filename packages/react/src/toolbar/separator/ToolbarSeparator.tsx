@@ -9,7 +9,7 @@ import { useToolbarRootContext } from '../root/ToolbarRootContext';
  *
  * Documentation: [Base UI Toolbar](https://base-ui.com/react/components/toolbar)
  */
-const ToolbarSeparator = React.forwardRef(function ToolbarSeparator(
+export const ToolbarSeparator = React.forwardRef(function ToolbarSeparator(
   props: ToolbarSeparator.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
@@ -25,8 +25,6 @@ const ToolbarSeparator = React.forwardRef(function ToolbarSeparator(
   return <Separator orientation={orientation} {...props} ref={forwardedRef} />;
 });
 
-namespace ToolbarSeparator {
+export namespace ToolbarSeparator {
   export interface Props extends BaseUIComponentProps<'div', Separator.State>, Separator.Props {}
 }
-
-export { ToolbarSeparator };

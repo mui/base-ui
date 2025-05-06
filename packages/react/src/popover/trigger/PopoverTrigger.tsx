@@ -16,13 +16,13 @@ import { useRenderElement } from '../../utils/useRenderElement';
  *
  * Documentation: [Base UI Popover](https://base-ui.com/react/components/popover)
  */
-const PopoverTrigger = React.forwardRef(function PopoverTrigger(
+export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
   componentProps: PopoverTrigger.Props,
   forwardedRef: React.ForwardedRef<any>,
 ) {
   const { render, className, disabled = false, ...elementProps } = componentProps;
 
-  const { open, setTriggerElement, getTriggerProps, openReason } = usePopoverRootContext();
+  const { open, setTriggerElement, triggerProps, openReason } = usePopoverRootContext();
 
   const state: PopoverTrigger.State = React.useMemo(
     () => ({
@@ -53,14 +53,14 @@ const PopoverTrigger = React.forwardRef(function PopoverTrigger(
   const renderElement = useRenderElement('button', componentProps, {
     state,
     ref: [buttonRef, setTriggerElement],
-    props: [getTriggerProps, elementProps, getButtonProps],
+    props: [triggerProps, elementProps, getButtonProps],
     customStyleHookMapping,
   });
 
   return renderElement();
 });
 
-namespace PopoverTrigger {
+export namespace PopoverTrigger {
   export interface State {
     /**
      * Whether the popover is currently disabled.
@@ -74,5 +74,3 @@ namespace PopoverTrigger {
 
   export interface Props extends BaseUIComponentProps<'button', State> {}
 }
-
-export { PopoverTrigger };

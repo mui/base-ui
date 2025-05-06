@@ -13,7 +13,7 @@ import type { BaseUIComponentProps } from '../../utils/types';
  *
  * Documentation: [Base UI Progress](https://base-ui.com/react/components/progress)
  */
-const ProgressIndicator = React.forwardRef(function ProgressIndicator(
+export const ProgressIndicator = React.forwardRef(function ProgressIndicator(
   componentProps: ProgressIndicator.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
@@ -51,8 +51,6 @@ const ProgressIndicator = React.forwardRef(function ProgressIndicator(
   return renderElement();
 });
 
-namespace ProgressIndicator {
+export namespace ProgressIndicator {
   export interface Props extends BaseUIComponentProps<'div', ProgressRoot.State> {}
 }
-
-export { ProgressIndicator };

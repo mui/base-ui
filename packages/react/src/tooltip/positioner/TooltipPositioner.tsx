@@ -15,7 +15,7 @@ import { useRenderElement } from '../../utils/useRenderElement';
  *
  * Documentation: [Base UI Tooltip](https://base-ui.com/react/components/tooltip)
  */
-const TooltipPositioner = React.forwardRef(function TooltipPositioner(
+export const TooltipPositioner = React.forwardRef(function TooltipPositioner(
   componentProps: TooltipPositioner.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
@@ -90,7 +90,7 @@ const TooltipPositioner = React.forwardRef(function TooltipPositioner(
   );
 });
 
-namespace TooltipPositioner {
+export namespace TooltipPositioner {
   export interface State {
     /**
      * Whether the tooltip is currently open.
@@ -105,5 +105,3 @@ namespace TooltipPositioner {
     extends BaseUIComponentProps<'div', State>,
       useTooltipPositioner.SharedParameters {}
 }
-
-export { TooltipPositioner };

@@ -271,7 +271,7 @@ jobs:
           browsers: true
       - run:
           name: Run tests on headless Chromium
-          command: pnpm test:chromium:coverage
+          command: pnpm test:chromium --coverage
       - run:
           name: Check if coverage report is generated
           command: |

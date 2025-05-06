@@ -15,9 +15,9 @@ import { useImageLoadingStatus, ImageLoadingStatus } from './useImageLoadingStat
  *
  * Documentation: [Base UI Avatar](https://base-ui.com/react/components/avatar)
  */
-const AvatarImage = React.forwardRef<HTMLImageElement, AvatarImage.Props>(function AvatarImage(
+export const AvatarImage = React.forwardRef(function AvatarImage(
   props: AvatarImage.Props,
-  forwardedRef,
+  forwardedRef: React.ForwardedRef<HTMLImageElement>,
 ) {
   const {
     className,
@@ -64,7 +64,7 @@ const AvatarImage = React.forwardRef<HTMLImageElement, AvatarImage.Props>(functi
   return imageLoadingStatus === 'loaded' ? renderElement() : null;
 });
 
-namespace AvatarImage {
+export namespace AvatarImage {
   export interface Props extends BaseUIComponentProps<'img', AvatarRoot.State> {
     /**
      * Callback fired when the loading status changes.
@@ -72,5 +72,3 @@ namespace AvatarImage {
     onLoadingStatusChange?: (status: ImageLoadingStatus) => void;
   }
 }
-
-export { AvatarImage };

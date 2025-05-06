@@ -18,7 +18,7 @@ To ensure that tooltips are accessible and helpful, follow these guidelines:
 - **Avoid tooltips for critical information**: Tooltips work well for enhancing UI clarity (like labeling icon buttons) but should not be the sole means of conveying important information. Since tooltips do not appear on touch devices, consider using a [Popover](/react/components/popover) for essential content.
 - **Avoid tooltips for "infotips"**: If your tooltip is attached to an "info icon" button whose only purpose is to show the tooltip, opt for [Popover](/react/components/popover) and add the `openOnHover` prop instead. Tooltips should describe an element that performs an action separate from opening the tooltip itself.
 
-## API reference
+## Anatomy
 
 Import the component and assemble its parts:
 
@@ -38,5 +38,7 @@ import { Tooltip } from '@base-ui-components/react/tooltip';
   </Tooltip.Root>
 </Tooltip.Provider>;
 ```
+
+## API reference
 
 <Reference component="Tooltip" parts="Provider, Root, Trigger, Portal, Positioner, Popup, Arrow" />

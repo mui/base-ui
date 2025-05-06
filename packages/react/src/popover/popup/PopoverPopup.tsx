@@ -25,7 +25,7 @@ const customStyleHookMapping: CustomStyleHookMapping<PopoverPopup.State> = {
  *
  * Documentation: [Base UI Popover](https://base-ui.com/react/components/popover)
  */
-const PopoverPopup = React.forwardRef(function PopoverPopup(
+export const PopoverPopup = React.forwardRef(function PopoverPopup(
   componentProps: PopoverPopup.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
@@ -35,7 +35,7 @@ const PopoverPopup = React.forwardRef(function PopoverPopup(
     open,
     instantType,
     transitionStatus,
-    getPopupProps,
+    popupProps,
     titleId,
     descriptionId,
     popupRef,
@@ -77,8 +77,8 @@ const PopoverPopup = React.forwardRef(function PopoverPopup(
     state,
     ref: [forwardedRef, popupRef],
     props: [
+      popupProps,
       props,
-      getPopupProps,
       {
         style: transitionStatus === 'starting' ? { transition: 'none' } : {},
       },
@@ -100,7 +100,7 @@ const PopoverPopup = React.forwardRef(function PopoverPopup(
   );
 });
 
-namespace PopoverPopup {
+export namespace PopoverPopup {
   export interface State {
     /**
      * Whether the popover is currently open.
@@ -126,5 +126,3 @@ namespace PopoverPopup {
     finalFocus?: React.RefObject<HTMLElement | null>;
   }
 }
-
-export { PopoverPopup };

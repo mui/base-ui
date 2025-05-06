@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import { useScrub } from './useScrub';
 import { formatNumber } from '../../utils/formatNumber';
 import { toValidatedNumber } from '../utils/validate';
 import { PERCENTAGES, getNumberLocaleDetails } from '../utils/parse';
@@ -14,10 +13,6 @@ import { useForcedRerendering } from '../../utils/useForcedRerendering';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useLatestRef } from '../../utils/useLatestRef';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
-import { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
-import { useForkRef } from '../../utils/useForkRef';
-import { useField } from '../../field/useField';
-import type { ScrubHandle } from './useScrub';
 import type { EventWithOptionalKeyState } from '../utils/types';
 
 export function useNumberFieldRoot(
@@ -25,7 +20,7 @@ export function useNumberFieldRoot(
 ): useNumberFieldRoot.ReturnValue {
   const {
     id: idProp,
-    name,
+    name: nameProp,
     min,
     max,
     smallStep = 0.1,
@@ -33,7 +28,6 @@ export function useNumberFieldRoot(
     largeStep = 10,
     required = false,
     disabled: disabledProp = false,
-    invalid = false,
     readOnly = false,
     allowWheelScrub = false,
     snapOnStep = false,
@@ -46,17 +40,19 @@ export function useNumberFieldRoot(
 
   const {
     setControlId,
-    validationMode,
     setDirty,
     validityData,
     setValidityData,
     disabled: fieldDisabled,
     setFilled,
+    invalid,
+    name: fieldName,
   } = useFieldRootContext();
 
-  const { inputRef: inputValidationRef, commitValidation } = useFieldControlValidation();
-
   const disabled = fieldDisabled || disabledProp;
+  const name = fieldName ?? nameProp;
+
+  const [isScrubbing, setIsScrubbing] = React.useState(false);
 
   const minWithDefault = min ?? Number.MIN_SAFE_INTEGER;
   const maxWithDefault = max ?? Number.MAX_SAFE_INTEGER;
@@ -64,7 +60,6 @@ export function useNumberFieldRoot(
   const formatStyle = format?.style;
 
   const inputRef = React.useRef<HTMLInputElement>(null);
-  const mergedRef = useForkRef(inputRef, inputValidationRef);
 
   const id = useBaseUiId(idProp);
 
@@ -88,13 +83,6 @@ export function useNumberFieldRoot(
   useModernLayoutEffect(() => {
     setFilled(value !== null);
   }, [setFilled, value]);
-
-  useField({
-    id,
-    commitValidation,
-    value,
-    controlRef: inputRef,
-  });
 
   const forceRender = useForcedRerendering();
 
@@ -166,10 +154,6 @@ export function useNumberFieldRoot(
       onValueChange?.(validatedValue, event && 'nativeEvent' in event ? event.nativeEvent : event);
       setValueUnwrapped(validatedValue);
       setDirty(validatedValue !== validityData.initialValue);
-
-      if (validationMode === 'onChange') {
-        commitValidation(validatedValue);
-      }
 
       // We need to force a re-render, because while the value may be unchanged, the formatting may
       // be different. This forces the `useModernLayoutEffect` to run which acts as a single source of
@@ -326,19 +310,9 @@ export function useNumberFieldRoot(
     [allowWheelScrub, incrementValue, disabled, readOnly, largeStep, step, getStepAmount],
   );
 
-  const scrub = useScrub({
-    disabled,
-    readOnly,
-    value,
-    inputRef,
-    incrementValue,
-    getStepAmount,
-  });
-
   return React.useMemo(
     () => ({
       inputRef,
-      mergedRef,
       inputValue,
       value,
       startAutoChange,
@@ -366,14 +340,13 @@ export function useNumberFieldRoot(
       max,
       setInputValue,
       locale,
-      ...scrub,
+      isScrubbing,
+      setIsScrubbing,
     }),
     [
       inputRef,
-      mergedRef,
       inputValue,
       value,
-      scrub,
       startAutoChange,
       stopAutoChange,
       minWithDefault,
@@ -399,6 +372,7 @@ export function useNumberFieldRoot(
       max,
       setInputValue,
       locale,
+      isScrubbing,
     ],
   );
 }
@@ -500,17 +474,8 @@ export namespace useNumberFieldRoot {
   }
 
   export interface ReturnValue {
-    getScrubAreaProps: (
-      externalProps?: React.ComponentPropsWithRef<'span'>,
-    ) => React.ComponentPropsWithRef<'span'>;
     inputValue: string;
     value: number | null;
-    isScrubbing: boolean;
-    isTouchInput: boolean;
-    isPointerLockDenied: boolean;
-    scrubHandleRef: React.RefObject<ScrubHandle | null>;
-    scrubAreaRef: React.RefObject<HTMLSpanElement | null>;
-    scrubAreaCursorRef: React.RefObject<HTMLSpanElement | null>;
     startAutoChange: (isIncrement: boolean, event?: React.MouseEvent | Event) => void;
     stopAutoChange: () => void;
     minWithDefault: number;
@@ -527,7 +492,6 @@ export namespace useNumberFieldRoot {
       event?: Event,
     ) => void;
     inputRef: React.RefObject<HTMLInputElement | null>;
-    mergedRef: ((instance: HTMLInputElement | null) => void) | null;
     allowInputSyncRef: React.RefObject<boolean | null>;
     formatOptionsRef: React.RefObject<Intl.NumberFormatOptions | undefined>;
     valueRef: React.RefObject<number | null>;
@@ -536,12 +500,14 @@ export namespace useNumberFieldRoot {
     movesAfterTouchRef: React.RefObject<number | null>;
     name: string | undefined;
     required: boolean;
-    invalid: boolean;
+    invalid: boolean | undefined;
     inputMode: InputMode;
     getAllowedNonNumericKeys: () => (string | undefined)[];
     min: number | undefined;
     max: number | undefined;
     setInputValue: React.Dispatch<React.SetStateAction<string>>;
     locale: Intl.LocalesArgument;
+    isScrubbing: boolean;
+    setIsScrubbing: React.Dispatch<React.SetStateAction<boolean>>;
   }
 }

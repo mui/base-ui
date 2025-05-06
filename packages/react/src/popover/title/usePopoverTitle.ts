@@ -37,7 +37,7 @@ export function usePopoverTitle(params: usePopoverTitle.Parameters): usePopoverT
   );
 }
 
-namespace usePopoverTitle {
+export namespace usePopoverTitle {
   export interface Parameters {
     titleId: string | undefined;
     setTitleId: React.Dispatch<React.SetStateAction<string | undefined>>;
