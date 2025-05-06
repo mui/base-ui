@@ -76,9 +76,13 @@ export function useAnchorPositioning(
       side: 'flip',
       align: 'flip',
       fallbackAxisSide: 'end',
-    },
+    } as const,
     nodeId,
   } = params;
+
+  const collisionAvoidanceSide = collisionAvoidance.side || 'flip';
+  const collisionAvoidanceAlign = collisionAvoidance.align || 'flip';
+  const collisionAvoidanceFallbackAxisSide = collisionAvoidance.fallbackAxisSide || 'end';
 
   const anchorFn = typeof anchor === 'function' ? anchor : undefined;
   const anchorFnCallback = useEventCallback(anchorFn);
@@ -147,19 +151,19 @@ export function useAnchorPositioning(
   ];
 
   const flipMiddleware =
-    collisionAvoidance.side === 'none'
+    collisionAvoidanceSide === 'none'
       ? null
       : flip({
           ...commonCollisionProps,
           crossAxis: 'alignment',
-          fallbackAxisSideDirection: collisionAvoidance.fallbackAxisSide,
+          fallbackAxisSideDirection: collisionAvoidanceFallbackAxisSide,
         });
   const shiftMiddleware =
-    collisionAvoidance.align === 'none'
+    collisionAvoidanceAlign === 'none'
       ? null
       : shift({
           ...commonCollisionProps,
-          crossAxis: sticky || collisionAvoidance.side === 'shift',
+          crossAxis: sticky || collisionAvoidanceSide === 'shift',
           limiter: sticky
             ? undefined
             : limitShift(() => {
@@ -175,7 +179,7 @@ export function useAnchorPositioning(
         });
 
   // https://floating-ui.com/docs/flip#combining-with-shift
-  if (align !== 'center' && collisionAvoidance.align === 'flip') {
+  if (align !== 'center' && collisionAvoidanceAlign === 'flip') {
     middleware.push(flipMiddleware, shiftMiddleware);
   } else {
     middleware.push(shiftMiddleware, flipMiddleware);
