@@ -10,7 +10,14 @@ import { useControlled } from '../../utils/useControlled';
 import { useEventCallback } from '../../utils/useEventCallback';
 
 export function useFieldControl(params: useFieldControl.Parameters) {
-  const { id: idProp, name, value: valueProp, defaultValue, onValueChange, disabled } = params;
+  const {
+    id: idProp,
+    name: nameProp,
+    value: valueProp,
+    defaultValue,
+    onValueChange,
+    disabled,
+  } = params;
 
   const {
     setControlId,
@@ -21,12 +28,14 @@ export function useFieldControl(params: useFieldControl.Parameters) {
     setFocused,
     setFilled,
     validationMode,
+    name: fieldName,
   } = useFieldRootContext();
 
   const { getValidationProps, getInputValidationProps, commitValidation, inputRef } =
     useFieldControlValidation();
 
   const id = useBaseUiId(idProp);
+  const name = fieldName ?? nameProp;
 
   useModernLayoutEffect(() => {
     setControlId(id);
