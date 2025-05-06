@@ -163,15 +163,15 @@ export function useToastProvider(props: useToastProvider.Parameters): ToastConte
     const shouldStartActive =
       windowFocusedRef.current && !hoveringRef.current && !focusedRef.current;
 
-    const timeout = shouldStartActive ? Timeout.create() : undefined;
+    const currentTimeout = shouldStartActive ? Timeout.create() : undefined;
 
-    timeout?.start(delay, () => {
+    currentTimeout?.start(delay, () => {
       timersRef.current.delete(id);
       callback();
     });
 
     timersRef.current.set(id, {
-      timeout,
+      timeout: currentTimeout,
       start: shouldStartActive ? start : 0,
       delay,
       remaining: delay,

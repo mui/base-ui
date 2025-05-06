@@ -40,7 +40,7 @@ function preventScrollStandard(referenceElement: Element | null) {
 
   let scrollTop = 0;
   let scrollLeft = 0;
-  let resizeFrame = AnimationFrame.create();
+  const resizeFrame = AnimationFrame.create();
 
   // Pinch-zoom in Safari causes a shift. Just don't lock scroll if there's any pinch-zoom.
   if (isWebKit() && (win.visualViewport?.scale ?? 1) !== 1) {

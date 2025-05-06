@@ -75,7 +75,7 @@ export function useSelectTrigger(
     timeout.clear();
 
     return undefined;
-  }, [open, selectionRef]);
+  }, [open, selectionRef, timeout, timeout1, timeout2]);
 
   const props: GenericHTMLProps = mergeProps<'button'>(
     triggerProps,

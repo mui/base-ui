@@ -28,7 +28,7 @@ export const AvatarFallback = React.forwardRef(function AvatarFallback(
       timeout.start(delay, () => setDelayPassed(true));
     }
     return timeout.clear;
-  }, [delay]);
+  }, [timeout, delay]);
 
   const state: AvatarRoot.State = React.useMemo(
     () => ({

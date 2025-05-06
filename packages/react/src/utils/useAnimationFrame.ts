@@ -16,16 +16,20 @@ class Scheduler {
    * frame to run anyway. We turn that frame into a `O(1)` no-op via `callbacksCount`. */
 
   callbacks = [] as (FrameRequestCallback | null)[];
+
   callbacksCount = 0;
+
   nextId = 1;
+
   startId = 1;
+
   isScheduled = false;
 
-  tick(timestamp: number) {
+  tick = (timestamp: number) => {
     this.isScheduled = false;
 
-    let currentCallbacks = this.callbacks;
-    let currentCallbacksCount = this.callbacksCount;
+    const currentCallbacks = this.callbacks;
+    const currentCallbacksCount = this.callbacksCount;
 
     // Update these before iterating, callbacks could call `requestAnimationFrame` again.
     this.callbacks = [];
@@ -33,14 +37,15 @@ class Scheduler {
     this.startId = this.nextId;
 
     if (currentCallbacksCount > 0) {
-      for (let i = 0; i < currentCallbacks.length; i++) {
+      for (let i = 0; i < currentCallbacks.length; i += 1) {
         currentCallbacks[i]?.(timestamp);
       }
     }
-  }
+  };
 
   request(fn: FrameRequestCallback) {
-    const id = this.nextId++;
+    const id = this.nextId;
+    this.nextId += 1;
     this.callbacks.push(fn);
     this.callbacksCount += 1;
     if (!this.isScheduled) {

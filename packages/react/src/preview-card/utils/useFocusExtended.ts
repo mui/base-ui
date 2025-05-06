@@ -85,7 +85,7 @@ export function useFocusExtended(
         });
       },
     }),
-    [delay, onOpenChange, elements.domReference, dataRef],
+    [delay, onOpenChange, elements.domReference, dataRef, timeout],
   );
 
   return React.useMemo(() => ({ reference }), [reference]);

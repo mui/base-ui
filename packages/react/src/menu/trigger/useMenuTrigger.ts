@@ -98,7 +98,15 @@ export function useMenuTrigger(parameters: useMenuTrigger.Parameters): useMenuTr
         getButtonProps,
       );
     },
-    [getButtonProps, handleRef, open, setOpen, positionerRef, allowMouseUpTriggerRef],
+    [
+      getButtonProps,
+      handleRef,
+      open,
+      setOpen,
+      positionerRef,
+      allowMouseUpTriggerRef,
+      allowMouseUpTriggerTimeout,
+    ],
   );
 
   return React.useMemo(

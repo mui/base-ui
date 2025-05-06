@@ -179,6 +179,7 @@ export function useFieldControlValidation() {
       getValidationProps,
       clearErrors,
       name,
+      timeout,
       commitValidation,
       invalid,
       validationMode,
