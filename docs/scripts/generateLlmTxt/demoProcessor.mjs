@@ -15,15 +15,10 @@ import * as mdx from './mdxNodeHelpers.mjs';
  * @returns {Array<string>} Array of file paths
  */
 function readDirFiles(directory) {
-  try {
-    return fs
-      .readdirSync(directory)
-      .filter((file) => !fs.statSync(path.join(directory, file)).isDirectory())
-      .map((file) => path.join(directory, file));
-  } catch (error) {
-    console.error(`Error reading directory ${directory}:`, error);
-    return [];
-  }
+  return fs
+    .readdirSync(directory)
+    .filter((file) => !fs.statSync(path.join(directory, file)).isDirectory())
+    .map((file) => path.join(directory, file));
 }
 
 /**

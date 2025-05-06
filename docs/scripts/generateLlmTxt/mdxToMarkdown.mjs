@@ -13,6 +13,7 @@ import remarkStringify from 'remark-stringify';
 import { visit } from 'unist-util-visit';
 import { processReference } from './referenceProcessor.mjs';
 import { processDemo } from './demoProcessor.mjs';
+import { processPropsReferenceTable } from './propsReferenceTableProcessor.mjs';
 import * as mdx from './mdxNodeHelpers.mjs';
 
 /**
@@ -97,9 +98,15 @@ function transformJsx() {
             return visit.CONTINUE;
           }
 
-          case 'PropsReferenceTable':
-            parent.children.splice(index, 1, mdx.paragraph('--- PropsReferenceTable ---'));
+          case 'PropsReferenceTable': {
+            // Process the PropsReferenceTable component using our dedicated processor
+            const tables = processPropsReferenceTable(node);
+
+            // Replace the PropsReferenceTable component with the generated tables
+            parent.children.splice(index, 1, ...tables);
+
             return visit.CONTINUE;
+          }
 
           case 'Subtitle': {
             parent.children.splice(index, 1);
