@@ -2,6 +2,10 @@
   "name": "MenuPositioner",
   "description": "Positions the menu popup against the trigger.\nRenders a `<div>` element.",
   "props": {
+    "collisionAvoidance": {
+      "type": "{ side: 'shift' | 'none' | 'flip', align: 'shift' | 'none' | 'flip', fallbackAxisSide: 'none' | 'end' | 'start' }",
+      "description": "Determines how to handle collisions when positioning the popup."
+    },
     "align": {
       "type": "'center' | 'end' | 'start'",
       "default": "'center'",
