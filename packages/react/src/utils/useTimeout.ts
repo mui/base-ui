@@ -36,7 +36,7 @@ export class Timeout {
   };
 }
 
-export default function useTimeout() {
+export function useTimeout() {
   const timeout = useLazyRef(Timeout.create).current;
 
   useOnMount(timeout.disposeEffect);
