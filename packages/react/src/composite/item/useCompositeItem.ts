@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { useCompositeRootContext } from '../root/CompositeRootContext';
 import { useCompositeListItem } from '../list/useCompositeListItem';
-import { mergeProps } from '../../merge-props';
+import { GenericHTMLProps } from '../../utils/types';
 
 export interface UseCompositeItemParameters<Metadata> {
   metadata?: Metadata;
@@ -13,27 +13,22 @@ export function useCompositeItem<Metadata>(params: UseCompositeItemParameters<Me
   const { ref, index } = useCompositeListItem(params);
   const isHighlighted = highlightedIndex === index;
 
-  const getItemProps = React.useCallback(
-    <T extends React.ElementType = 'div'>(externalProps = {}) =>
-      mergeProps<T>(
-        // @ts-ignore tabIndex as number
-        {
-          tabIndex: isHighlighted ? 0 : -1,
-          onFocus() {
-            onHighlightedIndexChange(index);
-          },
-        },
-        externalProps,
-      ),
-    [isHighlighted, index, onHighlightedIndexChange],
+  const props = React.useMemo<GenericHTMLProps>(
+    () => ({
+      tabIndex: isHighlighted ? 0 : -1,
+      onFocus() {
+        onHighlightedIndexChange(index);
+      },
+    }),
+    [index, isHighlighted, onHighlightedIndexChange],
   );
 
   return React.useMemo(
     () => ({
-      getItemProps,
+      props,
       ref,
       index,
     }),
-    [getItemProps, ref, index],
+    [props, ref, index],
   );
 }
