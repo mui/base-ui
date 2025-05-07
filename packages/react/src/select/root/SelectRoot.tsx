@@ -17,6 +17,7 @@ export const SelectRoot: SelectRoot = function SelectRoot<Value>(
   props: SelectRoot.Props<Value>,
 ): React.JSX.Element {
   const {
+    id,
     value: valueProp,
     defaultValue = null,
     onValueChange,
@@ -34,6 +35,7 @@ export const SelectRoot: SelectRoot = function SelectRoot<Value>(
   } = props;
 
   const selectRoot = useSelectRoot<Value>({
+    id,
     value: valueProp,
     defaultValue,
     onValueChange,

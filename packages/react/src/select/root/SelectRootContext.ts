@@ -31,8 +31,8 @@ export interface SelectRootContext {
   setScrollDownArrowVisible: React.Dispatch<React.SetStateAction<boolean>>;
   listRef: React.MutableRefObject<Array<HTMLElement | null>>;
   popupRef: React.MutableRefObject<HTMLDivElement | null>;
-  getRootTriggerProps: (props?: GenericHTMLProps) => GenericHTMLProps;
-  getRootPopupProps: (props?: GenericHTMLProps) => GenericHTMLProps;
+  triggerProps: GenericHTMLProps;
+  popupProps: GenericHTMLProps;
   getItemProps: (
     props?: GenericHTMLProps & { active?: boolean; selected?: boolean },
   ) => Record<string, unknown>;

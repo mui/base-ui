@@ -29,8 +29,8 @@ export interface PopoverRootContext {
   descriptionId: string | undefined;
   setDescriptionId: React.Dispatch<React.SetStateAction<string | undefined>>;
   floatingRootContext: FloatingRootContext;
-  getTriggerProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
-  getPopupProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
+  triggerProps: GenericHTMLProps;
+  popupProps: GenericHTMLProps;
   openMethod: InteractionType | null;
   openReason: PopoverOpenChangeReason | null;
   onOpenChangeComplete: ((open: boolean) => void) | undefined;

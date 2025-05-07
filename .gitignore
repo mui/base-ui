@@ -26,3 +26,4 @@ size-snapshot.json
 # vale downloaded config
 .github/styles/
 .nx/cache
+.nx/workspace-data

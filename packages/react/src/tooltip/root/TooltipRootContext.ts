@@ -20,8 +20,8 @@ export interface TooltipRootContext {
   closeDelay: number;
   mounted: boolean;
   setMounted: React.Dispatch<React.SetStateAction<boolean>>;
-  getTriggerProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
-  getPopupProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
+  triggerProps: GenericHTMLProps;
+  popupProps: GenericHTMLProps;
   instantType: 'delay' | 'dismiss' | 'focus' | undefined;
   floatingRootContext: FloatingRootContext;
   trackCursorAxis: 'none' | 'x' | 'y' | 'both';
