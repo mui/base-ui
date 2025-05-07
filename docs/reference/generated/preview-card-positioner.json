@@ -4,6 +4,7 @@
   "props": {
     "collisionAvoidance": {
       "type": "{ side: 'shift' | 'none' | 'flip', align: 'shift' | 'none' | 'flip', fallbackAxisSide: 'none' | 'end' | 'start' }",
+      "required": true,
       "description": "Determines how to handle collisions when positioning the popup."
     },
     "align": {
