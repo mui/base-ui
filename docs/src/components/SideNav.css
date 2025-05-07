@@ -142,6 +142,33 @@
 
 .SideNavBadge {
   color: var(--color-red);
-  line-height: 1;
+  line-height: inherit;
   user-select: none;
+}
+
+.SideNavBadgeCorner {
+  color: var(--color-red);
+  line-height: inherit;
+  text-transform: uppercase;
+  user-select: none;
+  font-size: 0.75rem;
+  line-height: var(--text-xs--line-height);
+  translate: -2px -3px;
+  font-weight: 600;
+  letter-spacing: 0.00625em;
+}
+
+.SideNavBadgeEnd {
+  color: var(--color-red);
+  font-size: var(--text-xs);
+  line-height: var(--text-xs--line-height);
+  user-select: none;
+  text-transform: uppercase;
+  font-weight: 600;
+  margin-left: auto;
+  letter-spacing: 0.00625em;
+}
+
+.SideNavLink:has(.SideNavBadgeEnd) {
+  align-items: baseline;
 }
