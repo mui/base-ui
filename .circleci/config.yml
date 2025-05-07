@@ -197,7 +197,7 @@ jobs:
             pnpm docs:link-check
             git add -A && git diff --exit-code --staged
       - run:
-          name: '`pnpm inline-scripts changes committed?'
+          name: '`pnpm inline-scripts` changes committed?'
           command: |
             pnpm inline-scripts
             git add -A && git diff --exit-code --staged
