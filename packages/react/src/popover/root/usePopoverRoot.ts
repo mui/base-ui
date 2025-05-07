@@ -26,6 +26,7 @@ import {
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { PATIENT_CLICK_THRESHOLD } from '../../utils/constants';
 import { useScrollLock } from '../../utils/useScrollLock';
+import type { Popover } from '../index';
 
 export type PopoverOpenChangeReason = BaseOpenChangeReason | 'close-press';
 
@@ -292,7 +293,7 @@ export namespace usePopoverRoot {
     setOpen: (
       open: boolean,
       event: Event | undefined,
-      reason: PopoverOpenChangeReason | undefined,
+      reason: Popover.Root.OpenChangeReason | undefined,
     ) => void;
     mounted: boolean;
     setMounted: React.Dispatch<React.SetStateAction<boolean>>;

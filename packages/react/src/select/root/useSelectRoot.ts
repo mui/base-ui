@@ -26,12 +26,13 @@ import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useFormContext } from '../../form/FormContext';
 import { useLatestRef } from '../../utils/useLatestRef';
 import { useField } from '../../field/useField';
+import type { Select } from '../index';
 
 const EMPTY_ARRAY: never[] = [];
 export type SelectOpenChangeReason =
   | BaseOpenChangeReason
   | 'window-resize'
-  | 'item-select'
+  | 'item-press'
   | 'cancel-open';
 
 export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelectRoot.ReturnValue {
@@ -436,7 +437,7 @@ export namespace useSelectRoot {
     onOpenChange?: (
       open: boolean,
       event: Event | undefined,
-      reason: SelectOpenChangeReason | undefined,
+      reason: Select.Root.OpenChangeReason | undefined,
     ) => void;
     /**
      * Event handler called after any animations complete when the select menu is opened or closed.

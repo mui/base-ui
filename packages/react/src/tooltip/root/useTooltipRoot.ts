@@ -23,6 +23,7 @@ import {
 } from '../../utils/translateOpenChangeReason';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useTooltipProviderContext } from '../provider/TooltipProviderContext';
+import type { Tooltip } from '../index';
 
 export type TooltipOpenChangeReason = BaseOpenChangeReason | 'disabled';
 
@@ -269,7 +270,7 @@ export namespace useTooltipRoot {
     setOpen: (
       open: boolean,
       event: Event | undefined,
-      reason: TooltipOpenChangeReason | undefined,
+      reason: Tooltip.Root.OpenChangeReason | undefined,
     ) => void;
     mounted: boolean;
     setMounted: React.Dispatch<React.SetStateAction<boolean>>;

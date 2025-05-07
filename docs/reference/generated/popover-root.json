@@ -12,7 +12,7 @@
       "description": "Whether the popover is currently open."
     },
     "onOpenChange": {
-      "type": "((open: boolean, event: Event | undefined, reason: PopoverOpenChangeReason | undefined) => void)",
+      "type": "((open: boolean, event: Event | undefined, reason: {} | undefined) => void)",
       "description": "Event handler called when the popover is opened or closed."
     },
     "actionsRef": {

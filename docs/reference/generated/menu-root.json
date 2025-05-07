@@ -12,7 +12,7 @@
       "description": "Whether the menu is currently open."
     },
     "onOpenChange": {
-      "type": "((open: boolean, event: Event | undefined, reason: MenuOpenChangeReason | undefined) => void)",
+      "type": "((open: boolean, event: Event | undefined, reason: {} | undefined) => void)",
       "description": "Event handler called when the menu is opened or closed."
     },
     "actionsRef": {

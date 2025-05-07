@@ -12,7 +12,7 @@
       "description": "Whether the dialog is currently open."
     },
     "onOpenChange": {
-      "type": "((open: boolean, event: Event | undefined, reason: DialogOpenChangeReason | undefined) => void)",
+      "type": "((open: boolean, event: Event | undefined, reason: {} | undefined) => void)",
       "description": "Event handler called when the dialog is opened or closed."
     },
     "actionsRef": {

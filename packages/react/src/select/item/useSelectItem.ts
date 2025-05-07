@@ -50,7 +50,7 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
 
   const commitSelection = useEventCallback((event: MouseEvent) => {
     handleSelect(event);
-    setOpen(false, event, 'item-select');
+    setOpen(false, event, 'item-press');
   });
 
   const handlePopupLeave = useEventCallback(() => {

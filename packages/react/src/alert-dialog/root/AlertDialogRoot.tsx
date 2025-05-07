@@ -3,6 +3,7 @@ import * as React from 'react';
 import type { DialogRoot } from '../../dialog/root/DialogRoot';
 import { AlertDialogRootContext } from './AlertDialogRootContext';
 import { type DialogOpenChangeReason, useDialogRoot } from '../../dialog/root/useDialogRoot';
+import type { AlertDialog } from '../index';
 
 /**
  * Groups all parts of the alert dialog.
@@ -53,7 +54,16 @@ export const AlertDialogRoot: React.FC<AlertDialogRoot.Props> = function AlertDi
 };
 
 export namespace AlertDialogRoot {
-  export interface Props extends Omit<DialogRoot.Props, 'modal' | 'dismissible'> {}
+  export interface Props extends Omit<DialogRoot.Props, 'modal' | 'dismissible' | 'onOpenChange'> {
+    /**
+     * Event handler called when the dialog is opened or closed.
+     */
+    onOpenChange?: (
+      open: boolean,
+      event: Event | undefined,
+      reason: AlertDialog.Root.OpenChangeReason | undefined,
+    ) => void;
+  }
 
   export type Actions = DialogRoot.Actions;
 

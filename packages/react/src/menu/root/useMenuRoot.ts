@@ -25,9 +25,10 @@ import {
   type BaseOpenChangeReason,
   translateOpenChangeReason,
 } from '../../utils/translateOpenChangeReason';
+import type { Menu } from '../index';
 
 const EMPTY_ARRAY: never[] = [];
-export type MenuOpenChangeReason = BaseOpenChangeReason | 'item-select' | 'cancel-open';
+export type MenuOpenChangeReason = BaseOpenChangeReason | 'item-press' | 'cancel-open';
 
 export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.ReturnValue {
   const {
@@ -323,7 +324,7 @@ export namespace useMenuRoot {
       | ((
           open: boolean,
           event: Event | undefined,
-          reason: MenuOpenChangeReason | undefined,
+          reason: Menu.Root.OpenChangeReason | undefined,
         ) => void)
       | undefined;
     /**

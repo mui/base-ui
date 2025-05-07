@@ -24,6 +24,7 @@ import {
   translateOpenChangeReason,
 } from '../../utils/translateOpenChangeReason';
 import { useIOSKeyboardSlideFix } from '../../utils/useIOSKeyboardSlideFix';
+import type { Dialog } from '../index';
 
 export type DialogOpenChangeReason = BaseOpenChangeReason | 'close-press';
 
@@ -250,7 +251,7 @@ export namespace useDialogRoot {
     onOpenChange?: (
       open: boolean,
       event: Event | undefined,
-      reason: DialogOpenChangeReason | undefined,
+      reason: Dialog.Root.OpenChangeReason | undefined,
     ) => void;
     /**
      * Event handler called after any animations complete when the dialog is opened or closed.
@@ -316,7 +317,7 @@ export namespace useDialogRoot {
     setOpen: (
       open: boolean,
       event: Event | undefined,
-      reason: DialogOpenChangeReason | undefined,
+      reason: Dialog.Root.OpenChangeReason | undefined,
     ) => void;
     /**
      * Whether the dialog is currently open.
