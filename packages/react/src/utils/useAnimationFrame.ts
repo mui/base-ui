@@ -4,10 +4,10 @@ import { useOnMount } from './useOnMount';
 
 type AnimationFrameId = number;
 
-// Unlike `setTimeout`, rAF doesn't guarantee a positive integer return value, so we can't have
-// a monomorphic `uint` type.
-// See warning note at:
-// https://developer.mozilla.org/en-US/docs/Web/API/Window/requestAnimationFrame#return_value
+/** Unlike `setTimeout`, rAF doesn't guarantee a positive integer return value, so we can't have
+ * a monomorphic `uint` type with `0` meaning empty.
+ * See warning note at:
+ * https://developer.mozilla.org/en-US/docs/Web/API/Window/requestAnimationFrame#return_value */
 const EMPTY = null;
 
 class Scheduler {
