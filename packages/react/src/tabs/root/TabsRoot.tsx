@@ -7,7 +7,7 @@ import { useDirection } from '../../direction-provider/DirectionContext';
 import { useTabsRoot } from './useTabsRoot';
 import { TabsRootContext } from './TabsRootContext';
 import { tabsStyleHookMapping } from './styleHooks';
-import { TabPanelMetadata } from '../panel/useTabsPanel';
+import type { TabPanelMetadata } from '../panel/TabsPanel';
 
 /**
  * Groups the tabs and the corresponding panels.

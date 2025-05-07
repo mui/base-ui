@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { useControlled } from '../../utils/useControlled';
 import type { CompositeMetadata } from '../../composite/list/CompositeList';
-import type { TabPanelMetadata } from '../panel/useTabsPanel';
+import type { TabPanelMetadata } from '../panel/TabsPanel';
 import type { TabMetadata } from '../tab/TabsTab';
 import type { TabActivationDirection, TabValue } from './TabsRoot';
 
