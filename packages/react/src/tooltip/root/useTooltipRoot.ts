@@ -26,6 +26,7 @@ import { useTooltipProviderContext } from '../provider/TooltipProviderContext';
 import type { Tooltip } from '../index';
 
 export type TooltipOpenChangeReason = BaseOpenChangeReason | 'disabled';
+type OpenChangeReason = TooltipOpenChangeReason;
 
 export function useTooltipRoot(params: useTooltipRoot.Parameters): useTooltipRoot.ReturnValue {
   const {
@@ -225,7 +226,7 @@ export namespace useTooltipRoot {
     onOpenChange?: (
       open: boolean,
       event: Event | undefined,
-      reason: TooltipOpenChangeReason | undefined,
+      reason: OpenChangeReason | undefined,
     ) => void;
     /**
      * Event handler called after any animations complete when the tooltip is opened or closed.

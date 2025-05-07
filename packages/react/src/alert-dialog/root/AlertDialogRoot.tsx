@@ -3,7 +3,6 @@ import * as React from 'react';
 import type { DialogRoot } from '../../dialog/root/DialogRoot';
 import { AlertDialogRootContext } from './AlertDialogRootContext';
 import { type DialogOpenChangeReason, useDialogRoot } from '../../dialog/root/useDialogRoot';
-import type { AlertDialog } from '../index';
 
 /**
  * Groups all parts of the alert dialog.
@@ -61,7 +60,7 @@ export namespace AlertDialogRoot {
     onOpenChange?: (
       open: boolean,
       event: Event | undefined,
-      reason: AlertDialog.Root.OpenChangeReason | undefined,
+      reason: OpenChangeReason | undefined,
     ) => void;
   }
 

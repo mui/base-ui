@@ -25,10 +25,11 @@ import {
   type BaseOpenChangeReason,
   translateOpenChangeReason,
 } from '../../utils/translateOpenChangeReason';
-import type { Menu } from '../index';
+
+export type MenuOpenChangeReason = BaseOpenChangeReason | 'item-press' | 'cancel-open';
+type OpenChangeReason = MenuOpenChangeReason;
 
 const EMPTY_ARRAY: never[] = [];
-export type MenuOpenChangeReason = BaseOpenChangeReason | 'item-press' | 'cancel-open';
 
 export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.ReturnValue {
   const {
@@ -321,11 +322,7 @@ export namespace useMenuRoot {
      * Event handler called when the menu is opened or closed.
      */
     onOpenChange:
-      | ((
-          open: boolean,
-          event: Event | undefined,
-          reason: Menu.Root.OpenChangeReason | undefined,
-        ) => void)
+      | ((open: boolean, event: Event | undefined, reason: OpenChangeReason | undefined) => void)
       | undefined;
     /**
      * Event handler called after any animations complete when the menu is opened or closed.
