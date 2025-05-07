@@ -6,6 +6,8 @@ import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useForkRef } from '../../utils/useForkRef';
 import type { NumberFieldRoot } from '../root/NumberFieldRoot';
 import { styleHookMapping } from '../utils/styleHooks';
+import { useScrub } from './useScrub';
+import { NumberFieldScrubAreaContext } from './NumberFieldScrubAreaContext';
 
 /**
  * An interactive area where the user can click and drag to change the field value.
@@ -26,18 +28,18 @@ export const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubAr
     ...otherProps
   } = props;
 
-  const { getScrubAreaProps, scrubAreaRef, scrubHandleRef, state } = useNumberFieldRootContext();
+  const { state } = useNumberFieldRootContext();
 
-  React.useImperativeHandle(scrubHandleRef, () => ({
-    direction,
+  const scrub = useScrub({
     pixelSensitivity,
+    direction,
     teleportDistance,
-  }));
+  });
 
-  const mergedRef = useForkRef(scrubAreaRef, forwardedRef);
+  const mergedRef = useForkRef(scrub.scrubAreaRef, forwardedRef);
 
   const { renderElement } = useComponentRenderer({
-    propGetter: getScrubAreaProps,
+    propGetter: scrub.getScrubAreaProps,
     ref: mergedRef,
     render: render ?? 'span',
     state,
@@ -46,11 +48,26 @@ export const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubAr
     customStyleHookMapping: styleHookMapping,
   });
 
-  return renderElement();
+  const contextValue: NumberFieldScrubAreaContext = React.useMemo(
+    () => ({
+      ...scrub,
+      direction,
+      pixelSensitivity,
+      teleportDistance,
+    }),
+    [scrub, direction, pixelSensitivity, teleportDistance],
+  );
+
+  return (
+    <NumberFieldScrubAreaContext.Provider value={contextValue}>
+      {renderElement()}
+    </NumberFieldScrubAreaContext.Provider>
+  );
 });
 
 export namespace NumberFieldScrubArea {
   export interface State extends NumberFieldRoot.State {}
+
   export interface Props extends BaseUIComponentProps<'span', State> {
     /**
      * Cursor movement direction in the scrub area.

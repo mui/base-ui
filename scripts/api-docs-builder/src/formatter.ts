@@ -6,7 +6,7 @@ export function formatProperties(props: rae.PropertyNode[]) {
 
   for (const prop of props) {
     result[prop.name] = {
-      type: formatType(prop.type, prop.optional),
+      type: formatType(prop.type, prop.optional, prop.documentation?.tags),
       default: prop.documentation?.defaultValue,
       required: !prop.optional || undefined,
       description: prop.documentation?.description,
@@ -21,7 +21,7 @@ export function formatParameters(params: rae.Parameter[]) {
 
   for (const param of params) {
     result[param.name] = {
-      type: formatType(param.type, param.optional, true),
+      type: formatType(param.type, param.optional, param.documentation?.tags, true),
       default: param.defaultValue,
       optional: param.optional || undefined,
       description: param.documentation?.description,
@@ -46,8 +46,16 @@ export function formatEnum(enumNode: rae.EnumNode) {
 export function formatType(
   type: rae.TypeNode,
   removeUndefined: boolean,
+  jsdocTags: rae.DocumentationTag[] | undefined = undefined,
   expandObjects: boolean = false,
 ): string {
+  const typeTag = jsdocTags?.find((tag) => tag.name === 'type');
+  const typeValue = typeTag?.value;
+
+  if (typeValue) {
+    return typeValue;
+  }
+
   if (type instanceof rae.ReferenceNode) {
     if (/^ReactElement(<.*>)?/.test(type.name)) {
       return 'ReactElement';
