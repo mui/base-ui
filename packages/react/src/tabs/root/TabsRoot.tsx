@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import type { BaseUIComponentProps } from '../../utils/types';
+import type { BaseUIComponentProps, Orientation } from '../../utils/types';
 import { useControlled } from '../../utils/useControlled';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { useRenderElement } from '../../utils/useRenderElement';
@@ -185,13 +185,12 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
   );
 });
 
-export type TabsOrientation = 'horizontal' | 'vertical';
 export type TabActivationDirection = 'left' | 'right' | 'up' | 'down' | 'none';
 export type TabValue = any | null;
 
 export namespace TabsRoot {
   export type State = {
-    orientation: TabsOrientation;
+    orientation: Orientation;
     tabActivationDirection: TabActivationDirection;
   };
 
@@ -211,7 +210,7 @@ export namespace TabsRoot {
      * The component orientation (layout flow direction).
      * @default 'horizontal'
      */
-    orientation?: TabsOrientation;
+    orientation?: Orientation;
     /**
      * Callback invoked when new value is being set.
      */

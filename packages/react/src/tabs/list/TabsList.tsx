@@ -1,100 +1,17 @@
 'use client';
 import * as React from 'react';
-import { BaseUIComponentProps } from '../../utils/types';
+import { BaseUIComponentProps, Orientation } from '../../utils/types';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { CompositeRoot } from '../../composite/root/CompositeRoot';
 import { tabsStyleHookMapping } from '../root/styleHooks';
 import { useTabsRootContext } from '../root/TabsRootContext';
-import { type TabsRoot, type TabsOrientation, type TabActivationDirection } from '../root/TabsRoot';
+import { type TabsRoot, type TabActivationDirection } from '../root/TabsRoot';
 import { type TabMetadata } from '../tab/TabsTab';
 import { TabsListContext } from './TabsListContext';
 
 const EMPTY_ARRAY: number[] = [];
-
-function getInset(tab: HTMLElement, tabsList: HTMLElement) {
-  const { left: tabLeft, top: tabTop } = tab.getBoundingClientRect();
-  const { left: listLeft, top: listTop } = tabsList.getBoundingClientRect();
-
-  const left = tabLeft - listLeft;
-  const top = tabTop - listTop;
-
-  return { left, top };
-}
-
-function useActivationDirectionDetector(
-  // the old value
-  selectedTabValue: any,
-  orientation: TabsOrientation,
-  tabsListRef: React.RefObject<HTMLElement | null>,
-  getTabElement: (selectedValue: any) => HTMLElement | null,
-): (newValue: any) => TabActivationDirection {
-  const previousTabEdge = React.useRef<number | null>(null);
-
-  useModernLayoutEffect(() => {
-    // Whenever orientation changes, reset the state.
-    if (selectedTabValue == null || tabsListRef.current == null) {
-      previousTabEdge.current = null;
-      return;
-    }
-
-    const activeTab = getTabElement(selectedTabValue);
-    if (activeTab == null) {
-      previousTabEdge.current = null;
-      return;
-    }
-
-    const { left, top } = getInset(activeTab, tabsListRef.current);
-    previousTabEdge.current = orientation === 'horizontal' ? left : top;
-  }, [orientation, getTabElement, tabsListRef, selectedTabValue]);
-
-  return React.useCallback(
-    (newValue: any) => {
-      if (newValue === selectedTabValue) {
-        return 'none';
-      }
-
-      if (newValue == null) {
-        previousTabEdge.current = null;
-        return 'none';
-      }
-
-      if (newValue != null && tabsListRef.current != null) {
-        const selectedTabElement = getTabElement(newValue);
-
-        if (selectedTabElement != null) {
-          const { left, top } = getInset(selectedTabElement, tabsListRef.current);
-
-          if (previousTabEdge.current == null) {
-            previousTabEdge.current = orientation === 'horizontal' ? left : top;
-            return 'none';
-          }
-
-          if (orientation === 'horizontal') {
-            if (left < previousTabEdge.current) {
-              previousTabEdge.current = left;
-              return 'left';
-            }
-            if (left > previousTabEdge.current) {
-              previousTabEdge.current = left;
-              return 'right';
-            }
-          } else if (top < previousTabEdge.current) {
-            previousTabEdge.current = top;
-            return 'up';
-          } else if (top > previousTabEdge.current) {
-            previousTabEdge.current = top;
-            return 'down';
-          }
-        }
-      }
-
-      return 'none';
-    },
-    [getTabElement, orientation, previousTabEdge, tabsListRef, selectedTabValue],
-  );
-}
 
 /**
  * Groups the individual tab buttons.
@@ -199,10 +116,93 @@ export const TabsList = React.forwardRef(function TabsList(
   );
 });
 
-export namespace TabsList {
-  export type State = TabsRoot.State;
+function getInset(tab: HTMLElement, tabsList: HTMLElement) {
+  const { left: tabLeft, top: tabTop } = tab.getBoundingClientRect();
+  const { left: listLeft, top: listTop } = tabsList.getBoundingClientRect();
 
-  export interface Props extends BaseUIComponentProps<'div', TabsRoot.State> {
+  const left = tabLeft - listLeft;
+  const top = tabTop - listTop;
+
+  return { left, top };
+}
+
+function useActivationDirectionDetector(
+  // the old value
+  selectedTabValue: any,
+  orientation: Orientation,
+  tabsListRef: React.RefObject<HTMLElement | null>,
+  getTabElement: (selectedValue: any) => HTMLElement | null,
+): (newValue: any) => TabActivationDirection {
+  const previousTabEdge = React.useRef<number | null>(null);
+
+  useModernLayoutEffect(() => {
+    // Whenever orientation changes, reset the state.
+    if (selectedTabValue == null || tabsListRef.current == null) {
+      previousTabEdge.current = null;
+      return;
+    }
+
+    const activeTab = getTabElement(selectedTabValue);
+    if (activeTab == null) {
+      previousTabEdge.current = null;
+      return;
+    }
+
+    const { left, top } = getInset(activeTab, tabsListRef.current);
+    previousTabEdge.current = orientation === 'horizontal' ? left : top;
+  }, [orientation, getTabElement, tabsListRef, selectedTabValue]);
+
+  return React.useCallback(
+    (newValue: any) => {
+      if (newValue === selectedTabValue) {
+        return 'none';
+      }
+
+      if (newValue == null) {
+        previousTabEdge.current = null;
+        return 'none';
+      }
+
+      if (newValue != null && tabsListRef.current != null) {
+        const selectedTabElement = getTabElement(newValue);
+
+        if (selectedTabElement != null) {
+          const { left, top } = getInset(selectedTabElement, tabsListRef.current);
+
+          if (previousTabEdge.current == null) {
+            previousTabEdge.current = orientation === 'horizontal' ? left : top;
+            return 'none';
+          }
+
+          if (orientation === 'horizontal') {
+            if (left < previousTabEdge.current) {
+              previousTabEdge.current = left;
+              return 'left';
+            }
+            if (left > previousTabEdge.current) {
+              previousTabEdge.current = left;
+              return 'right';
+            }
+          } else if (top < previousTabEdge.current) {
+            previousTabEdge.current = top;
+            return 'up';
+          } else if (top > previousTabEdge.current) {
+            previousTabEdge.current = top;
+            return 'down';
+          }
+        }
+      }
+
+      return 'none';
+    },
+    [getTabElement, orientation, previousTabEdge, tabsListRef, selectedTabValue],
+  );
+}
+
+export namespace TabsList {
+  export interface State extends TabsRoot.State {}
+
+  export interface Props extends BaseUIComponentProps<'div', State> {
     /**
      * Whether to automatically change the active tab on arrow key focus.
      * Otherwise, tabs will be activated using Enter or Spacebar key press.

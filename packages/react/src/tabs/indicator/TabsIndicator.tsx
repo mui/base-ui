@@ -4,22 +4,22 @@ import { generateId } from '../../utils/generateId';
 import { useForcedRerendering } from '../../utils/useForcedRerendering';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useOnMount } from '../../utils/useOnMount';
-import type { BaseUIComponentProps } from '../../utils/types';
-import type { TabsOrientation, TabsRoot } from '../root/TabsRoot';
+import type { BaseUIComponentProps, Orientation } from '../../utils/types';
+import type { TabsRoot } from '../root/TabsRoot';
 import { useTabsRootContext } from '../root/TabsRootContext';
 import { tabsStyleHookMapping } from '../root/styleHooks';
 import { useTabsListContext } from '../list/TabsListContext';
 import { script as prehydrationScript } from './prehydrationScript.min';
 import { TabsIndicatorCssVars } from './TabsIndicatorCssVars';
 
-interface TabPosition {
+export interface TabPosition {
   left: number;
   right: number;
   top: number;
   bottom: number;
 }
 
-interface TabSize {
+export interface TabSize {
   width: number;
   height: number;
 }
@@ -205,7 +205,7 @@ export namespace TabsIndicator {
   export interface State extends TabsRoot.State {
     selectedTabPosition: TabPosition | null;
     selectedTabSize: TabSize | null;
-    orientation: TabsOrientation;
+    orientation: Orientation;
   }
 
   export interface Props extends BaseUIComponentProps<'span', State> {
