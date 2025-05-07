@@ -151,7 +151,7 @@ export function useAnchorPositioning(
       ? null
       : flip({
           ...commonCollisionProps,
-          crossAxis: 'alignment',
+          crossAxis: collisionAvoidanceAlign === 'flip' ? 'alignment' : false,
           fallbackAxisSideDirection: collisionAvoidanceFallbackAxisSide,
         });
   const shiftMiddleware =
@@ -176,12 +176,13 @@ export function useAnchorPositioning(
 
   // https://floating-ui.com/docs/flip#combining-with-shift
   if (
-    collisionAvoidanceSide !== 'shift' ||
-    (align !== 'center' && collisionAvoidanceAlign === 'flip')
+    collisionAvoidanceSide === 'shift' ||
+    collisionAvoidanceAlign === 'shift' ||
+    align === 'center'
   ) {
-    middleware.push(flipMiddleware, shiftMiddleware);
-  } else {
     middleware.push(shiftMiddleware, flipMiddleware);
+  } else {
+    middleware.push(flipMiddleware, shiftMiddleware);
   }
 
   middleware.push(
