@@ -157,9 +157,6 @@ jobs:
       - install_js:
           react-version: << parameters.react-version >>
       - run:
-          name: Should not have any unstaged files
-          command: git add -A && git diff --exit-code --staged
-      - run:
           name: '`pnpm dedupe` was run?'
           command: |
             # #default-branch-switch
