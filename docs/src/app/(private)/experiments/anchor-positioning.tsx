@@ -338,54 +338,76 @@ export default function AnchorPositioning() {
 
           <fieldset>
             <legend>Collision Avoidance Side</legend>
-            {(['flip', 'shift', 'none'] as const).map((opt) => (
-              <label key={opt}>
+            {(['flip', 'shift', 'none'] as const).map((mode) => (
+              <label key={mode}>
                 <input
                   name="collision-side"
                   type="radio"
-                  checked={collisionAvoidance.side === opt}
-                  onChange={() =>
-                    setCollisionAvoidance((prev) => ({ ...prev, side: opt }))
-                  }
+                  checked={collisionAvoidance.side === mode}
+                  onChange={() => {
+                    if (mode === 'shift') {
+                      setCollisionAvoidance((prev) => ({
+                        ...prev,
+                        side: mode,
+                        align: mode,
+                      }));
+                    } else {
+                      setCollisionAvoidance((prev) => ({
+                        ...prev,
+                        side: mode,
+                      }));
+                    }
+                  }}
                 />
-                {opt}
+                {mode}
               </label>
             ))}
           </fieldset>
 
           <fieldset>
             <legend>Collision Avoidance Align</legend>
-            {(['flip', 'shift', 'none'] as const).map((opt) => (
-              <label key={opt}>
+            {(['flip', 'shift', 'none'] as const).map((mode) => (
+              <label key={mode}>
                 <input
                   name="collision-align"
                   type="radio"
-                  checked={collisionAvoidance.align === opt}
-                  onChange={() =>
-                    setCollisionAvoidance((prev) => ({ ...prev, align: opt }))
-                  }
+                  checked={collisionAvoidance.align === mode}
+                  onChange={() => {
+                    if (mode === 'shift' || mode === 'none') {
+                      setCollisionAvoidance((prev) => ({
+                        ...prev,
+                        align: mode,
+                      }));
+                    } else {
+                      setCollisionAvoidance((prev) => ({
+                        ...prev,
+                        side: mode,
+                        align: mode,
+                      }));
+                    }
+                  }}
                 />
-                {opt}
+                {mode}
               </label>
             ))}
           </fieldset>
 
           <fieldset>
             <legend>Fallback Axis Side</legend>
-            {(['start', 'end', 'none'] as const).map((opt) => (
-              <label key={opt}>
+            {(['start', 'end', 'none'] as const).map((mode) => (
+              <label key={mode}>
                 <input
                   name="collision-fallback-axis-side"
                   type="radio"
-                  checked={collisionAvoidance.fallbackAxisSide === opt}
+                  checked={collisionAvoidance.fallbackAxisSide === mode}
                   onChange={() =>
                     setCollisionAvoidance((prev) => ({
                       ...prev,
-                      fallbackAxisSide: opt,
+                      fallbackAxisSide: mode,
                     }))
                   }
                 />
-                {opt}
+                {mode}
               </label>
             ))}
           </fieldset>

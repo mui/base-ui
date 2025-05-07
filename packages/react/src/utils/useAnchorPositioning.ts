@@ -48,6 +48,20 @@ export type OffsetFunction = (data: {
   positioner: { width: number; height: number };
 }) => number;
 
+interface SideFlipMode {
+  side?: 'flip' | 'none';
+  align?: 'flip' | 'shift' | 'none';
+  fallbackAxisSide?: 'start' | 'end' | 'none';
+}
+
+interface SideShiftMode {
+  side?: 'shift' | 'none';
+  align?: 'shift' | 'none';
+  fallbackAxisSide?: 'start' | 'end' | 'none';
+}
+
+export type CollisionAvoidance = SideFlipMode | SideShiftMode;
+
 /**
  * Provides standardized anchor positioning behavior for floating elements. Wraps Floating UI's
  * `useFloating` hook.
@@ -448,11 +462,7 @@ export namespace useAnchorPositioning {
     /**
      * Determines how to handle collisions when positioning the popup.
      */
-    collisionAvoidance?: {
-      side?: 'flip' | 'shift' | 'none';
-      align?: 'flip' | 'shift' | 'none';
-      fallbackAxisSide?: 'start' | 'end' | 'none';
-    };
+    collisionAvoidance?: CollisionAvoidance;
   }
 
   export interface Parameters extends SharedParameters {
@@ -463,11 +473,7 @@ export namespace useAnchorPositioning {
     mounted: boolean;
     trackAnchor: boolean;
     nodeId?: string;
-    collisionAvoidance: {
-      side?: 'flip' | 'shift' | 'none';
-      align?: 'flip' | 'shift' | 'none';
-      fallbackAxisSide?: 'start' | 'end' | 'none';
-    };
+    collisionAvoidance: CollisionAvoidance;
   }
 
   export interface ReturnValue {
