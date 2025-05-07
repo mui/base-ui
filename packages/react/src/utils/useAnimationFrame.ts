@@ -10,7 +10,7 @@ type AnimationFrameId = number;
  * https://developer.mozilla.org/en-US/docs/Web/API/Window/requestAnimationFrame#return_value */
 const EMPTY = null;
 
-let LAST_RAF = requestAnimationFrame;
+let LAST_RAF = globalThis.requestAnimationFrame;
 
 class Scheduler {
   /* This implementation uses an array as a backing data-structure for frame callbacks.
