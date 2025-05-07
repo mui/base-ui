@@ -3,9 +3,9 @@ import { useLazyRef } from './useLazyRef';
 import { useOnMount } from './useOnMount';
 import { Timeout } from './useTimeout';
 
-type IntervalId = ReturnType<typeof setInterval>;
+type IntervalId = number;
 
-const EMPTY = 0 as unknown as IntervalId;
+const EMPTY = 0 as IntervalId;
 
 export class Interval extends Timeout {
   static create() {
@@ -19,7 +19,7 @@ export class Interval extends Timeout {
     this.clear();
     this.currentId = setInterval(() => {
       fn();
-    }, delay);
+    }, delay) as unknown as number;
   }
 
   clear = () => {
