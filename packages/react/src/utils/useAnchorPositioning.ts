@@ -447,7 +447,7 @@ export namespace useAnchorPositioning {
     /**
      * Determines how to handle collisions when positioning the popup.
      */
-    collisionAvoidance: {
+    collisionAvoidance?: {
       side?: 'flip' | 'shift' | 'none';
       align?: 'flip' | 'shift' | 'none';
       fallbackAxisSide?: 'start' | 'end' | 'none';
@@ -462,6 +462,11 @@ export namespace useAnchorPositioning {
     mounted: boolean;
     trackAnchor: boolean;
     nodeId?: string;
+    collisionAvoidance: {
+      side?: 'flip' | 'shift' | 'none';
+      align?: 'flip' | 'shift' | 'none';
+      fallbackAxisSide?: 'start' | 'end' | 'none';
+    };
   }
 
   export interface ReturnValue {
