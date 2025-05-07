@@ -42,6 +42,7 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot(
     actionsRef,
     delay = 50,
     closeDelay = 100,
+    orientation = 'horizontal',
   } = componentProps;
 
   const nested = useFloatingParentNodeId() != null;
@@ -161,6 +162,7 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot(
       prevTriggerElementRef,
       delay,
       closeDelay,
+      orientation,
     }),
     [
       open,
@@ -177,6 +179,7 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot(
       nested,
       delay,
       closeDelay,
+      orientation,
     ],
   );
 
@@ -214,6 +217,7 @@ function TreeContext(props: {
     actionsRef,
     delay,
     closeDelay,
+    orientation,
     ...elementProps
   } = props.componentProps;
 
@@ -222,7 +226,7 @@ function TreeContext(props: {
 
   const renderElement = useRenderElement(nested ? 'div' : 'nav', props.componentProps, {
     ref: [props.forwardedRef, rootRef],
-    props: elementProps,
+    props: [{ 'aria-orientation': orientation }, elementProps],
   });
 
   return (
@@ -289,5 +293,10 @@ export namespace NavigationMenuRoot {
      * @default 100
      */
     closeDelay?: number;
+    /**
+     * The orientation of the navigation menu.
+     * @default 'horizontal'
+     */
+    orientation?: 'horizontal' | 'vertical';
   }
 }

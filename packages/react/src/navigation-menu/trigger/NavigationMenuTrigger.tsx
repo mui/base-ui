@@ -16,6 +16,7 @@ import {
   getPreviousTabbable,
   getTarget,
   isOutsideEvent,
+  stopEvent,
 } from '@floating-ui/react/utils';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
@@ -67,6 +68,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     prevTriggerElementRef,
     delay,
     closeDelay,
+    orientation,
   } = useNavigationMenuRootContext();
   const itemValue = useNavigationMenuItemContext();
   const nodeId = useNavigationMenuTreeContext();
@@ -230,6 +232,14 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
         'aria-expanded': isActiveItem,
         'aria-controls': isActiveItem ? popupElement?.id : undefined,
         [TRIGGER_IDENTIFIER as string]: '',
+        onKeyDown(event) {
+          const key = orientation === 'horizontal' ? 'ArrowDown' : 'ArrowRight';
+          if (open && event.key === key) {
+            stopEvent(event);
+            const nextTabbable = getNextTabbable(popupElement);
+            nextTabbable?.focus();
+          }
+        },
         onBlur(event) {
           if (
             event.relatedTarget &&

@@ -30,6 +30,7 @@ export interface NavigationMenuRootContext {
   prevTriggerElementRef: React.RefObject<Element | null | undefined>;
   delay: number;
   closeDelay: number;
+  orientation: 'horizontal' | 'vertical';
 }
 
 export const NavigationMenuRootContext = React.createContext<NavigationMenuRootContext | undefined>(

@@ -28,40 +28,38 @@ export default function ExampleNavigationMenu() {
                 </li>
               ))}
               <li>
-                <NavigationMenu.Root>
-                  <NavigationMenu.List>
-                    <NavigationMenu.Item>
-                      <NavigationMenu.Trigger className={linkCardClassName}>
-                        <div>
-                          <span className="m-0 mb-1 text-base leading-5 font-medium">
-                            Handbook
-                          </span>
-                          <p className="m-0 text-sm leading-5 text-gray-500">
-                            How to use Base UI effectively.
-                          </p>
-                        </div>
-                        <NavigationMenu.Icon>
-                          <ChevronRightIcon className="absolute top-1/2 right-3 h-2.5 w-2.5 shrink-0 -translate-y-1/2 text-current" />
-                        </NavigationMenu.Icon>
-                      </NavigationMenu.Trigger>
-                      <NavigationMenu.Content className={contentClassName}>
-                        <ul className="flex max-w-[400px] flex-col justify-center">
-                          {handbookLinks.map((item) => (
-                            <li key={item.href}>
-                              <Link href={item.href} className={linkCardClassName}>
-                                <h3 className="m-0 mb-1 text-base leading-5 font-medium">
-                                  {item.title}
-                                </h3>
-                                <p className="m-0 text-sm leading-5 text-gray-500">
-                                  {item.description}
-                                </p>
-                              </Link>
-                            </li>
-                          ))}
-                        </ul>
-                      </NavigationMenu.Content>
-                    </NavigationMenu.Item>
-                  </NavigationMenu.List>
+                <NavigationMenu.Root orientation="vertical">
+                  <NavigationMenu.Item>
+                    <NavigationMenu.Trigger className={linkCardClassName}>
+                      <div>
+                        <span className="m-0 mb-1 text-base leading-5 font-medium">
+                          Handbook
+                        </span>
+                        <p className="m-0 text-sm leading-5 text-gray-500">
+                          How to use Base UI effectively.
+                        </p>
+                      </div>
+                      <NavigationMenu.Icon>
+                        <ChevronRightIcon className="absolute top-1/2 right-3 h-2.5 w-2.5 shrink-0 -translate-y-1/2 text-current" />
+                      </NavigationMenu.Icon>
+                    </NavigationMenu.Trigger>
+                    <NavigationMenu.Content className={contentClassName}>
+                      <ul className="flex max-w-[400px] flex-col justify-center">
+                        {handbookLinks.map((item) => (
+                          <li key={item.href}>
+                            <Link href={item.href} className={linkCardClassName}>
+                              <h3 className="m-0 mb-1 text-base leading-5 font-medium">
+                                {item.title}
+                              </h3>
+                              <p className="m-0 text-sm leading-5 text-gray-500">
+                                {item.description}
+                              </p>
+                            </Link>
+                          </li>
+                        ))}
+                      </ul>
+                    </NavigationMenu.Content>
+                  </NavigationMenu.Item>
 
                   <NavigationMenu.Portal>
                     <NavigationMenu.Positioner

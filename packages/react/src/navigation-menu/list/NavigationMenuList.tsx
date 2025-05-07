@@ -21,7 +21,7 @@ export const NavigationMenuList = React.forwardRef(function NavigationMenuList(
     props: elementProps,
   });
 
-  return <CompositeRoot render={renderElement()} />;
+  return <CompositeRoot render={renderElement()} loop={false} />;
 });
 
 export namespace NavigationMenuList {

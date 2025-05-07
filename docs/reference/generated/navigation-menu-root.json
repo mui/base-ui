@@ -46,6 +46,11 @@
       "default": "100",
       "description": "How long to wait before closing the navigation menu. Specified in milliseconds."
     },
+    "orientation": {
+      "type": "'horizontal' | 'vertical'",
+      "default": "'horizontal'",
+      "description": "The orientation of the navigation menu."
+    },
     "className": {
       "type": "string | ((state: State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
