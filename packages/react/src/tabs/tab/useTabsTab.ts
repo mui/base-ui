@@ -8,7 +8,6 @@ import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useButton } from '../../use-button';
 import { useCompositeItem } from '../../composite/item/useCompositeItem';
 import type { TabsRootContext } from '../root/TabsRootContext';
-import type { useTabsList } from '../list/useTabsList';
 import type { TabsList } from '../list/TabsList';
 
 export interface TabMetadata {
@@ -171,8 +170,8 @@ export function useTabsTab(parameters: useTabsTab.Parameters): useTabsTab.Return
 export namespace useTabsTab {
   export interface Parameters
     extends Pick<TabsRootContext, 'getTabPanelIdByTabValueOrIndex'>,
-      Pick<TabsList.Props, 'activateOnFocus'>,
-      Pick<useTabsList.ReturnValue, 'onTabActivation'> {
+      Pick<TabsList.Props, 'activateOnFocus'> {
+    onTabActivation: (newValue: any, event: Event) => void;
     /**
      * The value of the tab.
      * It's used to associate the tab with a tab panel(s) with the same value.
