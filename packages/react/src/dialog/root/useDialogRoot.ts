@@ -26,7 +26,6 @@ import {
 import { useIOSKeyboardSlideFix } from '../../utils/useIOSKeyboardSlideFix';
 
 export type DialogOpenChangeReason = BaseOpenChangeReason | 'close-press';
-type OpenChangeReason = DialogOpenChangeReason;
 
 export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.ReturnValue {
   const {
@@ -247,11 +246,12 @@ export namespace useDialogRoot {
     modal?: boolean | 'trap-focus';
     /**
      * Event handler called when the dialog is opened or closed.
+     * @type (open: boolean, event?: Event, reason?: Dialog.Root.OpenChangeReason) => void
      */
     onOpenChange?: (
       open: boolean,
       event: Event | undefined,
-      reason: OpenChangeReason | undefined,
+      reason: DialogOpenChangeReason | undefined,
     ) => void;
     /**
      * Event handler called after any animations complete when the dialog is opened or closed.
@@ -317,7 +317,7 @@ export namespace useDialogRoot {
     setOpen: (
       open: boolean,
       event: Event | undefined,
-      reason: OpenChangeReason | undefined,
+      reason: DialogOpenChangeReason | undefined,
     ) => void;
     /**
      * Whether the dialog is currently open.

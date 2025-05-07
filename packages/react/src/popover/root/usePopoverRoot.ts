@@ -28,7 +28,6 @@ import { useScrollLock } from '../../utils/useScrollLock';
 import type { Popover } from '../index';
 
 export type PopoverOpenChangeReason = BaseOpenChangeReason | 'close-press';
-type OpenChangeReason = PopoverOpenChangeReason;
 
 export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoot.ReturnValue {
   const {
@@ -232,11 +231,12 @@ export namespace usePopoverRoot {
     open?: boolean;
     /**
      * Event handler called when the popover is opened or closed.
+     * @type (open: boolean, event?: Event, reason?: Popover.Root.OpenChangeReason) => void
      */
     onOpenChange?: (
       open: boolean,
       event: Event | undefined,
-      reason: OpenChangeReason | undefined,
+      reason: PopoverOpenChangeReason | undefined,
     ) => void;
     /**
      * Event handler called after any animations complete when the popover is opened or closed.

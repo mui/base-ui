@@ -56,6 +56,7 @@ export namespace AlertDialogRoot {
   export interface Props extends Omit<DialogRoot.Props, 'modal' | 'dismissible' | 'onOpenChange'> {
     /**
      * Event handler called when the dialog is opened or closed.
+     * @type (open: boolean, event?: Event, reason?: AlertDialog.Root.OpenChangeReason) => void
      */
     onOpenChange?: (
       open: boolean,

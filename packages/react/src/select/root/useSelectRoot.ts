@@ -32,7 +32,6 @@ export type SelectOpenChangeReason =
   | 'window-resize'
   | 'item-press'
   | 'cancel-open';
-type OpenChangeReason = SelectOpenChangeReason;
 
 const EMPTY_ARRAY: never[] = [];
 
@@ -436,11 +435,12 @@ export namespace useSelectRoot {
     defaultOpen?: boolean;
     /**
      * Event handler called when the select menu is opened or closed.
+     * @type (open: boolean, event?: Event, reason?: Select.Root.OpenChangeReason) => void
      */
     onOpenChange?: (
       open: boolean,
       event: Event | undefined,
-      reason: OpenChangeReason | undefined,
+      reason: SelectOpenChangeReason | undefined,
     ) => void;
     /**
      * Event handler called after any animations complete when the select menu is opened or closed.

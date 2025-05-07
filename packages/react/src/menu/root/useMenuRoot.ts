@@ -27,7 +27,6 @@ import {
 } from '../../utils/translateOpenChangeReason';
 
 export type MenuOpenChangeReason = BaseOpenChangeReason | 'item-press' | 'cancel-open';
-type OpenChangeReason = MenuOpenChangeReason;
 
 const EMPTY_ARRAY: never[] = [];
 
@@ -320,9 +319,14 @@ export namespace useMenuRoot {
     open: boolean | undefined;
     /**
      * Event handler called when the menu is opened or closed.
+     * @type (open: boolean, event?: Event, reason?: Menu.Root.OpenChangeReason) => void
      */
     onOpenChange:
-      | ((open: boolean, event: Event | undefined, reason: OpenChangeReason | undefined) => void)
+      | ((
+          open: boolean,
+          event: Event | undefined,
+          reason: MenuOpenChangeReason | undefined,
+        ) => void)
       | undefined;
     /**
      * Event handler called after any animations complete when the menu is opened or closed.
