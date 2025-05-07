@@ -1,3 +1,4 @@
+import * as React from 'react';
 import { Switch as BaseSwitch } from '@base-ui-components/react/switch';
 import clsx from 'clsx';
 import styles from './Switch.module.css';
