@@ -72,11 +72,7 @@ export function useAnchorPositioning(
     floatingRootContext,
     mounted,
     trackAnchor = true,
-    collisionAvoidance = {
-      side: 'flip',
-      align: 'flip',
-      fallbackAxisSide: 'end',
-    } as const,
+    collisionAvoidance,
     nodeId,
   } = params;
 
@@ -179,7 +175,10 @@ export function useAnchorPositioning(
         });
 
   // https://floating-ui.com/docs/flip#combining-with-shift
-  if (align !== 'center' && collisionAvoidanceAlign === 'flip') {
+  if (
+    collisionAvoidanceSide !== 'shift' ||
+    (align !== 'center' && collisionAvoidanceAlign === 'flip')
+  ) {
     middleware.push(flipMiddleware, shiftMiddleware);
   } else {
     middleware.push(shiftMiddleware, flipMiddleware);
@@ -448,10 +447,10 @@ export namespace useAnchorPositioning {
     /**
      * Determines how to handle collisions when positioning the popup.
      */
-    collisionAvoidance?: {
-      side: 'flip' | 'shift' | 'none';
-      align: 'flip' | 'shift' | 'none';
-      fallbackAxisSide: 'start' | 'end' | 'none';
+    collisionAvoidance: {
+      side?: 'flip' | 'shift' | 'none';
+      align?: 'flip' | 'shift' | 'none';
+      fallbackAxisSide?: 'start' | 'end' | 'none';
     };
   }
 
