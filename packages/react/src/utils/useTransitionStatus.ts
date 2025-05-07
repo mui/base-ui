@@ -36,12 +36,12 @@ export function useTransitionStatus(open: boolean) {
       setTransitionStatus('starting');
     }
 
-    const frame = AnimationFrame.scheduler.request(() => {
+    const frame = AnimationFrame.request(() => {
       setTransitionStatus('idle');
     });
 
     return () => {
-      AnimationFrame.scheduler.cancel(frame);
+      AnimationFrame.cancel(frame);
     };
   }, [open, mounted, setTransitionStatus, transitionStatus]);
 

@@ -159,7 +159,7 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
             setActiveIndex(null);
           }
 
-          AnimationFrame.scheduler.request(() => {
+          AnimationFrame.request(() => {
             cursorMovementTimeout.clear();
             allowFocusSyncRef.current = true;
           });

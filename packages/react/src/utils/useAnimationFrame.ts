@@ -2,9 +2,9 @@
 import { useLazyRef } from './useLazyRef';
 import { useOnMount } from './useOnMount';
 
-type AnimationFrameId = ReturnType<typeof requestAnimationFrame>;
+type AnimationFrameId = number;
 
-const EMPTY = 0 as unknown as AnimationFrameId;
+const EMPTY = 0 as AnimationFrameId;
 
 class Scheduler {
   /* This implementation uses an array as a backing data-structure for frame callbacks.
@@ -68,10 +68,16 @@ class Scheduler {
 const scheduler = new Scheduler();
 
 export class AnimationFrame {
-  static scheduler = scheduler;
-
   static create() {
     return new AnimationFrame();
+  }
+
+  static request(fn: FrameRequestCallback) {
+    return scheduler.request(fn);
+  }
+
+  static cancel(id: AnimationFrameId) {
+    return scheduler.cancel(id);
   }
 
   currentId: AnimationFrameId = EMPTY;

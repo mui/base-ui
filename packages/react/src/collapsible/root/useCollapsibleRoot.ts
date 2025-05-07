@@ -113,7 +113,7 @@ export function useCollapsibleRoot(
       panel.style.removeProperty('content-visibility');
       panel.style.setProperty(transitionDimensionRef.current ?? 'height', '0px');
 
-      AnimationFrame.scheduler.request(() => {
+      AnimationFrame.request(() => {
         panel.style.removeProperty(transitionDimensionRef.current ?? 'height');
         setDimensions({ height: panel.scrollHeight, width: panel.scrollWidth });
         panel.style.removeProperty('display');
@@ -123,7 +123,7 @@ export function useCollapsibleRoot(
         panel.style.setProperty('content-visibility', 'visible');
       }
       /* closing */
-      AnimationFrame.scheduler.request(() => {
+      AnimationFrame.request(() => {
         setDimensions({ height: 0, width: 0 });
       });
 
