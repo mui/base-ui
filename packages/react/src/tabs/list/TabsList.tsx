@@ -8,7 +8,7 @@ import { CompositeRoot } from '../../composite/root/CompositeRoot';
 import { tabsStyleHookMapping } from '../root/styleHooks';
 import { useTabsRootContext } from '../root/TabsRootContext';
 import { type TabsRoot, type TabsOrientation, type TabActivationDirection } from '../root/TabsRoot';
-import { type TabMetadata } from '../tab/useTabsTab';
+import { type TabMetadata } from '../tab/TabsTab';
 import { TabsListContext } from './TabsListContext';
 
 const EMPTY_ARRAY: number[] = [];

@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import type { TextDirection } from '../../direction-provider/DirectionContext';
-import { type TabMetadata } from '../tab/useTabsTab';
+import { type TabMetadata } from '../tab/TabsTab';
 import type { TabActivationDirection, TabValue } from './TabsRoot';
 
 export interface TabsRootContext {
