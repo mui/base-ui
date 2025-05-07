@@ -40,7 +40,7 @@
       "description": "The visual orientation of the accordion.\nControls whether roving focus uses left/right or up/down arrow keys."
     },
     "className": {
-      "type": "string | ((state: State) => string)",
+      "type": "string | ((state: Accordion.Root.State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "keepMounted": {
@@ -49,7 +49,7 @@
       "description": "Whether to keep the element in the DOM while the panel is closed.\nThis prop is ignored when `hiddenUntilFound` is used."
     },
     "render": {
-      "type": "ReactElement | ((props: GenericHTMLProps, state: State) => ReactElement)",
+      "type": "ReactElement | ((props: GenericHTMLProps, state: Accordion.Root.State) => ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
     }
   },
