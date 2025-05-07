@@ -2,9 +2,9 @@
 import { useLazyRef } from './useLazyRef';
 import { useOnMount } from './useOnMount';
 
-type TimeoutId = ReturnType<typeof setTimeout>;
+type TimeoutId = number;
 
-const EMPTY = 0 as unknown as TimeoutId;
+const EMPTY = 0 as TimeoutId;
 
 export class Timeout {
   static create() {
@@ -21,7 +21,7 @@ export class Timeout {
     this.currentId = setTimeout(() => {
       this.currentId = EMPTY;
       fn();
-    }, delay);
+    }, delay) as unknown as number; /* Node.js types are enabled in development */
   }
 
   isStarted() {
@@ -40,6 +40,9 @@ export class Timeout {
   };
 }
 
+/**
+ * A `setTimeout` with automatic cleanup and guard.
+ */
 export function useTimeout() {
   const timeout = useLazyRef(Timeout.create).current;
 

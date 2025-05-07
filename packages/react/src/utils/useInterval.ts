@@ -30,6 +30,9 @@ export class Interval extends Timeout {
   };
 }
 
+/**
+ * A `setInterval` with automatic cleanup and guard.
+ */
 export function useInterval() {
   const timeout = useLazyRef(Interval.create).current;
 

@@ -4,7 +4,11 @@ import { useOnMount } from './useOnMount';
 
 type AnimationFrameId = number;
 
-const EMPTY = 0 as AnimationFrameId;
+// Unlike `setTimeout`, rAF doesn't guarantee a positive integer return value, so we can't have
+// a monomorphic `uint` type.
+// See warning note at:
+// https://developer.mozilla.org/en-US/docs/Web/API/Window/requestAnimationFrame#return_value
+const EMPTY = null;
 
 class Scheduler {
   /* This implementation uses an array as a backing data-structure for frame callbacks.
@@ -55,7 +59,7 @@ class Scheduler {
     return id;
   }
 
-  cancel(id: number) {
+  cancel(id: AnimationFrameId) {
     const index = id - this.startId;
     if (index < 0 || index >= this.callbacks.length) {
       return;
@@ -80,7 +84,7 @@ export class AnimationFrame {
     return scheduler.cancel(id);
   }
 
-  currentId: AnimationFrameId = EMPTY;
+  currentId: AnimationFrameId | null = EMPTY;
 
   /**
    * Executes `fn` after `delay`, clearing any previously scheduled call.
@@ -95,7 +99,7 @@ export class AnimationFrame {
 
   cancel = () => {
     if (this.currentId !== EMPTY) {
-      scheduler.cancel(this.currentId as AnimationFrameId);
+      scheduler.cancel(this.currentId);
       this.currentId = EMPTY;
     }
   };
@@ -105,6 +109,9 @@ export class AnimationFrame {
   };
 }
 
+/**
+ * A `requestAnimationFrame` with automatic cleanup and guard.
+ */
 export function useAnimationFrame() {
   const timeout = useLazyRef(AnimationFrame.create).current;
 
