@@ -1,5 +1,4 @@
 import * as React from 'react';
-import { usePreventScroll } from '@react-aria/overlays';
 import { isFirefox, isIOS, isWebKit } from './detectBrowser';
 import { ownerDocument, ownerWindow } from './owner';
 import { useModernLayoutEffect } from './useModernLayoutEffect';
@@ -14,14 +13,6 @@ export function getPreventScrollCount() {
   return preventScrollCount;
 }
 
-function supportsDvh() {
-  return (
-    typeof CSS !== 'undefined' &&
-    typeof CSS.supports === 'function' &&
-    CSS.supports('height', '1dvh')
-  );
-}
-
 function hasInsetScrollbars(referenceElement: Element | null) {
   if (typeof document === 'undefined') {
     return false;
@@ -29,6 +20,15 @@ function hasInsetScrollbars(referenceElement: Element | null) {
   const doc = ownerDocument(referenceElement);
   const win = ownerWindow(doc);
   return win.innerWidth - doc.documentElement.clientWidth > 0;
+}
+
+function preventScrollBasic(referenceElement: Element | null) {
+  const doc = ownerDocument(referenceElement);
+  const originalOverflow = doc.body.style.overflow;
+  doc.body.style.overflow = 'hidden';
+  return () => {
+    doc.body.style.overflow = originalOverflow;
+  };
 }
 
 function preventScrollStandard(referenceElement: Element | null) {
@@ -149,11 +149,10 @@ export function useScrollLock(params: {
 }) {
   const { enabled = true, mounted, open, referenceElement = null } = params;
 
-  const isReactAriaHook = React.useMemo(
+  const isBasicLock = React.useMemo(
     () =>
       enabled &&
       (isIOS() ||
-        !supportsDvh() ||
         // macOS Firefox "pops" scroll containers' scrollbars with our standard scroll lock
         (isFirefox() && !hasInsetScrollbars(referenceElement))),
     [enabled, referenceElement],
@@ -175,21 +174,16 @@ export function useScrollLock(params: {
     return undefined;
   }, [mounted, open, referenceElement]);
 
-  usePreventScroll({
-    // react-aria will remove the scrollbar offset immediately upon close, since we use `open`,
-    // not `mounted`, to disable/enable the scroll lock. However since there are no inset
-    // scrollbars, no layouting issues occur.
-    isDisabled: !isReactAriaHook,
-  });
-
   useModernLayoutEffect(() => {
-    if (!enabled || isReactAriaHook) {
+    if (!enabled) {
       return undefined;
     }
 
     preventScrollCount += 1;
     if (preventScrollCount === 1) {
-      restore = preventScrollStandard(referenceElement);
+      restore = isBasicLock
+        ? preventScrollBasic(referenceElement)
+        : preventScrollStandard(referenceElement);
     }
 
     return () => {
@@ -198,5 +192,5 @@ export function useScrollLock(params: {
         restore();
       }
     };
-  }, [enabled, isReactAriaHook, referenceElement]);
+  }, [enabled, isBasicLock, referenceElement]);
 }

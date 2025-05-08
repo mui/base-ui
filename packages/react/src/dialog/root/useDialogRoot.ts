@@ -23,7 +23,6 @@ import {
   type OpenChangeReason,
   translateOpenChangeReason,
 } from '../../utils/translateOpenChangeReason';
-import { useIOSKeyboardSlideFix } from '../../utils/useIOSKeyboardSlideFix';
 
 export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.ReturnValue {
   const {
@@ -54,7 +53,6 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
   );
   const [triggerElement, setTriggerElement] = React.useState<Element | null>(null);
   const [popupElement, setPopupElement] = React.useState<HTMLElement | null>(null);
-  const [allowIOSLock, setAllowIOSLock] = React.useState(true);
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
 
@@ -125,28 +123,14 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
     escapeKey: isTopmost,
   });
 
-  const enableScrollLock = open && modal === true;
-  const enableScrollLockIOS = enableScrollLock && allowIOSLock;
-
-  const iOSKeyboardSlideFix = useIOSKeyboardSlideFix({
-    enabled: enableScrollLock,
-    setLock: setAllowIOSLock,
-    popupRef,
-  });
-
   useScrollLock({
-    enabled: enableScrollLockIOS,
+    enabled: open && modal === true,
     mounted,
     open,
     referenceElement: popupElement,
   });
 
-  const { getReferenceProps, getFloatingProps } = useInteractions([
-    role,
-    click,
-    dismiss,
-    iOSKeyboardSlideFix,
-  ]);
+  const { getReferenceProps, getFloatingProps } = useInteractions([role, click, dismiss]);
 
   React.useEffect(() => {
     if (onNestedDialogOpen && open) {
