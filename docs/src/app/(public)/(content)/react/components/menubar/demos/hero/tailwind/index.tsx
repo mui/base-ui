@@ -34,7 +34,7 @@ export default function ExampleMenubar() {
               <Menu.Root>
                 <Menu.SubmenuTrigger className="flex w-full cursor-default items-center justify-between gap-4 px-4 py-2 text-sm leading-4 outline-none select-none data-[highlighted]:relative data-[highlighted]:z-0 data-[highlighted]:text-gray-50 data-[highlighted]:before:absolute data-[highlighted]:before:inset-x-1 data-[highlighted]:before:inset-y-0 data-[highlighted]:before:z-[-1] data-[highlighted]:before:rounded-sm data-[highlighted]:before:bg-gray-900 data-[popup-open]:relative data-[popup-open]:z-0 data-[popup-open]:before:absolute data-[popup-open]:before:inset-x-1 data-[popup-open]:before:inset-y-0 data-[popup-open]:before:z-[-1] data-[popup-open]:before:rounded-sm data-[popup-open]:before:bg-gray-100 data-[highlighted]:data-[popup-open]:before:bg-gray-900">
                   Export
-                  <ChevronRightIcon className="h-4 w-4 text-gray-500" />
+                  <ChevronRightIcon />
                 </Menu.SubmenuTrigger>
                 <Menu.Portal>
                   <Menu.Positioner>
@@ -127,7 +127,7 @@ export default function ExampleMenubar() {
               <Menu.Root>
                 <Menu.SubmenuTrigger className="flex w-full cursor-default items-center justify-between gap-4 px-4 py-2 text-sm leading-4 outline-none select-none data-[highlighted]:relative data-[highlighted]:z-0 data-[highlighted]:text-gray-50 data-[highlighted]:before:absolute data-[highlighted]:before:inset-x-1 data-[highlighted]:before:inset-y-0 data-[highlighted]:before:z-[-1] data-[highlighted]:before:rounded-sm data-[highlighted]:before:bg-gray-900 data-[popup-open]:relative data-[popup-open]:z-0 data-[popup-open]:before:absolute data-[popup-open]:before:inset-x-1 data-[popup-open]:before:inset-y-0 data-[popup-open]:before:z-[-1] data-[popup-open]:before:rounded-sm data-[popup-open]:before:bg-gray-100 data-[highlighted]:data-[popup-open]:before:bg-gray-900">
                   Layout
-                  <ChevronRightIcon className="h-4 w-4 text-gray-500" />
+                  <ChevronRightIcon />
                 </Menu.SubmenuTrigger>
                 <Menu.Portal>
                   <Menu.Positioner>
@@ -176,9 +176,9 @@ export default function ExampleMenubar() {
   );
 }
 
-function handleClick(event: React.MouseEvent) {
+function handleClick(event: React.MouseEvent<HTMLElement>) {
   // eslint-disable-next-line no-console
-  console.log(`${(event.currentTarget as HTMLElement).innerText} clicked`);
+  console.log(`${event.currentTarget.textContent} clicked`);
 }
 
 function ChevronRightIcon(props: React.ComponentProps<'svg'>) {

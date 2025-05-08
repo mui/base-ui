@@ -125,9 +125,9 @@ export default function ExampleMenubar() {
   );
 }
 
-function handleClick(event: React.MouseEvent) {
+function handleClick(event: React.MouseEvent<HTMLElement>) {
   // eslint-disable-next-line no-console
-  console.log(`${(event.currentTarget as HTMLElement).innerText} clicked`);
+  console.log(`${event.currentTarget.textContent} clicked`);
 }
 
 function ChevronRightIcon(props: React.ComponentProps<'svg'>) {
