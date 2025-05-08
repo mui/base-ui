@@ -4,6 +4,7 @@ packages:
   - test
   - test/*
   - scripts/*
+  - bundle-size
 
 onlyBuiltDependencies:
   - '@mui/monorepo'
