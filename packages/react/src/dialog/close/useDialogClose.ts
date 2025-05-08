@@ -3,7 +3,7 @@ import * as React from 'react';
 import { useButton } from '../../use-button/useButton';
 import { mergeProps } from '../../merge-props';
 import { OpenChangeReason } from '../../utils/translateOpenChangeReason';
-import type { GenericHTMLProps } from '../../utils/types';
+import type { HTMLProps } from '../../utils/types';
 import { useEventCallback } from '../../utils/useEventCallback';
 
 export function useDialogClose(params: useDialogClose.Parameters): useDialogClose.ReturnValue {
@@ -20,7 +20,7 @@ export function useDialogClose(params: useDialogClose.Parameters): useDialogClos
     buttonRef: externalRef,
   });
 
-  const getRootProps = (externalProps: GenericHTMLProps) =>
+  const getRootProps = (externalProps: HTMLProps) =>
     mergeProps({ onClick: handleClick }, externalProps, getButtonProps);
 
   return {

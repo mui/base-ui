@@ -16,7 +16,7 @@
       "description": "Whether to keep the HTML element in the DOM while the panel is hidden."
     },
     "render": {
-      "type": "ReactElement | ((props: GenericHTMLProps, state: Tabs.Panel.State) => ReactElement)",
+      "type": "ReactElement | ((props: HTMLProps, state: Tabs.Panel.State) => ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
     }
   },

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import type { GenericHTMLProps } from '../../utils/types';
+import type { HTMLProps } from '../../utils/types';
 import { Side, useAnchorPositioning } from '../../utils/useAnchorPositioning';
 import { mergeProps } from '../../merge-props';
 import { useSelectRootContext } from '../root/SelectRootContext';
@@ -76,7 +76,7 @@ export namespace useSelectPositioner {
   }
 
   export interface ReturnValue extends Omit<useAnchorPositioning.ReturnValue, 'side'> {
-    getPositionerProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
+    getPositionerProps: (externalProps?: HTMLProps) => HTMLProps;
     side: Side | 'none';
   }
 }

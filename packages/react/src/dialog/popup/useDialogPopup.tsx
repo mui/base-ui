@@ -3,7 +3,7 @@ import * as React from 'react';
 import { useForkRef } from '../../utils/useForkRef';
 import { mergeProps } from '../../merge-props';
 import { type InteractionType } from '../../utils/useEnhancedClickHandler';
-import { GenericHTMLProps } from '../../utils/types';
+import { HTMLProps } from '../../utils/types';
 import { type OpenChangeReason } from '../../utils/translateOpenChangeReason';
 
 export function useDialogPopup(parameters: useDialogPopup.Parameters): useDialogPopup.ReturnValue {
@@ -105,7 +105,7 @@ export namespace useDialogPopup {
     /**
      * The resolver for the popup element props.
      */
-    getPopupProps: () => GenericHTMLProps;
+    getPopupProps: () => HTMLProps;
     /**
      * Callback to register the popup element.
      */
