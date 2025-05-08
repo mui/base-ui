@@ -705,6 +705,27 @@ describe('<NumberField />', () => {
       expect(input).not.to.have.attribute('disabled');
     });
 
+    it('is validated with latest value when validationMode=onBlur', async () => {
+      const validate = spy(() => 'error');
+
+      await render(
+        <Field.Root validationMode="onBlur" validate={validate}>
+          <NumberFieldBase.Root>
+            <NumberFieldBase.Input />
+          </NumberFieldBase.Root>
+        </Field.Root>,
+      );
+
+      const input = screen.getByRole('textbox');
+
+      fireEvent.focus(input);
+      fireEvent.change(input, { target: { value: '1' } });
+      fireEvent.blur(input);
+
+      expect(validate.callCount).to.equal(1);
+      expect(validate.firstCall.args).to.deep.equal([1]);
+    });
+
     it('Field.Label', async () => {
       await render(
         <Field.Root>

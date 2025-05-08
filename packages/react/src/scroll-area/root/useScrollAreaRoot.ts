@@ -1,5 +1,7 @@
 import * as React from 'react';
 import { useEventCallback } from '../../utils/useEventCallback';
+import { mergeProps } from '../../merge-props';
+import { useTimeout } from '../../utils/useTimeout';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { SCROLL_TIMEOUT } from '../constants';
 import { getOffset } from '../utils/getOffset';
@@ -35,8 +37,8 @@ export function useScrollAreaRoot() {
   const startScrollTopRef = React.useRef(0);
   const startScrollLeftRef = React.useRef(0);
   const currentOrientationRef = React.useRef<'vertical' | 'horizontal'>('vertical');
-  const scrollYTimeoutRef = React.useRef(-1);
-  const scrollXTimeoutRef = React.useRef(-1);
+  const scrollYTimeout = useTimeout();
+  const scrollXTimeout = useTimeout();
   const scrollPositionRef = React.useRef({ x: 0, y: 0 });
 
   const [hiddenState, setHiddenState] = React.useState({
@@ -44,13 +46,6 @@ export function useScrollAreaRoot() {
     scrollbarXHidden: false,
     cornerHidden: false,
   });
-
-  React.useEffect(() => {
-    return () => {
-      window.clearTimeout(scrollYTimeoutRef.current);
-      window.clearTimeout(scrollXTimeoutRef.current);
-    };
-  }, []);
 
   const handleScroll = useEventCallback((scrollPosition: { x: number; y: number }) => {
     const offsetX = scrollPosition.x - scrollPositionRef.current.x;
@@ -60,19 +55,17 @@ export function useScrollAreaRoot() {
     if (offsetY !== 0) {
       setScrollingY(true);
 
-      window.clearTimeout(scrollYTimeoutRef.current);
-      scrollYTimeoutRef.current = window.setTimeout(() => {
+      scrollYTimeout.start(SCROLL_TIMEOUT, () => {
         setScrollingY(false);
-      }, SCROLL_TIMEOUT);
+      });
     }
 
     if (offsetX !== 0) {
       setScrollingX(true);
 
-      window.clearTimeout(scrollXTimeoutRef.current);
-      scrollXTimeoutRef.current = window.setTimeout(() => {
+      scrollXTimeout.start(SCROLL_TIMEOUT, () => {
         setScrollingX(false);
-      }, SCROLL_TIMEOUT);
+      });
     }
   });
 
@@ -127,10 +120,9 @@ export function useScrollAreaRoot() {
 
         setScrollingY(true);
 
-        window.clearTimeout(scrollYTimeoutRef.current);
-        scrollYTimeoutRef.current = window.setTimeout(() => {
+        scrollYTimeout.start(SCROLL_TIMEOUT, () => {
           setScrollingY(false);
-        }, SCROLL_TIMEOUT);
+        });
       }
 
       if (
@@ -150,10 +142,9 @@ export function useScrollAreaRoot() {
 
         setScrollingX(true);
 
-        window.clearTimeout(scrollXTimeoutRef.current);
-        scrollXTimeoutRef.current = window.setTimeout(() => {
+        scrollXTimeout.start(SCROLL_TIMEOUT, () => {
           setScrollingX(false);
-        }, SCROLL_TIMEOUT);
+        });
       }
     }
   });

@@ -7,6 +7,8 @@ import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { ownerDocument } from '../../utils/owner';
 import { ToastRootCssVars } from './ToastRootCssVars';
 import { mergeProps } from '../../merge-props';
+import { useOnMount } from '../../utils/useOnMount';
+import { useTimeout } from '../../utils/useTimeout';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { ToastRootContext } from './ToastRootContext';
 
@@ -443,15 +445,12 @@ export function useToastRoot(props: useToastRoot.Parameters): useToastRoot.Retur
     };
   }, []);
 
-  React.useEffect(() => {
-    const timeout = setTimeout(
-      () => setRenderScreenReaderContent(true),
-      // macOS Safari needs some time to pass after the status node has been
-      // created before changing its text content to reliably announce its content.
-      50,
-    );
-    return () => clearTimeout(timeout);
-  }, []);
+  // macOS Safari needs some time to pass after the status node has been
+  // created before changing its text content to reliably announce its content.
+  const screenReaderTimeout = useTimeout();
+  useOnMount(() => {
+    screenReaderTimeout.start(50, () => setRenderScreenReaderContent(true));
+  });
 
   const getRootProps = React.useCallback(
     (externalProps = {}) => {

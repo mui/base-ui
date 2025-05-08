@@ -2,7 +2,6 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import {
   safePolygon,
-  useClick,
   useDismiss,
   useFloatingRootContext,
   useHover,
@@ -10,6 +9,8 @@ import {
   useRole,
   type FloatingRootContext,
 } from '@floating-ui/react';
+import { useClick } from '../../utils/floating-ui/useClick';
+import { useTimeout } from '../../utils/useTimeout';
 import { useControlled } from '../../utils/useControlled';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { useTransitionStatus } from '../../utils/useTransitionStatus';
@@ -50,7 +51,7 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
   const [stickIfOpen, setStickIfOpen] = React.useState(true);
 
   const popupRef = React.useRef<HTMLElement>(null);
-  const stickIfOpenTimeoutRef = React.useRef(-1);
+  const stickIfOpenTimeout = useTimeout();
 
   const [open, setOpenUnwrapped] = useControlled({
     controlled: externalOpen,
@@ -101,19 +102,11 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
 
   React.useImperativeHandle(params.actionsRef, () => ({ unmount: handleUnmount }), [handleUnmount]);
 
-  const clearStickIfOpenTimeout = useEventCallback(() => {
-    clearTimeout(stickIfOpenTimeoutRef.current);
-  });
-
   React.useEffect(() => {
     if (!open) {
-      clearStickIfOpenTimeout();
+      stickIfOpenTimeout.clear();
     }
-  }, [clearStickIfOpenTimeout, open]);
-
-  React.useEffect(() => {
-    return clearStickIfOpenTimeout;
-  }, [clearStickIfOpenTimeout]);
+  }, [stickIfOpenTimeout, open]);
 
   const context = useFloatingRootContext({
     elements: { reference: triggerElement, floating: positionerElement },
@@ -131,10 +124,9 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
         // Only allow "patient" clicks to close the popover if it's open.
         // If they clicked within 500ms of the popover opening, keep it open.
         setStickIfOpen(true);
-        clearStickIfOpenTimeout();
-        stickIfOpenTimeoutRef.current = window.setTimeout(() => {
+        stickIfOpenTimeout.start(PATIENT_CLICK_THRESHOLD, () => {
           setStickIfOpen(false);
-        }, PATIENT_CLICK_THRESHOLD);
+        });
 
         ReactDOM.flushSync(changeState);
       } else {

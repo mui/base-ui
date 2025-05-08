@@ -32,6 +32,7 @@
 @import './components/Demo/Demo.css';
 @import './components/GhostButton.css';
 @import './components/Header.css';
+@import './components/HeadingLink.css';
 @import './components/Kbd/Kbd.css';
 @import './components/Link.css';
 @import './components/MobileNav.css';
@@ -100,11 +101,11 @@
 
   --text-sm: 0.875rem;
   --text-sm--line-height: 1.25rem;
-  --text-sm--letter-spacing: 0em;
+  --text-sm--letter-spacing: 0.016em;
 
   --text-md: 0.9375rem;
   --text-md--line-height: 1.375rem;
-  --text-md--letter-spacing: 0em;
+  --text-md--letter-spacing: 0.016em;
 
   --text-base: 1rem;
   --text-base--line-height: 1.5rem;
@@ -221,6 +222,11 @@
 @layer base {
   [data-demo]:not([data-demo='tailwind']) * {
     all: revert-layer;
+  }
+
+  [data-demo='tailwind'] {
+    --text-sm--letter-spacing: 0em;
+    --text-md--letter-spacing: 0em;
   }
 }
 
