@@ -297,7 +297,7 @@ importers:
         version: 5.39.0
       terser-webpack-plugin:
         specifier: ^5.3.14
-        version: 5.3.14(webpack@5.99.7)
+        version: 5.3.14(webpack@5.99.7(webpack-cli@6.0.1(webpack-bundle-analyzer@4.10.2)(webpack@5.99.7)))
       tsc-alias:
         specifier: 1.8.15
         version: 1.8.15
@@ -335,9 +335,9 @@ importers:
         specifier: workspace:*
         version: link:../packages/react/build
     devDependencies:
-      '@mui/bundle-size-checker':
+      '@mui/internal-bundle-size-checker':
         specifier: github:mui/mui-public#bundle-size-checker&path:./packages/bundle-size-checker
-        version: '@mui/internal-bundle-size-checker@https://codeload.github.com/mui/mui-public/tar.gz/c68d976ab7ccb348df1dc79aa158f585df257e00#path:./packages/bundle-size-checker(webpack-cli@6.0.1(webpack-bundle-analyzer@4.10.2)(webpack@5.99.7))'
+        version: https://codeload.github.com/mui/mui-public/tar.gz/c68d976ab7ccb348df1dc79aa158f585df257e00#path:./packages/bundle-size-checker(webpack-cli@6.0.1(webpack-bundle-analyzer@4.10.2)(webpack@5.99.7))
 
   docs:
     dependencies:
@@ -12437,13 +12437,13 @@ snapshots:
     dependencies:
       '@aws-sdk/client-s3': 3.797.0
       '@aws-sdk/credential-providers': 3.797.0
-      compression-webpack-plugin: 10.0.0(webpack@5.99.7)
+      compression-webpack-plugin: 10.0.0(webpack@5.99.7(webpack-cli@6.0.1(webpack-bundle-analyzer@4.10.2)(webpack@5.99.7)))
       env-ci: 11.1.0
       execa: 7.2.0
       fast-glob: 3.3.3
       fs-extra: 11.3.0
       piscina: 4.9.2
-      terser-webpack-plugin: 5.3.14(webpack@5.99.7)
+      terser-webpack-plugin: 5.3.14(webpack@5.99.7(webpack-cli@6.0.1(webpack-bundle-analyzer@4.10.2)(webpack@5.99.7)))
       webpack: 5.99.7(webpack-cli@6.0.1(webpack-bundle-analyzer@4.10.2)(webpack@5.99.7))
       webpack-bundle-analyzer: 4.10.2
       yargs: 17.7.2
@@ -15427,7 +15427,7 @@ snapshots:
     dependencies:
       mime-db: 1.54.0
 
-  compression-webpack-plugin@10.0.0(webpack@5.99.7):
+  compression-webpack-plugin@10.0.0(webpack@5.99.7(webpack-cli@6.0.1(webpack-bundle-analyzer@4.10.2)(webpack@5.99.7))):
     dependencies:
       schema-utils: 4.3.2
       serialize-javascript: 6.0.2
@@ -21123,7 +21123,7 @@ snapshots:
 
   temp-dir@1.0.0: {}
 
-  terser-webpack-plugin@5.3.14(webpack@5.99.7):
+  terser-webpack-plugin@5.3.14(webpack@5.99.7(webpack-cli@6.0.1(webpack-bundle-analyzer@4.10.2)(webpack@5.99.7))):
     dependencies:
       '@jridgewell/trace-mapping': 0.3.25
       jest-worker: 27.5.1
@@ -21769,7 +21769,7 @@ snapshots:
       neo-async: 2.6.2
       schema-utils: 4.3.2
       tapable: 2.2.1
-      terser-webpack-plugin: 5.3.14(webpack@5.99.7)
+      terser-webpack-plugin: 5.3.14(webpack@5.99.7(webpack-cli@6.0.1(webpack-bundle-analyzer@4.10.2)(webpack@5.99.7)))
       watchpack: 2.4.2
       webpack-sources: 3.2.3
     optionalDependencies:
