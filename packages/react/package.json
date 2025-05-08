@@ -33,6 +33,7 @@
     "./checkbox": "./src/checkbox/index.ts",
     "./checkbox-group": "./src/checkbox-group/index.ts",
     "./collapsible": "./src/collapsible/index.ts",
+    "./context-menu": "./src/context-menu/index.ts",
     "./dialog": "./src/dialog/index.ts",
     "./direction-provider": "./src/direction-provider/index.ts",
     "./field": "./src/field/index.ts",

@@ -25,6 +25,7 @@ import {
   type OpenChangeReason,
   translateOpenChangeReason,
 } from '../../utils/translateOpenChangeReason';
+import { useContextMenuRootContext } from '../../context-menu/root/ContextMenuRootContext';
 
 const EMPTY_ARRAY: never[] = [];
 
@@ -46,6 +47,9 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
     modal,
   } = parameters;
 
+  const contextMenuContext = useContextMenuRootContext();
+  const hasContextMenuParent = Boolean(contextMenuContext) && !nested;
+
   const [triggerElement, setTriggerElement] = React.useState<HTMLElement | null>(null);
   const [positionerElement, setPositionerElementUnwrapped] = React.useState<HTMLElement | null>(
     null,
@@ -60,6 +64,12 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
   const positionerRef = React.useRef<HTMLElement | null>(null);
   const stickIfOpenTimeoutRef = React.useRef(-1);
 
+  React.useImperativeHandle<HTMLElement | null, HTMLElement | null>(
+    contextMenuContext?.positionerRef,
+    () => positionerElement,
+    [positionerElement],
+  );
+
   const [open, setOpenUnwrapped] = useControlled({
     controlled: openParam,
     default: defaultOpen,
@@ -72,7 +82,7 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
     setPositionerElementUnwrapped(value);
   }, []);
 
-  const allowMouseUpTriggerRef = React.useRef(false);
+  const allowMouseUpTriggerRef = React.useRef(hasContextMenuParent);
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
 
@@ -119,6 +129,8 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
   React.useImperativeHandle(parameters.actionsRef, () => ({ unmount: handleUnmount }), [
     handleUnmount,
   ]);
+
+  React.useImperativeHandle(contextMenuContext?.actionsRef, () => ({ setOpen }), [setOpen]);
 
   const clearStickIfOpenTimeout = useEventCallback(() => {
     clearTimeout(stickIfOpenTimeoutRef.current);
@@ -172,7 +184,8 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
   });
 
   const hover = useHover(floatingRootContext, {
-    enabled: hoverEnabled && openOnHover && !disabled && openReason !== 'click',
+    enabled:
+      hoverEnabled && openOnHover && !disabled && openReason !== 'click' && !hasContextMenuParent,
     handleClose: safePolygon({ blockPointerEvents: true }),
     mouseOnly: true,
     move: nested,
@@ -181,7 +194,7 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
   });
 
   const click = useClick(floatingRootContext, {
-    enabled: !disabled,
+    enabled: !disabled && !hasContextMenuParent,
     event: 'mousedown',
     toggle: !openOnHover || !nested,
     ignoreMouse: openOnHover && nested,
@@ -190,7 +203,9 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
 
   const dismiss = useDismiss(floatingRootContext, {
     bubbles: closeParentOnEsc && nested,
-    outsidePressEvent: 'mousedown',
+    // For context menus, this avoids an issue on long press where the menu closes right
+    // after opening.
+    outsidePressEvent: hasContextMenuParent ? 'pointerdown' : 'mousedown',
   });
 
   const role = useRole(floatingRootContext, {
@@ -210,6 +225,7 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
     rtl: direction === 'rtl',
     disabledIndices: EMPTY_ARRAY,
     onNavigate: setActiveIndex,
+    openOnArrowKeyDown: !hasContextMenuParent,
   });
 
   const typeahead = useTypeahead(floatingRootContext, {
