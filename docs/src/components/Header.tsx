@@ -5,6 +5,7 @@ import * as MobileNav from './MobileNav';
 import { nav } from '../nav';
 import { NpmIcon } from '../icons/NpmIcon';
 import { Logo } from './Logo';
+import { SkipNav } from './SkipNav';
 
 const VERSION = process.env.LIB_VERSION;
 export const HEADER_HEIGHT = 48;
@@ -13,6 +14,7 @@ export function Header() {
   return (
     <div className="Header">
       <div className="HeaderInner">
+        <SkipNav href="#main-content">Skip to contents</SkipNav>
         <NextLink href="/" className="HeaderLogoLink">
           <Logo aria-label="Base UI" />
         </NextLink>
@@ -63,10 +65,7 @@ export function Header() {
                 <MobileNav.Section>
                   <MobileNav.Heading>Resources</MobileNav.Heading>
                   <MobileNav.List>
-                    <MobileNav.Item
-                      href="/careers/design-engineer"
-                      rel="noopener"
-                    >
+                    <MobileNav.Item href="/careers/design-engineer" rel="noopener">
                       <span className="flex flex-grow-1 items-baseline justify-between">
                         Careers
                       </span>
