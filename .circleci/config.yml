@@ -334,12 +334,6 @@ jobs:
             export AWS_REGION=$AWS_REGION_ARTIFACTS
             pnpm size:snapshot
 
-      # Keep the artifact storage as a CircleCI artifact (TODO: remove once UI understands S3 artifacts)
-      - store_artifacts:
-          name: persist size snapshot as pipeline artifact
-          path: size-snapshot.json
-          destination: size-snapshot.json
-
       - run:
           name: Run danger on PRs
           command: pnpm danger ci --fail-on-errors
