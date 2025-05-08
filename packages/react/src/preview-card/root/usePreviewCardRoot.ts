@@ -11,7 +11,6 @@ import {
 import { useControlled } from '../../utils/useControlled';
 import { useTransitionStatus } from '../../utils/useTransitionStatus';
 import { useEventCallback } from '../../utils/useEventCallback';
-import { useFocusExtended } from '../utils/useFocusExtended';
 import { OPEN_DELAY, CLOSE_DELAY } from '../utils/constants';
 import type { GenericHTMLProps } from '../../utils/types';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
@@ -20,6 +19,7 @@ import {
   type OpenChangeReason,
 } from '../../utils/translateOpenChangeReason';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
+import { useFocusWithDelay } from '../../utils/floating-ui/useFocusWithDelay';
 
 export function usePreviewCardRoot(
   params: usePreviewCardRoot.Parameters,
@@ -119,7 +119,7 @@ export function usePreviewCardRoot(
       close: closeDelayWithDefault,
     },
   });
-  const focus = useFocusExtended(context);
+  const focus = useFocusWithDelay(context, { delay: OPEN_DELAY });
   const dismiss = useDismiss(context);
 
   const { getReferenceProps: getRootTriggerProps, getFloatingProps: getRootPopupProps } =

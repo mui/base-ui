@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import userEvent from '@testing-library/user-event';
-import { describeSkipIf, flushMicrotasks, screen } from '@mui/internal-test-utils';
+import { describeSkipIf, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
 import { Menu } from '@base-ui-components/react/menu';
 import { describeConformance, createRenderer, isJSDOM } from '#test-utils';
 
@@ -322,12 +322,18 @@ describe('<Menu.Positioner />', () => {
 
       await user.click(trigger);
       await flushMicrotasks();
-      expect(queryByRole('menu', { hidden: false })).not.to.equal(null);
+      await waitFor(() => {
+        expect(queryByRole('menu', { hidden: false })).not.to.equal(null);
+      });
       expect(queryByRole('menu', { hidden: false })).not.toBeInaccessible();
 
       await user.click(trigger);
-      expect(queryByRole('menu', { hidden: true })).not.to.equal(null);
-      expect(queryByRole('menu', { hidden: true })).toBeInaccessible();
+      await waitFor(() => {
+        expect(queryByRole('menu', { hidden: true })).not.to.equal(null);
+      });
+      await waitFor(() => {
+        expect(queryByRole('menu', { hidden: true })).toBeInaccessible();
+      });
     });
 
     it('when keepMounted=false, should unmount the content when closed', async () => {
@@ -351,11 +357,15 @@ describe('<Menu.Positioner />', () => {
 
       await user.click(trigger);
       await flushMicrotasks();
-      expect(queryByRole('menu', { hidden: false })).not.to.equal(null);
+      await waitFor(() => {
+        expect(queryByRole('menu', { hidden: false })).not.to.equal(null);
+      });
       expect(queryByRole('menu', { hidden: false })).not.toBeInaccessible();
 
       await user.click(trigger);
-      expect(queryByRole('menu', { hidden: true })).to.equal(null);
+      await waitFor(() => {
+        expect(queryByRole('menu', { hidden: true })).to.equal(null);
+      });
     });
   });
 
