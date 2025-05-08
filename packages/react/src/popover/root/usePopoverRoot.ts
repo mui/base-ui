@@ -2,7 +2,6 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import {
   safePolygon,
-  useClick,
   useDismiss,
   useFloatingRootContext,
   useHover,
@@ -10,6 +9,7 @@ import {
   useRole,
   type FloatingRootContext,
 } from '@floating-ui/react';
+import { useClick } from '../../utils/floating-ui/useClick';
 import { useControlled } from '../../utils/useControlled';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { useTransitionStatus } from '../../utils/useTransitionStatus';
