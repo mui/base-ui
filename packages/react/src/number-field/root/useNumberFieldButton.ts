@@ -10,6 +10,7 @@ import { mergeProps } from '../../merge-props';
 import { parseNumber } from '../utils/parse';
 import type { GenericHTMLProps } from '../../utils/types';
 import type { EventWithOptionalKeyState } from '../utils/types';
+import type { Timeout } from '../../utils/useTimeout';
 
 export function useNumberFieldButton(
   params: useNumberFieldButton.Parameters,
@@ -32,7 +33,7 @@ export function useNumberFieldButton(
     formatOptionsRef,
     valueRef,
     movesAfterTouchRef,
-    intentionalTouchCheckTimeoutRef,
+    intentionalTouchCheckTimeout,
     isPressedRef,
     locale,
   } = params;
@@ -121,7 +122,7 @@ export function useNumberFieldButton(
             } else {
               // We need to check if the pointerdown was intentional, and not the result of a scroll
               // or pinch-zoom. In that case, we don't want to change the value.
-              intentionalTouchCheckTimeoutRef.current = window.setTimeout(() => {
+              intentionalTouchCheckTimeout.start(TOUCH_TIMEOUT, () => {
                 const moves = movesAfterTouchRef.current;
                 movesAfterTouchRef.current = 0;
                 if (moves != null && moves < MAX_POINTER_MOVES_AFTER_TOUCH) {
@@ -130,7 +131,7 @@ export function useNumberFieldButton(
                 } else {
                   stopAutoChange();
                 }
-              }, TOUCH_TIMEOUT);
+              });
             }
           },
           onPointerMove(event) {
@@ -193,7 +194,7 @@ export function useNumberFieldButton(
       incrementValue,
       inputRef,
       inputValue,
-      intentionalTouchCheckTimeoutRef,
+      intentionalTouchCheckTimeout,
       isMax,
       isMin,
       isPressedRef,
@@ -230,7 +231,7 @@ export namespace useNumberFieldButton {
     ) => void;
     inputRef: React.RefObject<HTMLInputElement | null>;
     inputValue: string;
-    intentionalTouchCheckTimeoutRef: React.RefObject<number | null>;
+    intentionalTouchCheckTimeout: Timeout;
     isPressedRef: React.RefObject<boolean | null>;
     locale?: Intl.LocalesArgument;
     maxWithDefault: number;

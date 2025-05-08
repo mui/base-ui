@@ -3,6 +3,7 @@ import * as React from 'react';
 import { getWindow, isHTMLElement } from '@floating-ui/utils/dom';
 import type { FloatingRootContext, ElementProps } from '@floating-ui/react';
 import { activeElement, contains, getDocument } from '@floating-ui/react/utils';
+import { useTimeout } from '../useTimeout';
 
 interface UseFocusWithDelayProps {
   delay?: number;
@@ -18,7 +19,7 @@ export function useFocusWithDelay(
   const { onOpenChange, elements, open, dataRef } = context;
   const { delay } = props;
 
-  const timeoutRef = React.useRef(-1);
+  const timeout = useTimeout();
   const blockFocusRef = React.useRef(false);
 
   React.useEffect(() => {
@@ -42,28 +43,20 @@ export function useFocusWithDelay(
     };
   }, [elements.domReference, open]);
 
-  React.useEffect(() => {
-    return () => {
-      window.clearTimeout(timeoutRef.current);
-    };
-  }, []);
-
   const reference: ElementProps['reference'] = React.useMemo(
     () => ({
       onFocus(event) {
         const { nativeEvent } = event;
-        timeoutRef.current = window.setTimeout(() => {
+        timeout.start(delay ?? 0, () => {
           onOpenChange(true, nativeEvent, 'focus');
-        }, delay);
+        });
       },
       onBlur(event) {
         blockFocusRef.current = false;
         const { relatedTarget, nativeEvent } = event;
 
-        window.clearTimeout(timeoutRef.current);
-
         // Wait for the window blur listener to fire.
-        timeoutRef.current = window.setTimeout(() => {
+        timeout.start(0, () => {
           const activeEl = activeElement(
             elements.domReference ? elements.domReference.ownerDocument : document,
           );
@@ -91,7 +84,7 @@ export function useFocusWithDelay(
         });
       },
     }),
-    [delay, onOpenChange, elements.domReference, dataRef],
+    [delay, onOpenChange, elements.domReference, dataRef, timeout],
   );
 
   return React.useMemo(() => ({ reference }), [reference]);
