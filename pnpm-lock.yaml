@@ -552,8 +552,8 @@ importers:
         specifier: ^7.27.0
         version: 7.27.0
       '@floating-ui/react':
-        specifier: https://pkg.pr.new/@floating-ui/react@a510553
-        version: https://pkg.pr.new/@floating-ui/react@a510553(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+        specifier: ^0.27.8
+        version: 0.27.8(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@floating-ui/utils':
         specifier: ^0.2.9
         version: 0.2.9
@@ -1804,34 +1804,26 @@ packages:
   '@fastify/busboy@3.1.1':
     resolution: {integrity: sha512-5DGmA8FTdB2XbDeEwc/5ZXBl6UbBAyBOOLlPuBnZ/N1SwdH9Ii+cOX3tBROlDgcTXxjOYnLMVoKk9+FXAw0CJw==}
 
-  '@floating-ui/core@https://pkg.pr.new/floating-ui/floating-ui/@floating-ui/core@a510553':
-    resolution: {tarball: https://pkg.pr.new/floating-ui/floating-ui/@floating-ui/core@a510553}
-    version: 1.7.0
+  '@floating-ui/core@1.7.0':
+    resolution: {integrity: sha512-FRdBLykrPPA6P76GGGqlex/e7fbe0F1ykgxHYNXQsH/iTEtjMj/f9bpY5oQqbjt5VgZvgz/uKXbGuROijh3VLA==}
 
-  '@floating-ui/dom@https://pkg.pr.new/floating-ui/floating-ui/@floating-ui/dom@a510553':
-    resolution: {tarball: https://pkg.pr.new/floating-ui/floating-ui/@floating-ui/dom@a510553}
-    version: 1.7.0
+  '@floating-ui/dom@1.7.0':
+    resolution: {integrity: sha512-lGTor4VlXcesUMh1cupTUTDoCxMb0V6bm3CnxHzQcw8Eaf1jQbgQX4i02fYgT0vJ82tb5MZ4CZk1LRGkktJCzg==}
 
-  '@floating-ui/react-dom@https://pkg.pr.new/floating-ui/floating-ui/@floating-ui/react-dom@a510553':
-    resolution: {tarball: https://pkg.pr.new/floating-ui/floating-ui/@floating-ui/react-dom@a510553}
-    version: 2.1.2
+  '@floating-ui/react-dom@2.1.2':
+    resolution: {integrity: sha512-06okr5cgPzMNBy+Ycse2A6udMi4bqwW/zgBF/rwjcNqWkyr82Mcg8b0vjX8OJpZFy/FKjJmw6wV7t44kK6kW7A==}
     peerDependencies:
       react: '>=16.8.0'
       react-dom: '>=16.8.0'
 
-  '@floating-ui/react@https://pkg.pr.new/@floating-ui/react@a510553':
-    resolution: {tarball: https://pkg.pr.new/@floating-ui/react@a510553}
-    version: 0.27.8
+  '@floating-ui/react@0.27.8':
+    resolution: {integrity: sha512-EQJ4Th328y2wyHR3KzOUOoTW2UKjFk53fmyahfwExnFQ8vnsMYqKc+fFPOkeYtj5tcp1DUMiNJ7BFhed7e9ONw==}
     peerDependencies:
       react: '>=17.0.0'
       react-dom: '>=17.0.0'
 
   '@floating-ui/utils@0.2.9':
     resolution: {integrity: sha512-MDWhGtE+eHw5JW7lq4qhc5yRLS11ERl1c7Z6Xd0a58DozHES6EnNNwUWbMiG4J9Cgj053Bhk8zvlhFYKVhULwg==}
-
-  '@floating-ui/utils@https://pkg.pr.new/floating-ui/floating-ui/@floating-ui/utils@a510553':
-    resolution: {tarball: https://pkg.pr.new/floating-ui/floating-ui/@floating-ui/utils@a510553}
-    version: 0.2.9
 
   '@googleapis/sheets@9.7.0':
     resolution: {integrity: sha512-laFp4BBpVzQKZuUsXG7QBZyWNtpV8SGyG+Yupjm2EfDuFuWb197zwvznyjmrIAGeEpsz11ktLpTti7+0a/2Y2Q==}
@@ -10809,32 +10801,30 @@ snapshots:
 
   '@fastify/busboy@3.1.1': {}
 
-  '@floating-ui/core@https://pkg.pr.new/floating-ui/floating-ui/@floating-ui/core@a510553':
+  '@floating-ui/core@1.7.0':
     dependencies:
-      '@floating-ui/utils': https://pkg.pr.new/floating-ui/floating-ui/@floating-ui/utils@a510553
+      '@floating-ui/utils': 0.2.9
 
-  '@floating-ui/dom@https://pkg.pr.new/floating-ui/floating-ui/@floating-ui/dom@a510553':
+  '@floating-ui/dom@1.7.0':
     dependencies:
-      '@floating-ui/core': https://pkg.pr.new/floating-ui/floating-ui/@floating-ui/core@a510553
-      '@floating-ui/utils': https://pkg.pr.new/floating-ui/floating-ui/@floating-ui/utils@a510553
+      '@floating-ui/core': 1.7.0
+      '@floating-ui/utils': 0.2.9
 
-  '@floating-ui/react-dom@https://pkg.pr.new/floating-ui/floating-ui/@floating-ui/react-dom@a510553(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
+  '@floating-ui/react-dom@2.1.2(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
     dependencies:
-      '@floating-ui/dom': https://pkg.pr.new/floating-ui/floating-ui/@floating-ui/dom@a510553
+      '@floating-ui/dom': 1.7.0
       react: 19.1.0
       react-dom: 19.1.0(react@19.1.0)
 
-  '@floating-ui/react@https://pkg.pr.new/@floating-ui/react@a510553(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
+  '@floating-ui/react@0.27.8(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
     dependencies:
-      '@floating-ui/react-dom': https://pkg.pr.new/floating-ui/floating-ui/@floating-ui/react-dom@a510553(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
-      '@floating-ui/utils': https://pkg.pr.new/floating-ui/floating-ui/@floating-ui/utils@a510553
+      '@floating-ui/react-dom': 2.1.2(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@floating-ui/utils': 0.2.9
       react: 19.1.0
       react-dom: 19.1.0(react@19.1.0)
       tabbable: 6.2.0
 
   '@floating-ui/utils@0.2.9': {}
-
-  '@floating-ui/utils@https://pkg.pr.new/floating-ui/floating-ui/@floating-ui/utils@a510553': {}
 
   '@googleapis/sheets@9.7.0(encoding@0.1.13)':
     dependencies:
