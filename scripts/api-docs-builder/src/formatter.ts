@@ -184,8 +184,8 @@ function getFullyQualifiedName(localName: string, namespaces: string[]): string 
   // Our components are defined in the source as [ComponentName][Part], but exported as [ComponentName].[Part].
   // The following code adjusts the namespaces to match the exported names.
   const joinedNamespaces = namespaces.map((namespace) => {
-    const componentNameInNamespace = componentNames.find(
-      (componentName) => namespace.startsWith(componentName) && namespace !== componentName,
+    const componentNameInNamespace = componentNames.find((componentName) =>
+      new RegExp(`^${componentName}[A-Z]`).test(namespace),
     );
 
     if (componentNameInNamespace) {
