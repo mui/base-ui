@@ -160,6 +160,7 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
   }, [clearStickIfOpenTimeout]);
 
   const ignoreClickRef = React.useRef(false);
+  const allowTouchToCloseRef = React.useRef(true);
 
   const setOpen = useEventCallback(
     (nextOpen: boolean, event: Event | undefined, reason: OpenChangeReason | undefined) => {
@@ -172,6 +173,25 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
       if (event?.type === 'click' && ignoreClickRef.current) {
         ignoreClickRef.current = false;
         return;
+      }
+
+      if (
+        nextOpen === false &&
+        event?.type === 'click' &&
+        (event as PointerEvent).pointerType === 'touch' &&
+        !allowTouchToCloseRef.current
+      ) {
+        return;
+      }
+
+      // Prevent the menu from closing on mobile devices that have a delayed click event.
+      // In some cases the menu, when tapped, will fire the focus event first and then the click event.
+      // Without this guard, the menu will close immediately after opening.
+      if (nextOpen && reason === 'focus') {
+        allowTouchToCloseRef.current = false;
+        setTimeout(() => {
+          allowTouchToCloseRef.current = true;
+        }, 300);
       }
 
       if (nextOpen && event?.type === 'mousedown') {
