@@ -150,12 +150,8 @@ export function useScrollLock(params: {
 }) {
   const { enabled = true, mounted, open, referenceElement = null } = params;
 
-  const isBasicLock = React.useMemo(
-    () =>
-      enabled &&
-      (isIOS() ||
-        // macOS Firefox "pops" scroll containers' scrollbars with our standard scroll lock
-        (isFirefox() && !hasInsetScrollbars(referenceElement))),
+  const isOverflowHiddenLock = React.useMemo(
+    () => enabled && (isIOS() || (isFirefox() && !hasInsetScrollbars(referenceElement))),
     [enabled, referenceElement],
   );
 
@@ -182,7 +178,16 @@ export function useScrollLock(params: {
 
     preventScrollCount += 1;
     if (preventScrollCount === 1) {
-      restore = isBasicLock
+      // Firefox on macOS with overlay scrollbars uses a basic scroll lock that
+      // doesn't account for inset scrollbars being removed, which typically causes
+      // the content or fixed elements to shift (the latter even when adding a padding).
+      // On iOS, scroll locking does not work at all. Due to numerous side effects and
+      // bugs that arise on iOS, it must be researched extensively before being enabled
+      // to ensure it doesn't cause the following issues:
+      // - Textboxes must scroll into view when focused, nor cause a glitchy scroll animation.
+      // - The navbar must not force itself into view and cause layout shift.
+      // - Scroll containers must not flicker upon closing a popup when it has an exit animation.
+      restore = isOverflowHiddenLock
         ? preventScrollBasic(referenceElement)
         : preventScrollStandard(referenceElement);
     }
@@ -193,5 +198,5 @@ export function useScrollLock(params: {
         restore();
       }
     };
-  }, [enabled, isBasicLock, referenceElement]);
+  }, [enabled, isOverflowHiddenLock, referenceElement]);
 }
