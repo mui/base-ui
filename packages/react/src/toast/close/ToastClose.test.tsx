@@ -42,7 +42,7 @@ describe('<Toast.Close />', () => {
 
     expect(screen.getByTestId('title')).not.to.equal(null);
 
-    const closeButton = screen.getByRole('button', { name: 'close-button' });
+    const closeButton = screen.getByRole('button', { name: 'close-press' });
 
     await user.click(closeButton);
 

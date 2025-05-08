@@ -19,10 +19,13 @@ import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import type { GenericHTMLProps } from '../../utils/types';
 import {
   translateOpenChangeReason,
-  type OpenChangeReason,
+  type BaseOpenChangeReason,
 } from '../../utils/translateOpenChangeReason';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useTooltipProviderContext } from '../provider/TooltipProviderContext';
+import type { Tooltip } from '../index';
+
+export type TooltipOpenChangeReason = BaseOpenChangeReason | 'disabled';
 
 export function useTooltipRoot(params: useTooltipRoot.Parameters): useTooltipRoot.ReturnValue {
   const {
@@ -56,7 +59,7 @@ export function useTooltipRoot(params: useTooltipRoot.Parameters): useTooltipRoo
   const onOpenChange = useEventCallback(onOpenChangeProp);
 
   const setOpen = React.useCallback(
-    (nextOpen: boolean, event: Event | undefined, reason: OpenChangeReason | undefined) => {
+    (nextOpen: boolean, event: Event | undefined, reason: TooltipOpenChangeReason | undefined) => {
       onOpenChange(nextOpen, event, reason);
       setOpenUnwrapped(nextOpen);
     },
@@ -64,7 +67,7 @@ export function useTooltipRoot(params: useTooltipRoot.Parameters): useTooltipRoo
   );
 
   if (open && disabled) {
-    setOpen(false, undefined, undefined);
+    setOpen(false, undefined, 'disabled');
   }
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
@@ -218,11 +221,12 @@ export namespace useTooltipRoot {
     open?: boolean;
     /**
      * Event handler called when the tooltip is opened or closed.
+     * @type (open: boolean, event?: Event, reason?: Tooltip.Root.OpenChangeReason) => void
      */
     onOpenChange?: (
       open: boolean,
       event: Event | undefined,
-      reason: OpenChangeReason | undefined,
+      reason: TooltipOpenChangeReason | undefined,
     ) => void;
     /**
      * Event handler called after any animations complete when the tooltip is opened or closed.
@@ -264,7 +268,11 @@ export namespace useTooltipRoot {
 
   export interface ReturnValue {
     open: boolean;
-    setOpen: (value: boolean, event?: Event, reason?: OpenChangeReason) => void;
+    setOpen: (
+      open: boolean,
+      event: Event | undefined,
+      reason: Tooltip.Root.OpenChangeReason | undefined,
+    ) => void;
     mounted: boolean;
     setMounted: React.Dispatch<React.SetStateAction<boolean>>;
     triggerProps: GenericHTMLProps;

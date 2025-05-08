@@ -1,14 +1,14 @@
 'use client';
 import * as React from 'react';
 import type { FloatingEvents } from '@floating-ui/react';
-import type { OpenChangeReason } from '../../utils/translateOpenChangeReason';
+import type { MenuOpenChangeReason } from '../root/useMenuRoot';
 
 export function useMenuPopup(parameters: useMenuPopup.Parameters): useMenuPopup.ReturnValue {
   const { menuEvents, setOpen } = parameters;
 
   React.useEffect(() => {
     function handleClose(event: Event | undefined) {
-      setOpen(false, event, undefined);
+      setOpen(false, event, 'item-press');
     }
 
     menuEvents.on('close', handleClose);
@@ -31,7 +31,7 @@ export namespace useMenuPopup {
     setOpen: (
       open: boolean,
       event: Event | undefined,
-      reason: OpenChangeReason | undefined,
+      reason: MenuOpenChangeReason | undefined,
     ) => void;
   }
 
