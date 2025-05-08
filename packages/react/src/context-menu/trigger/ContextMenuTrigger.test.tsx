@@ -57,7 +57,7 @@ describe('<ContextMenu.Trigger />', () => {
     expect(onOpenChange.lastCall.args[0]).to.equal(true);
   });
 
-  it('does not cancel opening menu on mouseup after mousedown outside before 400ms', async () => {
+  it('does not cancel opening menu on mouseup after mousedown outside before 500ms', async () => {
     const onOpenChange = spy();
 
     await render(
@@ -75,7 +75,7 @@ describe('<ContextMenu.Trigger />', () => {
     fireEvent.mouseDown(trigger);
     fireEvent.contextMenu(trigger);
 
-    clock.tick(399);
+    clock.tick(499);
 
     expect(onOpenChange.callCount).to.equal(1);
     expect(onOpenChange.lastCall.args[0]).to.equal(true);
@@ -87,7 +87,7 @@ describe('<ContextMenu.Trigger />', () => {
     expect(onOpenChange.callCount).to.equal(1);
   });
 
-  it('cancels opening menu on mouseup after mousedown outside after 400ms', async () => {
+  it('cancels opening menu on mouseup after mousedown outside after 500ms', async () => {
     const onOpenChange = spy();
 
     await render(
@@ -105,7 +105,7 @@ describe('<ContextMenu.Trigger />', () => {
     fireEvent.mouseDown(trigger);
     fireEvent.contextMenu(trigger);
 
-    clock.tick(401);
+    clock.tick(501);
 
     fireEvent.mouseUp(document.body);
 
