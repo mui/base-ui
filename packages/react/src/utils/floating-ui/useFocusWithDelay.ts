@@ -4,21 +4,20 @@ import { getWindow, isHTMLElement } from '@floating-ui/utils/dom';
 import type { FloatingRootContext, ElementProps } from '@floating-ui/react';
 import { activeElement, contains, getDocument } from '@floating-ui/react/utils';
 import { useTimeout } from '../../utils/useTimeout';
-import { OPEN_DELAY } from './constants';
 
-interface UseFocusExtendedProps {
+interface UseFocusWithDelayProps {
   delay?: number;
 }
 
 /**
  * Adds support for delay, since Floating UI's `useFocus` hook does not support it.
  */
-export function useFocusExtended(
+export function useFocusWithDelay(
   context: FloatingRootContext,
-  props: UseFocusExtendedProps = {},
+  props: UseFocusWithDelayProps = {},
 ): ElementProps {
   const { onOpenChange, elements, open, dataRef } = context;
-  const { delay = OPEN_DELAY } = props;
+  const { delay } = props;
 
   const timeout = useTimeout();
   const blockFocusRef = React.useRef(false);
@@ -48,7 +47,7 @@ export function useFocusExtended(
     () => ({
       onFocus(event) {
         const { nativeEvent } = event;
-        timeout.start(delay, () => {
+        timeout.start(delay ?? 0, () => {
           onOpenChange(true, nativeEvent, 'focus');
         });
       },
