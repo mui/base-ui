@@ -297,12 +297,7 @@ jobs:
       - run:
           name: pnpm test:e2e
           command: pnpm test:e2e
-  test_bundle_size_monitor:
-    <<: *default-job
-    steps:
-      - checkout
-      - install_js
-      # TODO test bundle size https://github.com/mui/base-ui/issues/201
+
   test_package:
     <<: *default-job
     steps:
