@@ -178,9 +178,9 @@ export function useScrollLock(params: {
 
     preventScrollCount += 1;
     if (preventScrollCount === 1) {
-      // Firefox on macOS with overlay scrollbars uses a basic scroll lock that
-      // doesn't account for inset scrollbars being removed, which typically causes
-      // the content or fixed elements to shift (the latter even when adding a padding).
+      // Firefox on macOS with overlay scrollbars uses a basic scroll lock that doesn't
+      // need the inset scrollbars handling to prevent overlay scrollbars from appearing
+      // on scroll containers briefly whenever the lock is enabled.
       // On iOS, scroll locking does not work at all. Due to numerous side effects and
       // bugs that arise on iOS, it must be researched extensively before being enabled
       // to ensure it doesn't cause the following issues:
