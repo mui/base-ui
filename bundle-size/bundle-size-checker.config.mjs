@@ -29,18 +29,8 @@ export default defineConfig(async () => {
     return entrypoint;
   });
 
-  const isPullRequest = !!process.env.CIRCLE_PULL_REQUEST;
-
-  // Return the complete entrypoints configuration
   return {
     entrypoints,
-    // Only add upload config when in CI environment
-    ...(process.env.CI && {
-      upload: {
-        project: 'mui/base-ui',
-        branch: process.env.CIRCLE_BRANCH,
-        isPullRequest,
-      },
-    }),
+    upload: !!process.env.CI,
   };
 });
