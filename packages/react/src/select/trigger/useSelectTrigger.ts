@@ -50,14 +50,13 @@ export function useSelectTrigger(
 
   React.useEffect(() => {
     if (open) {
+      // mousedown -> mouseup on selected item should not select within 400ms.
+      timeout1.start(400, () => {
+        selectionRef.current.allowSelectedMouseUp = true;
+      });
       // mousedown -> move to unselected item -> mouseup should not select within 200ms.
-      timeout1.start(200, () => {
+      timeout2.start(200, () => {
         selectionRef.current.allowUnselectedMouseUp = true;
-
-        // mousedown -> mouseup on selected item should not select within 400ms.
-        timeout2.start(200, () => {
-          selectionRef.current.allowSelectedMouseUp = true;
-        });
       });
 
       return () => {
