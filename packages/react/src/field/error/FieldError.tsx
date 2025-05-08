@@ -1,12 +1,13 @@
 'use client';
 import * as React from 'react';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { FieldRoot } from '../root/FieldRoot';
 import { useFieldRootContext } from '../root/FieldRootContext';
-import { useFieldError } from './useFieldError';
 import { fieldValidityMapping } from '../utils/constants';
 import { useFormContext } from '../../form/FormContext';
 import type { BaseUIComponentProps } from '../../utils/types';
+import { useRenderElement } from '../../utils/useRenderElement';
+import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
+import { useBaseUiId } from '../../utils/useBaseUiId';
 
 /**
  * An error message displayed if the field control fails validation.
@@ -15,12 +16,14 @@ import type { BaseUIComponentProps } from '../../utils/types';
  * Documentation: [Base UI Field](https://base-ui.com/react/components/field)
  */
 export const FieldError = React.forwardRef(function FieldError(
-  props: FieldError.Props,
+  componentProps: FieldError.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, id, className, match, forceShow, ...otherProps } = props;
+  const { render, id: idProp, className, match, forceShow, ...elementProps } = componentProps;
 
-  const { validityData, state, name } = useFieldRootContext(false);
+  const id = useBaseUiId(idProp);
+
+  const { validityData, state, name, setMessageIds } = useFieldRootContext(false);
 
   const { errors } = useFormContext();
 
@@ -35,15 +38,38 @@ export const FieldError = React.forwardRef(function FieldError(
     rendered = validityData.state.valid === false;
   }
 
-  const { getErrorProps } = useFieldError({ id, rendered, formError });
+  useModernLayoutEffect(() => {
+    if (!rendered || !id) {
+      return undefined;
+    }
 
-  const { renderElement } = useComponentRenderer({
-    propGetter: getErrorProps,
-    render: render ?? 'div',
+    setMessageIds((v) => v.concat(id));
+
+    return () => {
+      setMessageIds((v) => v.filter((item) => item !== id));
+    };
+  }, [rendered, id, setMessageIds]);
+
+  const renderElement = useRenderElement('div', componentProps, {
     ref: forwardedRef,
-    className,
     state,
-    extraProps: otherProps,
+    props: [
+      {
+        id,
+        children:
+          formError ||
+          (validityData.errors.length > 1
+            ? React.createElement(
+                'ul',
+                {},
+                validityData.errors.map((message) =>
+                  React.createElement('li', { key: message }, message),
+                ),
+              )
+            : validityData.error),
+      },
+      elementProps,
+    ],
     customStyleHookMapping: fieldValidityMapping,
   });
 
