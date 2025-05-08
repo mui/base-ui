@@ -6,6 +6,7 @@ on:
       # Renovate branches are always Pull Requests.
       # We don't need to run CI twice (push+pull_request)
       - 'renovate/**'
+      - 'dependabot/**'
   pull_request:
 
 permissions: {}
@@ -37,4 +38,4 @@ jobs:
       - run: pnpm validate-declarations
       - name: Publish to pkg-pr-new
         if: matrix.os == 'ubuntu-latest'
-        run: pnpm dlx pkg-pr-new publish './packages/react' --compact --pnpm
+        run: pnpm dlx pkg-pr-new publish './packages/react' --compact --pnpm --peerDeps
