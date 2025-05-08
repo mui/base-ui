@@ -24,10 +24,11 @@ function hasInsetScrollbars(referenceElement: Element | null) {
 
 function preventScrollBasic(referenceElement: Element | null) {
   const doc = ownerDocument(referenceElement);
-  const originalOverflow = doc.body.style.overflow;
-  doc.body.style.overflow = 'hidden';
+  const html = doc.documentElement;
+  const originalOverflow = html.style.overflow;
+  html.style.overflow = 'hidden';
   return () => {
-    doc.body.style.overflow = originalOverflow;
+    html.style.overflow = originalOverflow;
   };
 }
 
