@@ -4,6 +4,7 @@ import { contains } from '@floating-ui/react/utils';
 import { useButton } from '../../use-button/useButton';
 import { useForkRef } from '../../utils/useForkRef';
 import { GenericHTMLProps } from '../../utils/types';
+import { useTimeout } from '../../utils/useTimeout';
 import { mergeProps } from '../../merge-props';
 import { ownerDocument } from '../../utils/owner';
 import { getPseudoElementBounds } from '../../utils/getPseudoElementBounds';
@@ -28,7 +29,7 @@ export function useMenuTrigger(parameters: useMenuTrigger.Parameters): useMenuTr
 
   const triggerRef = React.useRef<HTMLElement | null>(null);
   const mergedRef = useForkRef(externalRef, triggerRef);
-  const allowMouseUpTriggerTimeoutRef = React.useRef(-1);
+  const allowMouseUpTriggerTimeout = useTimeout();
 
   const { getButtonProps, buttonRef } = useButton({
     disabled,
@@ -48,11 +49,7 @@ export function useMenuTrigger(parameters: useMenuTrigger.Parameters): useMenuTr
       return;
     }
 
-    if (allowMouseUpTriggerTimeoutRef.current !== -1) {
-      clearTimeout(allowMouseUpTriggerTimeoutRef.current);
-      allowMouseUpTriggerTimeoutRef.current = -1;
-    }
-
+    allowMouseUpTriggerTimeout.clear();
     allowMouseUpTriggerRef.current = false;
 
     const mouseUpTarget = mouseEvent.target as Element | null;
@@ -99,9 +96,9 @@ export function useMenuTrigger(parameters: useMenuTrigger.Parameters): useMenuTr
             }
 
             // mousedown -> mouseup on menu item should not trigger it within 200ms.
-            allowMouseUpTriggerTimeoutRef.current = window.setTimeout(() => {
+            allowMouseUpTriggerTimeout.start(200, () => {
               allowMouseUpTriggerRef.current = true;
-            }, 200);
+            });
 
             const doc = ownerDocument(event.currentTarget);
             doc.addEventListener('mouseup', handleMouseUp, { once: true });
@@ -111,7 +108,15 @@ export function useMenuTrigger(parameters: useMenuTrigger.Parameters): useMenuTr
         getButtonProps,
       );
     },
-    [getButtonProps, handleRef, open, allowMouseUpTriggerRef, menuParent.type, handleMouseUp],
+    [
+      getButtonProps,
+      handleRef,
+      open,
+      allowMouseUpTriggerRef,
+      allowMouseUpTriggerTimeout,
+      menuParent.type,
+      handleMouseUp,
+    ],
   );
 
   return React.useMemo(

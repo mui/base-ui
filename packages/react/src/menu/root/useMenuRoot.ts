@@ -17,6 +17,7 @@ import { useClick } from '../../utils/floating-ui/useClick';
 import { MenuRootContext, useMenuRootContext } from './MenuRootContext';
 import { MenubarContext, useMenubarContext } from '../../menubar/MenubarContext';
 import { GenericHTMLProps } from '../../utils/types';
+import { useTimeout } from '../../utils/useTimeout';
 import { useTransitionStatus, type TransitionStatus } from '../../utils/useTransitionStatus';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { useControlled } from '../../utils/useControlled';
@@ -61,7 +62,7 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
 
   const popupRef = React.useRef<HTMLElement>(null);
   const positionerRef = React.useRef<HTMLElement | null>(null);
-  const stickIfOpenTimeoutRef = React.useRef(-1);
+  const stickIfOpenTimeout = useTimeout();
 
   let parent: useMenuRoot.ReturnValue['parent'];
   {
@@ -145,19 +146,11 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
     handleUnmount,
   ]);
 
-  const clearStickIfOpenTimeout = useEventCallback(() => {
-    clearTimeout(stickIfOpenTimeoutRef.current);
-  });
-
   React.useEffect(() => {
     if (!open) {
-      clearStickIfOpenTimeout();
+      stickIfOpenTimeout.clear();
     }
-  }, [clearStickIfOpenTimeout, open]);
-
-  React.useEffect(() => {
-    return clearStickIfOpenTimeout;
-  }, [clearStickIfOpenTimeout]);
+  }, [stickIfOpenTimeout, open]);
 
   const ignoreClickRef = React.useRef(false);
   const allowTouchToCloseRef = React.useRef(true);
@@ -233,11 +226,10 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
       if (reason === 'hover') {
         // Only allow "patient" clicks to close the menu if it's open.
         // If they clicked within 500ms of the menu opening, keep it open.
-        clearStickIfOpenTimeout();
         setStickIfOpen(true);
-        stickIfOpenTimeoutRef.current = window.setTimeout(() => {
+        stickIfOpenTimeout.start(PATIENT_CLICK_THRESHOLD, () => {
           setStickIfOpen(false);
-        }, PATIENT_CLICK_THRESHOLD);
+        });
 
         ReactDOM.flushSync(changeState);
       } else {
