@@ -1,12 +1,8 @@
 'use client';
 import * as React from 'react';
 import type { BaseUIComponentProps } from '../../utils/types';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { mergeProps } from '../../merge-props';
 import { useScrollAreaRootContext } from '../root/ScrollAreaRootContext';
-import { useForkRef } from '../../utils/useForkRef';
-
-const state = {};
+import { useRenderElement } from '../../utils/useRenderElement';
 
 /**
  * A small rectangular area that appears at the intersection of horizontal and vertical scrollbars.
@@ -15,21 +11,16 @@ const state = {};
  * Documentation: [Base UI Scroll Area](https://base-ui.com/react/components/scroll-area)
  */
 export const ScrollAreaCorner = React.forwardRef(function ScrollAreaCorner(
-  props: ScrollAreaCorner.Props,
+  componentProps: ScrollAreaCorner.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, ...otherProps } = props;
+  const { render, className, ...elementProps } = componentProps;
 
   const { cornerRef, cornerSize, hiddenState } = useScrollAreaRootContext();
 
-  const mergedRef = useForkRef(cornerRef, forwardedRef);
-
-  const { renderElement } = useComponentRenderer({
-    render: render ?? 'div',
-    ref: mergedRef,
-    className,
-    state,
-    extraProps: mergeProps(
+  const renderElement = useRenderElement('div', componentProps, {
+    ref: [forwardedRef, cornerRef],
+    props: [
       {
         style: {
           position: 'absolute',
@@ -39,8 +30,8 @@ export const ScrollAreaCorner = React.forwardRef(function ScrollAreaCorner(
           height: cornerSize.height,
         },
       },
-      otherProps,
-    ),
+      elementProps,
+    ],
   });
 
   if (hiddenState.cornerHidden) {
