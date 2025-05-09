@@ -41,11 +41,6 @@ export namespace useTooltipPositioner {
 
   export interface SharedParameters extends useAnchorPositioning.SharedParameters {
     /**
-     * Determines which axis the tooltip should track the cursor on.
-     * @default 'none'
-     */
-    trackCursorAxis?: 'none' | 'x' | 'y' | 'both';
-    /**
      * Which side of the anchor element to align the popup against.
      * May automatically change to avoid collisions.
      * @default 'top'
