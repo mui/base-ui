@@ -4,7 +4,7 @@ import { generateId } from '../../utils/generateId';
 import { useForcedRerendering } from '../../utils/useForcedRerendering';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useOnMount } from '../../utils/useOnMount';
-import type { BaseUIComponentProps, Orientation } from '../../utils/types';
+import type { BaseUIComponentProps } from '../../utils/types';
 import type { TabsRoot } from '../root/TabsRoot';
 import { useTabsRootContext } from '../root/TabsRootContext';
 import { tabsStyleHookMapping } from '../root/styleHooks';
@@ -205,7 +205,7 @@ export namespace TabsIndicator {
   export interface State extends TabsRoot.State {
     selectedTabPosition: TabPosition | null;
     selectedTabSize: TabSize | null;
-    orientation: Orientation;
+    orientation: TabsRoot.Orientation;
   }
 
   export interface Props extends BaseUIComponentProps<'span', State> {

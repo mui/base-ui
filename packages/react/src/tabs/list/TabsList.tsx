@@ -1,14 +1,14 @@
 'use client';
 import * as React from 'react';
-import { BaseUIComponentProps, Orientation } from '../../utils/types';
+import { BaseUIComponentProps } from '../../utils/types';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { CompositeRoot } from '../../composite/root/CompositeRoot';
 import { tabsStyleHookMapping } from '../root/styleHooks';
 import { useTabsRootContext } from '../root/TabsRootContext';
-import { type TabsRoot, type TabActivationDirection } from '../root/TabsRoot';
-import { type TabMetadata } from '../tab/TabsTab';
+import type { TabsRoot, TabActivationDirection } from '../root/TabsRoot';
+import type { TabMetadata } from '../tab/TabsTab';
 import { TabsListContext } from './TabsListContext';
 
 const EMPTY_ARRAY: number[] = [];
@@ -129,7 +129,7 @@ function getInset(tab: HTMLElement, tabsList: HTMLElement) {
 function useActivationDirectionDetector(
   // the old value
   selectedTabValue: any,
-  orientation: Orientation,
+  orientation: TabsRoot.Orientation,
   tabsListRef: React.RefObject<HTMLElement | null>,
   getTabElement: (selectedValue: any) => HTMLElement | null,
 ): (newValue: any) => TabActivationDirection {

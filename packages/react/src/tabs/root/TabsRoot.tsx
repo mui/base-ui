@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import type { BaseUIComponentProps, Orientation } from '../../utils/types';
+import type { BaseUIComponentProps, Orientation as BaseOrientation } from '../../utils/types';
 import { useControlled } from '../../utils/useControlled';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { useRenderElement } from '../../utils/useRenderElement';
@@ -189,12 +189,14 @@ export type TabActivationDirection = 'left' | 'right' | 'up' | 'down' | 'none';
 export type TabValue = any | null;
 
 export namespace TabsRoot {
+  export type Orientation = BaseOrientation;
+
   export type State = {
     orientation: Orientation;
     tabActivationDirection: TabActivationDirection;
   };
 
-  export interface Props extends Omit<BaseUIComponentProps<'div', State>, 'defaultValue'> {
+  export interface Props extends BaseUIComponentProps<'div', State> {
     /**
      * The value of the currently selected `Tab`. Use when the component is controlled.
      * When the value is `null`, no Tab will be selected.

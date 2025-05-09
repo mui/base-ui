@@ -4,10 +4,10 @@ import { ownerDocument } from '../../utils/owner';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { useRenderElement } from '../../utils/useRenderElement';
-import type { BaseUIComponentProps, Orientation } from '../../utils/types';
+import type { BaseUIComponentProps } from '../../utils/types';
 import { useButton } from '../../use-button';
 import { useCompositeItem } from '../../composite/item/useCompositeItem';
-import type { TabValue } from '../root/TabsRoot';
+import type { TabsRoot, TabValue } from '../root/TabsRoot';
 import { useTabsRootContext } from '../root/TabsRootContext';
 import { useTabsListContext } from '../list/TabsListContext';
 
@@ -179,7 +179,7 @@ export namespace TabsTab {
      */
     disabled: boolean;
     selected: boolean;
-    orientation: Orientation;
+    orientation: TabsRoot.Orientation;
   }
 
   export interface Props extends BaseUIComponentProps<'button', State> {
