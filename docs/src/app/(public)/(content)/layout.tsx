@@ -25,7 +25,7 @@ export default function Layout({ children }: React.PropsWithChildren) {
         ))}
       </SideNav.Root>
 
-      <main className="ContentLayoutMain">
+      <main className="ContentLayoutMain" id="main-content">
         <QuickNav.Container>{children}</QuickNav.Container>
       </main>
     </div>
