@@ -83,10 +83,12 @@ export const nav = [
       {
         label: 'Input',
         href: '/react/components/input',
+        isNewCorner: true,
       },
       {
         label: 'Menu',
         href: '/react/components/menu',
+        isNewEnd: true,
       },
       {
         label: 'Menubar',
@@ -95,6 +97,7 @@ export const nav = [
       {
         label: 'Meter',
         href: '/react/components/meter',
+        isNew: true,
       },
       {
         label: 'Number Field',
@@ -143,6 +146,7 @@ export const nav = [
       {
         label: 'Toast',
         href: '/react/components/toast',
+        isNew: true,
       },
       {
         label: 'Toggle',
