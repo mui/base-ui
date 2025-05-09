@@ -29,6 +29,7 @@ import {
   type OpenChangeReason,
   translateOpenChangeReason,
 } from '../../utils/translateOpenChangeReason';
+import { ownerDocument } from '../../utils/owner';
 
 const EMPTY_ARRAY: never[] = [];
 
@@ -151,12 +152,20 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
     }
   }, [stickIfOpenTimeout, open]);
 
+  const ignoreClickRef = React.useRef(false);
   const allowTouchToCloseRef = React.useRef(true);
   const allowTouchToCloseTimeoutRef = React.useRef(-1);
 
   const setOpen = useEventCallback(
     (nextOpen: boolean, event: Event | undefined, reason: OpenChangeReason | undefined) => {
       if (open === nextOpen) {
+        return;
+      }
+
+      // As the menu opens on mousedown and closes on click,
+      // we need to ignore the click event immediately following mousedown.
+      if (reason === 'click' && event?.type === 'click' && ignoreClickRef.current) {
+        ignoreClickRef.current = false;
         return;
       }
 
@@ -187,6 +196,20 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
           window.clearTimeout(allowTouchToCloseTimeoutRef.current);
           allowTouchToCloseTimeoutRef.current = -1;
         }
+      }
+
+      if (reason === 'click' && nextOpen && event?.type === 'mousedown') {
+        ignoreClickRef.current = true;
+
+        ownerDocument(event.currentTarget as Element).addEventListener(
+          'click',
+          () => {
+            ignoreClickRef.current = false;
+          },
+          { once: true },
+        );
+      } else {
+        ignoreClickRef.current = false;
       }
 
       const isKeyboardClick =

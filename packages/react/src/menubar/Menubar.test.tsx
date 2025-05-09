@@ -85,11 +85,11 @@ describe('<Menubar />', () => {
 
       const fileTrigger = screen.getByTestId('file-trigger');
 
-      await user.click(fileTrigger);
+      await user.click(fileTrigger, { delay: 30 });
       await screen.findByTestId('file-menu');
 
       // Click again to close the menu
-      await user.click(fileTrigger);
+      await user.click(fileTrigger, { delay: 30 });
       await waitFor(() => {
         expect(screen.queryByTestId('file-menu')).to.equal(null);
       });
