@@ -4,6 +4,7 @@ import * as React from 'react';
 export interface CompositeRootContext {
   highlightedIndex: number;
   onHighlightedIndexChange: (index: number) => void;
+  highlightItemOnHover: boolean;
 }
 
 export const CompositeRootContext = React.createContext<CompositeRootContext | undefined>(

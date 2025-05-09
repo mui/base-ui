@@ -26,7 +26,7 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
 
   const {
     triggerProps: rootTriggerProps,
-    parentContext,
+    parent,
     setTriggerElement,
     allowMouseUpTriggerRef,
     open,
@@ -34,11 +34,11 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
     disabled,
   } = useMenuRootContext();
 
-  if (parentContext === undefined) {
-    throw new Error('Base UI: ItemTrigger must be placed in a nested Menu.');
+  if (parent.type !== 'menu') {
+    throw new Error('Base UI: SubmenuTrigger must be placed in a nested Menu.');
   }
 
-  const { activeIndex, itemProps, setActiveIndex } = parentContext;
+  const { activeIndex, itemProps, setActiveIndex } = parent.context;
   const item = useCompositeListItem();
 
   const highlighted = activeIndex === item.index;
