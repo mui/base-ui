@@ -257,7 +257,7 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
       const amount = getStepAmount(event) ?? DEFAULT_STEP;
 
       // Prevent insertion of text or caret from moving.
-      event.preventDefault();
+      stopEvent(event);
 
       if (event.key === 'ArrowUp') {
         incrementValue(amount, 1, parsedValue, nativeEvent);

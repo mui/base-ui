@@ -3,7 +3,7 @@ import * as React from 'react';
 import { useNumberFieldRootContext } from '../root/NumberFieldRootContext';
 import type { NumberFieldRoot } from '../root/NumberFieldRoot';
 import { useNumberFieldButton } from '../root/useNumberFieldButton';
-import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
+import type { BaseUIComponentProps } from '../../utils/types';
 import { styleHookMapping } from '../utils/styleHooks';
 import { useRenderElement } from '../../utils/useRenderElement';
 

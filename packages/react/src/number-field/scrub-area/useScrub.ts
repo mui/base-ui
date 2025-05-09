@@ -8,8 +8,8 @@ import { ownerDocument, ownerWindow } from '../../utils/owner';
 import { useLatestRef } from '../../utils/useLatestRef';
 import { isWebKit } from '../../utils/detectBrowser';
 import { useEventCallback } from '../../utils/useEventCallback';
-import { HTMLProps } from '../../utils/types';
 import { useNumberFieldRootContext } from '../root/NumberFieldRootContext';
+import type { HTMLProps } from '../../utils/types';
 
 export function useScrub(params: useScrub.Parameters) {
   const { pixelSensitivity, direction, teleportDistance } = params;
@@ -113,7 +113,7 @@ export function useScrub(params: useScrub.Parameters) {
     [setIsScrubbing, updateCursorTransform],
   );
 
-  const props: GenericHTMLProps = React.useMemo(
+  const props: HTMLProps = React.useMemo(
     () => ({
       role: 'presentation',
       style: {
