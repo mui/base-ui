@@ -109,7 +109,6 @@ export function useCheckboxRoot(params: useCheckboxRoot.Parameters): useCheckbox
         {
           id,
           ref: buttonRef,
-          type: 'button',
           role: 'checkbox',
           disabled,
           'aria-checked': indeterminate ? 'mixed' : checked,
