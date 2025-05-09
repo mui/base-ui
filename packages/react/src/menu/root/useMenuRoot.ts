@@ -154,7 +154,7 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
 
   const ignoreClickRef = React.useRef(false);
   const allowTouchToCloseRef = React.useRef(true);
-  const allowTouchToCloseTimeoutRef = React.useRef(-1);
+  const allowTouchToCloseTimeout = useTimeout();
 
   const setOpen = useEventCallback(
     (nextOpen: boolean, event: Event | undefined, reason: OpenChangeReason | undefined) => {
@@ -183,19 +183,12 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
       // Without this guard, the menu will close immediately after opening.
       if (nextOpen && reason === 'focus') {
         allowTouchToCloseRef.current = false;
-        if (allowTouchToCloseTimeoutRef.current !== -1) {
-          window.clearTimeout(allowTouchToCloseTimeoutRef.current);
-        }
-
-        allowTouchToCloseTimeoutRef.current = window.setTimeout(() => {
+        allowTouchToCloseTimeout.start(300, () => {
           allowTouchToCloseRef.current = true;
-        }, 300);
+        });
       } else {
         allowTouchToCloseRef.current = true;
-        if (allowTouchToCloseTimeoutRef.current !== -1) {
-          window.clearTimeout(allowTouchToCloseTimeoutRef.current);
-          allowTouchToCloseTimeoutRef.current = -1;
-        }
+        allowTouchToCloseTimeout.clear();
       }
 
       if (reason === 'click' && nextOpen && event?.type === 'mousedown') {

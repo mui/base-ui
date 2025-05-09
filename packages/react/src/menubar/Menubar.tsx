@@ -8,6 +8,7 @@ import { MenubarContext, useMenubarContext } from './MenubarContext';
 import { useScrollLock } from '../utils';
 import { CompositeRoot } from '../composite/root/CompositeRoot';
 import { useRenderElement } from '../utils/useRenderElement';
+import { AnimationFrame } from '../utils/useAnimationFrame';
 
 /**
  * The container for menus.
@@ -107,7 +108,7 @@ function MenubarContent(props: React.PropsWithChildren<{}>) {
       } else if (rootContext.hasSubmenuOpen) {
         // wait for the next frame to set the state to make sure another menu doesn't open
         // immediately after the previous one is closed
-        requestAnimationFrame(() => {
+        AnimationFrame.request(() => {
           if (openSubmenusRef.current.size === 0) {
             rootContext.setHasSubmenuOpen(false);
           }
