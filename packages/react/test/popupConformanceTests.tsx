@@ -56,8 +56,9 @@ export function popupConformanceTests(config: PopupTestConfig) {
           }
 
           await user.click(trigger);
-
-          expect(getPopup()).not.to.equal(null);
+          await waitFor(() => {
+            expect(getPopup()).not.to.equal(null);
+          });
         });
       });
     }
@@ -91,7 +92,9 @@ export function popupConformanceTests(config: PopupTestConfig) {
             }
             expect(trigger).to.have.attribute('aria-expanded', 'false');
             await user.click(trigger);
-            expect(getPopup()).to.have.attribute('data-open');
+            await waitFor(() => {
+              expect(getPopup()).to.have.attribute('data-open');
+            });
             expect(trigger).to.have.attribute('aria-expanded', 'true');
           });
 

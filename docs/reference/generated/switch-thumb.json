@@ -3,11 +3,11 @@
   "description": "The movable part of the switch that indicates whether the switch is on or off.\nRenders a `<span>`.",
   "props": {
     "className": {
-      "type": "string | ((state: State) => string)",
+      "type": "string | ((state: Switch.Thumb.State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "render": {
-      "type": "ReactElement | ((props: GenericHTMLProps, state: State) => ReactElement)",
+      "type": "ReactElement | ((props: GenericHTMLProps, state: Switch.Thumb.State) => ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
     }
   },

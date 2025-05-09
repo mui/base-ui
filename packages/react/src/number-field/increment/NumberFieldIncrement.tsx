@@ -30,7 +30,7 @@ export const NumberFieldIncrement = React.forwardRef(function NumberFieldIncreme
     incrementValue,
     inputRef,
     inputValue,
-    intentionalTouchCheckTimeoutRef,
+    intentionalTouchCheckTimeout,
     isPressedRef,
     locale,
     maxWithDefault,
@@ -66,7 +66,7 @@ export const NumberFieldIncrement = React.forwardRef(function NumberFieldIncreme
     formatOptionsRef,
     valueRef,
     isPressedRef,
-    intentionalTouchCheckTimeoutRef,
+    intentionalTouchCheckTimeout,
     movesAfterTouchRef,
     locale,
   });

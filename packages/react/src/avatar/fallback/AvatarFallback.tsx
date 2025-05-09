@@ -2,6 +2,7 @@
 import * as React from 'react';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import { useTimeout } from '../../utils/useTimeout';
 import { useAvatarRootContext } from '../root/AvatarRootContext';
 import type { AvatarRoot } from '../root/AvatarRoot';
 import { avatarStyleHookMapping } from '../root/styleHooks';
@@ -20,18 +21,14 @@ export const AvatarFallback = React.forwardRef(function AvatarFallback(
 
   const { imageLoadingStatus } = useAvatarRootContext();
   const [delayPassed, setDelayPassed] = React.useState(delay === undefined);
+  const timeout = useTimeout();
 
   React.useEffect(() => {
-    let timerId: number | undefined;
-
     if (delay !== undefined) {
-      timerId = window.setTimeout(() => setDelayPassed(true), delay);
+      timeout.start(delay, () => setDelayPassed(true));
     }
-
-    return () => {
-      window.clearTimeout(timerId);
-    };
-  }, [delay]);
+    return timeout.clear;
+  }, [timeout, delay]);
 
   const state: AvatarRoot.State = React.useMemo(
     () => ({

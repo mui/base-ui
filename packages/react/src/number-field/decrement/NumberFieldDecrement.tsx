@@ -29,7 +29,7 @@ export const NumberFieldDecrement = React.forwardRef(function NumberFieldDecreme
     incrementValue,
     inputRef,
     inputValue,
-    intentionalTouchCheckTimeoutRef,
+    intentionalTouchCheckTimeout,
     isPressedRef,
     maxWithDefault,
     minWithDefault,
@@ -65,7 +65,7 @@ export const NumberFieldDecrement = React.forwardRef(function NumberFieldDecreme
     formatOptionsRef,
     valueRef,
     isPressedRef,
-    intentionalTouchCheckTimeoutRef,
+    intentionalTouchCheckTimeout,
     movesAfterTouchRef,
     locale,
   });
