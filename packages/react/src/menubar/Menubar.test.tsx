@@ -77,7 +77,7 @@ describe('<Menubar />', () => {
       cleanup();
     });
 
-    it.only('should open the menu after clicking on its trigger and close it when clicking again', async () => {
+    it('should open the menu after clicking on its trigger and close it when clicking again', async () => {
       const { userEvent: user } = await import('@vitest/browser/context');
       const { render: vbrRender } = await import('vitest-browser-react');
 
@@ -163,7 +163,9 @@ describe('<Menubar />', () => {
       const fileTrigger = screen.getByTestId('file-trigger');
       await user.click(fileTrigger);
 
-      expect(screen.getByTestId('file-menu')).to.not.equal(null);
+      await waitFor(() => {
+        expect(screen.getByTestId('file-menu')).to.not.equal(null);
+      });
 
       // Now hover over the share submenu trigger
       const shareTrigger = screen.getByTestId('share-trigger');
