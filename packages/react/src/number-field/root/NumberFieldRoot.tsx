@@ -3,10 +3,10 @@ import * as React from 'react';
 import { NumberFieldRootContext } from './NumberFieldRootContext';
 import { useNumberFieldRoot } from './useNumberFieldRoot';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import type { BaseUIComponentProps } from '../../utils/types';
 import type { FieldRoot } from '../../field/root/FieldRoot';
 import { styleHookMapping } from '../utils/styleHooks';
+import { useRenderElement } from '../../utils/useRenderElement';
 
 /**
  * Groups all parts of the number field and manages its state.
@@ -15,7 +15,7 @@ import { styleHookMapping } from '../utils/styleHooks';
  * Documentation: [Base UI Number Field](https://base-ui.com/react/components/number-field)
  */
 export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
-  props: NumberFieldRoot.Props,
+  componentProps: NumberFieldRoot.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const {
@@ -38,10 +38,10 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
     locale,
     render,
     className,
-    ...otherProps
-  } = props;
+    ...elementProps
+  } = componentProps;
 
-  const numberField = useNumberFieldRoot(props);
+  const numberField = useNumberFieldRoot(componentProps);
 
   const { state: fieldState, disabled: fieldDisabled } = useFieldRootContext();
   const disabled = fieldDisabled || disabledProp;
@@ -75,12 +75,10 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
     [numberField, state],
   );
 
-  const { renderElement } = useComponentRenderer({
+  const renderElement = useRenderElement('div', componentProps, {
     ref: forwardedRef,
-    render: render ?? 'div',
     state,
-    className,
-    extraProps: otherProps,
+    props: elementProps,
     customStyleHookMapping: styleHookMapping,
   });
 
