@@ -4,12 +4,22 @@ import { beforeAll, afterAll } from 'vitest';
 import chai from 'chai';
 import chaiDom from 'chai-dom';
 import chaiPlugin from '@mui/internal-test-utils/chaiPlugin';
+import { configure as configureRtl, prettyDOM } from '@testing-library/react';
 
 declare global {
   var before: typeof beforeAll;
   var after: typeof afterAll;
   var BASE_UI_ANIMATIONS_DISABLED: boolean;
 }
+
+configureRtl({
+  getElementError: (message: string | null, container: Element) => {
+    if (message == null) {
+      return new Error(prettyDOM(container) || '');
+    }
+    return new Error(message ?? '');
+  },
+});
 
 chai.use(chaiDom);
 chai.use(chaiPlugin);
