@@ -1,0 +1,20 @@
+{
+  "name": "NavigationMenuItem",
+  "description": "An individual navigation menu item.\nRenders a `<div>` element.",
+  "props": {
+    "value": {
+      "type": "any",
+      "description": "A unique value that identifies this navigation menu item.\nIf no value is provided, a unique ID will be generated automatically.\nUse when controlling the navigation menu programmatically."
+    },
+    "className": {
+      "type": "string | ((state: State) => string)",
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
+    },
+    "render": {
+      "type": "ReactElement | ((props: GenericHTMLProps, state: State) => ReactElement)",
+      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
+    }
+  },
+  "dataAttributes": {},
+  "cssVariables": {}
+}
