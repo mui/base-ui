@@ -164,7 +164,7 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
 
       // As the menu opens on mousedown and closes on click,
       // we need to ignore the click event immediately following mousedown.
-      if (event?.type === 'click' && ignoreClickRef.current) {
+      if (reason === 'click' && event?.type === 'click' && ignoreClickRef.current) {
         ignoreClickRef.current = false;
         return;
       }
