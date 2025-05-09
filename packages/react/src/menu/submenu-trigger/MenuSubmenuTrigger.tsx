@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useFloatingTree } from '@floating-ui/react';
-import { BaseUIComponentProps, GenericHTMLProps } from '../../utils/types';
+import { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
@@ -68,7 +68,7 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
     render: render || 'div',
     className,
     state,
-    propGetter: (externalProps: GenericHTMLProps) =>
+    propGetter: (externalProps: HTMLProps) =>
       mergeProps(rootTriggerProps, itemProps, externalProps, getTriggerProps),
     customStyleHookMapping: triggerOpenStateMapping,
     extraProps: other,

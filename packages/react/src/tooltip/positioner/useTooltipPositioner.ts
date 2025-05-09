@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Side, useAnchorPositioning } from '../../utils/useAnchorPositioning';
-import type { GenericHTMLProps } from '../../utils/types';
+import type { HTMLProps } from '../../utils/types';
 import { useTooltipRootContext } from '../root/TooltipRootContext';
 
 export function useTooltipPositioner(
@@ -10,7 +10,7 @@ export function useTooltipPositioner(
 
   const positioning = useAnchorPositioning(params);
 
-  const props = React.useMemo<GenericHTMLProps>(() => {
+  const props = React.useMemo<HTMLProps>(() => {
     const hiddenStyles: React.CSSProperties = {};
 
     if (!open || trackCursorAxis === 'both') {
@@ -49,6 +49,6 @@ export namespace useTooltipPositioner {
   }
 
   export interface ReturnValue extends useAnchorPositioning.ReturnValue {
-    props: GenericHTMLProps;
+    props: HTMLProps;
   }
 }
