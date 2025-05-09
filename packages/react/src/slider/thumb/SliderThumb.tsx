@@ -16,6 +16,7 @@ import {
   ARROW_LEFT,
   HOME,
   END,
+  COMPOSITE_KEYS,
 } from '../../composite/composite';
 import { useCompositeListItem } from '../../composite/list/useCompositeListItem';
 import { useDirection } from '../../direction-provider/DirectionContext';
@@ -31,7 +32,6 @@ import { SliderThumbDataAttributes } from './SliderThumbDataAttributes';
 const PAGE_UP = 'PageUp';
 const PAGE_DOWN = 'PageDown';
 
-const COMPOSITE_KEYS = [ARROW_UP, ARROW_DOWN, ARROW_LEFT, ARROW_RIGHT, HOME, END];
 const ALL_KEYS = [ARROW_UP, ARROW_DOWN, ARROW_LEFT, ARROW_RIGHT, HOME, END, PAGE_UP, PAGE_DOWN];
 
 function defaultRender(
@@ -226,6 +226,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
         if (COMPOSITE_KEYS.includes(event.key)) {
           event.stopPropagation();
         }
+
         let newValue = null;
         const isRange = sliderValues.length > 1;
         const roundedValue = roundValueToStep(thumbValue, step, min);

@@ -4,7 +4,7 @@ import { useNumberFieldRootContext } from '../root/NumberFieldRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import type { NumberFieldRoot } from '../root/NumberFieldRoot';
 import { useNumberFieldButton } from '../root/useNumberFieldButton';
-import { BaseUIComponentProps, GenericHTMLProps } from '../../utils/types';
+import { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import { styleHookMapping } from '../utils/styleHooks';
 
 /**
@@ -67,7 +67,7 @@ export const NumberFieldDecrement = React.forwardRef(function NumberFieldDecreme
   });
 
   const propGetter = React.useCallback(
-    (externalProps: GenericHTMLProps) => getCommonButtonProps(false, externalProps),
+    (externalProps: HTMLProps) => getCommonButtonProps(false, externalProps),
     [getCommonButtonProps],
   );
 

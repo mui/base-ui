@@ -33,6 +33,7 @@ export const VERTICAL_KEYS = [ARROW_UP, ARROW_DOWN];
 export const VERTICAL_KEYS_WITH_EXTRA_KEYS = [ARROW_UP, ARROW_DOWN, HOME, END];
 export const ARROW_KEYS = [...HORIZONTAL_KEYS, ...VERTICAL_KEYS];
 export const ALL_KEYS = [...ARROW_KEYS, HOME, END];
+export const COMPOSITE_KEYS = [ARROW_UP, ARROW_DOWN, ARROW_LEFT, ARROW_RIGHT, HOME, END];
 
 export const SHIFT = 'Shift' as const;
 export const CONTROL = 'Control' as const;

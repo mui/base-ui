@@ -25,7 +25,7 @@
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "render": {
-      "type": "ReactElement | ((props: GenericHTMLProps, state: Collapsible.Root.State) => ReactElement) | null"
+      "type": "ReactElement | ((props: HTMLProps, state: Collapsible.Root.State) => ReactElement) | null"
     }
   },
   "dataAttributes": {},

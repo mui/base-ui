@@ -3,7 +3,7 @@ import * as React from 'react';
 import { FloatingEvents } from '@floating-ui/react';
 import { useButton } from '../../use-button';
 import { mergeProps } from '../../merge-props';
-import { GenericHTMLProps, BaseUIEvent } from '../../utils/types';
+import { HTMLProps, BaseUIEvent } from '../../utils/types';
 import { useForkRef } from '../../utils/useForkRef';
 import { useModernLayoutEffect } from '../../utils';
 import { addHighlight, removeHighlight } from '../../utils/highlighted';
@@ -37,7 +37,7 @@ export function useMenuItem(params: useMenuItem.Parameters): useMenuItem.ReturnV
   }, [highlighted]);
 
   const getItemProps = React.useCallback(
-    (externalProps?: GenericHTMLProps): GenericHTMLProps => {
+    (externalProps?: HTMLProps): HTMLProps => {
       return mergeProps(
         {
           id,
@@ -120,7 +120,7 @@ export namespace useMenuItem {
      * @param externalProps event handlers for the root slot
      * @returns props that should be spread on the root slot
      */
-    getItemProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
+    getItemProps: (externalProps?: HTMLProps) => HTMLProps;
     /**
      * The ref to the component's root DOM element.
      */

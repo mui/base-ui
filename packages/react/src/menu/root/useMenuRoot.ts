@@ -16,7 +16,7 @@ import {
 import { useClick } from '../../utils/floating-ui/useClick';
 import { MenuRootContext, useMenuRootContext } from './MenuRootContext';
 import { MenubarContext, useMenubarContext } from '../../menubar/MenubarContext';
-import { GenericHTMLProps } from '../../utils/types';
+import { HTMLProps } from '../../utils/types';
 import { useTimeout } from '../../utils/useTimeout';
 import { useTransitionStatus, type TransitionStatus } from '../../utils/useTransitionStatus';
 import { useEventCallback } from '../../utils/useEventCallback';
@@ -478,9 +478,9 @@ export namespace useMenuRoot {
   export interface ReturnValue {
     activeIndex: number | null;
     floatingRootContext: FloatingRootContext;
-    itemProps: GenericHTMLProps;
-    popupProps: GenericHTMLProps;
-    triggerProps: GenericHTMLProps;
+    itemProps: HTMLProps;
+    popupProps: HTMLProps;
+    triggerProps: HTMLProps;
     itemDomElements: React.MutableRefObject<(HTMLElement | null)[]>;
     itemLabels: React.MutableRefObject<(string | null)[]>;
     mounted: boolean;

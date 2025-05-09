@@ -6,6 +6,8 @@ import {
   DirectionProvider,
   type TextDirection,
 } from '@base-ui-components/react/direction-provider';
+import { Popover } from '@base-ui-components/react/popover';
+import { Dialog } from '@base-ui-components/react/dialog';
 import { Tabs } from '@base-ui-components/react/tabs';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 
@@ -1060,6 +1062,86 @@ describe('<Tabs.Root />', () => {
       });
 
       expect(root).to.have.attribute('data-activation-direction', 'up');
+    });
+  });
+
+  describe('popups', () => {
+    it('works inside Popover', async () => {
+      function ExamplePopover() {
+        return (
+          <Popover.Root>
+            <Popover.Trigger>Open</Popover.Trigger>
+            <Popover.Portal>
+              <Popover.Positioner sideOffset={8}>
+                <Popover.Popup>
+                  <Tabs.Root defaultValue="overview">
+                    <Tabs.List>
+                      <Tabs.Tab value="overview">Overview</Tabs.Tab>
+                      <Tabs.Tab value="projects">Projects</Tabs.Tab>
+                      <Tabs.Tab value="account">Account</Tabs.Tab>
+                    </Tabs.List>
+                    <Tabs.Panel value="overview" />
+                    <Tabs.Panel value="projects" />
+                    <Tabs.Panel value="account" />
+                  </Tabs.Root>
+                </Popover.Popup>
+              </Popover.Positioner>
+            </Popover.Portal>
+          </Popover.Root>
+        );
+      }
+
+      const { user } = await render(<ExamplePopover />);
+
+      const trigger = screen.getByRole('button', { name: 'Open' });
+
+      await user.click(trigger);
+
+      const tab1 = screen.getByRole('tab', { name: 'Overview' });
+      expect(tab1).toHaveFocus();
+
+      await user.keyboard('{ArrowRight}');
+
+      const tab2 = screen.getByRole('tab', { name: 'Projects' });
+      expect(tab2).toHaveFocus();
+    });
+
+    it('works inside Dialog', async () => {
+      function ExampleDialog() {
+        return (
+          <Dialog.Root>
+            <Dialog.Trigger>Open</Dialog.Trigger>
+            <Dialog.Portal>
+              <Dialog.Popup>
+                <Tabs.Root defaultValue="overview">
+                  <Tabs.List>
+                    <Tabs.Tab value="overview">Overview</Tabs.Tab>
+                    <Tabs.Tab value="projects">Projects</Tabs.Tab>
+                    <Tabs.Tab value="account">Account</Tabs.Tab>
+                  </Tabs.List>
+                  <Tabs.Panel value="overview" />
+                  <Tabs.Panel value="projects" />
+                  <Tabs.Panel value="account" />
+                </Tabs.Root>
+              </Dialog.Popup>
+            </Dialog.Portal>
+          </Dialog.Root>
+        );
+      }
+
+      const { user } = await render(<ExampleDialog />);
+
+      const trigger = screen.getByRole('button', { name: 'Open' });
+
+      await user.click(trigger);
+
+      const tab1 = screen.getByRole('tab', { name: 'Overview' });
+      expect(tab1).toHaveFocus();
+
+      await user.keyboard('{ArrowRight}');
+
+      const tab2 = screen.getByRole('tab', { name: 'Projects' });
+      expect(tab2).toHaveFocus();
     });
   });
 });

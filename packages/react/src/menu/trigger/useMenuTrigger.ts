@@ -3,7 +3,7 @@ import * as React from 'react';
 import { contains } from '@floating-ui/react/utils';
 import { useButton } from '../../use-button/useButton';
 import { useForkRef } from '../../utils/useForkRef';
-import { GenericHTMLProps } from '../../utils/types';
+import { HTMLProps } from '../../utils/types';
 import { useTimeout } from '../../utils/useTimeout';
 import { mergeProps } from '../../merge-props';
 import { ownerDocument } from '../../utils/owner';
@@ -84,7 +84,7 @@ export function useMenuTrigger(parameters: useMenuTrigger.Parameters): useMenuTr
   }, [open, handleMouseUp, lastOpenChangeReason]);
 
   const getTriggerProps = React.useCallback(
-    (externalProps?: GenericHTMLProps): GenericHTMLProps => {
+    (externalProps?: HTMLProps): HTMLProps => {
       return mergeProps(
         {
           'aria-haspopup': 'menu' as const,
@@ -167,7 +167,7 @@ export namespace useMenuTrigger {
      * @param externalProps props for the root slot
      * @returns props that should be spread on the root slot
      */
-    getTriggerProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
+    getTriggerProps: (externalProps?: HTMLProps) => HTMLProps;
     /**
      * The ref to the trigger element.
      */

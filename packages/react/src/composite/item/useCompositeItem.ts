@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { useCompositeRootContext } from '../root/CompositeRootContext';
 import { useCompositeListItem } from '../list/useCompositeListItem';
-import { GenericHTMLProps } from '../../utils/types';
+import { HTMLProps } from '../../utils/types';
 import { useForkRef } from '../../utils';
 
 export interface UseCompositeItemParameters<Metadata> {
@@ -18,7 +18,7 @@ export function useCompositeItem<Metadata>(params: UseCompositeItemParameters<Me
   const itemRef = React.useRef<HTMLElement | null>(null);
   const mergedRef = useForkRef(ref, itemRef);
 
-  const props = React.useMemo<GenericHTMLProps>(
+  const props = React.useMemo<HTMLProps>(
     () => ({
       tabIndex: isHighlighted ? 0 : -1,
       onFocus() {
