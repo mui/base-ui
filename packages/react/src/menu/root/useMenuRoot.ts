@@ -29,7 +29,6 @@ import {
   type OpenChangeReason,
   translateOpenChangeReason,
 } from '../../utils/translateOpenChangeReason';
-import { ownerDocument } from '../../utils/owner';
 
 const EMPTY_ARRAY: never[] = [];
 
