@@ -113,7 +113,7 @@ export function useClick(context: FloatingRootContext, props: UseClickProps = {}
         pointerTypeRef.current = undefined;
       },
     }),
-    [dataRef, eventOption, ignoreMouse, onOpenChange, open, stickIfOpen, toggle],
+    [dataRef, eventOption, ignoreMouse, onOpenChange, open, stickIfOpen, toggle, frame],
   );
 
   return React.useMemo(() => (enabled ? { reference } : EMPTY_OBJECT), [enabled, reference]);
