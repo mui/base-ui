@@ -435,8 +435,10 @@ describe('<Menu.Root />', () => {
         ['horizontal', 'rtl', 'ArrowDown', 'ArrowUp'],
       ] as const
     ).forEach(([orientation, direction, openKey, closeKey]) => {
-      it(`opens a nested menu of a ${orientation} ${direction.toUpperCase()} menu with ${openKey} key and closes it with ${closeKey}`, async () => {
-        const { getByTestId, queryByTestId } = await render(
+      it.skipIf(isJSDOM)(
+        `opens a nested menu of a ${orientation} ${direction.toUpperCase()} menu with ${openKey} key and closes it with ${closeKey}`,
+        async () => {
+          await render(
           <DirectionProvider direction={direction}>
             <Menu.Root open orientation={orientation}>
               <Menu.Portal>
@@ -461,18 +463,22 @@ describe('<Menu.Root />', () => {
           </DirectionProvider>,
         );
 
-        const submenuTrigger = getByTestId('submenu-trigger');
+          const submenuTrigger = screen.getByTestId('submenu-trigger');
 
         await act(async () => {
           submenuTrigger.focus();
         });
 
+          // This check fails in JSDOM
+          await waitFor(() => {
+            expect(submenuTrigger).toHaveFocus();
+          });
+
         await user.keyboard(`[${openKey}]`);
 
-        let submenu = queryByTestId('submenu');
-        expect(submenu).not.to.equal(null);
+          let submenu: HTMLElement | null = await screen.findByTestId('submenu');
 
-        const submenuItem1 = queryByTestId('submenu-item-1');
+          const submenuItem1 = screen.queryByTestId('submenu-item-1');
         expect(submenuItem1).not.to.equal(null);
         await waitFor(() => {
           expect(submenuItem1).toHaveFocus();
@@ -480,11 +486,12 @@ describe('<Menu.Root />', () => {
 
         await user.keyboard(`[${closeKey}]`);
 
-        submenu = queryByTestId('submenu');
+          submenu = screen.queryByTestId('submenu');
         expect(submenu).to.equal(null);
 
         expect(submenuTrigger).toHaveFocus();
-      });
+        },
+      );
     });
 
     it('opens submenu on click when openOnHover is false', async () => {

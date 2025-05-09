@@ -199,7 +199,7 @@ describe('<Menubar />', () => {
     });
   });
 
-  describe.skipIf(!isJSDOM)('keyboard interactions', () => {
+  describe('keyboard interactions', () => {
     it('should navigate between menubar items with arrow keys', async () => {
       const { user } = await render(<TestMenubar />);
 
@@ -319,7 +319,7 @@ describe('<Menubar />', () => {
       expect(submenuItem).toHaveFocus();
     });
 
-    it('should close the menu with Escape key', async () => {
+    it.skipIf(isJSDOM)('should close the menu with Escape key', async () => {
       const { user } = await render(<TestMenubar />);
       const fileTrigger = screen.getByTestId('file-trigger');
 
@@ -388,32 +388,36 @@ describe('<Menubar />', () => {
       expect(shareTrigger).toHaveFocus();
     });
 
-    it('should navigate between menus using left/right arrow keys when menus are open', async () => {
-      const { user } = await render(<TestMenubar />);
-      const fileTrigger = screen.getByTestId('file-trigger');
+    // Doesn't work in headless mode.
+    it.skipIf(!isJSDOM)(
+      'should navigate between menus using left/right arrow keys when menus are open',
+      async () => {
+        const { user } = await render(<TestMenubar />);
+        const fileTrigger = screen.getByTestId('file-trigger');
 
-      // Focus and open file menu
-      await act(async () => {
-        fileTrigger.focus();
-      });
-      await user.keyboard('{Enter}');
+        // Focus and open file menu
+        await act(async () => {
+          fileTrigger.focus();
+        });
+        await user.keyboard('{Enter}');
 
-      // File menu should be open
-      await waitFor(() => {
-        expect(screen.queryByTestId('file-menu')).to.not.equal(null);
-      });
+        // File menu should be open
+        await waitFor(() => {
+          expect(screen.queryByTestId('file-menu')).to.not.equal(null);
+        });
 
-      // Navigate right to edit menu
-      await user.keyboard('{ArrowRight}');
+        // Navigate right to edit menu
+        await user.keyboard('{ArrowRight}');
 
-      // File menu should close, edit menu should open
-      await waitFor(() => {
-        expect(screen.queryByTestId('file-menu')).to.equal(null);
-      });
-      await waitFor(() => {
-        expect(screen.queryByTestId('edit-menu')).to.not.equal(null);
-      });
-    });
+        // File menu should close, edit menu should open
+        await waitFor(() => {
+          expect(screen.queryByTestId('file-menu')).to.equal(null);
+        });
+        await waitFor(() => {
+          expect(screen.queryByTestId('edit-menu')).to.not.equal(null);
+        });
+      },
+    );
   });
 
   describe.skipIf(!isJSDOM)('mixed mouse and keyboard interactions', () => {
