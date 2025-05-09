@@ -10,6 +10,7 @@ import { SelectPositionerContext } from './SelectPositionerContext';
 import { InternalBackdrop } from '../../utils/InternalBackdrop';
 import { inertValue } from '../../utils/inertValue';
 import { useRenderElement } from '../../utils/useRenderElement';
+import { DEFAULT_COLLISION_AVOIDANCE } from '../../utils/constants';
 
 /**
  * Positions the select menu popup.
@@ -36,6 +37,7 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
     sticky = false,
     trackAnchor = true,
     alignItemWithTrigger = true,
+    collisionAvoidance = DEFAULT_COLLISION_AVOIDANCE,
     ...elementProps
   } = componentProps;
 
@@ -88,6 +90,7 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
     sticky,
     trackAnchor,
     alignItemWithTriggerActive,
+    collisionAvoidance,
     keepMounted: true,
   });
 
