@@ -121,9 +121,6 @@ importers:
       babel-loader:
         specifier: ^10.0.0
         version: 10.0.0(@babel/core@7.27.1)(webpack@5.99.7)
-      babel-plugin-add-import-extension:
-        specifier: 1.6.0
-        version: 1.6.0(@babel/core@7.27.1)
       babel-plugin-macros:
         specifier: ^3.1.0
         version: 3.1.0
@@ -3878,11 +3875,6 @@ packages:
     peerDependencies:
       '@babel/core': ^7.27.1
       webpack: '>=5.61.0'
-
-  babel-plugin-add-import-extension@1.6.0:
-    resolution: {integrity: sha512-JVSQPMzNzN/S4wPRoKQ7+u8PlkV//BPUMnfWVbr63zcE+6yHdU2Mblz10Vf7qe+6Rmu4svF5jG7JxdcPi9VvKg==}
-    peerDependencies:
-      '@babel/core': ^7.27.1
 
   babel-plugin-macros@3.1.0:
     resolution: {integrity: sha512-Cg7TFGpIr01vOQNODXOOaGz2NpCU5gl8x1qJFbb6hbZxR7XrcE2vtbAsTAbJ7/xwJtUuJEw8K8Zr/AE0LHlesg==}
@@ -13177,11 +13169,6 @@ snapshots:
       '@babel/core': 7.27.1
       find-up: 5.0.0
       webpack: 5.99.7(webpack-cli@6.0.1(webpack-bundle-analyzer@4.10.2)(webpack@5.99.7))
-
-  babel-plugin-add-import-extension@1.6.0(@babel/core@7.27.1):
-    dependencies:
-      '@babel/core': 7.27.1
-      '@babel/helper-plugin-utils': 7.27.1
 
   babel-plugin-macros@3.1.0:
     dependencies:
