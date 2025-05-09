@@ -856,7 +856,11 @@ describe('<Menu.Root />', () => {
       );
 
       const trigger = screen.getByRole('button', { name: 'Open' });
-      await user.click(trigger);
+      await act(() => {
+        trigger.focus();
+      });
+
+      await user.keyboard('{Enter}');
 
       await waitFor(() => {
         expect(screen.queryByRole('menu')).not.to.equal(null);
@@ -872,6 +876,7 @@ describe('<Menu.Root />', () => {
         await new Promise((resolve) => {
           requestAnimationFrame(resolve);
         });
+
         actionsRef.current.unmount();
       });
 

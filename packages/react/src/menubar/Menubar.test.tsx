@@ -2,6 +2,7 @@ import * as React from 'react';
 import { expect } from 'chai';
 import { act, screen, waitFor } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
+import { afterEach } from 'vitest';
 import { Menubar } from '@base-ui-components/react/menubar';
 import { Menu } from '@base-ui-components/react/menu';
 
@@ -71,31 +72,39 @@ describe('<Menubar />', () => {
   }));
 
   describe.skipIf(isJSDOM)('click interactions', () => {
-    it('should open the menu after clicking on its trigger and close it when clicking again', async () => {
+    afterEach(async () => {
+      const { cleanup } = await import('vitest-browser-react');
+      cleanup();
+    });
+
+    it.only('should open the menu after clicking on its trigger and close it when clicking again', async () => {
       const { userEvent: user } = await import('@vitest/browser/context');
-      const { render: vbrRender, cleanup } = await import('vitest-browser-react');
+      const { render: vbrRender } = await import('vitest-browser-react');
 
       vbrRender(<TestMenubar />);
 
       const fileTrigger = screen.getByTestId('file-trigger');
 
       await user.click(fileTrigger);
-      expect(screen.getByTestId('file-menu')).to.not.equal(null);
+      await screen.findByTestId('file-menu');
 
       // Click again to close the menu
       await user.click(fileTrigger);
       await waitFor(() => {
         expect(screen.queryByTestId('file-menu')).to.equal(null);
       });
-
-      cleanup();
     });
   });
 
   describe.skipIf(isJSDOM)('hover behavior', async () => {
+    afterEach(async () => {
+      const { cleanup } = await import('vitest-browser-react');
+      cleanup();
+    });
+
     it('should not open submenus on hover when no submenu is already open', async () => {
       const { userEvent: user } = await import('@vitest/browser/context');
-      const { render: vbrRender, cleanup } = await import('vitest-browser-react');
+      const { render: vbrRender } = await import('vitest-browser-react');
 
       vbrRender(<TestMenubar />);
 
@@ -105,13 +114,11 @@ describe('<Menubar />', () => {
 
       // The file menu should not be open because no submenu is already open
       expect(screen.queryByTestId('file-menu')).to.equal(null);
-
-      cleanup();
     });
 
     it('should open submenus on hover when another submenu is already open', async () => {
       const { userEvent: user } = await import('@vitest/browser/context');
-      const { render: vbrRender, cleanup } = await import('vitest-browser-react');
+      const { render: vbrRender } = await import('vitest-browser-react');
 
       vbrRender(<TestMenubar />);
 
@@ -119,7 +126,7 @@ describe('<Menubar />', () => {
       const fileTrigger = screen.getByTestId('file-trigger');
       await user.click(fileTrigger);
 
-      expect(screen.getByTestId('file-menu')).to.not.equal(null);
+      await screen.findByTestId('file-menu');
 
       // Now hover over the edit trigger, it should open because a submenu is already open
       const editTrigger = screen.queryByTestId('edit-trigger');
@@ -144,13 +151,11 @@ describe('<Menubar />', () => {
 
       // The edit menu should now be closed
       expect(screen.queryByTestId('edit-menu')).to.equal(null);
-
-      cleanup();
     });
 
     it('should open nested submenus on hover when parent menu is open', async () => {
       const { userEvent: user } = await import('@vitest/browser/context');
-      const { render: vbrRender, cleanup } = await import('vitest-browser-react');
+      const { render: vbrRender } = await import('vitest-browser-react');
 
       vbrRender(<TestMenubar />);
 
@@ -168,8 +173,6 @@ describe('<Menubar />', () => {
       await waitFor(() => {
         expect(screen.queryByTestId('share-menu')).to.not.equal(null);
       });
-
-      cleanup();
     });
   });
 
