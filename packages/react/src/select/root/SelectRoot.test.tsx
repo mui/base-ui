@@ -262,7 +262,9 @@ describe('<Select.Root />', () => {
       const trigger = screen.getByTestId('trigger');
 
       await user.click(trigger);
-      expect(handleOpenChange.callCount).to.equal(1);
+      await waitFor(() => {
+        expect(handleOpenChange.callCount).to.equal(1);
+      });
       expect(handleOpenChange.args[0][0]).to.equal(true);
     });
   });
@@ -396,7 +398,12 @@ describe('<Select.Root />', () => {
         expect(screen.queryByRole('listbox')).not.to.equal(null);
       });
 
-      await act(async () => actionsRef.current.unmount());
+      await act(async () => {
+        await new Promise((resolve) => {
+          requestAnimationFrame(resolve);
+        });
+        actionsRef.current.unmount();
+      });
 
       await waitFor(() => {
         expect(screen.queryByRole('listbox')).to.equal(null);
@@ -670,7 +677,9 @@ describe('<Select.Root />', () => {
       expect(trigger).toHaveFocus();
 
       await user.click(trigger);
-      expect(handleOpenChange.callCount).to.equal(1);
+      await waitFor(() => {
+        expect(handleOpenChange.callCount).to.equal(1);
+      });
     });
   });
 
