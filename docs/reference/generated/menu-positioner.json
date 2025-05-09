@@ -3,7 +3,7 @@
   "description": "Positions the menu popup against the trigger.\nRenders a `<div>` element.",
   "props": {
     "align": {
-      "type": "'center' | 'end' | 'start'",
+      "type": "'center' | 'start' | 'end'",
       "default": "'center'",
       "description": "How to align the popup relative to the specified side."
     },
