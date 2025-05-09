@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { mergeProps } from '../../merge-props';
-import { GenericHTMLProps, Orientation } from '../../utils/types';
+import { HTMLProps, Orientation } from '../../utils/types';
 import type { CompositeMetadata } from '../../composite/list/CompositeList';
 import type { ToolbarItemMetadata } from './ToolbarRoot';
 
@@ -61,7 +61,7 @@ export namespace useToolbarRoot {
      * @param externalProps additional props for Toolbar.Root
      * @returns props that should be spread on Toolbar.Root
      */
-    getRootProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
+    getRootProps: (externalProps?: HTMLProps) => HTMLProps;
     disabledIndices: number[];
     setItemMap: React.Dispatch<
       React.SetStateAction<Map<Node, CompositeMetadata<ToolbarItemMetadata> | null>>

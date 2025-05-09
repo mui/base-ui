@@ -2,7 +2,7 @@
 import * as React from 'react';
 import type { FloatingRootContext } from '@floating-ui/react';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
-import type { GenericHTMLProps } from '../../utils/types';
+import type { HTMLProps } from '../../utils/types';
 import type { InteractionType } from '../../utils/useEnhancedClickHandler';
 import type { OpenChangeReason } from '../../utils/translateOpenChangeReason';
 
@@ -25,8 +25,8 @@ export interface PopoverRootContext {
   descriptionId: string | undefined;
   setDescriptionId: React.Dispatch<React.SetStateAction<string | undefined>>;
   floatingRootContext: FloatingRootContext;
-  triggerProps: GenericHTMLProps;
-  popupProps: GenericHTMLProps;
+  triggerProps: HTMLProps;
+  popupProps: HTMLProps;
   openMethod: InteractionType | null;
   openReason: OpenChangeReason | null;
   onOpenChangeComplete: ((open: boolean) => void) | undefined;

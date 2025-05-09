@@ -5,7 +5,7 @@ import { useControlled } from '../utils/useControlled';
 import { useEventCallback } from '../utils/useEventCallback';
 import { useCheckboxGroupParent } from './useCheckboxGroupParent';
 import { useFieldRootContext } from '../field/root/FieldRootContext';
-import type { GenericHTMLProps } from '../utils/types';
+import type { HTMLProps } from '../utils/types';
 
 export function useCheckboxGroup(
   params: useCheckboxGroup.Parameters,
@@ -64,7 +64,7 @@ export namespace useCheckboxGroup {
   }
 
   export interface ReturnValue {
-    getRootProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
+    getRootProps: (externalProps?: HTMLProps) => HTMLProps;
     value: string[];
     setValue: (value: string[], event: Event) => void;
     parent: useCheckboxGroupParent.ReturnValue;

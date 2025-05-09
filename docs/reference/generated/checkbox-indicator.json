@@ -3,7 +3,7 @@
   "description": "Indicates whether the checkbox is ticked.\nRenders a `<span>` element.",
   "props": {
     "className": {
-      "type": "string | ((state: State) => string)",
+      "type": "string | ((state: Checkbox.Indicator.State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "keepMounted": {
@@ -12,7 +12,7 @@
       "description": "Whether to keep the element in the DOM when the checkbox is not checked."
     },
     "render": {
-      "type": "ReactElement | ((props: GenericHTMLProps, state: State) => ReactElement)",
+      "type": "ReactElement | ((props: HTMLProps, state: Checkbox.Indicator.State) => ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
     }
   },

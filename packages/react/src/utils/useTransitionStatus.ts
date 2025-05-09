@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useModernLayoutEffect } from './useModernLayoutEffect';
+import { AnimationFrame } from './useAnimationFrame';
 
 export type TransitionStatus = 'starting' | 'ending' | 'idle' | undefined;
 
@@ -35,12 +36,12 @@ export function useTransitionStatus(open: boolean) {
       setTransitionStatus('starting');
     }
 
-    const frame = requestAnimationFrame(() => {
+    const frame = AnimationFrame.request(() => {
       setTransitionStatus('idle');
     });
 
     return () => {
-      cancelAnimationFrame(frame);
+      AnimationFrame.cancel(frame);
     };
   }, [open, mounted, setTransitionStatus, transitionStatus]);
 

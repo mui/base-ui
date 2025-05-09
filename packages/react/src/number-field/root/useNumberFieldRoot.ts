@@ -6,6 +6,8 @@ import { PERCENTAGES, getNumberLocaleDetails } from '../utils/parse';
 import { CHANGE_VALUE_TICK_DELAY, DEFAULT_STEP, START_AUTO_CHANGE_DELAY } from '../utils/constants';
 import { isIOS } from '../../utils/detectBrowser';
 import { ownerDocument, ownerWindow } from '../../utils/owner';
+import { useTimeout, Timeout } from '../../utils/useTimeout';
+import { useInterval } from '../../utils/useInterval';
 import { useControlled } from '../../utils/useControlled';
 import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { useEventCallback } from '../../utils/useEventCallback';
@@ -89,9 +91,9 @@ export function useNumberFieldRoot(
   const formatOptionsRef = useLatestRef(format);
   const onValueChange = useEventCallback(onValueChangeProp);
 
-  const startTickTimeoutRef = React.useRef(-1);
-  const tickIntervalRef = React.useRef(-1);
-  const intentionalTouchCheckTimeoutRef = React.useRef(-1);
+  const startTickTimeout = useTimeout();
+  const tickInterval = useInterval();
+  const intentionalTouchCheckTimeout = useTimeout();
   const isPressedRef = React.useRef(false);
   const movesAfterTouchRef = React.useRef(0);
   const allowInputSyncRef = React.useRef(true);
@@ -177,9 +179,9 @@ export function useNumberFieldRoot(
   );
 
   const stopAutoChange = useEventCallback(() => {
-    window.clearTimeout(intentionalTouchCheckTimeoutRef.current);
-    window.clearTimeout(startTickTimeoutRef.current);
-    window.clearInterval(tickIntervalRef.current);
+    intentionalTouchCheckTimeout.clear();
+    startTickTimeout.clear();
+    tickInterval.clear();
     unsubscribeFromGlobalContextMenuRef.current();
     movesAfterTouchRef.current = 0;
   });
@@ -221,9 +223,9 @@ export function useNumberFieldRoot(
 
       tick();
 
-      startTickTimeoutRef.current = window.setTimeout(() => {
-        tickIntervalRef.current = window.setInterval(tick, CHANGE_VALUE_TICK_DELAY);
-      }, START_AUTO_CHANGE_DELAY);
+      startTickTimeout.start(START_AUTO_CHANGE_DELAY, () => {
+        tickInterval.start(CHANGE_VALUE_TICK_DELAY, tick);
+      });
     },
   );
 
@@ -329,7 +331,7 @@ export function useNumberFieldRoot(
       formatOptionsRef,
       valueRef,
       isPressedRef,
-      intentionalTouchCheckTimeoutRef,
+      intentionalTouchCheckTimeout,
       movesAfterTouchRef,
       name,
       required,
@@ -361,7 +363,7 @@ export function useNumberFieldRoot(
       formatOptionsRef,
       valueRef,
       isPressedRef,
-      intentionalTouchCheckTimeoutRef,
+      intentionalTouchCheckTimeout,
       movesAfterTouchRef,
       name,
       required,
@@ -496,7 +498,7 @@ export namespace useNumberFieldRoot {
     formatOptionsRef: React.RefObject<Intl.NumberFormatOptions | undefined>;
     valueRef: React.RefObject<number | null>;
     isPressedRef: React.RefObject<boolean | null>;
-    intentionalTouchCheckTimeoutRef: React.RefObject<number | null>;
+    intentionalTouchCheckTimeout: Timeout;
     movesAfterTouchRef: React.RefObject<number | null>;
     name: string | undefined;
     required: boolean;

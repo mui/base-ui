@@ -1,5 +1,5 @@
 import * as React from 'react';
-import type { GenericHTMLProps } from '../../utils/types';
+import type { HTMLProps } from '../../utils/types';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
 import type { InteractionType } from '../../utils/useEnhancedClickHandler';
 
@@ -8,7 +8,7 @@ export function usePopoverPopup(params: usePopoverPopup.Parameters): usePopoverP
 
   const { popupRef, openMethod } = usePopoverRootContext();
 
-  const props = React.useMemo<GenericHTMLProps>(
+  const props = React.useMemo<HTMLProps>(
     () => ({
       'aria-labelledby': titleId,
       'aria-describedby': descriptionId,
@@ -62,7 +62,7 @@ export namespace usePopoverPopup {
   }
 
   export interface ReturnValue {
-    props: GenericHTMLProps;
+    props: HTMLProps;
     resolvedInitialFocus: React.RefObject<HTMLElement | null> | 0;
   }
 }

@@ -25,11 +25,11 @@
       "description": "The content of the component."
     },
     "className": {
-      "type": "string | ((state: State) => string)",
+      "type": "string | ((state: Menu.RadioGroup.State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "render": {
-      "type": "ReactElement | ((props: GenericHTMLProps, state: State) => ReactElement)",
+      "type": "ReactElement | ((props: HTMLProps, state: Menu.RadioGroup.State) => ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
     }
   },

@@ -3,7 +3,7 @@ import * as React from 'react';
 import { useNumberFieldRootContext } from '../root/NumberFieldRootContext';
 import type { NumberFieldRoot } from '../root/NumberFieldRoot';
 import { useNumberFieldButton } from '../root/useNumberFieldButton';
-import { BaseUIComponentProps } from '../../utils/types';
+import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import { styleHookMapping } from '../utils/styleHooks';
 import { useRenderElement } from '../../utils/useRenderElement';
 
@@ -28,7 +28,7 @@ export const NumberFieldDecrement = React.forwardRef(function NumberFieldDecreme
     incrementValue,
     inputRef,
     inputValue,
-    intentionalTouchCheckTimeoutRef,
+    intentionalTouchCheckTimeout,
     isPressedRef,
     maxWithDefault,
     minWithDefault,
@@ -61,7 +61,7 @@ export const NumberFieldDecrement = React.forwardRef(function NumberFieldDecreme
     formatOptionsRef,
     valueRef,
     isPressedRef,
-    intentionalTouchCheckTimeoutRef,
+    intentionalTouchCheckTimeout,
     movesAfterTouchRef,
     locale,
   });

@@ -49,7 +49,7 @@ describe('<Menu.Trigger />', () => {
   });
 
   it('toggles the menu state when clicked', async () => {
-    const { getByRole, queryByRole } = await render(
+    const { getByRole, findByRole } = await render(
       <Menu.Root>
         <Menu.Trigger>Open</Menu.Trigger>
         <Menu.Portal>
@@ -63,9 +63,8 @@ describe('<Menu.Trigger />', () => {
     const button = getByRole('button', { name: 'Open' });
     await user.click(button);
 
-    const menuPopup = queryByRole('menu', { hidden: false });
+    const menuPopup = await findByRole('menu', { hidden: false });
     expect(menuPopup).not.to.equal(null);
-
     expect(menuPopup).to.have.attribute('data-open', '');
   });
 

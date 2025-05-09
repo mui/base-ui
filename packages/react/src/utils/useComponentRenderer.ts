@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { CustomStyleHookMapping } from './getStyleHookProps';
 import { useRenderElement } from './useRenderElement';
-import type { ComponentRenderFn, GenericHTMLProps } from './types';
+import type { ComponentRenderFn, HTMLProps } from './types';
 
 export interface ComponentRendererSettings<State, RenderedElementType extends Element> {
   /**
@@ -13,7 +13,7 @@ export interface ComponentRendererSettings<State, RenderedElementType extends El
    * The render prop or React element to override the default element.
    */
   render:
-    | ComponentRenderFn<GenericHTMLProps, State>
+    | ComponentRenderFn<HTMLProps, State>
     | React.ReactElement<Record<string, unknown>>
     | keyof React.JSX.IntrinsicElements;
   /**

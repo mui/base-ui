@@ -3,7 +3,7 @@ import * as React from 'react';
 import type { TabsRootContext } from '../root/TabsRootContext';
 import { type TabsOrientation, type TabActivationDirection } from '../root/TabsRoot';
 import { mergeProps } from '../../merge-props';
-import { GenericHTMLProps } from '../../utils/types';
+import { HTMLProps } from '../../utils/types';
 import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { useForkRef } from '../../utils/useForkRef';
 import { useEventCallback } from '../../utils/useEventCallback';
@@ -159,7 +159,7 @@ export namespace useTabsList {
      * @param externalProps additional props for Tabs.TabsList
      * @returns props that should be spread on Tabs.TabsList
      */
-    getRootProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
+    getRootProps: (externalProps?: HTMLProps) => HTMLProps;
     /**
      * Callback when a Tab is activated
      * @param {any | null} newValue The value of the newly activated tab.

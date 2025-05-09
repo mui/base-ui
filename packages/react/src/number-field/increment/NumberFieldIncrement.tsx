@@ -3,7 +3,7 @@ import * as React from 'react';
 import { useNumberFieldRootContext } from '../root/NumberFieldRootContext';
 import { useNumberFieldButton } from '../root/useNumberFieldButton';
 import type { NumberFieldRoot } from '../root/NumberFieldRoot';
-import type { BaseUIComponentProps } from '../../utils/types';
+import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import { styleHookMapping } from '../utils/styleHooks';
 import { useRenderElement } from '../../utils/useRenderElement';
 
@@ -38,7 +38,7 @@ export const NumberFieldIncrement = React.forwardRef(function NumberFieldIncreme
     formatOptionsRef,
     valueRef,
     isPressedRef,
-    intentionalTouchCheckTimeoutRef,
+    intentionalTouchCheckTimeout,
     movesAfterTouchRef,
     locale,
   } = useNumberFieldRootContext();
@@ -61,7 +61,7 @@ export const NumberFieldIncrement = React.forwardRef(function NumberFieldIncreme
     formatOptionsRef,
     valueRef,
     isPressedRef,
-    intentionalTouchCheckTimeoutRef,
+    intentionalTouchCheckTimeout,
     movesAfterTouchRef,
     locale,
   });

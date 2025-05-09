@@ -64,5 +64,5 @@ export function toValidatedNumber(
     }
   }
 
-  return clampedValue;
+  return removeFloatingPointErrors(clampedValue, format);
 }

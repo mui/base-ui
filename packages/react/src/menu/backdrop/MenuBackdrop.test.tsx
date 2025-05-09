@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Menu } from '@base-ui-components/react/menu';
 import { createRenderer, describeConformance } from '#test-utils';
-import { screen } from '@mui/internal-test-utils';
+import { screen, waitFor } from '@mui/internal-test-utils';
 
 describe('<Menu.Backdrop />', () => {
   const { render } = createRenderer();
@@ -46,6 +46,8 @@ describe('<Menu.Backdrop />', () => {
 
     await user.click(screen.getByText('Open'));
 
-    expect(screen.getByTestId('backdrop').style.pointerEvents).not.to.equal('none');
+    await waitFor(() => {
+      expect(screen.getByTestId('backdrop').style.pointerEvents).not.to.equal('none');
+    });
   });
 });

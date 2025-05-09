@@ -1,7 +1,6 @@
 'use client';
 import * as React from 'react';
 import type { BaseUIComponentProps } from '../utils/types';
-import { mergeProps } from '../merge-props';
 import { FormContext } from './FormContext';
 import { useEventCallback } from '../utils/useEventCallback';
 import { useRenderElement } from '../utils/useRenderElement';
@@ -60,7 +59,8 @@ export const Form = React.forwardRef(function Form(
 
   const renderElement = useRenderElement('form', componentProps, {
     state,
-    props: mergeProps<'form'>(
+    ref: forwardedRef,
+    props: [
       {
         noValidate: true,
         onSubmit(event) {
@@ -85,8 +85,7 @@ export const Form = React.forwardRef(function Form(
         },
       },
       elementProps,
-    ),
-    ref: forwardedRef,
+    ],
   });
 
   const clearErrors = useEventCallback((name: string | undefined) => {

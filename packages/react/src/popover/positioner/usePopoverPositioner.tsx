@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useAnchorPositioning } from '../../utils/useAnchorPositioning';
-import type { GenericHTMLProps } from '../../utils/types';
+import type { HTMLProps } from '../../utils/types';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
 
 export function usePopoverPositioner(
@@ -10,7 +10,7 @@ export function usePopoverPositioner(
 
   const positioning = useAnchorPositioning(params);
 
-  const props = React.useMemo<GenericHTMLProps>(() => {
+  const props = React.useMemo<HTMLProps>(() => {
     const hiddenStyles: React.CSSProperties = {};
 
     if (!open) {
@@ -42,6 +42,6 @@ export namespace usePopoverPositioner {
   export interface SharedParameters extends useAnchorPositioning.SharedParameters {}
 
   export interface ReturnValue extends useAnchorPositioning.ReturnValue {
-    props: GenericHTMLProps;
+    props: HTMLProps;
   }
 }

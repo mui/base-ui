@@ -95,6 +95,7 @@
     display: inline-flex;
     padding-block: var(--side-nav-item-padding-y);
     font-weight: 500;
+    letter-spacing: 0.00625em;
   }
 
   .SideNavItem {
@@ -107,7 +108,8 @@
     border-block: 1px solid transparent; /* Maintain a 1px gap between active an inactive item */
     background-clip: padding-box;
     border-radius: var(--radius-md);
-    letter-spacing: 0.0025em;
+    letter-spacing: var(--text-md--letter-spacing);
+    user-select: none;
 
     @media (hover: hover) {
       &:hover {
@@ -122,7 +124,7 @@
       outline: 1px solid var(--color-gray-200);
       outline-offset: -1px;
       font-weight: 500;
-      letter-spacing: -0.0025em;
+      letter-spacing: 0.00625em;
       word-spacing: -0.005em;
       cursor: default;
     }

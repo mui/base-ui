@@ -1,5 +1,5 @@
 import * as React from 'react';
-import type { GenericHTMLProps } from '../../utils/types';
+import type { HTMLProps } from '../../utils/types';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { ownerDocument, ownerWindow } from '../../utils/owner';
@@ -236,7 +236,7 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
     };
   }, [setOpen, alignItemWithTriggerActive, positionerElement, mounted]);
 
-  const props: GenericHTMLProps = {
+  const props: HTMLProps = {
     ['data-id' as string]: `${id}-popup`,
     onKeyDown() {
       keyboardActiveRef.current = true;
@@ -329,6 +329,6 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
 
 export namespace useSelectPopup {
   export interface ReturnValue {
-    props: GenericHTMLProps;
+    props: HTMLProps;
   }
 }

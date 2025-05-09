@@ -3,7 +3,7 @@ import * as React from 'react';
 import type { TabsListContext } from '../list/TabsListContext';
 import type { TabsRootContext } from '../root/TabsRootContext';
 import { mergeProps } from '../../merge-props';
-import { GenericHTMLProps } from '../../utils/types';
+import { HTMLProps } from '../../utils/types';
 import { useForcedRerendering } from '../../utils/useForcedRerendering';
 import { TabsIndicatorCssVars } from './TabsIndicatorCssVars';
 
@@ -155,7 +155,7 @@ export namespace useTabsIndicator {
      * @param externalProps additional props for Tabs.TabIndicator
      * @returns props that should be spread on Tabs.TabIndicator
      */
-    getRootProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
+    getRootProps: (externalProps?: HTMLProps) => HTMLProps;
     activeTabPosition: ActiveTabPosition | null;
     activeTabSize: ActiveTabSize | null;
   }

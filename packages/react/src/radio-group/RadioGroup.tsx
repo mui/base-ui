@@ -89,6 +89,7 @@ export const RadioGroup = React.forwardRef(function RadioGroup(
         enableHomeAndEndKeys={false}
         modifierKeys={MODIFIER_KEYS}
         render={renderElement()}
+        stopEventPropagation
       />
       <input {...radioGroup.getInputProps()} />
     </RadioGroupContext.Provider>

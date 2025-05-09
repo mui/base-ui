@@ -1,6 +1,6 @@
 import * as React from 'react';
 import type { ComponentRenderFn } from '../utils/types';
-import { GenericHTMLProps } from '../utils/types';
+import { HTMLProps } from '../utils/types';
 import { useRenderElement } from '../utils/useRenderElement';
 
 /**
@@ -44,7 +44,7 @@ export namespace useRender {
   export type ComponentProps<
     ElementType extends React.ElementType,
     State = {},
-    RenderFunctionProps = GenericHTMLProps,
+    RenderFunctionProps = HTMLProps,
   > = React.ComponentPropsWithRef<ElementType> & {
     /**
      * Allows you to replace the component’s HTML element

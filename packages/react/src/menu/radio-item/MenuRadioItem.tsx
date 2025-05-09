@@ -5,7 +5,7 @@ import { useMenuRadioItem } from './useMenuRadioItem';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useBaseUiId } from '../../utils/useBaseUiId';
-import type { BaseUIComponentProps, GenericHTMLProps } from '../../utils/types';
+import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import { useForkRef } from '../../utils/useForkRef';
 import { useMenuRadioGroupContext } from '../radio-group/MenuRadioGroupContext';
 import { MenuRadioItemContext } from './MenuRadioItemContext';
@@ -139,7 +139,7 @@ export const MenuRadioItem = React.forwardRef(function MenuRadioItem(
 
 interface InnerMenuRadioItemProps extends Omit<MenuRadioItem.Props, 'value'> {
   highlighted: boolean;
-  itemProps: GenericHTMLProps;
+  itemProps: HTMLProps;
   menuEvents: FloatingEvents;
   allowMouseUpTriggerRef: React.RefObject<boolean>;
   checked: boolean;

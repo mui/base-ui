@@ -23,11 +23,11 @@
       "description": "A ref to access the hidden input element."
     },
     "className": {
-      "type": "string | ((state: State) => string)",
+      "type": "string | ((state: Slider.Thumb.State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "render": {
-      "type": "((props: DetailedHTMLProps<HTMLAttributes<HTMLDivElement>, HTMLDivElement>, inputProps: DetailedHTMLProps<InputHTMLAttributes<HTMLInputElement>, HTMLInputElement>, state: State) => ReactElement) | ReactElement & { ref: Ref<Element> }",
+      "type": "((props: DetailedHTMLProps<HTMLAttributes<HTMLDivElement>, HTMLDivElement>, inputProps: DetailedHTMLProps<InputHTMLAttributes<HTMLInputElement>, HTMLInputElement>, state: Slider.Thumb.State) => ReactElement) | ReactElement & { ref: Ref<Element> }",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
     }
   },

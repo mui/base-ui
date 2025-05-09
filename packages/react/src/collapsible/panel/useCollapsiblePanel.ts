@@ -1,10 +1,11 @@
 'use client';
 import * as React from 'react';
-import { GenericHTMLProps } from '../../utils/types';
+import { HTMLProps } from '../../utils/types';
 import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { useForkRef } from '../../utils/useForkRef';
 import { useOnMount } from '../../utils/useOnMount';
+import { AnimationFrame } from '../../utils/useAnimationFrame';
 import { warn } from '../../utils/warn';
 import type { AnimationType, Dimensions } from '../root/useCollapsibleRoot';
 import { CollapsiblePanelDataAttributes } from './CollapsiblePanelDataAttributes';
@@ -132,9 +133,9 @@ export function useCollapsiblePanel(
     let frame = -1;
     let nextFrame = -1;
 
-    frame = requestAnimationFrame(() => {
+    frame = AnimationFrame.request(() => {
       shouldCancelInitialOpenTransitionRef.current = false;
-      nextFrame = requestAnimationFrame(() => {
+      nextFrame = AnimationFrame.request(() => {
         /**
          * This is slightly faster than another RAF and is the earliest
          * opportunity to remove the temporary `transition-duration: 0s` that
@@ -148,8 +149,8 @@ export function useCollapsiblePanel(
     });
 
     return () => {
-      cancelAnimationFrame(frame);
-      cancelAnimationFrame(nextFrame);
+      AnimationFrame.cancel(frame);
+      AnimationFrame.cancel(nextFrame);
     };
   });
 
@@ -195,12 +196,12 @@ export function useCollapsiblePanel(
 
       setDimensions({ height: panel.scrollHeight, width: panel.scrollWidth });
 
-      resizeFrame = requestAnimationFrame(() => {
+      resizeFrame = AnimationFrame.request(() => {
         panel.style.removeProperty('display');
       });
     } else {
       /* closing */
-      resizeFrame = requestAnimationFrame(() => {
+      resizeFrame = AnimationFrame.request(() => {
         setDimensions({ height: 0, width: 0 });
       });
 
@@ -214,7 +215,7 @@ export function useCollapsiblePanel(
     }
 
     return () => {
-      cancelAnimationFrame(resizeFrame);
+      AnimationFrame.cancel(resizeFrame);
     };
   }, [
     abortControllerRef,
@@ -278,10 +279,10 @@ export function useCollapsiblePanel(
   ]);
 
   useOnMount(() => {
-    const frame = requestAnimationFrame(() => {
+    const frame = AnimationFrame.request(() => {
       shouldCancelInitialOpenAnimationRef.current = false;
     });
-    return () => cancelAnimationFrame(frame);
+    return () => AnimationFrame.cancel(frame);
   });
 
   useModernLayoutEffect(() => {
@@ -300,9 +301,9 @@ export function useCollapsiblePanel(
     if (open && isBeforeMatchRef.current) {
       panel.style.transitionDuration = '0s';
       setDimensions({ height: panel.scrollHeight, width: panel.scrollWidth });
-      frame = requestAnimationFrame(() => {
+      frame = AnimationFrame.request(() => {
         isBeforeMatchRef.current = false;
-        nextFrame = requestAnimationFrame(() => {
+        nextFrame = AnimationFrame.request(() => {
           setTimeout(() => {
             panel.style.removeProperty('transition-duration');
           });
@@ -311,8 +312,8 @@ export function useCollapsiblePanel(
     }
 
     return () => {
-      cancelAnimationFrame(frame);
-      cancelAnimationFrame(nextFrame);
+      AnimationFrame.cancel(frame);
+      AnimationFrame.cancel(nextFrame);
     };
   }, [hiddenUntilFound, open, panelRef, setDimensions]);
 
@@ -426,6 +427,6 @@ export namespace useCollapsiblePanel {
   }
 
   export interface ReturnValue {
-    props: GenericHTMLProps;
+    props: HTMLProps;
   }
 }

@@ -6,7 +6,7 @@ import { useModernLayoutEffect } from '../utils/useModernLayoutEffect';
 import { useEventCallback } from '../utils/useEventCallback';
 import { useRootElementName } from '../utils/useRootElementName';
 import { useCompositeRootContext } from '../composite/root/CompositeRootContext';
-import { BaseUIEvent, GenericHTMLProps } from '../utils/types';
+import { BaseUIEvent, HTMLProps } from '../utils/types';
 
 export function useButton(parameters: useButton.Parameters = {}): useButton.ReturnValue {
   const {
@@ -200,7 +200,7 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
   };
 }
 
-interface GenericButtonProps extends Omit<GenericHTMLProps, 'onClick'>, AdditionalButtonProps {
+interface GenericButtonProps extends Omit<HTMLProps, 'onClick'>, AdditionalButtonProps {
   onClick?: (event: React.SyntheticEvent) => void;
 }
 

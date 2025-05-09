@@ -1,8 +1,8 @@
 import * as React from 'react';
-import { usePreventScroll } from '@react-aria/overlays';
 import { isFirefox, isIOS, isWebKit } from './detectBrowser';
 import { ownerDocument, ownerWindow } from './owner';
 import { useModernLayoutEffect } from './useModernLayoutEffect';
+import { AnimationFrame } from './useAnimationFrame';
 
 let originalHtmlStyles: Partial<CSSStyleDeclaration> = {};
 let originalBodyStyles: Partial<CSSStyleDeclaration> = {};
@@ -14,14 +14,6 @@ export function getPreventScrollCount() {
   return preventScrollCount;
 }
 
-function supportsDvh() {
-  return (
-    typeof CSS !== 'undefined' &&
-    typeof CSS.supports === 'function' &&
-    CSS.supports('height', '1dvh')
-  );
-}
-
 function hasInsetScrollbars(referenceElement: Element | null) {
   if (typeof document === 'undefined') {
     return false;
@@ -29,6 +21,16 @@ function hasInsetScrollbars(referenceElement: Element | null) {
   const doc = ownerDocument(referenceElement);
   const win = ownerWindow(doc);
   return win.innerWidth - doc.documentElement.clientWidth > 0;
+}
+
+function preventScrollBasic(referenceElement: Element | null) {
+  const doc = ownerDocument(referenceElement);
+  const html = doc.documentElement;
+  const originalOverflow = html.style.overflow;
+  html.style.overflow = 'hidden';
+  return () => {
+    html.style.overflow = originalOverflow;
+  };
 }
 
 function preventScrollStandard(referenceElement: Element | null) {
@@ -39,7 +41,7 @@ function preventScrollStandard(referenceElement: Element | null) {
 
   let scrollTop = 0;
   let scrollLeft = 0;
-  let resizeRaf = -1;
+  const resizeFrame = AnimationFrame.create();
 
   // Pinch-zoom in Safari causes a shift. Just don't lock scroll if there's any pinch-zoom.
   if (isWebKit() && (win.visualViewport?.scale ?? 1) !== 1) {
@@ -122,15 +124,14 @@ function preventScrollStandard(referenceElement: Element | null) {
 
   function handleResize() {
     cleanup();
-    cancelAnimationFrame(resizeRaf);
-    resizeRaf = requestAnimationFrame(lockScroll);
+    resizeFrame.request(lockScroll);
   }
 
   lockScroll();
   win.addEventListener('resize', handleResize);
 
   return () => {
-    cancelAnimationFrame(resizeRaf);
+    resizeFrame.cancel();
     cleanup();
     win.removeEventListener('resize', handleResize);
   };
@@ -149,13 +150,8 @@ export function useScrollLock(params: {
 }) {
   const { enabled = true, mounted, open, referenceElement = null } = params;
 
-  const isReactAriaHook = React.useMemo(
-    () =>
-      enabled &&
-      (isIOS() ||
-        !supportsDvh() ||
-        // macOS Firefox "pops" scroll containers' scrollbars with our standard scroll lock
-        (isFirefox() && !hasInsetScrollbars(referenceElement))),
+  const isOverflowHiddenLock = React.useMemo(
+    () => enabled && (isIOS() || (isFirefox() && !hasInsetScrollbars(referenceElement))),
     [enabled, referenceElement],
   );
 
@@ -175,21 +171,25 @@ export function useScrollLock(params: {
     return undefined;
   }, [mounted, open, referenceElement]);
 
-  usePreventScroll({
-    // react-aria will remove the scrollbar offset immediately upon close, since we use `open`,
-    // not `mounted`, to disable/enable the scroll lock. However since there are no inset
-    // scrollbars, no layouting issues occur.
-    isDisabled: !isReactAriaHook,
-  });
-
   useModernLayoutEffect(() => {
-    if (!enabled || isReactAriaHook) {
+    if (!enabled) {
       return undefined;
     }
 
     preventScrollCount += 1;
     if (preventScrollCount === 1) {
-      restore = preventScrollStandard(referenceElement);
+      // Firefox on macOS with overlay scrollbars uses a basic scroll lock that doesn't
+      // need the inset scrollbars handling to prevent overlay scrollbars from appearing
+      // on scroll containers briefly whenever the lock is enabled.
+      // On iOS, scroll locking does not work if the navbar is collapsed. Due to numerous
+      // side effects and bugs that arise on iOS, it must be researched extensively before
+      // being enabled to ensure it doesn't cause the following issues:
+      // - Textboxes must scroll into view when focused, nor cause a glitchy scroll animation.
+      // - The navbar must not force itself into view and cause layout shift.
+      // - Scroll containers must not flicker upon closing a popup when it has an exit animation.
+      restore = isOverflowHiddenLock
+        ? preventScrollBasic(referenceElement)
+        : preventScrollStandard(referenceElement);
     }
 
     return () => {
@@ -198,5 +198,5 @@ export function useScrollLock(params: {
         restore();
       }
     };
-  }, [enabled, isReactAriaHook, referenceElement]);
+  }, [enabled, isOverflowHiddenLock, referenceElement]);
 }

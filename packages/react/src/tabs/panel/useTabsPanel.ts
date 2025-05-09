@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { mergeProps } from '../../merge-props';
-import { GenericHTMLProps } from '../../utils/types';
+import { HTMLProps } from '../../utils/types';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useForkRef } from '../../utils/useForkRef';
 import { useCompositeListItem } from '../../composite/list/useCompositeListItem';
@@ -102,7 +102,7 @@ export namespace useTabsPanel {
      * @param externalProps additional props for Tabs.TabPanel
      * @returns props that should be spread on Tabs.TabPanel
      */
-    getRootProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
+    getRootProps: (externalProps?: HTMLProps) => HTMLProps;
     rootRef: React.RefCallback<HTMLElement> | null;
   }
 }

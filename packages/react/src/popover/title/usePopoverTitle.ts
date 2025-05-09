@@ -3,7 +3,7 @@ import * as React from 'react';
 import { mergeProps } from '../../merge-props';
 import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { useBaseUiId } from '../../utils/useBaseUiId';
-import type { GenericHTMLProps } from '../../utils/types';
+import type { HTMLProps } from '../../utils/types';
 
 export function usePopoverTitle(params: usePopoverTitle.Parameters): usePopoverTitle.ReturnValue {
   const { titleId, setTitleId } = params;
@@ -43,6 +43,6 @@ export namespace usePopoverTitle {
     setTitleId: React.Dispatch<React.SetStateAction<string | undefined>>;
   }
   export interface ReturnValue {
-    getTitleProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
+    getTitleProps: (externalProps?: HTMLProps) => HTMLProps;
   }
 }

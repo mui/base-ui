@@ -107,30 +107,6 @@ commands:
                 command: git restore .
 
 jobs:
-  checkout:
-    <<: *default-job
-    steps:
-      - checkout
-      - install_js:
-          react-version: << parameters.react-version >>
-      - when:
-          # Install can be "dirty" when running with non-default versions of React
-          condition:
-            equal: [<< parameters.react-version >>, stable]
-          steps:
-            - run:
-                name: Should not have any git not staged
-                command: git add -A && git diff --exit-code --staged
-            - run:
-                name: '`pnpm dedupe` was run?'
-                command: |
-                  # #default-branch-switch
-                  if [[ $(git diff --name-status master | grep -E 'pnpm-workspace\.yaml|pnpm-lock.yaml|package\.json') == "" ]];
-                  then
-                      echo "No changes to dependencies detected. Skipping..."
-                  else
-                      pnpm dedupe --check
-                  fi
   test_unit:
     <<: *default-job
     steps:
@@ -180,6 +156,16 @@ jobs:
       - checkout
       - install_js:
           react-version: << parameters.react-version >>
+      - run:
+          name: '`pnpm dedupe` was run?'
+          command: |
+            # #default-branch-switch
+            if [[ $(git diff --name-status master | grep -E 'pnpm-workspace\.yaml|pnpm-lock.yaml|package\.json') == "" ]];
+            then
+                echo "No changes to dependencies detected. Skipping..."
+            else
+                pnpm dedupe --check
+            fi
       - run:
           name: Generate the documentation
           command: pnpm docs:api
@@ -338,54 +324,30 @@ workflows:
     when:
       equal: [pipeline, << pipeline.parameters.workflow >>]
     jobs:
-      - checkout:
-          <<: *default-context
-          name: 'Checkout'
       - test_unit:
           <<: *default-context
           name: 'JSDOM tests'
-          requires:
-            - Checkout
       - test_lint:
           <<: *default-context
           name: 'Linting'
-          requires:
-            - Checkout
       - test_static:
           <<: *default-context
           name: 'Generated files verification'
-          requires:
-            - Checkout
       - test_types:
           <<: *default-context
           name: 'Typechecking'
-          requires:
-            - Checkout
       - test_browser:
           <<: *default-context
           name: 'Browser tests'
-          requires:
-            - Checkout
       - test_regressions:
           <<: *default-context
           name: 'Regression tests'
-          requires:
-            - Checkout
       - test_e2e:
           <<: *default-context
           name: 'E2E tests'
-          requires:
-            - Checkout
-      # - test_bundle_size_monitor:
-      #    <<: *default-context
-      #    name: 'Bundle size monitor'
-      #    requires:
-      #      - checkout
       - test_package:
           <<: *default-context
           name: 'Package verification'
-          requires:
-            - Checkout
   react-18:
     when:
       equal: [pipeline, << pipeline.parameters.workflow >>]
