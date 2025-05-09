@@ -2,6 +2,7 @@
 import * as React from 'react';
 import type { ElementProps, FloatingRootContext } from '@floating-ui/react';
 import { isMouseLikePointerType } from '@floating-ui/react/utils';
+import { useAnimationFrame } from '../useAnimationFrame';
 
 const EMPTY_OBJECT = {};
 
@@ -53,16 +54,7 @@ export function useClick(context: FloatingRootContext, props: UseClickProps = {}
   } = props;
 
   const pointerTypeRef = React.useRef<'mouse' | 'pen' | 'touch'>(undefined);
-  const frameRef = React.useRef(-1);
-
-  React.useEffect(() => {
-    return () => {
-      if (frameRef.current !== -1) {
-        cancelAnimationFrame(frameRef.current);
-        frameRef.current = -1;
-      }
-    };
-  }, []);
+  const frame = useAnimationFrame();
 
   const reference: ElementProps['reference'] = React.useMemo(
     () => ({
@@ -92,7 +84,7 @@ export function useClick(context: FloatingRootContext, props: UseClickProps = {}
         );
         // Wait until focus is set on the element. This is an alternative to
         // `event.preventDefault()` to avoid :focus-visible from appearing when using a pointer.
-        frameRef.current = requestAnimationFrame(() => {
+        frame.request(() => {
           onOpenChange(nextOpen, nativeEvent, 'click');
         });
       },
