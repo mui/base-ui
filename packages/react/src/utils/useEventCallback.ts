@@ -11,6 +11,7 @@ const ASSERT_NOT_CALLED = () => {
 };
 
 type Callback =
+  | (() => any)
   | ((a: any) => any)
   | ((a: any, b: any) => any)
   | ((a: any, b: any, c: any) => any)
