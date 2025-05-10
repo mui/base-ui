@@ -3,11 +3,12 @@ import * as React from 'react';
 import { useLazyRef } from './useLazyRef';
 
 // https://github.com/mui/material-ui/issues/41190#issuecomment-2040873379
-const useInsertionEffect = (React as any)[`useInsertionEffect${Math.random()}`.slice(0, 5)] || ((fn: any) => fn());
+const useInsertionEffect =
+  (React as any)[`useInsertionEffect${Math.random()}`.slice(0, 5)] || ((fn: any) => fn());
 
 const ASSERT_NOT_CALLED = () => {
   throw new Error('Cannot call an event handler while rendering.');
-}
+};
 
 type Callback =
   | ((a: any) => any)
@@ -42,7 +43,7 @@ function createStableCallback<T extends Callback>() {
   const stable = {
     callback: null as unknown as T, // SAFETY: stable.current is initialized
     trampoline: (a: unknown, b: unknown, c: unknown, d: unknown, e: unknown) =>
-      stable.callback(a, b, c, d, e)
+      stable.callback(a, b, c, d, e),
   };
   return stable;
 }
