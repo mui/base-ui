@@ -9,14 +9,12 @@ const ASSERT_NOT_CALLED = () => {
   throw new Error('Cannot call an event handler while rendering.');
 }
 
-type Args =
-  | [any]
-  | [any, any]
-  | [any, any, any]
-  | [any, any, any, any]
-  | [any, any, any, any, any];
-
-type Callback = ((...args: Args) => any);
+type Callback =
+  | ((a: any) => any)
+  | ((a: any, b: any) => any)
+  | ((a: any, b: any, c: any) => any)
+  | ((a: any, b: any, c: any, d: any) => any)
+  | ((a: any, b: any, c: any, d: any, e: any) => any);
 
 export function useEventCallback<T extends Callback>(callback: T) {
   const stable = useLazyRef(createStableCallback).current;
