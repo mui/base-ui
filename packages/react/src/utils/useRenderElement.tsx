@@ -76,9 +76,8 @@ function getChildRef<ElementType extends React.ElementType, State>(
 ): React.RefCallback<any> | null {
   if (typeof render !== 'function') {
     return isReactVersionAtLeast(19) ? render.props.ref : render.ref;
-  } else {
-    return null;
   }
+  return null;
 }
 
 type RenderFunctionProps<TagName> = TagName extends keyof React.JSX.IntrinsicElements
