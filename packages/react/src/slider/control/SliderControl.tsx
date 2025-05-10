@@ -215,7 +215,7 @@ export const SliderControl = React.forwardRef(function SliderControl(
     },
   );
 
-  const focusThumb = useEventCallback((thumbIndex) => {
+  const focusThumb = useEventCallback((thumbIndex: number) => {
     const control = controlRef.current;
     if (!control) {
       return;

@@ -10,13 +10,7 @@ const ASSERT_NOT_CALLED = () => {
   throw new Error('Cannot call an event handler while rendering.');
 };
 
-type Callback =
-  | (() => any)
-  | ((a: any) => any)
-  | ((a: any, b: any) => any)
-  | ((a: any, b: any, c: any) => any)
-  | ((a: any, b: any, c: any, d: any) => any)
-  | ((a: any, b: any, c: any, d: any, e: any) => any);
+type Callback = (...args: any[]) => any;
 
 export function useEventCallback<T extends Callback>(callback: T | undefined): T {
   const stable = useLazyRef(createStableCallback).current;
@@ -43,8 +37,7 @@ export function useEventCallback<T extends Callback>(callback: T | undefined): T
 function createStableCallback<T extends Callback | undefined>() {
   const stable = {
     callback: undefined as T,
-    trampoline: (a: unknown, b: unknown, c: unknown, d: unknown, e: unknown) =>
-      stable.callback?.(a, b, c, d, e),
+    trampoline: (...args: []) => stable.callback?.(...args),
   };
   return stable;
 }
