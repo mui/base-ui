@@ -9,6 +9,7 @@ export function useLatestRef<T>(value: T) {
 
   latest.next = value;
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(latest.effect);
 
   return latest;

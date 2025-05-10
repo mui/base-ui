@@ -26,6 +26,7 @@ export function useEventCallback<T extends Callback>(callback: T | undefined): T
     // never called during the render phase.
     stable.callback = ASSERT_NOT_CALLED as unknown as T;
 
+    // eslint-disable-next-line react-hooks/rules-of-hooks
     useInsertionEffect(() => {
       stable.callback = callback;
     });
