@@ -1,9 +1,10 @@
 import * as React from 'react';
-import type { ComponentRenderFn, HTMLProps } from './types';
+import type { BaseUIComponentProps, ComponentRenderFn, HTMLProps } from './types';
 import { CustomStyleHookMapping, getStyleHookProps } from './getStyleHookProps';
+import { useForkRef } from './useForkRef';
 import { resolveClassName } from './resolveClassName';
 import { evaluateRenderProp } from './evaluateRenderProp';
-import { useRenderPropForkRef } from './useRenderPropForkRef';
+import { isReactVersionAtLeast } from './reactVersion';
 import { mergeProps } from '../merge-props';
 
 function tag(Tag: string) {
@@ -51,26 +52,33 @@ export function useRenderElement<
     return getStyleHookProps(state, customStyleHookMapping);
   }, [state, customStyleHookMapping, generateStyleHooks]);
 
-  const ownProps: Record<string, any> = propGetter({
-    ...styleHooks,
-    ...(Array.isArray(props) ? mergeProps(...props) : props),
-  });
-
   let refs: React.Ref<RenderedElementType>[] = [];
-
   if (ref !== undefined) {
     refs = Array.isArray(ref) ? ref : [ref];
   }
 
-  const propsWithRef: React.HTMLAttributes<any> & React.RefAttributes<any> = {
-    ...ownProps,
-    ref: useRenderPropForkRef(render, ownProps.ref, ...refs),
-  };
+  const outProps: React.HTMLAttributes<any> & React.RefAttributes<any> = propGetter({
+    ...styleHooks,
+    ...(Array.isArray(props) ? mergeProps(...props) : props),
+  });
+
+  outProps.ref = useForkRef(outProps.ref, getChildRef(render), ...refs);
+
   if (className !== undefined) {
-    propsWithRef.className = className;
+    outProps.className = className;
   }
 
-  return () => evaluateRenderProp(render, propsWithRef, state);
+  return () => evaluateRenderProp(render, outProps, state);
+}
+
+function getChildRef<ElementType extends React.ElementType, State>(
+  render: BaseUIComponentProps<ElementType, State>['render'],
+): React.RefCallback<any> | null {
+  if (typeof render !== 'function') {
+    return isReactVersionAtLeast(19) ? render.props.ref : render.ref;
+  } else {
+    return null;
+  }
 }
 
 type RenderFunctionProps<TagName> = TagName extends keyof React.JSX.IntrinsicElements
