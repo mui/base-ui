@@ -41,7 +41,7 @@ export function useEventCallback<T extends Callback>(callback: T) {
 
 function createStableCallback<T extends Callback>() {
   const stable = {
-    callback: null as unknown as T, // SAFETY: stable.current is initialized
+    callback: null as unknown as T,
     trampoline: (a: unknown, b: unknown, c: unknown, d: unknown, e: unknown) =>
       stable.callback(a, b, c, d, e),
   };
