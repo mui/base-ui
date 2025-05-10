@@ -95,7 +95,7 @@ function update<I>(forkRef: ForkRef<I>, refs: InputRef<I>[]) {
     if (instance != null) {
       const cleanupCallbacks = Array(refs.length).fill(null) as Array<Cleanup | null>;
 
-      for (let i = 0; i < refs.length; i++) {
+      for (let i = 0; i < refs.length; i += 1) {
         const ref = refs[i];
         if (ref == null) {
           continue;
@@ -112,11 +112,12 @@ function update<I>(forkRef: ForkRef<I>, refs: InputRef<I>[]) {
             ref.current = instance;
             break;
           }
+          default:
         }
       }
 
       forkRef.cleanup = () => {
-        for (let i = 0; i < refs.length; i++) {
+        for (let i = 0; i < refs.length; i += 1) {
           const ref = refs[i];
           if (ref == null) {
             continue;
@@ -135,6 +136,7 @@ function update<I>(forkRef: ForkRef<I>, refs: InputRef<I>[]) {
               ref.current = null;
               break;
             }
+            default:
           }
         }
       };
