@@ -1,7 +1,7 @@
 import * as React from 'react';
 import type { BaseUIComponentProps, ComponentRenderFn, HTMLProps } from './types';
 import { CustomStyleHookMapping, getStyleHookProps } from './getStyleHookProps';
-import { useForkRef } from './useForkRef';
+import { useForkRefN } from './useForkRef';
 import { resolveClassName } from './resolveClassName';
 import { evaluateRenderProp } from './evaluateRenderProp';
 import { isReactVersionAtLeast } from './reactVersion';
@@ -62,7 +62,7 @@ export function useRenderElement<
     ...(Array.isArray(props) ? mergeProps(...props) : props),
   });
 
-  outProps.ref = useForkRef(outProps.ref, getChildRef(render), ...refs);
+  outProps.ref = useForkRefN(outProps.ref, getChildRef(render), ...refs);
 
   if (className !== undefined) {
     outProps.className = className;
