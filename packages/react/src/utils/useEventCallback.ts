@@ -18,7 +18,7 @@ type Callback =
   | ((a: any, b: any, c: any, d: any) => any)
   | ((a: any, b: any, c: any, d: any, e: any) => any);
 
-export function useEventCallback<T extends Callback>(callback: T): T {
+export function useEventCallback<T extends Callback>(callback: T | undefined): T {
   const stable = useLazyRef(createStableCallback).current;
 
   if (process.env.NODE_ENV === 'production') {
@@ -40,11 +40,11 @@ export function useEventCallback<T extends Callback>(callback: T): T {
   return stable.trampoline as unknown as T;
 }
 
-function createStableCallback<T extends Callback>() {
+function createStableCallback<T extends Callback | undefined>() {
   const stable = {
-    callback: null as unknown as T,
+    callback: undefined as T,
     trampoline: (a: unknown, b: unknown, c: unknown, d: unknown, e: unknown) =>
-      stable.callback(a, b, c, d, e),
+      stable.callback?.(a, b, c, d, e),
   };
   return stable;
 }
