@@ -18,7 +18,7 @@ type Callback =
   | ((a: any, b: any, c: any, d: any) => any)
   | ((a: any, b: any, c: any, d: any, e: any) => any);
 
-export function useEventCallback<T extends Callback>(callback: T) {
+export function useEventCallback<T extends Callback>(callback: T): T {
   const stable = useLazyRef(createStableCallback).current;
 
   if (process.env.NODE_ENV === 'production') {
@@ -37,7 +37,7 @@ export function useEventCallback<T extends Callback>(callback: T) {
     });
   }
 
-  return stable.trampoline;
+  return stable.trampoline as unknown as T;
 }
 
 function createStableCallback<T extends Callback>() {
