@@ -58,13 +58,12 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
   const nodeId = useFloatingNodeId();
   const parentNodeId = useFloatingParentNodeId();
   const contextMenuContext = useContextMenuRootContext();
-  const hasContextMenuContext = Boolean(contextMenuContext);
 
   let anchor = anchorProp;
   let sideOffset = sideOffsetProp;
   let alignOffset = alignOffsetProp;
   let align = alignProp;
-  if (hasContextMenuContext && !nested) {
+  if (parent.type === 'context-menu') {
     anchor = contextMenuContext?.anchor ?? anchorProp;
     align = props.align ?? 'start';
     alignOffset = props.alignOffset ?? 2;
@@ -91,7 +90,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
     sideOffset,
     align: computedAlign,
     alignOffset,
-    arrowPadding: hasContextMenuContext ? 0 : arrowPadding,
+    arrowPadding: parent.type === 'context-menu' ? 0 : arrowPadding,
     collisionBoundary,
     collisionPadding,
     sticky,
@@ -99,7 +98,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
     parentNodeId,
     keepMounted,
     trackAnchor,
-    shiftCrossAxis: hasContextMenuContext,
+    shiftCrossAxis: parent.type === 'context-menu',
   });
 
   const state: MenuPositioner.State = React.useMemo(
@@ -157,10 +156,10 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
   return (
     <MenuPositionerContext.Provider value={contextValue}>
       {shouldRenderBackdrop && (
-        <InternalBackdrop 
-          ref={contextMenuContext?.internalBackdropRef} 
-          inert={inertValue(!open)} 
-          cutout={backdropCutout} 
+        <InternalBackdrop
+          ref={contextMenuContext?.internalBackdropRef}
+          inert={inertValue(!open)}
+          cutout={backdropCutout}
         />
       )}
       <FloatingNode id={nodeId}>
