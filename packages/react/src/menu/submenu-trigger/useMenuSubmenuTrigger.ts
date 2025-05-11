@@ -3,7 +3,7 @@ import * as React from 'react';
 import { FloatingEvents } from '@floating-ui/react';
 import { useMenuItem } from '../item/useMenuItem';
 import { useForkRef } from '../../utils/useForkRef';
-import { GenericHTMLProps } from '../../utils/types';
+import { HTMLProps } from '../../utils/types';
 import { useMenuRootContext } from '../root/MenuRootContext';
 
 export function useMenuSubmenuTrigger(
@@ -37,7 +37,7 @@ export function useMenuSubmenuTrigger(
   const menuTriggerRef = useForkRef(triggerRef, menuItemRef, setTriggerElement);
 
   const getTriggerProps = React.useCallback(
-    (externalProps?: GenericHTMLProps) => {
+    (externalProps?: HTMLProps) => {
       return {
         ...getItemProps(externalProps),
         tabIndex: open || highlighted ? 0 : -1,
@@ -92,6 +92,6 @@ export namespace useMenuSubmenuTrigger {
   }
 
   export interface ReturnValue {
-    getTriggerProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
+    getTriggerProps: (externalProps?: HTMLProps) => HTMLProps;
   }
 }

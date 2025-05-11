@@ -3,11 +3,14 @@ import * as React from 'react';
 import { contains } from '@floating-ui/react/utils';
 import { useButton } from '../../use-button/useButton';
 import { useForkRef } from '../../utils/useForkRef';
-import { GenericHTMLProps } from '../../utils/types';
+import { HTMLProps } from '../../utils/types';
+import { useTimeout } from '../../utils/useTimeout';
 import { mergeProps } from '../../merge-props';
 import { ownerDocument } from '../../utils/owner';
 import { getPseudoElementBounds } from '../../utils/getPseudoElementBounds';
 import type { OpenChangeReason } from '../../utils/translateOpenChangeReason';
+import { useMenuRoot } from '../root/useMenuRoot';
+import { useEventCallback } from '../../utils/useEventCallback';
 
 export function useMenuTrigger(parameters: useMenuTrigger.Parameters): useMenuTrigger.ReturnValue {
   const BOUNDARY_OFFSET = 2;
@@ -20,11 +23,13 @@ export function useMenuTrigger(parameters: useMenuTrigger.Parameters): useMenuTr
     setTriggerElement,
     positionerRef,
     allowMouseUpTriggerRef,
+    menuParent,
+    lastOpenChangeReason,
   } = parameters;
 
   const triggerRef = React.useRef<HTMLElement | null>(null);
   const mergedRef = useForkRef(externalRef, triggerRef);
-  const allowMouseUpTriggerTimeoutRef = React.useRef(-1);
+  const allowMouseUpTriggerTimeout = useTimeout();
 
   const { getButtonProps, buttonRef } = useButton({
     disabled,
@@ -34,17 +39,56 @@ export function useMenuTrigger(parameters: useMenuTrigger.Parameters): useMenuTr
   const handleRef = useForkRef(buttonRef, setTriggerElement);
 
   React.useEffect(() => {
-    if (!open) {
+    if (!open && menuParent.type === undefined) {
       allowMouseUpTriggerRef.current = false;
     }
-  }, [allowMouseUpTriggerRef, open]);
+  }, [allowMouseUpTriggerRef, open, menuParent.type]);
+
+  const handleMouseUp = useEventCallback((mouseEvent: MouseEvent) => {
+    if (!triggerRef.current) {
+      return;
+    }
+
+    allowMouseUpTriggerTimeout.clear();
+    allowMouseUpTriggerRef.current = false;
+
+    const mouseUpTarget = mouseEvent.target as Element | null;
+
+    if (
+      contains(triggerRef.current, mouseUpTarget) ||
+      contains(positionerRef.current, mouseUpTarget) ||
+      mouseUpTarget === triggerRef.current
+    ) {
+      return;
+    }
+
+    const bounds = getPseudoElementBounds(triggerRef.current);
+
+    if (
+      mouseEvent.clientX >= bounds.left - BOUNDARY_OFFSET &&
+      mouseEvent.clientX <= bounds.right + BOUNDARY_OFFSET &&
+      mouseEvent.clientY >= bounds.top - BOUNDARY_OFFSET &&
+      mouseEvent.clientY <= bounds.bottom + BOUNDARY_OFFSET
+    ) {
+      return;
+    }
+
+    setOpen(false, mouseEvent, 'cancel-open');
+  });
+
+  React.useEffect(() => {
+    if (open && lastOpenChangeReason === 'hover') {
+      const doc = ownerDocument(triggerRef.current);
+      doc.addEventListener('mouseup', handleMouseUp, { once: true });
+    }
+  }, [open, handleMouseUp, lastOpenChangeReason]);
 
   const getTriggerProps = React.useCallback(
-    (externalProps?: GenericHTMLProps): GenericHTMLProps => {
+    (externalProps?: HTMLProps): HTMLProps => {
       return mergeProps(
         {
           'aria-haspopup': 'menu' as const,
-          tabIndex: 0, // this is needed to make the button focused after click in Safari
+          ...(menuParent.type === 'menubar' ? {} : { tabIndex: 0 }), // this is needed to make the button focused after click in Safari
           ref: handleRef,
           onMouseDown: (event: React.MouseEvent) => {
             if (open) {
@@ -52,47 +96,11 @@ export function useMenuTrigger(parameters: useMenuTrigger.Parameters): useMenuTr
             }
 
             // mousedown -> mouseup on menu item should not trigger it within 200ms.
-            allowMouseUpTriggerTimeoutRef.current = window.setTimeout(() => {
+            allowMouseUpTriggerTimeout.start(200, () => {
               allowMouseUpTriggerRef.current = true;
-            }, 200);
+            });
 
             const doc = ownerDocument(event.currentTarget);
-
-            function handleMouseUp(mouseEvent: MouseEvent) {
-              if (!triggerRef.current) {
-                return;
-              }
-
-              if (allowMouseUpTriggerTimeoutRef.current !== -1) {
-                clearTimeout(allowMouseUpTriggerTimeoutRef.current);
-                allowMouseUpTriggerTimeoutRef.current = -1;
-              }
-              allowMouseUpTriggerRef.current = false;
-
-              const mouseUpTarget = mouseEvent.target as Element | null;
-
-              if (
-                contains(triggerRef.current, mouseUpTarget) ||
-                contains(positionerRef.current, mouseUpTarget) ||
-                mouseUpTarget === triggerRef.current
-              ) {
-                return;
-              }
-
-              const bounds = getPseudoElementBounds(triggerRef.current);
-
-              if (
-                mouseEvent.clientX >= bounds.left - BOUNDARY_OFFSET &&
-                mouseEvent.clientX <= bounds.right + BOUNDARY_OFFSET &&
-                mouseEvent.clientY >= bounds.top - BOUNDARY_OFFSET &&
-                mouseEvent.clientY <= bounds.bottom + BOUNDARY_OFFSET
-              ) {
-                return;
-              }
-
-              setOpen(false, mouseEvent, undefined);
-            }
-
             doc.addEventListener('mouseup', handleMouseUp, { once: true });
           },
         },
@@ -100,7 +108,15 @@ export function useMenuTrigger(parameters: useMenuTrigger.Parameters): useMenuTr
         getButtonProps,
       );
     },
-    [getButtonProps, handleRef, open, setOpen, positionerRef, allowMouseUpTriggerRef],
+    [
+      getButtonProps,
+      handleRef,
+      open,
+      allowMouseUpTriggerRef,
+      allowMouseUpTriggerTimeout,
+      menuParent.type,
+      handleMouseUp,
+    ],
   );
 
   return React.useMemo(
@@ -141,6 +157,8 @@ export namespace useMenuTrigger {
     ) => void;
     allowMouseUpTriggerRef: React.RefObject<boolean>;
     positionerRef: React.RefObject<HTMLElement | null>;
+    menuParent: useMenuRoot.MenuParent;
+    lastOpenChangeReason: OpenChangeReason | null;
   }
 
   export interface ReturnValue {
@@ -149,7 +167,7 @@ export namespace useMenuTrigger {
      * @param externalProps props for the root slot
      * @returns props that should be spread on the root slot
      */
-    getTriggerProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
+    getTriggerProps: (externalProps?: HTMLProps) => HTMLProps;
     /**
      * The ref to the trigger element.
      */

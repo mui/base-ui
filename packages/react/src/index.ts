@@ -12,6 +12,7 @@ export * from './fieldset';
 export * from './form';
 export * from './input';
 export * from './menu';
+export * from './menubar';
 export * from './merge-props';
 export * from './meter';
 export * from './number-field';

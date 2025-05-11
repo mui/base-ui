@@ -93,6 +93,10 @@ export const nav = [
         href: '/react/components/menu',
       },
       {
+        label: 'Menubar',
+        href: '/react/components/menubar',
+      },
+      {
         label: 'Meter',
         href: '/react/components/meter',
       },
