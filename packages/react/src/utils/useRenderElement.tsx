@@ -5,7 +5,7 @@ import { useForkRefN } from './useForkRef';
 import { resolveClassName } from './resolveClassName';
 import { evaluateRenderProp } from './evaluateRenderProp';
 import { isReactVersionAtLeast } from './reactVersion';
-import { mergeProps } from '../merge-props';
+import { mergePropsN } from '../merge-props';
 
 function tag(Tag: string) {
   return function render(props: HTMLProps) {
@@ -59,7 +59,7 @@ export function useRenderElement<
 
   const outProps: React.HTMLAttributes<any> & React.RefAttributes<any> = propGetter({
     ...styleHooks,
-    ...(Array.isArray(props) ? mergeProps(...props) : props),
+    ...(Array.isArray(props) ? mergePropsN(props) : props),
   });
 
   outProps.ref = useForkRefN(outProps.ref, getChildRef(render), ...refs);
