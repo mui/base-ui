@@ -170,7 +170,6 @@ function resolvePropsGetter<T extends ElementType>(
   return inputProps ?? (EMPTY_PROPS as PropsOf<T>);
 }
 
-// XXX: Not sure how this logic does with 3+ event handlers defined.
 function mergeEventHandlers(ourHandler: Function, theirHandler: Function) {
   return (event: unknown) => {
     if (isSyntheticEvent(event)) {
