@@ -112,7 +112,12 @@ export const ToggleGroup = React.forwardRef(function ToggleGroup(
       {toolbarContext ? (
         renderElement()
       ) : (
-        <CompositeRoot direction={direction} loop={loop} render={renderElement()} />
+        <CompositeRoot
+          direction={direction}
+          loop={loop}
+          render={renderElement()}
+          stopEventPropagation
+        />
       )}
     </ToggleGroupContext.Provider>
   );

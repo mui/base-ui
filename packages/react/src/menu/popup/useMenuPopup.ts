@@ -7,8 +7,11 @@ export function useMenuPopup(parameters: useMenuPopup.Parameters): useMenuPopup.
   const { menuEvents, setOpen } = parameters;
 
   React.useEffect(() => {
-    function handleClose(event: Event | undefined) {
-      setOpen(false, event, 'item-press');
+    function handleClose(event: {
+      domEvent: Event | undefined;
+      reason: OpenChangeReason | undefined;
+    }) {
+      setOpen(false, event.domEvent, event.reason);
     }
 
     menuEvents.on('close', handleClose);

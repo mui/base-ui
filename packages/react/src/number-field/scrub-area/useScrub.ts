@@ -9,7 +9,7 @@ import { useLatestRef } from '../../utils/useLatestRef';
 import { isWebKit } from '../../utils/detectBrowser';
 import { mergeProps } from '../../merge-props';
 import { useEventCallback } from '../../utils/useEventCallback';
-import { GenericHTMLProps } from '../../utils/types';
+import { HTMLProps } from '../../utils/types';
 import { useNumberFieldRootContext } from '../root/NumberFieldRootContext';
 
 export function useScrub(params: useScrub.Parameters) {
@@ -115,7 +115,7 @@ export function useScrub(params: useScrub.Parameters) {
   );
 
   const getScrubAreaProps = React.useCallback(
-    (externalProps = {}): GenericHTMLProps =>
+    (externalProps = {}): HTMLProps =>
       mergeProps<'span'>(
         {
           role: 'presentation',

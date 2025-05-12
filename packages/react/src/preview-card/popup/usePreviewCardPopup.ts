@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { mergeProps } from '../../merge-props';
-import type { GenericHTMLProps } from '../../utils/types';
+import type { HTMLProps } from '../../utils/types';
 
 export function usePreviewCardPopup(
   params: usePreviewCardPopup.Parameters,
@@ -32,10 +32,10 @@ export function usePreviewCardPopup(
 
 export namespace usePreviewCardPopup {
   export interface Parameters {
-    getProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
+    getProps: (externalProps?: HTMLProps) => HTMLProps;
   }
 
   export interface ReturnValue {
-    getPopupProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
+    getPopupProps: (externalProps?: HTMLProps) => HTMLProps;
   }
 }

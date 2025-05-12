@@ -2,9 +2,10 @@
 import * as React from 'react';
 import { useForkRef } from '../../utils/useForkRef';
 import { mergeProps } from '../../merge-props';
-import type { InteractionType } from '../../utils/useEnhancedClickHandler';
-import type { GenericHTMLProps } from '../../utils/types';
 import type { DialogOpenChangeReason } from '../root/useDialogRoot';
+import { type InteractionType } from '../../utils/useEnhancedClickHandler';
+import { HTMLProps } from '../../utils/types';
+import { COMPOSITE_KEYS } from '../../composite/composite';
 
 export function useDialogPopup(parameters: useDialogPopup.Parameters): useDialogPopup.ReturnValue {
   const {
@@ -57,6 +58,11 @@ export function useDialogPopup(parameters: useDialogPopup.Parameters): useDialog
         ...getPopupProps(),
         ref: handleRef,
         hidden: !mounted,
+        onKeyDown(event) {
+          if (COMPOSITE_KEYS.includes(event.key)) {
+            event.stopPropagation();
+          }
+        },
       },
       externalProps,
     );
@@ -105,7 +111,7 @@ export namespace useDialogPopup {
     /**
      * The resolver for the popup element props.
      */
-    getPopupProps: () => GenericHTMLProps;
+    getPopupProps: () => HTMLProps;
     /**
      * Callback to register the popup element.
      */

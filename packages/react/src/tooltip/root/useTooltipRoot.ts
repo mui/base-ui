@@ -16,7 +16,7 @@ import { useTransitionStatus } from '../../utils/useTransitionStatus';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { OPEN_DELAY } from '../utils/constants';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
-import type { GenericHTMLProps } from '../../utils/types';
+import type { HTMLProps } from '../../utils/types';
 import {
   translateOpenChangeReason,
   type BaseOpenChangeReason,
@@ -275,8 +275,8 @@ export namespace useTooltipRoot {
     ) => void;
     mounted: boolean;
     setMounted: React.Dispatch<React.SetStateAction<boolean>>;
-    triggerProps: GenericHTMLProps;
-    popupProps: GenericHTMLProps;
+    triggerProps: HTMLProps;
+    popupProps: HTMLProps;
     floatingRootContext: FloatingRootContext;
     instantType: 'delay' | 'dismiss' | 'focus' | undefined;
     transitionStatus: TransitionStatus;
