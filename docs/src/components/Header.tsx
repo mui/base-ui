@@ -14,7 +14,7 @@ export function Header() {
   return (
     <div className="Header">
       <div className="HeaderInner">
-        <SkipNav href="#main-content">Skip to contents</SkipNav>
+        <SkipNav>Skip to contents</SkipNav>
         <NextLink href="/" className="HeaderLogoLink">
           <Logo aria-label="Base UI" />
         </NextLink>
