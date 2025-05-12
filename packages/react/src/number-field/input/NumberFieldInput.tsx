@@ -15,6 +15,7 @@ import type { NumberFieldRoot } from '../root/NumberFieldRoot';
 import { styleHookMapping } from '../utils/styleHooks';
 import { useField } from '../../field/useField';
 import { useFormContext } from '../../form/FormContext';
+import { formatNumber } from '../../utils/formatNumber';
 
 const customStyleHookMapping = {
   ...fieldValidityMapping,
@@ -129,6 +130,19 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
             hasTouchedInputRef.current = true;
             setFocused(true);
 
+            // Figure out whether the user actually saw a truncated value.
+            const defaultText = formatNumber(value, locale, formatOptionsRef.current);
+            const fullPrecision = formatNumber(value, locale, {
+              ...formatOptionsRef.current,
+              maximumFractionDigits: 20,
+            });
+
+            // Only disable sync and swap in fullPrecision if there was extra precision.
+            if (value !== null && fullPrecision !== defaultText) {
+              allowInputSyncRef.current = false;
+              setInputValue(fullPrecision);
+            }
+
             // Browsers set selection at the start of the input field by default. We want to set it at
             // the end for the first focus.
             const target = event.currentTarget;
@@ -153,12 +167,20 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
               return;
             }
 
-            const parsedValue = parseNumber(inputValue, locale, formatOptionsRef.current);
+            const beforeFormatValue = parseNumber(inputValue, locale, formatOptionsRef.current);
 
-            if (parsedValue !== null) {
-              setValue(parsedValue, event.nativeEvent);
+            if (beforeFormatValue !== null) {
+              const text = formatNumber(beforeFormatValue, locale, formatOptionsRef.current);
+              const afterFormatValue = parseNumber(text, locale, formatOptionsRef.current);
+
+              if (afterFormatValue !== value) {
+                setValue(afterFormatValue, event.nativeEvent);
+              } else {
+                setInputValue(text);
+              }
+
               if (validationMode === 'onBlur') {
-                commitValidation(parsedValue);
+                commitValidation(afterFormatValue);
               }
             }
           },
@@ -327,6 +349,7 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
       allowInputSyncRef,
       locale,
       handleInputRef,
+      value,
     ],
   );
 

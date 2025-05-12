@@ -297,6 +297,7 @@ export function useNumberFieldRoot(
 
         // Prevent the default behavior to avoid scrolling the page.
         event.preventDefault();
+        allowInputSyncRef.current = true;
 
         const amount = getStepAmount(event) ?? DEFAULT_STEP;
 
