@@ -3,16 +3,18 @@ import * as React from 'react';
 import { CompositeList, type CompositeMetadata } from '../list/CompositeList';
 import { useCompositeRoot } from './useCompositeRoot';
 import { CompositeRootContext } from './CompositeRootContext';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import { useRenderElement } from '../../utils/useRenderElement';
 import type { BaseUIComponentProps } from '../../utils/types';
 import type { TextDirection } from '../../direction-provider/DirectionContext';
 import type { Dimensions, ModifierKey } from '../composite';
 import { useEventCallback } from '../../utils/useEventCallback';
 
+const COMPOSITE_ROOT_STATE = {};
+
 /**
  * @internal
  */
-export function CompositeRoot<Metadata extends {}>(props: CompositeRoot.Props<Metadata>) {
+export function CompositeRoot<Metadata extends {}>(componentProps: CompositeRoot.Props<Metadata>) {
   const {
     render,
     className,
@@ -30,11 +32,12 @@ export function CompositeRoot<Metadata extends {}>(props: CompositeRoot.Props<Me
     rootRef,
     disabledIndices,
     modifierKeys,
-    ...otherProps
-  } = props;
+    highlightItemOnHover = false,
+    ...elementProps
+  } = componentProps;
 
   const {
-    getRootProps,
+    props,
     highlightedIndex,
     onHighlightedIndexChange,
     elementsRef,
@@ -62,17 +65,14 @@ export function CompositeRoot<Metadata extends {}>(props: CompositeRoot.Props<Me
     },
   );
 
-  const { renderElement } = useComponentRenderer({
-    propGetter: getRootProps,
-    render: render ?? 'div',
-    state: {},
-    className,
-    extraProps: otherProps,
+  const renderElement = useRenderElement('div', componentProps, {
+    state: COMPOSITE_ROOT_STATE,
+    props: [props, elementProps],
   });
 
   const contextValue: CompositeRootContext = React.useMemo(
-    () => ({ highlightedIndex, onHighlightedIndexChange }),
-    [highlightedIndex, onHighlightedIndexChange],
+    () => ({ highlightedIndex, onHighlightedIndexChange, highlightItemOnHover }),
+    [highlightedIndex, onHighlightedIndexChange, highlightItemOnHover],
   );
 
   return (
@@ -102,5 +102,6 @@ export namespace CompositeRoot {
     rootRef?: React.RefObject<HTMLElement | null>;
     disabledIndices?: number[];
     modifierKeys?: ModifierKey[];
+    highlightItemOnHover?: boolean;
   }
 }

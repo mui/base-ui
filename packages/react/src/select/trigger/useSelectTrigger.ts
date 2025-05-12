@@ -1,9 +1,10 @@
 import * as React from 'react';
 import { contains } from '@floating-ui/react/utils';
 import { useButton } from '../../use-button/useButton';
-import type { GenericHTMLProps } from '../../utils/types';
+import type { HTMLProps } from '../../utils/types';
 import { mergeProps } from '../../merge-props';
 import { useForkRef } from '../../utils/useForkRef';
+import { useTimeout } from '../../utils/useTimeout';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import { ownerDocument } from '../../utils/owner';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
@@ -27,13 +28,13 @@ export function useSelectTrigger(
     positionerElement,
     readOnly,
     alignItemWithTriggerActiveRef,
-    getRootTriggerProps,
+    triggerProps,
   } = useSelectRootContext();
 
   const { labelId, setTouched, setFocused, validationMode } = useFieldRootContext();
 
   const triggerRef = React.useRef<HTMLElement | null>(null);
-  const timeoutRef = React.useRef(-1);
+  const timeout = useTimeout();
 
   const mergedRef = useForkRef(externalRef, triggerRef);
 
@@ -44,20 +45,23 @@ export function useSelectTrigger(
 
   const handleRef = useForkRef<HTMLElement>(buttonRef, setTriggerElement);
 
+  const timeout1 = useTimeout();
+  const timeout2 = useTimeout();
+
   React.useEffect(() => {
     if (open) {
       // mousedown -> mouseup on selected item should not select within 400ms.
-      const timeoutId1 = window.setTimeout(() => {
+      timeout1.start(400, () => {
         selectionRef.current.allowSelectedMouseUp = true;
-      }, 400);
+      });
       // mousedown -> move to unselected item -> mouseup should not select within 200ms.
-      const timeoutId2 = window.setTimeout(() => {
+      timeout2.start(200, () => {
         selectionRef.current.allowUnselectedMouseUp = true;
-      }, 200);
+      });
 
       return () => {
-        clearTimeout(timeoutId1);
-        clearTimeout(timeoutId2);
+        timeout1.clear();
+        timeout2.clear();
       };
     }
 
@@ -67,12 +71,13 @@ export function useSelectTrigger(
       allowSelect: true,
     };
 
-    clearTimeout(timeoutRef.current);
+    timeout.clear();
 
     return undefined;
-  }, [open, selectionRef]);
+  }, [open, selectionRef, timeout, timeout1, timeout2]);
 
-  const props: GenericHTMLProps = mergeProps<'button'>(
+  const props: HTMLProps = mergeProps<'button'>(
+    triggerProps,
     {
       'aria-labelledby': labelId,
       'aria-readonly': readOnly || undefined,
@@ -137,14 +142,13 @@ export function useSelectTrigger(
         }
 
         // Firefox can fire this upon mousedown
-        timeoutRef.current = window.setTimeout(() => {
+        timeout.start(0, () => {
           doc.addEventListener('mouseup', handleMouseUp, { once: true });
         });
       },
     },
     fieldControlValidation.getValidationProps,
     elementProps,
-    getRootTriggerProps,
     getButtonProps,
     // ensure nested useButton does not overwrite the combobox role:
     // <Toolbar.Button render={<Select.Trigger />} />
@@ -168,11 +172,11 @@ export namespace useSelectTrigger {
      * The ref to the root element.
      */
     rootRef?: React.Ref<HTMLElement>;
-    elementProps: GenericHTMLProps;
+    elementProps: HTMLProps;
   }
 
   export interface ReturnValue {
-    props: GenericHTMLProps;
+    props: HTMLProps;
     rootRef: React.RefCallback<Element> | null;
   }
 }

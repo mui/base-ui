@@ -8,17 +8,26 @@ import { ownerDocument, ownerWindow } from '../../utils/owner';
 import { useLatestRef } from '../../utils/useLatestRef';
 import { isWebKit } from '../../utils/detectBrowser';
 import { mergeProps } from '../../merge-props';
-import type { useNumberFieldRoot } from './useNumberFieldRoot';
-import { NumberFieldRootDataAttributes } from './NumberFieldRootDataAttributes';
 import { useEventCallback } from '../../utils/useEventCallback';
-import type { EventWithOptionalKeyState } from '../utils/types';
+import { HTMLProps } from '../../utils/types';
+import { useNumberFieldRootContext } from '../root/NumberFieldRootContext';
 
 export function useScrub(params: useScrub.Parameters) {
-  const { disabled, readOnly, value, inputRef, incrementValue, getStepAmount } = params;
+  const { pixelSensitivity, direction, teleportDistance } = params;
+
+  const {
+    isScrubbing,
+    setIsScrubbing,
+    disabled,
+    readOnly,
+    value,
+    inputRef,
+    incrementValue,
+    getStepAmount,
+  } = useNumberFieldRootContext();
 
   const latestValueRef = useLatestRef(value);
 
-  const scrubHandleRef = React.useRef<ScrubHandle>(null);
   const scrubAreaRef = React.useRef<HTMLSpanElement>(null);
 
   const isScrubbingRef = React.useRef(false);
@@ -26,7 +35,6 @@ export function useScrub(params: useScrub.Parameters) {
   const virtualCursorCoords = React.useRef({ x: 0, y: 0 });
   const visualScaleRef = React.useRef(1);
 
-  const [isScrubbing, setIsScrubbing] = React.useState(false);
   const [isTouchInput, setIsTouchInput] = React.useState(false);
   const [isPointerLockDenied, setIsPointerLockDenied] = React.useState(false);
 
@@ -48,13 +56,12 @@ export function useScrub(params: useScrub.Parameters) {
     ({ movementX, movementY }: PointerEvent) => {
       const virtualCursor = scrubAreaCursorRef.current;
       const scrubAreaEl = scrubAreaRef.current;
-      const scrubHandle = scrubHandleRef.current;
 
-      if (!virtualCursor || !scrubAreaEl || !scrubHandle) {
+      if (!virtualCursor || !scrubAreaEl) {
         return;
       }
 
-      const rect = getViewportRect(scrubHandle.teleportDistance, scrubAreaEl);
+      const rect = getViewportRect(teleportDistance, scrubAreaEl);
 
       const coords = virtualCursorCoords.current;
       const newCoords = {
@@ -81,7 +88,7 @@ export function useScrub(params: useScrub.Parameters) {
 
       updateCursorTransform(newCoords.x, newCoords.y);
     },
-    [updateCursorTransform],
+    [teleportDistance, updateCursorTransform],
   );
 
   const onScrubbingChange = React.useCallback(
@@ -104,15 +111,14 @@ export function useScrub(params: useScrub.Parameters) {
 
       updateCursorTransform(initialCoords.x, initialCoords.y);
     },
-    [updateCursorTransform],
+    [setIsScrubbing, updateCursorTransform],
   );
 
-  const getScrubAreaProps: useNumberFieldRoot.ReturnValue['getScrubAreaProps'] = React.useCallback(
-    (externalProps = {}) =>
+  const getScrubAreaProps = React.useCallback(
+    (externalProps = {}): HTMLProps =>
       mergeProps<'span'>(
         {
           role: 'presentation',
-          [NumberFieldRootDataAttributes.scrubbing as string]: isScrubbing || undefined,
           style: {
             touchAction: 'none',
             WebkitUserSelect: 'none',
@@ -155,7 +161,7 @@ export function useScrub(params: useScrub.Parameters) {
         },
         externalProps,
       ),
-    [readOnly, disabled, onScrubbingChange, inputRef, isScrubbing],
+    [readOnly, disabled, onScrubbingChange, inputRef],
   );
 
   React.useEffect(
@@ -179,7 +185,7 @@ export function useScrub(params: useScrub.Parameters) {
       }
 
       function handleScrubPointerMove(event: PointerEvent) {
-        if (!isScrubbingRef.current || !scrubHandleRef.current) {
+        if (!isScrubbingRef.current) {
           return;
         }
 
@@ -188,7 +194,6 @@ export function useScrub(params: useScrub.Parameters) {
 
         onScrub(event);
 
-        const { direction, pixelSensitivity } = scrubHandleRef.current;
         const { movementX, movementY } = event;
 
         cumulativeDelta += direction === 'vertical' ? movementY : movementX;
@@ -219,6 +224,8 @@ export function useScrub(params: useScrub.Parameters) {
       inputRef,
       onScrubbingChange,
       onScrub,
+      direction,
+      pixelSensitivity,
     ],
   );
 
@@ -253,25 +260,15 @@ export function useScrub(params: useScrub.Parameters) {
       getScrubAreaProps,
       scrubAreaCursorRef,
       scrubAreaRef,
-      scrubHandleRef,
     }),
     [isScrubbing, isTouchInput, isPointerLockDenied, getScrubAreaProps],
   );
 }
 
-export interface ScrubHandle {
-  direction: 'horizontal' | 'vertical';
-  pixelSensitivity: number;
-  teleportDistance: number | undefined;
-}
-
-export namespace useScrub {
+namespace useScrub {
   export interface Parameters {
-    disabled: boolean;
-    readOnly: boolean;
-    value: number | null;
-    inputRef: React.RefObject<HTMLInputElement | null>;
-    incrementValue: (amount: number, dir: 1 | -1, currentValue?: number | null) => void;
-    getStepAmount: (event?: EventWithOptionalKeyState) => number | undefined;
+    pixelSensitivity: number;
+    direction: 'horizontal' | 'vertical';
+    teleportDistance: number | undefined;
   }
 }

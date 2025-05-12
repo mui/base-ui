@@ -2,7 +2,7 @@ import * as React from 'react';
 import { useFloatingRootContext } from '@floating-ui/react';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import type { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
-import type { GenericHTMLProps } from '../../utils/types';
+import type { HTMLProps } from '../../utils/types';
 import type { OpenChangeReason } from '../../utils/translateOpenChangeReason';
 
 export interface SelectRootContext {
@@ -27,10 +27,10 @@ export interface SelectRootContext {
   setPositionerElement: React.Dispatch<React.SetStateAction<HTMLElement | null>>;
   listRef: React.MutableRefObject<Array<HTMLElement | null>>;
   popupRef: React.MutableRefObject<HTMLDivElement | null>;
-  getRootTriggerProps: (props?: GenericHTMLProps) => GenericHTMLProps;
-  getRootPopupProps: (props?: GenericHTMLProps) => GenericHTMLProps;
+  triggerProps: HTMLProps;
+  popupProps: HTMLProps;
   getItemProps: (
-    props?: GenericHTMLProps & { active?: boolean; selected?: boolean },
+    props?: HTMLProps & { active?: boolean; selected?: boolean },
   ) => Record<string, unknown>;
   floatingRootContext: ReturnType<typeof useFloatingRootContext>;
   label: string;

@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { useMenuItem } from '../item/useMenuItem';
 import { useControlled } from '../../utils/useControlled';
-import { GenericHTMLProps } from '../../utils/types';
+import { HTMLProps } from '../../utils/types';
 import { mergeProps } from '../../merge-props';
 
 export function useMenuCheckboxItem(
@@ -19,7 +19,7 @@ export function useMenuCheckboxItem(
   const { getItemProps: getMenuItemProps, ...menuItem } = useMenuItem(other);
 
   const getItemProps = React.useCallback(
-    (externalProps?: GenericHTMLProps): GenericHTMLProps => {
+    (externalProps?: HTMLProps): HTMLProps => {
       return mergeProps(
         {
           role: 'menuitemcheckbox',

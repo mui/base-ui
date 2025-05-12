@@ -4,7 +4,7 @@ import { useNumberFieldRootContext } from '../root/NumberFieldRootContext';
 import { useNumberFieldButton } from '../root/useNumberFieldButton';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import type { NumberFieldRoot } from '../root/NumberFieldRoot';
-import type { BaseUIComponentProps, GenericHTMLProps } from '../../utils/types';
+import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import { styleHookMapping } from '../utils/styleHooks';
 
 /**
@@ -38,7 +38,7 @@ export const NumberFieldIncrement = React.forwardRef(function NumberFieldIncreme
     formatOptionsRef,
     valueRef,
     isPressedRef,
-    intentionalTouchCheckTimeoutRef,
+    intentionalTouchCheckTimeout,
     movesAfterTouchRef,
     locale,
   } = useNumberFieldRootContext();
@@ -61,13 +61,13 @@ export const NumberFieldIncrement = React.forwardRef(function NumberFieldIncreme
     formatOptionsRef,
     valueRef,
     isPressedRef,
-    intentionalTouchCheckTimeoutRef,
+    intentionalTouchCheckTimeout,
     movesAfterTouchRef,
     locale,
   });
 
   const propGetter = React.useCallback(
-    (externalProps: GenericHTMLProps) => getCommonButtonProps(true, externalProps),
+    (externalProps: HTMLProps) => getCommonButtonProps(true, externalProps),
     [getCommonButtonProps],
   );
 

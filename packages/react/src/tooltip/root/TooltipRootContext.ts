@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import type { FloatingRootContext } from '@floating-ui/react';
-import type { GenericHTMLProps } from '../../utils/types';
+import type { HTMLProps } from '../../utils/types';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import type { OpenChangeReason } from '../../utils/translateOpenChangeReason';
 
@@ -16,8 +16,8 @@ export interface TooltipRootContext {
   closeDelay: number;
   mounted: boolean;
   setMounted: React.Dispatch<React.SetStateAction<boolean>>;
-  getTriggerProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
-  getPopupProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
+  triggerProps: HTMLProps;
+  popupProps: HTMLProps;
   instantType: 'delay' | 'dismiss' | 'focus' | undefined;
   floatingRootContext: FloatingRootContext;
   trackCursorAxis: 'none' | 'x' | 'y' | 'both';

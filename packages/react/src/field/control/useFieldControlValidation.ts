@@ -1,12 +1,13 @@
 'use client';
 import * as React from 'react';
+import { useTimeout } from '../../utils/useTimeout';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { useFieldRootContext } from '../root/FieldRootContext';
 import { mergeProps } from '../../merge-props';
 import { DEFAULT_VALIDITY_STATE } from '../utils/constants';
 import { useFormContext } from '../../form/FormContext';
 import { getCombinedFieldValidityData } from '../utils/getCombinedFieldValidityData';
-import type { GenericHTMLProps } from '../../utils/types';
+import type { HTMLProps } from '../../utils/types';
 
 const validityKeys = Object.keys(DEFAULT_VALIDITY_STATE) as Array<keyof ValidityState>;
 
@@ -27,14 +28,8 @@ export function useFieldControlValidation() {
 
   const { formRef, clearErrors } = useFormContext();
 
-  const timeoutRef = React.useRef(-1);
+  const timeout = useTimeout();
   const inputRef = React.useRef<HTMLInputElement | null>(null);
-
-  React.useEffect(() => {
-    return () => {
-      window.clearTimeout(timeoutRef.current);
-    };
-  }, []);
 
   const commitValidation = useEventCallback(async (value: unknown, revalidate = false) => {
     const element = inputRef.current;
@@ -72,12 +67,13 @@ export function useFieldControlValidation() {
       // to reduce error noise.
       if (hasOnlyValueMissingError && !markedDirtyRef.current) {
         computedState.valid = true;
+        computedState.valueMissing = false;
       }
 
       return computedState;
     }
 
-    window.clearTimeout(timeoutRef.current);
+    timeout.clear();
 
     const resultOrPromise = validate(value);
     let result: null | string | string[] = null;
@@ -166,12 +162,12 @@ export function useFieldControlValidation() {
               return;
             }
 
-            window.clearTimeout(timeoutRef.current);
+            timeout.clear();
 
             if (validationDebounceTime) {
-              timeoutRef.current = window.setTimeout(() => {
+              timeout.start(validationDebounceTime, () => {
                 commitValidation(element.value);
-              }, validationDebounceTime);
+              });
             } else {
               commitValidation(element.value);
             }
@@ -183,6 +179,7 @@ export function useFieldControlValidation() {
       getValidationProps,
       clearErrors,
       name,
+      timeout,
       commitValidation,
       invalid,
       validationMode,
@@ -203,8 +200,8 @@ export function useFieldControlValidation() {
 
 export namespace useFieldControlValidation {
   export interface ReturnValue {
-    getValidationProps: (props?: GenericHTMLProps) => GenericHTMLProps;
-    getInputValidationProps: (props?: GenericHTMLProps) => GenericHTMLProps;
+    getValidationProps: (props?: HTMLProps) => HTMLProps;
+    getInputValidationProps: (props?: HTMLProps) => HTMLProps;
     inputRef: React.MutableRefObject<any>;
     commitValidation: (value: unknown, revalidate?: boolean) => void;
   }

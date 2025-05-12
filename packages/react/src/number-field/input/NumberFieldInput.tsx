@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useModernLayoutEffect } from '@floating-ui/react/utils';
+import { useModernLayoutEffect, stopEvent } from '@floating-ui/react/utils';
 import { useNumberFieldRootContext } from '../root/NumberFieldRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useForkRef } from '../../utils/useForkRef';
@@ -50,7 +50,6 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
     required,
     setValue,
     state,
-    valueRef,
     setInputValue,
     locale,
     inputRef,
@@ -144,14 +143,13 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
             setTouched(true);
             setFocused(false);
 
-            if (validationMode === 'onBlur') {
-              commitValidation(valueRef.current);
-            }
-
             allowInputSyncRef.current = true;
 
             if (inputValue.trim() === '') {
               setValue(null);
+              if (validationMode === 'onBlur') {
+                commitValidation(null);
+              }
               return;
             }
 
@@ -159,6 +157,9 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
 
             if (parsedValue !== null) {
               setValue(parsedValue, event.nativeEvent);
+              if (validationMode === 'onBlur') {
+                commitValidation(parsedValue);
+              }
             }
           },
           onChange(event) {
@@ -240,6 +241,7 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
               'ArrowRight',
               'Tab',
               'Enter',
+              'Escape',
             ].includes(event.key);
 
             if (
@@ -265,7 +267,7 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
             const amount = getStepAmount(event) ?? DEFAULT_STEP;
 
             // Prevent insertion of text or caret from moving.
-            event.preventDefault();
+            stopEvent(event);
 
             if (event.key === 'ArrowUp') {
               incrementValue(amount, 1, parsedValue, nativeEvent);
@@ -315,7 +317,6 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
       validationMode,
       formatOptionsRef,
       commitValidation,
-      valueRef,
       setValue,
       getAllowedNonNumericKeys,
       getStepAmount,
