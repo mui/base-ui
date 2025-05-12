@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { formatNumber } from '../../utils/formatNumber';
+import { formatNumber, formatNumberMaxPrecision } from '../../utils/formatNumber';
 import { toValidatedNumber } from '../utils/validate';
 import { PERCENTAGES, getNumberLocaleDetails } from '../utils/parse';
 import { CHANGE_VALUE_TICK_DELAY, DEFAULT_STEP, START_AUTO_CHANGE_DELAY } from '../utils/constants';
@@ -99,6 +99,17 @@ export function useNumberFieldRoot(
   const allowInputSyncRef = React.useRef(true);
   const unsubscribeFromGlobalContextMenuRef = React.useRef<() => void>(() => {});
 
+  const isControlled = externalValue !== undefined;
+  const lastExternalValueRef = React.useRef<number | null | undefined>(externalValue);
+  const externalUpdateRef = React.useRef(false);
+
+  useModernLayoutEffect(() => {
+    if (isControlled && externalValue !== lastExternalValueRef.current) {
+      externalUpdateRef.current = true;
+    }
+    lastExternalValueRef.current = externalValue;
+  }, [externalValue, isControlled]);
+
   useModernLayoutEffect(() => {
     if (validityData.initialValue === null && value !== validityData.initialValue) {
       setValidityData((prev) => ({ ...prev, initialValue: value }));
@@ -156,6 +167,18 @@ export function useNumberFieldRoot(
       onValueChange?.(validatedValue, event && 'nativeEvent' in event ? event.nativeEvent : event);
       setValueUnwrapped(validatedValue);
       setDirty(validatedValue !== validityData.initialValue);
+
+      if (dir != null) {
+        const wasExternal = externalUpdateRef.current;
+        externalUpdateRef.current = false;
+
+        const fn = wasExternal ? formatNumberMaxPrecision : formatNumber;
+        const text = fn(validatedValue, locale, formatOptionsRef.current);
+
+        allowInputSyncRef.current = false;
+        setInputValue(text);
+        return;
+      }
 
       // We need to force a re-render, because while the value may be unchanged, the formatting may
       // be different. This forces the `useModernLayoutEffect` to run which acts as a single source of
@@ -246,10 +269,17 @@ export function useNumberFieldRoot(
       return;
     }
 
-    const nextInputValue = formatNumber(value, locale, formatOptionsRef.current);
-
-    if (nextInputValue !== inputValue) {
-      setInputValue(nextInputValue);
+    if (isControlled && externalUpdateRef.current) {
+      // Respect precision if externally changed
+      const fullPrecision = formatNumberMaxPrecision(value, locale, formatOptionsRef.current);
+      if (fullPrecision !== inputValue) {
+        setInputValue(fullPrecision);
+      }
+    } else {
+      const next = formatNumber(value, locale, formatOptionsRef.current);
+      if (next !== inputValue) {
+        setInputValue(next);
+      }
     }
   });
 
@@ -345,6 +375,8 @@ export function useNumberFieldRoot(
       locale,
       isScrubbing,
       setIsScrubbing,
+      externalUpdateRef,
+      isControlled,
     }),
     [
       inputRef,
@@ -376,6 +408,7 @@ export function useNumberFieldRoot(
       setInputValue,
       locale,
       isScrubbing,
+      isControlled,
     ],
   );
 }
@@ -512,5 +545,7 @@ export namespace useNumberFieldRoot {
     locale: Intl.LocalesArgument;
     isScrubbing: boolean;
     setIsScrubbing: React.Dispatch<React.SetStateAction<boolean>>;
+    externalUpdateRef: React.RefObject<boolean | null>;
+    isControlled: boolean;
   }
 }

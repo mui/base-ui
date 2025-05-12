@@ -15,7 +15,7 @@ import type { NumberFieldRoot } from '../root/NumberFieldRoot';
 import { styleHookMapping } from '../utils/styleHooks';
 import { useField } from '../../field/useField';
 import { useFormContext } from '../../form/FormContext';
-import { formatNumber } from '../../utils/formatNumber';
+import { formatNumber, formatNumberMaxPrecision } from '../../utils/formatNumber';
 
 const customStyleHookMapping = {
   ...fieldValidityMapping,
@@ -55,6 +55,8 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
     locale,
     inputRef,
     value,
+    externalUpdateRef,
+    isControlled,
   } = useNumberFieldRootContext();
 
   const { clearErrors } = useFormContext();
@@ -132,10 +134,7 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
 
             // Figure out whether the user actually saw a truncated value.
             const defaultText = formatNumber(value, locale, formatOptionsRef.current);
-            const fullPrecision = formatNumber(value, locale, {
-              ...formatOptionsRef.current,
-              maximumFractionDigits: 20,
-            });
+            const fullPrecision = formatNumberMaxPrecision(value, locale, formatOptionsRef.current);
 
             // Only disable sync and swap in fullPrecision if there was extra precision.
             if (value !== null && fullPrecision !== defaultText) {
@@ -167,21 +166,30 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
               return;
             }
 
-            const beforeFormatValue = parseNumber(inputValue, locale, formatOptionsRef.current);
+            const parsed = parseNumber(inputValue, locale, formatOptionsRef.current);
+            if (parsed === null) {
+              return;
+            }
 
-            if (beforeFormatValue !== null) {
-              const text = formatNumber(beforeFormatValue, locale, formatOptionsRef.current);
-              const afterFormatValue = parseNumber(text, locale, formatOptionsRef.current);
-
-              if (afterFormatValue !== value) {
-                setValue(afterFormatValue, event.nativeEvent);
-              } else {
-                setInputValue(text);
-              }
-
+            if (isControlled && externalUpdateRef.current) {
+              externalUpdateRef.current = false;
               if (validationMode === 'onBlur') {
-                commitValidation(afterFormatValue);
+                commitValidation(parsed);
               }
+              return;
+            }
+
+            const canonicalText = formatNumber(parsed, locale, formatOptionsRef.current);
+            const canonical = parseNumber(canonicalText, locale, formatOptionsRef.current);
+
+            if (canonical !== value) {
+              setValue(canonical, event.nativeEvent);
+            } else {
+              setInputValue(canonicalText);
+            }
+
+            if (validationMode === 'onBlur') {
+              commitValidation(canonical);
             }
           },
           onChange(event) {
@@ -323,8 +331,6 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
         getInputValidationProps(getValidationProps(externalProps)),
       ),
     [
-      getInputValidationProps,
-      getValidationProps,
       id,
       required,
       name,
@@ -332,24 +338,28 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
       readOnly,
       inputMode,
       inputValue,
+      handleInputRef,
       invalid,
       labelId,
+      getInputValidationProps,
+      getValidationProps,
       setFocused,
-      setTouched,
-      validationMode,
+      value,
+      locale,
       formatOptionsRef,
-      commitValidation,
+      allowInputSyncRef,
+      setInputValue,
+      setTouched,
+      isControlled,
+      externalUpdateRef,
+      validationMode,
       setValue,
+      commitValidation,
       getAllowedNonNumericKeys,
       getStepAmount,
       min,
       max,
       incrementValue,
-      setInputValue,
-      allowInputSyncRef,
-      locale,
-      handleInputRef,
-      value,
     ],
   );
 
