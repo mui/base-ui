@@ -8,7 +8,7 @@ import {
 } from '../utils/constants';
 import { mergeProps } from '../../merge-props';
 import { parseNumber } from '../utils/parse';
-import type { GenericHTMLProps } from '../../utils/types';
+import type { HTMLProps } from '../../utils/types';
 import type { EventWithOptionalKeyState } from '../utils/types';
 import type { Timeout } from '../../utils/useTimeout';
 
@@ -246,9 +246,6 @@ export namespace useNumberFieldButton {
   }
 
   export interface ReturnValue {
-    getCommonButtonProps: (
-      isIncrement: boolean,
-      externalProps?: GenericHTMLProps,
-    ) => GenericHTMLProps;
+    getCommonButtonProps: (isIncrement: boolean, externalProps?: HTMLProps) => HTMLProps;
   }
 }

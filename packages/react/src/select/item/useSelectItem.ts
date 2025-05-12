@@ -1,6 +1,6 @@
 import * as React from 'react';
 import type { FloatingEvents } from '@floating-ui/react';
-import type { GenericHTMLProps } from '../../utils/types';
+import type { HTMLProps } from '../../utils/types';
 import { useButton } from '../../use-button';
 import { mergeProps } from '../../merge-props';
 import type { SelectRootContext } from '../root/SelectRootContext';
@@ -297,12 +297,12 @@ export namespace useSelectItem {
     popupRef: React.RefObject<HTMLDivElement | null>;
     keyboardActiveRef: React.RefObject<boolean>;
     events: FloatingEvents;
-    elementProps: GenericHTMLProps;
-    rootProps: GenericHTMLProps;
+    elementProps: HTMLProps;
+    rootProps: HTMLProps;
   }
 
   export interface ReturnValue {
-    props: GenericHTMLProps;
+    props: HTMLProps;
     rootRef: React.RefCallback<Element> | null;
   }
 }

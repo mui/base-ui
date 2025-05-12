@@ -7,7 +7,7 @@ import { mergeProps } from '../../merge-props';
 import { DEFAULT_VALIDITY_STATE } from '../utils/constants';
 import { useFormContext } from '../../form/FormContext';
 import { getCombinedFieldValidityData } from '../utils/getCombinedFieldValidityData';
-import type { GenericHTMLProps } from '../../utils/types';
+import type { HTMLProps } from '../../utils/types';
 
 const validityKeys = Object.keys(DEFAULT_VALIDITY_STATE) as Array<keyof ValidityState>;
 
@@ -200,8 +200,8 @@ export function useFieldControlValidation() {
 
 export namespace useFieldControlValidation {
   export interface ReturnValue {
-    getValidationProps: (props?: GenericHTMLProps) => GenericHTMLProps;
-    getInputValidationProps: (props?: GenericHTMLProps) => GenericHTMLProps;
+    getValidationProps: (props?: HTMLProps) => HTMLProps;
+    getInputValidationProps: (props?: HTMLProps) => HTMLProps;
     inputRef: React.MutableRefObject<any>;
     commitValidation: (value: unknown, revalidate?: boolean) => void;
   }
