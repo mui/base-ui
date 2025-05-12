@@ -8,7 +8,6 @@ import { useTimeout } from '../../utils/useTimeout';
 import { mergeProps } from '../../merge-props';
 import { ownerDocument } from '../../utils/owner';
 import { getPseudoElementBounds } from '../../utils/getPseudoElementBounds';
-import type { MenuOpenChangeReason } from '../../utils/translateOpenChangeReason';
 import { useMenuRoot, type MenuOpenChangeReason } from '../root/useMenuRoot';
 import { useEventCallback } from '../../utils/useEventCallback';
 
@@ -77,7 +76,7 @@ export function useMenuTrigger(parameters: useMenuTrigger.Parameters): useMenuTr
   });
 
   React.useEffect(() => {
-    if (open && lastOpenChangeReason === 'hover') {
+    if (open && lastOpenChangeReason === 'trigger-hover') {
       const doc = ownerDocument(triggerRef.current);
       doc.addEventListener('mouseup', handleMouseUp, { once: true });
     }
@@ -158,7 +157,7 @@ export namespace useMenuTrigger {
     allowMouseUpTriggerRef: React.RefObject<boolean>;
     positionerRef: React.RefObject<HTMLElement | null>;
     menuParent: useMenuRoot.MenuParent;
-    lastOpenChangeReason: OpenChangeReason | null;
+    lastOpenChangeReason: MenuOpenChangeReason | null;
   }
 
   export interface ReturnValue {

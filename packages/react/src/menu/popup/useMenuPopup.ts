@@ -9,7 +9,7 @@ export function useMenuPopup(parameters: useMenuPopup.Parameters): useMenuPopup.
   React.useEffect(() => {
     function handleClose(event: {
       domEvent: Event | undefined;
-      reason: OpenChangeReason | undefined;
+      reason: MenuOpenChangeReason | undefined;
     }) {
       setOpen(false, event.domEvent, event.reason);
     }

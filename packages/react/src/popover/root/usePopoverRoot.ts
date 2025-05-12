@@ -115,12 +115,15 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
     elements: { reference: triggerElement, floating: positionerElement },
     open,
     onOpenChange(openValue, eventValue, reasonValue) {
-      const isHover = reasonValue === 'hover' || reasonValue === 'safe-polygon';
-      const isKeyboardClick = reasonValue === 'click' && (eventValue as MouseEvent).detail === 0;
-      const isDismissClose = !openValue && (reasonValue === 'escape-key' || reasonValue == null);
+      const translatedReason = translateOpenChangeReason(reasonValue);
+      const isHover = translatedReason === 'trigger-hover';
+      const isKeyboardClick =
+        translatedReason === 'trigger-press' && (eventValue as MouseEvent).detail === 0;
+      const isDismissClose =
+        !openValue && (translatedReason === 'escape-key' || reasonValue == null);
 
       function changeState() {
-        setOpen(openValue, eventValue, translateOpenChangeReason(reasonValue));
+        setOpen(openValue, eventValue, translatedReason);
       }
 
       if (isHover) {

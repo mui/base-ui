@@ -3,7 +3,6 @@ import * as React from 'react';
 import { FloatingTree } from '@floating-ui/react';
 import { MenuRootContext } from './MenuRootContext';
 import { MenuOrientation, MenuOpenChangeReason, useMenuRoot } from './useMenuRoot';
-import type { OpenChangeReason } from '../../utils/translateOpenChangeReason';
 
 /**
  * Groups all parts of the menu.
@@ -129,7 +128,7 @@ export namespace MenuRoot {
      * Instead, the `unmount` function must be called to unmount the menu manually.
      * Useful when the menu's animation is controlled by an external library.
      */
-    actionsRef?: React.RefObject<{ unmount: () => void }>;
+    actionsRef?: React.RefObject<Actions>;
   }
 
   export interface Actions {
