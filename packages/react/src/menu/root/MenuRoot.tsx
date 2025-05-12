@@ -45,7 +45,7 @@ export const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
 
   const content = <MenuRootContext.Provider value={menuRoot}>{children}</MenuRootContext.Provider>;
 
-  if (menuRoot.parent.type === undefined) {
+  if (menuRoot.parent.type === undefined || menuRoot.parent.type === 'context-menu') {
     // set up a FloatingTree to provide the context to nested menus
     return <FloatingTree>{content}</FloatingTree>;
   }
