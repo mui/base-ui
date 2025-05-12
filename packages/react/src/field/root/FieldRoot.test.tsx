@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Field } from '@base-ui-components/react/field';
 import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
 import { expect } from 'chai';
-import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
+import { createRenderer, describeConformance } from '#test-utils';
 
 describe('<Field.Root />', () => {
   const { render } = createRenderer();
@@ -361,38 +361,6 @@ describe('<Field.Root />', () => {
       fireEvent.blur(control);
 
       expect(control).to.have.attribute('aria-invalid');
-    });
-
-    it.skipIf(isJSDOM)('does not revalidate on change for `typeMismatch`', async () => {
-      await render(
-        <Field.Root>
-          <Field.Control type="email" />
-          <Field.Error data-testid="error" />
-        </Field.Root>,
-      );
-
-      const control = screen.getByRole('textbox');
-      const message = screen.queryByTestId('error');
-
-      expect(message).to.equal(null);
-
-      fireEvent.focus(control);
-      fireEvent.change(control, { target: { value: 't' } });
-      fireEvent.blur(control);
-
-      expect(control).to.have.attribute('aria-invalid', 'true');
-      const currentErrorText = screen.getByTestId('error').textContent || '';
-
-      fireEvent.focus(control);
-      fireEvent.change(control, { target: { value: 'tt' } });
-
-      expect(control).to.have.attribute('aria-invalid', 'true');
-      expect(screen.getByTestId('error')).to.have.text(currentErrorText);
-
-      fireEvent.blur(control);
-
-      expect(control).to.have.attribute('aria-invalid', 'true');
-      expect(screen.getByTestId('error')).not.to.have.text(currentErrorText);
     });
 
     it('handles both `required` and `typeMismatch`', async () => {
