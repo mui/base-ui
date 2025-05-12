@@ -32,12 +32,12 @@ const InnerSelectItemText = React.memo(
       [selected, selectedItemTextRef, indexRef],
     );
 
-    const renderElement = useRenderElement('div', componentProps, {
+    const element = useRenderElement('div', componentProps, {
       ref: useForkRef<HTMLElement>(localRef, forwardedRef),
       props: elementProps,
     });
 
-    return renderElement();
+    return element;
   }),
 );
 

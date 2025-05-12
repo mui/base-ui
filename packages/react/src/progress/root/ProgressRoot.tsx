@@ -83,7 +83,7 @@ export const ProgressRoot = React.forwardRef(function ProgressRoot(
     [formattedValue, max, min, setLabelId, state, status, value],
   );
 
-  const renderElement = useRenderElement('div', componentProps, {
+  const element = useRenderElement('div', componentProps, {
     state,
     ref: forwardedRef,
     props: [
@@ -103,9 +103,7 @@ export const ProgressRoot = React.forwardRef(function ProgressRoot(
   });
 
   return (
-    <ProgressRootContext.Provider value={contextValue}>
-      {renderElement()}
-    </ProgressRootContext.Provider>
+    <ProgressRootContext.Provider value={contextValue}>{element}</ProgressRootContext.Provider>
   );
 });
 

@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { mergeObjects } from '../utils/mergeObjects';
 import type { BaseUIEvent, WithBaseUIEvent } from '../utils/types';
 
 type ElementType = React.ElementType;
@@ -115,9 +116,9 @@ function mutablyMergeInto<T extends ElementType>(
 
     switch (propName) {
       case 'style': {
-        mergedProps[propName] = mergeStyles(
-          mergedProps.style,
-          externalPropValue as React.CSSProperties,
+        mergedProps[propName] = mergeObjects(
+          mergedProps.style as React.CSSProperties | undefined,
+          externalPropValue as React.CSSProperties | undefined,
         );
         break;
       }
@@ -198,22 +199,6 @@ export function makeEventPreventable<T extends React.SyntheticEvent>(event: Base
   };
 
   return event;
-}
-
-function mergeStyles(
-  ourStyle: React.CSSProperties | undefined,
-  theirStyle: React.CSSProperties | undefined,
-) {
-  if (ourStyle && !theirStyle) {
-    return ourStyle;
-  }
-  if (!ourStyle && theirStyle) {
-    return theirStyle;
-  }
-  if (theirStyle || ourStyle) {
-    return { ...ourStyle, ...theirStyle };
-  }
-  return undefined;
 }
 
 function mergeClassNames(ourClassName: string | undefined, theirClassName: string | undefined) {

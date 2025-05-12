@@ -352,7 +352,7 @@ export const SliderControl = React.forwardRef(function SliderControl(
     }
   }, [disabled, stopListening]);
 
-  const renderElement = useRenderElement('div', componentProps, {
+  const element = useRenderElement('div', componentProps, {
     state,
     ref: [forwardedRef, registerInputValidationRef, controlRef, setStylesRef],
     props: [
@@ -407,7 +407,7 @@ export const SliderControl = React.forwardRef(function SliderControl(
     customStyleHookMapping: sliderStyleHookMapping,
   });
 
-  return renderElement();
+  return element;
 });
 
 export interface FingerPosition {

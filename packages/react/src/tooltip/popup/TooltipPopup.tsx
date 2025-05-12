@@ -53,7 +53,7 @@ export const TooltipPopup = React.forwardRef(function TooltipPopup(
     [open, side, align, instantType, transitionStatus],
   );
 
-  const renderElement = useRenderElement('div', componentProps, {
+  const element = useRenderElement('div', componentProps, {
     state,
     ref: [forwardedRef, popupRef],
     props: [
@@ -66,7 +66,7 @@ export const TooltipPopup = React.forwardRef(function TooltipPopup(
     customStyleHookMapping,
   });
 
-  return renderElement();
+  return element;
 });
 
 export namespace TooltipPopup {

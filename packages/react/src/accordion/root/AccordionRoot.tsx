@@ -160,7 +160,7 @@ export const AccordionRoot = React.forwardRef(function AccordionRoot(
     ],
   );
 
-  const renderElement = useRenderElement('div', componentProps, {
+  const element = useRenderElement('div', componentProps, {
     state,
     ref: forwardedRef,
     props: [
@@ -250,7 +250,7 @@ export const AccordionRoot = React.forwardRef(function AccordionRoot(
 
   return (
     <AccordionRootContext.Provider value={contextValue}>
-      <CompositeList elementsRef={accordionItemRefs}>{renderElement()}</CompositeList>
+      <CompositeList elementsRef={accordionItemRefs}>{element}</CompositeList>
     </AccordionRootContext.Provider>
   );
 });
