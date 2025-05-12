@@ -64,9 +64,52 @@ export function useFieldControlValidation() {
         return;
       }
 
-      if (!element.validity.valid && !isOnlyValueMissing(element.validity)) {
+      const currentNativeValidity = element.validity;
+
+      if (!currentNativeValidity.valueMissing) {
+        // The 'valueMissing' (required) condition has been resolved by the user typing.
+        // Temporarily mark the field as valid for this onChange event.
+        // Other native errors (e.g., typeMismatch) will be caught by full validation on blur or submit.
+        const nextValidityData = {
+          value,
+          state: { ...DEFAULT_VALIDITY_STATE, valid: true },
+          error: '',
+          errors: [],
+          initialValue: validityData.initialValue,
+        };
+        element.setCustomValidity('');
+
+        if (controlId) {
+          const currentFieldData = formRef.current.fields.get(controlId);
+          if (currentFieldData) {
+            formRef.current.fields.set(controlId, {
+              ...currentFieldData,
+              ...getCombinedFieldValidityData(nextValidityData, false), // invalid = false
+            });
+          }
+        }
+        setValidityData(nextValidityData);
         return;
       }
+
+      // Value is still missing, or other conditions apply.
+      // Let's use a representation of current validity for isOnlyValueMissing.
+      const currentNativeValidityObject = validityKeys.reduce(
+        (acc, key) => {
+          acc[key] = currentNativeValidity[key];
+          return acc;
+        },
+        {} as Record<keyof ValidityState, boolean>,
+      );
+
+      // If it's (still) natively invalid due to something other than just valueMissing,
+      // then bail from this revalidation on change to avoid "scolding" for other errors.
+      if (!currentNativeValidityObject.valid && !isOnlyValueMissing(currentNativeValidityObject)) {
+        return;
+      }
+
+      // If valueMissing is still true AND it's the only issue, or if the field is now natively valid,
+      // let it fall through to the main validation logic below.
     }
 
     function getState(el: HTMLInputElement) {
