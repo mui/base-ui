@@ -4,7 +4,7 @@ import { useLazyRef } from './useLazyRef';
 
 // https://github.com/mui/material-ui/issues/41190#issuecomment-2040873379
 const useInsertionEffect =
-  (React as any)[`useInsertionEffect${Math.random()}`.slice(0, 18)] || ((fn: any) => fn());
+  (React as any)[`useInsertionEffect${Math.random().toFixed(1)}`.slice(0, -3)] || ((fn: any) => fn());
 
 type Callback = (...args: any[]) => any;
 
