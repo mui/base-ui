@@ -32,7 +32,6 @@ describe('<Select.Root />', () => {
     render,
     triggerMouseAction: 'click',
     expectedPopupRole: 'listbox',
-    alwaysMounted: true,
   });
 
   describe('prop: defaultValue', () => {
