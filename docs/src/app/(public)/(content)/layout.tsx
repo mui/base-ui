@@ -19,10 +19,6 @@ export default function Layout({ children }: React.PropsWithChildren) {
                 <SideNav.Item key={link.href} href={link.href}>
                   <SideNav.Label>{link.label}</SideNav.Label>
                   {link.isNew && <SideNav.Badge>New</SideNav.Badge>}
-                  {link.isNewCorner && (
-                    <SideNav.CornerBadge>New</SideNav.CornerBadge>
-                  )}
-                  {link.isNewEnd && <SideNav.EndBadge>New</SideNav.EndBadge>}
                 </SideNav.Item>
               ))}
             </SideNav.List>

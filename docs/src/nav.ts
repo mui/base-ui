@@ -83,12 +83,10 @@ export const nav = [
       {
         label: 'Input',
         href: '/react/components/input',
-        isNewCorner: true,
       },
       {
         label: 'Menu',
         href: '/react/components/menu',
-        isNewEnd: true,
       },
       {
         label: 'Menubar',

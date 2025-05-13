@@ -76,14 +76,6 @@ export function Badge({ className, ...props }: React.ComponentProps<'span'>) {
   return <span className={clsx('SideNavBadge', className)} {...props} />;
 }
 
-export function CornerBadge({ className, ...props }: React.ComponentProps<'span'>) {
-  return <span className={clsx('SideNavBadgeCorner', className)} {...props} />;
-}
-
-export function EndBadge({ className, ...props }: React.ComponentProps<'span'>) {
-  return <span className={clsx('SideNavBadgeEnd', className)} {...props} />;
-}
-
 interface ItemProps extends React.ComponentProps<'li'> {
   active?: boolean;
   href: string;
