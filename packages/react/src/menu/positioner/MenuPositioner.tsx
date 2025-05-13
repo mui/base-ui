@@ -45,8 +45,8 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
     open,
     floatingRootContext,
     setPositionerElement,
-    itemDomElements,
-    itemLabels,
+    listRef,
+    labelsRef,
     mounted,
     modal,
     lastOpenChangeReason,
@@ -145,7 +145,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
         <InternalBackdrop inert={inertValue(!open)} cutout={backdropCutout} />
       )}
       <FloatingNode id={nodeId}>
-        <CompositeList elementsRef={itemDomElements} labelsRef={itemLabels}>
+        <CompositeList elementsRef={listRef} labelsRef={labelsRef}>
           {renderElement()}
         </CompositeList>
       </FloatingNode>

@@ -35,6 +35,192 @@ describe('<Select.Root />', () => {
     alwaysMounted: true,
   });
 
+  describe('keyboard navigation', () => {
+    it('changes the highlighted item using the arrow keys', async () => {
+      const { user } = await render(
+        <Select.Root>
+          <Select.Trigger>Toggle</Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup>
+                <Select.Item data-testid="item-1" value="1">
+                  1
+                </Select.Item>
+                <Select.Item data-testid="item-2" value="2">
+                  2
+                </Select.Item>
+                <Select.Item data-testid="item-3" value="3">
+                  3
+                </Select.Item>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>,
+      );
+
+      const trigger = screen.getByText('Toggle');
+      await act(async () => {
+        trigger.focus();
+      });
+
+      await user.keyboard('[Enter]');
+
+      const item1 = screen.getByTestId('item-1');
+      const item2 = screen.getByTestId('item-2');
+      const item3 = screen.getByTestId('item-3');
+
+      await waitFor(() => {
+        expect(item1).toHaveFocus();
+      });
+
+      await user.keyboard('{ArrowDown}');
+      await waitFor(() => {
+        expect(item2).toHaveFocus();
+      });
+
+      await user.keyboard('{ArrowDown}');
+      await waitFor(() => {
+        expect(item3).toHaveFocus();
+      });
+
+      await user.keyboard('{ArrowUp}');
+      await waitFor(() => {
+        expect(item2).toHaveFocus();
+      });
+    });
+
+    it('changes the highlighted item using the Home and End keys', async () => {
+      const { user } = await render(
+        <Select.Root>
+          <Select.Trigger>Toggle</Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup>
+                <Select.Item data-testid="item-1" value="1">
+                  1
+                </Select.Item>
+                <Select.Item data-testid="item-2" value="2">
+                  2
+                </Select.Item>
+                <Select.Item data-testid="item-3" value="3">
+                  3
+                </Select.Item>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>,
+      );
+
+      const trigger = screen.getByText('Toggle');
+      await act(async () => {
+        trigger.focus();
+      });
+
+      await user.keyboard('[Enter]');
+      const item1 = screen.getByTestId('item-1');
+      const item3 = screen.getByTestId('item-3');
+
+      await waitFor(() => {
+        expect(item1).toHaveFocus();
+      });
+
+      await user.keyboard('{End}');
+      await waitFor(() => {
+        expect(item3).toHaveFocus();
+      });
+
+      await user.keyboard('{Home}');
+      await waitFor(() => {
+        expect(item1).toHaveFocus();
+      });
+    });
+
+    it('includes disabled items during keyboard navigation', async () => {
+      const { user } = await render(
+        <Select.Root>
+          <Select.Trigger>Toggle</Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup>
+                <Select.Item data-testid="item-1" value="1">
+                  1
+                </Select.Item>
+                <Select.Item data-testid="item-2" value="2" disabled>
+                  2
+                </Select.Item>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>,
+      );
+
+      const trigger = screen.getByText('Toggle');
+      await act(async () => {
+        trigger.focus();
+      });
+
+      await user.keyboard('[Enter]');
+
+      const item1 = screen.getByTestId('item-1');
+      const item2 = screen.getByTestId('item-2');
+
+      await waitFor(() => {
+        expect(item1).toHaveFocus();
+      });
+
+      await user.keyboard('{ArrowDown}');
+
+      await waitFor(() => {
+        expect(item2).toHaveFocus();
+      });
+
+      expect(item2).to.have.attribute('aria-disabled', 'true');
+    });
+
+    it('skips display: none items during keyboard navigation', async () => {
+      const { user } = await render(
+        <Select.Root>
+          <Select.Trigger>Toggle</Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup>
+                <Select.Item data-testid="item-1" value="1">
+                  1
+                </Select.Item>
+                <Select.Item style={{ display: 'none' }} data-testid="item-2" value="2">
+                  2
+                </Select.Item>
+                <Select.Item data-testid="item-3" value="3">
+                  3
+                </Select.Item>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>,
+      );
+
+      const trigger = screen.getByText('Toggle');
+      await act(async () => {
+        trigger.focus();
+      });
+
+      await user.keyboard('{Enter}');
+
+      const item1 = screen.getByTestId('item-1');
+      const item3 = screen.getByTestId('item-3');
+
+      await waitFor(() => {
+        expect(item1).toHaveFocus();
+      });
+
+      await user.keyboard('{ArrowDown}');
+
+      await waitFor(() => {
+        expect(item3).toHaveFocus();
+      });
+    });
+  });
+
   describe('prop: defaultValue', () => {
     it('should select the item by default', async () => {
       await render(
