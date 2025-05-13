@@ -28,6 +28,8 @@ export function useScrollAreaViewport() {
 
   const direction = useDirection();
 
+  const programmaticScrollRef = React.useRef(true);
+
   const computeThumbPosition = useEventCallback(() => {
     const viewportEl = viewportRef.current;
     const scrollbarYEl = scrollbarYRef.current;
@@ -183,6 +185,10 @@ export function useScrollAreaViewport() {
     };
   }, [computeThumbPosition, viewportRef]);
 
+  const handleUserInteraction = useEventCallback(() => {
+    programmaticScrollRef.current = false;
+  });
+
   const getViewportProps = React.useCallback(
     (externalProps = {}) =>
       mergeProps<'div'>(
@@ -201,11 +207,20 @@ export function useScrollAreaViewport() {
 
             computeThumbPosition();
 
-            handleScroll({
-              x: viewportRef.current.scrollLeft,
-              y: viewportRef.current.scrollTop,
-            });
+            if (!programmaticScrollRef.current) {
+              handleScroll({
+                x: viewportRef.current.scrollLeft,
+                y: viewportRef.current.scrollTop,
+              });
+            }
+
+            programmaticScrollRef.current = true;
           },
+          onWheel: handleUserInteraction,
+          onTouchMove: handleUserInteraction,
+          onPointerMove: handleUserInteraction,
+          onPointerEnter: handleUserInteraction,
+          onKeyDown: handleUserInteraction,
         },
         externalProps,
       ),
@@ -213,9 +228,10 @@ export function useScrollAreaViewport() {
       rootId,
       hiddenState.scrollbarXHidden,
       hiddenState.scrollbarYHidden,
+      handleUserInteraction,
+      viewportRef,
       computeThumbPosition,
       handleScroll,
-      viewportRef,
     ],
   );
 
