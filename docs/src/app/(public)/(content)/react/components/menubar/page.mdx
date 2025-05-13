@@ -1,0 +1,43 @@
+# Menubar
+
+<Subtitle>A menu bar providing commands and options for your application.</Subtitle>
+<Meta
+  name="description"
+  content="A menu bar providing commands and options for your application."
+/>
+
+<Demo path="./demos/hero" />
+
+## API reference
+
+Import the component and assemble its parts:
+
+```jsx title="Anatomy"
+import { Menubar } from '@base-ui-components/react/menubar';
+import { Menu } from '@base-ui-components/react/menu';
+
+<Menubar>
+  <Menu.Root>
+    <Menu.Trigger />
+    <Menu.Portal>
+      <Menu.Backdrop />
+      <Menu.Positioner>
+        <Menu.Popup>
+          <Menu.Arrow />
+          <Menu.Item />
+          <Menu.Separator />
+          <Menu.Group>
+            <Menu.GroupLabel />
+          </Menu.Group>
+          <Menu.RadioGroup>
+            <Menu.RadioItem />
+          </Menu.RadioGroup>
+          <Menu.CheckboxItem />
+        </Menu.Popup>
+      </Menu.Positioner>
+    </Menu.Portal>
+  </Menu.Root>
+</Menubar>;
+```
+
+<Reference component="Menubar" />

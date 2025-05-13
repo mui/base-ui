@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { GenericHTMLProps } from '../../utils/types';
+import { HTMLProps } from '../../utils/types';
 import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { useForkRef } from '../../utils/useForkRef';
@@ -427,6 +427,6 @@ export namespace useCollapsiblePanel {
   }
 
   export interface ReturnValue {
-    props: GenericHTMLProps;
+    props: HTMLProps;
   }
 }

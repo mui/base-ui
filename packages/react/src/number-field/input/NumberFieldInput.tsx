@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useModernLayoutEffect } from '@floating-ui/react/utils';
+import { useModernLayoutEffect, stopEvent } from '@floating-ui/react/utils';
 import { useNumberFieldRootContext } from '../root/NumberFieldRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useForkRef } from '../../utils/useForkRef';
@@ -241,6 +241,7 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
               'ArrowRight',
               'Tab',
               'Enter',
+              'Escape',
             ].includes(event.key);
 
             if (
@@ -266,7 +267,7 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
             const amount = getStepAmount(event) ?? DEFAULT_STEP;
 
             // Prevent insertion of text or caret from moving.
-            event.preventDefault();
+            stopEvent(event);
 
             if (event.key === 'ArrowUp') {
               incrementValue(amount, 1, parsedValue, nativeEvent);

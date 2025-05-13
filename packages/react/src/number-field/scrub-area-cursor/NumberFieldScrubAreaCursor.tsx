@@ -5,7 +5,7 @@ import { useNumberFieldRootContext } from '../root/NumberFieldRootContext';
 import { isWebKit } from '../../utils/detectBrowser';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useForkRef } from '../../utils/useForkRef';
-import type { BaseUIComponentProps, GenericHTMLProps } from '../../utils/types';
+import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import type { NumberFieldRoot } from '../root/NumberFieldRoot';
 import { ownerDocument } from '../../utils/owner';
 import { mergeProps } from '../../merge-props';
@@ -36,7 +36,7 @@ export const NumberFieldScrubAreaCursor = React.forwardRef(function NumberFieldS
   const mergedRef = useForkRef(forwardedRef, scrubAreaCursorRef, setElement);
 
   const propGetter = React.useCallback(
-    (externalProps: GenericHTMLProps) =>
+    (externalProps: HTMLProps) =>
       mergeProps<'span'>(
         {
           role: 'presentation',

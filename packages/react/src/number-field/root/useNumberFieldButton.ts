@@ -8,7 +8,7 @@ import {
 } from '../utils/constants';
 import { parseNumber } from '../utils/parse';
 import { useEventCallback } from '../../utils/useEventCallback';
-import type { GenericHTMLProps } from '../../utils/types';
+import type { HTMLProps } from '../../utils/types';
 import type { EventWithOptionalKeyState } from '../utils/types';
 import type { Timeout } from '../../utils/useTimeout';
 
@@ -61,7 +61,7 @@ export function useNumberFieldButton(
     }
   });
 
-  const props: GenericHTMLProps = React.useMemo(
+  const props: HTMLProps = React.useMemo(
     () => ({
       disabled: disabled || (isIncrement ? isMax : isMin),
       'aria-readonly': readOnly || undefined,
@@ -238,6 +238,6 @@ export namespace useNumberFieldButton {
   }
 
   export interface ReturnValue {
-    props: GenericHTMLProps;
+    props: HTMLProps;
   }
 }

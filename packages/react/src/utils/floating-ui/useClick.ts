@@ -87,7 +87,8 @@ export function useClick(context: FloatingRootContext, props: UseClickProps = {}
           open &&
           toggle &&
           (dataRef.current.openEvent && stickIfOpen
-            ? dataRef.current.openEvent.type === 'mousedown'
+            ? dataRef.current.openEvent.type === 'click' ||
+              dataRef.current.openEvent.type === 'mousedown'
             : true)
         );
         // Wait until focus is set on the element. This is an alternative to
@@ -112,7 +113,8 @@ export function useClick(context: FloatingRootContext, props: UseClickProps = {}
           open &&
           toggle &&
           (dataRef.current.openEvent && stickIfOpen
-            ? dataRef.current.openEvent.type === 'click'
+            ? dataRef.current.openEvent.type === 'click' ||
+              dataRef.current.openEvent.type === 'mousedown'
             : true)
         );
         onOpenChange(nextOpen, event.nativeEvent, 'click');
