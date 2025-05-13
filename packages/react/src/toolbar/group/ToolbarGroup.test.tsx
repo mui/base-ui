@@ -7,9 +7,10 @@ import { NOOP } from '../../utils/noop';
 import { ToolbarRootContext } from '../root/ToolbarRootContext';
 import { CompositeRootContext } from '../../composite/root/CompositeRootContext';
 
-const testCompositeContext = {
+const testCompositeContext: CompositeRootContext = {
   highlightedIndex: 0,
   onHighlightedIndexChange: NOOP,
+  highlightItemOnHover: false,
 };
 
 const testToolbarContext: ToolbarRootContext = {

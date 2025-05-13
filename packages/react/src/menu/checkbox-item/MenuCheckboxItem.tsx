@@ -6,7 +6,7 @@ import { MenuCheckboxItemContext } from './MenuCheckboxItemContext';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useBaseUiId } from '../../utils/useBaseUiId';
-import type { BaseUIComponentProps, GenericHTMLProps } from '../../utils/types';
+import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import { useForkRef } from '../../utils/useForkRef';
 import { itemMapping } from '../utils/styleHookMapping';
 import { useCompositeListItem } from '../../composite/list/useCompositeListItem';
@@ -113,7 +113,7 @@ export const MenuCheckboxItem = React.forwardRef(function MenuCheckboxItem(
 
 interface InnerMenuCheckboxItemProps extends MenuCheckboxItem.Props {
   highlighted: boolean;
-  itemProps: GenericHTMLProps;
+  itemProps: HTMLProps;
   menuEvents: FloatingEvents;
   allowMouseUpTriggerRef: React.RefObject<boolean>;
   typingRef: React.RefObject<boolean>;

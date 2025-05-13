@@ -12,7 +12,7 @@ import { useControlled } from '../../utils/useControlled';
 import { useTransitionStatus } from '../../utils/useTransitionStatus';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { OPEN_DELAY, CLOSE_DELAY } from '../utils/constants';
-import type { GenericHTMLProps } from '../../utils/types';
+import type { HTMLProps } from '../../utils/types';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import {
   translateOpenChangeReason,
@@ -207,8 +207,8 @@ export namespace usePreviewCardRoot {
     setOpen: (value: boolean, event?: Event, reason?: OpenChangeReason) => void;
     mounted: boolean;
     setMounted: React.Dispatch<React.SetStateAction<boolean>>;
-    getRootTriggerProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
-    getRootPopupProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
+    getRootTriggerProps: (externalProps?: HTMLProps) => HTMLProps;
+    getRootPopupProps: (externalProps?: HTMLProps) => HTMLProps;
     floatingRootContext: FloatingRootContext;
     instantType: 'delay' | 'dismiss' | 'focus' | undefined;
     transitionStatus: TransitionStatus;

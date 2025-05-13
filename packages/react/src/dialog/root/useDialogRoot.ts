@@ -15,7 +15,7 @@ import { useEventCallback } from '../../utils/useEventCallback';
 import { useScrollLock } from '../../utils/useScrollLock';
 import { useTransitionStatus, type TransitionStatus } from '../../utils/useTransitionStatus';
 import { type InteractionType } from '../../utils/useEnhancedClickHandler';
-import type { RequiredExcept, GenericHTMLProps } from '../../utils/types';
+import type { RequiredExcept, HTMLProps } from '../../utils/types';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
 import { mergeProps } from '../../merge-props';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
@@ -331,11 +331,11 @@ export namespace useDialogRoot {
     /**
      * Resolver for the Trigger element's props.
      */
-    getTriggerProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
+    getTriggerProps: (externalProps?: HTMLProps) => HTMLProps;
     /**
      * Resolver for the Popup element's props.
      */
-    getPopupProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
+    getPopupProps: (externalProps?: HTMLProps) => HTMLProps;
     /**
      * Callback to register the Trigger element DOM node.
      */

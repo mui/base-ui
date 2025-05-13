@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { contains } from '@floating-ui/react/utils';
 import { useButton } from '../../use-button/useButton';
-import type { GenericHTMLProps } from '../../utils/types';
+import type { HTMLProps } from '../../utils/types';
 import { mergeProps } from '../../merge-props';
 import { useForkRef } from '../../utils/useForkRef';
 import { useTimeout } from '../../utils/useTimeout';
@@ -76,7 +76,7 @@ export function useSelectTrigger(
     return undefined;
   }, [open, selectionRef, timeout, timeout1, timeout2]);
 
-  const props: GenericHTMLProps = mergeProps<'button'>(
+  const props: HTMLProps = mergeProps<'button'>(
     triggerProps,
     {
       'aria-labelledby': labelId,
@@ -172,11 +172,11 @@ export namespace useSelectTrigger {
      * The ref to the root element.
      */
     rootRef?: React.Ref<HTMLElement>;
-    elementProps: GenericHTMLProps;
+    elementProps: HTMLProps;
   }
 
   export interface ReturnValue {
-    props: GenericHTMLProps;
+    props: HTMLProps;
     rootRef: React.RefCallback<Element> | null;
   }
 }
