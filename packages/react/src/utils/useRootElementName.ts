@@ -1,7 +1,5 @@
 'use client';
 import * as React from 'react';
-import { useModernLayoutEffect } from './useModernLayoutEffect';
-import { warn } from './warn';
 
 interface UseRootElementNameParameters {
   /**
@@ -31,18 +29,6 @@ export function useRootElementName(
   const [rootElementName, setRootElementName] = React.useState<string>(
     rootElementNameProp.toUpperCase(),
   );
-
-  if (process.env.NODE_ENV !== 'production') {
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    useModernLayoutEffect(() => {
-      if (rootElementNameProp && rootElementName !== rootElementNameProp.toUpperCase()) {
-        warn(
-          `useRootElementName expected the '${rootElementNameProp}' element, but a '${rootElementName.toLowerCase()}' was rendered instead`,
-          'This may cause hydration issues in an SSR context, for example in a Next.js app',
-        );
-      }
-    }, [rootElementNameProp, rootElementName]);
-  }
 
   const updateRootElementName = React.useCallback((element: HTMLElement | null) => {
     setRootElementName(element?.tagName ?? '');

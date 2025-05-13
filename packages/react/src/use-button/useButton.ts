@@ -15,7 +15,7 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
     focusableWhenDisabled,
     tabIndex,
     type = 'button',
-    elementName: elementNameProp,
+    elementName: elementNameProp = 'button',
   } = parameters;
   const buttonRef = React.useRef<HTMLButtonElement | HTMLAnchorElement | HTMLElement | null>(null);
 
