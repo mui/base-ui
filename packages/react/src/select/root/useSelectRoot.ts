@@ -98,6 +98,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
   const alignItemWithTriggerActiveRef = React.useRef(false);
 
   const [triggerElement, setTriggerElement] = React.useState<HTMLElement | null>(null);
+  const [typeaheadReady, setTypeaheadReady] = React.useState(false);
   const [positionerElement, setPositionerElement] = React.useState<HTMLElement | null>(null);
   const [activeIndex, setActiveIndex] = React.useState<number | null>(null);
   const [selectedIndex, setSelectedIndex] = React.useState<number | null>(null);
@@ -296,6 +297,8 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
       setTriggerElement,
       positionerElement,
       setPositionerElement,
+      typeaheadReady,
+      setTypeaheadReady,
       scrollUpArrowVisible,
       setScrollUpArrowVisible,
       scrollDownArrowVisible,
@@ -338,6 +341,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
       readOnly,
       triggerElement,
       positionerElement,
+      typeaheadReady,
       scrollUpArrowVisible,
       scrollDownArrowVisible,
       value,
@@ -357,7 +361,6 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
       modal,
       registerSelectedItem,
       onOpenChangeComplete,
-      keyboardActiveRef,
     ],
   );
 
