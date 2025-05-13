@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { useFloatingTree, type FloatingRootContext } from '@floating-ui/react';
 import { useAnchorPositioning } from '../../utils/useAnchorPositioning';
-import type { GenericHTMLProps } from '../../utils/types';
+import type { HTMLProps } from '../../utils/types';
 import { useMenuRootContext } from '../root/MenuRootContext';
 
 export function useMenuPositioner(
@@ -40,7 +40,7 @@ export function useMenuPositioner(
           setHoverEnabled(false);
         }
         if (event.nodeId !== nodeId && event.parentNodeId === parentNodeId) {
-          setOpen(false, undefined, undefined);
+          setOpen(false, undefined, 'sibling-open');
         }
       } else if (event.parentNodeId === nodeId) {
         setHoverEnabled(true);
@@ -86,6 +86,6 @@ export namespace useMenuPositioner {
   export interface SharedParameters extends useAnchorPositioning.SharedParameters {}
 
   export interface ReturnValue extends useAnchorPositioning.ReturnValue {
-    positionerProps: GenericHTMLProps;
+    positionerProps: HTMLProps;
   }
 }

@@ -57,7 +57,7 @@ if (isVitestJsdom) {
   globalThis.window.scrollTo = () => {};
 
   globalThis.requestAnimationFrame = (cb) => {
-    cb(0);
+    setTimeout(() => cb(0), 0);
     return 0;
   };
 }

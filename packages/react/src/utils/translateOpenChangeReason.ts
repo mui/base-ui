@@ -7,7 +7,11 @@ export type OpenChangeReason =
   | 'focus-out'
   | 'escape-key'
   | 'outside-press'
-  | 'trigger-press';
+  | 'trigger-press'
+  | 'list-navigation'
+  | 'sibling-open'
+  | 'item-press'
+  | 'cancel-open';
 
 export function translateOpenChangeReason(
   nativeReason?: NativeReason,
@@ -25,11 +29,12 @@ export function translateOpenChangeReason(
       'focus-out': 'focus-out',
       'escape-key': 'escape-key',
       'outside-press': 'outside-press',
+      'list-navigation': 'list-navigation',
+
       // New mappings
       'reference-press': 'trigger-press',
       'safe-polygon': 'hover',
       'ancestor-scroll': undefined, // Not supported
-      'list-navigation': undefined, // Unnecessary to expose currently
     } as const
   )[nativeReason];
 }

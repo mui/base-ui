@@ -12,7 +12,7 @@
       "description": "Whether to keep the HTML element in the DOM while the select menu is not scrollable."
     },
     "render": {
-      "type": "ReactElement | ((props: GenericHTMLProps, state: Select.ScrollUpArrow.State) => ReactElement)",
+      "type": "ReactElement | ((props: HTMLProps, state: Select.ScrollUpArrow.State) => ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
     }
   },
