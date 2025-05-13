@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { unsafe_useLazyDirectRef } from './useLazyRef';
+import { useLazyRef } from './useLazyRef';
 
 // https://github.com/mui/material-ui/issues/41190#issuecomment-2040873379
 const useInsertionEffect =
@@ -9,8 +9,8 @@ const useInsertionEffect =
 type Callback = (...args: any[]) => any;
 
 type Stable<T extends Callback> = {
-  /** The value during render phase */
-  current: T | undefined;
+  /** The next value for callback */
+  next: T | undefined;
   /** The function to be called by trampoline. This must fail during the initial render phase. */
   callback: T | undefined;
   trampoline: T;
@@ -18,21 +18,22 @@ type Stable<T extends Callback> = {
 };
 
 export function useEventCallback<T extends Callback>(callback: T | undefined): T {
-  const stable = unsafe_useLazyDirectRef<Stable<T>>(unsafe_initialize);
-  stable.current = callback;
+  const stable = useLazyRef(createStableCallback).current;
+  stable.next = callback;
   useInsertionEffect(stable.effect);
   return stable.trampoline;
 }
 
-/* eslint-disable-next-line @typescript-eslint/naming-convention */
-function unsafe_initialize(ref: React.RefObject<unknown>) {
-  const stable = ref as unknown as Stable<any>;
-  stable.current = undefined;
-  stable.callback = assertNotCalled;
-  stable.trampoline = (...args: []) => stable.callback?.(...args);
-  stable.effect = () => {
-    stable.callback = stable.current;
+function createStableCallback() {
+  const stable: Stable<any> = {
+    next: undefined,
+    callback: assertNotCalled,
+    trampoline: (...args: []) => stable.callback?.(...args),
+    effect: () => {
+      stable.callback = stable.next;
+    },
   };
+  return stable;
 }
 
 function assertNotCalled() {
