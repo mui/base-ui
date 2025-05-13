@@ -2,16 +2,17 @@
 import * as React from 'react';
 import { activeElement, contains, useLatestRef } from '@floating-ui/react/utils';
 import { ToastContext } from './ToastProviderContext';
-import { useToastProvider } from './useToastProvider';
 import { ToastObject, useToastManager } from '../useToastManager';
 import { ownerDocument } from '../../utils/owner';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { isFocusVisible } from '../utils/focusVisible';
 import { generateId } from '../../utils/generateId';
 import { resolvePromiseOptions } from '../utils/resolvePromiseOptions';
+import { Timeout } from '../../utils/useTimeout';
+import { createToastManager } from '../createToastManager';
 
 interface TimerInfo {
-  timeoutId?: ReturnType<typeof setTimeout>;
+  timeout?: Timeout;
   start: number;
   delay: number;
   remaining: number;
@@ -105,8 +106,8 @@ export const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvid
     }
     isPausedRef.current = true;
     timersRef.current.forEach((timer) => {
-      if (timer.timeoutId) {
-        clearTimeout(timer.timeoutId);
+      if (timer.timeout) {
+        timer.timeout.clear();
         const elapsed = Date.now() - timer.start;
         const remaining = timer.delay - elapsed;
         timer.remaining = remaining > 0 ? remaining : 0;
@@ -121,10 +122,11 @@ export const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvid
     isPausedRef.current = false;
     timersRef.current.forEach((timer, id) => {
       timer.remaining = timer.remaining > 0 ? timer.remaining : timer.delay;
-      timer.timeoutId = setTimeout(() => {
+      timer.timeout ??= Timeout.create();
+      timer.timeout.start(timer.remaining, () => {
         timersRef.current.delete(id);
         timer.callback();
-      }, timer.remaining);
+      });
       timer.start = Date.now();
     });
   });
@@ -137,8 +139,8 @@ export const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvid
     );
 
     const timer = timersRef.current.get(toastId);
-    if (timer && timer.timeoutId) {
-      clearTimeout(timer.timeoutId);
+    if (timer && timer.timeout) {
+      timer.timeout.clear();
       timersRef.current.delete(toastId);
     }
 
@@ -165,15 +167,15 @@ export const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvid
     const shouldStartActive =
       windowFocusedRef.current && !hoveringRef.current && !focusedRef.current;
 
-    const timeoutId = shouldStartActive
-      ? setTimeout(() => {
-          timersRef.current.delete(id);
-          callback();
-        }, delay)
-      : undefined;
+    const currentTimeout = shouldStartActive ? Timeout.create() : undefined;
+
+    currentTimeout?.start(delay, () => {
+      timersRef.current.delete(id);
+      callback();
+    });
 
     timersRef.current.set(id, {
-      timeoutId,
+      timeout: currentTimeout,
       start: shouldStartActive ? start : 0,
       delay,
       remaining: delay,
@@ -201,9 +203,7 @@ export const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvid
 
           oldestActiveToasts.forEach((t) => {
             const timer = timersRef.current.get(t.id);
-            if (timer && timer.timeoutId) {
-              clearTimeout(timer.timeoutId);
-            }
+            timer?.timeout?.clear();
             timersRef.current.delete(t.id);
           });
 
@@ -358,7 +358,23 @@ export const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvid
 };
 
 export namespace ToastProvider {
-  export interface Props extends useToastProvider.Parameters {
+  export interface Props {
     children?: React.ReactNode;
+    /**
+     * The default amount of time (in ms) before a toast is auto dismissed.
+     * A value of `0` will prevent the toast from being dismissed automatically.
+     * @default 5000
+     */
+    timeout?: number;
+    /**
+     * The maximum number of toasts that can be displayed at once.
+     * When the limit is reached, the oldest toast will be removed to make room for the new one.
+     * @default 3
+     */
+    limit?: number;
+    /**
+     * A global manager for toasts to use outside of a React component.
+     */
+    toastManager?: createToastManager.ToastManager;
   }
 }
