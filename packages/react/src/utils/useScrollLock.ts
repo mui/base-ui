@@ -4,6 +4,8 @@ import { useModernLayoutEffect } from './useModernLayoutEffect';
 import { Timeout } from './useTimeout';
 import { AnimationFrame } from './useAnimationFrame';
 
+/* eslint-disable lines-between-class-members */
+
 let originalHtmlStyles: Partial<CSSStyleDeclaration> = {};
 let originalBodyStyles: Partial<CSSStyleDeclaration> = {};
 let originalHtmlScrollBehavior = '';
@@ -140,9 +142,7 @@ function preventScrollStandard(referenceElement: Element | null) {
 
 class ScrollLocker {
   lockCount = 0;
-
   restore = null as (() => void) | null;
-
   timeoutLock = Timeout.create();
   timeoutUnlock = Timeout.create();
 
