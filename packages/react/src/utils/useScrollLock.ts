@@ -49,6 +49,8 @@ function preventScrollStandard(referenceElement: Element | null) {
   }
 
   function lockScroll() {
+    /* DOM reads: */
+
     const htmlStyles = win.getComputedStyle(html);
     const bodyStyles = win.getComputedStyle(body);
 
@@ -85,17 +87,19 @@ function preventScrollStandard(referenceElement: Element | null) {
     const scrollbarWidth = Math.max(0, win.innerWidth - html.clientWidth);
     const scrollbarHeight = Math.max(0, win.innerHeight - html.clientHeight);
 
+    // Avoid shift due to the default <body> margin. This does cause elements to be clipped
+    // with whitespace. Warn if <body> has margins?
+    const marginY = parseFloat(bodyStyles.marginTop) + parseFloat(bodyStyles.marginBottom);
+    const marginX = parseFloat(bodyStyles.marginLeft) + parseFloat(bodyStyles.marginRight);
+
+    /*  DOM writes: do not read the DOM past this point */
+
     Object.assign(html.style, {
       overflowY:
         !hasScrollbarGutterStable && (isScrollableY || hasConstantOverflowY) ? 'scroll' : 'hidden',
       overflowX:
         !hasScrollbarGutterStable && (isScrollableX || hasConstantOverflowX) ? 'scroll' : 'hidden',
     });
-
-    // Avoid shift due to the default <body> margin. This does cause elements to be clipped
-    // with whitespace. Warn if <body> has margins?
-    const marginY = parseFloat(bodyStyles.marginTop) + parseFloat(bodyStyles.marginBottom);
-    const marginX = parseFloat(bodyStyles.marginLeft) + parseFloat(bodyStyles.marginRight);
 
     Object.assign(body.style, {
       position: 'relative',
