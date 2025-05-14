@@ -7,8 +7,6 @@ let originalHtmlStyles: Partial<CSSStyleDeclaration> = {};
 let originalBodyStyles: Partial<CSSStyleDeclaration> = {};
 let originalHtmlScrollBehavior = '';
 
-const NOOP = () => {};
-
 function hasInsetScrollbars(referenceElement: Element | null) {
   if (typeof document === 'undefined') {
     return false;
@@ -141,7 +139,9 @@ function preventScrollStandard(referenceElement: Element | null) {
 
 class ScrollLocker {
   lockCount = 0;
+
   restore = null as (() => void) | null;
+
   unlockFrame = AnimationFrame.create();
 
   acquire(referenceElement: Element | null) {
