@@ -1,6 +1,6 @@
 # @babel-plugin-display-name
 
-Forked from: https://github.com/zendesk/babel-plugin-react-displayname/blob/master/jest.config.js
+Forked from: https://github.com/zendesk/babel-plugin-react-displayname
 
 ## What does it do?
 
@@ -49,52 +49,4 @@ Enables generation of displayNames for certain called functions.
     }
   ]
 }
-```
-
-#### Example
-
-By default, with `allowedCallees` set to `{ "react": ["createContext"] }`:
-
-```tsx
-import React, { createContext } from 'react';
-const FeatureContext = createContext();
-const AnotherContext = React.createContext();
-```
-
-is transformed into:
-
-```tsx
-import React, { createContext } from 'react';
-const FeatureContext = createContext();
-FeatureContext.displayName = 'FeatureContext';
-const AnotherContext = React.createContext();
-AnotherContext.displayName = 'AnotherContext';
-```
-
-#### Example
-
-from:
-
-```tsx
-const Linebreak = React.memo(() => {
-  return <br />;
-});
-
-const Img = function () {
-  return <img />;
-};
-```
-
-to:
-
-```tsx
-const Linebreak = React.memo(function _Linebreak() {
-  return <br />;
-});
-Linebreak.displayName = 'DS.Linebreak';
-
-const Img = function () {
-  return <img />;
-};
-Img.displayName = 'DS.Img';
 ```
