@@ -14,7 +14,7 @@ export const SelectValue = React.forwardRef(function SelectValue(
   componentProps: SelectValue.Props,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
-  const { className, render, children, placeholder, ...elementProps } = componentProps;
+  const { className, render, children, initial, ...elementProps } = componentProps;
 
   const { value, label, valueRef } = useSelectRootContext();
 
@@ -23,9 +23,7 @@ export const SelectValue = React.forwardRef(function SelectValue(
     props: [
       {
         children:
-          typeof children === 'function'
-            ? children(!label && placeholder ? placeholder : label, value)
-            : label || placeholder,
+          typeof children === 'function' ? children(label || initial, value) : label || initial,
       },
       elementProps,
     ],
@@ -38,12 +36,9 @@ export namespace SelectValue {
   export interface Props extends Omit<BaseUIComponentProps<'span', State>, 'children'> {
     children?: null | ((label: string, value: any) => React.ReactNode);
     /**
-     * A placeholder value to display when no value is selected.
-     *
-     * You can use this prop to pre-render the displayed text
-     * during SSR in order to avoid the hydration flash.
+     * The initial value of the select input.
      */
-    placeholder?: string;
+    initial: string;
   }
 
   export interface State {}

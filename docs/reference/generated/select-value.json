@@ -2,9 +2,10 @@
   "name": "SelectValue",
   "description": "A text label of the currently selected item.\nRenders a `<span>` element.",
   "props": {
-    "placeholder": {
+    "initial": {
       "type": "string",
-      "description": "A placeholder value to display when no value is selected.\n\nYou can use this prop to pre-render the displayed text\nduring SSR in order to avoid the hydration flash."
+      "required": true,
+      "description": "The initial value of the select input."
     },
     "children": {
       "type": "((label: string, value: any) => ReactNode) | null"

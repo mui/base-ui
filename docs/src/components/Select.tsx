@@ -8,14 +8,14 @@ export const Root = Select.Root;
 
 interface TriggerProps extends Select.Trigger.Props {
   ssrFallback?: string;
-  placeholder?: Select.Value.Props['placeholder'];
+  initial: Select.Value.Props['initial'];
 }
 
-export function Trigger({ className, ssrFallback, placeholder, ...props }: TriggerProps) {
+export function Trigger({ className, ssrFallback, initial, ...props }: TriggerProps) {
   return (
     // Implicitly relying on <GhostButton>, keep it in sync
     <Select.Trigger data-layout="text" className="GhostButton" {...props}>
-      <Select.Value placeholder={placeholder}>{(value) => value || ssrFallback}</Select.Value>
+      <Select.Value initial={initial} />
       <Select.Icon render={<ChevronDownIcon className="-ml-0.5" />} />
     </Select.Trigger>
   );

@@ -18,7 +18,7 @@ describe('<Select.Root />', () => {
     createComponent: (props) => (
       <Select.Root {...props.root}>
         <Select.Trigger {...props.trigger}>
-          <Select.Value />
+          <Select.Value initial="Item" />
         </Select.Trigger>
         <Select.Portal {...props.portal}>
           <Select.Positioner>
@@ -39,7 +39,7 @@ describe('<Select.Root />', () => {
       await render(
         <Select.Root defaultValue="b">
           <Select.Trigger data-testid="trigger">
-            <Select.Value />
+            <Select.Value initial="a" />
           </Select.Trigger>
           <Select.Portal>
             <Select.Positioner>
@@ -70,7 +70,7 @@ describe('<Select.Root />', () => {
       await render(
         <Select.Root value="b">
           <Select.Trigger data-testid="trigger">
-            <Select.Value />
+            <Select.Value initial="a" />
           </Select.Trigger>
           <Select.Portal>
             <Select.Positioner>
@@ -99,7 +99,7 @@ describe('<Select.Root />', () => {
       const { setProps } = await render(
         <Select.Root value="a">
           <Select.Trigger data-testid="trigger">
-            <Select.Value />
+            <Select.Value initial="a" />
           </Select.Trigger>
           <Select.Portal>
             <Select.Positioner>
@@ -156,7 +156,7 @@ describe('<Select.Root />', () => {
             }}
           >
             <Select.Trigger data-testid="trigger">
-              <Select.Value />
+              <Select.Value initial="a" />
             </Select.Trigger>
             <Select.Portal>
               <Select.Positioner>
@@ -190,7 +190,7 @@ describe('<Select.Root />', () => {
       const { user } = await renderFakeTimers(
         <Select.Root onValueChange={handleValueChange}>
           <Select.Trigger data-testid="trigger">
-            <Select.Value />
+            <Select.Value initial="a" />
           </Select.Trigger>
           <Select.Portal>
             <Select.Positioner>
@@ -221,7 +221,7 @@ describe('<Select.Root />', () => {
       await render(
         <Select.Root defaultOpen>
           <Select.Trigger data-testid="trigger">
-            <Select.Value />
+            <Select.Value initial="a" />
           </Select.Trigger>
           <Select.Portal>
             <Select.Positioner>
@@ -245,7 +245,7 @@ describe('<Select.Root />', () => {
       const { user } = await render(
         <Select.Root onOpenChange={handleOpenChange}>
           <Select.Trigger data-testid="trigger">
-            <Select.Value />
+            <Select.Value initial="a" />
           </Select.Trigger>
           <Select.Portal>
             <Select.Positioner>
@@ -272,7 +272,7 @@ describe('<Select.Root />', () => {
     const { container } = await render(
       <Select.Root name="select">
         <Select.Trigger data-testid="trigger">
-          <Select.Value />
+          <Select.Value initial="a" />
         </Select.Trigger>
         <Select.Portal>
           <Select.Positioner>
@@ -606,7 +606,7 @@ describe('<Select.Root />', () => {
       const { user } = await render(
         <Select.Root defaultValue="b" onOpenChange={handleOpenChange} disabled>
           <Select.Trigger>
-            <Select.Value />
+            <Select.Value initial="a" />
           </Select.Trigger>
           <Select.Portal>
             <Select.Positioner>
@@ -640,7 +640,7 @@ describe('<Select.Root />', () => {
             <button onClick={() => setDisabled(!disabled)}>toggle</button>
             <Select.Root defaultValue="b" onOpenChange={handleOpenChange} disabled={disabled}>
               <Select.Trigger>
-                <Select.Value />
+                <Select.Value initial="a" />
               </Select.Trigger>
               <Select.Portal>
                 <Select.Positioner>
@@ -687,7 +687,7 @@ describe('<Select.Root />', () => {
       const { container } = await render(
         <Select.Root id="test-id">
           <Select.Trigger>
-            <Select.Value />
+            <Select.Value initial="a" />
           </Select.Trigger>
           <Select.Portal>
             <Select.Positioner>
@@ -711,7 +711,7 @@ describe('<Select.Root />', () => {
         <Field.Root disabled>
           <Select.Root>
             <Select.Trigger data-testid="trigger">
-              <Select.Value />
+              <Select.Value initial="a" />
             </Select.Trigger>
             <Select.Portal>
               <Select.Positioner>
@@ -734,7 +734,7 @@ describe('<Select.Root />', () => {
         <Field.Root name="field-select">
           <Select.Root>
             <Select.Trigger data-testid="trigger">
-              <Select.Value />
+              <Select.Value initial="a" />
             </Select.Trigger>
             <Select.Portal>
               <Select.Positioner>
@@ -763,7 +763,7 @@ describe('<Select.Root />', () => {
           <button onClick={() => setValue(null)}>null</button>
           <Select.Root value={value} onValueChange={setValue}>
             <Select.Trigger data-testid="trigger">
-              <Select.Value placeholder="Select a font" data-testid="value" />
+              <Select.Value initial="initial" data-testid="value" />
             </Select.Trigger>
             <Select.Portal>
               <Select.Positioner>
@@ -780,6 +780,8 @@ describe('<Select.Root />', () => {
 
     const { user } = await render(<App />);
 
+    await user.click(screen.getByText('initial'));
+
     await user.click(screen.getByRole('button', { name: '1' }));
     expect(screen.getByTestId('value')).to.have.text('1');
 
@@ -787,7 +789,7 @@ describe('<Select.Root />', () => {
     expect(screen.getByTestId('value')).to.have.text('2');
 
     await user.click(screen.getByRole('button', { name: 'null' }));
-    expect(screen.getByTestId('value')).to.have.text('Select a font');
+    expect(screen.getByTestId('value')).to.have.text('initial');
 
     await user.click(screen.getByTestId('trigger'));
     await waitFor(() => {
@@ -813,7 +815,7 @@ describe('<Select.Root />', () => {
           <Field.Root name="test" data-testid="field">
             <Select.Root required>
               <Select.Trigger data-testid="trigger">
-                <Select.Value />
+                <Select.Value initial="a" />
               </Select.Trigger>
               <Select.Portal>
                 <Select.Positioner />
@@ -847,7 +849,7 @@ describe('<Select.Root />', () => {
             <Field.Root name="select">
               <Select.Root>
                 <Select.Trigger data-testid="trigger">
-                  <Select.Value />
+                  <Select.Value initial="a" />
                 </Select.Trigger>
                 <Select.Portal>
                   <Select.Positioner>
@@ -1087,7 +1089,7 @@ describe('<Select.Root />', () => {
         >
           <Select.Root>
             <Select.Trigger data-testid="trigger">
-              <Select.Value placeholder="Select an option" />
+              <Select.Value initial="Select an option" />
             </Select.Trigger>
             <Select.Portal>
               <Select.Positioner>
@@ -1126,7 +1128,7 @@ describe('<Select.Root />', () => {
         >
           <Select.Root>
             <Select.Trigger data-testid="trigger">
-              <Select.Value placeholder="Select an option" />
+              <Select.Value initial="Select an option" />
             </Select.Trigger>
             <Select.Portal>
               <Select.Positioner>

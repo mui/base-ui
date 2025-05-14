@@ -8,7 +8,7 @@ export default function ExampleSelect() {
   return (
     <Select.Root defaultValue="Item 1">
       <Select.Trigger className={styles.Select}>
-        <Select.Value placeholder="Item 1" />
+        <Select.Value initial="Item 1" />
         <Select.Icon className={styles.SelectIcon}>
           <ChevronUpDownIcon />
         </Select.Icon>

@@ -60,7 +60,7 @@ function SelectDemo({ modal }: Props) {
           aria-label="Select font"
           render={<Tooltip.Trigger render={<Trigger />} />}
         >
-          <Select.Value placeholder="System font" />
+          <Select.Value initial="System font" />
           <SelectDropdownArrow />
         </Select.Trigger>
         <Tooltip.Portal>
