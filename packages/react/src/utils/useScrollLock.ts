@@ -1,6 +1,7 @@
 import { isFirefox, isIOS, isWebKit } from './detectBrowser';
 import { ownerDocument, ownerWindow } from './owner';
 import { useModernLayoutEffect } from './useModernLayoutEffect';
+import { Timeout } from './useTimeout';
 import { AnimationFrame } from './useAnimationFrame';
 
 let originalHtmlStyles: Partial<CSSStyleDeclaration> = {};
@@ -142,19 +143,20 @@ class ScrollLocker {
 
   restore = null as (() => void) | null;
 
-  unlockFrame = AnimationFrame.create();
+  timeoutLock = Timeout.create();
+  timeoutUnlock = Timeout.create();
 
   acquire(referenceElement: Element | null) {
     this.lockCount += 1;
     if (this.lockCount === 1 && this.restore === null) {
-      this.lock(referenceElement);
+      this.timeoutLock.start(0, () => this.lock(referenceElement));
     }
     return this.release;
   }
 
   release = () => {
     this.lockCount -= 1;
-    this.unlockFrame.request(this.unlock);
+    this.timeoutUnlock.start(0, this.unlock);
   };
 
   private unlock = () => {
@@ -165,6 +167,10 @@ class ScrollLocker {
   };
 
   private lock(referenceElement: Element | null) {
+    if (this.lockCount === 0 || this.restore !== null) {
+      return;
+    }
+
     const isOverflowHiddenLock = isIOS() || (isFirefox() && !hasInsetScrollbars(referenceElement));
 
     // Firefox on macOS with overlay scrollbars uses a basic scroll lock that doesn't
