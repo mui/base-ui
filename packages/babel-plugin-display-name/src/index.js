@@ -68,10 +68,14 @@ module.exports = declare((api, options) => {
  * @param {Node} node function node
  */
 function doesReturnJSX(t, node) {
-  if (!node) return false;
+  if (!node) {
+    return false;
+  }
 
   const body = t.toBlock(node).body;
-  if (!body) return false;
+  if (!body) {
+    return false;
+  }
 
   return body.some((statement) => {
     let node;
@@ -240,7 +244,7 @@ function addDisplayNamesToFunctionComponent(t, path, options) {
     return;
   }
 
-  let name = generateDisplayName(t, componentIdentifiers);
+  const name = generateDisplayName(t, componentIdentifiers);
 
   const pattern = `${name}.displayName`;
 
@@ -250,7 +254,9 @@ function addDisplayNamesToFunctionComponent(t, path, options) {
   }
 
   // skip unnecessary addition of name if it is reassigned later on
-  if (hasBeenAssignedNext(t, assignmentPath, pattern)) return;
+  if (hasBeenAssignedNext(t, assignmentPath, pattern)) {
+    return;
+  }
 
   // at this point we're ready to start pushing code
 
@@ -277,7 +283,9 @@ function generateDisplayName(t, componentIdentifiers) {
   let displayName = '';
   componentIdentifiers.forEach((componentIdentifier) => {
     const node = componentIdentifier.id;
-    if (!node) return;
+    if (!node) {
+      return;
+    }
     const name = generateNodeDisplayName(t, node);
     displayName += componentIdentifier.computed ? `[${name}]` : `.${name}`;
   });
@@ -320,8 +328,12 @@ function generateNodeDisplayName(t, node) {
 function hasBeenAssignedPrev(t, assignmentPath, pattern, value) {
   return assignmentPath.getAllPrevSiblings().some((sibling) => {
     const expression = sibling.get('expression');
-    if (!t.isAssignmentExpression(expression.node, { operator: '=' })) return false;
-    if (!t.isStringLiteral(expression.node.right, { value })) return false;
+    if (!t.isAssignmentExpression(expression.node, { operator: '=' })) {
+      return false;
+    }
+    if (!t.isStringLiteral(expression.node.right, { value })) {
+      return false;
+    }
     return expression.get('left').matchesPattern(pattern);
   });
 }
@@ -336,7 +348,9 @@ function hasBeenAssignedPrev(t, assignmentPath, pattern, value) {
 function hasBeenAssignedNext(t, assignmentPath, pattern) {
   return assignmentPath.getAllNextSiblings().some((sibling) => {
     const expression = sibling.get('expression');
-    if (!t.isAssignmentExpression(expression.node, { operator: '=' })) return false;
+    if (!t.isAssignmentExpression(expression.node, { operator: '=' })) {
+      return false;
+    }
     return expression.get('left').matchesPattern(pattern);
   });
 }
