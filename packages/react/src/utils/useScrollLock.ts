@@ -1,4 +1,3 @@
-import * as React from 'react';
 import { isFirefox, isIOS, isWebKit } from './detectBrowser';
 import { ownerDocument, ownerWindow } from './owner';
 import { useModernLayoutEffect } from './useModernLayoutEffect';
@@ -7,12 +6,8 @@ import { AnimationFrame } from './useAnimationFrame';
 let originalHtmlStyles: Partial<CSSStyleDeclaration> = {};
 let originalBodyStyles: Partial<CSSStyleDeclaration> = {};
 let originalHtmlScrollBehavior = '';
-let preventScrollCount = 0;
-let restore: () => void = () => {};
 
-export function getPreventScrollCount() {
-  return preventScrollCount;
-}
+const NOOP = () => {};
 
 function hasInsetScrollbars(referenceElement: Element | null) {
   if (typeof document === 'undefined') {
@@ -144,66 +139,87 @@ function preventScrollStandard(referenceElement: Element | null) {
   };
 }
 
+class ScrollLocker {
+  lockCount = 0;
+  restore = null as (() => void) | null;
+  unlockFrame = AnimationFrame.create();
+
+  acquire(referenceElement: Element | null) {
+    this.lockCount += 1;
+    if (this.lockCount === 1 && this.restore === null) {
+      this.lock(referenceElement);
+    }
+    return this.release;
+  }
+
+  release = () => {
+    this.lockCount -= 1;
+    this.unlockFrame.request(this.unlock);
+  };
+
+  private unlock() {
+    if (this.lockCount === 0 && this.restore) {
+      this.restore?.();
+      this.restore = null;
+    }
+  }
+
+  private lock(referenceElement: Element | null) {
+    const isOverflowHiddenLock = isIOS() || (isFirefox() && !hasInsetScrollbars(referenceElement));
+
+    // Firefox on macOS with overlay scrollbars uses a basic scroll lock that doesn't
+    // need the inset scrollbars handling to prevent overlay scrollbars from appearing
+    // on scroll containers briefly whenever the lock is enabled.
+    // On iOS, scroll locking does not work if the navbar is collapsed. Due to numerous
+    // side effects and bugs that arise on iOS, it must be researched extensively before
+    // being enabled to ensure it doesn't cause the following issues:
+    // - Textboxes must scroll into view when focused, nor cause a glitchy scroll animation.
+    // - The navbar must not force itself into view and cause layout shift.
+    // - Scroll containers must not flicker upon closing a popup when it has an exit animation.
+    this.restore = isOverflowHiddenLock
+      ? preventScrollBasic(referenceElement)
+      : preventScrollStandard(referenceElement);
+  }
+}
+
+const SCROLL_LOCKER = new ScrollLocker();
+
 /**
  * Locks the scroll of the document when enabled.
  *
  * @param enabled - Whether to enable the scroll lock.
  */
 export function useScrollLock(params: {
-  enabled?: boolean;
+  enabled: boolean;
   mounted: boolean;
   open: boolean;
   referenceElement?: Element | null;
 }) {
   const { enabled = true, mounted, open, referenceElement = null } = params;
 
-  const isOverflowHiddenLock = React.useMemo(
-    () => enabled && (isIOS() || (isFirefox() && !hasInsetScrollbars(referenceElement))),
-    [enabled, referenceElement],
-  );
-
-  useModernLayoutEffect(() => {
-    // https://github.com/mui/base-ui/issues/1135
-    if (mounted && !open && isWebKit()) {
-      const doc = ownerDocument(referenceElement);
-      const originalUserSelect = doc.body.style.userSelect;
-      const originalWebkitUserSelect = doc.body.style.webkitUserSelect;
-      doc.body.style.userSelect = 'none';
-      doc.body.style.webkitUserSelect = 'none';
-      return () => {
-        doc.body.style.userSelect = originalUserSelect;
-        doc.body.style.webkitUserSelect = originalWebkitUserSelect;
-      };
-    }
-    return undefined;
-  }, [mounted, open, referenceElement]);
+  // https://github.com/mui/base-ui/issues/1135
+  if (isWebKit()) {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    useModernLayoutEffect(() => {
+      if (mounted && !open) {
+        const doc = ownerDocument(referenceElement);
+        const originalUserSelect = doc.body.style.userSelect;
+        const originalWebkitUserSelect = doc.body.style.webkitUserSelect;
+        doc.body.style.userSelect = 'none';
+        doc.body.style.webkitUserSelect = 'none';
+        return () => {
+          doc.body.style.userSelect = originalUserSelect;
+          doc.body.style.webkitUserSelect = originalWebkitUserSelect;
+        };
+      }
+      return undefined;
+    }, [mounted, open, referenceElement]);
+  }
 
   useModernLayoutEffect(() => {
     if (!enabled) {
       return undefined;
     }
-
-    preventScrollCount += 1;
-    if (preventScrollCount === 1) {
-      // Firefox on macOS with overlay scrollbars uses a basic scroll lock that doesn't
-      // need the inset scrollbars handling to prevent overlay scrollbars from appearing
-      // on scroll containers briefly whenever the lock is enabled.
-      // On iOS, scroll locking does not work if the navbar is collapsed. Due to numerous
-      // side effects and bugs that arise on iOS, it must be researched extensively before
-      // being enabled to ensure it doesn't cause the following issues:
-      // - Textboxes must scroll into view when focused, nor cause a glitchy scroll animation.
-      // - The navbar must not force itself into view and cause layout shift.
-      // - Scroll containers must not flicker upon closing a popup when it has an exit animation.
-      restore = isOverflowHiddenLock
-        ? preventScrollBasic(referenceElement)
-        : preventScrollStandard(referenceElement);
-    }
-
-    return () => {
-      preventScrollCount -= 1;
-      if (preventScrollCount === 0) {
-        restore();
-      }
-    };
-  }, [enabled, isOverflowHiddenLock, referenceElement]);
+    return SCROLL_LOCKER.acquire(referenceElement);
+  }, [enabled, referenceElement]);
 }
