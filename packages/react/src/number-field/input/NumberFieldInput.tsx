@@ -90,14 +90,20 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
 
     if (validationMode === 'onChange') {
       commitValidation(value);
-    } else {
-      if (blockRevalidationRef.current) {
-        blockRevalidationRef.current = false;
-        return;
-      }
-      commitValidation(value, true);
     }
   }, [value, inputValue, name, clearErrors, validationMode, commitValidation]);
+
+  useModernLayoutEffect(() => {
+    if (prevValueRef.current === value || validationMode === 'onChange') {
+      return;
+    }
+
+    if (blockRevalidationRef.current) {
+      blockRevalidationRef.current = false;
+      return;
+    }
+    commitValidation(value, true);
+  }, [commitValidation, validationMode, value]);
 
   useModernLayoutEffect(() => {
     prevValueRef.current = value;
