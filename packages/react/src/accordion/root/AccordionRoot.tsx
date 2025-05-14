@@ -14,6 +14,7 @@ import {
   ARROW_LEFT,
   HOME,
   END,
+  stopEvent,
 } from '../../composite/composite';
 import { CompositeList } from '../../composite/list/CompositeList';
 import { useDirection } from '../../direction-provider/DirectionContext';
@@ -171,7 +172,7 @@ export const AccordionRoot = React.forwardRef(function AccordionRoot(
             return;
           }
 
-          event.preventDefault();
+          stopEvent(event);
 
           const triggers = getActiveTriggers(accordionItemRefs);
 

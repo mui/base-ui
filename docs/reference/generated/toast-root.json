@@ -4,19 +4,20 @@
   "props": {
     "swipeDirection": {
       "type": "'left' | 'right' | 'up' | 'down' | ('left' | 'right' | 'up' | 'down')[]",
-      "description": "Direction(s) in which the toast can be swiped to dismiss.\nDefaults to `['down', 'right']`."
+      "default": "['down', 'right']",
+      "description": "Direction(s) in which the toast can be swiped to dismiss."
     },
     "toast": {
-      "type": "ToastObject",
+      "type": "Toast.Root.ToastObject",
       "required": true,
       "description": "The toast to render."
     },
     "className": {
-      "type": "string | ((state: State) => string)",
+      "type": "string | ((state: Toast.Root.State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "render": {
-      "type": "ReactElement | ((props: GenericHTMLProps, state: State) => ReactElement)",
+      "type": "ReactElement | ((props: HTMLProps, state: Toast.Root.State) => ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
     }
   },

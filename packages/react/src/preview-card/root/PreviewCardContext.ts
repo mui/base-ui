@@ -2,7 +2,7 @@
 import * as React from 'react';
 import type { FloatingRootContext } from '@floating-ui/react';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
-import type { GenericHTMLProps } from '../../utils/types';
+import type { HTMLProps } from '../../utils/types';
 import type { OpenChangeReason } from '../../utils/translateOpenChangeReason';
 
 export interface PreviewCardRootContext {
@@ -15,8 +15,8 @@ export interface PreviewCardRootContext {
   closeDelay: number;
   mounted: boolean;
   setMounted: React.Dispatch<React.SetStateAction<boolean>>;
-  getRootTriggerProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
-  getRootPopupProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
+  getRootTriggerProps: (externalProps?: HTMLProps) => HTMLProps;
+  getRootPopupProps: (externalProps?: HTMLProps) => HTMLProps;
   floatingRootContext: FloatingRootContext;
   transitionStatus: TransitionStatus;
   popupRef: React.RefObject<HTMLElement | null>;

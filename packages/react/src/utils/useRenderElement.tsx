@@ -1,5 +1,5 @@
 import * as React from 'react';
-import type { ComponentRenderFn, GenericHTMLProps } from './types';
+import type { ComponentRenderFn, HTMLProps } from './types';
 import { CustomStyleHookMapping, getStyleHookProps } from './getStyleHookProps';
 import { resolveClassName } from './resolveClassName';
 import { evaluateRenderProp } from './evaluateRenderProp';
@@ -7,7 +7,7 @@ import { useRenderPropForkRef } from './useRenderPropForkRef';
 import { mergeProps } from '../merge-props';
 
 function tag(Tag: string) {
-  return function render(props: GenericHTMLProps) {
+  return function render(props: HTMLProps) {
     if (Tag === 'button') {
       return <button type="button" {...props} />;
     }
@@ -82,7 +82,7 @@ export namespace useRenderElement {
     /**
      * @deprecated
      */
-    propGetter?: (externalProps: GenericHTMLProps) => GenericHTMLProps;
+    propGetter?: (externalProps: HTMLProps) => HTMLProps;
     /**
      * The state of the component.
      */
@@ -98,6 +98,7 @@ export namespace useRenderElement {
       | RenderFunctionProps<TagName>
       | Array<
           | RenderFunctionProps<TagName>
+          | undefined
           | ((props: RenderFunctionProps<TagName>) => RenderFunctionProps<TagName>)
         >;
     /**
