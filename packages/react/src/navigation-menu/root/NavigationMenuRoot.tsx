@@ -41,7 +41,7 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot(
     onValueChange,
     actionsRef,
     delay = 50,
-    closeDelay = 100,
+    closeDelay = 200,
     orientation = 'horizontal',
   } = componentProps;
 
