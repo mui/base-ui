@@ -2,13 +2,8 @@
   "name": "SelectValue",
   "description": "A text label of the currently selected item.\nRenders a `<span>` element.",
   "props": {
-    "initial": {
-      "type": "string",
-      "required": true,
-      "description": "The initial value of the select input."
-    },
     "children": {
-      "type": "((label: string, value: any) => ReactNode) | null"
+      "type": "string | ((label: string, value: any) => ReactNode) | null"
     },
     "className": {
       "type": "string | ((state: Select.Value.State) => string)",

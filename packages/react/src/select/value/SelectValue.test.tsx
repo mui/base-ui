@@ -8,7 +8,7 @@ import { createRenderer, describeConformance } from '#test-utils';
 describe('<Select.Value />', () => {
   const { render } = createRenderer();
 
-  describeConformance(<Select.Value initial="" />, () => ({
+  describeConformance(<Select.Value />, () => ({
     refInstanceof: window.HTMLSpanElement,
     render(node) {
       return render(<Select.Root open>{node}</Select.Root>);
@@ -19,7 +19,7 @@ describe('<Select.Value />', () => {
     it('renders a placeholder when the value is null', async () => {
       await render(
         <Select.Root>
-          <Select.Value initial="Select a font" />
+          <Select.Value>Select a font</Select.Value>
         </Select.Root>,
       );
       expect(screen.getByText('Select a font')).not.to.equal(null);
@@ -32,10 +32,10 @@ describe('<Select.Value />', () => {
       await render(
         <Select.Root value="1">
           <Select.Trigger>
-            <Select.Value initial="placeholder">
+            <Select.Value>
               {(label, value) => {
                 children(label, value);
-                return label;
+                return label || 'placeholder';
               }}
             </Select.Value>
           </Select.Trigger>
@@ -52,7 +52,7 @@ describe('<Select.Value />', () => {
       fireEvent.click(screen.getByText('placeholder'));
       await flushMicrotasks();
 
-      expect(children.firstCall.firstArg).to.equal('placeholder');
+      expect(children.firstCall.firstArg).to.equal('');
       expect(children.firstCall.lastArg).to.equal('1');
       expect(children.lastCall.firstArg).to.equal('one');
       expect(children.lastCall.lastArg).to.equal('1');
@@ -69,7 +69,7 @@ describe('<Select.Value />', () => {
           <button onClick={() => setValue(null)}>null</button>
           <Select.Root value={value} onValueChange={setValue}>
             <Select.Trigger>
-              <Select.Value initial="initial" data-testid="value" />
+              <Select.Value data-testid="value">initial</Select.Value>
             </Select.Trigger>
             <Select.Portal>
               <Select.Positioner>

@@ -6,7 +6,7 @@ export default function ExampleSelect() {
   return (
     <Select.Root defaultValue="sans">
       <Select.Trigger className={styles.Select}>
-        <Select.Value initial="Sans-serif" />
+        <Select.Value>Sans-serif</Select.Value>
         <Select.Icon className={styles.SelectIcon}>
           <ChevronUpDownIcon />
         </Select.Icon>

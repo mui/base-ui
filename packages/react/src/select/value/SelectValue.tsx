@@ -14,7 +14,7 @@ export const SelectValue = React.forwardRef(function SelectValue(
   componentProps: SelectValue.Props,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
-  const { className, render, children, initial, ...elementProps } = componentProps;
+  const { className, render, children, ...elementProps } = componentProps;
 
   const { value, label, valueRef } = useSelectRootContext();
 
@@ -22,8 +22,7 @@ export const SelectValue = React.forwardRef(function SelectValue(
     ref: [forwardedRef, valueRef],
     props: [
       {
-        children:
-          typeof children === 'function' ? children(label || initial, value) : label || initial,
+        children: typeof children === 'function' ? children(label, value) : label || children,
       },
       elementProps,
     ],
@@ -34,11 +33,7 @@ export const SelectValue = React.forwardRef(function SelectValue(
 
 export namespace SelectValue {
   export interface Props extends Omit<BaseUIComponentProps<'span', State>, 'children'> {
-    children?: null | ((label: string, value: any) => React.ReactNode);
-    /**
-     * The initial value of the select input.
-     */
-    initial: string;
+    children?: null | string | ((label: string, value: any) => React.ReactNode);
   }
 
   export interface State {}

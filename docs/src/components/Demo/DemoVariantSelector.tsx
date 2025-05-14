@@ -125,12 +125,10 @@ export function DemoVariantSelector({
     <div {...props}>
       {renderLanguageSelector && (
         <Select.Root value={selectedLocalVariant.language} onValueChange={handleLanguageChange}>
-          <Select.Trigger
-            initial={
-              currentVariantLanguages.find((item) => item.value === selectedLocalVariant.language)
-                ?.label ?? ''
-            }
-          />
+          <Select.Trigger>
+            {currentVariantLanguages.find((item) => item.value === selectedLocalVariant.language)
+              ?.label ?? ''}
+          </Select.Trigger>
           <Select.Popup>
             {currentVariantLanguages.map((language) => (
               <Select.Item key={language.value} value={language.value}>
@@ -143,10 +141,9 @@ export function DemoVariantSelector({
 
       {renderVariantSelector && (
         <Select.Root value={selectedLocalVariant.name} onValueChange={handleVariantChange}>
-          <Select.Trigger
-            initial={translations.variants[selectedLocalVariant.name]}
-            aria-label="Styling method"
-          />
+          <Select.Trigger aria-label="Styling method">
+            {translations.variants[selectedLocalVariant.name]}
+          </Select.Trigger>
           <Select.Popup>
             {Object.keys(variantsMap).map((variantName) => (
               <Select.Item key={variantName} value={variantName}>

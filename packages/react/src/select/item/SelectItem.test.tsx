@@ -26,7 +26,7 @@ describe('<Select.Item />', () => {
     await render(
       <Select.Root>
         <Select.Trigger data-testid="trigger">
-          <Select.Value initial="null" data-testid="value" />
+          <Select.Value data-testid="value">null</Select.Value>
         </Select.Trigger>
         <Select.Positioner data-testid="positioner">
           <Select.Item value="one">one</Select.Item>
@@ -57,7 +57,7 @@ describe('<Select.Item />', () => {
     const { user } = await render(
       <Select.Root>
         <Select.Trigger data-testid="trigger">
-          <Select.Value initial="" />
+          <Select.Value />
         </Select.Trigger>
         <Select.Portal>
           <Select.Positioner>
@@ -96,7 +96,7 @@ describe('<Select.Item />', () => {
     const { user } = await render(
       <Select.Root>
         <Select.Trigger data-testid="trigger">
-          <Select.Value initial="null" data-testid="value" />
+          <Select.Value data-testid="value">null</Select.Value>
         </Select.Trigger>
         <Select.Portal>
           <Select.Positioner>
@@ -129,7 +129,7 @@ describe('<Select.Item />', () => {
     await render(
       <Select.Root open>
         <Select.Trigger data-testid="trigger">
-          <Select.Value initial="" data-testid="value" />
+          <Select.Value data-testid="value" />
         </Select.Trigger>
         <Select.Portal>
           <Select.Positioner>
@@ -154,7 +154,7 @@ describe('<Select.Item />', () => {
     await render(
       <Select.Root>
         <Select.Trigger data-testid="trigger">
-          <Select.Value initial="" data-testid="value" />
+          <Select.Value data-testid="value" />
         </Select.Trigger>
         <Select.Portal>
           <Select.Positioner>
@@ -185,7 +185,7 @@ describe('<Select.Item />', () => {
     const { user } = await renderFakeTimers(
       <Select.Root>
         <Select.Trigger data-testid="trigger">
-          <Select.Value initial="one" data-testid="value" />
+          <Select.Value data-testid="value">one</Select.Value>
         </Select.Trigger>
         <Select.Portal>
           <Select.Positioner>
