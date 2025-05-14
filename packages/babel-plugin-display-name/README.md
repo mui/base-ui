@@ -71,21 +71,6 @@ const AnotherContext = React.createContext();
 AnotherContext.displayName = 'AnotherContext';
 ```
 
-### `template`
-
-Allows for rudimentary templating with the generated `displayName`. For example:
-
-```json
-{
-  "plugins": [
-    "@probablyup/babel-plugin-react-displayname",
-    {
-      "template": "DS.%s"
-    }
-  ]
-}
-```
-
 #### Example
 
 from:
