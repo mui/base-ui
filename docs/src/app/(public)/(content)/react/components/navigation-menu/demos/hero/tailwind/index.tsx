@@ -66,7 +66,7 @@ export default function ExampleNavigationMenu() {
 
       <NavigationMenu.Portal>
         <NavigationMenu.Positioner
-          sideOffset={5}
+          sideOffset={10}
           className="box-border h-[var(--positioner-height)] w-[var(--positioner-width)] max-w-[var(--available-width)] transition-[top,left,right,bottom] duration-[var(--duration)] ease-[var(--easing)] data-[instant]:transition-none"
           style={{
             ['--duration' as string]: '0.4s',
