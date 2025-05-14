@@ -157,7 +157,7 @@ class ScrollLocker {
     this.unlockFrame.request(this.unlock);
   };
 
-  private unlock() {
+  private unlock = () => {
     if (this.lockCount === 0 && this.restore) {
       this.restore?.();
       this.restore = null;
