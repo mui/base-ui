@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useAnchorPositioning } from '../../utils/useAnchorPositioning';
-import type { GenericHTMLProps } from '../../utils/types';
+import type { HTMLProps } from '../../utils/types';
 import { useNavigationMenuRootContext } from '../root/NavigationMenuRootContext';
 
 export function useNavigationMenuPositioner(
@@ -42,6 +42,6 @@ export namespace useNavigationMenuPositioner {
   export interface SharedParameters extends useAnchorPositioning.SharedParameters {}
 
   export interface ReturnValue extends useAnchorPositioning.ReturnValue {
-    props: GenericHTMLProps;
+    props: HTMLProps;
   }
 }
