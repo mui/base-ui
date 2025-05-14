@@ -162,7 +162,7 @@ class ScrollLocker {
       this.restore?.();
       this.restore = null;
     }
-  }
+  };
 
   private lock(referenceElement: Element | null) {
     const isOverflowHiddenLock = isIOS() || (isFirefox() && !hasInsetScrollbars(referenceElement));
