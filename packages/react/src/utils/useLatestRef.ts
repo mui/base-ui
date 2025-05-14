@@ -1,8 +1,6 @@
 'use client';
-import * as React from 'react';
+import { useModernLayoutEffect } from './useModernLayoutEffect';
 import { useLazyRef } from './useLazyRef';
-
-const useEffect = typeof document !== 'undefined' ? React.useLayoutEffect : React.useEffect;
 
 export function useLatestRef<T>(value: T) {
   const latest = useLazyRef(createLatestRef, value).current;
@@ -10,7 +8,7 @@ export function useLatestRef<T>(value: T) {
   latest.next = value;
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(latest.effect);
+  useModernLayoutEffect(latest.effect);
 
   return latest;
 }
