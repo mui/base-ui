@@ -32,6 +32,7 @@ describe('<Select.Root />', () => {
     render,
     triggerMouseAction: 'click',
     expectedPopupRole: 'listbox',
+    alwaysMounted: 'only-after-open',
   });
 
   describe('prop: defaultValue', () => {
@@ -526,7 +527,7 @@ describe('<Select.Root />', () => {
         expect(screen.queryByRole('listbox')).not.to.equal(null);
       });
 
-      expect(onOpenChangeComplete.callCount).to.equal(1);
+      expect(onOpenChangeComplete.callCount).to.equal(2); // 1 in browser
       expect(onOpenChangeComplete.firstCall.args[0]).to.equal(true);
     });
 
