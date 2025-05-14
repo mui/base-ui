@@ -92,7 +92,10 @@ function preventScrollStandard(referenceElement: Element | null) {
     const marginY = parseFloat(bodyStyles.marginTop) + parseFloat(bodyStyles.marginBottom);
     const marginX = parseFloat(bodyStyles.marginLeft) + parseFloat(bodyStyles.marginRight);
 
-    /*  DOM writes: do not read the DOM past this point */
+    /*
+     * DOM writes:
+     * Do not read the DOM past this point!
+     */
 
     Object.assign(html.style, {
       overflowY:
