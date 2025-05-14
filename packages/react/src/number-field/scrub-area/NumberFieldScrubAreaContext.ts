@@ -11,10 +11,6 @@ export const NumberFieldScrubAreaContext = React.createContext<
   ReturnType<typeof useScrub> | undefined
 >(undefined);
 
-if (process.env.NODE_ENV !== 'production') {
-  NumberFieldScrubAreaContext.displayName = 'NumberFieldScrubAreaContext';
-}
-
 export function useNumberFieldScrubAreaContext() {
   const context = React.useContext(NumberFieldScrubAreaContext);
   if (context === undefined) {

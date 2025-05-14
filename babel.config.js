@@ -42,6 +42,7 @@ module.exports = function getBabelConfig(api) {
       '@babel/plugin-transform-runtime',
       { regenerator: false, version: baseUIPackageJson.dependencies['@babel/runtime'] },
     ],
+    './packages/babel-plugin-display-name/src/index.js',
     ...(useESModules ? ['babel-plugin-add-import-extension'] : []),
   ];
 

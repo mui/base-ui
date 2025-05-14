@@ -11,10 +11,6 @@ export const NumberFieldRootContext = React.createContext<NumberFieldRootContext
   undefined,
 );
 
-if (process.env.NODE_ENV !== 'production') {
-  NumberFieldRootContext.displayName = 'NumberFieldRootContext';
-}
-
 export function useNumberFieldRootContext() {
   const context = React.useContext(NumberFieldRootContext);
   if (context === undefined) {
