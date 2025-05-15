@@ -140,45 +140,47 @@ export function useFieldControlValidation() {
         computedState.valid = true;
         computedState.valueMissing = false;
       }
-
       return computedState;
     }
 
     timeout.clear();
 
-    const resultOrPromise = validate(value);
     let result: null | string | string[] = null;
-    if (
-      typeof resultOrPromise === 'object' &&
-      resultOrPromise !== null &&
-      'then' in resultOrPromise
-    ) {
-      result = await resultOrPromise;
-    } else {
-      result = resultOrPromise;
-    }
-
-    let errorMessage = '';
-    if (result !== null) {
-      errorMessage = Array.isArray(result) ? result.join('\n') : result;
-    }
-    element.setCustomValidity(errorMessage);
+    let validationErrors: string[] = [];
 
     const nextState = getState(element);
 
-    let validationErrors: string[] = [];
-    if (Array.isArray(result)) {
-      validationErrors = result;
-    } else if (result) {
-      validationErrors = [result];
-    } else if (element.validationMessage) {
+    if (element.validationMessage) {
       validationErrors = [element.validationMessage];
+    } else {
+      const resultOrPromise = validate(value);
+      if (
+        typeof resultOrPromise === 'object' &&
+        resultOrPromise !== null &&
+        'then' in resultOrPromise
+      ) {
+        result = await resultOrPromise;
+      } else {
+        result = resultOrPromise;
+      }
+
+      if (result !== null) {
+        nextState.valid = false;
+
+        if (Array.isArray(result)) {
+          validationErrors = result;
+          element.setCustomValidity(result.join('\n'));
+        } else if (result) {
+          validationErrors = [result];
+          element.setCustomValidity(result);
+        }
+      }
     }
 
     const nextValidityData = {
       value,
       state: nextState,
-      error: Array.isArray(result) ? result[0] : (result ?? element.validationMessage),
+      error: element.validationMessage ?? (Array.isArray(result) ? result[0] : result),
       errors: validationErrors,
       initialValue: validityData.initialValue,
     };
