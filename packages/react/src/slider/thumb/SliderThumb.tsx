@@ -95,7 +95,6 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     getAriaLabel: getAriaLabelProp,
     getAriaValueText: getAriaValueTextProp,
     id: idProp,
-    inputId: inputIdProp,
     onBlur: onBlurProp,
     onFocus: onFocusProp,
     onKeyDown: onKeyDownProp,
@@ -105,7 +104,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
   } = componentProps;
 
   const id = useBaseUiId(idProp);
-  const inputId = useBaseUiId(inputIdProp);
+  const inputId = `${id}-input`;
 
   const render = renderProp ?? defaultRender;
 
@@ -413,7 +412,6 @@ export namespace SliderThumb {
      * @type {((formattedValue: string, value: number, index: number) => string) | null}
      */
     getAriaValueText?: ((formattedValue: string, value: number, index: number) => string) | null;
-    inputId?: string;
     /**
      * Allows you to replace the component’s HTML element
      * with a different tag, or compose it with another component.
