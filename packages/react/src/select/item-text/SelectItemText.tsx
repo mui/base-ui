@@ -20,8 +20,7 @@ const InnerSelectItemText = React.memo(
     const { className, render, selected, selectedItemTextRef, indexRef, ...elementProps } =
       componentProps;
 
-    const textRef = React.useRef<HTMLDivElement | null>(null);
-    const mergedRef = useForkRef<HTMLElement>(forwardedRef, textRef);
+    const mergedRef = useForkRef<HTMLElement>(forwardedRef);
 
     const ref = React.useCallback(
       (node: HTMLElement | null) => {
