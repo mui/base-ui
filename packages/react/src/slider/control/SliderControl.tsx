@@ -105,6 +105,7 @@ export const SliderControl = React.forwardRef(function SliderControl(
     onValueCommitted,
     orientation,
     range,
+    registerFieldControlRef,
     setActive,
     setDragging,
     setValue,
@@ -352,7 +353,7 @@ export const SliderControl = React.forwardRef(function SliderControl(
 
   const element = useRenderElement('div', componentProps, {
     state,
-    ref: [forwardedRef, controlRef, setStylesRef],
+    ref: [forwardedRef, registerFieldControlRef, controlRef, setStylesRef],
     props: [
       {
         onPointerDown(event: React.PointerEvent<HTMLDivElement>) {
