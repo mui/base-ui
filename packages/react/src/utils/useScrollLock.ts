@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { isFirefox, isIOS, isWebKit } from './detectBrowser';
 import { ownerDocument, ownerWindow } from './owner';
-import { useModernLayoutEffect } from './useModernLayoutEffect';
+import { useLayoutEffect } from './useLayoutEffect';
 import { AnimationFrame } from './useAnimationFrame';
 
 let originalHtmlStyles: Partial<CSSStyleDeclaration> = {};
@@ -155,7 +155,7 @@ export function useScrollLock(params: {
     [enabled, referenceElement],
   );
 
-  useModernLayoutEffect(() => {
+  useLayoutEffect(() => {
     // https://github.com/mui/base-ui/issues/1135
     if (mounted && !open && isWebKit()) {
       const doc = ownerDocument(referenceElement);
@@ -171,7 +171,7 @@ export function useScrollLock(params: {
     return undefined;
   }, [mounted, open, referenceElement]);
 
-  useModernLayoutEffect(() => {
+  useLayoutEffect(() => {
     if (!enabled) {
       return undefined;
     }

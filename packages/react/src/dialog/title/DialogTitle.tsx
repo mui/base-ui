@@ -3,7 +3,7 @@ import * as React from 'react';
 import { useDialogRootContext } from '../root/DialogRootContext';
 import { mergeProps } from '../../merge-props';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
+import { useLayoutEffect } from '../../utils/useLayoutEffect';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { type BaseUIComponentProps } from '../../utils/types';
 
@@ -24,7 +24,7 @@ export const DialogTitle = React.forwardRef(function DialogTitle(
 
   const id = useBaseUiId(idProp);
 
-  useModernLayoutEffect(() => {
+  useLayoutEffect(() => {
     setTitleElementId(id);
     return () => {
       setTitleElementId(undefined);

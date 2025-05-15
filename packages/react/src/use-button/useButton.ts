@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { useForkRef } from '../utils/useForkRef';
 import { makeEventPreventable, mergeProps } from '../merge-props';
-import { useModernLayoutEffect } from '../utils/useModernLayoutEffect';
+import { useLayoutEffect } from '../utils/useLayoutEffect';
 import { useEventCallback } from '../utils/useEventCallback';
 import { useRootElementName } from '../utils/useRootElementName';
 import { useCompositeRootContext } from '../composite/root/CompositeRootContext';
@@ -80,7 +80,7 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
   // <Toolbar.Button disabled render={<Menu.Trigger />} />
   // the `disabled` prop needs to pass through 2 `useButton`s then finally
   // delete the `disabled` attribute from DOM
-  useModernLayoutEffect(() => {
+  useLayoutEffect(() => {
     const element = buttonRef.current;
     if (!(element instanceof HTMLButtonElement)) {
       return;

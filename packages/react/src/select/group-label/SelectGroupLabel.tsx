@@ -3,7 +3,7 @@ import * as React from 'react';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useSelectGroupContext } from '../group/SelectGroupContext';
-import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
+import { useLayoutEffect } from '../../utils/useLayoutEffect';
 import { useRenderElement } from '../../utils/useRenderElement';
 
 /**
@@ -22,7 +22,7 @@ export const SelectGroupLabel = React.forwardRef(function SelectGroupLabel(
 
   const id = useBaseUiId(idProp);
 
-  useModernLayoutEffect(() => {
+  useLayoutEffect(() => {
     setLabelId(id);
   }, [id, setLabelId]);
 

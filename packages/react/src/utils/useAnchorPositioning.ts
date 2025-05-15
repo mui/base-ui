@@ -19,7 +19,7 @@ import {
   type Side as PhysicalSide,
 } from '@floating-ui/react';
 import { getSide, getAlignment, type Rect } from '@floating-ui/utils';
-import { useModernLayoutEffect } from './useModernLayoutEffect';
+import { useLayoutEffect } from './useLayoutEffect';
 import { useDirection } from '../direction-provider/DirectionContext';
 import { useLatestRef } from './useLatestRef';
 import { useEventCallback } from './useEventCallback';
@@ -255,7 +255,7 @@ export function useAnchorPositioning(
 
   const registeredPositionReferenceRef = React.useRef<Element | VirtualElement | null>(null);
 
-  useModernLayoutEffect(() => {
+  useLayoutEffect(() => {
     if (!mounted) {
       return;
     }

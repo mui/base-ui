@@ -5,7 +5,7 @@ import { useFieldRootContext } from '../root/FieldRootContext';
 import { fieldValidityMapping } from '../utils/constants';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useBaseUiId } from '../../utils/useBaseUiId';
-import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
+import { useLayoutEffect } from '../../utils/useLayoutEffect';
 import { useRenderElement } from '../../utils/useRenderElement';
 
 /**
@@ -26,7 +26,7 @@ export const FieldDescription = React.forwardRef(function FieldDescription(
 
   const { setMessageIds } = useFieldRootContext();
 
-  useModernLayoutEffect(() => {
+  useLayoutEffect(() => {
     if (!id) {
       return undefined;
     }

@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useModernLayoutEffect } from './useModernLayoutEffect';
+import { useLayoutEffect } from './useLayoutEffect';
 import { AnimationFrame } from './useAnimationFrame';
 
 export type TransitionStatus = 'starting' | 'ending' | 'idle' | undefined;
@@ -28,7 +28,7 @@ export function useTransitionStatus(open: boolean) {
     setTransitionStatus(undefined);
   }
 
-  useModernLayoutEffect(() => {
+  useLayoutEffect(() => {
     if (!open) {
       return undefined;
     }

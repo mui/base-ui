@@ -13,7 +13,7 @@ import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useControlled } from '../../utils/useControlled';
 import { useTransitionStatus } from '../../utils';
-import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
+import { useLayoutEffect } from '../../utils/useLayoutEffect';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { warn } from '../../utils/warn';
 import type { SelectRootContext } from './SelectRootContext';
@@ -57,7 +57,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
   const disabled = fieldDisabled || disabledProp;
   const name = fieldName ?? nameProp;
 
-  useModernLayoutEffect(() => {
+  useLayoutEffect(() => {
     setControlId(id);
     return () => {
       setControlId(undefined);
@@ -78,7 +78,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     state: 'open',
   });
 
-  useModernLayoutEffect(() => {
+  useLayoutEffect(() => {
     setFilled(value !== null);
   }, [setFilled, value]);
 
@@ -120,7 +120,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
 
   const prevValueRef = React.useRef(value);
 
-  useModernLayoutEffect(() => {
+  useLayoutEffect(() => {
     if (prevValueRef.current === value) {
       return;
     }
@@ -132,7 +132,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     }
   }, [value, commitValidation, clearErrors, name, validationMode]);
 
-  useModernLayoutEffect(() => {
+  useLayoutEffect(() => {
     prevValueRef.current = value;
   }, [value]);
 
@@ -206,7 +206,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     }
   });
 
-  useModernLayoutEffect(() => {
+  useLayoutEffect(() => {
     if (!hasRegisteredRef.current) {
       return;
     }

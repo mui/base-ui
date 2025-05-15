@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useModernLayoutEffect } from './useModernLayoutEffect';
+import { useLayoutEffect } from './useLayoutEffect';
 import { warn } from './warn';
 
 interface UseRootElementNameParameters {
@@ -34,7 +34,7 @@ export function useRootElementName(
 
   if (process.env.NODE_ENV !== 'production') {
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    useModernLayoutEffect(() => {
+    useLayoutEffect(() => {
       if (rootElementNameProp && rootElementName !== rootElementNameProp.toUpperCase()) {
         warn(
           `useRootElementName expected the '${rootElementNameProp}' element, but a '${rootElementName.toLowerCase()}' was rendered instead`,

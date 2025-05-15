@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { contains, useModernLayoutEffect } from '@floating-ui/react/utils';
+import { contains, useLayoutEffect } from '@floating-ui/react/utils';
 import { mergeProps } from '../merge-props';
 import { useControlled } from '../utils/useControlled';
 import { useFieldRootContext } from '../field/root/FieldRootContext';
@@ -57,7 +57,7 @@ export function useRadioGroup(params: useRadioGroup.Parameters) {
 
   const prevValueRef = React.useRef(checkedValue);
 
-  useModernLayoutEffect(() => {
+  useLayoutEffect(() => {
     if (prevValueRef.current === checkedValue) {
       return;
     }
@@ -71,7 +71,7 @@ export function useRadioGroup(params: useRadioGroup.Parameters) {
     }
   }, [name, clearErrors, validationMode, checkedValue, fieldControlValidation]);
 
-  useModernLayoutEffect(() => {
+  useLayoutEffect(() => {
     prevValueRef.current = checkedValue;
   }, [checkedValue]);
 

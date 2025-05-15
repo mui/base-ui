@@ -7,7 +7,7 @@ import { useCompositeListItem } from '../../composite/list/useCompositeListItem'
 import { useForkRef } from '../../utils/useForkRef';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useSelectItem } from './useSelectItem';
-import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
+import { useLayoutEffect } from '../../utils/useLayoutEffect';
 import { useLatestRef } from '../../utils/useLatestRef';
 import { SelectItemContext } from './SelectItemContext';
 import { useRenderElement } from '../../utils/useRenderElement';
@@ -154,7 +154,7 @@ export const SelectItem = React.forwardRef(function SelectItem(
 
   const hasRegistered = listItem.index !== -1;
 
-  useModernLayoutEffect(() => {
+  useLayoutEffect(() => {
     if (!hasRegistered) {
       return undefined;
     }
@@ -167,7 +167,7 @@ export const SelectItem = React.forwardRef(function SelectItem(
     };
   }, [hasRegistered, listItem.index, valueProp, valuesRef]);
 
-  useModernLayoutEffect(() => {
+  useLayoutEffect(() => {
     if (hasRegistered && valueProp === value) {
       registerSelectedItem(listItem.index);
     }
