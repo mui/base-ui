@@ -204,23 +204,20 @@ export function useScrollLock(params: {
   const { enabled = true, mounted, open, referenceElement = null } = params;
 
   // https://github.com/mui/base-ui/issues/1135
-  if (isWebKit()) {
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    useModernLayoutEffect(() => {
-      if (mounted && !open) {
-        const doc = ownerDocument(referenceElement);
-        const originalUserSelect = doc.body.style.userSelect;
-        const originalWebkitUserSelect = doc.body.style.webkitUserSelect;
-        doc.body.style.userSelect = 'none';
-        doc.body.style.webkitUserSelect = 'none';
-        return () => {
-          doc.body.style.userSelect = originalUserSelect;
-          doc.body.style.webkitUserSelect = originalWebkitUserSelect;
-        };
-      }
-      return undefined;
-    }, [mounted, open, referenceElement]);
-  }
+  useModernLayoutEffect(() => {
+    if (isWebKit() && mounted && !open) {
+      const doc = ownerDocument(referenceElement);
+      const originalUserSelect = doc.body.style.userSelect;
+      const originalWebkitUserSelect = doc.body.style.webkitUserSelect;
+      doc.body.style.userSelect = 'none';
+      doc.body.style.webkitUserSelect = 'none';
+      return () => {
+        doc.body.style.userSelect = originalUserSelect;
+        doc.body.style.webkitUserSelect = originalWebkitUserSelect;
+      };
+    }
+    return undefined;
+  }, [mounted, open, referenceElement]);
 
   useModernLayoutEffect(() => {
     if (!enabled) {
