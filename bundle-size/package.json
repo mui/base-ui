@@ -4,9 +4,6 @@
   "scripts": {
     "check": "NODE_OPTIONS=\"--max-old-space-size=4096\" bundle-size-checker --output ../size-snapshot.json"
   },
-  "devDependencies": {
-    "@mui/internal-bundle-size-checker": "github:mui/mui-public#bundle-size-checker&path:./packages/bundle-size-checker"
-  },
   "dependencies": {
     "@base-ui-components/react": "workspace:*"
   }

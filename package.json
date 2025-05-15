@@ -72,7 +72,7 @@
     "@babel/preset-typescript": "^7.27.1",
     "@babel/register": "^7.27.1",
     "@mui/internal-babel-plugin-resolve-imports": "2.0.0",
-    "@mui/internal-bundle-size-checker": "github:mui/mui-public#bundle-size-checker&path:./packages/bundle-size-checker",
+    "@mui/internal-bundle-size-checker": "^1.0.1",
     "@mui/internal-docs-utils": "^2.0.1",
     "@mui/internal-markdown": "^2.0.4",
     "@mui/internal-scripts": "^2.0.7",
