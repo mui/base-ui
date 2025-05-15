@@ -56,7 +56,7 @@ importers:
         specifier: 2.0.0
         version: 2.0.0(@babel/core@7.27.1)
       '@mui/internal-bundle-size-checker':
-        specifier: ^1.0.1
+        specifier: ^1.0.2
         version: 1.0.2(webpack-cli@6.0.1(webpack-bundle-analyzer@4.10.2)(webpack@5.99.7))
       '@mui/internal-docs-utils':
         specifier: ^2.0.1

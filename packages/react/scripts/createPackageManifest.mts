@@ -40,10 +40,7 @@ export async function createPackageManifest() {
         '*': ['./cjs/*/index.d.ts'],
       },
     },
-    exports: {
-      './package.json': './package.json',
-      ...retargetExports(exports),
-    },
+    exports: retargetExports(exports),
     publishConfig,
   };
 

@@ -17,6 +17,7 @@ export default defineConfig(async () => {
   const packageJsonPath = path.join(rootDir, 'packages/react/package.json');
   const packageJsonContent = await fs.readFile(packageJsonPath, 'utf8');
   const packageJson = JSON.parse(packageJsonContent);
+  const externals = Object.keys(packageJson.peerDependencies || {});
 
   // Get all export paths from package.json
   const exports = packageJson.exports;
@@ -26,7 +27,11 @@ export default defineConfig(async () => {
       exportKey === '.'
         ? '@base-ui-components/react'
         : `@base-ui-components/react${exportKey.slice(1)}`;
-    return entrypoint;
+    return {
+      id: entrypoint,
+      import: entrypoint,
+      externals,
+    };
   });
 
   return {
