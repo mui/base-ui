@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import type { BaseUIComponentProps, GenericHTMLProps } from '../../utils/types';
+import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import { ScrollAreaRootContext } from './ScrollAreaRootContext';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { ScrollAreaRootCssVars } from './ScrollAreaRootCssVars';
@@ -183,7 +183,7 @@ export const ScrollAreaRoot = React.forwardRef(function ScrollAreaRoot(
     }
   }
 
-  const props: GenericHTMLProps = {
+  const props: HTMLProps = {
     role: 'presentation',
     onPointerEnter: handlePointerEnterOrMove,
     onPointerMove: handlePointerEnterOrMove,

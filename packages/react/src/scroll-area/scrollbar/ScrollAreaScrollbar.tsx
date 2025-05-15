@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import type { BaseUIComponentProps, GenericHTMLProps } from '../../utils/types';
+import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import { useScrollAreaRootContext } from '../root/ScrollAreaRootContext';
 import { ScrollAreaScrollbarContext } from './ScrollAreaScrollbarContext';
 import { useRenderElement } from '../../utils/useRenderElement';
@@ -108,7 +108,7 @@ export const ScrollAreaScrollbar = React.forwardRef(function ScrollAreaScrollbar
     };
   }, [orientation, scrollbarXRef, scrollbarYRef, viewportRef]);
 
-  const props: GenericHTMLProps = {
+  const props: HTMLProps = {
     ...(rootId && { 'data-id': `${rootId}-scrollbar` }),
     onPointerDown(event) {
       // Ignore clicks on thumb
