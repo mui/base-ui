@@ -146,7 +146,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
 
   const direction = useDirection();
   const { setTouched, setFocused, validationMode } = useFieldRootContext();
-  const { commitValidation } = useFieldControlValidation();
+  const { commitValidation, getValidationProps } = useFieldControlValidation();
 
   const thumbRef = React.useRef<HTMLElement>(null);
 
@@ -301,48 +301,53 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     cssWritingMode = isRtl ? 'vertical-rl' : 'vertical-lr';
   }
 
-  const inputProps = mergeProps<'input'>({
-    'aria-label':
-      typeof getAriaLabelProp === 'function' ? getAriaLabelProp(index) : elementProps['aria-label'],
-    'aria-labelledby': labelId,
-    'aria-orientation': orientation,
-    'aria-valuemax': max,
-    'aria-valuemin': min,
-    'aria-valuenow': thumbValue,
-    'aria-valuetext':
-      typeof getAriaValueTextProp === 'function'
-        ? getAriaValueTextProp(
-            formatNumber(thumbValue, locale, formatOptionsRef.current ?? undefined),
-            thumbValue,
-            index,
-          )
-        : elementProps['aria-valuetext'] ||
-          getDefaultAriaValueText(
-            sliderValues,
-            index,
-            formatOptionsRef.current ?? undefined,
-            locale,
-          ),
-    [SliderThumbDataAttributes.index as string]: index,
-    disabled,
-    id: inputId,
-    max,
-    min,
-    onChange(event: React.ChangeEvent<HTMLInputElement>) {
-      handleInputChange(event.target.valueAsNumber, index, event);
+  const inputProps = mergeProps<'input'>(
+    {
+      'aria-label':
+        typeof getAriaLabelProp === 'function'
+          ? getAriaLabelProp(index)
+          : elementProps['aria-label'],
+      'aria-labelledby': labelId,
+      'aria-orientation': orientation,
+      'aria-valuemax': max,
+      'aria-valuemin': min,
+      'aria-valuenow': thumbValue,
+      'aria-valuetext':
+        typeof getAriaValueTextProp === 'function'
+          ? getAriaValueTextProp(
+              formatNumber(thumbValue, locale, formatOptionsRef.current ?? undefined),
+              thumbValue,
+              index,
+            )
+          : elementProps['aria-valuetext'] ||
+            getDefaultAriaValueText(
+              sliderValues,
+              index,
+              formatOptionsRef.current ?? undefined,
+              locale,
+            ),
+      [SliderThumbDataAttributes.index as string]: index,
+      disabled,
+      id: inputId,
+      max,
+      min,
+      onChange(event: React.ChangeEvent<HTMLInputElement>) {
+        handleInputChange(event.target.valueAsNumber, index, event);
+      },
+      step,
+      style: {
+        ...visuallyHidden,
+        // So that VoiceOver's focus indicator matches the thumb's dimensions
+        width: '100%',
+        height: '100%',
+        writingMode: cssWritingMode,
+      },
+      tabIndex: -1,
+      type: 'range',
+      value: thumbValue ?? '',
     },
-    step,
-    style: {
-      ...visuallyHidden,
-      // So that VoiceOver's focus indicator matches the thumb's dimensions
-      width: '100%',
-      height: '100%',
-      writingMode: cssWritingMode,
-    },
-    tabIndex: -1,
-    type: 'range',
-    value: thumbValue ?? '',
-  });
+    getValidationProps,
+  );
 
   if (typeof render === 'function') {
     return render(thumbProps, inputProps, state);

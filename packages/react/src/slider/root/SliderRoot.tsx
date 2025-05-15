@@ -144,6 +144,12 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
     controlRef,
   });
 
+  const registerFieldControlRef = useEventCallback((element: HTMLElement | null) => {
+    if (element) {
+      controlRef.current = element;
+    }
+  });
+
   const range = Array.isArray(valueUnwrapped);
 
   const values = React.useMemo(() => {
@@ -271,6 +277,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       onValueCommitted,
       orientation,
       range,
+      registerFieldControlRef,
       setActive,
       setDragging,
       setValue,
@@ -298,6 +305,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       onValueCommitted,
       orientation,
       range,
+      registerFieldControlRef,
       setActive,
       setDragging,
       setValue,

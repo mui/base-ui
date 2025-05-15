@@ -1894,18 +1894,17 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
     });
 
     it('should receive name prop from Field.Root', async () => {
-      const { getByTestId } = await render(
+      const { container } = await render(
         <Field.Root name="field-slider">
           <Slider.Root>
             <Slider.Control>
-              <Slider.Thumb data-testid="thumb" />
+              <Slider.Thumb />
             </Slider.Control>
           </Slider.Root>
         </Field.Root>,
       );
 
-      const thumb = getByTestId('thumb');
-      const input = thumb.querySelector('input');
+      const input = container.querySelector('input[type="hidden"]');
       expect(input).to.have.attribute('name', 'field-slider');
     });
 
@@ -1976,7 +1975,7 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
     });
 
     it('prop: validate', async () => {
-      const { container } = await render(
+      await render(
         <Field.Root validate={() => 'error'}>
           <Slider.Root>
             <Slider.Control>
@@ -1987,7 +1986,7 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
         </Field.Root>,
       );
 
-      const input = container.querySelector<HTMLInputElement>('input')!;
+      const input = screen.getByRole('slider');
       const thumb = screen.getByTestId('thumb');
 
       expect(input).not.to.have.attribute('aria-invalid');
@@ -2024,7 +2023,7 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
     });
 
     it('prop: validationMode=onBlur', async () => {
-      const { container } = await render(
+      await render(
         <Field.Root
           validationMode="onBlur"
           validate={(value) => {
@@ -2040,7 +2039,7 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
         </Field.Root>,
       );
 
-      const input = container.querySelector<HTMLInputElement>('input')!;
+      const input = screen.getByRole('slider');
       const thumb = screen.getByTestId('thumb');
 
       expect(input).not.to.have.attribute('aria-invalid');
