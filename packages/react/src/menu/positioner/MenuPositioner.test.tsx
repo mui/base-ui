@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { expect } from 'chai';
+import { afterEach } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
 import { Menu } from '@base-ui-components/react/menu';
@@ -297,11 +298,17 @@ describe('<Menu.Positioner />', () => {
     });
   });
 
-  describe('prop: keepMounted', () => {
-    const user = userEvent.setup();
+  describe.skipIf(isJSDOM)('prop: keepMounted', () => {
+    afterEach(async () => {
+      const { cleanup } = await import('vitest-browser-react');
+      cleanup();
+    });
 
     it('when keepMounted=true, should keep the content mounted when closed', async () => {
-      const { getByRole, queryByRole } = await render(
+      const { userEvent: user } = await import('@vitest/browser/context');
+      const { render: vbrRender } = await import('vitest-browser-react');
+
+      vbrRender(
         <Menu.Root modal={false}>
           <Menu.Trigger>Toggle</Menu.Trigger>
           <Menu.Portal keepMounted>
@@ -315,29 +322,31 @@ describe('<Menu.Positioner />', () => {
         </Menu.Root>,
       );
 
-      const trigger = getByRole('button', { name: 'Toggle' });
+      const trigger = screen.getByRole('button', { name: 'Toggle' });
 
-      expect(queryByRole('menu', { hidden: true })).not.to.equal(null);
-      expect(queryByRole('menu', { hidden: true })).toBeInaccessible();
+      expect(screen.queryByRole('menu', { hidden: true })).not.to.equal(null);
+      expect(screen.queryByRole('menu', { hidden: true })).toBeInaccessible();
 
-      await user.click(trigger);
-      await flushMicrotasks();
+      await user.click(trigger, { delay: 20 });
       await waitFor(() => {
-        expect(queryByRole('menu', { hidden: false })).not.to.equal(null);
+        expect(screen.queryByRole('menu', { hidden: false })).not.to.equal(null);
       });
-      expect(queryByRole('menu', { hidden: false })).not.toBeInaccessible();
+      expect(screen.queryByRole('menu', { hidden: false })).not.toBeInaccessible();
 
-      await user.click(trigger);
+      await user.click(trigger, { delay: 20 });
       await waitFor(() => {
-        expect(queryByRole('menu', { hidden: true })).not.to.equal(null);
+        expect(screen.queryByRole('menu', { hidden: true })).not.to.equal(null);
       });
       await waitFor(() => {
-        expect(queryByRole('menu', { hidden: true })).toBeInaccessible();
+        expect(screen.queryByRole('menu', { hidden: true })).toBeInaccessible();
       });
     });
 
     it('when keepMounted=false, should unmount the content when closed', async () => {
-      const { getByRole, queryByRole } = await render(
+      const { userEvent: user } = await import('@vitest/browser/context');
+      const { render: vbrRender } = await import('vitest-browser-react');
+
+      vbrRender(
         <Menu.Root modal={false}>
           <Menu.Trigger>Toggle</Menu.Trigger>
           <Menu.Portal keepMounted={false}>
@@ -351,20 +360,20 @@ describe('<Menu.Positioner />', () => {
         </Menu.Root>,
       );
 
-      const trigger = getByRole('button', { name: 'Toggle' });
+      const trigger = screen.getByRole('button', { name: 'Toggle' });
 
-      expect(queryByRole('menu', { hidden: true })).to.equal(null);
+      expect(screen.queryByRole('menu', { hidden: true })).to.equal(null);
 
-      await user.click(trigger);
+      await user.click(trigger, { delay: 20 });
       await flushMicrotasks();
       await waitFor(() => {
-        expect(queryByRole('menu', { hidden: false })).not.to.equal(null);
+        expect(screen.queryByRole('menu', { hidden: false })).not.to.equal(null);
       });
-      expect(queryByRole('menu', { hidden: false })).not.toBeInaccessible();
+      expect(screen.queryByRole('menu', { hidden: false })).not.toBeInaccessible();
 
-      await user.click(trigger);
+      await user.click(trigger, { delay: 20 });
       await waitFor(() => {
-        expect(queryByRole('menu', { hidden: true })).to.equal(null);
+        expect(screen.queryByRole('menu', { hidden: true })).to.equal(null);
       });
     });
   });

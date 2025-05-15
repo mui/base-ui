@@ -40,11 +40,12 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
     setOpen,
     popupRef,
     transitionStatus,
-    nested,
     popupProps,
     mounted,
     instantType,
     onOpenChangeComplete,
+    parent,
+    lastOpenChangeReason,
   } = useMenuRootContext();
   const { side, align, floatingContext } = useMenuPositionerContext();
 
@@ -73,10 +74,10 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
       side,
       align,
       open,
-      nested,
+      nested: parent.type === 'menu',
       instant: instantType,
     }),
-    [transitionStatus, side, align, open, nested, instantType],
+    [transitionStatus, side, align, open, parent.type, instantType],
   );
 
   const { renderElement } = useComponentRenderer({
@@ -97,7 +98,11 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
       context={floatingContext}
       modal={false}
       disabled={!mounted}
-      initialFocus={nested ? -1 : 0}
+      returnFocus={
+        parent.type === undefined ||
+        (parent.type === 'menubar' && lastOpenChangeReason !== 'outside-press')
+      }
+      initialFocus={parent.type === 'menu' ? -1 : 0}
     >
       {renderElement()}
     </FloatingFocusManager>

@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import { act, flushMicrotasks, fireEvent, screen } from '@mui/internal-test-utils';
+import { act, flushMicrotasks, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import {
   DirectionProvider,
   type TextDirection,
@@ -1098,12 +1098,16 @@ describe('<Tabs.Root />', () => {
       await user.click(trigger);
 
       const tab1 = screen.getByRole('tab', { name: 'Overview' });
-      expect(tab1).toHaveFocus();
+      await waitFor(() => {
+        expect(tab1).toHaveFocus();
+      });
 
       await user.keyboard('{ArrowRight}');
 
       const tab2 = screen.getByRole('tab', { name: 'Projects' });
-      expect(tab2).toHaveFocus();
+      await waitFor(() => {
+        expect(tab2).toHaveFocus();
+      });
     });
 
     it('works inside Dialog', async () => {
@@ -1136,12 +1140,15 @@ describe('<Tabs.Root />', () => {
       await user.click(trigger);
 
       const tab1 = screen.getByRole('tab', { name: 'Overview' });
-      expect(tab1).toHaveFocus();
-
+      await waitFor(() => {
+        expect(tab1).toHaveFocus();
+      });
       await user.keyboard('{ArrowRight}');
 
       const tab2 = screen.getByRole('tab', { name: 'Projects' });
-      expect(tab2).toHaveFocus();
+      await waitFor(() => {
+        expect(tab2).toHaveFocus();
+      });
     });
   });
 });

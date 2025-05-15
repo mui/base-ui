@@ -32,6 +32,7 @@ export function CompositeRoot<Metadata extends {}>(componentProps: CompositeRoot
     rootRef,
     disabledIndices,
     modifierKeys,
+    highlightItemOnHover = false,
     ...elementProps
   } = componentProps;
 
@@ -70,8 +71,8 @@ export function CompositeRoot<Metadata extends {}>(componentProps: CompositeRoot
   });
 
   const contextValue: CompositeRootContext = React.useMemo(
-    () => ({ highlightedIndex, onHighlightedIndexChange }),
-    [highlightedIndex, onHighlightedIndexChange],
+    () => ({ highlightedIndex, onHighlightedIndexChange, highlightItemOnHover }),
+    [highlightedIndex, onHighlightedIndexChange, highlightItemOnHover],
   );
 
   return (
@@ -101,5 +102,6 @@ export namespace CompositeRoot {
     rootRef?: React.RefObject<HTMLElement | null>;
     disabledIndices?: number[];
     modifierKeys?: ModifierKey[];
+    highlightItemOnHover?: boolean;
   }
 }
