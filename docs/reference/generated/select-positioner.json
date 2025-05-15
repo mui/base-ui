@@ -8,7 +8,7 @@
       "description": "Whether the positioner overlaps the trigger so the selected item's text is aligned with the trigger's value text. This only applies to mouse input and is automatically disabled if there is not enough space."
     },
     "align": {
-      "type": "'center' | 'end' | 'start'",
+      "type": "'center' | 'start' | 'end'",
       "default": "'center'",
       "description": "How to align the popup relative to the specified side."
     },
@@ -62,11 +62,11 @@
       "description": "Whether the popup tracks any layout shift of its positioning anchor."
     },
     "className": {
-      "type": "string | ((state: State) => string)",
+      "type": "string | ((state: Select.Positioner.State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "render": {
-      "type": "ReactElement | ((props: GenericHTMLProps, state: State) => ReactElement)",
+      "type": "ReactElement | ((props: HTMLProps, state: Select.Positioner.State) => ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
     }
   },

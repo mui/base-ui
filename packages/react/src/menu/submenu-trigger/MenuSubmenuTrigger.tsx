@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useFloatingTree } from '@floating-ui/react';
-import { BaseUIComponentProps, GenericHTMLProps } from '../../utils/types';
+import { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
@@ -26,7 +26,7 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
 
   const {
     triggerProps: rootTriggerProps,
-    parentContext,
+    parent,
     setTriggerElement,
     allowMouseUpTriggerRef,
     open,
@@ -34,11 +34,11 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
     disabled,
   } = useMenuRootContext();
 
-  if (parentContext === undefined) {
-    throw new Error('Base UI: ItemTrigger must be placed in a nested Menu.');
+  if (parent.type !== 'menu') {
+    throw new Error('Base UI: SubmenuTrigger must be placed in a nested Menu.');
   }
 
-  const { activeIndex, itemProps, setActiveIndex } = parentContext;
+  const { activeIndex, itemProps, setActiveIndex } = parent.context;
   const item = useCompositeListItem();
 
   const highlighted = activeIndex === item.index;
@@ -68,7 +68,7 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
     render: render || 'div',
     className,
     state,
-    propGetter: (externalProps: GenericHTMLProps) =>
+    propGetter: (externalProps: HTMLProps) =>
       mergeProps(rootTriggerProps, itemProps, externalProps, getTriggerProps),
     customStyleHookMapping: triggerOpenStateMapping,
     extraProps: other,

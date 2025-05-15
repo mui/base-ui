@@ -1,12 +1,9 @@
 'use client';
 import * as React from 'react';
 import type { BaseUIComponentProps } from '../../utils/types';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { mergeProps } from '../../merge-props';
 import { useModernLayoutEffect } from '../../utils';
 import { useScrollAreaViewportContext } from '../viewport/ScrollAreaViewportContext';
-
-const state = {};
+import { useRenderElement } from '../../utils/useRenderElement';
 
 /**
  * A container for the content of the scroll area.
@@ -15,10 +12,10 @@ const state = {};
  * Documentation: [Base UI Scroll Area](https://base-ui.com/react/components/scroll-area)
  */
 export const ScrollAreaContent = React.forwardRef(function ScrollAreaContent(
-  props: ScrollAreaContent.Props,
+  componentProps: ScrollAreaContent.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, ...otherProps } = props;
+  const { render, className, ...elementProps } = componentProps;
 
   const contentWrapperRef = React.useRef<HTMLDivElement | null>(null);
 
@@ -40,17 +37,17 @@ export const ScrollAreaContent = React.forwardRef(function ScrollAreaContent(
     };
   }, [computeThumbPosition]);
 
-  const { renderElement } = useComponentRenderer({
-    render: render ?? 'div',
-    className,
+  const renderElement = useRenderElement('div', componentProps, {
     ref: [forwardedRef, contentWrapperRef],
-    state,
-    extraProps: mergeProps<'div'>(otherProps, {
-      role: 'presentation',
-      style: {
-        minWidth: 'fit-content',
+    props: [
+      {
+        role: 'presentation',
+        style: {
+          minWidth: 'fit-content',
+        },
       },
-    }),
+      elementProps,
+    ],
   });
 
   return renderElement();

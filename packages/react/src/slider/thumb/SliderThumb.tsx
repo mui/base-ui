@@ -16,6 +16,7 @@ import {
   ARROW_LEFT,
   HOME,
   END,
+  COMPOSITE_KEYS,
 } from '../../composite/composite';
 import { useCompositeListItem } from '../../composite/list/useCompositeListItem';
 import { useDirection } from '../../direction-provider/DirectionContext';
@@ -31,7 +32,6 @@ import { SliderThumbDataAttributes } from './SliderThumbDataAttributes';
 const PAGE_UP = 'PageUp';
 const PAGE_DOWN = 'PageDown';
 
-const COMPOSITE_KEYS = [ARROW_UP, ARROW_DOWN, ARROW_LEFT, ARROW_RIGHT, HOME, END];
 const ALL_KEYS = [ARROW_UP, ARROW_DOWN, ARROW_LEFT, ARROW_RIGHT, HOME, END, PAGE_UP, PAGE_DOWN];
 
 function defaultRender(
@@ -95,7 +95,6 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     getAriaLabel: getAriaLabelProp,
     getAriaValueText: getAriaValueTextProp,
     id: idProp,
-    inputId: inputIdProp,
     onBlur: onBlurProp,
     onFocus: onFocusProp,
     onKeyDown: onKeyDownProp,
@@ -105,7 +104,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
   } = componentProps;
 
   const id = useBaseUiId(idProp);
-  const inputId = useBaseUiId(inputIdProp);
+  const inputId = `${id}-input`;
 
   const render = renderProp ?? defaultRender;
 
@@ -226,6 +225,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
         if (COMPOSITE_KEYS.includes(event.key)) {
           event.stopPropagation();
         }
+
         let newValue = null;
         const isRange = sliderValues.length > 1;
         const roundedValue = roundValueToStep(thumbValue, step, min);
@@ -412,7 +412,6 @@ export namespace SliderThumb {
      * @type {((formattedValue: string, value: number, index: number) => string) | null}
      */
     getAriaValueText?: ((formattedValue: string, value: number, index: number) => string) | null;
-    inputId?: string;
     /**
      * Allows you to replace the component’s HTML element
      * with a different tag, or compose it with another component.

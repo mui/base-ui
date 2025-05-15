@@ -3,7 +3,7 @@
   "description": "Positions the tooltip against the trigger.\nRenders a `<div>` element.",
   "props": {
     "align": {
-      "type": "'center' | 'end' | 'start'",
+      "type": "'center' | 'start' | 'end'",
       "default": "'center'",
       "description": "How to align the popup relative to the specified side."
     },
@@ -56,17 +56,12 @@
       "default": "true",
       "description": "Whether the popup tracks any layout shift of its positioning anchor."
     },
-    "trackCursorAxis": {
-      "type": "'none' | 'both' | 'x' | 'y'",
-      "default": "'none'",
-      "description": "Determines which axis the tooltip should track the cursor on."
-    },
     "className": {
-      "type": "string | ((state: State) => string)",
+      "type": "string | ((state: Tooltip.Positioner.State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "render": {
-      "type": "ReactElement | ((props: GenericHTMLProps, state: State) => ReactElement)",
+      "type": "ReactElement | ((props: HTMLProps, state: Tooltip.Positioner.State) => ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
     }
   },
