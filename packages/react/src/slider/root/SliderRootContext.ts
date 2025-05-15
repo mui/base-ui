@@ -43,7 +43,6 @@ export interface SliderRootContext {
    * The minimum steps between values in a range slider.
    */
   minStepsBetweenValues: number;
-  name: string;
   /**
    * Function to be called when drag ends and the pointer is released.
    */
@@ -57,7 +56,6 @@ export interface SliderRootContext {
    * Whether the slider is a range slider.
    */
   range: boolean;
-  registerInputValidationRef: (element: HTMLElement | null) => void;
   setActive: React.Dispatch<React.SetStateAction<number>>;
   setDragging: React.Dispatch<React.SetStateAction<boolean>>;
   /**

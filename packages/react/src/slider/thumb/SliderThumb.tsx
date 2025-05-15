@@ -108,7 +108,6 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     onFocus: onFocusProp,
     onKeyDown: onKeyDownProp,
     tabIndex: tabIndexProp,
-    inputRef: inputRefProp,
     ...elementProps
   } = componentProps;
 
@@ -128,7 +127,6 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     max,
     min,
     minStepsBetweenValues,
-    name,
     orientation,
     setActive,
     state,
@@ -148,15 +146,9 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
 
   const direction = useDirection();
   const { setTouched, setFocused, validationMode } = useFieldRootContext();
-  const {
-    getInputValidationProps,
-    inputRef: inputValidationRef,
-    commitValidation,
-  } = useFieldControlValidation();
+  const { commitValidation } = useFieldControlValidation();
 
   const thumbRef = React.useRef<HTMLElement>(null);
-  const inputRef = React.useRef<HTMLInputElement>(null);
-  const mergedInputRef = useForkRef(inputRef, inputRefProp, inputValidationRef);
 
   const thumbMetadata = React.useMemo(
     () => ({
@@ -309,55 +301,48 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     cssWritingMode = isRtl ? 'vertical-rl' : 'vertical-lr';
   }
 
-  const inputProps = mergeProps<'input'>(
-    {
-      'aria-label':
-        typeof getAriaLabelProp === 'function'
-          ? getAriaLabelProp(index)
-          : elementProps['aria-label'],
-      'aria-labelledby': labelId,
-      'aria-orientation': orientation,
-      'aria-valuemax': max,
-      'aria-valuemin': min,
-      'aria-valuenow': thumbValue,
-      'aria-valuetext':
-        typeof getAriaValueTextProp === 'function'
-          ? getAriaValueTextProp(
-              formatNumber(thumbValue, locale, formatOptionsRef.current ?? undefined),
-              thumbValue,
-              index,
-            )
-          : elementProps['aria-valuetext'] ||
-            getDefaultAriaValueText(
-              sliderValues,
-              index,
-              formatOptionsRef.current ?? undefined,
-              locale,
-            ),
-      [SliderThumbDataAttributes.index as string]: index,
-      disabled,
-      id: inputId,
-      max,
-      min,
-      name,
-      onChange(event: React.ChangeEvent<HTMLInputElement>) {
-        handleInputChange(event.target.valueAsNumber, index, event);
-      },
-      ref: mergedInputRef,
-      step,
-      style: {
-        ...visuallyHidden,
-        // So that VoiceOver's focus indicator matches the thumb's dimensions
-        width: '100%',
-        height: '100%',
-        writingMode: cssWritingMode,
-      },
-      tabIndex: -1,
-      type: 'range',
-      value: thumbValue ?? '',
+  const inputProps = mergeProps<'input'>({
+    'aria-label':
+      typeof getAriaLabelProp === 'function' ? getAriaLabelProp(index) : elementProps['aria-label'],
+    'aria-labelledby': labelId,
+    'aria-orientation': orientation,
+    'aria-valuemax': max,
+    'aria-valuemin': min,
+    'aria-valuenow': thumbValue,
+    'aria-valuetext':
+      typeof getAriaValueTextProp === 'function'
+        ? getAriaValueTextProp(
+            formatNumber(thumbValue, locale, formatOptionsRef.current ?? undefined),
+            thumbValue,
+            index,
+          )
+        : elementProps['aria-valuetext'] ||
+          getDefaultAriaValueText(
+            sliderValues,
+            index,
+            formatOptionsRef.current ?? undefined,
+            locale,
+          ),
+    [SliderThumbDataAttributes.index as string]: index,
+    disabled,
+    id: inputId,
+    max,
+    min,
+    onChange(event: React.ChangeEvent<HTMLInputElement>) {
+      handleInputChange(event.target.valueAsNumber, index, event);
     },
-    getInputValidationProps({ disabled }),
-  );
+    step,
+    style: {
+      ...visuallyHidden,
+      // So that VoiceOver's focus indicator matches the thumb's dimensions
+      width: '100%',
+      height: '100%',
+      writingMode: cssWritingMode,
+    },
+    tabIndex: -1,
+    type: 'range',
+    value: thumbValue ?? '',
+  });
 
   if (typeof render === 'function') {
     return render(thumbProps, inputProps, state);
@@ -397,10 +382,6 @@ export namespace SliderThumb {
   export interface State extends SliderRoot.State {}
 
   export interface Props extends Omit<BaseUIComponentProps<'div', State>, 'render'> {
-    /**
-     * A ref to access the hidden input element.
-     */
-    inputRef?: React.Ref<HTMLInputElement>;
     /**
      * Whether the thumb should ignore user interaction.
      * @default false
