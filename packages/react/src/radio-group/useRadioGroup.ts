@@ -1,8 +1,9 @@
 'use client';
 import * as React from 'react';
-import { contains, useLayoutEffect } from '@floating-ui/react/utils';
+import { contains } from '@floating-ui/react/utils';
 import { mergeProps } from '../merge-props';
 import { useControlled } from '../utils/useControlled';
+import { useLayoutEffect } from '../utils/useLayoutEffect';
 import { useFieldRootContext } from '../field/root/FieldRootContext';
 import { useBaseUiId } from '../utils/useBaseUiId';
 import { useFieldControlValidation } from '../field/control/useFieldControlValidation';

@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
-import { useLayoutEffect, stopEvent } from '@floating-ui/react/utils';
+import { stopEvent } from '@floating-ui/react/utils';
+import { useLayoutEffect } from '../../utils/useLayoutEffect';
 import { useNumberFieldRootContext } from '../root/NumberFieldRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useForkRef } from '../../utils/useForkRef';
