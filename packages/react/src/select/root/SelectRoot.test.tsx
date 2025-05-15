@@ -1273,8 +1273,16 @@ describe('<Select.Root />', () => {
   });
 
   describe('multiple', () => {
+    const { render: renderFakeTimers, clock } = createRenderer({
+      clockOptions: {
+        shouldAdvanceTime: true,
+      },
+    });
+
+    clock.withFakeTimers();
+
     it('should allow selecting multiple items (uncontrolled)', async () => {
-      const { user } = await render(
+      const { user } = await renderFakeTimers(
         <Select.Root multiple>
           <Select.Trigger data-testid="trigger">
             <Select.Value />
@@ -1336,7 +1344,7 @@ describe('<Select.Root />', () => {
         );
       }
 
-      const { user } = await render(<App />);
+      const { user } = await renderFakeTimers(<App />);
       const trigger = screen.getByTestId('trigger');
 
       await user.click(trigger);
@@ -1386,7 +1394,7 @@ describe('<Select.Root />', () => {
           </form>
         );
       }
-      const { user } = await render(<App />);
+      const { user } = await renderFakeTimers(<App />);
       const trigger = screen.getByTestId('trigger');
 
       await user.click(trigger);
@@ -1428,11 +1436,12 @@ describe('<Select.Root />', () => {
           </form>
         );
       }
-      const { user } = await render(<App />);
+      const { user } = await renderFakeTimers(<App />);
       const trigger = screen.getByTestId('trigger');
 
       await user.click(trigger);
       await flushMicrotasks();
+
       await user.click(screen.getByRole('option', { name: 'Apple' }));
       await user.click(screen.getByRole('option', { name: 'Banana' }));
       await user.click(screen.getByText('Submit'));
