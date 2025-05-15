@@ -8,22 +8,24 @@ import type { BaseUIComponentProps, Orientation } from '../../utils/types';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useControlled } from '../../utils/useControlled';
 import { useEventCallback } from '../../utils/useEventCallback';
+import { useForkRef } from '../../utils/useForkRef';
 import { useLatestRef } from '../../utils/useLatestRef';
 import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { useRenderElement } from '../../utils/useRenderElement';
+import { visuallyHidden } from '../../utils/visuallyHidden';
 import { warn } from '../../utils/warn';
 import { CompositeList, type CompositeMetadata } from '../../composite/list/CompositeList';
 import type { FieldRoot } from '../../field/root/FieldRoot';
 import { useField } from '../../field/useField';
 import { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
+import { useFormContext } from '../../form/FormContext';
 import { asc } from '../utils/asc';
 import { getSliderValue } from '../utils/getSliderValue';
 import { validateMinimumDistance } from '../utils/validateMinimumDistance';
 import type { ThumbMetadata } from '../thumb/SliderThumb';
 import { sliderStyleHookMapping } from './styleHooks';
 import { SliderRootContext } from './SliderRootContext';
-import { useFormContext } from '../../form/FormContext';
 
 function areValuesEqual(
   newValue: number | readonly number[],
@@ -53,6 +55,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
     defaultValue,
     disabled: disabledProp = false,
     id: idProp,
+    inputRef: inputRefProp,
     format,
     largeStep = 10,
     locale,
@@ -93,6 +96,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
 
   const {
     getValidationProps,
+    getInputValidationProps,
     inputRef: inputValidationRef,
     commitValidation,
   } = useFieldControlValidation();
@@ -110,10 +114,12 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
   });
 
   const sliderRef = React.useRef<HTMLElement>(null);
-  const controlRef: React.RefObject<HTMLElement | null> = React.useRef(null);
+  const controlRef = React.useRef<HTMLElement>(null);
+  const hiddenInputRef = React.useRef<HTMLInputElement>(null);
   const thumbRefs = React.useRef<(HTMLElement | null)[]>([]);
   const lastChangedValueRef = React.useRef<number | readonly number[] | null>(null);
   const formatOptionsRef = useLatestRef(format);
+  const mergedInputRef = useForkRef(inputRefProp, hiddenInputRef, inputValidationRef);
 
   // We can't use the :active browser pseudo-classes.
   // - The active state isn't triggered when clicking on the rail.
@@ -137,16 +143,6 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
     value: valueUnwrapped,
     controlRef,
   });
-
-  const registerInputValidationRef = React.useCallback(
-    (element: HTMLElement | null) => {
-      if (element) {
-        controlRef.current = element;
-        inputValidationRef.current = element.querySelector<HTMLInputElement>('input[type="range"]');
-      }
-    },
-    [inputValidationRef],
-  );
 
   const range = Array.isArray(valueUnwrapped);
 
@@ -272,11 +268,9 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       max,
       min,
       minStepsBetweenValues,
-      name,
       onValueCommitted,
       orientation,
       range,
-      registerInputValidationRef,
       setActive,
       setDragging,
       setValue,
@@ -301,11 +295,9 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       max,
       min,
       minStepsBetweenValues,
-      name,
       onValueCommitted,
       orientation,
       range,
-      registerInputValidationRef,
       setActive,
       setDragging,
       setValue,
@@ -316,6 +308,16 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       values,
     ],
   );
+
+  const serializedValue = React.useMemo(() => {
+    if (valueUnwrapped == null) {
+      return ''; // avoid uncontrolled -> controlled error
+    }
+    if (!Array.isArray(valueUnwrapped)) {
+      return valueUnwrapped;
+    }
+    return JSON.stringify(valueUnwrapped);
+  }, [valueUnwrapped]);
 
   const element = useRenderElement('div', componentProps, {
     state,
@@ -336,6 +338,16 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
     <SliderRootContext.Provider value={contextValue}>
       <CompositeList elementsRef={thumbRefs} onMapChange={setThumbMap}>
         {element}
+        <input
+          type="hidden"
+          {...getInputValidationProps({
+            disabled,
+            name,
+            ref: mergedInputRef,
+            value: serializedValue,
+            style: visuallyHidden,
+          })}
+        />
       </CompositeList>
     </SliderRootContext.Provider>
   );
@@ -401,6 +413,10 @@ export namespace SliderRoot {
      * Options to format the input value.
      */
     format?: Intl.NumberFormatOptions;
+    /**
+     * A ref to access the hidden input element.
+     */
+    inputRef?: React.Ref<HTMLInputElement>;
     /**
      * The locale used by `Intl.NumberFormat` when formatting the value.
      * Defaults to the user's runtime locale.
