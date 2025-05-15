@@ -20,7 +20,8 @@ const InnerSelectItemText = React.memo(
     const { className, render, selected, selectedItemTextRef, indexRef, ...elementProps } =
       componentProps;
 
-    const mergedRef = useForkRef<HTMLElement>(forwardedRef);
+    const textRef = React.useRef<HTMLDivElement | null>(null);
+    const mergedRef = useForkRef<HTMLElement>(forwardedRef, textRef);
 
     const ref = React.useCallback(
       (node: HTMLElement | null) => {
@@ -30,7 +31,9 @@ const InnerSelectItemText = React.memo(
 
         // Wait for the DOM indices to be set.
         queueMicrotask(() => {
-          if (selected || (selectedItemTextRef.current === null && indexRef.current === 0)) {
+          const hasNoSelectedItemText =
+            selectedItemTextRef.current === null || !selectedItemTextRef.current.isConnected;
+          if (selected || (hasNoSelectedItemText && indexRef.current === 0)) {
             selectedItemTextRef.current = node;
           }
         });
