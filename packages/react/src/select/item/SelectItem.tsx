@@ -32,6 +32,8 @@ interface InnerSelectItemProps extends Omit<SelectItem.Props, 'value'> {
   popupRef: React.RefObject<HTMLDivElement | null>;
   keyboardActiveRef: React.RefObject<boolean>;
   events: FloatingEvents;
+  multiple: boolean | undefined;
+  selectedByFocus: boolean;
 }
 
 const InnerSelectItem = React.memo(
@@ -58,6 +60,8 @@ const InnerSelectItem = React.memo(
       popupRef,
       keyboardActiveRef,
       events,
+      multiple,
+      selectedByFocus,
       ...elementProps
     } = componentProps;
 
@@ -93,6 +97,7 @@ const InnerSelectItem = React.memo(
       events,
       rootProps,
       elementProps,
+      multiple,
     });
 
     const renderElement = useRenderElement('div', componentProps, {
@@ -101,12 +106,13 @@ const InnerSelectItem = React.memo(
       props,
     });
 
-    const contextValue = React.useMemo(
+    const contextValue: SelectItemContext = React.useMemo(
       () => ({
         selected,
+        selectedByFocus,
         indexRef,
       }),
-      [selected, indexRef],
+      [selected, selectedByFocus, indexRef],
     );
 
     return (
@@ -143,6 +149,7 @@ export const SelectItem = React.forwardRef(function SelectItem(
     popupRef,
     registerSelectedItem,
     value,
+    multiple,
     keyboardActiveRef,
     floatingRootContext,
   } = useSelectRootContext();
@@ -174,7 +181,9 @@ export const SelectItem = React.forwardRef(function SelectItem(
   }, [hasRegistered, listItem.index, registerSelectedItem, valueProp, value]);
 
   const highlighted = activeIndex === listItem.index;
-  const selected = selectedIndex === listItem.index;
+  const selected =
+    multiple && Array.isArray(value) ? value.includes(valueProp) : selectedIndex === listItem.index;
+  const selectedByFocus = selectedIndex === listItem.index;
 
   return (
     <InnerSelectItem
@@ -194,6 +203,8 @@ export const SelectItem = React.forwardRef(function SelectItem(
       popupRef={popupRef}
       keyboardActiveRef={keyboardActiveRef}
       events={floatingRootContext.events}
+      multiple={multiple}
+      selectedByFocus={selectedByFocus}
       {...otherProps}
     />
   );

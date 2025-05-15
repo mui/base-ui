@@ -7,7 +7,7 @@ import { useSelectItemContext } from '../item/SelectItemContext';
 import { useRenderElement } from '../../utils/useRenderElement';
 
 interface InnerSelectItemTextProps extends SelectItemText.Props {
-  selected: boolean;
+  selectedByFocus: boolean;
   selectedItemTextRef: React.RefObject<HTMLElement | null>;
   indexRef: React.RefObject<number>;
 }
@@ -17,7 +17,7 @@ const InnerSelectItemText = React.memo(
     componentProps: InnerSelectItemTextProps,
     forwardedRef: React.ForwardedRef<HTMLDivElement>,
   ) {
-    const { className, render, selected, selectedItemTextRef, indexRef, ...elementProps } =
+    const { className, render, selectedByFocus, selectedItemTextRef, indexRef, ...elementProps } =
       componentProps;
 
     const mergedRef = useForkRef<HTMLElement>(forwardedRef);
@@ -30,12 +30,12 @@ const InnerSelectItemText = React.memo(
 
         // Wait for the DOM indices to be set.
         queueMicrotask(() => {
-          if (selected || (selectedItemTextRef.current === null && indexRef.current === 0)) {
+          if (selectedByFocus || (selectedItemTextRef.current === null && indexRef.current === 0)) {
             selectedItemTextRef.current = node;
           }
         });
       },
-      [mergedRef, selected, selectedItemTextRef, indexRef],
+      [mergedRef, selectedByFocus, selectedItemTextRef, indexRef],
     );
 
     const renderElement = useRenderElement('div', componentProps, {
@@ -57,14 +57,14 @@ export const SelectItemText = React.forwardRef(function SelectItemText(
   props: SelectItemText.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { selected, indexRef } = useSelectItemContext();
+  const { selectedByFocus, indexRef } = useSelectItemContext();
   const { selectedItemTextRef } = useSelectRootContext();
   const mergedRef = useForkRef<HTMLElement>(forwardedRef);
 
   return (
     <InnerSelectItemText
       ref={mergedRef}
-      selected={selected}
+      selectedByFocus={selectedByFocus}
       selectedItemTextRef={selectedItemTextRef}
       indexRef={indexRef}
       {...props}

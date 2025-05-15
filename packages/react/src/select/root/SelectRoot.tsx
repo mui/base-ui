@@ -29,16 +29,17 @@ export const SelectRoot: SelectRoot = function SelectRoot<Value>(
     readOnly = false,
     required = false,
     modal = true,
+    multiple,
     actionsRef,
     inputRef,
     onOpenChangeComplete,
+    children,
   } = props;
 
-  const selectRoot = useSelectRoot<Value>({
+  const params: SelectRoot.SingleSelectProps<Value> = {
     id,
     value: valueProp,
     defaultValue,
-    onValueChange,
     open,
     defaultOpen,
     onOpenChange,
@@ -49,29 +50,33 @@ export const SelectRoot: SelectRoot = function SelectRoot<Value>(
     modal,
     actionsRef,
     onOpenChangeComplete,
-  });
+    onValueChange,
+  };
+
+  if (multiple) {
+    (params as unknown as SelectRoot.MultiSelectProps<Value>).multiple = true;
+  }
+
+  const selectRoot = useSelectRoot(params);
 
   const { setDirty, validityData, validationMode } = useFieldRootContext();
 
-  const { rootContext } = selectRoot;
+  const { rootContext, indexContext } = selectRoot;
   const value = rootContext.value;
 
   const ref = useForkRef(inputRef, rootContext.fieldControlValidation.inputRef);
 
   const serializedValue = React.useMemo(() => {
     if (value == null) {
-      return ''; // avoid uncontrolled -> controlled error
+      return '';
     }
-    if (typeof value === 'string') {
-      return value;
-    }
-    return JSON.stringify(value);
+    return typeof value === 'string' ? value : JSON.stringify(value);
   }, [value]);
 
   return (
-    <SelectRootContext.Provider value={selectRoot.rootContext}>
-      <SelectIndexContext.Provider value={selectRoot.indexContext}>
-        {props.children}
+    <SelectRootContext.Provider value={rootContext}>
+      <SelectIndexContext.Provider value={indexContext}>
+        {children}
         <input
           {...rootContext.fieldControlValidation.getInputValidationProps({
             onFocus() {
@@ -98,41 +103,62 @@ export const SelectRoot: SelectRoot = function SelectRoot<Value>(
                 rootContext.setValue?.(exactValue, event.nativeEvent);
 
                 if (validationMode === 'onChange') {
-                  selectRoot.rootContext.fieldControlValidation.commitValidation(exactValue);
+                  rootContext.fieldControlValidation.commitValidation(exactValue);
                 }
               }
             },
             id: rootContext.id,
-            name: rootContext.name,
+            name: multiple ? undefined : rootContext.name,
+            value: serializedValue,
             disabled: rootContext.disabled,
             required: rootContext.required,
             readOnly: rootContext.readOnly,
-            value: serializedValue,
             ref,
             style: visuallyHidden,
             tabIndex: -1,
             'aria-hidden': true,
           })}
         />
+        {multiple &&
+          Array.isArray(value) &&
+          value.map((v) => <input key={v} type="hidden" name={name} value={v} />)}
       </SelectIndexContext.Provider>
     </SelectRootContext.Provider>
   );
 };
 
+export interface SelectRoot {
+  <Value>(props: SelectRoot.Props<Value>): React.JSX.Element;
+}
+
 export namespace SelectRoot {
-  export interface Props<Value> extends useSelectRoot.Parameters<Value> {
+  export interface SingleSelectProps<Value>
+    extends Omit<useSelectRoot.Parameters<Value>, 'multiple'> {
     children?: React.ReactNode;
+    /**
+     * Whether multiple items can be selected.
+     * @default false
+     */
+    multiple?: false;
     /**
      * A ref to access the hidden input element.
      */
     inputRef?: React.Ref<HTMLInputElement>;
   }
 
-  export interface State {}
+  export interface MultiSelectProps<Value>
+    extends Omit<useSelectRoot.Parameters<Value>, 'multiple'> {
+    children?: React.ReactNode;
+    /**
+     * Whether multiple items can be selected.
+     * @default false
+     */
+    multiple: true;
+    /**
+     * A ref to access the hidden input element.
+     */
+    inputRef?: React.Ref<HTMLInputElement>;
+  }
 
-  export type Actions = useSelectRoot.Actions;
-}
-
-export interface SelectRoot {
-  <Value>(props: SelectRoot.Props<Value>): React.JSX.Element;
+  export type Props<Value> = SingleSelectProps<Value> | MultiSelectProps<Value>;
 }

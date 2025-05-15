@@ -29,13 +29,27 @@ import { useField } from '../../field/useField';
 
 const EMPTY_ARRAY: never[] = [];
 
-export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelectRoot.ReturnValue {
+export function useSelectRoot<Value>(
+  params: Omit<useSelectRoot.Parameters<Value>, 'multiple' | 'onValueChange'> & {
+    multiple?: false;
+    onValueChange?: (value: Value, event?: Event) => void;
+  },
+): useSelectRoot.ReturnValue;
+
+export function useSelectRoot<Value>(
+  params: Omit<useSelectRoot.Parameters<Value>, 'multiple' | 'onValueChange'> & {
+    multiple: true;
+    onValueChange?: (value: Value[], event?: Event) => void;
+  },
+): useSelectRoot.ReturnValue;
+export function useSelectRoot(params: any): useSelectRoot.ReturnValue {
   const {
     id: idProp,
     disabled: disabledProp = false,
     readOnly = false,
     required = false,
     modal = false,
+    multiple = false,
     name: nameProp,
     onOpenChangeComplete,
   } = params;
@@ -66,7 +80,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
 
   const [value, setValueUnwrapped] = useControlled({
     controlled: params.value,
-    default: params.defaultValue,
+    default: multiple && params.defaultValue === undefined ? [] : params.defaultValue,
     name: 'Select',
     state: 'value',
   });
@@ -160,6 +174,14 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     setMounted(false);
     setActiveIndex(null);
     onOpenChangeComplete?.(false);
+    if (multiple && Array.isArray(value)) {
+      const { indices } = getMultiValueData();
+      if (indices.length > 0) {
+        setSelectedIndex(indices[indices.length - 1]);
+      } else {
+        setSelectedIndex(null);
+      }
+    }
   });
 
   useOpenChangeComplete({
@@ -175,10 +197,66 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
 
   React.useImperativeHandle(params.actionsRef, () => ({ unmount: handleUnmount }), [handleUnmount]);
 
+  function getMultiValueData(val = value) {
+    let selectedValues: any[] = [];
+    if (Array.isArray(val)) {
+      selectedValues = val;
+    } else if (val != null) {
+      selectedValues = [val];
+    } else {
+      selectedValues = [];
+    }
+
+    const indices = selectedValues.map((v) => valuesRef.current.indexOf(v)).filter((i) => i !== -1);
+    const labels = indices.map((i) => labelsRef.current[i] ?? '').join(', ');
+
+    return {
+      indices,
+      labels,
+    };
+  }
+
   const setValue = useEventCallback((nextValue: any, event?: Event) => {
+    if (multiple) {
+      const currentVal = value;
+      let currentSelectedItems: any[];
+
+      if (Array.isArray(currentVal)) {
+        currentSelectedItems = currentVal;
+      } else if (currentVal != null) {
+        currentSelectedItems = [currentVal];
+      } else {
+        currentSelectedItems = [];
+      }
+
+      const itemIsInArray = currentSelectedItems.includes(nextValue);
+      const newValueArray = itemIsInArray
+        ? currentSelectedItems.filter((v) => v !== nextValue)
+        : [...currentSelectedItems, nextValue];
+
+      params.onValueChange?.(newValueArray, event);
+      setValueUnwrapped(newValueArray);
+      setDirty(
+        newValueArray.length > 0 ||
+          (Array.isArray(validityData.initialValue) &&
+            validityData.initialValue.length > 0 &&
+            newValueArray.length !== validityData.initialValue.length) ||
+          (!Array.isArray(validityData.initialValue) && newValueArray.length > 0),
+      );
+      clearErrors(name);
+
+      const { labels } = getMultiValueData(newValueArray);
+      if (newValueArray.length > 0) {
+        setLabel(labels);
+      } else {
+        setSelectedIndex(null);
+        setLabel('');
+      }
+      return;
+    }
+
     params.onValueChange?.(nextValue, event);
     setValueUnwrapped(nextValue);
-
     setDirty(nextValue !== validityData.initialValue);
     clearErrors(name);
 
@@ -192,6 +270,17 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
   const registerSelectedItem = useEventCallback((suppliedIndex: number | undefined) => {
     if (suppliedIndex !== undefined) {
       hasRegisteredRef.current = true;
+    }
+
+    if (multiple && Array.isArray(value)) {
+      const { labels } = getMultiValueData(value);
+      if (value.length > 0) {
+        setLabel(labels);
+      } else {
+        setSelectedIndex(null);
+        setLabel('');
+      }
+      return;
     }
 
     const stringValue = typeof value === 'string' || value === null ? value : JSON.stringify(value);
@@ -212,7 +301,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     }
 
     registerSelectedItem(undefined);
-  }, [value, registerSelectedItem]);
+  }, [value, registerSelectedItem, multiple]);
 
   const floatingRootContext = useFloatingRootContext({
     open,
@@ -325,6 +414,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
       transitionStatus,
       fieldControlValidation,
       modal,
+      multiple,
       registerSelectedItem,
       onOpenChangeComplete,
       keyboardActiveRef,
@@ -355,6 +445,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
       transitionStatus,
       fieldControlValidation,
       modal,
+      multiple,
       registerSelectedItem,
       onOpenChangeComplete,
       keyboardActiveRef,
@@ -381,7 +472,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
 }
 
 export namespace useSelectRoot {
-  export interface Parameters<Value> {
+  export interface SingleSelectionParameters<Value> {
     /**
      * Identifies the field when a form is submitted.
      */
@@ -405,6 +496,11 @@ export namespace useSelectRoot {
      * @default false
      */
     disabled?: boolean;
+    /**
+     * Whether multiple items can be selected.
+     * @default false
+     */
+    multiple?: false;
     /**
      * The value of the select.
      */
@@ -458,6 +554,19 @@ export namespace useSelectRoot {
      */
     actionsRef?: React.RefObject<Actions>;
   }
+
+  export interface MultipleSelectionParameters<Value>
+    extends Omit<SingleSelectionParameters<Value>, 'multiple'> {
+    /**
+     * Whether multiple items can be selected.
+     * @default false
+     */
+    multiple: true;
+  }
+
+  export type Parameters<Value> =
+    | SingleSelectionParameters<Value>
+    | MultipleSelectionParameters<Value>;
 
   export interface ReturnValue {
     rootContext: SelectRootContext;

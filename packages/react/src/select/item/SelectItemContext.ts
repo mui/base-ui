@@ -1,7 +1,8 @@
 import * as React from 'react';
 
-interface SelectItemContext {
+export interface SelectItemContext {
   selected: boolean;
+  selectedByFocus: boolean;
   indexRef: React.RefObject<number>;
 }
 

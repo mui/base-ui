@@ -296,7 +296,7 @@ describe('<Select.Root />', () => {
 
     await flushMicrotasks();
 
-    expect(screen.getByRole('option', { name: 'b', hidden: false })).to.have.attribute(
+    expect(screen.getByRole('option', { name: 'b', hidden: true })).to.have.attribute(
       'data-selected',
       '',
     );
@@ -1269,6 +1269,175 @@ describe('<Select.Root />', () => {
       await user.keyboard('{ArrowDown}'); // Share still
 
       expect(screen.queryByRole('option', { name: 'Share' })).toHaveFocus();
+    });
+  });
+
+  describe('multiple', () => {
+    it('should allow selecting multiple items (uncontrolled)', async () => {
+      const { user } = await render(
+        <Select.Root multiple>
+          <Select.Trigger data-testid="trigger">
+            <Select.Value />
+          </Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup>
+                <Select.Item value="a">a</Select.Item>
+                <Select.Item value="b">b</Select.Item>
+                <Select.Item value="c">c</Select.Item>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+
+      await user.click(trigger);
+      await flushMicrotasks();
+
+      const optionA = screen.getByRole('option', { name: 'a' });
+      const optionB = screen.getByRole('option', { name: 'b' });
+
+      await user.click(optionA);
+      expect(optionA).to.have.attribute('data-selected', '');
+
+      expect(screen.getByRole('listbox')).not.to.equal(null);
+
+      await user.click(optionB);
+      expect(optionA).to.have.attribute('data-selected', '');
+      expect(optionB).to.have.attribute('data-selected', '');
+
+      await user.click(optionA);
+      expect(optionA).not.to.have.attribute('data-selected');
+      expect(optionB).to.have.attribute('data-selected', '');
+
+      expect(screen.getByRole('listbox')).not.to.equal(null);
+    });
+
+    it('should allow selecting multiple items (controlled)', async () => {
+      function App() {
+        const [value, setValue] = React.useState<string[]>([]);
+        return (
+          <Select.Root multiple value={value} onValueChange={setValue}>
+            <Select.Trigger data-testid="trigger">
+              <Select.Value />
+            </Select.Trigger>
+            <Select.Portal>
+              <Select.Positioner>
+                <Select.Popup>
+                  <Select.Item value="a">a</Select.Item>
+                  <Select.Item value="b">b</Select.Item>
+                  <Select.Item value="c">c</Select.Item>
+                </Select.Popup>
+              </Select.Positioner>
+            </Select.Portal>
+          </Select.Root>
+        );
+      }
+
+      const { user } = await render(<App />);
+      const trigger = screen.getByTestId('trigger');
+
+      await user.click(trigger);
+      await flushMicrotasks();
+
+      const optionA = screen.getByRole('option', { name: 'a' });
+      const optionB = screen.getByRole('option', { name: 'b' });
+
+      await user.click(optionA);
+      expect(optionA).to.have.attribute('data-selected', '');
+
+      expect(screen.getByRole('listbox')).not.to.equal(null);
+
+      await user.click(optionB);
+      expect(optionA).to.have.attribute('data-selected', '');
+      expect(optionB).to.have.attribute('data-selected', '');
+
+      expect(screen.getByRole('listbox')).not.to.equal(null);
+    });
+
+    it('should submit all selected values in a form (uncontrolled)', async () => {
+      let submitted: any = null;
+      function App() {
+        return (
+          <form
+            onSubmit={(event) => {
+              event.preventDefault();
+              const data = new FormData(event.currentTarget);
+              submitted = data.getAll('fruits');
+            }}
+          >
+            <Select.Root name="fruits" multiple>
+              <Select.Trigger data-testid="trigger">
+                <Select.Value />
+              </Select.Trigger>
+              <Select.Portal>
+                <Select.Positioner>
+                  <Select.Popup>
+                    <Select.Item value="apple">Apple</Select.Item>
+                    <Select.Item value="banana">Banana</Select.Item>
+                    <Select.Item value="mango">Mango</Select.Item>
+                  </Select.Popup>
+                </Select.Positioner>
+              </Select.Portal>
+            </Select.Root>
+            <button type="submit">Submit</button>
+          </form>
+        );
+      }
+      const { user } = await render(<App />);
+      const trigger = screen.getByTestId('trigger');
+
+      await user.click(trigger);
+      await flushMicrotasks();
+      await user.click(screen.getByRole('option', { name: 'Apple' }));
+      await user.click(screen.getByRole('option', { name: 'Mango' }));
+      await user.click(screen.getByText('Submit'));
+
+      expect(submitted).to.deep.equal(['apple', 'mango']);
+    });
+
+    it('should submit all selected values in a form (controlled)', async () => {
+      let submitted: any = null;
+      function App() {
+        const [value, setValue] = React.useState<string[]>([]);
+        return (
+          <form
+            onSubmit={(event) => {
+              event.preventDefault();
+              const data = new FormData(event.currentTarget);
+              submitted = data.getAll('fruits');
+            }}
+          >
+            <Select.Root name="fruits" multiple value={value} onValueChange={setValue}>
+              <Select.Trigger data-testid="trigger">
+                <Select.Value />
+              </Select.Trigger>
+              <Select.Portal>
+                <Select.Positioner>
+                  <Select.Popup>
+                    <Select.Item value="apple">Apple</Select.Item>
+                    <Select.Item value="banana">Banana</Select.Item>
+                    <Select.Item value="mango">Mango</Select.Item>
+                  </Select.Popup>
+                </Select.Positioner>
+              </Select.Portal>
+            </Select.Root>
+            <button type="submit">Submit</button>
+          </form>
+        );
+      }
+      const { user } = await render(<App />);
+      const trigger = screen.getByTestId('trigger');
+
+      await user.click(trigger);
+      await flushMicrotasks();
+      await user.click(screen.getByRole('option', { name: 'Apple' }));
+      await user.click(screen.getByRole('option', { name: 'Banana' }));
+      await user.click(screen.getByText('Submit'));
+
+      expect(submitted).to.deep.equal(['apple', 'banana']);
     });
   });
 });
