@@ -51,6 +51,30 @@ describe('<NumberField.Decrement />', () => {
     expect(screen.getByRole('textbox')).to.have.value('-1');
   });
 
+  it('first decrement after external controlled update', async () => {
+    function Controlled(props: { value: number | null }) {
+      return (
+        <NumberField.Root value={props.value}>
+          <NumberField.Decrement />
+          <NumberField.Input />
+        </NumberField.Root>
+      );
+    }
+
+    const { setProps } = await render(<Controlled value={null} />);
+    const input = screen.getByRole('textbox');
+    const button = screen.getByRole('button');
+
+    await act(async () => {
+      setProps({ value: 1.23456 });
+    });
+
+    expect(input).to.have.value('1.23456');
+
+    fireEvent.click(button);
+    expect(input).to.have.value('0.235');
+  });
+
   describe('press and hold', () => {
     clock.withFakeTimers();
 
