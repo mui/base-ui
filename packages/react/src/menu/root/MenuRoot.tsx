@@ -2,8 +2,7 @@
 import * as React from 'react';
 import { FloatingTree } from '@floating-ui/react';
 import { MenuRootContext } from './MenuRootContext';
-import { MenuOrientation, useMenuRoot } from './useMenuRoot';
-import type { OpenChangeReason } from '../../utils/translateOpenChangeReason';
+import { MenuOrientation, MenuOpenChangeReason, useMenuRoot } from './useMenuRoot';
 
 /**
  * Groups all parts of the menu.
@@ -78,11 +77,12 @@ export namespace MenuRoot {
     modal?: boolean;
     /**
      * Event handler called when the menu is opened or closed.
+     * @type (open: boolean, event?: Event, reason?: Menu.Root.OpenChangeReason) => void
      */
     onOpenChange?: (
       open: boolean,
       event: Event | undefined,
-      reason: OpenChangeReason | undefined,
+      reason: MenuOpenChangeReason | undefined,
     ) => void;
     /**
      * Event handler called after any animations complete when the menu is closed.
@@ -128,10 +128,12 @@ export namespace MenuRoot {
      * Instead, the `unmount` function must be called to unmount the menu manually.
      * Useful when the menu's animation is controlled by an external library.
      */
-    actionsRef?: React.RefObject<{ unmount: () => void }>;
+    actionsRef?: React.RefObject<Actions>;
   }
 
   export interface Actions {
     unmount: () => void;
   }
+
+  export type OpenChangeReason = MenuOpenChangeReason;
 }

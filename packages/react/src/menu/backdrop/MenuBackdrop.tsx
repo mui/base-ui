@@ -45,7 +45,7 @@ export const MenuBackdrop = React.forwardRef(function MenuBackdrop(
         role: 'presentation',
         hidden: !mounted,
         style: {
-          pointerEvents: lastOpenChangeReason === 'hover' ? 'none' : undefined,
+          pointerEvents: lastOpenChangeReason === 'trigger-hover' ? 'none' : undefined,
           userSelect: 'none',
           WebkitUserSelect: 'none',
         },

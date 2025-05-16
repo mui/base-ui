@@ -16,7 +16,7 @@ import type { HTMLProps } from '../../utils/types';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import {
   translateOpenChangeReason,
-  type OpenChangeReason,
+  type BaseOpenChangeReason as OpenChangeReason,
 } from '../../utils/translateOpenChangeReason';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useFocusWithDelay } from '../../utils/floating-ui/useFocusWithDelay';
@@ -173,6 +173,7 @@ export namespace usePreviewCardRoot {
     open?: boolean;
     /**
      * Event handler called when the preview card is opened or closed.
+     * @type (open: boolean, event?: Event, reason?: PreviewCard.Root.OpenChangeReason) => void
      */
     onOpenChange?: (
       open: boolean,
@@ -204,7 +205,11 @@ export namespace usePreviewCardRoot {
 
   export interface ReturnValue {
     open: boolean;
-    setOpen: (value: boolean, event?: Event, reason?: OpenChangeReason) => void;
+    setOpen: (
+      value: boolean,
+      event: Event | undefined,
+      reason: OpenChangeReason | undefined,
+    ) => void;
     mounted: boolean;
     setMounted: React.Dispatch<React.SetStateAction<boolean>>;
     getRootTriggerProps: (externalProps?: HTMLProps) => HTMLProps;

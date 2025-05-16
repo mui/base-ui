@@ -3,7 +3,7 @@ import { useFloatingRootContext } from '@floating-ui/react';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import type { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
 import type { HTMLProps } from '../../utils/types';
-import type { OpenChangeReason } from '../../utils/translateOpenChangeReason';
+import type { SelectOpenChangeReason } from './useSelectRoot';
 
 export interface SelectRootContext {
   name: string | undefined;
@@ -14,9 +14,9 @@ export interface SelectRootContext {
   setValue: (nextValue: any, event?: Event) => void;
   open: boolean;
   setOpen: (
-    nextOpen: boolean,
+    open: boolean,
     event: Event | undefined,
-    reason: OpenChangeReason | undefined,
+    reason: SelectOpenChangeReason | undefined,
   ) => void;
   mounted: boolean;
   setMounted: React.Dispatch<React.SetStateAction<boolean>>;

@@ -21,11 +21,14 @@ import { type InteractionType } from '../../utils/useEnhancedClickHandler';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
 import {
   translateOpenChangeReason,
-  type OpenChangeReason,
+  type BaseOpenChangeReason,
 } from '../../utils/translateOpenChangeReason';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { PATIENT_CLICK_THRESHOLD } from '../../utils/constants';
 import { useScrollLock } from '../../utils/useScrollLock';
+import type { Popover } from '../index';
+
+export type PopoverOpenChangeReason = BaseOpenChangeReason | 'close-press';
 
 export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoot.ReturnValue {
   const {
@@ -47,7 +50,7 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
   const [descriptionId, setDescriptionId] = React.useState<string>();
   const [triggerElement, setTriggerElement] = React.useState<Element | null>(null);
   const [positionerElement, setPositionerElement] = React.useState<HTMLElement | null>(null);
-  const [openReason, setOpenReason] = React.useState<OpenChangeReason | null>(null);
+  const [openReason, setOpenReason] = React.useState<PopoverOpenChangeReason | null>(null);
   const [stickIfOpen, setStickIfOpen] = React.useState(true);
 
   const popupRef = React.useRef<HTMLElement>(null);
@@ -65,14 +68,14 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
 
   useScrollLock({
-    enabled: open && modal === true && openReason !== 'hover',
+    enabled: open && modal === true && openReason !== 'trigger-hover',
     mounted,
     open,
     referenceElement: positionerElement,
   });
 
   const setOpen = useEventCallback(
-    (nextOpen: boolean, event: Event | undefined, reason: OpenChangeReason | undefined) => {
+    (nextOpen: boolean, event: Event | undefined, reason: PopoverOpenChangeReason | undefined) => {
       onOpenChange(nextOpen, event, reason);
       setOpenUnwrapped(nextOpen);
 
@@ -112,12 +115,15 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
     elements: { reference: triggerElement, floating: positionerElement },
     open,
     onOpenChange(openValue, eventValue, reasonValue) {
-      const isHover = reasonValue === 'hover' || reasonValue === 'safe-polygon';
-      const isKeyboardClick = reasonValue === 'click' && (eventValue as MouseEvent).detail === 0;
-      const isDismissClose = !openValue && (reasonValue === 'escape-key' || reasonValue == null);
+      const translatedReason = translateOpenChangeReason(reasonValue);
+      const isHover = translatedReason === 'trigger-hover';
+      const isKeyboardClick =
+        translatedReason === 'trigger-press' && (eventValue as MouseEvent).detail === 0;
+      const isDismissClose =
+        !openValue && (translatedReason === 'escape-key' || reasonValue == null);
 
       function changeState() {
-        setOpen(openValue, eventValue, translateOpenChangeReason(reasonValue));
+        setOpen(openValue, eventValue, translatedReason);
       }
 
       if (isHover) {
@@ -146,7 +152,7 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
   const computedRestMs = delayWithDefault;
 
   const hover = useHover(context, {
-    enabled: openOnHover && (openMethod !== 'touch' || openReason !== 'click'),
+    enabled: openOnHover && (openMethod !== 'touch' || openReason !== 'trigger-press'),
     mouseOnly: true,
     move: false,
     handleClose: safePolygon({ blockPointerEvents: true }),
@@ -220,11 +226,12 @@ export namespace usePopoverRoot {
     open?: boolean;
     /**
      * Event handler called when the popover is opened or closed.
+     * @type (open: boolean, event?: Event, reason?: Popover.Root.OpenChangeReason) => void
      */
     onOpenChange?: (
       open: boolean,
       event: Event | undefined,
-      reason: OpenChangeReason | undefined,
+      reason: PopoverOpenChangeReason | undefined,
     ) => void;
     /**
      * Event handler called after any animations complete when the popover is opened or closed.
@@ -269,7 +276,11 @@ export namespace usePopoverRoot {
 
   export interface ReturnValue {
     open: boolean;
-    setOpen: (open: boolean, event?: Event, reason?: OpenChangeReason) => void;
+    setOpen: (
+      open: boolean,
+      event: Event | undefined,
+      reason: Popover.Root.OpenChangeReason | undefined,
+    ) => void;
     mounted: boolean;
     setMounted: React.Dispatch<React.SetStateAction<boolean>>;
     transitionStatus: TransitionStatus;
@@ -286,7 +297,7 @@ export namespace usePopoverRoot {
     setPositionerElement: React.Dispatch<React.SetStateAction<HTMLElement | null>>;
     popupRef: React.RefObject<HTMLElement | null>;
     openMethod: InteractionType | null;
-    openReason: OpenChangeReason | null;
+    openReason: PopoverOpenChangeReason | null;
     onOpenChangeComplete: ((open: boolean) => void) | undefined;
   }
 
