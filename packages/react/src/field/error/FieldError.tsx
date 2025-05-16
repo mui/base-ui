@@ -19,7 +19,7 @@ export const FieldError = React.forwardRef(function FieldError(
   componentProps: FieldError.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, id: idProp, className, match, forceShow, ...elementProps } = componentProps;
+  const { render, id: idProp, className, match, ...elementProps } = componentProps;
 
   const id = useBaseUiId(idProp);
 
@@ -30,11 +30,11 @@ export const FieldError = React.forwardRef(function FieldError(
   const formError = name ? errors[name] : null;
 
   let rendered = false;
-  if (formError || forceShow) {
+  if (formError || match === true) {
     rendered = true;
   } else if (match) {
     rendered = Boolean(validityData.state[match]);
-  } else if (forceShow == null) {
+  } else {
     rendered = validityData.state.valid === false;
   }
 
@@ -87,11 +87,8 @@ export namespace FieldError {
     /**
      * Determines whether to show the error message according to the field’s
      * [ValidityState](https://developer.mozilla.org/en-US/docs/Web/API/ValidityState).
+     * Specifying `true` will always show the error message.
      */
-    match?: keyof ValidityState;
-    /**
-     * Whether the error message should be shown regardless of the field’s validity.
-     */
-    forceShow?: boolean;
+    match?: boolean | keyof ValidityState;
   }
 }
