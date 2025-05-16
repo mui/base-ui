@@ -47,11 +47,9 @@ The `useRender` hook lets you build custom components that provide a `render` pr
 />
 
 ```tsx title="renderElement function" "renderElement"
-const { renderElement } = useRender({
+const element = useRender({
   // Input parameters
 });
-
-const element = renderElement();
 ```
 
 ## Examples
@@ -103,13 +101,13 @@ In React 19, `React.forwardRef()` is not needed when building primitive componen
 function Text({ render = <p />, ...props }: TextProps) {
   const internalRef = React.useRef<HTMLElement | null>(null);
 
-  const { renderElement } = useRender({
-    render,
+  const element = useRender({
+    ref: internalRef,
     props,
-    refs: [internalRef],
+    render,
   });
 
-  return renderElement();
+  return element;
 }
 ```
 
@@ -124,13 +122,13 @@ const Text = React.forwardRef(function Text(
 ) {
   const internalRef = React.useRef<HTMLElement | null>(null);
 
-  const { renderElement } = useRender({
-    render,
+  const element = useRender({
+    ref: [forwardedRef, internalRef],
     props,
-    refs: [forwardedRef, internalRef],
+    render,
   });
 
-  return renderElement();
+  return element();
 });
 ```
 
@@ -151,12 +149,12 @@ function Button({ render = <button />, ...props }: ButtonProps) {
     children: 'Click me',
   };
 
-  const { renderElement } = useRender({
+  const element = useRender({
     render,
     props: mergeProps<'button'>(defaultProps, props),
   });
 
-  return renderElement();
+  return element;
 }
 ```
 
@@ -186,8 +184,7 @@ In Base UI, `useRender` lets you implement a `render` prop. The example below is
 import { useRender } from '@base-ui-components/react/use-render';
 
 function Button({ render = <button />, ...props }) {
-  const { renderElement } = useRender({ render, props });
-  return renderElement();
+  return useRender({ render, props });
 }
 
 // Usage
