@@ -70,6 +70,7 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
   } = useFieldControlValidation();
 
   const hasTouchedInputRef = React.useRef(false);
+  const blockRevalidationRef = React.useRef(false);
 
   const handleInputRef = useForkRef(forwardedRef, inputRef, inputValidationRef);
 
@@ -92,10 +93,20 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
 
     if (validationMode === 'onChange') {
       commitValidation(value);
-    } else {
-      commitValidation(value, true);
     }
   }, [value, inputValue, name, clearErrors, validationMode, commitValidation]);
+
+  useModernLayoutEffect(() => {
+    if (prevValueRef.current === value || validationMode === 'onChange') {
+      return;
+    }
+
+    if (blockRevalidationRef.current) {
+      blockRevalidationRef.current = false;
+      return;
+    }
+    commitValidation(value, true);
+  }, [commitValidation, validationMode, value]);
 
   useModernLayoutEffect(() => {
     prevValueRef.current = value;
@@ -173,6 +184,7 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
 
             if (isControlled && externalUpdateRef.current) {
               externalUpdateRef.current = false;
+              blockRevalidationRef.current = true;
               if (validationMode === 'onBlur') {
                 commitValidation(parsed);
               }

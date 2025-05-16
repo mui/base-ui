@@ -115,7 +115,7 @@ export const AccordionItem = React.forwardRef(function AccordionItem(
     [isOpen, state, setTriggerId, triggerId],
   );
 
-  const renderElement = useRenderElement('div', componentProps, {
+  const element = useRenderElement('div', componentProps, {
     state,
     ref: mergedRef,
     props: elementProps,
@@ -125,7 +125,7 @@ export const AccordionItem = React.forwardRef(function AccordionItem(
   return (
     <CollapsibleRootContext.Provider value={collapsibleContext}>
       <AccordionItemContext.Provider value={accordionItemContext}>
-        {renderElement()}
+        {element}
       </AccordionItemContext.Provider>
     </CollapsibleRootContext.Provider>
   );

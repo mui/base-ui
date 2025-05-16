@@ -15,7 +15,7 @@ export const SelectIcon = React.forwardRef(function SelectIcon(
 ) {
   const { className, render, ...elementProps } = componentProps;
 
-  const renderElement = useRenderElement('span', componentProps, {
+  const element = useRenderElement('span', componentProps, {
     ref: forwardedRef,
     props: [
       {
@@ -26,7 +26,7 @@ export const SelectIcon = React.forwardRef(function SelectIcon(
     ],
   });
 
-  return renderElement();
+  return element;
 });
 
 export namespace SelectIcon {

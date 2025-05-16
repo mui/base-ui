@@ -1,7 +1,7 @@
 import * as React from 'react';
 import type { ComponentRenderFn } from '../utils/types';
 import { HTMLProps } from '../utils/types';
-import { useRenderElement } from '../utils/useRenderElement';
+import { useRenderElementLazy } from '../utils/useRenderElement';
 
 /**
  * Returns an object with a `renderElement` function that renders a Base UI element.
@@ -15,7 +15,7 @@ export function useRender<
   const { render, props, state, refs } = params;
   const { ref: intrinsicRefProp, ...intrinsicProps } = props || {};
 
-  const renderElement = useRenderElement(
+  const renderElement = useRenderElementLazy(
     undefined,
     { render },
     {
@@ -24,7 +24,7 @@ export function useRender<
       ref: [intrinsicRefProp, ...(refs || [])].filter(
         (x): x is React.Ref<RenderedElementType> => x != null,
       ),
-      styleHooks: false,
+      disableStyleHooks: true,
     },
   );
 

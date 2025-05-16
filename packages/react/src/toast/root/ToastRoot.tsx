@@ -561,7 +561,7 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
     ],
   );
 
-  const renderElement = useRenderElement('div', componentProps, {
+  const element = useRenderElement('div', componentProps, {
     ref: [forwardedRef, toastRoot.rootRef],
     state,
     customStyleHookMapping,
@@ -596,7 +596,7 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
     ],
   });
 
-  return <ToastRootContext.Provider value={toastRoot}>{renderElement()}</ToastRootContext.Provider>;
+  return <ToastRootContext.Provider value={toastRoot}>{element}</ToastRootContext.Provider>;
 });
 
 export namespace ToastRoot {
