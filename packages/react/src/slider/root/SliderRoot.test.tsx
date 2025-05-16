@@ -2005,26 +2005,50 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
       expect(root).not.to.have.attribute('data-focused');
     });
 
-    it('prop: validate', async () => {
-      await render(
-        <Field.Root validate={() => 'error'}>
-          <Slider.Root>
-            <Slider.Control>
-              <Slider.Thumb data-testid="thumb" />
-            </Slider.Control>
-          </Slider.Root>
-          <Field.Error data-testid="error" />
-        </Field.Root>,
-      );
+    describe('prop: validate', async () => {
+      it('runs on blur by default', async () => {
+        await render(
+          <Field.Root validate={() => 'error'}>
+            <Slider.Root>
+              <Slider.Control>
+                <Slider.Thumb data-testid="thumb" />
+              </Slider.Control>
+            </Slider.Root>
+            <Field.Error data-testid="error" />
+          </Field.Root>,
+        );
 
-      const input = screen.getByRole('slider');
-      expect(input).not.to.have.attribute('aria-invalid');
+        const input = screen.getByRole('slider');
+        expect(input).not.to.have.attribute('aria-invalid');
 
-      const thumb = screen.getByTestId('thumb');
-      fireEvent.focus(thumb);
-      fireEvent.blur(thumb);
-      await flushMicrotasks();
-      expect(input).to.have.attribute('aria-invalid', 'true');
+        const thumb = screen.getByTestId('thumb');
+        fireEvent.focus(thumb);
+        fireEvent.blur(thumb);
+        await flushMicrotasks();
+        expect(input).to.have.attribute('aria-invalid', 'true');
+      });
+
+      it('receives an array value for range sliders', async () => {
+        const validateSpy = spy();
+        await render(
+          <Field.Root validate={validateSpy}>
+            <Slider.Root defaultValue={[5, 12]}>
+              <Slider.Control>
+                <Slider.Thumb data-testid="thumb" />
+                <Slider.Thumb />
+              </Slider.Control>
+            </Slider.Root>
+            <Field.Error data-testid="error" />
+          </Field.Root>,
+        );
+
+        const thumb = screen.getByTestId('thumb');
+        fireEvent.focus(thumb);
+        fireEvent.blur(thumb);
+        await flushMicrotasks();
+        expect(validateSpy.callCount).to.equal(1);
+        expect(validateSpy.args[0][0]).to.deep.equal([5, 12]);
+      });
     });
 
     it('prop: validationMode=onChange', async () => {

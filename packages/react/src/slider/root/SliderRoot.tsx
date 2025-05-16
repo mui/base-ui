@@ -315,11 +315,8 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
 
   const serializedValue = React.useMemo(() => {
     if (valueUnwrapped == null) {
-      return ''; // avoid uncontrolled -> controlled error
+      return '';
     }
-    // if (!Array.isArray(valueUnwrapped)) {
-    //   return valueUnwrapped;
-    // }
     return JSON.stringify(valueUnwrapped);
   }, [valueUnwrapped]);
 
