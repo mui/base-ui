@@ -1,10 +1,10 @@
 import * as React from 'react';
 import type { ComponentRenderFn } from '../utils/types';
 import { HTMLProps } from '../utils/types';
-import { useRenderElement } from '../utils/useRenderElement';
+import { useRenderElement, useRenderElementLazy } from '../utils/useRenderElement';
 
 /**
- * Returns an object with a `renderElement` function that renders a Base UI element.
+ * Renders a Base UI element.
  *
  * @public
  */
@@ -18,6 +18,23 @@ export function useRender<
   renderParams.disableStyleHooks = true;
 
   return useRenderElement(undefined, renderParams, renderParams);
+}
+
+/**
+ * Returns an object with a `renderElement` function that renders a Base UI element.
+ *
+ * @public
+ */
+export function useRenderLazy<
+  State extends Record<string, unknown>,
+  RenderedElementType extends Element,
+>(params: useRender.Parameters<State, RenderedElementType>): useRenderLazy.ReturnValue {
+  const renderParams = params as useRender.Parameters<State, RenderedElementType> & {
+    disableStyleHooks: boolean;
+  };
+  renderParams.disableStyleHooks = true;
+
+  return useRenderElementLazy(undefined, renderParams, renderParams);
 }
 
 export namespace useRender {
@@ -67,4 +84,8 @@ export namespace useRender {
   }
 
   export type ReturnValue = React.ReactElement;
+}
+
+export namespace useRenderLazy {
+  export type ReturnValue = () => React.ReactElement;
 }

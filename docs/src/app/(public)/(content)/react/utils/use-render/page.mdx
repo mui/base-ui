@@ -39,9 +39,9 @@ The `useRender` hook lets you build custom components that provide a `render` pr
 <PropsReferenceTable
   type="return"
   data={{
-    renderElement: {
-      type: '() => React.ReactElement',
-      description: 'The React element to be rendered.',
+    element: {
+      type: 'React.ReactElement',
+      description: 'The rendered React element',
     },
   }}
 />
@@ -130,6 +130,26 @@ const Text = React.forwardRef(function Text(
 
   return element;
 });
+```
+
+## Lazy variant
+
+If it makes sense to avoid some of the work done by `useRender`, you can use it's lazy variant: `useRenderLazy`.
+
+It's API is identical, except that it returns a callable function to render the element:
+
+```tsx
+const renderElement = useRenderLazy({
+  ref: [forwardedRef, internalRef],
+  props,
+  render,
+});
+
+if (!needsToBeMounted) {
+  return null;
+}
+
+return renderElement();
 ```
 
 ## TypeScript
