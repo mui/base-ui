@@ -40,7 +40,7 @@ export const SelectArrow = React.forwardRef(function SelectArrow(
     [open, side, align, arrowUncentered],
   );
 
-  const renderElement = useRenderElement('div', componentProps, {
+  const element = useRenderElement('div', componentProps, {
     state,
     ref: [arrowRef, forwardedRef],
     props: [{ style: arrowStyles, 'aria-hidden': true }, elementProps],
@@ -51,7 +51,7 @@ export const SelectArrow = React.forwardRef(function SelectArrow(
     return null;
   }
 
-  return renderElement();
+  return element;
 });
 
 export namespace SelectArrow {

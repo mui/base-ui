@@ -4,7 +4,8 @@
   "props": {
     "swipeDirection": {
       "type": "'left' | 'right' | 'up' | 'down' | ('left' | 'right' | 'up' | 'down')[]",
-      "description": "Direction(s) in which the toast can be swiped to dismiss.\nDefaults to `['down', 'right']`."
+      "default": "['down', 'right']",
+      "description": "Direction(s) in which the toast can be swiped to dismiss."
     },
     "toast": {
       "type": "Toast.Root.ToastObject",
