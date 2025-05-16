@@ -17,9 +17,7 @@ export function useRender<
   };
   renderParams.disableStyleHooks = true;
 
-  const element = useRenderElement(undefined, renderParams, renderParams);
-
-  return element;
+  return useRenderElement(undefined, renderParams, renderParams);
 }
 
 export namespace useRender {
