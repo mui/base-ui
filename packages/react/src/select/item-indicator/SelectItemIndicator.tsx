@@ -5,6 +5,7 @@ import { useSelectItemContext } from '../item/SelectItemContext';
 import { type TransitionStatus, useTransitionStatus } from '../../utils/useTransitionStatus';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useRenderElement } from '../../utils/useRenderElement';
+import { transitionStatusMapping } from '../../utils/styleHookMapping';
 
 /**
  * Indicates whether the select item is selected.
@@ -43,6 +44,7 @@ export const SelectItemIndicator = React.forwardRef(function SelectItemIndicator
       },
       elementProps,
     ],
+    customStyleHookMapping: transitionStatusMapping,
   });
 
   useOpenChangeComplete({
