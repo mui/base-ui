@@ -42,7 +42,7 @@ module.exports = function getBabelConfig(api) {
       '@babel/plugin-transform-runtime',
       { regenerator: false, version: baseUIPackageJson.dependencies['@babel/runtime'] },
     ],
-    '@mui-public/babel-plugin-display-name',
+    '@mui/internal-babel-plugin-display-name',
     ...(useESModules ? ['babel-plugin-add-import-extension'] : []),
   ];
 
