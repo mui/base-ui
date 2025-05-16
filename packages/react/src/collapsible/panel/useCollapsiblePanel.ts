@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { HTMLProps } from '../../utils/types';
-import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
+import { useLayoutEffect } from '../../utils/useLayoutEffect';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { useForkRef } from '../../utils/useForkRef';
 import { useOnMount } from '../../utils/useOnMount';
@@ -54,7 +54,7 @@ export function useCollapsiblePanel(
     return !open && !mounted;
   }, [open, mounted, visible, animationTypeRef]);
 
-  useModernLayoutEffect(() => {
+  useLayoutEffect(() => {
     if (!keepMounted && !open) {
       setPanelId(undefined);
     } else {
@@ -161,7 +161,7 @@ export function useCollapsiblePanel(
    * 1. When `keepMounted={false}`, the panel may not exist in the DOM
    * 2. When controlled, the open state may change externally without involving the trigger
    */
-  useModernLayoutEffect(() => {
+  useLayoutEffect(() => {
     if (animationTypeRef.current !== 'css-transition' || keepMounted) {
       return undefined;
     }
@@ -231,7 +231,7 @@ export function useCollapsiblePanel(
     transitionDimensionRef,
   ]);
 
-  useModernLayoutEffect(() => {
+  useLayoutEffect(() => {
     if (animationTypeRef.current !== 'css-animation') {
       return;
     }
@@ -285,7 +285,7 @@ export function useCollapsiblePanel(
     return () => AnimationFrame.cancel(frame);
   });
 
-  useModernLayoutEffect(() => {
+  useLayoutEffect(() => {
     if (!hiddenUntilFound) {
       return undefined;
     }
@@ -317,7 +317,7 @@ export function useCollapsiblePanel(
     };
   }, [hiddenUntilFound, open, panelRef, setDimensions]);
 
-  useModernLayoutEffect(() => {
+  useLayoutEffect(() => {
     const panel = panelRef.current;
 
     if (panel && hiddenUntilFound && hidden) {

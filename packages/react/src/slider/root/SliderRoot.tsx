@@ -9,7 +9,7 @@ import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useControlled } from '../../utils/useControlled';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { useLatestRef } from '../../utils/useLatestRef';
-import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
+import { useLayoutEffect } from '../../utils/useLayoutEffect';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { warn } from '../../utils/warn';
 import { CompositeList, type CompositeMetadata } from '../../composite/list/CompositeList';
@@ -124,7 +124,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
     () => new Map<Node, CompositeMetadata<ThumbMetadata> | null>(),
   );
 
-  useModernLayoutEffect(() => {
+  useLayoutEffect(() => {
     setControlId(id);
     return () => {
       setControlId(undefined);
@@ -206,7 +206,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
     },
   );
 
-  useModernLayoutEffect(() => {
+  useLayoutEffect(() => {
     if (valueProp === undefined || dragging) {
       return;
     }
@@ -216,7 +216,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
     }
   }, [dragging, min, max, valueProp]);
 
-  useModernLayoutEffect(() => {
+  useLayoutEffect(() => {
     const activeEl = activeElement(ownerDocument(sliderRef.current));
     if (disabled && sliderRef.current?.contains(activeEl)) {
       // This is necessary because Firefox and Safari will keep focus

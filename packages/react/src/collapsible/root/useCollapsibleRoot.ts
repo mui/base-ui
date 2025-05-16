@@ -3,7 +3,7 @@ import * as React from 'react';
 import { useAnimationsFinished } from '../../utils/useAnimationsFinished';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useControlled } from '../../utils/useControlled';
-import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
+import { useLayoutEffect } from '../../utils/useLayoutEffect';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { AnimationFrame } from '../../utils/useAnimationFrame';
 import { useTransitionStatus, TransitionStatus } from '../../utils/useTransitionStatus';
@@ -138,7 +138,7 @@ export function useCollapsibleRoot(
     }
   });
 
-  useModernLayoutEffect(() => {
+  useLayoutEffect(() => {
     /**
      * Unmount immediately when closing in controlled mode and keepMounted={false}
      * and no CSS animations or transitions are applied

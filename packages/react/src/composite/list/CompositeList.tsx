@@ -2,7 +2,7 @@
 'use client';
 import * as React from 'react';
 import { CompositeListContext } from './CompositeListContext';
-import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
+import { useLayoutEffect } from '../../utils/useLayoutEffect';
 
 function sortByDocumentPosition(a: Element, b: Element) {
   const position = a.compareDocumentPosition(b);
@@ -58,7 +58,7 @@ export function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
     return newMap;
   }, [map]);
 
-  useModernLayoutEffect(() => {
+  useLayoutEffect(() => {
     if (elementsRef.current.length !== sortedMap.size) {
       elementsRef.current.length = sortedMap.size;
     }

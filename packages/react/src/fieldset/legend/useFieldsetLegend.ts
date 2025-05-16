@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { mergeProps } from '../../merge-props';
 import { useBaseUiId } from '../../utils/useBaseUiId';
-import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
+import { useLayoutEffect } from '../../utils/useLayoutEffect';
 import { useFieldsetRootContext } from '../root/FieldsetRootContext';
 
 export function useFieldsetLegend(params: useFieldsetLegend.Parameters) {
@@ -12,7 +12,7 @@ export function useFieldsetLegend(params: useFieldsetLegend.Parameters) {
 
   const id = useBaseUiId(idProp);
 
-  useModernLayoutEffect(() => {
+  useLayoutEffect(() => {
     setLegendId(id);
     return () => {
       setLegendId(undefined);

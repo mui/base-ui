@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
-import { useModernLayoutEffect, stopEvent } from '@floating-ui/react/utils';
+import { stopEvent } from '@floating-ui/react/utils';
+import { useLayoutEffect } from '../../utils/useLayoutEffect';
 import { useNumberFieldRootContext } from '../root/NumberFieldRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useForkRef } from '../../utils/useForkRef';
@@ -80,7 +81,7 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
   const prevValueRef = React.useRef(value);
   const prevInputValueRef = React.useRef(inputValue);
 
-  useModernLayoutEffect(() => {
+  useLayoutEffect(() => {
     if (prevValueRef.current === value && prevInputValueRef.current === inputValue) {
       return;
     }
@@ -94,7 +95,7 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
     }
   }, [value, inputValue, name, clearErrors, validationMode, commitValidation]);
 
-  useModernLayoutEffect(() => {
+  useLayoutEffect(() => {
     prevValueRef.current = value;
     prevInputValueRef.current = inputValue;
   }, [value, inputValue]);

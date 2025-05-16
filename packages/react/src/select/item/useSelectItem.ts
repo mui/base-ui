@@ -8,7 +8,7 @@ import { useTimeout } from '../../utils/useTimeout';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { SelectIndexContext } from '../root/SelectIndexContext';
 import { useForkRef } from '../../utils/useForkRef';
-import { useModernLayoutEffect } from '../../utils';
+import { useLayoutEffect } from '../../utils';
 import { addHighlight, hasHighlight, removeHighlight } from '../../utils/highlighted';
 import { isMouseWithinBounds } from '../../utils/isMouseWithinBounds';
 import { AnimationFrame } from '../../utils/useAnimationFrame';
@@ -66,7 +66,7 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
     return handlePopupLeave;
   }, [handlePopupLeave]);
 
-  useModernLayoutEffect(() => {
+  useLayoutEffect(() => {
     if (!open) {
       return;
     }

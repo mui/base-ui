@@ -4,7 +4,7 @@ import type { TabsRootContext } from '../root/TabsRootContext';
 import { type TabsOrientation, type TabActivationDirection } from '../root/TabsRoot';
 import { mergeProps } from '../../merge-props';
 import { HTMLProps } from '../../utils/types';
-import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
+import { useLayoutEffect } from '../../utils/useLayoutEffect';
 import { useForkRef } from '../../utils/useForkRef';
 import { useEventCallback } from '../../utils/useEventCallback';
 
@@ -76,7 +76,7 @@ function useActivationDirectionDetector(
 ): (newValue: any) => TabActivationDirection {
   const previousTabEdge = React.useRef<number | null>(null);
 
-  useModernLayoutEffect(() => {
+  useLayoutEffect(() => {
     // Whenever orientation changes, reset the state.
     if (selectedTabValue == null || tabsListRef.current == null) {
       previousTabEdge.current = null;

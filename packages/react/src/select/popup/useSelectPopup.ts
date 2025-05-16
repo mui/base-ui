@@ -1,7 +1,7 @@
 import * as React from 'react';
 import type { HTMLProps } from '../../utils/types';
 import { useSelectRootContext } from '../root/SelectRootContext';
-import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
+import { useLayoutEffect } from '../../utils/useLayoutEffect';
 import { ownerDocument, ownerWindow } from '../../utils/owner';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { clearPositionerStyles } from './utils';
@@ -54,7 +54,7 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
     }
   });
 
-  useModernLayoutEffect(() => {
+  useLayoutEffect(() => {
     if (
       alignItemWithTriggerActive ||
       !positionerElement ||
@@ -76,7 +76,7 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
     };
   }, [alignItemWithTriggerActive, positionerElement]);
 
-  useModernLayoutEffect(() => {
+  useLayoutEffect(() => {
     if (mounted || alignItemWithTriggerActive) {
       return;
     }
@@ -91,7 +91,7 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
     }
   }, [mounted, alignItemWithTriggerActive, positionerElement]);
 
-  useModernLayoutEffect(() => {
+  useLayoutEffect(() => {
     if (
       !mounted ||
       !alignItemWithTriggerActive ||

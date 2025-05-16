@@ -4,7 +4,7 @@ import { BaseUIComponentProps, Orientation } from '../../utils/types';
 import { isElementDisabled } from '../../utils/isElementDisabled';
 import { useControlled } from '../../utils/useControlled';
 import { useEventCallback } from '../../utils/useEventCallback';
-import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
+import { useLayoutEffect } from '../../utils/useLayoutEffect';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { warn } from '../../utils/warn';
 import {
@@ -74,7 +74,7 @@ export const AccordionRoot = React.forwardRef(function AccordionRoot(
 
   if (process.env.NODE_ENV !== 'production') {
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    useModernLayoutEffect(() => {
+    useLayoutEffect(() => {
       if (hiddenUntilFoundProp && keepMountedProp === false) {
         warn(
           'The `keepMounted={false}` prop on a Accordion.Root will be ignored when using `hiddenUntilFound` since it requires Panels to remain mounted when closed.',

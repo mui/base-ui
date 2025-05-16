@@ -6,7 +6,7 @@ import { fieldValidityMapping } from '../utils/constants';
 import { useFormContext } from '../../form/FormContext';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
-import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
+import { useLayoutEffect } from '../../utils/useLayoutEffect';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 
 /**
@@ -38,7 +38,7 @@ export const FieldError = React.forwardRef(function FieldError(
     rendered = validityData.state.valid === false;
   }
 
-  useModernLayoutEffect(() => {
+  useLayoutEffect(() => {
     if (!rendered || !id) {
       return undefined;
     }

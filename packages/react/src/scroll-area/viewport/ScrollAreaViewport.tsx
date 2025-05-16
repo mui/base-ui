@@ -9,7 +9,7 @@ import { useDirection } from '../../direction-provider/DirectionContext';
 import { getOffset } from '../utils/getOffset';
 import { MIN_THUMB_SIZE } from '../constants';
 import { clamp } from '../../utils/clamp';
-import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
+import { useLayoutEffect } from '../../utils/useLayoutEffect';
 import { onVisible } from '../utils/onVisible';
 
 /**
@@ -159,7 +159,7 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
     });
   });
 
-  useModernLayoutEffect(() => {
+  useLayoutEffect(() => {
     if (!viewportRef.current) {
       return undefined;
     }
@@ -168,12 +168,12 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
     return cleanup;
   }, [computeThumbPosition, viewportRef]);
 
-  useModernLayoutEffect(() => {
+  useLayoutEffect(() => {
     // Wait for scrollbar-related refs to be set
     queueMicrotask(computeThumbPosition);
   }, [computeThumbPosition, hiddenState, direction]);
 
-  useModernLayoutEffect(() => {
+  useLayoutEffect(() => {
     // `onMouseEnter` doesn't fire upon load, so we need to check if the viewport is already
     // being hovered.
     if (viewportRef.current?.matches(':hover')) {

@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import type { BaseUIComponentProps } from '../../utils/types';
-import { useModernLayoutEffect } from '../../utils';
+import { useLayoutEffect } from '../../utils';
 import { useScrollAreaViewportContext } from '../viewport/ScrollAreaViewportContext';
 import { useRenderElement } from '../../utils/useRenderElement';
 
@@ -21,7 +21,7 @@ export const ScrollAreaContent = React.forwardRef(function ScrollAreaContent(
 
   const { computeThumbPosition } = useScrollAreaViewportContext();
 
-  useModernLayoutEffect(() => {
+  useLayoutEffect(() => {
     if (typeof ResizeObserver === 'undefined') {
       return undefined;
     }

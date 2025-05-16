@@ -2,7 +2,7 @@
 import * as React from 'react';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useToastRootContext } from '../root/ToastRootContext';
-import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
+import { useLayoutEffect } from '../../utils/useLayoutEffect';
 import { useId } from '../../utils/useId';
 import { useRenderElement } from '../../utils/useRenderElement';
 
@@ -28,7 +28,7 @@ export const ToastTitle = React.forwardRef(function ToastTitle(
 
   const { setTitleId } = useToastRootContext();
 
-  useModernLayoutEffect(() => {
+  useLayoutEffect(() => {
     if (!shouldRender) {
       return undefined;
     }

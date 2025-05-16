@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useModernLayoutEffect } from '../utils/useModernLayoutEffect';
+import { useLayoutEffect } from '../utils/useLayoutEffect';
 import { NoSsrProps } from './NoSsr.types';
 
 /**
@@ -19,7 +19,7 @@ export function NoSsr(props: NoSsrProps): React.JSX.Element {
   const { children, defer = false, fallback = null } = props;
   const [mountedState, setMountedState] = React.useState(false);
 
-  useModernLayoutEffect(() => {
+  useLayoutEffect(() => {
     if (!defer) {
       setMountedState(true);
     }

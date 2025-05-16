@@ -1,5 +1,5 @@
 import * as ReactDOM from 'react-dom';
-import { useModernLayoutEffect } from '../utils/useModernLayoutEffect';
+import { useLayoutEffect } from '../utils/useLayoutEffect';
 import { getCombinedFieldValidityData } from './utils/getCombinedFieldValidityData';
 import { useFormContext } from '../form/FormContext';
 import { useFieldRootContext } from './root/FieldRootContext';
@@ -12,7 +12,7 @@ export function useField(params: useField.Parameters) {
 
   const getValueRef = useLatestRef(params.getValue);
 
-  useModernLayoutEffect(() => {
+  useLayoutEffect(() => {
     let initialValue = value;
     if (initialValue === undefined) {
       initialValue = getValueRef.current?.();
@@ -23,7 +23,7 @@ export function useField(params: useField.Parameters) {
     }
   }, [setValidityData, value, validityData.initialValue, getValueRef]);
 
-  useModernLayoutEffect(() => {
+  useLayoutEffect(() => {
     if (id) {
       formRef.current.fields.set(id, {
         controlRef,
