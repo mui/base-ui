@@ -96,7 +96,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
     rootRef: externalRef,
     enableHomeAndEndKeys = false,
     stopEventPropagation = false,
-    disabledIndices,
+    disabledIndices: disabledIndicesProp,
     modifierKeys = EMPTY_ARRAY,
   } = params;
 
@@ -131,6 +131,17 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
       onHighlightedIndexChange(activeIndex);
     }
   });
+
+  const disabledIndicesFn = useEventCallback((index: number) => {
+    const element = elementsRef.current[index];
+    return (
+      element == null ||
+      element.hasAttribute('disabled') ||
+      element.getAttribute('aria-disabled') === 'true' ||
+      getComputedStyle(element).display === 'none'
+    );
+  });
+  const disabledIndices = disabledIndicesProp ?? disabledIndicesFn;
 
   const props = React.useMemo<HTMLProps>(
     () => ({
@@ -247,9 +258,11 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
                 // don't end up in them
                 disabledIndices: getGridCellIndices(
                   [
-                    ...(disabledIndices ||
+                    ...((typeof disabledIndices !== 'function' ? disabledIndices : null) ||
                       elementsRef.current.map((_, index) =>
-                        isListIndexDisabled(elementsRef, index) ? index : undefined,
+                        isListIndexDisabled(elementsRef, index, disabledIndices)
+                          ? index
+                          : undefined,
                       )),
                     undefined,
                   ],
