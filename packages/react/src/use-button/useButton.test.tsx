@@ -8,6 +8,17 @@ import { useButton } from './useButton';
 describe('useButton', () => {
   const { render, renderToString } = createRenderer();
 
+  it('adds disabled attribute during SSR', async () => {
+    function TestButton(props: React.ButtonHTMLAttributes<HTMLButtonElement>) {
+      const { disabled, ...otherProps } = props;
+      const { getButtonProps } = useButton({ disabled });
+      return <button {...getButtonProps(otherProps)} />;
+    }
+
+    const { container } = renderToString(<TestButton disabled>Submit</TestButton>);
+    expect(container.querySelector('button')).to.have.property('disabled');
+  });
+
   describe('param: focusableWhenDisabled', () => {
     it('allows disabled buttons to be focused', async () => {
       function TestButton(props: React.ButtonHTMLAttributes<HTMLButtonElement>) {
