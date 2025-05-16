@@ -48,7 +48,7 @@ export const ToastDescription = React.forwardRef(function ToastDescription(
     [toast.type],
   );
 
-  const renderElement = useRenderElement('p', componentProps, {
+  const element = useRenderElement('p', componentProps, {
     ref: forwardedRef,
     state,
     props: {
@@ -62,7 +62,7 @@ export const ToastDescription = React.forwardRef(function ToastDescription(
     return null;
   }
 
-  return renderElement();
+  return element;
 });
 
 export namespace ToastDescription {
