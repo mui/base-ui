@@ -1,7 +1,8 @@
 'use client';
 import * as React from 'react';
 import type { Orientation } from '../../utils/types';
-import { type CompositeMetadata } from '../../composite/list/CompositeList';
+import type { CompositeMetadata } from '../../composite/list/CompositeList';
+import type { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
 import type { ThumbMetadata } from '../thumb/SliderThumb';
 import type { SliderRoot } from './SliderRoot';
 
@@ -12,6 +13,7 @@ export interface SliderRootContext {
   active: number;
   dragging: boolean;
   disabled: boolean;
+  fieldControlValidation: useFieldControlValidation.ReturnValue;
   formatOptionsRef: React.RefObject<Intl.NumberFormatOptions | undefined>;
   handleInputChange: (
     valueInput: number,
@@ -56,6 +58,7 @@ export interface SliderRootContext {
    * Whether the slider is a range slider.
    */
   range: boolean;
+  registerFieldControlRef: React.RefCallback<Element> | null;
   setActive: React.Dispatch<React.SetStateAction<number>>;
   setDragging: React.Dispatch<React.SetStateAction<boolean>>;
   /**
