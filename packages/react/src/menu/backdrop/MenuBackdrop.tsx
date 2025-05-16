@@ -8,6 +8,7 @@ import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping'
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import { transitionStatusMapping } from '../../utils/styleHookMapping';
 import { mergeProps } from '../../merge-props';
+import { useContextMenuRootContext } from '../../context-menu/root/ContextMenuRootContext';
 
 const customStyleHookMapping: CustomStyleHookMapping<MenuBackdrop.State> = {
   ...baseMapping,
@@ -25,7 +26,9 @@ export const MenuBackdrop = React.forwardRef(function MenuBackdrop(
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const { className, render, ...other } = props;
+
   const { open, mounted, transitionStatus, lastOpenChangeReason } = useMenuRootContext();
+  const contextMenuContext = useContextMenuRootContext();
 
   const state: MenuBackdrop.State = React.useMemo(
     () => ({
@@ -39,7 +42,9 @@ export const MenuBackdrop = React.forwardRef(function MenuBackdrop(
     render: render ?? 'div',
     className,
     state,
-    ref: forwardedRef,
+    ref: contextMenuContext?.backdropRef
+      ? [forwardedRef, contextMenuContext.backdropRef]
+      : forwardedRef,
     extraProps: mergeProps<'div'>(
       {
         role: 'presentation',

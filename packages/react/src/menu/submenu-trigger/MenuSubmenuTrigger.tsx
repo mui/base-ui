@@ -28,7 +28,6 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
     triggerProps: rootTriggerProps,
     parent,
     setTriggerElement,
-    allowMouseUpTriggerRef,
     open,
     typingRef,
     disabled,
@@ -54,7 +53,6 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
     disabled,
     menuEvents,
     setTriggerElement,
-    allowMouseUpTriggerRef,
     typingRef,
     setActiveIndex,
   });

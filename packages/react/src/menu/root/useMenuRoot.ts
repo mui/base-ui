@@ -29,6 +29,10 @@ import {
   type OpenChangeReason,
   translateOpenChangeReason,
 } from '../../utils/translateOpenChangeReason';
+import {
+  ContextMenuRootContext,
+  useContextMenuRootContext,
+} from '../../context-menu/root/ContextMenuRootContext';
 import { ownerDocument } from '../../utils/owner';
 
 const EMPTY_ARRAY: never[] = [];
@@ -68,6 +72,7 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
   {
     const parentContext = useMenuRootContext(true);
     const menubarContext = useMenubarContext(true);
+    const contextMenuContext = useContextMenuRootContext(true);
 
     if (parentContext) {
       parent = {
@@ -78,6 +83,11 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
       parent = {
         type: 'menubar',
         context: menubarContext,
+      };
+    } else if (contextMenuContext) {
+      parent = {
+        type: 'context-menu',
+        context: contextMenuContext,
       };
     } else {
       parent = {
@@ -100,6 +110,12 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
     openOnHoverParam ??
     (parent.type === 'menu' || (parent.type === 'menubar' && parent.context.hasSubmenuOpen));
 
+  React.useImperativeHandle<HTMLElement | null, HTMLElement | null>(
+    parent.type === 'context-menu' ? parent.context?.positionerRef : null,
+    () => positionerElement,
+    [positionerElement],
+  );
+
   const [open, setOpenUnwrapped] = useControlled({
     controlled: openParam,
     default: defaultOpen,
@@ -111,6 +127,8 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
     positionerRef.current = value;
     setPositionerElementUnwrapped(value);
   }, []);
+
+  const allowMouseUpTriggerRef = React.useRef(parent.type === 'context-menu');
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
 
@@ -141,16 +159,6 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
       }
     },
   });
-
-  React.useImperativeHandle(parameters.actionsRef, () => ({ unmount: handleUnmount }), [
-    handleUnmount,
-  ]);
-
-  React.useEffect(() => {
-    if (!open) {
-      stickIfOpenTimeout.clear();
-    }
-  }, [stickIfOpenTimeout, open]);
 
   const ignoreClickRef = React.useRef(false);
   const allowTouchToCloseRef = React.useRef(true);
@@ -246,6 +254,22 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
     },
   );
 
+  React.useImperativeHandle(parameters.actionsRef, () => ({ unmount: handleUnmount }), [
+    handleUnmount,
+  ]);
+
+  React.useImperativeHandle(
+    parent.type === 'context-menu' ? parent.context?.actionsRef : null,
+    () => ({ setOpen }),
+    [setOpen],
+  );
+
+  React.useEffect(() => {
+    if (!open) {
+      stickIfOpenTimeout.clear();
+    }
+  }, [stickIfOpenTimeout, open]);
+
   const floatingRootContext = useFloatingRootContext({
     elements: {
       reference: triggerElement,
@@ -262,6 +286,7 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
       hoverEnabled &&
       openOnHover &&
       !disabled &&
+      parent.type !== 'context-menu' &&
       (parent.type !== 'menubar' || (parent.context.hasSubmenuOpen && !open)),
     handleClose: safePolygon({ blockPointerEvents: true }),
     mouseOnly: true,
@@ -275,7 +300,7 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
   });
 
   const click = useClick(floatingRootContext, {
-    enabled: !disabled,
+    enabled: !disabled && parent.type !== 'context-menu',
     event: open ? 'click' : 'mousedown',
     toggle: !openOnHover || parent.type !== 'menu',
     ignoreMouse: openOnHover && parent.type === 'menu',
@@ -283,8 +308,11 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
   });
 
   const dismiss = useDismiss(floatingRootContext, {
+    enabled: !disabled,
     bubbles: closeParentOnEsc && parent.type === 'menu',
-    outsidePressEvent: 'mousedown',
+    // For context menus, this avoids an issue on long press where the menu closes right
+    // after opening.
+    outsidePressEvent: parent.type === 'context-menu' ? 'pointerdown' : 'mousedown',
   });
 
   const role = useRole(floatingRootContext, {
@@ -307,6 +335,7 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
     rtl: direction === 'rtl',
     disabledIndices: EMPTY_ARRAY,
     onNavigate: setActiveIndex,
+    openOnArrowKeyDown: parent.type !== 'context-menu',
   });
 
   const typingRef = React.useRef(false);
@@ -366,14 +395,14 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
 
   const itemProps = React.useMemo(() => getItemProps(), [getItemProps]);
 
-  const allowMouseUpTriggerRef = React.useRef(false);
-
   return React.useMemo(
     () => ({
       activeIndex,
       setActiveIndex,
       allowMouseUpTriggerRef:
-        parent.type !== undefined ? parent.context.allowMouseUpTriggerRef : allowMouseUpTriggerRef,
+        parent.type && parent.type !== 'context-menu'
+          ? parent.context.allowMouseUpTriggerRef
+          : allowMouseUpTriggerRef,
       floatingRootContext,
       itemProps,
       popupProps,
@@ -530,6 +559,10 @@ export namespace useMenuRoot {
     | {
         type: 'menubar';
         context: MenubarContext;
+      }
+    | {
+        type: 'context-menu';
+        context: ContextMenuRootContext;
       }
     | {
         type: undefined;
