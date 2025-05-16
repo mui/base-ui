@@ -13,6 +13,7 @@ import { CompositeList } from '../../composite/list/CompositeList';
 import { inertValue } from '../../utils/inertValue';
 import { InternalBackdrop } from '../../utils/InternalBackdrop';
 import { useMenuPortalContext } from '../portal/MenuPortalContext';
+import { DEFAULT_COLLISION_AVOIDANCE } from '../../utils/constants';
 
 /**
  * Positions the menu popup against the trigger.
@@ -38,6 +39,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
     arrowPadding = 5,
     sticky = false,
     trackAnchor = true,
+    collisionAvoidance = DEFAULT_COLLISION_AVOIDANCE,
     ...otherProps
   } = props;
 
@@ -85,6 +87,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
     parentNodeId,
     keepMounted,
     trackAnchor,
+    collisionAvoidance,
   });
 
   const state: MenuPositioner.State = React.useMemo(

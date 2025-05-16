@@ -48,6 +48,20 @@ export type OffsetFunction = (data: {
   positioner: { width: number; height: number };
 }) => number;
 
+interface SideFlipMode {
+  side?: 'flip' | 'none';
+  align?: 'flip' | 'shift' | 'none';
+  fallbackAxisSide?: 'start' | 'end' | 'none';
+}
+
+interface SideShiftMode {
+  side?: 'shift' | 'none';
+  align?: 'shift' | 'none';
+  fallbackAxisSide?: 'start' | 'end' | 'none';
+}
+
+export type CollisionAvoidance = SideFlipMode | SideShiftMode;
+
 /**
  * Provides standardized anchor positioning behavior for floating elements. Wraps Floating UI's
  * `useFloating` hook.
@@ -72,8 +86,13 @@ export function useAnchorPositioning(
     floatingRootContext,
     mounted,
     trackAnchor = true,
+    collisionAvoidance,
     nodeId,
   } = params;
+
+  const collisionAvoidanceSide = collisionAvoidance.side || 'flip';
+  const collisionAvoidanceAlign = collisionAvoidance.align || 'flip';
+  const collisionAvoidanceFallbackAxisSide = collisionAvoidance.fallbackAxisSide || 'end';
 
   const anchorFn = typeof anchor === 'function' ? anchor : undefined;
   const anchorFnCallback = useEventCallback(anchorFn);
@@ -141,28 +160,43 @@ export function useAnchorPositioning(
     ),
   ];
 
-  const flipMiddleware = flip(commonCollisionProps);
-  const shiftMiddleware = shift({
-    ...commonCollisionProps,
-    crossAxis: sticky,
-    limiter: sticky
-      ? undefined
-      : limitShift(() => {
-          if (!arrowRef.current) {
-            return {};
-          }
-          const { height } = arrowRef.current.getBoundingClientRect();
-          return {
-            offset: height / 2 + (typeof collisionPadding === 'number' ? collisionPadding : 0),
-          };
-        }),
-  });
+  const flipMiddleware =
+    collisionAvoidanceSide === 'none'
+      ? null
+      : flip({
+          ...commonCollisionProps,
+          crossAxis: collisionAvoidanceAlign === 'flip' ? 'alignment' : false,
+          fallbackAxisSideDirection: collisionAvoidanceFallbackAxisSide,
+        });
+  const shiftMiddleware =
+    collisionAvoidanceAlign === 'none'
+      ? null
+      : shift({
+          ...commonCollisionProps,
+          crossAxis: sticky || collisionAvoidanceSide === 'shift',
+          limiter: sticky
+            ? undefined
+            : limitShift(() => {
+                if (!arrowRef.current) {
+                  return {};
+                }
+                const { height } = arrowRef.current.getBoundingClientRect();
+                return {
+                  offset:
+                    height / 2 + (typeof collisionPadding === 'number' ? collisionPadding : 0),
+                };
+              }),
+        });
 
   // https://floating-ui.com/docs/flip#combining-with-shift
-  if (align !== 'center') {
-    middleware.push(flipMiddleware, shiftMiddleware);
-  } else {
+  if (
+    collisionAvoidanceSide === 'shift' ||
+    collisionAvoidanceAlign === 'shift' ||
+    align === 'center'
+  ) {
     middleware.push(shiftMiddleware, flipMiddleware);
+  } else {
+    middleware.push(flipMiddleware, shiftMiddleware);
   }
 
   middleware.push(
@@ -425,6 +459,10 @@ export namespace useAnchorPositioning {
      * @default true
      */
     trackAnchor?: boolean;
+    /**
+     * Determines how to handle collisions when positioning the popup.
+     */
+    collisionAvoidance?: CollisionAvoidance;
   }
 
   export interface Parameters extends SharedParameters {
@@ -435,6 +473,7 @@ export namespace useAnchorPositioning {
     mounted: boolean;
     trackAnchor: boolean;
     nodeId?: string;
+    collisionAvoidance: CollisionAvoidance;
   }
 
   export interface ReturnValue {

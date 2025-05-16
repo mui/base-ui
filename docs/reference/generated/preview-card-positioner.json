@@ -2,6 +2,10 @@
   "name": "PreviewCardPositioner",
   "description": "Positions the popup against the trigger.\nRenders a `<div>` element.",
   "props": {
+    "collisionAvoidance": {
+      "type": "CollisionAvoidance",
+      "description": "Determines how to handle collisions when positioning the popup."
+    },
     "align": {
       "type": "'center' | 'start' | 'end'",
       "default": "'center'",
