@@ -7,23 +7,18 @@
       "required": true,
       "description": "The React element or a function that returns one to override the default element."
     },
-    "refs": {
-      "type": "Ref<RenderedElementType>[]",
-      "description": "Refs to be merged together to access the rendered DOM element."
+    "ref": {
+      "type": "Ref<RenderedElementType> | Ref<RenderedElementType>[]",
+      "description": "The ref to apply to the rendered element."
     },
     "state": {
       "type": "Record<string, unknown>",
       "description": "The state of the component, passed as the second argument to the `render` callback."
     },
     "props": {
-      "type": "Record<string, unknown> & { ref: Ref<RenderedElementType> }",
+      "type": "Record<string, unknown>",
       "description": "Props to be spread on the rendered element.\nThey are merged with the internal props of the component, so that event handlers\nare merged, `className` strings and `style` properties are joined, while other external props overwrite the\ninternal ones."
     }
   },
-  "returnValue": {
-    "renderElement": {
-      "type": "(() => ReactElement)",
-      "required": true
-    }
-  }
+  "returnValue": {}
 }
