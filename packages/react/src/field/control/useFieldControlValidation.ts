@@ -150,7 +150,10 @@ export function useFieldControlValidation() {
 
     const nextState = getState(element);
 
+    let defaultValidationMessage;
+
     if (element.validationMessage) {
+      defaultValidationMessage = element.validationMessage;
       validationErrors = [element.validationMessage];
     } else {
       const resultOrPromise = validate(value);
@@ -166,6 +169,7 @@ export function useFieldControlValidation() {
 
       if (result !== null) {
         nextState.valid = false;
+        nextState.customError = true;
 
         if (Array.isArray(result)) {
           validationErrors = result;
@@ -180,7 +184,7 @@ export function useFieldControlValidation() {
     const nextValidityData = {
       value,
       state: nextState,
-      error: element.validationMessage ?? (Array.isArray(result) ? result[0] : result),
+      error: defaultValidationMessage ?? (Array.isArray(result) ? result[0] : (result ?? '')),
       errors: validationErrors,
       initialValue: validityData.initialValue,
     };
