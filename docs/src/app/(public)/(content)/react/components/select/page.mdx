@@ -56,3 +56,12 @@ import { Select } from '@base-ui-components/react/select';
 Add the `multiple` prop to the `Select.Root` component to allow multiple selections.
 
 <Demo path="./demos/multi-select" />
+
+The `Select.Value` label by default is a comma-separated list of the selected values.
+To customize the label displayed in the trigger, use the callback value as the children of `Select.Value`:
+
+```jsx title="Custom label"
+<Select.Value>
+  {(label, value) => `${value.length} fruit${value.length === 1 ? '' : 's'} selected`}
+</Select.Value>
+```

@@ -13,7 +13,8 @@ export default function ExampleMultiSelect() {
         </Select.Icon>
       </Select.Trigger>
       <Select.Portal>
-        <Select.Positioner>
+        <Select.Positioner className={styles.Positioner} sideOffset={8}>
+          <Select.ScrollUpArrow className={styles.ScrollArrow} />
           <Select.Popup className={styles.Popup}>
             <Select.Item value="apple" className={styles.Item}>
               <Select.ItemIndicator className={styles.ItemIndicator}>
@@ -34,6 +35,7 @@ export default function ExampleMultiSelect() {
               <Select.ItemText className={styles.ItemText}>Mango</Select.ItemText>
             </Select.Item>
           </Select.Popup>
+          <Select.ScrollDownArrow className={styles.ScrollArrow} />
         </Select.Positioner>
       </Select.Portal>
     </Select.Root>
