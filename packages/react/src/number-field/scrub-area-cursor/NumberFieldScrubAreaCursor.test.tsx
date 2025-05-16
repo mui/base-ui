@@ -20,7 +20,7 @@ const defaultScrubAreaContext: NumberFieldScrubAreaContext = {
 };
 
 // This component doesn't render on WebKit.
-describe.skipIf(isWebKit())('<NumberField.ScrubAreaCursor />', () => {
+describe.skipIf(isWebKit)('<NumberField.ScrubAreaCursor />', () => {
   const { render } = createRenderer();
 
   describeConformance(<NumberField.ScrubAreaCursor />, () => ({

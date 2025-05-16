@@ -62,7 +62,7 @@ export const NumberFieldScrubAreaCursor = React.forwardRef(function NumberFieldS
     customStyleHookMapping: styleHookMapping,
   });
 
-  if (!isScrubbing || isWebKit() || isTouchInput || isPointerLockDenied) {
+  if (!isScrubbing || isWebKit || isTouchInput || isPointerLockDenied) {
     return null;
   }
 

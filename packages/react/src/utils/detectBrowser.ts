@@ -6,8 +6,23 @@ interface NavigatorUAData {
   platform: string;
 }
 
+const nav = getNavigatorData();
+
+export const isWebKit =
+  typeof CSS === 'undefined' || !CSS.supports
+    ? false
+    : CSS.supports('-webkit-backdrop-filter:none');
+
+export const isIOS =
+  // iPads can claim to be MacIntel
+  nav.platform === 'MacIntel' && nav.maxTouchPoints > 1
+    ? true
+    : /iP(hone|ad|od)|iOS/.test(nav.platform);
+
+export const isFirefox = typeof navigator !== 'undefined' && /firefox/i.test(getUserAgent());
+
 // Avoid Chrome DevTools blue warning.
-export function getNavigatorData(): { platform: string; maxTouchPoints: number } {
+function getNavigatorData(): { platform: string; maxTouchPoints: number } {
   if (typeof navigator === 'undefined') {
     return { platform: '', maxTouchPoints: -1 };
   }
@@ -25,27 +40,4 @@ export function getNavigatorData(): { platform: string; maxTouchPoints: number }
     platform: navigator.platform,
     maxTouchPoints: navigator.maxTouchPoints,
   };
-}
-
-export function isWebKit() {
-  if (typeof CSS === 'undefined' || !CSS.supports) {
-    return false;
-  }
-  return CSS.supports('-webkit-backdrop-filter:none');
-}
-
-export function isIOS() {
-  const nav = getNavigatorData();
-
-  // iPads can claim to be MacIntel
-  // https://github.com/getsentry/sentry-javascript/issues/12127
-  if (nav.platform === 'MacIntel' && nav.maxTouchPoints > 1) {
-    return true;
-  }
-
-  return /iP(hone|ad|od)|iOS/.test(nav.platform);
-}
-
-export function isFirefox() {
-  return /firefox/i.test(getUserAgent());
 }

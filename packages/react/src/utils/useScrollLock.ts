@@ -40,7 +40,7 @@ function preventScrollStandard(referenceElement: Element | null) {
   const resizeFrame = AnimationFrame.create();
 
   // Pinch-zoom in Safari causes a shift. Just don't lock scroll if there's any pinch-zoom.
-  if (isWebKit() && (win.visualViewport?.scale ?? 1) !== 1) {
+  if (isWebKit && (win.visualViewport?.scale ?? 1) !== 1) {
     return () => {};
   }
 
@@ -173,7 +173,7 @@ class ScrollLocker {
       return;
     }
 
-    const isOverflowHiddenLock = isIOS() || (isFirefox() && !hasInsetScrollbars(referenceElement));
+    const isOverflowHiddenLock = isIOS || (isFirefox && !hasInsetScrollbars(referenceElement));
 
     // Firefox on macOS with overlay scrollbars uses a basic scroll lock that doesn't
     // need the inset scrollbars handling to prevent overlay scrollbars from appearing
@@ -207,7 +207,7 @@ export function useScrollLock(params: {
 
   // https://github.com/mui/base-ui/issues/1135
   useModernLayoutEffect(() => {
-    if (isWebKit() && mounted && !open) {
+    if (isWebKit && mounted && !open) {
       const doc = ownerDocument(referenceElement);
       const originalUserSelect = doc.body.style.userSelect;
       const originalWebkitUserSelect = doc.body.style.webkitUserSelect;
