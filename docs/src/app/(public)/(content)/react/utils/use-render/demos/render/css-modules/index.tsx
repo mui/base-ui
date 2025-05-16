@@ -9,12 +9,12 @@ interface TextProps extends useRender.ComponentProps<'p'> {}
 function Text(props: TextProps) {
   const { render = <p />, ...otherProps } = props;
 
-  const { renderElement } = useRender({
+  const element = useRender({
     render,
     props: mergeProps<'p'>({ className: styles.Text }, otherProps),
   });
 
-  return renderElement();
+  return element;
 }
 
 export default function ExampleText() {

@@ -12,13 +12,13 @@ describe('useRender', () => {
       className?: string;
     }) {
       const { render: renderProp, className } = props;
-      const { renderElement } = useRender({
+      const element = useRender({
         render: renderProp,
         props: {
           className,
         },
       });
-      return renderElement();
+      return element;
     }
 
     const { container } = await render(
@@ -52,12 +52,12 @@ describe('useRender', () => {
         refs[1] = ref2;
       }, []);
 
-      const { renderElement } = useRender({
+      const element = useRender({
         render: renderProp,
-        refs: [ref1, ref2],
+        ref: [ref1, ref2],
         props: otherProps,
       });
-      return renderElement();
+      return element;
     }
 
     const { container } = await render(

@@ -159,13 +159,13 @@ export namespace useRenderElement {
      */
     propGetter?: (externalProps: HTMLProps) => HTMLProps;
     /**
-     * The state of the component.
-     */
-    state?: State;
-    /**
      * The ref to apply to the rendered element.
      */
     ref?: React.Ref<RenderedElementType> | React.Ref<RenderedElementType>[];
+    /**
+     * The state of the component.
+     */
+    state?: State;
     /**
      * Intrinsic props to be spread on the rendered element.
      */
