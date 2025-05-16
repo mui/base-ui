@@ -44,6 +44,7 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
     closeParentOnEsc,
     loop,
     delay,
+    closeDelay,
     openOnHover: openOnHoverParam,
     modal: modalParam,
   } = parameters;
@@ -267,7 +268,7 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
     mouseOnly: true,
     move: parent.type === 'menu',
     restMs: parent.type !== undefined ? undefined : delay,
-    delay: parent.type === 'menu' ? { open: delay } : 0,
+    delay: parent.type === 'menu' ? { open: delay, close: closeDelay } : { close: closeDelay },
   });
 
   const focus = useFocus(floatingRootContext, {
@@ -456,6 +457,14 @@ export namespace useMenuRoot {
      * Requires the `openOnHover` prop.
      */
     delay: number;
+    /**
+     * How long to wait before closing the menu that was opened on hover.
+     * Specified in milliseconds.
+     *
+     * Requires the `openOnHover` prop.
+     * @default 0
+     */
+    closeDelay: number;
     /**
      * The visual orientation of the menu.
      * Controls whether roving focus uses up/down or left/right arrow keys.
