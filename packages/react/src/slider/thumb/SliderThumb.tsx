@@ -20,7 +20,6 @@ import {
 } from '../../composite/composite';
 import { useCompositeListItem } from '../../composite/list/useCompositeListItem';
 import { useDirection } from '../../direction-provider/DirectionContext';
-import { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { getSliderValue } from '../utils/getSliderValue';
 import { roundValueToStep } from '../utils/roundValueToStep';
@@ -111,6 +110,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     active: activeIndex,
     handleInputChange,
     disabled: contextDisabled,
+    fieldControlValidation,
     formatOptionsRef,
     labelId,
     largeStep,
@@ -137,7 +137,6 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
 
   const direction = useDirection();
   const { setTouched, setFocused, validationMode } = useFieldRootContext();
-  const { commitValidation, getValidationProps } = useFieldControlValidation();
 
   const thumbRef = React.useRef<HTMLElement>(null);
 
@@ -205,9 +204,11 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
         setFocused(false);
 
         if (validationMode === 'onBlur') {
-          commitValidation(
-            getSliderValue(thumbValue, index, min, max, sliderValues.length > 1, sliderValues),
-          );
+          queueMicrotask(() => {
+            fieldControlValidation.commitValidation(
+              getSliderValue(thumbValue, index, min, max, sliderValues.length > 1, sliderValues),
+            );
+          });
         }
       },
       onKeyDown(event: React.KeyboardEvent) {
@@ -337,7 +338,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
       type: 'range',
       value: thumbValue ?? '',
     },
-    getValidationProps,
+    fieldControlValidation.getValidationProps,
   );
 
   if (typeof render === 'function') {

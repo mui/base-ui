@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import * as React from 'react';
 import { spy, stub } from 'sinon';
-import { act, fireEvent, screen } from '@mui/internal-test-utils';
+import { act, flushMicrotasks, fireEvent, screen } from '@mui/internal-test-utils';
 import {
   DirectionProvider,
   type TextDirection,
@@ -1987,13 +1987,12 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
       );
 
       const input = screen.getByRole('slider');
-      const thumb = screen.getByTestId('thumb');
-
       expect(input).not.to.have.attribute('aria-invalid');
 
+      const thumb = screen.getByTestId('thumb');
       fireEvent.focus(thumb);
       fireEvent.blur(thumb);
-
+      await flushMicrotasks();
       expect(input).to.have.attribute('aria-invalid', 'true');
     });
 
@@ -2014,11 +2013,10 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
       );
 
       const input = container.querySelector<HTMLInputElement>('input')!;
-
       expect(input).not.to.have.attribute('aria-invalid');
 
       fireEvent.change(input, { target: { value: '1' } });
-
+      await flushMicrotasks();
       expect(input).to.have.attribute('aria-invalid', 'true');
     });
 
@@ -2040,13 +2038,11 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
       );
 
       const input = screen.getByRole('slider');
-      const thumb = screen.getByTestId('thumb');
-
       expect(input).not.to.have.attribute('aria-invalid');
 
       fireEvent.change(input, { target: { value: '1' } });
-      fireEvent.blur(thumb);
-
+      fireEvent.blur(screen.getByTestId('thumb'));
+      await flushMicrotasks();
       expect(input).to.have.attribute('aria-invalid', 'true');
     });
 

@@ -94,12 +94,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
     validationMode,
   } = useFieldRootContext();
 
-  const {
-    getValidationProps,
-    getInputValidationProps,
-    inputRef: inputValidationRef,
-    commitValidation,
-  } = useFieldControlValidation();
+  const fieldControlValidation = useFieldControlValidation();
 
   const ariaLabelledby = ariaLabelledbyProp ?? labelId;
   const disabled = fieldDisabled || disabledProp;
@@ -115,11 +110,10 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
 
   const sliderRef = React.useRef<HTMLElement>(null);
   const controlRef = React.useRef<HTMLElement>(null);
-  const hiddenInputRef = React.useRef<HTMLInputElement>(null);
   const thumbRefs = React.useRef<(HTMLElement | null)[]>([]);
+  const inputRef = useForkRef(inputRefProp, fieldControlValidation.inputRef);
   const lastChangedValueRef = React.useRef<number | readonly number[] | null>(null);
   const formatOptionsRef = useLatestRef(format);
-  const mergedInputRef = useForkRef(inputRefProp, hiddenInputRef, inputValidationRef);
 
   // We can't use the :active browser pseudo-classes.
   // - The active state isn't triggered when clicking on the rail.
@@ -139,7 +133,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
 
   useField({
     id,
-    commitValidation,
+    commitValidation: fieldControlValidation.commitValidation,
     value: valueUnwrapped,
     controlRef,
   });
@@ -181,7 +175,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       lastChangedValueRef.current = newValue;
       onValueChange(newValue, clonedEvent, thumbIndex);
       clearErrors(name);
-      commitValidation(newValue, true);
+      fieldControlValidation.commitValidation(newValue, true);
     },
   );
 
@@ -200,9 +194,9 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
         clearErrors(name);
 
         if (validationMode === 'onChange') {
-          commitValidation(nextValue ?? newValue);
+          fieldControlValidation.commitValidation(nextValue ?? newValue);
         } else {
-          commitValidation(nextValue ?? newValue, true);
+          fieldControlValidation.commitValidation(nextValue ?? newValue, true);
         }
       }
     },
@@ -265,6 +259,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       active,
       disabled,
       dragging,
+      fieldControlValidation,
       formatOptionsRef,
       handleInputChange,
       labelId: ariaLabelledby,
@@ -294,6 +289,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       disabled,
       dragging,
       externalTabIndex,
+      fieldControlValidation,
       formatOptionsRef,
       handleInputChange,
       largeStep,
@@ -321,9 +317,9 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
     if (valueUnwrapped == null) {
       return ''; // avoid uncontrolled -> controlled error
     }
-    if (!Array.isArray(valueUnwrapped)) {
-      return valueUnwrapped;
-    }
+    // if (!Array.isArray(valueUnwrapped)) {
+    //   return valueUnwrapped;
+    // }
     return JSON.stringify(valueUnwrapped);
   }, [valueUnwrapped]);
 
@@ -336,7 +332,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
         id,
         role: 'group',
       },
-      getValidationProps(elementProps),
+      fieldControlValidation.getValidationProps(elementProps),
       elementProps,
     ],
     customStyleHookMapping: sliderStyleHookMapping,
@@ -347,13 +343,15 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       <CompositeList elementsRef={thumbRefs} onMapChange={setThumbMap}>
         {element}
         <input
-          type="hidden"
-          {...getInputValidationProps({
+          {...fieldControlValidation.getInputValidationProps({
+            type: 'hidden',
             disabled,
             name,
-            ref: mergedInputRef,
+            ref: inputRef,
             value: serializedValue,
             style: visuallyHidden,
+            tabIndex: -1,
+            'aria-hidden': true,
           })}
         />
       </CompositeList>
