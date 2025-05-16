@@ -49,7 +49,7 @@ export const Menubar = React.forwardRef(function Menubar(
   const contentRef = React.useRef<HTMLDivElement>(null);
   const allowMouseUpTriggerRef = React.useRef(false);
 
-  const renderElement = useRenderElement('div', props, {
+  const element = useRenderElement('div', props, {
     state,
     props: [{ role: 'menubar' }, otherProps],
     ref: [forwardedRef, setContentElement, contentRef],
@@ -73,7 +73,7 @@ export const Menubar = React.forwardRef(function Menubar(
       <FloatingTree>
         <MenubarContent>
           <CompositeRoot
-            render={renderElement()}
+            render={element}
             orientation={orientation}
             loop={loop}
             highlightItemOnHover={hasSubmenuOpen}

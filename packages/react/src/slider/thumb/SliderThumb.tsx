@@ -359,10 +359,11 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
 
   const children = thumbProps.children ?? renderPropsChildren;
 
-  return React.cloneElement(render, {
-    ...mergeProps(
+  return React.cloneElement(
+    render,
+    mergeProps(
+      thumbProps,
       {
-        ...thumbProps,
         children: (
           <React.Fragment>
             {/* @ts-ignore */}
@@ -372,10 +373,11 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
         ),
       },
       otherRenderProps,
+      {
+        ref: thumbProps.ref,
+      },
     ),
-    // @ts-ignore
-    ref: thumbProps.ref,
-  });
+  );
 });
 
 export interface ThumbMetadata {

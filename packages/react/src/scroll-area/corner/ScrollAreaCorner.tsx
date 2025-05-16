@@ -18,7 +18,7 @@ export const ScrollAreaCorner = React.forwardRef(function ScrollAreaCorner(
 
   const { cornerRef, cornerSize, hiddenState } = useScrollAreaRootContext();
 
-  const renderElement = useRenderElement('div', componentProps, {
+  const element = useRenderElement('div', componentProps, {
     ref: [forwardedRef, cornerRef],
     props: [
       {
@@ -38,7 +38,7 @@ export const ScrollAreaCorner = React.forwardRef(function ScrollAreaCorner(
     return null;
   }
 
-  return renderElement();
+  return element;
 });
 
 export namespace ScrollAreaCorner {

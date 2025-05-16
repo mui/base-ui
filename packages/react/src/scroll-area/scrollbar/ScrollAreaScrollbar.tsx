@@ -192,7 +192,7 @@ export const ScrollAreaScrollbar = React.forwardRef(function ScrollAreaScrollbar
     },
   };
 
-  const renderElement = useRenderElement('div', componentProps, {
+  const element = useRenderElement('div', componentProps, {
     ref: [forwardedRef, orientation === 'vertical' ? scrollbarYRef : scrollbarXRef],
     state,
     props: [props, elementProps],
@@ -210,7 +210,7 @@ export const ScrollAreaScrollbar = React.forwardRef(function ScrollAreaScrollbar
 
   return (
     <ScrollAreaScrollbarContext.Provider value={contextValue}>
-      {renderElement()}
+      {element}
     </ScrollAreaScrollbarContext.Provider>
   );
 });
