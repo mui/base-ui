@@ -47,8 +47,9 @@ export const TooltipRoot: React.FC<TooltipRoot.Props> = function TooltipRoot(pro
       delay: delayWithDefault,
       closeDelay: closeDelayWithDefault,
       trackCursorAxis,
+      hoverable,
     }),
-    [tooltipRoot, delayWithDefault, closeDelayWithDefault, trackCursorAxis],
+    [tooltipRoot, delayWithDefault, closeDelayWithDefault, trackCursorAxis, hoverable],
   );
 
   return (
