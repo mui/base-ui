@@ -13,17 +13,13 @@ export const isWebKit =
     ? false
     : CSS.supports('-webkit-backdrop-filter:none');
 
-export const isIOS = (() => {
+export const isIOS =
   // iPads can claim to be MacIntel
-  // https://github.com/getsentry/sentry-javascript/issues/12127
-  if (nav.platform === 'MacIntel' && nav.maxTouchPoints > 1) {
-    return true;
-  }
+  nav.platform === 'MacIntel' && nav.maxTouchPoints > 1
+    ? true
+    : /iP(hone|ad|od)|iOS/.test(nav.platform);
 
-  return /iP(hone|ad|od)|iOS/.test(nav.platform);
-})();
-
-export const isFirefox = /firefox/i.test(getUserAgent());
+export const isFirefox = typeof navigator !== 'undefined' && /firefox/i.test(getUserAgent());
 
 // Avoid Chrome DevTools blue warning.
 function getNavigatorData(): { platform: string; maxTouchPoints: number } {
