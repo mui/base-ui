@@ -18,7 +18,13 @@ export const Input = React.forwardRef(function Input(
 });
 
 export namespace Input {
-  export interface Props extends BaseUIComponentProps<'input', State> {}
+  export interface Props extends BaseUIComponentProps<'input', State> {
+    /**
+     * Callback fired when the `value` changes. Use when controlled.
+     */
+    onValueChange?: Field.Control.Props['onValueChange'];
+    defaultValue?: Field.Control.Props['defaultValue'];
+  }
 
   export interface State {}
 }

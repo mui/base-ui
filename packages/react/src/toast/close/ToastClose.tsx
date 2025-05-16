@@ -33,7 +33,7 @@ export const ToastClose = React.forwardRef(function ToastClose(
     [toast.type],
   );
 
-  const renderElement = useRenderElement('button', componentProps, {
+  const element = useRenderElement('button', componentProps, {
     ref: forwardedRef,
     state,
     props: [
@@ -47,7 +47,7 @@ export const ToastClose = React.forwardRef(function ToastClose(
     ],
   });
 
-  return renderElement();
+  return element;
 });
 
 export namespace ToastClose {

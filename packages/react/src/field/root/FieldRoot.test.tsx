@@ -336,6 +336,120 @@ describe('<Field.Root />', () => {
     });
   });
 
+  describe('revalidation', () => {
+    it('revalidates on change for `valueMissing`', async () => {
+      await render(
+        <Field.Root>
+          <Field.Control required />
+          <Field.Error />
+        </Field.Root>,
+      );
+
+      const control = screen.getByRole('textbox');
+      const message = screen.queryByText('error');
+
+      expect(message).to.equal(null);
+
+      fireEvent.focus(control);
+      fireEvent.change(control, { target: { value: 't' } });
+      fireEvent.blur(control);
+
+      expect(control).not.to.have.attribute('aria-invalid', 'true');
+
+      fireEvent.focus(control);
+      fireEvent.change(control, { target: { value: '' } });
+      fireEvent.blur(control);
+
+      expect(control).to.have.attribute('aria-invalid');
+    });
+
+    it('handles both `required` and `typeMismatch`', async () => {
+      await render(
+        <Field.Root>
+          <Field.Control type="email" required />
+          <Field.Error data-testid="error" />
+        </Field.Root>,
+      );
+
+      const control = screen.getByRole('textbox');
+      const message = screen.queryByTestId('error');
+
+      expect(message).to.equal(null);
+
+      fireEvent.focus(control);
+      fireEvent.blur(control);
+
+      expect(control).not.to.have.attribute('aria-invalid');
+
+      fireEvent.focus(control);
+      fireEvent.change(control, { target: { value: 'tt' } });
+      fireEvent.blur(control);
+
+      expect(control).to.have.attribute('aria-invalid', 'true');
+
+      fireEvent.focus(control);
+      fireEvent.change(control, { target: { value: '' } });
+      fireEvent.blur(control);
+
+      expect(control).to.have.attribute('aria-invalid', 'true');
+
+      fireEvent.focus(control);
+      fireEvent.change(control, { target: { value: 'email@email.com' } });
+      fireEvent.blur(control);
+
+      expect(control).not.to.have.attribute('aria-invalid');
+    });
+
+    it('clears valueMissing on change but defers other native errors like typeMismatch until blur when both are active', async () => {
+      await render(
+        <Field.Root>
+          <Field.Control type="email" required data-testid="control" />
+          <Field.Error data-testid="error" />
+        </Field.Root>,
+      );
+
+      const control = screen.getByTestId('control');
+
+      fireEvent.focus(control);
+      fireEvent.blur(control);
+      expect(control).not.to.have.attribute('aria-invalid', 'true');
+      expect(screen.queryByTestId('error')).to.equal(null);
+
+      fireEvent.focus(control);
+      fireEvent.change(control, { target: { value: 'a' } });
+      fireEvent.change(control, { target: { value: '' } });
+      fireEvent.blur(control);
+
+      expect(control).to.have.attribute('aria-invalid', 'true');
+      expect(screen.getByTestId('error')).not.to.equal(null);
+
+      fireEvent.focus(control);
+      fireEvent.change(control, { target: { value: 't' } });
+
+      // The field becomes temporarily valid because only 'valueMissing' is checked for immediate clearing.
+      // Other errors like 'typeMismatch' are deferred to the next blur/submit.
+      expect(control).not.to.have.attribute('aria-invalid', 'true');
+      expect(screen.queryByTestId('error')).to.equal(null);
+
+      fireEvent.blur(control);
+
+      expect(control).to.have.attribute('aria-invalid', 'true');
+      expect(screen.getByTestId('error')).not.to.equal(null);
+      expect(screen.getByTestId('error').textContent).not.to.equal('');
+
+      fireEvent.focus(control);
+      fireEvent.change(control, { target: { value: 'test@example.com' } });
+
+      expect(control).not.to.have.attribute('aria-invalid', 'true');
+      expect(screen.queryByTestId('error')).to.equal(null);
+
+      fireEvent.blur(control);
+
+      expect(control).not.to.have.attribute('aria-invalid', 'true');
+      expect(screen.queryByTestId('error')).to.equal(null);
+    });
+  });
+
   describe('style hooks', () => {
     describe('touched', () => {
       it('should apply [data-touched] style hook to all components when touched', async () => {

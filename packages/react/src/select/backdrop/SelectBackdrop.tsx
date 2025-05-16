@@ -35,7 +35,7 @@ export const SelectBackdrop = React.forwardRef(function SelectBackdrop(
     [open, transitionStatus],
   );
 
-  const renderElement = useRenderElement('div', componentProps, {
+  const element = useRenderElement('div', componentProps, {
     state,
     ref: forwardedRef,
     props: [
@@ -52,7 +52,7 @@ export const SelectBackdrop = React.forwardRef(function SelectBackdrop(
     customStyleHookMapping,
   });
 
-  return renderElement();
+  return element;
 });
 
 export namespace SelectBackdrop {
