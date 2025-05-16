@@ -147,7 +147,7 @@ describe('<Toast.Viewport />', () => {
 
       expect(screen.queryByTestId('root')).not.to.equal(null);
 
-      clock.tick(1);
+      clock.tick(2);
 
       expect(screen.queryByTestId('root')).to.equal(null);
     });
@@ -167,7 +167,7 @@ describe('<Toast.Viewport />', () => {
       fireEvent.click(button);
       fireEvent.keyDown(document.activeElement as HTMLElement, { key: 'F6' });
 
-      clock.tick(5000);
+      clock.tick(5001);
 
       expect(screen.queryByTestId('root')).not.to.equal(null);
     });
@@ -187,11 +187,11 @@ describe('<Toast.Viewport />', () => {
       fireEvent.click(button);
       fireEvent.keyDown(document.activeElement as HTMLElement, { key: 'F6' });
 
-      clock.tick(5000);
+      clock.tick(5001);
 
       await act(async () => button.focus());
 
-      clock.tick(5000);
+      clock.tick(5001);
 
       expect(screen.queryByTestId('root')).to.equal(null);
     });
