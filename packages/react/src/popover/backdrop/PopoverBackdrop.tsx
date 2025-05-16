@@ -35,7 +35,7 @@ export const PopoverBackdrop = React.forwardRef(function PopoverBackdrop(
     [open, transitionStatus],
   );
 
-  const renderElement = useRenderElement('div', props, {
+  const element = useRenderElement('div', props, {
     state,
     ref: forwardedRef,
     props: [
@@ -53,7 +53,7 @@ export const PopoverBackdrop = React.forwardRef(function PopoverBackdrop(
     customStyleHookMapping,
   });
 
-  return renderElement();
+  return element;
 });
 
 export namespace PopoverBackdrop {

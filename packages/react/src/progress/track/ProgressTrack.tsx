@@ -20,14 +20,14 @@ export const ProgressTrack = React.forwardRef(function ProgressTrack(
 
   const { state } = useProgressRootContext();
 
-  const renderElement = useRenderElement('div', componentProps, {
+  const element = useRenderElement('div', componentProps, {
     state,
     ref: forwardedRef,
     props: elementProps,
     customStyleHookMapping: progressStyleHookMapping,
   });
 
-  return renderElement();
+  return element;
 });
 
 export namespace ProgressTrack {

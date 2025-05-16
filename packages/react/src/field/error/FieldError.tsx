@@ -50,7 +50,7 @@ export const FieldError = React.forwardRef(function FieldError(
     };
   }, [rendered, id, setMessageIds]);
 
-  const renderElement = useRenderElement('div', componentProps, {
+  const element = useRenderElement('div', componentProps, {
     ref: forwardedRef,
     state,
     props: [
@@ -77,7 +77,7 @@ export const FieldError = React.forwardRef(function FieldError(
     return null;
   }
 
-  return renderElement();
+  return element;
 });
 
 export namespace FieldError {

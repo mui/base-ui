@@ -100,7 +100,7 @@ const InnerSelectItem = React.memo(
       multiple,
     });
 
-    const renderElement = useRenderElement('div', componentProps, {
+    const element = useRenderElement('div', componentProps, {
       ref: [rootRef, forwardedRef],
       state,
       props,
@@ -115,11 +115,7 @@ const InnerSelectItem = React.memo(
       [selected, selectedByFocus, indexRef],
     );
 
-    return (
-      <SelectItemContext.Provider value={contextValue}>
-        {renderElement()}
-      </SelectItemContext.Provider>
-    );
+    return <SelectItemContext.Provider value={contextValue}>{element}</SelectItemContext.Provider>;
   }),
 );
 
