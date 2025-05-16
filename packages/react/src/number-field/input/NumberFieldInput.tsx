@@ -183,7 +183,6 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
             }
 
             if (isControlled && externalUpdateRef.current) {
-              externalUpdateRef.current = false;
               blockRevalidationRef.current = true;
               if (validationMode === 'onBlur') {
                 commitValidation(parsed);
@@ -193,6 +192,7 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
 
             const canonicalText = formatNumber(parsed, locale, formatOptionsRef.current);
             const canonical = parseNumber(canonicalText, locale, formatOptionsRef.current);
+            externalUpdateRef.current = false;
 
             if (canonical !== value) {
               setValue(canonical, event.nativeEvent);
