@@ -213,11 +213,9 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
         setFocused(false);
 
         if (validationMode === 'onBlur') {
-          queueMicrotask(() => {
-            fieldControlValidation.commitValidation(
-              getSliderValue(thumbValue, index, min, max, sliderValues.length > 1, sliderValues),
-            );
-          });
+          fieldControlValidation.commitValidation(
+            getSliderValue(thumbValue, index, min, max, sliderValues.length > 1, sliderValues),
+          );
         }
       },
       onKeyDown(event: React.KeyboardEvent) {
