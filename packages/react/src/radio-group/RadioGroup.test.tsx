@@ -52,7 +52,7 @@ describe('<RadioGroup />', () => {
         </RadioGroup>,
       );
       expect(screen.getByRole('radiogroup')).to.have.attribute('aria-disabled', 'true');
-      expect(screen.getByRole('radio')).to.have.attribute('disabled');
+      expect(screen.getByRole('radio')).to.have.attribute('aria-disabled', 'true');
       expect(screen.getByRole('radio')).to.have.attribute('data-disabled');
       expect(container.querySelector('input')).to.have.attribute('disabled');
     });
@@ -443,7 +443,9 @@ describe('<RadioGroup />', () => {
         const radio = screen.getByTestId('radio');
 
         expect(radioGroup).to.have.attribute('aria-disabled', 'true');
-        expect(radio).to.have.attribute('disabled');
+        expect(radioGroup).to.have.attribute('data-disabled');
+        expect(radio).to.have.attribute('aria-disabled', 'true');
+        expect(radio).to.have.attribute('data-disabled');
       });
 
       it('should receive name prop from Field.Root', async () => {
