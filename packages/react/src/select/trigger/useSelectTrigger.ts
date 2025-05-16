@@ -29,6 +29,7 @@ export function useSelectTrigger(
     readOnly,
     alignItemWithTriggerActiveRef,
     triggerProps,
+    setTypeaheadReady,
   } = useSelectRootContext();
 
   const { labelId, setTouched, setFocused, validationMode } = useFieldRootContext();
@@ -84,6 +85,7 @@ export function useSelectTrigger(
       tabIndex: disabled ? -1 : 0, // this is needed to make the button focused after click in Safari
       ref: handleRef,
       onFocus(event) {
+        setTypeaheadReady(true);
         setFocused(true);
         // The popup element shouldn't obscure the focused trigger.
         if (open && alignItemWithTriggerActiveRef.current) {
