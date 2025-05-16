@@ -14,64 +14,76 @@ export default function ExampleForm() {
   const [errors, setErrors] = React.useState({});
   const [loading, setLoading] = React.useState(false);
 
+  const [results, setResults] = React.useState<number | null>(null);
+
   return (
-    <Form
-      className={formStyles.Form}
-      style={{ maxWidth: '18rem' }}
-      errors={errors}
-      onClearErrors={setErrors}
-      onSubmit={async (event) => {
-        event.preventDefault();
-        const formData = new FormData(event.currentTarget);
-        const formValues = Object.fromEntries(formData as any) as FormValues;
-        console.log(formValues);
+    <div style={{ width: '18rem' }}>
+      <Form
+        className={formStyles.Form}
+        style={{ maxWidth: '18rem' }}
+        errors={errors}
+        onClearErrors={setErrors}
+        onSubmit={async (event) => {
+          event.preventDefault();
+          const formData = new FormData(event.currentTarget);
+          const formValues = Object.fromEntries(formData as any) as FormValues;
 
-        setLoading(true);
-        const response = await submitForm(formValues);
-        const serverErrors = {
-          priceRange: response.errors?.priceRange,
-        };
+          setLoading(true);
+          const response = await submitForm(formValues);
+          const serverErrors = {
+            priceRange: response.errors?.priceRange,
+          };
 
-        setErrors(serverErrors);
-        setLoading(false);
-        console.log('response', response);
-      }}
-    >
-      <Field.Root name="priceRange" className={formStyles.Field}>
-        <Slider.Root
-          defaultValue={[500, 1200]}
-          min={100}
-          max={2000}
-          step={1}
-          minStepsBetweenValues={1}
-          className={styles.Root}
-          format={{
-            style: 'currency',
-            currency: 'EUR',
-          }}
-          locale="nl-NL"
-          style={{ width: '18rem' }}
-        >
-          <Field.Label className={styles.Label}>Price range</Field.Label>
-          <Slider.Value className={styles.Value} />
-          <Slider.Control className={styles.Control}>
-            <Slider.Track className={styles.Track}>
-              <Slider.Indicator className={styles.Indicator} />
-              <Slider.Thumb className={styles.Thumb} />
-              <Slider.Thumb className={styles.Thumb} />
-            </Slider.Track>
-          </Slider.Control>
-        </Slider.Root>
-        <Field.Error className={formStyles.Error} />
-      </Field.Root>
-      <button disabled={loading} type="submit" className={formStyles.Button}>
-        Search
-      </button>
-    </Form>
+          setErrors(serverErrors);
+          setLoading(false);
+          if (response?.response?.results) {
+            setResults(response.response.results);
+          }
+        }}
+      >
+        <Field.Root name="priceRange" className={formStyles.Field}>
+          <Slider.Root
+            defaultValue={[500, 1200]}
+            min={100}
+            max={2000}
+            step={1}
+            minStepsBetweenValues={1}
+            className={styles.Root}
+            format={{
+              style: 'currency',
+              currency: 'EUR',
+            }}
+            locale="nl-NL"
+            style={{ width: '18rem' }}
+          >
+            <Field.Label className={styles.Label}>Price range</Field.Label>
+            <Slider.Value className={styles.Value} />
+            <Slider.Control className={styles.Control}>
+              <Slider.Track className={styles.Track}>
+                <Slider.Indicator className={styles.Indicator} />
+                <Slider.Thumb className={styles.Thumb} />
+                <Slider.Thumb className={styles.Thumb} />
+              </Slider.Track>
+            </Slider.Control>
+          </Slider.Root>
+          <Field.Error className={formStyles.Error} />
+        </Field.Root>
+        <button disabled={loading} type="submit" className={formStyles.Button}>
+          Search
+        </button>
+        <hr style={{ marginBlock: 24 }} />
+        {results !== null && <p>{`${results} matching flights`}</p>}
+      </Form>
+    </div>
   );
 }
 
-async function submitForm(formValues: FormValues) {
+async function submitForm(formValues: FormValues): Promise<{
+  errors?: Record<string, string>;
+  response?: {
+    results: number;
+  };
+}> {
   await new Promise((resolve) => {
     setTimeout(resolve, 600);
   });
