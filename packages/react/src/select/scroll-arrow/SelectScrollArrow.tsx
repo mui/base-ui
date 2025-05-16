@@ -166,7 +166,7 @@ export const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
     },
   };
 
-  const renderElement = useRenderElement('div', componentProps, {
+  const element = useRenderElement('div', componentProps, {
     ref: [forwardedRef, scrollArrowRef],
     state,
     props: [defaultProps, elementProps],
@@ -177,7 +177,7 @@ export const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
     return null;
   }
 
-  return renderElement();
+  return element;
 });
 
 export namespace SelectScrollArrow {

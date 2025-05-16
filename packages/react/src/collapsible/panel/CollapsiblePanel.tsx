@@ -100,7 +100,7 @@ export const CollapsiblePanel = React.forwardRef(function CollapsiblePanel(
 
   usePanelResize(panelRef, setDimensions, open);
 
-  const renderElement = useRenderElement('div', componentProps, {
+  const element = useRenderElement('div', componentProps, {
     state,
     ref: [forwardedRef, panelRef],
     props: [
@@ -126,7 +126,7 @@ export const CollapsiblePanel = React.forwardRef(function CollapsiblePanel(
     return null;
   }
 
-  return renderElement();
+  return element;
 });
 
 export namespace CollapsiblePanel {

@@ -150,10 +150,11 @@ export function useSelectTrigger(
     fieldControlValidation.getValidationProps,
     elementProps,
     getButtonProps,
-    // ensure nested useButton does not overwrite the combobox role:
-    // <Toolbar.Button render={<Select.Trigger />} />
-    { role: 'combobox' },
   );
+
+  // ensure nested useButton does not overwrite the combobox role:
+  // <Toolbar.Button render={<Select.Trigger />} />
+  props.role = 'combobox';
 
   return {
     props,

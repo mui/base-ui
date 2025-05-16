@@ -34,7 +34,7 @@ export const ToastAction = React.forwardRef(function ToastAction(
     [toast.type],
   );
 
-  const renderElement = useRenderElement('button', componentProps, {
+  const element = useRenderElement('button', componentProps, {
     ref: forwardedRef,
     state,
     props: [
@@ -51,7 +51,7 @@ export const ToastAction = React.forwardRef(function ToastAction(
     return null;
   }
 
-  return renderElement();
+  return element;
 });
 
 export namespace ToastAction {

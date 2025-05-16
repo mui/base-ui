@@ -104,7 +104,7 @@ export const FieldControl = React.forwardRef(function FieldControl(
     controlRef: inputRef,
   });
 
-  const renderElement = useRenderElement('input', componentProps, {
+  const element = useRenderElement('input', componentProps, {
     ref: forwardedRef,
     state,
     props: [
@@ -148,7 +148,7 @@ export const FieldControl = React.forwardRef(function FieldControl(
     customStyleHookMapping: fieldValidityMapping,
   });
 
-  return renderElement();
+  return element;
 });
 
 export namespace FieldControl {

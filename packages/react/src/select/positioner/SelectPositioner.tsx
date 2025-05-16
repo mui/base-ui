@@ -108,7 +108,7 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
     [open, positioner.side, positioner.align, positioner.anchorHidden],
   );
 
-  const renderElement = useRenderElement('div', componentProps, {
+  const element = useRenderElement('div', componentProps, {
     ref: [forwardedRef, setPositionerElement],
     state,
     customStyleHookMapping: popupStateMapping,
@@ -175,7 +175,7 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
     <CompositeList elementsRef={listRef} labelsRef={labelsRef} onMapChange={onMapChange}>
       <SelectPositionerContext.Provider value={contextValue}>
         {mounted && modal && <InternalBackdrop inert={inertValue(!open)} />}
-        {renderElement()}
+        {element}
       </SelectPositionerContext.Provider>
     </CompositeList>
   );

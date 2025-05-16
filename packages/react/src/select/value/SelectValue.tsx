@@ -18,7 +18,7 @@ export const SelectValue = React.forwardRef(function SelectValue(
 
   const { value, label, valueRef } = useSelectRootContext();
 
-  const renderElement = useRenderElement('span', componentProps, {
+  const element = useRenderElement('span', componentProps, {
     ref: [forwardedRef, valueRef],
     props: [
       {
@@ -31,7 +31,7 @@ export const SelectValue = React.forwardRef(function SelectValue(
     ],
   });
 
-  return renderElement();
+  return element;
 });
 
 export namespace SelectValue {
