@@ -10,10 +10,6 @@ export interface RadioRootContext {
 
 export const RadioRootContext = React.createContext<RadioRootContext | undefined>(undefined);
 
-if (process.env.NODE_ENV !== 'production') {
-  RadioRootContext.displayName = 'RadioRootContext';
-}
-
 export function useRadioRootContext() {
   const value = React.useContext(RadioRootContext);
   if (value === undefined) {

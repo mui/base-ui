@@ -20,10 +20,6 @@ export const AccordionRootContext = React.createContext<AccordionRootContext | u
   undefined,
 );
 
-if (process.env.NODE_ENV !== 'production') {
-  AccordionRootContext.displayName = 'AccordionRootContext';
-}
-
 export function useAccordionRootContext() {
   const context = React.useContext(AccordionRootContext);
   if (context === undefined) {

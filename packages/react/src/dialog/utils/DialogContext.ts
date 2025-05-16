@@ -18,10 +18,6 @@ export interface DialogContext extends useDialogRoot.ReturnValue {
 
 export const DialogContext = React.createContext<DialogContext | undefined>(undefined);
 
-if (process.env.NODE_ENV !== 'production') {
-  DialogContext.displayName = 'DialogContext';
-}
-
 export function useDialogContext() {
   return React.useContext(DialogContext);
 }

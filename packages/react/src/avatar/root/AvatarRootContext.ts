@@ -9,10 +9,6 @@ export interface AvatarRootContext {
 
 export const AvatarRootContext = React.createContext<AvatarRootContext | undefined>(undefined);
 
-if (process.env.NODE_ENV !== 'production') {
-  AvatarRootContext.displayName = 'AvatarRootContext';
-}
-
 export function useAvatarRootContext() {
   const context = React.useContext(AvatarRootContext);
   if (context === undefined) {

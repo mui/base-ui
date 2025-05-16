@@ -6,10 +6,6 @@ export interface MenuRootContext extends useMenuRoot.ReturnValue {}
 
 export const MenuRootContext = React.createContext<MenuRootContext | undefined>(undefined);
 
-if (process.env.NODE_ENV !== 'production') {
-  MenuRootContext.displayName = 'MenuRootContext';
-}
-
 export function useMenuRootContext(optional?: false): MenuRootContext;
 export function useMenuRootContext(optional: true): MenuRootContext | undefined;
 export function useMenuRootContext(optional?: boolean) {

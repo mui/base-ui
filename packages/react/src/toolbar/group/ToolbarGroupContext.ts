@@ -6,10 +6,6 @@ export interface ToolbarGroupContext {
 
 export const ToolbarGroupContext = React.createContext<ToolbarGroupContext | undefined>(undefined);
 
-if (process.env.NODE_ENV !== 'production') {
-  ToolbarGroupContext.displayName = 'ToolbarGroupContext';
-}
-
 export function useToolbarGroupContext(optional?: false): ToolbarGroupContext;
 export function useToolbarGroupContext(optional: true): ToolbarGroupContext | undefined;
 export function useToolbarGroupContext(optional?: boolean) {

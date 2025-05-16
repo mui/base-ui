@@ -22,10 +22,6 @@ export const MenuPositionerContext = React.createContext<MenuPositionerContext |
   undefined,
 );
 
-if (process.env.NODE_ENV !== 'production') {
-  MenuPositionerContext.displayName = 'MenuPositionerContext';
-}
-
 export function useMenuPositionerContext() {
   const context = React.useContext(MenuPositionerContext);
   if (context === undefined) {

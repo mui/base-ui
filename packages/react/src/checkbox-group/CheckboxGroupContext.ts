@@ -15,10 +15,6 @@ export const CheckboxGroupContext = React.createContext<CheckboxGroupContext | u
   undefined,
 );
 
-if (process.env.NODE_ENV !== 'production') {
-  CheckboxGroupContext.displayName = 'CheckboxGroupContext';
-}
-
 export function useCheckboxGroupContext(optional: false): CheckboxGroupContext;
 export function useCheckboxGroupContext(optional?: true): CheckboxGroupContext | undefined;
 export function useCheckboxGroupContext(optional = true) {

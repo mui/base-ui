@@ -58,10 +58,6 @@ export interface TabsRootContext {
  */
 export const TabsRootContext = React.createContext<TabsRootContext | undefined>(undefined);
 
-if (process.env.NODE_ENV !== 'production') {
-  TabsRootContext.displayName = 'TabsRootContext';
-}
-
 export function useTabsRootContext() {
   const context = React.useContext(TabsRootContext);
   if (context === undefined) {

@@ -13,10 +13,6 @@ export const FieldsetRootContext = React.createContext<FieldsetRootContext>({
   disabled: undefined,
 });
 
-if (process.env.NODE_ENV !== 'production') {
-  FieldsetRootContext.displayName = 'FieldsetRootContext';
-}
-
 export function useFieldsetRootContext() {
   return React.useContext(FieldsetRootContext);
 }

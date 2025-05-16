@@ -6,10 +6,6 @@ export const PopoverPositionerContext = React.createContext<
   usePopoverPositioner.ReturnValue | undefined
 >(undefined);
 
-if (process.env.NODE_ENV !== 'production') {
-  PopoverPositionerContext.displayName = 'PopoverPositionerContext';
-}
-
 export function usePopoverPositionerContext() {
   const context = React.useContext(PopoverPositionerContext);
   if (context === undefined) {

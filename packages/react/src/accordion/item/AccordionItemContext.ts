@@ -13,10 +13,6 @@ export const AccordionItemContext = React.createContext<AccordionItemContext | u
   undefined,
 );
 
-if (process.env.NODE_ENV !== 'production') {
-  AccordionItemContext.displayName = 'AccordionItemContext';
-}
-
 export function useAccordionItemContext() {
   const context = React.useContext(AccordionItemContext);
   if (context === undefined) {

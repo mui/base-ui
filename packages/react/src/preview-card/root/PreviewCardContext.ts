@@ -27,10 +27,6 @@ export const PreviewCardRootContext = React.createContext<PreviewCardRootContext
   undefined,
 );
 
-if (process.env.NODE_ENV !== 'production') {
-  PreviewCardRootContext.displayName = 'PreviewCardRootContext';
-}
-
 export function usePreviewCardRootContext() {
   const context = React.useContext(PreviewCardRootContext);
   if (context === undefined) {

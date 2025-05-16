@@ -29,10 +29,6 @@ export type ProgressRootContext = {
  */
 export const ProgressRootContext = React.createContext<ProgressRootContext | undefined>(undefined);
 
-if (process.env.NODE_ENV !== 'production') {
-  ProgressRootContext.displayName = 'ProgressRootContext';
-}
-
 export function useProgressRootContext() {
   const context = React.useContext(ProgressRootContext);
   if (context === undefined) {

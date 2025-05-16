@@ -12,10 +12,6 @@ export type DirectionContext = {
  */
 export const DirectionContext = React.createContext<DirectionContext | undefined>(undefined);
 
-if (process.env.NODE_ENV !== 'production') {
-  DirectionContext.displayName = 'DirectionContext';
-}
-
 export function useDirection(optional = true) {
   const context = React.useContext(DirectionContext);
   if (context === undefined && !optional) {

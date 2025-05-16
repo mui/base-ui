@@ -30,10 +30,6 @@ export const FormContext = React.createContext<FormContext>({
   clearErrors: NOOP,
 });
 
-if (process.env.NODE_ENV !== 'production') {
-  FormContext.displayName = 'FormContext';
-}
-
 export function useFormContext() {
   return React.useContext(FormContext);
 }
