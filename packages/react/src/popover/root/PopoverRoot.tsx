@@ -2,7 +2,6 @@
 import * as React from 'react';
 import { PopoverRootContext } from './PopoverRootContext';
 import { usePopoverRoot } from './usePopoverRoot';
-import { OPEN_DELAY } from '../utils/constants';
 
 /**
  * Groups all parts of the popover.
@@ -11,46 +10,9 @@ import { OPEN_DELAY } from '../utils/constants';
  * Documentation: [Base UI Popover](https://base-ui.com/react/components/popover)
  */
 export const PopoverRoot: React.FC<PopoverRoot.Props> = function PopoverRoot(props) {
-  const {
-    defaultOpen = false,
-    onOpenChange,
-    open,
-    openOnHover = false,
-    delay,
-    closeDelay = 0,
-    actionsRef,
-    onOpenChangeComplete,
-    modal = false,
-  } = props;
-
-  const delayWithDefault = delay ?? OPEN_DELAY;
-
-  const popoverRoot = usePopoverRoot({
-    ...props,
-    defaultOpen,
-    onOpenChange,
-    open,
-    openOnHover,
-    onOpenChangeComplete,
-    delay: delayWithDefault,
-    closeDelay,
-    actionsRef,
-    modal,
-  });
-
-  const contextValue: PopoverRootContext = React.useMemo(
-    () => ({
-      ...popoverRoot,
-      openOnHover,
-      delay: delayWithDefault,
-      closeDelay,
-      modal,
-    }),
-    [popoverRoot, openOnHover, delayWithDefault, closeDelay, modal],
-  );
-
+  const popoverRoot = usePopoverRoot(props);
   return (
-    <PopoverRootContext.Provider value={contextValue}>{props.children}</PopoverRootContext.Provider>
+    <PopoverRootContext.Provider value={popoverRoot}>{props.children}</PopoverRootContext.Provider>
   );
 };
 

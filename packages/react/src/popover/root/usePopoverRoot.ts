@@ -32,15 +32,12 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
     open: externalOpen,
     onOpenChange: onOpenChangeProp,
     defaultOpen = false,
-    delay,
-    closeDelay,
+    delay = OPEN_DELAY,
+    closeDelay = 0,
     openOnHover = false,
     onOpenChangeComplete,
-    modal,
+    modal = false,
   } = params;
-
-  const delayWithDefault = delay ?? OPEN_DELAY;
-  const closeDelayWithDefault = closeDelay ?? 0;
 
   const [instantType, setInstantType] = React.useState<'dismiss' | 'click'>();
   const [titleId, setTitleId] = React.useState<string>();
@@ -143,7 +140,7 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
 
   const { openMethod, triggerProps } = useOpenInteractionType(open);
 
-  const computedRestMs = delayWithDefault;
+  const computedRestMs = delay;
 
   const hover = useHover(context, {
     enabled: openOnHover && (openMethod !== 'touch' || openReason !== 'click'),
@@ -152,7 +149,7 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
     handleClose: safePolygon({ blockPointerEvents: true }),
     restMs: computedRestMs,
     delay: {
-      close: closeDelayWithDefault,
+      close: closeDelay,
     },
   });
   const click = useClick(context, { stickIfOpen });
@@ -183,6 +180,10 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
       openMethod,
       openReason,
       onOpenChangeComplete,
+      openOnHover,
+      delay,
+      closeDelay,
+      modal,
     }),
     [
       open,
@@ -201,6 +202,10 @@ export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoo
       openMethod,
       openReason,
       onOpenChangeComplete,
+      openOnHover,
+      delay,
+      closeDelay,
+      modal,
     ],
   );
 }
@@ -288,6 +293,10 @@ export namespace usePopoverRoot {
     openMethod: InteractionType | null;
     openReason: OpenChangeReason | null;
     onOpenChangeComplete: ((open: boolean) => void) | undefined;
+    openOnHover: NonNullable<Parameters['openOnHover']>;
+    delay: NonNullable<Parameters['delay']>;
+    closeDelay: NonNullable<Parameters['closeDelay']>;
+    modal: NonNullable<Parameters['modal']>;
   }
 
   export interface Actions {
