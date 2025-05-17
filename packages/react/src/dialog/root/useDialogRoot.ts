@@ -113,7 +113,7 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
         // https://github.com/mui/base-ui/issues/1320
         if (modal) {
           return backdrop
-            ? [internalBackdropRef.current, backdropRef.current].includes(backdrop)
+            ? internalBackdropRef.current === backdrop || backdropRef.current === backdrop
             : false;
         }
         return true;

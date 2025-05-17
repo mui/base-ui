@@ -21,6 +21,16 @@ const customStyleHookMapping = {
   ...styleHookMapping,
 };
 
+const NAVIGATE_KEYS = new Set([
+  'Backspace',
+  'Delete',
+  'ArrowLeft',
+  'ArrowRight',
+  'Tab',
+  'Enter',
+  'Escape',
+]);
+
 /**
  * The native input control in the number field.
  * Renders an `<input>` element.
@@ -212,7 +222,7 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
 
             const allowedNonNumericKeys = getAllowedNonNumericKeys();
 
-            let isAllowedNonNumericKey = allowedNonNumericKeys.includes(event.key);
+            let isAllowedNonNumericKey = allowedNonNumericKeys.has(event.key);
 
             const { decimal, currency, percentSign } = getNumberLocaleDetails(
               [],
@@ -225,7 +235,7 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
 
             // Allow the minus key only if there isn't already a plus or minus sign, or if all the text
             // is selected, or if only the minus sign is highlighted.
-            if (event.key === '-' && allowedNonNumericKeys.includes('-')) {
+            if (event.key === '-' && allowedNonNumericKeys.has('-')) {
               const isMinusHighlighted =
                 selectionStart === 0 && selectionEnd === 1 && inputValue[0] === '-';
               isAllowedNonNumericKey =
@@ -246,15 +256,7 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
             const isLatinNumeral = /^[0-9]$/.test(event.key);
             const isArabicNumeral = ARABIC_RE.test(event.key);
             const isHanNumeral = HAN_RE.test(event.key);
-            const isNavigateKey = [
-              'Backspace',
-              'Delete',
-              'ArrowLeft',
-              'ArrowRight',
-              'Tab',
-              'Enter',
-              'Escape',
-            ].includes(event.key);
+            const isNavigateKey = NAVIGATE_KEYS.has(event.key);
 
             if (
               // Allow composition events (e.g., pinyin)

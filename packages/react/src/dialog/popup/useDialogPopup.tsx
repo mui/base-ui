@@ -59,7 +59,7 @@ export function useDialogPopup(parameters: useDialogPopup.Parameters): useDialog
         ref: handleRef,
         hidden: !mounted,
         onKeyDown(event) {
-          if (COMPOSITE_KEYS.includes(event.key)) {
+          if (COMPOSITE_KEYS.has(event.key)) {
             event.stopPropagation();
           }
         },

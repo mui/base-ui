@@ -20,7 +20,7 @@ import { CompositeList } from '../../composite/list/CompositeList';
 import { useDirection } from '../../direction-provider/DirectionContext';
 import { AccordionRootContext } from './AccordionRootContext';
 
-const SUPPORTED_KEYS = [ARROW_DOWN, ARROW_UP, ARROW_RIGHT, ARROW_LEFT, HOME, END];
+const SUPPORTED_KEYS = new Set([ARROW_DOWN, ARROW_UP, ARROW_RIGHT, ARROW_LEFT, HOME, END]);
 
 const rootStyleHookMapping = {
   value: () => null,
@@ -168,7 +168,7 @@ export const AccordionRoot = React.forwardRef(function AccordionRoot(
         dir: direction,
         role: 'region',
         onKeyDown(event: React.KeyboardEvent) {
-          if (!SUPPORTED_KEYS.includes(event.key)) {
+          if (!SUPPORTED_KEYS.has(event.key)) {
             return;
           }
 
