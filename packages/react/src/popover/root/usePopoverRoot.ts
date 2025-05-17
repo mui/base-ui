@@ -27,8 +27,6 @@ import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { PATIENT_CLICK_THRESHOLD } from '../../utils/constants';
 import { useScrollLock } from '../../utils/useScrollLock';
 
-type SetState<T> = React.Dispatch<React.SetStateAction<T>>;
-
 export function usePopoverRoot(params: usePopoverRoot.Parameters): usePopoverRoot.ReturnValue {
   const {
     open: externalOpen,
@@ -278,19 +276,19 @@ export namespace usePopoverRoot {
     open: boolean;
     setOpen: (open: boolean, event?: Event, reason?: OpenChangeReason) => void;
     mounted: boolean;
-    setMounted: SetState<boolean>;
+    setMounted: React.Dispatch<React.SetStateAction<boolean>>;
     transitionStatus: TransitionStatus;
     titleId: string | undefined;
-    setTitleId: SetState<string | undefined>;
+    setTitleId: React.Dispatch<React.SetStateAction<string | undefined>>;
     descriptionId: string | undefined;
-    setDescriptionId: SetState<string | undefined>;
+    setDescriptionId: React.Dispatch<React.SetStateAction<string | undefined>>;
     floatingRootContext: FloatingRootContext;
     triggerProps: HTMLProps;
     popupProps: HTMLProps;
     instantType: 'dismiss' | 'click' | undefined;
-    setTriggerElement: SetState<Element | null>;
+    setTriggerElement: React.Dispatch<React.SetStateAction<Element | null>>;
     positionerElement: HTMLElement | null;
-    setPositionerElement: SetState<HTMLElement | null>;
+    setPositionerElement: React.Dispatch<React.SetStateAction<HTMLElement | null>>;
     popupRef: React.RefObject<HTMLElement | null>;
     openMethod: InteractionType | null;
     openReason: OpenChangeReason | null;
