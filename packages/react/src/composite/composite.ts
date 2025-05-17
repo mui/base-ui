@@ -35,10 +35,10 @@ export const ARROW_KEYS = new Set([...HORIZONTAL_KEYS, ...VERTICAL_KEYS]);
 export const ALL_KEYS = new Set([...ARROW_KEYS, HOME, END]);
 export const COMPOSITE_KEYS = new Set([ARROW_UP, ARROW_DOWN, ARROW_LEFT, ARROW_RIGHT, HOME, END]);
 
-export const SHIFT = 'Shift';
-export const CONTROL = 'Control';
-export const ALT = 'Alt';
-export const META = 'Meta';
+export const SHIFT = 'Shift' as const;
+export const CONTROL = 'Control' as const;
+export const ALT = 'Alt' as const;
+export const META = 'Meta' as const;
 export const MODIFIER_KEYS = new Set([SHIFT, CONTROL, ALT, META] as const);
 export type ModifierKey = typeof MODIFIER_KEYS extends Set<infer Keys> ? Keys : never;
 
