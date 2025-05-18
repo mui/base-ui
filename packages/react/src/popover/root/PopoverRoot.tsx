@@ -34,7 +34,7 @@ import { PopoverRootContext } from './PopoverRootContext';
 export const PopoverRoot: React.FC<PopoverRoot.Props> = function PopoverRoot(props) {
   const {
     open: externalOpen,
-    onOpenChange: onOpenChangeProp,
+    onOpenChange,
     defaultOpen = false,
     delay = OPEN_DELAY,
     closeDelay = 0,
@@ -61,8 +61,6 @@ export const PopoverRoot: React.FC<PopoverRoot.Props> = function PopoverRoot(pro
     state: 'open',
   });
 
-  const onOpenChange = useEventCallback(onOpenChangeProp);
-
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
 
   useScrollLock({
@@ -74,7 +72,7 @@ export const PopoverRoot: React.FC<PopoverRoot.Props> = function PopoverRoot(pro
 
   const setOpen = useEventCallback(
     (nextOpen: boolean, event: Event | undefined, reason: OpenChangeReason | undefined) => {
-      onOpenChange(nextOpen, event, reason);
+      onOpenChange?.(nextOpen, event, reason);
       setOpenUnwrapped(nextOpen);
 
       if (nextOpen) {
