@@ -107,7 +107,7 @@ export const AccordionPanel = React.forwardRef(function AccordionPanel(
 
   const { state, triggerId } = useAccordionItemContext();
 
-  const renderElement = useRenderElement('div', componentProps, {
+  const element = useRenderElement('div', componentProps, {
     state,
     ref: [forwardedRef, panelRef],
     props: [
@@ -132,7 +132,7 @@ export const AccordionPanel = React.forwardRef(function AccordionPanel(
     return null;
   }
 
-  return renderElement();
+  return element;
 });
 
 export namespace AccordionPanel {
