@@ -20,23 +20,6 @@ export function useRender<
   return useRenderElement(undefined, renderParams, renderParams);
 }
 
-/**
- * Returns an object with a `renderElement` function that renders a Base UI element.
- *
- * @public
- */
-export function useRenderLazy<
-  State extends Record<string, unknown>,
-  RenderedElementType extends Element,
->(params: useRender.Parameters<State, RenderedElementType>): useRenderLazy.ReturnValue {
-  const renderParams = params as useRender.Parameters<State, RenderedElementType> & {
-    disableStyleHooks: boolean;
-  };
-  renderParams.disableStyleHooks = true;
-
-  return useRenderElementLazy(undefined, renderParams, renderParams);
-}
-
 export namespace useRender {
   export type RenderProp<State = Record<string, unknown>> =
     | ComponentRenderFn<React.HTMLAttributes<any>, State>
@@ -84,8 +67,4 @@ export namespace useRender {
   }
 
   export type ReturnValue = React.ReactElement;
-}
-
-export namespace useRenderLazy {
-  export type ReturnValue = () => React.ReactElement;
 }
