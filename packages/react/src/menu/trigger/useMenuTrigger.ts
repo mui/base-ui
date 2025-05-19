@@ -88,7 +88,6 @@ export function useMenuTrigger(parameters: useMenuTrigger.Parameters): useMenuTr
       return mergeProps(
         {
           'aria-haspopup': 'menu' as const,
-          ...(menuParent.type === 'menubar' ? {} : { tabIndex: 0 }), // this is needed to make the button focused after click in Safari
           ref: handleRef,
           onMouseDown: (event: React.MouseEvent) => {
             if (open) {
@@ -106,6 +105,7 @@ export function useMenuTrigger(parameters: useMenuTrigger.Parameters): useMenuTr
         },
         externalProps,
         getButtonProps,
+        menuParent.type === 'menubar' ? { tabIndex: undefined } : {},
       );
     },
     [
