@@ -25,7 +25,10 @@ export interface FieldRootContext {
   setFilled: React.Dispatch<React.SetStateAction<boolean>>;
   focused: boolean;
   setFocused: React.Dispatch<React.SetStateAction<boolean>>;
-  validate: (value: unknown) => string | string[] | null | Promise<string | string[] | null>;
+  validate: (
+    value: unknown,
+    formValues: Record<string, unknown>,
+  ) => string | string[] | null | Promise<string | string[] | null>;
   validationMode: 'onBlur' | 'onChange';
   validationDebounceTime: number;
   state: FieldRoot.State;
