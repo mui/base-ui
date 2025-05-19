@@ -59,7 +59,7 @@ export const NumberFieldScrubAreaCursor = React.forwardRef(function NumberFieldS
     state,
     className,
     extraProps: otherProps,
-    stateAttributesMapping: stateAttributesMapping,
+    stateAttributesMapping,
   });
 
   if (!isScrubbing || isWebKit || isTouchInput || isPointerLockDenied) {

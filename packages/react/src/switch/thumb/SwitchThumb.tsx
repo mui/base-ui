@@ -29,7 +29,7 @@ export const SwitchThumb = React.forwardRef(function SwitchThumb(
     className,
     state: extendedState,
     extraProps: other,
-    stateAttributesMapping: stateAttributesMapping,
+    stateAttributesMapping,
     ref: forwardedRef,
   });
 

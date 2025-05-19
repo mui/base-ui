@@ -53,7 +53,7 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
     propGetter: getButtonProps,
     state,
     extraProps: other,
-    stateAttributesMapping: stateAttributesMapping,
+    stateAttributesMapping,
     ref: forwardedRef,
   });
 

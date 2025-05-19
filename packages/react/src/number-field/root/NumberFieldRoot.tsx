@@ -81,7 +81,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
     state,
     className,
     extraProps: otherProps,
-    stateAttributesMapping: stateAttributesMapping,
+    stateAttributesMapping,
   });
 
   return (

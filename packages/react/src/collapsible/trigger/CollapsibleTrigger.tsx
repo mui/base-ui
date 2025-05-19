@@ -53,7 +53,7 @@ export const CollapsibleTrigger = React.forwardRef(function CollapsibleTrigger(
     state,
     ref: [forwardedRef, buttonRef],
     props: [props, elementProps, getButtonProps],
-    stateAttributesMapping: stateAttributesMapping,
+    stateAttributesMapping,
   });
 
   return element;

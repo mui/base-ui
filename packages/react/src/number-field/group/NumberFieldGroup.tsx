@@ -39,7 +39,7 @@ export const NumberFieldGroup = React.forwardRef(function NumberFieldGroup(
     state,
     className,
     extraProps: otherProps,
-    stateAttributesMapping: stateAttributesMapping,
+    stateAttributesMapping,
   });
 
   return renderElement();

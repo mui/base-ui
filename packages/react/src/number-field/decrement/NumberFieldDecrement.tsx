@@ -78,7 +78,7 @@ export const NumberFieldDecrement = React.forwardRef(function NumberFieldDecreme
     state,
     className,
     extraProps: otherProps,
-    stateAttributesMapping: stateAttributesMapping,
+    stateAttributesMapping,
   });
 
   return renderElement();

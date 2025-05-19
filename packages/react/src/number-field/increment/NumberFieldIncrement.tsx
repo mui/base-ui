@@ -78,7 +78,7 @@ export const NumberFieldIncrement = React.forwardRef(function NumberFieldIncreme
     state,
     className,
     extraProps: otherProps,
-    stateAttributesMapping: stateAttributesMapping,
+    stateAttributesMapping,
   });
 
   return renderElement();

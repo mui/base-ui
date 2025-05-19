@@ -45,7 +45,7 @@ export const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubAr
     state,
     className,
     extraProps: otherProps,
-    stateAttributesMapping: stateAttributesMapping,
+    stateAttributesMapping,
   });
 
   const contextValue: NumberFieldScrubAreaContext = React.useMemo(
