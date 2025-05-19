@@ -55,7 +55,7 @@ export const PreviewCardArrow = React.forwardRef(function PreviewCardArrow(
     state,
     ref: mergedRef,
     extraProps: otherProps,
-    customStyleHookMapping: popupStateMapping,
+    stateAttributesMapping: popupStateMapping,
   });
 
   return renderElement();

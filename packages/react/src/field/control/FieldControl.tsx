@@ -145,7 +145,7 @@ export const FieldControl = React.forwardRef(function FieldControl(
       getInputValidationProps(),
       elementProps,
     ],
-    customStyleHookMapping: fieldValidityMapping,
+    stateAttributesMapping: fieldValidityMapping,
   });
 
   return element;

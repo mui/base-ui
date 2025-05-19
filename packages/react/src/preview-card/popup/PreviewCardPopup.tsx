@@ -5,16 +5,16 @@ import { usePreviewCardRootContext } from '../root/PreviewCardContext';
 import { usePreviewCardPositionerContext } from '../positioner/PreviewCardPositionerContext';
 import { usePreviewCardPopup } from './usePreviewCardPopup';
 import { useForkRef } from '../../utils/useForkRef';
-import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
+import type { StateAttributesMapping } from '../../utils/mapStateAttributes';
 import type { Align, Side } from '../../utils/useAnchorPositioning';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import { mergeProps } from '../../merge-props';
-import { transitionStatusMapping } from '../../utils/styleHookMapping';
+import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 
-const customStyleHookMapping: CustomStyleHookMapping<PreviewCardPopup.State> = {
+const stateAttributesMapping: StateAttributesMapping<PreviewCardPopup.State> = {
   ...baseMapping,
   ...transitionStatusMapping,
 };
@@ -76,7 +76,7 @@ export const PreviewCardPopup = React.forwardRef(function PreviewCardPopup(
             otherProps,
           )
         : otherProps,
-    customStyleHookMapping,
+    stateAttributesMapping,
   });
 
   return renderElement();

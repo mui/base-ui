@@ -42,7 +42,7 @@ export const DialogTrigger = React.forwardRef(function DialogTrigger(
     state,
     propGetter: (externalProps) => getButtonProps(getTriggerProps(externalProps)),
     extraProps: other,
-    customStyleHookMapping: triggerOpenStateMapping,
+    stateAttributesMapping: triggerOpenStateMapping,
   });
 
   return renderElement();

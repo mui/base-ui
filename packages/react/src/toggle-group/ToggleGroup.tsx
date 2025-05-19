@@ -10,7 +10,7 @@ import { useToolbarRootContext } from '../toolbar/root/ToolbarRootContext';
 import { ToggleGroupContext } from './ToggleGroupContext';
 import { ToggleGroupDataAttributes } from './ToggleGroupDataAttributes';
 
-const customStyleHookMapping = {
+const stateAttributesMapping = {
   multiple(value: boolean) {
     if (value) {
       return { [ToggleGroupDataAttributes.multiple]: '' } as Record<string, string>;
@@ -104,7 +104,7 @@ export const ToggleGroup = React.forwardRef(function ToggleGroup(
       },
       elementProps,
     ],
-    customStyleHookMapping,
+    stateAttributesMapping,
   });
 
   return (

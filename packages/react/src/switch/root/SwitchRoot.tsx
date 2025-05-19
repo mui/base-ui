@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { useSwitchRoot } from './useSwitchRoot';
 import { SwitchRootContext } from './SwitchRootContext';
-import { styleHookMapping } from '../styleHooks';
+import { stateAttributesMapping } from '../stateAttributesMapping';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import type { FieldRoot } from '../../field/root/FieldRoot';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
@@ -53,7 +53,7 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
     propGetter: getButtonProps,
     state,
     extraProps: other,
-    customStyleHookMapping: styleHookMapping,
+    stateAttributesMapping: stateAttributesMapping,
     ref: forwardedRef,
   });
 

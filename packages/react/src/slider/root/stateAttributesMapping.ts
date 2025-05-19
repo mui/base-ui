@@ -1,7 +1,7 @@
-import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
+import type { CustomMapping } from '../../utils/mapStateAttributes';
 import type { SliderRoot } from './SliderRoot';
 
-export const sliderStyleHookMapping: CustomStyleHookMapping<SliderRoot.State> = {
+export const sliderMapping: CustomMapping<SliderRoot.State> = {
   activeThumbIndex: () => null,
   max: () => null,
   min: () => null,

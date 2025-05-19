@@ -1,15 +1,15 @@
 'use client';
 import * as React from 'react';
 import { triggerOpenStateMapping } from '../../utils/collapsibleOpenStateMapping';
-import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
-import { transitionStatusMapping } from '../../utils/styleHookMapping';
+import type { StateAttributesMapping } from '../../utils/mapStateAttributes';
+import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useButton } from '../../use-button';
 import { useCollapsibleRootContext } from '../root/CollapsibleRootContext';
 import { CollapsibleRoot } from '../root/CollapsibleRoot';
 
-const styleHookMapping: CustomStyleHookMapping<CollapsibleRoot.State> = {
+const stateAttributesMapping: StateAttributesMapping<CollapsibleRoot.State> = {
   ...triggerOpenStateMapping,
   ...transitionStatusMapping,
 };
@@ -53,7 +53,7 @@ export const CollapsibleTrigger = React.forwardRef(function CollapsibleTrigger(
     state,
     ref: [forwardedRef, buttonRef],
     props: [props, elementProps, getButtonProps],
-    customStyleHookMapping: styleHookMapping,
+    stateAttributesMapping: stateAttributesMapping,
   });
 
   return element;

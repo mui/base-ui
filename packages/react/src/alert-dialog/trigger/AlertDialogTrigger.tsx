@@ -42,7 +42,7 @@ export const AlertDialogTrigger = React.forwardRef(function AlertDialogTrigger(
     state,
     propGetter: (externalProps) => getButtonProps(getTriggerProps(externalProps)),
     extraProps: other,
-    customStyleHookMapping: triggerOpenStateMapping,
+    stateAttributesMapping: triggerOpenStateMapping,
     ref: mergedRef,
   });
 

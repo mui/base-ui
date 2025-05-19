@@ -5,7 +5,7 @@ import type { NumberFieldRoot } from '../root/NumberFieldRoot';
 import { mergeProps } from '../../merge-props';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { styleHookMapping } from '../utils/styleHooks';
+import { stateAttributesMapping } from '../utils/stateAttributesMapping';
 
 /**
  * Groups the input with the increment and decrement buttons.
@@ -39,7 +39,7 @@ export const NumberFieldGroup = React.forwardRef(function NumberFieldGroup(
     state,
     className,
     extraProps: otherProps,
-    customStyleHookMapping: styleHookMapping,
+    stateAttributesMapping: stateAttributesMapping,
   });
 
   return renderElement();

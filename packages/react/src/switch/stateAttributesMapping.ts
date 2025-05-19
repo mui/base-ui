@@ -1,9 +1,9 @@
 import type { SwitchRoot } from './root/SwitchRoot';
-import type { CustomStyleHookMapping } from '../utils/getStyleHookProps';
+import type { StateAttributesMapping } from '../utils/mapStateAttributes';
 import { fieldValidityMapping } from '../field/utils/constants';
 import { SwitchRootDataAttributes } from './root/SwitchRootDataAttributes';
 
-export const styleHookMapping: CustomStyleHookMapping<SwitchRoot.State> = {
+export const stateAttributesMapping: StateAttributesMapping<SwitchRoot.State> = {
   ...fieldValidityMapping,
   checked(value): Record<string, string> {
     if (value) {

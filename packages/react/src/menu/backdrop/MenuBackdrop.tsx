@@ -3,13 +3,13 @@ import * as React from 'react';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import type { BaseUIComponentProps } from '../../utils/types';
-import { type CustomStyleHookMapping } from '../../utils/getStyleHookProps';
+import { type StateAttributesMapping } from '../../utils/mapStateAttributes';
 import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
-import { transitionStatusMapping } from '../../utils/styleHookMapping';
+import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
 import { mergeProps } from '../../merge-props';
 
-const customStyleHookMapping: CustomStyleHookMapping<MenuBackdrop.State> = {
+const stateAttributesMapping: StateAttributesMapping<MenuBackdrop.State> = {
   ...baseMapping,
   ...transitionStatusMapping,
 };
@@ -52,7 +52,7 @@ export const MenuBackdrop = React.forwardRef(function MenuBackdrop(
       },
       other,
     ),
-    customStyleHookMapping,
+    stateAttributesMapping,
   });
 
   return renderElement();

@@ -5,15 +5,15 @@ import type { BaseUIComponentProps } from '../../utils/types';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import { popupStateMapping } from '../../utils/popupStateMapping';
 import type { Side } from '../../utils/useAnchorPositioning';
-import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
+import type { StateAttributesMapping } from '../../utils/mapStateAttributes';
 import { useSelectPopup } from './useSelectPopup';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import { useSelectPositionerContext } from '../positioner/SelectPositionerContext';
-import { transitionStatusMapping } from '../../utils/styleHookMapping';
+import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useRenderElement } from '../../utils/useRenderElement';
 
-const customStyleHookMapping: CustomStyleHookMapping<SelectPopup.State> = {
+const stateAttributesMapping: StateAttributesMapping<SelectPopup.State> = {
   ...popupStateMapping,
   ...transitionStatusMapping,
 };
@@ -59,7 +59,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
   const element = useRenderElement('div', componentProps, {
     ref: [forwardedRef, popupRef],
     state,
-    customStyleHookMapping,
+    stateAttributesMapping,
     props: [
       popupProps,
       props,

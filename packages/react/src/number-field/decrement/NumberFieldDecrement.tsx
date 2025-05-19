@@ -5,7 +5,7 @@ import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import type { NumberFieldRoot } from '../root/NumberFieldRoot';
 import { useNumberFieldButton } from '../root/useNumberFieldButton';
 import { BaseUIComponentProps, HTMLProps } from '../../utils/types';
-import { styleHookMapping } from '../utils/styleHooks';
+import { stateAttributesMapping } from '../utils/stateAttributesMapping';
 
 /**
  * A stepper button that decreases the field value when clicked.
@@ -78,7 +78,7 @@ export const NumberFieldDecrement = React.forwardRef(function NumberFieldDecreme
     state,
     className,
     extraProps: otherProps,
-    customStyleHookMapping: styleHookMapping,
+    stateAttributesMapping: stateAttributesMapping,
   });
 
   return renderElement();

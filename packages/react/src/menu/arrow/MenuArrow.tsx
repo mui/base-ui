@@ -45,7 +45,7 @@ export const MenuArrow = React.forwardRef(function MenuArrow(
       'aria-hidden': true,
       ...otherProps,
     },
-    customStyleHookMapping: popupStateMapping,
+    stateAttributesMapping: popupStateMapping,
   });
 
   return renderElement();

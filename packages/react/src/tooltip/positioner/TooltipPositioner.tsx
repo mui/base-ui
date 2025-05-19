@@ -80,7 +80,7 @@ export const TooltipPositioner = React.forwardRef(function TooltipPositioner(
     state,
     props: [positioner.props, elementProps],
     ref: [forwardedRef, setPositionerElement],
-    customStyleHookMapping: popupStateMapping,
+    stateAttributesMapping: popupStateMapping,
   });
 
   return (

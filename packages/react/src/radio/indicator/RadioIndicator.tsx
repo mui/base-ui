@@ -3,7 +3,7 @@ import * as React from 'react';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useRadioRootContext } from '../root/RadioRootContext';
-import { customStyleHookMapping } from '../utils/customStyleHookMapping';
+import { stateAttributesMapping } from '../utils/stateAttributesMapping';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useForkRef } from '../../utils/useForkRef';
 import { type TransitionStatus, useTransitionStatus } from '../../utils/useTransitionStatus';
@@ -43,7 +43,7 @@ export const RadioIndicator = React.forwardRef(function RadioIndicator(
     className,
     state,
     extraProps: otherProps,
-    customStyleHookMapping,
+    stateAttributesMapping,
   });
 
   useOpenChangeComplete({

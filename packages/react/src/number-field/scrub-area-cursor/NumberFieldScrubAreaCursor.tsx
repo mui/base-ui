@@ -9,7 +9,7 @@ import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import type { NumberFieldRoot } from '../root/NumberFieldRoot';
 import { ownerDocument } from '../../utils/owner';
 import { mergeProps } from '../../merge-props';
-import { styleHookMapping } from '../utils/styleHooks';
+import { stateAttributesMapping } from '../utils/stateAttributesMapping';
 import { useNumberFieldScrubAreaContext } from '../scrub-area/NumberFieldScrubAreaContext';
 
 /**
@@ -59,7 +59,7 @@ export const NumberFieldScrubAreaCursor = React.forwardRef(function NumberFieldS
     state,
     className,
     extraProps: otherProps,
-    customStyleHookMapping: styleHookMapping,
+    stateAttributesMapping: stateAttributesMapping,
   });
 
   if (!isScrubbing || isWebKit || isTouchInput || isPointerLockDenied) {

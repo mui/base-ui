@@ -4,12 +4,12 @@ import { useSelectPositionerContext } from '../positioner/SelectPositionerContex
 import { useSelectRootContext } from '../root/SelectRootContext';
 import type { BaseUIComponentProps } from '../../utils/types';
 import type { Align, Side } from '../../utils/useAnchorPositioning';
-import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
+import type { StateAttributesMapping } from '../../utils/mapStateAttributes';
 import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping';
-import { transitionStatusMapping } from '../../utils/styleHookMapping';
+import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
 import { useRenderElement } from '../../utils/useRenderElement';
 
-const customStyleHookMapping: CustomStyleHookMapping<SelectArrow.State> = {
+const stateAttributesMapping: StateAttributesMapping<SelectArrow.State> = {
   ...baseMapping,
   ...transitionStatusMapping,
 };
@@ -44,7 +44,7 @@ export const SelectArrow = React.forwardRef(function SelectArrow(
     state,
     ref: [arrowRef, forwardedRef],
     props: [{ style: arrowStyles, 'aria-hidden': true }, elementProps],
-    customStyleHookMapping,
+    stateAttributesMapping,
   });
 
   if (alignItemWithTriggerActive) {

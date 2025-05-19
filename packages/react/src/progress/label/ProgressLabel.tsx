@@ -4,7 +4,7 @@ import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { useProgressRootContext } from '../root/ProgressRootContext';
-import { progressStyleHookMapping } from '../root/styleHooks';
+import { progressMapping } from '../root/stateAttributesMapping';
 import type { ProgressRoot } from '../root/ProgressRoot';
 import type { BaseUIComponentProps } from '../../utils/types';
 
@@ -38,7 +38,7 @@ export const ProgressLabel = React.forwardRef(function ProgressLabel(
       },
       elementProps,
     ],
-    customStyleHookMapping: progressStyleHookMapping,
+    stateAttributesMapping: progressMapping,
   });
 
   return element;

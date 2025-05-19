@@ -12,13 +12,13 @@ import { mergeProps } from '../../merge-props';
 import { DEFAULT_STEP } from '../utils/constants';
 import { ARABIC_RE, HAN_RE, getNumberLocaleDetails, parseNumber } from '../utils/parse';
 import type { NumberFieldRoot } from '../root/NumberFieldRoot';
-import { styleHookMapping } from '../utils/styleHooks';
+import { stateAttributesMapping } from '../utils/stateAttributesMapping';
 import { useField } from '../../field/useField';
 import { useFormContext } from '../../form/FormContext';
 
-const customStyleHookMapping = {
+const stateAttributesMapping = {
   ...fieldValidityMapping,
-  ...styleHookMapping,
+  ...stateAttributesMapping,
 };
 
 const NAVIGATE_KEYS = new Set([
@@ -353,7 +353,7 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
     className,
     state,
     extraProps: otherProps,
-    customStyleHookMapping,
+    stateAttributesMapping,
   });
 
   return renderElement();

@@ -5,7 +5,7 @@ import { useSwitchRootContext } from '../root/SwitchRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import type { BaseUIComponentProps } from '../../utils/types';
-import { styleHookMapping } from '../styleHooks';
+import { stateAttributesMapping } from '../stateAttributesMapping';
 
 /**
  * The movable part of the switch that indicates whether the switch is on or off.
@@ -29,7 +29,7 @@ export const SwitchThumb = React.forwardRef(function SwitchThumb(
     className,
     state: extendedState,
     extraProps: other,
-    customStyleHookMapping: styleHookMapping,
+    stateAttributesMapping: stateAttributesMapping,
     ref: forwardedRef,
   });
 

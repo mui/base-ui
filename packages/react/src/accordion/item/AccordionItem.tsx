@@ -13,7 +13,7 @@ import { useCompositeListItem } from '../../composite/list/useCompositeListItem'
 import type { AccordionRoot } from '../root/AccordionRoot';
 import { useAccordionRootContext } from '../root/AccordionRootContext';
 import { AccordionItemContext } from './AccordionItemContext';
-import { accordionStyleHookMapping } from './styleHooks';
+import { accordionMapping } from './stateAttributesMapping';
 
 /**
  * Groups an accordion header with the corresponding panel.
@@ -119,7 +119,7 @@ export const AccordionItem = React.forwardRef(function AccordionItem(
     state,
     ref: mergedRef,
     props: elementProps,
-    customStyleHookMapping: accordionStyleHookMapping,
+    stateAttributesMapping: accordionMapping,
   });
 
   return (

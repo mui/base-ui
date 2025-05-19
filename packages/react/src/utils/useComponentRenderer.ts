@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { CustomStyleHookMapping } from './getStyleHookProps';
+import { StateAttributesMapping } from './mapStateAttributes';
 import { useRenderElementLazy } from './useRenderElement';
 import type { ComponentRenderFn, HTMLProps } from './types';
 
@@ -38,11 +38,11 @@ export interface ComponentRendererSettings<State, RenderedElementType extends El
   /**
    * A mapping of state to style hooks.
    */
-  customStyleHookMapping?: CustomStyleHookMapping<State>;
+  stateAttributesMapping?: StateAttributesMapping<State>;
   /**
    * If true, style hooks are generated.
    */
-  styleHooks?: boolean;
+  stateAttributesMapping?: boolean;
 }
 
 /**

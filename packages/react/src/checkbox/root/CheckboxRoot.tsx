@@ -3,7 +3,7 @@ import * as React from 'react';
 import { useCheckboxGroupContext } from '../../checkbox-group/CheckboxGroupContext';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { useCustomStyleHookMapping } from '../utils/useCustomStyleHookMapping';
+import { useStateAttributesMapping } from '../utils/useStateAttributesMapping';
 import type { FieldRoot } from '../../field/root/FieldRoot';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useCheckboxRoot } from './useCheckboxRoot';
@@ -90,7 +90,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     [fieldState, computedChecked, disabled, readOnly, required, computedIndeterminate],
   );
 
-  const customStyleHookMapping = useCustomStyleHookMapping(state);
+  const stateAttributesMapping = useStateAttributesMapping(state);
 
   const { renderElement } = useComponentRenderer({
     propGetter: getRootProps,
@@ -98,7 +98,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     ref: forwardedRef,
     state,
     className,
-    customStyleHookMapping,
+    stateAttributesMapping,
     extraProps: {
       ...otherProps,
       ...otherGroupProps,

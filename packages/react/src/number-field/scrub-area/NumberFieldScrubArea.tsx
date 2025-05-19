@@ -5,7 +5,7 @@ import { useNumberFieldRootContext } from '../root/NumberFieldRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useForkRef } from '../../utils/useForkRef';
 import type { NumberFieldRoot } from '../root/NumberFieldRoot';
-import { styleHookMapping } from '../utils/styleHooks';
+import { stateAttributesMapping } from '../utils/stateAttributesMapping';
 import { useScrub } from './useScrub';
 import { NumberFieldScrubAreaContext } from './NumberFieldScrubAreaContext';
 
@@ -45,7 +45,7 @@ export const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubAr
     state,
     className,
     extraProps: otherProps,
-    customStyleHookMapping: styleHookMapping,
+    stateAttributesMapping: stateAttributesMapping,
   });
 
   const contextValue: NumberFieldScrubAreaContext = React.useMemo(

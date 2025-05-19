@@ -3,7 +3,7 @@ import * as React from 'react';
 import { useMenuCheckboxItemContext } from '../checkbox-item/MenuCheckboxItemContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { BaseUIComponentProps } from '../../utils/types';
-import { itemMapping } from '../utils/styleHookMapping';
+import { itemMapping } from '../utils/stateAttributesMapping';
 import { TransitionStatus, useTransitionStatus } from '../../utils/useTransitionStatus';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useForkRef } from '../../utils/useForkRef';
@@ -51,7 +51,7 @@ export const MenuCheckboxItemIndicator = React.forwardRef(function MenuCheckboxI
     render: render || 'span',
     className,
     state,
-    customStyleHookMapping: itemMapping,
+    stateAttributesMapping: itemMapping,
     extraProps: {
       'aria-hidden': true,
       ...other,

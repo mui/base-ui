@@ -1,8 +1,8 @@
-import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
-import { transitionStatusMapping } from '../../utils/styleHookMapping';
+import type { StateAttributesMapping } from '../../utils/mapStateAttributes';
+import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
 import { MenuCheckboxItemDataAttributes } from '../checkbox-item/MenuCheckboxItemDataAttributes';
 
-export const itemMapping: CustomStyleHookMapping<{ checked: boolean }> = {
+export const itemMapping: StateAttributesMapping<{ checked: boolean }> = {
   checked(value): Record<string, string> {
     if (value) {
       return {

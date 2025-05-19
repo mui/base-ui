@@ -5,7 +5,7 @@ import { useOnMount } from '../../utils/useOnMount';
 import type { BaseUIComponentProps } from '../../utils/types';
 import type { TabsOrientation, TabsRoot } from '../root/TabsRoot';
 import { useTabsRootContext } from '../root/TabsRootContext';
-import { tabsStyleHookMapping } from '../root/styleHooks';
+import { tabsMapping } from '../root/stateAttributesMapping';
 import { useTabsListContext } from '../list/TabsListContext';
 import { ActiveTabPosition, ActiveTabSize, useTabsIndicator } from './useTabsIndicator';
 import { script as prehydrationScript } from './prehydrationScript.min';
@@ -66,8 +66,8 @@ export const TabsIndicator = React.forwardRef(function TabIndicator(
       'data-instance-id': !(isMounted && renderBeforeHydration) ? instanceId : undefined,
       suppressHydrationWarning: true,
     },
-    customStyleHookMapping: {
-      ...tabsStyleHookMapping,
+    stateAttributesMapping: {
+      ...tabsMapping,
       selectedTabPosition: noop,
       selectedTabSize: noop,
     },

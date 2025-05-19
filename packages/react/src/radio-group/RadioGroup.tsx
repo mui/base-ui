@@ -79,7 +79,7 @@ export const RadioGroup = React.forwardRef(function RadioGroup(
     className,
     state,
     extraProps: otherProps,
-    customStyleHookMapping: fieldValidityMapping,
+    stateAttributesMapping: fieldValidityMapping,
   });
 
   return (

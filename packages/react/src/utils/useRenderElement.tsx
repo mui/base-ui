@@ -1,6 +1,6 @@
 import * as React from 'react';
 import type { BaseUIComponentProps, ComponentRenderFn, HTMLProps } from './types';
-import { CustomStyleHookMapping, getStyleHookProps } from './getStyleHookProps';
+import { StateAttributesMapping, mapStateAttributes } from './mapStateAttributes';
 import { useForkRef, useForkRefN } from './useForkRef';
 import { resolveClassName } from './resolveClassName';
 import { isReactVersionAtLeast } from './reactVersion';
@@ -67,24 +67,25 @@ function useRenderElementProps<
     ref,
     props,
     disableStyleHooks,
-    customStyleHookMapping,
+    stateAttributesMapping,
   } = params;
 
   const className = resolveClassName(classNameProp, state);
 
-  let styleHooks: Record<string, string> | undefined;
+  let stateAttributesMapping: Record<string, string> | undefined;
   if (disableStyleHooks !== true) {
     // SAFETY: We use typings to ensure `disableStyleHooks` is either always set or
     // always unset, so this `if` block is stable across renders.
     /* eslint-disable-next-line react-hooks/rules-of-hooks */
-    styleHooks = React.useMemo(
-      () => getStyleHookProps(state, customStyleHookMapping),
-      [state, customStyleHookMapping],
+    stateAttributesMapping = React.useMemo(
+      () => mapStateAttributes(state, stateAttributesMapping),
+      [state, stateAttributesMapping],
     );
   }
 
   const outProps: React.HTMLAttributes<any> & React.RefAttributes<any> = propGetter(
-    mergeObjects(styleHooks, Array.isArray(props) ? mergePropsN(props) : props) ?? EMPTY_OBJECT,
+    mergeObjects(stateAttributesMapping, Array.isArray(props) ? mergePropsN(props) : props) ??
+      EMPTY_OBJECT,
   );
 
   // SAFETY: The `useForkRef` functions use a single hook to store the same value,
@@ -179,8 +180,8 @@ export namespace useRenderElement {
     /**
      * A mapping of state to style hooks.
      */
-    customStyleHookMapping?: CustomStyleHookMapping<State>;
-  } /* This typing ensures `disableStyleHookMapping` is constantly defined or undefined */ & (
+    stateAttributesMapping?: StateAttributesMapping<State>;
+  } /* This typing ensures `disableMapping` is constantly defined or undefined */ & (
     | {
         /**
          * Disable style hook mapping.
