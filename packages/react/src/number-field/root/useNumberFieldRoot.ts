@@ -255,7 +255,7 @@ export function useNumberFieldRoot(
 
   useModernLayoutEffect(
     function setDynamicInputModeForIOS() {
-      if (!isIOS()) {
+      if (!isIOS) {
         return;
       }
 

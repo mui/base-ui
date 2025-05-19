@@ -142,7 +142,7 @@ export function useScrub(params: useScrub.Parameters) {
             onScrubbingChange(true, event.nativeEvent);
 
             // WebKit causes significant layout shift with the native message, so we can't use it.
-            if (!isTouch && !isWebKit()) {
+            if (!isTouch && !isWebKit) {
               try {
                 // Avoid non-deterministic errors in testing environments. This error sometimes
                 // appears:
