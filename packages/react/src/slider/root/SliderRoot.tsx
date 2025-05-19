@@ -329,7 +329,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
         id,
         role: 'group',
       },
-      fieldControlValidation.getValidationProps(elementProps),
+      fieldControlValidation.getValidationProps,
       elementProps,
     ],
     customStyleHookMapping: sliderStyleHookMapping,
