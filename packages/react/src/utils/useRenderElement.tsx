@@ -66,25 +66,25 @@ function useRenderElementProps<
     state = EMPTY_OBJECT as State,
     ref,
     props,
-    disableStyleHooks,
+    disableStateAttributesMapping,
     stateAttributesMapping,
   } = params;
 
   const className = resolveClassName(classNameProp, state);
 
-  let stateAttributesMapping: Record<string, string> | undefined;
-  if (disableStyleHooks !== true) {
-    // SAFETY: We use typings to ensure `disableStyleHooks` is either always set or
+  let dataAttributeProps: Record<string, string> | undefined;
+  if (disableStateAttributesMapping !== true) {
+    // SAFETY: We use typings to ensure `disableStateAttributesMapping` is either always set or
     // always unset, so this `if` block is stable across renders.
     /* eslint-disable-next-line react-hooks/rules-of-hooks */
-    stateAttributesMapping = React.useMemo(
+    dataAttributeProps = React.useMemo(
       () => mapStateAttributes(state, stateAttributesMapping),
       [state, stateAttributesMapping],
     );
   }
 
   const outProps: React.HTMLAttributes<any> & React.RefAttributes<any> = propGetter(
-    mergeObjects(stateAttributesMapping, Array.isArray(props) ? mergePropsN(props) : props) ??
+    mergeObjects(dataAttributeProps, Array.isArray(props) ? mergePropsN(props) : props) ??
       EMPTY_OBJECT,
   );
 
@@ -186,13 +186,13 @@ export namespace useRenderElement {
         /**
          * Disable style hook mapping.
          */
-        disableStyleHooks: true;
+        disableStateAttributesMapping: true;
       }
     | {
         /**
          * Disable style hook mapping.
          */
-        disableStyleHooks?: false;
+        disableStateAttributesMapping?: false;
       }
   );
 

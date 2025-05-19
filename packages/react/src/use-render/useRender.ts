@@ -13,9 +13,9 @@ export function useRender<
   RenderedElementType extends Element,
 >(params: useRender.Parameters<State, RenderedElementType>): useRender.ReturnValue {
   const renderParams = params as useRender.Parameters<State, RenderedElementType> & {
-    disableStyleHooks: boolean;
+    disableStateAttributesMapping: boolean;
   };
-  renderParams.disableStyleHooks = true;
+  renderParams.disableStateAttributesMapping = true;
 
   return useRenderElement(undefined, renderParams, renderParams);
 }
