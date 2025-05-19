@@ -13,7 +13,7 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
     buttonRef: externalRef,
     disabled = false,
     focusableWhenDisabled,
-    tabIndex,
+    tabIndex = 0,
     type = 'button',
     elementName: elementNameProp,
   } = parameters;
