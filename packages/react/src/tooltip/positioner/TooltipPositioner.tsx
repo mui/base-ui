@@ -76,7 +76,7 @@ export const TooltipPositioner = React.forwardRef(function TooltipPositioner(
     [state, positioner.arrowRef, positioner.arrowStyles, positioner.arrowUncentered],
   );
 
-  const renderElement = useRenderElement('div', componentProps, {
+  const element = useRenderElement('div', componentProps, {
     state,
     props: [positioner.props, elementProps],
     ref: [forwardedRef, setPositionerElement],
@@ -85,7 +85,7 @@ export const TooltipPositioner = React.forwardRef(function TooltipPositioner(
 
   return (
     <TooltipPositionerContext.Provider value={contextValue}>
-      {renderElement()}
+      {element}
     </TooltipPositionerContext.Provider>
   );
 });

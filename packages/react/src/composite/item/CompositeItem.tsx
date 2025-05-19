@@ -21,13 +21,13 @@ export function CompositeItem<Metadata>(componentProps: CompositeItem.Props<Meta
     [index, highlightedIndex],
   );
 
-  const renderElement = useRenderElement('div', componentProps, {
+  const element = useRenderElement('div', componentProps, {
     state,
     ref: [itemRef, ref],
     props: [props, elementProps],
   });
 
-  return renderElement();
+  return element;
 }
 
 export namespace CompositeItem {

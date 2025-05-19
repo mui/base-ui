@@ -32,7 +32,16 @@ import { SliderThumbDataAttributes } from './SliderThumbDataAttributes';
 const PAGE_UP = 'PageUp';
 const PAGE_DOWN = 'PageDown';
 
-const ALL_KEYS = [ARROW_UP, ARROW_DOWN, ARROW_LEFT, ARROW_RIGHT, HOME, END, PAGE_UP, PAGE_DOWN];
+const ALL_KEYS = new Set([
+  ARROW_UP,
+  ARROW_DOWN,
+  ARROW_LEFT,
+  ARROW_RIGHT,
+  HOME,
+  END,
+  PAGE_UP,
+  PAGE_DOWN,
+]);
 
 function defaultRender(
   props: React.ComponentPropsWithRef<'div'>,
@@ -95,7 +104,6 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     getAriaLabel: getAriaLabelProp,
     getAriaValueText: getAriaValueTextProp,
     id: idProp,
-    inputId: inputIdProp,
     onBlur: onBlurProp,
     onFocus: onFocusProp,
     onKeyDown: onKeyDownProp,
@@ -105,7 +113,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
   } = componentProps;
 
   const id = useBaseUiId(idProp);
-  const inputId = useBaseUiId(inputIdProp);
+  const inputId = `${id}-input`;
 
   const render = renderProp ?? defaultRender;
 
@@ -220,10 +228,10 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
         }
       },
       onKeyDown(event: React.KeyboardEvent) {
-        if (!ALL_KEYS.includes(event.key)) {
+        if (!ALL_KEYS.has(event.key)) {
           return;
         }
-        if (COMPOSITE_KEYS.includes(event.key)) {
+        if (COMPOSITE_KEYS.has(event.key)) {
           event.stopPropagation();
         }
 
@@ -360,10 +368,11 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
 
   const children = thumbProps.children ?? renderPropsChildren;
 
-  return React.cloneElement(render, {
-    ...mergeProps(
+  return React.cloneElement(
+    render,
+    mergeProps(
+      thumbProps,
       {
-        ...thumbProps,
         children: (
           <React.Fragment>
             {/* @ts-ignore */}
@@ -373,10 +382,11 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
         ),
       },
       otherRenderProps,
+      {
+        ref: thumbProps.ref,
+      },
     ),
-    // @ts-ignore
-    ref: thumbProps.ref,
-  });
+  );
 });
 
 export interface ThumbMetadata {
@@ -413,7 +423,6 @@ export namespace SliderThumb {
      * @type {((formattedValue: string, value: number, index: number) => string) | null}
      */
     getAriaValueText?: ((formattedValue: string, value: number, index: number) => string) | null;
-    inputId?: string;
     /**
      * Allows you to replace the component’s HTML element
      * with a different tag, or compose it with another component.
