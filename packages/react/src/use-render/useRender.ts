@@ -1,7 +1,7 @@
 import * as React from 'react';
 import type { ComponentRenderFn } from '../utils/types';
 import { HTMLProps } from '../utils/types';
-import { useRenderElement, useRenderElementLazy } from '../utils/useRenderElement';
+import { useRenderElement } from '../utils/useRenderElement';
 
 /**
  * Renders a Base UI element.
