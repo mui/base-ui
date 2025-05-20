@@ -105,7 +105,6 @@ export function useMenuTrigger(parameters: useMenuTrigger.Parameters): useMenuTr
         },
         externalProps,
         getButtonProps,
-        menuParent.type === 'menubar' ? { tabIndex: undefined } : {},
       );
     },
     [
@@ -114,7 +113,6 @@ export function useMenuTrigger(parameters: useMenuTrigger.Parameters): useMenuTr
       open,
       allowMouseUpTriggerRef,
       allowMouseUpTriggerTimeout,
-      menuParent.type,
       handleMouseUp,
     ],
   );
