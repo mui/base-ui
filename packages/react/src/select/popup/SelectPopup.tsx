@@ -9,6 +9,7 @@ import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 import { useSelectPopup } from './useSelectPopup';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import { useSelectPositionerContext } from '../positioner/SelectPositionerContext';
+import { STYLE_DISABLE_SCROLLBAR } from '../../utils/styles';
 import { transitionStatusMapping } from '../../utils/styleHookMapping';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useRenderElement } from '../../utils/useRenderElement';
@@ -63,28 +64,20 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
     props: [
       popupProps,
       props,
-      transitionStatus === 'starting' ? { style: { transition: 'none' } } : {},
+      {
+        style: transitionStatus === 'starting' ? { transition: 'none' } : undefined,
+        className:
+          id && positioner.alignItemWithTriggerActive
+            ? STYLE_DISABLE_SCROLLBAR.className
+            : undefined,
+      },
       elementProps,
     ],
   });
 
-  const popupSelector = `[data-id="${id}-popup"]`;
-
-  const html = React.useMemo(
-    () => ({
-      __html: `${popupSelector}{scrollbar-width:none}${popupSelector}::-webkit-scrollbar{display:none}`,
-    }),
-    [popupSelector],
-  );
-
   return (
     <React.Fragment>
-      {id && positioner.alignItemWithTriggerActive && (
-        <style
-          // eslint-disable-next-line react/no-danger
-          dangerouslySetInnerHTML={html}
-        />
-      )}
+      {STYLE_DISABLE_SCROLLBAR.element}
       <FloatingFocusManager context={positioner.context} modal={false} disabled={!mounted}>
         {element}
       </FloatingFocusManager>

@@ -1,0 +1,8 @@
+export const STYLE_DISABLE_SCROLLBAR = {
+  className: 'base-ui-disable-scrollbar',
+  element: (
+    <style href="/base-ui-disable-scrollbar">
+      {`.base-ui-disable-scrollbar{scrollbar-width:none}.base-ui-disable-scrollbar::-webkit-scrollbar{display:none}`}
+    </style>
+  ),
+};
