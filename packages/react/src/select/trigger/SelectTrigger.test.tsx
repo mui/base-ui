@@ -70,7 +70,7 @@ describe('<Select.Trigger />', () => {
     });
   });
 
-  describe('style hooks', () => {
+  describe('state attribute mappings', () => {
     it('should have the data-popup-open and data-pressed attributes when open', async () => {
       await render(
         <Select.Root>

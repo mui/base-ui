@@ -126,7 +126,7 @@ describe('<RadioGroup />', () => {
     expect(item).to.have.attribute('aria-checked', 'true');
   });
 
-  it('should place the style hooks on the root and subcomponents', async () => {
+  it('should place the state attribute mappings on the root and subcomponents', async () => {
     await render(
       <RadioGroup defaultValue="1" disabled readOnly required>
         <Radio.Root value="1" data-testid="item">
@@ -338,7 +338,7 @@ describe('<RadioGroup />', () => {
     });
   });
 
-  describe('style hooks', () => {
+  describe('state attribute mappings', () => {
     it('should apply data-checked and data-unchecked to radio root and indicator', async () => {
       await render(
         <RadioGroup>

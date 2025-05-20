@@ -178,19 +178,19 @@ export namespace useRenderElement {
           | ((props: RenderFunctionProps<TagName>) => RenderFunctionProps<TagName>)
         >;
     /**
-     * A mapping of state to style hooks.
+     * A mapping of state to data-attributes.
      */
     stateAttributesMapping?: StateAttributesMapping<State>;
   } /* This typing ensures `disableMapping` is constantly defined or undefined */ & (
     | {
         /**
-         * Disable style hook mapping.
+         * Disable state mapping.
          */
         disableStateAttributesMapping: true;
       }
     | {
         /**
-         * Disable style hook mapping.
+         * Disable state mapping.
          */
         disableStateAttributesMapping?: false;
       }

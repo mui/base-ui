@@ -193,7 +193,7 @@ describe('<Checkbox.Root />', () => {
     expect(checkbox).to.have.attribute('aria-checked', 'true');
   });
 
-  it('should place the style hooks on the root and the indicator', async () => {
+  it('should place the state attribute mappings on the root and the indicator', async () => {
     const { getAllByRole, setProps } = await render(
       <Checkbox.Root defaultChecked disabled readOnly required>
         <Checkbox.Indicator />

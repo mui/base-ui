@@ -36,7 +36,7 @@ export interface ComponentRendererSettings<State, RenderedElementType extends El
    */
   extraProps?: Record<string, any>;
   /**
-   * A mapping of state to style hooks.
+   * A mapping of state to data-attributes.
    */
   stateAttributesMapping?: StateAttributesMapping<State>;
 }
