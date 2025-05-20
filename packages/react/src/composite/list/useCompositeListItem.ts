@@ -6,6 +6,7 @@ import { useCompositeListContext } from './CompositeListContext';
 export interface UseCompositeListItemParameters<Metadata> {
   label?: string | null;
   metadata?: Metadata;
+  getItemText?: () => string | null;
 }
 
 interface UseCompositeListItemReturnValue {
@@ -19,7 +20,7 @@ interface UseCompositeListItemReturnValue {
 export function useCompositeListItem<Metadata>(
   params: UseCompositeListItemParameters<Metadata> = {},
 ): UseCompositeListItemReturnValue {
-  const { label, metadata } = params;
+  const { label, metadata, getItemText } = params;
 
   const { register, unregister, map, elementsRef, labelsRef } = useCompositeListContext();
 
@@ -33,13 +34,23 @@ export function useCompositeListItem<Metadata>(
 
       if (index !== null && node !== null) {
         elementsRef.current[index] = node;
+
         if (labelsRef) {
           const isLabelDefined = label !== undefined;
-          labelsRef.current[index] = isLabelDefined ? label : (node?.textContent ?? null);
+          let textContent = node.textContent;
+
+          if (getItemText) {
+            const itemText = getItemText();
+            if (typeof itemText === 'string') {
+              textContent = itemText;
+            }
+          }
+
+          labelsRef.current[index] = isLabelDefined ? label : textContent;
         }
       }
     },
-    [index, elementsRef, labelsRef, label],
+    [index, elementsRef, labelsRef, label, getItemText],
   );
 
   useModernLayoutEffect(() => {
