@@ -49,14 +49,14 @@ export const CollapsibleTrigger = React.forwardRef(function CollapsibleTrigger(
     [panelId, disabled, open, handleTrigger],
   );
 
-  const renderElement = useRenderElement('button', componentProps, {
+  const element = useRenderElement('button', componentProps, {
     state,
     ref: [forwardedRef, buttonRef],
     props: [props, elementProps, getButtonProps],
     customStyleHookMapping: styleHookMapping,
   });
 
-  return renderElement();
+  return element;
 });
 
 export namespace CollapsibleTrigger {

@@ -20,14 +20,8 @@ const InnerSelectItemText = React.memo(
     const { className, render, selected, selectedItemTextRef, indexRef, ...elementProps } =
       componentProps;
 
-    const mergedRef = useForkRef<HTMLElement>(forwardedRef);
-
-    const ref = React.useCallback(
+    const localRef = React.useCallback(
       (node: HTMLElement | null) => {
-        if (mergedRef) {
-          mergedRef(node);
-        }
-
         // Wait for the DOM indices to be set.
         queueMicrotask(() => {
           if (selected || (selectedItemTextRef.current === null && indexRef.current === 0)) {
@@ -35,15 +29,15 @@ const InnerSelectItemText = React.memo(
           }
         });
       },
-      [mergedRef, selected, selectedItemTextRef, indexRef],
+      [selected, selectedItemTextRef, indexRef],
     );
 
-    const renderElement = useRenderElement('div', componentProps, {
-      ref,
+    const element = useRenderElement('div', componentProps, {
+      ref: useForkRef<HTMLElement>(localRef, forwardedRef),
       props: elementProps,
     });
 
-    return renderElement();
+    return element;
   }),
 );
 
@@ -59,11 +53,10 @@ export const SelectItemText = React.forwardRef(function SelectItemText(
 ) {
   const { selected, indexRef } = useSelectItemContext();
   const { selectedItemTextRef } = useSelectRootContext();
-  const mergedRef = useForkRef<HTMLElement>(forwardedRef);
 
   return (
     <InnerSelectItemText
-      ref={mergedRef}
+      ref={forwardedRef}
       selected={selected}
       selectedItemTextRef={selectedItemTextRef}
       indexRef={indexRef}
