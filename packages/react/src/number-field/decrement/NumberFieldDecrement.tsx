@@ -74,17 +74,18 @@ export const NumberFieldDecrement = React.forwardRef(function NumberFieldDecreme
     disabled,
   });
 
-  const renderElement = useRenderElement('button', componentProps, {
-    state,
+  const element = useRenderElement('button', componentProps, {
     ref: [forwardedRef, buttonRef],
+    state,
     props: [props, elementProps, getButtonProps],
     customStyleHookMapping: styleHookMapping,
   });
 
-  return renderElement();
+  return element;
 });
 
 export namespace NumberFieldDecrement {
   export interface State extends NumberFieldRoot.State {}
+
   export interface Props extends BaseUIComponentProps<'button', State> {}
 }

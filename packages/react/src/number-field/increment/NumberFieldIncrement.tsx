@@ -14,7 +14,6 @@ import { styleHookMapping } from '../utils/styleHooks';
  *
  * Documentation: [Base UI Number Field](https://base-ui.com/react/components/number-field)
  */
-
 export const NumberFieldIncrement = React.forwardRef(function NumberFieldIncrement(
   componentProps: NumberFieldIncrement.Props,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
@@ -75,17 +74,18 @@ export const NumberFieldIncrement = React.forwardRef(function NumberFieldIncreme
     disabled,
   });
 
-  const renderElement = useRenderElement('button', componentProps, {
-    state,
+  const element = useRenderElement('button', componentProps, {
     ref: [forwardedRef, buttonRef],
+    state,
     props: [props, elementProps, getButtonProps],
     customStyleHookMapping: styleHookMapping,
   });
 
-  return renderElement();
+  return element;
 });
 
 export namespace NumberFieldIncrement {
   export interface State extends NumberFieldRoot.State {}
+
   export interface Props extends BaseUIComponentProps<'button', State> {}
 }

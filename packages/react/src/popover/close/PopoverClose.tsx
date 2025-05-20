@@ -18,7 +18,7 @@ export const PopoverClose = React.forwardRef(function PopoverClose(
 
   const { setOpen } = usePopoverRootContext();
 
-  const renderElement = useRenderElement('button', props, {
+  const element = useRenderElement('button', props, {
     ref: forwardedRef,
     props: [
       {
@@ -30,7 +30,7 @@ export const PopoverClose = React.forwardRef(function PopoverClose(
     ],
   });
 
-  return renderElement();
+  return element;
 });
 
 export namespace PopoverClose {
