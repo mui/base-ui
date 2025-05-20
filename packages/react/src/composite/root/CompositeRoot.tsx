@@ -65,7 +65,7 @@ export function CompositeRoot<Metadata extends {}>(componentProps: CompositeRoot
     },
   );
 
-  const renderElement = useRenderElement('div', componentProps, {
+  const element = useRenderElement('div', componentProps, {
     state: COMPOSITE_ROOT_STATE,
     props: [props, elementProps],
   });
@@ -78,7 +78,7 @@ export function CompositeRoot<Metadata extends {}>(componentProps: CompositeRoot
   return (
     <CompositeRootContext.Provider value={contextValue}>
       <CompositeList<Metadata> elementsRef={elementsRef} onMapChange={onMapChange}>
-        {renderElement()}
+        {element}
       </CompositeList>
     </CompositeRootContext.Provider>
   );

@@ -200,7 +200,7 @@ export const ScrollAreaRoot = React.forwardRef(function ScrollAreaRoot(
     },
   };
 
-  const renderElement = useRenderElement('div', componentProps, {
+  const element = useRenderElement('div', componentProps, {
     ref: forwardedRef,
     props: [props, elementProps],
   });
@@ -274,7 +274,7 @@ export const ScrollAreaRoot = React.forwardRef(function ScrollAreaRoot(
           dangerouslySetInnerHTML={html}
         />
       )}
-      {renderElement()}
+      {element}
     </ScrollAreaRootContext.Provider>
   );
 });

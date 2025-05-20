@@ -37,7 +37,7 @@ export const ScrollAreaContent = React.forwardRef(function ScrollAreaContent(
     };
   }, [computeThumbPosition]);
 
-  const renderElement = useRenderElement('div', componentProps, {
+  const element = useRenderElement('div', componentProps, {
     ref: [forwardedRef, contentWrapperRef],
     props: [
       {
@@ -50,7 +50,7 @@ export const ScrollAreaContent = React.forwardRef(function ScrollAreaContent(
     ],
   });
 
-  return renderElement();
+  return element;
 });
 
 export namespace ScrollAreaContent {

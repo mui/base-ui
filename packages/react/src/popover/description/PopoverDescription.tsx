@@ -29,12 +29,12 @@ export const PopoverDescription = React.forwardRef(function PopoverDescription(
     };
   }, [setDescriptionId, id]);
 
-  const renderElement = useRenderElement('p', componentProps, {
+  const element = useRenderElement('p', componentProps, {
     ref: forwardedRef,
     props: [{ id }, elementProps],
   });
 
-  return renderElement();
+  return element;
 });
 
 export namespace PopoverDescription {

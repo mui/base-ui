@@ -47,7 +47,7 @@ export const ToastTitle = React.forwardRef(function ToastTitle(
     [toast.type],
   );
 
-  const renderElement = useRenderElement('h2', componentProps, {
+  const element = useRenderElement('h2', componentProps, {
     ref: forwardedRef,
     state,
     props: {
@@ -61,7 +61,7 @@ export const ToastTitle = React.forwardRef(function ToastTitle(
     return null;
   }
 
-  return renderElement();
+  return element;
 });
 
 export namespace ToastTitle {

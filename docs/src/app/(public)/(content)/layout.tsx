@@ -3,6 +3,7 @@ import type { Metadata, Viewport } from 'next/types';
 import * as SideNav from 'docs/src/components/SideNav';
 import * as QuickNav from 'docs/src/components/QuickNav/QuickNav';
 import { Header } from 'docs/src/components/Header';
+import { MAIN_CONTENT_ID } from 'docs/src/components/SkipNav';
 import { nav } from 'docs/src/nav';
 import './layout.css';
 
@@ -17,7 +18,8 @@ export default function Layout({ children }: React.PropsWithChildren) {
             <SideNav.List>
               {section.links.map((link) => (
                 <SideNav.Item key={link.href} href={link.href}>
-                  {link.label}
+                  <SideNav.Label>{link.label}</SideNav.Label>
+                  {link.isNew && <SideNav.Badge>New</SideNav.Badge>}
                 </SideNav.Item>
               ))}
             </SideNav.List>
@@ -25,7 +27,7 @@ export default function Layout({ children }: React.PropsWithChildren) {
         ))}
       </SideNav.Root>
 
-      <main className="ContentLayoutMain">
+      <main className="ContentLayoutMain" id={MAIN_CONTENT_ID}>
         <QuickNav.Container>{children}</QuickNav.Container>
       </main>
     </div>

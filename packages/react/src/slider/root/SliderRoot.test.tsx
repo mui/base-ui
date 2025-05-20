@@ -108,7 +108,7 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
     expect(screen.getByRole('slider')).to.have.attribute('aria-valuenow', '30');
   });
 
-  it.skipIf(isWebKit())('should not break when initial value is out of range', async () => {
+  it.skipIf(isWebKit)('should not break when initial value is out of range', async () => {
     const { getByTestId } = await render(<TestRangeSlider value={[19, 41]} min={20} max={40} />);
 
     const sliderControl = getByTestId('control');
@@ -179,7 +179,7 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
     });
   });
 
-  describe.skipIf(isJSDOM || isWebKit())('rtl', () => {
+  describe.skipIf(isJSDOM || isWebKit)('rtl', () => {
     it('should handle RTL', async () => {
       const handleValueChange = spy();
       const { getByTestId } = await render(
@@ -240,7 +240,7 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
     });
 
     // TODO: Don't skip once a fix for https://github.com/jsdom/jsdom/issues/3029 is released.
-    it.skipIf(isJSDOM || isWebKit())(
+    it.skipIf(isJSDOM || isWebKit)(
       'should not respond to drag events after becoming disabled',
       async () => {
         const { getByRole, setProps, getByTestId } = await render(
@@ -276,7 +276,7 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
     );
 
     // TODO: Don't skip once a fix for https://github.com/jsdom/jsdom/issues/3029 is released.
-    it.skipIf(isJSDOM || isWebKit())('should not respond to drag events if disabled', async () => {
+    it.skipIf(isJSDOM || isWebKit)('should not respond to drag events if disabled', async () => {
       const { getByRole, getByTestId } = await render(
         <TestSlider defaultValue={21} data-testid="slider-root" disabled />,
       );
@@ -341,7 +341,7 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
       },
     );
 
-    it.skipIf(isJSDOM || isWebKit())('should report the right position', async () => {
+    it.skipIf(isJSDOM || isWebKit)('should report the right position', async () => {
       const handleValueChange = spy();
       const { getByTestId } = await render(
         <TestSlider orientation="vertical" defaultValue={20} onValueChange={handleValueChange} />,
@@ -396,7 +396,7 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
       expect(slider).to.have.attribute('aria-valuenow', '1e-7');
     });
 
-    it.skipIf(isJSDOM || isWebKit())('should round value to step precision', async () => {
+    it.skipIf(isJSDOM || isWebKit)('should round value to step precision', async () => {
       const { getByRole, getByTestId } = await render(
         <TestSlider defaultValue={0.2} min={0} max={1} step={0.1} />,
       );
@@ -435,7 +435,7 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
       expect(slider).to.have.attribute('aria-valuenow', '0.4');
     });
 
-    it.skipIf(isJSDOM || isWebKit())(
+    it.skipIf(isJSDOM || isWebKit)(
       'should not fail to round value to step precision when step is very small',
       async () => {
         const { getByRole, getByTestId } = await render(
@@ -471,7 +471,7 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
       },
     );
 
-    it.skipIf(isJSDOM || isWebKit())(
+    it.skipIf(isJSDOM || isWebKit)(
       'should not fail to round value to step precision when step is very small and negative',
       async () => {
         const { getByRole, getByTestId } = await render(
@@ -535,7 +535,7 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
       expect(slider).to.have.attribute('aria-valuenow', String(MAX));
     });
 
-    it.skipIf(isJSDOM || isWebKit())('should reach right edge value', async () => {
+    it.skipIf(isJSDOM || isWebKit)('should reach right edge value', async () => {
       const { getByRole, getByTestId } = await render(
         <TestSlider defaultValue={90} min={6} max={108} step={10} />,
       );
@@ -707,7 +707,7 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
       expect(handleValueCommitted.callCount).to.equal(2);
     });
 
-    it.skipIf(isJSDOM || isWebKit())('should support touch events', async () => {
+    it.skipIf(isJSDOM || isWebKit)('should support touch events', async () => {
       const handleValueChange = spy();
       const { getByTestId } = await render(
         <TestRangeSlider defaultValue={[20, 30]} onValueChange={handleValueChange} />,
@@ -767,7 +767,7 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
       expect(handleValueChange.args[1][0]).to.deep.equal([22, 30]);
     });
 
-    it.skipIf(isJSDOM || isWebKit())(
+    it.skipIf(isJSDOM || isWebKit)(
       'should only listen to changes from the same touchpoint',
       async () => {
         const handleValueChange = spy();
@@ -859,7 +859,7 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
       expect(handleValueChange.callCount).to.equal(2);
     });
 
-    it.skipIf(isWebKit())('should focus the slider when touching', async () => {
+    it.skipIf(isWebKit)('should focus the slider when touching', async () => {
       const { getByRole, getByTestId } = await render(<TestSlider defaultValue={30} />);
       const slider = getByRole('slider');
       const sliderControl = getByTestId('control');
@@ -894,7 +894,7 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
       expect(slider).toHaveFocus();
     });
 
-    it.skipIf(isWebKit())('should not override the event.target on touch events', async () => {
+    it.skipIf(isWebKit)('should not override the event.target on touch events', async () => {
       const handleValueChange = spy();
       const handleNativeEvent = spy();
       const handleEvent = spy();
@@ -967,7 +967,7 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
     });
   });
 
-  describe.skipIf(isWebKit())('dragging state', () => {
+  describe.skipIf(isWebKit)('dragging state', () => {
     it('should not apply data-dragging for click modality', async () => {
       const { getByTestId } = await render(<TestSlider defaultValue={90} />);
 

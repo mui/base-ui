@@ -32,7 +32,16 @@ import { SliderThumbDataAttributes } from './SliderThumbDataAttributes';
 const PAGE_UP = 'PageUp';
 const PAGE_DOWN = 'PageDown';
 
-const ALL_KEYS = [ARROW_UP, ARROW_DOWN, ARROW_LEFT, ARROW_RIGHT, HOME, END, PAGE_UP, PAGE_DOWN];
+const ALL_KEYS = new Set([
+  ARROW_UP,
+  ARROW_DOWN,
+  ARROW_LEFT,
+  ARROW_RIGHT,
+  HOME,
+  END,
+  PAGE_UP,
+  PAGE_DOWN,
+]);
 
 function defaultRender(
   props: React.ComponentPropsWithRef<'div'>,
@@ -219,10 +228,10 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
         }
       },
       onKeyDown(event: React.KeyboardEvent) {
-        if (!ALL_KEYS.includes(event.key)) {
+        if (!ALL_KEYS.has(event.key)) {
           return;
         }
-        if (COMPOSITE_KEYS.includes(event.key)) {
+        if (COMPOSITE_KEYS.has(event.key)) {
           event.stopPropagation();
         }
 
@@ -359,10 +368,11 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
 
   const children = thumbProps.children ?? renderPropsChildren;
 
-  return React.cloneElement(render, {
-    ...mergeProps(
+  return React.cloneElement(
+    render,
+    mergeProps(
+      thumbProps,
       {
-        ...thumbProps,
         children: (
           <React.Fragment>
             {/* @ts-ignore */}
@@ -372,10 +382,11 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
         ),
       },
       otherRenderProps,
+      {
+        ref: thumbProps.ref,
+      },
     ),
-    // @ts-ignore
-    ref: thumbProps.ref,
-  });
+  );
 });
 
 export interface ThumbMetadata {

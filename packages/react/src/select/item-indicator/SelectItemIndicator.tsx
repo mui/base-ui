@@ -33,7 +33,7 @@ export const SelectItemIndicator = React.forwardRef(function SelectItemIndicator
     [selected, transitionStatus],
   );
 
-  const renderElement = useRenderElement('span', componentProps, {
+  const element = useRenderElement('span', componentProps, {
     ref: [forwardedRef, indicatorRef],
     state,
     props: [
@@ -62,7 +62,7 @@ export const SelectItemIndicator = React.forwardRef(function SelectItemIndicator
     return null;
   }
 
-  return renderElement();
+  return element;
 });
 
 export namespace SelectItemIndicator {

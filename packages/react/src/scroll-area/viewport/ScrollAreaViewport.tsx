@@ -219,7 +219,7 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
     },
   };
 
-  const renderElement = useRenderElement('div', componentProps, {
+  const element = useRenderElement('div', componentProps, {
     ref: [forwardedRef, viewportRef],
     props: [props, elementProps],
   });
@@ -233,7 +233,7 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
 
   return (
     <ScrollAreaViewportContext.Provider value={contextValue}>
-      {renderElement()}
+      {element}
     </ScrollAreaViewportContext.Provider>
   );
 });
