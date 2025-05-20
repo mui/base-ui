@@ -66,10 +66,9 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
       props,
       {
         style: transitionStatus === 'starting' ? { transition: 'none' } : undefined,
-        className:
-          id && positioner.alignItemWithTriggerActive
-            ? STYLE_DISABLE_SCROLLBAR.className
-            : undefined,
+        className: positioner.alignItemWithTriggerActive
+          ? STYLE_DISABLE_SCROLLBAR.className
+          : undefined,
       },
       elementProps,
     ],
