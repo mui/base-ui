@@ -111,6 +111,46 @@ describe('<Field.Root />', () => {
       });
     });
 
+    it('runs after native validations', async () => {
+      await render(
+        <Field.Root validate={() => 'custom error'}>
+          <Field.Control required />
+          <Field.Error match="valueMissing">value missing</Field.Error>
+          <Field.Error match="customError" />
+        </Field.Root>,
+      );
+
+      expect(screen.queryByText('value missing')).to.equal(null);
+      expect(screen.queryByText('custom error')).to.equal(null);
+
+      const input = screen.getByRole<HTMLInputElement>('textbox');
+
+      fireEvent.focus(input);
+      fireEvent.change(input, { target: { value: 'a' } });
+      fireEvent.change(input, { target: { value: '' } });
+      fireEvent.blur(input);
+
+      await flushMicrotasks();
+
+      await waitFor(() => {
+        expect(screen.queryByText('value missing')).to.not.equal(null);
+      });
+      await waitFor(() => {
+        expect(screen.queryByText('custom error')).to.equal(null);
+      });
+
+      fireEvent.focus(input);
+      fireEvent.change(input, { target: { value: 'ab' } });
+      fireEvent.blur(input);
+
+      await waitFor(() => {
+        expect(screen.queryByText('value missing')).to.equal(null);
+      });
+      await waitFor(() => {
+        expect(screen.queryByText('custom error')).to.not.equal(null);
+      });
+    });
+
     it('should apply [data-field] style hooks to field components', async () => {
       await render(
         <Field.Root>
