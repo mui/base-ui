@@ -218,7 +218,7 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
     [fieldState, checked, disabled, readOnly, required],
   );
 
-  const renderElement = useRenderElement('button', componentProps, {
+  const element = useRenderElement('button', componentProps, {
     state,
     ref: [forwardedRef, switchRef, buttonRef],
     props: [rootProps, getValidationProps, elementProps, getButtonProps],
@@ -227,7 +227,7 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
 
   return (
     <SwitchRootContext.Provider value={state}>
-      {renderElement()}
+      {element}
       {!checked && elementProps.name && (
         <input type="hidden" name={elementProps.name} value="off" />
       )}

@@ -4,7 +4,7 @@ import { NOOP } from '../../utils/noop';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useForkRef } from '../../utils/useForkRef';
 import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
-import { useRenderElement } from '../../utils/useRenderElement';
+import { useRenderElementLazy } from '../../utils/useRenderElement';
 import { visuallyHidden } from '../../utils/visuallyHidden';
 import { useButton } from '../../use-button';
 import { ACTIVE_COMPOSITE_ITEM } from '../../composite/constants';
@@ -163,12 +163,12 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
 
   const contextValue: RadioRootContext = React.useMemo(() => state, [state]);
 
-  const renderElement = useRenderElement('button', componentProps, {
+  const renderElement = useRenderElementLazy('button', componentProps, {
     state,
     ref: [forwardedRef, buttonRef],
     props: [
       rootProps,
-      fieldControlValidation?.getValidationProps ?? NOOP,
+      fieldControlValidation?.getValidationProps ?? undefined,
       elementProps,
       getButtonProps,
     ],
