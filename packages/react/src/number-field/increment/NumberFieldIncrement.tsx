@@ -2,10 +2,10 @@
 import * as React from 'react';
 import { useNumberFieldRootContext } from '../root/NumberFieldRootContext';
 import { useNumberFieldButton } from '../root/useNumberFieldButton';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import type { NumberFieldRoot } from '../root/NumberFieldRoot';
-import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
+import type { BaseUIComponentProps } from '../../utils/types';
 import { stateAttributesMapping } from '../utils/stateAttributesMapping';
+import { useRenderElement } from '../../utils/useRenderElement';
 
 /**
  * A stepper button that increases the field value when clicked.
@@ -14,10 +14,10 @@ import { stateAttributesMapping } from '../utils/stateAttributesMapping';
  * Documentation: [Base UI Number Field](https://base-ui.com/react/components/number-field)
  */
 export const NumberFieldIncrement = React.forwardRef(function NumberFieldIncrement(
-  props: NumberFieldIncrement.Props,
+  componentProps: NumberFieldIncrement.Props,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
-  const { render, className, disabled: disabledProp = false, ...otherProps } = props;
+  const { render, className, disabled: disabledProp = false, ...elementProps } = componentProps;
 
   const {
     state,
@@ -66,25 +66,18 @@ export const NumberFieldIncrement = React.forwardRef(function NumberFieldIncreme
     locale,
   });
 
-  const propGetter = React.useCallback(
-    (externalProps: HTMLProps) => getCommonButtonProps(true, externalProps),
-    [getCommonButtonProps],
-  );
-
-  const { renderElement } = useComponentRenderer({
-    propGetter,
+  const element = useRenderElement('button', componentProps, {
     ref: forwardedRef,
-    render: render ?? 'button',
     state,
-    className,
-    extraProps: otherProps,
+    props: [getCommonButtonProps(true), elementProps],
     stateAttributesMapping,
   });
 
-  return renderElement();
+  return element;
 });
 
 export namespace NumberFieldIncrement {
   export interface State extends NumberFieldRoot.State {}
+
   export interface Props extends BaseUIComponentProps<'button', State> {}
 }
