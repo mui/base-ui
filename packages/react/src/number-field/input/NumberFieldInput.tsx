@@ -14,7 +14,7 @@ import { useField } from '../../field/useField';
 import { useFormContext } from '../../form/FormContext';
 import { useRenderElement } from '../../utils/useRenderElement';
 
-const stateAttributesMapping = {
+const inputMapping = {
   ...fieldValidityMapping,
   ...stateAttributesMapping,
 };
@@ -308,7 +308,7 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
     ref: [forwardedRef, inputRef, inputValidationRef],
     state,
     props: [inputProps, getInputValidationProps(), getValidationProps(), elementProps],
-    stateAttributesMapping,
+    stateAttributesMapping: inputMapping,
   });
 
   return element;
