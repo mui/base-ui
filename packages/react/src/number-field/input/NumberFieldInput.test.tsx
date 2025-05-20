@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import { act, screen, fireEvent } from '@mui/internal-test-utils';
+import { spy } from 'sinon';
 import { NumberField } from '@base-ui-components/react/number-field';
 import { createRenderer, describeConformance } from '#test-utils';
 
@@ -175,5 +176,34 @@ describe('<NumberField.Input />', () => {
     expect(input).to.have.value('3');
     fireEvent.blur(input);
     expect(input).to.have.value('3');
+  });
+
+  it('should preserve full precision on first blur after external value change', async () => {
+    const onValueChange = spy();
+
+    function Controlled(props: { value: number | null }) {
+      return (
+        <NumberField.Root value={props.value} onValueChange={onValueChange}>
+          <NumberField.Input />
+        </NumberField.Root>
+      );
+    }
+
+    const { setProps } = await render(<Controlled value={null} />);
+    const input = screen.getByRole('textbox');
+
+    await act(async () => {
+      setProps({ value: 1.23456 });
+    });
+
+    expect(input).to.have.value('1.23456');
+
+    await act(async () => {
+      input.focus();
+      input.blur();
+    });
+
+    expect(input).to.have.value('1.23456');
+    expect(onValueChange.callCount).to.equal(0);
   });
 });

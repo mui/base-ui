@@ -135,6 +135,39 @@ describe('<NumberField />', () => {
       expect(onValueChange.callCount).to.equal(1);
       expect(onValueChange.firstCall.args[0]).to.equal(null);
     });
+
+    it('only fires once when blurring twice without edits (restores full precision on focus)', async () => {
+      const onValueChange = spy();
+      function App() {
+        const [value, setValue] = React.useState<number | null>(1.23456);
+        return (
+          <NumberField
+            value={value}
+            onValueChange={(val) => {
+              onValueChange(val);
+              setValue(val);
+            }}
+          />
+        );
+      }
+
+      await render(<App />);
+      const input = screen.getByRole('textbox');
+
+      const formatted = new Intl.NumberFormat().format(1.23456);
+      expect(input).to.have.value(formatted);
+
+      // First focus → blur: should round-trip and fire once
+      await act(() => input.focus());
+      await act(() => input.blur());
+      expect(onValueChange.callCount).to.equal(1);
+      expect(onValueChange.firstCall.args[0]).to.equal(parseFloat(formatted));
+
+      // Second focus → blur without typing: no new onValueChange
+      await act(() => input.focus());
+      await act(() => input.blur());
+      expect(onValueChange.callCount).to.equal(1);
+    });
   });
 
   describe('prop: disabled', () => {

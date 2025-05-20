@@ -15,6 +15,7 @@ import type { NumberFieldRoot } from '../root/NumberFieldRoot';
 import { styleHookMapping } from '../utils/styleHooks';
 import { useField } from '../../field/useField';
 import { useFormContext } from '../../form/FormContext';
+import { formatNumber, formatNumberMaxPrecision } from '../../utils/formatNumber';
 
 const customStyleHookMapping = {
   ...fieldValidityMapping,
@@ -64,6 +65,8 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
     locale,
     inputRef,
     value,
+    externalUpdateRef,
+    isControlled,
   } = useNumberFieldRootContext();
 
   const { clearErrors } = useFormContext();
@@ -150,6 +153,16 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
             hasTouchedInputRef.current = true;
             setFocused(true);
 
+            // Figure out whether the user actually saw a truncated value.
+            const defaultText = formatNumber(value, locale, formatOptionsRef.current);
+            const fullPrecision = formatNumberMaxPrecision(value, locale, formatOptionsRef.current);
+
+            // Only disable sync and swap in fullPrecision if there was extra precision.
+            if (value !== null && fullPrecision !== defaultText) {
+              allowInputSyncRef.current = false;
+              setInputValue(fullPrecision);
+            }
+
             // Browsers set selection at the start of the input field by default. We want to set it at
             // the end for the first focus.
             const target = event.currentTarget;
@@ -174,14 +187,31 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
               return;
             }
 
-            const parsedValue = parseNumber(inputValue, locale, formatOptionsRef.current);
+            const parsed = parseNumber(inputValue, locale, formatOptionsRef.current);
+            if (parsed === null) {
+              return;
+            }
 
-            if (parsedValue !== null) {
+            if (isControlled && externalUpdateRef.current) {
               blockRevalidationRef.current = true;
-              setValue(parsedValue, event.nativeEvent);
               if (validationMode === 'onBlur') {
-                commitValidation(parsedValue);
+                commitValidation(parsed);
               }
+              return;
+            }
+
+            const canonicalText = formatNumber(parsed, locale, formatOptionsRef.current);
+            const canonical = parseNumber(canonicalText, locale, formatOptionsRef.current);
+            externalUpdateRef.current = false;
+
+            if (canonical !== value) {
+              setValue(canonical, event.nativeEvent);
+            } else {
+              setInputValue(canonicalText);
+            }
+
+            if (validationMode === 'onBlur') {
+              commitValidation(canonical);
             }
           },
           onChange(event) {
@@ -315,8 +345,6 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
         getInputValidationProps(getValidationProps(externalProps)),
       ),
     [
-      getInputValidationProps,
-      getValidationProps,
       id,
       required,
       name,
@@ -324,23 +352,28 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
       readOnly,
       inputMode,
       inputValue,
+      handleInputRef,
       invalid,
       labelId,
+      getInputValidationProps,
+      getValidationProps,
       setFocused,
-      setTouched,
-      validationMode,
+      value,
+      locale,
       formatOptionsRef,
-      commitValidation,
+      allowInputSyncRef,
+      setInputValue,
+      setTouched,
+      isControlled,
+      externalUpdateRef,
+      validationMode,
       setValue,
+      commitValidation,
       getAllowedNonNumericKeys,
       getStepAmount,
       min,
       max,
       incrementValue,
-      setInputValue,
-      allowInputSyncRef,
-      locale,
-      handleInputRef,
     ],
   );
 
