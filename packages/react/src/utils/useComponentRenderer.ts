@@ -39,10 +39,6 @@ export interface ComponentRendererSettings<State, RenderedElementType extends El
    * A mapping of state to style hooks.
    */
   stateAttributesMapping?: StateAttributesMapping<State>;
-  /**
-   * If true, style hooks are generated.
-   */
-  stateAttributesMapping?: boolean;
 }
 
 /**
