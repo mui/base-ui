@@ -115,16 +115,16 @@ export function useNumberFieldRoot(
   const getAllowedNonNumericKeys = useEventCallback(() => {
     const { decimal, group, currency } = getNumberLocaleDetails(locale, format);
 
-    const keys = Array.from(new Set(['.', ',', decimal, group]));
+    const keys = new Set(['.', ',', decimal, group]);
 
     if (formatStyle === 'percent') {
-      keys.push(...PERCENTAGES);
+      PERCENTAGES.forEach((key) => keys.add(key));
     }
     if (formatStyle === 'currency' && currency) {
-      keys.push(currency);
+      keys.add(currency);
     }
     if (minWithDefault < 0) {
-      keys.push('-');
+      keys.add('-');
     }
 
     return keys;
@@ -255,7 +255,7 @@ export function useNumberFieldRoot(
 
   useModernLayoutEffect(
     function setDynamicInputModeForIOS() {
-      if (!isIOS()) {
+      if (!isIOS) {
         return;
       }
 
@@ -504,7 +504,7 @@ export namespace useNumberFieldRoot {
     required: boolean;
     invalid: boolean | undefined;
     inputMode: InputMode;
-    getAllowedNonNumericKeys: () => (string | undefined)[];
+    getAllowedNonNumericKeys: () => Set<string | undefined>;
     min: number | undefined;
     max: number | undefined;
     setInputValue: React.Dispatch<React.SetStateAction<string>>;
