@@ -6,6 +6,8 @@ import { useForkRef } from '../../utils/useForkRef';
 import { HTMLProps } from '../../utils/types';
 import { useMenuRootContext } from '../root/MenuRootContext';
 
+const allowMouseUpTriggerRef = { current: false };
+
 export function useMenuSubmenuTrigger(
   parameters: useMenuSubmenuTrigger.Parameters,
 ): useMenuSubmenuTrigger.ReturnValue {
@@ -29,7 +31,7 @@ export function useMenuSubmenuTrigger(
     id,
     menuEvents,
     ref: externalRef,
-    allowMouseUpTriggerRef: { current: false },
+    allowMouseUpTriggerRef,
     typingRef,
   });
 

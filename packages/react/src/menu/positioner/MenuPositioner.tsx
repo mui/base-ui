@@ -13,7 +13,6 @@ import { CompositeList } from '../../composite/list/CompositeList';
 import { inertValue } from '../../utils/inertValue';
 import { InternalBackdrop } from '../../utils/InternalBackdrop';
 import { useMenuPortalContext } from '../portal/MenuPortalContext';
-import { useContextMenuRootContext } from '../../context-menu/root/ContextMenuRootContext';
 
 /**
  * Positions the menu popup against the trigger.
@@ -57,14 +56,13 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
   const keepMounted = useMenuPortalContext();
   const nodeId = useFloatingNodeId();
   const parentNodeId = useFloatingParentNodeId();
-  const contextMenuContext = useContextMenuRootContext();
 
   let anchor = anchorProp;
   let sideOffset = sideOffsetProp;
   let alignOffset = alignOffsetProp;
   let align = alignProp;
   if (parent.type === 'context-menu') {
-    anchor = contextMenuContext?.anchor ?? anchorProp;
+    anchor = parent.context?.anchor ?? anchorProp;
     align = props.align ?? 'start';
     alignOffset = props.alignOffset ?? 2;
     sideOffset = props.sideOffset ?? -5;
@@ -157,7 +155,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
     <MenuPositionerContext.Provider value={contextValue}>
       {shouldRenderBackdrop && (
         <InternalBackdrop
-          ref={contextMenuContext?.internalBackdropRef}
+          ref={parent.type === 'context-menu' ? parent.context.internalBackdropRef : null}
           inert={inertValue(!open)}
           cutout={backdropCutout}
         />
