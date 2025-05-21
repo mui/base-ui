@@ -4,7 +4,7 @@
   "props": {
     "match": {
       "type": "boolean | 'valid' | 'badInput' | 'customError' | 'patternMismatch' | 'rangeOverflow' | 'rangeUnderflow' | 'stepMismatch' | 'tooLong' | 'tooShort' | 'typeMismatch' | 'valueMissing'",
-      "description": "Determines whether to show the error message according to the field’s\n[ValidityState](https://developer.mozilla.org/en-US/docs/Web/API/ValidityState).\nSpecifying `true` will always show the error message."
+      "description": "Determines whether to show the error message according to the field’s\n[ValidityState](https://developer.mozilla.org/en-US/docs/Web/API/ValidityState).\nSpecifying `true` will always show the error message, and lets external libraries\ncontrol the visibility."
     },
     "className": {
       "type": "string | ((state: Field.Root.State) => string)",
