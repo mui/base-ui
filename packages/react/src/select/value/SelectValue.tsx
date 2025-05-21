@@ -33,6 +33,16 @@ export const SelectValue = React.forwardRef(function SelectValue(
 
 export namespace SelectValue {
   export interface Props extends Omit<BaseUIComponentProps<'span', State>, 'children'> {
+    /**
+     * Specifies the initial value label before choosing an item. A callback can be used to
+     * customize the value label.
+     *
+     * ```tsx
+     * <Select.Value>
+     *   {(label, value) => label ? `${label} (${value})` : 'Select an item'}
+     * </Select.Value>
+     * ```
+     */
     children: React.ReactNode | ((label: string, value: any) => React.ReactNode);
   }
 

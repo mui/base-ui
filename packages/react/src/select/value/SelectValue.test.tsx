@@ -8,7 +8,7 @@ import { createRenderer, describeConformance } from '#test-utils';
 describe('<Select.Value />', () => {
   const { render } = createRenderer();
 
-  describeConformance(<Select.Value />, () => ({
+  describeConformance(<Select.Value>value</Select.Value>, () => ({
     refInstanceof: window.HTMLSpanElement,
     render(node) {
       return render(<Select.Root open>{node}</Select.Root>);

@@ -3,7 +3,9 @@
   "description": "A text label of the currently selected item.\nRenders a `<span>` element.",
   "props": {
     "children": {
-      "type": "string | ((label: string, value: any) => ReactNode) | null"
+      "type": "ReactNode | ((label: string, value: any) => ReactNode)",
+      "required": true,
+      "description": "Specifies the initial value label before choosing an item. A callback can be used to\ncustomize the value label.\n\n```tsx\n<Select.Value>\n  {(label, value) => label ? `${label} (${value})` : 'Select an item'}\n</Select.Value>\n```"
     },
     "className": {
       "type": "string | ((state: Select.Value.State) => string)",
