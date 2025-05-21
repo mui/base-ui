@@ -45,7 +45,5 @@ export const ContextMenuRoot: React.FC<ContextMenuRoot.Props> = function Context
 export namespace ContextMenuRoot {
   export interface State {}
 
-  export interface Props extends Menu.Root.Props {
-    children: React.ReactNode;
-  }
+  export interface Props extends Omit<Menu.Root.Props, 'modal'> {}
 }

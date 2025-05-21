@@ -96,7 +96,8 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
     }
   }
 
-  const modal = parent.type === undefined && (modalParam ?? true);
+  const modal =
+    (parent.type === undefined || parent.type === 'context-menu') && (modalParam ?? true);
 
   if (process.env.NODE_ENV !== 'production') {
     if (parent.type !== undefined && modalParam !== undefined) {
