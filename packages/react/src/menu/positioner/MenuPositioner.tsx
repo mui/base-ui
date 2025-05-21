@@ -26,7 +26,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
 ) {
   const {
     anchor: anchorProp,
-    positionMethod = 'absolute',
+    positionMethod: positionMethodProp = 'absolute',
     className,
     render,
     side,
@@ -81,7 +81,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
   const positioner = useMenuPositioner({
     anchor,
     floatingRootContext,
-    positionMethod,
+    positionMethod: parent.type === 'context-menu' ? 'fixed' : positionMethodProp,
     open,
     mounted,
     side: computedSide,

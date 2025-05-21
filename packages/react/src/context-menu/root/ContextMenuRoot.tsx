@@ -10,8 +10,6 @@ import { Menu } from '../../menu';
  * Documentation: [Base UI Context Menu](https://base-ui.com/react/components/context-menu)
  */
 export function ContextMenuRoot(props: ContextMenuRoot.Props) {
-  const { children, ...otherProps } = props;
-
   const [anchor, setAnchor] = React.useState<ContextMenuRootContext['anchor']>({
     getBoundingClientRect() {
       return DOMRect.fromRect({ width: 0, height: 0, x: 0, y: 0 });
@@ -39,7 +37,7 @@ export function ContextMenuRoot(props: ContextMenuRoot.Props) {
 
   return (
     <ContextMenuRootContext.Provider value={contextValue}>
-      <Menu.Root {...otherProps}>{children}</Menu.Root>
+      <Menu.Root {...props} />
     </ContextMenuRootContext.Provider>
   );
 }
