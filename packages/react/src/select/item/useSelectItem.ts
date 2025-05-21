@@ -32,6 +32,7 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
     events,
     elementProps,
     rootProps,
+    multiple,
   } = params;
 
   const ref = React.useRef<HTMLDivElement | null>(null);
@@ -52,7 +53,9 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
 
   const commitSelection = useEventCallback((event: MouseEvent) => {
     handleSelect(event);
-    setOpen(false, event, undefined);
+    if (!multiple) {
+      setOpen(false, event, undefined);
+    }
   });
 
   const handlePopupLeave = useEventCallback(() => {
@@ -299,6 +302,7 @@ export namespace useSelectItem {
     events: FloatingEvents;
     elementProps: HTMLProps;
     rootProps: HTMLProps;
+    multiple: boolean | undefined;
   }
 
   export interface ReturnValue {

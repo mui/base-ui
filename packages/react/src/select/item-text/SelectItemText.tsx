@@ -7,7 +7,7 @@ import { useSelectItemContext } from '../item/SelectItemContext';
 import { useRenderElement } from '../../utils/useRenderElement';
 
 interface InnerSelectItemTextProps extends SelectItemText.Props {
-  selected: boolean;
+  selectedByFocus: boolean;
   selectedItemTextRef: React.RefObject<HTMLElement | null>;
   indexRef: React.RefObject<number>;
 }
@@ -17,19 +17,19 @@ const InnerSelectItemText = React.memo(
     componentProps: InnerSelectItemTextProps,
     forwardedRef: React.ForwardedRef<HTMLDivElement>,
   ) {
-    const { className, render, selected, selectedItemTextRef, indexRef, ...elementProps } =
+    const { className, render, selectedByFocus, selectedItemTextRef, indexRef, ...elementProps } =
       componentProps;
 
     const localRef = React.useCallback(
       (node: HTMLElement | null) => {
         // Wait for the DOM indices to be set.
         queueMicrotask(() => {
-          if (selected || (selectedItemTextRef.current === null && indexRef.current === 0)) {
+          if (selectedByFocus || (selectedItemTextRef.current === null && indexRef.current === 0)) {
             selectedItemTextRef.current = node;
           }
         });
       },
-      [selected, selectedItemTextRef, indexRef],
+      [selectedByFocus, selectedItemTextRef, indexRef],
     );
 
     const element = useRenderElement('div', componentProps, {
@@ -51,13 +51,13 @@ export const SelectItemText = React.forwardRef(function SelectItemText(
   props: SelectItemText.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { selected, indexRef } = useSelectItemContext();
+  const { selectedByFocus, indexRef } = useSelectItemContext();
   const { selectedItemTextRef } = useSelectRootContext();
 
   return (
     <InnerSelectItemText
       ref={forwardedRef}
-      selected={selected}
+      selectedByFocus={selectedByFocus}
       selectedItemTextRef={selectedItemTextRef}
       indexRef={indexRef}
       {...props}
