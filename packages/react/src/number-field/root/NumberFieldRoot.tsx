@@ -53,6 +53,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
     locale,
     render,
     className,
+    inputRef: inputRefProp,
     ...elementProps
   } = componentProps;
 
@@ -332,6 +333,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
   const hiddenInputProps: React.ComponentPropsWithRef<'input'> = React.useMemo(
     () => ({
       name,
+      ref: inputRefProp,
       type: 'hidden',
       tabIndex: -1,
       'aria-hidden': true,
@@ -340,7 +342,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
       required,
       style: visuallyHidden,
     }),
-    [disabled, name, required, value],
+    [disabled, inputRefProp, name, required, value],
   );
 
   const state: NumberFieldRoot.State = React.useMemo(
@@ -531,6 +533,10 @@ export namespace NumberFieldRoot {
      * Defaults to the user's runtime locale.
      */
     locale?: Intl.LocalesArgument;
+    /**
+     * A ref to access the hidden input element.
+     */
+    inputRef?: React.Ref<HTMLInputElement>;
   }
 
   export interface State extends FieldRoot.State {

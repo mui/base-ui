@@ -433,7 +433,7 @@ describe('<NumberField />', () => {
           onSubmit={(event) => {
             event.preventDefault();
             const formData = new FormData(event.currentTarget);
-            fieldValue = formData.get('test');
+            fieldValue = formData.get('test') as string;
           }}
         >
           <Field.Root name="test">
@@ -474,7 +474,7 @@ describe('<NumberField />', () => {
           onSubmit={(event) => {
             event.preventDefault();
             const formData = new FormData(event.currentTarget);
-            fieldValue = formData.get('test');
+            fieldValue = formData.get('test') as string;
           }}
         >
           <Field.Root name="test">
