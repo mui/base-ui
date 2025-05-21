@@ -5,6 +5,7 @@
     "check": "NODE_OPTIONS=\"--max-old-space-size=4096\" bundle-size-checker --output ../size-snapshot.json"
   },
   "dependencies": {
-    "@base-ui-components/react": "workspace:*"
+    "@base-ui-components/react": "workspace:*",
+    "radix-ui": "^1.4.2"
   }
 }

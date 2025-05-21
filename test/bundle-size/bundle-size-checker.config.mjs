@@ -35,7 +35,61 @@ export default defineConfig(async () => {
   });
 
   return {
-    entrypoints,
+    entrypoints: [
+      ...entrypoints,
+      {
+        id: 'Base UI checkbox',
+        code: `
+          import * as React from 'react';
+          import { Checkbox } from '@base-ui-components/react/checkbox';
+
+          export default function ExampleCheckbox() {
+            return (
+              <label className="xyz">
+                <Checkbox.Root defaultChecked className="xyz">
+                  <Checkbox.Indicator className="xyz">
+                    <CheckIcon className="xyz" />
+                  </Checkbox.Indicator>
+                </Checkbox.Root>
+                Enable notifications
+              </label>
+            );
+          }
+
+          function CheckIcon() {
+            return null
+          }
+        `,
+        externals,
+      },
+      {
+        id: 'Radix UI checkbox',
+        code: `
+          import * as React from "react";
+          import { Checkbox } from "radix-ui";
+
+          export default function ExampleCheckbox() {
+            return (
+              <div>
+                <Checkbox.Root className="xyz" defaultChecked id="c1">
+                  <Checkbox.Indicator className="xyz">
+                    <CheckIcon />
+                  </Checkbox.Indicator>
+                </Checkbox.Root>
+                <label className="xyz" htmlFor="c1">
+                  Accept terms and conditions.
+                </label>
+              </div>
+            )
+          }
+
+          function CheckIcon() {
+            return null
+          }
+        `,
+        externals: ['react', 'react-dom'],
+      },
+    ],
     upload: !!process.env.CI,
   };
 });
