@@ -1,19 +1,19 @@
 import * as React from 'react';
-import { useScrub } from './useScrub';
 
-export interface NumberFieldScrubAreaContext extends ReturnType<typeof useScrub> {
+export interface NumberFieldScrubAreaContext {
+  isScrubbing: boolean;
+  isTouchInput: boolean;
+  isPointerLockDenied: boolean;
+  scrubAreaCursorRef: React.RefObject<HTMLSpanElement | null>;
+  scrubAreaRef: React.RefObject<HTMLSpanElement | null>;
   direction: 'horizontal' | 'vertical';
   pixelSensitivity: number;
   teleportDistance: number | undefined;
 }
 
 export const NumberFieldScrubAreaContext = React.createContext<
-  ReturnType<typeof useScrub> | undefined
+  NumberFieldScrubAreaContext | undefined
 >(undefined);
-
-if (process.env.NODE_ENV !== 'production') {
-  NumberFieldScrubAreaContext.displayName = 'NumberFieldScrubAreaContext';
-}
 
 export function useNumberFieldScrubAreaContext() {
   const context = React.useContext(NumberFieldScrubAreaContext);

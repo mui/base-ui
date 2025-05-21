@@ -35,13 +35,10 @@ export interface PopoverRootContext {
 
 export const PopoverRootContext = React.createContext<PopoverRootContext | undefined>(undefined);
 
-if (process.env.NODE_ENV !== 'production') {
-  PopoverRootContext.displayName = 'PopoverRootContext';
-}
-
 export function usePopoverRootContext(optional?: false): PopoverRootContext;
 export function usePopoverRootContext(optional: true): PopoverRootContext | undefined;
 export function usePopoverRootContext(optional?: boolean) {
+export function usePopoverRootContext() {
   const context = React.useContext(PopoverRootContext);
   if (context === undefined && !optional) {
     throw new Error(
