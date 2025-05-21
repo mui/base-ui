@@ -53,7 +53,7 @@ export const SliderValue = React.forwardRef(function SliderValue(
     return arr.join(' – ');
   }, [values, formattedValues]);
 
-  const renderElement = useRenderElement('output', componentProps, {
+  const element = useRenderElement('output', componentProps, {
     state,
     ref: forwardedRef,
     props: [
@@ -70,7 +70,7 @@ export const SliderValue = React.forwardRef(function SliderValue(
     customStyleHookMapping: sliderStyleHookMapping,
   });
 
-  return renderElement();
+  return element;
 });
 
 export namespace SliderValue {

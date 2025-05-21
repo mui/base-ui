@@ -218,7 +218,7 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
     [hovering, focused, hasDifferingHeights],
   );
 
-  const renderElement = useRenderElement('div', componentProps, {
+  const element = useRenderElement('div', componentProps, {
     ref: [forwardedRef, viewportRef],
     state,
     props: [
@@ -242,7 +242,7 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
     <ToastViewportContext.Provider value={contextValue}>
       <FloatingPortalLite>
         {numToasts > 0 && prevFocusElement && <FocusGuard onFocus={handleFocusGuard} />}
-        {renderElement()}
+        {element}
       </FloatingPortalLite>
     </ToastViewportContext.Provider>
   );

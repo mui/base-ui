@@ -1,12 +1,15 @@
 import * as React from 'react';
+import { mergeObjects } from '../utils/mergeObjects';
 import type { BaseUIEvent, WithBaseUIEvent } from '../utils/types';
 
-type MergableProps<T extends React.ElementType> =
-  | WithBaseUIEvent<React.ComponentPropsWithRef<T>>
-  | ((
-      otherProps: WithBaseUIEvent<React.ComponentPropsWithRef<T>>,
-    ) => WithBaseUIEvent<React.ComponentPropsWithRef<T>>)
+type ElementType = React.ElementType;
+type PropsOf<T extends React.ElementType> = WithBaseUIEvent<React.ComponentPropsWithRef<T>>;
+type InputProps<T extends React.ElementType> =
+  | PropsOf<T>
+  | ((otherProps: PropsOf<T>) => PropsOf<T>)
   | undefined;
+
+const EMPTY_PROPS = {};
 
 /**
  * Merges multiple sets of React props. It follows the Object.assign pattern where the rightmost object's fields overwrite
@@ -29,110 +32,142 @@ type MergableProps<T extends React.ElementType> =
  * @param props props to merge.
  * @returns the merged props.
  */
-export function mergeProps<Tag extends React.ElementType>(
-  ...props: MergableProps<Tag>[]
-): WithBaseUIEvent<React.ComponentPropsWithRef<Tag>> {
+/* eslint-disable id-denylist */
+export function mergeProps<T extends ElementType>(a: InputProps<T>, b: InputProps<T>): PropsOf<T>;
+export function mergeProps<T extends ElementType>(a: InputProps<T>, b: InputProps<T>): PropsOf<T>;
+export function mergeProps<T extends ElementType>(
+  a: InputProps<T>,
+  b: InputProps<T>,
+  c: InputProps<T>,
+): PropsOf<T>;
+export function mergeProps<T extends ElementType>(
+  a: InputProps<T>,
+  b: InputProps<T>,
+  c: InputProps<T>,
+  d: InputProps<T>,
+): PropsOf<T>;
+export function mergeProps<T extends ElementType>(
+  a: InputProps<T>,
+  b: InputProps<T>,
+  c: InputProps<T>,
+  d: InputProps<T>,
+  e: InputProps<T>,
+): PropsOf<T>;
+export function mergeProps(a: any, b: any, c?: any, d?: any, e?: any) {
+  // We need to mutably own `merged`
+  let merged = { ...resolvePropsGetter(a, EMPTY_PROPS) };
+
+  if (b) {
+    merged = mergeOne(merged, b);
+  }
+  if (c) {
+    merged = mergeOne(merged, c);
+  }
+  if (d) {
+    merged = mergeOne(merged, d);
+  }
+  if (e) {
+    merged = mergeOne(merged, e);
+  }
+
+  return merged;
+}
+/* eslint-enable id-denylist */
+
+export function mergePropsN<T extends ElementType>(props: InputProps<T>[]): PropsOf<T> {
   if (props.length === 0) {
-    return {} as WithBaseUIEvent<React.ComponentPropsWithRef<Tag>>;
+    return EMPTY_PROPS as PropsOf<T>;
   }
-
   if (props.length === 1) {
-    return resolvePropsGetter(props[0], {});
+    return resolvePropsGetter(props[0], EMPTY_PROPS);
   }
 
-  let merged = resolvePropsGetter(props[0], {});
+  // We need to mutably own `merged`
+  let merged = { ...resolvePropsGetter(props[0], EMPTY_PROPS) };
 
   for (let i = 1; i < props.length; i += 1) {
-    const propsOrPropsGetter = props[i];
-    if (!propsOrPropsGetter) {
-      continue;
-    }
-
-    if (isPropsGetter(propsOrPropsGetter)) {
-      merged = propsOrPropsGetter(merged);
-    } else {
-      merged = merge(
-        merged,
-        propsOrPropsGetter as WithBaseUIEvent<React.ComponentPropsWithRef<Tag>>,
-      );
-    }
+    merged = mergeOne(merged, props[i]);
   }
 
-  return merged ?? ({} as WithBaseUIEvent<React.ComponentPropsWithRef<Tag>>);
+  return merged as PropsOf<T>;
 }
 
-function resolvePropsGetter<Tag extends React.ElementType>(
-  propsOrPropsGetter: MergableProps<React.ElementType>,
-  previousProps: WithBaseUIEvent<React.ComponentPropsWithRef<Tag>>,
-) {
-  if (isPropsGetter(propsOrPropsGetter)) {
-    return propsOrPropsGetter(previousProps);
+function mergeOne<T extends ElementType>(merged: Record<string, any>, inputProps: InputProps<T>) {
+  if (isPropsGetter(inputProps)) {
+    return inputProps(merged);
   }
-
-  return propsOrPropsGetter ?? ({} as WithBaseUIEvent<React.ComponentPropsWithRef<Tag>>);
+  return mutablyMergeInto(merged, inputProps);
 }
 
 /**
  * Merges two sets of props. In case of conflicts, the external props take precedence.
  */
-function merge<T extends React.ElementType>(
-  internalProps: WithBaseUIEvent<React.ComponentPropsWithRef<T>> | undefined,
-  externalProps: WithBaseUIEvent<React.ComponentPropsWithRef<T>> | undefined,
-): WithBaseUIEvent<React.ComponentPropsWithRef<T>> {
+function mutablyMergeInto<T extends ElementType>(
+  mergedProps: Record<string, any>,
+  externalProps: React.ComponentPropsWithRef<T> | undefined,
+) {
   if (!externalProps) {
-    if (!internalProps) {
-      return {} as WithBaseUIEvent<React.ComponentPropsWithRef<T>>;
-    }
-
-    return internalProps;
+    return mergedProps;
   }
 
-  if (!internalProps) {
-    return externalProps;
-  }
+  // eslint-disable-next-line guard-for-in
+  for (const propName in externalProps) {
+    const externalPropValue = externalProps[propName];
 
-  return Object.entries(externalProps).reduce(
-    (mergedProps, [propName, externalPropValue]) => {
-      if (isEventHandler(propName, externalPropValue)) {
-        mergedProps[propName] = mergeEventHandlers(internalProps[propName], externalPropValue);
-      } else if (propName === 'style') {
-        mergedProps[propName] = mergeStyles(
-          internalProps.style,
-          externalPropValue as React.CSSProperties,
+    switch (propName) {
+      case 'style': {
+        mergedProps[propName] = mergeObjects(
+          mergedProps.style as React.CSSProperties | undefined,
+          externalPropValue as React.CSSProperties | undefined,
         );
-      } else if (propName === 'className') {
-        mergedProps[propName] = mergeClassNames(
-          internalProps.className,
-          externalPropValue as string,
-        );
-      } else {
-        mergedProps[propName] = externalPropValue;
+        break;
       }
+      case 'className': {
+        mergedProps[propName] = mergeClassNames(mergedProps.className, externalPropValue as string);
+        break;
+      }
+      default: {
+        if (isEventHandler(propName, externalPropValue)) {
+          mergedProps[propName] = mergeEventHandlers(mergedProps[propName], externalPropValue);
+        } else {
+          mergedProps[propName] = externalPropValue;
+        }
+      }
+    }
+  }
 
-      return mergedProps;
-    },
-    { ...internalProps } as React.ComponentPropsWithRef<T>,
-  );
+  return mergedProps;
 }
 
 function isEventHandler(key: string, value: unknown) {
   // This approach is more efficient than using a regex.
-  const thirdCharCode = key.charCodeAt(2);
+  const code0 = key.charCodeAt(0);
+  const code1 = key.charCodeAt(1);
+  const code2 = key.charCodeAt(2);
   return (
-    key[0] === 'o' &&
-    key[1] === 'n' &&
-    thirdCharCode >= 65 /* A */ &&
-    thirdCharCode <= 90 /* Z */ &&
+    code0 === 111 /* o */ &&
+    code1 === 110 /* n */ &&
+    code2 >= 65 /* A */ &&
+    code2 <= 90 /* Z */ &&
     typeof value === 'function'
   );
 }
 
 function isPropsGetter<T extends React.ComponentType>(
-  propsOrPropsGetter: MergableProps<T>,
-): propsOrPropsGetter is (
-  props: WithBaseUIEvent<React.ComponentPropsWithRef<T>>,
-) => WithBaseUIEvent<React.ComponentPropsWithRef<T>> {
-  return typeof propsOrPropsGetter === 'function';
+  inputProps: InputProps<T>,
+): inputProps is (props: PropsOf<T>) => PropsOf<T> {
+  return typeof inputProps === 'function';
+}
+
+function resolvePropsGetter<T extends ElementType>(
+  inputProps: InputProps<ElementType>,
+  previousProps: PropsOf<T>,
+) {
+  if (isPropsGetter(inputProps)) {
+    return inputProps(previousProps);
+  }
+
+  return inputProps ?? (EMPTY_PROPS as PropsOf<T>);
 }
 
 function mergeEventHandlers(ourHandler: Function, theirHandler: Function) {
@@ -163,17 +198,6 @@ export function makeEventPreventable<T extends React.SyntheticEvent>(event: Base
   };
 
   return event;
-}
-
-function mergeStyles(
-  ourStyle: React.CSSProperties | undefined,
-  theirStyle: React.CSSProperties | undefined,
-) {
-  if (theirStyle || ourStyle) {
-    return { ...ourStyle, ...theirStyle };
-  }
-
-  return undefined;
 }
 
 function mergeClassNames(ourClassName: string | undefined, theirClassName: string | undefined) {
