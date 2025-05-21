@@ -326,12 +326,6 @@ importers:
         specifier: ^17.7.2
         version: 17.7.2
 
-  bundle-size:
-    dependencies:
-      '@base-ui-components/react':
-        specifier: workspace:*
-        version: link:../packages/react/build
-
   docs:
     dependencies:
       '@base-ui-components/react':
@@ -721,6 +715,12 @@ importers:
       yargs:
         specifier: ^17.7.2
         version: 17.7.2
+
+  test/bundle-size:
+    dependencies:
+      '@base-ui-components/react':
+        specifier: workspace:*
+        version: link:../../packages/react/build
 
   test/node-resolution:
     dependencies:

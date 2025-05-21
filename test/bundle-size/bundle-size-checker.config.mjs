@@ -7,7 +7,7 @@ import path from 'path';
 import fs from 'fs/promises';
 import { defineConfig } from '@mui/internal-bundle-size-checker';
 
-const rootDir = path.resolve(import.meta.dirname, '..');
+const rootDir = path.resolve(import.meta.dirname, '../..');
 
 /**
  * Generates the entrypoints configuration by scanning the exports field in package.json.
