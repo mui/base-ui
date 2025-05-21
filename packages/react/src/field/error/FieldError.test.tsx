@@ -1,8 +1,8 @@
 import * as React from 'react';
-import { createRenderer, fireEvent, screen } from '@mui/internal-test-utils';
+import { fireEvent, screen } from '@mui/internal-test-utils';
 import { expect } from 'chai';
 import { Field } from '@base-ui-components/react/field';
-import { describeConformance } from '../../../test/describeConformance';
+import { createRenderer, describeConformance } from '#test-utils';
 
 describe('<Field.Error />', () => {
   const { render } = createRenderer();
@@ -87,7 +87,7 @@ describe('<Field.Error />', () => {
       expect(screen.queryByText('Message')).not.to.equal(null);
     });
 
-    it('always renders the error message when `match` is true', () => {
+    it('always renders the error message when `match` is true', async () => {
       await render(
         <Field.Root>
           <Field.Control required />
