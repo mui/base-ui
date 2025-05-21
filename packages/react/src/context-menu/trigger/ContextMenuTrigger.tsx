@@ -156,7 +156,7 @@ export const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
     };
   }, []);
 
-  const renderElement = useRenderElement('div', componentProps, {
+  const element = useRenderElement('div', componentProps, {
     ref: [triggerRef, forwardedRef],
     props: [
       {
@@ -173,7 +173,7 @@ export const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
     ],
   });
 
-  return renderElement();
+  return element;
 });
 
 export namespace ContextMenuTrigger {
