@@ -426,35 +426,75 @@ describe('<NumberField />', () => {
         skip();
       }
 
-      let stringifiedFormData = '';
+      let fieldValue = '';
 
       await render(
-        <form
+        <Form
           onSubmit={(event) => {
             event.preventDefault();
             const formData = new FormData(event.currentTarget);
-            stringifiedFormData = new URLSearchParams(formData as any).toString();
+            fieldValue = formData.get('test');
           }}
         >
-          <NumberField name="test-number-field" />
-          <button type="submit" data-testid="submit">
-            Submit
-          </button>
-        </form>,
+          <Field.Root name="test">
+            <NumberFieldBase.Root defaultValue={undefined}>
+              <NumberFieldBase.Input />
+            </NumberFieldBase.Root>
+            <button type="submit">Submit</button>
+          </Field.Root>
+        </Form>,
       );
 
-      const numberField = screen.getByRole('textbox');
-      const submitButton = screen.getByTestId('submit');
+      const submitButton = screen.getByText('Submit');
+      await act(async () => submitButton.click());
+      expect(fieldValue).to.equal('');
+
+      fireEvent.change(screen.getByRole('textbox'), { target: { value: '50' } });
+      await act(async () => submitButton.click());
+      expect(fieldValue).to.equal('50');
+    });
+
+    it('should not include formatting in the submitted value', async ({ skip }) => {
+      if (isJSDOM) {
+        // FormData is not available in JSDOM
+        skip();
+      }
+
+      const format: Intl.NumberFormatOptions = {
+        style: 'currency',
+        currency: 'EUR',
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      };
+
+      let fieldValue = '';
+
+      await render(
+        <Form
+          onSubmit={(event) => {
+            event.preventDefault();
+            const formData = new FormData(event.currentTarget);
+            fieldValue = formData.get('test');
+          }}
+        >
+          <Field.Root name="test">
+            <NumberFieldBase.Root defaultValue={54.5} format={format} locale="de-DE">
+              <NumberFieldBase.Input />
+            </NumberFieldBase.Root>
+            <button type="submit">Submit</button>
+          </Field.Root>
+        </Form>,
+      );
+
+      const input = screen.getByRole('textbox');
+      const expectedValue = new Intl.NumberFormat('de-DE', format).format(54.5);
+      expect(input).to.have.value(expectedValue);
+
+      const submitButton = screen.getByText('Submit');
 
       await act(async () => submitButton.click());
 
-      expect(stringifiedFormData).to.equal('test-number-field=');
-
-      fireEvent.change(numberField, { target: { value: '5' } });
-
-      await act(async () => submitButton.click());
-
-      expect(stringifiedFormData).to.equal('test-number-field=5');
+      expect(fieldValue).to.equal('54.5');
     });
 
     it('triggers native HTML validation on submit', async () => {
