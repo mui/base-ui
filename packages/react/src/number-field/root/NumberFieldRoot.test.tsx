@@ -520,6 +520,38 @@ describe('<NumberField />', () => {
       expect(error).to.have.text('required');
     });
 
+    it('focuses the input when the field receives an error from Form', async () => {
+      function App() {
+        const [errors, setErrors] = React.useState<Form.Props['errors']>({});
+        return (
+          <Form
+            errors={errors}
+            onClearErrors={setErrors}
+            onSubmit={(event) => {
+              event.preventDefault();
+              setErrors({ quantity: 'server error' });
+            }}
+          >
+            <Field.Root name="quantity" data-testid="field">
+              <NumberField defaultValue={1} />
+              <Field.Error data-testid="error" />
+            </Field.Root>
+            <button type="submit">Submit</button>
+          </Form>
+        );
+      }
+
+      const { user } = await render(<App />);
+      expect(screen.queryByTestId('error')).to.equal(null);
+      const submit = screen.getByText('Submit');
+      await user.click(submit);
+
+      const input = screen.getByRole('textbox');
+      expect(input).toHaveFocus();
+      expect(input).to.have.attribute('aria-invalid', 'true');
+      expect(screen.queryByTestId('error')).to.have.text('server error');
+    });
+
     it('clears errors on change', async () => {
       function App() {
         const [errors, setErrors] = React.useState<Form.Props['errors']>({
