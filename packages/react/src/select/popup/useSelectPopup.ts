@@ -173,7 +173,7 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
       height < Math.min(scrollHeight, minHeight);
 
     // Safari doesn't position the popup correctly when pinch-zoomed.
-    const isPinchZoomed = (win.visualViewport?.scale ?? 1) !== 1 && isWebKit();
+    const isPinchZoomed = (win.visualViewport?.scale ?? 1) !== 1 && isWebKit;
 
     if (fallbackToAlignPopupToTrigger || isPinchZoomed) {
       initialPlacedRef.current = true;

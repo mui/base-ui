@@ -57,7 +57,7 @@ export const Form = React.forwardRef(function Form(
 
   const state = React.useMemo<Form.State>(() => ({}), []);
 
-  const renderElement = useRenderElement('form', componentProps, {
+  const element = useRenderElement('form', componentProps, {
     state,
     ref: forwardedRef,
     props: [
@@ -105,7 +105,7 @@ export const Form = React.forwardRef(function Form(
     [formRef, errors, clearErrors],
   );
 
-  return <FormContext.Provider value={contextValue}>{renderElement()}</FormContext.Provider>;
+  return <FormContext.Provider value={contextValue}>{element}</FormContext.Provider>;
 });
 
 export namespace Form {
