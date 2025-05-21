@@ -22,6 +22,11 @@ import type { Orientation } from '../../utils/types';
 import type { SliderRoot } from './SliderRoot';
 import { isWebKit } from '../../utils/detectBrowser';
 
+const USD_NUMBER_FORMAT: Intl.NumberFormatOptions = {
+  style: 'currency',
+  currency: 'USD',
+};
+
 type Touches = Array<Pick<Touch, 'identifier' | 'clientX' | 'clientY'>>;
 
 const GETBOUNDINGCLIENTRECT_HORIZONTAL_SLIDER_RETURN_VAL = {
@@ -1751,15 +1756,11 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
 
   describe('prop: format', () => {
     it('formats the value', async () => {
-      const format: Intl.NumberFormatOptions = {
-        style: 'currency',
-        currency: 'USD',
-      };
       function formatValue(v: number) {
-        return new Intl.NumberFormat(undefined, format).format(v);
+        return new Intl.NumberFormat(undefined, USD_NUMBER_FORMAT).format(v);
       }
       const { getByRole, getByTestId } = await render(
-        <TestSlider defaultValue={50} format={format} />,
+        <TestSlider defaultValue={50} format={USD_NUMBER_FORMAT} />,
       );
       const value = getByTestId('value');
       const slider = getByRole('slider');
@@ -1768,15 +1769,11 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
     });
 
     it('formats range values', async () => {
-      const format: Intl.NumberFormatOptions = {
-        style: 'currency',
-        currency: 'USD',
-      };
       function formatValue(v: number) {
-        return new Intl.NumberFormat(undefined, format).format(v);
+        return new Intl.NumberFormat(undefined, USD_NUMBER_FORMAT).format(v);
       }
       const { getAllByRole, getByTestId } = await render(
-        <TestRangeSlider defaultValue={[50, 75]} format={format} />,
+        <TestRangeSlider defaultValue={[50, 75]} format={USD_NUMBER_FORMAT} />,
       );
       const value = getByTestId('value');
       expect(value).to.have.text(`${formatValue(50)} – ${formatValue(75)}`);
@@ -1859,7 +1856,7 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
             }}
           >
             <Field.Root name="slider">
-              <Slider.Root defaultValue={25}>
+              <Slider.Root defaultValue={25} format={USD_NUMBER_FORMAT}>
                 <Slider.Control>
                   <Slider.Thumb />
                 </Slider.Control>
@@ -1883,7 +1880,7 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
             }}
           >
             <Field.Root name="slider">
-              <Slider.Root defaultValue={[25, 50]}>
+              <Slider.Root defaultValue={[25, 50]} format={USD_NUMBER_FORMAT}>
                 <Slider.Control>
                   <Slider.Thumb />
                   <Slider.Thumb />
