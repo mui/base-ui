@@ -15,7 +15,7 @@ describe('<Select.Value />', () => {
     },
   }));
 
-  describe('prop: initial', () => {
+  describe('children', () => {
     it('renders a placeholder when the value is null', async () => {
       await render(
         <Select.Root>
