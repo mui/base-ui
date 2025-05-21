@@ -31,7 +31,7 @@ import {
 } from '../../utils/translateOpenChangeReason';
 import { ownerDocument } from '../../utils/owner';
 
-export type MenuOpenChangeReason = BaseOpenChangeReason | 'item-press' | 'cancel-open';
+export type MenuOpenChangeReason = BaseOpenChangeReason | 'sibling-open';
 
 const EMPTY_ARRAY: never[] = [];
 
