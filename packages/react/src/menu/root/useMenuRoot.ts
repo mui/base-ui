@@ -31,8 +31,6 @@ import {
 } from '../../utils/translateOpenChangeReason';
 import { ownerDocument } from '../../utils/owner';
 
-const EMPTY_ARRAY: never[] = [];
-
 export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.ReturnValue {
   const {
     open: openParam,
@@ -291,21 +289,24 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
     role: 'menu',
   });
 
-  const itemDomElements = React.useRef<(HTMLElement | null)[]>([]);
-  const itemLabels = React.useRef<(string | null)[]>([]);
+  const listRef = React.useRef<(HTMLElement | null)[]>([]);
+  const labelsRef = React.useRef<(string | null)[]>([]);
 
   const direction = useDirection();
 
   const listNavigation = useListNavigation(floatingRootContext, {
     enabled: !disabled,
-    listRef: itemDomElements,
+    listRef,
     activeIndex,
     nested: parent.type !== undefined,
     loop,
     orientation,
     parentOrientation: parent.type === 'menubar' ? parent.context.orientation : undefined,
     rtl: direction === 'rtl',
-    disabledIndices: EMPTY_ARRAY,
+    disabledIndices(index) {
+      const element = listRef.current[index];
+      return element == null || getComputedStyle(element).display === 'none';
+    },
     onNavigate: setActiveIndex,
   });
 
@@ -316,7 +317,7 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
   }, []);
 
   const typeahead = useTypeahead(floatingRootContext, {
-    listRef: itemLabels,
+    listRef: labelsRef,
     activeIndex,
     resetMs: TYPEAHEAD_RESET_MS,
     onMatch: (index) => {
@@ -378,8 +379,8 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
       itemProps,
       popupProps,
       triggerProps,
-      itemDomElements,
-      itemLabels,
+      listRef,
+      labelsRef,
       mounted,
       open,
       popupRef,
@@ -403,8 +404,8 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
       itemProps,
       popupProps,
       triggerProps,
-      itemDomElements,
-      itemLabels,
+      listRef,
+      labelsRef,
       mounted,
       open,
       positionerRef,
@@ -496,8 +497,8 @@ export namespace useMenuRoot {
     itemProps: HTMLProps;
     popupProps: HTMLProps;
     triggerProps: HTMLProps;
-    itemDomElements: React.MutableRefObject<(HTMLElement | null)[]>;
-    itemLabels: React.MutableRefObject<(string | null)[]>;
+    listRef: React.MutableRefObject<(HTMLElement | null)[]>;
+    labelsRef: React.MutableRefObject<(string | null)[]>;
     mounted: boolean;
     open: boolean;
     popupRef: React.RefObject<HTMLElement | null>;

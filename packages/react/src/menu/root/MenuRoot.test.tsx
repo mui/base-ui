@@ -161,6 +161,45 @@ describe('<Menu.Root />', () => {
       expect(item2).to.have.attribute('aria-disabled', 'true');
     });
 
+    it('skips display: none items during keyboard navigation', async () => {
+      const { getByRole, getByTestId } = await render(
+        <Menu.Root>
+          <Menu.Trigger>Toggle</Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.Item data-testid="item-1">1</Menu.Item>
+                <Menu.Item style={{ display: 'none' }} data-testid="item-2">
+                  2
+                </Menu.Item>
+                <Menu.Item data-testid="item-3">3</Menu.Item>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>,
+      );
+
+      const trigger = getByRole('button', { name: 'Toggle' });
+      await act(async () => {
+        trigger.focus();
+      });
+
+      await user.keyboard('{Enter}');
+
+      const item1 = getByTestId('item-1');
+      const item3 = getByTestId('item-3');
+
+      await waitFor(() => {
+        expect(item1).toHaveFocus();
+      });
+
+      await user.keyboard('{ArrowDown}');
+
+      await waitFor(() => {
+        expect(item3).toHaveFocus();
+      });
+    });
+
     describe('text navigation', () => {
       it('changes the highlighted item', async ({ skip }) => {
         if (isJSDOM) {
