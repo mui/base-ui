@@ -15,10 +15,6 @@ export const TooltipPositionerContext = React.createContext<TooltipPositionerCon
   undefined,
 );
 
-if (process.env.NODE_ENV !== 'production') {
-  TooltipPositionerContext.displayName = 'TooltipPositionerContext';
-}
-
 export function useTooltipPositionerContext() {
   const context = React.useContext(TooltipPositionerContext);
   if (context === undefined) {
