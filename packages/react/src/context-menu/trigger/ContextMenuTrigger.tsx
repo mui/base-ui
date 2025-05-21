@@ -90,6 +90,7 @@ export const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
   });
 
   const handleTouchStart = useEventCallback((event: React.TouchEvent) => {
+    allowMouseUpTriggerRef.current = false;
     if (event.touches.length === 1) {
       const touch = event.touches[0];
       touchPositionRef.current = { x: touch.clientX, y: touch.clientY };
