@@ -82,7 +82,7 @@ export function useSelectTrigger(
     {
       'aria-labelledby': labelId,
       'aria-readonly': readOnly || undefined,
-      tabIndex: disabled ? -1 : 0, // this is needed to make the button focused after click in Safari
+      tabIndex: disabled ? -1 : 0,
       ref: handleRef,
       onFocus(event) {
         setTypeaheadReady(true);
