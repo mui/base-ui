@@ -33,7 +33,7 @@ export const SelectValue = React.forwardRef(function SelectValue(
 
 export namespace SelectValue {
   export interface Props extends Omit<BaseUIComponentProps<'span', State>, 'children'> {
-    children: null | undefined | string | ((label: string, value: any) => React.ReactNode);
+    children: React.ReactNode | ((label: string, value: any) => React.ReactNode);
   }
 
   export interface State {}
