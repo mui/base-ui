@@ -22,7 +22,7 @@ export const ProgressValue = React.forwardRef(function ProgressValue(
   const formattedValueArg = value == null ? 'indeterminate' : formattedValue;
   const formattedValueDisplay = value == null ? null : formattedValue;
 
-  const renderElement = useRenderElement('span', componentProps, {
+  const element = useRenderElement('span', componentProps, {
     state,
     ref: forwardedRef,
     props: [
@@ -38,7 +38,7 @@ export const ProgressValue = React.forwardRef(function ProgressValue(
     customStyleHookMapping: progressStyleHookMapping,
   });
 
-  return renderElement();
+  return element;
 });
 
 export namespace ProgressValue {

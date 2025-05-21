@@ -1,10 +1,11 @@
 'use client';
 import * as React from 'react';
+import type { BaseUIComponentProps } from '../../utils/types';
+import { useRenderElement } from '../../utils/useRenderElement';
+import { useButton } from '../../use-button';
 import { useNumberFieldRootContext } from '../root/NumberFieldRootContext';
 import { useNumberFieldButton } from '../root/useNumberFieldButton';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import type { NumberFieldRoot } from '../root/NumberFieldRoot';
-import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import { styleHookMapping } from '../utils/styleHooks';
 
 /**
@@ -14,13 +15,39 @@ import { styleHookMapping } from '../utils/styleHooks';
  * Documentation: [Base UI Number Field](https://base-ui.com/react/components/number-field)
  */
 export const NumberFieldIncrement = React.forwardRef(function NumberFieldIncrement(
-  props: NumberFieldIncrement.Props,
+  componentProps: NumberFieldIncrement.Props,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
-  const { render, className, disabled: disabledProp = false, ...otherProps } = props;
+  const { render, className, disabled: disabledProp = false, ...elementProps } = componentProps;
 
   const {
+    allowInputSyncRef,
+    disabled: contextDisabled,
+    formatOptionsRef,
+    getStepAmount,
+    id,
+    incrementValue,
+    inputRef,
+    inputValue,
+    intentionalTouchCheckTimeout,
+    isPressedRef,
+    locale,
+    maxWithDefault,
+    minWithDefault,
+    movesAfterTouchRef,
+    readOnly,
+    setValue,
+    startAutoChange,
     state,
+    stopAutoChange,
+    value,
+    valueRef,
+  } = useNumberFieldRootContext();
+
+  const disabled = disabledProp || contextDisabled;
+
+  const { props } = useNumberFieldButton({
+    isIncrement: true,
     inputRef,
     startAutoChange,
     stopAutoChange,
@@ -41,50 +68,24 @@ export const NumberFieldIncrement = React.forwardRef(function NumberFieldIncreme
     intentionalTouchCheckTimeout,
     movesAfterTouchRef,
     locale,
-  } = useNumberFieldRootContext();
-
-  const { getCommonButtonProps } = useNumberFieldButton({
-    inputRef,
-    startAutoChange,
-    stopAutoChange,
-    minWithDefault,
-    maxWithDefault,
-    value,
-    inputValue,
-    disabled: disabledProp || disabled,
-    readOnly,
-    id,
-    setValue,
-    getStepAmount,
-    incrementValue,
-    allowInputSyncRef,
-    formatOptionsRef,
-    valueRef,
-    isPressedRef,
-    intentionalTouchCheckTimeout,
-    movesAfterTouchRef,
-    locale,
   });
 
-  const propGetter = React.useCallback(
-    (externalProps: HTMLProps) => getCommonButtonProps(true, externalProps),
-    [getCommonButtonProps],
-  );
+  const { getButtonProps, buttonRef } = useButton({
+    disabled,
+  });
 
-  const { renderElement } = useComponentRenderer({
-    propGetter,
-    ref: forwardedRef,
-    render: render ?? 'button',
+  const element = useRenderElement('button', componentProps, {
+    ref: [forwardedRef, buttonRef],
     state,
-    className,
-    extraProps: otherProps,
+    props: [props, elementProps, getButtonProps],
     customStyleHookMapping: styleHookMapping,
   });
 
-  return renderElement();
+  return element;
 });
 
 export namespace NumberFieldIncrement {
   export interface State extends NumberFieldRoot.State {}
+
   export interface Props extends BaseUIComponentProps<'button', State> {}
 }
