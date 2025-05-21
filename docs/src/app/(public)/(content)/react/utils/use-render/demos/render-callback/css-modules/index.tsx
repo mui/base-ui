@@ -31,13 +31,13 @@ function Counter(props: CounterProps) {
     'aria-label': `Count is ${count}, click to increase.`,
   };
 
-  const { renderElement } = useRender({
+  const element = useRender({
     render,
     state,
     props: mergeProps<'button'>(defaultProps, otherProps),
   });
 
-  return renderElement();
+  return element;
 }
 
 export default function ExampleCounter() {

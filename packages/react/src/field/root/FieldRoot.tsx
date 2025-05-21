@@ -129,16 +129,14 @@ export const FieldRoot = React.forwardRef(function FieldRoot(
     ],
   );
 
-  const renderElement = useRenderElement('div', componentProps, {
+  const element = useRenderElement('div', componentProps, {
     ref: forwardedRef,
     state,
     props: elementProps,
     customStyleHookMapping: fieldValidityMapping,
   });
 
-  return (
-    <FieldRootContext.Provider value={contextValue}>{renderElement()}</FieldRootContext.Provider>
-  );
+  return <FieldRootContext.Provider value={contextValue}>{element}</FieldRootContext.Provider>;
 });
 
 export interface FieldValidityData {

@@ -54,7 +54,7 @@ export const CollapsibleRoot = React.forwardRef(function CollapsibleRoot(
   );
 
   // @ts-expect-error Collapsible accepts `render={null}`
-  const renderElement = useRenderElement('div', componentProps, {
+  const element = useRenderElement('div', componentProps, {
     state,
     ref: forwardedRef,
     props: elementProps,
@@ -64,7 +64,7 @@ export const CollapsibleRoot = React.forwardRef(function CollapsibleRoot(
   if (componentProps.render !== null) {
     return (
       <CollapsibleRootContext.Provider value={contextValue}>
-        {renderElement()}
+        {element}
       </CollapsibleRootContext.Provider>
     );
   }

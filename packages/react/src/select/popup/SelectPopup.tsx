@@ -56,7 +56,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
 
   const { props } = useSelectPopup();
 
-  const renderElement = useRenderElement('div', componentProps, {
+  const element = useRenderElement('div', componentProps, {
     ref: [forwardedRef, popupRef],
     state,
     customStyleHookMapping,
@@ -86,7 +86,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
         />
       )}
       <FloatingFocusManager context={positioner.context} modal={false} disabled={!mounted}>
-        {renderElement()}
+        {element}
       </FloatingFocusManager>
     </React.Fragment>
   );

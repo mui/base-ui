@@ -317,7 +317,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
     ],
   );
 
-  const renderElement = useRenderElement('div', componentProps, {
+  const element = useRenderElement('div', componentProps, {
     state,
     ref: [forwardedRef, sliderRef],
     props: [
@@ -335,7 +335,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
   return (
     <SliderRootContext.Provider value={contextValue}>
       <CompositeList elementsRef={thumbRefs} onMapChange={setThumbMap}>
-        {renderElement()}
+        {element}
       </CompositeList>
     </SliderRootContext.Provider>
   );

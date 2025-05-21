@@ -14,8 +14,8 @@ describe('<Field.Error />', () => {
     },
   }));
 
-  it('should set aria-describedby on the control automatically', () => {
-    render(
+  it('should set aria-describedby on the control automatically', async () => {
+    await render(
       <Field.Root invalid>
         <Field.Control />
         <Field.Error match>Message</Field.Error>
@@ -28,8 +28,8 @@ describe('<Field.Error />', () => {
     );
   });
 
-  it('should show error messages by default', () => {
-    render(
+  it('should show error messages by default', async () => {
+    await render(
       <Field.Root>
         <Field.Control required />
         <Field.Error>Message</Field.Error>
@@ -49,8 +49,8 @@ describe('<Field.Error />', () => {
   });
 
   describe('prop: match', () => {
-    it('should only render when `match` matches constraint validation', () => {
-      render(
+    it('should only render when `match` matches constraint validation', async () => {
+      await render(
         <Field.Root>
           <Field.Control required />
           <Field.Error match="valueMissing">Message</Field.Error>
@@ -69,8 +69,8 @@ describe('<Field.Error />', () => {
       expect(screen.queryByText('Message')).not.to.equal(null);
     });
 
-    it('should show custom errors', () => {
-      render(
+    it('should show custom errors', async () => {
+      await render(
         <Field.Root validate={() => 'error'}>
           <Field.Control />
           <Field.Error match="customError">Message</Field.Error>
@@ -88,7 +88,7 @@ describe('<Field.Error />', () => {
     });
 
     it('always renders the error message when `match` is true', () => {
-      render(
+      await render(
         <Field.Root>
           <Field.Control required />
           <Field.Error match>Message</Field.Error>

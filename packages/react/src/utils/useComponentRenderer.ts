@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { CustomStyleHookMapping } from './getStyleHookProps';
-import { useRenderElement } from './useRenderElement';
+import { useRenderElementLazy } from './useRenderElement';
 import type { ComponentRenderFn, HTMLProps } from './types';
 
 export interface ComponentRendererSettings<State, RenderedElementType extends Element> {
@@ -56,7 +56,7 @@ export function useComponentRenderer<
   const renderString = typeof params.render === 'string' ? params.render : undefined;
   const renderProp = typeof params.render === 'string' ? undefined : params.render;
 
-  const renderElement = useRenderElement(
+  const renderElement = useRenderElementLazy(
     renderString,
     { className: params.className, render: renderProp },
     { ...params, props: params.extraProps },
