@@ -136,6 +136,8 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
     commitValidation,
     value: valueUnwrapped,
     controlRef,
+    name,
+    getValue: () => valueUnwrapped,
   });
 
   const registerInputValidationRef = React.useCallback(
