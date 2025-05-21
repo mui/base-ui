@@ -72,19 +72,19 @@ function useRenderElementProps<
 
   const className = resolveClassName(classNameProp, state);
 
-  let styleHooks: Record<string, string> | undefined;
+  let styleClassName = '';
   if (disableStyleHooks !== true) {
     // SAFETY: We use typings to ensure `disableStyleHooks` is either always set or
     // always unset, so this `if` block is stable across renders.
     /* eslint-disable-next-line react-hooks/rules-of-hooks */
-    styleHooks = React.useMemo(
+    styleClassName = React.useMemo(
       () => getStyleHookProps(state, customStyleHookMapping),
       [state, customStyleHookMapping],
     );
   }
 
   const outProps: React.HTMLAttributes<any> & React.RefAttributes<any> = propGetter(
-    mergeObjects(styleHooks, Array.isArray(props) ? mergePropsN(props) : props) ?? EMPTY_OBJECT,
+    (Array.isArray(props) ? mergePropsN(props) : props) ?? EMPTY_OBJECT,
   );
 
   // SAFETY: The `useForkRef` functions use a single hook to store the same value,
@@ -101,6 +101,8 @@ function useRenderElementProps<
   if (className !== undefined) {
     outProps.className = className;
   }
+
+  outProps.className = (outProps.className ?? '') + ' ' + styleClassName;
 
   return outProps;
 }
