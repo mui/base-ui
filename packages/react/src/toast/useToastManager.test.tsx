@@ -755,4 +755,87 @@ describe('useToast', () => {
       expect(screen.queryByTestId('root')).to.equal(null);
     });
   });
+
+  describe('prop: limit', () => {
+    const { clock, render } = createRenderer();
+
+    clock.withFakeTimers();
+
+    function TestList() {
+      const [count, setCount] = React.useState(0);
+      const { toasts, add } = useToastManager();
+      return (
+        <React.Fragment>
+          {toasts.map((t) => (
+            <Toast.Root key={t.id} toast={t} data-testid={t.title}>
+              <Toast.Close data-testid={`close-${t.title}`} />
+            </Toast.Root>
+          ))}
+          <button
+            onClick={() => {
+              const nextCount = count + 1;
+              setCount(nextCount);
+              add({ title: `toast-${nextCount}` });
+            }}
+          >
+            add
+          </button>
+        </React.Fragment>
+      );
+    }
+
+    it('marks toasts as limited when the limit', async () => {
+      await render(
+        <Toast.Provider limit={2}>
+          <Toast.Viewport>
+            <TestList />
+          </Toast.Viewport>
+        </Toast.Provider>,
+      );
+
+      const addButton = screen.getByRole('button', { name: 'add' });
+
+      fireEvent.click(addButton);
+      const toast1 = screen.getByTestId('toast-1');
+      expect(toast1).not.to.have.attribute('data-limited');
+
+      fireEvent.click(addButton);
+      const toast2 = screen.getByTestId('toast-2');
+      expect(toast2).not.to.have.attribute('data-limited');
+
+      fireEvent.click(addButton);
+      const toast3 = screen.getByTestId('toast-3');
+      expect(toast3).not.to.have.attribute('data-limited');
+      expect(toast1).to.have.attribute('data-limited');
+    });
+
+    it('unmarks toasts as limited when the limit is not exceeded', async () => {
+      await render(
+        <Toast.Provider limit={2}>
+          <Toast.Viewport>
+            <TestList />
+          </Toast.Viewport>
+        </Toast.Provider>,
+      );
+
+      const addButton = screen.getByRole('button', { name: 'add' });
+
+      fireEvent.click(addButton);
+      const toast1 = screen.getByTestId('toast-1');
+      expect(toast1).not.to.have.attribute('data-limited');
+
+      fireEvent.click(addButton);
+      const toast2 = screen.getByTestId('toast-2');
+      expect(toast2).not.to.have.attribute('data-limited');
+
+      fireEvent.click(addButton);
+      const toast3 = screen.getByTestId('toast-3');
+      expect(toast3).not.to.have.attribute('data-limited');
+
+      const closeToast3 = screen.getByTestId('close-toast-3');
+      fireEvent.click(closeToast3);
+
+      expect(toast1).not.to.have.attribute('data-limited');
+    });
+  });
 });
