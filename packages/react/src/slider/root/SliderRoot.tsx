@@ -313,13 +313,6 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
     ],
   );
 
-  const serializedValue = React.useMemo(() => {
-    if (valueUnwrapped == null) {
-      return '';
-    }
-    return JSON.stringify(valueUnwrapped);
-  }, [valueUnwrapped]);
-
   const element = useRenderElement('div', componentProps, {
     state,
     ref: [forwardedRef, sliderRef],
@@ -339,18 +332,38 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
     <SliderRootContext.Provider value={contextValue}>
       <CompositeList elementsRef={thumbRefs} onMapChange={setThumbMap}>
         {element}
-        <input
-          {...fieldControlValidation.getInputValidationProps({
-            type: 'hidden',
-            disabled,
-            name,
-            ref: inputRef,
-            value: serializedValue,
-            style: visuallyHidden,
-            tabIndex: -1,
-            'aria-hidden': true,
-          })}
-        />
+        {range ? (
+          values.map((value, index) => {
+            return (
+              <input
+                key={`${name}-input-${index}`}
+                {...fieldControlValidation.getInputValidationProps({
+                  type: 'hidden',
+                  disabled,
+                  name,
+                  ref: inputRef,
+                  value,
+                  style: visuallyHidden,
+                  tabIndex: -1,
+                  'aria-hidden': true,
+                })}
+              />
+            );
+          })
+        ) : (
+          <input
+            {...fieldControlValidation.getInputValidationProps({
+              type: 'hidden',
+              disabled,
+              name,
+              ref: inputRef,
+              value: valueUnwrapped,
+              style: visuallyHidden,
+              tabIndex: -1,
+              'aria-hidden': true,
+            })}
+          />
+        )}
       </CompositeList>
     </SliderRootContext.Provider>
   );

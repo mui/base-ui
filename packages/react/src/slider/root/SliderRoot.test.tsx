@@ -1850,14 +1850,12 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
 
     describe.skipIf(isJSDOM)('form submission', () => {
       it('should include the slider value', async () => {
-        let stringifiedFormData = '';
-
         const { getByRole } = await render(
           <Form
             onSubmit={(event) => {
               event.preventDefault();
               const formData = new FormData(event.currentTarget);
-              stringifiedFormData = new URLSearchParams(formData as any).toString();
+              expect(formData.get('slider')).to.equal('25');
             }}
           >
             <Field.Root name="slider">
@@ -1873,19 +1871,15 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
 
         const submit = getByRole('button');
         fireEvent.click(submit);
-
-        expect(stringifiedFormData).to.equal('slider=25');
       });
 
       it('should include range slider value', async () => {
-        let formValues;
-
         const { getByRole } = await render(
           <Form
             onSubmit={(event) => {
               event.preventDefault();
               const formData = new FormData(event.currentTarget);
-              formValues = Object.fromEntries(formData as any);
+              expect(formData.getAll('slider')).to.deep.equal(['25', '50']);
             }}
           >
             <Field.Root name="slider">
@@ -1902,8 +1896,6 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
 
         const submit = getByRole('button');
         fireEvent.click(submit);
-
-        expect(formValues).to.deep.equal({ slider: '[25,50]' });
       });
     });
   });
