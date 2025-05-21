@@ -168,7 +168,7 @@ describe('<Switch.Root />', () => {
     });
   });
 
-  it('should place the style hooks on the root and the thumb', async () => {
+  it('should place the state attribute mappings on the root and the thumb', async () => {
     const { setProps } = await render(
       <Switch.Root defaultChecked disabled readOnly required>
         <Switch.Thumb data-testid="thumb" />

@@ -64,7 +64,7 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
     className,
     state,
     propGetter,
-    customStyleHookMapping: pressableTriggerOpenStateMapping,
+    stateAttributesMapping: pressableTriggerOpenStateMapping,
     extraProps: other,
   });
 

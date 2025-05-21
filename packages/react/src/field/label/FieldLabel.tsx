@@ -53,7 +53,7 @@ export const FieldLabel = React.forwardRef(function FieldLabel(
       },
       elementProps,
     ],
-    customStyleHookMapping: fieldValidityMapping,
+    stateAttributesMapping: fieldValidityMapping,
   });
 
   return element;

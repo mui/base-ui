@@ -9,14 +9,14 @@ import { fieldValidityMapping } from '../../field/utils/constants';
 import { DEFAULT_STEP } from '../utils/constants';
 import { ARABIC_RE, HAN_RE, getNumberLocaleDetails, parseNumber } from '../utils/parse';
 import type { NumberFieldRoot } from '../root/NumberFieldRoot';
-import { styleHookMapping } from '../utils/styleHooks';
+import { stateAttributesMapping } from '../utils/stateAttributesMapping';
 import { useField } from '../../field/useField';
 import { useFormContext } from '../../form/FormContext';
 import { useRenderElement } from '../../utils/useRenderElement';
 
-const customStyleHookMapping = {
+const inputMapping = {
   ...fieldValidityMapping,
-  ...styleHookMapping,
+  ...stateAttributesMapping,
 };
 
 const NAVIGATE_KEYS = new Set([
@@ -308,7 +308,7 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
     ref: [forwardedRef, inputRef, inputValidationRef],
     state,
     props: [inputProps, getInputValidationProps(), getValidationProps(), elementProps],
-    customStyleHookMapping,
+    stateAttributesMapping: inputMapping,
   });
 
   return element;

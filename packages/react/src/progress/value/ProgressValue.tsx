@@ -4,7 +4,7 @@ import type { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useProgressRootContext } from '../root/ProgressRootContext';
 import type { ProgressRoot } from '../root/ProgressRoot';
-import { progressStyleHookMapping } from '../root/styleHooks';
+import { progressMapping } from '../root/stateAttributesMapping';
 /**
  * A text label displaying the current value.
  * Renders a `<span>` element.
@@ -35,7 +35,7 @@ export const ProgressValue = React.forwardRef(function ProgressValue(
       },
       elementProps,
     ],
-    customStyleHookMapping: progressStyleHookMapping,
+    stateAttributesMapping: progressMapping,
   });
 
   return element;

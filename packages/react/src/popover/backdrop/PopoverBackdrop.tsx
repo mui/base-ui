@@ -2,13 +2,13 @@
 import * as React from 'react';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
 import type { BaseUIComponentProps } from '../../utils/types';
-import { type CustomStyleHookMapping } from '../../utils/getStyleHookProps';
+import { type StateAttributesMapping } from '../../utils/mapStateAttributes';
 import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
-import { transitionStatusMapping } from '../../utils/styleHookMapping';
+import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
 import { useRenderElement } from '../../utils/useRenderElement';
 
-const customStyleHookMapping: CustomStyleHookMapping<PopoverBackdrop.State> = {
+const stateAttributesMapping: StateAttributesMapping<PopoverBackdrop.State> = {
   ...baseMapping,
   ...transitionStatusMapping,
 };
@@ -50,7 +50,7 @@ export const PopoverBackdrop = React.forwardRef(function PopoverBackdrop(
       },
       elementProps,
     ],
-    customStyleHookMapping,
+    stateAttributesMapping,
   });
 
   return element;

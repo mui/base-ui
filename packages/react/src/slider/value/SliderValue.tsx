@@ -4,7 +4,7 @@ import { formatNumber } from '../../utils/formatNumber';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useSliderRootContext } from '../root/SliderRootContext';
-import { sliderStyleHookMapping } from '../root/styleHooks';
+import { sliderMapping } from '../root/stateAttributesMapping';
 import type { SliderRoot } from '../root/SliderRoot';
 
 /**
@@ -67,7 +67,7 @@ export const SliderValue = React.forwardRef(function SliderValue(
       },
       elementProps,
     ],
-    customStyleHookMapping: sliderStyleHookMapping,
+    stateAttributesMapping: sliderMapping,
   });
 
   return element;

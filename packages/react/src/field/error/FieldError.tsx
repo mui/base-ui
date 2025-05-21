@@ -70,7 +70,7 @@ export const FieldError = React.forwardRef(function FieldError(
       },
       elementProps,
     ],
-    customStyleHookMapping: fieldValidityMapping,
+    stateAttributesMapping: fieldValidityMapping,
   });
 
   if (!rendered) {

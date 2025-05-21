@@ -1,4 +1,4 @@
-import { TransitionStatusDataAttributes } from '../../utils/styleHookMapping';
+import { TransitionStatusDataAttributes } from '../../utils/stateAttributesMapping';
 
 export enum MenuCheckboxItemIndicatorDataAttributes {
   /**

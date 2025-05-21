@@ -3,7 +3,7 @@ import * as React from 'react';
 import type { BaseUIComponentProps, Orientation } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useSliderRootContext } from '../root/SliderRootContext';
-import { sliderStyleHookMapping } from '../root/styleHooks';
+import { sliderMapping } from '../root/stateAttributesMapping';
 import type { SliderRoot } from '../root/SliderRoot';
 import { valueArrayToPercentages } from '../utils/valueArrayToPercentages';
 
@@ -72,7 +72,7 @@ export const SliderIndicator = React.forwardRef(function SliderIndicator(
     state,
     ref: forwardedRef,
     props: [{ style }, elementProps],
-    customStyleHookMapping: sliderStyleHookMapping,
+    stateAttributesMapping: sliderMapping,
   });
 
   return element;

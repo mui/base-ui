@@ -2,14 +2,14 @@
 import * as React from 'react';
 import { useCheckboxRootContext } from '../root/CheckboxRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { useCustomStyleHookMapping } from '../utils/useCustomStyleHookMapping';
+import { useStateAttributesMapping } from '../utils/useStateAttributesMapping';
 import type { CheckboxRoot } from '../root/CheckboxRoot';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { type TransitionStatus, useTransitionStatus } from '../../utils/useTransitionStatus';
 import { useForkRef } from '../../utils/useForkRef';
-import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
-import { transitionStatusMapping } from '../../utils/styleHookMapping';
+import type { StateAttributesMapping } from '../../utils/mapStateAttributes';
+import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
 import { fieldValidityMapping } from '../../field/utils/constants';
 
 /**
@@ -51,15 +51,15 @@ export const CheckboxIndicator = React.forwardRef(function CheckboxIndicator(
     },
   });
 
-  const baseStyleHookMapping = useCustomStyleHookMapping(rootState);
+  const baseMapping = useStateAttributesMapping(rootState);
 
-  const customStyleHookMapping: CustomStyleHookMapping<CheckboxIndicator.State> = React.useMemo(
+  const stateAttributesMapping: StateAttributesMapping<CheckboxIndicator.State> = React.useMemo(
     () => ({
-      ...baseStyleHookMapping,
+      ...baseMapping,
       ...transitionStatusMapping,
       ...fieldValidityMapping,
     }),
-    [baseStyleHookMapping],
+    [baseMapping],
   );
 
   const { renderElement } = useComponentRenderer({
@@ -67,7 +67,7 @@ export const CheckboxIndicator = React.forwardRef(function CheckboxIndicator(
     ref: mergedRef,
     state,
     className,
-    customStyleHookMapping,
+    stateAttributesMapping,
     extraProps: otherProps,
   });
 

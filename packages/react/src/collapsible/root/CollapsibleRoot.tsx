@@ -5,7 +5,7 @@ import { useRenderElement } from '../../utils/useRenderElement';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { useCollapsibleRoot } from './useCollapsibleRoot';
 import { CollapsibleRootContext } from './CollapsibleRootContext';
-import { collapsibleStyleHookMapping } from './styleHooks';
+import { collapsibleMapping } from './stateAttributesMapping';
 
 /**
  * Groups all parts of the collapsible.
@@ -58,7 +58,7 @@ export const CollapsibleRoot = React.forwardRef(function CollapsibleRoot(
     state,
     ref: forwardedRef,
     props: elementProps,
-    customStyleHookMapping: collapsibleStyleHookMapping,
+    stateAttributesMapping: collapsibleMapping,
   });
 
   if (componentProps.render !== null) {

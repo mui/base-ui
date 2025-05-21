@@ -4,7 +4,7 @@ import { useNumberFieldRootContext } from '../root/NumberFieldRootContext';
 import { useNumberFieldButton } from '../root/useNumberFieldButton';
 import type { NumberFieldRoot } from '../root/NumberFieldRoot';
 import type { BaseUIComponentProps } from '../../utils/types';
-import { styleHookMapping } from '../utils/styleHooks';
+import { stateAttributesMapping } from '../utils/stateAttributesMapping';
 import { useRenderElement } from '../../utils/useRenderElement';
 
 /**
@@ -70,7 +70,7 @@ export const NumberFieldIncrement = React.forwardRef(function NumberFieldIncreme
     ref: forwardedRef,
     state,
     props: [getCommonButtonProps(true), elementProps],
-    customStyleHookMapping: styleHookMapping,
+    stateAttributesMapping,
   });
 
   return element;

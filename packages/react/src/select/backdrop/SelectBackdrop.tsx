@@ -3,12 +3,12 @@ import * as React from 'react';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import { popupStateMapping } from '../../utils/popupStateMapping';
-import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
+import type { StateAttributesMapping } from '../../utils/mapStateAttributes';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
-import { transitionStatusMapping } from '../../utils/styleHookMapping';
+import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
 import { useRenderElement } from '../../utils/useRenderElement';
 
-const customStyleHookMapping: CustomStyleHookMapping<SelectBackdrop.State> = {
+const stateAttributesMapping: StateAttributesMapping<SelectBackdrop.State> = {
   ...popupStateMapping,
   ...transitionStatusMapping,
 };
@@ -49,7 +49,7 @@ export const SelectBackdrop = React.forwardRef(function SelectBackdrop(
       },
       elementProps,
     ],
-    customStyleHookMapping,
+    stateAttributesMapping,
   });
 
   return element;

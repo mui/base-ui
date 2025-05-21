@@ -3,7 +3,7 @@ import * as React from 'react';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { CompositeRoot } from '../../composite/root/CompositeRoot';
-import { tabsStyleHookMapping } from '../root/styleHooks';
+import { tabsMapping } from '../root/stateAttributesMapping';
 import { useTabsRootContext } from '../root/TabsRootContext';
 import { TabsRoot } from '../root/TabsRoot';
 import { type TabMetadata } from '../tab/useTabsTab';
@@ -62,7 +62,7 @@ export const TabsList = React.forwardRef(function TabsList(
     className,
     state,
     extraProps: other,
-    customStyleHookMapping: tabsStyleHookMapping,
+    stateAttributesMapping: tabsMapping,
   });
 
   const tabsListContextValue: TabsListContext = React.useMemo(

@@ -1,10 +1,10 @@
-export type CustomStyleHookMapping<State> = {
+export type StateAttributesMapping<State> = {
   [Property in keyof State]?: (state: State[Property]) => Record<string, string> | null;
 };
 
-export function getStyleHookProps<State extends Record<string, any>>(
+export function mapStateAttributes<State extends Record<string, any>>(
   state: State,
-  customMapping?: CustomStyleHookMapping<State>,
+  customMapping?: StateAttributesMapping<State>,
 ) {
   const props: Record<string, string> = {};
 

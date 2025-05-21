@@ -133,7 +133,7 @@ export const FieldRoot = React.forwardRef(function FieldRoot(
     ref: forwardedRef,
     state,
     props: elementProps,
-    customStyleHookMapping: fieldValidityMapping,
+    stateAttributesMapping: fieldValidityMapping,
   });
 
   return <FieldRootContext.Provider value={contextValue}>{element}</FieldRootContext.Provider>;

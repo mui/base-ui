@@ -3,13 +3,13 @@ import * as React from 'react';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { usePreviewCardRootContext } from '../root/PreviewCardContext';
 import type { BaseUIComponentProps } from '../../utils/types';
-import { type CustomStyleHookMapping } from '../../utils/getStyleHookProps';
+import { type StateAttributesMapping } from '../../utils/mapStateAttributes';
 import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
-import { transitionStatusMapping } from '../../utils/styleHookMapping';
+import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
 import { mergeProps } from '../../merge-props';
 
-const customStyleHookMapping: CustomStyleHookMapping<PreviewCardBackdrop.State> = {
+const stateAttributesMapping: StateAttributesMapping<PreviewCardBackdrop.State> = {
   ...baseMapping,
   ...transitionStatusMapping,
 };
@@ -53,7 +53,7 @@ export const PreviewCardBackdrop = React.forwardRef(function PreviewCardBackdrop
       },
       other,
     ),
-    customStyleHookMapping,
+    stateAttributesMapping,
   });
 
   return renderElement();

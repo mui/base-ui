@@ -7,9 +7,9 @@ import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { pressableTriggerOpenStateMapping } from '../../utils/popupStateMapping';
 import { fieldValidityMapping } from '../../field/utils/constants';
 import { useRenderElement } from '../../utils/useRenderElement';
-import { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
+import { StateAttributesMapping } from '../../utils/mapStateAttributes';
 
-const customStyleHookMapping: CustomStyleHookMapping<SelectTrigger.State> = {
+const stateAttributesMapping: StateAttributesMapping<SelectTrigger.State> = {
   ...pressableTriggerOpenStateMapping,
   ...fieldValidityMapping,
 };
@@ -51,7 +51,7 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
   const element = useRenderElement('div', componentProps, {
     ref: [forwardedRef, triggerRef],
     state,
-    customStyleHookMapping,
+    stateAttributesMapping,
     props,
   });
 

@@ -25,7 +25,7 @@ export const TooltipTrigger = React.forwardRef(function TooltipTrigger(
     state,
     ref: [forwardedRef, setTriggerElement],
     props: [triggerProps, elementProps],
-    customStyleHookMapping: triggerOpenStateMapping,
+    stateAttributesMapping: triggerOpenStateMapping,
   });
 
   return element;

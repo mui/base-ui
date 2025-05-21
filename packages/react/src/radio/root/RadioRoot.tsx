@@ -8,7 +8,7 @@ import { RadioRootContext } from './RadioRootContext';
 import { CompositeItem } from '../../composite/item/CompositeItem';
 import { NOOP } from '../../utils/noop';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
-import { customStyleHookMapping } from '../utils/customStyleHookMapping';
+import { stateAttributesMapping } from '../utils/stateAttributesMapping';
 
 /**
  * Represents the radio button itself.
@@ -71,7 +71,7 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
     className,
     state,
     extraProps: otherProps,
-    customStyleHookMapping,
+    stateAttributesMapping,
   });
 
   return (

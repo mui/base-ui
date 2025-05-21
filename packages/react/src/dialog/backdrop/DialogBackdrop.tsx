@@ -5,12 +5,12 @@ import { mergeProps } from '../../merge-props';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { type TransitionStatus } from '../../utils/useTransitionStatus';
 import { type BaseUIComponentProps } from '../../utils/types';
-import { type CustomStyleHookMapping } from '../../utils/getStyleHookProps';
+import { type StateAttributesMapping } from '../../utils/mapStateAttributes';
 import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping';
-import { transitionStatusMapping } from '../../utils/styleHookMapping';
+import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
 import { useForkRef } from '../../utils/useForkRef';
 
-const customStyleHookMapping: CustomStyleHookMapping<DialogBackdrop.State> = {
+const stateAttributesMapping: StateAttributesMapping<DialogBackdrop.State> = {
   ...baseMapping,
   ...transitionStatusMapping,
 };
@@ -54,7 +54,7 @@ export const DialogBackdrop = React.forwardRef(function DialogBackdrop(
       },
       other,
     ),
-    customStyleHookMapping,
+    stateAttributesMapping,
   });
 
   // no need to render nested backdrops

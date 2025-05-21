@@ -8,7 +8,7 @@ import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import { useForkRef } from '../../utils/useForkRef';
-import { itemMapping } from '../utils/styleHookMapping';
+import { itemMapping } from '../utils/stateAttributesMapping';
 import { useCompositeListItem } from '../../composite/list/useCompositeListItem';
 import { mergeProps } from '../../merge-props';
 
@@ -58,7 +58,7 @@ const InnerMenuCheckboxItem = React.memo(
       className,
       state,
       propGetter: (externalProps) => mergeProps(itemProps, externalProps, getItemProps),
-      customStyleHookMapping: itemMapping,
+      stateAttributesMapping: itemMapping,
       extraProps: other,
     });
 

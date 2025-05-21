@@ -54,7 +54,7 @@ export const CheckboxGroup = React.forwardRef(function CheckboxGroup(
     state,
     ref: forwardedRef,
     extraProps: otherProps,
-    customStyleHookMapping: fieldValidityMapping,
+    stateAttributesMapping: fieldValidityMapping,
   });
 
   const contextValue: CheckboxGroupContext = React.useMemo(

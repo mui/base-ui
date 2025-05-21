@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useTabsPanel } from './useTabsPanel';
-import { tabsStyleHookMapping } from '../root/styleHooks';
+import { tabsMapping } from '../root/stateAttributesMapping';
 import { useTabsRootContext } from '../root/TabsRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { TabsRoot, type TabValue } from '../root/TabsRoot';
@@ -48,7 +48,7 @@ export const TabsPanel = React.forwardRef(function TabPanel(
     className,
     state,
     extraProps: { ...other, children: hidden && !keepMounted ? undefined : children },
-    customStyleHookMapping: tabsStyleHookMapping,
+    stateAttributesMapping: tabsMapping,
   });
 
   return renderElement();

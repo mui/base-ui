@@ -7,7 +7,7 @@ import {
   triggerOpenStateMapping,
   pressableTriggerOpenStateMapping,
 } from '../../utils/popupStateMapping';
-import { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
+import { StateAttributesMapping } from '../../utils/mapStateAttributes';
 import { useRenderElement } from '../../utils/useRenderElement';
 
 /**
@@ -37,7 +37,7 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
     buttonRef: forwardedRef,
   });
 
-  const customStyleHookMapping: CustomStyleHookMapping<{ open: boolean }> = React.useMemo(
+  const stateAttributesMapping: StateAttributesMapping<{ open: boolean }> = React.useMemo(
     () => ({
       open(value) {
         if (value && openReason === 'click') {
@@ -54,7 +54,7 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
     state,
     ref: [buttonRef, setTriggerElement],
     props: [triggerProps, elementProps, getButtonProps],
-    customStyleHookMapping,
+    stateAttributesMapping,
   });
 
   return element;

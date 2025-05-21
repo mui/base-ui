@@ -6,7 +6,7 @@ import { CompositeList } from '../../composite/list/CompositeList';
 import { useDirection } from '../../direction-provider/DirectionContext';
 import { useTabsRoot } from './useTabsRoot';
 import { TabsRootContext } from './TabsRootContext';
-import { tabsStyleHookMapping } from './styleHooks';
+import { tabsMapping } from './stateAttributesMapping';
 import { TabPanelMetadata } from '../panel/useTabsPanel';
 
 /**
@@ -83,7 +83,7 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
     state,
     extraProps: other,
     ref: forwardedRef,
-    customStyleHookMapping: tabsStyleHookMapping,
+    stateAttributesMapping: tabsMapping,
   });
 
   return (

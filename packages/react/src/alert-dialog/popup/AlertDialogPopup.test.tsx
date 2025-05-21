@@ -209,8 +209,8 @@ describe('<AlertDialog.Popup />', () => {
     });
   });
 
-  describe('style hooks', () => {
-    it('adds the `nested` and `nested-dialog-open` style hooks if a dialog has a parent dialog', async () => {
+  describe('state attribute mappings', () => {
+    it('adds the `nested` and `nested-dialog-open` mappings if a dialog has a parent dialog', async () => {
       await render(
         <AlertDialog.Root open>
           <AlertDialog.Portal>
@@ -240,7 +240,7 @@ describe('<AlertDialog.Popup />', () => {
       expect(nestedDialog).not.to.have.attribute('data-nested-dialog-open');
     });
 
-    it('adds the `nested` and `nested-dialog-open` style hooks on an alert dialog if has a parent dialog', async () => {
+    it('adds the `nested` and `nested-dialog-open` mappings on an alert dialog if has a parent dialog', async () => {
       await render(
         <Dialog.Root open>
           <Dialog.Portal>

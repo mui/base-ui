@@ -212,7 +212,7 @@ describe('<Select.Item />', () => {
     });
   });
 
-  describe('style hooks', () => {
+  describe('state attribute mappings', () => {
     it('should apply data-highlighted attribute when item is highlighted', async ({ skip }) => {
       if (!isJSDOM) {
         skip();

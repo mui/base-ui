@@ -1,10 +1,10 @@
-import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
+import type { StateAttributesMapping } from '../../utils/mapStateAttributes';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
-import { transitionStatusMapping } from '../../utils/styleHookMapping';
+import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
 import { fieldValidityMapping } from '../../field/utils/constants';
 import { RadioRootDataAttributes } from '../root/RadioRootDataAttributes';
 
-export const customStyleHookMapping = {
+export const stateAttributesMapping = {
   checked(value): Record<string, string> {
     if (value) {
       return { [RadioRootDataAttributes.checked]: '' };
@@ -13,7 +13,7 @@ export const customStyleHookMapping = {
   },
   ...transitionStatusMapping,
   ...fieldValidityMapping,
-} satisfies CustomStyleHookMapping<{
+} satisfies StateAttributesMapping<{
   checked: boolean;
   transitionStatus: TransitionStatus;
   valid: boolean | null;

@@ -6,7 +6,7 @@ import { useRenderElement } from '../../utils/useRenderElement';
 import { warn } from '../../utils/warn';
 import { useCollapsibleRootContext } from '../root/CollapsibleRootContext';
 import type { CollapsibleRoot } from '../root/CollapsibleRoot';
-import { collapsibleStyleHookMapping } from '../root/styleHooks';
+import { collapsibleMapping } from '../root/stateAttributesMapping';
 import { useCollapsiblePanel } from './useCollapsiblePanel';
 import { CollapsiblePanelCssVars } from './CollapsiblePanelCssVars';
 import { usePanelResize } from '../../utils/usePanelResize';
@@ -117,7 +117,7 @@ export const CollapsiblePanel = React.forwardRef(function CollapsiblePanel(
       },
       elementProps,
     ],
-    customStyleHookMapping: collapsibleStyleHookMapping,
+    stateAttributesMapping: collapsibleMapping,
   });
 
   const shouldRender = keepMounted || hiddenUntilFound || (!keepMounted && mounted);

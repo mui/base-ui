@@ -123,7 +123,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
     render: render ?? 'div',
     className,
     state,
-    customStyleHookMapping: popupStateMapping,
+    stateAttributesMapping: popupStateMapping,
     ref: mergedRef,
     extraProps: {
       ...positioner.positionerProps,

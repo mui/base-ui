@@ -94,7 +94,7 @@ export const PreviewCardPositioner = React.forwardRef(function PreviewCardPositi
     state,
     ref: mergedRef,
     extraProps: otherProps,
-    customStyleHookMapping: popupStateMapping,
+    stateAttributesMapping: popupStateMapping,
   });
 
   return (

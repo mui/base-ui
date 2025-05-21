@@ -1,11 +1,11 @@
 'use client';
 import * as React from 'react';
-import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
+import type { StateAttributesMapping } from '../../utils/mapStateAttributes';
 import type { CheckboxRoot } from '../root/CheckboxRoot';
 import { CheckboxRootDataAttributes } from '../root/CheckboxRootDataAttributes';
 
-export function useCustomStyleHookMapping(state: CheckboxRoot.State) {
-  return React.useMemo<CustomStyleHookMapping<typeof state>>(
+export function useStateAttributesMapping(state: CheckboxRoot.State) {
+  return React.useMemo<StateAttributesMapping<typeof state>>(
     () => ({
       checked(value): Record<string, string> {
         if (state.indeterminate) {

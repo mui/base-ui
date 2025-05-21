@@ -7,15 +7,15 @@ import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useForkRef } from '../../utils/useForkRef';
 import type { BaseUIComponentProps } from '../../utils/types';
-import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
+import type { StateAttributesMapping } from '../../utils/mapStateAttributes';
 import type { Side } from '../../utils/useAnchorPositioning';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping';
 import { mergeProps } from '../../merge-props';
-import { transitionStatusMapping } from '../../utils/styleHookMapping';
+import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 
-const customStyleHookMapping: CustomStyleHookMapping<MenuPopup.State> = {
+const stateAttributesMapping: StateAttributesMapping<MenuPopup.State> = {
   ...baseMapping,
   ...transitionStatusMapping,
 };
@@ -89,7 +89,7 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
       popupProps,
       other,
     ),
-    customStyleHookMapping,
+    stateAttributesMapping,
     ref: mergedRef,
   });
 

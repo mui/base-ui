@@ -1,4 +1,4 @@
-import type { CustomStyleHookMapping } from './getStyleHookProps';
+import type { StateAttributesMapping } from './mapStateAttributes';
 import { CollapsiblePanelDataAttributes } from '../collapsible/panel/CollapsiblePanelDataAttributes';
 import { CollapsibleTriggerDataAttributes } from '../collapsible/trigger/CollapsibleTriggerDataAttributes';
 
@@ -10,7 +10,7 @@ const PANEL_CLOSED_HOOK = {
   [CollapsiblePanelDataAttributes.closed]: '',
 };
 
-export const triggerOpenStateMapping: CustomStyleHookMapping<{
+export const triggerOpenStateMapping: StateAttributesMapping<{
   open: boolean;
 }> = {
   open(value) {
@@ -30,6 +30,6 @@ export const collapsibleOpenStateMapping = {
     }
     return PANEL_CLOSED_HOOK;
   },
-} satisfies CustomStyleHookMapping<{
+} satisfies StateAttributesMapping<{
   open: boolean;
 }>;

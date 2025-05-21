@@ -6,18 +6,18 @@ import { useAlertDialogRootContext } from '../root/AlertDialogRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import type { BaseUIComponentProps } from '../../utils/types';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
-import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
+import type { StateAttributesMapping } from '../../utils/mapStateAttributes';
 import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping';
 import { useForkRef } from '../../utils/useForkRef';
 import { InteractionType } from '../../utils/useEnhancedClickHandler';
-import { transitionStatusMapping } from '../../utils/styleHookMapping';
+import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
 import { AlertDialogPopupDataAttributes } from './AlertDialogPopupDataAttributes';
 import { InternalBackdrop } from '../../utils/InternalBackdrop';
 import { useAlertDialogPortalContext } from '../portal/AlertDialogPortalContext';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { inertValue } from '../../utils/inertValue';
 
-const customStyleHookMapping: CustomStyleHookMapping<AlertDialogPopup.State> = {
+const stateAttributesMapping: StateAttributesMapping<AlertDialogPopup.State> = {
   ...baseMapping,
   ...transitionStatusMapping,
   nestedDialogOpen(value) {
@@ -105,7 +105,7 @@ export const AlertDialogPopup = React.forwardRef(function AlertDialogPopup(
       style: { ...other.style, '--nested-dialogs': nestedOpenDialogCount },
       role: 'alertdialog',
     },
-    customStyleHookMapping,
+    stateAttributesMapping,
   });
 
   return (

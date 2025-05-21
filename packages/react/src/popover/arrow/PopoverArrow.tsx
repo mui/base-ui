@@ -36,7 +36,7 @@ export const PopoverArrow = React.forwardRef(function PopoverArrow(
     state,
     ref: [forwardedRef, arrowRef],
     props: [{ style: arrowStyles, 'aria-hidden': true }, elementProps],
-    customStyleHookMapping: popupStateMapping,
+    stateAttributesMapping: popupStateMapping,
   });
 
   return element;

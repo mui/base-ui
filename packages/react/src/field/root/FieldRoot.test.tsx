@@ -47,7 +47,7 @@ describe('<Field.Root />', () => {
   });
 
   describe('prop: disabled', () => {
-    it('should add data-disabled style hook to all components', async () => {
+    it('should add data-disabled state attribute mapping to all components', async () => {
       await render(
         <Field.Root data-testid="field" disabled>
           <Field.Control data-testid="control" />
@@ -151,7 +151,7 @@ describe('<Field.Root />', () => {
       });
     });
 
-    it('should apply [data-field] style hooks to field components', async () => {
+    it('should apply [data-field] state attribute mapping to field components', async () => {
       await render(
         <Field.Root>
           <Field.Label data-testid="label">Label</Field.Label>
@@ -490,9 +490,9 @@ describe('<Field.Root />', () => {
     });
   });
 
-  describe('style hooks', () => {
+  describe('state attribute mappings', () => {
     describe('touched', () => {
-      it('should apply [data-touched] style hook to all components when touched', async () => {
+      it('should apply [data-touched] state attribute mapping to all components when touched', async () => {
         await render(
           <Field.Root data-testid="root">
             <Field.Control data-testid="control" />
@@ -526,7 +526,7 @@ describe('<Field.Root />', () => {
     });
 
     describe('dirty', () => {
-      it('should apply [data-dirty] style hook to all components when dirty', async () => {
+      it('should apply [data-dirty] state attribute mapping to all components when dirty', async () => {
         await render(
           <Field.Root data-testid="root">
             <Field.Control data-testid="control" />
@@ -563,7 +563,7 @@ describe('<Field.Root />', () => {
     });
 
     describe('filled', async () => {
-      it('should apply [data-filled] style hook to all components when filled', async () => {
+      it('should apply [data-filled] state attribute mapping to all components when filled', async () => {
         await render(
           <Field.Root data-testid="root">
             <Field.Control data-testid="control" />
@@ -625,7 +625,7 @@ describe('<Field.Root />', () => {
     });
 
     describe('focused', () => {
-      it('should apply [data-focused] style hook to all components when focused', async () => {
+      it('should apply [data-focused] state attribute mapping to all components when focused', async () => {
         await render(
           <Field.Root data-testid="root">
             <Field.Control data-testid="control" />

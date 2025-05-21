@@ -22,7 +22,7 @@ import { AccordionRootContext } from './AccordionRootContext';
 
 const SUPPORTED_KEYS = new Set([ARROW_DOWN, ARROW_UP, ARROW_RIGHT, ARROW_LEFT, HOME, END]);
 
-const rootStyleHookMapping = {
+const rootMapping = {
   value: () => null,
 };
 
@@ -245,7 +245,7 @@ export const AccordionRoot = React.forwardRef(function AccordionRoot(
       },
       elementProps,
     ],
-    customStyleHookMapping: rootStyleHookMapping,
+    stateAttributesMapping: rootMapping,
   });
 
   return (
