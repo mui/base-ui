@@ -27,11 +27,7 @@ import { useFormContext } from '../../form/FormContext';
 import { useLatestRef } from '../../utils/useLatestRef';
 import { useField } from '../../field/useField';
 
-export type SelectOpenChangeReason =
-  | BaseOpenChangeReason
-  | 'window-resize'
-  | 'item-press'
-  | 'cancel-open';
+export type SelectOpenChangeReason = BaseOpenChangeReason | 'window-resize';
 
 const EMPTY_ARRAY: never[] = [];
 
