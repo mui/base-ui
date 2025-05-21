@@ -16,16 +16,11 @@ import { useEventCallback } from '../../utils/useEventCallback';
 import { useTransitionStatus } from '../../utils/useTransitionStatus';
 import { OPEN_DELAY } from '../utils/constants';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
-import {
-  translateOpenChangeReason,
-  BaseOpenChangeReason,
-} from '../../utils/translateOpenChangeReason';
+import { translateOpenChangeReason } from '../../utils/translateOpenChangeReason';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { PATIENT_CLICK_THRESHOLD } from '../../utils/constants';
 import { useScrollLock } from '../../utils/useScrollLock';
-import { PopoverRootContext } from './PopoverRootContext';
-
-type PopoverOpenChangeReason = BaseOpenChangeReason | 'close-press';
+import { PopoverOpenChangeReason, PopoverRootContext } from './PopoverRootContext';
 
 /**
  * Groups all parts of the popover.
