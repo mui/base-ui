@@ -36,6 +36,7 @@ import {
 import { ownerDocument } from '../../utils/owner';
 
 const EMPTY_ARRAY: never[] = [];
+const EMPTY_REF = { current: false };
 
 export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.ReturnValue {
   const {
@@ -128,8 +129,6 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
     positionerRef.current = value;
     setPositionerElementUnwrapped(value);
   }, []);
-
-  const allowMouseUpTriggerRef = React.useRef(parent.type === 'context-menu');
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
 
@@ -400,10 +399,7 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
     () => ({
       activeIndex,
       setActiveIndex,
-      allowMouseUpTriggerRef:
-        parent.type && parent.type !== 'context-menu'
-          ? parent.context.allowMouseUpTriggerRef
-          : allowMouseUpTriggerRef,
+      allowMouseUpTriggerRef: parent.type ? parent.context.allowMouseUpTriggerRef : EMPTY_REF,
       floatingRootContext,
       itemProps,
       popupProps,

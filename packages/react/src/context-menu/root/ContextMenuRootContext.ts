@@ -10,6 +10,7 @@ export interface ContextMenuRootContext {
     setOpen: (nextOpen: boolean, event?: Event, reason?: OpenChangeReason) => void;
   } | null>;
   positionerRef: React.RefObject<HTMLElement | null>;
+  allowMouseUpTriggerRef: React.RefObject<boolean>;
 }
 
 export const ContextMenuRootContext = React.createContext<ContextMenuRootContext | undefined>(

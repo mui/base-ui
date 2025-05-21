@@ -21,8 +21,14 @@ export const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
 ) {
   const { render, className, ...elementProps } = componentProps;
 
-  const { setAnchor, actionsRef, internalBackdropRef, backdropRef, positionerRef } =
-    useContextMenuRootContext(false);
+  const {
+    setAnchor,
+    actionsRef,
+    internalBackdropRef,
+    backdropRef,
+    positionerRef,
+    allowMouseUpTriggerRef,
+  } = useContextMenuRootContext(false);
 
   const triggerRef = React.useRef<HTMLDivElement | null>(null);
   const longPressTimerRef = React.useRef(-1);
@@ -52,12 +58,16 @@ export const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
   });
 
   const handleContextMenu = useEventCallback((event: React.MouseEvent) => {
+    allowMouseUpTriggerRef.current = true;
     event.preventDefault();
     handleLongPress(event.clientX, event.clientY, event.nativeEvent);
     const doc = ownerDocument(triggerRef.current);
+
     doc.addEventListener(
       'mouseup',
       (mouseEvent: MouseEvent) => {
+        allowMouseUpTriggerRef.current = false;
+
         if (!allowMouseUpRef.current) {
           return;
         }

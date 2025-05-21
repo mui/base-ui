@@ -22,6 +22,7 @@ export function ContextMenuRoot(props: ContextMenuRoot.Props) {
   const internalBackdropRef = React.useRef<HTMLDivElement | null>(null);
   const actionsRef: ContextMenuRootContext['actionsRef'] = React.useRef(null);
   const positionerRef = React.useRef<HTMLElement | null>(null);
+  const allowMouseUpTriggerRef = React.useRef(true);
 
   const contextValue: ContextMenuRootContext = React.useMemo(
     () => ({
@@ -31,6 +32,7 @@ export function ContextMenuRoot(props: ContextMenuRoot.Props) {
       backdropRef,
       internalBackdropRef,
       positionerRef,
+      allowMouseUpTriggerRef,
     }),
     [anchor],
   );
