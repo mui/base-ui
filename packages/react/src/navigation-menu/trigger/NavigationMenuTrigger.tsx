@@ -225,7 +225,11 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
       }
 
       if (value != null) {
-        setValue(itemValue);
+        setValue(
+          itemValue,
+          event.nativeEvent,
+          event.type === 'mouseenter' ? 'trigger-hover' : 'trigger-press',
+        );
       }
     });
   });
@@ -281,7 +285,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
               { popupElement, rootRef, tree, nodeId },
             )
           ) {
-            setValue(null, event.nativeEvent, undefined);
+            setValue(null, event.nativeEvent, 'focus-out');
           }
         },
       },
