@@ -43,7 +43,7 @@ export const PopoverBackdrop = React.forwardRef(function PopoverBackdrop(
         role: 'presentation',
         hidden: !mounted,
         style: {
-          pointerEvents: openReason === 'hover' ? 'none' : undefined,
+          pointerEvents: openReason === 'trigger-hover' ? 'none' : undefined,
           userSelect: 'none',
           WebkitUserSelect: 'none',
         },

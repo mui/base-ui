@@ -375,7 +375,7 @@ describe('useToast', () => {
         expect(screen.getByRole('alert')).to.not.equal(null);
         expect(screen.getByRole('alert').getAttribute('aria-atomic')).to.equal('true');
 
-        const closeHighButton = screen.getByRole('button', { name: 'close-button' });
+        const closeHighButton = screen.getByRole('button', { name: 'close-press' });
         fireEvent.click(closeHighButton);
 
         const lowPriorityButton = screen.getByRole('button', { name: 'add low' });
