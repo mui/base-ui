@@ -37,13 +37,13 @@ export function useCompositeListItem<Metadata>(
 
         if (labelsRef) {
           const isLabelDefined = label !== undefined;
-          let textContent = node.textContent;
+          let textContent: string | null = null;
 
           if (getItemText) {
             const itemText = getItemText();
-            if (typeof itemText === 'string') {
-              textContent = itemText;
-            }
+            textContent = typeof itemText === 'string' ? itemText : node.textContent;
+          } else {
+            textContent = node.textContent;
           }
 
           labelsRef.current[index] = isLabelDefined ? label : textContent;
