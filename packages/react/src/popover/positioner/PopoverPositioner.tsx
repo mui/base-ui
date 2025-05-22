@@ -89,7 +89,7 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
 
   return (
     <PopoverPositionerContext.Provider value={positioner}>
-      {mounted && modal === true && openReason !== 'hover' && openMethod !== 'touch' && (
+      {mounted && modal === true && openReason !== 'trigger-hover' && openMethod !== 'touch' && (
         <InternalBackdrop inert={inertValue(!open)} />
       )}
       <FloatingNode id={nodeId}>{element}</FloatingNode>

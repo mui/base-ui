@@ -17,14 +17,11 @@ import { useEventCallback } from '../../utils/useEventCallback';
 import { useTransitionStatus } from '../../utils/useTransitionStatus';
 import { OPEN_DELAY } from '../utils/constants';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
-import {
-  translateOpenChangeReason,
-  type OpenChangeReason,
-} from '../../utils/translateOpenChangeReason';
+import { translateOpenChangeReason } from '../../utils/translateOpenChangeReason';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { PATIENT_CLICK_THRESHOLD } from '../../utils/constants';
 import { useScrollLock } from '../../utils/useScrollLock';
-import { PopoverRootContext, usePopoverRootContext } from './PopoverRootContext';
+import { PopoverOpenChangeReason, PopoverRootContext } from './PopoverRootContext';
 
 function PopoverRootComponent({ props }: { props: PopoverRoot.Props }) {
   const {
@@ -43,7 +40,7 @@ function PopoverRootComponent({ props }: { props: PopoverRoot.Props }) {
   const [descriptionId, setDescriptionId] = React.useState<string>();
   const [triggerElement, setTriggerElement] = React.useState<Element | null>(null);
   const [positionerElement, setPositionerElement] = React.useState<HTMLElement | null>(null);
-  const [openReason, setOpenReason] = React.useState<OpenChangeReason | null>(null);
+  const [openReason, setOpenReason] = React.useState<PopoverOpenChangeReason | null>(null);
   const [stickIfOpen, setStickIfOpen] = React.useState(true);
 
   const popupRef = React.useRef<HTMLElement>(null);
@@ -59,22 +56,11 @@ function PopoverRootComponent({ props }: { props: PopoverRoot.Props }) {
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
 
   useScrollLock({
-    enabled: open && modal === true && openReason !== 'hover',
+    enabled: open && modal === true && openReason !== 'trigger-hover',
     mounted,
     open,
     referenceElement: positionerElement,
   });
-
-  const setOpen = useEventCallback(
-    (nextOpen: boolean, event: Event | undefined, reason: OpenChangeReason | undefined) => {
-      onOpenChange?.(nextOpen, event, reason);
-      setOpenUnwrapped(nextOpen);
-
-      if (nextOpen) {
-        setOpenReason(reason ?? null);
-      }
-    },
-  );
 
   const handleUnmount = useEventCallback(() => {
     setMounted(false);
@@ -102,16 +88,19 @@ function PopoverRootComponent({ props }: { props: PopoverRoot.Props }) {
     }
   }, [stickIfOpenTimeout, open]);
 
-  const floatingContext = useFloatingRootContext({
-    elements: { reference: triggerElement, floating: positionerElement },
-    open,
-    onOpenChange(openValue, eventValue, reasonValue) {
-      const isHover = reasonValue === 'hover' || reasonValue === 'safe-polygon';
-      const isKeyboardClick = reasonValue === 'click' && (eventValue as MouseEvent).detail === 0;
-      const isDismissClose = !openValue && (reasonValue === 'escape-key' || reasonValue == null);
+  const setOpen = useEventCallback(
+    (nextOpen: boolean, event: Event | undefined, reason: PopoverOpenChangeReason | undefined) => {
+      const isHover = reason === 'trigger-hover';
+      const isKeyboardClick = reason === 'trigger-press' && (event as MouseEvent).detail === 0;
+      const isDismissClose = !nextOpen && (reason === 'escape-key' || reason == null);
 
       function changeState() {
-        setOpen(openValue, eventValue, translateOpenChangeReason(reasonValue));
+        onOpenChange?.(nextOpen, event, reason);
+        setOpenUnwrapped(nextOpen);
+
+        if (nextOpen) {
+          setOpenReason(reason ?? null);
+        }
       }
 
       if (isHover) {
@@ -133,6 +122,17 @@ function PopoverRootComponent({ props }: { props: PopoverRoot.Props }) {
         setInstantType(undefined);
       }
     },
+  );
+
+  const floatingContext = useFloatingRootContext({
+    elements: {
+      reference: triggerElement,
+      floating: positionerElement,
+    },
+    open,
+    onOpenChange(openValue, eventValue, reasonValue) {
+      setOpen(openValue, eventValue, translateOpenChangeReason(reasonValue));
+    },
   });
 
   const { openMethod, triggerProps } = useOpenInteractionType(open);
@@ -140,7 +140,7 @@ function PopoverRootComponent({ props }: { props: PopoverRoot.Props }) {
   const computedRestMs = delay;
 
   const hover = useHover(floatingContext, {
-    enabled: openOnHover && (openMethod !== 'touch' || openReason !== 'click'),
+    enabled: openOnHover && (openMethod !== 'touch' || openReason !== 'trigger-press'),
     mouseOnly: true,
     move: false,
     handleClose: safePolygon({ blockPointerEvents: true }),
@@ -248,11 +248,12 @@ export namespace PopoverRoot {
     open?: boolean;
     /**
      * Event handler called when the popover is opened or closed.
+     * @type (open: boolean, event?: Event, reason?: Popover.Root.OpenChangeReason) => void
      */
     onOpenChange?: (
       open: boolean,
       event: Event | undefined,
-      reason: OpenChangeReason | undefined,
+      reason: PopoverOpenChangeReason | undefined,
     ) => void;
     /**
      * Event handler called after any animations complete when the popover is opened or closed.
@@ -302,4 +303,6 @@ export namespace PopoverRoot {
   export interface Actions {
     unmount: () => void;
   }
+
+  export type OpenChangeReason = PopoverOpenChangeReason;
 }
