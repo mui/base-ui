@@ -27,7 +27,7 @@ export default function ExampleContextMenu() {
                   alignOffset={-4}
                   sideOffset={-4}
                 >
-                  <Menu.Popup className={styles.Popup}>
+                  <Menu.Popup className={styles.SubmenuPopup}>
                     <Menu.Item className={styles.Item}>Get Up!</Menu.Item>
                     <Menu.Item className={styles.Item}>Inside Out</Menu.Item>
                     <Menu.Item className={styles.Item}>Night Beats</Menu.Item>
