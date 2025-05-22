@@ -38,9 +38,10 @@ export const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
   const allowMouseUpRef = React.useRef(false);
 
   const handleLongPress = useEventCallback((x: number, y: number, event: Event) => {
+    const isTouchEvent = event.type.startsWith('touch');
+
     setAnchor({
-      getBoundingClientRect: () => {
-        const isTouchEvent = event.type.startsWith('touch');
+      getBoundingClientRect() {
         return DOMRect.fromRect({
           width: isTouchEvent ? 10 : 0,
           height: isTouchEvent ? 10 : 0,
@@ -74,14 +75,13 @@ export const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
         }
 
         allowMouseUpTimeout.clear();
-
         allowMouseUpRef.current = false;
 
         if (contains(positionerRef.current, getTarget(mouseEvent) as Element | null)) {
           return;
         }
 
-        actionsRef.current?.setOpen(false, mouseEvent);
+        actionsRef.current?.setOpen(false, mouseEvent, 'cancel-open');
       },
       { once: true },
     );

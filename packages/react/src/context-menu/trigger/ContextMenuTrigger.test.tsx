@@ -222,7 +222,7 @@ describe('<ContextMenu.Trigger />', () => {
     expect(screen.queryByTestId('inner-menu')).not.to.equal(null);
     expect(screen.queryByTestId('outer-menu')).to.equal(null);
 
-    fireEvent.pointerDown(document.body);
+    fireEvent.mouseDown(document.body);
     await flushMicrotasks();
 
     expect(screen.queryByTestId('inner-menu')).to.equal(null);

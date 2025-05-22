@@ -65,6 +65,7 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
   const [lastOpenChangeReason, setLastOpenChangeReason] =
     React.useState<MenuOpenChangeReason | null>(null);
   const [stickIfOpen, setStickIfOpen] = React.useState(true);
+  const openEventRef = React.useRef<Event | null>(null);
 
   const popupRef = React.useRef<HTMLElement>(null);
   const positionerRef = React.useRef<HTMLElement | null>(null);
@@ -119,6 +120,32 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
     name: 'useMenuRoot',
     state: 'open',
   });
+
+  const allowOutsidePressDismissalRef = React.useRef(parent.type !== 'context-menu');
+  const allowOutsidePressDismissalTimeout = useTimeout();
+
+  React.useEffect(() => {
+    if (!open) {
+      openEventRef.current = null;
+    }
+
+    if (parent.type !== 'context-menu') {
+      return;
+    }
+
+    if (!open) {
+      allowOutsidePressDismissalTimeout.clear();
+      allowOutsidePressDismissalRef.current = false;
+      return;
+    }
+
+    // With `mousedown` outside press events and long press touch input, there
+    // needs to be a grace period after opening to ensure the dismissal event
+    // doesn't fire immediately after open.
+    allowOutsidePressDismissalTimeout.start(500, () => {
+      allowOutsidePressDismissalRef.current = true;
+    });
+  }, [allowOutsidePressDismissalTimeout, open, parent.type]);
 
   const setPositionerElement = React.useCallback((value: HTMLElement | null) => {
     positionerRef.current = value;
@@ -216,8 +243,8 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
       function changeState() {
         onOpenChange?.(nextOpen, event, reason);
         setOpenUnwrapped(nextOpen);
-
         setLastOpenChangeReason(reason ?? null);
+        openEventRef.current = event ?? null;
       }
 
       if (reason === 'trigger-hover') {
@@ -318,9 +345,14 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
   const dismiss = useDismiss(floatingRootContext, {
     enabled: !disabled,
     bubbles: closeParentOnEsc && parent.type === 'menu',
-    // For context menus, this avoids an issue on long press where the menu closes right
-    // after opening.
-    outsidePressEvent: contextMenuContext ? 'pointerdown' : 'mousedown',
+    outsidePressEvent: 'mousedown',
+    outsidePress() {
+      if (parent.type !== 'context-menu' || openEventRef.current?.type === 'contextmenu') {
+        return true;
+      }
+
+      return allowOutsidePressDismissalRef.current;
+    },
   });
 
   const role = useRole(floatingRootContext, {
