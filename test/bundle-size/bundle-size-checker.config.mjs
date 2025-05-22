@@ -44,20 +44,10 @@ export default defineConfig(async () => {
           import { Checkbox } from '@base-ui-components/react/checkbox';
 
           export default function ExampleCheckbox() {
-            return (
-              <label className="xyz">
-                <Checkbox.Root defaultChecked className="xyz">
-                  <Checkbox.Indicator className="xyz">
-                    <CheckIcon className="xyz" />
-                  </Checkbox.Indicator>
-                </Checkbox.Root>
-                Enable notifications
-              </label>
-            );
-          }
-
-          function CheckIcon() {
-            return null
+            return (<>
+              <Checkbox.Root />
+              <Checkbox.Indicator />
+            </>)
           }
         `,
         externals,
@@ -69,22 +59,10 @@ export default defineConfig(async () => {
           import { Checkbox } from "radix-ui";
 
           export default function ExampleCheckbox() {
-            return (
-              <div>
-                <Checkbox.Root className="xyz" defaultChecked id="c1">
-                  <Checkbox.Indicator className="xyz">
-                    <CheckIcon />
-                  </Checkbox.Indicator>
-                </Checkbox.Root>
-                <label className="xyz" htmlFor="c1">
-                  Accept terms and conditions.
-                </label>
-              </div>
-            )
-          }
-
-          function CheckIcon() {
-            return null
+            return (<>
+              <Checkbox.Root />
+              <Checkbox.Indicator />
+            </>)
           }
         `,
         externals: ['react', 'react-dom'],

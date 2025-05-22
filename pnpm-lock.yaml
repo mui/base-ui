@@ -56,8 +56,8 @@ importers:
         specifier: ^2.0.1
         version: 2.0.1(@babel/core@7.27.1)
       '@mui/internal-bundle-size-checker':
-        specifier: https://pkg.pr.new/@mui/internal-bundle-size-checker@5fe6b29
-        version: https://pkg.pr.new/@mui/internal-bundle-size-checker@5fe6b29(webpack-cli@6.0.1(webpack-bundle-analyzer@4.10.2)(webpack@5.99.7))
+        specifier: ^1.0.3
+        version: 1.0.3(webpack-cli@6.0.1(webpack-bundle-analyzer@4.10.2)(webpack@5.99.7))
       '@mui/internal-docs-utils':
         specifier: ^2.0.1
         version: 2.0.1
@@ -2320,9 +2320,8 @@ packages:
     peerDependencies:
       '@babel/core': ^7.27.1
 
-  '@mui/internal-bundle-size-checker@https://pkg.pr.new/@mui/internal-bundle-size-checker@5fe6b29':
-    resolution: {tarball: https://pkg.pr.new/@mui/internal-bundle-size-checker@5fe6b29}
-    version: 1.0.2
+  '@mui/internal-bundle-size-checker@1.0.3':
+    resolution: {integrity: sha512-tTRjnmvujZ2YDh35UoSnam2vzTrrSo6fz0Tdzh5zfNhE5FoE4YGSuVGYUR5HNkfB6bDEsifiMGKoQgGqiJO7sg==}
     hasBin: true
 
   '@mui/internal-docs-utils@2.0.1':
@@ -13087,12 +13086,11 @@ snapshots:
       '@babel/core': 7.27.1
       resolve: 1.22.10
 
-  '@mui/internal-bundle-size-checker@https://pkg.pr.new/@mui/internal-bundle-size-checker@5fe6b29(webpack-cli@6.0.1(webpack-bundle-analyzer@4.10.2)(webpack@5.99.7))':
+  '@mui/internal-bundle-size-checker@1.0.3(webpack-cli@6.0.1(webpack-bundle-analyzer@4.10.2)(webpack@5.99.7))':
     dependencies:
       '@aws-sdk/client-s3': 3.797.0
       '@aws-sdk/credential-providers': 3.797.0
       '@babel/core': 7.27.1
-      '@babel/preset-env': 7.27.1(@babel/core@7.27.1)
       '@babel/preset-react': 7.27.1(@babel/core@7.27.1)
       '@babel/preset-typescript': 7.27.1(@babel/core@7.27.1)
       babel-loader: 10.0.0(@babel/core@7.27.1)(webpack@5.99.7)
