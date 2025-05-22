@@ -21,7 +21,11 @@ import { translateOpenChangeReason } from '../../utils/translateOpenChangeReason
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { PATIENT_CLICK_THRESHOLD } from '../../utils/constants';
 import { useScrollLock } from '../../utils/useScrollLock';
-import { PopoverOpenChangeReason, PopoverRootContext } from './PopoverRootContext';
+import {
+  PopoverOpenChangeReason,
+  PopoverRootContext,
+  usePopoverRootContext,
+} from './PopoverRootContext';
 
 function PopoverRootComponent({ props }: { props: PopoverRoot.Props }) {
   const {

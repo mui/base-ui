@@ -44,7 +44,6 @@ export const PopoverRootContext = React.createContext<PopoverRootContext | undef
 export function usePopoverRootContext(optional?: false): PopoverRootContext;
 export function usePopoverRootContext(optional: true): PopoverRootContext | undefined;
 export function usePopoverRootContext(optional?: boolean) {
-export function usePopoverRootContext() {
   const context = React.useContext(PopoverRootContext);
   if (context === undefined && !optional) {
     throw new Error(
