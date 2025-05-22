@@ -1,11 +1,15 @@
 import * as React from 'react';
 import type { FloatingRootContext } from '@floating-ui/react';
-import type { OpenChangeReason } from '../../utils/translateOpenChangeReason';
+import type { BaseOpenChangeReason } from '../../utils/translateOpenChangeReason';
 import type { TransitionStatus } from '../../utils';
 
 export interface NavigationMenuRootContext {
   open: boolean;
-  setOpen: (open: boolean, event: Event | undefined, reason: OpenChangeReason | undefined) => void;
+  setOpen: (
+    open: boolean,
+    event: Event | undefined,
+    reason: BaseOpenChangeReason | undefined,
+  ) => void;
   value: any;
   setValue: (value: any) => void;
   transitionStatus: TransitionStatus;
@@ -50,7 +54,6 @@ function useNavigationMenuRootContext(optional?: boolean) {
       'Base UI: NavigationMenuRootContext is missing. Navigation Menu parts must be placed within <NavigationMenu.Root>.',
     );
   }
-
   return context;
 }
 
