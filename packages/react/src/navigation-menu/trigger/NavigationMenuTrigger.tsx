@@ -264,10 +264,8 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
         },
         onKeyDown(event) {
           allowFocusRef.current = true;
-          const openHorizontal =
-            orientation === 'horizontal' && (event.key === 'ArrowDown' || event.key === 'ArrowUp');
-          const openVertical =
-            orientation === 'vertical' && (event.key === 'ArrowLeft' || event.key === 'ArrowRight');
+          const openHorizontal = orientation === 'horizontal' && event.key === 'ArrowDown';
+          const openVertical = orientation === 'vertical' && event.key === 'ArrowRight';
 
           if (openHorizontal || openVertical) {
             setValue(itemValue, event.nativeEvent, 'list-navigation');
