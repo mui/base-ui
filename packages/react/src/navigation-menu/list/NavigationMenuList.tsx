@@ -3,6 +3,7 @@ import * as React from 'react';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { CompositeRoot } from '../../composite/root/CompositeRoot';
+import { useNavigationMenuRootContext } from '../root/NavigationMenuRootContext';
 
 /**
  * Contains a list of navigation menu items.
@@ -16,12 +17,14 @@ export const NavigationMenuList = React.forwardRef(function NavigationMenuList(
 ) {
   const { className, render, ...elementProps } = componentProps;
 
+  const { orientation } = useNavigationMenuRootContext();
+
   const element = useRenderElement('div', componentProps, {
     ref: forwardedRef,
     props: elementProps,
   });
 
-  return <CompositeRoot render={element} loop={false} />;
+  return <CompositeRoot render={element} loop={false} orientation={orientation} />;
 });
 
 export namespace NavigationMenuList {

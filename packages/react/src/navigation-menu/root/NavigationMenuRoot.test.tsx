@@ -458,7 +458,6 @@ describe('<NavigationMenu.Root />', () => {
       expect(screen.getByTestId('popup-1')).not.to.equal(null);
       expect(trigger).toHaveFocus();
 
-      await user.tab();
       await user.tab(); // Link 1
       await user.tab(); // Link 2
       await user.tab(); // trigger 2

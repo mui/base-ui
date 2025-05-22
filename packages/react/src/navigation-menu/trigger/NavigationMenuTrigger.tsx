@@ -26,7 +26,10 @@ import {
   useNavigationMenuTreeContext,
 } from '../root/NavigationMenuRootContext';
 import { useEventCallback } from '../../utils/useEventCallback';
-import { translateOpenChangeReason } from '../../utils/translateOpenChangeReason';
+import {
+  BaseOpenChangeReason,
+  translateOpenChangeReason,
+} from '../../utils/translateOpenChangeReason';
 import { PATIENT_CLICK_THRESHOLD } from '../../utils/constants';
 import { FocusGuard } from '../../toast/viewport/FocusGuard';
 import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
@@ -34,6 +37,8 @@ import { visuallyHidden } from '../../utils/visuallyHidden';
 import { CompositeItem } from '../../composite/item/CompositeItem';
 import { pressableTriggerOpenStateMapping } from '../../utils/popupStateMapping';
 import { isOutsideMenuEvent } from '../utils/isOutsideMenuEvent';
+import { useTimeout } from '../../utils/useTimeout';
+import { useAnimationFrame } from '../../utils/useAnimationFrame';
 
 const TRIGGER_IDENTIFIER = 'data-navigation-menu-trigger';
 
@@ -74,8 +79,9 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
   const nodeId = useNavigationMenuTreeContext();
   const tree = useFloatingTree();
 
-  const timeoutRef = React.useRef(-1);
-  const stickIfOpenTimeoutRef = React.useRef(-1);
+  const timeout = useTimeout();
+  const stickIfOpenTimeout = useTimeout();
+  const focusFrame = useAnimationFrame();
 
   const [triggerElement, setTriggerElement] = React.useState<HTMLElement | null>(null);
   const [stickIfOpen, setStickIfOpen] = React.useState(true);
@@ -83,67 +89,81 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
 
   const isActiveItem = open && value === itemValue;
 
-  const clearStickIfOpenTimeout = useEventCallback(() => {
-    clearTimeout(stickIfOpenTimeoutRef.current);
-  });
+  const allowFocusRef = React.useRef(false);
 
   React.useEffect(() => {
-    clearTimeout(timeoutRef.current);
-  }, [value]);
+    timeout.clear();
+  }, [value, timeout]);
 
   React.useEffect(() => {
     if (!open) {
-      clearStickIfOpenTimeout();
+      stickIfOpenTimeout.clear();
       setPointerType('');
     }
-  }, [clearStickIfOpenTimeout, open]);
+  }, [stickIfOpenTimeout, open]);
 
   React.useEffect(() => {
-    return clearStickIfOpenTimeout;
-  }, [clearStickIfOpenTimeout]);
+    if (isActiveItem && allowFocusRef.current && open && popupElement) {
+      allowFocusRef.current = false;
+      // Wait for the popup to have been positioned.
+      focusFrame.request(() => {
+        beforeOutsideRef.current?.focus();
+      });
+    }
+
+    return () => {
+      focusFrame.cancel();
+    };
+  }, [beforeOutsideRef, focusFrame, isActiveItem, open, popupElement]);
+
+  function handleOpenChange(
+    nextOpen: boolean,
+    event: Event | undefined,
+    reason: BaseOpenChangeReason | undefined,
+  ) {
+    const isHover = reason === 'trigger-hover';
+
+    if (pointerType === 'touch' && isHover) {
+      return;
+    }
+
+    if (!nextOpen && value !== itemValue) {
+      return;
+    }
+
+    function changeState() {
+      if (isHover) {
+        // Only allow "patient" clicks to close the popup if it's open.
+        // If they clicked within 500ms of the popup opening, keep it open.
+        setStickIfOpen(true);
+        stickIfOpenTimeout.clear();
+        stickIfOpenTimeout.start(PATIENT_CLICK_THRESHOLD, () => {
+          setStickIfOpen(false);
+        });
+      }
+
+      setOpen(nextOpen, event, reason);
+
+      if (nextOpen) {
+        setValue(itemValue);
+      } else {
+        setActivationDirection(null);
+        setValue(undefined);
+        setFloatingRootContext(undefined);
+      }
+    }
+
+    if (isHover) {
+      ReactDOM.flushSync(changeState);
+    } else {
+      changeState();
+    }
+  }
 
   const context = useFloatingRootContext({
     open,
     onOpenChange(openValue, eventValue, reasonValue) {
-      const isHover = reasonValue === 'hover' || reasonValue === 'safe-polygon';
-
-      if (pointerType === 'touch' && isHover) {
-        return;
-      }
-
-      if (!openValue && value !== itemValue) {
-        return;
-      }
-
-      const translatedReason = translateOpenChangeReason(reasonValue);
-
-      function changeState() {
-        if (isHover) {
-          // Only allow "patient" clicks to close the popup if it's open.
-          // If they clicked within 500ms of the popup opening, keep it open.
-          setStickIfOpen(true);
-          clearStickIfOpenTimeout();
-          stickIfOpenTimeoutRef.current = window.setTimeout(() => {
-            setStickIfOpen(false);
-          }, PATIENT_CLICK_THRESHOLD);
-        }
-
-        setOpen(openValue, eventValue, translatedReason);
-
-        if (openValue) {
-          setValue(itemValue);
-        } else {
-          setActivationDirection(null);
-          setValue(undefined);
-          setFloatingRootContext(undefined);
-        }
-      }
-
-      if (isHover) {
-        ReactDOM.flushSync(changeState);
-      } else {
-        changeState();
-      }
+      handleOpenChange(openValue, eventValue, translateOpenChangeReason(reasonValue));
     },
     elements: {
       reference: triggerElement,
@@ -232,12 +252,20 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
         'aria-expanded': isActiveItem,
         'aria-controls': isActiveItem ? popupElement?.id : undefined,
         [TRIGGER_IDENTIFIER as string]: '',
+        onMouseMove() {
+          allowFocusRef.current = false;
+        },
         onKeyDown(event) {
-          const key = orientation === 'horizontal' ? 'ArrowDown' : 'ArrowRight';
-          if (open && event.key === key) {
+          allowFocusRef.current = true;
+          const openHorizontal =
+            orientation === 'horizontal' && (event.key === 'ArrowDown' || event.key === 'ArrowUp');
+          const openVertical =
+            orientation === 'vertical' && (event.key === 'ArrowLeft' || event.key === 'ArrowRight');
+
+          if (openHorizontal || openVertical) {
+            setOpen(true, event.nativeEvent, 'list-navigation');
+            setValue(itemValue);
             stopEvent(event);
-            const nextTabbable = getNextTabbable(popupElement);
-            nextTabbable?.focus();
           }
         },
         onBlur(event) {

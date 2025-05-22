@@ -290,7 +290,7 @@ export namespace NavigationMenuRoot {
     delay?: number;
     /**
      * How long to wait before closing the navigation menu. Specified in milliseconds.
-     * @default 100
+     * @default 200
      */
     closeDelay?: number;
     /**
