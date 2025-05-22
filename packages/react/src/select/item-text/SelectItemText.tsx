@@ -6,19 +6,21 @@ import { useSelectRootContext } from '../root/SelectRootContext';
 import { useSelectItemContext } from '../item/SelectItemContext';
 import { useRenderElement } from '../../utils/useRenderElement';
 
-interface InnerSelectItemTextProps extends SelectItemText.Props {
-  selected: boolean;
-  selectedItemTextRef: React.RefObject<HTMLElement | null>;
-  indexRef: React.RefObject<number>;
-}
-
-const InnerSelectItemText = React.memo(
-  React.forwardRef(function InnerSelectItemText(
-    componentProps: InnerSelectItemTextProps,
+/**
+ * A text label of the select item.
+ * Renders a `<div>` element.
+ *
+ * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
+ */
+export const SelectItemText = React.memo(
+  React.forwardRef(function SelectItemText(
+    componentProps: SelectItemText.Props,
     forwardedRef: React.ForwardedRef<HTMLDivElement>,
   ) {
-    const { className, render, selected, selectedItemTextRef, indexRef, ...elementProps } =
-      componentProps;
+    const { selected, indexRef } = useSelectItemContext();
+    const { selectedItemTextRef } = useSelectRootContext();
+
+    const { className, render, ...elementProps } = componentProps;
 
     const localRef = React.useCallback(
       (node: HTMLElement | null) => {
@@ -42,30 +44,6 @@ const InnerSelectItemText = React.memo(
     return element;
   }),
 );
-
-/**
- * A text label of the select item.
- * Renders a `<div>` element.
- *
- * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
- */
-export const SelectItemText = React.forwardRef(function SelectItemText(
-  props: SelectItemText.Props,
-  forwardedRef: React.ForwardedRef<HTMLDivElement>,
-) {
-  const { selected, indexRef } = useSelectItemContext();
-  const { selectedItemTextRef } = useSelectRootContext();
-
-  return (
-    <InnerSelectItemText
-      ref={forwardedRef}
-      selected={selected}
-      selectedItemTextRef={selectedItemTextRef}
-      indexRef={indexRef}
-      {...props}
-    />
-  );
-});
 
 export namespace SelectItemText {
   export interface Props extends BaseUIComponentProps<'div', State> {}
