@@ -3,7 +3,6 @@ import * as React from 'react';
 import { InputMode, NumberFieldRootContext } from './NumberFieldRootContext';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import type { BaseUIComponentProps } from '../../utils/types';
-import { visuallyHidden } from '../../utils/visuallyHidden';
 import type { FieldRoot } from '../../field/root/FieldRoot';
 import { styleHookMapping } from '../utils/styleHooks';
 import { useRenderElement } from '../../utils/useRenderElement';
@@ -431,7 +430,6 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
           value={value ?? ''}
           disabled={disabled}
           required={required}
-          style={visuallyHidden}
         />
       )}
     </NumberFieldRootContext.Provider>
