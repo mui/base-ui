@@ -203,14 +203,12 @@ describe('<CheckboxGroup />', () => {
 
   describe('Field', () => {
     it('prop: validationMode=onChange', async () => {
+      const validateSpy = spy((value) => {
+        const v = value as string[];
+        return v.includes('fuji-apple') ? 'error' : null;
+      });
       render(
-        <Field.Root
-          validationMode="onChange"
-          validate={(value) => {
-            const v = value as string[];
-            return v.includes('fuji-apple') ? 'error' : null;
-          }}
-        >
+        <Field.Root validationMode="onChange" validate={validateSpy}>
           <CheckboxGroup defaultValue={['fuji-apple']}>
             <Checkbox.Root name="fuji-apple" data-testid="button-1" />
             <Checkbox.Root name="gala-apple" data-testid="button-2" />
@@ -232,24 +230,36 @@ describe('<CheckboxGroup />', () => {
       expect(button1).not.to.have.attribute('aria-invalid');
       expect(button2).not.to.have.attribute('aria-invalid');
       expect(button3).not.to.have.attribute('aria-invalid');
+      expect(validateSpy.callCount).to.equal(1);
+      expect(validateSpy.args[0][0]).to.deep.equal([]);
 
       fireEvent.click(button2);
 
       expect(button1).not.to.have.attribute('aria-invalid');
       expect(button2).not.to.have.attribute('aria-invalid');
       expect(button3).not.to.have.attribute('aria-invalid');
+      expect(validateSpy.callCount).to.equal(2);
+      expect(validateSpy.args[1][0]).to.deep.equal(['gala-apple']);
 
       fireEvent.click(button1);
 
       expect(button1).to.have.attribute('aria-invalid', 'true');
       expect(button2).to.have.attribute('aria-invalid', 'true');
       expect(button3).to.have.attribute('aria-invalid', 'true');
+      expect(validateSpy.callCount).to.equal(3);
+      expect(validateSpy.args[2][0]).to.deep.equal(['gala-apple', 'fuji-apple']);
 
       fireEvent.click(button3);
 
       expect(button1).to.have.attribute('aria-invalid', 'true');
       expect(button2).to.have.attribute('aria-invalid', 'true');
       expect(button3).to.have.attribute('aria-invalid', 'true');
+      expect(validateSpy.callCount).to.equal(4);
+      expect(validateSpy.args[3][0]).to.deep.equal([
+        'gala-apple',
+        'fuji-apple',
+        'granny-smith-apple',
+      ]);
     });
 
     it('prop: validationMode=onBlur', async () => {
