@@ -72,10 +72,6 @@ export const FieldRootContext = React.createContext<FieldRootContext>({
   markedDirtyRef: { current: false },
 });
 
-if (process.env.NODE_ENV !== 'production') {
-  FieldRootContext.displayName = 'FieldRootContext';
-}
-
 export function useFieldRootContext(optional = true) {
   const context = React.useContext(FieldRootContext);
 
