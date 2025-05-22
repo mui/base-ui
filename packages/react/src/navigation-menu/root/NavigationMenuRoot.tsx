@@ -16,7 +16,7 @@ import {
   useNavigationMenuRootContext,
 } from './NavigationMenuRootContext';
 import { useControlled, useTransitionStatus } from '../../utils';
-import type { OpenChangeReason } from '../../utils/translateOpenChangeReason';
+import type { BaseOpenChangeReason } from '../../utils/translateOpenChangeReason';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { ownerDocument } from '../../utils/owner';
@@ -61,11 +61,11 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot(
     state: 'value',
   });
 
-  const closeReasonRef = React.useRef<OpenChangeReason | undefined>(undefined);
+  const closeReasonRef = React.useRef<BaseOpenChangeReason | undefined>(undefined);
   const rootRef = React.useRef<HTMLDivElement | null>(null);
 
   const setOpen = useEventCallback(
-    (nextOpen: boolean, event: Event | undefined, reason: OpenChangeReason | undefined) => {
+    (nextOpen: boolean, event: Event | undefined, reason: BaseOpenChangeReason | undefined) => {
       if (!nextOpen) {
         closeReasonRef.current = reason;
       }
@@ -106,7 +106,7 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot(
     const activeEl = activeElement(doc);
 
     if (
-      closeReasonRef.current !== 'hover' &&
+      closeReasonRef.current !== 'trigger-hover' &&
       isHTMLElement(prevTriggerElementRef.current) &&
       (contains(popupElement, activeEl) || activeEl === doc.body)
     ) {
@@ -224,14 +224,14 @@ function TreeContext(props: {
   const nodeId = useFloatingNodeId();
   const { rootRef, nested } = useNavigationMenuRootContext();
 
-  const renderElement = useRenderElement(nested ? 'div' : 'nav', props.componentProps, {
+  const element = useRenderElement(nested ? 'div' : 'nav', props.componentProps, {
     ref: [props.forwardedRef, rootRef],
     props: [{ 'aria-orientation': orientation }, elementProps],
   });
 
   return (
     <NavigationMenuTreeContext.Provider value={nodeId}>
-      {renderElement()}
+      {element}
     </NavigationMenuTreeContext.Provider>
   );
 }
@@ -261,7 +261,7 @@ export namespace NavigationMenuRoot {
     /**
      * Event handler called when the navigation menu is opened or closed.
      */
-    onOpenChange?: (open: boolean, event?: Event, reason?: OpenChangeReason) => void;
+    onOpenChange?: (open: boolean, event?: Event, reason?: BaseOpenChangeReason) => void;
     /**
      * Event handler called after any animations complete when the navigation menu is closed.
      */

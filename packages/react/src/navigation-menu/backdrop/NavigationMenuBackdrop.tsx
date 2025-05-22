@@ -35,7 +35,7 @@ export const NavigationMenuBackdrop = React.forwardRef(function NavigationMenuBa
     [open, transitionStatus],
   );
 
-  const renderElement = useRenderElement('div', componentProps, {
+  const element = useRenderElement('div', componentProps, {
     state,
     ref: forwardedRef,
     props: [
@@ -52,7 +52,7 @@ export const NavigationMenuBackdrop = React.forwardRef(function NavigationMenuBa
     customStyleHookMapping,
   });
 
-  return renderElement();
+  return element;
 });
 
 export namespace NavigationMenuBackdrop {

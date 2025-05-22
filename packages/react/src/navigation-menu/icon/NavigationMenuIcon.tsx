@@ -14,12 +14,12 @@ export const NavigationMenuIcon = React.forwardRef(function NavigationMenuIcon(
 ) {
   const { className, render, ...elementProps } = componentProps;
 
-  const renderElement = useRenderElement('span', componentProps, {
+  const element = useRenderElement('span', componentProps, {
     ref: forwardedRef,
     props: [{ 'aria-hidden': true, children: '▼' }, elementProps],
   });
 
-  return renderElement();
+  return element;
 });
 
 export namespace NavigationMenuIcon {

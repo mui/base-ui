@@ -18,12 +18,12 @@ export const NavigationMenuViewport = React.forwardRef(function NavigationMenuVi
 
   const { setViewportElement } = useNavigationMenuRootContext();
 
-  const renderElement = useRenderElement('div', componentProps, {
+  const element = useRenderElement('div', componentProps, {
     ref: [forwardedRef, setViewportElement],
     props: elementProps,
   });
 
-  return renderElement();
+  return element;
 });
 
 export namespace NavigationMenuViewport {

@@ -124,7 +124,7 @@ export const NavigationMenuPopup = React.forwardRef(function NavigationMenuPopup
     isPhysicalLeft = isPhysicalLeft || positioning.side === 'inline-start';
   }
 
-  const renderElement = useRenderElement('nav', componentProps, {
+  const element = useRenderElement('nav', componentProps, {
     state,
     ref: [forwardedRef, setPopupElement],
     props: [
@@ -156,7 +156,7 @@ export const NavigationMenuPopup = React.forwardRef(function NavigationMenuPopup
           }
         }}
       />
-      {renderElement()}
+      {element}
       <FocusGuard
         ref={afterInsideRef}
         onFocus={(event) => {

@@ -20,15 +20,13 @@ export const NavigationMenuItem = React.forwardRef(function NavigationMenuItem(
   const fallbackValue = useBaseUiId();
   const value = valueProp ?? fallbackValue;
 
-  const renderElement = useRenderElement('div', componentProps, {
+  const element = useRenderElement('div', componentProps, {
     ref: forwardedRef,
     props: elementProps,
   });
 
   return (
-    <NavigationMenuItemContext.Provider value={value}>
-      {renderElement()}
-    </NavigationMenuItemContext.Provider>
+    <NavigationMenuItemContext.Provider value={value}>{element}</NavigationMenuItemContext.Provider>
   );
 });
 

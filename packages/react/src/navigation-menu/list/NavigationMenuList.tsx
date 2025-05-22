@@ -16,12 +16,12 @@ export const NavigationMenuList = React.forwardRef(function NavigationMenuList(
 ) {
   const { className, render, ...elementProps } = componentProps;
 
-  const renderElement = useRenderElement('div', componentProps, {
+  const element = useRenderElement('div', componentProps, {
     ref: forwardedRef,
     props: elementProps,
   });
 
-  return <CompositeRoot render={renderElement()} loop={false} />;
+  return <CompositeRoot render={element} loop={false} />;
 });
 
 export namespace NavigationMenuList {

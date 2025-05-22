@@ -226,7 +226,7 @@ export const NavigationMenuPositioner = React.forwardRef(function NavigationMenu
     [open, positioning.side, positioning.align, positioning.anchorHidden, instant],
   );
 
-  const renderElement = useRenderElement('div', componentProps, {
+  const element = useRenderElement('div', componentProps, {
     state,
     ref: [forwardedRef, setPositionerElement, positionerRef],
     props: [positioning.props, elementProps],
@@ -235,7 +235,7 @@ export const NavigationMenuPositioner = React.forwardRef(function NavigationMenu
 
   return (
     <NavigationMenuPositionerContext.Provider value={positioning}>
-      {renderElement()}
+      {element}
     </NavigationMenuPositionerContext.Provider>
   );
 });

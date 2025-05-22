@@ -27,7 +27,7 @@ export const NavigationMenuLink = React.forwardRef(function NavigationMenuLink(
   const nodeId = useNavigationMenuTreeContext();
   const tree = useFloatingTree();
 
-  const renderElement = useRenderElement('a', componentProps, {
+  const element = useRenderElement('a', componentProps, {
     ref: forwardedRef,
     props: [
       {
@@ -54,7 +54,7 @@ export const NavigationMenuLink = React.forwardRef(function NavigationMenuLink(
     ],
   });
 
-  return <CompositeItem render={renderElement()} tabIndex={undefined} />;
+  return <CompositeItem render={element} tabIndex={undefined} />;
 });
 
 export namespace NavigationMenuLink {

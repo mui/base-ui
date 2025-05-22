@@ -33,14 +33,14 @@ export const NavigationMenuArrow = React.forwardRef(function NavigationMenuArrow
     [open, side, align, arrowUncentered],
   );
 
-  const renderElement = useRenderElement('div', componentProps, {
+  const element = useRenderElement('div', componentProps, {
     state,
     ref: [forwardedRef, arrowRef],
     props: [{ style: arrowStyles, 'aria-hidden': true }, elementProps],
     customStyleHookMapping: popupStateMapping,
   });
 
-  return renderElement();
+  return element;
 });
 
 export namespace NavigationMenuArrow {

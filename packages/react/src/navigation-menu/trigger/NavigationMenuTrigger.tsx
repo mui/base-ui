@@ -218,7 +218,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     setPointerType(event.pointerType);
   }
 
-  const renderElement = useRenderElement('button', componentProps, {
+  const element = useRenderElement('button', componentProps, {
     state,
     ref: [forwardedRef, setTriggerElement],
     props: [
@@ -262,7 +262,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
 
   return (
     <React.Fragment>
-      <CompositeItem render={renderElement()} />
+      <CompositeItem render={element} />
       {isActiveItem && (
         <React.Fragment>
           <FocusGuard
