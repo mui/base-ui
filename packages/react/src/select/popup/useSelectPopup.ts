@@ -20,15 +20,18 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
     valueRef,
     selectedItemTextRef,
     popupRef,
-    scrollUpArrowVisible,
-    scrollDownArrowVisible,
-    setScrollUpArrowVisible,
-    setScrollDownArrowVisible,
     keyboardActiveRef,
     floatingRootContext,
   } = useSelectRootContext();
   const { setActiveIndex } = useSelectIndexContext();
-  const { alignItemWithTriggerActive, setControlledItemAnchor } = useSelectPositionerContext();
+  const {
+    alignItemWithTriggerActive,
+    setControlledItemAnchor,
+    scrollUpArrowVisible,
+    scrollDownArrowVisible,
+    setScrollUpArrowVisible,
+    setScrollDownArrowVisible,
+  } = useSelectPositionerContext();
 
   const initialHeightRef = React.useRef(0);
   const reachedMaxHeightRef = React.useRef(false);

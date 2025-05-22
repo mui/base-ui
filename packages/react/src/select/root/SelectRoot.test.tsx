@@ -131,6 +131,38 @@ describe('<Select.Root />', () => {
         '',
       );
     });
+
+    it('should not update the internal value if the controlled value prop does not change', async () => {
+      const onValueChange = spy();
+      await render(
+        <Select.Root value="a" onValueChange={onValueChange}>
+          <Select.Trigger data-testid="trigger">
+            <Select.Value>a</Select.Value>
+          </Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup>
+                <Select.Item value="a">a</Select.Item>
+                <Select.Item value="b">b</Select.Item>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+      expect(trigger).to.have.text('a');
+
+      fireEvent.click(trigger);
+      await flushMicrotasks();
+
+      const optionB = screen.getByRole('option', { name: 'b' });
+      fireEvent.click(optionB);
+      await flushMicrotasks();
+
+      expect(onValueChange.callCount).to.equal(0);
+      expect(trigger).to.have.text('a');
+    });
   });
 
   describe('prop: onValueChange', () => {
@@ -1271,6 +1303,69 @@ describe('<Select.Root />', () => {
       await user.keyboard('{ArrowDown}'); // Share still
 
       expect(screen.queryByRole('option', { name: 'Share' })).toHaveFocus();
+    });
+
+    it('unselects the selected item if removed', async () => {
+      function DynamicMenu() {
+        const [items, setItems] = React.useState(['a', 'b', 'c']);
+        const [selectedItem, setSelectedItem] = React.useState('a');
+
+        return (
+          <div>
+            <button
+              onClick={() => {
+                setItems((prev) => prev.filter((item) => item !== 'a'));
+              }}
+            >
+              Remove
+            </button>
+
+            <button
+              onClick={() => {
+                setItems(['a', 'b', 'c']);
+              }}
+            >
+              Add
+            </button>
+            <div data-testid="value">{selectedItem}</div>
+
+            <Select.Root value={selectedItem} onValueChange={setSelectedItem}>
+              <Select.Trigger>Toggle</Select.Trigger>
+              <Select.Portal>
+                <Select.Positioner>
+                  <Select.Popup>
+                    {items.map((item) => (
+                      <Select.Item key={item} value={item}>
+                        {item}
+                      </Select.Item>
+                    ))}
+                  </Select.Popup>
+                </Select.Positioner>
+              </Select.Portal>
+            </Select.Root>
+          </div>
+        );
+      }
+
+      const { user } = await renderFakeTimers(<DynamicMenu />);
+
+      const trigger = screen.getByText('Toggle');
+
+      await act(async () => {
+        trigger.focus();
+      });
+      await user.keyboard('{ArrowDown}');
+
+      expect(screen.queryByRole('option', { name: 'a' })).to.have.attribute('data-selected');
+      expect(screen.getByTestId('value')).to.have.text('a');
+
+      fireEvent.click(screen.getByText('Remove'));
+
+      expect(screen.queryByRole('option', { name: 'b' })).not.to.have.attribute('data-selected');
+
+      fireEvent.click(screen.getByText('Add'));
+
+      expect(screen.queryByRole('option', { name: 'a' })).to.have.attribute('data-selected');
     });
   });
 });
