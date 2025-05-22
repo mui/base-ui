@@ -272,7 +272,7 @@ export namespace useTooltipRoot {
     setOpen: (
       open: boolean,
       event: Event | undefined,
-      reason: Tooltip.Root.OpenChangeReason | undefined,
+      reason: TooltipOpenChangeReason | undefined,
     ) => void;
     mounted: boolean;
     setMounted: React.Dispatch<React.SetStateAction<boolean>>;
