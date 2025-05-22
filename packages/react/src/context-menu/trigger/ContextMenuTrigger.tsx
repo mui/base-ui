@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { contains, getTarget } from '@floating-ui/react/utils';
+import { contains, getTarget, stopEvent } from '@floating-ui/react/utils';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { useContextMenuRootContext } from '../root/ContextMenuRootContext';
@@ -59,7 +59,7 @@ export const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
 
   const handleContextMenu = useEventCallback((event: React.MouseEvent) => {
     allowMouseUpTriggerRef.current = true;
-    event.preventDefault();
+    stopEvent(event);
     handleLongPress(event.clientX, event.clientY, event.nativeEvent);
     const doc = ownerDocument(triggerRef.current);
 
@@ -92,6 +92,7 @@ export const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
   const handleTouchStart = useEventCallback((event: React.TouchEvent) => {
     allowMouseUpTriggerRef.current = false;
     if (event.touches.length === 1) {
+      event.stopPropagation();
       const touch = event.touches[0];
       touchPositionRef.current = { x: touch.clientX, y: touch.clientY };
       longPressTimerRef.current = window.setTimeout(() => {

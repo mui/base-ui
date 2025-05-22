@@ -4,6 +4,7 @@ import { FloatingTree } from '@floating-ui/react';
 import { MenuRootContext } from './MenuRootContext';
 import { MenuOrientation, useMenuRoot } from './useMenuRoot';
 import type { OpenChangeReason } from '../../utils/translateOpenChangeReason';
+import { isContextMenu } from '../../context-menu/utils/isContextMenu';
 
 /**
  * Groups all parts of the menu.
@@ -45,7 +46,7 @@ export const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
 
   const content = <MenuRootContext.Provider value={menuRoot}>{children}</MenuRootContext.Provider>;
 
-  if (menuRoot.parent.type === undefined || menuRoot.parent.type === 'context-menu') {
+  if (menuRoot.parent.type === undefined || isContextMenu(menuRoot.parent.type)) {
     // set up a FloatingTree to provide the context to nested menus
     return <FloatingTree>{content}</FloatingTree>;
   }

@@ -93,7 +93,7 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
     ref: mergedRef,
   });
 
-  let returnFocus = parent.type === undefined || parent.type === 'context-menu';
+  let returnFocus = parent.type === undefined || parent.type.includes('context-menu');
   if (parent.type === 'menubar' && lastOpenChangeReason !== 'outside-press') {
     returnFocus = true;
   }

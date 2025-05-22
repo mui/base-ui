@@ -33,15 +33,6 @@
       "default": "false",
       "description": "Whether the component should ignore user interaction."
     },
-    "openOnHover": {
-      "type": "boolean",
-      "description": "Whether the menu should also open when the trigger is hovered.\n\nDefaults to `true` for nested menus."
-    },
-    "delay": {
-      "type": "number",
-      "default": "100",
-      "description": "How long to wait before the menu may be opened on hover. Specified in milliseconds.\n\nRequires the `openOnHover` prop."
-    },
     "loop": {
       "type": "boolean",
       "default": "true",

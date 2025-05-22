@@ -190,4 +190,47 @@ describe('<ContextMenu.Trigger />', () => {
       expect(onOpenChange.callCount).to.equal(0);
     });
   });
+
+  it('should handle nested context menus correctly', async () => {
+    await render(
+      <ContextMenu.Root>
+        <ContextMenu.Trigger data-testid="outer-trigger">
+          outer
+          <ContextMenu.Root>
+            <ContextMenu.Trigger>inner</ContextMenu.Trigger>
+            <ContextMenu.Portal>
+              <ContextMenu.Positioner>
+                <ContextMenu.Popup data-testid="inner-menu" />
+              </ContextMenu.Positioner>
+            </ContextMenu.Portal>
+          </ContextMenu.Root>
+        </ContextMenu.Trigger>
+        <ContextMenu.Portal>
+          <ContextMenu.Positioner>
+            <ContextMenu.Popup data-testid="outer-menu" />
+          </ContextMenu.Positioner>
+        </ContextMenu.Portal>
+      </ContextMenu.Root>,
+    );
+
+    const innerTrigger = screen.getByText('inner');
+    const outerTrigger = screen.getByText('outer');
+
+    fireEvent.contextMenu(innerTrigger);
+    await flushMicrotasks();
+
+    expect(screen.queryByTestId('inner-menu')).not.to.equal(null);
+    expect(screen.queryByTestId('outer-menu')).to.equal(null);
+
+    fireEvent.pointerDown(document.body);
+    await flushMicrotasks();
+
+    expect(screen.queryByTestId('inner-menu')).to.equal(null);
+
+    fireEvent.contextMenu(outerTrigger);
+    await flushMicrotasks();
+
+    expect(screen.queryByTestId('outer-menu')).not.to.equal(null);
+    expect(screen.queryByTestId('inner-menu')).to.equal(null);
+  });
 });

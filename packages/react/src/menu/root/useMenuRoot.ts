@@ -34,6 +34,7 @@ import {
   useContextMenuRootContext,
 } from '../../context-menu/root/ContextMenuRootContext';
 import { ownerDocument } from '../../utils/owner';
+import { isContextMenu } from '../../context-menu/utils/isContextMenu';
 
 const EMPTY_ARRAY: never[] = [];
 const EMPTY_REF = { current: false };
@@ -68,14 +69,20 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
   const popupRef = React.useRef<HTMLElement>(null);
   const positionerRef = React.useRef<HTMLElement | null>(null);
   const stickIfOpenTimeout = useTimeout();
+  const contextMenuContext = useContextMenuRootContext(true);
 
   let parent: useMenuRoot.ReturnValue['parent'];
   {
     const parentContext = useMenuRootContext(true);
     const menubarContext = useMenubarContext(true);
-    const contextMenuContext = useContextMenuRootContext(true);
 
-    if (parentContext) {
+    if (parentContext && contextMenuContext) {
+      parent = {
+        type: 'nested-context-menu',
+        context: contextMenuContext,
+        menuContext: parentContext,
+      };
+    } else if (parentContext) {
       parent = {
         type: 'menu',
         context: parentContext,
@@ -97,8 +104,7 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
     }
   }
 
-  const modal =
-    (parent.type === undefined || parent.type === 'context-menu') && (modalParam ?? true);
+  const modal = (parent.type === undefined || isContextMenu(parent.type)) && (modalParam ?? true);
 
   if (process.env.NODE_ENV !== 'production') {
     if (parent.type !== undefined && modalParam !== undefined) {
@@ -111,12 +117,6 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
   const openOnHover =
     openOnHoverParam ??
     (parent.type === 'menu' || (parent.type === 'menubar' && parent.context.hasSubmenuOpen));
-
-  React.useImperativeHandle<HTMLElement | null, HTMLElement | null>(
-    parent.type === 'context-menu' ? parent.context?.positionerRef : null,
-    () => positionerElement,
-    [positionerElement],
-  );
 
   const [open, setOpenUnwrapped] = useControlled({
     controlled: openParam,
@@ -258,8 +258,16 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
     handleUnmount,
   ]);
 
+  React.useImperativeHandle<HTMLElement | null, HTMLElement | null>(
+    parent.type === 'context-menu' || parent.type === 'nested-context-menu'
+      ? parent.context.positionerRef
+      : null,
+    () => positionerElement,
+    [positionerElement],
+  );
+
   React.useImperativeHandle(
-    parent.type === 'context-menu' ? parent.context?.actionsRef : null,
+    contextMenuContext ? contextMenuContext.actionsRef : null,
     () => ({ setOpen }),
     [setOpen],
   );
@@ -296,7 +304,12 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
   });
 
   const focus = useFocus(floatingRootContext, {
-    enabled: !disabled && !open && parent.type === 'menubar' && parent.context.hasSubmenuOpen,
+    enabled:
+      !disabled &&
+      !open &&
+      parent.type === 'menubar' &&
+      parent.context.hasSubmenuOpen &&
+      !contextMenuContext,
   });
 
   const click = useClick(floatingRootContext, {
@@ -312,7 +325,7 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
     bubbles: closeParentOnEsc && parent.type === 'menu',
     // For context menus, this avoids an issue on long press where the menu closes right
     // after opening.
-    outsidePressEvent: parent.type === 'context-menu' ? 'pointerdown' : 'mousedown',
+    outsidePressEvent: contextMenuContext ? 'pointerdown' : 'mousedown',
   });
 
   const role = useRole(floatingRootContext, {
@@ -560,6 +573,11 @@ export namespace useMenuRoot {
     | {
         type: 'context-menu';
         context: ContextMenuRootContext;
+      }
+    | {
+        type: 'nested-context-menu';
+        context: ContextMenuRootContext;
+        menuContext: MenuRootContext;
       }
     | {
         type: undefined;
