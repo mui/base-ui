@@ -23,7 +23,6 @@ import {
 } from '../../utils/translateOpenChangeReason';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useTooltipProviderContext } from '../provider/TooltipProviderContext';
-import type { Tooltip } from '../index';
 
 export type TooltipOpenChangeReason = BaseOpenChangeReason | 'disabled';
 
