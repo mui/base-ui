@@ -60,7 +60,6 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     setValue,
     mounted,
     open,
-    setOpen,
     positionerElement,
     setActivationDirection,
     setFloatingRootContext,
@@ -142,13 +141,11 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
         });
       }
 
-      setOpen(nextOpen, event, reason);
-
       if (nextOpen) {
-        setValue(itemValue);
+        setValue(itemValue, event, reason);
       } else {
         setActivationDirection(null);
-        setValue(undefined);
+        setValue(null, event, reason);
         setFloatingRootContext(undefined);
       }
     }
@@ -207,8 +204,12 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
       if (mounted && prevTriggerRect && triggerElement) {
         const nextTriggerRect = triggerElement.getBoundingClientRect();
         const isMovingRight = nextTriggerRect.left > prevTriggerRect.left;
-        if (nextTriggerRect.left !== prevTriggerRect.left) {
+        const isMovingDown = nextTriggerRect.top > prevTriggerRect.top;
+
+        if (orientation === 'horizontal' && nextTriggerRect.left !== prevTriggerRect.left) {
           setActivationDirection(isMovingRight ? 'right' : 'left');
+        } else if (orientation === 'vertical' && nextTriggerRect.top !== prevTriggerRect.top) {
+          setActivationDirection(isMovingDown ? 'down' : 'up');
         }
       }
 
@@ -223,7 +224,9 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
         return;
       }
 
-      setValue(itemValue);
+      if (value != null) {
+        setValue(itemValue);
+      }
     });
   });
 
@@ -263,8 +266,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
             orientation === 'vertical' && (event.key === 'ArrowLeft' || event.key === 'ArrowRight');
 
           if (openHorizontal || openVertical) {
-            setOpen(true, event.nativeEvent, 'list-navigation');
-            setValue(itemValue);
+            setValue(itemValue, event.nativeEvent, 'list-navigation');
             stopEvent(event);
           }
         },
@@ -279,7 +281,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
               { popupElement, rootRef, tree, nodeId },
             )
           ) {
-            setOpen(false, event.nativeEvent, undefined);
+            setValue(null, event.nativeEvent, undefined);
           }
         },
       },
@@ -315,7 +317,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
                 nextTabbable?.focus();
 
                 if (!contains(rootRef.current, nextTabbable)) {
-                  setOpen(false, event.nativeEvent, undefined);
+                  setValue(null, event.nativeEvent, 'focus-out');
                 }
               }
             }}

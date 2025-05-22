@@ -23,7 +23,7 @@ export const NavigationMenuLink = React.forwardRef(function NavigationMenuLink(
 ) {
   const { className, render, ...elementProps } = componentProps;
 
-  const { setOpen, popupElement, rootRef } = useNavigationMenuRootContext();
+  const { setValue, popupElement, rootRef } = useNavigationMenuRootContext();
   const nodeId = useNavigationMenuTreeContext();
   const tree = useFloatingTree();
 
@@ -33,7 +33,7 @@ export const NavigationMenuLink = React.forwardRef(function NavigationMenuLink(
       {
         onMouseEnter(event) {
           if (!contains(popupElement, event.currentTarget)) {
-            setOpen(false, event.nativeEvent, undefined);
+            setValue(null, event.nativeEvent, undefined);
           }
         },
         onBlur(event) {
@@ -46,7 +46,7 @@ export const NavigationMenuLink = React.forwardRef(function NavigationMenuLink(
               { popupElement, rootRef, tree, nodeId },
             )
           ) {
-            setOpen(false, event.nativeEvent, undefined);
+            setValue(null, event.nativeEvent, undefined);
           }
         },
       },

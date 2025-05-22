@@ -5,13 +5,8 @@ import type { TransitionStatus } from '../../utils';
 
 export interface NavigationMenuRootContext {
   open: boolean;
-  setOpen: (
-    open: boolean,
-    event: Event | undefined,
-    reason: BaseOpenChangeReason | undefined,
-  ) => void;
   value: any;
-  setValue: (value: any) => void;
+  setValue: (value: any, event?: Event, reason?: BaseOpenChangeReason) => void;
   transitionStatus: TransitionStatus;
   mounted: boolean;
   popupElement: HTMLElement | null;
@@ -20,8 +15,10 @@ export interface NavigationMenuRootContext {
   setPositionerElement: React.Dispatch<React.SetStateAction<HTMLElement | null>>;
   viewportElement: HTMLElement | null;
   setViewportElement: React.Dispatch<React.SetStateAction<HTMLElement | null>>;
-  activationDirection: 'left' | 'right' | null;
-  setActivationDirection: React.Dispatch<React.SetStateAction<'left' | 'right' | null>>;
+  activationDirection: 'left' | 'right' | 'up' | 'down' | null;
+  setActivationDirection: React.Dispatch<
+    React.SetStateAction<'left' | 'right' | 'up' | 'down' | null>
+  >;
   floatingRootContext: FloatingRootContext | undefined;
   setFloatingRootContext: React.Dispatch<React.SetStateAction<FloatingRootContext | undefined>>;
   currentContentRef: React.RefObject<HTMLDivElement | null>;

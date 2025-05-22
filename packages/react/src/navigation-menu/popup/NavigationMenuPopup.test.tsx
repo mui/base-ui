@@ -9,7 +9,7 @@ describe('<NavigationMenu.Popup />', () => {
     refInstanceof: window.HTMLElement,
     render(node) {
       return render(
-        <NavigationMenu.Root open>
+        <NavigationMenu.Root value="test">
           <NavigationMenu.Portal>
             <NavigationMenu.Positioner>{node}</NavigationMenu.Positioner>
           </NavigationMenu.Portal>

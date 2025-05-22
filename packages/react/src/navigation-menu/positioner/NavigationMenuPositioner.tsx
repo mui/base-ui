@@ -52,7 +52,6 @@ export const NavigationMenuPositioner = React.forwardRef(function NavigationMenu
     popupElement,
     floatingRootContext,
     nested,
-    setOpen,
     setValue,
   } = useNavigationMenuRootContext();
   const keepMounted = useNavigationMenuPortalContext();
@@ -99,8 +98,7 @@ export const NavigationMenuPositioner = React.forwardRef(function NavigationMenu
     }
 
     function handleWindowResize(event: Event) {
-      setValue(undefined);
-      setOpen(false, event, undefined);
+      setValue(null, event, undefined);
     }
 
     const win = ownerWindow(positionerElement);
@@ -108,7 +106,7 @@ export const NavigationMenuPositioner = React.forwardRef(function NavigationMenu
     return () => {
       win.removeEventListener('resize', handleWindowResize);
     };
-  }, [setOpen, setValue, positionerElement, popupElement]);
+  }, [setValue, positionerElement, popupElement]);
 
   // https://codesandbox.io/s/tabbable-portal-f4tng?file=/src/TabbablePortal.tsx
   React.useEffect(() => {

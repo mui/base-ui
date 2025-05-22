@@ -267,31 +267,6 @@ describe('<NavigationMenu.Root />', () => {
     });
   });
 
-  describe('prop: defaultOpen', () => {
-    it('respects defaultOpen', async () => {
-      await render(<TestNavigationMenu defaultValue="item-1" defaultOpen />);
-      expect(screen.queryByTestId('popup-1')).not.to.equal(null);
-    });
-  });
-
-  describe('prop: onOpenChange', () => {
-    it('calls onOpenChange when opened/closed', async () => {
-      const onOpenChange = spy();
-      await render(<TestNavigationMenu onOpenChange={onOpenChange} />);
-      const trigger = screen.getByTestId('trigger-1');
-
-      fireEvent.click(trigger);
-      await flushMicrotasks();
-      expect(onOpenChange.callCount).to.equal(1);
-      expect(onOpenChange.lastCall.args[0]).to.equal(true);
-
-      fireEvent.click(trigger);
-      await flushMicrotasks();
-      expect(onOpenChange.callCount).to.equal(2);
-      expect(onOpenChange.lastCall.args[0]).to.equal(false);
-    });
-  });
-
   describe('prop: defaultValue', () => {
     it('should respect defaultValue', async () => {
       await render(<TestNavigationMenu defaultValue="item-1" />);

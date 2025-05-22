@@ -32,27 +32,17 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot(
   forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
   const {
-    open: openParam,
-    defaultOpen = false,
-    onOpenChange,
-    onOpenChangeComplete,
-    defaultValue,
+    defaultValue = null,
     value: valueParam,
     onValueChange,
     actionsRef,
     delay = 50,
     closeDelay = 200,
     orientation = 'horizontal',
+    onOpenChangeComplete,
   } = componentProps;
 
   const nested = useFloatingParentNodeId() != null;
-
-  const [open, setOpenUnwrapped] = useControlled({
-    controlled: openParam,
-    default: defaultOpen,
-    name: 'NavigationMenu',
-    state: 'open',
-  });
 
   const [value, setValueUnwrapped] = useControlled({
     controlled: valueParam,
@@ -61,33 +51,30 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot(
     state: 'value',
   });
 
+  // Derive open state from value being non-nullish
+  const open = value != null;
+
   const closeReasonRef = React.useRef<BaseOpenChangeReason | undefined>(undefined);
   const rootRef = React.useRef<HTMLDivElement | null>(null);
 
-  const setOpen = useEventCallback(
-    (nextOpen: boolean, event: Event | undefined, reason: BaseOpenChangeReason | undefined) => {
-      if (!nextOpen) {
+  const setValue = useEventCallback(
+    (nextValue: any, event: Event | undefined, reason: BaseOpenChangeReason | undefined) => {
+      if (!nextValue) {
         closeReasonRef.current = reason;
       }
 
-      onOpenChange?.(nextOpen, event, reason);
-      setOpenUnwrapped(nextOpen);
+      if (nextValue !== value) {
+        onValueChange?.(nextValue, event, reason);
+      }
+      setValueUnwrapped(nextValue);
     },
   );
-
-  const setValue = useEventCallback((nextValue: any) => {
-    if (nextValue !== value) {
-      onValueChange?.(nextValue);
-    }
-    setValueUnwrapped(nextValue);
-  });
 
   const [positionerElement, setPositionerElement] = React.useState<HTMLElement | null>(null);
   const [popupElement, setPopupElement] = React.useState<HTMLElement | null>(null);
   const [viewportElement, setViewportElement] = React.useState<HTMLElement | null>(null);
-  const [activationDirection, setActivationDirection] = React.useState<'left' | 'right' | null>(
-    null,
-  );
+  const [activationDirection, setActivationDirection] =
+    React.useState<NavigationMenuRootContext['activationDirection']>(null);
   const [floatingRootContext, setFloatingRootContext] = React.useState<
     FloatingRootContext | undefined
   >(undefined);
@@ -137,7 +124,6 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot(
   const contextValue: NavigationMenuRootContext = React.useMemo(
     () => ({
       open,
-      setOpen,
       value,
       setValue,
       mounted,
@@ -166,7 +152,6 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot(
     }),
     [
       open,
-      setOpen,
       value,
       setValue,
       mounted,
@@ -207,10 +192,6 @@ function TreeContext(props: {
   const {
     className,
     render,
-    open: openParam,
-    defaultOpen,
-    onOpenChange,
-    onOpenChangeComplete,
     defaultValue,
     value: valueParam,
     onValueChange,
@@ -218,6 +199,7 @@ function TreeContext(props: {
     delay,
     closeDelay,
     orientation,
+    onOpenChangeComplete,
     ...elementProps
   } = props.componentProps;
 
@@ -248,26 +230,12 @@ export namespace NavigationMenuRoot {
      */
     actionsRef?: React.RefObject<{ unmount: () => void }>;
     /**
-     * Whether the navigation menu is currently open.
-     */
-    open?: boolean;
-    /**
-     * Whether the navigation menu is initially open.
-     *
-     * To render a controlled menu, use the `open` prop instead.
-     * @default false
-     */
-    defaultOpen?: boolean;
-    /**
-     * Event handler called when the navigation menu is opened or closed.
-     */
-    onOpenChange?: (open: boolean, event?: Event, reason?: BaseOpenChangeReason) => void;
-    /**
      * Event handler called after any animations complete when the navigation menu is closed.
      */
     onOpenChangeComplete?: (open: boolean) => void;
     /**
      * The controlled value of the navigation navigation menu item that should be currently open.
+     * When non-nullish, the menu will be open. When nullish, the menu will be closed.
      *
      * To render an uncontrolled navigation navigation menu, use the `defaultValue` prop instead.
      * @default null
@@ -277,12 +245,17 @@ export namespace NavigationMenuRoot {
      * The uncontrolled value of the item that should be initially selected.
      *
      * To render a controlled navigation menu, use the `value` prop instead.
+     * @default null
      */
     defaultValue?: any;
     /**
      * Callback fired when the value changes.
      */
-    onValueChange?: (value: any) => void;
+    onValueChange?: (
+      value: any,
+      event: Event | undefined,
+      reason: BaseOpenChangeReason | undefined,
+    ) => void;
     /**
      * How long to wait before opening the navigation menu. Specified in milliseconds.
      * @default 50

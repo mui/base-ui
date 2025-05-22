@@ -4,29 +4,17 @@
   "props": {
     "defaultValue": {
       "type": "any",
+      "default": "null",
       "description": "The uncontrolled value of the item that should be initially selected.\n\nTo render a controlled navigation menu, use the `value` prop instead."
     },
     "value": {
       "type": "any",
       "default": "null",
-      "description": "The controlled value of the navigation navigation menu item that should be currently open.\n\nTo render an uncontrolled navigation navigation menu, use the `defaultValue` prop instead."
+      "description": "The controlled value of the navigation navigation menu item that should be currently open.\nWhen non-nullish, the menu will be open. When nullish, the menu will be closed.\n\nTo render an uncontrolled navigation navigation menu, use the `defaultValue` prop instead."
     },
     "onValueChange": {
-      "type": "((value: any) => void)",
+      "type": "((value: any, event: Event | undefined, reason: BaseOpenChangeReason | undefined) => void)",
       "description": "Callback fired when the value changes."
-    },
-    "defaultOpen": {
-      "type": "boolean",
-      "default": "false",
-      "description": "Whether the navigation menu is initially open.\n\nTo render a controlled menu, use the `open` prop instead."
-    },
-    "open": {
-      "type": "boolean",
-      "description": "Whether the navigation menu is currently open."
-    },
-    "onOpenChange": {
-      "type": "((open: boolean, event: Event | undefined, reason: BaseOpenChangeReason | undefined) => void)",
-      "description": "Event handler called when the navigation menu is opened or closed."
     },
     "actionsRef": {
       "type": "RefObject<{ unmount: () => void; }>",

@@ -143,7 +143,7 @@ export namespace NavigationMenuContent {
     /**
      * The direction of the activation.
      */
-    activationDirection: 'left' | 'right' | null;
+    activationDirection: 'left' | 'right' | 'up' | 'down' | null;
   }
 
   export interface Props extends BaseUIComponentProps<'div', State> {}

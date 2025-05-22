@@ -9,7 +9,7 @@ describe('<NavigationMenu.Content />', () => {
     refInstanceof: window.HTMLDivElement,
     render(node) {
       return render(
-        <NavigationMenu.Root open>
+        <NavigationMenu.Root value="test">
           <NavigationMenu.Item>{node}</NavigationMenu.Item>
           <NavigationMenu.Portal>
             <NavigationMenu.Positioner>
