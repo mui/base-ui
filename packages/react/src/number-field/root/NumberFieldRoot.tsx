@@ -330,21 +330,6 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
     [allowWheelScrub, incrementValue, disabled, readOnly, largeStep, step, getStepAmount],
   );
 
-  const hiddenInputProps: React.ComponentPropsWithRef<'input'> = React.useMemo(
-    () => ({
-      name,
-      ref: inputRefProp,
-      type: 'hidden',
-      tabIndex: -1,
-      'aria-hidden': true,
-      value: value ?? '',
-      disabled,
-      required,
-      style: visuallyHidden,
-    }),
-    [disabled, inputRefProp, name, required, value],
-  );
-
   const state: NumberFieldRoot.State = React.useMemo(
     () => ({
       ...fieldState,
@@ -436,7 +421,19 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
   return (
     <NumberFieldRootContext.Provider value={contextValue}>
       {element}
-      {name && <input {...hiddenInputProps} />}
+      {name && (
+        <input
+          type="hidden"
+          name={name}
+          ref={inputRefProp}
+          tabIndex={-1}
+          aria-hidden="true"
+          value={value ?? ''}
+          disabled={disabled}
+          required={required}
+          style={visuallyHidden}
+        />
+      )}
     </NumberFieldRootContext.Provider>
   );
 });
