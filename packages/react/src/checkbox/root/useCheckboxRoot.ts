@@ -14,6 +14,8 @@ import { useField } from '../../field/useField';
 import { useCheckboxGroupContext } from '../../checkbox-group/CheckboxGroupContext';
 import { useFormContext } from '../../form/FormContext';
 
+const EMPTY = {};
+
 export function useCheckboxRoot(params: useCheckboxRoot.Parameters): useCheckboxRoot.ReturnValue {
   const {
     id: idProp,
@@ -21,7 +23,7 @@ export function useCheckboxRoot(params: useCheckboxRoot.Parameters): useCheckbox
     inputRef: externalInputRef,
     onCheckedChange: onCheckedChangeProp,
     name: nameProp,
-    value,
+    value: valueProp,
     defaultChecked = false,
     readOnly = false,
     required = false,
@@ -52,7 +54,9 @@ export function useCheckboxRoot(params: useCheckboxRoot.Parameters): useCheckbox
   } = useFieldRootContext();
 
   const disabled = fieldDisabled || disabledProp;
-  const name = fieldName ?? nameProp;
+  // Checkbox's name will override Field's name
+  const name = nameProp ?? fieldName;
+  const value = valueProp ?? name;
 
   const { getButtonProps } = useButton({
     disabled,
@@ -67,9 +71,9 @@ export function useCheckboxRoot(params: useCheckboxRoot.Parameters): useCheckbox
   } = useFieldControlValidation();
 
   const [checked, setCheckedState] = useControlled({
-    controlled: name && groupValue && !parent ? groupValue.includes(name) : externalChecked,
+    controlled: value && groupValue && !parent ? groupValue.includes(value) : externalChecked,
     default:
-      name && defaultGroupValue && !parent ? defaultGroupValue.includes(name) : defaultChecked,
+      value && defaultGroupValue && !parent ? defaultGroupValue.includes(value) : defaultChecked,
     name: 'Checkbox',
     state: 'checked',
   });
@@ -172,7 +176,9 @@ export function useCheckboxRoot(params: useCheckboxRoot.Parameters): useCheckbox
           name,
           // React <19 sets an empty value if `undefined` is passed explicitly
           // To avoid this, we only set the value if it's defined
-          ...(value !== undefined ? { value } : {}),
+          ...(valueProp !== undefined
+            ? { value: (groupContext ? checked && valueProp : valueProp) || '' }
+            : EMPTY),
           required,
           ref: mergedInputRef,
           style: visuallyHidden,
@@ -202,10 +208,10 @@ export function useCheckboxRoot(params: useCheckboxRoot.Parameters): useCheckbox
               }
             }
 
-            if (name && groupValue && setGroupValue && !parent) {
+            if (value && groupValue && setGroupValue && !parent) {
               const nextGroupValue = nextChecked
-                ? [...groupValue, name]
-                : groupValue.filter((item) => item !== name);
+                ? [...groupValue, value]
+                : groupValue.filter((item) => item !== value);
 
               setGroupValue(nextGroupValue, event.nativeEvent);
               setFilled(nextGroupValue.length > 0);
@@ -224,7 +230,7 @@ export function useCheckboxRoot(params: useCheckboxRoot.Parameters): useCheckbox
       checked,
       disabled,
       name,
-      value,
+      valueProp,
       required,
       mergedInputRef,
       getInputValidationProps,
@@ -241,6 +247,7 @@ export function useCheckboxRoot(params: useCheckboxRoot.Parameters): useCheckbox
       setFilled,
       validationMode,
       commitValidation,
+      value,
     ],
   );
 
@@ -320,7 +327,7 @@ export namespace useCheckboxRoot {
     /**
      * The value of the selected checkbox.
      */
-    value?: string | number;
+    value?: string;
   }
 
   export interface ReturnValue {
