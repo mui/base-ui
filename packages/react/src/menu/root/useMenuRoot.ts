@@ -34,7 +34,6 @@ import {
   useContextMenuRootContext,
 } from '../../context-menu/root/ContextMenuRootContext';
 import { ownerDocument } from '../../utils/owner';
-import { isContextMenu } from '../../context-menu/utils/isContextMenu';
 
 export type MenuOpenChangeReason = BaseOpenChangeReason | 'sibling-open';
 
@@ -77,13 +76,7 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
     const parentContext = useMenuRootContext(true);
     const menubarContext = useMenubarContext(true);
 
-    if (parentContext && contextMenuContext) {
-      parent = {
-        type: 'nested-context-menu',
-        context: contextMenuContext,
-        menuContext: parentContext,
-      };
-    } else if (parentContext) {
+    if (parentContext) {
       parent = {
         type: 'menu',
         context: parentContext,
@@ -105,7 +98,8 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
     }
   }
 
-  const modal = (parent.type === undefined || isContextMenu(parent.type)) && (modalParam ?? true);
+  const modal =
+    (parent.type === undefined || parent.type === 'context-menu') && (modalParam ?? true);
 
   if (process.env.NODE_ENV !== 'production') {
     if (parent.type !== undefined && modalParam !== undefined) {
@@ -260,19 +254,18 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
     handleUnmount,
   ]);
 
+  let ctx: ContextMenuRootContext | undefined;
+  if (parent.type === 'context-menu') {
+    ctx = parent.context;
+  }
+
   React.useImperativeHandle<HTMLElement | null, HTMLElement | null>(
-    parent.type === 'context-menu' || parent.type === 'nested-context-menu'
-      ? parent.context.positionerRef
-      : null,
+    ctx?.positionerRef,
     () => positionerElement,
     [positionerElement],
   );
 
-  React.useImperativeHandle(
-    contextMenuContext ? contextMenuContext.actionsRef : null,
-    () => ({ setOpen }),
-    [setOpen],
-  );
+  React.useImperativeHandle(ctx?.actionsRef, () => ({ setOpen }), [setOpen]);
 
   React.useEffect(() => {
     if (!open) {

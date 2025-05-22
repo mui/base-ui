@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { ContextMenu } from '@base-ui-components/react/context-menu';
+import { Menu } from '@base-ui-components/react/menu';
 import styles from './index.module.css';
 
 export default function ExampleContextMenu() {
@@ -15,35 +16,27 @@ export default function ExampleContextMenu() {
               Add to Library
             </ContextMenu.Item>
 
-            <ContextMenu.Root>
-              <ContextMenu.SubmenuTrigger className={styles.SubmenuTrigger}>
+            <Menu.Root>
+              <Menu.SubmenuTrigger className={styles.SubmenuTrigger}>
                 Add to Playlist
                 <ChevronRightIcon />
-              </ContextMenu.SubmenuTrigger>
-              <ContextMenu.Portal>
-                <ContextMenu.Positioner
+              </Menu.SubmenuTrigger>
+              <Menu.Portal>
+                <Menu.Positioner
                   className={styles.Positioner}
                   alignOffset={-4}
                   sideOffset={-4}
                 >
-                  <ContextMenu.Popup className={styles.Popup}>
-                    <ContextMenu.Item className={styles.Item}>
-                      Get Up!
-                    </ContextMenu.Item>
-                    <ContextMenu.Item className={styles.Item}>
-                      Inside Out
-                    </ContextMenu.Item>
-                    <ContextMenu.Item className={styles.Item}>
-                      Night Beats
-                    </ContextMenu.Item>
-                    <ContextMenu.Separator className={styles.Separator} />
-                    <ContextMenu.Item className={styles.Item}>
-                      New playlist…
-                    </ContextMenu.Item>
-                  </ContextMenu.Popup>
-                </ContextMenu.Positioner>
-              </ContextMenu.Portal>
-            </ContextMenu.Root>
+                  <Menu.Popup className={styles.Popup}>
+                    <Menu.Item className={styles.Item}>Get Up!</Menu.Item>
+                    <Menu.Item className={styles.Item}>Inside Out</Menu.Item>
+                    <Menu.Item className={styles.Item}>Night Beats</Menu.Item>
+                    <Menu.Separator className={styles.Separator} />
+                    <Menu.Item className={styles.Item}>New playlist…</Menu.Item>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
 
             <ContextMenu.Separator className={styles.Separator} />
             <ContextMenu.Item className={styles.Item}>Play Next</ContextMenu.Item>

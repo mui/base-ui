@@ -33,11 +33,11 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
     disabled,
   } = useMenuRootContext();
 
-  if (parent.type !== 'menu' && parent.type !== 'nested-context-menu') {
+  if (parent.type !== 'menu') {
     throw new Error('Base UI: SubmenuTrigger must be placed in a nested Menu.');
   }
 
-  const parentMenuContext = parent.type === 'menu' ? parent.context : parent.menuContext;
+  const parentMenuContext = parent.context;
 
   const { activeIndex, itemProps, setActiveIndex } = parentMenuContext;
   const item = useCompositeListItem();

@@ -13,7 +13,6 @@ import { CompositeList } from '../../composite/list/CompositeList';
 import { inertValue } from '../../utils/inertValue';
 import { InternalBackdrop } from '../../utils/InternalBackdrop';
 import { useMenuPortalContext } from '../portal/MenuPortalContext';
-import { isContextMenu } from '../../context-menu/utils/isContextMenu';
 import { useContextMenuRootContext } from '../../context-menu/root/ContextMenuRootContext';
 
 /**
@@ -64,7 +63,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
   let sideOffset = sideOffsetProp;
   let alignOffset = alignOffsetProp;
   let align = alignProp;
-  if (parent.type === 'context-menu' || parent.type === 'nested-context-menu') {
+  if (parent.type === 'context-menu') {
     anchor = parent.context?.anchor ?? anchorProp;
     align = props.align ?? 'start';
     alignOffset = props.alignOffset ?? 2;
@@ -81,7 +80,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
     computedAlign = computedAlign ?? 'start';
   }
 
-  const contextMenu = isContextMenu(parent.type);
+  const contextMenu = parent.type === 'context-menu';
 
   const positioner = useMenuPositioner({
     anchor,

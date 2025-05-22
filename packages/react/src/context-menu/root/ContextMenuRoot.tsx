@@ -2,6 +2,7 @@
 import * as React from 'react';
 import { ContextMenuRootContext } from './ContextMenuRootContext';
 import { Menu } from '../../menu';
+import { MenuRootContext } from '../../menu/root/MenuRootContext';
 
 /**
  * A component that creates a context menu activated by right clicking or long pressing.
@@ -37,7 +38,9 @@ export function ContextMenuRoot(props: ContextMenuRoot.Props) {
 
   return (
     <ContextMenuRootContext.Provider value={contextValue}>
-      <Menu.Root {...props} />
+      <MenuRootContext.Provider value={undefined}>
+        <Menu.Root {...props} />
+      </MenuRootContext.Provider>
     </ContextMenuRootContext.Provider>
   );
 }

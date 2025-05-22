@@ -14,7 +14,6 @@ import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping'
 import { mergeProps } from '../../merge-props';
 import { transitionStatusMapping } from '../../utils/styleHookMapping';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
-import { isContextMenu } from '../../context-menu/utils/isContextMenu';
 
 const customStyleHookMapping: CustomStyleHookMapping<MenuPopup.State> = {
   ...baseMapping,
@@ -94,7 +93,7 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
     ref: mergedRef,
   });
 
-  let returnFocus = parent.type === undefined || isContextMenu(parent.type);
+  let returnFocus = parent.type === undefined || parent.type === 'context-menu';
   if (parent.type === 'menubar' && lastOpenChangeReason !== 'outside-press') {
     returnFocus = true;
   }
