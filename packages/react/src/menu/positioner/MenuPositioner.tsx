@@ -14,6 +14,7 @@ import { inertValue } from '../../utils/inertValue';
 import { InternalBackdrop } from '../../utils/InternalBackdrop';
 import { useMenuPortalContext } from '../portal/MenuPortalContext';
 import { isContextMenu } from '../../context-menu/utils/isContextMenu';
+import { useContextMenuRootContext } from '../../context-menu/root/ContextMenuRootContext';
 
 /**
  * Positions the menu popup against the trigger.
@@ -57,6 +58,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
   const keepMounted = useMenuPortalContext();
   const nodeId = useFloatingNodeId();
   const parentNodeId = useFloatingParentNodeId();
+  const contextMenuContext = useContextMenuRootContext(true);
 
   let anchor = anchorProp;
   let sideOffset = sideOffsetProp;
@@ -84,7 +86,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
   const positioner = useMenuPositioner({
     anchor,
     floatingRootContext,
-    positionMethod: contextMenu ? 'fixed' : positionMethodProp,
+    positionMethod: contextMenuContext ? 'fixed' : positionMethodProp,
     open,
     mounted,
     side: computedSide,
