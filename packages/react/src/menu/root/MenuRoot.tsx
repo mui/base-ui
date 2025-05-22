@@ -1,10 +1,8 @@
 'use client';
 import * as React from 'react';
 import { FloatingTree } from '@floating-ui/react';
-import { useDirection } from '../../direction-provider/DirectionContext';
-import { MenuRootContext, useMenuRootContext } from './MenuRootContext';
-import { MenuOrientation, useMenuRoot } from './useMenuRoot';
-import type { OpenChangeReason } from '../../utils/translateOpenChangeReason';
+import { MenuRootContext } from './MenuRootContext';
+import { MenuOrientation, MenuOpenChangeReason, useMenuRoot } from './useMenuRoot';
 
 /**
  * Groups all parts of the menu.
@@ -15,74 +13,43 @@ import type { OpenChangeReason } from '../../utils/translateOpenChangeReason';
 export const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
   const {
     children,
+    open,
+    onOpenChange,
+    onOpenChangeComplete,
     defaultOpen = false,
     disabled = false,
-    closeParentOnEsc = true,
+    modal,
     loop = true,
-    modal = true,
-    onOpenChange,
-    open,
     orientation = 'vertical',
-    delay = 100,
-    openOnHover: openOnHoverProp,
     actionsRef,
-    onOpenChangeComplete,
+    openOnHover,
+    delay = 100,
+    closeParentOnEsc = true,
   } = props;
 
-  const direction = useDirection();
-
-  const parentContext = useMenuRootContext(true);
-  const nested = parentContext != null;
-
-  const openOnHover = openOnHoverProp ?? nested;
-  const typingRef = React.useRef(false);
-
-  const onTypingChange = React.useCallback((nextTyping: boolean) => {
-    typingRef.current = nextTyping;
-  }, []);
-
   const menuRoot = useMenuRoot({
-    direction,
-    disabled,
-    closeParentOnEsc,
-    onOpenChange,
-    loop,
-    defaultOpen,
     open,
-    orientation,
-    nested,
-    openOnHover,
-    delay,
-    onTypingChange,
-    modal,
-    actionsRef,
+    onOpenChange,
     onOpenChangeComplete,
+    defaultOpen,
+    disabled,
+    modal,
+    loop,
+    orientation,
+    actionsRef,
+    delay,
+    openOnHover,
+    closeParentOnEsc,
   });
 
-  const context: MenuRootContext = React.useMemo(
-    () => ({
-      ...menuRoot,
-      nested,
-      parentContext,
-      disabled,
-      allowMouseUpTriggerRef:
-        parentContext?.allowMouseUpTriggerRef ?? menuRoot.allowMouseUpTriggerRef,
-      typingRef,
-      modal,
-    }),
-    [menuRoot, nested, parentContext, disabled, modal],
-  );
+  const content = <MenuRootContext.Provider value={menuRoot}>{children}</MenuRootContext.Provider>;
 
-  if (!nested) {
+  if (menuRoot.parent.type === undefined) {
     // set up a FloatingTree to provide the context to nested menus
-    return (
-      <FloatingTree>
-        <MenuRootContext.Provider value={context}>{children}</MenuRootContext.Provider>
-      </FloatingTree>
-    );
+    return <FloatingTree>{content}</FloatingTree>;
   }
 
-  return <MenuRootContext.Provider value={context}>{children}</MenuRootContext.Provider>;
+  return content;
 };
 
 export namespace MenuRoot {
@@ -110,11 +77,12 @@ export namespace MenuRoot {
     modal?: boolean;
     /**
      * Event handler called when the menu is opened or closed.
+     * @type (open: boolean, event?: Event, reason?: Menu.Root.OpenChangeReason) => void
      */
     onOpenChange?: (
       open: boolean,
       event: Event | undefined,
-      reason: OpenChangeReason | undefined,
+      reason: MenuOpenChangeReason | undefined,
     ) => void;
     /**
      * Event handler called after any animations complete when the menu is closed.
@@ -160,10 +128,12 @@ export namespace MenuRoot {
      * Instead, the `unmount` function must be called to unmount the menu manually.
      * Useful when the menu's animation is controlled by an external library.
      */
-    actionsRef?: React.RefObject<{ unmount: () => void }>;
+    actionsRef?: React.RefObject<Actions>;
   }
 
   export interface Actions {
     unmount: () => void;
   }
+
+  export type OpenChangeReason = MenuOpenChangeReason;
 }

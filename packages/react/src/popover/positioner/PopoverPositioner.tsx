@@ -80,7 +80,7 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
     [open, positioner.side, positioner.align, positioner.anchorHidden],
   );
 
-  const renderElement = useRenderElement('div', componentProps, {
+  const element = useRenderElement('div', componentProps, {
     state,
     props: [positioner.props, elementProps],
     ref: [forwardedRef, setPositionerElement],
@@ -89,10 +89,10 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
 
   return (
     <PopoverPositionerContext.Provider value={positioner}>
-      {mounted && modal === true && openReason !== 'hover' && openMethod !== 'touch' && (
+      {mounted && modal === true && openReason !== 'trigger-hover' && openMethod !== 'touch' && (
         <InternalBackdrop inert={inertValue(!open)} />
       )}
-      {renderElement()}
+      {element}
     </PopoverPositionerContext.Provider>
   );
 });

@@ -1,9 +1,8 @@
 'use client';
 import * as React from 'react';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { FieldsetRootContext } from './FieldsetRootContext';
-import { useFieldsetRoot } from './useFieldsetRoot';
 import type { BaseUIComponentProps } from '../../utils/types';
+import { useRenderElement } from '../../utils/useRenderElement';
 
 /**
  * Groups the fieldset legend and the associated fields.
@@ -12,12 +11,12 @@ import type { BaseUIComponentProps } from '../../utils/types';
  * Documentation: [Base UI Fieldset](https://base-ui.com/react/components/fieldset)
  */
 export const FieldsetRoot = React.forwardRef(function FieldsetRoot(
-  props: FieldsetRoot.Props,
+  componentProps: FieldsetRoot.Props,
   forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
-  const { render, className, disabled = false, ...otherProps } = props;
+  const { render, className, disabled = false, ...elementProps } = componentProps;
 
-  const { legendId, setLegendId, getRootProps } = useFieldsetRoot();
+  const [legendId, setLegendId] = React.useState<string | undefined>(undefined);
 
   const state: FieldsetRoot.State = React.useMemo(
     () => ({
@@ -26,13 +25,15 @@ export const FieldsetRoot = React.forwardRef(function FieldsetRoot(
     [disabled],
   );
 
-  const { renderElement } = useComponentRenderer({
-    propGetter: getRootProps,
+  const element = useRenderElement('fieldset', componentProps, {
     ref: forwardedRef,
-    render: render ?? 'fieldset',
-    className,
     state,
-    extraProps: otherProps,
+    props: [
+      {
+        'aria-labelledby': legendId,
+      },
+      elementProps,
+    ],
   });
 
   const contextValue: FieldsetRootContext = React.useMemo(
@@ -45,9 +46,7 @@ export const FieldsetRoot = React.forwardRef(function FieldsetRoot(
   );
 
   return (
-    <FieldsetRootContext.Provider value={contextValue}>
-      {renderElement()}
-    </FieldsetRootContext.Provider>
+    <FieldsetRootContext.Provider value={contextValue}>{element}</FieldsetRootContext.Provider>
   );
 });
 

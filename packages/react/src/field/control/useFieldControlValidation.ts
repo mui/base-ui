@@ -1,14 +1,37 @@
 'use client';
 import * as React from 'react';
+import { useTimeout } from '../../utils/useTimeout';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { useFieldRootContext } from '../root/FieldRootContext';
 import { mergeProps } from '../../merge-props';
 import { DEFAULT_VALIDITY_STATE } from '../utils/constants';
 import { useFormContext } from '../../form/FormContext';
 import { getCombinedFieldValidityData } from '../utils/getCombinedFieldValidityData';
-import type { GenericHTMLProps } from '../../utils/types';
+import type { HTMLProps } from '../../utils/types';
 
 const validityKeys = Object.keys(DEFAULT_VALIDITY_STATE) as Array<keyof ValidityState>;
+
+function isOnlyValueMissing(state: Record<keyof ValidityState, boolean> | undefined) {
+  if (!state || state.valid || !state.valueMissing) {
+    return false;
+  }
+
+  let onlyValueMissing = false;
+
+  for (const key of validityKeys) {
+    if (key === 'valid') {
+      continue;
+    }
+    if (key === 'valueMissing') {
+      onlyValueMissing = state[key];
+    }
+    if (state[key]) {
+      onlyValueMissing = false;
+    }
+  }
+
+  return onlyValueMissing;
+}
 
 export function useFieldControlValidation() {
   const {
@@ -27,14 +50,8 @@ export function useFieldControlValidation() {
 
   const { formRef, clearErrors } = useFormContext();
 
-  const timeoutRef = React.useRef(-1);
+  const timeout = useTimeout();
   const inputRef = React.useRef<HTMLInputElement | null>(null);
-
-  React.useEffect(() => {
-    return () => {
-      window.clearTimeout(timeoutRef.current);
-    };
-  }, []);
 
   const commitValidation = useEventCallback(async (value: unknown, revalidate = false) => {
     const element = inputRef.current;
@@ -42,8 +59,57 @@ export function useFieldControlValidation() {
       return;
     }
 
-    if (revalidate && state.valid !== false) {
-      return;
+    if (revalidate) {
+      if (state.valid !== false) {
+        return;
+      }
+
+      const currentNativeValidity = element.validity;
+
+      if (!currentNativeValidity.valueMissing) {
+        // The 'valueMissing' (required) condition has been resolved by the user typing.
+        // Temporarily mark the field as valid for this onChange event.
+        // Other native errors (e.g., typeMismatch) will be caught by full validation on blur or submit.
+        const nextValidityData = {
+          value,
+          state: { ...DEFAULT_VALIDITY_STATE, valid: true },
+          error: '',
+          errors: [],
+          initialValue: validityData.initialValue,
+        };
+        element.setCustomValidity('');
+
+        if (controlId) {
+          const currentFieldData = formRef.current.fields.get(controlId);
+          if (currentFieldData) {
+            formRef.current.fields.set(controlId, {
+              ...currentFieldData,
+              ...getCombinedFieldValidityData(nextValidityData, false), // invalid = false
+            });
+          }
+        }
+        setValidityData(nextValidityData);
+        return;
+      }
+
+      // Value is still missing, or other conditions apply.
+      // Let's use a representation of current validity for isOnlyValueMissing.
+      const currentNativeValidityObject = validityKeys.reduce(
+        (acc, key) => {
+          acc[key] = currentNativeValidity[key];
+          return acc;
+        },
+        {} as Record<keyof ValidityState, boolean>,
+      );
+
+      // If it's (still) natively invalid due to something other than just valueMissing,
+      // then bail from this revalidation on change to avoid "scolding" for other errors.
+      if (!currentNativeValidityObject.valid && !isOnlyValueMissing(currentNativeValidityObject)) {
+        return;
+      }
+
+      // If valueMissing is still true AND it's the only issue, or if the field is now natively valid,
+      // let it fall through to the main validation logic below.
     }
 
     function getState(el: HTMLInputElement) {
@@ -74,45 +140,51 @@ export function useFieldControlValidation() {
         computedState.valid = true;
         computedState.valueMissing = false;
       }
-
       return computedState;
     }
 
-    window.clearTimeout(timeoutRef.current);
+    timeout.clear();
 
-    const resultOrPromise = validate(value);
     let result: null | string | string[] = null;
-    if (
-      typeof resultOrPromise === 'object' &&
-      resultOrPromise !== null &&
-      'then' in resultOrPromise
-    ) {
-      result = await resultOrPromise;
-    } else {
-      result = resultOrPromise;
-    }
-
-    let errorMessage = '';
-    if (result !== null) {
-      errorMessage = Array.isArray(result) ? result.join('\n') : result;
-    }
-    element.setCustomValidity(errorMessage);
+    let validationErrors: string[] = [];
 
     const nextState = getState(element);
 
-    let validationErrors: string[] = [];
-    if (Array.isArray(result)) {
-      validationErrors = result;
-    } else if (result) {
-      validationErrors = [result];
-    } else if (element.validationMessage) {
+    let defaultValidationMessage;
+
+    if (element.validationMessage) {
+      defaultValidationMessage = element.validationMessage;
       validationErrors = [element.validationMessage];
+    } else {
+      const resultOrPromise = validate(value);
+      if (
+        typeof resultOrPromise === 'object' &&
+        resultOrPromise !== null &&
+        'then' in resultOrPromise
+      ) {
+        result = await resultOrPromise;
+      } else {
+        result = resultOrPromise;
+      }
+
+      if (result !== null) {
+        nextState.valid = false;
+        nextState.customError = true;
+
+        if (Array.isArray(result)) {
+          validationErrors = result;
+          element.setCustomValidity(result.join('\n'));
+        } else if (result) {
+          validationErrors = [result];
+          element.setCustomValidity(result);
+        }
+      }
     }
 
     const nextValidityData = {
       value,
       state: nextState,
-      error: Array.isArray(result) ? result[0] : (result ?? element.validationMessage),
+      error: defaultValidationMessage ?? (Array.isArray(result) ? result[0] : (result ?? '')),
       errors: validationErrors,
       initialValue: validityData.initialValue,
     };
@@ -153,9 +225,13 @@ export function useFieldControlValidation() {
             }
 
             clearErrors(name);
-            commitValidation(event.currentTarget.value, true);
 
-            if (invalid || validationMode !== 'onChange') {
+            if (validationMode !== 'onChange') {
+              commitValidation(event.currentTarget.value, true);
+              return;
+            }
+
+            if (invalid) {
               return;
             }
 
@@ -167,12 +243,12 @@ export function useFieldControlValidation() {
               return;
             }
 
-            window.clearTimeout(timeoutRef.current);
+            timeout.clear();
 
             if (validationDebounceTime) {
-              timeoutRef.current = window.setTimeout(() => {
+              timeout.start(validationDebounceTime, () => {
                 commitValidation(element.value);
-              }, validationDebounceTime);
+              });
             } else {
               commitValidation(element.value);
             }
@@ -184,6 +260,7 @@ export function useFieldControlValidation() {
       getValidationProps,
       clearErrors,
       name,
+      timeout,
       commitValidation,
       invalid,
       validationMode,
@@ -204,8 +281,8 @@ export function useFieldControlValidation() {
 
 export namespace useFieldControlValidation {
   export interface ReturnValue {
-    getValidationProps: (props?: GenericHTMLProps) => GenericHTMLProps;
-    getInputValidationProps: (props?: GenericHTMLProps) => GenericHTMLProps;
+    getValidationProps: (props?: HTMLProps) => HTMLProps;
+    getInputValidationProps: (props?: HTMLProps) => HTMLProps;
     inputRef: React.MutableRefObject<any>;
     commitValidation: (value: unknown, revalidate?: boolean) => void;
   }

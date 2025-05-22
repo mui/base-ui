@@ -1,12 +1,12 @@
 'use client';
 import * as React from 'react';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { FieldRootContext } from './FieldRootContext';
 import { DEFAULT_VALIDITY_STATE, fieldValidityMapping } from '../utils/constants';
 import { useFieldsetRootContext } from '../../fieldset/root/FieldsetRootContext';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { useFormContext } from '../../form/FormContext';
 import { BaseUIComponentProps } from '../../utils/types';
+import { useRenderElement } from '../../utils/useRenderElement';
 
 /**
  * Groups all parts of the field.
@@ -15,7 +15,7 @@ import { BaseUIComponentProps } from '../../utils/types';
  * Documentation: [Base UI Field](https://base-ui.com/react/components/field)
  */
 export const FieldRoot = React.forwardRef(function FieldRoot(
-  props: FieldRoot.Props,
+  componentProps: FieldRoot.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const {
@@ -27,8 +27,8 @@ export const FieldRoot = React.forwardRef(function FieldRoot(
     name,
     disabled: disabledProp = false,
     invalid: invalidProp,
-    ...otherProps
-  } = props;
+    ...elementProps
+  } = componentProps;
 
   const { disabled: disabledFieldset } = useFieldsetRootContext();
 
@@ -129,18 +129,14 @@ export const FieldRoot = React.forwardRef(function FieldRoot(
     ],
   );
 
-  const { renderElement } = useComponentRenderer({
-    render: render ?? 'div',
+  const element = useRenderElement('div', componentProps, {
     ref: forwardedRef,
-    className,
     state,
-    extraProps: otherProps,
+    props: elementProps,
     customStyleHookMapping: fieldValidityMapping,
   });
 
-  return (
-    <FieldRootContext.Provider value={contextValue}>{renderElement()}</FieldRootContext.Provider>
-  );
+  return <FieldRootContext.Provider value={contextValue}>{element}</FieldRootContext.Provider>;
 });
 
 export interface FieldValidityData {

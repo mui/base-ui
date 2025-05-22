@@ -2,19 +2,17 @@
   "name": "SelectValue",
   "description": "A text label of the currently selected item.\nRenders a `<span>` element.",
   "props": {
-    "placeholder": {
-      "type": "string",
-      "description": "A placeholder value to display when no value is selected.\n\nYou can use this prop to pre-render the displayed text\nduring SSR in order to avoid the hydration flash."
-    },
     "children": {
-      "type": "((label: string, value: any) => ReactNode) | null"
+      "type": "ReactNode | ((label: string, value: any) => ReactNode)",
+      "required": true,
+      "description": "Specifies the initial value label before choosing an item. A callback can be used to\ncustomize the value label.\n\n```tsx\n<Select.Value>\n  {(label, value) => label ? `${label} (${value})` : 'Select an item'}\n</Select.Value>\n```"
     },
     "className": {
-      "type": "string | ((state: State) => string)",
+      "type": "string | ((state: Select.Value.State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "render": {
-      "type": "ReactElement | ((props: GenericHTMLProps, state: State) => ReactElement)",
+      "type": "ReactElement | ((props: HTMLProps, state: Select.Value.State) => ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
     }
   },

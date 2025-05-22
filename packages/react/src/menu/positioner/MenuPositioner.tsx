@@ -50,22 +50,23 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
     itemDomElements,
     itemLabels,
     mounted,
-    nested,
     modal,
-    openReason,
+    lastOpenChangeReason,
+    parent,
   } = useMenuRootContext();
-  const keepMounted = useMenuPortalContext();
 
+  const keepMounted = useMenuPortalContext();
   const nodeId = useFloatingNodeId();
   const parentNodeId = useFloatingParentNodeId();
 
   let computedSide = side;
   let computedAlign = align;
-  if (!side) {
-    computedSide = nested ? 'inline-end' : 'bottom';
-  }
-  if (!align) {
-    computedAlign = nested ? 'start' : 'center';
+  if (parent.type === 'menu') {
+    computedSide = computedSide ?? 'inline-end';
+    computedAlign = computedAlign ?? 'start';
+  } else if (parent.type === 'menubar') {
+    computedSide = computedSide ?? 'bottom';
+    computedAlign = computedAlign ?? 'start';
   }
 
   const positioner = useMenuPositioner({
@@ -95,9 +96,9 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
       side: positioner.side,
       align: positioner.align,
       anchorHidden: positioner.anchorHidden,
-      nested,
+      nested: parent.type === 'menu',
     }),
-    [open, positioner.side, positioner.align, positioner.anchorHidden, nested],
+    [open, positioner.side, positioner.align, positioner.anchorHidden, parent.type],
   );
 
   const contextValue: MenuPositionerContext = React.useMemo(
@@ -133,10 +134,18 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
     },
   });
 
+  const shouldRenderBackdrop =
+    mounted &&
+    parent.type !== 'menu' &&
+    ((parent.type !== 'menubar' && modal && lastOpenChangeReason !== 'trigger-hover') ||
+      (parent.type === 'menubar' && parent.context.modal));
+
+  const backdropCutout = parent.type === 'menubar' ? parent.context.contentElement : undefined;
+
   return (
     <MenuPositionerContext.Provider value={contextValue}>
-      {mounted && modal && openReason !== 'hover' && parentNodeId === null && (
-        <InternalBackdrop inert={inertValue(!open)} />
+      {shouldRenderBackdrop && (
+        <InternalBackdrop inert={inertValue(!open)} cutout={backdropCutout} />
       )}
       <FloatingNode id={nodeId}>
         <CompositeList elementsRef={itemDomElements} labelsRef={itemLabels}>

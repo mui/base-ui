@@ -2,12 +2,12 @@
 import * as React from 'react';
 import type { FloatingRootContext } from '@floating-ui/react';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
-import type { GenericHTMLProps } from '../../utils/types';
-import type { OpenChangeReason } from '../../utils/translateOpenChangeReason';
+import type { HTMLProps } from '../../utils/types';
+import type { BaseOpenChangeReason as OpenChangeReason } from '../../utils/translateOpenChangeReason';
 
 export interface PreviewCardRootContext {
   open: boolean;
-  setOpen: (open: boolean, event?: Event, reason?: OpenChangeReason) => void;
+  setOpen: (open: boolean, event: Event | undefined, reason: OpenChangeReason | undefined) => void;
   setTriggerElement: (el: Element | null) => void;
   positionerElement: HTMLElement | null;
   setPositionerElement: (el: HTMLElement | null) => void;
@@ -15,8 +15,8 @@ export interface PreviewCardRootContext {
   closeDelay: number;
   mounted: boolean;
   setMounted: React.Dispatch<React.SetStateAction<boolean>>;
-  getRootTriggerProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
-  getRootPopupProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
+  getRootTriggerProps: (externalProps?: HTMLProps) => HTMLProps;
+  getRootPopupProps: (externalProps?: HTMLProps) => HTMLProps;
   floatingRootContext: FloatingRootContext;
   transitionStatus: TransitionStatus;
   popupRef: React.RefObject<HTMLElement | null>;
@@ -26,10 +26,6 @@ export interface PreviewCardRootContext {
 export const PreviewCardRootContext = React.createContext<PreviewCardRootContext | undefined>(
   undefined,
 );
-
-if (process.env.NODE_ENV !== 'production') {
-  PreviewCardRootContext.displayName = 'PreviewCardRootContext';
-}
 
 export function usePreviewCardRootContext() {
   const context = React.useContext(PreviewCardRootContext);

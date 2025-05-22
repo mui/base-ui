@@ -2,8 +2,8 @@ import * as React from 'react';
 import { useFloatingRootContext } from '@floating-ui/react';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import type { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
-import type { GenericHTMLProps } from '../../utils/types';
-import type { OpenChangeReason } from '../../utils/translateOpenChangeReason';
+import type { HTMLProps } from '../../utils/types';
+import type { SelectOpenChangeReason } from './useSelectRoot';
 
 export interface SelectRootContext {
   name: string | undefined;
@@ -14,9 +14,9 @@ export interface SelectRootContext {
   setValue: (nextValue: any, event?: Event) => void;
   open: boolean;
   setOpen: (
-    nextOpen: boolean,
+    open: boolean,
     event: Event | undefined,
-    reason: OpenChangeReason | undefined,
+    reason: SelectOpenChangeReason | undefined,
   ) => void;
   mounted: boolean;
   setMounted: React.Dispatch<React.SetStateAction<boolean>>;
@@ -25,16 +25,12 @@ export interface SelectRootContext {
   setTriggerElement: React.Dispatch<React.SetStateAction<HTMLElement | null>>;
   positionerElement: HTMLElement | null;
   setPositionerElement: React.Dispatch<React.SetStateAction<HTMLElement | null>>;
-  scrollUpArrowVisible: boolean;
-  setScrollUpArrowVisible: React.Dispatch<React.SetStateAction<boolean>>;
-  scrollDownArrowVisible: boolean;
-  setScrollDownArrowVisible: React.Dispatch<React.SetStateAction<boolean>>;
   listRef: React.MutableRefObject<Array<HTMLElement | null>>;
   popupRef: React.MutableRefObject<HTMLDivElement | null>;
-  triggerProps: GenericHTMLProps;
-  popupProps: GenericHTMLProps;
+  triggerProps: HTMLProps;
+  popupProps: HTMLProps;
   getItemProps: (
-    props?: GenericHTMLProps & { active?: boolean; selected?: boolean },
+    props?: HTMLProps & { active?: boolean; selected?: boolean },
   ) => Record<string, unknown>;
   floatingRootContext: ReturnType<typeof useFloatingRootContext>;
   label: string;
@@ -58,6 +54,8 @@ export interface SelectRootContext {
   onOpenChangeComplete?: (open: boolean) => void;
   keyboardActiveRef: React.MutableRefObject<boolean>;
   alignItemWithTriggerActiveRef: React.RefObject<boolean>;
+  typeaheadReady: boolean;
+  setTypeaheadReady: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export const SelectRootContext = React.createContext<SelectRootContext | null>(null);

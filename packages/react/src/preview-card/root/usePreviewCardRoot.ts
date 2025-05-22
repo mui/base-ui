@@ -11,15 +11,15 @@ import {
 import { useControlled } from '../../utils/useControlled';
 import { useTransitionStatus } from '../../utils/useTransitionStatus';
 import { useEventCallback } from '../../utils/useEventCallback';
-import { useFocusExtended } from '../utils/useFocusExtended';
 import { OPEN_DELAY, CLOSE_DELAY } from '../utils/constants';
-import type { GenericHTMLProps } from '../../utils/types';
+import type { HTMLProps } from '../../utils/types';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import {
   translateOpenChangeReason,
-  type OpenChangeReason,
+  type BaseOpenChangeReason as OpenChangeReason,
 } from '../../utils/translateOpenChangeReason';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
+import { useFocusWithDelay } from '../../utils/floating-ui/useFocusWithDelay';
 
 export function usePreviewCardRoot(
   params: usePreviewCardRoot.Parameters,
@@ -53,13 +53,6 @@ export function usePreviewCardRoot(
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
 
-  const setOpen = useEventCallback(
-    (nextOpen: boolean, event: Event | undefined, reason: OpenChangeReason | undefined) => {
-      onOpenChange(nextOpen, event, reason);
-      setOpenUnwrapped(nextOpen);
-    },
-  );
-
   const handleUnmount = useEventCallback(() => {
     setMounted(false);
     onOpenChangeComplete?.(false);
@@ -78,17 +71,15 @@ export function usePreviewCardRoot(
 
   React.useImperativeHandle(params.actionsRef, () => ({ unmount: handleUnmount }), [handleUnmount]);
 
-  const context = useFloatingRootContext({
-    elements: { reference: triggerElement, floating: positionerElement },
-    open,
-    onOpenChange(openValue, eventValue, reasonValue) {
-      const isHover = reasonValue === 'hover' || reasonValue === 'safe-polygon';
-      const isFocusOpen = openValue && reasonValue === 'focus';
-      const isDismissClose =
-        !openValue && (reasonValue === 'reference-press' || reasonValue === 'escape-key');
+  const setOpen = useEventCallback(
+    (nextOpen: boolean, event: Event | undefined, reason: OpenChangeReason | undefined) => {
+      const isHover = reason === 'trigger-hover';
+      const isFocusOpen = nextOpen && reason === 'trigger-focus';
+      const isDismissClose = !nextOpen && (reason === 'trigger-press' || reason === 'escape-key');
 
       function changeState() {
-        setOpen(openValue, eventValue, translateOpenChangeReason(reasonValue));
+        onOpenChange(nextOpen, event, reason);
+        setOpenUnwrapped(nextOpen);
       }
 
       if (isHover) {
@@ -101,9 +92,20 @@ export function usePreviewCardRoot(
 
       if (isFocusOpen || isDismissClose) {
         setInstantTypeState(isFocusOpen ? 'focus' : 'dismiss');
-      } else if (reasonValue === 'hover') {
+      } else if (reason === 'trigger-hover') {
         setInstantTypeState(undefined);
       }
+    },
+  );
+
+  const context = useFloatingRootContext({
+    elements: {
+      reference: triggerElement,
+      floating: positionerElement,
+    },
+    open,
+    onOpenChange(openValue, eventValue, reasonValue) {
+      setOpen(openValue, eventValue, translateOpenChangeReason(reasonValue));
     },
   });
 
@@ -119,7 +121,7 @@ export function usePreviewCardRoot(
       close: closeDelayWithDefault,
     },
   });
-  const focus = useFocusExtended(context);
+  const focus = useFocusWithDelay(context, { delay: OPEN_DELAY });
   const dismiss = useDismiss(context);
 
   const { getReferenceProps: getRootTriggerProps, getFloatingProps: getRootPopupProps } =
@@ -173,6 +175,7 @@ export namespace usePreviewCardRoot {
     open?: boolean;
     /**
      * Event handler called when the preview card is opened or closed.
+     * @type (open: boolean, event?: Event, reason?: PreviewCard.Root.OpenChangeReason) => void
      */
     onOpenChange?: (
       open: boolean,
@@ -204,11 +207,15 @@ export namespace usePreviewCardRoot {
 
   export interface ReturnValue {
     open: boolean;
-    setOpen: (value: boolean, event?: Event, reason?: OpenChangeReason) => void;
+    setOpen: (
+      value: boolean,
+      event: Event | undefined,
+      reason: OpenChangeReason | undefined,
+    ) => void;
     mounted: boolean;
     setMounted: React.Dispatch<React.SetStateAction<boolean>>;
-    getRootTriggerProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
-    getRootPopupProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
+    getRootTriggerProps: (externalProps?: HTMLProps) => HTMLProps;
+    getRootPopupProps: (externalProps?: HTMLProps) => HTMLProps;
     floatingRootContext: FloatingRootContext;
     instantType: 'delay' | 'dismiss' | 'focus' | undefined;
     transitionStatus: TransitionStatus;

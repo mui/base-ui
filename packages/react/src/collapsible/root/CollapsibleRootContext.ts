@@ -12,10 +12,6 @@ export const CollapsibleRootContext = React.createContext<CollapsibleRootContext
   undefined,
 );
 
-if (process.env.NODE_ENV !== 'production') {
-  CollapsibleRootContext.displayName = 'CollapsibleRootContext';
-}
-
 export function useCollapsibleRootContext() {
   const context = React.useContext(CollapsibleRootContext);
   if (context === undefined) {
