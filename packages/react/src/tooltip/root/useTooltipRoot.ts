@@ -58,14 +58,6 @@ export function useTooltipRoot(params: useTooltipRoot.Parameters): useTooltipRoo
 
   const onOpenChange = useEventCallback(onOpenChangeProp);
 
-  const setOpen = React.useCallback(
-    (nextOpen: boolean, event: Event | undefined, reason: TooltipOpenChangeReason | undefined) => {
-      onOpenChange(nextOpen, event, reason);
-      setOpenUnwrapped(nextOpen);
-    },
-    [onOpenChange, setOpenUnwrapped],
-  );
-
   if (open && disabled) {
     setOpen(false, undefined, 'disabled');
   }
@@ -90,32 +82,43 @@ export function useTooltipRoot(params: useTooltipRoot.Parameters): useTooltipRoo
 
   React.useImperativeHandle(params.actionsRef, () => ({ unmount: handleUnmount }), [handleUnmount]);
 
+  function setOpen(
+    nextOpen: boolean,
+    event: Event | undefined,
+    reason: TooltipOpenChangeReason | undefined,
+  ) {
+    const isHover = reason === 'trigger-hover';
+    const isFocusOpen = nextOpen && reason === 'trigger-focus';
+    const isDismissClose = !nextOpen && (reason === 'trigger-press' || reason === 'escape-key');
+
+    function changeState() {
+      onOpenChange(nextOpen, event, reason);
+      setOpenUnwrapped(nextOpen);
+    }
+
+    if (isHover) {
+      // If a hover reason is provided, we need to flush the state synchronously. This ensures
+      // `node.getAnimations()` knows about the new state.
+      ReactDOM.flushSync(changeState);
+    } else {
+      changeState();
+    }
+
+    if (isFocusOpen || isDismissClose) {
+      setInstantTypeState(isFocusOpen ? 'focus' : 'dismiss');
+    } else if (reason === 'trigger-hover') {
+      setInstantTypeState(undefined);
+    }
+  }
+
   const context = useFloatingRootContext({
-    elements: { reference: triggerElement, floating: positionerElement },
+    elements: {
+      reference: triggerElement,
+      floating: positionerElement,
+    },
     open,
     onOpenChange(openValue, eventValue, reasonValue) {
-      const isHover = reasonValue === 'hover' || reasonValue === 'safe-polygon';
-      const isFocusOpen = openValue && reasonValue === 'focus';
-      const isDismissClose =
-        !openValue && (reasonValue === 'reference-press' || reasonValue === 'escape-key');
-
-      function changeState() {
-        setOpen(openValue, eventValue, translateOpenChangeReason(reasonValue));
-      }
-
-      if (isHover) {
-        // If a hover reason is provided, we need to flush the state synchronously. This ensures
-        // `node.getAnimations()` knows about the new state.
-        ReactDOM.flushSync(changeState);
-      } else {
-        changeState();
-      }
-
-      if (isFocusOpen || isDismissClose) {
-        setInstantTypeState(isFocusOpen ? 'focus' : 'dismiss');
-      } else if (reasonValue === 'hover') {
-        setInstantTypeState(undefined);
-      }
+      setOpen(openValue, eventValue, translateOpenChangeReason(reasonValue));
     },
   });
 
