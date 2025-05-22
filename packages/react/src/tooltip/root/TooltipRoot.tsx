@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { TooltipRootContext } from './TooltipRootContext';
-import { useTooltipRoot } from './useTooltipRoot';
+import { type TooltipOpenChangeReason, useTooltipRoot } from './useTooltipRoot';
 import { OPEN_DELAY } from '../utils/constants';
 
 /**
@@ -64,4 +64,6 @@ export namespace TooltipRoot {
   }
 
   export type Actions = useTooltipRoot.Actions;
+
+  export type OpenChangeReason = TooltipOpenChangeReason;
 }
