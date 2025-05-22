@@ -20,12 +20,14 @@ import type { SelectRootContext } from './SelectRootContext';
 import type { SelectIndexContext } from './SelectIndexContext';
 import {
   translateOpenChangeReason,
-  type OpenChangeReason,
+  type BaseOpenChangeReason,
 } from '../../utils/translateOpenChangeReason';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useFormContext } from '../../form/FormContext';
 import { useLatestRef } from '../../utils/useLatestRef';
 import { useField } from '../../field/useField';
+
+export type SelectOpenChangeReason = BaseOpenChangeReason | 'window-resize';
 
 const EMPTY_ARRAY: never[] = [];
 
@@ -98,6 +100,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
   const alignItemWithTriggerActiveRef = React.useRef(false);
 
   const [triggerElement, setTriggerElement] = React.useState<HTMLElement | null>(null);
+  const [typeaheadReady, setTypeaheadReady] = React.useState(open);
   const [positionerElement, setPositionerElement] = React.useState<HTMLElement | null>(null);
   const [activeIndex, setActiveIndex] = React.useState<number | null>(null);
   const [selectedIndex, setSelectedIndex] = React.useState<number | null>(null);
@@ -137,7 +140,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
   }, [value]);
 
   const setOpen = useEventCallback(
-    (nextOpen: boolean, event: Event | undefined, reason: OpenChangeReason | undefined) => {
+    (nextOpen: boolean, event: Event | undefined, reason: SelectOpenChangeReason | undefined) => {
       params.onOpenChange?.(nextOpen, event, reason);
       setOpenUnwrapped(nextOpen);
 
@@ -296,6 +299,8 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
       setTriggerElement,
       positionerElement,
       setPositionerElement,
+      typeaheadReady,
+      setTypeaheadReady,
       scrollUpArrowVisible,
       setScrollUpArrowVisible,
       scrollDownArrowVisible,
@@ -338,6 +343,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
       readOnly,
       triggerElement,
       positionerElement,
+      typeaheadReady,
       scrollUpArrowVisible,
       scrollDownArrowVisible,
       value,
@@ -357,7 +363,6 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
       modal,
       registerSelectedItem,
       onOpenChangeComplete,
-      keyboardActiveRef,
     ],
   );
 
@@ -429,11 +434,12 @@ export namespace useSelectRoot {
     defaultOpen?: boolean;
     /**
      * Event handler called when the select menu is opened or closed.
+     * @type (open: boolean, event?: Event, reason?: Select.Root.OpenChangeReason) => void
      */
     onOpenChange?: (
       open: boolean,
       event: Event | undefined,
-      reason: OpenChangeReason | undefined,
+      reason: SelectOpenChangeReason | undefined,
     ) => void;
     /**
      * Event handler called after any animations complete when the select menu is opened or closed.

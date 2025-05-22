@@ -4,12 +4,18 @@ import type { FloatingRootContext } from '@floating-ui/react';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import type { HTMLProps } from '../../utils/types';
 import type { InteractionType } from '../../utils/useEnhancedClickHandler';
-import type { OpenChangeReason } from '../../utils/translateOpenChangeReason';
+import type { BaseOpenChangeReason } from '../../utils/translateOpenChangeReason';
+
+export type PopoverOpenChangeReason = BaseOpenChangeReason | 'close-press';
 
 export interface PopoverRootContext {
   open: boolean;
   openOnHover: boolean;
-  setOpen: (open: boolean, event: Event | undefined, reason: OpenChangeReason | undefined) => void;
+  setOpen: (
+    open: boolean,
+    event: Event | undefined,
+    reason: PopoverOpenChangeReason | undefined,
+  ) => void;
   setTriggerElement: (el: Element | null) => void;
   positionerElement: HTMLElement | null;
   setPositionerElement: (el: HTMLElement | null) => void;
@@ -28,16 +34,12 @@ export interface PopoverRootContext {
   triggerProps: HTMLProps;
   popupProps: HTMLProps;
   openMethod: InteractionType | null;
-  openReason: OpenChangeReason | null;
+  openReason: PopoverOpenChangeReason | null;
   onOpenChangeComplete: ((open: boolean) => void) | undefined;
   modal: boolean | 'trap-focus';
 }
 
 export const PopoverRootContext = React.createContext<PopoverRootContext | undefined>(undefined);
-
-if (process.env.NODE_ENV !== 'production') {
-  PopoverRootContext.displayName = 'PopoverRootContext';
-}
 
 export function usePopoverRootContext() {
   const context = React.useContext(PopoverRootContext);

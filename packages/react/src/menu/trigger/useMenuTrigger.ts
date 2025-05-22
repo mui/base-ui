@@ -8,8 +8,7 @@ import { useTimeout } from '../../utils/useTimeout';
 import { mergeProps } from '../../merge-props';
 import { ownerDocument } from '../../utils/owner';
 import { getPseudoElementBounds } from '../../utils/getPseudoElementBounds';
-import type { OpenChangeReason } from '../../utils/translateOpenChangeReason';
-import { useMenuRoot } from '../root/useMenuRoot';
+import { useMenuRoot, type MenuOpenChangeReason } from '../root/useMenuRoot';
 import { useEventCallback } from '../../utils/useEventCallback';
 
 export function useMenuTrigger(parameters: useMenuTrigger.Parameters): useMenuTrigger.ReturnValue {
@@ -77,7 +76,7 @@ export function useMenuTrigger(parameters: useMenuTrigger.Parameters): useMenuTr
   });
 
   React.useEffect(() => {
-    if (open && lastOpenChangeReason === 'hover') {
+    if (open && lastOpenChangeReason === 'trigger-hover') {
       const doc = ownerDocument(triggerRef.current);
       doc.addEventListener('mouseup', handleMouseUp, { once: true });
     }
@@ -88,7 +87,6 @@ export function useMenuTrigger(parameters: useMenuTrigger.Parameters): useMenuTr
       return mergeProps(
         {
           'aria-haspopup': 'menu' as const,
-          ...(menuParent.type === 'menubar' ? {} : { tabIndex: 0 }), // this is needed to make the button focused after click in Safari
           ref: handleRef,
           onMouseDown: (event: React.MouseEvent) => {
             if (open) {
@@ -114,7 +112,6 @@ export function useMenuTrigger(parameters: useMenuTrigger.Parameters): useMenuTr
       open,
       allowMouseUpTriggerRef,
       allowMouseUpTriggerTimeout,
-      menuParent.type,
       handleMouseUp,
     ],
   );
@@ -153,12 +150,12 @@ export namespace useMenuTrigger {
     setOpen: (
       open: boolean,
       event: Event | undefined,
-      reason: OpenChangeReason | undefined,
+      reason: MenuOpenChangeReason | undefined,
     ) => void;
     allowMouseUpTriggerRef: React.RefObject<boolean>;
     positionerRef: React.RefObject<HTMLElement | null>;
     menuParent: useMenuRoot.MenuParent;
-    lastOpenChangeReason: OpenChangeReason | null;
+    lastOpenChangeReason: MenuOpenChangeReason | null;
   }
 
   export interface ReturnValue {

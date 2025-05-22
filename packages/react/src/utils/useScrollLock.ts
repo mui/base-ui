@@ -1,18 +1,14 @@
-import * as React from 'react';
 import { isFirefox, isIOS, isWebKit } from './detectBrowser';
 import { ownerDocument, ownerWindow } from './owner';
 import { useModernLayoutEffect } from './useModernLayoutEffect';
+import { Timeout } from './useTimeout';
 import { AnimationFrame } from './useAnimationFrame';
+
+/* eslint-disable lines-between-class-members */
 
 let originalHtmlStyles: Partial<CSSStyleDeclaration> = {};
 let originalBodyStyles: Partial<CSSStyleDeclaration> = {};
 let originalHtmlScrollBehavior = '';
-let preventScrollCount = 0;
-let restore: () => void = () => {};
-
-export function getPreventScrollCount() {
-  return preventScrollCount;
-}
 
 function hasInsetScrollbars(referenceElement: Element | null) {
   if (typeof document === 'undefined') {
@@ -44,11 +40,13 @@ function preventScrollStandard(referenceElement: Element | null) {
   const resizeFrame = AnimationFrame.create();
 
   // Pinch-zoom in Safari causes a shift. Just don't lock scroll if there's any pinch-zoom.
-  if (isWebKit() && (win.visualViewport?.scale ?? 1) !== 1) {
+  if (isWebKit && (win.visualViewport?.scale ?? 1) !== 1) {
     return () => {};
   }
 
   function lockScroll() {
+    /* DOM reads: */
+
     const htmlStyles = win.getComputedStyle(html);
     const bodyStyles = win.getComputedStyle(body);
 
@@ -85,17 +83,22 @@ function preventScrollStandard(referenceElement: Element | null) {
     const scrollbarWidth = Math.max(0, win.innerWidth - html.clientWidth);
     const scrollbarHeight = Math.max(0, win.innerHeight - html.clientHeight);
 
+    // Avoid shift due to the default <body> margin. This does cause elements to be clipped
+    // with whitespace. Warn if <body> has margins?
+    const marginY = parseFloat(bodyStyles.marginTop) + parseFloat(bodyStyles.marginBottom);
+    const marginX = parseFloat(bodyStyles.marginLeft) + parseFloat(bodyStyles.marginRight);
+
+    /*
+     * DOM writes:
+     * Do not read the DOM past this point!
+     */
+
     Object.assign(html.style, {
       overflowY:
         !hasScrollbarGutterStable && (isScrollableY || hasConstantOverflowY) ? 'scroll' : 'hidden',
       overflowX:
         !hasScrollbarGutterStable && (isScrollableX || hasConstantOverflowX) ? 'scroll' : 'hidden',
     });
-
-    // Avoid shift due to the default <body> margin. This does cause elements to be clipped
-    // with whitespace. Warn if <body> has margins?
-    const marginY = parseFloat(bodyStyles.marginTop) + parseFloat(bodyStyles.marginBottom);
-    const marginX = parseFloat(bodyStyles.marginLeft) + parseFloat(bodyStyles.marginRight);
 
     Object.assign(body.style, {
       position: 'relative',
@@ -137,27 +140,74 @@ function preventScrollStandard(referenceElement: Element | null) {
   };
 }
 
+class ScrollLocker {
+  lockCount = 0;
+  restore = null as (() => void) | null;
+  timeoutLock = Timeout.create();
+  timeoutUnlock = Timeout.create();
+
+  acquire(referenceElement: Element | null) {
+    this.lockCount += 1;
+    if (this.lockCount === 1 && this.restore === null) {
+      this.timeoutLock.start(0, () => this.lock(referenceElement));
+    }
+    return this.release;
+  }
+
+  release = () => {
+    this.lockCount -= 1;
+    if (this.lockCount === 0 && this.restore) {
+      this.timeoutUnlock.start(0, this.unlock);
+    }
+  };
+
+  private unlock = () => {
+    if (this.lockCount === 0 && this.restore) {
+      this.restore?.();
+      this.restore = null;
+    }
+  };
+
+  private lock(referenceElement: Element | null) {
+    if (this.lockCount === 0 || this.restore !== null) {
+      return;
+    }
+
+    const isOverflowHiddenLock = isIOS || (isFirefox && !hasInsetScrollbars(referenceElement));
+
+    // Firefox on macOS with overlay scrollbars uses a basic scroll lock that doesn't
+    // need the inset scrollbars handling to prevent overlay scrollbars from appearing
+    // on scroll containers briefly whenever the lock is enabled.
+    // On iOS, scroll locking does not work if the navbar is collapsed. Due to numerous
+    // side effects and bugs that arise on iOS, it must be researched extensively before
+    // being enabled to ensure it doesn't cause the following issues:
+    // - Textboxes must scroll into view when focused, nor cause a glitchy scroll animation.
+    // - The navbar must not force itself into view and cause layout shift.
+    // - Scroll containers must not flicker upon closing a popup when it has an exit animation.
+    this.restore = isOverflowHiddenLock
+      ? preventScrollBasic(referenceElement)
+      : preventScrollStandard(referenceElement);
+  }
+}
+
+const SCROLL_LOCKER = new ScrollLocker();
+
 /**
  * Locks the scroll of the document when enabled.
  *
  * @param enabled - Whether to enable the scroll lock.
  */
 export function useScrollLock(params: {
-  enabled?: boolean;
+  enabled: boolean;
   mounted: boolean;
   open: boolean;
   referenceElement?: Element | null;
 }) {
   const { enabled = true, mounted, open, referenceElement = null } = params;
 
-  const isOverflowHiddenLock = React.useMemo(
-    () => enabled && (isIOS() || (isFirefox() && !hasInsetScrollbars(referenceElement))),
-    [enabled, referenceElement],
-  );
-
+  // https://github.com/mui/base-ui/issues/1135
   useModernLayoutEffect(() => {
-    // https://github.com/mui/base-ui/issues/1135
-    if (mounted && !open && isWebKit()) {
+    if (isWebKit && mounted && !open) {
       const doc = ownerDocument(referenceElement);
       const originalUserSelect = doc.body.style.userSelect;
       const originalWebkitUserSelect = doc.body.style.webkitUserSelect;
@@ -175,28 +225,6 @@ export function useScrollLock(params: {
     if (!enabled) {
       return undefined;
     }
-
-    preventScrollCount += 1;
-    if (preventScrollCount === 1) {
-      // Firefox on macOS with overlay scrollbars uses a basic scroll lock that doesn't
-      // need the inset scrollbars handling to prevent overlay scrollbars from appearing
-      // on scroll containers briefly whenever the lock is enabled.
-      // On iOS, scroll locking does not work if the navbar is collapsed. Due to numerous
-      // side effects and bugs that arise on iOS, it must be researched extensively before
-      // being enabled to ensure it doesn't cause the following issues:
-      // - Textboxes must scroll into view when focused, nor cause a glitchy scroll animation.
-      // - The navbar must not force itself into view and cause layout shift.
-      // - Scroll containers must not flicker upon closing a popup when it has an exit animation.
-      restore = isOverflowHiddenLock
-        ? preventScrollBasic(referenceElement)
-        : preventScrollStandard(referenceElement);
-    }
-
-    return () => {
-      preventScrollCount -= 1;
-      if (preventScrollCount === 0) {
-        restore();
-      }
-    };
-  }, [enabled, isOverflowHiddenLock, referenceElement]);
+    return SCROLL_LOCKER.acquire(referenceElement);
+  }, [enabled, referenceElement]);
 }

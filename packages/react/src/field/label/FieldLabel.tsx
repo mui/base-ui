@@ -32,7 +32,7 @@ export const FieldLabel = React.forwardRef(function FieldLabel(
     };
   }, [id, setLabelId]);
 
-  const renderElement = useRenderElement('label', componentProps, {
+  const element = useRenderElement('label', componentProps, {
     ref: forwardedRef,
     state,
     props: [
@@ -56,7 +56,7 @@ export const FieldLabel = React.forwardRef(function FieldLabel(
     customStyleHookMapping: fieldValidityMapping,
   });
 
-  return renderElement();
+  return element;
 });
 
 export namespace FieldLabel {

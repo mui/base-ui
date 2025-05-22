@@ -95,6 +95,7 @@ export const nav = [
       {
         label: 'Meter',
         href: '/react/components/meter',
+        isNew: true,
       },
       {
         label: 'Navigation Menu',
@@ -147,6 +148,7 @@ export const nav = [
       {
         label: 'Toast',
         href: '/react/components/toast',
+        isNew: true,
       },
       {
         label: 'Toggle',
