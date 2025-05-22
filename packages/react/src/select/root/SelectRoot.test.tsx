@@ -134,7 +134,7 @@ describe('<Select.Root />', () => {
 
     it('should not update the internal value if the controlled value prop does not change', async () => {
       const onValueChange = spy();
-      const { user } = await render(
+      await render(
         <Select.Root value="a" onValueChange={onValueChange}>
           <Select.Trigger data-testid="trigger">
             <Select.Value>a</Select.Value>

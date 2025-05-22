@@ -82,14 +82,6 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
 
   const isValueControlled = params.value !== undefined;
 
-  const updateValue = useEventCallback((value: any) => {
-    const index = valuesRef.current.indexOf(value);
-    setSelectedIndex(index === -1 ? null : index);
-    setLabel(labelsRef.current[index] ?? '');
-    clearErrors(name);
-    setDirty(value !== validityData.initialValue);
-  });
-
   const listRef = React.useRef<Array<HTMLElement | null>>([]);
   const labelsRef = React.useRef<Array<string | null>>([]);
   const popupRef = React.useRef<HTMLDivElement | null>(null);
@@ -118,6 +110,14 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
   const controlRef = useLatestRef(triggerElement);
   const commitValidation = fieldControlValidation.commitValidation;
 
+  const updateValue = useEventCallback((nextValue: any) => {
+    const index = valuesRef.current.indexOf(nextValue);
+    setSelectedIndex(index === -1 ? null : index);
+    setLabel(labelsRef.current[index] ?? '');
+    clearErrors(name);
+    setDirty(nextValue !== validityData.initialValue);
+  });
+
   useField({
     id,
     commitValidation,
@@ -144,7 +144,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     if (prevValueRef.current !== value) {
       updateValue(value);
     }
-  }, [updateValue, value]);
+  }, [setFilled, updateValue, value]);
 
   useModernLayoutEffect(() => {
     prevValueRef.current = value;
