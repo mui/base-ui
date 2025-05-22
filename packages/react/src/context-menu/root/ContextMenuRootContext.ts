@@ -1,5 +1,5 @@
 import * as React from 'react';
-import type { OpenChangeReason } from '../../utils/translateOpenChangeReason';
+import type { BaseOpenChangeReason } from '../../utils/translateOpenChangeReason';
 
 export interface ContextMenuRootContext {
   anchor: { getBoundingClientRect: () => DOMRect };
@@ -7,7 +7,7 @@ export interface ContextMenuRootContext {
   backdropRef: React.RefObject<HTMLDivElement | null>;
   internalBackdropRef: React.RefObject<HTMLDivElement | null>;
   actionsRef: React.RefObject<{
-    setOpen: (nextOpen: boolean, event?: Event, reason?: OpenChangeReason) => void;
+    setOpen: (nextOpen: boolean, event?: Event, reason?: BaseOpenChangeReason) => void;
   } | null>;
   positionerRef: React.RefObject<HTMLElement | null>;
   allowMouseUpTriggerRef: React.RefObject<boolean>;
@@ -26,6 +26,5 @@ export function useContextMenuRootContext(optional = true) {
       'Base UI: ContextMenuRootContext is missing. ContextMenu parts must be placed within <ContextMenu.Root>.',
     );
   }
-
   return context;
 }
