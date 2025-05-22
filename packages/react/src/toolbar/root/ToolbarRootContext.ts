@@ -14,10 +14,6 @@ export interface ToolbarRootContext {
 
 export const ToolbarRootContext = React.createContext<ToolbarRootContext | undefined>(undefined);
 
-if (process.env.NODE_ENV !== 'production') {
-  ToolbarRootContext.displayName = 'ToolbarRootContext';
-}
-
 export function useToolbarRootContext(optional?: false): ToolbarRootContext;
 export function useToolbarRootContext(optional: true): ToolbarRootContext | undefined;
 export function useToolbarRootContext(optional?: boolean) {

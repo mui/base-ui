@@ -54,6 +54,8 @@ export interface SelectRootContext {
   onOpenChangeComplete?: (open: boolean) => void;
   keyboardActiveRef: React.MutableRefObject<boolean>;
   alignItemWithTriggerActiveRef: React.RefObject<boolean>;
+  typeaheadReady: boolean;
+  setTypeaheadReady: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export const SelectRootContext = React.createContext<SelectRootContext | null>(null);

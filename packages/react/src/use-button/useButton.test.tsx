@@ -76,11 +76,11 @@ describe('useButton', () => {
   });
 
   describe('param: tabIndex', () => {
-    it('does not return tabIndex in getButtonProps when host component is BUTTON', async () => {
+    it('returns tabIndex in getButtonProps when host component is BUTTON', async () => {
       function TestButton() {
         const { getButtonProps } = useButton();
 
-        expect(getButtonProps().tabIndex).to.equal(undefined);
+        expect(getButtonProps().tabIndex).to.equal(0);
 
         return <button {...getButtonProps()} />;
       }
@@ -94,7 +94,7 @@ describe('useButton', () => {
         const buttonRef = React.useRef(null);
         const { getButtonProps } = useButton({ buttonRef });
 
-        expect(getButtonProps().tabIndex).to.equal(buttonRef.current ? 0 : undefined);
+        expect(getButtonProps().tabIndex).to.equal(0);
 
         return <span {...getButtonProps()} />;
       }

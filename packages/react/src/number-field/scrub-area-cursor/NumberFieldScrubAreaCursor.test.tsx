@@ -14,13 +14,12 @@ const defaultScrubAreaContext: NumberFieldScrubAreaContext = {
   direction: 'horizontal',
   pixelSensitivity: 2,
   teleportDistance: undefined,
-  getScrubAreaProps: (p = {}) => p,
   scrubAreaCursorRef: React.createRef<HTMLSpanElement>(),
   scrubAreaRef: React.createRef<HTMLDivElement>(),
 };
 
 // This component doesn't render on WebKit.
-describe.skipIf(isWebKit())('<NumberField.ScrubAreaCursor />', () => {
+describe.skipIf(isWebKit)('<NumberField.ScrubAreaCursor />', () => {
   const { render } = createRenderer();
 
   describeConformance(<NumberField.ScrubAreaCursor />, () => ({
