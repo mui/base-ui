@@ -39,33 +39,8 @@ export default defineConfig(async () => {
       ...entrypoints,
       {
         id: 'Base UI checkbox',
-        code: `
-          import * as React from 'react';
-          import { Checkbox } from '@base-ui-components/react/checkbox';
-
-          export default function ExampleCheckbox() {
-            return (<>
-              <Checkbox.Root />
-              <Checkbox.Indicator />
-            </>)
-          }
-        `,
+        import: './base-entry.js',
         externals,
-      },
-      {
-        id: 'Radix UI checkbox',
-        code: `
-          import * as React from "react";
-          import { Checkbox } from "radix-ui";
-
-          export default function ExampleCheckbox() {
-            return (<>
-              <Checkbox.Root />
-              <Checkbox.Indicator />
-            </>)
-          }
-        `,
-        externals: ['react', 'react-dom'],
       },
     ],
     upload: !!process.env.CI,
