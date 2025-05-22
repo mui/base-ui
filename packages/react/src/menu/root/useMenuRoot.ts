@@ -26,10 +26,12 @@ import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useDirection } from '../../direction-provider/DirectionContext';
 import { useScrollLock } from '../../utils/useScrollLock';
 import {
-  type OpenChangeReason,
+  type BaseOpenChangeReason,
   translateOpenChangeReason,
 } from '../../utils/translateOpenChangeReason';
 import { ownerDocument } from '../../utils/owner';
+
+export type MenuOpenChangeReason = BaseOpenChangeReason | 'sibling-open';
 
 const EMPTY_ARRAY: never[] = [];
 
@@ -55,9 +57,8 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
   const [instantType, setInstantType] = React.useState<'dismiss' | 'click' | 'group'>();
   const [hoverEnabled, setHoverEnabled] = React.useState(true);
   const [activeIndex, setActiveIndex] = React.useState<number | null>(null);
-  const [lastOpenChangeReason, setLastOpenChangeReason] = React.useState<OpenChangeReason | null>(
-    null,
-  );
+  const [lastOpenChangeReason, setLastOpenChangeReason] =
+    React.useState<MenuOpenChangeReason | null>(null);
   const [stickIfOpen, setStickIfOpen] = React.useState(true);
 
   const popupRef = React.useRef<HTMLElement>(null);
@@ -115,7 +116,7 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
 
   useScrollLock({
-    enabled: open && modal && lastOpenChangeReason !== 'hover',
+    enabled: open && modal && lastOpenChangeReason !== 'trigger-hover',
     mounted,
     open,
     referenceElement: positionerElement,
@@ -157,14 +158,14 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
   const allowTouchToCloseTimeout = useTimeout();
 
   const setOpen = useEventCallback(
-    (nextOpen: boolean, event: Event | undefined, reason: OpenChangeReason | undefined) => {
+    (nextOpen: boolean, event: Event | undefined, reason: MenuOpenChangeReason | undefined) => {
       if (open === nextOpen) {
         return;
       }
 
       // As the menu opens on mousedown and closes on click,
       // we need to ignore the click event immediately following mousedown.
-      if (reason === 'click' && event?.type === 'click' && ignoreClickRef.current) {
+      if (reason === 'trigger-press' && event?.type === 'click' && ignoreClickRef.current) {
         ignoreClickRef.current = false;
         return;
       }
@@ -181,7 +182,7 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
       // Prevent the menu from closing on mobile devices that have a delayed click event.
       // In some cases the menu, when tapped, will fire the focus event first and then the click event.
       // Without this guard, the menu will close immediately after opening.
-      if (nextOpen && reason === 'focus') {
+      if (nextOpen && reason === 'trigger-focus') {
         allowTouchToCloseRef.current = false;
         allowTouchToCloseTimeout.start(300, () => {
           allowTouchToCloseRef.current = true;
@@ -191,7 +192,7 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
         allowTouchToCloseTimeout.clear();
       }
 
-      if (reason === 'click' && nextOpen && event?.type === 'mousedown') {
+      if (reason === 'trigger-press' && nextOpen && event?.type === 'mousedown') {
         ignoreClickRef.current = true;
 
         ownerDocument(event.currentTarget as Element).addEventListener(
@@ -206,7 +207,8 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
       }
 
       const isKeyboardClick =
-        (reason === 'click' || reason === 'item-press') && (event as MouseEvent).detail === 0;
+        (reason === 'trigger-press' || reason === 'item-press') &&
+        (event as MouseEvent).detail === 0;
       const isDismissClose = !nextOpen && (reason === 'escape-key' || reason == null);
 
       function changeState() {
@@ -216,7 +218,7 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
         setLastOpenChangeReason(reason ?? null);
       }
 
-      if (reason === 'hover') {
+      if (reason === 'trigger-hover') {
         // Only allow "patient" clicks to close the menu if it's open.
         // If they clicked within 500ms of the menu opening, keep it open.
         setStickIfOpen(true);
@@ -231,9 +233,9 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
 
       if (
         parent.type === 'menubar' &&
-        (reason === 'focus' ||
+        (reason === 'trigger-focus' ||
           reason === 'focus-out' ||
-          reason === 'hover' ||
+          reason === 'trigger-hover' ||
           reason === 'list-navigation' ||
           reason === 'sibling-open')
       ) {
@@ -431,9 +433,14 @@ export namespace useMenuRoot {
     open: boolean | undefined;
     /**
      * Event handler called when the menu is opened or closed.
+     * @type (open: boolean, event?: Event, reason?: Menu.Root.OpenChangeReason) => void
      */
     onOpenChange:
-      | ((open: boolean, event: Event | undefined, reason: OpenChangeReason | undefined) => void)
+      | ((
+          open: boolean,
+          event: Event | undefined,
+          reason: MenuOpenChangeReason | undefined,
+        ) => void)
       | undefined;
     /**
      * Event handler called after any animations complete when the menu is opened or closed.
@@ -504,14 +511,14 @@ export namespace useMenuRoot {
     setOpen: (
       open: boolean,
       event: Event | undefined,
-      reason: OpenChangeReason | undefined,
+      reason: MenuOpenChangeReason | undefined,
     ) => void;
     positionerRef: React.RefObject<HTMLElement | null>;
     setPositionerElement: (element: HTMLElement | null) => void;
     setTriggerElement: (element: HTMLElement | null) => void;
     transitionStatus: TransitionStatus;
     allowMouseUpTriggerRef: React.RefObject<boolean>;
-    lastOpenChangeReason: OpenChangeReason | null;
+    lastOpenChangeReason: MenuOpenChangeReason | null;
     instantType: 'dismiss' | 'click' | 'group' | undefined;
     onOpenChangeComplete: ((open: boolean) => void) | undefined;
     setHoverEnabled: React.Dispatch<React.SetStateAction<boolean>>;

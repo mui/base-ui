@@ -2,7 +2,13 @@
 import * as React from 'react';
 import type { useMenuRoot } from './useMenuRoot';
 
-export interface MenuRootContext extends useMenuRoot.ReturnValue {}
+export interface MenuRootContext extends useMenuRoot.ReturnValue {
+  disabled: boolean;
+  typingRef: React.RefObject<boolean>;
+  modal: boolean;
+  onOpenChangeComplete: ((open: boolean) => void) | undefined;
+  setHoverEnabled: React.Dispatch<React.SetStateAction<boolean>>;
+}
 
 export const MenuRootContext = React.createContext<MenuRootContext | undefined>(undefined);
 
