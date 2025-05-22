@@ -157,97 +157,96 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
   const allowTouchToCloseRef = React.useRef(true);
   const allowTouchToCloseTimeout = useTimeout();
 
-  function setOpen(
-    nextOpen: boolean,
-    event: Event | undefined,
-    reason: MenuOpenChangeReason | undefined,
-  ) {
-    if (open === nextOpen) {
-      return;
-    }
+  const setOpen = useEventCallback(
+    (nextOpen: boolean, event: Event | undefined, reason: MenuOpenChangeReason | undefined) => {
+      if (open === nextOpen) {
+        return;
+      }
 
-    // As the menu opens on mousedown and closes on click,
-    // we need to ignore the click event immediately following mousedown.
-    if (reason === 'trigger-press' && event?.type === 'click' && ignoreClickRef.current) {
-      ignoreClickRef.current = false;
-      return;
-    }
+      // As the menu opens on mousedown and closes on click,
+      // we need to ignore the click event immediately following mousedown.
+      if (reason === 'trigger-press' && event?.type === 'click' && ignoreClickRef.current) {
+        ignoreClickRef.current = false;
+        return;
+      }
 
-    if (
-      nextOpen === false &&
-      event?.type === 'click' &&
-      (event as PointerEvent).pointerType === 'touch' &&
-      !allowTouchToCloseRef.current
-    ) {
-      return;
-    }
+      if (
+        nextOpen === false &&
+        event?.type === 'click' &&
+        (event as PointerEvent).pointerType === 'touch' &&
+        !allowTouchToCloseRef.current
+      ) {
+        return;
+      }
 
-    // Prevent the menu from closing on mobile devices that have a delayed click event.
-    // In some cases the menu, when tapped, will fire the focus event first and then the click event.
-    // Without this guard, the menu will close immediately after opening.
-    if (nextOpen && reason === 'trigger-focus') {
-      allowTouchToCloseRef.current = false;
-      allowTouchToCloseTimeout.start(300, () => {
+      // Prevent the menu from closing on mobile devices that have a delayed click event.
+      // In some cases the menu, when tapped, will fire the focus event first and then the click event.
+      // Without this guard, the menu will close immediately after opening.
+      if (nextOpen && reason === 'trigger-focus') {
+        allowTouchToCloseRef.current = false;
+        allowTouchToCloseTimeout.start(300, () => {
+          allowTouchToCloseRef.current = true;
+        });
+      } else {
         allowTouchToCloseRef.current = true;
-      });
-    } else {
-      allowTouchToCloseRef.current = true;
-      allowTouchToCloseTimeout.clear();
-    }
+        allowTouchToCloseTimeout.clear();
+      }
 
-    if (reason === 'trigger-press' && nextOpen && event?.type === 'mousedown') {
-      ignoreClickRef.current = true;
+      if (reason === 'trigger-press' && nextOpen && event?.type === 'mousedown') {
+        ignoreClickRef.current = true;
 
-      ownerDocument(event.currentTarget as Element).addEventListener(
-        'click',
-        () => {
-          ignoreClickRef.current = false;
-        },
-        { once: true },
-      );
-    } else {
-      ignoreClickRef.current = false;
-    }
+        ownerDocument(event.currentTarget as Element).addEventListener(
+          'click',
+          () => {
+            ignoreClickRef.current = false;
+          },
+          { once: true },
+        );
+      } else {
+        ignoreClickRef.current = false;
+      }
 
-    const isKeyboardClick =
-      (reason === 'trigger-press' || reason === 'item-press') && (event as MouseEvent).detail === 0;
-    const isDismissClose = !nextOpen && (reason === 'escape-key' || reason == null);
+      const isKeyboardClick =
+        (reason === 'trigger-press' || reason === 'item-press') &&
+        (event as MouseEvent).detail === 0;
+      const isDismissClose = !nextOpen && (reason === 'escape-key' || reason == null);
 
-    function changeState() {
-      onOpenChange?.(nextOpen, event, reason);
-      setOpenUnwrapped(nextOpen);
+      function changeState() {
+        onOpenChange?.(nextOpen, event, reason);
+        setOpenUnwrapped(nextOpen);
 
-      setLastOpenChangeReason(reason ?? null);
-    }
+        setLastOpenChangeReason(reason ?? null);
+      }
 
-    if (reason === 'trigger-hover') {
-      // Only allow "patient" clicks to close the menu if it's open.
-      // If they clicked within 500ms of the menu opening, keep it open.
-      setStickIfOpen(true);
-      stickIfOpenTimeout.start(PATIENT_CLICK_THRESHOLD, () => {
-        setStickIfOpen(false);
-      });
+      if (reason === 'trigger-hover') {
+        // Only allow "patient" clicks to close the menu if it's open.
+        // If they clicked within 500ms of the menu opening, keep it open.
+        setStickIfOpen(true);
+        stickIfOpenTimeout.start(PATIENT_CLICK_THRESHOLD, () => {
+          setStickIfOpen(false);
+        });
 
-      ReactDOM.flushSync(changeState);
-    } else {
-      changeState();
-    }
+        ReactDOM.flushSync(changeState);
+      } else {
+        changeState();
+      }
 
-    if (
-      parent.type === 'menubar' &&
-      (reason === 'trigger-focus' ||
-        reason === 'focus-out' ||
-        reason === 'trigger-hover' ||
-        reason === 'list-navigation' ||
-        reason === 'sibling-open')
-    ) {
-      setInstantType('group');
-    } else if (isKeyboardClick || isDismissClose) {
-      setInstantType(isKeyboardClick ? 'click' : 'dismiss');
-    } else {
-      setInstantType(undefined);
-    }
-  }
+      if (
+        parent.type === 'menubar' &&
+        (reason === 'trigger-focus' ||
+          reason === 'focus-out' ||
+          reason === 'trigger-hover' ||
+          reason === 'list-navigation' ||
+          reason === 'sibling-open')
+      ) {
+        setInstantType('group');
+      } else if (isKeyboardClick || isDismissClose) {
+        setInstantType(isKeyboardClick ? 'click' : 'dismiss');
+      } else {
+        setInstantType(undefined);
+      }
+    },
+  );
 
   const floatingRootContext = useFloatingRootContext({
     elements: {

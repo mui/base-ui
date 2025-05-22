@@ -71,34 +71,32 @@ export function usePreviewCardRoot(
 
   React.useImperativeHandle(params.actionsRef, () => ({ unmount: handleUnmount }), [handleUnmount]);
 
-  function setOpen(
-    nextOpen: boolean,
-    event: Event | undefined,
-    reason: OpenChangeReason | undefined,
-  ) {
-    const isHover = reason === 'trigger-hover';
-    const isFocusOpen = nextOpen && reason === 'trigger-focus';
-    const isDismissClose = !nextOpen && (reason === 'trigger-press' || reason === 'escape-key');
+  const setOpen = useEventCallback(
+    (nextOpen: boolean, event: Event | undefined, reason: OpenChangeReason | undefined) => {
+      const isHover = reason === 'trigger-hover';
+      const isFocusOpen = nextOpen && reason === 'trigger-focus';
+      const isDismissClose = !nextOpen && (reason === 'trigger-press' || reason === 'escape-key');
 
-    function changeState() {
-      onOpenChange(nextOpen, event, reason);
-      setOpenUnwrapped(nextOpen);
-    }
+      function changeState() {
+        onOpenChange(nextOpen, event, reason);
+        setOpenUnwrapped(nextOpen);
+      }
 
-    if (isHover) {
-      // If a hover reason is provided, we need to flush the state synchronously. This ensures
-      // `node.getAnimations()` knows about the new state.
-      ReactDOM.flushSync(changeState);
-    } else {
-      changeState();
-    }
+      if (isHover) {
+        // If a hover reason is provided, we need to flush the state synchronously. This ensures
+        // `node.getAnimations()` knows about the new state.
+        ReactDOM.flushSync(changeState);
+      } else {
+        changeState();
+      }
 
-    if (isFocusOpen || isDismissClose) {
-      setInstantTypeState(isFocusOpen ? 'focus' : 'dismiss');
-    } else if (reason === 'trigger-hover') {
-      setInstantTypeState(undefined);
-    }
-  }
+      if (isFocusOpen || isDismissClose) {
+        setInstantTypeState(isFocusOpen ? 'focus' : 'dismiss');
+      } else if (reason === 'trigger-hover') {
+        setInstantTypeState(undefined);
+      }
+    },
+  );
 
   const context = useFloatingRootContext({
     elements: {

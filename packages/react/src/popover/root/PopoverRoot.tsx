@@ -93,43 +93,41 @@ export const PopoverRoot: React.FC<PopoverRoot.Props> = function PopoverRoot(pro
     }
   }, [stickIfOpenTimeout, open]);
 
-  function setOpen(
-    nextOpen: boolean,
-    event: Event | undefined,
-    reason: PopoverOpenChangeReason | undefined,
-  ) {
-    const isHover = reason === 'trigger-hover';
-    const isKeyboardClick = reason === 'trigger-press' && (event as MouseEvent).detail === 0;
-    const isDismissClose = !nextOpen && (reason === 'escape-key' || reason == null);
+  const setOpen = useEventCallback(
+    (nextOpen: boolean, event: Event | undefined, reason: PopoverOpenChangeReason | undefined) => {
+      const isHover = reason === 'trigger-hover';
+      const isKeyboardClick = reason === 'trigger-press' && (event as MouseEvent).detail === 0;
+      const isDismissClose = !nextOpen && (reason === 'escape-key' || reason == null);
 
-    function changeState() {
-      onOpenChange?.(nextOpen, event, reason);
-      setOpenUnwrapped(nextOpen);
+      function changeState() {
+        onOpenChange?.(nextOpen, event, reason);
+        setOpenUnwrapped(nextOpen);
 
-      if (nextOpen) {
-        setOpenReason(reason ?? null);
+        if (nextOpen) {
+          setOpenReason(reason ?? null);
+        }
       }
-    }
 
-    if (isHover) {
-      // Only allow "patient" clicks to close the popover if it's open.
-      // If they clicked within 500ms of the popover opening, keep it open.
-      setStickIfOpen(true);
-      stickIfOpenTimeout.start(PATIENT_CLICK_THRESHOLD, () => {
-        setStickIfOpen(false);
-      });
+      if (isHover) {
+        // Only allow "patient" clicks to close the popover if it's open.
+        // If they clicked within 500ms of the popover opening, keep it open.
+        setStickIfOpen(true);
+        stickIfOpenTimeout.start(PATIENT_CLICK_THRESHOLD, () => {
+          setStickIfOpen(false);
+        });
 
-      ReactDOM.flushSync(changeState);
-    } else {
-      changeState();
-    }
+        ReactDOM.flushSync(changeState);
+      } else {
+        changeState();
+      }
 
-    if (isKeyboardClick || isDismissClose) {
-      setInstantType(isKeyboardClick ? 'click' : 'dismiss');
-    } else {
-      setInstantType(undefined);
-    }
-  }
+      if (isKeyboardClick || isDismissClose) {
+        setInstantType(isKeyboardClick ? 'click' : 'dismiss');
+      } else {
+        setInstantType(undefined);
+      }
+    },
+  );
 
   const floatingContext = useFloatingRootContext({
     elements: {
