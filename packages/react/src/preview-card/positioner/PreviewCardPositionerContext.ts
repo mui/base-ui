@@ -14,10 +14,6 @@ export const PreviewCardPositionerContext = React.createContext<
   PreviewCardPositionerContext | undefined
 >(undefined);
 
-if (process.env.NODE_ENV !== 'production') {
-  PreviewCardPositionerContext.displayName = 'PreviewCardPositionerContext';
-}
-
 export function usePreviewCardPositionerContext() {
   const context = React.useContext(PreviewCardPositionerContext);
   if (context === undefined) {

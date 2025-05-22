@@ -15,7 +15,7 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
     buttonRef: externalRef,
     disabled = false,
     focusableWhenDisabled,
-    tabIndex,
+    tabIndex = 0,
     type = 'button',
     elementName: elementNameProp,
   } = parameters;
@@ -225,6 +225,9 @@ export namespace useButton {
      * @default false
      */
     focusableWhenDisabled?: boolean;
+    /**
+     * @deprecated pass the returned `buttonRef` to `useRenderElement` instead
+     */
     buttonRef?: React.Ref<Element>;
     tabIndex?: NonNullable<React.HTMLAttributes<any>['tabIndex']>;
     /**

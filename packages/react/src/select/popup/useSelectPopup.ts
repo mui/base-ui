@@ -20,15 +20,18 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
     valueRef,
     selectedItemTextRef,
     popupRef,
-    scrollUpArrowVisible,
-    scrollDownArrowVisible,
-    setScrollUpArrowVisible,
-    setScrollDownArrowVisible,
     keyboardActiveRef,
     floatingRootContext,
   } = useSelectRootContext();
   const { setActiveIndex } = useSelectIndexContext();
-  const { alignItemWithTriggerActive, setControlledItemAnchor } = useSelectPositionerContext();
+  const {
+    alignItemWithTriggerActive,
+    setControlledItemAnchor,
+    scrollUpArrowVisible,
+    scrollDownArrowVisible,
+    setScrollUpArrowVisible,
+    setScrollDownArrowVisible,
+  } = useSelectPositionerContext();
 
   const initialHeightRef = React.useRef(0);
   const reachedMaxHeightRef = React.useRef(false);
@@ -225,8 +228,8 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
 
     const win = ownerWindow(positionerElement);
 
-    function handleResize() {
-      setOpen(false, undefined, undefined);
+    function handleResize(event: Event) {
+      setOpen(false, event, 'window-resize');
     }
 
     win.addEventListener('resize', handleResize);
