@@ -25,7 +25,7 @@
       "description": "Whether the navigation menu is currently open."
     },
     "onOpenChange": {
-      "type": "((open: boolean, event: Event | undefined, reason: OpenChangeReason | undefined) => void)",
+      "type": "((open: boolean, event: Event | undefined, reason: BaseOpenChangeReason | undefined) => void)",
       "description": "Event handler called when the navigation menu is opened or closed."
     },
     "actionsRef": {
