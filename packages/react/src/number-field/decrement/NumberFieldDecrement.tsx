@@ -1,11 +1,12 @@
 'use client';
 import * as React from 'react';
+import { BaseUIComponentProps } from '../../utils/types';
+import { useRenderElement } from '../../utils/useRenderElement';
+import { useButton } from '../../use-button';
 import { useNumberFieldRootContext } from '../root/NumberFieldRootContext';
 import type { NumberFieldRoot } from '../root/NumberFieldRoot';
 import { useNumberFieldButton } from '../root/useNumberFieldButton';
-import type { BaseUIComponentProps } from '../../utils/types';
 import { styleHookMapping } from '../utils/styleHooks';
-import { useRenderElement } from '../../utils/useRenderElement';
 
 /**
  * A stepper button that decreases the field value when clicked.
@@ -21,7 +22,7 @@ export const NumberFieldDecrement = React.forwardRef(function NumberFieldDecreme
 
   const {
     allowInputSyncRef,
-    disabled,
+    disabled: contextDisabled,
     formatOptionsRef,
     getStepAmount,
     id,
@@ -43,7 +44,10 @@ export const NumberFieldDecrement = React.forwardRef(function NumberFieldDecreme
     locale,
   } = useNumberFieldRootContext();
 
-  const { getCommonButtonProps } = useNumberFieldButton({
+  const disabled = disabledProp || contextDisabled;
+
+  const { props } = useNumberFieldButton({
+    isIncrement: false,
     inputRef,
     startAutoChange,
     stopAutoChange,
@@ -51,7 +55,7 @@ export const NumberFieldDecrement = React.forwardRef(function NumberFieldDecreme
     maxWithDefault,
     value,
     inputValue,
-    disabled: disabledProp || disabled,
+    disabled,
     readOnly,
     id,
     setValue,
@@ -66,10 +70,14 @@ export const NumberFieldDecrement = React.forwardRef(function NumberFieldDecreme
     locale,
   });
 
+  const { getButtonProps, buttonRef } = useButton({
+    disabled,
+  });
+
   const element = useRenderElement('button', componentProps, {
-    ref: forwardedRef,
+    ref: [forwardedRef, buttonRef],
     state,
-    props: [getCommonButtonProps(false), elementProps],
+    props: [props, elementProps, getButtonProps],
     customStyleHookMapping: styleHookMapping,
   });
 

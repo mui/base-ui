@@ -26,7 +26,7 @@ describe('<Select.Item />', () => {
     await render(
       <Select.Root>
         <Select.Trigger data-testid="trigger">
-          <Select.Value placeholder="null" data-testid="value" />
+          <Select.Value data-testid="value">null</Select.Value>
         </Select.Trigger>
         <Select.Positioner data-testid="positioner">
           <Select.Item value="one">one</Select.Item>
@@ -57,7 +57,7 @@ describe('<Select.Item />', () => {
     const { user } = await render(
       <Select.Root>
         <Select.Trigger data-testid="trigger">
-          <Select.Value />
+          <Select.Value>value</Select.Value>
         </Select.Trigger>
         <Select.Portal>
           <Select.Positioner>
@@ -96,7 +96,7 @@ describe('<Select.Item />', () => {
     const { user } = await render(
       <Select.Root>
         <Select.Trigger data-testid="trigger">
-          <Select.Value placeholder="null" data-testid="value" />
+          <Select.Value data-testid="value">null</Select.Value>
         </Select.Trigger>
         <Select.Portal>
           <Select.Positioner>
@@ -129,7 +129,7 @@ describe('<Select.Item />', () => {
     await render(
       <Select.Root open>
         <Select.Trigger data-testid="trigger">
-          <Select.Value data-testid="value" />
+          <Select.Value data-testid="value">value</Select.Value>
         </Select.Trigger>
         <Select.Portal>
           <Select.Positioner>
@@ -154,7 +154,7 @@ describe('<Select.Item />', () => {
     await render(
       <Select.Root>
         <Select.Trigger data-testid="trigger">
-          <Select.Value data-testid="value" />
+          <Select.Value data-testid="value">value</Select.Value>
         </Select.Trigger>
         <Select.Portal>
           <Select.Positioner>
@@ -178,14 +178,14 @@ describe('<Select.Item />', () => {
 
     fireEvent.click(screen.getByText('two'));
 
-    expect(value.textContent).to.equal('');
+    expect(value.textContent).to.equal('value');
   });
 
   it('should focus the selected item upon opening the popup', async () => {
     const { user } = await renderFakeTimers(
       <Select.Root>
         <Select.Trigger data-testid="trigger">
-          <Select.Value data-testid="value" />
+          <Select.Value data-testid="value">one</Select.Value>
         </Select.Trigger>
         <Select.Portal>
           <Select.Positioner>

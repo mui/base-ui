@@ -103,6 +103,7 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
         (parent.type === 'menubar' && lastOpenChangeReason !== 'outside-press')
       }
       initialFocus={parent.type === 'menu' ? -1 : 0}
+      restoreFocus
     >
       {renderElement()}
     </FloatingFocusManager>
