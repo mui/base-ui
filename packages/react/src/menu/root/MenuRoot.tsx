@@ -3,7 +3,6 @@ import * as React from 'react';
 import { FloatingTree } from '@floating-ui/react';
 import { MenuRootContext } from './MenuRootContext';
 import { MenuOrientation, useMenuRoot, MenuOpenChangeReason } from './useMenuRoot';
-import type { OpenChangeReason } from '../../utils/translateOpenChangeReason';
 import { isContextMenu } from '../../context-menu/utils/isContextMenu';
 
 /**
