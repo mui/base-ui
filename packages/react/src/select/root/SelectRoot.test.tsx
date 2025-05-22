@@ -131,6 +131,38 @@ describe('<Select.Root />', () => {
         '',
       );
     });
+
+    it('should not update the internal value if the controlled value prop does not change', async () => {
+      const onValueChange = spy();
+      const { user } = await render(
+        <Select.Root value="a" onValueChange={onValueChange}>
+          <Select.Trigger data-testid="trigger">
+            <Select.Value>a</Select.Value>
+          </Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup>
+                <Select.Item value="a">a</Select.Item>
+                <Select.Item value="b">b</Select.Item>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+      expect(trigger).to.have.text('a');
+
+      fireEvent.click(trigger);
+      await flushMicrotasks();
+
+      const optionB = screen.getByRole('option', { name: 'b' });
+      fireEvent.click(optionB);
+      await flushMicrotasks();
+
+      expect(onValueChange.callCount).to.equal(0);
+      expect(trigger).to.have.text('a');
+    });
   });
 
   describe('prop: onValueChange', () => {

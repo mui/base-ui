@@ -80,9 +80,15 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     state: 'open',
   });
 
-  useModernLayoutEffect(() => {
-    setFilled(value !== null);
-  }, [setFilled, value]);
+  const isValueControlled = params.value !== undefined;
+
+  const updateValue = useEventCallback((value: any) => {
+    const index = valuesRef.current.indexOf(value);
+    setSelectedIndex(index === -1 ? null : index);
+    setLabel(labelsRef.current[index] ?? '');
+    clearErrors(name);
+    setDirty(value !== validityData.initialValue);
+  });
 
   const listRef = React.useRef<Array<HTMLElement | null>>([]);
   const labelsRef = React.useRef<Array<string | null>>([]);
@@ -134,6 +140,13 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
   }, [value, commitValidation, clearErrors, name, validationMode]);
 
   useModernLayoutEffect(() => {
+    setFilled(value !== null);
+    if (prevValueRef.current !== value) {
+      updateValue(value);
+    }
+  }, [updateValue, value]);
+
+  useModernLayoutEffect(() => {
     prevValueRef.current = value;
   }, [value]);
 
@@ -180,12 +193,9 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     params.onValueChange?.(nextValue, event);
     setValueUnwrapped(nextValue);
 
-    setDirty(nextValue !== validityData.initialValue);
-    clearErrors(name);
-
-    const index = valuesRef.current.indexOf(nextValue);
-    setSelectedIndex(index === -1 ? null : index);
-    setLabel(labelsRef.current[index] ?? '');
+    if (!isValueControlled) {
+      updateValue(nextValue);
+    }
   });
 
   const hasRegisteredRef = React.useRef(false);
