@@ -3,7 +3,7 @@ import { ElementProps, useClientPoint } from '@floating-ui/react';
 import { useTooltipRootContext } from '../root/TooltipRootContext';
 
 export interface TooltipTrackCursorAxisContext {
-  elementProps: ElementProps | undefined;
+  elementProps: ElementProps;
   value: 'both' | 'x' | 'y' | 'none';
 }
 
@@ -13,13 +13,17 @@ export const TooltipTrackCursorAxisContext = React.createContext<TooltipTrackCur
 });
 
 export function TooltipTrackCursorAxis(props: TrackCursorAxis.Props) {
-  const { floatingRootContext, disabled } = useTooltipRootContext();
+  const { floatingRootContext, disabled, trackCursorAxisRef } = useTooltipRootContext();
   const { value } = props;
 
   const clientPoint = useClientPoint(floatingRootContext, {
     enabled: !disabled && value !== 'none',
     axis: value === 'none' ? undefined : value,
   });
+
+  React.useEffect(() => {
+    trackCursorAxisRef.current = value;
+  }, [trackCursorAxisRef, value]);
 
   const contextValue: TooltipTrackCursorAxisContext = React.useMemo(
     () => ({

@@ -28,6 +28,7 @@ export interface TooltipRootContext {
   transitionStatus: TransitionStatus;
   onOpenChangeComplete: ((open: boolean) => void) | undefined;
   hoverable: boolean;
+  trackCursorAxisRef: React.RefObject<'none' | 'x' | 'y' | 'both'>;
 }
 
 export const TooltipRootContext = React.createContext<TooltipRootContext | undefined>(undefined);

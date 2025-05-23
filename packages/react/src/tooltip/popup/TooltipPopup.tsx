@@ -60,7 +60,7 @@ export const TooltipPopup = React.forwardRef(function TooltipPopup(
     ref: [forwardedRef, popupRef],
     props: [
       popupProps,
-      trackCursor.elementProps?.floating,
+      trackCursor.elementProps.floating,
       {
         style: transitionStatus === 'starting' ? { transition: 'none' } : {},
       },
