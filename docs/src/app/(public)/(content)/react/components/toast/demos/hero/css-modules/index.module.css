@@ -91,8 +91,12 @@
   }
 
   &[data-starting-style],
-  &[data-ending-style]:not([data-limited]) {
+  &[data-ending-style] {
     transform: translateY(150%);
+  }
+
+  &[data-limited] {
+    opacity: 0;
   }
 
   &[data-ending-style] {

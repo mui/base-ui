@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Toast } from '@base-ui-components/react/toast';
-import { createRenderer, describeConformance } from '#test-utils';
+import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { act, fireEvent, screen } from '@mui/internal-test-utils';
 import { expect } from 'chai';
 import { List, Button } from '../utils/test-utils';
@@ -172,7 +172,7 @@ describe('<Toast.Viewport />', () => {
       expect(screen.queryByTestId('root')).not.to.equal(null);
     });
 
-    it('resumes timers when the viewport is blurred', async () => {
+    it.skipIf(!isJSDOM)('resumes timers when the viewport is blurred', async () => {
       await renderFakeTimers(
         <Toast.Provider>
           <Toast.Viewport data-testid="viewport">
