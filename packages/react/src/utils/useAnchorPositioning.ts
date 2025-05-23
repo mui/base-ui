@@ -167,7 +167,7 @@ export function useAnchorPositioning(
       ? null
       : flip({
           ...commonCollisionProps,
-          mainAxis: !shiftCrossAxis,
+          mainAxis: !shiftCrossAxis && collisionAvoidanceSide === 'flip',
           crossAxis: collisionAvoidanceAlign === 'flip' ? 'alignment' : false,
           fallbackAxisSideDirection: collisionAvoidanceFallbackAxisSide,
         });
