@@ -14,6 +14,7 @@ import { inertValue } from '../../utils/inertValue';
 import { InternalBackdrop } from '../../utils/InternalBackdrop';
 import { useMenuPortalContext } from '../portal/MenuPortalContext';
 import { DEFAULT_COLLISION_AVOIDANCE } from '../../utils/constants';
+import { useContextMenuRootContext } from '../../context-menu/root/ContextMenuRootContext';
 
 /**
  * Positions the menu popup against the trigger.
@@ -26,14 +27,14 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const {
-    anchor,
-    positionMethod = 'absolute',
+    anchor: anchorProp,
+    positionMethod: positionMethodProp = 'absolute',
     className,
     render,
     side,
-    align,
-    sideOffset = 0,
-    alignOffset = 0,
+    align: alignProp,
+    sideOffset: sideOffsetProp = 0,
+    alignOffset: alignOffsetProp = 0,
     collisionBoundary = 'clipping-ancestors',
     collisionPadding = 5,
     arrowPadding = 5,
@@ -58,6 +59,18 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
   const keepMounted = useMenuPortalContext();
   const nodeId = useFloatingNodeId();
   const parentNodeId = useFloatingParentNodeId();
+  const contextMenuContext = useContextMenuRootContext(true);
+
+  let anchor = anchorProp;
+  let sideOffset = sideOffsetProp;
+  let alignOffset = alignOffsetProp;
+  let align = alignProp;
+  if (parent.type === 'context-menu') {
+    anchor = parent.context?.anchor ?? anchorProp;
+    align = props.align ?? 'start';
+    alignOffset = props.alignOffset ?? 2;
+    sideOffset = props.sideOffset ?? -5;
+  }
 
   let computedSide = side;
   let computedAlign = align;
@@ -69,17 +82,19 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
     computedAlign = computedAlign ?? 'start';
   }
 
+  const contextMenu = parent.type === 'context-menu';
+
   const positioner = useMenuPositioner({
     anchor,
     floatingRootContext,
-    positionMethod,
+    positionMethod: contextMenuContext ? 'fixed' : positionMethodProp,
     open,
     mounted,
     side: computedSide,
     sideOffset,
     align: computedAlign,
     alignOffset,
-    arrowPadding,
+    arrowPadding: contextMenu ? 0 : arrowPadding,
     collisionBoundary,
     collisionPadding,
     sticky,
@@ -88,6 +103,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
     keepMounted,
     trackAnchor,
     collisionAvoidance,
+    shiftCrossAxis: contextMenu,
   });
 
   const state: MenuPositioner.State = React.useMemo(
@@ -145,7 +161,15 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
   return (
     <MenuPositionerContext.Provider value={contextValue}>
       {shouldRenderBackdrop && (
-        <InternalBackdrop inert={inertValue(!open)} cutout={backdropCutout} />
+        <InternalBackdrop
+          ref={
+            parent.type === 'context-menu' || parent.type === 'nested-context-menu'
+              ? parent.context.internalBackdropRef
+              : null
+          }
+          inert={inertValue(!open)}
+          cutout={backdropCutout}
+        />
       )}
       <FloatingNode id={nodeId}>
         <CompositeList elementsRef={itemDomElements} labelsRef={itemLabels}>

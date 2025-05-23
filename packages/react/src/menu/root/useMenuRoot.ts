@@ -29,11 +29,16 @@ import {
   type BaseOpenChangeReason,
   translateOpenChangeReason,
 } from '../../utils/translateOpenChangeReason';
+import {
+  ContextMenuRootContext,
+  useContextMenuRootContext,
+} from '../../context-menu/root/ContextMenuRootContext';
 import { ownerDocument } from '../../utils/owner';
 
 export type MenuOpenChangeReason = BaseOpenChangeReason | 'sibling-open';
 
 const EMPTY_ARRAY: never[] = [];
+const EMPTY_REF = { current: false };
 
 export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.ReturnValue {
   const {
@@ -60,10 +65,12 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
   const [lastOpenChangeReason, setLastOpenChangeReason] =
     React.useState<MenuOpenChangeReason | null>(null);
   const [stickIfOpen, setStickIfOpen] = React.useState(true);
+  const openEventRef = React.useRef<Event | null>(null);
 
   const popupRef = React.useRef<HTMLElement>(null);
   const positionerRef = React.useRef<HTMLElement | null>(null);
   const stickIfOpenTimeout = useTimeout();
+  const contextMenuContext = useContextMenuRootContext(true);
 
   let parent: useMenuRoot.ReturnValue['parent'];
   {
@@ -80,6 +87,11 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
         type: 'menubar',
         context: menubarContext,
       };
+    } else if (contextMenuContext) {
+      parent = {
+        type: 'context-menu',
+        context: contextMenuContext,
+      };
     } else {
       parent = {
         type: undefined,
@@ -87,7 +99,8 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
     }
   }
 
-  const modal = parent.type === undefined && (modalParam ?? true);
+  const modal =
+    (parent.type === undefined || parent.type === 'context-menu') && (modalParam ?? true);
 
   if (process.env.NODE_ENV !== 'production') {
     if (parent.type !== undefined && modalParam !== undefined) {
@@ -107,6 +120,32 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
     name: 'useMenuRoot',
     state: 'open',
   });
+
+  const allowOutsidePressDismissalRef = React.useRef(parent.type !== 'context-menu');
+  const allowOutsidePressDismissalTimeout = useTimeout();
+
+  React.useEffect(() => {
+    if (!open) {
+      openEventRef.current = null;
+    }
+
+    if (parent.type !== 'context-menu') {
+      return;
+    }
+
+    if (!open) {
+      allowOutsidePressDismissalTimeout.clear();
+      allowOutsidePressDismissalRef.current = false;
+      return;
+    }
+
+    // With `mousedown` outside press events and long press touch input, there
+    // needs to be a grace period after opening to ensure the dismissal event
+    // doesn't fire immediately after open.
+    allowOutsidePressDismissalTimeout.start(500, () => {
+      allowOutsidePressDismissalRef.current = true;
+    });
+  }, [allowOutsidePressDismissalTimeout, open, parent.type]);
 
   const setPositionerElement = React.useCallback((value: HTMLElement | null) => {
     positionerRef.current = value;
@@ -142,16 +181,6 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
       }
     },
   });
-
-  React.useImperativeHandle(parameters.actionsRef, () => ({ unmount: handleUnmount }), [
-    handleUnmount,
-  ]);
-
-  React.useEffect(() => {
-    if (!open) {
-      stickIfOpenTimeout.clear();
-    }
-  }, [stickIfOpenTimeout, open]);
 
   const ignoreClickRef = React.useRef(false);
   const allowTouchToCloseRef = React.useRef(true);
@@ -214,8 +243,8 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
       function changeState() {
         onOpenChange?.(nextOpen, event, reason);
         setOpenUnwrapped(nextOpen);
-
         setLastOpenChangeReason(reason ?? null);
+        openEventRef.current = event ?? null;
       }
 
       if (reason === 'trigger-hover') {
@@ -248,6 +277,29 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
     },
   );
 
+  React.useImperativeHandle(parameters.actionsRef, () => ({ unmount: handleUnmount }), [
+    handleUnmount,
+  ]);
+
+  let ctx: ContextMenuRootContext | undefined;
+  if (parent.type === 'context-menu') {
+    ctx = parent.context;
+  }
+
+  React.useImperativeHandle<HTMLElement | null, HTMLElement | null>(
+    ctx?.positionerRef,
+    () => positionerElement,
+    [positionerElement],
+  );
+
+  React.useImperativeHandle(ctx?.actionsRef, () => ({ setOpen }), [setOpen]);
+
+  React.useEffect(() => {
+    if (!open) {
+      stickIfOpenTimeout.clear();
+    }
+  }, [stickIfOpenTimeout, open]);
+
   const floatingRootContext = useFloatingRootContext({
     elements: {
       reference: triggerElement,
@@ -264,6 +316,7 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
       hoverEnabled &&
       openOnHover &&
       !disabled &&
+      parent.type !== 'context-menu' &&
       (parent.type !== 'menubar' || (parent.context.hasSubmenuOpen && !open)),
     handleClose: safePolygon({ blockPointerEvents: true }),
     mouseOnly: true,
@@ -273,11 +326,16 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
   });
 
   const focus = useFocus(floatingRootContext, {
-    enabled: !disabled && !open && parent.type === 'menubar' && parent.context.hasSubmenuOpen,
+    enabled:
+      !disabled &&
+      !open &&
+      parent.type === 'menubar' &&
+      parent.context.hasSubmenuOpen &&
+      !contextMenuContext,
   });
 
   const click = useClick(floatingRootContext, {
-    enabled: !disabled,
+    enabled: !disabled && parent.type !== 'context-menu',
     event: open ? 'click' : 'mousedown',
     toggle: !openOnHover || parent.type !== 'menu',
     ignoreMouse: openOnHover && parent.type === 'menu',
@@ -285,8 +343,16 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
   });
 
   const dismiss = useDismiss(floatingRootContext, {
+    enabled: !disabled,
     bubbles: closeParentOnEsc && parent.type === 'menu',
     outsidePressEvent: 'mousedown',
+    outsidePress() {
+      if (parent.type !== 'context-menu' || openEventRef.current?.type === 'contextmenu') {
+        return true;
+      }
+
+      return allowOutsidePressDismissalRef.current;
+    },
   });
 
   const role = useRole(floatingRootContext, {
@@ -309,6 +375,7 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
     rtl: direction === 'rtl',
     disabledIndices: EMPTY_ARRAY,
     onNavigate: setActiveIndex,
+    openOnArrowKeyDown: parent.type !== 'context-menu',
   });
 
   const typingRef = React.useRef(false);
@@ -368,14 +435,11 @@ export function useMenuRoot(parameters: useMenuRoot.Parameters): useMenuRoot.Ret
 
   const itemProps = React.useMemo(() => getItemProps(), [getItemProps]);
 
-  const allowMouseUpTriggerRef = React.useRef(false);
-
   return React.useMemo(
     () => ({
       activeIndex,
       setActiveIndex,
-      allowMouseUpTriggerRef:
-        parent.type !== undefined ? parent.context.allowMouseUpTriggerRef : allowMouseUpTriggerRef,
+      allowMouseUpTriggerRef: parent.type ? parent.context.allowMouseUpTriggerRef : EMPTY_REF,
       floatingRootContext,
       itemProps,
       popupProps,
@@ -537,6 +601,15 @@ export namespace useMenuRoot {
     | {
         type: 'menubar';
         context: MenubarContext;
+      }
+    | {
+        type: 'context-menu';
+        context: ContextMenuRootContext;
+      }
+    | {
+        type: 'nested-context-menu';
+        context: ContextMenuRootContext;
+        menuContext: MenuRootContext;
       }
     | {
         type: undefined;

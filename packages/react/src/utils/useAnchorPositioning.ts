@@ -23,6 +23,7 @@ import { useModernLayoutEffect } from './useModernLayoutEffect';
 import { useDirection } from '../direction-provider/DirectionContext';
 import { useLatestRef } from './useLatestRef';
 import { useEventCallback } from './useEventCallback';
+import { ownerDocument } from './owner';
 
 function getLogicalSide(sideParam: Side, renderedSide: PhysicalSide, isRtl: boolean): Side {
   const isLogicalSideParam = sideParam === 'inline-start' || sideParam === 'inline-end';
@@ -87,6 +88,7 @@ export function useAnchorPositioning(
     mounted,
     trackAnchor = true,
     collisionAvoidance,
+    shiftCrossAxis = false,
     nodeId,
   } = params;
 
@@ -165,28 +167,42 @@ export function useAnchorPositioning(
       ? null
       : flip({
           ...commonCollisionProps,
+          mainAxis: !shiftCrossAxis,
           crossAxis: collisionAvoidanceAlign === 'flip' ? 'alignment' : false,
           fallbackAxisSideDirection: collisionAvoidanceFallbackAxisSide,
         });
   const shiftMiddleware =
     collisionAvoidanceAlign === 'none'
       ? null
-      : shift({
-          ...commonCollisionProps,
-          crossAxis: sticky || collisionAvoidanceSide === 'shift',
-          limiter: sticky
-            ? undefined
-            : limitShift(() => {
-                if (!arrowRef.current) {
-                  return {};
-                }
-                const { height } = arrowRef.current.getBoundingClientRect();
-                return {
-                  offset:
-                    height / 2 + (typeof collisionPadding === 'number' ? collisionPadding : 0),
-                };
-              }),
-        });
+      : shift(
+          (data) => {
+            const html = ownerDocument(data.elements.floating).documentElement;
+            return {
+              ...commonCollisionProps,
+              // Use the Layout Viewport to avoid shifting around when pinch-zooming
+              // for context menus.
+              rootBoundary: shiftCrossAxis
+                ? { x: 0, y: 0, width: html.clientWidth, height: html.clientHeight }
+                : undefined,
+              crossAxis: sticky || shiftCrossAxis || collisionAvoidanceSide === 'shift',
+              limiter:
+                sticky || shiftCrossAxis
+                  ? undefined
+                  : limitShift(() => {
+                      if (!arrowRef.current) {
+                        return {};
+                      }
+                      const { height } = arrowRef.current.getBoundingClientRect();
+                      return {
+                        offset:
+                          height / 2 +
+                          (typeof collisionPadding === 'number' ? collisionPadding : 0),
+                      };
+                    }),
+            };
+          },
+          [commonCollisionProps, sticky, shiftCrossAxis, collisionPadding],
+        );
 
   // https://floating-ui.com/docs/flip#combining-with-shift
   if (
@@ -474,6 +490,7 @@ export namespace useAnchorPositioning {
     trackAnchor: boolean;
     nodeId?: string;
     collisionAvoidance: CollisionAvoidance;
+    shiftCrossAxis?: boolean;
   }
 
   export interface ReturnValue {

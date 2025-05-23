@@ -93,15 +93,17 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
     ref: mergedRef,
   });
 
+  let returnFocus = parent.type === undefined || parent.type === 'context-menu';
+  if (parent.type === 'menubar' && lastOpenChangeReason !== 'outside-press') {
+    returnFocus = true;
+  }
+
   return (
     <FloatingFocusManager
       context={floatingContext}
       modal={false}
       disabled={!mounted}
-      returnFocus={
-        parent.type === undefined ||
-        (parent.type === 'menubar' && lastOpenChangeReason !== 'outside-press')
-      }
+      returnFocus={returnFocus}
       initialFocus={parent.type === 'menu' ? -1 : 0}
       restoreFocus
     >
