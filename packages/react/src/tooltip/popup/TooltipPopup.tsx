@@ -10,6 +10,7 @@ import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import { transitionStatusMapping } from '../../utils/styleHookMapping';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useRenderElement } from '../../utils/useRenderElement';
+import { useTooltipTrackCursorAxisContext } from '../features/TooltipTrackCursorAxis';
 
 const customStyleHookMapping: CustomStyleHookMapping<TooltipPopup.State> = {
   ...baseMapping,
@@ -31,6 +32,7 @@ export const TooltipPopup = React.forwardRef(function TooltipPopup(
   const { open, instantType, transitionStatus, popupProps, popupRef, onOpenChangeComplete } =
     useTooltipRootContext();
   const { side, align } = useTooltipPositionerContext();
+  const trackCursor = useTooltipTrackCursorAxisContext();
 
   useOpenChangeComplete({
     open,
@@ -58,6 +60,7 @@ export const TooltipPopup = React.forwardRef(function TooltipPopup(
     ref: [forwardedRef, popupRef],
     props: [
       popupProps,
+      trackCursor.elementProps?.floating,
       {
         style: transitionStatus === 'starting' ? { transition: 'none' } : {},
       },

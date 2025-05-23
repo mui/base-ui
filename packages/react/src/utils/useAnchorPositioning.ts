@@ -430,7 +430,6 @@ export namespace useAnchorPositioning {
   export interface Parameters extends SharedParameters {
     open?: boolean;
     keepMounted?: boolean;
-    trackCursorAxis?: 'none' | 'x' | 'y' | 'both';
     floatingRootContext?: FloatingRootContext;
     mounted: boolean;
     trackAnchor: boolean;

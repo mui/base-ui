@@ -2,7 +2,6 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import {
   safePolygon,
-  useClientPoint,
   useNextDelayGroup,
   useDismiss,
   useFloatingRootContext,
@@ -32,7 +31,6 @@ export function useTooltipRoot(params: useTooltipRoot.Parameters): useTooltipRoo
     onOpenChange: onOpenChangeProp,
     defaultOpen = false,
     hoverable = true,
-    trackCursorAxis = 'none',
     delay,
     closeDelay,
     onOpenChangeComplete,
@@ -128,7 +126,7 @@ export function useTooltipRoot(params: useTooltipRoot.Parameters): useTooltipRoo
     enabled: !disabled,
     mouseOnly: true,
     move: false,
-    handleClose: hoverable && trackCursorAxis !== 'both' ? safePolygon() : null,
+    handleClose: hoverable ? safePolygon() : null,
     restMs() {
       const providerDelay = providerContext?.delay;
       const groupOpenValue =
@@ -161,17 +159,8 @@ export function useTooltipRoot(params: useTooltipRoot.Parameters): useTooltipRoo
   });
   const focus = useFocus(context, { enabled: !disabled });
   const dismiss = useDismiss(context, { enabled: !disabled, referencePress: true });
-  const clientPoint = useClientPoint(context, {
-    enabled: !disabled && trackCursorAxis !== 'none',
-    axis: trackCursorAxis === 'none' ? undefined : trackCursorAxis,
-  });
 
-  const { getReferenceProps, getFloatingProps } = useInteractions([
-    hover,
-    focus,
-    dismiss,
-    clientPoint,
-  ]);
+  const { getReferenceProps, getFloatingProps } = useInteractions([hover, focus, dismiss]);
 
   return React.useMemo(
     () => ({

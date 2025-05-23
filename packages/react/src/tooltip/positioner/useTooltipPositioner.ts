@@ -2,13 +2,15 @@ import * as React from 'react';
 import { Side, useAnchorPositioning } from '../../utils/useAnchorPositioning';
 import type { HTMLProps } from '../../utils/types';
 import { useTooltipRootContext } from '../root/TooltipRootContext';
+import { useTooltipTrackCursorAxisContext } from '../features/TooltipTrackCursorAxis';
 
 export function useTooltipPositioner(
   params: useTooltipPositioner.Parameters,
 ): useTooltipPositioner.ReturnValue {
-  const { open, trackCursorAxis, mounted } = useTooltipRootContext();
+  const { open, mounted } = useTooltipRootContext();
 
   const positioning = useAnchorPositioning(params);
+  const { value: trackCursorAxis } = useTooltipTrackCursorAxisContext();
 
   const props = React.useMemo<HTMLProps>(() => {
     const hiddenStyles: React.CSSProperties = {};

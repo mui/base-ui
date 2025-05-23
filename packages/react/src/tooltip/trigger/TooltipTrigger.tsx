@@ -4,6 +4,7 @@ import { useTooltipRootContext } from '../root/TooltipRootContext';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
 import { useRenderElement } from '../../utils/useRenderElement';
+import { useTooltipTrackCursorAxisContext } from '../features/TooltipTrackCursorAxis';
 
 /**
  * An element to attach the tooltip to.
@@ -18,13 +19,14 @@ export const TooltipTrigger = React.forwardRef(function TooltipTrigger(
   const { className, render, ...elementProps } = componentProps;
 
   const { open, setTriggerElement, triggerProps } = useTooltipRootContext();
+  const trackCursor = useTooltipTrackCursorAxisContext();
 
   const state: TooltipTrigger.State = React.useMemo(() => ({ open }), [open]);
 
   const element = useRenderElement('button', componentProps, {
     state,
     ref: [forwardedRef, setTriggerElement],
-    props: [triggerProps, elementProps],
+    props: [triggerProps, trackCursor.elementProps?.reference, elementProps],
     customStyleHookMapping: triggerOpenStateMapping,
   });
 
