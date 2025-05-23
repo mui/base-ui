@@ -6,9 +6,11 @@ export default function ExampleToast() {
   return (
     <Toast.Provider>
       <ToastButton />
-      <Toast.Viewport className="fixed top-auto right-[1rem] bottom-[1rem] mx-auto flex w-[250px] sm:right-[2rem] sm:bottom-[2rem] sm:w-[300px]">
-        <ToastList />
-      </Toast.Viewport>
+      <Toast.Portal>
+        <Toast.Viewport className="fixed top-auto right-[1rem] bottom-[1rem] mx-auto flex w-[250px] sm:right-[2rem] sm:bottom-[2rem] sm:w-[300px]">
+          <ToastList />
+        </Toast.Viewport>
+      </Toast.Portal>
     </Toast.Provider>
   );
 }
