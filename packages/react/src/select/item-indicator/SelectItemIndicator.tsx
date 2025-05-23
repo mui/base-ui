@@ -17,7 +17,25 @@ export const SelectItemIndicator = React.forwardRef(function SelectItemIndicator
   componentProps: SelectItemIndicator.Props,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
-  const { render, className, keepMounted = false, ...elementProps } = componentProps;
+  const keepMounted = componentProps.keepMounted ?? false;
+
+  const { selected } = useSelectItemContext();
+
+  const shouldRender = keepMounted || selected;
+  if (!shouldRender) {
+    return null;
+  }
+
+  return <Inner {...componentProps} ref={forwardedRef} />;
+});
+
+/** The core implementation of the indicator is split here to avoid paying the hooks
+ * costs unless the element needs to be mounted. */
+const Inner = React.memo(React.forwardRef((
+  componentProps: SelectItemIndicator.Props,
+  forwardedRef: React.ForwardedRef<HTMLSpanElement>,
+) => {
+  const { render, className, keepMounted, ...elementProps } = componentProps;
 
   const { selected } = useSelectItemContext();
 
@@ -57,13 +75,8 @@ export const SelectItemIndicator = React.forwardRef(function SelectItemIndicator
     },
   });
 
-  const shouldRender = keepMounted || selected;
-  if (!shouldRender) {
-    return null;
-  }
-
   return element;
-});
+}));
 
 export namespace SelectItemIndicator {
   export interface Props extends BaseUIComponentProps<'span', State> {
