@@ -52,7 +52,7 @@ export const NumberFieldScrubAreaCursor = React.forwardRef(function NumberFieldS
     customStyleHookMapping: styleHookMapping,
   });
 
-  return ReactDOM.createPortal(renderedElement, ownerDocument(element).body);
+  return renderedElement && ReactDOM.createPortal(renderedElement, ownerDocument(element).body);
 });
 
 export namespace NumberFieldScrubAreaCursor {
