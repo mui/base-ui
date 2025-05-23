@@ -3,16 +3,15 @@ import * as React from 'react';
 import { FloatingEvents, useFloatingTree } from '@floating-ui/react';
 import { useMenuItem } from './useMenuItem';
 import { useMenuRootContext } from '../root/MenuRootContext';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import { useRenderElement } from '../../utils/useRenderElement';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import { useForkRef } from '../../utils/useForkRef';
 import { useCompositeListItem } from '../../composite/list/useCompositeListItem';
-import { mergeProps } from '../../merge-props';
 
 const InnerMenuItem = React.memo(
   React.forwardRef(function InnerMenuItem(
-    props: InnerMenuItemProps,
+    componentProps: InnerMenuItemProps,
     forwardedRef: React.ForwardedRef<Element>,
   ) {
     const {
@@ -26,10 +25,10 @@ const InnerMenuItem = React.memo(
       render,
       allowMouseUpTriggerRef,
       typingRef,
-      ...other
-    } = props;
+      ...elementProps
+    } = componentProps;
 
-    const { getItemProps } = useMenuItem({
+    const { getItemProps, itemRef } = useMenuItem({
       closeOnClick,
       disabled,
       highlighted,
@@ -47,15 +46,11 @@ const InnerMenuItem = React.memo(
       [disabled],
     );
 
-    const { renderElement } = useComponentRenderer({
-      render: render || 'div',
-      className,
+    return useRenderElement('div', componentProps, {
       state,
-      propGetter: (externalProps) => mergeProps(itemProps, externalProps, getItemProps),
-      extraProps: other,
+      ref: itemRef,
+      props: [itemProps, elementProps, getItemProps],
     });
-
-    return renderElement();
   }),
 );
 

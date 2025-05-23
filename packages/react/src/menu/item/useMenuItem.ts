@@ -72,7 +72,7 @@ export function useMenuItem(params: useMenuItem.Parameters): useMenuItem.ReturnV
   return React.useMemo(
     () => ({
       getItemProps,
-      rootRef: mergedRef,
+      itemRef: mergedRef,
     }),
     [getItemProps, mergedRef],
   );
@@ -124,6 +124,6 @@ export namespace useMenuItem {
     /**
      * The ref to the component's root DOM element.
      */
-    rootRef: React.RefCallback<Element> | null;
+    itemRef: React.RefCallback<Element> | null;
   }
 }
