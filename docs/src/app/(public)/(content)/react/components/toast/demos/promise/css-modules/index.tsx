@@ -7,9 +7,11 @@ export default function PromiseToastExample() {
   return (
     <Toast.Provider>
       <PromiseDemo />
-      <Toast.Viewport className={styles.Viewport}>
-        <ToastList />
-      </Toast.Viewport>
+      <Toast.Portal>
+        <Toast.Viewport className={styles.Viewport}>
+          <ToastList />
+        </Toast.Viewport>
+      </Toast.Portal>
     </Toast.Provider>
   );
 }
