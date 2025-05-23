@@ -31,52 +31,56 @@ export const SelectItemIndicator = React.forwardRef(function SelectItemIndicator
 
 /** The core implementation of the indicator is split here to avoid paying the hooks
  * costs unless the element needs to be mounted. */
-const Inner = React.memo(React.forwardRef((
-  componentProps: SelectItemIndicator.Props,
-  forwardedRef: React.ForwardedRef<HTMLSpanElement>,
-) => {
-  const { render, className, keepMounted, ...elementProps } = componentProps;
+const Inner = React.memo(
+  React.forwardRef(
+    (
+      componentProps: SelectItemIndicator.Props,
+      forwardedRef: React.ForwardedRef<HTMLSpanElement>,
+    ) => {
+      const { render, className, keepMounted, ...elementProps } = componentProps;
 
-  const { selected } = useSelectItemContext();
+      const { selected } = useSelectItemContext();
 
-  const indicatorRef = React.useRef<HTMLSpanElement | null>(null);
+      const indicatorRef = React.useRef<HTMLSpanElement | null>(null);
 
-  const { mounted, transitionStatus, setMounted } = useTransitionStatus(selected);
+      const { mounted, transitionStatus, setMounted } = useTransitionStatus(selected);
 
-  const state: SelectItemIndicator.State = React.useMemo(
-    () => ({
-      selected,
-      transitionStatus,
-    }),
-    [selected, transitionStatus],
-  );
+      const state: SelectItemIndicator.State = React.useMemo(
+        () => ({
+          selected,
+          transitionStatus,
+        }),
+        [selected, transitionStatus],
+      );
 
-  const element = useRenderElement('span', componentProps, {
-    ref: [forwardedRef, indicatorRef],
-    state,
-    props: [
-      {
-        hidden: !mounted,
-        'aria-hidden': true,
-        children: '✔️',
-      },
-      elementProps,
-    ],
-    customStyleHookMapping: transitionStatusMapping,
-  });
+      const element = useRenderElement('span', componentProps, {
+        ref: [forwardedRef, indicatorRef],
+        state,
+        props: [
+          {
+            hidden: !mounted,
+            'aria-hidden': true,
+            children: '✔️',
+          },
+          elementProps,
+        ],
+        customStyleHookMapping: transitionStatusMapping,
+      });
 
-  useOpenChangeComplete({
-    open: selected,
-    ref: indicatorRef,
-    onComplete() {
-      if (!selected) {
-        setMounted(false);
-      }
+      useOpenChangeComplete({
+        open: selected,
+        ref: indicatorRef,
+        onComplete() {
+          if (!selected) {
+            setMounted(false);
+          }
+        },
+      });
+
+      return element;
     },
-  });
-
-  return element;
-}));
+  ),
+);
 
 export namespace SelectItemIndicator {
   export interface Props extends BaseUIComponentProps<'span', State> {

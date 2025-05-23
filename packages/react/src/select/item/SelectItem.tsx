@@ -108,6 +108,7 @@ export const SelectItem = React.memo(
     const cursorMovementTimeout = useTimeout();
 
     const { getButtonProps } = useButton({
+      elementName: 'div',
       disabled,
       focusableWhenDisabled: true,
     });
