@@ -53,6 +53,8 @@ export function useRadioGroup(params: useRadioGroup.Parameters) {
     commitValidation: fieldControlValidation.commitValidation,
     value: checkedValue,
     controlRef: fieldControlValidation.inputRef,
+    name,
+    getValue: () => checkedValue ?? null,
   });
 
   const prevValueRef = React.useRef(checkedValue);
