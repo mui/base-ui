@@ -105,6 +105,7 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
       disabled={!mounted}
       returnFocus={returnFocus}
       initialFocus={parent.type === 'menu' ? -1 : 0}
+      restoreFocus
     >
       {renderElement()}
     </FloatingFocusManager>
