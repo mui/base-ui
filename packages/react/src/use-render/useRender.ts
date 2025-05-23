@@ -20,6 +20,8 @@ export function useRender<
   return useRenderElement(undefined, renderParams, renderParams);
 }
 
+export { useRenderElement } from '../utils/useRenderElement';
+
 export namespace useRender {
   export type RenderProp<State = Record<string, unknown>> =
     | ComponentRenderFn<React.HTMLAttributes<any>, State>
