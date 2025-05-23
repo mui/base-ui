@@ -6,6 +6,7 @@ import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import type { TooltipOpenChangeReason } from './useTooltipRoot';
 
 export interface TooltipRootContext {
+  disabled: boolean;
   open: boolean;
   setOpen: (
     open: boolean,
@@ -24,10 +25,10 @@ export interface TooltipRootContext {
   popupProps: HTMLProps;
   instantType: 'delay' | 'dismiss' | 'focus' | undefined;
   floatingRootContext: FloatingRootContext;
-  trackCursorAxis: 'none' | 'x' | 'y' | 'both';
   transitionStatus: TransitionStatus;
   onOpenChangeComplete: ((open: boolean) => void) | undefined;
   hoverable: boolean;
+  trackCursorAxisRef: React.RefObject<'none' | 'x' | 'y' | 'both'>;
 }
 
 export const TooltipRootContext = React.createContext<TooltipRootContext | undefined>(undefined);

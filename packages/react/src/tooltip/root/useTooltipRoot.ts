@@ -2,7 +2,6 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import {
   safePolygon,
-  useClientPoint,
   useNextDelayGroup,
   useDismiss,
   useFloatingRootContext,
@@ -10,6 +9,7 @@ import {
   useHover,
   useInteractions,
   type FloatingRootContext,
+  type UseHoverProps,
 } from '@floating-ui/react';
 import { useControlled } from '../../utils/useControlled';
 import { useTransitionStatus } from '../../utils/useTransitionStatus';
@@ -32,7 +32,6 @@ export function useTooltipRoot(params: useTooltipRoot.Parameters): useTooltipRoo
     onOpenChange: onOpenChangeProp,
     defaultOpen = false,
     hoverable = true,
-    trackCursorAxis = 'none',
     delay,
     closeDelay,
     onOpenChangeComplete,
@@ -47,6 +46,7 @@ export function useTooltipRoot(params: useTooltipRoot.Parameters): useTooltipRoo
   const [instantTypeState, setInstantTypeState] = React.useState<'dismiss' | 'focus'>();
 
   const popupRef = React.useRef<HTMLElement>(null);
+  const trackCursorAxisRef = React.useRef<'none' | 'x' | 'y' | 'both'>('none');
 
   const [open, setOpenUnwrapped] = useControlled({
     controlled: externalOpen,
@@ -124,11 +124,17 @@ export function useTooltipRoot(params: useTooltipRoot.Parameters): useTooltipRoo
 
   const instantType = isInstantPhase ? ('delay' as const) : instantTypeState;
 
+  const handleClose: NonNullable<UseHoverProps['handleClose']> = (data) => {
+    return trackCursorAxisRef.current !== 'both' ? safePolygon()(data) : () => data.onClose();
+  };
+  // eslint-disable-next-line no-underscore-dangle
+  handleClose.__options = { blockPointerEvents: false };
+
   const hover = useHover(context, {
     enabled: !disabled,
     mouseOnly: true,
     move: false,
-    handleClose: hoverable && trackCursorAxis !== 'both' ? safePolygon() : null,
+    handleClose: hoverable ? handleClose : undefined,
     restMs() {
       const providerDelay = providerContext?.delay;
       const groupOpenValue =
@@ -161,17 +167,8 @@ export function useTooltipRoot(params: useTooltipRoot.Parameters): useTooltipRoo
   });
   const focus = useFocus(context, { enabled: !disabled });
   const dismiss = useDismiss(context, { enabled: !disabled, referencePress: true });
-  const clientPoint = useClientPoint(context, {
-    enabled: !disabled && trackCursorAxis !== 'none',
-    axis: trackCursorAxis === 'none' ? undefined : trackCursorAxis,
-  });
 
-  const { getReferenceProps, getFloatingProps } = useInteractions([
-    hover,
-    focus,
-    dismiss,
-    clientPoint,
-  ]);
+  const { getReferenceProps, getFloatingProps } = useInteractions([hover, focus, dismiss]);
 
   return React.useMemo(
     () => ({
@@ -189,6 +186,7 @@ export function useTooltipRoot(params: useTooltipRoot.Parameters): useTooltipRoo
       instantType,
       transitionStatus,
       onOpenChangeComplete,
+      trackCursorAxisRef,
     }),
     [
       mounted,
@@ -285,6 +283,7 @@ export namespace useTooltipRoot {
     setPositionerElement: React.Dispatch<React.SetStateAction<HTMLElement | null>>;
     popupRef: React.RefObject<HTMLElement | null>;
     onOpenChangeComplete: ((open: boolean) => void) | undefined;
+    trackCursorAxisRef: React.RefObject<'none' | 'x' | 'y' | 'both'>;
   }
 
   export interface Actions {
