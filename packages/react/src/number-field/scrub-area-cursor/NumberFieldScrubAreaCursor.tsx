@@ -8,7 +8,7 @@ import type { NumberFieldRoot } from '../root/NumberFieldRoot';
 import { ownerDocument } from '../../utils/owner';
 import { styleHookMapping } from '../utils/styleHooks';
 import { useNumberFieldScrubAreaContext } from '../scrub-area/NumberFieldScrubAreaContext';
-import { useRenderElementLazy } from '../../utils/useRenderElement';
+import { useRenderElement } from '../../utils/useRenderElement';
 
 /**
  * A custom element to display instead of the native cursor while using the scrub area.
@@ -31,7 +31,10 @@ export const NumberFieldScrubAreaCursor = React.forwardRef(function NumberFieldS
 
   const [element, setElement] = React.useState<Element | null>(null);
 
-  const renderElement = useRenderElementLazy('span', componentProps, {
+  const shouldRender = isScrubbing && !isWebKit && !isTouchInput && !isPointerLockDenied;
+
+  const renderedElement = useRenderElement('span', componentProps, {
+    enabled: shouldRender,
     ref: [forwardedRef, scrubAreaCursorRef, setElement],
     state,
     props: [
@@ -49,11 +52,7 @@ export const NumberFieldScrubAreaCursor = React.forwardRef(function NumberFieldS
     customStyleHookMapping: styleHookMapping,
   });
 
-  if (!isScrubbing || isWebKit || isTouchInput || isPointerLockDenied) {
-    return null;
-  }
-
-  return ReactDOM.createPortal(renderElement(), ownerDocument(element).body);
+  return ReactDOM.createPortal(renderedElement, ownerDocument(element).body);
 });
 
 export namespace NumberFieldScrubAreaCursor {
