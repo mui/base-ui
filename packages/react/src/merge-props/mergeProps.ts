@@ -200,7 +200,10 @@ export function makeEventPreventable<T extends React.SyntheticEvent>(event: Base
   return event;
 }
 
-function mergeClassNames(ourClassName: string | undefined, theirClassName: string | undefined) {
+export function mergeClassNames(
+  ourClassName: string | undefined,
+  theirClassName: string | undefined,
+) {
   if (theirClassName) {
     if (ourClassName) {
       // eslint-disable-next-line prefer-template
