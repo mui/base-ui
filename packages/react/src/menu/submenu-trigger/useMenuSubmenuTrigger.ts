@@ -16,12 +16,11 @@ export function useMenuSubmenuTrigger(
     ref: externalRef,
     menuEvents,
     setTriggerElement,
-    allowMouseUpTriggerRef,
     typingRef,
     setActiveIndex,
   } = parameters;
 
-  const { open } = useMenuRootContext();
+  const { open, allowMouseUpTriggerRef } = useMenuRootContext();
 
   const { getItemProps, rootRef: menuItemRef } = useMenuItem({
     closeOnClick: false,
@@ -82,10 +81,6 @@ export namespace useMenuSubmenuTrigger {
      * A callback to set the trigger element whenever it's mounted.
      */
     setTriggerElement: (element: HTMLElement | null) => void;
-    /**
-     * Whether to treat mouseup events as clicks.
-     */
-    allowMouseUpTriggerRef: React.RefObject<boolean>;
     /**
      * A ref that is set to `true` when the user is using the typeahead feature.
      */

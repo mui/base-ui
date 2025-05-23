@@ -45,8 +45,9 @@ export function TooltipRoot(props: TooltipRoot.Props) {
       delay: delayWithDefault,
       closeDelay: closeDelayWithDefault,
       disabled,
+      hoverable,
     }),
-    [tooltipRoot, delayWithDefault, closeDelayWithDefault, disabled],
+    [tooltipRoot, delayWithDefault, closeDelayWithDefault, disabled, hoverable],
   );
 
   return (

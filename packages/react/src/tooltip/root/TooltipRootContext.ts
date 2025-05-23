@@ -27,6 +27,7 @@ export interface TooltipRootContext {
   floatingRootContext: FloatingRootContext;
   transitionStatus: TransitionStatus;
   onOpenChangeComplete: ((open: boolean) => void) | undefined;
+  hoverable: boolean;
 }
 
 export const TooltipRootContext = React.createContext<TooltipRootContext | undefined>(undefined);

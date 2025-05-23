@@ -7,7 +7,7 @@ import { useTooltipTrackCursorAxisContext } from '../features/TooltipTrackCursor
 export function useTooltipPositioner(
   params: useTooltipPositioner.Parameters,
 ): useTooltipPositioner.ReturnValue {
-  const { open, mounted } = useTooltipRootContext();
+  const { open, mounted, hoverable } = useTooltipRootContext();
 
   const positioning = useAnchorPositioning(params);
   const { value: trackCursorAxis } = useTooltipTrackCursorAxisContext();
@@ -15,7 +15,7 @@ export function useTooltipPositioner(
   const props = React.useMemo<HTMLProps>(() => {
     const hiddenStyles: React.CSSProperties = {};
 
-    if (!open || trackCursorAxis === 'both') {
+    if (!open || trackCursorAxis === 'both' || !hoverable) {
       hiddenStyles.pointerEvents = 'none';
     }
 
@@ -27,7 +27,7 @@ export function useTooltipPositioner(
         ...hiddenStyles,
       },
     };
-  }, [open, trackCursorAxis, mounted, positioning.positionerStyles]);
+  }, [open, trackCursorAxis, hoverable, mounted, positioning.positionerStyles]);
 
   return React.useMemo(
     () => ({
