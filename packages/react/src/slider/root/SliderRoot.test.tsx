@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import * as React from 'react';
 import { spy, stub } from 'sinon';
-import { act, fireEvent, screen } from '@mui/internal-test-utils';
+import { act, flushMicrotasks, fireEvent, screen } from '@mui/internal-test-utils';
 import {
   DirectionProvider,
   type TextDirection,
@@ -21,6 +21,11 @@ import {
 import type { Orientation } from '../../utils/types';
 import type { SliderRoot } from './SliderRoot';
 import { isWebKit } from '../../utils/detectBrowser';
+
+const USD_NUMBER_FORMAT: Intl.NumberFormatOptions = {
+  style: 'currency',
+  currency: 'USD',
+};
 
 type Touches = Array<Pick<Touch, 'identifier' | 'clientX' | 'clientY'>>;
 
@@ -1751,15 +1756,11 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
 
   describe('prop: format', () => {
     it('formats the value', async () => {
-      const format: Intl.NumberFormatOptions = {
-        style: 'currency',
-        currency: 'USD',
-      };
       function formatValue(v: number) {
-        return new Intl.NumberFormat(undefined, format).format(v);
+        return new Intl.NumberFormat(undefined, USD_NUMBER_FORMAT).format(v);
       }
       const { getByRole, getByTestId } = await render(
-        <TestSlider defaultValue={50} format={format} />,
+        <TestSlider defaultValue={50} format={USD_NUMBER_FORMAT} />,
       );
       const value = getByTestId('value');
       const slider = getByRole('slider');
@@ -1768,15 +1769,11 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
     });
 
     it('formats range values', async () => {
-      const format: Intl.NumberFormatOptions = {
-        style: 'currency',
-        currency: 'USD',
-      };
       function formatValue(v: number) {
-        return new Intl.NumberFormat(undefined, format).format(v);
+        return new Intl.NumberFormat(undefined, USD_NUMBER_FORMAT).format(v);
       }
       const { getAllByRole, getByTestId } = await render(
-        <TestRangeSlider defaultValue={[50, 75]} format={format} />,
+        <TestRangeSlider defaultValue={[50, 75]} format={USD_NUMBER_FORMAT} />,
       );
       const value = getByTestId('value');
       expect(value).to.have.text(`${formatValue(50)} – ${formatValue(75)}`);
@@ -1816,34 +1813,6 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
     });
   });
 
-  describe.skipIf(isJSDOM)('form handling', () => {
-    it('should include the slider value in the form submission', async () => {
-      let stringifiedFormData = '';
-
-      const { getByRole } = await render(
-        <form
-          onSubmit={(event) => {
-            event.preventDefault();
-            const formData = new FormData(event.currentTarget);
-            stringifiedFormData = new URLSearchParams(formData as any).toString();
-          }}
-        >
-          <Slider.Root name="slider" defaultValue={25}>
-            <Slider.Control>
-              <Slider.Thumb />
-            </Slider.Control>
-          </Slider.Root>
-          <button type="submit">Submit</button>
-        </form>,
-      );
-
-      const submit = getByRole('button');
-      fireEvent.click(submit);
-
-      expect(stringifiedFormData).to.equal('slider=25');
-    });
-  });
-
   describe('Form', () => {
     it('clears errors on change', async () => {
       function App() {
@@ -1875,6 +1844,57 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
       expect(slider).not.to.have.attribute('aria-invalid');
       expect(screen.queryByTestId('error')).to.equal(null);
     });
+
+    describe.skipIf(isJSDOM)('form submission', () => {
+      it('should include the slider value', async () => {
+        const { getByRole } = await render(
+          <Form
+            onSubmit={(event) => {
+              event.preventDefault();
+              const formData = new FormData(event.currentTarget);
+              expect(formData.get('slider')).to.equal('25');
+            }}
+          >
+            <Field.Root name="slider">
+              <Slider.Root defaultValue={25} format={USD_NUMBER_FORMAT}>
+                <Slider.Control>
+                  <Slider.Thumb />
+                </Slider.Control>
+              </Slider.Root>
+            </Field.Root>
+            <button type="submit">Submit</button>
+          </Form>,
+        );
+
+        const submit = getByRole('button');
+        fireEvent.click(submit);
+      });
+
+      it('should include range slider value', async () => {
+        const { getByRole } = await render(
+          <Form
+            onSubmit={(event) => {
+              event.preventDefault();
+              const formData = new FormData(event.currentTarget);
+              expect(formData.getAll('slider')).to.deep.equal(['25', '50']);
+            }}
+          >
+            <Field.Root name="slider">
+              <Slider.Root defaultValue={[25, 50]} format={USD_NUMBER_FORMAT}>
+                <Slider.Control>
+                  <Slider.Thumb />
+                  <Slider.Thumb />
+                </Slider.Control>
+              </Slider.Root>
+            </Field.Root>
+            <button type="submit">Submit</button>
+          </Form>,
+        );
+
+        const submit = getByRole('button');
+        fireEvent.click(submit);
+      });
+    });
   });
 
   describe('Field', () => {
@@ -1894,18 +1914,17 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
     });
 
     it('should receive name prop from Field.Root', async () => {
-      const { getByTestId } = await render(
+      const { container } = await render(
         <Field.Root name="field-slider">
           <Slider.Root>
             <Slider.Control>
-              <Slider.Thumb data-testid="thumb" />
+              <Slider.Thumb />
             </Slider.Control>
           </Slider.Root>
         </Field.Root>,
       );
 
-      const thumb = getByTestId('thumb');
-      const input = thumb.querySelector('input');
+      const input = container.querySelector('input[type="hidden"]');
       expect(input).to.have.attribute('name', 'field-slider');
     });
 
@@ -1975,27 +1994,50 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
       expect(root).not.to.have.attribute('data-focused');
     });
 
-    it('prop: validate', async () => {
-      const { container } = await render(
-        <Field.Root validate={() => 'error'}>
-          <Slider.Root>
-            <Slider.Control>
-              <Slider.Thumb data-testid="thumb" />
-            </Slider.Control>
-          </Slider.Root>
-          <Field.Error data-testid="error" />
-        </Field.Root>,
-      );
+    describe('prop: validate', async () => {
+      it('runs on blur by default', async () => {
+        await render(
+          <Field.Root validate={() => 'error'}>
+            <Slider.Root>
+              <Slider.Control>
+                <Slider.Thumb data-testid="thumb" />
+              </Slider.Control>
+            </Slider.Root>
+            <Field.Error data-testid="error" />
+          </Field.Root>,
+        );
 
-      const input = container.querySelector<HTMLInputElement>('input')!;
-      const thumb = screen.getByTestId('thumb');
+        const input = screen.getByRole('slider');
+        expect(input).not.to.have.attribute('aria-invalid');
 
-      expect(input).not.to.have.attribute('aria-invalid');
+        const thumb = screen.getByTestId('thumb');
+        fireEvent.focus(thumb);
+        fireEvent.blur(thumb);
+        await flushMicrotasks();
+        expect(input).to.have.attribute('aria-invalid', 'true');
+      });
 
-      fireEvent.focus(thumb);
-      fireEvent.blur(thumb);
+      it('receives an array value for range sliders', async () => {
+        const validateSpy = spy();
+        await render(
+          <Field.Root validate={validateSpy}>
+            <Slider.Root defaultValue={[5, 12]}>
+              <Slider.Control>
+                <Slider.Thumb data-testid="thumb" />
+                <Slider.Thumb />
+              </Slider.Control>
+            </Slider.Root>
+            <Field.Error data-testid="error" />
+          </Field.Root>,
+        );
 
-      expect(input).to.have.attribute('aria-invalid', 'true');
+        const thumb = screen.getByTestId('thumb');
+        fireEvent.focus(thumb);
+        fireEvent.blur(thumb);
+        await flushMicrotasks();
+        expect(validateSpy.callCount).to.equal(1);
+        expect(validateSpy.args[0][0]).to.deep.equal([5, 12]);
+      });
     });
 
     it('prop: validationMode=onChange', async () => {
@@ -2015,16 +2057,15 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
       );
 
       const input = container.querySelector<HTMLInputElement>('input')!;
-
       expect(input).not.to.have.attribute('aria-invalid');
 
       fireEvent.change(input, { target: { value: '1' } });
-
+      await flushMicrotasks();
       expect(input).to.have.attribute('aria-invalid', 'true');
     });
 
     it('prop: validationMode=onBlur', async () => {
-      const { container } = await render(
+      await render(
         <Field.Root
           validationMode="onBlur"
           validate={(value) => {
@@ -2040,14 +2081,12 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
         </Field.Root>,
       );
 
-      const input = container.querySelector<HTMLInputElement>('input')!;
-      const thumb = screen.getByTestId('thumb');
-
+      const input = screen.getByRole('slider');
       expect(input).not.to.have.attribute('aria-invalid');
 
       fireEvent.change(input, { target: { value: '1' } });
-      fireEvent.blur(thumb);
-
+      fireEvent.blur(screen.getByTestId('thumb'));
+      await flushMicrotasks();
       expect(input).to.have.attribute('aria-invalid', 'true');
     });
 
