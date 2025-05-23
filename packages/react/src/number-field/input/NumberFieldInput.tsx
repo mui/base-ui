@@ -119,7 +119,6 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
   const inputProps: React.ComponentProps<'input'> = {
     id,
     required,
-    name,
     disabled,
     readOnly,
     inputMode,
