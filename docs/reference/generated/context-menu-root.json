@@ -39,7 +39,7 @@
       "description": "Whether to loop keyboard focus back to the first item\nwhen the end of the list is reached while using the arrow keys."
     },
     "orientation": {
-      "type": "MenuOrientation",
+      "type": "Menu.Root.Orientation",
       "default": "'vertical'",
       "description": "The visual orientation of the menu.\nControls whether roving focus uses up/down or left/right arrow keys."
     },
