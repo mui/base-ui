@@ -5,11 +5,11 @@ import { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { useMenuSubmenuTrigger } from './useMenuSubmenuTrigger';
 import { useForkRef } from '../../utils/useForkRef';
 import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
 import { useCompositeListItem } from '../../composite/list/useCompositeListItem';
 import { mergeProps } from '../../merge-props';
+import { useMenuItem } from '../item/useMenuItem';
 
 /**
  * A menu item that opens a submenu.
@@ -31,6 +31,7 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
     open,
     typingRef,
     disabled,
+    allowMouseUpTriggerRef,
   } = useMenuRootContext();
 
   if (parent.type !== 'menu') {
@@ -48,16 +49,35 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
 
   const { events: menuEvents } = useFloatingTree()!;
 
-  const { getTriggerProps } = useMenuSubmenuTrigger({
-    id,
-    highlighted,
-    ref: mergedRef,
+  const { getItemProps, rootRef: menuItemRef } = useMenuItem({
+    closeOnClick: false,
     disabled,
+    highlighted,
+    id,
     menuEvents,
-    setTriggerElement,
+    ref: mergedRef,
+    allowMouseUpTriggerRef,
     typingRef,
-    setActiveIndex,
   });
+
+  const triggerRef = React.useRef<HTMLDivElement | null>(null);
+  const menuTriggerRef = useForkRef(triggerRef, menuItemRef, setTriggerElement);
+
+  const getTriggerProps = React.useCallback(
+    (externalProps?: HTMLProps) => {
+      return {
+        ...getItemProps(externalProps),
+        tabIndex: open || highlighted ? 0 : -1,
+        ref: menuTriggerRef,
+        onBlur() {
+          if (highlighted) {
+            setActiveIndex(null);
+          }
+        },
+      };
+    },
+    [getItemProps, highlighted, menuTriggerRef, open, setActiveIndex],
+  );
 
   const state: MenuSubmenuTrigger.State = React.useMemo(
     () => ({ disabled, highlighted, open }),
