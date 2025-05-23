@@ -123,7 +123,7 @@ export function useAnchorPositioning(
   } as const;
 
   // Using a ref assumes that the arrow element is always present in the DOM for the lifetime of the
-  // tooltip. If this assumption ends up being false, we can switch to state to manage the arrow's
+  // popup. If this assumption ends up being false, we can switch to state to manage the arrow's
   // presence.
   const arrowRef = React.useRef<Element | null>(null);
 
@@ -172,7 +172,7 @@ export function useAnchorPositioning(
           fallbackAxisSideDirection: collisionAvoidanceFallbackAxisSide,
         });
   const shiftMiddleware =
-    collisionAvoidanceAlign === 'none'
+    collisionAvoidanceAlign === 'none' && collisionAvoidanceSide !== 'shift'
       ? null
       : shift(
           (data) => {
@@ -184,6 +184,7 @@ export function useAnchorPositioning(
               rootBoundary: shiftCrossAxis
                 ? { x: 0, y: 0, width: html.clientWidth, height: html.clientHeight }
                 : undefined,
+              mainAxis: collisionAvoidanceAlign !== 'none',
               crossAxis: sticky || shiftCrossAxis || collisionAvoidanceSide === 'shift',
               limiter:
                 sticky || shiftCrossAxis
@@ -201,7 +202,7 @@ export function useAnchorPositioning(
                     }),
             };
           },
-          [commonCollisionProps, sticky, shiftCrossAxis, collisionPadding],
+          [commonCollisionProps, sticky, shiftCrossAxis, collisionPadding, collisionAvoidanceAlign],
         );
 
   // https://floating-ui.com/docs/flip#combining-with-shift
