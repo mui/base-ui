@@ -1,12 +1,11 @@
 'use client';
 import * as React from 'react';
 import { useMenuRadioItemContext } from '../radio-item/MenuRadioItemContext';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import { useRenderElementLazy } from '../../utils/useRenderElement';
 import { BaseUIComponentProps } from '../../utils/types';
 import { itemMapping } from '../utils/styleHookMapping';
 import { TransitionStatus, useTransitionStatus } from '../../utils/useTransitionStatus';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
-import { useForkRef } from '../../utils/useForkRef';
 
 /**
  * Indicates whether the radio item is selected.
@@ -15,15 +14,14 @@ import { useForkRef } from '../../utils/useForkRef';
  * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
  */
 export const MenuRadioItemIndicator = React.forwardRef(function MenuRadioItemIndicator(
-  props: MenuRadioItemIndicator.Props,
+  componentProps: MenuRadioItemIndicator.Props,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
-  const { render, className, keepMounted = false, ...other } = props;
+  const { render, className, keepMounted = false, ...elementProps } = componentProps;
 
   const item = useMenuRadioItemContext();
 
   const indicatorRef = React.useRef<HTMLSpanElement | null>(null);
-  const mergedRef = useForkRef(forwardedRef, indicatorRef);
 
   const { transitionStatus, setMounted } = useTransitionStatus(item.checked);
 
@@ -47,16 +45,14 @@ export const MenuRadioItemIndicator = React.forwardRef(function MenuRadioItemInd
     [item.checked, item.disabled, item.highlighted, transitionStatus],
   );
 
-  const { renderElement } = useComponentRenderer({
-    render: render || 'span',
-    className,
+  const renderElement = useRenderElementLazy('span', componentProps, {
     state,
     customStyleHookMapping: itemMapping,
-    extraProps: {
+    ref: [forwardedRef, indicatorRef],
+    props: {
       'aria-hidden': true,
-      ...other,
+      ...elementProps,
     },
-    ref: mergedRef,
   });
 
   const shouldRender = keepMounted || item.checked;
