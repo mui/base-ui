@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import { contains } from '@floating-ui/react/utils';
+import type { MenuParent, MenuRoot } from '../root/MenuRoot';
 import { useButton } from '../../use-button/useButton';
 import { useForkRef } from '../../utils/useForkRef';
 import { HTMLProps } from '../../utils/types';
@@ -8,7 +9,6 @@ import { useTimeout } from '../../utils/useTimeout';
 import { mergeProps } from '../../merge-props';
 import { ownerDocument } from '../../utils/owner';
 import { getPseudoElementBounds } from '../../utils/getPseudoElementBounds';
-import { useMenuRoot, type MenuOpenChangeReason } from '../root/useMenuRoot';
 import { useEventCallback } from '../../utils/useEventCallback';
 
 export function useMenuTrigger(parameters: useMenuTrigger.Parameters): useMenuTrigger.ReturnValue {
@@ -150,12 +150,12 @@ export namespace useMenuTrigger {
     setOpen: (
       open: boolean,
       event: Event | undefined,
-      reason: MenuOpenChangeReason | undefined,
+      reason: MenuRoot.OpenChangeReason | undefined,
     ) => void;
     allowMouseUpTriggerRef: React.RefObject<boolean>;
     positionerRef: React.RefObject<HTMLElement | null>;
-    menuParent: useMenuRoot.MenuParent;
-    lastOpenChangeReason: MenuOpenChangeReason | null;
+    menuParent: MenuParent;
+    lastOpenChangeReason: MenuRoot.OpenChangeReason | null;
   }
 
   export interface ReturnValue {

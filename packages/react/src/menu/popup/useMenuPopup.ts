@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import type { FloatingEvents } from '@floating-ui/react';
-import type { MenuOpenChangeReason } from '../root/useMenuRoot';
+import type { MenuRoot } from '../root/MenuRoot';
 
 export function useMenuPopup(parameters: useMenuPopup.Parameters): useMenuPopup.ReturnValue {
   const { menuEvents, setOpen } = parameters;
@@ -9,7 +9,7 @@ export function useMenuPopup(parameters: useMenuPopup.Parameters): useMenuPopup.
   React.useEffect(() => {
     function handleClose(event: {
       domEvent: Event | undefined;
-      reason: MenuOpenChangeReason | undefined;
+      reason: MenuRoot.OpenChangeReason | undefined;
     }) {
       setOpen(false, event.domEvent, event.reason);
     }
@@ -34,7 +34,7 @@ export namespace useMenuPopup {
     setOpen: (
       open: boolean,
       event: Event | undefined,
-      reason: MenuOpenChangeReason | undefined,
+      reason: MenuRoot.OpenChangeReason | undefined,
     ) => void;
   }
 
