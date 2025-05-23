@@ -64,7 +64,13 @@ export namespace useRender {
      * internal ones.
      */
     props?: Record<string, unknown>;
+    /**
+     * If `false`, the hook will skip most of its internal logic and return `null`.
+     * This is useful for rendering a component conditionally.
+     * @default true
+     */
+    enabled?: boolean;
   }
 
-  export type ReturnValue = React.ReactElement;
+  export type ReturnValue = React.ReactElement | null;
 }

@@ -51,7 +51,7 @@ export function formatType(
   jsdocTags: rae.DocumentationTag[] | undefined = undefined,
   expandObjects: boolean = false,
 ): string {
-  const typeTag = jsdocTags?.find((tag) => tag.name === 'type');
+  const typeTag = jsdocTags?.find?.((tag) => tag.name === 'type');
   const typeValue = typeTag?.value;
 
   if (typeValue) {
