@@ -8,6 +8,7 @@ import {
   useHover,
   useInteractions,
   useRole,
+  FloatingTree,
 } from '@floating-ui/react';
 import { useClick } from '../../utils/floating-ui/useClick';
 import { useTimeout } from '../../utils/useTimeout';
@@ -20,15 +21,13 @@ import { translateOpenChangeReason } from '../../utils/translateOpenChangeReason
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { PATIENT_CLICK_THRESHOLD } from '../../utils/constants';
 import { useScrollLock } from '../../utils/useScrollLock';
-import { PopoverOpenChangeReason, PopoverRootContext } from './PopoverRootContext';
+import {
+  PopoverOpenChangeReason,
+  PopoverRootContext,
+  usePopoverRootContext,
+} from './PopoverRootContext';
 
-/**
- * Groups all parts of the popover.
- * Doesn’t render its own HTML element.
- *
- * Documentation: [Base UI Popover](https://base-ui.com/react/components/popover)
- */
-export const PopoverRoot: React.FC<PopoverRoot.Props> = function PopoverRoot(props) {
+function PopoverRootComponent({ props }: { props: PopoverRoot.Props }) {
   const {
     open: externalOpen,
     onOpenChange,
@@ -216,7 +215,25 @@ export const PopoverRoot: React.FC<PopoverRoot.Props> = function PopoverRoot(pro
       {props.children}
     </PopoverRootContext.Provider>
   );
-};
+}
+
+/**
+ * Groups all parts of the popover.
+ * Doesn’t render its own HTML element.
+ *
+ * Documentation: [Base UI Popover](https://base-ui.com/react/components/popover)
+ */
+export function PopoverRoot(props: PopoverRoot.Props) {
+  if (usePopoverRootContext(true)) {
+    return <PopoverRootComponent props={props} />;
+  }
+
+  return (
+    <FloatingTree>
+      <PopoverRootComponent props={props} />
+    </FloatingTree>
+  );
+}
 
 export namespace PopoverRoot {
   export interface State {}
