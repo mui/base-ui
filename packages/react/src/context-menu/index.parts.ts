@@ -14,6 +14,5 @@ export { MenuCheckboxItemIndicator as ItemIndicator } from '../menu/checkbox-ite
 export { MenuRadioGroup as RadioGroup } from '../menu/radio-group/MenuRadioGroup';
 export { MenuRadioItem as RadioItem } from '../menu/radio-item/MenuRadioItem';
 export { MenuRadioItemIndicator as RadioItemIndicator } from '../menu/radio-item-indicator/MenuRadioItemIndicator';
-export { MenuSubmenuTrigger as SubmenuTrigger } from '../menu/submenu-trigger/MenuSubmenuTrigger';
 
 export { Separator } from '../separator/Separator';
