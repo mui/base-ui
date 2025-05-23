@@ -28,7 +28,7 @@ export const CheckboxGroup = React.forwardRef(function CheckboxGroup(
     ...otherProps
   } = props;
 
-  const { disabled: fieldDisabled, state: fieldState } = useFieldRootContext();
+  const { disabled: fieldDisabled, state: fieldState, name: fieldName } = useFieldRootContext();
 
   const disabled = fieldDisabled || disabledProp;
 
@@ -57,6 +57,13 @@ export const CheckboxGroup = React.forwardRef(function CheckboxGroup(
     customStyleHookMapping: fieldValidityMapping,
   });
 
+  const serializedValue = React.useMemo(() => {
+    if (!value || value.length === 0) {
+      return 'off';
+    }
+    return value.toString();
+  }, [value]);
+
   const contextValue: CheckboxGroupContext = React.useMemo(
     () => ({
       allValues,
@@ -72,6 +79,7 @@ export const CheckboxGroup = React.forwardRef(function CheckboxGroup(
   return (
     <CheckboxGroupContext.Provider value={contextValue}>
       {renderElement()}
+      <input type="hidden" name={fieldName} value={serializedValue} />
     </CheckboxGroupContext.Provider>
   );
 });

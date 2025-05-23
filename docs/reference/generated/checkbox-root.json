@@ -27,7 +27,7 @@
       "description": "Whether the checkbox is in a mixed state: neither ticked, nor unticked."
     },
     "value": {
-      "type": "string | number",
+      "type": "string",
       "description": "The value of the selected checkbox."
     },
     "parent": {
