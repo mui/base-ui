@@ -4,12 +4,11 @@ import { useFloatingTree } from '@floating-ui/react';
 import { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { useBaseUiId } from '../../utils/useBaseUiId';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useForkRef } from '../../utils/useForkRef';
 import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
 import { useCompositeListItem } from '../../composite/list/useCompositeListItem';
-import { mergeProps } from '../../merge-props';
 import { useMenuItem } from '../item/useMenuItem';
+import { useRenderElement } from '../../utils/useRenderElement';
 
 /**
  * A menu item that opens a submenu.
@@ -18,10 +17,10 @@ import { useMenuItem } from '../item/useMenuItem';
  * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
  */
 export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerComponent(
-  props: MenuSubmenuTrigger.Props,
+  componentProps: MenuSubmenuTrigger.Props,
   forwardedRef: React.ForwardedRef<Element>,
 ) {
-  const { render, className, label, id: idProp, ...other } = props;
+  const { render, className, label, id: idProp, ...elementProps } = componentProps;
   const id = useBaseUiId(idProp);
 
   const {
@@ -49,7 +48,7 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
 
   const { events: menuEvents } = useFloatingTree()!;
 
-  const { getItemProps, rootRef: menuItemRef } = useMenuItem({
+  const { getItemProps, itemRef } = useMenuItem({
     closeOnClick: false,
     disabled,
     highlighted,
@@ -61,14 +60,12 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
   });
 
   const triggerRef = React.useRef<HTMLDivElement | null>(null);
-  const menuTriggerRef = useForkRef(triggerRef, menuItemRef, setTriggerElement);
 
   const getTriggerProps = React.useCallback(
     (externalProps?: HTMLProps) => {
       return {
         ...getItemProps(externalProps),
         tabIndex: open || highlighted ? 0 : -1,
-        ref: menuTriggerRef,
         onBlur() {
           if (highlighted) {
             setActiveIndex(null);
@@ -76,7 +73,7 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
         },
       };
     },
-    [getItemProps, highlighted, menuTriggerRef, open, setActiveIndex],
+    [getItemProps, highlighted, open, setActiveIndex],
   );
 
   const state: MenuSubmenuTrigger.State = React.useMemo(
@@ -84,17 +81,12 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
     [disabled, highlighted, open],
   );
 
-  const { renderElement } = useComponentRenderer({
-    render: render || 'div',
-    className,
+  return useRenderElement('div', componentProps, {
     state,
-    propGetter: (externalProps: HTMLProps) =>
-      mergeProps(rootTriggerProps, itemProps, externalProps, getTriggerProps),
+    ref: [triggerRef, itemRef, setTriggerElement],
     customStyleHookMapping: triggerOpenStateMapping,
-    extraProps: other,
+    props: [rootTriggerProps, itemProps, elementProps, getTriggerProps],
   });
-
-  return renderElement();
 });
 
 export namespace MenuSubmenuTrigger {

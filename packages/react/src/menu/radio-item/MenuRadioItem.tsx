@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { FloatingEvents, useFloatingTree } from '@floating-ui/react';
 import { useMenuRootContext } from '../root/MenuRootContext';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import { useRenderElement } from '../../utils/useRenderElement';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import { useForkRef } from '../../utils/useForkRef';
@@ -15,7 +15,7 @@ import { useMenuItem } from '../item/useMenuItem';
 
 const InnerMenuRadioItem = React.memo(
   React.forwardRef(function InnerMenuRadioItem(
-    props: InnerMenuRadioItemProps,
+    componentProps: InnerMenuRadioItemProps,
     forwardedRef: React.ForwardedRef<Element>,
   ) {
     const {
@@ -31,10 +31,10 @@ const InnerMenuRadioItem = React.memo(
       render,
       allowMouseUpTriggerRef,
       typingRef,
-      ...other
-    } = props;
+      ...elementProps
+    } = componentProps;
 
-    const { getItemProps: getMenuItemProps } = useMenuItem({
+    const { getItemProps: getMenuItemProps, itemRef } = useMenuItem({
       closeOnClick,
       disabled,
       highlighted,
@@ -64,16 +64,12 @@ const InnerMenuRadioItem = React.memo(
 
     const state: MenuRadioItem.State = { disabled, highlighted, checked };
 
-    const { renderElement } = useComponentRenderer({
-      render: render || 'div',
-      className,
+    return useRenderElement('div', componentProps, {
       state,
-      propGetter: (externalProps) => mergeProps(itemProps, externalProps, getItemProps),
       customStyleHookMapping: itemMapping,
-      extraProps: other,
+      ref: itemRef,
+      props: [itemProps, elementProps, getItemProps],
     });
-
-    return renderElement();
   }),
 );
 

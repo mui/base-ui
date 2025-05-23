@@ -9,8 +9,7 @@ import {
 import { MenuPositionerContext } from './MenuPositionerContext';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { useAnchorPositioning, type Align, type Side } from '../../utils/useAnchorPositioning';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { useForkRef } from '../../utils/useForkRef';
+import { useRenderElement } from '../../utils/useRenderElement';
 import { BaseUIComponentProps } from '../../utils/types';
 import { popupStateMapping } from '../../utils/popupStateMapping';
 import { CompositeList } from '../../composite/list/CompositeList';
@@ -26,7 +25,7 @@ import { useContextMenuRootContext } from '../../context-menu/root/ContextMenuRo
  * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
  */
 export const MenuPositioner = React.forwardRef(function MenuPositioner(
-  props: MenuPositioner.Props,
+  componentProps: MenuPositioner.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const {
@@ -43,8 +42,8 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
     arrowPadding = 5,
     sticky = false,
     trackAnchor = true,
-    ...otherProps
-  } = props;
+    ...elementProps
+  } = componentProps;
 
   const {
     open,
@@ -71,9 +70,9 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
   let align = alignProp;
   if (parent.type === 'context-menu') {
     anchor = parent.context?.anchor ?? anchorProp;
-    align = props.align ?? 'start';
-    alignOffset = props.alignOffset ?? 2;
-    sideOffset = props.sideOffset ?? -5;
+    align = componentProps.align ?? 'start';
+    alignOffset = componentProps.alignOffset ?? 2;
+    sideOffset = componentProps.sideOffset ?? -5;
   }
 
   let computedSide = side;
@@ -182,17 +181,13 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
     ],
   );
 
-  const mergedRef = useForkRef(forwardedRef, setPositionerElement);
-
-  const { renderElement } = useComponentRenderer({
-    render: render ?? 'div',
-    className,
+  const element = useRenderElement('div', componentProps, {
     state,
     customStyleHookMapping: popupStateMapping,
-    ref: mergedRef,
-    extraProps: {
+    ref: [forwardedRef, setPositionerElement],
+    props: {
       ...positionerProps,
-      ...otherProps,
+      ...elementProps,
     },
   });
 
@@ -219,7 +214,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
       )}
       <FloatingNode id={nodeId}>
         <CompositeList elementsRef={itemDomElements} labelsRef={itemLabels}>
-          {renderElement()}
+          {element}
         </CompositeList>
       </FloatingNode>
     </MenuPositionerContext.Provider>
