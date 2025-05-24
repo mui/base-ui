@@ -2,13 +2,6 @@ import * as React from 'react';
 import { Select } from '@base-ui-components/react/select';
 import styles from './index.module.css';
 
-const fonts = [
-  ['sans', 'Sans-serif'],
-  ['serif', 'Serif'],
-  ['mono', 'Monospace'],
-  ['cursive', 'Cursive'],
-];
-
 export default function ExampleSelect() {
   return (
     <Select.Root defaultValue="sans">
@@ -22,14 +15,34 @@ export default function ExampleSelect() {
         <Select.Positioner className={styles.Positioner} sideOffset={8}>
           <Select.ScrollUpArrow className={styles.ScrollArrow} />
           <Select.Popup className={styles.Popup}>
-            {fonts.map(([value, name]) => (
-              <Select.Item className={styles.Item} value={value} key={value}>
-                <Select.ItemIndicator className={styles.ItemIndicator}>
-                  <CheckIcon className={styles.ItemIndicatorIcon} />
-                </Select.ItemIndicator>
-                <Select.ItemText className={styles.ItemText}>{name}</Select.ItemText>
-              </Select.Item>
-            ))}
+            <Select.Item className={styles.Item} value="sans">
+              <Select.ItemIndicator className={styles.ItemIndicator}>
+                <CheckIcon className={styles.ItemIndicatorIcon} />
+              </Select.ItemIndicator>
+              <Select.ItemText className={styles.ItemText}>
+                Sans-serif
+              </Select.ItemText>
+            </Select.Item>
+            <Select.Item className={styles.Item} value="serif">
+              <Select.ItemIndicator className={styles.ItemIndicator}>
+                <CheckIcon className={styles.ItemIndicatorIcon} />
+              </Select.ItemIndicator>
+              <Select.ItemText className={styles.ItemText}>Serif</Select.ItemText>
+            </Select.Item>
+            <Select.Item className={styles.Item} value="mono">
+              <Select.ItemIndicator className={styles.ItemIndicator}>
+                <CheckIcon className={styles.ItemIndicatorIcon} />
+              </Select.ItemIndicator>
+              <Select.ItemText className={styles.ItemText}>
+                Monospace
+              </Select.ItemText>
+            </Select.Item>
+            <Select.Item className={styles.Item} value="cursive">
+              <Select.ItemIndicator className={styles.ItemIndicator}>
+                <CheckIcon className={styles.ItemIndicatorIcon} />
+              </Select.ItemIndicator>
+              <Select.ItemText className={styles.ItemText}>Cursive</Select.ItemText>
+            </Select.Item>
           </Select.Popup>
           <Select.ScrollDownArrow className={styles.ScrollArrow} />
         </Select.Positioner>
