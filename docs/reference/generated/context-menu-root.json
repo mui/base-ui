@@ -1,6 +1,6 @@
 {
-  "name": "MenuRoot",
-  "description": "Groups all parts of the menu.\nDoesn’t render its own HTML element.",
+  "name": "ContextMenuRoot",
+  "description": "A component that creates a context menu activated by right clicking or long pressing.\nDoesn’t render its own HTML element.",
   "props": {
     "defaultOpen": {
       "type": "boolean",
@@ -24,11 +24,6 @@
       "default": "true",
       "description": "When in a submenu, determines whether pressing the Escape key\ncloses the entire menu, or only the current child menu."
     },
-    "modal": {
-      "type": "boolean",
-      "default": "true",
-      "description": "Determines if the menu enters a modal state when open.\n- `true`: user interaction is limited to the menu: document page scroll is locked and and pointer interactions on outside elements are disabled.\n- `false`: user interaction with the rest of the document is allowed."
-    },
     "onOpenChangeComplete": {
       "type": "((open: boolean) => void)",
       "description": "Event handler called after any animations complete when the menu is closed."
@@ -37,15 +32,6 @@
       "type": "boolean",
       "default": "false",
       "description": "Whether the component should ignore user interaction."
-    },
-    "openOnHover": {
-      "type": "boolean",
-      "description": "Whether the menu should also open when the trigger is hovered.\n\nDefaults to `true` for nested menus."
-    },
-    "delay": {
-      "type": "number",
-      "default": "100",
-      "description": "How long to wait before the menu may be opened on hover. Specified in milliseconds.\n\nRequires the `openOnHover` prop."
     },
     "loop": {
       "type": "boolean",
