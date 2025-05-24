@@ -7,7 +7,9 @@ import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { pressableTriggerOpenStateMapping } from '../../utils/popupStateMapping';
 import { fieldValidityMapping } from '../../field/utils/constants';
 import { useRenderElement } from '../../utils/useRenderElement';
+import { useSelector } from '../../utils/store';
 import { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
+import { selectors } from '../store';
 
 const customStyleHookMapping: CustomStyleHookMapping<SelectTrigger.State> = {
   ...pressableTriggerOpenStateMapping,
@@ -27,7 +29,9 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
   const { render, className, disabled: disabledProp = false, ...elementProps } = componentProps;
 
   const { state: fieldState, disabled: fieldDisabled } = useFieldRootContext();
-  const { disabled: selectDisabled, open } = useSelectRootContext();
+  const { store, disabled: selectDisabled } = useSelectRootContext();
+
+  const open = useSelector(store, selectors.isOpen);
 
   const disabled = fieldDisabled || selectDisabled || disabledProp;
 

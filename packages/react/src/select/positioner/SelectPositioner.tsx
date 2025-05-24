@@ -11,8 +11,9 @@ import { InternalBackdrop } from '../../utils/InternalBackdrop';
 import { inertValue } from '../../utils/inertValue';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { clearPositionerStyles } from '../popup/utils';
-import { useSelectIndexContext } from '../root/SelectIndexContext';
 import { useEventCallback } from '../../utils/useEventCallback';
+import { useSelector } from '../../utils/store';
+import { selectors } from '../store';
 
 /**
  * Positions the select menu popup.
@@ -43,8 +44,7 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
   } = componentProps;
 
   const {
-    open,
-    mounted,
+    store,
     positionerElement,
     setPositionerElement,
     listRef,
@@ -57,7 +57,9 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
     value,
     setLabel,
   } = useSelectRootContext();
-  const { setSelectedIndex } = useSelectIndexContext();
+
+  const open = useSelector(store, selectors.isOpen);
+  const mounted = useSelector(store, selectors.isMounted);
 
   const [scrollUpArrowVisible, setScrollUpArrowVisible] = React.useState(false);
   const [scrollDownArrowVisible, setScrollDownArrowVisible] = React.useState(false);
@@ -156,7 +158,7 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
     if (value !== null) {
       const valueIndex = valuesRef.current.indexOf(value);
       if (valueIndex === -1) {
-        setSelectedIndex(null);
+        store.update({ ...store.state, selectedIndex: null });
         setLabel('');
       }
     }

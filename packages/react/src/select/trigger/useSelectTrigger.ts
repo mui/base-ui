@@ -9,6 +9,8 @@ import { useSelectRootContext } from '../root/SelectRootContext';
 import { ownerDocument } from '../../utils/owner';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { getPseudoElementBounds } from '../../utils/getPseudoElementBounds';
+import { useSelector } from '../../utils/store';
+import { selectors } from '../store';
 
 const BOUNDARY_OFFSET = 2;
 
@@ -18,7 +20,7 @@ export function useSelectTrigger(
   const { elementProps, disabled = false, rootRef: externalRef } = parameters;
 
   const {
-    open,
+    store,
     setOpen,
     setTriggerElement,
     selectionRef,
@@ -31,6 +33,8 @@ export function useSelectTrigger(
     triggerProps,
     setTypeaheadReady,
   } = useSelectRootContext();
+
+  const open = useSelector(store, selectors.isOpen);
 
   const { labelId, setTouched, setFocused, validationMode } = useFieldRootContext();
 
@@ -51,13 +55,14 @@ export function useSelectTrigger(
 
   React.useEffect(() => {
     if (open) {
-      // mousedown -> mouseup on selected item should not select within 400ms.
-      timeout1.start(400, () => {
-        selectionRef.current.allowSelectedMouseUp = true;
-      });
       // mousedown -> move to unselected item -> mouseup should not select within 200ms.
       timeout2.start(200, () => {
         selectionRef.current.allowUnselectedMouseUp = true;
+
+        // mousedown -> mouseup on selected item should not select within 400ms.
+        timeout1.start(200, () => {
+          selectionRef.current.allowSelectedMouseUp = true;
+        });
       });
 
       return () => {

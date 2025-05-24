@@ -1,24 +1,24 @@
 import * as React from 'react';
 import { useFloatingRootContext } from '@floating-ui/react';
+import type { SelectStore } from '../store';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import type { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
 import type { HTMLProps } from '../../utils/types';
 import type { SelectOpenChangeReason } from './useSelectRoot';
 
 export interface SelectRootContext {
+  store: SelectStore;
   name: string | undefined;
   disabled: boolean;
   readOnly: boolean;
   required: boolean;
   value: any;
   setValue: (nextValue: any, event?: Event) => void;
-  open: boolean;
   setOpen: (
     open: boolean,
     event: Event | undefined,
     reason: SelectOpenChangeReason | undefined,
   ) => void;
-  mounted: boolean;
   setMounted: React.Dispatch<React.SetStateAction<boolean>>;
   transitionStatus: TransitionStatus;
   triggerElement: HTMLElement | null;

@@ -4,6 +4,7 @@ import { FloatingFocusManager } from '@floating-ui/react';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import { popupStateMapping } from '../../utils/popupStateMapping';
+import { useSelector } from '../../utils/store';
 import type { Side } from '../../utils/useAnchorPositioning';
 import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 import { useSelectPopup } from './useSelectPopup';
@@ -12,6 +13,7 @@ import { useSelectPositionerContext } from '../positioner/SelectPositionerContex
 import { transitionStatusMapping } from '../../utils/styleHookMapping';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useRenderElement } from '../../utils/useRenderElement';
+import { selectors } from '../store';
 
 const customStyleHookMapping: CustomStyleHookMapping<SelectPopup.State> = {
   ...popupStateMapping,
@@ -30,9 +32,12 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
 ) {
   const { render, className, ...elementProps } = componentProps;
 
-  const { id, open, popupRef, transitionStatus, mounted, onOpenChangeComplete, popupProps } =
+  const { store, id, popupRef, transitionStatus, onOpenChangeComplete, popupProps } =
     useSelectRootContext();
   const positioner = useSelectPositionerContext();
+
+  const open = useSelector(store, selectors.isOpen);
+  const mounted = useSelector(store, selectors.isMounted);
 
   useOpenChangeComplete({
     open,
