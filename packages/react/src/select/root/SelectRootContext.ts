@@ -14,13 +14,11 @@ export interface SelectRootContext {
   required: boolean;
   value: any;
   setValue: (nextValue: any, event?: Event) => void;
-  open: boolean;
   setOpen: (
     open: boolean,
     event: Event | undefined,
     reason: SelectOpenChangeReason | undefined,
   ) => void;
-  mounted: boolean;
   setMounted: React.Dispatch<React.SetStateAction<boolean>>;
   transitionStatus: TransitionStatus;
   triggerElement: HTMLElement | null;

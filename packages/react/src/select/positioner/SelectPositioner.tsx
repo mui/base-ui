@@ -12,6 +12,8 @@ import { inertValue } from '../../utils/inertValue';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { clearPositionerStyles } from '../popup/utils';
 import { useEventCallback } from '../../utils/useEventCallback';
+import { useSelector } from '../../utils/store';
+import { selectors } from '../store';
 
 /**
  * Positions the select menu popup.
@@ -43,8 +45,6 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
 
   const {
     store,
-    open,
-    mounted,
     positionerElement,
     setPositionerElement,
     listRef,
@@ -57,6 +57,9 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
     value,
     setLabel,
   } = useSelectRootContext();
+
+  const open = useSelector(store, selectors.isOpen);
+  const mounted = useSelector(store, selectors.isMounted);
 
   const [scrollUpArrowVisible, setScrollUpArrowVisible] = React.useState(false);
   const [scrollDownArrowVisible, setScrollDownArrowVisible] = React.useState(false);

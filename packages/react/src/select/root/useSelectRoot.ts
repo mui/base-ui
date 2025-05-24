@@ -16,9 +16,9 @@ import { useControlled } from '../../utils/useControlled';
 import { useTransitionStatus } from '../../utils';
 import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { useEventCallback } from '../../utils/useEventCallback';
-import { useSelector } from '../../utils/store';
+import { useSelector, Store } from '../../utils/store';
 import { warn } from '../../utils/warn';
-import { createStore, selectors } from '../store';
+import { selectors, State } from '../store';
 import type { SelectRootContext } from './SelectRootContext';
 import {
   translateOpenChangeReason,
@@ -57,7 +57,6 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
   const fieldControlValidation = useFieldControlValidation();
 
   const id = useBaseUiId(idProp);
-  const store = useLazyRef(createStore).current;
 
   const disabled = fieldDisabled || disabledProp;
   const name = fieldName ?? nameProp;
@@ -106,10 +105,24 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
   const [label, setLabel] = React.useState('');
   const [touchModality, setTouchModality] = React.useState(false);
 
+  const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
+
+  const store = useLazyRef(
+    () =>
+      new Store<State>({
+        open,
+        mounted,
+        activeIndex: null,
+        selectedIndex: null,
+      }),
+  ).current;
+
+  React.useEffect(() => {
+    store.update({ ...store.state, open, mounted });
+  }, [open, mounted]);
+
   const activeIndex = useSelector(store, selectors.activeIndex);
   const selectedIndex = useSelector(store, selectors.selectedIndex);
-
-  const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
 
   const controlRef = useLatestRef(triggerElement);
   const commitValidation = fieldControlValidation.commitValidation;
@@ -308,8 +321,8 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     typeahead,
   ]);
 
-  const rootContext: SelectRootContext = React.useMemo(
-    () => ({
+  const rootContext: SelectRootContext = React.useMemo(() => {
+    const c = {
       store,
       id,
       name,
@@ -324,9 +337,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
       setTypeaheadReady,
       value,
       setValue,
-      open,
       setOpen,
-      mounted,
       setMounted,
       label,
       setLabel,
@@ -351,36 +362,37 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
       onOpenChangeComplete,
       keyboardActiveRef,
       alignItemWithTriggerActiveRef,
-    }),
-    [
-      store,
-      id,
-      name,
-      required,
-      disabled,
-      readOnly,
-      triggerElement,
-      positionerElement,
-      typeaheadReady,
-      value,
-      setValue,
-      open,
-      setOpen,
-      mounted,
-      setMounted,
-      label,
-      getReferenceProps,
-      getFloatingProps,
-      getItemProps,
-      floatingRootContext,
-      touchModality,
-      transitionStatus,
-      fieldControlValidation,
-      modal,
-      registerSelectedItem,
-      onOpenChangeComplete,
-    ],
-  );
+    };
+    console.log(c);
+    return c;
+  }, [
+    store,
+    id,
+    name,
+    required,
+    disabled,
+    readOnly,
+    triggerElement,
+    positionerElement,
+    typeaheadReady,
+    value,
+    setValue,
+    open,
+    setOpen,
+    mounted,
+    setMounted,
+    label,
+    getReferenceProps,
+    getFloatingProps,
+    getItemProps,
+    floatingRootContext,
+    touchModality,
+    transitionStatus,
+    fieldControlValidation,
+    modal,
+    registerSelectedItem,
+    onOpenChangeComplete,
+  ]);
 
   return rootContext;
 }

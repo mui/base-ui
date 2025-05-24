@@ -4,12 +4,17 @@ import { Side, useAnchorPositioning } from '../../utils/useAnchorPositioning';
 import { mergeProps } from '../../merge-props';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import { useScrollLock } from '../../utils/useScrollLock';
+import { useSelector } from '../../utils/store';
+import { selectors } from '../store';
 
 export function useSelectPositioner(
   params: useSelectPositioner.Parameters,
 ): useSelectPositioner.ReturnValue {
   const { alignItemWithTriggerActive } = params;
-  const { open, mounted, triggerElement, modal } = useSelectRootContext();
+  const { store, triggerElement, modal } = useSelectRootContext();
+
+  const open = useSelector(store, selectors.isOpen);
+  const mounted = useSelector(store, selectors.isMounted);
 
   useScrollLock({
     enabled: (alignItemWithTriggerActive || modal) && open,

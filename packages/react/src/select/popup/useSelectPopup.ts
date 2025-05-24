@@ -4,15 +4,16 @@ import { useSelectRootContext } from '../root/SelectRootContext';
 import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { ownerDocument, ownerWindow } from '../../utils/owner';
 import { useEventCallback } from '../../utils/useEventCallback';
+import { useSelector } from '../../utils/store';
 import { clearPositionerStyles } from './utils';
 import { isWebKit } from '../../utils/detectBrowser';
 import { isMouseWithinBounds } from '../../utils/isMouseWithinBounds';
 import { useSelectPositionerContext } from '../positioner/SelectPositionerContext';
+import { selectors } from '../store';
 
 export function useSelectPopup(): useSelectPopup.ReturnValue {
   const {
     store,
-    mounted,
     id,
     setOpen,
     triggerElement,
@@ -31,6 +32,8 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
     setScrollUpArrowVisible,
     setScrollDownArrowVisible,
   } = useSelectPositionerContext();
+
+  const mounted = useSelector(store, selectors.isMounted);
 
   const initialHeightRef = React.useRef(0);
   const reachedMaxHeightRef = React.useRef(false);

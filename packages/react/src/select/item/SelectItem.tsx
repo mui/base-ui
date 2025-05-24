@@ -38,7 +38,6 @@ export const SelectItem = React.memo(
       getItemProps,
       setOpen,
       setValue,
-      open,
       selectionRef,
       typingRef,
       valuesRef,
@@ -75,6 +74,7 @@ export const SelectItem = React.memo(
       }
     }, [hasRegistered, listItem.index, registerSelectedItem, value, rootValue]);
 
+    const open = useSelector(store, selectors.isOpen);
     const active = useSelector(store, selectors.isActive, listItem.index);
     const selected = useSelector(store, selectors.isSelected, listItem.index);
 
