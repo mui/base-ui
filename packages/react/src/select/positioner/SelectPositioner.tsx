@@ -11,7 +11,6 @@ import { InternalBackdrop } from '../../utils/InternalBackdrop';
 import { inertValue } from '../../utils/inertValue';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { clearPositionerStyles } from '../popup/utils';
-import { useSelectIndexContext } from '../root/SelectIndexContext';
 import { useEventCallback } from '../../utils/useEventCallback';
 
 /**
@@ -43,6 +42,7 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
   } = componentProps;
 
   const {
+    store,
     open,
     mounted,
     positionerElement,
@@ -57,7 +57,6 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
     value,
     setLabel,
   } = useSelectRootContext();
-  const { setSelectedIndex } = useSelectIndexContext();
 
   const [scrollUpArrowVisible, setScrollUpArrowVisible] = React.useState(false);
   const [scrollDownArrowVisible, setScrollDownArrowVisible] = React.useState(false);
@@ -156,7 +155,7 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
     if (value !== null) {
       const valueIndex = valuesRef.current.indexOf(value);
       if (valueIndex === -1) {
-        setSelectedIndex(null);
+        store.update({ ...store.state, selectedIndex: -1 });
         setLabel('');
       }
     }

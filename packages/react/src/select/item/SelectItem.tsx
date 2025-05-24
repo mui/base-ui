@@ -1,12 +1,12 @@
 'use client';
 import * as React from 'react';
 import { useSelectRootContext } from '../root/SelectRootContext';
-import { useSelectIndexContext } from '../root/SelectIndexContext';
 import { useCompositeListItem } from '../../composite/list/useCompositeListItem';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { useLatestRef } from '../../utils/useLatestRef';
 import { useTimeout } from '../../utils/useTimeout';
+import { useSelector } from '../../utils/store';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { addHighlight, hasHighlight, removeHighlight } from '../../utils/highlighted';
 import { isMouseWithinBounds } from '../../utils/isMouseWithinBounds';
@@ -15,6 +15,7 @@ import { useRenderElement } from '../../utils/useRenderElement';
 import { useButton } from '../../use-button';
 import { mergeProps } from '../../merge-props';
 import { SelectItemContext } from './SelectItemContext';
+import { selectors } from '../root/SelectRootContext';
 
 /**
  * An individual option in the select menu.
@@ -38,8 +39,8 @@ export const SelectItem = React.memo(
 
     const listItem = useCompositeListItem({ label });
 
-    const { activeIndex, selectedIndex, setActiveIndex } = useSelectIndexContext();
     const {
+      store,
       getItemProps,
       setOpen,
       setValue,
@@ -53,10 +54,10 @@ export const SelectItem = React.memo(
       keyboardActiveRef,
       floatingRootContext,
     } = useSelectRootContext();
+
     const events = floatingRootContext.events;
 
     const itemRef = React.useRef<HTMLDivElement | null>(null);
-    const selectedIndexRef = useLatestRef(selectedIndex);
     const indexRef = useLatestRef(listItem.index);
 
     const hasRegistered = listItem.index !== -1;
@@ -80,8 +81,8 @@ export const SelectItem = React.memo(
       }
     }, [hasRegistered, listItem.index, registerSelectedItem, valueProp, value]);
 
-    const highlighted = activeIndex === listItem.index;
-    const selected = selectedIndex === listItem.index;
+    const active = useSelector(store, selectors.isActive, listItem.index);
+    const selected = useSelector(store, selectors.isSelected, listItem.index);
 
     const state: SelectItem.State = React.useMemo(
       () => ({
@@ -91,7 +92,7 @@ export const SelectItem = React.memo(
       [disabled, selected],
     );
 
-    const rootProps = getItemProps({ active: highlighted, selected });
+    const rootProps = getItemProps({ active, selected });
     // With our custom `focusItemOnHover` implementation, this interferes with the logic and can
     // cause the index state to be stuck when leaving the select popup.
     delete rootProps.onFocus;
@@ -134,12 +135,12 @@ export const SelectItem = React.memo(
         return;
       }
 
-      if (highlighted) {
+      if (active) {
         addHighlight(ref);
       } else {
         removeHighlight(ref);
       }
-    }, [open, highlighted]);
+    }, [open, active]);
 
     React.useEffect(() => {
       function handleItemHover(item: HTMLDivElement) {
@@ -152,31 +153,31 @@ export const SelectItem = React.memo(
       return () => {
         events.off('itemhover', handleItemHover);
       };
-    }, [events, setActiveIndex, indexRef]);
+    }, [events, indexRef]);
 
     const props = mergeProps<'div'>(
       rootProps,
       {
         'aria-disabled': disabled || undefined,
-        tabIndex: highlighted ? 0 : -1,
+        tabIndex: active ? 0 : -1,
         onFocus() {
           if (
             allowFocusSyncRef.current &&
             keyboardActiveRef.current &&
             cursorMovementTimeout.isStarted() === false
           ) {
-            setActiveIndex(indexRef.current);
+            store.update({ ...store.state, activeIndex: indexRef.current });
           }
         },
         onMouseEnter() {
-          if (!keyboardActiveRef.current && selectedIndexRef.current === null) {
+          if (!keyboardActiveRef.current && store.state.selectedIndex === -1) {
             addHighlight(ref);
             events.emit('itemhover', ref.current);
           }
         },
         onMouseMove() {
           if (keyboardActiveRef.current) {
-            setActiveIndex(indexRef.current);
+            store.update({ ...store.state, activeIndex: indexRef.current });
           } else {
             addHighlight(ref);
             events.emit('itemhover', ref.current);
@@ -190,7 +191,7 @@ export const SelectItem = React.memo(
           events.on('popupleave', handlePopupLeave);
           // When this fires, the cursor has stopped moving.
           cursorMovementTimeout.start(50, () => {
-            setActiveIndex(indexRef.current);
+            store.update({ ...store.state, activeIndex: indexRef.current });
           });
         },
         onMouseLeave(event) {
@@ -219,7 +220,7 @@ export const SelectItem = React.memo(
             allowFocusSyncRef.current = false;
 
             if (keyboardActiveRef.current || wasCursorStationary) {
-              setActiveIndex(null);
+              store.update({ ...store.state, activeIndex: -1 });
             }
 
             AnimationFrame.request(() => {
@@ -238,7 +239,7 @@ export const SelectItem = React.memo(
         onKeyDown(event) {
           selectionRef.current.allowSelect = true;
           lastKeyRef.current = event.key;
-          setActiveIndex(indexRef.current);
+          store.update({ ...store.state, activeIndex: indexRef.current });
         },
         onClick(event) {
           didPointerDownRef.current = false;

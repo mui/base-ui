@@ -11,13 +11,15 @@ import { useClick } from '../../utils/floating-ui/useClick';
 import { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { useBaseUiId } from '../../utils/useBaseUiId';
+import { useLazyRef } from '../../utils/useLazyRef';
 import { useControlled } from '../../utils/useControlled';
 import { useTransitionStatus } from '../../utils';
 import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { useEventCallback } from '../../utils/useEventCallback';
+import { useSelector } from '../../utils/store';
 import { warn } from '../../utils/warn';
+import { createStore, selectors } from './SelectRootContext';
 import type { SelectRootContext } from './SelectRootContext';
-import type { SelectIndexContext } from './SelectIndexContext';
 import {
   translateOpenChangeReason,
   type BaseOpenChangeReason,
@@ -55,6 +57,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
   const fieldControlValidation = useFieldControlValidation();
 
   const id = useBaseUiId(idProp);
+  const store = useLazyRef(createStore).current;
 
   const disabled = fieldDisabled || disabledProp;
   const name = fieldName ?? nameProp;
@@ -100,10 +103,11 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
   const [triggerElement, setTriggerElement] = React.useState<HTMLElement | null>(null);
   const [typeaheadReady, setTypeaheadReady] = React.useState(open);
   const [positionerElement, setPositionerElement] = React.useState<HTMLElement | null>(null);
-  const [activeIndex, setActiveIndex] = React.useState<number | null>(null);
-  const [selectedIndex, setSelectedIndex] = React.useState<number | null>(null);
   const [label, setLabel] = React.useState('');
   const [touchModality, setTouchModality] = React.useState(false);
+
+  const activeIndex = useSelector(store, selectors.activeIndex);
+  const selectedIndex = useSelector(store, selectors.selectedIndex);
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
 
@@ -111,9 +115,11 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
   const commitValidation = fieldControlValidation.commitValidation;
 
   const updateValue = useEventCallback((nextValue: any) => {
-    const index = valuesRef.current.indexOf(nextValue);
-    setSelectedIndex(index === -1 ? null : index);
-    setLabel(labelsRef.current[index] ?? '');
+    const selectedIndex = valuesRef.current.indexOf(nextValue);
+
+    store.update({ ...store.state, selectedIndex });
+
+    setLabel(labelsRef.current[selectedIndex] ?? '');
     clearErrors(name);
     setDirty(nextValue !== validityData.initialValue);
   });
@@ -160,8 +166,8 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
       // https://github.com/floating-ui/floating-ui/pull/3004/files#diff-962a7439cdeb09ea98d4b622a45d517bce07ad8c3f866e089bda05f4b0bbd875R194-R199
       // This otherwise causes options to retain `tabindex=0` incorrectly when the popup is closed
       // when tabbing outside.
-      if (!nextOpen && activeIndex !== null) {
-        const activeOption = listRef.current[activeIndex];
+      if (!nextOpen && store.state.activeIndex !== -1) {
+        const activeOption = listRef.current[store.state.activeIndex];
         // Wait for Floating UI's focus effect to have fired
         queueMicrotask(() => {
           activeOption?.setAttribute('tabindex', '-1');
@@ -172,7 +178,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
 
   const handleUnmount = useEventCallback(() => {
     setMounted(false);
-    setActiveIndex(null);
+    store.update({ ...store.state, activeIndex: -1 });
     onOpenChangeComplete?.(false);
   });
 
@@ -209,7 +215,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     const hasIndex = index !== -1;
 
     if (hasIndex || value === null) {
-      setSelectedIndex(hasIndex ? index : null);
+      store.update({ ...store.state, selectedIndex: index });
       setLabel(hasIndex ? (labelsRef.current[index] ?? '') : '');
       return;
     }
@@ -268,7 +274,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
         return;
       }
 
-      setActiveIndex(nextActiveIndex);
+      store.update({ ...store.state, activeIndex: nextActiveIndex ?? -1 });
     },
     // Implement our own listeners since `onPointerLeave` on each option fires while scrolling with
     // the `alignItemWithTrigger=true`, causing a performance issue on Chrome.
@@ -282,7 +288,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     selectedIndex,
     onMatch(index) {
       if (open) {
-        setActiveIndex(index);
+        store.update({ ...store.state, activeIndex: index });
       } else {
         setValue(valuesRef.current[index]);
       }
@@ -304,6 +310,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
 
   const rootContext: SelectRootContext = React.useMemo(
     () => ({
+      store,
       id,
       name,
       required,
@@ -346,6 +353,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
       alignItemWithTriggerActiveRef,
     }),
     [
+      store,
       id,
       name,
       required,
@@ -374,23 +382,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     ],
   );
 
-  const indexContext = React.useMemo(
-    () => ({
-      activeIndex,
-      setActiveIndex,
-      selectedIndex,
-      setSelectedIndex,
-    }),
-    [activeIndex, selectedIndex, setActiveIndex],
-  );
-
-  return React.useMemo(
-    () => ({
-      rootContext,
-      indexContext,
-    }),
-    [rootContext, indexContext],
-  );
+  return rootContext;
 }
 
 export namespace useSelectRoot {
@@ -473,10 +465,7 @@ export namespace useSelectRoot {
     actionsRef?: React.RefObject<Actions>;
   }
 
-  export interface ReturnValue {
-    rootContext: SelectRootContext;
-    indexContext: SelectIndexContext;
-  }
+  export type ReturnValue = SelectRootContext;
 
   export interface Actions {
     unmount: () => void;

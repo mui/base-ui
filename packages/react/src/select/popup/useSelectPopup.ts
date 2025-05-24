@@ -6,12 +6,12 @@ import { ownerDocument, ownerWindow } from '../../utils/owner';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { clearPositionerStyles } from './utils';
 import { isWebKit } from '../../utils/detectBrowser';
-import { useSelectIndexContext } from '../root/SelectIndexContext';
 import { isMouseWithinBounds } from '../../utils/isMouseWithinBounds';
 import { useSelectPositionerContext } from '../positioner/SelectPositionerContext';
 
 export function useSelectPopup(): useSelectPopup.ReturnValue {
   const {
+    store,
     mounted,
     id,
     setOpen,
@@ -23,7 +23,6 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
     keyboardActiveRef,
     floatingRootContext,
   } = useSelectRootContext();
-  const { setActiveIndex } = useSelectIndexContext();
   const {
     alignItemWithTriggerActive,
     setControlledItemAnchor,
@@ -251,7 +250,7 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
       if (isMouseWithinBounds(event)) {
         return;
       }
-      setActiveIndex(null);
+      store.update({ ...store.state, activeIndex: -1 });
       event.currentTarget.focus({ preventScroll: true });
       floatingRootContext.events.emit('popupleave');
     },

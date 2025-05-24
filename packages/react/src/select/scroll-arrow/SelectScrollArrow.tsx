@@ -7,7 +7,6 @@ import { useSelectPositionerContext } from '../positioner/SelectPositionerContex
 import { Side } from '../../utils/useAnchorPositioning';
 import { type TransitionStatus, useTransitionStatus } from '../../utils/useTransitionStatus';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
-import { useSelectIndexContext } from '../root/SelectIndexContext';
 import { useRenderElement } from '../../utils/useRenderElement';
 
 /**
@@ -19,7 +18,7 @@ export const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
 ) {
   const { render, className, direction, keepMounted = false, ...elementProps } = componentProps;
 
-  const { popupRef, listRef } = useSelectRootContext();
+  const { store, popupRef, listRef } = useSelectRootContext();
   const {
     side,
     alignItemWithTriggerActive,
@@ -28,7 +27,6 @@ export const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
     setScrollUpArrowVisible,
     setScrollDownArrowVisible,
   } = useSelectPositionerContext();
-  const { setActiveIndex } = useSelectIndexContext();
 
   const visible = direction === 'up' ? scrollUpArrowVisible : scrollDownArrowVisible;
 
@@ -73,7 +71,7 @@ export const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
         return;
       }
 
-      setActiveIndex(null);
+      store.update({ ...store.state, activeIndex: -1 });
 
       function scrollNextItem() {
         const popupElement = popupRef.current;
@@ -81,7 +79,7 @@ export const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
           return;
         }
 
-        setActiveIndex(null);
+        store.update({ ...store.state, activeIndex: -1 });
 
         const isScrolledToTop = popupElement.scrollTop === 0;
         const isScrolledToBottom =

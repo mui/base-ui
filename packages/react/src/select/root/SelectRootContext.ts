@@ -1,11 +1,32 @@
 import * as React from 'react';
 import { useFloatingRootContext } from '@floating-ui/react';
+import { Store, createSelector } from '../../utils/store';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import type { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
 import type { HTMLProps } from '../../utils/types';
 import type { SelectOpenChangeReason } from './useSelectRoot';
 
+type State = {
+  activeIndex: number;
+  selectedIndex: number;
+};
+
+export function createStore() {
+  return new Store<State>({
+    activeIndex: -1,
+    selectedIndex: -1,
+  });
+}
+
+export const selectors = {
+  isActive: createSelector((state: State, index: number) => state.activeIndex === index),
+  isSelected: createSelector((state: State, index: number) => state.selectedIndex === index),
+  activeIndex: createSelector((state: State) => state.activeIndex),
+  selectedIndex: createSelector((state: State) => state.selectedIndex),
+};
+
 export interface SelectRootContext {
+  store: Store<State>;
   name: string | undefined;
   disabled: boolean;
   readOnly: boolean;
