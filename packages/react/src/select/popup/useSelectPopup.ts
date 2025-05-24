@@ -250,7 +250,7 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
       if (isMouseWithinBounds(event)) {
         return;
       }
-      store.update({ ...store.state, activeIndex: null });
+      store.set('activeIndex', null);
       event.currentTarget.focus({ preventScroll: true });
       floatingRootContext.events.emit('popupleave');
     },

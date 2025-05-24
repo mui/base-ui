@@ -10,7 +10,7 @@ export function useSelector<State, Value, A1>(
   selector: (state: State, a1: A1) => Value,
   a1: A1,
 ): Value;
-export function useSelector<State, Value, A1, A2, A3>(
+export function useSelector<State, Value, A1, A2>(
   store: Store<State>,
   selector: (state: State, a1: A1, a2: A2) => Value,
   a1: A1,

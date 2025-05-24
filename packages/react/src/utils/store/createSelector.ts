@@ -1,5 +1,7 @@
 import { lruMemoize, createSelectorCreator, Selector } from 'reselect';
 
+/* eslint-disable no-underscore-dangle */ // __cacheKey__
+
 const reselectCreateSelector = createSelectorCreator({
   memoize: lruMemoize,
   memoizeOptions: {
@@ -129,14 +131,15 @@ export const createSelectorMemoized: CreateSelectorFunction = (...selectors: any
   const selector = (state: any, a1: any, a2: any, a3: any) => {
     let cacheKey = state.__cacheKey__;
     if (!cacheKey) {
-      state.__cacheKey__ = cacheKey = { id: nextCacheId };
+      cacheKey = { id: nextCacheId };
+      state.__cacheKey__ = cacheKey;
       nextCacheId += 1;
     }
 
     let fn = cache.get(cacheKey);
     if (!fn) {
       let reselectArgs = selectors;
-      let selectorArgs = [undefined, undefined, undefined];
+      const selectorArgs = [undefined, undefined, undefined];
       switch (argsLength) {
         case 0:
           break;

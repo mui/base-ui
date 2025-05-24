@@ -102,7 +102,7 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
           keyboardActiveRef.current &&
           cursorMovementTimeout.isStarted() === false
         ) {
-          store.update({ ...store.state, activeIndex: indexRef.current });
+          store.set('activeIndex', indexRef.current);
         }
       },
       onMouseEnter() {
@@ -113,7 +113,7 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
       },
       onMouseMove() {
         if (keyboardActiveRef.current) {
-          store.update({ ...store.state, activeIndex: indexRef.current });
+          store.set('activeIndex', indexRef.current);
         } else {
           addHighlight(ref);
           events.emit('itemhover', ref.current);
@@ -127,7 +127,7 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
         events.on('popupleave', handlePopupLeave);
         // When this fires, the cursor has stopped moving.
         cursorMovementTimeout.start(50, () => {
-          store.update({ ...store.state, activeIndex: indexRef.current });
+          store.set('activeIndex', indexRef.current);
         });
       },
       onMouseLeave(event) {
@@ -156,7 +156,7 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
           allowFocusSyncRef.current = false;
 
           if (keyboardActiveRef.current || wasCursorStationary) {
-            store.update({ ...store.state, activeIndex: null });
+            store.set('activeIndex', null);
           }
 
           AnimationFrame.request(() => {
@@ -175,7 +175,7 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
       onKeyDown(event) {
         selectionRef.current.allowSelect = true;
         lastKeyRef.current = event.key;
-        store.update({ ...store.state, activeIndex: indexRef.current });
+        store.set('activeIndex', indexRef.current);
       },
       onClick(event) {
         didPointerDownRef.current = false;

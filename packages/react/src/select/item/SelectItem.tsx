@@ -9,7 +9,7 @@ import { useLatestRef } from '../../utils/useLatestRef';
 import { useSelector } from '../../utils/store';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { SelectItemContext } from './SelectItemContext';
-import { selectors } from '../root/SelectRootContext';
+import { selectors } from '../store';
 
 /**
  * An individual option in the select menu.
@@ -25,7 +25,7 @@ export const SelectItem = React.memo(
     const {
       render,
       className,
-      value: valueProp = null,
+      value = null,
       label,
       disabled = false,
       ...elementProps
@@ -44,7 +44,7 @@ export const SelectItem = React.memo(
       valuesRef,
       popupRef,
       registerSelectedItem,
-      value,
+      value: rootValue,
       keyboardActiveRef,
       floatingRootContext,
     } = useSelectRootContext();
@@ -62,18 +62,18 @@ export const SelectItem = React.memo(
       }
 
       const values = valuesRef.current;
-      values[listItem.index] = valueProp;
+      values[listItem.index] = value;
 
       return () => {
         delete values[listItem.index];
       };
-    }, [hasRegistered, listItem.index, valueProp, valuesRef]);
+    }, [hasRegistered, listItem.index, value, valuesRef]);
 
     useModernLayoutEffect(() => {
-      if (hasRegistered && valueProp === value) {
+      if (hasRegistered && value === rootValue) {
         registerSelectedItem(listItem.index);
       }
-    }, [hasRegistered, listItem.index, registerSelectedItem, valueProp, value]);
+    }, [hasRegistered, listItem.index, registerSelectedItem, value, rootValue]);
 
     const active = useSelector(store, selectors.isActive, listItem.index);
     const selected = useSelector(store, selectors.isSelected, listItem.index);

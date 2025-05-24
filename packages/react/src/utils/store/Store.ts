@@ -27,4 +27,8 @@ export class Store<State> {
       this.listeners.forEach((l) => l(newState));
     }
   };
+
+  public set<T>(key: keyof State, value: T) {
+    this.update({ ...this.state, [key]: value });
+  }
 }

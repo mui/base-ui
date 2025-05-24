@@ -18,7 +18,7 @@ import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { useSelector } from '../../utils/store';
 import { warn } from '../../utils/warn';
-import { createStore, selectors } from './SelectRootContext';
+import { createStore, selectors } from '../store';
 import type { SelectRootContext } from './SelectRootContext';
 import {
   translateOpenChangeReason,
@@ -115,11 +115,11 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
   const commitValidation = fieldControlValidation.commitValidation;
 
   const updateValue = useEventCallback((nextValue: any) => {
-    const selectedIndex = valuesRef.current.indexOf(nextValue);
+    const index = valuesRef.current.indexOf(nextValue);
 
-    store.update({ ...store.state, selectedIndex });
+    store.set('selectedIndex', index === -1 ? null : index);
 
-    setLabel(labelsRef.current[selectedIndex] ?? '');
+    setLabel(labelsRef.current[index] ?? '');
     clearErrors(name);
     setDirty(nextValue !== validityData.initialValue);
   });
@@ -178,7 +178,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
 
   const handleUnmount = useEventCallback(() => {
     setMounted(false);
-    store.update({ ...store.state, activeIndex: null });
+    store.set('activeIndex', null);
     onOpenChangeComplete?.(false);
   });
 
@@ -215,7 +215,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     const hasIndex = index !== -1;
 
     if (hasIndex || value === null) {
-      store.update({ ...store.state, selectedIndex: index });
+      store.set('selectedIndex', index);
       setLabel(hasIndex ? (labelsRef.current[index] ?? '') : '');
       return;
     }
@@ -274,7 +274,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
         return;
       }
 
-      store.update({ ...store.state, activeIndex: nextActiveIndex });
+      store.set('activeIndex', nextActiveIndex);
     },
     // Implement our own listeners since `onPointerLeave` on each option fires while scrolling with
     // the `alignItemWithTrigger=true`, causing a performance issue on Chrome.
@@ -288,7 +288,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     selectedIndex,
     onMatch(index) {
       if (open) {
-        store.update({ ...store.state, activeIndex: index });
+        store.set('activeIndex', index);
       } else {
         setValue(valuesRef.current[index]);
       }

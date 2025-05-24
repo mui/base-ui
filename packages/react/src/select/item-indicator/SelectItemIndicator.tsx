@@ -26,6 +26,7 @@ export const SelectItemIndicator = React.forwardRef(function SelectItemIndicator
     return null;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-use-before-define
   return <Inner {...componentProps} ref={forwardedRef} />;
 });
 
