@@ -71,7 +71,7 @@ export const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
         return;
       }
 
-      store.update({ ...store.state, activeIndex: -1 });
+      store.update({ ...store.state, activeIndex: null });
 
       function scrollNextItem() {
         const popupElement = popupRef.current;
@@ -79,7 +79,7 @@ export const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
           return;
         }
 
-        store.update({ ...store.state, activeIndex: -1 });
+        store.update({ ...store.state, activeIndex: null });
 
         const isScrolledToTop = popupElement.scrollTop === 0;
         const isScrolledToBottom =

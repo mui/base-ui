@@ -166,7 +166,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
       // https://github.com/floating-ui/floating-ui/pull/3004/files#diff-962a7439cdeb09ea98d4b622a45d517bce07ad8c3f866e089bda05f4b0bbd875R194-R199
       // This otherwise causes options to retain `tabindex=0` incorrectly when the popup is closed
       // when tabbing outside.
-      if (!nextOpen && store.state.activeIndex !== -1) {
+      if (!nextOpen && store.state.activeIndex !== null) {
         const activeOption = listRef.current[store.state.activeIndex];
         // Wait for Floating UI's focus effect to have fired
         queueMicrotask(() => {
@@ -178,7 +178,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
 
   const handleUnmount = useEventCallback(() => {
     setMounted(false);
-    store.update({ ...store.state, activeIndex: -1 });
+    store.update({ ...store.state, activeIndex: null });
     onOpenChangeComplete?.(false);
   });
 
@@ -274,7 +274,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
         return;
       }
 
-      store.update({ ...store.state, activeIndex: nextActiveIndex ?? -1 });
+      store.update({ ...store.state, activeIndex: nextActiveIndex });
     },
     // Implement our own listeners since `onPointerLeave` on each option fires while scrolling with
     // the `alignItemWithTrigger=true`, causing a performance issue on Chrome.

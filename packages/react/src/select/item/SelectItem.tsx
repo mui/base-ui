@@ -170,7 +170,7 @@ export const SelectItem = React.memo(
           }
         },
         onMouseEnter() {
-          if (!keyboardActiveRef.current && store.state.selectedIndex === -1) {
+          if (!keyboardActiveRef.current && store.state.selectedIndex === null) {
             addHighlight(ref);
             events.emit('itemhover', ref.current);
           }
@@ -220,7 +220,7 @@ export const SelectItem = React.memo(
             allowFocusSyncRef.current = false;
 
             if (keyboardActiveRef.current || wasCursorStationary) {
-              store.update({ ...store.state, activeIndex: -1 });
+              store.update({ ...store.state, activeIndex: null });
             }
 
             AnimationFrame.request(() => {
@@ -249,11 +249,7 @@ export const SelectItem = React.memo(
             return;
           }
 
-          if (
-            disabled ||
-            (lastKeyRef.current === ' ' && typingRef.current) ||
-            (pointerTypeRef.current !== 'touch' && !hasHighlight(ref))
-          ) {
+          if (disabled || (lastKeyRef.current === ' ' && typingRef.current)) {
             return;
           }
 
@@ -285,8 +281,7 @@ export const SelectItem = React.memo(
 
           if (
             disallowSelectedMouseUp ||
-            disallowUnselectedMouseUp ||
-            (pointerTypeRef.current !== 'touch' && !hasHighlight(ref))
+            disallowUnselectedMouseUp
           ) {
             return;
           }

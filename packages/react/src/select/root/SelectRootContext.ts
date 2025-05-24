@@ -7,14 +7,14 @@ import type { HTMLProps } from '../../utils/types';
 import type { SelectOpenChangeReason } from './useSelectRoot';
 
 type State = {
-  activeIndex: number;
-  selectedIndex: number;
+  activeIndex: number | null;
+  selectedIndex: number | null;
 };
 
 export function createStore() {
   return new Store<State>({
-    activeIndex: -1,
-    selectedIndex: -1,
+    activeIndex: null,
+    selectedIndex: null,
   });
 }
 

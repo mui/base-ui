@@ -155,7 +155,7 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
     if (value !== null) {
       const valueIndex = valuesRef.current.indexOf(value);
       if (valueIndex === -1) {
-        store.update({ ...store.state, selectedIndex: -1 });
+        store.update({ ...store.state, selectedIndex: null });
         setLabel('');
       }
     }
