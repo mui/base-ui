@@ -83,10 +83,6 @@ export interface SliderRootContext {
 
 export const SliderRootContext = React.createContext<SliderRootContext | undefined>(undefined);
 
-if (process.env.NODE_ENV !== 'production') {
-  SliderRootContext.displayName = 'SliderRootContext';
-}
-
 export function useSliderRootContext() {
   const context = React.useContext(SliderRootContext);
   if (context === undefined) {
