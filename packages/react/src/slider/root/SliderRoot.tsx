@@ -344,8 +344,6 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
                   ref: inputRef,
                   value,
                   style: visuallyHidden,
-                  tabIndex: -1,
-                  'aria-hidden': true,
                 })}
               />
             );
@@ -359,8 +357,6 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
               ref: inputRef,
               value: valueUnwrapped,
               style: visuallyHidden,
-              tabIndex: -1,
-              'aria-hidden': true,
             })}
           />
         )}
