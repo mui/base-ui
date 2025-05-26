@@ -75,7 +75,6 @@ export function useAnchorPositioning(
     keepMounted = false,
     floatingRootContext,
     mounted,
-    trackAnchor = true,
     shiftCrossAxis = false,
     nodeId,
     adaptiveOrigin,
