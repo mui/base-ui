@@ -55,7 +55,7 @@
 
 .Positioner {
   --easing: cubic-bezier(0.22, 1, 0.36, 1);
-  --duration: 0.4s;
+  --duration: 0.35s;
   box-sizing: border-box;
   transition-property: top, left, right, bottom;
   transition-duration: var(--duration);
@@ -132,19 +132,19 @@
 
   &[data-starting-style] {
     &[data-activation-direction='left'] {
-      transform: translateX(-75%);
+      transform: translateX(-50%);
     }
     &[data-activation-direction='right'] {
-      transform: translateX(75%);
+      transform: translateX(50%);
     }
   }
 
   &[data-ending-style] {
     &[data-activation-direction='left'] {
-      transform: translateX(75%);
+      transform: translateX(50%);
     }
     &[data-activation-direction='right'] {
-      transform: translateX(-75%);
+      transform: translateX(-50%);
     }
   }
 }

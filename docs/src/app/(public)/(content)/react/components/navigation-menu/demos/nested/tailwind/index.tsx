@@ -69,7 +69,7 @@ export default function ExampleNavigationMenu() {
                       side="right"
                       className="box-border h-[var(--positioner-height)] w-[var(--positioner-width)] max-w-[var(--available-width)] transition-[top,left,right,bottom] duration-[var(--duration)] ease-[var(--easing)] data-[instant]:transition-none"
                       style={{
-                        ['--duration' as string]: '0.4s',
+                        ['--duration' as string]: '0.35s',
                         ['--easing' as string]: 'cubic-bezier(0.22, 1, 0.36, 1)',
                       }}
                     >
@@ -96,7 +96,7 @@ export default function ExampleNavigationMenu() {
           sideOffset={10}
           className="box-border h-[var(--positioner-height)] w-[var(--positioner-width)] max-w-[var(--available-width)] transition-[top,left,right,bottom] duration-[var(--duration)] ease-[var(--easing)] data-[instant]:transition-none"
           style={{
-            ['--duration' as string]: '0.4s',
+            ['--duration' as string]: '0.35s',
             ['--easing' as string]: 'cubic-bezier(0.22, 1, 0.36, 1)',
           }}
         >
@@ -179,10 +179,10 @@ const contentClassName =
   'w-[300px] h-full p-4 sm:p-6 sm:w-max ' +
   'transition-[opacity,transform,translate] duration-[var(--duration)] ease-[var(--easing)] ' +
   'data-[starting-style]:opacity-0 data-[ending-style]:opacity-0 ' +
-  'data-[starting-style]:data-[activation-direction=left]:translate-x-[-75%] ' +
-  'data-[starting-style]:data-[activation-direction=right]:translate-x-[75%] ' +
-  'data-[ending-style]:data-[activation-direction=left]:translate-x-[75%] ' +
-  'data-[ending-style]:data-[activation-direction=right]:translate-x-[-75%]';
+  'data-[starting-style]:data-[activation-direction=left]:translate-x-[-50%] ' +
+  'data-[starting-style]:data-[activation-direction=right]:translate-x-[50%] ' +
+  'data-[ending-style]:data-[activation-direction=left]:translate-x-[50%] ' +
+  'data-[ending-style]:data-[activation-direction=right]:translate-x-[-50%]';
 
 const linkCardClassName =
   'text-left relative block rounded-md p-2 sm:p-3 no-underline text-inherit ' +
