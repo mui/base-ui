@@ -29,13 +29,13 @@ export const NumberFieldScrubAreaCursor = React.forwardRef(function NumberFieldS
   const { isScrubbing, isTouchInput, isPointerLockDenied, scrubAreaCursorRef } =
     useNumberFieldScrubAreaContext();
 
-  const [element, setElement] = React.useState<Element | null>(null);
+  const [domElement, setDomElement] = React.useState<Element | null>(null);
 
   const shouldRender = isScrubbing && !isWebKit && !isTouchInput && !isPointerLockDenied;
 
-  const renderedElement = useRenderElement('span', componentProps, {
+  const element = useRenderElement('span', componentProps, {
     enabled: shouldRender,
-    ref: [forwardedRef, scrubAreaCursorRef, setElement],
+    ref: [forwardedRef, scrubAreaCursorRef, setDomElement],
     state,
     props: [
       {
@@ -52,7 +52,7 @@ export const NumberFieldScrubAreaCursor = React.forwardRef(function NumberFieldS
     customStyleHookMapping: styleHookMapping,
   });
 
-  return renderedElement && ReactDOM.createPortal(renderedElement, ownerDocument(element).body);
+  return element && ReactDOM.createPortal(element, ownerDocument(domElement).body);
 });
 
 export namespace NumberFieldScrubAreaCursor {
