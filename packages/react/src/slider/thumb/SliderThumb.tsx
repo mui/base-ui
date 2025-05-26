@@ -20,7 +20,6 @@ import {
 } from '../../composite/composite';
 import { useCompositeListItem } from '../../composite/list/useCompositeListItem';
 import { useDirection } from '../../direction-provider/DirectionContext';
-import { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { getSliderValue } from '../utils/getSliderValue';
 import { roundValueToStep } from '../utils/roundValueToStep';
@@ -108,7 +107,6 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     onFocus: onFocusProp,
     onKeyDown: onKeyDownProp,
     tabIndex: tabIndexProp,
-    inputRef: inputRefProp,
     ...elementProps
   } = componentProps;
 
@@ -121,6 +119,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     active: activeIndex,
     handleInputChange,
     disabled: contextDisabled,
+    fieldControlValidation,
     formatOptionsRef,
     labelId,
     largeStep,
@@ -128,7 +127,6 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     max,
     min,
     minStepsBetweenValues,
-    name,
     orientation,
     setActive,
     state,
@@ -148,15 +146,8 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
 
   const direction = useDirection();
   const { setTouched, setFocused, validationMode } = useFieldRootContext();
-  const {
-    getInputValidationProps,
-    inputRef: inputValidationRef,
-    commitValidation,
-  } = useFieldControlValidation();
 
   const thumbRef = React.useRef<HTMLElement>(null);
-  const inputRef = React.useRef<HTMLInputElement>(null);
-  const mergedInputRef = useForkRef(inputRef, inputRefProp, inputValidationRef);
 
   const thumbMetadata = React.useMemo(
     () => ({
@@ -222,7 +213,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
         setFocused(false);
 
         if (validationMode === 'onBlur') {
-          commitValidation(
+          fieldControlValidation.commitValidation(
             getSliderValue(thumbValue, index, min, max, sliderValues.length > 1, sliderValues),
           );
         }
@@ -339,11 +330,9 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
       id: inputId,
       max,
       min,
-      name,
       onChange(event: React.ChangeEvent<HTMLInputElement>) {
         handleInputChange(event.target.valueAsNumber, index, event);
       },
-      ref: mergedInputRef,
       step,
       style: {
         ...visuallyHidden,
@@ -356,7 +345,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
       type: 'range',
       value: thumbValue ?? '',
     },
-    getInputValidationProps({ disabled }),
+    fieldControlValidation.getValidationProps,
   );
 
   if (typeof render === 'function') {
@@ -397,10 +386,6 @@ export namespace SliderThumb {
   export interface State extends SliderRoot.State {}
 
   export interface Props extends Omit<BaseUIComponentProps<'div', State>, 'render'> {
-    /**
-     * A ref to access the hidden input element.
-     */
-    inputRef?: React.Ref<HTMLInputElement>;
     /**
      * Whether the thumb should ignore user interaction.
      * @default false

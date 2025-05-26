@@ -1,7 +1,6 @@
 'use client';
 import * as React from 'react';
 import { FloatingEvents, useFloatingTree } from '@floating-ui/react';
-import { useMenuRadioItem } from './useMenuRadioItem';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useBaseUiId } from '../../utils/useBaseUiId';
@@ -12,6 +11,7 @@ import { MenuRadioItemContext } from './MenuRadioItemContext';
 import { itemMapping } from '../utils/styleHookMapping';
 import { useCompositeListItem } from '../../composite/list/useCompositeListItem';
 import { mergeProps } from '../../merge-props';
+import { useMenuItem } from '../item/useMenuItem';
 
 const InnerMenuRadioItem = React.memo(
   React.forwardRef(function InnerMenuRadioItem(
@@ -34,9 +34,7 @@ const InnerMenuRadioItem = React.memo(
       ...other
     } = props;
 
-    const { getItemProps } = useMenuRadioItem({
-      checked,
-      setChecked,
+    const { getItemProps: getMenuItemProps } = useMenuItem({
       closeOnClick,
       disabled,
       highlighted,
@@ -46,6 +44,23 @@ const InnerMenuRadioItem = React.memo(
       allowMouseUpTriggerRef,
       typingRef,
     });
+
+    const getItemProps = React.useCallback(
+      (externalProps?: HTMLProps): HTMLProps => {
+        return mergeProps(
+          {
+            role: 'menuitemradio',
+            'aria-checked': checked,
+            onClick: (event: React.MouseEvent) => {
+              setChecked(event.nativeEvent);
+            },
+          },
+          externalProps,
+          getMenuItemProps,
+        );
+      },
+      [checked, getMenuItemProps, setChecked],
+    );
 
     const state: MenuRadioItem.State = { disabled, highlighted, checked };
 

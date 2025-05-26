@@ -56,7 +56,9 @@ export const FieldRoot = React.forwardRef(function FieldRoot(
     setDirtyUnwrapped(value);
   }, []);
 
-  const invalid = Boolean(invalidProp || (name && {}.hasOwnProperty.call(errors, name)));
+  const invalid = Boolean(
+    invalidProp || (name && {}.hasOwnProperty.call(errors, name) && errors[name] !== undefined),
+  );
 
   const [validityData, setValidityData] = React.useState<FieldValidityData>({
     state: DEFAULT_VALIDITY_STATE,

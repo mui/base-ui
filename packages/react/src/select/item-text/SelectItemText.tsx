@@ -24,7 +24,9 @@ const InnerSelectItemText = React.memo(
       (node: HTMLElement | null) => {
         // Wait for the DOM indices to be set.
         queueMicrotask(() => {
-          if (selected || (selectedItemTextRef.current === null && indexRef.current === 0)) {
+          const hasNoSelectedItemText =
+            selectedItemTextRef.current === null || !selectedItemTextRef.current.isConnected;
+          if (selected || (hasNoSelectedItemText && indexRef.current === 0)) {
             selectedItemTextRef.current = node;
           }
         });

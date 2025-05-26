@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { DialogRootContext, useOptionalDialogRootContext } from './DialogRootContext';
 import { DialogContext } from '../utils/DialogContext';
-import { useDialogRoot } from './useDialogRoot';
+import { type DialogOpenChangeReason, useDialogRoot } from './useDialogRoot';
 
 /**
  * Groups all parts of the dialog.
@@ -63,4 +63,6 @@ export namespace DialogRoot {
   }
 
   export type Actions = useDialogRoot.Actions;
+
+  export type OpenChangeReason = DialogOpenChangeReason;
 }

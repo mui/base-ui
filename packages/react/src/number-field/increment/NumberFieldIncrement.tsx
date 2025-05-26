@@ -1,11 +1,12 @@
 'use client';
 import * as React from 'react';
+import type { BaseUIComponentProps } from '../../utils/types';
+import { useRenderElement } from '../../utils/useRenderElement';
+import { useButton } from '../../use-button';
 import { useNumberFieldRootContext } from '../root/NumberFieldRootContext';
 import { useNumberFieldButton } from '../root/useNumberFieldButton';
 import type { NumberFieldRoot } from '../root/NumberFieldRoot';
-import type { BaseUIComponentProps } from '../../utils/types';
 import { styleHookMapping } from '../utils/styleHooks';
-import { useRenderElement } from '../../utils/useRenderElement';
 
 /**
  * A stepper button that increases the field value when clicked.
@@ -20,7 +21,33 @@ export const NumberFieldIncrement = React.forwardRef(function NumberFieldIncreme
   const { render, className, disabled: disabledProp = false, ...elementProps } = componentProps;
 
   const {
+    allowInputSyncRef,
+    disabled: contextDisabled,
+    formatOptionsRef,
+    getStepAmount,
+    id,
+    incrementValue,
+    inputRef,
+    inputValue,
+    intentionalTouchCheckTimeout,
+    isPressedRef,
+    locale,
+    maxWithDefault,
+    minWithDefault,
+    movesAfterTouchRef,
+    readOnly,
+    setValue,
+    startAutoChange,
     state,
+    stopAutoChange,
+    value,
+    valueRef,
+  } = useNumberFieldRootContext();
+
+  const disabled = disabledProp || contextDisabled;
+
+  const { props } = useNumberFieldButton({
+    isIncrement: true,
     inputRef,
     startAutoChange,
     stopAutoChange,
@@ -41,35 +68,16 @@ export const NumberFieldIncrement = React.forwardRef(function NumberFieldIncreme
     intentionalTouchCheckTimeout,
     movesAfterTouchRef,
     locale,
-  } = useNumberFieldRootContext();
+  });
 
-  const { getCommonButtonProps } = useNumberFieldButton({
-    inputRef,
-    startAutoChange,
-    stopAutoChange,
-    minWithDefault,
-    maxWithDefault,
-    value,
-    inputValue,
-    disabled: disabledProp || disabled,
-    readOnly,
-    id,
-    setValue,
-    getStepAmount,
-    incrementValue,
-    allowInputSyncRef,
-    formatOptionsRef,
-    valueRef,
-    isPressedRef,
-    intentionalTouchCheckTimeout,
-    movesAfterTouchRef,
-    locale,
+  const { getButtonProps, buttonRef } = useButton({
+    disabled,
   });
 
   const element = useRenderElement('button', componentProps, {
-    ref: forwardedRef,
+    ref: [forwardedRef, buttonRef],
     state,
-    props: [getCommonButtonProps(true), elementProps],
+    props: [props, elementProps, getButtonProps],
     customStyleHookMapping: styleHookMapping,
   });
 
