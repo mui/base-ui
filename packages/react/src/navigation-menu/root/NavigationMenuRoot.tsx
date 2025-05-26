@@ -37,7 +37,7 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot(
     onValueChange,
     actionsRef,
     delay = 50,
-    closeDelay = 200,
+    closeDelay = 50,
     orientation = 'horizontal',
     onOpenChangeComplete,
   } = componentProps;
@@ -263,7 +263,7 @@ export namespace NavigationMenuRoot {
     delay?: number;
     /**
      * How long to wait before closing the navigation menu. Specified in milliseconds.
-     * @default 200
+     * @default 50
      */
     closeDelay?: number;
     /**
