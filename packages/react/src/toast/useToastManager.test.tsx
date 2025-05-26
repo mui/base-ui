@@ -784,7 +784,7 @@ describe('useToast', () => {
       );
     }
 
-    it('marks toasts as limited when the limit', async () => {
+    it('marks toasts as limited when the limit is exceeded', async () => {
       await render(
         <Toast.Provider limit={2}>
           <Toast.Viewport>
