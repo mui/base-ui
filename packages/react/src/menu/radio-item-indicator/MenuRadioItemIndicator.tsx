@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useMenuRadioItemContext } from '../radio-item/MenuRadioItemContext';
-import { useRenderElementLazy } from '../../utils/useRenderElement';
+import { useRenderElement } from '../../utils/useRenderElement';
 import { BaseUIComponentProps } from '../../utils/types';
 import { itemMapping } from '../utils/styleHookMapping';
 import { TransitionStatus, useTransitionStatus } from '../../utils/useTransitionStatus';
@@ -45,7 +45,7 @@ export const MenuRadioItemIndicator = React.forwardRef(function MenuRadioItemInd
     [item.checked, item.disabled, item.highlighted, transitionStatus],
   );
 
-  const renderElement = useRenderElementLazy('span', componentProps, {
+  const element = useRenderElement('span', componentProps, {
     state,
     customStyleHookMapping: itemMapping,
     ref: [forwardedRef, indicatorRef],
@@ -53,14 +53,10 @@ export const MenuRadioItemIndicator = React.forwardRef(function MenuRadioItemInd
       'aria-hidden': true,
       ...elementProps,
     },
+    enabled: keepMounted || item.checked,
   });
 
-  const shouldRender = keepMounted || item.checked;
-  if (!shouldRender) {
-    return null;
-  }
-
-  return renderElement();
+  return element;
 });
 
 export namespace MenuRadioItemIndicator {

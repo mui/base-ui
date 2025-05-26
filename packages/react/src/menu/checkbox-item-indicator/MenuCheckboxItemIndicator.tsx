@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useMenuCheckboxItemContext } from '../checkbox-item/MenuCheckboxItemContext';
-import { useRenderElementLazy } from '../../utils/useRenderElement';
+import { useRenderElement } from '../../utils/useRenderElement';
 import { BaseUIComponentProps } from '../../utils/types';
 import { itemMapping } from '../utils/styleHookMapping';
 import { TransitionStatus, useTransitionStatus } from '../../utils/useTransitionStatus';
@@ -45,7 +45,7 @@ export const MenuCheckboxItemIndicator = React.forwardRef(function MenuCheckboxI
     [item.checked, item.disabled, item.highlighted, transitionStatus],
   );
 
-  const renderElement = useRenderElementLazy('span', componentProps, {
+  const element = useRenderElement('span', componentProps, {
     state,
     ref: [forwardedRef, indicatorRef],
     customStyleHookMapping: itemMapping,
@@ -53,14 +53,10 @@ export const MenuCheckboxItemIndicator = React.forwardRef(function MenuCheckboxI
       'aria-hidden': true,
       ...elementProps,
     },
+    enabled: keepMounted || item.checked,
   });
 
-  const shouldRender = keepMounted || item.checked;
-  if (!shouldRender) {
-    return null;
-  }
-
-  return renderElement();
+  return element;
 });
 
 export namespace MenuCheckboxItemIndicator {
