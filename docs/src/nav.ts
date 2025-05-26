@@ -65,6 +65,10 @@ export const nav = [
         href: '/react/components/collapsible',
       },
       {
+        label: 'Context Menu',
+        href: '/react/components/context-menu',
+      },
+      {
         label: 'Dialog',
         href: '/react/components/dialog',
       },
