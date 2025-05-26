@@ -631,15 +631,15 @@ importers:
       lodash:
         specifier: ^4.17.21
         version: 4.17.21
-      react-api-extractor:
-        specifier: https://pkg.pr.new/typescript-api-extractor@980a687
-        version: typescript-api-extractor@https://pkg.pr.new/typescript-api-extractor@980a687(typescript@5.8.3)
       rimraf:
         specifier: ^6.0.1
         version: 6.0.1
       tsx:
         specifier: ^4.19.4
         version: 4.19.4
+      typescript-api-extractor:
+        specifier: 1.0.0-alpha.2
+        version: 1.0.0-alpha.2(typescript@5.8.3)
       yargs:
         specifier: ^17.7.2
         version: 17.7.2
@@ -9069,9 +9069,8 @@ packages:
   typedarray@0.0.6:
     resolution: {integrity: sha512-/aCDEGatGvZ2BIk+HmLf4ifCJFwvKFNb9/JeZPMulfgFracn9QFcAf5GO8B/mweUjSoblS5In0cWhqpfs/5PQA==}
 
-  typescript-api-extractor@https://pkg.pr.new/typescript-api-extractor@980a687:
-    resolution: {tarball: https://pkg.pr.new/typescript-api-extractor@980a687}
-    version: 1.0.0-alpha.1
+  typescript-api-extractor@1.0.0-alpha.2:
+    resolution: {integrity: sha512-AnuAaTljzPRT+QnBJY0cNSJKYuvQ4Z4ljmISztgSg8SrvLR8UJ6zV/WxpVEjgGJXB1kJ3phC6O/NrdqU7JimkA==}
     engines: {node: '>=18'}
     peerDependencies:
       typescript: ^5.8
@@ -19505,7 +19504,7 @@ snapshots:
 
   typedarray@0.0.6: {}
 
-  typescript-api-extractor@https://pkg.pr.new/typescript-api-extractor@980a687(typescript@5.8.3):
+  typescript-api-extractor@1.0.0-alpha.2(typescript@5.8.3):
     dependencies:
       lodash: 4.17.21
       typescript: 5.8.3
