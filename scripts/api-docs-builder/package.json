@@ -6,7 +6,7 @@
     "@types/lodash": "^4.17.16",
     "@types/yargs": "^17.0.33",
     "lodash": "^4.17.21",
-    "react-api-extractor": "https://pkg.pr.new/michaldudak/react-api-extractor@a8b9c7c",
+    "react-api-extractor": "https://pkg.pr.new/typescript-api-extractor@980a687",
     "rimraf": "^6.0.1",
     "tsx": "^4.19.4",
     "yargs": "^17.7.2"

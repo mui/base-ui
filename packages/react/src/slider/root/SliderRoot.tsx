@@ -460,6 +460,8 @@ export namespace SliderRoot {
      * @param {Event} event The corresponding event that initiated the change.
      * You can pull out the new value by accessing `event.target.value` (any).
      * @param {number} activeThumbIndex Index of the currently moved thumb.
+     *
+     * @type {((value: (number | number[]), event: Event, activeThumbIndex: number) => void)}
      */
     onValueChange?: (
       value: Value extends number ? number : Value,
@@ -472,6 +474,8 @@ export namespace SliderRoot {
      * @param {number | number[]} value The new value.
      * @param {Event} event The corresponding event that initiated the change.
      * **Warning**: This is a generic event not a change event.
+     *
+     * @type {((value: (number | number[]), event: Event) => void)}
      */
     onValueCommitted?: (value: Value extends number ? number : Value, event: Event) => void;
   }

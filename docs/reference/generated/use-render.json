@@ -25,5 +25,5 @@
       "description": "If `false`, the hook will skip most of its internal logic and return `null`.\nThis is useful for rendering a component conditionally."
     }
   },
-  "returnValue": "null"
+  "returnValue": "ReactElement | null"
 }
