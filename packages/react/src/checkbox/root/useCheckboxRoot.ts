@@ -218,7 +218,7 @@ export function useCheckboxRoot(params: useCheckboxRoot.Parameters): useCheckbox
             }
           },
         },
-        getInputValidationProps(externalProps),
+        groupContext ? getValidationProps(externalProps) : getInputValidationProps(externalProps),
       ),
     [
       checked,
@@ -228,6 +228,7 @@ export function useCheckboxRoot(params: useCheckboxRoot.Parameters): useCheckbox
       required,
       mergedInputRef,
       getInputValidationProps,
+      getValidationProps,
       setDirty,
       validityData.initialValue,
       setCheckedState,
