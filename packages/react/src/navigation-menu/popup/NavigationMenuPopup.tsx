@@ -13,6 +13,7 @@ import { useNavigationMenuPositionerContext } from '../positioner/NavigationMenu
 import { useDirection } from '../../direction-provider/DirectionContext';
 import { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping';
+import { useAnimationFrame } from '../../utils/useAnimationFrame';
 
 const customStyleHookMapping: CustomStyleHookMapping<NavigationMenuPopup.State> = {
   ...baseMapping,
@@ -47,6 +48,7 @@ export const NavigationMenuPopup = React.forwardRef(function NavigationMenuPopup
   const direction = useDirection();
 
   const id = useBaseUiId(idProp);
+  const frame = useAnimationFrame();
 
   const state: NavigationMenuPopup.State = React.useMemo(
     () => ({
@@ -91,14 +93,14 @@ export const NavigationMenuPopup = React.forwardRef(function NavigationMenuPopup
 
     prevSize.current = { width: nextWidth, height: nextHeight };
 
-    const frame = requestAnimationFrame(() => {
+    frame.request(() => {
       popupElement.style.setProperty('--popup-width', `${nextWidth}px`);
       popupElement.style.setProperty('--popup-height', `${nextHeight}px`);
     });
     return () => {
-      cancelAnimationFrame(frame);
+      frame.cancel();
     };
-  }, [positionerElement, value, popupElement]);
+  }, [positionerElement, value, popupElement, frame]);
 
   // Allow the arrow to transition while the popup's size transitions.
   useModernLayoutEffect(() => {
