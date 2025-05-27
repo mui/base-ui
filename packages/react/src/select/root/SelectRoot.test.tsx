@@ -1382,7 +1382,7 @@ describe('<Select.Root />', () => {
       const { user } = await renderFakeTimers(
         <Select.Root multiple>
           <Select.Trigger data-testid="trigger">
-            <Select.Value />
+            <Select.Value>placeholder</Select.Value>
           </Select.Trigger>
           <Select.Portal>
             <Select.Positioner>
@@ -1426,7 +1426,7 @@ describe('<Select.Root />', () => {
         return (
           <Select.Root multiple value={value} onValueChange={setValue}>
             <Select.Trigger data-testid="trigger">
-              <Select.Value />
+              <Select.Value>placeholder</Select.Value>
             </Select.Trigger>
             <Select.Portal>
               <Select.Positioner>
@@ -1475,7 +1475,7 @@ describe('<Select.Root />', () => {
           >
             <Select.Root name="fruits" multiple>
               <Select.Trigger data-testid="trigger">
-                <Select.Value />
+                <Select.Value>placeholder</Select.Value>
               </Select.Trigger>
               <Select.Portal>
                 <Select.Positioner>
@@ -1517,7 +1517,7 @@ describe('<Select.Root />', () => {
           >
             <Select.Root name="fruits" multiple value={value} onValueChange={setValue}>
               <Select.Trigger data-testid="trigger">
-                <Select.Value />
+                <Select.Value>placeholder</Select.Value>
               </Select.Trigger>
               <Select.Portal>
                 <Select.Positioner>

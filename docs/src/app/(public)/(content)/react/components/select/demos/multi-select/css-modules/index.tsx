@@ -7,7 +7,7 @@ export default function ExampleMultiSelect() {
   return (
     <Select.Root multiple>
       <Select.Trigger className={styles.Select}>
-        <Select.Value placeholder="Select fruits" />
+        <Select.Value>Select fruits</Select.Value>
         <Select.Icon className={styles.SelectIcon}>
           <ChevronUpDownIcon />
         </Select.Icon>
