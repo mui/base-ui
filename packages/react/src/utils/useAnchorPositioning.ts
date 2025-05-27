@@ -109,7 +109,6 @@ export function useAnchorPositioning(
     keepMounted = false,
     floatingRootContext,
     mounted,
-    trackAnchor = true,
     collisionAvoidance,
     shiftCrossAxis = false,
     nodeId,
