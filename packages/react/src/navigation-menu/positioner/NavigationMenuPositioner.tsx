@@ -10,7 +10,7 @@ import {
   useNavigationMenuTreeContext,
 } from '../root/NavigationMenuRootContext';
 import { useNavigationMenuPortalContext } from '../portal/NavigationMenuPortalContext';
-import type { Align, Side } from '../../utils/useAnchorPositioning';
+import { useAnchorPositioning, type Align, type Side } from '../../utils/useAnchorPositioning';
 import { NavigationMenuPositionerContext } from './NavigationMenuPositionerContext';
 import { ownerDocument, ownerWindow } from '../../utils/owner';
 import { useAnimationsFinished } from '../../utils/useAnimationsFinished';
@@ -134,7 +134,7 @@ export const NavigationMenuPositioner = React.forwardRef(function NavigationMenu
     };
   }, [positionerElement]);
 
-  const positioning = useNavigationMenuPositioner({
+  const positioning = useAnchorPositioning({
     anchor: anchor ?? floatingRootContext?.elements.domReference ?? prevTriggerElementRef,
     positionMethod,
     mounted,
@@ -211,6 +211,23 @@ export const NavigationMenuPositioner = React.forwardRef(function NavigationMenu
     },
   });
 
+  const defaultProps: React.ComponentProps<'div'> = React.useMemo(() => {
+    const hiddenStyles: React.CSSProperties = {};
+
+    if (!open) {
+      hiddenStyles.pointerEvents = 'none';
+    }
+
+    return {
+      role: 'presentation',
+      hidden: !mounted,
+      style: {
+        ...positioning.positionerStyles,
+        ...hiddenStyles,
+      },
+    };
+  }, [open, mounted, positioning.positionerStyles]);
+
   const state: NavigationMenuPositioner.State = React.useMemo(
     () => ({
       open,
@@ -225,7 +242,7 @@ export const NavigationMenuPositioner = React.forwardRef(function NavigationMenu
   const element = useRenderElement('div', componentProps, {
     state,
     ref: [forwardedRef, setPositionerElement, positionerRef],
-    props: [positioning.props, elementProps],
+    props: [defaultProps, elementProps],
     customStyleHookMapping: popupStateMapping,
   });
 

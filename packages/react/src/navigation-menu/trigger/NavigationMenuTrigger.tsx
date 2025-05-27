@@ -79,7 +79,6 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
   const nodeId = useNavigationMenuTreeContext();
   const tree = useFloatingTree();
 
-  const timeout = useTimeout();
   const stickIfOpenTimeout = useTimeout();
   const focusFrame = useAnimationFrame();
   const sizeFrame1 = useAnimationFrame();
@@ -123,10 +122,6 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
       });
     });
   });
-
-  React.useEffect(() => {
-    timeout.clear();
-  }, [value, timeout]);
 
   React.useEffect(() => {
     if (!open) {

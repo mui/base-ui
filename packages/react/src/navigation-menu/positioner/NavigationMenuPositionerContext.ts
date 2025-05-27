@@ -1,9 +1,9 @@
 'use client';
 import * as React from 'react';
-import { useNavigationMenuPositioner } from './useNavigationMenuPositioner';
+import { useAnchorPositioning } from '../../utils/useAnchorPositioning';
 
 export const NavigationMenuPositionerContext = React.createContext<
-  ReturnType<typeof useNavigationMenuPositioner> | undefined
+  ReturnType<typeof useAnchorPositioning> | undefined
 >(undefined);
 
 if (process.env.NODE_ENV !== 'production') {

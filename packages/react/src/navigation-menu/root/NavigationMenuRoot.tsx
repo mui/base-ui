@@ -213,8 +213,9 @@ function TreeContext(props: {
   const state: NavigationMenuRoot.State = React.useMemo(
     () => ({
       open,
+      nested,
     }),
-    [open],
+    [open, nested],
   );
 
   const element = useRenderElement(nested ? 'div' : 'nav', props.componentProps, {
@@ -236,6 +237,10 @@ export namespace NavigationMenuRoot {
      * If `true`, the popup is open.
      */
     open: boolean;
+    /**
+     * Whether the navigation menu is nested.
+     */
+    nested: boolean;
   }
 
   export interface Props extends BaseUIComponentProps<'nav', State> {

@@ -4,7 +4,7 @@ import * as ReactDOM from 'react-dom';
 import { FloatingNode } from '@floating-ui/react';
 import { contains } from '@floating-ui/react/utils';
 import type { BaseUIComponentProps } from '../../utils/types';
-import { useRenderElementLazy } from '../../utils/useRenderElement';
+import { useRenderElement } from '../../utils/useRenderElement';
 import {
   useNavigationMenuRootContext,
   useNavigationMenuTreeContext,
@@ -102,7 +102,10 @@ export const NavigationMenuContent = React.forwardRef(function NavigationMenuCon
     },
   };
 
-  const renderElement = useRenderElementLazy('div', componentProps, {
+  const shouldRender = viewportElement !== null && mounted;
+
+  const element = useRenderElement('div', componentProps, {
+    enabled: shouldRender,
     state,
     ref: [forwardedRef, ref, handleCurrentContentRef],
     props: [
@@ -118,13 +121,13 @@ export const NavigationMenuContent = React.forwardRef(function NavigationMenuCon
     customStyleHookMapping,
   });
 
-  if (!viewportElement || !mounted) {
+  if (!viewportElement || !element) {
     return null;
   }
 
   return ReactDOM.createPortal(
     <FloatingNode id={nodeId}>
-      <CompositeRoot render={renderElement()} stopEventPropagation />
+      <CompositeRoot render={element} stopEventPropagation />
     </FloatingNode>,
     viewportElement,
   );
