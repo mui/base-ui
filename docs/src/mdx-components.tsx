@@ -4,6 +4,7 @@ import * as CodeBlock from './components/CodeBlock';
 import * as Table from './components/Table';
 import * as QuickNav from './components/QuickNav/QuickNav';
 import { Code } from './components/Code';
+import { NoSSR } from './components/NoSSR';
 import { PropsReferenceTable } from './components/ReferenceTable/PropsReferenceTable';
 import { AttributesReferenceTable } from './components/ReferenceTable/AttributesReferenceTable';
 import { CssVariablesReferenceTable } from './components/ReferenceTable/CssVariablesReferenceTable';
@@ -85,7 +86,14 @@ export const mdxComponents: MDXComponents = {
   td: Table.Cell,
 
   // Custom components
-  Demo: (props) => <DemoLoader className="mt-5 mb-6" {...props} />,
+  Demo:
+    process.env.DISABLE_DEMO_SSR === 'true'
+      ? (props) => (
+          <NoSSR>
+            <DemoLoader className="mt-5 mb-6" {...props} />
+          </NoSSR>
+        )
+      : (props) => <DemoLoader className="mt-5 mb-6" {...props} />,
   QuickNav,
   Meta: (props: React.ComponentProps<'meta'>) => {
     if (props.name === 'description' && String(props.content).length > 170) {
