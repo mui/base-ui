@@ -197,7 +197,7 @@ describe('useButton', () => {
 
       const { container } = await renderToString(<TestButton disabled type="submit" />);
 
-      expect(container.firstChild).to.have.text('Submit');
+      expect(container.firstChild).to.have.property('type', 'submit');
     });
 
     it('adds disabled attribute', async () => {
