@@ -2,7 +2,6 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import {
-  safePolygon,
   useClick,
   useDismiss,
   useFloatingRootContext,
@@ -39,6 +38,7 @@ import { pressableTriggerOpenStateMapping } from '../../utils/popupStateMapping'
 import { isOutsideMenuEvent } from '../utils/isOutsideMenuEvent';
 import { useTimeout } from '../../utils/useTimeout';
 import { useAnimationFrame } from '../../utils/useAnimationFrame';
+import { safePolygon } from '../../utils/floating-ui/safePolygon';
 
 const TRIGGER_IDENTIFIER = 'data-navigation-menu-trigger';
 
@@ -73,6 +73,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     delay,
     closeDelay,
     orientation,
+    listRef,
   } = useNavigationMenuRootContext();
   const itemValue = useNavigationMenuItemContext();
   const nodeId = useNavigationMenuTreeContext();
@@ -208,7 +209,18 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
 
   const hover = useHover(context, {
     move: false,
-    handleClose: safePolygon({ blockPointerEvents: pointerType !== 'touch' }),
+    handleClose: safePolygon({
+      blockPointerEvents: pointerType !== 'touch',
+      // Ensure traversing from the popup to a new trigger doesn't close the popup
+      // when the cursor is between the trigger and the popup.
+      blockClose(event) {
+        const target = getTarget(event) as HTMLElement | null;
+        if (listRef.current === target || contains(positionerElement, target)) {
+          return true;
+        }
+        return false;
+      },
+    }),
     restMs: mounted ? 0 : delay,
     delay: { close: closeDelay },
   });

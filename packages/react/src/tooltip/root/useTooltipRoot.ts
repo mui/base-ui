@@ -1,7 +1,6 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import {
-  safePolygon,
   useClientPoint,
   useNextDelayGroup,
   useDismiss,
@@ -23,6 +22,7 @@ import {
 } from '../../utils/translateOpenChangeReason';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useTooltipProviderContext } from '../provider/TooltipProviderContext';
+import { safePolygon } from '../../utils/floating-ui/safePolygon';
 
 export type TooltipOpenChangeReason = BaseOpenChangeReason | 'disabled';
 

@@ -18,7 +18,9 @@ import { NavigationMenu } from '@base-ui-components/react/navigation-menu';
 <NavigationMenu.Root>
   <NavigationMenu.List>
     <NavigationMenu.Item>
-      <NavigationMenu.Trigger />
+      <NavigationMenu.Trigger>
+        <NavigationMenu.Icon />
+      </NavigationMenu.Trigger>
       <NavigationMenu.Content>
         <NavigationMenu.Link />
       </NavigationMenu.Content>
@@ -70,7 +72,7 @@ function Link(props: NavigationMenu.Link.Props) {
 
 ### Large menus
 
-When you have large menu content, you usually have two choices:
+When you have large menu content that doesn't fit in the viewport in some cases, you usually have two choices:
 
 1. Compress the navigation menu content
 

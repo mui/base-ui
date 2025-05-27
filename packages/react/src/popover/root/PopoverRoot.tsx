@@ -2,7 +2,6 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import {
-  safePolygon,
   useDismiss,
   useFloatingRootContext,
   useHover,
@@ -21,6 +20,7 @@ import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { PATIENT_CLICK_THRESHOLD } from '../../utils/constants';
 import { useScrollLock } from '../../utils/useScrollLock';
 import { PopoverOpenChangeReason, PopoverRootContext } from './PopoverRootContext';
+import { safePolygon } from '../../utils/floating-ui/safePolygon';
 
 /**
  * Groups all parts of the popover.

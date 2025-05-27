@@ -8,6 +8,32 @@
 
 .List {
   display: flex;
+  position: relative;
+
+  &::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: -10px;
+    height: 10px;
+    pointer-events: none;
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -10px;
+    height: 10px;
+    pointer-events: none;
+  }
+
+  &[data-open]::before,
+  &[data-open]::after {
+    pointer-events: auto;
+  }
 }
 
 .Trigger {
@@ -50,6 +76,14 @@
     position: relative;
     outline: 2px solid var(--color-blue);
     outline-offset: -1px;
+  }
+}
+
+.Icon {
+  transition: transform 0.2s ease;
+
+  &[data-popup-open] {
+    transform: rotate(180deg);
   }
 }
 

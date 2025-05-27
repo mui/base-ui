@@ -17,18 +17,33 @@ export const NavigationMenuList = React.forwardRef(function NavigationMenuList(
 ) {
   const { className, render, ...elementProps } = componentProps;
 
-  const { orientation } = useNavigationMenuRootContext();
+  const { orientation, open, listRef } = useNavigationMenuRootContext();
+
+  const state: NavigationMenuList.State = React.useMemo(
+    () => ({
+      open,
+    }),
+    [open],
+  );
 
   const element = useRenderElement('div', componentProps, {
-    ref: forwardedRef,
+    state,
+    ref: [forwardedRef, listRef],
     props: elementProps,
   });
 
-  return <CompositeRoot render={element} loop={false} orientation={orientation} />;
+  return (
+    <CompositeRoot render={element} loop={false} orientation={orientation} stopEventPropagation />
+  );
 });
 
 export namespace NavigationMenuList {
-  export interface State {}
+  export interface State {
+    /**
+     * If `true`, any popup is open.
+     */
+    open: boolean;
+  }
 
   export interface Props extends BaseUIComponentProps<'div', State> {}
 }

@@ -9,8 +9,8 @@ export default function ExampleNavigationMenu() {
         <NavigationMenu.Item>
           <NavigationMenu.Trigger className={styles.Trigger}>
             Overview
-            <NavigationMenu.Icon>
-              <ChevronDownIcon className={styles.Icon} />
+            <NavigationMenu.Icon className={styles.Icon}>
+              <ChevronDownIcon />
             </NavigationMenu.Icon>
           </NavigationMenu.Trigger>
           <NavigationMenu.Content className={styles.Content}>
@@ -31,8 +31,8 @@ export default function ExampleNavigationMenu() {
                       <p className={styles.LinkDescription}>
                         How to use Base UI effectively.
                       </p>
-                      <NavigationMenu.Icon>
-                        <ChevronRightIcon className={styles.NestedIcon} />
+                      <NavigationMenu.Icon className={styles.NestedIcon}>
+                        <ChevronRightIcon />
                       </NavigationMenu.Icon>
                     </NavigationMenu.Trigger>
                     <NavigationMenu.Content className={styles.Content}>

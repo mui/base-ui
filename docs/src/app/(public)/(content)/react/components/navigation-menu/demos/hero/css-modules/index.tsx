@@ -9,8 +9,8 @@ export default function ExampleNavigationMenu() {
         <NavigationMenu.Item>
           <NavigationMenu.Trigger className={styles.Trigger}>
             Overview
-            <NavigationMenu.Icon>
-              <ChevronDownIcon className={styles.Icon} />
+            <NavigationMenu.Icon className={styles.Icon}>
+              <ChevronDownIcon />
             </NavigationMenu.Icon>
           </NavigationMenu.Trigger>
           <NavigationMenu.Content className={styles.Content}>
@@ -30,8 +30,8 @@ export default function ExampleNavigationMenu() {
         <NavigationMenu.Item>
           <NavigationMenu.Trigger className={styles.Trigger}>
             Handbook
-            <NavigationMenu.Icon>
-              <ChevronDownIcon className={styles.Icon} />
+            <NavigationMenu.Icon className={styles.Icon}>
+              <ChevronDownIcon />
             </NavigationMenu.Icon>
           </NavigationMenu.Trigger>
           <NavigationMenu.Content className={styles.Content}>

@@ -3,7 +3,6 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import {
   FloatingTree,
-  safePolygon,
   useDismiss,
   useFloatingRootContext,
   useFocus,
@@ -33,6 +32,7 @@ import {
   useContextMenuRootContext,
 } from '../../context-menu/root/ContextMenuRootContext';
 import { ownerDocument } from '../../utils/owner';
+import { safePolygon } from '../../utils/floating-ui/safePolygon';
 
 const EMPTY_ARRAY: never[] = [];
 const EMPTY_REF = { current: false };

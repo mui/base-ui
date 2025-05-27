@@ -4,12 +4,12 @@ import { NavigationMenu } from '@base-ui-components/react/navigation-menu';
 export default function ExampleNavigationMenu() {
   return (
     <NavigationMenu.Root className="min-w-max rounded-lg bg-gray-50 p-1 text-gray-900">
-      <NavigationMenu.List className="flex">
+      <NavigationMenu.List className="relative flex before:pointer-events-none before:absolute before:-top-2.5 before:right-0 before:left-0 before:h-2.5 before:content-[''] after:pointer-events-none after:absolute after:right-0 after:-bottom-2.5 after:left-0 after:h-2.5 after:content-[''] data-[open]:before:pointer-events-auto data-[open]:after:pointer-events-auto">
         <NavigationMenu.Item>
           <NavigationMenu.Trigger className={triggerClassName}>
             Overview
-            <NavigationMenu.Icon>
-              <ChevronDownIcon className="h-2.5 w-2.5 shrink-0 text-current" />
+            <NavigationMenu.Icon className="transition-transform duration-200 ease-in-out data-[popup-open]:rotate-180">
+              <ChevronDownIcon />
             </NavigationMenu.Icon>
           </NavigationMenu.Trigger>
 
@@ -39,8 +39,8 @@ export default function ExampleNavigationMenu() {
                           How to use Base UI effectively.
                         </p>
                       </div>
-                      <NavigationMenu.Icon>
-                        <ChevronRightIcon className="absolute top-1/2 right-3 h-2.5 w-2.5 shrink-0 -translate-y-1/2 text-current" />
+                      <NavigationMenu.Icon className="absolute top-1/2 right-2.5 flex h-2.5 w-2.5 -translate-y-1/2 items-center justify-center transition-transform duration-200 ease-in-out data-[popup-open]:rotate-180">
+                        <ChevronRightIcon />
                       </NavigationMenu.Icon>
                     </NavigationMenu.Trigger>
                     <NavigationMenu.Content className={contentClassName}>

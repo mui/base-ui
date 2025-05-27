@@ -56,6 +56,7 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot(
 
   const closeReasonRef = React.useRef<BaseOpenChangeReason | undefined>(undefined);
   const rootRef = React.useRef<HTMLDivElement | null>(null);
+  const listRef = React.useRef<HTMLDivElement | null>(null);
 
   const setValue = useEventCallback(
     (nextValue: any, event: Event | undefined, reason: BaseOpenChangeReason | undefined) => {
@@ -149,6 +150,7 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot(
       delay,
       closeDelay,
       orientation,
+      listRef,
     }),
     [
       open,
@@ -206,7 +208,17 @@ function TreeContext(props: {
   const nodeId = useFloatingNodeId();
   const { rootRef, nested } = useNavigationMenuRootContext();
 
+  const { open } = useNavigationMenuRootContext();
+
+  const state: NavigationMenuRoot.State = React.useMemo(
+    () => ({
+      open,
+    }),
+    [open],
+  );
+
   const element = useRenderElement(nested ? 'div' : 'nav', props.componentProps, {
+    state,
     ref: [props.forwardedRef, rootRef],
     props: [{ 'aria-orientation': orientation }, elementProps],
   });
@@ -219,7 +231,12 @@ function TreeContext(props: {
 }
 
 export namespace NavigationMenuRoot {
-  export interface State {}
+  export interface State {
+    /**
+     * If `true`, any popup is open.
+     */
+    open: boolean;
+  }
 
   export interface Props extends BaseUIComponentProps<'nav', State> {
     /**
