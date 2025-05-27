@@ -180,15 +180,12 @@ export const createSelectorMemoized: CreateSelectorFunction = (...selectors: any
     fn.selectorArgs[1] = a2;
     fn.selectorArgs[2] = a3;
 
+    // prettier-ignore
     switch (argsLength) {
-      case 0:
-        return fn(state);
-      case 1:
-        return fn(state, a1);
-      case 2:
-        return fn(state, a1, a2);
-      case 3:
-        return fn(state, a1, a2, a3);
+      case 0: return fn(state);
+      case 1: return fn(state, a1);
+      case 2: return fn(state, a1, a2);
+      case 3: return fn(state, a1, a2, a3);
       default:
         throw new Error('unreachable');
     }

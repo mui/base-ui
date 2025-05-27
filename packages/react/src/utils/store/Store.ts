@@ -28,7 +28,21 @@ export class Store<State> {
     }
   };
 
+  public apply(changes: Partial<State>) {
+    applyUpdate: for (;;) {
+      for (const key in changes) {
+        if (!Object.is(this.state[key], changes[key])) {
+          break applyUpdate;
+        }
+      }
+      return;
+    }
+    this.update({ ...this.state, ...changes });
+  }
+
   public set<T>(key: keyof State, value: T) {
-    this.update({ ...this.state, [key]: value });
+    if (!Object.is(this.state[key], value)) {
+      this.update({ ...this.state, [key]: value });
+    }
   }
 }
