@@ -3,7 +3,7 @@ import * as React from 'react';
 export interface SelectItemContext {
   selected: boolean;
   indexRef: React.RefObject<number>;
-  itemTextRef: React.RefObject<HTMLElement | null>;
+  textRef: React.RefObject<HTMLElement | null>;
 }
 
 export const SelectItemContext = React.createContext<SelectItemContext | undefined>(undefined);

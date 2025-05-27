@@ -32,7 +32,7 @@ interface InnerSelectItemProps extends Omit<SelectItem.Props, 'value'> {
   popupRef: React.RefObject<HTMLDivElement | null>;
   keyboardActiveRef: React.RefObject<boolean>;
   events: FloatingEvents;
-  itemTextRef: React.RefObject<HTMLElement | null>;
+  textRef: React.RefObject<HTMLElement | null>;
 }
 
 const InnerSelectItem = React.memo(
@@ -59,7 +59,7 @@ const InnerSelectItem = React.memo(
       popupRef,
       keyboardActiveRef,
       events,
-      itemTextRef,
+      textRef,
       ...elementProps
     } = componentProps;
 
@@ -107,9 +107,9 @@ const InnerSelectItem = React.memo(
       () => ({
         selected,
         indexRef,
-        itemTextRef,
+        textRef,
       }),
-      [selected, indexRef, itemTextRef],
+      [selected, indexRef, textRef],
     );
 
     return <SelectItemContext.Provider value={contextValue}>{element}</SelectItemContext.Provider>;
@@ -128,13 +128,9 @@ export const SelectItem = React.forwardRef(function SelectItem(
 ) {
   const { value: valueProp = null, label, ...otherProps } = props;
 
-  const itemTextRef = React.useRef<HTMLElement | null>(null);
+  const textRef = React.useRef<HTMLElement | null>(null);
 
-  const getItemText = React.useCallback(() => {
-    return itemTextRef.current?.textContent ?? null;
-  }, []);
-
-  const listItem = useCompositeListItem({ label, getItemText });
+  const listItem = useCompositeListItem({ label, textRef });
 
   const { activeIndex, selectedIndex, setActiveIndex } = useSelectIndexContext();
   const {
@@ -199,7 +195,7 @@ export const SelectItem = React.forwardRef(function SelectItem(
       popupRef={popupRef}
       keyboardActiveRef={keyboardActiveRef}
       events={floatingRootContext.events}
-      itemTextRef={itemTextRef}
+      textRef={textRef}
       {...otherProps}
     />
   );

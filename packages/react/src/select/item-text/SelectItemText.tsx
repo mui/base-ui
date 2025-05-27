@@ -9,7 +9,7 @@ interface InnerSelectItemTextProps extends SelectItemText.Props {
   selected: boolean;
   selectedItemTextRef: React.RefObject<HTMLElement | null>;
   indexRef: React.RefObject<number>;
-  itemTextRef: React.RefObject<HTMLElement | null>;
+  textRef: React.RefObject<HTMLElement | null>;
 }
 
 const InnerSelectItemText = React.memo(
@@ -17,15 +17,8 @@ const InnerSelectItemText = React.memo(
     componentProps: InnerSelectItemTextProps,
     forwardedRef: React.ForwardedRef<HTMLDivElement>,
   ) {
-    const {
-      className,
-      render,
-      selected,
-      selectedItemTextRef,
-      indexRef,
-      itemTextRef,
-      ...elementProps
-    } = componentProps;
+    const { className, render, selected, selectedItemTextRef, indexRef, textRef, ...elementProps } =
+      componentProps;
 
     const localRef = React.useCallback(
       (node: HTMLElement | null) => {
@@ -40,7 +33,7 @@ const InnerSelectItemText = React.memo(
     );
 
     const element = useRenderElement('div', componentProps, {
-      ref: [localRef, forwardedRef, itemTextRef],
+      ref: [localRef, forwardedRef, textRef],
       props: elementProps,
     });
 
@@ -60,7 +53,7 @@ export const SelectItemText = React.forwardRef(function SelectItemText(
 ) {
   const { selected, indexRef } = useSelectItemContext();
   const { selectedItemTextRef } = useSelectRootContext();
-  const { itemTextRef } = useSelectItemContext();
+  const { textRef } = useSelectItemContext();
 
   return (
     <InnerSelectItemText
@@ -68,7 +61,7 @@ export const SelectItemText = React.forwardRef(function SelectItemText(
       selected={selected}
       selectedItemTextRef={selectedItemTextRef}
       indexRef={indexRef}
-      itemTextRef={itemTextRef}
+      textRef={textRef}
       {...props}
     />
   );
