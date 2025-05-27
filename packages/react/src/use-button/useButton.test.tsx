@@ -195,11 +195,7 @@ describe('useButton', () => {
         return <input {...getButtonProps(otherProps)} />;
       }
 
-      const { container } = await renderToString(
-        <TestButton disabled type="submit">
-          Submit
-        </TestButton>,
-      );
+      const { container } = await renderToString(<TestButton disabled type="submit" />);
 
       expect(container.firstChild).to.have.text('Submit');
     });
