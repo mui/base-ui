@@ -33,6 +33,7 @@ interface InnerSelectItemProps extends Omit<SelectItem.Props, 'value'> {
   keyboardActiveRef: React.RefObject<boolean>;
   events: FloatingEvents;
   nativeButton: boolean;
+  textRef: React.RefObject<HTMLElement | null>;
 }
 
 const InnerSelectItem = React.memo(
@@ -60,6 +61,7 @@ const InnerSelectItem = React.memo(
       keyboardActiveRef,
       events,
       nativeButton,
+      textRef,
       ...elementProps
     } = componentProps;
 
@@ -104,12 +106,13 @@ const InnerSelectItem = React.memo(
       props,
     });
 
-    const contextValue = React.useMemo(
+    const contextValue: SelectItemContext = React.useMemo(
       () => ({
         selected,
         indexRef,
+        textRef,
       }),
-      [selected, indexRef],
+      [selected, indexRef, textRef],
     );
 
     return <SelectItemContext.Provider value={contextValue}>{element}</SelectItemContext.Provider>;
@@ -128,7 +131,9 @@ export const SelectItem = React.forwardRef(function SelectItem(
 ) {
   const { value: valueProp = null, label, nativeButton = false, ...otherProps } = props;
 
-  const listItem = useCompositeListItem({ label });
+  const textRef = React.useRef<HTMLElement | null>(null);
+
+  const listItem = useCompositeListItem({ label, textRef });
 
   const { activeIndex, selectedIndex, setActiveIndex } = useSelectIndexContext();
   const {
@@ -194,6 +199,7 @@ export const SelectItem = React.forwardRef(function SelectItem(
       keyboardActiveRef={keyboardActiveRef}
       events={floatingRootContext.events}
       nativeButton={nativeButton}
+      textRef={textRef}
       {...otherProps}
     />
   );
