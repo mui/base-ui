@@ -1,0 +1,53 @@
+{
+  "name": "ContextMenuRoot",
+  "description": "A component that creates a context menu activated by right clicking or long pressing.\nDoesn’t render its own HTML element.",
+  "props": {
+    "defaultOpen": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Whether the menu is initially open.\n\nTo render a controlled menu, use the `open` prop instead."
+    },
+    "open": {
+      "type": "boolean",
+      "description": "Whether the menu is currently open."
+    },
+    "onOpenChange": {
+      "type": "(open: boolean, event?: Event, reason?: Menu.Root.OpenChangeReason) => void",
+      "description": "Event handler called when the menu is opened or closed."
+    },
+    "actionsRef": {
+      "type": "RefObject<Actions>",
+      "description": "A ref to imperative actions.\n- `unmount`: When specified, the menu will not be unmounted when closed.\nInstead, the `unmount` function must be called to unmount the menu manually.\nUseful when the menu's animation is controlled by an external library."
+    },
+    "closeParentOnEsc": {
+      "type": "boolean",
+      "default": "true",
+      "description": "When in a submenu, determines whether pressing the Escape key\ncloses the entire menu, or only the current child menu."
+    },
+    "onOpenChangeComplete": {
+      "type": "((open: boolean) => void)",
+      "description": "Event handler called after any animations complete when the menu is closed."
+    },
+    "disabled": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Whether the component should ignore user interaction."
+    },
+    "loop": {
+      "type": "boolean",
+      "default": "true",
+      "description": "Whether to loop keyboard focus back to the first item\nwhen the end of the list is reached while using the arrow keys."
+    },
+    "orientation": {
+      "type": "Menu.Root.Orientation",
+      "default": "'vertical'",
+      "description": "The visual orientation of the menu.\nControls whether roving focus uses up/down or left/right arrow keys."
+    },
+    "children": {
+      "type": "ReactNode",
+      "required": true
+    }
+  },
+  "dataAttributes": {},
+  "cssVariables": {}
+}
