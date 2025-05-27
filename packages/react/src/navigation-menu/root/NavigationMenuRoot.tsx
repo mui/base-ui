@@ -233,7 +233,7 @@ function TreeContext(props: {
 export namespace NavigationMenuRoot {
   export interface State {
     /**
-     * If `true`, any popup is open.
+     * If `true`, the popup is open.
      */
     open: boolean;
   }

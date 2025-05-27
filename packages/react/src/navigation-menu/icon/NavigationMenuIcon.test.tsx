@@ -8,7 +8,11 @@ describe('<NavigationMenu.Icon />', () => {
   describeConformance(<NavigationMenu.Icon />, () => ({
     refInstanceof: window.HTMLSpanElement,
     render(node) {
-      return render(<NavigationMenu.Root>{node}</NavigationMenu.Root>);
+      return render(
+        <NavigationMenu.Root>
+          <NavigationMenu.Item>{node}</NavigationMenu.Item>
+        </NavigationMenu.Root>,
+      );
     },
   }));
 });

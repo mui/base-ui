@@ -42,7 +42,7 @@ export const NavigationMenuIcon = React.forwardRef(function NavigationMenuIcon(
 export namespace NavigationMenuIcon {
   export interface State {
     /**
-     * Whether the navigation menu is open.
+     * Whether the navigation menu is open and the item is active.
      */
     open: boolean;
   }

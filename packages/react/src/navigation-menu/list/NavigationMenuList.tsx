@@ -40,7 +40,7 @@ export const NavigationMenuList = React.forwardRef(function NavigationMenuList(
 export namespace NavigationMenuList {
   export interface State {
     /**
-     * If `true`, any popup is open.
+     * If `true`, the popup is open.
      */
     open: boolean;
   }
