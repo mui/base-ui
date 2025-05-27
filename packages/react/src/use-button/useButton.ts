@@ -6,14 +6,16 @@ import { useModernLayoutEffect } from '../utils/useModernLayoutEffect';
 import { useEventCallback } from '../utils/useEventCallback';
 import { useRootElementName } from '../utils/useRootElementName';
 import { useCompositeRootContext } from '../composite/root/CompositeRootContext';
-import { BaseUIEvent, GenericHTMLProps } from '../utils/types';
+import { BaseUIEvent, HTMLProps } from '../utils/types';
+
+const BUTTON_TYPES = new Set(['button', 'submit', 'reset']);
 
 export function useButton(parameters: useButton.Parameters = {}): useButton.ReturnValue {
   const {
     buttonRef: externalRef,
     disabled = false,
     focusableWhenDisabled,
-    tabIndex,
+    tabIndex = 0,
     type = 'button',
     elementName: elementNameProp,
   } = parameters;
@@ -30,8 +32,7 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
 
     return (
       elementName === 'BUTTON' ||
-      (elementName === 'INPUT' &&
-        ['button', 'submit', 'reset'].includes((element as HTMLInputElement)?.type))
+      (elementName === 'INPUT' && BUTTON_TYPES.has((element as HTMLInputElement)?.type))
     );
   });
 
@@ -200,7 +201,7 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
   };
 }
 
-interface GenericButtonProps extends Omit<GenericHTMLProps, 'onClick'>, AdditionalButtonProps {
+interface GenericButtonProps extends Omit<HTMLProps, 'onClick'>, AdditionalButtonProps {
   onClick?: (event: React.SyntheticEvent) => void;
 }
 
@@ -224,6 +225,9 @@ export namespace useButton {
      * @default false
      */
     focusableWhenDisabled?: boolean;
+    /**
+     * @deprecated pass the returned `buttonRef` to `useRenderElement` instead
+     */
     buttonRef?: React.Ref<Element>;
     tabIndex?: NonNullable<React.HTMLAttributes<any>['tabIndex']>;
     /**

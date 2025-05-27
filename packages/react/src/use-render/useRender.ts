@@ -1,10 +1,10 @@
 import * as React from 'react';
 import type { ComponentRenderFn } from '../utils/types';
-import { GenericHTMLProps } from '../utils/types';
+import { HTMLProps } from '../utils/types';
 import { useRenderElement } from '../utils/useRenderElement';
 
 /**
- * Returns an object with a `renderElement` function that renders a Base UI element.
+ * Renders a Base UI element.
  *
  * @public
  */
@@ -12,25 +12,12 @@ export function useRender<
   State extends Record<string, unknown>,
   RenderedElementType extends Element,
 >(params: useRender.Parameters<State, RenderedElementType>): useRender.ReturnValue {
-  const { render, props, state, refs } = params;
-  const { ref: intrinsicRefProp, ...intrinsicProps } = props || {};
-
-  const renderElement = useRenderElement(
-    undefined,
-    { render },
-    {
-      props: intrinsicProps,
-      state,
-      ref: [intrinsicRefProp, ...(refs || [])].filter(
-        (x): x is React.Ref<RenderedElementType> => x != null,
-      ),
-      styleHooks: false,
-    },
-  );
-
-  return {
-    renderElement,
+  const renderParams = params as useRender.Parameters<State, RenderedElementType> & {
+    disableStyleHooks: boolean;
   };
+  renderParams.disableStyleHooks = true;
+
+  return useRenderElement(undefined, renderParams, renderParams);
 }
 
 export namespace useRender {
@@ -44,7 +31,7 @@ export namespace useRender {
   export type ComponentProps<
     ElementType extends React.ElementType,
     State = {},
-    RenderFunctionProps = GenericHTMLProps,
+    RenderFunctionProps = HTMLProps,
   > = React.ComponentPropsWithRef<ElementType> & {
     /**
      * Allows you to replace the component’s HTML element
@@ -63,9 +50,9 @@ export namespace useRender {
      */
     render: RenderProp<State>;
     /**
-     * Refs to be merged together to access the rendered DOM element.
+     * The ref to apply to the rendered element.
      */
-    refs?: React.Ref<RenderedElementType>[];
+    ref?: React.Ref<RenderedElementType> | React.Ref<RenderedElementType>[];
     /**
      * The state of the component, passed as the second argument to the `render` callback.
      */
@@ -76,10 +63,14 @@ export namespace useRender {
      * are merged, `className` strings and `style` properties are joined, while other external props overwrite the
      * internal ones.
      */
-    props?: Record<string, unknown> & { ref?: React.Ref<RenderedElementType> };
+    props?: Record<string, unknown>;
+    /**
+     * If `false`, the hook will skip most of its internal logic and return `null`.
+     * This is useful for rendering a component conditionally.
+     * @default true
+     */
+    enabled?: boolean;
   }
 
-  export interface ReturnValue {
-    renderElement: () => React.ReactElement;
-  }
+  export type ReturnValue = React.ReactElement | null;
 }

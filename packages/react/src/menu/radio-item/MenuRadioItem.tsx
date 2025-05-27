@@ -1,17 +1,17 @@
 'use client';
 import * as React from 'react';
 import { FloatingEvents, useFloatingTree } from '@floating-ui/react';
-import { useMenuRadioItem } from './useMenuRadioItem';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useBaseUiId } from '../../utils/useBaseUiId';
-import type { BaseUIComponentProps, GenericHTMLProps } from '../../utils/types';
+import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import { useForkRef } from '../../utils/useForkRef';
 import { useMenuRadioGroupContext } from '../radio-group/MenuRadioGroupContext';
 import { MenuRadioItemContext } from './MenuRadioItemContext';
 import { itemMapping } from '../utils/styleHookMapping';
 import { useCompositeListItem } from '../../composite/list/useCompositeListItem';
 import { mergeProps } from '../../merge-props';
+import { useMenuItem } from '../item/useMenuItem';
 
 const InnerMenuRadioItem = React.memo(
   React.forwardRef(function InnerMenuRadioItem(
@@ -34,9 +34,7 @@ const InnerMenuRadioItem = React.memo(
       ...other
     } = props;
 
-    const { getItemProps } = useMenuRadioItem({
-      checked,
-      setChecked,
+    const { getItemProps: getMenuItemProps } = useMenuItem({
       closeOnClick,
       disabled,
       highlighted,
@@ -46,6 +44,23 @@ const InnerMenuRadioItem = React.memo(
       allowMouseUpTriggerRef,
       typingRef,
     });
+
+    const getItemProps = React.useCallback(
+      (externalProps?: HTMLProps): HTMLProps => {
+        return mergeProps(
+          {
+            role: 'menuitemradio',
+            'aria-checked': checked,
+            onClick: (event: React.MouseEvent) => {
+              setChecked(event.nativeEvent);
+            },
+          },
+          externalProps,
+          getMenuItemProps,
+        );
+      },
+      [checked, getMenuItemProps, setChecked],
+    );
 
     const state: MenuRadioItem.State = { disabled, highlighted, checked };
 
@@ -139,7 +154,7 @@ export const MenuRadioItem = React.forwardRef(function MenuRadioItem(
 
 interface InnerMenuRadioItemProps extends Omit<MenuRadioItem.Props, 'value'> {
   highlighted: boolean;
-  itemProps: GenericHTMLProps;
+  itemProps: HTMLProps;
   menuEvents: FloatingEvents;
   allowMouseUpTriggerRef: React.RefObject<boolean>;
   checked: boolean;

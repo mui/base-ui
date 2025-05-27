@@ -1,12 +1,14 @@
 import sortBy from 'lodash/sortBy.js';
 import * as rae from 'react-api-extractor';
+import fs from 'fs';
+import path from 'path';
 
 export function formatProperties(props: rae.PropertyNode[]) {
   const result: Record<string, any> = {};
 
   for (const prop of props) {
     result[prop.name] = {
-      type: formatType(prop.type, prop.optional),
+      type: formatType(prop.type, prop.optional, prop.documentation?.tags),
       default: prop.documentation?.defaultValue,
       required: !prop.optional || undefined,
       description: prop.documentation?.description,
@@ -21,7 +23,7 @@ export function formatParameters(params: rae.Parameter[]) {
 
   for (const param of params) {
     result[param.name] = {
-      type: formatType(param.type, param.optional, true),
+      type: formatType(param.type, param.optional, param.documentation?.tags, true),
       default: param.defaultValue,
       optional: param.optional || undefined,
       description: param.documentation?.description,
@@ -46,8 +48,16 @@ export function formatEnum(enumNode: rae.EnumNode) {
 export function formatType(
   type: rae.TypeNode,
   removeUndefined: boolean,
+  jsdocTags: rae.DocumentationTag[] | undefined = undefined,
   expandObjects: boolean = false,
 ): string {
+  const typeTag = jsdocTags?.find?.((tag) => tag.name === 'type');
+  const typeValue = typeTag?.value;
+
+  if (typeValue) {
+    return typeValue;
+  }
+
   if (type instanceof rae.ReferenceNode) {
     if (/^ReactElement(<.*>)?/.test(type.name)) {
       return 'ReactElement';
@@ -62,7 +72,7 @@ export function formatType(
 
   if (type instanceof rae.UnionNode) {
     if (type.name) {
-      return type.name;
+      return getFullyQualifiedName(type.name, type.parentNamespaces);
     }
 
     const memberTypes = type.types;
@@ -84,7 +94,7 @@ export function formatType(
 
   if (type instanceof rae.IntersectionNode) {
     if (type.name) {
-      return type.name;
+      return getFullyQualifiedName(type.name, type.parentNamespaces);
     }
 
     return orderMembers(type.types)
@@ -94,7 +104,7 @@ export function formatType(
 
   if (type instanceof rae.ObjectNode) {
     if (type.name && !expandObjects) {
-      return type.name;
+      return getFullyQualifiedName(type.name, type.parentNamespaces);
     }
 
     if (isObjectEmpty(type.properties)) {
@@ -122,7 +132,7 @@ export function formatType(
 
   if (type instanceof rae.FunctionNode) {
     if (type.name && type.name !== 'ComponentRenderFn') {
-      return type.name;
+      return getFullyQualifiedName(type.name, type.parentNamespaces);
     }
 
     const functionSignature = type.callSignatures
@@ -139,7 +149,7 @@ export function formatType(
 
   if (type instanceof rae.TupleNode) {
     if (type.name) {
-      return type.name;
+      return getFullyQualifiedName(type.name, type.parentNamespaces);
     }
 
     return `[${type.types.map((member: rae.TypeNode) => formatType(member, false)).join(', ')}]`;
@@ -150,6 +160,43 @@ export function formatType(
   }
 
   return 'unknown';
+}
+
+function kebabToPascal(str: string): string {
+  return str
+    .split('-')
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join('');
+}
+
+// TODO make this less dependent on the structure of the repo
+const componentsDir = path.resolve(process.cwd(), '../../packages/react/src');
+const componentNames: string[] = fs
+  .readdirSync(componentsDir, { withFileTypes: true })
+  .filter((dirent) => dirent.isDirectory())
+  .map((dirent) => kebabToPascal(dirent.name));
+
+function getFullyQualifiedName(localName: string, namespaces: string[]): string {
+  if (namespaces.length === 0) {
+    return localName;
+  }
+
+  // Our components are defined in the source as [ComponentName][Part], but exported as [ComponentName].[Part].
+  // The following code adjusts the namespaces to match the exported names.
+  const joinedNamespaces = namespaces.map((namespace) => {
+    const componentNameInNamespace = componentNames.find((componentName) =>
+      new RegExp(`^${componentName}[A-Z]`).test(namespace),
+    );
+
+    if (componentNameInNamespace) {
+      const dotPosition = componentNameInNamespace.length;
+      return `${namespace.substring(0, dotPosition)}.${namespace.substring(dotPosition)}`;
+    }
+
+    return namespace;
+  });
+
+  return `${joinedNamespaces}.${localName}`;
 }
 
 /**

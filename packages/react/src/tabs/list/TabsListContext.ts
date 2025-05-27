@@ -11,10 +11,6 @@ export interface TabsListContext {
 
 export const TabsListContext = React.createContext<TabsListContext | undefined>(undefined);
 
-if (process.env.NODE_ENV !== 'production') {
-  TabsListContext.displayName = 'TabsListContext';
-}
-
 export function useTabsListContext() {
   const context = React.useContext(TabsListContext);
   if (context === undefined) {

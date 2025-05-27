@@ -1,5 +1,5 @@
 import * as React from 'react';
-import type { GenericHTMLProps } from '../../utils/types';
+import type { HTMLProps } from '../../utils/types';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { ownerDocument, ownerWindow } from '../../utils/owner';
@@ -20,15 +20,18 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
     valueRef,
     selectedItemTextRef,
     popupRef,
-    scrollUpArrowVisible,
-    scrollDownArrowVisible,
-    setScrollUpArrowVisible,
-    setScrollDownArrowVisible,
     keyboardActiveRef,
     floatingRootContext,
   } = useSelectRootContext();
   const { setActiveIndex } = useSelectIndexContext();
-  const { alignItemWithTriggerActive, setControlledItemAnchor } = useSelectPositionerContext();
+  const {
+    alignItemWithTriggerActive,
+    setControlledItemAnchor,
+    scrollUpArrowVisible,
+    scrollDownArrowVisible,
+    setScrollUpArrowVisible,
+    setScrollDownArrowVisible,
+  } = useSelectPositionerContext();
 
   const initialHeightRef = React.useRef(0);
   const reachedMaxHeightRef = React.useRef(false);
@@ -173,7 +176,7 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
       height < Math.min(scrollHeight, minHeight);
 
     // Safari doesn't position the popup correctly when pinch-zoomed.
-    const isPinchZoomed = (win.visualViewport?.scale ?? 1) !== 1 && isWebKit();
+    const isPinchZoomed = (win.visualViewport?.scale ?? 1) !== 1 && isWebKit;
 
     if (fallbackToAlignPopupToTrigger || isPinchZoomed) {
       initialPlacedRef.current = true;
@@ -225,8 +228,8 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
 
     const win = ownerWindow(positionerElement);
 
-    function handleResize() {
-      setOpen(false, undefined, undefined);
+    function handleResize(event: Event) {
+      setOpen(false, event, 'window-resize');
     }
 
     win.addEventListener('resize', handleResize);
@@ -236,7 +239,7 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
     };
   }, [setOpen, alignItemWithTriggerActive, positionerElement, mounted]);
 
-  const props: GenericHTMLProps = {
+  const props: HTMLProps = {
     ['data-id' as string]: `${id}-popup`,
     onKeyDown() {
       keyboardActiveRef.current = true;
@@ -329,6 +332,6 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
 
 export namespace useSelectPopup {
   export interface ReturnValue {
-    props: GenericHTMLProps;
+    props: HTMLProps;
   }
 }

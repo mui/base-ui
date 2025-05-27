@@ -8,22 +8,24 @@ import type { BaseUIComponentProps, Orientation } from '../../utils/types';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useControlled } from '../../utils/useControlled';
 import { useEventCallback } from '../../utils/useEventCallback';
+import { useForkRef } from '../../utils/useForkRef';
 import { useLatestRef } from '../../utils/useLatestRef';
 import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { useRenderElement } from '../../utils/useRenderElement';
+import { visuallyHidden } from '../../utils/visuallyHidden';
 import { warn } from '../../utils/warn';
 import { CompositeList, type CompositeMetadata } from '../../composite/list/CompositeList';
 import type { FieldRoot } from '../../field/root/FieldRoot';
 import { useField } from '../../field/useField';
 import { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
+import { useFormContext } from '../../form/FormContext';
 import { asc } from '../utils/asc';
 import { getSliderValue } from '../utils/getSliderValue';
 import { validateMinimumDistance } from '../utils/validateMinimumDistance';
 import type { ThumbMetadata } from '../thumb/SliderThumb';
 import { sliderStyleHookMapping } from './styleHooks';
 import { SliderRootContext } from './SliderRootContext';
-import { useFormContext } from '../../form/FormContext';
 
 function areValuesEqual(
   newValue: number | readonly number[],
@@ -53,6 +55,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
     defaultValue,
     disabled: disabledProp = false,
     id: idProp,
+    inputRef: inputRefProp,
     format,
     largeStep = 10,
     locale,
@@ -91,11 +94,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
     validationMode,
   } = useFieldRootContext();
 
-  const {
-    getValidationProps,
-    inputRef: inputValidationRef,
-    commitValidation,
-  } = useFieldControlValidation();
+  const fieldControlValidation = useFieldControlValidation();
 
   const ariaLabelledby = ariaLabelledbyProp ?? labelId;
   const disabled = fieldDisabled || disabledProp;
@@ -110,8 +109,9 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
   });
 
   const sliderRef = React.useRef<HTMLElement>(null);
-  const controlRef: React.RefObject<HTMLElement | null> = React.useRef(null);
+  const controlRef = React.useRef<HTMLElement>(null);
   const thumbRefs = React.useRef<(HTMLElement | null)[]>([]);
+  const inputRef = useForkRef(inputRefProp, fieldControlValidation.inputRef);
   const lastChangedValueRef = React.useRef<number | readonly number[] | null>(null);
   const formatOptionsRef = useLatestRef(format);
 
@@ -133,20 +133,16 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
 
   useField({
     id,
-    commitValidation,
+    commitValidation: fieldControlValidation.commitValidation,
     value: valueUnwrapped,
     controlRef,
   });
 
-  const registerInputValidationRef = React.useCallback(
-    (element: HTMLElement | null) => {
-      if (element) {
-        controlRef.current = element;
-        inputValidationRef.current = element.querySelector<HTMLInputElement>('input[type="range"]');
-      }
-    },
-    [inputValidationRef],
-  );
+  const registerFieldControlRef = useEventCallback((element: HTMLElement | null) => {
+    if (element) {
+      controlRef.current = element;
+    }
+  });
 
   const range = Array.isArray(valueUnwrapped);
 
@@ -179,7 +175,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       lastChangedValueRef.current = newValue;
       onValueChange(newValue, clonedEvent, thumbIndex);
       clearErrors(name);
-      commitValidation(newValue, true);
+      fieldControlValidation.commitValidation(newValue, true);
     },
   );
 
@@ -198,9 +194,9 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
         clearErrors(name);
 
         if (validationMode === 'onChange') {
-          commitValidation(nextValue ?? newValue);
+          fieldControlValidation.commitValidation(nextValue ?? newValue);
         } else {
-          commitValidation(nextValue ?? newValue, true);
+          fieldControlValidation.commitValidation(nextValue ?? newValue, true);
         }
       }
     },
@@ -263,6 +259,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       active,
       disabled,
       dragging,
+      fieldControlValidation,
       formatOptionsRef,
       handleInputChange,
       labelId: ariaLabelledby,
@@ -272,11 +269,10 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       max,
       min,
       minStepsBetweenValues,
-      name,
       onValueCommitted,
       orientation,
       range,
-      registerInputValidationRef,
+      registerFieldControlRef,
       setActive,
       setDragging,
       setValue,
@@ -293,6 +289,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       disabled,
       dragging,
       externalTabIndex,
+      fieldControlValidation,
       formatOptionsRef,
       handleInputChange,
       largeStep,
@@ -301,11 +298,10 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       max,
       min,
       minStepsBetweenValues,
-      name,
       onValueCommitted,
       orientation,
       range,
-      registerInputValidationRef,
+      registerFieldControlRef,
       setActive,
       setDragging,
       setValue,
@@ -317,7 +313,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
     ],
   );
 
-  const renderElement = useRenderElement('div', componentProps, {
+  const element = useRenderElement('div', componentProps, {
     state,
     ref: [forwardedRef, sliderRef],
     props: [
@@ -326,7 +322,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
         id,
         role: 'group',
       },
-      getValidationProps(elementProps),
+      fieldControlValidation.getValidationProps,
       elementProps,
     ],
     customStyleHookMapping: sliderStyleHookMapping,
@@ -335,7 +331,35 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
   return (
     <SliderRootContext.Provider value={contextValue}>
       <CompositeList elementsRef={thumbRefs} onMapChange={setThumbMap}>
-        {renderElement()}
+        {element}
+        {range ? (
+          values.map((value, index) => {
+            return (
+              <input
+                key={`${name}-input-${index}`}
+                {...fieldControlValidation.getInputValidationProps({
+                  type: 'hidden',
+                  disabled,
+                  name,
+                  ref: inputRef,
+                  value,
+                  style: visuallyHidden,
+                })}
+              />
+            );
+          })
+        ) : (
+          <input
+            {...fieldControlValidation.getInputValidationProps({
+              type: 'hidden',
+              disabled,
+              name,
+              ref: inputRef,
+              value: valueUnwrapped,
+              style: visuallyHidden,
+            })}
+          />
+        )}
       </CompositeList>
     </SliderRootContext.Provider>
   );
@@ -401,6 +425,10 @@ export namespace SliderRoot {
      * Options to format the input value.
      */
     format?: Intl.NumberFormatOptions;
+    /**
+     * A ref to access the hidden input element.
+     */
+    inputRef?: React.Ref<HTMLInputElement>;
     /**
      * The locale used by `Intl.NumberFormat` when formatting the value.
      * Defaults to the user's runtime locale.

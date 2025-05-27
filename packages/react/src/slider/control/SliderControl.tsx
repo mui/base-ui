@@ -8,7 +8,6 @@ import { useEventCallback } from '../../utils/useEventCallback';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { valueToPercent } from '../../utils/valueToPercent';
 import { useDirection } from '../../direction-provider/DirectionContext';
-import { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
 import { useSliderRootContext } from '../root/SliderRootContext';
 import { sliderStyleHookMapping } from '../root/styleHooks';
 import type { SliderRoot } from '../root/SliderRoot';
@@ -98,6 +97,7 @@ export const SliderControl = React.forwardRef(function SliderControl(
     active: activeThumbIndex,
     disabled,
     dragging,
+    fieldControlValidation,
     lastChangedValueRef,
     max,
     min,
@@ -105,7 +105,7 @@ export const SliderControl = React.forwardRef(function SliderControl(
     onValueCommitted,
     orientation,
     range,
-    registerInputValidationRef,
+    registerFieldControlRef,
     setActive,
     setDragging,
     setValue,
@@ -135,7 +135,6 @@ export const SliderControl = React.forwardRef(function SliderControl(
   const offsetRef = React.useRef(0);
 
   const direction = useDirection();
-  const { commitValidation } = useFieldControlValidation();
 
   const getFingerState = useEventCallback(
     (
@@ -215,7 +214,7 @@ export const SliderControl = React.forwardRef(function SliderControl(
     },
   );
 
-  const focusThumb = useEventCallback((thumbIndex) => {
+  const focusThumb = useEventCallback((thumbIndex: number) => {
     const control = controlRef.current;
     if (!control) {
       return;
@@ -281,7 +280,7 @@ export const SliderControl = React.forwardRef(function SliderControl(
 
     setActive(-1);
 
-    commitValidation(lastChangedValueRef.current ?? finger.value);
+    fieldControlValidation.commitValidation(lastChangedValueRef.current ?? finger.value);
     onValueCommitted(lastChangedValueRef.current ?? finger.value, nativeEvent);
 
     touchIdRef.current = null;
@@ -310,7 +309,6 @@ export const SliderControl = React.forwardRef(function SliderControl(
       }
 
       focusThumb(finger.thumbIndex);
-
       setValue(finger.value, finger.thumbIndex, nativeEvent);
     }
 
@@ -352,9 +350,9 @@ export const SliderControl = React.forwardRef(function SliderControl(
     }
   }, [disabled, stopListening]);
 
-  const renderElement = useRenderElement('div', componentProps, {
+  const element = useRenderElement('div', componentProps, {
     state,
-    ref: [forwardedRef, registerInputValidationRef, controlRef, setStylesRef],
+    ref: [forwardedRef, registerFieldControlRef, controlRef, setStylesRef],
     props: [
       {
         onPointerDown(event: React.PointerEvent<HTMLDivElement>) {
@@ -384,7 +382,7 @@ export const SliderControl = React.forwardRef(function SliderControl(
             }
 
             focusThumb(finger.thumbIndex);
-
+            setDragging(true);
             // if the event lands on a thumb, don't change the value, just get the
             // percentageValue difference represented by the distance between the click origin
             // and the coordinates of the value on the track area
@@ -407,7 +405,7 @@ export const SliderControl = React.forwardRef(function SliderControl(
     customStyleHookMapping: sliderStyleHookMapping,
   });
 
-  return renderElement();
+  return element;
 });
 
 export interface FingerPosition {

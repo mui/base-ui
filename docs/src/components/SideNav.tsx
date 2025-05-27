@@ -21,7 +21,7 @@ const SideNavContext = React.createContext<SideNavContextValue>({
   setScrollingIntoView: () => undefined,
 });
 
-export function Root({ children, className, ...props }: React.ComponentProps<'div'>) {
+export function Root(props: React.ComponentProps<'div'>) {
   const [scrollingIntoView, setScrollingIntoView] = React.useState(false);
   const contextValue = React.useMemo(
     () => ({ scrollingIntoView, setScrollingIntoView }),
@@ -30,10 +30,10 @@ export function Root({ children, className, ...props }: React.ComponentProps<'di
 
   return (
     <SideNavContext.Provider value={contextValue}>
-      <nav aria-label="Main navigation" className={clsx('SideNavRoot', className)} {...props}>
+      <nav aria-label="Main navigation" {...props} className={clsx('SideNavRoot', props.className)}>
         <ScrollArea.Root>
           <ScrollArea.Viewport data-side-nav-viewport className="SideNavViewport">
-            {children}
+            {props.children}
           </ScrollArea.Viewport>
           <ScrollArea.Scrollbar
             className="SideNavScrollbar"
@@ -56,26 +56,35 @@ function Scrollbar(props: Record<string, unknown>) {
   return <div {...props} data-scrolling={dataScrolling} />;
 }
 
-export function Section({ className, ...props }: React.ComponentProps<'div'>) {
-  return <div className={clsx('SideNavSection', className)} {...props} />;
+export function Section(props: React.ComponentProps<'div'>) {
+  return <div {...props} className={clsx('SideNavSection', props.className)} />;
 }
 
-export function Heading({ className, ...props }: React.ComponentProps<'div'>) {
-  return <div className={clsx('SideNavHeading', className)} {...props} />;
+export function Heading(props: React.ComponentProps<'div'>) {
+  return <div {...props} className={clsx('SideNavHeading', props.className)} />;
 }
 
-export function List({ className, ...props }: React.ComponentProps<'ul'>) {
-  return <ul className={clsx('SideNavList', className)} {...props} />;
+export function List(props: React.ComponentProps<'ul'>) {
+  return <ul {...props} className={clsx('SideNavList', props.className)} />;
+}
+
+export function Label(props: React.ComponentProps<'span'>) {
+  return <span {...props} className={clsx('SideNavLabel', props.className)} />;
+}
+
+export function Badge(props: React.ComponentProps<'span'>) {
+  return <span {...props} className={clsx('SideNavBadge', props.className)} />;
 }
 
 interface ItemProps extends React.ComponentProps<'li'> {
   active?: boolean;
   href: string;
+  isNew?: boolean;
 }
 
 const SCROLL_MARGIN = 48;
 
-export function Item({ children, className, href, ...props }: ItemProps) {
+export function Item({ children, href, ...props }: ItemProps) {
   const { setScrollingIntoView } = React.useContext(SideNavContext);
   const ref = React.useRef<HTMLLIElement>(null);
   const pathname = usePathname();
@@ -118,7 +127,7 @@ export function Item({ children, className, href, ...props }: ItemProps) {
   }, [active, setScrollingIntoView]);
 
   return (
-    <li ref={ref} className={clsx('SideNavItem', className)} {...props}>
+    <li ref={ref} {...props} className={clsx('SideNavItem', props.className)}>
       <NextLink
         aria-current={active ? 'page' : undefined}
         data-active={active || undefined}
@@ -132,7 +141,7 @@ export function Item({ children, className, href, ...props }: ItemProps) {
           }
         }}
       >
-        <span className="SideNavLinkInner">{children}</span>
+        {children}
       </NextLink>
     </li>
   );

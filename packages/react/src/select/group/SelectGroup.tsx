@@ -26,7 +26,7 @@ export const SelectGroup = React.forwardRef(function SelectGroup(
     [labelId, setLabelId],
   );
 
-  const renderElement = useRenderElement('div', componentProps, {
+  const element = useRenderElement('div', componentProps, {
     ref: forwardedRef,
     props: [
       {
@@ -37,11 +37,7 @@ export const SelectGroup = React.forwardRef(function SelectGroup(
     ],
   });
 
-  return (
-    <SelectGroupContext.Provider value={contextValue}>
-      {renderElement()}
-    </SelectGroupContext.Provider>
-  );
+  return <SelectGroupContext.Provider value={contextValue}>{element}</SelectGroupContext.Provider>;
 });
 
 export namespace SelectGroup {

@@ -1,11 +1,10 @@
 'use client';
 import * as React from 'react';
 import type { BaseUIComponentProps } from '../../utils/types';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useToastRootContext } from '../root/ToastRootContext';
-import { mergeProps } from '../../merge-props';
 import { useToastContext } from '../provider/ToastProviderContext';
 import { useButton } from '../../use-button/useButton';
+import { useRenderElement } from '../../utils/useRenderElement';
 
 /**
  * Closes the toast when clicked.
@@ -14,10 +13,10 @@ import { useButton } from '../../use-button/useButton';
  * Documentation: [Base UI Toast](https://base-ui.com/react/components/toast)
  */
 export const ToastClose = React.forwardRef(function ToastClose(
-  props: ToastClose.Props,
+  componentProps: ToastClose.Props,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
-  const { render, className, disabled, ...other } = props;
+  const { render, className, disabled, ...elementProps } = componentProps;
 
   const { close } = useToastContext();
   const { toast } = useToastRootContext();
@@ -34,23 +33,21 @@ export const ToastClose = React.forwardRef(function ToastClose(
     [toast.type],
   );
 
-  const { renderElement } = useComponentRenderer({
-    render: render ?? 'button',
+  const element = useRenderElement('button', componentProps, {
     ref: forwardedRef,
-    className,
     state,
-    extraProps: mergeProps<'button'>(
+    props: [
       {
         onClick() {
           close(toast.id);
         },
       },
-      other,
+      elementProps,
       getButtonProps,
-    ),
+    ],
   });
 
-  return renderElement();
+  return element;
 });
 
 export namespace ToastClose {
