@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { FloatingNode, useFloatingNodeId } from '@floating-ui/react';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
 import { usePopoverPositioner } from './usePopoverPositioner';
 import { PopoverPositionerContext } from './PopoverPositionerContext';
@@ -50,6 +51,7 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
     openMethod,
   } = usePopoverRootContext();
   const keepMounted = usePopoverPortalContext();
+  const nodeId = useFloatingNodeId();
 
   const positioner = usePopoverPositioner({
     anchor,
@@ -67,6 +69,7 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
     sticky,
     trackAnchor,
     keepMounted,
+    nodeId,
     collisionAvoidance,
   });
 
@@ -92,7 +95,7 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
       {mounted && modal === true && openReason !== 'trigger-hover' && openMethod !== 'touch' && (
         <InternalBackdrop inert={inertValue(!open)} />
       )}
-      {element}
+      <FloatingNode id={nodeId}>{element}</FloatingNode>
     </PopoverPositionerContext.Provider>
   );
 });
