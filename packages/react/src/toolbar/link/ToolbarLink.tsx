@@ -8,8 +8,9 @@ import type { ToolbarItemMetadata } from '../root/ToolbarRoot';
 import { useToolbarRootContext } from '../root/ToolbarRootContext';
 
 const TOOLBAR_LINK_METADATA = {
-  focusableWhenDisabled: false,
+  focusableWhenDisabled: true,
 };
+
 /**
  * A link component.
  * Renders an `<a>` element.
@@ -20,13 +21,13 @@ export const ToolbarLink = React.forwardRef(function ToolbarLink(
   props: ToolbarLink.Props,
   forwardedRef: React.ForwardedRef<HTMLAnchorElement>,
 ) {
-  const { className, render, nativeButton = true, ...otherProps } = props;
+  const { className, render, ...otherProps } = props;
 
   const { orientation } = useToolbarRootContext();
 
   const { getButtonProps } = useButton({
     buttonRef: forwardedRef,
-    native: nativeButton,
+    native: false,
     focusableWhenDisabled: false,
   });
 
@@ -55,11 +56,5 @@ export namespace ToolbarLink {
     orientation: Orientation;
   }
 
-  export interface Props extends BaseUIComponentProps<'a', State> {
-    /**
-     * Determines whether the component is being rendered as a native button.
-     * @default true
-     */
-    nativeButton?: boolean;
-  }
+  export interface Props extends BaseUIComponentProps<'a', State> {}
 }

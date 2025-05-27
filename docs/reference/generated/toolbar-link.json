@@ -2,11 +2,6 @@
   "name": "ToolbarLink",
   "description": "A link component.\nRenders an `<a>` element.",
   "props": {
-    "nativeButton": {
-      "type": "boolean",
-      "default": "true",
-      "description": "Determines whether the component is being rendered as a native button."
-    },
     "className": {
       "type": "string | ((state: Toolbar.Link.State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
