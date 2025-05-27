@@ -144,6 +144,7 @@ interface InnerMenuCheckboxItemProps extends MenuCheckboxItem.Props {
   allowMouseUpTriggerRef: React.RefObject<boolean>;
   typingRef: React.RefObject<boolean>;
   closeOnClick: boolean;
+  nativeButton: boolean;
 }
 
 export namespace MenuCheckboxItem {
@@ -207,6 +208,6 @@ export namespace MenuCheckboxItem {
      * Determines whether the component is being rendered as a native button.
      * @default false
      */
-    nativeButton: boolean;
+    nativeButton?: boolean;
   }
 }

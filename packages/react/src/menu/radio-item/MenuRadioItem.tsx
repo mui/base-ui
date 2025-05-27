@@ -31,7 +31,7 @@ const InnerMenuRadioItem = React.memo(
       render,
       allowMouseUpTriggerRef,
       typingRef,
-      nativeButton,
+      nativeButton = false,
       ...other
     } = props;
 
@@ -216,6 +216,6 @@ export namespace MenuRadioItem {
      * Determines whether the component is being rendered as a native button.
      * @default false
      */
-    nativeButton: boolean;
+    nativeButton?: boolean;
   }
 }

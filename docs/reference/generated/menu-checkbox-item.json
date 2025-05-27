@@ -31,7 +31,6 @@
     "nativeButton": {
       "type": "boolean",
       "default": "false",
-      "required": true,
       "description": "Determines whether the component is being rendered as a native button."
     },
     "disabled": {
