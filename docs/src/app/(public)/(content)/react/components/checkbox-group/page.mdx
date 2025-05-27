@@ -40,3 +40,21 @@ A checkbox that controls other checkboxes within a `CheckboxGroup` can be create
 ### Nested parent checkbox
 
 <Demo compact path="./demos/nested" />
+
+### Form integration
+
+To use checkbox group in a form, pass the checkbox group's `name` to a `Field`, then use the `render` prop to render the field as a `Fieldset` in order to label the group.
+
+```tsx title="Using checkbox group in a form"
+<Form>
+  <Field.Root name="toppings" render={<Fieldset.Root />}>
+    <Fieldset.Legend>Toppings</Fieldset.Legend>
+    <CheckboxGroup>
+      <Checkbox.Root value="anchovies" />
+      <Checkbox.Root value="olives" />
+    <CheckboxGroup>
+  </Field.Root>
+</Form>
+```
+
+<Demo compact path="./demos/form" />
