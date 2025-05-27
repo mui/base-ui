@@ -13,8 +13,7 @@ export const Input = React.forwardRef(function Input(
   props: Input.Props,
   forwardedRef: React.ForwardedRef<HTMLInputElement>,
 ) {
-  const { render, className, ...otherProps } = props;
-  return <Field.Control ref={forwardedRef} render={render} className={className} {...otherProps} />;
+  return <Field.Control ref={forwardedRef} {...props} />;
 });
 
 export namespace Input {
@@ -26,5 +25,5 @@ export namespace Input {
     defaultValue?: Field.Control.Props['defaultValue'];
   }
 
-  export interface State {}
+  export interface State extends Field.Control.State {}
 }

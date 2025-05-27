@@ -18,7 +18,7 @@ describe('<Select.Root />', () => {
     createComponent: (props) => (
       <Select.Root {...props.root}>
         <Select.Trigger {...props.trigger}>
-          <Select.Value />
+          <Select.Value>Item</Select.Value>
         </Select.Trigger>
         <Select.Portal {...props.portal}>
           <Select.Positioner>
@@ -32,7 +32,7 @@ describe('<Select.Root />', () => {
     render,
     triggerMouseAction: 'click',
     expectedPopupRole: 'listbox',
-    alwaysMounted: true,
+    alwaysMounted: 'only-after-open',
   });
 
   describe('prop: defaultValue', () => {
@@ -40,7 +40,7 @@ describe('<Select.Root />', () => {
       await render(
         <Select.Root defaultValue="b">
           <Select.Trigger data-testid="trigger">
-            <Select.Value />
+            <Select.Value>a</Select.Value>
           </Select.Trigger>
           <Select.Portal>
             <Select.Positioner>
@@ -71,7 +71,7 @@ describe('<Select.Root />', () => {
       await render(
         <Select.Root value="b">
           <Select.Trigger data-testid="trigger">
-            <Select.Value />
+            <Select.Value>a</Select.Value>
           </Select.Trigger>
           <Select.Portal>
             <Select.Positioner>
@@ -100,7 +100,7 @@ describe('<Select.Root />', () => {
       const { setProps } = await render(
         <Select.Root value="a">
           <Select.Trigger data-testid="trigger">
-            <Select.Value />
+            <Select.Value>a</Select.Value>
           </Select.Trigger>
           <Select.Portal>
             <Select.Positioner>
@@ -131,6 +131,38 @@ describe('<Select.Root />', () => {
         '',
       );
     });
+
+    it('should not update the internal value if the controlled value prop does not change', async () => {
+      const onValueChange = spy();
+      await render(
+        <Select.Root value="a" onValueChange={onValueChange}>
+          <Select.Trigger data-testid="trigger">
+            <Select.Value>a</Select.Value>
+          </Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup>
+                <Select.Item value="a">a</Select.Item>
+                <Select.Item value="b">b</Select.Item>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+      expect(trigger).to.have.text('a');
+
+      fireEvent.click(trigger);
+      await flushMicrotasks();
+
+      const optionB = screen.getByRole('option', { name: 'b' });
+      fireEvent.click(optionB);
+      await flushMicrotasks();
+
+      expect(onValueChange.callCount).to.equal(0);
+      expect(trigger).to.have.text('a');
+    });
   });
 
   describe('prop: onValueChange', () => {
@@ -157,7 +189,7 @@ describe('<Select.Root />', () => {
             }}
           >
             <Select.Trigger data-testid="trigger">
-              <Select.Value />
+              <Select.Value>a</Select.Value>
             </Select.Trigger>
             <Select.Portal>
               <Select.Positioner>
@@ -191,7 +223,7 @@ describe('<Select.Root />', () => {
       const { user } = await renderFakeTimers(
         <Select.Root onValueChange={handleValueChange}>
           <Select.Trigger data-testid="trigger">
-            <Select.Value />
+            <Select.Value>a</Select.Value>
           </Select.Trigger>
           <Select.Portal>
             <Select.Positioner>
@@ -222,7 +254,7 @@ describe('<Select.Root />', () => {
       await render(
         <Select.Root defaultOpen>
           <Select.Trigger data-testid="trigger">
-            <Select.Value />
+            <Select.Value>a</Select.Value>
           </Select.Trigger>
           <Select.Portal>
             <Select.Positioner>
@@ -246,7 +278,7 @@ describe('<Select.Root />', () => {
       const { user } = await render(
         <Select.Root onOpenChange={handleOpenChange}>
           <Select.Trigger data-testid="trigger">
-            <Select.Value />
+            <Select.Value>a</Select.Value>
           </Select.Trigger>
           <Select.Portal>
             <Select.Positioner>
@@ -273,7 +305,7 @@ describe('<Select.Root />', () => {
     const { container } = await render(
       <Select.Root name="select">
         <Select.Trigger data-testid="trigger">
-          <Select.Value />
+          <Select.Value>a</Select.Value>
         </Select.Trigger>
         <Select.Portal>
           <Select.Positioner>
@@ -527,7 +559,7 @@ describe('<Select.Root />', () => {
         expect(screen.queryByRole('listbox')).not.to.equal(null);
       });
 
-      expect(onOpenChangeComplete.callCount).to.equal(1);
+      expect(onOpenChangeComplete.callCount).to.equal(2); // 1 in browser
       expect(onOpenChangeComplete.firstCall.args[0]).to.equal(true);
     });
 
@@ -607,7 +639,7 @@ describe('<Select.Root />', () => {
       const { user } = await render(
         <Select.Root defaultValue="b" onOpenChange={handleOpenChange} disabled>
           <Select.Trigger>
-            <Select.Value />
+            <Select.Value>a</Select.Value>
           </Select.Trigger>
           <Select.Portal>
             <Select.Positioner>
@@ -641,7 +673,7 @@ describe('<Select.Root />', () => {
             <button onClick={() => setDisabled(!disabled)}>toggle</button>
             <Select.Root defaultValue="b" onOpenChange={handleOpenChange} disabled={disabled}>
               <Select.Trigger>
-                <Select.Value />
+                <Select.Value>a</Select.Value>
               </Select.Trigger>
               <Select.Portal>
                 <Select.Positioner>
@@ -688,7 +720,7 @@ describe('<Select.Root />', () => {
       const { container } = await render(
         <Select.Root id="test-id">
           <Select.Trigger>
-            <Select.Value />
+            <Select.Value>a</Select.Value>
           </Select.Trigger>
           <Select.Portal>
             <Select.Positioner>
@@ -712,7 +744,7 @@ describe('<Select.Root />', () => {
         <Field.Root disabled>
           <Select.Root>
             <Select.Trigger data-testid="trigger">
-              <Select.Value />
+              <Select.Value>a</Select.Value>
             </Select.Trigger>
             <Select.Portal>
               <Select.Positioner>
@@ -735,7 +767,7 @@ describe('<Select.Root />', () => {
         <Field.Root name="field-select">
           <Select.Root>
             <Select.Trigger data-testid="trigger">
-              <Select.Value />
+              <Select.Value>a</Select.Value>
             </Select.Trigger>
             <Select.Portal>
               <Select.Positioner>
@@ -764,7 +796,7 @@ describe('<Select.Root />', () => {
           <button onClick={() => setValue(null)}>null</button>
           <Select.Root value={value} onValueChange={setValue}>
             <Select.Trigger data-testid="trigger">
-              <Select.Value placeholder="Select a font" data-testid="value" />
+              <Select.Value data-testid="value">initial</Select.Value>
             </Select.Trigger>
             <Select.Portal>
               <Select.Positioner>
@@ -781,6 +813,8 @@ describe('<Select.Root />', () => {
 
     const { user } = await render(<App />);
 
+    await user.click(screen.getByText('initial'));
+
     await user.click(screen.getByRole('button', { name: '1' }));
     expect(screen.getByTestId('value')).to.have.text('1');
 
@@ -788,7 +822,7 @@ describe('<Select.Root />', () => {
     expect(screen.getByTestId('value')).to.have.text('2');
 
     await user.click(screen.getByRole('button', { name: 'null' }));
-    expect(screen.getByTestId('value')).to.have.text('Select a font');
+    expect(screen.getByTestId('value')).to.have.text('initial');
 
     await user.click(screen.getByTestId('trigger'));
     await waitFor(() => {
@@ -814,7 +848,7 @@ describe('<Select.Root />', () => {
           <Field.Root name="test" data-testid="field">
             <Select.Root required>
               <Select.Trigger data-testid="trigger">
-                <Select.Value />
+                <Select.Value>a</Select.Value>
               </Select.Trigger>
               <Select.Portal>
                 <Select.Positioner />
@@ -848,7 +882,7 @@ describe('<Select.Root />', () => {
             <Field.Root name="select">
               <Select.Root>
                 <Select.Trigger data-testid="trigger">
-                  <Select.Value />
+                  <Select.Value>a</Select.Value>
                 </Select.Trigger>
                 <Select.Portal>
                   <Select.Positioner>
@@ -1088,7 +1122,7 @@ describe('<Select.Root />', () => {
         >
           <Select.Root>
             <Select.Trigger data-testid="trigger">
-              <Select.Value placeholder="Select an option" />
+              <Select.Value>Select an option</Select.Value>
             </Select.Trigger>
             <Select.Portal>
               <Select.Positioner>
@@ -1127,7 +1161,7 @@ describe('<Select.Root />', () => {
         >
           <Select.Root>
             <Select.Trigger data-testid="trigger">
-              <Select.Value placeholder="Select an option" />
+              <Select.Value>Select an option</Select.Value>
             </Select.Trigger>
             <Select.Portal>
               <Select.Positioner>
@@ -1269,6 +1303,69 @@ describe('<Select.Root />', () => {
       await user.keyboard('{ArrowDown}'); // Share still
 
       expect(screen.queryByRole('option', { name: 'Share' })).toHaveFocus();
+    });
+
+    it('unselects the selected item if removed', async () => {
+      function DynamicMenu() {
+        const [items, setItems] = React.useState(['a', 'b', 'c']);
+        const [selectedItem, setSelectedItem] = React.useState('a');
+
+        return (
+          <div>
+            <button
+              onClick={() => {
+                setItems((prev) => prev.filter((item) => item !== 'a'));
+              }}
+            >
+              Remove
+            </button>
+
+            <button
+              onClick={() => {
+                setItems(['a', 'b', 'c']);
+              }}
+            >
+              Add
+            </button>
+            <div data-testid="value">{selectedItem}</div>
+
+            <Select.Root value={selectedItem} onValueChange={setSelectedItem}>
+              <Select.Trigger>Toggle</Select.Trigger>
+              <Select.Portal>
+                <Select.Positioner>
+                  <Select.Popup>
+                    {items.map((item) => (
+                      <Select.Item key={item} value={item}>
+                        {item}
+                      </Select.Item>
+                    ))}
+                  </Select.Popup>
+                </Select.Positioner>
+              </Select.Portal>
+            </Select.Root>
+          </div>
+        );
+      }
+
+      const { user } = await renderFakeTimers(<DynamicMenu />);
+
+      const trigger = screen.getByText('Toggle');
+
+      await act(async () => {
+        trigger.focus();
+      });
+      await user.keyboard('{ArrowDown}');
+
+      expect(screen.queryByRole('option', { name: 'a' })).to.have.attribute('data-selected');
+      expect(screen.getByTestId('value')).to.have.text('a');
+
+      fireEvent.click(screen.getByText('Remove'));
+
+      expect(screen.queryByRole('option', { name: 'b' })).not.to.have.attribute('data-selected');
+
+      fireEvent.click(screen.getByText('Add'));
+
+      expect(screen.queryByRole('option', { name: 'a' })).to.have.attribute('data-selected');
     });
   });
 

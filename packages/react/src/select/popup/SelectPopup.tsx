@@ -94,7 +94,12 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
           dangerouslySetInnerHTML={html}
         />
       )}
-      <FloatingFocusManager context={positioner.context} modal={false} disabled={!mounted}>
+      <FloatingFocusManager
+        context={positioner.context}
+        modal={false}
+        disabled={!mounted}
+        restoreFocus
+      >
         {element}
       </FloatingFocusManager>
     </React.Fragment>

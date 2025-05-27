@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { type MenuOrientation } from '../menu/root/useMenuRoot';
+import { type MenuRoot } from '../menu/root/MenuRoot';
 
 export interface MenubarContext {
   modal: boolean;
@@ -8,7 +8,7 @@ export interface MenubarContext {
   setContentElement: (element: HTMLElement | null) => void;
   hasSubmenuOpen: boolean;
   setHasSubmenuOpen: (open: boolean) => void;
-  orientation: MenuOrientation;
+  orientation: MenuRoot.Orientation;
   allowMouseUpTriggerRef: React.RefObject<boolean>;
 }
 

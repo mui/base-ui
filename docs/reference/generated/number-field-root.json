@@ -79,6 +79,10 @@
       "default": "false",
       "description": "Whether the field is forcefully marked as invalid."
     },
+    "inputRef": {
+      "type": "Ref<HTMLInputElement>",
+      "description": "A ref to access the hidden input element."
+    },
     "id": {
       "type": "string",
       "description": "The id of the input element."

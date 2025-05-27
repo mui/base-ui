@@ -34,6 +34,7 @@ interface InnerSelectItemProps extends Omit<SelectItem.Props, 'value'> {
   events: FloatingEvents;
   multiple: boolean | undefined;
   selectedByFocus: boolean;
+  textRef: React.RefObject<HTMLElement | null>;
 }
 
 const InnerSelectItem = React.memo(
@@ -62,6 +63,7 @@ const InnerSelectItem = React.memo(
       events,
       multiple,
       selectedByFocus,
+      textRef,
       ...elementProps
     } = componentProps;
 
@@ -111,8 +113,9 @@ const InnerSelectItem = React.memo(
         selected,
         selectedByFocus,
         indexRef,
+        textRef,
       }),
-      [selected, selectedByFocus, indexRef],
+      [selected, selectedByFocus, indexRef, textRef],
     );
 
     return <SelectItemContext.Provider value={contextValue}>{element}</SelectItemContext.Provider>;
@@ -131,7 +134,9 @@ export const SelectItem = React.forwardRef(function SelectItem(
 ) {
   const { value: valueProp = null, label, ...otherProps } = props;
 
-  const listItem = useCompositeListItem({ label });
+  const textRef = React.useRef<HTMLElement | null>(null);
+
+  const listItem = useCompositeListItem({ label, textRef });
 
   const { activeIndex, selectedIndex, setActiveIndex } = useSelectIndexContext();
   const {
@@ -201,6 +206,7 @@ export const SelectItem = React.forwardRef(function SelectItem(
       events={floatingRootContext.events}
       multiple={multiple}
       selectedByFocus={selectedByFocus}
+      textRef={textRef}
       {...otherProps}
     />
   );
