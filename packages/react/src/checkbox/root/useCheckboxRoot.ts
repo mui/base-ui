@@ -54,8 +54,7 @@ export function useCheckboxRoot(params: useCheckboxRoot.Parameters): useCheckbox
   } = useFieldRootContext();
 
   const disabled = fieldDisabled || disabledProp;
-  // Checkbox's name will override Field's name
-  const name = nameProp ?? fieldName;
+  const name = fieldName ?? nameProp;
   const value = valueProp ?? name;
 
   const { getButtonProps } = useButton({

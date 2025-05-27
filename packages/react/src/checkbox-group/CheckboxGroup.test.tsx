@@ -344,5 +344,30 @@ describe('<CheckboxGroup />', () => {
       const submit = getByRole('button');
       fireEvent.click(submit);
     });
+
+    it('is validated as a group upon form submission', async () => {
+      const validateSpy = spy();
+      const { getByRole } = await render(
+        <Form
+          onSubmit={(event) => {
+            event.preventDefault();
+          }}
+        >
+          <Field.Root name="apple" validate={validateSpy}>
+            <CheckboxGroup defaultValue={['fuji-apple', 'gala-apple']}>
+              <Checkbox.Root value="fuji-apple" data-testid="button-1" />
+              <Checkbox.Root value="gala-apple" data-testid="button-2" />
+              <Checkbox.Root value="granny-smith-apple" data-testid="button-3" />
+            </CheckboxGroup>
+          </Field.Root>
+          <button type="submit">Submit</button>
+        </Form>,
+      );
+
+      const submit = getByRole('button');
+      fireEvent.click(submit);
+      expect(validateSpy.callCount).to.equal(1);
+      expect(validateSpy.args[0][0]).to.deep.equal(['fuji-apple', 'gala-apple']);
+    });
   });
 });
