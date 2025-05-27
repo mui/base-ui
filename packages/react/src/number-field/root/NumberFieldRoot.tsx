@@ -115,16 +115,6 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
   const movesAfterTouchRef = React.useRef(0);
   const allowInputSyncRef = React.useRef(true);
   const unsubscribeFromGlobalContextMenuRef = React.useRef<() => void>(() => {});
-  const isControlled = valueProp !== undefined;
-  const lastExternalValueRef = React.useRef<number | null | undefined>(valueProp);
-  const externalUpdateRef = React.useRef(false);
-
-  useModernLayoutEffect(() => {
-    if (isControlled && valueProp !== lastExternalValueRef.current) {
-      externalUpdateRef.current = true;
-    }
-    lastExternalValueRef.current = valueProp;
-  }, [valueProp, isControlled]);
 
   useModernLayoutEffect(() => {
     if (validityData.initialValue === null && value !== validityData.initialValue) {
@@ -136,7 +126,11 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
   // locale. This causes a hydration mismatch, which we manually suppress. This is preferable to
   // rendering an empty input field and then updating it with the formatted value, as the user
   // can still see the value prior to hydration, even if it's not formatted correctly.
-  const [inputValue, setInputValue] = React.useState(() => formatNumber(value, locale, format));
+  const [inputValue, setInputValue] = React.useState(() =>
+    valueProp !== undefined
+      ? formatNumberMaxPrecision(value, locale, format)
+      : formatNumber(value, locale, format),
+  );
   const [inputMode, setInputMode] = React.useState<InputMode>('numeric');
 
   const getAllowedNonNumericKeys = useEventCallback(() => {
@@ -183,18 +177,6 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
       onValueChange?.(validatedValue, event && 'nativeEvent' in event ? event.nativeEvent : event);
       setValueUnwrapped(validatedValue);
       setDirty(validatedValue !== validityData.initialValue);
-
-      if (dir != null) {
-        const wasExternal = externalUpdateRef.current;
-        externalUpdateRef.current = false;
-
-        const fn = wasExternal ? formatNumberMaxPrecision : formatNumber;
-        const text = fn(validatedValue, locale, formatOptionsRef.current);
-
-        allowInputSyncRef.current = false;
-        setInputValue(text);
-        return;
-      }
 
       // We need to force a re-render, because while the value may be unchanged, the formatting may
       // be different. This forces the `useModernLayoutEffect` to run which acts as a single source of
@@ -281,21 +263,17 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
   useModernLayoutEffect(function syncFormattedInputValueOnValueChange() {
     // This ensures the value is only updated on blur rather than every keystroke, but still
     // allows the input value to be updated when the value is changed externally.
-    if (!allowInputSyncRef.current && !(isControlled && externalUpdateRef.current)) {
+    if (!allowInputSyncRef.current) {
       return;
     }
 
-    if (isControlled && externalUpdateRef.current) {
-      // Respect precision if externally changed
-      const fullPrecision = formatNumberMaxPrecision(value, locale, formatOptionsRef.current);
-      if (fullPrecision !== inputValue) {
-        setInputValue(fullPrecision);
-      }
-    } else {
-      const next = formatNumber(value, locale, formatOptionsRef.current);
-      if (next !== inputValue) {
-        setInputValue(next);
-      }
+    const nextInputValue =
+      valueProp !== undefined
+        ? formatNumberMaxPrecision(value, locale, formatOptionsRef.current)
+        : formatNumber(value, locale, formatOptionsRef.current);
+
+    if (nextInputValue !== inputValue) {
+      setInputValue(nextInputValue);
     }
   });
 
@@ -343,7 +321,6 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
 
         // Prevent the default behavior to avoid scrolling the page.
         event.preventDefault();
-        allowInputSyncRef.current = true;
 
         const amount = getStepAmount(event) ?? DEFAULT_STEP;
 
@@ -405,8 +382,6 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
       isScrubbing,
       setIsScrubbing,
       state,
-      externalUpdateRef,
-      isControlled,
     }),
     [
       inputRef,
@@ -439,7 +414,6 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
       locale,
       isScrubbing,
       state,
-      isControlled,
     ],
   );
 

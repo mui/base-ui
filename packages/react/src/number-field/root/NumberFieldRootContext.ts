@@ -43,8 +43,6 @@ export interface NumberFieldRootContext {
   isScrubbing: boolean;
   setIsScrubbing: React.Dispatch<React.SetStateAction<boolean>>;
   state: NumberFieldRoot.State;
-  externalUpdateRef: React.RefObject<boolean>;
-  isControlled: boolean;
 }
 
 export const NumberFieldRootContext = React.createContext<NumberFieldRootContext | undefined>(

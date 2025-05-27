@@ -52,26 +52,25 @@ describe('<NumberField.Decrement />', () => {
   });
 
   it('first decrement after external controlled update', async () => {
-    function Controlled(props: { value: number | null }) {
+    function Controlled() {
+      const [value, setValue] = React.useState<number | null>(null);
       return (
-        <NumberField.Root value={props.value}>
-          <NumberField.Decrement />
+        <NumberField.Root value={value} onValueChange={setValue}>
           <NumberField.Input />
+          <NumberField.Decrement />
+          <button onClick={() => setValue(1.23456)}>external</button>
         </NumberField.Root>
       );
     }
 
-    const { setProps } = await render(<Controlled value={null} />);
+    const { user } = await render(<Controlled />);
     const input = screen.getByRole('textbox');
-    const button = screen.getByRole('button');
+    const increase = screen.getByLabelText('Decrease');
 
-    await act(async () => {
-      setProps({ value: 1.23456 });
-    });
-
+    await user.click(screen.getByText('external'));
     expect(input).to.have.value('1.23456');
 
-    fireEvent.click(button);
+    await user.click(increase);
     expect(input).to.have.value('0.235');
   });
 

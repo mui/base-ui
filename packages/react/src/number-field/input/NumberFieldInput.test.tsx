@@ -210,30 +210,36 @@ describe('<NumberField.Input />', () => {
   it('should update input value after increment/decrement followed by external value change', async () => {
     const onValueChange = spy();
 
-    function Controlled(props: { value: number | null }) {
+    function Controlled() {
+      const [value, setValue] = React.useState<number | null>(0);
       return (
-        <NumberField.Root value={props.value} onValueChange={onValueChange}>
+        <NumberField.Root
+          value={value}
+          onValueChange={(val) => {
+            onValueChange(val);
+            setValue(val);
+          }}
+        >
           <NumberField.Input />
           <NumberField.Increment />
           <NumberField.Decrement />
+          <button onClick={() => setValue(1.23456)}>external</button>
         </NumberField.Root>
       );
     }
 
-    const { setProps } = await render(<Controlled value={0} />);
+    const { user } = await render(<Controlled />);
     const input = screen.getByRole('textbox');
     const incrementButton = screen.getByLabelText('Increase');
 
     expect(input).to.have.value('0');
 
-    fireEvent.click(incrementButton);
+    await user.click(incrementButton);
 
     expect(input).to.have.value('1');
     expect(onValueChange.callCount).to.equal(2);
 
-    await act(async () => {
-      setProps({ value: 1.23456 });
-    });
+    await user.click(screen.getByText('external'));
 
     expect(input).to.have.value('1.23456');
   });
@@ -241,30 +247,36 @@ describe('<NumberField.Input />', () => {
   it('should update input value after decrement followed by external value change', async () => {
     const onValueChange = spy();
 
-    function Controlled(props: { value: number | null }) {
+    function Controlled() {
+      const [value, setValue] = React.useState<number | null>(5);
       return (
-        <NumberField.Root value={props.value} onValueChange={onValueChange}>
+        <NumberField.Root
+          value={value}
+          onValueChange={(val) => {
+            onValueChange(val);
+            setValue(val);
+          }}
+        >
           <NumberField.Input />
           <NumberField.Increment />
           <NumberField.Decrement />
+          <button onClick={() => setValue(2.98765)}>external</button>
         </NumberField.Root>
       );
     }
 
-    const { setProps } = await render(<Controlled value={5} />);
+    const { user } = await render(<Controlled />);
     const input = screen.getByRole('textbox');
     const decrementButton = screen.getByLabelText('Decrease');
 
     expect(input).to.have.value('5');
 
-    fireEvent.click(decrementButton);
+    await user.click(decrementButton);
 
     expect(input).to.have.value('4');
     expect(onValueChange.callCount).to.equal(2);
 
-    await act(async () => {
-      setProps({ value: 2.98765 });
-    });
+    await user.click(screen.getByText('external'));
 
     expect(input).to.have.value('2.98765');
   });

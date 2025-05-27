@@ -12,8 +12,8 @@ import type { NumberFieldRoot } from '../root/NumberFieldRoot';
 import { styleHookMapping } from '../utils/styleHooks';
 import { useField } from '../../field/useField';
 import { useFormContext } from '../../form/FormContext';
-import { formatNumber, formatNumberMaxPrecision } from '../../utils/formatNumber';
 import { useRenderElement } from '../../utils/useRenderElement';
+import { formatNumber, formatNumberMaxPrecision } from '../../utils/formatNumber';
 
 const customStyleHookMapping = {
   ...fieldValidityMapping,
@@ -63,8 +63,6 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
     locale,
     inputRef,
     value,
-    externalUpdateRef,
-    isControlled,
   } = useNumberFieldRootContext();
 
   const { clearErrors } = useFormContext();
@@ -144,16 +142,6 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
       hasTouchedInputRef.current = true;
       setFocused(true);
 
-      // Figure out whether the user actually saw a truncated value.
-      const defaultText = formatNumber(value, locale, formatOptionsRef.current);
-      const fullPrecision = formatNumberMaxPrecision(value, locale, formatOptionsRef.current);
-
-      // Only disable sync and swap in fullPrecision if there was extra precision.
-      if (value !== null && fullPrecision !== defaultText) {
-        allowInputSyncRef.current = false;
-        setInputValue(fullPrecision);
-      }
-
       // Browsers set selection at the start of the input field by default. We want to set it at
       // the end for the first focus.
       const target = event.currentTarget;
@@ -178,31 +166,37 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
         return;
       }
 
-      const parsed = parseNumber(inputValue, locale, formatOptionsRef.current);
-      if (parsed === null) {
-        return;
-      }
-
-      if (isControlled && externalUpdateRef.current) {
-        blockRevalidationRef.current = true;
-        if (validationMode === 'onBlur') {
-          commitValidation(parsed);
-        }
-        return;
-      }
-
-      const canonicalText = formatNumber(parsed, locale, formatOptionsRef.current);
+      const parsedValue = parseNumber(inputValue, locale, formatOptionsRef.current);
+      const canonicalText = formatNumber(parsedValue, locale, formatOptionsRef.current);
+      const maxPrecisionText = formatNumberMaxPrecision(
+        parsedValue,
+        locale,
+        formatOptionsRef.current,
+      );
       const canonical = parseNumber(canonicalText, locale, formatOptionsRef.current);
-      externalUpdateRef.current = false;
+      const maxPrecision = parseNumber(maxPrecisionText, locale, formatOptionsRef.current);
 
-      if (canonical !== value) {
-        setValue(canonical, event.nativeEvent);
-      } else {
-        setInputValue(canonicalText);
+      if (parsedValue === null) {
+        return;
       }
+
+      blockRevalidationRef.current = true;
 
       if (validationMode === 'onBlur') {
         commitValidation(canonical);
+      }
+
+      if (value !== maxPrecision) {
+        setValue(canonical, event.nativeEvent);
+      } else {
+        // If the current input represents the same value and matches the full precision format,
+        // preserve the current input value to maintain precision
+        if (parsedValue === value && inputValue === maxPrecisionText) {
+          // Keep the current inputValue to preserve precision
+          return;
+        }
+
+        setInputValue(canonicalText);
       }
     },
     onChange(event) {
