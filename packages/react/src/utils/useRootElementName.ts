@@ -45,7 +45,7 @@ export function useRootElementName(
   }
 
   const updateRootElementName = React.useCallback((element: HTMLElement | null) => {
-    setRootElementName(element?.tagName ?? '');
+    setRootElementName(element?.tagName ?? rootElementName);
   }, []);
 
   return { rootElementName, updateRootElementName };
