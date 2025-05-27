@@ -5,6 +5,7 @@ import type { HTMLProps } from '../../utils/types';
 import { mergeProps } from '../../merge-props';
 import { useForkRef } from '../../utils/useForkRef';
 import { useTimeout } from '../../utils/useTimeout';
+import { useEventCallback } from '../../utils/useEventCallback';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import { ownerDocument } from '../../utils/owner';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
@@ -22,30 +23,32 @@ export function useSelectTrigger(
   const {
     store,
     setOpen,
-    setTriggerElement,
     selectionRef,
-    value,
     fieldControlValidation,
-    setTouchModality,
-    positionerElement,
     readOnly,
     alignItemWithTriggerActiveRef,
-    triggerProps,
-    setTypeaheadReady,
   } = useSelectRootContext();
 
   const open = useSelector(store, selectors.isOpen);
+  const value = useSelector(store, selectors.value);
+  const triggerProps = useSelector(store, selectors.triggerProps);
+  const positionerElement = useSelector(store, selectors.positionerElement);
 
   const { labelId, setTouched, setFocused, validationMode } = useFieldRootContext();
 
   const triggerRef = React.useRef<HTMLElement | null>(null);
-  const timeout = useTimeout();
+  const timeoutFocus = useTimeout();
+  const timeoutMouseDown = useTimeout();
 
   const mergedRef = useForkRef(externalRef, triggerRef);
 
   const { getButtonProps, buttonRef } = useButton({
     disabled,
     buttonRef: mergedRef,
+  });
+
+  const setTriggerElement = useEventCallback((element) => {
+    store.set('triggerElement', element);
   });
 
   const handleRef = useForkRef<HTMLElement>(buttonRef, setTriggerElement);
@@ -77,10 +80,10 @@ export function useSelectTrigger(
       allowSelect: true,
     };
 
-    timeout.clear();
+    timeoutMouseDown.clear();
 
     return undefined;
-  }, [open, selectionRef, timeout, timeout1, timeout2]);
+  }, [open, selectionRef, timeoutMouseDown, timeout1, timeout2]);
 
   const props: HTMLProps = mergeProps<'button'>(
     triggerProps,
@@ -90,12 +93,14 @@ export function useSelectTrigger(
       tabIndex: disabled ? -1 : 0,
       ref: handleRef,
       onFocus(event) {
-        setTypeaheadReady(true);
         setFocused(true);
         // The popup element shouldn't obscure the focused trigger.
         if (open && alignItemWithTriggerActiveRef.current) {
           setOpen(false, event.nativeEvent, 'focus-out');
         }
+        timeoutFocus.start(0, () => {
+          store.set('typeaheadReady', true);
+        });
       },
       onBlur() {
         setTouched(true);
@@ -106,10 +111,10 @@ export function useSelectTrigger(
         }
       },
       onPointerMove({ pointerType }) {
-        setTouchModality(pointerType === 'touch');
+        store.set('touchModality', pointerType === 'touch');
       },
       onPointerDown({ pointerType }) {
-        setTouchModality(pointerType === 'touch');
+        store.set('touchModality', pointerType === 'touch');
       },
       onMouseDown(event) {
         if (open) {
@@ -149,7 +154,7 @@ export function useSelectTrigger(
         }
 
         // Firefox can fire this upon mousedown
-        timeout.start(0, () => {
+        timeoutMouseDown.start(0, () => {
           doc.addEventListener('mouseup', handleMouseUp, { once: true });
         });
       },

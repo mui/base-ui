@@ -11,10 +11,12 @@ export function useSelectPositioner(
   params: useSelectPositioner.Parameters,
 ): useSelectPositioner.ReturnValue {
   const { alignItemWithTriggerActive } = params;
-  const { store, triggerElement, modal } = useSelectRootContext();
+  const { store } = useSelectRootContext();
 
   const open = useSelector(store, selectors.isOpen);
   const mounted = useSelector(store, selectors.isMounted);
+  const modal = useSelector(store, selectors.modal);
+  const triggerElement = useSelector(store, selectors.triggerElement);
 
   useScrollLock({
     enabled: (alignItemWithTriggerActive || modal) && open,

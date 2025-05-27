@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useSelectRootContext } from '../root/SelectRootContext';
+import { useSelectRootContext, useSelectFloatingContext } from '../root/SelectRootContext';
 import { CompositeList } from '../../composite/list/CompositeList';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { popupStateMapping } from '../../utils/popupStateMapping';
@@ -43,23 +43,16 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
     ...elementProps
   } = componentProps;
 
-  const {
-    store,
-    positionerElement,
-    setPositionerElement,
-    listRef,
-    labelsRef,
-    floatingRootContext,
-    modal,
-    touchModality,
-    alignItemWithTriggerActiveRef,
-    valuesRef,
-    value,
-    setLabel,
-  } = useSelectRootContext();
+  const { store, listRef, labelsRef, alignItemWithTriggerActiveRef, valuesRef } =
+    useSelectRootContext();
+  const floatingRootContext = useSelectFloatingContext();
 
   const open = useSelector(store, selectors.isOpen);
   const mounted = useSelector(store, selectors.isMounted);
+  const modal = useSelector(store, selectors.modal);
+  const value = useSelector(store, selectors.value);
+  const touchModality = useSelector(store, selectors.touchModality);
+  const positionerElement = useSelector(store, selectors.positionerElement);
 
   const [scrollUpArrowVisible, setScrollUpArrowVisible] = React.useState(false);
   const [scrollDownArrowVisible, setScrollDownArrowVisible] = React.useState(false);
@@ -110,6 +103,10 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
     [open, positioner.side, positioner.align, positioner.anchorHidden],
   );
 
+  const setPositionerElement = useEventCallback((element) => {
+    store.set('positionerElement', element);
+  });
+
   const element = useRenderElement('div', componentProps, {
     ref: [forwardedRef, setPositionerElement],
     state,
@@ -158,8 +155,10 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
     if (value !== null) {
       const valueIndex = valuesRef.current.indexOf(value);
       if (valueIndex === -1) {
-        store.update({ ...store.state, selectedIndex: null });
-        setLabel('');
+        store.apply({
+          label: '',
+          selectedIndex: null,
+        });
       }
     }
 

@@ -43,12 +43,13 @@ export const SelectItem = React.memo(
       valuesRef,
       popupRef,
       registerSelectedItem,
-      value: rootValue,
       keyboardActiveRef,
-      floatingRootContext,
+      events,
     } = useSelectRootContext();
 
-    const events = floatingRootContext.events;
+    const active = useSelector(store, selectors.isActive, listItem.index);
+    const selected = useSelector(store, selectors.isSelected, listItem.index, value);
+    const rootValue = useSelector(store, selectors.value);
 
     const itemRef = React.useRef<HTMLDivElement | null>(null);
     const indexRef = useLatestRef(listItem.index);
@@ -74,10 +75,6 @@ export const SelectItem = React.memo(
       }
     }, [hasRegistered, listItem.index, registerSelectedItem, value, rootValue]);
 
-    const open = useSelector(store, selectors.isOpen);
-    const active = useSelector(store, selectors.isActive, listItem.index);
-    const selected = useSelector(store, selectors.isSelected, listItem.index);
-
     const state: SelectItem.State = React.useMemo(
       () => ({
         disabled,
@@ -93,7 +90,6 @@ export const SelectItem = React.memo(
     delete rootProps.id;
 
     const { props, rootRef } = useSelectItem({
-      open,
       setOpen,
       disabled,
       highlighted: active,

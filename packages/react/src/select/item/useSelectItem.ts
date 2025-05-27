@@ -15,7 +15,6 @@ import { AnimationFrame } from '../../utils/useAnimationFrame';
 
 export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.ReturnValue {
   const {
-    open,
     disabled = false,
     highlighted,
     selected,
@@ -45,6 +44,7 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
   const mergedRef = useForkRef(externalRef, ref);
 
   const { getButtonProps, buttonRef } = useButton({
+    elementName: 'div',
     disabled,
     focusableWhenDisabled: true,
     buttonRef: mergedRef,
@@ -67,16 +67,12 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
   }, [handlePopupLeave]);
 
   useModernLayoutEffect(() => {
-    if (!open) {
-      return;
-    }
-
     if (highlighted) {
       addHighlight(ref);
     } else {
       removeHighlight(ref);
     }
-  }, [open, highlighted]);
+  }, [highlighted]);
 
   React.useEffect(() => {
     function handleItemHover(item: HTMLDivElement) {
@@ -132,7 +128,7 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
       },
       onMouseLeave(event) {
         const popup = popupRef.current;
-        if (!popup || !open || keyboardActiveRef.current) {
+        if (!popup || keyboardActiveRef.current) {
           return;
         }
 
@@ -261,10 +257,6 @@ export namespace useSelectItem {
      * The ref of the trigger element.
      */
     ref?: React.Ref<Element>;
-    /**
-     * Whether the select menu is currently open.
-     */
-    open: boolean;
     /**
      * The function to set the open state of the select.
      */

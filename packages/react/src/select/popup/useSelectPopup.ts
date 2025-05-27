@@ -12,18 +12,8 @@ import { useSelectPositionerContext } from '../positioner/SelectPositionerContex
 import { selectors } from '../store';
 
 export function useSelectPopup(): useSelectPopup.ReturnValue {
-  const {
-    store,
-    id,
-    setOpen,
-    triggerElement,
-    positionerElement,
-    valueRef,
-    selectedItemTextRef,
-    popupRef,
-    keyboardActiveRef,
-    floatingRootContext,
-  } = useSelectRootContext();
+  const { store, setOpen, valueRef, selectedItemTextRef, popupRef, keyboardActiveRef, events } =
+    useSelectRootContext();
   const {
     alignItemWithTriggerActive,
     setControlledItemAnchor,
@@ -33,7 +23,10 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
     setScrollDownArrowVisible,
   } = useSelectPositionerContext();
 
+  const id = useSelector(store, selectors.id);
   const mounted = useSelector(store, selectors.isMounted);
+  const triggerElement = useSelector(store, selectors.triggerElement);
+  const positionerElement = useSelector(store, selectors.positionerElement);
 
   const initialHeightRef = React.useRef(0);
   const reachedMaxHeightRef = React.useRef(false);
@@ -255,7 +248,7 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
       }
       store.set('activeIndex', null);
       event.currentTarget.focus({ preventScroll: true });
-      floatingRootContext.events.emit('popupleave');
+      events.emit('popupleave');
     },
     onScroll(event) {
       if (
