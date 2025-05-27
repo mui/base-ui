@@ -25,6 +25,7 @@ export function useMenuTrigger(parameters: useMenuTrigger.Parameters): useMenuTr
     allowMouseUpTriggerRef,
     menuParent,
     lastOpenChangeReason,
+    nativeButton,
   } = parameters;
 
   const triggerRef = React.useRef<HTMLElement | null>(null);
@@ -34,6 +35,7 @@ export function useMenuTrigger(parameters: useMenuTrigger.Parameters): useMenuTr
   const { getButtonProps, buttonRef } = useButton({
     disabled,
     buttonRef: mergedRef,
+    native: nativeButton,
   });
 
   const handleRef = useForkRef(buttonRef, setTriggerElement);
@@ -159,6 +161,11 @@ export namespace useMenuTrigger {
     positionerRef: React.RefObject<HTMLElement | null>;
     menuParent: useMenuRoot.MenuParent;
     lastOpenChangeReason: OpenChangeReason | null;
+    /**
+     * Determines whether the component is being rendered as a native button.
+     * @default true
+     */
+    nativeButton: boolean;
   }
 
   export interface ReturnValue {

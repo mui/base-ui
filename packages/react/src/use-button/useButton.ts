@@ -4,7 +4,6 @@ import { useForkRef } from '../utils/useForkRef';
 import { makeEventPreventable, mergeProps } from '../merge-props';
 import { useModernLayoutEffect } from '../utils/useModernLayoutEffect';
 import { useEventCallback } from '../utils/useEventCallback';
-import { useRootElementName } from '../utils/useRootElementName';
 import { useCompositeRootContext } from '../composite/root/CompositeRootContext';
 import { BaseUIEvent, HTMLProps } from '../utils/types';
 
@@ -14,34 +13,22 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
     disabled = false,
     focusableWhenDisabled,
     tabIndex,
-    type = 'button',
-    elementName: elementNameProp = 'button',
+    native: nativeProp = true,
+    input = false,
   } = parameters;
-  const buttonRef = React.useRef<HTMLButtonElement | HTMLAnchorElement | HTMLElement | null>(null);
 
-  const { rootElementName: elementName, updateRootElementName } = useRootElementName({
-    rootElementName: elementNameProp,
-  });
+  const native = input ? false : nativeProp;
+
+  const buttonRef = React.useRef<HTMLButtonElement | HTMLAnchorElement | HTMLElement | null>(null);
 
   const isCompositeItem = useCompositeRootContext(true) !== undefined;
 
-  const isNativeButton = useEventCallback(() => {
-    const element = buttonRef.current;
-
-    return (
-      elementName === 'BUTTON' ||
-      (elementName === 'INPUT' &&
-        ['button', 'submit', 'reset'].includes((element as HTMLInputElement)?.type))
-    );
-  });
-
   const isValidLink = useEventCallback(() => {
     const element = buttonRef.current;
-
-    return Boolean(elementName === 'A' && (element as HTMLAnchorElement)?.href);
+    return Boolean(element?.tagName === 'A' && (element as HTMLAnchorElement)?.href);
   });
 
-  const mergedRef = useForkRef(updateRootElementName, externalRef, buttonRef);
+  const mergedRef = useForkRef(externalRef, buttonRef);
 
   const buttonProps = React.useMemo(() => {
     const additionalProps: AdditionalButtonProps = {};
@@ -50,20 +37,19 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
       additionalProps.tabIndex = tabIndex;
     }
 
-    if (elementName === 'BUTTON' || elementName === 'INPUT') {
-      if (focusableWhenDisabled || isCompositeItem) {
+    if (native) {
+      if (focusableWhenDisabled || (isCompositeItem && focusableWhenDisabled !== false)) {
         additionalProps['aria-disabled'] = disabled;
       } else if (!isCompositeItem) {
         additionalProps.disabled = disabled;
       }
-    } else if (elementName !== '') {
-      if (elementName !== 'A') {
+    } else {
+      // Don't add role="button" for input elements as they should keep their natural role
+      if (!input) {
         additionalProps.role = 'button';
-        if (!isCompositeItem) {
-          additionalProps.tabIndex = tabIndex ?? 0;
-        }
-      } else if (tabIndex && !isCompositeItem) {
-        additionalProps.tabIndex = tabIndex;
+      }
+      if (!isCompositeItem) {
+        additionalProps.tabIndex = tabIndex ?? 0;
       }
       if (disabled) {
         additionalProps['aria-disabled'] = disabled as boolean;
@@ -74,7 +60,7 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
     }
 
     return additionalProps;
-  }, [disabled, elementName, focusableWhenDisabled, isCompositeItem, tabIndex]);
+  }, [disabled, focusableWhenDisabled, input, isCompositeItem, native, tabIndex]);
 
   // handles a disabled composite button rendering another button, e.g.
   // <Toolbar.Button disabled render={<Menu.Trigger />} />
@@ -102,9 +88,16 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
         ...otherExternalProps
       } = externalProps;
 
+      let type: 'button' | 'text' | undefined;
+      if (input) {
+        type = 'text';
+      } else if (native) {
+        type = 'button';
+      }
+
       return mergeProps<'button' | 'input'>(
         {
-          type: elementName === 'BUTTON' || elementName === 'INPUT' ? type : undefined,
+          type,
           onClick(event: React.MouseEvent) {
             if (disabled) {
               event.preventDefault();
@@ -121,7 +114,7 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
             if (
               // allow Tabbing away from focusableWhenDisabled buttons
               (disabled && focusableWhenDisabled && event.key !== 'Tab') ||
-              (event.target === event.currentTarget && !isNativeButton() && event.key === ' ')
+              (event.target === event.currentTarget && !native && event.key === ' ')
             ) {
               event.preventDefault();
             }
@@ -138,7 +131,7 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
             // Keyboard accessibility for non interactive elements
             if (
               event.target === event.currentTarget &&
-              !isNativeButton() &&
+              !native &&
               !isValidLink() &&
               event.key === 'Enter' &&
               !disabled
@@ -160,12 +153,7 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
               return;
             }
 
-            if (
-              event.target === event.currentTarget &&
-              !isNativeButton() &&
-              !disabled &&
-              event.key === ' '
-            ) {
+            if (event.target === event.currentTarget && !native && !disabled && event.key === ' ') {
               externalOnClick?.(event);
             }
           },
@@ -182,16 +170,7 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
         otherExternalProps,
       );
     },
-    [
-      buttonProps,
-      disabled,
-      elementName,
-      focusableWhenDisabled,
-      isNativeButton,
-      isValidLink,
-      mergedRef,
-      type,
-    ],
+    [buttonProps, disabled, focusableWhenDisabled, input, isValidLink, mergedRef, native],
   );
 
   return {
@@ -227,17 +206,15 @@ export namespace useButton {
     buttonRef?: React.Ref<Element>;
     tabIndex?: NonNullable<React.HTMLAttributes<any>['tabIndex']>;
     /**
-     * Type attribute applied when the `component` is `button`.
-     * @default 'button'
+     * Whether the component is being rendered as a native button.
+     * @default true
      */
-    type?:
-      | React.ButtonHTMLAttributes<HTMLButtonElement>['type']
-      | React.InputHTMLAttributes<HTMLInputElement>['type'];
+    native?: boolean;
     /**
-     * The HTML element, e.g.'button', 'span' etc.
-     * @default ''
+     * Whether the component is being rendered as a native input.
+     * @default false
      */
-    elementName?: keyof HTMLElementTagNameMap;
+    input?: boolean;
   }
 
   export interface ReturnValue {

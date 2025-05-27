@@ -31,6 +31,7 @@ const InnerMenuCheckboxItem = React.memo(
       render,
       allowMouseUpTriggerRef,
       typingRef,
+      nativeButton,
       ...other
     } = props;
 
@@ -46,6 +47,7 @@ const InnerMenuCheckboxItem = React.memo(
       defaultChecked,
       onCheckedChange,
       typingRef,
+      nativeButton,
     });
 
     const state: MenuCheckboxItem.State = React.useMemo(
@@ -80,7 +82,7 @@ export const MenuCheckboxItem = React.forwardRef(function MenuCheckboxItem(
   props: MenuCheckboxItem.Props,
   forwardedRef: React.ForwardedRef<Element>,
 ) {
-  const { id: idProp, label, closeOnClick = false, ...other } = props;
+  const { id: idProp, label, closeOnClick = false, nativeButton = false, ...other } = props;
 
   const itemRef = React.useRef<HTMLElement>(null);
   const listItem = useCompositeListItem({ label });
@@ -107,6 +109,7 @@ export const MenuCheckboxItem = React.forwardRef(function MenuCheckboxItem(
       allowMouseUpTriggerRef={allowMouseUpTriggerRef}
       typingRef={typingRef}
       closeOnClick={closeOnClick}
+      nativeButton={nativeButton}
     />
   );
 });
@@ -177,5 +180,10 @@ export namespace MenuCheckboxItem {
      * @default false
      */
     closeOnClick?: boolean;
+    /**
+     * Determines whether the component is being rendered as a native button.
+     * @default false
+     */
+    nativeButton: boolean;
   }
 }

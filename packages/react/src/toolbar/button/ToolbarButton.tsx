@@ -23,6 +23,7 @@ export const ToolbarButton = React.forwardRef(function ToolbarButton(
     disabled: disabledProp = false,
     focusableWhenDisabled = true,
     render,
+    nativeButton = true,
     ...otherProps
   } = props;
 
@@ -38,6 +39,7 @@ export const ToolbarButton = React.forwardRef(function ToolbarButton(
     buttonRef: forwardedRef,
     disabled,
     focusableWhenDisabled,
+    native: nativeButton,
   });
 
   const state: ToolbarButton.State = React.useMemo(
@@ -77,5 +79,10 @@ export namespace ToolbarButton {
      * @default true
      */
     focusableWhenDisabled?: boolean;
+    /**
+     * Determines whether the component is being rendered as a native button.
+     * @default true
+     */
+    nativeButton?: boolean;
   }
 }

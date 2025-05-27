@@ -16,7 +16,7 @@ export const ToastAction = React.forwardRef(function ToastAction(
   props: ToastAction.Props,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
-  const { render, className, disabled, ...other } = props;
+  const { render, className, disabled, nativeButton = true, ...other } = props;
 
   const { toast } = useToastRootContext();
 
@@ -26,6 +26,7 @@ export const ToastAction = React.forwardRef(function ToastAction(
   const { getButtonProps } = useButton({
     disabled,
     buttonRef: forwardedRef,
+    native: nativeButton,
   });
 
   const state: ToastAction.State = React.useMemo(
@@ -60,5 +61,11 @@ export namespace ToastAction {
     type: string | undefined;
   }
 
-  export interface Props extends BaseUIComponentProps<'button', State> {}
+  export interface Props extends BaseUIComponentProps<'button', State> {
+    /**
+     * Determines whether the component is being rendered as a native button.
+     * @default true
+     */
+    nativeButton?: boolean;
+  }
 }

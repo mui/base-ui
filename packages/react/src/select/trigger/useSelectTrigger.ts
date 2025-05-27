@@ -15,7 +15,7 @@ const BOUNDARY_OFFSET = 2;
 export function useSelectTrigger(
   parameters: useSelectTrigger.Parameters,
 ): useSelectTrigger.ReturnValue {
-  const { elementProps, disabled = false, rootRef: externalRef } = parameters;
+  const { elementProps, disabled = false, rootRef: externalRef, nativeButton } = parameters;
 
   const {
     open,
@@ -41,6 +41,7 @@ export function useSelectTrigger(
   const { getButtonProps, buttonRef } = useButton({
     disabled,
     buttonRef: mergedRef,
+    native: nativeButton,
   });
 
   const handleRef = useForkRef<HTMLElement>(buttonRef, setTriggerElement);
@@ -173,6 +174,11 @@ export namespace useSelectTrigger {
      */
     rootRef?: React.Ref<HTMLElement>;
     elementProps: HTMLProps;
+    /**
+     * Determines whether the component is being rendered as a native button.
+     * @default false
+     */
+    nativeButton: boolean;
   }
 
   export interface ReturnValue {

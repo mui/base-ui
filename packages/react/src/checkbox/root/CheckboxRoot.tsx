@@ -33,6 +33,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     className,
     inputRef,
     value,
+    nativeButton = true,
     ...otherProps
   } = props;
 
@@ -67,6 +68,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     checked: groupChecked,
     indeterminate: groupIndeterminate,
     onCheckedChange: groupOnChange,
+    nativeButton,
   });
 
   const computedChecked = isGrouped ? Boolean(groupChecked) : checked;

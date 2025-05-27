@@ -17,7 +17,7 @@ export const DialogTrigger = React.forwardRef(function DialogTrigger(
   props: DialogTrigger.Props,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
-  const { render, className, disabled = false, ...other } = props;
+  const { render, className, disabled = false, nativeButton = true, ...other } = props;
 
   const { open, setTriggerElement, getTriggerProps } = useDialogRootContext();
 
@@ -34,6 +34,7 @@ export const DialogTrigger = React.forwardRef(function DialogTrigger(
   const { getButtonProps } = useButton({
     disabled,
     buttonRef: mergedRef,
+    native: nativeButton,
   });
 
   const { renderElement } = useComponentRenderer({
@@ -49,7 +50,13 @@ export const DialogTrigger = React.forwardRef(function DialogTrigger(
 });
 
 export namespace DialogTrigger {
-  export interface Props extends BaseUIComponentProps<'button', State> {}
+  export interface Props extends BaseUIComponentProps<'button', State> {
+    /**
+     * Determines whether the component is being rendered as a native button.
+     * @default true
+     */
+    nativeButton?: boolean;
+  }
 
   export interface State {
     /**

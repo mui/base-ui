@@ -17,7 +17,15 @@ export const TabsTab = React.forwardRef(function Tab(
   props: TabsTab.Props,
   forwardedRef: React.ForwardedRef<Element>,
 ) {
-  const { className, disabled = false, render, value: valueProp, id: idProp, ...other } = props;
+  const {
+    className,
+    disabled = false,
+    render,
+    value: valueProp,
+    id: idProp,
+    nativeButton = true,
+    ...other
+  } = props;
 
   const {
     value: selectedTabValue,
@@ -39,6 +47,7 @@ export const TabsTab = React.forwardRef(function Tab(
     setHighlightedTabIndex,
     selectedTabValue,
     value: valueProp,
+    nativeButton,
   });
 
   const highlighted = index > -1 && index === highlightedTabIndex;
@@ -71,6 +80,11 @@ export namespace TabsTab {
      * When not specified, the value is the child position index.
      */
     value?: TabValue;
+    /**
+     * Determines whether the component is being rendered as a native button.
+     * @default true
+     */
+    nativeButton?: boolean;
   }
 
   export interface State {

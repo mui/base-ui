@@ -29,6 +29,7 @@ export function useTabsTab(parameters: useTabsTab.Parameters): useTabsTab.Return
     selectedTabValue,
     setHighlightedTabIndex,
     value: valueParam,
+    nativeButton,
   } = parameters;
 
   const id = useBaseUiId(idParam);
@@ -73,6 +74,7 @@ export function useTabsTab(parameters: useTabsTab.Parameters): useTabsTab.Return
   const { getButtonProps, buttonRef } = useButton({
     disabled,
     focusableWhenDisabled: true,
+    native: nativeButton,
   });
 
   const handleRef = useForkRef(compositeItemRef, buttonRef, externalRef);
@@ -199,6 +201,11 @@ export namespace useTabsTab {
      * Ref to the root slot's DOM element.
      */
     rootRef?: React.Ref<Element>;
+    /**
+     * Determines whether the component is being rendered as a native button.
+     * @default true
+     */
+    nativeButton: boolean;
   }
 
   export interface ReturnValue {

@@ -32,6 +32,7 @@ interface InnerSelectItemProps extends Omit<SelectItem.Props, 'value'> {
   popupRef: React.RefObject<HTMLDivElement | null>;
   keyboardActiveRef: React.RefObject<boolean>;
   events: FloatingEvents;
+  nativeButton: boolean;
 }
 
 const InnerSelectItem = React.memo(
@@ -58,6 +59,7 @@ const InnerSelectItem = React.memo(
       popupRef,
       keyboardActiveRef,
       events,
+      nativeButton,
       ...elementProps
     } = componentProps;
 
@@ -93,6 +95,7 @@ const InnerSelectItem = React.memo(
       events,
       rootProps,
       elementProps,
+      nativeButton,
     });
 
     const renderElement = useRenderElement('div', componentProps, {
@@ -127,7 +130,7 @@ export const SelectItem = React.forwardRef(function SelectItem(
   props: SelectItem.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { value: valueProp = null, label, ...otherProps } = props;
+  const { value: valueProp = null, label, nativeButton = false, ...otherProps } = props;
 
   const listItem = useCompositeListItem({ label });
 
@@ -194,6 +197,7 @@ export const SelectItem = React.forwardRef(function SelectItem(
       popupRef={popupRef}
       keyboardActiveRef={keyboardActiveRef}
       events={floatingRootContext.events}
+      nativeButton={nativeButton}
       {...otherProps}
     />
   );
@@ -228,5 +232,10 @@ export namespace SelectItem {
      * and when the item is matched during keyboard text navigation.
      */
     label?: string;
+    /**
+     * Determines whether the component is being rendered as a native button.
+     * @default false
+     */
+    nativeButton?: boolean;
   }
 }

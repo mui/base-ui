@@ -28,6 +28,7 @@ export const Toggle = React.forwardRef(function Toggle(
     render,
     type, // cannot change button type
     value: valueProp,
+    nativeButton = true,
     ...elementProps
   } = componentProps;
 
@@ -56,6 +57,7 @@ export const Toggle = React.forwardRef(function Toggle(
   const { getButtonProps, buttonRef } = useButton({
     disabled,
     buttonRef: forwardedRef,
+    native: nativeButton,
   });
 
   const state: Toggle.State = React.useMemo(
@@ -128,5 +130,10 @@ export namespace Toggle {
      * inside a toggle group.
      */
     value?: string;
+    /**
+     * Determines whether the component is being rendered as a native button.
+     * @default true
+     */
+    nativeButton?: boolean;
   }
 }

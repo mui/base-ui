@@ -8,17 +8,6 @@ import { useButton } from './useButton';
 describe('useButton', () => {
   const { render, renderToString } = createRenderer();
 
-  it('adds disabled attribute during SSR', async () => {
-    function TestButton(props: React.ButtonHTMLAttributes<HTMLButtonElement>) {
-      const { disabled, ...otherProps } = props;
-      const { getButtonProps } = useButton({ disabled });
-      return <button {...getButtonProps(otherProps)} />;
-    }
-
-    const { container } = renderToString(<TestButton disabled>Submit</TestButton>);
-    expect(container.querySelector('button')).to.have.property('disabled');
-  });
-
   describe('param: focusableWhenDisabled', () => {
     it('allows disabled buttons to be focused', async () => {
       function TestButton(props: React.ButtonHTMLAttributes<HTMLButtonElement>) {
@@ -42,7 +31,11 @@ describe('useButton', () => {
 
       function TestButton(props: React.ButtonHTMLAttributes<HTMLButtonElement>) {
         const { disabled, ...otherProps } = props;
-        const { getButtonProps } = useButton({ disabled, focusableWhenDisabled: true });
+        const { getButtonProps } = useButton({
+          disabled,
+          focusableWhenDisabled: true,
+          native: false,
+        });
 
         return <span {...getButtonProps(otherProps)} />;
       }
@@ -103,9 +96,9 @@ describe('useButton', () => {
     it('returns tabIndex in getButtonProps when host component is not BUTTON', async () => {
       function TestButton() {
         const buttonRef = React.useRef(null);
-        const { getButtonProps } = useButton({ buttonRef });
+        const { getButtonProps } = useButton({ buttonRef, native: false });
 
-        expect(getButtonProps().tabIndex).to.equal(buttonRef.current ? 0 : undefined);
+        expect(getButtonProps().tabIndex).to.equal(0);
 
         return <span {...getButtonProps()} />;
       }
@@ -146,7 +139,7 @@ describe('useButton', () => {
       const handleClick = spy();
 
       function TestButton(props: React.ButtonHTMLAttributes<HTMLButtonElement>) {
-        const { getButtonProps } = useButton();
+        const { getButtonProps } = useButton({ native: false });
 
         return <span {...getButtonProps(props)} />;
       }
@@ -172,7 +165,7 @@ describe('useButton', () => {
       const handleClick = spy();
 
       function TestButton(props: React.ButtonHTMLAttributes<HTMLButtonElement>) {
-        const { getButtonProps } = useButton();
+        const { getButtonProps } = useButton({ native: false });
 
         return <span {...getButtonProps(props)} />;
       }
@@ -196,10 +189,10 @@ describe('useButton', () => {
   describe.skipIf(isJSDOM)('server-side rendering', () => {
     it('should server-side render', async () => {
       function TestButton(props: React.ButtonHTMLAttributes<HTMLButtonElement>) {
-        const { disabled, type, ...otherProps } = props;
-        const { getButtonProps } = useButton({ disabled, type });
+        const { disabled, ...otherProps } = props;
+        const { getButtonProps } = useButton({ disabled });
 
-        return <span {...getButtonProps(otherProps)} />;
+        return <input {...getButtonProps(otherProps)} />;
       }
 
       const { container } = await renderToString(
@@ -210,43 +203,16 @@ describe('useButton', () => {
 
       expect(container.firstChild).to.have.text('Submit');
     });
-  });
 
-  describe('param: type', () => {
-    it('defaults to button', async () => {
-      function TestButton(props: React.ButtonHTMLAttributes<HTMLButtonElement>) {
-        const { disabled, type, ...otherProps } = props;
-        const { getButtonProps } = useButton({ disabled, type });
-
-        return <button {...getButtonProps(otherProps)} />;
-      }
-
-      const { getByRole } = await render(<TestButton>Submit</TestButton>);
-      expect(getByRole('button')).to.have.property('type', 'button');
-    });
-
-    it('should set the type attribute', async () => {
-      function TestButton(props: React.ButtonHTMLAttributes<HTMLButtonElement>) {
-        const { disabled, type, ...otherProps } = props;
-        const { getButtonProps } = useButton({ disabled, type });
-
-        return <button {...getButtonProps(otherProps)} />;
-      }
-
-      const { getByRole } = await render(<TestButton type="submit">Submit</TestButton>);
-      expect(getByRole('button')).to.have.property('type', 'submit');
-    });
-
-    it('does not set type attribute by default on non-button elements', async () => {
+    it('adds disabled attribute', async () => {
       function TestButton(props: React.ButtonHTMLAttributes<HTMLButtonElement>) {
         const { disabled, ...otherProps } = props;
         const { getButtonProps } = useButton({ disabled });
-
-        return <span {...getButtonProps(otherProps)} />;
+        return <button {...getButtonProps(otherProps)} />;
       }
 
-      const { getByRole } = await render(<TestButton />);
-      expect(getByRole('button')).not.to.have.attribute('type');
+      const { container } = renderToString(<TestButton disabled>Submit</TestButton>);
+      expect(container.querySelector('button')).to.have.property('disabled');
     });
   });
 });
