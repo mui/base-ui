@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import type { Middleware } from '@floating-ui/react';
 import { getSide } from '@floating-ui/utils';
 import { disableFocusInside, enableFocusInside, isOutsideEvent } from '@floating-ui/react/utils';
 import type { BaseUIComponentProps } from '../../utils/types';
@@ -17,6 +18,64 @@ import { useAnimationsFinished } from '../../utils/useAnimationsFinished';
 import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { popupStateMapping } from '../../utils/popupStateMapping';
 import { DEFAULT_COLLISION_AVOIDANCE } from '../../utils/constants';
+
+const adaptiveOrigin: Middleware = {
+  name: 'adaptiveOrigin',
+  async fn(state) {
+    const {
+      x: rawX,
+      y: rawY,
+      rects: { floating: floatRect },
+      elements: { floating },
+      platform,
+      strategy,
+      placement,
+    } = state;
+
+    const win = floating.ownerDocument.defaultView;
+    const offsetParent = await platform.getOffsetParent?.(floating);
+
+    let offsetDimensions = { width: 0, height: 0 };
+
+    // For fixed strategy, prefer visualViewport if available
+    if (strategy === 'fixed' && win?.visualViewport) {
+      offsetDimensions = {
+        width: win.visualViewport.width,
+        height: win.visualViewport.height,
+      };
+    } else if (offsetParent === win) {
+      const doc = ownerDocument(floating);
+      offsetDimensions = {
+        width: doc.documentElement.clientWidth,
+        height: doc.documentElement.clientHeight,
+      };
+    } else if (await platform.isElement?.(offsetParent)) {
+      offsetDimensions = await platform.getDimensions(offsetParent);
+    }
+
+    const currentSide = getSide(placement);
+    let x = rawX;
+    let y = rawY;
+
+    if (currentSide === 'left') {
+      x = offsetDimensions.width - (rawX + floatRect.width);
+    }
+    if (currentSide === 'top') {
+      y = offsetDimensions.height - (rawY + floatRect.height);
+    }
+
+    const sideX = currentSide === 'left' ? 'right' : 'left';
+    const sideY = currentSide === 'top' ? 'bottom' : 'top';
+    return {
+      x,
+      y,
+      data: {
+        sideX,
+        sideY,
+      },
+    };
+  },
+};
 
 /**
  * Positions the navigation menu against the currently active trigger.
@@ -155,63 +214,7 @@ export const NavigationMenuPositioner = React.forwardRef(function NavigationMenu
     nodeId,
     // Allows the menu to remain anchored without wobbling while its size
     // and position transition simultaneously when side=top or side=left.
-    adaptiveOrigin: {
-      name: 'adaptiveOrigin',
-      async fn(state) {
-        const {
-          x: rawX,
-          y: rawY,
-          rects: { floating: floatRect },
-          elements: { floating },
-          platform,
-          strategy,
-          placement,
-        } = state;
-
-        const win = floating.ownerDocument.defaultView;
-        const offsetParent = await platform.getOffsetParent?.(floating);
-
-        let offsetDimensions = { width: 0, height: 0 };
-
-        // For fixed strategy, prefer visualViewport if available
-        if (strategy === 'fixed' && win?.visualViewport) {
-          offsetDimensions = {
-            width: win.visualViewport.width,
-            height: win.visualViewport.height,
-          };
-        } else if (offsetParent === win) {
-          const doc = ownerDocument(floating);
-          offsetDimensions = {
-            width: doc.documentElement.clientWidth,
-            height: doc.documentElement.clientHeight,
-          };
-        } else if (await platform.isElement?.(offsetParent)) {
-          offsetDimensions = await platform.getDimensions(offsetParent);
-        }
-
-        const currentSide = getSide(placement);
-        let x = rawX;
-        let y = rawY;
-
-        if (currentSide === 'left') {
-          x = offsetDimensions.width - (rawX + floatRect.width);
-        }
-        if (currentSide === 'top') {
-          y = offsetDimensions.height - (rawY + floatRect.height);
-        }
-
-        const sideX = currentSide === 'left' ? 'right' : 'left';
-        const sideY = currentSide === 'top' ? 'bottom' : 'top';
-        return {
-          x,
-          y,
-          data: {
-            sideX,
-            sideY,
-          },
-        };
-      },
-    },
+    adaptiveOrigin,
   });
 
   const defaultProps: React.ComponentProps<'div'> = React.useMemo(() => {
