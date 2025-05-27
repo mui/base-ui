@@ -68,7 +68,7 @@ export const Toggle = React.forwardRef(function Toggle(
     [disabled, pressed],
   );
 
-  const renderElement = useRenderElement('button', componentProps, {
+  const element = useRenderElement('button', componentProps, {
     state,
     ref: buttonRef,
     props: [
@@ -86,7 +86,7 @@ export const Toggle = React.forwardRef(function Toggle(
     ],
   });
 
-  return groupContext ? <CompositeItem render={renderElement()} /> : renderElement();
+  return groupContext ? <CompositeItem render={element} /> : element;
 });
 
 export namespace Toggle {

@@ -10,6 +10,9 @@ import { SelectPositionerContext } from './SelectPositionerContext';
 import { InternalBackdrop } from '../../utils/InternalBackdrop';
 import { inertValue } from '../../utils/inertValue';
 import { useRenderElement } from '../../utils/useRenderElement';
+import { clearPositionerStyles } from '../popup/utils';
+import { useSelectIndexContext } from '../root/SelectIndexContext';
+import { useEventCallback } from '../../utils/useEventCallback';
 
 /**
  * Positions the select menu popup.
@@ -42,20 +45,24 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
   const {
     open,
     mounted,
+    positionerElement,
     setPositionerElement,
     listRef,
     labelsRef,
     floatingRootContext,
     modal,
     touchModality,
-    scrollUpArrowVisible,
-    setScrollUpArrowVisible,
-    scrollDownArrowVisible,
-    setScrollDownArrowVisible,
     alignItemWithTriggerActiveRef,
+    valuesRef,
+    value,
+    setLabel,
   } = useSelectRootContext();
+  const { setSelectedIndex } = useSelectIndexContext();
 
+  const [scrollUpArrowVisible, setScrollUpArrowVisible] = React.useState(false);
+  const [scrollDownArrowVisible, setScrollDownArrowVisible] = React.useState(false);
   const [controlledItemAnchor, setControlledItemAnchor] = React.useState(alignItemWithTrigger);
+
   const alignItemWithTriggerActive = mounted && controlledItemAnchor && !touchModality;
 
   React.useImperativeHandle(alignItemWithTriggerActiveRef, () => alignItemWithTriggerActive);
@@ -101,7 +108,7 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
     [open, positioner.side, positioner.align, positioner.anchorHidden],
   );
 
-  const renderElement = useRenderElement('div', componentProps, {
+  const element = useRenderElement('div', componentProps, {
     ref: [forwardedRef, setPositionerElement],
     state,
     customStyleHookMapping: popupStateMapping,
@@ -114,15 +121,61 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
       alignItemWithTriggerActive,
       controlledItemAnchor,
       setControlledItemAnchor,
+      scrollUpArrowVisible,
+      setScrollUpArrowVisible,
+      scrollDownArrowVisible,
+      setScrollDownArrowVisible,
     }),
-    [positioner, alignItemWithTriggerActive, controlledItemAnchor],
+    [
+      positioner,
+      alignItemWithTriggerActive,
+      controlledItemAnchor,
+      scrollUpArrowVisible,
+      scrollDownArrowVisible,
+    ],
   );
 
+  const prevMapSizeRef = React.useRef(0);
+
+  const onMapChange = useEventCallback((map: Map<Element, { index?: number | null } | null>) => {
+    if (map.size === 0 && prevMapSizeRef.current === 0) {
+      return;
+    }
+
+    if (valuesRef.current.length === 0) {
+      return;
+    }
+
+    const prevSize = prevMapSizeRef.current;
+    prevMapSizeRef.current = map.size;
+
+    if (map.size === prevSize) {
+      return;
+    }
+
+    if (value !== null) {
+      const valueIndex = valuesRef.current.indexOf(value);
+      if (valueIndex === -1) {
+        setSelectedIndex(null);
+        setLabel('');
+      }
+    }
+
+    if (open && alignItemWithTriggerActive) {
+      setScrollDownArrowVisible(false);
+      setScrollUpArrowVisible(false);
+
+      if (positionerElement) {
+        clearPositionerStyles(positionerElement, { height: '' });
+      }
+    }
+  });
+
   return (
-    <CompositeList elementsRef={listRef} labelsRef={labelsRef}>
+    <CompositeList elementsRef={listRef} labelsRef={labelsRef} onMapChange={onMapChange}>
       <SelectPositionerContext.Provider value={contextValue}>
         {mounted && modal && <InternalBackdrop inert={inertValue(!open)} />}
-        {renderElement()}
+        {element}
       </SelectPositionerContext.Provider>
     </CompositeList>
   );

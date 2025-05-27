@@ -56,7 +56,9 @@ export const FieldRoot = React.forwardRef(function FieldRoot(
     setDirtyUnwrapped(value);
   }, []);
 
-  const invalid = Boolean(invalidProp || (name && {}.hasOwnProperty.call(errors, name)));
+  const invalid = Boolean(
+    invalidProp || (name && {}.hasOwnProperty.call(errors, name) && errors[name] !== undefined),
+  );
 
   const [validityData, setValidityData] = React.useState<FieldValidityData>({
     state: DEFAULT_VALIDITY_STATE,
@@ -129,16 +131,14 @@ export const FieldRoot = React.forwardRef(function FieldRoot(
     ],
   );
 
-  const renderElement = useRenderElement('div', componentProps, {
+  const element = useRenderElement('div', componentProps, {
     ref: forwardedRef,
     state,
     props: elementProps,
     customStyleHookMapping: fieldValidityMapping,
   });
 
-  return (
-    <FieldRootContext.Provider value={contextValue}>{renderElement()}</FieldRootContext.Provider>
-  );
+  return <FieldRootContext.Provider value={contextValue}>{element}</FieldRootContext.Provider>;
 });
 
 export interface FieldValidityData {

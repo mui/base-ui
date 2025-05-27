@@ -105,7 +105,7 @@ export namespace useMenuItem {
     /**
      * The ref of the trigger element.
      */
-    ref?: React.Ref<Element>;
+    ref: React.Ref<Element>;
     /**
      * Whether to treat mouseup events as clicks.
      */

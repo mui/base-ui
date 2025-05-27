@@ -61,14 +61,14 @@ export const AccordionTrigger = React.forwardRef(function AccordionTrigger(
     [panelId, disabled, id, open, handleTrigger],
   );
 
-  const renderElement = useRenderElement('button', componentProps, {
+  const element = useRenderElement('button', componentProps, {
     state,
     ref: [forwardedRef, buttonRef],
     props: [props, elementProps, getButtonProps],
     customStyleHookMapping: triggerOpenStateMapping,
   });
 
-  return renderElement();
+  return element;
 });
 
 export namespace AccordionTrigger {

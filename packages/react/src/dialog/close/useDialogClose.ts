@@ -2,16 +2,16 @@
 import * as React from 'react';
 import { useButton } from '../../use-button/useButton';
 import { mergeProps } from '../../merge-props';
-import { OpenChangeReason } from '../../utils/translateOpenChangeReason';
 import type { HTMLProps } from '../../utils/types';
 import { useEventCallback } from '../../utils/useEventCallback';
+import { DialogOpenChangeReason } from '../root/useDialogRoot';
 
 export function useDialogClose(params: useDialogClose.Parameters): useDialogClose.ReturnValue {
   const { open, setOpen, rootRef: externalRef, disabled, nativeButton } = params;
 
   const handleClick = useEventCallback((event: React.MouseEvent) => {
     if (open) {
-      setOpen(false, event.nativeEvent, 'click');
+      setOpen(false, event.nativeEvent, 'close-press');
     }
   });
 
@@ -45,7 +45,7 @@ export namespace useDialogClose {
     setOpen: (
       open: boolean,
       event: Event | undefined,
-      reason: OpenChangeReason | undefined,
+      reason: DialogOpenChangeReason | undefined,
     ) => void;
     rootRef: React.Ref<HTMLElement>;
     /**

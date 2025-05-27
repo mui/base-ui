@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { TooltipRootContext } from './TooltipRootContext';
-import { useTooltipRoot } from './useTooltipRoot';
+import { type TooltipOpenChangeReason, useTooltipRoot } from './useTooltipRoot';
 import { OPEN_DELAY } from '../utils/constants';
 
 /**
@@ -47,8 +47,9 @@ export const TooltipRoot: React.FC<TooltipRoot.Props> = function TooltipRoot(pro
       delay: delayWithDefault,
       closeDelay: closeDelayWithDefault,
       trackCursorAxis,
+      hoverable,
     }),
-    [tooltipRoot, delayWithDefault, closeDelayWithDefault, trackCursorAxis],
+    [tooltipRoot, delayWithDefault, closeDelayWithDefault, trackCursorAxis, hoverable],
   );
 
   return (
@@ -64,4 +65,6 @@ export namespace TooltipRoot {
   }
 
   export type Actions = useTooltipRoot.Actions;
+
+  export type OpenChangeReason = TooltipOpenChangeReason;
 }

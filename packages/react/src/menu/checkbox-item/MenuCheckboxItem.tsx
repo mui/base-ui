@@ -1,15 +1,16 @@
 'use client';
 import * as React from 'react';
 import { FloatingEvents, useFloatingTree } from '@floating-ui/react';
-import { useMenuCheckboxItem } from './useMenuCheckboxItem';
 import { MenuCheckboxItemContext } from './MenuCheckboxItemContext';
+import { useMenuItem } from '../item/useMenuItem';
+import { useCompositeListItem } from '../../composite/list/useCompositeListItem';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import { useForkRef } from '../../utils/useForkRef';
 import { itemMapping } from '../utils/styleHookMapping';
-import { useCompositeListItem } from '../../composite/list/useCompositeListItem';
+import { useControlled } from '../../utils/useControlled';
 import { mergeProps } from '../../merge-props';
 
 const InnerMenuCheckboxItem = React.memo(
@@ -35,7 +36,14 @@ const InnerMenuCheckboxItem = React.memo(
       ...other
     } = props;
 
-    const { getItemProps, checked } = useMenuCheckboxItem({
+    const [checked, setChecked] = useControlled({
+      controlled: checkedProp,
+      default: defaultChecked ?? false,
+      name: 'MenuCheckboxItem',
+      state: 'checked',
+    });
+
+    const { getItemProps: getMenuItemProps } = useMenuItem({
       closeOnClick,
       disabled,
       highlighted,
@@ -43,12 +51,27 @@ const InnerMenuCheckboxItem = React.memo(
       menuEvents,
       ref: forwardedRef,
       allowMouseUpTriggerRef,
-      checked: checkedProp,
-      defaultChecked,
-      onCheckedChange,
       typingRef,
       nativeButton,
     });
+
+    const getItemProps = React.useCallback(
+      (externalProps?: HTMLProps): HTMLProps => {
+        return mergeProps(
+          {
+            role: 'menuitemcheckbox',
+            'aria-checked': checked,
+            onClick: (event: React.MouseEvent) => {
+              setChecked((currentlyChecked) => !currentlyChecked);
+              onCheckedChange?.(!checked, event.nativeEvent);
+            },
+          },
+          externalProps,
+          getMenuItemProps,
+        );
+      },
+      [checked, getMenuItemProps, onCheckedChange, setChecked],
+    );
 
     const state: MenuCheckboxItem.State = React.useMemo(
       () => ({ disabled, highlighted, checked }),

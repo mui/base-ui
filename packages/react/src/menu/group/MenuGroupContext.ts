@@ -6,10 +6,6 @@ export interface MenuGroupContext {
 
 export const MenuGroupContext = React.createContext<MenuGroupContext | undefined>(undefined);
 
-if (process.env.NODE_ENV !== 'production') {
-  MenuGroupContext.displayName = 'MenuGroupContext';
-}
-
 export function useMenuGroupRootContext() {
   const context = React.useContext(MenuGroupContext);
   if (context === undefined) {

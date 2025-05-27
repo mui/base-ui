@@ -1,29 +1,29 @@
 {
   "name": "useRender",
-  "description": "Returns an object with a `renderElement` function that renders a Base UI element.",
+  "description": "Renders a Base UI element.",
   "parameters": {
     "render": {
       "type": "useRender.RenderProp",
       "required": true,
       "description": "The React element or a function that returns one to override the default element."
     },
-    "refs": {
-      "type": "Ref<RenderedElementType>[]",
-      "description": "Refs to be merged together to access the rendered DOM element."
+    "ref": {
+      "type": "Ref<RenderedElementType> | Ref<RenderedElementType>[]",
+      "description": "The ref to apply to the rendered element."
     },
     "state": {
       "type": "Record<string, unknown>",
       "description": "The state of the component, passed as the second argument to the `render` callback."
     },
     "props": {
-      "type": "Record<string, unknown> & { ref: Ref<RenderedElementType> }",
+      "type": "Record<string, unknown>",
       "description": "Props to be spread on the rendered element.\nThey are merged with the internal props of the component, so that event handlers\nare merged, `className` strings and `style` properties are joined, while other external props overwrite the\ninternal ones."
+    },
+    "enabled": {
+      "type": "boolean",
+      "default": "true",
+      "description": "If `false`, the hook will skip most of its internal logic and return `null`.\nThis is useful for rendering a component conditionally."
     }
   },
-  "returnValue": {
-    "renderElement": {
-      "type": "(() => ReactElement)",
-      "required": true
-    }
-  }
+  "returnValue": "useRender.ReturnValue"
 }

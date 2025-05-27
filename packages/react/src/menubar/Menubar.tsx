@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { FloatingNode, FloatingTree, useFloatingNodeId, useFloatingTree } from '@floating-ui/react';
-import { MenuOrientation } from '../menu/root/useMenuRoot';
+import { type MenuRoot } from '../menu/root/MenuRoot';
 import { BaseUIComponentProps } from '../utils/types';
 import { MenubarContext, useMenubarContext } from './MenubarContext';
 import { useScrollLock } from '../utils';
@@ -49,7 +49,7 @@ export const Menubar = React.forwardRef(function Menubar(
   const contentRef = React.useRef<HTMLDivElement>(null);
   const allowMouseUpTriggerRef = React.useRef(false);
 
-  const renderElement = useRenderElement('div', props, {
+  const element = useRenderElement('div', props, {
     state,
     props: [{ role: 'menubar' }, otherProps],
     ref: [forwardedRef, setContentElement, contentRef],
@@ -73,7 +73,7 @@ export const Menubar = React.forwardRef(function Menubar(
       <FloatingTree>
         <MenubarContent>
           <CompositeRoot
-            render={renderElement()}
+            render={element}
             orientation={orientation}
             loop={loop}
             highlightItemOnHover={hasSubmenuOpen}
@@ -143,7 +143,7 @@ export namespace Menubar {
      * The orientation of the menubar.
      * @default 'horizontal'
      */
-    orientation?: MenuOrientation;
+    orientation?: MenuRoot.Orientation;
     /**
      * Whether to loop keyboard focus back to the first item
      * when the end of the list is reached while using the arrow keys.
