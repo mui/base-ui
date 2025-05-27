@@ -2,6 +2,11 @@
   "name": "MenuTrigger",
   "description": "A button that opens the menu.\nRenders a `<button>` element.",
   "props": {
+    "nativeButton": {
+      "type": "boolean",
+      "default": "true",
+      "description": "Determines whether the component is being rendered as a native button."
+    },
     "disabled": {
       "type": "boolean",
       "default": "false",

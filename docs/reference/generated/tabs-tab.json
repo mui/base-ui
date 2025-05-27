@@ -6,6 +6,11 @@
       "type": "any",
       "description": "The value of the Tab.\nWhen not specified, the value is the child position index."
     },
+    "nativeButton": {
+      "type": "boolean",
+      "default": "true",
+      "description": "Determines whether the component is being rendered as a native button."
+    },
     "className": {
       "type": "string | ((state: Tabs.Tab.State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."

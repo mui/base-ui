@@ -30,6 +30,11 @@
       "type": "string | number",
       "description": "The value of the selected checkbox."
     },
+    "nativeButton": {
+      "type": "boolean",
+      "default": "true",
+      "description": "Determines whether the component is being rendered as a native button."
+    },
     "parent": {
       "type": "boolean",
       "default": "false",

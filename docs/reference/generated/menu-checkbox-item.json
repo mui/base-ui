@@ -28,6 +28,12 @@
       "default": "false",
       "description": "Whether to close the menu when the item is clicked."
     },
+    "nativeButton": {
+      "type": "boolean",
+      "default": "false",
+      "required": true,
+      "description": "Determines whether the component is being rendered as a native button."
+    },
     "disabled": {
       "type": "boolean",
       "default": "false",
