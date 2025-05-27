@@ -19,6 +19,7 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
   const buttonRef = React.useRef<HTMLButtonElement | HTMLAnchorElement | HTMLElement | null>(null);
 
   const isCompositeItem = useCompositeRootContext(true) !== undefined;
+  const isNativeButton = native === true;
 
   const isValidLink = useEventCallback(() => {
     const element = buttonRef.current;
@@ -34,7 +35,7 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
       additionalProps.tabIndex = tabIndex;
     }
 
-    if (native === true) {
+    if (isNativeButton) {
       if (focusableWhenDisabled || (isCompositeItem && focusableWhenDisabled !== false)) {
         additionalProps['aria-disabled'] = disabled;
       } else if (!isCompositeItem) {
@@ -56,7 +57,7 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
     }
 
     return additionalProps;
-  }, [disabled, focusableWhenDisabled, isCompositeItem, native, tabIndex]);
+  }, [disabled, focusableWhenDisabled, isCompositeItem, isNativeButton, native, tabIndex]);
 
   // handles a disabled composite button rendering another button, e.g.
   // <Toolbar.Button disabled render={<Menu.Trigger />} />
@@ -110,7 +111,7 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
             if (
               // allow Tabbing away from focusableWhenDisabled buttons
               (disabled && focusableWhenDisabled && event.key !== 'Tab') ||
-              (event.target === event.currentTarget && !native && event.key === ' ')
+              (event.target === event.currentTarget && !isNativeButton && event.key === ' ')
             ) {
               event.preventDefault();
             }
@@ -127,7 +128,7 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
             // Keyboard accessibility for non interactive elements
             if (
               event.target === event.currentTarget &&
-              !native &&
+              !isNativeButton &&
               !isValidLink() &&
               event.key === 'Enter' &&
               !disabled
@@ -149,7 +150,12 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
               return;
             }
 
-            if (event.target === event.currentTarget && !native && !disabled && event.key === ' ') {
+            if (
+              event.target === event.currentTarget &&
+              !isNativeButton &&
+              !disabled &&
+              event.key === ' '
+            ) {
               externalOnClick?.(event);
             }
           },
@@ -166,7 +172,7 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
         otherExternalProps,
       );
     },
-    [buttonProps, disabled, focusableWhenDisabled, isValidLink, mergedRef, native],
+    [buttonProps, disabled, focusableWhenDisabled, isNativeButton, isValidLink, mergedRef, native],
   );
 
   return {
