@@ -10,6 +10,7 @@ import { usePopoverPortalContext } from '../portal/PopoverPortalContext';
 import { inertValue } from '../../utils/inertValue';
 import { InternalBackdrop } from '../../utils/InternalBackdrop';
 import { useRenderElement } from '../../utils/useRenderElement';
+import { DEFAULT_COLLISION_AVOIDANCE } from '../../utils/constants';
 
 /**
  * Positions the popover against the trigger.
@@ -35,6 +36,7 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
     arrowPadding = 5,
     sticky = false,
     trackAnchor = true,
+    collisionAvoidance = DEFAULT_COLLISION_AVOIDANCE,
     ...elementProps
   } = componentProps;
 
@@ -64,6 +66,7 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
     sticky,
     trackAnchor,
     keepMounted,
+    collisionAvoidance,
   });
 
   const state: PopoverPositioner.State = React.useMemo(

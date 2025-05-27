@@ -51,6 +51,40 @@ export type OffsetFunction = (data: {
   positioner: { width: number; height: number };
 }) => number;
 
+interface SideFlipMode {
+  /**
+   * How to avoid collisions on the side axis.
+   */
+  side?: 'flip' | 'none';
+  /**
+   * How to avoid collisions on the align axis.
+   */
+  align?: 'flip' | 'shift' | 'none';
+  /**
+   * If both sides on the preferred axis do not fit, determines whether to fallback
+   * to a side on the perpendicular axis and which logical side to prefer.
+   */
+  fallbackAxisSide?: 'start' | 'end' | 'none';
+}
+
+interface SideShiftMode {
+  /**
+   * How to avoid collisions on the side axis.
+   */
+  side?: 'shift' | 'none';
+  /**
+   * How to avoid collisions on the align axis.
+   */
+  align?: 'shift' | 'none';
+  /**
+   * If both sides on the preferred axis do not fit, determines whether to fallback
+   * to a side on the perpendicular axis and which logical side to prefer.
+   */
+  fallbackAxisSide?: 'start' | 'end' | 'none';
+}
+
+export type CollisionAvoidance = SideFlipMode | SideShiftMode;
+
 /**
  * Provides standardized anchor positioning behavior for floating elements. Wraps Floating UI's
  * `useFloating` hook.
@@ -75,10 +109,16 @@ export function useAnchorPositioning(
     keepMounted = false,
     floatingRootContext,
     mounted,
+    trackAnchor = true,
+    collisionAvoidance,
     shiftCrossAxis = false,
     nodeId,
     adaptiveOrigin,
   } = params;
+
+  const collisionAvoidanceSide = collisionAvoidance.side || 'flip';
+  const collisionAvoidanceAlign = collisionAvoidance.align || 'flip';
+  const collisionAvoidanceFallbackAxisSide = collisionAvoidance.fallbackAxisSide || 'end';
 
   const anchorFn = typeof anchor === 'function' ? anchor : undefined;
   const anchorFnCallback = useEventCallback(anchorFn);
@@ -107,7 +147,7 @@ export function useAnchorPositioning(
   } as const;
 
   // Using a ref assumes that the arrow element is always present in the DOM for the lifetime of the
-  // tooltip. If this assumption ends up being false, we can switch to state to manage the arrow's
+  // popup. If this assumption ends up being false, we can switch to state to manage the arrow's
   // presence.
   const arrowRef = React.useRef<Element | null>(null);
 
@@ -146,41 +186,58 @@ export function useAnchorPositioning(
     ),
   ];
 
-  const flipMiddleware = flip(commonCollisionProps);
-  const shiftMiddleware = shift(
-    (data) => {
-      const html = ownerDocument(data.elements.floating).documentElement;
-      return {
-        ...commonCollisionProps,
-        // Use the Layout Viewport to avoid shifting around when pinch-zooming
-        // for context menus.
-        rootBoundary: shiftCrossAxis
-          ? { x: 0, y: 0, width: html.clientWidth, height: html.clientHeight }
-          : undefined,
-        crossAxis: sticky || shiftCrossAxis,
-        limiter:
-          sticky || shiftCrossAxis
-            ? undefined
-            : limitShift(() => {
-                if (!arrowRef.current) {
-                  return {};
-                }
-                const { height } = arrowRef.current.getBoundingClientRect();
-                return {
-                  offset:
-                    height / 2 + (typeof collisionPadding === 'number' ? collisionPadding : 0),
-                };
-              }),
-      };
-    },
-    [commonCollisionProps, sticky, shiftCrossAxis, collisionPadding],
-  );
+  const flipMiddleware =
+    collisionAvoidanceSide === 'none'
+      ? null
+      : flip({
+          ...commonCollisionProps,
+          mainAxis: !shiftCrossAxis && collisionAvoidanceSide === 'flip',
+          crossAxis: collisionAvoidanceAlign === 'flip' ? 'alignment' : false,
+          fallbackAxisSideDirection: collisionAvoidanceFallbackAxisSide,
+        });
+  const shiftMiddleware =
+    collisionAvoidanceAlign === 'none' && collisionAvoidanceSide !== 'shift'
+      ? null
+      : shift(
+          (data) => {
+            const html = ownerDocument(data.elements.floating).documentElement;
+            return {
+              ...commonCollisionProps,
+              // Use the Layout Viewport to avoid shifting around when pinch-zooming
+              // for context menus.
+              rootBoundary: shiftCrossAxis
+                ? { x: 0, y: 0, width: html.clientWidth, height: html.clientHeight }
+                : undefined,
+              mainAxis: collisionAvoidanceAlign !== 'none',
+              crossAxis: sticky || shiftCrossAxis || collisionAvoidanceSide === 'shift',
+              limiter:
+                sticky || shiftCrossAxis
+                  ? undefined
+                  : limitShift(() => {
+                      if (!arrowRef.current) {
+                        return {};
+                      }
+                      const { height } = arrowRef.current.getBoundingClientRect();
+                      return {
+                        offset:
+                          height / 2 +
+                          (typeof collisionPadding === 'number' ? collisionPadding : 0),
+                      };
+                    }),
+            };
+          },
+          [commonCollisionProps, sticky, shiftCrossAxis, collisionPadding, collisionAvoidanceAlign],
+        );
 
   // https://floating-ui.com/docs/flip#combining-with-shift
-  if (align !== 'center') {
-    middleware.push(flipMiddleware, shiftMiddleware);
-  } else {
+  if (
+    collisionAvoidanceSide === 'shift' ||
+    collisionAvoidanceAlign === 'shift' ||
+    align === 'center'
+  ) {
     middleware.push(shiftMiddleware, flipMiddleware);
+  } else {
+    middleware.push(flipMiddleware, shiftMiddleware);
   }
 
   middleware.push(
@@ -458,6 +515,10 @@ export namespace useAnchorPositioning {
      * @default true
      */
     trackAnchor?: boolean;
+    /**
+     * Determines how to handle collisions when positioning the popup.
+     */
+    collisionAvoidance?: CollisionAvoidance;
   }
 
   export interface Parameters extends SharedParameters {
@@ -468,6 +529,7 @@ export namespace useAnchorPositioning {
     trackAnchor: boolean;
     nodeId?: string;
     adaptiveOrigin?: Middleware;
+    collisionAvoidance: CollisionAvoidance;
     shiftCrossAxis?: boolean;
   }
 
