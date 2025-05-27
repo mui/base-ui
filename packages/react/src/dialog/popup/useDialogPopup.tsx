@@ -2,9 +2,9 @@
 import * as React from 'react';
 import { useForkRef } from '../../utils/useForkRef';
 import { mergeProps } from '../../merge-props';
+import type { DialogOpenChangeReason } from '../root/useDialogRoot';
 import { type InteractionType } from '../../utils/useEnhancedClickHandler';
 import { HTMLProps } from '../../utils/types';
-import { type OpenChangeReason } from '../../utils/translateOpenChangeReason';
 import { COMPOSITE_KEYS } from '../../composite/composite';
 
 export function useDialogPopup(parameters: useDialogPopup.Parameters): useDialogPopup.ReturnValue {
@@ -59,7 +59,7 @@ export function useDialogPopup(parameters: useDialogPopup.Parameters): useDialog
         ref: handleRef,
         hidden: !mounted,
         onKeyDown(event) {
-          if (COMPOSITE_KEYS.includes(event.key)) {
+          if (COMPOSITE_KEYS.has(event.key)) {
             event.stopPropagation();
           }
         },
@@ -87,7 +87,7 @@ export namespace useDialogPopup {
     setOpen: (
       open: boolean,
       event: Event | undefined,
-      reason: OpenChangeReason | undefined,
+      reason: DialogOpenChangeReason | undefined,
     ) => void;
     /**
      * The id of the title element associated with the dialog.

@@ -132,11 +132,21 @@ export const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvid
   });
 
   const close = useEventCallback((toastId: string) => {
-    setToasts((prev) =>
-      prev.map((toast) =>
+    setToasts((prevToasts) => {
+      const toastsWithEnding = prevToasts.map((toast) =>
         toast.id === toastId ? { ...toast, transitionStatus: 'ending' as const, height: 0 } : toast,
-      ),
-    );
+      );
+
+      const activeToasts = toastsWithEnding.filter((t) => t.transitionStatus !== 'ending');
+
+      return toastsWithEnding.map((toast) => {
+        if (toast.transitionStatus === 'ending') {
+          return toast;
+        }
+        const isActiveToastLimited = activeToasts.indexOf(toast) >= limit;
+        return { ...toast, limited: isActiveToastLimited };
+      });
+    });
 
     const timer = timersRef.current.get(toastId);
     if (timer && timer.timeout) {
@@ -201,20 +211,14 @@ export const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvid
           const excessCount = activeToasts.length - limit;
           const oldestActiveToasts = activeToasts.slice(-excessCount);
 
-          oldestActiveToasts.forEach((t) => {
-            const timer = timersRef.current.get(t.id);
-            timer?.timeout?.clear();
-            timersRef.current.delete(t.id);
-          });
-
           return updatedToasts.map((t) =>
             oldestActiveToasts.some((old) => old.id === t.id)
-              ? { ...t, transitionStatus: 'ending' as const, limited: true }
-              : t,
+              ? { ...t, limited: true }
+              : { ...t, limited: false },
           );
         }
 
-        return updatedToasts;
+        return updatedToasts.map((t) => ({ ...t, limited: false }));
       });
 
       const duration = toastToAdd.timeout ?? timeout;

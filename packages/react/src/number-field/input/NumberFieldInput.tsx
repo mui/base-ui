@@ -1,14 +1,11 @@
 'use client';
 import * as React from 'react';
-import { useModernLayoutEffect, stopEvent } from '@floating-ui/react/utils';
+import { stopEvent, useModernLayoutEffect } from '@floating-ui/react/utils';
 import { useNumberFieldRootContext } from '../root/NumberFieldRootContext';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { useForkRef } from '../../utils/useForkRef';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
 import { fieldValidityMapping } from '../../field/utils/constants';
-import { mergeProps } from '../../merge-props';
 import { DEFAULT_STEP } from '../utils/constants';
 import { ARABIC_RE, HAN_RE, getNumberLocaleDetails, parseNumber } from '../utils/parse';
 import type { NumberFieldRoot } from '../root/NumberFieldRoot';
@@ -16,11 +13,22 @@ import { styleHookMapping } from '../utils/styleHooks';
 import { useField } from '../../field/useField';
 import { useFormContext } from '../../form/FormContext';
 import { formatNumber, formatNumberMaxPrecision } from '../../utils/formatNumber';
+import { useRenderElement } from '../../utils/useRenderElement';
 
 const customStyleHookMapping = {
   ...fieldValidityMapping,
   ...styleHookMapping,
 };
+
+const NAVIGATE_KEYS = new Set([
+  'Backspace',
+  'Delete',
+  'ArrowLeft',
+  'ArrowRight',
+  'Tab',
+  'Enter',
+  'Escape',
+]);
 
 /**
  * The native input control in the number field.
@@ -29,10 +37,10 @@ const customStyleHookMapping = {
  * Documentation: [Base UI Number Field](https://base-ui.com/react/components/number-field)
  */
 export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
-  props: NumberFieldInput.Props,
+  componentProps: NumberFieldInput.Props,
   forwardedRef: React.ForwardedRef<HTMLInputElement>,
 ) {
-  const { render, className, ...otherProps } = props;
+  const { render, className, ...elementProps } = componentProps;
 
   const {
     allowInputSyncRef,
@@ -71,8 +79,6 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
 
   const hasTouchedInputRef = React.useRef(false);
   const blockRevalidationRef = React.useRef(false);
-
-  const handleInputRef = useForkRef(forwardedRef, inputRef, inputValidationRef);
 
   useField({
     id,
@@ -113,284 +119,232 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
     prevInputValueRef.current = inputValue;
   }, [value, inputValue]);
 
-  const getInputProps = React.useCallback(
-    (externalProps = {}) =>
-      mergeProps<'input'>(
-        {
-          id,
-          required,
-          name,
-          disabled,
-          readOnly,
-          inputMode,
-          value: inputValue,
-          ref: handleInputRef,
-          type: 'text',
-          autoComplete: 'off',
-          autoCorrect: 'off',
-          spellCheck: 'false',
-          'aria-roledescription': 'Number field',
-          'aria-invalid': invalid || undefined,
-          'aria-labelledby': labelId,
-          // If the server's locale does not match the client's locale, the formatting may not match,
-          // causing a hydration mismatch.
-          suppressHydrationWarning: true,
-          onFocus(event) {
-            if (event.defaultPrevented || readOnly || disabled || hasTouchedInputRef.current) {
-              return;
-            }
+  const inputProps: React.ComponentProps<'input'> = {
+    id,
+    required,
+    disabled,
+    readOnly,
+    inputMode,
+    value: inputValue,
+    type: 'text',
+    autoComplete: 'off',
+    autoCorrect: 'off',
+    spellCheck: 'false',
+    'aria-roledescription': 'Number field',
+    'aria-invalid': invalid || undefined,
+    'aria-labelledby': labelId,
+    // If the server's locale does not match the client's locale, the formatting may not match,
+    // causing a hydration mismatch.
+    suppressHydrationWarning: true,
+    onFocus(event) {
+      if (event.defaultPrevented || readOnly || disabled || hasTouchedInputRef.current) {
+        return;
+      }
 
-            hasTouchedInputRef.current = true;
-            setFocused(true);
+      hasTouchedInputRef.current = true;
+      setFocused(true);
 
-            // Figure out whether the user actually saw a truncated value.
-            const defaultText = formatNumber(value, locale, formatOptionsRef.current);
-            const fullPrecision = formatNumberMaxPrecision(value, locale, formatOptionsRef.current);
+      // Figure out whether the user actually saw a truncated value.
+      const defaultText = formatNumber(value, locale, formatOptionsRef.current);
+      const fullPrecision = formatNumberMaxPrecision(value, locale, formatOptionsRef.current);
 
-            // Only disable sync and swap in fullPrecision if there was extra precision.
-            if (value !== null && fullPrecision !== defaultText) {
-              allowInputSyncRef.current = false;
-              setInputValue(fullPrecision);
-            }
+      // Only disable sync and swap in fullPrecision if there was extra precision.
+      if (value !== null && fullPrecision !== defaultText) {
+        allowInputSyncRef.current = false;
+        setInputValue(fullPrecision);
+      }
 
-            // Browsers set selection at the start of the input field by default. We want to set it at
-            // the end for the first focus.
-            const target = event.currentTarget;
-            const length = target.value.length;
-            target.setSelectionRange(length, length);
-          },
-          onBlur(event) {
-            if (event.defaultPrevented || readOnly || disabled) {
-              return;
-            }
+      // Browsers set selection at the start of the input field by default. We want to set it at
+      // the end for the first focus.
+      const target = event.currentTarget;
+      const length = target.value.length;
+      target.setSelectionRange(length, length);
+    },
+    onBlur(event) {
+      if (event.defaultPrevented || readOnly || disabled) {
+        return;
+      }
 
-            setTouched(true);
-            setFocused(false);
+      setTouched(true);
+      setFocused(false);
 
-            allowInputSyncRef.current = true;
+      allowInputSyncRef.current = true;
 
-            if (inputValue.trim() === '') {
-              setValue(null);
-              if (validationMode === 'onBlur') {
-                commitValidation(null);
-              }
-              return;
-            }
+      if (inputValue.trim() === '') {
+        setValue(null);
+        if (validationMode === 'onBlur') {
+          commitValidation(null);
+        }
+        return;
+      }
 
-            const parsed = parseNumber(inputValue, locale, formatOptionsRef.current);
-            if (parsed === null) {
-              return;
-            }
+      const parsed = parseNumber(inputValue, locale, formatOptionsRef.current);
+      if (parsed === null) {
+        return;
+      }
 
-            if (isControlled && externalUpdateRef.current) {
-              blockRevalidationRef.current = true;
-              if (validationMode === 'onBlur') {
-                commitValidation(parsed);
-              }
-              return;
-            }
+      if (isControlled && externalUpdateRef.current) {
+        blockRevalidationRef.current = true;
+        if (validationMode === 'onBlur') {
+          commitValidation(parsed);
+        }
+        return;
+      }
 
-            const canonicalText = formatNumber(parsed, locale, formatOptionsRef.current);
-            const canonical = parseNumber(canonicalText, locale, formatOptionsRef.current);
-            externalUpdateRef.current = false;
+      const canonicalText = formatNumber(parsed, locale, formatOptionsRef.current);
+      const canonical = parseNumber(canonicalText, locale, formatOptionsRef.current);
+      externalUpdateRef.current = false;
 
-            if (canonical !== value) {
-              setValue(canonical, event.nativeEvent);
-            } else {
-              setInputValue(canonicalText);
-            }
+      if (canonical !== value) {
+        setValue(canonical, event.nativeEvent);
+      } else {
+        setInputValue(canonicalText);
+      }
 
-            if (validationMode === 'onBlur') {
-              commitValidation(canonical);
-            }
-          },
-          onChange(event) {
-            // Workaround for https://github.com/facebook/react/issues/9023
-            if (event.nativeEvent.defaultPrevented) {
-              return;
-            }
+      if (validationMode === 'onBlur') {
+        commitValidation(canonical);
+      }
+    },
+    onChange(event) {
+      // Workaround for https://github.com/facebook/react/issues/9023
+      if (event.nativeEvent.defaultPrevented) {
+        return;
+      }
 
-            allowInputSyncRef.current = false;
-            const targetValue = event.target.value;
+      allowInputSyncRef.current = false;
+      const targetValue = event.target.value;
 
-            if (targetValue.trim() === '') {
-              setInputValue(targetValue);
-              setValue(null, event.nativeEvent);
-              return;
-            }
+      if (targetValue.trim() === '') {
+        setInputValue(targetValue);
+        setValue(null, event.nativeEvent);
+        return;
+      }
 
-            if (event.isTrusted) {
-              setInputValue(targetValue);
-              return;
-            }
+      if (event.isTrusted) {
+        setInputValue(targetValue);
+        return;
+      }
 
-            const parsedValue = parseNumber(targetValue, locale, formatOptionsRef.current);
+      const parsedValue = parseNumber(targetValue, locale, formatOptionsRef.current);
 
-            if (parsedValue !== null) {
-              setInputValue(targetValue);
-              setValue(parsedValue, event.nativeEvent);
-            }
-          },
-          onKeyDown(event) {
-            if (event.defaultPrevented || readOnly || disabled) {
-              return;
-            }
+      if (parsedValue !== null) {
+        setInputValue(targetValue);
+        setValue(parsedValue, event.nativeEvent);
+      }
+    },
+    onKeyDown(event) {
+      if (event.defaultPrevented || readOnly || disabled) {
+        return;
+      }
 
-            const nativeEvent = event.nativeEvent;
+      const nativeEvent = event.nativeEvent;
 
-            allowInputSyncRef.current = true;
+      allowInputSyncRef.current = true;
 
-            const allowedNonNumericKeys = getAllowedNonNumericKeys();
+      const allowedNonNumericKeys = getAllowedNonNumericKeys();
 
-            let isAllowedNonNumericKey = allowedNonNumericKeys.includes(event.key);
+      let isAllowedNonNumericKey = allowedNonNumericKeys.has(event.key);
 
-            const { decimal, currency, percentSign } = getNumberLocaleDetails(
-              [],
-              formatOptionsRef.current,
-            );
+      const { decimal, currency, percentSign } = getNumberLocaleDetails(
+        [],
+        formatOptionsRef.current,
+      );
 
-            const selectionStart = event.currentTarget.selectionStart;
-            const selectionEnd = event.currentTarget.selectionEnd;
-            const isAllSelected = selectionStart === 0 && selectionEnd === inputValue.length;
+      const selectionStart = event.currentTarget.selectionStart;
+      const selectionEnd = event.currentTarget.selectionEnd;
+      const isAllSelected = selectionStart === 0 && selectionEnd === inputValue.length;
 
-            // Allow the minus key only if there isn't already a plus or minus sign, or if all the text
-            // is selected, or if only the minus sign is highlighted.
-            if (event.key === '-' && allowedNonNumericKeys.includes('-')) {
-              const isMinusHighlighted =
-                selectionStart === 0 && selectionEnd === 1 && inputValue[0] === '-';
-              isAllowedNonNumericKey =
-                !inputValue.includes('-') || isAllSelected || isMinusHighlighted;
-            }
+      // Allow the minus key only if there isn't already a plus or minus sign, or if all the text
+      // is selected, or if only the minus sign is highlighted.
+      if (event.key === '-' && allowedNonNumericKeys.has('-')) {
+        const isMinusHighlighted =
+          selectionStart === 0 && selectionEnd === 1 && inputValue[0] === '-';
+        isAllowedNonNumericKey = !inputValue.includes('-') || isAllSelected || isMinusHighlighted;
+      }
 
-            // Only allow one of each symbol.
-            [decimal, currency, percentSign].forEach((symbol) => {
-              if (event.key === symbol) {
-                const symbolIndex = inputValue.indexOf(symbol);
-                const isSymbolHighlighted =
-                  selectionStart === symbolIndex && selectionEnd === symbolIndex + 1;
-                isAllowedNonNumericKey =
-                  !inputValue.includes(symbol) || isAllSelected || isSymbolHighlighted;
-              }
-            });
+      // Only allow one of each symbol.
+      [decimal, currency, percentSign].forEach((symbol) => {
+        if (event.key === symbol) {
+          const symbolIndex = inputValue.indexOf(symbol);
+          const isSymbolHighlighted =
+            selectionStart === symbolIndex && selectionEnd === symbolIndex + 1;
+          isAllowedNonNumericKey =
+            !inputValue.includes(symbol) || isAllSelected || isSymbolHighlighted;
+        }
+      });
 
-            const isLatinNumeral = /^[0-9]$/.test(event.key);
-            const isArabicNumeral = ARABIC_RE.test(event.key);
-            const isHanNumeral = HAN_RE.test(event.key);
-            const isNavigateKey = [
-              'Backspace',
-              'Delete',
-              'ArrowLeft',
-              'ArrowRight',
-              'Tab',
-              'Enter',
-              'Escape',
-            ].includes(event.key);
+      const isLatinNumeral = /^[0-9]$/.test(event.key);
+      const isArabicNumeral = ARABIC_RE.test(event.key);
+      const isHanNumeral = HAN_RE.test(event.key);
+      const isNavigateKey = NAVIGATE_KEYS.has(event.key);
 
-            if (
-              // Allow composition events (e.g., pinyin)
-              // event.nativeEvent.isComposing does not work in Safari:
-              // https://bugs.webkit.org/show_bug.cgi?id=165004
-              event.which === 229 ||
-              event.altKey ||
-              event.ctrlKey ||
-              event.metaKey ||
-              isAllowedNonNumericKey ||
-              isLatinNumeral ||
-              isArabicNumeral ||
-              isHanNumeral ||
-              isNavigateKey
-            ) {
-              return;
-            }
+      if (
+        // Allow composition events (e.g., pinyin)
+        // event.nativeEvent.isComposing does not work in Safari:
+        // https://bugs.webkit.org/show_bug.cgi?id=165004
+        event.which === 229 ||
+        event.altKey ||
+        event.ctrlKey ||
+        event.metaKey ||
+        isAllowedNonNumericKey ||
+        isLatinNumeral ||
+        isArabicNumeral ||
+        isHanNumeral ||
+        isNavigateKey
+      ) {
+        return;
+      }
 
-            // We need to commit the number at this point if the input hasn't been blurred.
-            const parsedValue = parseNumber(inputValue, locale, formatOptionsRef.current);
+      // We need to commit the number at this point if the input hasn't been blurred.
+      const parsedValue = parseNumber(inputValue, locale, formatOptionsRef.current);
 
-            const amount = getStepAmount(event) ?? DEFAULT_STEP;
+      const amount = getStepAmount(event) ?? DEFAULT_STEP;
 
-            // Prevent insertion of text or caret from moving.
-            stopEvent(event);
+      // Prevent insertion of text or caret from moving.
+      stopEvent(event);
 
-            if (event.key === 'ArrowUp') {
-              incrementValue(amount, 1, parsedValue, nativeEvent);
-            } else if (event.key === 'ArrowDown') {
-              incrementValue(amount, -1, parsedValue, nativeEvent);
-            } else if (event.key === 'Home' && min != null) {
-              setValue(min, nativeEvent);
-            } else if (event.key === 'End' && max != null) {
-              setValue(max, nativeEvent);
-            }
-          },
-          onPaste(event) {
-            if (event.defaultPrevented || readOnly || disabled) {
-              return;
-            }
+      if (event.key === 'ArrowUp') {
+        incrementValue(amount, 1, parsedValue, nativeEvent);
+      } else if (event.key === 'ArrowDown') {
+        incrementValue(amount, -1, parsedValue, nativeEvent);
+      } else if (event.key === 'Home' && min != null) {
+        setValue(min, nativeEvent);
+      } else if (event.key === 'End' && max != null) {
+        setValue(max, nativeEvent);
+      }
+    },
+    onPaste(event) {
+      if (event.defaultPrevented || readOnly || disabled) {
+        return;
+      }
 
-            // Prevent `onChange` from being called.
-            event.preventDefault();
+      // Prevent `onChange` from being called.
+      event.preventDefault();
 
-            const clipboardData = event.clipboardData || window.Clipboard;
-            const pastedData = clipboardData.getData('text/plain');
-            const parsedValue = parseNumber(pastedData, locale, formatOptionsRef.current);
+      const clipboardData = event.clipboardData || window.Clipboard;
+      const pastedData = clipboardData.getData('text/plain');
+      const parsedValue = parseNumber(pastedData, locale, formatOptionsRef.current);
 
-            if (parsedValue !== null) {
-              allowInputSyncRef.current = false;
-              setValue(parsedValue, event.nativeEvent);
-              setInputValue(pastedData);
-            }
-          },
-        },
-        getInputValidationProps(getValidationProps(externalProps)),
-      ),
-    [
-      id,
-      required,
-      name,
-      disabled,
-      readOnly,
-      inputMode,
-      inputValue,
-      handleInputRef,
-      invalid,
-      labelId,
-      getInputValidationProps,
-      getValidationProps,
-      setFocused,
-      value,
-      locale,
-      formatOptionsRef,
-      allowInputSyncRef,
-      setInputValue,
-      setTouched,
-      isControlled,
-      externalUpdateRef,
-      validationMode,
-      setValue,
-      commitValidation,
-      getAllowedNonNumericKeys,
-      getStepAmount,
-      min,
-      max,
-      incrementValue,
-    ],
-  );
+      if (parsedValue !== null) {
+        allowInputSyncRef.current = false;
+        setValue(parsedValue, event.nativeEvent);
+        setInputValue(pastedData);
+      }
+    },
+  };
 
-  const mergedInputRef = useForkRef(forwardedRef, inputRef);
-
-  const { renderElement } = useComponentRenderer({
-    propGetter: getInputProps,
-    ref: mergedInputRef,
-    render: render ?? 'input',
-    className,
+  const element = useRenderElement('input', componentProps, {
+    ref: [forwardedRef, inputRef, inputValidationRef],
     state,
-    extraProps: otherProps,
+    props: [inputProps, getInputValidationProps(), getValidationProps(), elementProps],
     customStyleHookMapping,
   });
 
-  return renderElement();
+  return element;
 });
 
 export namespace NumberFieldInput {
   export interface State extends NumberFieldRoot.State {}
+
   export interface Props extends BaseUIComponentProps<'input', State> {}
 }
