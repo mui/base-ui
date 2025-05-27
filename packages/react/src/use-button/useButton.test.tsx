@@ -190,7 +190,7 @@ describe('useButton', () => {
     it('should server-side render', async () => {
       function TestButton(props: React.ButtonHTMLAttributes<HTMLButtonElement>) {
         const { disabled, ...otherProps } = props;
-        const { getButtonProps } = useButton({ disabled });
+        const { getButtonProps } = useButton({ disabled, native: 'input' });
 
         return <input {...getButtonProps(otherProps)} />;
       }
