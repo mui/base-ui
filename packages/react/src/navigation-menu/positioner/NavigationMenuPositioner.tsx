@@ -16,6 +16,7 @@ import { ownerDocument, ownerWindow } from '../../utils/owner';
 import { useAnimationsFinished } from '../../utils/useAnimationsFinished';
 import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { popupStateMapping } from '../../utils/popupStateMapping';
+import { DEFAULT_COLLISION_AVOIDANCE } from '../../utils/constants';
 
 /**
  * Positions the navigation menu against the currently active trigger.
@@ -38,6 +39,7 @@ export const NavigationMenuPositioner = React.forwardRef(function NavigationMenu
     alignOffset = 0,
     collisionBoundary = 'clipping-ancestors',
     collisionPadding = 5,
+    collisionAvoidance = DEFAULT_COLLISION_AVOIDANCE,
     arrowPadding = 5,
     sticky = false,
     trackAnchor = true,
@@ -149,6 +151,7 @@ export const NavigationMenuPositioner = React.forwardRef(function NavigationMenu
     trackAnchor,
     keepMounted,
     floatingRootContext,
+    collisionAvoidance,
     nodeId,
     // Allows the menu to remain anchored without wobbling while its size
     // and position transition simultaneously when side=top or side=left.
