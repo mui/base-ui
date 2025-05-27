@@ -32,14 +32,12 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
 ) {
   const { render, className, ...elementProps } = componentProps;
 
-  const { store, popupRef, onOpenChangeComplete } = useSelectRootContext();
+  const { store, id, popupRef, transitionStatus, onOpenChangeComplete, popupProps } =
+    useSelectRootContext();
   const positioner = useSelectPositionerContext();
 
-  const id = useSelector(store, selectors.id);
   const open = useSelector(store, selectors.isOpen);
   const mounted = useSelector(store, selectors.isMounted);
-  const popupProps = useSelector(store, selectors.popupProps);
-  const transitionStatus = useSelector(store, selectors.transitionStatus);
 
   useOpenChangeComplete({
     open,

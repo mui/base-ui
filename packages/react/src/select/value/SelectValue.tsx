@@ -1,10 +1,8 @@
 'use client';
 import * as React from 'react';
-import { useSelector } from '../../utils/store';
+import { useSelectRootContext } from '../root/SelectRootContext';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
-import { useSelectRootContext } from '../root/SelectRootContext';
-import { selectors } from '../store';
 
 /**
  * A text label of the currently selected item.
@@ -18,9 +16,7 @@ export const SelectValue = React.forwardRef(function SelectValue(
 ) {
   const { className, render, children, ...elementProps } = componentProps;
 
-  const { store, valueRef } = useSelectRootContext();
-  const value = useSelector(store, selectors.value);
-  const label = useSelector(store, selectors.label);
+  const { value, label, valueRef } = useSelectRootContext();
 
   const element = useRenderElement('span', componentProps, {
     ref: [forwardedRef, valueRef],

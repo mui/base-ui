@@ -6,14 +6,12 @@ import {
   useListNavigation,
   useRole,
   useTypeahead,
-  FloatingRootContext,
 } from '@floating-ui/react';
 import { useClick } from '../../utils/floating-ui/useClick';
 import { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useLazyRef } from '../../utils/useLazyRef';
-import { useFirstRender } from '../../utils/useFirstRender';
 import { useControlled } from '../../utils/useControlled';
 import { useTransitionStatus } from '../../utils';
 import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
@@ -101,46 +99,40 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
   });
   const alignItemWithTriggerActiveRef = React.useRef(false);
 
+  const [triggerElement, setTriggerElement] = React.useState<HTMLElement | null>(null);
+  const [typeaheadReady, setTypeaheadReady] = React.useState(open);
+  const [positionerElement, setPositionerElement] = React.useState<HTMLElement | null>(null);
+  const [label, setLabel] = React.useState('');
+  const [touchModality, setTouchModality] = React.useState(false);
+
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
 
   const store = useLazyRef(
     () =>
       new Store<State>({
-        id,
-        modal,
-        value,
-        label: '',
         open,
         mounted,
-        typeaheadReady: false,
-        transitionStatus,
-        touchModality: false,
         activeIndex: null,
         selectedIndex: null,
-        popupProps: {},
-        triggerProps: {},
-        triggerElement: null,
-        positionerElement: null,
-        getItemProps: () => ({}),
       }),
   ).current;
 
+  React.useEffect(() => {
+    store.update({ ...store.state, open, mounted });
+  }, [open, mounted]);
+
   const activeIndex = useSelector(store, selectors.activeIndex);
   const selectedIndex = useSelector(store, selectors.selectedIndex);
-  const triggerElement = useSelector(store, selectors.triggerElement);
-  const positionerElement = useSelector(store, selectors.positionerElement);
 
-  const controlRef = useLatestRef(store.state.triggerElement);
+  const controlRef = useLatestRef(triggerElement);
   const commitValidation = fieldControlValidation.commitValidation;
 
   const updateValue = useEventCallback((nextValue: any) => {
     const index = valuesRef.current.indexOf(nextValue);
 
-    store.apply({
-      selectedIndex: index === -1 ? null : index,
-      label: labelsRef.current[index] ?? '',
-    });
+    store.set('selectedIndex', index === -1 ? null : index);
 
+    setLabel(labelsRef.current[index] ?? '');
     clearErrors(name);
     setDirty(nextValue !== validityData.initialValue);
   });
@@ -236,10 +228,8 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     const hasIndex = index !== -1;
 
     if (hasIndex || value === null) {
-      store.apply({
-        selectedIndex: index,
-        label: hasIndex ? (labelsRef.current[index] ?? '') : '',
-      });
+      store.set('selectedIndex', index);
+      setLabel(hasIndex ? (labelsRef.current[index] ?? '') : '');
       return;
     }
 
@@ -260,7 +250,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     registerSelectedItem(undefined);
   }, [value, registerSelectedItem]);
 
-  const floatingContext = useFloatingRootContext({
+  const floatingRootContext = useFloatingRootContext({
     open,
     onOpenChange(nextOpen, event, reason) {
       setOpen(nextOpen, event, translateOpenChangeReason(reason));
@@ -271,21 +261,21 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     },
   });
 
-  const click = useClick(floatingContext, {
+  const click = useClick(floatingRootContext, {
     enabled: !readOnly && !disabled,
     event: 'mousedown',
   });
 
-  const dismiss = useDismiss(floatingContext, {
+  const dismiss = useDismiss(floatingRootContext, {
     bubbles: false,
     outsidePressEvent: 'mousedown',
   });
 
-  const role = useRole(floatingContext, {
+  const role = useRole(floatingRootContext, {
     role: 'select',
   });
 
-  const listNavigation = useListNavigation(floatingContext, {
+  const listNavigation = useListNavigation(floatingRootContext, {
     enabled: !readOnly && !disabled,
     listRef,
     activeIndex,
@@ -304,7 +294,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     focusItemOnHover: false,
   });
 
-  const typeahead = useTypeahead(floatingContext, {
+  const typeahead = useTypeahead(floatingRootContext, {
     enabled: !readOnly && !disabled,
     listRef: labelsRef,
     activeIndex,
@@ -331,93 +321,80 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     typeahead,
   ]);
 
-  useFirstRender(() => {
-    // These should be initialized at store creation, but there is an interdependency
-    // between some values used in floating hooks above.
-    store.apply({
-      popupProps: getFloatingProps(),
-      triggerProps: getReferenceProps(),
-      getItemProps,
-    });
-  });
-
-  // Store values that depend on other hooks
-  React.useEffect(() => {
-    store.apply({
+  const rootContext: SelectRootContext = React.useMemo(() => {
+    const c = {
+      store,
       id,
-      modal,
+      name,
+      required,
+      disabled,
+      readOnly,
+      triggerElement,
+      setTriggerElement,
+      positionerElement,
+      setPositionerElement,
+      typeaheadReady,
+      setTypeaheadReady,
       value,
-      open,
-      mounted,
-      transitionStatus,
-      popupProps: getFloatingProps(),
+      setValue,
+      setOpen,
+      setMounted,
+      label,
+      setLabel,
+      valueRef,
+      valuesRef,
+      labelsRef,
+      typingRef,
+      selectionRef,
       triggerProps: getReferenceProps(),
+      popupProps: getFloatingProps(),
       getItemProps,
-    });
+      listRef,
+      popupRef,
+      selectedItemTextRef,
+      floatingRootContext,
+      touchModality,
+      setTouchModality,
+      transitionStatus,
+      fieldControlValidation,
+      modal,
+      registerSelectedItem,
+      onOpenChangeComplete,
+      keyboardActiveRef,
+      alignItemWithTriggerActiveRef,
+    };
+    console.log(c);
+    return c;
   }, [
+    store,
     id,
-    modal,
+    name,
+    required,
+    disabled,
+    readOnly,
+    triggerElement,
+    positionerElement,
+    typeaheadReady,
     value,
+    setValue,
     open,
+    setOpen,
     mounted,
-    transitionStatus,
-    getFloatingProps,
+    setMounted,
+    label,
     getReferenceProps,
+    getFloatingProps,
     getItemProps,
+    floatingRootContext,
+    touchModality,
+    transitionStatus,
+    fieldControlValidation,
+    modal,
+    registerSelectedItem,
+    onOpenChangeComplete,
   ]);
 
-  const rootContext: SelectRootContext = React.useMemo(
-    () => ({
-      store,
-      name,
-      required,
-      disabled,
-      readOnly,
-      setValue,
-      setOpen,
-      listRef,
-      popupRef,
-      getItemProps,
-      events: floatingContext.events,
-      valueRef,
-      valuesRef,
-      labelsRef,
-      typingRef,
-      selectionRef,
-      selectedItemTextRef,
-      fieldControlValidation,
-      registerSelectedItem,
-      onOpenChangeComplete,
-      keyboardActiveRef,
-      alignItemWithTriggerActiveRef,
-    }),
-    [
-      store,
-      name,
-      required,
-      disabled,
-      readOnly,
-      setValue,
-      setOpen,
-      listRef,
-      popupRef,
-      getItemProps,
-      floatingContext.events,
-      valueRef,
-      valuesRef,
-      labelsRef,
-      typingRef,
-      selectionRef,
-      selectedItemTextRef,
-      fieldControlValidation,
-      registerSelectedItem,
-      onOpenChangeComplete,
-      keyboardActiveRef,
-      alignItemWithTriggerActiveRef,
-    ],
-  );
-
-  return { rootContext, floatingContext };
+  return rootContext;
 }
 
 export namespace useSelectRoot {
@@ -500,10 +477,7 @@ export namespace useSelectRoot {
     actionsRef?: React.RefObject<Actions>;
   }
 
-  export type ReturnValue = {
-    rootContext: SelectRootContext;
-    floatingContext: FloatingRootContext;
-  };
+  export type ReturnValue = SelectRootContext;
 
   export interface Actions {
     unmount: () => void;

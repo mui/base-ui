@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { type SelectOpenChangeReason, useSelectRoot } from './useSelectRoot';
-import { SelectRootContext, SelectFloatingContext } from './SelectRootContext';
+import { SelectRootContext } from './SelectRootContext';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { visuallyHidden } from '../../utils/visuallyHidden';
 import { useForkRef } from '../../utils/useForkRef';
@@ -33,7 +33,7 @@ export const SelectRoot: SelectRoot = function SelectRoot<Value>(
     onOpenChangeComplete,
   } = props;
 
-  const { rootContext, floatingContext } = useSelectRoot<Value>({
+  const rootContext = useSelectRoot<Value>({
     id,
     value: valueProp,
     defaultValue,
@@ -49,11 +49,10 @@ export const SelectRoot: SelectRoot = function SelectRoot<Value>(
     actionsRef,
     onOpenChangeComplete,
   });
-  const store = rootContext.store;
 
   const { setDirty, validityData, validationMode } = useFieldRootContext();
 
-  const value = store.state.value;
+  const value = rootContext.value;
 
   const ref = useForkRef(inputRef, rootContext.fieldControlValidation.inputRef);
 
@@ -69,51 +68,49 @@ export const SelectRoot: SelectRoot = function SelectRoot<Value>(
 
   return (
     <SelectRootContext.Provider value={rootContext}>
-      <SelectFloatingContext.Provider value={floatingContext}>
-        {props.children}
-        <input
-          {...rootContext.fieldControlValidation.getInputValidationProps({
-            onFocus() {
-              // Move focus to the trigger element when the hidden input is focused.
-              store.state.triggerElement?.focus();
-            },
-            // Handle browser autofill.
-            onChange(event: React.ChangeEvent<HTMLSelectElement>) {
-              // Workaround for https://github.com/facebook/react/issues/9023
-              if (event.nativeEvent.defaultPrevented) {
-                return;
+      {props.children}
+      <input
+        {...rootContext.fieldControlValidation.getInputValidationProps({
+          onFocus() {
+            // Move focus to the trigger element when the hidden input is focused.
+            rootContext.triggerElement?.focus();
+          },
+          // Handle browser autofill.
+          onChange(event: React.ChangeEvent<HTMLSelectElement>) {
+            // Workaround for https://github.com/facebook/react/issues/9023
+            if (event.nativeEvent.defaultPrevented) {
+              return;
+            }
+
+            const nextValue = event.target.value;
+
+            const exactValue = rootContext.valuesRef.current.find(
+              (v) =>
+                v === nextValue ||
+                (typeof value === 'string' && nextValue.toLowerCase() === v.toLowerCase()),
+            );
+
+            if (exactValue != null) {
+              setDirty(exactValue !== validityData.initialValue);
+              rootContext.setValue?.(exactValue, event.nativeEvent);
+
+              if (validationMode === 'onChange') {
+                rootContext.fieldControlValidation.commitValidation(exactValue);
               }
-
-              const nextValue = event.target.value;
-
-              const exactValue = rootContext.valuesRef.current.find(
-                (v) =>
-                  v === nextValue ||
-                  (typeof value === 'string' && nextValue.toLowerCase() === v.toLowerCase()),
-              );
-
-              if (exactValue != null) {
-                setDirty(exactValue !== validityData.initialValue);
-                rootContext.setValue?.(exactValue, event.nativeEvent);
-
-                if (validationMode === 'onChange') {
-                  rootContext.fieldControlValidation.commitValidation(exactValue);
-                }
-              }
-            },
-            id,
-            name: rootContext.name,
-            disabled: rootContext.disabled,
-            required: rootContext.required,
-            readOnly: rootContext.readOnly,
-            value: serializedValue,
-            ref,
-            style: visuallyHidden,
-            tabIndex: -1,
-            'aria-hidden': true,
-          })}
-        />
-      </SelectFloatingContext.Provider>
+            }
+          },
+          id: rootContext.id,
+          name: rootContext.name,
+          disabled: rootContext.disabled,
+          required: rootContext.required,
+          readOnly: rootContext.readOnly,
+          value: serializedValue,
+          ref,
+          style: visuallyHidden,
+          tabIndex: -1,
+          'aria-hidden': true,
+        })}
+      />
     </SelectRootContext.Provider>
   );
 };
