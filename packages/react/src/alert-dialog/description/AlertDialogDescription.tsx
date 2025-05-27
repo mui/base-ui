@@ -1,7 +1,6 @@
 'use client';
 import * as React from 'react';
 import { useAlertDialogRootContext } from '../root/AlertDialogRootContext';
-import { mergeProps } from '../../merge-props';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { useBaseUiId } from '../../utils/useBaseUiId';
@@ -31,22 +30,10 @@ export const AlertDialogDescription = React.forwardRef(function AlertDialogDescr
     };
   }, [id, setDescriptionElementId]);
 
-  const getProps = React.useCallback(
-    (externalProps = {}) =>
-      mergeProps(
-        {
-          id,
-        },
-        externalProps,
-      ),
-    [id],
-  );
-
   return useRenderElement('p', componentProps, {
-    propGetter: getProps,
     state,
     ref: forwardedRef,
-    props: elementProps,
+    props: [elementProps, { id }],
   });
 });
 

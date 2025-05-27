@@ -11,6 +11,7 @@ import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping'
 import { useForkRef } from '../../utils/useForkRef';
 import { InteractionType } from '../../utils/useEnhancedClickHandler';
 import { transitionStatusMapping } from '../../utils/styleHookMapping';
+import { AlertDialogPopupCssVars } from './AlertDialogPopupCssVars';
 import { AlertDialogPopupDataAttributes } from './AlertDialogPopupDataAttributes';
 import { InternalBackdrop } from '../../utils/InternalBackdrop';
 import { useAlertDialogPortalContext } from '../portal/AlertDialogPortalContext';
@@ -97,15 +98,17 @@ export const AlertDialogPopup = React.forwardRef(function AlertDialogPopup(
 
   const element = useRenderElement('div', componentProps, {
     state,
-    propGetter: getRootProps,
-    props: {
-      ...elementProps,
-      style: {
-        ...elementProps.style,
-        '--nested-dialogs': nestedOpenDialogCount,
-      } as React.CSSProperties,
-      role: 'alertdialog',
-    },
+    props: [
+      {
+        style: {
+          ...elementProps.style,
+          [AlertDialogPopupCssVars.nestedDialogs]: nestedOpenDialogCount,
+        } as React.CSSProperties,
+        role: 'alertdialog',
+      },
+      elementProps,
+      getRootProps,
+    ],
     customStyleHookMapping,
   });
 

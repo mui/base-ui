@@ -3,7 +3,6 @@ import * as React from 'react';
 import { useAlertDialogRootContext } from '../root/AlertDialogRootContext';
 import { useButton } from '../../use-button/useButton';
 import { useRenderElement } from '../../utils/useRenderElement';
-import { useForkRef } from '../../utils/useForkRef';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
 
@@ -29,19 +28,16 @@ export const AlertDialogTrigger = React.forwardRef(function AlertDialogTrigger(
     [disabled, open],
   );
 
-  const mergedRef = useForkRef(forwardedRef, setTriggerElement);
-
-  const { getButtonProps } = useButton({
+  const { getButtonProps, buttonRef } = useButton({
     disabled,
-    buttonRef: mergedRef,
+    buttonRef: forwardedRef,
   });
 
   return useRenderElement('button', componentProps, {
     state,
-    propGetter: (externalProps) => getButtonProps(getTriggerProps(externalProps)),
-    ref: mergedRef,
+    ref: [forwardedRef, buttonRef, setTriggerElement],
     customStyleHookMapping: triggerOpenStateMapping,
-    props: elementProps,
+    props: [elementProps, getTriggerProps, getButtonProps],
   });
 });
 

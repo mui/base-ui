@@ -99,14 +99,16 @@ export const DialogPopup = React.forwardRef(function DialogPopup(
 
   const element = useRenderElement('div', componentProps, {
     state,
-    propGetter: getRootProps,
-    props: {
-      ...elementProps,
-      style: {
-        ...elementProps.style,
-        [DialogPopupCssVars.nestedDialogs as string]: nestedOpenDialogCount,
+    props: [
+      {
+        style: {
+          ...elementProps.style,
+          [DialogPopupCssVars.nestedDialogs]: nestedOpenDialogCount,
+        } as React.CSSProperties,
       },
-    },
+      elementProps,
+      getRootProps,
+    ],
     customStyleHookMapping,
   });
 

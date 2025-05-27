@@ -1,7 +1,6 @@
 'use client';
 import * as React from 'react';
 import { useDialogRootContext } from '../root/DialogRootContext';
-import { mergeProps } from '../../merge-props';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { useBaseUiId } from '../../utils/useBaseUiId';
@@ -31,22 +30,10 @@ export const DialogTitle = React.forwardRef(function DialogTitle(
     };
   }, [id, setTitleElementId]);
 
-  const getProps = React.useCallback(
-    (externalProps = {}) =>
-      mergeProps(
-        {
-          id,
-        },
-        externalProps,
-      ),
-    [id],
-  );
-
   return useRenderElement('h2', componentProps, {
-    propGetter: getProps,
     state,
     ref: forwardedRef,
-    props: elementProps,
+    props: [elementProps, { id }],
   });
 });
 

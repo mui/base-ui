@@ -23,8 +23,7 @@ export const AlertDialogClose = React.forwardRef(function AlertDialogClose(
 
   return useRenderElement('button', componentProps, {
     state,
-    propGetter: getRootProps,
-    props: elementProps,
+    props: [elementProps, getRootProps],
   });
 });
 
