@@ -50,14 +50,34 @@ export type OffsetFunction = (data: {
 }) => number;
 
 interface SideFlipMode {
+  /**
+   * How to avoid collisions on the side axis.
+   */
   side?: 'flip' | 'none';
+  /**
+   * How to avoid collisions on the align axis.
+   */
   align?: 'flip' | 'shift' | 'none';
+  /**
+   * If both sides on the preferred axis do not fit, determines whether to fallback
+   * to a side on the perpendicular axis and which logical side to prefer.
+   */
   fallbackAxisSide?: 'start' | 'end' | 'none';
 }
 
 interface SideShiftMode {
+  /**
+   * How to avoid collisions on the side axis.
+   */
   side?: 'shift' | 'none';
+  /**
+   * How to avoid collisions on the align axis.
+   */
   align?: 'shift' | 'none';
+  /**
+   * If both sides on the preferred axis do not fit, determines whether to fallback
+   * to a side on the perpendicular axis and which logical side to prefer.
+   */
   fallbackAxisSide?: 'start' | 'end' | 'none';
 }
 
