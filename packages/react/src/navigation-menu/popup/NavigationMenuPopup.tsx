@@ -13,7 +13,6 @@ import { useNavigationMenuPositionerContext } from '../positioner/NavigationMenu
 import { useDirection } from '../../direction-provider/DirectionContext';
 import { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping';
-import { useAnimationFrame } from '../../utils/useAnimationFrame';
 
 const customStyleHookMapping: CustomStyleHookMapping<NavigationMenuPopup.State> = {
   ...baseMapping,
@@ -38,7 +37,6 @@ export const NavigationMenuPopup = React.forwardRef(function NavigationMenuPopup
     popupElement,
     positionerElement,
     setPopupElement,
-    value,
     beforeInsideRef,
     beforeOutsideRef,
     afterInsideRef,
@@ -48,7 +46,6 @@ export const NavigationMenuPopup = React.forwardRef(function NavigationMenuPopup
   const direction = useDirection();
 
   const id = useBaseUiId(idProp);
-  const frame = useAnimationFrame();
 
   const state: NavigationMenuPopup.State = React.useMemo(
     () => ({
@@ -60,47 +57,6 @@ export const NavigationMenuPopup = React.forwardRef(function NavigationMenuPopup
     }),
     [open, transitionStatus, positioning.side, positioning.align, positioning.anchorHidden],
   );
-
-  const prevSize = React.useRef({ width: 0, height: 0 });
-
-  useModernLayoutEffect(() => {
-    if (popupElement && prevSize.current.height === 0) {
-      prevSize.current = { width: popupElement.offsetWidth, height: popupElement.offsetHeight };
-    }
-  }, [popupElement]);
-
-  useModernLayoutEffect(() => {
-    if (!popupElement || !positionerElement || !value) {
-      return undefined;
-    }
-
-    let currentWidth = prevSize.current.width;
-    let currentHeight = prevSize.current.height;
-    popupElement.style.removeProperty('--popup-width');
-    popupElement.style.removeProperty('--popup-height');
-    const nextWidth = popupElement.offsetWidth;
-    const nextHeight = popupElement.offsetHeight;
-
-    if (currentHeight === 0 || currentWidth === 0) {
-      currentWidth = nextWidth;
-      currentHeight = nextHeight;
-    }
-
-    popupElement.style.setProperty('--popup-width', `${currentWidth}px`);
-    popupElement.style.setProperty('--popup-height', `${currentHeight}px`);
-    positionerElement.style.setProperty('--positioner-width', `${nextWidth}px`);
-    positionerElement.style.setProperty('--positioner-height', `${nextHeight}px`);
-
-    prevSize.current = { width: nextWidth, height: nextHeight };
-
-    frame.request(() => {
-      popupElement.style.setProperty('--popup-width', `${nextWidth}px`);
-      popupElement.style.setProperty('--popup-height', `${nextHeight}px`);
-    });
-    return () => {
-      frame.cancel();
-    };
-  }, [positionerElement, value, popupElement, frame]);
 
   // Allow the arrow to transition while the popup's size transitions.
   useModernLayoutEffect(() => {

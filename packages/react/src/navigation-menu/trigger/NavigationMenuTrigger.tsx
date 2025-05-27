@@ -81,6 +81,8 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
   const timeout = useTimeout();
   const stickIfOpenTimeout = useTimeout();
   const focusFrame = useAnimationFrame();
+  const sizeFrame1 = useAnimationFrame();
+  const sizeFrame2 = useAnimationFrame();
 
   const [triggerElement, setTriggerElement] = React.useState<HTMLElement | null>(null);
   const [stickIfOpen, setStickIfOpen] = React.useState(true);
@@ -90,30 +92,66 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
 
   const allowFocusRef = React.useRef(false);
 
+  const handleValueChange = useEventCallback((currentWidth: number, currentHeight: number) => {
+    if (!popupElement || !positionerElement) {
+      return;
+    }
+
+    popupElement.style.removeProperty('--popup-width');
+    popupElement.style.removeProperty('--popup-height');
+    positionerElement.style.removeProperty('--positioner-width');
+    positionerElement.style.removeProperty('--positioner-height');
+
+    const nextWidth = popupElement.offsetWidth;
+    const nextHeight = popupElement.offsetHeight;
+
+    if (currentHeight === 0 || currentWidth === 0) {
+      currentWidth = nextWidth;
+      currentHeight = nextHeight;
+    }
+
+    popupElement.style.setProperty('--popup-width', `${currentWidth}px`);
+    popupElement.style.setProperty('--popup-height', `${currentHeight}px`);
+    positionerElement.style.setProperty('--positioner-width', `${nextWidth}px`);
+    positionerElement.style.setProperty('--positioner-height', `${nextHeight}px`);
+
+    sizeFrame1.request(() => {
+      sizeFrame2.request(() => {
+        popupElement.style.setProperty('--popup-width', `${nextWidth}px`);
+        popupElement.style.setProperty('--popup-height', `${nextHeight}px`);
+      });
+    });
+  });
+
   React.useEffect(() => {
     timeout.clear();
   }, [value, timeout]);
 
   React.useEffect(() => {
     if (!open) {
-      stickIfOpenTimeout.clear();
       setPointerType('');
+      stickIfOpenTimeout.clear();
+      sizeFrame1.cancel();
+      sizeFrame2.cancel();
     }
-  }, [stickIfOpenTimeout, open]);
+  }, [stickIfOpenTimeout, open, sizeFrame1, sizeFrame2]);
 
   React.useEffect(() => {
-    if (isActiveItem && allowFocusRef.current && open && popupElement) {
-      allowFocusRef.current = false;
-      // Wait for the popup to have been positioned.
-      focusFrame.request(() => {
-        beforeOutsideRef.current?.focus();
-      });
+    if (isActiveItem && open && popupElement) {
+      handleValueChange(0, 0);
+
+      if (allowFocusRef.current) {
+        allowFocusRef.current = false;
+        focusFrame.request(() => {
+          beforeOutsideRef.current?.focus();
+        });
+      }
     }
 
     return () => {
       focusFrame.cancel();
     };
-  }, [beforeOutsideRef, focusFrame, isActiveItem, open, popupElement]);
+  }, [beforeOutsideRef, focusFrame, handleValueChange, isActiveItem, open, popupElement]);
 
   function handleOpenChange(
     nextOpen: boolean,
@@ -198,9 +236,16 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
   const { getReferenceProps } = useInteractions([hover, click, dismiss]);
 
   const handleOpenEvent = useEventCallback((event: React.MouseEvent) => {
-    const prevTriggerRect = prevTriggerElementRef.current?.getBoundingClientRect();
+    if (!popupElement || !positionerElement) {
+      return;
+    }
+
+    const currentWidth = popupElement.offsetWidth;
+    const currentHeight = popupElement.offsetHeight;
 
     ReactDOM.flushSync(() => {
+      const prevTriggerRect = prevTriggerElementRef.current?.getBoundingClientRect();
+
       if (mounted && prevTriggerRect && triggerElement) {
         const nextTriggerRect = triggerElement.getBoundingClientRect();
         const isMovingRight = nextTriggerRect.left > prevTriggerRect.left;
@@ -232,6 +277,8 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
         );
       }
     });
+
+    handleValueChange(currentWidth, currentHeight);
   });
 
   const state: NavigationMenuTrigger.State = React.useMemo(
