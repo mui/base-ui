@@ -63,12 +63,9 @@ export function useCheckboxRoot(params: useCheckboxRoot.Parameters): useCheckbox
     buttonRef,
   });
 
-  const {
-    getValidationProps,
-    getInputValidationProps,
-    inputRef: inputValidationRef,
-    commitValidation,
-  } = useFieldControlValidation();
+  const localFieldControlValidation = useFieldControlValidation();
+  const fieldControlValidation =
+    groupContext?.fieldControlValidation ?? localFieldControlValidation;
 
   const [checked, setCheckedState] = useControlled({
     controlled: value && groupValue && !parent ? groupValue.includes(value) : externalChecked,
@@ -89,14 +86,15 @@ export function useCheckboxRoot(params: useCheckboxRoot.Parameters): useCheckbox
   }, [id, setControlId]);
 
   useField({
+    enabled: !groupContext,
     id,
-    commitValidation,
+    commitValidation: fieldControlValidation.commitValidation,
     value: checked,
     controlRef: buttonRef,
   });
 
   const inputRef = React.useRef<HTMLInputElement>(null);
-  const mergedInputRef = useForkRef(externalInputRef, inputRef, inputValidationRef);
+  const mergedInputRef = useForkRef(externalInputRef, inputRef, fieldControlValidation.inputRef);
 
   useModernLayoutEffect(() => {
     if (inputRef.current) {
@@ -132,7 +130,7 @@ export function useCheckboxRoot(params: useCheckboxRoot.Parameters): useCheckbox
             setFocused(false);
 
             if (validationMode === 'onBlur') {
-              commitValidation(groupContext ? groupValue : element.checked);
+              fieldControlValidation.commitValidation(groupContext ? groupValue : element.checked);
             }
           },
           onClick(event) {
@@ -145,11 +143,10 @@ export function useCheckboxRoot(params: useCheckboxRoot.Parameters): useCheckbox
             inputRef.current?.click();
           },
         },
-        getValidationProps(externalProps),
+        fieldControlValidation.getValidationProps(externalProps),
         getButtonProps,
       ),
     [
-      getValidationProps,
       getButtonProps,
       id,
       disabled,
@@ -161,9 +158,9 @@ export function useCheckboxRoot(params: useCheckboxRoot.Parameters): useCheckbox
       setFocused,
       setTouched,
       validationMode,
-      commitValidation,
       groupContext,
       groupValue,
+      fieldControlValidation,
     ],
   );
 
@@ -202,9 +199,9 @@ export function useCheckboxRoot(params: useCheckboxRoot.Parameters): useCheckbox
               setFilled(nextChecked);
 
               if (validationMode === 'onChange') {
-                commitValidation(nextChecked);
+                fieldControlValidation.commitValidation(nextChecked);
               } else {
-                commitValidation(nextChecked, true);
+                fieldControlValidation.commitValidation(nextChecked, true);
               }
             }
 
@@ -217,14 +214,16 @@ export function useCheckboxRoot(params: useCheckboxRoot.Parameters): useCheckbox
               setFilled(nextGroupValue.length > 0);
 
               if (validationMode === 'onChange') {
-                commitValidation(nextGroupValue);
+                fieldControlValidation.commitValidation(nextGroupValue);
               } else {
-                commitValidation(nextGroupValue, true);
+                fieldControlValidation.commitValidation(nextGroupValue, true);
               }
             }
           },
         },
-        groupContext ? getValidationProps(externalProps) : getInputValidationProps(externalProps),
+        groupContext
+          ? fieldControlValidation.getValidationProps(externalProps)
+          : fieldControlValidation.getInputValidationProps(externalProps),
       ),
     [
       checked,
@@ -233,8 +232,6 @@ export function useCheckboxRoot(params: useCheckboxRoot.Parameters): useCheckbox
       valueProp,
       required,
       mergedInputRef,
-      getInputValidationProps,
-      getValidationProps,
       setDirty,
       validityData.initialValue,
       setCheckedState,
@@ -246,8 +243,8 @@ export function useCheckboxRoot(params: useCheckboxRoot.Parameters): useCheckbox
       parent,
       setFilled,
       validationMode,
-      commitValidation,
       value,
+      fieldControlValidation,
     ],
   );
 

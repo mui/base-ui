@@ -108,7 +108,9 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
   return (
     <CheckboxRootContext.Provider value={state}>
       {renderElement()}
-      {!checked && props.name && <input type="hidden" name={props.name} value="off" />}
+      {!checked && !groupContext && props.name && (
+        <input type="hidden" name={props.name} value="off" />
+      )}
       <input {...getInputProps()} />
     </CheckboxRootContext.Provider>
   );
