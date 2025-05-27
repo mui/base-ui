@@ -9,6 +9,11 @@
     "onClick": {
       "type": "MouseEventHandler<HTMLElement>"
     },
+    "nativeButton": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Determines whether the component is being rendered as a native button."
+    },
     "id": {
       "type": "string"
     },
