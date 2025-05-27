@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { useAlertDialogRootContext } from '../root/AlertDialogRootContext';
 import { useButton } from '../../use-button/useButton';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import { useRenderElement } from '../../utils/useRenderElement';
 import { useForkRef } from '../../utils/useForkRef';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
@@ -14,10 +14,10 @@ import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
  * Documentation: [Base UI Alert Dialog](https://base-ui.com/react/components/alert-dialog)
  */
 export const AlertDialogTrigger = React.forwardRef(function AlertDialogTrigger(
-  props: AlertDialogTrigger.Props,
+  componentProps: AlertDialogTrigger.Props,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
-  const { render, className, disabled = false, ...other } = props;
+  const { render, className, disabled = false, ...elementProps } = componentProps;
 
   const { open, setTriggerElement, getTriggerProps } = useAlertDialogRootContext();
 
@@ -36,17 +36,13 @@ export const AlertDialogTrigger = React.forwardRef(function AlertDialogTrigger(
     buttonRef: mergedRef,
   });
 
-  const { renderElement } = useComponentRenderer({
-    render: render ?? 'button',
-    className,
+  return useRenderElement('button', componentProps, {
     state,
     propGetter: (externalProps) => getButtonProps(getTriggerProps(externalProps)),
-    extraProps: other,
-    customStyleHookMapping: triggerOpenStateMapping,
     ref: mergedRef,
+    customStyleHookMapping: triggerOpenStateMapping,
+    props: elementProps,
   });
-
-  return renderElement();
 });
 
 export namespace AlertDialogTrigger {

@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { useDialogClose } from './useDialogClose';
 import { useDialogRootContext } from '../root/DialogRootContext';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import { useRenderElement } from '../../utils/useRenderElement';
 import type { BaseUIComponentProps } from '../../utils/types';
 
 /**
@@ -12,24 +12,20 @@ import type { BaseUIComponentProps } from '../../utils/types';
  * Documentation: [Base UI Dialog](https://base-ui.com/react/components/dialog)
  */
 export const DialogClose = React.forwardRef(function DialogClose(
-  props: DialogClose.Props,
+  componentProps: DialogClose.Props,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
-  const { render, className, disabled = false, ...other } = props;
+  const { render, className, disabled = false, ...elementProps } = componentProps;
   const { open, setOpen } = useDialogRootContext();
   const { getRootProps } = useDialogClose({ disabled, open, setOpen, rootRef: forwardedRef });
 
   const state: DialogClose.State = React.useMemo(() => ({ disabled }), [disabled]);
 
-  const { renderElement } = useComponentRenderer({
-    render: render ?? 'button',
-    className,
+  return useRenderElement('button', componentProps, {
     state,
     propGetter: getRootProps,
-    extraProps: other,
+    props: elementProps,
   });
-
-  return renderElement();
 });
 
 export namespace DialogClose {

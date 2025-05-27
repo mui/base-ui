@@ -3,7 +3,7 @@ import * as React from 'react';
 import { FloatingFocusManager } from '@floating-ui/react';
 import { useDialogPopup } from '../../dialog/popup/useDialogPopup';
 import { useAlertDialogRootContext } from '../root/AlertDialogRootContext';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import { useRenderElement } from '../../utils/useRenderElement';
 import type { BaseUIComponentProps } from '../../utils/types';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
@@ -32,10 +32,10 @@ const customStyleHookMapping: CustomStyleHookMapping<AlertDialogPopup.State> = {
  * Documentation: [Base UI Alert Dialog](https://base-ui.com/react/components/alert-dialog)
  */
 export const AlertDialogPopup = React.forwardRef(function AlertDialogPopup(
-  props: AlertDialogPopup.Props,
+  componentProps: AlertDialogPopup.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { className, render, initialFocus, finalFocus, ...other } = props;
+  const { className, render, initialFocus, finalFocus, ...elementProps } = componentProps;
 
   const {
     descriptionElementId,
@@ -95,14 +95,15 @@ export const AlertDialogPopup = React.forwardRef(function AlertDialogPopup(
     [open, nested, transitionStatus, nestedDialogOpen],
   );
 
-  const { renderElement } = useComponentRenderer({
-    render: render ?? 'div',
-    className,
+  const element = useRenderElement('div', componentProps, {
     state,
     propGetter: getRootProps,
-    extraProps: {
-      ...other,
-      style: { ...other.style, '--nested-dialogs': nestedOpenDialogCount },
+    props: {
+      ...elementProps,
+      style: {
+        ...elementProps.style,
+        '--nested-dialogs': nestedOpenDialogCount,
+      } as React.CSSProperties,
       role: 'alertdialog',
     },
     customStyleHookMapping,
@@ -117,7 +118,7 @@ export const AlertDialogPopup = React.forwardRef(function AlertDialogPopup(
         initialFocus={resolvedInitialFocus}
         returnFocus={finalFocus}
       >
-        {renderElement()}
+        {element}
       </FloatingFocusManager>
     </React.Fragment>
   );
