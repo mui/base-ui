@@ -281,7 +281,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
   useModernLayoutEffect(function syncFormattedInputValueOnValueChange() {
     // This ensures the value is only updated on blur rather than every keystroke, but still
     // allows the input value to be updated when the value is changed externally.
-    if (!allowInputSyncRef.current) {
+    if (!allowInputSyncRef.current && !(isControlled && externalUpdateRef.current)) {
       return;
     }
 
