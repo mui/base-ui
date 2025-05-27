@@ -14,7 +14,7 @@ export function useToolbarInput(
     buttonRef: externalRef,
     disabled,
     focusableWhenDisabled,
-    input: true,
+    native: 'input',
   });
 
   const getInputProps = React.useCallback(

@@ -12,12 +12,9 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
     buttonRef: externalRef,
     disabled = false,
     focusableWhenDisabled,
-    tabIndex,
-    native: nativeProp = true,
-    input = false,
+    tabIndex = 0,
+    native = true,
   } = parameters;
-
-  const native = input ? false : nativeProp;
 
   const buttonRef = React.useRef<HTMLButtonElement | HTMLAnchorElement | HTMLElement | null>(null);
 
@@ -37,15 +34,14 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
       additionalProps.tabIndex = tabIndex;
     }
 
-    if (native) {
+    if (native === true) {
       if (focusableWhenDisabled || (isCompositeItem && focusableWhenDisabled !== false)) {
         additionalProps['aria-disabled'] = disabled;
       } else if (!isCompositeItem) {
         additionalProps.disabled = disabled;
       }
     } else {
-      // Don't add role="button" for input elements as they should keep their natural role
-      if (!input) {
+      if (!native) {
         additionalProps.role = 'button';
       }
       if (!isCompositeItem) {
@@ -60,7 +56,7 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
     }
 
     return additionalProps;
-  }, [disabled, focusableWhenDisabled, input, isCompositeItem, native, tabIndex]);
+  }, [disabled, focusableWhenDisabled, isCompositeItem, native, tabIndex]);
 
   // handles a disabled composite button rendering another button, e.g.
   // <Toolbar.Button disabled render={<Menu.Trigger />} />
@@ -89,9 +85,9 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
       } = externalProps;
 
       let type: 'button' | 'text' | undefined;
-      if (input) {
+      if (native === 'input') {
         type = 'text';
-      } else if (native) {
+      } else if (native === true) {
         type = 'button';
       }
 
@@ -170,7 +166,7 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
         otherExternalProps,
       );
     },
-    [buttonProps, disabled, focusableWhenDisabled, input, isValidLink, mergedRef, native],
+    [buttonProps, disabled, focusableWhenDisabled, isValidLink, mergedRef, native],
   );
 
   return {
@@ -209,15 +205,10 @@ export namespace useButton {
     buttonRef?: React.Ref<Element>;
     tabIndex?: NonNullable<React.HTMLAttributes<any>['tabIndex']>;
     /**
-     * Whether the component is being rendered as a native button.
+     * Whether the component is being rendered as a native button or specific native tag.
      * @default true
      */
-    native?: boolean;
-    /**
-     * Whether the component is being rendered as a native input.
-     * @default false
-     */
-    input?: boolean;
+    native?: boolean | 'input' | 'a';
   }
 
   export interface ReturnValue {

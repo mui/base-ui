@@ -27,8 +27,8 @@ export const ToolbarLink = React.forwardRef(function ToolbarLink(
 
   const { getButtonProps } = useButton({
     buttonRef: forwardedRef,
-    native: false,
-    focusableWhenDisabled: false,
+    native: 'a',
+    focusableWhenDisabled: true,
   });
 
   const state: ToolbarLink.State = React.useMemo(
