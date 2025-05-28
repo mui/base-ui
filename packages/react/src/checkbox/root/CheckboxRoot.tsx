@@ -4,6 +4,7 @@ import { useCheckboxGroupContext } from '../../checkbox-group/CheckboxGroupConte
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useCustomStyleHookMapping } from '../utils/useCustomStyleHookMapping';
+import { useForkRef } from '../../utils/useForkRef';
 import type { FieldRoot } from '../../field/root/FieldRoot';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useCheckboxRoot } from './useCheckboxRoot';
@@ -78,6 +79,8 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     }
   }, [parentContext, disabled, name]);
 
+  const mergedRef = useForkRef(forwardedRef, groupContext?.registerControlRef);
+
   const state: CheckboxRoot.State = React.useMemo(
     () => ({
       ...fieldState,
@@ -95,7 +98,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
   const { renderElement } = useComponentRenderer({
     propGetter: getRootProps,
     render: render ?? 'button',
-    ref: forwardedRef,
+    ref: mergedRef,
     state,
     className,
     customStyleHookMapping,

@@ -3,7 +3,6 @@ import * as React from 'react';
 import { useBaseUiId } from '../utils/useBaseUiId';
 import { useComponentRenderer } from '../utils/useComponentRenderer';
 import { useEventCallback } from '../utils/useEventCallback';
-import { useForkRef } from '../utils/useForkRef';
 import { useCheckboxGroup } from './useCheckboxGroup';
 import { CheckboxGroupContext } from './CheckboxGroupContext';
 import type { FieldRoot } from '../field/root/FieldRoot';
@@ -50,12 +49,11 @@ export const CheckboxGroup = React.forwardRef(function CheckboxGroup(
   const id = useBaseUiId(idProp);
 
   const controlRef = React.useRef<HTMLButtonElement>(null);
-  const handleRef = useEventCallback((element: HTMLElement | null) => {
-    if (element) {
-      controlRef.current = element.querySelector<HTMLButtonElement>('button[role="checkbox"]');
+  const registerControlRef = useEventCallback((element: HTMLButtonElement | null) => {
+    if (element && controlRef.current == null) {
+      controlRef.current = element;
     }
   });
-  const mergedRef = useForkRef(handleRef, forwardedRef);
 
   useField({
     enabled: !!fieldName,
@@ -78,7 +76,7 @@ export const CheckboxGroup = React.forwardRef(function CheckboxGroup(
     render: render ?? 'div',
     className,
     state,
-    ref: mergedRef,
+    ref: forwardedRef,
     extraProps: otherProps,
     customStyleHookMapping: fieldValidityMapping,
   });
@@ -92,8 +90,18 @@ export const CheckboxGroup = React.forwardRef(function CheckboxGroup(
       parent,
       disabled,
       fieldControlValidation,
+      registerControlRef,
     }),
-    [allValues, value, defaultValue, setValue, parent, disabled, fieldControlValidation],
+    [
+      allValues,
+      value,
+      defaultValue,
+      setValue,
+      parent,
+      disabled,
+      fieldControlValidation,
+      registerControlRef,
+    ],
   );
 
   return (

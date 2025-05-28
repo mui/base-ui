@@ -11,6 +11,7 @@ export interface CheckboxGroupContext {
   parent: useCheckboxGroupParent.ReturnValue;
   disabled: boolean;
   fieldControlValidation: useFieldControlValidation.ReturnValue;
+  registerControlRef: (element: HTMLButtonElement | null) => void;
 }
 
 export const CheckboxGroupContext = React.createContext<CheckboxGroupContext | undefined>(
