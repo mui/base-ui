@@ -6,33 +6,25 @@ import { TemporalAdapterContext } from './TemporalAdapterContext';
 /**
  * Defines the date library adapter for Base UI temporal components.
  */
-export const TemporalAdapterProvider = function DateAdapterProvider<TLocale>(
-  props: TemporalAdapterProvider.Props<TLocale>,
-) {
-  const { children, value: AdapterClass, locale } = props;
+export const TemporalAdapterProvider: React.FC<TemporalAdapterProvider.Props> =
+  function DateAdapterProvider(props: TemporalAdapterProvider.Props) {
+    const { children, adapter } = props;
 
-  const contextValue = React.useMemo(
-    () => ({ adapter: new AdapterClass({ locale }) }),
-    [AdapterClass, locale],
-  );
+    const contextValue = React.useMemo(() => ({ adapter }), [adapter]);
 
-  return (
-    <TemporalAdapterContext.Provider value={contextValue}>
-      {children}
-    </TemporalAdapterContext.Provider>
-  );
-};
+    return (
+      <TemporalAdapterContext.Provider value={contextValue}>
+        {children}
+      </TemporalAdapterContext.Provider>
+    );
+  };
 
 export namespace TemporalAdapterProvider {
-  export interface Props<TLocale> {
+  export interface Props {
     children?: React.ReactNode;
     /**
-     * The date library adapter class.
+     * The date library adapter.
      */
-    value: new (...args: any) => TemporalAdapter<TLocale>;
-    /**
-     * Locale for the date library being used.
-     */
-    locale?: TLocale;
+    adapter: TemporalAdapter;
   }
 }

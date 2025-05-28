@@ -5,9 +5,11 @@ import { TemporalAdapterLuxon } from '@base-ui-components/react/temporal-adapter
 import { Calendar } from '@base-ui-components/react/calendar';
 import styles from './calendar.module.css';
 
+const adapter = new TemporalAdapterLuxon();
+
 export default function DayCalendar() {
   return (
-    <TemporalAdapterProvider value={TemporalAdapterLuxon}>
+    <TemporalAdapterProvider adapter={adapter}>
       <Calendar.Root className={styles.Root}>
         {({ visibleDate }) => (
           <React.Fragment>
