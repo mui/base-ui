@@ -111,16 +111,13 @@
   background-color: canvas;
   color: var(--color-gray-900);
   transform-origin: var(--transform-origin);
-  transition:
-    opacity calc(var(--duration) * 0.5) ease,
-    transform calc(var(--duration) * 0.5) ease,
-    width var(--duration) var(--easing),
-    height var(--duration) var(--easing);
+  transition-property: opacity, transform, width, height;
+  transition-duration: var(--duration);
+  transition-timing-function: var(--easing);
   width: 300px;
   height: var(--popup-height);
 
   @media (min-width: 500px) {
-    min-width: max-content;
     width: var(--popup-width);
   }
 

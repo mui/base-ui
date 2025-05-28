@@ -39,6 +39,7 @@ import { isOutsideMenuEvent } from '../utils/isOutsideMenuEvent';
 import { useTimeout } from '../../utils/useTimeout';
 import { useAnimationFrame } from '../../utils/useAnimationFrame';
 import { safePolygon } from '../../utils/floating-ui/safePolygon';
+import { useLatestRef } from '../../utils/useLatestRef';
 
 const TRIGGER_IDENTIFIER = 'data-navigation-menu-trigger';
 
@@ -89,6 +90,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
   const [pointerType, setPointerType] = React.useState<'mouse' | 'touch' | 'pen' | ''>('');
 
   const isActiveItem = open && value === itemValue;
+  const isActiveItemRef = useLatestRef(isActiveItem);
 
   const allowFocusRef = React.useRef(false);
 
@@ -133,7 +135,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
   }, [stickIfOpenTimeout, open, sizeFrame1, sizeFrame2]);
 
   React.useEffect(() => {
-    if (isActiveItem && open && popupElement) {
+    if (isActiveItemRef.current && open && popupElement) {
       handleValueChange(0, 0);
 
       if (allowFocusRef.current) {
@@ -147,7 +149,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     return () => {
       focusFrame.cancel();
     };
-  }, [beforeOutsideRef, focusFrame, handleValueChange, isActiveItem, open, popupElement]);
+  }, [beforeOutsideRef, focusFrame, handleValueChange, isActiveItemRef, open, popupElement]);
 
   function handleOpenChange(
     nextOpen: boolean,
