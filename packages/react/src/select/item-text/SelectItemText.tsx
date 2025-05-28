@@ -17,8 +17,15 @@ const InnerSelectItemText = React.memo(
     componentProps: InnerSelectItemTextProps,
     forwardedRef: React.ForwardedRef<HTMLDivElement>,
   ) {
-    const { className, render, selectedByFocus, selectedItemTextRef, indexRef, textRef, ...elementProps } =
-      componentProps;
+    const {
+      className,
+      render,
+      selectedByFocus,
+      selectedItemTextRef,
+      indexRef,
+      textRef,
+      ...elementProps
+    } = componentProps;
 
     const localRef = React.useCallback(
       (node: HTMLElement | null) => {
