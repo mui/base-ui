@@ -8,12 +8,14 @@ import { Tooltip } from '@base-ui-components/react/tooltip';
 import { Popover } from '@base-ui-components/react/popover';
 import { Dialog } from '@base-ui-components/react/dialog';
 import { AlertDialog } from '@base-ui-components/react/alert-dialog';
+import { Menu } from '@base-ui-components/react/menu';
 import toolbarClasses from './toolbar.module.css';
 import triggerToolbarClasses from './triggers.module.css';
 import tooltipClasses from '../../../(public)/(content)/react/components/tooltip/demos/hero/css-modules/index.module.css';
 import switchClasses from '../../../(public)/(content)/react/components/switch/demos/hero/css-modules/index.module.css';
 import dialogClasses from '../../../(public)/(content)/react/components/alert-dialog/demos/hero/css-modules/index.module.css';
 import popoverClasses from '../../../(public)/(content)/react/components/popover/demos/hero/css-modules/index.module.css';
+import menuClasses from '../../../(public)/(content)/react/components/menu/demos/hero/css-modules/index.module.css';
 import comboSliderClasses from './slider.module.css';
 import {
   SlidersIcon,
@@ -21,6 +23,7 @@ import {
   MessageCircleIcon,
   ArrowSvg,
   BellIcon,
+  JustifyIcon,
 } from './_icons';
 import {
   SettingsMetadata,
@@ -34,6 +37,10 @@ export const settingsMetadata: SettingsMetadata<Settings> = {
     type: 'boolean',
     label: 'Vertical',
     default: false,
+  },
+  menuDisabled: {
+    type: 'boolean',
+    label: 'Menu disabled',
   },
   dialogDisabled: {
     type: 'boolean',
@@ -71,6 +78,7 @@ const styles = {
   popover: popoverClasses,
   slider: comboSliderClasses,
   tooltip: tooltipClasses,
+  menu: menuClasses,
 };
 
 const TEXT = `Shows toolbar buttons as various triggers:
@@ -124,6 +132,8 @@ function renderTriggerWithTooltip(args: {
 
 export default function App() {
   const { settings } = useExperimentSettings<Settings>();
+
+  const MENU_DISABLED = settings.menuDisabled || settings.toolbarDisabled;
   const DIALOG_DISABLED = settings.dialogDisabled || settings.toolbarDisabled;
   const ALERT_DIALOG_DISABLED =
     settings.alertDialogDisabled || settings.toolbarDisabled;
@@ -147,6 +157,28 @@ export default function App() {
           orientation={settings.verticalOrientation ? 'vertical' : 'horizontal'}
         >
           <Dialog.Root>
+            <Menu.Root disabled={MENU_DISABLED}>
+              {renderTriggerWithTooltip({
+                render: (
+                  <Menu.Trigger>
+                    <JustifyIcon className={styles.toolbar.Icon} />
+                  </Menu.Trigger>
+                ),
+                key: 'menu',
+                label: 'Open menu',
+              })}
+              <Menu.Portal>
+                <Menu.Positioner className={styles.menu.Positioner} align="start">
+                  <Menu.Popup className={styles.menu.Popup}>
+                    <Menu.Item className={styles.menu.Item}>Item 1</Menu.Item>
+                    <Menu.Item className={styles.menu.Item}>Item 2</Menu.Item>
+                    <Menu.Item className={styles.menu.Item}>Item 3</Menu.Item>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+
+            <Toolbar.Separator className={styles.demo.Separator} />
             {renderTriggerWithTooltip({
               render: (
                 <Dialog.Trigger>

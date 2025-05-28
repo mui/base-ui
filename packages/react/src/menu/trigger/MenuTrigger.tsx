@@ -26,11 +26,11 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
   props: MenuTrigger.Props,
   forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
-  const { render, className, disabled: disabledProp = false, ...other } = props;
+  const { render, className, ...other } = props;
 
   const {
     triggerProps: rootTriggerProps,
-    disabled: menuDisabled,
+    disabled,
     setTriggerElement,
     open,
     setOpen,
@@ -39,8 +39,6 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
     parent,
     lastOpenChangeReason,
   } = useMenuRootContext();
-
-  const disabled = disabledProp || menuDisabled;
 
   const triggerRef = React.useRef<HTMLElement | null>(null);
   const mergedRef = useForkRef(forwardedRef, triggerRef);
@@ -162,19 +160,16 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
 });
 
 export namespace MenuTrigger {
-  export interface Props extends BaseUIComponentProps<'button', State> {
-    children?: React.ReactNode;
-    /**
-     * Whether the component should ignore user interaction.
-     * @default false
-     */
-    disabled?: boolean;
-  }
+  export interface Props extends Omit<BaseUIComponentProps<'button', State>, 'disabled'> {}
 
   export type State = {
     /**
      * Whether the menu is currently open.
      */
     open: boolean;
+    /**
+     * Whether the component should ignore user interaction.
+     */
+    disabled: boolean;
   };
 }

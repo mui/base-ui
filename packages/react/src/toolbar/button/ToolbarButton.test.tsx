@@ -269,10 +269,9 @@ describe('<Toolbar.Button />', () => {
         const handleClick = spy();
         const { getByRole, user } = await render(
           <Toolbar.Root>
-            <Menu.Root onOpenChange={handleOpenChange}>
+            <Menu.Root onOpenChange={handleOpenChange} disabled>
               <Toolbar.Button
                 data-testid="button"
-                disabled
                 onClick={handleClick}
                 render={<Menu.Trigger>Toggle</Menu.Trigger>}
               />
