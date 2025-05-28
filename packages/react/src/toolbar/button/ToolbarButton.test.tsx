@@ -274,6 +274,7 @@ describe('<Toolbar.Button />', () => {
                 data-testid="button"
                 onClick={handleClick}
                 render={<Menu.Trigger>Toggle</Menu.Trigger>}
+                disabled
               />
               <Menu.Portal>
                 <Menu.Positioner>

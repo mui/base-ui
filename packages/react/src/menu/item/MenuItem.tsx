@@ -69,13 +69,19 @@ export const MenuItem = React.forwardRef(function MenuItem(
   props: MenuItem.Props,
   forwardedRef: React.ForwardedRef<Element>,
 ) {
-  const { id: idProp, label, ...other } = props;
+  const { id: idProp, label, disabled, ...other } = props;
 
   const itemRef = React.useRef<HTMLElement>(null);
   const listItem = useCompositeListItem({ label });
   const mergedRef = useForkRef(forwardedRef, listItem.ref, itemRef);
 
-  const { itemProps, activeIndex, allowMouseUpTriggerRef, typingRef } = useMenuRootContext();
+  const {
+    itemProps,
+    activeIndex,
+    allowMouseUpTriggerRef,
+    typingRef,
+    disabled: menuDisabled,
+  } = useMenuRootContext();
   const id = useBaseUiId(idProp);
 
   const highlighted = listItem.index === activeIndex;
@@ -95,6 +101,7 @@ export const MenuItem = React.forwardRef(function MenuItem(
       itemProps={itemProps}
       allowMouseUpTriggerRef={allowMouseUpTriggerRef}
       typingRef={typingRef}
+      disabled={menuDisabled || disabled}
     />
   );
 });
