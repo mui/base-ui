@@ -13,7 +13,7 @@ import {
 import { useNavigationMenuPortalContext } from '../portal/NavigationMenuPortalContext';
 import { useAnchorPositioning, type Align, type Side } from '../../utils/useAnchorPositioning';
 import { NavigationMenuPositionerContext } from './NavigationMenuPositionerContext';
-import { ownerDocument, ownerWindow } from '../../utils/owner';
+import { ownerDocument } from '../../utils/owner';
 import { useAnimationsFinished } from '../../utils/useAnimationsFinished';
 import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { popupStateMapping } from '../../utils/popupStateMapping';
@@ -105,15 +105,8 @@ export const NavigationMenuPositioner = React.forwardRef(function NavigationMenu
     ...elementProps
   } = componentProps;
 
-  const {
-    open,
-    mounted,
-    positionerElement,
-    setPositionerElement,
-    popupElement,
-    floatingRootContext,
-    setValue,
-  } = useNavigationMenuRootContext();
+  const { open, mounted, positionerElement, setPositionerElement, floatingRootContext } =
+    useNavigationMenuRootContext();
   const keepMounted = useNavigationMenuPortalContext();
   const nodeId = useNavigationMenuTreeContext();
 
@@ -151,22 +144,6 @@ export const NavigationMenuPositioner = React.forwardRef(function NavigationMenu
 
     return undefined;
   }, [floatingRootContext?.elements.domReference, runOnceAnimationsFinish]);
-
-  React.useEffect(() => {
-    if (!positionerElement) {
-      return undefined;
-    }
-
-    function handleWindowResize(event: Event) {
-      setValue(null, event, undefined);
-    }
-
-    const win = ownerWindow(positionerElement);
-    win.addEventListener('resize', handleWindowResize);
-    return () => {
-      win.removeEventListener('resize', handleWindowResize);
-    };
-  }, [setValue, positionerElement, popupElement]);
 
   // https://codesandbox.io/s/tabbable-portal-f4tng?file=/src/TabbablePortal.tsx
   React.useEffect(() => {
