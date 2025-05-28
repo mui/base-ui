@@ -18,7 +18,7 @@ export const AlertDialogTrigger = React.forwardRef(function AlertDialogTrigger(
 ) {
   const { render, className, disabled = false, ...elementProps } = componentProps;
 
-  const { open, setTriggerElement, getTriggerProps } = useAlertDialogRootContext();
+  const { open, setTriggerElement, triggerProps } = useAlertDialogRootContext();
 
   const state: AlertDialogTrigger.State = React.useMemo(
     () => ({
@@ -37,7 +37,7 @@ export const AlertDialogTrigger = React.forwardRef(function AlertDialogTrigger(
     state,
     ref: [forwardedRef, buttonRef, setTriggerElement],
     customStyleHookMapping: triggerOpenStateMapping,
-    props: [elementProps, getTriggerProps, getButtonProps],
+    props: [triggerProps, elementProps, getButtonProps],
   });
 });
 
