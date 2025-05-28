@@ -125,6 +125,11 @@
     opacity: 0;
     transform: scale(0.9);
   }
+
+  &[data-ending-style] {
+    transition-timing-function: ease;
+    transition-duration: 0.15s;
+  }
 }
 
 @media (prefers-color-scheme: light) {
