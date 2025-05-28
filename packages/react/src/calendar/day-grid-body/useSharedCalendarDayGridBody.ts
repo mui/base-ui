@@ -1,7 +1,6 @@
 import * as React from 'react';
 import { useSharedCalendarRootContext } from '../root/SharedCalendarRootContext';
 import { SharedCalendarDayGridBodyContext } from './SharedCalendarDayGridBodyContext';
-import { useRegisterSection } from '../utils/useRegisterSection';
 import { useSharedCalendarRootVisibleDateContext } from '../root/SharedCalendarRootVisibleDateContext';
 import { useScrollableList } from '../utils/useScrollableList';
 import { HTMLProps } from '../../utils/types';
@@ -13,7 +12,7 @@ export function useSharedCalendarDayGridBody(
 ): useSharedCalendarDayGridBody.ReturnValue {
   const { fixedWeekNumber, focusOnMount, children, offset = 0, freezeMonth = false } = parameters;
   const adapter = useTemporalAdapter();
-  const { selectedDates, currentDate, applyDayGridKeyboardNavigation } =
+  const { selectedDates, currentDate, registerDayGrid, applyDayGridKeyboardNavigation } =
     useSharedCalendarRootContext();
   const { visibleDate } = useSharedCalendarRootVisibleDateContext();
   const ref = React.useRef<HTMLDivElement>(null);
@@ -34,10 +33,10 @@ export function useSharedCalendarDayGridBody(
   const month = freezeMonth ? lastNonFrozenMonthRef.current : rawMonth;
 
   useScrollableList({ focusOnMount, ref });
-  useRegisterSection({
-    section: 'day',
-    value: month,
-  });
+
+  React.useEffect(() => {
+    return registerDayGrid(month);
+  }, [registerDayGrid, month]);
 
   const daysGrid = React.useMemo(() => {
     const toDisplay = adapter.getWeekArray(month);

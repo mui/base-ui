@@ -1,7 +1,5 @@
 import * as React from 'react';
 import { TemporalSupportedObject } from '../../models';
-import type { useSharedCalendarRoot } from './useSharedCalendarRoot';
-import { SharedCalendarSection } from '../utils/types';
 import { useSharedCalendarDayGridNavigation } from './useSharedCalendarDayGridsNavigation';
 import { validateDate } from '../../utils/temporal/validateDate';
 
@@ -28,12 +26,9 @@ export interface SharedCalendarRootContext {
    */
   selectedDates: TemporalSupportedObject[];
   /**
-   * Select a date.
-   * @param {TemporalSupportedObject} date The date to select.
-   * @param {object} options The options to select the date.
-   * @param {SharedCalendarSection} options.section The section handled by the UI that triggered the change.
+   * Selects a date.
    */
-  selectDate: (date: TemporalSupportedObject, options: { section: SharedCalendarSection }) => void;
+  selectDate: (date: TemporalSupportedObject) => void;
   /**
    * Determine if the given date is invalid.
    * @param {TemporalSupportedObject} date The date to check.
@@ -46,9 +41,7 @@ export interface SharedCalendarRootContext {
    */
   dateValidationProps: validateDate.ValidationProps;
   /**
-   * Set the visible data.
-   * @param {TemporalSupportedObject} visibleDate The new visible data.
-   * @param {boolean} skipIfAlreadyVisible Whether to skip the update if the date is already inside one of the visible grids / lists.
+   * Sets the visible data.
    */
   setVisibleDate: (visibleDate: TemporalSupportedObject, skipIfAlreadyVisible: boolean) => void;
   /**
@@ -61,21 +54,16 @@ export interface SharedCalendarRootContext {
   yearPageSize: number;
   /**
    * Callback forwarded to the `onKeyDown` prop of the day grid body.
-   * @param {React.KeyboardEvent} event The keyboard event.
    */
   applyDayGridKeyboardNavigation: (event: React.KeyboardEvent) => void;
   /**
    * Register a day cell ref to be able to apply keyboard navigation.
-   * @param {useSharedCalendarDayGridNavigation.CellRefs} refs The grid, row and cell refs of the day cell.
-   * @returns {() => void} A cleanup function to unregister the cell.
    */
   registerDayGridCell: (refs: useSharedCalendarDayGridNavigation.CellRefs) => () => void;
   /**
-   * Register a section.
-   * @param {useSharedCalendarRoot.RegisterSectionParameters} parameters The type and value of the section.
-   * @returns {() => void} A cleanup function to unregister the section.
+   * Register a day grid.
    */
-  registerSection: (parameters: useSharedCalendarRoot.RegisterSectionParameters) => () => void;
+  registerDayGrid: (month: TemporalSupportedObject) => () => void;
 }
 
 export const SharedCalendarRootContext = React.createContext<SharedCalendarRootContext | undefined>(

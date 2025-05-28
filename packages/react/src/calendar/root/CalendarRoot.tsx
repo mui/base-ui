@@ -15,10 +15,7 @@ import { BaseUIComponentProps, PartialPick } from '../../utils/types';
 
 const calendarValueManager: useSharedCalendarRoot.ValueManager<TemporalNonRangeValue> = {
   getDateToUseForReferenceDate: (value) => value,
-  onSelectDate: ({ setValue, selectedDate, section }) =>
-    setValue(selectedDate, {
-      section,
-    }),
+  onSelectDate: ({ setValue, selectedDate }) => setValue(selectedDate),
   getCurrentDateFromValue: (value) => value,
   getSelectedDatesFromValue: (value) => (value == null ? [] : [value]),
 };

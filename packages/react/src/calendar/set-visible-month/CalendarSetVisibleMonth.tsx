@@ -1,7 +1,6 @@
 'use client';
 import * as React from 'react';
 import { useSharedCalendarRootContext } from '../root/SharedCalendarRootContext';
-import { useNullableSharedCalendarMonthCollectionContext } from '../utils/SharedCalendarMonthCollectionContext';
 import { useSharedCalendarRootVisibleDateContext } from '../root/SharedCalendarRootVisibleDateContext';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { BaseUIComponentProps } from '../../utils/types';
@@ -22,9 +21,9 @@ const InnerCalendarSetVisibleMonth = React.forwardRef(function InnerCalendarSetV
       type: 'button' as const,
       disabled: ctx.isDisabled,
       onClick: ctx.setTarget,
-      tabIndex: ctx.isTabbable ? 0 : -1,
+      tabIndex: 0,
     }),
-    [ctx.isDisabled, ctx.isTabbable, ctx.setTarget],
+    [ctx.isDisabled, ctx.setTarget],
   );
 
   const state: CalendarSetVisibleMonth.State = React.useMemo(
@@ -52,7 +51,6 @@ const CalendarSetVisibleMonth = React.forwardRef(function CalendarSetVisibleMont
   const { visibleDate } = useSharedCalendarRootVisibleDateContext();
   const { monthPageSize, disabled, dateValidationProps, setVisibleDate } =
     useSharedCalendarRootContext();
-  const sharedMonthListOrGridContext = useNullableSharedCalendarMonthCollectionContext();
   const adapter = useTemporalAdapter();
   const { ref: listItemRef } = useCompositeListItem();
   const ref = useForkRef(forwardedRef, listItemRef);
@@ -96,15 +94,16 @@ const CalendarSetVisibleMonth = React.forwardRef(function CalendarSetVisibleMont
     adapter,
   ]);
 
-  const canCellBeTabbed = sharedMonthListOrGridContext?.canCellBeTabbed;
-  const isTabbable = React.useMemo(() => {
-    // If the button is not inside a month list or grid, then it is always tabbable.
-    if (canCellBeTabbed == null) {
-      return true;
-    }
+  // TODO: Uncomment and apply the correct tabIndex if we add month grid/list parts.
+  // const canCellBeTabbed = sharedMonthListOrGridContext?.canCellBeTabbed;
+  // const isTabbable = React.useMemo(() => {
+  //   // If the button is not inside a month list or grid, then it is always tabbable.
+  //   if (canCellBeTabbed == null) {
+  //     return true;
+  //   }
 
-    return canCellBeTabbed(targetDate);
-  }, [canCellBeTabbed, targetDate]);
+  //   return canCellBeTabbed(targetDate);
+  // }, [canCellBeTabbed, targetDate]);
 
   const setTarget = useEventCallback(() => {
     if (isDisabled) {
@@ -119,13 +118,8 @@ const CalendarSetVisibleMonth = React.forwardRef(function CalendarSetVisibleMont
   );
 
   const ctx = React.useMemo<InnerCalendarSetVisibleMonthContext>(
-    () => ({
-      setTarget,
-      isDisabled,
-      isTabbable,
-      direction,
-    }),
-    [setTarget, isDisabled, isTabbable, direction],
+    () => ({ setTarget, isDisabled, direction }),
+    [setTarget, isDisabled, direction],
   );
 
   return <MemoizedInnerCalendarSetVisibleMonth ref={ref} {...props} ctx={ctx} />;
@@ -159,7 +153,6 @@ interface InnerCalendarSetVisibleMonthProps extends CalendarSetVisibleMonth.Prop
 interface InnerCalendarSetVisibleMonthContext {
   setTarget: () => void;
   isDisabled: boolean;
-  isTabbable: boolean;
   direction: 'before' | 'after';
 }
 

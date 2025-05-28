@@ -7,7 +7,6 @@ import { useTemporalAdapter } from '../../temporal-adapter-provider/TemporalAdap
 import { useTemporalControlledValue } from '../../utils/temporal/useTemporalControlledValue';
 import { useSharedCalendarDayGridNavigation } from './useSharedCalendarDayGridsNavigation';
 import { SharedCalendarRootContext } from './SharedCalendarRootContext';
-import { SharedCalendarSection } from '../utils/types';
 import { SharedCalendarRootVisibleDateContext } from './SharedCalendarRootVisibleDateContext';
 import { useTemporalValidation } from '../../utils/temporal/useTemporalValidation';
 import { useEventCallback } from '../../utils/useEventCallback';
@@ -59,18 +58,15 @@ export function useSharedCalendarRoot<
 
   const adapter = useTemporalAdapter();
 
-  const handleValueChangeWithContext = useEventCallback(
-    (newValue: TValue, options: { section: SharedCalendarSection }) => {
-      onValueChange?.(newValue, {
-        section: options.section,
-        validationError: validator({
-          adapter,
-          value: newValue,
-          validationProps: valueValidationProps,
-        }),
-      });
-    },
-  );
+  const handleValueChangeWithContext = useEventCallback((newValue: TValue) => {
+    onValueChange?.(newValue, {
+      validationError: validator({
+        adapter,
+        value: newValue,
+        validationProps: valueValidationProps,
+      }),
+    });
+  });
 
   const { value, setValue, timezone } = useTemporalControlledValue({
     name: '(Range)CalendarRoot',
@@ -106,35 +102,22 @@ export function useSharedCalendarRoot<
   );
   const initialReferenceDate = React.useRef(referenceDate).current;
 
-  const sectionsRef = React.useRef<
-    Record<SharedCalendarSection, Record<number, TemporalSupportedObject>>
-  >({
-    day: [],
-    month: [],
-    year: [],
+  const dayGridsRef = React.useRef<Record<number, TemporalSupportedObject>>({});
+
+  const registerDayGrid = useEventCallback((month: TemporalSupportedObject) => {
+    const id = Math.random();
+    dayGridsRef.current![id] = month;
+
+    return () => {
+      delete dayGridsRef.current[id];
+    };
   });
 
-  const registerSection = useEventCallback(
-    (section: useSharedCalendarRoot.RegisterSectionParameters) => {
-      const id = Math.random();
-
-      sectionsRef.current[section.type]![id] = section.value;
-      return () => {
-        delete sectionsRef.current[section.type][id];
-      };
-    },
-  );
-
   const isDateCellVisible = (date: TemporalSupportedObject) => {
-    const daySections = sectionsRef.current.day ?? [];
-    const monthSections = sectionsRef.current.month ?? [];
+    if (Object.values(dayGridsRef.current).length > 0) {
+      return Object.values(dayGridsRef.current).every((month) => !adapter.isSameMonth(date, month));
+    }
 
-    if (Object.values(daySections).length > 0) {
-      return Object.values(daySections).every((month) => !adapter.isSameMonth(date, month));
-    }
-    if (Object.values(monthSections).length > 0) {
-      return Object.values(monthSections).every((year) => !adapter.isSameYear(date, year));
-    }
     return true;
   };
 
@@ -175,13 +158,12 @@ export function useSharedCalendarRoot<
   );
 
   const selectDate = useEventCallback<SharedCalendarRootContext['selectDate']>(
-    (selectedDate: TemporalSupportedObject, options) => {
+    (selectedDate: TemporalSupportedObject) => {
       onSelectDate({
         setValue,
         prevValue: value,
         selectedDate,
         referenceDate,
-        section: options.section,
       });
     },
   );
@@ -211,7 +193,7 @@ export function useSharedCalendarRoot<
       yearPageSize,
       applyDayGridKeyboardNavigation,
       registerDayGridCell,
-      registerSection,
+      registerDayGrid,
       selectDate,
       dateValidationProps,
     }),
@@ -227,7 +209,7 @@ export function useSharedCalendarRoot<
       yearPageSize,
       applyDayGridKeyboardNavigation,
       registerDayGridCell,
-      registerSection,
+      registerDayGrid,
       dateValidationProps,
       selectDate,
     ],
@@ -338,7 +320,7 @@ export namespace useSharedCalendarRoot {
   export interface ReturnValue<TValue extends TemporalSupportedValue> {
     value: TValue;
     referenceDate: TemporalSupportedObject;
-    setValue: (newValue: TValue, options: { section: SharedCalendarSection }) => void;
+    setValue: (newValue: TValue) => void;
     setVisibleDate: (
       newVisibleDate: TemporalSupportedObject,
       skipIfAlreadyVisible: boolean,
@@ -354,17 +336,12 @@ export namespace useSharedCalendarRoot {
 
   export interface ValueChangeHandlerContext<TError> {
     /**
-     * The section handled by the UI that triggered the change.
-     */
-    section: SharedCalendarSection;
-    /**
      * The validation error associated to the new value.
      */
     validationError: TError;
   }
 
-  export interface RegisterSectionParameters {
-    type: SharedCalendarSection;
+  export interface RegisterDayGridParameters {
     value: TemporalSupportedObject;
   }
 
@@ -395,7 +372,7 @@ export namespace useSharedCalendarRoot {
   }
 
   export interface OnSelectDateParameters<TValue extends TemporalSupportedValue> {
-    setValue: (value: TValue, options: { section: SharedCalendarSection }) => void;
+    setValue: (value: TValue) => void;
     /**
      * The value before the change.
      */
@@ -408,10 +385,6 @@ export namespace useSharedCalendarRoot {
      * The reference date.
      */
     referenceDate: TemporalSupportedObject;
-    /**
-     * The section handled by the UI that triggered the change.
-     */
-    section: SharedCalendarSection;
   }
 }
 

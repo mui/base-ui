@@ -1,7 +1,6 @@
 'use client';
 import * as React from 'react';
 import { useSharedCalendarRootContext } from '../root/SharedCalendarRootContext';
-import { useNullableSharedCalendarYearCollectionContext } from '../utils/SharedCalendarYearCollectionContext';
 import { useSharedCalendarRootVisibleDateContext } from '../root/SharedCalendarRootVisibleDateContext';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { BaseUIComponentProps } from '../../utils/types';
@@ -22,9 +21,9 @@ const InnerCalendarSetVisibleYear = React.forwardRef(function InnerCalendarSetVi
       type: 'button' as const,
       disabled: ctx.isDisabled,
       onClick: ctx.setTarget,
-      tabIndex: ctx.isTabbable ? 0 : -1,
+      tabIndex: 0,
     }),
-    [ctx.isDisabled, ctx.isTabbable, ctx.setTarget],
+    [ctx.isDisabled, ctx.setTarget],
   );
 
   const state: CalendarSetVisibleYear.State = React.useMemo(
@@ -51,7 +50,6 @@ const CalendarSetVisibleYear = React.forwardRef(function CalendarSetVisibleYear(
 ) {
   const { disabled, dateValidationProps, setVisibleDate } = useSharedCalendarRootContext();
   const { visibleDate } = useSharedCalendarRootVisibleDateContext();
-  const sharedYearListOrGridContext = useNullableSharedCalendarYearCollectionContext();
   const adapter = useTemporalAdapter();
   const { ref: listItemRef } = useCompositeListItem();
   const ref = useForkRef(forwardedRef, listItemRef);
@@ -91,15 +89,16 @@ const CalendarSetVisibleYear = React.forwardRef(function CalendarSetVisibleYear(
     adapter,
   ]);
 
-  const canCellBeTabbed = sharedYearListOrGridContext?.canCellBeTabbed;
-  const isTabbable = React.useMemo(() => {
-    // If the button is not inside a year list or grid, then it is always tabbable.
-    if (canCellBeTabbed == null) {
-      return true;
-    }
+  // TODO: Uncomment and apply the correct tabIndex if we add month grid/list parts.
+  // const canCellBeTabbed = sharedYearListOrGridContext?.canCellBeTabbed;
+  // const isTabbable = React.useMemo(() => {
+  //   // If the button is not inside a year list or grid, then it is always tabbable.
+  //   if (canCellBeTabbed == null) {
+  //     return true;
+  //   }
 
-    return canCellBeTabbed(targetDate);
-  }, [canCellBeTabbed, targetDate]);
+  //   return canCellBeTabbed(targetDate);
+  // }, [canCellBeTabbed, targetDate]);
 
   const setTarget = useEventCallback(() => {
     if (isDisabled) {
@@ -114,13 +113,8 @@ const CalendarSetVisibleYear = React.forwardRef(function CalendarSetVisibleYear(
   );
 
   const ctx = React.useMemo<InnerCalendarSetVisibleYearContext>(
-    () => ({
-      setTarget,
-      isDisabled,
-      isTabbable,
-      direction,
-    }),
-    [setTarget, isDisabled, isTabbable, direction],
+    () => ({ setTarget, isDisabled, direction }),
+    [setTarget, isDisabled, direction],
   );
 
   return <MemoizedInnerCalendarSetVisibleYear ref={ref} {...props} ctx={ctx} />;
@@ -154,7 +148,6 @@ interface InnerCalendarSetVisibleYearProps extends CalendarSetVisibleYear.Props 
 interface InnerCalendarSetVisibleYearContext {
   setTarget: () => void;
   isDisabled: boolean;
-  isTabbable: boolean;
   direction: 'before' | 'after';
 }
 
