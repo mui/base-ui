@@ -29,10 +29,10 @@ export const SelectArrow = React.forwardRef(function SelectArrow(
   const { className, render, ...elementProps } = componentProps;
 
   const { store } = useSelectRootContext();
-  const { arrowRef, side, align, arrowUncentered, arrowStyles, alignItemWithTriggerActive } =
-    useSelectPositionerContext();
+  const { arrowRef, side, align, arrowUncentered, arrowStyles } = useSelectPositionerContext();
 
-  const open = useSelector(store, selectors.isOpen);
+  const open = useSelector(store, selectors.open);
+  const alignItemWithTriggerActive = useSelector(store, selectors.alignItemWithTriggerActive);
 
   const state: SelectArrow.State = React.useMemo(
     () => ({

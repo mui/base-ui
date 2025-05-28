@@ -23,6 +23,9 @@ export const SelectItemText = React.memo(
 
     const localRef = React.useCallback(
       (node: HTMLElement | null) => {
+        if (!node) {
+          return;
+        }
         // Wait for the DOM indices to be set.
         queueMicrotask(() => {
           const hasNoSelectedItemText =

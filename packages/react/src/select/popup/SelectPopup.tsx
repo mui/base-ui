@@ -32,12 +32,15 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
 ) {
   const { render, className, ...elementProps } = componentProps;
 
-  const { store, id, popupRef, transitionStatus, onOpenChangeComplete, popupProps } =
-    useSelectRootContext();
+  const { store, popupRef, onOpenChangeComplete } = useSelectRootContext();
   const positioner = useSelectPositionerContext();
 
-  const open = useSelector(store, selectors.isOpen);
-  const mounted = useSelector(store, selectors.isMounted);
+  const id = useSelector(store, selectors.id);
+  const open = useSelector(store, selectors.open);
+  const mounted = useSelector(store, selectors.mounted);
+  const popupProps = useSelector(store, selectors.popupProps);
+  const transitionStatus = useSelector(store, selectors.transitionStatus);
+  const alignItemWithTriggerActive = useSelector(store, selectors.alignItemWithTriggerActive);
 
   useOpenChangeComplete({
     open,
@@ -84,7 +87,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
 
   return (
     <React.Fragment>
-      {id && positioner.alignItemWithTriggerActive && (
+      {id && alignItemWithTriggerActive && (
         <style
           // eslint-disable-next-line react/no-danger
           dangerouslySetInnerHTML={html}

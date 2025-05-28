@@ -8,6 +8,8 @@ import { Side } from '../../utils/useAnchorPositioning';
 import { type TransitionStatus, useTransitionStatus } from '../../utils/useTransitionStatus';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useRenderElement } from '../../utils/useRenderElement';
+import { useSelector } from '../../utils/store';
+import { selectors } from '../store';
 
 /**
  * @internal
@@ -19,14 +21,11 @@ export const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
   const { render, className, direction, keepMounted = false, ...elementProps } = componentProps;
 
   const { store, popupRef, listRef } = useSelectRootContext();
-  const {
-    side,
-    alignItemWithTriggerActive,
-    scrollUpArrowVisible,
-    scrollDownArrowVisible,
-    setScrollUpArrowVisible,
-    setScrollDownArrowVisible,
-  } = useSelectPositionerContext();
+  const { side } = useSelectPositionerContext();
+
+  const scrollUpArrowVisible = useSelector(store, selectors.scrollUpArrowVisible);
+  const scrollDownArrowVisible = useSelector(store, selectors.scrollDownArrowVisible);
+  const alignItemWithTriggerActive = useSelector(store, selectors.alignItemWithTriggerActive);
 
   const visible = direction === 'up' ? scrollUpArrowVisible : scrollDownArrowVisible;
 
@@ -87,9 +86,9 @@ export const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
           popupElement.scrollHeight;
 
         if (direction === 'up') {
-          setScrollUpArrowVisible(!isScrolledToTop);
+          store.set('scrollUpArrowVisible', !isScrolledToTop);
         } else if (direction === 'down') {
-          setScrollDownArrowVisible(!isScrolledToBottom);
+          store.set('scrollDownArrowVisible', !isScrolledToBottom);
         }
 
         if (

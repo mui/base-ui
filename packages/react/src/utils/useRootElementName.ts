@@ -44,9 +44,12 @@ export function useRootElementName(
     }, [rootElementNameProp, rootElementName]);
   }
 
-  const updateRootElementName = React.useCallback((element: HTMLElement | null) => {
-    setRootElementName(element?.tagName ?? rootElementName);
-  }, []);
+  const updateRootElementName = React.useCallback(
+    (element: HTMLElement | null) => {
+      setRootElementName(element?.tagName ?? rootElementName);
+    },
+    [rootElementName],
+  );
 
   return { rootElementName, updateRootElementName };
 }

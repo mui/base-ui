@@ -31,7 +31,7 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
   const { state: fieldState, disabled: fieldDisabled } = useFieldRootContext();
   const { store, disabled: selectDisabled } = useSelectRootContext();
 
-  const open = useSelector(store, selectors.isOpen);
+  const open = useSelector(store, selectors.open);
 
   const disabled = fieldDisabled || selectDisabled || disabledProp;
 

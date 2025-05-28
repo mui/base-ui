@@ -15,8 +15,9 @@ import { selectors } from '../store';
 export function SelectPortal(props: SelectPortal.Props) {
   const { children, container } = props;
 
-  const { store, typeaheadReady } = useSelectRootContext();
-  const mounted = useSelector(store, selectors.isMounted);
+  const { store } = useSelectRootContext();
+  const mounted = useSelector(store, selectors.mounted);
+  const typeaheadReady = useSelector(store, selectors.typeaheadReady);
 
   const shouldRender = mounted || typeaheadReady;
   if (!shouldRender) {

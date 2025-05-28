@@ -27,10 +27,11 @@ export const SelectBackdrop = React.forwardRef(function SelectBackdrop(
 ) {
   const { className, render, ...elementProps } = componentProps;
 
-  const { store, transitionStatus } = useSelectRootContext();
+  const { store } = useSelectRootContext();
 
-  const open = useSelector(store, selectors.isOpen);
-  const mounted = useSelector(store, selectors.isMounted);
+  const open = useSelector(store, selectors.open);
+  const mounted = useSelector(store, selectors.mounted);
+  const transitionStatus = useSelector(store, selectors.transitionStatus);
 
   const state: SelectBackdrop.State = React.useMemo(
     () => ({

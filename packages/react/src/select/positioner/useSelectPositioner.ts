@@ -10,11 +10,13 @@ import { selectors } from '../store';
 export function useSelectPositioner(
   params: useSelectPositioner.Parameters,
 ): useSelectPositioner.ReturnValue {
-  const { alignItemWithTriggerActive } = params;
-  const { store, triggerElement, modal } = useSelectRootContext();
+  const { store } = useSelectRootContext();
 
-  const open = useSelector(store, selectors.isOpen);
-  const mounted = useSelector(store, selectors.isMounted);
+  const open = useSelector(store, selectors.open);
+  const mounted = useSelector(store, selectors.mounted);
+  const modal = useSelector(store, selectors.modal);
+  const triggerElement = useSelector(store, selectors.triggerElement);
+  const alignItemWithTriggerActive = useSelector(store, selectors.alignItemWithTriggerActive);
 
   useScrollLock({
     enabled: (alignItemWithTriggerActive || modal) && open,
@@ -68,9 +70,7 @@ export function useSelectPositioner(
 }
 
 export namespace useSelectPositioner {
-  export interface Parameters extends useAnchorPositioning.Parameters {
-    alignItemWithTriggerActive: boolean;
-  }
+  export interface Parameters extends useAnchorPositioning.Parameters {}
 
   export interface SharedParameters extends useAnchorPositioning.SharedParameters {
     /**
