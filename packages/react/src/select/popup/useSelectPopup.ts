@@ -42,7 +42,7 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
       store.set('scrollUpArrowVisible', !isScrolledToTop);
     }
     if (scrollDownArrowVisible !== !isScrolledToBottom) {
-      store.set('scrollUpArrowVisible', !isScrolledToBottom);
+      store.set('scrollDownArrowVisible', !isScrolledToBottom);
     }
   });
 

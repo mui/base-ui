@@ -23,11 +23,10 @@ export const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
   const { store, popupRef, listRef } = useSelectRootContext();
   const { side } = useSelectPositionerContext();
 
-  const scrollUpArrowVisible = useSelector(store, selectors.scrollUpArrowVisible);
-  const scrollDownArrowVisible = useSelector(store, selectors.scrollDownArrowVisible);
-  const alignItemWithTriggerActive = useSelector(store, selectors.alignItemWithTriggerActive);
+  const selector = direction === 'up' ? selectors.scrollUpArrowVisible : selectors.scrollDownArrowVisible;
 
-  const visible = direction === 'up' ? scrollUpArrowVisible : scrollDownArrowVisible;
+  const visible = useSelector(store, selector);
+  const alignItemWithTriggerActive = useSelector(store, selectors.alignItemWithTriggerActive);
 
   const timeout = useTimeout();
   const scrollArrowRef = React.useRef<HTMLDivElement | null>(null);
@@ -57,7 +56,7 @@ export const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
   const defaultProps: React.ComponentProps<'div'> = {
     hidden: !mounted,
     'aria-hidden': true,
-    children: direction === 'down' ? '▼' : '▲',
+    children: direction === 'up' ? '▲' : '▼',
     style: {
       position: 'absolute',
     },
