@@ -366,7 +366,7 @@ export const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
   });
 
   const listRef = React.useRef<(HTMLElement | null)[]>([]);
-  const itemLabels = React.useRef<(string | null)[]>([]);
+  const labelsRef = React.useRef<(string | null)[]>([]);
 
   const direction = useDirection();
 
@@ -394,7 +394,7 @@ export const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
   }, []);
 
   const typeahead = useTypeahead(floatingRootContext, {
-    listRef: itemLabels,
+    listRef: labelsRef,
     activeIndex,
     resetMs: TYPEAHEAD_RESET_MS,
     onMatch: (index) => {
@@ -454,7 +454,7 @@ export const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
       popupProps,
       triggerProps,
       listRef,
-      itemLabels,
+      labelsRef,
       mounted,
       open,
       popupRef,
@@ -479,7 +479,7 @@ export const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
       popupProps,
       triggerProps,
       listRef,
-      itemLabels,
+      labelsRef,
       mounted,
       open,
       positionerRef,
