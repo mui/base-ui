@@ -1,2 +1,2 @@
-export * from './date';
-export * from './date-adapter';
+export * from './temporal';
+export * from './temporal-adapter';

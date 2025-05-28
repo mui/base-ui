@@ -1,0 +1,411 @@
+import * as React from 'react';
+import { TemporalSupportedObject, TemporalSupportedValue } from '../../models';
+import { validateDate } from '../../utils/temporal/validateDate';
+import { SECTION_TYPE_GRANULARITY } from '../../utils/temporal/getDefaultReferenceDate';
+import { nonRangeTemporalValueManager } from '../../utils/temporal/temporalValueManagers';
+import { useTemporalAdapter } from '../../temporal-adapter-provider/TemporalAdapterContext';
+import { useTemporalControlledValue } from '../../utils/temporal/useTemporalControlledValue';
+import { useSharedCalendarDayGridNavigation } from './useSharedCalendarDayGridsNavigation';
+import { SharedCalendarRootContext } from './SharedCalendarRootContext';
+import { SharedCalendarSection } from '../utils/types';
+import { SharedCalendarRootVisibleDateContext } from './SharedCalendarRootVisibleDateContext';
+import { useTemporalValidation } from '../../utils/temporal/useTemporalValidation';
+import { useEventCallback } from '../../utils/useEventCallback';
+import {
+  TemporalManager,
+  TemporalOnErrorProps,
+  TemporalTimezoneProps,
+} from '../../utils/temporal/types';
+import { useControlled } from '../../utils/useControlled';
+
+export function useSharedCalendarRoot<
+  TValue extends TemporalSupportedValue,
+  TError,
+  TValidationProps extends Required<BaseDateValidationProps>,
+>(
+  parameters: useSharedCalendarRoot.Parameters<TValue, TError, TValidationProps>,
+): useSharedCalendarRoot.ReturnValue<TValue> {
+  const {
+    // Form props
+    readOnly = false,
+    disabled = false,
+    // Focus and navigation props
+    monthPageSize = 1,
+    yearPageSize = 1,
+    // Value props
+    defaultValue,
+    onValueChange,
+    value: valueProp,
+    timezone: timezoneProp,
+    referenceDate: referenceDateProp,
+    // Visible date props
+    onVisibleDateChange,
+    visibleDate: visibleDateProp,
+    defaultVisibleDate,
+    // Validation props
+    onError,
+    dateValidationProps,
+    valueValidationProps,
+    // Manager props
+    manager,
+    calendarValueManager: {
+      getDateToUseForReferenceDate,
+      onSelectDate,
+      getCurrentDateFromValue,
+      getSelectedDatesFromValue,
+    },
+  } = parameters;
+
+  const adapter = useTemporalAdapter();
+
+  const { value, handleValueChange, timezone } = useTemporalControlledValue({
+    name: '(Range)CalendarRoot',
+    timezone: timezoneProp,
+    value: valueProp,
+    defaultValue,
+    referenceDate: referenceDateProp,
+    onChange: onValueChange,
+    manager,
+  });
+
+  const referenceDate = React.useMemo(
+    () => {
+      return nonRangeTemporalValueManager.getInitialReferenceValue({
+        value: getDateToUseForReferenceDate(value),
+        adapter,
+        timezone,
+        props: dateValidationProps,
+        referenceDate: referenceDateProp,
+        granularity: SECTION_TYPE_GRANULARITY.day,
+      });
+    },
+    // We want the `referenceDate` to update on prop and `timezone` change (https://github.com/mui/mui-x/issues/10804)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [referenceDateProp, timezone],
+  );
+  const initialReferenceDate = React.useRef(referenceDate).current;
+
+  const sectionsRef = React.useRef<
+    Record<SharedCalendarSection, Record<number, TemporalSupportedObject>>
+  >({
+    day: [],
+    month: [],
+    year: [],
+  });
+
+  const registerSection = useEventCallback(
+    (section: useSharedCalendarRoot.RegisterSectionParameters) => {
+      const id = Math.random();
+
+      sectionsRef.current[section.type]![id] = section.value;
+      return () => {
+        delete sectionsRef.current[section.type][id];
+      };
+    },
+  );
+
+  const isDateCellVisible = (date: TemporalSupportedObject) => {
+    const daySections = sectionsRef.current.day ?? [];
+    const monthSections = sectionsRef.current.month ?? [];
+
+    if (Object.values(daySections).length > 0) {
+      return Object.values(daySections).every((month) => !adapter.isSameMonth(date, month));
+    }
+    if (Object.values(monthSections).length > 0) {
+      return Object.values(monthSections).every((year) => !adapter.isSameYear(date, year));
+    }
+    return true;
+  };
+
+  const [visibleDate, setVisibleDate] = useControlled({
+    name: '(Range)CalendarRoot',
+    state: 'visibleDate',
+    controlled: visibleDateProp,
+    default: defaultVisibleDate ?? initialReferenceDate,
+  });
+
+  const handleVisibleDateChange = useEventCallback(
+    (newVisibleDate: TemporalSupportedObject, skipIfAlreadyVisible: boolean) => {
+      if (skipIfAlreadyVisible && isDateCellVisible(newVisibleDate)) {
+        return;
+      }
+
+      onVisibleDateChange?.(newVisibleDate);
+      setVisibleDate(newVisibleDate);
+    },
+  );
+
+  const { applyDayGridKeyboardNavigation, registerDayGridCell } =
+    useSharedCalendarDayGridNavigation({
+      visibleDate,
+      setVisibleDate,
+      monthPageSize,
+      dateValidationProps,
+    });
+
+  const isDateInvalid = React.useCallback(
+    (day: TemporalSupportedObject | null) =>
+      validateDate({
+        adapter,
+        value: day,
+        validationProps: dateValidationProps,
+      }) !== null,
+    [adapter, dateValidationProps],
+  );
+
+  const { getValidationErrorForNewValue } = useTemporalValidation({
+    manager,
+    value,
+    onError,
+    validationProps: valueValidationProps,
+  });
+
+  const setValue = useEventCallback(
+    (newValue: TValue, options: { section: SharedCalendarSection }) => {
+      handleValueChange(newValue, {
+        section: options.section,
+        validationError: getValidationErrorForNewValue(newValue),
+      });
+    },
+  );
+
+  const selectDate = useEventCallback<SharedCalendarRootContext['selectDate']>(
+    (selectedDate: TemporalSupportedObject, options) => {
+      onSelectDate({
+        setValue,
+        prevValue: value,
+        selectedDate,
+        referenceDate,
+        section: options.section,
+      });
+    },
+  );
+
+  const currentDate = getCurrentDateFromValue(value) ?? referenceDate;
+
+  const selectedDates = React.useMemo(
+    () => getSelectedDatesFromValue(value),
+    [getSelectedDatesFromValue, value],
+  );
+
+  const visibleDateContext: SharedCalendarRootVisibleDateContext = React.useMemo(
+    () => ({ visibleDate }),
+    [visibleDate],
+  );
+
+  const context: SharedCalendarRootContext = React.useMemo(
+    () => ({
+      timezone,
+      disabled,
+      readOnly,
+      isDateInvalid,
+      currentDate,
+      selectedDates,
+      setVisibleDate: handleVisibleDateChange,
+      monthPageSize,
+      yearPageSize,
+      applyDayGridKeyboardNavigation,
+      registerDayGridCell,
+      registerSection,
+      selectDate,
+      dateValidationProps,
+    }),
+    [
+      timezone,
+      disabled,
+      readOnly,
+      isDateInvalid,
+      currentDate,
+      selectedDates,
+      handleVisibleDateChange,
+      monthPageSize,
+      yearPageSize,
+      applyDayGridKeyboardNavigation,
+      registerDayGridCell,
+      registerSection,
+      dateValidationProps,
+      selectDate,
+    ],
+  );
+
+  return {
+    value,
+    referenceDate,
+    setValue,
+    setVisibleDate,
+    isDateCellVisible,
+    context,
+    visibleDateContext,
+  };
+}
+
+export namespace useSharedCalendarRoot {
+  export interface PublicParameters<TValue extends TemporalSupportedValue, TError>
+    extends TemporalTimezoneProps,
+      TemporalOnErrorProps<TValue, TError> {
+    /**
+     * The controlled value that should be selected.
+     * To render an uncontrolled (Range)Calendar, use the `defaultValue` prop instead.
+     */
+    value?: TValue;
+    /**
+     * The uncontrolled value that should be initially selected.
+     * To render a controlled (Range)Calendar, use the `value` prop instead.
+     */
+    defaultValue?: TValue;
+    /**
+     * Event handler called when the selected value changes.
+     * Provides the new value as an argument.
+     * @param {TValue} value The new selected value.
+     * @param {ValueChangeHandlerContext<TError>} context Additional context information.
+     */
+    onValueChange?: (value: TValue, context: ValueChangeHandlerContext<TError>) => void;
+    /**
+     * Whether the component should ignore user interaction.
+     * @default false
+     */
+    disabled?: boolean;
+    /**
+     * Whether the user should be unable to select a date in the calendar.
+     * @default false
+     */
+    readOnly?: boolean;
+    /**
+     * The date used to decide which month should be displayed in the Days Grid and which year should be displayed in the Months List and Months Grid.
+     * To render an uncontrolled (Range)Calendar, use the `defaultVisibleDate` prop instead.
+     */
+    visibleDate?: TemporalSupportedObject;
+    /**
+     * The date used to decide which month should be initially displayed in the Days Grid and which year should be initially displayed in the Months List and Months Grid.
+     * To render a controlled (Range)Calendar, use the `visibleDate` prop instead.
+     */
+    defaultVisibleDate?: TemporalSupportedObject;
+    /**
+     * Event handler called when the visible date changes.
+     * Provides the new visible date as an argument.
+     * @param {TemporalSupportedObject} visibleDate The new visible date.
+     */
+    onVisibleDateChange?: (visibleDate: TemporalSupportedObject) => void;
+    /**
+     * The date used to generate the new value when both `value` and `defaultValue` are empty.
+     * @default The closest valid date using the validation props, except callbacks such as `shouldDisableDate`.
+     */
+    referenceDate?: TemporalSupportedObject;
+    /**
+     * The amount of months to navigate by when pressing <(Range)Calendar.SetVisibleMonth /> or when using keyboard navigation in the day grid.
+     * This is mostly useful when displaying multiple day grids.
+     * @default 1
+     */
+    monthPageSize?: number;
+    /**
+     * The amount of months to navigate by when pressing <(Range)Calendar.SetVisibleYear /> or when using keyboard navigation in the month grid or the month list.
+     * This is mostly useful when displaying multiple month grids or month lists.
+     * @default 1
+     */
+    yearPageSize?: number;
+  }
+
+  export interface Parameters<
+    TValue extends TemporalSupportedValue,
+    TError,
+    TValidationProps extends Required<BaseDateValidationProps>,
+  > extends PublicParameters<TValue, TError> {
+    /**
+     * The manager of the calendar (uses `useDateManager` for Calendar and `useDateRangeManager` for RangeCalendar).
+     */
+    manager: TemporalManager<TValue, TError, any>;
+    /**
+     * The methods needed to manage the value of the calendar.
+     * It helps sharing the code between the Calendar and the RangeCalendar.
+     */
+    calendarValueManager: ValueManager<TValue>;
+    /**
+     * The props used to validate a single date.
+     */
+    dateValidationProps: validateDate.ValidationProps;
+    /**
+     * The props used to validate the value.
+     */
+    valueValidationProps: TValidationProps;
+  }
+
+  export interface ReturnValue<TValue extends TemporalSupportedValue> {
+    value: TValue;
+    referenceDate: TemporalSupportedObject;
+    setValue: (newValue: TValue, options: { section: SharedCalendarSection }) => void;
+    setVisibleDate: (
+      newVisibleDate: TemporalSupportedObject,
+      skipIfAlreadyVisible: boolean,
+    ) => void;
+    isDateCellVisible: (date: TemporalSupportedObject) => boolean;
+    context: SharedCalendarRootContext;
+    visibleDateContext: SharedCalendarRootVisibleDateContext;
+  }
+
+  export interface ValueChangeHandlerContext<TError> {
+    /**
+     * The section handled by the UI that triggered the change.
+     */
+    section: SharedCalendarSection;
+    /**
+     * The validation error associated to the new value.
+     */
+    validationError: TError;
+  }
+
+  export interface RegisterSectionParameters {
+    type: SharedCalendarSection;
+    value: TemporalSupportedObject;
+  }
+
+  export interface ValueManager<TValue extends TemporalSupportedValue> {
+    /**
+     * TODO: Write description.
+     * @param {TValue} value The value to get the reference date from.
+     * @returns {TemporalSupportedObject | null} The initial visible date.
+     */
+    getDateToUseForReferenceDate: (value: TValue) => TemporalSupportedObject | null;
+    /**
+     * TODO: Write description.
+     * @param {OnSelectDateParameters} parameters The parameters to get the new value from the new selected date.
+     */
+    onSelectDate: (parameters: OnSelectDateParameters<TValue>) => void;
+    /**
+     * TODO: Write description.
+     * @param {TValue} value The current value.
+     * @returns {TemporalSupportedObject | null} The current date.
+     */
+    getCurrentDateFromValue: (value: TValue) => TemporalSupportedObject | null;
+    /**
+     * TODO: Write description.
+     * @param {TValue} value The current value.
+     * @returns {TemporalSupportedObject[]} The selected dates.
+     */
+    getSelectedDatesFromValue: (value: TValue) => TemporalSupportedObject[];
+  }
+
+  export interface OnSelectDateParameters<TValue extends TemporalSupportedValue> {
+    setValue: (value: TValue, options: { section: SharedCalendarSection }) => void;
+    /**
+     * The value before the change.
+     */
+    prevValue: TValue;
+    /**
+     * The date to select.
+     */
+    selectedDate: TemporalSupportedObject;
+    /**
+     * The reference date.
+     */
+    referenceDate: TemporalSupportedObject;
+    /**
+     * The section handled by the UI that triggered the change.
+     */
+    section: SharedCalendarSection;
+  }
+}
+
+interface BaseDateValidationProps {
+  minDate?: TemporalSupportedObject;
+  maxDate?: TemporalSupportedObject;
+}

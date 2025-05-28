@@ -1,24 +1,22 @@
 'use client';
 import * as React from 'react';
-import { DateSupportedShape, DateNonRangeValue } from '../../models';
-import { DateValidationError } from '../../../../models';
-import { BaseCalendarRootContext } from '../../utils/base-calendar/root/BaseCalendarRootContext';
+import { TemporalSupportedObject, TemporalNonRangeValue } from '../../models';
+import { validateDate } from '../../utils/temporal/validateDate';
+import { SharedCalendarRootContext } from './SharedCalendarRootContext';
+import { useSharedCalendarRoot } from './useSharedCalendarRoot';
+import { SharedCalendarRootVisibleDateContext } from './SharedCalendarRootVisibleDateContext';
 import {
-  useSharedCalendarRoot,
-  useAddDefaultsToBaseDateValidationProps,
-} from '../../utils/date-and-time/shared-calendar/root/useSharedCalendarRoot';
-import { BaseCalendarRootVisibleDateContext } from '../../utils/base-calendar/root/BaseCalendarRootVisibleDateContext';
-import { useDateManager } from '../../../../managers';
-import { ExportedValidateDateProps, ValidateDateProps } from '../../../../validation/validateDate';
-import { useDateAdapter } from '../../date-adapter-provider/DateAdapterContext';
+  useApplyDefaultValuesToDateValidationProps,
+  useDateManager,
+} from '../../utils/temporal/useDateManager';
+import { useTemporalAdapter } from '../../temporal-adapter-provider/TemporalAdapterContext';
 import { useRenderElement } from '../../utils/useRenderElement';
-import { BaseUIComponentProps } from '../../utils/types';
+import { BaseUIComponentProps, PartialPick } from '../../utils/types';
 
-const calendarValueManager: useBaseCalendarRoot.ValueManager<DateNonRangeValue> = {
+const calendarValueManager: useSharedCalendarRoot.ValueManager<TemporalNonRangeValue> = {
   getDateToUseForReferenceDate: (value) => value,
   onSelectDate: ({ setValue, selectedDate, section }) =>
     setValue(selectedDate, {
-      changeImportance: 'accept',
       section,
     }),
   getCurrentDateFromValue: (value) => value,
@@ -55,33 +53,25 @@ export const CalendarRoot = React.forwardRef(function CalendarRoot(
     onError,
     minDate,
     maxDate,
-    disablePast,
-    disableFuture,
     shouldDisableDate,
-    shouldDisableMonth,
-    shouldDisableYear,
     // Props forwarded to the DOM element
     ...elementProps
   } = componentProps;
 
-  const adapter = useDateAdapter();
+  const adapter = useTemporalAdapter();
   const manager = useDateManager();
 
-  const baseDateValidationProps = useAddDefaultsToBaseDateValidationProps({
+  const baseDateValidationProps = useApplyDefaultValuesToDateValidationProps({
     minDate,
     maxDate,
-    disablePast,
-    disableFuture,
   });
 
-  const validationProps = React.useMemo<ValidateDateProps>(
+  const validationProps = React.useMemo<validateDate.ValidationProps>(
     () => ({
       ...baseDateValidationProps,
       shouldDisableDate,
-      shouldDisableMonth,
-      shouldDisableYear,
     }),
-    [baseDateValidationProps, shouldDisableDate, shouldDisableMonth, shouldDisableYear],
+    [baseDateValidationProps, shouldDisableDate],
   );
 
   const {
@@ -110,7 +100,7 @@ export const CalendarRoot = React.forwardRef(function CalendarRoot(
     calendarValueManager,
   });
 
-  const [prevValue, setPrevValue] = React.useState<DateNonRangeValue>(value);
+  const [prevValue, setPrevValue] = React.useState<TemporalNonRangeValue>(value);
   if (value !== prevValue) {
     setPrevValue(value);
     if (adapter.isValid(value) && isDateCellVisible(value)) {
@@ -138,11 +128,11 @@ export const CalendarRoot = React.forwardRef(function CalendarRoot(
   });
 
   return (
-    <BaseCalendarRootVisibleDateContext.Provider value={visibleDateContext}>
-      <BaseCalendarRootContext.Provider value={baseContext}>
+    <SharedCalendarRootVisibleDateContext.Provider value={visibleDateContext}>
+      <SharedCalendarRootContext.Provider value={baseContext}>
         {element}
-      </BaseCalendarRootContext.Provider>
-    </BaseCalendarRootVisibleDateContext.Provider>
+      </SharedCalendarRootContext.Provider>
+    </SharedCalendarRootVisibleDateContext.Provider>
   );
 });
 
@@ -154,8 +144,8 @@ export namespace CalendarRoot {
         BaseUIComponentProps<'div', State>,
         'value' | 'defaultValue' | 'onError' | 'children'
       >,
-      useBaseCalendarRoot.PublicParameters<DateNonRangeValue, DateValidationError>,
-      ExportedValidateDateProps {
+      useSharedCalendarRoot.PublicParameters<TemporalNonRangeValue, validateDate.Error>,
+      PartialPick<validateDate.ValidationProps, 'minDate' | 'maxDate'> {
     /**
      * The children of the component.
      * If a function is provided, it will be called with the public context as its parameter.
@@ -164,9 +154,9 @@ export namespace CalendarRoot {
   }
 
   export interface ChildrenParameters {
-    visibleDate: DateSupportedShape;
+    visibleDate: TemporalSupportedObject;
   }
 
   export interface ValueChangeHandlerContext
-    extends useBaseCalendarRoot.ValueChangeHandlerContext<DateValidationError> {}
+    extends useSharedCalendarRoot.ValueChangeHandlerContext<validateDate.Error> {}
 }

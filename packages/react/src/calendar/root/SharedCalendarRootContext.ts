@@ -1,0 +1,96 @@
+import * as React from 'react';
+import { TemporalSupportedObject } from '../../models';
+import type { useSharedCalendarRoot } from './useSharedCalendarRoot';
+import { SharedCalendarSection } from '../utils/types';
+import { useSharedCalendarDayGridNavigation } from './useSharedCalendarDayGridsNavigation';
+import { validateDate } from '../../utils/temporal/validateDate';
+
+export interface SharedCalendarRootContext {
+  /**
+   * Whether the calendar is disabled.
+   */
+  disabled: boolean;
+  /**
+   * Whether the calendar is read-only.
+   */
+  readOnly: boolean;
+  /**
+   * The current date.
+   * It is used to determine:
+   * - if the rendered cells should be disabled or not
+   * - which date to apply when clicking on a cell
+   */
+  currentDate: TemporalSupportedObject;
+  /**
+   * The list of currently selected dates.
+   * When used inside the Calendar component, it contains the current value if not null.
+   * When used inside the RangeCalendar component, it contains the selected start and/or end dates if not null.
+   */
+  selectedDates: TemporalSupportedObject[];
+  /**
+   * Select a date.
+   * @param {TemporalSupportedObject} date The date to select.
+   * @param {object} options The options to select the date.
+   * @param {SharedCalendarSection} options.section The section handled by the UI that triggered the change.
+   */
+  selectDate: (date: TemporalSupportedObject, options: { section: SharedCalendarSection }) => void;
+  /**
+   * Determine if the given date is invalid.
+   * @param {TemporalSupportedObject} date The date to check.
+   * @returns {boolean} Whether the date is invalid.
+   */
+  isDateInvalid: (date: TemporalSupportedObject) => boolean;
+  /**
+   * The props to check if a date is valid or not.
+   * Warning: Even when used inside the RangeCalendar component, this is still equal to the validation props for a single date.
+   */
+  dateValidationProps: validateDate.ValidationProps;
+  /**
+   * Set the visible data.
+   * @param {TemporalSupportedObject} visibleDate The new visible data.
+   * @param {boolean} skipIfAlreadyVisible Whether to skip the update if the date is already inside one of the visible grids / lists.
+   */
+  setVisibleDate: (visibleDate: TemporalSupportedObject, skipIfAlreadyVisible: boolean) => void;
+  /**
+   * The number of months to switch by when using clicking on SetVisibleMonth primitive with target="previous" or target="next".
+   */
+  monthPageSize: number;
+  /**
+   * The number of years to switch by when using clicking on SetVisibleYear primitive with target="previous" or target="next".
+   */
+  yearPageSize: number;
+  /**
+   * Callback forwarded to the `onKeyDown` prop of the day grid body.
+   * @param {React.KeyboardEvent} event The keyboard event.
+   */
+  applyDayGridKeyboardNavigation: (event: React.KeyboardEvent) => void;
+  /**
+   * Register a day cell ref to be able to apply keyboard navigation.
+   * @param {useSharedCalendarDayGridNavigation.CellRefs} refs The grid, row and cell refs of the day cell.
+   * @returns {() => void} A cleanup function to unregister the cell.
+   */
+  registerDayGridCell: (refs: useSharedCalendarDayGridNavigation.CellRefs) => () => void;
+  /**
+   * Register a section.
+   * @param {useSharedCalendarRoot.RegisterSectionParameters} parameters The type and value of the section.
+   * @returns {() => void} A cleanup function to unregister the section.
+   */
+  registerSection: (parameters: useSharedCalendarRoot.RegisterSectionParameters) => () => void;
+}
+
+export const SharedCalendarRootContext = React.createContext<SharedCalendarRootContext | undefined>(
+  undefined,
+);
+
+export function useSharedCalendarRootContext() {
+  const context = React.useContext(SharedCalendarRootContext);
+  if (context === undefined) {
+    throw new Error(
+      [
+        'Base UI: SharedCalendarRootContext is missing.',
+        'Calendar parts must be placed within <Calendar.Root /> and Range Calendar parts must be placed within <RangeCalendar.Root />.',
+      ].join('\n'),
+    );
+  }
+  return context;
+}
