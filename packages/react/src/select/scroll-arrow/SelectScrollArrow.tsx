@@ -23,7 +23,8 @@ export const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
   const { store, popupRef, listRef } = useSelectRootContext();
   const { side } = useSelectPositionerContext();
 
-  const selector = direction === 'up' ? selectors.scrollUpArrowVisible : selectors.scrollDownArrowVisible;
+  const selector =
+    direction === 'up' ? selectors.scrollUpArrowVisible : selectors.scrollDownArrowVisible;
 
   const visible = useSelector(store, selector);
   const alignItemWithTriggerActive = useSelector(store, selectors.alignItemWithTriggerActive);

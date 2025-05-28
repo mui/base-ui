@@ -97,7 +97,7 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
         store.set('scrollDownArrowVisible', false);
       }
     }
-  }, [store, mounted, alignItemWithTrigger])
+  }, [store, mounted, alignItemWithTrigger]);
 
   const positioner = useSelectPositioner({
     anchor,
