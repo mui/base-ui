@@ -73,7 +73,7 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
     [open, positioner.side, positioner.align, instantType, transitionStatus],
   );
 
-  const renderElement = useRenderElement('div', componentProps, {
+  const element = useRenderElement('div', componentProps, {
     state,
     ref: [forwardedRef, popupRef],
     props: [
@@ -91,11 +91,11 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
     <FloatingFocusManager
       context={positioner.context}
       modal={modal === 'trap-focus'}
-      disabled={!mounted || openReason === 'hover'}
+      disabled={!mounted || openReason === 'trigger-hover'}
       initialFocus={resolvedInitialFocus}
       returnFocus={finalFocus}
     >
-      {renderElement()}
+      {element}
     </FloatingFocusManager>
   );
 });

@@ -7,8 +7,12 @@
       "default": "true",
       "description": "Whether the positioner overlaps the trigger so the selected item's text is aligned with the trigger's value text. This only applies to mouse input and is automatically disabled if there is not enough space."
     },
+    "collisionAvoidance": {
+      "type": "CollisionAvoidance",
+      "description": "Determines how to handle collisions when positioning the popup."
+    },
     "align": {
-      "type": "'center' | 'end' | 'start'",
+      "type": "'center' | 'start' | 'end'",
       "default": "'center'",
       "description": "How to align the popup relative to the specified side."
     },

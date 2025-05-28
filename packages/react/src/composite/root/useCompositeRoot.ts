@@ -71,16 +71,6 @@ export interface UseCompositeRootParameters {
   modifierKeys?: ModifierKey[];
 }
 
-function getDisallowedModifierKeys(modifierKeys: ModifierKey[]) {
-  if (modifierKeys.length === 1) {
-    const keys = MODIFIER_KEYS.slice();
-    keys.splice(keys.indexOf(modifierKeys[0]), 1);
-    return keys;
-  }
-  const set = new Set(modifierKeys);
-  return MODIFIER_KEYS.filter((key) => !set.has(key));
-}
-
 const EMPTY_ARRAY: never[] = [];
 
 export function useCompositeRoot(params: UseCompositeRootParameters) {
@@ -156,21 +146,11 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
       },
       onKeyDown(event) {
         const RELEVANT_KEYS = enableHomeAndEndKeys ? ALL_KEYS : ARROW_KEYS;
-        if (!RELEVANT_KEYS.includes(event.key)) {
+        if (!RELEVANT_KEYS.has(event.key)) {
           return;
         }
 
-        if (
-          modifierKeys.length === 0 &&
-          (event.shiftKey || event.ctrlKey || event.altKey || event.metaKey)
-        ) {
-          return;
-        }
-
-        if (
-          modifierKeys.length > 0 &&
-          getDisallowedModifierKeys(modifierKeys).some((key) => event.getModifierState(key))
-        ) {
+        if (isModifierKeySet(event, modifierKeys)) {
           return;
         }
 
@@ -317,7 +297,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
 
         if (
           nextIndex === highlightedIndex &&
-          [...forwardKeys, ...backwardKeys].includes(event.key)
+          (forwardKeys.includes(event.key) || backwardKeys.includes(event.key))
         ) {
           if (loop && nextIndex === maxIndex && forwardKeys.includes(event.key)) {
             nextIndex = minIndex;
@@ -337,7 +317,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
             event.stopPropagation();
           }
 
-          if (preventedKeys.includes(event.key)) {
+          if (preventedKeys.has(event.key)) {
             event.preventDefault();
           }
           onHighlightedIndexChange(nextIndex);
@@ -378,4 +358,16 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
     }),
     [props, highlightedIndex, onHighlightedIndexChange, elementsRef, disabledIndices, onMapChange],
   );
+}
+
+function isModifierKeySet(event: React.KeyboardEvent<any>, ignoredModifierKeys: ModifierKey[]) {
+  for (const key of MODIFIER_KEYS.values()) {
+    if (ignoredModifierKeys.includes(key as any)) {
+      continue;
+    }
+    if (event.getModifierState(key as any)) {
+      return true;
+    }
+  }
+  return false;
 }

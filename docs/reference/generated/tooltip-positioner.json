@@ -2,8 +2,12 @@
   "name": "TooltipPositioner",
   "description": "Positions the tooltip against the trigger.\nRenders a `<div>` element.",
   "props": {
+    "collisionAvoidance": {
+      "type": "CollisionAvoidance",
+      "description": "Determines how to handle collisions when positioning the popup."
+    },
     "align": {
-      "type": "'center' | 'end' | 'start'",
+      "type": "'center' | 'start' | 'end'",
       "default": "'center'",
       "description": "How to align the popup relative to the specified side."
     },

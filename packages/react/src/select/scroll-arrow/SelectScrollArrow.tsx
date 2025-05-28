@@ -19,15 +19,15 @@ export const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
 ) {
   const { render, className, direction, keepMounted = false, ...elementProps } = componentProps;
 
+  const { popupRef, listRef } = useSelectRootContext();
   const {
-    popupRef,
+    side,
+    alignItemWithTriggerActive,
     scrollUpArrowVisible,
     scrollDownArrowVisible,
     setScrollUpArrowVisible,
     setScrollDownArrowVisible,
-    listRef,
-  } = useSelectRootContext();
-  const { side, alignItemWithTriggerActive } = useSelectPositionerContext();
+  } = useSelectPositionerContext();
   const { setActiveIndex } = useSelectIndexContext();
 
   const visible = direction === 'up' ? scrollUpArrowVisible : scrollDownArrowVisible;
@@ -166,7 +166,7 @@ export const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
     },
   };
 
-  const renderElement = useRenderElement('div', componentProps, {
+  const element = useRenderElement('div', componentProps, {
     ref: [forwardedRef, scrollArrowRef],
     state,
     props: [defaultProps, elementProps],
@@ -177,7 +177,7 @@ export const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
     return null;
   }
 
-  return renderElement();
+  return element;
 });
 
 export namespace SelectScrollArrow {

@@ -20,12 +20,14 @@ import type { SelectRootContext } from './SelectRootContext';
 import type { SelectIndexContext } from './SelectIndexContext';
 import {
   translateOpenChangeReason,
-  type OpenChangeReason,
+  type BaseOpenChangeReason,
 } from '../../utils/translateOpenChangeReason';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useFormContext } from '../../form/FormContext';
 import { useLatestRef } from '../../utils/useLatestRef';
 import { useField } from '../../field/useField';
+
+export type SelectOpenChangeReason = BaseOpenChangeReason | 'window-resize';
 
 export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelectRoot.ReturnValue {
   const {
@@ -76,9 +78,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     state: 'open',
   });
 
-  useModernLayoutEffect(() => {
-    setFilled(value !== null);
-  }, [setFilled, value]);
+  const isValueControlled = params.value !== undefined;
 
   const listRef = React.useRef<Array<HTMLElement | null>>([]);
   const labelsRef = React.useRef<Array<string | null>>([]);
@@ -96,18 +96,25 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
   const alignItemWithTriggerActiveRef = React.useRef(false);
 
   const [triggerElement, setTriggerElement] = React.useState<HTMLElement | null>(null);
+  const [typeaheadReady, setTypeaheadReady] = React.useState(open);
   const [positionerElement, setPositionerElement] = React.useState<HTMLElement | null>(null);
   const [activeIndex, setActiveIndex] = React.useState<number | null>(null);
   const [selectedIndex, setSelectedIndex] = React.useState<number | null>(null);
   const [label, setLabel] = React.useState('');
   const [touchModality, setTouchModality] = React.useState(false);
-  const [scrollUpArrowVisible, setScrollUpArrowVisible] = React.useState(false);
-  const [scrollDownArrowVisible, setScrollDownArrowVisible] = React.useState(false);
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
 
   const controlRef = useLatestRef(triggerElement);
   const commitValidation = fieldControlValidation.commitValidation;
+
+  const updateValue = useEventCallback((nextValue: any) => {
+    const index = valuesRef.current.indexOf(nextValue);
+    setSelectedIndex(index === -1 ? null : index);
+    setLabel(labelsRef.current[index] ?? '');
+    clearErrors(name);
+    setDirty(nextValue !== validityData.initialValue);
+  });
 
   useField({
     id,
@@ -131,11 +138,18 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
   }, [value, commitValidation, clearErrors, name, validationMode]);
 
   useModernLayoutEffect(() => {
+    setFilled(value !== null);
+    if (prevValueRef.current !== value) {
+      updateValue(value);
+    }
+  }, [setFilled, updateValue, value]);
+
+  useModernLayoutEffect(() => {
     prevValueRef.current = value;
   }, [value]);
 
   const setOpen = useEventCallback(
-    (nextOpen: boolean, event: Event | undefined, reason: OpenChangeReason | undefined) => {
+    (nextOpen: boolean, event: Event | undefined, reason: SelectOpenChangeReason | undefined) => {
       params.onOpenChange?.(nextOpen, event, reason);
       setOpenUnwrapped(nextOpen);
 
@@ -177,12 +191,9 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     params.onValueChange?.(nextValue, event);
     setValueUnwrapped(nextValue);
 
-    setDirty(nextValue !== validityData.initialValue);
-    clearErrors(name);
-
-    const index = valuesRef.current.indexOf(nextValue);
-    setSelectedIndex(index);
-    setLabel(labelsRef.current[index] ?? '');
+    if (!isValueControlled) {
+      updateValue(nextValue);
+    }
   });
 
   const hasRegisteredRef = React.useRef(false);
@@ -192,15 +203,21 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
       hasRegisteredRef.current = true;
     }
 
-    const stringValue = typeof value === 'string' || value === null ? value : JSON.stringify(value);
-    const index = suppliedIndex ?? valuesRef.current.indexOf(stringValue);
+    const index = suppliedIndex ?? valuesRef.current.indexOf(value);
     const hasIndex = index !== -1;
 
     if (hasIndex || value === null) {
       setSelectedIndex(hasIndex ? index : null);
       setLabel(hasIndex ? (labelsRef.current[index] ?? '') : '');
-    } else if (value) {
-      warn(`The value \`${stringValue}\` is not present in the select items.`);
+      return;
+    }
+
+    if (process.env.NODE_ENV !== 'production') {
+      if (value) {
+        const stringValue =
+          typeof value === 'string' || value === null ? value : JSON.stringify(value);
+        warn(`The value \`${stringValue}\` is not present in the select items.`);
+      }
     }
   });
 
@@ -297,10 +314,8 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
       setTriggerElement,
       positionerElement,
       setPositionerElement,
-      scrollUpArrowVisible,
-      setScrollUpArrowVisible,
-      scrollDownArrowVisible,
-      setScrollDownArrowVisible,
+      typeaheadReady,
+      setTypeaheadReady,
       value,
       setValue,
       open,
@@ -339,8 +354,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
       readOnly,
       triggerElement,
       positionerElement,
-      scrollUpArrowVisible,
-      scrollDownArrowVisible,
+      typeaheadReady,
       value,
       setValue,
       open,
@@ -358,7 +372,6 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
       modal,
       registerSelectedItem,
       onOpenChangeComplete,
-      keyboardActiveRef,
     ],
   );
 
@@ -430,11 +443,12 @@ export namespace useSelectRoot {
     defaultOpen?: boolean;
     /**
      * Event handler called when the select menu is opened or closed.
+     * @type (open: boolean, event?: Event, reason?: Select.Root.OpenChangeReason) => void
      */
     onOpenChange?: (
       open: boolean,
       event: Event | undefined,
-      reason: OpenChangeReason | undefined,
+      reason: SelectOpenChangeReason | undefined,
     ) => void;
     /**
      * Event handler called after any animations complete when the select menu is opened or closed.

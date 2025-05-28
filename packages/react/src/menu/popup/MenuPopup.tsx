@@ -1,8 +1,8 @@
 'use client';
 import * as React from 'react';
 import { FloatingFocusManager, useFloatingTree } from '@floating-ui/react';
-import { useMenuPopup } from './useMenuPopup';
 import { useMenuRootContext } from '../root/MenuRootContext';
+import type { MenuRoot } from '../root/MenuRoot';
 import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useForkRef } from '../../utils/useForkRef';
@@ -33,7 +33,7 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
   props: MenuPopup.Props,
   forwardedRef: React.ForwardedRef<Element>,
 ) {
-  const { render, className, ...other } = props;
+  const { render, className, finalFocus, ...other } = props;
 
   const {
     open,
@@ -61,10 +61,20 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
 
   const { events: menuEvents } = useFloatingTree()!;
 
-  useMenuPopup({
-    setOpen,
-    menuEvents,
-  });
+  React.useEffect(() => {
+    function handleClose(event: {
+      domEvent: Event | undefined;
+      reason: MenuRoot.OpenChangeReason | undefined;
+    }) {
+      setOpen(false, event.domEvent, event.reason);
+    }
+
+    menuEvents.on('close', handleClose);
+
+    return () => {
+      menuEvents.off('close', handleClose);
+    };
+  }, [menuEvents, setOpen]);
 
   const mergedRef = useForkRef(forwardedRef, popupRef);
 
@@ -93,16 +103,19 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
     ref: mergedRef,
   });
 
+  let returnFocus = parent.type === undefined || parent.type === 'context-menu';
+  if (parent.type === 'menubar' && lastOpenChangeReason !== 'outside-press') {
+    returnFocus = true;
+  }
+
   return (
     <FloatingFocusManager
       context={floatingContext}
       modal={false}
       disabled={!mounted}
-      returnFocus={
-        parent.type === undefined ||
-        (parent.type === 'menubar' && lastOpenChangeReason !== 'outside-press')
-      }
+      returnFocus={finalFocus || returnFocus}
       initialFocus={parent.type === 'menu' ? -1 : 0}
+      restoreFocus
     >
       {renderElement()}
     </FloatingFocusManager>
@@ -116,6 +129,11 @@ export namespace MenuPopup {
      * @ignore
      */
     id?: string;
+    /**
+     * Determines the element to focus when the menu is closed.
+     * By default, focus returns to the trigger.
+     */
+    finalFocus?: React.RefObject<HTMLElement | null>;
   }
 
   export type State = {

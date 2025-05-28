@@ -48,14 +48,14 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
     [fieldState, open, disabled],
   );
 
-  const renderElement = useRenderElement('div', componentProps, {
+  const element = useRenderElement('div', componentProps, {
     ref: [forwardedRef, triggerRef],
     state,
     customStyleHookMapping,
     props,
   });
 
-  return renderElement();
+  return element;
 });
 
 export namespace SelectTrigger {
