@@ -27,11 +27,7 @@ export default defineConfig(async () => {
       exportKey === '.'
         ? '@base-ui-components/react'
         : `@base-ui-components/react${exportKey.slice(1)}`;
-    return {
-      id: entrypoint,
-      import: entrypoint,
-      externals,
-    };
+    return entrypoint;
   });
 
   return {
