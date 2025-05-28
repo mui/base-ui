@@ -6,8 +6,6 @@ export const PATIENT_CLICK_THRESHOLD = 500;
  * use `var(--available-height)` to limit their height.
  */
 export const DROPDOWN_COLLISION_AVOIDANCE = {
-  side: 'flip',
-  align: 'flip',
   fallbackAxisSide: 'none',
 } as const;
 
@@ -16,7 +14,5 @@ export const DROPDOWN_COLLISION_AVOIDANCE = {
  * freely flip to any axis of placement.
  */
 export const POPUP_COLLISION_AVOIDANCE = {
-  side: 'flip',
-  align: 'flip',
   fallbackAxisSide: 'end',
 } as const;
