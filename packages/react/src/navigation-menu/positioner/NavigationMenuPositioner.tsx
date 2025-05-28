@@ -11,7 +11,12 @@ import {
   useNavigationMenuTreeContext,
 } from '../root/NavigationMenuRootContext';
 import { useNavigationMenuPortalContext } from '../portal/NavigationMenuPortalContext';
-import { useAnchorPositioning, type Align, type Side } from '../../utils/useAnchorPositioning';
+import {
+  CollisionAvoidance,
+  useAnchorPositioning,
+  type Align,
+  type Side,
+} from '../../utils/useAnchorPositioning';
 import { NavigationMenuPositionerContext } from './NavigationMenuPositionerContext';
 import { ownerDocument } from '../../utils/owner';
 import { useAnimationsFinished } from '../../utils/useAnimationsFinished';
@@ -77,6 +82,12 @@ const adaptiveOrigin: Middleware = {
   },
 };
 
+const defaultNavigationMenuCollisionAvoidance: CollisionAvoidance = {
+  side: DEFAULT_COLLISION_AVOIDANCE.side,
+  align: DEFAULT_COLLISION_AVOIDANCE.align,
+  fallbackAxisSide: 'none',
+};
+
 /**
  * Positions the navigation menu against the currently active trigger.
  * Renders a `<div>` element.
@@ -98,7 +109,7 @@ export const NavigationMenuPositioner = React.forwardRef(function NavigationMenu
     alignOffset = 0,
     collisionBoundary = 'clipping-ancestors',
     collisionPadding = 5,
-    collisionAvoidance = DEFAULT_COLLISION_AVOIDANCE,
+    collisionAvoidance = defaultNavigationMenuCollisionAvoidance,
     arrowPadding = 5,
     sticky = false,
     trackAnchor = true,
