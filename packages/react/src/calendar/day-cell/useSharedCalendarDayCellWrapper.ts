@@ -1,8 +1,8 @@
 import * as React from 'react';
-import { useSharedCalendarRootContext } from '../../utils/temporal/shared-calendar/root/SharedCalendarRootContext';
+import { useSharedCalendarRootContext } from '../root/SharedCalendarRootContext';
 import type { useSharedCalendarDayCell } from './useSharedCalendarDayCell';
 import { useCalendarDayGridRowContext } from '../day-grid-row/CalendarDayGridRowContext';
-import { useSharedCalendarDayGridBodyContext } from '../../utils/temporal/shared-calendar/day-grid-body/SharedCalendarDayGridBodyContext';
+import { useSharedCalendarDayGridBodyContext } from '../day-grid-body/SharedCalendarDayGridBodyContext';
 import { mergeDateAndTime } from '../../utils/temporal/date-helpers';
 import { useTemporalAdapter } from '../../temporal-adapter-provider/TemporalAdapterContext';
 import { useForkRef } from '../../utils/useForkRef';
