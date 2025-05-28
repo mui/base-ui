@@ -137,19 +137,21 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
   React.useEffect(() => {
     if (isActiveItemRef.current && open && popupElement) {
       handleValueChange(0, 0);
+    }
+  }, [isActiveItemRef, open, popupElement, handleValueChange]);
 
-      if (allowFocusRef.current) {
-        allowFocusRef.current = false;
-        focusFrame.request(() => {
-          beforeOutsideRef.current?.focus();
-        });
-      }
+  React.useEffect(() => {
+    if (isActiveItem && open && popupElement && allowFocusRef.current) {
+      allowFocusRef.current = false;
+      focusFrame.request(() => {
+        beforeOutsideRef.current?.focus();
+      });
     }
 
     return () => {
       focusFrame.cancel();
     };
-  }, [beforeOutsideRef, focusFrame, handleValueChange, isActiveItemRef, open, popupElement]);
+  }, [beforeOutsideRef, focusFrame, handleValueChange, isActiveItem, open, popupElement]);
 
   function handleOpenChange(
     nextOpen: boolean,
@@ -340,6 +342,8 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
             )
           ) {
             setValue(null, event.nativeEvent, 'focus-out');
+            setActivationDirection(null);
+            setFloatingRootContext(undefined);
           }
         },
       },
