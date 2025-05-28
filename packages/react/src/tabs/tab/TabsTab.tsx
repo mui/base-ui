@@ -107,7 +107,7 @@ export const TabsTab = React.forwardRef(function Tab(
     [disabled, highlighted, selected, orientation],
   );
 
-  const renderElement = useRenderElement('button', componentProps, {
+  const element = useRenderElement('button', componentProps, {
     state,
     ref: [forwardedRef, buttonRef, compositeItemRef],
     props: [
@@ -169,7 +169,7 @@ export const TabsTab = React.forwardRef(function Tab(
     ],
   });
 
-  return renderElement();
+  return element;
 });
 
 export namespace TabsTab {

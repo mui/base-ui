@@ -71,7 +71,7 @@ export const TabsPanel = React.forwardRef(function TabPanel(
     [hidden, orientation, tabActivationDirection],
   );
 
-  const renderElement = useRenderElement('div', componentProps, {
+  const element = useRenderElement('div', componentProps, {
     state,
     ref: [forwardedRef, listItemRef],
     props: [
@@ -89,7 +89,7 @@ export const TabsPanel = React.forwardRef(function TabPanel(
     customStyleHookMapping: tabsStyleHookMapping,
   });
 
-  return renderElement();
+  return element;
 });
 
 export namespace TabsPanel {

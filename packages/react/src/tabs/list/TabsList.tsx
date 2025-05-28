@@ -67,7 +67,7 @@ export const TabsList = React.forwardRef(function TabsList(
     [orientation, tabActivationDirection],
   );
 
-  const renderElement = useRenderElement('div', componentProps, {
+  const element = useRenderElement('div', componentProps, {
     state,
     ref: [forwardedRef, tabsListRef],
     props: [
@@ -109,7 +109,7 @@ export const TabsList = React.forwardRef(function TabsList(
         orientation={orientation}
         onHighlightedIndexChange={setHighlightedTabIndex}
         onMapChange={setTabMap}
-        render={renderElement()}
+        render={element}
         disabledIndices={EMPTY_ARRAY}
       />
     </TabsListContext.Provider>

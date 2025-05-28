@@ -163,7 +163,7 @@ export const TabsIndicator = React.forwardRef(function TabIndicator(
     [orientation, selectedTabPosition, selectedTabSize, tabActivationDirection],
   );
 
-  const renderElement = useRenderElement('span', componentProps, {
+  const element = useRenderElement('span', componentProps, {
     state,
     ref: forwardedRef,
     props: [
@@ -189,7 +189,7 @@ export const TabsIndicator = React.forwardRef(function TabIndicator(
 
   return (
     <React.Fragment>
-      {renderElement()}
+      {element}
       {!isMounted && renderBeforeHydration && (
         <script
           // eslint-disable-next-line react/no-danger

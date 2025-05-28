@@ -169,7 +169,7 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
     tabActivationDirection,
   };
 
-  const renderElement = useRenderElement('div', componentProps, {
+  const element = useRenderElement('div', componentProps, {
     state,
     ref: forwardedRef,
     props: elementProps,
@@ -179,7 +179,7 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
   return (
     <TabsRootContext.Provider value={tabsContextValue}>
       <CompositeList<TabPanelMetadata> elementsRef={tabPanelRefs} onMapChange={setTabPanelMap}>
-        {renderElement()}
+        {element}
       </CompositeList>
     </TabsRootContext.Provider>
   );
