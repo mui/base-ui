@@ -255,13 +255,6 @@ describe('<CheckboxGroup />', () => {
       expect(button1).to.have.attribute('aria-invalid', 'true');
       expect(button2).to.have.attribute('aria-invalid', 'true');
       expect(button3).to.have.attribute('aria-invalid', 'true');
-
-      // expect(validateSpy.callCount).to.equal(4);
-      // expect(validateSpy.args[3][0]).to.deep.equal([
-      //   'gala-apple',
-      //   'fuji-apple',
-      //   'granny-smith-apple',
-      // ]);
     });
 
     it('prop: validationMode=onBlur', async () => {
