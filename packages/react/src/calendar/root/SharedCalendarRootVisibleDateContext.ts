@@ -4,9 +4,6 @@ import { TemporalSupportedObject } from '../../models';
 export interface SharedCalendarRootVisibleDateContext {
   /**
    * The date currently visible.
-   * It is used to determine:
-   * - which month to render in Calendar.DayGrid and RangeCalendar.DayGrid
-   * - which year to render in Calendar.YearGrid, Calendar.YearList, RangeCalendar.YearGrid, and RangeCalendar.YearList
    */
   visibleDate: TemporalSupportedObject;
 }

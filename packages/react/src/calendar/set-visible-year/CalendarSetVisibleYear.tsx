@@ -54,16 +54,23 @@ const CalendarSetVisibleYear = React.forwardRef(function CalendarSetVisibleYear(
   const { ref: listItemRef } = useCompositeListItem();
   const ref = useForkRef(forwardedRef, listItemRef);
 
-  const targetDate = React.useMemo(() => {
+  const { targetDate, direction } = React.useMemo<{
+    targetDate: TemporalSupportedObject;
+    direction: 'before' | 'after';
+  }>(() => {
     if (props.target === 'previous') {
-      return adapter.addYears(visibleDate, -1);
+      return { targetDate: adapter.addYears(visibleDate, -1), direction: 'before' };
     }
 
     if (props.target === 'next') {
-      return adapter.addYears(visibleDate, 1);
+      return { targetDate: adapter.addYears(visibleDate, 1), direction: 'after' };
     }
 
-    return adapter.setYear(visibleDate, adapter.getYear(props.target));
+    const tempTargetDate = adapter.setYear(visibleDate, adapter.getYear(props.target));
+    return {
+      targetDate: tempTargetDate,
+      direction: adapter.isBefore(tempTargetDate, visibleDate) ? 'before' : 'after',
+    };
   }, [visibleDate, adapter, props.target]);
 
   const isDisabled = React.useMemo(() => {
@@ -106,11 +113,6 @@ const CalendarSetVisibleYear = React.forwardRef(function CalendarSetVisibleYear(
     }
     setVisibleDate(targetDate, false);
   });
-
-  const direction = React.useMemo(
-    () => (adapter.isBefore(targetDate, visibleDate) ? 'before' : 'after'),
-    [targetDate, visibleDate, adapter],
-  );
 
   const ctx = React.useMemo<InnerCalendarSetVisibleYearContext>(
     () => ({ setTarget, isDisabled, direction }),

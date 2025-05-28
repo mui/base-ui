@@ -55,19 +55,26 @@ const CalendarSetVisibleMonth = React.forwardRef(function CalendarSetVisibleMont
   const { ref: listItemRef } = useCompositeListItem();
   const ref = useForkRef(forwardedRef, listItemRef);
 
-  const targetDate = React.useMemo(() => {
+  const { targetDate, direction } = React.useMemo<{
+    targetDate: TemporalSupportedObject;
+    direction: 'before' | 'after';
+  }>(() => {
     if (props.target === 'previous') {
-      return adapter.addMonths(visibleDate, -monthPageSize);
+      return { targetDate: adapter.addMonths(visibleDate, -monthPageSize), direction: 'before' };
     }
 
     if (props.target === 'next') {
-      return adapter.addMonths(visibleDate, monthPageSize);
+      return { targetDate: adapter.addMonths(visibleDate, monthPageSize), direction: 'after' };
     }
 
-    return adapter.setYear(
+    const tempTargetDate = adapter.setYear(
       adapter.setMonth(visibleDate, adapter.getMonth(props.target)),
       adapter.getYear(props.target),
     );
+    return {
+      targetDate: tempTargetDate,
+      direction: adapter.isBefore(tempTargetDate, visibleDate) ? 'before' : 'after',
+    };
   }, [visibleDate, monthPageSize, adapter, props.target]);
 
   const isDisabled = React.useMemo(() => {
@@ -111,11 +118,6 @@ const CalendarSetVisibleMonth = React.forwardRef(function CalendarSetVisibleMont
     }
     setVisibleDate(targetDate, false);
   });
-
-  const direction = React.useMemo(
-    () => (adapter.isBefore(targetDate, visibleDate) ? 'before' : 'after'),
-    [targetDate, visibleDate, adapter],
-  );
 
   const ctx = React.useMemo<InnerCalendarSetVisibleMonthContext>(
     () => ({ setTarget, isDisabled, direction }),
