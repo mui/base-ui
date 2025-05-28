@@ -46,6 +46,10 @@ export function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
     return newMap;
   }, [map, mapTick]);
 
+  useModernLayoutEffect(() => {
+    onMapChange?.(sortedMap)
+  }, [onMapChange, sortedMap])
+
   const subscribeMapChange = useEventCallback((fn) => {
     listeners.add(fn);
     return () => {
@@ -56,11 +60,6 @@ export function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
   useModernLayoutEffect(() => {
     listeners.forEach((l) => l(sortedMap));
   }, [listeners, sortedMap]);
-
-  useModernLayoutEffect(
-    () => (onMapChange ? subscribeMapChange(onMapChange) : undefined),
-    [sortedMap, onMapChange, subscribeMapChange],
-  );
 
   const contextValue = React.useMemo(
     () => ({ register, unregister, subscribeMapChange, elementsRef, labelsRef, nextIndexRef }),
