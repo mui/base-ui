@@ -102,20 +102,20 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     positionerElement.style.removeProperty('--positioner-width');
     positionerElement.style.removeProperty('--positioner-height');
 
+    const nextWidth = popupElement.offsetWidth;
+    const nextHeight = popupElement.offsetHeight;
+
+    if (currentHeight === 0 || currentWidth === 0) {
+      currentWidth = nextWidth;
+      currentHeight = nextHeight;
+    }
+
+    popupElement.style.setProperty('--popup-width', `${currentWidth}px`);
+    popupElement.style.setProperty('--popup-height', `${currentHeight}px`);
+    positionerElement.style.setProperty('--positioner-width', `${nextWidth}px`);
+    positionerElement.style.setProperty('--positioner-height', `${nextHeight}px`);
+
     sizeFrame1.request(() => {
-      const nextWidth = popupElement.offsetWidth;
-      const nextHeight = popupElement.offsetHeight;
-
-      if (currentHeight === 0 || currentWidth === 0) {
-        currentWidth = nextWidth;
-        currentHeight = nextHeight;
-      }
-
-      popupElement.style.setProperty('--popup-width', `${currentWidth}px`);
-      popupElement.style.setProperty('--popup-height', `${currentHeight}px`);
-      positionerElement.style.setProperty('--positioner-width', `${nextWidth}px`);
-      positionerElement.style.setProperty('--positioner-height', `${nextHeight}px`);
-
       sizeFrame2.request(() => {
         popupElement.style.setProperty('--popup-width', `${nextWidth}px`);
         popupElement.style.setProperty('--popup-height', `${nextHeight}px`);
