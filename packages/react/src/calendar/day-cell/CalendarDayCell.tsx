@@ -4,6 +4,8 @@ import { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { CalendarDayCellDataAttributes } from './CalendarDayCellDataAttributes';
 import { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
+import { useSharedCalendarDayCell } from './useSharedCalendarDayCell';
+import { useSharedCalendarDayCellWrapper } from './useSharedCalendarDayCellWrapper';
 
 const customStyleHookMapping: CustomStyleHookMapping<CalendarDayCell.State> = {
   selected(value) {
@@ -34,7 +36,7 @@ const InnerCalendarDayCell = React.forwardRef(function InnerCalendarDayCell(
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
   const { className, render, value, ctx, ...elementProps } = componentProps;
-  const { props } = useBaseCalendarDayCell({ value, ctx });
+  const { props } = useSharedCalendarDayCell({ value, ctx });
 
   const state: CalendarDayCell.State = React.useMemo(
     () => ({
@@ -73,7 +75,7 @@ const CalendarDayCell = React.forwardRef(function CalendarDayCell(
   props: CalendarDayCell.Props,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
-  const { ref, ctx } = useBaseCalendarDayCellWrapper({ value: props.value, forwardedRef });
+  const { ref, ctx } = useSharedCalendarDayCellWrapper({ value: props.value, forwardedRef });
 
   return <MemoizedInnerCalendarDayCell ref={ref} {...props} ctx={ctx} />;
 });
@@ -112,7 +114,7 @@ export namespace CalendarDayCell {
 
   export interface Props
     extends Omit<BaseUIComponentProps<'button', State>, 'value'>,
-      useBaseCalendarDayCell.PublicParameters {}
+      useSharedCalendarDayCell.PublicParameters {}
 }
 
 interface InnerCalendarDayCellProps extends CalendarDayCell.Props {
@@ -122,6 +124,6 @@ interface InnerCalendarDayCellProps extends CalendarDayCell.Props {
   ctx: InnerCalendarDayCellContext;
 }
 
-interface InnerCalendarDayCellContext extends useBaseCalendarDayCell.Context {}
+interface InnerCalendarDayCellContext extends useSharedCalendarDayCell.Context {}
 
 export { CalendarDayCell };
