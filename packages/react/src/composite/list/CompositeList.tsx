@@ -32,6 +32,9 @@ export function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
   });
 
   const sortedMap = React.useMemo(() => {
+    // `mapTick` is the `useMemo` trigger as `map` is stable.
+    disableEslintWarning(mapTick);
+
     const newMap = new Map<Element, CompositeMetadata<Metadata>>();
     const sortedNodes = Array.from(map.keys()).sort(sortByDocumentPosition);
 
@@ -97,6 +100,8 @@ function sortByDocumentPosition(a: Element, b: Element) {
 
   return 0;
 }
+
+function disableEslintWarning(_: any) {};
 
 export namespace CompositeList {
   export interface Props<Metadata> {
