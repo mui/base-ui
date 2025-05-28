@@ -6,14 +6,6 @@ import type { TemporalManager, TemporalOnErrorProps } from './types';
 
 /**
  * Checks if a given value is valid based on the provided validation props.
- * @template TValue The value type. It will be the same type as `value` or `null`. It can be in `[start, end]` format in case of range value.
- * @template TError The validation error type. It will be either `string` or a `null`. It can be in `[start, end]` format in case of range value.
- * @param {UseTemporalValidationParameters<TValue, TError, TValidationProps>} parameters The options to configure the hook.
- * @param {TValue} options.value The value to validate.
- * @param {TemporalTimezone} options.timezone The timezone to use for the validation.
- * @param {Validator<TValue, TError, TValidationProps>} options.validator The validator function to use.
- * @param {TValidationProps} options.validationProps The validation props, they differ depending on the component.
- * @param {(error: TError, value: TValue) => void} options.onError Callback fired when the error associated with the current value changes.
  */
 export function useTemporalValidation<
   TValue extends TemporalSupportedValue,

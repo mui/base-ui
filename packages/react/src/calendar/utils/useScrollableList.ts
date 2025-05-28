@@ -5,7 +5,6 @@ import * as React from 'react';
  * Internal utility hook to handle a the focus and scroll in a list of options / cells:
  * - Focuses the first tabbable child on mount if `props.focusOnMount` is `true`.
  * - Scrolls the scroller to center the focused element if it is not visible.
- * @param {useScrollableList.Parameters} parameters The parameters of the hook.
  */
 export function useScrollableList(parameters: useScrollableList.Parameters) {
   const { focusOnMount = false, ref } = parameters;

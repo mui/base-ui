@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import { getFirstEnabledMonth, getLastEnabledMonth } from '../utils/date-helpers';
 import { useSharedCalendarRootContext } from '../root/SharedCalendarRootContext';
 import { useNullableSharedCalendarMonthCollectionContext } from '../utils/SharedCalendarMonthCollectionContext';
 import { useSharedCalendarRootVisibleDateContext } from '../root/SharedCalendarRootVisibleDateContext';
@@ -50,8 +49,9 @@ const CalendarSetVisibleMonth = React.forwardRef(function CalendarSetVisibleMont
   props: CalendarSetVisibleMonth.Props,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
-  const sharedRootVisibleDateContext = useSharedCalendarRootVisibleDateContext();
-  const sharedRootContext = useSharedCalendarRootContext();
+  const { visibleDate } = useSharedCalendarRootVisibleDateContext();
+  const { monthPageSize, disabled, dateValidationProps, setVisibleDate } =
+    useSharedCalendarRootContext();
   const sharedMonthListOrGridContext = useNullableSharedCalendarMonthCollectionContext();
   const adapter = useTemporalAdapter();
   const { ref: listItemRef } = useCompositeListItem();
@@ -59,55 +59,39 @@ const CalendarSetVisibleMonth = React.forwardRef(function CalendarSetVisibleMont
 
   const targetDate = React.useMemo(() => {
     if (props.target === 'previous') {
-      return adapter.addMonths(
-        sharedRootVisibleDateContext.visibleDate,
-        -sharedRootContext.monthPageSize,
-      );
+      return adapter.addMonths(visibleDate, -monthPageSize);
     }
 
     if (props.target === 'next') {
-      return adapter.addMonths(
-        sharedRootVisibleDateContext.visibleDate,
-        sharedRootContext.monthPageSize,
-      );
+      return adapter.addMonths(visibleDate, monthPageSize);
     }
 
     return adapter.setYear(
-      adapter.setMonth(sharedRootVisibleDateContext.visibleDate, adapter.getMonth(props.target)),
+      adapter.setMonth(visibleDate, adapter.getMonth(props.target)),
       adapter.getYear(props.target),
     );
-  }, [
-    sharedRootVisibleDateContext.visibleDate,
-    sharedRootContext.monthPageSize,
-    adapter,
-    props.target,
-  ]);
+  }, [visibleDate, monthPageSize, adapter, props.target]);
 
   const isDisabled = React.useMemo(() => {
-    if (sharedRootContext.disabled) {
+    if (disabled) {
       return true;
     }
 
     // TODO: Check if the logic below works correctly when multiple months are rendered at once.
-    const isMovingBefore = adapter.isBefore(targetDate, sharedRootVisibleDateContext.visibleDate);
+    const isMovingBefore = adapter.isBefore(targetDate, visibleDate);
 
     // All the months before the visible ones are fully disabled, we skip the navigation.
     if (isMovingBefore) {
-      return adapter.isAfter(
-        getFirstEnabledMonth(adapter, sharedRootContext.dateValidationProps),
-        targetDate,
-      );
+      return adapter.isAfter(adapter.startOfMonth(dateValidationProps.minDate), targetDate);
     }
 
     // All the months after the visible ones are fully disabled, we skip the navigation.
-    return adapter.isBefore(
-      getLastEnabledMonth(adapter, sharedRootContext.dateValidationProps),
-      targetDate,
-    );
+    return adapter.isBefore(adapter.startOfMonth(dateValidationProps.maxDate), targetDate);
   }, [
-    sharedRootContext.disabled,
-    sharedRootContext.dateValidationProps,
-    sharedRootVisibleDateContext.visibleDate,
+    disabled,
+    dateValidationProps.minDate,
+    dateValidationProps.maxDate,
+    visibleDate,
     targetDate,
     adapter,
   ]);
@@ -126,13 +110,12 @@ const CalendarSetVisibleMonth = React.forwardRef(function CalendarSetVisibleMont
     if (isDisabled) {
       return;
     }
-    sharedRootContext.setVisibleDate(targetDate, false);
+    setVisibleDate(targetDate, false);
   });
 
   const direction = React.useMemo(
-    () =>
-      adapter.isBefore(targetDate, sharedRootVisibleDateContext.visibleDate) ? 'before' : 'after',
-    [targetDate, sharedRootVisibleDateContext.visibleDate, adapter],
+    () => (adapter.isBefore(targetDate, visibleDate) ? 'before' : 'after'),
+    [targetDate, visibleDate, adapter],
   );
 
   const ctx = React.useMemo<InnerCalendarSetVisibleMonthContext>(

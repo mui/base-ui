@@ -9,7 +9,6 @@ import {
   NavigateInGridChangePage,
   PageGridNavigationTarget,
 } from '../utils/keyboardNavigation';
-import { getFirstEnabledMonth, getLastEnabledMonth } from '../utils/date-helpers';
 import type { SharedCalendarRootContext } from './SharedCalendarRootContext';
 import { useEventCallback } from '../../utils/useEventCallback';
 
@@ -21,7 +20,7 @@ export function useSharedCalendarDayGridNavigation(
   parameters: useSharedCalendarDayGridNavigation.Parameters,
 ) {
   const { visibleDate, setVisibleDate, monthPageSize, dateValidationProps } = parameters;
-  const utils = useTemporalAdapter();
+  const adapter = useTemporalAdapter();
   const cellsRef = React.useRef(new Map<number, useSharedCalendarDayGridNavigation.CellRefs>());
   const pageNavigationTargetRef = React.useRef<PageGridNavigationTarget | null>(null);
 
@@ -40,24 +39,26 @@ export function useSharedCalendarDayGridNavigation(
     const changePage: NavigateInGridChangePage = (params) => {
       // TODO: Jump over months with no valid date.
       if (params.direction === 'previous') {
-        const targetDate = utils.addMonths(utils.startOfMonth(visibleDate), -monthPageSize);
-        const lastMonthInNewPage = utils.addMonths(targetDate, monthPageSize - 1);
+        const targetDate = adapter.addMonths(adapter.startOfMonth(visibleDate), -monthPageSize);
+        const lastMonthInNewPage = adapter.addMonths(targetDate, monthPageSize - 1);
 
         // All the months before the visible ones are fully disabled, we skip the navigation.
-        if (utils.isAfter(getFirstEnabledMonth(utils, dateValidationProps), lastMonthInNewPage)) {
+        if (
+          adapter.isAfter(adapter.startOfMonth(dateValidationProps.minDate), lastMonthInNewPage)
+        ) {
           return;
         }
 
-        setVisibleDate(utils.addMonths(visibleDate, -monthPageSize));
+        setVisibleDate(adapter.addMonths(visibleDate, -monthPageSize));
       }
       if (params.direction === 'next') {
-        const targetDate = utils.addMonths(utils.startOfMonth(visibleDate), monthPageSize);
+        const targetDate = adapter.addMonths(adapter.startOfMonth(visibleDate), monthPageSize);
 
         // All the months after the visible ones are fully disabled, we skip the navigation.
-        if (utils.isBefore(getLastEnabledMonth(utils, dateValidationProps), targetDate)) {
+        if (adapter.isBefore(adapter.startOfMonth(dateValidationProps.maxDate), targetDate)) {
           return;
         }
-        setVisibleDate(utils.addMonths(visibleDate, monthPageSize));
+        setVisibleDate(adapter.addMonths(visibleDate, monthPageSize));
       }
 
       pageNavigationTargetRef.current = params.target;

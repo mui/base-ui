@@ -13,15 +13,16 @@ export function useSharedCalendarDayGridBody(
 ): useSharedCalendarDayGridBody.ReturnValue {
   const { fixedWeekNumber, focusOnMount, children, offset = 0, freezeMonth = false } = parameters;
   const adapter = useTemporalAdapter();
-  const baseRootContext = useSharedCalendarRootContext();
-  const baseRootVisibleDateContext = useSharedCalendarRootVisibleDateContext();
+  const { selectedDates, currentDate, applyDayGridKeyboardNavigation } =
+    useSharedCalendarRootContext();
+  const { visibleDate } = useSharedCalendarRootVisibleDateContext();
   const ref = React.useRef<HTMLDivElement>(null);
   const rowsRefs = React.useRef<(HTMLElement | null)[]>([]);
 
   const rawMonth = React.useMemo(() => {
-    const cleanVisibleDate = adapter.startOfMonth(baseRootVisibleDateContext.visibleDate);
+    const cleanVisibleDate = adapter.startOfMonth(visibleDate);
     return offset === 0 ? cleanVisibleDate : adapter.addMonths(cleanVisibleDate, offset);
-  }, [adapter, baseRootVisibleDateContext.visibleDate, offset]);
+  }, [adapter, visibleDate, offset]);
 
   const lastNonFrozenMonthRef = React.useRef(rawMonth);
   React.useEffect(() => {
@@ -64,14 +65,12 @@ export function useSharedCalendarDayGridBody(
     let tabbableCells: TemporalSupportedObject[];
     const daysInMonth = daysGrid.flat().filter((day) => adapter.isSameMonth(day, month));
     const selectedAndVisibleDays = daysInMonth.filter((day) =>
-      baseRootContext.selectedDates.some((selectedDay) => adapter.isSameDay(day, selectedDay)),
+      selectedDates.some((selectedDay) => adapter.isSameDay(day, selectedDay)),
     );
     if (selectedAndVisibleDays.length > 0) {
       tabbableCells = selectedAndVisibleDays;
     } else {
-      const currentDay = daysInMonth.find((day) =>
-        adapter.isSameDay(day, baseRootContext.currentDate),
-      );
+      const currentDay = daysInMonth.find((day) => adapter.isSameDay(day, currentDate));
       if (currentDay != null) {
         tabbableCells = [currentDay];
       } else {
@@ -86,7 +85,7 @@ export function useSharedCalendarDayGridBody(
 
     return (date: TemporalSupportedObject) =>
       formattedTabbableCells.has(adapter.formatByString(date, format));
-  }, [baseRootContext.currentDate, baseRootContext.selectedDates, daysGrid, adapter, month]);
+  }, [currentDate, selectedDates, daysGrid, adapter, month]);
 
   const resolvedChildren = React.useMemo(() => {
     if (!React.isValidElement(children) && typeof children === 'function') {
@@ -101,9 +100,9 @@ export function useSharedCalendarDayGridBody(
       ref,
       role: 'rowgroup',
       children: resolvedChildren,
-      onKeyDown: baseRootContext.applyDayGridKeyboardNavigation,
+      onKeyDown: applyDayGridKeyboardNavigation,
     }),
-    [baseRootContext.applyDayGridKeyboardNavigation, resolvedChildren],
+    [applyDayGridKeyboardNavigation, resolvedChildren],
   );
 
   const context: SharedCalendarDayGridBodyContext = React.useMemo(

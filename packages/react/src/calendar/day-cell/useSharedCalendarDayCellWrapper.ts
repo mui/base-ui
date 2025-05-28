@@ -14,16 +14,24 @@ export function useSharedCalendarDayCellWrapper(
   parameters: useSharedCalendarDayCellWrapper.Parameters,
 ): useSharedCalendarDayCellWrapper.ReturnValue {
   const { forwardedRef, value } = parameters;
-  const baseRootContext = useSharedCalendarRootContext();
-  const baseDayGridBodyContext = useSharedCalendarDayGridBodyContext();
-  const baseDayGridRowContext = useCalendarDayGridRowContext();
+  const {
+    selectedDates,
+    isDateInvalid,
+    currentDate,
+    selectDate,
+    registerDayGridCell,
+    disabled: isCalendarDisabled,
+    readOnly: isCalendarReadOnly,
+  } = useSharedCalendarRootContext();
+  const { month, canCellBeTabbed, ref: gridBodyRef } = useSharedCalendarDayGridBodyContext();
+  const { ref: gridRowRef } = useCalendarDayGridRowContext();
   const ref = React.useRef<HTMLButtonElement>(null);
   const adapter = useTemporalAdapter();
   const mergedRef = useForkRef(forwardedRef, ref);
 
   const isSelected = React.useMemo(
-    () => baseRootContext.selectedDates.some((date) => adapter.isSameDay(date, value)),
-    [baseRootContext.selectedDates, value, adapter],
+    () => selectedDates.some((date) => adapter.isSameDay(date, value)),
+    [selectedDates, value, adapter],
   );
 
   const isCurrent = React.useMemo(() => adapter.isSameDay(value, adapter.date()), [adapter, value]);
@@ -39,35 +47,30 @@ export function useSharedCalendarDayCellWrapper(
   );
 
   const isOutsideCurrentMonth = React.useMemo(
-    () =>
-      baseDayGridBodyContext.month == null
-        ? false
-        : !adapter.isSameMonth(baseDayGridBodyContext.month, value),
-    [baseDayGridBodyContext.month, value, adapter],
+    () => (month == null ? false : !adapter.isSameMonth(month, value)),
+    [month, value, adapter],
   );
 
-  const isDateInvalid = baseRootContext.isDateInvalid;
   const isInvalid = React.useMemo(() => isDateInvalid(value), [value, isDateInvalid]);
 
   const isDisabled = React.useMemo(() => {
-    if (baseRootContext.disabled) {
+    if (isCalendarDisabled) {
       return true;
     }
 
     return isInvalid;
-  }, [baseRootContext.disabled, isInvalid]);
+  }, [isCalendarDisabled, isInvalid]);
 
-  const canCellBeTabbed = baseDayGridBodyContext.canCellBeTabbed;
   const isTabbable = React.useMemo(() => canCellBeTabbed(value), [canCellBeTabbed, value]);
 
   const selectDay = useEventCallback((date: TemporalSupportedObject) => {
-    if (baseRootContext.readOnly) {
+    if (isCalendarReadOnly) {
       return;
     }
 
-    const newCleanValue = mergeDateAndTime(adapter, date, baseRootContext.currentDate);
+    const newCleanValue = mergeDateAndTime(adapter, date, currentDate);
 
-    baseRootContext.selectDate(newCleanValue, { section: 'day' });
+    selectDate(newCleanValue, { section: 'day' });
   });
 
   const ctx = React.useMemo<useSharedCalendarDayCell.Context>(
@@ -95,14 +98,13 @@ export function useSharedCalendarDayCellWrapper(
     ],
   );
 
-  const registerDayGridCell = baseRootContext.registerDayGridCell;
   useModernLayoutEffect(() => {
     return registerDayGridCell({
       cell: ref,
-      row: baseDayGridRowContext.ref,
-      grid: baseDayGridBodyContext.ref,
+      row: gridRowRef,
+      grid: gridBodyRef,
     });
-  }, [baseDayGridBodyContext.ref, baseDayGridRowContext.ref, registerDayGridCell]);
+  }, [gridBodyRef, gridRowRef, registerDayGridCell]);
 
   return {
     ref: mergedRef,

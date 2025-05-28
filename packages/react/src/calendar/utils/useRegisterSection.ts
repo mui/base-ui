@@ -5,13 +5,11 @@ import { SharedCalendarSection } from './types';
 
 /**
  * Internal utility hook to handle the registration of a section in the (Range)Calendar Root.
- * @param {useRegisterSection.Parameters} parameters The parameters of the hook.
  */
 export function useRegisterSection(parameters: useRegisterSection.Parameters) {
   const { section, value } = parameters;
-  const baseRootContext = useSharedCalendarRootContext();
+  const { registerSection } = useSharedCalendarRootContext();
 
-  const registerSection = baseRootContext.registerSection;
   React.useEffect(() => {
     return registerSection({ type: section, value });
   }, [registerSection, value, section]);
