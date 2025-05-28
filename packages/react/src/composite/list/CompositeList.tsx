@@ -2,7 +2,84 @@
 'use client';
 import * as React from 'react';
 import { CompositeListContext } from './CompositeListContext';
+import { useLazyRef } from '../../utils/useLazyRef';
+import { useEventCallback } from '../../utils/useEventCallback';
 import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
+
+export type CompositeMetadata<CustomMetadata> = { index?: number | null } & CustomMetadata;
+
+/**
+ * Provides context for a list of items in a composite component.
+ * @internal
+ */
+export function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
+  const { children, elementsRef, labelsRef, onMapChange } = props;
+
+  const nextIndexRef = React.useRef(0);
+  const listeners = useLazyRef(createListeners).current;
+
+  const map = useLazyRef(createMap<Metadata>).current;
+  const [mapTick, setMapTick] = React.useState(0);
+
+  const register = useEventCallback((node: Element, metadata: Metadata) => {
+    map.set(node, metadata ?? null);
+    setMapTick(increment);
+  });
+
+  const unregister = useEventCallback((node: Element) => {
+    map.delete(node);
+    setMapTick(increment);
+  });
+
+  const sortedMap = React.useMemo(() => {
+    const newMap = new Map<Element, CompositeMetadata<Metadata>>();
+    const sortedNodes = Array.from(map.keys()).sort(sortByDocumentPosition);
+
+    sortedNodes.forEach((node, index) => {
+      const metadata = map.get(node) ?? ({} as CompositeMetadata<Metadata>);
+      newMap.set(node, { ...metadata, index });
+    });
+
+    return newMap;
+  }, [map, mapTick]);
+
+  const subscribeMapChange = useEventCallback((fn) => {
+    listeners.add(fn);
+    return () => {
+      listeners.delete(fn);
+    };
+  });
+
+  useModernLayoutEffect(() => {
+    listeners.forEach((l) => l(sortedMap));
+  }, [listeners, sortedMap]);
+
+  useModernLayoutEffect(
+    () => (onMapChange ? subscribeMapChange(onMapChange) : undefined),
+    [sortedMap, onMapChange, subscribeMapChange],
+  );
+
+  const contextValue = React.useMemo(
+    () => ({ register, unregister, subscribeMapChange, elementsRef, labelsRef, nextIndexRef }),
+    [register, unregister, subscribeMapChange, elementsRef, labelsRef, nextIndexRef],
+  );
+
+  return (
+    <CompositeListContext.Provider value={contextValue}>{children}</CompositeListContext.Provider>
+  );
+}
+
+function createMap<Metadata>() {
+  return new Map<Element, CompositeMetadata<Metadata> | null>();
+}
+
+function createListeners() {
+  return new Set<Function>();
+}
+
+function increment(t: number) {
+  return t + 1;
+}
 
 function sortByDocumentPosition(a: Element, b: Element) {
   const position = a.compareDocumentPosition(b);
@@ -19,63 +96,6 @@ function sortByDocumentPosition(a: Element, b: Element) {
   }
 
   return 0;
-}
-
-export type CompositeMetadata<CustomMetadata> = { index?: number | null } & CustomMetadata;
-
-/**
- * Provides context for a list of items in a composite component.
- * @internal
- */
-export function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
-  const { children, elementsRef, labelsRef, onMapChange } = props;
-
-  const [map, setMap] = React.useState(
-    () => new Map<Element, CompositeMetadata<Metadata> | null>(),
-  );
-
-  const register = React.useCallback((node: Element, metadata: Metadata) => {
-    setMap((prevMap) => new Map(prevMap).set(node, metadata ?? null));
-  }, []);
-
-  const unregister = React.useCallback((node: Element) => {
-    setMap((prevMap) => {
-      const nextMap = new Map(prevMap);
-      nextMap.delete(node);
-      return nextMap;
-    });
-  }, []);
-
-  const sortedMap = React.useMemo(() => {
-    const newMap = new Map<Element, CompositeMetadata<Metadata>>();
-    const sortedNodes = Array.from(map.keys()).sort(sortByDocumentPosition);
-
-    sortedNodes.forEach((node, index) => {
-      const metadata = map.get(node) ?? ({} as CompositeMetadata<Metadata>);
-      newMap.set(node, { ...metadata, index });
-    });
-
-    return newMap;
-  }, [map]);
-
-  useModernLayoutEffect(() => {
-    if (elementsRef.current.length !== sortedMap.size) {
-      elementsRef.current.length = sortedMap.size;
-    }
-    if (labelsRef && labelsRef.current.length !== sortedMap.size) {
-      labelsRef.current.length = sortedMap.size;
-    }
-    onMapChange?.(sortedMap);
-  }, [sortedMap, onMapChange, elementsRef, labelsRef]);
-
-  const contextValue = React.useMemo(
-    () => ({ register, unregister, map: sortedMap, elementsRef, labelsRef }),
-    [register, unregister, sortedMap, elementsRef, labelsRef],
-  );
-
-  return (
-    <CompositeListContext.Provider value={contextValue}>{children}</CompositeListContext.Provider>
-  );
 }
 
 export namespace CompositeList {

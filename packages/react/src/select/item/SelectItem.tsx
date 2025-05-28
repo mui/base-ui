@@ -1,7 +1,10 @@
 'use client';
 import * as React from 'react';
 import { useSelectRootContext } from '../root/SelectRootContext';
-import { useCompositeListItem } from '../../composite/list/useCompositeListItem';
+import {
+  useCompositeListItem,
+  IndexGuessBehavior,
+} from '../../composite/list/useCompositeListItem';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useSelectItem } from './useSelectItem';
 import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
@@ -32,7 +35,11 @@ export const SelectItem = React.memo(
     } = componentProps;
 
     const textRef = React.useRef<HTMLElement | null>(null);
-    const listItem = useCompositeListItem({ label, textRef });
+    const listItem = useCompositeListItem({
+      label,
+      textRef,
+      indexGuessBehavior: IndexGuessBehavior.GuessFromOrder,
+    });
 
     const {
       store,
