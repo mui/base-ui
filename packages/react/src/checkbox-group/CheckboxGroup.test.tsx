@@ -362,5 +362,40 @@ describe('<CheckboxGroup />', () => {
       expect(validateSpy.callCount).to.equal(1);
       expect(validateSpy.args[0][0]).to.deep.equal(['fuji-apple', 'gala-apple']);
     });
+
+    it('focuses the first checkbox when the field receives an error from Form', async () => {
+      function App() {
+        const [errors, setErrors] = React.useState<Form.Props['errors']>({});
+        return (
+          <Form
+            errors={errors}
+            onClearErrors={setErrors}
+            onSubmit={(event) => {
+              event.preventDefault();
+              setErrors({ group: 'server error' });
+            }}
+          >
+            <Field.Root name="group" data-testid="field">
+              <CheckboxGroup defaultValue={['one']}>
+                <Checkbox.Root value="one" />
+                <Checkbox.Root value="two" />
+              </CheckboxGroup>
+              <Field.Error data-testid="error" />
+            </Field.Root>
+            <button type="submit">Submit</button>
+          </Form>
+        );
+      }
+
+      const { user } = await render(<App />);
+      expect(screen.queryByTestId('error')).to.equal(null);
+      const submit = screen.getByText('Submit');
+      await user.click(submit);
+
+      const [checkbox1] = screen.getAllByRole('checkbox');
+      expect(checkbox1).toHaveFocus();
+      expect(checkbox1).to.have.attribute('aria-invalid', 'true');
+      expect(screen.queryByTestId('error')).to.have.text('server error');
+    });
   });
 });
