@@ -7,6 +7,9 @@ export interface UseCompositeListItemParameters<Metadata> {
   label?: string | null;
   metadata?: Metadata;
   textRef?: React.RefObject<HTMLElement | null>;
+  /** Enables guessing the indexes. This avoids a re-render after mount, which is useful for
+   * large lists. This should be used for lists that are likely flat and vertical, other cases
+   * might trigger a re-render anyway. */
   indexGuessBehavior?: IndexGuessBehavior;
 }
 
