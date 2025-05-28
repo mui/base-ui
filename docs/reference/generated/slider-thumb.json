@@ -15,10 +15,6 @@
       "default": "false",
       "description": "Whether the thumb should ignore user interaction."
     },
-    "inputRef": {
-      "type": "Ref<HTMLInputElement>",
-      "description": "A ref to access the hidden input element."
-    },
     "className": {
       "type": "string | ((state: Slider.Thumb.State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."

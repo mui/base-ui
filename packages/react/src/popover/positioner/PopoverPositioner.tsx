@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { FloatingNode, useFloatingNodeId } from '@floating-ui/react';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
 import { usePopoverPositioner } from './usePopoverPositioner';
 import { PopoverPositionerContext } from './PopoverPositionerContext';
@@ -10,6 +11,7 @@ import { usePopoverPortalContext } from '../portal/PopoverPortalContext';
 import { inertValue } from '../../utils/inertValue';
 import { InternalBackdrop } from '../../utils/InternalBackdrop';
 import { useRenderElement } from '../../utils/useRenderElement';
+import { DEFAULT_COLLISION_AVOIDANCE } from '../../utils/constants';
 
 /**
  * Positions the popover against the trigger.
@@ -35,6 +37,7 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
     arrowPadding = 5,
     sticky = false,
     trackAnchor = true,
+    collisionAvoidance = DEFAULT_COLLISION_AVOIDANCE,
     ...elementProps
   } = componentProps;
 
@@ -48,6 +51,7 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
     openMethod,
   } = usePopoverRootContext();
   const keepMounted = usePopoverPortalContext();
+  const nodeId = useFloatingNodeId();
 
   const positioner = usePopoverPositioner({
     anchor,
@@ -65,6 +69,8 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
     sticky,
     trackAnchor,
     keepMounted,
+    nodeId,
+    collisionAvoidance,
   });
 
   const state: PopoverPositioner.State = React.useMemo(
@@ -86,10 +92,10 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
 
   return (
     <PopoverPositionerContext.Provider value={positioner}>
-      {mounted && modal === true && openReason !== 'hover' && openMethod !== 'touch' && (
+      {mounted && modal === true && openReason !== 'trigger-hover' && openMethod !== 'touch' && (
         <InternalBackdrop inert={inertValue(!open)} />
       )}
-      {element}
+      <FloatingNode id={nodeId}>{element}</FloatingNode>
     </PopoverPositionerContext.Provider>
   );
 });

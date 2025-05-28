@@ -8,6 +8,7 @@ import {
   useHover,
   useInteractions,
   useRole,
+  FloatingTree,
 } from '@floating-ui/react';
 import { useClick } from '../../utils/floating-ui/useClick';
 import { useTimeout } from '../../utils/useTimeout';
@@ -16,22 +17,17 @@ import { useEventCallback } from '../../utils/useEventCallback';
 import { useTransitionStatus } from '../../utils/useTransitionStatus';
 import { OPEN_DELAY } from '../utils/constants';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
-import {
-  translateOpenChangeReason,
-  type OpenChangeReason,
-} from '../../utils/translateOpenChangeReason';
+import { translateOpenChangeReason } from '../../utils/translateOpenChangeReason';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { PATIENT_CLICK_THRESHOLD } from '../../utils/constants';
 import { useScrollLock } from '../../utils/useScrollLock';
-import { PopoverRootContext } from './PopoverRootContext';
+import {
+  PopoverOpenChangeReason,
+  PopoverRootContext,
+  usePopoverRootContext,
+} from './PopoverRootContext';
 
-/**
- * Groups all parts of the popover.
- * Doesn’t render its own HTML element.
- *
- * Documentation: [Base UI Popover](https://base-ui.com/react/components/popover)
- */
-export const PopoverRoot: React.FC<PopoverRoot.Props> = function PopoverRoot(props) {
+function PopoverRootComponent({ props }: { props: PopoverRoot.Props }) {
   const {
     open: externalOpen,
     onOpenChange,
@@ -48,7 +44,7 @@ export const PopoverRoot: React.FC<PopoverRoot.Props> = function PopoverRoot(pro
   const [descriptionId, setDescriptionId] = React.useState<string>();
   const [triggerElement, setTriggerElement] = React.useState<Element | null>(null);
   const [positionerElement, setPositionerElement] = React.useState<HTMLElement | null>(null);
-  const [openReason, setOpenReason] = React.useState<OpenChangeReason | null>(null);
+  const [openReason, setOpenReason] = React.useState<PopoverOpenChangeReason | null>(null);
   const [stickIfOpen, setStickIfOpen] = React.useState(true);
 
   const popupRef = React.useRef<HTMLElement>(null);
@@ -64,22 +60,11 @@ export const PopoverRoot: React.FC<PopoverRoot.Props> = function PopoverRoot(pro
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
 
   useScrollLock({
-    enabled: open && modal === true && openReason !== 'hover',
+    enabled: open && modal === true && openReason !== 'trigger-hover',
     mounted,
     open,
     referenceElement: positionerElement,
   });
-
-  const setOpen = useEventCallback(
-    (nextOpen: boolean, event: Event | undefined, reason: OpenChangeReason | undefined) => {
-      onOpenChange?.(nextOpen, event, reason);
-      setOpenUnwrapped(nextOpen);
-
-      if (nextOpen) {
-        setOpenReason(reason ?? null);
-      }
-    },
-  );
 
   const handleUnmount = useEventCallback(() => {
     setMounted(false);
@@ -107,16 +92,19 @@ export const PopoverRoot: React.FC<PopoverRoot.Props> = function PopoverRoot(pro
     }
   }, [stickIfOpenTimeout, open]);
 
-  const floatingContext = useFloatingRootContext({
-    elements: { reference: triggerElement, floating: positionerElement },
-    open,
-    onOpenChange(openValue, eventValue, reasonValue) {
-      const isHover = reasonValue === 'hover' || reasonValue === 'safe-polygon';
-      const isKeyboardClick = reasonValue === 'click' && (eventValue as MouseEvent).detail === 0;
-      const isDismissClose = !openValue && (reasonValue === 'escape-key' || reasonValue == null);
+  const setOpen = useEventCallback(
+    (nextOpen: boolean, event: Event | undefined, reason: PopoverOpenChangeReason | undefined) => {
+      const isHover = reason === 'trigger-hover';
+      const isKeyboardClick = reason === 'trigger-press' && (event as MouseEvent).detail === 0;
+      const isDismissClose = !nextOpen && (reason === 'escape-key' || reason == null);
 
       function changeState() {
-        setOpen(openValue, eventValue, translateOpenChangeReason(reasonValue));
+        onOpenChange?.(nextOpen, event, reason);
+        setOpenUnwrapped(nextOpen);
+
+        if (nextOpen) {
+          setOpenReason(reason ?? null);
+        }
       }
 
       if (isHover) {
@@ -138,6 +126,17 @@ export const PopoverRoot: React.FC<PopoverRoot.Props> = function PopoverRoot(pro
         setInstantType(undefined);
       }
     },
+  );
+
+  const floatingContext = useFloatingRootContext({
+    elements: {
+      reference: triggerElement,
+      floating: positionerElement,
+    },
+    open,
+    onOpenChange(openValue, eventValue, reasonValue) {
+      setOpen(openValue, eventValue, translateOpenChangeReason(reasonValue));
+    },
   });
 
   const { openMethod, triggerProps } = useOpenInteractionType(open);
@@ -145,7 +144,7 @@ export const PopoverRoot: React.FC<PopoverRoot.Props> = function PopoverRoot(pro
   const computedRestMs = delay;
 
   const hover = useHover(floatingContext, {
-    enabled: openOnHover && (openMethod !== 'touch' || openReason !== 'click'),
+    enabled: openOnHover && (openMethod !== 'touch' || openReason !== 'trigger-press'),
     mouseOnly: true,
     move: false,
     handleClose: safePolygon({ blockPointerEvents: true }),
@@ -216,7 +215,25 @@ export const PopoverRoot: React.FC<PopoverRoot.Props> = function PopoverRoot(pro
       {props.children}
     </PopoverRootContext.Provider>
   );
-};
+}
+
+/**
+ * Groups all parts of the popover.
+ * Doesn’t render its own HTML element.
+ *
+ * Documentation: [Base UI Popover](https://base-ui.com/react/components/popover)
+ */
+export function PopoverRoot(props: PopoverRoot.Props) {
+  if (usePopoverRootContext(true)) {
+    return <PopoverRootComponent props={props} />;
+  }
+
+  return (
+    <FloatingTree>
+      <PopoverRootComponent props={props} />
+    </FloatingTree>
+  );
+}
 
 export namespace PopoverRoot {
   export interface State {}
@@ -235,11 +252,12 @@ export namespace PopoverRoot {
     open?: boolean;
     /**
      * Event handler called when the popover is opened or closed.
+     * @type (open: boolean, event?: Event, reason?: Popover.Root.OpenChangeReason) => void
      */
     onOpenChange?: (
       open: boolean,
       event: Event | undefined,
-      reason: OpenChangeReason | undefined,
+      reason: PopoverOpenChangeReason | undefined,
     ) => void;
     /**
      * Event handler called after any animations complete when the popover is opened or closed.
@@ -289,4 +307,6 @@ export namespace PopoverRoot {
   export interface Actions {
     unmount: () => void;
   }
+
+  export type OpenChangeReason = PopoverOpenChangeReason;
 }

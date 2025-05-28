@@ -2,6 +2,10 @@
   "name": "MenuPopup",
   "description": "A container for the menu items.\nRenders a `<div>` element.",
   "props": {
+    "finalFocus": {
+      "type": "RefObject<HTMLElement | null>",
+      "description": "Determines the element to focus when the menu is closed.\nBy default, focus returns to the trigger."
+    },
     "id": {
       "type": "string"
     },

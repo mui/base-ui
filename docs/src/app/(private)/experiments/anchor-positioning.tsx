@@ -3,6 +3,7 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 
 import { useAnchorPositioning } from '../../../../../packages/react/src/utils/useAnchorPositioning';
+import styles from './anchor-positioning.module.css';
 
 const oppositeSideMap = {
   top: 'bottom',
@@ -16,6 +17,7 @@ const oppositeSideMap = {
 type Size = 'xs' | 's' | 'm' | 'l' | 'xl';
 
 export default function AnchorPositioning() {
+  const [anchorEl, setAnchorEl] = React.useState<HTMLDivElement | null>(null);
   const [popupSize, setPopupSize] = React.useState<Size>('xs');
   const [anchorSize, setAnchorSize] = React.useState<Size>('m');
   const [side, setSide] = React.useState<'top' | 'bottom' | 'left' | 'right'>('top');
@@ -31,6 +33,29 @@ export default function AnchorPositioning() {
   const [constrainSize, setConstrainSize] = React.useState(false);
   const [visible, setVisible] = React.useState(false);
   const [trackAnchor, setTrackAnchor] = React.useState(true);
+  const [collisionAvoidance, setCollisionAvoidance] = React.useState<
+    useAnchorPositioning.Parameters['collisionAvoidance']
+  >({
+    side: 'flip',
+    align: 'flip',
+    fallbackAxisSide: 'end',
+  });
+
+  const floatingRootContext = {
+    open: true,
+    onOpenChange() {},
+    elements: { floating: null, reference: anchorEl, domReference: anchorEl },
+    events: {
+      on() {},
+      off() {},
+      emit() {},
+    },
+    dataRef: { current: {} },
+    refs: {
+      setPositionReference() {},
+    },
+    floatingId: '',
+  };
 
   const {
     refs,
@@ -40,6 +65,7 @@ export default function AnchorPositioning() {
     side: renderedSide,
     arrowUncentered,
   } = useAnchorPositioning({
+    floatingRootContext,
     side,
     align,
     sideOffset,
@@ -48,6 +74,7 @@ export default function AnchorPositioning() {
     sticky,
     arrowPadding,
     trackAnchor,
+    collisionAvoidance,
     mounted: true,
     keepMounted: true,
   });
@@ -122,7 +149,7 @@ export default function AnchorPositioning() {
   return (
     <div style={{ fontFamily: 'sans-serif', margin: 50 }}>
       <h1>Anchor Positioning Playground</h1>
-      <div style={{ display: 'flex', gap: 20 }}>
+      <div style={{ display: 'flex', gap: 20 }} className={styles.controls}>
         <div
           ref={handleInitialScroll}
           style={{
@@ -135,7 +162,7 @@ export default function AnchorPositioning() {
         >
           <div style={{ width: 1000 + anchorLength / 2, height: 1000 }} />
           <div
-            ref={refs.setReference}
+            ref={setAnchorEl}
             style={{
               display: 'grid',
               placeItems: 'center',
@@ -308,6 +335,82 @@ export default function AnchorPositioning() {
             />
             Track anchor
           </label>
+
+          <fieldset>
+            <legend>Collision Avoidance Side</legend>
+            {(['flip', 'shift', 'none'] as const).map((mode) => (
+              <label key={mode}>
+                <input
+                  name="collision-side"
+                  type="radio"
+                  checked={collisionAvoidance.side === mode}
+                  onChange={() => {
+                    if (mode === 'shift') {
+                      setCollisionAvoidance((prev) => ({
+                        ...prev,
+                        side: mode,
+                        align: mode,
+                      }));
+                    } else {
+                      setCollisionAvoidance((prev) => ({
+                        ...prev,
+                        side: mode,
+                      }));
+                    }
+                  }}
+                />
+                {mode}
+              </label>
+            ))}
+          </fieldset>
+
+          <fieldset>
+            <legend>Collision Avoidance Align</legend>
+            {(['flip', 'shift', 'none'] as const).map((mode) => (
+              <label key={mode}>
+                <input
+                  name="collision-align"
+                  type="radio"
+                  checked={collisionAvoidance.align === mode}
+                  onChange={() => {
+                    if (mode === 'shift' || mode === 'none') {
+                      setCollisionAvoidance((prev) => ({
+                        ...prev,
+                        align: mode,
+                      }));
+                    } else {
+                      setCollisionAvoidance((prev) => ({
+                        ...prev,
+                        side: mode,
+                        align: mode,
+                      }));
+                    }
+                  }}
+                />
+                {mode}
+              </label>
+            ))}
+          </fieldset>
+
+          <fieldset>
+            <legend>Fallback Axis Side</legend>
+            {(['start', 'end', 'none'] as const).map((mode) => (
+              <label key={mode}>
+                <input
+                  name="collision-fallback-axis-side"
+                  type="radio"
+                  checked={collisionAvoidance.fallbackAxisSide === mode}
+                  onChange={() =>
+                    setCollisionAvoidance((prev) => ({
+                      ...prev,
+                      fallbackAxisSide: mode,
+                    }))
+                  }
+                />
+                {mode}
+              </label>
+            ))}
+          </fieldset>
         </div>
       </div>
     </div>
