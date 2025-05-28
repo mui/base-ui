@@ -69,8 +69,7 @@ export function useSharedCalendarDayCellWrapper(
     }
 
     const newCleanValue = mergeDateAndTime(adapter, date, currentDate);
-
-    selectDate(newCleanValue, { section: 'day' });
+    selectDate(newCleanValue);
   });
 
   const ctx = React.useMemo<useSharedCalendarDayCell.Context>(
