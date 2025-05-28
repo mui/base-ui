@@ -5,7 +5,6 @@ import { getSide } from '@floating-ui/utils';
 import { disableFocusInside, enableFocusInside, isOutsideEvent } from '@floating-ui/react/utils';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
-import { useNavigationMenuPositioner } from './useNavigationMenuPositioner';
 import {
   useNavigationMenuRootContext,
   useNavigationMenuTreeContext,
@@ -263,6 +262,6 @@ export namespace NavigationMenuPositioner {
   }
 
   export interface Props
-    extends useNavigationMenuPositioner.SharedParameters,
+    extends useAnchorPositioning.SharedParameters,
       BaseUIComponentProps<'div', State> {}
 }
