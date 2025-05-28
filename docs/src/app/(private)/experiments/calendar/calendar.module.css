@@ -2,21 +2,16 @@
   --root-border-color: #78716c;
   --button-hover-bg-color: #e0f2fe;
   --button-focus-border-color: #0ea5e9;
-  --days-grid-separator-bg-color: #9ca3af;
   --days-grid-header-color: #64748b;
 
   --cell-selected-bg-color: #7dd3fc;
-  --cell-inside-selection-bg-color: #e0f2fe;
-  --cell-preview-border-color: #a1a1aa;
   --cell-outside-month-color: #cbd5e1;
   --cell-disabled-color: #64748b;
   --cell-current-border-color: #9ca3af;
 
   @media (prefers-color-scheme: dark) {
     --button-hover-bg-color: #075985;
-    --days-grid-separator-bg-color: #4b5563;
     --cell-selected-bg-color: #0369a1;
-    --cell-inside-selection-bg-color: #0c4a6e;
     --cell-outside-month-color: #334155;
     --cell-disabled-color: #64748b;
   }
@@ -29,25 +24,6 @@
   height: 312px;
   display: flex;
   flex-direction: column;
-  font-family: 'Roboto', 'Helvetica', 'Arial', sans-serif;
-}
-
-.RootWithWeekNumber {
-  width: 312px;
-}
-
-.RootShort {
-  height: 204px;
-}
-
-.RootWithTwoPanels {
-  width: 564px;
-}
-
-.RootWithTwoPanelsContent {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
 }
 
 .Header {
@@ -59,23 +35,11 @@
   align-items: center;
 }
 
-.HeaderBlock {
-  display: flex;
-  gap: 4px;
-  justify-content: center;
-}
-
-.HeaderPanel {
-  display: flex;
-  flex-grow: 1;
-  justify-content: space-between;
-}
-
 .SetVisibleMonth,
-.SetVisibleYear,
-.SetActiveSectionMonth,
-.SetActiveSectionYear,
-.SetActiveSectionYearMD2 {
+.SetVisibleYear {
+  height: 24px;
+  width: 24px;
+  font-size: 0.75rem;
   border: none;
   user-select: none;
   background-color: transparent;
@@ -92,66 +56,6 @@
   &:focus-visible {
     outline: 2px solid var(--button-focus-border-color);
   }
-
-  &:disabled {
-    pointer-events: none;
-  }
-}
-
-.SetVisibleMonth,
-.SetVisibleYear {
-  height: 24px;
-  width: 24px;
-  font-size: 0.75rem;
-}
-
-.SetActiveSectionMonth {
-  min-width: 80px;
-  font-size: 0.85rem;
-}
-
-.SetActiveSectionYear {
-  min-width: 42px;
-  font-size: 0.85rem;
-}
-
-.SetActiveSectionYearMD2 {
-  font-size: 0.85rem;
-  min-width: fit-content;
-  text-wrap: nowrap;
-}
-
-.MonthList,
-.YearList {
-  padding: 12px;
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  gap: 2px;
-  overflow-y: auto;
-}
-
-.MonthGrid,
-.YearGrid {
-  padding: 12px;
-  display: grid;
-  row-gap: 2px;
-  overflow-y: auto;
-  z-index: 1;
-}
-
-.MonthGrid {
-  grid-template-columns: repeat(var(--calendar-month-grid-cells-per-row), 1fr);
-}
-
-.YearGrid {
-  grid-template-columns: repeat(var(--calendar-year-grid-cells-per-row), 1fr);
-}
-
-.MonthCell,
-.YearCell {
-  height: 28px;
-  min-height: 28px;
 
   &:disabled {
     pointer-events: none;
@@ -179,19 +83,7 @@
   justify-content: center;
 }
 
-.DayWeekNumber {
-  height: 36px;
-  width: 36px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.75rem;
-  color: var(--days-grid-header-color);
-}
-
-.DayCell,
-.MonthCell,
-.YearCell {
+.DayCell {
   position: relative;
   user-select: none;
   border: none;
@@ -234,7 +126,7 @@
     background-color: var(--button-hover-bg-color);
   }
 
-  &[data-selected]:not([data-outside-month]):not([data-inside-selection])::before {
+  &[data-selected]:not([data-outside-month])::before {
     background-color: var(--cell-selected-bg-color);
   }
 
@@ -254,34 +146,6 @@
     color: var(--cell-outside-month-color);
     pointer-events: none;
   }
-
-  &[data-inside-selection]:not([data-outside-month])::before {
-    left: 0;
-    right: 0;
-    background-color: var(--cell-inside-selection-bg-color);
-  }
-
-  &[data-selection-start]::before {
-    right: 0;
-  }
-
-  &[data-selection-end]::before {
-    left: 0;
-  }
-
-  &.RangeDayCell,
-  &.RangeMonthCell,
-  &.RangeYearCell {
-    &[data-selected]:not([data-selection-start])::before {
-      border-top-left-radius: 0;
-      border-bottom-left-radius: 0;
-    }
-
-    &[data-selected]:not([data-selection-end])::before {
-      border-top-right-radius: 0;
-      border-bottom-right-radius: 0;
-    }
-  }
 }
 
 .DayCell {
@@ -293,77 +157,9 @@
   }
 }
 
-.Root:not([data-empty]) .RangeDayCell:not([data-outside-month])[data-previewed],
-.Root:not([data-empty]) .RangeMonthCell[data-previewed] {
-  &:not([data-preview-start]) {
-    border-top-left-radius: 0;
-    border-bottom-left-radius: 0;
-  }
-
-  &:not([data-preview-end]) {
-    border-top-right-radius: 0;
-    border-bottom-right-radius: 0;
-  }
-
-  &:not([data-selected]) {
-    border-top: 1px dashed var(--cell-preview-border-color);
-    border-bottom: 1px dashed var(--cell-preview-border-color);
-  }
-
-  &[data-preview-start]:not([data-selected]) {
-    border-left: 1px dashed var(--cell-preview-border-color);
-  }
-
-  &[data-preview-end]:not([data-selected]) {
-    border-right: 1px dashed var(--cell-preview-border-color);
-  }
-}
-
 .DayGridHeaderCell {
   width: 36px;
   text-align: center;
   font-size: 0.75rem;
   color: var(--days-grid-header-color);
-}
-
-.DayGridSeparator {
-  background-color: var(--days-grid-separator-bg-color);
-  margin: 24px 0;
-  width: 1px;
-}
-
-.Hidden {
-  opacity: 0;
-  pointer-events: none;
-}
-
-.YearAccordionRoot {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  overflow-y: auto;
-  position: relative;
-}
-
-.YearAccordionTrigger {
-  border: none;
-  user-select: none;
-  background-color: transparent;
-  text-align: center;
-  cursor: pointer;
-  justify-self: flex-end;
-  text-align: left;
-  font-size: 1rem;
-  flex: 0 0 32px;
-  padding: 0 32px;
-}
-
-.YearAccordionPanel {
-  min-height: 144px;
-  padding: 0 0 24px 0;
-}
-.YearAccordionSeparator {
-  background-color: var(--days-grid-separator-bg-color);
-  margin: 0 6px;
-  flex: 0 0 1px;
 }
