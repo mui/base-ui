@@ -1,3 +1,5 @@
+import { findLast } from '../../utils/findLast';
+
 const LIST_NAVIGATION_SUPPORTED_KEYS = [
   'ArrowDown',
   'ArrowUp',
@@ -105,7 +107,7 @@ export function applyInitialFocusInList({
   }
 
   if (target.type === 'last-cell') {
-    cell = cells.flat(2).findLast(isNavigable);
+    cell = findLast(cells.flat(2), isNavigable);
   }
 
   if (cell) {
@@ -278,7 +280,7 @@ export function navigateInGrid({
   };
 
   const moveToLastCellInGrid = () => {
-    const cell = cells[coordinates.calendar].flat().findLast(isNavigable);
+    const cell = findLast(cells[coordinates.calendar].flat(), isNavigable);
     if (cell) {
       cell.focus();
     }
@@ -335,7 +337,7 @@ export function applyInitialFocusInGrid({
   }
 
   if (target.type === 'last-cell') {
-    cell = cells.flat(2).findLast(isNavigable);
+    cell = findLast(cells.flat(2), isNavigable);
   }
 
   if (target.type === 'first-cell-in-col') {
@@ -347,10 +349,10 @@ export function applyInitialFocusInGrid({
 
   // TODO: Support when the 1st month is fully disabled.
   if (target.type === 'last-cell-in-col') {
-    cell = cells
-      .flat(1)
-      .map((row) => row[target.colIndex])
-      .findLast(isNavigable);
+    cell = findLast(
+      cells.flat(1).map((row) => row[target.colIndex]),
+      isNavigable,
+    );
   }
 
   if (cell) {
