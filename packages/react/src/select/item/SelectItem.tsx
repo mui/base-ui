@@ -31,6 +31,7 @@ export const SelectItem = React.memo(
       ...elementProps
     } = componentProps;
 
+    const textRef = React.useRef<HTMLElement | null>(null);
     const listItem = useCompositeListItem({ label });
 
     const {
@@ -116,12 +117,13 @@ export const SelectItem = React.memo(
       props,
     });
 
-    const contextValue = React.useMemo(
+    const contextValue: SelectItemContext = React.useMemo(
       () => ({
         selected,
         indexRef,
+        textRef,
       }),
-      [selected, indexRef],
+      [selected, indexRef, textRef],
     );
 
     return <SelectItemContext.Provider value={contextValue}>{element}</SelectItemContext.Provider>;

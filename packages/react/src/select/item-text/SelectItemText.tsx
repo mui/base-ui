@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import { useForkRef } from '../../utils/useForkRef';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import { useSelectItemContext } from '../item/SelectItemContext';
@@ -17,7 +16,7 @@ export const SelectItemText = React.memo(
     componentProps: SelectItemText.Props,
     forwardedRef: React.ForwardedRef<HTMLDivElement>,
   ) {
-    const { selected, indexRef } = useSelectItemContext();
+    const { selected, indexRef, textRef } = useSelectItemContext();
     const { selectedItemTextRef } = useSelectRootContext();
 
     const { className, render, ...elementProps } = componentProps;
@@ -37,7 +36,7 @@ export const SelectItemText = React.memo(
     );
 
     const element = useRenderElement('div', componentProps, {
-      ref: useForkRef<HTMLElement>(localRef, forwardedRef),
+      ref: [localRef, forwardedRef, textRef],
       props: elementProps,
     });
 

@@ -48,5 +48,6 @@ export function ContextMenuRoot(props: ContextMenuRoot.Props) {
 export namespace ContextMenuRoot {
   export interface State {}
 
-  export interface Props extends Omit<Menu.Root.Props, 'modal' | 'openOnHover' | 'delay'> {}
+  export interface Props
+    extends Omit<Menu.Root.Props, 'modal' | 'openOnHover' | 'delay' | 'closeDelay'> {}
 }
