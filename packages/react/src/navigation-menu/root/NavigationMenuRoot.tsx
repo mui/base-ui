@@ -58,19 +58,6 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot(
   const rootRef = React.useRef<HTMLDivElement | null>(null);
   const listRef = React.useRef<HTMLDivElement | null>(null);
 
-  const setValue = useEventCallback(
-    (nextValue: any, event: Event | undefined, reason: BaseOpenChangeReason | undefined) => {
-      if (!nextValue) {
-        closeReasonRef.current = reason;
-      }
-
-      if (nextValue !== value) {
-        onValueChange?.(nextValue, event, reason);
-      }
-      setValueUnwrapped(nextValue);
-    },
-  );
-
   const [positionerElement, setPositionerElement] = React.useState<HTMLElement | null>(null);
   const [popupElement, setPopupElement] = React.useState<HTMLElement | null>(null);
   const [viewportElement, setViewportElement] = React.useState<HTMLElement | null>(null);
@@ -88,6 +75,22 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot(
   const afterOutsideRef = React.useRef<HTMLSpanElement | null>(null);
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
+
+  const setValue = useEventCallback(
+    (nextValue: any, event: Event | undefined, reason: BaseOpenChangeReason | undefined) => {
+      if (!nextValue) {
+        closeReasonRef.current = reason;
+        setActivationDirection(null);
+        setFloatingRootContext(undefined);
+      }
+
+      if (nextValue !== value) {
+        onValueChange?.(nextValue, event, reason);
+      }
+
+      setValueUnwrapped(nextValue);
+    },
+  );
 
   const handleUnmount = useEventCallback(() => {
     const doc = ownerDocument(rootRef.current);

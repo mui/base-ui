@@ -182,9 +182,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
       if (nextOpen) {
         setValue(itemValue, event, reason);
       } else {
-        setActivationDirection(null);
         setValue(null, event, reason);
-        setFloatingRootContext(undefined);
       }
     }
 
@@ -342,8 +340,6 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
             )
           ) {
             setValue(null, event.nativeEvent, 'focus-out');
-            setActivationDirection(null);
-            setFloatingRootContext(undefined);
           }
         },
       },
