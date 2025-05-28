@@ -3,7 +3,7 @@ import * as React from 'react';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { SharedCalendarDayGridBodyContext } from './SharedCalendarDayGridBodyContext';
-import { useSharedCalendarDayGridBody } from './useBaseCalendarDayGridBody';
+import { useSharedCalendarDayGridBody } from './useSharedCalendarDayGridBody';
 import { CompositeList } from '../../composite/list/CompositeList';
 
 const CalendarDayGridBody = React.forwardRef(function CalendarDayGrid(
