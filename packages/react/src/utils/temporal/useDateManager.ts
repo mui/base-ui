@@ -14,7 +14,7 @@ export function useDateManager(
     () => ({
       valueType: 'date',
       validator: validateDate,
-      internal_valueManager: nonRangeTemporalValueManager,
+      valueManager: nonRangeTemporalValueManager,
     }),
     [],
   );

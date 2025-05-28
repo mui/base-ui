@@ -48,6 +48,7 @@ export function useSharedCalendarRoot<
     valueValidationProps,
     // Manager props
     manager,
+    manager: { validator },
     calendarValueManager: {
       getDateToUseForReferenceDate,
       onSelectDate,
@@ -58,14 +59,34 @@ export function useSharedCalendarRoot<
 
   const adapter = useTemporalAdapter();
 
-  const { value, handleValueChange, timezone } = useTemporalControlledValue({
+  const handleValueChangeWithContext = useEventCallback(
+    (newValue: TValue, options: { section: SharedCalendarSection }) => {
+      onValueChange?.(newValue, {
+        section: options.section,
+        validationError: validator({
+          adapter,
+          value: newValue,
+          validationProps: valueValidationProps,
+        }),
+      });
+    },
+  );
+
+  const { value, setValue, timezone } = useTemporalControlledValue({
     name: '(Range)CalendarRoot',
     timezone: timezoneProp,
     value: valueProp,
     defaultValue,
     referenceDate: referenceDateProp,
-    onChange: onValueChange,
+    onChange: handleValueChangeWithContext,
     manager,
+  });
+
+  const { isInvalid } = useTemporalValidation({
+    manager,
+    value,
+    onError,
+    validationProps: valueValidationProps,
   });
 
   const referenceDate = React.useMemo(
@@ -153,22 +174,6 @@ export function useSharedCalendarRoot<
     [adapter, dateValidationProps],
   );
 
-  const { getValidationErrorForNewValue } = useTemporalValidation({
-    manager,
-    value,
-    onError,
-    validationProps: valueValidationProps,
-  });
-
-  const setValue = useEventCallback(
-    (newValue: TValue, options: { section: SharedCalendarSection }) => {
-      handleValueChange(newValue, {
-        section: options.section,
-        validationError: getValidationErrorForNewValue(newValue),
-      });
-    },
-  );
-
   const selectDate = useEventCallback<SharedCalendarRootContext['selectDate']>(
     (selectedDate: TemporalSupportedObject, options) => {
       onSelectDate({
@@ -236,6 +241,7 @@ export function useSharedCalendarRoot<
     isDateCellVisible,
     context,
     visibleDateContext,
+    isInvalid,
   };
 }
 
@@ -340,6 +346,10 @@ export namespace useSharedCalendarRoot {
     isDateCellVisible: (date: TemporalSupportedObject) => boolean;
     context: SharedCalendarRootContext;
     visibleDateContext: SharedCalendarRootVisibleDateContext;
+    /**
+     * Whether the current value is invalid.
+     */
+    isInvalid: boolean;
   }
 
   export interface ValueChangeHandlerContext<TError> {

@@ -51,9 +51,8 @@ export interface TemporalManager<
   validator: TemporalValidator<TValue, TError, TValidationProps>;
   /**
    * Object containing basic methods to interact with the value of a temporal component.
-   * This property is not part of the public API and should not be used directly.
    */
-  internal_valueManager: TemporalValueManager<TValue, TError>;
+  valueManager: TemporalValueManager<TValue, TError>;
 }
 
 export interface TemporalValueManager<TValue extends TemporalSupportedValue, TError> {
@@ -127,14 +126,14 @@ export interface TemporalValueManager<TValue extends TemporalSupportedValue, TEr
    * @template TError
    * @param {TError} error The new error
    * @param {TError | null} prevError The previous error
-   * @returns {boolean} `true` if the new error is different from the previous one.
+   * @returns {boolean} Whether the new error is different from the previous one.
    */
   isSameError: (error: TError, prevError: TError | null) => boolean;
   /**
    * Checks if the current error is empty or not.
    * @template TError
-   * @param {TError} error The current error.
-   * @returns {boolean} `true` if the current error is not empty.
+   * @param {TError} error The error to check.
+   * @returns {boolean} Whether the provided error is not empty.
    */
   hasError: (error: TError) => boolean;
   /**

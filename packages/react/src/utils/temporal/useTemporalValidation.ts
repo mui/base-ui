@@ -2,7 +2,6 @@
 import * as React from 'react';
 import { useTemporalAdapter } from '../../temporal-adapter-provider/TemporalAdapterContext';
 import { TemporalAdapter, TemporalSupportedValue } from '../../models';
-import { useEventCallback } from '../useEventCallback';
 import type { TemporalManager, TemporalOnErrorProps } from './types';
 
 /**
@@ -22,19 +21,19 @@ export function useTemporalValidation<
   TValidationProps extends {},
 >(
   parameters: useTemporalValidation.Parameters<TValue, TError, TValidationProps>,
-): useTemporalValidation.ReturnValue<TValue, TError> {
+): useTemporalValidation.ReturnValue<TError> {
   const {
     validationProps,
     value,
     onError,
-    manager: { validator, internal_valueManager: valueManager },
+    manager: { validator, valueManager },
   } = parameters;
 
   const adapter = useTemporalAdapter();
   const previousValidationErrorRef = React.useRef<TError | null>(valueManager.defaultErrorState);
 
   const validationError = validator({ adapter, value, validationProps });
-  const hasValidationError = valueManager.hasError(validationError);
+  const invalid = valueManager.hasError(validationError);
 
   React.useEffect(() => {
     if (onError && !valueManager.isSameError(validationError, previousValidationErrorRef.current)) {
@@ -44,11 +43,7 @@ export function useTemporalValidation<
     previousValidationErrorRef.current = validationError;
   }, [validator, valueManager, onError, validationError, value]);
 
-  const getValidationErrorForNewValue = useEventCallback((newValue: TValue) => {
-    return validator({ adapter, value: newValue, validationProps });
-  });
-
-  return { validationError, hasValidationError, getValidationErrorForNewValue };
+  return { validationError, isInvalid: invalid };
 }
 
 export namespace useTemporalValidation {
@@ -72,28 +67,26 @@ export namespace useTemporalValidation {
     validationProps: TValidationProps;
   }
 
-  export interface ReturnValue<TValue extends TemporalSupportedValue, TError> {
+  export interface ReturnValue<TError> {
     /**
      * The validation error associated to the value passed to the `useValidation` hook.
      */
     validationError: TError;
     /**
-     * `true` if the current error is not null.
-     * For single value components, it means that the value is invalid.
+     * Whether the current value is invalid.
+     * For non-range components, it means that the value is invalid.
      * For range components, it means that either start or end value is invalid.
      */
-    hasValidationError: boolean;
-    /**
-     * Get the validation error for a new value.
-     * This can be used to validate the value in a change handler before updating the state.
-     * @template TValue The value type. It will be the same type as `value` or `null`. It can be in `[start, end]` format in case of range value.
-     * @param {TValue} newValue The value to validate.
-     * @returns {TError} The validation error associated to the new value.
-     */
-    getValidationErrorForNewValue: (newValue: TValue) => TError;
+    isInvalid: boolean;
   }
 }
 
-export type TemporalValidator<TValue extends TemporalSupportedValue, TError, TValidationProps> = {
-  (params: { adapter: TemporalAdapter; value: TValue; validationProps: TValidationProps }): TError;
-};
+export type TemporalValidator<
+  TValue extends TemporalSupportedValue,
+  TError,
+  TValidationProps,
+> = (params: {
+  adapter: TemporalAdapter;
+  value: TValue;
+  validationProps: TValidationProps;
+}) => TError;

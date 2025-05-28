@@ -6,8 +6,8 @@ import { TemporalTimezone, TemporalSupportedValue, TemporalSupportedObject } fro
 import { TemporalManager } from './types';
 
 /**
- * Hooks controlling the value while making sure that:
- * - The value returned by `onChange` always have the timezone of `props.value` or `props.defaultValue` if defined
+ * Controls the value of a temporal component while making sure that:
+ * - The value returned by `onChange` always have the timezone of `props.value`, `props.defaultValue` or `props.referenceDate` if defined
  * - The value rendered is always the one from `props.timezone` if defined
  */
 export const useTemporalControlledValue = <
@@ -20,11 +20,14 @@ export const useTemporalControlledValue = <
   defaultValue,
   referenceDate,
   onChange: onChangeProp,
-  manager: { internal_valueManager: valueManager },
-}: UseControlledValueWithTimezoneParameters<TValue, TChange>) => {
+  manager: { valueManager },
+}: useTemporalControlledValue.Parameters<TValue, TChange>): useTemporalControlledValue.ReturnValue<
+  TValue,
+  TChange
+> => {
   const utils = useTemporalAdapter();
 
-  const [valueWithInputTimezone, setValue] = useControlled({
+  const [valueWithInputTimezone, setValueWithInputTimezone] = useControlled({
     name,
     state: 'value',
     controlled: valueProp,
@@ -62,39 +65,53 @@ export const useTemporalControlledValue = <
     [valueManager, utils, timezoneToRender, valueWithInputTimezone],
   );
 
-  const handleValueChange = useEventCallback((newValue: TValue, ...otherParams: any[]) => {
+  const setValue = useEventCallback((newValue: TValue, ...otherParams: any[]) => {
     const newValueWithInputTimezone = setInputTimezone(newValue);
-    setValue(newValueWithInputTimezone);
+    setValueWithInputTimezone(newValueWithInputTimezone);
     onChangeProp?.(newValueWithInputTimezone, ...otherParams);
   }) as TChange;
 
   return {
     value: valueWithTimezoneToRender,
-    handleValueChange,
+    setValue,
     timezone: timezoneToRender,
   };
 };
 
-interface UseValueWithTimezoneParameters<
-  TValue extends TemporalSupportedValue,
-  TChange extends (...params: any[]) => void,
-> {
-  timezone: TemporalTimezone | undefined;
-  value: TValue | undefined;
-  defaultValue: TValue | undefined;
-  /**
-   * The reference date as passed to `props.referenceDate`.
-   * It does not need to have its default value.
-   * This is only used to determine the timezone to use when `props.value` and `props.defaultValue` are not defined.
-   */
-  referenceDate: TemporalSupportedObject | undefined;
-  onChange: TChange | undefined;
-  manager: TemporalManager<TValue, any, any>;
-}
+export namespace useTemporalControlledValue {
+  export interface Parameters<
+    TValue extends TemporalSupportedValue,
+    TChange extends (...params: any[]) => void,
+  > {
+    timezone: TemporalTimezone | undefined;
+    value: TValue | undefined;
+    defaultValue: TValue | undefined;
+    /**
+     * The reference date as passed to `props.referenceDate`.
+     * It does not need to have its default value.
+     * This is only used to determine the timezone to use when `props.value` and `props.defaultValue` are not defined.
+     */
+    referenceDate: TemporalSupportedObject | undefined;
+    onChange: TChange | undefined;
+    manager: TemporalManager<TValue, any, any>;
+    name: string;
+  }
 
-interface UseControlledValueWithTimezoneParameters<
-  TValue extends TemporalSupportedValue,
-  TChange extends (...params: any[]) => void,
-> extends UseValueWithTimezoneParameters<TValue, TChange> {
-  name: string;
+  export interface ReturnValue<
+    TValue extends TemporalSupportedValue,
+    TChange extends (...params: any[]) => void,
+  > {
+    /**
+     * The value with the timezone to render.
+     */
+    value: TValue;
+    /**
+     * Sets the value and make sure the correct timezone is applied.
+     */
+    setValue: TChange;
+    /**
+     * The timezone to use for rendering dates.
+     */
+    timezone: TemporalTimezone;
+  }
 }

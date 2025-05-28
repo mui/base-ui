@@ -80,6 +80,7 @@ export const CalendarRoot = React.forwardRef(function CalendarRoot(
     isDateCellVisible,
     context: baseContext,
     visibleDateContext,
+    isInvalid,
   } = useSharedCalendarRoot({
     readOnly,
     disabled,
@@ -119,7 +120,10 @@ export const CalendarRoot = React.forwardRef(function CalendarRoot(
   const props = React.useMemo(() => ({ children: resolvedChildren }), [resolvedChildren]);
 
   const isEmpty = value == null;
-  const state: CalendarRoot.State = React.useMemo(() => ({ empty: isEmpty }), [isEmpty]);
+  const state: CalendarRoot.State = React.useMemo(
+    () => ({ empty: isEmpty, invalid: isInvalid }),
+    [isEmpty, isInvalid],
+  );
 
   const element = useRenderElement('div', componentProps, {
     state,
@@ -137,7 +141,16 @@ export const CalendarRoot = React.forwardRef(function CalendarRoot(
 });
 
 export namespace CalendarRoot {
-  export interface State {}
+  export interface State {
+    /**
+     * Whether the current value is empty.
+     */
+    empty: boolean;
+    /**
+     * Whether the current value is invalid.
+     */
+    invalid: boolean;
+  }
 
   export interface Props
     extends Omit<

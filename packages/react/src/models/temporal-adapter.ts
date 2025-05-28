@@ -207,7 +207,7 @@ export interface TemporalAdapter<TLocale = any> {
   getCurrentLocaleCode(): string;
   /**
    * Check if the current locale is using 12 hours cycle (i.e: time with meridiem).
-   * @returns {boolean} `true` if the current locale is using 12 hours cycle.
+   * @returns {boolean} Whether the current locale is using 12 hours cycle.
    */
   is12HourCycleInCurrentLocale(): boolean;
   /**
@@ -219,7 +219,7 @@ export interface TemporalAdapter<TLocale = any> {
   /**
    * Check if the date is valid.
    * @param {TemporalSupportedObject | null} value The value to test.
-   * @returns {boolean} `true` if the value is a valid date according to the date library.
+   * @returns {boolean} Whether the value is a valid date according to the date library.
    */
   isValid(value: TemporalSupportedObject | null): value is TemporalSupportedObject;
   /**
@@ -247,7 +247,7 @@ export interface TemporalAdapter<TLocale = any> {
    * Check if the two dates are equal (which means they represent the same timestamp).
    * @param {TemporalSupportedObject | null} value The reference date.
    * @param {TemporalSupportedObject | null} comparing The date to compare with the reference date.
-   * @returns {boolean} `true` if the two dates are equal.
+   * @returns {boolean} Whether the two dates are equal.
    */
   isEqual(
     value: TemporalSupportedObject | null,
@@ -257,35 +257,35 @@ export interface TemporalAdapter<TLocale = any> {
    * Check if the two dates are in the same year (using the timezone of the reference date).
    * @param {TemporalSupportedObject} value The reference date.
    * @param {TemporalSupportedObject} comparing The date to compare with the reference date.
-   * @returns {boolean} `true` if the two dates are in the same year.
+   * @returns {boolean} Whether the two dates are in the same year.
    */
   isSameYear(value: TemporalSupportedObject, comparing: TemporalSupportedObject): boolean;
   /**
    * Check if the two dates are in the same month (using the timezone of the reference date).
    * @param {TemporalSupportedObject} value The reference date.
    * @param {TemporalSupportedObject} comparing The date to compare with the reference date.
-   * @returns {boolean} `true` if the two dates are in the same month.
+   * @returns {boolean} Whether the two dates are in the same month.
    */
   isSameMonth(value: TemporalSupportedObject, comparing: TemporalSupportedObject): boolean;
   /**
    * Check if the two dates are in the same day (using the timezone of the reference date).
    * @param {TemporalSupportedObject} value The reference date.
    * @param {TemporalSupportedObject} comparing The date to compare with the reference date.
-   * @returns {boolean} `true` if the two dates are in the same day.
+   * @returns {boolean} Whether the two dates are in the same day.
    */
   isSameDay(value: TemporalSupportedObject, comparing: TemporalSupportedObject): boolean;
   /**
    * Check if the two dates are at the same hour (using the timezone of the reference date).
    * @param {TemporalSupportedObject} value The reference date.
    * @param {TemporalSupportedObject} comparing The date to compare with the reference date.
-   * @returns {boolean} `true` if the two dates are in the same hour.
+   * @returns {boolean} Whether the two dates are in the same hour.
    */
   isSameHour(value: TemporalSupportedObject, comparing: TemporalSupportedObject): boolean;
   /**
    * Check if the reference date is after the second date.
    * @param {TemporalSupportedObject} value The reference date.
    * @param {TemporalSupportedObject} comparing The date to compare with the reference date.
-   * @returns {boolean} `true` if the reference date is after the second date.
+   * @returns {boolean} Whether the reference date is after the second date.
    */
   isAfter(value: TemporalSupportedObject, comparing: TemporalSupportedObject): boolean;
   // TODO v7: Consider adding a `unit` param to `isAfter` and drop this method.
@@ -293,7 +293,7 @@ export interface TemporalAdapter<TLocale = any> {
    * Check if the year of the reference date is after the year of the second date (using the timezone of the reference date).
    * @param {TemporalSupportedObject} value The reference date.
    * @param {TemporalSupportedObject} comparing The date to compare with the reference date.
-   * @returns {boolean} `true` if the year of the reference date is after the year of the second date.
+   * @returns {boolean} Whether the year of the reference date is after the year of the second date.
    */
   isAfterYear(value: TemporalSupportedObject, comparing: TemporalSupportedObject): boolean;
   // TODO v7: Consider adding a `unit` param to `isAfter` and drop this method.
@@ -301,14 +301,14 @@ export interface TemporalAdapter<TLocale = any> {
    * Check if the day of the reference date is after the day of the second date (using the timezone of the reference date).
    * @param {TemporalSupportedObject} value The reference date.
    * @param {TemporalSupportedObject} comparing The date to compare with the reference date.
-   * @returns {boolean} `true` if the day of the reference date is after the day of the second date.
+   * @returns {boolean} Whether the day of the reference date is after the day of the second date.
    */
   isAfterDay(value: TemporalSupportedObject, comparing: TemporalSupportedObject): boolean;
   /**
    * Check if the reference date is before the second date.
    * @param {TemporalSupportedObject} value The reference date.
    * @param {TemporalSupportedObject} comparing The date to compare with the reference date.
-   * @returns {boolean} `true` if the reference date is before the second date.
+   * @returns {boolean} Whether the reference date is before the second date.
    */
   isBefore(value: TemporalSupportedObject, comparing: TemporalSupportedObject): boolean;
   // TODO v7: Consider adding a `unit` param to `isBefore` and drop this method.
@@ -316,7 +316,7 @@ export interface TemporalAdapter<TLocale = any> {
    * Check if the year of the reference date is before the year of the second date (using the timezone of the reference date).
    * @param {TemporalSupportedObject} value The reference date.
    * @param {TemporalSupportedObject} comparing The date to compare with the reference date.
-   * @returns {boolean} `true` if the year of the reference date is before the year of the second date.
+   * @returns {boolean} Whether the year of the reference date is before the year of the second date.
    */
   isBeforeYear(value: TemporalSupportedObject, comparing: TemporalSupportedObject): boolean;
   // TODO v7: Consider adding a `unit` param to `isBefore` and drop this method.
@@ -324,14 +324,14 @@ export interface TemporalAdapter<TLocale = any> {
    * Check if the day of the reference date is before the day of the second date (using the timezone of the reference date).
    * @param {TemporalSupportedObject} value The reference date.
    * @param {TemporalSupportedObject} comparing The date to compare with the reference date.
-   * @returns {boolean} `true` if the day of the reference date is before the day of the second date.
+   * @returns {boolean} Whether the day of the reference date is before the day of the second date.
    */
   isBeforeDay(value: TemporalSupportedObject, comparing: TemporalSupportedObject): boolean;
   /**
    * Check if the value is within the provided range.
    * @param {TemporalSupportedObject} value The value to test.
    * @param {[TemporalSupportedObject, TemporalSupportedObject]} range The range in which the value should be.
-   * @returns {boolean} `true` if the value is within the provided range.
+   * @returns {boolean} Whether the value is within the provided range.
    */
   isWithinRange(
     value: TemporalSupportedObject,
