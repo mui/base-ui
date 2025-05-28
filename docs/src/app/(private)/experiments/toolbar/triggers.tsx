@@ -166,13 +166,16 @@ export default function App() {
                 ),
                 key: 'menu',
                 label: 'Open menu',
+                disabled: MENU_DISABLED,
               })}
               <Menu.Portal>
                 <Menu.Positioner className={styles.menu.Positioner} align="start">
                   <Menu.Popup className={styles.menu.Popup}>
-                    <Menu.Item className={styles.menu.Item}>Item 1</Menu.Item>
-                    <Menu.Item className={styles.menu.Item}>Item 2</Menu.Item>
-                    <Menu.Item className={styles.menu.Item}>Item 3</Menu.Item>
+                    <Menu.Item className={styles.menu.Item}>Cut</Menu.Item>
+                    <Menu.Item className={styles.menu.Item}>Copy</Menu.Item>
+                    <Menu.Item className={styles.menu.Item} disabled>
+                      Paste
+                    </Menu.Item>
                   </Menu.Popup>
                 </Menu.Positioner>
               </Menu.Portal>
