@@ -72,7 +72,11 @@ export default function ExampleNavigationMenu() {
       </NavigationMenu.List>
 
       <NavigationMenu.Portal>
-        <NavigationMenu.Positioner className={styles.Positioner} sideOffset={10}>
+        <NavigationMenu.Positioner
+          className={styles.Positioner}
+          sideOffset={10}
+          collisionPadding={{ top: 5, bottom: 5, left: 20, right: 20 }}
+        >
           <NavigationMenu.Popup className={styles.Popup}>
             <NavigationMenu.Arrow className={styles.Arrow}>
               <ArrowSvg />
