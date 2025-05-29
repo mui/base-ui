@@ -1,10 +1,11 @@
 'use client';
 import * as React from 'react';
 import type { BaseUIComponentProps } from '../utils/types';
-import { mergeProps } from '../merge-props';
 import { FormContext } from './FormContext';
 import { useEventCallback } from '../utils/useEventCallback';
 import { useRenderElement } from '../utils/useRenderElement';
+
+const EMPTY = {};
 
 /**
  * A native form element with consolidated error handling.
@@ -33,6 +34,13 @@ export const Form = React.forwardRef(function Form(
   const onSubmit = useEventCallback(onSubmitProp);
   const onClearErrors = useEventCallback(onClearErrorsProp);
 
+  const focusControl = useEventCallback((control: HTMLElement) => {
+    control.focus();
+    if (control.tagName === 'INPUT') {
+      (control as HTMLInputElement).select();
+    }
+  });
+
   React.useEffect(() => {
     if (!submittedRef.current) {
       return;
@@ -45,15 +53,14 @@ export const Form = React.forwardRef(function Form(
     );
 
     if (invalidFields.length) {
-      invalidFields[0]?.controlRef.current?.focus();
+      focusControl(invalidFields[0].controlRef.current);
     }
-  }, [errors]);
+  }, [errors, focusControl]);
 
-  const state = React.useMemo<Form.State>(() => ({}), []);
-
-  const renderElement = useRenderElement('form', componentProps, {
-    state,
-    props: mergeProps<'form'>(
+  const element = useRenderElement('form', componentProps, {
+    state: EMPTY,
+    ref: forwardedRef,
+    props: [
       {
         noValidate: true,
         onSubmit(event) {
@@ -70,7 +77,7 @@ export const Form = React.forwardRef(function Form(
 
           if (invalidFields.length) {
             event.preventDefault();
-            invalidFields[0]?.controlRef.current?.focus();
+            focusControl(invalidFields[0].controlRef.current);
           } else {
             submittedRef.current = true;
             onSubmit(event as any);
@@ -78,12 +85,11 @@ export const Form = React.forwardRef(function Form(
         },
       },
       elementProps,
-    ),
-    ref: forwardedRef,
+    ],
   });
 
   const clearErrors = useEventCallback((name: string | undefined) => {
-    if (name && {}.hasOwnProperty.call(errors, name)) {
+    if (name && errors && EMPTY.hasOwnProperty.call(errors, name)) {
       const nextErrors = { ...errors };
       delete nextErrors[name];
       onClearErrors(nextErrors);
@@ -99,7 +105,7 @@ export const Form = React.forwardRef(function Form(
     [formRef, errors, clearErrors],
   );
 
-  return <FormContext.Provider value={contextValue}>{renderElement()}</FormContext.Provider>;
+  return <FormContext.Provider value={contextValue}>{element}</FormContext.Provider>;
 });
 
 export namespace Form {

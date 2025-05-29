@@ -269,14 +269,17 @@ describe('<Menu.CheckboxItem />', () => {
       );
 
       const trigger = getByRole('button', { name: 'Open' });
-      await user.click(trigger);
+      await act(() => {
+        trigger.focus();
+      });
+
+      await user.keyboard('{Enter}');
 
       const item = getByRole('menuitemcheckbox');
       await user.click(item);
 
-      await user.click(trigger);
-
-      await user.click(trigger);
+      await user.keyboard('{Enter}');
+      await user.keyboard('{Enter}');
 
       const itemAfterReopen = getByRole('menuitemcheckbox');
       expect(itemAfterReopen).to.have.attribute('aria-checked', 'true');

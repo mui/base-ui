@@ -1,24 +1,43 @@
 'use client';
 import * as React from 'react';
-import type { useMenuRoot } from './useMenuRoot';
-import type { OpenChangeReason } from '../../utils/translateOpenChangeReason';
+import type { FloatingRootContext } from '@floating-ui/react';
+import type { MenuParent, MenuRoot } from './MenuRoot';
+import { HTMLProps } from '../../utils/types';
+import { TransitionStatus } from '../../utils';
 
-export interface MenuRootContext extends useMenuRoot.ReturnValue {
+export interface MenuRootContext {
   disabled: boolean;
-  nested: boolean;
-  parentContext: MenuRootContext | undefined;
   typingRef: React.RefObject<boolean>;
   modal: boolean;
-  openReason: OpenChangeReason | null;
+  activeIndex: number | null;
+  floatingRootContext: FloatingRootContext;
+  itemProps: HTMLProps;
+  popupProps: HTMLProps;
+  triggerProps: HTMLProps;
+  itemDomElements: React.MutableRefObject<(HTMLElement | null)[]>;
+  itemLabels: React.MutableRefObject<(string | null)[]>;
+  mounted: boolean;
+  open: boolean;
+  popupRef: React.RefObject<HTMLElement | null>;
+  setOpen: (
+    open: boolean,
+    event: Event | undefined,
+    reason: MenuRoot.OpenChangeReason | undefined,
+  ) => void;
+  positionerRef: React.RefObject<HTMLElement | null>;
+  setPositionerElement: (element: HTMLElement | null) => void;
+  setTriggerElement: (element: HTMLElement | null) => void;
+  transitionStatus: TransitionStatus;
+  allowMouseUpTriggerRef: React.RefObject<boolean>;
+  lastOpenChangeReason: MenuRoot.OpenChangeReason | null;
+  instantType: 'dismiss' | 'click' | 'group' | undefined;
   onOpenChangeComplete: ((open: boolean) => void) | undefined;
   setHoverEnabled: React.Dispatch<React.SetStateAction<boolean>>;
+  setActiveIndex: React.Dispatch<React.SetStateAction<number | null>>;
+  parent: MenuParent;
 }
 
 export const MenuRootContext = React.createContext<MenuRootContext | undefined>(undefined);
-
-if (process.env.NODE_ENV !== 'production') {
-  MenuRootContext.displayName = 'MenuRootContext';
-}
 
 export function useMenuRootContext(optional?: false): MenuRootContext;
 export function useMenuRootContext(optional: true): MenuRootContext | undefined;

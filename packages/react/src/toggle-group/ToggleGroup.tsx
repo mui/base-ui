@@ -95,7 +95,7 @@ export const ToggleGroup = React.forwardRef(function ToggleGroup(
     [disabled, orientation, setGroupValue, groupValue],
   );
 
-  const renderElement = useRenderElement('div', componentProps, {
+  const element = useRenderElement('div', componentProps, {
     state,
     ref: forwardedRef,
     props: [
@@ -110,9 +110,9 @@ export const ToggleGroup = React.forwardRef(function ToggleGroup(
   return (
     <ToggleGroupContext.Provider value={contextValue}>
       {toolbarContext ? (
-        renderElement()
+        element
       ) : (
-        <CompositeRoot direction={direction} loop={loop} render={renderElement()} />
+        <CompositeRoot direction={direction} loop={loop} render={element} stopEventPropagation />
       )}
     </ToggleGroupContext.Provider>
   );

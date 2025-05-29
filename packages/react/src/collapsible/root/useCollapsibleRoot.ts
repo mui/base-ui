@@ -5,6 +5,7 @@ import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useControlled } from '../../utils/useControlled';
 import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { useEventCallback } from '../../utils/useEventCallback';
+import { AnimationFrame } from '../../utils/useAnimationFrame';
 import { useTransitionStatus, TransitionStatus } from '../../utils/useTransitionStatus';
 
 export type AnimationType = 'css-transition' | 'css-animation' | 'none' | null;
@@ -28,7 +29,7 @@ export function useCollapsibleRoot(
     state: 'open',
   });
 
-  const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
+  const { mounted, setMounted, transitionStatus } = useTransitionStatus(open, true);
   const [visible, setVisible] = React.useState(open);
   const [{ height, width }, setDimensions] = React.useState<Dimensions>({
     height: undefined,
@@ -112,7 +113,7 @@ export function useCollapsibleRoot(
       panel.style.removeProperty('content-visibility');
       panel.style.setProperty(transitionDimensionRef.current ?? 'height', '0px');
 
-      requestAnimationFrame(() => {
+      AnimationFrame.request(() => {
         panel.style.removeProperty(transitionDimensionRef.current ?? 'height');
         setDimensions({ height: panel.scrollHeight, width: panel.scrollWidth });
         panel.style.removeProperty('display');
@@ -122,7 +123,7 @@ export function useCollapsibleRoot(
         panel.style.setProperty('content-visibility', 'visible');
       }
       /* closing */
-      requestAnimationFrame(() => {
+      AnimationFrame.request(() => {
         setDimensions({ height: 0, width: 0 });
       });
 

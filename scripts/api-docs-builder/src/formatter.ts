@@ -1,12 +1,14 @@
 import sortBy from 'lodash/sortBy.js';
-import * as rae from 'react-api-extractor';
+import * as tae from 'typescript-api-extractor';
+import fs from 'fs';
+import path from 'path';
 
-export function formatProperties(props: rae.PropertyNode[]) {
+export function formatProperties(props: tae.PropertyNode[]) {
   const result: Record<string, any> = {};
 
   for (const prop of props) {
     result[prop.name] = {
-      type: formatType(prop.type, prop.optional),
+      type: formatType(prop.type, prop.optional, prop.documentation?.tags),
       default: prop.documentation?.defaultValue,
       required: !prop.optional || undefined,
       description: prop.documentation?.description,
@@ -16,12 +18,12 @@ export function formatProperties(props: rae.PropertyNode[]) {
   return result;
 }
 
-export function formatParameters(params: rae.Parameter[]) {
+export function formatParameters(params: tae.Parameter[]) {
   const result: Record<string, any> = {};
 
   for (const param of params) {
     result[param.name] = {
-      type: formatType(param.type, param.optional, true),
+      type: formatType(param.type, param.optional, param.documentation?.tags, true),
       default: param.defaultValue,
       optional: param.optional || undefined,
       description: param.documentation?.description,
@@ -31,7 +33,7 @@ export function formatParameters(params: rae.Parameter[]) {
   return result;
 }
 
-export function formatEnum(enumNode: rae.EnumNode) {
+export function formatEnum(enumNode: tae.EnumNode) {
   const result: Record<string, any> = {};
   for (const member of sortBy(enumNode.members, 'value')) {
     result[member.value] = {
@@ -44,11 +46,19 @@ export function formatEnum(enumNode: rae.EnumNode) {
 }
 
 export function formatType(
-  type: rae.TypeNode,
+  type: tae.TypeNode,
   removeUndefined: boolean,
+  jsdocTags: tae.DocumentationTag[] | undefined = undefined,
   expandObjects: boolean = false,
 ): string {
-  if (type instanceof rae.ReferenceNode) {
+  const typeTag = jsdocTags?.find?.((tag) => tag.name === 'type');
+  const typeValue = typeTag?.value;
+
+  if (typeValue) {
+    return typeValue;
+  }
+
+  if (type instanceof tae.ReferenceNode) {
     if (/^ReactElement(<.*>)?/.test(type.name)) {
       return 'ReactElement';
     }
@@ -56,20 +66,20 @@ export function formatType(
     return type.name;
   }
 
-  if (type instanceof rae.IntrinsicNode) {
+  if (type instanceof tae.IntrinsicNode) {
     return type.name;
   }
 
-  if (type instanceof rae.UnionNode) {
+  if (type instanceof tae.UnionNode) {
     if (type.name) {
-      return type.name;
+      return getFullyQualifiedName(type.name, type.parentNamespaces);
     }
 
     const memberTypes = type.types;
 
     if (removeUndefined) {
       const types = memberTypes.filter(
-        (t) => !(t instanceof rae.IntrinsicNode && t.name === 'undefined'),
+        (t) => !(t instanceof tae.IntrinsicNode && t.name === 'undefined'),
       );
 
       return orderMembers(types)
@@ -82,9 +92,9 @@ export function formatType(
       .join(' | ');
   }
 
-  if (type instanceof rae.IntersectionNode) {
+  if (type instanceof tae.IntersectionNode) {
     if (type.name) {
-      return type.name;
+      return getFullyQualifiedName(type.name, type.parentNamespaces);
     }
 
     return orderMembers(type.types)
@@ -92,9 +102,9 @@ export function formatType(
       .join(' & ');
   }
 
-  if (type instanceof rae.ObjectNode) {
+  if (type instanceof tae.ObjectNode) {
     if (type.name && !expandObjects) {
-      return type.name;
+      return getFullyQualifiedName(type.name, type.parentNamespaces);
     }
 
     if (isObjectEmpty(type.properties)) {
@@ -106,11 +116,11 @@ export function formatType(
       .join(', ')} }`;
   }
 
-  if (type instanceof rae.LiteralNode) {
+  if (type instanceof tae.LiteralNode) {
     return normalizeQuotes(type.value as string);
   }
 
-  if (type instanceof rae.ArrayNode) {
+  if (type instanceof tae.ArrayNode) {
     const formattedMemberType = formatType(type.elementType, false);
 
     if (formattedMemberType.includes(' ')) {
@@ -120,9 +130,9 @@ export function formatType(
     return `${formattedMemberType}[]`;
   }
 
-  if (type instanceof rae.FunctionNode) {
+  if (type instanceof tae.FunctionNode) {
     if (type.name && type.name !== 'ComponentRenderFn') {
-      return type.name;
+      return getFullyQualifiedName(type.name, type.parentNamespaces);
     }
 
     const functionSignature = type.callSignatures
@@ -137,34 +147,71 @@ export function formatType(
     return `(${functionSignature})`;
   }
 
-  if (type instanceof rae.TupleNode) {
+  if (type instanceof tae.TupleNode) {
     if (type.name) {
-      return type.name;
+      return getFullyQualifiedName(type.name, type.parentNamespaces);
     }
 
-    return `[${type.types.map((member: rae.TypeNode) => formatType(member, false)).join(', ')}]`;
+    return `[${type.types.map((member: tae.TypeNode) => formatType(member, false)).join(', ')}]`;
   }
 
-  if (type instanceof rae.TypeParameterNode) {
+  if (type instanceof tae.TypeParameterNode) {
     return type.constraint ?? type.name;
   }
 
   return 'unknown';
 }
 
+function kebabToPascal(str: string): string {
+  return str
+    .split('-')
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join('');
+}
+
+// TODO make this less dependent on the structure of the repo
+const componentsDir = path.resolve(process.cwd(), '../../packages/react/src');
+const componentNames: string[] = fs
+  .readdirSync(componentsDir, { withFileTypes: true })
+  .filter((dirent) => dirent.isDirectory())
+  .map((dirent) => kebabToPascal(dirent.name));
+
+function getFullyQualifiedName(localName: string, namespaces: string[]): string {
+  if (namespaces.length === 0) {
+    return localName;
+  }
+
+  // Our components are defined in the source as [ComponentName][Part], but exported as [ComponentName].[Part].
+  // The following code adjusts the namespaces to match the exported names.
+  const joinedNamespaces = namespaces.map((namespace) => {
+    const componentNameInNamespace = componentNames.find((componentName) =>
+      new RegExp(`^${componentName}[A-Z]`).test(namespace),
+    );
+
+    if (componentNameInNamespace) {
+      const dotPosition = componentNameInNamespace.length;
+      return `${namespace.substring(0, dotPosition)}.${namespace.substring(dotPosition)}`;
+    }
+
+    return namespace;
+  });
+
+  return `${joinedNamespaces}.${localName}`;
+}
+
 /**
  * Looks for 'any', 'null' and 'undefined' types and moves them to the end of the array of types.
  */
-function orderMembers(members: readonly rae.TypeNode[]): readonly rae.TypeNode[] {
+function orderMembers(members: readonly tae.TypeNode[]): readonly tae.TypeNode[] {
   let orderedMembers = pushToEnd(members, 'any');
   orderedMembers = pushToEnd(orderedMembers, 'null');
   orderedMembers = pushToEnd(orderedMembers, 'undefined');
   return orderedMembers;
 }
 
-function pushToEnd(members: readonly rae.TypeNode[], name: string): readonly rae.TypeNode[] {
-  const index = members.findIndex((member: rae.TypeNode) => {
-    return member instanceof rae.IntrinsicNode && member.name === name;
+function pushToEnd(members: readonly tae.TypeNode[], name: string): readonly tae.TypeNode[] {
+  const index = members.findIndex((member: tae.TypeNode) => {
+    return member instanceof tae.IntrinsicNode && member.name === name;
   });
 
   if (index !== -1) {

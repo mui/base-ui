@@ -1,10 +1,41 @@
 'use client';
 import * as React from 'react';
-import { FloatingTree } from '@floating-ui/react';
-import { useDirection } from '../../direction-provider/DirectionContext';
+import * as ReactDOM from 'react-dom';
+import {
+  FloatingTree,
+  useDismiss,
+  useFloatingRootContext,
+  useFocus,
+  useHover,
+  useInteractions,
+  useListNavigation,
+  useRole,
+  useTypeahead,
+  safePolygon,
+} from '@floating-ui/react';
+import { useClick } from '../../utils/floating-ui/useClick';
 import { MenuRootContext, useMenuRootContext } from './MenuRootContext';
-import { MenuOrientation, useMenuRoot } from './useMenuRoot';
-import type { OpenChangeReason } from '../../utils/translateOpenChangeReason';
+import { MenubarContext, useMenubarContext } from '../../menubar/MenubarContext';
+import { useTimeout } from '../../utils/useTimeout';
+import { useTransitionStatus } from '../../utils/useTransitionStatus';
+import { useEventCallback } from '../../utils/useEventCallback';
+import { useControlled } from '../../utils/useControlled';
+import { PATIENT_CLICK_THRESHOLD, TYPEAHEAD_RESET_MS } from '../../utils/constants';
+import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
+import { useDirection } from '../../direction-provider/DirectionContext';
+import { useScrollLock } from '../../utils/useScrollLock';
+import {
+  type BaseOpenChangeReason,
+  translateOpenChangeReason,
+} from '../../utils/translateOpenChangeReason';
+import {
+  ContextMenuRootContext,
+  useContextMenuRootContext,
+} from '../../context-menu/root/ContextMenuRootContext';
+import { ownerDocument } from '../../utils/owner';
+
+const EMPTY_ARRAY: never[] = [];
+const EMPTY_REF = { current: false };
 
 /**
  * Groups all parts of the menu.
@@ -15,74 +46,461 @@ import type { OpenChangeReason } from '../../utils/translateOpenChangeReason';
 export const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
   const {
     children,
+    open: openProp,
+    onOpenChange,
+    onOpenChangeComplete,
     defaultOpen = false,
     disabled = false,
-    closeParentOnEsc = true,
+    modal: modalProp,
     loop = true,
-    modal = true,
-    onOpenChange,
-    open,
     orientation = 'vertical',
-    delay = 100,
-    openOnHover: openOnHoverProp,
     actionsRef,
-    onOpenChangeComplete,
+    openOnHover: openOnHoverProp,
+    delay = 100,
+    closeDelay = 0,
+    closeParentOnEsc = true,
   } = props;
+
+  const [triggerElement, setTriggerElement] = React.useState<HTMLElement | null>(null);
+  const [positionerElement, setPositionerElementUnwrapped] = React.useState<HTMLElement | null>(
+    null,
+  );
+  const [instantType, setInstantType] = React.useState<'dismiss' | 'click' | 'group'>();
+  const [hoverEnabled, setHoverEnabled] = React.useState(true);
+  const [activeIndex, setActiveIndex] = React.useState<number | null>(null);
+  const [lastOpenChangeReason, setLastOpenChangeReason] =
+    React.useState<MenuRoot.OpenChangeReason | null>(null);
+  const [stickIfOpen, setStickIfOpen] = React.useState(true);
+  const openEventRef = React.useRef<Event | null>(null);
+  const popupRef = React.useRef<HTMLElement>(null);
+  const positionerRef = React.useRef<HTMLElement | null>(null);
+  const stickIfOpenTimeout = useTimeout();
+  const contextMenuContext = useContextMenuRootContext(true);
+
+  let parent: MenuParent;
+  {
+    const parentContext = useMenuRootContext(true);
+    const menubarContext = useMenubarContext(true);
+
+    if (parentContext) {
+      parent = {
+        type: 'menu',
+        context: parentContext,
+      };
+    } else if (menubarContext) {
+      parent = {
+        type: 'menubar',
+        context: menubarContext,
+      };
+    } else if (contextMenuContext) {
+      parent = {
+        type: 'context-menu',
+        context: contextMenuContext,
+      };
+    } else {
+      parent = {
+        type: undefined,
+      };
+    }
+  }
+
+  const modal =
+    (parent.type === undefined || parent.type === 'context-menu') && (modalProp ?? true);
+
+  if (process.env.NODE_ENV !== 'production') {
+    if (parent.type !== undefined && modalProp !== undefined) {
+      console.warn(
+        'Base UI: The `modal` prop is not supported on nested menus. It will be ignored.',
+      );
+    }
+  }
+
+  const openOnHover =
+    openOnHoverProp ??
+    (parent.type === 'menu' || (parent.type === 'menubar' && parent.context.hasSubmenuOpen));
+
+  const [open, setOpenUnwrapped] = useControlled({
+    controlled: openProp,
+    default: defaultOpen,
+    name: 'MenuRoot',
+    state: 'open',
+  });
+
+  const allowOutsidePressDismissalRef = React.useRef(parent.type !== 'context-menu');
+  const allowOutsidePressDismissalTimeout = useTimeout();
+
+  React.useEffect(() => {
+    if (!open) {
+      openEventRef.current = null;
+    }
+
+    if (parent.type !== 'context-menu') {
+      return;
+    }
+
+    if (!open) {
+      allowOutsidePressDismissalTimeout.clear();
+      allowOutsidePressDismissalRef.current = false;
+      return;
+    }
+
+    // With `mousedown` outside press events and long press touch input, there
+    // needs to be a grace period after opening to ensure the dismissal event
+    // doesn't fire immediately after open.
+    allowOutsidePressDismissalTimeout.start(500, () => {
+      allowOutsidePressDismissalRef.current = true;
+    });
+  }, [allowOutsidePressDismissalTimeout, open, parent.type]);
+
+  const setPositionerElement = React.useCallback((value: HTMLElement | null) => {
+    positionerRef.current = value;
+    setPositionerElementUnwrapped(value);
+  }, []);
+
+  const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
+
+  useScrollLock({
+    enabled: open && modal && lastOpenChangeReason !== 'trigger-hover',
+    mounted,
+    open,
+    referenceElement: positionerElement,
+  });
+
+  if (!open && !hoverEnabled) {
+    setHoverEnabled(true);
+  }
+
+  const handleUnmount = useEventCallback(() => {
+    setMounted(false);
+    setStickIfOpen(true);
+    onOpenChangeComplete?.(false);
+  });
+
+  useOpenChangeComplete({
+    enabled: !actionsRef,
+    open,
+    ref: popupRef,
+    onComplete() {
+      if (!open) {
+        handleUnmount();
+      }
+    },
+  });
+
+  const ignoreClickRef = React.useRef(false);
+  const allowTouchToCloseRef = React.useRef(true);
+  const allowTouchToCloseTimeout = useTimeout();
+
+  const setOpen = useEventCallback(
+    (
+      nextOpen: boolean,
+      event: Event | undefined,
+      reason: MenuRoot.OpenChangeReason | undefined,
+    ) => {
+      if (open === nextOpen) {
+        return;
+      }
+
+      // As the menu opens on mousedown and closes on click,
+      // we need to ignore the click event immediately following mousedown.
+      if (reason === 'trigger-press' && event?.type === 'click' && ignoreClickRef.current) {
+        ignoreClickRef.current = false;
+        return;
+      }
+
+      if (
+        nextOpen === false &&
+        event?.type === 'click' &&
+        (event as PointerEvent).pointerType === 'touch' &&
+        !allowTouchToCloseRef.current
+      ) {
+        return;
+      }
+
+      // Prevent the menu from closing on mobile devices that have a delayed click event.
+      // In some cases the menu, when tapped, will fire the focus event first and then the click event.
+      // Without this guard, the menu will close immediately after opening.
+      if (nextOpen && reason === 'trigger-focus') {
+        allowTouchToCloseRef.current = false;
+        allowTouchToCloseTimeout.start(300, () => {
+          allowTouchToCloseRef.current = true;
+        });
+      } else {
+        allowTouchToCloseRef.current = true;
+        allowTouchToCloseTimeout.clear();
+      }
+
+      if (reason === 'trigger-press' && nextOpen && event?.type === 'mousedown') {
+        ignoreClickRef.current = true;
+
+        ownerDocument(event.currentTarget as Element).addEventListener(
+          'click',
+          () => {
+            ignoreClickRef.current = false;
+          },
+          { once: true },
+        );
+      } else {
+        ignoreClickRef.current = false;
+      }
+
+      const isKeyboardClick =
+        (reason === 'trigger-press' || reason === 'item-press') &&
+        (event as MouseEvent).detail === 0;
+      const isDismissClose = !nextOpen && (reason === 'escape-key' || reason == null);
+
+      function changeState() {
+        onOpenChange?.(nextOpen, event, reason);
+        setOpenUnwrapped(nextOpen);
+        setLastOpenChangeReason(reason ?? null);
+        openEventRef.current = event ?? null;
+      }
+
+      if (reason === 'trigger-hover') {
+        // Only allow "patient" clicks to close the menu if it's open.
+        // If they clicked within 500ms of the menu opening, keep it open.
+        setStickIfOpen(true);
+        stickIfOpenTimeout.start(PATIENT_CLICK_THRESHOLD, () => {
+          setStickIfOpen(false);
+        });
+
+        ReactDOM.flushSync(changeState);
+      } else {
+        changeState();
+      }
+
+      if (
+        parent.type === 'menubar' &&
+        (reason === 'trigger-focus' ||
+          reason === 'focus-out' ||
+          reason === 'trigger-hover' ||
+          reason === 'list-navigation' ||
+          reason === 'sibling-open')
+      ) {
+        setInstantType('group');
+      } else if (isKeyboardClick || isDismissClose) {
+        setInstantType(isKeyboardClick ? 'click' : 'dismiss');
+      } else {
+        setInstantType(undefined);
+      }
+    },
+  );
+
+  React.useImperativeHandle(actionsRef, () => ({ unmount: handleUnmount }), [handleUnmount]);
+
+  let ctx: ContextMenuRootContext | undefined;
+  if (parent.type === 'context-menu') {
+    ctx = parent.context;
+  }
+
+  React.useImperativeHandle<HTMLElement | null, HTMLElement | null>(
+    ctx?.positionerRef,
+    () => positionerElement,
+    [positionerElement],
+  );
+
+  React.useImperativeHandle(ctx?.actionsRef, () => ({ setOpen }), [setOpen]);
+
+  React.useEffect(() => {
+    if (!open) {
+      stickIfOpenTimeout.clear();
+    }
+  }, [stickIfOpenTimeout, open]);
+
+  const floatingRootContext = useFloatingRootContext({
+    elements: {
+      reference: triggerElement,
+      floating: positionerElement,
+    },
+    open,
+    onOpenChange(openValue, eventValue, reasonValue) {
+      setOpen(openValue, eventValue, translateOpenChangeReason(reasonValue));
+    },
+  });
+
+  const hover = useHover(floatingRootContext, {
+    enabled:
+      hoverEnabled &&
+      openOnHover &&
+      !disabled &&
+      parent.type !== 'context-menu' &&
+      (parent.type !== 'menubar' || (parent.context.hasSubmenuOpen && !open)),
+    handleClose: safePolygon({ blockPointerEvents: true }),
+    mouseOnly: true,
+    move: parent.type === 'menu',
+    restMs: parent.type !== undefined ? undefined : delay,
+    delay: parent.type === 'menu' ? { open: delay, close: closeDelay } : { close: closeDelay },
+  });
+
+  const focus = useFocus(floatingRootContext, {
+    enabled:
+      !disabled &&
+      !open &&
+      parent.type === 'menubar' &&
+      parent.context.hasSubmenuOpen &&
+      !contextMenuContext,
+  });
+
+  const click = useClick(floatingRootContext, {
+    enabled: !disabled && parent.type !== 'context-menu',
+    event: open ? 'click' : 'mousedown',
+    toggle: !openOnHover || parent.type !== 'menu',
+    ignoreMouse: openOnHover && parent.type === 'menu',
+    stickIfOpen: parent.type === undefined ? stickIfOpen : false,
+  });
+
+  const dismiss = useDismiss(floatingRootContext, {
+    enabled: !disabled,
+    bubbles: closeParentOnEsc && parent.type === 'menu',
+    outsidePressEvent: 'mousedown',
+    outsidePress() {
+      if (parent.type !== 'context-menu' || openEventRef.current?.type === 'contextmenu') {
+        return true;
+      }
+
+      return allowOutsidePressDismissalRef.current;
+    },
+  });
+
+  const role = useRole(floatingRootContext, {
+    role: 'menu',
+  });
+
+  const itemDomElements = React.useRef<(HTMLElement | null)[]>([]);
+  const itemLabels = React.useRef<(string | null)[]>([]);
 
   const direction = useDirection();
 
-  const parentContext = useMenuRootContext(true);
-  const nested = parentContext != null;
+  const listNavigation = useListNavigation(floatingRootContext, {
+    enabled: !disabled,
+    listRef: itemDomElements,
+    activeIndex,
+    nested: parent.type !== undefined,
+    loop,
+    orientation,
+    parentOrientation: parent.type === 'menubar' ? parent.context.orientation : undefined,
+    rtl: direction === 'rtl',
+    disabledIndices: EMPTY_ARRAY,
+    onNavigate: setActiveIndex,
+    openOnArrowKeyDown: parent.type !== 'context-menu',
+  });
 
-  const openOnHover = openOnHoverProp ?? nested;
   const typingRef = React.useRef(false);
 
   const onTypingChange = React.useCallback((nextTyping: boolean) => {
     typingRef.current = nextTyping;
   }, []);
 
-  const menuRoot = useMenuRoot({
-    direction,
-    disabled,
-    closeParentOnEsc,
-    onOpenChange,
-    loop,
-    defaultOpen,
-    open,
-    orientation,
-    nested,
-    openOnHover,
-    delay,
+  const typeahead = useTypeahead(floatingRootContext, {
+    listRef: itemLabels,
+    activeIndex,
+    resetMs: TYPEAHEAD_RESET_MS,
+    onMatch: (index) => {
+      if (open && index !== activeIndex) {
+        setActiveIndex(index);
+      }
+    },
     onTypingChange,
-    modal,
-    actionsRef,
-    onOpenChangeComplete,
   });
 
-  const context: MenuRootContext = React.useMemo(
-    () => ({
-      ...menuRoot,
-      nested,
-      parentContext,
-      disabled,
-      allowMouseUpTriggerRef:
-        parentContext?.allowMouseUpTriggerRef ?? menuRoot.allowMouseUpTriggerRef,
-      typingRef,
-      modal,
-    }),
-    [menuRoot, nested, parentContext, disabled, modal],
+  const { getReferenceProps, getFloatingProps, getItemProps } = useInteractions([
+    hover,
+    click,
+    dismiss,
+    focus,
+    role,
+    listNavigation,
+    typeahead,
+  ]);
+
+  const triggerProps = React.useMemo(
+    () =>
+      getReferenceProps({
+        onMouseEnter() {
+          setHoverEnabled(true);
+        },
+      }),
+    [getReferenceProps],
   );
 
-  if (!nested) {
+  const popupProps = React.useMemo(
+    () =>
+      getFloatingProps({
+        onMouseEnter() {
+          if (!openOnHover || parent.type === 'menu') {
+            setHoverEnabled(false);
+          }
+        },
+        onClick() {
+          if (openOnHover) {
+            setHoverEnabled(false);
+          }
+        },
+      }),
+    [getFloatingProps, openOnHover, parent.type],
+  );
+
+  const itemProps = React.useMemo(() => getItemProps(), [getItemProps]);
+
+  const context = React.useMemo(
+    () => ({
+      activeIndex,
+      setActiveIndex,
+      allowMouseUpTriggerRef: parent.type ? parent.context.allowMouseUpTriggerRef : EMPTY_REF,
+      floatingRootContext,
+      itemProps,
+      popupProps,
+      triggerProps,
+      itemDomElements,
+      itemLabels,
+      mounted,
+      open,
+      popupRef,
+      positionerRef,
+      setOpen,
+      setPositionerElement,
+      setTriggerElement,
+      transitionStatus,
+      lastOpenChangeReason,
+      instantType,
+      onOpenChangeComplete,
+      setHoverEnabled,
+      typingRef,
+      modal,
+      disabled,
+      parent,
+    }),
+    [
+      activeIndex,
+      floatingRootContext,
+      itemProps,
+      popupProps,
+      triggerProps,
+      itemDomElements,
+      itemLabels,
+      mounted,
+      open,
+      positionerRef,
+      setOpen,
+      transitionStatus,
+      setPositionerElement,
+      lastOpenChangeReason,
+      instantType,
+      onOpenChangeComplete,
+      modal,
+      disabled,
+      parent,
+    ],
+  );
+
+  const content = <MenuRootContext.Provider value={context}>{children}</MenuRootContext.Provider>;
+
+  if (parent.type === undefined || parent.type === 'context-menu') {
     // set up a FloatingTree to provide the context to nested menus
-    return (
-      <FloatingTree>
-        <MenuRootContext.Provider value={context}>{children}</MenuRootContext.Provider>
-      </FloatingTree>
-    );
+    return <FloatingTree>{content}</FloatingTree>;
   }
 
-  return <MenuRootContext.Provider value={context}>{children}</MenuRootContext.Provider>;
+  return content;
 };
 
 export namespace MenuRoot {
@@ -110,6 +528,7 @@ export namespace MenuRoot {
     modal?: boolean;
     /**
      * Event handler called when the menu is opened or closed.
+     * @type (open: boolean, event?: Event, reason?: Menu.Root.OpenChangeReason) => void
      */
     onOpenChange?: (
       open: boolean,
@@ -129,7 +548,7 @@ export namespace MenuRoot {
      * Controls whether roving focus uses up/down or left/right arrow keys.
      * @default 'vertical'
      */
-    orientation?: MenuOrientation;
+    orientation?: Orientation;
     /**
      * Whether the component should ignore user interaction.
      * @default false
@@ -149,6 +568,14 @@ export namespace MenuRoot {
      */
     delay?: number;
     /**
+     * How long to wait before closing the menu that was opened on hover.
+     * Specified in milliseconds.
+     *
+     * Requires the `openOnHover` prop.
+     * @default 0
+     */
+    closeDelay?: number;
+    /**
      * Whether the menu should also open when the trigger is hovered.
      *
      * Defaults to `true` for nested menus.
@@ -160,10 +587,40 @@ export namespace MenuRoot {
      * Instead, the `unmount` function must be called to unmount the menu manually.
      * Useful when the menu's animation is controlled by an external library.
      */
-    actionsRef?: React.RefObject<{ unmount: () => void }>;
+    actionsRef?: React.RefObject<Actions>;
   }
 
   export interface Actions {
     unmount: () => void;
   }
+
+  export type OpenChangeReason = BaseOpenChangeReason | 'sibling-open';
+
+  export type Orientation = 'horizontal' | 'vertical';
+
+  export interface Actions {
+    unmount: () => void;
+  }
 }
+
+export type MenuParent =
+  | {
+      type: 'menu';
+      context: MenuRootContext;
+    }
+  | {
+      type: 'menubar';
+      context: MenubarContext;
+    }
+  | {
+      type: 'context-menu';
+      context: ContextMenuRootContext;
+    }
+  | {
+      type: 'nested-context-menu';
+      context: ContextMenuRootContext;
+      menuContext: MenuRootContext;
+    }
+  | {
+      type: undefined;
+    };

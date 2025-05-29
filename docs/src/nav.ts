@@ -65,6 +65,11 @@ export const nav = [
         href: '/react/components/collapsible',
       },
       {
+        label: 'Context Menu',
+        href: '/react/components/context-menu',
+        isNew: true,
+      },
+      {
         label: 'Dialog',
         href: '/react/components/dialog',
       },
@@ -89,8 +94,18 @@ export const nav = [
         href: '/react/components/menu',
       },
       {
+        label: 'Menubar',
+        href: '/react/components/menubar',
+        isNew: true,
+      },
+      {
         label: 'Meter',
         href: '/react/components/meter',
+      },
+      {
+        label: 'Navigation Menu',
+        href: '/react/components/navigation-menu',
+        isNew: true,
       },
       {
         label: 'Number Field',

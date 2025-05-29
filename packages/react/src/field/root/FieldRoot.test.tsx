@@ -12,6 +12,40 @@ describe('<Field.Root />', () => {
     render,
   }));
 
+  it('should not mark invalid if `valueMissing` is the only error and not yet dirtied', async () => {
+    await render(
+      <Field.Root>
+        <Field.Control data-testid="control" required />
+      </Field.Root>,
+    );
+
+    const control = screen.getByTestId('control');
+
+    fireEvent.focus(control);
+    fireEvent.blur(control);
+
+    expect(control).not.to.have.attribute('data-invalid');
+    expect(control).not.to.have.attribute('aria-invalid');
+  });
+
+  it('should mark invalid if `valueMissing` is the only error and dirtied', async () => {
+    await render(
+      <Field.Root>
+        <Field.Control data-testid="control" required />
+      </Field.Root>,
+    );
+
+    const control = screen.getByTestId('control');
+
+    fireEvent.focus(control);
+    fireEvent.change(control, { target: { value: 'a' } });
+    fireEvent.change(control, { target: { value: '' } });
+    fireEvent.blur(control);
+
+    expect(control).to.have.attribute('data-invalid', '');
+    expect(control).to.have.attribute('aria-invalid', 'true');
+  });
+
   describe('prop: disabled', () => {
     it('should add data-disabled style hook to all components', async () => {
       await render(
@@ -74,6 +108,46 @@ describe('<Field.Root />', () => {
 
       await waitFor(() => {
         expect(screen.queryByText('error')).not.to.equal(null);
+      });
+    });
+
+    it('runs after native validations', async () => {
+      await render(
+        <Field.Root validate={() => 'custom error'}>
+          <Field.Control required />
+          <Field.Error match="valueMissing">value missing</Field.Error>
+          <Field.Error match="customError" />
+        </Field.Root>,
+      );
+
+      expect(screen.queryByText('value missing')).to.equal(null);
+      expect(screen.queryByText('custom error')).to.equal(null);
+
+      const input = screen.getByRole<HTMLInputElement>('textbox');
+
+      fireEvent.focus(input);
+      fireEvent.change(input, { target: { value: 'a' } });
+      fireEvent.change(input, { target: { value: '' } });
+      fireEvent.blur(input);
+
+      await flushMicrotasks();
+
+      await waitFor(() => {
+        expect(screen.queryByText('value missing')).to.not.equal(null);
+      });
+      await waitFor(() => {
+        expect(screen.queryByText('custom error')).to.equal(null);
+      });
+
+      fireEvent.focus(input);
+      fireEvent.change(input, { target: { value: 'ab' } });
+      fireEvent.blur(input);
+
+      await waitFor(() => {
+        expect(screen.queryByText('value missing')).to.equal(null);
+      });
+      await waitFor(() => {
+        expect(screen.queryByText('custom error')).to.not.equal(null);
       });
     });
 
@@ -299,6 +373,120 @@ describe('<Field.Root />', () => {
 
       expect(control).to.have.attribute('aria-invalid', 'true');
       expect(screen.queryByText('error')).not.to.equal(null);
+    });
+  });
+
+  describe('revalidation', () => {
+    it('revalidates on change for `valueMissing`', async () => {
+      await render(
+        <Field.Root>
+          <Field.Control required />
+          <Field.Error />
+        </Field.Root>,
+      );
+
+      const control = screen.getByRole('textbox');
+      const message = screen.queryByText('error');
+
+      expect(message).to.equal(null);
+
+      fireEvent.focus(control);
+      fireEvent.change(control, { target: { value: 't' } });
+      fireEvent.blur(control);
+
+      expect(control).not.to.have.attribute('aria-invalid', 'true');
+
+      fireEvent.focus(control);
+      fireEvent.change(control, { target: { value: '' } });
+      fireEvent.blur(control);
+
+      expect(control).to.have.attribute('aria-invalid');
+    });
+
+    it('handles both `required` and `typeMismatch`', async () => {
+      await render(
+        <Field.Root>
+          <Field.Control type="email" required />
+          <Field.Error data-testid="error" />
+        </Field.Root>,
+      );
+
+      const control = screen.getByRole('textbox');
+      const message = screen.queryByTestId('error');
+
+      expect(message).to.equal(null);
+
+      fireEvent.focus(control);
+      fireEvent.blur(control);
+
+      expect(control).not.to.have.attribute('aria-invalid');
+
+      fireEvent.focus(control);
+      fireEvent.change(control, { target: { value: 'tt' } });
+      fireEvent.blur(control);
+
+      expect(control).to.have.attribute('aria-invalid', 'true');
+
+      fireEvent.focus(control);
+      fireEvent.change(control, { target: { value: '' } });
+      fireEvent.blur(control);
+
+      expect(control).to.have.attribute('aria-invalid', 'true');
+
+      fireEvent.focus(control);
+      fireEvent.change(control, { target: { value: 'email@email.com' } });
+      fireEvent.blur(control);
+
+      expect(control).not.to.have.attribute('aria-invalid');
+    });
+
+    it('clears valueMissing on change but defers other native errors like typeMismatch until blur when both are active', async () => {
+      await render(
+        <Field.Root>
+          <Field.Control type="email" required data-testid="control" />
+          <Field.Error data-testid="error" />
+        </Field.Root>,
+      );
+
+      const control = screen.getByTestId('control');
+
+      fireEvent.focus(control);
+      fireEvent.blur(control);
+      expect(control).not.to.have.attribute('aria-invalid', 'true');
+      expect(screen.queryByTestId('error')).to.equal(null);
+
+      fireEvent.focus(control);
+      fireEvent.change(control, { target: { value: 'a' } });
+      fireEvent.change(control, { target: { value: '' } });
+      fireEvent.blur(control);
+
+      expect(control).to.have.attribute('aria-invalid', 'true');
+      expect(screen.getByTestId('error')).not.to.equal(null);
+
+      fireEvent.focus(control);
+      fireEvent.change(control, { target: { value: 't' } });
+
+      // The field becomes temporarily valid because only 'valueMissing' is checked for immediate clearing.
+      // Other errors like 'typeMismatch' are deferred to the next blur/submit.
+      expect(control).not.to.have.attribute('aria-invalid', 'true');
+      expect(screen.queryByTestId('error')).to.equal(null);
+
+      fireEvent.blur(control);
+
+      expect(control).to.have.attribute('aria-invalid', 'true');
+      expect(screen.getByTestId('error')).not.to.equal(null);
+      expect(screen.getByTestId('error').textContent).not.to.equal('');
+
+      fireEvent.focus(control);
+      fireEvent.change(control, { target: { value: 'test@example.com' } });
+
+      expect(control).not.to.have.attribute('aria-invalid', 'true');
+      expect(screen.queryByTestId('error')).to.equal(null);
+
+      fireEvent.blur(control);
+
+      expect(control).not.to.have.attribute('aria-invalid', 'true');
+      expect(screen.queryByTestId('error')).to.equal(null);
     });
   });
 

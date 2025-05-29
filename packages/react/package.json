@@ -1,6 +1,6 @@
 {
   "name": "@base-ui-components/react",
-  "version": "1.0.0-alpha.8",
+  "version": "1.0.0-beta.0",
   "private": false,
   "author": "MUI Team",
   "description": "Base UI is a library of headless ('unstyled') React components and low-level hooks. You gain complete control over your app's CSS and accessibility features.",
@@ -33,6 +33,7 @@
     "./checkbox": "./src/checkbox/index.ts",
     "./checkbox-group": "./src/checkbox-group/index.ts",
     "./collapsible": "./src/collapsible/index.ts",
+    "./context-menu": "./src/context-menu/index.ts",
     "./dialog": "./src/dialog/index.ts",
     "./direction-provider": "./src/direction-provider/index.ts",
     "./field": "./src/field/index.ts",
@@ -40,8 +41,10 @@
     "./form": "./src/form/index.ts",
     "./input": "./src/input/index.ts",
     "./menu": "./src/menu/index.ts",
+    "./menubar": "./src/menubar/index.ts",
     "./merge-props": "./src/merge-props/index.ts",
     "./meter": "./src/meter/index.ts",
+    "./navigation-menu": "./src/navigation-menu/index.ts",
     "./number-field": "./src/number-field/index.ts",
     "./popover": "./src/popover/index.ts",
     "./preview-card": "./src/preview-card/index.ts",
@@ -76,16 +79,15 @@
     "build:types": "tsx ../../scripts/buildTypes.mts --copy build/cjs",
     "build:copy-files": "node ../../scripts/copyFiles.mjs ./.npmignore:./.npmignore",
     "build:manifest": "tsx ./scripts/createPackageManifest.mts",
-    "test:package": "publint ./build && attw --pack ./build",
+    "test:package": "publint ./build && attw --pack ./build --exclude-entrypoints package.json",
     "release": "pnpm build && pnpm publish",
     "test": "cross-env NODE_ENV=test VITEST_ENV=jsdom vitest",
     "typescript": "tsc -b tsconfig.json"
   },
   "dependencies": {
     "@babel/runtime": "^7.27.0",
-    "@floating-ui/react": "^0.27.8",
+    "@floating-ui/react": "^0.27.9",
     "@floating-ui/utils": "^0.2.9",
-    "@react-aria/overlays": "^3.27.0",
     "use-sync-external-store": "^1.5.0"
   },
   "devDependencies": {
@@ -105,7 +107,9 @@
     "react-dom": "^19.1.0",
     "react-router": "^7.5.3",
     "sinon": "^20.0.0",
-    "typescript": "^5.8.3"
+    "typescript": "^5.8.3",
+    "vitest": "^3.1.1",
+    "vitest-browser-react": "^0.1.1"
   },
   "peerDependencies": {
     "@types/react": "^17 || ^18 || ^19",

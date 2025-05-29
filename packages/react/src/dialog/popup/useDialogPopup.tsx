@@ -2,9 +2,10 @@
 import * as React from 'react';
 import { useForkRef } from '../../utils/useForkRef';
 import { mergeProps } from '../../merge-props';
+import type { DialogOpenChangeReason } from '../root/useDialogRoot';
 import { type InteractionType } from '../../utils/useEnhancedClickHandler';
-import { GenericHTMLProps } from '../../utils/types';
-import { type OpenChangeReason } from '../../utils/translateOpenChangeReason';
+import { HTMLProps } from '../../utils/types';
+import { COMPOSITE_KEYS } from '../../composite/composite';
 
 export function useDialogPopup(parameters: useDialogPopup.Parameters): useDialogPopup.ReturnValue {
   const {
@@ -57,6 +58,11 @@ export function useDialogPopup(parameters: useDialogPopup.Parameters): useDialog
         ...getPopupProps(),
         ref: handleRef,
         hidden: !mounted,
+        onKeyDown(event) {
+          if (COMPOSITE_KEYS.has(event.key)) {
+            event.stopPropagation();
+          }
+        },
       },
       externalProps,
     );
@@ -81,7 +87,7 @@ export namespace useDialogPopup {
     setOpen: (
       open: boolean,
       event: Event | undefined,
-      reason: OpenChangeReason | undefined,
+      reason: DialogOpenChangeReason | undefined,
     ) => void;
     /**
      * The id of the title element associated with the dialog.
@@ -105,7 +111,7 @@ export namespace useDialogPopup {
     /**
      * The resolver for the popup element props.
      */
-    getPopupProps: () => GenericHTMLProps;
+    getPopupProps: () => HTMLProps;
     /**
      * Callback to register the popup element.
      */

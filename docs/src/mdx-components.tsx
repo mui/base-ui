@@ -9,6 +9,7 @@ import { AttributesReferenceTable } from './components/ReferenceTable/Attributes
 import { CssVariablesReferenceTable } from './components/ReferenceTable/CssVariablesReferenceTable';
 import { getChildrenText } from './utils/getChildrenText';
 import { Link } from './components/Link';
+import { HeadingLink } from './components/HeadingLink';
 import { Subtitle } from './components/Subtitle/Subtitle';
 import { Kbd } from './components/Kbd/Kbd';
 import { MarkdownLink } from './components/MarkdownLink';
@@ -22,6 +23,7 @@ export const mdxComponents: MDXComponents = {
   a: (props) => <Link {...props} />,
   code: (props) => <Code className="data-[inline]:mx-[0.1em]" {...props} />,
   h1: (props) => (
+    // Do not wrap heading tags in divs, that confuses Safari Reader
     <React.Fragment>
       <div className="flex items-center justify-between">
         <h1 className="mb-4 text-3xl font-bold text-balance" {...props} />
@@ -30,16 +32,28 @@ export const mdxComponents: MDXComponents = {
       <title>{`${getChildrenText(props.children)} · Base UI`}</title>
     </React.Fragment>
   ),
-  h2: (props) => (
-    // Do not wrap heading tags in divs, that confuses Safari Reader
-    <React.Fragment>
-      <h2 className="mt-10 mb-4 scroll-mt-6 text-xl font-medium text-balance" {...props} />
-      <div className="mb-5 border-t border-gray-200" />
-    </React.Fragment>
-  ),
-  h3: (props) => (
-    <h3 className="mt-8 mb-1.5 scroll-mt-6 text-lg font-medium text-balance" {...props} />
-  ),
+  h2: ({ children, id, ...otherProps }) => {
+    return (
+      <h2
+        className="mt-10 mb-4 scroll-mt-18 text-xl font-medium text-balance show-side-nav:scroll-mt-6"
+        id={id}
+        {...otherProps}
+      >
+        <HeadingLink id={id}>{children}</HeadingLink>
+      </h2>
+    );
+  },
+  h3: ({ children, id, ...otherProps }) => {
+    return (
+      <h3
+        className="mt-8 mb-1.5 scroll-mt-18 text-lg font-medium text-balance show-side-nav:scroll-mt-6"
+        id={id}
+        {...otherProps}
+      >
+        <HeadingLink id={id}>{children}</HeadingLink>
+      </h3>
+    );
+  },
   h4: (props) => <h4 className="mt-8 mb-1.5 scroll-mt-6 font-medium text-balance" {...props} />,
   h5: (props) => <h5 className="mt-8 mb-1.5 scroll-mt-6 font-medium text-balance" {...props} />,
   h6: (props) => <h6 className="mt-8 mb-1.5 scroll-mt-6 font-medium text-balance" {...props} />,

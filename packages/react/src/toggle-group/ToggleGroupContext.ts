@@ -11,10 +11,6 @@ export interface ToggleGroupContext {
 
 export const ToggleGroupContext = React.createContext<ToggleGroupContext | undefined>(undefined);
 
-if (process.env.NODE_ENV !== 'production') {
-  ToggleGroupContext.displayName = 'ToggleGroupContext';
-}
-
 export function useToggleGroupContext(optional = true) {
   const context = React.useContext(ToggleGroupContext);
   if (context === undefined && !optional) {

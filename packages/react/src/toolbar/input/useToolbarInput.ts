@@ -1,9 +1,9 @@
 'use client';
 import * as React from 'react';
 import { mergeProps } from '../../merge-props';
-import { GenericHTMLProps } from '../../utils/types';
+import { HTMLProps } from '../../utils/types';
 import { useButton } from '../../use-button';
-import { ARROW_LEFT, ARROW_RIGHT } from '../../composite/composite';
+import { ARROW_LEFT, ARROW_RIGHT, stopEvent } from '../../composite/composite';
 
 export function useToolbarInput(
   parameters: useToolbarInput.Parameters,
@@ -19,7 +19,7 @@ export function useToolbarInput(
   });
 
   const getInputProps = React.useCallback(
-    (externalProps: GenericHTMLProps = {}) =>
+    (externalProps: HTMLProps = {}) =>
       mergeProps<'input'>(
         {
           onClick(event) {
@@ -29,7 +29,7 @@ export function useToolbarInput(
           },
           onKeyDown(event) {
             if (event.key !== ARROW_LEFT && event.key !== ARROW_RIGHT && disabled) {
-              event.preventDefault();
+              stopEvent(event);
             }
           },
           onPointerDown(event) {
@@ -68,6 +68,6 @@ export namespace useToolbarInput {
     ref?: React.Ref<Element>;
   }
   export interface ReturnValue {
-    getInputProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
+    getInputProps: (externalProps?: HTMLProps) => HTMLProps;
   }
 }

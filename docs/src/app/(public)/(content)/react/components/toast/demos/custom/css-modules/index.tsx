@@ -17,9 +17,11 @@ export default function CustomToastExample() {
   return (
     <Toast.Provider>
       <CustomToast />
-      <Toast.Viewport className={styles.Viewport}>
-        <ToastList />
-      </Toast.Viewport>
+      <Toast.Portal>
+        <Toast.Viewport className={styles.Viewport}>
+          <ToastList />
+        </Toast.Viewport>
+      </Toast.Portal>
     </Toast.Provider>
   );
 }

@@ -2,7 +2,6 @@
 import * as React from 'react';
 import {
   FloatingRootContext,
-  useClick,
   useDismiss,
   useFloatingRootContext,
   useInteractions,
@@ -10,20 +9,22 @@ import {
   type OpenChangeReason as FloatingUIOpenChangeReason,
 } from '@floating-ui/react';
 import { getTarget } from '@floating-ui/react/utils';
+import { useClick } from '../../utils/floating-ui/useClick';
 import { useControlled } from '../../utils/useControlled';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { useScrollLock } from '../../utils/useScrollLock';
 import { useTransitionStatus, type TransitionStatus } from '../../utils/useTransitionStatus';
 import { type InteractionType } from '../../utils/useEnhancedClickHandler';
-import type { RequiredExcept, GenericHTMLProps } from '../../utils/types';
+import type { RequiredExcept, HTMLProps } from '../../utils/types';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
 import { mergeProps } from '../../merge-props';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import {
-  type OpenChangeReason,
+  type BaseOpenChangeReason,
   translateOpenChangeReason,
 } from '../../utils/translateOpenChangeReason';
-import { useIOSKeyboardSlideFix } from '../../utils/useIOSKeyboardSlideFix';
+
+export type DialogOpenChangeReason = BaseOpenChangeReason | 'close-press';
 
 export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.ReturnValue {
   const {
@@ -54,12 +55,11 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
   );
   const [triggerElement, setTriggerElement] = React.useState<Element | null>(null);
   const [popupElement, setPopupElement] = React.useState<HTMLElement | null>(null);
-  const [allowIOSLock, setAllowIOSLock] = React.useState(true);
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
 
   const setOpen = useEventCallback(
-    (nextOpen: boolean, event: Event | undefined, reason: OpenChangeReason | undefined) => {
+    (nextOpen: boolean, event: Event | undefined, reason: DialogOpenChangeReason | undefined) => {
       onOpenChangeParameter?.(nextOpen, event, reason);
       setOpenUnwrapped(nextOpen);
     },
@@ -115,7 +115,7 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
         // https://github.com/mui/base-ui/issues/1320
         if (modal) {
           return backdrop
-            ? [internalBackdropRef.current, backdropRef.current].includes(backdrop)
+            ? internalBackdropRef.current === backdrop || backdropRef.current === backdrop
             : false;
         }
         return true;
@@ -125,28 +125,14 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
     escapeKey: isTopmost,
   });
 
-  const enableScrollLock = open && modal === true;
-  const enableScrollLockIOS = enableScrollLock && allowIOSLock;
-
-  const iOSKeyboardSlideFix = useIOSKeyboardSlideFix({
-    enabled: enableScrollLock,
-    setLock: setAllowIOSLock,
-    popupRef,
-  });
-
   useScrollLock({
-    enabled: enableScrollLockIOS,
+    enabled: open && modal === true,
     mounted,
     open,
     referenceElement: popupElement,
   });
 
-  const { getReferenceProps, getFloatingProps } = useInteractions([
-    role,
-    click,
-    dismiss,
-    iOSKeyboardSlideFix,
-  ]);
+  const { getReferenceProps, getFloatingProps } = useInteractions([role, click, dismiss]);
 
   React.useEffect(() => {
     if (onNestedDialogOpen && open) {
@@ -244,11 +230,12 @@ export namespace useDialogRoot {
     modal?: boolean | 'trap-focus';
     /**
      * Event handler called when the dialog is opened or closed.
+     * @type (open: boolean, event?: Event, reason?: Dialog.Root.OpenChangeReason) => void
      */
     onOpenChange?: (
       open: boolean,
       event: Event | undefined,
-      reason: OpenChangeReason | undefined,
+      reason: DialogOpenChangeReason | undefined,
     ) => void;
     /**
      * Event handler called after any animations complete when the dialog is opened or closed.
@@ -314,7 +301,7 @@ export namespace useDialogRoot {
     setOpen: (
       open: boolean,
       event: Event | undefined,
-      reason: OpenChangeReason | undefined,
+      reason: DialogOpenChangeReason | undefined,
     ) => void;
     /**
      * Whether the dialog is currently open.
@@ -347,11 +334,11 @@ export namespace useDialogRoot {
     /**
      * Resolver for the Trigger element's props.
      */
-    getTriggerProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
+    getTriggerProps: (externalProps?: HTMLProps) => HTMLProps;
     /**
      * Resolver for the Popup element's props.
      */
-    getPopupProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
+    getPopupProps: (externalProps?: HTMLProps) => HTMLProps;
     /**
      * Callback to register the Trigger element DOM node.
      */

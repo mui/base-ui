@@ -1,7 +1,6 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import {
-  safePolygon,
   useClientPoint,
   useNextDelayGroup,
   useDismiss,
@@ -9,6 +8,7 @@ import {
   useFocus,
   useHover,
   useInteractions,
+  safePolygon,
   type FloatingRootContext,
 } from '@floating-ui/react';
 import { useControlled } from '../../utils/useControlled';
@@ -16,13 +16,15 @@ import { useTransitionStatus } from '../../utils/useTransitionStatus';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { OPEN_DELAY } from '../utils/constants';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
-import type { GenericHTMLProps } from '../../utils/types';
+import type { HTMLProps } from '../../utils/types';
 import {
   translateOpenChangeReason,
-  type OpenChangeReason,
+  type BaseOpenChangeReason,
 } from '../../utils/translateOpenChangeReason';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useTooltipProviderContext } from '../provider/TooltipProviderContext';
+
+export type TooltipOpenChangeReason = BaseOpenChangeReason | 'disabled';
 
 export function useTooltipRoot(params: useTooltipRoot.Parameters): useTooltipRoot.ReturnValue {
   const {
@@ -55,16 +57,35 @@ export function useTooltipRoot(params: useTooltipRoot.Parameters): useTooltipRoo
 
   const onOpenChange = useEventCallback(onOpenChangeProp);
 
-  const setOpen = React.useCallback(
-    (nextOpen: boolean, event: Event | undefined, reason: OpenChangeReason | undefined) => {
-      onOpenChange(nextOpen, event, reason);
-      setOpenUnwrapped(nextOpen);
+  const setOpen = useEventCallback(
+    (nextOpen: boolean, event: Event | undefined, reason: TooltipOpenChangeReason | undefined) => {
+      const isHover = reason === 'trigger-hover';
+      const isFocusOpen = nextOpen && reason === 'trigger-focus';
+      const isDismissClose = !nextOpen && (reason === 'trigger-press' || reason === 'escape-key');
+
+      function changeState() {
+        onOpenChange(nextOpen, event, reason);
+        setOpenUnwrapped(nextOpen);
+      }
+
+      if (isHover) {
+        // If a hover reason is provided, we need to flush the state synchronously. This ensures
+        // `node.getAnimations()` knows about the new state.
+        ReactDOM.flushSync(changeState);
+      } else {
+        changeState();
+      }
+
+      if (isFocusOpen || isDismissClose) {
+        setInstantTypeState(isFocusOpen ? 'focus' : 'dismiss');
+      } else if (reason === 'trigger-hover') {
+        setInstantTypeState(undefined);
+      }
     },
-    [onOpenChange, setOpenUnwrapped],
   );
 
   if (open && disabled) {
-    setOpen(false, undefined, undefined);
+    setOpen(false, undefined, 'disabled');
   }
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
@@ -88,31 +109,13 @@ export function useTooltipRoot(params: useTooltipRoot.Parameters): useTooltipRoo
   React.useImperativeHandle(params.actionsRef, () => ({ unmount: handleUnmount }), [handleUnmount]);
 
   const context = useFloatingRootContext({
-    elements: { reference: triggerElement, floating: positionerElement },
+    elements: {
+      reference: triggerElement,
+      floating: positionerElement,
+    },
     open,
     onOpenChange(openValue, eventValue, reasonValue) {
-      const isHover = reasonValue === 'hover' || reasonValue === 'safe-polygon';
-      const isFocusOpen = openValue && reasonValue === 'focus';
-      const isDismissClose =
-        !openValue && (reasonValue === 'reference-press' || reasonValue === 'escape-key');
-
-      function changeState() {
-        setOpen(openValue, eventValue, translateOpenChangeReason(reasonValue));
-      }
-
-      if (isHover) {
-        // If a hover reason is provided, we need to flush the state synchronously. This ensures
-        // `node.getAnimations()` knows about the new state.
-        ReactDOM.flushSync(changeState);
-      } else {
-        changeState();
-      }
-
-      if (isFocusOpen || isDismissClose) {
-        setInstantTypeState(isFocusOpen ? 'focus' : 'dismiss');
-      } else if (reasonValue === 'hover') {
-        setInstantTypeState(undefined);
-      }
+      setOpen(openValue, eventValue, translateOpenChangeReason(reasonValue));
     },
   });
 
@@ -163,7 +166,7 @@ export function useTooltipRoot(params: useTooltipRoot.Parameters): useTooltipRoo
     axis: trackCursorAxis === 'none' ? undefined : trackCursorAxis,
   });
 
-  const { getReferenceProps: getTriggerProps, getFloatingProps: getPopupProps } = useInteractions([
+  const { getReferenceProps, getFloatingProps } = useInteractions([
     hover,
     focus,
     dismiss,
@@ -180,8 +183,8 @@ export function useTooltipRoot(params: useTooltipRoot.Parameters): useTooltipRoo
       positionerElement,
       setPositionerElement,
       popupRef,
-      getTriggerProps,
-      getPopupProps,
+      triggerProps: getReferenceProps(),
+      popupProps: getFloatingProps(),
       floatingRootContext: context,
       instantType,
       transitionStatus,
@@ -193,8 +196,8 @@ export function useTooltipRoot(params: useTooltipRoot.Parameters): useTooltipRoo
       setMounted,
       positionerElement,
       setOpen,
-      getTriggerProps,
-      getPopupProps,
+      getReferenceProps,
+      getFloatingProps,
       context,
       instantType,
       transitionStatus,
@@ -218,11 +221,12 @@ export namespace useTooltipRoot {
     open?: boolean;
     /**
      * Event handler called when the tooltip is opened or closed.
+     * @type (open: boolean, event?: Event, reason?: Tooltip.Root.OpenChangeReason) => void
      */
     onOpenChange?: (
       open: boolean,
       event: Event | undefined,
-      reason: OpenChangeReason | undefined,
+      reason: TooltipOpenChangeReason | undefined,
     ) => void;
     /**
      * Event handler called after any animations complete when the tooltip is opened or closed.
@@ -264,11 +268,15 @@ export namespace useTooltipRoot {
 
   export interface ReturnValue {
     open: boolean;
-    setOpen: (value: boolean, event?: Event, reason?: OpenChangeReason) => void;
+    setOpen: (
+      open: boolean,
+      event: Event | undefined,
+      reason: TooltipOpenChangeReason | undefined,
+    ) => void;
     mounted: boolean;
     setMounted: React.Dispatch<React.SetStateAction<boolean>>;
-    getTriggerProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
-    getPopupProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
+    triggerProps: HTMLProps;
+    popupProps: HTMLProps;
     floatingRootContext: FloatingRootContext;
     instantType: 'delay' | 'dismiss' | 'focus' | undefined;
     transitionStatus: TransitionStatus;

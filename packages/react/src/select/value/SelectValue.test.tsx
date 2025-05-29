@@ -2,20 +2,20 @@ import * as React from 'react';
 import { Select } from '@base-ui-components/react/select';
 import { spy } from 'sinon';
 import { expect } from 'chai';
-import { screen } from '@mui/internal-test-utils';
+import { fireEvent, flushMicrotasks, screen } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance } from '#test-utils';
 
 describe('<Select.Value />', () => {
   const { render } = createRenderer();
 
-  describeConformance(<Select.Value />, () => ({
+  describeConformance(<Select.Value placeholder="value" />, () => ({
     refInstanceof: window.HTMLSpanElement,
     render(node) {
       return render(<Select.Root open>{node}</Select.Root>);
     },
   }));
 
-  describe('prop: placeholder', () => {
+  describe('placeholder', () => {
     it('renders a placeholder when the value is null', async () => {
       await render(
         <Select.Root>
@@ -31,7 +31,14 @@ describe('<Select.Value />', () => {
       const children = spy();
       await render(
         <Select.Root value="1">
-          <Select.Value placeholder="placeholder">{children}</Select.Value>
+          <Select.Trigger>
+            <Select.Value placeholder="placeholder">
+              {(label, value) => {
+                children(label, value);
+                return label;
+              }}
+            </Select.Value>
+          </Select.Trigger>
           <Select.Portal>
             <Select.Positioner>
               <Select.Popup>
@@ -42,9 +49,13 @@ describe('<Select.Value />', () => {
         </Select.Root>,
       );
 
-      expect(children.args[0][0]).to.equal('placeholder');
-      expect(children.args[0][1]).to.equal('1');
-      expect(children.args[4][0]).to.equal('one'); // 5th render
+      fireEvent.click(screen.getByText('placeholder'));
+      await flushMicrotasks();
+
+      expect(children.firstCall.firstArg).to.equal('placeholder');
+      expect(children.firstCall.lastArg).to.equal('1');
+      expect(children.lastCall.firstArg).to.equal('one');
+      expect(children.lastCall.lastArg).to.equal('1');
     });
   });
 
@@ -58,7 +69,7 @@ describe('<Select.Value />', () => {
           <button onClick={() => setValue(null)}>null</button>
           <Select.Root value={value} onValueChange={setValue}>
             <Select.Trigger>
-              <Select.Value placeholder="Select a font" data-testid="value" />
+              <Select.Value data-testid="value" placeholder="initial" />
             </Select.Trigger>
             <Select.Portal>
               <Select.Positioner>
@@ -75,6 +86,9 @@ describe('<Select.Value />', () => {
 
     const { user } = await render(<App />);
 
+    await user.click(screen.getByText('initial'));
+    await flushMicrotasks();
+
     await user.click(screen.getByRole('button', { name: '1' }));
     expect(screen.getByTestId('value')).to.have.text('1');
 
@@ -82,6 +96,6 @@ describe('<Select.Value />', () => {
     expect(screen.getByTestId('value')).to.have.text('2');
 
     await user.click(screen.getByRole('button', { name: 'null' }));
-    expect(screen.getByTestId('value')).to.have.text('Select a font');
+    expect(screen.getByTestId('value')).to.have.text('initial');
   });
 });
