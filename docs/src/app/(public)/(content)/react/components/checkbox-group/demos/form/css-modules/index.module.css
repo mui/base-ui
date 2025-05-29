@@ -1,0 +1,123 @@
+.Form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: 100%;
+  max-width: 16rem;
+}
+
+.Fieldset {
+  border: 0;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+}
+
+.Legend {
+  font-size: 1rem;
+  line-height: 1.25rem;
+  font-weight: 500;
+  color: var(--color-gray-900);
+  margin-block-end: 8px;
+}
+
+.CheckboxGroup {
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  gap: 0.25rem;
+  color: var(--color-gray-900);
+}
+
+.Caption {
+  font-weight: 500;
+}
+
+.Item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.Checkbox {
+  box-sizing: border-box;
+  display: flex;
+  width: 1.25rem;
+  height: 1.25rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.25rem;
+  outline: 0;
+  padding: 0;
+  margin: 0;
+  border: none;
+
+  &[data-unchecked] {
+    border: 1px solid var(--color-gray-300);
+    background-color: transparent;
+  }
+
+  &[data-checked] {
+    background-color: var(--color-gray-900);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-blue);
+    outline-offset: 2px;
+  }
+}
+
+.Indicator {
+  display: flex;
+  color: var(--color-gray-50);
+
+  &[data-unchecked] {
+    display: none;
+  }
+}
+
+.Icon {
+  width: 0.75rem;
+  height: 0.75rem;
+}
+
+.Button {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 2.5rem;
+  padding: 0 0.875rem;
+  margin: 0;
+  outline: 0;
+  border: 1px solid var(--color-gray-200);
+  border-radius: 0.375rem;
+  background-color: var(--color-gray-50);
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 500;
+  line-height: 1.5rem;
+  color: var(--color-gray-900);
+  user-select: none;
+
+  @media (hover: hover) {
+    &:hover {
+      background-color: var(--color-gray-100);
+    }
+  }
+
+  &:active {
+    background-color: var(--color-gray-100);
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    color: var(--color-gray-400);
+    background-color: var(--color-gray-100);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-blue);
+    outline-offset: -1px;
+  }
+}

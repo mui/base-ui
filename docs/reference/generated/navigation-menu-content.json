@@ -1,0 +1,32 @@
+{
+  "name": "NavigationMenuContent",
+  "description": "A container for the content of the navigation menu item that is moved into the popup\nwhen the item is active.\nRenders a `<div>` element.",
+  "props": {
+    "className": {
+      "type": "string | ((state: NavigationMenu.Content.State) => string)",
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
+    },
+    "render": {
+      "type": "ReactElement | ((props: HTMLProps, state: NavigationMenu.Content.State) => ReactElement)",
+      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
+    }
+  },
+  "dataAttributes": {
+    "data-open": {
+      "description": "Present when the popup is open."
+    },
+    "data-closed": {
+      "description": "Present when the popup is closed."
+    },
+    "data-activation-direction": {
+      "description": "Which direction another trigger was activated from."
+    },
+    "data-starting-style": {
+      "description": "Present when the content is animating in."
+    },
+    "data-ending-style": {
+      "description": "Present when the content is animating out."
+    }
+  },
+  "cssVariables": {}
+}

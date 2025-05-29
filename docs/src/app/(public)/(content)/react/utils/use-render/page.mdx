@@ -22,7 +22,7 @@ The `useRender` hook lets you build custom components that provide a `render` pr
       description:
         'Props to be spread on the rendered element.\n\nThey are merged with the internal props\n of the component, so that event handlers are merged,\n`className` strings and `style` properties are joined, and other external props overwrite the internal ones.',
     },
-    refs: {
+    ref: {
       type: 'React.Ref<RenderedElementType>[]',
       description: 'The refs to apply to the rendered element.',
     },
@@ -97,7 +97,7 @@ When building custom components, you often need to control a ref internally whil
 
 In React 19, `React.forwardRef()` is not needed when building primitive components, as the external ref prop is already contained inside `props`. Your internal ref can be passed to `refs` to be merged with `props.ref`:
 
-```tsx title="React 19" {7} "internalRef"
+```tsx title="React 19" {5} "internalRef"
 function Text({ render = <p />, ...props }: TextProps) {
   const internalRef = React.useRef<HTMLElement | null>(null);
 
@@ -115,7 +115,7 @@ In older versions of React, you need to use `React.forwardRef()` and add the for
 
 The [examples](#examples) above assume React 19, and should be modified to use `React.forwardRef()` to support React 18 and 17.
 
-```tsx title="React 18 and 17" {10} "forwardedRef" "internalRef"
+```tsx title="React 18 and 17" {8} "forwardedRef" "internalRef"
 const Text = React.forwardRef(function Text(
   { render = <p />, ...props }: TextProps,
   forwardedRef: React.ForwardedRef<HTMLElement>,
