@@ -102,6 +102,10 @@ export const nav = [
         isNew: true,
       },
       {
+        label: 'Navigation Menu',
+        href: '/react/components/navigation-menu',
+      },
+      {
         label: 'Number Field',
         href: '/react/components/number-field',
       },

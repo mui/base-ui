@@ -17,6 +17,8 @@ import {
   type Padding,
   type FloatingContext,
   type Side as PhysicalSide,
+  type AutoUpdateOptions,
+  type Middleware,
 } from '@floating-ui/react';
 import { getSide, getAlignment, type Rect } from '@floating-ui/utils';
 import { useModernLayoutEffect } from './useModernLayoutEffect';
@@ -102,14 +104,15 @@ export function useAnchorPositioning(
     collisionPadding = 5,
     sticky = false,
     arrowPadding = 5,
+    trackAnchor = true,
     // Private parameters
     keepMounted = false,
     floatingRootContext,
     mounted,
-    trackAnchor = true,
     collisionAvoidance,
     shiftCrossAxis = false,
     nodeId,
+    adaptiveOrigin,
   } = params;
 
   const collisionAvoidanceSide = collisionAvoidance.side || 'flip';
@@ -284,6 +287,7 @@ export function useAnchorPositioning(
         return {};
       },
     },
+    adaptiveOrigin,
   );
 
   // Ensure positioning doesn't run initially for `keepMounted` elements that
@@ -296,7 +300,7 @@ export function useAnchorPositioning(
     };
   }
 
-  const autoUpdateOptions = React.useMemo(
+  const autoUpdateOptions: AutoUpdateOptions = React.useMemo(
     () => ({
       elementResize: trackAnchor && typeof ResizeObserver !== 'undefined',
       layoutShift: trackAnchor && typeof IntersectionObserver !== 'undefined',
@@ -307,12 +311,14 @@ export function useAnchorPositioning(
   const {
     refs,
     elements,
-    floatingStyles,
+    x,
+    y,
     middlewareData,
     update,
     placement: renderedPlacement,
     context,
     isPositioned,
+    floatingStyles: originalFloatingStyles,
   } = useFloating({
     rootContext,
     placement,
@@ -323,6 +329,16 @@ export function useAnchorPositioning(
       : (...args) => autoUpdate(...args, autoUpdateOptions),
     nodeId,
   });
+
+  const { sideX, sideY } = middlewareData.adaptiveOrigin || {};
+
+  const floatingStyles = React.useMemo<React.CSSProperties>(
+    () =>
+      adaptiveOrigin
+        ? { position: positionMethod, [sideX]: `${x}px`, [sideY]: `${y}px` }
+        : originalFloatingStyles,
+    [adaptiveOrigin, sideX, sideY, positionMethod, x, y, originalFloatingStyles],
+  );
 
   const registeredPositionReferenceRef = React.useRef<Element | VirtualElement | null>(null);
 
@@ -394,6 +410,7 @@ export function useAnchorPositioning(
       refs,
       context,
       isPositioned,
+      update,
     }),
     [
       floatingStyles,
@@ -406,6 +423,7 @@ export function useAnchorPositioning(
       refs,
       context,
       isPositioned,
+      update,
     ],
   );
 }
@@ -503,13 +521,13 @@ export namespace useAnchorPositioning {
   }
 
   export interface Parameters extends SharedParameters {
-    open?: boolean;
     keepMounted?: boolean;
     trackCursorAxis?: 'none' | 'x' | 'y' | 'both';
     floatingRootContext?: FloatingRootContext;
     mounted: boolean;
     trackAnchor: boolean;
     nodeId?: string;
+    adaptiveOrigin?: Middleware;
     collisionAvoidance: CollisionAvoidance;
     shiftCrossAxis?: boolean;
   }
@@ -525,5 +543,6 @@ export namespace useAnchorPositioning {
     refs: ReturnType<typeof useFloating>['refs'];
     context: FloatingContext;
     isPositioned: boolean;
+    update: () => void;
   }
 }
