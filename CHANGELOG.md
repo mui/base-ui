@@ -1,5 +1,187 @@
 # Versions
 
+## v1.0.0-beta.0
+
+_May 29, 2025_
+
+### Accordion
+
+- Use `useRenderElement` (#1771) by @mj12albert
+- Stop event propagation (#1871) by @atomiks
+
+### Alert Dialog
+
+- **Breaking change:** Refine `OpenChangeReason`.
+  TODO: DESCRIBE THE BREAKING CHANGE.
+  (#1782) by @atomiks
+
+### Checkbox
+
+- Set `aria-required`, use `useButton` (#1777) by @mj12albert
+
+### Checkbox Group
+
+- Fix `validate` fn incorrectly running twice (#1959) by @mj12albert
+
+### Collapsible
+
+- Use `useRenderElement` (#1771) by @mj12albert
+
+### Context Menu
+
+- Create new `ContextMenu` component (#1665) by @atomiks
+
+### Dialog
+
+- **Breaking change:** Refine `OpenChangeReason`.
+  TODO: DESCRIBE THE BREAKING CHANGE.
+  (#1782) by @atomiks
+
+### Field
+
+- **Breaking change:** Consolidate `Field.Error` `forceShow` into `match` prop.
+  TODO: DESCRIBE THE BREAKING CHANGE.
+  (#1919) by @atomiks
+- Improve `Label` logic that prevents text selection on double click (#1784) by @atomiks
+- Fix validation inconsistency (#1779) by @atomiks
+- Fix integration of Base UI components (#1755) by @atomiks
+- Set `valueMissing` to false if only error and not dirtied (#1810) by @atomiks
+- `validate` with latest value on blur (#1850) by @atomiks
+- Revalidate only `required` on change (#1840) by @atomiks
+- Run validate function after native validations (#1926) by @mj12albert
+- Fix `validate` fn incorrectly running twice (#1959) by @mj12albert
+- Integrate range sliders with Form and Field (#1929) by @mj12albert
+
+### Form
+
+- Fix integration of Base UI components (#1755) by @atomiks
+- Select inputs on focus (#1858) by @atomiks
+- Exclude number formatting from form value (#1957) by @mj12albert
+- Integrate range sliders with Form and Field (#1929) by @mj12albert
+
+### Input
+
+- Fix `Input.Props` type (#1915) by @mj12albert
+- Extend `Field.Control.State` (#1954) by @atomiks
+
+### Menu
+
+- **Breaking change:** Refine `OpenChangeReason`.
+  TODO: DESCRIBE THE BREAKING CHANGE.
+  (#1782) by @atomiks
+- Add missing `'use client'` to `RadioGroup` part (#1851) by @atomiks
+- Ensure `null` items are removed from composite lists (#1847) by @atomiks
+- Avoid `:focus-visible` style appearing (#1846) by @atomiks
+- Better handle dynamic and non-string items (#1861) by @atomiks
+- Move logic from hooks to components (#1964) by @michaldudak
+- Add `collisionAvoidance` prop (#1849) by @atomiks
+- Add `finalFocus` and `closeDelay` props (#1918) by @atomiks
+
+### Menubar
+
+- Create the Menubar component (#1684) by @michaldudak
+
+### Number Field
+
+- `validate` with latest value on blur (#1850) by @atomiks
+- Move scrubbing logic to `ScrubArea` component (#1859) by @atomiks
+- Remove floating point errors when `snapOnStep` is disabled (#1857) by @atomiks
+- Stop event propagation (#1871) by @atomiks
+- Button components use `useButton` (#1802) by @mj12albert
+- Exclude number formatting from form value (#1957) by @mj12albert
+
+### Popover
+
+- **Breaking change:** Refine `OpenChangeReason`.
+  TODO: DESCRIBE THE BREAKING CHANGE.
+  (#1782) by @atomiks
+- Avoid prop getters when merging props (#1852) by @atomiks
+- Add `collisionAvoidance` prop (#1849) by @atomiks
+- Fix nested `openOnHover` (#1938) by @atomiks
+
+### Preview Card
+
+- **Breaking change:** Refine `OpenChangeReason`.
+  TODO: DESCRIBE THE BREAKING CHANGE.
+  (#1782) by @atomiks
+- Add `collisionAvoidance` prop (#1849) by @atomiks
+
+### Radio Group
+
+- Fix composite focus of initially selected radio item (#1753) by @atomiks
+- Add `inputRef` props (#1683) by @atomiks
+- Stop event propagation (#1871) by @atomiks
+- Button components use `useButton` (#1802) by @mj12albert
+
+### Select
+
+- **Breaking change:** Move item anchoring prop to `Positioner`.
+  TODO: DESCRIBE THE BREAKING CHANGE.
+  (#1713) by @atomiks
+- **Breaking change:** Defer mounting until typeahead is needed.
+  TODO: DESCRIBE THE BREAKING CHANGE.
+  (#1906) by @atomiks
+- **Breaking change:** Refine `OpenChangeReason`.
+  TODO: DESCRIBE THE BREAKING CHANGE.
+  (#1782) by @atomiks
+- Add `inputRef` props (#1683) by @atomiks
+- Refactor to `useRenderElement` (#1797) by @atomiks
+- Ensure `null` items are removed from composite lists (#1847) by @atomiks
+- Fix `id` prop forwarding to hidden input (#1862) by @atomiks
+- Avoid `:focus-visible` style appearing (#1846) by @atomiks
+- Fix `transitionStatus` mapping on `ItemIndicator` (#1925) by @atomiks
+- Better handle dynamic and non-string items (#1861) by @atomiks
+- Use `Select.ItemText` ref to grab default text content (#1943) by @atomiks
+- Add `collisionAvoidance` prop (#1849) by @atomiks
+
+### Slider
+
+- **Breaking change:** Drop `inputId` prop from Thumb.
+  TODO: DESCRIBE THE BREAKING CHANGE.
+  (#1914) by @mj12albert
+- Position thumb based on value instead of pointer location when dragging (#1750) by @DarthSim
+- Use `useRenderElement` (#1772) by @mj12albert
+- Add `inputRef` props (#1683) by @atomiks
+- Add `locale` prop (#1796) by @mj12albert
+- Stop event propagation (#1871) by @atomiks
+- Set data-dragging on touchstart and pointerdown (#1874) by @mj12albert
+- Integrate range sliders with Form and Field (#1929) by @mj12albert
+
+### Switch
+
+- Button components use `useButton` (#1802) by @mj12albert
+
+### Toast
+
+- **Breaking change:** Add `Portal` part.
+  TODO: DESCRIBE THE BREAKING CHANGE.
+  (#1962) by @atomiks
+- **Breaking change:** Avoid removing limited toasts from the DOM.
+  TODO: DESCRIBE THE BREAKING CHANGE.
+  (#1953) by @atomiks
+- Fix swipe jump on iOS (#1785) by @atomiks
+
+### Toggle
+
+- Use `useRenderElement` (#1707) by @mj12albert
+- Stop event propagation (#1871) by @atomiks
+
+### Toolbar
+
+- Stop event propagation (#1871) by @atomiks
+
+### Tooltip
+
+- **Breaking change:** Refine `OpenChangeReason`.
+  TODO: DESCRIBE THE BREAKING CHANGE.
+  (#1782) by @atomiks
+- Avoid prop getters when merging props (#1852) by @atomiks
+- Remove `trackCursorAxis` type from `Positioner` (#1895) by @atomiks
+- Apply `pointer-events: none` to `Positioner` when not hoverable (#1917) by @atomiks
+- Add `collisionAvoidance` prop (#1849) by @atomiks
+
+All contributors of this release in alphabetical order: @aarongarciah, @atomiks, @brijeshb42, @DarthSim, @flaviendelangle, @Janpot, @JCQuintas, @michaldudak, @mj12albert, @oliviertassinari, @romgrk, @ZeeshanTamboli
+
 ## v1.0.0-alpha.8
 
 _Apr 17, 2025_
