@@ -71,7 +71,7 @@
     "@babel/preset-react": "^7.27.1",
     "@babel/preset-typescript": "^7.27.1",
     "@babel/register": "^7.27.1",
-    "@mui/internal-babel-plugin-display-name": "github:mui/mui-public#master&path:./packages/babel-plugin-display-name",
+    "@mui/internal-babel-plugin-display-name": "^1.0.0",
     "@mui/internal-babel-plugin-resolve-imports": "^2.0.1",
     "@mui/internal-bundle-size-checker": "^1.0.3",
     "@mui/internal-docs-utils": "^2.0.1",
