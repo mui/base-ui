@@ -18,17 +18,28 @@ export function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
   const nextIndexRef = React.useRef(0);
   const listeners = useLazyRef(createListeners).current;
 
+  // We use a stable `map` to avoid O(n^2) re-allocation costs for large lists.
+  // `mapTick` is our re-render trigger mechanism. We also need to update the
+  // elements and label refs, but there's a lot of async work going on and sometimes
+  // the effect that handles `onMapChange` gets called after those refs have been
+  // filled, and we don't want to lose those values by setting their lengths to `0`.
+  // We also need to have them at the proper length because floating-ui uses that
+  // information for list navigation.
+
   const map = useLazyRef(createMap<Metadata>).current;
   const [mapTick, setMapTick] = React.useState(0);
+  const lastTickRef = React.useRef(mapTick);
 
   const register = useEventCallback((node: Element, metadata: Metadata) => {
     map.set(node, metadata ?? null);
-    setMapTick(increment);
+    lastTickRef.current += 1;
+    setMapTick(lastTickRef.current);
   });
 
   const unregister = useEventCallback((node: Element) => {
     map.delete(node);
-    setMapTick(increment);
+    lastTickRef.current += 1;
+    setMapTick(lastTickRef.current);
   });
 
   const sortedMap = React.useMemo(() => {
@@ -47,8 +58,18 @@ export function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
   }, [map, mapTick]);
 
   useModernLayoutEffect(() => {
+    const shouldUpdateLengths = lastTickRef.current === mapTick;
+    if (shouldUpdateLengths) {
+      if (elementsRef.current.length !== sortedMap.size) {
+        elementsRef.current.length = sortedMap.size;
+      }
+      if (labelsRef && labelsRef.current.length !== sortedMap.size) {
+        labelsRef.current.length = sortedMap.size;
+      }
+    }
+
     onMapChange?.(sortedMap)
-  }, [onMapChange, sortedMap])
+  }, [onMapChange, sortedMap, elementsRef, labelsRef, mapTick, lastTickRef])
 
   const subscribeMapChange = useEventCallback((fn) => {
     listeners.add(fn);
