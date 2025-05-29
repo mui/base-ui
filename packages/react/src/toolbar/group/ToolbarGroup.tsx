@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import { useRenderElement } from '../../utils/useRenderElement';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useToolbarRootContext } from '../root/ToolbarRootContext';
 import type { ToolbarRoot } from '../root/ToolbarRoot';
@@ -13,10 +13,10 @@ import { ToolbarGroupContext } from './ToolbarGroupContext';
  * Documentation: [Base UI Toolbar](https://base-ui.com/react/components/toolbar)
  */
 export const ToolbarGroup = React.forwardRef(function ToolbarGroup(
-  props: ToolbarGroup.Props,
+  componentProps: ToolbarGroup.Props,
   forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
-  const { className, disabled: disabledProp = false, render, ...otherProps } = props;
+  const { className, disabled: disabledProp = false, render, ...elementProps } = componentProps;
 
   const { orientation, disabled: toolbarDisabled } = useToolbarRootContext();
 
@@ -37,21 +37,14 @@ export const ToolbarGroup = React.forwardRef(function ToolbarGroup(
     [disabled, orientation],
   );
 
-  const { renderElement } = useComponentRenderer({
-    render: render ?? 'div',
-    ref: forwardedRef,
+  const element = useRenderElement('div', componentProps, {
     state,
-    className,
-    extraProps: {
-      ...otherProps,
-      role: 'group',
-    },
+    ref: forwardedRef,
+    props: [elementProps, { role: 'group' }],
   });
 
   return (
-    <ToolbarGroupContext.Provider value={contextValue}>
-      {renderElement()}
-    </ToolbarGroupContext.Provider>
+    <ToolbarGroupContext.Provider value={contextValue}>{element}</ToolbarGroupContext.Provider>
   );
 });
 

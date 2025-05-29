@@ -1,10 +1,10 @@
 'use client';
 import * as React from 'react';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { BaseUIComponentProps, Orientation } from '../../utils/types';
+import { useRenderElement } from '../../utils/useRenderElement';
+import { BaseUIComponentProps } from '../../utils/types';
 import { useButton } from '../../use-button';
 import { CompositeItem } from '../../composite/item/CompositeItem';
-import type { ToolbarItemMetadata } from '../root/ToolbarRoot';
+import type { ToolbarRoot, ToolbarItemMetadata } from '../root/ToolbarRoot';
 import { useToolbarRootContext } from '../root/ToolbarRootContext';
 
 const TOOLBAR_LINK_METADATA = {
@@ -17,14 +17,14 @@ const TOOLBAR_LINK_METADATA = {
  * Documentation: [Base UI Toolbar](https://base-ui.com/react/components/toolbar)
  */
 export const ToolbarLink = React.forwardRef(function ToolbarLink(
-  props: ToolbarLink.Props,
+  componentProps: ToolbarLink.Props,
   forwardedRef: React.ForwardedRef<HTMLAnchorElement>,
 ) {
-  const { className, render, ...otherProps } = props;
+  const { className, render, ...elementProps } = componentProps;
 
   const { orientation } = useToolbarRootContext();
 
-  const { getButtonProps } = useButton({
+  const { getButtonProps, buttonRef } = useButton({
     buttonRef: forwardedRef,
     elementName: 'a',
   });
@@ -36,22 +36,18 @@ export const ToolbarLink = React.forwardRef(function ToolbarLink(
     [orientation],
   );
 
-  const { renderElement } = useComponentRenderer({
-    propGetter: getButtonProps,
-    render: render ?? 'a',
+  const element = useRenderElement('a', componentProps, {
     state,
-    className,
-    extraProps: otherProps,
+    ref: [forwardedRef, buttonRef],
+    props: [elementProps, getButtonProps],
   });
 
-  return (
-    <CompositeItem<ToolbarItemMetadata> metadata={TOOLBAR_LINK_METADATA} render={renderElement()} />
-  );
+  return <CompositeItem<ToolbarItemMetadata> metadata={TOOLBAR_LINK_METADATA} render={element} />;
 });
 
 export namespace ToolbarLink {
   export interface State {
-    orientation: Orientation;
+    orientation: ToolbarRoot.Orientation;
   }
 
   export interface Props extends BaseUIComponentProps<'a', State> {}

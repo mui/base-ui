@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { BaseUIComponentProps } from '../../utils/types';
+import { useRenderElement } from '../../utils/useRenderElement';
 import { useButton } from '../../use-button';
 import { CompositeItem } from '../../composite/item/CompositeItem';
 import type { ToolbarRoot, ToolbarItemMetadata } from '../root/ToolbarRoot';
@@ -15,7 +15,7 @@ import { useToolbarGroupContext } from '../group/ToolbarGroupContext';
  * Documentation: [Base UI Toolbar](https://base-ui.com/react/components/toolbar)
  */
 export const ToolbarButton = React.forwardRef(function ToolbarButton(
-  props: ToolbarButton.Props,
+  componentProps: ToolbarButton.Props,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
   const {
@@ -23,8 +23,8 @@ export const ToolbarButton = React.forwardRef(function ToolbarButton(
     disabled: disabledProp = false,
     focusableWhenDisabled = true,
     render,
-    ...otherProps
-  } = props;
+    ...elementProps
+  } = componentProps;
 
   const { disabled: toolbarDisabled, orientation } = useToolbarRootContext();
 
@@ -34,8 +34,7 @@ export const ToolbarButton = React.forwardRef(function ToolbarButton(
 
   const disabled = toolbarDisabled || (groupContext?.disabled ?? false) || disabledProp;
 
-  const { getButtonProps } = useButton({
-    buttonRef: forwardedRef,
+  const { getButtonProps, buttonRef } = useButton({
     disabled,
     focusableWhenDisabled,
   });
@@ -49,15 +48,13 @@ export const ToolbarButton = React.forwardRef(function ToolbarButton(
     [disabled, focusableWhenDisabled, orientation],
   );
 
-  const { renderElement } = useComponentRenderer({
-    propGetter: getButtonProps,
-    render: render ?? 'button',
+  const element = useRenderElement('button', componentProps, {
     state,
-    className,
-    extraProps: { ...otherProps, disabled },
+    ref: [forwardedRef, buttonRef],
+    props: [elementProps, { disabled }, getButtonProps],
   });
 
-  return <CompositeItem<ToolbarItemMetadata> metadata={itemMetadata} render={renderElement()} />;
+  return <CompositeItem<ToolbarItemMetadata> metadata={itemMetadata} render={element} />;
 });
 
 export namespace ToolbarButton {

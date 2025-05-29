@@ -101,6 +101,7 @@ export namespace ToolbarRoot {
     disabled?: boolean;
     /**
      * The orientation of the toolbar.
+     * @type Toolbar.Root.Orientation
      * @default 'horizontal'
      */
     orientation?: Orientation;
