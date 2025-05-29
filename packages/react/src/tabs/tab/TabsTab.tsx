@@ -8,15 +8,10 @@ import { useRenderElement } from '../../utils/useRenderElement';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useButton } from '../../use-button';
 import { useCompositeItem } from '../../composite/item/useCompositeItem';
-import type { TabsRoot, TabValue } from '../root/TabsRoot';
+import type { TabsRoot } from '../root/TabsRoot';
 import { useTabsRootContext } from '../root/TabsRootContext';
 import { useTabsListContext } from '../list/TabsListContext';
 
-export interface TabMetadata {
-  disabled: boolean;
-  id: string | undefined;
-  value: any | undefined;
-}
 /**
  * An individual interactive tab button that toggles the corresponding panel.
  * Renders a `<button>` element.
@@ -58,7 +53,7 @@ export const TabsTab = React.forwardRef(function Tab(
     index,
     // hook is used instead of the CompositeItem component
     // because the index is needed for Tab internals
-  } = useCompositeItem<TabMetadata>({ metadata: tabMetadata });
+  } = useCompositeItem<TabsTab.Metadata>({ metadata: tabMetadata });
 
   const tabValue = valueProp ?? index;
 
@@ -180,6 +175,28 @@ export const TabsTab = React.forwardRef(function Tab(
 });
 
 export namespace TabsTab {
+  export type Value = any | null;
+
+  export type ActivationDirection = 'left' | 'right' | 'up' | 'down' | 'none';
+
+  export interface Position {
+    left: number;
+    right: number;
+    top: number;
+    bottom: number;
+  }
+
+  export interface Size {
+    width: number;
+    height: number;
+  }
+
+  export interface Metadata {
+    disabled: boolean;
+    id: string | undefined;
+    value: any | undefined;
+  }
+
   export interface State {
     /**
      * Whether the component should ignore user interaction.
@@ -193,7 +210,8 @@ export namespace TabsTab {
     /**
      * The value of the Tab.
      * When not specified, the value is the child position index.
+     * @type Tabs.Tab.Value
      */
-    value?: TabValue;
+    value?: Value;
   }
 }

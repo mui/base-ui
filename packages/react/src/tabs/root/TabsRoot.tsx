@@ -9,8 +9,8 @@ import type { CompositeMetadata } from '../../composite/list/CompositeList';
 import { useDirection } from '../../direction-provider/DirectionContext';
 import { TabsRootContext } from './TabsRootContext';
 import { tabsStyleHookMapping } from './styleHooks';
-import type { TabMetadata } from '../tab/TabsTab';
-import type { TabPanelMetadata } from '../panel/TabsPanel';
+import type { TabsTab } from '../tab/TabsTab';
+import type { TabsPanel } from '../panel/TabsPanel';
 
 /**
  * Groups the tabs and the corresponding panels.
@@ -44,17 +44,21 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
   });
 
   const [tabPanelMap, setTabPanelMap] = React.useState(
-    () => new Map<Node, CompositeMetadata<TabPanelMetadata> | null>(),
+    () => new Map<Node, CompositeMetadata<TabsPanel.Metadata> | null>(),
   );
   const [tabMap, setTabMap] = React.useState(
-    () => new Map<Node, CompositeMetadata<TabMetadata> | null>(),
+    () => new Map<Node, CompositeMetadata<TabsTab.Metadata> | null>(),
   );
 
   const [tabActivationDirection, setTabActivationDirection] =
-    React.useState<TabActivationDirection>('none');
+    React.useState<TabsTab.ActivationDirection>('none');
 
   const onValueChange = useEventCallback(
-    (newValue: TabValue, activationDirection: TabActivationDirection, event: Event | undefined) => {
+    (
+      newValue: TabsTab.Value,
+      activationDirection: TabsTab.ActivationDirection,
+      event: Event | undefined,
+    ) => {
       setValue(newValue);
       setTabActivationDirection(activationDirection);
       onValueChangeProp?.(newValue, event);
@@ -63,7 +67,7 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
 
   // get the `id` attribute of <Tabs.Panel> to set as the value of `aria-controls` on <Tabs.Tab>
   const getTabPanelIdByTabValueOrIndex = React.useCallback(
-    (tabValue: TabValue | undefined, index: number) => {
+    (tabValue: TabsTab.Value | undefined, index: number) => {
       if (tabValue === undefined && index < 0) {
         return undefined;
       }
@@ -91,7 +95,7 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
 
   // get the `id` attribute of <Tabs.Tab> to set as the value of `aria-labelledby` on <Tabs.Panel>
   const getTabIdByPanelValueOrIndex = React.useCallback(
-    (tabPanelValue: TabValue | undefined, index: number) => {
+    (tabPanelValue: TabsTab.Value | undefined, index: number) => {
       if (tabPanelValue === undefined && index < 0) {
         return undefined;
       }
@@ -123,7 +127,7 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
 
   // used in `useActivationDirectionDetector` for setting data-activation-direction
   const getTabElementBySelectedValue = React.useCallback(
-    (selectedValue: TabValue | undefined): HTMLElement | null => {
+    (selectedValue: TabsTab.Value | undefined): HTMLElement | null => {
       if (selectedValue === undefined) {
         return null;
       }
@@ -178,15 +182,12 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
 
   return (
     <TabsRootContext.Provider value={tabsContextValue}>
-      <CompositeList<TabPanelMetadata> elementsRef={tabPanelRefs} onMapChange={setTabPanelMap}>
+      <CompositeList<TabsPanel.Metadata> elementsRef={tabPanelRefs} onMapChange={setTabPanelMap}>
         {element}
       </CompositeList>
     </TabsRootContext.Provider>
   );
 });
-
-export type TabActivationDirection = 'left' | 'right' | 'up' | 'down' | 'none';
-export type TabValue = any | null;
 
 export namespace TabsRoot {
   export type Orientation = BaseOrientation;
@@ -196,21 +197,26 @@ export namespace TabsRoot {
      * @type Tabs.Root.Orientation
      */
     orientation: Orientation;
-    tabActivationDirection: TabActivationDirection;
+    /**
+     * @type Tabs.Tab.ActivationDirection
+     */
+    tabActivationDirection: TabsTab.ActivationDirection;
   };
 
   export interface Props extends BaseUIComponentProps<'div', State> {
     /**
      * The value of the currently selected `Tab`. Use when the component is controlled.
      * When the value is `null`, no Tab will be selected.
+     * @type Tabs.Tab.Value
      */
-    value?: TabValue;
+    value?: TabsTab.Value;
     /**
      * The default value. Use when the component is not controlled.
      * When the value is `null`, no Tab will be selected.
+     * @type Tabs.Tab.Value
      * @default 0
      */
-    defaultValue?: TabValue;
+    defaultValue?: TabsTab.Value;
     /**
      * The component orientation (layout flow direction).
      * @type Tabs.Root.Orientation
@@ -220,6 +226,6 @@ export namespace TabsRoot {
     /**
      * Callback invoked when new value is being set.
      */
-    onValueChange?: (value: TabValue, event?: Event) => void;
+    onValueChange?: (value: TabsTab.Value, event?: Event) => void;
   }
 }

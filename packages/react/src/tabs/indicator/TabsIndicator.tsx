@@ -9,20 +9,9 @@ import type { TabsRoot } from '../root/TabsRoot';
 import { useTabsRootContext } from '../root/TabsRootContext';
 import { tabsStyleHookMapping } from '../root/styleHooks';
 import { useTabsListContext } from '../list/TabsListContext';
+import type { TabsTab } from '../tab/TabsTab';
 import { script as prehydrationScript } from './prehydrationScript.min';
 import { TabsIndicatorCssVars } from './TabsIndicatorCssVars';
-
-export interface TabPosition {
-  left: number;
-  right: number;
-  top: number;
-  bottom: number;
-}
-
-export interface TabSize {
-  width: number;
-  height: number;
-}
 
 const customStyleHookMapping = {
   ...tabsStyleHookMapping,
@@ -203,8 +192,8 @@ export const TabsIndicator = React.forwardRef(function TabIndicator(
 
 export namespace TabsIndicator {
   export interface State extends TabsRoot.State {
-    selectedTabPosition: TabPosition | null;
-    selectedTabSize: TabSize | null;
+    selectedTabPosition: TabsTab.Position | null;
+    selectedTabSize: TabsTab.Size | null;
     orientation: TabsRoot.Orientation;
   }
 

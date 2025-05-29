@@ -7,8 +7,8 @@ import { useRenderElement } from '../../utils/useRenderElement';
 import { CompositeRoot } from '../../composite/root/CompositeRoot';
 import { tabsStyleHookMapping } from '../root/styleHooks';
 import { useTabsRootContext } from '../root/TabsRootContext';
-import type { TabsRoot, TabActivationDirection } from '../root/TabsRoot';
-import type { TabMetadata } from '../tab/TabsTab';
+import type { TabsRoot } from '../root/TabsRoot';
+import type { TabsTab } from '../tab/TabsTab';
 import { TabsListContext } from './TabsListContext';
 
 const EMPTY_ARRAY: number[] = [];
@@ -101,7 +101,7 @@ export const TabsList = React.forwardRef(function TabsList(
 
   return (
     <TabsListContext.Provider value={tabsListContextValue}>
-      <CompositeRoot<TabMetadata>
+      <CompositeRoot<TabsTab.Metadata>
         highlightedIndex={highlightedTabIndex}
         enableHomeAndEndKeys
         loop={loop}
@@ -132,7 +132,7 @@ function useActivationDirectionDetector(
   orientation: TabsRoot.Orientation,
   tabsListRef: React.RefObject<HTMLElement | null>,
   getTabElement: (selectedValue: any) => HTMLElement | null,
-): (newValue: any) => TabActivationDirection {
+): (newValue: any) => TabsTab.ActivationDirection {
   const previousTabEdge = React.useRef<number | null>(null);
 
   useModernLayoutEffect(() => {

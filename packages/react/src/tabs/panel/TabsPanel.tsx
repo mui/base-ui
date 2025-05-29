@@ -6,13 +6,9 @@ import type { BaseUIComponentProps } from '../../utils/types';
 import { useCompositeListItem } from '../../composite/list/useCompositeListItem';
 import { tabsStyleHookMapping } from '../root/styleHooks';
 import { useTabsRootContext } from '../root/TabsRootContext';
-import type { TabsRoot, TabValue } from '../root/TabsRoot';
+import type { TabsRoot } from '../root/TabsRoot';
+import type { TabsTab } from '../tab/TabsTab';
 import { TabsPanelDataAttributes } from './TabsPanelDataAttributes';
-
-export interface TabPanelMetadata {
-  id?: string;
-  value: TabValue;
-}
 
 /**
  * A panel displayed when the corresponding tab is active.
@@ -50,7 +46,7 @@ export const TabsPanel = React.forwardRef(function TabPanel(
     [id, valueProp],
   );
 
-  const { ref: listItemRef, index } = useCompositeListItem<TabPanelMetadata>({
+  const { ref: listItemRef, index } = useCompositeListItem<TabsPanel.Metadata>({
     metadata,
   });
 
@@ -93,6 +89,11 @@ export const TabsPanel = React.forwardRef(function TabPanel(
 });
 
 export namespace TabsPanel {
+  export interface Metadata {
+    id?: string;
+    value: TabsTab.Value;
+  }
+
   export interface State extends TabsRoot.State {
     hidden: boolean;
   }
@@ -102,8 +103,9 @@ export namespace TabsPanel {
      * The value of the TabPanel. It will be shown when the Tab with the corresponding value is selected.
      * If not provided, it will fall back to the index of the panel.
      * It is recommended to explicitly provide it, as it's required for the tab panel to be rendered on the server.
+     * @type Tabs.Tab.Value
      */
-    value?: TabValue;
+    value?: TabsTab.Value;
     /**
      * Whether to keep the HTML element in the DOM while the panel is hidden.
      * @default false

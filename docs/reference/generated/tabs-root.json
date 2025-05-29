@@ -3,12 +3,12 @@
   "description": "Groups the tabs and the corresponding panels.\nRenders a `<div>` element.",
   "props": {
     "defaultValue": {
-      "type": "any",
+      "type": "Tabs.Tab.Value",
       "default": "0",
       "description": "The default value. Use when the component is not controlled.\nWhen the value is `null`, no Tab will be selected."
     },
     "value": {
-      "type": "any",
+      "type": "Tabs.Tab.Value",
       "description": "The value of the currently selected `Tab`. Use when the component is controlled.\nWhen the value is `null`, no Tab will be selected."
     },
     "onValueChange": {
