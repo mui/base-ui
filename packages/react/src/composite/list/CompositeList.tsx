@@ -68,8 +68,8 @@ export function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
       }
     }
 
-    onMapChange?.(sortedMap)
-  }, [onMapChange, sortedMap, elementsRef, labelsRef, mapTick, lastTickRef])
+    onMapChange?.(sortedMap);
+  }, [onMapChange, sortedMap, elementsRef, labelsRef, mapTick, lastTickRef]);
 
   const subscribeMapChange = useEventCallback((fn) => {
     listeners.add(fn);
@@ -100,10 +100,6 @@ function createListeners() {
   return new Set<Function>();
 }
 
-function increment(t: number) {
-  return t + 1;
-}
-
 function sortByDocumentPosition(a: Element, b: Element) {
   const position = a.compareDocumentPosition(b);
 
@@ -121,7 +117,7 @@ function sortByDocumentPosition(a: Element, b: Element) {
   return 0;
 }
 
-function disableEslintWarning(_: any) {};
+function disableEslintWarning(_: any) {}
 
 export namespace CompositeList {
   export interface Props<Metadata> {
