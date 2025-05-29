@@ -397,5 +397,49 @@ describe('<CheckboxGroup />', () => {
       expect(checkbox1).to.have.attribute('aria-invalid', 'true');
       expect(screen.queryByTestId('error')).to.have.text('server error');
     });
+
+    it('excludes parent checkboxes from form submission', async () => {
+      const allValues = ['fuji-apple', 'gala-apple', 'granny-smith'];
+
+      function App() {
+        const [value, setValue] = React.useState<string[]>(['fuji-apple', 'gala-apple']);
+        return (
+          <Form
+            onSubmit={(event) => {
+              event.preventDefault();
+              const formData = new FormData(event.currentTarget);
+              expect(formData.getAll('apple')).to.deep.equal([
+                'fuji-apple',
+                'gala-apple',
+                'granny-smith-apple',
+              ]);
+            }}
+          >
+            <Field.Root name="apple">
+              <CheckboxGroup value={value} onValueChange={setValue} allValues={allValues}>
+                <Checkbox.Root parent />
+                <Checkbox.Root value="fuji-apple" />
+                <Checkbox.Root value="gala-apple" />
+                <Checkbox.Root value="granny-smith-apple" />
+              </CheckboxGroup>
+            </Field.Root>
+            <button type="submit">Submit</button>
+          </Form>
+        );
+      }
+
+      const { user } = await render(<App />);
+
+      const [parentCheckbox, , , checkbox3] = screen.getAllByRole('checkbox');
+
+      expect(parentCheckbox).to.have.attribute('aria-checked', 'mixed');
+
+      await user.click(checkbox3);
+
+      expect(parentCheckbox).to.have.attribute('aria-checked', 'true');
+
+      const submit = screen.getByText('Submit');
+      fireEvent.click(submit);
+    });
   });
 });
