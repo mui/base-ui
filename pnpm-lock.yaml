@@ -55,6 +55,9 @@ importers:
       '@mui/internal-babel-plugin-display-name':
         specifier: ^1.0.0
         version: 1.0.0(@babel/core@7.27.1)(@babel/preset-react@7.27.1(@babel/core@7.27.1))
+      '@mui/internal-babel-plugin-minify-errors':
+        specifier: ^2.0.4
+        version: 2.0.4(@babel/core@7.27.1)
       '@mui/internal-babel-plugin-resolve-imports':
         specifier: ^2.0.1
         version: 2.0.2(@babel/core@7.27.1)
@@ -127,9 +130,6 @@ importers:
       babel-loader:
         specifier: ^10.0.0
         version: 10.0.0(@babel/core@7.27.1)(webpack@5.99.7)
-      babel-plugin-macros:
-        specifier: ^3.1.0
-        version: 3.1.0
       babel-plugin-module-resolver:
         specifier: ^5.0.2
         version: 5.0.2
@@ -2323,6 +2323,12 @@ packages:
     peerDependencies:
       '@babel/core': ^7.27.1
       '@babel/preset-react': ^7.27.1
+
+  '@mui/internal-babel-plugin-minify-errors@2.0.4':
+    resolution: {integrity: sha512-t0wvHPv2QeBr1ZFePYDFqyGShfMX7lJCDXKJ7tdDsHF3VIucUV5+aXgX1T75+8OIsYzkM3SBm86kyR3dmC2Cow==}
+    engines: {node: '>=14.0.0'}
+    peerDependencies:
+      '@babel/core': ^7.27.1
 
   '@mui/internal-babel-plugin-resolve-imports@2.0.2':
     resolution: {integrity: sha512-QF+q+xRw5xHm3Lb7YWI7bsgDoEyjtVC4E59hVd4PWAkpV8vNkQaf8jAJcXWen4li4HTV8D4lZ+o7NU8b2oRsvQ==}
@@ -6441,6 +6447,9 @@ packages:
   find-cache-dir@3.3.2:
     resolution: {integrity: sha512-wXZV5emFEjrridIgED11OoUKLxiYjAcqot/NJdAkOhlJ+vGzwhOAfcG5OX1jP+S0PcjEn8bdMJv+g2jwQ3Onig==}
     engines: {node: '>=8'}
+
+  find-package-json@1.2.0:
+    resolution: {integrity: sha512-+SOGcLGYDJHtyqHd87ysBhmaeQ95oWspDKnMXBrnQ9Eq4OkLNqejgoaD8xVWu6GPa0B6roa6KinCMEMcVeqONw==}
 
   find-root@1.1.0:
     resolution: {integrity: sha512-NKfW6bec6GfKc0SGx1e07QZY9PE99u0Bft/0rzSD5k3sO/vwkVUpDUKVm5Gpp5Ue3YfShPFTX2070tDs5kB9Ng==}
@@ -13066,6 +13075,14 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
+  '@mui/internal-babel-plugin-minify-errors@2.0.4(@babel/core@7.27.1)':
+    dependencies:
+      '@babel/core': 7.27.1
+      '@babel/helper-module-imports': 7.27.1
+      find-package-json: 1.2.0
+    transitivePeerDependencies:
+      - supports-color
+
   '@mui/internal-babel-plugin-resolve-imports@2.0.2(@babel/core@7.27.1)':
     dependencies:
       '@babel/core': 7.27.1
@@ -17952,6 +17969,8 @@ snapshots:
       commondir: 1.0.1
       make-dir: 3.1.0
       pkg-dir: 4.2.0
+
+  find-package-json@1.2.0: {}
 
   find-root@1.1.0: {}
 
