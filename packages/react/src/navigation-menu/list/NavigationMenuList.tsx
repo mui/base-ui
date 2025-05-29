@@ -17,7 +17,7 @@ export const NavigationMenuList = React.forwardRef(function NavigationMenuList(
 ) {
   const { className, render, ...elementProps } = componentProps;
 
-  const { orientation, open, listRef } = useNavigationMenuRootContext();
+  const { orientation, open } = useNavigationMenuRootContext();
 
   const state: NavigationMenuList.State = React.useMemo(
     () => ({
@@ -28,7 +28,7 @@ export const NavigationMenuList = React.forwardRef(function NavigationMenuList(
 
   const element = useRenderElement('div', componentProps, {
     state,
-    ref: [forwardedRef, listRef],
+    ref: forwardedRef,
     props: elementProps,
   });
 

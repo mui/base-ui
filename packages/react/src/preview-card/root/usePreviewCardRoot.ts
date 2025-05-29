@@ -5,6 +5,7 @@ import {
   useFloatingRootContext,
   useHover,
   useInteractions,
+  safePolygon,
   type FloatingRootContext,
 } from '@floating-ui/react';
 import { useControlled } from '../../utils/useControlled';
@@ -19,7 +20,6 @@ import {
 } from '../../utils/translateOpenChangeReason';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useFocusWithDelay } from '../../utils/floating-ui/useFocusWithDelay';
-import { safePolygon } from '../../utils/floating-ui/safePolygon';
 
 export function usePreviewCardRoot(
   params: usePreviewCardRoot.Parameters,

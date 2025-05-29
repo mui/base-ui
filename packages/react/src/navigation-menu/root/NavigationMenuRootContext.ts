@@ -32,7 +32,6 @@ export interface NavigationMenuRootContext {
   delay: number;
   closeDelay: number;
   orientation: 'horizontal' | 'vertical';
-  listRef: React.RefObject<HTMLDivElement | null>;
 }
 
 export const NavigationMenuRootContext = React.createContext<NavigationMenuRootContext | undefined>(

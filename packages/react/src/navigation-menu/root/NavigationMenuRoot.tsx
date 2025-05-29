@@ -56,7 +56,6 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot(
 
   const closeReasonRef = React.useRef<BaseOpenChangeReason | undefined>(undefined);
   const rootRef = React.useRef<HTMLDivElement | null>(null);
-  const listRef = React.useRef<HTMLDivElement | null>(null);
 
   const [positionerElement, setPositionerElement] = React.useState<HTMLElement | null>(null);
   const [popupElement, setPopupElement] = React.useState<HTMLElement | null>(null);
@@ -153,7 +152,6 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot(
       delay,
       closeDelay,
       orientation,
-      listRef,
     }),
     [
       open,

@@ -9,31 +9,6 @@
 .List {
   display: flex;
   position: relative;
-
-  &::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    right: 0;
-    top: -10px;
-    height: 10px;
-    pointer-events: none;
-  }
-
-  &::after {
-    content: '';
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: -10px;
-    height: 10px;
-    pointer-events: none;
-  }
-
-  &[data-open]::before,
-  &[data-open]::after {
-    pointer-events: auto;
-  }
 }
 
 .Trigger {
@@ -97,6 +72,39 @@
   width: var(--positioner-width);
   height: var(--positioner-height);
   max-width: var(--available-width);
+
+  &::before {
+    content: '';
+    position: absolute;
+  }
+
+  &[data-side='top']::before {
+    left: 0;
+    right: 0;
+    bottom: -10px;
+    height: 10px;
+  }
+
+  &[data-side='bottom']::before {
+    left: 0;
+    right: 0;
+    top: -10px;
+    height: 10px;
+  }
+
+  &[data-side='left']::before {
+    top: 0;
+    bottom: 0;
+    right: -10px;
+    width: 10px;
+  }
+
+  &[data-side='right']::before {
+    top: 0;
+    bottom: 0;
+    left: -10px;
+    width: 10px;
+  }
 
   &[data-instant] {
     transition: none;

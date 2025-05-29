@@ -8,6 +8,7 @@ import {
   useInteractions,
   useRole,
   FloatingTree,
+  safePolygon,
 } from '@floating-ui/react';
 import { useClick } from '../../utils/floating-ui/useClick';
 import { useTimeout } from '../../utils/useTimeout';
@@ -25,7 +26,6 @@ import {
   PopoverRootContext,
   usePopoverRootContext,
 } from './PopoverRootContext';
-import { safePolygon } from '../../utils/floating-ui/safePolygon';
 
 function PopoverRootComponent({ props }: { props: PopoverRoot.Props }) {
   const {

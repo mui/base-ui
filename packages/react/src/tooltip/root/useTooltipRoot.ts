@@ -8,6 +8,7 @@ import {
   useFocus,
   useHover,
   useInteractions,
+  safePolygon,
   type FloatingRootContext,
 } from '@floating-ui/react';
 import { useControlled } from '../../utils/useControlled';
@@ -22,7 +23,6 @@ import {
 } from '../../utils/translateOpenChangeReason';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useTooltipProviderContext } from '../provider/TooltipProviderContext';
-import { safePolygon } from '../../utils/floating-ui/safePolygon';
 
 export type TooltipOpenChangeReason = BaseOpenChangeReason | 'disabled';
 
