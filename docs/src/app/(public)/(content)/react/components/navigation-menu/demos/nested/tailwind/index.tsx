@@ -31,14 +31,12 @@ export default function ExampleNavigationMenu() {
                 <NavigationMenu.Root orientation="vertical">
                   <NavigationMenu.Item>
                     <NavigationMenu.Trigger className={linkCardClassName}>
-                      <div>
-                        <span className="m-0 mb-1 text-base leading-5 font-medium">
-                          Handbook
-                        </span>
-                        <p className="m-0 text-sm leading-5 text-gray-500">
-                          How to use Base UI effectively.
-                        </p>
-                      </div>
+                      <span className="m-0 mb-1 text-base leading-5 font-medium">
+                        Handbook
+                      </span>
+                      <p className="m-0 text-sm leading-5 text-gray-500">
+                        How to use Base UI effectively.
+                      </p>
                       <NavigationMenu.Icon className="absolute top-1/2 right-2.5 flex h-2.5 w-2.5 -translate-y-1/2 items-center justify-center transition-transform duration-200 ease-in-out data-[popup-open]:rotate-180">
                         <ChevronRightIcon />
                       </NavigationMenu.Icon>
@@ -173,7 +171,7 @@ const contentClassName =
   'data-[ending-style]:data-[activation-direction=right]:translate-x-[-50%]';
 
 const linkCardClassName =
-  'text-left relative block rounded-md p-2 sm:p-3 no-underline text-inherit ' +
+  'w-full text-left relative block rounded-md p-2 sm:p-3 no-underline text-inherit ' +
   'hover:bg-gray-100 focus-visible:relative focus-visible:outline focus-visible:outline-2 ' +
   'focus-visible:-outline-offset-1 focus-visible:outline-blue-800 ' +
   'data-[popup-open]:bg-gray-100';
