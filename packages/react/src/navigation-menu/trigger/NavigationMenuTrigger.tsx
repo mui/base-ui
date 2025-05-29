@@ -40,6 +40,7 @@ import { isOutsideMenuEvent } from '../utils/isOutsideMenuEvent';
 import { useTimeout } from '../../utils/useTimeout';
 import { useAnimationFrame } from '../../utils/useAnimationFrame';
 import { useLatestRef } from '../../utils/useLatestRef';
+import { ownerWindow } from '../../utils/owner';
 
 const TRIGGER_IDENTIFIER = 'data-navigation-menu-trigger';
 
@@ -138,6 +139,24 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
       handleValueChange(0, 0);
     }
   }, [isActiveItemRef, open, popupElement, handleValueChange]);
+
+  React.useEffect(() => {
+    if (!open || !isActiveItem) {
+      return undefined;
+    }
+
+    function handleResize() {
+      if (isActiveItemRef.current && open && popupElement) {
+        handleValueChange(0, 0);
+      }
+    }
+
+    const win = ownerWindow(popupElement);
+    win.addEventListener('resize', handleResize);
+    return () => {
+      win.removeEventListener('resize', handleResize);
+    };
+  }, [open, isActiveItem, popupElement, handleValueChange, isActiveItemRef]);
 
   React.useEffect(() => {
     if (isActiveItem && open && popupElement && allowFocusRef.current) {
