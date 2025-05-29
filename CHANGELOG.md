@@ -8,7 +8,7 @@ _May 29, 2025_
 
 - Remove proptypes (#1760) by @michaldudak
 - Unify component export patterns (#1478) by @michaldudak
-- Default `tabIndex` to `0` (#1939) by @atomiks
+- Default `tabIndex` to `0` on `<button>` parts (#1939) by @atomiks
 
 ### Accordion
 
@@ -18,7 +18,7 @@ _May 29, 2025_
 
 - **Breaking change:** Refine `OpenChangeReason`. `hover` is now `trigger-hover`; `click` is now `trigger-press`; `focus` is now `trigger-focus`.
   (#1782) by @atomiks
-- Use basic scroll lock on iOS.
+- Use basic scroll lock on iOS
   (#1890) by @atomiks
 
 ### Checkbox
@@ -40,7 +40,7 @@ _May 29, 2025_
 
 - **Breaking change:** Refine `OpenChangeReason`. `hover` is now `trigger-hover`; `click` is now `trigger-press`; `focus` is now `trigger-focus`.
   (#1782) by @atomiks
-- Use basic scroll lock on iOS.
+- Use basic scroll lock on iOS
   (#1890) by @atomiks
 
 ### Field
@@ -81,7 +81,7 @@ _May 29, 2025_
 - Better handle dynamic and non-string items (#1861) by @atomiks
 - Add `collisionAvoidance` prop (#1849) by @atomiks
 - Add `finalFocus` and `closeDelay` props (#1918) by @atomiks
-- Use basic scroll lock on iOS.
+- Use basic scroll lock on iOS
   (#1890) by @atomiks
 
 ### Menubar
@@ -108,7 +108,7 @@ _May 29, 2025_
 - Avoid prop getters when merging props (#1852) by @atomiks
 - Add `collisionAvoidance` prop (#1849) by @atomiks
 - Fix nested `openOnHover` (#1938) by @atomiks
-- Use basic scroll lock on iOS.
+- Use basic scroll lock on iOS
   (#1890) by @atomiks
 
 ### Preview Card
@@ -144,7 +144,7 @@ _May 29, 2025_
 - Better handle dynamic and non-string items (#1861) by @atomiks
 - Use `Select.ItemText` ref to grab default text content (#1943) by @atomiks
 - Add `collisionAvoidance` prop (#1849) by @atomiks
-- Use basic scroll lock on iOS.
+- Use basic scroll lock on iOS
   (#1890) by @atomiks
 
 ### Slider
