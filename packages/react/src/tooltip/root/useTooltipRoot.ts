@@ -1,7 +1,6 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import {
-  safePolygon,
   useClientPoint,
   useNextDelayGroup,
   useDismiss,
@@ -9,6 +8,7 @@ import {
   useFocus,
   useHover,
   useInteractions,
+  safePolygon,
   type FloatingRootContext,
 } from '@floating-ui/react';
 import { useControlled } from '../../utils/useControlled';
