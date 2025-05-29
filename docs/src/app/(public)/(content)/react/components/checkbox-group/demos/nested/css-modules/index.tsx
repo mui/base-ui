@@ -61,7 +61,7 @@ export default function PermissionsForm() {
       </label>
 
       <label className={styles.Item}>
-        <Checkbox.Root name="view-dashboard" className={styles.Checkbox}>
+        <Checkbox.Root value="view-dashboard" className={styles.Checkbox}>
           <Checkbox.Indicator className={styles.Indicator}>
             <CheckIcon className={styles.Icon} />
           </Checkbox.Indicator>
@@ -70,7 +70,7 @@ export default function PermissionsForm() {
       </label>
 
       <label className={styles.Item}>
-        <Checkbox.Root name="access-reports" className={styles.Checkbox}>
+        <Checkbox.Root value="access-reports" className={styles.Checkbox}>
           <Checkbox.Indicator className={styles.Indicator}>
             <CheckIcon className={styles.Icon} />
           </Checkbox.Indicator>
@@ -116,7 +116,7 @@ export default function PermissionsForm() {
         </label>
 
         <label className={styles.Item}>
-          <Checkbox.Root name="create-user" className={styles.Checkbox}>
+          <Checkbox.Root value="create-user" className={styles.Checkbox}>
             <Checkbox.Indicator className={styles.Indicator}>
               <CheckIcon className={styles.Icon} />
             </Checkbox.Indicator>
@@ -125,7 +125,7 @@ export default function PermissionsForm() {
         </label>
 
         <label className={styles.Item}>
-          <Checkbox.Root name="edit-user" className={styles.Checkbox}>
+          <Checkbox.Root value="edit-user" className={styles.Checkbox}>
             <Checkbox.Indicator className={styles.Indicator}>
               <CheckIcon className={styles.Icon} />
             </Checkbox.Indicator>
@@ -134,7 +134,7 @@ export default function PermissionsForm() {
         </label>
 
         <label className={styles.Item}>
-          <Checkbox.Root name="delete-user" className={styles.Checkbox}>
+          <Checkbox.Root value="delete-user" className={styles.Checkbox}>
             <Checkbox.Indicator className={styles.Indicator}>
               <CheckIcon className={styles.Icon} />
             </Checkbox.Indicator>
@@ -143,7 +143,7 @@ export default function PermissionsForm() {
         </label>
 
         <label className={styles.Item}>
-          <Checkbox.Root name="assign-roles" className={styles.Checkbox}>
+          <Checkbox.Root value="assign-roles" className={styles.Checkbox}>
             <Checkbox.Indicator className={styles.Indicator}>
               <CheckIcon className={styles.Icon} />
             </Checkbox.Indicator>

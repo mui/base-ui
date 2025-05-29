@@ -27,7 +27,7 @@ default-job: &default-job
     COREPACK_ENABLE_DOWNLOAD_PROMPT: '0'
   working_directory: /tmp/base-ui
   docker:
-    - image: cimg/node:18.20
+    - image: cimg/node:20.17
 
 default-context: &default-context
   context:
@@ -183,7 +183,7 @@ jobs:
             pnpm docs:link-check
             git add -A && git diff --exit-code --staged
       - run:
-          name: '`pnpm inline-scripts changes committed?'
+          name: '`pnpm inline-scripts` changes committed?'
           command: |
             pnpm inline-scripts
             git add -A && git diff --exit-code --staged
@@ -297,18 +297,20 @@ jobs:
       - run:
           name: pnpm test:e2e
           command: pnpm test:e2e
-  test_bundle_size_monitor:
-    <<: *default-job
-    steps:
-      - checkout
-      - install_js
-      # TODO test bundle size https://github.com/mui/base-ui/issues/201
+
   test_package:
     <<: *default-job
     steps:
       - checkout
       - install_js:
           react-version: << parameters.react-version >>
+
+      - run:
+          name: prepare danger on PRs
+          command: pnpm danger ci
+          environment:
+            DANGER_COMMAND: prepareBundleSizeReport
+
       - run:
           name: Build packages
           command: pnpm release:build
@@ -319,6 +321,19 @@ jobs:
           name: Verify built packages
           command: pnpm -r test:package
 
+      - run:
+          name: create and upload a size snapshot
+          command: |
+            export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID_ARTIFACTS
+            export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY_ARTIFACTS
+            export AWS_REGION=$AWS_REGION_ARTIFACTS
+            pnpm size:snapshot
+
+      - run:
+          name: Run danger on PRs
+          command: pnpm danger ci --fail-on-errors
+          environment:
+            DANGER_COMMAND: reportBundleSize
 workflows:
   pipeline:
     when:

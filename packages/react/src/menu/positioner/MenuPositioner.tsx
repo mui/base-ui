@@ -17,7 +17,7 @@ import { CompositeList } from '../../composite/list/CompositeList';
 import { inertValue } from '../../utils/inertValue';
 import { InternalBackdrop } from '../../utils/InternalBackdrop';
 import { useMenuPortalContext } from '../portal/MenuPortalContext';
-import { DEFAULT_COLLISION_AVOIDANCE } from '../../utils/constants';
+import { DROPDOWN_COLLISION_AVOIDANCE } from '../../utils/constants';
 import { useContextMenuRootContext } from '../../context-menu/root/ContextMenuRootContext';
 
 /**
@@ -44,7 +44,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
     arrowPadding = 5,
     sticky = false,
     trackAnchor = true,
-    collisionAvoidance = DEFAULT_COLLISION_AVOIDANCE,
+    collisionAvoidance = DROPDOWN_COLLISION_AVOIDANCE,
     ...otherProps
   } = props;
 
@@ -94,7 +94,6 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
     anchor,
     floatingRootContext,
     positionMethod: contextMenuContext ? 'fixed' : positionMethodProp,
-    open,
     mounted,
     side: computedSide,
     sideOffset,

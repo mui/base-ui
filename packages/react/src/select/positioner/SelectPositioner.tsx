@@ -12,7 +12,7 @@ import { inertValue } from '../../utils/inertValue';
 import { useFirstRender } from '../../utils/useFirstRender';
 import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { useRenderElement } from '../../utils/useRenderElement';
-import { DEFAULT_COLLISION_AVOIDANCE } from '../../utils/constants';
+import { DROPDOWN_COLLISION_AVOIDANCE } from '../../utils/constants';
 import { clearPositionerStyles } from '../popup/utils';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { useSelector } from '../../utils/store';
@@ -43,7 +43,7 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
     sticky = false,
     trackAnchor = true,
     alignItemWithTrigger = true,
-    collisionAvoidance = DEFAULT_COLLISION_AVOIDANCE,
+    collisionAvoidance = DROPDOWN_COLLISION_AVOIDANCE,
     ...elementProps
   } = componentProps;
 

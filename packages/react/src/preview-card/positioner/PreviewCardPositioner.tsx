@@ -9,7 +9,7 @@ import type { Side, Align } from '../../utils/useAnchorPositioning';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { popupStateMapping } from '../../utils/popupStateMapping';
 import { usePreviewCardPortalContext } from '../portal/PreviewCardPortalContext';
-import { DEFAULT_COLLISION_AVOIDANCE } from '../../utils/constants';
+import { POPUP_COLLISION_AVOIDANCE } from '../../utils/constants';
 
 /**
  * Positions the popup against the trigger.
@@ -35,7 +35,7 @@ export const PreviewCardPositioner = React.forwardRef(function PreviewCardPositi
     arrowPadding = 5,
     sticky = false,
     trackAnchor = true,
-    collisionAvoidance = DEFAULT_COLLISION_AVOIDANCE,
+    collisionAvoidance = POPUP_COLLISION_AVOIDANCE,
     ...otherProps
   } = props;
 
@@ -46,7 +46,6 @@ export const PreviewCardPositioner = React.forwardRef(function PreviewCardPositi
     anchor,
     floatingRootContext,
     positionMethod,
-    open,
     mounted,
     side,
     sideOffset,

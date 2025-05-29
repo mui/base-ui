@@ -1,11 +1,11 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import {
-  safePolygon,
   useDismiss,
   useFloatingRootContext,
   useHover,
   useInteractions,
+  safePolygon,
   type FloatingRootContext,
 } from '@floating-ui/react';
 import { useControlled } from '../../utils/useControlled';
