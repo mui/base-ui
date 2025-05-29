@@ -18,13 +18,14 @@ export const SelectValue = React.forwardRef(function SelectValue(
     className,
     render,
     children: childrenProp,
-    initialLabel,
+    initialSelectedLabel,
+    placeholder,
     ...elementProps
   } = componentProps;
 
   const { value, label: contextLabel, valueRef } = useSelectRootContext();
 
-  const label = contextLabel || initialLabel;
+  const label = value == null ? placeholder : contextLabel || initialSelectedLabel;
   const children =
     typeof childrenProp === 'function' ? childrenProp(label, value) : childrenProp || label;
 
@@ -42,22 +43,29 @@ export namespace SelectValue {
      * Specifies a controlled label or a callback to customize the value label when uncontrolled.
      *
      * ```tsx
-     * <Select.Value initialLabel="Select an item">
+     * <Select.Value initialSelectedLabel="Select an item">
      *   {(label, value) => value !== null ? `${label} (${value})` : label}
      * </Select.Value>
      * ```
      */
     children?: React.ReactNode | ((label: React.ReactNode, value: any) => React.ReactNode);
     /**
-     * Specifies the initial value label before hydration and before the popup is opened for the first time.
-     * If no item is selected, it acts as a placeholder label. If an item is pre-selected, it should match
-     * the selected item’s label.
+     * When an item is pre-selected, this specifies the initial value label before hydration and
+     * before the popup is opened for the first time. It should be identical to the selected item’s label.
      *
      * ```tsx
-     * <Select.Value initialLabel="Select an item" />
+     * <Select.Value initialSelectedLabel="Red" />
      * ```
      */
-    initialLabel: React.ReactNode;
+    initialSelectedLabel?: React.ReactNode;
+    /**
+     * Specifies the placeholder label when no item is selected.
+     *
+     * ```tsx
+     * <Select.Value placeholder="Select an item" />
+     * ```
+     */
+    placeholder?: React.ReactNode;
   }
 
   export interface State {}

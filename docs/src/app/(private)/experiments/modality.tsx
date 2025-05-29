@@ -39,7 +39,7 @@ function SelectDemo({ modal, withBackdrop }: Props) {
   return (
     <Select.Root defaultValue="system" modal={modal}>
       <Select.Trigger aria-label="Select font" render={<Trigger />}>
-        <Select.Value initialLabel="System font" />
+        <Select.Value initialSelectedLabel="System font" />
         <SelectDropdownArrow />
       </Select.Trigger>
 

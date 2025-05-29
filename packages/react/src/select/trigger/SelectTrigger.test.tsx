@@ -20,7 +20,7 @@ describe('<Select.Trigger />', () => {
       const { user } = await render(
         <Select.Root defaultValue="b">
           <Select.Trigger data-testid="trigger" disabled>
-            <Select.Value initialLabel="b" />
+            <Select.Value initialSelectedLabel="b" />
           </Select.Trigger>
           <Select.Portal>
             <Select.Positioner>
@@ -46,7 +46,7 @@ describe('<Select.Trigger />', () => {
       await render(
         <Select.Root defaultValue="b" onOpenChange={handleOpenChange}>
           <Select.Trigger data-testid="trigger" disabled>
-            <Select.Value initialLabel="b" />
+            <Select.Value initialSelectedLabel="b" />
           </Select.Trigger>
           <Select.Portal>
             <Select.Positioner>
