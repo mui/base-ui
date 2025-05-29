@@ -43,7 +43,7 @@ export namespace SelectValue {
      * Specifies a controlled label or a callback to customize the value label when uncontrolled.
      *
      * ```tsx
-     * <Select.Value initialSelectedLabel="Select an item">
+     * <Select.Value placeholder="Select an item">
      *   {(label, value) => value !== null ? `${label} (${value})` : label}
      * </Select.Value>
      * ```
