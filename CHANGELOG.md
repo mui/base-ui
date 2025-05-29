@@ -34,7 +34,7 @@ _May 29, 2025_
 
 ### Context Menu
 
-- Create new `ContextMenu` component (#1665) by @atomiks
+- New `ContextMenu` component (#1665) by @atomiks
 
 ### Dialog
 
@@ -86,7 +86,7 @@ _May 29, 2025_
 
 ### Menubar
 
-- Create the Menubar component (#1684) by @michaldudak
+- New `Menubar` component (#1684) by @michaldudak
 
 ### Navigation Menu
 
@@ -156,13 +156,13 @@ _May 29, 2025_
 - Add `inputRef` props (#1683) by @atomiks
 - Add `locale` prop (#1796) by @mj12albert
 - Stop event propagation to allow composite components to be used within popups (#1871) by @atomiks
-- Set data-dragging on touchstart and pointerdown (#1874) by @mj12albert
+- set `data-dragging` on touchstart and pointerdown (#1874) by @mj12albert
 - Integrate range sliders with Form and Field (#1929) by @mj12albert
 
 ### Toast
 
 - **Breaking change:** Add `Portal` part.
-  Place `Toast.Viewport` inside of `Toast.Portal`.
+  Place `<Toast.Viewport>` inside of `<Toast.Portal>`.
   (#1962) by @atomiks
 - **Breaking change:** Avoid removing limited toasts from the DOM.
   The `[data-limited]` styles in the demos were updated to handle limited toasts remaining in the DOM. They should now be a standalone style as `&[data-limited] { opacity: 0 }`.
