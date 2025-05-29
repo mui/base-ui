@@ -230,7 +230,7 @@ function getFormattedChangelogEntries(
       return '';
     }
 
-    return `### ${_.startCase(component)}\n\n${componentChanges.breaking.join('\n')}${componentChanges.breaking.length > 0 && componentChanges.nonBreaking.length > 0 ? '\n' : ''}${componentChanges.nonBreaking.join('\n')}\n`;
+    return `${formatHeader(component)}${componentChanges.breaking.join('\n')}${componentChanges.breaking.length > 0 && componentChanges.nonBreaking.length > 0 ? '\n' : ''}${componentChanges.nonBreaking.join('\n')}\n`;
   });
 }
 
@@ -241,10 +241,10 @@ function getComponentsFromLabels(labels: string[]): string[] {
 
   const components = labels
     .filter((label) => {
-      return label.startsWith('component:');
+      return label.startsWith('component:') || label.startsWith('hook:');
     })
     .map((label) => {
-      return label.replace('component: ', '');
+      return label.replace('component: ', '').replace('hook: ', '');
     });
 
   return components;
@@ -287,6 +287,18 @@ function cleanCommitMessage(commitMessage: string) {
     .replaceAll('<', '&lt;')
     .replaceAll('>', '&gt;')
     .trim();
+}
+
+function formatHeader(section: string): string {
+  if (/^use[A-Z]/.test(section)) {
+    return `### ${section}\n\n`;
+  }
+
+  if (section === GENERAL_CHANGES_HEADER) {
+    return `### General changes\n\n`;
+  }
+
+  return `### ${_.startCase(section)}\n\n`;
 }
 
 type CommitDetails = {
