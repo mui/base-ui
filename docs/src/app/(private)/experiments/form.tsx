@@ -150,7 +150,7 @@ export default function Page() {
           <Field.Label className={styles.Label}>Select</Field.Label>
           <Select.Root required={native}>
             <Select.Trigger className={styles.Select}>
-              <Select.Value>Select value</Select.Value>
+              <Select.Value placeholder="Select value" />
               <Select.Icon className={styles.SelectIcon}>
                 <ChevronUpDownIcon />
               </Select.Icon>

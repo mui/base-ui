@@ -14,7 +14,7 @@ export const SelectValue = React.forwardRef(function SelectValue(
   componentProps: SelectValue.Props,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
-  const { className, render, children, ...elementProps } = componentProps;
+  const { className, render, children, placeholder, ...elementProps } = componentProps;
 
   const { value, label, valueRef } = useSelectRootContext();
 
@@ -22,7 +22,10 @@ export const SelectValue = React.forwardRef(function SelectValue(
     ref: [forwardedRef, valueRef],
     props: [
       {
-        children: typeof children === 'function' ? children(label, value) : label || children,
+        children:
+          typeof children === 'function'
+            ? children(!label && placeholder ? placeholder : label, value)
+            : label || placeholder,
       },
       elementProps,
     ],
@@ -33,17 +36,11 @@ export const SelectValue = React.forwardRef(function SelectValue(
 
 export namespace SelectValue {
   export interface Props extends Omit<BaseUIComponentProps<'span', State>, 'children'> {
+    children?: null | ((label: React.ReactNode, value: any) => React.ReactNode);
     /**
-     * Specifies the initial value label before choosing an item. A callback can be used to
-     * customize the value label.
-     *
-     * ```tsx
-     * <Select.Value>
-     *   {(label, value) => label ? `${label} (${value})` : 'Select an item'}
-     * </Select.Value>
-     * ```
+     * A placeholder to display before an item has been chosen.
      */
-    children: React.ReactNode | ((label: string, value: any) => React.ReactNode);
+    placeholder: React.ReactNode;
   }
 
   export interface State {}

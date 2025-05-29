@@ -2,10 +2,13 @@
   "name": "SelectValue",
   "description": "A text label of the currently selected item.\nRenders a `<span>` element.",
   "props": {
-    "children": {
-      "type": "ReactNode | ((label: string, value: any) => ReactNode)",
+    "placeholder": {
+      "type": "ReactNode",
       "required": true,
-      "description": "Specifies the initial value label before choosing an item. A callback can be used to\ncustomize the value label.\n\n```tsx\n<Select.Value>\n  {(label, value) => label ? `${label} (${value})` : 'Select an item'}\n</Select.Value>\n```"
+      "description": "A placeholder to display before an item has been chosen."
+    },
+    "children": {
+      "type": "((label: ReactNode, value: any) => ReactNode) | null"
     },
     "className": {
       "type": "string | ((state: Select.Value.State) => string)",
