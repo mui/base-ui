@@ -16,10 +16,10 @@ _May 29, 2025_
 
 ### Alert Dialog
 
-- Use basic scroll lock on iOS.
-  (#1890) by @atomiks
 - **Breaking change:** Refine `OpenChangeReason`. `hover` is now `trigger-hover`; `click` is now `trigger-press`; `focus` is now `trigger-focus`.
   (#1782) by @atomiks
+- Use basic scroll lock on iOS.
+  (#1890) by @atomiks
 
 ### Checkbox
 
@@ -38,10 +38,10 @@ _May 29, 2025_
 
 ### Dialog
 
-- Use basic scroll lock on iOS.
-  (#1890) by @atomiks
 - **Breaking change:** Refine `OpenChangeReason`. `hover` is now `trigger-hover`; `click` is now `trigger-press`; `focus` is now `trigger-focus`.
   (#1782) by @atomiks
+- Use basic scroll lock on iOS.
+  (#1890) by @atomiks
 
 ### Field
 
@@ -72,8 +72,6 @@ _May 29, 2025_
 
 ### Menu
 
-- Use basic scroll lock on iOS.
-  (#1890) by @atomiks
 - **Breaking change:** Refine `OpenChangeReason`. `hover` is now `trigger-hover`; `click` is now `trigger-press`; `focus` is now `trigger-focus`.
   (#1782) by @atomiks
 - Fix function dependency handling (#1787) by @atomiks
@@ -83,6 +81,8 @@ _May 29, 2025_
 - Better handle dynamic and non-string items (#1861) by @atomiks
 - Add `collisionAvoidance` prop (#1849) by @atomiks
 - Add `finalFocus` and `closeDelay` props (#1918) by @atomiks
+- Use basic scroll lock on iOS.
+  (#1890) by @atomiks
 
 ### Menubar
 
@@ -102,14 +102,14 @@ _May 29, 2025_
 
 ### Popover
 
-- Use basic scroll lock on iOS.
-  (#1890) by @atomiks
 - **Breaking change:** Refine `OpenChangeReason`. `hover` is now `trigger-hover`; `click` is now `trigger-press`; `focus` is now `trigger-focus`.
   (#1782) by @atomiks
 - Fix function dependency handling (#1787) by @atomiks
 - Avoid prop getters when merging props (#1852) by @atomiks
 - Add `collisionAvoidance` prop (#1849) by @atomiks
 - Fix nested `openOnHover` (#1938) by @atomiks
+- Use basic scroll lock on iOS.
+  (#1890) by @atomiks
 
 ### Preview Card
 
@@ -129,8 +129,6 @@ _May 29, 2025_
 - **Breaking change:** Move item anchoring prop to `Positioner`.
   Use `<Select.Positioner alignItemWithTrigger={false}>` instead of `<Select.Root alignItemToTrigger={false}>` (note the `With` instead of `To`).
   (#1713) by @atomiks
-- Use basic scroll lock on iOS.
-  (#1890) by @atomiks
 - **Breaking change:** Defer mounting until typeahead is needed.
   The `placeholder` prop is now required. Previously, only SSR needed it to prevent a hydration flash, but client-side rendering now also requires it.
   (#1906) by @atomiks
@@ -146,7 +144,8 @@ _May 29, 2025_
 - Better handle dynamic and non-string items (#1861) by @atomiks
 - Use `Select.ItemText` ref to grab default text content (#1943) by @atomiks
 - Add `collisionAvoidance` prop (#1849) by @atomiks
-- Revert `placeholder` API (#1985) by @atomiks
+- Use basic scroll lock on iOS.
+  (#1890) by @atomiks
 
 ### Slider
 
