@@ -21,7 +21,6 @@ import { ownerDocument } from '../../utils/owner';
 import { useAnimationsFinished } from '../../utils/useAnimationsFinished';
 import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { popupStateMapping } from '../../utils/popupStateMapping';
-import { DEFAULT_COLLISION_AVOIDANCE } from '../../utils/constants';
 
 const adaptiveOrigin: Middleware = {
   name: 'adaptiveOrigin',
@@ -81,10 +80,12 @@ const adaptiveOrigin: Middleware = {
   },
 };
 
-const defaultNavigationMenuCollisionAvoidance: CollisionAvoidance = {
-  side: DEFAULT_COLLISION_AVOIDANCE.side,
-  align: DEFAULT_COLLISION_AVOIDANCE.align,
+const defaultCollisionAvoidance: CollisionAvoidance = {
   fallbackAxisSide: 'none',
+};
+
+const defaultNestedCollisionAvoidance: CollisionAvoidance = {
+  fallbackAxisSide: 'end',
 };
 
 /**
@@ -97,6 +98,9 @@ export const NavigationMenuPositioner = React.forwardRef(function NavigationMenu
   componentProps: NavigationMenuPositioner.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
+  const { open, mounted, positionerElement, setPositionerElement, floatingRootContext, nested } =
+    useNavigationMenuRootContext();
+
   const {
     className,
     render,
@@ -108,15 +112,13 @@ export const NavigationMenuPositioner = React.forwardRef(function NavigationMenu
     alignOffset = 0,
     collisionBoundary = 'clipping-ancestors',
     collisionPadding = 5,
-    collisionAvoidance = defaultNavigationMenuCollisionAvoidance,
+    collisionAvoidance = nested ? defaultNestedCollisionAvoidance : defaultCollisionAvoidance,
     arrowPadding = 5,
     sticky = false,
     trackAnchor = true,
     ...elementProps
   } = componentProps;
 
-  const { open, mounted, positionerElement, setPositionerElement, floatingRootContext } =
-    useNavigationMenuRootContext();
   const keepMounted = useNavigationMenuPortalContext();
   const nodeId = useNavigationMenuTreeContext();
 
