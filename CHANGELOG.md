@@ -192,7 +192,6 @@ _May 29, 2025_
 - **Breaking change:** Performance/refactor: `useRender`. An object with a `renderElement` property is no longer returned; instead, the hook returns the element directly (`const element = useRender(...)`). The `refs` option was also renamed to `ref`.
   (#1934) by @romgrk
 - Skip most of useRenderElement logic when unnecessary (#1967) by @michaldudak
-- Fix return type (#1968) by @michaldudak
 
 All contributors of this release in alphabetical order: @aarongarciah, @atomiks, @brijeshb42, @DarthSim, @flaviendelangle, @Janpot, @JCQuintas, @michaldudak, @mj12albert, @oliviertassinari, @romgrk, @Yonava, @ZeeshanTamboli
 
