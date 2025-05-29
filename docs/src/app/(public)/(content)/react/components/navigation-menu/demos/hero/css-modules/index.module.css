@@ -57,7 +57,7 @@
   user-select: none;
   text-decoration: none;
 
-  @media (max-width: 640px) {
+  @media (max-width: 500px) {
     font-size: 0.925rem;
     padding: 0 0.5rem;
   }
@@ -113,7 +113,7 @@
   transition-property: opacity, transform, width, height;
   transition-duration: var(--duration);
   transition-timing-function: var(--easing);
-  width: 300px;
+  width: 100%;
   height: var(--popup-height);
 
   @media (min-width: 500px) {
@@ -152,13 +152,13 @@
   transition:
     opacity calc(var(--duration) * 0.5) ease,
     transform var(--duration) var(--easing);
-  padding: 1rem;
-  width: 300px;
+  padding: 1.5rem;
+  width: calc(100vw - 40px);
   height: 100%;
 
   @media (min-width: 500px) {
     width: max-content;
-    padding: 1.5rem;
+    min-width: 400px;
   }
 
   &[data-starting-style],
@@ -197,7 +197,7 @@
   grid-template-columns: 12rem 12rem;
   list-style: none;
 
-  @media (max-width: 640px) {
+  @media (max-width: 500px) {
     grid-template-columns: 1fr;
   }
 }
@@ -228,7 +228,7 @@
     outline-offset: -1px;
   }
 
-  @media (min-width: 500px) {
+  @media (min-width: 425px) {
     & {
       padding: 0.75rem;
     }
@@ -251,6 +251,7 @@
 
 .Arrow {
   display: flex;
+  transition: left calc(var(--duration)) var(--easing);
 
   &[data-side='top'] {
     bottom: -8px;

@@ -94,8 +94,8 @@ export default function ExampleNavigationMenu() {
             ['--easing' as string]: 'cubic-bezier(0.22, 1, 0.36, 1)',
           }}
         >
-          <NavigationMenu.Popup className="data-[ending-style]:easing-[ease] relative h-[var(--popup-height)] max-h-[var(--available-height)] w-[300px] origin-[var(--transform-origin)] overflow-visible rounded-lg bg-[canvas] text-gray-900 shadow-lg shadow-gray-200 outline outline-1 outline-gray-200 transition-[opacity,transform,width,height,scale,translate] duration-[var(--duration)] ease-[var(--easing)] data-[ending-style]:scale-90 data-[ending-style]:opacity-0 data-[ending-style]:duration-150 data-[starting-style]:scale-90 data-[starting-style]:opacity-0 min-[500px]:w-[var(--popup-width)] min-[500px]:min-w-max dark:shadow-none dark:-outline-offset-1 dark:outline-gray-300">
-            <NavigationMenu.Arrow className="flex data-[side=bottom]:top-[-8px] data-[side=left]:right-[-13px] data-[side=left]:rotate-90 data-[side=right]:left-[-13px] data-[side=right]:-rotate-90 data-[side=top]:bottom-[-8px] data-[side=top]:rotate-180">
+          <NavigationMenu.Popup className="data-[ending-style]:easing-[ease] relative h-[var(--popup-height)] w-full origin-[var(--transform-origin)] rounded-lg bg-[canvas] text-gray-900 shadow-lg shadow-gray-200 outline outline-1 outline-gray-200 transition-[opacity,transform,width,height,scale,translate] duration-[var(--duration)] ease-[var(--easing)] data-[ending-style]:scale-90 data-[ending-style]:opacity-0 data-[ending-style]:duration-150 data-[starting-style]:scale-90 data-[starting-style]:opacity-0 min-[500px]:w-[var(--popup-width)] xs:w-[var(--popup-width)] dark:shadow-none dark:-outline-offset-1 dark:outline-gray-300">
+            <NavigationMenu.Arrow className="flex transition-[left] duration-[var(--duration)] ease-[var(--easing)] data-[side=bottom]:top-[-8px] data-[side=left]:right-[-13px] data-[side=left]:rotate-90 data-[side=right]:left-[-13px] data-[side=right]:-rotate-90 data-[side=top]:bottom-[-8px] data-[side=top]:rotate-180">
               <ArrowSvg />
             </NavigationMenu.Arrow>
             <NavigationMenu.Viewport className="relative h-full w-full overflow-hidden" />
@@ -163,7 +163,7 @@ const triggerClassName =
   'focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 focus-visible:relative';
 
 const contentClassName =
-  'w-[300px] h-full p-4 sm:p-6 sm:w-max ' +
+  'w-[calc(100vw_-_40px)] h-full p-6 xs:w-max xs:min-w-[400px] xs:w-max ' +
   'transition-[opacity,transform,translate] duration-[var(--duration)] ease-[var(--easing)] ' +
   'data-[starting-style]:opacity-0 data-[ending-style]:opacity-0 ' +
   'data-[starting-style]:data-[activation-direction=left]:translate-x-[-50%] ' +

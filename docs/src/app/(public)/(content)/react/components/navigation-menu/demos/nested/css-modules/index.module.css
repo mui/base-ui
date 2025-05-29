@@ -114,7 +114,7 @@
   transition-property: opacity, transform, width, height;
   transition-duration: var(--duration);
   transition-timing-function: var(--easing);
-  width: 300px;
+  width: 100%;
   height: var(--popup-height);
 
   @media (min-width: 500px) {
@@ -153,13 +153,13 @@
   transition:
     opacity calc(var(--duration) * 0.5) ease,
     transform var(--duration) var(--easing);
-  padding: 1rem;
-  width: 300px;
+  padding: 1.5rem;
+  width: calc(100vw - 40px);
   height: 100%;
 
   @media (min-width: 500px) {
     width: max-content;
-    padding: 1.5rem;
+    min-width: 400px;
   }
 
   &[data-starting-style],
