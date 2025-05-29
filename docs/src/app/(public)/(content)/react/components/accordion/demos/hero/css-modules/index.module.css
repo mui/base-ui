@@ -18,24 +18,33 @@
 
 .Trigger {
   box-sizing: border-box;
+  position: relative;
   display: flex;
   width: 100%;
   gap: 1rem;
   align-items: baseline;
   justify-content: space-between;
-  padding: 0.5rem 0;
+  padding-block: 0.5rem;
+  padding-inline: 0.75rem 0.25rem;
   color: var(--color-gray-900);
   font-family: inherit;
   font-weight: 500;
   font-size: 1rem;
   line-height: 1.5rem;
-  background: none;
+  background: var(--color-gray-50);
   border: none;
   outline: none;
   text-align: left;
 
+  @media (hover: hover) {
+    &:hover {
+      background-color: var(--color-gray-100);
+    }
+  }
+
   &:focus-visible {
     outline: 2px solid var(--color-blue);
+    z-index: 1;
   }
 }
 
@@ -68,5 +77,5 @@
 }
 
 .Content {
-  padding-bottom: 0.75rem;
+  padding: 0.75rem;
 }
