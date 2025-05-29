@@ -11,7 +11,7 @@ import type { BaseUIComponentProps } from '../utils/types';
 import { fieldValidityMapping } from '../field/utils/constants';
 import { useField } from '../field/useField';
 import { useFieldControlValidation } from '../field/control/useFieldControlValidation';
-import { PARENT_CHECKBOX } from '../checkbox/root/useCheckboxRoot';
+import { PARENT_CHECKBOX } from '../checkbox/root/CheckboxRoot';
 
 /**
  * Provides a shared state to a series of checkboxes.
