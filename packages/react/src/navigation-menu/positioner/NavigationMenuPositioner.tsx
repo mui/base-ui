@@ -10,17 +10,13 @@ import {
   useNavigationMenuTreeContext,
 } from '../root/NavigationMenuRootContext';
 import { useNavigationMenuPortalContext } from '../portal/NavigationMenuPortalContext';
-import {
-  CollisionAvoidance,
-  useAnchorPositioning,
-  type Align,
-  type Side,
-} from '../../utils/useAnchorPositioning';
+import { useAnchorPositioning, type Align, type Side } from '../../utils/useAnchorPositioning';
 import { NavigationMenuPositionerContext } from './NavigationMenuPositionerContext';
 import { ownerDocument } from '../../utils/owner';
 import { useAnimationsFinished } from '../../utils/useAnimationsFinished';
 import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { popupStateMapping } from '../../utils/popupStateMapping';
+import { DROPDOWN_COLLISION_AVOIDANCE, POPUP_COLLISION_AVOIDANCE } from '../../utils/constants';
 
 const adaptiveOrigin: Middleware = {
   name: 'adaptiveOrigin',
@@ -80,14 +76,6 @@ const adaptiveOrigin: Middleware = {
   },
 };
 
-const defaultCollisionAvoidance: CollisionAvoidance = {
-  fallbackAxisSide: 'none',
-};
-
-const defaultNestedCollisionAvoidance: CollisionAvoidance = {
-  fallbackAxisSide: 'end',
-};
-
 /**
  * Positions the navigation menu against the currently active trigger.
  * Renders a `<div>` element.
@@ -112,7 +100,7 @@ export const NavigationMenuPositioner = React.forwardRef(function NavigationMenu
     alignOffset = 0,
     collisionBoundary = 'clipping-ancestors',
     collisionPadding = 5,
-    collisionAvoidance = nested ? defaultNestedCollisionAvoidance : defaultCollisionAvoidance,
+    collisionAvoidance = nested ? POPUP_COLLISION_AVOIDANCE : DROPDOWN_COLLISION_AVOIDANCE,
     arrowPadding = 5,
     sticky = false,
     trackAnchor = true,
