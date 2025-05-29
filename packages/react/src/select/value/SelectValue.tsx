@@ -38,7 +38,7 @@ export namespace SelectValue {
   export interface Props extends Omit<BaseUIComponentProps<'span', State>, 'children'> {
     children?: null | ((label: React.ReactNode, value: any) => React.ReactNode);
     /**
-     * A placeholder to display before the popup is opened for the first time.
+     * A placeholder to display before an item has been chosen.
      */
     placeholder: React.ReactNode;
   }

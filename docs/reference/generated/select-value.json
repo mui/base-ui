@@ -5,7 +5,7 @@
     "placeholder": {
       "type": "ReactNode",
       "required": true,
-      "description": "A placeholder to display before the popup is opened for the first time."
+      "description": "A placeholder to display before an item has been chosen."
     },
     "children": {
       "type": "((label: ReactNode, value: any) => ReactNode) | null"
