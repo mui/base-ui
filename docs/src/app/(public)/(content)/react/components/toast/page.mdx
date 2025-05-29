@@ -1,0 +1,320 @@
+# Toast
+
+<Subtitle>Generates toast notifications.</Subtitle>
+
+<Meta
+  name="description"
+  content="A high-quality, unstyled React toast component to generate notifications."
+/>
+
+<Demo path="./demos/hero" />
+
+## Usage
+
+- `<Toast.Provider>` can be wrapped around your entire app, ensuring all toasts are rendered in the same viewport.
+- <kbd>F6</kbd> lets users jump into the toast viewport landmark region to navigate toasts with
+  keyboard focus.
+
+## Anatomy
+
+Import the component and assemble its parts:
+
+```jsx title="Anatomy"
+import { Toast } from '@base-ui-components/react/toast';
+
+<Toast.Provider>
+  <Toast.Portal>
+    <Toast.Viewport>
+      <Toast.Root>
+        <Toast.Title />
+        <Toast.Description />
+        <Toast.Action />
+        <Toast.Close />
+      </Toast.Root>
+    </Toast.Viewport>
+  </Toast.Portal>
+</Toast.Provider>;
+```
+
+## API reference
+
+<Reference
+  component="Toast"
+  parts="Provider, Viewport, Portal, Root, Title, Description, Action, Close"
+/>
+
+## useToastManager
+
+Manages toasts, called inside of a `Toast.Provider`.
+
+```tsx title="Usage"
+const toastManager = Toast.useToastManager();
+```
+
+### Return value
+
+<PropsReferenceTable
+  type="return"
+  data={{
+    toasts: {
+      type: 'Toast.Root.ToastObject[]',
+      description: 'The array of toast objects.',
+    },
+    add: {
+      type: '(options: useToast.AddOptions) => string',
+      description: 'Add a toast to the toast list.',
+    },
+    close: {
+      type: '(toastId: string) => void',
+      description: 'Closes and removes a toast from the toast list.',
+    },
+    update: {
+      type: '(toastId: string, options: useToast.UpdateOptions) => void',
+      description: 'Update a toast in the toast list.',
+    },
+    promise: {
+      type: '<Value>(promise: Promise<Value>, options: useToast.PromiseOptions) => Promise<Value>',
+      description:
+        'Create a toast that resolves with a value, with three possible states for the toast: `loading`, `success`, and `error`.',
+    },
+  }}
+/>
+
+### Method options
+
+<PropsReferenceTable
+  data={{
+    title: {
+      type: 'string',
+      description: 'The title of the toast.',
+    },
+    description: {
+      type: 'string',
+      description: 'The description of the toast.',
+    },
+    type: {
+      type: 'string',
+      description:
+        'The type of the toast. Used to conditionally style the toast or render different elements.',
+    },
+    timeout: {
+      type: 'number',
+      description: 'The amount of time (in ms) before the toast is auto dismissed.',
+    },
+    priority: {
+      type: "'low' | 'high'",
+      description: `
+        The priority of the toast.
+        - \`low\` - The toast will be announced politely.
+        - \`high\` - The toast will be announced urgently.
+      `,
+      default: "'low'",
+    },
+    onClose: {
+      type: '() => void',
+      description: 'A callback invoked when the toast is closed.',
+    },
+    onRemove: {
+      type: '() => void',
+      description:
+        'A callback invoked when the toast is removed from the list after animations complete when closed.',
+    },
+    actionProps: {
+      type: "React.ComponentPropsWithRef<'button'>",
+      description: 'The props of the action button.',
+    },
+    data: {
+      type: 'Record<string, unknown>',
+      description: 'The data of the toast.',
+    },
+  }}
+/>
+
+### `add` method
+
+Creates a toast by adding it to the toast list.
+
+Returns a `toastId` that can be used to update or close the toast later.
+
+```jsx title="Usage"
+const toastId = toastManager.add({
+  description: 'Hello, world!',
+});
+```
+
+```jsx title="Example" {2,7-9}
+function App() {
+  const toastManager = Toast.useToastManager();
+  return (
+    <button
+      type="button"
+      onClick={() => {
+        toastManager.add({
+          description: 'Hello, world!',
+        });
+      }}
+    >
+      Add toast
+    </button>
+  );
+}
+```
+
+The `title` and `description` strings are what are used to announce the toast to screen readers. Screen readers do not announce any extra content rendered inside `Toast.Root`, including the `Toast.Title` or `Toast.Description` components.
+
+### `update` method
+
+Updates the toast with new options.
+
+```jsx title="Usage"
+toastManager.update(toastId, {
+  description: 'New description',
+});
+```
+
+### `close` method
+
+Closes the toast, removing it from the toast list after any animations complete.
+
+```jsx title="Usage"
+toastManager.close(toastId);
+```
+
+### `promise` method
+
+Creates an asynchronous toast with three possible states: `loading`, `success`, and `error`.
+
+```tsx title="Description configuration"
+const toastId = toastManager.promise(
+  new Promise((resolve) => {
+    setTimeout(() => resolve('world!'), 1000);
+  }),
+  {
+    // Each are a shortcut for the `description` option
+    loading: 'Loading...',
+    success: (data) => `Hello ${data}`,
+    error: (err) => `Error: ${err}`,
+  },
+);
+```
+
+Each state also accepts the [method options](/react/components/toast#method-options) object to granularly control the toast for each state:
+
+```tsx title="Method options configuration"
+const toastId = toastManager.promise(
+  new Promise((resolve) => {
+    setTimeout(() => resolve('world!'), 1000);
+  }),
+  {
+    loading: {
+      title: 'Loading...',
+      description: 'The promise is loading.',
+    },
+    success: {
+      title: 'Success',
+      description: 'The promise resolved successfully.',
+    },
+    error: {
+      title: 'Error',
+      description: 'The promise rejected.',
+      actionProps: {
+        children: 'Contact support',
+        onClick() {
+          // Redirect to support page
+        },
+      },
+    },
+  },
+);
+```
+
+## Global manager
+
+A global toast manager can be created by passing the `toastManager` prop to the `Toast.Provider`. This enables you to queue a toast from anywhere in the app (such as in functions outside the React tree) while still using the same toast renderer.
+
+The created `toastManager` object has the same properties and methods as the `Toast.useToastManager()` hook.
+
+```tsx title="Creating a manager instance"
+const toastManager = Toast.createToastManager();
+```
+
+```jsx title="Using the instance"
+<Toast.Provider toastManager={toastManager}>
+```
+
+## Stacking and animations
+
+The `--toast-index` CSS variable can be used to determine the stacking order of the toasts. The 0th index toast appears at the front.
+
+```css
+.Toast {
+  z-index: calc(1000 - var(--toast-index));
+  transform: scale(1 - calc(0.1 * var(--toast-index)));
+}
+```
+
+The `--toast-offset-y` CSS variable can be used to determine the vertical offset of the toasts when positioned absolutely with a translation offset — this is usually used with the `data-expanded` attribute, present when the toast viewport is being hovered or has focus.
+
+```css
+.Toast[data-expanded] {
+  transform: translateY(var(--toast-offset-y));
+}
+```
+
+The `--toast-swipe-movement-x` and `--toast-swipe-movement-y` CSS variables are used to determine the swipe movement of the toasts in order to add a translation offset.
+
+```css "--toast-swipe-movement-x" "--toast-swipe-movement-y"
+.Toast {
+  transform: scale(1 - calc(0.1 * var(--toast-index))) + translateX(var(--toast-swipe-movement-x)) +
+    translateY(calc(var(--toast-swipe-movement-y) + (var(--toast-index) * -20%)));
+}
+```
+
+The `data-swipe-direction` attribute can be used to determine the swipe direction of the toasts to add a translation offset upon dismissal.
+
+```css "data-swipe-direction"
+&[data-ending-style] {
+  opacity: 0;
+
+  &[data-swipe-direction='up'] {
+    transform: translateY(calc(var(--toast-swipe-movement-y) - 150%));
+  }
+  &[data-swipe-direction='down'] {
+    transform: translateY(calc(var(--toast-swipe-movement-y) + 150%));
+  }
+  &[data-swipe-direction='left'] {
+    transform: translateX(calc(var(--toast-swipe-movement-x) - 150%)) translateY(var(--offset-y));
+  }
+  &[data-swipe-direction='right'] {
+    transform: translateX(calc(var(--toast-swipe-movement-x) + 150%)) translateY(var(--offset-y));
+  }
+}
+```
+
+The `data-limited` attribute indicates that the toast was removed from the list due to exceeding the `limit` option. This is useful for animating the toast differently when it is removed from the list.
+
+## Examples
+
+### Custom position
+
+The position of the toasts is controlled by your own CSS. To change the toasts' position, you can modify the `Viewport` and `Root` styles. A more general component could accept a `data-position` attribute, which the CSS handles for each variation. The following shows a top-center position:
+
+<Demo path="./demos/position" />
+
+### Undo action
+
+When adding a toast, the `actionProps` option can be used to define props for an action button inside of it—this enables the ability to undo an action associated with the toast.
+
+<Demo path="./demos/undo" />
+
+### Promise
+
+An asynchronous toast can be created with three possible states: `loading`, `success`, and `error`. The `type` string matches these states to change the styling. Each of the states also accepts the [method options](/react/components/toast#method-options) object for more granular control.
+
+<Demo path="./demos/promise" />
+
+### Custom
+
+A toast with custom data can be created by passing any typed object interface to the `data` option. This enables you to pass any data (including functions) you need to the toast and access it in the toast's rendering logic.
+
+<Demo path="./demos/custom" />

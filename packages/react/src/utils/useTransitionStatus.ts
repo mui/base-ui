@@ -1,26 +1,24 @@
 'use client';
 import * as React from 'react';
-import { useEnhancedEffect } from './useEnhancedEffect';
+import { useModernLayoutEffect } from './useModernLayoutEffect';
+import { AnimationFrame } from './useAnimationFrame';
 
-export type TransitionStatus = 'starting' | 'ending' | undefined;
+export type TransitionStatus = 'starting' | 'ending' | 'idle' | undefined;
 
 /**
  * Provides a status string for CSS animations.
  * @param open - a boolean that determines if the element is open.
- * @param delayStartingStatus - a boolean that set the `starting` status one
- *     tick later. Example use-case: collapsible needs an extra frame in order
- *     to measure the panel contents.
- * @ignore - internal hook.
+ * @param enableIdleState - a boolean that enables the `'idle'` state between `'starting'` and `'ending'`
  */
-export function useTransitionStatus(open: boolean, delayStartingStatus = false) {
-  const [transitionStatus, setTransitionStatus] = React.useState<TransitionStatus>();
+export function useTransitionStatus(open: boolean, enableIdleState: boolean = false) {
+  const [transitionStatus, setTransitionStatus] = React.useState<TransitionStatus>(
+    open && enableIdleState ? 'idle' : undefined,
+  );
   const [mounted, setMounted] = React.useState(open);
 
   if (open && !mounted) {
     setMounted(true);
-    if (transitionStatus !== 'starting' && !delayStartingStatus) {
-      setTransitionStatus('starting');
-    }
+    setTransitionStatus('starting');
   }
 
   if (!open && mounted && transitionStatus !== 'ending') {
@@ -31,23 +29,37 @@ export function useTransitionStatus(open: boolean, delayStartingStatus = false) 
     setTransitionStatus(undefined);
   }
 
-  useEnhancedEffect(() => {
-    if (!open) {
+  useModernLayoutEffect(() => {
+    if (!open || enableIdleState) {
       return undefined;
     }
 
-    if (delayStartingStatus) {
-      setTransitionStatus('starting');
-    }
-
-    const frame = requestAnimationFrame(() => {
+    const frame = AnimationFrame.request(() => {
       setTransitionStatus(undefined);
     });
 
     return () => {
-      cancelAnimationFrame(frame);
+      AnimationFrame.cancel(frame);
     };
-  }, [open, delayStartingStatus]);
+  }, [enableIdleState, open]);
+
+  useModernLayoutEffect(() => {
+    if (!open || !enableIdleState) {
+      return undefined;
+    }
+
+    if (open && mounted && transitionStatus !== 'idle') {
+      setTransitionStatus('starting');
+    }
+
+    const frame = AnimationFrame.request(() => {
+      setTransitionStatus('idle');
+    });
+
+    return () => {
+      AnimationFrame.cancel(frame);
+    };
+  }, [enableIdleState, open, mounted, setTransitionStatus, transitionStatus]);
 
   return React.useMemo(
     () => ({

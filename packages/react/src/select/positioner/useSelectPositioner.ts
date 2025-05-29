@@ -1,25 +1,31 @@
 import * as React from 'react';
-import type { GenericHTMLProps } from '../../utils/types';
+import type { HTMLProps } from '../../utils/types';
 import { Side, useAnchorPositioning } from '../../utils/useAnchorPositioning';
-import { mergeReactProps } from '../../utils/mergeReactProps';
+import { mergeProps } from '../../merge-props';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import { useScrollLock } from '../../utils/useScrollLock';
 
 export function useSelectPositioner(
   params: useSelectPositioner.Parameters,
 ): useSelectPositioner.ReturnValue {
-  const { open, alignItemToTrigger, mounted, triggerElement, modal } = useSelectRootContext();
+  const { alignItemWithTriggerActive } = params;
+  const { open, mounted, triggerElement, modal } = useSelectRootContext();
 
-  useScrollLock((alignItemToTrigger || modal) && open, triggerElement);
+  useScrollLock({
+    enabled: (alignItemWithTriggerActive || modal) && open,
+    mounted,
+    open,
+    referenceElement: triggerElement,
+  });
 
   const positioning = useAnchorPositioning({
     ...params,
-    trackAnchor: params.trackAnchor ?? !alignItemToTrigger,
+    trackAnchor: params.trackAnchor ?? !alignItemWithTriggerActive,
   });
 
   const positionerStyles: React.CSSProperties = React.useMemo(
-    () => (alignItemToTrigger ? { position: 'fixed' } : positioning.positionerStyles),
-    [alignItemToTrigger, positioning.positionerStyles],
+    () => (alignItemWithTriggerActive ? { position: 'fixed' } : positioning.positionerStyles),
+    [alignItemWithTriggerActive, positioning.positionerStyles],
   );
 
   const getPositionerProps: useSelectPositioner.ReturnValue['getPositionerProps'] =
@@ -31,14 +37,17 @@ export function useSelectPositioner(
           hiddenStyles.pointerEvents = 'none';
         }
 
-        return mergeReactProps<'div'>(externalProps, {
-          role: 'presentation',
-          hidden: !mounted,
-          style: {
-            ...positionerStyles,
-            ...hiddenStyles,
+        return mergeProps<'div'>(
+          {
+            role: 'presentation',
+            hidden: !mounted,
+            style: {
+              ...positionerStyles,
+              ...hiddenStyles,
+            },
           },
-        });
+          externalProps,
+        );
       },
       [open, mounted, positionerStyles],
     );
@@ -46,20 +55,28 @@ export function useSelectPositioner(
   return React.useMemo(
     () => ({
       ...positioning,
-      side: alignItemToTrigger ? 'none' : positioning.side,
+      side: alignItemWithTriggerActive ? 'none' : positioning.side,
       getPositionerProps,
     }),
-    [alignItemToTrigger, getPositionerProps, positioning],
+    [getPositionerProps, positioning, alignItemWithTriggerActive],
   );
 }
 
 export namespace useSelectPositioner {
-  export interface Parameters extends useAnchorPositioning.Parameters {}
+  export interface Parameters extends useAnchorPositioning.Parameters {
+    alignItemWithTriggerActive: boolean;
+  }
 
-  export interface SharedParameters extends useAnchorPositioning.SharedParameters {}
+  export interface SharedParameters extends useAnchorPositioning.SharedParameters {
+    /**
+     * Whether the positioner overlaps the trigger so the selected item's text is aligned with the trigger's value text. This only applies to mouse input and is automatically disabled if there is not enough space.
+     * @default true
+     */
+    alignItemWithTrigger?: boolean;
+  }
 
   export interface ReturnValue extends Omit<useAnchorPositioning.ReturnValue, 'side'> {
-    getPositionerProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
+    getPositionerProps: (externalProps?: HTMLProps) => HTMLProps;
     side: Side | 'none';
   }
 }

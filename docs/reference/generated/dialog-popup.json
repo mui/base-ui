@@ -3,19 +3,19 @@
   "description": "A container for the dialog contents.\nRenders a `<div>` element.",
   "props": {
     "initialFocus": {
-      "type": "React.Ref | (interactionType => HTMLElement | null)",
+      "type": "RefObject<HTMLElement | null> | ((interactionType: InteractionType) => RefObject<HTMLElement | null>)",
       "description": "Determines the element to focus when the dialog is opened.\nBy default, the first focusable element is focused."
     },
     "finalFocus": {
-      "type": "React.Ref",
+      "type": "RefObject<HTMLElement | null>",
       "description": "Determines the element to focus when the dialog is closed.\nBy default, focus returns to the trigger."
     },
     "className": {
-      "type": "string | (state) => string",
+      "type": "string | ((state: Dialog.Popup.State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "render": {
-      "type": "React.ReactElement | (props, state) => React.ReactElement",
+      "type": "ReactElement | ((props: HTMLProps, state: Dialog.Popup.State) => ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
     }
   },
@@ -26,11 +26,11 @@
     "data-closed": {
       "description": "Present when the dialog is closed."
     },
-    "data-has-nested-dialogs": {
-      "description": "Present when the dialog has other open dialogs nested within it."
-    },
     "data-nested": {
       "description": "Present when the dialog is nested within another dialog."
+    },
+    "data-nested-dialog-open": {
+      "description": "Present when the dialog has other open dialogs nested within it."
     },
     "data-starting-style": {
       "description": "Present when the dialog is animating in."

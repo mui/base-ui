@@ -1,11 +1,9 @@
 'use client';
 import * as React from 'react';
-import PropTypes from 'prop-types';
 import { useMenuRadioItemContext } from '../radio-item/MenuRadioItemContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { BaseUIComponentProps } from '../../utils/types';
 import { itemMapping } from '../utils/styleHookMapping';
-import { mergeReactProps } from '../../utils/mergeReactProps';
 import { TransitionStatus, useTransitionStatus } from '../../utils/useTransitionStatus';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useForkRef } from '../../utils/useForkRef';
@@ -16,7 +14,7 @@ import { useForkRef } from '../../utils/useForkRef';
  *
  * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
  */
-const MenuRadioItemIndicator = React.forwardRef(function MenuRadioItemIndicator(
+export const MenuRadioItemIndicator = React.forwardRef(function MenuRadioItemIndicator(
   props: MenuRadioItemIndicator.Props,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
@@ -28,14 +26,6 @@ const MenuRadioItemIndicator = React.forwardRef(function MenuRadioItemIndicator(
   const mergedRef = useForkRef(forwardedRef, indicatorRef);
 
   const { transitionStatus, setMounted } = useTransitionStatus(item.checked);
-
-  const getItemProps = React.useCallback(
-    (externalProps = {}) =>
-      mergeReactProps(externalProps, {
-        'aria-hidden': true,
-      }),
-    [],
-  );
 
   useOpenChangeComplete({
     open: item.checked,
@@ -58,12 +48,14 @@ const MenuRadioItemIndicator = React.forwardRef(function MenuRadioItemIndicator(
   );
 
   const { renderElement } = useComponentRenderer({
-    propGetter: getItemProps,
     render: render || 'span',
     className,
     state,
     customStyleHookMapping: itemMapping,
-    extraProps: other,
+    extraProps: {
+      'aria-hidden': true,
+      ...other,
+    },
     ref: mergedRef,
   });
 
@@ -75,7 +67,7 @@ const MenuRadioItemIndicator = React.forwardRef(function MenuRadioItemIndicator(
   return renderElement();
 });
 
-namespace MenuRadioItemIndicator {
+export namespace MenuRadioItemIndicator {
   export interface Props extends BaseUIComponentProps<'span', State> {
     /**
      * Whether to keep the HTML element in the DOM when the radio item is inactive.
@@ -97,33 +89,3 @@ namespace MenuRadioItemIndicator {
     transitionStatus: TransitionStatus;
   }
 }
-
-MenuRadioItemIndicator.propTypes /* remove-proptypes */ = {
-  // ┌────────────────────────────── Warning ──────────────────────────────┐
-  // │ These PropTypes are generated from the TypeScript type definitions. │
-  // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
-  // └─────────────────────────────────────────────────────────────────────┘
-  /**
-   * @ignore
-   */
-  children: PropTypes.node,
-  /**
-   * CSS class applied to the element, or a function that
-   * returns a class based on the component’s state.
-   */
-  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
-  /**
-   * Whether to keep the HTML element in the DOM when the radio item is inactive.
-   * @default false
-   */
-  keepMounted: PropTypes.bool,
-  /**
-   * Allows you to replace the component’s HTML element
-   * with a different tag, or compose it with another component.
-   *
-   * Accepts a `ReactElement` or a function that returns the element to render.
-   */
-  render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
-} as any;
-
-export { MenuRadioItemIndicator };

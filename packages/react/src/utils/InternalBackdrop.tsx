@@ -1,56 +1,56 @@
 import * as React from 'react';
-import PropTypes from 'prop-types';
 
 /**
- * @ignore - internal component.
+ * @internal
  */
-const InternalBackdrop = React.forwardRef(function InternalBackdrop(
+export const InternalBackdrop = React.forwardRef(function InternalBackdrop(
   props: InternalBackdrop.Props,
   ref: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { inert = false } = props;
+  const { cutout, ...otherProps } = props;
+
+  let clipPath: string | undefined;
+  if (cutout) {
+    const rect = cutout?.getBoundingClientRect();
+    clipPath = `polygon(
+      0% 0%,
+      100% 0%,
+      100% 100%,
+      0% 100%,
+      0% 0%,
+      ${rect.left}px ${rect.top}px,
+      ${rect.left}px ${rect.bottom}px,
+      ${rect.right}px ${rect.bottom}px,
+      ${rect.right}px ${rect.top}px,
+      ${rect.left}px ${rect.top}px
+    )`;
+  }
+
   return (
     <div
       ref={ref}
       role="presentation"
+      // Ensures Floating UI's outside press detection runs, as it considers
+      // it an element that existed when the popup rendered.
+      data-floating-ui-inert
+      {...otherProps}
       style={{
         position: 'fixed',
         inset: 0,
-        // Allows `:hover` events immediately after `open` changes to `false`,
-        // preventing a flicker when the cursor rests on the trigger. Flickers occur
-        // because CSS `:hover` is temporarily blocked during an exit animation,
-        // and `[data-popup-open]` is removed.
-        // Keeping the backdrop in the DOM avoids `[data-floating-ui-inert]`, which
-        // blocks outside clicks from closing the popup. This issue arises when
-        // conditionally rendering the backdrop on `open` and using exit animations.
-        // If the popup reopens before the exit animation finishes, the backdrop
-        // receives this attribute, breaking outside click behavior.
-        pointerEvents: inert ? 'none' : undefined,
+        userSelect: 'none',
+        WebkitUserSelect: 'none',
+        clipPath,
       }}
     />
   );
 });
 
-namespace InternalBackdrop {
-  export interface Props {
+export namespace InternalBackdrop {
+  export interface Props extends React.HTMLAttributes<HTMLDivElement> {
     /**
-     * Whether the backdrop should be inert (not block pointer events).
-     * @default false
+     * The element to cut out of the backdrop.
+     * This is useful for allowing certain elements to be interactive while the backdrop is present.
      */
-    inert?: boolean;
+    cutout?: HTMLElement | null;
   }
 }
-
-InternalBackdrop.propTypes /* remove-proptypes */ = {
-  // ┌────────────────────────────── Warning ──────────────────────────────┐
-  // │ These PropTypes are generated from the TypeScript type definitions. │
-  // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
-  // └─────────────────────────────────────────────────────────────────────┘
-  /**
-   * Whether the backdrop should be inert (not block pointer events).
-   * @default false
-   */
-  inert: PropTypes.bool,
-} as any;
-
-export { InternalBackdrop };

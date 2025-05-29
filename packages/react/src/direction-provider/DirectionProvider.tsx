@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import PropTypes from 'prop-types';
 import { DirectionContext, type TextDirection } from './DirectionContext';
 
 /**
@@ -8,7 +7,9 @@ import { DirectionContext, type TextDirection } from './DirectionContext';
  *
  * Documentation: [Base UI Direction Provider](https://base-ui.com/react/utils/direction-provider)
  */
-const DirectionProvider: React.FC<DirectionProvider.Props> = function DirectionProvider(props) {
+export const DirectionProvider: React.FC<DirectionProvider.Props> = function DirectionProvider(
+  props,
+) {
   const { direction = 'ltr' } = props;
   const contextValue = React.useMemo(() => ({ direction }), [direction]);
   return (
@@ -16,7 +17,7 @@ const DirectionProvider: React.FC<DirectionProvider.Props> = function DirectionP
   );
 };
 
-namespace DirectionProvider {
+export namespace DirectionProvider {
   export interface Props {
     children?: React.ReactNode;
     /**
@@ -26,21 +27,3 @@ namespace DirectionProvider {
     direction?: TextDirection;
   }
 }
-
-export { DirectionProvider };
-
-DirectionProvider.propTypes /* remove-proptypes */ = {
-  // ┌────────────────────────────── Warning ──────────────────────────────┐
-  // │ These PropTypes are generated from the TypeScript type definitions. │
-  // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
-  // └─────────────────────────────────────────────────────────────────────┘
-  /**
-   * @ignore
-   */
-  children: PropTypes.node,
-  /**
-   * The reading direction of the text
-   * @default 'ltr'
-   */
-  direction: PropTypes.oneOf(['ltr', 'rtl']),
-} as any;

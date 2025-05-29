@@ -8,7 +8,7 @@
 
 <Demo path="./demos/hero" />
 
-## API reference
+## Anatomy
 
 Import the component and assemble its parts:
 
@@ -16,6 +16,7 @@ Import the component and assemble its parts:
 import { Progress } from '@base-ui-components/react/progress';
 
 <Progress.Root>
+  <Progress.Label />
   <Progress.Track>
     <Progress.Indicator />
   </Progress.Track>
@@ -23,4 +24,6 @@ import { Progress } from '@base-ui-components/react/progress';
 </Progress.Root>;
 ```
 
-<Reference component="Progress" parts="Root, Track, Indicator, Value" />
+## API reference
+
+<Reference component="Progress" parts="Root, Track, Indicator, Value, Label" />

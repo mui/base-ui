@@ -2,7 +2,8 @@ import * as React from 'react';
 import { useFloatingRootContext } from '@floating-ui/react';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import type { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
-import type { GenericHTMLProps } from '../../utils/types';
+import type { HTMLProps } from '../../utils/types';
+import type { SelectOpenChangeReason } from './useSelectRoot';
 
 export interface SelectRootContext {
   name: string | undefined;
@@ -12,7 +13,11 @@ export interface SelectRootContext {
   value: any;
   setValue: (nextValue: any, event?: Event) => void;
   open: boolean;
-  setOpen: (nextOpen: boolean, event?: Event) => void;
+  setOpen: (
+    open: boolean,
+    event: Event | undefined,
+    reason: SelectOpenChangeReason | undefined,
+  ) => void;
   mounted: boolean;
   setMounted: React.Dispatch<React.SetStateAction<boolean>>;
   transitionStatus: TransitionStatus;
@@ -20,17 +25,12 @@ export interface SelectRootContext {
   setTriggerElement: React.Dispatch<React.SetStateAction<HTMLElement | null>>;
   positionerElement: HTMLElement | null;
   setPositionerElement: React.Dispatch<React.SetStateAction<HTMLElement | null>>;
-  scrollUpArrowVisible: boolean;
-  setScrollUpArrowVisible: React.Dispatch<React.SetStateAction<boolean>>;
-  scrollDownArrowVisible: boolean;
-  setScrollDownArrowVisible: React.Dispatch<React.SetStateAction<boolean>>;
-  setcontrolledAlignItemToTrigger: React.Dispatch<React.SetStateAction<boolean>>;
   listRef: React.MutableRefObject<Array<HTMLElement | null>>;
   popupRef: React.MutableRefObject<HTMLDivElement | null>;
-  getRootTriggerProps: (props?: GenericHTMLProps) => GenericHTMLProps;
-  getRootPositionerProps: (props?: GenericHTMLProps) => GenericHTMLProps;
+  triggerProps: HTMLProps;
+  popupProps: HTMLProps;
   getItemProps: (
-    props?: GenericHTMLProps & { active?: boolean; selected?: boolean },
+    props?: HTMLProps & { active?: boolean; selected?: boolean },
   ) => Record<string, unknown>;
   floatingRootContext: ReturnType<typeof useFloatingRootContext>;
   label: string;
@@ -41,7 +41,6 @@ export interface SelectRootContext {
   labelsRef: React.MutableRefObject<Array<string | null>>;
   touchModality: boolean;
   setTouchModality: React.Dispatch<React.SetStateAction<boolean>>;
-  alignItemToTrigger: boolean;
   typingRef: React.MutableRefObject<boolean>;
   selectionRef: React.MutableRefObject<{
     allowUnselectedMouseUp: boolean;
@@ -53,6 +52,10 @@ export interface SelectRootContext {
   modal: boolean;
   registerSelectedItem: (index: number) => void;
   onOpenChangeComplete?: (open: boolean) => void;
+  keyboardActiveRef: React.MutableRefObject<boolean>;
+  alignItemWithTriggerActiveRef: React.RefObject<boolean>;
+  typeaheadReady: boolean;
+  setTypeaheadReady: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export const SelectRootContext = React.createContext<SelectRootContext | null>(null);

@@ -1,20 +1,21 @@
 import * as React from 'react';
 import { contains } from '@floating-ui/react/utils';
 import { useButton } from '../../use-button/useButton';
-import type { GenericHTMLProps } from '../../utils/types';
-import { mergeReactProps } from '../../utils/mergeReactProps';
+import type { HTMLProps } from '../../utils/types';
+import { mergeProps } from '../../merge-props';
 import { useForkRef } from '../../utils/useForkRef';
+import { useTimeout } from '../../utils/useTimeout';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import { ownerDocument } from '../../utils/owner';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { getPseudoElementBounds } from '../../utils/getPseudoElementBounds';
 
+const BOUNDARY_OFFSET = 2;
+
 export function useSelectTrigger(
   parameters: useSelectTrigger.Parameters,
 ): useSelectTrigger.ReturnValue {
-  const BOUNDARY_OFFSET = 2;
-
-  const { disabled = false, rootRef: externalRef } = parameters;
+  const { elementProps, disabled = false, rootRef: externalRef } = parameters;
 
   const {
     open,
@@ -25,14 +26,16 @@ export function useSelectTrigger(
     fieldControlValidation,
     setTouchModality,
     positionerElement,
-    alignItemToTrigger,
     readOnly,
+    alignItemWithTriggerActiveRef,
+    triggerProps,
+    setTypeaheadReady,
   } = useSelectRootContext();
 
   const { labelId, setTouched, setFocused, validationMode } = useFieldRootContext();
 
   const triggerRef = React.useRef<HTMLElement | null>(null);
-  const timeoutRef = React.useRef(-1);
+  const timeout = useTimeout();
 
   const mergedRef = useForkRef(externalRef, triggerRef);
 
@@ -43,20 +46,23 @@ export function useSelectTrigger(
 
   const handleRef = useForkRef<HTMLElement>(buttonRef, setTriggerElement);
 
+  const timeout1 = useTimeout();
+  const timeout2 = useTimeout();
+
   React.useEffect(() => {
     if (open) {
       // mousedown -> mouseup on selected item should not select within 400ms.
-      const timeoutId1 = window.setTimeout(() => {
+      timeout1.start(400, () => {
         selectionRef.current.allowSelectedMouseUp = true;
-      }, 400);
+      });
       // mousedown -> move to unselected item -> mouseup should not select within 200ms.
-      const timeoutId2 = window.setTimeout(() => {
+      timeout2.start(200, () => {
         selectionRef.current.allowUnselectedMouseUp = true;
-      }, 200);
+      });
 
       return () => {
-        clearTimeout(timeoutId1);
-        clearTimeout(timeoutId2);
+        timeout1.clear();
+        timeout2.clear();
       };
     }
 
@@ -66,111 +72,96 @@ export function useSelectTrigger(
       allowSelect: true,
     };
 
-    clearTimeout(timeoutRef.current);
+    timeout.clear();
 
     return undefined;
-  }, [open, selectionRef]);
+  }, [open, selectionRef, timeout, timeout1, timeout2]);
 
-  const getTriggerProps = React.useCallback(
-    (externalProps?: GenericHTMLProps): GenericHTMLProps => {
-      return getButtonProps(
-        mergeReactProps<'button'>(fieldControlValidation.getValidationProps(externalProps), {
-          'aria-labelledby': labelId,
-          'aria-readonly': readOnly || undefined,
-          tabIndex: disabled ? -1 : 0, // this is needed to make the button focused after click in Safari
-          ref: handleRef,
-          onFocus() {
-            setFocused(true);
-            // The popup element shouldn't obscure the focused trigger.
-            if (open && alignItemToTrigger) {
-              setOpen(false);
-            }
-          },
-          onBlur() {
-            setTouched(true);
-            setFocused(false);
+  const props: HTMLProps = mergeProps<'button'>(
+    triggerProps,
+    {
+      'aria-labelledby': labelId,
+      'aria-readonly': readOnly || undefined,
+      tabIndex: disabled ? -1 : 0,
+      ref: handleRef,
+      onFocus(event) {
+        setTypeaheadReady(true);
+        setFocused(true);
+        // The popup element shouldn't obscure the focused trigger.
+        if (open && alignItemWithTriggerActiveRef.current) {
+          setOpen(false, event.nativeEvent, 'focus-out');
+        }
+      },
+      onBlur() {
+        setTouched(true);
+        setFocused(false);
 
-            if (validationMode === 'onBlur') {
-              fieldControlValidation.commitValidation(value);
-            }
-          },
-          onPointerMove({ pointerType }) {
-            setTouchModality(pointerType === 'touch');
-          },
-          onPointerDown({ pointerType }) {
-            setTouchModality(pointerType === 'touch');
-          },
-          onMouseDown(event) {
-            if (open) {
-              return;
-            }
+        if (validationMode === 'onBlur') {
+          fieldControlValidation.commitValidation(value);
+        }
+      },
+      onPointerMove({ pointerType }) {
+        setTouchModality(pointerType === 'touch');
+      },
+      onPointerDown({ pointerType }) {
+        setTouchModality(pointerType === 'touch');
+      },
+      onMouseDown(event) {
+        if (open) {
+          return;
+        }
 
-            const doc = ownerDocument(event.currentTarget);
+        const doc = ownerDocument(event.currentTarget);
 
-            function handleMouseUp(mouseEvent: MouseEvent) {
-              if (!triggerRef.current) {
-                return;
-              }
+        function handleMouseUp(mouseEvent: MouseEvent) {
+          if (!triggerRef.current) {
+            return;
+          }
 
-              const mouseUpTarget = mouseEvent.target as Element | null;
+          const mouseUpTarget = mouseEvent.target as Element | null;
 
-              // Early return if clicked on trigger element or its children
-              if (
-                contains(triggerRef.current, mouseUpTarget) ||
-                contains(positionerElement, mouseUpTarget) ||
-                mouseUpTarget === triggerRef.current
-              ) {
-                return;
-              }
+          // Early return if clicked on trigger element or its children
+          if (
+            contains(triggerRef.current, mouseUpTarget) ||
+            contains(positionerElement, mouseUpTarget) ||
+            mouseUpTarget === triggerRef.current
+          ) {
+            return;
+          }
 
-              const bounds = getPseudoElementBounds(triggerRef.current);
+          const bounds = getPseudoElementBounds(triggerRef.current);
 
-              if (
-                mouseEvent.clientX >= bounds.left - BOUNDARY_OFFSET &&
-                mouseEvent.clientX <= bounds.right + BOUNDARY_OFFSET &&
-                mouseEvent.clientY >= bounds.top - BOUNDARY_OFFSET &&
-                mouseEvent.clientY <= bounds.bottom + BOUNDARY_OFFSET
-              ) {
-                return;
-              }
+          if (
+            mouseEvent.clientX >= bounds.left - BOUNDARY_OFFSET &&
+            mouseEvent.clientX <= bounds.right + BOUNDARY_OFFSET &&
+            mouseEvent.clientY >= bounds.top - BOUNDARY_OFFSET &&
+            mouseEvent.clientY <= bounds.bottom + BOUNDARY_OFFSET
+          ) {
+            return;
+          }
 
-              setOpen(false, mouseEvent);
-            }
+          setOpen(false, mouseEvent, 'cancel-open');
+        }
 
-            // Firefox can fire this upon mousedown
-            timeoutRef.current = window.setTimeout(() => {
-              doc.addEventListener('mouseup', handleMouseUp, { once: true });
-            });
-          },
-        }),
-      );
+        // Firefox can fire this upon mousedown
+        timeout.start(0, () => {
+          doc.addEventListener('mouseup', handleMouseUp, { once: true });
+        });
+      },
     },
-    [
-      getButtonProps,
-      fieldControlValidation,
-      labelId,
-      readOnly,
-      disabled,
-      handleRef,
-      setFocused,
-      open,
-      alignItemToTrigger,
-      setOpen,
-      setTouched,
-      setTouchModality,
-      validationMode,
-      value,
-      positionerElement,
-    ],
+    fieldControlValidation.getValidationProps,
+    elementProps,
+    getButtonProps,
   );
 
-  return React.useMemo(
-    () => ({
-      getTriggerProps,
-      rootRef: handleRef,
-    }),
-    [getTriggerProps, handleRef],
-  );
+  // ensure nested useButton does not overwrite the combobox role:
+  // <Toolbar.Button render={<Select.Trigger />} />
+  props.role = 'combobox';
+
+  return {
+    props,
+    rootRef: handleRef,
+  };
 }
 
 export namespace useSelectTrigger {
@@ -184,10 +175,11 @@ export namespace useSelectTrigger {
      * The ref to the root element.
      */
     rootRef?: React.Ref<HTMLElement>;
+    elementProps: HTMLProps;
   }
 
   export interface ReturnValue {
-    getTriggerProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
+    props: HTMLProps;
     rootRef: React.RefCallback<Element> | null;
   }
 }

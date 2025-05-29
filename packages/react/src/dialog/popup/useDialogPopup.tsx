@@ -1,31 +1,27 @@
 'use client';
 import * as React from 'react';
-import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useForkRef } from '../../utils/useForkRef';
-import { mergeReactProps } from '../../utils/mergeReactProps';
-import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
+import { mergeProps } from '../../merge-props';
+import type { DialogOpenChangeReason } from '../root/useDialogRoot';
 import { type InteractionType } from '../../utils/useEnhancedClickHandler';
-import { GenericHTMLProps } from '../../utils/types';
-import { type OpenChangeReason } from '../../utils/translateOpenChangeReason';
+import { HTMLProps } from '../../utils/types';
+import { COMPOSITE_KEYS } from '../../composite/composite';
 
 export function useDialogPopup(parameters: useDialogPopup.Parameters): useDialogPopup.ReturnValue {
   const {
     descriptionElementId,
     getPopupProps,
-    id: idParam,
     initialFocus,
     modal,
     mounted,
     openMethod,
     ref,
-    setPopupElementId,
     setPopupElement,
     titleElementId,
   } = parameters;
 
   const popupRef = React.useRef<HTMLElement>(null);
 
-  const id = useBaseUiId(idParam);
   const handleRef = useForkRef(ref, popupRef, setPopupElement);
 
   // Default initial focus logic:
@@ -51,25 +47,25 @@ export function useDialogPopup(parameters: useDialogPopup.Parameters): useDialog
     return initialFocus;
   }, [defaultInitialFocus, initialFocus, openMethod]);
 
-  useEnhancedEffect(() => {
-    setPopupElementId(id);
-    return () => {
-      setPopupElementId(undefined);
-    };
-  }, [id, setPopupElementId]);
-
   const getRootProps = (externalProps: React.HTMLAttributes<any>) =>
-    mergeReactProps<'div'>(externalProps, {
-      'aria-labelledby': titleElementId ?? undefined,
-      'aria-describedby': descriptionElementId ?? undefined,
-      'aria-modal': mounted && modal ? true : undefined,
-      role: 'dialog',
-      tabIndex: -1,
-      ...getPopupProps(),
-      id,
-      ref: handleRef,
-      hidden: !mounted,
-    });
+    mergeProps<'div'>(
+      {
+        'aria-labelledby': titleElementId ?? undefined,
+        'aria-describedby': descriptionElementId ?? undefined,
+        'aria-modal': mounted && modal === true ? true : undefined,
+        role: 'dialog',
+        tabIndex: -1,
+        ...getPopupProps(),
+        ref: handleRef,
+        hidden: !mounted,
+        onKeyDown(event) {
+          if (COMPOSITE_KEYS.has(event.key)) {
+            event.stopPropagation();
+          }
+        },
+      },
+      externalProps,
+    );
 
   return {
     getRootProps,
@@ -80,17 +76,10 @@ export function useDialogPopup(parameters: useDialogPopup.Parameters): useDialog
 export namespace useDialogPopup {
   export interface Parameters {
     /**
-     * The id of the dialog element.
-     */
-    id?: string;
-    /**
      * The ref to the dialog element.
      */
     ref: React.Ref<HTMLElement>;
-    /**
-     * Whether the dialog should prevent outside clicks and lock page scroll when open.
-     */
-    modal: boolean;
+    modal: boolean | 'trap-focus';
     openMethod: InteractionType | null;
     /**
      * Event handler called when the dialog is opened or closed.
@@ -98,7 +87,7 @@ export namespace useDialogPopup {
     setOpen: (
       open: boolean,
       event: Event | undefined,
-      reason: OpenChangeReason | undefined,
+      reason: DialogOpenChangeReason | undefined,
     ) => void;
     /**
      * The id of the title element associated with the dialog.
@@ -108,10 +97,6 @@ export namespace useDialogPopup {
      * The id of the description element associated with the dialog.
      */
     descriptionElementId: string | undefined;
-    /**
-     * Callback to set the id of the popup element.
-     */
-    setPopupElementId: (id: string | undefined) => void;
     /**
      * Determines the element to focus when the dialog is opened.
      * By default, the first focusable element is focused.
@@ -126,7 +111,7 @@ export namespace useDialogPopup {
     /**
      * The resolver for the popup element props.
      */
-    getPopupProps: () => GenericHTMLProps;
+    getPopupProps: () => HTMLProps;
     /**
      * Callback to register the popup element.
      */

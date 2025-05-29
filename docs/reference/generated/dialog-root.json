@@ -12,12 +12,12 @@
       "description": "Whether the dialog is currently open."
     },
     "onOpenChange": {
-      "type": "(open, event, reason) => void",
+      "type": "(open: boolean, event?: Event, reason?: Dialog.Root.OpenChangeReason) => void",
       "description": "Event handler called when the dialog is opened or closed."
     },
-    "action": {
-      "type": "{ current: { unmount: func } }",
-      "description": "A ref to imperative actions."
+    "actionsRef": {
+      "type": "RefObject<{ unmount: () => void; }>",
+      "description": "A ref to imperative actions.\n- `unmount`: When specified, the dialog will not be unmounted when closed.\nInstead, the `unmount` function must be called to unmount the dialog manually.\nUseful when the dialog's animation is controlled by an external library."
     },
     "dismissible": {
       "type": "boolean",
@@ -25,13 +25,16 @@
       "description": "Determines whether the dialog should close on outside clicks."
     },
     "modal": {
-      "type": "boolean",
+      "type": "boolean | 'trap-focus'",
       "default": "true",
-      "description": "Whether the dialog should prevent outside clicks and lock page scroll when open."
+      "description": "Determines if the dialog enters a modal state when open.\n- `true`: user interaction is limited to just the dialog: focus is trapped, document page scroll is locked, and pointer interactions on outside elements are disabled.\n- `false`: user interaction with the rest of the document is allowed.\n- `'trap-focus'`: focus is trapped inside the dialog, but document page scroll is not locked and pointer interactions outside of it remain enabled."
     },
     "onOpenChangeComplete": {
-      "type": "(open) => void",
+      "type": "((open: boolean) => void)",
       "description": "Event handler called after any animations complete when the dialog is opened or closed."
+    },
+    "children": {
+      "type": "ReactNode"
     }
   },
   "dataAttributes": {},

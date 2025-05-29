@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import { fireEvent, act, waitFor } from '@mui/internal-test-utils';
+import { fireEvent, act, waitFor, screen } from '@mui/internal-test-utils';
 import { Menu } from '@base-ui-components/react/menu';
 import { describeConformance, createRenderer, isJSDOM } from '#test-utils';
 import { MenuRadioGroupContext } from '../radio-group/MenuRadioGroupContext';
@@ -216,7 +216,7 @@ describe('<Menu.RadioItem />', () => {
     });
 
     it('keeps the state when closed and reopened', async () => {
-      const { getByRole, user } = await render(
+      const { user } = await render(
         <Menu.Root modal={false}>
           <Menu.Trigger>Open</Menu.Trigger>
           <Menu.Portal keepMounted>
@@ -231,17 +231,24 @@ describe('<Menu.RadioItem />', () => {
         </Menu.Root>,
       );
 
-      const trigger = getByRole('button', { name: 'Open' });
-      await user.click(trigger);
+      const trigger = screen.getByRole('button', { name: 'Open' });
+      await act(() => {
+        trigger.focus();
+      });
 
-      const item = getByRole('menuitemradio');
+      await user.keyboard('{Enter}');
+
+      const item = screen.getByRole('menuitemradio');
       await user.click(item);
 
-      await user.click(trigger);
+      await act(() => {
+        trigger.focus();
+      });
 
-      await user.click(trigger);
+      await user.keyboard('{Enter}');
+      await user.keyboard('{Enter}');
 
-      const itemAfterReopen = getByRole('menuitemradio');
+      const itemAfterReopen = await screen.findByRole('menuitemradio');
       expect(itemAfterReopen).to.have.attribute('aria-checked', 'true');
       expect(itemAfterReopen).to.have.attribute('data-checked', '');
     });
@@ -346,12 +353,12 @@ describe('<Menu.RadioItem />', () => {
       expect(item1).toHaveFocus();
 
       fireEvent.keyDown(item1, { key: 'Enter' });
-      expect(handleKeyDown.callCount).to.equal(1);
+      expect(handleKeyDown.callCount).to.equal(0);
       expect(handleClick.callCount).to.equal(0);
       expect(handleValueChange.callCount).to.equal(0);
 
       fireEvent.keyUp(item1, { key: 'Space' });
-      expect(handleKeyDown.callCount).to.equal(1);
+      expect(handleKeyDown.callCount).to.equal(0);
       expect(handleClick.callCount).to.equal(0);
       expect(handleValueChange.callCount).to.equal(0);
 
@@ -360,16 +367,16 @@ describe('<Menu.RadioItem />', () => {
       expect(handleValueChange.callCount).to.equal(0);
 
       fireEvent.keyDown(item1, { key: 'ArrowDown' });
-      expect(handleKeyDown.callCount).to.equal(2);
+      expect(handleKeyDown.callCount).to.equal(0);
       expect(item2).toHaveFocus();
 
       fireEvent.keyDown(item2, { key: 'Enter' });
-      expect(handleKeyDown.callCount).to.equal(3);
+      expect(handleKeyDown.callCount).to.equal(0);
       expect(handleClick.callCount).to.equal(0);
       expect(handleValueChange.callCount).to.equal(0);
 
       fireEvent.keyUp(item2, { key: 'Space' });
-      expect(handleKeyDown.callCount).to.equal(3);
+      expect(handleKeyDown.callCount).to.equal(0);
       expect(handleClick.callCount).to.equal(0);
       expect(handleValueChange.callCount).to.equal(0);
 
@@ -424,12 +431,12 @@ describe('<Menu.RadioItem />', () => {
     expect(item1).toHaveFocus();
 
     fireEvent.keyDown(item1, { key: 'Enter' });
-    expect(handleKeyDown.callCount).to.equal(1);
+    expect(handleKeyDown.callCount).to.equal(0);
     expect(handleClick.callCount).to.equal(0);
     expect(handleValueChange.callCount).to.equal(0);
 
     fireEvent.keyUp(item1, { key: 'Space' });
-    expect(handleKeyDown.callCount).to.equal(1);
+    expect(handleKeyDown.callCount).to.equal(0);
     expect(handleClick.callCount).to.equal(0);
     expect(handleValueChange.callCount).to.equal(0);
 
@@ -438,11 +445,11 @@ describe('<Menu.RadioItem />', () => {
     expect(handleValueChange.callCount).to.equal(0);
 
     fireEvent.keyDown(item1, { key: 'ArrowDown' });
-    expect(handleKeyDown.callCount).to.equal(2);
+    expect(handleKeyDown.callCount).to.equal(0);
     expect(item2).toHaveFocus();
 
     fireEvent.keyDown(item2, { key: 'Enter' });
-    expect(handleKeyDown.callCount).to.equal(3);
+    expect(handleKeyDown.callCount).to.equal(1);
     expect(handleClick.callCount).to.equal(1);
     expect(handleValueChange.callCount).to.equal(1);
     expect(handleValueChange.args[0][0]).to.equal('two');

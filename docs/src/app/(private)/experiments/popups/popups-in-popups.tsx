@@ -14,7 +14,11 @@ export default function PopupsInPopups() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '30px' }}>
       <label>
-        <input type="checkbox" checked={modal} onChange={() => setModal(!modal)} />{' '}
+        <input
+          type="checkbox"
+          checked={modal}
+          onChange={(event) => setModal(event.target.checked)}
+        />{' '}
         Modal
       </label>
       <label>
@@ -50,7 +54,7 @@ export default function PopupsInPopups() {
 
 function SelectDemo({ modal }: Props) {
   return (
-    <Select.Root modal={modal} defaultValue="system" alignItemToTrigger={false}>
+    <Select.Root modal={modal} defaultValue="system">
       <Tooltip.Root>
         <Select.Trigger
           aria-label="Select font"
@@ -67,7 +71,11 @@ function SelectDemo({ modal }: Props) {
       </Tooltip.Root>
 
       <Select.Portal>
-        <Select.Positioner sideOffset={5} render={<Positioner />}>
+        <Select.Positioner
+          sideOffset={5}
+          render={<Positioner />}
+          alignItemWithTrigger={false}
+        >
           <SelectPopup>
             <SelectItem value="system">
               <SelectItemIndicator render={<CheckIcon />} />
@@ -181,7 +189,7 @@ function MenuDemo({ modal }: Props) {
                       Paragraph
                     </MenuItem>
                     <Menu.Root disabled>
-                      <SubmenuTrigger disabled>List</SubmenuTrigger>
+                      <SubmenuTrigger>List</SubmenuTrigger>
                       <Menu.Portal>
                         <Menu.Positioner
                           align="start"
@@ -393,7 +401,7 @@ const MenuPopup = styled(Menu.Popup)(
       transform: scale(0.8);
     }
   }
-      
+
   &[data-exiting] {
     opacity: 0;
     transform: scale(0.8);

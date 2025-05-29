@@ -1,9 +1,12 @@
 {
   "name": "SelectItemIndicator",
-  "description": "Indicates whether the select item is selected.\nRenders a `<div>` element.",
+  "description": "Indicates whether the select item is selected.\nRenders a `<span>` element.",
   "props": {
+    "children": {
+      "type": "ReactNode"
+    },
     "className": {
-      "type": "string | (state) => string",
+      "type": "string | ((state: Select.ItemIndicator.State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "keepMounted": {
@@ -12,7 +15,7 @@
       "description": "Whether to keep the HTML element in the DOM when the item is not selected."
     },
     "render": {
-      "type": "React.ReactElement | (props, state) => React.ReactElement",
+      "type": "ReactElement | ((props: HTMLProps, state: Select.ItemIndicator.State) => ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
     }
   },

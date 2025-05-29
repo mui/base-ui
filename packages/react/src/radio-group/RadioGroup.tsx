@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
-import PropTypes from 'prop-types';
 import type { BaseUIComponentProps } from '../utils/types';
+import { SHIFT } from '../composite/composite';
 import { CompositeRoot } from '../composite/root/CompositeRoot';
 import { useComponentRenderer } from '../utils/useComponentRenderer';
 import { useEventCallback } from '../utils/useEventCallback';
@@ -12,13 +12,15 @@ import { useFieldRootContext } from '../field/root/FieldRootContext';
 import { fieldValidityMapping } from '../field/utils/constants';
 import type { FieldRoot } from '../field/root/FieldRoot';
 
+const MODIFIER_KEYS = [SHIFT];
+
 /**
  * Provides a shared state to a series of radio buttons.
  * Renders a `<div>` element.
  *
  * Documentation: [Base UI Radio Group](https://base-ui.com/react/components/radio)
  */
-const RadioGroup = React.forwardRef(function RadioGroup(
+export const RadioGroup = React.forwardRef(function RadioGroup(
   props: RadioGroup.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
@@ -29,7 +31,10 @@ const RadioGroup = React.forwardRef(function RadioGroup(
     readOnly,
     required,
     onValueChange: onValueChangeProp,
-    name,
+    value,
+    defaultValue,
+    name: nameProp,
+    inputRef,
     ...otherProps
   } = props;
 
@@ -37,11 +42,12 @@ const RadioGroup = React.forwardRef(function RadioGroup(
 
   const radioGroup = useRadioGroup(props);
 
-  const { state: fieldState, disabled: fieldDisabled } = useFieldRootContext();
+  const { state: fieldState, disabled: fieldDisabled, name: fieldName } = useFieldRootContext();
 
   const disabled = fieldDisabled || disabledProp;
+  const name = fieldName ?? nameProp;
 
-  const onValueChange = useEventCallback(onValueChangeProp ?? (() => {}));
+  const onValueChange = useEventCallback(onValueChangeProp);
 
   const state: RadioGroup.State = React.useMemo(
     () => ({
@@ -61,8 +67,9 @@ const RadioGroup = React.forwardRef(function RadioGroup(
       disabled,
       readOnly,
       required,
+      name,
     }),
-    [fieldState, disabled, onValueChange, radioGroup, readOnly, required],
+    [fieldState, disabled, onValueChange, radioGroup, readOnly, required, name],
   );
 
   const { renderElement } = useComponentRenderer({
@@ -77,13 +84,19 @@ const RadioGroup = React.forwardRef(function RadioGroup(
 
   return (
     <RadioGroupContext.Provider value={contextValue}>
-      <CompositeRoot direction={direction} enableHomeAndEndKeys={false} render={renderElement()} />
+      <CompositeRoot
+        direction={direction}
+        enableHomeAndEndKeys={false}
+        modifierKeys={MODIFIER_KEYS}
+        render={renderElement()}
+        stopEventPropagation
+      />
       <input {...radioGroup.getInputProps()} />
     </RadioGroupContext.Provider>
   );
 });
 
-namespace RadioGroup {
+export namespace RadioGroup {
   export interface State extends FieldRoot.State {
     /**
      * Whether the user should be unable to select a different radio button in the group.
@@ -91,8 +104,7 @@ namespace RadioGroup {
     readOnly: boolean | undefined;
   }
 
-  export interface Props
-    extends Omit<BaseUIComponentProps<'div', State>, 'value' | 'defaultValue'> {
+  export interface Props extends Omit<BaseUIComponentProps<'div', State>, 'value'> {
     /**
      * Whether the component should ignore user interaction.
      * @default false
@@ -128,65 +140,9 @@ namespace RadioGroup {
      * Callback fired when the value changes.
      */
     onValueChange?: (value: unknown, event: Event) => void;
+    /**
+     * A ref to access the hidden input element.
+     */
+    inputRef?: React.Ref<HTMLInputElement>;
   }
 }
-
-RadioGroup.propTypes /* remove-proptypes */ = {
-  // ┌────────────────────────────── Warning ──────────────────────────────┐
-  // │ These PropTypes are generated from the TypeScript type definitions. │
-  // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
-  // └─────────────────────────────────────────────────────────────────────┘
-  /**
-   * @ignore
-   */
-  children: PropTypes.node,
-  /**
-   * CSS class applied to the element, or a function that
-   * returns a class based on the component’s state.
-   */
-  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
-  /**
-   * The uncontrolled value of the radio button that should be initially selected.
-   *
-   * To render a controlled radio group, use the `value` prop instead.
-   */
-  defaultValue: PropTypes.any,
-  /**
-   * Whether the component should ignore user interaction.
-   * @default false
-   */
-  disabled: PropTypes.bool,
-  /**
-   * Identifies the field when a form is submitted.
-   */
-  name: PropTypes.string,
-  /**
-   * Callback fired when the value changes.
-   */
-  onValueChange: PropTypes.func,
-  /**
-   * Whether the user should be unable to select a different radio button in the group.
-   * @default false
-   */
-  readOnly: PropTypes.bool,
-  /**
-   * Allows you to replace the component’s HTML element
-   * with a different tag, or compose it with another component.
-   *
-   * Accepts a `ReactElement` or a function that returns the element to render.
-   */
-  render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
-  /**
-   * Whether the user must choose a value before submitting a form.
-   * @default false
-   */
-  required: PropTypes.bool,
-  /**
-   * The controlled value of the radio item that should be currently selected.
-   *
-   * To render an uncontrolled radio group, use the `defaultValue` prop instead.
-   */
-  value: PropTypes.any,
-} as any;
-
-export { RadioGroup };

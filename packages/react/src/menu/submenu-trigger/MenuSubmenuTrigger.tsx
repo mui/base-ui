@@ -1,15 +1,15 @@
 'use client';
 import * as React from 'react';
-import PropTypes from 'prop-types';
 import { useFloatingTree } from '@floating-ui/react';
-import { BaseUIComponentProps, GenericHTMLProps } from '../../utils/types';
+import { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { useMenuSubmenuTrigger } from './useMenuSubmenuTrigger';
 import { useForkRef } from '../../utils/useForkRef';
 import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
 import { useCompositeListItem } from '../../composite/list/useCompositeListItem';
+import { mergeProps } from '../../merge-props';
+import { useMenuItem } from '../item/useMenuItem';
 
 /**
  * A menu item that opens a submenu.
@@ -17,27 +17,30 @@ import { useCompositeListItem } from '../../composite/list/useCompositeListItem'
  *
  * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
  */
-const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerComponent(
+export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerComponent(
   props: MenuSubmenuTrigger.Props,
   forwardedRef: React.ForwardedRef<Element>,
 ) {
-  const { render, className, disabled = false, label, id: idProp, ...other } = props;
+  const { render, className, label, id: idProp, ...other } = props;
   const id = useBaseUiId(idProp);
 
   const {
-    getTriggerProps,
-    parentContext,
+    triggerProps: rootTriggerProps,
+    parent,
     setTriggerElement,
-    allowMouseUpTriggerRef,
     open,
     typingRef,
+    disabled,
+    allowMouseUpTriggerRef,
   } = useMenuRootContext();
 
-  if (parentContext === undefined) {
-    throw new Error('Base UI: ItemTrigger must be placed in a nested Menu.');
+  if (parent.type !== 'menu') {
+    throw new Error('Base UI: SubmenuTrigger must be placed in a nested Menu.');
   }
 
-  const { activeIndex, getItemProps } = parentContext;
+  const parentMenuContext = parent.context;
+
+  const { activeIndex, itemProps, setActiveIndex } = parentMenuContext;
   const item = useCompositeListItem();
 
   const highlighted = activeIndex === item.index;
@@ -46,16 +49,35 @@ const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerComponent(
 
   const { events: menuEvents } = useFloatingTree()!;
 
-  const { getRootProps } = useMenuSubmenuTrigger({
-    id,
-    highlighted,
-    ref: mergedRef,
+  const { getItemProps, rootRef: menuItemRef } = useMenuItem({
+    closeOnClick: false,
     disabled,
+    highlighted,
+    id,
     menuEvents,
-    setTriggerElement,
+    ref: mergedRef,
     allowMouseUpTriggerRef,
     typingRef,
   });
+
+  const triggerRef = React.useRef<HTMLDivElement | null>(null);
+  const menuTriggerRef = useForkRef(triggerRef, menuItemRef, setTriggerElement);
+
+  const getTriggerProps = React.useCallback(
+    (externalProps?: HTMLProps) => {
+      return {
+        ...getItemProps(externalProps),
+        tabIndex: open || highlighted ? 0 : -1,
+        ref: menuTriggerRef,
+        onBlur() {
+          if (highlighted) {
+            setActiveIndex(null);
+          }
+        },
+      };
+    },
+    [getItemProps, highlighted, menuTriggerRef, open, setActiveIndex],
+  );
 
   const state: MenuSubmenuTrigger.State = React.useMemo(
     () => ({ disabled, highlighted, open }),
@@ -66,8 +88,8 @@ const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerComponent(
     render: render || 'div',
     className,
     state,
-    propGetter: (externalProps: GenericHTMLProps) =>
-      getTriggerProps(getItemProps(getRootProps(externalProps))),
+    propGetter: (externalProps: HTMLProps) =>
+      mergeProps(rootTriggerProps, itemProps, externalProps, getTriggerProps),
     customStyleHookMapping: triggerOpenStateMapping,
     extraProps: other,
   });
@@ -75,15 +97,10 @@ const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerComponent(
   return renderElement();
 });
 
-namespace MenuSubmenuTrigger {
+export namespace MenuSubmenuTrigger {
   export interface Props extends BaseUIComponentProps<'div', State> {
     children?: React.ReactNode;
     onClick?: React.MouseEventHandler<HTMLElement>;
-    /**
-     * Whether the component should ignore user interaction.
-     * @default false
-     */
-    disabled?: boolean;
     /**
      * Overrides the text label to use when the item is matched during keyboard text navigation.
      */
@@ -106,45 +123,3 @@ namespace MenuSubmenuTrigger {
     open: boolean;
   }
 }
-
-MenuSubmenuTrigger.propTypes /* remove-proptypes */ = {
-  // ┌────────────────────────────── Warning ──────────────────────────────┐
-  // │ These PropTypes are generated from the TypeScript type definitions. │
-  // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
-  // └─────────────────────────────────────────────────────────────────────┘
-  /**
-   * @ignore
-   */
-  children: PropTypes.node,
-  /**
-   * CSS class applied to the element, or a function that
-   * returns a class based on the component’s state.
-   */
-  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
-  /**
-   * Whether the component should ignore user interaction.
-   * @default false
-   */
-  disabled: PropTypes.bool,
-  /**
-   * @ignore
-   */
-  id: PropTypes.string,
-  /**
-   * Overrides the text label to use when the item is matched during keyboard text navigation.
-   */
-  label: PropTypes.string,
-  /**
-   * @ignore
-   */
-  onClick: PropTypes.func,
-  /**
-   * Allows you to replace the component’s HTML element
-   * with a different tag, or compose it with another component.
-   *
-   * Accepts a `ReactElement` or a function that returns the element to render.
-   */
-  render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
-} as any;
-
-export { MenuSubmenuTrigger };

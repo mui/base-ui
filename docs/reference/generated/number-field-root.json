@@ -11,16 +11,25 @@
       "description": "The uncontrolled value of the field when it’s initially rendered.\n\nTo render a controlled number field, use the `value` prop instead."
     },
     "value": {
-      "type": "number",
+      "type": "number | null",
       "description": "The raw numeric value of the field."
     },
     "onValueChange": {
-      "type": "(value, event) => void",
+      "type": "((value: number | null, event: Event | undefined) => void)",
       "description": "Callback fired when the number value changes."
+    },
+    "locale": {
+      "type": "LocalesArgument",
+      "description": "The locale of the input element.\nDefaults to the user's runtime locale."
+    },
+    "snapOnStep": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Whether the value should snap to the nearest step when incrementing or decrementing."
     },
     "step": {
       "type": "number",
-      "default": "1;",
+      "default": "1",
       "description": "Amount to increment and decrement with the buttons and arrow keys,\nor to scrub with pointer movement in the scrub area."
     },
     "smallStep": {
@@ -47,13 +56,8 @@
       "description": "Whether to allow the user to scrub the input value with the mouse wheel while focused and\nhovering over the input."
     },
     "format": {
-      "type": "Intl.NumberFormatOptions",
+      "type": "NumberFormatOptions",
       "description": "Options to format the input value."
-    },
-    "autoFocus": {
-      "type": "boolean",
-      "default": "false",
-      "description": "Whether to focus the element on page load."
     },
     "disabled": {
       "type": "boolean",
@@ -75,16 +79,20 @@
       "default": "false",
       "description": "Whether the field is forcefully marked as invalid."
     },
+    "inputRef": {
+      "type": "Ref<HTMLInputElement>",
+      "description": "A ref to access the hidden input element."
+    },
     "id": {
       "type": "string",
       "description": "The id of the input element."
     },
     "className": {
-      "type": "string | (state) => string",
+      "type": "string | ((state: NumberField.Root.State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "render": {
-      "type": "React.ReactElement | (props, state) => React.ReactElement",
+      "type": "ReactElement | ((props: HTMLProps, state: NumberField.Root.State) => ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
     }
   },

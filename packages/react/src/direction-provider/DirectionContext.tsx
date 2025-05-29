@@ -8,13 +8,9 @@ export type DirectionContext = {
 };
 
 /**
- * @ignore - internal component.
+ * @internal
  */
 export const DirectionContext = React.createContext<DirectionContext | undefined>(undefined);
-
-if (process.env.NODE_ENV !== 'production') {
-  DirectionContext.displayName = 'DirectionContext';
-}
 
 export function useDirection(optional = true) {
   const context = React.useContext(DirectionContext);

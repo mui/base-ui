@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import { act, flushMicrotasks } from '@mui/internal-test-utils';
+import { act } from '@mui/internal-test-utils';
 import {
   DirectionProvider,
   type TextDirection,
@@ -92,15 +92,13 @@ describe('<ToggleGroup />', () => {
       expect(button2).to.have.attribute('aria-pressed', 'true');
       expect(button2).to.have.attribute('data-pressed');
 
-      setProps({ value: ['one'] });
-      await flushMicrotasks();
+      await setProps({ value: ['one'] });
 
       expect(button1).to.have.attribute('aria-pressed', 'true');
       expect(button1).to.have.attribute('data-pressed');
       expect(button2).to.have.attribute('aria-pressed', 'false');
 
-      setProps({ value: ['two'] });
-      await flushMicrotasks();
+      await setProps({ value: ['two'] });
 
       expect(button2).to.have.attribute('aria-pressed', 'true');
       expect(button2).to.have.attribute('data-pressed');
@@ -121,8 +119,7 @@ describe('<ToggleGroup />', () => {
       expect(button2).to.have.attribute('data-pressed');
       expect(button1).to.have.attribute('aria-pressed', 'false');
 
-      setProps({ value: ['one'] });
-      await flushMicrotasks();
+      await setProps({ value: ['one'] });
 
       expect(button1).to.have.attribute('aria-pressed', 'true');
       expect(button1).to.have.attribute('data-pressed');
@@ -141,9 +138,9 @@ describe('<ToggleGroup />', () => {
 
       const [button1, button2] = getAllByRole('button');
 
-      expect(button1).to.have.attribute('disabled');
+      expect(button1).to.have.attribute('aria-disabled', 'true');
       expect(button1).to.have.attribute('data-disabled');
-      expect(button2).to.have.attribute('disabled');
+      expect(button2).to.have.attribute('aria-disabled', 'true');
       expect(button2).to.have.attribute('data-disabled');
     });
 
@@ -157,9 +154,9 @@ describe('<ToggleGroup />', () => {
 
       const [button1, button2] = getAllByRole('button');
 
-      expect(button1).to.not.have.attribute('disabled');
+      expect(button1).to.have.attribute('aria-disabled', 'false');
       expect(button1).to.not.have.attribute('data-disabled');
-      expect(button2).to.have.attribute('disabled');
+      expect(button2).to.have.attribute('aria-disabled', 'true');
       expect(button2).to.have.attribute('data-disabled');
     });
   });

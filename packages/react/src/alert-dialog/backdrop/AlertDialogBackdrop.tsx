@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import PropTypes from 'prop-types';
 import { useAlertDialogRootContext } from '../root/AlertDialogRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
@@ -9,6 +8,7 @@ import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping';
 import { transitionStatusMapping } from '../../utils/styleHookMapping';
 import { useForkRef } from '../../utils/useForkRef';
+import { mergeProps } from '../../merge-props';
 
 const customStyleHookMapping: CustomStyleHookMapping<AlertDialogBackdrop.State> = {
   ...baseMapping,
@@ -21,7 +21,7 @@ const customStyleHookMapping: CustomStyleHookMapping<AlertDialogBackdrop.State> 
  *
  * Documentation: [Base UI Alert Dialog](https://base-ui.com/react/components/alert-dialog)
  */
-const AlertDialogBackdrop = React.forwardRef(function AlertDialogBackdrop(
+export const AlertDialogBackdrop = React.forwardRef(function AlertDialogBackdrop(
   props: AlertDialogBackdrop.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
@@ -43,11 +43,17 @@ const AlertDialogBackdrop = React.forwardRef(function AlertDialogBackdrop(
     className,
     state,
     ref: mergedRef,
-    extraProps: {
-      role: 'presentation',
-      hidden: !mounted,
-      ...other,
-    },
+    extraProps: mergeProps(
+      {
+        role: 'presentation',
+        hidden: !mounted,
+        style: {
+          userSelect: 'none',
+          WebkitUserSelect: 'none',
+        },
+      },
+      other,
+    ),
     customStyleHookMapping,
   });
 
@@ -60,7 +66,7 @@ const AlertDialogBackdrop = React.forwardRef(function AlertDialogBackdrop(
   return renderElement();
 });
 
-namespace AlertDialogBackdrop {
+export namespace AlertDialogBackdrop {
   export interface Props extends BaseUIComponentProps<'div', State> {}
 
   export interface State {
@@ -71,28 +77,3 @@ namespace AlertDialogBackdrop {
     transitionStatus: TransitionStatus;
   }
 }
-
-AlertDialogBackdrop.propTypes /* remove-proptypes */ = {
-  // ┌────────────────────────────── Warning ──────────────────────────────┐
-  // │ These PropTypes are generated from the TypeScript type definitions. │
-  // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
-  // └─────────────────────────────────────────────────────────────────────┘
-  /**
-   * @ignore
-   */
-  children: PropTypes.node,
-  /**
-   * CSS class applied to the element, or a function that
-   * returns a class based on the component’s state.
-   */
-  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
-  /**
-   * Allows you to replace the component’s HTML element
-   * with a different tag, or compose it with another component.
-   *
-   * Accepts a `ReactElement` or a function that returns the element to render.
-   */
-  render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
-} as any;
-
-export { AlertDialogBackdrop };

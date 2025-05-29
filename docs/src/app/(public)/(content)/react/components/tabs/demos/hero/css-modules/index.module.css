@@ -83,6 +83,10 @@
     outline-offset: -1px;
     border-radius: 0.375rem;
   }
+
+  &[hidden] {
+    display: none;
+  }
 }
 
 .Icon {

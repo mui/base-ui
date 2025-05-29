@@ -1,7 +1,8 @@
 import * as React from 'react';
 import { expect } from 'chai';
+import { afterEach } from 'vitest';
 import userEvent from '@testing-library/user-event';
-import { describeSkipIf, flushMicrotasks, screen } from '@mui/internal-test-utils';
+import { flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
 import { Menu } from '@base-ui-components/react/menu';
 import { describeConformance, createRenderer, isJSDOM } from '#test-utils';
 
@@ -26,12 +27,8 @@ describe('<Menu.Positioner />', () => {
     refInstanceof: window.HTMLDivElement,
   }));
 
-  describe('prop: anchor', () => {
-    it('should be placed near the specified element when a ref is passed', async ({ skip }) => {
-      if (isJSDOM) {
-        skip();
-      }
-
+  describe.skipIf(isJSDOM)('prop: anchor', () => {
+    it('should be placed near the specified element when a ref is passed', async () => {
       function TestComponent() {
         const anchor = React.useRef<HTMLDivElement | null>(null);
 
@@ -72,13 +69,7 @@ describe('<Menu.Positioner />', () => {
       );
     });
 
-    it('should be placed near the specified element when an element is passed', async ({
-      skip,
-    }) => {
-      if (isJSDOM) {
-        skip();
-      }
-
+    it('should be placed near the specified element when an element is passed', async () => {
       function TestComponent() {
         const [anchor, setAnchor] = React.useState<HTMLDivElement | null>(null);
         const handleRef = React.useCallback((element: HTMLDivElement | null) => {
@@ -122,13 +113,7 @@ describe('<Menu.Positioner />', () => {
       );
     });
 
-    it('should be placed near the specified element when a function returning an element is passed', async ({
-      skip,
-    }) => {
-      if (isJSDOM) {
-        skip();
-      }
-
+    it('should be placed near the specified element when a function returning an element is passed', async () => {
       function TestComponent() {
         const [anchor, setAnchor] = React.useState<HTMLDivElement | null>(null);
         const handleRef = React.useCallback((element: HTMLDivElement | null) => {
@@ -174,11 +159,7 @@ describe('<Menu.Positioner />', () => {
       );
     });
 
-    it('should be placed at the specified position', async ({ skip }) => {
-      if (isJSDOM) {
-        skip();
-      }
-
+    it('should be placed at the specified position', async () => {
       const boundingRect = {
         x: 200,
         y: 100,
@@ -215,13 +196,119 @@ describe('<Menu.Positioner />', () => {
       const positioner = getByTestId('positioner');
       expect(positioner.style.getPropertyValue('transform')).to.equal(`translate(200px, 100px)`);
     });
+
+    it('should accept a non-memoized function as an anchor', async () => {
+      function TestComponent() {
+        return (
+          <div style={{ margin: '50px' }}>
+            <Menu.Root open>
+              <Menu.Portal>
+                <Menu.Positioner
+                  side="bottom"
+                  align="start"
+                  anchor={() => null}
+                  arrowPadding={0}
+                  data-testid="positioner"
+                >
+                  <Menu.Popup>
+                    <Menu.Item>1</Menu.Item>
+                    <Menu.Item>2</Menu.Item>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+          </div>
+        );
+      }
+
+      await render(<TestComponent />);
+    });
+
+    it('should react to the anchor changing from a ref to undefined and back', async () => {
+      function TestComponent() {
+        const anchorRef = React.useRef<HTMLDivElement | null>(null);
+        const [currentAnchor, setCurrentAnchor] = React.useState<
+          React.RefObject<HTMLDivElement | null> | undefined
+        >(anchorRef);
+
+        return (
+          <div style={{ margin: '50px' }}>
+            <button type="button" onClick={() => setCurrentAnchor(undefined)}>
+              undefined
+            </button>
+            <button type="button" onClick={() => setCurrentAnchor(anchorRef)}>
+              ref
+            </button>
+            <Menu.Root open>
+              <Menu.Trigger>trigger</Menu.Trigger>
+              <Menu.Portal>
+                <Menu.Positioner
+                  side="bottom"
+                  align="start"
+                  anchor={currentAnchor}
+                  arrowPadding={0}
+                  data-testid="positioner"
+                >
+                  <Menu.Popup>
+                    <Menu.Item>1</Menu.Item>
+                    <Menu.Item>2</Menu.Item>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+            <div
+              data-testid="anchor"
+              style={{ marginTop: '100px', width: 10, height: 10 }}
+              ref={anchorRef}
+            />
+          </div>
+        );
+      }
+
+      const { getByTestId, getByRole } = await render(<TestComponent />);
+
+      const positioner = getByTestId('positioner');
+      const anchorElement = getByTestId('anchor');
+
+      const setUndefinedButton = getByRole('button', { name: 'undefined' });
+      const setRefButton = getByRole('button', { name: 'ref' });
+      const trigger = getByRole('button', { name: 'trigger' });
+
+      let anchorRect = anchorElement.getBoundingClientRect();
+      await flushMicrotasks();
+      expect(positioner.style.getPropertyValue('transform')).to.equal(
+        `translate(${anchorRect.left}px, ${anchorRect.bottom}px)`,
+      );
+
+      await userEvent.click(setUndefinedButton);
+      await flushMicrotasks();
+
+      const triggerRect = trigger.getBoundingClientRect();
+      expect(positioner.style.getPropertyValue('transform')).to.equal(
+        `translate(${Math.floor(triggerRect.left)}px, ${triggerRect.bottom}px)`,
+      );
+
+      await userEvent.click(setRefButton);
+      await flushMicrotasks();
+
+      anchorRect = anchorElement.getBoundingClientRect();
+      expect(positioner.style.getPropertyValue('transform')).to.equal(
+        `translate(${anchorRect.left}px, ${anchorRect.bottom}px)`,
+      );
+    });
   });
 
-  describe('prop: keepMounted', () => {
-    const user = userEvent.setup();
+  describe.skipIf(isJSDOM)('prop: keepMounted', () => {
+    afterEach(async () => {
+      const { cleanup } = await import('vitest-browser-react');
+      cleanup();
+    });
 
     it('when keepMounted=true, should keep the content mounted when closed', async () => {
-      const { getByRole, queryByRole } = await render(
+      const { userEvent: user } = await import('@vitest/browser/context');
+      const { render: vbrRender } = await import('vitest-browser-react');
+
+      vbrRender(
         <Menu.Root modal={false}>
           <Menu.Trigger>Toggle</Menu.Trigger>
           <Menu.Portal keepMounted>
@@ -235,23 +322,31 @@ describe('<Menu.Positioner />', () => {
         </Menu.Root>,
       );
 
-      const trigger = getByRole('button', { name: 'Toggle' });
+      const trigger = screen.getByRole('button', { name: 'Toggle' });
 
-      expect(queryByRole('menu', { hidden: true })).not.to.equal(null);
-      expect(queryByRole('menu', { hidden: true })).toBeInaccessible();
+      expect(screen.queryByRole('menu', { hidden: true })).not.to.equal(null);
+      expect(screen.queryByRole('menu', { hidden: true })).toBeInaccessible();
 
-      await user.click(trigger);
-      await flushMicrotasks();
-      expect(queryByRole('menu', { hidden: false })).not.to.equal(null);
-      expect(queryByRole('menu', { hidden: false })).not.toBeInaccessible();
+      await user.click(trigger, { delay: 20 });
+      await waitFor(() => {
+        expect(screen.queryByRole('menu', { hidden: false })).not.to.equal(null);
+      });
+      expect(screen.queryByRole('menu', { hidden: false })).not.toBeInaccessible();
 
-      await user.click(trigger);
-      expect(queryByRole('menu', { hidden: true })).not.to.equal(null);
-      expect(queryByRole('menu', { hidden: true })).toBeInaccessible();
+      await user.click(trigger, { delay: 20 });
+      await waitFor(() => {
+        expect(screen.queryByRole('menu', { hidden: true })).not.to.equal(null);
+      });
+      await waitFor(() => {
+        expect(screen.queryByRole('menu', { hidden: true })).toBeInaccessible();
+      });
     });
 
     it('when keepMounted=false, should unmount the content when closed', async () => {
-      const { getByRole, queryByRole } = await render(
+      const { userEvent: user } = await import('@vitest/browser/context');
+      const { render: vbrRender } = await import('vitest-browser-react');
+
+      vbrRender(
         <Menu.Root modal={false}>
           <Menu.Trigger>Toggle</Menu.Trigger>
           <Menu.Portal keepMounted={false}>
@@ -265,17 +360,21 @@ describe('<Menu.Positioner />', () => {
         </Menu.Root>,
       );
 
-      const trigger = getByRole('button', { name: 'Toggle' });
+      const trigger = screen.getByRole('button', { name: 'Toggle' });
 
-      expect(queryByRole('menu', { hidden: true })).to.equal(null);
+      expect(screen.queryByRole('menu', { hidden: true })).to.equal(null);
 
-      await user.click(trigger);
+      await user.click(trigger, { delay: 20 });
       await flushMicrotasks();
-      expect(queryByRole('menu', { hidden: false })).not.to.equal(null);
-      expect(queryByRole('menu', { hidden: false })).not.toBeInaccessible();
+      await waitFor(() => {
+        expect(screen.queryByRole('menu', { hidden: false })).not.to.equal(null);
+      });
+      expect(screen.queryByRole('menu', { hidden: false })).not.toBeInaccessible();
 
-      await user.click(trigger);
-      expect(queryByRole('menu', { hidden: true })).to.equal(null);
+      await user.click(trigger, { delay: 20 });
+      await waitFor(() => {
+        expect(screen.queryByRole('menu', { hidden: true })).to.equal(null);
+      });
     });
   });
 
@@ -288,7 +387,7 @@ describe('<Menu.Positioner />', () => {
   const triggerStyle = { width: anchorWidth, height: anchorHeight };
   const popupStyle = { width: popupWidth, height: popupHeight };
 
-  describeSkipIf(isJSDOM)('prop: sideOffset', () => {
+  describe.skipIf(isJSDOM)('prop: sideOffset', () => {
     it('offsets the side when a number is specified', async () => {
       const sideOffset = 7;
       await render(
@@ -401,7 +500,7 @@ describe('<Menu.Positioner />', () => {
     });
   });
 
-  describeSkipIf(isJSDOM)('prop: alignOffset', () => {
+  describe.skipIf(isJSDOM)('prop: alignOffset', () => {
     it('offsets the align when a number is specified', async () => {
       const alignOffset = 7;
       await render(

@@ -1,21 +1,24 @@
 'use client';
 import * as React from 'react';
-import type { AccordionRoot } from './AccordionRoot';
-import type { useAccordionRoot } from './useAccordionRoot';
+import type { Orientation } from '../../utils/types';
+import type { TextDirection } from '../../direction-provider';
+import type { AccordionRoot, AccordionValue } from './AccordionRoot';
 
-export interface AccordionRootContext extends Omit<useAccordionRoot.ReturnValue, 'getRootProps'> {
-  state: AccordionRoot.State;
+export interface AccordionRootContext {
+  accordionItemRefs: React.RefObject<(HTMLElement | null)[]>;
+  direction: TextDirection;
+  disabled: boolean;
+  handleValueChange: (newValue: number | string, nextOpen: boolean) => void;
   hiddenUntilFound: boolean;
   keepMounted: boolean;
+  orientation: Orientation;
+  state: AccordionRoot.State;
+  value: AccordionValue;
 }
 
 export const AccordionRootContext = React.createContext<AccordionRootContext | undefined>(
   undefined,
 );
-
-if (process.env.NODE_ENV !== 'production') {
-  AccordionRootContext.displayName = 'AccordionRootContext';
-}
 
 export function useAccordionRootContext() {
   const context = React.useContext(AccordionRootContext);

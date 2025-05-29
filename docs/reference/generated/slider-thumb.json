@@ -2,33 +2,25 @@
   "name": "SliderThumb",
   "description": "The draggable part of the the slider at the tip of the indicator.\nRenders a `<div>` element.",
   "props": {
-    "aria-label": {
-      "type": "string",
-      "description": "The label for the input element."
-    },
-    "aria-valuetext": {
-      "type": "string",
-      "description": "A string value that provides a user-friendly name for the current value of the slider."
-    },
     "getAriaLabel": {
-      "type": "function(index: number) => string",
+      "type": "((index: number) => string) | null",
       "description": "Accepts a function which returns a string value that provides a user-friendly name for the input associated with the thumb"
     },
     "getAriaValueText": {
-      "type": "function(formattedValue: string, value: number, index: number) => string",
+      "type": "((formattedValue: string, value: number, index: number) => string) | null",
       "description": "Accepts a function which returns a string value that provides a user-friendly name for the current value of the slider.\nThis is important for screen reader users."
     },
-    "tabIndex": {
-      "type": "number",
-      "default": "null",
-      "description": "Optional tab index attribute for the thumb components."
+    "disabled": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Whether the thumb should ignore user interaction."
     },
     "className": {
-      "type": "string | (state) => string",
+      "type": "string | ((state: Slider.Thumb.State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "render": {
-      "type": "React.ReactElement | (props, state) => React.ReactElement",
+      "type": "((props: DetailedHTMLProps<HTMLAttributes<HTMLDivElement>, HTMLDivElement>, inputProps: DetailedHTMLProps<InputHTMLAttributes<HTMLInputElement>, HTMLInputElement>, state: Slider.Thumb.State) => ReactElement) | ReactElement & { ref: Ref<Element> }",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
     }
   },
@@ -63,6 +55,9 @@
     },
     "data-focused": {
       "description": "Present when the slider is focused (when wrapped in Field.Root)."
+    },
+    "data-index": {
+      "description": "Indicates the index of the thumb in range sliders."
     }
   },
   "cssVariables": {}

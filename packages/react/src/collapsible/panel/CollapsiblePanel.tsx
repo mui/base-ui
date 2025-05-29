@@ -1,15 +1,15 @@
 'use client';
 import * as React from 'react';
-import PropTypes from 'prop-types';
 import { BaseUIComponentProps } from '../../utils/types';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
+import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
+import { useRenderElement } from '../../utils/useRenderElement';
 import { warn } from '../../utils/warn';
 import { useCollapsibleRootContext } from '../root/CollapsibleRootContext';
 import type { CollapsibleRoot } from '../root/CollapsibleRoot';
 import { collapsibleStyleHookMapping } from '../root/styleHooks';
 import { useCollapsiblePanel } from './useCollapsiblePanel';
 import { CollapsiblePanelCssVars } from './CollapsiblePanelCssVars';
+import { usePanelResize } from '../../utils/usePanelResize';
 
 /**
  * A panel with the collapsible contents.
@@ -17,9 +17,9 @@ import { CollapsiblePanelCssVars } from './CollapsiblePanelCssVars';
  *
  * Documentation: [Base UI Collapsible](https://base-ui.com/react/components/collapsible)
  */
-const CollapsiblePanel = React.forwardRef(function CollapsiblePanel(
-  props: CollapsiblePanel.Props,
-  forwardedRef: React.ForwardedRef<HTMLButtonElement>,
+export const CollapsiblePanel = React.forwardRef(function CollapsiblePanel(
+  componentProps: CollapsiblePanel.Props,
+  forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const {
     className,
@@ -27,12 +27,12 @@ const CollapsiblePanel = React.forwardRef(function CollapsiblePanel(
     id: idProp,
     keepMounted: keepMountedProp,
     render,
-    ...otherProps
-  } = props;
+    ...elementProps
+  } = componentProps;
 
   if (process.env.NODE_ENV !== 'production') {
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    useEnhancedEffect(() => {
+    useModernLayoutEffect(() => {
       if (hiddenUntilFoundProp && keepMountedProp === false) {
         warn(
           'The `keepMounted={false}` prop on a Collapsible will be ignored when using `hiddenUntilFound` since it requires the Panel to remain mounted even when closed.',
@@ -41,55 +41,95 @@ const CollapsiblePanel = React.forwardRef(function CollapsiblePanel(
     }, [hiddenUntilFoundProp, keepMountedProp]);
   }
 
-  const { mounted, open, panelId, setPanelId, setMounted, setOpen, state } =
-    useCollapsibleRootContext();
-
-  useEnhancedEffect(() => {
-    if (idProp) {
-      setPanelId(idProp);
-    }
-  }, [idProp, setPanelId]);
-
-  const hiddenUntilFound = hiddenUntilFoundProp ?? false;
-
-  const { getRootProps, height, width, isOpen } = useCollapsiblePanel({
-    hiddenUntilFound,
-    panelId,
-    keepMounted: keepMountedProp ?? false,
+  const {
+    abortControllerRef,
+    animationTypeRef,
+    height,
     mounted,
+    onOpenChange,
     open,
-    ref: forwardedRef,
-    setPanelId,
+    panelId,
+    panelRef,
+    runOnceAnimationsFinish,
+    setDimensions,
+    setHiddenUntilFound,
+    setKeepMounted,
     setMounted,
     setOpen,
+    setPanelId,
+    setVisible,
+    state,
+    transitionDimensionRef,
+    visible,
+    width,
+  } = useCollapsibleRootContext();
+
+  const hiddenUntilFound = hiddenUntilFoundProp ?? false;
+  const keepMounted = keepMountedProp ?? false;
+
+  useModernLayoutEffect(() => {
+    setHiddenUntilFound(hiddenUntilFound);
+  }, [setHiddenUntilFound, hiddenUntilFound]);
+
+  useModernLayoutEffect(() => {
+    setKeepMounted(keepMounted);
+  }, [setKeepMounted, keepMounted]);
+
+  const { props } = useCollapsiblePanel({
+    abortControllerRef,
+    animationTypeRef,
+    externalRef: forwardedRef,
+    height,
+    hiddenUntilFound,
+    id: idProp ?? panelId,
+    keepMounted,
+    mounted,
+    onOpenChange,
+    open,
+    panelRef,
+    runOnceAnimationsFinish,
+    setDimensions,
+    setMounted,
+    setOpen,
+    setPanelId,
+    setVisible,
+    transitionDimensionRef,
+    visible,
+    width,
   });
 
-  const { renderElement } = useComponentRenderer({
-    propGetter: getRootProps,
-    render: render ?? 'div',
+  usePanelResize(panelRef, setDimensions, open);
+
+  const element = useRenderElement('div', componentProps, {
     state,
-    className,
-    extraProps: {
-      ...otherProps,
-      style: {
-        ...otherProps.style,
-        [CollapsiblePanelCssVars.collapsiblePanelHeight]: height ? `${height}px` : undefined,
-        [CollapsiblePanelCssVars.collapsiblePanelWidth]: width ? `${width}px` : undefined,
+    ref: [forwardedRef, panelRef],
+    props: [
+      props,
+      {
+        style: {
+          [CollapsiblePanelCssVars.collapsiblePanelHeight as string]: height
+            ? `${height}px`
+            : undefined,
+          [CollapsiblePanelCssVars.collapsiblePanelWidth as string]: width
+            ? `${width}px`
+            : undefined,
+        },
       },
-    },
+      elementProps,
+    ],
     customStyleHookMapping: collapsibleStyleHookMapping,
   });
 
-  if (!keepMountedProp && !isOpen && !hiddenUntilFound) {
+  const shouldRender = keepMounted || hiddenUntilFound || (!keepMounted && mounted);
+
+  if (!shouldRender) {
     return null;
   }
 
-  return renderElement();
+  return element;
 });
 
-export { CollapsiblePanel };
-
-namespace CollapsiblePanel {
+export namespace CollapsiblePanel {
   export interface Props extends BaseUIComponentProps<'div', CollapsibleRoot.State> {
     /**
      * Allows the browser’s built-in page search to find and expand the panel contents.
@@ -108,49 +148,3 @@ namespace CollapsiblePanel {
     keepMounted?: boolean;
   }
 }
-
-CollapsiblePanel.propTypes /* remove-proptypes */ = {
-  // ┌────────────────────────────── Warning ──────────────────────────────┐
-  // │ These PropTypes are generated from the TypeScript type definitions. │
-  // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
-  // └─────────────────────────────────────────────────────────────────────┘
-  /**
-   * @ignore
-   */
-  children: PropTypes.node,
-  /**
-   * CSS class applied to the element, or a function that
-   * returns a class based on the component’s state.
-   */
-  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
-  /**
-   * Allows the browser’s built-in page search to find and expand the panel contents.
-   *
-   * Overrides the `keepMounted` prop and uses `hidden="until-found"`
-   * to hide the element without removing it from the DOM.
-   *
-   * @default false
-   */
-  hiddenUntilFound: PropTypes.bool,
-  /**
-   * @ignore
-   */
-  id: PropTypes.string,
-  /**
-   * Whether to keep the element in the DOM while the panel is hidden.
-   * This prop is ignored when `hiddenUntilFound` is used.
-   * @default false
-   */
-  keepMounted: PropTypes.bool,
-  /**
-   * Allows you to replace the component’s HTML element
-   * with a different tag, or compose it with another component.
-   *
-   * Accepts a `ReactElement` or a function that returns the element to render.
-   */
-  render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
-  /**
-   * @ignore
-   */
-  style: PropTypes.object,
-} as any;

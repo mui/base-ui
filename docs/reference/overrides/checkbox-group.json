@@ -1,8 +1,0 @@
-{
-  "name": "CheckboxGroup",
-  "props": {
-    "onValueChange": {
-      "type": "(value, event) => void"
-    }
-  }
-}

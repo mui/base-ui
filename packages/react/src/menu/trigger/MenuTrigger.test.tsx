@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import userEvent from '@testing-library/user-event';
-import { act, fireEvent, screen } from '@mui/internal-test-utils';
+import { act, fireEvent, flushMicrotasks, screen } from '@mui/internal-test-utils';
 import { Menu } from '@base-ui-components/react/menu';
 import { describeConformance, createRenderer } from '#test-utils';
 import { PATIENT_CLICK_THRESHOLD } from '../../utils/constants';
@@ -49,7 +49,7 @@ describe('<Menu.Trigger />', () => {
   });
 
   it('toggles the menu state when clicked', async () => {
-    const { getByRole, queryByRole } = await render(
+    const { getByRole, findByRole } = await render(
       <Menu.Root>
         <Menu.Trigger>Open</Menu.Trigger>
         <Menu.Portal>
@@ -63,9 +63,8 @@ describe('<Menu.Trigger />', () => {
     const button = getByRole('button', { name: 'Open' });
     await user.click(button);
 
-    const menuPopup = queryByRole('menu', { hidden: false });
+    const menuPopup = await findByRole('menu', { hidden: false });
     expect(menuPopup).not.to.equal(null);
-
     expect(menuPopup).to.have.attribute('data-open', '');
   });
 
@@ -189,6 +188,11 @@ describe('<Menu.Trigger />', () => {
       await renderFakeTimers(
         <Menu.Root delay={0} openOnHover>
           <Menu.Trigger />
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup />
+            </Menu.Positioner>
+          </Menu.Portal>
         </Menu.Root>,
       );
 
@@ -230,6 +234,11 @@ describe('<Menu.Trigger />', () => {
       await renderFakeTimers(
         <Menu.Root delay={0} openOnHover>
           <Menu.Trigger />
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup />
+            </Menu.Positioner>
+          </Menu.Portal>
         </Menu.Root>,
       );
 
@@ -243,6 +252,80 @@ describe('<Menu.Trigger />', () => {
       fireEvent.mouseLeave(trigger);
 
       expect(trigger).not.to.have.attribute('data-popup-open');
+    });
+
+    it('should keep the menu open when re-hovered and clicked within the patient threshold', async () => {
+      await render(
+        <Menu.Root openOnHover delay={100}>
+          <Menu.Trigger>Open</Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>Content</Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>,
+      );
+
+      const trigger = screen.getByRole('button');
+
+      fireEvent.mouseEnter(trigger);
+      fireEvent.mouseMove(trigger);
+
+      clock.tick(100);
+      await flushMicrotasks();
+
+      expect(screen.getByText('Content')).not.to.equal(null);
+
+      clock.tick(PATIENT_CLICK_THRESHOLD);
+
+      fireEvent.mouseLeave(trigger);
+      fireEvent.mouseEnter(trigger);
+      fireEvent.mouseMove(trigger);
+
+      fireEvent.click(trigger);
+      expect(screen.getByText('Content')).not.to.equal(null);
+    });
+  });
+
+  describe('preventBaseUIHandler', () => {
+    it('prevents opening the menu with a mouse when `preventBaseUIHandler` is called in onMouseDown', async () => {
+      const { getByRole, queryByRole } = await render(
+        <Menu.Root>
+          <Menu.Trigger onMouseDown={(event) => event.preventBaseUIHandler()} />
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup />
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>,
+      );
+
+      const button = getByRole('button');
+      await user.click(button);
+
+      expect(queryByRole('menu', { hidden: false })).to.equal(null);
+    });
+
+    it('prevents opening the menu with keyboard when `preventBaseUIHandler` is called in onClick', async () => {
+      const { getByRole, queryByRole } = await render(
+        <Menu.Root>
+          <Menu.Trigger onClick={(event) => event.preventBaseUIHandler()} />
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup />
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>,
+      );
+
+      const button = getByRole('button');
+      await act(async () => {
+        button.focus();
+      });
+
+      await user.keyboard('[Enter]');
+
+      expect(queryByRole('menu', { hidden: false })).to.equal(null);
     });
   });
 });

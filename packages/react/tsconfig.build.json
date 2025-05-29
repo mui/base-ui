@@ -1,7 +1,7 @@
 {
   "extends": "../../tsconfig.base.json",
-  // This config is for emitting declarations (.d.ts) only
-  // Actual .ts source files are transpiled via babel
+  // This config is for emitting declarations (.d.ts) only.
+  // TS source files are transpiled to JS by Babel.
   "compilerOptions": {
     "composite": true,
     "declaration": true,

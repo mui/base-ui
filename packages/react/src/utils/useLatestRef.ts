@@ -1,14 +1,25 @@
 'use client';
-import * as React from 'react';
-import { useEnhancedEffect } from './useEnhancedEffect';
+import { useModernLayoutEffect } from './useModernLayoutEffect';
+import { useLazyRef } from './useLazyRef';
 
-/**
- * @ignore - internal hook.
- */
 export function useLatestRef<T>(value: T) {
-  const ref = React.useRef(value);
-  useEnhancedEffect(() => {
-    ref.current = value;
-  });
-  return ref;
+  const latest = useLazyRef(createLatestRef, value).current;
+
+  latest.next = value;
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useModernLayoutEffect(latest.effect);
+
+  return latest;
+}
+
+function createLatestRef<T>(value: T) {
+  const latest = {
+    current: value,
+    next: value,
+    effect: () => {
+      latest.current = latest.next;
+    },
+  };
+  return latest;
 }

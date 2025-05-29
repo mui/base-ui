@@ -3,43 +3,45 @@ import * as React from 'react';
 import { useControlled } from '../../utils/useControlled';
 import { visuallyHidden } from '../../utils/visuallyHidden';
 import { useForkRef } from '../../utils/useForkRef';
-import { mergeReactProps } from '../../utils/mergeReactProps';
+import { mergeProps } from '../../merge-props';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useEventCallback } from '../../utils/useEventCallback';
-import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
+import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
+import { useButton } from '../../use-button/useButton';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
 import { useField } from '../../field/useField';
 import { useCheckboxGroupContext } from '../../checkbox-group/CheckboxGroupContext';
+import { useFormContext } from '../../form/FormContext';
 
-export function useCheckboxRoot(params: UseCheckboxRoot.Parameters): UseCheckboxRoot.ReturnValue {
+const EMPTY = {};
+
+export const PARENT_CHECKBOX = 'data-parent';
+
+export function useCheckboxRoot(params: useCheckboxRoot.Parameters): useCheckboxRoot.ReturnValue {
   const {
     id: idProp,
     checked: externalChecked,
     inputRef: externalInputRef,
     onCheckedChange: onCheckedChangeProp,
-    name,
-    value,
+    name: nameProp,
+    value: valueProp,
     defaultChecked = false,
     readOnly = false,
     required = false,
-    autoFocus = false,
     indeterminate = false,
-    disabled = false,
+    parent = false,
+    disabled: disabledProp = false,
   } = params;
+
+  const buttonRef = React.useRef<HTMLButtonElement>(null);
 
   const groupContext = useCheckboxGroupContext();
   const groupValue = groupContext?.value;
   const setGroupValue = groupContext?.setValue;
   const defaultGroupValue = groupContext?.defaultValue;
 
-  const [checked, setCheckedState] = useControlled({
-    controlled: name && groupValue ? groupValue.includes(name) : externalChecked,
-    default: name && defaultGroupValue ? defaultGroupValue.includes(name) : defaultChecked,
-    name: 'Checkbox',
-    state: 'checked',
-  });
-
+  const { clearErrors } = useFormContext();
   const {
     labelId,
     setControlId,
@@ -49,21 +51,35 @@ export function useCheckboxRoot(params: UseCheckboxRoot.Parameters): UseCheckbox
     setFilled,
     setFocused,
     validationMode,
+    disabled: fieldDisabled,
+    name: fieldName,
   } = useFieldRootContext();
 
-  const buttonRef = React.useRef<HTMLButtonElement>(null);
+  const disabled = fieldDisabled || disabledProp;
+  const name = fieldName ?? nameProp;
+  const value = valueProp ?? name;
 
-  const {
-    getValidationProps,
-    getInputValidationProps,
-    inputRef: inputValidationRef,
-    commitValidation,
-  } = useFieldControlValidation();
+  const { getButtonProps } = useButton({
+    disabled,
+    buttonRef,
+  });
+
+  const localFieldControlValidation = useFieldControlValidation();
+  const fieldControlValidation =
+    groupContext?.fieldControlValidation ?? localFieldControlValidation;
+
+  const [checked, setCheckedState] = useControlled({
+    controlled: value && groupValue && !parent ? groupValue.includes(value) : externalChecked,
+    default:
+      value && defaultGroupValue && !parent ? defaultGroupValue.includes(value) : defaultChecked,
+    name: 'Checkbox',
+    state: 'checked',
+  });
 
   const onCheckedChange = useEventCallback(onCheckedChangeProp);
   const id = useBaseUiId(idProp);
 
-  useEnhancedEffect(() => {
+  useModernLayoutEffect(() => {
     setControlId(id);
     return () => {
       setControlId(undefined);
@@ -71,16 +87,17 @@ export function useCheckboxRoot(params: UseCheckboxRoot.Parameters): UseCheckbox
   }, [id, setControlId]);
 
   useField({
+    enabled: !groupContext,
     id,
-    commitValidation,
+    commitValidation: fieldControlValidation.commitValidation,
     value: checked,
     controlRef: buttonRef,
   });
 
   const inputRef = React.useRef<HTMLInputElement>(null);
-  const mergedInputRef = useForkRef(externalInputRef, inputRef, inputValidationRef);
+  const mergedInputRef = useForkRef(externalInputRef, inputRef, fieldControlValidation.inputRef);
 
-  useEnhancedEffect(() => {
+  useModernLayoutEffect(() => {
     if (inputRef.current) {
       inputRef.current.indeterminate = indeterminate;
       if (checked) {
@@ -89,143 +106,162 @@ export function useCheckboxRoot(params: UseCheckboxRoot.Parameters): UseCheckbox
     }
   }, [checked, indeterminate, setFilled]);
 
-  const getButtonProps: UseCheckboxRoot.ReturnValue['getButtonProps'] = React.useCallback(
+  const getRootProps: useCheckboxRoot.ReturnValue['getRootProps'] = React.useCallback(
     (externalProps = {}) =>
-      mergeReactProps<'button'>(getValidationProps(externalProps), {
-        id,
-        ref: buttonRef,
-        type: 'button',
-        role: 'checkbox',
-        disabled,
-        'aria-checked': indeterminate ? 'mixed' : checked,
-        'aria-readonly': readOnly || undefined,
-        'aria-labelledby': labelId,
-        onFocus() {
-          setFocused(true);
+      mergeProps<'button'>(
+        {
+          id,
+          ref: buttonRef,
+          role: 'checkbox',
+          disabled,
+          'aria-checked': indeterminate ? 'mixed' : checked,
+          'aria-readonly': readOnly || undefined,
+          'aria-required': required || undefined,
+          'aria-labelledby': labelId,
+          [PARENT_CHECKBOX as string]: parent ? '' : undefined,
+          onFocus() {
+            setFocused(true);
+          },
+          onBlur() {
+            const element = inputRef.current;
+            if (!element) {
+              return;
+            }
+
+            setTouched(true);
+            setFocused(false);
+
+            if (validationMode === 'onBlur') {
+              fieldControlValidation.commitValidation(groupContext ? groupValue : element.checked);
+            }
+          },
+          onClick(event) {
+            if (event.defaultPrevented || readOnly) {
+              return;
+            }
+
+            event.preventDefault();
+
+            inputRef.current?.click();
+          },
         },
-        onBlur() {
-          const element = inputRef.current;
-          if (!element) {
-            return;
-          }
-
-          setTouched(true);
-          setFocused(false);
-
-          if (validationMode === 'onBlur') {
-            commitValidation(groupContext ? groupValue : element.checked);
-          }
-        },
-        onClick(event) {
-          if (event.defaultPrevented || readOnly) {
-            return;
-          }
-
-          event.preventDefault();
-
-          inputRef.current?.click();
-        },
-      }),
+        fieldControlValidation.getValidationProps(externalProps),
+        getButtonProps,
+      ),
     [
-      getValidationProps,
+      getButtonProps,
       id,
       disabled,
       indeterminate,
       checked,
       readOnly,
+      required,
       labelId,
       setFocused,
       setTouched,
       validationMode,
-      commitValidation,
       groupContext,
       groupValue,
+      fieldControlValidation,
+      parent,
     ],
   );
 
-  const getInputProps: UseCheckboxRoot.ReturnValue['getInputProps'] = React.useCallback(
+  const getInputProps: useCheckboxRoot.ReturnValue['getInputProps'] = React.useCallback(
     (externalProps = {}) =>
-      mergeReactProps<'input'>(getInputValidationProps(externalProps), {
-        checked,
-        disabled,
-        name,
-        // React <19 sets an empty value if `undefined` is passed explicitly
-        // To avoid this, we only set the value if it's defined
-        ...(value !== undefined ? { value } : {}),
-        required,
-        autoFocus,
-        ref: mergedInputRef,
-        style: visuallyHidden,
-        tabIndex: -1,
-        type: 'checkbox',
-        'aria-hidden': true,
-        onChange(event) {
-          // Workaround for https://github.com/facebook/react/issues/9023
-          if (event.nativeEvent.defaultPrevented) {
-            return;
-          }
-
-          const nextChecked = event.target.checked;
-
-          setDirty(nextChecked !== validityData.initialValue);
-          setCheckedState(nextChecked);
-          onCheckedChange?.(nextChecked, event.nativeEvent);
-
-          if (!groupContext) {
-            setFilled(nextChecked);
-
-            if (validationMode === 'onChange') {
-              commitValidation(nextChecked);
+      mergeProps<'input'>(
+        {
+          checked,
+          disabled,
+          name: parent ? undefined : name,
+          // React <19 sets an empty value if `undefined` is passed explicitly
+          // To avoid this, we only set the value if it's defined
+          ...(valueProp !== undefined
+            ? { value: (groupContext ? checked && valueProp : valueProp) || '' }
+            : EMPTY),
+          required,
+          ref: mergedInputRef,
+          style: visuallyHidden,
+          tabIndex: -1,
+          type: 'checkbox',
+          'aria-hidden': true,
+          onChange(event) {
+            // Workaround for https://github.com/facebook/react/issues/9023
+            if (event.nativeEvent.defaultPrevented) {
+              return;
             }
-          }
 
-          if (name && groupValue && setGroupValue) {
-            const nextGroupValue = nextChecked
-              ? [...groupValue, name]
-              : groupValue.filter((item) => item !== name);
+            const nextChecked = event.target.checked;
 
-            setGroupValue(nextGroupValue, event.nativeEvent);
-            setFilled(nextGroupValue.length > 0);
+            setDirty(nextChecked !== validityData.initialValue);
+            setCheckedState(nextChecked);
+            onCheckedChange?.(nextChecked, event.nativeEvent);
+            clearErrors(name);
 
-            if (validationMode === 'onChange') {
-              commitValidation(nextGroupValue);
+            if (!groupContext) {
+              setFilled(nextChecked);
+
+              if (validationMode === 'onChange') {
+                fieldControlValidation.commitValidation(nextChecked);
+              } else {
+                fieldControlValidation.commitValidation(nextChecked, true);
+              }
             }
-          }
+
+            if (value && groupValue && setGroupValue && !parent) {
+              const nextGroupValue = nextChecked
+                ? [...groupValue, value]
+                : groupValue.filter((item) => item !== value);
+
+              setGroupValue(nextGroupValue, event.nativeEvent);
+              setFilled(nextGroupValue.length > 0);
+
+              if (validationMode === 'onChange') {
+                fieldControlValidation.commitValidation(nextGroupValue);
+              } else {
+                fieldControlValidation.commitValidation(nextGroupValue, true);
+              }
+            }
+          },
         },
-      }),
+        groupContext
+          ? fieldControlValidation.getValidationProps(externalProps)
+          : fieldControlValidation.getInputValidationProps(externalProps),
+      ),
     [
-      getInputValidationProps,
       checked,
       disabled,
       name,
-      value,
+      valueProp,
       required,
-      autoFocus,
       mergedInputRef,
-      groupContext,
       setDirty,
       validityData.initialValue,
       setCheckedState,
       onCheckedChange,
-      validationMode,
+      clearErrors,
+      groupContext,
       groupValue,
       setGroupValue,
-      commitValidation,
+      parent,
       setFilled,
+      validationMode,
+      value,
+      fieldControlValidation,
     ],
   );
 
   return React.useMemo(
     () => ({
       checked,
-      getButtonProps,
+      getRootProps,
       getInputProps,
     }),
-    [checked, getButtonProps, getInputProps],
+    [checked, getRootProps, getInputProps],
   );
 }
 
-export namespace UseCheckboxRoot {
+export namespace useCheckboxRoot {
   export interface Parameters {
     /**
      * The id of the input element.
@@ -273,17 +309,12 @@ export namespace UseCheckboxRoot {
      */
     required?: boolean;
     /**
-     * Whether to focus the element on page load.
-     * @default false
-     */
-    autoFocus?: boolean;
-    /**
      * Whether the checkbox is in a mixed state: neither ticked, nor unticked.
      * @default false
      */
     indeterminate?: boolean;
     /**
-     * A React ref to access the hidden `<input>` element.
+     * A ref to access the hidden `<input>` element.
      */
     inputRef?: React.Ref<HTMLInputElement>;
     /**
@@ -296,7 +327,7 @@ export namespace UseCheckboxRoot {
     /**
      * The value of the selected checkbox.
      */
-    value?: string | number;
+    value?: string;
   }
 
   export interface ReturnValue {
@@ -317,7 +348,7 @@ export namespace UseCheckboxRoot {
      * @param externalProps custom props for the button element
      * @returns props that should be spread on the button element
      */
-    getButtonProps: (
+    getRootProps: (
       externalProps?: React.ComponentPropsWithRef<'button'>,
     ) => React.ComponentPropsWithRef<'button'>;
   }

@@ -1,10 +1,8 @@
 import * as React from 'react';
 import { Tooltip } from '@base-ui-components/react/tooltip';
-import { describeSkipIf, screen } from '@mui/internal-test-utils';
+import { screen } from '@mui/internal-test-utils';
 import { expect } from 'chai';
-import { createRenderer, describeConformance } from '#test-utils';
-
-const isJSDOM = /jsdom/.test(window.navigator.userAgent);
+import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 
 const Trigger = React.forwardRef(function Trigger(
   props: Tooltip.Trigger.Props,
@@ -36,7 +34,7 @@ describe('<Tooltip.Positioner />', () => {
   const triggerStyle = { width: anchorWidth, height: anchorHeight };
   const popupStyle = { width: popupWidth, height: popupHeight };
 
-  describeSkipIf(isJSDOM)('prop: sideOffset', () => {
+  describe.skipIf(isJSDOM)('prop: sideOffset', () => {
     it('offsets the side when a number is specified', async () => {
       const sideOffset = 7;
       await render(
@@ -149,7 +147,7 @@ describe('<Tooltip.Positioner />', () => {
     });
   });
 
-  describeSkipIf(isJSDOM)('prop: alignOffset', () => {
+  describe.skipIf(isJSDOM)('prop: alignOffset', () => {
     it('offsets the align when a number is specified', async () => {
       const alignOffset = 7;
       await render(

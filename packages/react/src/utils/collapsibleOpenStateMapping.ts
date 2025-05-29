@@ -1,11 +1,13 @@
 import type { CustomStyleHookMapping } from './getStyleHookProps';
+import { CollapsiblePanelDataAttributes } from '../collapsible/panel/CollapsiblePanelDataAttributes';
+import { CollapsibleTriggerDataAttributes } from '../collapsible/trigger/CollapsibleTriggerDataAttributes';
 
 const PANEL_OPEN_HOOK = {
-  'data-open': '',
+  [CollapsiblePanelDataAttributes.open]: '',
 };
 
 const PANEL_CLOSED_HOOK = {
-  'data-closed': '',
+  [CollapsiblePanelDataAttributes.closed]: '',
 };
 
 export const triggerOpenStateMapping: CustomStyleHookMapping<{
@@ -14,7 +16,7 @@ export const triggerOpenStateMapping: CustomStyleHookMapping<{
   open(value) {
     if (value) {
       return {
-        'data-panel-open': '',
+        [CollapsibleTriggerDataAttributes.panelOpen]: '',
       };
     }
     return null;

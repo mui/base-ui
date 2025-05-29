@@ -269,14 +269,17 @@ describe('<Menu.CheckboxItem />', () => {
       );
 
       const trigger = getByRole('button', { name: 'Open' });
-      await user.click(trigger);
+      await act(() => {
+        trigger.focus();
+      });
+
+      await user.keyboard('{Enter}');
 
       const item = getByRole('menuitemcheckbox');
       await user.click(item);
 
-      await user.click(trigger);
-
-      await user.click(trigger);
+      await user.keyboard('{Enter}');
+      await user.keyboard('{Enter}');
 
       const itemAfterReopen = getByRole('menuitemcheckbox');
       expect(itemAfterReopen).to.have.attribute('aria-checked', 'true');
@@ -364,18 +367,18 @@ describe('<Menu.CheckboxItem />', () => {
       expect(item).toHaveFocus();
 
       fireEvent.keyDown(item, { key: 'Enter' });
-      expect(handleKeyDown.callCount).to.equal(1);
+      expect(handleKeyDown.callCount).to.equal(0);
       expect(handleClick.callCount).to.equal(0);
       expect(handleCheckedChange.callCount).to.equal(0);
 
       fireEvent.keyUp(item, { key: 'Space' });
-      expect(handleKeyUp.callCount).to.equal(1);
+      expect(handleKeyUp.callCount).to.equal(0);
       expect(handleClick.callCount).to.equal(0);
       expect(handleCheckedChange.callCount).to.equal(0);
 
       fireEvent.click(item);
-      expect(handleKeyDown.callCount).to.equal(1);
-      expect(handleKeyUp.callCount).to.equal(1);
+      expect(handleKeyDown.callCount).to.equal(0);
+      expect(handleKeyUp.callCount).to.equal(0);
       expect(handleClick.callCount).to.equal(0);
       expect(handleCheckedChange.callCount).to.equal(0);
     });

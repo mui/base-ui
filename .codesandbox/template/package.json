@@ -1,6 +1,5 @@
 {
   "name": "base-ui-cra-ts",
-  "version": "5.0.0",
   "private": true,
   "dependencies": {
     "@base-ui-components/react": "latest",

@@ -9,10 +9,10 @@ export const HAN_RE = new RegExp(`[${HAN_NUMERALS.join('')}]`, 'g');
 export const PERCENT_RE = new RegExp(`[${PERCENTAGES.join('')}]`);
 
 export function getNumberLocaleDetails(
-  locale?: string | string[],
+  locale?: Intl.LocalesArgument,
   options?: Intl.NumberFormatOptions,
 ) {
-  const parts = getFormatter(locale, options).formatToParts(1111.1);
+  const parts = getFormatter(locale, options).formatToParts(11111.1);
   const result: Partial<Record<Intl.NumberFormatPartTypes, string | undefined>> = {};
 
   parts.forEach((part) => {
@@ -31,18 +31,30 @@ export function getNumberLocaleDetails(
   return result;
 }
 
-export function parseNumber(formattedNumber: string, options?: Intl.NumberFormatOptions) {
-  let locale: string | undefined;
-  if (ARABIC_RE.test(formattedNumber)) {
-    locale = 'ar';
-  } else if (HAN_RE.test(formattedNumber)) {
-    locale = 'zh';
+export function parseNumber(
+  formattedNumber: string,
+  locale?: Intl.LocalesArgument,
+  options?: Intl.NumberFormatOptions,
+) {
+  let computedLocale = locale;
+  if (computedLocale === undefined) {
+    if (ARABIC_RE.test(formattedNumber)) {
+      computedLocale = 'ar';
+    } else if (HAN_RE.test(formattedNumber)) {
+      computedLocale = 'zh';
+    }
   }
 
-  const { group, decimal, currency, unit } = getNumberLocaleDetails(locale, options);
+  const { group, decimal, currency, unit } = getNumberLocaleDetails(computedLocale, options);
+  let groupRegex: RegExp | null = null;
+  if (group) {
+    // Check if the group separator is a space-like character.
+    // If so, we'll replace all such characters with an empty string.
+    groupRegex = /\p{Zs}/u.test(group) ? /\p{Zs}/gu : new RegExp(`\\${group}`, 'g');
+  }
 
   const regexesToReplace = [
-    { regex: group ? new RegExp(`\\${group}`, 'g') : null, replacement: '' },
+    { regex: group ? groupRegex : null, replacement: '' },
     { regex: decimal ? new RegExp(`\\${decimal}`, 'g') : null, replacement: '.' },
     { regex: currency ? new RegExp(`\\${currency}`, 'g') : null, replacement: '' },
     { regex: unit ? new RegExp(`\\${unit}`, 'g') : null, replacement: '' },
@@ -59,7 +71,11 @@ export function parseNumber(formattedNumber: string, options?: Intl.NumberFormat
 
   let num = parseFloat(unformattedNumber);
 
-  if (PERCENT_RE.test(formattedNumber)) {
+  const style = options?.style;
+  const isUnitPercent = style === 'unit' && options?.unit === 'percent';
+  const isPercent = PERCENT_RE.test(formattedNumber) || style === 'percent';
+
+  if (!isUnitPercent && isPercent) {
     num /= 100;
   }
 

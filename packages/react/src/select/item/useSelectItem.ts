@@ -1,11 +1,17 @@
 import * as React from 'react';
-import type { GenericHTMLProps } from '../../utils/types';
+import type { FloatingEvents } from '@floating-ui/react';
+import type { HTMLProps } from '../../utils/types';
 import { useButton } from '../../use-button';
-import { mergeReactProps } from '../../utils/mergeReactProps';
+import { mergeProps } from '../../merge-props';
 import type { SelectRootContext } from '../root/SelectRootContext';
+import { useTimeout } from '../../utils/useTimeout';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { SelectIndexContext } from '../root/SelectIndexContext';
 import { useForkRef } from '../../utils/useForkRef';
+import { useModernLayoutEffect } from '../../utils';
+import { addHighlight, hasHighlight, removeHighlight } from '../../utils/highlighted';
+import { isMouseWithinBounds } from '../../utils/isMouseWithinBounds';
+import { AnimationFrame } from '../../utils/useAnimationFrame';
 
 export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.ReturnValue {
   const {
@@ -20,10 +26,21 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
     selectionRef,
     indexRef,
     setActiveIndex,
+    selectedIndexRef,
     popupRef,
+    keyboardActiveRef,
+    events,
+    elementProps,
+    rootProps,
   } = params;
 
   const ref = React.useRef<HTMLDivElement | null>(null);
+  const lastKeyRef = React.useRef<string | null>(null);
+  const pointerTypeRef = React.useRef<'mouse' | 'touch' | 'pen'>('mouse');
+  const didPointerDownRef = React.useRef(false);
+  const prevPopupHeightRef = React.useRef(0);
+  const allowFocusSyncRef = React.useRef(true);
+  const cursorMovementTimeout = useTimeout();
 
   const mergedRef = useForkRef(externalRef, ref);
 
@@ -33,147 +50,197 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
     buttonRef: mergedRef,
   });
 
-  const commitSelection = useEventCallback((event: Event) => {
-    handleSelect();
-    setOpen(false, event);
+  const commitSelection = useEventCallback((event: MouseEvent) => {
+    handleSelect(event);
+    setOpen(false, event, 'item-press');
   });
 
-  const lastKeyRef = React.useRef<string | null>(null);
-  const pointerTypeRef = React.useRef<'mouse' | 'touch' | 'pen'>('mouse');
+  const handlePopupLeave = useEventCallback(() => {
+    if (cursorMovementTimeout.isStarted()) {
+      cursorMovementTimeout.clear();
+      removeHighlight(ref);
+    }
+  });
 
-  const prevPopupHeightRef = React.useRef(0);
-  const allowFocusSyncRef = React.useRef(true);
+  React.useEffect(() => {
+    return handlePopupLeave;
+  }, [handlePopupLeave]);
 
-  const getItemProps = React.useCallback(
-    (externalProps?: GenericHTMLProps): GenericHTMLProps => {
-      return getButtonProps(
-        mergeReactProps<'div'>(externalProps, {
-          'aria-disabled': disabled || undefined,
-          tabIndex: highlighted ? 0 : -1,
-          onFocus() {
-            if (allowFocusSyncRef.current) {
-              setActiveIndex(indexRef.current);
-            }
-          },
-          onMouseMove() {
-            setActiveIndex(indexRef.current);
-            if (popupRef.current) {
-              prevPopupHeightRef.current = popupRef.current.offsetHeight;
-            }
-          },
-          onMouseLeave(event) {
-            const popup = popupRef.current;
-            if (!popup || !open) {
-              return;
-            }
+  useModernLayoutEffect(() => {
+    if (!open) {
+      return;
+    }
 
-            const targetRect = event.currentTarget.getBoundingClientRect();
+    if (highlighted) {
+      addHighlight(ref);
+    } else {
+      removeHighlight(ref);
+    }
+  }, [open, highlighted]);
 
-            // Safari randomly fires `mouseleave` incorrectly when the item is
-            // aligned to the trigger. This is a workaround to prevent the highlight
-            // from being removed while the cursor is still within the bounds of the item.
-            // https://github.com/mui/base-ui/issues/869
-            const isWithinBounds =
-              targetRect.top + 1 <= event.clientY &&
-              event.clientY <= targetRect.bottom - 1 &&
-              targetRect.left + 1 <= event.clientX &&
-              event.clientX <= targetRect.right - 1;
+  React.useEffect(() => {
+    function handleItemHover(item: HTMLDivElement) {
+      if (ref.current && item !== ref.current) {
+        removeHighlight(ref);
+      }
+    }
 
-            if (isWithinBounds) {
-              return;
-            }
+    events.on('itemhover', handleItemHover);
+    return () => {
+      events.off('itemhover', handleItemHover);
+    };
+  }, [events, setActiveIndex, indexRef]);
 
-            // With `alignItemToTrigger`, avoid re-rendering the root due to `onMouseLeave`
-            // firing and causing a performance issue when expanding the popup.
-            if (popup.offsetHeight === prevPopupHeightRef.current) {
-              // Prevent `onFocus` from causing the highlight to be stuck when quickly moving
-              // the mouse out of the popup.
-              allowFocusSyncRef.current = false;
-              setActiveIndex(null);
-              requestAnimationFrame(() => {
-                popup.focus({ preventScroll: true });
-                allowFocusSyncRef.current = true;
-              });
-            }
-          },
-          onTouchStart() {
-            selectionRef.current = {
-              allowSelectedMouseUp: false,
-              allowUnselectedMouseUp: false,
-              allowSelect: true,
-            };
-          },
-          onKeyDown(event) {
-            selectionRef.current.allowSelect = true;
-            lastKeyRef.current = event.key;
-          },
-          onClick(event) {
-            if (
-              disabled ||
-              (lastKeyRef.current === ' ' && typingRef.current) ||
-              (pointerTypeRef.current !== 'touch' && !highlighted)
-            ) {
-              return;
-            }
+  const props = mergeProps<'div'>(
+    rootProps,
+    {
+      'aria-disabled': disabled || undefined,
+      tabIndex: highlighted ? 0 : -1,
+      onFocus() {
+        if (
+          allowFocusSyncRef.current &&
+          keyboardActiveRef.current &&
+          cursorMovementTimeout.isStarted() === false
+        ) {
+          setActiveIndex(indexRef.current);
+        }
+      },
+      onMouseEnter() {
+        if (!keyboardActiveRef.current && selectedIndexRef.current === null) {
+          addHighlight(ref);
+          events.emit('itemhover', ref.current);
+        }
+      },
+      onMouseMove() {
+        if (keyboardActiveRef.current) {
+          setActiveIndex(indexRef.current);
+        } else {
+          addHighlight(ref);
+          events.emit('itemhover', ref.current);
+        }
 
-            if (selectionRef.current.allowSelect) {
-              lastKeyRef.current = null;
-              commitSelection(event.nativeEvent);
-            }
-          },
-          onPointerEnter(event) {
-            pointerTypeRef.current = event.pointerType;
-          },
-          onPointerDown(event) {
-            pointerTypeRef.current = event.pointerType;
-          },
-          onMouseUp(event) {
-            if (disabled) {
-              return;
-            }
-            const disallowSelectedMouseUp = !selectionRef.current.allowSelectedMouseUp && selected;
-            const disallowUnselectedMouseUp =
-              !selectionRef.current.allowUnselectedMouseUp && !selected;
+        if (popupRef.current) {
+          prevPopupHeightRef.current = popupRef.current.offsetHeight;
+        }
 
-            if (
-              disallowSelectedMouseUp ||
-              disallowUnselectedMouseUp ||
-              (pointerTypeRef.current !== 'touch' && !highlighted)
-            ) {
-              return;
-            }
+        events.off('popupleave', handlePopupLeave);
+        events.on('popupleave', handlePopupLeave);
+        // When this fires, the cursor has stopped moving.
+        cursorMovementTimeout.start(50, () => {
+          setActiveIndex(indexRef.current);
+        });
+      },
+      onMouseLeave(event) {
+        const popup = popupRef.current;
+        if (!popup || !open || keyboardActiveRef.current) {
+          return;
+        }
 
-            if (selectionRef.current.allowSelect || !selected) {
-              commitSelection(event.nativeEvent);
-            }
+        if (isMouseWithinBounds(event)) {
+          return;
+        }
 
-            selectionRef.current.allowSelect = true;
-          },
-        }),
-      );
+        removeHighlight(ref);
+        events.off('popupleave', handlePopupLeave);
+
+        const wasCursorStationary = cursorMovementTimeout.isStarted() === false;
+        if (!wasCursorStationary) {
+          cursorMovementTimeout.clear();
+        }
+
+        // With `alignItemWithTrigger=true`, avoid re-rendering the root due to `onMouseLeave`
+        // firing and causing a performance issue when expanding the popup.
+        if (popup.offsetHeight === prevPopupHeightRef.current) {
+          // Prevent `onFocus` from causing the highlight to be stuck when quickly moving
+          // the mouse out of the popup.
+          allowFocusSyncRef.current = false;
+
+          if (keyboardActiveRef.current || wasCursorStationary) {
+            setActiveIndex(null);
+          }
+
+          AnimationFrame.request(() => {
+            cursorMovementTimeout.clear();
+            allowFocusSyncRef.current = true;
+          });
+        }
+      },
+      onTouchStart() {
+        selectionRef.current = {
+          allowSelectedMouseUp: false,
+          allowUnselectedMouseUp: false,
+          allowSelect: true,
+        };
+      },
+      onKeyDown(event) {
+        selectionRef.current.allowSelect = true;
+        lastKeyRef.current = event.key;
+        setActiveIndex(indexRef.current);
+      },
+      onClick(event) {
+        didPointerDownRef.current = false;
+
+        // Prevent double commit on {Enter}
+        if (event.type === 'keydown' && lastKeyRef.current === null) {
+          return;
+        }
+
+        if (
+          disabled ||
+          (lastKeyRef.current === ' ' && typingRef.current) ||
+          (pointerTypeRef.current !== 'touch' && !hasHighlight(ref))
+        ) {
+          return;
+        }
+
+        if (selectionRef.current.allowSelect) {
+          lastKeyRef.current = null;
+          commitSelection(event.nativeEvent);
+        }
+      },
+      onPointerEnter(event) {
+        pointerTypeRef.current = event.pointerType;
+      },
+      onPointerDown(event) {
+        pointerTypeRef.current = event.pointerType;
+        didPointerDownRef.current = true;
+      },
+      onMouseUp(event) {
+        if (disabled) {
+          return;
+        }
+
+        if (didPointerDownRef.current) {
+          didPointerDownRef.current = false;
+          return;
+        }
+
+        const disallowSelectedMouseUp = !selectionRef.current.allowSelectedMouseUp && selected;
+        const disallowUnselectedMouseUp = !selectionRef.current.allowUnselectedMouseUp && !selected;
+
+        if (
+          disallowSelectedMouseUp ||
+          disallowUnselectedMouseUp ||
+          (pointerTypeRef.current !== 'touch' && !hasHighlight(ref))
+        ) {
+          return;
+        }
+
+        if (selectionRef.current.allowSelect || !selected) {
+          commitSelection(event.nativeEvent);
+        }
+
+        selectionRef.current.allowSelect = true;
+      },
     },
-    [
-      commitSelection,
-      disabled,
-      getButtonProps,
-      highlighted,
-      indexRef,
-      open,
-      popupRef,
-      selected,
-      selectionRef,
-      setActiveIndex,
-      typingRef,
-    ],
+    elementProps,
+    getButtonProps,
   );
 
-  return React.useMemo(
-    () => ({
-      getItemProps,
-      rootRef: buttonRef,
-    }),
-    [getItemProps, buttonRef],
-  );
+  return {
+    rootRef: buttonRef,
+    props,
+  };
 }
 
 export namespace useSelectItem {
@@ -209,7 +276,7 @@ export namespace useSelectItem {
     /**
      * The function to handle the selection of the item.
      */
-    handleSelect: () => void;
+    handleSelect: (event: MouseEvent) => void;
     /**
      * The ref to the selection state of the item.
      */
@@ -228,10 +295,14 @@ export namespace useSelectItem {
     indexRef: React.RefObject<number>;
     setActiveIndex: SelectIndexContext['setActiveIndex'];
     popupRef: React.RefObject<HTMLDivElement | null>;
+    keyboardActiveRef: React.RefObject<boolean>;
+    events: FloatingEvents;
+    elementProps: HTMLProps;
+    rootProps: HTMLProps;
   }
 
   export interface ReturnValue {
-    getItemProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
+    props: HTMLProps;
     rootRef: React.RefCallback<Element> | null;
   }
 }

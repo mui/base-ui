@@ -1,6 +1,5 @@
 import * as React from 'react';
 import {
-  useClick,
   useDismiss,
   useFloatingRootContext,
   useInteractions,
@@ -8,43 +7,59 @@ import {
   useRole,
   useTypeahead,
 } from '@floating-ui/react';
+import { useClick } from '../../utils/floating-ui/useClick';
 import { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useControlled } from '../../utils/useControlled';
-import { type TransitionStatus, useTransitionStatus } from '../../utils';
-import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
+import { useTransitionStatus } from '../../utils';
+import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { warn } from '../../utils/warn';
 import type { SelectRootContext } from './SelectRootContext';
 import type { SelectIndexContext } from './SelectIndexContext';
+import {
+  translateOpenChangeReason,
+  type BaseOpenChangeReason,
+} from '../../utils/translateOpenChangeReason';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
+import { useFormContext } from '../../form/FormContext';
+import { useLatestRef } from '../../utils/useLatestRef';
+import { useField } from '../../field/useField';
+
+export type SelectOpenChangeReason = BaseOpenChangeReason | 'window-resize';
 
 const EMPTY_ARRAY: never[] = [];
-
-function isDisabled(element: HTMLElement | null) {
-  return (
-    element == null || element.hasAttribute('disabled') || element.hasAttribute('data-disabled')
-  );
-}
 
 export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelectRoot.ReturnValue {
   const {
     id: idProp,
-    disabled = false,
+    disabled: disabledProp = false,
     readOnly = false,
     required = false,
-    alignItemToTrigger: alignItemToTriggerParam = true,
     modal = false,
+    name: nameProp,
     onOpenChangeComplete,
   } = params;
 
-  const { setDirty, validityData, validationMode, setControlId, setFilled } = useFieldRootContext();
+  const { clearErrors } = useFormContext();
+  const {
+    setDirty,
+    validityData,
+    validationMode,
+    setControlId,
+    setFilled,
+    name: fieldName,
+    disabled: fieldDisabled,
+  } = useFieldRootContext();
   const fieldControlValidation = useFieldControlValidation();
 
   const id = useBaseUiId(idProp);
 
-  useEnhancedEffect(() => {
+  const disabled = fieldDisabled || disabledProp;
+  const name = fieldName ?? nameProp;
+
+  useModernLayoutEffect(() => {
     setControlId(id);
     return () => {
       setControlId(undefined);
@@ -65,12 +80,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     state: 'open',
   });
 
-  useEnhancedEffect(() => {
-    setFilled(value !== null);
-  }, [setFilled, value]);
-
-  const [controlledAlignItemToTrigger, setcontrolledAlignItemToTrigger] =
-    React.useState(alignItemToTriggerParam);
+  const isValueControlled = params.value !== undefined;
 
   const listRef = React.useRef<Array<HTMLElement | null>>([]);
   const labelsRef = React.useRef<Array<string | null>>([]);
@@ -78,56 +88,87 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
   const valueRef = React.useRef<HTMLSpanElement | null>(null);
   const valuesRef = React.useRef<Array<any>>([]);
   const typingRef = React.useRef(false);
+  const keyboardActiveRef = React.useRef(false);
   const selectedItemTextRef = React.useRef<HTMLSpanElement | null>(null);
   const selectionRef = React.useRef({
     allowSelectedMouseUp: false,
     allowUnselectedMouseUp: false,
     allowSelect: false,
   });
+  const alignItemWithTriggerActiveRef = React.useRef(false);
 
   const [triggerElement, setTriggerElement] = React.useState<HTMLElement | null>(null);
+  const [typeaheadReady, setTypeaheadReady] = React.useState(open);
   const [positionerElement, setPositionerElement] = React.useState<HTMLElement | null>(null);
   const [activeIndex, setActiveIndex] = React.useState<number | null>(null);
   const [selectedIndex, setSelectedIndex] = React.useState<number | null>(null);
   const [label, setLabel] = React.useState('');
   const [touchModality, setTouchModality] = React.useState(false);
-  const [scrollUpArrowVisible, setScrollUpArrowVisible] = React.useState(false);
-  const [scrollDownArrowVisible, setScrollDownArrowVisible] = React.useState(false);
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
 
-  const alignItemToTrigger = Boolean(mounted && controlledAlignItemToTrigger && !touchModality);
+  const controlRef = useLatestRef(triggerElement);
+  const commitValidation = fieldControlValidation.commitValidation;
 
-  if (!mounted && controlledAlignItemToTrigger !== alignItemToTriggerParam) {
-    setcontrolledAlignItemToTrigger(alignItemToTriggerParam);
-  }
-
-  if (!alignItemToTriggerParam || !mounted) {
-    if (scrollUpArrowVisible) {
-      setScrollUpArrowVisible(false);
-    }
-    if (scrollDownArrowVisible) {
-      setScrollDownArrowVisible(false);
-    }
-  }
-
-  const setOpen = useEventCallback((nextOpen: boolean, event?: Event) => {
-    params.onOpenChange?.(nextOpen, event);
-    setOpenUnwrapped(nextOpen);
-
-    // Workaround `enableFocusInside` in Floating UI setting `tabindex=0` of a non-highlighted
-    // option upon close when tabbing out due to `keepMounted=true`:
-    // https://github.com/floating-ui/floating-ui/pull/3004/files#diff-962a7439cdeb09ea98d4b622a45d517bce07ad8c3f866e089bda05f4b0bbd875R194-R199
-    // This otherwise causes options to retain `tabindex=0` incorrectly when the popup is closed
-    // when tabbing outside.
-    if (!nextOpen && activeIndex !== null) {
-      const activeOption = listRef.current[activeIndex];
-      // Wait for Floating UI's focus effect to have fired
-      queueMicrotask(() => {
-        activeOption?.setAttribute('tabindex', '-1');
-      });
-    }
+  const updateValue = useEventCallback((nextValue: any) => {
+    const index = valuesRef.current.indexOf(nextValue);
+    setSelectedIndex(index === -1 ? null : index);
+    setLabel(labelsRef.current[index] ?? '');
+    clearErrors(name);
+    setDirty(nextValue !== validityData.initialValue);
   });
+
+  useField({
+    id,
+    commitValidation,
+    value,
+    controlRef,
+  });
+
+  const prevValueRef = React.useRef(value);
+
+  useModernLayoutEffect(() => {
+    if (prevValueRef.current === value) {
+      return;
+    }
+
+    clearErrors(name);
+    commitValidation?.(value, true);
+    if (validationMode === 'onChange') {
+      commitValidation?.(value);
+    }
+  }, [value, commitValidation, clearErrors, name, validationMode]);
+
+  useModernLayoutEffect(() => {
+    setFilled(value !== null);
+    if (prevValueRef.current !== value) {
+      updateValue(value);
+    }
+  }, [setFilled, updateValue, value]);
+
+  useModernLayoutEffect(() => {
+    prevValueRef.current = value;
+  }, [value]);
+
+  const setOpen = useEventCallback(
+    (nextOpen: boolean, event: Event | undefined, reason: SelectOpenChangeReason | undefined) => {
+      params.onOpenChange?.(nextOpen, event, reason);
+      setOpenUnwrapped(nextOpen);
+
+      // Workaround `enableFocusInside` in Floating UI setting `tabindex=0` of a non-highlighted
+      // option upon close when tabbing out due to `keepMounted=true`:
+      // https://github.com/floating-ui/floating-ui/pull/3004/files#diff-962a7439cdeb09ea98d4b622a45d517bce07ad8c3f866e089bda05f4b0bbd875R194-R199
+      // This otherwise causes options to retain `tabindex=0` incorrectly when the popup is closed
+      // when tabbing outside.
+      if (!nextOpen && activeIndex !== null) {
+        const activeOption = listRef.current[activeIndex];
+        // Wait for Floating UI's focus effect to have fired
+        queueMicrotask(() => {
+          activeOption?.setAttribute('tabindex', '-1');
+        });
+      }
+    },
+  );
 
   const handleUnmount = useEventCallback(() => {
     setMounted(false);
@@ -152,15 +193,9 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     params.onValueChange?.(nextValue, event);
     setValueUnwrapped(nextValue);
 
-    setDirty(nextValue !== validityData.initialValue);
-
-    if (validationMode === 'onChange') {
-      fieldControlValidation.commitValidation(nextValue);
+    if (!isValueControlled) {
+      updateValue(nextValue);
     }
-
-    const index = valuesRef.current.indexOf(nextValue);
-    setSelectedIndex(index);
-    setLabel(labelsRef.current[index] ?? '');
   });
 
   const hasRegisteredRef = React.useRef(false);
@@ -170,18 +205,25 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
       hasRegisteredRef.current = true;
     }
 
-    const stringValue = typeof value === 'string' || value === null ? value : JSON.stringify(value);
-    const index = suppliedIndex ?? valuesRef.current.indexOf(stringValue);
+    const index = suppliedIndex ?? valuesRef.current.indexOf(value);
+    const hasIndex = index !== -1;
 
-    if (index !== -1) {
-      setSelectedIndex(index);
-      setLabel(labelsRef.current[index] ?? '');
-    } else if (value) {
-      warn(`The value \`${stringValue}\` is not present in the select items.`);
+    if (hasIndex || value === null) {
+      setSelectedIndex(hasIndex ? index : null);
+      setLabel(hasIndex ? (labelsRef.current[index] ?? '') : '');
+      return;
+    }
+
+    if (process.env.NODE_ENV !== 'production') {
+      if (value) {
+        const stringValue =
+          typeof value === 'string' || value === null ? value : JSON.stringify(value);
+        warn(`The value \`${stringValue}\` is not present in the select items.`);
+      }
     }
   });
 
-  useEnhancedEffect(() => {
+  useModernLayoutEffect(() => {
     if (!hasRegisteredRef.current) {
       return;
     }
@@ -191,17 +233,17 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
 
   const floatingRootContext = useFloatingRootContext({
     open,
-    onOpenChange: setOpen,
+    onOpenChange(nextOpen, event, reason) {
+      setOpen(nextOpen, event, translateOpenChangeReason(reason));
+    },
     elements: {
       reference: triggerElement,
       floating: positionerElement,
     },
   });
 
-  const triggerDisabled = isDisabled(triggerElement);
-
   const click = useClick(floatingRootContext, {
-    enabled: !readOnly && !disabled && !triggerDisabled,
+    enabled: !readOnly && !disabled,
     event: 'mousedown',
   });
 
@@ -229,7 +271,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
       setActiveIndex(nextActiveIndex);
     },
     // Implement our own listeners since `onPointerLeave` on each option fires while scrolling with
-    // the `alignItemToTrigger` prop enabled, causing a performance issue on Chrome.
+    // the `alignItemWithTrigger=true`, causing a performance issue on Chrome.
     focusItemOnHover: false,
   });
 
@@ -252,16 +294,18 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     },
   });
 
-  const {
-    getReferenceProps: getRootTriggerProps,
-    getFloatingProps: getRootPositionerProps,
-    getItemProps,
-  } = useInteractions([click, dismiss, role, listNavigation, typeahead]);
+  const { getReferenceProps, getFloatingProps, getItemProps } = useInteractions([
+    click,
+    dismiss,
+    role,
+    listNavigation,
+    typeahead,
+  ]);
 
-  const rootContext = React.useMemo(
+  const rootContext: SelectRootContext = React.useMemo(
     () => ({
       id,
-      name: params.name,
+      name,
       required,
       disabled,
       readOnly,
@@ -269,11 +313,8 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
       setTriggerElement,
       positionerElement,
       setPositionerElement,
-      scrollUpArrowVisible,
-      setScrollUpArrowVisible,
-      scrollDownArrowVisible,
-      setScrollDownArrowVisible,
-      setcontrolledAlignItemToTrigger,
+      typeaheadReady,
+      setTypeaheadReady,
       value,
       setValue,
       open,
@@ -287,8 +328,8 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
       labelsRef,
       typingRef,
       selectionRef,
-      getRootPositionerProps,
-      getRootTriggerProps,
+      triggerProps: getReferenceProps(),
+      popupProps: getFloatingProps(),
       getItemProps,
       listRef,
       popupRef,
@@ -296,23 +337,23 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
       floatingRootContext,
       touchModality,
       setTouchModality,
-      alignItemToTrigger,
       transitionStatus,
       fieldControlValidation,
       modal,
       registerSelectedItem,
       onOpenChangeComplete,
+      keyboardActiveRef,
+      alignItemWithTriggerActiveRef,
     }),
     [
       id,
-      params.name,
+      name,
       required,
       disabled,
       readOnly,
       triggerElement,
       positionerElement,
-      scrollUpArrowVisible,
-      scrollDownArrowVisible,
+      typeaheadReady,
       value,
       setValue,
       open,
@@ -320,12 +361,11 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
       mounted,
       setMounted,
       label,
-      getRootPositionerProps,
-      getRootTriggerProps,
+      getReferenceProps,
+      getFloatingProps,
       getItemProps,
       floatingRootContext,
       touchModality,
-      alignItemToTrigger,
       transitionStatus,
       fieldControlValidation,
       modal,
@@ -402,8 +442,13 @@ export namespace useSelectRoot {
     defaultOpen?: boolean;
     /**
      * Event handler called when the select menu is opened or closed.
+     * @type (open: boolean, event?: Event, reason?: Select.Root.OpenChangeReason) => void
      */
-    onOpenChange?: (open: boolean, event: Event | undefined) => void;
+    onOpenChange?: (
+      open: boolean,
+      event: Event | undefined,
+      reason: SelectOpenChangeReason | undefined,
+    ) => void;
     /**
      * Event handler called after any animations complete when the select menu is opened or closed.
      */
@@ -413,21 +458,17 @@ export namespace useSelectRoot {
      */
     open?: boolean;
     /**
-     * Determines if the selected item inside the popup should align to the trigger element.
-     * @default true
-     */
-    alignItemToTrigger?: boolean;
-    /**
-     * The transition status of the Select.
-     */
-    transitionStatus?: TransitionStatus;
-    /**
-     * Whether the select should prevent outside clicks and lock page scroll when open.
+     * Determines if the select enters a modal state when open.
+     * - `true`: user interaction is limited to the select: document page scroll is locked and and pointer interactions on outside elements are disabled.
+     * - `false`: user interaction with the rest of the document is allowed.
      * @default true
      */
     modal?: boolean;
     /**
      * A ref to imperative actions.
+     * - `unmount`: When specified, the select will not be unmounted when closed.
+     * Instead, the `unmount` function must be called to unmount the select manually.
+     * Useful when the select's animation is controlled by an external library.
      */
     actionsRef?: React.RefObject<Actions>;
   }

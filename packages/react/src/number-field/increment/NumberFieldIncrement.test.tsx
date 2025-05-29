@@ -1,21 +1,10 @@
 import * as React from 'react';
 import { expect } from 'chai';
+import { spy } from 'sinon';
 import { screen, fireEvent, act } from '@mui/internal-test-utils';
 import { NumberField } from '@base-ui-components/react/number-field';
 import { createRenderer, describeConformance } from '#test-utils';
 import { CHANGE_VALUE_TICK_DELAY, START_AUTO_CHANGE_DELAY } from '../utils/constants';
-import { NumberFieldRootContext } from '../root/NumberFieldRootContext';
-
-const testContext = {
-  getIncrementButtonProps: (externalProps) => externalProps,
-  state: {
-    value: null,
-    required: false,
-    disabled: false,
-    invalid: false,
-    readOnly: false,
-  },
-} as NumberFieldRootContext;
 
 describe('<NumberField.Increment />', () => {
   const { render, clock } = createRenderer();
@@ -23,11 +12,7 @@ describe('<NumberField.Increment />', () => {
   describeConformance(<NumberField.Increment />, () => ({
     refInstanceof: window.HTMLButtonElement,
     render(node) {
-      return render(
-        <NumberFieldRootContext.Provider value={testContext}>
-          {node}
-        </NumberFieldRootContext.Provider>,
-      );
+      return render(<NumberField.Root>{node}</NumberField.Root>);
     },
   }));
 
@@ -226,19 +211,6 @@ describe('<NumberField.Increment />', () => {
     });
   });
 
-  it('should not increment when disabled', async () => {
-    await render(
-      <NumberField.Root disabled>
-        <NumberField.Increment />
-        <NumberField.Input />
-      </NumberField.Root>,
-    );
-
-    const button = screen.getByRole('button');
-    fireEvent.click(button);
-    expect(screen.getByRole('textbox')).to.have.value('');
-  });
-
   it('should not increment when readOnly', async () => {
     await render(
       <NumberField.Root readOnly>
@@ -314,5 +286,106 @@ describe('<NumberField.Increment />', () => {
     fireEvent.touchEnd(button);
 
     expect(input).to.have.value('2');
+  });
+
+  describe('prop: snapOnStep', () => {
+    it('should increment by exact step without rounding when snapOnStep is false', async () => {
+      await render(
+        <NumberField.Root defaultValue={2.7} step={2} snapOnStep={false}>
+          <NumberField.Increment />
+          <NumberField.Input />
+        </NumberField.Root>,
+      );
+
+      const button = screen.getByRole('button');
+      fireEvent.click(button);
+
+      expect(screen.getByRole('textbox')).to.have.value('4.7');
+    });
+
+    it('should snap on increment when snapOnStep is true', async () => {
+      await render(
+        <NumberField.Root defaultValue={1.3} snapOnStep>
+          <NumberField.Increment />
+          <NumberField.Input />
+        </NumberField.Root>,
+      );
+
+      const button = screen.getByRole('button');
+      fireEvent.click(button);
+
+      expect(screen.getByRole('textbox')).to.have.value('2');
+
+      fireEvent.change(screen.getByRole('textbox'), { target: { value: '1.9' } });
+      fireEvent.click(button);
+
+      expect(screen.getByRole('textbox')).to.have.value('2');
+
+      fireEvent.change(screen.getByRole('textbox'), { target: { value: '-0.2' } });
+      fireEvent.click(button);
+
+      expect(screen.getByRole('textbox')).to.have.value('0');
+    });
+
+    it('should increment with respect to the min value', async () => {
+      await render(
+        <NumberField.Root defaultValue={1} min={1} step={2} snapOnStep>
+          <NumberField.Increment />
+          <NumberField.Input />
+        </NumberField.Root>,
+      );
+
+      const button = screen.getByRole('button');
+      const input = screen.getByRole('textbox');
+
+      fireEvent.click(button);
+      expect(input).to.have.value('3');
+
+      fireEvent.click(button);
+      expect(input).to.have.value('5');
+
+      fireEvent.change(input, { target: { value: '1.112' } });
+      fireEvent.click(button);
+      expect(input).to.have.value('3');
+
+      fireEvent.change(input, { target: { value: '0.999' } });
+      fireEvent.click(button);
+      expect(input).to.have.value('1');
+    });
+  });
+
+  describe('disabled state', () => {
+    it('should not increment when root is disabled', async () => {
+      const handleValueChange = spy();
+      await render(
+        <NumberField.Root disabled onValueChange={handleValueChange}>
+          <NumberField.Increment />
+          <NumberField.Input />
+        </NumberField.Root>,
+      );
+
+      const button = screen.getByRole('button');
+      fireEvent.click(button);
+      expect(screen.getByRole('textbox')).to.have.value('');
+      expect(handleValueChange.callCount).to.equal(0);
+    });
+
+    it('should not increment when button is disabled', async () => {
+      const handleValueChange = spy();
+      await render(
+        <NumberField.Root defaultValue={0} onValueChange={handleValueChange}>
+          <NumberField.Increment disabled />
+          <NumberField.Input />
+        </NumberField.Root>,
+      );
+      const input = screen.getByRole('textbox');
+      const button = screen.getByRole('button');
+      expect(button).to.have.attribute('disabled');
+      expect(input).to.have.value('0');
+
+      fireEvent.pointerDown(button);
+      expect(handleValueChange.callCount).to.equal(0);
+      expect(input).to.have.value('0');
+    });
   });
 });

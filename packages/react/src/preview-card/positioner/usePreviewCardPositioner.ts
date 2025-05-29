@@ -1,7 +1,7 @@
 import * as React from 'react';
-import { mergeReactProps } from '../../utils/mergeReactProps';
+import { mergeProps } from '../../merge-props';
 import { useAnchorPositioning } from '../../utils/useAnchorPositioning';
-import type { GenericHTMLProps } from '../../utils/types';
+import type { HTMLProps } from '../../utils/types';
 import { usePreviewCardRootContext } from '../root/PreviewCardContext';
 
 export function usePreviewCardPositioner(
@@ -20,14 +20,18 @@ export function usePreviewCardPositioner(
           hiddenStyles.pointerEvents = 'none';
         }
 
-        return mergeReactProps<'div'>(externalProps, {
-          role: 'presentation',
-          hidden: !mounted,
-          style: {
-            ...positioning.positionerStyles,
-            ...hiddenStyles,
+        return mergeProps<'div'>(
+          {
+            role: 'presentation',
+
+            hidden: !mounted,
+            style: {
+              ...positioning.positionerStyles,
+              ...hiddenStyles,
+            },
           },
-        });
+          externalProps,
+        );
       },
       [open, mounted, positioning.positionerStyles],
     );
@@ -47,6 +51,6 @@ export namespace usePreviewCardPositioner {
   export interface SharedParameters extends useAnchorPositioning.SharedParameters {}
 
   export interface ReturnValue extends useAnchorPositioning.ReturnValue {
-    getPositionerProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
+    getPositionerProps: (externalProps?: HTMLProps) => HTMLProps;
   }
 }

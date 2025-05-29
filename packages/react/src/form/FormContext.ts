@@ -1,14 +1,14 @@
 'use client';
-
 import * as React from 'react';
 import type { FieldValidityData } from '../field/root/FieldRoot';
+import { NOOP } from '../utils/noop';
 
-type Errors = Record<string, string | string[]>;
+export type Errors = Record<string, string | string[]>;
 
 export interface FormContext {
   errors: Errors;
-  onClearErrors: (errors: Errors) => void;
-  formRef: React.MutableRefObject<{
+  clearErrors: (name: string | undefined) => void;
+  formRef: React.RefObject<{
     fields: Map<
       string,
       {
@@ -27,12 +27,8 @@ export const FormContext = React.createContext<FormContext>({
     },
   },
   errors: {},
-  onClearErrors: () => {},
+  clearErrors: NOOP,
 });
-
-if (process.env.NODE_ENV !== 'production') {
-  FormContext.displayName = 'FormContext';
-}
 
 export function useFormContext() {
   return React.useContext(FormContext);

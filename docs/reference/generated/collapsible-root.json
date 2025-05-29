@@ -12,7 +12,7 @@
       "description": "Whether the collapsible panel is currently open.\n\nTo render an uncontrolled collapsible, use the `defaultOpen` prop instead."
     },
     "onOpenChange": {
-      "type": "(open) => void",
+      "type": "((open: boolean) => void)",
       "description": "Event handler called when the panel is opened or closed."
     },
     "disabled": {
@@ -21,8 +21,11 @@
       "description": "Whether the component should ignore user interaction."
     },
     "className": {
-      "type": "string | (state) => string",
+      "type": "string | ((state: Collapsible.Root.State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
+    },
+    "render": {
+      "type": "ReactElement | ((props: HTMLProps, state: Collapsible.Root.State) => ReactElement) | null"
     }
   },
   "dataAttributes": {},

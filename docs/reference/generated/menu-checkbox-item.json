@@ -16,11 +16,11 @@
       "description": "Whether the checkbox item is currently ticked.\n\nTo render an uncontrolled checkbox item, use the `defaultChecked` prop instead."
     },
     "onCheckedChange": {
-      "type": "(checked, event) => void",
+      "type": "((checked: boolean, event: Event) => void)",
       "description": "Event handler called when the checkbox item is ticked or unticked."
     },
     "onClick": {
-      "type": "(event) => void",
+      "type": "MouseEventHandler<HTMLElement>",
       "description": "The click handler for the menu item."
     },
     "closeOnClick": {
@@ -33,12 +33,18 @@
       "default": "false",
       "description": "Whether the component should ignore user interaction."
     },
+    "id": {
+      "type": "string"
+    },
+    "children": {
+      "type": "ReactNode"
+    },
     "className": {
-      "type": "string | (state) => string",
+      "type": "string | ((state: Menu.CheckboxItem.State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "render": {
-      "type": "React.ReactElement | (props, state) => React.ReactElement",
+      "type": "ReactElement | ((props: HTMLProps, state: Menu.CheckboxItem.State) => ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
     }
   },
@@ -48,6 +54,12 @@
     },
     "data-unchecked": {
       "description": "Present when the menu checkbox item is not checked."
+    },
+    "data-highlighted": {
+      "description": "Present when the menu checkbox item is highlighted."
+    },
+    "data-disabled": {
+      "description": "Present when the menu checkbox item is disabled."
     }
   },
   "cssVariables": {}

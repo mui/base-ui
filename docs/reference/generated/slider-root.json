@@ -2,29 +2,32 @@
   "name": "SliderRoot",
   "description": "Groups all parts of the slider.\nRenders a `<div>` element.",
   "props": {
-    "aria-labelledby": {
-      "type": "string",
-      "description": "Identifies the element (or elements) that labels the current element."
-    },
     "name": {
       "type": "string",
       "description": "Identifies the field when a form is submitted."
     },
     "defaultValue": {
-      "type": "Array<number> | number",
+      "type": "number | readonly number[]",
       "description": "The uncontrolled value of the slider when it’s initially rendered.\n\nTo render a controlled slider, use the `value` prop instead."
     },
     "value": {
-      "type": "Array<number> | number",
+      "type": "number | readonly number[]",
       "description": "The value of the slider.\nFor ranged sliders, provide an array with two values."
     },
     "onValueChange": {
-      "type": "(value, event, activeThumbIndex) => void",
+      "type": "((value: (number | number[]), event: Event, activeThumbIndex: number) => void)",
       "description": "Callback function that is fired when the slider's value changed."
     },
     "onValueCommitted": {
-      "type": "(value, event) => void",
+      "type": "((value: (number | number[]), event: Event) => void)",
       "description": "Callback function that is fired when the `pointerup` is triggered."
+    },
+    "locale": {
+      "type": "LocalesArgument",
+      "description": "The locale used by `Intl.NumberFormat` when formatting the value.\nDefaults to the user's runtime locale."
+    },
+    "ref": {
+      "type": "RefObject<HTMLDivElement>"
     },
     "tabIndex": {
       "type": "number",
@@ -56,25 +59,29 @@
       "description": "The maximum allowed value of the slider.\nShould not be equal to min."
     },
     "format": {
-      "type": "Intl.NumberFormatOptions",
+      "type": "NumberFormatOptions",
       "description": "Options to format the input value."
     },
     "disabled": {
       "type": "boolean",
       "default": "false",
-      "description": "Whether the component should ignore user interaction."
+      "description": "Whether the slider should ignore user interaction."
     },
     "orientation": {
-      "type": "'horizontal' | 'vertical'",
+      "type": "Orientation",
       "default": "'horizontal'",
       "description": "The component orientation."
     },
+    "inputRef": {
+      "type": "Ref<HTMLInputElement>",
+      "description": "A ref to access the hidden input element."
+    },
     "className": {
-      "type": "string | (state) => string",
+      "type": "string | ((state: Slider.Root.State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "render": {
-      "type": "React.ReactElement | (props, state) => React.ReactElement",
+      "type": "ReactElement | ((props: HTMLProps, state: Slider.Root.State) => ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
     }
   },

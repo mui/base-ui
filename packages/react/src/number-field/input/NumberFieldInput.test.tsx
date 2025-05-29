@@ -3,18 +3,6 @@ import { expect } from 'chai';
 import { act, screen, fireEvent } from '@mui/internal-test-utils';
 import { NumberField } from '@base-ui-components/react/number-field';
 import { createRenderer, describeConformance } from '#test-utils';
-import { NumberFieldRootContext } from '../root/NumberFieldRootContext';
-
-const testContext = {
-  getInputProps: (externalProps) => externalProps,
-  state: {
-    value: null,
-    required: false,
-    disabled: false,
-    invalid: false,
-    readOnly: false,
-  },
-} as NumberFieldRootContext;
 
 describe('<NumberField.Input />', () => {
   const { render } = createRenderer();
@@ -22,11 +10,7 @@ describe('<NumberField.Input />', () => {
   describeConformance(<NumberField.Input />, () => ({
     refInstanceof: window.HTMLInputElement,
     render(node) {
-      return render(
-        <NumberFieldRootContext.Provider value={testContext}>
-          {node}
-        </NumberFieldRootContext.Provider>,
-      );
+      return render(<NumberField.Root>{node}</NumberField.Root>);
     },
   }));
 
@@ -165,18 +149,18 @@ describe('<NumberField.Input />', () => {
     expect(input).to.have.value('0');
   });
 
-  it('should commit validated number on blur (step)', async () => {
+  it('should not snap number to step on blur', async () => {
     await render(
-      <NumberField.Root step={0.5}>
+      <NumberField.Root step={0.5} snapOnStep>
         <NumberField.Input />
       </NumberField.Root>,
     );
     const input = screen.getByRole('textbox');
     await act(async () => input.focus());
-    fireEvent.change(input, { target: { value: '1.1' } });
-    expect(input).to.have.value('1.1');
+    fireEvent.change(input, { target: { value: '1.5' } });
+    expect(input).to.have.value('1.5');
     fireEvent.blur(input);
-    expect(input).to.have.value('1');
+    expect(input).to.have.value('1.5');
   });
 
   it('should commit validated number on blur (step and min)', async () => {
@@ -190,6 +174,6 @@ describe('<NumberField.Input />', () => {
     fireEvent.change(input, { target: { value: '3' } });
     expect(input).to.have.value('3');
     fireEvent.blur(input);
-    expect(input).to.have.value('4');
+    expect(input).to.have.value('3');
   });
 });

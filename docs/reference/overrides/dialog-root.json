@@ -1,8 +1,0 @@
-{
-  "name": "DialogRoot",
-  "props": {
-    "onOpenChange": {
-      "type": "(open, event, reason) => void"
-    }
-  }
-}

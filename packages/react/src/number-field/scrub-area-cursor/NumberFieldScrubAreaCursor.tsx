@@ -1,14 +1,14 @@
 'use client';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import PropTypes from 'prop-types';
 import { useNumberFieldRootContext } from '../root/NumberFieldRootContext';
 import { isWebKit } from '../../utils/detectBrowser';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { useForkRef } from '../../utils/useForkRef';
 import type { BaseUIComponentProps } from '../../utils/types';
 import type { NumberFieldRoot } from '../root/NumberFieldRoot';
 import { ownerDocument } from '../../utils/owner';
+import { styleHookMapping } from '../utils/styleHooks';
+import { useNumberFieldScrubAreaContext } from '../scrub-area/NumberFieldScrubAreaContext';
+import { useRenderElement } from '../../utils/useRenderElement';
 
 /**
  * A custom element to display instead of the native cursor while using the scrub area.
@@ -19,61 +19,44 @@ import { ownerDocument } from '../../utils/owner';
  *
  * Documentation: [Base UI Number Field](https://base-ui.com/react/components/number-field)
  */
-const NumberFieldScrubAreaCursor = React.forwardRef(function NumberFieldScrubAreaCursor(
-  props: NumberFieldScrubAreaCursor.Props,
+export const NumberFieldScrubAreaCursor = React.forwardRef(function NumberFieldScrubAreaCursor(
+  componentProps: NumberFieldScrubAreaCursor.Props,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
-  const { render, className, ...otherProps } = props;
+  const { render, className, ...elementProps } = componentProps;
 
-  const { isScrubbing, scrubAreaCursorRef, state, getScrubAreaCursorProps } =
-    useNumberFieldRootContext();
+  const { state } = useNumberFieldRootContext();
+  const { isScrubbing, isTouchInput, isPointerLockDenied, scrubAreaCursorRef } =
+    useNumberFieldScrubAreaContext();
 
-  const [element, setElement] = React.useState<Element | null>(null);
+  const [domElement, setDomElement] = React.useState<Element | null>(null);
 
-  const mergedRef = useForkRef(forwardedRef, scrubAreaCursorRef, setElement);
+  const shouldRender = isScrubbing && !isWebKit && !isTouchInput && !isPointerLockDenied;
 
-  const { renderElement } = useComponentRenderer({
-    propGetter: getScrubAreaCursorProps,
-    ref: mergedRef,
-    render: render ?? 'span',
+  const element = useRenderElement('span', componentProps, {
+    enabled: shouldRender,
+    ref: [forwardedRef, scrubAreaCursorRef, setDomElement],
     state,
-    className,
-    extraProps: otherProps,
+    props: [
+      {
+        role: 'presentation',
+        style: {
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          pointerEvents: 'none',
+        },
+      },
+      elementProps,
+    ],
+    customStyleHookMapping: styleHookMapping,
   });
 
-  if (!isScrubbing || isWebKit()) {
-    return null;
-  }
-
-  return ReactDOM.createPortal(renderElement(), ownerDocument(element).body);
+  return element && ReactDOM.createPortal(element, ownerDocument(domElement).body);
 });
 
-namespace NumberFieldScrubAreaCursor {
+export namespace NumberFieldScrubAreaCursor {
   export interface State extends NumberFieldRoot.State {}
+
   export interface Props extends BaseUIComponentProps<'span', State> {}
 }
-
-NumberFieldScrubAreaCursor.propTypes /* remove-proptypes */ = {
-  // ┌────────────────────────────── Warning ──────────────────────────────┐
-  // │ These PropTypes are generated from the TypeScript type definitions. │
-  // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
-  // └─────────────────────────────────────────────────────────────────────┘
-  /**
-   * @ignore
-   */
-  children: PropTypes.node,
-  /**
-   * CSS class applied to the element, or a function that
-   * returns a class based on the component’s state.
-   */
-  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
-  /**
-   * Allows you to replace the component’s HTML element
-   * with a different tag, or compose it with another component.
-   *
-   * Accepts a `ReactElement` or a function that returns the element to render.
-   */
-  render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
-} as any;
-
-export { NumberFieldScrubAreaCursor };

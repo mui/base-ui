@@ -1,0 +1,19 @@
+{
+  "name": "MeterValue",
+  "description": "A text element displaying the current value.\nRenders a `<span>` element.",
+  "props": {
+    "children": {
+      "type": "((formattedValue: string, value: number) => ReactNode) | null"
+    },
+    "className": {
+      "type": "string | ((state: Meter.Root.State) => string)",
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
+    },
+    "render": {
+      "type": "ReactElement | ((props: HTMLProps, state: Meter.Root.State) => ReactElement)",
+      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
+    }
+  },
+  "dataAttributes": {},
+  "cssVariables": {}
+}

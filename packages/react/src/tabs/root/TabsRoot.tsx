@@ -1,14 +1,16 @@
 'use client';
 import * as React from 'react';
-import PropTypes from 'prop-types';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import type { BaseUIComponentProps } from '../../utils/types';
+import type { BaseUIComponentProps, Orientation as BaseOrientation } from '../../utils/types';
+import { useControlled } from '../../utils/useControlled';
+import { useEventCallback } from '../../utils/useEventCallback';
+import { useRenderElement } from '../../utils/useRenderElement';
 import { CompositeList } from '../../composite/list/CompositeList';
+import type { CompositeMetadata } from '../../composite/list/CompositeList';
 import { useDirection } from '../../direction-provider/DirectionContext';
-import { useTabsRoot } from './useTabsRoot';
 import { TabsRootContext } from './TabsRootContext';
 import { tabsStyleHookMapping } from './styleHooks';
-import { TabPanelMetadata } from '../panel/useTabsPanel';
+import type { TabsTab } from '../tab/TabsTab';
+import type { TabsPanel } from '../panel/TabsPanel';
 
 /**
  * Groups the tabs and the corresponding panels.
@@ -16,8 +18,8 @@ import { TabPanelMetadata } from '../panel/useTabsPanel';
  *
  * Documentation: [Base UI Tabs](https://base-ui.com/react/components/tabs)
  */
-const TabsRoot = React.forwardRef(function TabsRoot(
-  props: TabsRoot.Props,
+export const TabsRoot = React.forwardRef(function TabsRoot(
+  componentProps: TabsRoot.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const {
@@ -27,26 +29,119 @@ const TabsRoot = React.forwardRef(function TabsRoot(
     orientation = 'horizontal',
     render,
     value: valueProp,
-    ...other
-  } = props;
+    ...elementProps
+  } = componentProps;
 
   const direction = useDirection();
 
-  const {
-    getTabElementBySelectedValue,
-    getTabIdByPanelValueOrIndex,
-    getTabPanelIdByTabValueOrIndex,
-    onValueChange,
-    setTabMap,
-    setTabPanelMap,
-    tabActivationDirection,
-    tabPanelRefs,
-    value,
-  } = useTabsRoot({
-    value: valueProp,
-    defaultValue,
-    onValueChange: onValueChangeProp,
+  const tabPanelRefs = React.useRef<(HTMLElement | null)[]>([]);
+
+  const [value, setValue] = useControlled({
+    controlled: valueProp,
+    default: defaultValue,
+    name: 'Tabs',
+    state: 'value',
   });
+
+  const [tabPanelMap, setTabPanelMap] = React.useState(
+    () => new Map<Node, CompositeMetadata<TabsPanel.Metadata> | null>(),
+  );
+  const [tabMap, setTabMap] = React.useState(
+    () => new Map<Node, CompositeMetadata<TabsTab.Metadata> | null>(),
+  );
+
+  const [tabActivationDirection, setTabActivationDirection] =
+    React.useState<TabsTab.ActivationDirection>('none');
+
+  const onValueChange = useEventCallback(
+    (
+      newValue: TabsTab.Value,
+      activationDirection: TabsTab.ActivationDirection,
+      event: Event | undefined,
+    ) => {
+      setValue(newValue);
+      setTabActivationDirection(activationDirection);
+      onValueChangeProp?.(newValue, event);
+    },
+  );
+
+  // get the `id` attribute of <Tabs.Panel> to set as the value of `aria-controls` on <Tabs.Tab>
+  const getTabPanelIdByTabValueOrIndex = React.useCallback(
+    (tabValue: TabsTab.Value | undefined, index: number) => {
+      if (tabValue === undefined && index < 0) {
+        return undefined;
+      }
+
+      for (const tabPanelMetadata of tabPanelMap.values()) {
+        // find by tabValue
+        if (tabValue !== undefined && tabPanelMetadata && tabValue === tabPanelMetadata?.value) {
+          return tabPanelMetadata.id;
+        }
+
+        // find by index
+        if (
+          tabValue === undefined &&
+          tabPanelMetadata?.index &&
+          tabPanelMetadata?.index === index
+        ) {
+          return tabPanelMetadata.id;
+        }
+      }
+
+      return undefined;
+    },
+    [tabPanelMap],
+  );
+
+  // get the `id` attribute of <Tabs.Tab> to set as the value of `aria-labelledby` on <Tabs.Panel>
+  const getTabIdByPanelValueOrIndex = React.useCallback(
+    (tabPanelValue: TabsTab.Value | undefined, index: number) => {
+      if (tabPanelValue === undefined && index < 0) {
+        return undefined;
+      }
+
+      for (const tabMetadata of tabMap.values()) {
+        // find by tabPanelValue
+        if (
+          tabPanelValue !== undefined &&
+          index > -1 &&
+          tabPanelValue === (tabMetadata?.value ?? tabMetadata?.index ?? undefined)
+        ) {
+          return tabMetadata?.id;
+        }
+
+        // find by index
+        if (
+          tabPanelValue === undefined &&
+          index > -1 &&
+          index === (tabMetadata?.value ?? tabMetadata?.index ?? undefined)
+        ) {
+          return tabMetadata?.id;
+        }
+      }
+
+      return undefined;
+    },
+    [tabMap],
+  );
+
+  // used in `useActivationDirectionDetector` for setting data-activation-direction
+  const getTabElementBySelectedValue = React.useCallback(
+    (selectedValue: TabsTab.Value | undefined): HTMLElement | null => {
+      if (selectedValue === undefined) {
+        return null;
+      }
+
+      for (const [tabElement, tabMetadata] of tabMap.entries()) {
+        if (tabMetadata != null && selectedValue === (tabMetadata.value ?? tabMetadata.index)) {
+          return tabElement as HTMLElement;
+        }
+      }
+
+      return null;
+    },
+    [tabMap],
+  );
 
   const tabsContextValue: TabsRootContext = React.useMemo(
     () => ({
@@ -78,99 +173,59 @@ const TabsRoot = React.forwardRef(function TabsRoot(
     tabActivationDirection,
   };
 
-  const { renderElement } = useComponentRenderer({
-    render: render ?? 'div',
-    className,
+  const element = useRenderElement('div', componentProps, {
     state,
-    extraProps: other,
     ref: forwardedRef,
+    props: elementProps,
     customStyleHookMapping: tabsStyleHookMapping,
   });
 
   return (
     <TabsRootContext.Provider value={tabsContextValue}>
-      <CompositeList<TabPanelMetadata> elementsRef={tabPanelRefs} onMapChange={setTabPanelMap}>
-        {renderElement()}
+      <CompositeList<TabsPanel.Metadata> elementsRef={tabPanelRefs} onMapChange={setTabPanelMap}>
+        {element}
       </CompositeList>
     </TabsRootContext.Provider>
   );
 });
 
-export type TabsOrientation = 'horizontal' | 'vertical';
-export type TabActivationDirection = 'left' | 'right' | 'up' | 'down' | 'none';
-export type TabValue = any | null;
+export namespace TabsRoot {
+  export type Orientation = BaseOrientation;
 
-namespace TabsRoot {
   export type State = {
-    orientation: TabsOrientation;
-    tabActivationDirection: TabActivationDirection;
+    /**
+     * @type Tabs.Root.Orientation
+     */
+    orientation: Orientation;
+    /**
+     * @type Tabs.Tab.ActivationDirection
+     */
+    tabActivationDirection: TabsTab.ActivationDirection;
   };
 
-  export interface Props extends Omit<BaseUIComponentProps<'div', State>, 'defaultValue'> {
+  export interface Props extends BaseUIComponentProps<'div', State> {
     /**
      * The value of the currently selected `Tab`. Use when the component is controlled.
      * When the value is `null`, no Tab will be selected.
+     * @type Tabs.Tab.Value
      */
-    value?: TabValue;
+    value?: TabsTab.Value;
     /**
      * The default value. Use when the component is not controlled.
      * When the value is `null`, no Tab will be selected.
+     * @type Tabs.Tab.Value
      * @default 0
      */
-    defaultValue?: TabValue;
+    defaultValue?: TabsTab.Value;
     /**
      * The component orientation (layout flow direction).
+     * @type Tabs.Root.Orientation
      * @default 'horizontal'
      */
-    orientation?: TabsOrientation;
+    orientation?: Orientation;
     /**
      * Callback invoked when new value is being set.
      */
-    onValueChange?: (value: TabValue, event?: Event) => void;
+    onValueChange?: (value: TabsTab.Value, event?: Event) => void;
   }
 }
-
-export { TabsRoot };
-
-TabsRoot.propTypes /* remove-proptypes */ = {
-  // ┌────────────────────────────── Warning ──────────────────────────────┐
-  // │ These PropTypes are generated from the TypeScript type definitions. │
-  // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
-  // └─────────────────────────────────────────────────────────────────────┘
-  /**
-   * @ignore
-   */
-  children: PropTypes.node,
-  /**
-   * CSS class applied to the element, or a function that
-   * returns a class based on the component’s state.
-   */
-  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
-  /**
-   * The default value. Use when the component is not controlled.
-   * When the value is `null`, no Tab will be selected.
-   * @default 0
-   */
-  defaultValue: PropTypes.any,
-  /**
-   * Callback invoked when new value is being set.
-   */
-  onValueChange: PropTypes.func,
-  /**
-   * The component orientation (layout flow direction).
-   * @default 'horizontal'
-   */
-  orientation: PropTypes.oneOf(['horizontal', 'vertical']),
-  /**
-   * Allows you to replace the component’s HTML element
-   * with a different tag, or compose it with another component.
-   *
-   * Accepts a `ReactElement` or a function that returns the element to render.
-   */
-  render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
-  /**
-   * The value of the currently selected `Tab`. Use when the component is controlled.
-   * When the value is `null`, no Tab will be selected.
-   */
-  value: PropTypes.any,
-} as any;

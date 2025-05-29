@@ -8,7 +8,7 @@
 
 <Demo path="./demos/hero" />
 
-## API reference
+## Anatomy
 
 Import the component and assemble its parts:
 
@@ -27,6 +27,8 @@ import { AlertDialog } from '@base-ui-components/react/alert-dialog';
   </AlertDialog.Portal>
 </AlertDialog.Root>;
 ```
+
+## API reference
 
 <Reference
   component="AlertDialog"
@@ -87,6 +89,6 @@ This example shows a nested confirmation dialog that opens if the text entered i
 
 To implement this, both dialogs should be controlled. The confirmation dialog may be opened when `onOpenChange` callback of the parent dialog receives a request to close. This way, the confirmation is automatically shown when the user clicks the backdrop, presses the Esc key, or clicks a close button.
 
-Use the `[data-has-nested-dialogs]` selector and the `var(--nested-dialogs)` CSS variable to customize the styling of the parent dialog. Backdrops of the child dialogs won't be rendered so that you can present the parent dialog in a clean way behind the one on top of it.
+Use the `[data-nested-dialog-open]` selector and the `var(--nested-dialogs)` CSS variable to customize the styling of the parent dialog. Backdrops of the child dialogs won't be rendered so that you can present the parent dialog in a clean way behind the one on top of it.
 
 <Demo compact path="../dialog/demos/close-confirmation" />

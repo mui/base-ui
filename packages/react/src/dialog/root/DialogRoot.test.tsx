@@ -3,16 +3,30 @@ import { expect } from 'chai';
 import { spy } from 'sinon';
 import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { Dialog } from '@base-ui-components/react/dialog';
-import { createRenderer, isJSDOM } from '#test-utils';
+import { createRenderer, isJSDOM, popupConformanceTests } from '#test-utils';
 import { Menu } from '@base-ui-components/react/menu';
 import { Select } from '@base-ui-components/react/select';
 
 describe('<Dialog.Root />', () => {
+  const { render } = createRenderer();
+
   beforeEach(() => {
     globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
   });
 
-  const { render } = createRenderer();
+  popupConformanceTests({
+    createComponent: (props) => (
+      <Dialog.Root {...props.root}>
+        <Dialog.Trigger {...props.trigger}>Open dialog</Dialog.Trigger>
+        <Dialog.Portal {...props.portal}>
+          <Dialog.Popup {...props.popup}>Dialog</Dialog.Popup>
+        </Dialog.Portal>
+      </Dialog.Root>
+    ),
+    render,
+    triggerMouseAction: 'click',
+    expectedPopupRole: 'dialog',
+  });
 
   it('ARIA attributes', async () => {
     const { queryByRole, getByText } = await render(
@@ -38,139 +52,6 @@ describe('<Dialog.Root />', () => {
     expect(getByText('description text').getAttribute('id')).to.equal(
       popup?.getAttribute('aria-describedby'),
     );
-  });
-
-  describe('uncontrolled mode', () => {
-    it('should open the dialog with the trigger', async () => {
-      const { queryByRole, getByRole } = await render(
-        <Dialog.Root modal={false}>
-          <Dialog.Trigger />
-          <Dialog.Portal>
-            <Dialog.Popup />
-          </Dialog.Portal>
-        </Dialog.Root>,
-      );
-
-      const button = getByRole('button');
-      expect(queryByRole('dialog')).to.equal(null);
-
-      await act(async () => {
-        button.click();
-      });
-
-      expect(queryByRole('dialog')).not.to.equal(null);
-    });
-  });
-
-  describe('controlled mode', () => {
-    it('should open and close the dialog with the `open` prop', async () => {
-      const { queryByRole, setProps } = await render(
-        <Dialog.Root open={false} modal={false}>
-          <Dialog.Portal>
-            <Dialog.Popup />
-          </Dialog.Portal>
-        </Dialog.Root>,
-      );
-
-      expect(queryByRole('dialog')).to.equal(null);
-
-      setProps({ open: true });
-      expect(queryByRole('dialog')).not.to.equal(null);
-
-      setProps({ open: false });
-      expect(queryByRole('dialog')).to.equal(null);
-    });
-
-    it('should remove the popup when there is no exit animation defined', async ({ skip }) => {
-      if (isJSDOM) {
-        skip();
-      }
-
-      function Test() {
-        const [open, setOpen] = React.useState(true);
-
-        return (
-          <div>
-            <button onClick={() => setOpen(false)}>Close</button>
-            <Dialog.Root open={open}>
-              <Dialog.Portal>
-                <Dialog.Popup />
-              </Dialog.Portal>
-            </Dialog.Root>
-          </div>
-        );
-      }
-
-      const { user } = await render(<Test />);
-
-      const closeButton = screen.getByText('Close');
-      await user.click(closeButton);
-
-      await waitFor(() => {
-        expect(screen.queryByRole('dialog')).to.equal(null);
-      });
-    });
-
-    it('should remove the popup when the animation finishes', async ({ skip }) => {
-      if (isJSDOM) {
-        skip();
-      }
-
-      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
-
-      let animationFinished = false;
-      const notifyAnimationFinished = () => {
-        animationFinished = true;
-      };
-
-      function Test() {
-        const style = `
-          @keyframes test-anim {
-            to {
-              opacity: 0;
-            }
-          }
-
-          .animation-test-popup[data-open] {
-            opacity: 1;
-          }
-
-          .animation-test-popup[data-ending-style] {
-            animation: test-anim 1ms;
-          }
-        `;
-
-        const [open, setOpen] = React.useState(true);
-
-        return (
-          <div>
-            {/* eslint-disable-next-line react/no-danger */}
-            <style dangerouslySetInnerHTML={{ __html: style }} />
-            <button onClick={() => setOpen(false)}>Close</button>
-            <Dialog.Root open={open}>
-              <Dialog.Portal keepMounted>
-                <Dialog.Popup
-                  className="animation-test-popup"
-                  data-testid="popup"
-                  onAnimationEnd={notifyAnimationFinished}
-                />
-              </Dialog.Portal>
-            </Dialog.Root>
-          </div>
-        );
-      }
-
-      const { user } = await render(<Test />);
-
-      const closeButton = screen.getByText('Close');
-      await user.click(closeButton);
-
-      await waitFor(() => {
-        expect(screen.getByTestId('popup')).to.have.attribute('hidden');
-      });
-
-      expect(animationFinished).to.equal(true);
-    });
   });
 
   describe('prop: onOpenChange', () => {
@@ -221,13 +102,13 @@ describe('<Dialog.Root />', () => {
       await user.click(openButton);
 
       expect(handleOpenChange.callCount).to.equal(1);
-      expect(handleOpenChange.firstCall.args[2]).to.equal('click');
+      expect(handleOpenChange.firstCall.args[2]).to.equal('trigger-press');
 
       const closeButton = screen.getByText('Close');
       await user.click(closeButton);
 
       expect(handleOpenChange.callCount).to.equal(2);
-      expect(handleOpenChange.secondCall.args[2]).to.equal('click');
+      expect(handleOpenChange.secondCall.args[2]).to.equal('close-press');
     });
 
     it('calls onOpenChange with the reason for change when pressed Esc while the dialog is open', async () => {
@@ -310,6 +191,27 @@ describe('<Dialog.Root />', () => {
 
         expect(handleOpenChange.callCount).to.equal(1);
         expect(handleOpenChange.firstCall.args[2]).to.equal('outside-press');
+      });
+
+      it('does not change open state on non-main button clicks', async () => {
+        const handleOpenChange = spy();
+
+        const { user } = await render(
+          <Dialog.Root defaultOpen onOpenChange={handleOpenChange}>
+            <Dialog.Trigger>Open</Dialog.Trigger>
+            <Dialog.Portal>
+              <Dialog.Backdrop data-backdrop style={{ position: 'fixed', zIndex: 10, inset: 0 }} />
+              <Dialog.Popup style={{ position: 'fixed', zIndex: 10 }}>
+                <Dialog.Close>Close</Dialog.Close>
+              </Dialog.Popup>
+            </Dialog.Portal>
+          </Dialog.Root>,
+        );
+
+        const backdrop = document.querySelector('[data-backdrop]') as HTMLElement;
+        await user.pointer([{ target: backdrop }, { keys: '[MouseRight]', target: backdrop }]);
+
+        expect(handleOpenChange.callCount).to.equal(0);
       });
     });
   });
@@ -415,7 +317,7 @@ describe('<Dialog.Root />', () => {
       </Dialog.Root>,
     );
 
-    setProps({ open: false });
+    await setProps({ open: false });
     expect(queryByRole('dialog')).not.to.equal(null);
 
     await waitFor(() => {
@@ -429,7 +331,7 @@ describe('<Dialog.Root />', () => {
     it('should render an internal backdrop when `true`', async () => {
       const { user } = await render(
         <div>
-          <Dialog.Root>
+          <Dialog.Root modal>
             <Dialog.Trigger data-testid="trigger">Open</Dialog.Trigger>
             <Dialog.Portal>
               <Dialog.Popup />
@@ -579,15 +481,21 @@ describe('<Dialog.Root />', () => {
     const backdrops = Array.from(document.querySelectorAll('[role="presentation"]'));
     await user.click(backdrops[backdrops.length - 1]);
 
-    expect(screen.queryByTestId('level-3')).to.equal(null);
+    await waitFor(() => {
+      expect(screen.queryByTestId('level-3')).to.equal(null);
+    });
 
     await user.click(backdrops[backdrops.length - 2]);
 
-    expect(screen.queryByTestId('level-2')).to.equal(null);
+    await waitFor(() => {
+      expect(screen.queryByTestId('level-2')).to.equal(null);
+    });
 
     await user.click(backdrops[backdrops.length - 3]);
 
-    expect(screen.queryByTestId('level-1')).to.equal(null);
+    await waitFor(() => {
+      expect(screen.queryByTestId('level-1')).to.equal(null);
+    });
   });
 
   describe.skipIf(isJSDOM)('nested popups', () => {
@@ -710,7 +618,7 @@ describe('<Dialog.Root />', () => {
     });
   });
 
-  describe('prop: action', () => {
+  describe('prop: actionsRef', () => {
     it('unmounts the dialog when the `unmount` method is called', async () => {
       const actionsRef = {
         current: {
@@ -874,7 +782,7 @@ describe('<Dialog.Root />', () => {
               opacity: 0;
             }
           }
-  
+
           .animation-test-indicator[data-starting-style] {
             animation: test-anim 1ms;
           }

@@ -1,12 +1,10 @@
 /* eslint-disable no-bitwise */
 'use client';
 import * as React from 'react';
-import PropTypes from 'prop-types';
-import { fastObjectShallowCompare } from '../../utils/fastObjectShallowCompare';
-import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
 import { CompositeListContext } from './CompositeListContext';
+import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 
-function sortByDocumentPosition(a: Node, b: Node) {
+function sortByDocumentPosition(a: Element, b: Element) {
   const position = a.compareDocumentPosition(b);
 
   if (
@@ -25,40 +23,22 @@ function sortByDocumentPosition(a: Node, b: Node) {
 
 export type CompositeMetadata<CustomMetadata> = { index?: number | null } & CustomMetadata;
 
-function areMapsEqual<Metadata>(
-  map1: Map<Node, CompositeMetadata<Metadata> | null>,
-  map2: Map<Node, CompositeMetadata<Metadata> | null>,
-) {
-  if (map1.size !== map2.size) {
-    return false;
-  }
-  for (const [key, value] of map1.entries()) {
-    const value2 = map2.get(key);
-    // compare the index before comparing everything else
-    if (value?.index !== value2?.index) {
-      return false;
-    }
-    if (value2 !== undefined && !fastObjectShallowCompare(value, value2)) {
-      return false;
-    }
-  }
-  return true;
-}
-
 /**
  * Provides context for a list of items in a composite component.
- * @ignore - internal component.
+ * @internal
  */
-function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
+export function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
   const { children, elementsRef, labelsRef, onMapChange } = props;
 
-  const [map, setMap] = React.useState(() => new Map<Node, CompositeMetadata<Metadata> | null>());
+  const [map, setMap] = React.useState(
+    () => new Map<Element, CompositeMetadata<Metadata> | null>(),
+  );
 
-  const register = React.useCallback((node: Node, metadata: Metadata) => {
+  const register = React.useCallback((node: Element, metadata: Metadata) => {
     setMap((prevMap) => new Map(prevMap).set(node, metadata ?? null));
   }, []);
 
-  const unregister = React.useCallback((node: Node) => {
+  const unregister = React.useCallback((node: Element) => {
     setMap((prevMap) => {
       const nextMap = new Map(prevMap);
       nextMap.delete(node);
@@ -66,26 +46,31 @@ function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
     });
   }, []);
 
-  useEnhancedEffect(() => {
-    const newMap = new Map(map);
+  const sortedMap = React.useMemo(() => {
+    const newMap = new Map<Element, CompositeMetadata<Metadata>>();
+    const sortedNodes = Array.from(map.keys()).sort(sortByDocumentPosition);
 
-    const nodes = Array.from(newMap.keys()).sort(sortByDocumentPosition);
-
-    nodes.forEach((node, index) => {
+    sortedNodes.forEach((node, index) => {
       const metadata = map.get(node) ?? ({} as CompositeMetadata<Metadata>);
-
       newMap.set(node, { ...metadata, index });
     });
 
-    if (!areMapsEqual(map, newMap)) {
-      setMap(newMap);
-      onMapChange?.(newMap);
+    return newMap;
+  }, [map]);
+
+  useModernLayoutEffect(() => {
+    if (elementsRef.current.length !== sortedMap.size) {
+      elementsRef.current.length = sortedMap.size;
     }
-  }, [map, onMapChange]);
+    if (labelsRef && labelsRef.current.length !== sortedMap.size) {
+      labelsRef.current.length = sortedMap.size;
+    }
+    onMapChange?.(sortedMap);
+  }, [sortedMap, onMapChange, elementsRef, labelsRef]);
 
   const contextValue = React.useMemo(
-    () => ({ register, unregister, map, elementsRef, labelsRef }),
-    [register, unregister, map, elementsRef, labelsRef],
+    () => ({ register, unregister, map: sortedMap, elementsRef, labelsRef }),
+    [register, unregister, sortedMap, elementsRef, labelsRef],
   );
 
   return (
@@ -93,7 +78,7 @@ function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
   );
 }
 
-namespace CompositeList {
+export namespace CompositeList {
   export interface Props<Metadata> {
     children: React.ReactNode;
     /**
@@ -106,35 +91,6 @@ namespace CompositeList {
      * `useTypeahead`'s `listRef` prop.
      */
     labelsRef?: React.RefObject<Array<string | null>>;
-    onMapChange?: (newMap: Map<Node, CompositeMetadata<Metadata> | null>) => void;
+    onMapChange?: (newMap: Map<Element, CompositeMetadata<Metadata> | null>) => void;
   }
 }
-
-export { CompositeList };
-
-CompositeList.propTypes /* remove-proptypes */ = {
-  // ┌────────────────────────────── Warning ──────────────────────────────┐
-  // │ These PropTypes are generated from the TypeScript type definitions. │
-  // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
-  // └─────────────────────────────────────────────────────────────────────┘
-  /**
-   * @ignore
-   */
-  children: PropTypes.node,
-  /**
-   * A ref to the list of HTML elements, ordered by their index.
-   * `useListNavigation`'s `listRef` prop.
-   */
-  elementsRef: PropTypes /* @typescript-to-proptypes-ignore */.any,
-  /**
-   * A ref to the list of element labels, ordered by their index.
-   * `useTypeahead`'s `listRef` prop.
-   */
-  labelsRef: PropTypes.shape({
-    current: PropTypes.arrayOf(PropTypes.string).isRequired,
-  }),
-  /**
-   * @ignore
-   */
-  onMapChange: PropTypes.func,
-} as any;

@@ -22,10 +22,12 @@ describe('useButton', () => {
       expect(button).toHaveFocus();
     });
 
-    it('prevents interactions with the button', async () => {
+    it('prevents interactions except focus and blur', async () => {
       const handleClick = spy();
       const handleKeyDown = spy();
       const handleKeyUp = spy();
+      const handleFocus = spy();
+      const handleBlur = spy();
 
       function TestButton(props: React.ButtonHTMLAttributes<HTMLButtonElement>) {
         const { disabled, ...otherProps } = props;
@@ -34,40 +36,51 @@ describe('useButton', () => {
         return <span {...getButtonProps(otherProps)} />;
       }
 
-      const { getByRole } = await render(
+      const { getByRole, user } = await render(
         <TestButton
           disabled
           onClick={handleClick}
           onKeyDown={handleKeyDown}
           onKeyUp={handleKeyUp}
+          onFocus={handleFocus}
+          onBlur={handleBlur}
         />,
       );
+
       const button = getByRole('button');
+      expect(document.activeElement).to.not.equal(button);
 
-      await act(() => button.focus());
+      expect(handleFocus.callCount).to.equal(0);
+      await user.keyboard('[Tab]');
       expect(button).toHaveFocus();
+      expect(handleFocus.callCount).to.equal(1);
 
-      fireEvent.keyDown(button, { key: 'Enter' });
-      expect(handleKeyDown.callCount).to.equal(1);
+      await user.keyboard('[Enter]');
+      expect(handleKeyDown.callCount).to.equal(0);
       expect(handleClick.callCount).to.equal(0);
 
-      fireEvent.keyUp(button, { key: 'Space' });
-      expect(handleKeyUp.callCount).to.equal(1);
+      await user.keyboard('[Space]');
+      expect(handleKeyUp.callCount).to.equal(0);
       expect(handleClick.callCount).to.equal(0);
 
-      fireEvent.click(button);
-      expect(handleKeyDown.callCount).to.equal(1);
-      expect(handleKeyUp.callCount).to.equal(1);
+      await user.click(button);
+      expect(handleKeyDown.callCount).to.equal(0);
+      expect(handleKeyUp.callCount).to.equal(0);
       expect(handleClick.callCount).to.equal(0);
+
+      expect(handleBlur.callCount).to.equal(0);
+      await user.keyboard('[Tab]');
+      expect(handleBlur.callCount).to.equal(1);
+      expect(document.activeElement).to.not.equal(button);
     });
   });
 
   describe('param: tabIndex', () => {
-    it('does not return tabIndex in getButtonProps when host component is BUTTON', async () => {
+    it('returns tabIndex in getButtonProps when host component is BUTTON', async () => {
       function TestButton() {
         const { getButtonProps } = useButton();
 
-        expect(getButtonProps().tabIndex).to.equal(undefined);
+        expect(getButtonProps().tabIndex).to.equal(0);
 
         return <button {...getButtonProps()} />;
       }
@@ -81,7 +94,7 @@ describe('useButton', () => {
         const buttonRef = React.useRef(null);
         const { getButtonProps } = useButton({ buttonRef });
 
-        expect(getButtonProps().tabIndex).to.equal(buttonRef.current ? 0 : undefined);
+        expect(getButtonProps().tabIndex).to.equal(0);
 
         return <span {...getButtonProps()} />;
       }
@@ -185,6 +198,44 @@ describe('useButton', () => {
       );
 
       expect(container.firstChild).to.have.text('Submit');
+    });
+  });
+
+  describe('param: type', () => {
+    it('defaults to button', async () => {
+      function TestButton(props: React.ButtonHTMLAttributes<HTMLButtonElement>) {
+        const { disabled, type, ...otherProps } = props;
+        const { getButtonProps } = useButton({ disabled, type });
+
+        return <button {...getButtonProps(otherProps)} />;
+      }
+
+      const { getByRole } = await render(<TestButton>Submit</TestButton>);
+      expect(getByRole('button')).to.have.property('type', 'button');
+    });
+
+    it('should set the type attribute', async () => {
+      function TestButton(props: React.ButtonHTMLAttributes<HTMLButtonElement>) {
+        const { disabled, type, ...otherProps } = props;
+        const { getButtonProps } = useButton({ disabled, type });
+
+        return <button {...getButtonProps(otherProps)} />;
+      }
+
+      const { getByRole } = await render(<TestButton type="submit">Submit</TestButton>);
+      expect(getByRole('button')).to.have.property('type', 'submit');
+    });
+
+    it('does not set type attribute by default on non-button elements', async () => {
+      function TestButton(props: React.ButtonHTMLAttributes<HTMLButtonElement>) {
+        const { disabled, ...otherProps } = props;
+        const { getButtonProps } = useButton({ disabled });
+
+        return <span {...getButtonProps(otherProps)} />;
+      }
+
+      const { getByRole } = await render(<TestButton />);
+      expect(getByRole('button')).not.to.have.attribute('type');
     });
   });
 });

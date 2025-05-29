@@ -1,11 +1,12 @@
 'use client';
 import * as React from 'react';
-import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
+import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { useCompositeListContext } from './CompositeListContext';
 
 export interface UseCompositeListItemParameters<Metadata> {
   label?: string | null;
   metadata?: Metadata;
+  textRef?: React.RefObject<HTMLElement | null>;
 }
 
 interface UseCompositeListItemReturnValue {
@@ -19,30 +20,33 @@ interface UseCompositeListItemReturnValue {
 export function useCompositeListItem<Metadata>(
   params: UseCompositeListItemParameters<Metadata> = {},
 ): UseCompositeListItemReturnValue {
-  const { label, metadata } = params;
+  const { label, metadata, textRef } = params;
 
   const { register, unregister, map, elementsRef, labelsRef } = useCompositeListContext();
 
   const [index, setIndex] = React.useState<number | null>(null);
 
-  const componentRef = React.useRef<Node | null>(null);
+  const componentRef = React.useRef<Element | null>(null);
 
   const ref = React.useCallback(
     (node: HTMLElement | null) => {
       componentRef.current = node;
 
-      if (index !== null) {
+      if (index !== null && node !== null) {
         elementsRef.current[index] = node;
+
         if (labelsRef) {
           const isLabelDefined = label !== undefined;
-          labelsRef.current[index] = isLabelDefined ? label : (node?.textContent ?? null);
+          labelsRef.current[index] = isLabelDefined
+            ? label
+            : (textRef?.current?.textContent ?? node.textContent);
         }
       }
     },
-    [index, elementsRef, labelsRef, label],
+    [index, elementsRef, labelsRef, label, textRef],
   );
 
-  useEnhancedEffect(() => {
+  useModernLayoutEffect(() => {
     const node = componentRef.current;
     if (node) {
       register(node, metadata);
@@ -53,7 +57,7 @@ export function useCompositeListItem<Metadata>(
     return undefined;
   }, [register, unregister, metadata]);
 
-  useEnhancedEffect(() => {
+  useModernLayoutEffect(() => {
     const i = componentRef.current ? map.get(componentRef.current)?.index : null;
 
     if (i != null) {

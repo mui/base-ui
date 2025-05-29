@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import PropTypes from 'prop-types';
 import { useFieldRootContext } from '../root/FieldRootContext';
 import { getCombinedFieldValidityData } from '../utils/getCombinedFieldValidityData';
 import { FieldValidityData } from '../root/FieldRoot';
@@ -11,7 +10,7 @@ import { FieldValidityData } from '../root/FieldRoot';
  *
  * Documentation: [Base UI Field](https://base-ui.com/react/components/field)
  */
-const FieldValidity: React.FC<FieldValidity.Props> = function FieldValidity(props) {
+export const FieldValidity: React.FC<FieldValidity.Props> = function FieldValidity(props) {
   const { children } = props;
   const { validityData, invalid } = useFieldRootContext(false);
 
@@ -30,7 +29,7 @@ export interface FieldValidityState extends Omit<FieldValidityData, 'state'> {
   validity: FieldValidityData['state'];
 }
 
-namespace FieldValidity {
+export namespace FieldValidity {
   export interface State {}
 
   export interface Props {
@@ -48,24 +47,3 @@ namespace FieldValidity {
     children: (state: FieldValidityState) => React.ReactNode;
   }
 }
-
-FieldValidity.propTypes /* remove-proptypes */ = {
-  // ┌────────────────────────────── Warning ──────────────────────────────┐
-  // │ These PropTypes are generated from the TypeScript type definitions. │
-  // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
-  // └─────────────────────────────────────────────────────────────────────┘
-  /**
-   * A function that accepts the field validity state as an argument.
-   *
-   * ```jsx
-   * <Field.Validity>
-   *   {(validity) => {
-   *     return <div>...</div>
-   *   }}
-   * </Field.Validity>
-   * ```
-   */
-  children: PropTypes.func.isRequired,
-} as any;
-
-export { FieldValidity };

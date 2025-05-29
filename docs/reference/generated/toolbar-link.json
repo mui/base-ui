@@ -1,0 +1,24 @@
+{
+  "name": "ToolbarLink",
+  "description": "A link component.\nRenders an `<a>` element.",
+  "props": {
+    "className": {
+      "type": "string | ((state: Toolbar.Link.State) => string)",
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
+    },
+    "render": {
+      "type": "ReactElement | ((props: HTMLProps, state: Toolbar.Link.State) => ReactElement)",
+      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
+    }
+  },
+  "dataAttributes": {
+    "data-highlighted": {
+      "description": "Present when the link is the active item in the toolbar."
+    },
+    "data-orientation": {
+      "description": "Indicates the orientation of the toolbar.",
+      "type": "'horizontal' | 'vertical'"
+    }
+  },
+  "cssVariables": {}
+}

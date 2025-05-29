@@ -1,0 +1,70 @@
+{
+  "name": "ToastRoot",
+  "description": "Groups all parts of an individual toast.\nRenders a `<div>` element.",
+  "props": {
+    "swipeDirection": {
+      "type": "'left' | 'right' | 'up' | 'down' | ('left' | 'right' | 'up' | 'down')[]",
+      "default": "['down', 'right']",
+      "description": "Direction(s) in which the toast can be swiped to dismiss."
+    },
+    "toast": {
+      "type": "Toast.Root.ToastObject",
+      "required": true,
+      "description": "The toast to render."
+    },
+    "className": {
+      "type": "string | ((state: Toast.Root.State) => string)",
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
+    },
+    "render": {
+      "type": "ReactElement | ((props: HTMLProps, state: Toast.Root.State) => ReactElement)",
+      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
+    }
+  },
+  "dataAttributes": {
+    "data-expanded": {
+      "description": "Present when the toast is expanded in the viewport.",
+      "type": "boolean"
+    },
+    "data-limited": {
+      "description": "Present when the toast was removed due to exceeding the limit.",
+      "type": "boolean"
+    },
+    "data-swipe-direction": {
+      "description": "The direction the toast was swiped.",
+      "type": "'up' | 'down' | 'left' | 'right'"
+    },
+    "data-swiping": {
+      "description": "Present when the toast is being swiped.",
+      "type": "boolean"
+    },
+    "data-type": {
+      "description": "The type of the toast.",
+      "type": "string"
+    },
+    "data-starting-style": {
+      "description": "Present when the toast is animating in."
+    },
+    "data-ending-style": {
+      "description": "Present when the toast is animating out."
+    }
+  },
+  "cssVariables": {
+    "--toast-index": {
+      "description": "Indicates the index of the toast in the list.",
+      "type": "number"
+    },
+    "--toast-offset-y": {
+      "description": "Indicates the vertical pixels offset of the toast in the list when expanded.",
+      "type": "number"
+    },
+    "--toast-swipe-movement-x": {
+      "description": "Indicates the horizontal swipe movement of the toast.",
+      "type": "number"
+    },
+    "--toast-swipe-movement-y": {
+      "description": "Indicates the vertical swipe movement of the toast.",
+      "type": "number"
+    }
+  }
+}

@@ -10,7 +10,9 @@ const defaultOptions = {
   maxWithDefault: max,
   minWithZeroDefault: 0,
   format: undefined,
-};
+  snapOnStep: true,
+  small: false,
+} as const;
 
 describe('NumberField validate', () => {
   describe('removeFloatingPointErrors', () => {
@@ -39,12 +41,16 @@ describe('NumberField validate', () => {
     });
 
     describe('incrementing', () => {
-      it('be 5 when step is 1 and within bounds', () => {
+      it('snaps 5 to 5 when step is 1', () => {
         expect(toValidatedNumber(5, defaultOptions)).to.equal(5);
       });
 
-      it('be 6 when step is 1 and within bounds', () => {
-        expect(toValidatedNumber(5.5, defaultOptions)).to.equal(6);
+      it('snaps 5.5 to 5 when step is 1', () => {
+        expect(toValidatedNumber(5.5, defaultOptions)).to.equal(5);
+      });
+
+      it('snaps -0.3 to -1 when step is 1', () => {
+        expect(toValidatedNumber(-0.3, defaultOptions)).to.equal(-1);
       });
 
       it('be same value when step is undefined and within bounds', () => {
@@ -56,32 +62,61 @@ describe('NumberField validate', () => {
         ).to.equal(5.5);
       });
 
-      it('snaps to 5 when step is 5 and within bounds', () => {
+      it('snaps 9 to 5 when step is 5 and within bounds', () => {
         expect(
           toValidatedNumber(9, {
             ...defaultOptions,
             step: 5,
           }),
-        ).to.equal(10);
+        ).to.equal(5);
       });
 
-      it('snaps to 10 when step is 5 and within bounds', () => {
+      it('snaps 12 to 10 when step is 5 and within bounds', () => {
         expect(
           toValidatedNumber(12, {
             ...defaultOptions,
             step: 5,
           }),
         ).to.equal(10);
+      });
+
+      it('preserves exact value when snapOnStep is false', () => {
+        expect(
+          toValidatedNumber(9.7, {
+            ...defaultOptions,
+            step: 5,
+            snapOnStep: false,
+          }),
+        ).to.equal(9.7);
       });
     });
 
     describe('decrementing', () => {
-      it('be 5 when step is 1 and within bounds', () => {
-        expect(toValidatedNumber(5, defaultOptions)).to.equal(5);
+      it('snaps 5 to 5 when step is -1', () => {
+        expect(
+          toValidatedNumber(5, {
+            ...defaultOptions,
+            step: -1,
+          }),
+        ).to.equal(5);
       });
 
-      it('be 4 when step is 1 and within bounds', () => {
-        expect(toValidatedNumber(5.5, defaultOptions)).to.equal(6);
+      it('snaps 5.5 to 6 when step is -1', () => {
+        expect(
+          toValidatedNumber(5.5, {
+            ...defaultOptions,
+            step: -1,
+          }),
+        ).to.equal(6);
+      });
+
+      it('snaps -0.3 to 0 when step is -1', () => {
+        expect(
+          toValidatedNumber(-0.3, {
+            ...defaultOptions,
+            step: -1,
+          }),
+        ).to.equal(0);
       });
 
       it('be same value when step is undefined and within bounds', () => {
@@ -93,23 +128,43 @@ describe('NumberField validate', () => {
         ).to.equal(5.5);
       });
 
-      it('snaps to 5 when step is 5 and within bounds', () => {
+      it('snaps 9 to 10 when step is -5', () => {
         expect(
           toValidatedNumber(9, {
             ...defaultOptions,
-            step: 5,
+            step: -5,
           }),
         ).to.equal(10);
       });
 
-      it('snaps to 10 when step is 5 and within bounds', () => {
+      it('snaps 12 to 15 when step is -5', () => {
         expect(
           toValidatedNumber(12, {
             ...defaultOptions,
-            step: 5,
+            step: -5,
           }),
-        ).to.equal(10);
+        ).to.equal(15);
+      });
+
+      it('preserves exact value when snapOnStep is false', () => {
+        expect(
+          toValidatedNumber(12.3, {
+            ...defaultOptions,
+            step: -5,
+            snapOnStep: false,
+          }),
+        ).to.equal(12.3);
       });
     });
+  });
+
+  it('removes floating point errors by default', () => {
+    expect(
+      toValidatedNumber(0.2 + 0.1, {
+        ...defaultOptions,
+        step: undefined,
+        snapOnStep: false,
+      }),
+    ).to.equal(0.3);
   });
 });

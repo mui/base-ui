@@ -7,13 +7,17 @@ import { Dialog } from '@base-ui-components/react/dialog';
 import { styled } from '@mui/system';
 
 export default function Modality() {
-  const [modal, setModal] = React.useState(false);
+  const [modal, setModal] = React.useState(true);
   const [withBackdrop, setWithBackdrop] = React.useState(false);
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '30px' }}>
       <label>
-        <input type="checkbox" checked={modal} onChange={() => setModal(!modal)} />{' '}
+        <input
+          type="checkbox"
+          checked={modal}
+          onChange={(event) => setModal(event.target.checked)}
+        />{' '}
         Modal
       </label>
       <label>
@@ -33,7 +37,7 @@ export default function Modality() {
 
 function SelectDemo({ modal, withBackdrop }: Props) {
   return (
-    <Select.Root defaultValue="system" modal={modal} alignItemToTrigger={false}>
+    <Select.Root defaultValue="system" modal={modal}>
       <Select.Trigger aria-label="Select font" render={<Trigger />}>
         <Select.Value placeholder="System font" />
         <SelectDropdownArrow />
@@ -42,7 +46,11 @@ function SelectDemo({ modal, withBackdrop }: Props) {
       {withBackdrop && <Select.Backdrop render={<Backdrop />} />}
 
       <Select.Portal>
-        <Select.Positioner sideOffset={5} render={<Positioner />}>
+        <Select.Positioner
+          sideOffset={5}
+          render={<Positioner />}
+          alignItemWithTrigger={false}
+        >
           <SelectPopup>
             <SelectItem value="system">
               <SelectItemIndicator render={<CheckIcon />} />
@@ -284,7 +292,7 @@ const MenuPopup = styled(Menu.Popup)(
       transform: scale(0.8);
     }
   }
-      
+
   &[data-exiting] {
     opacity: 0;
     transform: scale(0.8);

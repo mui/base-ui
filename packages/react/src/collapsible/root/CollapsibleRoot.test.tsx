@@ -1,7 +1,6 @@
 'use client';
 import * as React from 'react';
 import { expect } from 'chai';
-import { flushMicrotasks } from '@mui/internal-test-utils';
 import { Collapsible } from '@base-ui-components/react/collapsible';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 
@@ -33,23 +32,47 @@ describe('<Collapsible.Root />', () => {
     });
   });
 
-  describe('open state', () => {
-    it('controlled mode', async () => {
-      const { queryByText, getByRole, setProps } = await render(
-        <Collapsible.Root open={false}>
+  describe('collapsible status', () => {
+    it('disabled status', async () => {
+      const { getByRole } = await render(
+        <Collapsible.Root disabled>
           <Collapsible.Trigger />
-          <Collapsible.Panel>This is panel content</Collapsible.Panel>
+          <Collapsible.Panel data-testid="panel" />
         </Collapsible.Root>,
       );
 
       const trigger = getByRole('button');
 
+      expect(trigger).to.have.attribute('data-disabled');
+    });
+  });
+
+  describe.skipIf(isJSDOM)('open state', () => {
+    it('controlled mode', async () => {
+      function App() {
+        const [open, setOpen] = React.useState(false);
+        return (
+          <React.Fragment>
+            <Collapsible.Root open={open}>
+              <Collapsible.Trigger>trigger</Collapsible.Trigger>
+              <Collapsible.Panel>This is panel content</Collapsible.Panel>
+            </Collapsible.Root>
+            <button type="button" onClick={() => setOpen(!open)}>
+              toggle
+            </button>
+          </React.Fragment>
+        );
+      }
+      const { queryByText, getByRole, user } = await render(<App />);
+
+      const externalTrigger = getByRole('button', { name: 'toggle' });
+      const trigger = getByRole('button', { name: 'trigger' });
+
       expect(trigger).to.not.have.attribute('aria-controls');
       expect(trigger).to.have.attribute('aria-expanded', 'false');
       expect(queryByText(PANEL_CONTENT)).to.equal(null);
 
-      setProps({ open: true });
-      await flushMicrotasks();
+      await user.click(externalTrigger);
 
       expect(trigger).to.have.attribute('aria-expanded', 'true');
 
@@ -58,18 +81,14 @@ describe('<Collapsible.Root />', () => {
       expect(queryByText(PANEL_CONTENT)).to.have.attribute('data-open');
       expect(trigger).to.have.attribute('data-panel-open');
 
-      setProps({ open: false });
-      await flushMicrotasks();
+      await user.click(externalTrigger);
 
       expect(trigger).to.not.have.attribute('aria-controls');
       expect(trigger).to.have.attribute('aria-expanded', 'false');
       expect(queryByText(PANEL_CONTENT)).to.equal(null);
     });
 
-    it('uncontrolled mode', async ({ skip }) => {
-      if (isJSDOM) {
-        skip();
-      }
+    it('uncontrolled mode', async () => {
       const { getByRole, queryByText, user } = await render(
         <Collapsible.Root defaultOpen={false}>
           <Collapsible.Trigger />

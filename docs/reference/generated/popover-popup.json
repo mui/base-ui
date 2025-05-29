@@ -3,19 +3,19 @@
   "description": "A container for the popover contents.\nRenders a `<div>` element.",
   "props": {
     "initialFocus": {
-      "type": "React.Ref | (interactionType => HTMLElement | null)",
+      "type": "RefObject<HTMLElement | null> | ((interactionType: InteractionType) => RefObject<HTMLElement | null>)",
       "description": "Determines the element to focus when the popover is opened.\nBy default, the first focusable element is focused."
     },
     "finalFocus": {
-      "type": "React.Ref",
+      "type": "RefObject<HTMLElement | null>",
       "description": "Determines the element to focus when the popover is closed.\nBy default, focus returns to the trigger."
     },
     "className": {
-      "type": "string | (state) => string",
+      "type": "string | ((state: Popover.Popup.State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "render": {
-      "type": "React.ReactElement | (props, state) => React.ReactElement",
+      "type": "ReactElement | ((props: HTMLProps, state: Popover.Popup.State) => ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
     }
   },
@@ -25,6 +25,10 @@
     },
     "data-closed": {
       "description": "Present when the popup is closed."
+    },
+    "data-align": {
+      "description": "Indicates how the popup is aligned relative to specified side.",
+      "type": "'start' | 'center' | 'end'"
     },
     "data-instant": {
       "description": "Present if animations should be instant.",

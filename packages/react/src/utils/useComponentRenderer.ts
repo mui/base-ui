@@ -1,10 +1,7 @@
 import * as React from 'react';
-import type { ComponentRenderFn } from './types';
-import { CustomStyleHookMapping, getStyleHookProps } from './getStyleHookProps';
-import { resolveClassName } from './resolveClassName';
-import { evaluateRenderProp } from './evaluateRenderProp';
-import { useRenderPropForkRef } from './useRenderPropForkRef';
-import { defaultRenderFunctions } from './defaultRenderFunctions';
+import { CustomStyleHookMapping } from './getStyleHookProps';
+import { useRenderElementLazy } from './useRenderElement';
+import type { ComponentRenderFn, HTMLProps } from './types';
 
 export interface ComponentRendererSettings<State, RenderedElementType extends Element> {
   /**
@@ -16,9 +13,9 @@ export interface ComponentRendererSettings<State, RenderedElementType extends El
    * The render prop or React element to override the default element.
    */
   render:
-    | ComponentRenderFn<React.HTMLAttributes<any>, State>
+    | ComponentRenderFn<HTMLProps, State>
     | React.ReactElement<Record<string, unknown>>
-    | keyof typeof defaultRenderFunctions;
+    | keyof React.JSX.IntrinsicElements;
   /**
    * The state of the component.
    */
@@ -26,7 +23,7 @@ export interface ComponentRendererSettings<State, RenderedElementType extends El
   /**
    * The ref to apply to the rendered element.
    */
-  ref?: React.Ref<RenderedElementType>;
+  ref?: React.Ref<RenderedElementType> | React.Ref<RenderedElementType>[];
   /**
    * A function that returns props for the rendered element.
    * It should accept and merge additional props.
@@ -42,57 +39,28 @@ export interface ComponentRendererSettings<State, RenderedElementType extends El
    * A mapping of state to style hooks.
    */
   customStyleHookMapping?: CustomStyleHookMapping<State>;
+  /**
+   * If true, style hooks are generated.
+   */
+  styleHooks?: boolean;
 }
 
 /**
  * Returns a function that renders a Base UI component.
- *
- * @ignore - internal hook.
+ * @deprecated use `useRenderElement` instead.
  */
 export function useComponentRenderer<
   State extends Record<string, any>,
   RenderedElementType extends Element,
->(settings: ComponentRendererSettings<State, RenderedElementType>) {
-  const {
-    render: renderProp,
-    className: classNameProp,
-    state,
-    ref,
-    propGetter = (props) => props,
-    extraProps,
-    customStyleHookMapping,
-  } = settings;
+>(params: ComponentRendererSettings<State, RenderedElementType>) {
+  const renderString = typeof params.render === 'string' ? params.render : undefined;
+  const renderProp = typeof params.render === 'string' ? undefined : params.render;
 
-  const className = resolveClassName(classNameProp, state);
-  const styleHooks = React.useMemo(() => {
-    return getStyleHookProps(state, customStyleHookMapping);
-  }, [state, customStyleHookMapping]);
-
-  const ownProps: Record<string, any> = {
-    ...styleHooks,
-    ...extraProps,
-  };
-
-  let resolvedRenderProp:
-    | ComponentRenderFn<React.HTMLAttributes<any>, State>
-    | React.ReactElement<Record<string, unknown>>;
-
-  if (typeof renderProp === 'string') {
-    resolvedRenderProp = defaultRenderFunctions[renderProp];
-  } else {
-    resolvedRenderProp = renderProp;
-  }
-
-  const renderedElementProps = propGetter(ownProps);
-  const propsWithRef: React.HTMLAttributes<any> & React.RefAttributes<any> = {
-    ...renderedElementProps,
-    ref: useRenderPropForkRef(resolvedRenderProp, ref as React.Ref<any>, renderedElementProps.ref),
-  };
-  if (className !== undefined) {
-    propsWithRef.className = className;
-  }
-
-  const renderElement = () => evaluateRenderProp(resolvedRenderProp, propsWithRef, state);
+  const renderElement = useRenderElementLazy(
+    renderString,
+    { className: params.className, render: renderProp },
+    { ...params, props: params.extraProps },
+  );
 
   return {
     renderElement,

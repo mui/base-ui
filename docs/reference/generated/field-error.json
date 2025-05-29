@@ -3,19 +3,15 @@
   "description": "An error message displayed if the field control fails validation.\nRenders a `<div>` element.",
   "props": {
     "match": {
-      "type": "'badInput' | 'customError' | 'patternMismatch' | 'rangeOverflow' | 'rangeUnderflow' | 'stepMismatch' | 'tooLong' | 'tooShort' | 'typeMismatch' | 'valid' | 'valueMissing'",
-      "description": "Determines whether to show the error message according to the field’s\n[ValidityState](https://developer.mozilla.org/en-US/docs/Web/API/ValidityState)."
-    },
-    "forceShow": {
-      "type": "boolean",
-      "description": "Whether the error message should be shown regardless of the field’s validity."
+      "type": "boolean | 'valid' | 'badInput' | 'customError' | 'patternMismatch' | 'rangeOverflow' | 'rangeUnderflow' | 'stepMismatch' | 'tooLong' | 'tooShort' | 'typeMismatch' | 'valueMissing'",
+      "description": "Determines whether to show the error message according to the field’s\n[ValidityState](https://developer.mozilla.org/en-US/docs/Web/API/ValidityState).\nSpecifying `true` will always show the error message, and lets external libraries\ncontrol the visibility."
     },
     "className": {
-      "type": "string | (state) => string",
+      "type": "string | ((state: Field.Root.State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "render": {
-      "type": "React.ReactElement | (props, state) => React.ReactElement",
+      "type": "ReactElement | ((props: HTMLProps, state: Field.Root.State) => ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
     }
   },

@@ -89,13 +89,13 @@
     rotate: 0deg;
   }
 
-  &[data-side='left'] {
-    right: -13px;
+  &[data-side='inline-start'] {
+    inset-inline-end: -13px;
     rotate: 90deg;
   }
 
-  &[data-side='right'] {
-    left: -13px;
+  &[data-side='inline-end'] {
+    inset-inline-start: -13px;
     rotate: -90deg;
   }
 }
@@ -195,6 +195,14 @@
     inset-inline: 0.25rem;
     border-radius: 0.25rem;
     background-color: var(--color-gray-900);
+  }
+
+  &[data-disabled][data-highlighted]::before {
+    background-color: var(--color-gray-300);
+  }
+
+  &[data-disabled] {
+    color: var(--color-gray-400);
   }
 }
 

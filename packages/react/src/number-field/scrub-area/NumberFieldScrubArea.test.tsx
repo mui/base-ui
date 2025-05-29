@@ -4,7 +4,6 @@ import { screen, waitFor, act } from '@mui/internal-test-utils';
 import { NumberField } from '@base-ui-components/react/number-field';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { isWebKit } from '../../utils/detectBrowser';
-import { NumberFieldRootContext } from '../root/NumberFieldRootContext';
 
 function createPointerMoveEvent({ movementX = 0, movementY = 0 }) {
   return new PointerEvent('pointermove', {
@@ -14,28 +13,13 @@ function createPointerMoveEvent({ movementX = 0, movementY = 0 }) {
   });
 }
 
-const testContext = {
-  getScrubAreaProps: (externalProps) => externalProps,
-  state: {
-    value: null,
-    required: false,
-    disabled: false,
-    invalid: false,
-    readOnly: false,
-  },
-} as NumberFieldRootContext;
-
 describe('<NumberField.ScrubArea />', () => {
   const { render } = createRenderer();
 
   describeConformance(<NumberField.ScrubArea />, () => ({
     refInstanceof: window.HTMLSpanElement,
     render: async (node) => {
-      return render(
-        <NumberFieldRootContext.Provider value={testContext}>
-          {node}
-        </NumberFieldRootContext.Provider>,
-      );
+      return render(<NumberField.Root>{node}</NumberField.Root>);
     },
   }));
 
@@ -49,7 +33,7 @@ describe('<NumberField.ScrubArea />', () => {
   });
 
   // Only run the following tests in Chromium/Firefox.
-  if (isJSDOM || isWebKit()) {
+  if (isJSDOM || isWebKit) {
     return;
   }
 

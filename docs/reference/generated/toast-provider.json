@@ -1,0 +1,25 @@
+{
+  "name": "ToastProvider",
+  "description": "Provides a context for creating and managing toasts.",
+  "props": {
+    "limit": {
+      "type": "number",
+      "default": "3",
+      "description": "The maximum number of toasts that can be displayed at once.\nWhen the limit is reached, the oldest toast will be removed to make room for the new one."
+    },
+    "toastManager": {
+      "type": "createToastManager.ToastManager",
+      "description": "A global manager for toasts to use outside of a React component."
+    },
+    "timeout": {
+      "type": "number",
+      "default": "5000",
+      "description": "The default amount of time (in ms) before a toast is auto dismissed.\nA value of `0` will prevent the toast from being dismissed automatically."
+    },
+    "children": {
+      "type": "ReactNode"
+    }
+  },
+  "dataAttributes": {},
+  "cssVariables": {}
+}

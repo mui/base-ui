@@ -1,10 +1,8 @@
 'use client';
 import * as React from 'react';
-import PropTypes from 'prop-types';
 import { FloatingPortal } from '@floating-ui/react';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { MenuPortalContext } from './MenuPortalContext';
-import { HTMLElementType, refType } from '../../utils/proptypes';
 
 /**
  * A portal element that moves the popup to a different part of the DOM.
@@ -12,7 +10,7 @@ import { HTMLElementType, refType } from '../../utils/proptypes';
  *
  * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
  */
-function MenuPortal(props: MenuPortal.Props) {
+export function MenuPortal(props: MenuPortal.Props) {
   const { children, keepMounted = false, container } = props;
 
   const { mounted } = useMenuRootContext();
@@ -29,7 +27,7 @@ function MenuPortal(props: MenuPortal.Props) {
   );
 }
 
-namespace MenuPortal {
+export namespace MenuPortal {
   export interface Props {
     children?: React.ReactNode;
     /**
@@ -43,25 +41,3 @@ namespace MenuPortal {
     container?: HTMLElement | null | React.RefObject<HTMLElement | null>;
   }
 }
-
-MenuPortal.propTypes /* remove-proptypes */ = {
-  // ┌────────────────────────────── Warning ──────────────────────────────┐
-  // │ These PropTypes are generated from the TypeScript type definitions. │
-  // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
-  // └─────────────────────────────────────────────────────────────────────┘
-  /**
-   * @ignore
-   */
-  children: PropTypes.node,
-  /**
-   * A parent element to render the portal element into.
-   */
-  container: PropTypes /* @typescript-to-proptypes-ignore */.oneOfType([HTMLElementType, refType]),
-  /**
-   * Whether to keep the portal mounted in the DOM while the popup is hidden.
-   * @default false
-   */
-  keepMounted: PropTypes.bool,
-} as any;
-
-export { MenuPortal };

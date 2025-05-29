@@ -2,12 +2,18 @@
   "name": "SelectPopup",
   "description": "A container for the select items.\nRenders a `<div>` element.",
   "props": {
+    "id": {
+      "type": "string"
+    },
+    "children": {
+      "type": "ReactNode"
+    },
     "className": {
-      "type": "string | (state) => string",
+      "type": "string | ((state: Select.Popup.State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "render": {
-      "type": "React.ReactElement | (props, state) => React.ReactElement",
+      "type": "ReactElement | ((props: HTMLProps, state: Select.Popup.State) => ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
     }
   },
@@ -18,8 +24,12 @@
     "data-closed": {
       "description": "Present when the select is closed."
     },
+    "data-align": {
+      "description": "Indicates how the popup is aligned relative to specified side.",
+      "type": "'start' | 'center' | 'end'"
+    },
     "data-side": {
-      "description": "Indicates which side the select is positioned relative to the trigger.",
+      "description": "Indicates which side the popup is positioned relative to the trigger.",
       "type": "'none' | 'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start'"
     },
     "data-starting-style": {

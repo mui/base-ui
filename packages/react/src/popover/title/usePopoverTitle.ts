@@ -1,9 +1,9 @@
 'use client';
 import * as React from 'react';
-import { mergeReactProps } from '../../utils/mergeReactProps';
-import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
+import { mergeProps } from '../../merge-props';
+import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { useBaseUiId } from '../../utils/useBaseUiId';
-import type { GenericHTMLProps } from '../../utils/types';
+import type { HTMLProps } from '../../utils/types';
 
 export function usePopoverTitle(params: usePopoverTitle.Parameters): usePopoverTitle.ReturnValue {
   const { titleId, setTitleId } = params;
@@ -12,14 +12,17 @@ export function usePopoverTitle(params: usePopoverTitle.Parameters): usePopoverT
 
   const getTitleProps = React.useCallback(
     (externalProps = {}) => {
-      return mergeReactProps<'h2'>(externalProps, {
-        id,
-      });
+      return mergeProps<'h2'>(
+        {
+          id,
+        },
+        externalProps,
+      );
     },
     [id],
   );
 
-  useEnhancedEffect(() => {
+  useModernLayoutEffect(() => {
     setTitleId(id);
     return () => {
       setTitleId(undefined);
@@ -34,12 +37,12 @@ export function usePopoverTitle(params: usePopoverTitle.Parameters): usePopoverT
   );
 }
 
-namespace usePopoverTitle {
+export namespace usePopoverTitle {
   export interface Parameters {
     titleId: string | undefined;
     setTitleId: React.Dispatch<React.SetStateAction<string | undefined>>;
   }
   export interface ReturnValue {
-    getTitleProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
+    getTitleProps: (externalProps?: HTMLProps) => HTMLProps;
   }
 }

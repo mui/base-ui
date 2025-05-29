@@ -1,30 +1,16 @@
-const path = require('path');
-
 const errorCodesPath = path.resolve(__dirname, './docs/src/error-codes.json');
 const missingError = process.env.MUI_EXTRACT_ERROR_CODES === 'true' ? 'write' : 'annotate';
-
-function resolveAliasPath(relativeToBabelConf) {
-  const resolvedPath = path.relative(process.cwd(), path.resolve(__dirname, relativeToBabelConf));
-  return `./${resolvedPath.replace('\\', '/')}`;
-}
+const baseUIPackageJson = require('./packages/react/package.json');
 
 module.exports = function getBabelConfig(api) {
-  const useESModules = !api.env(['node']);
-
-  const defaultAlias = {
-    docs: resolveAliasPath('./docs'),
-    test: resolveAliasPath('./test'),
-    '@mui-internal/api-docs-builder': resolveAliasPath(
-      './node_modules/@mui/monorepo/packages/api-docs-builder',
-    ),
-  };
+  const useESModules = !api.env('node');
 
   const presets = [
     [
       '@babel/preset-env',
       {
         bugfixes: true,
-        browserslistEnv: process.env.BABEL_ENV || process.env.NODE_ENV,
+        browserslistEnv: api.env(),
         debug: process.env.MUI_BUILD_VERBOSE === 'true',
         modules: useESModules ? false : 'commonjs',
       },
@@ -33,6 +19,8 @@ module.exports = function getBabelConfig(api) {
       '@babel/preset-react',
       {
         runtime: 'automatic',
+        useBuiltIns: true,
+        useSpread: true,
       },
     ],
     '@babel/preset-typescript',
@@ -42,18 +30,12 @@ module.exports = function getBabelConfig(api) {
     'babel-plugin-optimize-clsx',
     [
       '@babel/plugin-transform-runtime',
-      {
-        useESModules,
-        // any package needs to declare 7.4.4 as a runtime dependency. default is ^7.0.0
-        version: '^7.4.4',
-      },
+      { regenerator: false, version: baseUIPackageJson.dependencies['@babel/runtime'] },
     ],
-    [
-      'babel-plugin-transform-react-remove-prop-types',
-      {
-        mode: 'unsafe-wrap',
-      },
-    ],
+    '@mui/internal-babel-plugin-display-name',
+    ...(useESModules
+      ? [['@mui/internal-babel-plugin-resolve-imports', { outExtension: '.js' }]]
+      : []),
     [
       '@mui/internal-babel-plugin-minify-errors',
       {
@@ -65,17 +47,6 @@ module.exports = function getBabelConfig(api) {
         outExtension: '',
       },
     ],
-  ];
-
-  const devPlugins = [
-    [
-      'babel-plugin-module-resolver',
-      {
-        root: ['./'],
-        alias: defaultAlias,
-      },
-    ],
-    'babel-plugin-add-import-extension',
   ];
 
   return {
@@ -101,15 +72,8 @@ module.exports = function getBabelConfig(api) {
       },
     ],
     env: {
-      development: {
-        plugins: devPlugins,
-      },
       test: {
         sourceMaps: 'both',
-        plugins: devPlugins,
-      },
-      production: {
-        plugins: ['babel-plugin-add-import-extension'],
       },
     },
   };

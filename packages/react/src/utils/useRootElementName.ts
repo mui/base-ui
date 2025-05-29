@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useEnhancedEffect } from './useEnhancedEffect';
+import { useModernLayoutEffect } from './useModernLayoutEffect';
 import { warn } from './warn';
 
 interface UseRootElementNameParameters {
@@ -21,8 +21,6 @@ interface UseRootElementNameReturnValue {
 }
 
 /**
- * @ignore - do not document.
- *
  * Use this function determine the host element correctly on the server (in a SSR context, for example Next.js)
  */
 export function useRootElementName(
@@ -36,7 +34,7 @@ export function useRootElementName(
 
   if (process.env.NODE_ENV !== 'production') {
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    useEnhancedEffect(() => {
+    useModernLayoutEffect(() => {
       if (rootElementNameProp && rootElementName !== rootElementNameProp.toUpperCase()) {
         warn(
           `useRootElementName expected the '${rootElementNameProp}' element, but a '${rootElementName.toLowerCase()}' was rendered instead`,

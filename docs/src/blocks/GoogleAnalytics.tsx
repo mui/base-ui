@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useMediaQuery } from '@base-ui-components/react/unstable-use-media-query';
-import { useEnhancedEffect } from '@base-ui-components/react/utils';
+import { useModernLayoutEffect } from '@base-ui-components/react/utils';
 
 let boundDataGaListener = false;
 
@@ -10,7 +10,7 @@ let boundDataGaListener = false;
  * However, it needs the redux store which is created
  * in the same component this "hook" is used.
  */
-const GoogleAnalytics = React.memo(function GoogleAnalytics(props: GoogleAnalytics.Props) {
+export const GoogleAnalytics = React.memo(function GoogleAnalytics(props: GoogleAnalytics.Props) {
   const {
     productId,
     productCategoryId,
@@ -20,13 +20,13 @@ const GoogleAnalytics = React.memo(function GoogleAnalytics(props: GoogleAnalyti
     userLanguage,
   } = props;
 
-  useEnhancedEffect(() => {
+  useModernLayoutEffect(() => {
     // @ts-expect-error
     window.dataLayer = window.dataLayer || [];
 
     function gtag(...args: unknown[]) {
       // @ts-expect-error
-      window.dataLayer.push(...args);
+      window.dataLayer.push([...args]);
     }
 
     window.gtag = gtag;
@@ -121,7 +121,7 @@ const GoogleAnalytics = React.memo(function GoogleAnalytics(props: GoogleAnalyti
   return null;
 });
 
-namespace GoogleAnalytics {
+export namespace GoogleAnalytics {
   export interface Props {
     productId: string;
     productCategoryId: string;
@@ -166,5 +166,3 @@ function handleDocumentClick(event: MouseEvent) {
     node = element.parentElement;
   }
 }
-
-export { GoogleAnalytics };

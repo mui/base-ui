@@ -1,14 +1,18 @@
 'use client';
 import * as React from 'react';
-import PropTypes from 'prop-types';
 import { useSelectPositionerContext } from '../positioner/SelectPositionerContext';
 import { useSelectRootContext } from '../root/SelectRootContext';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { useForkRef } from '../../utils/useForkRef';
-import { mergeReactProps } from '../../utils/mergeReactProps';
 import type { BaseUIComponentProps } from '../../utils/types';
-import { popupStateMapping } from '../../utils/popupStateMapping';
 import type { Align, Side } from '../../utils/useAnchorPositioning';
+import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
+import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping';
+import { transitionStatusMapping } from '../../utils/styleHookMapping';
+import { useRenderElement } from '../../utils/useRenderElement';
+
+const customStyleHookMapping: CustomStyleHookMapping<SelectArrow.State> = {
+  ...baseMapping,
+  ...transitionStatusMapping,
+};
 
 /**
  * Displays an element positioned against the select menu anchor.
@@ -16,23 +20,15 @@ import type { Align, Side } from '../../utils/useAnchorPositioning';
  *
  * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
  */
-const SelectArrow = React.forwardRef(function SelectArrow(
-  props: SelectArrow.Props,
+export const SelectArrow = React.forwardRef(function SelectArrow(
+  componentProps: SelectArrow.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { className, render, ...otherProps } = props;
+  const { className, render, ...elementProps } = componentProps;
 
-  const { open, alignItemToTrigger } = useSelectRootContext();
-  const { arrowRef, side, align, arrowUncentered, arrowStyles } = useSelectPositionerContext();
-
-  const getArrowProps = React.useCallback(
-    (externalProps = {}) =>
-      mergeReactProps<'div'>(externalProps, {
-        style: arrowStyles,
-        'aria-hidden': true,
-      }),
-    [arrowStyles],
-  );
+  const { open } = useSelectRootContext();
+  const { arrowRef, side, align, arrowUncentered, arrowStyles, alignItemWithTriggerActive } =
+    useSelectPositionerContext();
 
   const state: SelectArrow.State = React.useMemo(
     () => ({
@@ -44,26 +40,21 @@ const SelectArrow = React.forwardRef(function SelectArrow(
     [open, side, align, arrowUncentered],
   );
 
-  const mergedRef = useForkRef(arrowRef, forwardedRef);
-
-  const { renderElement } = useComponentRenderer({
-    propGetter: getArrowProps,
-    render: render ?? 'div',
-    className,
+  const element = useRenderElement('div', componentProps, {
     state,
-    ref: mergedRef,
-    extraProps: otherProps,
-    customStyleHookMapping: popupStateMapping,
+    ref: [arrowRef, forwardedRef],
+    props: [{ style: arrowStyles, 'aria-hidden': true }, elementProps],
+    customStyleHookMapping,
   });
 
-  if (alignItemToTrigger) {
+  if (alignItemWithTriggerActive) {
     return null;
   }
 
-  return renderElement();
+  return element;
 });
 
-namespace SelectArrow {
+export namespace SelectArrow {
   export interface State {
     /**
      * Whether the select menu is currently open.
@@ -76,28 +67,3 @@ namespace SelectArrow {
 
   export interface Props extends BaseUIComponentProps<'div', State> {}
 }
-
-SelectArrow.propTypes /* remove-proptypes */ = {
-  // ┌────────────────────────────── Warning ──────────────────────────────┐
-  // │ These PropTypes are generated from the TypeScript type definitions. │
-  // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
-  // └─────────────────────────────────────────────────────────────────────┘
-  /**
-   * @ignore
-   */
-  children: PropTypes.node,
-  /**
-   * CSS class applied to the element, or a function that
-   * returns a class based on the component’s state.
-   */
-  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
-  /**
-   * Allows you to replace the component’s HTML element
-   * with a different tag, or compose it with another component.
-   *
-   * Accepts a `ReactElement` or a function that returns the element to render.
-   */
-  render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
-} as any;
-
-export { SelectArrow };

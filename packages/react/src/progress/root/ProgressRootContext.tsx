@@ -1,20 +1,33 @@
 'use client';
 import * as React from 'react';
-import type { ProgressRoot } from './ProgressRoot';
-import type { useProgressRoot } from './useProgressRoot';
+import type { ProgressRoot, ProgressStatus } from './ProgressRoot';
 
-export type ProgressRootContext = Omit<useProgressRoot.ReturnValue, 'getRootProps'> & {
+export type ProgressRootContext = {
+  /**
+   * Formatted value of the component.
+   */
+  formattedValue: string;
+  /**
+   * The maximum value.
+   */
+  max: number;
+  /**
+   * The minimum value.
+   */
+  min: number;
+  /**
+   * Value of the component.
+   */
+  value: number | null;
+  setLabelId: React.Dispatch<React.SetStateAction<string | undefined>>;
   state: ProgressRoot.State;
+  status: ProgressStatus;
 };
 
 /**
- * @ignore - internal component.
+ * @internal
  */
 export const ProgressRootContext = React.createContext<ProgressRootContext | undefined>(undefined);
-
-if (process.env.NODE_ENV !== 'production') {
-  ProgressRootContext.displayName = 'ProgressRootContext';
-}
 
 export function useProgressRootContext() {
   const context = React.useContext(ProgressRootContext);

@@ -3,7 +3,7 @@ import { Tooltip } from '@base-ui-components/react/tooltip';
 import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import { createRenderer, isJSDOM } from '#test-utils';
+import { createRenderer, isJSDOM, popupConformanceTests } from '#test-utils';
 import { OPEN_DELAY } from '../utils/constants';
 
 function Root(props: Tooltip.Root.Props) {
@@ -16,6 +16,21 @@ describe('<Tooltip.Root />', () => {
   });
 
   const { render, clock } = createRenderer();
+
+  popupConformanceTests({
+    createComponent: (props) => (
+      <Tooltip.Root {...props.root}>
+        <Tooltip.Trigger {...props.trigger}>Open menu</Tooltip.Trigger>
+        <Tooltip.Portal {...props.portal}>
+          <Tooltip.Positioner>
+            <Tooltip.Popup {...props.popup}>Content</Tooltip.Popup>
+          </Tooltip.Positioner>
+        </Tooltip.Portal>
+      </Tooltip.Root>
+    ),
+    render,
+    triggerMouseAction: 'hover',
+  });
 
   describe('uncontrolled open', () => {
     clock.withFakeTimers();
@@ -130,35 +145,6 @@ describe('<Tooltip.Root />', () => {
 
   describe('controlled open', () => {
     clock.withFakeTimers();
-
-    it('should open when controlled open is true', async () => {
-      await render(
-        <Root open>
-          <Tooltip.Portal>
-            <Tooltip.Positioner>
-              <Tooltip.Popup>Content</Tooltip.Popup>
-            </Tooltip.Positioner>
-          </Tooltip.Portal>
-        </Root>,
-      );
-
-      expect(screen.getByText('Content')).not.to.equal(null);
-    });
-
-    it('should close when controlled open is false', async () => {
-      await render(
-        <Root open={false}>
-          <Tooltip.Portal>
-            <Tooltip.Positioner>
-              <Tooltip.Popup>Content</Tooltip.Popup>
-            </Tooltip.Positioner>
-          </Tooltip.Portal>
-        </Root>,
-      );
-
-      expect(screen.queryByText('Content')).to.equal(null);
-    });
-
     it('should call onOpenChange when the open state changes', async () => {
       const handleChange = spy();
 
@@ -395,7 +381,7 @@ describe('<Tooltip.Root />', () => {
     });
   });
 
-  describe('prop: action', () => {
+  describe('prop: actionsRef', () => {
     it('unmounts the tooltip when the `unmount` method is called', async () => {
       const actionsRef = {
         current: {
@@ -508,90 +494,6 @@ describe('<Tooltip.Root />', () => {
 
       expect(screen.getByTestId('popup')).not.to.equal(null);
 
-      const closeButton = screen.getByText('Close');
-      await user.click(closeButton);
-
-      await waitFor(() => {
-        expect(screen.queryByTestId('popup')).to.equal(null);
-      });
-
-      expect(onOpenChangeComplete.lastCall.args[0]).to.equal(false);
-    });
-  });
-
-  describe.skipIf(isJSDOM)('prop: onOpenChangeComplete', () => {
-    it('is called on close when there is no exit animation defined', async () => {
-      const onOpenChangeComplete = spy();
-
-      function Test() {
-        const [open, setOpen] = React.useState(true);
-        return (
-          <div>
-            <button onClick={() => setOpen(false)}>Close</button>
-            <Tooltip.Root open={open} onOpenChangeComplete={onOpenChangeComplete}>
-              <Tooltip.Portal>
-                <Tooltip.Positioner>
-                  <Tooltip.Popup data-testid="popup" />
-                </Tooltip.Positioner>
-              </Tooltip.Portal>
-            </Tooltip.Root>
-          </div>
-        );
-      }
-
-      const { user } = await render(<Test />);
-
-      const closeButton = screen.getByText('Close');
-      await user.click(closeButton);
-
-      await waitFor(() => {
-        expect(screen.queryByTestId('popup')).to.equal(null);
-      });
-
-      expect(onOpenChangeComplete.firstCall.args[0]).to.equal(true);
-      expect(onOpenChangeComplete.lastCall.args[0]).to.equal(false);
-    });
-
-    it('is called on close when the exit animation finishes', async () => {
-      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
-
-      const onOpenChangeComplete = spy();
-
-      function Test() {
-        const style = `
-          @keyframes test-anim {
-            to {
-              opacity: 0;
-            }
-          }
-  
-          .animation-test-indicator[data-ending-style] {
-            animation: test-anim 1ms;
-          }
-        `;
-
-        const [open, setOpen] = React.useState(true);
-
-        return (
-          <div>
-            {/* eslint-disable-next-line react/no-danger */}
-            <style dangerouslySetInnerHTML={{ __html: style }} />
-            <button onClick={() => setOpen(false)}>Close</button>
-            <Tooltip.Root open={open} onOpenChangeComplete={onOpenChangeComplete}>
-              <Tooltip.Portal>
-                <Tooltip.Positioner>
-                  <Tooltip.Popup className="animation-test-indicator" data-testid="popup" />
-                </Tooltip.Positioner>
-              </Tooltip.Portal>
-            </Tooltip.Root>
-          </div>
-        );
-      }
-
-      const { user } = await render(<Test />);
-
-      expect(screen.getByTestId('popup')).not.to.equal(null);
-
       // Wait for open animation to finish
       await waitFor(() => {
         expect(onOpenChangeComplete.firstCall.args[0]).to.equal(true);
@@ -651,7 +553,7 @@ describe('<Tooltip.Root />', () => {
               opacity: 0;
             }
           }
-  
+
           .animation-test-indicator[data-starting-style] {
             animation: test-anim 1ms;
           }
@@ -706,6 +608,116 @@ describe('<Tooltip.Root />', () => {
       );
 
       expect(onOpenChangeComplete.callCount).to.equal(0);
+    });
+  });
+
+  describe('prop: disabled', () => {
+    it('should not open when disabled', async () => {
+      await render(
+        <Root disabled delay={0}>
+          <Tooltip.Trigger />
+          <Tooltip.Portal>
+            <Tooltip.Positioner>
+              <Tooltip.Popup>Content</Tooltip.Popup>
+            </Tooltip.Positioner>
+          </Tooltip.Portal>
+        </Root>,
+      );
+
+      const trigger = screen.getByRole('button');
+
+      fireEvent.pointerDown(trigger, { pointerType: 'mouse' });
+      fireEvent.mouseEnter(trigger);
+      fireEvent.mouseMove(trigger);
+
+      await flushMicrotasks();
+
+      expect(screen.queryByText('Content')).to.equal(null);
+
+      await act(async () => trigger.focus());
+
+      expect(screen.queryByText('Content')).to.equal(null);
+    });
+
+    it('should close if open when becoming disabled', async () => {
+      function App() {
+        const [disabled, setDisabled] = React.useState(false);
+        return (
+          <div>
+            <Root defaultOpen disabled={disabled} delay={0}>
+              <Tooltip.Trigger />
+              <Tooltip.Portal>
+                <Tooltip.Positioner>
+                  <Tooltip.Popup>Content</Tooltip.Popup>
+                </Tooltip.Positioner>
+              </Tooltip.Portal>
+            </Root>
+            <button
+              data-testid="disabled"
+              onClick={() => {
+                setDisabled(true);
+              }}
+            />
+          </div>
+        );
+      }
+
+      await render(<App />);
+
+      expect(screen.queryByText('Content')).not.to.equal(null);
+
+      const disabledButton = screen.getByTestId('disabled');
+      fireEvent.click(disabledButton);
+
+      expect(screen.queryByText('Content')).to.equal(null);
+    });
+  });
+
+  describe('prop: hoverable', () => {
+    it('applies pointer-events: none to the positioner when not hoverable', async () => {
+      await render(
+        <Root delay={0} hoverable={false}>
+          <Tooltip.Trigger />
+          <Tooltip.Portal>
+            <Tooltip.Positioner data-testid="positioner">
+              <Tooltip.Popup>Content</Tooltip.Popup>
+            </Tooltip.Positioner>
+          </Tooltip.Portal>
+        </Root>,
+      );
+
+      const trigger = screen.getByRole('button');
+
+      fireEvent.pointerDown(trigger, { pointerType: 'mouse' });
+      fireEvent.mouseEnter(trigger);
+      fireEvent.mouseMove(trigger);
+
+      await flushMicrotasks();
+
+      expect(screen.getByTestId('positioner').style.pointerEvents).to.equal('none');
+    });
+
+    it('does not apply pointer-events: none to the positioner when hoverable', async () => {
+      await render(
+        <Root delay={0} hoverable>
+          <Tooltip.Trigger />
+          <Tooltip.Portal>
+            <Tooltip.Positioner data-testid="positioner">
+              <Tooltip.Popup>Content</Tooltip.Popup>
+            </Tooltip.Positioner>
+          </Tooltip.Portal>
+        </Root>,
+      );
+
+      const trigger = screen.getByRole('button');
+
+      fireEvent.pointerDown(trigger, { pointerType: 'mouse' });
+      fireEvent.mouseEnter(trigger);
+      fireEvent.mouseMove(trigger);
+
+      await flushMicrotasks();
+
+      expect(screen.getByTestId('positioner').style.pointerEvents).to.equal('');
     });
   });
 });

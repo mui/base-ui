@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import PropTypes from 'prop-types';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { usePreviewCardPositionerContext } from '../positioner/PreviewCardPositionerContext';
 import { useForkRef } from '../../utils/useForkRef';
@@ -8,7 +7,7 @@ import { usePreviewCardRootContext } from '../root/PreviewCardContext';
 import type { BaseUIComponentProps } from '../../utils/types';
 import type { Align, Side } from '../../utils/useAnchorPositioning';
 import { popupStateMapping } from '../../utils/popupStateMapping';
-import { mergeReactProps } from '../../utils/mergeReactProps';
+import { mergeProps } from '../../merge-props';
 
 /**
  * Displays an element positioned against the preview card anchor.
@@ -16,7 +15,7 @@ import { mergeReactProps } from '../../utils/mergeReactProps';
  *
  * Documentation: [Base UI Preview Card](https://base-ui.com/react/components/preview-card)
  */
-const PreviewCardArrow = React.forwardRef(function PreviewCardArrow(
+export const PreviewCardArrow = React.forwardRef(function PreviewCardArrow(
   props: PreviewCardArrow.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
@@ -27,10 +26,13 @@ const PreviewCardArrow = React.forwardRef(function PreviewCardArrow(
 
   const getArrowProps = React.useCallback(
     (externalProps = {}) =>
-      mergeReactProps<'div'>(externalProps, {
-        style: arrowStyles,
-        'aria-hidden': true,
-      }),
+      mergeProps<'div'>(
+        {
+          style: arrowStyles,
+          'aria-hidden': true,
+        },
+        externalProps,
+      ),
     [arrowStyles],
   );
 
@@ -59,7 +61,7 @@ const PreviewCardArrow = React.forwardRef(function PreviewCardArrow(
   return renderElement();
 });
 
-namespace PreviewCardArrow {
+export namespace PreviewCardArrow {
   export interface State {
     /**
      * Whether the preview card is currently open.
@@ -72,28 +74,3 @@ namespace PreviewCardArrow {
 
   export interface Props extends BaseUIComponentProps<'div', State> {}
 }
-
-PreviewCardArrow.propTypes /* remove-proptypes */ = {
-  // ┌────────────────────────────── Warning ──────────────────────────────┐
-  // │ These PropTypes are generated from the TypeScript type definitions. │
-  // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
-  // └─────────────────────────────────────────────────────────────────────┘
-  /**
-   * @ignore
-   */
-  children: PropTypes.node,
-  /**
-   * CSS class applied to the element, or a function that
-   * returns a class based on the component’s state.
-   */
-  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
-  /**
-   * Allows you to replace the component’s HTML element
-   * with a different tag, or compose it with another component.
-   *
-   * Accepts a `ReactElement` or a function that returns the element to render.
-   */
-  render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
-} as any;
-
-export { PreviewCardArrow };

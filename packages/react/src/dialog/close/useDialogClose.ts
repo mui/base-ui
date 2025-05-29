@@ -1,20 +1,27 @@
 'use client';
 import * as React from 'react';
-import { mergeReactProps } from '../../utils/mergeReactProps';
-import { OpenChangeReason } from '../../utils/translateOpenChangeReason';
+import { useButton } from '../../use-button/useButton';
+import { mergeProps } from '../../merge-props';
+import type { HTMLProps } from '../../utils/types';
 import { useEventCallback } from '../../utils/useEventCallback';
+import { DialogOpenChangeReason } from '../root/useDialogRoot';
 
 export function useDialogClose(params: useDialogClose.Parameters): useDialogClose.ReturnValue {
-  const { open, setOpen } = params;
+  const { open, setOpen, rootRef: externalRef, disabled } = params;
 
   const handleClick = useEventCallback((event: React.MouseEvent) => {
     if (open) {
-      setOpen(false, event.nativeEvent, 'click');
+      setOpen(false, event.nativeEvent, 'close-press');
     }
   });
 
-  const getRootProps = (externalProps: React.HTMLAttributes<any>) =>
-    mergeReactProps(externalProps, { onClick: handleClick });
+  const { getButtonProps } = useButton({
+    disabled,
+    buttonRef: externalRef,
+  });
+
+  const getRootProps = (externalProps: HTMLProps) =>
+    mergeProps({ onClick: handleClick }, externalProps, getButtonProps);
 
   return {
     getRootProps,
@@ -23,6 +30,10 @@ export function useDialogClose(params: useDialogClose.Parameters): useDialogClos
 
 export namespace useDialogClose {
   export interface Parameters {
+    /**
+     * Whether the button is currently disabled.
+     */
+    disabled: boolean;
     /**
      * Whether the dialog is currently open.
      */
@@ -33,8 +44,9 @@ export namespace useDialogClose {
     setOpen: (
       open: boolean,
       event: Event | undefined,
-      reason: OpenChangeReason | undefined,
+      reason: DialogOpenChangeReason | undefined,
     ) => void;
+    rootRef: React.Ref<HTMLElement>;
   }
 
   export interface ReturnValue {

@@ -1,14 +1,13 @@
 'use client';
 import * as React from 'react';
-import PropTypes from 'prop-types';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import { getTarget } from '@floating-ui/react/utils';
 import { FieldRoot } from '../root/FieldRoot';
 import { useFieldRootContext } from '../root/FieldRootContext';
-import { useFieldLabel } from './useFieldLabel';
 import { fieldValidityMapping } from '../utils/constants';
 import { useBaseUiId } from '../../utils/useBaseUiId';
-import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
+import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import type { BaseUIComponentProps } from '../../utils/types';
+import { useRenderElement } from '../../utils/useRenderElement';
 
 /**
  * An accessible label that is automatically associated with the field control.
@@ -16,69 +15,52 @@ import type { BaseUIComponentProps } from '../../utils/types';
  *
  * Documentation: [Base UI Field](https://base-ui.com/react/components/field)
  */
-const FieldLabel = React.forwardRef(function FieldLabel(
-  props: FieldLabel.Props,
+export const FieldLabel = React.forwardRef(function FieldLabel(
+  componentProps: FieldLabel.Props,
   forwardedRef: React.ForwardedRef<any>,
 ) {
-  const { render, className, id: idProp, ...otherProps } = props;
+  const { render, className, id: idProp, ...elementProps } = componentProps;
 
-  const { setLabelId, state } = useFieldRootContext(false);
+  const { labelId, setLabelId, state, controlId } = useFieldRootContext(false);
 
   const id = useBaseUiId(idProp);
 
-  useEnhancedEffect(() => {
+  useModernLayoutEffect(() => {
     setLabelId(id);
     return () => {
       setLabelId(undefined);
     };
   }, [id, setLabelId]);
 
-  const { getLabelProps } = useFieldLabel();
-
-  const { renderElement } = useComponentRenderer({
-    propGetter: getLabelProps,
-    render: render ?? 'label',
+  const element = useRenderElement('label', componentProps, {
     ref: forwardedRef,
-    className,
     state,
-    extraProps: otherProps,
+    props: [
+      {
+        id: labelId,
+        htmlFor: controlId,
+        onMouseDown(event) {
+          const target = getTarget(event.nativeEvent) as HTMLElement | null;
+          if (target?.closest('button,input,select,textarea')) {
+            return;
+          }
+
+          // Prevent text selection when double clicking label.
+          if (!event.defaultPrevented && event.detail > 1) {
+            event.preventDefault();
+          }
+        },
+      },
+      elementProps,
+    ],
     customStyleHookMapping: fieldValidityMapping,
   });
 
-  return renderElement();
+  return element;
 });
 
-namespace FieldLabel {
+export namespace FieldLabel {
   export type State = FieldRoot.State;
 
-  export interface Props extends BaseUIComponentProps<'div', State> {}
+  export interface Props extends BaseUIComponentProps<'label', State> {}
 }
-
-FieldLabel.propTypes /* remove-proptypes */ = {
-  // ┌────────────────────────────── Warning ──────────────────────────────┐
-  // │ These PropTypes are generated from the TypeScript type definitions. │
-  // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
-  // └─────────────────────────────────────────────────────────────────────┘
-  /**
-   * @ignore
-   */
-  children: PropTypes.node,
-  /**
-   * CSS class applied to the element, or a function that
-   * returns a class based on the component’s state.
-   */
-  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
-  /**
-   * @ignore
-   */
-  id: PropTypes.string,
-  /**
-   * Allows you to replace the component’s HTML element
-   * with a different tag, or compose it with another component.
-   *
-   * Accepts a `ReactElement` or a function that returns the element to render.
-   */
-  render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
-} as any;
-
-export { FieldLabel };

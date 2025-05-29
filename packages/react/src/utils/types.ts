@@ -1,9 +1,12 @@
 import * as React from 'react';
 
-export type GenericHTMLProps = React.HTMLAttributes<any> & { ref?: React.Ref<any> | undefined };
+export type HTMLProps<T = any> = React.HTMLAttributes<T> & {
+  ref?: React.Ref<T> | undefined;
+};
 
 export type BaseUIEvent<E extends React.SyntheticEvent<Element, Event>> = E & {
   preventBaseUIHandler: () => void;
+  readonly baseUIHandlerPrevented?: boolean;
 };
 
 type WithPreventBaseUIHandler<T> = T extends (event: infer E) => any
@@ -39,8 +42,11 @@ export type ComponentRenderFn<Props, State> = (
 export type BaseUIComponentProps<
   ElementType extends React.ElementType,
   State,
-  RenderFunctionProps = GenericHTMLProps,
-> = Omit<WithBaseUIEvent<React.ComponentPropsWithoutRef<ElementType>>, 'className'> & {
+  RenderFunctionProps = HTMLProps,
+> = Omit<
+  WithBaseUIEvent<React.ComponentPropsWithoutRef<ElementType>>,
+  'className' | 'color' | 'defaultValue' | 'defaultChecked'
+> & {
   /**
    * CSS class applied to the element, or a function that
    * returns a class based on the component’s state.
@@ -64,3 +70,5 @@ export type BaseUIComponentProps<
 export type Simplify<T> = T extends Function ? T : { [K in keyof T]: T[K] };
 
 export type RequiredExcept<T, K extends keyof T> = Required<Omit<T, K>> & Pick<T, K>;
+
+export type Orientation = 'horizontal' | 'vertical';

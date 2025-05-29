@@ -1,27 +1,29 @@
 'use client';
 import * as React from 'react';
-import PropTypes from 'prop-types';
-import { useForkRef } from '../../utils/useForkRef';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import { CompositeList } from '../../composite/list/CompositeList';
 import type { BaseUIComponentProps } from '../../utils/types';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { popupStateMapping } from '../../utils/popupStateMapping';
 import { useSelectPositioner } from './useSelectPositioner';
 import type { Align, Side } from '../../utils/useAnchorPositioning';
 import { SelectPositionerContext } from './SelectPositionerContext';
 import { InternalBackdrop } from '../../utils/InternalBackdrop';
-import { HTMLElementType, refType } from '../../utils/proptypes';
+import { inertValue } from '../../utils/inertValue';
+import { useRenderElement } from '../../utils/useRenderElement';
+import { DROPDOWN_COLLISION_AVOIDANCE } from '../../utils/constants';
+import { clearPositionerStyles } from '../popup/utils';
+import { useSelectIndexContext } from '../root/SelectIndexContext';
+import { useEventCallback } from '../../utils/useEventCallback';
 
 /**
- * Positions the select menu popup against the trigger.
+ * Positions the select menu popup.
  * Renders a `<div>` element.
  *
  * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
  */
-const SelectPositioner = React.forwardRef(function SelectPositioner(
-  props: SelectPositioner.Props,
-  ref: React.ForwardedRef<HTMLDivElement>,
+export const SelectPositioner = React.forwardRef(function SelectPositioner(
+  componentProps: SelectPositioner.Props,
+  forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const {
     anchor,
@@ -37,11 +39,48 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
     arrowPadding = 5,
     sticky = false,
     trackAnchor = true,
-    ...otherProps
-  } = props;
+    alignItemWithTrigger = true,
+    collisionAvoidance = DROPDOWN_COLLISION_AVOIDANCE,
+    ...elementProps
+  } = componentProps;
 
-  const { open, mounted, setPositionerElement, listRef, labelsRef, floatingRootContext, modal } =
-    useSelectRootContext();
+  const {
+    open,
+    mounted,
+    positionerElement,
+    setPositionerElement,
+    listRef,
+    labelsRef,
+    floatingRootContext,
+    modal,
+    touchModality,
+    alignItemWithTriggerActiveRef,
+    valuesRef,
+    value,
+    setLabel,
+  } = useSelectRootContext();
+  const { setSelectedIndex } = useSelectIndexContext();
+
+  const [scrollUpArrowVisible, setScrollUpArrowVisible] = React.useState(false);
+  const [scrollDownArrowVisible, setScrollDownArrowVisible] = React.useState(false);
+  const [controlledItemAnchor, setControlledItemAnchor] = React.useState(alignItemWithTrigger);
+
+  const alignItemWithTriggerActive = mounted && controlledItemAnchor && !touchModality;
+
+  React.useImperativeHandle(alignItemWithTriggerActiveRef, () => alignItemWithTriggerActive);
+
+  if (!mounted && controlledItemAnchor !== alignItemWithTrigger) {
+    setControlledItemAnchor(alignItemWithTrigger);
+  }
+
+  if (!alignItemWithTrigger || !mounted) {
+    if (scrollUpArrowVisible) {
+      setScrollUpArrowVisible(false);
+    }
+    if (scrollDownArrowVisible) {
+      setScrollDownArrowVisible(false);
+    }
+  }
 
   const positioner = useSelectPositioner({
     anchor,
@@ -57,10 +96,10 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
     collisionPadding,
     sticky,
     trackAnchor,
+    alignItemWithTriggerActive,
+    collisionAvoidance,
     keepMounted: true,
   });
-
-  const mergedRef = useForkRef(ref, setPositionerElement);
 
   const state: SelectPositioner.State = React.useMemo(
     () => ({
@@ -72,27 +111,80 @@ const SelectPositioner = React.forwardRef(function SelectPositioner(
     [open, positioner.side, positioner.align, positioner.anchorHidden],
   );
 
-  const { renderElement } = useComponentRenderer({
-    propGetter: positioner.getPositionerProps,
-    render: render ?? 'div',
-    ref: mergedRef,
-    className,
+  const element = useRenderElement('div', componentProps, {
+    ref: [forwardedRef, setPositionerElement],
     state,
     customStyleHookMapping: popupStateMapping,
-    extraProps: otherProps,
+    props: [positioner.getPositionerProps, elementProps],
+  });
+
+  const contextValue: SelectPositionerContext = React.useMemo(
+    () => ({
+      ...positioner,
+      alignItemWithTriggerActive,
+      controlledItemAnchor,
+      setControlledItemAnchor,
+      scrollUpArrowVisible,
+      setScrollUpArrowVisible,
+      scrollDownArrowVisible,
+      setScrollDownArrowVisible,
+    }),
+    [
+      positioner,
+      alignItemWithTriggerActive,
+      controlledItemAnchor,
+      scrollUpArrowVisible,
+      scrollDownArrowVisible,
+    ],
+  );
+
+  const prevMapSizeRef = React.useRef(0);
+
+  const onMapChange = useEventCallback((map: Map<Element, { index?: number | null } | null>) => {
+    if (map.size === 0 && prevMapSizeRef.current === 0) {
+      return;
+    }
+
+    if (valuesRef.current.length === 0) {
+      return;
+    }
+
+    const prevSize = prevMapSizeRef.current;
+    prevMapSizeRef.current = map.size;
+
+    if (map.size === prevSize) {
+      return;
+    }
+
+    if (value !== null) {
+      const valueIndex = valuesRef.current.indexOf(value);
+      if (valueIndex === -1) {
+        setSelectedIndex(null);
+        setLabel('');
+      }
+    }
+
+    if (open && alignItemWithTriggerActive) {
+      setScrollDownArrowVisible(false);
+      setScrollUpArrowVisible(false);
+
+      if (positionerElement) {
+        clearPositionerStyles(positionerElement, { height: '' });
+      }
+    }
   });
 
   return (
-    <CompositeList elementsRef={listRef} labelsRef={labelsRef}>
-      <SelectPositionerContext.Provider value={positioner}>
-        {mounted && modal && <InternalBackdrop inert={!open} />}
-        {renderElement()}
+    <CompositeList elementsRef={listRef} labelsRef={labelsRef} onMapChange={onMapChange}>
+      <SelectPositionerContext.Provider value={contextValue}>
+        {mounted && modal && <InternalBackdrop inert={inertValue(!open)} />}
+        {element}
       </SelectPositionerContext.Provider>
     </CompositeList>
   );
 });
 
-namespace SelectPositioner {
+export namespace SelectPositioner {
   export interface State {
     open: boolean;
     side: Side | 'none';
@@ -104,124 +196,3 @@ namespace SelectPositioner {
     extends useSelectPositioner.SharedParameters,
       BaseUIComponentProps<'div', State> {}
 }
-
-SelectPositioner.propTypes /* remove-proptypes */ = {
-  // ┌────────────────────────────── Warning ──────────────────────────────┐
-  // │ These PropTypes are generated from the TypeScript type definitions. │
-  // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
-  // └─────────────────────────────────────────────────────────────────────┘
-  /**
-   * How to align the popup relative to the specified side.
-   * @default 'center'
-   */
-  align: PropTypes.oneOf(['center', 'end', 'start']),
-  /**
-   * Additional offset along the alignment axis in pixels.
-   * Also accepts a function that returns the offset to read the dimensions of the anchor
-   * and positioner elements, along with its side and alignment.
-   *
-   * - `data.anchor`: the dimensions of the anchor element with properties `width` and `height`.
-   * - `data.positioner`: the dimensions of the positioner element with properties `width` and `height`.
-   * - `data.side`: which side of the anchor element the positioner is aligned against.
-   * - `data.align`: how the positioner is aligned relative to the specified side.
-   * @default 0
-   */
-  alignOffset: PropTypes.oneOfType([PropTypes.func, PropTypes.number]),
-  /**
-   * An element to position the popup against.
-   * By default, the popup will be positioned against the trigger.
-   */
-  anchor: PropTypes /* @typescript-to-proptypes-ignore */.oneOfType([
-    HTMLElementType,
-    refType,
-    PropTypes.object,
-    PropTypes.func,
-  ]),
-  /**
-   * Minimum distance to maintain between the arrow and the edges of the popup.
-   *
-   * Use it to prevent the arrow element from hanging out of the rounded corners of a popup.
-   * @default 5
-   */
-  arrowPadding: PropTypes.number,
-  /**
-   * @ignore
-   */
-  children: PropTypes.node,
-  /**
-   * CSS class applied to the element, or a function that
-   * returns a class based on the component’s state.
-   */
-  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
-  /**
-   * An element or a rectangle that delimits the area that the popup is confined to.
-   * @default 'clipping-ancestors'
-   */
-  collisionBoundary: PropTypes /* @typescript-to-proptypes-ignore */.oneOfType([
-    HTMLElementType,
-    PropTypes.arrayOf(HTMLElementType),
-    PropTypes.string,
-    PropTypes.shape({
-      height: PropTypes.number,
-      width: PropTypes.number,
-      x: PropTypes.number,
-      y: PropTypes.number,
-    }),
-  ]),
-  /**
-   * Additional space to maintain from the edge of the collision boundary.
-   * @default 5
-   */
-  collisionPadding: PropTypes.oneOfType([
-    PropTypes.number,
-    PropTypes.shape({
-      bottom: PropTypes.number,
-      left: PropTypes.number,
-      right: PropTypes.number,
-      top: PropTypes.number,
-    }),
-  ]),
-  /**
-   * Determines which CSS `position` property to use.
-   * @default 'absolute'
-   */
-  positionMethod: PropTypes.oneOf(['absolute', 'fixed']),
-  /**
-   * Allows you to replace the component’s HTML element
-   * with a different tag, or compose it with another component.
-   *
-   * Accepts a `ReactElement` or a function that returns the element to render.
-   */
-  render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
-  /**
-   * Which side of the anchor element to align the popup against.
-   * May automatically change to avoid collisions.
-   * @default 'bottom'
-   */
-  side: PropTypes.oneOf(['bottom', 'inline-end', 'inline-start', 'left', 'right', 'top']),
-  /**
-   * Distance between the anchor and the popup in pixels.
-   * Also accepts a function that returns the distance to read the dimensions of the anchor
-   * and positioner elements, along with its side and alignment.
-   *
-   * - `data.anchor`: the dimensions of the anchor element with properties `width` and `height`.
-   * - `data.positioner`: the dimensions of the positioner element with properties `width` and `height`.
-   * - `data.side`: which side of the anchor element the positioner is aligned against.
-   * - `data.align`: how the positioner is aligned relative to the specified side.
-   * @default 0
-   */
-  sideOffset: PropTypes.oneOfType([PropTypes.func, PropTypes.number]),
-  /**
-   * Whether to maintain the popup in the viewport after
-   * the anchor element was scrolled out of view.
-   * @default false
-   */
-  sticky: PropTypes.bool,
-  /**
-   * Whether the popup tracks any layout shift of its positioning anchor.
-   * @default true
-   */
-  trackAnchor: PropTypes.bool,
-} as any;
-
-export { SelectPositioner };

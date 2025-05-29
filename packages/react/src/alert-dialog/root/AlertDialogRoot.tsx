@@ -1,9 +1,8 @@
 'use client';
 import * as React from 'react';
-import PropTypes from 'prop-types';
 import type { DialogRoot } from '../../dialog/root/DialogRoot';
 import { AlertDialogRootContext } from './AlertDialogRootContext';
-import { useDialogRoot } from '../../dialog/root/useDialogRoot';
+import { type DialogOpenChangeReason, useDialogRoot } from '../../dialog/root/useDialogRoot';
 
 /**
  * Groups all parts of the alert dialog.
@@ -11,7 +10,7 @@ import { useDialogRoot } from '../../dialog/root/useDialogRoot';
  *
  * Documentation: [Base UI Alert Dialog](https://base-ui.com/react/components/alert-dialog)
  */
-const AlertDialogRoot: React.FC<AlertDialogRoot.Props> = function AlertDialogRoot(props) {
+export const AlertDialogRoot: React.FC<AlertDialogRoot.Props> = function AlertDialogRoot(props) {
   const {
     children,
     defaultOpen = false,
@@ -53,48 +52,20 @@ const AlertDialogRoot: React.FC<AlertDialogRoot.Props> = function AlertDialogRoo
   );
 };
 
-namespace AlertDialogRoot {
-  export interface Props extends Omit<DialogRoot.Props, 'modal' | 'dismissible'> {}
+export namespace AlertDialogRoot {
+  export interface Props extends Omit<DialogRoot.Props, 'modal' | 'dismissible' | 'onOpenChange'> {
+    /**
+     * Event handler called when the dialog is opened or closed.
+     * @type (open: boolean, event?: Event, reason?: AlertDialog.Root.OpenChangeReason) => void
+     */
+    onOpenChange?: (
+      open: boolean,
+      event: Event | undefined,
+      reason: DialogOpenChangeReason | undefined,
+    ) => void;
+  }
 
   export type Actions = DialogRoot.Actions;
+
+  export type OpenChangeReason = DialogOpenChangeReason;
 }
-
-AlertDialogRoot.propTypes /* remove-proptypes */ = {
-  // ┌────────────────────────────── Warning ──────────────────────────────┐
-  // │ These PropTypes are generated from the TypeScript type definitions. │
-  // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
-  // └─────────────────────────────────────────────────────────────────────┘
-  /**
-   * A ref to imperative actions.
-   */
-  action: PropTypes.shape({
-    current: PropTypes.shape({
-      unmount: PropTypes.func.isRequired,
-    }).isRequired,
-  }),
-  /**
-   * @ignore
-   */
-  children: PropTypes.node,
-  /**
-   * Whether the dialog is initially open.
-   *
-   * To render a controlled dialog, use the `open` prop instead.
-   * @default false
-   */
-  defaultOpen: PropTypes.bool,
-  /**
-   * Event handler called when the dialog is opened or closed.
-   */
-  onOpenChange: PropTypes.func,
-  /**
-   * Event handler called after any animations complete when the dialog is opened or closed.
-   */
-  onOpenChangeComplete: PropTypes.func,
-  /**
-   * Whether the dialog is currently open.
-   */
-  open: PropTypes.bool,
-} as any;
-
-export { AlertDialogRoot };
