@@ -2,13 +2,13 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import {
-  safePolygon,
   useDismiss,
   useFloatingRootContext,
   useHover,
   useInteractions,
   useRole,
   FloatingTree,
+  safePolygon,
 } from '@floating-ui/react';
 import { useClick } from '../../utils/floating-ui/useClick';
 import { useTimeout } from '../../utils/useTimeout';

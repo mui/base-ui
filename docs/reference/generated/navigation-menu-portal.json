@@ -1,0 +1,20 @@
+{
+  "name": "NavigationMenuPortal",
+  "description": "A portal element that moves the popup to a different part of the DOM.\nBy default, the portal element is appended to `<body>`.",
+  "props": {
+    "container": {
+      "type": "HTMLElement | RefObject<HTMLElement | null> | null",
+      "description": "A parent element to render the portal element into."
+    },
+    "children": {
+      "type": "ReactNode"
+    },
+    "keepMounted": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Whether to keep the portal mounted in the DOM while the popup is hidden."
+    }
+  },
+  "dataAttributes": {},
+  "cssVariables": {}
+}
