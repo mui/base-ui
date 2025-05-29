@@ -16,6 +16,8 @@ import { useFormContext } from '../../form/FormContext';
 
 const EMPTY = {};
 
+export const PARENT_CHECKBOX = 'data-parent';
+
 export function useCheckboxRoot(params: useCheckboxRoot.Parameters): useCheckboxRoot.ReturnValue {
   const {
     id: idProp,
@@ -116,6 +118,7 @@ export function useCheckboxRoot(params: useCheckboxRoot.Parameters): useCheckbox
           'aria-readonly': readOnly || undefined,
           'aria-required': required || undefined,
           'aria-labelledby': labelId,
+          [PARENT_CHECKBOX as string]: parent ? '' : undefined,
           onFocus() {
             setFocused(true);
           },
@@ -160,6 +163,7 @@ export function useCheckboxRoot(params: useCheckboxRoot.Parameters): useCheckbox
       groupContext,
       groupValue,
       fieldControlValidation,
+      parent,
     ],
   );
 
@@ -169,7 +173,7 @@ export function useCheckboxRoot(params: useCheckboxRoot.Parameters): useCheckbox
         {
           checked,
           disabled,
-          name,
+          name: parent ? undefined : name,
           // React <19 sets an empty value if `undefined` is passed explicitly
           // To avoid this, we only set the value if it's defined
           ...(valueProp !== undefined

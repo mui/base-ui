@@ -11,6 +11,7 @@ import type { BaseUIComponentProps } from '../utils/types';
 import { fieldValidityMapping } from '../field/utils/constants';
 import { useField } from '../field/useField';
 import { useFieldControlValidation } from '../field/control/useFieldControlValidation';
+import { PARENT_CHECKBOX } from '../checkbox/root/useCheckboxRoot';
 
 /**
  * Provides a shared state to a series of checkboxes.
@@ -50,7 +51,7 @@ export const CheckboxGroup = React.forwardRef(function CheckboxGroup(
 
   const controlRef = React.useRef<HTMLButtonElement>(null);
   const registerControlRef = useEventCallback((element: HTMLButtonElement | null) => {
-    if (element && controlRef.current == null) {
+    if (controlRef.current == null && element != null && !element.hasAttribute(PARENT_CHECKBOX)) {
       controlRef.current = element;
     }
   });

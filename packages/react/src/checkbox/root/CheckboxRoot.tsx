@@ -33,7 +33,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     render,
     className,
     inputRef,
-    value,
+    value: valueProp,
     ...otherProps
   } = props;
 
@@ -41,12 +41,14 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
   const parentContext = groupContext?.parent;
   const isGrouped = parentContext && groupContext.allValues;
 
+  const value = valueProp ?? name;
+
   let groupProps: Partial<Omit<CheckboxRoot.Props, 'className'>> = {};
   if (isGrouped) {
     if (parent) {
       groupProps = groupContext.parent.getParentProps();
-    } else if (name) {
-      groupProps = groupContext.parent.getChildProps(name);
+    } else if (value) {
+      groupProps = groupContext.parent.getChildProps(value);
     }
   }
 
@@ -111,7 +113,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
   return (
     <CheckboxRootContext.Provider value={state}>
       {renderElement()}
-      {!checked && !groupContext && props.name && (
+      {!checked && !groupContext && props.name && !parent && (
         <input type="hidden" name={props.name} value="off" />
       )}
       <input {...getInputProps()} />
