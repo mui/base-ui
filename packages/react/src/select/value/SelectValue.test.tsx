@@ -52,7 +52,7 @@ describe('<Select.Value />', () => {
       fireEvent.click(screen.getByText('placeholder'));
       await flushMicrotasks();
 
-      expect(children.firstCall.firstArg).to.equal('');
+      expect(children.firstCall.firstArg).to.equal('placeholder');
       expect(children.firstCall.lastArg).to.equal('1');
       expect(children.lastCall.firstArg).to.equal('one');
       expect(children.lastCall.lastArg).to.equal('1');
