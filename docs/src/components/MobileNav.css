@@ -166,7 +166,6 @@
 
   /* TODO Vlad should headings be just items? */
   .MobileNavItem {
-    display: flex;
     /*
      * Border is a separate element so that links
      * span the entire screen width and have the
