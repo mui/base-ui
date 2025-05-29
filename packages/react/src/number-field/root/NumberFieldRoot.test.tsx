@@ -781,11 +781,13 @@ describe('<NumberField />', () => {
       const validate = spy(() => 'error');
 
       await render(
-        <Field.Root validationMode="onBlur" validate={validate}>
-          <NumberFieldBase.Root>
-            <NumberFieldBase.Input />
-          </NumberFieldBase.Root>
-        </Field.Root>,
+        <Form>
+          <Field.Root validationMode="onBlur" validate={validate} name="quantity">
+            <NumberFieldBase.Root defaultValue={undefined}>
+              <NumberFieldBase.Input />
+            </NumberFieldBase.Root>
+          </Field.Root>
+        </Form>,
       );
 
       const input = screen.getByRole('textbox');
@@ -795,7 +797,7 @@ describe('<NumberField />', () => {
       fireEvent.blur(input);
 
       expect(validate.callCount).to.equal(1);
-      expect(validate.firstCall.args).to.deep.equal([1]);
+      expect(validate.firstCall.args).to.deep.equal([1, { quantity: 1 }]);
     });
 
     it('Field.Label', async () => {

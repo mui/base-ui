@@ -136,6 +136,8 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
     commitValidation: fieldControlValidation.commitValidation,
     value: valueUnwrapped,
     controlRef,
+    name,
+    getValue: () => valueUnwrapped,
   });
 
   const registerFieldControlRef = useEventCallback((element: HTMLElement | null) => {

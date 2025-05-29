@@ -89,6 +89,8 @@ export function useCheckboxRoot(params: useCheckboxRoot.Parameters): useCheckbox
     commitValidation,
     value: checked,
     controlRef: buttonRef,
+    name,
+    getValue: () => checked,
   });
 
   const inputRef = React.useRef<HTMLInputElement>(null);
