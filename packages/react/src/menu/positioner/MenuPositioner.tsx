@@ -94,7 +94,6 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
     anchor,
     floatingRootContext,
     positionMethod: contextMenuContext ? 'fixed' : positionMethodProp,
-    open,
     mounted,
     side: computedSide,
     sideOffset,

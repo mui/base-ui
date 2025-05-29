@@ -46,7 +46,6 @@ export const PreviewCardPositioner = React.forwardRef(function PreviewCardPositi
     anchor,
     floatingRootContext,
     positionMethod,
-    open,
     mounted,
     side,
     sideOffset,
