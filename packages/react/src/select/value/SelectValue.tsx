@@ -49,8 +49,9 @@ export namespace SelectValue {
      */
     children?: React.ReactNode | ((label: React.ReactNode, value: any) => React.ReactNode);
     /**
-     * Specifies the initial value label.
-     * Required to display the label before mounting the popup and during pre-rendering.
+     * Specifies the initial value label before hydration and before the popup is opened for the first time.
+     * If no item is selected, it acts as a placeholder label. If an item is pre-selected, it should match
+     * the selected item’s label.
      *
      * ```tsx
      * <Select.Value initialLabel="Select an item" />

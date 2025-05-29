@@ -5,7 +5,7 @@
     "initialLabel": {
       "type": "ReactNode",
       "required": true,
-      "description": "Specifies the initial value label.\nRequired to display the label before mounting the popup and during pre-rendering.\n\n```tsx\n<Select.Value initialLabel=\"Select an item\" />\n```"
+      "description": "Specifies the initial value label before hydration and before the popup is opened for the first time.\nIf no item is selected, it acts as a placeholder label. If an item is pre-selected, it should match\nthe selected item’s label.\n\n```tsx\n<Select.Value initialLabel=\"Select an item\" />\n```"
     },
     "children": {
       "type": "ReactNode | ((label: ReactNode, value: any) => ReactNode)",
