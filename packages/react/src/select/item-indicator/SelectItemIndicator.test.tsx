@@ -11,7 +11,7 @@ describe('<Select.ItemIndicator />', () => {
       return render(
         <Select.Root open>
           <Select.Trigger>
-            <Select.Value>select</Select.Value>
+            <Select.Value placeholder="select" />
           </Select.Trigger>
           <Select.Positioner>
             <Select.Item>{node}</Select.Item>
