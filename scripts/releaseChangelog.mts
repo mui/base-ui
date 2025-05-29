@@ -272,8 +272,8 @@ function getScopeFromLabels(labels: string[]): ChangeScope {
     return 'release';
   }
 
-  if (labels.includes('internal')) {
-    return 'refactoring';
+  if (labels.includes('internal') || labels.includes('test')) {
+    return 'internal';
   }
 
   return 'public-api';
@@ -314,7 +314,7 @@ interface CommandParameters {
   format: 'changelog' | 'docs';
 }
 
-type ChangeScope = 'docs' | 'infra' | 'public-api' | 'refactoring' | 'dependencies' | 'release';
+type ChangeScope = 'docs' | 'infra' | 'public-api' | 'internal' | 'dependencies' | 'release';
 
 interface ChangelogEntry {
   title: string;
