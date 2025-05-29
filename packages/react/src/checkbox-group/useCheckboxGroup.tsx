@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import { mergeProps } from '../merge-props';
 import { useControlled } from '../utils/useControlled';
 import { useEventCallback } from '../utils/useEventCallback';
 import { useCheckboxGroupParent } from './useCheckboxGroupParent';
@@ -32,26 +31,22 @@ export function useCheckboxGroup(
     onValueChange,
   });
 
-  const getRootProps = React.useCallback(
-    (externalProps = {}) =>
-      mergeProps<'div'>(
-        {
-          role: 'group',
-          'aria-labelledby': labelId,
-        },
-        externalProps,
-      ),
+  const rootProps: HTMLProps = React.useMemo(
+    () => ({
+      role: 'group',
+      'aria-labelledby': labelId,
+    }),
     [labelId],
   );
 
   return React.useMemo(
     () => ({
-      getRootProps,
+      rootProps,
       value,
       setValue,
       parent,
     }),
-    [getRootProps, value, setValue, parent],
+    [rootProps, value, setValue, parent],
   );
 }
 
@@ -64,7 +59,7 @@ export namespace useCheckboxGroup {
   }
 
   export interface ReturnValue {
-    getRootProps: (externalProps?: HTMLProps) => HTMLProps;
+    rootProps: HTMLProps;
     value: string[];
     setValue: (value: string[], event: Event) => void;
     parent: useCheckboxGroupParent.ReturnValue;

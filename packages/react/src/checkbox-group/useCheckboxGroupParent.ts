@@ -3,10 +3,12 @@ import * as React from 'react';
 import { useBaseUiId } from '../utils/useBaseUiId';
 import { useEventCallback } from '../utils/useEventCallback';
 
+const EMPTY: string[] = [];
+
 export function useCheckboxGroupParent(
   params: useCheckboxGroupParent.Parameters,
 ): useCheckboxGroupParent.ReturnValue {
-  const { allValues = [], value = [], onValueChange: onValueChangeProp } = params;
+  const { allValues = EMPTY, value = EMPTY, onValueChange: onValueChangeProp } = params;
 
   const uncontrolledStateRef = React.useRef(value);
   const disabledStatesRef = React.useRef(new Map<string, boolean>());
@@ -74,7 +76,7 @@ export function useCheckboxGroupParent(
       id: `${id}-${name}`,
       checked: value.includes(name),
       onCheckedChange(nextChecked, event) {
-        const newValue = [...value];
+        const newValue = value.slice();
         if (nextChecked) {
           newValue.push(name);
         } else {

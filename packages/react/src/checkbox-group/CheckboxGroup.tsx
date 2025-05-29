@@ -1,8 +1,8 @@
 'use client';
 import * as React from 'react';
 import { useBaseUiId } from '../utils/useBaseUiId';
-import { useComponentRenderer } from '../utils/useComponentRenderer';
 import { useEventCallback } from '../utils/useEventCallback';
+import { useRenderElement } from '../utils/useRenderElement';
 import { useCheckboxGroup } from './useCheckboxGroup';
 import { CheckboxGroupContext } from './CheckboxGroupContext';
 import type { FieldRoot } from '../field/root/FieldRoot';
@@ -19,20 +19,20 @@ import { PARENT_CHECKBOX } from '../checkbox/root/CheckboxRoot';
  * Documentation: [Base UI Checkbox Group](https://base-ui.com/react/components/checkbox-group)
  */
 export const CheckboxGroup = React.forwardRef(function CheckboxGroup(
-  props: CheckboxGroup.Props,
+  componentProps: CheckboxGroup.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const {
-    render,
-    className,
-    value: externalValue,
-    defaultValue,
-    onValueChange,
     allValues,
+    className,
+    defaultValue,
     disabled: disabledProp = false,
     id: idProp,
-    ...otherProps
-  } = props;
+    onValueChange,
+    render,
+    value: externalValue,
+    ...elementProps
+  } = componentProps;
 
   const { disabled: fieldDisabled, state: fieldState, name: fieldName } = useFieldRootContext();
 
@@ -40,7 +40,7 @@ export const CheckboxGroup = React.forwardRef(function CheckboxGroup(
 
   const fieldControlValidation = useFieldControlValidation();
 
-  const { getRootProps, value, setValue, parent } = useCheckboxGroup({
+  const { rootProps, value, setValue, parent } = useCheckboxGroup({
     value: externalValue,
     allValues,
     defaultValue,
@@ -72,16 +72,6 @@ export const CheckboxGroup = React.forwardRef(function CheckboxGroup(
     [fieldState, disabled],
   );
 
-  const { renderElement } = useComponentRenderer({
-    propGetter: getRootProps,
-    render: render ?? 'div',
-    className,
-    state,
-    ref: forwardedRef,
-    extraProps: otherProps,
-    customStyleHookMapping: fieldValidityMapping,
-  });
-
   const contextValue: CheckboxGroupContext = React.useMemo(
     () => ({
       allValues,
@@ -105,10 +95,15 @@ export const CheckboxGroup = React.forwardRef(function CheckboxGroup(
     ],
   );
 
+  const element = useRenderElement('div', componentProps, {
+    state,
+    ref: forwardedRef,
+    props: [rootProps, elementProps],
+    customStyleHookMapping: fieldValidityMapping,
+  });
+
   return (
-    <CheckboxGroupContext.Provider value={contextValue}>
-      {renderElement()}
-    </CheckboxGroupContext.Provider>
+    <CheckboxGroupContext.Provider value={contextValue}>{element}</CheckboxGroupContext.Provider>
   );
 });
 
