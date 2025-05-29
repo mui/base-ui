@@ -16,7 +16,7 @@
       "description": "Callback invoked when new value is being set."
     },
     "orientation": {
-      "type": "Orientation",
+      "type": "Tabs.Root.Orientation",
       "default": "'horizontal'",
       "description": "The component orientation (layout flow direction)."
     },

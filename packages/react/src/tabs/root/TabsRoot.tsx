@@ -192,6 +192,9 @@ export namespace TabsRoot {
   export type Orientation = BaseOrientation;
 
   export type State = {
+    /**
+     * @type Tabs.Root.Orientation
+     */
     orientation: Orientation;
     tabActivationDirection: TabActivationDirection;
   };
@@ -210,6 +213,7 @@ export namespace TabsRoot {
     defaultValue?: TabValue;
     /**
      * The component orientation (layout flow direction).
+     * @type Tabs.Root.Orientation
      * @default 'horizontal'
      */
     orientation?: Orientation;

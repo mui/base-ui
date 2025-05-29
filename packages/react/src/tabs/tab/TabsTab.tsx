@@ -2,6 +2,7 @@
 import * as React from 'react';
 import { ownerDocument } from '../../utils/owner';
 import { useBaseUiId } from '../../utils/useBaseUiId';
+import { useEventCallback } from '../../utils/useEventCallback';
 import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { useRenderElement } from '../../utils/useRenderElement';
 import type { BaseUIComponentProps } from '../../utils/types';
@@ -97,6 +98,55 @@ export const TabsTab = React.forwardRef(function Tab(
 
   const highlighted = index > -1 && index === highlightedTabIndex;
 
+  const onClick = useEventCallback((event: React.MouseEvent<HTMLButtonElement>) => {
+    if (selected || disabled) {
+      return;
+    }
+
+    onTabActivation(tabValue, event.nativeEvent);
+  });
+
+  const onFocus = useEventCallback((event: React.FocusEvent<HTMLButtonElement>) => {
+    if (selected) {
+      return;
+    }
+
+    if (index > 1 && index !== highlightedTabIndex) {
+      setHighlightedTabIndex(index);
+    }
+
+    if (disabled) {
+      return;
+    }
+
+    if (
+      (activateOnFocus && !isPressingRef.current) || // keyboard focus
+      (isPressingRef.current && isMainButtonRef.current) // focus caused by pointerdown
+    ) {
+      onTabActivation(tabValue, event.nativeEvent);
+    }
+  });
+
+  const onPointerDown = useEventCallback((event: React.PointerEvent<HTMLButtonElement>) => {
+    if (selected || disabled) {
+      return;
+    }
+
+    isPressingRef.current = true;
+
+    function handlePointerUp() {
+      isPressingRef.current = false;
+      isMainButtonRef.current = false;
+    }
+
+    if (!event.button || event.button === 0) {
+      isMainButtonRef.current = true;
+
+      const doc = ownerDocument(event.currentTarget);
+      doc.addEventListener('pointerup', handlePointerUp, { once: true });
+    }
+  });
+
   const state: TabsTab.State = React.useMemo(
     () => ({
       disabled,
@@ -116,52 +166,9 @@ export const TabsTab = React.forwardRef(function Tab(
         'aria-controls': tabPanelId,
         'aria-selected': selected,
         id,
-        onClick(event: React.MouseEvent<HTMLButtonElement>) {
-          if (selected || disabled) {
-            return;
-          }
-
-          onTabActivation(tabValue, event.nativeEvent);
-        },
-        onFocus(event: React.FocusEvent<HTMLButtonElement>) {
-          if (selected) {
-            return;
-          }
-
-          if (index > 1 && index !== highlightedTabIndex) {
-            setHighlightedTabIndex(index);
-          }
-
-          if (disabled) {
-            return;
-          }
-
-          if (
-            (activateOnFocus && !isPressingRef.current) || // keyboard focus
-            (isPressingRef.current && isMainButtonRef.current) // focus caused by pointerdown
-          ) {
-            onTabActivation(tabValue, event.nativeEvent);
-          }
-        },
-        onPointerDown(event: React.PointerEvent<HTMLButtonElement>) {
-          if (selected || disabled) {
-            return;
-          }
-
-          isPressingRef.current = true;
-
-          function handlePointerUp() {
-            isPressingRef.current = false;
-            isMainButtonRef.current = false;
-          }
-
-          if (!event.button || event.button === 0) {
-            isMainButtonRef.current = true;
-
-            const doc = ownerDocument(event.currentTarget);
-            doc.addEventListener('pointerup', handlePointerUp, { once: true });
-          }
-        },
+        onClick,
+        onFocus,
+        onPointerDown,
       },
       elementProps,
       getButtonProps,
