@@ -8,7 +8,7 @@ import { createRenderer, describeConformance } from '#test-utils';
 describe('<Select.Value />', () => {
   const { render } = createRenderer();
 
-  describeConformance(<Select.Value initialSelectedLabel="value" />, () => ({
+  describeConformance(<Select.Value placeholder="value" />, () => ({
     refInstanceof: window.HTMLSpanElement,
     render(node) {
       return render(<Select.Root open>{node}</Select.Root>);
@@ -32,7 +32,7 @@ describe('<Select.Value />', () => {
       await render(
         <Select.Root value="1">
           <Select.Trigger>
-            <Select.Value initialSelectedLabel="placeholder">
+            <Select.Value placeholder="placeholder">
               {(label, value) => {
                 children(label, value);
                 return label;

@@ -2,17 +2,13 @@
   "name": "SelectValue",
   "description": "A text label of the currently selected item.\nRenders a `<span>` element.",
   "props": {
-    "initialSelectedLabel": {
-      "type": "ReactNode",
-      "description": "When an item is pre-selected, this specifies the initial value label before hydration and\nbefore the popup is opened for the first time. It should be identical to the selected item’s label.\n\n```tsx\n<Select.Value initialSelectedLabel=\"Red\" />\n```"
-    },
     "placeholder": {
       "type": "ReactNode",
-      "description": "Specifies the placeholder label when no item is selected.\n\n```tsx\n<Select.Value placeholder=\"Select an item\" />\n```"
+      "required": true,
+      "description": "A placeholder to display before the popup is opened for the first time."
     },
     "children": {
-      "type": "ReactNode | ((label: ReactNode, value: any) => ReactNode)",
-      "description": "Specifies a controlled label or a callback to customize the value label when uncontrolled.\n\n```tsx\n<Select.Value placeholder=\"Select an item\">\n  {(label, value) => value !== null ? `${label} (${value})` : label}\n</Select.Value>\n```"
+      "type": "((label: ReactNode, value: any) => ReactNode) | null"
     },
     "className": {
       "type": "string | ((state: Select.Value.State) => string)",

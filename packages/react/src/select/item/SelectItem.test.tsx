@@ -49,7 +49,7 @@ describe('<Select.Item />', () => {
     const { user } = await render(
       <Select.Root>
         <Select.Trigger data-testid="trigger">
-          <Select.Value initialSelectedLabel="value" />
+          <Select.Value placeholder="value" />
         </Select.Trigger>
         <Select.Portal>
           <Select.Positioner>
@@ -85,7 +85,7 @@ describe('<Select.Item />', () => {
     const { user } = await render(
       <Select.Root>
         <Select.Trigger data-testid="trigger">
-          <Select.Value data-testid="value" initialSelectedLabel="null" />
+          <Select.Value data-testid="value" placeholder="null" />
         </Select.Trigger>
         <Select.Portal>
           <Select.Positioner>
@@ -114,7 +114,7 @@ describe('<Select.Item />', () => {
     await render(
       <Select.Root open>
         <Select.Trigger data-testid="trigger">
-          <Select.Value data-testid="value" initialSelectedLabel="value" />
+          <Select.Value data-testid="value" placeholder="value" />
         </Select.Trigger>
         <Select.Portal>
           <Select.Positioner>
@@ -165,7 +165,7 @@ describe('<Select.Item />', () => {
     const { user } = await render(
       <Select.Root>
         <Select.Trigger data-testid="trigger">
-          <Select.Value data-testid="value" initialSelectedLabel="one" />
+          <Select.Value data-testid="value" placeholder="one" />
         </Select.Trigger>
         <Select.Portal>
           <Select.Positioner>

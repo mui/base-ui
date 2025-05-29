@@ -14,24 +14,21 @@ export const SelectValue = React.forwardRef(function SelectValue(
   componentProps: SelectValue.Props,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
-  const {
-    className,
-    render,
-    children: childrenProp,
-    initialSelectedLabel,
-    placeholder,
-    ...elementProps
-  } = componentProps;
+  const { className, render, children, placeholder, ...elementProps } = componentProps;
 
-  const { value, label: contextLabel, valueRef } = useSelectRootContext();
-
-  const label = value == null ? placeholder : contextLabel || initialSelectedLabel;
-  const children =
-    typeof childrenProp === 'function' ? childrenProp(label, value) : childrenProp || label;
+  const { value, label, valueRef } = useSelectRootContext();
 
   const element = useRenderElement('span', componentProps, {
     ref: [forwardedRef, valueRef],
-    props: [{ children }, elementProps],
+    props: [
+      {
+        children:
+          typeof children === 'function'
+            ? children(!label && placeholder ? placeholder : label, value)
+            : label || placeholder,
+      },
+      elementProps,
+    ],
   });
 
   return element;
@@ -39,33 +36,11 @@ export const SelectValue = React.forwardRef(function SelectValue(
 
 export namespace SelectValue {
   export interface Props extends Omit<BaseUIComponentProps<'span', State>, 'children'> {
+    children?: null | ((label: React.ReactNode, value: any) => React.ReactNode);
     /**
-     * Specifies a controlled label or a callback to customize the value label when uncontrolled.
-     *
-     * ```tsx
-     * <Select.Value placeholder="Select an item">
-     *   {(label, value) => value !== null ? `${label} (${value})` : label}
-     * </Select.Value>
-     * ```
+     * A placeholder to display before the popup is opened for the first time.
      */
-    children?: React.ReactNode | ((label: React.ReactNode, value: any) => React.ReactNode);
-    /**
-     * When an item is pre-selected, this specifies the initial value label before hydration and
-     * before the popup is opened for the first time. It should be identical to the selected item’s label.
-     *
-     * ```tsx
-     * <Select.Value initialSelectedLabel="Red" />
-     * ```
-     */
-    initialSelectedLabel?: React.ReactNode;
-    /**
-     * Specifies the placeholder label when no item is selected.
-     *
-     * ```tsx
-     * <Select.Value placeholder="Select an item" />
-     * ```
-     */
-    placeholder?: React.ReactNode;
+    placeholder: React.ReactNode;
   }
 
   export interface State {}

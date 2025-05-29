@@ -38,7 +38,7 @@ export default function ExampleToolbar() {
       <Toolbar.Separator className={styles.Separator} />
       <Select.Root defaultValue="helvetica">
         <Toolbar.Button render={<Select.Trigger />} className={styles.Button}>
-          <Select.Value initialSelectedLabel="Helvetica" />
+          <Select.Value placeholder="Helvetica" />
           <Select.Icon>
             <ChevronUpDownIcon />
           </Select.Icon>

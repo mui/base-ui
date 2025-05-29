@@ -18,7 +18,7 @@ describe('<Select.Root />', () => {
     createComponent: (props) => (
       <Select.Root {...props.root}>
         <Select.Trigger {...props.trigger}>
-          <Select.Value initialSelectedLabel="Item" />
+          <Select.Value placeholder="Item" />
         </Select.Trigger>
         <Select.Portal {...props.portal}>
           <Select.Positioner>
@@ -40,7 +40,7 @@ describe('<Select.Root />', () => {
       await render(
         <Select.Root defaultValue="b">
           <Select.Trigger data-testid="trigger">
-            <Select.Value initialSelectedLabel="a" />
+            <Select.Value placeholder="a" />
           </Select.Trigger>
           <Select.Portal>
             <Select.Positioner>
@@ -71,7 +71,7 @@ describe('<Select.Root />', () => {
       await render(
         <Select.Root value="b">
           <Select.Trigger data-testid="trigger">
-            <Select.Value initialSelectedLabel="a" />
+            <Select.Value placeholder="a" />
           </Select.Trigger>
           <Select.Portal>
             <Select.Positioner>
@@ -100,7 +100,7 @@ describe('<Select.Root />', () => {
       const { setProps } = await render(
         <Select.Root value="a">
           <Select.Trigger data-testid="trigger">
-            <Select.Value initialSelectedLabel="a" />
+            <Select.Value placeholder="a" />
           </Select.Trigger>
           <Select.Portal>
             <Select.Positioner>
@@ -137,7 +137,7 @@ describe('<Select.Root />', () => {
       await render(
         <Select.Root value="a" onValueChange={onValueChange}>
           <Select.Trigger data-testid="trigger">
-            <Select.Value initialSelectedLabel="a" />
+            <Select.Value placeholder="a" />
           </Select.Trigger>
           <Select.Portal>
             <Select.Positioner>
@@ -189,7 +189,7 @@ describe('<Select.Root />', () => {
             }}
           >
             <Select.Trigger data-testid="trigger">
-              <Select.Value initialSelectedLabel="a" />
+              <Select.Value placeholder="a" />
             </Select.Trigger>
             <Select.Portal>
               <Select.Positioner>
@@ -223,7 +223,7 @@ describe('<Select.Root />', () => {
       const { user } = await renderFakeTimers(
         <Select.Root onValueChange={handleValueChange}>
           <Select.Trigger data-testid="trigger">
-            <Select.Value initialSelectedLabel="a" />
+            <Select.Value placeholder="a" />
           </Select.Trigger>
           <Select.Portal>
             <Select.Positioner>
@@ -254,7 +254,7 @@ describe('<Select.Root />', () => {
       await render(
         <Select.Root defaultOpen>
           <Select.Trigger data-testid="trigger">
-            <Select.Value initialSelectedLabel="a" />
+            <Select.Value placeholder="a" />
           </Select.Trigger>
           <Select.Portal>
             <Select.Positioner>
@@ -278,7 +278,7 @@ describe('<Select.Root />', () => {
       const { user } = await render(
         <Select.Root onOpenChange={handleOpenChange}>
           <Select.Trigger data-testid="trigger">
-            <Select.Value initialSelectedLabel="a" />
+            <Select.Value placeholder="a" />
           </Select.Trigger>
           <Select.Portal>
             <Select.Positioner>
@@ -305,7 +305,7 @@ describe('<Select.Root />', () => {
     const { container } = await render(
       <Select.Root name="select">
         <Select.Trigger data-testid="trigger">
-          <Select.Value initialSelectedLabel="a" />
+          <Select.Value placeholder="a" />
         </Select.Trigger>
         <Select.Portal>
           <Select.Positioner>
@@ -639,7 +639,7 @@ describe('<Select.Root />', () => {
       const { user } = await render(
         <Select.Root defaultValue="b" onOpenChange={handleOpenChange} disabled>
           <Select.Trigger>
-            <Select.Value initialSelectedLabel="a" />
+            <Select.Value placeholder="a" />
           </Select.Trigger>
           <Select.Portal>
             <Select.Positioner>
@@ -673,7 +673,7 @@ describe('<Select.Root />', () => {
             <button onClick={() => setDisabled(!disabled)}>toggle</button>
             <Select.Root defaultValue="b" onOpenChange={handleOpenChange} disabled={disabled}>
               <Select.Trigger>
-                <Select.Value initialSelectedLabel="a" />
+                <Select.Value placeholder="a" />
               </Select.Trigger>
               <Select.Portal>
                 <Select.Positioner>
@@ -720,7 +720,7 @@ describe('<Select.Root />', () => {
       const { container } = await render(
         <Select.Root id="test-id">
           <Select.Trigger>
-            <Select.Value initialSelectedLabel="a" />
+            <Select.Value placeholder="a" />
           </Select.Trigger>
           <Select.Portal>
             <Select.Positioner>
@@ -744,7 +744,7 @@ describe('<Select.Root />', () => {
         <Field.Root disabled>
           <Select.Root>
             <Select.Trigger data-testid="trigger">
-              <Select.Value initialSelectedLabel="a" />
+              <Select.Value placeholder="a" />
             </Select.Trigger>
             <Select.Portal>
               <Select.Positioner>
@@ -767,7 +767,7 @@ describe('<Select.Root />', () => {
         <Field.Root name="field-select">
           <Select.Root>
             <Select.Trigger data-testid="trigger">
-              <Select.Value initialSelectedLabel="a" />
+              <Select.Value placeholder="a" />
             </Select.Trigger>
             <Select.Portal>
               <Select.Positioner>
@@ -848,7 +848,7 @@ describe('<Select.Root />', () => {
           <Field.Root name="test" data-testid="field">
             <Select.Root required>
               <Select.Trigger data-testid="trigger">
-                <Select.Value initialSelectedLabel="a" />
+                <Select.Value placeholder="a" />
               </Select.Trigger>
               <Select.Portal>
                 <Select.Positioner />
@@ -882,7 +882,7 @@ describe('<Select.Root />', () => {
             <Field.Root name="select">
               <Select.Root>
                 <Select.Trigger data-testid="trigger">
-                  <Select.Value initialSelectedLabel="a" />
+                  <Select.Value placeholder="a" />
                 </Select.Trigger>
                 <Select.Portal>
                   <Select.Positioner>
@@ -1122,7 +1122,7 @@ describe('<Select.Root />', () => {
         >
           <Select.Root>
             <Select.Trigger data-testid="trigger">
-              <Select.Value initialSelectedLabel="Select an option" />
+              <Select.Value placeholder="Select an option" />
             </Select.Trigger>
             <Select.Portal>
               <Select.Positioner>
@@ -1161,7 +1161,7 @@ describe('<Select.Root />', () => {
         >
           <Select.Root>
             <Select.Trigger data-testid="trigger">
-              <Select.Value initialSelectedLabel="Select an option" />
+              <Select.Value placeholder="Select an option" />
             </Select.Trigger>
             <Select.Portal>
               <Select.Positioner>

@@ -6,7 +6,7 @@ export default function ExampleSelect() {
   return (
     <Select.Root defaultValue="af">
       <Select.Trigger className={styles.Select}>
-        <Select.Value initialSelectedLabel="Afghanistan" />
+        <Select.Value placeholder="Afghanistan" />
         <Select.Icon className={styles.SelectIcon}>
           <ChevronUpDownIcon />
         </Select.Icon>

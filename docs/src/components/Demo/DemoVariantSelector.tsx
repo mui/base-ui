@@ -126,7 +126,7 @@ export function DemoVariantSelector({
       {renderLanguageSelector && (
         <Select.Root value={selectedLocalVariant.language} onValueChange={handleLanguageChange}>
           <Select.Trigger
-            initialSelectedLabel={
+            placeholder={
               currentVariantLanguages.find((item) => item.value === selectedLocalVariant.language)
                 ?.label ?? ''
             }
@@ -145,7 +145,7 @@ export function DemoVariantSelector({
         <Select.Root value={selectedLocalVariant.name} onValueChange={handleVariantChange}>
           <Select.Trigger
             aria-label="Styling method"
-            initialSelectedLabel={translations.variants[selectedLocalVariant.name]}
+            placeholder={translations.variants[selectedLocalVariant.name]}
           />
           <Select.Popup>
             {Object.keys(variantsMap).map((variantName) => (
