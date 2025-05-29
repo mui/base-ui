@@ -32,7 +32,6 @@
   background: none;
   border: none;
   outline: none;
-  cursor: pointer;
   text-align: left;
 
   &:focus-visible {
