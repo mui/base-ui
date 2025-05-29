@@ -50,7 +50,7 @@ _May 29, 2025_
   (#1919) by @atomiks
 - Improve `Label` logic that prevents text selection on double click (#1784) by @atomiks
 - Fix validation inconsistency (#1779) by @atomiks
-- Fix integration of Base UI components (#1755) by @atomiks
+- Fix integration of Base UI components (#1755) by @atomiks
 - Set `valueMissing` to false if only error and not dirtied (#1810) by @atomiks
 - `validate` with latest value on blur (#1850) by @atomiks
 - Revalidate only `required` on change (#1840) by @atomiks
@@ -60,7 +60,7 @@ _May 29, 2025_
 
 ### Form
 
-- Fix integration of Base UI components (#1755) by @atomiks
+- Fix integration of Base UI components (#1755) by @atomiks
 - Select inputs on focus (#1858) by @atomiks
 - Exclude number formatting from form value (#1957) by @mj12albert
 - Integrate range sliders with Form and Field (#1929) by @mj12albert
