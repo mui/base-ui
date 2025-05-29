@@ -10,6 +10,8 @@ import packageJson from '../package.json';
 
 const exec = promisify(childProcess.exec);
 
+const GENERAL_CHANGES_HEADER = 'general changes';
+
 async function main(parameters: CommandParameters) {
   const { githubToken, lastRelease: previousReleaseParam, release, format } = parameters;
 
@@ -212,6 +214,13 @@ function getFormattedChangelogEntries(
   }
 
   const changedComponents = Array.from(changes.keys()).sort((a, b) => {
+    if (a === GENERAL_CHANGES_HEADER) {
+      return -1;
+    }
+    if (b === GENERAL_CHANGES_HEADER) {
+      return 1;
+    }
+
     return a.localeCompare(b);
   });
 
@@ -226,6 +235,10 @@ function getFormattedChangelogEntries(
 }
 
 function getComponentsFromLabels(labels: string[]): string[] {
+  if (labels.includes('all components')) {
+    return [GENERAL_CHANGES_HEADER];
+  }
+
   const components = labels
     .filter((label) => {
       return label.startsWith('component:');
@@ -259,7 +272,9 @@ function getScopeFromLabels(labels: string[]): ChangeScope {
     return 'release';
   }
 
-  // TODO: find refactoring-related label
+  if (labels.includes('internal')) {
+    return 'refactoring';
+  }
 
   return 'public-api';
 }
