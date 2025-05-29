@@ -8,7 +8,7 @@ import { createRenderer, describeConformance } from '#test-utils';
 describe('<Select.Value />', () => {
   const { render } = createRenderer();
 
-  describeConformance(<Select.Value>value</Select.Value>, () => ({
+  describeConformance(<Select.Value initialLabel="value" />, () => ({
     refInstanceof: window.HTMLSpanElement,
     render(node) {
       return render(<Select.Root open>{node}</Select.Root>);
@@ -19,7 +19,7 @@ describe('<Select.Value />', () => {
     it('renders a placeholder when the value is null', async () => {
       await render(
         <Select.Root>
-          <Select.Value>Select a font</Select.Value>
+          <Select.Value initialLabel="Select a font" />
         </Select.Root>,
       );
       expect(screen.getByText('Select a font')).not.to.equal(null);
@@ -32,10 +32,10 @@ describe('<Select.Value />', () => {
       await render(
         <Select.Root value="1">
           <Select.Trigger>
-            <Select.Value>
+            <Select.Value initialLabel="placeholder">
               {(label, value) => {
                 children(label, value);
-                return label || 'placeholder';
+                return label;
               }}
             </Select.Value>
           </Select.Trigger>
@@ -69,7 +69,7 @@ describe('<Select.Value />', () => {
           <button onClick={() => setValue(null)}>null</button>
           <Select.Root value={value} onValueChange={setValue}>
             <Select.Trigger>
-              <Select.Value data-testid="value">initial</Select.Value>
+              <Select.Value data-testid="value" initialLabel="initial" />
             </Select.Trigger>
             <Select.Portal>
               <Select.Positioner>

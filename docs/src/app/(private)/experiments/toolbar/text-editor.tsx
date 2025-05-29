@@ -141,7 +141,7 @@ export default function App() {
                 render={<Select.Trigger />}
                 className={styles.select.Select}
               >
-                <Select.Value>Sans-serif</Select.Value>
+                <Select.Value initialLabel="Sans-serif" />
                 <Select.Icon className={styles.select.SelectIcon}>
                   <ChevronUpDownIcon />
                 </Select.Icon>

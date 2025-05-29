@@ -14,18 +14,23 @@ export const SelectValue = React.forwardRef(function SelectValue(
   componentProps: SelectValue.Props,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
-  const { className, render, children, ...elementProps } = componentProps;
+  const {
+    className,
+    render,
+    children: childrenProp,
+    initialLabel,
+    ...elementProps
+  } = componentProps;
 
-  const { value, label, valueRef } = useSelectRootContext();
+  const { value, label: contextLabel, valueRef } = useSelectRootContext();
+
+  const label = contextLabel || initialLabel;
+  const children =
+    typeof childrenProp === 'function' ? childrenProp(label, value) : childrenProp || label;
 
   const element = useRenderElement('span', componentProps, {
     ref: [forwardedRef, valueRef],
-    props: [
-      {
-        children: typeof children === 'function' ? children(label, value) : label || children,
-      },
-      elementProps,
-    ],
+    props: [{ children }, elementProps],
   });
 
   return element;
@@ -34,16 +39,24 @@ export const SelectValue = React.forwardRef(function SelectValue(
 export namespace SelectValue {
   export interface Props extends Omit<BaseUIComponentProps<'span', State>, 'children'> {
     /**
-     * Specifies the initial value label before choosing an item. A callback can be used to
-     * customize the value label.
+     * Specifies a controlled label or a callback to customize the value label when uncontrolled.
      *
      * ```tsx
-     * <Select.Value>
-     *   {(label, value) => label ? `${label} (${value})` : 'Select an item'}
+     * <Select.Value initialLabel="Select an item">
+     *   {(label, value) => value !== null ? `${label} (${value})` : label}
      * </Select.Value>
      * ```
      */
-    children: React.ReactNode | ((label: string, value: any) => React.ReactNode);
+    children?: React.ReactNode | ((label: React.ReactNode, value: any) => React.ReactNode);
+    /**
+     * Specifies the initial value label.
+     * Required to display the label before mounting the popup and during pre-rendering.
+     *
+     * ```tsx
+     * <Select.Value initialLabel="Select an item" />
+     * ```
+     */
+    initialLabel: React.ReactNode;
   }
 
   export interface State {}

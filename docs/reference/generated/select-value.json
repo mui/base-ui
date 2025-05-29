@@ -2,10 +2,14 @@
   "name": "SelectValue",
   "description": "A text label of the currently selected item.\nRenders a `<span>` element.",
   "props": {
-    "children": {
-      "type": "ReactNode | ((label: string, value: any) => ReactNode)",
+    "initialLabel": {
+      "type": "ReactNode",
       "required": true,
-      "description": "Specifies the initial value label before choosing an item. A callback can be used to\ncustomize the value label.\n\n```tsx\n<Select.Value>\n  {(label, value) => label ? `${label} (${value})` : 'Select an item'}\n</Select.Value>\n```"
+      "description": "Specifies the initial value label.\nRequired to display the label before mounting the popup and during pre-rendering.\n\n```tsx\n<Select.Value initialLabel=\"Select an item\" />\n```"
+    },
+    "children": {
+      "type": "ReactNode | ((label: ReactNode, value: any) => ReactNode)",
+      "description": "Specifies a controlled label or a callback to customize the value label when uncontrolled.\n\n```tsx\n<Select.Value initialLabel=\"Select an item\">\n  {(label, value) => value !== null ? `${label} (${value})` : label}\n</Select.Value>\n```"
     },
     "className": {
       "type": "string | ((state: Select.Value.State) => string)",
