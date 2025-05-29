@@ -54,7 +54,7 @@ export function useCompositeListItem<Metadata>(
     (node: HTMLElement | null) => {
       componentRef.current = node;
 
-      if (index !== null && node !== null) {
+      if (index !== -1 && node !== null) {
         elementsRef.current[index] = node;
 
         if (labelsRef) {
