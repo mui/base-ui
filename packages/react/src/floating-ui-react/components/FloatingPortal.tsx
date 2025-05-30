@@ -158,6 +158,7 @@ export interface FloatingPortalProps {
  * potential parent containers that cause clipping (such as `overflow: hidden`),
  * while retaining its location in the React tree.
  * @see https://floating-ui.com/docs/FloatingPortal
+ * @internal
  */
 export function FloatingPortal(props: FloatingPortalProps): React.JSX.Element {
   const { children, id, root, preserveTabOrder = true } = props;

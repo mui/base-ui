@@ -108,6 +108,7 @@ interface UseDelayGroupReturn {
  * Enables grouping when called inside a component that's a child of a
  * `FloatingDelayGroup`.
  * @see https://floating-ui.com/docs/FloatingDelayGroup
+ * @internal
  */
 export function useDelayGroup(
   context: FloatingRootContext,

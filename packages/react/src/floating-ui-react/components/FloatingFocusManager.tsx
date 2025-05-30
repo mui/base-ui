@@ -191,6 +191,7 @@ export interface FloatingFocusManagerProps {
 /**
  * Provides focus management for the floating element.
  * @see https://floating-ui.com/docs/FloatingFocusManager
+ * @internal
  */
 export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JSX.Element {
   const {
