@@ -52,67 +52,83 @@ export function useInteractions(propsList: Array<ElementProps | void> = []): Use
   );
 }
 
+/* eslint-disable guard-for-in */
+
 function mergeProps<Key extends keyof ElementProps>(
   userProps: (React.HTMLProps<Element> & ExtendedUserProps) | undefined,
   propsList: Array<ElementProps | void>,
   elementKey: Key,
 ): Record<string, unknown> {
-  const map = new Map<string, Array<(...args: unknown[]) => void>>();
+  const eventHandlers = new Map<string, Array<(...args: unknown[]) => void>>();
   const isItem = elementKey === 'item';
 
-  let domUserProps = userProps;
-  if (isItem && userProps) {
-    const { [ACTIVE_KEY]: active, [SELECTED_KEY]: selected, ...validProps } = userProps;
-    domUserProps = validProps;
+  const outputProps = {} as Record<string, unknown>;
+
+  if (elementKey === 'floating') {
+    outputProps.tabIndex = -1;
+    outputProps[FOCUSABLE_ATTRIBUTE] = '';
   }
 
-  return {
-    ...(elementKey === 'floating' && {
-      tabIndex: -1,
-      [FOCUSABLE_ATTRIBUTE]: '',
-    }),
-    ...domUserProps,
-    ...propsList
-      .map((value) => {
-        const propsOrGetProps = value ? value[elementKey] : null;
-        if (typeof propsOrGetProps === 'function') {
-          return userProps ? propsOrGetProps(userProps) : null;
-        }
-        return propsOrGetProps;
-      })
-      .concat(userProps)
-      .reduce((acc: Record<string, unknown>, props) => {
-        if (!props) {
-          return acc;
-        }
+  for (const key in userProps) {
+    if (isItem && userProps) {
+      if (key === ACTIVE_KEY || key === SELECTED_KEY) {
+        continue;
+      }
+    }
+    outputProps[key] = (userProps as any)[key];
+  }
 
-        Object.entries(props).forEach(([key, value]) => {
-          if (isItem && [ACTIVE_KEY, SELECTED_KEY].includes(key)) {
-            return;
-          }
+  for (let i = 0; i < propsList.length; i += 1) {
+    let props;
 
-          if (key.indexOf('on') === 0) {
-            if (!map.has(key)) {
-              map.set(key, []);
-            }
+    const propsOrGetProps = propsList[i]?.[elementKey];
+    if (typeof propsOrGetProps === 'function') {
+      props = userProps ? propsOrGetProps(userProps) : null;
+    } else {
+      props = propsOrGetProps;
+    }
+    if (!props) {
+      continue;
+    }
 
-            if (typeof value === 'function') {
-              map.get(key)?.push(value);
+    mutablyMergeProps(outputProps, props, isItem, eventHandlers);
+  }
 
-              acc[key] = (...args: unknown[]) => {
-                return map
-                  .get(key)
-                  ?.map((fn) => fn(...args))
-                  .find((val) => val !== undefined);
-              };
-            }
-          } else {
-            acc[key] = value;
-          }
-        });
+  mutablyMergeProps(outputProps, userProps, isItem, eventHandlers);
 
-        return acc;
-      }, {}),
-  };
+  return outputProps;
 }
 
+function mutablyMergeProps(
+  outputProps: Record<string, unknown>,
+  props: any,
+  isItem: boolean,
+  eventHandlers: Map<string, Array<(...args: unknown[]) => void>>,
+) {
+  for (const key in props) {
+    const value = (props as any)[key];
+
+    if (isItem && (key === ACTIVE_KEY || key === SELECTED_KEY)) {
+      continue;
+    }
+
+    if (!key.startsWith('on')) {
+      outputProps[key] = value;
+    } else {
+      if (!eventHandlers.has(key)) {
+        eventHandlers.set(key, []);
+      }
+
+      if (typeof value === 'function') {
+        eventHandlers.get(key)?.push(value);
+
+        outputProps[key] = (...args: unknown[]) => {
+          return eventHandlers
+            .get(key)
+            ?.map((fn) => fn(...args))
+            .find((val) => val !== undefined);
+        };
+      }
+    }
+  }
+}
