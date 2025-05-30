@@ -13,12 +13,13 @@ export interface SharedCalendarRootContext {
    */
   readOnly: boolean;
   /**
-   * The current date.
-   * It is used to determine:
-   * - if the rendered cells should be disabled or not
-   * - which date to apply when clicking on a cell
+   * The active date.
    */
-  currentDate: TemporalSupportedObject;
+  activeDate: TemporalSupportedObject;
+  /**
+   * The reference date.
+   */
+  referenceDate: TemporalSupportedObject;
   /**
    * The list of currently selected dates.
    * When used inside the Calendar component, it contains the current value if not null.

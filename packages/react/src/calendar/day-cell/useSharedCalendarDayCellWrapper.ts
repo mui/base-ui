@@ -17,7 +17,7 @@ export function useSharedCalendarDayCellWrapper(
   const {
     selectedDates,
     isDateInvalid,
-    currentDate,
+    activeDate,
     selectDate,
     registerDayGridCell,
     disabled: isCalendarDisabled,
@@ -68,7 +68,7 @@ export function useSharedCalendarDayCellWrapper(
       return;
     }
 
-    const newCleanValue = mergeDateAndTime(adapter, date, currentDate);
+    const newCleanValue = mergeDateAndTime(adapter, date, activeDate);
     selectDate(newCleanValue);
   });
 

@@ -5,8 +5,8 @@ import { CalendarDayGridRowContext } from './CalendarDayGridRowContext';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useCompositeListItem } from '../../composite/list/useCompositeListItem';
-import { useSharedCalendarDayGridBodyContext } from '../day-grid-body/SharedCalendarDayGridBodyContext';
 import { TemporalSupportedObject } from '../../models';
+import { useDayList } from '../../use-day-list';
 
 const InnerCalendarDayGridRow = React.forwardRef(function InnerCalendarDayGridRow(
   componentProps: InnerCalendarDayGridRowProps,
@@ -57,14 +57,13 @@ const CalendarDayGridRow = React.forwardRef(function CalendarDayGridRow(
   props: CalendarDayGridRow.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { daysGrid } = useSharedCalendarDayGridBodyContext();
   const { ref: listItemRef, index } = useCompositeListItem();
   const ref = useForkRef(forwardedRef, listItemRef);
 
-  // TODO: Improve how we pass the week to the week row components.
+  const getDayList = useDayList();
   const days = React.useMemo(
-    () => daysGrid.find((week) => week[0] === props.value) ?? [],
-    [daysGrid, props.value],
+    () => getDayList({ date: props.value, amount: 7 }),
+    [getDayList, props.value],
   );
 
   const ctx = React.useMemo<InnerCalendarDayGridRowContext>(

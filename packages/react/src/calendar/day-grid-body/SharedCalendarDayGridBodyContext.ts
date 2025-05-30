@@ -13,10 +13,6 @@ export interface SharedCalendarDayGridBodyContext {
    */
   canCellBeTabbed: (day: TemporalSupportedObject) => boolean;
   /**
-   * The days grid to render inside this component.
-   */
-  daysGrid: TemporalSupportedObject[][];
-  /**
    * The DOM ref of the DayGridBody primitive.
    */
   ref: React.RefObject<HTMLElement | null>;

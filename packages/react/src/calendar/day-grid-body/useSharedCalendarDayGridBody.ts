@@ -6,13 +6,15 @@ import { useScrollableList } from '../utils/useScrollableList';
 import { HTMLProps } from '../../utils/types';
 import { useTemporalAdapter } from '../../temporal-adapter-provider/TemporalAdapterContext';
 import { TemporalSupportedObject } from '../../models';
+import { useWeekList } from '../../use-week-list';
 
 export function useSharedCalendarDayGridBody(
   parameters: useSharedCalendarDayGridBody.Parameters,
 ): useSharedCalendarDayGridBody.ReturnValue {
   const { fixedWeekNumber, focusOnMount, children, offset = 0, freezeMonth = false } = parameters;
+
   const adapter = useTemporalAdapter();
-  const { selectedDates, currentDate, registerDayGrid, applyDayGridKeyboardNavigation } =
+  const { selectedDates, referenceDate, registerDayGrid, applyDayGridKeyboardNavigation } =
     useSharedCalendarRootContext();
   const { visibleDate } = useSharedCalendarRootVisibleDateContext();
   const ref = React.useRef<HTMLDivElement>(null);
@@ -38,43 +40,30 @@ export function useSharedCalendarDayGridBody(
     return registerDayGrid(month);
   }, [registerDayGrid, month]);
 
-  const daysGrid = React.useMemo(() => {
-    const toDisplay = adapter.getWeekArray(month);
-    let nextMonth = adapter.addMonths(month, 1);
-    while (fixedWeekNumber && toDisplay.length < fixedWeekNumber) {
-      const additionalWeeks = adapter.getWeekArray(nextMonth);
-      const hasCommonWeek = adapter.isSameDay(
-        toDisplay[toDisplay.length - 1][0],
-        additionalWeeks[0][0],
-      );
-
-      additionalWeeks.slice(hasCommonWeek ? 1 : 0).forEach((week) => {
-        if (toDisplay.length < fixedWeekNumber) {
-          toDisplay.push(week);
-        }
-      });
-
-      nextMonth = adapter.addMonths(nextMonth, 1);
-    }
-
-    return toDisplay;
-  }, [month, fixedWeekNumber, adapter]);
+  const getWeekList = useWeekList();
+  const weeks = React.useMemo(
+    () => getWeekList({ date: month, amount: fixedWeekNumber ?? 'end-of-month' }),
+    [getWeekList, month, fixedWeekNumber],
+  );
 
   const canCellBeTabbed = React.useMemo(() => {
     let tabbableCells: TemporalSupportedObject[];
-    const daysInMonth = daysGrid.flat().filter((day) => adapter.isSameMonth(day, month));
-    const selectedAndVisibleDays = daysInMonth.filter((day) =>
-      selectedDates.some((selectedDay) => adapter.isSameDay(day, selectedDay)),
+
+    const selectedAndVisibleDays = selectedDates.filter((selectedDate) =>
+      adapter.isSameMonth(selectedDate, month),
     );
+
+    // If some selected dates are in the current month, we use them as tabbable cells
     if (selectedAndVisibleDays.length > 0) {
       tabbableCells = selectedAndVisibleDays;
-    } else {
-      const currentDay = daysInMonth.find((day) => adapter.isSameDay(day, currentDate));
-      if (currentDay != null) {
-        tabbableCells = [currentDay];
-      } else {
-        tabbableCells = daysInMonth.slice(0, 1);
-      }
+    }
+    // If the current date in this month is selected, we use it as the tabbable cell.
+    else if (adapter.isSameMonth(referenceDate, month)) {
+      tabbableCells = [referenceDate];
+    }
+    // Otherwise, we use the first day of the month as the tabbable cell.
+    else {
+      tabbableCells = [month];
     }
 
     const format = `${adapter.formats.year}/${adapter.formats.monthLeadingZeros}/${adapter.formats.dayOfMonthNoLeadingZeros}`;
@@ -84,15 +73,15 @@ export function useSharedCalendarDayGridBody(
 
     return (date: TemporalSupportedObject) =>
       formattedTabbableCells.has(adapter.formatByString(date, format));
-  }, [currentDate, selectedDates, daysGrid, adapter, month]);
+  }, [adapter, referenceDate, selectedDates, month]);
 
   const resolvedChildren = React.useMemo(() => {
     if (!React.isValidElement(children) && typeof children === 'function') {
-      return children({ weeks: daysGrid.map((week) => week[0]) });
+      return children({ weeks });
     }
 
     return children;
-  }, [children, daysGrid]);
+  }, [children, weeks]);
 
   const props = React.useMemo(
     () => ({
@@ -105,8 +94,8 @@ export function useSharedCalendarDayGridBody(
   );
 
   const context: SharedCalendarDayGridBodyContext = React.useMemo(
-    () => ({ daysGrid, month, canCellBeTabbed, ref }),
-    [daysGrid, month, canCellBeTabbed, ref],
+    () => ({ month, canCellBeTabbed, ref }),
+    [month, canCellBeTabbed, ref],
   );
 
   return React.useMemo(() => ({ props, rowsRefs, context, ref }), [props, rowsRefs, context, ref]);

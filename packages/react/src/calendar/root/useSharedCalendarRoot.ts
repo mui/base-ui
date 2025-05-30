@@ -51,7 +51,7 @@ export function useSharedCalendarRoot<
     calendarValueManager: {
       getDateToUseForReferenceDate,
       onSelectDate,
-      getActiveDateFromValue: getCurrentDateFromValue,
+      getActiveDateFromValue,
       getSelectedDatesFromValue,
     },
   } = parameters;
@@ -162,7 +162,7 @@ export function useSharedCalendarRoot<
     },
   );
 
-  const currentDate = getCurrentDateFromValue(value) ?? referenceDate;
+  const activeDate = getActiveDateFromValue(value) ?? referenceDate;
 
   const selectedDates = React.useMemo(
     () => getSelectedDatesFromValue(value),
@@ -180,7 +180,8 @@ export function useSharedCalendarRoot<
       disabled,
       readOnly,
       isDateInvalid,
-      currentDate,
+      activeDate,
+      referenceDate,
       selectedDates,
       setVisibleDate: handleVisibleDateChange,
       monthPageSize,
@@ -196,7 +197,8 @@ export function useSharedCalendarRoot<
       disabled,
       readOnly,
       isDateInvalid,
-      currentDate,
+      activeDate,
+      referenceDate,
       selectedDates,
       handleVisibleDateChange,
       monthPageSize,
