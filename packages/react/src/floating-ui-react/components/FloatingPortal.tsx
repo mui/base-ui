@@ -3,6 +3,8 @@ import * as ReactDOM from 'react-dom';
 import { isElement } from '@floating-ui/utils/dom';
 import { useId } from '../../utils/useId';
 import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
+import { FocusGuard } from '../../utils/FocusGuard';
+import { visuallyHidden } from '../../utils/visuallyHidden';
 import {
   enableFocusInside,
   disableFocusInside,
@@ -13,7 +15,6 @@ import {
 
 import type { OpenChangeReason } from '../types';
 import { createAttribute } from '../utils/createAttribute';
-import { FocusGuard, HIDDEN_STYLES } from './FocusGuard';
 
 type FocusManagerState = {
   modal: boolean;
@@ -249,7 +250,9 @@ export function FloatingPortal(props: FloatingPortalProps): React.JSX.Element {
           }}
         />
       )}
-      {shouldRenderGuards && portalNode && <span aria-owns={portalNode.id} style={HIDDEN_STYLES} />}
+      {shouldRenderGuards && portalNode && (
+        <span aria-owns={portalNode.id} style={visuallyHidden} />
+      )}
       {portalNode && ReactDOM.createPortal(children, portalNode)}
       {shouldRenderGuards && portalNode && (
         <FocusGuard

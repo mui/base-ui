@@ -5,6 +5,8 @@ import { useForkRef } from '../../utils/useForkRef';
 import { useLatestRef } from '../../utils/useLatestRef';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
+import { FocusGuard } from '../../utils/FocusGuard';
+import { visuallyHidden } from '../../utils/visuallyHidden';
 import {
   activeElement,
   contains,
@@ -29,7 +31,6 @@ import { enqueueFocus } from '../utils/enqueueFocus';
 import { markOthers, supportsInert } from '../utils/markOthers';
 import { usePortalContext } from './FloatingPortal';
 import { useFloatingTree } from './FloatingTree';
-import { FocusGuard, HIDDEN_STYLES } from './FocusGuard';
 
 const LIST_LIMIT = 20;
 let previouslyFocusedElements: Element[] = [];
@@ -101,7 +102,7 @@ const VisuallyHiddenDismiss = React.forwardRef(function VisuallyHiddenDismiss(
   props: React.ButtonHTMLAttributes<HTMLButtonElement>,
   ref: React.ForwardedRef<HTMLButtonElement>,
 ) {
-  return <button {...props} type="button" ref={ref} tabIndex={-1} style={HIDDEN_STYLES} />;
+  return <button {...props} type="button" ref={ref} tabIndex={-1} style={visuallyHidden} />;
 });
 
 export interface FloatingFocusManagerProps {
@@ -636,7 +637,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     const fallbackEl = doc.createElement('span');
     fallbackEl.setAttribute('tabindex', '-1');
     fallbackEl.setAttribute('aria-hidden', 'true');
-    Object.assign(fallbackEl.style, HIDDEN_STYLES);
+    Object.assign(fallbackEl.style, visuallyHidden);
 
     if (isInsidePortal && domReference) {
       domReference.insertAdjacentElement('afterend', fallbackEl);

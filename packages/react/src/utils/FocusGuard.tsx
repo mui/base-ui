@@ -1,7 +1,7 @@
 import * as React from 'react';
-import { isSafari } from '../../floating-ui-react/utils';
-import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
-import { visuallyHidden } from '../../utils/visuallyHidden';
+import { isSafari } from './detectBrowser';
+import { useModernLayoutEffect } from './useModernLayoutEffect';
+import { visuallyHidden } from './visuallyHidden';
 
 /**
  * @internal
@@ -13,7 +13,7 @@ export const FocusGuard = React.forwardRef(function FocusGuard(
   const [role, setRole] = React.useState<'button' | undefined>();
 
   useModernLayoutEffect(() => {
-    if (isSafari()) {
+    if (isSafari) {
       // Unlike other screen readers such as NVDA and JAWS, the virtual cursor
       // on VoiceOver does trigger the onFocus event, so we can use the focus
       // trap element. On Safari, only buttons trigger the onFocus event.

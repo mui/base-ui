@@ -31,7 +31,7 @@ import {
   translateOpenChangeReason,
 } from '../../utils/translateOpenChangeReason';
 import { PATIENT_CLICK_THRESHOLD } from '../../utils/constants';
-import { FocusGuard } from '../../toast/viewport/FocusGuard';
+import { FocusGuard } from '../../utils/FocusGuard';
 import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { visuallyHidden } from '../../utils/visuallyHidden';
 import { CompositeItem } from '../../composite/item/CompositeItem';

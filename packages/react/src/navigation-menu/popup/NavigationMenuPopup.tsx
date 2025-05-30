@@ -12,7 +12,7 @@ import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import { transitionStatusMapping } from '../../utils/styleHookMapping';
 import { useBaseUiId } from '../../utils/useBaseUiId';
-import { FocusGuard } from '../../toast/viewport/FocusGuard';
+import { FocusGuard } from '../../utils/FocusGuard';
 import { useNavigationMenuPositionerContext } from '../positioner/NavigationMenuPositionerContext';
 import { useDirection } from '../../direction-provider/DirectionContext';
 import { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
