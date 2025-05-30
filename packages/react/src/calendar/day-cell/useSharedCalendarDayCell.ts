@@ -14,7 +14,7 @@ export function useSharedCalendarDayCell(parameters: useSharedCalendarDayCell.Pa
   );
 
   const onClick = useEventCallback(() => {
-    ctx.selectDay(value);
+    ctx.selectDate(value);
   });
 
   const props = React.useMemo<HTMLProps>(
@@ -72,6 +72,6 @@ export namespace useSharedCalendarDayCell {
     isStartOfWeek: boolean;
     isEndOfWeek: boolean;
     isOutsideCurrentMonth: boolean;
-    selectDay: (date: TemporalSupportedObject) => void;
+    selectDate: (date: TemporalSupportedObject) => void;
   }
 }

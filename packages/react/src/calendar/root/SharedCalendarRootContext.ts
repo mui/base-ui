@@ -9,14 +9,6 @@ export interface SharedCalendarRootContext {
    */
   disabled: boolean;
   /**
-   * Whether the calendar is read-only.
-   */
-  readOnly: boolean;
-  /**
-   * The active date.
-   */
-  activeDate: TemporalSupportedObject;
-  /**
    * The reference date.
    */
   referenceDate: TemporalSupportedObject;

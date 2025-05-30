@@ -15,6 +15,7 @@ import {
   TemporalTimezoneProps,
 } from '../../utils/temporal/types';
 import { useControlled } from '../../utils/useControlled';
+import { mergeDateAndTime } from '../../utils/temporal/date-helpers';
 
 export function useSharedCalendarRoot<
   TValue extends TemporalSupportedValue,
@@ -153,16 +154,21 @@ export function useSharedCalendarRoot<
 
   const selectDate = useEventCallback<SharedCalendarRootContext['selectDate']>(
     (selectedDate: TemporalSupportedObject) => {
+      if (readOnly) {
+        return;
+      }
+
+      const activeDate = getActiveDateFromValue(value) ?? referenceDate;
+      const cleanSelectedDate = mergeDateAndTime(adapter, selectedDate, activeDate);
+
       onSelectDate({
         setValue,
         prevValue: value,
-        selectedDate,
+        selectedDate: cleanSelectedDate,
         referenceDate,
       });
     },
   );
-
-  const activeDate = getActiveDateFromValue(value) ?? referenceDate;
 
   const selectedDates = React.useMemo(
     () => getSelectedDatesFromValue(value),
@@ -178,9 +184,7 @@ export function useSharedCalendarRoot<
     () => ({
       timezone,
       disabled,
-      readOnly,
       isDateInvalid,
-      activeDate,
       referenceDate,
       selectedDates,
       setVisibleDate: handleVisibleDateChange,
@@ -195,9 +199,7 @@ export function useSharedCalendarRoot<
     [
       timezone,
       disabled,
-      readOnly,
       isDateInvalid,
-      activeDate,
       referenceDate,
       selectedDates,
       handleVisibleDateChange,

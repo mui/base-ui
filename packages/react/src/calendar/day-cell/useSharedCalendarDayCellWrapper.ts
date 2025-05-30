@@ -3,12 +3,9 @@ import { useSharedCalendarRootContext } from '../root/SharedCalendarRootContext'
 import type { useSharedCalendarDayCell } from './useSharedCalendarDayCell';
 import { useCalendarDayGridRowContext } from '../day-grid-row/CalendarDayGridRowContext';
 import { useSharedCalendarDayGridBodyContext } from '../day-grid-body/SharedCalendarDayGridBodyContext';
-import { mergeDateAndTime } from '../../utils/temporal/date-helpers';
 import { useTemporalAdapter } from '../../temporal-adapter-provider/TemporalAdapterContext';
 import { useForkRef } from '../../utils/useForkRef';
-import { useEventCallback } from '../../utils/useEventCallback';
 import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
-import { TemporalSupportedObject } from '../../models';
 
 export function useSharedCalendarDayCellWrapper(
   parameters: useSharedCalendarDayCellWrapper.Parameters,
@@ -17,11 +14,9 @@ export function useSharedCalendarDayCellWrapper(
   const {
     selectedDates,
     isDateInvalid,
-    activeDate,
     selectDate,
     registerDayGridCell,
     disabled: isCalendarDisabled,
-    readOnly: isCalendarReadOnly,
   } = useSharedCalendarRootContext();
   const { month, canCellBeTabbed, ref: gridBodyRef } = useSharedCalendarDayGridBodyContext();
   const { ref: gridRowRef } = useCalendarDayGridRowContext();
@@ -63,15 +58,6 @@ export function useSharedCalendarDayCellWrapper(
 
   const isTabbable = React.useMemo(() => canCellBeTabbed(value), [canCellBeTabbed, value]);
 
-  const selectDay = useEventCallback((date: TemporalSupportedObject) => {
-    if (isCalendarReadOnly) {
-      return;
-    }
-
-    const newCleanValue = mergeDateAndTime(adapter, date, activeDate);
-    selectDate(newCleanValue);
-  });
-
   const ctx = React.useMemo<useSharedCalendarDayCell.Context>(
     () => ({
       isSelected,
@@ -82,7 +68,7 @@ export function useSharedCalendarDayCellWrapper(
       isStartOfWeek,
       isEndOfWeek,
       isOutsideCurrentMonth,
-      selectDay,
+      selectDate,
     }),
     [
       isSelected,
@@ -93,7 +79,7 @@ export function useSharedCalendarDayCellWrapper(
       isEndOfWeek,
       isCurrent,
       isOutsideCurrentMonth,
-      selectDay,
+      selectDate,
     ],
   );
 
