@@ -3,7 +3,6 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import {
   FloatingTree,
-  safePolygon,
   useDismiss,
   useFloatingRootContext,
   useFocus,
@@ -12,6 +11,7 @@ import {
   useListNavigation,
   useRole,
   useTypeahead,
+  safePolygon,
 } from '@floating-ui/react';
 import { useClick } from '../../utils/floating-ui/useClick';
 import { MenuRootContext, useMenuRootContext } from './MenuRootContext';
@@ -57,6 +57,7 @@ export const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
     actionsRef,
     openOnHover: openOnHoverProp,
     delay = 100,
+    closeDelay = 0,
     closeParentOnEsc = true,
   } = props;
 
@@ -328,7 +329,7 @@ export const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
     mouseOnly: true,
     move: parent.type === 'menu',
     restMs: parent.type !== undefined ? undefined : delay,
-    delay: parent.type === 'menu' ? { open: delay } : 0,
+    delay: parent.type === 'menu' ? { open: delay, close: closeDelay } : { close: closeDelay },
   });
 
   const focus = useFocus(floatingRootContext, {
@@ -566,6 +567,14 @@ export namespace MenuRoot {
      * @default 100
      */
     delay?: number;
+    /**
+     * How long to wait before closing the menu that was opened on hover.
+     * Specified in milliseconds.
+     *
+     * Requires the `openOnHover` prop.
+     * @default 0
+     */
+    closeDelay?: number;
     /**
      * Whether the menu should also open when the trigger is hovered.
      *

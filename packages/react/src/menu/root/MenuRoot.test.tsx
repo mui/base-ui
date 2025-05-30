@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { expect } from 'chai';
-import { act, flushMicrotasks, waitFor, screen } from '@mui/internal-test-utils';
+import { act, flushMicrotasks, waitFor, screen, fireEvent } from '@mui/internal-test-utils';
 import { DirectionProvider } from '@base-ui-components/react/direction-provider';
 import { Menu } from '@base-ui-components/react/menu';
 import userEvent from '@testing-library/user-event';
@@ -1206,6 +1206,44 @@ describe('<Menu.Root />', () => {
       await waitFor(() => {
         expect(getByTestId('submenu')).not.to.equal(null);
       });
+    });
+  });
+
+  describe('prop: closeDelay', () => {
+    const { render: renderFakeTimers, clock } = createRenderer();
+
+    clock.withFakeTimers();
+
+    it('should close after delay', async () => {
+      await renderFakeTimers(
+        <Menu.Root openOnHover delay={0} closeDelay={100}>
+          <Menu.Trigger />
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>Content</Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>,
+      );
+
+      const anchor = screen.getByRole('button');
+
+      fireEvent.mouseEnter(anchor);
+      fireEvent.mouseMove(anchor);
+
+      await flushMicrotasks();
+
+      expect(screen.getByText('Content')).not.to.equal(null);
+
+      fireEvent.mouseLeave(anchor);
+
+      clock.tick(50);
+
+      expect(screen.getByText('Content')).not.to.equal(null);
+
+      clock.tick(50);
+
+      expect(screen.queryByText('Content')).to.equal(null);
     });
   });
 

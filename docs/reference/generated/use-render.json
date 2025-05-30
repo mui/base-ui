@@ -20,10 +20,10 @@
       "description": "Props to be spread on the rendered element.\nThey are merged with the internal props of the component, so that event handlers\nare merged, `className` strings and `style` properties are joined, while other external props overwrite the\ninternal ones."
     },
     "enabled": {
-      "type": "boolean",
+      "type": "boolean | undefined",
       "default": "true",
       "description": "If `false`, the hook will skip most of its internal logic and return `null`.\nThis is useful for rendering a component conditionally."
     }
   },
-  "returnValue": "useRender.ReturnValue"
+  "returnValue": "ReactElement | null"
 }
