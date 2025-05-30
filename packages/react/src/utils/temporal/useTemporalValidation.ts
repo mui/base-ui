@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import { useTemporalAdapter } from '../../temporal-adapter-provider/TemporalAdapterContext';
 import { TemporalAdapter, TemporalSupportedValue } from '../../models';
 import type { TemporalManager, TemporalOnErrorProps } from './types';
 
@@ -14,26 +13,24 @@ export function useTemporalValidation<
 >(
   parameters: useTemporalValidation.Parameters<TValue, TError, TValidationProps>,
 ): useTemporalValidation.ReturnValue<TError> {
-  const {
-    validationProps,
-    value,
-    onError,
-    manager: { validator, valueManager },
-  } = parameters;
+  const { validationProps, value, onError, manager } = parameters;
 
-  const adapter = useTemporalAdapter();
-  const previousValidationErrorRef = React.useRef<TError | null>(valueManager.defaultErrorState);
+  const previousValidationErrorRef = React.useRef<TError | null>(manager.emptyError);
 
-  const validationError = validator({ adapter, value, validationProps });
-  const invalid = valueManager.hasError(validationError);
+  const validationError = React.useMemo(
+    () => manager.getError(value, validationProps),
+    [manager, value, validationProps],
+  );
+
+  const invalid = manager.isErrorEmpty(validationError);
 
   React.useEffect(() => {
-    if (onError && !valueManager.isSameError(validationError, previousValidationErrorRef.current)) {
+    if (onError && !manager.areErrorEquals(validationError, previousValidationErrorRef.current)) {
       onError(validationError, value);
     }
 
     previousValidationErrorRef.current = validationError;
-  }, [validator, valueManager, onError, validationError, value]);
+  }, [manager, onError, validationError, value]);
 
   return { validationError, isInvalid: invalid };
 }

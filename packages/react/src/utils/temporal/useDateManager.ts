@@ -4,19 +4,29 @@ import { applyDefaultDate } from './date-helpers';
 import { validateDate } from './validateDate';
 import { useTemporalAdapter } from '../../temporal-adapter-provider/TemporalAdapterContext';
 import { TemporalManager } from './types';
-import { nonRangeTemporalValueManager } from './temporalValueManagers';
 import { TemporalNonRangeValue, TemporalSupportedObject } from '../../models';
+import { getInitialReferenceDate } from './getInitialReferenceDate';
 
 export function useDateManager(
   _parameters: useDateManager.Parameters = {},
 ): useDateManager.ReturnValue {
+  const adapter = useTemporalAdapter();
+
   return React.useMemo(
     () => ({
       valueType: 'date',
-      validator: validateDate,
-      valueManager: nonRangeTemporalValueManager,
+      emptyValue: null,
+      emptyError: null,
+      getError: (value, validationProps) => validateDate({ adapter, value, validationProps }),
+      areErrorEquals: (errorA, errorB) => errorA === errorB,
+      isErrorEmpty: (error) => error != null,
+      getTimezone: (value) => (adapter.isValid(value) ? adapter.getTimezone(value) : null),
+      setTimezone: (value, timezone) =>
+        value == null ? null : adapter.setTimezone(value, timezone),
+      getInitialReferenceValue: (parameters) =>
+        getInitialReferenceDate({ ...parameters, adapter, controlledDate: parameters.value }),
     }),
-    [],
+    [adapter],
   );
 }
 

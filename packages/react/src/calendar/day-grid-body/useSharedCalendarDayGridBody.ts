@@ -77,7 +77,7 @@ export function useSharedCalendarDayGridBody(
       }
     }
 
-    const format = `${adapter.formats.year}/${adapter.formats.month}/${adapter.formats.dayOfMonth}`;
+    const format = `${adapter.formats.year}/${adapter.formats.monthLeadingZeros}/${adapter.formats.dayOfMonthNoLeadingZeros}`;
     const formattedTabbableCells = new Set(
       tabbableCells.map((day) => adapter.formatByString(day, format)),
     );

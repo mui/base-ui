@@ -6,7 +6,7 @@ import { TemporalSupportedObject } from '../../models';
 
 export function useSharedCalendarDayCell(parameters: useSharedCalendarDayCell.Parameters) {
   const adapter = useTemporalAdapter();
-  const { value, format = adapter.formats.dayOfMonth, ctx } = parameters;
+  const { value, format = adapter.formats.dayOfMonthNoLeadingZeros, ctx } = parameters;
 
   const formattedValue = React.useMemo(
     () => adapter.formatByString(value, format),
@@ -51,7 +51,7 @@ export namespace useSharedCalendarDayCell {
     value: TemporalSupportedObject;
     /**
      * The format used to display the day.
-     * @default utils.formats.dayOfMonth
+     * @default calendar.formats.dayOfMonth
      */
     format?: string;
   }

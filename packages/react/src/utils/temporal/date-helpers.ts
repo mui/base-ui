@@ -1,20 +1,17 @@
-import {
-  TemporalAdapter,
-  TemporalSupportedObject,
-  TemporalTimezone,
-  TemporalValueType,
-} from '../../models';
+import { TemporalAdapter, TemporalSupportedObject, TemporalTimezone } from '../../models';
 
-export const getTodayDate = (
+export const getCurrentDate = (
   adapter: TemporalAdapter,
   timezone: TemporalTimezone,
-  valueType?: TemporalValueType,
+  shouldRemoveTime: boolean,
 ): TemporalSupportedObject => {
-  if (valueType === 'date') {
-    return adapter.startOfDay(adapter.date(undefined, timezone));
+  const today = adapter.date(undefined, timezone);
+
+  if (shouldRemoveTime) {
+    return adapter.startOfDay(today);
   }
 
-  return adapter.date(undefined, timezone);
+  return today;
 };
 
 export const mergeDateAndTime = (

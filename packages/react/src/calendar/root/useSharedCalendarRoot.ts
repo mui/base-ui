@@ -1,8 +1,7 @@
 import * as React from 'react';
 import { TemporalSupportedObject, TemporalSupportedValue } from '../../models';
 import { validateDate } from '../../utils/temporal/validateDate';
-import { SECTION_TYPE_GRANULARITY } from '../../utils/temporal/getDefaultReferenceDate';
-import { nonRangeTemporalValueManager } from '../../utils/temporal/temporalValueManagers';
+import { getInitialReferenceDate } from '../../utils/temporal/getInitialReferenceDate';
 import { useTemporalAdapter } from '../../temporal-adapter-provider/TemporalAdapterContext';
 import { useTemporalControlledValue } from '../../utils/temporal/useTemporalControlledValue';
 import { useSharedCalendarDayGridNavigation } from './useSharedCalendarDayGridsNavigation';
@@ -24,6 +23,8 @@ export function useSharedCalendarRoot<
 >(
   parameters: useSharedCalendarRoot.Parameters<TValue, TError, TValidationProps>,
 ): useSharedCalendarRoot.ReturnValue<TValue> {
+  const adapter = useTemporalAdapter();
+
   const {
     // Form props
     readOnly = false,
@@ -47,24 +48,17 @@ export function useSharedCalendarRoot<
     valueValidationProps,
     // Manager props
     manager,
-    manager: { validator },
     calendarValueManager: {
       getDateToUseForReferenceDate,
       onSelectDate,
-      getCurrentDateFromValue,
+      getActiveDateFromValue: getCurrentDateFromValue,
       getSelectedDatesFromValue,
     },
   } = parameters;
 
-  const adapter = useTemporalAdapter();
-
   const handleValueChangeWithContext = useEventCallback((newValue: TValue) => {
     onValueChange?.(newValue, {
-      validationError: validator({
-        adapter,
-        value: newValue,
-        validationProps: valueValidationProps,
-      }),
+      validationError: manager.getError(newValue, valueValidationProps),
     });
   });
 
@@ -87,13 +81,13 @@ export function useSharedCalendarRoot<
 
   const referenceDate = React.useMemo(
     () => {
-      return nonRangeTemporalValueManager.getInitialReferenceValue({
-        value: getDateToUseForReferenceDate(value),
+      return getInitialReferenceDate({
         adapter,
         timezone,
+        controlledDate: getDateToUseForReferenceDate(value),
         props: dateValidationProps,
         referenceDate: referenceDateProp,
-        granularity: SECTION_TYPE_GRANULARITY.day,
+        precision: 'day',
       });
     },
     // We want the `referenceDate` to update on prop and `timezone` change (https://github.com/mui/mui-x/issues/10804)
@@ -347,26 +341,21 @@ export namespace useSharedCalendarRoot {
 
   export interface ValueManager<TValue extends TemporalSupportedValue> {
     /**
-     * TODO: Write description.
-     * @param {TValue} value The value to get the reference date from.
-     * @returns {TemporalSupportedObject | null} The initial visible date.
+     * Returns the date to use for the reference date.
      */
     getDateToUseForReferenceDate: (value: TValue) => TemporalSupportedObject | null;
     /**
-     * TODO: Write description.
-     * @param {OnSelectDateParameters} parameters The parameters to get the new value from the new selected date.
+     * Runs logic when a date is selected.
+     * This is used to correctly update the value on the Range Calendar.
      */
     onSelectDate: (parameters: OnSelectDateParameters<TValue>) => void;
     /**
-     * TODO: Write description.
-     * @param {TValue} value The current value.
-     * @returns {TemporalSupportedObject | null} The current date.
+     * Returns the active date from the value.
+     * This is used to determine which date is being edited in the Range Calendar (start of end date).
      */
-    getCurrentDateFromValue: (value: TValue) => TemporalSupportedObject | null;
+    getActiveDateFromValue: (value: TValue) => TemporalSupportedObject | null;
     /**
-     * TODO: Write description.
-     * @param {TValue} value The current value.
-     * @returns {TemporalSupportedObject[]} The selected dates.
+     * Returns list list of selected dates from the value.
      */
     getSelectedDatesFromValue: (value: TValue) => TemporalSupportedObject[];
   }

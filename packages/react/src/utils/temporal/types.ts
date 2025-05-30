@@ -1,4 +1,3 @@
-import { TemporalAdapter } from '@base-ui-components/react/models';
 import {
   TemporalTimezone,
   TemporalSupportedValue,
@@ -6,8 +5,7 @@ import {
   TemporalSupportedObject,
   TemporalNonNullableValue,
 } from '../../models/temporal';
-import { TemporalValidator } from './useTemporalValidation';
-import { getDefaultReferenceDate } from './getDefaultReferenceDate';
+import { type getInitialReferenceDate } from './getInitialReferenceDate';
 
 export interface TemporalTimezoneProps {
   /**
@@ -39,123 +37,49 @@ export interface TemporalManager<
   TValue extends TemporalSupportedValue,
   TError,
   TValidationProps extends {},
-  // TFieldInternalProps extends {},
 > {
   /**
-   * The type of the value (e.g. 'date', 'date-time', 'time').
+   * Type of the value (e.g. 'date', 'date-time', 'time').
    */
   valueType: TemporalValueType;
   /**
-   * Checks if a value is valid and returns an error code otherwise.
-   */
-  validator: TemporalValidator<TValue, TError, TValidationProps>;
-  /**
-   * Object containing basic methods to interact with the value of a temporal component.
-   */
-  valueManager: TemporalValueManager<TValue, TError>;
-}
-
-export interface TemporalValueManager<TValue extends TemporalSupportedValue, TError> {
-  /**
-   * Determines if two values are equal.
-   * @template TValue The value type. It will be the same type as `value` or `null`. It can be in `[start, end]` format in case of range value.
-   * @param {TemporalAdapter} adapter The date library adapter.
-   * @param {TValue} valueLeft The first value to compare.
-   * @param {TValue} valueRight The second value to compare.
-   * @returns {boolean} A boolean indicating if the two values are equal.
-   */
-  areValuesEqual: (adapter: TemporalAdapter, valueLeft: TValue, valueRight: TValue) => boolean;
-  /**
-   * Value to set when clicking the "Clear" button.
+   * Value to set when emptying the component.
    */
   emptyValue: TValue;
   /**
-   * Method returning the value to set when clicking the "Today" button.
-   * @template TValue The value type. It will be the same type as `value` or `null`. It can be in `[start, end]` format in case of range value.
-   * @param {TemporalAdapter} adapter The date library adapter.
-   * @param {TemporalTimezone} timezone The current timezone.
-   * @param {TemporalValueType} valueType The type of the value being edited.
-   * @returns {TValue} The value to set when clicking the "Today" button.
+   * Error when the value is valid.
+   * It is used to initialize the error state.
    */
-  getTodayValue: (
-    adapter: TemporalAdapter,
-    timezone: TemporalTimezone,
-    valueType: TemporalValueType,
-  ) => TValue;
+  emptyError: TError;
   /**
-   * @template TValue The value type. It will be the same type as `value` or `null`. It can be in `[start, end]` format in case of range value.
-   * Method returning the reference value to use when mounting the component.
-   * @param {object} params The params of the method.
-   * @param {TemporalSupportedObject | undefined} params.referenceDate The referenceDate provided by the user.
-   * @param {TValue} params.value The value provided by the user.
-   * @param {getDefaultReferenceDate.Props} params.props The validation props needed to compute the reference value.
-   * @param {TemporalAdapter} params.adapter The date library adapter.
-   * @param {number} params.granularity The granularity of the selection possible on this component.
-   * @param {TemporalTimezone} params.timezone The current timezone.
-   * @param {() => TemporalSupportedObject} params.getTodayDate The reference date to use if no reference date is passed to the component.
-   * @returns {TValue} The reference value to use for non-provided dates.
+   * Returns the error associated with a value for the current set of validation props.
    */
-  getInitialReferenceValue: (params: {
-    referenceDate: TemporalSupportedObject | undefined;
-    value: TValue;
-    props: getDefaultReferenceDate.Props;
-    adapter: TemporalAdapter;
-    granularity: number;
-    timezone: TemporalTimezone;
-    getTodayDate?: () => TemporalSupportedObject;
-  }) => TemporalNonNullableValue<TValue>;
+  getError: (value: TValue, validationProps: TValidationProps) => TError;
   /**
-   * Method parsing the input value to replace all invalid dates by `null`.
-   * @template TValue The value type. It will be the same type as `value` or `null`. It can be in `[start, end]` format in case of range value.
-   * @param {TemporalAdapter} adapter The date library adapter.
-   * @param {TValue} value The value to parse.
-   * @returns {TValue} The value without invalid date.
+   * Compares two errors to know if they are equal.
    */
-  cleanValue: (adapter: TemporalAdapter, value: TValue) => TValue;
-  /**
-   * Generates the new value, given the previous value and the new proposed value.
-   * @template TValue The value type. It will be the same type as `value` or `null`. It can be in `[start, end]` format in case of range value.
-   * @param {TemporalAdapter} adapter The date library adapter.
-   * @param {TValue} lastValidDateValue The last valid value.
-   * @param {TValue} value The proposed value.
-   * @returns {TValue} The new value.
-   */
-  valueReducer?: (adapter: TemporalAdapter, lastValidDateValue: TValue, value: TValue) => TValue;
-  /**
-   * Compare two errors to know if they are equal.
-   * @template TError
-   * @param {TError} error The new error
-   * @param {TError | null} prevError The previous error
-   * @returns {boolean} Whether the new error is different from the previous one.
-   */
-  isSameError: (error: TError, prevError: TError | null) => boolean;
+  areErrorEquals: (errorA: TError, errorB: TError | null) => boolean;
   /**
    * Checks if the current error is empty or not.
-   * @template TError
-   * @param {TError} error The error to check.
-   * @returns {boolean} Whether the provided error is not empty.
    */
-  hasError: (error: TError) => boolean;
+  isErrorEmpty: (error: TError) => boolean;
   /**
-   * The value identifying no error, used to initialize the error state.
+   * Returns the timezone of the date inside a value.
+   * When used on a range component, throw an error if both values don't have the same timezone.
    */
-  defaultErrorState: TError;
+  getTimezone: (value: TValue) => string | null;
   /**
-     * Return the timezone of the date inside a value.
-     * When used on a range component, throw an error if both values don't have the same timezone.
-     * @template TValue The value type. It will be the same type as `value` or `null`. It can be in `[start, end]` format in case of range value.
-     @param {TemporalAdapter} adapter The date library adapter.
-     @param {TValue} value The current value.
-     @returns {string | null} The timezone of the current value.
-     */
-  getTimezone: (adapter: TemporalAdapter, value: TValue) => string | null;
+   * Changes the timezone of the dates inside a value.
+   */
+  setTimezone: (value: TValue, timezone: TemporalTimezone) => TValue;
   /**
-     * Change the timezone of the dates inside a value.
-     * @template TValue The value type. It will be the same type as `value` or `null`. It can be in `[start, end]` format in case of range value.
-     @param {TemporalAdapter} adapter The date library adapter.
-     @param {TemporalTimezone} timezone The current timezone.
-     @param {TValue} value The value to convert.
-     @returns {TValue} The value with the new dates in the new timezone.
-     */
-  setTimezone: (adapter: TemporalAdapter, timezone: TemporalTimezone, value: TValue) => TValue;
+   * Returns the reference value to use when mounting the component.
+   */
+  getInitialReferenceValue: (parameters: {
+    referenceDate: TemporalSupportedObject | undefined;
+    value: TValue;
+    props: getInitialReferenceDate.Props;
+    precision: getInitialReferenceDate.Precision;
+    timezone: TemporalTimezone;
+  }) => TemporalNonNullableValue<TValue>;
 }

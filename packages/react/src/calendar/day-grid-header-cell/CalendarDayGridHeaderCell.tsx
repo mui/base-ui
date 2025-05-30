@@ -11,7 +11,8 @@ const CalendarDayGridHeaderCell = React.forwardRef(function CalendarDayGridHeade
 ) {
   const adapter = useTemporalAdapter();
   const defaultFormatter = React.useCallback(
-    (date: TemporalSupportedObject) => adapter.format(date, 'weekdayShort').charAt(0).toUpperCase(),
+    (date: TemporalSupportedObject) =>
+      adapter.format(date, 'weekday3Letters').charAt(0).toUpperCase(),
     [adapter],
   );
 
@@ -49,7 +50,7 @@ export namespace CalendarDayGridHeaderCell {
      * The formatter function used to display the day of the week.
      * @param {TemporalSupportedObject} date The date to format.
      * @returns {string} The formatted date.
-     * @default (date) => utils.format(date, 'weekdayShort').charAt(0).toUpperCase()
+     * @default (date) => calendar.format(date, 'weekday3Letters').charAt(0).toUpperCase()
      */
     formatter?: (date: TemporalSupportedObject) => string;
   }

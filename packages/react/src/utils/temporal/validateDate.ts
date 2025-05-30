@@ -19,10 +19,10 @@ export const validateDate: TemporalValidator<
     case Boolean(shouldDisableDate && shouldDisableDate(value)):
       return 'shouldDisableDate';
 
-    case Boolean(minDate && adapter.isBeforeDay(value, minDate)):
+    case Boolean(minDate && adapter.isBefore(value, minDate, 'day')):
       return 'minDate';
 
-    case Boolean(maxDate && adapter.isAfterDay(value, maxDate)):
+    case Boolean(maxDate && adapter.isAfter(value, maxDate, 'day')):
       return 'maxDate';
 
     default:

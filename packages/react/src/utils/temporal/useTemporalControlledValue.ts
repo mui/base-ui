@@ -20,23 +20,23 @@ export const useTemporalControlledValue = <
   defaultValue,
   referenceDate,
   onChange: onChangeProp,
-  manager: { valueManager },
+  manager,
 }: useTemporalControlledValue.Parameters<TValue, TChange>): useTemporalControlledValue.ReturnValue<
   TValue,
   TChange
 > => {
-  const utils = useTemporalAdapter();
+  const adapter = useTemporalAdapter();
 
   const [valueWithInputTimezone, setValueWithInputTimezone] = useControlled({
     name,
     state: 'value',
     controlled: valueProp,
-    default: defaultValue ?? valueManager.emptyValue,
+    default: defaultValue ?? manager.emptyValue,
   });
 
   const inputTimezone = React.useMemo(
-    () => valueManager.getTimezone(utils, valueWithInputTimezone),
-    [utils, valueManager, valueWithInputTimezone],
+    () => manager.getTimezone(valueWithInputTimezone),
+    [manager, valueWithInputTimezone],
   );
 
   const setInputTimezone = useEventCallback((newValue: TValue) => {
@@ -44,7 +44,7 @@ export const useTemporalControlledValue = <
       return newValue;
     }
 
-    return valueManager.setTimezone(utils, inputTimezone, newValue);
+    return manager.setTimezone(newValue, inputTimezone);
   });
 
   const timezoneToRender = React.useMemo(() => {
@@ -55,14 +55,14 @@ export const useTemporalControlledValue = <
       return inputTimezone;
     }
     if (referenceDate) {
-      return utils.getTimezone(referenceDate);
+      return adapter.getTimezone(referenceDate);
     }
     return 'default';
-  }, [timezoneProp, inputTimezone, referenceDate, utils]);
+  }, [timezoneProp, inputTimezone, referenceDate, adapter]);
 
   const valueWithTimezoneToRender = React.useMemo(
-    () => valueManager.setTimezone(utils, timezoneToRender, valueWithInputTimezone),
-    [valueManager, utils, timezoneToRender, valueWithInputTimezone],
+    () => manager.setTimezone(valueWithInputTimezone, timezoneToRender),
+    [manager, timezoneToRender, valueWithInputTimezone],
   );
 
   const setValue = useEventCallback((newValue: TValue, ...otherParams: any[]) => {

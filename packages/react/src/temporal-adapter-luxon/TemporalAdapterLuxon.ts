@@ -13,22 +13,22 @@ import {
 const tokenMap: TemporalTokenMap = {
   // Year
   y: { sectionType: 'year', contentType: 'digit', maxLength: 4 },
-  yy: 'year',
+  yy: { sectionType: 'year', contentType: 'digit' },
   yyyy: { sectionType: 'year', contentType: 'digit', maxLength: 4 },
 
   // Month
   L: { sectionType: 'month', contentType: 'digit', maxLength: 2 },
-  LL: 'month',
+  LL: { sectionType: 'month', contentType: 'digit' },
   LLL: { sectionType: 'month', contentType: 'letter' },
   LLLL: { sectionType: 'month', contentType: 'letter' },
   M: { sectionType: 'month', contentType: 'digit', maxLength: 2 },
-  MM: 'month',
+  MM: { sectionType: 'month', contentType: 'digit' },
   MMM: { sectionType: 'month', contentType: 'letter' },
   MMMM: { sectionType: 'month', contentType: 'letter' },
 
   // Day of the month
   d: { sectionType: 'day', contentType: 'digit', maxLength: 2 },
-  dd: 'day',
+  dd: { sectionType: 'day', contentType: 'digit' },
 
   // Day of the week
   c: { sectionType: 'weekDay', contentType: 'digit', maxLength: 1 },
@@ -39,50 +39,35 @@ const tokenMap: TemporalTokenMap = {
   EEEE: { sectionType: 'weekDay', contentType: 'letter' },
 
   // Meridiem
-  a: 'meridiem',
+  a: { sectionType: 'meridiem', contentType: 'letter' },
 
   // Hours
   H: { sectionType: 'hours', contentType: 'digit', maxLength: 2 },
-  HH: 'hours',
+  HH: { sectionType: 'hours', contentType: 'digit' },
   h: { sectionType: 'hours', contentType: 'digit', maxLength: 2 },
-  hh: 'hours',
+  hh: { sectionType: 'hours', contentType: 'digit' },
 
   // Minutes
   m: { sectionType: 'minutes', contentType: 'digit', maxLength: 2 },
-  mm: 'minutes',
+  mm: { sectionType: 'minutes', contentType: 'digit' },
 
   // Seconds
   s: { sectionType: 'seconds', contentType: 'digit', maxLength: 2 },
-  ss: 'seconds',
+  ss: { sectionType: 'seconds', contentType: 'digit' },
 };
 
 const defaultFormats: TemporalAdapterFormats = {
   year: 'yyyy',
-  month: 'LLLL',
-  monthShort: 'MMM',
-  dayOfMonth: 'd',
-  // Full day of the month format (i.e. 3rd) is not supported
-  // Falling back to regular format
-  dayOfMonthFull: 'd',
+  monthLeadingZeros: 'MM',
+  dayOfMonth: 'dd',
+  dayOfMonthNoLeadingZeros: 'd',
   weekday: 'cccc',
-  weekdayShort: 'ccccc',
-  hours24h: 'HH',
-  hours12h: 'hh',
+  weekday3Letters: 'ccccc',
+  hours24hLeadingZeros: 'HH',
+  hours12hLeadingZeros: 'hh',
   meridiem: 'a',
-  minutes: 'mm',
-  seconds: 'ss',
-
-  fullDate: 'DD',
-  keyboardDate: 'D',
-  shortDate: 'MMM d',
-  normalDate: 'd MMMM',
-  normalDateWithWeekday: 'EEE, MMM d',
-
-  fullTime12h: 'hh:mm a',
-  fullTime24h: 'HH:mm',
-
-  keyboardDateTime12h: 'D hh:mm a',
-  keyboardDateTime24h: 'D T',
+  minutesLeadingZeros: 'mm',
+  secondsLeadingZeros: 'ss',
 };
 
 declare module '@base-ui-components/react/models' {
@@ -297,36 +282,36 @@ export class TemporalAdapterLuxon implements TemporalAdapter<string> {
     return value.hasSame(comparingInValueTimezone, 'hour');
   };
 
-  public isAfter = (value: DateTime, comparing: DateTime) => {
+  public isAfter = (value: DateTime, comparing: DateTime, unit: 'year' | 'day' | null = null) => {
+    if (unit === 'year') {
+      const comparingInValueTimezone = this.setTimezone(comparing, this.getTimezone(value));
+      const diff = value.diff(this.endOfYear(comparingInValueTimezone), 'years').toObject();
+      return diff.years! > 0;
+    }
+
+    if (unit === 'day') {
+      const comparingInValueTimezone = this.setTimezone(comparing, this.getTimezone(value));
+      const diff = value.diff(this.endOfDay(comparingInValueTimezone), 'days').toObject();
+      return diff.days! > 0;
+    }
+
     return value > comparing;
   };
 
-  public isAfterYear = (value: DateTime, comparing: DateTime) => {
-    const comparingInValueTimezone = this.setTimezone(comparing, this.getTimezone(value));
-    const diff = value.diff(this.endOfYear(comparingInValueTimezone), 'years').toObject();
-    return diff.years! > 0;
-  };
+  public isBefore = (value: DateTime, comparing: DateTime, unit: 'year' | 'day' | null = null) => {
+    if (unit === 'year') {
+      const comparingInValueTimezone = this.setTimezone(comparing, this.getTimezone(value));
+      const diff = value.diff(this.startOfYear(comparingInValueTimezone), 'years').toObject();
+      return diff.years! < 0;
+    }
 
-  public isAfterDay = (value: DateTime, comparing: DateTime) => {
-    const comparingInValueTimezone = this.setTimezone(comparing, this.getTimezone(value));
-    const diff = value.diff(this.endOfDay(comparingInValueTimezone), 'days').toObject();
-    return diff.days! > 0;
-  };
+    if (unit === 'day') {
+      const comparingInValueTimezone = this.setTimezone(comparing, this.getTimezone(value));
+      const diff = value.diff(this.startOfDay(comparingInValueTimezone), 'days').toObject();
+      return diff.days! < 0;
+    }
 
-  public isBefore = (value: DateTime, comparing: DateTime) => {
     return value < comparing;
-  };
-
-  public isBeforeYear = (value: DateTime, comparing: DateTime) => {
-    const comparingInValueTimezone = this.setTimezone(comparing, this.getTimezone(value));
-    const diff = value.diff(this.startOfYear(comparingInValueTimezone), 'years').toObject();
-    return diff.years! < 0;
-  };
-
-  public isBeforeDay = (value: DateTime, comparing: DateTime) => {
-    const comparingInValueTimezone = this.setTimezone(comparing, this.getTimezone(value));
-    const diff = value.diff(this.startOfDay(comparingInValueTimezone), 'days').toObject();
-    return diff.days! < 0;
   };
 
   public isWithinRange = (value: DateTime, [start, end]: [DateTime, DateTime]) => {
@@ -353,6 +338,18 @@ export class TemporalAdapterLuxon implements TemporalAdapter<string> {
     return value.startOf('day');
   };
 
+  public startOfHour = (value: DateTime) => {
+    return value.startOf('hour');
+  };
+
+  public startOfMinute = (value: DateTime) => {
+    return value.startOf('minute');
+  };
+
+  public startOfSecond = (value: DateTime) => {
+    return value.startOf('second');
+  };
+
   public endOfYear = (value: DateTime) => {
     return value.endOf('year');
   };
@@ -367,6 +364,18 @@ export class TemporalAdapterLuxon implements TemporalAdapter<string> {
 
   public endOfDay = (value: DateTime) => {
     return value.endOf('day');
+  };
+
+  public endOfHour = (value: DateTime) => {
+    return value.endOf('hour');
+  };
+
+  public endOfMinute = (value: DateTime) => {
+    return value.endOf('minute');
+  };
+
+  public endOfSecond = (value: DateTime) => {
+    return value.endOf('second');
   };
 
   public addYears = (value: DateTime, amount: number) => {
