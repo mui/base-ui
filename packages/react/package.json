@@ -1,6 +1,6 @@
 {
   "name": "@base-ui-components/react",
-  "version": "1.0.0-alpha.8",
+  "version": "1.0.0-beta.0",
   "private": false,
   "author": "MUI Team",
   "description": "Base UI is a library of headless ('unstyled') React components and low-level hooks. You gain complete control over your app's CSS and accessibility features.",
@@ -45,6 +45,7 @@
     "./menubar": "./src/menubar/index.ts",
     "./merge-props": "./src/merge-props/index.ts",
     "./meter": "./src/meter/index.ts",
+    "./navigation-menu": "./src/navigation-menu/index.ts",
     "./number-field": "./src/number-field/index.ts",
     "./popover": "./src/popover/index.ts",
     "./preview-card": "./src/preview-card/index.ts",
@@ -81,14 +82,14 @@
     "build:types": "tsx ../../scripts/buildTypes.mts --copy build/cjs",
     "build:copy-files": "node ../../scripts/copyFiles.mjs ./.npmignore:./.npmignore",
     "build:manifest": "tsx ./scripts/createPackageManifest.mts",
-    "test:package": "publint ./build && attw --pack ./build",
+    "test:package": "publint ./build && attw --pack ./build --exclude-entrypoints package.json",
     "release": "pnpm build && pnpm publish",
     "test": "cross-env NODE_ENV=test VITEST_ENV=jsdom vitest",
     "typescript": "tsc -b tsconfig.json"
   },
   "dependencies": {
     "@babel/runtime": "^7.27.0",
-    "@floating-ui/react": "^0.27.8",
+    "@floating-ui/react": "^0.27.9",
     "@floating-ui/utils": "^0.2.9",
     "use-sync-external-store": "^1.5.0"
   },
