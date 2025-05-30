@@ -1,12 +1,17 @@
 'use client';
 import * as React from 'react';
+import { useBaseUiId } from '../utils/useBaseUiId';
 import { useComponentRenderer } from '../utils/useComponentRenderer';
+import { useEventCallback } from '../utils/useEventCallback';
 import { useCheckboxGroup } from './useCheckboxGroup';
 import { CheckboxGroupContext } from './CheckboxGroupContext';
 import type { FieldRoot } from '../field/root/FieldRoot';
 import { useFieldRootContext } from '../field/root/FieldRootContext';
 import type { BaseUIComponentProps } from '../utils/types';
 import { fieldValidityMapping } from '../field/utils/constants';
+import { useField } from '../field/useField';
+import { useFieldControlValidation } from '../field/control/useFieldControlValidation';
+import { PARENT_CHECKBOX } from '../checkbox/root/useCheckboxRoot';
 
 /**
  * Provides a shared state to a series of checkboxes.
@@ -25,18 +30,38 @@ export const CheckboxGroup = React.forwardRef(function CheckboxGroup(
     onValueChange,
     allValues,
     disabled: disabledProp = false,
+    id: idProp,
     ...otherProps
   } = props;
 
-  const { disabled: fieldDisabled, state: fieldState } = useFieldRootContext();
+  const { disabled: fieldDisabled, state: fieldState, name: fieldName } = useFieldRootContext();
 
   const disabled = fieldDisabled || disabledProp;
+
+  const fieldControlValidation = useFieldControlValidation();
 
   const { getRootProps, value, setValue, parent } = useCheckboxGroup({
     value: externalValue,
     allValues,
     defaultValue,
     onValueChange,
+  });
+
+  const id = useBaseUiId(idProp);
+
+  const controlRef = React.useRef<HTMLButtonElement>(null);
+  const registerControlRef = useEventCallback((element: HTMLButtonElement | null) => {
+    if (controlRef.current == null && element != null && !element.hasAttribute(PARENT_CHECKBOX)) {
+      controlRef.current = element;
+    }
+  });
+
+  useField({
+    enabled: !!fieldName,
+    id,
+    commitValidation: fieldControlValidation.commitValidation,
+    value,
+    controlRef,
   });
 
   const state: CheckboxGroup.State = React.useMemo(
@@ -65,8 +90,19 @@ export const CheckboxGroup = React.forwardRef(function CheckboxGroup(
       setValue,
       parent,
       disabled,
+      fieldControlValidation,
+      registerControlRef,
     }),
-    [allValues, value, defaultValue, setValue, parent, disabled],
+    [
+      allValues,
+      value,
+      defaultValue,
+      setValue,
+      parent,
+      disabled,
+      fieldControlValidation,
+      registerControlRef,
+    ],
   );
 
   return (

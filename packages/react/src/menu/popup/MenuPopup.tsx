@@ -31,7 +31,7 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
   componentProps: MenuPopup.Props,
   forwardedRef: React.ForwardedRef<Element>,
 ) {
-  const { render, className, ...elementProps } = componentProps;
+  const { render, className, finalFocus, ...elementProps } = componentProps;
 
   const {
     open,
@@ -107,7 +107,7 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
       context={floatingContext}
       modal={false}
       disabled={!mounted}
-      returnFocus={returnFocus}
+      returnFocus={finalFocus || returnFocus}
       initialFocus={parent.type === 'menu' ? -1 : 0}
       restoreFocus
     >
@@ -123,6 +123,11 @@ export namespace MenuPopup {
      * @ignore
      */
     id?: string;
+    /**
+     * Determines the element to focus when the menu is closed.
+     * By default, focus returns to the trigger.
+     */
+    finalFocus?: React.RefObject<HTMLElement | null>;
   }
 
   export type State = {

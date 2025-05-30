@@ -23,7 +23,7 @@ export function useRenderElement<
   State extends Record<string, any>,
   RenderedElementType extends Element,
   TagName extends IntrinsicTagName | undefined,
-  Enabled extends boolean | undefined | never = never,
+  Enabled extends boolean | undefined = undefined,
 >(
   element: TagName,
   componentProps: useRenderElement.ComponentProps<State>,
@@ -51,7 +51,7 @@ export function useRenderElementLazy<
   State extends Record<string, any>,
   RenderedElementType extends Element,
   TagName extends IntrinsicTagName | undefined,
-  Enabled extends boolean | undefined | never,
+  Enabled extends boolean | undefined,
 >(
   element: TagName,
   componentProps: useRenderElement.ComponentProps<State>,
@@ -70,7 +70,7 @@ function useRenderElementProps<
   State extends Record<string, any>,
   RenderedElementType extends Element,
   TagName extends IntrinsicTagName | undefined,
-  Enabled extends boolean | undefined | never,
+  Enabled extends boolean | undefined,
 >(
   componentProps: useRenderElement.ComponentProps<State>,
   params: useRenderElement.Parameters<State, RenderedElementType, TagName, Enabled> = {},
@@ -182,7 +182,7 @@ export namespace useRenderElement {
     State,
     RenderedElementType extends Element,
     TagName,
-    Enabled extends boolean | undefined | never,
+    Enabled extends boolean | undefined,
   > = {
     /**
      * If `false`, the hook will skip most of its internal logic and return `null`.

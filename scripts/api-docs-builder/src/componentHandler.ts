@@ -1,8 +1,8 @@
-import * as rae from 'react-api-extractor';
+import * as tae from 'typescript-api-extractor';
 import { formatProperties, formatEnum } from './formatter';
 import memberOrder from './order.json';
 
-export function formatComponentData(component: rae.ExportNode, allExports: rae.ExportNode[]) {
+export function formatComponentData(component: tae.ExportNode, allExports: tae.ExportNode[]) {
   const description = component.documentation?.description?.replace(/\n\nDocumentation: .*$/ms, '');
   const dataAttributes = allExports.find((node) => node.name === `${component.name}DataAttributes`);
   const cssVariables = allExports.find((node) => node.name === `${component.name}CssVars`);
@@ -11,24 +11,24 @@ export function formatComponentData(component: rae.ExportNode, allExports: rae.E
     name: component.name,
     description,
     props: sortObjectByKeys(
-      formatProperties((component.type as rae.ComponentNode).props),
+      formatProperties((component.type as tae.ComponentNode).props),
       memberOrder.props,
     ),
     dataAttributes: dataAttributes
       ? sortObjectByKeys(
-          formatEnum(dataAttributes.type as rae.EnumNode),
+          formatEnum(dataAttributes.type as tae.EnumNode),
           memberOrder.dataAttributes,
         )
       : {},
     cssVariables: cssVariables
-      ? sortObjectByKeys(formatEnum(cssVariables.type as rae.EnumNode), memberOrder.cssVariables)
+      ? sortObjectByKeys(formatEnum(cssVariables.type as tae.EnumNode), memberOrder.cssVariables)
       : {},
   };
 }
 
-export function isPublicComponent(exportNode: rae.ExportNode) {
+export function isPublicComponent(exportNode: tae.ExportNode) {
   return (
-    exportNode.type instanceof rae.ComponentNode &&
+    exportNode.type instanceof tae.ComponentNode &&
     !exportNode.documentation?.hasTag('ignore') &&
     exportNode.isPublic()
   );
