@@ -1,10 +1,10 @@
 import { TemporalAdapter, TemporalSupportedObject, TemporalTimezone } from '../../models';
 
-export const getCurrentDate = (
+export function getCurrentDate(
   adapter: TemporalAdapter,
   timezone: TemporalTimezone,
   shouldRemoveTime: boolean,
-): TemporalSupportedObject => {
+): TemporalSupportedObject {
   const today = adapter.date(undefined, timezone);
 
   if (shouldRemoveTime) {
@@ -12,13 +12,13 @@ export const getCurrentDate = (
   }
 
   return today;
-};
+}
 
-export const mergeDateAndTime = (
+export function mergeDateAndTime(
   adapter: TemporalAdapter,
   dateParam: TemporalSupportedObject,
   timeParam: TemporalSupportedObject,
-): TemporalSupportedObject => {
+): TemporalSupportedObject {
   let mergedDate = dateParam;
   mergedDate = adapter.setHours(mergedDate, adapter.getHours(timeParam));
   mergedDate = adapter.setMinutes(mergedDate, adapter.getMinutes(timeParam));
@@ -26,55 +26,53 @@ export const mergeDateAndTime = (
   mergedDate = adapter.setMilliseconds(mergedDate, adapter.getMilliseconds(timeParam));
 
   return mergedDate;
-};
+}
 
-export const getSecondsInDay = (date: TemporalSupportedObject, adapter: TemporalAdapter) => {
-  return adapter.getHours(date) * 3600 + adapter.getMinutes(date) * 60 + adapter.getSeconds(date);
-};
-
-export const createIsAfterIgnoreDatePart =
-  (disableIgnoringDatePartForTimeValidation: boolean, adapter: TemporalAdapter) =>
-  (dateLeft: TemporalSupportedObject, dateRight: TemporalSupportedObject) => {
-    if (disableIgnoringDatePartForTimeValidation) {
-      return adapter.isAfter(dateLeft, dateRight);
-    }
-
-    return getSecondsInDay(dateLeft, adapter) > getSecondsInDay(dateRight, adapter);
+/**
+ * Check if the time part of the first date is after the time part of the second date.
+ */
+export function isTimePartAfter(
+  adapter: TemporalAdapter,
+  dateA: TemporalSupportedObject,
+  dateB: TemporalSupportedObject,
+): boolean {
+  const getSecondsInDay = (date: TemporalSupportedObject) => {
+    return adapter.getHours(date) * 3600 + adapter.getMinutes(date) * 60 + adapter.getSeconds(date);
   };
 
-export const areDatesEqual = (
+  return getSecondsInDay(dateA) > getSecondsInDay(dateB);
+}
+
+export function areDatesEqual(
   adapter: TemporalAdapter,
   a: TemporalSupportedObject | null,
   b: TemporalSupportedObject | null,
-) => {
+) {
   if (!adapter.isValid(a) && a != null && !adapter.isValid(b) && b != null) {
     return true;
   }
 
   return adapter.isEqual(a, b);
-};
+}
 
-export const replaceInvalidDateByNull = (
+export function replaceInvalidDateByNull(
   adapter: TemporalAdapter,
   value: TemporalSupportedObject | null,
-): TemporalSupportedObject | null => (adapter.isValid(value) ? value : null);
+): TemporalSupportedObject | null {
+  if (adapter.isValid(value)) {
+    return value;
+  }
+  return null;
+}
 
-export const applyDefaultDate = (
+export function applyDefaultDate(
   adapter: TemporalAdapter,
   date: TemporalSupportedObject | null | undefined,
   defaultDate: TemporalSupportedObject,
-): TemporalSupportedObject => {
-  if (date != null && adapter.isValid(date ?? null)) {
-    return date;
+): TemporalSupportedObject {
+  if (adapter.isValid(date ?? null)) {
+    return date!;
   }
 
   return defaultDate;
-};
-
-export const getWeekdays = (
-  adapter: TemporalAdapter,
-  date: TemporalSupportedObject,
-): TemporalSupportedObject[] => {
-  const start = adapter.startOfWeek(date);
-  return [0, 1, 2, 3, 4, 5, 6].map((diff) => adapter.addDays(start, diff));
-};
+}

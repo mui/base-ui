@@ -5,7 +5,6 @@ import { validateDate } from './validateDate';
 import { useTemporalAdapter } from '../../temporal-adapter-provider/TemporalAdapterContext';
 import { TemporalManager } from './types';
 import { TemporalNonRangeValue, TemporalSupportedObject } from '../../models';
-import { getInitialReferenceDate } from './getInitialReferenceDate';
 
 export function useDateManager(
   _parameters: useDateManager.Parameters = {},
@@ -23,8 +22,6 @@ export function useDateManager(
       getTimezone: (value) => (adapter.isValid(value) ? adapter.getTimezone(value) : null),
       setTimezone: (value, timezone) =>
         value == null ? null : adapter.setTimezone(value, timezone),
-      getInitialReferenceValue: (parameters) =>
-        getInitialReferenceDate({ ...parameters, adapter, controlledDate: parameters.value }),
     }),
     [adapter],
   );

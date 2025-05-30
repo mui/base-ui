@@ -86,7 +86,7 @@ export function useSharedCalendarRoot<
         adapter,
         timezone,
         controlledDate: getDateToUseForReferenceDate(value),
-        props: dateValidationProps,
+        validationProps: dateValidationProps,
         referenceDate: referenceDateProp,
         precision: 'day',
       });

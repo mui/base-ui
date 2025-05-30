@@ -2,9 +2,9 @@
 import * as React from 'react';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
-import { getWeekdays } from '../../utils/temporal/date-helpers';
 import { TemporalSupportedObject } from '../../models';
 import { useTemporalAdapter } from '../../temporal-adapter-provider/TemporalAdapterContext';
+import { useDayList } from '../../use-day-list';
 
 const CalendarDayGridHeader = React.forwardRef(function CalendarDayGridHeader(
   componentProps: CalendarDayGridHeader.Props,
@@ -14,7 +14,11 @@ const CalendarDayGridHeader = React.forwardRef(function CalendarDayGridHeader(
 
   const adapter = useTemporalAdapter();
 
-  const days = React.useMemo(() => getWeekdays(adapter, adapter.date()), [adapter]);
+  const getDayList = useDayList();
+  const days = React.useMemo(
+    () => getDayList({ date: adapter.startOfWeek(adapter.date()), amount: 7 }),
+    [adapter, getDayList],
+  );
 
   const resolvedChildren = React.useMemo(() => {
     if (!React.isValidElement(children) && typeof children === 'function') {

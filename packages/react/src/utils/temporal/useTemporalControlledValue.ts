@@ -10,7 +10,7 @@ import { TemporalManager } from './types';
  * - The value returned by `onChange` always have the timezone of `props.value`, `props.defaultValue` or `props.referenceDate` if defined
  * - The value rendered is always the one from `props.timezone` if defined
  */
-export const useTemporalControlledValue = <
+export function useTemporalControlledValue<
   TValue extends TemporalSupportedValue,
   TChange extends (...params: any[]) => void,
 >({
@@ -24,7 +24,7 @@ export const useTemporalControlledValue = <
 }: useTemporalControlledValue.Parameters<TValue, TChange>): useTemporalControlledValue.ReturnValue<
   TValue,
   TChange
-> => {
+> {
   const adapter = useTemporalAdapter();
 
   const [valueWithInputTimezone, setValueWithInputTimezone] = useControlled({
@@ -76,7 +76,7 @@ export const useTemporalControlledValue = <
     setValue,
     timezone: timezoneToRender,
   };
-};
+}
 
 export namespace useTemporalControlledValue {
   export interface Parameters<

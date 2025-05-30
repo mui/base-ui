@@ -1,11 +1,4 @@
-import {
-  TemporalTimezone,
-  TemporalSupportedValue,
-  TemporalValueType,
-  TemporalSupportedObject,
-  TemporalNonNullableValue,
-} from '../../models/temporal';
-import { type getInitialReferenceDate } from './getInitialReferenceDate';
+import { TemporalTimezone, TemporalSupportedValue, TemporalValueType } from '../../models/temporal';
 
 export interface TemporalTimezoneProps {
   /**
@@ -72,14 +65,4 @@ export interface TemporalManager<
    * Changes the timezone of the dates inside a value.
    */
   setTimezone: (value: TValue, timezone: TemporalTimezone) => TValue;
-  /**
-   * Returns the reference value to use when mounting the component.
-   */
-  getInitialReferenceValue: (parameters: {
-    referenceDate: TemporalSupportedObject | undefined;
-    value: TValue;
-    props: getInitialReferenceDate.Props;
-    precision: getInitialReferenceDate.Precision;
-    timezone: TemporalTimezone;
-  }) => TemporalNonNullableValue<TValue>;
 }

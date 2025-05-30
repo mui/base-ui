@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { TemporalAdapter, TemporalSupportedValue } from '../../models';
+import { TemporalSupportedValue } from '../../models';
 import type { TemporalManager, TemporalOnErrorProps } from './types';
 
 /**
@@ -69,13 +69,3 @@ export namespace useTemporalValidation {
     isInvalid: boolean;
   }
 }
-
-export type TemporalValidator<
-  TValue extends TemporalSupportedValue,
-  TError,
-  TValidationProps,
-> = (params: {
-  adapter: TemporalAdapter;
-  value: TValue;
-  validationProps: TValidationProps;
-}) => TError;
