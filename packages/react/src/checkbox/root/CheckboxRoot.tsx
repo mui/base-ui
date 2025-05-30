@@ -4,6 +4,7 @@ import { useCheckboxGroupContext } from '../../checkbox-group/CheckboxGroupConte
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useCustomStyleHookMapping } from '../utils/useCustomStyleHookMapping';
+import { useForkRef } from '../../utils/useForkRef';
 import type { FieldRoot } from '../../field/root/FieldRoot';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useCheckboxRoot } from './useCheckboxRoot';
@@ -32,7 +33,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     render,
     className,
     inputRef,
-    value,
+    value: valueProp,
     nativeButton = true,
     ...otherProps
   } = props;
@@ -41,12 +42,14 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
   const parentContext = groupContext?.parent;
   const isGrouped = parentContext && groupContext.allValues;
 
+  const value = valueProp ?? name;
+
   let groupProps: Partial<Omit<CheckboxRoot.Props, 'className'>> = {};
   if (isGrouped) {
     if (parent) {
       groupProps = groupContext.parent.getParentProps();
-    } else if (name) {
-      groupProps = groupContext.parent.getChildProps(name);
+    } else if (value) {
+      groupProps = groupContext.parent.getChildProps(value);
     }
   }
 
@@ -80,6 +83,8 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     }
   }, [parentContext, disabled, name]);
 
+  const mergedRef = useForkRef(forwardedRef, groupContext?.registerControlRef);
+
   const state: CheckboxRoot.State = React.useMemo(
     () => ({
       ...fieldState,
@@ -97,7 +102,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
   const { renderElement } = useComponentRenderer({
     propGetter: getRootProps,
     render: render ?? 'button',
-    ref: forwardedRef,
+    ref: mergedRef,
     state,
     className,
     customStyleHookMapping,
@@ -110,7 +115,9 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
   return (
     <CheckboxRootContext.Provider value={state}>
       {renderElement()}
-      {!checked && props.name && <input type="hidden" name={props.name} value="off" />}
+      {!checked && !groupContext && props.name && !parent && (
+        <input type="hidden" name={props.name} value="off" />
+      )}
       <input {...getInputProps()} />
     </CheckboxRootContext.Provider>
   );

@@ -14,6 +14,10 @@ import { useField } from '../../field/useField';
 import { useCheckboxGroupContext } from '../../checkbox-group/CheckboxGroupContext';
 import { useFormContext } from '../../form/FormContext';
 
+const EMPTY = {};
+
+export const PARENT_CHECKBOX = 'data-parent';
+
 export function useCheckboxRoot(params: useCheckboxRoot.Parameters): useCheckboxRoot.ReturnValue {
   const {
     id: idProp,
@@ -21,7 +25,7 @@ export function useCheckboxRoot(params: useCheckboxRoot.Parameters): useCheckbox
     inputRef: externalInputRef,
     onCheckedChange: onCheckedChangeProp,
     name: nameProp,
-    value,
+    value: valueProp,
     defaultChecked = false,
     readOnly = false,
     required = false,
@@ -54,6 +58,7 @@ export function useCheckboxRoot(params: useCheckboxRoot.Parameters): useCheckbox
 
   const disabled = fieldDisabled || disabledProp;
   const name = fieldName ?? nameProp;
+  const value = valueProp ?? name;
 
   const { getButtonProps } = useButton({
     disabled,
@@ -61,17 +66,14 @@ export function useCheckboxRoot(params: useCheckboxRoot.Parameters): useCheckbox
     native: nativeButton,
   });
 
-  const {
-    getValidationProps,
-    getInputValidationProps,
-    inputRef: inputValidationRef,
-    commitValidation,
-  } = useFieldControlValidation();
+  const localFieldControlValidation = useFieldControlValidation();
+  const fieldControlValidation =
+    groupContext?.fieldControlValidation ?? localFieldControlValidation;
 
   const [checked, setCheckedState] = useControlled({
-    controlled: name && groupValue && !parent ? groupValue.includes(name) : externalChecked,
+    controlled: value && groupValue && !parent ? groupValue.includes(value) : externalChecked,
     default:
-      name && defaultGroupValue && !parent ? defaultGroupValue.includes(name) : defaultChecked,
+      value && defaultGroupValue && !parent ? defaultGroupValue.includes(value) : defaultChecked,
     name: 'Checkbox',
     state: 'checked',
   });
@@ -87,14 +89,15 @@ export function useCheckboxRoot(params: useCheckboxRoot.Parameters): useCheckbox
   }, [id, setControlId]);
 
   useField({
+    enabled: !groupContext,
     id,
-    commitValidation,
+    commitValidation: fieldControlValidation.commitValidation,
     value: checked,
     controlRef: buttonRef,
   });
 
   const inputRef = React.useRef<HTMLInputElement>(null);
-  const mergedInputRef = useForkRef(externalInputRef, inputRef, inputValidationRef);
+  const mergedInputRef = useForkRef(externalInputRef, inputRef, fieldControlValidation.inputRef);
 
   useModernLayoutEffect(() => {
     if (inputRef.current) {
@@ -117,6 +120,7 @@ export function useCheckboxRoot(params: useCheckboxRoot.Parameters): useCheckbox
           'aria-readonly': readOnly || undefined,
           'aria-required': required || undefined,
           'aria-labelledby': labelId,
+          [PARENT_CHECKBOX as string]: parent ? '' : undefined,
           onFocus() {
             setFocused(true);
           },
@@ -130,7 +134,7 @@ export function useCheckboxRoot(params: useCheckboxRoot.Parameters): useCheckbox
             setFocused(false);
 
             if (validationMode === 'onBlur') {
-              commitValidation(groupContext ? groupValue : element.checked);
+              fieldControlValidation.commitValidation(groupContext ? groupValue : element.checked);
             }
           },
           onClick(event) {
@@ -143,11 +147,10 @@ export function useCheckboxRoot(params: useCheckboxRoot.Parameters): useCheckbox
             inputRef.current?.click();
           },
         },
-        getValidationProps(externalProps),
+        fieldControlValidation.getValidationProps(externalProps),
         getButtonProps,
       ),
     [
-      getValidationProps,
       getButtonProps,
       id,
       disabled,
@@ -159,9 +162,10 @@ export function useCheckboxRoot(params: useCheckboxRoot.Parameters): useCheckbox
       setFocused,
       setTouched,
       validationMode,
-      commitValidation,
       groupContext,
       groupValue,
+      fieldControlValidation,
+      parent,
     ],
   );
 
@@ -171,10 +175,12 @@ export function useCheckboxRoot(params: useCheckboxRoot.Parameters): useCheckbox
         {
           checked,
           disabled,
-          name,
+          name: parent ? undefined : name,
           // React <19 sets an empty value if `undefined` is passed explicitly
           // To avoid this, we only set the value if it's defined
-          ...(value !== undefined ? { value } : {}),
+          ...(valueProp !== undefined
+            ? { value: (groupContext ? checked && valueProp : valueProp) || '' }
+            : EMPTY),
           required,
           ref: mergedInputRef,
           style: visuallyHidden,
@@ -198,39 +204,39 @@ export function useCheckboxRoot(params: useCheckboxRoot.Parameters): useCheckbox
               setFilled(nextChecked);
 
               if (validationMode === 'onChange') {
-                commitValidation(nextChecked);
+                fieldControlValidation.commitValidation(nextChecked);
               } else {
-                commitValidation(nextChecked, true);
+                fieldControlValidation.commitValidation(nextChecked, true);
               }
             }
 
-            if (name && groupValue && setGroupValue && !parent) {
+            if (value && groupValue && setGroupValue && !parent) {
               const nextGroupValue = nextChecked
-                ? [...groupValue, name]
-                : groupValue.filter((item) => item !== name);
+                ? [...groupValue, value]
+                : groupValue.filter((item) => item !== value);
 
               setGroupValue(nextGroupValue, event.nativeEvent);
               setFilled(nextGroupValue.length > 0);
 
               if (validationMode === 'onChange') {
-                commitValidation(nextGroupValue);
+                fieldControlValidation.commitValidation(nextGroupValue);
               } else {
-                commitValidation(nextGroupValue, true);
+                fieldControlValidation.commitValidation(nextGroupValue, true);
               }
             }
           },
         },
-        groupContext ? getValidationProps(externalProps) : getInputValidationProps(externalProps),
+        groupContext
+          ? fieldControlValidation.getValidationProps(externalProps)
+          : fieldControlValidation.getInputValidationProps(externalProps),
       ),
     [
       checked,
       disabled,
       name,
-      value,
+      valueProp,
       required,
       mergedInputRef,
-      getInputValidationProps,
-      getValidationProps,
       setDirty,
       validityData.initialValue,
       setCheckedState,
@@ -242,7 +248,8 @@ export function useCheckboxRoot(params: useCheckboxRoot.Parameters): useCheckbox
       parent,
       setFilled,
       validationMode,
-      commitValidation,
+      value,
+      fieldControlValidation,
     ],
   );
 
@@ -320,14 +327,14 @@ export namespace useCheckboxRoot {
      */
     parent?: boolean;
     /**
-     * The value of the selected checkbox.
-     */
-    value?: string | number;
-    /**
      * Determines whether the component is being rendered as a native button.
      * @default true
      */
     nativeButton?: boolean;
+    /**
+     * The value of the selected checkbox.
+     */
+    value?: string;
   }
 
   export interface ReturnValue {
