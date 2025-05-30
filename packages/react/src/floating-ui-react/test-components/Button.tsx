@@ -6,12 +6,13 @@ export const Button = React.forwardRef<
   React.ButtonHTMLAttributes<HTMLButtonElement>
 >(function Button(props, ref) {
   return (
+    // eslint-disable-next-line react/button-has-type
     <button
       {...props}
       ref={ref}
       className={c(
         props.className,
-        'bg-slate-200/90 rounded p-2 px-3 transition-colors hover:bg-slate-200/50 data-[open]:bg-slate-200/50',
+        'bg-slate-200/90 hover:bg-slate-200/50 data-[open]:bg-slate-200/50 rounded p-2 px-3 transition-colors',
       )}
     />
   );
