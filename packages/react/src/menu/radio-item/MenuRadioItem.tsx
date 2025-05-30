@@ -10,7 +10,6 @@ import { useMenuRadioGroupContext } from '../radio-group/MenuRadioGroupContext';
 import { MenuRadioItemContext } from './MenuRadioItemContext';
 import { itemMapping } from '../utils/styleHookMapping';
 import { useCompositeListItem } from '../../composite/list/useCompositeListItem';
-import { mergeProps } from '../../merge-props';
 import { useMenuItem } from '../item/useMenuItem';
 
 const InnerMenuRadioItem = React.memo(
@@ -34,7 +33,7 @@ const InnerMenuRadioItem = React.memo(
       ...elementProps
     } = componentProps;
 
-    const { getItemProps: getMenuItemProps, itemRef } = useMenuItem({
+    const { getItemProps, itemRef } = useMenuItem({
       closeOnClick,
       disabled,
       highlighted,
@@ -44,30 +43,24 @@ const InnerMenuRadioItem = React.memo(
       typingRef,
     });
 
-    const getItemProps = React.useCallback(
-      (externalProps?: HTMLProps): HTMLProps => {
-        return mergeProps(
-          {
-            role: 'menuitemradio',
-            'aria-checked': checked,
-            onClick: (event: React.MouseEvent) => {
-              setChecked(event.nativeEvent);
-            },
-          },
-          externalProps,
-          getMenuItemProps,
-        );
-      },
-      [checked, getMenuItemProps, setChecked],
-    );
-
     const state: MenuRadioItem.State = { disabled, highlighted, checked };
 
     return useRenderElement('div', componentProps, {
       state,
       customStyleHookMapping: itemMapping,
       ref: [itemRef, forwardedRef],
-      props: [itemProps, elementProps, getItemProps],
+      props: [
+        itemProps,
+        {
+          role: 'menuitemradio',
+          'aria-checked': checked,
+          onClick: (event: React.MouseEvent) => {
+            setChecked(event.nativeEvent);
+          },
+        },
+        elementProps,
+        getItemProps,
+      ],
     });
   }),
 );

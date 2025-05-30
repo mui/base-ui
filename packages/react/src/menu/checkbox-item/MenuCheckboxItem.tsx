@@ -11,7 +11,6 @@ import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import { useForkRef } from '../../utils/useForkRef';
 import { itemMapping } from '../utils/styleHookMapping';
 import { useControlled } from '../../utils/useControlled';
-import { mergeProps } from '../../merge-props';
 
 const InnerMenuCheckboxItem = React.memo(
   React.forwardRef(function InnerMenuCheckboxItem(
@@ -42,7 +41,7 @@ const InnerMenuCheckboxItem = React.memo(
       state: 'checked',
     });
 
-    const { getItemProps: getMenuItemProps, itemRef } = useMenuItem({
+    const { getItemProps, itemRef } = useMenuItem({
       closeOnClick,
       disabled,
       highlighted,
@@ -52,24 +51,6 @@ const InnerMenuCheckboxItem = React.memo(
       typingRef,
     });
 
-    const getItemProps = React.useCallback(
-      (externalProps?: HTMLProps): HTMLProps => {
-        return mergeProps(
-          {
-            role: 'menuitemcheckbox',
-            'aria-checked': checked,
-            onClick: (event: React.MouseEvent) => {
-              setChecked((currentlyChecked) => !currentlyChecked);
-              onCheckedChange?.(!checked, event.nativeEvent);
-            },
-          },
-          externalProps,
-          getMenuItemProps,
-        );
-      },
-      [checked, getMenuItemProps, onCheckedChange, setChecked],
-    );
-
     const state: MenuCheckboxItem.State = React.useMemo(
       () => ({ disabled, highlighted, checked }),
       [disabled, highlighted, checked],
@@ -78,7 +59,19 @@ const InnerMenuCheckboxItem = React.memo(
     const element = useRenderElement('div', componentProps, {
       state,
       customStyleHookMapping: itemMapping,
-      props: [itemProps, elementProps, getItemProps],
+      props: [
+        itemProps,
+        {
+          role: 'menuitemcheckbox',
+          'aria-checked': checked,
+          onClick: (event: React.MouseEvent) => {
+            setChecked((currentlyChecked) => !currentlyChecked);
+            onCheckedChange?.(!checked, event.nativeEvent);
+          },
+        },
+        elementProps,
+        getItemProps,
+      ],
       ref: [itemRef, forwardedRef],
     });
 
