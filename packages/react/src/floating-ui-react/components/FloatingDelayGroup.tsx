@@ -81,7 +81,7 @@ export function FloatingDelayGroup(props: FloatingDelayGroupProps): React.JSX.El
   );
 }
 
-interface UseNextDelayGroupOptions {
+interface UseDelayGroupOptions {
   /**
    * Whether delay grouping should be enabled.
    * @default true
@@ -89,7 +89,7 @@ interface UseNextDelayGroupOptions {
   enabled?: boolean;
 }
 
-interface UseNextDelayGroupReturn {
+interface UseDelayGroupReturn {
   /**
    * The delay reference object.
    */
@@ -111,8 +111,8 @@ interface UseNextDelayGroupReturn {
  */
 export function useDelayGroup(
   context: FloatingRootContext,
-  options: UseNextDelayGroupOptions = {},
-): UseNextDelayGroupReturn {
+  options: UseDelayGroupOptions = {},
+): UseDelayGroupReturn {
   const { open, onOpenChange, floatingId } = context;
   const { enabled = true } = options;
 
