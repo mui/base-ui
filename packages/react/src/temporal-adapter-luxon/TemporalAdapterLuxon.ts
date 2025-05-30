@@ -467,29 +467,6 @@ export class TemporalAdapterLuxon implements TemporalAdapter<string> {
     return value.daysInMonth!;
   };
 
-  public getWeekArray = (value: DateTime) => {
-    const firstDay = this.startOfWeek(this.startOfMonth(value));
-    const lastDay = this.endOfWeek(this.endOfMonth(value));
-
-    const { days } = lastDay.diff(firstDay, 'days').toObject();
-
-    const weeks: DateTime[][] = [];
-    new Array<number>(Math.round(days!))
-      .fill(0)
-      .map((_, i) => i)
-      .map((day) => firstDay.plus({ days: day }))
-      .forEach((v, i) => {
-        if (i === 0 || (i % 7 === 0 && i > 6)) {
-          weeks.push([v]);
-          return;
-        }
-
-        weeks[weeks.length - 1].push(v);
-      });
-
-    return weeks;
-  };
-
   public getWeekNumber = (value: DateTime) => {
     /* v8 ignore next */
     return value.localWeekNumber ?? value.weekNumber;
@@ -497,19 +474,5 @@ export class TemporalAdapterLuxon implements TemporalAdapter<string> {
 
   public getDayOfWeek = (value: DateTime) => {
     return value.weekday;
-  };
-
-  public getYearRange = ([start, end]: [DateTime, DateTime]) => {
-    const startDate = this.startOfYear(start);
-    const endDate = this.endOfYear(end);
-    const years: DateTime[] = [];
-
-    let current = startDate;
-    while (this.isBefore(current, endDate)) {
-      years.push(current);
-      current = this.addYears(current, 1);
-    }
-
-    return years;
   };
 }

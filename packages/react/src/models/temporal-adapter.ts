@@ -349,10 +349,6 @@ export interface TemporalAdapter<TLocale = any> {
    */
   getDaysInMonth(value: TemporalSupportedObject): number;
   /**
-   * Creates a nested list with all the days of the month of the given date grouped by week.
-   */
-  getWeekArray(value: TemporalSupportedObject): TemporalSupportedObject[][];
-  /**
    * Gets the number of the week of the given date.
    */
   getWeekNumber(value: TemporalSupportedObject): number;
@@ -361,10 +357,4 @@ export interface TemporalAdapter<TLocale = any> {
    * The value is 1-based, 1 - first day of the week, 7 - last day of the week.
    */
   getDayOfWeek(value: TemporalSupportedObject): number;
-  /**
-   * Creates a list with all the years between the start and the end date.
-   */
-  getYearRange(
-    range: [TemporalSupportedObject, TemporalSupportedObject],
-  ): TemporalSupportedObject[];
 }
