@@ -1,23 +1,21 @@
 import * as React from 'react';
 import { TemporalSupportedObject } from '../../models';
 
-export interface CalendarRootPublicContext {
+export interface CalendarContext {
   /**
    * The date currently visible.
    */
   visibleDate: TemporalSupportedObject;
 }
 
-export const CalendarRootPublicContext = React.createContext<CalendarRootPublicContext | undefined>(
-  undefined,
-);
+export const CalendarContext = React.createContext<CalendarContext | undefined>(undefined);
 
-export function useCalendarRootPublicContext() {
-  const context = React.useContext(CalendarRootPublicContext);
+export function useCalendarContext() {
+  const context = React.useContext(CalendarContext);
   if (context === undefined) {
     throw new Error(
       [
-        'Base UI: CalendarRootPublicContext is missing.',
+        'Base UI: CalendarContext is missing.',
         'Calendar parts must be placed within <Calendar.Root />.',
       ].join('\n'),
     );

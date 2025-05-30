@@ -1,10 +1,10 @@
 'use client';
 import * as React from 'react';
-import { applyDefaultDate } from './date-helpers';
+import { applyDefaultDate, areDatesEqual } from './date-helpers';
 import { validateDate } from './validateDate';
 import { useTemporalAdapter } from '../../temporal-adapter-provider/TemporalAdapterContext';
 import { TemporalManager } from './types';
-import { TemporalNonRangeValue, TemporalSupportedObject } from '../../models';
+import { TemporalNonRangeValue } from '../../models';
 
 export function useDateManager(
   _parameters: useDateManager.Parameters = {},
@@ -16,6 +16,7 @@ export function useDateManager(
       valueType: 'date',
       emptyValue: null,
       emptyValidationError: null,
+      areValuesEqual: (valueA, valueB) => areDatesEqual(adapter, valueA, valueB),
       getValidationError: (value, validationProps) =>
         validateDate({ adapter, value, validationProps }),
       areValidationErrorEquals: (errorA, errorB) => errorA === errorB,

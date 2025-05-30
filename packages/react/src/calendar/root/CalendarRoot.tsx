@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { TemporalSupportedObject, TemporalNonRangeValue } from '../../models';
+import { TemporalNonRangeValue } from '../../models';
 import { validateDate } from '../../utils/temporal/validateDate';
 import { SharedCalendarRootContext } from './SharedCalendarRootContext';
 import { useSharedCalendarRoot } from './useSharedCalendarRoot';
@@ -11,8 +11,8 @@ import {
 } from '../../utils/temporal/useDateManager';
 import { useTemporalAdapter } from '../../temporal-adapter-provider/TemporalAdapterContext';
 import { useRenderElement } from '../../utils/useRenderElement';
-import { BaseUIComponentProps, PartialPick } from '../../utils/types';
-import { CalendarRootPublicContext } from './CalendarRootPublicContext';
+import { BaseUIComponentProps } from '../../utils/types';
+import { CalendarContext } from '../use-context/CalendarContext';
 
 const calendarValueManager: useSharedCalendarRoot.ValueManager<TemporalNonRangeValue> = {
   getDateToUseForReferenceDate: (value) => value,
@@ -66,11 +66,11 @@ export const CalendarRoot = React.forwardRef(function CalendarRoot(
 
   const {
     value,
+    state,
     setVisibleDate,
     isDateCellVisible,
     context: sharedContext,
     visibleDateContext,
-    isInvalid,
   } = useSharedCalendarRoot({
     readOnly,
     disabled,
@@ -100,6 +100,13 @@ export const CalendarRoot = React.forwardRef(function CalendarRoot(
     }
   }
 
+  const publicContext: CalendarContext = React.useMemo(
+    () => ({
+      visibleDate: visibleDateContext.visibleDate,
+    }),
+    [visibleDateContext.visibleDate],
+  );
+
   const resolvedChildren = React.useMemo(() => {
     if (!React.isValidElement(children) && typeof children === 'function') {
       return children({ visibleDate: visibleDateContext.visibleDate });
@@ -110,19 +117,6 @@ export const CalendarRoot = React.forwardRef(function CalendarRoot(
 
   const props = React.useMemo(() => ({ children: resolvedChildren }), [resolvedChildren]);
 
-  const isEmpty = value == null;
-  const state: CalendarRoot.State = React.useMemo(
-    () => ({ empty: isEmpty, invalid: isInvalid }),
-    [isEmpty, isInvalid],
-  );
-
-  const publicContext: CalendarRootPublicContext = React.useMemo(
-    () => ({
-      visibleDate: visibleDateContext.visibleDate,
-    }),
-    [visibleDateContext.visibleDate],
-  );
-
   const element = useRenderElement('div', componentProps, {
     state,
     ref: forwardedRef,
@@ -130,27 +124,18 @@ export const CalendarRoot = React.forwardRef(function CalendarRoot(
   });
 
   return (
-    <CalendarRootPublicContext.Provider value={publicContext}>
+    <CalendarContext.Provider value={publicContext}>
       <SharedCalendarRootVisibleDateContext.Provider value={visibleDateContext}>
         <SharedCalendarRootContext.Provider value={sharedContext}>
           {element}
         </SharedCalendarRootContext.Provider>
       </SharedCalendarRootVisibleDateContext.Provider>
-    </CalendarRootPublicContext.Provider>
+    </CalendarContext.Provider>
   );
 });
 
 export namespace CalendarRoot {
-  export interface State {
-    /**
-     * Whether the current value is empty.
-     */
-    empty: boolean;
-    /**
-     * Whether the current value is invalid.
-     */
-    invalid: boolean;
-  }
+  export interface State extends useSharedCalendarRoot.State {}
 
   export interface Props
     extends Omit<
@@ -158,16 +143,12 @@ export namespace CalendarRoot {
         'value' | 'defaultValue' | 'onError' | 'children'
       >,
       useSharedCalendarRoot.PublicParameters<TemporalNonRangeValue, validateDate.Error>,
-      PartialPick<validateDate.ValidationProps, 'minDate' | 'maxDate'> {
+      Partial<validateDate.ValidationProps> {
     /**
      * The children of the component.
      * If a function is provided, it will be called with the public context as its parameter.
      */
-    children?: React.ReactNode | ((parameters: ChildrenParameters) => React.ReactNode);
-  }
-
-  export interface ChildrenParameters {
-    visibleDate: TemporalSupportedObject;
+    children?: React.ReactNode | ((parameters: CalendarContext) => React.ReactNode);
   }
 
   export interface ValueChangeHandlerContext

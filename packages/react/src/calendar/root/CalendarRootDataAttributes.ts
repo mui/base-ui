@@ -7,4 +7,12 @@ export enum CalendarRootDataAttributes {
    * Present when no date is selected.
    */
   empty = 'data-empty',
+  /**
+   * Present when the calendar is disabled.
+   */
+  disabled = 'data-disabled',
+  /**
+   * Present when the calendar is readonly.
+   */
+  readOnly = 'data-readonly',
 }

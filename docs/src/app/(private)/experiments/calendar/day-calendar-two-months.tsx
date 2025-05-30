@@ -4,14 +4,13 @@ import clsx from 'clsx';
 import { TemporalAdapterProvider } from '@base-ui-components/react/temporal-adapter-provider';
 import { TemporalAdapterLuxon } from '@base-ui-components/react/temporal-adapter-luxon';
 import { Calendar } from '@base-ui-components/react/calendar';
-import { useCalendarContext } from '@base-ui-components/react/use-calendar-context';
 import { Separator } from '@base-ui-components/react/separator';
 import styles from './calendar.module.css';
 
 const adapter = new TemporalAdapterLuxon();
 
 function Header() {
-  const { visibleDate } = useCalendarContext();
+  const { visibleDate } = Calendar.useContext();
 
   return (
     <header className={styles.Header}>

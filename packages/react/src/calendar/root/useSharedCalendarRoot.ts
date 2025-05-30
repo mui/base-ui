@@ -178,6 +178,16 @@ export function useSharedCalendarRoot<
     [visibleDate],
   );
 
+  const state: useSharedCalendarRoot.State = React.useMemo(
+    () => ({
+      empty: manager.areValuesEqual(value, manager.emptyValue),
+      invalid: isInvalid,
+      disabled,
+      readOnly,
+    }),
+    [manager, value, isInvalid, disabled, readOnly],
+  );
+
   const context: SharedCalendarRootContext = React.useMemo(
     () => ({
       timezone,
@@ -221,7 +231,7 @@ export function useSharedCalendarRoot<
     isDateCellVisible,
     context,
     visibleDateContext,
-    isInvalid,
+    state,
   };
 }
 
@@ -334,10 +344,7 @@ export namespace useSharedCalendarRoot {
     isDateCellVisible: (date: TemporalSupportedObject) => boolean;
     context: SharedCalendarRootContext;
     visibleDateContext: SharedCalendarRootVisibleDateContext;
-    /**
-     * Whether the current value is invalid.
-     */
-    isInvalid: boolean;
+    state: useSharedCalendarRoot.State;
   }
 
   export interface ValueChangeHandlerContext<TError> {
@@ -386,6 +393,25 @@ export namespace useSharedCalendarRoot {
      * The reference date.
      */
     referenceDate: TemporalSupportedObject;
+  }
+
+  export interface State {
+    /**
+     * Whether the current value is empty.
+     */
+    empty: boolean;
+    /**
+     * Whether the current value is invalid.
+     */
+    invalid: boolean;
+    /**
+     * Whether the calendar is disabled.
+     */
+    disabled: boolean;
+    /**
+     * Whether the calendar is readonly.
+     */
+    readOnly?: boolean;
   }
 }
 

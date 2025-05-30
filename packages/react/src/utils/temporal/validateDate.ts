@@ -34,14 +34,14 @@ export namespace validateDate {
 
   export interface ValidationProps {
     /**
-     * Maximal selectable date.
-     * @default 2099-12-31
-     */
-    maxDate: TemporalSupportedObject;
-    /**
      * Minimal selectable date.
      * @default 1900-01-01
      */
     minDate: TemporalSupportedObject;
+    /**
+     * Maximal selectable date.
+     * @default 2099-12-31
+     */
+    maxDate: TemporalSupportedObject;
   }
 }

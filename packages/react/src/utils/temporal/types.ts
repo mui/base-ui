@@ -45,15 +45,19 @@ export interface TemporalManager<
    */
   emptyValidationError: TError;
   /**
+   * Checks whether two values are equal.
+   */
+  areValuesEqual: (valueA: TValue, valueB: TValue) => boolean;
+  /**
    * Returns the error associated with a value for the current set of validation props.
    */
   getValidationError: (value: TValue, validationProps: TValidationProps) => TError;
   /**
-   * Compares two errors to know if they are equal.
+   * Checks whether two validation errors are equal.
    */
   areValidationErrorEquals: (errorA: TError, errorB: TError | null) => boolean;
   /**
-   * Checks if the current error is empty or not.
+   * Checks whether the current validation error is empty.
    */
   isValidationErrorEmpty: (error: TError) => boolean;
   /**
