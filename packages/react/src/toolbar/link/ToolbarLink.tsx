@@ -25,7 +25,6 @@ export const ToolbarLink = React.forwardRef(function ToolbarLink(
   const { orientation } = useToolbarRootContext();
 
   const { getButtonProps, buttonRef } = useButton({
-    buttonRef: forwardedRef,
     elementName: 'a',
   });
 
