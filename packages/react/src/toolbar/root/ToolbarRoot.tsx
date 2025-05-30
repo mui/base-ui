@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { BaseUIComponentProps, Orientation as BaseOrientation, HTMLProps } from '../../utils/types';
+import { BaseUIComponentProps, Orientation as BaseOrientation } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { CompositeRoot } from '../../composite/root/CompositeRoot';
 import type { CompositeMetadata } from '../../composite/list/CompositeList';
@@ -27,7 +27,7 @@ export const ToolbarRoot = React.forwardRef(function ToolbarRoot(
   } = componentProps;
 
   const [itemMap, setItemMap] = React.useState(
-    () => new Map<Node, CompositeMetadata<ToolbarItemMetadata> | null>(),
+    () => new Map<Node, CompositeMetadata<ToolbarRoot.ItemMetadata> | null>(),
   );
 
   const disabledIndices = React.useMemo(() => {
@@ -39,14 +39,6 @@ export const ToolbarRoot = React.forwardRef(function ToolbarRoot(
     }
     return output;
   }, [itemMap]);
-
-  const rootProps: HTMLProps = React.useMemo(
-    () => ({
-      'aria-orientation': orientation,
-      role: 'toolbar',
-    }),
-    [orientation],
-  );
 
   const toolbarRootContext: ToolbarRootContext = React.useMemo(
     () => ({
@@ -62,7 +54,13 @@ export const ToolbarRoot = React.forwardRef(function ToolbarRoot(
   const element = useRenderElement('div', componentProps, {
     state,
     ref: forwardedRef,
-    props: [rootProps, elementProps],
+    props: [
+      {
+        'aria-orientation': orientation,
+        role: 'toolbar',
+      },
+      elementProps,
+    ],
   });
 
   return (
@@ -79,11 +77,11 @@ export const ToolbarRoot = React.forwardRef(function ToolbarRoot(
   );
 });
 
-export interface ToolbarItemMetadata {
-  focusableWhenDisabled: boolean;
-}
-
 export namespace ToolbarRoot {
+  export interface ItemMetadata {
+    focusableWhenDisabled: boolean;
+  }
+
   export type Orientation = BaseOrientation;
 
   export type State = {

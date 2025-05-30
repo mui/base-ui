@@ -5,7 +5,7 @@ import { useRenderElement } from '../../utils/useRenderElement';
 import { ARROW_LEFT, ARROW_RIGHT, stopEvent } from '../../composite/composite';
 import { CompositeItem } from '../../composite/item/CompositeItem';
 import { useButton } from '../../use-button';
-import type { ToolbarRoot, ToolbarItemMetadata } from '../root/ToolbarRoot';
+import type { ToolbarRoot } from '../root/ToolbarRoot';
 import { useToolbarRootContext } from '../root/ToolbarRootContext';
 import { useToolbarGroupContext } from '../group/ToolbarGroupContext';
 
@@ -78,7 +78,7 @@ export const ToolbarInput = React.forwardRef(function ToolbarInput(
     props: [inputProps, elementProps, getButtonProps],
   });
 
-  return <CompositeItem<ToolbarItemMetadata> metadata={itemMetadata} render={element} />;
+  return <CompositeItem<ToolbarRoot.ItemMetadata> metadata={itemMetadata} render={element} />;
 });
 
 export namespace ToolbarInput {

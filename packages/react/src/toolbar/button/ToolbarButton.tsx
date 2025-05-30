@@ -4,7 +4,7 @@ import { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useButton } from '../../use-button';
 import { CompositeItem } from '../../composite/item/CompositeItem';
-import type { ToolbarRoot, ToolbarItemMetadata } from '../root/ToolbarRoot';
+import type { ToolbarRoot } from '../root/ToolbarRoot';
 import { useToolbarRootContext } from '../root/ToolbarRootContext';
 import { useToolbarGroupContext } from '../group/ToolbarGroupContext';
 
@@ -54,7 +54,7 @@ export const ToolbarButton = React.forwardRef(function ToolbarButton(
     props: [elementProps, { disabled }, getButtonProps],
   });
 
-  return <CompositeItem<ToolbarItemMetadata> metadata={itemMetadata} render={element} />;
+  return <CompositeItem<ToolbarRoot.ItemMetadata> metadata={itemMetadata} render={element} />;
 });
 
 export namespace ToolbarButton {

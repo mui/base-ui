@@ -4,7 +4,7 @@ import { useRenderElement } from '../../utils/useRenderElement';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useButton } from '../../use-button';
 import { CompositeItem } from '../../composite/item/CompositeItem';
-import type { ToolbarRoot, ToolbarItemMetadata } from '../root/ToolbarRoot';
+import type { ToolbarRoot } from '../root/ToolbarRoot';
 import { useToolbarRootContext } from '../root/ToolbarRootContext';
 
 const TOOLBAR_LINK_METADATA = {
@@ -42,7 +42,9 @@ export const ToolbarLink = React.forwardRef(function ToolbarLink(
     props: [elementProps, getButtonProps],
   });
 
-  return <CompositeItem<ToolbarItemMetadata> metadata={TOOLBAR_LINK_METADATA} render={element} />;
+  return (
+    <CompositeItem<ToolbarRoot.ItemMetadata> metadata={TOOLBAR_LINK_METADATA} render={element} />
+  );
 });
 
 export namespace ToolbarLink {
