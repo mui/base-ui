@@ -1,4 +1,4 @@
-import type { OpenChangeReason as FloatingUIOpenChangeReason } from '../../floating-ui-react';
+import type { OpenChangeReason as FloatingUIOpenChangeReason } from '../floating-ui-react';
 
 export type BaseOpenChangeReason =
   | 'trigger-press'
