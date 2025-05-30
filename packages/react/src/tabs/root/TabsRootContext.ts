@@ -1,20 +1,19 @@
 'use client';
 import * as React from 'react';
 import type { TextDirection } from '../../direction-provider/DirectionContext';
-import { type TabMetadata } from '../tab/useTabsTab';
-import type { TabActivationDirection, TabValue } from './TabsRoot';
+import type { TabsTab } from '../tab/TabsTab';
 
 export interface TabsRootContext {
   /**
    * The currently selected tab's value.
    */
-  value: TabValue;
+  value: TabsTab.Value;
   /**
    * Callback for setting new value.
    */
   onValueChange: (
-    value: TabValue,
-    activationDirection: TabActivationDirection,
+    value: TabsTab.Value,
+    activationDirection: TabsTab.ActivationDirection,
     event: Event,
   ) => void;
   /**
@@ -30,14 +29,14 @@ export interface TabsRootContext {
    * Gets the element of the Tab with the given value.
    * @param {any | undefined} value Value to find the tab for.
    */
-  getTabElementBySelectedValue: (selectedValue: TabValue | undefined) => HTMLElement | null;
+  getTabElementBySelectedValue: (selectedValue: TabsTab.Value | undefined) => HTMLElement | null;
   /**
    * Gets the `id` attribute of the Tab that corresponds to the given TabPanel value or index.
    * @param (any | undefined) panelValue Value to find the Tab for.
    * @param (number) index The index of the TabPanel to look for.
    */
   getTabIdByPanelValueOrIndex: (
-    panelValue: TabValue | undefined,
+    panelValue: TabsTab.Value | undefined,
     index: number,
   ) => string | undefined;
   /**
@@ -46,11 +45,11 @@ export interface TabsRootContext {
    * @param (number) index The index of the Tab to look for.
    */
   getTabPanelIdByTabValueOrIndex: (tabValue: any, index: number) => string | undefined;
-  setTabMap: (map: Map<Node, (TabMetadata & { index?: number | null }) | null>) => void;
+  setTabMap: (map: Map<Node, (TabsTab.Metadata & { index?: number | null }) | null>) => void;
   /**
    * The position of the active tab relative to the previously active tab.
    */
-  tabActivationDirection: TabActivationDirection;
+  tabActivationDirection: TabsTab.ActivationDirection;
 }
 
 /**

@@ -1,18 +1,23 @@
 'use client';
 import * as React from 'react';
-import { FloatingNode, useFloatingNodeId, useFloatingParentNodeId } from '@floating-ui/react';
+import {
+  FloatingNode,
+  useFloatingNodeId,
+  useFloatingParentNodeId,
+  useFloatingTree,
+} from '@floating-ui/react';
 import { MenuPositionerContext } from './MenuPositionerContext';
 import { useMenuRootContext } from '../root/MenuRootContext';
-import type { Align, Side } from '../../utils/useAnchorPositioning';
+import { useAnchorPositioning, type Align, type Side } from '../../utils/useAnchorPositioning';
 import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useForkRef } from '../../utils/useForkRef';
-import { useMenuPositioner } from './useMenuPositioner';
 import { BaseUIComponentProps } from '../../utils/types';
 import { popupStateMapping } from '../../utils/popupStateMapping';
 import { CompositeList } from '../../composite/list/CompositeList';
 import { inertValue } from '../../utils/inertValue';
 import { InternalBackdrop } from '../../utils/InternalBackdrop';
 import { useMenuPortalContext } from '../portal/MenuPortalContext';
+import { DROPDOWN_COLLISION_AVOIDANCE } from '../../utils/constants';
 import { useContextMenuRootContext } from '../../context-menu/root/ContextMenuRootContext';
 
 /**
@@ -39,11 +44,13 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
     arrowPadding = 5,
     sticky = false,
     trackAnchor = true,
+    collisionAvoidance = DROPDOWN_COLLISION_AVOIDANCE,
     ...otherProps
   } = props;
 
   const {
     open,
+    setOpen,
     floatingRootContext,
     setPositionerElement,
     itemDomElements,
@@ -52,6 +59,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
     modal,
     lastOpenChangeReason,
     parent,
+    setHoverEnabled,
   } = useMenuRootContext();
 
   const keepMounted = useMenuPortalContext();
@@ -82,11 +90,10 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
 
   const contextMenu = parent.type === 'context-menu';
 
-  const positioner = useMenuPositioner({
+  const positioner = useAnchorPositioning({
     anchor,
     floatingRootContext,
     positionMethod: contextMenuContext ? 'fixed' : positionMethodProp,
-    open,
     mounted,
     side: computedSide,
     sideOffset,
@@ -97,11 +104,55 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
     collisionPadding,
     sticky,
     nodeId,
-    parentNodeId,
     keepMounted,
     trackAnchor,
+    collisionAvoidance,
     shiftCrossAxis: contextMenu,
   });
+
+  const { events: menuEvents } = useFloatingTree()!;
+
+  const positionerProps = React.useMemo(() => {
+    const hiddenStyles: React.CSSProperties = {};
+
+    if (!open) {
+      hiddenStyles.pointerEvents = 'none';
+    }
+
+    return {
+      role: 'presentation',
+      hidden: !mounted,
+      style: {
+        ...positioner.positionerStyles,
+        ...hiddenStyles,
+      },
+    };
+  }, [open, mounted, positioner.positionerStyles]);
+
+  React.useEffect(() => {
+    function onMenuOpenChange(event: { open: boolean; nodeId: string; parentNodeId: string }) {
+      if (event.open) {
+        if (event.parentNodeId === nodeId) {
+          setHoverEnabled(false);
+        }
+        if (event.nodeId !== nodeId && event.parentNodeId === parentNodeId) {
+          setOpen(false, undefined, 'sibling-open');
+        }
+      } else if (event.parentNodeId === nodeId) {
+        setHoverEnabled(true);
+      }
+    }
+
+    menuEvents.on('openchange', onMenuOpenChange);
+
+    return () => {
+      menuEvents.off('openchange', onMenuOpenChange);
+    };
+  }, [menuEvents, nodeId, parentNodeId, setOpen, setHoverEnabled]);
+
+  React.useEffect(() => {
+    menuEvents.emit('openchange', { open, nodeId, parentNodeId });
+  }, [menuEvents, open, nodeId, parentNodeId]);
 
   const state: MenuPositioner.State = React.useMemo(
     () => ({
@@ -142,7 +193,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
     customStyleHookMapping: popupStateMapping,
     ref: mergedRef,
     extraProps: {
-      ...positioner.positionerProps,
+      ...positionerProps,
       ...otherProps,
     },
   });
@@ -190,6 +241,6 @@ export namespace MenuPositioner {
   }
 
   export interface Props
-    extends useMenuPositioner.SharedParameters,
+    extends useAnchorPositioning.SharedParameters,
       BaseUIComponentProps<'div', State> {}
 }

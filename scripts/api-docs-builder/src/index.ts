@@ -5,7 +5,7 @@ import * as path from 'node:path';
 import * as inspector from 'node:inspector';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
-import * as rae from 'react-api-extractor';
+import * as tae from 'typescript-api-extractor';
 import kebabCase from 'lodash/kebabCase.js';
 import ts from 'typescript';
 import { isPublicComponent, formatComponentData } from './componentHandler';
@@ -20,7 +20,7 @@ interface RunOptions {
 }
 
 function run(options: RunOptions) {
-  const config = rae.loadConfig(options.configPath);
+  const config = tae.loadConfig(options.configPath);
   const files = options.files ?? config.fileNames;
   const program = ts.createProgram(files, config.options);
 
@@ -84,7 +84,7 @@ yargs(hideBin(process.argv))
   .parse();
 
 function findAllExports(program: ts.Program, sourceFiles: string[]) {
-  const allExports: rae.ExportNode[] = [];
+  const allExports: tae.ExportNode[] = [];
   let errorCounter = 0;
 
   for (const file of sourceFiles) {
@@ -94,7 +94,7 @@ function findAllExports(program: ts.Program, sourceFiles: string[]) {
     }
 
     try {
-      const ast = rae.parseFromProgram(file, program);
+      const ast = tae.parseFromProgram(file, program);
       allExports.push(...ast.exports);
     } catch (error) {
       console.error(`⛔ Error processing ${file}: ${error.message}`);
