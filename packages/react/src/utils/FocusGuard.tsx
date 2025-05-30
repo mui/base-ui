@@ -1,3 +1,4 @@
+'use client';
 import * as React from 'react';
 import { isSafari } from './detectBrowser';
 import { useModernLayoutEffect } from './useModernLayoutEffect';
