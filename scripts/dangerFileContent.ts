@@ -27,7 +27,9 @@ async function reportBundleSize() {
 
   const circleciBuildNumber = process.env.CIRCLE_BUILD_NUM;
 
-  markdownContent += await renderMarkdownReport(danger.github.pr, circleciBuildNumber);
+  markdownContent += await renderMarkdownReport(danger.github.pr, circleciBuildNumber, {
+    track: ['@base-ui-components/react'],
+  });
 
   // Use the markdown function to publish the report
   markdown(markdownContent);
