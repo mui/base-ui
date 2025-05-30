@@ -143,60 +143,31 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     }
   }, [checked, groupIndeterminate, setFilled]);
 
-  const rootProps: React.ComponentPropsWithRef<'button'> = React.useMemo(
-    () => ({
-      id,
-      ref: buttonRef,
-      role: 'checkbox',
-      disabled,
-      'aria-checked': groupIndeterminate ? 'mixed' : checked,
-      'aria-readonly': readOnly || undefined,
-      'aria-required': required || undefined,
-      'aria-labelledby': labelId,
-      [PARENT_CHECKBOX as string]: parent ? '' : undefined,
-      onFocus() {
-        setFocused(true);
-      },
-      onBlur() {
-        const element = inputRef.current;
-        if (!element) {
-          return;
-        }
+  const onFocus = useEventCallback(() => setFocused(true));
 
-        setTouched(true);
-        setFocused(false);
+  const onBlur = useEventCallback(() => {
+    const element = inputRef.current;
+    if (!element) {
+      return;
+    }
 
-        if (validationMode === 'onBlur') {
-          fieldControlValidation.commitValidation(groupContext ? groupValue : element.checked);
-        }
-      },
-      onClick(event) {
-        if (event.defaultPrevented || readOnly) {
-          return;
-        }
+    setTouched(true);
+    setFocused(false);
 
-        event.preventDefault();
+    if (validationMode === 'onBlur') {
+      fieldControlValidation.commitValidation(groupContext ? groupValue : element.checked);
+    }
+  });
 
-        inputRef.current?.click();
-      },
-    }),
-    [
-      id,
-      disabled,
-      groupIndeterminate,
-      checked,
-      readOnly,
-      required,
-      labelId,
-      setFocused,
-      setTouched,
-      validationMode,
-      groupContext,
-      groupValue,
-      fieldControlValidation,
-      parent,
-    ],
-  );
+  const onClick = useEventCallback((event) => {
+    if (event.defaultPrevented || readOnly) {
+      return;
+    }
+
+    event.preventDefault();
+
+    inputRef.current?.click();
+  });
 
   const inputProps = mergeProps<'input'>(
     {
@@ -287,7 +258,20 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     state,
     ref: mergedRef,
     props: [
-      rootProps,
+      {
+        id,
+        ref: buttonRef,
+        role: 'checkbox',
+        disabled,
+        'aria-checked': groupIndeterminate ? 'mixed' : checked,
+        'aria-readonly': readOnly || undefined,
+        'aria-required': required || undefined,
+        'aria-labelledby': labelId,
+        [PARENT_CHECKBOX as string]: parent ? '' : undefined,
+        onFocus,
+        onBlur,
+        onClick,
+      },
       fieldControlValidation.getValidationProps,
       elementProps,
       otherGroupProps,
