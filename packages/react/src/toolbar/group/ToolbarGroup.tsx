@@ -40,7 +40,7 @@ export const ToolbarGroup = React.forwardRef(function ToolbarGroup(
   const element = useRenderElement('div', componentProps, {
     state,
     ref: forwardedRef,
-    props: [elementProps, { role: 'group' }],
+    props: [{ role: 'group' }, elementProps],
   });
 
   return (
