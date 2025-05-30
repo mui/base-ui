@@ -12,6 +12,7 @@ import {
 import { useTemporalAdapter } from '../../temporal-adapter-provider/TemporalAdapterContext';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { BaseUIComponentProps, PartialPick } from '../../utils/types';
+import { CalendarRootPublicContext } from './CalendarRootPublicContext';
 
 const calendarValueManager: useSharedCalendarRoot.ValueManager<TemporalNonRangeValue> = {
   getDateToUseForReferenceDate: (value) => value,
@@ -31,6 +32,7 @@ export const CalendarRoot = React.forwardRef(function CalendarRoot(
     // Form props
     readOnly,
     disabled,
+    invalid,
     // Focus and navigation props
     monthPageSize,
     yearPageSize,
@@ -47,10 +49,9 @@ export const CalendarRoot = React.forwardRef(function CalendarRoot(
     // Children
     children,
     // Validation props
-    onError,
     minDate,
     maxDate,
-    shouldDisableDate,
+    isDateUnavailable,
     // Props forwarded to the DOM element
     ...elementProps
   } = componentProps;
@@ -58,29 +59,22 @@ export const CalendarRoot = React.forwardRef(function CalendarRoot(
   const adapter = useTemporalAdapter();
   const manager = useDateManager();
 
-  const baseDateValidationProps = useApplyDefaultValuesToDateValidationProps({
+  const validationProps = useApplyDefaultValuesToDateValidationProps({
     minDate,
     maxDate,
   });
-
-  const validationProps = React.useMemo<validateDate.ValidationProps>(
-    () => ({
-      ...baseDateValidationProps,
-      shouldDisableDate,
-    }),
-    [baseDateValidationProps, shouldDisableDate],
-  );
 
   const {
     value,
     setVisibleDate,
     isDateCellVisible,
-    context: baseContext,
+    context: sharedContext,
     visibleDateContext,
     isInvalid,
   } = useSharedCalendarRoot({
     readOnly,
     disabled,
+    invalid,
     monthPageSize,
     yearPageSize,
     onValueChange,
@@ -91,10 +85,10 @@ export const CalendarRoot = React.forwardRef(function CalendarRoot(
     onVisibleDateChange,
     visibleDate,
     defaultVisibleDate,
-    onError,
     manager,
     dateValidationProps: validationProps,
     valueValidationProps: validationProps,
+    isDateUnavailable,
     calendarValueManager,
   });
 
@@ -122,6 +116,13 @@ export const CalendarRoot = React.forwardRef(function CalendarRoot(
     [isEmpty, isInvalid],
   );
 
+  const publicContext: CalendarRootPublicContext = React.useMemo(
+    () => ({
+      visibleDate: visibleDateContext.visibleDate,
+    }),
+    [visibleDateContext.visibleDate],
+  );
+
   const element = useRenderElement('div', componentProps, {
     state,
     ref: forwardedRef,
@@ -129,11 +130,13 @@ export const CalendarRoot = React.forwardRef(function CalendarRoot(
   });
 
   return (
-    <SharedCalendarRootVisibleDateContext.Provider value={visibleDateContext}>
-      <SharedCalendarRootContext.Provider value={baseContext}>
-        {element}
-      </SharedCalendarRootContext.Provider>
-    </SharedCalendarRootVisibleDateContext.Provider>
+    <CalendarRootPublicContext.Provider value={publicContext}>
+      <SharedCalendarRootVisibleDateContext.Provider value={visibleDateContext}>
+        <SharedCalendarRootContext.Provider value={sharedContext}>
+          {element}
+        </SharedCalendarRootContext.Provider>
+      </SharedCalendarRootVisibleDateContext.Provider>
+    </CalendarRootPublicContext.Provider>
   );
 });
 

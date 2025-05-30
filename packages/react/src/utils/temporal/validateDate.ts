@@ -6,19 +6,16 @@ export function validateDate(parameters: validateDate.Parameters): validateDate.
     return null;
   }
 
-  const { shouldDisableDate, minDate, maxDate } = validationProps;
+  const { minDate, maxDate } = validationProps;
 
   if (!adapter.isValid(value)) {
-    return 'invalidDate';
-  }
-  if (shouldDisableDate?.(value)) {
-    return 'shouldDisableDate';
+    return 'invalid';
   }
   if (minDate != null && adapter.isBefore(value, minDate, 'day')) {
-    return 'minDate';
+    return 'before-min-date';
   }
   if (maxDate != null && adapter.isAfter(value, maxDate, 'day')) {
-    return 'maxDate';
+    return 'after-max-date';
   }
   return null;
 }
@@ -33,7 +30,7 @@ export namespace validateDate {
   /**
    * The error the validateDate method can return.
    */
-  export type Error = 'invalidDate' | 'shouldDisableDate' | 'minDate' | 'maxDate' | null;
+  export type Error = 'invalid' | 'unavailable' | 'before-min-date' | 'after-max-date' | null;
 
   export interface ValidationProps {
     /**
@@ -46,12 +43,5 @@ export namespace validateDate {
      * @default 1900-01-01
      */
     minDate: TemporalSupportedObject;
-    // TODO:  Consider another API for disabling specific dates.
-    /**
-     * Disable specific date.
-     *
-     * Warning: This function can be called multiple times (for example when rendering date calendar, checking if focus can be moved to a certain date, etc.). Expensive computations can impact performance.
-     */
-    shouldDisableDate?: (day: TemporalSupportedObject) => boolean;
   }
 }

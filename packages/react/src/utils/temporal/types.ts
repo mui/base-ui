@@ -43,19 +43,19 @@ export interface TemporalManager<
    * Error when the value is valid.
    * It is used to initialize the error state.
    */
-  emptyError: TError;
+  emptyValidationError: TError;
   /**
    * Returns the error associated with a value for the current set of validation props.
    */
-  getError: (value: TValue, validationProps: TValidationProps) => TError;
+  getValidationError: (value: TValue, validationProps: TValidationProps) => TError;
   /**
    * Compares two errors to know if they are equal.
    */
-  areErrorEquals: (errorA: TError, errorB: TError | null) => boolean;
+  areValidationErrorEquals: (errorA: TError, errorB: TError | null) => boolean;
   /**
    * Checks if the current error is empty or not.
    */
-  isErrorEmpty: (error: TError) => boolean;
+  isValidationErrorEmpty: (error: TError) => boolean;
   /**
    * Returns the timezone of the date inside a value.
    * When used on a range component, throw an error if both values don't have the same timezone.

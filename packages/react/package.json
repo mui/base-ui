@@ -67,6 +67,7 @@
     "./tooltip": "./src/tooltip/index.ts",
     "./unstable-no-ssr": "./src/unstable-no-ssr/index.ts",
     "./unstable-use-media-query": "./src/unstable-use-media-query/index.ts",
+    "./use-calendar-context": "./src/use-calendar-context/index.ts",
     "./use-day-list": "./src/use-day-list/index.ts",
     "./use-render": "./src/use-render/index.ts",
     "./use-week-list": "./src/use-week-list/index.ts",

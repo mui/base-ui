@@ -15,10 +15,11 @@ export function useDateManager(
     () => ({
       valueType: 'date',
       emptyValue: null,
-      emptyError: null,
-      getError: (value, validationProps) => validateDate({ adapter, value, validationProps }),
-      areErrorEquals: (errorA, errorB) => errorA === errorB,
-      isErrorEmpty: (error) => error != null,
+      emptyValidationError: null,
+      getValidationError: (value, validationProps) =>
+        validateDate({ adapter, value, validationProps }),
+      areValidationErrorEquals: (errorA, errorB) => errorA === errorB,
+      isValidationErrorEmpty: (error) => error != null,
       getTimezone: (value) => (adapter.isValid(value) ? adapter.getTimezone(value) : null),
       setTimezone: (value, timezone) =>
         value == null ? null : adapter.setTimezone(value, timezone),
@@ -37,12 +38,9 @@ export namespace useDateManager {
   >;
 }
 
-type SharedDateAndDateRangeValidationProps = 'minDate' | 'maxDate';
-
-export function useApplyDefaultValuesToDateValidationProps(props: {
-  minDate?: TemporalSupportedObject | null;
-  maxDate?: TemporalSupportedObject | null;
-}): Pick<validateDate.ValidationProps, SharedDateAndDateRangeValidationProps> {
+export function useApplyDefaultValuesToDateValidationProps(
+  props: Partial<validateDate.ValidationProps>,
+): validateDate.ValidationProps {
   const adapter = useTemporalAdapter();
 
   // TODO: Decide what we want to do with the default min and max dates.

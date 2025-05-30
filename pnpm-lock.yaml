@@ -397,6 +397,9 @@ importers:
       lodash:
         specifier: ^4.17.21
         version: 4.17.21
+      luxon:
+        specifier: ^3.6.1
+        version: 3.6.1
       lz-string:
         specifier: ^1.5.0
         version: 1.5.0
@@ -491,6 +494,9 @@ importers:
       '@types/hast':
         specifier: ^3.0.4
         version: 3.0.4
+      '@types/luxon':
+        specifier: ^3.6.2
+        version: 3.6.2
       '@types/node':
         specifier: ^18.19.87
         version: 18.19.87

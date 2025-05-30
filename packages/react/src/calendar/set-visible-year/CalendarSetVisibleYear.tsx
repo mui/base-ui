@@ -28,9 +28,10 @@ const InnerCalendarSetVisibleYear = React.forwardRef(function InnerCalendarSetVi
 
   const state: CalendarSetVisibleYear.State = React.useMemo(
     () => ({
+      disabled: ctx.isDisabled,
       direction: ctx.direction,
     }),
-    [ctx.direction],
+    [ctx.direction, ctx.isDisabled],
   );
 
   const element = useRenderElement('button', componentProps, {

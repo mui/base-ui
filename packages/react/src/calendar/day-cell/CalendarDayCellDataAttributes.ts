@@ -8,9 +8,9 @@ export enum CalendarDayCellDataAttributes {
    */
   disabled = 'data-disabled',
   /**
-   * Present when the day is invalid.
+   * Present when the day is unavailable.
    */
-  invalid = 'data-invalid',
+  unavailable = 'data-unavailable',
   /**
    * Present when the day is the current date.
    */

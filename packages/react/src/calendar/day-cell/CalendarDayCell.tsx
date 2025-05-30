@@ -42,7 +42,7 @@ const InnerCalendarDayCell = React.forwardRef(function InnerCalendarDayCell(
     () => ({
       selected: ctx.isSelected,
       disabled: ctx.isDisabled,
-      invalid: ctx.isInvalid,
+      unavailable: ctx.isUnavailable,
       current: ctx.isCurrent,
       startOfWeek: ctx.isStartOfWeek,
       endOfWeek: ctx.isEndOfWeek,
@@ -51,7 +51,7 @@ const InnerCalendarDayCell = React.forwardRef(function InnerCalendarDayCell(
     [
       ctx.isSelected,
       ctx.isDisabled,
-      ctx.isInvalid,
+      ctx.isUnavailable,
       ctx.isCurrent,
       ctx.isStartOfWeek,
       ctx.isEndOfWeek,
@@ -91,9 +91,9 @@ export namespace CalendarDayCell {
      */
     disabled: boolean;
     /**
-     * Whether the day is invalid.
+     * Whether the day is not available.
      */
-    invalid: boolean;
+    unavailable: boolean;
     /**
      * Whether the day contains the current date.
      */

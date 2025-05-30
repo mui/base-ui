@@ -14,15 +14,19 @@ export function useSharedCalendarDayCell(parameters: useSharedCalendarDayCell.Pa
   );
 
   const onClick = useEventCallback(() => {
+    if (ctx.isUnavailable) {
+      return;
+    }
     ctx.selectDate(value);
   });
 
   const props = React.useMemo<HTMLProps>(
     () => ({
       role: 'gridcell',
-      'aria-selected': ctx.isSelected,
+      'aria-selected': ctx.isSelected ? true : undefined,
       'aria-current': ctx.isCurrent ? 'date' : undefined,
       'aria-colindex': adapter.getDayOfWeek(value),
+      'aria-disabled': (ctx.isDisabled ?? ctx.isUnavailable) ? true : undefined,
       children: formattedValue,
       disabled: ctx.isDisabled,
       tabIndex: ctx.isTabbable ? 0 : -1,
@@ -34,6 +38,7 @@ export function useSharedCalendarDayCell(parameters: useSharedCalendarDayCell.Pa
       formattedValue,
       ctx.isSelected,
       ctx.isDisabled,
+      ctx.isUnavailable,
       ctx.isTabbable,
       ctx.isCurrent,
       onClick,
@@ -66,7 +71,7 @@ export namespace useSharedCalendarDayCell {
   export interface Context {
     isSelected: boolean;
     isDisabled: boolean;
-    isInvalid: boolean;
+    isUnavailable: boolean;
     isTabbable: boolean;
     isCurrent: boolean;
     isStartOfWeek: boolean;

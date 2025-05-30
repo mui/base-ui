@@ -2,15 +2,19 @@
   --root-border-color: #78716c;
   --button-hover-bg-color: #e0f2fe;
   --button-focus-border-color: #0ea5e9;
+  --days-grid-separator-bg-color: #9ca3af;
   --days-grid-header-color: #64748b;
 
   --cell-selected-bg-color: #7dd3fc;
   --cell-outside-month-color: #cbd5e1;
   --cell-disabled-color: #64748b;
   --cell-current-border-color: #9ca3af;
+  --cell-unavailable-color: #f87171;
 
   @media (prefers-color-scheme: dark) {
     --button-hover-bg-color: #075985;
+    --days-grid-separator-bg-color: #4b5563;
+
     --cell-selected-bg-color: #0369a1;
     --cell-outside-month-color: #334155;
     --cell-disabled-color: #64748b;
@@ -24,6 +28,28 @@
   height: 312px;
   display: flex;
   flex-direction: column;
+}
+
+.RootWithTwoPanels {
+  width: 564px;
+}
+
+.RootWithTwoPanelsContent {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.HeaderPanel {
+  display: flex;
+  flex-grow: 1;
+  justify-content: space-between;
+}
+
+.DayGridSeparator {
+  background-color: var(--days-grid-separator-bg-color);
+  margin: 24px 0;
+  width: 1px;
 }
 
 .Header {
@@ -44,8 +70,6 @@
   user-select: none;
   background-color: transparent;
   border-radius: 4px;
-  height: 24px;
-  width: 24px;
   text-align: center;
   cursor: pointer;
 
@@ -84,6 +108,8 @@
 }
 
 .DayCell {
+  height: 36px;
+  width: 36px;
   position: relative;
   user-select: none;
   border: none;
@@ -146,14 +172,14 @@
     color: var(--cell-outside-month-color);
     pointer-events: none;
   }
-}
-
-.DayCell {
-  height: 36px;
-  width: 36px;
 
   &[data-current]:not([data-selected]):not(:focus-visible)::after {
     outline: 1px solid var(--cell-current-border-color);
+  }
+
+  &:not([data-disabled])[data-unavailable] {
+    text-decoration: line-through;
+    color: var(--cell-unavailable-color);
   }
 }
 

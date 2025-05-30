@@ -28,9 +28,10 @@ const InnerCalendarSetVisibleMonth = React.forwardRef(function InnerCalendarSetV
 
   const state: CalendarSetVisibleMonth.State = React.useMemo(
     () => ({
+      disabled: ctx.isDisabled,
       direction: ctx.direction,
     }),
-    [ctx.direction],
+    [ctx.direction, ctx.isDisabled],
   );
 
   const element = useRenderElement('button', componentProps, {
@@ -129,6 +130,10 @@ const CalendarSetVisibleMonth = React.forwardRef(function CalendarSetVisibleMont
 
 export namespace CalendarSetVisibleMonth {
   export interface State {
+    /**
+     * Whether the button is disabled.
+     */
+    disabled: boolean;
     /**
      * The direction of the target month relative to the current visible month.
      * - "before" if the target month is before the current visible month.

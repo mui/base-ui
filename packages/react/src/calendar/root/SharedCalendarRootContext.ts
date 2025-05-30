@@ -23,16 +23,19 @@ export interface SharedCalendarRootContext {
    */
   selectDate: (date: TemporalSupportedObject) => void;
   /**
-   * Determine if the given date is invalid.
-   * @param {TemporalSupportedObject} date The date to check.
-   * @returns {boolean} Whether the date is invalid.
+   * Returns the validation error of the given date.
    */
-  isDateInvalid: (date: TemporalSupportedObject) => boolean;
+  getDateValidationError: (date: TemporalSupportedObject) => validateDate.Error;
   /**
    * The props to check if a date is valid or not.
    * Warning: Even when used inside the RangeCalendar component, this is still equal to the validation props for a single date.
    */
   dateValidationProps: validateDate.ValidationProps;
+  /**
+   * Mark specific dates as unavailable.
+   * Those dates will not be selectable but they will still be focusable with the keyboard.
+   */
+  isDateUnavailable: ((day: TemporalSupportedObject) => boolean) | undefined;
   /**
    * Sets the visible data.
    */

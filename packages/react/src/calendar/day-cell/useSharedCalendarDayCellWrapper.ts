@@ -13,7 +13,8 @@ export function useSharedCalendarDayCellWrapper(
   const { forwardedRef, value } = parameters;
   const {
     selectedDates,
-    isDateInvalid,
+    getDateValidationError,
+    isDateUnavailable,
     selectDate,
     registerDayGridCell,
     disabled: isCalendarDisabled,
@@ -46,15 +47,17 @@ export function useSharedCalendarDayCellWrapper(
     [month, value, adapter],
   );
 
-  const isInvalid = React.useMemo(() => isDateInvalid(value), [value, isDateInvalid]);
+  const validationError = React.useMemo(
+    () => getDateValidationError(value),
+    [getDateValidationError, value],
+  );
 
-  const isDisabled = React.useMemo(() => {
-    if (isCalendarDisabled) {
-      return true;
-    }
+  const isDisabled = isCalendarDisabled || validationError != null;
 
-    return isInvalid;
-  }, [isCalendarDisabled, isInvalid]);
+  const isUnavailable = React.useMemo(
+    () => isDateUnavailable?.(value) ?? false,
+    [isDateUnavailable, value],
+  );
 
   const isTabbable = React.useMemo(() => canCellBeTabbed(value), [canCellBeTabbed, value]);
 
@@ -62,7 +65,7 @@ export function useSharedCalendarDayCellWrapper(
     () => ({
       isSelected,
       isDisabled,
-      isInvalid,
+      isUnavailable,
       isTabbable,
       isCurrent,
       isStartOfWeek,
@@ -73,7 +76,7 @@ export function useSharedCalendarDayCellWrapper(
     [
       isSelected,
       isDisabled,
-      isInvalid,
+      isUnavailable,
       isTabbable,
       isStartOfWeek,
       isEndOfWeek,

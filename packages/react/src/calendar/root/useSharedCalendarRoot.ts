@@ -7,13 +7,8 @@ import { useTemporalControlledValue } from '../../utils/temporal/useTemporalCont
 import { useSharedCalendarDayGridNavigation } from './useSharedCalendarDayGridsNavigation';
 import { SharedCalendarRootContext } from './SharedCalendarRootContext';
 import { SharedCalendarRootVisibleDateContext } from './SharedCalendarRootVisibleDateContext';
-import { useTemporalValidation } from '../../utils/temporal/useTemporalValidation';
 import { useEventCallback } from '../../utils/useEventCallback';
-import {
-  TemporalManager,
-  TemporalOnErrorProps,
-  TemporalTimezoneProps,
-} from '../../utils/temporal/types';
+import { TemporalManager, TemporalTimezoneProps } from '../../utils/temporal/types';
 import { useControlled } from '../../utils/useControlled';
 import { mergeDateAndTime } from '../../utils/temporal/date-helpers';
 
@@ -30,6 +25,7 @@ export function useSharedCalendarRoot<
     // Form props
     readOnly = false,
     disabled = false,
+    invalid,
     // Focus and navigation props
     monthPageSize = 1,
     yearPageSize = 1,
@@ -44,9 +40,9 @@ export function useSharedCalendarRoot<
     visibleDate: visibleDateProp,
     defaultVisibleDate,
     // Validation props
-    onError,
     dateValidationProps,
     valueValidationProps,
+    isDateUnavailable,
     // Manager props
     manager,
     calendarValueManager: {
@@ -59,7 +55,7 @@ export function useSharedCalendarRoot<
 
   const handleValueChangeWithContext = useEventCallback((newValue: TValue) => {
     onValueChange?.(newValue, {
-      validationError: manager.getError(newValue, valueValidationProps),
+      validationError: manager.getValidationError(newValue, valueValidationProps),
     });
   });
 
@@ -73,12 +69,14 @@ export function useSharedCalendarRoot<
     manager,
   });
 
-  const { isInvalid } = useTemporalValidation({
-    manager,
-    value,
-    onError,
-    validationProps: valueValidationProps,
-  });
+  const isInvalid = React.useMemo(() => {
+    if (invalid != null) {
+      return invalid;
+    }
+
+    const error = manager.getValidationError(value, valueValidationProps);
+    return manager.isValidationErrorEmpty(error);
+  }, [manager, value, invalid, valueValidationProps]);
 
   const referenceDate = React.useMemo(
     () => {
@@ -142,13 +140,13 @@ export function useSharedCalendarRoot<
       dateValidationProps,
     });
 
-  const isDateInvalid = React.useCallback(
+  const getDateValidationError = React.useCallback(
     (day: TemporalSupportedObject | null) =>
       validateDate({
         adapter,
         value: day,
         validationProps: dateValidationProps,
-      }) !== null,
+      }),
     [adapter, dateValidationProps],
   );
 
@@ -184,7 +182,7 @@ export function useSharedCalendarRoot<
     () => ({
       timezone,
       disabled,
-      isDateInvalid,
+      getDateValidationError,
       referenceDate,
       selectedDates,
       setVisibleDate: handleVisibleDateChange,
@@ -195,11 +193,12 @@ export function useSharedCalendarRoot<
       registerDayGrid,
       selectDate,
       dateValidationProps,
+      isDateUnavailable,
     }),
     [
       timezone,
       disabled,
-      isDateInvalid,
+      getDateValidationError,
       referenceDate,
       selectedDates,
       handleVisibleDateChange,
@@ -209,6 +208,7 @@ export function useSharedCalendarRoot<
       registerDayGridCell,
       registerDayGrid,
       dateValidationProps,
+      isDateUnavailable,
       selectDate,
     ],
   );
@@ -227,8 +227,7 @@ export function useSharedCalendarRoot<
 
 export namespace useSharedCalendarRoot {
   export interface PublicParameters<TValue extends TemporalSupportedValue, TError>
-    extends TemporalTimezoneProps,
-      TemporalOnErrorProps<TValue, TError> {
+    extends TemporalTimezoneProps {
     /**
      * The controlled value that should be selected.
      * To render an uncontrolled (Range)Calendar, use the `defaultValue` prop instead.
@@ -257,6 +256,15 @@ export namespace useSharedCalendarRoot {
      */
     readOnly?: boolean;
     /**
+     * Whether the calendar is forcefully marked as invalid.
+     */
+    invalid?: boolean;
+    /**
+     * Mark specific dates as unavailable.
+     * Those dates will not be selectable but they will still be focusable with the keyboard.
+     */
+    isDateUnavailable?: (day: TemporalSupportedObject) => boolean;
+    /**
      * The date used to decide which month should be displayed in the Days Grid and which year should be displayed in the Months List and Months Grid.
      * To render an uncontrolled (Range)Calendar, use the `defaultVisibleDate` prop instead.
      */
@@ -274,7 +282,7 @@ export namespace useSharedCalendarRoot {
     onVisibleDateChange?: (visibleDate: TemporalSupportedObject) => void;
     /**
      * The date used to generate the new value when both `value` and `defaultValue` are empty.
-     * @default The closest valid date using the validation props, except callbacks such as `shouldDisableDate`.
+     * @default The closest valid date using the validation props.
      */
     referenceDate?: TemporalSupportedObject;
     /**
