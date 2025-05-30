@@ -1,5 +1,8 @@
 import * as React from 'react';
-import { useEffectEvent, useLatestRef, useModernLayoutEffect, stopEvent } from '../utils';
+import { useLatestRef } from '../../utils/useLatestRef';
+import { useEventCallback } from '../../utils/useEventCallback';
+import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
+import { stopEvent } from '../utils';
 
 import type { ElementProps, FloatingRootContext } from '../types';
 import { clearTimeoutIfSet } from '../utils/clearTimeoutIfSet';
@@ -78,8 +81,8 @@ export function useTypeahead(context: FloatingRootContext, props: UseTypeaheadPr
   const prevIndexRef = React.useRef<number | null>(selectedIndex ?? activeIndex ?? -1);
   const matchIndexRef = React.useRef<number | null>(null);
 
-  const onMatch = useEffectEvent(onMatchProp);
-  const onTypingChange = useEffectEvent(onTypingChangeProp);
+  const onMatch = useEventCallback(onMatchProp);
+  const onTypingChange = useEventCallback(onTypingChangeProp);
 
   const findMatchRef = useLatestRef(findMatch);
   const ignoreKeysRef = useLatestRef(ignoreKeys);
@@ -99,7 +102,7 @@ export function useTypeahead(context: FloatingRootContext, props: UseTypeaheadPr
     }
   }, [open, selectedIndex, activeIndex]);
 
-  const setTypingChange = useEffectEvent((value: boolean) => {
+  const setTypingChange = useEventCallback((value: boolean) => {
     if (value) {
       if (!dataRef.current.typing) {
         dataRef.current.typing = value;
@@ -111,7 +114,7 @@ export function useTypeahead(context: FloatingRootContext, props: UseTypeaheadPr
     }
   });
 
-  const onKeyDown = useEffectEvent((event: React.KeyboardEvent) => {
+  const onKeyDown = useEventCallback((event: React.KeyboardEvent) => {
     function getMatchingIndex(
       list: Array<string | null>,
       orderedList: Array<string | null>,

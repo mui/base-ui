@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
-import { activeElement, contains, useLatestRef } from '../../floating-ui-react/utils';
+import { useLatestRef } from '../../utils/useLatestRef';
+import { activeElement, contains } from '../../floating-ui-react/utils';
 import { ToastContext } from './ToastProviderContext';
 import { ToastObject, useToastManager } from '../useToastManager';
 import { ownerDocument } from '../../utils/owner';

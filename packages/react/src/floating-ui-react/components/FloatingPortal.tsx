@@ -1,8 +1,9 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { isElement } from '@floating-ui/utils/dom';
+import { useId } from '../../utils/useId';
+import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import {
-  useModernLayoutEffect,
   enableFocusInside,
   disableFocusInside,
   getPreviousTabbable,
@@ -10,7 +11,6 @@ import {
   isOutsideEvent,
 } from '../utils';
 
-import { useId } from '../../utils/useId';
 import type { OpenChangeReason } from '../types';
 import { createAttribute } from '../utils/createAttribute';
 import { FocusGuard, HIDDEN_STYLES } from './FocusGuard';

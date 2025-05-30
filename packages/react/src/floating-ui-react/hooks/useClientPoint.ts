@@ -1,12 +1,8 @@
 import * as React from 'react';
 import { getWindow } from '@floating-ui/utils/dom';
-import {
-  contains,
-  getTarget,
-  isMouseLikePointerType,
-  useModernLayoutEffect,
-  useEffectEvent,
-} from '../utils';
+import { useEventCallback } from '../../utils/useEventCallback';
+import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
+import { contains, getTarget, isMouseLikePointerType } from '../utils';
 
 import type { ContextData, ElementProps, FloatingRootContext } from '../types';
 
@@ -137,7 +133,7 @@ export function useClientPoint(
   const [pointerType, setPointerType] = React.useState<string | undefined>();
   const [reactive, setReactive] = React.useState([]);
 
-  const setReference = useEffectEvent((newX: number | null, newY: number | null) => {
+  const setReference = useEventCallback((newX: number | null, newY: number | null) => {
     if (initialRef.current) {
       return;
     }
@@ -160,7 +156,7 @@ export function useClientPoint(
     );
   });
 
-  const handleReferenceEnterOrMove = useEffectEvent((event: React.MouseEvent<Element>) => {
+  const handleReferenceEnterOrMove = useEventCallback((event: React.MouseEvent<Element>) => {
     if (x != null || y != null) {
       return;
     }

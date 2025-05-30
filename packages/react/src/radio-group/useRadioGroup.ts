@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
-import { contains, useModernLayoutEffect } from '../floating-ui-react/utils';
+import { useModernLayoutEffect } from '../utils/useModernLayoutEffect';
+import { contains } from '../floating-ui-react/utils';
 import { mergeProps } from '../merge-props';
 import { useControlled } from '../utils/useControlled';
 import { useFieldRootContext } from '../field/root/FieldRootContext';

@@ -1,5 +1,8 @@
 import * as React from 'react';
 import { isHTMLElement } from '@floating-ui/utils/dom';
+import { useLatestRef } from '../../utils/useLatestRef';
+import { useEventCallback } from '../../utils/useEventCallback';
+import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import {
   activeElement,
   contains,
@@ -9,10 +12,7 @@ import {
   isVirtualPointerEvent,
   stopEvent,
   getDeepestNode,
-  useEffectEvent,
-  useLatestRef,
   getFloatingFocusElement,
-  useModernLayoutEffect,
   isIndexOutOfListBounds,
   getMinListIndex,
   getMaxListIndex,
@@ -301,7 +301,7 @@ export function useListNavigation(
   const keyRef = React.useRef<null | string>(null);
   const isPointerModalityRef = React.useRef(true);
 
-  const onNavigate = useEffectEvent(() => {
+  const onNavigate = useEventCallback(() => {
     onNavigateProp(indexRef.current === -1 ? null : indexRef.current);
   });
 
@@ -319,7 +319,7 @@ export function useListNavigation(
   const [activeId, setActiveId] = React.useState<string | undefined>();
   const [virtualId, setVirtualId] = React.useState<string | undefined>();
 
-  const focusItem = useEffectEvent(() => {
+  const focusItem = useEventCallback(() => {
     function runFocus(item: HTMLElement) {
       if (virtual) {
         if (item.id?.endsWith('-fui-option')) {
@@ -589,7 +589,7 @@ export function useListNavigation(
     );
   }, [parentId, tree, parentOrientation]);
 
-  const commonOnKeyDown = useEffectEvent((event: React.KeyboardEvent) => {
+  const commonOnKeyDown = useEventCallback((event: React.KeyboardEvent) => {
     isPointerModalityRef.current = false;
     forceSyncFocusRef.current = true;
 

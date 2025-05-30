@@ -2,6 +2,9 @@ import * as React from 'react';
 import { tabbable, isTabbable, focusable, type FocusableElement } from 'tabbable';
 import { getNodeName, isHTMLElement } from '@floating-ui/utils/dom';
 import { useForkRef } from '../../utils/useForkRef';
+import { useLatestRef } from '../../utils/useLatestRef';
+import { useEventCallback } from '../../utils/useEventCallback';
+import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import {
   activeElement,
   contains,
@@ -14,9 +17,6 @@ import {
   getNodeAncestors,
   getNodeChildren,
   getFloatingFocusElement,
-  useLatestRef,
-  useEffectEvent,
-  useModernLayoutEffect,
   getTabbableOptions,
   isOutsideEvent,
   getNextTabbable,
@@ -215,8 +215,8 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     elements: { domReference, floating },
   } = context;
 
-  const getNodeId = useEffectEvent(() => dataRef.current.floatingContext?.nodeId);
-  const getInsideElements = useEffectEvent(getInsideElementsProp);
+  const getNodeId = useEventCallback(() => dataRef.current.floatingContext?.nodeId);
+  const getInsideElements = useEventCallback(getInsideElementsProp);
 
   const ignoreInitialFocus = typeof initialFocus === 'number' && initialFocus < 0;
   // If the reference is a combobox and is typeable (e.g. input/textarea),
@@ -247,11 +247,13 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
   const isInsidePortal = portalContext != null;
   const floatingFocusElement = getFloatingFocusElement(floating);
 
-  const getTabbableContent = useEffectEvent((container: Element | null = floatingFocusElement) => {
-    return container ? tabbable(container, getTabbableOptions()) : [];
-  });
+  const getTabbableContent = useEventCallback(
+    (container: Element | null = floatingFocusElement) => {
+      return container ? tabbable(container, getTabbableOptions()) : [];
+    },
+  );
 
-  const getTabbableElements = useEffectEvent((container?: Element) => {
+  const getTabbableElements = useEventCallback((container?: Element) => {
     const content = getTabbableContent(container);
 
     return orderRef.current

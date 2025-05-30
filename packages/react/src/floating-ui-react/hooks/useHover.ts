@@ -1,13 +1,9 @@
 import * as React from 'react';
 import { isElement } from '@floating-ui/utils/dom';
-import {
-  contains,
-  getDocument,
-  isMouseLikePointerType,
-  useLatestRef,
-  useEffectEvent,
-  useModernLayoutEffect,
-} from '../utils';
+import { useLatestRef } from '../../utils/useLatestRef';
+import { useEventCallback } from '../../utils/useEventCallback';
+import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
+import { contains, getDocument, isMouseLikePointerType } from '../utils';
 
 import { useFloatingParentNodeId, useFloatingTree } from '../components/FloatingTree';
 import type {
@@ -137,7 +133,7 @@ export function useHover(context: FloatingRootContext, props: UseHoverProps = {}
   const unbindMouseMoveRef = React.useRef(() => {});
   const restTimeoutPendingRef = React.useRef(false);
 
-  const isHoverOpen = useEffectEvent(() => {
+  const isHoverOpen = useEventCallback(() => {
     const type = dataRef.current.openEvent?.type;
     return type?.includes('mouse') && type !== 'mousedown';
   });
@@ -205,12 +201,12 @@ export function useHover(context: FloatingRootContext, props: UseHoverProps = {}
     [delayRef, onOpenChange],
   );
 
-  const cleanupMouseMoveHandler = useEffectEvent(() => {
+  const cleanupMouseMoveHandler = useEventCallback(() => {
     unbindMouseMoveRef.current();
     handlerRef.current = undefined;
   });
 
-  const clearPointerEvents = useEffectEvent(() => {
+  const clearPointerEvents = useEventCallback(() => {
     if (performedPointerEventsMutationRef.current) {
       const body = getDocument(elements.floating).body;
       body.style.pointerEvents = '';
@@ -219,7 +215,7 @@ export function useHover(context: FloatingRootContext, props: UseHoverProps = {}
     }
   });
 
-  const isClickLikeOpenEvent = useEffectEvent(() => {
+  const isClickLikeOpenEvent = useEventCallback(() => {
     return dataRef.current.openEvent
       ? ['click', 'mousedown'].includes(dataRef.current.openEvent.type)
       : false;

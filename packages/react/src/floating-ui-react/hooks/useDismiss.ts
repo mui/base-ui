@@ -8,6 +8,7 @@ import {
   isLastTraversableNode,
   isWebKit,
 } from '@floating-ui/utils/dom';
+import { useEventCallback } from '../../utils/useEventCallback';
 import {
   contains,
   getDocument,
@@ -15,7 +16,6 @@ import {
   isEventTargetWithin,
   isReactEvent,
   isRootElement,
-  useEffectEvent,
   getNodeChildren,
 } from '../utils';
 
@@ -138,7 +138,7 @@ export function useDismiss(
   } = props;
 
   const tree = useFloatingTree();
-  const outsidePressFn = useEffectEvent(
+  const outsidePressFn = useEventCallback(
     typeof outsidePressProp === 'function' ? outsidePressProp : () => false,
   );
   const outsidePress = typeof outsidePressProp === 'function' ? outsidePressFn : outsidePressProp;
@@ -150,7 +150,7 @@ export function useDismiss(
   const isComposingRef = React.useRef(false);
   const blurTimeoutRef = React.useRef(-1);
 
-  const closeOnEscapeKeyDown = useEffectEvent(
+  const closeOnEscapeKeyDown = useEventCallback(
     (event: React.KeyboardEvent<Element> | KeyboardEvent) => {
       if (!open || !enabled || !escapeKey || event.key !== 'Escape') {
         return;
@@ -188,7 +188,7 @@ export function useDismiss(
     },
   );
 
-  const closeOnEscapeKeyDownCapture = useEffectEvent((event: KeyboardEvent) => {
+  const closeOnEscapeKeyDownCapture = useEventCallback((event: KeyboardEvent) => {
     const callback = () => {
       closeOnEscapeKeyDown(event);
       getTarget(event)?.removeEventListener('keydown', callback);
@@ -196,7 +196,7 @@ export function useDismiss(
     getTarget(event)?.addEventListener('keydown', callback);
   });
 
-  const closeOnPressOutside = useEffectEvent((event: MouseEvent) => {
+  const closeOnPressOutside = useEventCallback((event: MouseEvent) => {
     // Given developers can stop the propagation of the synthetic event,
     // we can only be confident with a positive value.
     const insideReactTree = dataRef.current.insideReactTree;
@@ -317,7 +317,7 @@ export function useDismiss(
     onOpenChange(false, event, 'outside-press');
   });
 
-  const closeOnPressOutsideCapture = useEffectEvent((event: MouseEvent) => {
+  const closeOnPressOutsideCapture = useEventCallback((event: MouseEvent) => {
     const callback = () => {
       closeOnPressOutside(event);
       getTarget(event)?.removeEventListener(outsidePressEvent, callback);

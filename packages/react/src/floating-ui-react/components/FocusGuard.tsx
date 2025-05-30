@@ -1,5 +1,6 @@
 import * as React from 'react';
-import { isSafari, useModernLayoutEffect } from '../utils';
+import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
+import { isSafari } from '../utils';
 
 import { createAttribute } from '../utils/createAttribute';
 

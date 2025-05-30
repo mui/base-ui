@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { useFloating as usePosition, type VirtualElement } from '@floating-ui/react-dom';
 import { isElement } from '@floating-ui/utils/dom';
-import { useModernLayoutEffect } from '../utils';
+import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 
 import { useFloatingTree } from '../components/FloatingTree';
 import type {

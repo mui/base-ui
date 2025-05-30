@@ -1,7 +1,7 @@
 import * as React from 'react';
-import { useModernLayoutEffect } from '../utils';
 
 import { useId } from '../../utils/useId';
+import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import type { FloatingNodeType, FloatingTreeType, ReferenceType } from '../types';
 import { createEventEmitter } from '../utils/createEventEmitter';
 

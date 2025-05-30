@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { isElement } from '@floating-ui/utils/dom';
-import { useEffectEvent } from '../utils';
+import { useEventCallback } from '../../utils/useEventCallback';
 
 import type {
   FloatingRootContext,
@@ -47,7 +47,7 @@ export function useFloatingRootContext(
     elementsProp.reference,
   );
 
-  const onOpenChange = useEffectEvent(
+  const onOpenChange = useEventCallback(
     (newOpen: boolean, event?: Event, reason?: OpenChangeReason) => {
       dataRef.current.openEvent = newOpen ? event : undefined;
       events.emit('openchange', { open: newOpen, event, reason, nested });

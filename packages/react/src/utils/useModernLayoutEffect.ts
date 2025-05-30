@@ -1,2 +1,2 @@
 'use client';
-export { useModernLayoutEffect } from '../floating-ui-react/utils';
+export { default as useModernLayoutEffect } from 'use-isomorphic-layout-effect';
