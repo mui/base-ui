@@ -53,6 +53,7 @@ interface MenuProps {
   virtualItemRef: React.RefObject<HTMLElement>;
 }
 
+/** @internal */
 export const MenuComponent = React.forwardRef<
   HTMLElement,
   MenuProps & React.HTMLAttributes<HTMLElement>
@@ -277,6 +278,7 @@ interface MenuItemProps {
   disabled?: boolean;
 }
 
+/** @internal */
 export const MenuItem = React.forwardRef<
   HTMLElement,
   MenuItemProps & React.HTMLAttributes<HTMLElement>
@@ -338,6 +340,7 @@ export const MenuItem = React.forwardRef<
   );
 });
 
+/** @internal */
 export const Menu = React.forwardRef<
   HTMLButtonElement,
   MenuProps & React.HTMLProps<HTMLButtonElement>
@@ -355,6 +358,7 @@ export const Menu = React.forwardRef<
   return <MenuComponent {...props} ref={ref} />;
 });
 
+/** @internal */
 export function Main() {
   const virtualItemRef = React.useRef<HTMLElement | null>(null) as any;
 

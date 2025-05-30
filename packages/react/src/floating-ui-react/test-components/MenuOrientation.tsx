@@ -59,6 +59,7 @@ interface MenuProps {
   cols?: number;
 }
 
+/** @internal */
 export const MenuComponent = React.forwardRef<
   HTMLButtonElement,
   MenuProps & React.HTMLProps<HTMLButtonElement>
@@ -296,6 +297,7 @@ interface MenuItemProps {
   disabled?: boolean;
 }
 
+/** @internal */
 export const MenuItem = React.forwardRef<
   HTMLButtonElement,
   MenuItemProps & React.ButtonHTMLAttributes<HTMLButtonElement>
@@ -356,6 +358,7 @@ export const MenuItem = React.forwardRef<
   );
 });
 
+/** @internal */
 export const Menu = React.forwardRef<
   HTMLButtonElement,
   MenuProps & React.HTMLProps<HTMLButtonElement>
@@ -373,6 +376,7 @@ export const Menu = React.forwardRef<
   return <MenuComponent {...props} ref={ref} />;
 });
 
+/** @internal */
 export function HorizontalMenu() {
   return (
     <React.Fragment>
@@ -409,6 +413,7 @@ export function HorizontalMenu() {
   );
 }
 
+/** @internal */
 export function VerticalMenu() {
   return (
     <React.Fragment>
@@ -445,6 +450,7 @@ export function VerticalMenu() {
   );
 }
 
+/** @internal */
 export function HorizontalMenuWithHorizontalSubmenus() {
   return (
     <React.Fragment>
@@ -481,6 +487,7 @@ export function HorizontalMenuWithHorizontalSubmenus() {
   );
 }
 
+/** @internal */
 export function Main() {
   return (
     <React.Fragment>

@@ -64,6 +64,7 @@ type OptionProps = React.HTMLAttributes<HTMLButtonElement> & {
   children: React.ReactNode;
 };
 
+/** @internal */
 const Option = React.forwardRef<HTMLButtonElement, OptionProps>(function Option(
   { name, active, selected, children, ...props },
   ref,

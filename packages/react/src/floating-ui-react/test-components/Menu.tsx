@@ -59,6 +59,7 @@ interface MenuProps {
   openOnFocus?: boolean;
 }
 
+/** @internal */
 export const MenuComponent = React.forwardRef<
   HTMLButtonElement,
   MenuProps & React.HTMLProps<HTMLButtonElement>
@@ -301,6 +302,7 @@ interface MenuItemProps {
   disabled?: boolean;
 }
 
+/** @internal */
 export const MenuItem = React.forwardRef<
   HTMLButtonElement,
   MenuItemProps & React.ButtonHTMLAttributes<HTMLButtonElement>
@@ -361,6 +363,7 @@ export const MenuItem = React.forwardRef<
   );
 });
 
+/** @internal */
 export const Menu = React.forwardRef<
   HTMLButtonElement,
   MenuProps & React.HTMLProps<HTMLButtonElement>
@@ -378,6 +381,7 @@ export const Menu = React.forwardRef<
   return <MenuComponent {...props} ref={ref} />;
 });
 
+/** @internal */
 export function Main() {
   /* eslint-disable no-console */
   return (

@@ -1,6 +1,7 @@
 import c from 'clsx';
 import * as React from 'react';
 
+/** @internal */
 export const Button = React.forwardRef<
   HTMLButtonElement,
   React.ButtonHTMLAttributes<HTMLButtonElement>

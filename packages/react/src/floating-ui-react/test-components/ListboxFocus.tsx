@@ -12,6 +12,7 @@ interface SelectContextValue {
 
 const SelectContext = React.createContext<SelectContextValue>({} as SelectContextValue);
 
+/** @internal */
 function Listbox({ children }: { children: React.ReactNode }) {
   const [activeIndex, setActiveIndex] = React.useState<number | null>(1);
   const [selectedIndex, setSelectedIndex] = React.useState<number | null>(null);
@@ -72,6 +73,7 @@ function Listbox({ children }: { children: React.ReactNode }) {
   );
 }
 
+/** @internal */
 function Option({ label }: { label: string }) {
   const { activeIndex, selectedIndex, getItemProps, handleSelect } =
     React.useContext(SelectContext);
@@ -105,6 +107,7 @@ function Option({ label }: { label: string }) {
   );
 }
 
+/** @internal */
 export function Main() {
   return (
     <Listbox>

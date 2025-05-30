@@ -28,6 +28,7 @@ interface Props {
  * 36   36
  */
 
+/** @internal */
 export function Main({ orientation = 'horizontal', loop = false, rtl = false }: Props) {
   const [open, setOpen] = React.useState(false);
   const [activeIndex, setActiveIndex] = React.useState<number | null>(null);
