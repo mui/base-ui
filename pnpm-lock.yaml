@@ -566,9 +566,6 @@ importers:
       tabbable:
         specifier: ^6.2.0
         version: 6.2.0
-      use-isomorphic-layout-effect:
-        specifier: ^1.2.1
-        version: 1.2.1(@types/react@19.1.2)(react@19.1.0)
       use-sync-external-store:
         specifier: ^1.5.0
         version: 1.5.0(react@19.1.0)
@@ -10506,15 +10503,6 @@ packages:
     peerDependencies:
       '@types/react': ^19.1.2
       react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0 || ^19.0.0-rc
-    peerDependenciesMeta:
-      '@types/react':
-        optional: true
-
-  use-isomorphic-layout-effect@1.2.1:
-    resolution: {integrity: sha512-tpZZ+EX0gaghDAiFR37hj5MgY6ZN55kLiPkJsKxBMZ6GZdOSPJXiOzPM984oPYZ5AnehYx5WQp1+ME8I/P/pRA==}
-    peerDependencies:
-      '@types/react': '*'
-      react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
     peerDependenciesMeta:
       '@types/react':
         optional: true
@@ -22910,12 +22898,6 @@ snapshots:
     dependencies:
       react: 19.1.0
       tslib: 2.8.1
-    optionalDependencies:
-      '@types/react': 19.1.2
-
-  use-isomorphic-layout-effect@1.2.1(@types/react@19.1.2)(react@19.1.0):
-    dependencies:
-      react: 19.1.0
     optionalDependencies:
       '@types/react': 19.1.2
 
