@@ -1,0 +1,15 @@
+{
+  "name": "FloatingNode",
+  "description": "Provides parent node context for nested floating elements.",
+  "props": {
+    "id": {
+      "type": "string | undefined",
+      "required": true
+    },
+    "children": {
+      "type": "ReactNode"
+    }
+  },
+  "dataAttributes": {},
+  "cssVariables": {}
+}
