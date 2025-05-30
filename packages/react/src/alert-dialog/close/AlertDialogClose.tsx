@@ -17,12 +17,13 @@ export const AlertDialogClose = React.forwardRef(function AlertDialogClose(
 ) {
   const { render, className, disabled = false, ...elementProps } = componentProps;
   const { open, setOpen } = useAlertDialogRootContext();
-  const { getRootProps } = useDialogClose({ disabled, open, setOpen, rootRef: forwardedRef });
+  const { getRootProps, ref } = useDialogClose({ disabled, open, setOpen });
 
   const state: AlertDialogClose.State = React.useMemo(() => ({ disabled }), [disabled]);
 
   return useRenderElement('button', componentProps, {
     state,
+    ref: [forwardedRef, ref],
     props: [elementProps, getRootProps],
   });
 });

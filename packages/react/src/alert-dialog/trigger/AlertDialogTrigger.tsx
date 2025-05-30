@@ -30,7 +30,6 @@ export const AlertDialogTrigger = React.forwardRef(function AlertDialogTrigger(
 
   const { getButtonProps, buttonRef } = useButton({
     disabled,
-    buttonRef: forwardedRef,
   });
 
   return useRenderElement('button', componentProps, {

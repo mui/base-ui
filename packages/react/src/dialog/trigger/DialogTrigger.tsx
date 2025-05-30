@@ -3,7 +3,6 @@ import * as React from 'react';
 import { useDialogRootContext } from '../root/DialogRootContext';
 import { useButton } from '../../use-button/useButton';
 import { useRenderElement } from '../../utils/useRenderElement';
-import { useForkRef } from '../../utils/useForkRef';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
 
@@ -29,15 +28,13 @@ export const DialogTrigger = React.forwardRef(function DialogTrigger(
     [disabled, open],
   );
 
-  const mergedRef = useForkRef(forwardedRef, setTriggerElement);
-
-  const { getButtonProps } = useButton({
+  const { getButtonProps, buttonRef } = useButton({
     disabled,
-    buttonRef: mergedRef,
   });
 
   return useRenderElement('button', componentProps, {
     state,
+    ref: [buttonRef, forwardedRef, setTriggerElement],
     props: [triggerProps, elementProps, getButtonProps],
     customStyleHookMapping: triggerOpenStateMapping,
   });

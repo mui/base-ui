@@ -17,12 +17,13 @@ export const DialogClose = React.forwardRef(function DialogClose(
 ) {
   const { render, className, disabled = false, ...elementProps } = componentProps;
   const { open, setOpen } = useDialogRootContext();
-  const { getRootProps } = useDialogClose({ disabled, open, setOpen, rootRef: forwardedRef });
+  const { getRootProps, ref } = useDialogClose({ disabled, open, setOpen });
 
   const state: DialogClose.State = React.useMemo(() => ({ disabled }), [disabled]);
 
   return useRenderElement('button', componentProps, {
     state,
+    ref: [forwardedRef, ref],
     props: [elementProps, getRootProps],
   });
 });
