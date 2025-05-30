@@ -3,6 +3,7 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import {
   FloatingTree,
+  useClick,
   useDismiss,
   useFloatingRootContext,
   useFocus,
@@ -13,7 +14,6 @@ import {
   useTypeahead,
   safePolygon,
 } from '../../floating-ui-react';
-import { useClick } from '../../utils/interactions/useClick';
 import { MenuRootContext, useMenuRootContext } from './MenuRootContext';
 import { MenubarContext, useMenubarContext } from '../../menubar/MenubarContext';
 import { useTimeout } from '../../utils/useTimeout';

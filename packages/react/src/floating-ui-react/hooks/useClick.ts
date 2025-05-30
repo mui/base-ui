@@ -1,8 +1,8 @@
 'use client';
 import * as React from 'react';
-import type { ElementProps, FloatingRootContext } from '../../floating-ui-react';
-import { isMouseLikePointerType } from '../../floating-ui-react/utils';
-import { useAnimationFrame } from '../useAnimationFrame';
+import type { ElementProps, FloatingRootContext } from '../types';
+import { isMouseLikePointerType } from '../utils';
+import { useAnimationFrame } from '../../utils/useAnimationFrame';
 
 const EMPTY_OBJECT = {};
 

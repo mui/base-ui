@@ -2,6 +2,7 @@
 import * as React from 'react';
 import {
   FloatingRootContext,
+  useClick,
   useDismiss,
   useFloatingRootContext,
   useInteractions,
@@ -9,7 +10,6 @@ import {
   type OpenChangeReason as FloatingUIOpenChangeReason,
 } from '../../floating-ui-react';
 import { getTarget } from '../../floating-ui-react/utils';
-import { useClick } from '../../utils/interactions/useClick';
 import { useControlled } from '../../utils/useControlled';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { useScrollLock } from '../../utils/useScrollLock';

@@ -8,6 +8,7 @@ export {
   useFloatingParentNodeId,
   useFloatingTree,
 } from './components/FloatingTree';
+export { useClick } from './hooks/useClick';
 export { useClientPoint } from './hooks/useClientPoint';
 export { useDismiss } from './hooks/useDismiss';
 export { useFloating } from './hooks/useFloating';

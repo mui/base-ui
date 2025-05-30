@@ -2,8 +2,8 @@ import * as React from 'react';
 import { render } from '@testing-library/react';
 import { vi } from 'vitest';
 
-import { useClick } from '../../utils/interactions/useClick';
 import {
+  useClick,
   useDismiss,
   useFloating,
   useFocus,
