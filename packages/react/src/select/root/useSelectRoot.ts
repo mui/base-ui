@@ -6,7 +6,7 @@ import {
   useListNavigation,
   useRole,
   useTypeahead,
-} from '@floating-ui/react';
+} from '../../floating-ui-react';
 import { useClick } from '../../utils/floating-ui/useClick';
 import { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';

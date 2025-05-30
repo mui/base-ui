@@ -86,8 +86,10 @@
   },
   "dependencies": {
     "@babel/runtime": "^7.27.0",
-    "@floating-ui/react": "^0.27.9",
+    "@floating-ui/react-dom": "^2.1.2",
     "@floating-ui/utils": "^0.2.9",
+    "tabbable": "^6.2.0",
+    "use-isomorphic-layout-effect": "^1.2.1",
     "use-sync-external-store": "^1.5.0"
   },
   "devDependencies": {

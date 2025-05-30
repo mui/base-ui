@@ -1,4 +1,4 @@
-import { getUserAgent } from '@floating-ui/react/utils';
+import { getUserAgent } from '../floating-ui-react/utils';
 
 interface NavigatorUAData {
   brands: Array<{ brand: string; version: string }>;

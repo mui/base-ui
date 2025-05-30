@@ -7,7 +7,7 @@ import {
   useInteractions,
   safePolygon,
   type FloatingRootContext,
-} from '@floating-ui/react';
+} from '../../floating-ui-react';
 import { useControlled } from '../../utils/useControlled';
 import { useTransitionStatus } from '../../utils/useTransitionStatus';
 import { useEventCallback } from '../../utils/useEventCallback';

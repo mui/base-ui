@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import type { FloatingEvents, UseInteractionsReturn } from '@floating-ui/react';
+import type { FloatingEvents, UseInteractionsReturn } from '../../floating-ui-react';
 import { SelectRootContext, useSelectRootContext } from '../root/SelectRootContext';
 import { SelectIndexContext, useSelectIndexContext } from '../root/SelectIndexContext';
 import { useCompositeListItem } from '../../composite/list/useCompositeListItem';

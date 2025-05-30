@@ -9,7 +9,7 @@ import {
   useRole,
   FloatingTree,
   safePolygon,
-} from '@floating-ui/react';
+} from '../../floating-ui-react';
 import { useClick } from '../../utils/floating-ui/useClick';
 import { useTimeout } from '../../utils/useTimeout';
 import { useControlled } from '../../utils/useControlled';

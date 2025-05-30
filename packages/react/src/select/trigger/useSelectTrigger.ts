@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { contains } from '@floating-ui/react/utils';
+import { contains } from '../../floating-ui-react/utils';
 import { useButton } from '../../use-button/useButton';
 import type { HTMLProps } from '../../utils/types';
 import { mergeProps } from '../../merge-props';

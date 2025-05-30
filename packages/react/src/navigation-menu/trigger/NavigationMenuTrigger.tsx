@@ -9,7 +9,7 @@ import {
   useFloatingTree,
   useHover,
   useInteractions,
-} from '@floating-ui/react';
+} from '../../floating-ui-react';
 import {
   contains,
   getNextTabbable,
@@ -17,7 +17,7 @@ import {
   getTarget,
   isOutsideEvent,
   stopEvent,
-} from '@floating-ui/react/utils';
+} from '../../floating-ui-react/utils';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useNavigationMenuItemContext } from '../item/NavigationMenuItemContext';

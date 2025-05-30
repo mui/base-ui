@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { isSafari } from '@floating-ui/react/utils';
+import { isSafari } from '../../floating-ui-react/utils';
 import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { visuallyHidden } from '../../utils/visuallyHidden';
 

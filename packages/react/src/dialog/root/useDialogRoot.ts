@@ -7,8 +7,8 @@ import {
   useInteractions,
   useRole,
   type OpenChangeReason as FloatingUIOpenChangeReason,
-} from '@floating-ui/react';
-import { getTarget } from '@floating-ui/react/utils';
+} from '../../floating-ui-react';
+import { getTarget } from '../../floating-ui-react/utils';
 import { useClick } from '../../utils/floating-ui/useClick';
 import { useControlled } from '../../utils/useControlled';
 import { useEventCallback } from '../../utils/useEventCallback';

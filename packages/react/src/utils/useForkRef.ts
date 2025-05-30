@@ -39,7 +39,7 @@ export function useForkRef<I>(
 /**
  * Merges variadic amount of refs into a single memoized callback ref or `null`.
  */
-export function useForkRefN<I>(...refs: InputRef<I>[]): Result<I> {
+export function useForkRefN<I>(refs: InputRef<I>[]): Result<I> {
   const forkRef = useLazyRef(createForkRef<I>).current;
   if (didChangeN(forkRef, refs)) {
     update(forkRef, refs);

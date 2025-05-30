@@ -1,6 +1,10 @@
 'use client';
 import * as React from 'react';
-import { getNextTabbable, getPreviousTabbable, isOutsideEvent } from '@floating-ui/react/utils';
+import {
+  getNextTabbable,
+  getPreviousTabbable,
+  isOutsideEvent,
+} from '../../floating-ui-react/utils';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useNavigationMenuRootContext } from '../root/NavigationMenuRootContext';

@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { getSide, getAlignment, type Rect, getSideAxis } from '@floating-ui/utils';
 import {
   autoUpdate,
   flip,
@@ -20,8 +21,7 @@ import {
   type MiddlewareState,
   type AutoUpdateOptions,
   type Middleware,
-} from '@floating-ui/react';
-import { getSide, getAlignment, type Rect, getSideAxis } from '@floating-ui/utils';
+} from '../floating-ui-react';
 import { useModernLayoutEffect } from './useModernLayoutEffect';
 import { useDirection } from '../direction-provider/DirectionContext';
 import { useLatestRef } from './useLatestRef';
