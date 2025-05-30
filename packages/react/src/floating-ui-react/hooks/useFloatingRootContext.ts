@@ -11,7 +11,6 @@ import type {
 import { createEventEmitter } from '../utils/createEventEmitter';
 import { useId } from '../../utils/useId';
 import { useFloatingParentNodeId } from '../components/FloatingTree';
-import { error } from '../utils/log';
 
 export interface UseFloatingRootContextOptions {
   open?: boolean;
@@ -35,7 +34,7 @@ export function useFloatingRootContext(
   if (process.env.NODE_ENV !== 'production') {
     const optionDomReference = elementsProp.reference;
     if (optionDomReference && !isElement(optionDomReference)) {
-      error(
+      console.error(
         'Cannot pass a virtual element to the `elements.reference` option,',
         'as it must be a real DOM element. Use `refs.setPositionReference()`',
         'instead.',

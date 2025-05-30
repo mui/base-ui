@@ -27,7 +27,6 @@ import {
 import { useFloatingParentNodeId, useFloatingTree } from '../components/FloatingTree';
 import type { Dimensions, ElementProps, FloatingRootContext } from '../types';
 import { enqueueFocus } from '../utils/enqueueFocus';
-import { warn } from '../utils/log';
 import { ARROW_UP, ARROW_DOWN, ARROW_RIGHT, ARROW_LEFT } from '../utils/constants';
 
 export const ESCAPE = 'Escape';
@@ -268,16 +267,16 @@ export function useListNavigation(
   if (process.env.NODE_ENV !== 'production') {
     if (allowEscape) {
       if (!loop) {
-        warn('`useListNavigation` looping must be enabled to allow escaping.');
+        console.warn('`useListNavigation` looping must be enabled to allow escaping.');
       }
 
       if (!virtual) {
-        warn('`useListNavigation` must be virtual to allow escaping.');
+        console.warn('`useListNavigation` must be virtual to allow escaping.');
       }
     }
 
     if (orientation === 'vertical' && cols > 1) {
-      warn(
+      console.warn(
         'In grid list navigation mode (`cols` > 1), the `orientation` should',
         'be either "horizontal" or "both".',
       );
