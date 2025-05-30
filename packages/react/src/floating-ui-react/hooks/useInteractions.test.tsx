@@ -103,10 +103,10 @@ describe('useInteractions', () => {
   it('prop getters are memoized', () => {
     function App() {
       const [open, setOpen] = React.useState(false);
-      const [c, setCount] = React.useState(0);
-      c;
+      const [, setCount] = React.useState(0);
 
       const handleClose = () => () => {};
+      // eslint-disable-next-line
       handleClose.__options = { blockPointerEvents: true };
 
       const listRef = React.useRef([]);

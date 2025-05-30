@@ -1,8 +1,9 @@
-import * as React from 'react'
+import * as React from 'react';
 import type { Coords } from '@floating-ui/react-dom';
 import { act, fireEvent, render, screen } from '@testing-library/react';
-import { useState } from 'react';
 import { test } from 'vitest';
+
+/* eslint-disable testing-library/no-unnecessary-act */
 
 import { useClientPoint, useFloating, useInteractions } from '../index';
 
@@ -22,7 +23,7 @@ function App({
   point?: Coords;
   axis?: 'both' | 'x' | 'y';
 }) {
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = React.useState(false);
   const { refs, elements, context } = useFloating({
     open: isOpen,
     onOpenChange: setIsOpen,
@@ -37,7 +38,7 @@ function App({
   const rect = elements.reference?.getBoundingClientRect();
 
   return (
-    <>
+    <React.Fragment>
       <div
         data-testid="reference"
         ref={refs.setReference}
@@ -56,7 +57,7 @@ function App({
       <span data-testid="y">{rect?.y}</span>
       <span data-testid="width">{rect?.width}</span>
       <span data-testid="height">{rect?.height}</span>
-    </>
+    </React.Fragment>
   );
 }
 
