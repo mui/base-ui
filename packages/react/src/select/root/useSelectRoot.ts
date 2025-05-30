@@ -127,9 +127,15 @@ export function useSelectRoot(params: any): useSelectRoot.ReturnValue {
   const updateValue = useEventCallback((nextValue: any) => {
     const index = valuesRef.current.indexOf(nextValue);
     setSelectedIndex(index === -1 ? null : index);
-    setLabel(labelsRef.current[index] ?? '');
     clearErrors(name);
     setDirty(nextValue !== validityData.initialValue);
+
+    if (multiple && Array.isArray(value)) {
+      const { labels } = getMultiValueData(nextValue);
+      setLabel(nextValue.length > 0 ? labels : '');
+    } else {
+      setLabel(labelsRef.current[index] ?? '');
+    }
   });
 
   useField({
@@ -190,11 +196,7 @@ export function useSelectRoot(params: any): useSelectRoot.ReturnValue {
     onOpenChangeComplete?.(false);
     if (multiple && Array.isArray(value)) {
       const { indices } = getMultiValueData();
-      if (indices.length > 0) {
-        setSelectedIndex(indices[indices.length - 1]);
-      } else {
-        setSelectedIndex(null);
-      }
+      setSelectedIndex(indices.length > 0 ? indices[indices.length - 1] : null);
     }
   });
 
