@@ -2,18 +2,11 @@ import * as React from 'react';
 import { Select } from '@base-ui-components/react/select';
 import styles from './index.module.css';
 
-const options = Array.from({ length: 500 }).map((_, i) => ({
-  label: `Item ${i}`,
-  value: i,
-}));
-
 export default function ExampleSelect() {
   return (
-    <Select.Root defaultValue={options[0].value}>
+    <Select.Root defaultValue="sans">
       <Select.Trigger className={styles.Select}>
-        <Select.Value placeholder={options[0].label}>
-          {(label) => label || options[0].label}
-        </Select.Value>
+        <Select.Value placeholder="Sans-serif" />
         <Select.Icon className={styles.SelectIcon}>
           <ChevronUpDownIcon />
         </Select.Icon>
@@ -22,20 +15,34 @@ export default function ExampleSelect() {
         <Select.Positioner className={styles.Positioner} sideOffset={8}>
           <Select.ScrollUpArrow className={styles.ScrollArrow} />
           <Select.Popup className={styles.Popup}>
-            {options.map((option) => (
-              <Select.Item
-                key={option.value}
-                className={styles.Item}
-                value={option.value}
-              >
-                <Select.ItemIndicator className={styles.ItemIndicator}>
-                  <CheckIcon className={styles.ItemIndicatorIcon} />
-                </Select.ItemIndicator>
-                <Select.ItemText className={styles.ItemText}>
-                  {option.label}
-                </Select.ItemText>
-              </Select.Item>
-            ))}
+            <Select.Item className={styles.Item} value="sans">
+              <Select.ItemIndicator className={styles.ItemIndicator}>
+                <CheckIcon className={styles.ItemIndicatorIcon} />
+              </Select.ItemIndicator>
+              <Select.ItemText className={styles.ItemText}>
+                Sans-serif
+              </Select.ItemText>
+            </Select.Item>
+            <Select.Item className={styles.Item} value="serif">
+              <Select.ItemIndicator className={styles.ItemIndicator}>
+                <CheckIcon className={styles.ItemIndicatorIcon} />
+              </Select.ItemIndicator>
+              <Select.ItemText className={styles.ItemText}>Serif</Select.ItemText>
+            </Select.Item>
+            <Select.Item className={styles.Item} value="mono">
+              <Select.ItemIndicator className={styles.ItemIndicator}>
+                <CheckIcon className={styles.ItemIndicatorIcon} />
+              </Select.ItemIndicator>
+              <Select.ItemText className={styles.ItemText}>
+                Monospace
+              </Select.ItemText>
+            </Select.Item>
+            <Select.Item className={styles.Item} value="cursive">
+              <Select.ItemIndicator className={styles.ItemIndicator}>
+                <CheckIcon className={styles.ItemIndicatorIcon} />
+              </Select.ItemIndicator>
+              <Select.ItemText className={styles.ItemText}>Cursive</Select.ItemText>
+            </Select.Item>
           </Select.Popup>
           <Select.ScrollDownArrow className={styles.ScrollArrow} />
         </Select.Positioner>

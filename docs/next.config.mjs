@@ -56,7 +56,6 @@ const nextConfig = {
   },
   ...(process.env.NODE_ENV === 'production' && { distDir: 'export', output: 'export' }),
   devIndicators: false,
-  reactStrictMode: false,
 };
 
 const mergedConfig = withMdx(withDocsInfra(nextConfig));
