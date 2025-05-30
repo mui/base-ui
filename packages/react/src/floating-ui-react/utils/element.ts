@@ -1,5 +1,5 @@
 import { isHTMLElement, isShadowRoot } from '@floating-ui/utils/dom';
-import { isJSDOM } from './platform';
+import { isJSDOM } from '../../utils/detectBrowser';
 import { FOCUSABLE_ATTRIBUTE, TYPEABLE_SELECTOR } from './constants';
 
 export function activeElement(doc: Document) {
@@ -86,7 +86,7 @@ export function isTypeableCombobox(element: Element | null) {
 export function matchesFocusVisible(element: Element | null) {
   // We don't want to block focus from working with `visibleOnly`
   // (JSDOM doesn't match `:focus-visible` when the element has `:focus`)
-  if (!element || isJSDOM()) {
+  if (!element || isJSDOM) {
     return true;
   }
   try {

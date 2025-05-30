@@ -1,12 +1,11 @@
 import * as React from 'react';
 import { getWindow, isElement, isHTMLElement } from '@floating-ui/utils/dom';
+import { isMac, isSafari } from '../../utils/detectBrowser';
 import {
   activeElement,
   contains,
   getDocument,
   getTarget,
-  isMac,
-  isSafari,
   isTypeableElement,
   matchesFocusVisible,
 } from '../utils';
@@ -15,9 +14,7 @@ import type { ElementProps, FloatingRootContext, OpenChangeReason } from '../typ
 import { createAttribute } from '../utils/createAttribute';
 import { clearTimeoutIfSet } from '../utils/clearTimeoutIfSet';
 
-function isMacSafari() {
-  return isMac() && isSafari();
-}
+const isMacSafari = isMac && isSafari;
 
 export interface UseFocusProps {
   /**
@@ -77,7 +74,7 @@ export function useFocus(context: FloatingRootContext, props: UseFocusProps = {}
 
     win.addEventListener('blur', onBlur);
 
-    if (isMacSafari()) {
+    if (isMacSafari) {
       win.addEventListener('keydown', onKeyDown, true);
       win.addEventListener('pointerdown', onPointerDown, true);
     }
@@ -85,7 +82,7 @@ export function useFocus(context: FloatingRootContext, props: UseFocusProps = {}
     return () => {
       win.removeEventListener('blur', onBlur);
 
-      if (isMacSafari()) {
+      if (isMacSafari) {
         win.removeEventListener('keydown', onKeyDown, true);
         win.removeEventListener('pointerdown', onPointerDown, true);
       }
@@ -130,7 +127,7 @@ export function useFocus(context: FloatingRootContext, props: UseFocusProps = {}
         if (visibleOnly && isElement(target)) {
           // Safari fails to match `:focus-visible` if focus was initially
           // outside the document.
-          if (isMacSafari() && !event.relatedTarget) {
+          if (isMacSafari && !event.relatedTarget) {
             if (!keyboardModalityRef.current && !isTypeableElement(target)) {
               return;
             }

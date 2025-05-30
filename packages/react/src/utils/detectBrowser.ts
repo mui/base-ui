@@ -1,12 +1,14 @@
-import { getUserAgent } from '../floating-ui-react/utils';
-
 interface NavigatorUAData {
   brands: Array<{ brand: string; version: string }>;
   mobile: boolean;
   platform: string;
 }
 
+const hasNavigator = typeof navigator !== 'undefined';
+
 const nav = getNavigatorData();
+const platform = getPlatform();
+const userAgent = getUserAgent();
 
 export const isWebKit =
   typeof CSS === 'undefined' || !CSS.supports
@@ -19,7 +21,12 @@ export const isIOS =
     ? true
     : /iP(hone|ad|od)|iOS/.test(nav.platform);
 
-export const isFirefox = typeof navigator !== 'undefined' && /firefox/i.test(getUserAgent());
+export const isFirefox = hasNavigator && /firefox/i.test(userAgent);
+export const isSafari = hasNavigator && /apple/i.test(navigator.vendor);
+export const isAndroid = (hasNavigator && /android/i.test(platform)) || /android/i.test(userAgent);
+export const isMac =
+  hasNavigator && platform.toLowerCase().startsWith('mac') && !navigator.maxTouchPoints;
+export const isJSDOM = userAgent.includes('jsdom/');
 
 // Avoid Chrome DevTools blue warning.
 function getNavigatorData(): { platform: string; maxTouchPoints: number } {
@@ -40,4 +47,32 @@ function getNavigatorData(): { platform: string; maxTouchPoints: number } {
     platform: navigator.platform,
     maxTouchPoints: navigator.maxTouchPoints,
   };
+}
+
+function getUserAgent(): string {
+  if (!hasNavigator) {
+    return '';
+  }
+
+  const uaData = (navigator as any).userAgentData as NavigatorUAData | undefined;
+
+  if (uaData && Array.isArray(uaData.brands)) {
+    return uaData.brands.map(({ brand, version }) => `${brand}/${version}`).join(' ');
+  }
+
+  return navigator.userAgent;
+}
+
+function getPlatform(): string {
+  if (!hasNavigator) {
+    return '';
+  }
+
+  const uaData = (navigator as any).userAgentData as NavigatorUAData | undefined;
+
+  if (uaData?.platform) {
+    return uaData.platform;
+  }
+
+  return navigator.platform;
 }
