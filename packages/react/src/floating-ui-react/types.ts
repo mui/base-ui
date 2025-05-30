@@ -18,7 +18,6 @@ export type { UseFocusProps } from './hooks/useFocus';
 export type { UseHoverProps, HandleCloseContext, HandleClose } from './hooks/useHover';
 export type { UseListNavigationProps } from './hooks/useListNavigation';
 export type { UseRoleProps } from './hooks/useRole';
-export type { UseTransitionStatusProps, UseTransitionStylesProps } from './hooks/useTransition';
 export type { UseTypeaheadProps } from './hooks/useTypeahead';
 export type { UseFloatingRootContextOptions } from './hooks/useFloatingRootContext';
 export type { UseInteractionsReturn } from './hooks/useInteractions';
