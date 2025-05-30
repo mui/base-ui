@@ -9,7 +9,7 @@ import {
   type OpenChangeReason as FloatingUIOpenChangeReason,
 } from '../../floating-ui-react';
 import { getTarget } from '../../floating-ui-react/utils';
-import { useClick } from '../../utils/floating-ui/useClick';
+import { useClick } from '../../utils/interactions/useClick';
 import { useControlled } from '../../utils/useControlled';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { useScrollLock } from '../../utils/useScrollLock';

@@ -11,7 +11,6 @@ export * from '.';
 export type { FloatingDelayGroupProps } from './components/FloatingDelayGroup';
 export type { FloatingFocusManagerProps } from './components/FloatingFocusManager';
 export type { FloatingPortalProps, UseFloatingPortalNodeProps } from './components/FloatingPortal';
-export type { UseClickProps } from './hooks/useClick';
 export type { UseClientPointProps } from './hooks/useClientPoint';
 export type { UseDismissProps } from './hooks/useDismiss';
 export type { UseFocusProps } from './hooks/useFocus';

@@ -10,7 +10,7 @@ import {
   FloatingTree,
   safePolygon,
 } from '../../floating-ui-react';
-import { useClick } from '../../utils/floating-ui/useClick';
+import { useClick } from '../../utils/interactions/useClick';
 import { useTimeout } from '../../utils/useTimeout';
 import { useControlled } from '../../utils/useControlled';
 import { useEventCallback } from '../../utils/useEventCallback';

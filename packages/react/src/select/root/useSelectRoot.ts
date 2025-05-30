@@ -7,7 +7,7 @@ import {
   useRole,
   useTypeahead,
 } from '../../floating-ui-react';
-import { useClick } from '../../utils/floating-ui/useClick';
+import { useClick } from '../../utils/interactions/useClick';
 import { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { useBaseUiId } from '../../utils/useBaseUiId';

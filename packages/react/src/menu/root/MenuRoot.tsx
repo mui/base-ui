@@ -13,7 +13,7 @@ import {
   useTypeahead,
   safePolygon,
 } from '../../floating-ui-react';
-import { useClick } from '../../utils/floating-ui/useClick';
+import { useClick } from '../../utils/interactions/useClick';
 import { MenuRootContext, useMenuRootContext } from './MenuRootContext';
 import { MenubarContext, useMenubarContext } from '../../menubar/MenubarContext';
 import { useTimeout } from '../../utils/useTimeout';
