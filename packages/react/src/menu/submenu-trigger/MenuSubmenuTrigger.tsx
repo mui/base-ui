@@ -1,10 +1,9 @@
 'use client';
 import * as React from 'react';
 import { useFloatingTree } from '@floating-ui/react';
-import { BaseUIComponentProps, HTMLProps } from '../../utils/types';
+import { BaseUIComponentProps } from '../../utils/types';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { useBaseUiId } from '../../utils/useBaseUiId';
-import { useForkRef } from '../../utils/useForkRef';
 import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
 import { useCompositeListItem } from '../../composite/list/useCompositeListItem';
 import { useMenuItem } from '../item/useMenuItem';
@@ -44,8 +43,6 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
 
   const highlighted = activeIndex === item.index;
 
-  const mergedRef = useForkRef(forwardedRef, item.ref);
-
   const { events: menuEvents } = useFloatingTree()!;
 
   const { getItemProps, itemRef } = useMenuItem({
@@ -54,27 +51,9 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
     highlighted,
     id,
     menuEvents,
-    ref: mergedRef,
     allowMouseUpTriggerRef,
     typingRef,
   });
-
-  const triggerRef = React.useRef<HTMLDivElement | null>(null);
-
-  const getTriggerProps = React.useCallback(
-    (externalProps?: HTMLProps) => {
-      return {
-        ...getItemProps(externalProps),
-        tabIndex: open || highlighted ? 0 : -1,
-        onBlur() {
-          if (highlighted) {
-            setActiveIndex(null);
-          }
-        },
-      };
-    },
-    [getItemProps, highlighted, open, setActiveIndex],
-  );
 
   const state: MenuSubmenuTrigger.State = React.useMemo(
     () => ({ disabled, highlighted, open }),
@@ -83,9 +62,22 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
 
   return useRenderElement('div', componentProps, {
     state,
-    ref: [triggerRef, itemRef, setTriggerElement],
+    ref: [forwardedRef, item.ref, itemRef, setTriggerElement],
     customStyleHookMapping: triggerOpenStateMapping,
-    props: [rootTriggerProps, itemProps, elementProps, getTriggerProps],
+    props: [
+      rootTriggerProps,
+      itemProps,
+      elementProps,
+      getItemProps,
+      {
+        tabIndex: open || highlighted ? 0 : -1,
+        onBlur() {
+          if (highlighted) {
+            setActiveIndex(null);
+          }
+        },
+      },
+    ],
   });
 });
 

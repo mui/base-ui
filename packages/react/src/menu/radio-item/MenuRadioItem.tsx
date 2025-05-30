@@ -40,7 +40,6 @@ const InnerMenuRadioItem = React.memo(
       highlighted,
       id,
       menuEvents,
-      ref: forwardedRef,
       allowMouseUpTriggerRef,
       typingRef,
     });
@@ -67,7 +66,7 @@ const InnerMenuRadioItem = React.memo(
     return useRenderElement('div', componentProps, {
       state,
       customStyleHookMapping: itemMapping,
-      ref: itemRef,
+      ref: [itemRef, forwardedRef],
       props: [itemProps, elementProps, getItemProps],
     });
   }),

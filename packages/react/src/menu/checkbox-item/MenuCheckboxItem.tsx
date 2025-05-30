@@ -48,7 +48,6 @@ const InnerMenuCheckboxItem = React.memo(
       highlighted,
       id,
       menuEvents,
-      ref: forwardedRef,
       allowMouseUpTriggerRef,
       typingRef,
     });
@@ -80,7 +79,7 @@ const InnerMenuCheckboxItem = React.memo(
       state,
       customStyleHookMapping: itemMapping,
       props: [itemProps, elementProps, getItemProps],
-      ref: itemRef,
+      ref: [itemRef, forwardedRef],
     });
 
     return (

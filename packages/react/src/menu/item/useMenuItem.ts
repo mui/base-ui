@@ -4,7 +4,6 @@ import { FloatingEvents } from '@floating-ui/react';
 import { useButton } from '../../use-button';
 import { mergeProps } from '../../merge-props';
 import { HTMLProps, BaseUIEvent } from '../../utils/types';
-import { useForkRef } from '../../utils/useForkRef';
 import { useModernLayoutEffect } from '../../utils';
 import { addHighlight, removeHighlight } from '../../utils/highlighted';
 
@@ -15,7 +14,6 @@ export function useMenuItem(params: useMenuItem.Parameters): useMenuItem.ReturnV
     highlighted,
     id,
     menuEvents,
-    ref: externalRef,
     allowMouseUpTriggerRef,
     typingRef,
   } = params;
@@ -25,7 +23,7 @@ export function useMenuItem(params: useMenuItem.Parameters): useMenuItem.ReturnV
   const { getButtonProps, buttonRef: mergedRef } = useButton({
     disabled,
     focusableWhenDisabled: true,
-    buttonRef: useForkRef(externalRef, itemRef),
+    buttonRef: itemRef,
   });
 
   useModernLayoutEffect(() => {
@@ -100,10 +98,6 @@ export namespace useMenuItem {
      * The FloatingEvents instance of the menu's root.
      */
     menuEvents: FloatingEvents;
-    /**
-     * The ref of the trigger element.
-     */
-    ref: React.Ref<Element>;
     /**
      * Whether to treat mouseup events as clicks.
      */

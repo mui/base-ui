@@ -34,7 +34,6 @@ const InnerMenuItem = React.memo(
       highlighted,
       id,
       menuEvents,
-      ref: forwardedRef,
       allowMouseUpTriggerRef,
       typingRef,
     });
@@ -48,7 +47,7 @@ const InnerMenuItem = React.memo(
 
     return useRenderElement('div', componentProps, {
       state,
-      ref: itemRef,
+      ref: [itemRef, forwardedRef],
       props: [itemProps, elementProps, getItemProps],
     });
   }),
