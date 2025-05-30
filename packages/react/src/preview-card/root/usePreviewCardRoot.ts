@@ -19,7 +19,7 @@ import {
   type BaseOpenChangeReason as OpenChangeReason,
 } from '../../utils/translateOpenChangeReason';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
-import { useFocusWithDelay } from '../../utils/floating-ui/useFocusWithDelay';
+import { useFocusWithDelay } from '../../utils/interactions/useFocusWithDelay';
 
 export function usePreviewCardRoot(
   params: usePreviewCardRoot.Parameters,
