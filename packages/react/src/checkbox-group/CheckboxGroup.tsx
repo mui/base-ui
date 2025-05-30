@@ -1,9 +1,9 @@
 'use client';
 import * as React from 'react';
 import { useBaseUiId } from '../utils/useBaseUiId';
+import { useControlled } from '../utils/useControlled';
 import { useEventCallback } from '../utils/useEventCallback';
 import { useRenderElement } from '../utils/useRenderElement';
-import { useCheckboxGroup } from './useCheckboxGroup';
 import { CheckboxGroupContext } from './CheckboxGroupContext';
 import type { FieldRoot } from '../field/root/FieldRoot';
 import { useFieldRootContext } from '../field/root/FieldRootContext';
@@ -12,6 +12,7 @@ import { fieldValidityMapping } from '../field/utils/constants';
 import { useField } from '../field/useField';
 import { useFieldControlValidation } from '../field/control/useFieldControlValidation';
 import { PARENT_CHECKBOX } from '../checkbox/root/CheckboxRoot';
+import { useCheckboxGroupParent } from './useCheckboxGroupParent';
 
 /**
  * Provides a shared state to a series of checkboxes.
@@ -34,16 +35,32 @@ export const CheckboxGroup = React.forwardRef(function CheckboxGroup(
     ...elementProps
   } = componentProps;
 
-  const { disabled: fieldDisabled, state: fieldState, name: fieldName } = useFieldRootContext();
+  const {
+    disabled: fieldDisabled,
+    labelId,
+    name: fieldName,
+    state: fieldState,
+  } = useFieldRootContext();
 
   const disabled = fieldDisabled || disabledProp;
 
   const fieldControlValidation = useFieldControlValidation();
 
-  const { rootProps, value, setValue, parent } = useCheckboxGroup({
-    value: externalValue,
+  const [value, setValueUnwrapped] = useControlled({
+    controlled: externalValue,
+    default: defaultValue,
+    name: 'CheckboxGroup',
+    state: 'value',
+  });
+
+  const setValue = useEventCallback((v: string[], event: Event) => {
+    setValueUnwrapped(v);
+    onValueChange?.(v, event);
+  });
+
+  const parent = useCheckboxGroupParent({
     allValues,
-    defaultValue,
+    value: externalValue,
     onValueChange,
   });
 
@@ -98,7 +115,13 @@ export const CheckboxGroup = React.forwardRef(function CheckboxGroup(
   const element = useRenderElement('div', componentProps, {
     state,
     ref: forwardedRef,
-    props: [rootProps, elementProps],
+    props: [
+      {
+        role: 'group',
+        'aria-labelledby': labelId,
+      },
+      elementProps,
+    ],
     customStyleHookMapping: fieldValidityMapping,
   });
 
