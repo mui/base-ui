@@ -8,6 +8,7 @@ import { useEventCallback } from '../../utils/useEventCallback';
 import { SCROLL_TIMEOUT } from '../constants';
 import { getOffset } from '../utils/getOffset';
 import { ScrollAreaScrollbarDataAttributes } from '../scrollbar/ScrollAreaScrollbarDataAttributes';
+import { STYLE_DISABLE_SCROLLBAR } from '../../utils/styles';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useTimeout } from '../../utils/useTimeout';
 
@@ -257,23 +258,9 @@ export const ScrollAreaRoot = React.forwardRef(function ScrollAreaRoot(
     ],
   );
 
-  const viewportId = `[data-id="${rootId}-viewport"]`;
-
-  const html = React.useMemo(
-    () => ({
-      __html: `${viewportId}{scrollbar-width:none}${viewportId}::-webkit-scrollbar{display:none}`,
-    }),
-    [viewportId],
-  );
-
   return (
     <ScrollAreaRootContext.Provider value={contextValue}>
-      {rootId && (
-        <style
-          // eslint-disable-next-line react/no-danger
-          dangerouslySetInnerHTML={html}
-        />
-      )}
+      {STYLE_DISABLE_SCROLLBAR.element}
       {element}
     </ScrollAreaRootContext.Provider>
   );
