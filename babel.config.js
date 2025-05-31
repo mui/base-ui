@@ -1,6 +1,6 @@
 const { resolve } = require('node:path');
 
-const errorCodesPath = resolve(__dirname, './docs/public/static/error-codes.json');
+const errorCodesPath = resolve(__dirname, './docs/src/error-codes.json');
 const missingError = process.env.MUI_EXTRACT_ERROR_CODES === 'true' ? 'write' : 'annotate';
 const baseUIPackageJson = require('./packages/react/package.json');
 
@@ -29,15 +29,7 @@ module.exports = function getBabelConfig(api) {
   ];
 
   const plugins = [
-    [
-      'babel-plugin-macros',
-      {
-        muiError: {
-          errorCodesPath,
-          missingError,
-        },
-      },
-    ],
+    'babel-plugin-optimize-clsx',
     [
       '@babel/plugin-transform-runtime',
       { regenerator: false, version: baseUIPackageJson.dependencies['@babel/runtime'] },
@@ -46,6 +38,17 @@ module.exports = function getBabelConfig(api) {
     ...(useESModules
       ? [['@mui/internal-babel-plugin-resolve-imports', { outExtension: '.js' }]]
       : []),
+    [
+      '@mui/internal-babel-plugin-minify-errors',
+      {
+        errorCodesPath,
+        missingError,
+        runtimeModule: '#formatErrorMessage',
+        detection: 'opt-out',
+        // Just strip the extension, extensions are handled by babel-plugin-add-import-extension
+        outExtension: '',
+      },
+    ],
   ];
 
   return {
