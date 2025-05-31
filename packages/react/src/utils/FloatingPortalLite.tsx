@@ -1,6 +1,6 @@
 'use client';
-import { useFloatingPortalNode } from '@floating-ui/react';
 import * as ReactDOM from 'react-dom';
+import { useFloatingPortalNode } from '../floating-ui-react';
 
 /**
  * `FloatingPortal` includes tabbable logic handling for focus management.

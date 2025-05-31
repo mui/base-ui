@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { FloatingPortal } from '@floating-ui/react';
+import { FloatingPortal } from '../../floating-ui-react';
 import { SelectPortalContext } from './SelectPortalContext';
 import { useSelectRootContext } from '../root/SelectRootContext';
 

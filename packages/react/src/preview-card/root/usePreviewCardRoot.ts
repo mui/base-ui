@@ -7,7 +7,7 @@ import {
   useInteractions,
   safePolygon,
   type FloatingRootContext,
-} from '@floating-ui/react';
+} from '../../floating-ui-react';
 import { useControlled } from '../../utils/useControlled';
 import { useTransitionStatus } from '../../utils/useTransitionStatus';
 import { useEventCallback } from '../../utils/useEventCallback';
@@ -19,7 +19,7 @@ import {
   type BaseOpenChangeReason as OpenChangeReason,
 } from '../../utils/translateOpenChangeReason';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
-import { useFocusWithDelay } from '../../utils/floating-ui/useFocusWithDelay';
+import { useFocusWithDelay } from '../../utils/interactions/useFocusWithDelay';
 
 export function usePreviewCardRoot(
   params: usePreviewCardRoot.Parameters,

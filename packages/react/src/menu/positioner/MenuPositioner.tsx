@@ -5,7 +5,7 @@ import {
   useFloatingNodeId,
   useFloatingParentNodeId,
   useFloatingTree,
-} from '@floating-ui/react';
+} from '../../floating-ui-react';
 import { MenuPositionerContext } from './MenuPositionerContext';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { useAnchorPositioning, type Align, type Side } from '../../utils/useAnchorPositioning';

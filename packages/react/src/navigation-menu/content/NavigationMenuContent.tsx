@@ -1,8 +1,8 @@
 'use client';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import { FloatingNode } from '@floating-ui/react';
-import { contains } from '@floating-ui/react/utils';
+import { FloatingNode } from '../../floating-ui-react';
+import { contains } from '../../floating-ui-react/utils';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import {

@@ -1,13 +1,13 @@
 import * as React from 'react';
 import {
+  useClick,
   useDismiss,
   useFloatingRootContext,
   useInteractions,
   useListNavigation,
   useRole,
   useTypeahead,
-} from '@floating-ui/react';
-import { useClick } from '../../utils/floating-ui/useClick';
+} from '../../floating-ui-react';
 import { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { useBaseUiId } from '../../utils/useBaseUiId';

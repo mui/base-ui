@@ -557,12 +557,15 @@ importers:
       '@babel/runtime':
         specifier: ^7.27.0
         version: 7.27.0
-      '@floating-ui/react':
-        specifier: ^0.27.9
-        version: 0.27.9(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@floating-ui/react-dom':
+        specifier: ^2.1.2
+        version: 2.1.2(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@floating-ui/utils':
         specifier: ^0.2.9
         version: 0.2.9
+      tabbable:
+        specifier: ^6.2.0
+        version: 6.2.0
       use-sync-external-store:
         specifier: ^1.5.0
         version: 1.5.0(react@19.1.0)
@@ -597,6 +600,9 @@ importers:
       chai:
         specifier: ^4.5.0
         version: 4.5.0
+      clsx:
+        specifier: ^2.1.1
+        version: 2.1.1
       fs-extra:
         specifier: ^11.3.0
         version: 11.3.0
@@ -1993,12 +1999,6 @@ packages:
     peerDependencies:
       react: '>=16.8.0'
       react-dom: '>=16.8.0'
-
-  '@floating-ui/react@0.27.9':
-    resolution: {integrity: sha512-Y0aCJBNtfVF6ikI1kVzA0WzSAhVBz79vFWOhvb5MLCRNODZ1ylGSLTuncchR7JsLyn9QzV6JD44DyZhhOtvpRw==}
-    peerDependencies:
-      react: '>=17.0.0'
-      react-dom: '>=17.0.0'
 
   '@floating-ui/utils@0.2.9':
     resolution: {integrity: sha512-MDWhGtE+eHw5JW7lq4qhc5yRLS11ERl1c7Z6Xd0a58DozHES6EnNNwUWbMiG4J9Cgj053Bhk8zvlhFYKVhULwg==}
@@ -12666,14 +12666,6 @@ snapshots:
       '@floating-ui/dom': 1.7.0
       react: 19.1.0
       react-dom: 19.1.0(react@19.1.0)
-
-  '@floating-ui/react@0.27.9(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
-    dependencies:
-      '@floating-ui/react-dom': 2.1.2(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
-      '@floating-ui/utils': 0.2.9
-      react: 19.1.0
-      react-dom: 19.1.0(react@19.1.0)
-      tabbable: 6.2.0
 
   '@floating-ui/utils@0.2.9': {}
 

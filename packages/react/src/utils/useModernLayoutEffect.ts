@@ -1,2 +1,6 @@
 'use client';
-export { useModernLayoutEffect } from '@floating-ui/react/utils';
+import * as React from 'react';
+
+const noop = () => {};
+
+export const useModernLayoutEffect = typeof document !== 'undefined' ? React.useLayoutEffect : noop;

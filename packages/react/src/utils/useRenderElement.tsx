@@ -109,7 +109,7 @@ function useRenderElementProps<
   if (!enabled) {
     useForkRef(null, null);
   } else if (Array.isArray(ref)) {
-    outProps.ref = useForkRefN(outProps.ref, getChildRef(renderProp), ...ref);
+    outProps.ref = useForkRefN([outProps.ref, getChildRef(renderProp), ...ref]);
   } else {
     outProps.ref = useForkRef(outProps.ref, getChildRef(renderProp), ref);
   }

@@ -13,7 +13,7 @@ export {
   getGridNavigatedIndex,
   getMaxListIndex,
   getMinListIndex,
-} from '@floating-ui/react/utils';
+} from '../floating-ui-react/utils';
 
 export interface Dimensions {
   width: number;

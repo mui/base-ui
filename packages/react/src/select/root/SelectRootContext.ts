@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useFloatingRootContext } from '@floating-ui/react';
+import { useFloatingRootContext } from '../../floating-ui-react';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import type { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
 import type { HTMLProps } from '../../utils/types';

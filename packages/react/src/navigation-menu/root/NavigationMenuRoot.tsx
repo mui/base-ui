@@ -1,13 +1,13 @@
 'use client';
 import * as React from 'react';
+import { isHTMLElement } from '@floating-ui/utils/dom';
 import {
   FloatingTree,
   useFloatingNodeId,
   useFloatingParentNodeId,
   type FloatingRootContext,
-} from '@floating-ui/react';
-import { activeElement, contains } from '@floating-ui/react/utils';
-import { isHTMLElement } from '@floating-ui/utils/dom';
+} from '../../floating-ui-react';
+import { activeElement, contains } from '../../floating-ui-react/utils';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import {
