@@ -1,15 +1,7 @@
 import * as React from 'react';
 import type { useSelectPositioner } from './useSelectPositioner';
 
-export type SelectPositionerContext = useSelectPositioner.ReturnValue & {
-  alignItemWithTriggerActive: boolean;
-  controlledItemAnchor: boolean;
-  setControlledItemAnchor: React.Dispatch<React.SetStateAction<boolean>>;
-  scrollUpArrowVisible: boolean;
-  setScrollUpArrowVisible: React.Dispatch<React.SetStateAction<boolean>>;
-  scrollDownArrowVisible: boolean;
-  setScrollDownArrowVisible: React.Dispatch<React.SetStateAction<boolean>>;
-};
+export type SelectPositionerContext = useSelectPositioner.ReturnValue;
 
 export const SelectPositionerContext = React.createContext<SelectPositionerContext | null>(null);
 
