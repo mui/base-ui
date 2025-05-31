@@ -10,6 +10,7 @@ import { useToolbarRootContext } from '../root/ToolbarRootContext';
 const TOOLBAR_LINK_METADATA = {
   focusableWhenDisabled: true,
 };
+
 /**
  * A link component.
  * Renders an `<a>` element.
@@ -26,7 +27,8 @@ export const ToolbarLink = React.forwardRef(function ToolbarLink(
 
   const { getButtonProps } = useButton({
     buttonRef: forwardedRef,
-    elementName: 'a',
+    native: 'a',
+    focusableWhenDisabled: true,
   });
 
   const state: ToolbarLink.State = React.useMemo(

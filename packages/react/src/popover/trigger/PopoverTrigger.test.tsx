@@ -42,7 +42,7 @@ describe('<Popover.Trigger />', () => {
     it('custom element', async () => {
       const { user } = await render(
         <Popover.Root>
-          <Popover.Trigger disabled render={<span />} />
+          <Popover.Trigger disabled render={<span />} nativeButton={false} />
           <Popover.Portal>
             <Popover.Positioner>
               <Popover.Popup>Content</Popover.Popup>

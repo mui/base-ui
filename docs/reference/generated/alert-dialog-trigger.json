@@ -2,6 +2,11 @@
   "name": "AlertDialogTrigger",
   "description": "A button that opens the alert dialog.\nRenders a `<button>` element.",
   "props": {
+    "nativeButton": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Determines whether the component is being rendered as a native button."
+    },
     "className": {
       "type": "string | ((state: AlertDialog.Trigger.State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."

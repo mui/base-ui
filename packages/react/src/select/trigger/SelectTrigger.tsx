@@ -24,7 +24,13 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
   componentProps: SelectTrigger.Props,
   forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
-  const { render, className, disabled: disabledProp = false, ...elementProps } = componentProps;
+  const {
+    render,
+    className,
+    disabled: disabledProp = false,
+    nativeButton = false,
+    ...elementProps
+  } = componentProps;
 
   const { state: fieldState, disabled: fieldDisabled } = useFieldRootContext();
   const { disabled: selectDisabled, open } = useSelectRootContext();
@@ -37,6 +43,7 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
     elementProps,
     disabled,
     rootRef: triggerRef,
+    nativeButton,
   });
 
   const state: SelectTrigger.State = React.useMemo(
@@ -66,6 +73,11 @@ export namespace SelectTrigger {
      * @default false
      */
     disabled?: boolean;
+    /**
+     * Determines whether the component is being rendered as a native button.
+     * @default false
+     */
+    nativeButton?: boolean;
   }
 
   export interface State {

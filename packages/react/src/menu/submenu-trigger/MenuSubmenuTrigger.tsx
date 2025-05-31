@@ -21,7 +21,7 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
   props: MenuSubmenuTrigger.Props,
   forwardedRef: React.ForwardedRef<Element>,
 ) {
-  const { render, className, label, id: idProp, ...other } = props;
+  const { render, className, label, id: idProp, nativeButton = false, ...other } = props;
   const id = useBaseUiId(idProp);
 
   const {
@@ -58,6 +58,7 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
     ref: mergedRef,
     allowMouseUpTriggerRef,
     typingRef,
+    nativeButton,
   });
 
   const triggerRef = React.useRef<HTMLDivElement | null>(null);
@@ -109,6 +110,11 @@ export namespace MenuSubmenuTrigger {
      * @ignore
      */
     id?: string;
+    /**
+     * Determines whether the component is being rendered as a native button.
+     * @default false
+     */
+    nativeButton?: boolean;
   }
 
   export interface State {

@@ -26,7 +26,13 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
   props: MenuTrigger.Props,
   forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
-  const { render, className, disabled: disabledProp = false, ...other } = props;
+  const {
+    render,
+    className,
+    disabled: disabledProp = false,
+    nativeButton = true,
+    ...other
+  } = props;
 
   const {
     triggerProps: rootTriggerProps,
@@ -49,6 +55,7 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
   const { getButtonProps, buttonRef } = useButton({
     disabled,
     buttonRef: mergedRef,
+    native: nativeButton,
   });
 
   const handleRef = useForkRef(buttonRef, setTriggerElement);
@@ -169,6 +176,11 @@ export namespace MenuTrigger {
      * @default false
      */
     disabled?: boolean;
+    /**
+     * Determines whether the component is being rendered as a native button.
+     * @default true
+     */
+    nativeButton?: boolean;
   }
 
   export type State = {

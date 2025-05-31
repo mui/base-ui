@@ -20,7 +20,13 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
   componentProps: PopoverTrigger.Props,
   forwardedRef: React.ForwardedRef<any>,
 ) {
-  const { render, className, disabled = false, ...elementProps } = componentProps;
+  const {
+    render,
+    className,
+    disabled = false,
+    nativeButton = true,
+    ...elementProps
+  } = componentProps;
 
   const { open, setTriggerElement, triggerProps, openReason } = usePopoverRootContext();
 
@@ -35,6 +41,7 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
   const { getButtonProps, buttonRef } = useButton({
     disabled,
     buttonRef: forwardedRef,
+    native: nativeButton,
   });
 
   const customStyleHookMapping: CustomStyleHookMapping<{ open: boolean }> = React.useMemo(
@@ -72,5 +79,11 @@ export namespace PopoverTrigger {
     open: boolean;
   }
 
-  export interface Props extends BaseUIComponentProps<'button', State> {}
+  export interface Props extends BaseUIComponentProps<'button', State> {
+    /**
+     * Determines whether the component is being rendered as a native button.
+     * @default true
+     */
+    nativeButton?: boolean;
+  }
 }

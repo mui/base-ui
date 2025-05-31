@@ -19,6 +19,11 @@
       "type": "((pressed: boolean, event: Event) => void)",
       "description": "Callback fired when the pressed state is changed."
     },
+    "nativeButton": {
+      "type": "boolean",
+      "default": "true",
+      "description": "Determines whether the component is being rendered as a native button."
+    },
     "disabled": {
       "type": "boolean",
       "default": "false",

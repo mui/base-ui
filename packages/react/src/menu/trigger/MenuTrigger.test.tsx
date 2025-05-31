@@ -71,7 +71,9 @@ describe('<Menu.Trigger />', () => {
   describe('keyboard navigation', () => {
     [
       <Menu.Trigger>Open</Menu.Trigger>,
-      <Menu.Trigger render={<span />}>Open</Menu.Trigger>,
+      <Menu.Trigger render={<span />} nativeButton={false}>
+        Open
+      </Menu.Trigger>,
     ].forEach((buttonComponent) => {
       const buttonType = buttonComponent.props.slots?.root ? 'non-native' : 'native';
       ['ArrowUp', 'ArrowDown', 'Enter', ' '].forEach((key) => {

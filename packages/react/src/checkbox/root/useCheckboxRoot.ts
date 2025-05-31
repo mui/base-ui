@@ -32,6 +32,7 @@ export function useCheckboxRoot(params: useCheckboxRoot.Parameters): useCheckbox
     indeterminate = false,
     parent = false,
     disabled: disabledProp = false,
+    nativeButton = true,
   } = params;
 
   const buttonRef = React.useRef<HTMLButtonElement>(null);
@@ -62,6 +63,7 @@ export function useCheckboxRoot(params: useCheckboxRoot.Parameters): useCheckbox
   const { getButtonProps } = useButton({
     disabled,
     buttonRef,
+    native: nativeButton,
   });
 
   const localFieldControlValidation = useFieldControlValidation();
@@ -324,6 +326,11 @@ export namespace useCheckboxRoot {
      * @default false
      */
     parent?: boolean;
+    /**
+     * Determines whether the component is being rendered as a native button.
+     * @default true
+     */
+    nativeButton?: boolean;
     /**
      * The value of the selected checkbox.
      */
