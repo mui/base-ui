@@ -1,0 +1,15 @@
+{
+  "name": "TooltipTrackCursorAxis",
+  "props": {
+    "value": {
+      "type": "'none' | 'both' | 'x' | 'y'",
+      "required": true
+    },
+    "children": {
+      "type": "ReactNode",
+      "required": true
+    }
+  },
+  "dataAttributes": {},
+  "cssVariables": {}
+}
