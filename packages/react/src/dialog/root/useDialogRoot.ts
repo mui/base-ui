@@ -17,7 +17,6 @@ import { useTransitionStatus, type TransitionStatus } from '../../utils/useTrans
 import { type InteractionType } from '../../utils/useEnhancedClickHandler';
 import type { RequiredExcept, HTMLProps } from '../../utils/types';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
-import { mergeProps } from '../../merge-props';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import {
   type BaseOpenChangeReason,
@@ -160,8 +159,8 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
 
   const { openMethod, triggerProps } = useOpenInteractionType(open);
 
-  const getTriggerProps = React.useCallback(
-    (externalProps = {}) => getReferenceProps(mergeProps(triggerProps, externalProps)),
+  const dialogTriggerProps = React.useMemo(
+    () => getReferenceProps(triggerProps),
     [getReferenceProps, triggerProps],
   );
 
@@ -180,7 +179,7 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
       openMethod,
       mounted,
       transitionStatus,
-      getTriggerProps,
+      triggerProps: dialogTriggerProps,
       getPopupProps: getFloatingProps,
       setTriggerElement,
       setPopupElement,
@@ -201,7 +200,7 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
     openMethod,
     mounted,
     transitionStatus,
-    getTriggerProps,
+    dialogTriggerProps,
     getFloatingProps,
     context,
   ]);
@@ -334,7 +333,7 @@ export namespace useDialogRoot {
     /**
      * Resolver for the Trigger element's props.
      */
-    getTriggerProps: (externalProps?: HTMLProps) => HTMLProps;
+    triggerProps: HTMLProps;
     /**
      * Resolver for the Popup element's props.
      */

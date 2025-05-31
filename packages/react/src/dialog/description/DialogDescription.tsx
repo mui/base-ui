@@ -1,8 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useDialogRootContext } from '../root/DialogRootContext';
-import { mergeProps } from '../../merge-props';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import { useRenderElement } from '../../utils/useRenderElement';
 import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import type { BaseUIComponentProps } from '../../utils/types';
@@ -16,10 +15,10 @@ const state = {};
  * Documentation: [Base UI Dialog](https://base-ui.com/react/components/dialog)
  */
 export const DialogDescription = React.forwardRef(function DialogDescription(
-  props: DialogDescription.Props,
+  componentProps: DialogDescription.Props,
   forwardedRef: React.ForwardedRef<HTMLParagraphElement>,
 ) {
-  const { render, className, id: idProp, ...other } = props;
+  const { render, className, id: idProp, ...elementProps } = componentProps;
   const { setDescriptionElementId } = useDialogRootContext();
 
   const id = useBaseUiId(idProp);
@@ -31,27 +30,11 @@ export const DialogDescription = React.forwardRef(function DialogDescription(
     };
   }, [id, setDescriptionElementId]);
 
-  const getProps = React.useCallback(
-    (externalProps = {}) =>
-      mergeProps(
-        {
-          id,
-        },
-        externalProps,
-      ),
-    [id],
-  );
-
-  const { renderElement } = useComponentRenderer({
-    propGetter: getProps,
-    render: render ?? 'p',
-    className,
+  return useRenderElement('p', componentProps, {
     state,
     ref: forwardedRef,
-    extraProps: other,
+    props: [elementProps, { id }],
   });
-
-  return renderElement();
 });
 
 export namespace DialogDescription {
