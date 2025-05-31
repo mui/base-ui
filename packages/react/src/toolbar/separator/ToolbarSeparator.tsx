@@ -1,8 +1,9 @@
 'use client';
 import * as React from 'react';
-import type { BaseUIComponentProps, Orientation } from '../../utils/types';
+import type { BaseUIComponentProps } from '../../utils/types';
 import { Separator } from '../../separator';
 import { useToolbarRootContext } from '../root/ToolbarRootContext';
+import type { ToolbarRoot } from '../root/ToolbarRoot';
 /**
  * A separator element accessible to screen readers.
  * Renders a `<div>` element.
@@ -19,7 +20,7 @@ export const ToolbarSeparator = React.forwardRef(function ToolbarSeparator(
     {
       vertical: 'horizontal',
       horizontal: 'vertical',
-    } as Record<Orientation, Orientation>
+    } as Record<ToolbarRoot.Orientation, ToolbarRoot.Orientation>
   )[context.orientation];
 
   return <Separator orientation={orientation} {...props} ref={forwardedRef} />;
