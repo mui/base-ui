@@ -34,7 +34,6 @@ import {
 } from '../../context-menu/root/ContextMenuRootContext';
 import { ownerDocument } from '../../utils/owner';
 
-const EMPTY_ARRAY: never[] = [];
 const EMPTY_REF = { current: false };
 
 /**
@@ -366,21 +365,24 @@ export const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
     role: 'menu',
   });
 
-  const itemDomElements = React.useRef<(HTMLElement | null)[]>([]);
-  const itemLabels = React.useRef<(string | null)[]>([]);
+  const listRef = React.useRef<(HTMLElement | null)[]>([]);
+  const labelsRef = React.useRef<(string | null)[]>([]);
 
   const direction = useDirection();
 
   const listNavigation = useListNavigation(floatingRootContext, {
     enabled: !disabled,
-    listRef: itemDomElements,
+    listRef,
     activeIndex,
     nested: parent.type !== undefined,
     loop,
     orientation,
     parentOrientation: parent.type === 'menubar' ? parent.context.orientation : undefined,
     rtl: direction === 'rtl',
-    disabledIndices: EMPTY_ARRAY,
+    disabledIndices(index) {
+      const element = listRef.current[index];
+      return element == null || getComputedStyle(element).display === 'none';
+    },
     onNavigate: setActiveIndex,
     openOnArrowKeyDown: parent.type !== 'context-menu',
   });
@@ -392,7 +394,7 @@ export const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
   }, []);
 
   const typeahead = useTypeahead(floatingRootContext, {
-    listRef: itemLabels,
+    listRef: labelsRef,
     activeIndex,
     resetMs: TYPEAHEAD_RESET_MS,
     onMatch: (index) => {
@@ -451,8 +453,8 @@ export const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
       itemProps,
       popupProps,
       triggerProps,
-      itemDomElements,
-      itemLabels,
+      listRef,
+      labelsRef,
       mounted,
       open,
       popupRef,
@@ -476,8 +478,8 @@ export const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
       itemProps,
       popupProps,
       triggerProps,
-      itemDomElements,
-      itemLabels,
+      listRef,
+      labelsRef,
       mounted,
       open,
       positionerRef,
