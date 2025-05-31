@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { MenuRadioGroupContext } from './MenuRadioGroupContext';
 import { BaseUIComponentProps } from '../../utils/types';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import { useRenderElement } from '../../utils/useRenderElement';
 import { useControlled } from '../../utils/useControlled';
 import { useEventCallback } from '../../utils/useEventCallback';
 
@@ -14,7 +14,7 @@ import { useEventCallback } from '../../utils/useEventCallback';
  */
 export const MenuRadioGroup = React.memo(
   React.forwardRef(function MenuRadioGroup(
-    props: MenuRadioGroup.Props,
+    componentProps: MenuRadioGroup.Props,
     forwardedRef: React.ForwardedRef<Element>,
   ) {
     const {
@@ -24,8 +24,8 @@ export const MenuRadioGroup = React.memo(
       defaultValue,
       onValueChange: onValueChangeProp,
       disabled = false,
-      ...other
-    } = props;
+      ...elementProps
+    } = componentProps;
 
     const [value, setValueUnwrapped] = useControlled({
       controlled: valueProp,
@@ -45,16 +45,14 @@ export const MenuRadioGroup = React.memo(
 
     const state = React.useMemo(() => ({ disabled }), [disabled]);
 
-    const { renderElement } = useComponentRenderer({
-      render: render || 'div',
-      className,
+    const element = useRenderElement('div', componentProps, {
       state,
-      extraProps: {
+      ref: forwardedRef,
+      props: {
         role: 'group',
         'aria-disabled': disabled || undefined,
-        ...other,
+        ...elementProps,
       },
-      ref: forwardedRef,
     });
 
     const context: MenuRadioGroupContext = React.useMemo(
@@ -67,9 +65,7 @@ export const MenuRadioGroup = React.memo(
     );
 
     return (
-      <MenuRadioGroupContext.Provider value={context}>
-        {renderElement()}
-      </MenuRadioGroupContext.Provider>
+      <MenuRadioGroupContext.Provider value={context}>{element}</MenuRadioGroupContext.Provider>
     );
   }),
 );
