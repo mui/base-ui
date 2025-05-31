@@ -6,7 +6,7 @@ import { useSelectItemContext } from '../item/SelectItemContext';
 import { useRenderElement } from '../../utils/useRenderElement';
 
 interface InnerSelectItemTextProps extends SelectItemText.Props {
-  selected: boolean;
+  selectedByFocus: boolean;
   selectedItemTextRef: React.RefObject<HTMLElement | null>;
   indexRef: React.RefObject<number>;
   textRef: React.RefObject<HTMLElement | null>;
@@ -17,8 +17,15 @@ const InnerSelectItemText = React.memo(
     componentProps: InnerSelectItemTextProps,
     forwardedRef: React.ForwardedRef<HTMLDivElement>,
   ) {
-    const { className, render, selected, selectedItemTextRef, indexRef, textRef, ...elementProps } =
-      componentProps;
+    const {
+      className,
+      render,
+      selectedByFocus,
+      selectedItemTextRef,
+      indexRef,
+      textRef,
+      ...elementProps
+    } = componentProps;
 
     const localRef = React.useCallback(
       (node: HTMLElement | null) => {
@@ -26,12 +33,12 @@ const InnerSelectItemText = React.memo(
         queueMicrotask(() => {
           const hasNoSelectedItemText =
             selectedItemTextRef.current === null || !selectedItemTextRef.current.isConnected;
-          if (selected || (hasNoSelectedItemText && indexRef.current === 0)) {
+          if (selectedByFocus || (hasNoSelectedItemText && indexRef.current === 0)) {
             selectedItemTextRef.current = node;
           }
         });
       },
-      [selected, selectedItemTextRef, indexRef],
+      [selectedByFocus, selectedItemTextRef, indexRef],
     );
 
     const element = useRenderElement('div', componentProps, {
@@ -53,14 +60,14 @@ export const SelectItemText = React.forwardRef(function SelectItemText(
   props: SelectItemText.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { selected, indexRef } = useSelectItemContext();
+  const { selectedByFocus, indexRef } = useSelectItemContext();
   const { selectedItemTextRef } = useSelectRootContext();
   const { textRef } = useSelectItemContext();
 
   return (
     <InnerSelectItemText
       ref={forwardedRef}
-      selected={selected}
+      selectedByFocus={selectedByFocus}
       selectedItemTextRef={selectedItemTextRef}
       indexRef={indexRef}
       textRef={textRef}
