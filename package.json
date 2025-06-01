@@ -62,12 +62,12 @@
   "devDependencies": {
     "@arethetypeswrong/cli": "^0.17.4",
     "@argos-ci/core": "^3.1.1",
-    "@babel/cli": "^7.27.1",
-    "@babel/core": "^7.27.1",
+    "@babel/cli": "^7.27.2",
+    "@babel/core": "^7.27.4",
     "@babel/node": "^7.27.1",
     "@babel/plugin-transform-react-constant-elements": "^7.27.1",
-    "@babel/plugin-transform-runtime": "^7.27.1",
-    "@babel/preset-env": "^7.27.1",
+    "@babel/plugin-transform-runtime": "^7.27.4",
+    "@babel/preset-env": "^7.27.2",
     "@babel/preset-react": "^7.27.1",
     "@babel/preset-typescript": "^7.27.1",
     "@babel/register": "^7.27.1",
@@ -169,12 +169,12 @@
     "pnpm": "10.10.0"
   },
   "resolutions": {
-    "@babel/core": "^7.27.1",
-    "@babel/plugin-transform-runtime": "^7.27.1",
-    "@babel/preset-env": "^7.27.1",
+    "@babel/core": "^7.27.4",
+    "@babel/plugin-transform-runtime": "^7.27.4",
+    "@babel/preset-env": "^7.27.2",
     "@babel/preset-react": "^7.27.1",
     "@babel/preset-typescript": "^7.27.1",
-    "@babel/types": "^7.27.1",
+    "@babel/types": "^7.27.3",
     "@types/node": "^18.19.87",
     "@types/react": "^19.1.2",
     "@types/react-dom": "^19.1.3"
