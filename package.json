@@ -157,7 +157,7 @@
     "tsx": "^4.19.4",
     "typescript": "^5.8.3",
     "unist-util-visit": "^5.0.0",
-    "vite": "^6.3.4",
+    "vite": "^6.3.5",
     "vitest": "^3.1.2",
     "webpack": "^5.99.7",
     "webpack-bundle-analyzer": "^4.10.2",
