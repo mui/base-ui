@@ -25,7 +25,7 @@ describe('<Menu.SubmenuTrigger />', () => {
             <Menu.Positioner>
               <Menu.Popup>
                 <Menu.Item>1</Menu.Item>
-                <Menu.Root>
+                <Menu.SubmenuRoot>
                   <Menu.SubmenuTrigger>2</Menu.SubmenuTrigger>
                   <Menu.Portal>
                     <Menu.Positioner>
@@ -35,7 +35,7 @@ describe('<Menu.SubmenuTrigger />', () => {
                       </Menu.Popup>
                     </Menu.Positioner>
                   </Menu.Portal>
-                </Menu.Root>
+                </Menu.SubmenuRoot>
               </Menu.Popup>
             </Menu.Positioner>
           </Menu.Portal>

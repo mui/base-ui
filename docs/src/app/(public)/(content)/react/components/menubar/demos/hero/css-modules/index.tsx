@@ -25,7 +25,7 @@ export default function ExampleMenubar() {
                 Save
               </Menu.Item>
 
-              <Menu.Root>
+              <Menu.SubmenuRoot>
                 <Menu.SubmenuTrigger className={styles.MenuItem}>
                   Export
                   <ChevronRightIcon />
@@ -45,7 +45,7 @@ export default function ExampleMenubar() {
                     </Menu.Popup>
                   </Menu.Positioner>
                 </Menu.Portal>
-              </Menu.Root>
+              </Menu.SubmenuRoot>
 
               <Menu.Separator className={styles.MenuSeparator} />
               <Menu.Item className={styles.MenuItem} onClick={handleClick}>
@@ -87,7 +87,7 @@ export default function ExampleMenubar() {
                 Zoom Out
               </Menu.Item>
 
-              <Menu.Root>
+              <Menu.SubmenuRoot>
                 <Menu.SubmenuTrigger className={styles.MenuItem}>
                   Layout
                   <ChevronRightIcon />
@@ -107,7 +107,7 @@ export default function ExampleMenubar() {
                     </Menu.Popup>
                   </Menu.Positioner>
                 </Menu.Portal>
-              </Menu.Root>
+              </Menu.SubmenuRoot>
 
               <Menu.Separator className={styles.MenuSeparator} />
               <Menu.Item className={styles.MenuItem} onClick={handleClick}>

@@ -445,7 +445,7 @@ describe('<Menu.Root />', () => {
                   <Menu.Positioner>
                     <Menu.Popup>
                       <Menu.Item>1</Menu.Item>
-                      <Menu.Root orientation={orientation}>
+                      <Menu.SubmenuRoot orientation={orientation}>
                         <Menu.SubmenuTrigger data-testid="submenu-trigger">2</Menu.SubmenuTrigger>
                         <Menu.Portal>
                           <Menu.Positioner>
@@ -455,7 +455,7 @@ describe('<Menu.Root />', () => {
                             </Menu.Popup>
                           </Menu.Positioner>
                         </Menu.Portal>
-                      </Menu.Root>
+                      </Menu.SubmenuRoot>
                     </Menu.Popup>
                   </Menu.Positioner>
                 </Menu.Portal>
@@ -502,7 +502,7 @@ describe('<Menu.Root />', () => {
             <Menu.Positioner data-testid="menu">
               <Menu.Popup>
                 <Menu.Item>Item 1</Menu.Item>
-                <Menu.Root openOnHover={false}>
+                <Menu.SubmenuRoot openOnHover={false}>
                   <Menu.SubmenuTrigger data-testid="submenu-trigger">Submenu</Menu.SubmenuTrigger>
                   <Menu.Portal>
                     <Menu.Positioner data-testid="submenu">
@@ -511,7 +511,7 @@ describe('<Menu.Root />', () => {
                       </Menu.Popup>
                     </Menu.Positioner>
                   </Menu.Portal>
-                </Menu.Root>
+                </Menu.SubmenuRoot>
               </Menu.Popup>
             </Menu.Positioner>
           </Menu.Portal>
@@ -680,7 +680,7 @@ describe('<Menu.Root />', () => {
             <Menu.Positioner>
               <Menu.Popup>
                 <Menu.Item>1</Menu.Item>
-                <Menu.Root>
+                <Menu.SubmenuRoot>
                   <Menu.SubmenuTrigger>2</Menu.SubmenuTrigger>
                   <Menu.Portal>
                     <Menu.Positioner>
@@ -690,7 +690,7 @@ describe('<Menu.Root />', () => {
                       </Menu.Popup>
                     </Menu.Positioner>
                   </Menu.Portal>
-                </Menu.Root>
+                </Menu.SubmenuRoot>
               </Menu.Popup>
             </Menu.Positioner>
           </Menu.Portal>
@@ -731,7 +731,7 @@ describe('<Menu.Root />', () => {
             <Menu.Positioner>
               <Menu.Popup id="parent-menu">
                 <Menu.Item>1</Menu.Item>
-                <Menu.Root closeParentOnEsc={false}>
+                <Menu.SubmenuRoot closeParentOnEsc={false}>
                   <Menu.SubmenuTrigger>2</Menu.SubmenuTrigger>
                   <Menu.Portal>
                     <Menu.Positioner>
@@ -741,7 +741,7 @@ describe('<Menu.Root />', () => {
                       </Menu.Popup>
                     </Menu.Positioner>
                   </Menu.Portal>
-                </Menu.Root>
+                </Menu.SubmenuRoot>
               </Menu.Popup>
             </Menu.Positioner>
           </Menu.Portal>
@@ -1152,7 +1152,7 @@ describe('<Menu.Root />', () => {
             <Menu.Positioner data-testid="menu">
               <Menu.Popup>
                 <Menu.Item>1</Menu.Item>
-                <Menu.Root delay={0}>
+                <Menu.SubmenuRoot delay={0}>
                   <Menu.SubmenuTrigger>2</Menu.SubmenuTrigger>
                   <Menu.Portal>
                     <Menu.Positioner data-testid="submenu">
@@ -1161,7 +1161,7 @@ describe('<Menu.Root />', () => {
                       </Menu.Popup>
                     </Menu.Positioner>
                   </Menu.Portal>
-                </Menu.Root>
+                </Menu.SubmenuRoot>
               </Menu.Popup>
             </Menu.Positioner>
           </Menu.Portal>

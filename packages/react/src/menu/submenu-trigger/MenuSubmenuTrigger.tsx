@@ -35,7 +35,7 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
   } = useMenuRootContext();
 
   if (parent.type !== 'menu') {
-    throw new Error('Base UI: SubmenuTrigger must be placed in a nested Menu.');
+    throw new Error('Base UI: SubmenuTrigger must be placed in a Menu.SubmenuRoot.');
   }
 
   const parentMenuContext = parent.context;

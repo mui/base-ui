@@ -1,0 +1,72 @@
+{
+  "name": "MenuSubmenuRoot",
+  "description": "Groups all parts of a submenu.\nDoesn’t render its own HTML element.",
+  "props": {
+    "defaultOpen": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Whether the menu is initially open.\n\nTo render a controlled menu, use the `open` prop instead."
+    },
+    "open": {
+      "type": "boolean",
+      "description": "Whether the menu is currently open."
+    },
+    "onOpenChange": {
+      "type": "(open: boolean, event?: Event, reason?: Menu.Root.OpenChangeReason) => void",
+      "description": "Event handler called when the menu is opened or closed."
+    },
+    "actionsRef": {
+      "type": "RefObject<Actions>",
+      "description": "A ref to imperative actions.\n- `unmount`: When specified, the menu will not be unmounted when closed.\nInstead, the `unmount` function must be called to unmount the menu manually.\nUseful when the menu's animation is controlled by an external library."
+    },
+    "closeParentOnEsc": {
+      "type": "boolean",
+      "default": "true",
+      "description": "When in a submenu, determines whether pressing the Escape key\ncloses the entire menu, or only the current child menu."
+    },
+    "modal": {
+      "type": "boolean",
+      "default": "true",
+      "description": "Determines if the menu enters a modal state when open.\n- `true`: user interaction is limited to the menu: document page scroll is locked and and pointer interactions on outside elements are disabled.\n- `false`: user interaction with the rest of the document is allowed."
+    },
+    "onOpenChangeComplete": {
+      "type": "((open: boolean) => void)",
+      "description": "Event handler called after any animations complete when the menu is closed."
+    },
+    "disabled": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Whether the component should ignore user interaction."
+    },
+    "openOnHover": {
+      "type": "boolean",
+      "description": "Whether the menu should also open when the trigger is hovered.\n\nDefaults to `true` for nested menus."
+    },
+    "delay": {
+      "type": "number",
+      "default": "100",
+      "description": "How long to wait before the menu may be opened on hover. Specified in milliseconds.\n\nRequires the `openOnHover` prop."
+    },
+    "closeDelay": {
+      "type": "number",
+      "default": "0",
+      "description": "How long to wait before closing the menu that was opened on hover.\nSpecified in milliseconds.\n\nRequires the `openOnHover` prop."
+    },
+    "loop": {
+      "type": "boolean",
+      "default": "true",
+      "description": "Whether to loop keyboard focus back to the first item\nwhen the end of the list is reached while using the arrow keys."
+    },
+    "orientation": {
+      "type": "Menu.Root.Orientation",
+      "default": "'vertical'",
+      "description": "The visual orientation of the menu.\nControls whether roving focus uses up/down or left/right arrow keys."
+    },
+    "children": {
+      "type": "ReactNode",
+      "required": true
+    }
+  },
+  "dataAttributes": {},
+  "cssVariables": {}
+}

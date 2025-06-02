@@ -16,7 +16,7 @@ function TestMenubar(props: Menubar.Props) {
             <Menu.Popup>
               <Menu.Item data-testid="file-item-1">Open</Menu.Item>
               <Menu.Item data-testid="file-item-2">Save</Menu.Item>
-              <Menu.Root>
+              <Menu.SubmenuRoot>
                 <Menu.SubmenuTrigger data-testid="share-trigger">Share</Menu.SubmenuTrigger>
                 <Menu.Portal>
                   <Menu.Positioner data-testid="share-menu">
@@ -26,7 +26,7 @@ function TestMenubar(props: Menubar.Props) {
                     </Menu.Popup>
                   </Menu.Positioner>
                 </Menu.Portal>
-              </Menu.Root>
+              </Menu.SubmenuRoot>
             </Menu.Popup>
           </Menu.Positioner>
         </Menu.Portal>

@@ -16,7 +16,7 @@ export default function ExampleMenu() {
             </Menu.Arrow>
             <Menu.Item className={styles.Item}>Add to Library</Menu.Item>
 
-            <Menu.Root>
+            <Menu.SubmenuRoot>
               <Menu.SubmenuTrigger className={styles.SubmenuTrigger}>
                 Add to Playlist
                 <ChevronRightIcon />
@@ -36,7 +36,7 @@ export default function ExampleMenu() {
                   </Menu.Popup>
                 </Menu.Positioner>
               </Menu.Portal>
-            </Menu.Root>
+            </Menu.SubmenuRoot>
 
             <Menu.Separator className={styles.Separator} />
             <Menu.Item className={styles.Item}>Play Next</Menu.Item>

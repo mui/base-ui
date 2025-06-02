@@ -33,6 +33,7 @@ import {
   useContextMenuRootContext,
 } from '../../context-menu/root/ContextMenuRootContext';
 import { ownerDocument } from '../../utils/owner';
+import { useMenuSubmenuRootContext } from '../submenu-root/MenuSubmenuRootContext';
 
 const EMPTY_ARRAY: never[] = [];
 const EMPTY_REF = { current: false };
@@ -76,13 +77,14 @@ export const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
   const positionerRef = React.useRef<HTMLElement | null>(null);
   const stickIfOpenTimeout = useTimeout();
   const contextMenuContext = useContextMenuRootContext(true);
+  const isSubmenu = useMenuSubmenuRootContext();
 
   let parent: MenuParent;
   {
     const parentContext = useMenuRootContext(true);
     const menubarContext = useMenubarContext(true);
 
-    if (parentContext) {
+    if (isSubmenu && parentContext) {
       parent = {
         type: 'menu',
         context: parentContext,
