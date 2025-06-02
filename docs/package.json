@@ -37,7 +37,7 @@
     "lz-string": "^1.5.0",
     "next": "15.3.3",
     "postcss": "^8.5.3",
-    "postcss-custom-media": "^11.0.5",
+    "postcss-custom-media": "^11.0.6",
     "postcss-import": "^16.1.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
