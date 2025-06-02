@@ -18,7 +18,7 @@ export function useSharedCalendarRoot<
   TValidationProps extends Required<BaseDateValidationProps>,
 >(
   parameters: useSharedCalendarRoot.Parameters<TValue, TError, TValidationProps>,
-): useSharedCalendarRoot.ReturnValue<TValue> {
+): useSharedCalendarRoot.ReturnValue {
   const adapter = useTemporalAdapter();
 
   const {
@@ -233,9 +233,7 @@ export function useSharedCalendarRoot<
   );
 
   return {
-    value,
     state,
-    setVisibleDate,
     context,
     visibleDateContext,
   };
@@ -339,12 +337,7 @@ export namespace useSharedCalendarRoot {
     valueValidationProps: TValidationProps;
   }
 
-  export interface ReturnValue<TValue extends TemporalSupportedValue> {
-    value: TValue;
-    setVisibleDate: (
-      newVisibleDate: TemporalSupportedObject,
-      skipIfAlreadyVisible: boolean,
-    ) => void;
+  export interface ReturnValue {
     context: SharedCalendarRootContext;
     visibleDateContext: SharedCalendarRootVisibleDateContext;
     state: useSharedCalendarRoot.State;

@@ -8,7 +8,6 @@ import {
   useApplyDefaultValuesToDateValidationProps,
   useDateManager,
 } from '../../utils/temporal/useDateManager';
-import { useTemporalAdapter } from '../../temporal-adapter-provider/TemporalAdapterContext';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { BaseUIComponentProps } from '../../utils/types';
 import { CalendarContext } from '../use-context/CalendarContext';
@@ -55,7 +54,6 @@ export const CalendarRoot = React.forwardRef(function CalendarRoot(
     ...elementProps
   } = componentProps;
 
-  const adapter = useTemporalAdapter();
   const manager = useDateManager();
 
   const validationProps = useApplyDefaultValuesToDateValidationProps({
@@ -64,10 +62,7 @@ export const CalendarRoot = React.forwardRef(function CalendarRoot(
   });
 
   const {
-    value,
     state,
-    setVisibleDate,
-    isDateCellVisible,
     context: sharedContext,
     visibleDateContext,
   } = useSharedCalendarRoot({
@@ -91,14 +86,6 @@ export const CalendarRoot = React.forwardRef(function CalendarRoot(
     calendarValueManager,
   });
 
-  const [prevValue, setPrevValue] = React.useState<TemporalNonRangeValue>(value);
-  if (value !== prevValue) {
-    setPrevValue(value);
-    if (adapter.isValid(value) && isDateCellVisible(value)) {
-      setVisibleDate(value, false);
-    }
-  }
-
   const publicContext: CalendarContext = React.useMemo(
     () => ({
       visibleDate: visibleDateContext.visibleDate,
@@ -114,12 +101,10 @@ export const CalendarRoot = React.forwardRef(function CalendarRoot(
     return children;
   }, [children, visibleDateContext.visibleDate]);
 
-  const props = React.useMemo(() => ({ children: resolvedChildren }), [resolvedChildren]);
-
   const element = useRenderElement('div', componentProps, {
     state,
     ref: forwardedRef,
-    props: [props, elementProps],
+    props: [{ children: resolvedChildren }, elementProps],
   });
 
   return (

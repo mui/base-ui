@@ -83,22 +83,18 @@ export function useSharedCalendarDayGridBody(
     return children;
   }, [children, weeks]);
 
-  const props = React.useMemo(
-    () => ({
-      ref,
-      role: 'rowgroup',
-      children: resolvedChildren,
-      onKeyDown: applyDayGridKeyboardNavigation,
-    }),
-    [applyDayGridKeyboardNavigation, resolvedChildren],
-  );
+  const props: React.ButtonHTMLAttributes<HTMLButtonElement> = {
+    role: 'rowgroup',
+    children: resolvedChildren,
+    onKeyDown: applyDayGridKeyboardNavigation,
+  };
 
   const context: SharedCalendarDayGridBodyContext = React.useMemo(
     () => ({ month, canCellBeTabbed, ref }),
     [month, canCellBeTabbed, ref],
   );
 
-  return React.useMemo(() => ({ props, rowsRefs, context, ref }), [props, rowsRefs, context, ref]);
+  return { props, rowsRefs, context, ref };
 }
 
 export namespace useSharedCalendarDayGridBody {
@@ -134,7 +130,7 @@ export namespace useSharedCalendarDayGridBody {
     /**
      * The props to apply to the element.
      */
-    props: HTMLProps;
+    props: React.ButtonHTMLAttributes<HTMLButtonElement>;
     // TODO: Use Composite instead.
     /**
      * The ref of each row rendered inside the component.

@@ -9,19 +9,12 @@ const CalendarDayGrid = React.forwardRef(function CalendarDayGrid(
 ) {
   const { className, render, ...elementProps } = componentProps;
 
-  const props = React.useMemo(
-    () => ({
-      role: 'grid',
-    }),
-    [],
-  );
-
   const state = React.useMemo(() => ({}), []);
 
   const element = useRenderElement('div', componentProps, {
     state,
     ref: forwardedRef,
-    props: [props, elementProps],
+    props: [{ role: 'grid' }, elementProps],
   });
 
   return element;

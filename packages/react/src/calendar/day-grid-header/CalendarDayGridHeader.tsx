@@ -28,20 +28,12 @@ const CalendarDayGridHeader = React.forwardRef(function CalendarDayGridHeader(
     return children;
   }, [children, days]);
 
-  const props = React.useMemo(
-    () => ({
-      role: 'row',
-      children: resolvedChildren,
-    }),
-    [resolvedChildren],
-  );
-
   const state = React.useMemo(() => ({}), []);
 
   const element = useRenderElement('div', componentProps, {
     state,
     ref: forwardedRef,
-    props: [props, elementProps],
+    props: [{ role: 'row', children: resolvedChildren }, elementProps],
   });
 
   return element;

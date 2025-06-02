@@ -12,10 +12,6 @@ import {
 import type { SharedCalendarRootContext } from './SharedCalendarRootContext';
 import { useEventCallback } from '../../utils/useEventCallback';
 
-/**
- * This logic needs to be in Calendar.Root to support multiple Calendar.DayGrid.
- * We could introduce a Calendar.MultipleDayGrid component that would handle this logic if we want to avoid having it in Calendar.Root.
- */
 export function useSharedCalendarDayGridNavigation(
   parameters: useSharedCalendarDayGridNavigation.Parameters,
 ) {

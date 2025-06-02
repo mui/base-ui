@@ -16,16 +16,6 @@ const InnerCalendarSetVisibleMonth = React.forwardRef(function InnerCalendarSetV
 ) {
   const { className, render, ctx, target, ...elementProps } = componentProps;
 
-  const props = React.useMemo(
-    () => ({
-      type: 'button' as const,
-      disabled: ctx.isDisabled,
-      onClick: ctx.setTarget,
-      tabIndex: 0,
-    }),
-    [ctx.isDisabled, ctx.setTarget],
-  );
-
   const state: CalendarSetVisibleMonth.State = React.useMemo(
     () => ({
       disabled: ctx.isDisabled,
@@ -37,7 +27,10 @@ const InnerCalendarSetVisibleMonth = React.forwardRef(function InnerCalendarSetV
   const element = useRenderElement('button', componentProps, {
     state,
     ref: forwardedRef,
-    props: [props, elementProps],
+    props: [
+      { type: 'button', disabled: ctx.isDisabled, onClick: ctx.setTarget, tabIndex: 0 },
+      elementProps,
+    ],
   });
 
   return element;

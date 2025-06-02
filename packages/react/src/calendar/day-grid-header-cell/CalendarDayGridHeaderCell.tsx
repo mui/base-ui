@@ -21,21 +21,15 @@ const CalendarDayGridHeaderCell = React.forwardRef(function CalendarDayGridHeade
   const formattedValue = React.useMemo(() => formatter(value), [formatter, value]);
   const ariaLabel = React.useMemo(() => adapter.format(value, 'weekday'), [adapter, value]);
 
-  const props = React.useMemo(
-    () => ({
-      role: 'columnheader',
-      'aria-label': ariaLabel,
-      children: formattedValue,
-    }),
-    [formattedValue, ariaLabel],
-  );
-
   const state: CalendarDayGridHeaderCell.State = React.useMemo(() => ({}), []);
 
   const element = useRenderElement('span', componentProps, {
     state,
     ref: forwardedRef,
-    props: [props, otherProps],
+    props: [
+      { role: 'columnheader', 'aria-label': ariaLabel, children: formattedValue },
+      otherProps,
+    ],
   });
 
   return element;
