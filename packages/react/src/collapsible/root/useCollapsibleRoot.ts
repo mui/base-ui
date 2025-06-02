@@ -7,6 +7,8 @@ import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { AnimationFrame } from '../../utils/useAnimationFrame';
 import { useTransitionStatus, TransitionStatus } from '../../utils/useTransitionStatus';
+import { CollapsiblePanelCssVars } from '../panel/CollapsiblePanelCssVars';
+import { AccordionPanelCssVars } from '../../accordion/panel/AccordionPanelCssVars';
 
 export type AnimationType = 'css-transition' | 'css-animation' | 'none' | null;
 
@@ -18,7 +20,7 @@ export interface Dimensions {
 export function useCollapsibleRoot(
   parameters: useCollapsibleRoot.Parameters,
 ): useCollapsibleRoot.ReturnValue {
-  const { open: openParam, defaultOpen, onOpenChange, disabled } = parameters;
+  const { open: openParam, defaultOpen, onOpenChange, disabled, type } = parameters;
 
   const isControlledRef = React.useRef(openParam !== undefined);
 
@@ -122,6 +124,18 @@ export function useCollapsibleRoot(
       if (hiddenUntilFound) {
         panel.style.setProperty('content-visibility', 'visible');
       }
+
+      const heightVar =
+        type === 'accordion'
+          ? AccordionPanelCssVars.accordionPanelHeight
+          : CollapsiblePanelCssVars.collapsiblePanelHeight;
+      const widthVar =
+        type === 'accordion'
+          ? AccordionPanelCssVars.accordionPanelWidth
+          : CollapsiblePanelCssVars.collapsiblePanelWidth;
+      panel.style.setProperty(heightVar, `${panel.scrollHeight}px`);
+      panel.style.setProperty(widthVar, `${panel.scrollWidth}px`);
+
       /* closing */
       AnimationFrame.request(() => {
         setDimensions({ height: 0, width: 0 });
@@ -222,6 +236,10 @@ export namespace useCollapsibleRoot {
      * @default false
      */
     disabled: boolean;
+    /**
+     * The type of collapsible panel.
+     */
+    type: 'collapsible' | 'accordion';
   }
 
   export interface ReturnValue {
