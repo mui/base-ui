@@ -35,7 +35,7 @@ export default defineConfig(async () => {
       ...entrypoints,
       {
         id: 'Base UI checkbox',
-        import: './base-entry.js',
+        import: './base-entry.jsx',
         externals,
       },
     ],
