@@ -79,7 +79,7 @@ function DayGrid(props: { offset: 0 | 1 }) {
   );
 }
 
-export default function DayCalendarWithTwoMonthsDemo() {
+export default function CalendarTwoMonths() {
   return (
     <TemporalAdapterProvider adapter={adapter}>
       <Calendar.Root

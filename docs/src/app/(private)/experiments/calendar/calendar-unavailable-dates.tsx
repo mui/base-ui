@@ -12,7 +12,7 @@ function isDateUnavailable(date: DateTime) {
   return date.weekday === 6 || date.weekday === 7; // Unavailable on weekends
 }
 
-export default function DayCalendar() {
+export default function CalendarUnavailableDates() {
   const minDate = React.useMemo(() => DateTime.now().plus({ days: -8 }), []);
 
   return (

@@ -6,6 +6,7 @@ import { useSharedCalendarDayGridBodyContext } from '../day-grid-body/SharedCale
 import { useTemporalAdapter } from '../../temporal-adapter-provider/TemporalAdapterContext';
 import { useForkRef } from '../../utils/useForkRef';
 import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
+import { useSharedCalendarKeyboardNavigationContext } from '../keyboard-navigation/SharedCalendarKeyboardNavigationContext';
 
 export function useSharedCalendarDayCellWrapper(
   parameters: useSharedCalendarDayCellWrapper.Parameters,
@@ -16,10 +17,10 @@ export function useSharedCalendarDayCellWrapper(
     getDateValidationError,
     isDateUnavailable,
     selectDate,
-    registerDayGridCell,
     disabled: isCalendarDisabled,
   } = useSharedCalendarRootContext();
   const { month, canCellBeTabbed, ref: gridBodyRef } = useSharedCalendarDayGridBodyContext();
+  const { registerDayGridCell } = useSharedCalendarKeyboardNavigationContext();
   const { ref: gridRowRef } = useCalendarDayGridRowContext();
   const ref = React.useRef<HTMLButtonElement>(null);
   const adapter = useTemporalAdapter();

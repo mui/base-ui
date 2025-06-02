@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import { DateTime } from 'luxon';
 import { TemporalAdapterProvider } from '@base-ui-components/react/temporal-adapter-provider';
 import { TemporalAdapterLuxon } from '@base-ui-components/react/temporal-adapter-luxon';
 import { Calendar } from '@base-ui-components/react/calendar';
@@ -8,12 +7,10 @@ import styles from './calendar.module.css';
 
 const adapter = new TemporalAdapterLuxon();
 
-export default function DayCalendar() {
-  const today = React.useMemo(() => DateTime.now(), []);
-
+export default function CalendarBasic() {
   return (
     <TemporalAdapterProvider adapter={adapter}>
-      <Calendar.Root className={styles.Root} minDate={today}>
+      <Calendar.Root className={styles.Root}>
         {({ visibleDate }) => (
           <React.Fragment>
             <header className={styles.Header}>

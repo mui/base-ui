@@ -1,7 +1,6 @@
 import * as React from 'react';
 import { TemporalSupportedObject } from '../../models';
-import { useSharedCalendarDayGridNavigation } from './useSharedCalendarDayGridsNavigation';
-import { useDateManager, validateDate } from '../../utils/temporal/useDateManager';
+import { useDateManager } from '../../utils/temporal/useDateManager';
 
 export interface SharedCalendarRootContext {
   /**
@@ -48,14 +47,6 @@ export interface SharedCalendarRootContext {
    * The number of years to switch by when using clicking on SetVisibleYear primitive with target="previous" or target="next".
    */
   yearPageSize: number;
-  /**
-   * Callback forwarded to the `onKeyDown` prop of the day grid body.
-   */
-  applyDayGridKeyboardNavigation: (event: React.KeyboardEvent) => void;
-  /**
-   * Register a day cell ref to be able to apply keyboard navigation.
-   */
-  registerDayGridCell: (refs: useSharedCalendarDayGridNavigation.CellRefs) => () => void;
   /**
    * Register a day grid.
    */

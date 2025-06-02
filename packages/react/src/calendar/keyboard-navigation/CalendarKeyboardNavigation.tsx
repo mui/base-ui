@@ -1,23 +1,23 @@
+'use client';
 import * as React from 'react';
 import { useTimeout } from '../../utils/useTimeout';
-import { TemporalSupportedObject } from '../../models';
 import { useTemporalAdapter } from '../../temporal-adapter-provider/TemporalAdapterContext';
-import { useDateManager } from '../../utils/temporal/useDateManager';
 import {
   applyInitialFocusInGrid,
   navigateInGrid,
   NavigateInGridChangePage,
   PageGridNavigationTarget,
 } from '../utils/keyboardNavigation';
-import type { SharedCalendarRootContext } from './SharedCalendarRootContext';
 import { useEventCallback } from '../../utils/useEventCallback';
+import { SharedCalendarKeyboardNavigationContext } from './SharedCalendarKeyboardNavigationContext';
+import { useSharedCalendarRootVisibleDateContext } from '../root/SharedCalendarRootVisibleDateContext';
+import { useSharedCalendarRootContext } from '../root/SharedCalendarRootContext';
 
-export function useSharedCalendarDayGridNavigation(
-  parameters: useSharedCalendarDayGridNavigation.Parameters,
-) {
-  const { visibleDate, setVisibleDate, monthPageSize, dateValidationProps } = parameters;
+export function CalendarKeyboardNavigation(props: CalendarKeyboardNavigation.Props) {
+  const { setVisibleDate, monthPageSize, dateValidationProps } = useSharedCalendarRootContext();
+  const { visibleDate } = useSharedCalendarRootVisibleDateContext();
   const adapter = useTemporalAdapter();
-  const cellsRef = React.useRef(new Map<number, useSharedCalendarDayGridNavigation.CellRefs>());
+  const cellsRef = React.useRef(new Map<number, CalendarKeyboardNavigation.CellRefs>());
   const pageNavigationTargetRef = React.useRef<PageGridNavigationTarget | null>(null);
 
   const timeout = useTimeout();
@@ -45,7 +45,7 @@ export function useSharedCalendarDayGridNavigation(
           return;
         }
 
-        setVisibleDate(adapter.addMonths(visibleDate, -monthPageSize));
+        setVisibleDate(adapter.addMonths(visibleDate, -monthPageSize), false);
       }
       if (params.direction === 'next') {
         const targetDate = adapter.addMonths(adapter.startOfMonth(visibleDate), monthPageSize);
@@ -54,7 +54,7 @@ export function useSharedCalendarDayGridNavigation(
         if (adapter.isBefore(adapter.startOfMonth(dateValidationProps.maxDate), targetDate)) {
           return;
         }
-        setVisibleDate(adapter.addMonths(visibleDate, monthPageSize));
+        setVisibleDate(adapter.addMonths(visibleDate, monthPageSize), false);
       }
 
       pageNavigationTargetRef.current = params.target;
@@ -63,33 +63,28 @@ export function useSharedCalendarDayGridNavigation(
     navigateInGrid({ cells, event, changePage });
   });
 
-  const registerDayGridCell = useEventCallback(
-    (refs: useSharedCalendarDayGridNavigation.CellRefs) => {
-      const id = Math.random();
-      cellsRef.current.set(id, refs);
-      return () => cellsRef.current.delete(id);
-    },
+  const registerDayGridCell = useEventCallback((refs: CalendarKeyboardNavigation.CellRefs) => {
+    const id = Math.random();
+    cellsRef.current.set(id, refs);
+    return () => cellsRef.current.delete(id);
+  });
+
+  const contextValue: SharedCalendarKeyboardNavigationContext = React.useMemo(
+    () => ({ registerDayGridCell, applyDayGridKeyboardNavigation }),
+    [registerDayGridCell, applyDayGridKeyboardNavigation],
   );
 
-  return {
-    registerDayGridCell,
-    applyDayGridKeyboardNavigation,
-  };
+  return (
+    <SharedCalendarKeyboardNavigationContext.Provider value={contextValue}>
+      {props.children}
+    </SharedCalendarKeyboardNavigationContext.Provider>
+  );
 }
 
-export namespace useSharedCalendarDayGridNavigation {
-  export interface Parameters {
-    visibleDate: TemporalSupportedObject;
-    setVisibleDate: (visibleDate: TemporalSupportedObject) => void;
-    monthPageSize: number;
-    dateValidationProps: useDateManager.ValidationProps;
+export namespace CalendarKeyboardNavigation {
+  export interface Props {
+    children: React.ReactNode;
   }
-
-  export interface ReturnValue
-    extends Pick<
-      SharedCalendarRootContext,
-      'registerDayGridCell' | 'applyDayGridKeyboardNavigation'
-    > {}
 
   export interface CellRefs {
     cell: React.RefObject<HTMLButtonElement | null>;
@@ -100,7 +95,7 @@ export namespace useSharedCalendarDayGridNavigation {
 
 /* eslint-disable no-bitwise */
 const createSortByDocumentPosition =
-  <T>(getDOMElement: (element: T) => HTMLElement) =>
+  <T extends unknown>(getDOMElement: (element: T) => HTMLElement) =>
   (a: T, b: T) => {
     const aElement = getDOMElement(a);
     const bElement = getDOMElement(b);
@@ -122,7 +117,7 @@ const createSortByDocumentPosition =
 /* eslint-enable no-bitwise */
 
 function getCellsInCalendar(
-  cellsRef: React.RefObject<Map<number, useSharedCalendarDayGridNavigation.CellRefs>>,
+  cellsRef: React.RefObject<Map<number, CalendarKeyboardNavigation.CellRefs>>,
 ) {
   const grids: {
     element: HTMLElement;

@@ -4,7 +4,6 @@ import { useDateManager, validateDate } from '../../utils/temporal/useDateManage
 import { getInitialReferenceDate } from '../../utils/temporal/getInitialReferenceDate';
 import { useTemporalAdapter } from '../../temporal-adapter-provider/TemporalAdapterContext';
 import { useTemporalControlledValue } from '../../utils/temporal/useTemporalControlledValue';
-import { useSharedCalendarDayGridNavigation } from './useSharedCalendarDayGridsNavigation';
 import { SharedCalendarRootContext } from './SharedCalendarRootContext';
 import { SharedCalendarRootVisibleDateContext } from './SharedCalendarRootVisibleDateContext';
 import { useEventCallback } from '../../utils/useEventCallback';
@@ -141,14 +140,6 @@ export function useSharedCalendarRoot<
     }
   }
 
-  const { applyDayGridKeyboardNavigation, registerDayGridCell } =
-    useSharedCalendarDayGridNavigation({
-      visibleDate,
-      setVisibleDate,
-      monthPageSize,
-      dateValidationProps,
-    });
-
   const getDateValidationError = React.useCallback(
     (day: TemporalSupportedObject | null) =>
       validateDate({
@@ -207,8 +198,6 @@ export function useSharedCalendarRoot<
       setVisibleDate: handleVisibleDateChange,
       monthPageSize,
       yearPageSize,
-      applyDayGridKeyboardNavigation,
-      registerDayGridCell,
       registerDayGrid,
       selectDate,
       dateValidationProps,
@@ -223,8 +212,6 @@ export function useSharedCalendarRoot<
       handleVisibleDateChange,
       monthPageSize,
       yearPageSize,
-      applyDayGridKeyboardNavigation,
-      registerDayGridCell,
       registerDayGrid,
       dateValidationProps,
       isDateUnavailable,

@@ -7,12 +7,12 @@ import styles from './calendar.module.css';
 
 const adapter = new TemporalAdapterLuxon();
 
-export default function DayCalendar() {
+export default function CalendarKeyboardNavigation() {
   return (
     <TemporalAdapterProvider adapter={adapter}>
       <Calendar.Root className={styles.Root}>
         {({ visibleDate }) => (
-          <React.Fragment>
+          <Calendar.KeyboardNavigation>
             <header className={styles.Header}>
               <Calendar.SetVisibleMonth
                 target="previous"
@@ -62,7 +62,7 @@ export default function DayCalendar() {
                 }
               </Calendar.DayGridBody>
             </Calendar.DayGrid>
-          </React.Fragment>
+          </Calendar.KeyboardNavigation>
         )}
       </Calendar.Root>
     </TemporalAdapterProvider>
