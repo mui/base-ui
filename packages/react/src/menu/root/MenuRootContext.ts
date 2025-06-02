@@ -7,6 +7,7 @@ import { TransitionStatus } from '../../utils';
 
 export interface MenuRootContext {
   disabled: boolean;
+  setDisabled: React.Dispatch<React.SetStateAction<boolean>>;
   typingRef: React.RefObject<boolean>;
   modal: boolean;
   activeIndex: number | null;
