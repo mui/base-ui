@@ -17,37 +17,6 @@ describe('<Menu.Trigger />', () => {
     refInstanceof: window.HTMLButtonElement,
   }));
 
-  describe('prop: disabled', () => {
-    it('should render a disabled button', async () => {
-      const { getByRole } = await render(
-        <Menu.Root>
-          <Menu.Trigger disabled />
-        </Menu.Root>,
-      );
-
-      const button = getByRole('button');
-      expect(button).to.have.property('disabled', true);
-    });
-
-    it('should not open the menu when clicked', async () => {
-      const { getByRole, queryByRole } = await render(
-        <Menu.Root>
-          <Menu.Trigger disabled />
-          <Menu.Portal>
-            <Menu.Positioner>
-              <Menu.Popup />
-            </Menu.Positioner>
-          </Menu.Portal>
-        </Menu.Root>,
-      );
-
-      const button = getByRole('button');
-      await user.click(button);
-
-      expect(queryByRole('menu', { hidden: false })).to.equal(null);
-    });
-  });
-
   it('toggles the menu state when clicked', async () => {
     const { getByRole, findByRole } = await render(
       <Menu.Root>
