@@ -1,4 +1,4 @@
-export enum MenuPositionerCssVars {
+export enum NavigationMenuPositionerCssVars {
   /**
    * The available width between the trigger and the edge of the viewport.
    * @type {number}
@@ -24,4 +24,14 @@ export enum MenuPositionerCssVars {
    * @type {string}
    */
   transformOrigin = '--transform-origin',
+  /**
+   * The fixed width of the positioner element.
+   * @type {number}
+   */
+  positionerWidth = '--positioner-width',
+  /**
+   * The fixed height of the positioner element.
+   * @type {number}
+   */
+  positionerHeight = '--positioner-height',
 }
