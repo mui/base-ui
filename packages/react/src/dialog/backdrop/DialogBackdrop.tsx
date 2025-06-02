@@ -1,14 +1,12 @@
 'use client';
 import * as React from 'react';
 import { useDialogRootContext } from '../root/DialogRootContext';
-import { mergeProps } from '../../merge-props';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import { useRenderElement } from '../../utils/useRenderElement';
 import { type TransitionStatus } from '../../utils/useTransitionStatus';
 import { type BaseUIComponentProps } from '../../utils/types';
 import { type CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping';
 import { transitionStatusMapping } from '../../utils/styleHookMapping';
-import { useForkRef } from '../../utils/useForkRef';
 
 const customStyleHookMapping: CustomStyleHookMapping<DialogBackdrop.State> = {
   ...baseMapping,
@@ -22,12 +20,11 @@ const customStyleHookMapping: CustomStyleHookMapping<DialogBackdrop.State> = {
  * Documentation: [Base UI Dialog](https://base-ui.com/react/components/dialog)
  */
 export const DialogBackdrop = React.forwardRef(function DialogBackdrop(
-  props: DialogBackdrop.Props,
+  componentProps: DialogBackdrop.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, renderMode = 'root', ...other } = props;
-  const { open, nested, mounted, transitionStatus, backdropRef, nestedOpenDialogCount } =
-    useDialogRootContext();
+  const { render, className, renderMode = 'root', ...elementProps } = componentProps;
+  const { open, nested, mounted, transitionStatus, backdropRef, nestedOpenDialogCount } = useDialogRootContext();
 
   const state: DialogBackdrop.State = React.useMemo(
     () => ({
@@ -36,15 +33,19 @@ export const DialogBackdrop = React.forwardRef(function DialogBackdrop(
     }),
     [open, transitionStatus],
   );
+  
+  let shouldRender = true;
+  if (renderMode === 'root') {
+    shouldRender = !nested;
+  } else if (renderMode === 'leaf') {
+    shouldRender = nestedOpenDialogCount === 0;
+  }
 
-  const mergedRef = useForkRef(backdropRef, forwardedRef);
-
-  const { renderElement } = useComponentRenderer({
-    render: render ?? 'div',
-    className,
+  return useRenderElement('div', componentProps, {
     state,
-    ref: mergedRef,
-    extraProps: mergeProps(
+    ref: [backdropRef, forwardedRef],
+    customStyleHookMapping,
+    props: [
       {
         role: 'presentation',
         hidden: !mounted,
@@ -53,23 +54,10 @@ export const DialogBackdrop = React.forwardRef(function DialogBackdrop(
           WebkitUserSelect: 'none',
         },
       },
-      other,
-    ),
-    customStyleHookMapping,
+      elementProps,
+    ],
+    enabled: shouldRender,
   });
-
-  let shouldRender = true;
-  if (renderMode === 'root') {
-    shouldRender = !nested;
-  } else if (renderMode === 'leaf') {
-    shouldRender = nestedOpenDialogCount === 0;
-  }
-
-  if (!shouldRender) {
-    return null;
-  }
-
-  return renderElement();
 });
 
 export namespace DialogBackdrop {

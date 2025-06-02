@@ -1,14 +1,12 @@
 'use client';
 import * as React from 'react';
 import { useAlertDialogRootContext } from '../root/AlertDialogRootContext';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import { useRenderElement } from '../../utils/useRenderElement';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import type { BaseUIComponentProps } from '../../utils/types';
 import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping';
 import { transitionStatusMapping } from '../../utils/styleHookMapping';
-import { useForkRef } from '../../utils/useForkRef';
-import { mergeProps } from '../../merge-props';
 
 const customStyleHookMapping: CustomStyleHookMapping<AlertDialogBackdrop.State> = {
   ...baseMapping,
@@ -22,12 +20,11 @@ const customStyleHookMapping: CustomStyleHookMapping<AlertDialogBackdrop.State> 
  * Documentation: [Base UI Alert Dialog](https://base-ui.com/react/components/alert-dialog)
  */
 export const AlertDialogBackdrop = React.forwardRef(function AlertDialogBackdrop(
-  props: AlertDialogBackdrop.Props,
+  componentProps: AlertDialogBackdrop.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, renderMode = 'root', ...other } = props;
-  const { open, nested, mounted, transitionStatus, backdropRef, nestedOpenDialogCount } =
-    useAlertDialogRootContext();
+  const { render, className, renderMode = 'root', ...elementProps } = componentProps;
+  const { open, nested, mounted, transitionStatus, backdropRef, nestedOpenDialogCount } = useAlertDialogRootContext();
 
   const state: AlertDialogBackdrop.State = React.useMemo(
     () => ({
@@ -36,15 +33,18 @@ export const AlertDialogBackdrop = React.forwardRef(function AlertDialogBackdrop
     }),
     [open, transitionStatus],
   );
+  
+  let shouldRender = true;
+  if (renderMode === 'root') {
+    shouldRender = !nested;
+  } else if (renderMode === 'leaf') {
+    shouldRender = nestedOpenDialogCount === 0;
+  }
 
-  const mergedRef = useForkRef(backdropRef, forwardedRef);
-
-  const { renderElement } = useComponentRenderer({
-    render: render ?? 'div',
-    className,
+  return useRenderElement('div', componentProps, {
     state,
-    ref: mergedRef,
-    extraProps: mergeProps(
+    ref: [backdropRef, forwardedRef],
+    props: [
       {
         role: 'presentation',
         hidden: !mounted,
@@ -53,23 +53,11 @@ export const AlertDialogBackdrop = React.forwardRef(function AlertDialogBackdrop
           WebkitUserSelect: 'none',
         },
       },
-      other,
-    ),
+      elementProps,
+    ],
     customStyleHookMapping,
+    enabled: shouldRender,
   });
-
-  let shouldRender = true;
-  if (renderMode === 'root') {
-    shouldRender = !nested;
-  } else if (renderMode === 'leaf') {
-    shouldRender = nestedOpenDialogCount === 0;
-  }
-
-  if (!shouldRender) {
-    return null;
-  }
-
-  return renderElement();
 });
 
 export namespace AlertDialogBackdrop {
