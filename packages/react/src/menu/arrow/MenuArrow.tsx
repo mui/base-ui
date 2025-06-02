@@ -2,8 +2,7 @@
 import * as React from 'react';
 import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
 import { useMenuRootContext } from '../root/MenuRootContext';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { useForkRef } from '../../utils/useForkRef';
+import { useRenderElement } from '../../utils/useRenderElement';
 import type { Side, Align } from '../../utils/useAnchorPositioning';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { popupStateMapping } from '../../utils/popupStateMapping';
@@ -15,10 +14,10 @@ import { popupStateMapping } from '../../utils/popupStateMapping';
  * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
  */
 export const MenuArrow = React.forwardRef(function MenuArrow(
-  props: MenuArrow.Props,
+  componentProps: MenuArrow.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { className, render, ...otherProps } = props;
+  const { className, render, ...elementProps } = componentProps;
 
   const { open } = useMenuRootContext();
   const { arrowRef, side, align, arrowUncentered, arrowStyles } = useMenuPositionerContext();
@@ -33,22 +32,16 @@ export const MenuArrow = React.forwardRef(function MenuArrow(
     [open, side, align, arrowUncentered],
   );
 
-  const mergedRef = useForkRef(arrowRef, forwardedRef);
-
-  const { renderElement } = useComponentRenderer({
-    render: render ?? 'div',
-    className,
+  return useRenderElement('div', componentProps, {
+    ref: [arrowRef, forwardedRef],
+    customStyleHookMapping: popupStateMapping,
     state,
-    ref: mergedRef,
-    extraProps: {
+    props: {
       style: arrowStyles,
       'aria-hidden': true,
-      ...otherProps,
+      ...elementProps,
     },
-    customStyleHookMapping: popupStateMapping,
   });
-
-  return renderElement();
 });
 
 export namespace MenuArrow {
