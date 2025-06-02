@@ -511,17 +511,46 @@ describe('<Switch.Root />', () => {
       expect(button).to.have.attribute('aria-invalid', 'true');
     });
 
-    it('Field.Label', async () => {
-      await render(
-        <Field.Root>
-          <Switch.Root data-testid="button" />
-          <Field.Label data-testid="label" />
-        </Field.Root>,
-      );
+    describe('Field.Label', () => {
+      it('implicit association', async () => {
+        await render(
+          <Field.Root>
+            <Field.Label data-testid="label">
+              <Switch.Root data-testid="button" />
+            </Field.Label>
+          </Field.Root>,
+        );
 
-      const button = screen.getByTestId('button');
+        const label = screen.getByTestId('label');
+        expect(label).to.not.have.attribute('for');
 
-      expect(screen.getByTestId('label')).to.have.attribute('for', button.id);
+        const button = screen.getByTestId('button');
+        expect(button).to.have.attribute('aria-checked', 'false');
+
+        fireEvent.click(label);
+        expect(button).to.have.attribute('aria-checked', 'true');
+      });
+
+      it('explicit association', async () => {
+        await render(
+          <Field.Root>
+            <Field.Label data-testid="label" id="MyLabel">
+              Label
+            </Field.Label>
+            <Switch.Root data-testid="button" id="MySwitch" />
+          </Field.Root>,
+        );
+
+        const label = screen.getByTestId('label');
+        expect(label).to.have.attribute('for', 'MySwitch');
+
+        const button = screen.getByTestId('button');
+        expect(button).to.have.attribute('aria-labelledby', 'MyLabel');
+        expect(button).to.have.attribute('aria-checked', 'false');
+
+        fireEvent.click(label);
+        expect(button).to.have.attribute('aria-checked', 'true');
+      });
     });
 
     it('Field.Description', async () => {

@@ -38,7 +38,7 @@ export const FieldRoot = React.forwardRef(function FieldRoot(
 
   const disabled = disabledFieldset || disabledProp;
 
-  const [controlId, setControlId] = React.useState<string | undefined>(undefined);
+  const [controlId, setControlId] = React.useState<string | null | undefined>(undefined);
   const [labelId, setLabelId] = React.useState<string | undefined>(undefined);
   const [messageIds, setMessageIds] = React.useState<string[]>([]);
 
