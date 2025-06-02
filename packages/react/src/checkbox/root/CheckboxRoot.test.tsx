@@ -603,20 +603,44 @@ describe('<Checkbox.Root />', () => {
       expect(button).to.have.attribute('aria-invalid', 'true');
     });
 
-    it('Field.Label', async () => {
-      const { container } = await render(
-        <Field.Root>
-          <Checkbox.Root data-testid="button" />
-          <Field.Description data-testid="description" />
-        </Field.Root>,
-      );
+    describe('Field.Label', () => {
+      it('explicit association', async () => {
+        await render(
+          <Field.Root>
+            <Field.Label id="MyLabel">Label</Field.Label>
+            <Checkbox.Root data-testid="button" id="MyCheckbox" />
+          </Field.Root>,
+        );
 
-      const internalInput = container.querySelector<HTMLInputElement>('input[type="checkbox"]');
+        const label = screen.getByText('Label');
+        expect(label).to.have.attribute('for', 'MyCheckbox');
 
-      expect(internalInput).to.have.attribute(
-        'aria-describedby',
-        screen.getByTestId('description').id,
-      );
+        const button = screen.getByTestId('button');
+        expect(button).to.have.attribute('aria-labelledby', 'MyLabel');
+        expect(button).to.have.attribute('aria-checked', 'false');
+
+        fireEvent.click(label);
+        expect(button).to.have.attribute('aria-checked', 'true');
+      });
+
+      it('implicit association', async () => {
+        await render(
+          <Field.Root>
+            <Field.Label data-testid="label">
+              <Checkbox.Root data-testid="button" />
+            </Field.Label>
+          </Field.Root>,
+        );
+
+        const label = screen.getByTestId('label');
+        expect(label).to.not.have.attribute('for');
+
+        const button = screen.getByTestId('button');
+        expect(button).to.have.attribute('aria-checked', 'false');
+
+        fireEvent.click(label);
+        expect(button).to.have.attribute('aria-checked', 'true');
+      });
     });
 
     it('Field.Description', async () => {
