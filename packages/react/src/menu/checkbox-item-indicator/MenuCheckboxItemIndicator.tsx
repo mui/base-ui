@@ -1,12 +1,11 @@
 'use client';
 import * as React from 'react';
 import { useMenuCheckboxItemContext } from '../checkbox-item/MenuCheckboxItemContext';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import { useRenderElement } from '../../utils/useRenderElement';
 import { BaseUIComponentProps } from '../../utils/types';
 import { itemMapping } from '../utils/styleHookMapping';
 import { TransitionStatus, useTransitionStatus } from '../../utils/useTransitionStatus';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
-import { useForkRef } from '../../utils/useForkRef';
 
 /**
  * Indicates whether the checkbox item is ticked.
@@ -15,15 +14,14 @@ import { useForkRef } from '../../utils/useForkRef';
  * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
  */
 export const MenuCheckboxItemIndicator = React.forwardRef(function MenuCheckboxItemIndicator(
-  props: MenuCheckboxItemIndicator.Props,
+  componentProps: MenuCheckboxItemIndicator.Props,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
-  const { render, className, keepMounted = false, ...other } = props;
+  const { render, className, keepMounted = false, ...elementProps } = componentProps;
 
   const item = useMenuCheckboxItemContext();
 
   const indicatorRef = React.useRef<HTMLSpanElement | null>(null);
-  const mergedRef = useForkRef(forwardedRef, indicatorRef);
 
   const { transitionStatus, setMounted } = useTransitionStatus(item.checked);
 
@@ -47,24 +45,18 @@ export const MenuCheckboxItemIndicator = React.forwardRef(function MenuCheckboxI
     [item.checked, item.disabled, item.highlighted, transitionStatus],
   );
 
-  const { renderElement } = useComponentRenderer({
-    render: render || 'span',
-    className,
+  const element = useRenderElement('span', componentProps, {
     state,
+    ref: [forwardedRef, indicatorRef],
     customStyleHookMapping: itemMapping,
-    extraProps: {
+    props: {
       'aria-hidden': true,
-      ...other,
+      ...elementProps,
     },
-    ref: mergedRef,
+    enabled: keepMounted || item.checked,
   });
 
-  const shouldRender = keepMounted || item.checked;
-  if (!shouldRender) {
-    return null;
-  }
-
-  return renderElement();
+  return element;
 });
 
 export namespace MenuCheckboxItemIndicator {
