@@ -93,7 +93,13 @@ export namespace useTemporalControlledValue {
      */
     referenceDate: TemporalSupportedObject | undefined;
     onChange: TChange | undefined;
+    /**
+     * The manager used to manipulate the value.
+     */
     manager: TemporalManager<TValue, any, any>;
+    /**
+     * The component name displayed in warnings.
+     */
     name: string;
   }
 

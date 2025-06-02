@@ -37,6 +37,9 @@ export type TemporalNonRangeValue = TemporalSupportedObject | null;
  */
 export type TemporalRangeValue = [TemporalSupportedObject | null, TemporalSupportedObject | null];
 
+/**
+ * The type that the `value` and `defaultValue` props can receive on all temporal components.
+ */
 export type TemporalSupportedValue = TemporalNonRangeValue | TemporalRangeValue;
 
 export type TemporalNonNullableRangeValue = [TemporalSupportedObject, TemporalSupportedObject];

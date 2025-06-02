@@ -31,7 +31,7 @@ export function getInitialReferenceDate(
     adapter,
     timezone,
     precision,
-    controlledDate,
+    externalDate: controlledDate,
     referenceDate: inReferenceDate = null,
     validationProps: { minDate, maxDate, minTime, maxTime },
   } = parameters;
@@ -73,12 +73,32 @@ export function getInitialReferenceDate(
 
 export namespace getInitialReferenceDate {
   export interface Parameters {
-    validationProps: ValidationProps;
+    /**
+     * The adapter used to manipulate the date.
+     */
     adapter: TemporalAdapter;
-    controlledDate: TemporalSupportedObject | null;
+    /**
+     * The date provided by the user, if any.
+     * If the component is a range component, this will be the start date if defined or the end date otherwise.
+     */
+    externalDate: TemporalSupportedObject | null;
+    /**
+     * The reference date provided by the user, if any.
+     */
     referenceDate?: TemporalSupportedObject | undefined;
+    /**
+     * The precision of the reference date to create.
+     * For example, a Calendar will use "day" but a Time Field with the format "hh:mm" will use "minute".
+     */
     precision: Precision;
+    /**
+     * The timezone the reference date should be in.
+     */
     timezone: TemporalTimezone;
+    /**
+     * The props used to validate the date, time or date-time object.
+     */
+    validationProps: ValidationProps;
   }
 
   export interface ValidationProps {

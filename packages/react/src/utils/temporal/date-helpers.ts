@@ -70,8 +70,8 @@ export function applyDefaultDate(
   date: TemporalSupportedObject | null | undefined,
   defaultDate: TemporalSupportedObject,
 ): TemporalSupportedObject {
-  if (adapter.isValid(date ?? null)) {
-    return date!;
+  if (date == null || !adapter.isValid(date)) {
+    return defaultDate;
   }
 
   return defaultDate;

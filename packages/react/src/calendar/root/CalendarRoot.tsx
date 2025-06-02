@@ -1,7 +1,6 @@
 'use client';
 import * as React from 'react';
 import { TemporalNonRangeValue } from '../../models';
-import { validateDate } from '../../utils/temporal/validateDate';
 import { SharedCalendarRootContext } from './SharedCalendarRootContext';
 import { useSharedCalendarRoot } from './useSharedCalendarRoot';
 import { SharedCalendarRootVisibleDateContext } from './SharedCalendarRootVisibleDateContext';
@@ -142,8 +141,8 @@ export namespace CalendarRoot {
         BaseUIComponentProps<'div', State>,
         'value' | 'defaultValue' | 'onError' | 'children'
       >,
-      useSharedCalendarRoot.PublicParameters<TemporalNonRangeValue, validateDate.Error>,
-      Partial<validateDate.ValidationProps> {
+      useSharedCalendarRoot.PublicParameters<TemporalNonRangeValue, useDateManager.Error>,
+      Partial<useDateManager.ValidationProps> {
     /**
      * The children of the component.
      * If a function is provided, it will be called with the public context as its parameter.
@@ -152,5 +151,5 @@ export namespace CalendarRoot {
   }
 
   export interface ValueChangeHandlerContext
-    extends useSharedCalendarRoot.ValueChangeHandlerContext<validateDate.Error> {}
+    extends useSharedCalendarRoot.ValueChangeHandlerContext<useDateManager.Error> {}
 }

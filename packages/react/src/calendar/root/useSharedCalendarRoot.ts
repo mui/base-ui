@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { TemporalSupportedObject, TemporalSupportedValue } from '../../models';
-import { validateDate } from '../../utils/temporal/validateDate';
+import { useDateManager, validateDate } from '../../utils/temporal/useDateManager';
 import { getInitialReferenceDate } from '../../utils/temporal/getInitialReferenceDate';
 import { useTemporalAdapter } from '../../temporal-adapter-provider/TemporalAdapterContext';
 import { useTemporalControlledValue } from '../../utils/temporal/useTemporalControlledValue';
@@ -83,7 +83,7 @@ export function useSharedCalendarRoot<
       return getInitialReferenceDate({
         adapter,
         timezone,
-        controlledDate: getDateToUseForReferenceDate(value),
+        externalDate: getDateToUseForReferenceDate(value),
         validationProps: dateValidationProps,
         referenceDate: referenceDateProp,
         precision: 'day',
@@ -131,6 +131,15 @@ export function useSharedCalendarRoot<
       setVisibleDate(newVisibleDate);
     },
   );
+
+  const [prevValue, setPrevValue] = React.useState<TValue>(value);
+  if (value !== prevValue) {
+    setPrevValue(value);
+    const activeDate = getActiveDateFromValue(value);
+    if (adapter.isValid(activeDate)) {
+      handleVisibleDateChange(activeDate, true);
+    }
+  }
 
   const { applyDayGridKeyboardNavigation, registerDayGridCell } =
     useSharedCalendarDayGridNavigation({
@@ -225,13 +234,10 @@ export function useSharedCalendarRoot<
 
   return {
     value,
-    referenceDate,
-    setValue,
+    state,
     setVisibleDate,
-    isDateCellVisible,
     context,
     visibleDateContext,
-    state,
   };
 }
 
@@ -326,7 +332,7 @@ export namespace useSharedCalendarRoot {
     /**
      * The props used to validate a single date.
      */
-    dateValidationProps: validateDate.ValidationProps;
+    dateValidationProps: useDateManager.ValidationProps;
     /**
      * The props used to validate the value.
      */
@@ -335,13 +341,10 @@ export namespace useSharedCalendarRoot {
 
   export interface ReturnValue<TValue extends TemporalSupportedValue> {
     value: TValue;
-    referenceDate: TemporalSupportedObject;
-    setValue: (newValue: TValue) => void;
     setVisibleDate: (
       newVisibleDate: TemporalSupportedObject,
       skipIfAlreadyVisible: boolean,
     ) => void;
-    isDateCellVisible: (date: TemporalSupportedObject) => boolean;
     context: SharedCalendarRootContext;
     visibleDateContext: SharedCalendarRootVisibleDateContext;
     state: useSharedCalendarRoot.State;

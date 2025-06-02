@@ -2,7 +2,7 @@ import * as React from 'react';
 import { useTimeout } from '../../utils/useTimeout';
 import { TemporalSupportedObject } from '../../models';
 import { useTemporalAdapter } from '../../temporal-adapter-provider/TemporalAdapterContext';
-import { validateDate } from '../../utils/temporal/validateDate';
+import { useDateManager } from '../../utils/temporal/useDateManager';
 import {
   applyInitialFocusInGrid,
   navigateInGrid,
@@ -86,7 +86,7 @@ export namespace useSharedCalendarDayGridNavigation {
     visibleDate: TemporalSupportedObject;
     setVisibleDate: (visibleDate: TemporalSupportedObject) => void;
     monthPageSize: number;
-    dateValidationProps: validateDate.ValidationProps;
+    dateValidationProps: useDateManager.ValidationProps;
   }
 
   export interface ReturnValue

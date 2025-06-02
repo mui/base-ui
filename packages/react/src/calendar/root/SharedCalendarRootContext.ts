@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { TemporalSupportedObject } from '../../models';
 import { useSharedCalendarDayGridNavigation } from './useSharedCalendarDayGridsNavigation';
-import { validateDate } from '../../utils/temporal/validateDate';
+import { useDateManager, validateDate } from '../../utils/temporal/useDateManager';
 
 export interface SharedCalendarRootContext {
   /**
@@ -25,12 +25,12 @@ export interface SharedCalendarRootContext {
   /**
    * Returns the validation error of the given date.
    */
-  getDateValidationError: (date: TemporalSupportedObject) => validateDate.Error;
+  getDateValidationError: (date: TemporalSupportedObject) => useDateManager.Error;
   /**
    * The props to check if a date is valid or not.
    * Warning: Even when used inside the RangeCalendar component, this is still equal to the validation props for a single date.
    */
-  dateValidationProps: validateDate.ValidationProps;
+  dateValidationProps: useDateManager.ValidationProps;
   /**
    * Mark specific dates as unavailable.
    * Those dates will not be selectable but they will still be focusable with the keyboard.
