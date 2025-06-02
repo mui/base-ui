@@ -7,8 +7,12 @@ const NOOP = () => {};
 
 export interface FieldRootContext {
   invalid: boolean | undefined;
-  controlId: string | undefined;
-  setControlId: React.Dispatch<React.SetStateAction<string | undefined>>;
+  /**
+   * The `id` attribute of the labelable element.
+   * When `null` the association is implicit.
+   */
+  controlId: string | null | undefined;
+  setControlId: React.Dispatch<React.SetStateAction<string | null | undefined>>;
   labelId: string | undefined;
   setLabelId: React.Dispatch<React.SetStateAction<string | undefined>>;
   messageIds: string[];

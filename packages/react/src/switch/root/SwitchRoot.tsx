@@ -72,11 +72,11 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
   const id = useBaseUiId(idProp);
 
   useModernLayoutEffect(() => {
-    setControlId(id);
+    setControlId(idProp ?? null);
     return () => {
       setControlId(undefined);
     };
-  }, [id, setControlId]);
+  }, [idProp, setControlId]);
 
   const inputRef = React.useRef<HTMLInputElement>(null);
   const handleInputRef = useForkRef(inputRef, externalInputRef, inputValidationRef);
@@ -111,7 +111,7 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
 
   const rootProps: React.ComponentPropsWithRef<'button'> = React.useMemo(
     () => ({
-      id,
+      id: idProp,
       role: 'switch',
       disabled,
       'aria-checked': checked,
@@ -142,7 +142,7 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
       },
     }),
     [
-      id,
+      idProp,
       disabled,
       checked,
       readOnly,
