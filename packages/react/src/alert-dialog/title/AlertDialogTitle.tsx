@@ -1,8 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useAlertDialogRootContext } from '../root/AlertDialogRootContext';
-import { mergeProps } from '../../merge-props';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import { useRenderElement } from '../../utils/useRenderElement';
 import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import type { BaseUIComponentProps } from '../../utils/types';
@@ -16,10 +15,10 @@ const state = {};
  * Documentation: [Base UI Alert Dialog](https://base-ui.com/react/components/alert-dialog)
  */
 export const AlertDialogTitle = React.forwardRef(function AlertDialogTitle(
-  props: AlertDialogTitle.Props,
+  componentProps: AlertDialogTitle.Props,
   forwardedRef: React.ForwardedRef<HTMLParagraphElement>,
 ) {
-  const { render, className, id: idProp, ...other } = props;
+  const { render, className, id: idProp, ...elementProps } = componentProps;
   const { setTitleElementId } = useAlertDialogRootContext();
 
   const id = useBaseUiId(idProp);
@@ -31,27 +30,11 @@ export const AlertDialogTitle = React.forwardRef(function AlertDialogTitle(
     };
   }, [id, setTitleElementId]);
 
-  const getProps = React.useCallback(
-    (externalProps = {}) =>
-      mergeProps(
-        {
-          id,
-        },
-        externalProps,
-      ),
-    [id],
-  );
-
-  const { renderElement } = useComponentRenderer({
-    propGetter: getProps,
-    render: render ?? 'h2',
-    className,
+  return useRenderElement('h2', componentProps, {
     state,
     ref: forwardedRef,
-    extraProps: other,
+    props: [elementProps, { id }],
   });
-
-  return renderElement();
 });
 
 export namespace AlertDialogTitle {
