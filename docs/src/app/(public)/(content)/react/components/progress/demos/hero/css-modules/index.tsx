@@ -7,7 +7,7 @@ export default function ExampleProgress() {
 
   // Simulate changes
   React.useEffect(() => {
-    const interval = window.setInterval(() => {
+    const interval = setInterval(() => {
       setValue((current) => Math.min(100, Math.round(current + Math.random() * 25)));
     }, 1000);
     return () => clearInterval(interval);
