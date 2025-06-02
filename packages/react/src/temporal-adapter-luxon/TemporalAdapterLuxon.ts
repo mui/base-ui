@@ -3,60 +3,12 @@
 import { DateTime, Info } from 'luxon';
 import {
   TemporalAdapterFormats,
-  TemporalAdapterParameters,
   DateBuilderReturnType,
   TemporalTimezone,
-  TemporalTokenMap,
   TemporalAdapter,
 } from '../models';
 
-const tokenMap: TemporalTokenMap = {
-  // Year
-  y: { sectionType: 'year', contentType: 'digit', maxLength: 4 },
-  yy: { sectionType: 'year', contentType: 'digit' },
-  yyyy: { sectionType: 'year', contentType: 'digit', maxLength: 4 },
-
-  // Month
-  L: { sectionType: 'month', contentType: 'digit', maxLength: 2 },
-  LL: { sectionType: 'month', contentType: 'digit' },
-  LLL: { sectionType: 'month', contentType: 'letter' },
-  LLLL: { sectionType: 'month', contentType: 'letter' },
-  M: { sectionType: 'month', contentType: 'digit', maxLength: 2 },
-  MM: { sectionType: 'month', contentType: 'digit' },
-  MMM: { sectionType: 'month', contentType: 'letter' },
-  MMMM: { sectionType: 'month', contentType: 'letter' },
-
-  // Day of the month
-  d: { sectionType: 'day', contentType: 'digit', maxLength: 2 },
-  dd: { sectionType: 'day', contentType: 'digit' },
-
-  // Day of the week
-  c: { sectionType: 'weekDay', contentType: 'digit', maxLength: 1 },
-  ccc: { sectionType: 'weekDay', contentType: 'letter' },
-  cccc: { sectionType: 'weekDay', contentType: 'letter' },
-  E: { sectionType: 'weekDay', contentType: 'digit', maxLength: 2 },
-  EEE: { sectionType: 'weekDay', contentType: 'letter' },
-  EEEE: { sectionType: 'weekDay', contentType: 'letter' },
-
-  // Meridiem
-  a: { sectionType: 'meridiem', contentType: 'letter' },
-
-  // Hours
-  H: { sectionType: 'hours', contentType: 'digit', maxLength: 2 },
-  HH: { sectionType: 'hours', contentType: 'digit' },
-  h: { sectionType: 'hours', contentType: 'digit', maxLength: 2 },
-  hh: { sectionType: 'hours', contentType: 'digit' },
-
-  // Minutes
-  m: { sectionType: 'minutes', contentType: 'digit', maxLength: 2 },
-  mm: { sectionType: 'minutes', contentType: 'digit' },
-
-  // Seconds
-  s: { sectionType: 'seconds', contentType: 'digit', maxLength: 2 },
-  ss: { sectionType: 'seconds', contentType: 'digit' },
-};
-
-const defaultFormats: TemporalAdapterFormats = {
+const FORMATS: TemporalAdapterFormats = {
   year: 'yyyy',
   monthLeadingZeros: 'MM',
   dayOfMonth: 'dd',
@@ -101,22 +53,19 @@ declare module '@base-ui-components/react/models' {
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-export class TemporalAdapterLuxon implements TemporalAdapter<string> {
+export class TemporalAdapterLuxon implements TemporalAdapter {
   public isTimezoneCompatible = true;
 
   public lib = 'luxon';
 
-  public locale: string;
+  private locale: string;
 
-  public formats: TemporalAdapterFormats;
+  public formats: TemporalAdapterFormats = FORMATS;
 
   public escapedCharacters = { start: "'", end: "'" };
 
-  public formatTokenMap = tokenMap;
-
-  constructor({ locale, formats }: TemporalAdapterParameters<string, never> = {}) {
+  constructor({ locale }: TemporalAdapterLuxon.ConstructorParameters = {}) {
     this.locale = locale || 'en-US';
-    this.formats = { ...defaultFormats, ...formats };
   }
 
   private setLocaleToValue = (value: DateTime) => {
@@ -128,25 +77,23 @@ export class TemporalAdapterLuxon implements TemporalAdapter<string> {
     return value.setLocale(expectedLocale);
   };
 
-  public date = <T extends string | null | undefined>(
-    value?: T,
-    timezone: TemporalTimezone = 'default',
+  public now = (timezone: TemporalTimezone) => {
+    // @ts-ignore
+    return DateTime.fromJSDate(new Date(), { locale: this.locale, zone: timezone });
+  };
+
+  public date = <T extends string | null>(
+    value: T,
+    timezone: TemporalTimezone,
   ): DateBuilderReturnType<T> => {
     type R = DateBuilderReturnType<T>;
     if (value === null) {
       return <R>null;
     }
 
-    if (typeof value === 'undefined') {
-      // @ts-ignore
-      return <R>DateTime.fromJSDate(new Date(), { locale: this.locale, zone: timezone });
-    }
-
     // @ts-ignore
     return <R>DateTime.fromISO(value, { locale: this.locale, zone: timezone });
   };
-
-  public getInvalidDate = () => DateTime.fromJSDate(new Date('Invalid Date'));
 
   public getTimezone = (value: DateTime): string => {
     // When using the system zone, we want to return "system", not something like "Europe/Paris"
@@ -192,43 +139,6 @@ export class TemporalAdapterLuxon implements TemporalAdapter<string> {
     );
   };
   /* v8 ignore stop */
-
-  public expandFormat = (format: string) => {
-    // Extract escaped section to avoid extending them
-    const catchEscapedSectionsRegexp = /''|'(''|[^'])+('|$)|[^']*/g;
-
-    // This RegExp tests if a string is only mad of supported tokens
-    const validTokens = [...Object.keys(this.formatTokenMap), 'yyyyy'];
-    const isWordComposedOfTokens = new RegExp(`^(${validTokens.join('|')})+$`);
-
-    // Extract words to test if they are a token or a word to escape.
-    const catchWordsRegexp = /(?:^|[^a-z])([a-z]+)(?:[^a-z]|$)|([a-z]+)/gi;
-    return (
-      format
-        .match(catchEscapedSectionsRegexp)!
-        .map((token: string) => {
-          const firstCharacter = token[0];
-          if (firstCharacter === "'") {
-            return token;
-          }
-          const expandedToken = DateTime.expandFormat(token, { locale: this.locale });
-
-          return expandedToken.replace(catchWordsRegexp, (substring, g1, g2) => {
-            const word = g1 || g2; // words are either in group 1 or group 2
-
-            if (isWordComposedOfTokens.test(word)) {
-              return substring;
-            }
-            return `'${substring}'`;
-          });
-        })
-        .join('')
-        // The returned format can contain `yyyyy` which means year between 4 and 6 digits.
-        // This value is supported by luxon parser but not luxon formatter.
-        // To avoid conflicts, we replace it by 4 digits which is enough for most use-cases.
-        .replace('yyyyy', 'yyyy')
-    );
-  };
 
   public isValid = (value: DateTime | null): value is DateTime => {
     if (value === null) {
@@ -316,9 +226,9 @@ export class TemporalAdapterLuxon implements TemporalAdapter<string> {
 
   public isWithinRange = (value: DateTime, [start, end]: [DateTime, DateTime]) => {
     return (
+      (this.isAfter(value, start) && this.isBefore(value, end)) ||
       this.isEqual(value, start) ||
-      this.isEqual(value, end) ||
-      (this.isAfter(value, start) && this.isBefore(value, end))
+      this.isEqual(value, end)
     );
   };
 
@@ -475,4 +385,14 @@ export class TemporalAdapterLuxon implements TemporalAdapter<string> {
   public getDayOfWeek = (value: DateTime) => {
     return value.weekday;
   };
+}
+
+export namespace TemporalAdapterLuxon {
+  export interface ConstructorParameters {
+    /**
+     * The locale to use for formatting and parsing dates.
+     * @default 'en-US'
+     */
+    locale?: string;
+  }
 }

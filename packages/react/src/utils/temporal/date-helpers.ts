@@ -5,7 +5,7 @@ export function getCurrentDate(
   timezone: TemporalTimezone,
   shouldRemoveTime: boolean,
 ): TemporalSupportedObject {
-  const today = adapter.date(undefined, timezone);
+  const today = adapter.now(timezone);
 
   if (shouldRemoveTime) {
     return adapter.startOfDay(today);

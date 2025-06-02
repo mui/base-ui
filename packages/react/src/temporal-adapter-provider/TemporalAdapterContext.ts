@@ -3,7 +3,7 @@ import * as React from 'react';
 import { TemporalAdapter } from '../models/temporal-adapter';
 
 export type TemporalAdapterContext = {
-  adapter: TemporalAdapter<any>;
+  adapter: TemporalAdapter;
 };
 
 /**

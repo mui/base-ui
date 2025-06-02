@@ -1,4 +1,4 @@
-import { TemporalTimezone, TemporalSupportedValue, TemporalValueType } from '../../models/temporal';
+import { TemporalTimezone, TemporalSupportedValue } from '../../models/temporal';
 
 export interface TemporalTimezoneProps {
   /**
@@ -31,10 +31,6 @@ export interface TemporalManager<
   TError,
   TValidationProps extends {},
 > {
-  /**
-   * Type of the value (e.g. 'date', 'date-time', 'time').
-   */
-  valueType: TemporalValueType;
   /**
    * Value to set when emptying the component.
    */

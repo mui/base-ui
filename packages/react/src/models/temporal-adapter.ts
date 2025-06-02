@@ -1,9 +1,4 @@
-import {
-  TemporalTimezone,
-  TemporalSupportedObject,
-  TemporalSectionType,
-  TemporalSectionContentType,
-} from './temporal';
+import { TemporalTimezone, TemporalSupportedObject } from './temporal';
 
 export interface TemporalAdapterFormats {
   /**
@@ -63,32 +58,13 @@ export interface TemporalAdapterFormats {
   secondsLeadingZeros: string;
 }
 
-export type TemporalTokenMap = {
-  [formatToken: string]: {
-    sectionType: TemporalSectionType;
-    contentType: TemporalSectionContentType;
-    maxLength?: number;
-  };
-};
-
-// https://www.zhenghao.io/posts/ts-never#how-to-check-for-never
-type PropertyIfNotNever<PName extends string, PType> = [PType] extends [never]
-  ? {}
-  : { [P in PName]?: PType };
-
-export type TemporalAdapterParameters<TLocale, TInstance> = {
-  formats?: Partial<TemporalAdapterFormats>;
-  locale?: TLocale;
-} & PropertyIfNotNever<'instance', TInstance>;
-
-export type DateBuilderReturnType<T extends string | null | undefined> = [T] extends [null]
+export type DateBuilderReturnType<T extends string | null> = [T] extends [null]
   ? null
   : TemporalSupportedObject;
 
-export interface TemporalAdapter<TLocale = any> {
+export interface TemporalAdapter {
   isTimezoneCompatible: boolean;
   formats: TemporalAdapterFormats;
-  locale?: TLocale;
   /**
    * Name of the library that is used right now
    */
@@ -98,18 +74,13 @@ export interface TemporalAdapter<TLocale = any> {
    */
   escapedCharacters: { start: string; end: string };
   /**
-   * Map containing all the format that the field components can understand.
-   */
-  formatTokenMap: TemporalTokenMap;
-  /**
    * Creates a date in the date library format.
-   * If no `value` parameter is provided, creates a date with the current timestamp.
-   * If a `value` parameter is provided, pass it to the date library to try to parse it.
    */
-  date<T extends string | null | undefined>(
-    value?: T,
-    timezone?: TemporalTimezone,
-  ): DateBuilderReturnType<T>;
+  date<T extends string | null>(value: T, timezone: TemporalTimezone): DateBuilderReturnType<T>;
+  /**
+   * Creates a date in the date library format for the current time.
+   */
+  now(timezone: TemporalTimezone): TemporalSupportedObject;
   /**
    * Extracts the timezone from a date.
    */
@@ -134,10 +105,6 @@ export interface TemporalAdapter<TLocale = any> {
    * Checks if the current locale is using 12 hours cycle (i.e: time with meridiem).
    */
   is12HourCycleInCurrentLocale(): boolean;
-  /**
-   * Creates a format with no meta-token (for example: `LLL` or `PP`).
-   */
-  expandFormat(format: string): string;
   /**
    * Checks if the date is valid.
    */

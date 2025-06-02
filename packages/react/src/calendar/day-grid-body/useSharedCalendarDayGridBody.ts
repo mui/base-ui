@@ -84,7 +84,7 @@ export function useSharedCalendarDayGridBody(
     return children;
   }, [children, weeks]);
 
-  const props: React.ButtonHTMLAttributes<HTMLButtonElement> = {
+  const props: HTMLProps = {
     role: 'rowgroup',
     children: resolvedChildren,
     onKeyDown: applyDayGridKeyboardNavigation,
@@ -131,7 +131,7 @@ export namespace useSharedCalendarDayGridBody {
     /**
      * The props to apply to the element.
      */
-    props: React.ButtonHTMLAttributes<HTMLButtonElement>;
+    props: HTMLProps;
     // TODO: Use Composite instead.
     /**
      * The ref of each row rendered inside the component.

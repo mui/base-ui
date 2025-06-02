@@ -1,3 +1,15 @@
+/**
+ * Lookup in which each date library can register its supported date object type.
+ *
+ * ```
+ * // Example taken from the TemporalAdapterLuxon.ts file.
+ * declare module '@base-ui-components/react/models' {
+ *   interface TemporalSupportedObjectLookup {
+ *     luxon: DateTime;
+ *   }
+ * }
+ * ```
+ */
 export interface TemporalSupportedObjectLookup {}
 
 /**
@@ -11,21 +23,6 @@ export type TemporalSupportedObject = keyof TemporalSupportedObjectLookup extend
  * The valid value for the timezone argument in components and utilities that deal with dates and times.
  */
 export type TemporalTimezone = 'default' | 'system' | 'UTC' | string;
-
-export type TemporalValueType = 'date' | 'time' | 'date-time';
-
-export type TemporalSectionContentType = 'digit' | 'digit-with-letter' | 'letter';
-
-export type TemporalSectionType =
-  | 'year'
-  | 'month'
-  | 'day'
-  | 'weekDay'
-  | 'hours'
-  | 'minutes'
-  | 'seconds'
-  | 'meridiem'
-  | 'empty';
 
 /**
  * The type that the `value` and `defaultValue` props can receive on non-range date and time components (date, time and date-time).

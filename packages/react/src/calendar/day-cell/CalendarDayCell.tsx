@@ -14,8 +14,8 @@ const customStyleHookMapping: CustomStyleHookMapping<CalendarDayCell.State> = {
   disabled(value) {
     return value ? { [CalendarDayCellDataAttributes.disabled]: '' } : null;
   },
-  invalid(value) {
-    return value ? { [CalendarDayCellDataAttributes.invalid]: '' } : null;
+  unavailable(value) {
+    return value ? { [CalendarDayCellDataAttributes.unavailable]: '' } : null;
   },
   current(value) {
     return value ? { [CalendarDayCellDataAttributes.current]: '' } : null;

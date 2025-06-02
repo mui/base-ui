@@ -31,7 +31,10 @@ export function useSharedCalendarDayCellWrapper(
     [selectedDates, value, adapter],
   );
 
-  const isCurrent = React.useMemo(() => adapter.isSameDay(value, adapter.date()), [adapter, value]);
+  const isCurrent = React.useMemo(
+    () => adapter.isSameDay(value, adapter.now(adapter.getTimezone(value))),
+    [adapter, value],
+  );
 
   const isStartOfWeek = React.useMemo(
     () => adapter.isSameDay(value, adapter.startOfWeek(value)),

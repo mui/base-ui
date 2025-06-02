@@ -63,8 +63,16 @@ export function useApplyDefaultValuesToDateValidationProps(
   // TODO: Decide what we want to do with the default min and max dates.
   return React.useMemo(
     () => ({
-      minDate: applyDefaultDate(adapter, props.minDate, adapter.date('1900-01-01T00:00:00.000')),
-      maxDate: applyDefaultDate(adapter, props.maxDate, adapter.date('2099-12-31T00:00:00.000')),
+      minDate: applyDefaultDate(
+        adapter,
+        props.minDate,
+        adapter.date('1900-01-01T00:00:00.000', 'default'),
+      ),
+      maxDate: applyDefaultDate(
+        adapter,
+        props.maxDate,
+        adapter.date('2099-12-31T00:00:00.000', 'default'),
+      ),
     }),
     [adapter, props.minDate, props.maxDate],
   );

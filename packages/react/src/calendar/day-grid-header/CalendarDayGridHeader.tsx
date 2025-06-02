@@ -16,7 +16,7 @@ const CalendarDayGridHeader = React.forwardRef(function CalendarDayGridHeader(
 
   const getDayList = useDayList();
   const days = React.useMemo(
-    () => getDayList({ date: adapter.startOfWeek(adapter.date()), amount: 7 }),
+    () => getDayList({ date: adapter.startOfWeek(adapter.now('default')), amount: 7 }),
     [adapter, getDayList],
   );
 
