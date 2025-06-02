@@ -1,0 +1,104 @@
+{
+  "name": "CalendarRoot",
+  "props": {
+    "defaultValue": {
+      "type": "TemporalNonRangeValue",
+      "description": "The uncontrolled value that should be initially selected.\nTo render a controlled (Range)Calendar, use the `value` prop instead."
+    },
+    "value": {
+      "type": "TemporalNonRangeValue",
+      "description": "The controlled value that should be selected.\nTo render an uncontrolled (Range)Calendar, use the `defaultValue` prop instead."
+    },
+    "onValueChange": {
+      "type": "((value: TemporalNonRangeValue, context: useSharedCalendarRoot.ValueChangeHandlerContext) => void)",
+      "description": "Event handler called when the selected value changes.\nProvides the new value as an argument."
+    },
+    "defaultVisibleDate": {
+      "type": "DateTime<boolean>",
+      "description": "The date used to decide which month should be initially displayed in the Days Grid and which year should be initially displayed in the Months List and Months Grid.\nTo render a controlled (Range)Calendar, use the `visibleDate` prop instead."
+    },
+    "isDateUnavailable": {
+      "type": "((day: DateTime<boolean>) => boolean)",
+      "description": "Mark specific dates as unavailable.\nThose dates will not be selectable but they will still be focusable with the keyboard."
+    },
+    "maxDate": {
+      "type": "DateTime<boolean>",
+      "default": "2099-12-31",
+      "description": "Maximal selectable date."
+    },
+    "minDate": {
+      "type": "DateTime<boolean>",
+      "default": "1900-01-01",
+      "description": "Minimal selectable date."
+    },
+    "monthPageSize": {
+      "type": "number",
+      "default": "1",
+      "description": "The amount of months to navigate by when pressing <(Range)Calendar.SetVisibleMonth /> or when using keyboard navigation in the day grid.\nThis is mostly useful when displaying multiple day grids."
+    },
+    "onVisibleDateChange": {
+      "type": "((visibleDate: DateTime<boolean>) => void)",
+      "description": "Event handler called when the visible date changes.\nProvides the new visible date as an argument."
+    },
+    "referenceDate": {
+      "type": "DateTime<boolean>",
+      "default": "The closest valid date using the validation props.",
+      "description": "The date used to generate the new value when both `value` and `defaultValue` are empty."
+    },
+    "timezone": {
+      "type": "string",
+      "default": "The timezone of the `value` or `defaultValue` prop is defined, 'default' otherwise.",
+      "description": "Choose which timezone to use for the value.\nExample: \"default\", \"system\", \"UTC\", \"America/New_York\".\nIf you pass values from other timezones to some props, they will be converted to this timezone before being used."
+    },
+    "visibleDate": {
+      "type": "DateTime<boolean>",
+      "description": "The date used to decide which month should be displayed in the Days Grid and which year should be displayed in the Months List and Months Grid.\nTo render an uncontrolled (Range)Calendar, use the `defaultVisibleDate` prop instead."
+    },
+    "yearPageSize": {
+      "type": "number",
+      "default": "1",
+      "description": "The amount of months to navigate by when pressing <(Range)Calendar.SetVisibleYear /> or when using keyboard navigation in the month grid or the month list.\nThis is mostly useful when displaying multiple month grids or month lists."
+    },
+    "disabled": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Whether the component should ignore user interaction."
+    },
+    "readOnly": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Whether the user should be unable to select a date in the calendar."
+    },
+    "invalid": {
+      "type": "boolean",
+      "description": "Whether the calendar is forcefully marked as invalid."
+    },
+    "children": {
+      "type": "ReactNode | ((parameters: CalendarContext) => ReactNode)",
+      "description": "The children of the component.\nIf a function is provided, it will be called with the public context as its parameter."
+    },
+    "className": {
+      "type": "string | ((state: Calendar.Root.State) => string)",
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
+    },
+    "render": {
+      "type": "ReactElement | ((props: HTMLProps, state: Calendar.Root.State) => ReactElement)",
+      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
+    }
+  },
+  "dataAttributes": {
+    "data-disabled": {
+      "description": "Present when the calendar is disabled."
+    },
+    "data-readonly": {
+      "description": "Present when the calendar is readonly."
+    },
+    "data-invalid": {
+      "description": "Present when the selected date is invalid."
+    },
+    "data-empty": {
+      "description": "Present when no date is selected."
+    }
+  },
+  "cssVariables": {}
+}

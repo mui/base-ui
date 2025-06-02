@@ -1,0 +1,11 @@
+{
+  "name": "CalendarKeyboardNavigation",
+  "props": {
+    "children": {
+      "type": "ReactNode",
+      "required": true
+    }
+  },
+  "dataAttributes": {},
+  "cssVariables": {}
+}
