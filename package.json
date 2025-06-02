@@ -78,7 +78,7 @@
     "@mui/internal-markdown": "^2.0.4",
     "@mui/internal-scripts": "^2.0.7",
     "@mui/internal-test-utils": "^2.0.7",
-    "@mui/monorepo": "github:mui/material-ui#v7.0.2",
+    "@mui/monorepo": "github:mui/material-ui#v7.1.0",
     "@next/eslint-plugin-next": "^15.3.3",
     "@octokit/rest": "^21.1.1",
     "@playwright/test": "1.52.0",
