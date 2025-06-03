@@ -21,12 +21,16 @@ function Header() {
         >
           ◀
         </Calendar.SetVisibleMonth>
-        <span>{visibleDate.toFormat('MMMM yyyy')}</span>
+        <span className={styles.HeaderLabel}>
+          {visibleDate.toFormat('MMMM yyyy')}
+        </span>
         <span />
       </div>
       <div className={styles.HeaderPanel}>
         <span />
-        <span>{visibleDate.plus({ month: 1 }).toFormat('MMMM yyyy')}</span>
+        <span className={styles.HeaderLabel}>
+          {visibleDate.plus({ month: 1 }).toFormat('MMMM yyyy')}
+        </span>
         <Calendar.SetVisibleMonth
           target="next"
           className={clsx(styles.SetVisibleMonth)}

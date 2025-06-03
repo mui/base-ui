@@ -6,7 +6,13 @@ import { TemporalSupportedObject } from '../../models';
 import { useTemporalAdapter } from '../../temporal-adapter-provider/TemporalAdapterContext';
 import { useDayList } from '../../use-day-list';
 
-const CalendarDayGridHeader = React.forwardRef(function CalendarDayGridHeader(
+/**
+ * Groups all cells of the calendar's day grid header.
+ * Renders a `<div>` element.
+ *
+ * Documentation: [Base UI Calendar](https://base-ui.com/react/components/calendar)
+ */
+export const CalendarDayGridHeader = React.forwardRef(function CalendarDayGridHeader(
   componentProps: CalendarDayGridHeader.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
@@ -54,5 +60,3 @@ export namespace CalendarDayGridHeader {
     days: TemporalSupportedObject[];
   }
 }
-
-export { CalendarDayGridHeader };

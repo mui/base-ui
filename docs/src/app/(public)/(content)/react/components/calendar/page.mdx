@@ -1,0 +1,41 @@
+# Calendar
+
+<Subtitle>An easily stylable calendar component.</Subtitle>
+<Meta
+  name="description"
+  content="A high-quality, unstyled React calendar that is easy to customize."
+/>
+
+<Demo path="./demos/hero" />
+
+## Anatomy
+
+Import the component and assemble its parts:
+
+```jsx title="Anatomy"
+import { Calendar } from '@base-ui-components/react/calendar';
+
+<Calendar.Root>
+  <Calendar.KeyboardNavigation>
+    <Calendar.SetVisibleMonth />
+    <Calendar.SetVisibleYear />
+    <Calendar.DayGrid>
+      <Calendar.DayGridHeader>
+        <Calendar.DayGridHeaderCell />
+      </Calendar.DayGridHeader>
+      <Calendar.DayGridBody>
+        <Calendar.DayGridRow>
+          <Calendar.DayGridCell />
+        </Calendar.DayGridRow>
+      </Calendar.DayGridBody>
+    </Calendar.DayGrid>
+  </Calendar.KeyboardNavigation>
+</Calendar.Root>;
+```
+
+## API reference
+
+<Reference
+  component="Calendar"
+  parts="Root, KeyboardNavigation, DayGrid, DayGridHeader, DayGridHeaderCell, DayGridRow, DayCell, SetVisibleMonth, SetVisibleYear"
+/>

@@ -6,7 +6,13 @@ import { SharedCalendarDayGridBodyContext } from './SharedCalendarDayGridBodyCon
 import { useSharedCalendarDayGridBody } from './useSharedCalendarDayGridBody';
 import { CompositeList } from '../../composite/list/CompositeList';
 
-const CalendarDayGridBody = React.forwardRef(function CalendarDayGrid(
+/**
+ * Groups all rows of the calendar's day grid.
+ * Renders a `<div>` element.
+ *
+ * Documentation: [Base UI Calendar](https://base-ui.com/react/components/calendar)
+ */
+export const CalendarDayGridBody = React.forwardRef(function CalendarDayGrid(
   componentProps: CalendarDayGridBody.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
@@ -51,5 +57,3 @@ export namespace CalendarDayGridBody {
     extends Omit<BaseUIComponentProps<'div', State>, 'children'>,
       useSharedCalendarDayGridBody.Parameters {}
 }
-
-export { CalendarDayGridBody };

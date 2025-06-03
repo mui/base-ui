@@ -71,7 +71,13 @@ const InnerCalendarDayCell = React.forwardRef(function InnerCalendarDayCell(
 
 const MemoizedInnerCalendarDayCell = React.memo(InnerCalendarDayCell);
 
-const CalendarDayCell = React.forwardRef(function CalendarDayCell(
+/**
+ * An individual interactive day cell in the calendar.
+ * Renders a `<button>` element.
+ *
+ * Documentation: [Base UI Calendar](https://base-ui.com/react/components/calendar)
+ */
+export const CalendarDayCell = React.forwardRef(function CalendarDayCell(
   props: CalendarDayCell.Props,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
@@ -125,5 +131,3 @@ interface InnerCalendarDayCellProps extends CalendarDayCell.Props {
 }
 
 interface InnerCalendarDayCellContext extends useSharedCalendarDayCell.Context {}
-
-export { CalendarDayCell };

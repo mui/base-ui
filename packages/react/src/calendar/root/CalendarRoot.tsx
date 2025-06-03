@@ -8,9 +8,9 @@ import {
   useApplyDefaultValuesToDateValidationProps,
   useDateManager,
 } from '../../utils/temporal/useDateManager';
+import { CalendarContext } from '../use-context/CalendarContext';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { BaseUIComponentProps } from '../../utils/types';
-import { CalendarContext } from '../use-context/CalendarContext';
 
 const calendarValueManager: useSharedCalendarRoot.ValueManager<TemporalNonRangeValue> = {
   getDateToUseForReferenceDate: (value) => value,
@@ -19,6 +19,12 @@ const calendarValueManager: useSharedCalendarRoot.ValueManager<TemporalNonRangeV
   getSelectedDatesFromValue: (value) => (value == null ? [] : [value]),
 };
 
+/**
+ * Groups all parts of the calendar.
+ * Renders a `<div>` element.
+ *
+ * Documentation: [Base UI Calendar](https://base-ui.com/react/components/calendar)
+ */
 export const CalendarRoot = React.forwardRef(function CalendarRoot(
   componentProps: CalendarRoot.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
@@ -122,10 +128,7 @@ export namespace CalendarRoot {
   export interface State extends useSharedCalendarRoot.State {}
 
   export interface Props
-    extends Omit<
-        BaseUIComponentProps<'div', State>,
-        'value' | 'defaultValue' | 'onError' | 'children'
-      >,
+    extends Omit<BaseUIComponentProps<'div', State>, 'children'>,
       useSharedCalendarRoot.PublicParameters<TemporalNonRangeValue, useDateManager.Error>,
       Partial<useDateManager.ValidationProps> {
     /**

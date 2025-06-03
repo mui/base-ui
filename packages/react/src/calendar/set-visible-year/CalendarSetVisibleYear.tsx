@@ -38,7 +38,13 @@ const InnerCalendarSetVisibleYear = React.forwardRef(function InnerCalendarSetVi
 
 const MemoizedInnerCalendarSetVisibleYear = React.memo(InnerCalendarSetVisibleYear);
 
-const CalendarSetVisibleYear = React.forwardRef(function CalendarSetVisibleYear(
+/**
+ * Displays an element to navigation to a given year in the calendar.
+ * Renders a `<button>` element.
+ *
+ * Documentation: [Base UI Calendar](https://base-ui.com/react/components/calendar)
+ */
+export const CalendarSetVisibleYear = React.forwardRef(function CalendarSetVisibleYear(
   props: CalendarSetVisibleYear.Props,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
@@ -146,5 +152,3 @@ interface InnerCalendarSetVisibleYearContext {
   isDisabled: boolean;
   direction: 'before' | 'after';
 }
-
-export { CalendarSetVisibleYear };

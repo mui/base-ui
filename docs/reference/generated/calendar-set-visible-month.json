@@ -1,0 +1,28 @@
+{
+  "name": "CalendarSetVisibleMonth",
+  "description": "Displays an element to navigation to a given month in the calendar.\nRenders a `<button>` element.",
+  "props": {
+    "target": {
+      "type": "'next' | 'previous' | DateTime<boolean>",
+      "required": true,
+      "description": "The month to navigate to."
+    },
+    "className": {
+      "type": "string | ((state: Calendar.SetVisibleMonth.State) => string)",
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
+    },
+    "render": {
+      "type": "ReactElement | ((props: HTMLProps, state: Calendar.SetVisibleMonth.State) => ReactElement)",
+      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
+    }
+  },
+  "dataAttributes": {
+    "data-disabled": {
+      "description": "Present when the button is disabled."
+    },
+    "data-direction": {
+      "description": "The direction of the target month relative to the current visible month.\n- \"before\" if the target month is before the current visible month.\n- \"after\" if the target month is after the current visible month."
+    }
+  },
+  "cssVariables": {}
+}

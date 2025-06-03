@@ -1,0 +1,38 @@
+{
+  "name": "CalendarDayGridBody",
+  "description": "Groups all rows of the calendar's day grid.\nRenders a `<div>` element.",
+  "props": {
+    "fixedWeekNumber": {
+      "type": "number",
+      "description": "The day view will show as many weeks as needed after the end of the current month to match this value.\nPut it to 6 to have a fixed number of weeks in Gregorian calendars"
+    },
+    "focusOnMount": {
+      "type": "boolean",
+      "default": "false",
+      "description": "If `true`, the first tabbable children inside this component will be focused on mount.\nWarning: If several components are rendered at the same time with focusOnMount={true}, the result might be unpredictable."
+    },
+    "freezeMonth": {
+      "type": "boolean",
+      "description": "If `true`, the component's month won't update when the visible date or the offset changes.\nThis is mostly useful when doing transitions between several months to avoid having the exiting month updated to the new visible date."
+    },
+    "offset": {
+      "type": "number",
+      "default": "0",
+      "description": "The offset to apply to the rendered month compared to the current month.\nThis is mostly useful when displaying multiple day grids."
+    },
+    "children": {
+      "type": "ReactNode | ((parameters: useSharedCalendarDayGridBody.ChildrenParameters) => ReactNode)",
+      "description": "The children of the component.\nIf a function is provided, it will be called with the weeks weeks to render as its parameter."
+    },
+    "className": {
+      "type": "string | ((state: Calendar.DayGridBody.State) => string)",
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
+    },
+    "render": {
+      "type": "ReactElement | ((props: HTMLProps, state: Calendar.DayGridBody.State) => ReactElement)",
+      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
+    }
+  },
+  "dataAttributes": {},
+  "cssVariables": {}
+}

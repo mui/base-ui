@@ -43,7 +43,13 @@ const InnerCalendarDayGridRow = React.forwardRef(function InnerCalendarDayGridRo
 
 const MemoizedInnerCalendarDayGridRow = React.memo(InnerCalendarDayGridRow);
 
-const CalendarDayGridRow = React.forwardRef(function CalendarDayGridRow(
+/**
+ * Groups all cells of a given calendar's day grid row.
+ * Renders a `<div>` element.
+ *
+ * Documentation: [Base UI Calendar](https://base-ui.com/react/components/calendar)
+ */
+export const CalendarDayGridRow = React.forwardRef(function CalendarDayGridRow(
   props: CalendarDayGridRow.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
@@ -107,5 +113,3 @@ interface InnerCalendarDayGridRowContext {
    */
   rowIndex: number;
 }
-
-export { CalendarDayGridRow };

@@ -13,6 +13,12 @@ import { SharedCalendarKeyboardNavigationContext } from './SharedCalendarKeyboar
 import { useSharedCalendarRootVisibleDateContext } from '../root/SharedCalendarRootVisibleDateContext';
 import { useSharedCalendarRootContext } from '../root/SharedCalendarRootContext';
 
+/**
+ * Enables keyboard navigation in the calendar.
+ * Doesn’t render its own HTML element.
+ *
+ * Documentation: [Base UI Calendar](https://base-ui.com/react/components/calendar)
+ */
 export function CalendarKeyboardNavigation(props: CalendarKeyboardNavigation.Props) {
   const { setVisibleDate, monthPageSize, dateValidationProps } = useSharedCalendarRootContext();
   const { visibleDate } = useSharedCalendarRootVisibleDateContext();

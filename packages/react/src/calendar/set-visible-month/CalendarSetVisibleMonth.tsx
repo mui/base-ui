@@ -38,7 +38,13 @@ const InnerCalendarSetVisibleMonth = React.forwardRef(function InnerCalendarSetV
 
 const MemoizedInnerCalendarSetVisibleMonth = React.memo(InnerCalendarSetVisibleMonth);
 
-const CalendarSetVisibleMonth = React.forwardRef(function CalendarSetVisibleMonth(
+/**
+ * Displays an element to navigation to a given month in the calendar.
+ * Renders a `<button>` element.
+ *
+ * Documentation: [Base UI Calendar](https://base-ui.com/react/components/calendar)
+ */
+export const CalendarSetVisibleMonth = React.forwardRef(function CalendarSetVisibleMonth(
   props: CalendarSetVisibleMonth.Props,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
@@ -155,5 +161,3 @@ interface InnerCalendarSetVisibleMonthContext {
   isDisabled: boolean;
   direction: 'before' | 'after';
 }
-
-export { CalendarSetVisibleMonth };

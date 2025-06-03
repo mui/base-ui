@@ -3,16 +3,16 @@ import * as React from 'react';
 import { TemporalAdapterProvider } from '@base-ui-components/react/temporal-adapter-provider';
 import { TemporalAdapterLuxon } from '@base-ui-components/react/temporal-adapter-luxon';
 import { Calendar } from '@base-ui-components/react/calendar';
-import styles from './calendar.module.css';
+import styles from './index.module.css';
 
 const adapter = new TemporalAdapterLuxon();
 
-export default function CalendarBasic() {
+export default function CalendarKeyboardNavigation() {
   return (
     <TemporalAdapterProvider adapter={adapter}>
       <Calendar.Root className={styles.Root}>
         {({ visibleDate }) => (
-          <React.Fragment>
+          <Calendar.KeyboardNavigation>
             <header className={styles.Header}>
               <Calendar.SetVisibleMonth
                 target="previous"
@@ -64,7 +64,7 @@ export default function CalendarBasic() {
                 }
               </Calendar.DayGridBody>
             </Calendar.DayGrid>
-          </React.Fragment>
+          </Calendar.KeyboardNavigation>
         )}
       </Calendar.Root>
     </TemporalAdapterProvider>

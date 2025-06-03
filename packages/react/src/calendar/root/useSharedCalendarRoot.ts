@@ -242,8 +242,6 @@ export namespace useSharedCalendarRoot {
     /**
      * Event handler called when the selected value changes.
      * Provides the new value as an argument.
-     * @param {TValue} value The new selected value.
-     * @param {ValueChangeHandlerContext<TError>} context Additional context information.
      */
     onValueChange?: (value: TValue, context: ValueChangeHandlerContext<TError>) => void;
     /**
@@ -267,12 +265,12 @@ export namespace useSharedCalendarRoot {
     isDateUnavailable?: (day: TemporalSupportedObject) => boolean;
     /**
      * The date used to decide which month should be displayed in the Days Grid and which year should be displayed in the Months List and Months Grid.
-     * To render an uncontrolled (Range)Calendar, use the `defaultVisibleDate` prop instead.
+     * To render an uncontrolled Calendar, use the `defaultVisibleDate` prop instead.
      */
     visibleDate?: TemporalSupportedObject;
     /**
      * The date used to decide which month should be initially displayed in the Days Grid and which year should be initially displayed in the Months List and Months Grid.
-     * To render a controlled (Range)Calendar, use the `visibleDate` prop instead.
+     * To render a controlled Calendar, use the `visibleDate` prop instead.
      */
     defaultVisibleDate?: TemporalSupportedObject;
     /**
@@ -287,13 +285,13 @@ export namespace useSharedCalendarRoot {
      */
     referenceDate?: TemporalSupportedObject;
     /**
-     * The amount of months to navigate by when pressing <(Range)Calendar.SetVisibleMonth /> or when using keyboard navigation in the day grid.
+     * The amount of months to navigate by when pressing Calendar.SetVisibleMonth or when using keyboard navigation in the day grid.
      * This is mostly useful when displaying multiple day grids.
      * @default 1
      */
     monthPageSize?: number;
     /**
-     * The amount of months to navigate by when pressing <(Range)Calendar.SetVisibleYear /> or when using keyboard navigation in the month grid or the month list.
+     * The amount of months to navigate by when pressing Calendar.SetVisibleYear or when using keyboard navigation in the month grid or the month list.
      * This is mostly useful when displaying multiple month grids or month lists.
      * @default 1
      */
@@ -325,9 +323,9 @@ export namespace useSharedCalendarRoot {
   }
 
   export interface ReturnValue {
+    state: State;
     context: SharedCalendarRootContext;
     visibleDateContext: SharedCalendarRootVisibleDateContext;
-    state: useSharedCalendarRoot.State;
   }
 
   export interface ValueChangeHandlerContext<TError> {

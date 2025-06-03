@@ -74,5 +74,5 @@ export function applyDefaultDate(
     return defaultDate;
   }
 
-  return defaultDate;
+  return date;
 }

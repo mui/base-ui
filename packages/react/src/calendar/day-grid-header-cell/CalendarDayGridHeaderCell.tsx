@@ -5,7 +5,7 @@ import { useRenderElement } from '../../utils/useRenderElement';
 import { TemporalSupportedObject } from '../../models';
 import { useTemporalAdapter } from '../../temporal-adapter-provider/TemporalAdapterContext';
 
-const CalendarDayGridHeaderCell = React.forwardRef(function CalendarDayGridHeaderCell(
+const InnerCalendarDayGridHeaderCell = React.forwardRef(function CalendarDayGridHeaderCell(
   componentProps: CalendarDayGridHeaderCell.Props,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
@@ -35,6 +35,14 @@ const CalendarDayGridHeaderCell = React.forwardRef(function CalendarDayGridHeade
   return element;
 });
 
+/**
+ * An individual day header cell in the calendar.
+ * Renders a `<span>` element.
+ *
+ * Documentation: [Base UI Calendar](https://base-ui.com/react/components/calendar)
+ */
+export const CalendarDayGridHeaderCell = React.memo(InnerCalendarDayGridHeaderCell);
+
 export namespace CalendarDayGridHeaderCell {
   export interface State {}
 
@@ -49,7 +57,3 @@ export namespace CalendarDayGridHeaderCell {
     formatter?: (date: TemporalSupportedObject) => string;
   }
 }
-
-const MemoizedCalendarDayGridHeaderCell = React.memo(CalendarDayGridHeaderCell);
-
-export { MemoizedCalendarDayGridHeaderCell as CalendarDayGridHeaderCell };

@@ -1,0 +1,48 @@
+{
+  "name": "CalendarDayCell",
+  "description": "An individual interactive day cell in the calendar.\nRenders a `<button>` element.",
+  "props": {
+    "value": {
+      "type": "DateTime<boolean>",
+      "required": true,
+      "description": "The value to select when this cell is clicked."
+    },
+    "format": {
+      "type": "string",
+      "default": "calendar.formats.dayOfMonth",
+      "description": "The format used to display the day."
+    },
+    "className": {
+      "type": "string | ((state: Calendar.DayCell.State) => string)",
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
+    },
+    "render": {
+      "type": "ReactElement | ((props: HTMLProps, state: Calendar.DayCell.State) => ReactElement)",
+      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
+    }
+  },
+  "dataAttributes": {
+    "data-selected": {
+      "description": "Present when the day is selected."
+    },
+    "data-disabled": {
+      "description": "Present when the day is disabled."
+    },
+    "data-current": {
+      "description": "Present when the day is the current date."
+    },
+    "data-end-of-week": {
+      "description": "Present when the day is the last day of its week."
+    },
+    "data-outside-month": {
+      "description": "Present when the day is outside the month rendered by the day grid wrapping it."
+    },
+    "data-start-of-week": {
+      "description": "Present when the day is the first day of its week."
+    },
+    "data-unavailable": {
+      "description": "Present when the day is unavailable."
+    }
+  },
+  "cssVariables": {}
+}

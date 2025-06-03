@@ -1,0 +1,25 @@
+{
+  "name": "CalendarDayGridHeaderCell",
+  "description": "An individual day header cell in the calendar.\nRenders a `<span>` element.",
+  "props": {
+    "value": {
+      "type": "DateTime<boolean>",
+      "required": true
+    },
+    "formatter": {
+      "type": "((date: DateTime<boolean>) => string)",
+      "default": "(date) => calendar.format(date, 'weekday3Letters').charAt(0).toUpperCase()",
+      "description": "The formatter function used to display the day of the week."
+    },
+    "className": {
+      "type": "string | ((state: Calendar.DayGridHeaderCell.State) => string)",
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
+    },
+    "render": {
+      "type": "ReactElement | ((props: HTMLProps, state: Calendar.DayGridHeaderCell.State) => ReactElement)",
+      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
+    }
+  },
+  "dataAttributes": {},
+  "cssVariables": {}
+}

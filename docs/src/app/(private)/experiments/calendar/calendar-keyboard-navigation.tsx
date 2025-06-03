@@ -20,7 +20,9 @@ export default function CalendarKeyboardNavigation() {
               >
                 ◀
               </Calendar.SetVisibleMonth>
-              <span>{visibleDate.toFormat('MMMM yyyy')}</span>
+              <span className={styles.HeaderLabel}>
+                {visibleDate.toFormat('MMMM yyyy')}
+              </span>
               <Calendar.SetVisibleMonth
                 target="next"
                 className={styles.SetVisibleMonth}
