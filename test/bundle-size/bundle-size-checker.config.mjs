@@ -17,7 +17,6 @@ export default defineConfig(async () => {
   const packageJsonPath = path.join(rootDir, 'packages/react/package.json');
   const packageJsonContent = await fs.readFile(packageJsonPath, 'utf8');
   const packageJson = JSON.parse(packageJsonContent);
-  const externals = Object.keys(packageJson.peerDependencies || {});
 
   // Get all export paths from package.json
   const exports = packageJson.exports;
@@ -31,14 +30,7 @@ export default defineConfig(async () => {
   });
 
   return {
-    entrypoints: [
-      ...entrypoints,
-      {
-        id: 'Base UI checkbox',
-        import: './base-entry.jsx',
-        externals,
-      },
-    ],
+    entrypoints,
     upload: !!process.env.CI,
   };
 });
