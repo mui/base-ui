@@ -579,8 +579,6 @@ export namespace MenuRoot {
     closeDelay?: number;
     /**
      * Whether the menu should also open when the trigger is hovered.
-     *
-     * Defaults to `true` for nested menus.
      */
     openOnHover?: boolean;
     /**

@@ -40,7 +40,7 @@
     },
     "openOnHover": {
       "type": "boolean",
-      "description": "Whether the menu should also open when the trigger is hovered.\n\nDefaults to `true` for nested menus."
+      "description": "Whether the menu should also open when the trigger is hovered."
     },
     "delay": {
       "type": "number",

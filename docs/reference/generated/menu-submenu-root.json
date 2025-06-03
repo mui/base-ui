@@ -24,11 +24,6 @@
       "default": "true",
       "description": "When in a submenu, determines whether pressing the Escape key\ncloses the entire menu, or only the current child menu."
     },
-    "modal": {
-      "type": "boolean",
-      "default": "true",
-      "description": "Determines if the menu enters a modal state when open.\n- `true`: user interaction is limited to the menu: document page scroll is locked and and pointer interactions on outside elements are disabled.\n- `false`: user interaction with the rest of the document is allowed."
-    },
     "onOpenChangeComplete": {
       "type": "((open: boolean) => void)",
       "description": "Event handler called after any animations complete when the menu is closed."
@@ -40,7 +35,8 @@
     },
     "openOnHover": {
       "type": "boolean",
-      "description": "Whether the menu should also open when the trigger is hovered.\n\nDefaults to `true` for nested menus."
+      "default": "true",
+      "description": "Whether the submenu should open when the trigger is hovered."
     },
     "delay": {
       "type": "number",
