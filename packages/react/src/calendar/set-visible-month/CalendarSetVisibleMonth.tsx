@@ -17,11 +17,8 @@ const InnerCalendarSetVisibleMonth = React.forwardRef(function InnerCalendarSetV
   const { className, render, ctx, target, ...elementProps } = componentProps;
 
   const state: CalendarSetVisibleMonth.State = React.useMemo(
-    () => ({
-      disabled: ctx.isDisabled,
-      direction: ctx.direction,
-    }),
-    [ctx.direction, ctx.isDisabled],
+    () => ({ disabled: ctx.isDisabled }),
+    [ctx.isDisabled],
   );
 
   const element = useRenderElement('button', componentProps, {
@@ -55,26 +52,19 @@ export const CalendarSetVisibleMonth = React.forwardRef(function CalendarSetVisi
   const { ref: listItemRef } = useCompositeListItem();
   const ref = useForkRef(forwardedRef, listItemRef);
 
-  const { targetDate, direction } = React.useMemo<{
-    targetDate: TemporalSupportedObject;
-    direction: 'before' | 'after';
-  }>(() => {
+  const targetDate = React.useMemo(() => {
     if (props.target === 'previous') {
-      return { targetDate: adapter.addMonths(visibleDate, -monthPageSize), direction: 'before' };
+      return adapter.addMonths(visibleDate, -monthPageSize);
     }
 
     if (props.target === 'next') {
-      return { targetDate: adapter.addMonths(visibleDate, monthPageSize), direction: 'after' };
+      return adapter.addMonths(visibleDate, monthPageSize);
     }
 
-    const tempTargetDate = adapter.setYear(
+    return adapter.setYear(
       adapter.setMonth(visibleDate, adapter.getMonth(props.target)),
       adapter.getYear(props.target),
     );
-    return {
-      targetDate: tempTargetDate,
-      direction: adapter.isBefore(tempTargetDate, visibleDate) ? 'before' : 'after',
-    };
   }, [visibleDate, monthPageSize, adapter, props.target]);
 
   const isDisabled = React.useMemo(() => {
@@ -120,8 +110,8 @@ export const CalendarSetVisibleMonth = React.forwardRef(function CalendarSetVisi
   });
 
   const ctx = React.useMemo<InnerCalendarSetVisibleMonthContext>(
-    () => ({ setTarget, isDisabled, direction }),
-    [setTarget, isDisabled, direction],
+    () => ({ setTarget, isDisabled }),
+    [setTarget, isDisabled],
   );
 
   return <MemoizedInnerCalendarSetVisibleMonth ref={ref} {...props} ctx={ctx} />;
@@ -133,12 +123,6 @@ export namespace CalendarSetVisibleMonth {
      * Whether the button is disabled.
      */
     disabled: boolean;
-    /**
-     * The direction of the target month relative to the current visible month.
-     * - "before" if the target month is before the current visible month.
-     * - "after" if the target month is after the current visible month.
-     */
-    direction: 'before' | 'after';
   }
 
   export interface Props extends BaseUIComponentProps<'button', State> {
@@ -159,5 +143,4 @@ interface InnerCalendarSetVisibleMonthProps extends CalendarSetVisibleMonth.Prop
 interface InnerCalendarSetVisibleMonthContext {
   setTarget: () => void;
   isDisabled: boolean;
-  direction: 'before' | 'after';
 }

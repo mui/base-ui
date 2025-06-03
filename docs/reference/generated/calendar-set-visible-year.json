@@ -3,7 +3,7 @@
   "description": "Displays an element to navigation to a given year in the calendar.\nRenders a `<button>` element.",
   "props": {
     "target": {
-      "type": "'next' | 'previous' | DateTime<boolean>",
+      "type": "DateTime<boolean> | 'next' | 'previous'",
       "required": true,
       "description": "The year to navigate to."
     },
@@ -19,9 +19,6 @@
   "dataAttributes": {
     "data-disabled": {
       "description": "Present when the button is disabled."
-    },
-    "data-direction": {
-      "description": "The direction of the target year relative to the current visible year.\n- \"before\" if the target year is before the current visible year.\n- \"after\" if the target year is after the current visible year."
     }
   },
   "cssVariables": {}

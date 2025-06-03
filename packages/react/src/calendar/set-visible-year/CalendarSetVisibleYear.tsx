@@ -17,11 +17,8 @@ const InnerCalendarSetVisibleYear = React.forwardRef(function InnerCalendarSetVi
   const { className, render, ctx, target, ...elementProps } = componentProps;
 
   const state: CalendarSetVisibleYear.State = React.useMemo(
-    () => ({
-      disabled: ctx.isDisabled,
-      direction: ctx.direction,
-    }),
-    [ctx.direction, ctx.isDisabled],
+    () => ({ disabled: ctx.isDisabled }),
+    [ctx.isDisabled],
   );
 
   const element = useRenderElement('button', componentProps, {
@@ -48,30 +45,24 @@ export const CalendarSetVisibleYear = React.forwardRef(function CalendarSetVisib
   props: CalendarSetVisibleYear.Props,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
-  const { disabled, dateValidationProps, setVisibleDate } = useSharedCalendarRootContext();
   const { visibleDate } = useSharedCalendarRootVisibleDateContext();
+  const { yearPageSize, disabled, dateValidationProps, setVisibleDate } =
+    useSharedCalendarRootContext();
   const adapter = useTemporalAdapter();
   const { ref: listItemRef } = useCompositeListItem();
   const ref = useForkRef(forwardedRef, listItemRef);
 
-  const { targetDate, direction } = React.useMemo<{
-    targetDate: TemporalSupportedObject;
-    direction: 'before' | 'after';
-  }>(() => {
+  const targetDate = React.useMemo(() => {
     if (props.target === 'previous') {
-      return { targetDate: adapter.addYears(visibleDate, -1), direction: 'before' };
+      return adapter.addYears(visibleDate, -yearPageSize);
     }
 
     if (props.target === 'next') {
-      return { targetDate: adapter.addYears(visibleDate, 1), direction: 'after' };
+      return adapter.addYears(visibleDate, yearPageSize);
     }
 
-    const tempTargetDate = adapter.setYear(visibleDate, adapter.getYear(props.target));
-    return {
-      targetDate: tempTargetDate,
-      direction: adapter.isBefore(tempTargetDate, visibleDate) ? 'before' : 'after',
-    };
-  }, [visibleDate, adapter, props.target]);
+    return adapter.setYear(visibleDate, adapter.getYear(props.target));
+  }, [visibleDate, adapter, props.target, yearPageSize]);
 
   const isDisabled = React.useMemo(() => {
     if (disabled) {
@@ -115,8 +106,8 @@ export const CalendarSetVisibleYear = React.forwardRef(function CalendarSetVisib
   });
 
   const ctx = React.useMemo<InnerCalendarSetVisibleYearContext>(
-    () => ({ setTarget, isDisabled, direction }),
-    [setTarget, isDisabled, direction],
+    () => ({ setTarget, isDisabled }),
+    [setTarget, isDisabled],
   );
 
   return <MemoizedInnerCalendarSetVisibleYear ref={ref} {...props} ctx={ctx} />;
@@ -125,11 +116,9 @@ export const CalendarSetVisibleYear = React.forwardRef(function CalendarSetVisib
 export namespace CalendarSetVisibleYear {
   export interface State {
     /**
-     * The direction of the target year relative to the current visible year.
-     * - "before" if the target year is before the current visible year.
-     * - "after" if the target year is after the current visible year.
+     * Whether the button is disabled.
      */
-    direction: 'before' | 'after';
+    disabled: boolean;
   }
 
   export interface Props extends BaseUIComponentProps<'button', State> {
@@ -150,5 +139,4 @@ interface InnerCalendarSetVisibleYearProps extends CalendarSetVisibleYear.Props 
 interface InnerCalendarSetVisibleYearContext {
   setTarget: () => void;
   isDisabled: boolean;
-  direction: 'before' | 'after';
 }

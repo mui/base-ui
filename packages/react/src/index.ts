@@ -36,5 +36,7 @@ export * from './toggle';
 export * from './toggle-group';
 export * from './toolbar';
 export * from './tooltip';
+export * from './use-day-list';
+export * from './use-week-list';
 export * from './use-render';
 export * as utils from './utils';

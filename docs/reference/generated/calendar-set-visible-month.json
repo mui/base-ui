@@ -3,7 +3,7 @@
   "description": "Displays an element to navigation to a given month in the calendar.\nRenders a `<button>` element.",
   "props": {
     "target": {
-      "type": "'next' | 'previous' | DateTime<boolean>",
+      "type": "DateTime<boolean> | 'next' | 'previous'",
       "required": true,
       "description": "The month to navigate to."
     },
@@ -19,9 +19,6 @@
   "dataAttributes": {
     "data-disabled": {
       "description": "Present when the button is disabled."
-    },
-    "data-direction": {
-      "description": "The direction of the target month relative to the current visible month.\n- \"before\" if the target month is before the current visible month.\n- \"after\" if the target month is after the current visible month."
     }
   },
   "cssVariables": {}
