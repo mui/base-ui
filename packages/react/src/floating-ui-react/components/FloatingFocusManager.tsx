@@ -375,6 +375,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     function handleFocusOutside(event: FocusEvent) {
       const relatedTarget = event.relatedTarget as HTMLElement | null;
       const currentTarget = event.currentTarget;
+      const target = getTarget(event) as HTMLElement | null;
 
       queueMicrotask(() => {
         const nodeId = getNodeId();
@@ -408,7 +409,8 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
         // focus from being lost outside the floating tree.
         if (
           restoreFocus &&
-          movedToUnrelatedNode &&
+          currentTarget !== domReference &&
+          !target?.isConnected &&
           activeElement(getDocument(floatingFocusElement)) ===
             getDocument(floatingFocusElement).body
         ) {

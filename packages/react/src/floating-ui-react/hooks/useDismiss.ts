@@ -484,6 +484,9 @@ export function useDismiss(
         dataRef.current.insideReactTree = true;
       },
       onBlurCapture() {
+        if (tree) {
+          return;
+        }
         clearTimeoutIfSet(blurTimeoutRef);
         dataRef.current.insideReactTree = true;
         blurTimeoutRef.current = window.setTimeout(() => {
@@ -491,7 +494,7 @@ export function useDismiss(
         });
       },
     }),
-    [closeOnEscapeKeyDown, outsidePressEvent, dataRef],
+    [closeOnEscapeKeyDown, outsidePressEvent, dataRef, tree],
   );
 
   return React.useMemo(
