@@ -327,14 +327,12 @@ export const theme = {
 // work sessions. We instantiate the highlighter as a property of `globalThis`
 // so that the object persists between hot reloads and doesn't leak memory.
 
-// eslint-disable-next-line no-undef
 globalThis.highlighter ??= await createHighlighter({
   themes: [theme],
   langs: ['tsx', 'jsx', 'css'],
 });
 
 /** @type {Awaited<ReturnType<typeof import('shiki').createHighlighter>> } */
-// eslint-disable-next-line no-undef
 export const highlighter = globalThis.highlighter;
 
 /** @type {import('unified').PluggableList} */
