@@ -9,6 +9,7 @@
     "@mui/internal-test-utils": "^2.0.7",
     "@playwright/test": "1.52.0",
     "@testing-library/dom": "^10.4.0",
+    "@testing-library/jest-dom": "^6.6.3",
     "@types/chai": "^4.3.20",
     "@types/chai-dom": "^1.11.3",
     "@types/react": "^19.1.2",

@@ -5,6 +5,8 @@ import chai from 'chai';
 import chaiDom from 'chai-dom';
 import chaiPlugin from '@mui/internal-test-utils/chaiPlugin';
 
+import '@testing-library/jest-dom/vitest';
+
 declare global {
   var before: typeof beforeAll;
   var after: typeof afterAll;
