@@ -3,7 +3,7 @@ import * as React from 'react';
 import type { BaseUIComponentProps } from '../utils/types';
 import { SHIFT } from '../composite/composite';
 import { CompositeRoot } from '../composite/root/CompositeRoot';
-import { useComponentRenderer } from '../utils/useComponentRenderer';
+import { useRenderElement } from '../utils/useRenderElement';
 import { useEventCallback } from '../utils/useEventCallback';
 import { useDirection } from '../direction-provider/DirectionContext';
 import { useRadioGroup } from './useRadioGroup';
@@ -21,7 +21,7 @@ const MODIFIER_KEYS = [SHIFT];
  * Documentation: [Base UI Radio Group](https://base-ui.com/react/components/radio)
  */
 export const RadioGroup = React.forwardRef(function RadioGroup(
-  props: RadioGroup.Props,
+  componentProps: RadioGroup.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const {
@@ -35,12 +35,12 @@ export const RadioGroup = React.forwardRef(function RadioGroup(
     defaultValue,
     name: nameProp,
     inputRef,
-    ...otherProps
-  } = props;
+    ...elementProps
+  } = componentProps;
 
   const direction = useDirection();
 
-  const radioGroup = useRadioGroup(props);
+  const radioGroup = useRadioGroup(componentProps);
 
   const { state: fieldState, disabled: fieldDisabled, name: fieldName } = useFieldRootContext();
 
@@ -72,13 +72,11 @@ export const RadioGroup = React.forwardRef(function RadioGroup(
     [fieldState, disabled, onValueChange, radioGroup, readOnly, required, name],
   );
 
-  const { renderElement } = useComponentRenderer({
+  const element = useRenderElement('div', componentProps, {
     propGetter: radioGroup.getRootProps,
-    render: render ?? 'div',
     ref: forwardedRef,
-    className,
     state,
-    extraProps: otherProps,
+    props: elementProps,
     customStyleHookMapping: fieldValidityMapping,
   });
 
@@ -88,7 +86,7 @@ export const RadioGroup = React.forwardRef(function RadioGroup(
         direction={direction}
         enableHomeAndEndKeys={false}
         modifierKeys={MODIFIER_KEYS}
-        render={renderElement()}
+        render={element}
         stopEventPropagation
       />
       <input {...radioGroup.getInputProps()} />
