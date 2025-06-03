@@ -87,6 +87,19 @@
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
     }
   },
-  "dataAttributes": {},
+  "dataAttributes": {
+    "data-disabled": {
+      "description": "Present when the calendar is disabled."
+    },
+    "data-readonly": {
+      "description": "Present when the calendar is readonly."
+    },
+    "data-invalid": {
+      "description": "Present when the current value is invalid."
+    },
+    "data-boolean": {
+      "description": "Present when the current value is empty."
+    }
+  },
   "cssVariables": {}
 }
