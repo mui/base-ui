@@ -188,8 +188,8 @@ function MenuDemo({ modal }: Props) {
                     <MenuItem onClick={createHandleMenuClick('Style/Paragraph')}>
                       Paragraph
                     </MenuItem>
-                    <Menu.Root disabled>
-                      <SubmenuTrigger>List</SubmenuTrigger>
+                    <Menu.Root>
+                      <SubmenuTrigger disabled>List</SubmenuTrigger>
                       <Menu.Portal>
                         <Menu.Positioner
                           align="start"

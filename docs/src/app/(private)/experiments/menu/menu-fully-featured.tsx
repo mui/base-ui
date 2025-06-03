@@ -38,12 +38,12 @@ export default function MenuFullyFeatured() {
   return (
     <div>
       <h1>Fully featured menu</h1>
-      <Menu.Root
-        openOnHover={settings.openOnHover}
-        modal={settings.modal}
-        disabled={settings.disabled}
-      >
-        <Menu.Trigger className={classes.Button} render={triggerRender}>
+      <Menu.Root openOnHover={settings.openOnHover} modal={settings.modal}>
+        <Menu.Trigger
+          className={classes.Button}
+          render={triggerRender}
+          disabled={settings.disabled}
+        >
           Menu <ChevronDownIcon className={classes.ButtonIcon} />
         </Menu.Trigger>
         <Menu.Portal keepMounted>
@@ -241,8 +241,8 @@ export default function MenuFullyFeatured() {
                 </Menu.Portal>
               </Menu.Root>
 
-              <Menu.Root disabled>
-                <Menu.SubmenuTrigger className={classes.SubmenuTrigger}>
+              <Menu.Root>
+                <Menu.SubmenuTrigger className={classes.SubmenuTrigger} disabled>
                   Disabled nested menu
                   <ChevronRightIcon />
                 </Menu.SubmenuTrigger>

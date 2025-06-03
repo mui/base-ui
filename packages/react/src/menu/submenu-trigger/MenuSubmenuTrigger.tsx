@@ -19,7 +19,14 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
   componentProps: MenuSubmenuTrigger.Props,
   forwardedRef: React.ForwardedRef<Element>,
 ) {
-  const { render, className, label, id: idProp, ...elementProps } = componentProps;
+  const {
+    render,
+    className,
+    label,
+    disabled = false,
+    id: idProp,
+    ...elementProps
+  } = componentProps;
   const id = useBaseUiId(idProp);
 
   const {
@@ -28,13 +35,17 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
     setTriggerElement,
     open,
     typingRef,
-    disabled,
+    setDisabled,
     allowMouseUpTriggerRef,
   } = useMenuRootContext();
 
   if (parent.type !== 'menu') {
     throw new Error('Base UI: SubmenuTrigger must be placed in a nested Menu.');
   }
+
+  React.useEffect(() => {
+    setDisabled(disabled);
+  }, [disabled, setDisabled]);
 
   const parentMenuContext = parent.context;
 
@@ -93,6 +104,11 @@ export namespace MenuSubmenuTrigger {
      * @ignore
      */
     id?: string;
+    /**
+     * Whether the submenu trigger should ignore user interaction.
+     * @default false
+     */
+    disabled?: boolean;
   }
 
   export interface State {

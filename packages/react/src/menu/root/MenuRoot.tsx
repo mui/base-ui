@@ -50,7 +50,6 @@ export const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
     onOpenChange,
     onOpenChangeComplete,
     defaultOpen = false,
-    disabled = false,
     modal: modalProp,
     loop = true,
     orientation = 'vertical',
@@ -71,6 +70,7 @@ export const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
   const [lastOpenChangeReason, setLastOpenChangeReason] =
     React.useState<MenuRoot.OpenChangeReason | null>(null);
   const [stickIfOpen, setStickIfOpen] = React.useState(true);
+  const [disabled, setDisabled] = React.useState(false);
   const openEventRef = React.useRef<Event | null>(null);
   const popupRef = React.useRef<HTMLElement>(null);
   const positionerRef = React.useRef<HTMLElement | null>(null);
@@ -468,6 +468,7 @@ export const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
       typingRef,
       modal,
       disabled,
+      setDisabled,
       parent,
     }),
     [
@@ -489,6 +490,7 @@ export const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
       onOpenChangeComplete,
       modal,
       disabled,
+      setDisabled,
       parent,
     ],
   );
@@ -549,11 +551,6 @@ export namespace MenuRoot {
      * @default 'vertical'
      */
     orientation?: Orientation;
-    /**
-     * Whether the component should ignore user interaction.
-     * @default false
-     */
-    disabled?: boolean;
     /**
      * When in a submenu, determines whether pressing the Escape key
      * closes the entire menu, or only the current child menu.
