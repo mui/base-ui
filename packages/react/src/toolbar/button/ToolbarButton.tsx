@@ -51,7 +51,7 @@ export const ToolbarButton = React.forwardRef(function ToolbarButton(
   const element = useRenderElement('button', componentProps, {
     state,
     ref: [forwardedRef, buttonRef],
-    props: [elementProps, { disabled }, getButtonProps],
+    props: [elementProps, getButtonProps],
   });
 
   return <CompositeItem<ToolbarRoot.ItemMetadata> metadata={itemMetadata} render={element} />;
