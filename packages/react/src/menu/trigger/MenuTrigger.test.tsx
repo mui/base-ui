@@ -156,6 +156,7 @@ describe('<Menu.Trigger />', () => {
       const trigger = screen.getByRole('button');
 
       await act(async () => {
+        // eslint-disable-next-line testing-library/no-node-access
         trigger.click();
       });
 
