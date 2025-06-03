@@ -214,8 +214,8 @@ function onMounted(ref: React.RefObject<HTMLDivElement | null>) {
       }
     });
   }
-  const requestIdleCallback = window.requestIdleCallback ?? window.setTimeout;
-  const cancelIdleCallback = window.cancelIdleCallback ?? window.clearTimeout;
+  const requestIdleCallback = window.requestIdleCallback ?? setTimeout;
+  const cancelIdleCallback = window.cancelIdleCallback ?? clearTimeout;
 
   let callbackId = 0;
   function handleResize() {
