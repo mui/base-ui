@@ -6,8 +6,6 @@ import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useMenuGroupRootContext } from '../group/MenuGroupContext';
 import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 
-const state = {};
-
 /**
  * An accessible label that is automatically associated with its parent group.
  * Renders a `<div>` element.
@@ -32,7 +30,6 @@ export const MenuGroupLabel = React.forwardRef(function MenuGroupLabelComponent(
   }, [setLabelId, id]);
 
   return useRenderElement('div', componentProps, {
-    state,
     ref: forwardedRef,
     props: {
       id,

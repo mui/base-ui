@@ -6,8 +6,6 @@ import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { type BaseUIComponentProps } from '../../utils/types';
 
-const state = {};
-
 /**
  * A heading that labels the dialog.
  * Renders an `<h2>` element.
@@ -31,7 +29,6 @@ export const DialogTitle = React.forwardRef(function DialogTitle(
   }, [id, setTitleElementId]);
 
   return useRenderElement('h2', componentProps, {
-    state,
     ref: forwardedRef,
     props: [elementProps, { id }],
   });

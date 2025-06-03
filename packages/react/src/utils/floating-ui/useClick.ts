@@ -3,8 +3,7 @@ import * as React from 'react';
 import type { ElementProps, FloatingRootContext } from '@floating-ui/react';
 import { isMouseLikePointerType } from '@floating-ui/react/utils';
 import { useAnimationFrame } from '../useAnimationFrame';
-
-const EMPTY_OBJECT = {};
+import { EMPTY_OBJ } from '../constants';
 
 export interface UseClickProps {
   /**
@@ -118,5 +117,5 @@ export function useClick(context: FloatingRootContext, props: UseClickProps = {}
     [dataRef, eventOption, ignoreMouse, onOpenChange, open, stickIfOpen, toggle, frame],
   );
 
-  return React.useMemo(() => (enabled ? { reference } : EMPTY_OBJECT), [enabled, reference]);
+  return React.useMemo(() => (enabled ? { reference } : EMPTY_OBJ), [enabled, reference]);
 }
