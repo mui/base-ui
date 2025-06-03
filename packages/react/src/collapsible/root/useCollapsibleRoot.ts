@@ -92,7 +92,7 @@ export function useCollapsibleRoot(
        * Defer to an effect when controlled, as the open state can be changed
        * externally without interacting with the trigger.
        */
-      isControlledRef.current ||
+      (isControlledRef.current && type !== 'accordion') ||
       /**
        * Defer to an effect When `keepMounted={false}` and when opening, the
        * element may not exist in the DOM at this point.
