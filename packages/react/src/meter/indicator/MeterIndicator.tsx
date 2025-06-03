@@ -13,7 +13,7 @@ import { useRenderElement } from '../../utils/useRenderElement';
  */
 export const MeterIndicator = React.forwardRef(function MeterIndicator(
   componentProps: MeterIndicator.Props,
-  forwardedRef: React.ForwardedRef<HTMLSpanElement>,
+  forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const { render, className, ...elementProps } = componentProps;
 

@@ -12,7 +12,7 @@ import { useRenderElement } from '../../utils/useRenderElement';
  */
 export const MeterTrack = React.forwardRef(function MeterTrack(
   componentProps: MeterTrack.Props,
-  forwardedRef: React.ForwardedRef<HTMLSpanElement>,
+  forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const { render, className, ...elementProps } = componentProps;
 
