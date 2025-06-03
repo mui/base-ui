@@ -80,7 +80,6 @@ export const AccordionPanel = React.forwardRef(function AccordionPanel(
     setKeepMounted(keepMounted);
   }, [setKeepMounted, keepMounted]);
 
-  // Handle auto height after animations complete
   useOpenChangeComplete({
     open,
     ref: panelRef,
@@ -90,8 +89,7 @@ export const AccordionPanel = React.forwardRef(function AccordionPanel(
         return;
       }
 
-      panel.style.setProperty(AccordionPanelCssVars.accordionPanelHeight, 'auto');
-      panel.style.setProperty(AccordionPanelCssVars.accordionPanelWidth, 'auto');
+      setDimensions({ width: undefined, height: undefined });
     },
   });
 

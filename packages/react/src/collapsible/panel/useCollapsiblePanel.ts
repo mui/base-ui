@@ -156,13 +156,8 @@ export function useCollapsiblePanel(
 
   const mergedPanelRef = useForkRef(externalRef, panelRef, handlePanelRef);
 
-  /**
-   * This handles CSS transitions for 2 cases when we can't rely on the trigger handler:
-   * 1. When `keepMounted={false}`, the panel may not exist in the DOM
-   * 2. When controlled, the open state may change externally without involving the trigger
-   */
   useModernLayoutEffect(() => {
-    if (animationTypeRef.current !== 'css-transition' || keepMounted) {
+    if (animationTypeRef.current !== 'css-transition') {
       return undefined;
     }
 
@@ -201,17 +196,29 @@ export function useCollapsiblePanel(
       });
     } else {
       /* closing */
-      resizeFrame = AnimationFrame.request(() => {
-        setDimensions({ height: 0, width: 0 });
-      });
+      setDimensions({ height: panel.scrollHeight, width: panel.scrollWidth });
 
       abortControllerRef.current = new AbortController();
+      const signal = abortControllerRef.current.signal;
 
-      runOnceAnimationsFinish(() => {
-        panel.style.removeProperty('content-visibility');
-        setMounted(false);
-        abortControllerRef.current = null;
-      }, abortControllerRef.current.signal);
+      let frame2 = -1;
+      const frame1 = AnimationFrame.request(() => {
+        // Wait until the `[data-ending-style]` attribute is added.
+        frame2 = AnimationFrame.request(() => {
+          runOnceAnimationsFinish(() => {
+            setDimensions({ height: 0, width: 0 });
+            panel.style.removeProperty('content-visibility');
+            panel.style.removeProperty('display');
+            setMounted(false);
+            abortControllerRef.current = null;
+          }, signal);
+        });
+      });
+
+      return () => {
+        AnimationFrame.cancel(frame1);
+        AnimationFrame.cancel(frame2);
+      };
     }
 
     return () => {
@@ -383,7 +390,7 @@ export namespace useCollapsiblePanel {
      */
     height: number | undefined;
     /**
-     * Allows the browser’s built-in page search to find and expand the panel contents.
+     * Allows the browser's built-in page search to find and expand the panel contents.
      *
      * Overrides the `keepMounted` prop and uses `hidden="until-found"`
      * to hide the element without removing it from the DOM.

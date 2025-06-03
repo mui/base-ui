@@ -5,10 +5,7 @@ import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useControlled } from '../../utils/useControlled';
 import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { useEventCallback } from '../../utils/useEventCallback';
-import { AnimationFrame } from '../../utils/useAnimationFrame';
 import { useTransitionStatus, TransitionStatus } from '../../utils/useTransitionStatus';
-import { CollapsiblePanelCssVars } from '../panel/CollapsiblePanelCssVars';
-import { AccordionPanelCssVars } from '../../accordion/panel/AccordionPanelCssVars';
 
 export type AnimationType = 'css-transition' | 'css-animation' | 'none' | null;
 
@@ -20,9 +17,9 @@ export interface Dimensions {
 export function useCollapsibleRoot(
   parameters: useCollapsibleRoot.Parameters,
 ): useCollapsibleRoot.ReturnValue {
-  const { open: openParam, defaultOpen, onOpenChange, disabled, type } = parameters;
+  const { open: openParam, defaultOpen, onOpenChange, disabled } = parameters;
 
-  const isControlledRef = React.useRef(openParam !== undefined);
+  const isControlled = openParam !== undefined;
 
   const [open, setOpen] = useControlled({
     controlled: openParam,
@@ -31,12 +28,13 @@ export function useCollapsibleRoot(
     state: 'open',
   });
 
-  const { mounted, setMounted, transitionStatus } = useTransitionStatus(open, true);
+  const { mounted, setMounted, transitionStatus } = useTransitionStatus(open, true, true);
   const [visible, setVisible] = React.useState(open);
   const [{ height, width }, setDimensions] = React.useState<Dimensions>({
     height: undefined,
     width: undefined,
   });
+
   const [panelId, setPanelId] = React.useState<string | undefined>(useBaseUiId());
 
   const [hiddenUntilFound, setHiddenUntilFound] = React.useState(false);
@@ -82,73 +80,6 @@ export function useCollapsibleRoot(
       if (mounted && !nextOpen) {
         setMounted(false);
       }
-      return;
-    }
-
-    if (
-      !panel ||
-      animationTypeRef.current !== 'css-transition' ||
-      /**
-       * Defer to an effect when controlled, as the open state can be changed
-       * externally without interacting with the trigger.
-       */
-      isControlledRef.current ||
-      /**
-       * Defer to an effect When `keepMounted={false}` and when opening, the
-       * element may not exist in the DOM at this point.
-       */
-      (!keepMounted && nextOpen)
-    ) {
-      return;
-    }
-
-    if (abortControllerRef.current != null) {
-      abortControllerRef.current.abort();
-      abortControllerRef.current = null;
-    }
-
-    panel.style.setProperty('display', 'block', 'important');
-
-    if (nextOpen) {
-      /* opening */
-
-      panel.style.removeProperty('content-visibility');
-      panel.style.setProperty(transitionDimensionRef.current ?? 'height', '0px');
-
-      AnimationFrame.request(() => {
-        panel.style.removeProperty(transitionDimensionRef.current ?? 'height');
-        setDimensions({ height: panel.scrollHeight, width: panel.scrollWidth });
-        panel.style.removeProperty('display');
-      });
-    } else {
-      if (hiddenUntilFound) {
-        panel.style.setProperty('content-visibility', 'visible');
-      }
-
-      const heightVar =
-        type === 'accordion'
-          ? AccordionPanelCssVars.accordionPanelHeight
-          : CollapsiblePanelCssVars.collapsiblePanelHeight;
-      const widthVar =
-        type === 'accordion'
-          ? AccordionPanelCssVars.accordionPanelWidth
-          : CollapsiblePanelCssVars.collapsiblePanelWidth;
-      panel.style.setProperty(heightVar, `${panel.scrollHeight}px`);
-      panel.style.setProperty(widthVar, `${panel.scrollWidth}px`);
-
-      /* closing */
-      AnimationFrame.request(() => {
-        setDimensions({ height: 0, width: 0 });
-      });
-
-      abortControllerRef.current = new AbortController();
-
-      runOnceAnimationsFinish(() => {
-        setMounted(false);
-        panel.style.removeProperty('display');
-        panel.style.removeProperty('content-visibility');
-        abortControllerRef.current = null;
-      }, abortControllerRef.current.signal);
     }
   });
 
@@ -157,10 +88,10 @@ export function useCollapsibleRoot(
      * Unmount immediately when closing in controlled mode and keepMounted={false}
      * and no CSS animations or transitions are applied
      */
-    if (isControlledRef.current && animationTypeRef.current === 'none' && !keepMounted && !open) {
+    if (isControlled && animationTypeRef.current === 'none' && !keepMounted && !open) {
       setMounted(false);
     }
-  }, [keepMounted, open, openParam, setMounted]);
+  }, [isControlled, keepMounted, open, openParam, setMounted]);
 
   return React.useMemo(
     () => ({

@@ -98,7 +98,6 @@ export const CollapsiblePanel = React.forwardRef(function CollapsiblePanel(
     width,
   });
 
-  // Handle auto height after animations complete
   useOpenChangeComplete({
     open,
     ref: panelRef,
@@ -108,8 +107,7 @@ export const CollapsiblePanel = React.forwardRef(function CollapsiblePanel(
         return;
       }
 
-      panel.style.setProperty(CollapsiblePanelCssVars.collapsiblePanelHeight, 'auto');
-      panel.style.setProperty(CollapsiblePanelCssVars.collapsiblePanelWidth, 'auto');
+      setDimensions({ height: undefined, width: undefined });
     },
   });
 
