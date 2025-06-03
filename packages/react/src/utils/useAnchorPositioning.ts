@@ -135,7 +135,6 @@ export function useAnchorPositioning(
   const anchorFnCallback = useEventCallback(anchorFn);
   const anchorDep = anchorFn ? anchorFnCallback : anchor;
   const anchorValueRef = useLatestRef(anchor);
-  const domReference = floatingRootContext?.elements.domReference;
 
   const direction = useDirection();
   const isRtl = direction === 'rtl';
@@ -383,7 +382,7 @@ export function useAnchorPositioning(
       refs.setPositionReference(finalAnchor);
       registeredPositionReferenceRef.current = finalAnchor;
     }
-  }, [mounted, refs, anchorDep, anchorValueRef, domReference]);
+  }, [mounted, refs, anchorDep, anchorValueRef]);
 
   React.useEffect(() => {
     if (!mounted) {
