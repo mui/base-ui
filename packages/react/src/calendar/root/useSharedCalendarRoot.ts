@@ -14,7 +14,7 @@ import { mergeDateAndTime } from '../../utils/temporal/date-helpers';
 export function useSharedCalendarRoot<
   TValue extends TemporalSupportedValue,
   TError,
-  TValidationProps extends Required<BaseDateValidationProps>,
+  TValidationProps extends BaseDateValidationProps,
 >(
   parameters: useSharedCalendarRoot.Parameters<TValue, TError, TValidationProps>,
 ): useSharedCalendarRoot.ReturnValue {
@@ -301,7 +301,7 @@ export namespace useSharedCalendarRoot {
   export interface Parameters<
     TValue extends TemporalSupportedValue,
     TError,
-    TValidationProps extends Required<BaseDateValidationProps>,
+    TValidationProps extends BaseDateValidationProps,
   > extends PublicParameters<TValue, TError> {
     /**
      * The manager of the calendar (uses `useDateManager` for Calendar and `useDateRangeManager` for RangeCalendar).
@@ -397,6 +397,6 @@ export namespace useSharedCalendarRoot {
 }
 
 interface BaseDateValidationProps {
-  minDate?: TemporalSupportedObject;
-  maxDate?: TemporalSupportedObject;
+  minDate: TemporalSupportedObject | null;
+  maxDate: TemporalSupportedObject | null;
 }

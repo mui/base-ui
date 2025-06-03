@@ -77,11 +77,17 @@ export const CalendarSetVisibleMonth = React.forwardRef(function CalendarSetVisi
 
     // All the months before the visible ones are fully disabled, we skip the navigation.
     if (isMovingBefore) {
-      return adapter.isAfter(adapter.startOfMonth(dateValidationProps.minDate), targetDate);
+      return (
+        dateValidationProps.minDate != null &&
+        adapter.isAfter(adapter.startOfMonth(dateValidationProps.minDate), targetDate)
+      );
     }
 
     // All the months after the visible ones are fully disabled, we skip the navigation.
-    return adapter.isBefore(adapter.startOfMonth(dateValidationProps.maxDate), targetDate);
+    return (
+      dateValidationProps.maxDate != null &&
+      adapter.isBefore(adapter.startOfMonth(dateValidationProps.maxDate), targetDate)
+    );
   }, [
     disabled,
     dateValidationProps.minDate,

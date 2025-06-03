@@ -73,11 +73,17 @@ export const CalendarSetVisibleYear = React.forwardRef(function CalendarSetVisib
 
     // All the years before the visible ones are fully disabled, we skip the navigation.
     if (isMovingBefore) {
-      return adapter.isAfter(adapter.startOfYear(dateValidationProps.minDate), targetDate);
+      return (
+        dateValidationProps.minDate != null &&
+        adapter.isAfter(adapter.startOfYear(dateValidationProps.minDate), targetDate)
+      );
     }
 
     // All the years after the visible ones are fully disabled, we skip the navigation.
-    return adapter.isBefore(adapter.startOfYear(dateValidationProps.maxDate), targetDate);
+    return (
+      dateValidationProps.maxDate != null &&
+      adapter.isBefore(adapter.startOfYear(dateValidationProps.maxDate), targetDate)
+    );
   }, [
     disabled,
     dateValidationProps.minDate,

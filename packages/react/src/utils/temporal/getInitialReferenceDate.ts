@@ -102,10 +102,10 @@ export namespace getInitialReferenceDate {
   }
 
   export interface ValidationProps {
-    maxDate?: TemporalSupportedObject;
-    minDate?: TemporalSupportedObject;
-    minTime?: TemporalSupportedObject;
-    maxTime?: TemporalSupportedObject;
+    maxDate?: TemporalSupportedObject | null;
+    minDate?: TemporalSupportedObject | null;
+    minTime?: TemporalSupportedObject | null;
+    maxTime?: TemporalSupportedObject | null;
   }
 
   export type Precision = 'year' | 'month' | 'day' | 'hour' | 'minute' | 'second' | 'millisecond';

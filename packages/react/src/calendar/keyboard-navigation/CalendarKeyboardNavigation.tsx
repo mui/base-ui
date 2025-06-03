@@ -46,6 +46,7 @@ export function CalendarKeyboardNavigation(props: CalendarKeyboardNavigation.Pro
 
         // All the months before the visible ones are fully disabled, we skip the navigation.
         if (
+          dateValidationProps.minDate != null &&
           adapter.isAfter(adapter.startOfMonth(dateValidationProps.minDate), lastMonthInNewPage)
         ) {
           return;
@@ -57,7 +58,10 @@ export function CalendarKeyboardNavigation(props: CalendarKeyboardNavigation.Pro
         const targetDate = adapter.addMonths(adapter.startOfMonth(visibleDate), monthPageSize);
 
         // All the months after the visible ones are fully disabled, we skip the navigation.
-        if (adapter.isBefore(adapter.startOfMonth(dateValidationProps.maxDate), targetDate)) {
+        if (
+          dateValidationProps.maxDate != null &&
+          adapter.isBefore(adapter.startOfMonth(dateValidationProps.maxDate), targetDate)
+        ) {
           return;
         }
         setVisibleDate(adapter.addMonths(visibleDate, monthPageSize), false);
