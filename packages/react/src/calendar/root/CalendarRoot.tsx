@@ -4,10 +4,7 @@ import { TemporalNonRangeValue } from '../../models';
 import { SharedCalendarRootContext } from './SharedCalendarRootContext';
 import { useSharedCalendarRoot } from './useSharedCalendarRoot';
 import { SharedCalendarRootVisibleDateContext } from './SharedCalendarRootVisibleDateContext';
-import {
-  useApplyDefaultValuesToDateValidationProps,
-  useDateManager,
-} from '../../utils/temporal/useDateManager';
+import { useDateManager } from '../../utils/temporal/useDateManager';
 import { CalendarContext } from '../use-context/CalendarContext';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { BaseUIComponentProps } from '../../utils/types';

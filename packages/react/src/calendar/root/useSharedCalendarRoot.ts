@@ -140,7 +140,7 @@ export function useSharedCalendarRoot<TValue extends TemporalSupportedValue, TEr
       validateDate({
         adapter,
         value: day,
-        validationProps: validationProps,
+        validationProps,
       }),
     [adapter, validationProps],
   );

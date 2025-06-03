@@ -53,12 +53,6 @@ export namespace useDateManager {
   }
 }
 
-export namespace useApplyDefaultValuesToDateValidationProps {
-  export interface Parameters extends Partial<useDateManager.ValidationProps> {}
-
-  export interface ReturnValue extends useDateManager.ValidationProps {}
-}
-
 export function validateDate(parameters: validateDate.Parameters): useDateManager.Error {
   const { adapter, value, validationProps } = parameters;
   if (value === null) {

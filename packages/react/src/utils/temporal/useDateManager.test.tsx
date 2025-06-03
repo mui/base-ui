@@ -1,8 +1,6 @@
-import * as React from 'react';
 import { expect } from 'chai';
 import { TemporalAdapterLuxon } from '@base-ui-components/react/temporal-adapter-luxon';
 import { validateDate } from './useDateManager';
-import { createTemporalRenderer } from '#test-utils';
 
 const adapter = new TemporalAdapterLuxon();
 
