@@ -24,7 +24,8 @@ export const AlertDialogBackdrop = React.forwardRef(function AlertDialogBackdrop
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const { render, className, renderMode = 'root', ...elementProps } = componentProps;
-  const { open, nested, mounted, transitionStatus, backdropRef, nestedOpenDialogCount } = useAlertDialogRootContext();
+  const { open, nested, mounted, transitionStatus, backdropRef, nestedOpenDialogCount } =
+    useAlertDialogRootContext();
 
   const state: AlertDialogBackdrop.State = React.useMemo(
     () => ({
@@ -33,7 +34,7 @@ export const AlertDialogBackdrop = React.forwardRef(function AlertDialogBackdrop
     }),
     [open, transitionStatus],
   );
-  
+
   let shouldRender = true;
   if (renderMode === 'root') {
     shouldRender = !nested;
