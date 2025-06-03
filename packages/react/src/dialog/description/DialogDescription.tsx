@@ -30,7 +30,7 @@ export const DialogDescription = React.forwardRef(function DialogDescription(
 
   return useRenderElement('p', componentProps, {
     ref: forwardedRef,
-    props: [elementProps, { id }],
+    props: [{ id }, elementProps],
   });
 });
 

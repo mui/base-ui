@@ -30,7 +30,7 @@ export const AlertDialogTitle = React.forwardRef(function AlertDialogTitle(
 
   return useRenderElement('h2', componentProps, {
     ref: forwardedRef,
-    props: [elementProps, { id }],
+    props: [{ id }, elementProps],
   });
 });
 

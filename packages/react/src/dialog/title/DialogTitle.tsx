@@ -30,7 +30,7 @@ export const DialogTitle = React.forwardRef(function DialogTitle(
 
   return useRenderElement('h2', componentProps, {
     ref: forwardedRef,
-    props: [elementProps, { id }],
+    props: [{ id }, elementProps],
   });
 });
 
