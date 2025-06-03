@@ -283,6 +283,13 @@ export const SliderControl = React.forwardRef(function SliderControl(
     fieldControlValidation.commitValidation(lastChangedValueRef.current ?? finger.value);
     onValueCommitted(lastChangedValueRef.current ?? finger.value, nativeEvent);
 
+    if (
+      nativeEvent instanceof PointerEvent &&
+      controlRef.current?.hasPointerCapture(nativeEvent.pointerId)
+    ) {
+      controlRef.current?.releasePointerCapture(nativeEvent.pointerId);
+    }
+
     touchIdRef.current = null;
     // eslint-disable-next-line @typescript-eslint/no-use-before-define
     stopListening();
@@ -392,6 +399,10 @@ export const SliderControl = React.forwardRef(function SliderControl(
             } else {
               setValue(finger.value, finger.thumbIndex, event.nativeEvent);
             }
+          }
+
+          if (event.nativeEvent.pointerId) {
+            controlRef.current?.setPointerCapture(event.nativeEvent.pointerId);
           }
 
           moveCountRef.current = 0;
