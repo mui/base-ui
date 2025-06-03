@@ -40,28 +40,6 @@ export function useRenderElement<
 }
 
 /**
- * Returns a function that renders a Base UI element.
- *
- * @deprecated Use `useRenderElement` instead and pass `enabled = false` to its options instead.
- */
-// TODO: Remove once useComponentRenderer is no longer used.
-export function useRenderElementLazy<
-  State extends Record<string, any>,
-  RenderedElementType extends Element,
-  TagName extends IntrinsicTagName | undefined,
-  Enabled extends boolean | undefined,
->(
-  element: TagName,
-  componentProps: useRenderElement.ComponentProps<State>,
-  params: useRenderElement.Parameters<State, RenderedElementType, TagName, Enabled> = {},
-) {
-  const renderProp = componentProps.render;
-  const outProps = useRenderElementProps(componentProps, params);
-  const state = params.state ?? (EMPTY_OBJ as State);
-  return () => evaluateRenderProp(element, renderProp, outProps, state);
-}
-
-/**
  * Computes render element final props.
  */
 function useRenderElementProps<
