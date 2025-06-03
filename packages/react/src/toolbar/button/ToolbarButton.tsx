@@ -51,7 +51,14 @@ export const ToolbarButton = React.forwardRef(function ToolbarButton(
   const element = useRenderElement('button', componentProps, {
     state,
     ref: [forwardedRef, buttonRef],
-    props: [elementProps, { disabled }, getButtonProps],
+    props: [
+      elementProps,
+      // for integrating with Menu and Select disabled states, `disabled` is
+      // intentionally duplicated even though getButtonProps includes it already
+      // TODO: follow up after https://github.com/mui/base-ui/issues/1976#issuecomment-2916905663
+      { disabled },
+      getButtonProps,
+    ],
   });
 
   return <CompositeItem<ToolbarRoot.ItemMetadata> metadata={itemMetadata} render={element} />;

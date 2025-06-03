@@ -8,8 +8,11 @@ import type { ToolbarRoot } from '../root/ToolbarRoot';
 import { useToolbarRootContext } from '../root/ToolbarRootContext';
 
 const TOOLBAR_LINK_METADATA = {
+  // links cannot be disabled, this metadata is only used for deriving `disabledIndices``
+  // TODO: better name
   focusableWhenDisabled: true,
 };
+
 /**
  * A link component.
  * Renders an `<a>` element.
