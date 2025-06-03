@@ -64,15 +64,3 @@ export function replaceInvalidDateByNull(
   }
   return null;
 }
-
-export function applyDefaultDate(
-  adapter: TemporalAdapter,
-  date: TemporalSupportedObject | null | undefined,
-  defaultDate: TemporalSupportedObject,
-): TemporalSupportedObject {
-  if (date == null || !adapter.isValid(date)) {
-    return defaultDate;
-  }
-
-  return date;
-}

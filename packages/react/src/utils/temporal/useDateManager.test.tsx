@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import { TemporalAdapterLuxon } from '@base-ui-components/react/temporal-adapter-luxon';
-import { useApplyDefaultValuesToDateValidationProps, validateDate } from './useDateManager';
+import { validateDate } from './useDateManager';
 import { createTemporalRenderer } from '#test-utils';
 
 const adapter = new TemporalAdapterLuxon();
@@ -14,7 +14,7 @@ describe.only('useDateManager()', () => {
         validateDate({
           adapter,
           value: adapter.date('2025-06-03', 'default'),
-          validationProps: { minDate: null, maxDate: null },
+          validationProps: {},
         }),
       ).to.equal(null);
     });
@@ -39,7 +39,6 @@ describe.only('useDateManager()', () => {
           value: adapter.date('2025-06-03T15:30', 'default'),
           validationProps: {
             minDate: adapter.date('2025-06-03T20:30', 'default'),
-            maxDate: null,
           },
         }),
       ).to.equal(null);
@@ -51,7 +50,6 @@ describe.only('useDateManager()', () => {
           adapter,
           value: adapter.date('2025-06-03T20:30', 'default'),
           validationProps: {
-            minDate: null,
             maxDate: adapter.date('2025-06-03T15:30', 'default'),
           },
         }),
@@ -63,44 +61,9 @@ describe.only('useDateManager()', () => {
         validateDate({
           adapter,
           value: adapter.date('Invalid date', 'default'),
-          validationProps: { minDate: null, maxDate: null },
+          validationProps: {},
         }),
       ).to.equal('invalid');
-    });
-  });
-
-  describe('useApplyDefaultValuesToDateValidationProps utility', () => {
-    const { render } = createTemporalRenderer();
-
-    interface TestComponentProps {
-      before: useApplyDefaultValuesToDateValidationProps.Parameters;
-      children: (validationProps: useApplyDefaultValuesToDateValidationProps.ReturnValue) => void;
-    }
-
-    function TestComponent(props: TestComponentProps) {
-      const validationProps = useApplyDefaultValuesToDateValidationProps(props.before);
-
-      props.children(validationProps);
-
-      return null;
-    }
-
-    it('should use props.minDate and props.maxDate when provided', () => {
-      const before: useApplyDefaultValuesToDateValidationProps.Parameters = {
-        minDate: adapter.date('2020-01-01', 'default'),
-        maxDate: adapter.date('2020-12-31', 'default'),
-      };
-      let after: useApplyDefaultValuesToDateValidationProps.ReturnValue;
-      render(
-        <TestComponent before={before}>
-          {(validationProps) => {
-            after = validationProps;
-          }}
-        </TestComponent>,
-      );
-
-      expect(after!.minDate).to.equal(before.minDate);
-      expect(after!.maxDate).to.equal(before.maxDate);
     });
   });
 });

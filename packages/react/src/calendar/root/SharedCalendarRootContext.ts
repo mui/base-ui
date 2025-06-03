@@ -27,9 +27,8 @@ export interface SharedCalendarRootContext {
   getDateValidationError: (date: TemporalSupportedObject) => useDateManager.Error;
   /**
    * The props to check if a date is valid or not.
-   * Warning: Even when used inside the RangeCalendar component, this is still equal to the validation props for a single date.
    */
-  dateValidationProps: useDateManager.ValidationProps;
+  validationProps: useDateManager.ValidationProps;
   /**
    * Mark specific dates as unavailable.
    * Those dates will not be selectable but they will still be focusable with the keyboard.

@@ -11,12 +11,8 @@ import { TemporalManager, TemporalTimezoneProps } from '../../utils/temporal/typ
 import { useControlled } from '../../utils/useControlled';
 import { mergeDateAndTime } from '../../utils/temporal/date-helpers';
 
-export function useSharedCalendarRoot<
-  TValue extends TemporalSupportedValue,
-  TError,
-  TValidationProps extends BaseDateValidationProps,
->(
-  parameters: useSharedCalendarRoot.Parameters<TValue, TError, TValidationProps>,
+export function useSharedCalendarRoot<TValue extends TemporalSupportedValue, TError>(
+  parameters: useSharedCalendarRoot.Parameters<TValue, TError>,
 ): useSharedCalendarRoot.ReturnValue {
   const adapter = useTemporalAdapter();
 
@@ -39,8 +35,7 @@ export function useSharedCalendarRoot<
     visibleDate: visibleDateProp,
     defaultVisibleDate,
     // Validation props
-    dateValidationProps,
-    valueValidationProps,
+    validationProps,
     isDateUnavailable,
     // Manager props
     manager,
@@ -54,7 +49,7 @@ export function useSharedCalendarRoot<
 
   const handleValueChangeWithContext = useEventCallback((newValue: TValue) => {
     onValueChange?.(newValue, {
-      validationError: manager.getValidationError(newValue, valueValidationProps),
+      validationError: manager.getValidationError(newValue, validationProps),
     });
   });
 
@@ -73,9 +68,9 @@ export function useSharedCalendarRoot<
       return invalid;
     }
 
-    const error = manager.getValidationError(value, valueValidationProps);
+    const error = manager.getValidationError(value, validationProps);
     return manager.isValidationErrorEmpty(error);
-  }, [manager, value, invalid, valueValidationProps]);
+  }, [manager, value, invalid, validationProps]);
 
   const referenceDate = React.useMemo(
     () => {
@@ -83,7 +78,7 @@ export function useSharedCalendarRoot<
         adapter,
         timezone,
         externalDate: getDateToUseForReferenceDate(value),
-        validationProps: dateValidationProps,
+        validationProps,
         referenceDate: referenceDateProp,
         precision: 'day',
       });
@@ -145,9 +140,9 @@ export function useSharedCalendarRoot<
       validateDate({
         adapter,
         value: day,
-        validationProps: dateValidationProps,
+        validationProps: validationProps,
       }),
-    [adapter, dateValidationProps],
+    [adapter, validationProps],
   );
 
   const selectDate = useEventCallback<SharedCalendarRootContext['selectDate']>(
@@ -200,7 +195,7 @@ export function useSharedCalendarRoot<
       yearPageSize,
       registerDayGrid,
       selectDate,
-      dateValidationProps,
+      validationProps,
       isDateUnavailable,
     }),
     [
@@ -213,7 +208,7 @@ export function useSharedCalendarRoot<
       monthPageSize,
       yearPageSize,
       registerDayGrid,
-      dateValidationProps,
+      validationProps,
       isDateUnavailable,
       selectDate,
     ],
@@ -298,11 +293,8 @@ export namespace useSharedCalendarRoot {
     yearPageSize?: number;
   }
 
-  export interface Parameters<
-    TValue extends TemporalSupportedValue,
-    TError,
-    TValidationProps extends BaseDateValidationProps,
-  > extends PublicParameters<TValue, TError> {
+  export interface Parameters<TValue extends TemporalSupportedValue, TError>
+    extends PublicParameters<TValue, TError> {
     /**
      * The manager of the calendar (uses `useDateManager` for Calendar and `useDateRangeManager` for RangeCalendar).
      */
@@ -315,11 +307,7 @@ export namespace useSharedCalendarRoot {
     /**
      * The props used to validate a single date.
      */
-    dateValidationProps: useDateManager.ValidationProps;
-    /**
-     * The props used to validate the value.
-     */
-    valueValidationProps: TValidationProps;
+    validationProps: useDateManager.ValidationProps;
   }
 
   export interface ReturnValue {
@@ -394,9 +382,4 @@ export namespace useSharedCalendarRoot {
      */
     readOnly?: boolean;
   }
-}
-
-interface BaseDateValidationProps {
-  minDate: TemporalSupportedObject | null;
-  maxDate: TemporalSupportedObject | null;
 }

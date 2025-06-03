@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { applyDefaultDate, areDatesEqual } from './date-helpers';
+import { areDatesEqual } from './date-helpers';
 import { useTemporalAdapter } from '../../temporal-adapter-provider/TemporalAdapterContext';
 import { TemporalManager } from './types';
 import { TemporalAdapter, TemporalNonRangeValue, TemporalSupportedObject } from '../../models';
@@ -44,38 +44,13 @@ export namespace useDateManager {
   export interface ValidationProps {
     /**
      * Minimal selectable date.
-     * @default 1900-01-01
      */
-    minDate: TemporalSupportedObject | null;
+    minDate?: TemporalSupportedObject;
     /**
      * Maximal selectable date.
-     * @default 2099-12-31
      */
-    maxDate: TemporalSupportedObject | null;
+    maxDate?: TemporalSupportedObject;
   }
-}
-
-export function useApplyDefaultValuesToDateValidationProps(
-  parameters: useApplyDefaultValuesToDateValidationProps.Parameters,
-): useApplyDefaultValuesToDateValidationProps.ReturnValue {
-  const adapter = useTemporalAdapter();
-
-  // TODO: Decide what we want to do with the default min and max dates.
-  return React.useMemo(
-    () => ({
-      minDate: applyDefaultDate(
-        adapter,
-        parameters.minDate,
-        adapter.date('1900-01-01T00:00:00.000', 'default'),
-      ),
-      maxDate: applyDefaultDate(
-        adapter,
-        parameters.maxDate,
-        adapter.date('2099-12-31T00:00:00.000', 'default'),
-      ),
-    }),
-    [adapter, parameters.minDate, parameters.maxDate],
-  );
 }
 
 export namespace useApplyDefaultValuesToDateValidationProps {

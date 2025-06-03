@@ -62,10 +62,7 @@ export const CalendarRoot = React.forwardRef(function CalendarRoot(
 
   const manager = useDateManager();
 
-  const validationProps = useApplyDefaultValuesToDateValidationProps({
-    minDate,
-    maxDate,
-  });
+  const validationProps: useDateManager.ValidationProps = { minDate, maxDate };
 
   const {
     state,
@@ -86,8 +83,7 @@ export const CalendarRoot = React.forwardRef(function CalendarRoot(
     visibleDate,
     defaultVisibleDate,
     manager,
-    dateValidationProps: validationProps,
-    valueValidationProps: validationProps,
+    validationProps,
     isDateUnavailable,
     calendarValueManager,
   });
@@ -130,7 +126,7 @@ export namespace CalendarRoot {
   export interface Props
     extends Omit<BaseUIComponentProps<'div', State>, 'children'>,
       useSharedCalendarRoot.PublicParameters<TemporalNonRangeValue, useDateManager.Error>,
-      Partial<useDateManager.ValidationProps> {
+      useDateManager.ValidationProps {
     /**
      * The children of the component.
      * If a function is provided, it will be called with the public context as its parameter.

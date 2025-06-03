@@ -46,8 +46,12 @@ export const CalendarSetVisibleYear = React.forwardRef(function CalendarSetVisib
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
   const { visibleDate } = useSharedCalendarRootVisibleDateContext();
-  const { yearPageSize, disabled, dateValidationProps, setVisibleDate } =
-    useSharedCalendarRootContext();
+  const {
+    yearPageSize,
+    disabled,
+    validationProps: dateValidationProps,
+    setVisibleDate,
+  } = useSharedCalendarRootContext();
   const adapter = useTemporalAdapter();
   const { ref: listItemRef } = useCompositeListItem();
   const ref = useForkRef(forwardedRef, listItemRef);

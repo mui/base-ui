@@ -20,7 +20,11 @@ import { useSharedCalendarRootContext } from '../root/SharedCalendarRootContext'
  * Documentation: [Base UI Calendar](https://base-ui.com/react/components/calendar)
  */
 export function CalendarKeyboardNavigation(props: CalendarKeyboardNavigation.Props) {
-  const { setVisibleDate, monthPageSize, dateValidationProps } = useSharedCalendarRootContext();
+  const {
+    setVisibleDate,
+    monthPageSize,
+    validationProps: dateValidationProps,
+  } = useSharedCalendarRootContext();
   const { visibleDate } = useSharedCalendarRootVisibleDateContext();
   const adapter = useTemporalAdapter();
   const cellsRef = React.useRef(new Map<number, CalendarKeyboardNavigation.CellRefs>());

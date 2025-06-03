@@ -24,12 +24,10 @@
     },
     "maxDate": {
       "type": "DateTime<boolean>",
-      "default": "2099-12-31",
       "description": "Maximal selectable date."
     },
     "minDate": {
       "type": "DateTime<boolean>",
-      "default": "1900-01-01",
       "description": "Minimal selectable date."
     },
     "monthPageSize": {
