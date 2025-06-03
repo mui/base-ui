@@ -4,7 +4,6 @@ import type { HandleClose } from './hooks/useHover';
 import { Timeout } from '../utils/useTimeout';
 import { contains, getTarget } from './utils/element';
 import { getNodeChildren } from './utils/nodes';
-import { clearTimeoutIfSet } from './utils/clearTimeoutIfSet';
 
 /* eslint-disable no-nested-ternary */
 
