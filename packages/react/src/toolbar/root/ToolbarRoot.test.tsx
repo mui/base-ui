@@ -115,7 +115,6 @@ describe('<Toolbar.Root />', () => {
       expect(element).to.have.attribute('data-disabled');
       expect(element).to.have.attribute('aria-disabled', 'true');
       expect(element).toHaveFocus();
-      expect(element).toHaveFocus();
     }
 
     it('toolbar items can be focused when disabled by default', async () => {
