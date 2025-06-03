@@ -42,27 +42,6 @@ export const ToolbarInput = React.forwardRef(function ToolbarInput(
     elementName: 'input',
   });
 
-  const inputProps: React.ComponentPropsWithRef<'input'> = React.useMemo(
-    () => ({
-      onClick(event) {
-        if (disabled) {
-          event.preventDefault();
-        }
-      },
-      onKeyDown(event) {
-        if (event.key !== ARROW_LEFT && event.key !== ARROW_RIGHT && disabled) {
-          stopEvent(event);
-        }
-      },
-      onPointerDown(event) {
-        if (disabled) {
-          event.preventDefault();
-        }
-      },
-    }),
-    [disabled],
-  );
-
   const state: ToolbarInput.State = React.useMemo(
     () => ({
       disabled,
@@ -75,7 +54,27 @@ export const ToolbarInput = React.forwardRef(function ToolbarInput(
   const element = useRenderElement('input', componentProps, {
     state,
     ref: [forwardedRef, buttonRef],
-    props: [inputProps, elementProps, getButtonProps],
+    props: [
+      {
+        onClick(event) {
+          if (disabled) {
+            event.preventDefault();
+          }
+        },
+        onKeyDown(event) {
+          if (event.key !== ARROW_LEFT && event.key !== ARROW_RIGHT && disabled) {
+            stopEvent(event);
+          }
+        },
+        onPointerDown(event) {
+          if (disabled) {
+            event.preventDefault();
+          }
+        },
+      },
+      elementProps,
+      getButtonProps,
+    ],
   });
 
   return <CompositeItem<ToolbarRoot.ItemMetadata> metadata={itemMetadata} render={element} />;
