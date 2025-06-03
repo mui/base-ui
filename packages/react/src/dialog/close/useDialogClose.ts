@@ -48,7 +48,9 @@ export namespace useDialogClose {
       reason: DialogOpenChangeReason | undefined,
     ) => void;
     /**
-     * Determines whether the component is being rendered as a native button.
+     * Whether the component renders a native `<button>` element when replacing it
+     * via the `render` prop.
+     * Set to `false` if the rendered element is not a button (e.g. `<div>`).
      * @default true
      */
     nativeButton: boolean;

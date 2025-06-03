@@ -50,7 +50,9 @@ export const AlertDialogTrigger = React.forwardRef(function AlertDialogTrigger(
 export namespace AlertDialogTrigger {
   export interface Props extends BaseUIComponentProps<'button', State> {
     /**
-     * Determines whether the component is being rendered as a native button.
+     * Whether the component renders a native `<button>` element when replacing it
+     * via the `render` prop.
+     * Set to `false` if the rendered element is not a button (e.g. `<div>`).
      * @default false
      */
     nativeButton?: boolean;
