@@ -1,18 +1,16 @@
 'use client';
 import * as React from 'react';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { usePreviewCardRootContext } from '../root/PreviewCardContext';
 import { usePreviewCardPositionerContext } from '../positioner/PreviewCardPositionerContext';
-import { usePreviewCardPopup } from './usePreviewCardPopup';
-import { useForkRef } from '../../utils/useForkRef';
 import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 import type { Align, Side } from '../../utils/useAnchorPositioning';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
-import { mergeProps } from '../../merge-props';
 import { transitionStatusMapping } from '../../utils/styleHookMapping';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
+import { useRenderElement } from '../../utils/useRenderElement';
+import { DISABLED_TRANSITIONS_STYLE, EMPTY_OBJ } from '../../utils/constants';
 
 const customStyleHookMapping: CustomStyleHookMapping<PreviewCardPopup.State> = {
   ...baseMapping,
@@ -26,12 +24,12 @@ const customStyleHookMapping: CustomStyleHookMapping<PreviewCardPopup.State> = {
  * Documentation: [Base UI Preview Card](https://base-ui.com/react/components/preview-card)
  */
 export const PreviewCardPopup = React.forwardRef(function PreviewCardPopup(
-  props: PreviewCardPopup.Props,
+  componentProps: PreviewCardPopup.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { className, render, ...otherProps } = props;
+  const { className, render, ...elementProps } = componentProps;
 
-  const { open, transitionStatus, getRootPopupProps, popupRef, onOpenChangeComplete } =
+  const { open, transitionStatus, popupRef, onOpenChangeComplete, popupProps } =
     usePreviewCardRootContext();
   const { side, align } = usePreviewCardPositionerContext();
 
@@ -45,10 +43,6 @@ export const PreviewCardPopup = React.forwardRef(function PreviewCardPopup(
     },
   });
 
-  const { getPopupProps } = usePreviewCardPopup({
-    getProps: getRootPopupProps,
-  });
-
   const state: PreviewCardPopup.State = React.useMemo(
     () => ({
       open,
@@ -59,27 +53,18 @@ export const PreviewCardPopup = React.forwardRef(function PreviewCardPopup(
     [open, side, align, transitionStatus],
   );
 
-  const mergedRef = useForkRef(popupRef, forwardedRef);
-
-  const { renderElement } = useComponentRenderer({
-    propGetter: getPopupProps,
-    ref: mergedRef,
-    render: render ?? 'div',
-    className,
+  const element = useRenderElement('div', componentProps, {
+    ref: [popupRef, forwardedRef],
     state,
-    extraProps:
-      transitionStatus === 'starting'
-        ? mergeProps(
-            {
-              style: { transition: 'none' },
-            },
-            otherProps,
-          )
-        : otherProps,
+    props: [
+      popupProps,
+      transitionStatus === 'starting' ? DISABLED_TRANSITIONS_STYLE : EMPTY_OBJ,
+      elementProps,
+    ],
     customStyleHookMapping,
   });
 
-  return renderElement();
+  return element;
 });
 
 export namespace PreviewCardPopup {
