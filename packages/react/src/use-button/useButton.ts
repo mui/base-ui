@@ -88,7 +88,7 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
       let type: 'button' | 'text' | undefined;
       if (native === 'input') {
         type = 'text';
-      } else if (native === true) {
+      } else if (isNativeButton) {
         type = 'button';
       }
 
