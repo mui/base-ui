@@ -2,7 +2,6 @@
 import * as React from 'react';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { BaseUIComponentProps } from '../../utils/types';
-import { useButton } from '../../use-button';
 import { CompositeItem } from '../../composite/item/CompositeItem';
 import type { ToolbarRoot } from '../root/ToolbarRoot';
 import { useToolbarRootContext } from '../root/ToolbarRootContext';
@@ -27,10 +26,6 @@ export const ToolbarLink = React.forwardRef(function ToolbarLink(
 
   const { orientation } = useToolbarRootContext();
 
-  const { getButtonProps, buttonRef } = useButton({
-    native: 'a',
-  });
-
   const state: ToolbarLink.State = React.useMemo(
     () => ({
       orientation,
@@ -40,8 +35,8 @@ export const ToolbarLink = React.forwardRef(function ToolbarLink(
 
   const element = useRenderElement('a', componentProps, {
     state,
-    ref: [forwardedRef, buttonRef],
-    props: [elementProps, getButtonProps],
+    ref: forwardedRef,
+    props: elementProps,
   });
 
   return (
