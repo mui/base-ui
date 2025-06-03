@@ -26,10 +26,7 @@ const InnerCalendarDayGridRow = React.forwardRef(function InnerCalendarDayGridRo
 
   const context: CalendarDayGridRowContext = React.useMemo(() => ({ ref }), [ref]);
 
-  const state = React.useMemo(() => ({}), []);
-
   const element = useRenderElement('div', componentProps, {
-    state,
     ref: forwardedRef,
     props: [{ ref, role: 'row', children: resolvedChildren }, elementProps],
   });

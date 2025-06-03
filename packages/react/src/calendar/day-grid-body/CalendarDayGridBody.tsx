@@ -35,10 +35,7 @@ export const CalendarDayGridBody = React.forwardRef(function CalendarDayGrid(
     freezeMonth,
   });
 
-  const state = React.useMemo(() => ({}), []);
-
   const element = useRenderElement('div', componentProps, {
-    state,
     ref: [forwardedRef, ref],
     props: [props, elementProps],
   });

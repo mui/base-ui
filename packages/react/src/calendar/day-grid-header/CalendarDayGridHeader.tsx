@@ -34,10 +34,7 @@ export const CalendarDayGridHeader = React.forwardRef(function CalendarDayGridHe
     return children;
   }, [children, days]);
 
-  const state = React.useMemo(() => ({}), []);
-
   const element = useRenderElement('div', componentProps, {
-    state,
     ref: forwardedRef,
     props: [{ role: 'row', children: resolvedChildren }, elementProps],
   });
