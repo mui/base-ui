@@ -93,6 +93,7 @@ const Option = React.forwardRef<HTMLButtonElement, OptionProps>(function Option(
   );
 });
 
+/** @internal */
 export function Main() {
   const [open, setOpen] = React.useState(false);
   const [search, setSearch] = React.useState('');
