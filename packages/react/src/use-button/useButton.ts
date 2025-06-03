@@ -6,6 +6,7 @@ import { useModernLayoutEffect } from '../utils/useModernLayoutEffect';
 import { useEventCallback } from '../utils/useEventCallback';
 import { useCompositeRootContext } from '../composite/root/CompositeRootContext';
 import { BaseUIEvent, HTMLProps } from '../utils/types';
+import { warn } from '../utils/warn';
 
 export function useButton(parameters: useButton.Parameters = {}): useButton.ReturnValue {
   const {
@@ -17,6 +18,27 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
   } = parameters;
 
   const buttonRef = React.useRef<HTMLButtonElement | HTMLAnchorElement | HTMLElement | null>(null);
+
+  React.useEffect(() => {
+    const button = buttonRef.current;
+    if (!button) {
+      return;
+    }
+
+    const tagName = button.tagName;
+    const tagNameLower = tagName.toLowerCase();
+    const isButton = tagNameLower === 'button';
+    const isButtonButFalse = isButton && native !== true;
+    const isOtherButTrue = !isButton && native === true;
+
+    const hasError = isButtonButFalse || isOtherButTrue;
+
+    if (hasError) {
+      throw new Error(
+        `Set the \`nativeButton\` prop to \`${isButtonButFalse}\` when rendering a <${tagNameLower}> element.`,
+      );
+    }
+  }, [native]);
 
   const isCompositeItem = useCompositeRootContext(true) !== undefined;
   const isNativeButton = native === true;

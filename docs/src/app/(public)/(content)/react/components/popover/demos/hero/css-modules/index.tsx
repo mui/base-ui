@@ -5,7 +5,7 @@ import styles from './index.module.css';
 export default function ExamplePopover() {
   return (
     <Popover.Root>
-      <Popover.Trigger className={styles.IconButton}>
+      <Popover.Trigger className={styles.IconButton} render={<div />}>
         <BellIcon aria-label="Notifications" className={styles.Icon} />
       </Popover.Trigger>
       <Popover.Portal>
