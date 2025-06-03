@@ -1,3 +1,4 @@
+/* eslint-disable testing-library/no-node-access */
 import * as React from 'react';
 import { expect } from 'chai';
 import { spy } from 'sinon';
@@ -607,7 +608,6 @@ describe('<Switch.Root />', () => {
         </Field.Root>,
       );
 
-      // eslint-disable-next-line testing-library/no-node-access
       const internalInput = container.querySelector<HTMLInputElement>('input[type="checkbox"]');
 
       expect(internalInput).to.have.attribute(
