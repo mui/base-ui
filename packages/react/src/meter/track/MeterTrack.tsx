@@ -1,10 +1,9 @@
 'use client';
 import * as React from 'react';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import type { MeterRoot } from '../root/MeterRoot';
 import { BaseUIComponentProps } from '../../utils/types';
+import { useRenderElement } from '../../utils/useRenderElement';
 
-const EMPTY = {};
 /**
  * Contains the meter indicator and represents the entire range of the meter.
  * Renders a `<div>` element.
@@ -12,20 +11,15 @@ const EMPTY = {};
  * Documentation: [Base UI Meter](https://base-ui.com/react/components/meter)
  */
 export const MeterTrack = React.forwardRef(function MeterTrack(
-  props: MeterTrack.Props,
+  componentProps: MeterTrack.Props,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
-  const { render, className, ...otherProps } = props;
+  const { render, className, ...elementProps } = componentProps;
 
-  const { renderElement } = useComponentRenderer({
-    render: render ?? 'div',
-    state: EMPTY,
-    className,
+  return useRenderElement('div', componentProps, {
     ref: forwardedRef,
-    extraProps: otherProps,
+    props: elementProps,
   });
-
-  return renderElement();
 });
 
 export namespace MeterTrack {
