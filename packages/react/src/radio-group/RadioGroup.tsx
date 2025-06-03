@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { contains } from '@floating-ui/react/utils';
+import { contains } from '../floating-ui-react/utils';
 import { useBaseUiId } from '../utils/useBaseUiId';
 import { useControlled } from '../utils/useControlled';
 import { useForkRef } from '../utils/useForkRef';

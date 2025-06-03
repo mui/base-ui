@@ -172,7 +172,7 @@ export function useTypeahead(context: FloatingRootContext, props: UseTypeaheadPr
 
     stringRef.current += event.key;
     clearTimeoutIfSet(timeoutIdRef);
-    timeoutIdRef.current = window.setTimeout(() => {
+    timeoutIdRef.current = setTimeout(() => {
       stringRef.current = '';
       prevIndexRef.current = matchIndexRef.current;
       setTypingChange(false);

@@ -189,7 +189,7 @@ export function useHover(context: FloatingRootContext, props: UseHoverProps = {}
       const closeDelay = getDelay(delayRef.current, 'close', pointerTypeRef.current);
       if (closeDelay && !handlerRef.current) {
         clearTimeoutIfSet(timeoutRef);
-        timeoutRef.current = window.setTimeout(
+        timeoutRef.current = setTimeout(
           () => onOpenChange(false, event, reason),
           closeDelay,
         );
@@ -243,7 +243,7 @@ export function useHover(context: FloatingRootContext, props: UseHoverProps = {}
       const openDelay = getDelay(delayRef.current, 'open', pointerTypeRef.current);
 
       if (openDelay) {
-        timeoutRef.current = window.setTimeout(() => {
+        timeoutRef.current = setTimeout(() => {
           if (!openRef.current) {
             onOpenChange(true, event, 'hover');
           }
@@ -503,7 +503,7 @@ export function useHover(context: FloatingRootContext, props: UseHoverProps = {}
           handleMouseMove();
         } else {
           restTimeoutPendingRef.current = true;
-          restTimeoutRef.current = window.setTimeout(handleMouseMove, getRestMs(restMsRef.current));
+          restTimeoutRef.current = setTimeout(handleMouseMove, getRestMs(restMsRef.current));
         }
       },
     };

@@ -151,7 +151,7 @@ export function useDelayGroup(
       setIsInstantPhase(false);
 
       if (timeoutMs) {
-        timeoutIdRef.current = window.setTimeout(unset, timeoutMs);
+        timeoutIdRef.current = setTimeout(unset, timeoutMs);
         return () => {
           clearTimeout(timeoutIdRef.current);
         };

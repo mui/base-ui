@@ -386,7 +386,7 @@ export function safePolygon(options: SafePolygonOptions = {}) {
       if (!isPointInPolygon([clientX, clientY], getPolygon([x, y]))) {
         close();
       } else if (!hasLanded && requireIntent) {
-        timeoutRef.current = window.setTimeout(close, 40);
+        timeoutRef.current = setTimeout(close, 40);
       }
 
       return undefined;

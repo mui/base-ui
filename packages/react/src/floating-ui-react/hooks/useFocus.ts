@@ -151,7 +151,7 @@ export function useFocus(context: FloatingRootContext, props: UseFocusProps = {}
           relatedTarget.getAttribute('data-type') === 'outside';
 
         // Wait for the window blur listener to fire.
-        timeoutRef.current = window.setTimeout(() => {
+        timeoutRef.current = setTimeout(() => {
           const activeEl = activeElement(
             elements.domReference ? elements.domReference.ownerDocument : document,
           );

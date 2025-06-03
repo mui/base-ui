@@ -340,7 +340,7 @@ export function useDismiss(
     }
 
     function handleCompositionStart() {
-      window.clearTimeout(compositionTimeout);
+      clearTimeout(compositionTimeout);
       isComposingRef.current = true;
     }
 
@@ -348,7 +348,7 @@ export function useDismiss(
       // Safari fires `compositionend` before `keydown`, so we need to wait
       // until the next tick to set `isComposing` to `false`.
       // https://bugs.webkit.org/show_bug.cgi?id=165004
-      compositionTimeout = window.setTimeout(
+      compositionTimeout = setTimeout(
         () => {
           isComposingRef.current = false;
         },
@@ -428,7 +428,7 @@ export function useDismiss(
         ancestor.removeEventListener('scroll', onScroll);
       });
 
-      window.clearTimeout(compositionTimeout);
+      clearTimeout(compositionTimeout);
     };
   }, [
     dataRef,
@@ -489,7 +489,7 @@ export function useDismiss(
         }
         clearTimeoutIfSet(blurTimeoutRef);
         dataRef.current.insideReactTree = true;
-        blurTimeoutRef.current = window.setTimeout(() => {
+        blurTimeoutRef.current = setTimeout(() => {
           dataRef.current.insideReactTree = false;
         });
       },
