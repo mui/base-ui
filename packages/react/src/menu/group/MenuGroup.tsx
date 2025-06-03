@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { BaseUIComponentProps } from '../../utils/types';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import { useRenderElement } from '../../utils/useRenderElement';
 import { MenuGroupContext } from './MenuGroupContext';
 
 const state = {};
@@ -13,28 +13,26 @@ const state = {};
  * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
  */
 export const MenuGroup = React.forwardRef(function MenuGroup(
-  props: MenuGroup.Props,
+  componentProps: MenuGroup.Props,
   forwardedRef: React.ForwardedRef<Element>,
 ) {
-  const { render, className, ...other } = props;
+  const { render, className, ...elementProps } = componentProps;
 
   const [labelId, setLabelId] = React.useState<string | undefined>(undefined);
 
   const context = React.useMemo(() => ({ setLabelId }), [setLabelId]);
 
-  const { renderElement } = useComponentRenderer({
-    render: render || 'div',
-    className,
+  const element = useRenderElement('div', componentProps, {
     state,
-    extraProps: {
+    ref: forwardedRef,
+    props: {
       role: 'group',
       'aria-labelledby': labelId,
-      ...other,
+      ...elementProps,
     },
-    ref: forwardedRef,
   });
 
-  return <MenuGroupContext.Provider value={context}>{renderElement()}</MenuGroupContext.Provider>;
+  return <MenuGroupContext.Provider value={context}>{element}</MenuGroupContext.Provider>;
 });
 
 export namespace MenuGroup {
