@@ -4,6 +4,7 @@ import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import type { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
 import type { HTMLProps } from '../../utils/types';
 import type { SelectOpenChangeReason } from './useSelectRoot';
+import { throwMissingContextError } from '../../utils/errorHelper';
 
 export interface SelectRootContext {
   name: string | undefined;
@@ -63,7 +64,7 @@ export const SelectRootContext = React.createContext<SelectRootContext | null>(n
 export function useSelectRootContext() {
   const context = React.useContext(SelectRootContext);
   if (context === null) {
-    throw new Error('useSelectRootContext must be used within a SelectRoot');
+    return throwMissingContextError('SelectRootContext', 'Select', 'Select.Root');
   }
   return context;
 }

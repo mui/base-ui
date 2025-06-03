@@ -1,5 +1,6 @@
 import * as React from 'react';
 import type { ToastObject } from '../useToastManager';
+import { throwMissingContextError } from '../../utils/errorHelper';
 
 export interface ToastRootContext {
   toast: ToastObject<any>;
@@ -16,7 +17,7 @@ export const ToastRootContext = React.createContext<ToastRootContext | undefined
 export function useToastRootContext(): ToastRootContext {
   const context = React.useContext(ToastRootContext);
   if (!context) {
-    throw new Error('useToastRoot must be used within a ToastRoot');
+    return throwMissingContextError('ToastRootContext', 'Toast', 'Toast.Root');
   }
   return context as ToastRootContext;
 }

@@ -4,6 +4,7 @@ import type { FloatingRootContext } from '@floating-ui/react';
 import type { HTMLProps } from '../../utils/types';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import type { TooltipOpenChangeReason } from './useTooltipRoot';
+import { throwMissingContextError } from '../../utils/errorHelper';
 
 export interface TooltipRootContext {
   open: boolean;
@@ -35,9 +36,7 @@ export const TooltipRootContext = React.createContext<TooltipRootContext | undef
 export function useTooltipRootContext() {
   const context = React.useContext(TooltipRootContext);
   if (context === undefined) {
-    throw new Error(
-      'Base UI: TooltipRootContext is missing. Tooltip parts must be placed within <Tooltip.Root>.',
-    );
+    return throwMissingContextError('TooltipRootContext', 'Tooltip', 'Tooltip.Root');
   }
 
   return context;

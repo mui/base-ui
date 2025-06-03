@@ -1,5 +1,6 @@
 import * as React from 'react';
 import type { ToastObject, useToastManager } from '../useToastManager';
+import { throwMissingContextError } from '../../utils/errorHelper';
 
 export interface ToastContextValue<Data extends object> {
   toasts: ToastObject<Data>[];
@@ -33,7 +34,7 @@ export const ToastContext = React.createContext<ToastContext<any> | undefined>(u
 export function useToastContext() {
   const context = React.useContext(ToastContext);
   if (!context) {
-    throw new Error('Base UI: useToast must be used within <Toast.Provider>.');
+    return throwMissingContextError('ToastContext', 'Toast', 'Toast.Provider');
   }
   return context;
 }

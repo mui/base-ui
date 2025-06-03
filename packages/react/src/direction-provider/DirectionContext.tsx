@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { throwMissingContextError } from '../utils/errorHelper';
 
 export type TextDirection = 'ltr' | 'rtl';
 

@@ -1,5 +1,6 @@
 import * as React from 'react';
 import type { useSelectPositioner } from './useSelectPositioner';
+import { throwMissingContextError } from '../../utils/errorHelper';
 
 export type SelectPositionerContext = useSelectPositioner.ReturnValue & {
   alignItemWithTriggerActive: boolean;
@@ -16,8 +17,10 @@ export const SelectPositionerContext = React.createContext<SelectPositionerConte
 export function useSelectPositionerContext() {
   const context = React.useContext(SelectPositionerContext);
   if (context === null) {
-    throw new Error(
-      'Base UI: SelectPositionerContext is missing. SelectPositioner parts must be placed within <Select.Positioner>.',
+    return throwMissingContextError(
+      'SelectPositionerContext',
+      'SelectPositioner',
+      'Select.Positioner',
     );
   }
   return context;

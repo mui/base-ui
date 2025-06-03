@@ -1,19 +1,17 @@
 'use client';
 import * as React from 'react';
 import { ToastContext } from './provider/ToastProviderContext';
+import { throwMissingContextError } from '../utils/errorHelper';
 
 /**
  * Returns the array of toasts and methods to manage them.
  */
 export function useToastManager(): useToastManager.ReturnValue {
   const context = React.useContext(ToastContext);
-
   if (!context) {
-    throw new Error('Base UI: useToast must be used within <Toast.Provider>.');
+    return throwMissingContextError('ToastContext', 'Toast', 'Toast.Provider');
   }
-
   const { toasts, add, close, update, promise } = context;
-
   return React.useMemo(
     () => ({
       toasts,

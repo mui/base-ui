@@ -2,6 +2,7 @@
 import * as React from 'react';
 import type { TextDirection } from '../../direction-provider/DirectionContext';
 import type { TabsTab } from '../tab/TabsTab';
+import { throwMissingContextError } from '../../utils/errorHelper';
 
 export interface TabsRootContext {
   /**
@@ -60,9 +61,7 @@ export const TabsRootContext = React.createContext<TabsRootContext | undefined>(
 export function useTabsRootContext() {
   const context = React.useContext(TabsRootContext);
   if (context === undefined) {
-    throw new Error(
-      'Base UI: TabsRootContext is missing. Tabs parts must be placed within <Tabs.Root>.',
-    );
+    return throwMissingContextError('TabsRootContext', 'Tabs', 'Tabs.Root');
   }
 
   return context;

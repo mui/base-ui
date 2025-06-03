@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { throwMissingContextError } from '../../utils/errorHelper';
 
 export interface SelectIndexContext {
   activeIndex: number | null;
@@ -12,9 +13,7 @@ export const SelectIndexContext = React.createContext<SelectIndexContext | undef
 export function useSelectIndexContext() {
   const context = React.useContext(SelectIndexContext);
   if (context === undefined) {
-    throw new Error(
-      'Base UI: SelectIndexContext is missing. Select parts must be placed within <Select.Root>.',
-    );
+    return throwMissingContextError('SelectIndexContext', 'Select', 'Select.Root');
   }
   return context;
 }

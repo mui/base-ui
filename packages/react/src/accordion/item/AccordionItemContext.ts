@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import type { AccordionItem } from './AccordionItem';
+import { throwMissingContextError } from '../../utils/errorHelper';
 
 export interface AccordionItemContext {
   open: boolean;
@@ -16,9 +17,7 @@ export const AccordionItemContext = React.createContext<AccordionItemContext | u
 export function useAccordionItemContext() {
   const context = React.useContext(AccordionItemContext);
   if (context === undefined) {
-    throw new Error(
-      'Base UI: AccordionItemContext is missing. Accordion parts must be placed within <Accordion.Item>.',
-    );
+    return throwMissingContextError('AccordionItemContext', 'Accordion', 'Accordion.Item');
   }
   return context;
 }

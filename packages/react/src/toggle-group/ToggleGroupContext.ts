@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import type { Orientation } from '../utils/types';
+import { throwMissingContextError } from '../utils/errorHelper';
 
 export interface ToggleGroupContext {
   value: readonly any[];
@@ -14,9 +15,7 @@ export const ToggleGroupContext = React.createContext<ToggleGroupContext | undef
 export function useToggleGroupContext(optional = true) {
   const context = React.useContext(ToggleGroupContext);
   if (context === undefined && !optional) {
-    throw new Error(
-      'Base UI: ToggleGroupContext is missing. ToggleGroup parts must be placed within <ToggleGroup>.',
-    );
+    return throwMissingContextError('ToggleGroupContext', 'ToggleGroup', 'ToggleGroup');
   }
 
   return context;

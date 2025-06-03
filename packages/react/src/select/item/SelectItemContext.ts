@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { throwMissingContextError } from '../../utils/errorHelper';
 
 export interface SelectItemContext {
   selected: boolean;
@@ -11,9 +12,7 @@ export const SelectItemContext = React.createContext<SelectItemContext | undefin
 export function useSelectItemContext() {
   const context = React.useContext(SelectItemContext);
   if (!context) {
-    throw new Error(
-      'Base UI: SelectItemContext is missing. SelectItem parts must be placed within <Select.Item>.',
-    );
+    return throwMissingContextError('SelectItemContext', 'SelectItem', 'Select.Item');
   }
   return context;
 }
