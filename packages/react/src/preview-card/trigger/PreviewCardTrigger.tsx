@@ -1,10 +1,9 @@
 'use client';
 import * as React from 'react';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { usePreviewCardRootContext } from '../root/PreviewCardContext';
-import { useForkRef } from '../../utils/useForkRef';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
+import { useRenderElement } from '../../utils/useRenderElement';
 
 /**
  * A link that opens the preview card.
@@ -13,28 +12,23 @@ import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
  * Documentation: [Base UI Preview Card](https://base-ui.com/react/components/preview-card)
  */
 export const PreviewCardTrigger = React.forwardRef(function PreviewCardTrigger(
-  props: PreviewCardTrigger.Props,
+  componentProps: PreviewCardTrigger.Props,
   forwardedRef: React.ForwardedRef<HTMLAnchorElement>,
 ) {
-  const { render, className, ...otherProps } = props;
+  const { render, className, ...elementProps } = componentProps;
 
-  const { open, getRootTriggerProps, setTriggerElement } = usePreviewCardRootContext();
+  const { open, triggerProps, setTriggerElement } = usePreviewCardRootContext();
 
   const state: PreviewCardTrigger.State = React.useMemo(() => ({ open }), [open]);
 
-  const mergedRef = useForkRef(setTriggerElement, forwardedRef);
-
-  const { renderElement } = useComponentRenderer({
-    propGetter: getRootTriggerProps,
-    render: render ?? 'a',
-    className,
+  const element = useRenderElement('a', componentProps, {
+    ref: [setTriggerElement, forwardedRef],
     state,
-    ref: mergedRef,
-    extraProps: otherProps,
+    props: [triggerProps, elementProps],
     customStyleHookMapping: triggerOpenStateMapping,
   });
 
-  return renderElement();
+  return element;
 });
 
 export namespace PreviewCardTrigger {

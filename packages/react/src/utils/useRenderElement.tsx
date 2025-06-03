@@ -13,7 +13,11 @@ const EMPTY_OBJECT = {};
 const IDENTITY = (x: any) => x;
 
 /**
- * Render a Base UI element.
+ * Renders a Base UI element.
+ *
+ * @param element The default HTML element to render. Can be overridden by the `render` prop.
+ * @param componentProps An object containing the `render` and `className` props to be used for element customization. Other props are ignored.
+ * @param params Additional parameters for rendering the element.
  */
 export function useRenderElement<
   State extends Record<string, any>,

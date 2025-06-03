@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import type { BaseUIComponentProps } from '../../utils/types';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import { useRenderElement } from '../../utils/useRenderElement';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useMenuGroupRootContext } from '../group/MenuGroupContext';
 import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
@@ -15,10 +15,10 @@ const state = {};
  * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
  */
 export const MenuGroupLabel = React.forwardRef(function MenuGroupLabelComponent(
-  props: MenuGroupLabel.Props,
+  componentProps: MenuGroupLabel.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { className, render, id: idProp, ...other } = props;
+  const { className, render, id: idProp, ...elementProps } = componentProps;
 
   const id = useBaseUiId(idProp);
 
@@ -31,15 +31,15 @@ export const MenuGroupLabel = React.forwardRef(function MenuGroupLabelComponent(
     };
   }, [setLabelId, id]);
 
-  const { renderElement } = useComponentRenderer({
-    render: render ?? 'div',
-    className,
+  return useRenderElement('div', componentProps, {
     state,
-    extraProps: { role: 'presentation', id, ...other },
     ref: forwardedRef,
+    props: {
+      id,
+      role: 'presentation',
+      ...elementProps,
+    },
   });
-
-  return renderElement();
 });
 
 export namespace MenuGroupLabel {
