@@ -4,7 +4,7 @@ import { contains } from '@floating-ui/react/utils';
 import { CompositeItem } from '../../composite/item/CompositeItem';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { pressableTriggerOpenStateMapping } from '../../utils/popupStateMapping';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import { useRenderElement } from '../../utils/useRenderElement';
 import { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import { useForkRef } from '../../utils/useForkRef';
 import { mergeProps } from '../../merge-props';
@@ -23,9 +23,10 @@ const BOUNDARY_OFFSET = 2;
  * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
  */
 export const MenuTrigger = React.forwardRef(function MenuTrigger(
-  props: MenuTrigger.Props,
+  componentProps: MenuTrigger.Props,
   forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
+<<<<<<< HEAD
   const {
     render,
     className,
@@ -33,6 +34,9 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
     nativeButton = true,
     ...other
   } = props;
+=======
+  const { render, className, disabled: disabledProp = false, ...elementProps } = componentProps;
+>>>>>>> upstream/master
 
   const {
     triggerProps: rootTriggerProps,
@@ -147,25 +151,17 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
     [disabled, open],
   );
 
-  const propGetter = React.useCallback(
-    (externalProps: HTMLProps) => mergeProps(rootTriggerProps, externalProps, getTriggerProps),
-    [getTriggerProps, rootTriggerProps],
-  );
-
-  const { renderElement } = useComponentRenderer({
-    render: render || 'button',
-    className,
+  const element = useRenderElement('button', componentProps, {
     state,
-    propGetter,
     customStyleHookMapping: pressableTriggerOpenStateMapping,
-    extraProps: other,
+    props: [rootTriggerProps, elementProps, getTriggerProps],
   });
 
   if (parent.type === 'menubar') {
-    return <CompositeItem render={renderElement()} />;
+    return <CompositeItem render={element} />;
   }
 
-  return renderElement();
+  return element;
 });
 
 export namespace MenuTrigger {
