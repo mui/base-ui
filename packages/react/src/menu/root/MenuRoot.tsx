@@ -414,13 +414,13 @@ export const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
   ]);
 
   const triggerProps = React.useMemo(() => {
-    const props = getReferenceProps({
+    const referenceProps = getReferenceProps({
       onMouseEnter() {
         setHoverEnabled(true);
       },
     });
-    delete props.role;
-    return props;
+    delete referenceProps.role;
+    return referenceProps;
   }, [getReferenceProps]);
 
   const popupProps = React.useMemo(
