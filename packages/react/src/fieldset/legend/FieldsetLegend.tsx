@@ -1,7 +1,8 @@
 'use client';
 import * as React from 'react';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { useFieldsetLegend } from './useFieldsetLegend';
+import { useBaseUiId } from '../../utils/useBaseUiId';
+import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
+import { useRenderElement } from '../../utils/useRenderElement';
 import { useFieldsetRootContext } from '../root/FieldsetRootContext';
 import type { BaseUIComponentProps } from '../../utils/types';
 
@@ -12,14 +13,21 @@ import type { BaseUIComponentProps } from '../../utils/types';
  * Documentation: [Base UI Fieldset](https://base-ui.com/react/components/fieldset)
  */
 export const FieldsetLegend = React.forwardRef(function FieldsetLegend(
-  props: FieldsetLegend.Props,
+  componentProps: FieldsetLegend.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, id, ...otherProps } = props;
+  const { render, className, id: idProp, ...elementProps } = componentProps;
 
-  const { getLegendProps } = useFieldsetLegend({ id });
+  const { disabled, setLegendId } = useFieldsetRootContext();
 
-  const { disabled } = useFieldsetRootContext();
+  const id = useBaseUiId(idProp);
+
+  useModernLayoutEffect(() => {
+    setLegendId(id);
+    return () => {
+      setLegendId(undefined);
+    };
+  }, [setLegendId, id]);
 
   const state: FieldsetLegend.State = React.useMemo(
     () => ({
@@ -28,16 +36,13 @@ export const FieldsetLegend = React.forwardRef(function FieldsetLegend(
     [disabled],
   );
 
-  const { renderElement } = useComponentRenderer({
-    propGetter: getLegendProps,
-    ref: forwardedRef,
-    render: render ?? 'div',
-    className,
+  const element = useRenderElement('div', componentProps, {
     state,
-    extraProps: otherProps,
+    ref: forwardedRef,
+    props: [{ id }, elementProps],
   });
 
-  return renderElement();
+  return element;
 });
 
 export namespace FieldsetLegend {

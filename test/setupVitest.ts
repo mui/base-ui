@@ -4,7 +4,7 @@ import { beforeAll, afterAll } from 'vitest';
 import chai from 'chai';
 import chaiDom from 'chai-dom';
 import chaiPlugin from '@mui/internal-test-utils/chaiPlugin';
-import './addChaiAssertions';
+import '../packages/react/test/addChaiAssertions';
 
 declare global {
   var before: typeof beforeAll;

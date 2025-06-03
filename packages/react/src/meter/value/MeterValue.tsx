@@ -1,12 +1,10 @@
 'use client';
 import * as React from 'react';
-import { mergeProps } from '../../merge-props';
 import type { BaseUIComponentProps } from '../../utils/types';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useMeterRootContext } from '../root/MeterRootContext';
 import type { MeterRoot } from '../root/MeterRoot';
+import { useRenderElement } from '../../utils/useRenderElement';
 
-const EMPTY = {};
 /**
  * A text element displaying the current value.
  * Renders a `<span>` element.
@@ -14,38 +12,26 @@ const EMPTY = {};
  * Documentation: [Base UI Meter](https://base-ui.com/react/components/meter)
  */
 export const MeterValue = React.forwardRef(function MeterValue(
-  props: MeterValue.Props,
+  componentProps: MeterValue.Props,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
-  const { className, render, children, ...otherProps } = props;
+  const { className, render, children, ...elementProps } = componentProps;
 
   const { value, formattedValue } = useMeterRootContext();
 
-  const getValueProps = React.useCallback(
-    (externalProps = {}) =>
-      mergeProps(
-        {
-          'aria-hidden': true,
-          children:
-            typeof children === 'function'
-              ? children(formattedValue, value)
-              : ((formattedValue || value) ?? ''),
-        },
-        externalProps,
-      ),
-    [children, value, formattedValue],
-  );
-
-  const { renderElement } = useComponentRenderer({
-    propGetter: getValueProps,
-    render: render ?? 'span',
-    className,
-    state: EMPTY,
+  return useRenderElement('span', componentProps, {
     ref: forwardedRef,
-    extraProps: otherProps,
+    props: [
+      {
+        'aria-hidden': true,
+        children:
+          typeof children === 'function'
+            ? children(formattedValue, value)
+            : ((formattedValue || value) ?? ''),
+      },
+      elementProps,
+    ],
   });
-
-  return renderElement();
 });
 
 export namespace MeterValue {

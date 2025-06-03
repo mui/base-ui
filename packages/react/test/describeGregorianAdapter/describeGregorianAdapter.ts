@@ -12,8 +12,6 @@ function innerGregorianDescribeAdapter<TLocale>(
   Adapter: new (...args: any) => TemporalAdapter,
   params: DescribeGregorianAdapterParams<TLocale>,
 ) {
-  const prepareAdapter = params.prepareAdapter ?? ((adapter) => adapter);
-
   const adapter = new Adapter();
   const adapterTZ = params.dateLibInstanceWithTimezoneSupport
     ? new Adapter({
@@ -25,8 +23,8 @@ function innerGregorianDescribeAdapter<TLocale>(
     dateLibInstance: params.dateLibInstanceWithTimezoneSupport,
   });
 
-  prepareAdapter(adapter);
-  prepareAdapter(adapterTZ);
+  params.prepareAdapter?.(adapter);
+  params.prepareAdapter?.(adapterTZ);
 
   describe(adapter.lib, () => {
     const testSuitParams: DescribeGregorianAdapterTestSuiteParams<TLocale> = {

@@ -1,11 +1,5 @@
 import chai from 'chai';
 
-import chaiDom from 'chai-dom';
-import chaiPlugin from '@mui/internal-test-utils/chaiPlugin';
-
-chai.use(chaiDom);
-chai.use(chaiPlugin);
-
 // https://stackoverflow.com/a/46755166/3406963
 declare global {
   namespace Chai {
@@ -20,6 +14,7 @@ declare global {
 
 chai.use((chaiAPI, utils) => {
   chaiAPI.Assertion.addMethod('toEqualDateTime', function toEqualDateTime(expectedDate, message) {
+    // eslint-disable-next-line no-underscore-dangle
     const actualDate = this._obj;
 
     // Luxon dates don't have a `toISOString` function, we need to convert to the JS date first
@@ -41,3 +36,5 @@ chai.use((chaiAPI, utils) => {
     assertion.to.equal(cleanExpectedDate.toISOString());
   });
 });
+
+export type {};

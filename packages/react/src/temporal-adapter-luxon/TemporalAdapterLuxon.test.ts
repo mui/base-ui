@@ -1,5 +1,4 @@
-import * as React from 'react';
-import { DateTime, Settings } from 'luxon';
+import { Settings } from 'luxon';
 import { TemporalAdapterLuxon } from '@base-ui-components/react/temporal-adapter-luxon';
 import { describeGregorianAdapter } from '#test-utils';
 
