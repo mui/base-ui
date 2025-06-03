@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Popover } from '@base-ui-components/react/popover';
-import { screen } from '@mui/internal-test-utils';
+import { screen, waitFor } from '@mui/internal-test-utils';
 import { expect } from 'chai';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 
@@ -258,5 +258,67 @@ describe('<Popover.Positioner />', () => {
       // correctly flips the side in the browser
       expect(side).to.equal('inline-end');
     });
+  });
+
+  it.skipIf(isJSDOM)('remains anchored if keepMounted=false', async () => {
+    function App({ top }: { top: number }) {
+      return (
+        <Popover.Root open>
+          <Trigger style={{ width: 100, height: 100, position: 'relative', top }}>Trigger</Trigger>
+          <Popover.Portal>
+            <Popover.Positioner data-testid="positioner">
+              <Popover.Popup style={{ width: 100, height: 100 }}>Popup</Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
+        </Popover.Root>
+      );
+    }
+
+    const { setProps } = await render(<App top={0} />);
+    const positioner = screen.getByTestId('positioner');
+
+    const initial = 'translate(5px, 100px)';
+    const final = 'translate(5px, 200px)';
+
+    expect(positioner.style.transform).to.equal(initial);
+
+    setProps({ top: 100 });
+
+    await waitFor(() => {
+      expect(screen.getByTestId('positioner').style.transform).to.not.equal(initial);
+    });
+
+    expect(screen.getByTestId('positioner').style.transform).to.equal(final);
+  });
+
+  it.skipIf(isJSDOM)('remains anchored if keepMounted=true', async () => {
+    function App({ top }: { top: number }) {
+      return (
+        <Popover.Root open>
+          <Trigger style={{ width: 100, height: 100, position: 'relative', top }}>Trigger</Trigger>
+          <Popover.Portal keepMounted>
+            <Popover.Positioner data-testid="positioner">
+              <Popover.Popup style={{ width: 100, height: 100 }}>Popup</Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
+        </Popover.Root>
+      );
+    }
+
+    const { setProps } = await render(<App top={0} />);
+    const positioner = screen.getByTestId('positioner');
+
+    const initial = 'translate(5px, 100px)';
+    const final = 'translate(5px, 200px)';
+
+    expect(positioner.style.transform).to.equal(initial);
+
+    setProps({ top: 100 });
+
+    await waitFor(() => {
+      expect(screen.getByTestId('positioner').style.transform).to.not.equal(initial);
+    });
+
+    expect(screen.getByTestId('positioner').style.transform).to.equal(final);
   });
 });
