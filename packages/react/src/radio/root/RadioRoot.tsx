@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { useBaseUiId } from '../../utils/useBaseUiId';
 import { NOOP } from '../../utils/noop';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useForkRef } from '../../utils/useForkRef';
@@ -106,10 +107,14 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
     disabled,
   });
 
+  const id = useBaseUiId();
+
   const inputProps: React.ComponentPropsWithRef<'input'> = React.useMemo(
     () => ({
       type: 'radio',
       ref,
+      // Set `id` to stop Chrome warning about an unassociated input
+      id,
       tabIndex: -1,
       style: visuallyHidden,
       'aria-hidden': true,
@@ -135,18 +140,19 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
       },
     }),
     [
-      disabled,
       checked,
-      required,
-      readOnly,
-      value,
-      setFieldTouched,
-      setDirty,
-      validityData.initialValue,
-      setCheckedValue,
-      setFilled,
+      disabled,
+      id,
       onValueChange,
+      readOnly,
       ref,
+      required,
+      setCheckedValue,
+      setDirty,
+      setFieldTouched,
+      setFilled,
+      validityData.initialValue,
+      value,
     ],
   );
 
