@@ -1,13 +1,12 @@
 'use client';
 import * as React from 'react';
 import { useCheckboxRootContext } from '../root/CheckboxRootContext';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import { useRenderElement } from '../../utils/useRenderElement';
 import { useCustomStyleHookMapping } from '../utils/useCustomStyleHookMapping';
 import type { CheckboxRoot } from '../root/CheckboxRoot';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { type TransitionStatus, useTransitionStatus } from '../../utils/useTransitionStatus';
-import { useForkRef } from '../../utils/useForkRef';
 import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 import { transitionStatusMapping } from '../../utils/styleHookMapping';
 import { fieldValidityMapping } from '../../field/utils/constants';
@@ -19,10 +18,10 @@ import { fieldValidityMapping } from '../../field/utils/constants';
  * Documentation: [Base UI Checkbox](https://base-ui.com/react/components/checkbox)
  */
 export const CheckboxIndicator = React.forwardRef(function CheckboxIndicator(
-  props: CheckboxIndicator.Props,
+  componentProps: CheckboxIndicator.Props,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
-  const { render, className, keepMounted = false, ...otherProps } = props;
+  const { render, className, keepMounted = false, ...elementProps } = componentProps;
 
   const rootState = useCheckboxRootContext();
 
@@ -31,7 +30,6 @@ export const CheckboxIndicator = React.forwardRef(function CheckboxIndicator(
   const { transitionStatus, setMounted } = useTransitionStatus(rendered);
 
   const indicatorRef = React.useRef<HTMLSpanElement | null>(null);
-  const mergedRef = useForkRef(forwardedRef, indicatorRef);
 
   const state: CheckboxIndicator.State = React.useMemo(
     () => ({
@@ -62,21 +60,21 @@ export const CheckboxIndicator = React.forwardRef(function CheckboxIndicator(
     [baseStyleHookMapping],
   );
 
-  const { renderElement } = useComponentRenderer({
-    render: render ?? 'span',
-    ref: mergedRef,
+  const shouldRender = keepMounted || rendered;
+
+  const element = useRenderElement('span', componentProps, {
+    enabled: shouldRender,
+    ref: [forwardedRef, indicatorRef],
     state,
-    className,
     customStyleHookMapping,
-    extraProps: otherProps,
+    props: elementProps,
   });
 
-  const shouldRender = keepMounted || rendered;
   if (!shouldRender) {
     return null;
   }
 
-  return renderElement();
+  return element;
 });
 
 export namespace CheckboxIndicator {
