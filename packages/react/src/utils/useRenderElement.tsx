@@ -6,11 +6,9 @@ import { resolveClassName } from './resolveClassName';
 import { isReactVersionAtLeast } from './reactVersion';
 import { mergeProps, mergePropsN } from '../merge-props';
 import { mergeObjects } from './mergeObjects';
+import { EMPTY_OBJ } from './constants';
 
 type IntrinsicTagName = keyof React.JSX.IntrinsicElements;
-
-const EMPTY_OBJECT = {};
-const IDENTITY = (x: any) => x;
 
 /**
  * Renders a Base UI element.
@@ -35,7 +33,7 @@ export function useRenderElement<
     return null as Enabled extends false ? null : React.ReactElement<Record<string, unknown>>;
   }
 
-  const state = params.state ?? (EMPTY_OBJECT as State);
+  const state = params.state ?? (EMPTY_OBJ as State);
   return evaluateRenderProp(element, renderProp, outProps, state) as Enabled extends false
     ? null
     : React.ReactElement<Record<string, unknown>>;
@@ -59,7 +57,7 @@ export function useRenderElementLazy<
 ) {
   const renderProp = componentProps.render;
   const outProps = useRenderElementProps(componentProps, params);
-  const state = params.state ?? (EMPTY_OBJECT as State);
+  const state = params.state ?? (EMPTY_OBJ as State);
   return () => evaluateRenderProp(element, renderProp, outProps, state);
 }
 
@@ -78,8 +76,7 @@ function useRenderElementProps<
   const { className: classNameProp, render: renderProp } = componentProps;
 
   const {
-    propGetter = IDENTITY,
-    state = EMPTY_OBJECT as State,
+    state = EMPTY_OBJ as State,
     ref,
     props,
     disableStyleHooks,
@@ -95,16 +92,14 @@ function useRenderElementProps<
     // always unset, so this `if` block is stable across renders.
     /* eslint-disable-next-line react-hooks/rules-of-hooks */
     styleHooks = React.useMemo(
-      () => (enabled ? getStyleHookProps(state, customStyleHookMapping) : EMPTY_OBJECT),
+      () => (enabled ? getStyleHookProps(state, customStyleHookMapping) : EMPTY_OBJ),
       [state, customStyleHookMapping, enabled],
     );
   }
 
   const outProps: React.HTMLAttributes<any> & React.RefAttributes<any> = enabled
-    ? propGetter(
-        mergeObjects(styleHooks, Array.isArray(props) ? mergePropsN(props) : props) ?? EMPTY_OBJECT,
-      )
-    : EMPTY_OBJECT;
+    ? (mergeObjects(styleHooks, Array.isArray(props) ? mergePropsN(props) : props) ?? EMPTY_OBJ)
+    : EMPTY_OBJ;
 
   // SAFETY: The `useForkRef` functions use a single hook to store the same value,
   // switching between them at runtime is safe. If this assertion fails, React will
@@ -120,7 +115,7 @@ function useRenderElementProps<
   /* eslint-enable react-hooks/rules-of-hooks */
 
   if (!enabled) {
-    return EMPTY_OBJECT;
+    return EMPTY_OBJ;
   }
 
   if (className !== undefined) {
