@@ -5,7 +5,7 @@ import { validateDate } from './useDateManager';
 const adapter = new TemporalAdapterLuxon();
 
 // TODO: Run this test on all the adapters
-describe.only('useDateManager()', () => {
+describe('useDateManager()', () => {
   describe('validateDate utility', () => {
     it('should return null when no min date and not max date are provided', () => {
       expect(
