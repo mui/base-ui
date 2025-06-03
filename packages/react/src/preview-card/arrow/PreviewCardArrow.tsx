@@ -1,13 +1,11 @@
 'use client';
 import * as React from 'react';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { usePreviewCardPositionerContext } from '../positioner/PreviewCardPositionerContext';
-import { useForkRef } from '../../utils/useForkRef';
 import { usePreviewCardRootContext } from '../root/PreviewCardContext';
 import type { BaseUIComponentProps } from '../../utils/types';
 import type { Align, Side } from '../../utils/useAnchorPositioning';
 import { popupStateMapping } from '../../utils/popupStateMapping';
-import { mergeProps } from '../../merge-props';
+import { useRenderElement } from '../../utils/useRenderElement';
 
 /**
  * Displays an element positioned against the preview card anchor.
@@ -16,25 +14,13 @@ import { mergeProps } from '../../merge-props';
  * Documentation: [Base UI Preview Card](https://base-ui.com/react/components/preview-card)
  */
 export const PreviewCardArrow = React.forwardRef(function PreviewCardArrow(
-  props: PreviewCardArrow.Props,
+  componentProps: PreviewCardArrow.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, ...otherProps } = props;
+  const { render, className, ...elementProps } = componentProps;
 
   const { open } = usePreviewCardRootContext();
   const { arrowRef, side, align, arrowUncentered, arrowStyles } = usePreviewCardPositionerContext();
-
-  const getArrowProps = React.useCallback(
-    (externalProps = {}) =>
-      mergeProps<'div'>(
-        {
-          style: arrowStyles,
-          'aria-hidden': true,
-        },
-        externalProps,
-      ),
-    [arrowStyles],
-  );
 
   const state: PreviewCardArrow.State = React.useMemo(
     () => ({
@@ -46,19 +32,14 @@ export const PreviewCardArrow = React.forwardRef(function PreviewCardArrow(
     [open, side, align, arrowUncentered],
   );
 
-  const mergedRef = useForkRef(arrowRef, forwardedRef);
-
-  const { renderElement } = useComponentRenderer({
-    propGetter: getArrowProps,
-    render: render ?? 'div',
-    className,
+  const element = useRenderElement('div', componentProps, {
     state,
-    ref: mergedRef,
-    extraProps: otherProps,
+    ref: [arrowRef, forwardedRef],
+    props: [{ style: arrowStyles, 'aria-hidden': true }, elementProps],
     customStyleHookMapping: popupStateMapping,
   });
 
-  return renderElement();
+  return element;
 });
 
 export namespace PreviewCardArrow {
