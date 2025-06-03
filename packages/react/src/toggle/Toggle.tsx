@@ -55,7 +55,6 @@ export const Toggle = React.forwardRef(function Toggle(
 
   const { getButtonProps, buttonRef } = useButton({
     disabled,
-    buttonRef: forwardedRef,
   });
 
   const state: Toggle.State = React.useMemo(
@@ -68,7 +67,7 @@ export const Toggle = React.forwardRef(function Toggle(
 
   const element = useRenderElement('button', componentProps, {
     state,
-    ref: buttonRef,
+    ref: [buttonRef, forwardedRef],
     props: [
       {
         'aria-pressed': pressed,

@@ -4,7 +4,7 @@ import { FloatingEvents } from '@floating-ui/react';
 import { useButton } from '../../use-button';
 import { mergeProps } from '../../merge-props';
 import { HTMLProps, BaseUIEvent } from '../../utils/types';
-import { useModernLayoutEffect } from '../../utils';
+import { useForkRef, useModernLayoutEffect } from '../../utils';
 import { addHighlight, removeHighlight } from '../../utils/highlighted';
 
 export function useMenuItem(params: useMenuItem.Parameters): useMenuItem.ReturnValue {
@@ -20,10 +20,9 @@ export function useMenuItem(params: useMenuItem.Parameters): useMenuItem.ReturnV
 
   const itemRef = React.useRef<HTMLElement | null>(null);
 
-  const { getButtonProps, buttonRef: mergedRef } = useButton({
+  const { getButtonProps, buttonRef } = useButton({
     disabled,
     focusableWhenDisabled: true,
-    buttonRef: itemRef,
   });
 
   useModernLayoutEffect(() => {
@@ -66,6 +65,8 @@ export function useMenuItem(params: useMenuItem.Parameters): useMenuItem.ReturnV
     },
     [getButtonProps, id, highlighted, typingRef, closeOnClick, menuEvents, allowMouseUpTriggerRef],
   );
+
+  const mergedRef = useForkRef(itemRef, buttonRef);
 
   return React.useMemo(
     () => ({

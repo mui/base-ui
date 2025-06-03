@@ -197,7 +197,7 @@ export namespace useRenderElement {
     /**
      * The ref to apply to the rendered element.
      */
-    ref?: React.Ref<RenderedElementType> | React.Ref<RenderedElementType>[];
+    ref?: React.Ref<RenderedElementType> | (React.Ref<RenderedElementType> | undefined)[];
     /**
      * The state of the component.
      */

@@ -37,14 +37,11 @@ export function useSelectTrigger(
   const triggerRef = React.useRef<HTMLElement | null>(null);
   const timeout = useTimeout();
 
-  const mergedRef = useForkRef(externalRef, triggerRef);
-
   const { getButtonProps, buttonRef } = useButton({
     disabled,
-    buttonRef: mergedRef,
   });
 
-  const handleRef = useForkRef<HTMLElement>(buttonRef, setTriggerElement);
+  const mergedRef = useForkRef<HTMLElement>(externalRef, triggerRef, buttonRef, setTriggerElement);
 
   const timeout1 = useTimeout();
   const timeout2 = useTimeout();
@@ -83,7 +80,7 @@ export function useSelectTrigger(
       'aria-labelledby': labelId,
       'aria-readonly': readOnly || undefined,
       tabIndex: disabled ? -1 : 0,
-      ref: handleRef,
+      ref: mergedRef,
       onFocus(event) {
         setTypeaheadReady(true);
         setFocused(true);
@@ -160,7 +157,7 @@ export function useSelectTrigger(
 
   return {
     props,
-    rootRef: handleRef,
+    rootRef: mergedRef,
   };
 }
 

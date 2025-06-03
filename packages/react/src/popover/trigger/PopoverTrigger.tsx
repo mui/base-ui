@@ -34,7 +34,6 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
 
   const { getButtonProps, buttonRef } = useButton({
     disabled,
-    buttonRef: forwardedRef,
   });
 
   const customStyleHookMapping: CustomStyleHookMapping<{ open: boolean }> = React.useMemo(
@@ -52,7 +51,7 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
 
   const element = useRenderElement('button', componentProps, {
     state,
-    ref: [buttonRef, setTriggerElement],
+    ref: [buttonRef, setTriggerElement, forwardedRef],
     props: [triggerProps, elementProps, getButtonProps],
     customStyleHookMapping,
   });

@@ -22,9 +22,8 @@ export const ToastAction = React.forwardRef(function ToastAction(
   const computedChildren = toast.actionProps?.children ?? elementProps.children;
   const shouldRender = Boolean(computedChildren);
 
-  const { getButtonProps } = useButton({
+  const { getButtonProps, buttonRef } = useButton({
     disabled,
-    buttonRef: forwardedRef,
   });
 
   const state: ToastAction.State = React.useMemo(
@@ -35,7 +34,7 @@ export const ToastAction = React.forwardRef(function ToastAction(
   );
 
   const element = useRenderElement('button', componentProps, {
-    ref: forwardedRef,
+    ref: [forwardedRef, buttonRef],
     state,
     props: [
       elementProps,

@@ -91,15 +91,14 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     ...otherGroupProps
   } = groupProps;
 
-  const buttonRef = React.useRef<HTMLButtonElement>(null);
-
   const groupValue = groupContext?.value;
   const setGroupValue = groupContext?.setValue;
   const defaultGroupValue = groupContext?.defaultValue;
 
-  const { getButtonProps } = useButton({
+  const controlRef = React.useRef<HTMLButtonElement>(null);
+
+  const { getButtonProps, buttonRef } = useButton({
     disabled,
-    buttonRef,
   });
 
   const localFieldControlValidation = useFieldControlValidation();
@@ -128,7 +127,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     id,
     commitValidation: fieldControlValidation.commitValidation,
     value: checked,
-    controlRef: buttonRef,
+    controlRef,
   });
 
   const inputRef = React.useRef<HTMLInputElement>(null);
@@ -238,8 +237,6 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     }
   }, [parentContext, disabled, name]);
 
-  const mergedRef = useForkRef(forwardedRef, groupContext?.registerControlRef);
-
   const state: CheckboxRoot.State = React.useMemo(
     () => ({
       ...fieldState,
@@ -256,7 +253,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
 
   const element = useRenderElement('button', componentProps, {
     state,
-    ref: mergedRef,
+    ref: [buttonRef, controlRef, forwardedRef, groupContext?.registerControlRef],
     props: [
       {
         id,

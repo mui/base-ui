@@ -43,12 +43,10 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
   const disabled = disabledProp || menuDisabled;
 
   const triggerRef = React.useRef<HTMLElement | null>(null);
-  const mergedRef = useForkRef(forwardedRef, triggerRef);
   const allowMouseUpTriggerTimeout = useTimeout();
 
   const { getButtonProps, buttonRef } = useButton({
     disabled,
-    buttonRef: mergedRef,
   });
 
   const handleRef = useForkRef(buttonRef, setTriggerElement);
@@ -143,6 +141,7 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
   const element = useRenderElement('button', componentProps, {
     state,
     customStyleHookMapping: pressableTriggerOpenStateMapping,
+    ref: [triggerRef, forwardedRef, buttonRef],
     props: [rootTriggerProps, elementProps, getTriggerProps],
   });
 

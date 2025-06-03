@@ -12,7 +12,6 @@ const BUTTON_TYPES = new Set(['button', 'submit', 'reset']);
 
 export function useButton(parameters: useButton.Parameters = {}): useButton.ReturnValue {
   const {
-    buttonRef: externalRef,
     disabled = false,
     focusableWhenDisabled,
     tabIndex = 0,
@@ -42,7 +41,7 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
     return Boolean(elementName === 'A' && (element as HTMLAnchorElement)?.href);
   });
 
-  const mergedRef = useForkRef(updateRootElementName, externalRef, buttonRef);
+  const mergedRef = useForkRef(updateRootElementName, buttonRef);
 
   const buttonProps = React.useMemo(() => {
     const additionalProps: AdditionalButtonProps = {};
@@ -225,10 +224,6 @@ export namespace useButton {
      * @default false
      */
     focusableWhenDisabled?: boolean;
-    /**
-     * @deprecated pass the returned `buttonRef` to `useRenderElement` instead
-     */
-    buttonRef?: React.Ref<Element>;
     tabIndex?: NonNullable<React.HTMLAttributes<any>['tabIndex']>;
     /**
      * Type attribute applied when the `component` is `button`.
