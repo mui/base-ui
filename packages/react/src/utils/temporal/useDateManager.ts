@@ -46,18 +46,18 @@ export namespace useDateManager {
      * Minimal selectable date.
      * @default 1900-01-01
      */
-    minDate: TemporalSupportedObject;
+    minDate: TemporalSupportedObject | null;
     /**
      * Maximal selectable date.
      * @default 2099-12-31
      */
-    maxDate: TemporalSupportedObject;
+    maxDate: TemporalSupportedObject | null;
   }
 }
 
 export function useApplyDefaultValuesToDateValidationProps(
-  props: Partial<useDateManager.ValidationProps>,
-): useDateManager.ValidationProps {
+  parameters: useApplyDefaultValuesToDateValidationProps.Parameters,
+): useApplyDefaultValuesToDateValidationProps.ReturnValue {
   const adapter = useTemporalAdapter();
 
   // TODO: Decide what we want to do with the default min and max dates.
@@ -65,17 +65,23 @@ export function useApplyDefaultValuesToDateValidationProps(
     () => ({
       minDate: applyDefaultDate(
         adapter,
-        props.minDate,
+        parameters.minDate,
         adapter.date('1900-01-01T00:00:00.000', 'default'),
       ),
       maxDate: applyDefaultDate(
         adapter,
-        props.maxDate,
+        parameters.maxDate,
         adapter.date('2099-12-31T00:00:00.000', 'default'),
       ),
     }),
-    [adapter, props.minDate, props.maxDate],
+    [adapter, parameters.minDate, parameters.maxDate],
   );
+}
+
+export namespace useApplyDefaultValuesToDateValidationProps {
+  export interface Parameters extends Partial<useDateManager.ValidationProps> {}
+
+  export interface ReturnValue extends useDateManager.ValidationProps {}
 }
 
 export function validateDate(parameters: validateDate.Parameters): useDateManager.Error {
