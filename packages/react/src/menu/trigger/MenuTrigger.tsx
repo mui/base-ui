@@ -26,17 +26,13 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
   componentProps: MenuTrigger.Props,
   forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
-<<<<<<< HEAD
   const {
     render,
     className,
     disabled: disabledProp = false,
     nativeButton = true,
-    ...other
-  } = props;
-=======
-  const { render, className, disabled: disabledProp = false, ...elementProps } = componentProps;
->>>>>>> upstream/master
+    ...elementProps
+  } = componentProps;
 
   const {
     triggerProps: rootTriggerProps,

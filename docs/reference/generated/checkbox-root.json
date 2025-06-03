@@ -33,7 +33,7 @@
     "nativeButton": {
       "type": "boolean",
       "default": "true",
-      "description": "Determines whether the component is being rendered as a native button."
+      "description": "Whether the component is being rendered as a native button."
     },
     "parent": {
       "type": "boolean",
