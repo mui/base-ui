@@ -50,6 +50,7 @@ export interface SelectRootContext {
   id: string | undefined;
   fieldControlValidation: ReturnType<typeof useFieldControlValidation>;
   modal: boolean;
+  multiple?: boolean;
   registerSelectedItem: (index: number) => void;
   onOpenChangeComplete?: (open: boolean) => void;
   keyboardActiveRef: React.MutableRefObject<boolean>;

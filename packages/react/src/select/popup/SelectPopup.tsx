@@ -31,8 +31,16 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
 ) {
   const { render, className, ...elementProps } = componentProps;
 
-  const { id, open, popupRef, transitionStatus, mounted, onOpenChangeComplete, popupProps } =
-    useSelectRootContext();
+  const {
+    id,
+    open,
+    popupRef,
+    transitionStatus,
+    mounted,
+    onOpenChangeComplete,
+    popupProps,
+    multiple,
+  } = useSelectRootContext();
   const positioner = useSelectPositionerContext();
 
   useOpenChangeComplete({
@@ -63,6 +71,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
     customStyleHookMapping,
     props: [
       popupProps,
+      multiple ? { 'aria-multiselectable': true } : {},
       props,
       transitionStatus === 'starting' ? DISABLED_TRANSITIONS_STYLE : EMPTY_OBJ,
       elementProps,
