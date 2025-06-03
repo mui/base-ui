@@ -63,7 +63,9 @@ export const SelectRootContext = React.createContext<SelectRootContext | null>(n
 export function useSelectRootContext() {
   const context = React.useContext(SelectRootContext);
   if (context === null) {
-    throw new Error('useSelectRootContext must be used within a SelectRoot');
+    throw new Error(
+      'Base UI: SelectRootContext is missing. Select parts must be placed within <Select.Root>.',
+    );
   }
   return context;
 }
