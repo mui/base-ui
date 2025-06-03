@@ -349,4 +349,24 @@ describe('<Menu.Trigger />', () => {
     const button = getByTestId('menu-trigger');
     expect(button).not.to.have.attribute('role');
   });
+
+  it('has a role prop inside a Popover when not a native button', async () => {
+    const { getByTestId } = await render(
+      <Popover.Root open>
+        <Popover.Trigger>Open</Popover.Trigger>
+        <Popover.Portal>
+          <Popover.Positioner>
+            <Popover.Popup>
+              <Menu.Root>
+                <Menu.Trigger data-testid="menu-trigger" render={<span />} />
+              </Menu.Root>
+            </Popover.Popup>
+          </Popover.Positioner>
+        </Popover.Portal>
+      </Popover.Root>,
+    );
+
+    const button = getByTestId('menu-trigger');
+    expect(button).to.have.attribute('role', 'button');
+  });
 });
