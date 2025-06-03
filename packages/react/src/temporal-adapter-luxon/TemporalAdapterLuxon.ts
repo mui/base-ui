@@ -9,17 +9,22 @@ import {
 } from '../models';
 
 const FORMATS: TemporalAdapterFormats = {
-  year: 'yyyy',
-  monthLeadingZeros: 'MM',
-  dayOfMonth: 'dd',
-  dayOfMonthNoLeadingZeros: 'd',
+  // Digit formats with leading zeroes
+  yearPadded: 'yyyy',
+  monthPadded: 'MM',
+  dayOfMonthPadded: 'dd',
+  hours24hPadded: 'HH',
+  hours12hPadded: 'hh',
+  minutesPadded: 'mm',
+  secondsPadded: 'ss',
+
+  // Digit formats without leading zeroes
+  dayOfMonth: 'd',
+
+  // Letter formats
   weekday: 'cccc',
-  weekday3Letters: 'ccccc',
-  hours24hLeadingZeros: 'HH',
-  hours12hLeadingZeros: 'hh',
+  weekday3Letters: 'ccc',
   meridiem: 'a',
-  minutesLeadingZeros: 'mm',
-  secondsLeadingZeros: 'ss',
 };
 
 declare module '@base-ui-components/react/models' {
@@ -116,14 +121,6 @@ export class TemporalAdapterLuxon implements TemporalAdapter {
     return value.toJSDate();
   };
 
-  public parse = (value: string, formatString: string) => {
-    if (value === '') {
-      return null;
-    }
-
-    return DateTime.fromFormat(value, formatString, { locale: this.locale });
-  };
-
   public getCurrentLocaleCode = () => {
     return this.locale;
   };
@@ -154,10 +151,6 @@ export class TemporalAdapterLuxon implements TemporalAdapter {
 
   public formatByString = (value: DateTime, format: string) => {
     return value.setLocale(this.locale).toFormat(format);
-  };
-
-  public formatNumber = (numberToFormat: string) => {
-    return numberToFormat;
   };
 
   public isEqual = (value: DateTime | null, comparing: DateTime | null) => {

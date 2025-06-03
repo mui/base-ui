@@ -5,22 +5,42 @@ export interface TemporalAdapterFormats {
    * The 4-digit year.
    * @example "2019"
    */
-  year: string;
+  yearPadded: string;
   /**
    * The month with leading zeros.
    * @example "08"
    */
-  monthLeadingZeros: string;
+  monthPadded: string;
   /**
    * The day of the month with leading zeros.
    * @example "01"
    */
-  dayOfMonth: string;
+  dayOfMonthPadded: string;
+  /**
+   * The hours with leading zeros, 24-hour clock.
+   * @example "01", "23"
+   */
+  hours24hPadded: string;
+  /**
+   * The hours with leading zeros, 12-hour clock.
+   * @example "01", "11"
+   */
+  hours12hPadded: string;
+  /**
+   * The minutes with leading zeros.
+   * @example "01", "59"
+   */
+  minutesPadded: string;
+  /**
+   * The seconds with leading zeros.
+   * @example "01", "59"
+   */
+  secondsPadded: string;
   /**
    * The day of the month without leading zeros.
    * @example "1"
    */
-  dayOfMonthNoLeadingZeros: string;
+  dayOfMonth: string;
   /**
    * The name of the day of the week.
    * @example "Wednesday"
@@ -32,30 +52,10 @@ export interface TemporalAdapterFormats {
    * */
   weekday3Letters: string;
   /**
-   * The hours with leading zeros, 24-hour clock.
-   * @example "01", "23"
-   */
-  hours24hLeadingZeros: string;
-  /**
-   * The hours with leading zeros, 12-hour clock.
-   * @example "01", "11"
-   */
-  hours12hLeadingZeros: string;
-  /**
    * The meridiem.
    * @example "AM"
    */
   meridiem: string;
-  /**
-   * The minutes with leading zeros.
-   * @example "01", "59"
-   */
-  minutesLeadingZeros: string;
-  /**
-   * The seconds with leading zeros.
-   * @example "01", "59"
-   */
-  secondsLeadingZeros: string;
 }
 
 export type DateBuilderReturnType<T extends string | null> = [T] extends [null]
@@ -94,10 +94,6 @@ export interface TemporalAdapter {
    */
   toJsDate(value: TemporalSupportedObject): Date;
   /**
-   * Parses a string date in a specific format.
-   */
-  parse(value: string, format: string): TemporalSupportedObject | null;
-  /**
    * Gets the code of the locale currently used by the adapter.
    */
   getCurrentLocaleCode(): string;
@@ -117,11 +113,6 @@ export interface TemporalAdapter {
    * Formats a date using a format of the date library.
    */
   formatByString(value: TemporalSupportedObject, formatString: string): string;
-  /**
-   * Formats a number to be rendered in the clock.
-   * Is being used in hijri and jalali adapters.
-   */
-  formatNumber(numberToFormat: string): string;
   /**
    * Checks if the two dates are equal (which means they represent the same timestamp).
    */

@@ -17,7 +17,8 @@
     "src/index.test.ts",
     "test",
     "src/global.d.ts",
-    "package.json"
+    "package.json",
+    "../../test/addChaiAssertions.ts"
   ],
   "references": [{ "path": "./tsconfig.build.json" }]
 }

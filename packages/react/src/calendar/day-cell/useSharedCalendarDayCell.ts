@@ -5,7 +5,7 @@ import { TemporalSupportedObject } from '../../models';
 
 export function useSharedCalendarDayCell(parameters: useSharedCalendarDayCell.Parameters) {
   const adapter = useTemporalAdapter();
-  const { value, format = adapter.formats.dayOfMonthNoLeadingZeros, ctx } = parameters;
+  const { value, format = adapter.formats.dayOfMonth, ctx } = parameters;
 
   const formattedValue = React.useMemo(
     () => adapter.formatByString(value, format),
