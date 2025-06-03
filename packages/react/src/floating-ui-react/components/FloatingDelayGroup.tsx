@@ -1,16 +1,16 @@
 import * as React from 'react';
+import { useTimeout, Timeout } from '../../utils/useTimeout';
 import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 
 import { getDelay } from '../hooks/useHover';
 import type { FloatingRootContext, Delay } from '../types';
-import { clearTimeoutIfSet } from '../utils/clearTimeoutIfSet';
 
 interface ContextValue {
   hasProvider: boolean;
   timeoutMs: number;
   delayRef: React.MutableRefObject<Delay>;
   initialDelayRef: React.MutableRefObject<Delay>;
-  timeoutIdRef: React.MutableRefObject<number>;
+  timeout: Timeout;
   currentIdRef: React.MutableRefObject<any>;
   currentContextRef: React.MutableRefObject<{
     onOpenChange: (open: boolean) => void;
@@ -23,7 +23,7 @@ const FloatingDelayGroupContext = React.createContext<ContextValue>({
   timeoutMs: 0,
   delayRef: { current: 0 },
   initialDelayRef: { current: 0 },
-  timeoutIdRef: { current: -1 },
+  timeout: new Timeout(),
   currentIdRef: { current: null },
   currentContextRef: { current: null },
 });
@@ -60,7 +60,7 @@ export function FloatingDelayGroup(props: FloatingDelayGroupProps): React.JSX.El
   const initialDelayRef = React.useRef(delay);
   const currentIdRef = React.useRef<string | null>(null);
   const currentContextRef = React.useRef(null);
-  const timeoutIdRef = React.useRef(-1);
+  const timeout = useTimeout();
 
   return (
     <FloatingDelayGroupContext.Provider
@@ -72,9 +72,9 @@ export function FloatingDelayGroup(props: FloatingDelayGroupProps): React.JSX.El
           currentIdRef,
           timeoutMs,
           currentContextRef,
-          timeoutIdRef,
+          timeout,
         }),
-        [timeoutMs],
+        [timeoutMs, timeout],
       )}
     >
       {children}
@@ -126,7 +126,7 @@ export function useDelayGroup(
     initialDelayRef,
     currentContextRef,
     hasProvider,
-    timeoutIdRef,
+    timeout,
   } = groupContext;
 
   const [isInstantPhase, setIsInstantPhase] = React.useState(false);
@@ -151,9 +151,9 @@ export function useDelayGroup(
       setIsInstantPhase(false);
 
       if (timeoutMs) {
-        timeoutIdRef.current = setTimeout(unset, timeoutMs);
+        timeout.start(timeoutMs, unset);
         return () => {
-          clearTimeout(timeoutIdRef.current);
+          timeout.clear();
         };
       }
 
@@ -169,7 +169,7 @@ export function useDelayGroup(
     timeoutMs,
     initialDelayRef,
     currentContextRef,
-    timeoutIdRef,
+    timeout,
   ]);
 
   useModernLayoutEffect(() => {
@@ -191,7 +191,7 @@ export function useDelayGroup(
     };
 
     if (prevId !== null && prevId !== floatingId) {
-      clearTimeoutIfSet(timeoutIdRef);
+      timeout.clear();
       setIsInstantPhase(true);
       prevContext?.setIsInstantPhase(true);
       prevContext?.onOpenChange(false);
@@ -209,7 +209,7 @@ export function useDelayGroup(
     timeoutMs,
     initialDelayRef,
     currentContextRef,
-    timeoutIdRef,
+    timeout,
   ]);
 
   useModernLayoutEffect(() => {

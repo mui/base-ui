@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { getWindow, isElement, isHTMLElement } from '@floating-ui/utils/dom';
 import { isMac, isSafari } from '../../utils/detectBrowser';
+import { useTimeout } from '../../utils/useTimeout';
 import {
   activeElement,
   contains,
@@ -12,7 +13,6 @@ import {
 
 import type { ElementProps, FloatingRootContext, OpenChangeReason } from '../types';
 import { createAttribute } from '../utils/createAttribute';
-import { clearTimeoutIfSet } from '../utils/clearTimeoutIfSet';
 
 const isMacSafari = isMac && isSafari;
 
@@ -41,7 +41,7 @@ export function useFocus(context: FloatingRootContext, props: UseFocusProps = {}
   const { enabled = true, visibleOnly = true } = props;
 
   const blockFocusRef = React.useRef(false);
-  const timeoutRef = React.useRef(-1);
+  const timeout = useTimeout();
   const keyboardModalityRef = React.useRef(true);
 
   React.useEffect(() => {
@@ -106,12 +106,6 @@ export function useFocus(context: FloatingRootContext, props: UseFocusProps = {}
     };
   }, [events, enabled]);
 
-  React.useEffect(() => {
-    return () => {
-      clearTimeoutIfSet(timeoutRef);
-    };
-  }, []);
-
   const reference: ElementProps['reference'] = React.useMemo(
     () => ({
       onMouseLeave() {
@@ -151,7 +145,7 @@ export function useFocus(context: FloatingRootContext, props: UseFocusProps = {}
           relatedTarget.getAttribute('data-type') === 'outside';
 
         // Wait for the window blur listener to fire.
-        timeoutRef.current = setTimeout(() => {
+        timeout.start(0, () => {
           const activeEl = activeElement(
             elements.domReference ? elements.domReference.ownerDocument : document,
           );
@@ -180,7 +174,7 @@ export function useFocus(context: FloatingRootContext, props: UseFocusProps = {}
         });
       },
     }),
-    [dataRef, elements.domReference, onOpenChange, visibleOnly],
+    [dataRef, elements.domReference, onOpenChange, visibleOnly, timeout],
   );
 
   return React.useMemo(() => (enabled ? { reference } : {}), [enabled, reference]);

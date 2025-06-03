@@ -8,6 +8,7 @@ import {
   isLastTraversableNode,
   isWebKit,
 } from '@floating-ui/utils/dom';
+import { useTimeout, Timeout } from '../../utils/useTimeout';
 import { useEventCallback } from '../../utils/useEventCallback';
 import {
   contains,
@@ -24,7 +25,6 @@ import {
 import { useFloatingTree } from '../components/FloatingTree';
 import type { ElementProps, FloatingRootContext } from '../types';
 import { createAttribute } from '../utils/createAttribute';
-import { clearTimeoutIfSet } from '../utils/clearTimeoutIfSet';
 
 const bubbleHandlerKeys = {
   pointerdown: 'onPointerDown',
@@ -148,7 +148,7 @@ export function useDismiss(
   const { escapeKey: escapeKeyCapture, outsidePress: outsidePressCapture } = normalizeProp(capture);
 
   const isComposingRef = React.useRef(false);
-  const blurTimeoutRef = React.useRef(-1);
+  const blurTimeout = useTimeout();
 
   const closeOnEscapeKeyDown = useEventCallback(
     (event: React.KeyboardEvent<Element> | KeyboardEvent) => {
@@ -333,14 +333,14 @@ export function useDismiss(
     dataRef.current.__escapeKeyBubbles = escapeKeyBubbles;
     dataRef.current.__outsidePressBubbles = outsidePressBubbles;
 
-    let compositionTimeout = -1;
+    const compositionTimeout = new Timeout();
 
     function onScroll(event: Event) {
       onOpenChange(false, event, 'ancestor-scroll');
     }
 
     function handleCompositionStart() {
-      clearTimeout(compositionTimeout);
+      compositionTimeout.clear();
       isComposingRef.current = true;
     }
 
@@ -348,13 +348,13 @@ export function useDismiss(
       // Safari fires `compositionend` before `keydown`, so we need to wait
       // until the next tick to set `isComposing` to `false`.
       // https://bugs.webkit.org/show_bug.cgi?id=165004
-      compositionTimeout = setTimeout(
-        () => {
-          isComposingRef.current = false;
-        },
+      compositionTimeout.start(
         // 0ms or 1ms don't work in Safari. 5ms appears to consistently work.
         // Only apply to WebKit for the test to remain 0ms.
         isWebKit() ? 5 : 0,
+        () => {
+          isComposingRef.current = false;
+        },
       );
     }
 
@@ -428,7 +428,7 @@ export function useDismiss(
         ancestor.removeEventListener('scroll', onScroll);
       });
 
-      clearTimeout(compositionTimeout);
+      compositionTimeout.clear();
     };
   }, [
     dataRef,
@@ -487,14 +487,13 @@ export function useDismiss(
         if (tree) {
           return;
         }
-        clearTimeoutIfSet(blurTimeoutRef);
         dataRef.current.insideReactTree = true;
-        blurTimeoutRef.current = setTimeout(() => {
+        blurTimeout.start(0, () => {
           dataRef.current.insideReactTree = false;
         });
       },
     }),
-    [closeOnEscapeKeyDown, outsidePressEvent, dataRef, tree],
+    [closeOnEscapeKeyDown, outsidePressEvent, dataRef, tree, blurTimeout],
   );
 
   return React.useMemo(

@@ -2,10 +2,10 @@ import * as React from 'react';
 import { useLatestRef } from '../../utils/useLatestRef';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
+import { useTimeout } from '../../utils/useTimeout';
 import { stopEvent } from '../utils';
 
 import type { ElementProps, FloatingRootContext } from '../types';
-import { clearTimeoutIfSet } from '../utils/clearTimeoutIfSet';
 
 export interface UseTypeaheadProps {
   /**
@@ -76,7 +76,7 @@ export function useTypeahead(context: FloatingRootContext, props: UseTypeaheadPr
     selectedIndex = null,
   } = props;
 
-  const timeoutIdRef = React.useRef(-1);
+  const timeout = useTimeout();
   const stringRef = React.useRef('');
   const prevIndexRef = React.useRef<number | null>(selectedIndex ?? activeIndex ?? -1);
   const matchIndexRef = React.useRef<number | null>(null);
@@ -89,11 +89,11 @@ export function useTypeahead(context: FloatingRootContext, props: UseTypeaheadPr
 
   useModernLayoutEffect(() => {
     if (open) {
-      clearTimeoutIfSet(timeoutIdRef);
+      timeout.clear();
       matchIndexRef.current = null;
       stringRef.current = '';
     }
-  }, [open]);
+  }, [open, timeout]);
 
   useModernLayoutEffect(() => {
     // Sync arrow key navigation but not typeahead navigation.
@@ -171,12 +171,11 @@ export function useTypeahead(context: FloatingRootContext, props: UseTypeaheadPr
     }
 
     stringRef.current += event.key;
-    clearTimeoutIfSet(timeoutIdRef);
-    timeoutIdRef.current = setTimeout(() => {
+    timeout.start(resetMs, () => {
       stringRef.current = '';
       prevIndexRef.current = matchIndexRef.current;
       setTypingChange(false);
-    }, resetMs);
+    });
 
     const prevIndex = prevIndexRef.current;
 

@@ -1,6 +1,7 @@
 import { isElement } from '@floating-ui/utils/dom';
 import type { Rect, Side } from './types';
 import type { HandleClose } from './hooks/useHover';
+import { Timeout } from '../utils/useTimeout';
 import { contains, getTarget } from './utils/element';
 import { getNodeChildren } from './utils/nodes';
 import { clearTimeoutIfSet } from './utils/clearTimeoutIfSet';
@@ -49,7 +50,7 @@ export interface SafePolygonOptions {
 export function safePolygon(options: SafePolygonOptions = {}) {
   const { buffer = 0.5, blockPointerEvents = false, requireIntent = true } = options;
 
-  const timeoutRef = { current: -1 };
+  const timeout = new Timeout();
 
   let hasLanded = false;
   let lastX: number | null = null;
@@ -82,11 +83,11 @@ export function safePolygon(options: SafePolygonOptions = {}) {
   const fn: HandleClose = ({ x, y, placement, elements, onClose, nodeId, tree }) => {
     return function onMouseMove(event: MouseEvent) {
       function close() {
-        clearTimeoutIfSet(timeoutRef);
+        timeout.clear();
         onClose();
       }
 
-      clearTimeoutIfSet(timeoutRef);
+      timeout.clear();
 
       if (
         !elements.domReference ||
@@ -386,7 +387,7 @@ export function safePolygon(options: SafePolygonOptions = {}) {
       if (!isPointInPolygon([clientX, clientY], getPolygon([x, y]))) {
         close();
       } else if (!hasLanded && requireIntent) {
-        timeoutRef.current = setTimeout(close, 40);
+        timeout.start(40, close);
       }
 
       return undefined;
