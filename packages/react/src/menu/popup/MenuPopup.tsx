@@ -12,14 +12,12 @@ import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping';
 import { transitionStatusMapping } from '../../utils/styleHookMapping';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
+import { EMPTY_OBJ, DISABLED_TRANSITIONS_STYLE } from '../../utils/constants';
 
 const customStyleHookMapping: CustomStyleHookMapping<MenuPopup.State> = {
   ...baseMapping,
   ...transitionStatusMapping,
 };
-
-const DISABLED_TRANSITIONS_STYLE = { style: { transition: 'none' } };
-const EMPTY_OBJ = {};
 
 /**
  * A container for the menu items.
@@ -91,8 +89,8 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
     ref: [forwardedRef, popupRef],
     customStyleHookMapping,
     props: [
-      transitionStatus === 'starting' ? DISABLED_TRANSITIONS_STYLE : EMPTY_OBJ,
       popupProps,
+      transitionStatus === 'starting' ? DISABLED_TRANSITIONS_STYLE : EMPTY_OBJ,
       elementProps,
     ],
   });

@@ -1,12 +1,10 @@
 'use client';
 import * as React from 'react';
-import { mergeProps } from '../../merge-props';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { BaseUIComponentProps } from '../../utils/types';
 import type { MeterRoot } from '../root/MeterRoot';
 import { useMeterRootContext } from '../root/MeterRootContext';
+import { useRenderElement } from '../../utils/useRenderElement';
 
-const EMPTY = {};
 /**
  * Visualizes the position of the value along the range.
  * Renders a `<div>` element.
@@ -14,42 +12,26 @@ const EMPTY = {};
  * Documentation: [Base UI Meter](https://base-ui.com/react/components/meter)
  */
 export const MeterIndicator = React.forwardRef(function MeterIndicator(
-  props: MeterIndicator.Props,
-  forwardedRef: React.ForwardedRef<HTMLSpanElement>,
+  componentProps: MeterIndicator.Props,
+  forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, ...otherProps } = props;
+  const { render, className, ...elementProps } = componentProps;
 
   const { percentageValue } = useMeterRootContext();
 
-  const getStyles = React.useCallback(() => {
-    return {
-      insetInlineStart: 0,
-      height: 'inherit',
-      width: `${percentageValue}%`,
-    };
-  }, [percentageValue]);
-
-  const propGetter = React.useCallback(
-    (externalProps = {}) =>
-      mergeProps<'div'>(
-        {
-          style: getStyles(),
-        },
-        externalProps,
-      ),
-    [getStyles],
-  );
-
-  const { renderElement } = useComponentRenderer({
-    propGetter,
-    render: render ?? 'div',
-    state: EMPTY,
-    className,
+  return useRenderElement('div', componentProps, {
     ref: forwardedRef,
-    extraProps: otherProps,
+    props: [
+      {
+        style: {
+          insetInlineStart: 0,
+          height: 'inherit',
+          width: `${percentageValue}%`,
+        },
+      },
+      elementProps,
+    ],
   });
-
-  return renderElement();
 });
 
 export namespace MeterIndicator {
