@@ -51,7 +51,7 @@ export function useSharedCalendarRoot<TValue extends TemporalSupportedValue, TEr
 
   const handleValueChangeWithContext = useEventCallback((newValue: TValue) => {
     onValueChange?.(newValue, {
-      validationError: manager.getValidationError(newValue, validationProps),
+      getValidationError: () => manager.getValidationError(newValue, validationProps),
     });
   });
 
@@ -307,7 +307,7 @@ export namespace useSharedCalendarRoot {
     /**
      * The validation error associated to the new value.
      */
-    validationError: TError;
+    getValidationError: () => TError;
   }
 
   export interface ValueManager<TValue extends TemporalSupportedValue> {
