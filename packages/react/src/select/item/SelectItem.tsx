@@ -31,6 +31,7 @@ export const SelectItem = React.memo(
       value = null,
       label,
       disabled = false,
+      nativeButton = false,
       ...elementProps
     } = componentProps;
 
@@ -112,6 +113,7 @@ export const SelectItem = React.memo(
       events,
       rootProps,
       elementProps,
+      nativeButton,
     });
 
     const element = useRenderElement('div', componentProps, {
@@ -162,5 +164,12 @@ export namespace SelectItem {
      * and when the item is matched during keyboard text navigation.
      */
     label?: string;
+    /**
+     * Whether the component renders a native `<button>` element when replacing it
+     * via the `render` prop.
+     * Set to `false` if the rendered element is not a button (e.g. `<div>`).
+     * @default false
+     */
+    nativeButton?: boolean;
   }
 }

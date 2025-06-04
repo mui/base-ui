@@ -19,7 +19,15 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
   componentProps: MenuSubmenuTrigger.Props,
   forwardedRef: React.ForwardedRef<Element>,
 ) {
-  const { render, className, label, id: idProp, ...elementProps } = componentProps;
+  const {
+    render,
+    className,
+    label,
+    id: idProp,
+    nativeButton = false,
+    ...elementProps
+  } = componentProps;
+
   const id = useBaseUiId(idProp);
 
   const {
@@ -53,6 +61,7 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
     menuEvents,
     allowMouseUpTriggerRef,
     typingRef,
+    nativeButton,
   });
 
   const state: MenuSubmenuTrigger.State = React.useMemo(
@@ -93,6 +102,13 @@ export namespace MenuSubmenuTrigger {
      * @ignore
      */
     id?: string;
+    /**
+     * Whether the component renders a native `<button>` element when replacing it
+     * via the `render` prop.
+     * Set to `false` if the rendered element is not a button (e.g. `<div>`).
+     * @default false
+     */
+    nativeButton?: boolean;
   }
 
   export interface State {

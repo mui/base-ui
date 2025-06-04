@@ -29,6 +29,7 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
     events,
     elementProps,
     rootProps,
+    nativeButton,
   } = params;
 
   const ref = React.useRef<HTMLDivElement | null>(null);
@@ -49,6 +50,7 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
     disabled,
     focusableWhenDisabled: true,
     buttonRef: mergedRef,
+    native: nativeButton,
   });
 
   const commitSelection = useEventCallback((event: MouseEvent) => {
@@ -287,6 +289,7 @@ export namespace useSelectItem {
     events: FloatingEvents;
     elementProps: HTMLProps;
     rootProps: HTMLProps;
+    nativeButton: boolean;
   }
 
   export interface ReturnValue {
