@@ -2,6 +2,11 @@
   "name": "CalendarSetVisibleYear",
   "description": "Displays an element to navigation to a given year in the calendar.\nRenders a `<button>` element.",
   "props": {
+    "nativeButton": {
+      "type": "boolean",
+      "default": "true",
+      "description": "Whether the component renders a native `<button>` element when replacing it\nvia the `render` prop.\nSet to `false` if the rendered element is not a button (e.g. `<div>`)."
+    },
     "target": {
       "type": "DateTime<boolean> | 'next' | 'previous'",
       "required": true,

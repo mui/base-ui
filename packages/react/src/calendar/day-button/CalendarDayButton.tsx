@@ -65,7 +65,6 @@ const InnerCalendarDayButton = React.forwardRef(function InnerCalendarDayButton(
   );
 
   const onClick = useEventCallback(() => {
-    console.log('HEY');
     if (ctx.isUnavailable) {
       return;
     }
@@ -73,7 +72,6 @@ const InnerCalendarDayButton = React.forwardRef(function InnerCalendarDayButton(
   });
 
   const props: React.ButtonHTMLAttributes<HTMLButtonElement> = {
-    role: 'gridcell',
     'aria-selected': ctx.isSelected ? true : undefined,
     'aria-current': ctx.isCurrent ? 'date' : undefined,
     'aria-disabled': (ctx.isDisabled ?? ctx.isUnavailable) ? true : undefined,
@@ -175,6 +173,7 @@ export const CalendarDayButton = React.forwardRef(function CalendarDayButton(
       selectDate,
     }),
     [
+      value,
       isSelected,
       isDisabled,
       isUnavailable,

@@ -7,6 +7,7 @@ export function useSharedCalendarDayGridCell(parameters: useSharedCalendarDayGri
   const { ctx } = parameters;
 
   const props: HTMLProps = {
+    role: 'gridcell',
     'aria-disabled': (ctx.isDisabled ?? ctx.isUnavailable) ? true : undefined,
   };
 

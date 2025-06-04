@@ -4,6 +4,7 @@ import { useSharedCalendarRootContext } from '../root/SharedCalendarRootContext'
 import { useSharedCalendarRootVisibleDateContext } from '../root/SharedCalendarRootVisibleDateContext';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { BaseUIComponentProps } from '../../utils/types';
+import { useButton } from '../../use-button';
 import { useForkRef } from '../../utils/useForkRef';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { TemporalSupportedObject } from '../../models';
@@ -14,7 +15,12 @@ const InnerCalendarSetVisibleMonth = React.forwardRef(function InnerCalendarSetV
   componentProps: InnerCalendarSetVisibleMonthProps,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
-  const { className, render, ctx, target, ...elementProps } = componentProps;
+  const { className, render, ctx, target, nativeButton, ...elementProps } = componentProps;
+
+  const { getButtonProps, buttonRef } = useButton({
+    disabled: ctx.isDisabled,
+    native: nativeButton,
+  });
 
   const state: CalendarSetVisibleMonth.State = React.useMemo(
     () => ({ disabled: ctx.isDisabled }),
@@ -23,11 +29,8 @@ const InnerCalendarSetVisibleMonth = React.forwardRef(function InnerCalendarSetV
 
   const element = useRenderElement('button', componentProps, {
     state,
-    ref: forwardedRef,
-    props: [
-      { type: 'button', disabled: ctx.isDisabled, onClick: ctx.setTarget, tabIndex: 0 },
-      elementProps,
-    ],
+    ref: [buttonRef, forwardedRef],
+    props: [getButtonProps, { onClick: ctx.setTarget, tabIndex: 0 }, elementProps],
   });
 
   return element;
@@ -140,6 +143,13 @@ export namespace CalendarSetVisibleMonth {
      * The month to navigate to.
      */
     target: 'previous' | 'next' | TemporalSupportedObject;
+    /**
+     * Whether the component renders a native `<button>` element when replacing it
+     * via the `render` prop.
+     * Set to `false` if the rendered element is not a button (e.g. `<div>`).
+     * @default true
+     */
+    nativeButton?: boolean;
   }
 }
 
