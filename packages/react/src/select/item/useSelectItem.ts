@@ -45,8 +45,6 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
   const mergedRef = useForkRef(externalRef, ref);
 
   const { getButtonProps, buttonRef } = useButton({
-    // XXX: This is brittle, it will cause a re-render if the user passes a `render` prop.
-    elementName: 'div',
     disabled,
     focusableWhenDisabled: true,
     buttonRef: mergedRef,
