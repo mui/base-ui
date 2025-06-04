@@ -140,8 +140,6 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
 
     popupElement.style.setProperty(NavigationMenuPopupCssVars.popupWidth, 'auto');
     popupElement.style.setProperty(NavigationMenuPopupCssVars.popupHeight, 'auto');
-    positionerElement.style.setProperty(NavigationMenuPositionerCssVars.positionerWidth, 'auto');
-    positionerElement.style.setProperty(NavigationMenuPositionerCssVars.positionerHeight, 'auto');
   });
 
   const runOnceAnimationsFinish = useAnimationsFinished({ current: popupElement }, value);
