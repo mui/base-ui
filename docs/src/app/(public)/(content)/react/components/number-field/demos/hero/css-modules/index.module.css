@@ -31,6 +31,7 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+  border-radius: 0;
   border-top: 1px solid var(--color-gray-200);
   border-bottom: 1px solid var(--color-gray-200);
   border-left: none;

@@ -28,6 +28,7 @@ export const TabsTab = React.forwardRef(function Tab(
     render,
     value: valueProp,
     id: idProp,
+    nativeButton = true,
     ...elementProps
   } = componentProps;
 
@@ -81,6 +82,7 @@ export const TabsTab = React.forwardRef(function Tab(
 
   const { getButtonProps, buttonRef } = useButton({
     disabled,
+    native: nativeButton,
     focusableWhenDisabled: true,
   });
 
@@ -213,5 +215,12 @@ export namespace TabsTab {
      * @type Tabs.Tab.Value
      */
     value?: Value;
+    /**
+     * Whether the component renders a native `<button>` element when replacing it
+     * via the `render` prop.
+     * Set to `false` if the rendered element is not a button (e.g. `<div>`).
+     * @default true
+     */
+    nativeButton?: boolean;
   }
 }

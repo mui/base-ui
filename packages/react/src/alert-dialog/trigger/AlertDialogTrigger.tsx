@@ -2,8 +2,7 @@
 import * as React from 'react';
 import { useAlertDialogRootContext } from '../root/AlertDialogRootContext';
 import { useButton } from '../../use-button/useButton';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { useForkRef } from '../../utils/useForkRef';
+import { useRenderElement } from '../../utils/useRenderElement';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
 
@@ -14,12 +13,18 @@ import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
  * Documentation: [Base UI Alert Dialog](https://base-ui.com/react/components/alert-dialog)
  */
 export const AlertDialogTrigger = React.forwardRef(function AlertDialogTrigger(
-  props: AlertDialogTrigger.Props,
+  componentProps: AlertDialogTrigger.Props,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
-  const { render, className, disabled = false, ...other } = props;
+  const {
+    render,
+    className,
+    disabled = false,
+    nativeButton = true,
+    ...elementProps
+  } = componentProps;
 
-  const { open, setTriggerElement, getTriggerProps } = useAlertDialogRootContext();
+  const { open, setTriggerElement, triggerProps } = useAlertDialogRootContext();
 
   const state: AlertDialogTrigger.State = React.useMemo(
     () => ({
@@ -29,28 +34,29 @@ export const AlertDialogTrigger = React.forwardRef(function AlertDialogTrigger(
     [disabled, open],
   );
 
-  const mergedRef = useForkRef(forwardedRef, setTriggerElement);
-
-  const { getButtonProps } = useButton({
+  const { getButtonProps, buttonRef } = useButton({
     disabled,
-    buttonRef: mergedRef,
+    native: nativeButton,
   });
 
-  const { renderElement } = useComponentRenderer({
-    render: render ?? 'button',
-    className,
+  return useRenderElement('button', componentProps, {
     state,
-    propGetter: (externalProps) => getButtonProps(getTriggerProps(externalProps)),
-    extraProps: other,
+    ref: [forwardedRef, buttonRef, setTriggerElement],
     customStyleHookMapping: triggerOpenStateMapping,
-    ref: mergedRef,
+    props: [triggerProps, elementProps, getButtonProps],
   });
-
-  return renderElement();
 });
 
 export namespace AlertDialogTrigger {
-  export interface Props extends BaseUIComponentProps<'button', State> {}
+  export interface Props extends BaseUIComponentProps<'button', State> {
+    /**
+     * Whether the component renders a native `<button>` element when replacing it
+     * via the `render` prop.
+     * Set to `false` if the rendered element is not a button (e.g. `<div>`).
+     * @default false
+     */
+    nativeButton?: boolean;
+  }
 
   export interface State {
     /**
