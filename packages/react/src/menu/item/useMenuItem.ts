@@ -16,6 +16,7 @@ export function useMenuItem(params: useMenuItem.Parameters): useMenuItem.ReturnV
     menuEvents,
     allowMouseUpTriggerRef,
     typingRef,
+    nativeButton,
   } = params;
 
   const itemRef = React.useRef<HTMLElement | null>(null);
@@ -23,6 +24,7 @@ export function useMenuItem(params: useMenuItem.Parameters): useMenuItem.ReturnV
   const { getButtonProps, buttonRef } = useButton({
     disabled,
     focusableWhenDisabled: true,
+    native: nativeButton,
   });
 
   useModernLayoutEffect(() => {
@@ -107,6 +109,13 @@ export namespace useMenuItem {
      * A ref that is set to `true` when the user is using the typeahead feature.
      */
     typingRef: React.RefObject<boolean>;
+    /**
+     * Whether the component renders a native `<button>` element when replacing it
+     * via the `render` prop.
+     * Set to `false` if the rendered element is not a button (e.g. `<div>`).
+     * @default false
+     */
+    nativeButton: boolean;
   }
 
   export interface ReturnValue {

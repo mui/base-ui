@@ -47,6 +47,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     render,
     required = false,
     value: valueProp,
+    nativeButton = true,
     ...elementProps
   } = componentProps;
 
@@ -99,6 +100,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
 
   const { getButtonProps, buttonRef } = useButton({
     disabled,
+    native: nativeButton,
   });
 
   const localFieldControlValidation = useFieldControlValidation();
@@ -257,7 +259,6 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     props: [
       {
         id,
-        ref: buttonRef,
         role: 'checkbox',
         disabled,
         'aria-checked': groupIndeterminate ? 'mixed' : checked,
@@ -311,6 +312,7 @@ export namespace CheckboxRoot {
      */
     indeterminate: boolean;
   }
+
   export interface Props extends Omit<BaseUIComponentProps<'button', State>, 'onChange' | 'value'> {
     /**
      * The id of the input element.
@@ -377,5 +379,12 @@ export namespace CheckboxRoot {
      * The value of the selected checkbox.
      */
     value?: string;
+    /**
+     * Whether the component renders a native `<button>` element when replacing it
+     * via the `render` prop.
+     * Set to `false` if the rendered element is not a button (e.g. `<div>`).
+     * @default true
+     */
+    nativeButton?: boolean;
   }
 }

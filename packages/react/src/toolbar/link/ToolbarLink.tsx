@@ -28,7 +28,7 @@ export const ToolbarLink = React.forwardRef(function ToolbarLink(
   const { orientation } = useToolbarRootContext();
 
   const { getButtonProps, buttonRef } = useButton({
-    elementName: 'a',
+    native: 'a',
   });
 
   const state: ToolbarLink.State = React.useMemo(

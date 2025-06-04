@@ -151,7 +151,7 @@ function evaluateRenderProp<T extends React.ElementType, S>(
   }
   // Unreachable, but the typings on `useRenderElement` need to be reworked
   // to annotate it correctly.
-  throw new Error('Need either element or render to be defined');
+  throw new Error('Base UI: Render element or function are not defined.');
 }
 
 function renderTag(Tag: string, props: Record<string, any>) {

@@ -32,6 +32,7 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
     events,
     elementProps,
     rootProps,
+    nativeButton,
   } = params;
 
   const ref = React.useRef<HTMLDivElement | null>(null);
@@ -45,6 +46,7 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
   const { getButtonProps, buttonRef } = useButton({
     disabled,
     focusableWhenDisabled: true,
+    native: nativeButton,
   });
 
   const mergedRef = useForkRef(externalRef, ref, buttonRef);
@@ -298,6 +300,7 @@ export namespace useSelectItem {
     events: FloatingEvents;
     elementProps: HTMLProps;
     rootProps: HTMLProps;
+    nativeButton: boolean;
   }
 
   export interface ReturnValue {
