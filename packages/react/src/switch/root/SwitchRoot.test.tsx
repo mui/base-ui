@@ -543,7 +543,7 @@ describe('<Switch.Root />', () => {
 
           const label = screen.getByTestId('label');
           const button = screen.getByRole('switch');
-          expect(button).to.have.attribute('aria-labelledby', label.getAttribute('id'));
+          expect(button.getAttribute('aria-labelledby')).to.equal(label.getAttribute('id'));
         });
       });
 
