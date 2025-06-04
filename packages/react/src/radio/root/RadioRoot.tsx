@@ -33,6 +33,7 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
     required: requiredProp = false,
     value,
     inputRef: inputRefProp,
+    nativeButton = true,
     ...elementProps
   } = componentProps;
 
@@ -105,6 +106,7 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
 
   const { getButtonProps, buttonRef } = useButton({
     disabled,
+    native: nativeButton,
   });
 
   const id = useBaseUiId();
@@ -214,6 +216,13 @@ export namespace RadioRoot {
      * A ref to access the hidden input element.
      */
     inputRef?: React.Ref<HTMLInputElement>;
+    /**
+     * Whether the component renders a native `<button>` element when replacing it
+     * via the `render` prop.
+     * Set to `false` if the rendered element is not a button (e.g. `<div>`).
+     * @default true
+     */
+    nativeButton?: boolean;
   }
 
   export interface State {
