@@ -360,7 +360,7 @@ describe('<Menu.Trigger />', () => {
           <Popover.Positioner>
             <Popover.Popup>
               <Menu.Root>
-                <Menu.Trigger data-testid="menu-trigger" render={<span />} />
+                <Menu.Trigger data-testid="menu-trigger" render={<span />} nativeButton={false} />
               </Menu.Root>
             </Popover.Popup>
           </Popover.Positioner>
