@@ -8,7 +8,7 @@ describe('<Calendar.DayButton />', () => {
   const date = adapter.now('default');
   const startOfWeek = adapter.startOfWeek(date);
 
-  describeConformance(<Calendar.DayGridCell value={date} />, () => ({
+  describeConformance(<Calendar.DayButton />, () => ({
     refInstanceof: window.HTMLButtonElement,
     render(node) {
       return render(
