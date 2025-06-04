@@ -1,14 +1,13 @@
 'use client';
 import * as React from 'react';
+import { NOOP } from '../../utils/noop';
 import { DEFAULT_VALIDITY_STATE } from '../utils/constants';
 import type { FieldRoot, FieldValidityData } from './FieldRoot';
-
-const NOOP = () => {};
 
 export interface FieldRootContext {
   invalid: boolean | undefined;
   /**
-   * The `id` attribute of the labelable element.
+   * The `id` of the labelable element that corresponds to the `for` attribute of a `Field.Label`.
    * When `null` the association is implicit.
    */
   controlId: string | null | undefined;

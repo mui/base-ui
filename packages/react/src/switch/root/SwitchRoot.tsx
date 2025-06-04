@@ -34,6 +34,7 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
     defaultChecked,
     id: idProp,
     inputRef: externalInputRef,
+    nativeButton = true,
     onCheckedChange: onCheckedChangeProp,
     readOnly = false,
     required = false,
@@ -72,11 +73,11 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
   const id = useBaseUiId(idProp);
 
   useModernLayoutEffect(() => {
-    setControlId(idProp ?? null);
+    setControlId(nativeButton ? (idProp ?? null) : id);
     return () => {
       setControlId(undefined);
     };
-  }, [idProp, setControlId]);
+  }, [id, idProp, nativeButton, setControlId]);
 
   const inputRef = React.useRef<HTMLInputElement>(null);
   const handleInputRef = useForkRef(inputRef, externalInputRef, inputValidationRef);
@@ -107,6 +108,7 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
 
   const { getButtonProps, buttonRef } = useButton({
     disabled,
+    native: nativeButton,
   });
 
   const rootProps: React.ComponentPropsWithRef<'button'> = React.useMemo(
@@ -273,6 +275,13 @@ export namespace SwitchRoot {
      * Identifies the field when a form is submitted.
      */
     name?: string;
+    /**
+     * Whether the component renders a native `<button>` element when replacing it
+     * via the `render` prop.
+     * Set to `false` if the rendered element is not a button (e.g. `<div>`).
+     * @default true
+     */
+    nativeButton?: boolean;
     /**
      * Event handler called when the switch is activated or deactivated.
      *

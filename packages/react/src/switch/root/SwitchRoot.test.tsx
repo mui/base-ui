@@ -512,23 +512,39 @@ describe('<Switch.Root />', () => {
     });
 
     describe('Field.Label', () => {
-      it('implicit association', async () => {
-        await render(
-          <Field.Root>
-            <Field.Label data-testid="label">
-              <Switch.Root data-testid="button" />
-            </Field.Label>
-          </Field.Root>,
-        );
+      describe('implicit', () => {
+        it('when rendering a native button', async () => {
+          await render(
+            <Field.Root>
+              <Field.Label data-testid="label">
+                <Switch.Root data-testid="button" />
+              </Field.Label>
+            </Field.Root>,
+          );
 
-        const label = screen.getByTestId('label');
-        expect(label).to.not.have.attribute('for');
+          const label = screen.getByTestId('label');
+          expect(label).to.not.have.attribute('for');
 
-        const button = screen.getByTestId('button');
-        expect(button).to.have.attribute('aria-checked', 'false');
+          const button = screen.getByRole('switch');
+          expect(button).to.have.attribute('aria-checked', 'false');
 
-        fireEvent.click(label);
-        expect(button).to.have.attribute('aria-checked', 'true');
+          fireEvent.click(label);
+          expect(button).to.have.attribute('aria-checked', 'true');
+        });
+
+        it('when rendering a non-native button', async () => {
+          await render(
+            <Field.Root>
+              <Field.Label data-testid="label">
+                <Switch.Root data-testid="button" render={<span />} nativeButton={false} />
+              </Field.Label>
+            </Field.Root>,
+          );
+
+          const label = screen.getByTestId('label');
+          const button = screen.getByRole('switch');
+          expect(button).to.have.attribute('aria-labelledby', label.getAttribute('id'));
+        });
       });
 
       it('explicit association', async () => {
