@@ -15,7 +15,7 @@ export function createTemporalRenderer(
   parameters: createTemporalRenderer.Parameters = {},
 ): createTemporalRenderer.ReturnValue {
   const {
-    createAdapter = () => new TemporalAdapterLuxon(),
+    adapter = new TemporalAdapterLuxon(),
     clockConfig,
     ...createRendererOptions
   } = parameters;
@@ -34,8 +34,6 @@ export function createTemporalRenderer(
     }
   });
 
-  const adapter = createAdapter();
-
   function Wrapper({ children }: { children?: React.ReactNode }) {
     return <TemporalAdapterProvider adapter={adapter}>{children}</TemporalAdapterProvider>;
   }
@@ -51,10 +49,10 @@ export function createTemporalRenderer(
 export namespace createTemporalRenderer {
   export interface Parameters extends Omit<CreateRendererOptions, 'clock' | 'clockOptions'> {
     /**
-     * Method to create the adapter instance.
-     * @default () => new TemporalAdapterLuxon()
+     * Adapter to use for the tests.
+     * @default new TemporalAdapterLuxon()
      */
-    createAdapter?: () => TemporalAdapter;
+    adapter?: TemporalAdapter;
   }
 
   export interface ReturnValue {
