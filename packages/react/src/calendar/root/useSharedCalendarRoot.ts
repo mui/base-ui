@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { TemporalSupportedObject, TemporalSupportedValue } from '../../models';
-import { useDateManager, validateDate } from '../../utils/temporal/useDateManager';
+import { validateDate, mergeDateAndTime } from '../../utils/temporal/date-helpers';
 import { getInitialReferenceDate } from '../../utils/temporal/getInitialReferenceDate';
 import { useTemporalAdapter } from '../../temporal-adapter-provider/TemporalAdapterContext';
 import { useTemporalControlledValue } from '../../utils/temporal/useTemporalControlledValue';
@@ -9,7 +9,6 @@ import { SharedCalendarRootVisibleDateContext } from './SharedCalendarRootVisibl
 import { useEventCallback } from '../../utils/useEventCallback';
 import { TemporalManager, TemporalTimezoneProps } from '../../utils/temporal/types';
 import { useControlled } from '../../utils/useControlled';
-import { mergeDateAndTime } from '../../utils/temporal/date-helpers';
 
 export function useSharedCalendarRoot<TValue extends TemporalSupportedValue, TError>(
   parameters: useSharedCalendarRoot.Parameters<TValue, TError>,
@@ -35,8 +34,9 @@ export function useSharedCalendarRoot<TValue extends TemporalSupportedValue, TEr
     visibleDate: visibleDateProp,
     defaultVisibleDate,
     // Validation props
-    validationProps,
     isDateUnavailable,
+    minDate,
+    maxDate,
     // Manager props
     manager,
     calendarValueManager: {
@@ -46,6 +46,8 @@ export function useSharedCalendarRoot<TValue extends TemporalSupportedValue, TEr
       getSelectedDatesFromValue,
     },
   } = parameters;
+
+  const validationProps = React.useMemo(() => ({ minDate, maxDate }), [minDate, maxDate]);
 
   const handleValueChangeWithContext = useEventCallback((newValue: TValue) => {
     onValueChange?.(newValue, {
@@ -135,16 +137,6 @@ export function useSharedCalendarRoot<TValue extends TemporalSupportedValue, TEr
     }
   }
 
-  const getDateValidationError = React.useCallback(
-    (day: TemporalSupportedObject | null) =>
-      validateDate({
-        adapter,
-        value: day,
-        validationProps,
-      }),
-    [adapter, validationProps],
-  );
-
   const selectDate = useEventCallback<SharedCalendarRootContext['selectDate']>(
     (selectedDate: TemporalSupportedObject) => {
       if (readOnly) {
@@ -187,7 +179,6 @@ export function useSharedCalendarRoot<TValue extends TemporalSupportedValue, TEr
     () => ({
       timezone,
       disabled,
-      getDateValidationError,
       referenceDate,
       selectedDates,
       setVisibleDate: handleVisibleDateChange,
@@ -201,7 +192,6 @@ export function useSharedCalendarRoot<TValue extends TemporalSupportedValue, TEr
     [
       timezone,
       disabled,
-      getDateValidationError,
       referenceDate,
       selectedDates,
       handleVisibleDateChange,
@@ -223,7 +213,8 @@ export function useSharedCalendarRoot<TValue extends TemporalSupportedValue, TEr
 
 export namespace useSharedCalendarRoot {
   export interface PublicParameters<TValue extends TemporalSupportedValue, TError>
-    extends TemporalTimezoneProps {
+    extends TemporalTimezoneProps,
+      validateDate.ValidationProps {
     /**
      * The controlled value that should be selected.
      * To render an uncontrolled (Range)Calendar, use the `defaultValue` prop instead.
@@ -304,10 +295,6 @@ export namespace useSharedCalendarRoot {
      * It helps sharing the code between the Calendar and the RangeCalendar.
      */
     calendarValueManager: ValueManager<TValue>;
-    /**
-     * The props used to validate a single date.
-     */
-    validationProps: useDateManager.ValidationProps;
   }
 
   export interface ReturnValue {
@@ -321,10 +308,6 @@ export namespace useSharedCalendarRoot {
      * The validation error associated to the new value.
      */
     validationError: TError;
-  }
-
-  export interface RegisterDayGridParameters {
-    value: TemporalSupportedObject;
   }
 
   export interface ValueManager<TValue extends TemporalSupportedValue> {

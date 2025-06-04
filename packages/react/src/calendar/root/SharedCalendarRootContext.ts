@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { TemporalSupportedObject } from '../../models';
-import { useDateManager } from '../../utils/temporal/useDateManager';
+import { validateDate } from '../../utils/temporal/date-helpers';
 
 export interface SharedCalendarRootContext {
   /**
@@ -22,13 +22,9 @@ export interface SharedCalendarRootContext {
    */
   selectDate: (date: TemporalSupportedObject) => void;
   /**
-   * Returns the validation error of the given date.
-   */
-  getDateValidationError: (date: TemporalSupportedObject) => useDateManager.Error;
-  /**
    * The props to check if a date is valid or not.
    */
-  validationProps: useDateManager.ValidationProps;
+  validationProps: validateDate.ValidationProps;
   /**
    * Mark specific dates as unavailable.
    * Those dates will not be selectable but they will still be focusable with the keyboard.

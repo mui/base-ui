@@ -8,6 +8,7 @@ import { useDateManager } from '../../utils/temporal/useDateManager';
 import { CalendarContext } from '../use-context/CalendarContext';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { BaseUIComponentProps } from '../../utils/types';
+import { validateDate } from '../../utils/temporal/date-helpers';
 
 const calendarValueManager: useSharedCalendarRoot.ValueManager<TemporalNonRangeValue> = {
   getDateToUseForReferenceDate: (value) => value,
@@ -59,8 +60,6 @@ export const CalendarRoot = React.forwardRef(function CalendarRoot(
 
   const manager = useDateManager();
 
-  const validationProps: useDateManager.ValidationProps = { minDate, maxDate };
-
   const {
     state,
     context: sharedContext,
@@ -80,7 +79,6 @@ export const CalendarRoot = React.forwardRef(function CalendarRoot(
     visibleDate,
     defaultVisibleDate,
     manager,
-    validationProps,
     isDateUnavailable,
     calendarValueManager,
   });
@@ -122,8 +120,7 @@ export namespace CalendarRoot {
 
   export interface Props
     extends Omit<BaseUIComponentProps<'div', State>, 'children'>,
-      useSharedCalendarRoot.PublicParameters<TemporalNonRangeValue, useDateManager.Error>,
-      useDateManager.ValidationProps {
+      useSharedCalendarRoot.PublicParameters<TemporalNonRangeValue, validateDate.ReturnValue> {
     /**
      * The children of the component.
      * If a function is provided, it will be called with the public context as its parameter.
@@ -132,5 +129,5 @@ export namespace CalendarRoot {
   }
 
   export interface ValueChangeHandlerContext
-    extends useSharedCalendarRoot.ValueChangeHandlerContext<useDateManager.Error> {}
+    extends useSharedCalendarRoot.ValueChangeHandlerContext<validateDate.ReturnValue> {}
 }

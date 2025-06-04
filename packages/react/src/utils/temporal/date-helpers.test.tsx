@@ -1,12 +1,12 @@
 import { expect } from 'chai';
 import { TemporalAdapterLuxon } from '@base-ui-components/react/temporal-adapter-luxon';
-import { validateDate } from './useDateManager';
+import { validateDate } from './date-helpers';
 
 const adapter = new TemporalAdapterLuxon();
 
 // TODO: Run this test on all the adapters
-describe('useDateManager()', () => {
-  describe('validateDate utility', () => {
+describe('date helpers', () => {
+  describe('validateDate function', () => {
     it('should return null when no min date and not max date are provided', () => {
       expect(
         validateDate({

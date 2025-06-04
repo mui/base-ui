@@ -1,20 +1,24 @@
 import * as React from 'react';
 import { useSharedCalendarRootContext } from '../root/SharedCalendarRootContext';
 import type { useSharedCalendarDayGridCell } from './useSharedCalendarDayGridCell';
+import { validateDate } from '../../utils/temporal/date-helpers';
+import { useTemporalAdapter } from '../../temporal-adapter-provider/TemporalAdapterContext';
 
 export function useSharedCalendarDayGridCellWrapper(
   parameters: useSharedCalendarDayGridCellWrapper.Parameters,
 ): useSharedCalendarDayGridCellWrapper.ReturnValue {
   const { value } = parameters;
+
+  const adapter = useTemporalAdapter();
   const {
-    getDateValidationError,
+    validationProps,
     isDateUnavailable,
     disabled: isCalendarDisabled,
   } = useSharedCalendarRootContext();
 
   const validationError = React.useMemo(
-    () => getDateValidationError(value),
-    [getDateValidationError, value],
+    () => validateDate({ adapter, value, validationProps }),
+    [adapter, value, validationProps],
   );
 
   const isDisabled = isCalendarDisabled || validationError != null;
