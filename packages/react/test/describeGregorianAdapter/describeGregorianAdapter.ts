@@ -1,54 +1,21 @@
 import createDescribe from '@mui/internal-test-utils/createDescribe';
-import { TemporalAdapter } from '@base-ui-components/react/models';
-import { testCalculations } from './testCalculations';
+import { testComputations } from './testComputations';
 import { testLocalization } from './testLocalization';
 import { testFormats } from './testFormats';
-import {
-  DescribeGregorianAdapterParams,
-  DescribeGregorianAdapterTestSuiteParams,
-} from './describeGregorianAdapter.types';
+import { DescribeGregorianAdapterParameters } from './describeGregorianAdapter.types';
 
-function innerGregorianDescribeAdapter<TLocale>(
-  Adapter: new (...args: any) => TemporalAdapter,
-  params: DescribeGregorianAdapterParams<TLocale>,
-) {
-  const adapter = new Adapter();
-  const adapterTZ = params.dateLibInstanceWithTimezoneSupport
-    ? new Adapter({
-        dateLibInstance: params.dateLibInstanceWithTimezoneSupport,
-      })
-    : new Adapter();
-  const adapterFr = new Adapter({
-    locale: params.frenchLocale,
-    dateLibInstance: params.dateLibInstanceWithTimezoneSupport,
-  });
-
-  params.prepareAdapter?.(adapter);
-  params.prepareAdapter?.(adapterTZ);
-
-  describe(adapter.lib, () => {
-    const testSuitParams: DescribeGregorianAdapterTestSuiteParams<TLocale> = {
-      ...params,
-      adapter,
-      adapterTZ,
-      adapterFr,
-    };
-
-    testCalculations(testSuitParams);
-    testLocalization(testSuitParams);
-    testFormats(testSuitParams);
+function innerGregorianDescribeAdapter(parameters: DescribeGregorianAdapterParameters) {
+  describe(parameters.adapter.lib, () => {
+    testComputations(parameters);
+    testLocalization(parameters);
+    testFormats(parameters);
   });
 }
 
-type Params<TLocale> = [
-  Adapter: new (...args: any) => TemporalAdapter,
-  params: DescribeGregorianAdapterParams<TLocale>,
-];
-
 type DescribeGregorianAdapter = {
-  <TLocale>(...args: Params<TLocale>): void;
-  skip: <TLocale>(...args: Params<TLocale>) => void;
-  only: <TLocale>(...args: Params<TLocale>) => void;
+  (parameters: DescribeGregorianAdapterParameters): void;
+  skip: (parameters: DescribeGregorianAdapterParameters) => void;
+  only: (parameters: DescribeGregorianAdapterParameters) => void;
 };
 
 export const describeGregorianAdapter = createDescribe(

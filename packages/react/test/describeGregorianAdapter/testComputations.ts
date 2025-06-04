@@ -18,9 +18,9 @@ const expectSameTimeInMonacoTZ = (adapter: TemporalAdapter, value: TemporalSuppo
   expect(adapter.getHours(value)).to.equal(adapter.getHours(valueInMonacoTz));
 };
 
-export const testCalculations: DescribeGregorianAdapterTestSuite = ({
+export const testComputations: DescribeGregorianAdapterTestSuite = ({
   adapter,
-  adapterTZ,
+  adapterTZ = adapter,
   adapterFr,
   setDefaultTimezone,
 }) => {

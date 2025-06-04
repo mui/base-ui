@@ -70,7 +70,7 @@ export class TemporalAdapterLuxon implements TemporalAdapter {
   public escapedCharacters = { start: "'", end: "'" };
 
   constructor({ locale }: TemporalAdapterLuxon.ConstructorParameters = {}) {
-    this.locale = locale || 'en-US';
+    this.locale = locale ?? 'en-US';
   }
 
   private setLocaleToValue = (value: DateTime) => {
@@ -131,9 +131,7 @@ export class TemporalAdapterLuxon implements TemporalAdapter {
       return true; // Luxon defaults to en-US if Intl not found
     }
 
-    return Boolean(
-      new Intl.DateTimeFormat(this.locale, { hour: 'numeric' })?.resolvedOptions()?.hour12,
-    );
+    return !!new Intl.DateTimeFormat(this.locale, { hour: 'numeric' })?.resolvedOptions()?.hour12;
   };
   /* v8 ignore stop */
 
@@ -218,11 +216,11 @@ export class TemporalAdapterLuxon implements TemporalAdapter {
   };
 
   public isWithinRange = (value: DateTime, [start, end]: [DateTime, DateTime]) => {
-    return (
-      (this.isAfter(value, start) && this.isBefore(value, end)) ||
-      this.isEqual(value, start) ||
-      this.isEqual(value, end)
-    );
+    if (this.isAfter(value, start) && this.isBefore(value, end)) {
+      return true;
+    }
+
+    return this.isEqual(value, start) || this.isEqual(value, end);
   };
 
   public startOfYear = (value: DateTime) => {
@@ -343,6 +341,7 @@ export class TemporalAdapterLuxon implements TemporalAdapter {
   };
 
   public setMonth = (value: DateTime, month: number) => {
+    // See https://github.com/moment/luxon/blob/master/docs/moment.md#major-functional-differences
     return value.set({ month: month + 1 });
   };
 

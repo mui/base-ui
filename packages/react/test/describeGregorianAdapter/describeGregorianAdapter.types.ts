@@ -1,19 +1,26 @@
 import { TemporalAdapter, TemporalTimezone } from '@base-ui-components/react/models';
 
-export interface DescribeGregorianAdapterParams<TLocale> {
-  prepareAdapter?: (adapter: TemporalAdapter) => void;
-  dateLibInstanceWithTimezoneSupport?: any;
-  setDefaultTimezone: (timezone: TemporalTimezone | undefined) => void;
-  frenchLocale: TLocale;
-}
-
-export interface DescribeGregorianAdapterTestSuiteParams<TLocale>
-  extends Omit<DescribeGregorianAdapterParams<TLocale>, 'frenchLocale'> {
+export interface DescribeGregorianAdapterParameters {
+  /**
+   * Default adapter
+   */
   adapter: TemporalAdapter;
-  adapterTZ: TemporalAdapter;
+  /**
+   * Adapter with French locale.
+   */
   adapterFr: TemporalAdapter;
+  /**
+   * Adapter with timezone support.
+   * If not provided, will use the same adapter as `adapter`.
+   */
+  adapterTZ?: TemporalAdapter;
+  /**
+   * Sets the default timezone of the date library.
+   * This is used to ensure that the adapter works correctly when the timezone is set to "default".
+   */
+  setDefaultTimezone: (timezone: TemporalTimezone | undefined) => void;
 }
 
-export type DescribeGregorianAdapterTestSuite = <TLocale>(
-  params: DescribeGregorianAdapterTestSuiteParams<TLocale>,
+export type DescribeGregorianAdapterTestSuite = (
+  params: DescribeGregorianAdapterParameters,
 ) => void;
