@@ -46,7 +46,7 @@ export namespace CalendarDayGridCell {
   export interface State {}
 
   export interface Props
-    extends Omit<BaseUIComponentProps<'div', State>, 'value'>,
+    extends BaseUIComponentProps<'div', State>,
       useSharedCalendarDayGridCell.PublicParameters {}
 }
 

@@ -115,7 +115,13 @@
   justify-content: center;
 }
 
-.DayCell {
+.DayGridCell {
+}
+
+.DayButton {
+  background: none;
+  padding: 0;
+  font: inherit;
   height: 36px;
   width: 36px;
   position: relative;

@@ -7,7 +7,7 @@ import styles from './index.module.css';
 
 const adapter = new TemporalAdapterLuxon();
 
-export default function CalendarKeyboardNavigation() {
+export default function ExampleCalendar() {
   return (
     <TemporalAdapterProvider adapter={adapter}>
       <Calendar.Root className={styles.Root}>
@@ -57,11 +57,7 @@ export default function CalendarKeyboardNavigation() {
                             key={day.toString()}
                             className={styles.DayGridCell}
                           >
-                            <Calendar.DayButton
-                              render={<div />}
-                              nativeButton={false}
-                              className={styles.DayButton}
-                            />
+                            <Calendar.DayButton className={styles.DayButton} />
                           </Calendar.DayGridCell>
                         ))
                       }

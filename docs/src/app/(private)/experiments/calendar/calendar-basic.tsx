@@ -55,8 +55,10 @@ export default function CalendarBasic() {
                           <Calendar.DayGridCell
                             value={day}
                             key={day.toString()}
-                            className={styles.DayCell}
-                          />
+                            className={styles.DayGridCell}
+                          >
+                            <Calendar.DayButton className={styles.DayButton} />
+                          </Calendar.DayGridCell>
                         ))
                       }
                     </Calendar.DayGridRow>

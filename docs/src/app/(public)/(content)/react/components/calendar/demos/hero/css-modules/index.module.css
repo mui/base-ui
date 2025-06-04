@@ -200,6 +200,8 @@
   font: inherit;
   cursor: pointer;
   outline: inherit;
+  height: 36px;
+  width: 36px;
 }
 
 .DayGridHeaderCell {
