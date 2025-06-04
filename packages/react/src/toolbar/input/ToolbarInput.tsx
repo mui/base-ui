@@ -1,14 +1,13 @@
 'use client';
 import * as React from 'react';
 import { BaseUIComponentProps } from '../../utils/types';
+import { useFocusableWhenDisabled } from '../../utils/useFocusableWhenDisabled';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { ARROW_LEFT, ARROW_RIGHT, stopEvent } from '../../composite/composite';
 import { CompositeItem } from '../../composite/item/CompositeItem';
 import type { ToolbarRoot } from '../root/ToolbarRoot';
 import { useToolbarRootContext } from '../root/ToolbarRootContext';
 import { useToolbarGroupContext } from '../group/ToolbarGroupContext';
-
-import { useFocusableWhenDisabled } from './useFocusableWhenDisabled';
 
 /**
  * A native input element that integrates with Toolbar keyboard navigation.
@@ -37,8 +36,10 @@ export const ToolbarInput = React.forwardRef(function ToolbarInput(
   const disabled = toolbarDisabled || (groupContext?.disabled ?? false) || disabledProp;
 
   const { props: focusableWhenDisabledProps } = useFocusableWhenDisabled({
+    composite: true,
     disabled,
     focusableWhenDisabled,
+    isNativeButton: false,
   });
 
   const state: ToolbarInput.State = React.useMemo(
