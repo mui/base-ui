@@ -213,7 +213,8 @@ export namespace useButton {
       externalProps?: React.ComponentPropsWithRef<any>,
     ) => React.ComponentPropsWithRef<any>;
     /**
-     * A ref to the button DOM element.
+     * A ref to the button DOM element. This ref should be passed to the rendered element.
+     * It is not a part of the props returned by `getButtonProps`.
      */
     buttonRef: React.RefObject<HTMLElement | null>;
   }
