@@ -1,10 +1,10 @@
 import * as React from 'react';
+import { NoSsr } from '@base-ui-components/react/unstable-no-ssr';
 import { DemoLoader } from './components/Demo/DemoLoader';
 import * as CodeBlock from './components/CodeBlock';
 import * as Table from './components/Table';
 import * as QuickNav from './components/QuickNav/QuickNav';
 import { Code } from './components/Code';
-import { NoSSR } from './components/NoSSR';
 import { PropsReferenceTable } from './components/ReferenceTable/PropsReferenceTable';
 import { AttributesReferenceTable } from './components/ReferenceTable/AttributesReferenceTable';
 import { CssVariablesReferenceTable } from './components/ReferenceTable/CssVariablesReferenceTable';
@@ -89,9 +89,9 @@ export const mdxComponents: MDXComponents = {
   Demo:
     process.env.DISABLE_DEMO_SSR === 'true'
       ? (props) => (
-          <NoSSR>
+          <NoSsr>
             <DemoLoader className="mt-5 mb-6" {...props} />
-          </NoSSR>
+          </NoSsr>
         )
       : (props) => <DemoLoader className="mt-5 mb-6" {...props} />,
   QuickNav,
