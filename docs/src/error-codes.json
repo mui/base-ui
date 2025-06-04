@@ -14,7 +14,7 @@
   "13": "Base UI: DirectionContext is missing.",
   "14": "Base UI: FieldRootContext is missing. Field parts must be placed within <Field.Root>.",
   "15": "Base UI: MenuCheckboxItemContext is missing. MenuCheckboxItem parts must be placed within <Menu.CheckboxItem>.",
-  "16": "Base UI: Missing MenuGroupRootContext provider",
+  "16": "Base UI: MenuGroupRootContext is missing. Menu group parts must be used within <Menu.Group>.",
   "17": "Base UI: <Menu.Portal> is missing.",
   "18": "Base UI: MenuPositionerContext is missing. MenuPositioner parts must be placed within <Menu.Positioner>.",
   "19": "Base UI: MenuRadioGroupContext is missing. MenuRadioGroup parts must be placed within <Menu.RadioGroup>.",
@@ -45,13 +45,13 @@
   "44": "Base UI: <Select.Portal> is missing.",
   "45": "Base UI: SelectPositionerContext is missing. SelectPositioner parts must be placed within <Select.Positioner>.",
   "46": "Base UI: SelectIndexContext is missing. Select parts must be placed within <Select.Root>.",
-  "47": "useSelectRootContext must be used within a SelectRoot",
+  "47": "Base UI: SelectRootContext is missing. Select parts must be placed within <Select.Root>.",
   "48": "Base UI: SliderRootContext is missing. Slider parts must be placed within <Slider.Root>.",
   "49": "Base UI: SwitchRootContext is missing. Switch parts must be placed within <Switch.Root>.",
   "50": "Base UI: TabsListContext is missing. TabsList parts must be placed within <Tabs.List>.",
   "51": "Base UI: TabsRootContext is missing. Tabs parts must be placed within <Tabs.Root>.",
   "52": "Base UI: useToast must be used within <Toast.Provider>.",
-  "53": "useToastRoot must be used within a ToastRoot",
+  "53": "Base UI: ToastRootContext is missing. Toast parts must be used within <Toast.Root>.",
   "54": "Base UI: ToastViewportContext is missing. Toast parts must be placed within <Toast.Viewport>.",
   "55": "Base UI: ToggleGroupContext is missing. ToggleGroup parts must be placed within <ToggleGroup>.",
   "56": "Base UI: ToolbarGroupContext is missing. ToolbarGroup parts must be placed within <Toolbar.Group>.",
@@ -59,6 +59,6 @@
   "58": "Base UI: <Tooltip.Portal> is missing.",
   "59": "Base UI: TooltipPositionerContext is missing. TooltipPositioner parts must be placed within <Tooltip.Positioner>.",
   "60": "Base UI: TooltipRootContext is missing. Tooltip parts must be placed within <Tooltip.Root>.",
-  "61": "Cannot call an event handler while rendering.",
-  "62": "Need either element or render to be defined"
+  "61": "Base UI: Cannot call an event handler while rendering.",
+  "62": "Base UI: Render element or function are not defined."
 }
