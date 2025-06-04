@@ -46,7 +46,7 @@ export const SelectFloatingContext = React.createContext<FloatingRootContext | n
 export function useSelectRootContext() {
   const context = React.useContext(SelectRootContext);
   if (context === null) {
-    throw new Error('useSelectRootContext must be used within a SelectRoot');
+    throw new Error('Base UI: useSelectRootContext must be used within a SelectRoot');
   }
   return context;
 }
@@ -54,7 +54,7 @@ export function useSelectRootContext() {
 export function useSelectFloatingContext() {
   const context = React.useContext(SelectFloatingContext);
   if (context === null) {
-    throw new Error('useSelectFloatingContext must be used within a SelectRoot');
+    throw new Error('Base UI: useSelectFloatingContext must be used within a SelectRoot');
   }
   return context;
 }
