@@ -9,7 +9,7 @@ import type { Align, Side } from '../../utils/useAnchorPositioning';
 import { SelectPositionerContext } from './SelectPositionerContext';
 import { InternalBackdrop } from '../../utils/InternalBackdrop';
 import { inertValue } from '../../utils/inertValue';
-import { useFirstRender } from '../../utils/useFirstRender';
+import { useOnFirstRender } from '../../utils/useOnFirstRender';
 import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { DROPDOWN_COLLISION_AVOIDANCE } from '../../utils/constants';
@@ -60,7 +60,7 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
   const controlledItemAnchor = useSelector(store, selectors.controlledItemAnchor);
   const alignItemWithTriggerActive = useSelector(store, selectors.alignItemWithTriggerActive);
 
-  useFirstRender(() => {
+  useOnFirstRender(() => {
     // XXX: Should those options be applied on the root component?
 
     const controlledItemAnchorV = alignItemWithTrigger;

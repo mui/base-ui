@@ -13,7 +13,7 @@ import { useFieldControlValidation } from '../../field/control/useFieldControlVa
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useLazyRef } from '../../utils/useLazyRef';
-import { useFirstRender } from '../../utils/useFirstRender';
+import { useOnFirstRender } from '../../utils/useOnFirstRender';
 import { useControlled } from '../../utils/useControlled';
 import { useTransitionStatus } from '../../utils';
 import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
@@ -334,7 +334,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     typeahead,
   ]);
 
-  useFirstRender(() => {
+  useOnFirstRender(() => {
     // These should be initialized at store creation, but there is an interdependency
     // between some values used in floating hooks above.
     store.apply({
