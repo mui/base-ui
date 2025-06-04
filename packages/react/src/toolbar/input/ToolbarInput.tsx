@@ -38,8 +38,7 @@ export const ToolbarInput = React.forwardRef(function ToolbarInput(
   const { getButtonProps, buttonRef } = useButton({
     disabled,
     focusableWhenDisabled,
-    type: 'text',
-    elementName: 'input',
+    native: 'input',
   });
 
   const state: ToolbarInput.State = React.useMemo(

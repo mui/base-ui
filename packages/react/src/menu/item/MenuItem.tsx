@@ -25,6 +25,7 @@ const InnerMenuItem = React.memo(
       render,
       allowMouseUpTriggerRef,
       typingRef,
+      nativeButton,
       ...elementProps
     } = componentProps;
 
@@ -36,6 +37,7 @@ const InnerMenuItem = React.memo(
       menuEvents,
       allowMouseUpTriggerRef,
       typingRef,
+      nativeButton,
     });
 
     const state: MenuItem.State = React.useMemo(
@@ -63,7 +65,7 @@ export const MenuItem = React.forwardRef(function MenuItem(
   props: MenuItem.Props,
   forwardedRef: React.ForwardedRef<Element>,
 ) {
-  const { id: idProp, label, ...other } = props;
+  const { id: idProp, label, nativeButton = false, ...other } = props;
 
   const itemRef = React.useRef<HTMLElement>(null);
   const listItem = useCompositeListItem({ label });
@@ -89,6 +91,7 @@ export const MenuItem = React.forwardRef(function MenuItem(
       itemProps={itemProps}
       allowMouseUpTriggerRef={allowMouseUpTriggerRef}
       typingRef={typingRef}
+      nativeButton={nativeButton}
     />
   );
 });
@@ -99,6 +102,7 @@ interface InnerMenuItemProps extends MenuItem.Props {
   menuEvents: FloatingEvents;
   allowMouseUpTriggerRef: React.RefObject<boolean>;
   typingRef: React.RefObject<boolean>;
+  nativeButton: boolean;
 }
 
 export namespace MenuItem {
@@ -134,5 +138,12 @@ export namespace MenuItem {
      * @default true
      */
     closeOnClick?: boolean;
+    /**
+     * Whether the component renders a native `<button>` element when replacing it
+     * via the `render` prop.
+     * Set to `false` if the rendered element is not a button (e.g. `<div>`).
+     * @default false
+     */
+    nativeButton?: boolean;
   }
 }
