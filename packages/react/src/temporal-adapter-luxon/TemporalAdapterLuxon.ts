@@ -376,7 +376,7 @@ export class TemporalAdapterLuxon implements TemporalAdapter {
   };
 
   public getDayOfWeek = (value: DateTime) => {
-    return value.weekday;
+    return value.localWeekday ?? value.weekday;
   };
 }
 

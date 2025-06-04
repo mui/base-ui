@@ -2,13 +2,17 @@ import * as React from 'react';
 import { TemporalSupportedObject } from '../../models';
 import { SharedCalendarDayGridCellContext } from './SharedCalendarDayGridCellContext';
 import { HTMLProps } from '../../utils/types';
+import { useTemporalAdapter } from '../../temporal-adapter-provider/TemporalAdapterContext';
 
 export function useSharedCalendarDayGridCell(parameters: useSharedCalendarDayGridCell.Parameters) {
-  const { ctx } = parameters;
+  const { ctx, value } = parameters;
+
+  const adapter = useTemporalAdapter();
 
   const props: HTMLProps = {
     role: 'gridcell',
     'aria-disabled': (ctx.isDisabled ?? ctx.isUnavailable) ? true : undefined,
+    'aria-colindex': adapter.getDayOfWeek(value),
   };
 
   const context: SharedCalendarDayGridCellContext = React.useMemo(

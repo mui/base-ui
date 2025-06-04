@@ -28,7 +28,10 @@ const InnerCalendarDayGridRow = React.forwardRef(function InnerCalendarDayGridRo
 
   const element = useRenderElement('div', componentProps, {
     ref: forwardedRef,
-    props: [{ ref, role: 'row', children: resolvedChildren }, elementProps],
+    props: [
+      { ref, role: 'row', 'aria-rowindex': ctx.rowIndex + 1, children: resolvedChildren },
+      elementProps,
+    ],
   });
 
   return (
@@ -60,10 +63,7 @@ export const CalendarDayGridRow = React.forwardRef(function CalendarDayGridRow(
   );
 
   const ctx = React.useMemo<InnerCalendarDayGridRowContext>(
-    () => ({
-      days,
-      rowIndex: index,
-    }),
+    () => ({ days, rowIndex: index }),
     [days, index],
   );
 
