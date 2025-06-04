@@ -73,7 +73,7 @@
     "@babel/register": "^7.27.1",
     "@mui/internal-babel-plugin-display-name": "^1.0.0",
     "@mui/internal-babel-plugin-resolve-imports": "^2.0.1",
-    "@mui/internal-bundle-size-checker": "https://pkg.pr.new/@mui/internal-bundle-size-checker@66f89ab",
+    "@mui/internal-bundle-size-checker": "^1.0.5",
     "@mui/internal-docs-utils": "^2.0.1",
     "@mui/internal-markdown": "^2.0.4",
     "@mui/internal-scripts": "^2.0.7",
