@@ -186,6 +186,10 @@ export const nav = [
         href: '/react/utils/direction-provider',
       },
       {
+        label: 'Temporal Adapter Provider',
+        href: '/react/utils/temporal-adapter-provider',
+      },
+      {
         label: 'useRender',
         href: '/react/utils/use-render',
       },

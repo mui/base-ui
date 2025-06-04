@@ -1,0 +1,57 @@
+# Temporal Adapter Provider
+
+<Subtitle>Defines the date library to use in the temporal components.</Subtitle>
+<Meta
+  name="description"
+  content="A temporal adapter provider component that defines the date library to use in the temporal components."
+/>
+
+<Demo path="./demos/hero" />
+
+## API reference
+
+Import the component plus the adapter corresponding to your favorite date library and wrap them around your app:
+
+```jsx title="Anatomy"
+import { TemporalAdapterProvider } from '@base-ui-components/react/temporal-adapter-provider';
+import { TemporalAdapterLuxon } from '@base-ui-components/react/temporal-adapter-luxon';
+
+const adapter = new TemporalAdapterLuxon();
+
+// prettier-ignore
+<TemporalAdapterProvider adapter={adapter}>
+  {/* Your app or a group of components */}
+</TemporalAdapterProvider>
+```
+
+## Usage with luxon
+
+```jsx title="Define the adapter"
+import { TemporalAdapterProvider } from '@base-ui-components/react/temporal-adapter-provider';
+import { TemporalAdapterLuxon } from '@base-ui-components/react/temporal-adapter-luxon';
+import { DateTime } from 'luxon';
+
+// Will use the default locale (en-US)
+const adapter = new TemporalAdapterLuxon();
+
+// Will use the locale 'fr'
+const adapter = new TemporalAdapterLuxon({ locale: 'fr' });
+```
+
+```tsx title="Use Luxon date object in the components"
+import * as React from 'react';
+import { DateTime } from 'luxon';
+import { Calendar } from '@base-ui-components/react/calendar';
+
+function App() {
+  const [value, setValue] = React.useState<DateTime | null>(null);
+
+  return (
+    <Calendar.Root value={value} onChange={setValue} minDate={DateTime.fromISO('2025-01-01')}>
+      {/** Content of the calendar */}
+    </Calendar.Root>
+  );
+}
+```
+
+<Reference component="TemporalAdapterProvider" />
