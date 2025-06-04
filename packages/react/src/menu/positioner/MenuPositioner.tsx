@@ -137,14 +137,8 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
         if (event.nodeId !== nodeId && event.parentNodeId === parentNodeId) {
           setOpen(false, undefined, 'sibling-open');
         }
-      } else {
-        if (event.nodeId === nodeId) {
-          menuEvents.emit('close', { reason: 'cancel-open' });
-        }
-
-        if (event.parentNodeId === nodeId) {
-          setHoverEnabled(true);
-        }
+      } else if (event.parentNodeId === nodeId) {
+        setHoverEnabled(true);
       }
     }
 
