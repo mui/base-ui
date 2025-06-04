@@ -38,6 +38,7 @@ const InnerMenuItem = React.memo(
       allowMouseUpTriggerRef,
       typingRef,
       nativeButton,
+      trigger: false,
     });
 
     const state: MenuItem.State = React.useMemo(

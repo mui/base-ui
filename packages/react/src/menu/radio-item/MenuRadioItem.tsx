@@ -43,6 +43,7 @@ const InnerMenuRadioItem = React.memo(
       allowMouseUpTriggerRef,
       typingRef,
       nativeButton,
+      trigger: false,
     });
 
     const state: MenuRadioItem.State = { disabled, highlighted, checked };
