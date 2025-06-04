@@ -2,6 +2,11 @@
   "name": "SelectTrigger",
   "description": "A button that opens the select menu.\nRenders a `<div>` element.",
   "props": {
+    "nativeButton": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Whether the component renders a native `<button>` element when replacing it\nvia the `render` prop.\nSet to `false` if the rendered element is not a button (e.g. `<div>`)."
+    },
     "disabled": {
       "type": "boolean",
       "default": "false",
