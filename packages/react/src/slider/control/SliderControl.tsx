@@ -284,7 +284,7 @@ export const SliderControl = React.forwardRef(function SliderControl(
     onValueCommitted(lastChangedValueRef.current ?? finger.value, nativeEvent);
 
     if (
-      nativeEvent instanceof PointerEvent &&
+      'pointerType' in nativeEvent &&
       controlRef.current?.hasPointerCapture(nativeEvent.pointerId)
     ) {
       controlRef.current?.releasePointerCapture(nativeEvent.pointerId);
