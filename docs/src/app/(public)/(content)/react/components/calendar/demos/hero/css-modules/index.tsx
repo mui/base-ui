@@ -52,11 +52,17 @@ export default function CalendarKeyboardNavigation() {
                     >
                       {({ days }) =>
                         days.map((day) => (
-                          <Calendar.DayCell
+                          <Calendar.DayGridCell
                             value={day}
                             key={day.toString()}
-                            className={styles.DayCell}
-                          />
+                            className={styles.DayGridCell}
+                          >
+                            <Calendar.DayButton
+                              render={<div />}
+                              nativeButton={false}
+                              className={styles.DayButton}
+                            />
+                          </Calendar.DayGridCell>
                         ))
                       }
                     </Calendar.DayGridRow>

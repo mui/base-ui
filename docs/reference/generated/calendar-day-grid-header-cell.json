@@ -8,7 +8,7 @@
     },
     "formatter": {
       "type": "((date: DateTime<boolean>) => string)",
-      "default": "(date) => calendar.format(date, 'weekday3Letters').charAt(0).toUpperCase()",
+      "default": "(date) => adapter.format(date, 'weekday3Letters').charAt(0).toUpperCase()",
       "description": "The formatter function used to display the day of the week."
     },
     "className": {

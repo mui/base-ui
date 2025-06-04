@@ -11,10 +11,6 @@ export const CalendarDayGridRowContext = React.createContext<CalendarDayGridRowC
   undefined,
 );
 
-if (process.env.NODE_ENV !== 'production') {
-  CalendarDayGridRowContext.displayName = 'CalendarDayGridRowContext';
-}
-
 export function useCalendarDayGridRowContext() {
   const context = React.useContext(CalendarDayGridRowContext);
   if (context === undefined) {

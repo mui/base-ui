@@ -25,7 +25,9 @@ import { Calendar } from '@base-ui-components/react/calendar';
       </Calendar.DayGridHeader>
       <Calendar.DayGridBody>
         <Calendar.DayGridRow>
-          <Calendar.DayGridCell />
+          <Calendar.DayGridCell>
+            <Calendar.DayButton />
+          </Calendar.DayGridCell>
         </Calendar.DayGridRow>
       </Calendar.DayGridBody>
     </Calendar.DayGrid>
@@ -37,5 +39,5 @@ import { Calendar } from '@base-ui-components/react/calendar';
 
 <Reference
   component="Calendar"
-  parts="Root, KeyboardNavigation, DayGrid, DayGridHeader, DayGridHeaderCell, DayGridRow, DayCell, SetVisibleMonth, SetVisibleYear"
+  parts="Root, KeyboardNavigation, DayGrid, DayGridHeader, DayGridHeaderCell, DayGridRow, DayGridCell, DayButton, SetVisibleMonth, SetVisibleYear"
 />

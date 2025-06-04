@@ -63,7 +63,7 @@ export default function CalendarUnavailableDates() {
                     >
                       {({ days }) =>
                         days.map((day) => (
-                          <Calendar.DayCell
+                          <Calendar.DayGridCell
                             value={day}
                             key={day.toString()}
                             className={styles.DayCell}

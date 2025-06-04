@@ -83,13 +83,13 @@ export function CalendarKeyboardNavigation(props: CalendarKeyboardNavigation.Pro
     return () => cellsRef.current.delete(id);
   });
 
-  const contextValue: SharedCalendarKeyboardNavigationContext = React.useMemo(
+  const context: SharedCalendarKeyboardNavigationContext = React.useMemo(
     () => ({ registerDayGridCell, applyDayGridKeyboardNavigation }),
     [registerDayGridCell, applyDayGridKeyboardNavigation],
   );
 
   return (
-    <SharedCalendarKeyboardNavigationContext.Provider value={contextValue}>
+    <SharedCalendarKeyboardNavigationContext.Provider value={context}>
       {props.children}
     </SharedCalendarKeyboardNavigationContext.Provider>
   );

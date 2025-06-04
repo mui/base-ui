@@ -6,7 +6,8 @@ export { CalendarDayGridHeader as DayGridHeader } from './day-grid-header/Calend
 export { CalendarDayGridHeaderCell as DayGridHeaderCell } from './day-grid-header-cell/CalendarDayGridHeaderCell';
 export { CalendarDayGridBody as DayGridBody } from './day-grid-body/CalendarDayGridBody';
 export { CalendarDayGridRow as DayGridRow } from './day-grid-row/CalendarDayGridRow';
-export { CalendarDayCell as DayCell } from './day-cell/CalendarDayCell';
+export { CalendarDayGridCell as DayGridCell } from './day-grid-cell/CalendarDayGridCell';
+export { CalendarDayButton as DayButton } from './day-button/CalendarDayButton';
 
 // Navigation
 export { CalendarSetVisibleMonth as SetVisibleMonth } from './set-visible-month/CalendarSetVisibleMonth';

@@ -52,7 +52,7 @@ export default function CalendarBasic() {
                     >
                       {({ days }) =>
                         days.map((day) => (
-                          <Calendar.DayCell
+                          <Calendar.DayGridCell
                             value={day}
                             key={day.toString()}
                             className={styles.DayCell}

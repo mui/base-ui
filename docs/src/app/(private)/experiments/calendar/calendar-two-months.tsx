@@ -68,7 +68,7 @@ function DayGrid(props: { offset: 0 | 1 }) {
             >
               {({ days }) =>
                 days.map((day) => (
-                  <Calendar.DayCell
+                  <Calendar.DayGridCell
                     value={day}
                     key={day.toString()}
                     className={styles.DayCell}
