@@ -37,6 +37,7 @@ export const ToolbarInput = React.forwardRef(function ToolbarInput(
   const disabled = toolbarDisabled || (groupContext?.disabled ?? false) || disabledProp;
 
   const { props: focusableWhenDisabledProps } = useFocusableWhenDisabled({
+    composite: true,
     disabled,
     focusableWhenDisabled,
   });
