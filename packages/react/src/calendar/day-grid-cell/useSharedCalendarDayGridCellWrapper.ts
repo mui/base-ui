@@ -3,6 +3,7 @@ import { useSharedCalendarRootContext } from '../root/SharedCalendarRootContext'
 import type { useSharedCalendarDayGridCell } from './useSharedCalendarDayGridCell';
 import { validateDate } from '../../utils/temporal/date-helpers';
 import { useTemporalAdapter } from '../../temporal-adapter-provider/TemporalAdapterContext';
+import { useSharedCalendarDayGridBodyContext } from '../day-grid-body/SharedCalendarDayGridBodyContext';
 
 export function useSharedCalendarDayGridCellWrapper(
   parameters: useSharedCalendarDayGridCellWrapper.Parameters,
@@ -15,6 +16,7 @@ export function useSharedCalendarDayGridCellWrapper(
     isDateUnavailable,
     disabled: isCalendarDisabled,
   } = useSharedCalendarRootContext();
+  const { month } = useSharedCalendarDayGridBodyContext();
 
   const validationError = React.useMemo(
     () => validateDate({ adapter, value, validationProps }),
@@ -28,12 +30,18 @@ export function useSharedCalendarDayGridCellWrapper(
     [isDateUnavailable, value],
   );
 
-  const ctx = React.useMemo<useSharedCalendarDayGridCell.Context>(
+  const isOutsideCurrentMonth = React.useMemo(
+    () => (month == null ? false : !adapter.isSameMonth(month, value)),
+    [month, value, adapter],
+  );
+
+  const ctx: useSharedCalendarDayGridCell.Context = React.useMemo(
     () => ({
       isDisabled,
       isUnavailable,
+      isOutsideCurrentMonth,
     }),
-    [isDisabled, isUnavailable],
+    [isDisabled, isUnavailable, isOutsideCurrentMonth],
   );
 
   return {

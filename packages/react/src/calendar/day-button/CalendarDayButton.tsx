@@ -73,7 +73,8 @@ const InnerCalendarDayButton = React.forwardRef(function InnerCalendarDayButton(
   const props: React.ButtonHTMLAttributes<HTMLButtonElement> = {
     'aria-selected': ctx.isSelected ? true : undefined,
     'aria-current': ctx.isCurrent ? 'date' : undefined,
-    'aria-disabled': (ctx.isDisabled ?? ctx.isUnavailable) ? true : undefined,
+    'aria-disabled':
+      ctx.isDisabled || ctx.isOutsideCurrentMonth || ctx.isUnavailable ? true : undefined,
     children: formattedValue,
     tabIndex: ctx.isTabbable ? 0 : -1,
     onClick,
@@ -103,7 +104,7 @@ const InnerCalendarDayButton = React.forwardRef(function InnerCalendarDayButton(
   const element = useRenderElement('button', componentProps, {
     state,
     ref: [buttonRef, forwardedRef],
-    props: [getButtonProps, props, elementProps],
+    props: [props, elementProps, getButtonProps],
     customStyleHookMapping,
   });
 
@@ -123,9 +124,10 @@ export const CalendarDayButton = React.forwardRef(function CalendarDayButton(
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
   const { selectedDates, selectDate, registerDayGridCell } = useSharedCalendarRootContext();
-  const { month, canCellBeTabbed, ref: gridBodyRef } = useSharedCalendarDayGridBodyContext();
+  const { canCellBeTabbed, ref: gridBodyRef } = useSharedCalendarDayGridBodyContext();
   const { ref: gridRowRef } = useCalendarDayGridRowContext();
-  const { isDisabled, isUnavailable, value } = useCalendarDayGridCellContext();
+  const { isDisabled, isUnavailable, isOutsideCurrentMonth, value } =
+    useCalendarDayGridCellContext();
   const ref = React.useRef<HTMLButtonElement>(null);
   const adapter = useTemporalAdapter();
   const mergedRef = useForkRef(forwardedRef, ref);
@@ -148,11 +150,6 @@ export const CalendarDayButton = React.forwardRef(function CalendarDayButton(
   const isEndOfWeek = React.useMemo(
     () => adapter.isSameDay(value, adapter.endOfWeek(value)),
     [adapter, value],
-  );
-
-  const isOutsideCurrentMonth = React.useMemo(
-    () => (month == null ? false : !adapter.isSameMonth(month, value)),
-    [month, value, adapter],
   );
 
   const isTabbable = React.useMemo(() => canCellBeTabbed(value), [canCellBeTabbed, value]);

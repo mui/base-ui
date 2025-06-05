@@ -193,7 +193,7 @@
     outline: 1px solid var(--calendar-cell-current-border-color);
   }
 
-  &:not([data-disabled])[data-unavailable] {
+  &:not([data-disabled]):not([data-outside-month])[data-unavailable] {
     text-decoration: line-through;
     color: var(--calendar-cell-unavailable-color);
   }

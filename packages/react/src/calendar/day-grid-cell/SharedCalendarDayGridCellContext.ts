@@ -14,6 +14,10 @@ export interface SharedCalendarDayGridCellContext {
    * Whether the cell is unavailable.
    */
   isUnavailable: boolean;
+  /**
+   * Whether the cell is outside the current month.
+   */
+  isOutsideCurrentMonth: boolean;
 }
 
 export const SharedCalendarDayGridCellContext = React.createContext<

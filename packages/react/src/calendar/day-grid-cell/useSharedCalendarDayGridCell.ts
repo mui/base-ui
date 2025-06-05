@@ -11,7 +11,8 @@ export function useSharedCalendarDayGridCell(parameters: useSharedCalendarDayGri
 
   const props: HTMLProps = {
     role: 'gridcell',
-    'aria-disabled': (ctx.isDisabled ?? ctx.isUnavailable) ? true : undefined,
+    'aria-disabled':
+      ctx.isDisabled || ctx.isOutsideCurrentMonth || ctx.isUnavailable ? true : undefined,
     'aria-colindex': adapter.getDayOfWeek(value),
   };
 
@@ -20,8 +21,9 @@ export function useSharedCalendarDayGridCell(parameters: useSharedCalendarDayGri
       value: parameters.value,
       isDisabled: ctx.isDisabled,
       isUnavailable: ctx.isUnavailable,
+      isOutsideCurrentMonth: ctx.isOutsideCurrentMonth,
     }),
-    [ctx.isDisabled, ctx.isUnavailable, parameters.value],
+    [ctx.isDisabled, ctx.isUnavailable, ctx.isOutsideCurrentMonth, parameters.value],
   );
 
   return { props, context };
@@ -53,5 +55,6 @@ export namespace useSharedCalendarDayGridCell {
   export interface Context {
     isDisabled: boolean;
     isUnavailable: boolean;
+    isOutsideCurrentMonth: boolean;
   }
 }

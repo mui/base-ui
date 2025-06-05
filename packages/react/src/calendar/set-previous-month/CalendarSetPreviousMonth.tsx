@@ -68,9 +68,9 @@ export const CalendarSetPreviousMonth = React.forwardRef(function CalendarSetPre
     state,
     ref: [buttonRef, forwardedRef],
     props: [
-      getButtonProps,
       { onClick: setTarget, tabIndex: 0, 'aria-label': 'Previous' },
       elementProps,
+      getButtonProps,
     ],
   });
 

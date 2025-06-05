@@ -92,9 +92,9 @@ export const CalendarSetMonth = React.forwardRef(function CalendarSetMonth(
     state,
     ref: [buttonRef, forwardedRef],
     props: [
-      getButtonProps,
       { onClick: setTarget, tabIndex: 0, 'aria-label': isMovingBefore ? 'Previous' : 'Next' },
       elementProps,
+      getButtonProps,
     ],
   });
 
