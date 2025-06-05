@@ -15,7 +15,11 @@ function isDateUnavailable(date: DateTime) {
 export default function ExampleCalendar() {
   return (
     <TemporalAdapterProvider adapter={adapter}>
-      <Calendar.Root className={styles.Root} isDateUnavailable={isDateUnavailable}>
+      <Calendar.Root
+        className={styles.Root}
+        isDateUnavailable={isDateUnavailable}
+        timezone="America/New_York"
+      >
         {({ visibleDate }) => (
           <React.Fragment>
             <header className={styles.Header}>
