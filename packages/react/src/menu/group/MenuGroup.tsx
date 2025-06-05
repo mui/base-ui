@@ -4,8 +4,6 @@ import { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { MenuGroupContext } from './MenuGroupContext';
 
-const state = {};
-
 /**
  * Groups related menu items with the corresponding label.
  * Renders a `<div>` element.
@@ -23,7 +21,6 @@ export const MenuGroup = React.forwardRef(function MenuGroup(
   const context = React.useMemo(() => ({ setLabelId }), [setLabelId]);
 
   const element = useRenderElement('div', componentProps, {
-    state,
     ref: forwardedRef,
     props: {
       role: 'group',

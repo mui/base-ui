@@ -17,6 +17,7 @@ export function useMenuItem(params: useMenuItem.Parameters): useMenuItem.ReturnV
     allowMouseUpTriggerRef,
     typingRef,
     nativeButton,
+    submenuTrigger,
   } = params;
 
   const itemRef = React.useRef<HTMLElement | null>(null);
@@ -57,7 +58,9 @@ export function useMenuItem(params: useMenuItem.Parameters): useMenuItem.ReturnV
             if (itemRef.current && allowMouseUpTriggerRef.current) {
               // This fires whenever the user clicks on the trigger, moves the cursor, and releases it over the item.
               // We trigger the click and override the `closeOnClick` preference to always close the menu.
-              itemRef.current.click();
+              if (!submenuTrigger) {
+                itemRef.current.click();
+              }
               menuEvents.emit('close', { domEvent: event, reason: 'item-press' });
             }
           },
@@ -66,7 +69,16 @@ export function useMenuItem(params: useMenuItem.Parameters): useMenuItem.ReturnV
         getButtonProps,
       );
     },
-    [getButtonProps, id, highlighted, typingRef, closeOnClick, menuEvents, allowMouseUpTriggerRef],
+    [
+      id,
+      highlighted,
+      getButtonProps,
+      typingRef,
+      closeOnClick,
+      menuEvents,
+      allowMouseUpTriggerRef,
+      submenuTrigger,
+    ],
   );
 
   return React.useMemo(
@@ -115,6 +127,10 @@ export namespace useMenuItem {
      * @default false
      */
     nativeButton: boolean;
+    /**
+     * Whether the item is a submenu trigger.
+     */
+    submenuTrigger: boolean;
   }
 
   export interface ReturnValue {

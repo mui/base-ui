@@ -62,6 +62,7 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
     allowMouseUpTriggerRef,
     typingRef,
     nativeButton,
+    submenuTrigger: true,
   });
 
   const state: MenuSubmenuTrigger.State = React.useMemo(
