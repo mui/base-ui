@@ -8,7 +8,7 @@ import { useLatestRef } from '../utils/useLatestRef';
 export function useField(params: useField.Parameters) {
   const { formRef } = useFormContext();
   const { invalid, markedDirtyRef, validityData, setValidityData } = useFieldRootContext();
-  const { enabled = true, value, id, controlRef, commitValidation } = params;
+  const { enabled = true, value, id, name, controlRef, commitValidation } = params;
 
   const getValueRef = useLatestRef(params.getValue);
 
@@ -46,6 +46,8 @@ export function useField(params: useField.Parameters) {
           // Synchronously update the validity state so the submit event can be prevented.
           ReactDOM.flushSync(() => commitValidation(nextValue));
         },
+        getValueRef,
+        name,
       });
     }
   }, [
@@ -57,6 +59,7 @@ export function useField(params: useField.Parameters) {
     id,
     invalid,
     markedDirtyRef,
+    name,
     validityData,
     value,
   ]);
@@ -66,8 +69,9 @@ export namespace useField {
   export interface Parameters {
     enabled?: boolean;
     value: unknown;
-    getValue?: () => unknown;
+    getValue?: (() => unknown) | undefined;
     id: string | undefined;
+    name?: string | undefined;
     commitValidation: (value: unknown) => void;
     controlRef: React.RefObject<any>;
   }

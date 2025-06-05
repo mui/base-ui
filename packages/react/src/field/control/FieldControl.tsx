@@ -98,6 +98,7 @@ export const FieldControl = React.forwardRef(function FieldControl(
 
   useField({
     id,
+    name,
     commitValidation,
     value,
     getValue: () => inputRef.current?.value,
