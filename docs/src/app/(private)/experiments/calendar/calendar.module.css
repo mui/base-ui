@@ -32,6 +32,10 @@
   flex-direction: column;
 }
 
+.RootWithWeekNumber {
+  width: 312px;
+}
+
 .RootWithTwoPanels {
   width: 564px;
 }
@@ -114,6 +118,16 @@
 .DayGridHeader {
   display: flex;
   justify-content: center;
+}
+
+.DayWeekNumber {
+  height: 36px;
+  width: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  color: var(--calendar-day-grid-header-color);
 }
 
 .DayGridCell {
