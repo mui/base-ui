@@ -1,14 +1,12 @@
 'use client';
 import * as React from 'react';
-import { mergeProps } from '../../merge-props';
 import { useBaseUiId } from '../../utils/useBaseUiId';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { useMeterRootContext } from '../root/MeterRootContext';
 import type { MeterRoot } from '../root/MeterRoot';
 import { BaseUIComponentProps } from '../../utils/types';
+import { useRenderElement } from '../../utils/useRenderElement';
 
-const EMPTY = {};
 /**
  * An accessible label for the meter.
  * Renders a `<span>` element.
@@ -16,10 +14,10 @@ const EMPTY = {};
  * Documentation: [Base UI Meter](https://base-ui.com/react/components/meter)
  */
 export const MeterLabel = React.forwardRef(function MeterLabel(
-  props: MeterLabel.Props,
+  componentProps: MeterLabel.Props,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
-  const { render, className, id: idProp, ...otherProps } = props;
+  const { render, className, id: idProp, ...elementProps } = componentProps;
 
   const id = useBaseUiId(idProp);
 
@@ -30,15 +28,10 @@ export const MeterLabel = React.forwardRef(function MeterLabel(
     return () => setLabelId(undefined);
   }, [id, setLabelId]);
 
-  const { renderElement } = useComponentRenderer({
-    render: render ?? 'span',
-    state: EMPTY,
-    className,
+  return useRenderElement('span', componentProps, {
     ref: forwardedRef,
-    extraProps: mergeProps<'span'>({ id }, otherProps),
+    props: [{ id }, elementProps],
   });
-
-  return renderElement();
 });
 
 export namespace MeterLabel {

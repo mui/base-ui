@@ -1,0 +1,23 @@
+{
+  "name": "NavigationMenuTrigger",
+  "description": "Opens the navigation menu popup when hovered or clicked, revealing the\nassociated content.\nRenders a `<button>` element.",
+  "props": {
+    "className": {
+      "type": "string | ((state: NavigationMenu.Trigger.State) => string)",
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
+    },
+    "render": {
+      "type": "ReactElement | ((props: HTMLProps, state: NavigationMenu.Trigger.State) => ReactElement)",
+      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
+    }
+  },
+  "dataAttributes": {
+    "data-popup-open": {
+      "description": "Present when the corresponding navigation menu is open."
+    },
+    "data-pressed": {
+      "description": "Present when the trigger is pressed."
+    }
+  },
+  "cssVariables": {}
+}

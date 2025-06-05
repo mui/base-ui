@@ -3,9 +3,10 @@ import { createRenderer, screen, fireEvent } from '@mui/internal-test-utils';
 import { CheckboxGroup } from '@base-ui-components/react/checkbox-group';
 import { Checkbox } from '@base-ui-components/react/checkbox';
 import { Field } from '@base-ui-components/react/field';
+import { Form } from '@base-ui-components/react/form';
 import { spy } from 'sinon';
 import { expect } from 'chai';
-import { describeConformance } from '#test-utils';
+import { describeConformance, isJSDOM } from '#test-utils';
 
 describe('<CheckboxGroup />', () => {
   const { render } = createRenderer();
@@ -208,11 +209,11 @@ describe('<CheckboxGroup />', () => {
         return v.includes('fuji-apple') ? 'error' : null;
       });
       render(
-        <Field.Root validationMode="onChange" validate={validateSpy}>
+        <Field.Root validationMode="onChange" validate={validateSpy} name="apple">
           <CheckboxGroup defaultValue={['fuji-apple']}>
-            <Checkbox.Root name="fuji-apple" data-testid="button-1" />
-            <Checkbox.Root name="gala-apple" data-testid="button-2" />
-            <Checkbox.Root name="granny-smith-apple" data-testid="button-3" />
+            <Checkbox.Root value="fuji-apple" data-testid="button-1" />
+            <Checkbox.Root value="gala-apple" data-testid="button-2" />
+            <Checkbox.Root value="granny-smith-apple" data-testid="button-3" />
           </CheckboxGroup>
         </Field.Root>,
       );
@@ -254,12 +255,6 @@ describe('<CheckboxGroup />', () => {
       expect(button1).to.have.attribute('aria-invalid', 'true');
       expect(button2).to.have.attribute('aria-invalid', 'true');
       expect(button3).to.have.attribute('aria-invalid', 'true');
-      expect(validateSpy.callCount).to.equal(4);
-      expect(validateSpy.args[3][0]).to.deep.equal([
-        'gala-apple',
-        'fuji-apple',
-        'granny-smith-apple',
-      ]);
     });
 
     it('prop: validationMode=onBlur', async () => {
@@ -268,11 +263,11 @@ describe('<CheckboxGroup />', () => {
         return v.includes('fuji-apple') ? 'error' : null;
       });
       render(
-        <Field.Root validationMode="onBlur" validate={validateSpy}>
+        <Field.Root validationMode="onBlur" validate={validateSpy} name="apple">
           <CheckboxGroup defaultValue={['fuji-apple']}>
-            <Checkbox.Root name="fuji-apple" data-testid="button-1" />
-            <Checkbox.Root name="gala-apple" data-testid="button-2" />
-            <Checkbox.Root name="granny-smith-apple" data-testid="button-3" />
+            <Checkbox.Root value="fuji-apple" data-testid="button-1" />
+            <Checkbox.Root value="gala-apple" data-testid="button-2" />
+            <Checkbox.Root value="granny-smith-apple" data-testid="button-3" />
           </CheckboxGroup>
           <Field.Error data-testid="error" />
         </Field.Root>,
@@ -315,6 +310,136 @@ describe('<CheckboxGroup />', () => {
       expect(button1).to.have.attribute('aria-invalid', 'true');
       expect(button2).to.have.attribute('aria-invalid', 'true');
       expect(button3).to.have.attribute('aria-invalid', 'true');
+    });
+  });
+
+  describe.skipIf(isJSDOM)('Form', () => {
+    it('includes the checkbox group value in form submission', async () => {
+      const { getByRole } = await render(
+        <Form
+          onSubmit={(event) => {
+            event.preventDefault();
+            const formData = new FormData(event.currentTarget);
+            expect(formData.getAll('apple')).to.deep.equal(['fuji-apple', 'gala-apple']);
+          }}
+        >
+          <Field.Root name="apple">
+            <CheckboxGroup defaultValue={['fuji-apple', 'gala-apple']}>
+              <Checkbox.Root value="fuji-apple" data-testid="button-1" />
+              <Checkbox.Root value="gala-apple" data-testid="button-2" />
+              <Checkbox.Root value="granny-smith-apple" data-testid="button-3" />
+            </CheckboxGroup>
+          </Field.Root>
+          <button type="submit">Submit</button>
+        </Form>,
+      );
+
+      const submit = getByRole('button');
+      fireEvent.click(submit);
+    });
+
+    it('is validated as a group upon form submission', async () => {
+      const validateSpy = spy();
+      const { getByRole } = await render(
+        <Form
+          onSubmit={(event) => {
+            event.preventDefault();
+          }}
+        >
+          <Field.Root name="apple" validate={validateSpy}>
+            <CheckboxGroup defaultValue={['fuji-apple', 'gala-apple']}>
+              <Checkbox.Root value="fuji-apple" data-testid="button-1" />
+              <Checkbox.Root value="gala-apple" data-testid="button-2" />
+              <Checkbox.Root value="granny-smith-apple" data-testid="button-3" />
+            </CheckboxGroup>
+          </Field.Root>
+          <button type="submit">Submit</button>
+        </Form>,
+      );
+
+      const submit = getByRole('button');
+      fireEvent.click(submit);
+      expect(validateSpy.callCount).to.equal(1);
+      expect(validateSpy.args[0][0]).to.deep.equal(['fuji-apple', 'gala-apple']);
+    });
+
+    it('focuses the first checkbox when the field receives an error from Form', async () => {
+      function App() {
+        const [errors, setErrors] = React.useState<Form.Props['errors']>({});
+        return (
+          <Form
+            errors={errors}
+            onClearErrors={setErrors}
+            onSubmit={(event) => {
+              event.preventDefault();
+              setErrors({ group: 'server error' });
+            }}
+          >
+            <Field.Root name="group" data-testid="field">
+              <CheckboxGroup defaultValue={['one']}>
+                <Checkbox.Root value="one" />
+                <Checkbox.Root value="two" />
+              </CheckboxGroup>
+              <Field.Error data-testid="error" />
+            </Field.Root>
+            <button type="submit">Submit</button>
+          </Form>
+        );
+      }
+
+      const { user } = await render(<App />);
+      expect(screen.queryByTestId('error')).to.equal(null);
+      const submit = screen.getByText('Submit');
+      await user.click(submit);
+
+      const [checkbox1] = screen.getAllByRole('checkbox');
+      expect(checkbox1).toHaveFocus();
+      expect(checkbox1).to.have.attribute('aria-invalid', 'true');
+      expect(screen.queryByTestId('error')).to.have.text('server error');
+    });
+
+    it('excludes parent checkboxes from form submission', async () => {
+      const allValues = ['fuji-apple', 'gala-apple', 'granny-smith'];
+
+      function App() {
+        const [value, setValue] = React.useState<string[]>(['fuji-apple', 'gala-apple']);
+        return (
+          <Form
+            onSubmit={(event) => {
+              event.preventDefault();
+              const formData = new FormData(event.currentTarget);
+              expect(formData.getAll('apple')).to.deep.equal([
+                'fuji-apple',
+                'gala-apple',
+                'granny-smith-apple',
+              ]);
+            }}
+          >
+            <Field.Root name="apple">
+              <CheckboxGroup value={value} onValueChange={setValue} allValues={allValues}>
+                <Checkbox.Root parent />
+                <Checkbox.Root value="fuji-apple" />
+                <Checkbox.Root value="gala-apple" />
+                <Checkbox.Root value="granny-smith-apple" />
+              </CheckboxGroup>
+            </Field.Root>
+            <button type="submit">Submit</button>
+          </Form>
+        );
+      }
+
+      const { user } = await render(<App />);
+
+      const [parentCheckbox, , , checkbox3] = screen.getAllByRole('checkbox');
+
+      expect(parentCheckbox).to.have.attribute('aria-checked', 'mixed');
+
+      await user.click(checkbox3);
+
+      expect(parentCheckbox).to.have.attribute('aria-checked', 'true');
+
+      const submit = screen.getByText('Submit');
+      fireEvent.click(submit);
     });
   });
 });

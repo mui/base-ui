@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { useFieldControlValidation } from '../field/control/useFieldControlValidation';
 import { useCheckboxGroupParent } from './useCheckboxGroupParent';
 
 export interface CheckboxGroupContext {
@@ -9,6 +10,8 @@ export interface CheckboxGroupContext {
   allValues: string[] | undefined;
   parent: useCheckboxGroupParent.ReturnValue;
   disabled: boolean;
+  fieldControlValidation: useFieldControlValidation.ReturnValue;
+  registerControlRef: (element: HTMLButtonElement | null) => void;
 }
 
 export const CheckboxGroupContext = React.createContext<CheckboxGroupContext | undefined>(

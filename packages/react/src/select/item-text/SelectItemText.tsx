@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import { useForkRef } from '../../utils/useForkRef';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import { useSelectItemContext } from '../item/SelectItemContext';
@@ -10,6 +9,7 @@ interface InnerSelectItemTextProps extends SelectItemText.Props {
   selected: boolean;
   selectedItemTextRef: React.RefObject<HTMLElement | null>;
   indexRef: React.RefObject<number>;
+  textRef: React.RefObject<HTMLElement | null>;
 }
 
 const InnerSelectItemText = React.memo(
@@ -17,7 +17,7 @@ const InnerSelectItemText = React.memo(
     componentProps: InnerSelectItemTextProps,
     forwardedRef: React.ForwardedRef<HTMLDivElement>,
   ) {
-    const { className, render, selected, selectedItemTextRef, indexRef, ...elementProps } =
+    const { className, render, selected, selectedItemTextRef, indexRef, textRef, ...elementProps } =
       componentProps;
 
     const localRef = React.useCallback(
@@ -35,7 +35,7 @@ const InnerSelectItemText = React.memo(
     );
 
     const element = useRenderElement('div', componentProps, {
-      ref: useForkRef<HTMLElement>(localRef, forwardedRef),
+      ref: [localRef, forwardedRef, textRef],
       props: elementProps,
     });
 
@@ -55,6 +55,7 @@ export const SelectItemText = React.forwardRef(function SelectItemText(
 ) {
   const { selected, indexRef } = useSelectItemContext();
   const { selectedItemTextRef } = useSelectRootContext();
+  const { textRef } = useSelectItemContext();
 
   return (
     <InnerSelectItemText
@@ -62,6 +63,7 @@ export const SelectItemText = React.forwardRef(function SelectItemText(
       selected={selected}
       selectedItemTextRef={selectedItemTextRef}
       indexRef={indexRef}
+      textRef={textRef}
       {...props}
     />
   );

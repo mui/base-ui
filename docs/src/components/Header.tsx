@@ -55,7 +55,8 @@ export function Header() {
                     <MobileNav.List>
                       {section.links.map((link) => (
                         <MobileNav.Item key={link.href} href={link.href}>
-                          {link.label}
+                          <MobileNav.Label>{link.label}</MobileNav.Label>
+                          {link.isNew && <MobileNav.Badge>New</MobileNav.Badge>}
                         </MobileNav.Item>
                       ))}
                     </MobileNav.List>

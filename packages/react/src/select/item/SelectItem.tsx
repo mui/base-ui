@@ -32,6 +32,8 @@ interface InnerSelectItemProps extends Omit<SelectItem.Props, 'value'> {
   popupRef: React.RefObject<HTMLDivElement | null>;
   keyboardActiveRef: React.RefObject<boolean>;
   events: FloatingEvents;
+  nativeButton: boolean;
+  textRef: React.RefObject<HTMLElement | null>;
 }
 
 const InnerSelectItem = React.memo(
@@ -58,6 +60,8 @@ const InnerSelectItem = React.memo(
       popupRef,
       keyboardActiveRef,
       events,
+      nativeButton,
+      textRef,
       ...elementProps
     } = componentProps;
 
@@ -93,6 +97,7 @@ const InnerSelectItem = React.memo(
       events,
       rootProps,
       elementProps,
+      nativeButton,
     });
 
     const element = useRenderElement('div', componentProps, {
@@ -101,12 +106,13 @@ const InnerSelectItem = React.memo(
       props,
     });
 
-    const contextValue = React.useMemo(
+    const contextValue: SelectItemContext = React.useMemo(
       () => ({
         selected,
         indexRef,
+        textRef,
       }),
-      [selected, indexRef],
+      [selected, indexRef, textRef],
     );
 
     return <SelectItemContext.Provider value={contextValue}>{element}</SelectItemContext.Provider>;
@@ -123,9 +129,11 @@ export const SelectItem = React.forwardRef(function SelectItem(
   props: SelectItem.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { value: valueProp = null, label, ...otherProps } = props;
+  const { value: valueProp = null, label, nativeButton = false, ...otherProps } = props;
 
-  const listItem = useCompositeListItem({ label });
+  const textRef = React.useRef<HTMLElement | null>(null);
+
+  const listItem = useCompositeListItem({ label, textRef });
 
   const { activeIndex, selectedIndex, setActiveIndex } = useSelectIndexContext();
   const {
@@ -190,6 +198,8 @@ export const SelectItem = React.forwardRef(function SelectItem(
       popupRef={popupRef}
       keyboardActiveRef={keyboardActiveRef}
       events={floatingRootContext.events}
+      nativeButton={nativeButton}
+      textRef={textRef}
       {...otherProps}
     />
   );
@@ -224,5 +234,12 @@ export namespace SelectItem {
      * and when the item is matched during keyboard text navigation.
      */
     label?: string;
+    /**
+     * Whether the component renders a native `<button>` element when replacing it
+     * via the `render` prop.
+     * Set to `false` if the rendered element is not a button (e.g. `<div>`).
+     * @default false
+     */
+    nativeButton?: boolean;
   }
 }

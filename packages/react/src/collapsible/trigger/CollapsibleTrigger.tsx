@@ -32,11 +32,19 @@ export const CollapsibleTrigger = React.forwardRef(function CollapsibleTrigger(
     disabled: contextDisabled,
   } = useCollapsibleRootContext();
 
-  const { className, disabled = contextDisabled, id, render, ...elementProps } = componentProps;
+  const {
+    className,
+    disabled = contextDisabled,
+    id,
+    render,
+    nativeButton = true,
+    ...elementProps
+  } = componentProps;
 
   const { getButtonProps, buttonRef } = useButton({
     disabled,
     focusableWhenDisabled: true,
+    native: nativeButton,
   });
 
   const props = React.useMemo(
@@ -60,5 +68,13 @@ export const CollapsibleTrigger = React.forwardRef(function CollapsibleTrigger(
 });
 
 export namespace CollapsibleTrigger {
-  export interface Props extends BaseUIComponentProps<'button', CollapsibleRoot.State> {}
+  export interface Props extends BaseUIComponentProps<'button', CollapsibleRoot.State> {
+    /**
+     * Whether the component renders a native `<button>` element when replacing it
+     * via the `render` prop.
+     * Set to `false` if the rendered element is not a button (e.g. `<div>`).
+     * @default true
+     */
+    nativeButton?: boolean;
+  }
 }

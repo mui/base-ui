@@ -1,14 +1,14 @@
 'use client';
 import * as React from 'react';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { usePreviewCardRootContext } from '../root/PreviewCardContext';
 import { usePreviewCardPositioner } from './usePreviewCardPositioner';
 import { PreviewCardPositionerContext } from './PreviewCardPositionerContext';
-import { useForkRef } from '../../utils/useForkRef';
-import type { Side, Align } from '../../utils/useAnchorPositioning';
-import type { BaseUIComponentProps } from '../../utils/types';
+import { type Side, type Align, useAnchorPositioning } from '../../utils/useAnchorPositioning';
+import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import { popupStateMapping } from '../../utils/popupStateMapping';
 import { usePreviewCardPortalContext } from '../portal/PreviewCardPortalContext';
+import { POPUP_COLLISION_AVOIDANCE } from '../../utils/constants';
+import { useRenderElement } from '../../utils/useRenderElement';
 
 /**
  * Positions the popup against the trigger.
@@ -17,7 +17,7 @@ import { usePreviewCardPortalContext } from '../portal/PreviewCardPortalContext'
  * Documentation: [Base UI Preview Card](https://base-ui.com/react/components/preview-card)
  */
 export const PreviewCardPositioner = React.forwardRef(function PreviewCardPositioner(
-  props: PreviewCardPositioner.Props,
+  componentProps: PreviewCardPositioner.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const {
@@ -34,17 +34,17 @@ export const PreviewCardPositioner = React.forwardRef(function PreviewCardPositi
     arrowPadding = 5,
     sticky = false,
     trackAnchor = true,
-    ...otherProps
-  } = props;
+    collisionAvoidance = POPUP_COLLISION_AVOIDANCE,
+    ...elementProps
+  } = componentProps;
 
   const { open, mounted, floatingRootContext, setPositionerElement } = usePreviewCardRootContext();
   const keepMounted = usePreviewCardPortalContext();
 
-  const positioner = usePreviewCardPositioner({
+  const positioning = useAnchorPositioning({
     anchor,
     floatingRootContext,
     positionMethod,
-    open,
     mounted,
     side,
     sideOffset,
@@ -56,50 +56,63 @@ export const PreviewCardPositioner = React.forwardRef(function PreviewCardPositi
     sticky,
     trackAnchor,
     keepMounted,
+    collisionAvoidance,
   });
+
+  const defaultProps: HTMLProps = React.useMemo(() => {
+    const hiddenStyles: React.CSSProperties = {};
+
+    if (!open) {
+      hiddenStyles.pointerEvents = 'none';
+    }
+
+    return {
+      role: 'presentation',
+      hidden: !mounted,
+      style: {
+        ...positioning.positionerStyles,
+        ...hiddenStyles,
+      },
+    };
+  }, [open, mounted, positioning.positionerStyles]);
 
   const state: PreviewCardPositioner.State = React.useMemo(
     () => ({
       open,
-      side: positioner.side,
-      align: positioner.align,
-      anchorHidden: positioner.anchorHidden,
+      side: positioning.side,
+      align: positioning.align,
+      anchorHidden: positioning.anchorHidden,
     }),
-    [open, positioner.side, positioner.align, positioner.anchorHidden],
+    [open, positioning.side, positioning.align, positioning.anchorHidden],
   );
 
   const contextValue: PreviewCardPositionerContext = React.useMemo(
     () => ({
-      side: positioner.side,
-      align: positioner.align,
-      arrowRef: positioner.arrowRef,
-      arrowUncentered: positioner.arrowUncentered,
-      arrowStyles: positioner.arrowStyles,
+      side: positioning.side,
+      align: positioning.align,
+      arrowRef: positioning.arrowRef,
+      arrowUncentered: positioning.arrowUncentered,
+      arrowStyles: positioning.arrowStyles,
     }),
     [
-      positioner.side,
-      positioner.align,
-      positioner.arrowRef,
-      positioner.arrowUncentered,
-      positioner.arrowStyles,
+      positioning.side,
+      positioning.align,
+      positioning.arrowRef,
+      positioning.arrowUncentered,
+      positioning.arrowStyles,
     ],
   );
 
-  const mergedRef = useForkRef(setPositionerElement, forwardedRef);
-
-  const { renderElement } = useComponentRenderer({
-    propGetter: positioner.getPositionerProps,
-    render: render ?? 'div',
-    className,
+  const element = useRenderElement('div', componentProps, {
     state,
-    ref: mergedRef,
-    extraProps: otherProps,
+    ref: [setPositionerElement, forwardedRef],
+    props: [defaultProps, elementProps],
     customStyleHookMapping: popupStateMapping,
   });
 
   return (
     <PreviewCardPositionerContext.Provider value={contextValue}>
-      {renderElement()}
+      {element}
     </PreviewCardPositionerContext.Provider>
   );
 });

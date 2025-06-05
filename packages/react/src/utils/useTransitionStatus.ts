@@ -8,10 +8,11 @@ export type TransitionStatus = 'starting' | 'ending' | 'idle' | undefined;
 /**
  * Provides a status string for CSS animations.
  * @param open - a boolean that determines if the element is open.
+ * @param enableIdleState - a boolean that enables the `'idle'` state between `'starting'` and `'ending'`
  */
-export function useTransitionStatus(open: boolean) {
+export function useTransitionStatus(open: boolean, enableIdleState: boolean = false) {
   const [transitionStatus, setTransitionStatus] = React.useState<TransitionStatus>(
-    open ? 'idle' : undefined,
+    open && enableIdleState ? 'idle' : undefined,
   );
   const [mounted, setMounted] = React.useState(open);
 
@@ -29,9 +30,24 @@ export function useTransitionStatus(open: boolean) {
   }
 
   useModernLayoutEffect(() => {
-    if (!open) {
+    if (!open || enableIdleState) {
       return undefined;
     }
+
+    const frame = AnimationFrame.request(() => {
+      setTransitionStatus(undefined);
+    });
+
+    return () => {
+      AnimationFrame.cancel(frame);
+    };
+  }, [enableIdleState, open]);
+
+  useModernLayoutEffect(() => {
+    if (!open || !enableIdleState) {
+      return undefined;
+    }
+
     if (open && mounted && transitionStatus !== 'idle') {
       setTransitionStatus('starting');
     }
@@ -43,7 +59,7 @@ export function useTransitionStatus(open: boolean) {
     return () => {
       AnimationFrame.cancel(frame);
     };
-  }, [open, mounted, setTransitionStatus, transitionStatus]);
+  }, [enableIdleState, open, mounted, setTransitionStatus, transitionStatus]);
 
   return React.useMemo(
     () => ({
