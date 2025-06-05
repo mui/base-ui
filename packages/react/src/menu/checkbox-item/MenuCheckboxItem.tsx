@@ -51,7 +51,7 @@ const InnerMenuCheckboxItem = React.memo(
       allowMouseUpTriggerRef,
       typingRef,
       nativeButton,
-      trigger: false,
+      submenuTrigger: false,
     });
 
     const state: MenuCheckboxItem.State = React.useMemo(
