@@ -134,7 +134,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
   });
 
   const setAutoSizes = useEventCallback(() => {
-    if (!popupElement || !positionerElement) {
+    if (!popupElement) {
       return;
     }
 
@@ -163,14 +163,17 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
       return undefined;
     }
 
+    const ac = new AbortController();
     sizeFrame1.request(() => {
       sizeFrame2.request(() => {
-        runOnceAnimationsFinish(setAutoSizes);
+        runOnceAnimationsFinish(setAutoSizes, ac.signal);
       });
     });
+
     return () => {
       sizeFrame1.cancel();
       sizeFrame2.cancel();
+      ac.abort();
     };
   }, [
     value,

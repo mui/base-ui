@@ -124,6 +124,102 @@ export default function ExampleNavigationMenu() {
           </NavigationMenu.Positioner>
         </NavigationMenu.Portal>
       </NavigationMenu.Root>
+
+      <NavigationMenu.Root
+        className={styles.Root}
+        style={{ position: 'absolute', bottom: 100 }}
+      >
+        <NavigationMenu.List className={styles.List}>
+          <NavigationMenu.Item>
+            <NavigationMenu.Trigger className={styles.Trigger}>
+              Overview
+              <NavigationMenu.Icon className={styles.Icon}>
+                <ChevronDownIcon />
+              </NavigationMenu.Icon>
+            </NavigationMenu.Trigger>
+            <NavigationMenu.Content className={styles.Content}>
+              <ul className={styles.GridLinkList}>
+                {overviewLinks.map((item) => (
+                  <li key={item.href}>
+                    <Link className={styles.LinkCard} href={item.href}>
+                      <h3 className={styles.LinkTitle}>{item.title}</h3>
+                      <p className={styles.LinkDescription}>{item.description}</p>
+                    </Link>
+                  </li>
+                ))}
+                {renderExtraItem && (
+                  <li>
+                    <Link
+                      className={styles.LinkCard}
+                      href="/react/overview/quick-start"
+                    >
+                      <h3 className={styles.LinkTitle}>Quick Start</h3>
+                      <p className={styles.LinkDescription}>
+                        Install and assemble your first component.
+                      </p>
+                    </Link>
+                  </li>
+                )}
+              </ul>
+            </NavigationMenu.Content>
+          </NavigationMenu.Item>
+
+          <NavigationMenu.Item>
+            <NavigationMenu.Trigger className={styles.Trigger}>
+              Handbook
+              <NavigationMenu.Icon className={styles.Icon}>
+                <ChevronDownIcon />
+              </NavigationMenu.Icon>
+            </NavigationMenu.Trigger>
+            <NavigationMenu.Content className={styles.Content}>
+              <ul className={styles.FlexLinkList}>
+                {handbookLinks.map((item) => (
+                  <li key={item.href}>
+                    <Link className={styles.LinkCard} href={item.href}>
+                      <h3 className={styles.LinkTitle}>{item.title}</h3>
+                      <p className={styles.LinkDescription}>{item.description}</p>
+                    </Link>
+                  </li>
+                ))}
+                {renderExtraItem2 && (
+                  <li>
+                    <Link
+                      className={styles.LinkCard}
+                      href="/react/overview/quick-start"
+                    >
+                      <h3 className={styles.LinkTitle}>Quick Start</h3>
+                      <p className={styles.LinkDescription}>
+                        Install and assemble your first component.
+                      </p>
+                    </Link>
+                  </li>
+                )}
+              </ul>
+            </NavigationMenu.Content>
+          </NavigationMenu.Item>
+
+          <NavigationMenu.Item>
+            <Link className={styles.Trigger} href="https://github.com/mui/base-ui">
+              GitHub
+            </Link>
+          </NavigationMenu.Item>
+        </NavigationMenu.List>
+
+        <NavigationMenu.Portal>
+          <NavigationMenu.Positioner
+            className={styles.Positioner}
+            sideOffset={10}
+            collisionPadding={{ top: 5, bottom: 5, left: 20, right: 20 }}
+          >
+            <NavigationMenu.Popup className={styles.Popup}>
+              <NavigationMenu.Arrow className={styles.Arrow}>
+                <ArrowSvg />
+              </NavigationMenu.Arrow>
+              <NavigationMenu.Viewport className={styles.Viewport} />
+            </NavigationMenu.Popup>
+          </NavigationMenu.Positioner>
+        </NavigationMenu.Portal>
+      </NavigationMenu.Root>
     </div>
   );
 }

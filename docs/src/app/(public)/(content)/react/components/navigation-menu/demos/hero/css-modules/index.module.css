@@ -121,7 +121,7 @@
   transition-property: opacity, transform, width, height;
   transition-duration: var(--duration);
   transition-timing-function: var(--easing);
-  width: 100%;
+  width: max-content;
   height: var(--popup-height);
 
   @media (min-width: 500px) {
