@@ -280,4 +280,181 @@ describe('<NumberField.Input />', () => {
 
     expect(input).to.have.value('2.98765');
   });
+
+  it('should allow typing after precision is preserved on blur', async () => {
+    const onValueChange = spy();
+
+    function Controlled(props: { value: number | null }) {
+      return (
+        <NumberField.Root value={props.value} onValueChange={onValueChange}>
+          <NumberField.Input />
+        </NumberField.Root>
+      );
+    }
+
+    const { setProps, user } = await render(<Controlled value={null} />);
+    const input = screen.getByRole('textbox');
+
+    await act(async () => {
+      setProps({ value: 1.23456 });
+    });
+
+    expect(input).to.have.value('1.23456');
+
+    await act(async () => {
+      input.focus();
+      input.blur();
+    });
+
+    expect(input).to.have.value('1.23456');
+
+    await act(async () => {
+      input.focus();
+    });
+
+    await user.clear(input);
+    await user.keyboard('1.234567');
+    expect(input).to.have.value('1.234567');
+
+    fireEvent.blur(input);
+    expect(input).to.have.value('1.23456');
+  });
+
+  it('should format to canonical representation when input differs from max precision', async () => {
+    const onValueChange = spy();
+
+    function Controlled(props: { value: number | null }) {
+      return (
+        <NumberField.Root value={props.value} onValueChange={onValueChange}>
+          <NumberField.Input />
+        </NumberField.Root>
+      );
+    }
+
+    const { setProps, user } = await render(<Controlled value={null} />);
+    const input = screen.getByRole('textbox');
+
+    await act(async () => {
+      setProps({ value: 1.23456 });
+    });
+
+    expect(input).to.have.value('1.23456');
+
+    await act(async () => {
+      input.focus();
+    });
+
+    await user.clear(input);
+    await user.keyboard('1.23456000');
+    expect(input).to.have.value('1.23456000');
+
+    fireEvent.blur(input);
+    expect(input).to.have.value('1.23456');
+  });
+
+  it('should handle multiple blur cycles with precision preservation', async () => {
+    const onValueChange = spy();
+
+    function Controlled(props: { value: number | null }) {
+      return (
+        <NumberField.Root value={props.value} onValueChange={onValueChange}>
+          <NumberField.Input />
+        </NumberField.Root>
+      );
+    }
+
+    const { setProps } = await render(<Controlled value={null} />);
+    const input = screen.getByRole('textbox');
+
+    await act(async () => {
+      setProps({ value: 1.23456789 });
+    });
+
+    expect(input).to.have.value('1.23456789');
+
+    await act(async () => {
+      input.focus();
+      input.blur();
+    });
+
+    expect(input).to.have.value('1.23456789');
+    expect(onValueChange.callCount).to.equal(0);
+
+    await act(async () => {
+      input.focus();
+      input.blur();
+    });
+
+    expect(input).to.have.value('1.23456789');
+    expect(onValueChange.callCount).to.equal(0);
+  });
+
+  it('should handle edge case where parsed value equals current value but input differs', async () => {
+    const onValueChange = spy();
+
+    function Controlled(props: { value: number | null }) {
+      return (
+        <NumberField.Root value={props.value} onValueChange={onValueChange}>
+          <NumberField.Input />
+        </NumberField.Root>
+      );
+    }
+
+    const { setProps, user } = await render(<Controlled value={null} />);
+    const input = screen.getByRole('textbox');
+
+    await act(async () => {
+      setProps({ value: 1.5 });
+    });
+
+    expect(input).to.have.value('1.5');
+
+    await act(async () => {
+      input.focus();
+    });
+
+    await user.clear(input);
+    await user.keyboard('1.50');
+    expect(input).to.have.value('1.50');
+
+    fireEvent.blur(input);
+    expect((input as HTMLInputElement).value).to.match(/^1\.5/);
+  });
+
+  it('should preserve precision when value matches max precision after external change during typing', async () => {
+    const onValueChange = spy();
+
+    function Controlled() {
+      const [value, setValue] = React.useState<number | null>(null);
+      return (
+        <NumberField.Root
+          value={value}
+          onValueChange={(val) => {
+            onValueChange(val);
+            setValue(val);
+          }}
+        >
+          <NumberField.Input />
+          <button onClick={() => setValue(3.14159265)}>set pi</button>
+        </NumberField.Root>
+      );
+    }
+
+    const { user } = await render(<Controlled />);
+    const input = screen.getByRole('textbox');
+
+    await act(async () => {
+      input.focus();
+    });
+
+    await user.keyboard('2.7');
+    expect(input).to.have.value('2.7');
+
+    await user.click(screen.getByText('set pi'));
+
+    expect(input).to.have.value('3.14159265');
+
+    fireEvent.blur(input);
+    expect(input).to.have.value('3.14159265');
+  });
 });
