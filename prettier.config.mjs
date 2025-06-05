@@ -1,6 +1,8 @@
-const baseline = require('@mui/monorepo/prettier.config');
+import { createBaseConfig } from '@mui/infra/prettier';
 
-module.exports = {
+const baseline = createBaseConfig();
+
+export default {
   ...baseline,
   plugins: ['prettier-plugin-tailwindcss'], // TODO move to baseline config
   tailwindStylesheet: './docs/src/styles.css',
