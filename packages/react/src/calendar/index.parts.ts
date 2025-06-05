@@ -12,7 +12,6 @@ export { CalendarDayButton as DayButton } from './day-button/CalendarDayButton';
 // Navigation
 export { CalendarSetVisibleMonth as SetVisibleMonth } from './set-visible-month/CalendarSetVisibleMonth';
 export { CalendarSetVisibleYear as SetVisibleYear } from './set-visible-year/CalendarSetVisibleYear';
-export { CalendarKeyboardNavigation as KeyboardNavigation } from './keyboard-navigation/CalendarKeyboardNavigation';
 
 // Context
 export { useCalendarContext as useContext } from './use-context/CalendarContext';

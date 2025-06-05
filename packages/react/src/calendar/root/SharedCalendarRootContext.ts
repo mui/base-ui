@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { TemporalSupportedObject } from '../../models';
-import { validateDate } from '../../utils/temporal/date-helpers';
+import { type validateDate } from '../../utils/temporal/date-helpers';
+import { type useSharedCalendarRoot } from './useSharedCalendarRoot';
 
 export interface SharedCalendarRootContext {
   /**
@@ -46,6 +47,14 @@ export interface SharedCalendarRootContext {
    * Register a day grid.
    */
   registerDayGrid: (month: TemporalSupportedObject) => () => void;
+  /**
+   * Callback forwarded to the `onKeyDown` prop of the day grid body.
+   */
+  applyDayGridKeyboardNavigation: (event: React.KeyboardEvent) => void;
+  /**
+   * Register a day cell ref to be able to apply keyboard navigation.
+   */
+  registerDayGridCell: (refs: useSharedCalendarRoot.CellRefs) => () => void;
 }
 
 export const SharedCalendarRootContext = React.createContext<SharedCalendarRootContext | undefined>(

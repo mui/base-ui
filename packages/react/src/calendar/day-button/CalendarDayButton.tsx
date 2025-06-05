@@ -8,7 +8,6 @@ import { useButton } from '../../use-button';
 import { TemporalSupportedObject } from '../../models';
 import { useSharedCalendarRootContext } from '../root/SharedCalendarRootContext';
 import { useSharedCalendarDayGridBodyContext } from '../day-grid-body/SharedCalendarDayGridBodyContext';
-import { useSharedCalendarKeyboardNavigationContext } from '../keyboard-navigation/SharedCalendarKeyboardNavigationContext';
 import { useCalendarDayGridRowContext } from '../day-grid-row/CalendarDayGridRowContext';
 import { useTemporalAdapter } from '../../temporal-adapter-provider/TemporalAdapterContext';
 import { useForkRef, useModernLayoutEffect } from '../../utils';
@@ -123,9 +122,8 @@ export const CalendarDayButton = React.forwardRef(function CalendarDayButton(
   props: CalendarDayButton.Props,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
-  const { selectedDates, selectDate } = useSharedCalendarRootContext();
+  const { selectedDates, selectDate, registerDayGridCell } = useSharedCalendarRootContext();
   const { month, canCellBeTabbed, ref: gridBodyRef } = useSharedCalendarDayGridBodyContext();
-  const { registerDayGridCell } = useSharedCalendarKeyboardNavigationContext();
   const { ref: gridRowRef } = useCalendarDayGridRowContext();
   const { isDisabled, isUnavailable, value } = useCalendarDayGridCellContext();
   const ref = React.useRef<HTMLButtonElement>(null);

@@ -7,7 +7,6 @@ import { HTMLProps } from '../../utils/types';
 import { useTemporalAdapter } from '../../temporal-adapter-provider/TemporalAdapterContext';
 import { TemporalSupportedObject } from '../../models';
 import { useWeekList } from '../../use-week-list';
-import { useSharedCalendarKeyboardNavigationContext } from '../keyboard-navigation/SharedCalendarKeyboardNavigationContext';
 
 export function useSharedCalendarDayGridBody(
   parameters: useSharedCalendarDayGridBody.Parameters,
@@ -15,9 +14,9 @@ export function useSharedCalendarDayGridBody(
   const { fixedWeekNumber, focusOnMount, children, offset = 0, freezeMonth = false } = parameters;
 
   const adapter = useTemporalAdapter();
-  const { selectedDates, referenceDate, registerDayGrid } = useSharedCalendarRootContext();
+  const { selectedDates, referenceDate, registerDayGrid, applyDayGridKeyboardNavigation } =
+    useSharedCalendarRootContext();
   const { visibleDate } = useSharedCalendarRootVisibleDateContext();
-  const { applyDayGridKeyboardNavigation } = useSharedCalendarKeyboardNavigationContext();
   const ref = React.useRef<HTMLDivElement>(null);
   const rowsRefs = React.useRef<(HTMLElement | null)[]>([]);
 

@@ -12,7 +12,7 @@ export default function ExampleCalendar() {
     <TemporalAdapterProvider adapter={adapter}>
       <Calendar.Root className={styles.Root}>
         {({ visibleDate }) => (
-          <Calendar.KeyboardNavigation>
+          <React.Fragment>
             <header className={styles.Header}>
               <Calendar.SetVisibleMonth
                 target="previous"
@@ -66,7 +66,7 @@ export default function ExampleCalendar() {
                 }
               </Calendar.DayGridBody>
             </Calendar.DayGrid>
-          </Calendar.KeyboardNavigation>
+          </React.Fragment>
         )}
       </Calendar.Root>
     </TemporalAdapterProvider>

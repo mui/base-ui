@@ -19,7 +19,7 @@ function MyCalendar() {
   return (
     <Calendar.Root className={styles.Root}>
       {({ visibleDate }) => (
-        <Calendar.KeyboardNavigation>
+        <React.Fragment>
           <header className={styles.Header}>
             <Calendar.SetVisibleMonth
               target="previous"
@@ -73,7 +73,7 @@ function MyCalendar() {
               }
             </Calendar.DayGridBody>
           </Calendar.DayGrid>
-        </Calendar.KeyboardNavigation>
+        </React.Fragment>
       )}
     </Calendar.Root>
   );
