@@ -32,38 +32,32 @@ export default function CalendarBasic() {
             </header>
             <Calendar.DayGrid className={styles.DayGrid}>
               <Calendar.DayGridHeader className={styles.DayGridHeader}>
-                {({ days }) =>
-                  days.map((day) => (
-                    <Calendar.DayGridHeaderCell
-                      value={day}
-                      key={day.toString()}
-                      className={styles.DayGridHeaderCell}
-                    />
-                  ))
-                }
+                {(day) => (
+                  <Calendar.DayGridHeaderCell
+                    value={day}
+                    key={day.toString()}
+                    className={styles.DayGridHeaderCell}
+                  />
+                )}
               </Calendar.DayGridHeader>
               <Calendar.DayGridBody className={styles.DayGridBody}>
-                {({ weeks }) =>
-                  weeks.map((week) => (
-                    <Calendar.DayGridRow
-                      value={week}
-                      key={week.toString()}
-                      className={styles.DayGridRow}
-                    >
-                      {({ days }) =>
-                        days.map((day) => (
-                          <Calendar.DayGridCell
-                            value={day}
-                            key={day.toString()}
-                            className={styles.DayGridCell}
-                          >
-                            <Calendar.DayButton className={styles.DayButton} />
-                          </Calendar.DayGridCell>
-                        ))
-                      }
-                    </Calendar.DayGridRow>
-                  ))
-                }
+                {(week) => (
+                  <Calendar.DayGridRow
+                    value={week}
+                    key={week.toString()}
+                    className={styles.DayGridRow}
+                  >
+                    {(day) => (
+                      <Calendar.DayGridCell
+                        value={day}
+                        key={day.toString()}
+                        className={styles.DayGridCell}
+                      >
+                        <Calendar.DayButton className={styles.DayButton} />
+                      </Calendar.DayGridCell>
+                    )}
+                  </Calendar.DayGridRow>
+                )}
               </Calendar.DayGridBody>
             </Calendar.DayGrid>
           </React.Fragment>

@@ -18,7 +18,7 @@ const InnerCalendarDayGridRow = React.forwardRef(function InnerCalendarDayGridRo
 
   const resolvedChildren = React.useMemo(() => {
     if (!React.isValidElement(children) && typeof children === 'function') {
-      return children({ days: ctx.days });
+      return ctx.days.map(children);
     }
 
     return children;
@@ -80,9 +80,15 @@ export namespace CalendarDayGridRow {
     value: TemporalSupportedObject;
     /**
      * The children of the component.
-     * If a function is provided, it will be called with the days to render as its parameter.
+     * If a function is provided, it will be called for each day of the week as its parameter.
      */
-    children?: React.ReactNode | ((parameters: ChildrenParameters) => React.ReactNode);
+    children?:
+      | React.ReactNode
+      | ((
+          day: TemporalSupportedObject,
+          index: number,
+          days: TemporalSupportedObject[],
+        ) => React.ReactNode);
   }
 
   export interface ChildrenParameters {

@@ -77,7 +77,7 @@ export function useSharedCalendarDayGridBody(
 
   const resolvedChildren = React.useMemo(() => {
     if (!React.isValidElement(children) && typeof children === 'function') {
-      return children({ weeks });
+      return weeks.map(children);
     }
 
     return children;
@@ -101,9 +101,15 @@ export namespace useSharedCalendarDayGridBody {
   export interface Parameters extends useScrollableList.PublicParameters {
     /**
      * The children of the component.
-     * If a function is provided, it will be called with the weeks weeks to render as its parameter.
+     * If a function is provided, it will be called for each week to render as its parameter.
      */
-    children?: React.ReactNode | ((parameters: ChildrenParameters) => React.ReactNode);
+    children?:
+      | React.ReactNode
+      | ((
+          week: TemporalSupportedObject,
+          index: number,
+          weeks: TemporalSupportedObject[],
+        ) => React.ReactNode);
     /**
      * The day view will show as many weeks as needed after the end of the current month to match this value.
      * Put it to 6 to have a fixed number of weeks in Gregorian calendars

@@ -28,7 +28,7 @@ export const CalendarDayGridHeader = React.forwardRef(function CalendarDayGridHe
 
   const resolvedChildren = React.useMemo(() => {
     if (!React.isValidElement(children) && typeof children === 'function') {
-      return children({ days });
+      return days.map(children);
     }
 
     return children;
@@ -48,12 +48,14 @@ export namespace CalendarDayGridHeader {
   export interface Props extends Omit<BaseUIComponentProps<'div', State>, 'children'> {
     /**
      * The children of the component.
-     * If a function is provided, it will be called with the days of the week as its parameter.
+     * If a function is provided, it will be called for each day of the week as its parameter.
      */
-    children?: React.ReactNode | ((parameters: ChildrenParameters) => React.ReactNode);
-  }
-
-  export interface ChildrenParameters {
-    days: TemporalSupportedObject[];
+    children?:
+      | React.ReactNode
+      | ((
+          day: TemporalSupportedObject,
+          index: number,
+          days: TemporalSupportedObject[],
+        ) => React.ReactNode);
   }
 }
