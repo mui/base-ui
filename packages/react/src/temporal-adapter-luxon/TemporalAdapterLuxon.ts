@@ -28,6 +28,7 @@ const FORMATS: TemporalAdapterFormats = {
 
   // Full formats
   localizedDateWithFullMonthAndWeekDay: 'DDDD',
+  fullMonthAndYear: 'MMMM yyyy',
 };
 
 declare module '@base-ui-components/react/models' {

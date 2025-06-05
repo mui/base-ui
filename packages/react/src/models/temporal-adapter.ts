@@ -61,6 +61,11 @@ export interface TemporalAdapterFormats {
    * @example "Wednesday, August 6, 2014"
    */
   localizedDateWithFullMonthAndWeekDay: string;
+  /**
+   * The non-localized month and year format.
+   * @example "August 2014"
+   */
+  fullMonthAndYear: string;
 }
 
 export type DateBuilderReturnType<T extends string | null> = [T] extends [null]

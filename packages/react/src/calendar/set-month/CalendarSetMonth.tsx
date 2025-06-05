@@ -38,38 +38,25 @@ export const CalendarSetMonth = React.forwardRef(function CalendarSetMonth(
     [visibleDate, adapter, target],
   );
 
-  // TODO: Check if the logic below works correctly when multiple months are rendered at once.
-  const isMovingBefore = React.useMemo(
-    () => adapter.isBefore(targetDate, visibleDate),
-    [adapter, targetDate, visibleDate],
-  );
-
   const isDisabled = React.useMemo(() => {
     if (disabled) {
       return true;
     }
 
-    // All the months before the visible ones are fully disabled, we skip the navigation.
-    if (isMovingBefore) {
-      return (
-        dateValidationProps.minDate != null &&
-        adapter.isAfter(adapter.startOfMonth(dateValidationProps.minDate), targetDate)
-      );
+    // The target month and all the months before are fully disabled, we disable the button.
+    if (
+      dateValidationProps.minDate != null &&
+      adapter.isBefore(adapter.endOfMonth(targetDate), dateValidationProps.minDate)
+    ) {
+      return true;
     }
 
-    // All the months after the visible ones are fully disabled, we skip the navigation.
+    // The target month and all the months after are fully disabled, we disable the button.
     return (
       dateValidationProps.maxDate != null &&
-      adapter.isBefore(adapter.startOfMonth(dateValidationProps.maxDate), targetDate)
+      adapter.isAfter(adapter.startOfMonth(targetDate), dateValidationProps.maxDate)
     );
-  }, [
-    disabled,
-    dateValidationProps.minDate,
-    dateValidationProps.maxDate,
-    targetDate,
-    adapter,
-    isMovingBefore,
-  ]);
+  }, [disabled, dateValidationProps.minDate, dateValidationProps.maxDate, targetDate, adapter]);
 
   const setTarget = useEventCallback(() => {
     if (isDisabled) {
@@ -92,7 +79,7 @@ export const CalendarSetMonth = React.forwardRef(function CalendarSetMonth(
     state,
     ref: [buttonRef, forwardedRef],
     props: [
-      { onClick: setTarget, tabIndex: 0, 'aria-label': isMovingBefore ? 'Previous' : 'Next' },
+      { onClick: setTarget, tabIndex: 0, 'aria-label': adapter.format(target, 'fullMonthAndYear') },
       elementProps,
       getButtonProps,
     ],
