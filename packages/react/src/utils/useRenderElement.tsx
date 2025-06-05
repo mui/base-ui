@@ -6,7 +6,7 @@ import { resolveClassName } from './resolveClassName';
 import { isReactVersionAtLeast } from './reactVersion';
 import { mergeProps, mergePropsN } from '../merge-props';
 import { mergeObjects } from './mergeObjects';
-import { EMPTY_OBJ } from './constants';
+import { EMPTY_OBJECT } from './constants';
 
 type IntrinsicTagName = keyof React.JSX.IntrinsicElements;
 
@@ -33,7 +33,7 @@ export function useRenderElement<
     return null as Enabled extends false ? null : React.ReactElement<Record<string, unknown>>;
   }
 
-  const state = params.state ?? (EMPTY_OBJ as State);
+  const state = params.state ?? (EMPTY_OBJECT as State);
   return evaluateRenderProp(element, renderProp, outProps, state) as Enabled extends false
     ? null
     : React.ReactElement<Record<string, unknown>>;
@@ -54,7 +54,7 @@ function useRenderElementProps<
   const { className: classNameProp, render: renderProp } = componentProps;
 
   const {
-    state = EMPTY_OBJ as State,
+    state = EMPTY_OBJECT as State,
     ref,
     props,
     disableStyleHooks,
@@ -70,14 +70,14 @@ function useRenderElementProps<
     // always unset, so this `if` block is stable across renders.
     /* eslint-disable-next-line react-hooks/rules-of-hooks */
     styleHooks = React.useMemo(
-      () => (enabled ? getStyleHookProps(state, customStyleHookMapping) : EMPTY_OBJ),
+      () => (enabled ? getStyleHookProps(state, customStyleHookMapping) : EMPTY_OBJECT),
       [state, customStyleHookMapping, enabled],
     );
   }
 
   const outProps: React.HTMLAttributes<any> & React.RefAttributes<any> = enabled
-    ? (mergeObjects(styleHooks, Array.isArray(props) ? mergePropsN(props) : props) ?? EMPTY_OBJ)
-    : EMPTY_OBJ;
+    ? (mergeObjects(styleHooks, Array.isArray(props) ? mergePropsN(props) : props) ?? EMPTY_OBJECT)
+    : EMPTY_OBJECT;
 
   // SAFETY: The `useForkRef` functions use a single hook to store the same value,
   // switching between them at runtime is safe. If this assertion fails, React will
@@ -93,7 +93,7 @@ function useRenderElementProps<
   /* eslint-enable react-hooks/rules-of-hooks */
 
   if (!enabled) {
-    return EMPTY_OBJ;
+    return EMPTY_OBJECT;
   }
 
   if (className !== undefined) {
