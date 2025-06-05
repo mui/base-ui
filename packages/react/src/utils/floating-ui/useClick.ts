@@ -106,9 +106,7 @@ export function useClick(context: FloatingRootContext, props: UseClickProps = {}
           open &&
           toggle &&
           (openEvent && stickIfOpen
-            ? openEvent.type === 'click' ||
-              openEvent.type === 'mousedown' ||
-              openEvent.type === 'keydown'
+            ? ['click', 'mousedown', 'keydown', 'keyup'].includes(openEvent.type)
             : true)
         );
         onOpenChange(nextOpen, event.nativeEvent, 'click');
