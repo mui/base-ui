@@ -78,6 +78,8 @@ export const CalendarRoot = React.forwardRef(function CalendarRoot(
     defaultVisibleDate,
     manager,
     isDateUnavailable,
+    minDate,
+    maxDate,
     calendarValueManager,
   });
 

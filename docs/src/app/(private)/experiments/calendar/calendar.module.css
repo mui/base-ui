@@ -1,35 +1,28 @@
 .Root {
-  --calendar-root-color: #262626;
-  --calendar-root-border-color: #78716c;
-  --calendar-button-hover-bg-color: #e0f2fe;
-  --calendar-button-focus-border-color: #0ea5e9;
-  --calendar-day-grid-separator-bg-color: #9ca3af;
-  --calendar-day-grid-header-color: #64748b;
-
-  --calendar-cell-selected-bg-color: #7dd3fc;
-  --calendar-cell-outside-month-color: #cbd5e1;
-  --calendar-cell-disabled-color: #64748b;
-  --calendar-cell-current-border-color: #9ca3af;
-  --calendar-cell-unavailable-color: #f87171;
-
-  @media (prefers-color-scheme: dark) {
-    --calendar-root-color: #f5f5f5;
-    --calendar-button-hover-bg-color: #075985;
-    --calendar-day-grid-separator-bg-color: #4b5563;
-
-    --calendar-cell-selected-bg-color: #0369a1;
-    --calendar-cell-outside-month-color: #334155;
-    --calendar-cell-disabled-color: #64748b;
-  }
-}
-
-.Root {
   border: 1px solid var(--calendar-root-border-color);
   border-radius: 8px;
   width: 276px;
   height: 312px;
   display: flex;
   flex-direction: column;
+
+  --calendar-root-color: var(--color-gray-900);
+  --calendar-root-border-color: var(--color-gray-500);
+  --calendar-button-hover-bg-color: #e0f2fe;
+  --calendar-button-focus-border-color: #0ea5e9;
+  --calendar-day-grid-separator-bg-color: #9ca3af;
+  --calendar-day-grid-header-color: var(--color-gray-600);
+
+  --calendar-cell-selected-bg-color: #7dd3fc;
+  --calendar-cell-outside-month-color: var(--color-gray-400);
+  --calendar-cell-disabled-color: var(--color-gray-500);
+  --calendar-cell-current-border-color: var(--color-gray-600);
+  --calendar-cell-unavailable-color: #f87171;
+
+  @media (prefers-color-scheme: dark) {
+    --calendar-button-hover-bg-color: #075985;
+    --calendar-cell-selected-bg-color: #0369a1;
+  }
 }
 
 .RootWithWeekNumber {
@@ -130,9 +123,6 @@
   color: var(--calendar-day-grid-header-color);
 }
 
-.DayGridCell {
-}
-
 .DayButton {
   background: none;
   padding: 0;
@@ -152,10 +142,7 @@
   &::before {
     content: '';
     position: absolute;
-    top: 2px;
-    bottom: 2px;
-    left: 2px;
-    right: 2px;
+    inset: 2px;
     border-radius: 4px;
     border: none;
     z-index: -1;
@@ -166,10 +153,7 @@
     content: '';
     border-radius: 4px;
     position: absolute;
-    top: 2px;
-    bottom: 2px;
-    left: 2px;
-    right: 2px;
+    inset: 2px;
   }
 
   &:not([data-outside-month]):focus-visible {
@@ -203,11 +187,11 @@
     pointer-events: none;
   }
 
-  &[data-current]:not([data-selected]):not(:focus-visible)::after {
+  &[data-current]:not([data-selected], :focus-visible)::after {
     outline: 1px solid var(--calendar-cell-current-border-color);
   }
 
-  &:not([data-disabled]):not([data-outside-month])[data-unavailable] {
+  &:not([data-disabled], [data-outside-month])[data-unavailable] {
     text-decoration: line-through;
     color: var(--calendar-cell-unavailable-color);
   }
