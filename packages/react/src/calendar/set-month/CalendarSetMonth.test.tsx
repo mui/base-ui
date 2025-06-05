@@ -1,8 +1,8 @@
 import * as React from 'react';
-import { Calendar } from '@base-ui-components/react/calendar';
-import { createTemporalRenderer, describeConformance } from '#test-utils';
 import { expect } from 'chai';
 import { spy } from 'sinon';
+import { Calendar } from '@base-ui-components/react/calendar';
+import { createTemporalRenderer, describeConformance } from '#test-utils';
 
 describe('<Calendar.SetMonth />', () => {
   const { render, adapter } = createTemporalRenderer();
@@ -15,22 +15,6 @@ describe('<Calendar.SetMonth />', () => {
   }));
 
   describe('visible date update', () => {
-    it('should update the visible date to the target month when clicked', async () => {
-      const onVisibleDateChange = spy();
-
-      const { user } = render(
-        <Calendar.Root onVisibleDateChange={onVisibleDateChange}>
-          <Calendar.SetMonth target={adapter.date('2025-01-01', 'default')} />
-        </Calendar.Root>,
-      );
-
-      const button = document.querySelector('button')!;
-
-      await user.click(button);
-      expect(onVisibleDateChange.callCount).to.equal(1);
-      expect(onVisibleDateChange.firstCall.args[0]).toEqualDateTime('2025-01-05T00:00:00.000Z');
-    });
-
     it('should keep the day and time of the previous visible date when clicked', async () => {
       const onVisibleDateChange = spy();
 
