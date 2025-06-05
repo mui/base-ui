@@ -38,13 +38,16 @@ export const CalendarSetMonth = React.forwardRef(function CalendarSetMonth(
     [visibleDate, adapter, target],
   );
 
+  // TODO: Check if the logic below works correctly when multiple months are rendered at once.
+  const isMovingBefore = React.useMemo(
+    () => adapter.isBefore(targetDate, visibleDate),
+    [adapter, targetDate, visibleDate],
+  );
+
   const isDisabled = React.useMemo(() => {
     if (disabled) {
       return true;
     }
-
-    // TODO: Check if the logic below works correctly when multiple months are rendered at once.
-    const isMovingBefore = adapter.isBefore(targetDate, visibleDate);
 
     // All the months before the visible ones are fully disabled, we skip the navigation.
     if (isMovingBefore) {
@@ -63,9 +66,9 @@ export const CalendarSetMonth = React.forwardRef(function CalendarSetMonth(
     disabled,
     dateValidationProps.minDate,
     dateValidationProps.maxDate,
-    visibleDate,
     targetDate,
     adapter,
+    isMovingBefore,
   ]);
 
   const setTarget = useEventCallback(() => {
@@ -88,7 +91,11 @@ export const CalendarSetMonth = React.forwardRef(function CalendarSetMonth(
   const element = useRenderElement('button', componentProps, {
     state,
     ref: [buttonRef, forwardedRef],
-    props: [getButtonProps, { onClick: setTarget, tabIndex: 0 }, elementProps],
+    props: [
+      getButtonProps,
+      { onClick: setTarget, tabIndex: 0, 'aria-label': isMovingBefore ? 'Previous' : 'Next' },
+      elementProps,
+    ],
   });
 
   return element;

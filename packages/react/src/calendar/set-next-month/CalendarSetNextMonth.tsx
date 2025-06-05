@@ -66,7 +66,11 @@ export const CalendarSetNextMonth = React.forwardRef(function CalendarSetNextMon
   const element = useRenderElement('button', componentProps, {
     state,
     ref: [buttonRef, forwardedRef],
-    props: [getButtonProps, { onClick: setTarget, tabIndex: 0 }, elementProps],
+    props: [
+      getButtonProps,
+      { onClick: setTarget, tabIndex: 0, 'aria-label': 'Next' },
+      elementProps,
+    ],
   });
 
   return element;
