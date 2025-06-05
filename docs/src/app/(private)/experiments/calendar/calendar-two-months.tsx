@@ -15,12 +15,9 @@ function Header() {
   return (
     <header className={styles.Header}>
       <div className={styles.HeaderPanel}>
-        <Calendar.SetVisibleMonth
-          target="previous"
-          className={clsx(styles.SetVisibleMonth)}
-        >
+        <Calendar.SetPreviousMonth className={clsx(styles.SetPreviousMonth)}>
           ◀
-        </Calendar.SetVisibleMonth>
+        </Calendar.SetPreviousMonth>
         <span className={styles.HeaderLabel}>
           {visibleDate.toFormat('MMMM yyyy')}
         </span>
@@ -31,12 +28,9 @@ function Header() {
         <span className={styles.HeaderLabel}>
           {visibleDate.plus({ month: 1 }).toFormat('MMMM yyyy')}
         </span>
-        <Calendar.SetVisibleMonth
-          target="next"
-          className={clsx(styles.SetVisibleMonth)}
-        >
+        <Calendar.SetNextMonth className={clsx(styles.SetNextMonth)}>
           ▶
-        </Calendar.SetVisibleMonth>
+        </Calendar.SetNextMonth>
       </div>
     </header>
   );

@@ -9,7 +9,9 @@ import { SharedCalendarRootVisibleDateContext } from './SharedCalendarRootVisibl
 import { useEventCallback } from '../../utils/useEventCallback';
 import { TemporalManager, TemporalTimezoneProps } from '../../utils/temporal/types';
 import { useControlled } from '../../utils/useControlled';
+import { useTimeout } from '../../utils/useTimeout';
 import {
+  applyInitialFocusInGrid,
   navigateInGrid,
   NavigateInGridChangePage,
   PageGridNavigationTarget,
@@ -167,6 +169,17 @@ export function useSharedCalendarRoot<TValue extends TemporalSupportedValue, TEr
     [getSelectedDatesFromValue, value],
   );
 
+  const pageNavigationTimeout = useTimeout();
+  React.useEffect(() => {
+    if (pageNavigationTargetRef.current) {
+      const target = pageNavigationTargetRef.current;
+      pageNavigationTimeout.start(0, () => {
+        const cells = getCellsInCalendar(cellsRef);
+        applyInitialFocusInGrid({ cells, target });
+      });
+    }
+  }, [visibleDate, pageNavigationTimeout]);
+
   const applyDayGridKeyboardNavigation = useEventCallback((event: React.KeyboardEvent) => {
     const changePage: NavigateInGridChangePage = (params) => {
       // TODO: Jump over months with no valid date.
@@ -232,7 +245,6 @@ export function useSharedCalendarRoot<TValue extends TemporalSupportedValue, TEr
       selectedDates,
       setVisibleDate: handleVisibleDateChange,
       monthPageSize,
-      yearPageSize,
       registerDayGrid,
       selectDate,
       validationProps,
@@ -247,7 +259,6 @@ export function useSharedCalendarRoot<TValue extends TemporalSupportedValue, TEr
       selectedDates,
       handleVisibleDateChange,
       monthPageSize,
-      yearPageSize,
       registerDayGrid,
       validationProps,
       isDateUnavailable,
@@ -324,17 +335,11 @@ export namespace useSharedCalendarRoot {
      */
     referenceDate?: TemporalSupportedObject;
     /**
-     * The amount of months to navigate by when pressing Calendar.SetVisibleMonth or when using keyboard navigation in the day grid.
+     * The amount of months to navigate by when pressing <Calendar.SetNextMonth />, <Calendar.SetPreviousMonth /> or when using keyboard navigation in the day grid.
      * This is mostly useful when displaying multiple day grids.
      * @default 1
      */
     monthPageSize?: number;
-    /**
-     * The amount of months to navigate by when pressing Calendar.SetVisibleYear or when using keyboard navigation in the month grid or the month list.
-     * This is mostly useful when displaying multiple month grids or month lists.
-     * @default 1
-     */
-    yearPageSize?: number;
   }
 
   export interface Parameters<TValue extends TemporalSupportedValue, TError>

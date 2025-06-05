@@ -37,7 +37,6 @@ export const CalendarRoot = React.forwardRef(function CalendarRoot(
     invalid,
     // Focus and navigation props
     monthPageSize,
-    yearPageSize,
     // Value props
     onValueChange,
     defaultValue,
@@ -69,7 +68,6 @@ export const CalendarRoot = React.forwardRef(function CalendarRoot(
     disabled,
     invalid,
     monthPageSize,
-    yearPageSize,
     onValueChange,
     defaultValue,
     value: valueProp,

@@ -36,13 +36,9 @@ export interface SharedCalendarRootContext {
    */
   setVisibleDate: (visibleDate: TemporalSupportedObject, skipIfAlreadyVisible: boolean) => void;
   /**
-   * The number of months to switch by when using clicking on SetVisibleMonth primitive with target="previous" or target="next".
+   * The amount of months to navigate by when pressing <Calendar.SetNextMonth />, <Calendar.SetPreviousMonth /> or when using keyboard navigation in the day grid.
    */
   monthPageSize: number;
-  /**
-   * The number of years to switch by when using clicking on SetVisibleYear primitive with target="previous" or target="next".
-   */
-  yearPageSize: number;
   /**
    * Register a day grid.
    */

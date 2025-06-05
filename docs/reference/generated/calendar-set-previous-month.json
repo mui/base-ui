@@ -1,23 +1,18 @@
 {
-  "name": "CalendarSetVisibleYear",
-  "description": "Displays an element to navigation to a given year in the calendar.\nRenders a `<button>` element.",
+  "name": "CalendarSetPreviousMonth",
+  "description": "Displays an element to navigate to the previous month in the calendar.\nRenders a `<button>` element.",
   "props": {
     "nativeButton": {
       "type": "boolean",
       "default": "true",
       "description": "Whether the component renders a native `<button>` element when replacing it\nvia the `render` prop.\nSet to `false` if the rendered element is not a button (e.g. `<div>`)."
     },
-    "target": {
-      "type": "DateTime<boolean> | 'next' | 'previous'",
-      "required": true,
-      "description": "The year to navigate to."
-    },
     "className": {
-      "type": "string | ((state: Calendar.SetVisibleYear.State) => string)",
+      "type": "string | ((state: Calendar.SetPreviousMonth.State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "render": {
-      "type": "ReactElement | ((props: HTMLProps, state: Calendar.SetVisibleYear.State) => ReactElement)",
+      "type": "ReactElement | ((props: HTMLProps, state: Calendar.SetPreviousMonth.State) => ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
     }
   },

@@ -3,8 +3,8 @@
   "description": "Groups all cells of the calendar's day grid header.\nRenders a `<div>` element.",
   "props": {
     "children": {
-      "type": "ReactNode | ((parameters: Calendar.DayGridHeader.ChildrenParameters) => ReactNode)",
-      "description": "The children of the component.\nIf a function is provided, it will be called with the days of the week as its parameter."
+      "type": "ReactNode | ((day: DateTime<boolean>, index: number, days: DateTime<boolean>[]) => ReactNode)",
+      "description": "The children of the component.\nIf a function is provided, it will be called for each day of the week as its parameter."
     },
     "className": {
       "type": "string | ((state: Calendar.DayGridHeader.State) => string)",

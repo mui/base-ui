@@ -10,8 +10,9 @@ export { CalendarDayGridCell as DayGridCell } from './day-grid-cell/CalendarDayG
 export { CalendarDayButton as DayButton } from './day-button/CalendarDayButton';
 
 // Navigation
-export { CalendarSetVisibleMonth as SetVisibleMonth } from './set-visible-month/CalendarSetVisibleMonth';
-export { CalendarSetVisibleYear as SetVisibleYear } from './set-visible-year/CalendarSetVisibleYear';
+export { CalendarSetMonth as SetMonth } from './set-month/CalendarSetMonth';
+export { CalendarSetPreviousMonth as SetPreviousMonth } from './set-previous-month/CalendarSetPreviousMonth';
+export { CalendarSetNextMonth as SetNextMonth } from './set-next-month/CalendarSetNextMonth';
 
 // Context
 export { useCalendarContext as useContext } from './use-context/CalendarContext';

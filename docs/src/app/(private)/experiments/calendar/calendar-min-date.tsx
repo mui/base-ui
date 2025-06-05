@@ -17,21 +17,15 @@ export default function CalendarMinDate() {
         {({ visibleDate }) => (
           <React.Fragment>
             <header className={styles.Header}>
-              <Calendar.SetVisibleMonth
-                target="previous"
-                className={styles.SetVisibleMonth}
-              >
+              <Calendar.SetPreviousMonth className={styles.SetPreviousMonth}>
                 ◀
-              </Calendar.SetVisibleMonth>
+              </Calendar.SetPreviousMonth>
               <span className={styles.HeaderLabel}>
                 {visibleDate.toFormat('MMMM yyyy')}
               </span>
-              <Calendar.SetVisibleMonth
-                target="next"
-                className={styles.SetVisibleMonth}
-              >
+              <Calendar.SetNextMonth className={styles.SetNextMonth}>
                 ▶
-              </Calendar.SetVisibleMonth>
+              </Calendar.SetNextMonth>
             </header>
             <Calendar.DayGrid className={styles.DayGrid}>
               <Calendar.DayGridHeader className={styles.DayGridHeader}>

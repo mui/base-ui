@@ -8,8 +8,8 @@
       "description": "The date object representing the week."
     },
     "children": {
-      "type": "ReactNode | ((parameters: Calendar.DayGridRow.ChildrenParameters) => ReactNode)",
-      "description": "The children of the component.\nIf a function is provided, it will be called with the days to render as its parameter."
+      "type": "ReactNode | ((day: DateTime<boolean>, index: number, days: DateTime<boolean>[]) => ReactNode)",
+      "description": "The children of the component.\nIf a function is provided, it will be called for each day of the week as its parameter."
     },
     "className": {
       "type": "string | ((state: Calendar.DayGridRow.State) => string)",

@@ -57,8 +57,9 @@
   color: var(--root-color);
 }
 
-.SetVisibleMonth,
-.SetVisibleYear {
+.SetMonth,
+.SetPreviousMonth,
+.SetNextMonth {
   height: 24px;
   width: 24px;
   font-size: 0.75rem;

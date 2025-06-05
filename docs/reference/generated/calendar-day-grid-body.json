@@ -21,8 +21,8 @@
       "description": "The offset to apply to the rendered month compared to the current month.\nThis is mostly useful when displaying multiple day grids."
     },
     "children": {
-      "type": "ReactNode | ((parameters: useSharedCalendarDayGridBody.ChildrenParameters) => ReactNode)",
-      "description": "The children of the component.\nIf a function is provided, it will be called with the weeks weeks to render as its parameter."
+      "type": "ReactNode | ((week: DateTime<boolean>, index: number, weeks: DateTime<boolean>[]) => ReactNode)",
+      "description": "The children of the component.\nIf a function is provided, it will be called for each week to render as its parameter."
     },
     "className": {
       "type": "string | ((state: Calendar.DayGridBody.State) => string)",
