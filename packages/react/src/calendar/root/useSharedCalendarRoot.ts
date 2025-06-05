@@ -172,6 +172,7 @@ export function useSharedCalendarRoot<TValue extends TemporalSupportedValue, TEr
   React.useEffect(() => {
     if (pageNavigationTargetRef.current) {
       const target = pageNavigationTargetRef.current;
+      pageNavigationTargetRef.current = null;
       pageNavigationTimeout.start(0, () => {
         const cells = getCellsInCalendar(cellsRef);
         applyInitialFocusInGrid({ cells, target });
