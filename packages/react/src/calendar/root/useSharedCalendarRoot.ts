@@ -29,7 +29,6 @@ export function useSharedCalendarRoot<TValue extends TemporalSupportedValue, TEr
     invalid,
     // Focus and navigation props
     monthPageSize = 1,
-    yearPageSize = 1,
     // Value props
     defaultValue,
     onValueChange,
