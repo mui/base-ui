@@ -33,7 +33,7 @@
     "monthPageSize": {
       "type": "number",
       "default": "1",
-      "description": "The amount of months to navigate by when pressing <Calendar.SetNextMonth />, <Calendar.SetPreviousMonth /> or when using keyboard navigation in the day grid.\nThis is mostly useful when displaying multiple day grids."
+      "description": "The amount of months to navigate by when pressing Calendar.SetNextMonth, Calendar.SetPreviousMonth or when using keyboard navigation in the day grid.\nThis is mostly useful when displaying multiple day grids."
     },
     "onVisibleDateChange": {
       "type": "((visibleDate: DateTime<boolean>) => void)",

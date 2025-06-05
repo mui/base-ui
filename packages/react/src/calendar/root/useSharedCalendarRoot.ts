@@ -334,7 +334,7 @@ export namespace useSharedCalendarRoot {
      */
     referenceDate?: TemporalSupportedObject;
     /**
-     * The amount of months to navigate by when pressing <Calendar.SetNextMonth />, <Calendar.SetPreviousMonth /> or when using keyboard navigation in the day grid.
+     * The amount of months to navigate by when pressing Calendar.SetNextMonth, Calendar.SetPreviousMonth or when using keyboard navigation in the day grid.
      * This is mostly useful when displaying multiple day grids.
      * @default 1
      */
