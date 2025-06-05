@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { DateTime } from 'luxon';
 import { TemporalAdapterProvider } from '@base-ui-components/react/temporal-adapter-provider';
 import { TemporalAdapterLuxon } from '@base-ui-components/react/temporal-adapter-luxon';
 import { Calendar } from '@base-ui-components/react/calendar';
@@ -7,10 +8,14 @@ import styles from './index.module.css';
 
 const adapter = new TemporalAdapterLuxon();
 
+function isDateUnavailable(date: DateTime) {
+  return date.weekday === 6 || date.weekday === 7; // Unavailable on weekends
+}
+
 export default function ExampleCalendar() {
   return (
     <TemporalAdapterProvider adapter={adapter}>
-      <Calendar.Root className={styles.Root}>
+      <Calendar.Root className={styles.Root} isDateUnavailable={isDateUnavailable}>
         {({ visibleDate }) => (
           <React.Fragment>
             <header className={styles.Header}>
