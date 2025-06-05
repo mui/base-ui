@@ -92,11 +92,11 @@ export const CalendarRoot = React.forwardRef(function CalendarRoot(
 
   const resolvedChildren = React.useMemo(() => {
     if (!React.isValidElement(children) && typeof children === 'function') {
-      return children({ visibleDate: visibleDateContext.visibleDate });
+      return children(publicContext);
     }
 
     return children;
-  }, [children, visibleDateContext.visibleDate]);
+  }, [children, publicContext]);
 
   const element = useRenderElement('div', componentProps, {
     state,

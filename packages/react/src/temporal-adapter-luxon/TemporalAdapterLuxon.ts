@@ -25,6 +25,9 @@ const FORMATS: TemporalAdapterFormats = {
   weekday: 'cccc',
   weekday3Letters: 'ccc',
   meridiem: 'a',
+
+  // Full formats
+  localizedDateWithFullMonthAndWeekDay: 'DDDD',
 };
 
 declare module '@base-ui-components/react/models' {

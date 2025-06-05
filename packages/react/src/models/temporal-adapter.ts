@@ -56,6 +56,11 @@ export interface TemporalAdapterFormats {
    * @example "AM"
    */
   meridiem: string;
+  /**
+   * The localized date format including year, month, day and weekday.
+   * @example "Wednesday, August 6, 2014"
+   */
+  localizedDateWithFullMonthAndWeekDay: string;
 }
 
 export type DateBuilderReturnType<T extends string | null> = [T] extends [null]

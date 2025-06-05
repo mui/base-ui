@@ -71,6 +71,7 @@ const InnerCalendarDayButton = React.forwardRef(function InnerCalendarDayButton(
   });
 
   const props: React.ButtonHTMLAttributes<HTMLButtonElement> = {
+    'aria-label': ctx.formattedDate,
     'aria-selected': ctx.isSelected ? true : undefined,
     'aria-current': ctx.isCurrent ? 'date' : undefined,
     'aria-disabled':
@@ -154,6 +155,11 @@ export const CalendarDayButton = React.forwardRef(function CalendarDayButton(
 
   const isTabbable = React.useMemo(() => canCellBeTabbed(value), [canCellBeTabbed, value]);
 
+  const formattedDate = React.useMemo(
+    () => adapter.format(value, 'localizedDateWithFullMonthAndWeekDay'),
+    [adapter, value],
+  );
+
   const ctx = React.useMemo<InnerCalendarDayButtonContext>(
     () => ({
       value,
@@ -166,6 +172,7 @@ export const CalendarDayButton = React.forwardRef(function CalendarDayButton(
       isEndOfWeek,
       isOutsideCurrentMonth,
       selectDate,
+      formattedDate,
     }),
     [
       value,
@@ -178,6 +185,7 @@ export const CalendarDayButton = React.forwardRef(function CalendarDayButton(
       isCurrent,
       isOutsideCurrentMonth,
       selectDate,
+      formattedDate,
     ],
   );
 
@@ -258,4 +266,5 @@ interface InnerCalendarDayButtonContext {
   isEndOfWeek: boolean;
   isOutsideCurrentMonth: boolean;
   selectDate: (date: TemporalSupportedObject) => void;
+  formattedDate: string;
 }
