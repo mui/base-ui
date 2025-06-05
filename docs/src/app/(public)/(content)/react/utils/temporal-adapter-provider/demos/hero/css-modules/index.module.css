@@ -1,35 +1,47 @@
 .Root {
-  --root-color: ##262626;
-  --root-border-color: #78716c;
-  --button-hover-bg-color: #e0f2fe;
-  --button-focus-border-color: #0ea5e9;
-  --days-grid-separator-bg-color: #9ca3af;
-  --days-grid-header-color: #64748b;
+  border: 1px solid var(--calendar-root-border-color);
+  border-radius: 8px;
+  width: 276px;
+  height: 312px;
+  display: flex;
+  flex-direction: column;
 
-  --cell-selected-bg-color: #7dd3fc;
-  --cell-outside-month-color: #cbd5e1;
-  --cell-disabled-color: #64748b;
-  --cell-current-border-color: #9ca3af;
-  --cell-unavailable-color: #f87171;
+  --calendar-root-color: #262626;
+  --calendar-root-border-color: #78716c;
+  --calendar-button-hover-bg-color: #e0f2fe;
+  --calendar-button-focus-border-color: #0ea5e9;
+  --calendar-day-grid-separator-bg-color: #9ca3af;
+  --calendar-day-grid-header-color: #64748b;
+
+  --calendar-cell-selected-bg-color: #7dd3fc;
+  --calendar-cell-outside-month-color: #cbd5e1;
+  --calendar-cell-disabled-color: #64748b;
+  --calendar-cell-current-border-color: #9ca3af;
+  --calendar-cell-unavailable-color: #f87171;
 
   @media (prefers-color-scheme: dark) {
-    --root-color: #f5f5f5;
-    --button-hover-bg-color: #075985;
-    --days-grid-separator-bg-color: #4b5563;
+    --calendar-root-color: #f5f5f5;
+    --calendar-button-hover-bg-color: #075985;
+    --calendar-day-grid-separator-bg-color: #4b5563;
 
-    --cell-selected-bg-color: #0369a1;
-    --cell-outside-month-color: #334155;
-    --cell-disabled-color: #64748b;
+    --calendar-cell-selected-bg-color: #0369a1;
+    --calendar-cell-outside-month-color: #334155;
+    --calendar-cell-disabled-color: #64748b;
   }
 }
 
-.Root {
-  border: 1px solid var(--root-border-color);
-  border-radius: 8px;
-  width: 276px;
-  height: 272px;
+.RootWithWeekNumber {
+  width: 312px;
+}
+
+.RootWithTwoPanels {
+  width: 564px;
+}
+
+.RootWithTwoPanelsContent {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  justify-content: space-between;
 }
 
 .HeaderPanel {
@@ -39,7 +51,7 @@
 }
 
 .DayGridSeparator {
-  background-color: var(--days-grid-separator-bg-color);
+  background-color: var(--calendar-day-grid-separator-bg-color);
   margin: 24px 0;
   width: 1px;
 }
@@ -54,7 +66,7 @@
 }
 
 .HeaderLabel {
-  color: var(--root-color);
+  color: var(--calendar-root-color);
 }
 
 .SetMonth,
@@ -69,19 +81,19 @@
   border-radius: 4px;
   text-align: center;
   cursor: pointer;
-  color: var(--root-color);
+  color: var(--calendar-root-color);
 
   &:hover {
-    background-color: var(--button-hover-bg-color);
+    background-color: var(--calendar-button-hover-bg-color);
   }
 
   &:focus-visible {
-    outline: 2px solid var(--button-focus-border-color);
+    outline: 2px solid var(--calendar-button-focus-border-color);
   }
 
   &:disabled {
     pointer-events: none;
-    color: var(--cell-disabled-color);
+    color: var(--calendar-cell-disabled-color);
   }
 }
 
@@ -106,7 +118,20 @@
   justify-content: center;
 }
 
-.DayGridCell {
+.DayWeekNumber {
+  height: 36px;
+  width: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  color: var(--calendar-day-grid-header-color);
+}
+
+.DayButton {
+  background: none;
+  padding: 0;
+  font: inherit;
   height: 36px;
   width: 36px;
   position: relative;
@@ -117,15 +142,12 @@
   outline: none;
   box-sizing: border-box;
   border-radius: 4px;
-  color: var(--root-color);
+  color: var(--calendar-root-color);
 
   &::before {
     content: '';
     position: absolute;
-    top: 2px;
-    bottom: 2px;
-    left: 2px;
-    right: 2px;
+    inset: 2px;
     border-radius: 4px;
     border: none;
     z-index: -1;
@@ -136,24 +158,21 @@
     content: '';
     border-radius: 4px;
     position: absolute;
-    top: 2px;
-    bottom: 2px;
-    left: 2px;
-    right: 2px;
+    inset: 2px;
   }
 
   &:not([data-outside-month]):focus-visible {
     &::after {
-      outline: 2px solid var(--button-focus-border-color);
+      outline: 2px solid var(--calendar-button-focus-border-color);
     }
   }
 
   &:not([data-selected]):hover::before {
-    background-color: var(--button-hover-bg-color);
+    background-color: var(--calendar-button-hover-bg-color);
   }
 
   &[data-selected]:not([data-outside-month])::before {
-    background-color: var(--cell-selected-bg-color);
+    background-color: var(--calendar-cell-selected-bg-color);
   }
 
   &:disabled {
@@ -161,7 +180,7 @@
   }
 
   &:not([data-outside-month]):disabled {
-    color: var(--cell-disabled-color);
+    color: var(--calendar-cell-disabled-color);
   }
 
   &:not([data-outside-month])[data-invalid] {
@@ -169,35 +188,23 @@
   }
 
   &[data-outside-month] {
-    color: var(--cell-outside-month-color);
+    color: var(--calendar-cell-outside-month-color);
     pointer-events: none;
   }
 
-  &[data-current]:not([data-selected]):not(:focus-visible)::after {
-    outline: 1px solid var(--cell-current-border-color);
+  &[data-current]:not([data-selected], :focus-visible)::after {
+    outline: 1px solid var(--calendar-cell-current-border-color);
   }
 
-  &:not([data-disabled]):not([data-outside-month])[data-unavailable] {
+  &:not([data-disabled], [data-outside-month])[data-unavailable] {
     text-decoration: line-through;
     color: var(--calendar-cell-unavailable-color);
   }
-}
-
-.DayButton {
-  background: none;
-  color: inherit;
-  border: none;
-  padding: 0;
-  font: inherit;
-  cursor: pointer;
-  outline: inherit;
-  height: 36px;
-  width: 36px;
 }
 
 .DayGridHeaderCell {
   width: 36px;
   text-align: center;
   font-size: 0.75rem;
-  color: var(--days-grid-header-color);
+  color: var(--calendar-day-grid-header-color);
 }

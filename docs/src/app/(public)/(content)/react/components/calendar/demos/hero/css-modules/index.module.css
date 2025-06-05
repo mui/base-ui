@@ -1,4 +1,11 @@
 .Root {
+  border: 1px solid var(--calendar-root-border-color);
+  border-radius: 8px;
+  width: 276px;
+  height: 312px;
+  display: flex;
+  flex-direction: column;
+
   --calendar-root-color: #262626;
   --calendar-root-border-color: #78716c;
   --calendar-button-hover-bg-color: #e0f2fe;
@@ -23,13 +30,8 @@
   }
 }
 
-.Root {
-  border: 1px solid var(--calendar-root-border-color);
-  border-radius: 8px;
-  width: 276px;
-  height: 312px;
-  display: flex;
-  flex-direction: column;
+.RootWithWeekNumber {
+  width: 312px;
 }
 
 .RootWithTwoPanels {
@@ -116,7 +118,14 @@
   justify-content: center;
 }
 
-.DayGridCell {
+.DayWeekNumber {
+  height: 36px;
+  width: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  color: var(--calendar-day-grid-header-color);
 }
 
 .DayButton {
@@ -138,10 +147,7 @@
   &::before {
     content: '';
     position: absolute;
-    top: 2px;
-    bottom: 2px;
-    left: 2px;
-    right: 2px;
+    inset: 2px;
     border-radius: 4px;
     border: none;
     z-index: -1;
@@ -152,10 +158,7 @@
     content: '';
     border-radius: 4px;
     position: absolute;
-    top: 2px;
-    bottom: 2px;
-    left: 2px;
-    right: 2px;
+    inset: 2px;
   }
 
   &:not([data-outside-month]):focus-visible {
@@ -189,11 +192,11 @@
     pointer-events: none;
   }
 
-  &[data-current]:not([data-selected]):not(:focus-visible)::after {
+  &[data-current]:not([data-selected], :focus-visible)::after {
     outline: 1px solid var(--calendar-cell-current-border-color);
   }
 
-  &:not([data-disabled]):not([data-outside-month])[data-unavailable] {
+  &:not([data-disabled], [data-outside-month])[data-unavailable] {
     text-decoration: line-through;
     color: var(--calendar-cell-unavailable-color);
   }
