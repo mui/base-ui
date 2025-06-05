@@ -37,6 +37,7 @@ describe('<ScrollArea.Scrollbar />', () => {
     expect(verticalScrollbar).not.to.have.attribute('data-scrolling');
     expect(horizontalScrollbar).not.to.have.attribute('data-scrolling');
 
+    fireEvent.pointerEnter(viewport);
     fireEvent.scroll(viewport, {
       target: {
         scrollTop: 1,
@@ -51,6 +52,7 @@ describe('<ScrollArea.Scrollbar />', () => {
     expect(verticalScrollbar).to.have.attribute('data-scrolling', '');
     expect(horizontalScrollbar).not.to.have.attribute('data-scrolling', '');
 
+    fireEvent.pointerEnter(viewport);
     fireEvent.scroll(viewport, {
       target: {
         scrollLeft: 1,
