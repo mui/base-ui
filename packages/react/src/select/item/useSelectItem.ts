@@ -3,10 +3,10 @@ import type { FloatingEvents } from '@floating-ui/react';
 import type { HTMLProps } from '../../utils/types';
 import { useButton } from '../../use-button';
 import { mergeProps } from '../../merge-props';
+import { useSelectRootContext } from '../root/SelectRootContext';
 import type { SelectRootContext } from '../root/SelectRootContext';
 import { useTimeout } from '../../utils/useTimeout';
 import { useEventCallback } from '../../utils/useEventCallback';
-import { SelectIndexContext } from '../root/SelectIndexContext';
 import { useForkRef } from '../../utils/useForkRef';
 import { useModernLayoutEffect } from '../../utils';
 import { addHighlight, hasHighlight, removeHighlight } from '../../utils/highlighted';
@@ -15,7 +15,6 @@ import { AnimationFrame } from '../../utils/useAnimationFrame';
 
 export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.ReturnValue {
   const {
-    open,
     disabled = false,
     highlighted,
     selected,
@@ -25,8 +24,6 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
     handleSelect,
     selectionRef,
     indexRef,
-    setActiveIndex,
-    selectedIndexRef,
     popupRef,
     keyboardActiveRef,
     events,
@@ -42,6 +39,8 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
   const prevPopupHeightRef = React.useRef(0);
   const allowFocusSyncRef = React.useRef(true);
   const cursorMovementTimeout = useTimeout();
+
+  const { store } = useSelectRootContext();
 
   const { getButtonProps, buttonRef } = useButton({
     disabled,
@@ -68,16 +67,12 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
   }, [handlePopupLeave]);
 
   useModernLayoutEffect(() => {
-    if (!open) {
-      return;
-    }
-
     if (highlighted) {
       addHighlight(ref);
     } else {
       removeHighlight(ref);
     }
-  }, [open, highlighted]);
+  }, [highlighted]);
 
   React.useEffect(() => {
     function handleItemHover(item: HTMLDivElement) {
@@ -90,7 +85,7 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
     return () => {
       events.off('itemhover', handleItemHover);
     };
-  }, [events, setActiveIndex, indexRef]);
+  }, [events, indexRef]);
 
   const props = mergeProps<'div'>(
     rootProps,
@@ -103,18 +98,18 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
           keyboardActiveRef.current &&
           cursorMovementTimeout.isStarted() === false
         ) {
-          setActiveIndex(indexRef.current);
+          store.set('activeIndex', indexRef.current);
         }
       },
       onMouseEnter() {
-        if (!keyboardActiveRef.current && selectedIndexRef.current === null) {
+        if (!keyboardActiveRef.current && store.state.selectedIndex === null) {
           addHighlight(ref);
           events.emit('itemhover', ref.current);
         }
       },
       onMouseMove() {
         if (keyboardActiveRef.current) {
-          setActiveIndex(indexRef.current);
+          store.set('activeIndex', indexRef.current);
         } else {
           addHighlight(ref);
           events.emit('itemhover', ref.current);
@@ -128,12 +123,12 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
         events.on('popupleave', handlePopupLeave);
         // When this fires, the cursor has stopped moving.
         cursorMovementTimeout.start(50, () => {
-          setActiveIndex(indexRef.current);
+          store.set('activeIndex', indexRef.current);
         });
       },
       onMouseLeave(event) {
         const popup = popupRef.current;
-        if (!popup || !open || keyboardActiveRef.current) {
+        if (!popup || keyboardActiveRef.current) {
           return;
         }
 
@@ -157,7 +152,7 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
           allowFocusSyncRef.current = false;
 
           if (keyboardActiveRef.current || wasCursorStationary) {
-            setActiveIndex(null);
+            store.set('activeIndex', null);
           }
 
           AnimationFrame.request(() => {
@@ -176,7 +171,7 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
       onKeyDown(event) {
         selectionRef.current.allowSelect = true;
         lastKeyRef.current = event.key;
-        setActiveIndex(indexRef.current);
+        store.set('activeIndex', indexRef.current);
       },
       onClick(event) {
         didPointerDownRef.current = false;
@@ -263,10 +258,6 @@ export namespace useSelectItem {
      */
     ref?: React.Ref<Element>;
     /**
-     * Whether the select menu is currently open.
-     */
-    open: boolean;
-    /**
      * The function to set the open state of the select.
      */
     setOpen: SelectRootContext['setOpen'];
@@ -287,14 +278,9 @@ export namespace useSelectItem {
       allowSelect: boolean;
     }>;
     /**
-     * A ref to the index of the selected item.
-     */
-    selectedIndexRef: React.RefObject<number | null>;
-    /**
      * A ref to the index of the item.
      */
     indexRef: React.RefObject<number>;
-    setActiveIndex: SelectIndexContext['setActiveIndex'];
     popupRef: React.RefObject<HTMLDivElement | null>;
     keyboardActiveRef: React.RefObject<boolean>;
     events: FloatingEvents;
