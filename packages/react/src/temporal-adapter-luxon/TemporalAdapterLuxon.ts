@@ -344,11 +344,12 @@ export class TemporalAdapterLuxon implements TemporalAdapter {
   };
 
   public getWeekNumber = (value: DateTime) => {
-    /* v8 ignore next */
+    /* istanbul ignore next */
     return value.localWeekNumber ?? value.weekNumber;
   };
 
   public getDayOfWeek = (value: DateTime) => {
+    /* istanbul ignore next */
     return value.localWeekday ?? value.weekday;
   };
 }
