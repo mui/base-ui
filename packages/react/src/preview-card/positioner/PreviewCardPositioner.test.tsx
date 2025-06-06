@@ -299,4 +299,163 @@ describe('<PreviewCard.Positioner />', () => {
       expect(positioner.style.transform).to.equal('');
     });
   });
+
+  describe.skipIf(isJSDOM)('multiline inline trigger', () => {
+    it('positions the popup relative to the hovered line of a multiline trigger', async () => {
+      const { user } = await render(
+        <div>
+          <PreviewCard.Root>
+            <PreviewCard.Trigger
+              delay={0}
+              data-testid="trigger"
+              style={{ display: 'inline', width: 100, lineHeight: 20 }}
+            >
+              This is a long text that will wrap across multiple lines in the trigger element
+            </PreviewCard.Trigger>
+            <PreviewCard.Portal>
+              <PreviewCard.Positioner data-testid="positioner" side="bottom" sideOffset={5}>
+                <PreviewCard.Popup style={{ width: 80, height: 40 }}>
+                  Preview Content
+                </PreviewCard.Popup>
+              </PreviewCard.Positioner>
+            </PreviewCard.Portal>
+          </PreviewCard.Root>
+        </div>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+      const triggerRects = trigger.getClientRects();
+
+      expect(triggerRects.length).to.be.greaterThan(1);
+
+      // Hover over the second line (need to move mouse first to capture the rect)
+      const secondLineRect = triggerRects[1];
+      const secondLineCenterX = secondLineRect.left + secondLineRect.width / 2;
+      const secondLineCenterY = secondLineRect.top + secondLineRect.height / 2;
+
+      // Move mouse to trigger the onMouseMove handler before hovering
+      await user.pointer([
+        { target: document.body },
+        {
+          target: trigger,
+          coords: { clientX: secondLineCenterX, clientY: secondLineCenterY },
+        },
+      ]);
+
+      await user.hover(trigger);
+
+      const positioner = screen.getByTestId('positioner');
+      await waitFor(() => {
+        expect(positioner).toBeVisible();
+      });
+
+      // The positioner should be positioned relative to the second line,
+      // not the first line or the bounding client rect.
+      // y-coordinate should be close to the second line's bottom + sideOffset
+      const expectedY = secondLineRect.bottom + 5;
+
+      await waitFor(() => {
+        const { x: positionerX, y: positionerY } = positioner.getBoundingClientRect();
+        expect(positionerY).to.be.closeTo(expectedY, 2);
+
+        // x-coordinate should also be relative to where we hovered on the second line
+        expect(positionerX).to.be.greaterThanOrEqual(secondLineRect.left - 10);
+        expect(positionerX).to.be.lessThanOrEqual(secondLineRect.right + 10);
+      });
+    });
+
+    it('positions the popup relative to the side-aligned rect when open is controlled', async () => {
+      const sideOffset = 5;
+      const inlinePopupHeight = 40;
+
+      await render(
+        <div>
+          <PreviewCard.Root open>
+            <PreviewCard.Trigger
+              delay={0}
+              data-testid="trigger"
+              style={{ display: 'inline', width: 100, lineHeight: 20 }}
+            >
+              This is a long text that will wrap across multiple lines in the trigger element
+            </PreviewCard.Trigger>
+            <PreviewCard.Portal>
+              <PreviewCard.Positioner
+                data-testid="positioner"
+                side="bottom"
+                sideOffset={sideOffset}
+              >
+                <PreviewCard.Popup style={{ width: 80, height: inlinePopupHeight }}>
+                  Preview Content
+                </PreviewCard.Popup>
+              </PreviewCard.Positioner>
+            </PreviewCard.Portal>
+          </PreviewCard.Root>
+        </div>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+      const triggerRects = trigger.getClientRects();
+
+      expect(triggerRects.length).to.be.greaterThan(1);
+
+      const targetRect = triggerRects[triggerRects.length - 1];
+      const expectedY = targetRect.bottom + sideOffset;
+
+      await waitFor(() => {
+        const positioner = screen.getByTestId('positioner');
+        expect(positioner).toBeVisible();
+
+        const { x: positionerX, y: positionerY } = positioner.getBoundingClientRect();
+        expect(positionerY).to.be.closeTo(expectedY, 2);
+        expect(positionerX).to.be.greaterThanOrEqual(targetRect.left - 10);
+        expect(positionerX).to.be.lessThanOrEqual(targetRect.right + 10);
+      });
+    });
+
+    it('positions the popup relative to the side-aligned rect when opened via focus', async () => {
+      const sideOffset = 5;
+      const inlinePopupHeight = 40;
+      const { user } = await render(
+        <div>
+          <PreviewCard.Root>
+            <PreviewCard.Trigger
+              delay={0}
+              data-testid="trigger"
+              tabIndex={0}
+              style={{ display: 'inline', width: 100, lineHeight: 20 }}
+            >
+              This is a long text that will wrap across multiple lines in the trigger element
+            </PreviewCard.Trigger>
+            <PreviewCard.Portal>
+              <PreviewCard.Positioner data-testid="positioner" side="top" sideOffset={sideOffset}>
+                <PreviewCard.Popup style={{ width: 80, height: inlinePopupHeight }}>
+                  Preview Content
+                </PreviewCard.Popup>
+              </PreviewCard.Positioner>
+            </PreviewCard.Portal>
+          </PreviewCard.Root>
+        </div>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+      const triggerRects = trigger.getClientRects();
+
+      expect(triggerRects.length).to.be.greaterThan(1);
+
+      const targetRect = triggerRects[0];
+      const expectedY = targetRect.top - inlinePopupHeight - sideOffset;
+
+      await user.tab();
+
+      await waitFor(() => {
+        const positioner = screen.getByTestId('positioner');
+        expect(positioner).toBeVisible();
+
+        const { x: positionerX, y: positionerY } = positioner.getBoundingClientRect();
+        expect(positionerY).to.be.closeTo(expectedY, 2);
+        expect(positionerX).to.be.greaterThanOrEqual(targetRect.left - 10);
+        expect(positionerX).to.be.lessThanOrEqual(targetRect.right + 10);
+      });
+    });
+  });
 });

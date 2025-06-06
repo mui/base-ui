@@ -7,7 +7,7 @@ import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { PreviewCardHandle } from '../store/PreviewCardHandle';
-import { useTriggerDataForwarding } from '../../utils/popups';
+import { getInlineRectHoverCoords, useTriggerDataForwarding } from '../../utils/popups';
 import { CLOSE_DELAY, OPEN_DELAY } from '../utils/constants';
 import { safePolygon, useFocus, useHoverReferenceInteraction } from '../../floating-ui-react';
 
@@ -44,6 +44,7 @@ export const PreviewCardTrigger = React.forwardRef(function PreviewCardTrigger(
   const isTriggerActive = store.useState('isTriggerActive', thisTriggerId);
   const isOpenedByThisTrigger = store.useState('isOpenedByTrigger', thisTriggerId);
   const floatingRootContext = store.useState('floatingRootContext');
+  const inlineRectCoordsRef = store.context.inlineRectCoordsRef;
 
   const triggerElementRef = React.useRef<Element | null>(null);
 
@@ -87,6 +88,17 @@ export const PreviewCardTrigger = React.forwardRef(function PreviewCardTrigger(
       hoverProps,
       focusProps.reference,
       rootTriggerProps,
+      {
+        onFocus() {
+          inlineRectCoordsRef.current = undefined;
+        },
+        onMouseMove(event: React.MouseEvent<Element>) {
+          if (isOpenedByThisTrigger) {
+            return;
+          }
+          inlineRectCoordsRef.current = getInlineRectHoverCoords(event);
+        },
+      },
       { id: thisTriggerId },
       elementProps,
     ],

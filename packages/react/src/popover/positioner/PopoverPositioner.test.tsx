@@ -326,4 +326,157 @@ describe('<Popover.Positioner />', () => {
 
     expect(positioner.getBoundingClientRect()).to.include(final);
   });
+
+  describe.skipIf(isJSDOM)('multiline inline trigger', () => {
+    it('positions the popup relative to the hovered line of a multiline trigger', async () => {
+      const { user } = await render(
+        <div>
+          <Popover.Root>
+            <Trigger
+              data-testid="trigger"
+              style={{ display: 'inline', width: 100, lineHeight: 20 }}
+            >
+              This is a long text that will wrap across multiple lines in the trigger element
+            </Trigger>
+            <Popover.Portal>
+              <Popover.Positioner data-testid="positioner" side="bottom" sideOffset={5}>
+                <Popover.Popup style={{ width: 80, height: 40 }}>Popover Content</Popover.Popup>
+              </Popover.Positioner>
+            </Popover.Portal>
+          </Popover.Root>
+        </div>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+      const triggerRects = trigger.getClientRects();
+
+      expect(triggerRects.length).to.be.greaterThan(1);
+
+      // Hover over the second line (need to move mouse first to capture the rect)
+      const secondLineRect = triggerRects[1];
+      const secondLineCenterX = secondLineRect.left + secondLineRect.width / 2;
+      const secondLineCenterY = secondLineRect.top + secondLineRect.height / 2;
+
+      await user.pointer([
+        { target: document.body },
+        {
+          target: trigger,
+          coords: { clientX: secondLineCenterX, clientY: secondLineCenterY },
+        },
+        {
+          keys: '[MouseLeft]',
+          target: trigger,
+          coords: { clientX: secondLineCenterX, clientY: secondLineCenterY },
+        },
+      ]);
+
+      const positioner = screen.getByTestId('positioner');
+      await waitFor(() => {
+        expect(positioner).toBeVisible();
+      });
+
+      // The positioner should be positioned relative to the second line,
+      // not the first line or the bounding client rect.
+      // y-coordinate should be close to the second line's bottom + sideOffset
+      const expectedY = secondLineRect.bottom + 5;
+
+      await waitFor(() => {
+        const { x: positionerX, y: positionerY } = positioner.getBoundingClientRect();
+        expect(positionerY).to.be.closeTo(expectedY, 2);
+
+        // x-coordinate should also be relative to where we hovered on the second line
+        expect(positionerX).to.be.greaterThanOrEqual(secondLineRect.left - 10);
+        expect(positionerX).to.be.lessThanOrEqual(secondLineRect.right + 10);
+      });
+    });
+
+    it('positions the popup relative to the side-aligned rect when open is controlled', async () => {
+      const sideOffset = 5;
+      const inlinePopupHeight = 40;
+
+      await render(
+        <div>
+          <Popover.Root open>
+            <Trigger
+              data-testid="trigger"
+              style={{ display: 'inline', width: 100, lineHeight: 20 }}
+            >
+              This is a long text that will wrap across multiple lines in the trigger element
+            </Trigger>
+            <Popover.Portal>
+              <Popover.Positioner data-testid="positioner" side="bottom" sideOffset={sideOffset}>
+                <Popover.Popup style={{ width: 80, height: inlinePopupHeight }}>
+                  Popover Content
+                </Popover.Popup>
+              </Popover.Positioner>
+            </Popover.Portal>
+          </Popover.Root>
+        </div>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+      const triggerRects = trigger.getClientRects();
+
+      expect(triggerRects.length).to.be.greaterThan(1);
+
+      const targetRect = triggerRects[triggerRects.length - 1];
+      const expectedY = targetRect.bottom + sideOffset;
+
+      await waitFor(() => {
+        const positioner = screen.getByTestId('positioner');
+        expect(positioner).toBeVisible();
+
+        const { x: positionerX, y: positionerY } = positioner.getBoundingClientRect();
+        expect(positionerY).to.be.closeTo(expectedY, 2);
+        expect(positionerX).to.be.greaterThanOrEqual(targetRect.left - 10);
+        expect(positionerX).to.be.lessThanOrEqual(targetRect.right + 10);
+      });
+    });
+
+    it('positions the popup relative to the side-aligned rect when opened via focus', async () => {
+      const sideOffset = 5;
+      const inlinePopupHeight = 40;
+      const { user } = await render(
+        <div>
+          <Popover.Root>
+            <Trigger
+              data-testid="trigger"
+              tabIndex={0}
+              style={{ display: 'inline', width: 100, lineHeight: 20 }}
+            >
+              This is a long text that will wrap across multiple lines in the trigger element
+            </Trigger>
+            <Popover.Portal>
+              <Popover.Positioner data-testid="positioner" side="top" sideOffset={sideOffset}>
+                <Popover.Popup style={{ width: 80, height: inlinePopupHeight }}>
+                  Popover Content
+                </Popover.Popup>
+              </Popover.Positioner>
+            </Popover.Portal>
+          </Popover.Root>
+        </div>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+      const triggerRects = trigger.getClientRects();
+
+      expect(triggerRects.length).to.be.greaterThan(1);
+
+      const targetRect = triggerRects[0];
+      const expectedY = targetRect.top - inlinePopupHeight - sideOffset;
+
+      await user.tab();
+      await user.keyboard('[Enter]');
+
+      await waitFor(() => {
+        const positioner = screen.getByTestId('positioner');
+        expect(positioner).toBeVisible();
+
+        const { x: positionerX, y: positionerY } = positioner.getBoundingClientRect();
+        expect(positionerY).to.be.closeTo(expectedY, 2);
+        expect(positionerX).to.be.greaterThanOrEqual(targetRect.left - 10);
+        expect(positionerX).to.be.lessThanOrEqual(targetRect.right + 10);
+      });
+    });
+  });
 });

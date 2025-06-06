@@ -7,6 +7,7 @@ import { useSyncedFloatingRootContext } from '../../floating-ui-react';
 import { REASONS } from '../../utils/reasons';
 import {
   createInitialPopupStoreState,
+  InlineRectCoords,
   PopupStoreContext,
   popupStoreSelectors,
   PopupStoreState,
@@ -26,6 +27,7 @@ export type State<Payload> = PopupStoreState<Payload> & {
 
 export type Context = PopupStoreContext<TooltipRoot.ChangeEventDetails> & {
   readonly popupRef: React.RefObject<HTMLElement | null>;
+  readonly inlineRectCoordsRef: React.MutableRefObject<InlineRectCoords | undefined>;
 };
 
 const selectors = {
@@ -50,6 +52,7 @@ export class TooltipStore<Payload> extends ReactStore<
       { ...createInitialState(), ...initialState },
       {
         popupRef: React.createRef<HTMLElement | null>(),
+        inlineRectCoordsRef: { current: undefined },
         onOpenChange: undefined,
         onOpenChangeComplete: undefined,
         triggerElements: new PopupTriggerMap(),
