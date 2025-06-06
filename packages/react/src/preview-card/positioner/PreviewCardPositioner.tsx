@@ -16,6 +16,7 @@ import { POPUP_COLLISION_AVOIDANCE } from '../../utils/constants';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { adaptiveOrigin } from '../../utils/adaptiveOriginMiddleware';
 import { getDisabledMountTransitionStyles } from '../../utils/getDisabledMountTransitionStyles';
+import { createInlineMiddleware } from '../../utils/popups';
 
 /**
  * Positions the popup against the trigger.
@@ -55,6 +56,7 @@ export const PreviewCardPositioner = React.forwardRef(function PreviewCardPositi
   const instantType = store.useState('instantType');
   const transitionStatus = store.useState('transitionStatus');
   const hasViewport = store.useState('hasViewport');
+  const inlineRectCoordsRef = store.context.inlineRectCoordsRef;
 
   const positioning = useAnchorPositioning({
     anchor,
@@ -74,6 +76,7 @@ export const PreviewCardPositioner = React.forwardRef(function PreviewCardPositi
     nodeId,
     collisionAvoidance,
     adaptiveOrigin: hasViewport ? adaptiveOrigin : undefined,
+    inline: createInlineMiddleware(inlineRectCoordsRef),
   });
 
   const defaultProps: HTMLProps = React.useMemo(() => {
