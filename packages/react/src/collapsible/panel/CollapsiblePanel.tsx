@@ -9,7 +9,7 @@ import type { CollapsibleRoot } from '../root/CollapsibleRoot';
 import { collapsibleStyleHookMapping } from '../root/styleHooks';
 import { useCollapsiblePanel } from './useCollapsiblePanel';
 import { CollapsiblePanelCssVars } from './CollapsiblePanelCssVars';
-import { usePanelResize } from '../../utils/usePanelResize';
+import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 
 /**
  * A panel with the collapsible contents.
@@ -98,7 +98,20 @@ export const CollapsiblePanel = React.forwardRef(function CollapsiblePanel(
     width,
   });
 
-  usePanelResize(panelRef, setDimensions, open);
+  // Handle auto height after animations complete
+  useOpenChangeComplete({
+    open,
+    ref: panelRef,
+    onComplete() {
+      const panel = panelRef.current;
+      if (!panel || !open || animationTypeRef.current === 'css-animation') {
+        return;
+      }
+
+      panel.style.setProperty(CollapsiblePanelCssVars.collapsiblePanelHeight, 'auto');
+      panel.style.setProperty(CollapsiblePanelCssVars.collapsiblePanelWidth, 'auto');
+    },
+  });
 
   const element = useRenderElement('div', componentProps, {
     state,
