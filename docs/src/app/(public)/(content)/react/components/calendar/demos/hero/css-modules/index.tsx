@@ -19,6 +19,7 @@ export default function ExampleCalendar() {
         className={styles.Root}
         isDateUnavailable={isDateUnavailable}
         timezone="America/New_York"
+        aria-label="Departure date"
       >
         {({ visibleDate }) => (
           <React.Fragment>

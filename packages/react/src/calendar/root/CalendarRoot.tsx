@@ -9,6 +9,7 @@ import { CalendarContext } from '../use-context/CalendarContext';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { BaseUIComponentProps } from '../../utils/types';
 import { validateDate } from '../../utils/temporal/date-helpers';
+import { useTemporalAdapter } from '../../temporal-adapter-provider/TemporalAdapterContext';
 
 const calendarValueManager: useSharedCalendarRoot.ValueManager<TemporalNonRangeValue> = {
   getDateToUseForReferenceDate: (value) => value,
@@ -53,11 +54,14 @@ export const CalendarRoot = React.forwardRef(function CalendarRoot(
     minDate,
     maxDate,
     isDateUnavailable,
+    // Accessibility props
+    'aria-label': ariaLabelProp,
     // Props forwarded to the DOM element
     ...elementProps
   } = componentProps;
 
   const manager = useDateManager();
+  const adapter = useTemporalAdapter();
 
   const {
     state,
@@ -98,10 +102,20 @@ export const CalendarRoot = React.forwardRef(function CalendarRoot(
     return children;
   }, [children, publicContext]);
 
+  // TODO: Improve localization support (right now it doesn't work well with RTL languages)
+  const ariaLabel = React.useMemo(() => {
+    const formattedVisibleDate = adapter
+      .format(visibleDateContext.visibleDate, 'fullMonthAndYear')
+      .toLowerCase();
+    const prefix = ariaLabelProp ? `${ariaLabelProp}, ` : '';
+
+    return `${prefix}${formattedVisibleDate}`;
+  }, [adapter, ariaLabelProp, visibleDateContext.visibleDate]);
+
   const element = useRenderElement('div', componentProps, {
     state,
     ref: forwardedRef,
-    props: [{ children: resolvedChildren }, elementProps],
+    props: [{ children: resolvedChildren, 'aria-label': ariaLabel }, elementProps],
   });
 
   return (
