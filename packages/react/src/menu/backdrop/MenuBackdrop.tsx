@@ -1,13 +1,13 @@
 'use client';
 import * as React from 'react';
 import { useMenuRootContext } from '../root/MenuRootContext';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import { useRenderElement } from '../../utils/useRenderElement';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { type CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import { transitionStatusMapping } from '../../utils/styleHookMapping';
-import { mergeProps } from '../../merge-props';
+import { useContextMenuRootContext } from '../../context-menu/root/ContextMenuRootContext';
 
 const customStyleHookMapping: CustomStyleHookMapping<MenuBackdrop.State> = {
   ...baseMapping,
@@ -21,11 +21,13 @@ const customStyleHookMapping: CustomStyleHookMapping<MenuBackdrop.State> = {
  * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
  */
 export const MenuBackdrop = React.forwardRef(function MenuBackdrop(
-  props: MenuBackdrop.Props,
+  componentProps: MenuBackdrop.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { className, render, ...other } = props;
+  const { className, render, ...elementProps } = componentProps;
+
   const { open, mounted, transitionStatus, lastOpenChangeReason } = useMenuRootContext();
+  const contextMenuContext = useContextMenuRootContext();
 
   const state: MenuBackdrop.State = React.useMemo(
     () => ({
@@ -35,12 +37,13 @@ export const MenuBackdrop = React.forwardRef(function MenuBackdrop(
     [open, transitionStatus],
   );
 
-  const { renderElement } = useComponentRenderer({
-    render: render ?? 'div',
-    className,
+  return useRenderElement('div', componentProps, {
+    ref: contextMenuContext?.backdropRef
+      ? [forwardedRef, contextMenuContext.backdropRef]
+      : forwardedRef,
     state,
-    ref: forwardedRef,
-    extraProps: mergeProps<'div'>(
+    customStyleHookMapping,
+    props: [
       {
         role: 'presentation',
         hidden: !mounted,
@@ -50,12 +53,9 @@ export const MenuBackdrop = React.forwardRef(function MenuBackdrop(
           WebkitUserSelect: 'none',
         },
       },
-      other,
-    ),
-    customStyleHookMapping,
+      elementProps,
+    ],
   });
-
-  return renderElement();
 });
 
 export namespace MenuBackdrop {

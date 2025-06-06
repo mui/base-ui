@@ -4,6 +4,7 @@ import { FloatingFocusManager } from '@floating-ui/react';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import { popupStateMapping } from '../../utils/popupStateMapping';
+import { useSelector } from '../../utils/store';
 import type { Side } from '../../utils/useAnchorPositioning';
 import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 import { useSelectPopup } from './useSelectPopup';
@@ -13,6 +14,8 @@ import { STYLE_DISABLE_SCROLLBAR } from '../../utils/styles';
 import { transitionStatusMapping } from '../../utils/styleHookMapping';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useRenderElement } from '../../utils/useRenderElement';
+import { selectors } from '../store';
+import { DISABLED_TRANSITIONS_STYLE } from '../../utils/constants';
 
 const customStyleHookMapping: CustomStyleHookMapping<SelectPopup.State> = {
   ...popupStateMapping,
@@ -31,9 +34,17 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
 ) {
   const { render, className, ...elementProps } = componentProps;
 
-  const { open, popupRef, transitionStatus, mounted, onOpenChangeComplete, popupProps } =
-    useSelectRootContext();
+  // const { open, popupRef, transitionStatus, mounted, onOpenChangeComplete, popupProps } =
+  //   useSelectRootContext();
+  const { store, popupRef, onOpenChangeComplete } = useSelectRootContext();
   const positioner = useSelectPositionerContext();
+
+  const id = useSelector(store, selectors.id);
+  const open = useSelector(store, selectors.open);
+  const mounted = useSelector(store, selectors.mounted);
+  const popupProps = useSelector(store, selectors.popupProps);
+  const transitionStatus = useSelector(store, selectors.transitionStatus);
+  const alignItemWithTriggerActive = useSelector(store, selectors.alignItemWithTriggerActive);
 
   useOpenChangeComplete({
     open,
@@ -65,10 +76,8 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
       popupProps,
       props,
       {
-        style: transitionStatus === 'starting' ? { transition: 'none' } : undefined,
-        className: positioner.alignItemWithTriggerActive
-          ? STYLE_DISABLE_SCROLLBAR.className
-          : undefined,
+        style: transitionStatus === 'starting' ? DISABLED_TRANSITIONS_STYLE.style : undefined,
+        className: alignItemWithTriggerActive ? STYLE_DISABLE_SCROLLBAR.className : undefined,
       },
       elementProps,
     ],

@@ -15,8 +15,8 @@ export interface PreviewCardRootContext {
   closeDelay: number;
   mounted: boolean;
   setMounted: React.Dispatch<React.SetStateAction<boolean>>;
-  getRootTriggerProps: (externalProps?: HTMLProps) => HTMLProps;
-  getRootPopupProps: (externalProps?: HTMLProps) => HTMLProps;
+  triggerProps: HTMLProps;
+  popupProps: HTMLProps;
   floatingRootContext: FloatingRootContext;
   transitionStatus: TransitionStatus;
   popupRef: React.RefObject<HTMLElement | null>;

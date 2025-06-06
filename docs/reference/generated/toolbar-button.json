@@ -7,6 +7,11 @@
       "default": "true",
       "description": "When `true` the item remains focuseable when disabled."
     },
+    "nativeButton": {
+      "type": "boolean",
+      "default": "true",
+      "description": "Whether the component renders a native `<button>` element when replacing it\nvia the `render` prop.\nSet to `false` if the rendered element is not a button (e.g. `<div>`)."
+    },
     "disabled": {
       "type": "boolean",
       "default": "false",

@@ -15,16 +15,16 @@ export const ToastAction = React.forwardRef(function ToastAction(
   componentProps: ToastAction.Props,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
-  const { render, className, disabled, ...elementProps } = componentProps;
+  const { render, className, disabled, nativeButton = true, ...elementProps } = componentProps;
 
   const { toast } = useToastRootContext();
 
   const computedChildren = toast.actionProps?.children ?? elementProps.children;
   const shouldRender = Boolean(computedChildren);
 
-  const { getButtonProps } = useButton({
+  const { getButtonProps, buttonRef } = useButton({
     disabled,
-    buttonRef: forwardedRef,
+    native: nativeButton,
   });
 
   const state: ToastAction.State = React.useMemo(
@@ -35,7 +35,7 @@ export const ToastAction = React.forwardRef(function ToastAction(
   );
 
   const element = useRenderElement('button', componentProps, {
-    ref: forwardedRef,
+    ref: [forwardedRef, buttonRef],
     state,
     props: [
       elementProps,
@@ -62,5 +62,13 @@ export namespace ToastAction {
     type: string | undefined;
   }
 
-  export interface Props extends BaseUIComponentProps<'button', State> {}
+  export interface Props extends BaseUIComponentProps<'button', State> {
+    /**
+     * Whether the component renders a native `<button>` element when replacing it
+     * via the `render` prop.
+     * Set to `false` if the rendered element is not a button (e.g. `<div>`).
+     * @default true
+     */
+    nativeButton?: boolean;
+  }
 }

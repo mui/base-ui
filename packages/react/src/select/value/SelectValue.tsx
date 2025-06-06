@@ -1,8 +1,10 @@
 'use client';
 import * as React from 'react';
-import { useSelectRootContext } from '../root/SelectRootContext';
+import { useSelector } from '../../utils/store';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
+import { useSelectRootContext } from '../root/SelectRootContext';
+import { selectors } from '../store';
 
 /**
  * A text label of the currently selected item.
@@ -14,15 +16,20 @@ export const SelectValue = React.forwardRef(function SelectValue(
   componentProps: SelectValue.Props,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
-  const { className, render, children, ...elementProps } = componentProps;
+  const { className, render, children, placeholder, ...elementProps } = componentProps;
 
-  const { value, label, valueRef } = useSelectRootContext();
+  const { store, valueRef } = useSelectRootContext();
+  const value = useSelector(store, selectors.value);
+  const label = useSelector(store, selectors.label);
 
   const element = useRenderElement('span', componentProps, {
     ref: [forwardedRef, valueRef],
     props: [
       {
-        children: typeof children === 'function' ? children(label, value) : label || children,
+        children:
+          typeof children === 'function'
+            ? children(!label && placeholder ? placeholder : label, value)
+            : label || placeholder,
       },
       elementProps,
     ],
@@ -33,17 +40,11 @@ export const SelectValue = React.forwardRef(function SelectValue(
 
 export namespace SelectValue {
   export interface Props extends Omit<BaseUIComponentProps<'span', State>, 'children'> {
+    children?: null | ((label: React.ReactNode, value: any) => React.ReactNode);
     /**
-     * Specifies the initial value label before choosing an item. A callback can be used to
-     * customize the value label.
-     *
-     * ```tsx
-     * <Select.Value>
-     *   {(label, value) => label ? `${label} (${value})` : 'Select an item'}
-     * </Select.Value>
-     * ```
+     * A placeholder to display before an item has been chosen.
      */
-    children: React.ReactNode | ((label: string, value: any) => React.ReactNode);
+    placeholder: React.ReactNode;
   }
 
   export interface State {}

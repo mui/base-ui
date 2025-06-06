@@ -38,5 +38,5 @@ function createStableCallback() {
 }
 
 function assertNotCalled() {
-  throw new Error('Cannot call an event handler while rendering.');
+  throw new Error('Base UI: Cannot call an event handler while rendering.');
 }

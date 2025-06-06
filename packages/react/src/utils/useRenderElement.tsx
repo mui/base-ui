@@ -6,46 +6,37 @@ import { resolveClassName } from './resolveClassName';
 import { isReactVersionAtLeast } from './reactVersion';
 import { mergeProps, mergePropsN, mergeClassNames } from '../merge-props';
 import { mergeObjects } from './mergeObjects';
+import { EMPTY_OBJECT } from './constants';
 
 type IntrinsicTagName = keyof React.JSX.IntrinsicElements;
 
-const EMPTY_OBJECT = {};
-const IDENTITY = (x: any) => x;
-
 /**
- * Render a Base UI element.
+ * Renders a Base UI element.
+ *
+ * @param element The default HTML element to render. Can be overridden by the `render` prop.
+ * @param componentProps An object containing the `render` and `className` props to be used for element customization. Other props are ignored.
+ * @param params Additional parameters for rendering the element.
  */
 export function useRenderElement<
   State extends Record<string, any>,
   RenderedElementType extends Element,
   TagName extends IntrinsicTagName | undefined,
+  Enabled extends boolean | undefined = undefined,
 >(
   element: TagName,
   componentProps: useRenderElement.ComponentProps<State>,
-  params: useRenderElement.Parameters<State, RenderedElementType, TagName> = {},
-) {
+  params: useRenderElement.Parameters<State, RenderedElementType, TagName, Enabled> = {},
+): Enabled extends false ? null : React.ReactElement<Record<string, unknown>> {
   const renderProp = componentProps.render;
   const outProps = useRenderElementProps(componentProps, params);
-  const state = params.state ?? (EMPTY_OBJECT as State);
-  return evaluateRenderProp(element, renderProp, outProps, state);
-}
+  if (params.enabled === false) {
+    return null as Enabled extends false ? null : React.ReactElement<Record<string, unknown>>;
+  }
 
-/**
- * Returns a function that renders a Base UI element.
- */
-export function useRenderElementLazy<
-  State extends Record<string, any>,
-  RenderedElementType extends Element,
-  TagName extends IntrinsicTagName | undefined,
->(
-  element: TagName,
-  componentProps: useRenderElement.ComponentProps<State>,
-  params: useRenderElement.Parameters<State, RenderedElementType, TagName> = {},
-) {
-  const renderProp = componentProps.render;
-  const outProps = useRenderElementProps(componentProps, params);
   const state = params.state ?? (EMPTY_OBJECT as State);
-  return () => evaluateRenderProp(element, renderProp, outProps, state);
+  return evaluateRenderProp(element, renderProp, outProps, state) as Enabled extends false
+    ? null
+    : React.ReactElement<Record<string, unknown>>;
 }
 
 /**
@@ -55,22 +46,23 @@ function useRenderElementProps<
   State extends Record<string, any>,
   RenderedElementType extends Element,
   TagName extends IntrinsicTagName | undefined,
+  Enabled extends boolean | undefined,
 >(
   componentProps: useRenderElement.ComponentProps<State>,
-  params: useRenderElement.Parameters<State, RenderedElementType, TagName> = {},
-) {
+  params: useRenderElement.Parameters<State, RenderedElementType, TagName, Enabled> = {},
+): React.HTMLAttributes<any> & React.RefAttributes<any> {
   const { className: classNameProp, render: renderProp } = componentProps;
 
   const {
-    propGetter = IDENTITY,
     state = EMPTY_OBJECT as State,
     ref,
     props,
     disableStyleHooks,
     customStyleHookMapping,
+    enabled = true,
   } = params;
 
-  const className = resolveClassName(classNameProp, state);
+  const className = enabled ? resolveClassName(classNameProp, state) : undefined;
 
   let styleHooks: Record<string, string> | undefined;
   if (disableStyleHooks !== true) {
@@ -78,25 +70,31 @@ function useRenderElementProps<
     // always unset, so this `if` block is stable across renders.
     /* eslint-disable-next-line react-hooks/rules-of-hooks */
     styleHooks = React.useMemo(
-      () => getStyleHookProps(state, customStyleHookMapping),
-      [state, customStyleHookMapping],
+      () => (enabled ? getStyleHookProps(state, customStyleHookMapping) : EMPTY_OBJECT),
+      [state, customStyleHookMapping, enabled],
     );
   }
 
-  const outProps: React.HTMLAttributes<any> & React.RefAttributes<any> = propGetter(
-    mergeObjects(styleHooks, Array.isArray(props) ? mergePropsN(props) : props) ?? EMPTY_OBJECT,
-  );
+  const outProps: React.HTMLAttributes<any> & React.RefAttributes<any> = enabled
+    ? (mergeObjects(styleHooks, Array.isArray(props) ? mergePropsN(props) : props) ?? EMPTY_OBJECT)
+    : EMPTY_OBJECT;
 
   // SAFETY: The `useForkRef` functions use a single hook to store the same value,
   // switching between them at runtime is safe. If this assertion fails, React will
   // throw at runtime anyway.
   /* eslint-disable react-hooks/rules-of-hooks */
-  if (Array.isArray(ref)) {
+  if (!enabled) {
+    useForkRef(null, null);
+  } else if (Array.isArray(ref)) {
     outProps.ref = useForkRefN(outProps.ref, getChildRef(renderProp), ...ref);
   } else {
     outProps.ref = useForkRef(outProps.ref, getChildRef(renderProp), ref);
   }
   /* eslint-enable react-hooks/rules-of-hooks */
+
+  if (!enabled) {
+    return EMPTY_OBJECT;
+  }
 
   if (className !== undefined) {
     outProps.className = mergeClassNames(outProps.className, className);
@@ -126,7 +124,7 @@ function evaluateRenderProp<T extends React.ElementType, S>(
   }
   // Unreachable, but the typings on `useRenderElement` need to be reworked
   // to annotate it correctly.
-  throw new Error('Need either element or render to be defined');
+  throw new Error('Base UI: Render element or function are not defined.');
 }
 
 function renderTag(Tag: string, props: Record<string, any>) {
@@ -153,7 +151,18 @@ type RenderFunctionProps<TagName> = TagName extends keyof React.JSX.IntrinsicEle
   : React.HTMLAttributes<any>;
 
 export namespace useRenderElement {
-  export type Parameters<State, RenderedElementType extends Element, TagName> = {
+  export type Parameters<
+    State,
+    RenderedElementType extends Element,
+    TagName,
+    Enabled extends boolean | undefined,
+  > = {
+    /**
+     * If `false`, the hook will skip most of its internal logic and return `null`.
+     * This is useful for rendering a component conditionally.
+     * @default true
+     */
+    enabled?: Enabled;
     /**
      * @deprecated
      */
@@ -161,7 +170,7 @@ export namespace useRenderElement {
     /**
      * The ref to apply to the rendered element.
      */
-    ref?: React.Ref<RenderedElementType> | React.Ref<RenderedElementType>[];
+    ref?: React.Ref<RenderedElementType> | (React.Ref<RenderedElementType> | undefined)[];
     /**
      * The state of the component.
      */

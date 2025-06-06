@@ -8,11 +8,15 @@ import { useLatestRef } from '../utils/useLatestRef';
 export function useField(params: useField.Parameters) {
   const { formRef } = useFormContext();
   const { invalid, markedDirtyRef, validityData, setValidityData } = useFieldRootContext();
-  const { value, id, controlRef, commitValidation } = params;
+  const { enabled = true, value, id, name, controlRef, commitValidation } = params;
 
   const getValueRef = useLatestRef(params.getValue);
 
   useModernLayoutEffect(() => {
+    if (!enabled) {
+      return;
+    }
+
     let initialValue = value;
     if (initialValue === undefined) {
       initialValue = getValueRef.current?.();
@@ -21,9 +25,13 @@ export function useField(params: useField.Parameters) {
     if (validityData.initialValue === null && initialValue !== validityData.initialValue) {
       setValidityData((prev) => ({ ...prev, initialValue }));
     }
-  }, [setValidityData, value, validityData.initialValue, getValueRef]);
+  }, [enabled, setValidityData, value, validityData.initialValue, getValueRef]);
 
   useModernLayoutEffect(() => {
+    if (!enabled) {
+      return;
+    }
+
     if (id) {
       formRef.current.fields.set(id, {
         controlRef,
@@ -38,16 +46,20 @@ export function useField(params: useField.Parameters) {
           // Synchronously update the validity state so the submit event can be prevented.
           ReactDOM.flushSync(() => commitValidation(nextValue));
         },
+        getValueRef,
+        name,
       });
     }
   }, [
     commitValidation,
     controlRef,
+    enabled,
     formRef,
     getValueRef,
     id,
     invalid,
     markedDirtyRef,
+    name,
     validityData,
     value,
   ]);
@@ -55,9 +67,11 @@ export function useField(params: useField.Parameters) {
 
 export namespace useField {
   export interface Parameters {
+    enabled?: boolean;
     value: unknown;
-    getValue?: () => unknown;
+    getValue?: (() => unknown) | undefined;
     id: string | undefined;
+    name?: string | undefined;
     commitValidation: (value: unknown) => void;
     controlRef: React.RefObject<any>;
   }

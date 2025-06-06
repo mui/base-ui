@@ -82,6 +82,8 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
     commitValidation,
     value,
     controlRef: inputRef,
+    name,
+    getValue: () => value ?? null,
   });
 
   const prevValueRef = React.useRef(value);
@@ -119,7 +121,6 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
   const inputProps: React.ComponentProps<'input'> = {
     id,
     required,
-    name,
     disabled,
     readOnly,
     inputMode,

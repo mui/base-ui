@@ -1,16 +1,26 @@
 'use client';
 import * as React from 'react';
+import { contains } from '@floating-ui/react/utils';
+import { useBaseUiId } from '../utils/useBaseUiId';
+import { useControlled } from '../utils/useControlled';
+import { useForkRef } from '../utils/useForkRef';
+import { useModernLayoutEffect } from '../utils/useModernLayoutEffect';
+import { useRenderElement } from '../utils/useRenderElement';
+import { useEventCallback } from '../utils/useEventCallback';
 import type { BaseUIComponentProps } from '../utils/types';
+import { visuallyHidden } from '../utils/visuallyHidden';
 import { SHIFT } from '../composite/composite';
 import { CompositeRoot } from '../composite/root/CompositeRoot';
-import { useComponentRenderer } from '../utils/useComponentRenderer';
-import { useEventCallback } from '../utils/useEventCallback';
 import { useDirection } from '../direction-provider/DirectionContext';
-import { useRadioGroup } from './useRadioGroup';
-import { RadioGroupContext } from './RadioGroupContext';
+import { useFormContext } from '../form/FormContext';
+import { useField } from '../field/useField';
 import { useFieldRootContext } from '../field/root/FieldRootContext';
+import { useFieldControlValidation } from '../field/control/useFieldControlValidation';
 import { fieldValidityMapping } from '../field/utils/constants';
 import type { FieldRoot } from '../field/root/FieldRoot';
+import { mergeProps } from '../merge-props';
+
+import { RadioGroupContext } from './RadioGroupContext';
 
 const MODIFIER_KEYS = [SHIFT];
 
@@ -21,7 +31,7 @@ const MODIFIER_KEYS = [SHIFT];
  * Documentation: [Base UI Radio Group](https://base-ui.com/react/components/radio)
  */
 export const RadioGroup = React.forwardRef(function RadioGroup(
-  props: RadioGroup.Props,
+  componentProps: RadioGroup.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const {
@@ -31,23 +41,118 @@ export const RadioGroup = React.forwardRef(function RadioGroup(
     readOnly,
     required,
     onValueChange: onValueChangeProp,
-    value,
+    value: externalValue,
     defaultValue,
     name: nameProp,
-    inputRef,
-    ...otherProps
-  } = props;
+    inputRef: inputRefProp,
+    id: idProp,
+    ...elementProps
+  } = componentProps;
 
   const direction = useDirection();
 
-  const radioGroup = useRadioGroup(props);
-
-  const { state: fieldState, disabled: fieldDisabled, name: fieldName } = useFieldRootContext();
+  const {
+    labelId,
+    setTouched: setFieldTouched,
+    setFocused,
+    validationMode,
+    name: fieldName,
+    disabled: fieldDisabled,
+    state: fieldState,
+  } = useFieldRootContext();
+  const fieldControlValidation = useFieldControlValidation();
+  const { clearErrors } = useFormContext();
 
   const disabled = fieldDisabled || disabledProp;
   const name = fieldName ?? nameProp;
+  const id = useBaseUiId(idProp);
+
+  const [checkedValue, setCheckedValue] = useControlled({
+    controlled: externalValue,
+    default: defaultValue,
+    name: 'RadioGroup',
+    state: 'value',
+  });
+
+  useField({
+    id,
+    commitValidation: fieldControlValidation.commitValidation,
+    value: checkedValue,
+    controlRef: fieldControlValidation.inputRef,
+    name,
+    getValue: () => checkedValue ?? null,
+  });
+
+  const prevValueRef = React.useRef(checkedValue);
+
+  useModernLayoutEffect(() => {
+    if (prevValueRef.current === checkedValue) {
+      return;
+    }
+
+    clearErrors(name);
+
+    if (validationMode === 'onChange') {
+      fieldControlValidation.commitValidation(checkedValue);
+    } else {
+      fieldControlValidation.commitValidation(checkedValue, true);
+    }
+  }, [name, clearErrors, validationMode, checkedValue, fieldControlValidation]);
+
+  useModernLayoutEffect(() => {
+    prevValueRef.current = checkedValue;
+  }, [checkedValue]);
+
+  const [touched, setTouched] = React.useState(false);
+
+  const onBlur = useEventCallback((event) => {
+    if (!contains(event.currentTarget, event.relatedTarget)) {
+      setFieldTouched(true);
+      setFocused(false);
+
+      if (validationMode === 'onBlur') {
+        fieldControlValidation.commitValidation(checkedValue);
+      }
+    }
+  });
+
+  const onKeyDownCapture = useEventCallback((event) => {
+    if (event.key.startsWith('Arrow')) {
+      setFieldTouched(true);
+      setTouched(true);
+      setFocused(true);
+    }
+  });
 
   const onValueChange = useEventCallback(onValueChangeProp);
+
+  const serializedCheckedValue = React.useMemo(() => {
+    if (checkedValue == null) {
+      return ''; // avoid uncontrolled -> controlled error
+    }
+    if (typeof checkedValue === 'string') {
+      return checkedValue;
+    }
+    return JSON.stringify(checkedValue);
+  }, [checkedValue]);
+
+  const mergedInputRef = useForkRef(fieldControlValidation.inputRef, inputRefProp);
+
+  const inputProps = mergeProps<'input'>(
+    {
+      value: serializedCheckedValue,
+      ref: mergedInputRef,
+      id,
+      name,
+      disabled,
+      readOnly,
+      required,
+      'aria-hidden': true,
+      tabIndex: -1,
+      style: visuallyHidden,
+    },
+    fieldControlValidation.getInputValidationProps,
+  );
 
   const state: RadioGroup.State = React.useMemo(
     () => ({
@@ -62,23 +167,48 @@ export const RadioGroup = React.forwardRef(function RadioGroup(
   const contextValue: RadioGroupContext = React.useMemo(
     () => ({
       ...fieldState,
-      ...radioGroup,
-      onValueChange,
+      checkedValue,
       disabled,
+      name,
+      onValueChange,
       readOnly,
       required,
-      name,
+      setCheckedValue,
+      setTouched,
+      touched,
     }),
-    [fieldState, disabled, onValueChange, radioGroup, readOnly, required, name],
+    [
+      checkedValue,
+      disabled,
+      fieldState,
+      name,
+      onValueChange,
+      readOnly,
+      required,
+      setCheckedValue,
+      setTouched,
+      touched,
+    ],
   );
 
-  const { renderElement } = useComponentRenderer({
-    propGetter: radioGroup.getRootProps,
-    render: render ?? 'div',
+  const element = useRenderElement('div', componentProps, {
     ref: forwardedRef,
-    className,
     state,
-    extraProps: otherProps,
+    props: [
+      {
+        role: 'radiogroup',
+        'aria-disabled': disabled || undefined,
+        'aria-readonly': readOnly || undefined,
+        'aria-labelledby': labelId,
+        onFocus() {
+          setFocused(true);
+        },
+        onBlur,
+        onKeyDownCapture,
+      },
+      fieldControlValidation.getValidationProps,
+      elementProps,
+    ],
     customStyleHookMapping: fieldValidityMapping,
   });
 
@@ -88,10 +218,10 @@ export const RadioGroup = React.forwardRef(function RadioGroup(
         direction={direction}
         enableHomeAndEndKeys={false}
         modifierKeys={MODIFIER_KEYS}
-        render={renderElement()}
+        render={element}
         stopEventPropagation
       />
-      <input {...radioGroup.getInputProps()} />
+      <input {...inputProps} />
     </RadioGroupContext.Provider>
   );
 });
