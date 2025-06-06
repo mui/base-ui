@@ -42,6 +42,22 @@ describe('<Calendar.SetMonth />', () => {
           <Calendar.SetMonth target={adapter.date('2025-01-01', 'default')} disabled />
         </Calendar.Root>,
       );
+
+      const button = document.querySelector('button');
+      expect(button).to.have.attribute('disabled');
+      expect(button).to.have.attribute('data-disabled');
+    });
+
+    it('should be disabled when the calendar is disabled', () => {
+      render(
+        <Calendar.Root disabled>
+          <Calendar.SetMonth target={adapter.date('2025-01-01', 'default')} />
+        </Calendar.Root>,
+      );
+
+      const button = document.querySelector('button');
+      expect(button).to.have.attribute('disabled');
+      expect(button).to.have.attribute('data-disabled');
     });
 
     it('should be disabled when the target month is before the minDate month', () => {

@@ -70,6 +70,30 @@ export function replaceInvalidDateByNull(
   return null;
 }
 
+/**
+ * Checks if the day of the date A is after the day of the date B (using the timezone of the date A).
+ */
+export function isAfterDay(
+  adapter: TemporalAdapter,
+  dateA: TemporalSupportedObject,
+  dateB: TemporalSupportedObject,
+): boolean {
+  const dateBWithCorrectTimezone = adapter.setTimezone(dateB, adapter.getTimezone(dateA));
+  return adapter.isAfter(dateA, adapter.endOfDay(dateBWithCorrectTimezone));
+}
+
+/**
+ * Checks if the day of the date A is before the day of the date B (using the timezone of the date A).
+ */
+export function isBeforeDay(
+  adapter: TemporalAdapter,
+  dateA: TemporalSupportedObject,
+  dateB: TemporalSupportedObject,
+): boolean {
+  const dateBWithCorrectTimezone = adapter.setTimezone(dateB, adapter.getTimezone(dateA));
+  return adapter.isBefore(dateA, adapter.startOfDay(dateBWithCorrectTimezone));
+}
+
 export function validateDate(parameters: validateDate.Parameters): validateDate.ReturnValue {
   const { adapter, value, validationProps } = parameters;
   if (value === null) {
@@ -81,10 +105,10 @@ export function validateDate(parameters: validateDate.Parameters): validateDate.
   if (!adapter.isValid(value)) {
     return 'invalid';
   }
-  if (minDate != null && adapter.isBefore(value, minDate, 'day')) {
+  if (minDate != null && isBeforeDay(adapter, value, minDate)) {
     return 'before-min-date';
   }
-  if (maxDate != null && adapter.isAfter(value, maxDate, 'day')) {
+  if (maxDate != null && isAfterDay(adapter, value, maxDate)) {
     return 'after-max-date';
   }
   return null;

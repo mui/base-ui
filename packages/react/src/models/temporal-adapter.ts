@@ -148,22 +148,12 @@ export interface TemporalAdapter {
   isSameHour(value: TemporalSupportedObject, comparing: TemporalSupportedObject): boolean;
   /**
    * Checks if the reference date is after the second date.
-   * If the unit is 'day' or 'year', it will compare the dates only by the day or year part.
    */
-  isAfter(
-    value: TemporalSupportedObject,
-    comparing: TemporalSupportedObject,
-    unit?: 'day' | 'year' | null,
-  ): boolean;
+  isAfter(value: TemporalSupportedObject, comparing: TemporalSupportedObject): boolean;
   /**
    * Checks if the reference date is before the second date.
-   * If the unit is 'day' or 'year', it will compare the dates only by the day or year part.
    */
-  isBefore(
-    value: TemporalSupportedObject,
-    comparing: TemporalSupportedObject,
-    unit?: 'day' | 'year' | null,
-  ): boolean;
+  isBefore(value: TemporalSupportedObject, comparing: TemporalSupportedObject): boolean;
   /**
    * Checks if the value is within the provided range.
    */

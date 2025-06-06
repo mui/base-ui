@@ -42,6 +42,22 @@ describe('<Calendar.SetNextMonth />', () => {
           <Calendar.SetNextMonth disabled />
         </Calendar.Root>,
       );
+
+      const button = document.querySelector('button');
+      expect(button).to.have.attribute('disabled');
+      expect(button).to.have.attribute('data-disabled');
+    });
+
+    it('should be disabled when the Calendar is disabled', () => {
+      render(
+        <Calendar.Root disabled>
+          <Calendar.SetNextMonth />
+        </Calendar.Root>,
+      );
+
+      const button = document.querySelector('button');
+      expect(button).to.have.attribute('disabled');
+      expect(button).to.have.attribute('data-disabled');
     });
 
     it('should be disabled when the target month is after the maxDate month', () => {

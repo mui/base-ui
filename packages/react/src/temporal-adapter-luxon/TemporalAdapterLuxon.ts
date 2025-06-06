@@ -187,35 +187,11 @@ export class TemporalAdapterLuxon implements TemporalAdapter {
     return value.hasSame(comparingInValueTimezone, 'hour');
   };
 
-  public isAfter = (value: DateTime, comparing: DateTime, unit: 'year' | 'day' | null = null) => {
-    if (unit === 'year') {
-      const comparingInValueTimezone = this.setTimezone(comparing, this.getTimezone(value));
-      const diff = value.diff(this.endOfYear(comparingInValueTimezone), 'years').toObject();
-      return diff.years! > 0;
-    }
-
-    if (unit === 'day') {
-      const comparingInValueTimezone = this.setTimezone(comparing, this.getTimezone(value));
-      const diff = value.diff(this.endOfDay(comparingInValueTimezone), 'days').toObject();
-      return diff.days! > 0;
-    }
-
+  public isAfter = (value: DateTime, comparing: DateTime) => {
     return value > comparing;
   };
 
-  public isBefore = (value: DateTime, comparing: DateTime, unit: 'year' | 'day' | null = null) => {
-    if (unit === 'year') {
-      const comparingInValueTimezone = this.setTimezone(comparing, this.getTimezone(value));
-      const diff = value.diff(this.startOfYear(comparingInValueTimezone), 'years').toObject();
-      return diff.years! < 0;
-    }
-
-    if (unit === 'day') {
-      const comparingInValueTimezone = this.setTimezone(comparing, this.getTimezone(value));
-      const diff = value.diff(this.startOfDay(comparingInValueTimezone), 'days').toObject();
-      return diff.days! < 0;
-    }
-
+  public isBefore = (value: DateTime, comparing: DateTime) => {
     return value < comparing;
   };
 

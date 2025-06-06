@@ -19,12 +19,12 @@ export const CalendarSetPreviousMonth = React.forwardRef(function CalendarSetPre
   componentProps: CalendarSetPreviousMonth.Props,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
-  const { className, render, nativeButton, ...elementProps } = componentProps;
+  const { className, render, nativeButton, disabled, ...elementProps } = componentProps;
 
   const { visibleDate } = useSharedCalendarRootVisibleDateContext();
   const {
     monthPageSize,
-    disabled,
+    disabled: isCalendarDisabled,
     validationProps: dateValidationProps,
     setVisibleDate,
   } = useSharedCalendarRootContext();
@@ -36,7 +36,7 @@ export const CalendarSetPreviousMonth = React.forwardRef(function CalendarSetPre
   );
 
   const isDisabled = React.useMemo(() => {
-    if (disabled) {
+    if (isCalendarDisabled || disabled) {
       return true;
     }
 
@@ -45,7 +45,7 @@ export const CalendarSetPreviousMonth = React.forwardRef(function CalendarSetPre
       dateValidationProps.minDate != null &&
       adapter.isAfter(adapter.startOfMonth(dateValidationProps.minDate), targetDate)
     );
-  }, [disabled, dateValidationProps.minDate, targetDate, adapter]);
+  }, [isCalendarDisabled, disabled, dateValidationProps.minDate, targetDate, adapter]);
 
   const setTarget = useEventCallback(() => {
     if (isDisabled) {

@@ -1,4 +1,10 @@
-import { mergeDateAndTime, getCurrentDate, isTimePartAfter } from './date-helpers';
+import {
+  mergeDateAndTime,
+  getCurrentDate,
+  isTimePartAfter,
+  isAfterDay,
+  isBeforeDay,
+} from './date-helpers';
 import { TemporalAdapter, TemporalTimezone, TemporalSupportedObject } from '../../models';
 
 function roundDate(
@@ -45,10 +51,10 @@ export function getInitialReferenceDate(
   }
 
   let referenceDate = roundDate(adapter, precision, getCurrentDate(adapter, timezone, false));
-  if (minDate != null && adapter.isAfter(minDate, referenceDate, 'day')) {
+  if (minDate != null && isAfterDay(adapter, minDate, referenceDate)) {
     referenceDate = roundDate(adapter, precision, minDate);
   }
-  if (maxDate != null && adapter.isBefore(maxDate, referenceDate, 'day')) {
+  if (maxDate != null && isBeforeDay(adapter, maxDate, referenceDate)) {
     referenceDate = roundDate(adapter, precision, maxDate);
   }
 
