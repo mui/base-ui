@@ -404,7 +404,7 @@ describe('<Calendar.DayButton />', () => {
   });
 
   describe('format prop', () => {
-    it('should use the non-padded day of month format by default to display the date', () => {
+    it('should use the non-padded day of month format by default', () => {
       const date = adapter.date('2025-02-04', 'default');
 
       render(
@@ -425,7 +425,7 @@ describe('<Calendar.DayButton />', () => {
       expect(button.textContent).to.equal('4');
     });
 
-    it('should use the provided format to display the date', () => {
+    it('should use the provided format', () => {
       const date = adapter.date('2025-02-04', 'default');
 
       render(
@@ -444,6 +444,29 @@ describe('<Calendar.DayButton />', () => {
 
       const button = document.querySelector('button')!;
       expect(button.textContent).to.equal('04');
+    });
+  });
+
+  describe('accessibility attributes', () => {
+    it('should have the full date format as aria-label', () => {
+      const date = adapter.date('2025-02-04', 'default');
+
+      render(
+        <Calendar.Root visibleDate={adapter.startOfMonth(date)}>
+          <Calendar.DayGrid>
+            <Calendar.DayGridBody>
+              <Calendar.DayGridRow value={adapter.startOfWeek(date)}>
+                <Calendar.DayGridCell value={date}>
+                  <Calendar.DayButton format={adapter.formats.dayOfMonthPadded} />
+                </Calendar.DayGridCell>
+              </Calendar.DayGridRow>
+            </Calendar.DayGridBody>
+          </Calendar.DayGrid>
+        </Calendar.Root>,
+      );
+
+      const button = document.querySelector('button')!;
+      expect(button).toHaveAccessibleName('Tuesday, February 4, 2025');
     });
   });
 });
