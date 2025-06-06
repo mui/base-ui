@@ -43,14 +43,13 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
   const allowFocusSyncRef = React.useRef(true);
   const cursorMovementTimeout = useTimeout();
 
-  const mergedRef = useForkRef(externalRef, ref);
-
   const { getButtonProps, buttonRef } = useButton({
     disabled,
     focusableWhenDisabled: true,
-    buttonRef: mergedRef,
     native: nativeButton,
   });
+
+  const mergedRef = useForkRef(externalRef, ref, buttonRef);
 
   const commitSelection = useEventCallback((event: MouseEvent) => {
     handleSelect(event);
@@ -240,7 +239,7 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
   );
 
   return {
-    rootRef: buttonRef,
+    rootRef: mergedRef,
     props,
   };
 }
