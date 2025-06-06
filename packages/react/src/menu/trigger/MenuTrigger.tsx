@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import { contains } from '@floating-ui/react/utils';
+import { useFloatingTree } from '@floating-ui/react';
 import { CompositeItem } from '../../composite/item/CompositeItem';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { pressableTriggerOpenStateMapping } from '../../utils/popupStateMapping';
@@ -39,7 +40,6 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
     disabled: menuDisabled,
     setTriggerElement,
     open,
-    setOpen,
     allowMouseUpTriggerRef,
     positionerRef,
     parent,
@@ -49,16 +49,15 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
   const disabled = disabledProp || menuDisabled;
 
   const triggerRef = React.useRef<HTMLElement | null>(null);
-  const mergedRef = useForkRef(forwardedRef, triggerRef);
   const allowMouseUpTriggerTimeout = useTimeout();
 
   const { getButtonProps, buttonRef } = useButton({
     disabled,
-    buttonRef: mergedRef,
     native: nativeButton,
   });
 
   const handleRef = useForkRef(buttonRef, setTriggerElement);
+  const { events: menuEvents } = useFloatingTree()!;
 
   React.useEffect(() => {
     if (!open && parent.type === undefined) {
@@ -95,7 +94,7 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
       return;
     }
 
-    setOpen(false, mouseEvent, 'cancel-open');
+    menuEvents.emit('close', { domEvent: mouseEvent, reason: 'cancel-open' });
   });
 
   React.useEffect(() => {
@@ -150,6 +149,7 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
   const element = useRenderElement('button', componentProps, {
     state,
     customStyleHookMapping: pressableTriggerOpenStateMapping,
+    ref: [triggerRef, forwardedRef, buttonRef],
     props: [rootTriggerProps, elementProps, getTriggerProps],
   });
 

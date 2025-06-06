@@ -10,7 +10,7 @@ import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import { transitionStatusMapping } from '../../utils/styleHookMapping';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useRenderElement } from '../../utils/useRenderElement';
-import { DISABLED_TRANSITIONS_STYLE, EMPTY_OBJ } from '../../utils/constants';
+import { DISABLED_TRANSITIONS_STYLE, EMPTY_OBJECT } from '../../utils/constants';
 
 const customStyleHookMapping: CustomStyleHookMapping<PreviewCardPopup.State> = {
   ...baseMapping,
@@ -58,7 +58,7 @@ export const PreviewCardPopup = React.forwardRef(function PreviewCardPopup(
     state,
     props: [
       popupProps,
-      transitionStatus === 'starting' ? DISABLED_TRANSITIONS_STYLE : EMPTY_OBJ,
+      transitionStatus === 'starting' ? DISABLED_TRANSITIONS_STYLE : EMPTY_OBJECT,
       elementProps,
     ],
     customStyleHookMapping,

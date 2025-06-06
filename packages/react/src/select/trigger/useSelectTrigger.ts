@@ -40,11 +40,8 @@ export function useSelectTrigger(
   const timeoutFocus = useTimeout();
   const timeoutMouseDown = useTimeout();
 
-  const mergedRef = useForkRef(externalRef, triggerRef);
-
   const { getButtonProps, buttonRef } = useButton({
     disabled,
-    buttonRef: mergedRef,
     native: nativeButton,
   });
 
@@ -52,7 +49,7 @@ export function useSelectTrigger(
     store.set('triggerElement', element);
   });
 
-  const handleRef = useForkRef<HTMLElement>(buttonRef, setTriggerElement);
+  const mergedRef = useForkRef<HTMLElement>(externalRef, triggerRef, buttonRef, setTriggerElement);
 
   const timeout1 = useTimeout();
   const timeout2 = useTimeout();
@@ -92,7 +89,7 @@ export function useSelectTrigger(
       'aria-labelledby': labelId,
       'aria-readonly': readOnly || undefined,
       tabIndex: disabled ? -1 : 0,
-      ref: handleRef,
+      ref: mergedRef,
       onFocus(event) {
         setFocused(true);
         // The popup element shouldn't obscure the focused trigger.
@@ -177,7 +174,7 @@ export function useSelectTrigger(
 
   return {
     props,
-    rootRef: handleRef,
+    rootRef: mergedRef,
   };
 }
 

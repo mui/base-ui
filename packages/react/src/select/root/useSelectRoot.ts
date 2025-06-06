@@ -153,6 +153,8 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     commitValidation,
     value,
     controlRef,
+    name,
+    getValue: () => value,
   });
 
   const prevValueRef = React.useRef(value);

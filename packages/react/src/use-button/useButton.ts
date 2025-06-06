@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import { useForkRef } from '../utils/useForkRef';
 import { makeEventPreventable, mergeProps } from '../merge-props';
 import { useModernLayoutEffect } from '../utils/useModernLayoutEffect';
 import { useEventCallback } from '../utils/useEventCallback';
@@ -8,13 +7,7 @@ import { useCompositeRootContext } from '../composite/root/CompositeRootContext'
 import { BaseUIEvent, HTMLProps } from '../utils/types';
 
 export function useButton(parameters: useButton.Parameters = {}): useButton.ReturnValue {
-  const {
-    buttonRef: externalRef,
-    disabled = false,
-    focusableWhenDisabled,
-    tabIndex = 0,
-    native = true,
-  } = parameters;
+  const { disabled = false, focusableWhenDisabled, tabIndex = 0, native = true } = parameters;
 
   const buttonRef = React.useRef<HTMLButtonElement | HTMLAnchorElement | HTMLElement | null>(null);
 
@@ -25,8 +18,6 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
     const element = buttonRef.current;
     return Boolean(element?.tagName === 'A' && (element as HTMLAnchorElement)?.href);
   });
-
-  const mergedRef = useForkRef(externalRef, buttonRef);
 
   const buttonProps = React.useMemo(() => {
     const additionalProps: AdditionalButtonProps = {};
@@ -166,18 +157,17 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
             }
             externalOnPointerDown?.(event);
           },
-          ref: mergedRef,
         },
         buttonProps,
         otherExternalProps,
       );
     },
-    [buttonProps, disabled, focusableWhenDisabled, isNativeButton, isValidLink, mergedRef, native],
+    [buttonProps, disabled, focusableWhenDisabled, isNativeButton, isValidLink, native],
   );
 
   return {
     getButtonProps,
-    buttonRef: mergedRef,
+    buttonRef,
   };
 }
 
@@ -205,10 +195,6 @@ export namespace useButton {
      * @default false
      */
     focusableWhenDisabled?: boolean;
-    /**
-     * @deprecated pass the returned `buttonRef` to `useRenderElement` instead
-     */
-    buttonRef?: React.Ref<Element>;
     tabIndex?: NonNullable<React.HTMLAttributes<any>['tabIndex']>;
     /**
      * Whether the component is being rendered as a native button or specific native tag.
@@ -227,8 +213,9 @@ export namespace useButton {
       externalProps?: React.ComponentPropsWithRef<any>,
     ) => React.ComponentPropsWithRef<any>;
     /**
-     * A ref to the button DOM element.
+     * A ref to the button DOM element. This ref should be passed to the rendered element.
+     * It is not a part of the props returned by `getButtonProps`.
      */
-    buttonRef: React.RefCallback<Element> | null;
+    buttonRef: React.RefObject<HTMLElement | null>;
   }
 }

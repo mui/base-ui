@@ -6,11 +6,9 @@ import { resolveClassName } from './resolveClassName';
 import { isReactVersionAtLeast } from './reactVersion';
 import { mergeProps, mergePropsN } from '../merge-props';
 import { mergeObjects } from './mergeObjects';
+import { EMPTY_OBJECT } from './constants';
 
 type IntrinsicTagName = keyof React.JSX.IntrinsicElements;
-
-const EMPTY_OBJECT = {};
-const IDENTITY = (x: any) => x;
 
 /**
  * Renders a Base UI element.
@@ -42,28 +40,6 @@ export function useRenderElement<
 }
 
 /**
- * Returns a function that renders a Base UI element.
- *
- * @deprecated Use `useRenderElement` instead and pass `enabled = false` to its options instead.
- */
-// TODO: Remove once useComponentRenderer is no longer used.
-export function useRenderElementLazy<
-  State extends Record<string, any>,
-  RenderedElementType extends Element,
-  TagName extends IntrinsicTagName | undefined,
-  Enabled extends boolean | undefined,
->(
-  element: TagName,
-  componentProps: useRenderElement.ComponentProps<State>,
-  params: useRenderElement.Parameters<State, RenderedElementType, TagName, Enabled> = {},
-) {
-  const renderProp = componentProps.render;
-  const outProps = useRenderElementProps(componentProps, params);
-  const state = params.state ?? (EMPTY_OBJECT as State);
-  return () => evaluateRenderProp(element, renderProp, outProps, state);
-}
-
-/**
  * Computes render element final props.
  */
 function useRenderElementProps<
@@ -78,7 +54,6 @@ function useRenderElementProps<
   const { className: classNameProp, render: renderProp } = componentProps;
 
   const {
-    propGetter = IDENTITY,
     state = EMPTY_OBJECT as State,
     ref,
     props,
@@ -101,9 +76,7 @@ function useRenderElementProps<
   }
 
   const outProps: React.HTMLAttributes<any> & React.RefAttributes<any> = enabled
-    ? propGetter(
-        mergeObjects(styleHooks, Array.isArray(props) ? mergePropsN(props) : props) ?? EMPTY_OBJECT,
-      )
+    ? (mergeObjects(styleHooks, Array.isArray(props) ? mergePropsN(props) : props) ?? EMPTY_OBJECT)
     : EMPTY_OBJECT;
 
   // SAFETY: The `useForkRef` functions use a single hook to store the same value,
@@ -197,7 +170,7 @@ export namespace useRenderElement {
     /**
      * The ref to apply to the rendered element.
      */
-    ref?: React.Ref<RenderedElementType> | React.Ref<RenderedElementType>[];
+    ref?: React.Ref<RenderedElementType> | (React.Ref<RenderedElementType> | undefined)[];
     /**
      * The state of the component.
      */
