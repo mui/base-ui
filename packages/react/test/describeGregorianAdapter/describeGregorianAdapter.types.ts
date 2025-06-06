@@ -1,4 +1,8 @@
-import { TemporalAdapter, TemporalTimezone } from '@base-ui-components/react/models';
+import {
+  TemporalAdapter,
+  TemporalSupportedObject,
+  TemporalTimezone,
+} from '@base-ui-components/react/models';
 
 export interface DescribeGregorianAdapterParameters {
   /**
@@ -19,6 +23,10 @@ export interface DescribeGregorianAdapterParameters {
    * This is used to ensure that the adapter works correctly when the timezone is set to "default".
    */
   setDefaultTimezone: (timezone: TemporalTimezone | undefined) => void;
+  /**
+   * Creates a date in French locale.
+   */
+  createDateInFrenchLocale: (dateStr: string) => TemporalSupportedObject;
 }
 
 export type DescribeGregorianAdapterTestSuite = (

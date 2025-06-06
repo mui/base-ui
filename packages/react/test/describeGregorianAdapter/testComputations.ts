@@ -23,12 +23,14 @@ export const testComputations: DescribeGregorianAdapterTestSuite = ({
   adapterTZ = adapter,
   adapterFr,
   setDefaultTimezone,
+  createDateInFrenchLocale,
 }) => {
-  const testDateIso = adapter.date(TEST_DATE_ISO_STRING, 'default')!;
+  const testDateIso = adapter.date(TEST_DATE_ISO_STRING, 'default');
+  const testDateIsoFr = createDateInFrenchLocale(TEST_DATE_ISO_STRING);
   const testDateLastNonDSTDay = adapterTZ.isTimezoneCompatible
     ? adapterTZ.date('2022-03-27', 'Europe/Paris')
     : adapterTZ.date('2022-03-27', 'default');
-  const testDateLocale = adapter.date(TEST_DATE_LOCALE_STRING, 'default')!;
+  const testDateLocale = adapter.date(TEST_DATE_LOCALE_STRING, 'default');
 
   describe('Method: date', () => {
     it('should parse ISO strings', () => {
@@ -438,15 +440,36 @@ export const testComputations: DescribeGregorianAdapterTestSuite = ({
     expect(adapter.startOfMonth(testDateLocale)).toEqualDateTime(expected);
   });
 
-  it('Method: startOfWeek', () => {
-    expect(adapter.startOfWeek(testDateIso)).toEqualDateTime('2018-10-28T00:00:00.000Z');
-    expect(adapter.startOfWeek(testDateLocale)).toEqualDateTime('2018-10-28T00:00:00.000Z');
+  describe('Method: startOfWeek', () => {
+    it('should handle basic use-cases', () => {
+      expect(adapter.startOfWeek(testDateIso)).toEqualDateTime('2018-10-28T00:00:00.000Z');
+      expect(adapter.startOfWeek(testDateLocale)).toEqualDateTime('2018-10-28T00:00:00.000Z');
+    });
+
+    it('should use the adapter locale when the date has another locale', () => {
+      expect(adapter.startOfWeek(testDateIsoFr)).toEqualDateTime('2018-10-28T00:00:00.000Z');
+    });
   });
 
   it('Method: startOfDay', () => {
     const expected = '2018-10-30T00:00:00.000Z';
     expect(adapter.startOfDay(testDateIso)).toEqualDateTime(expected);
     expect(adapter.startOfDay(testDateLocale)).toEqualDateTime(expected);
+  });
+
+  it('Method: startOfHour', () => {
+    const expected = '2018-10-30T11:00:00.000Z';
+    expect(adapter.startOfHour(testDateIso)).toEqualDateTime(expected);
+  });
+
+  it('Method: startOfMinute', () => {
+    const expected = '2018-10-30T11:44:00.000Z';
+    expect(adapter.startOfMinute(testDateIso)).toEqualDateTime(expected);
+  });
+
+  it('Method: startOfSecond', () => {
+    const expected = '2018-10-30T11:44:25.000Z';
+    expect(adapter.startOfSecond(testDateIso)).toEqualDateTime(expected);
   });
 
   it('Method: endOfYear', () => {
@@ -479,16 +502,31 @@ export const testComputations: DescribeGregorianAdapterTestSuite = ({
     expect(adapter.endOfDay(testDateLocale)).toEqualDateTime(expected);
   });
 
+  it('Method: endOfHour', () => {
+    const expected = '2018-10-30T11:59:59.999Z';
+    expect(adapter.endOfHour(testDateIso)).toEqualDateTime(expected);
+  });
+
+  it('Method: endOfMinute', () => {
+    const expected = '2018-10-30T11:44:59.999Z';
+    expect(adapter.endOfMinute(testDateIso)).toEqualDateTime(expected);
+  });
+
+  it('Method: endOfSecond', () => {
+    const expected = '2018-10-30T11:44:25.999Z';
+    expect(adapter.endOfSecond(testDateIso)).toEqualDateTime(expected);
+  });
+
   it('Method: addYears', () => {
-    expect(adapter.addYears(testDateIso, 2)).toEqualDateTime('2020-10-30T11:44:00.000Z');
-    expect(adapter.addYears(testDateIso, -2)).toEqualDateTime('2016-10-30T11:44:00.000Z');
+    expect(adapter.addYears(testDateIso, 2)).toEqualDateTime('2020-10-30T11:44:25.750Z');
+    expect(adapter.addYears(testDateIso, -2)).toEqualDateTime('2016-10-30T11:44:25.750Z');
   });
 
   describe('Method: addMonths', () => {
     it('should handle basic use-cases', () => {
-      expect(adapter.addMonths(testDateIso, 2)).toEqualDateTime('2018-12-30T11:44:00.000Z');
-      expect(adapter.addMonths(testDateIso, -2)).toEqualDateTime('2018-08-30T11:44:00.000Z');
-      expect(adapter.addMonths(testDateIso, 3)).toEqualDateTime('2019-01-30T11:44:00.000Z');
+      expect(adapter.addMonths(testDateIso, 2)).toEqualDateTime('2018-12-30T11:44:25.750Z');
+      expect(adapter.addMonths(testDateIso, -2)).toEqualDateTime('2018-08-30T11:44:25.750Z');
+      expect(adapter.addMonths(testDateIso, 3)).toEqualDateTime('2019-01-30T11:44:25.750Z');
     });
 
     test.skipIf(!adapter.isTimezoneCompatible)('should update the offset when entering DST', () => {
@@ -499,8 +537,8 @@ export const testComputations: DescribeGregorianAdapterTestSuite = ({
 
   describe('Method: addWeeks', () => {
     it('should handle basic use-cases', () => {
-      expect(adapter.addWeeks(testDateIso, 2)).toEqualDateTime('2018-11-13T11:44:00.000Z');
-      expect(adapter.addWeeks(testDateIso, -2)).toEqualDateTime('2018-10-16T11:44:00.000Z');
+      expect(adapter.addWeeks(testDateIso, 2)).toEqualDateTime('2018-11-13T11:44:25.750Z');
+      expect(adapter.addWeeks(testDateIso, -2)).toEqualDateTime('2018-10-16T11:44:25.750Z');
     });
 
     test.skipIf(!adapter.isTimezoneCompatible)('should update the offset when entering DST', () => {
@@ -511,8 +549,8 @@ export const testComputations: DescribeGregorianAdapterTestSuite = ({
 
   describe('Method: addWeeks', () => {
     it('should handle basic use-cases', () => {
-      expect(adapter.addDays(testDateIso, 2)).toEqualDateTime('2018-11-01T11:44:00.000Z');
-      expect(adapter.addDays(testDateIso, -2)).toEqualDateTime('2018-10-28T11:44:00.000Z');
+      expect(adapter.addDays(testDateIso, 2)).toEqualDateTime('2018-11-01T11:44:25.750Z');
+      expect(adapter.addDays(testDateIso, -2)).toEqualDateTime('2018-10-28T11:44:25.750Z');
     });
 
     test.skipIf(!adapter.isTimezoneCompatible)('should update the offset when entering DST', () => {
@@ -522,21 +560,27 @@ export const testComputations: DescribeGregorianAdapterTestSuite = ({
   });
 
   it('Method: addHours', () => {
-    expect(adapter.addHours(testDateIso, 2)).toEqualDateTime('2018-10-30T13:44:00.000Z');
-    expect(adapter.addHours(testDateIso, -2)).toEqualDateTime('2018-10-30T09:44:00.000Z');
-    expect(adapter.addHours(testDateIso, 15)).toEqualDateTime('2018-10-31T02:44:00.000Z');
+    expect(adapter.addHours(testDateIso, 2)).toEqualDateTime('2018-10-30T13:44:25.750Z');
+    expect(adapter.addHours(testDateIso, -2)).toEqualDateTime('2018-10-30T09:44:25.750Z');
+    expect(adapter.addHours(testDateIso, 15)).toEqualDateTime('2018-10-31T02:44:25.750Z');
   });
 
   it('Method: addMinutes', () => {
-    expect(adapter.addMinutes(testDateIso, 2)).toEqualDateTime('2018-10-30T11:46:00.000Z');
-    expect(adapter.addMinutes(testDateIso, -2)).toEqualDateTime('2018-10-30T11:42:00.000Z');
-    expect(adapter.addMinutes(testDateIso, 20)).toEqualDateTime('2018-10-30T12:04:00.000Z');
+    expect(adapter.addMinutes(testDateIso, 2)).toEqualDateTime('2018-10-30T11:46:25.750Z');
+    expect(adapter.addMinutes(testDateIso, -2)).toEqualDateTime('2018-10-30T11:42:25.750Z');
+    expect(adapter.addMinutes(testDateIso, 20)).toEqualDateTime('2018-10-30T12:04:25.750Z');
   });
 
   it('Method: addSeconds', () => {
-    expect(adapter.addSeconds(testDateIso, 2)).toEqualDateTime('2018-10-30T11:44:02.000Z');
-    expect(adapter.addSeconds(testDateIso, -2)).toEqualDateTime('2018-10-30T11:43:58.000Z');
-    expect(adapter.addSeconds(testDateIso, 70)).toEqualDateTime('2018-10-30T11:45:10.000Z');
+    expect(adapter.addSeconds(testDateIso, 2)).toEqualDateTime('2018-10-30T11:44:27.750Z');
+    expect(adapter.addSeconds(testDateIso, -2)).toEqualDateTime('2018-10-30T11:44:23.750Z');
+    expect(adapter.addSeconds(testDateIso, 70)).toEqualDateTime('2018-10-30T11:45:35.750Z');
+  });
+
+  it('Method: addMilliseconds', () => {
+    expect(adapter.addMilliseconds(testDateIso, 2)).toEqualDateTime('2018-10-30T11:44:25.752Z');
+    expect(adapter.addMilliseconds(testDateIso, -2)).toEqualDateTime('2018-10-30T11:44:25.748Z');
+    expect(adapter.addMilliseconds(testDateIso, 500)).toEqualDateTime('2018-10-30T11:44:26.250Z');
   });
 
   it('Method: getYear', () => {
@@ -560,39 +604,39 @@ export const testComputations: DescribeGregorianAdapterTestSuite = ({
   });
 
   it('Method: getSeconds', () => {
-    expect(adapter.getSeconds(testDateIso)).to.equal(0);
+    expect(adapter.getSeconds(testDateIso)).to.equal(25);
   });
 
   it('Method: getMilliseconds', () => {
-    expect(adapter.getMilliseconds(testDateIso)).to.equal(0);
+    expect(adapter.getMilliseconds(testDateIso)).to.equal(750);
   });
 
   it('Method: setYear', () => {
-    expect(adapter.setYear(testDateIso, 2011)).toEqualDateTime('2011-10-30T11:44:00.000Z');
+    expect(adapter.setYear(testDateIso, 2011)).toEqualDateTime('2011-10-30T11:44:25.750');
   });
 
   it('Method: setMonth', () => {
-    expect(adapter.setMonth(testDateIso, 4)).toEqualDateTime('2018-05-30T11:44:00.000Z');
+    expect(adapter.setMonth(testDateIso, 4)).toEqualDateTime('2018-05-30T11:44:25.750');
   });
 
   it('Method: setDate', () => {
-    expect(adapter.setDate(testDateIso, 15)).toEqualDateTime('2018-10-15T11:44:00.000Z');
+    expect(adapter.setDate(testDateIso, 15)).toEqualDateTime('2018-10-15T11:44:25.750');
   });
 
   it('Method: setHours', () => {
-    expect(adapter.setHours(testDateIso, 0)).toEqualDateTime('2018-10-30T00:44:00.000Z');
+    expect(adapter.setHours(testDateIso, 0)).toEqualDateTime('2018-10-30T00:44:25.750');
   });
 
   it('Method: setMinutes', () => {
-    expect(adapter.setMinutes(testDateIso, 12)).toEqualDateTime('2018-10-30T11:12:00.000Z');
+    expect(adapter.setMinutes(testDateIso, 12)).toEqualDateTime('2018-10-30T11:12:25.750');
   });
 
   it('Method: setSeconds', () => {
-    expect(adapter.setSeconds(testDateIso, 11)).toEqualDateTime('2018-10-30T11:44:11.000Z');
+    expect(adapter.setSeconds(testDateIso, 11)).toEqualDateTime('2018-10-30T11:44:11.750');
   });
 
   it('Method: setMilliseconds', () => {
-    expect(adapter.setMilliseconds(testDateIso, 11)).toEqualDateTime('2018-10-30T11:44:00.011Z');
+    expect(adapter.setMilliseconds(testDateIso, 11)).toEqualDateTime('2018-10-30T11:44:25.011Z');
   });
 
   it('Method: getDaysInMonth', () => {

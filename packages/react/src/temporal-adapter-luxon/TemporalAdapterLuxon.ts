@@ -129,16 +129,6 @@ export class TemporalAdapterLuxon implements TemporalAdapter {
     return this.locale;
   };
 
-  /* v8 ignore start */
-  public is12HourCycleInCurrentLocale = () => {
-    if (typeof Intl === 'undefined' || typeof Intl.DateTimeFormat === 'undefined') {
-      return true; // Luxon defaults to en-US if Intl not found
-    }
-
-    return !!new Intl.DateTimeFormat(this.locale, { hour: 'numeric' })?.resolvedOptions()?.hour12;
-  };
-  /* v8 ignore stop */
-
   public isValid = (value: DateTime | null): value is DateTime => {
     if (value === null) {
       return false;
@@ -285,6 +275,10 @@ export class TemporalAdapterLuxon implements TemporalAdapter {
 
   public addSeconds = (value: DateTime, amount: number) => {
     return value.plus({ seconds: amount });
+  };
+
+  public addMilliseconds = (value: DateTime, amount: number) => {
+    return value.plus({ milliseconds: amount });
   };
 
   public getYear = (value: DateTime) => {

@@ -1,4 +1,4 @@
-import { Settings } from 'luxon';
+import { DateTime, Settings } from 'luxon';
 import { TemporalAdapterLuxon } from '@base-ui-components/react/temporal-adapter-luxon';
 import { describeGregorianAdapter } from '#test-utils';
 
@@ -9,5 +9,6 @@ describe('TemporalAdapterLuxon', () => {
     setDefaultTimezone: (timezone) => {
       Settings.defaultZone = timezone ?? 'system';
     },
+    createDateInFrenchLocale: (dateStr) => DateTime.fromISO(dateStr, { locale: 'fr' }),
   });
 });

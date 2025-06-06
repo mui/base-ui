@@ -108,10 +108,6 @@ export interface TemporalAdapter {
    */
   getCurrentLocaleCode(): string;
   /**
-   * Checks if the current locale is using 12 hours cycle (i.e: time with meridiem).
-   */
-  is12HourCycleInCurrentLocale(): boolean;
-  /**
    * Checks if the date is valid.
    */
   isValid(value: TemporalSupportedObject | null): value is TemporalSupportedObject;
@@ -245,6 +241,10 @@ export interface TemporalAdapter {
    * Adds the specified number of seconds to the given date.
    */
   addSeconds(value: TemporalSupportedObject, amount: number): TemporalSupportedObject;
+  /**
+   * Adds the specified number of milliseconds to the given date.
+   */
+  addMilliseconds(value: TemporalSupportedObject, amount: number): TemporalSupportedObject;
   /**
    * Gets the year of the given date.
    */
