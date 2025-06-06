@@ -1,7 +1,17 @@
 import * as React from 'react';
+import { Form } from '@base-ui-components/react/form';
+import { NumberField } from '@base-ui-components/react/number-field';
+import { Radio } from '@base-ui-components/react/radio';
+import { RadioGroup } from '@base-ui-components/react/radio-group';
+import { Select } from '@base-ui-components/react/select';
+import { Checkbox } from '@base-ui-components/react/checkbox';
+import { CheckboxGroup } from '@base-ui-components/react/checkbox-group';
+import { Switch } from '@base-ui-components/react/switch';
+import { Slider } from '@base-ui-components/react/slider';
 import { Field } from '@base-ui-components/react/field';
 import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
 import { expect } from 'chai';
+import { spy } from 'sinon';
 import { createRenderer, describeConformance } from '#test-utils';
 
 describe('<Field.Root />', () => {
@@ -213,6 +223,87 @@ describe('<Field.Root />', () => {
       fireEvent.blur(control);
 
       expect(control).to.have.attribute('aria-invalid', 'true');
+    });
+
+    it('receives all form values as the 2nd argument', async () => {
+      const validateSpy = spy();
+
+      await render(
+        <Form>
+          <Field.Root name="checkbox">
+            <Checkbox.Root defaultChecked />
+          </Field.Root>
+
+          <Field.Root name="checkbox-group">
+            <CheckboxGroup defaultValue={['apple', 'banana']}>
+              <Checkbox.Root value="apple" />
+              <Checkbox.Root value="banana" />
+            </CheckboxGroup>
+          </Field.Root>
+
+          <Field.Root name="input" validate={validateSpy}>
+            <Field.Control data-testid="input" type="url" defaultValue="https://base-ui.com" />
+          </Field.Root>
+
+          <Field.Root name="number-field">
+            <NumberField.Root defaultValue={13}>
+              <NumberField.Input />
+            </NumberField.Root>
+          </Field.Root>
+
+          <Field.Root name="radio-group">
+            <RadioGroup defaultValue="cats">
+              <Radio.Root value="cats" />
+            </RadioGroup>
+          </Field.Root>
+
+          <Field.Root name="select">
+            <Select.Root defaultValue="sans">
+              <Select.Trigger />
+              <Select.Portal>
+                <Select.Positioner>
+                  <Select.Popup>
+                    <Select.Item value="sans" />
+                  </Select.Popup>
+                </Select.Positioner>
+              </Select.Portal>
+            </Select.Root>
+          </Field.Root>
+
+          <Field.Root name="slider">
+            <Slider.Root defaultValue={12}>
+              <Slider.Control />
+            </Slider.Root>
+          </Field.Root>
+
+          <Field.Root name="range-slider">
+            <Slider.Root defaultValue={[25, 70]}>
+              <Slider.Control />
+            </Slider.Root>
+          </Field.Root>
+
+          <Field.Root name="switch">
+            <Switch.Root defaultChecked={false} />
+          </Field.Root>
+        </Form>,
+      );
+
+      const input = screen.getByTestId('input');
+      fireEvent.focus(input);
+      fireEvent.blur(input);
+
+      expect(validateSpy.callCount).to.equal(1);
+      expect(validateSpy.firstCall.args[1]).to.deep.equal({
+        checkbox: true,
+        'checkbox-group': ['apple', 'banana'],
+        input: 'https://base-ui.com',
+        'number-field': 13,
+        'radio-group': 'cats',
+        select: 'sans',
+        slider: 12,
+        'range-slider': [25, 70],
+        switch: false,
+      });
     });
   });
 

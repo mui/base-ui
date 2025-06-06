@@ -130,6 +130,8 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     commitValidation: fieldControlValidation.commitValidation,
     value: checked,
     controlRef,
+    name,
+    getValue: () => checked,
   });
 
   const inputRef = React.useRef<HTMLInputElement>(null);

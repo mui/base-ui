@@ -95,6 +95,8 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
     commitValidation,
     value: checked,
     controlRef: switchRef,
+    name,
+    getValue: () => checked,
   });
 
   useModernLayoutEffect(() => {
