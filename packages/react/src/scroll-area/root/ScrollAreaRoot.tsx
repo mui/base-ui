@@ -8,7 +8,7 @@ import { useEventCallback } from '../../utils/useEventCallback';
 import { SCROLL_TIMEOUT } from '../constants';
 import { getOffset } from '../utils/getOffset';
 import { ScrollAreaScrollbarDataAttributes } from '../scrollbar/ScrollAreaScrollbarDataAttributes';
-import { STYLE_DISABLE_SCROLLBAR } from '../../utils/styles';
+import { styleDisableScrollbar } from '../../utils/styles';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useTimeout } from '../../utils/useTimeout';
 
@@ -260,7 +260,7 @@ export const ScrollAreaRoot = React.forwardRef(function ScrollAreaRoot(
 
   return (
     <ScrollAreaRootContext.Provider value={contextValue}>
-      {STYLE_DISABLE_SCROLLBAR.element}
+      {styleDisableScrollbar.element}
       {element}
     </ScrollAreaRootContext.Provider>
   );

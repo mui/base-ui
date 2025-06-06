@@ -10,7 +10,7 @@ import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 import { useSelectPopup } from './useSelectPopup';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import { useSelectPositionerContext } from '../positioner/SelectPositionerContext';
-import { STYLE_DISABLE_SCROLLBAR } from '../../utils/styles';
+import { styleDisableScrollbar } from '../../utils/styles';
 import { transitionStatusMapping } from '../../utils/styleHookMapping';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useRenderElement } from '../../utils/useRenderElement';
@@ -77,7 +77,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
       props,
       {
         style: transitionStatus === 'starting' ? DISABLED_TRANSITIONS_STYLE.style : undefined,
-        className: alignItemWithTriggerActive ? STYLE_DISABLE_SCROLLBAR.className : undefined,
+        className: alignItemWithTriggerActive ? styleDisableScrollbar.className : undefined,
       },
       elementProps,
     ],
@@ -85,7 +85,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
 
   return (
     <React.Fragment>
-      {STYLE_DISABLE_SCROLLBAR.element}
+      {styleDisableScrollbar.element}
       <FloatingFocusManager
         context={positioner.context}
         modal={false}

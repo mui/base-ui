@@ -9,7 +9,7 @@ import { useDirection } from '../../direction-provider/DirectionContext';
 import { getOffset } from '../utils/getOffset';
 import { MIN_THUMB_SIZE } from '../constants';
 import { clamp } from '../../utils/clamp';
-import { STYLE_DISABLE_SCROLLBAR } from '../../utils/styles';
+import { styleDisableScrollbar } from '../../utils/styles';
 import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { onVisible } from '../utils/onVisible';
 
@@ -209,7 +209,7 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
     ...(rootId && { 'data-id': `${rootId}-viewport` }),
     // https://accessibilityinsights.io/info-examples/web/scrollable-region-focusable/
     ...((!hiddenState.scrollbarXHidden || !hiddenState.scrollbarYHidden) && { tabIndex: 0 }),
-    className: STYLE_DISABLE_SCROLLBAR.className,
+    className: styleDisableScrollbar.className,
     style: {
       overflow: 'scroll',
     },
