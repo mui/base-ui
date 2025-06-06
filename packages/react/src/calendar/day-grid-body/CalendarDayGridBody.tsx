@@ -4,7 +4,7 @@ import { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { SharedCalendarDayGridBodyContext } from './SharedCalendarDayGridBodyContext';
 import { useSharedCalendarDayGridBody } from './useSharedCalendarDayGridBody';
-import { CompositeList } from '../../composite/list/CompositeList';
+import { CompositeRoot } from '../../composite/root/CompositeRoot';
 
 /**
  * Groups all rows of the calendar's day grid.
@@ -27,7 +27,7 @@ export const CalendarDayGridBody = React.forwardRef(function CalendarDayGrid(
     ...elementProps
   } = componentProps;
 
-  const { props, rowsRefs, context, ref } = useSharedCalendarDayGridBody({
+  const { props, context, ref } = useSharedCalendarDayGridBody({
     children,
     fixedWeekNumber,
     focusOnMount,
@@ -42,7 +42,7 @@ export const CalendarDayGridBody = React.forwardRef(function CalendarDayGrid(
 
   return (
     <SharedCalendarDayGridBodyContext.Provider value={context}>
-      <CompositeList elementsRef={rowsRefs}>{element}</CompositeList>
+      <CompositeRoot cols={7} enableHomeAndEndKeys render={element} />
     </SharedCalendarDayGridBodyContext.Provider>
   );
 });

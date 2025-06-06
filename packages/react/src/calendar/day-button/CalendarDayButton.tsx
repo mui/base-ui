@@ -8,11 +8,11 @@ import { useButton } from '../../use-button';
 import { TemporalSupportedObject } from '../../models';
 import { useSharedCalendarRootContext } from '../root/SharedCalendarRootContext';
 import { useSharedCalendarDayGridBodyContext } from '../day-grid-body/SharedCalendarDayGridBodyContext';
-import { useCalendarDayGridRowContext } from '../day-grid-row/CalendarDayGridRowContext';
 import { useTemporalAdapter } from '../../temporal-adapter-provider/TemporalAdapterContext';
-import { useForkRef, useModernLayoutEffect } from '../../utils';
+import { useForkRef } from '../../utils';
 import { useCalendarDayGridCellContext } from '../day-grid-cell/SharedCalendarDayGridCellContext';
 import { useEventCallback } from '../../utils/useEventCallback';
+import { CompositeItem } from '../../composite/item/CompositeItem';
 
 const customStyleHookMapping: CustomStyleHookMapping<CalendarDayButton.State> = {
   selected(value) {
@@ -96,7 +96,7 @@ const InnerCalendarDayButton = React.forwardRef(function InnerCalendarDayButton(
     customStyleHookMapping,
   });
 
-  return element;
+  return <CompositeItem render={element} />;
 });
 
 const MemoizedInnerCalendarDayButton = React.memo(InnerCalendarDayButton);
@@ -111,9 +111,8 @@ export const CalendarDayButton = React.forwardRef(function CalendarDayButton(
   props: CalendarDayButton.Props,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
-  const { selectedDates, selectDate, registerDayGridCell } = useSharedCalendarRootContext();
-  const { canCellBeTabbed, ref: gridBodyRef } = useSharedCalendarDayGridBodyContext();
-  const { ref: gridRowRef } = useCalendarDayGridRowContext();
+  const { selectedDates, selectDate } = useSharedCalendarRootContext();
+  const { canCellBeTabbed } = useSharedCalendarDayGridBodyContext();
   const { isDisabled, isUnavailable, isOutsideCurrentMonth, value } =
     useCalendarDayGridCellContext();
   const ref = React.useRef<HTMLButtonElement>(null);
@@ -161,14 +160,6 @@ export const CalendarDayButton = React.forwardRef(function CalendarDayButton(
       formattedDate,
     ],
   );
-
-  useModernLayoutEffect(() => {
-    return registerDayGridCell({
-      cell: ref,
-      row: gridRowRef,
-      grid: gridBodyRef,
-    });
-  }, [gridBodyRef, gridRowRef, registerDayGridCell]);
 
   return <MemoizedInnerCalendarDayButton ref={mergedRef} {...props} ctx={ctx} />;
 });

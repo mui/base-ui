@@ -14,11 +14,9 @@ export function useSharedCalendarDayGridBody(
   const { fixedWeekNumber, focusOnMount, children, offset = 0, freezeMonth = false } = parameters;
 
   const adapter = useTemporalAdapter();
-  const { selectedDates, referenceDate, registerDayGrid, applyDayGridKeyboardNavigation } =
-    useSharedCalendarRootContext();
+  const { selectedDates, referenceDate, registerDayGrid } = useSharedCalendarRootContext();
   const { visibleDate } = useSharedCalendarRootVisibleDateContext();
   const ref = React.useRef<HTMLDivElement>(null);
-  const rowsRefs = React.useRef<(HTMLElement | null)[]>([]);
 
   const rawMonth = React.useMemo(() => {
     const cleanVisibleDate = adapter.startOfMonth(visibleDate);
@@ -86,15 +84,14 @@ export function useSharedCalendarDayGridBody(
   const props: HTMLProps = {
     role: 'rowgroup',
     children: resolvedChildren,
-    onKeyDown: applyDayGridKeyboardNavigation,
   };
 
   const context: SharedCalendarDayGridBodyContext = React.useMemo(
-    () => ({ month, canCellBeTabbed, ref }),
-    [month, canCellBeTabbed, ref],
+    () => ({ month, canCellBeTabbed }),
+    [month, canCellBeTabbed],
   );
 
-  return { props, rowsRefs, context, ref };
+  return { props, context, ref };
 }
 
 export namespace useSharedCalendarDayGridBody {
@@ -137,11 +134,6 @@ export namespace useSharedCalendarDayGridBody {
      * The props to apply to the element.
      */
     props: HTMLProps;
-    // TODO: Use Composite instead.
-    /**
-     * The ref of each row rendered inside the component.
-     */
-    rowsRefs: React.RefObject<(HTMLElement | null)[]>;
     /**
      * The context to provide to the children of the component.
      */

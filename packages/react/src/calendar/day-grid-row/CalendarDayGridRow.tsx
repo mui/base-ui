@@ -1,10 +1,7 @@
 'use client';
 import * as React from 'react';
-import { useForkRef } from '../../utils/useForkRef';
-import { CalendarDayGridRowContext } from './CalendarDayGridRowContext';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
-import { useCompositeListItem } from '../../composite/list/useCompositeListItem';
 import { TemporalSupportedObject } from '../../models';
 import { useDayList } from '../../use-day-list';
 
@@ -14,8 +11,6 @@ const InnerCalendarDayGridRow = React.forwardRef(function InnerCalendarDayGridRo
 ) {
   const { className, render, value, ctx, children, ...elementProps } = componentProps;
 
-  const ref = React.useRef<HTMLDivElement>(null);
-
   const resolvedChildren = React.useMemo(() => {
     if (!React.isValidElement(children) && typeof children === 'function') {
       return ctx.days.map(children);
@@ -24,21 +19,15 @@ const InnerCalendarDayGridRow = React.forwardRef(function InnerCalendarDayGridRo
     return children;
   }, [children, ctx.days]);
 
-  const context: CalendarDayGridRowContext = React.useMemo(() => ({ ref }), [ref]);
-
   const element = useRenderElement('div', componentProps, {
     ref: forwardedRef,
     props: [
-      { ref, role: 'row', 'aria-rowindex': ctx.rowIndex + 1, children: resolvedChildren },
+      { role: 'row', 'aria-rowindex': ctx.rowIndex + 1, children: resolvedChildren },
       elementProps,
     ],
   });
 
-  return (
-    <CalendarDayGridRowContext.Provider value={context}>
-      {element}
-    </CalendarDayGridRowContext.Provider>
-  );
+  return element;
 });
 
 const MemoizedInnerCalendarDayGridRow = React.memo(InnerCalendarDayGridRow);
@@ -53,9 +42,6 @@ export const CalendarDayGridRow = React.forwardRef(function CalendarDayGridRow(
   props: CalendarDayGridRow.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { ref: listItemRef, index } = useCompositeListItem();
-  const ref = useForkRef(forwardedRef, listItemRef);
-
   const getDayList = useDayList();
   const days = React.useMemo(
     () => getDayList({ date: props.value, amount: 7 }),
@@ -63,11 +49,11 @@ export const CalendarDayGridRow = React.forwardRef(function CalendarDayGridRow(
   );
 
   const ctx = React.useMemo<InnerCalendarDayGridRowContext>(
-    () => ({ days, rowIndex: index }),
-    [days, index],
+    () => ({ days, rowIndex: 1 }), // TODO: Fix the row index to be dynamic
+    [days],
   );
 
-  return <MemoizedInnerCalendarDayGridRow {...props} ref={ref} ctx={ctx} />;
+  return <MemoizedInnerCalendarDayGridRow {...props} ref={forwardedRef} ctx={ctx} />;
 });
 
 export namespace CalendarDayGridRow {

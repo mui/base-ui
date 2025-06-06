@@ -12,10 +12,6 @@ export interface SharedCalendarDayGridBodyContext {
    * @returns {boolean} Whether the day should be reachable using tab navigation.
    */
   canCellBeTabbed: (day: TemporalSupportedObject) => boolean;
-  /**
-   * The DOM ref of the DayGridBody primitive.
-   */
-  ref: React.RefObject<HTMLElement | null>;
 }
 
 export const SharedCalendarDayGridBodyContext = React.createContext<
