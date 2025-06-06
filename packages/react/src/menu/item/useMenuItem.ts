@@ -4,7 +4,7 @@ import { FloatingEvents } from '../../floating-ui-react';
 import { useButton } from '../../use-button';
 import { mergeProps } from '../../merge-props';
 import { HTMLProps, BaseUIEvent } from '../../utils/types';
-import { useModernLayoutEffect } from '../../utils';
+import { useForkRef, useModernLayoutEffect } from '../../utils';
 import { addHighlight, removeHighlight } from '../../utils/highlighted';
 
 export function useMenuItem(params: useMenuItem.Parameters): useMenuItem.ReturnValue {
@@ -16,14 +16,16 @@ export function useMenuItem(params: useMenuItem.Parameters): useMenuItem.ReturnV
     menuEvents,
     allowMouseUpTriggerRef,
     typingRef,
+    nativeButton,
+    submenuTrigger,
   } = params;
 
   const itemRef = React.useRef<HTMLElement | null>(null);
 
-  const { getButtonProps, buttonRef: mergedRef } = useButton({
+  const { getButtonProps, buttonRef } = useButton({
     disabled,
     focusableWhenDisabled: true,
-    buttonRef: itemRef,
+    native: nativeButton,
   });
 
   useModernLayoutEffect(() => {
@@ -55,7 +57,9 @@ export function useMenuItem(params: useMenuItem.Parameters): useMenuItem.ReturnV
             if (itemRef.current && allowMouseUpTriggerRef.current) {
               // This fires whenever the user clicks on the trigger, moves the cursor, and releases it over the item.
               // We trigger the click and override the `closeOnClick` preference to always close the menu.
-              itemRef.current.click();
+              if (!submenuTrigger) {
+                itemRef.current.click();
+              }
               menuEvents.emit('close', { domEvent: event, reason: 'item-press' });
             }
           },
@@ -64,8 +68,19 @@ export function useMenuItem(params: useMenuItem.Parameters): useMenuItem.ReturnV
         getButtonProps,
       );
     },
-    [getButtonProps, id, highlighted, typingRef, closeOnClick, menuEvents, allowMouseUpTriggerRef],
+    [
+      id,
+      highlighted,
+      getButtonProps,
+      typingRef,
+      closeOnClick,
+      menuEvents,
+      allowMouseUpTriggerRef,
+      submenuTrigger,
+    ],
   );
+
+  const mergedRef = useForkRef(itemRef, buttonRef);
 
   return React.useMemo(
     () => ({
@@ -106,6 +121,17 @@ export namespace useMenuItem {
      * A ref that is set to `true` when the user is using the typeahead feature.
      */
     typingRef: React.RefObject<boolean>;
+    /**
+     * Whether the component renders a native `<button>` element when replacing it
+     * via the `render` prop.
+     * Set to `false` if the rendered element is not a button (e.g. `<div>`).
+     * @default false
+     */
+    nativeButton: boolean;
+    /**
+     * Whether the item is a submenu trigger.
+     */
+    submenuTrigger: boolean;
   }
 
   export interface ReturnValue {

@@ -1,10 +1,9 @@
 'use client';
 import * as React from 'react';
+import { EMPTY_OBJECT } from '../../utils/constants';
 import type { ElementProps, FloatingRootContext } from '../types';
 import { isMouseLikePointerType } from '../utils';
 import { useAnimationFrame } from '../../utils/useAnimationFrame';
-
-const EMPTY_OBJECT = {};
 
 export interface UseClickProps {
   /**

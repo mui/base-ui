@@ -83,6 +83,8 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
     commitValidation,
     value,
     controlRef: inputRef,
+    name,
+    getValue: () => value ?? null,
   });
 
   const prevValueRef = React.useRef(value);

@@ -47,6 +47,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     render,
     required = false,
     value: valueProp,
+    nativeButton = true,
     ...elementProps
   } = componentProps;
 
@@ -91,15 +92,15 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     ...otherGroupProps
   } = groupProps;
 
-  const buttonRef = React.useRef<HTMLButtonElement>(null);
-
   const groupValue = groupContext?.value;
   const setGroupValue = groupContext?.setValue;
   const defaultGroupValue = groupContext?.defaultValue;
 
-  const { getButtonProps } = useButton({
+  const controlRef = React.useRef<HTMLButtonElement>(null);
+
+  const { getButtonProps, buttonRef } = useButton({
     disabled,
-    buttonRef,
+    native: nativeButton,
   });
 
   const localFieldControlValidation = useFieldControlValidation();
@@ -128,7 +129,9 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     id,
     commitValidation: fieldControlValidation.commitValidation,
     value: checked,
-    controlRef: buttonRef,
+    controlRef,
+    name,
+    getValue: () => checked,
   });
 
   const inputRef = React.useRef<HTMLInputElement>(null);
@@ -238,8 +241,6 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     }
   }, [parentContext, disabled, name]);
 
-  const mergedRef = useForkRef(forwardedRef, groupContext?.registerControlRef);
-
   const state: CheckboxRoot.State = React.useMemo(
     () => ({
       ...fieldState,
@@ -256,11 +257,10 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
 
   const element = useRenderElement('button', componentProps, {
     state,
-    ref: mergedRef,
+    ref: [buttonRef, controlRef, forwardedRef, groupContext?.registerControlRef],
     props: [
       {
         id,
-        ref: buttonRef,
         role: 'checkbox',
         disabled,
         'aria-checked': groupIndeterminate ? 'mixed' : checked,
@@ -314,6 +314,7 @@ export namespace CheckboxRoot {
      */
     indeterminate: boolean;
   }
+
   export interface Props extends Omit<BaseUIComponentProps<'button', State>, 'onChange' | 'value'> {
     /**
      * The id of the input element.
@@ -380,5 +381,12 @@ export namespace CheckboxRoot {
      * The value of the selected checkbox.
      */
     value?: string;
+    /**
+     * Whether the component renders a native `<button>` element when replacing it
+     * via the `render` prop.
+     * Set to `false` if the rendered element is not a button (e.g. `<div>`).
+     * @default true
+     */
+    nativeButton?: boolean;
   }
 }

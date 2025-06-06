@@ -3,6 +3,8 @@ import * as React from 'react';
 import { FloatingPortal } from '../../floating-ui-react';
 import { SelectPortalContext } from './SelectPortalContext';
 import { useSelectRootContext } from '../root/SelectRootContext';
+import { useSelector } from '../../utils/store';
+import { selectors } from '../store';
 
 /**
  * A portal element that moves the popup to a different part of the DOM.
@@ -13,7 +15,9 @@ import { useSelectRootContext } from '../root/SelectRootContext';
 export function SelectPortal(props: SelectPortal.Props) {
   const { children, container } = props;
 
-  const { typeaheadReady, mounted } = useSelectRootContext();
+  const { store } = useSelectRootContext();
+  const mounted = useSelector(store, selectors.mounted);
+  const typeaheadReady = useSelector(store, selectors.typeaheadReady);
 
   const shouldRender = mounted || typeaheadReady;
   if (!shouldRender) {

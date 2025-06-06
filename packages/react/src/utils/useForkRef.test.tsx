@@ -153,7 +153,7 @@ describe('useForkRef', () => {
       return <div id="test" ref={ref} />;
     }
 
-    const { unmount } = render(<App />);
+    const { unmount } = render(<App />, { strict: false });
 
     expect(setup.args[0][0]).to.equal('test');
     expect(setup.callCount).to.equal(1);
