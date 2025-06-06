@@ -34,6 +34,7 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
     defaultChecked,
     id: idProp,
     inputRef: externalInputRef,
+    nativeButton = true,
     onCheckedChange: onCheckedChangeProp,
     readOnly = false,
     required = false,
@@ -72,11 +73,11 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
   const id = useBaseUiId(idProp);
 
   useModernLayoutEffect(() => {
-    setControlId(id);
+    setControlId(nativeButton ? (idProp ?? null) : id);
     return () => {
       setControlId(undefined);
     };
-  }, [id, setControlId]);
+  }, [id, idProp, nativeButton, setControlId]);
 
   const inputRef = React.useRef<HTMLInputElement>(null);
   const handleInputRef = useForkRef(inputRef, externalInputRef, inputValidationRef);
@@ -107,11 +108,12 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
 
   const { getButtonProps, buttonRef } = useButton({
     disabled,
+    native: nativeButton,
   });
 
   const rootProps: React.ComponentPropsWithRef<'button'> = React.useMemo(
     () => ({
-      id,
+      id: idProp,
       role: 'switch',
       disabled,
       'aria-checked': checked,
@@ -142,7 +144,7 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
       },
     }),
     [
-      id,
+      idProp,
       disabled,
       checked,
       readOnly,
@@ -161,6 +163,7 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
         {
           checked,
           disabled,
+          id: !name ? `${id}-input` : undefined,
           name,
           required,
           style: visuallyHidden,
@@ -192,20 +195,21 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
         getInputValidationProps,
       ),
     [
-      getInputValidationProps,
       checked,
-      disabled,
-      name,
-      required,
-      handleInputRef,
-      setDirty,
-      validityData.initialValue,
-      setFilled,
-      setCheckedState,
-      onCheckedChange,
       clearErrors,
-      validationMode,
       commitValidation,
+      disabled,
+      getInputValidationProps,
+      handleInputRef,
+      id,
+      name,
+      onCheckedChange,
+      required,
+      setCheckedState,
+      setDirty,
+      setFilled,
+      validationMode,
+      validityData.initialValue,
     ],
   );
 
@@ -271,6 +275,13 @@ export namespace SwitchRoot {
      * Identifies the field when a form is submitted.
      */
     name?: string;
+    /**
+     * Whether the component renders a native `<button>` element when replacing it
+     * via the `render` prop.
+     * Set to `false` if the rendered element is not a button (e.g. `<div>`).
+     * @default true
+     */
+    nativeButton?: boolean;
     /**
      * Event handler called when the switch is activated or deactivated.
      *
