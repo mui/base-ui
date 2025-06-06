@@ -236,7 +236,6 @@ describe('<Calendar.DayButton />', () => {
       );
 
       const button = document.querySelector('button');
-      expect(button).to.have.attribute('disabled');
       expect(button).to.have.attribute('data-disabled');
     });
 
@@ -261,7 +260,6 @@ describe('<Calendar.DayButton />', () => {
       );
 
       const button = document.querySelector('button');
-      expect(button).to.have.attribute('disabled');
       expect(button).to.have.attribute('data-disabled');
     });
 
@@ -286,7 +284,6 @@ describe('<Calendar.DayButton />', () => {
       );
 
       const button = document.querySelector('button');
-      expect(button).to.have.attribute('disabled');
       expect(button).to.have.attribute('data-disabled');
     });
   });

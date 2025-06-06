@@ -86,7 +86,7 @@
     outline: 2px solid var(--calendar-button-focus-border-color);
   }
 
-  &:disabled {
+  &[data-disabled] {
     pointer-events: none;
     color: var(--calendar-cell-disabled-color);
   }
@@ -170,11 +170,11 @@
     background-color: var(--calendar-cell-selected-bg-color);
   }
 
-  &:disabled {
+  &[data-disabled] {
     pointer-events: none;
   }
 
-  &:not([data-outside-month]):disabled {
+  &:not([data-outside-month])[data-disabled] {
     color: var(--calendar-cell-disabled-color);
   }
 
