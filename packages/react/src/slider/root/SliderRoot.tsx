@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { activeElement } from '@floating-ui/react/utils';
+import { activeElement } from '../../floating-ui-react/utils';
 import { areArraysEqual } from '../../utils/areArraysEqual';
 import { clamp } from '../../utils/clamp';
 import { ownerDocument } from '../../utils/owner';

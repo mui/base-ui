@@ -1,8 +1,8 @@
 'use client';
 import * as React from 'react';
 import { getWindow, isHTMLElement } from '@floating-ui/utils/dom';
-import type { FloatingRootContext, ElementProps } from '@floating-ui/react';
-import { activeElement, contains, getDocument } from '@floating-ui/react/utils';
+import type { FloatingRootContext, ElementProps } from '../../floating-ui-react';
+import { activeElement, contains, getDocument } from '../../floating-ui-react/utils';
 import { useTimeout } from '../useTimeout';
 
 interface UseFocusWithDelayProps {

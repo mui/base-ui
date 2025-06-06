@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { activeElement, contains, getTarget } from '@floating-ui/react/utils';
+import { activeElement, contains, getTarget } from '../../floating-ui-react/utils';
 import type { BaseUIComponentProps } from '../../utils/types';
 import type { ToastObject as ToastObjectType } from '../useToastManager';
 import { ToastRootContext } from './ToastRootContext';

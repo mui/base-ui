@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import type { FloatingContext } from '@floating-ui/react';
+import type { FloatingContext } from '../../floating-ui-react';
 import type { Side } from '../../utils/useAnchorPositioning';
 
 export interface MenuPositionerContext {
