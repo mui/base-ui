@@ -12,8 +12,12 @@ const counters = {
 };
 
 function getCounterMap(control: 'inert' | 'aria-hidden' | null) {
-  if (control === 'inert') return counters.inert;
-  if (control === 'aria-hidden') return counters['aria-hidden'];
+  if (control === 'inert') {
+    return counters.inert;
+  }
+  if (control === 'aria-hidden') {
+    return counters['aria-hidden'];
+  }
   return counters.none;
 }
 
