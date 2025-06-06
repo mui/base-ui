@@ -58,7 +58,7 @@ export namespace useWeekList {
      * The amount of weeks to return.
      * When equal to "end-of-month", the method will return all the weeks until the end of the month.
      * When equal to a number, the method will return that many weeks.
-     * Put it to 6 to have a fixed number of weeks across months in Gregorian calendars.
+     * Put it to 6 to create a Gregorian calendar where all months have the same amount of weeks displayed.
      */
     amount: number | 'end-of-month';
   }

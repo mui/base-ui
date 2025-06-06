@@ -111,8 +111,8 @@ export namespace useSharedCalendarDayGridBody {
           weeks: TemporalSupportedObject[],
         ) => React.ReactNode);
     /**
-     * The day view will show as many weeks as needed after the end of the current month to match this value.
-     * Put it to 6 to have a fixed number of weeks in Gregorian calendars
+     * Will render the requested amount of weeks by adding weeks of the next month if needed.
+     * Put it to 6 to create a Gregorian calendar where all months have the same amount of weeks displayed.
      */
     fixedWeekNumber?: number;
     /**
