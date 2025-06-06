@@ -27,12 +27,6 @@ const customStyleHookMapping: CustomStyleHookMapping<CalendarDayButton.State> = 
   current(value) {
     return value ? { [CalendarDayButtonDataAttributes.current]: '' } : null;
   },
-  startOfWeek(value) {
-    return value ? { [CalendarDayButtonDataAttributes.startOfWeek]: '' } : null;
-  },
-  endOfWeek(value) {
-    return value ? { [CalendarDayButtonDataAttributes.endOfWeek]: '' } : null;
-  },
   outsideMonth(value) {
     return value ? { [CalendarDayButtonDataAttributes.outsideMonth]: '' } : null;
   },
@@ -50,11 +44,14 @@ const InnerCalendarDayButton = React.forwardRef(function InnerCalendarDayButton(
     nativeButton,
     ctx,
     format = adapter.formats.dayOfMonth,
+    disabled,
     ...elementProps
   } = componentProps;
 
+  const isDisabled = disabled ?? ctx.isDisabled;
+
   const { getButtonProps, buttonRef } = useButton({
-    disabled: ctx.isDisabled,
+    disabled: isDisabled,
     native: nativeButton,
   });
 
@@ -75,7 +72,7 @@ const InnerCalendarDayButton = React.forwardRef(function InnerCalendarDayButton(
     'aria-selected': ctx.isSelected ? true : undefined,
     'aria-current': ctx.isCurrent ? 'date' : undefined,
     'aria-disabled':
-      ctx.isDisabled || ctx.isOutsideCurrentMonth || ctx.isUnavailable ? true : undefined,
+      isDisabled || ctx.isOutsideCurrentMonth || ctx.isUnavailable ? true : undefined,
     children: formattedValue,
     tabIndex: ctx.isTabbable ? 0 : -1,
     onClick,
@@ -84,22 +81,12 @@ const InnerCalendarDayButton = React.forwardRef(function InnerCalendarDayButton(
   const state: CalendarDayButton.State = React.useMemo(
     () => ({
       selected: ctx.isSelected,
-      disabled: ctx.isDisabled,
+      disabled: isDisabled,
       unavailable: ctx.isUnavailable,
       current: ctx.isCurrent,
-      startOfWeek: ctx.isStartOfWeek,
-      endOfWeek: ctx.isEndOfWeek,
       outsideMonth: ctx.isOutsideCurrentMonth,
     }),
-    [
-      ctx.isSelected,
-      ctx.isDisabled,
-      ctx.isUnavailable,
-      ctx.isCurrent,
-      ctx.isStartOfWeek,
-      ctx.isEndOfWeek,
-      ctx.isOutsideCurrentMonth,
-    ],
+    [ctx.isSelected, isDisabled, ctx.isUnavailable, ctx.isCurrent, ctx.isOutsideCurrentMonth],
   );
 
   const element = useRenderElement('button', componentProps, {
@@ -143,16 +130,6 @@ export const CalendarDayButton = React.forwardRef(function CalendarDayButton(
     [adapter, value],
   );
 
-  const isStartOfWeek = React.useMemo(
-    () => adapter.isSameDay(value, adapter.startOfWeek(value)),
-    [adapter, value],
-  );
-
-  const isEndOfWeek = React.useMemo(
-    () => adapter.isSameDay(value, adapter.endOfWeek(value)),
-    [adapter, value],
-  );
-
   const isTabbable = React.useMemo(() => canCellBeTabbed(value), [canCellBeTabbed, value]);
 
   const formattedDate = React.useMemo(
@@ -168,8 +145,6 @@ export const CalendarDayButton = React.forwardRef(function CalendarDayButton(
       isUnavailable,
       isTabbable,
       isCurrent,
-      isStartOfWeek,
-      isEndOfWeek,
       isOutsideCurrentMonth,
       selectDate,
       formattedDate,
@@ -180,8 +155,6 @@ export const CalendarDayButton = React.forwardRef(function CalendarDayButton(
       isDisabled,
       isUnavailable,
       isTabbable,
-      isStartOfWeek,
-      isEndOfWeek,
       isCurrent,
       isOutsideCurrentMonth,
       selectDate,
@@ -219,14 +192,6 @@ export namespace CalendarDayButton {
      */
     current: boolean;
     /**
-     * Whether the day is the first day of its week.
-     */
-    startOfWeek: boolean;
-    /**
-     * Whether the day is the last day of its week.
-     */
-    endOfWeek: boolean;
-    /**
      * Whether the day is outside the month rendered by the day grid wrapping it.
      */
     outsideMonth: boolean;
@@ -262,8 +227,6 @@ interface InnerCalendarDayButtonContext {
   isUnavailable: boolean;
   isTabbable: boolean;
   isCurrent: boolean;
-  isStartOfWeek: boolean;
-  isEndOfWeek: boolean;
   isOutsideCurrentMonth: boolean;
   selectDate: (date: TemporalSupportedObject) => void;
   formattedDate: string;

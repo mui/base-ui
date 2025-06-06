@@ -31,14 +31,8 @@
     "data-current": {
       "description": "Present when the day is the current date."
     },
-    "data-end-of-week": {
-      "description": "Present when the day is the last day of its week."
-    },
     "data-outside-month": {
       "description": "Present when the day is outside the month rendered by the day grid wrapping it."
-    },
-    "data-start-of-week": {
-      "description": "Present when the day is the first day of its week."
     },
     "data-unavailable": {
       "description": "Present when the day is unavailable."
