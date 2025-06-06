@@ -4,5 +4,10 @@ coverage:
       default:
         target: auto
         threshold: 1%
+      adapters:
+        target: 100%
+        threshold: 100%
+        paths:
+          - packages/react/src/temporal-adapter-*/TemporalAdapter*.ts
     patch: off
 comment: false

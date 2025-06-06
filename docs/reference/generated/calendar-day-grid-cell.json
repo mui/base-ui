@@ -1,0 +1,21 @@
+{
+  "name": "CalendarDayGridCell",
+  "description": "An individual day cell in the calendar.\nRenders a `<div>` element.",
+  "props": {
+    "value": {
+      "type": "DateTime<boolean>",
+      "required": true,
+      "description": "The value to select when this cell is clicked."
+    },
+    "className": {
+      "type": "string | ((state: Calendar.DayGridCell.State) => string)",
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
+    },
+    "render": {
+      "type": "ReactElement | ((props: HTMLProps, state: Calendar.DayGridCell.State) => ReactElement)",
+      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
+    }
+  },
+  "dataAttributes": {},
+  "cssVariables": {}
+}
