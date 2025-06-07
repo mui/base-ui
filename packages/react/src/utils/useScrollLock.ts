@@ -179,7 +179,7 @@ class ScrollLocker {
     const htmlOverflowY = ownerWindow(html).getComputedStyle(html).overflowY;
 
     // If the site author already hid overflow on <html>, respect it and bail out.
-    if (htmlOverflowY === 'hidden') {
+    if (htmlOverflowY === 'hidden' || htmlOverflowY === 'clip') {
       this.restore = NOOP;
       return;
     }
