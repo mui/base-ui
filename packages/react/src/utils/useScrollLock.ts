@@ -3,6 +3,7 @@ import { ownerDocument, ownerWindow } from './owner';
 import { useModernLayoutEffect } from './useModernLayoutEffect';
 import { Timeout } from './useTimeout';
 import { AnimationFrame } from './useAnimationFrame';
+import { NOOP } from './noop';
 
 /* eslint-disable lines-between-class-members */
 
@@ -170,6 +171,16 @@ class ScrollLocker {
 
   private lock(referenceElement: Element | null) {
     if (this.lockCount === 0 || this.restore !== null) {
+      return;
+    }
+
+    const doc = ownerDocument(referenceElement);
+    const html = doc.documentElement;
+    const htmlOverflowY = ownerWindow(html).getComputedStyle(html).overflowY;
+
+    // If the site author already hid overflow on <html>, respect it and bail out.
+    if (htmlOverflowY === 'hidden') {
+      this.restore = NOOP;
       return;
     }
 
