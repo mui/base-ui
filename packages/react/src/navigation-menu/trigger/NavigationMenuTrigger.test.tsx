@@ -1,7 +1,6 @@
 import * as React from 'react';
 import { NavigationMenu } from '@base-ui-components/react/navigation-menu';
 import { createRenderer, describeConformance } from '#test-utils';
-import { expect } from 'chai';
 import { screen, flushMicrotasks } from '@mui/internal-test-utils';
 import userEvent from '@testing-library/user-event';
 
