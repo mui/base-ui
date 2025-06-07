@@ -109,7 +109,6 @@ export const SelectItem = React.memo(
       handleSelect: (event) => setValue(value, event),
       selectionRef,
       indexRef,
-      popupRef,
       keyboardActiveRef,
       events,
       rootProps,

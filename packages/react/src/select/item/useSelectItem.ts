@@ -5,10 +5,8 @@ import { useButton } from '../../use-button';
 import { mergeProps } from '../../merge-props';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import type { SelectRootContext } from '../root/SelectRootContext';
-import { useEventCallback } from '../../utils/useEventCallback';
 import { useForkRef } from '../../utils/useForkRef';
 import { isMouseWithinBounds } from '../../utils/isMouseWithinBounds';
-import { AnimationFrame } from '../../utils/useAnimationFrame';
 
 export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.ReturnValue {
   const {
@@ -21,7 +19,6 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
     handleSelect,
     selectionRef,
     indexRef,
-    popupRef,
     keyboardActiveRef,
     events,
     elementProps,
@@ -33,8 +30,6 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
   const lastKeyRef = React.useRef<string | null>(null);
   const pointerTypeRef = React.useRef<'mouse' | 'touch' | 'pen'>('mouse');
   const didPointerDownRef = React.useRef(false);
-  const prevPopupHeightRef = React.useRef(0);
-  const allowFocusSyncRef = React.useRef(true);
 
   const { store } = useSelectRootContext();
 
@@ -46,10 +41,10 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
 
   const mergedRef = useForkRef(externalRef, ref, buttonRef);
 
-  const commitSelection = useEventCallback((event: MouseEvent) => {
+  const commitSelection = (event: MouseEvent) => {
     handleSelect(event);
     setOpen(false, event, 'item-press');
-  });
+  };
 
   const props = mergeProps<'div'>(
     rootProps,
@@ -57,9 +52,7 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
       'aria-disabled': disabled || undefined,
       tabIndex: highlighted ? 0 : -1,
       onFocus() {
-        if (allowFocusSyncRef.current && keyboardActiveRef.current) {
-          store.set('activeIndex', indexRef.current);
-        }
+        store.set('activeIndex', indexRef.current);
       },
       onMouseEnter() {
         if (!keyboardActiveRef.current && store.state.selectedIndex === null) {
@@ -67,10 +60,6 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
         }
       },
       onMouseMove() {
-        if (popupRef.current) {
-          prevPopupHeightRef.current = popupRef.current.offsetHeight;
-        }
-
         store.set('activeIndex', indexRef.current);
       },
       onMouseLeave(event) {
@@ -82,17 +71,10 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
           return;
         }
 
-        // With `alignItemWithTrigger=true`, avoid re-rendering the root due to `onMouseLeave`
-        // firing and causing a performance issue when expanding the popup.
-        if (popupRef.current?.offsetHeight === prevPopupHeightRef.current) {
-          // Prevent `onFocus` from causing the highlight to be stuck when quickly moving
-          // the mouse out of the popup.
-          allowFocusSyncRef.current = false;
+        const isSibling =
+          (event.relatedTarget as HTMLElement | undefined)?.parentNode === ref.current?.parentNode;
 
-          AnimationFrame.request(() => {
-            allowFocusSyncRef.current = true;
-          });
-
+        if (!isSibling) {
           store.set('activeIndex', null);
         }
       },
@@ -216,7 +198,6 @@ export namespace useSelectItem {
      * A ref to the index of the item.
      */
     indexRef: React.RefObject<number>;
-    popupRef: React.RefObject<HTMLDivElement | null>;
     keyboardActiveRef: React.RefObject<boolean>;
     events: FloatingEvents;
     elementProps: HTMLProps;
