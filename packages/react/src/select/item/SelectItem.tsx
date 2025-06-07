@@ -50,7 +50,6 @@ export const SelectItem = React.memo(
       selectionRef,
       typingRef,
       valuesRef,
-      popupRef,
       registerSelectedItem,
       keyboardActiveRef,
       events,
@@ -88,8 +87,9 @@ export const SelectItem = React.memo(
       () => ({
         disabled,
         selected,
+        highlighted: active,
       }),
-      [disabled, selected],
+      [disabled, selected, active],
     );
 
     const rootProps = getItemProps({ active, selected });
@@ -108,7 +108,6 @@ export const SelectItem = React.memo(
       handleSelect: (event) => setValue(value, event),
       selectionRef,
       indexRef,
-      popupRef,
       keyboardActiveRef,
       events,
       rootProps,
@@ -145,6 +144,10 @@ export namespace SelectItem {
      * Whether the item is selected.
      */
     selected: boolean;
+    /**
+     * Whether the item is highlighted.
+     */
+    highlighted: boolean;
   }
 
   export interface Props extends Omit<BaseUIComponentProps<'div', State>, 'id'> {
