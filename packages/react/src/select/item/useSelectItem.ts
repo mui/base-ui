@@ -5,11 +5,8 @@ import { useButton } from '../../use-button';
 import { mergeProps } from '../../merge-props';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import type { SelectRootContext } from '../root/SelectRootContext';
-import { useTimeout } from '../../utils/useTimeout';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { useForkRef } from '../../utils/useForkRef';
-import { useModernLayoutEffect } from '../../utils';
-import { addHighlight, hasHighlight, removeHighlight } from '../../utils/highlighted';
 import { isMouseWithinBounds } from '../../utils/isMouseWithinBounds';
 import { AnimationFrame } from '../../utils/useAnimationFrame';
 
@@ -38,7 +35,6 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
   const didPointerDownRef = React.useRef(false);
   const prevPopupHeightRef = React.useRef(0);
   const allowFocusSyncRef = React.useRef(true);
-  const cursorMovementTimeout = useTimeout();
 
   const { store } = useSelectRootContext();
 
@@ -55,80 +51,30 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
     setOpen(false, event, 'item-press');
   });
 
-  const handlePopupLeave = useEventCallback(() => {
-    if (cursorMovementTimeout.isStarted()) {
-      cursorMovementTimeout.clear();
-      removeHighlight(ref);
-    }
-  });
-
-  React.useEffect(() => {
-    return handlePopupLeave;
-  }, [handlePopupLeave]);
-
-  useModernLayoutEffect(() => {
-    if (highlighted) {
-      addHighlight(ref);
-    } else {
-      removeHighlight(ref);
-    }
-  }, [highlighted]);
-
-  React.useEffect(() => {
-    function handleItemHover(item: HTMLDivElement) {
-      if (ref.current && item !== ref.current) {
-        removeHighlight(ref);
-      }
-    }
-
-    events.on('itemhover', handleItemHover);
-    return () => {
-      events.off('itemhover', handleItemHover);
-    };
-  }, [events, indexRef]);
-
   const props = mergeProps<'div'>(
     rootProps,
     {
       'aria-disabled': disabled || undefined,
       tabIndex: highlighted ? 0 : -1,
       onFocus() {
-        if (
-          allowFocusSyncRef.current &&
-          keyboardActiveRef.current &&
-          cursorMovementTimeout.isStarted() === false
-        ) {
+        if (allowFocusSyncRef.current && keyboardActiveRef.current) {
           store.set('activeIndex', indexRef.current);
         }
       },
       onMouseEnter() {
         if (!keyboardActiveRef.current && store.state.selectedIndex === null) {
-          addHighlight(ref);
           events.emit('itemhover', ref.current);
         }
       },
       onMouseMove() {
-        if (keyboardActiveRef.current) {
-          store.set('activeIndex', indexRef.current);
-        } else {
-          addHighlight(ref);
-          events.emit('itemhover', ref.current);
-        }
-
         if (popupRef.current) {
           prevPopupHeightRef.current = popupRef.current.offsetHeight;
         }
 
-        events.off('popupleave', handlePopupLeave);
-        events.on('popupleave', handlePopupLeave);
-        // When this fires, the cursor has stopped moving.
-        cursorMovementTimeout.start(50, () => {
-          store.set('activeIndex', indexRef.current);
-        });
+        store.set('activeIndex', indexRef.current);
       },
       onMouseLeave(event) {
-        const popup = popupRef.current;
-        if (!popup || keyboardActiveRef.current) {
+        if (keyboardActiveRef.current) {
           return;
         }
 
@@ -136,29 +82,18 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
           return;
         }
 
-        removeHighlight(ref);
-        events.off('popupleave', handlePopupLeave);
-
-        const wasCursorStationary = cursorMovementTimeout.isStarted() === false;
-        if (!wasCursorStationary) {
-          cursorMovementTimeout.clear();
-        }
-
         // With `alignItemWithTrigger=true`, avoid re-rendering the root due to `onMouseLeave`
         // firing and causing a performance issue when expanding the popup.
-        if (popup.offsetHeight === prevPopupHeightRef.current) {
+        if (popupRef.current?.offsetHeight === prevPopupHeightRef.current) {
           // Prevent `onFocus` from causing the highlight to be stuck when quickly moving
           // the mouse out of the popup.
           allowFocusSyncRef.current = false;
 
-          if (keyboardActiveRef.current || wasCursorStationary) {
-            store.set('activeIndex', null);
-          }
-
           AnimationFrame.request(() => {
-            cursorMovementTimeout.clear();
             allowFocusSyncRef.current = true;
           });
+
+          store.set('activeIndex', null);
         }
       },
       onTouchStart() {
@@ -184,7 +119,7 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
         if (
           disabled ||
           (lastKeyRef.current === ' ' && typingRef.current) ||
-          (pointerTypeRef.current !== 'touch' && !hasHighlight(ref))
+          (pointerTypeRef.current !== 'touch' && !highlighted)
         ) {
           return;
         }
@@ -217,7 +152,7 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
         if (
           disallowSelectedMouseUp ||
           disallowUnselectedMouseUp ||
-          (pointerTypeRef.current !== 'touch' && !hasHighlight(ref))
+          (pointerTypeRef.current !== 'touch' && !highlighted)
         ) {
           return;
         }
