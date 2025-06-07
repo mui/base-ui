@@ -19,6 +19,7 @@ import { useTransitionStatus } from '../../utils';
 import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { useSelector, Store } from '../../utils/store';
+import { useTimeout } from '../../utils/useTimeout';
 import { warn } from '../../utils/warn';
 import { selectors, State } from '../store';
 import type { SelectRootContext } from './SelectRootContext';
@@ -100,6 +101,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     allowSelect: false,
   });
   const alignItemWithTriggerActiveRef = React.useRef(false);
+  const highlightTimeout = useTimeout();
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
 
@@ -393,6 +395,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
       onOpenChangeComplete,
       keyboardActiveRef,
       alignItemWithTriggerActiveRef,
+      highlightTimeout,
     }),
     [
       store,
@@ -417,6 +420,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
       onOpenChangeComplete,
       keyboardActiveRef,
       alignItemWithTriggerActiveRef,
+      highlightTimeout,
     ],
   );
 

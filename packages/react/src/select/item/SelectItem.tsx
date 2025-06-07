@@ -50,7 +50,6 @@ export const SelectItem = React.memo(
       selectionRef,
       typingRef,
       valuesRef,
-      popupRef,
       registerSelectedItem,
       keyboardActiveRef,
       events,

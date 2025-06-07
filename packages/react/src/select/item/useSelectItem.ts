@@ -31,7 +31,7 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
   const pointerTypeRef = React.useRef<'mouse' | 'touch' | 'pen'>('mouse');
   const didPointerDownRef = React.useRef(false);
 
-  const { store } = useSelectRootContext();
+  const { store, highlightTimeout } = useSelectRootContext();
 
   const { getButtonProps, buttonRef } = useButton({
     disabled,
@@ -71,12 +71,11 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
           return;
         }
 
-        const isSibling =
-          (event.relatedTarget as HTMLElement | undefined)?.parentNode === ref.current?.parentNode;
-
-        if (!isSibling) {
-          store.set('activeIndex', null);
-        }
+        highlightTimeout.start(0, () => {
+          if (store.state.activeIndex === indexRef.current) {
+            store.set('activeIndex', null);
+          }
+        });
       },
       onTouchStart() {
         selectionRef.current = {
