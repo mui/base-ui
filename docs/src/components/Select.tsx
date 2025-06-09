@@ -7,7 +7,7 @@ import { ThickCheckIcon } from '../icons/ThickCheckIcon';
 export const Root = Select.Root;
 
 interface TriggerProps extends Omit<Select.Trigger.Props, 'children'> {
-  placeholder: Select.Value.Props['placeholder'];
+  placeholder?: Select.Value.Props['placeholder'];
   children?: Select.Value.Props['children'];
 }
 

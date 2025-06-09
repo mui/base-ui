@@ -7,9 +7,9 @@ const items = Array.from({ length: 1000 }, (_, i) => `Item ${i + 1}`);
 
 export default function ExampleSelect() {
   return (
-    <Select.Root defaultValue="Item 1">
+    <Select.Root defaultValue="Item 1" defaultLabel="Item 1">
       <Select.Trigger className={styles.Select}>
-        <Select.Value placeholder="Item 1" />
+        <Select.Value />
         <Select.Icon className={styles.SelectIcon}>
           <ChevronUpDownIcon />
         </Select.Icon>

@@ -4,8 +4,7 @@
   "props": {
     "placeholder": {
       "type": "ReactNode",
-      "required": true,
-      "description": "A placeholder to display before an item has been chosen."
+      "description": "A placeholder to display when no value is selected."
     },
     "children": {
       "type": "((label: ReactNode, value: any) => ReactNode) | null"

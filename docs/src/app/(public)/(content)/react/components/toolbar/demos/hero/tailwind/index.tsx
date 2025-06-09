@@ -41,12 +41,12 @@ export default function ExampleToolbar() {
         </Toolbar.Button>
       </Toolbar.Group>
       <Toolbar.Separator className="m-1 h-4 w-px bg-gray-300" />
-      <Select.Root defaultValue="helvetica">
+      <Select.Root defaultValue="helvetica" defaultLabel="Helvetica">
         <Toolbar.Button
           render={<Select.Trigger />}
           className="flex h-8 min-w-32 items-center justify-between rounded-sm px-[0.75rem] font-[inherit] text-sm font-medium text-gray-600 select-none hover:bg-gray-100 focus-visible:bg-none focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 active:bg-gray-200 data-[pressed]:bg-gray-100 data-[pressed]:text-gray-900"
         >
-          <Select.Value placeholder="Helvetica" />
+          <Select.Value />
           <Select.Icon>
             <ChevronUpDownIcon />
           </Select.Icon>

@@ -12,14 +12,13 @@ import { useForkRef } from '../../utils/useForkRef';
  *
  * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
  */
-export const SelectRoot: SelectRoot = function SelectRoot<Value>(
-  props: SelectRoot.Props<Value>,
-): React.JSX.Element {
+export function SelectRoot<Value>(props: SelectRoot.Props<Value>): React.JSX.Element {
   const {
     id,
     value: valueProp,
     defaultValue = null,
     onValueChange,
+    defaultLabel = '',
     open,
     defaultOpen = false,
     onOpenChange,
@@ -38,6 +37,7 @@ export const SelectRoot: SelectRoot = function SelectRoot<Value>(
     value: valueProp,
     defaultValue,
     onValueChange,
+    defaultLabel,
     open,
     defaultOpen,
     onOpenChange,
@@ -84,22 +84,25 @@ export const SelectRoot: SelectRoot = function SelectRoot<Value>(
                 return;
               }
 
+              store.set('forceMount', true);
               const nextValue = event.target.value;
 
-              const exactValue = rootContext.valuesRef.current.find(
-                (v) =>
-                  v === nextValue ||
-                  (typeof value === 'string' && nextValue.toLowerCase() === v.toLowerCase()),
-              );
+              queueMicrotask(() => {
+                const exactValue = rootContext.valuesRef.current.find(
+                  (v) =>
+                    v === nextValue ||
+                    (typeof value === 'string' && nextValue.toLowerCase() === v.toLowerCase()),
+                );
 
-              if (exactValue != null) {
-                setDirty(exactValue !== validityData.initialValue);
-                rootContext.setValue?.(exactValue, event.nativeEvent);
+                if (exactValue != null) {
+                  setDirty(exactValue !== validityData.initialValue);
+                  rootContext.setValue?.(exactValue, event.nativeEvent);
 
-                if (validationMode === 'onChange') {
-                  rootContext.fieldControlValidation.commitValidation(exactValue);
+                  if (validationMode === 'onChange') {
+                    rootContext.fieldControlValidation.commitValidation(exactValue);
+                  }
                 }
-              }
+              });
             },
             id,
             name: rootContext.name,
@@ -116,7 +119,7 @@ export const SelectRoot: SelectRoot = function SelectRoot<Value>(
       </SelectFloatingContext.Provider>
     </SelectRootContext.Provider>
   );
-};
+}
 
 export namespace SelectRoot {
   export interface Props<Value> extends useSelectRoot.Parameters<Value> {

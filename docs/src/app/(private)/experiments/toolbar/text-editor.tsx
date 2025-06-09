@@ -135,13 +135,13 @@ export default function App() {
       <div className={styles.toolbar.Wrapper}>
         <Tooltip.Provider>
           <Toolbar.Root className={styles.toolbar.Root}>
-            <Select.Root defaultValue="sans">
+            <Select.Root defaultValue="sans" defaultLabel="Sans-serif">
               <Toolbar.Button
                 disabled={SELECT_DISABLED}
                 render={<Select.Trigger />}
                 className={styles.select.Select}
               >
-                <Select.Value placeholder="Sans-serif" />
+                <Select.Value />
                 <Select.Icon className={styles.select.SelectIcon}>
                   <ChevronUpDownIcon />
                 </Select.Icon>

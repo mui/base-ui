@@ -18,9 +18,9 @@ describe('<Select.Trigger />', () => {
   describe('disabled state', () => {
     it('cannot be focused when disabled', async () => {
       const { user } = await render(
-        <Select.Root defaultValue="b">
+        <Select.Root defaultValue="b" defaultLabel="b">
           <Select.Trigger data-testid="trigger" disabled>
-            <Select.Value placeholder="b" />
+            <Select.Value />
           </Select.Trigger>
           <Select.Portal>
             <Select.Positioner>
@@ -44,9 +44,9 @@ describe('<Select.Trigger />', () => {
     it('does not toggle the popup when disabled', async () => {
       const handleOpenChange = spy();
       await render(
-        <Select.Root defaultValue="b" onOpenChange={handleOpenChange}>
+        <Select.Root defaultValue="b" defaultLabel="b" onOpenChange={handleOpenChange}>
           <Select.Trigger data-testid="trigger" disabled>
-            <Select.Value placeholder="b" />
+            <Select.Value />
           </Select.Trigger>
           <Select.Portal>
             <Select.Positioner>

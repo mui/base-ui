@@ -17,9 +17,9 @@ export function SelectPortal(props: SelectPortal.Props) {
 
   const { store } = useSelectRootContext();
   const mounted = useSelector(store, selectors.mounted);
-  const typeaheadReady = useSelector(store, selectors.typeaheadReady);
+  const forceMount = useSelector(store, selectors.forceMount);
 
-  const shouldRender = mounted || typeaheadReady;
+  const shouldRender = mounted || forceMount;
   if (!shouldRender) {
     return null;
   }

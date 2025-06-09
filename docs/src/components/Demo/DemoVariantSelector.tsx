@@ -142,11 +142,12 @@ export function DemoVariantSelector({
       )}
 
       {renderVariantSelector && (
-        <Select.Root value={selectedLocalVariant.name} onValueChange={handleVariantChange}>
-          <Select.Trigger
-            aria-label="Styling method"
-            placeholder={translations.variants[selectedLocalVariant.name]}
-          />
+        <Select.Root
+          value={selectedLocalVariant.name}
+          onValueChange={handleVariantChange}
+          defaultLabel={translations.variants[selectedLocalVariant.name]}
+        >
+          <Select.Trigger aria-label="Styling method" />
           <Select.Popup>
             {Object.keys(variantsMap).map((variantName) => (
               <Select.Item key={variantName} value={variantName}>

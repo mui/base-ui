@@ -44,6 +44,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     modal = false,
     name: nameProp,
     onOpenChangeComplete,
+    defaultLabel,
   } = params;
 
   const { clearErrors } = useFormContext();
@@ -109,10 +110,11 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
         id,
         modal,
         value,
+        defaultLabel,
         label: '',
         open,
         mounted,
-        typeaheadReady: false,
+        forceMount: false,
         transitionStatus,
         touchModality: false,
         activeIndex: null,
@@ -127,6 +129,14 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
         alignItemWithTriggerActive: false,
       }),
   ).current;
+
+  const initialValueRef = React.useRef(value);
+  useModernLayoutEffect(() => {
+    // Ensure the values and labels are registered for programmatic value changes.
+    if (value !== initialValueRef.current) {
+      store.set('forceMount', true);
+    }
+  }, [store, value]);
 
   const activeIndex = useSelector(store, selectors.activeIndex);
   const selectedIndex = useSelector(store, selectors.selectedIndex);
@@ -463,6 +473,11 @@ export namespace useSelectRoot {
      * @default null
      */
     defaultValue?: Value | null;
+    /**
+     * The default label of the select when an item is initially selected.
+     * @default ''
+     */
+    defaultLabel?: React.ReactNode;
     /**
      * Whether the select menu is initially open.
      *

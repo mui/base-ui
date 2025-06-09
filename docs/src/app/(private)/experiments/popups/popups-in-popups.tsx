@@ -54,13 +54,13 @@ export default function PopupsInPopups() {
 
 function SelectDemo({ modal }: Props) {
   return (
-    <Select.Root modal={modal} defaultValue="system">
+    <Select.Root modal={modal} defaultValue="system" defaultLabel="System font">
       <Tooltip.Root>
         <Select.Trigger
           aria-label="Select font"
           render={<Tooltip.Trigger render={<Trigger />} />}
         >
-          <Select.Value placeholder="System font" />
+          <Select.Value />
           <SelectDropdownArrow />
         </Select.Trigger>
         <Tooltip.Portal>
