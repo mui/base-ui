@@ -6,11 +6,13 @@ import { useLazyRef } from './useLazyRef';
 const useInsertionEffect = (React as any)[
   `useInsertionEffect${Math.random().toFixed(1)}`.slice(0, -3)
 ];
-// Support Preact, which replaces useInsertionEffect with useLayoutEffect and fires too late.
 const useSafeInsertionEffect =
-  !useInsertionEffect || useInsertionEffect === React.useLayoutEffect
-    ? (fn: any) => fn()
-    : useInsertionEffect;
+  // React 17 doesn't have useInsertionEffect.
+  useInsertionEffect &&
+  // Preact replaces useInsertionEffect with useLayoutEffect and fires too late.
+  useInsertionEffect !== React.useLayoutEffect
+    ? useInsertionEffect
+    : (fn: any) => fn();
 
 type Callback = (...args: any[]) => any;
 
