@@ -70,7 +70,8 @@ function preventScrollStandard(referenceElement: Element | null) {
     };
 
     // Handle `scrollbar-gutter` in Chrome when there is no scrollable content.
-    const supportsStableScrollbarGutter = CSS.supports('scrollbar-gutter', 'stable');
+    const supportsStableScrollbarGutter =
+      typeof CSS !== 'undefined' && CSS.supports?.('scrollbar-gutter', 'stable');
 
     const isScrollableY = html.scrollHeight > html.clientHeight;
     const isScrollableX = html.scrollWidth > html.clientWidth;
