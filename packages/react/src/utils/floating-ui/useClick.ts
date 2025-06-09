@@ -74,11 +74,12 @@ export function useClick(context: FloatingRootContext, props: UseClickProps = {}
           return;
         }
 
-        const openEventType = dataRef.current.openEvent?.type;
+        const openEvent = dataRef.current.openEvent;
+        const openEventType = openEvent?.type;
         const nextOpen = !(
           open &&
           toggle &&
-          (openEventType && stickIfOpen
+          (openEvent && stickIfOpen
             ? openEventType === 'click' || openEventType === 'mousedown'
             : true)
         );
@@ -100,11 +101,12 @@ export function useClick(context: FloatingRootContext, props: UseClickProps = {}
           return;
         }
 
-        const openEventType = dataRef.current.openEvent?.type;
+        const openEvent = dataRef.current.openEvent;
+        const openEventType = openEvent?.type;
         const nextOpen = !(
           open &&
           toggle &&
-          (openEventType && stickIfOpen
+          (openEvent && stickIfOpen
             ? openEventType === 'click' ||
               openEventType === 'mousedown' ||
               openEventType === 'keydown' ||
