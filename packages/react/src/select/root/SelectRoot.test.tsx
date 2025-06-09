@@ -320,12 +320,10 @@ describe('<Select.Root />', () => {
 
     const trigger = screen.getByTestId('trigger');
 
-    fireEvent.click(trigger);
-
+    fireEvent.change(container.querySelector('[name="select"]')!, { target: { value: 'b' } });
     await flushMicrotasks();
 
-    fireEvent.change(container.querySelector('[name="select"]')!, { target: { value: 'b' } });
-
+    fireEvent.click(trigger);
     await flushMicrotasks();
 
     expect(screen.getByRole('option', { name: 'b', hidden: false })).to.have.attribute(
