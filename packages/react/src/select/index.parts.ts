@@ -8,6 +8,7 @@ export { SelectPositioner as Positioner } from './positioner/SelectPositioner';
 export { SelectPopup as Popup } from './popup/SelectPopup';
 export { SelectItem as Item } from './item/SelectItem';
 export { SelectItemIndicator as ItemIndicator } from './item-indicator/SelectItemIndicator';
+export { SelectItemTemplate as ItemTemplate } from './item-template/SelectItemTemplate';
 export { SelectItemText as ItemText } from './item-text/SelectItemText';
 export { SelectArrow as Arrow } from './arrow/SelectArrow';
 export { SelectScrollDownArrow as ScrollDownArrow } from './scroll-down-arrow/SelectScrollDownArrow';

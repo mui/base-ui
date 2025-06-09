@@ -5,6 +5,7 @@ import { SelectRootContext, SelectFloatingContext } from './SelectRootContext';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { visuallyHidden } from '../../utils/visuallyHidden';
 import { useForkRef } from '../../utils/useForkRef';
+import { SelectItemTemplate } from '../item-template/SelectItemTemplate';
 
 /**
  * Groups all parts of the select.
@@ -31,7 +32,18 @@ export const SelectRoot: SelectRoot = function SelectRoot<Value>(
     actionsRef,
     inputRef,
     onOpenChangeComplete,
+    items,
   } = props;
+
+  const itemTemplateComponent = React.Children.toArray(props.children).find(
+    (child) => React.isValidElement(child) && child.type === SelectItemTemplate,
+  ) as React.ReactElement<SelectItemTemplate.Props> | undefined;
+
+  let itemTemplate: ((item: Value) => React.ReactNode) | undefined;
+
+  if (itemTemplateComponent) {
+    itemTemplate = itemTemplateComponent.props.children;
+  }
 
   const { rootContext, floatingContext } = useSelectRoot<Value>({
     id,
@@ -48,6 +60,8 @@ export const SelectRoot: SelectRoot = function SelectRoot<Value>(
     modal,
     actionsRef,
     onOpenChangeComplete,
+    items,
+    itemTemplate,
   });
   const store = rootContext.store;
 
@@ -119,7 +133,7 @@ export const SelectRoot: SelectRoot = function SelectRoot<Value>(
 };
 
 export namespace SelectRoot {
-  export interface Props<Value> extends useSelectRoot.Parameters<Value> {
+  export interface Props<Value> extends Omit<useSelectRoot.Parameters<Value>, 'itemTemplate'> {
     children?: React.ReactNode;
     /**
      * A ref to access the hidden input element.

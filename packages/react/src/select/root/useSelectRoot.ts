@@ -44,6 +44,8 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     modal = false,
     name: nameProp,
     onOpenChangeComplete,
+    items,
+    itemTemplate,
   } = params;
 
   const { clearErrors } = useFormContext();
@@ -90,7 +92,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
   const labelsRef = React.useRef<Array<string | null>>([]);
   const popupRef = React.useRef<HTMLDivElement | null>(null);
   const valueRef = React.useRef<HTMLSpanElement | null>(null);
-  const valuesRef = React.useRef<Array<any>>([]);
+  const valuesRef = React.useRef<Array<any>>(items ?? EMPTY_ARRAY);
   const typingRef = React.useRef(false);
   const keyboardActiveRef = React.useRef(false);
   const selectedItemTextRef = React.useRef<HTMLSpanElement | null>(null);
@@ -393,6 +395,8 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
       onOpenChangeComplete,
       keyboardActiveRef,
       alignItemWithTriggerActiveRef,
+      items,
+      itemTemplate,
     }),
     [
       store,
@@ -415,6 +419,8 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
       fieldControlValidation,
       registerSelectedItem,
       onOpenChangeComplete,
+      items,
+      itemTemplate,
       keyboardActiveRef,
       alignItemWithTriggerActiveRef,
     ],
@@ -425,6 +431,8 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
 
 export namespace useSelectRoot {
   export interface Parameters<Value> {
+    items?: Value[];
+    itemTemplate?: (item: Value) => React.ReactNode;
     /**
      * Identifies the field when a form is submitted.
      */

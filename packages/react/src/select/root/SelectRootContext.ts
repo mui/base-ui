@@ -6,6 +6,8 @@ import type { HTMLProps } from '../../utils/types';
 import type { SelectOpenChangeReason } from './useSelectRoot';
 
 export interface SelectRootContext {
+  items?: Array<any>;
+  itemTemplate?: (item: any) => React.ReactNode;
   store: SelectStore;
   name: string | undefined;
   disabled: boolean;

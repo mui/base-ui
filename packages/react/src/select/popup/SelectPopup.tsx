@@ -33,7 +33,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
 ) {
   const { render, className, ...elementProps } = componentProps;
 
-  const { store, popupRef, onOpenChangeComplete } = useSelectRootContext();
+  const { store, popupRef, onOpenChangeComplete, items, itemTemplate } = useSelectRootContext();
   const positioner = useSelectPositionerContext();
 
   const id = useSelector(store, selectors.id);
@@ -65,6 +65,15 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
 
   const { props } = useSelectPopup();
 
+  const children =
+    itemTemplate && items
+      ? {
+          children: items.map((item) => {
+            return itemTemplate(item);
+          }),
+        }
+      : undefined;
+
   const element = useRenderElement('div', componentProps, {
     ref: [forwardedRef, popupRef],
     state,
@@ -74,6 +83,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
       props,
       transitionStatus === 'starting' ? DISABLED_TRANSITIONS_STYLE : EMPTY_OBJECT,
       elementProps,
+      children,
     ],
   });
 
