@@ -33,9 +33,9 @@ describe('<Select.Value />', () => {
         <Select.Root value="1">
           <Select.Trigger>
             <Select.Value placeholder="placeholder">
-              {(label, value) => {
-                children(label, value);
-                return label;
+              {(value) => {
+                children(value);
+                return value;
               }}
             </Select.Value>
           </Select.Trigger>
@@ -49,13 +49,11 @@ describe('<Select.Value />', () => {
         </Select.Root>,
       );
 
-      fireEvent.click(screen.getByText('placeholder'));
+      fireEvent.click(screen.getByText('1'));
       await flushMicrotasks();
 
-      expect(children.firstCall.firstArg).to.equal('placeholder');
+      expect(children.firstCall.firstArg).to.equal('1');
       expect(children.firstCall.lastArg).to.equal('1');
-      expect(children.lastCall.firstArg).to.equal('one');
-      expect(children.lastCall.lastArg).to.equal('1');
     });
   });
 

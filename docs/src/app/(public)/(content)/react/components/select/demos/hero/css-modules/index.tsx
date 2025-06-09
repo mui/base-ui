@@ -4,9 +4,9 @@ import styles from './index.module.css';
 
 export default function ExampleSelect() {
   return (
-    <Select.Root defaultValue="sans">
+    <Select.Root defaultValue="Sans-serif">
       <Select.Trigger className={styles.Select}>
-        <Select.Value placeholder="Sans-serif" />
+        <Select.Value />
         <Select.Icon className={styles.SelectIcon}>
           <ChevronUpDownIcon />
         </Select.Icon>
@@ -15,7 +15,7 @@ export default function ExampleSelect() {
         <Select.Positioner className={styles.Positioner} sideOffset={8}>
           <Select.ScrollUpArrow className={styles.ScrollArrow} />
           <Select.Popup className={styles.Popup}>
-            <Select.Item className={styles.Item} value="sans">
+            <Select.Item className={styles.Item} value="Sans-serif">
               <Select.ItemIndicator className={styles.ItemIndicator}>
                 <CheckIcon className={styles.ItemIndicatorIcon} />
               </Select.ItemIndicator>
@@ -23,13 +23,13 @@ export default function ExampleSelect() {
                 Sans-serif
               </Select.ItemText>
             </Select.Item>
-            <Select.Item className={styles.Item} value="serif">
+            <Select.Item className={styles.Item} value="Serif">
               <Select.ItemIndicator className={styles.ItemIndicator}>
                 <CheckIcon className={styles.ItemIndicatorIcon} />
               </Select.ItemIndicator>
               <Select.ItemText className={styles.ItemText}>Serif</Select.ItemText>
             </Select.Item>
-            <Select.Item className={styles.Item} value="mono">
+            <Select.Item className={styles.Item} value="Monospace">
               <Select.ItemIndicator className={styles.ItemIndicator}>
                 <CheckIcon className={styles.ItemIndicatorIcon} />
               </Select.ItemIndicator>
@@ -37,7 +37,7 @@ export default function ExampleSelect() {
                 Monospace
               </Select.ItemText>
             </Select.Item>
-            <Select.Item className={styles.Item} value="cursive">
+            <Select.Item className={styles.Item} value="Cursive">
               <Select.ItemIndicator className={styles.ItemIndicator}>
                 <CheckIcon className={styles.ItemIndicatorIcon} />
               </Select.ItemIndicator>
