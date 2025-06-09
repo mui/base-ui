@@ -54,6 +54,7 @@ function preventScrollStandard(referenceElement: Element | null) {
     scrollLeft = html.scrollLeft;
 
     originalHtmlStyles = {
+      scrollbarGutter: html.style.scrollbarGutter,
       overflowY: html.style.overflowY,
       overflowX: html.style.overflowX,
     };
