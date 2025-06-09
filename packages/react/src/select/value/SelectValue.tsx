@@ -30,10 +30,8 @@ export const SelectValue = React.forwardRef(function SelectValue(
   const defaultLabel = useSelector(store, selectors.defaultLabel);
   const label = useSelector(store, selectors.label);
 
-  let printedValue: React.ReactNode = '';
-  if (value == null) {
-    printedValue = placeholder;
-  } else {
+  let printedValue = placeholder;
+  if (value != null) {
     printedValue = label || defaultLabel;
   }
 
