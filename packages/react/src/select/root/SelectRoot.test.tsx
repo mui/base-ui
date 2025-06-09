@@ -163,6 +163,33 @@ describe('<Select.Root />', () => {
       expect(onValueChange.callCount).to.equal(0);
       expect(trigger).to.have.text('a');
     });
+
+    it('updates <Select.Value /> label when the value prop changes before the popup opens', async () => {
+      const { setProps } = await render(
+        <Select.Root value="b">
+          <Select.Trigger data-testid="trigger">
+            <Select.Value placeholder="b" />
+          </Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup>
+                <Select.Item value="a">a</Select.Item>
+                <Select.Item value="b">b</Select.Item>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+
+      expect(trigger).to.have.text('b');
+
+      await setProps({ value: 'a' });
+      await flushMicrotasks();
+
+      expect(trigger).to.have.text('a');
+    });
   });
 
   describe('prop: onValueChange', () => {
