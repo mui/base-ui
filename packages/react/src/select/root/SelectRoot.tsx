@@ -39,7 +39,7 @@ export const SelectRoot: SelectRoot = function SelectRoot<Value>(
     (child) => React.isValidElement(child) && child.type === SelectItemTemplate,
   ) as React.ReactElement<SelectItemTemplate.Props> | undefined;
 
-  let itemTemplate: ((item: Value) => React.ReactNode) | undefined;
+  let itemTemplate: ((item: SelectRoot.SelectOption<Value>) => React.ReactNode) | undefined;
 
   if (itemTemplateComponent) {
     itemTemplate = itemTemplateComponent.props.children;
@@ -146,6 +146,12 @@ export namespace SelectRoot {
   export type Actions = useSelectRoot.Actions;
 
   export type OpenChangeReason = SelectOpenChangeReason;
+
+  export interface SelectOption<Value> {
+    value: Value;
+    label: string;
+    disabled?: boolean;
+  }
 }
 
 export interface SelectRoot {

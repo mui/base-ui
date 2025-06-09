@@ -20,6 +20,7 @@ import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { useSelector, Store } from '../../utils/store';
 import { warn } from '../../utils/warn';
+import type { SelectRoot } from './SelectRoot';
 import { selectors, State } from '../store';
 import type { SelectRootContext } from './SelectRootContext';
 import {
@@ -89,10 +90,12 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
   const isValueControlled = params.value !== undefined;
 
   const listRef = React.useRef<Array<HTMLElement | null>>([]);
-  const labelsRef = React.useRef<Array<string | null>>([]);
+  const labelsRef = React.useRef<Array<string | null>>(
+    items ? items.map((item) => item.label) : [],
+  );
   const popupRef = React.useRef<HTMLDivElement | null>(null);
   const valueRef = React.useRef<HTMLSpanElement | null>(null);
-  const valuesRef = React.useRef<Array<any>>(items ?? EMPTY_ARRAY);
+  const valuesRef = React.useRef<Array<any>>(items ? items.map((item) => item.value) : []);
   const typingRef = React.useRef(false);
   const keyboardActiveRef = React.useRef(false);
   const selectedItemTextRef = React.useRef<HTMLSpanElement | null>(null);
@@ -111,7 +114,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
         id,
         modal,
         value,
-        label: '',
+        label: items?.find((item) => item.value === value)?.label ?? '',
         open,
         mounted,
         typeaheadReady: false,
@@ -431,8 +434,8 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
 
 export namespace useSelectRoot {
   export interface Parameters<Value> {
-    items?: Value[];
-    itemTemplate?: (item: Value) => React.ReactNode;
+    items?: SelectRoot.SelectOption<Value>[];
+    itemTemplate?: (item: SelectRoot.SelectOption<Value>) => React.ReactNode;
     /**
      * Identifies the field when a form is submitted.
      */

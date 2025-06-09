@@ -4,10 +4,11 @@ import type { SelectStore } from '../store';
 import type { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
 import type { HTMLProps } from '../../utils/types';
 import type { SelectOpenChangeReason } from './useSelectRoot';
+import type { SelectRoot } from './SelectRoot';
 
 export interface SelectRootContext {
-  items?: Array<any>;
-  itemTemplate?: (item: any) => React.ReactNode;
+  items?: SelectRoot.SelectOption<any>[];
+  itemTemplate?: (item: SelectRoot.SelectOption<any>) => React.ReactNode;
   store: SelectStore;
   name: string | undefined;
   disabled: boolean;
