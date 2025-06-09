@@ -68,9 +68,11 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
   const children =
     itemTemplate && items
       ? {
-          children: items.map((item) => {
-            return itemTemplate(item);
-          }),
+          children: items
+            .map((item) => {
+              return itemTemplate(item);
+            })
+            .concat(elementProps.children),
         }
       : undefined;
 
