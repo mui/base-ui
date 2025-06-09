@@ -3,13 +3,16 @@ import * as React from 'react';
 import { Select } from '@base-ui-components/react/select';
 import styles from './select-perf.module.css';
 
-const items = Array.from({ length: 100 }, (_, i) => `Item ${i + 1}`);
+const items = Array.from({ length: 100 }, (_, i) => ({
+  label: `Item ${i + 1}`,
+  value: `item-${i + 1}`,
+}));
 
 export default function Experiment() {
   return (
-    <Select.Root defaultValue="Item 1" items={items}>
+    <Select.Root defaultValue="item-42" items={items}>
       <Select.Trigger className={styles.Select}>
-        <Select.Value placeholder="Item 1" />
+        <Select.Value />
         <Select.Icon className={styles.SelectIcon}>
           <ChevronUpDownIcon />
         </Select.Icon>
@@ -26,11 +29,13 @@ export default function Experiment() {
 
       <Select.ItemTemplate>
         {(item) => (
-          <Select.Item key={item} className={styles.Item} value={item}>
+          <Select.Item key={item.value} className={styles.Item} value={item}>
             <Select.ItemIndicator className={styles.ItemIndicator}>
               <CheckIcon className={styles.ItemIndicatorIcon} />
             </Select.ItemIndicator>
-            <Select.ItemText className={styles.ItemText}>{item}</Select.ItemText>
+            <Select.ItemText className={styles.ItemText}>
+              {item.label}
+            </Select.ItemText>
           </Select.Item>
         )}
       </Select.ItemTemplate>
