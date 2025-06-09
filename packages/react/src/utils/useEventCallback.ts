@@ -8,7 +8,9 @@ const useInsertionEffect = (React as any)[
 ];
 // Support Preact, which replaces useInsertionEffect with useLayoutEffect and fires too late.
 const useSafeInsertionEffect =
-  useInsertionEffect === React.useLayoutEffect ? (fn: any) => fn() : useInsertionEffect;
+  !useInsertionEffect || useInsertionEffect === React.useLayoutEffect
+    ? (fn: any) => fn()
+    : useInsertionEffect;
 
 type Callback = (...args: any[]) => any;
 
