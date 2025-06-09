@@ -3,9 +3,12 @@ import * as React from 'react';
 import { useLazyRef } from './useLazyRef';
 
 // https://github.com/mui/material-ui/issues/41190#issuecomment-2040873379
-const useInsertionEffect =
-  (React as any)[`useInsertionEffect${Math.random().toFixed(1)}`.slice(0, -3)] ||
-  ((fn: any) => fn());
+const useInsertionEffect = (React as any)[
+  `useInsertionEffect${Math.random().toFixed(1)}`.slice(0, -3)
+];
+// Support Preact, which replaces useInsertionEffect with useLayoutEffect and fires too late.
+const useSafeInsertionEffect =
+  useInsertionEffect === React.useLayoutEffect ? (fn: any) => fn() : useInsertionEffect;
 
 type Callback = (...args: any[]) => any;
 
@@ -21,7 +24,7 @@ type Stable<T extends Callback> = {
 export function useEventCallback<T extends Callback>(callback: T | undefined): T {
   const stable = useLazyRef(createStableCallback).current;
   stable.next = callback;
-  useInsertionEffect(stable.effect);
+  useSafeInsertionEffect(stable.effect);
   return stable.trampoline;
 }
 
@@ -38,5 +41,7 @@ function createStableCallback() {
 }
 
 function assertNotCalled() {
-  throw new Error('Base UI: Cannot call an event handler while rendering.');
+  if (process.env.NODE_ENV !== 'production') {
+    throw new Error('Base UI: Cannot call an event handler while rendering.');
+  }
 }
