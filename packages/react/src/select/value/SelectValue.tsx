@@ -29,7 +29,7 @@ export const SelectValue = React.forwardRef(function SelectValue(
 
   const displayValue = value != null ? value : placeholder;
   const children =
-    typeof childrenProp === 'function' ? childrenProp(displayValue) : childrenProp || displayValue;
+    typeof childrenProp === 'function' ? childrenProp(value) : childrenProp || displayValue;
 
   const element = useRenderElement('span', componentProps, {
     ref: [forwardedRef, valueRef],
@@ -41,7 +41,7 @@ export const SelectValue = React.forwardRef(function SelectValue(
 
 export namespace SelectValue {
   export interface Props extends Omit<BaseUIComponentProps<'span', State>, 'children'> {
-    children?: null | ((value: any) => React.ReactNode);
+    children?: React.ReactNode | ((value: any) => React.ReactNode);
     /**
      * A placeholder to display when no value is chosen.
      */

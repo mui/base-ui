@@ -7,7 +7,7 @@
       "description": "A placeholder to display when no value is chosen."
     },
     "children": {
-      "type": "((value: any) => ReactNode) | null"
+      "type": "ReactNode | ((value: any) => ReactNode)"
     },
     "className": {
       "type": "string | ((state: Select.Value.State) => string)",
