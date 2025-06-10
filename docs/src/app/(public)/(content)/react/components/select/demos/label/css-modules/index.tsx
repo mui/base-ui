@@ -18,7 +18,7 @@ function renderValue(value: string | null) {
 
 export default function ExampleSelect() {
   return (
-    <Select.Root defaultValue="serif">
+    <Select.Root>
       <Select.Trigger className={styles.Select}>
         <Select.Value>{renderValue}</Select.Value>
         <Select.Icon className={styles.SelectIcon}>
