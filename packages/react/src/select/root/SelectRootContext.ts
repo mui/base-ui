@@ -7,8 +7,7 @@ import type { SelectOpenChangeReason } from './useSelectRoot';
 import type { SelectRoot } from './SelectRoot';
 
 export interface SelectRootContext {
-  items?: SelectRoot.SelectOption<any>[];
-  itemTemplate?: (item: SelectRoot.SelectOption<any>) => React.ReactNode;
+  items?: SelectRoot.SelectOption<any>[] | SelectRoot.SelectGroup<any>[];
   store: SelectStore;
   name: string | undefined;
   disabled: boolean;

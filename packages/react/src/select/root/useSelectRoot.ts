@@ -46,7 +46,6 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     name: nameProp,
     onOpenChangeComplete,
     items,
-    itemTemplate,
   } = params;
 
   const { clearErrors } = useFormContext();
@@ -89,13 +88,20 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
 
   const isValueControlled = params.value !== undefined;
 
+  const flatItems = React.useMemo(() => {
+    if (!items) {
+      return undefined;
+    }
+    return areItemsGrouped(items) ? items.flatMap((group) => group.items) : items;
+  }, [items]);
+
   const listRef = React.useRef<Array<HTMLElement | null>>([]);
   const labelsRef = React.useRef<Array<string | null>>(
-    items ? items.map((item) => item.label) : [],
+    flatItems ? flatItems.map((item) => item.label) : [],
   );
   const popupRef = React.useRef<HTMLDivElement | null>(null);
   const valueRef = React.useRef<HTMLSpanElement | null>(null);
-  const valuesRef = React.useRef<Array<any>>(items ? items.map((item) => item.value) : []);
+  const valuesRef = React.useRef<Array<any>>(flatItems ? flatItems.map((item) => item.value) : []);
   const typingRef = React.useRef(false);
   const keyboardActiveRef = React.useRef(false);
   const selectedItemTextRef = React.useRef<HTMLSpanElement | null>(null);
@@ -114,7 +120,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
         id,
         modal,
         value,
-        label: items?.find((item) => item.value === value)?.label ?? '',
+        label: flatItems?.find((item) => item.value === value)?.label ?? '',
         open,
         mounted,
         typeaheadReady: false,
@@ -399,7 +405,6 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
       keyboardActiveRef,
       alignItemWithTriggerActiveRef,
       items,
-      itemTemplate,
     }),
     [
       store,
@@ -423,7 +428,6 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
       registerSelectedItem,
       onOpenChangeComplete,
       items,
-      itemTemplate,
       keyboardActiveRef,
       alignItemWithTriggerActiveRef,
     ],
@@ -432,10 +436,15 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
   return { rootContext, floatingContext };
 }
 
+function areItemsGrouped<Value>(
+  items: SelectRoot.SelectOption<Value>[] | SelectRoot.SelectGroup<Value>[],
+): items is SelectRoot.SelectGroup<Value>[] {
+  return items.length > 0 && 'groupLabel' in items[0];
+}
+
 export namespace useSelectRoot {
   export interface Parameters<Value> {
-    items?: SelectRoot.SelectOption<Value>[];
-    itemTemplate?: (item: SelectRoot.SelectOption<Value>) => React.ReactNode;
+    items?: SelectRoot.SelectOption<Value>[] | SelectRoot.SelectGroup<Value>[];
     /**
      * Identifies the field when a form is submitted.
      */

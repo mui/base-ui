@@ -5,7 +5,6 @@ import { SelectRootContext, SelectFloatingContext } from './SelectRootContext';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { visuallyHidden } from '../../utils/visuallyHidden';
 import { useForkRef } from '../../utils/useForkRef';
-import { SelectItemTemplate } from '../item-template/SelectItemTemplate';
 
 /**
  * Groups all parts of the select.
@@ -35,16 +34,6 @@ export const SelectRoot: SelectRoot = function SelectRoot<Value>(
     items,
   } = props;
 
-  const itemTemplateComponent = React.Children.toArray(props.children).find(
-    (child) => React.isValidElement(child) && child.type === SelectItemTemplate,
-  ) as React.ReactElement<SelectItemTemplate.Props> | undefined;
-
-  let itemTemplate: ((item: SelectRoot.SelectOption<Value>) => React.ReactNode) | undefined;
-
-  if (itemTemplateComponent) {
-    itemTemplate = itemTemplateComponent.props.children;
-  }
-
   const { rootContext, floatingContext } = useSelectRoot<Value>({
     id,
     value: valueProp,
@@ -61,7 +50,6 @@ export const SelectRoot: SelectRoot = function SelectRoot<Value>(
     actionsRef,
     onOpenChangeComplete,
     items,
-    itemTemplate,
   });
   const store = rootContext.store;
 
@@ -150,6 +138,12 @@ export namespace SelectRoot {
   export interface SelectOption<Value> {
     value: Value;
     label: string;
+    disabled?: boolean;
+  }
+
+  export interface SelectGroup<Value> {
+    groupLabel: string;
+    items: SelectOption<Value>[];
     disabled?: boolean;
   }
 }

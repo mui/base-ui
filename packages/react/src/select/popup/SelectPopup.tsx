@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { FloatingFocusManager } from '@floating-ui/react';
-import type { BaseUIComponentProps } from '../../utils/types';
+import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import { popupStateMapping } from '../../utils/popupStateMapping';
 import { useSelector } from '../../utils/store';
@@ -15,6 +15,9 @@ import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { selectors } from '../store';
 import { EMPTY_OBJECT, DISABLED_TRANSITIONS_STYLE } from '../../utils/constants';
+import { SelectItemTemplate } from '../item-template/SelectItemTemplate';
+import { SelectRoot } from '../root/SelectRoot';
+import { SelectGroupTemplate } from '../group-template/SelectGroupTemplate';
 
 const customStyleHookMapping: CustomStyleHookMapping<SelectPopup.State> = {
   ...popupStateMapping,
@@ -33,7 +36,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
 ) {
   const { render, className, ...elementProps } = componentProps;
 
-  const { store, popupRef, onOpenChangeComplete, items, itemTemplate } = useSelectRootContext();
+  const { store, popupRef, onOpenChangeComplete, items } = useSelectRootContext();
   const positioner = useSelectPositionerContext();
 
   const id = useSelector(store, selectors.id);
@@ -65,14 +68,24 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
 
   const { props } = useSelectPopup();
 
+  const childrenArray = React.Children.toArray(componentProps.children);
+
+  const itemTemplateComponent = childrenArray.find(
+    (child) => React.isValidElement(child) && child.type === SelectItemTemplate,
+  ) as React.ReactElement<SelectItemTemplate.Props> | undefined;
+
+  const itemTemplate = itemTemplateComponent ? itemTemplateComponent.props.children : undefined;
+
+  const groupTemplateComponent = childrenArray.find(
+    (child) => React.isValidElement(child) && child.type === SelectGroupTemplate,
+  ) as React.ReactElement<SelectGroupTemplate.Props> | undefined;
+
+  const groupTemplate = groupTemplateComponent ? groupTemplateComponent.props.children : undefined;
+
   const children =
     itemTemplate && items
       ? {
-          children: items
-            .map((item) => {
-              return itemTemplate(item);
-            })
-            .concat(elementProps.children),
+          children: renderItems(items, itemTemplate, groupTemplate).concat(elementProps.children),
         }
       : undefined;
 
@@ -118,6 +131,34 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
   );
 });
 
+function renderItems(
+  items: SelectRoot.SelectOption<any>[] | SelectRoot.SelectGroup<any>[],
+  itemTemplate:
+    | ((item: SelectRoot.SelectOption<any>, props: HTMLProps) => React.ReactNode)
+    | undefined,
+  groupTemplate:
+    | ((
+        item: SelectRoot.SelectGroup<any>,
+        props: HTMLProps,
+        childItems: React.ReactNode[],
+      ) => React.ReactNode)
+    | undefined,
+): React.ReactNode[] {
+  return items.map((item) => {
+    if (isGroupTemplate(item)) {
+      const childItems = renderItems(item.items, itemTemplate, groupTemplate);
+
+      if (!groupTemplate) {
+        return childItems;
+      }
+
+      return groupTemplate(item, {}, childItems);
+    }
+
+    return itemTemplate?.(item, {}) ?? null;
+  });
+}
+
 export namespace SelectPopup {
   export interface Props extends BaseUIComponentProps<'div', State> {
     children?: React.ReactNode;
@@ -133,4 +174,10 @@ export namespace SelectPopup {
     open: boolean;
     transitionStatus: TransitionStatus;
   }
+}
+
+function isGroupTemplate(
+  item: SelectRoot.SelectOption<any> | SelectRoot.SelectGroup<any>,
+): item is SelectRoot.SelectGroup<any> {
+  return (item as SelectRoot.SelectGroup<any>).items !== undefined;
 }

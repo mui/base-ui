@@ -3,10 +3,22 @@ import * as React from 'react';
 import { Select } from '@base-ui-components/react/select';
 import styles from './select-perf.module.css';
 
-const items = Array.from({ length: 100 }, (_, i) => ({
-  label: `Item ${i + 1}`,
-  value: `item-${i + 1}`,
-}));
+const items = [
+  {
+    groupLabel: '1 - 100',
+    items: Array.from({ length: 100 }, (_, i) => ({
+      label: `Item ${i + 1}`,
+      value: `item-${i + 1}`,
+    })),
+  },
+  {
+    groupLabel: '101 - 200',
+    items: Array.from({ length: 100 }, (_, i) => ({
+      label: `Item ${i + 101}`,
+      value: `item-${i + 101}`,
+    })),
+  },
+];
 
 export default function Experiment() {
   return (
@@ -23,22 +35,31 @@ export default function Experiment() {
             <Select.Arrow className={styles.Arrow}>
               <ArrowSvg />
             </Select.Arrow>
+            <Select.ItemTemplate>
+              {(item) => (
+                <Select.Item key={item.value} className={styles.Item} value={item}>
+                  <Select.ItemIndicator className={styles.ItemIndicator}>
+                    <CheckIcon className={styles.ItemIndicatorIcon} />
+                  </Select.ItemIndicator>
+                  <Select.ItemText className={styles.ItemText}>
+                    {item.label}
+                  </Select.ItemText>
+                </Select.Item>
+              )}
+            </Select.ItemTemplate>
+            <Select.GroupTemplate>
+              {(group, props, childItems) => (
+                <Select.Group {...props}>
+                  <Select.GroupLabel className={styles.GroupLabel}>
+                    {group.groupLabel}
+                  </Select.GroupLabel>
+                  {childItems}
+                </Select.Group>
+              )}
+            </Select.GroupTemplate>
           </Select.Popup>
         </Select.Positioner>
       </Select.Portal>
-
-      <Select.ItemTemplate>
-        {(item) => (
-          <Select.Item key={item.value} className={styles.Item} value={item}>
-            <Select.ItemIndicator className={styles.ItemIndicator}>
-              <CheckIcon className={styles.ItemIndicatorIcon} />
-            </Select.ItemIndicator>
-            <Select.ItemText className={styles.ItemText}>
-              {item.label}
-            </Select.ItemText>
-          </Select.Item>
-        )}
-      </Select.ItemTemplate>
     </Select.Root>
   );
 }
