@@ -118,11 +118,16 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
   const id = useBaseUiId(idProp);
 
   useModernLayoutEffect(() => {
-    setControlId(idProp ?? null);
+    if (groupContext) {
+      setControlId(idProp ?? null);
+    } else {
+      setControlId(id);
+    }
+
     return () => {
       setControlId(undefined);
     };
-  }, [idProp, setControlId]);
+  }, [groupContext, id, idProp, setControlId]);
 
   useField({
     enabled: !groupContext,
