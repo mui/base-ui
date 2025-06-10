@@ -27,7 +27,7 @@ describe('<Select.Value />', () => {
   });
 
   describe('prop: children', () => {
-    it('accepts a function with label and value parameters', async () => {
+    it('accepts a function with a value parameter', async () => {
       const children = spy();
       await render(
         <Select.Root value="1">
@@ -55,9 +55,19 @@ describe('<Select.Value />', () => {
       expect(children.firstCall.firstArg).to.equal('1');
       expect(children.firstCall.lastArg).to.equal('1');
     });
+
+    it('overrides the text when children is a string', async () => {
+      await render(
+        <Select.Root value="1">
+          <Select.Value>one</Select.Value>
+        </Select.Root>,
+      );
+
+      expect(screen.getByText('one')).not.to.equal(null);
+    });
   });
 
-  it('switches the label when the value changes', async () => {
+  it('changes text when the value changes', async () => {
     function App() {
       const [value, setValue] = React.useState<string | null>(null);
       return (
