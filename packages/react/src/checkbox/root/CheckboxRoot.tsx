@@ -118,24 +118,21 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
   const id = useBaseUiId(idProp);
 
   useModernLayoutEffect(() => {
+    const element = controlRef?.current;
+    if (!element) {
+      return undefined;
+    }
+
     if (groupContext) {
       setControlId(idProp ?? null);
+    } else if (element.closest('label') == null) {
+      setControlId(id);
     }
 
     return () => {
       setControlId(undefined);
     };
-  }, [groupContext, idProp, setControlId]);
-
-  const handleControlRef = useEventCallback((element: HTMLButtonElement | null) => {
-    if (element != null) {
-      controlRef.current = element;
-
-      if (element.closest('label') == null) {
-        setControlId(id);
-      }
-    }
-  });
+  }, [groupContext, id, idProp, setControlId]);
 
   useField({
     enabled: !groupContext,
@@ -273,7 +270,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
 
   const element = useRenderElement('button', componentProps, {
     state,
-    ref: [buttonRef, handleControlRef, forwardedRef, groupContext?.registerControlRef],
+    ref: [buttonRef, controlRef, forwardedRef, groupContext?.registerControlRef],
     props: [
       {
         id,
