@@ -41,6 +41,8 @@
   line-height: 1.25rem;
   font-weight: 500;
   user-select: none;
+  white-space: nowrap;
+  word-break: keep-all;
   padding-inline: 0.5rem;
   padding-block: 0;
   height: 1.5rem;
