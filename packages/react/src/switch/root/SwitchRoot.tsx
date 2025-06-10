@@ -70,19 +70,29 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
 
   const onCheckedChange = useEventCallback(onCheckedChangeProp);
 
-  const id = useBaseUiId(idProp);
-
-  useModernLayoutEffect(() => {
-    setControlId(nativeButton ? (idProp ?? null) : id);
-    return () => {
-      setControlId(undefined);
-    };
-  }, [id, idProp, nativeButton, setControlId]);
-
   const inputRef = React.useRef<HTMLInputElement>(null);
   const handleInputRef = useForkRef(inputRef, externalInputRef, inputValidationRef);
 
   const switchRef = React.useRef<HTMLButtonElement | null>(null);
+
+  const id = useBaseUiId(idProp);
+
+  useModernLayoutEffect(() => {
+    const element = switchRef?.current;
+    if (!element) {
+      return undefined;
+    }
+
+    if (element.closest('label') != null) {
+      setControlId(idProp ?? null);
+    } else {
+      setControlId(id);
+    }
+
+    return () => {
+      setControlId(undefined);
+    };
+  }, [id, idProp, setControlId]);
 
   const [checked, setCheckedState] = useControlled({
     controlled: checkedProp,
@@ -113,7 +123,7 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
 
   const rootProps: React.ComponentPropsWithRef<'button'> = React.useMemo(
     () => ({
-      id: idProp,
+      id,
       role: 'switch',
       disabled,
       'aria-checked': checked,
@@ -144,7 +154,7 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
       },
     }),
     [
-      idProp,
+      id,
       disabled,
       checked,
       readOnly,
