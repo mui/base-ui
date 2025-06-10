@@ -5,55 +5,41 @@ import { useRenderElement } from '../../utils/useRenderElement';
 import { TemporalSupportedObject } from '../../models';
 import { useDayList } from '../../use-day-list';
 
-const InnerCalendarDayGridRow = React.forwardRef(function InnerCalendarDayGridRow(
-  componentProps: InnerCalendarDayGridRowProps,
-  forwardedRef: React.ForwardedRef<HTMLDivElement>,
-) {
-  const { className, render, value, ctx, children, ...elementProps } = componentProps;
-
-  const resolvedChildren = React.useMemo(() => {
-    if (!React.isValidElement(children) && typeof children === 'function') {
-      return ctx.days.map(children);
-    }
-
-    return children;
-  }, [children, ctx.days]);
-
-  const element = useRenderElement('div', componentProps, {
-    ref: forwardedRef,
-    props: [
-      { role: 'row', 'aria-rowindex': ctx.rowIndex + 1, children: resolvedChildren },
-      elementProps,
-    ],
-  });
-
-  return element;
-});
-
-const MemoizedInnerCalendarDayGridRow = React.memo(InnerCalendarDayGridRow);
-
 /**
  * Groups all cells of a given calendar's day grid row.
  * Renders a `<div>` element.
  *
  * Documentation: [Base UI Calendar](https://base-ui.com/react/components/calendar)
  */
-export const CalendarDayGridRow = React.forwardRef(function CalendarDayGridRow(
-  props: CalendarDayGridRow.Props,
+export const CalendarDayGridRow = React.forwardRef(function InnerCalendarDayGridRow(
+  componentProps: CalendarDayGridRow.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
+  const { className, render, value, children, ...elementProps } = componentProps;
+
   const getDayList = useDayList();
-  const days = React.useMemo(
-    () => getDayList({ date: props.value, amount: 7 }),
-    [getDayList, props.value],
-  );
+  const days = React.useMemo(() => getDayList({ date: value, amount: 7 }), [getDayList, value]);
 
-  const ctx = React.useMemo<InnerCalendarDayGridRowContext>(
-    () => ({ days, rowIndex: 1 }), // TODO: Fix the row index to be dynamic
-    [days],
-  );
+  const resolvedChildren = React.useMemo(() => {
+    if (!React.isValidElement(children) && typeof children === 'function') {
+      return days.map(children);
+    }
 
-  return <MemoizedInnerCalendarDayGridRow {...props} ref={forwardedRef} ctx={ctx} />;
+    return children;
+  }, [children, days]);
+
+  // TODO: Make row index dynamic
+  const rowIndex = 1;
+
+  const element = useRenderElement('div', componentProps, {
+    ref: forwardedRef,
+    props: [
+      { role: 'row', 'aria-rowindex': rowIndex + 1, children: resolvedChildren },
+      elementProps,
+    ],
+  });
+
+  return element;
 });
 
 export namespace CalendarDayGridRow {
@@ -83,22 +69,4 @@ export namespace CalendarDayGridRow {
      */
     days: TemporalSupportedObject[];
   }
-}
-
-interface InnerCalendarDayGridRowProps extends CalendarDayGridRow.Props {
-  /**
-   * The memoized context forwarded by the wrapper component so that this component does not need to subscribe to any context.
-   */
-  ctx: InnerCalendarDayGridRowContext;
-}
-
-interface InnerCalendarDayGridRowContext {
-  /**
-   * The days to render in the row.
-   */
-  days: TemporalSupportedObject[];
-  /**
-   * The index of the row in the grid.
-   */
-  rowIndex: number;
 }

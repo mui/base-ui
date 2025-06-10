@@ -39,14 +39,6 @@ export function useTemporalControlledValue<
     [manager, valueWithInputTimezone],
   );
 
-  const setInputTimezone = useEventCallback((newValue: TValue) => {
-    if (inputTimezone == null) {
-      return newValue;
-    }
-
-    return manager.setTimezone(newValue, inputTimezone);
-  });
-
   const timezoneToRender = React.useMemo(() => {
     if (timezoneProp) {
       return timezoneProp;
@@ -66,15 +58,14 @@ export function useTemporalControlledValue<
   );
 
   const setValue = useEventCallback((newValue: TValue, ...otherParams: any[]) => {
-    const newValueWithInputTimezone = setInputTimezone(newValue);
+    const newValueWithInputTimezone =
+      inputTimezone == null ? newValue : manager.setTimezone(newValue, inputTimezone);
     setValueWithInputTimezone(newValueWithInputTimezone);
     onChangeProp?.(newValueWithInputTimezone, ...otherParams);
   }) as TChange;
 
   return {
-    value: valueWithTimezoneToRender,
     setValue,
-    timezone: timezoneToRender,
   };
 }
 
@@ -108,16 +99,8 @@ export namespace useTemporalControlledValue {
     TChange extends (...params: any[]) => void,
   > {
     /**
-     * The value with the timezone to render.
-     */
-    value: TValue;
-    /**
      * Sets the value and make sure the correct timezone is applied.
      */
     setValue: TChange;
-    /**
-     * The timezone to use for rendering dates.
-     */
-    timezone: TemporalTimezone;
   }
 }

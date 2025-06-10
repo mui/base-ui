@@ -33,13 +33,7 @@ export const CalendarSetPreviousMonth = React.forwardRef(function CalendarSetPre
     [visibleDate, monthPageSize, adapter],
   );
 
-  const isDisabled = useSelector(
-    store,
-    selectors.isSetMonthButtonDisabled,
-    adapter,
-    disabled,
-    targetDate,
-  );
+  const isDisabled = useSelector(store, selectors.isSetMonthButtonDisabled, disabled, targetDate);
 
   const setTarget = useEventCallback(() => {
     if (isDisabled) {

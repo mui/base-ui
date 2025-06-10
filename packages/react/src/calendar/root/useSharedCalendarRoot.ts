@@ -1,7 +1,6 @@
 import * as React from 'react';
 import { TemporalSupportedObject, TemporalSupportedValue } from '../../models';
 import { validateDate, mergeDateAndTime } from '../../utils/temporal/date-helpers';
-import { getInitialReferenceDate } from '../../utils/temporal/getInitialReferenceDate';
 import { useTemporalAdapter } from '../../temporal-adapter-provider/TemporalAdapterContext';
 import { useTemporalControlledValue } from '../../utils/temporal/useTemporalControlledValue';
 import { SharedCalendarRootContext } from './SharedCalendarRootContext';
@@ -13,6 +12,7 @@ import { Store, useSelector } from '../../utils/store';
 import { selectors, State } from '../store';
 import { useLazyRef } from '../../utils/useLazyRef';
 import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
+import { useAssertModelConsistency } from '../../utils/useAssertModelConsistency';
 
 export function useSharedCalendarRoot<TValue extends TemporalSupportedValue, TError>(
   parameters: useSharedCalendarRoot.Parameters<TValue, TError>,
@@ -50,9 +50,24 @@ export function useSharedCalendarRoot<TValue extends TemporalSupportedValue, TEr
     },
   } = parameters;
 
+  useAssertModelConsistency({
+    componentName: '(Range)Calendar',
+    propName: 'value',
+    controlled: valueProp,
+    defaultValue: defaultValue ?? manager.emptyValue,
+  });
+
   const store = useLazyRef(
     () =>
-      new Store<State>({
+      new Store<State<TValue>>({
+        adapter,
+        manager,
+        initialReferenceDateFromValue: getDateToUseForReferenceDate(
+          valueProp ?? defaultValue ?? manager.emptyValue,
+        ),
+        value: valueProp ?? defaultValue ?? manager.emptyValue,
+        timezoneProp,
+        referenceDateProp,
         validationProps: { minDate, maxDate },
         isDateUnavailable,
         disabled,
@@ -60,6 +75,8 @@ export function useSharedCalendarRoot<TValue extends TemporalSupportedValue, TEr
       }),
   ).current;
   const validationProps = useSelector(store, selectors.validationProps);
+  const value = useSelector(store, selectors.valueWithTimezoneToRender) as TValue;
+  const referenceDate = useSelector(store, selectors.referenceDate);
 
   const handleValueChangeWithContext = useEventCallback((newValue: TValue) => {
     onValueChange?.(newValue, {
@@ -67,7 +84,7 @@ export function useSharedCalendarRoot<TValue extends TemporalSupportedValue, TEr
     });
   });
 
-  const { value, setValue, timezone } = useTemporalControlledValue({
+  const { setValue } = useTemporalControlledValue({
     name: '(Range)CalendarRoot',
     timezone: timezoneProp,
     value: valueProp,
@@ -85,22 +102,6 @@ export function useSharedCalendarRoot<TValue extends TemporalSupportedValue, TEr
     const error = manager.getValidationError(value, validationProps);
     return manager.isValidationErrorEmpty(error);
   }, [manager, value, invalid, validationProps]);
-
-  const referenceDate = React.useMemo(
-    () => {
-      return getInitialReferenceDate({
-        adapter,
-        timezone,
-        externalDate: getDateToUseForReferenceDate(value),
-        validationProps,
-        referenceDate: referenceDateProp,
-        precision: 'day',
-      });
-    },
-    // We want the `referenceDate` to update on prop and `timezone` change (https://github.com/mui/mui-x/issues/10804)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [referenceDateProp, timezone],
-  );
 
   const initialReferenceDate = React.useRef(referenceDate).current;
   const dayGridsRef = React.useRef<Record<number, TemporalSupportedObject>>({});
@@ -221,7 +222,6 @@ export function useSharedCalendarRoot<TValue extends TemporalSupportedValue, TEr
 
   const context: SharedCalendarRootContext = React.useMemo(
     () => ({
-      timezone,
       referenceDate,
       selectedDates,
       setVisibleDate: handleVisibleDateChange,
@@ -231,7 +231,6 @@ export function useSharedCalendarRoot<TValue extends TemporalSupportedValue, TEr
       store,
     }),
     [
-      timezone,
       referenceDate,
       selectedDates,
       handleVisibleDateChange,
@@ -243,8 +242,28 @@ export function useSharedCalendarRoot<TValue extends TemporalSupportedValue, TEr
   );
 
   useModernLayoutEffect(() => {
-    store.apply({ disabled, isDateUnavailable, monthPageSize });
-  }, [store, disabled, isDateUnavailable, monthPageSize]);
+    store.apply({
+      adapter,
+      manager,
+      timezoneProp,
+      referenceDateProp,
+      value: valueProp ?? defaultValue ?? manager.emptyValue,
+      disabled,
+      isDateUnavailable,
+      monthPageSize,
+    });
+  }, [
+    store,
+    adapter,
+    manager,
+    timezoneProp,
+    referenceDateProp,
+    valueProp,
+    defaultValue,
+    disabled,
+    isDateUnavailable,
+    monthPageSize,
+  ]);
 
   useModernLayoutEffect(() => {
     store.apply({ validationProps: { minDate, maxDate } });

@@ -14,8 +14,7 @@ export function useSharedCalendarDayGridCell(parameters: useSharedCalendarDayGri
   const { store } = useSharedCalendarRootContext();
   const { month } = useSharedCalendarDayGridBodyContext();
 
-  const isDisabled = useSelector(store, selectors.isDayCellDisabled, adapter, value);
-
+  const isDisabled = useSelector(store, selectors.isDayCellDisabled, value);
   const isUnavailable = useSelector(store, selectors.isDayCellUnavailable, value);
 
   const isOutsideCurrentMonth = React.useMemo(
