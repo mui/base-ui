@@ -85,16 +85,11 @@ export const TabsIndicator = React.forwardRef(function TabIndicator(
         top: tabTop,
       } = selectedTabElement.getBoundingClientRect();
 
-      const {
-        left: listLeft,
-        right: listRight,
-        top: listTop,
-        bottom: listBottom,
-      } = tabsListRef.current.getBoundingClientRect();
+      const { right: listRight, bottom: listBottom } = tabsListRef.current.getBoundingClientRect();
 
-      left = round(tabLeft - listLeft);
+      left = selectedTabElement.offsetLeft - tabsListRef.current.clientLeft;
       right = round(listRight - tabRight);
-      top = round(tabTop - listTop);
+      top = selectedTabElement.offsetTop - tabsListRef.current.clientTop;
       bottom = round(listBottom - tabBottom);
       width = round(tabRight - tabLeft);
       height = round(tabBottom - tabTop);
