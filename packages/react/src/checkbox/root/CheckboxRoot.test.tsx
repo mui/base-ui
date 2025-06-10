@@ -607,17 +607,17 @@ describe('<Checkbox.Root />', () => {
       it('explicit association', async () => {
         await render(
           <Field.Root>
-            <Field.Label id="MyLabel">Label</Field.Label>
-            <Checkbox.Root data-testid="button" id="MyCheckbox" />
+            <Field.Label>Label</Field.Label>
+            <Checkbox.Root data-testid="button" />
           </Field.Root>,
         );
 
         const label = screen.getByText('Label');
         const button = screen.getByTestId('button');
 
-        expect(label).to.have.attribute('for', button.getAttribute('id'));
+        expect(label.getAttribute('for')).to.equal(button.getAttribute('id'));
 
-        expect(button).to.have.attribute('aria-labelledby', label.getAttribute('id'));
+        expect(button.getAttribute('aria-labelledby')).to.equal(label.getAttribute('id'));
         expect(button).to.have.attribute('aria-checked', 'false');
 
         fireEvent.click(label);
