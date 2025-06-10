@@ -3,19 +3,19 @@ import * as React from 'react';
 import { TemporalNonRangeValue } from '../../models';
 import { SharedCalendarRootContext } from './SharedCalendarRootContext';
 import { useSharedCalendarRoot } from './useSharedCalendarRoot';
-import { SharedCalendarRootVisibleDateContext } from './SharedCalendarRootVisibleDateContext';
 import { useDateManager } from '../../utils/temporal/useDateManager';
 import { CalendarContext } from '../use-context/CalendarContext';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { BaseUIComponentProps } from '../../utils/types';
 import { validateDate } from '../../utils/temporal/date-helpers';
 import { useTemporalAdapter } from '../../temporal-adapter-provider/TemporalAdapterContext';
+import { useSelector } from '../../utils/store';
+import { selectors } from '../store';
 
 const calendarValueManager: useSharedCalendarRoot.ValueManager<TemporalNonRangeValue> = {
   getDateToUseForReferenceDate: (value) => value,
   onSelectDate: ({ setValue, selectedDate }) => setValue(selectedDate),
   getActiveDateFromValue: (value) => value,
-  getSelectedDatesFromValue: (value) => (value == null ? [] : [value]),
 };
 
 /**
@@ -46,7 +46,7 @@ export const CalendarRoot = React.forwardRef(function CalendarRoot(
     referenceDate,
     // Visible date props
     onVisibleDateChange,
-    visibleDate,
+    visibleDate: visibleDateProp,
     defaultVisibleDate,
     // Children
     children,
@@ -64,9 +64,9 @@ export const CalendarRoot = React.forwardRef(function CalendarRoot(
   const adapter = useTemporalAdapter();
 
   const {
+    store,
     state,
     context: sharedContext,
-    visibleDateContext,
   } = useSharedCalendarRoot({
     readOnly,
     disabled,
@@ -78,7 +78,7 @@ export const CalendarRoot = React.forwardRef(function CalendarRoot(
     timezone,
     referenceDate,
     onVisibleDateChange,
-    visibleDate,
+    visibleDate: visibleDateProp,
     defaultVisibleDate,
     manager,
     isDateUnavailable,
@@ -87,12 +87,8 @@ export const CalendarRoot = React.forwardRef(function CalendarRoot(
     calendarValueManager,
   });
 
-  const publicContext: CalendarContext = React.useMemo(
-    () => ({
-      visibleDate: visibleDateContext.visibleDate,
-    }),
-    [visibleDateContext.visibleDate],
-  );
+  const visibleDate = useSelector(store, selectors.visibleDate);
+  const publicContext: CalendarContext = React.useMemo(() => ({ visibleDate }), [visibleDate]);
 
   const resolvedChildren = React.useMemo(() => {
     if (!React.isValidElement(children) && typeof children === 'function') {
@@ -104,13 +100,11 @@ export const CalendarRoot = React.forwardRef(function CalendarRoot(
 
   // TODO: Improve localization support (right now it doesn't work well with RTL languages)
   const ariaLabel = React.useMemo(() => {
-    const formattedVisibleDate = adapter
-      .format(visibleDateContext.visibleDate, 'fullMonthAndYear')
-      .toLowerCase();
+    const formattedVisibleDate = adapter.format(visibleDate, 'fullMonthAndYear').toLowerCase();
     const prefix = ariaLabelProp ? `${ariaLabelProp}, ` : '';
 
     return `${prefix}${formattedVisibleDate}`;
-  }, [adapter, ariaLabelProp, visibleDateContext.visibleDate]);
+  }, [adapter, ariaLabelProp, visibleDate]);
 
   const element = useRenderElement('div', componentProps, {
     state,
@@ -120,11 +114,9 @@ export const CalendarRoot = React.forwardRef(function CalendarRoot(
 
   return (
     <CalendarContext.Provider value={publicContext}>
-      <SharedCalendarRootVisibleDateContext.Provider value={visibleDateContext}>
-        <SharedCalendarRootContext.Provider value={sharedContext}>
-          {element}
-        </SharedCalendarRootContext.Provider>
-      </SharedCalendarRootVisibleDateContext.Provider>
+      <SharedCalendarRootContext.Provider value={sharedContext}>
+        {element}
+      </SharedCalendarRootContext.Provider>
     </CalendarContext.Provider>
   );
 });

@@ -1,7 +1,6 @@
 'use client';
 import * as React from 'react';
 import { useSharedCalendarRootContext } from '../root/SharedCalendarRootContext';
-import { useSharedCalendarRootVisibleDateContext } from '../root/SharedCalendarRootVisibleDateContext';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useButton } from '../../use-button';
@@ -23,9 +22,9 @@ export const CalendarSetMonth = React.forwardRef(function CalendarSetMonth(
 ) {
   const { className, render, target, nativeButton, disabled, ...elementProps } = componentProps;
 
-  const { visibleDate } = useSharedCalendarRootVisibleDateContext();
   const { store, setVisibleDate } = useSharedCalendarRootContext();
   const adapter = useTemporalAdapter();
+  const visibleDate = useSelector(store, selectors.visibleDate);
 
   const targetDate = React.useMemo(
     () =>

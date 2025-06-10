@@ -2,17 +2,15 @@ import * as React from 'react';
 import { TemporalSupportedObject, TemporalSupportedValue } from '../../models';
 import { validateDate, mergeDateAndTime } from '../../utils/temporal/date-helpers';
 import { useTemporalAdapter } from '../../temporal-adapter-provider/TemporalAdapterContext';
-import { useTemporalControlledValue } from '../../utils/temporal/useTemporalControlledValue';
 import { SharedCalendarRootContext } from './SharedCalendarRootContext';
-import { SharedCalendarRootVisibleDateContext } from './SharedCalendarRootVisibleDateContext';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { TemporalManager, TemporalTimezoneProps } from '../../utils/temporal/types';
-import { useControlled } from '../../utils/useControlled';
 import { Store, useSelector } from '../../utils/store';
-import { selectors, State } from '../store';
+import { selectors, SharedCalendarStore, State } from '../store';
 import { useLazyRef } from '../../utils/useLazyRef';
 import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { useAssertModelConsistency } from '../../utils/useAssertModelConsistency';
+import { getInitialReferenceDate } from '../../utils/temporal/getInitialReferenceDate';
 
 export function useSharedCalendarRoot<TValue extends TemporalSupportedValue, TError>(
   parameters: useSharedCalendarRoot.Parameters<TValue, TError>,
@@ -42,12 +40,7 @@ export function useSharedCalendarRoot<TValue extends TemporalSupportedValue, TEr
     maxDate,
     // Manager props
     manager,
-    calendarValueManager: {
-      getDateToUseForReferenceDate,
-      onSelectDate,
-      getActiveDateFromValue,
-      getSelectedDatesFromValue,
-    },
+    calendarValueManager: { getDateToUseForReferenceDate, onSelectDate, getActiveDateFromValue },
   } = parameters;
 
   useAssertModelConsistency({
@@ -57,41 +50,61 @@ export function useSharedCalendarRoot<TValue extends TemporalSupportedValue, TEr
     defaultValue: defaultValue ?? manager.emptyValue,
   });
 
-  const store = useLazyRef(
-    () =>
-      new Store<State<TValue>>({
+  useAssertModelConsistency({
+    componentName: '(Range)Calendar',
+    propName: 'visibleDate',
+    controlled: visibleDateProp,
+    defaultValue: defaultVisibleDate ?? null,
+  });
+
+  const store = useLazyRef(() => {
+    const value = valueProp ?? defaultValue ?? manager.emptyValue;
+    const initialReferenceDateFromValue = getDateToUseForReferenceDate(value);
+
+    let initialVisibleDate: TemporalSupportedObject;
+    if (visibleDateProp) {
+      initialVisibleDate = visibleDateProp;
+    } else if (defaultVisibleDate) {
+      initialVisibleDate = defaultVisibleDate;
+    } else {
+      initialVisibleDate = getInitialReferenceDate({
         adapter,
-        manager,
-        initialReferenceDateFromValue: getDateToUseForReferenceDate(
-          valueProp ?? defaultValue ?? manager.emptyValue,
-        ),
-        value: valueProp ?? defaultValue ?? manager.emptyValue,
-        timezoneProp,
-        referenceDateProp,
+        timezone: timezoneProp ?? 'default',
+        externalDate: initialReferenceDateFromValue,
         validationProps: { minDate, maxDate },
-        isDateUnavailable,
-        disabled,
-        monthPageSize,
-      }),
-  ).current;
+        referenceDate: referenceDateProp,
+        precision: 'day',
+      });
+    }
+
+    return new Store<State<TValue>>({
+      adapter,
+      manager,
+      visibleDate: initialVisibleDate,
+      initialReferenceDateFromValue,
+      value,
+      timezoneProp,
+      referenceDateProp,
+      validationProps: { minDate, maxDate },
+      isDateUnavailable,
+      disabled,
+      monthPageSize,
+    });
+  }).current;
   const validationProps = useSelector(store, selectors.validationProps);
   const value = useSelector(store, selectors.valueWithTimezoneToRender) as TValue;
   const referenceDate = useSelector(store, selectors.referenceDate);
 
-  const handleValueChangeWithContext = useEventCallback((newValue: TValue) => {
-    onValueChange?.(newValue, {
-      getValidationError: () => manager.getValidationError(newValue, store.state.validationProps),
-    });
-  });
+  const setValue = useEventCallback((newValue: TValue) => {
+    const inputTimezone = manager.getTimezone(store.state.value);
+    const newValueWithInputTimezone =
+      inputTimezone == null ? newValue : manager.setTimezone(newValue, inputTimezone);
 
-  const { setValue } = useTemporalControlledValue({
-    name: '(Range)CalendarRoot',
-    timezone: timezoneProp,
-    value: valueProp,
-    defaultValue,
-    referenceDate: referenceDateProp,
-    onChange: handleValueChangeWithContext,
-    manager,
+    store.set('value', newValueWithInputTimezone);
+    onValueChange?.(newValueWithInputTimezone, {
+      getValidationError: () =>
+        manager.getValidationError(newValueWithInputTimezone, store.state.validationProps),
+    });
   });
 
   const isInvalid = React.useMemo(() => {
@@ -103,7 +116,6 @@ export function useSharedCalendarRoot<TValue extends TemporalSupportedValue, TEr
     return manager.isValidationErrorEmpty(error);
   }, [manager, value, invalid, validationProps]);
 
-  const initialReferenceDate = React.useRef(referenceDate).current;
   const dayGridsRef = React.useRef<Record<number, TemporalSupportedObject>>({});
 
   const registerDayGrid = useEventCallback((month: TemporalSupportedObject) => {
@@ -123,13 +135,6 @@ export function useSharedCalendarRoot<TValue extends TemporalSupportedValue, TEr
     return true;
   };
 
-  const [visibleDate, setVisibleDate] = useControlled({
-    name: '(Range)CalendarRoot',
-    state: 'visibleDate',
-    controlled: visibleDateProp,
-    default: defaultVisibleDate ?? initialReferenceDate,
-  });
-
   const handleVisibleDateChange = useEventCallback(
     (newVisibleDate: TemporalSupportedObject, skipIfAlreadyVisible: boolean) => {
       if (skipIfAlreadyVisible && isDateCellVisible(newVisibleDate)) {
@@ -137,7 +142,7 @@ export function useSharedCalendarRoot<TValue extends TemporalSupportedValue, TEr
       }
 
       onVisibleDateChange?.(newVisibleDate);
-      setVisibleDate(newVisibleDate);
+      store.set('visibleDate', newVisibleDate);
     },
   );
 
@@ -166,11 +171,6 @@ export function useSharedCalendarRoot<TValue extends TemporalSupportedValue, TEr
         referenceDate,
       });
     },
-  );
-
-  const selectedDates = React.useMemo(
-    () => getSelectedDatesFromValue(value),
-    [getSelectedDatesFromValue, value],
   );
 
   // const changePage: NavigateInGridChangePage = (params) => {
@@ -205,11 +205,6 @@ export function useSharedCalendarRoot<TValue extends TemporalSupportedValue, TEr
   //   pageNavigationTargetRef.current = params.target;
   // };
 
-  const visibleDateContext: SharedCalendarRootVisibleDateContext = React.useMemo(
-    () => ({ visibleDate }),
-    [visibleDate],
-  );
-
   const state: useSharedCalendarRoot.State = React.useMemo(
     () => ({
       empty: manager.areValuesEqual(value, manager.emptyValue),
@@ -222,23 +217,12 @@ export function useSharedCalendarRoot<TValue extends TemporalSupportedValue, TEr
 
   const context: SharedCalendarRootContext = React.useMemo(
     () => ({
-      referenceDate,
-      selectedDates,
+      store,
       setVisibleDate: handleVisibleDateChange,
-      monthPageSize,
       registerDayGrid,
       selectDate,
-      store,
     }),
-    [
-      referenceDate,
-      selectedDates,
-      handleVisibleDateChange,
-      monthPageSize,
-      registerDayGrid,
-      selectDate,
-      store,
-    ],
+    [store, handleVisibleDateChange, registerDayGrid, selectDate],
   );
 
   useModernLayoutEffect(() => {
@@ -266,13 +250,13 @@ export function useSharedCalendarRoot<TValue extends TemporalSupportedValue, TEr
   ]);
 
   useModernLayoutEffect(() => {
-    store.apply({ validationProps: { minDate, maxDate } });
+    store.set('validationProps', { minDate, maxDate });
   }, [store, minDate, maxDate]);
 
   return {
     state,
     context,
-    visibleDateContext,
+    store,
   };
 }
 
@@ -359,7 +343,7 @@ export namespace useSharedCalendarRoot {
   export interface ReturnValue {
     state: State;
     context: SharedCalendarRootContext;
-    visibleDateContext: SharedCalendarRootVisibleDateContext;
+    store: SharedCalendarStore;
   }
 
   export interface ValueChangeHandlerContext<TError> {
@@ -384,10 +368,6 @@ export namespace useSharedCalendarRoot {
      * This is used to determine which date is being edited in the Range Calendar (start of end date).
      */
     getActiveDateFromValue: (value: TValue) => TemporalSupportedObject | null;
-    /**
-     * Returns list list of selected dates from the value.
-     */
-    getSelectedDatesFromValue: (value: TValue) => TemporalSupportedObject[];
   }
 
   export interface OnSelectDateParameters<TValue extends TemporalSupportedValue> {

@@ -4,19 +4,9 @@ import { SharedCalendarStore } from '../store';
 
 export interface SharedCalendarRootContext {
   /**
-   * The reference date.
-   */
-  referenceDate: TemporalSupportedObject;
-  /**
    * The store that holds the state of the calendar.
    */
   store: SharedCalendarStore;
-  /**
-   * The list of currently selected dates.
-   * When used inside the Calendar component, it contains the current value if not null.
-   * When used inside the RangeCalendar component, it contains the selected start and/or end dates if not null.
-   */
-  selectedDates: TemporalSupportedObject[];
   /**
    * Selects a date.
    */

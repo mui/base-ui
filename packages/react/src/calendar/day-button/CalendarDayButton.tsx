@@ -13,6 +13,8 @@ import { useForkRef } from '../../utils';
 import { useCalendarDayGridCellContext } from '../day-grid-cell/SharedCalendarDayGridCellContext';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { CompositeItem } from '../../composite/item/CompositeItem';
+import { useSelector } from '../../utils/store';
+import { selectors } from '../store';
 
 const customStyleHookMapping: CustomStyleHookMapping<CalendarDayButton.State> = {
   selected(value) {
@@ -111,18 +113,14 @@ export const CalendarDayButton = React.forwardRef(function CalendarDayButton(
   props: CalendarDayButton.Props,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
-  const { selectedDates, selectDate } = useSharedCalendarRootContext();
+  const { store, selectDate } = useSharedCalendarRootContext();
   const { canCellBeTabbed } = useSharedCalendarDayGridBodyContext();
   const { isDisabled, isUnavailable, isOutsideCurrentMonth, value } =
     useCalendarDayGridCellContext();
+  const isSelected = useSelector(store, selectors.isDayButtonSelected, value);
   const ref = React.useRef<HTMLButtonElement>(null);
   const adapter = useTemporalAdapter();
   const mergedRef = useForkRef(forwardedRef, ref);
-
-  const isSelected = React.useMemo(
-    () => selectedDates.some((date) => adapter.isSameDay(date, value)),
-    [selectedDates, value, adapter],
-  );
 
   const isCurrent = React.useMemo(
     () => adapter.isSameDay(value, adapter.now(adapter.getTimezone(value))),

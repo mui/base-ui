@@ -1,12 +1,13 @@
 import * as React from 'react';
 import { useSharedCalendarRootContext } from '../root/SharedCalendarRootContext';
 import { SharedCalendarDayGridBodyContext } from './SharedCalendarDayGridBodyContext';
-import { useSharedCalendarRootVisibleDateContext } from '../root/SharedCalendarRootVisibleDateContext';
 import { useScrollableList } from '../utils/useScrollableList';
 import { HTMLProps } from '../../utils/types';
 import { useTemporalAdapter } from '../../temporal-adapter-provider/TemporalAdapterContext';
 import { TemporalSupportedObject } from '../../models';
 import { useWeekList } from '../../use-week-list';
+import { useSelector } from '../../utils/store';
+import { selectors } from '../store';
 
 export function useSharedCalendarDayGridBody(
   parameters: useSharedCalendarDayGridBody.Parameters,
@@ -14,8 +15,10 @@ export function useSharedCalendarDayGridBody(
   const { fixedWeekNumber, focusOnMount, children, offset = 0, freezeMonth = false } = parameters;
 
   const adapter = useTemporalAdapter();
-  const { selectedDates, referenceDate, registerDayGrid } = useSharedCalendarRootContext();
-  const { visibleDate } = useSharedCalendarRootVisibleDateContext();
+  const { store, registerDayGrid } = useSharedCalendarRootContext();
+  const visibleDate = useSelector(store, selectors.visibleDate);
+  const referenceDate = useSelector(store, selectors.referenceDate);
+  const selectedDates = useSelector(store, selectors.selectedDates);
   const ref = React.useRef<HTMLDivElement>(null);
 
   const rawMonth = React.useMemo(() => {

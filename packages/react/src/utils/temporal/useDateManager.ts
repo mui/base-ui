@@ -23,6 +23,7 @@ export function useDateManager(
       getTimezone: (value) => (adapter.isValid(value) ? adapter.getTimezone(value) : null),
       setTimezone: (value, timezone) =>
         value == null ? null : adapter.setTimezone(value, timezone),
+      getDatesFromValue: (value) => (value == null ? [] : [value]),
     }),
     [adapter],
   );

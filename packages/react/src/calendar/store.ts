@@ -9,11 +9,15 @@ import { validateDate } from '../utils/temporal/date-helpers';
 import { getInitialReferenceDate } from '../utils/temporal/getInitialReferenceDate';
 import { TemporalManager } from '../utils/temporal/types';
 
-export type State<TValue extends TemporalSupportedValue> = {
+export type State<TValue extends TemporalSupportedValue = any> = {
   /**
    * The value of the calendar, as passed to `props.value` or `props.defaultValue`.
    */
   value: TValue;
+  /**
+   * The date that is currently visible in the calendar.
+   */
+  visibleDate: TemporalSupportedObject;
   /**
    * The initial date used to generate the reference date if any.
    */
@@ -55,9 +59,9 @@ export type State<TValue extends TemporalSupportedValue> = {
   adapter: TemporalAdapter;
 };
 
-export type SharedCalendarStore = Store<State<any>>;
+export type SharedCalendarStore = Store<State>;
 
-const timezoneToRenderSelector = createSelector((state: State<any>) => {
+const timezoneToRenderSelector = createSelector((state: State) => {
   if (state.timezoneProp) {
     return state.timezoneProp;
   }
@@ -73,65 +77,132 @@ const timezoneToRenderSelector = createSelector((state: State<any>) => {
   return 'default';
 }) as <TValue extends TemporalSupportedValue>(state: State<TValue>) => TemporalTimezone;
 
-export const selectors = {
-  validationProps: createSelector((state: State<any>) => state.validationProps),
-  monthPageSize: createSelector((state: State<any>) => state.monthPageSize),
-  timezoneToRender: timezoneToRenderSelector,
-  valueWithTimezoneToRender: createSelector((state: State<any>) => {
-    const timezoneToRender = selectors.timezoneToRender(state);
-    return state.manager.setTimezone(state.value, timezoneToRender);
-  }) as <TValue extends TemporalSupportedValue>(state: State<TValue>) => TValue,
-  referenceDate: createSelectorMemoized(
-    (state: State<any>) => state.adapter,
-    timezoneToRenderSelector,
-    (state: State<any>) => state.initialReferenceDateFromValue,
-    (state: State<any>) => state.validationProps,
-    (state: State<any>) => state.referenceDateProp,
-    (adapter, timezoneProp, initialReferenceDateFromValue, validationProps, referenceDateProp) =>
-      getInitialReferenceDate({
-        adapter,
-        timezone: timezoneProp,
-        externalDate: initialReferenceDateFromValue,
-        validationProps,
-        referenceDate: referenceDateProp,
-        precision: 'day',
-      }),
-  ),
-  isDayCellDisabled: createSelector((state: State<any>, value: TemporalSupportedObject) => {
-    if (state.disabled) {
+const referenceDateSelector = createSelectorMemoized(
+  (state: State) => state.adapter,
+  timezoneToRenderSelector,
+  (state: State) => state.initialReferenceDateFromValue,
+  (state: State) => state.validationProps,
+  (state: State) => state.referenceDateProp,
+  (adapter, timezone, initialReferenceDateFromValue, validationProps, referenceDateProp) =>
+    getInitialReferenceDate({
+      adapter,
+      timezone,
+      externalDate: initialReferenceDateFromValue,
+      validationProps,
+      referenceDate: referenceDateProp,
+      precision: 'day',
+    }),
+);
+
+const valueWithTimezoneToRenderSelector = createSelector((state: State) => {
+  const timezoneToRender = timezoneToRenderSelector(state);
+  return state.manager.setTimezone(state.value, timezoneToRender);
+}) as <TValue extends TemporalSupportedValue>(state: State<TValue>) => TValue;
+
+const selectedDatesSelector = createSelectorMemoized(
+  (state: State) => state.value,
+  (state: State) => state.manager,
+  (value, manager) => manager.getDatesFromValue(value),
+);
+
+const isDayCellDisabledSelector = createSelector((state: State, value: TemporalSupportedObject) => {
+  if (state.disabled) {
+    return true;
+  }
+
+  const validationError = validateDate({
+    adapter: state.adapter,
+    value,
+    validationProps: state.validationProps,
+  });
+
+  return validationError != null;
+});
+
+const isDayButtonSelectedSelector = createSelectorMemoized(
+  (state: State, value: TemporalSupportedObject) => value,
+  selectedDatesSelector,
+  (state: State) => state.adapter,
+  (value, selectedDates, adapter) => {
+    return selectedDates.some((date) => adapter.isSameDay(date, value));
+  },
+);
+
+const isSetMonthButtonDisabledSelector = createSelectorMemoized(
+  (state: State, disabled: boolean | undefined) => state.disabled || disabled,
+  (state: State, disabled: boolean | undefined, targetDate: TemporalSupportedObject) => targetDate,
+  (state: State) => state.validationProps,
+  (state: State) => state.adapter,
+  (
+    isForcedDisabled: boolean | undefined,
+    targetDate: TemporalSupportedObject,
+    validationProps: validateDate.ValidationProps,
+    adapter: TemporalAdapter,
+  ) => {
+    if (isForcedDisabled) {
       return true;
     }
 
-    const validationError = validateDate({
-      adapter: state.adapter,
-      value,
-      validationProps: state.validationProps,
-    });
+    // The month targeted and all the months before are fully disabled, we disable the button.
+    if (
+      validationProps.minDate != null &&
+      adapter.isBefore(adapter.endOfMonth(targetDate), validationProps.minDate)
+    ) {
+      return true;
+    }
 
-    return validationError != null;
-  }),
-  isDayCellUnavailable: createSelector((state: State<any>, value: TemporalSupportedObject) => {
+    // The month targeted and all the months after are fully disabled, we disable the button.
+    return (
+      validationProps.maxDate != null &&
+      adapter.isAfter(adapter.startOfMonth(targetDate), validationProps.maxDate)
+    );
+  },
+);
+
+export const selectors = {
+  /**
+   * Returns the props to check if a date is valid or not.
+   */
+  validationProps: createSelector((state: State) => state.validationProps),
+  /**
+   * Returns the amount of months to navigate by when pressing Calendar.SetNextMonth, Calendar.SetPreviousMonth or when using keyboard navigation in the day grid.
+   */
+  monthPageSize: createSelector((state: State) => state.monthPageSize),
+  /**
+   * Returns the date currently visible.
+   */
+  visibleDate: createSelector((state: State) => state.visibleDate),
+  /**
+   * Returns the current value with the timezone to render applied.
+   */
+  valueWithTimezoneToRender: valueWithTimezoneToRenderSelector,
+  /**
+   * Returns the reference date.
+   */
+  referenceDate: referenceDateSelector,
+  /**
+   * Returns the list of currently selected dates.
+   * When used inside the Calendar component, it contains the current value if not null.
+   * When used inside the RangeCalendar component, it contains the selected start and/or end dates if not null.
+   */
+  selectedDates: selectedDatesSelector,
+  /**
+   * Checks if a day cell should be disabled.
+   */
+  isDayCellDisabled: isDayCellDisabledSelector,
+  /**
+   * Checks if a day cell should be selected.
+   */
+  isDayButtonSelected: isDayButtonSelectedSelector,
+  /**
+   * Checks if a specific dates is unavailable.
+   * If so, this date should not be selectable but should still be focusable with the keyboard.
+   */
+  isDayCellUnavailable: createSelector((state: State, value: TemporalSupportedObject) => {
     return state.isDateUnavailable?.(value) ?? false;
   }),
-  isSetMonthButtonDisabled: createSelector(
-    (state: State<any>, disabled: boolean | undefined, targetDate: TemporalSupportedObject) => {
-      if (disabled || state.disabled) {
-        return true;
-      }
-
-      // The month targeted and all the months before are fully disabled, we disable the button.
-      if (
-        state.validationProps.minDate != null &&
-        state.adapter.isBefore(state.adapter.endOfMonth(targetDate), state.validationProps.minDate)
-      ) {
-        return true;
-      }
-
-      // The month targeted and all the months after are fully disabled, we disable the button.
-      return (
-        state.validationProps.maxDate != null &&
-        state.adapter.isAfter(state.adapter.startOfMonth(targetDate), state.validationProps.maxDate)
-      );
-    },
-  ),
+  /**
+   * Checks if a month navigation button should be disabled.
+   */
+  isSetMonthButtonDisabled: isSetMonthButtonDisabledSelector,
 };

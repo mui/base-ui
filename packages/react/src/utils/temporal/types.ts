@@ -1,4 +1,8 @@
-import { TemporalTimezone, TemporalSupportedValue } from '../../models/temporal';
+import {
+  TemporalTimezone,
+  TemporalSupportedValue,
+  TemporalSupportedObject,
+} from '../../models/temporal';
 
 export interface TemporalTimezoneProps {
   /**
@@ -65,4 +69,8 @@ export interface TemporalManager<
    * Changes the timezone of the dates inside a value.
    */
   setTimezone: (value: TValue, timezone: TemporalTimezone) => TValue;
+  /**
+   * Returns the list of dates contained in the value.
+   */
+  getDatesFromValue: (value: TValue) => TemporalSupportedObject[];
 }
