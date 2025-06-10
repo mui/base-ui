@@ -7,6 +7,8 @@ import { BaseUIComponentProps } from '../../utils/types';
 import { useButton } from '../../use-button';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { useTemporalAdapter } from '../../temporal-adapter-provider/TemporalAdapterContext';
+import { useSelector } from '../../utils/store';
+import { selectors } from '../store';
 
 /**
  * Displays an element to navigate to the next month in the calendar.
@@ -21,30 +23,22 @@ export const CalendarSetNextMonth = React.forwardRef(function CalendarSetNextMon
   const { className, render, nativeButton, disabled, ...elementProps } = componentProps;
 
   const { visibleDate } = useSharedCalendarRootVisibleDateContext();
-  const {
-    monthPageSize,
-    disabled: isCalendarDisabled,
-    validationProps: dateValidationProps,
-    setVisibleDate,
-  } = useSharedCalendarRootContext();
+  const { store, setVisibleDate } = useSharedCalendarRootContext();
   const adapter = useTemporalAdapter();
+  const monthPageSize = useSelector(store, selectors.monthPageSize);
 
   const targetDate = React.useMemo(
     () => adapter.addMonths(visibleDate, monthPageSize),
     [visibleDate, monthPageSize, adapter],
   );
 
-  const isDisabled = React.useMemo(() => {
-    if (isCalendarDisabled || disabled) {
-      return true;
-    }
-
-    // All the months after the visible ones are fully disabled, we skip the navigation.
-    return (
-      dateValidationProps.maxDate != null &&
-      adapter.isBefore(adapter.startOfMonth(dateValidationProps.maxDate), targetDate)
-    );
-  }, [isCalendarDisabled, disabled, dateValidationProps.maxDate, targetDate, adapter]);
+  const isDisabled = useSelector(
+    store,
+    selectors.isSetMonthButtonDisabled,
+    adapter,
+    disabled,
+    targetDate,
+  );
 
   const setTarget = useEventCallback(() => {
     if (isDisabled) {

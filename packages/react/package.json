@@ -93,6 +93,7 @@
     "@babel/runtime": "^7.27.0",
     "@floating-ui/react": "^0.27.10",
     "@floating-ui/utils": "^0.2.9",
+    "reselect": "^5.1.1",
     "use-sync-external-store": "^1.5.0"
   },
   "devDependencies": {

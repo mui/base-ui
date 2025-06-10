@@ -9,6 +9,10 @@ import { SharedCalendarRootVisibleDateContext } from './SharedCalendarRootVisibl
 import { useEventCallback } from '../../utils/useEventCallback';
 import { TemporalManager, TemporalTimezoneProps } from '../../utils/temporal/types';
 import { useControlled } from '../../utils/useControlled';
+import { Store, useSelector } from '../../utils/store';
+import { selectors, State } from '../store';
+import { useLazyRef } from '../../utils/useLazyRef';
+import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 
 export function useSharedCalendarRoot<TValue extends TemporalSupportedValue, TError>(
   parameters: useSharedCalendarRoot.Parameters<TValue, TError>,
@@ -46,11 +50,20 @@ export function useSharedCalendarRoot<TValue extends TemporalSupportedValue, TEr
     },
   } = parameters;
 
-  const validationProps = React.useMemo(() => ({ minDate, maxDate }), [minDate, maxDate]);
+  const store = useLazyRef(
+    () =>
+      new Store<State>({
+        validationProps: { minDate, maxDate },
+        isDateUnavailable,
+        disabled,
+        monthPageSize,
+      }),
+  ).current;
+  const validationProps = useSelector(store, selectors.validationProps);
 
   const handleValueChangeWithContext = useEventCallback((newValue: TValue) => {
     onValueChange?.(newValue, {
-      getValidationError: () => manager.getValidationError(newValue, validationProps),
+      getValidationError: () => manager.getValidationError(newValue, store.state.validationProps),
     });
   });
 
@@ -209,29 +222,33 @@ export function useSharedCalendarRoot<TValue extends TemporalSupportedValue, TEr
   const context: SharedCalendarRootContext = React.useMemo(
     () => ({
       timezone,
-      disabled,
       referenceDate,
       selectedDates,
       setVisibleDate: handleVisibleDateChange,
       monthPageSize,
       registerDayGrid,
       selectDate,
-      validationProps,
-      isDateUnavailable,
+      store,
     }),
     [
       timezone,
-      disabled,
       referenceDate,
       selectedDates,
       handleVisibleDateChange,
       monthPageSize,
       registerDayGrid,
-      validationProps,
-      isDateUnavailable,
       selectDate,
+      store,
     ],
   );
+
+  useModernLayoutEffect(() => {
+    store.apply({ disabled, isDateUnavailable, monthPageSize });
+  }, [store, disabled, isDateUnavailable, monthPageSize]);
+
+  useModernLayoutEffect(() => {
+    store.apply({ validationProps: { minDate, maxDate } });
+  }, [store, minDate, maxDate]);
 
   return {
     state,

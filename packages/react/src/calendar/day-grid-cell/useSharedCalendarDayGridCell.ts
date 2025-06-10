@@ -3,45 +3,51 @@ import { TemporalSupportedObject } from '../../models';
 import { SharedCalendarDayGridCellContext } from './SharedCalendarDayGridCellContext';
 import { HTMLProps } from '../../utils/types';
 import { useTemporalAdapter } from '../../temporal-adapter-provider/TemporalAdapterContext';
+import { useSelector } from '../../utils/store';
+import { useSharedCalendarDayGridBodyContext } from '../day-grid-body/SharedCalendarDayGridBodyContext';
+import { useSharedCalendarRootContext } from '../root/SharedCalendarRootContext';
+import { selectors } from '../store';
 
 export function useSharedCalendarDayGridCell(parameters: useSharedCalendarDayGridCell.Parameters) {
-  const { ctx, value } = parameters;
-
+  const { value } = parameters;
   const adapter = useTemporalAdapter();
+  const { store } = useSharedCalendarRootContext();
+  const { month } = useSharedCalendarDayGridBodyContext();
+
+  const isDisabled = useSelector(store, selectors.isDayCellDisabled, adapter, value);
+
+  const isUnavailable = useSelector(store, selectors.isDayCellUnavailable, value);
+
+  const isOutsideCurrentMonth = React.useMemo(
+    () => (month == null ? false : !adapter.isSameMonth(month, value)),
+    [month, value, adapter],
+  );
 
   const props: HTMLProps = {
     role: 'gridcell',
-    'aria-disabled':
-      ctx.isDisabled || ctx.isOutsideCurrentMonth || ctx.isUnavailable ? true : undefined,
+    'aria-disabled': isDisabled || isOutsideCurrentMonth || isUnavailable ? true : undefined,
     'aria-colindex': adapter.getDayOfWeek(value),
   };
 
   const context: SharedCalendarDayGridCellContext = React.useMemo(
     () => ({
-      value: parameters.value,
-      isDisabled: ctx.isDisabled,
-      isUnavailable: ctx.isUnavailable,
-      isOutsideCurrentMonth: ctx.isOutsideCurrentMonth,
+      value,
+      isDisabled,
+      isUnavailable,
+      isOutsideCurrentMonth,
     }),
-    [ctx.isDisabled, ctx.isUnavailable, ctx.isOutsideCurrentMonth, parameters.value],
+    [isDisabled, isUnavailable, isOutsideCurrentMonth, value],
   );
 
   return { props, context };
 }
 
 export namespace useSharedCalendarDayGridCell {
-  export interface PublicParameters {
+  export interface Parameters {
     /**
      * The value to select when this cell is clicked.
      */
     value: TemporalSupportedObject;
-  }
-
-  export interface Parameters extends PublicParameters {
-    /**
-     * The memoized context forwarded by the wrapper component so that this component does not need to subscribe to any context.
-     */
-    ctx: Context;
   }
 
   export interface ReturnValue {
@@ -50,11 +56,5 @@ export namespace useSharedCalendarDayGridCell {
      * The context to expose to the children components.
      */
     context: SharedCalendarDayGridCellContext;
-  }
-
-  export interface Context {
-    isDisabled: boolean;
-    isUnavailable: boolean;
-    isOutsideCurrentMonth: boolean;
   }
 }

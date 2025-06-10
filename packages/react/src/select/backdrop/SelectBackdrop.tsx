@@ -7,6 +7,8 @@ import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import { transitionStatusMapping } from '../../utils/styleHookMapping';
 import { useRenderElement } from '../../utils/useRenderElement';
+import { useSelector } from '../../utils/store';
+import { selectors } from '../store';
 
 const customStyleHookMapping: CustomStyleHookMapping<SelectBackdrop.State> = {
   ...popupStateMapping,
@@ -25,7 +27,11 @@ export const SelectBackdrop = React.forwardRef(function SelectBackdrop(
 ) {
   const { className, render, ...elementProps } = componentProps;
 
-  const { open, mounted, transitionStatus } = useSelectRootContext();
+  const { store } = useSelectRootContext();
+
+  const open = useSelector(store, selectors.open);
+  const mounted = useSelector(store, selectors.mounted);
+  const transitionStatus = useSelector(store, selectors.transitionStatus);
 
   const state: SelectBackdrop.State = React.useMemo(
     () => ({

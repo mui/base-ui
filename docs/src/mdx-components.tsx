@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { NoSsr } from '@base-ui-components/react/unstable-no-ssr';
 import { DemoLoader } from './components/Demo/DemoLoader';
 import * as CodeBlock from './components/CodeBlock';
 import * as Table from './components/Table';
@@ -85,7 +86,14 @@ export const mdxComponents: MDXComponents = {
   td: Table.Cell,
 
   // Custom components
-  Demo: (props) => <DemoLoader className="mt-5 mb-6" {...props} />,
+  Demo:
+    process.env.DISABLE_DEMO_SSR === 'true'
+      ? (props) => (
+          <NoSsr>
+            <DemoLoader className="mt-5 mb-6" {...props} />
+          </NoSsr>
+        )
+      : (props) => <DemoLoader className="mt-5 mb-6" {...props} />,
   QuickNav,
   Meta: (props: React.ComponentProps<'meta'>) => {
     if (props.name === 'description' && String(props.content).length > 170) {

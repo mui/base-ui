@@ -8,6 +8,8 @@ import { useButton } from '../../use-button';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { TemporalSupportedObject } from '../../models';
 import { useTemporalAdapter } from '../../temporal-adapter-provider/TemporalAdapterContext';
+import { useSelector } from '../../utils/store';
+import { selectors } from '../store';
 
 /**
  * Displays an element to navigate to a given month in the calendar.
@@ -22,11 +24,7 @@ export const CalendarSetMonth = React.forwardRef(function CalendarSetMonth(
   const { className, render, target, nativeButton, disabled, ...elementProps } = componentProps;
 
   const { visibleDate } = useSharedCalendarRootVisibleDateContext();
-  const {
-    disabled: isCalendarDisabled,
-    validationProps: dateValidationProps,
-    setVisibleDate,
-  } = useSharedCalendarRootContext();
+  const { store, setVisibleDate } = useSharedCalendarRootContext();
   const adapter = useTemporalAdapter();
 
   const targetDate = React.useMemo(
@@ -38,32 +36,13 @@ export const CalendarSetMonth = React.forwardRef(function CalendarSetMonth(
     [visibleDate, adapter, target],
   );
 
-  const isDisabled = React.useMemo(() => {
-    if (isCalendarDisabled || disabled) {
-      return true;
-    }
-
-    // The target month and all the months before are fully disabled, we disable the button.
-    if (
-      dateValidationProps.minDate != null &&
-      adapter.isBefore(adapter.endOfMonth(targetDate), dateValidationProps.minDate)
-    ) {
-      return true;
-    }
-
-    // The target month and all the months after are fully disabled, we disable the button.
-    return (
-      dateValidationProps.maxDate != null &&
-      adapter.isAfter(adapter.startOfMonth(targetDate), dateValidationProps.maxDate)
-    );
-  }, [
-    isCalendarDisabled,
-    disabled,
-    dateValidationProps.minDate,
-    dateValidationProps.maxDate,
-    targetDate,
+  const isDisabled = useSelector(
+    store,
+    selectors.isSetMonthButtonDisabled,
     adapter,
-  ]);
+    disabled,
+    targetDate,
+  );
 
   const setTarget = useEventCallback(() => {
     if (isDisabled) {
