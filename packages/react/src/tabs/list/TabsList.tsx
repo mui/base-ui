@@ -62,13 +62,15 @@ export const TabsList = React.forwardRef(function TabsList(
 
     if (
       (tabsList.clientWidth < tabsList.scrollWidth &&
-        activeTab.offsetLeft + activeTab.offsetWidth > tabsList.clientWidth) ||
+        ((direction === 'ltr' &&
+          activeTab.offsetLeft + activeTab.offsetWidth > tabsList.clientWidth) ||
+          (direction === 'rtl' && activeTab.offsetLeft < tabsList.scrollLeft))) ||
       (tabsList.clientHeight < tabsList.scrollHeight &&
         activeTab.offsetTop + activeTab.offsetHeight > tabsList.clientHeight)
     ) {
       activeTab.scrollIntoView({ behavior: 'auto' });
     }
-  }, [activeTab]);
+  }, [activeTab, direction]);
 
   const onTabActivation = useEventCallback((newValue: any, event: Event) => {
     if (newValue !== value) {
