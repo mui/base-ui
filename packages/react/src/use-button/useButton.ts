@@ -59,14 +59,9 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
         ...otherExternalProps
       } = externalProps;
 
-      let type: 'button' | 'text' | undefined;
-      if (native === 'input') {
-        type = 'text';
-      } else if (isNativeButton) {
-        type = 'button';
-      }
+      const type = isNativeButton ? 'button' : undefined;
 
-      return mergeProps<'button' | 'input'>(
+      return mergeProps<'button'>(
         {
           type,
           onClick(event: React.MouseEvent) {
@@ -176,7 +171,7 @@ export namespace useButton {
      * Whether the component is being rendered as a native button or specific native tag.
      * @default true
      */
-    native?: boolean | 'input' | 'a';
+    native?: boolean | 'a';
   }
 
   export interface ReturnValue {

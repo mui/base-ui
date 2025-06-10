@@ -2,7 +2,7 @@
 import * as React from 'react';
 
 export interface UseFocusableWhenDisabledParameters {
-  focusableWhenDisabled: boolean | undefined;
+  focusableWhenDisabled?: boolean | undefined;
   disabled: boolean;
   /**
    * Whether this is a composite item or not
