@@ -66,12 +66,16 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
   }, [allowMouseUpTriggerRef, open, parent.type]);
 
   const handleDocumentMouseUp = useEventCallback((mouseEvent: MouseEvent) => {
-    if (!triggerRef.current || !allowMouseUpTriggerRef.current) {
+    if (!triggerRef.current) {
       return;
     }
 
     allowMouseUpTriggerTimeout.clear();
     allowMouseUpTriggerRef.current = false;
+
+    if (!allowMouseUpTriggerRef.current) {
+      return;
+    }
 
     const mouseUpTarget = mouseEvent.target as Element | null;
 
@@ -122,12 +126,6 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
 
             const doc = ownerDocument(event.currentTarget);
             doc.addEventListener('mouseup', handleDocumentMouseUp, { once: true });
-          },
-          onMouseUp: () => {
-            // Clicking and releasing the mouse button quickly can fire the mouseup event even before the document.mouseup
-            // has a chance to register. In these cases, we want to ensure that the allowMouseUpTriggerRef is reset to false.
-            allowMouseUpTriggerTimeout.clear();
-            allowMouseUpTriggerRef.current = false;
           },
         },
         externalProps,
