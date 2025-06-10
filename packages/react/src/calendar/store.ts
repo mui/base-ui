@@ -61,21 +61,28 @@ export type State<TValue extends TemporalSupportedValue = any> = {
 
 export type SharedCalendarStore = Store<State>;
 
-const timezoneToRenderSelector = createSelector((state: State) => {
-  if (state.timezoneProp) {
-    return state.timezoneProp;
-  }
+const timezoneToRenderSelector = createSelectorMemoized(
+  (state: State) => state.adapter,
+  (state: State) => state.manager,
+  (state: State) => state.value,
+  (state: State) => state.timezoneProp,
+  (state: State) => state.referenceDateProp,
+  (adapter, manager, value, timezoneProp, referenceDateProp) => {
+    if (timezoneProp != null) {
+      return timezoneProp;
+    }
 
-  const valueTimezone = state.manager.getTimezone(state.value);
-  if (valueTimezone) {
-    return valueTimezone;
-  }
+    const valueTimezone = manager.getTimezone(value);
+    if (valueTimezone) {
+      return valueTimezone;
+    }
 
-  if (state.referenceDateProp) {
-    return state.adapter.getTimezone(state.referenceDateProp);
-  }
-  return 'default';
-}) as <TValue extends TemporalSupportedValue>(state: State<TValue>) => TemporalTimezone;
+    if (referenceDateProp) {
+      return adapter.getTimezone(referenceDateProp);
+    }
+    return 'default';
+  },
+);
 
 const referenceDateSelector = createSelectorMemoized(
   (state: State) => state.adapter,
@@ -100,9 +107,9 @@ const valueWithTimezoneToRenderSelector = createSelector((state: State) => {
 }) as <TValue extends TemporalSupportedValue>(state: State<TValue>) => TValue;
 
 const selectedDatesSelector = createSelectorMemoized(
-  (state: State) => state.value,
   (state: State) => state.manager,
-  (value, manager) => manager.getDatesFromValue(value),
+  (state: State) => state.value,
+  (manager, value) => manager.getDatesFromValue(value),
 );
 
 const isDayCellDisabledSelector = createSelector((state: State, value: TemporalSupportedObject) => {
@@ -119,12 +126,16 @@ const isDayCellDisabledSelector = createSelector((state: State, value: TemporalS
   return validationError != null;
 });
 
+const isDayCellUnavailableSelector = createSelector(
+  (state: State, value) => state.isDateUnavailable?.(value) ?? false,
+);
+
 const isDayButtonSelectedSelector = createSelectorMemoized(
-  (state: State, value: TemporalSupportedObject) => value,
-  selectedDatesSelector,
   (state: State) => state.adapter,
-  (value, selectedDates, adapter) => {
-    return selectedDates.some((date) => adapter.isSameDay(date, value));
+  selectedDatesSelector,
+  (state: State, value: TemporalSupportedObject) => value,
+  (adapter, selectedDates, cellValue) => {
+    return selectedDates.some((date) => adapter.isSameDay(date, cellValue));
   },
 );
 
@@ -198,9 +209,7 @@ export const selectors = {
    * Checks if a specific dates is unavailable.
    * If so, this date should not be selectable but should still be focusable with the keyboard.
    */
-  isDayCellUnavailable: createSelector((state: State, value: TemporalSupportedObject) => {
-    return state.isDateUnavailable?.(value) ?? false;
-  }),
+  isDayCellUnavailable: isDayCellUnavailableSelector,
   /**
    * Checks if a month navigation button should be disabled.
    */
