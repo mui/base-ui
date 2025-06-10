@@ -613,10 +613,11 @@ describe('<Checkbox.Root />', () => {
         );
 
         const label = screen.getByText('Label');
-        expect(label).to.have.attribute('for', 'MyCheckbox');
-
         const button = screen.getByTestId('button');
-        expect(button).to.have.attribute('aria-labelledby', 'MyLabel');
+
+        expect(label).to.have.attribute('for', button.getAttribute('id'));
+
+        expect(button).to.have.attribute('aria-labelledby', label.getAttribute('id'));
         expect(button).to.have.attribute('aria-checked', 'false');
 
         fireEvent.click(label);
