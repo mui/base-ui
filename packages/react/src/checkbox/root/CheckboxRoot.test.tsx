@@ -7,6 +7,7 @@ import { CheckboxGroup } from '@base-ui-components/react/checkbox-group';
 import { Field } from '@base-ui-components/react/field';
 import { Form } from '@base-ui-components/react/form';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
+import { isReactVersionAtLeast } from '../../utils/reactVersion';
 
 describe('<Checkbox.Root />', () => {
   const { render } = createRenderer();
@@ -604,7 +605,11 @@ describe('<Checkbox.Root />', () => {
     });
 
     describe('Field.Label', () => {
-      it('explicit association', async () => {
+      it('explicit association', async ({ skip }) => {
+        if (!isReactVersionAtLeast(19)) {
+          skip();
+        }
+
         await render(
           <Field.Root>
             <Field.Label>Label</Field.Label>
