@@ -30,6 +30,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
   border: 0;
   margin: 0;
   outline: 0;
@@ -71,10 +72,7 @@
     &::before {
       content: '';
       position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
+      inset: 0;
       border-radius: 0.25rem;
       outline: 2px solid var(--color-blue);
       outline-offset: -1px;
@@ -83,15 +81,28 @@
 }
 
 .indicator {
+  flex-shrink: 0;
   position: absolute;
   z-index: -1;
-  inset: var(--active-tab-top) var(--active-tab-right) var(--active-tab-bottom)
-    var(--active-tab-left);
+  /* easier to debug than a single `inset:` */
+  top: var(--active-tab-top);
+  right: var(--active-tab-right);
+  bottom: var(--active-tab-bottom);
+  left: var(--active-tab-left);
   border-radius: 0.25rem;
   background-color: var(--color-gray-100);
   transition-property: left, right, top, bottom;
   transition-duration: 200ms;
   transition-timing-function: ease-in-out;
+
+  &[data-orientation='vertical'] {
+    /*
+      handles an edge case when the tabs list is overflowing vertically,
+      the indicator could be incorrectly sized when arrow keys change the tab
+      and scroll the container at the same time
+    */
+    height: var(--active-tab-height);
+  }
 
   &.elastic {
     &[data-activation-direction='right'] {

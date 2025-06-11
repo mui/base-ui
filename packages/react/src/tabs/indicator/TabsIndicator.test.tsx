@@ -45,19 +45,14 @@ describe('<Tabs.Indicator />', () => {
       tabList: HTMLElement,
       activeTab: HTMLElement,
     ) {
-      const { right: listRight, bottom: listBottom } = tabList.getBoundingClientRect();
+      const { top: listTop, left: listLeft } = tabList.getBoundingClientRect();
 
-      const {
-        right: tabRight,
-        bottom: tabBottom,
-        width: tabWidth,
-        height: tabHeight,
-      } = activeTab.getBoundingClientRect();
+      const { right: tabRight, bottom: tabBottom } = activeTab.getBoundingClientRect();
 
       const relativeLeft = activeTab.offsetLeft - tabList.clientLeft;
-      const relativeRight = listRight - tabRight;
+      const relativeRight = listLeft + tabList.clientWidth - tabRight;
       const relativeTop = activeTab.offsetTop - tabList.clientTop;
-      const relativeBottom = listBottom - tabBottom;
+      const relativeBottom = listTop + tabList.clientHeight - tabBottom;
 
       const bubbleComputedStyle = window.getComputedStyle(bubble);
       const actualLeft = bubbleComputedStyle.getPropertyValue('--active-tab-left');
@@ -71,8 +66,8 @@ describe('<Tabs.Indicator />', () => {
       assertSize(actualRight, relativeRight);
       assertSize(actualTop, relativeTop);
       assertSize(actualBottom, relativeBottom);
-      assertSize(actualWidth, tabWidth);
-      assertSize(actualHeight, tabHeight);
+      assertSize(actualWidth, activeTab.offsetWidth);
+      assertSize(actualHeight, activeTab.offsetHeight);
     }
 
     it('should set CSS variables corresponding to the active tab', async () => {

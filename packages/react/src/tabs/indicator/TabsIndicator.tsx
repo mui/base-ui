@@ -19,8 +19,12 @@ const customStyleHookMapping = {
   selectedTabSize: () => null,
 };
 
-function round(value: number) {
-  return Math.round(value * 100) * 0.01;
+function getTabListStyles(styles: CSSStyleDeclaration) {
+  return {
+    borderTopWidth: parseFloat(styles.borderTopWidth),
+    borderLeftWidth: parseFloat(styles.borderLeftWidth),
+    borderRightWidth: parseFloat(styles.borderRightWidth),
+  };
 }
 
 /**
@@ -35,7 +39,7 @@ export const TabsIndicator = React.forwardRef(function TabIndicator(
 ) {
   const { className, render, renderBeforeHydration = false, ...elementProps } = componentProps;
 
-  const { getTabElementBySelectedValue, orientation, tabActivationDirection, value } =
+  const { direction, getTabElementBySelectedValue, orientation, tabActivationDirection, value } =
     useTabsRootContext();
 
   const { tabsListRef } = useTabsListContext();
@@ -73,26 +77,36 @@ export const TabsIndicator = React.forwardRef(function TabIndicator(
 
   let isTabSelected = false;
 
+  const tabsListStylesRef = React.useRef<CSSStyleDeclaration>(null);
+
   if (value != null && tabsListRef.current != null) {
-    const selectedTabElement = getTabElementBySelectedValue(value);
+    const selectedTab = getTabElementBySelectedValue(value);
+    const tabsList = tabsListRef.current;
     isTabSelected = true;
 
-    if (selectedTabElement != null) {
+    if (selectedTab != null) {
+      const { right: tabRight, bottom: tabBottom } = selectedTab.getBoundingClientRect();
+      const { top: listTop, left: listLeft, right: listRight } = tabsList.getBoundingClientRect();
+
+      if (tabsListStylesRef.current == null) {
+        tabsListStylesRef.current = getComputedStyle(tabsList);
+      }
+
       const {
-        left: tabLeft,
-        right: tabRight,
-        bottom: tabBottom,
-        top: tabTop,
-      } = selectedTabElement.getBoundingClientRect();
+        borderTopWidth: listBorderTopWidth,
+        borderLeftWidth: listBorderLeftWidth,
+        borderRightWidth: listBorderRightWidth,
+      } = getTabListStyles(tabsListStylesRef.current);
 
-      const { right: listRight, bottom: listBottom } = tabsListRef.current.getBoundingClientRect();
-
-      left = selectedTabElement.offsetLeft - tabsListRef.current.clientLeft;
-      right = round(listRight - tabRight);
-      top = selectedTabElement.offsetTop - tabsListRef.current.clientTop;
-      bottom = round(listBottom - tabBottom);
-      width = round(tabRight - tabLeft);
-      height = round(tabBottom - tabTop);
+      left = selectedTab.offsetLeft - tabsList.clientLeft + listBorderLeftWidth;
+      right =
+        direction === 'ltr'
+          ? listLeft + listBorderLeftWidth + tabsList.clientWidth - tabRight
+          : listRight - tabRight - listBorderRightWidth;
+      top = selectedTab.offsetTop - tabsList.clientTop + listBorderTopWidth;
+      bottom = listTop + listBorderTopWidth + tabsList.clientHeight - tabBottom;
+      width = selectedTab.offsetWidth;
+      height = selectedTab.offsetHeight;
     }
   }
 
