@@ -4,6 +4,7 @@ import { spy } from 'sinon';
 import { act, fireEvent } from '@mui/internal-test-utils';
 import { createRenderer, isJSDOM } from '#test-utils';
 import { useButton } from './useButton';
+import { useForkRef } from '../utils';
 
 describe('useButton', () => {
   const { render, renderToString } = createRenderer();
@@ -95,8 +96,9 @@ describe('useButton', () => {
 
     it('returns tabIndex in getButtonProps when host component is not BUTTON', async () => {
       function TestButton() {
-        const buttonRef = React.useRef(null);
-        const { getButtonProps } = useButton({ buttonRef, native: false });
+        const ref = React.useRef(null);
+        const { getButtonProps, buttonRef } = useButton({ native: false });
+        useForkRef(ref, buttonRef);
 
         expect(getButtonProps().tabIndex).to.equal(0);
 

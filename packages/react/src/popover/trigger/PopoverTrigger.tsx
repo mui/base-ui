@@ -40,7 +40,6 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
 
   const { getButtonProps, buttonRef } = useButton({
     disabled,
-    buttonRef: forwardedRef,
     native: nativeButton,
   });
 
@@ -59,7 +58,7 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
 
   const element = useRenderElement('button', componentProps, {
     state,
-    ref: [buttonRef, setTriggerElement],
+    ref: [buttonRef, setTriggerElement, forwardedRef],
     props: [triggerProps, elementProps, getButtonProps],
     customStyleHookMapping,
   });

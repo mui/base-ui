@@ -61,6 +61,6 @@ export namespace useDialogClose {
      * Resolver for the root element props.
      */
     getRootProps: (externalProps: React.HTMLAttributes<any>) => React.HTMLAttributes<any>;
-    ref: React.RefCallback<HTMLElement> | null;
+    ref: React.RefObject<HTMLElement | null>;
   }
 }
