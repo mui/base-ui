@@ -13,7 +13,7 @@ import { CompositeRoot } from '../../composite/root/CompositeRoot';
 export function useSharedCalendarDayGridBody(
   parameters: useSharedCalendarDayGridBody.Parameters,
 ): useSharedCalendarDayGridBody.ReturnValue {
-  const { fixedWeekNumber, focusOnMount, children, offset = 0, freezeMonth = false } = parameters;
+  const { fixedWeekNumber, children, offset = 0 } = parameters;
 
   const adapter = useTemporalAdapter();
   const { store, registerDayGrid } = useSharedCalendarRootContext();
@@ -22,26 +22,10 @@ export function useSharedCalendarDayGridBody(
   const selectedDates = useSelector(store, selectors.selectedDates);
   const ref = React.useRef<HTMLDivElement>(null);
 
-  const rawMonth = React.useMemo(() => {
+  const month = React.useMemo(() => {
     const cleanVisibleDate = adapter.startOfMonth(visibleDate);
     return offset === 0 ? cleanVisibleDate : adapter.addMonths(cleanVisibleDate, offset);
   }, [adapter, visibleDate, offset]);
-
-  const lastNonFrozenMonthRef = React.useRef(rawMonth);
-  React.useEffect(() => {
-    if (!freezeMonth) {
-      lastNonFrozenMonthRef.current = rawMonth;
-    }
-  }, [freezeMonth, rawMonth]);
-
-  const month = freezeMonth ? lastNonFrozenMonthRef.current : rawMonth;
-
-  const initialFocusOnMount = React.useRef(focusOnMount);
-  React.useEffect(() => {
-    if (initialFocusOnMount.current) {
-      ref.current?.querySelector<HTMLElement>('[tabindex="0"]')?.focus();
-    }
-  }, [ref]);
 
   React.useEffect(() => {
     return registerDayGrid(month);
@@ -148,16 +132,6 @@ export namespace useSharedCalendarDayGridBody {
      * @default 0
      */
     offset?: number;
-    /**
-     * If `true`, the component's month won't update when the visible date or the offset changes.
-     * This is mostly useful when doing transitions between several months to avoid having the exiting month updated to the new visible date.
-     */
-    freezeMonth?: boolean;
-    /**
-     * If `true`, the first tabbable children inside this component will be focused on mount.
-     * @default false
-     */
-    focusOnMount?: boolean;
   }
 
   export interface ItemMetadata {

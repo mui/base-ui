@@ -6,15 +6,6 @@
       "type": "number",
       "description": "Will render the requested amount of weeks by adding weeks of the next month if needed.\nPut it to 6 to create a Gregorian calendar where all months have the same amount of weeks displayed."
     },
-    "focusOnMount": {
-      "type": "boolean",
-      "default": "false",
-      "description": "If `true`, the first tabbable children inside this component will be focused on mount."
-    },
-    "freezeMonth": {
-      "type": "boolean",
-      "description": "If `true`, the component's month won't update when the visible date or the offset changes.\nThis is mostly useful when doing transitions between several months to avoid having the exiting month updated to the new visible date."
-    },
     "offset": {
       "type": "number",
       "default": "0",
