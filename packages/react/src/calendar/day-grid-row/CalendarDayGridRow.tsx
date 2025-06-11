@@ -11,7 +11,7 @@ import { useDayList } from '../../use-day-list';
  *
  * Documentation: [Base UI Calendar](https://base-ui.com/react/components/calendar)
  */
-export const CalendarDayGridRow = React.forwardRef(function InnerCalendarDayGridRow(
+export const CalendarDayGridRow = React.forwardRef(function CalendarDayGridRow(
   componentProps: CalendarDayGridRow.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {

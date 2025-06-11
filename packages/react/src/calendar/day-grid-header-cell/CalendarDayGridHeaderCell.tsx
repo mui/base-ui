@@ -5,7 +5,7 @@ import { useRenderElement } from '../../utils/useRenderElement';
 import { TemporalSupportedObject } from '../../models';
 import { useTemporalAdapter } from '../../temporal-adapter-provider/TemporalAdapterContext';
 
-const InnerCalendarDayGridHeaderCell = React.forwardRef(function CalendarDayGridHeaderCell(
+const InnerCalendarDayGridHeaderCell = React.forwardRef(function InnerCalendarDayGridHeaderCell(
   componentProps: CalendarDayGridHeaderCell.Props,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {

@@ -5,11 +5,9 @@ import { useRenderElement } from '../../utils/useRenderElement';
 import { CalendarDayButtonDataAttributes } from './CalendarDayButtonDataAttributes';
 import { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 import { useButton } from '../../use-button';
-import { TemporalSupportedObject } from '../../models';
 import { useSharedCalendarRootContext } from '../root/SharedCalendarRootContext';
 import { useSharedCalendarDayGridBodyContext } from '../day-grid-body/SharedCalendarDayGridBodyContext';
 import { useTemporalAdapter } from '../../temporal-adapter-provider/TemporalAdapterContext';
-import { useForkRef } from '../../utils';
 import { useCalendarDayGridCellContext } from '../day-grid-cell/SharedCalendarDayGridCellContext';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { CompositeItem } from '../../composite/item/CompositeItem';
@@ -35,7 +33,7 @@ const customStyleHookMapping: CustomStyleHookMapping<CalendarDayButton.State> = 
 };
 
 const InnerCalendarDayButton = React.forwardRef(function InnerCalendarDayButton(
-  componentProps: InnerCalendarDayButtonProps,
+  componentProps: CalendarDayButton.Props,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
   const adapter = useTemporalAdapter();
@@ -44,83 +42,20 @@ const InnerCalendarDayButton = React.forwardRef(function InnerCalendarDayButton(
     className,
     render,
     nativeButton,
-    ctx,
     format = adapter.formats.dayOfMonth,
     disabled,
     ...elementProps
   } = componentProps;
 
-  const isDisabled = disabled ?? ctx.isDisabled;
-
-  const { getButtonProps, buttonRef } = useButton({
-    disabled: isDisabled,
-    native: nativeButton,
-  });
-
-  const formattedValue = React.useMemo(
-    () => adapter.formatByString(ctx.value, format),
-    [adapter, ctx.value, format],
-  );
-
-  const onClick = useEventCallback(() => {
-    if (ctx.isUnavailable) {
-      return;
-    }
-    ctx.selectDate(ctx.value);
-  });
-
-  const props: React.ButtonHTMLAttributes<HTMLButtonElement> = {
-    'aria-label': ctx.formattedDate,
-    'aria-selected': ctx.isSelected ? true : undefined,
-    'aria-current': ctx.isCurrent ? 'date' : undefined,
-    'aria-disabled':
-      isDisabled || ctx.isOutsideCurrentMonth || ctx.isUnavailable ? true : undefined,
-    children: formattedValue,
-    tabIndex: ctx.isTabbable ? 0 : -1,
-    onClick,
-  };
-
-  const state: CalendarDayButton.State = React.useMemo(
-    () => ({
-      selected: ctx.isSelected,
-      disabled: isDisabled,
-      unavailable: ctx.isUnavailable,
-      current: ctx.isCurrent,
-      outsideMonth: ctx.isOutsideCurrentMonth,
-    }),
-    [ctx.isSelected, isDisabled, ctx.isUnavailable, ctx.isCurrent, ctx.isOutsideCurrentMonth],
-  );
-
-  const element = useRenderElement('button', componentProps, {
-    state,
-    ref: [buttonRef, forwardedRef],
-    props: [props, elementProps, getButtonProps],
-    customStyleHookMapping,
-  });
-
-  return <CompositeItem render={element} />;
-});
-
-const MemoizedInnerCalendarDayButton = React.memo(InnerCalendarDayButton);
-
-/**
- * An individual interactive day button in the calendar.
- * Renders a `<button>` element.
- *
- * Documentation: [Base UI Calendar](https://base-ui.com/react/components/calendar)
- */
-export const CalendarDayButton = React.forwardRef(function CalendarDayButton(
-  props: CalendarDayButton.Props,
-  forwardedRef: React.ForwardedRef<HTMLButtonElement>,
-) {
   const { store, selectDate } = useSharedCalendarRootContext();
   const { canCellBeTabbed } = useSharedCalendarDayGridBodyContext();
-  const { isDisabled, isUnavailable, isOutsideCurrentMonth, value } =
-    useCalendarDayGridCellContext();
+  const {
+    isDisabled: isCellDisabled,
+    isUnavailable,
+    isOutsideCurrentMonth,
+    value,
+  } = useCalendarDayGridCellContext();
   const isSelected = useSelector(store, selectors.isDayButtonSelected, value);
-  const ref = React.useRef<HTMLButtonElement>(null);
-  const adapter = useTemporalAdapter();
-  const mergedRef = useForkRef(forwardedRef, ref);
 
   const isCurrent = React.useMemo(
     () => adapter.isSameDay(value, adapter.now(adapter.getTimezone(value))),
@@ -134,33 +69,63 @@ export const CalendarDayButton = React.forwardRef(function CalendarDayButton(
     [adapter, value],
   );
 
-  const ctx = React.useMemo<InnerCalendarDayButtonContext>(
-    () => ({
-      value,
-      isSelected,
-      isDisabled,
-      isUnavailable,
-      isTabbable,
-      isCurrent,
-      isOutsideCurrentMonth,
-      selectDate,
-      formattedDate,
-    }),
-    [
-      value,
-      isSelected,
-      isDisabled,
-      isUnavailable,
-      isTabbable,
-      isCurrent,
-      isOutsideCurrentMonth,
-      selectDate,
-      formattedDate,
-    ],
+  const isDisabled = disabled ?? isCellDisabled;
+
+  const { getButtonProps, buttonRef } = useButton({
+    disabled: isDisabled,
+    native: nativeButton,
+  });
+
+  const formattedValue = React.useMemo(
+    () => adapter.formatByString(value, format),
+    [adapter, value, format],
   );
 
-  return <MemoizedInnerCalendarDayButton ref={mergedRef} {...props} ctx={ctx} />;
+  const onClick = useEventCallback(() => {
+    if (isUnavailable) {
+      return;
+    }
+    selectDate(value);
+  });
+
+  const props: React.ButtonHTMLAttributes<HTMLButtonElement> = {
+    'aria-label': formattedDate,
+    'aria-selected': isSelected ? true : undefined,
+    'aria-current': isCurrent ? 'date' : undefined,
+    'aria-disabled': isDisabled || isOutsideCurrentMonth || isUnavailable ? true : undefined,
+    children: formattedValue,
+    tabIndex: isTabbable ? 0 : -1,
+    onClick,
+  };
+
+  const state: CalendarDayButton.State = React.useMemo(
+    () => ({
+      selected: isSelected,
+      disabled: isDisabled,
+      unavailable: isUnavailable,
+      current: isCurrent,
+      outsideMonth: isOutsideCurrentMonth,
+    }),
+    [isSelected, isDisabled, isUnavailable, isCurrent, isOutsideCurrentMonth],
+  );
+
+  const element = useRenderElement('button', componentProps, {
+    state,
+    ref: [buttonRef, forwardedRef],
+    props: [props, elementProps, getButtonProps],
+    customStyleHookMapping,
+  });
+
+  return <CompositeItem render={element} />;
 });
+
+/**
+ * An individual interactive day button in the calendar.
+ * Renders a `<button>` element.
+ *
+ * Documentation: [Base UI Calendar](https://base-ui.com/react/components/calendar)
+ */
+export const CalendarDayButton = React.memo(InnerCalendarDayButton);
 
 export namespace CalendarDayButton {
   export interface State {
@@ -200,23 +165,4 @@ export namespace CalendarDayButton {
      */
     nativeButton?: boolean;
   }
-}
-
-interface InnerCalendarDayButtonProps extends CalendarDayButton.Props {
-  /**
-   * The memoized context forwarded by the wrapper component so that this component does not need to subscribe to any context.
-   */
-  ctx: InnerCalendarDayButtonContext;
-}
-
-interface InnerCalendarDayButtonContext {
-  value: TemporalSupportedObject;
-  isSelected: boolean;
-  isDisabled: boolean;
-  isUnavailable: boolean;
-  isTabbable: boolean;
-  isCurrent: boolean;
-  isOutsideCurrentMonth: boolean;
-  selectDate: (date: TemporalSupportedObject) => void;
-  formattedDate: string;
 }
