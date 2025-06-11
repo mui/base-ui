@@ -299,12 +299,12 @@ export namespace useSharedCalendarRoot {
      */
     isDateUnavailable?: (day: TemporalSupportedObject) => boolean;
     /**
-     * The date used to decide which month should be displayed in the Days Grid and which year should be displayed in the Months List and Months Grid.
+     * The date used to decide which month should be displayed in the Day Grid.
      * To render an uncontrolled Calendar, use the `defaultVisibleDate` prop instead.
      */
     visibleDate?: TemporalSupportedObject;
     /**
-     * The date used to decide which month should be initially displayed in the Days Grid and which year should be initially displayed in the Months List and Months Grid.
+     * The date used to decide which month should be initially displayed in the Day Grid.
      * To render a controlled Calendar, use the `visibleDate` prop instead.
      */
     defaultVisibleDate?: TemporalSupportedObject;
@@ -320,7 +320,7 @@ export namespace useSharedCalendarRoot {
      */
     referenceDate?: TemporalSupportedObject;
     /**
-     * The amount of months to navigate by when pressing Calendar.SetNextMonth, Calendar.SetPreviousMonth or when using keyboard navigation in the day grid.
+     * The amount of months to move by when navigating.
      * This is mostly useful when displaying multiple day grids.
      * @default 1
      */

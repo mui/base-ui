@@ -16,7 +16,7 @@
     },
     "defaultVisibleDate": {
       "type": "DateTime<boolean>",
-      "description": "The date used to decide which month should be initially displayed in the Days Grid and which year should be initially displayed in the Months List and Months Grid.\nTo render a controlled Calendar, use the `visibleDate` prop instead."
+      "description": "The date used to decide which month should be initially displayed in the Day Grid.\nTo render a controlled Calendar, use the `visibleDate` prop instead."
     },
     "isDateUnavailable": {
       "type": "((day: DateTime<boolean>) => boolean)",
@@ -33,7 +33,7 @@
     "monthPageSize": {
       "type": "number",
       "default": "1",
-      "description": "The amount of months to navigate by when pressing Calendar.SetNextMonth, Calendar.SetPreviousMonth or when using keyboard navigation in the day grid.\nThis is mostly useful when displaying multiple day grids."
+      "description": "The amount of months to move by when navigating.\nThis is mostly useful when displaying multiple day grids."
     },
     "onVisibleDateChange": {
       "type": "((visibleDate: DateTime<boolean>) => void)",
@@ -51,7 +51,7 @@
     },
     "visibleDate": {
       "type": "DateTime<boolean>",
-      "description": "The date used to decide which month should be displayed in the Days Grid and which year should be displayed in the Months List and Months Grid.\nTo render an uncontrolled Calendar, use the `defaultVisibleDate` prop instead."
+      "description": "The date used to decide which month should be displayed in the Day Grid.\nTo render an uncontrolled Calendar, use the `defaultVisibleDate` prop instead."
     },
     "disabled": {
       "type": "boolean",
