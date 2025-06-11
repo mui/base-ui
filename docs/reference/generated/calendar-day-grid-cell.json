@@ -1,6 +1,6 @@
 {
   "name": "CalendarDayGridCell",
-  "description": "An individual day cell in the calendar.\nRenders a `<div>` element.",
+  "description": "An individual day cell in the calendar.\nRenders a `<td>` element.",
   "props": {
     "value": {
       "type": "DateTime<boolean>",

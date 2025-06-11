@@ -1,22 +1,17 @@
 {
-  "name": "CalendarDayGridRow",
-  "description": "Groups all cells of a given calendar's day grid row.\nRenders a `<tr>` element.",
+  "name": "CalendarDayGridHeaderRow",
+  "description": "Groups all cells of the calendar's day grid header row.\nRenders a `<tr>` element.",
   "props": {
-    "value": {
-      "type": "DateTime<boolean>",
-      "required": true,
-      "description": "The date object representing the week."
-    },
     "children": {
       "type": "ReactNode | ((day: DateTime<boolean>, index: number, days: DateTime<boolean>[]) => ReactNode)",
       "description": "The children of the component.\nIf a function is provided, it will be called for each day of the week as its parameter."
     },
     "className": {
-      "type": "string | ((state: Calendar.DayGridRow.State) => string)",
+      "type": "string | ((state: Calendar.DayGridHeaderRow.State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "render": {
-      "type": "ReactElement | ((props: HTMLProps, state: Calendar.DayGridRow.State) => ReactElement)",
+      "type": "ReactElement | ((props: HTMLProps, state: Calendar.DayGridHeaderRow.State) => ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
     }
   },

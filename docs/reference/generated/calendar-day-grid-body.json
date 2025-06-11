@@ -1,6 +1,6 @@
 {
   "name": "CalendarDayGridBody",
-  "description": "Groups all rows of the calendar's day grid.\nRenders a `<div>` element.",
+  "description": "Groups all parts of the calendar's day grid.\nRenders a `<tbody>` element.",
   "props": {
     "fixedWeekNumber": {
       "type": "number",

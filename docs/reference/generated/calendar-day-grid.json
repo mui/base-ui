@@ -1,6 +1,6 @@
 {
   "name": "CalendarDayGrid",
-  "description": "Groups all the parts of the calendar's day grid.\nRenders a `<div>` element.",
+  "description": "Groups all the parts of the calendar's day grid.\nRenders a `<table>` element.",
   "props": {
     "className": {
       "type": "string | ((state: Calendar.DayGrid.State) => string)",
