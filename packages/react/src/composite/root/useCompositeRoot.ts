@@ -113,12 +113,31 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
     }
     hasSetDefaultIndexRef.current = true;
     const sortedElements = Array.from(map.keys());
-    // Set the default highlighted index of an arbitrary composite item.
-    const activeIndex = sortedElements.findIndex((compositeElement) =>
+    const activeItem = sortedElements.find((compositeElement) =>
       compositeElement?.hasAttribute(ACTIVE_COMPOSITE_ITEM),
-    );
+    ) as HTMLElement | undefined;
+    // Set the default highlighted index of an arbitrary composite item.
+    const activeIndex = activeItem ? sortedElements.indexOf(activeItem) : -1;
+
     if (activeIndex !== -1) {
       onHighlightedIndexChange(activeIndex);
+    }
+
+    const scrollContainer = rootRef.current;
+
+    if (!activeItem || !scrollContainer) {
+      return;
+    }
+
+    if (
+      (scrollContainer.clientWidth < scrollContainer.scrollWidth &&
+        ((direction === 'ltr' &&
+          activeItem.offsetLeft + activeItem.offsetWidth > scrollContainer.clientWidth) ||
+          (direction === 'rtl' && activeItem.offsetLeft < scrollContainer.scrollLeft))) ||
+      (scrollContainer.clientHeight < scrollContainer.scrollHeight &&
+        activeItem.offsetTop + activeItem.offsetHeight > scrollContainer.clientHeight)
+    ) {
+      activeItem.scrollIntoView({ behavior: 'auto', block: 'nearest', inline: 'nearest' });
     }
   });
 

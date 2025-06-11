@@ -52,26 +52,6 @@ export const TabsList = React.forwardRef(function TabsList(
     getTabElementBySelectedValue,
   );
 
-  const activeTab = getTabElementBySelectedValue(value);
-
-  useModernLayoutEffect(() => {
-    const tabsList = tabsListRef.current;
-    if (!tabsList || !activeTab) {
-      return;
-    }
-
-    if (
-      (tabsList.clientWidth < tabsList.scrollWidth &&
-        ((direction === 'ltr' &&
-          activeTab.offsetLeft + activeTab.offsetWidth > tabsList.clientWidth) ||
-          (direction === 'rtl' && activeTab.offsetLeft < tabsList.scrollLeft))) ||
-      (tabsList.clientHeight < tabsList.scrollHeight &&
-        activeTab.offsetTop + activeTab.offsetHeight > tabsList.clientHeight)
-    ) {
-      activeTab.scrollIntoView({ behavior: 'auto', block: 'nearest', inline: 'nearest' });
-    }
-  }, [activeTab, direction]);
-
   const onTabActivation = useEventCallback((newValue: any, event: Event) => {
     if (newValue !== value) {
       const activationDirection = detectActivationDirection(newValue);
