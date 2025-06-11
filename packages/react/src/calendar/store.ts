@@ -130,7 +130,7 @@ const isDayCellUnavailableSelector = createSelector(
   (state: State, value) => state.isDateUnavailable?.(value) ?? false,
 );
 
-const isDayButtonSelectedSelector = createSelectorMemoized(
+const isDayButtonSelectedSelector = createSelector(
   (state: State) => state.adapter,
   selectedDatesSelector,
   (state: State, value: TemporalSupportedObject) => value,
@@ -139,7 +139,7 @@ const isDayButtonSelectedSelector = createSelectorMemoized(
   },
 );
 
-const isSetMonthButtonDisabledSelector = createSelectorMemoized(
+const isSetMonthButtonDisabledSelector = createSelector(
   (state: State, disabled: boolean | undefined) => state.disabled || disabled,
   (state: State, disabled: boolean | undefined, targetDate: TemporalSupportedObject) => targetDate,
   (state: State) => state.validationProps,
