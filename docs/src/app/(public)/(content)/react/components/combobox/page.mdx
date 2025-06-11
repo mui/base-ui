@@ -1,0 +1,65 @@
+# Combobox
+
+{/* prettier-ignore */}
+<Subtitle>An input combined with a list of items to choose from.</Subtitle>
+<Meta
+  name="description"
+  content="A high-quality, unstyled React combobox component that displays a popup containing a list of options to choose from."
+/>
+
+<Demo path="./demos/hero" />
+
+## Anatomy
+
+Import the components and place them together:
+
+```jsx title="Anatomy"
+import { Combobox } from '@base-ui-components/react/combobox';
+
+<Combobox.Root>
+  <Combobox.Input />
+  <Combobox.Value />
+  <Combobox.List />
+  <Combobox.Portal>
+    <Combobox.Positioner>
+      <Combobox.Popup>
+        <Combobox.Status />
+        <Combobox.Item>
+          <Combobox.ItemIndicator />
+        </Combobox.Item>
+        <Combobox.Separator />
+        <Combobox.Group>
+          <Combobox.GroupLabel />
+        </Combobox.Group>
+      </Combobox.Popup>
+    </Combobox.Positioner>
+  </Combobox.Portal>
+</Combobox.Root>;
+```
+
+## API reference
+
+<Reference
+  component="Combobox"
+  parts="Root, Input, Value, List, Portal, Positioner, Popup, Status, Item, Group, GroupLabel, Separator"
+/>
+
+## Examples
+
+### Async search
+
+The combobox items can be loaded asynchronously.
+
+<Demo path="./demos/async" compact />
+
+### Input autofill
+
+The combobox's input can be autofilled with the highlighted item when navigating with arrow keys before selecting an item.
+
+<Demo path="./demos/autofill" compact />
+
+### Inside `Popover`
+
+Using `Combobox.List` instead of `Combobox.Popup`, the combobox can be rendered inline inside a parent popover to create a searchable select menu by adding the `selectable` prop to `Combobox.Root`.
+
+<Demo path="./demos/inside-popover" compact />

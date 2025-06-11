@@ -1,0 +1,16 @@
+{
+  "name": "ComboboxStatus",
+  "description": "Displays a status message for the combobox with screen reader support.\nRenders a `<div>` element.\nThis component must not be conditionally rendered. Conditionally render its\nchildren instead.",
+  "props": {
+    "className": {
+      "type": "string | ((state: Combobox.Status.State) => string)",
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
+    },
+    "render": {
+      "type": "ReactElement | ((props: HTMLProps, state: Combobox.Status.State) => ReactElement)",
+      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
+    }
+  },
+  "dataAttributes": {},
+  "cssVariables": {}
+}
