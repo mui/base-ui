@@ -2,6 +2,7 @@ import * as React from 'react';
 import { expect } from 'chai';
 import { act, createRenderer, fireEvent, flushMicrotasks } from '@mui/internal-test-utils';
 import { isJSDOM } from '#test-utils';
+import { DirectionProvider } from '../../direction-provider';
 import { CompositeItem } from '../item/CompositeItem';
 import { CompositeRoot } from './CompositeRoot';
 
@@ -151,11 +152,13 @@ describe('Composite', () => {
       it('horizontal orientation', async () => {
         const { getByTestId } = render(
           <div dir="rtl">
-            <CompositeRoot orientation="horizontal">
-              <CompositeItem data-testid="1">1</CompositeItem>
-              <CompositeItem data-testid="2">2</CompositeItem>
-              <CompositeItem data-testid="3">3</CompositeItem>
-            </CompositeRoot>
+            <DirectionProvider direction="rtl">
+              <CompositeRoot orientation="horizontal">
+                <CompositeItem data-testid="1">1</CompositeItem>
+                <CompositeItem data-testid="2">2</CompositeItem>
+                <CompositeItem data-testid="3">3</CompositeItem>
+              </CompositeRoot>
+            </DirectionProvider>
           </div>,
         );
 
@@ -206,11 +209,13 @@ describe('Composite', () => {
       it('both horizontal and vertical orientation', async () => {
         const { getByTestId } = render(
           <div dir="rtl">
-            <CompositeRoot orientation="both">
-              <CompositeItem data-testid="1">1</CompositeItem>
-              <CompositeItem data-testid="2">2</CompositeItem>
-              <CompositeItem data-testid="3">3</CompositeItem>
-            </CompositeRoot>
+            <DirectionProvider direction="rtl">
+              <CompositeRoot orientation="both">
+                <CompositeItem data-testid="1">1</CompositeItem>
+                <CompositeItem data-testid="2">2</CompositeItem>
+                <CompositeItem data-testid="3">3</CompositeItem>
+              </CompositeRoot>
+            </DirectionProvider>
           </div>,
         );
 
@@ -331,13 +336,15 @@ describe('Composite', () => {
       it('horizontal orientation', async () => {
         const { getByTestId } = render(
           <div dir="rtl">
-            <CompositeRoot cols={3} orientation="horizontal" enableHomeAndEndKeys>
-              {['1', '2', '3', '4', '5', '6', '7', '8', '9'].map((i) => (
-                <CompositeItem key={i} data-testid={i}>
-                  {i}
-                </CompositeItem>
-              ))}
-            </CompositeRoot>
+            <DirectionProvider direction="rtl">
+              <CompositeRoot cols={3} orientation="horizontal" enableHomeAndEndKeys>
+                {['1', '2', '3', '4', '5', '6', '7', '8', '9'].map((i) => (
+                  <CompositeItem key={i} data-testid={i}>
+                    {i}
+                  </CompositeItem>
+                ))}
+              </CompositeRoot>
+            </DirectionProvider>
           </div>,
         );
 
@@ -382,13 +389,15 @@ describe('Composite', () => {
       it('both horizontal and vertical orientation', async () => {
         const { getByTestId } = await render(
           <div dir="rtl">
-            <CompositeRoot cols={3} orientation="both" enableHomeAndEndKeys>
-              {['1', '2', '3', '4', '5', '6', '7', '8', '9'].map((i) => (
-                <CompositeItem key={i} data-testid={i}>
-                  {i}
-                </CompositeItem>
-              ))}
-            </CompositeRoot>
+            <DirectionProvider direction="rtl">
+              <CompositeRoot cols={3} orientation="both" enableHomeAndEndKeys>
+                {['1', '2', '3', '4', '5', '6', '7', '8', '9'].map((i) => (
+                  <CompositeItem key={i} data-testid={i}>
+                    {i}
+                  </CompositeItem>
+                ))}
+              </CompositeRoot>
+            </DirectionProvider>
           </div>,
         );
 

@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import type { TextDirection } from '../../direction-provider/DirectionContext';
+import { useDirection, type TextDirection } from '../../direction-provider/DirectionContext';
 import { isElementDisabled } from '../../utils/isElementDisabled';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { useForkRef } from '../../utils/useForkRef';
@@ -27,7 +27,6 @@ import {
   getMinListIndex,
   isListIndexDisabled,
   isIndexOutOfListBounds,
-  getTextDirection,
   isNativeInput,
   type Dimensions,
   type ModifierKey,
@@ -35,6 +34,8 @@ import {
 import { ACTIVE_COMPOSITE_ITEM } from '../constants';
 import { CompositeMetadata } from '../list/CompositeList';
 import { HTMLProps } from '../../utils/types';
+
+import { scrollIntoViewIfNeeded } from './scrollIntoViewIfNeeded';
 
 export interface UseCompositeRootParameters {
   orientation?: 'horizontal' | 'vertical' | 'both';
@@ -80,7 +81,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
     loop = true,
     dense = false,
     orientation = 'both',
-    direction,
+    direction: directionProp,
     highlightedIndex: externalHighlightedIndex,
     onHighlightedIndexChange: externalSetHighlightedIndex,
     rootRef: externalRef,
@@ -99,7 +100,8 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
     externalSetHighlightedIndex ?? internalSetHighlightedIndex,
   );
 
-  const textDirectionRef = React.useRef<TextDirection | null>(direction ?? null);
+  const contextDirection = useDirection();
+  const direction = directionProp ?? contextDirection;
 
   const rootRef = React.useRef<HTMLElement | null>(null);
   const mergedRef = useForkRef(rootRef, externalRef);
@@ -113,9 +115,9 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
     }
     hasSetDefaultIndexRef.current = true;
     const sortedElements = Array.from(map.keys());
-    const activeItem = sortedElements.find((compositeElement) =>
+    const activeItem = (sortedElements.find((compositeElement) =>
       compositeElement?.hasAttribute(ACTIVE_COMPOSITE_ITEM),
-    ) as HTMLElement | undefined;
+    ) ?? null) as HTMLElement | null;
     // Set the default highlighted index of an arbitrary composite item.
     const activeIndex = activeItem ? sortedElements.indexOf(activeItem) : -1;
 
@@ -123,22 +125,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
       onHighlightedIndexChange(activeIndex);
     }
 
-    const scrollContainer = rootRef.current;
-
-    if (!activeItem || !scrollContainer) {
-      return;
-    }
-
-    if (
-      (scrollContainer.clientWidth < scrollContainer.scrollWidth &&
-        ((direction === 'ltr' &&
-          activeItem.offsetLeft + activeItem.offsetWidth > scrollContainer.clientWidth) ||
-          (direction === 'rtl' && activeItem.offsetLeft < scrollContainer.scrollLeft))) ||
-      (scrollContainer.clientHeight < scrollContainer.scrollHeight &&
-        activeItem.offsetTop + activeItem.offsetHeight > scrollContainer.clientHeight)
-    ) {
-      activeItem.scrollIntoView({ behavior: 'auto', block: 'nearest', inline: 'nearest' });
-    }
+    scrollIntoViewIfNeeded(rootRef.current, activeItem, direction, orientation);
   });
 
   const props = React.useMemo<HTMLProps>(
@@ -166,11 +153,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
         if (!element) {
           return;
         }
-
-        if (textDirectionRef?.current == null) {
-          textDirectionRef.current = getTextDirection(element);
-        }
-        const isRtl = textDirectionRef.current === 'rtl';
+        const isRtl = direction === 'rtl';
 
         const horizontalForwardKey = isRtl ? ARROW_LEFT : ARROW_RIGHT;
         const forwardKey = {
@@ -338,6 +321,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
     [
       cols,
       dense,
+      direction,
       disabledIndices,
       elementsRef,
       enableHomeAndEndKeys,
