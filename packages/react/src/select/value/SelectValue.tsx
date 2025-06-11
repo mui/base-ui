@@ -1,8 +1,10 @@
 'use client';
 import * as React from 'react';
-import { useSelectRootContext } from '../root/SelectRootContext';
+import { useSelector } from '../../utils/store';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
+import { useSelectRootContext } from '../root/SelectRootContext';
+import { selectors } from '../store';
 
 /**
  * A text label of the currently selected item.
@@ -16,7 +18,9 @@ export const SelectValue = React.forwardRef(function SelectValue(
 ) {
   const { className, render, children, placeholder, ...elementProps } = componentProps;
 
-  const { value, label, valueRef } = useSelectRootContext();
+  const { store, valueRef } = useSelectRootContext();
+  const value = useSelector(store, selectors.value);
+  const label = useSelector(store, selectors.label);
 
   const element = useRenderElement('span', componentProps, {
     ref: [forwardedRef, valueRef],
@@ -36,14 +40,11 @@ export const SelectValue = React.forwardRef(function SelectValue(
 
 export namespace SelectValue {
   export interface Props extends Omit<BaseUIComponentProps<'span', State>, 'children'> {
-    children?: null | ((label: string, value: any) => React.ReactNode);
+    children?: null | ((label: React.ReactNode, value: any) => React.ReactNode);
     /**
-     * A placeholder value to display when no value is selected.
-     *
-     * You can use this prop to pre-render the displayed text
-     * during SSR in order to avoid the hydration flash.
+     * A placeholder to display before an item has been chosen.
      */
-    placeholder?: string;
+    placeholder: React.ReactNode;
   }
 
   export interface State {}

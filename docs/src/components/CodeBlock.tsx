@@ -42,12 +42,14 @@ export function Panel({ className, children, ...props }: React.ComponentPropsWit
 
           if (code) {
             await copy(code);
+            /* eslint-disable no-restricted-syntax */
             const newTimeout = window.setTimeout(() => {
               window.clearTimeout(newTimeout);
               setCopyTimeout(0);
             }, 2000);
             window.clearTimeout(copyTimeout);
             setCopyTimeout(newTimeout);
+            /* eslint-enable no-restricted-syntax */
           }
         }}
       >

@@ -1,7 +1,8 @@
 'use client';
 import * as React from 'react';
 import type { Orientation } from '../../utils/types';
-import { type CompositeMetadata } from '../../composite/list/CompositeList';
+import type { CompositeMetadata } from '../../composite/list/CompositeList';
+import type { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
 import type { ThumbMetadata } from '../thumb/SliderThumb';
 import type { SliderRoot } from './SliderRoot';
 
@@ -12,6 +13,7 @@ export interface SliderRootContext {
   active: number;
   dragging: boolean;
   disabled: boolean;
+  fieldControlValidation: useFieldControlValidation.ReturnValue;
   formatOptionsRef: React.RefObject<Intl.NumberFormatOptions | undefined>;
   handleInputChange: (
     valueInput: number,
@@ -43,7 +45,6 @@ export interface SliderRootContext {
    * The minimum steps between values in a range slider.
    */
   minStepsBetweenValues: number;
-  name: string;
   /**
    * Function to be called when drag ends and the pointer is released.
    */
@@ -57,7 +58,7 @@ export interface SliderRootContext {
    * Whether the slider is a range slider.
    */
   range: boolean;
-  registerInputValidationRef: (element: HTMLElement | null) => void;
+  registerFieldControlRef: React.RefCallback<Element> | null;
   setActive: React.Dispatch<React.SetStateAction<number>>;
   setDragging: React.Dispatch<React.SetStateAction<boolean>>;
   /**
@@ -81,10 +82,6 @@ export interface SliderRootContext {
 }
 
 export const SliderRootContext = React.createContext<SliderRootContext | undefined>(undefined);
-
-if (process.env.NODE_ENV !== 'production') {
-  SliderRootContext.displayName = 'SliderRootContext';
-}
 
 export function useSliderRootContext() {
   const context = React.useContext(SliderRootContext);

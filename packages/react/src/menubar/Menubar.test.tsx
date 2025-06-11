@@ -316,7 +316,9 @@ describe('<Menubar />', () => {
 
       // First submenu item should be focused
       const submenuItem = screen.getByTestId('share-item-1');
-      expect(submenuItem).toHaveFocus();
+      await waitFor(() => {
+        expect(submenuItem).toHaveFocus();
+      });
     });
 
     it.skipIf(isJSDOM)('should close the menu with Escape key', async () => {

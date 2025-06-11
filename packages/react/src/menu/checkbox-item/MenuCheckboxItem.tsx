@@ -1,20 +1,20 @@
 'use client';
 import * as React from 'react';
 import { FloatingEvents, useFloatingTree } from '@floating-ui/react';
-import { useMenuCheckboxItem } from './useMenuCheckboxItem';
 import { MenuCheckboxItemContext } from './MenuCheckboxItemContext';
+import { useMenuItem } from '../item/useMenuItem';
+import { useCompositeListItem } from '../../composite/list/useCompositeListItem';
 import { useMenuRootContext } from '../root/MenuRootContext';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import { useRenderElement } from '../../utils/useRenderElement';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import { useForkRef } from '../../utils/useForkRef';
 import { itemMapping } from '../utils/styleHookMapping';
-import { useCompositeListItem } from '../../composite/list/useCompositeListItem';
-import { mergeProps } from '../../merge-props';
+import { useControlled } from '../../utils/useControlled';
 
 const InnerMenuCheckboxItem = React.memo(
   React.forwardRef(function InnerMenuCheckboxItem(
-    props: InnerMenuCheckboxItemProps,
+    componentProps: InnerMenuCheckboxItemProps,
     forwardedRef: React.ForwardedRef<Element>,
   ) {
     const {
@@ -31,21 +31,27 @@ const InnerMenuCheckboxItem = React.memo(
       render,
       allowMouseUpTriggerRef,
       typingRef,
-      ...other
-    } = props;
+      nativeButton,
+      ...elementProps
+    } = componentProps;
 
-    const { getItemProps, checked } = useMenuCheckboxItem({
+    const [checked, setChecked] = useControlled({
+      controlled: checkedProp,
+      default: defaultChecked ?? false,
+      name: 'MenuCheckboxItem',
+      state: 'checked',
+    });
+
+    const { getItemProps, itemRef } = useMenuItem({
       closeOnClick,
       disabled,
       highlighted,
       id,
       menuEvents,
-      ref: forwardedRef,
       allowMouseUpTriggerRef,
-      checked: checkedProp,
-      defaultChecked,
-      onCheckedChange,
       typingRef,
+      nativeButton,
+      submenuTrigger: false,
     });
 
     const state: MenuCheckboxItem.State = React.useMemo(
@@ -53,19 +59,27 @@ const InnerMenuCheckboxItem = React.memo(
       [disabled, highlighted, checked],
     );
 
-    const { renderElement } = useComponentRenderer({
-      render: render || 'div',
-      className,
+    const element = useRenderElement('div', componentProps, {
       state,
-      propGetter: (externalProps) => mergeProps(itemProps, externalProps, getItemProps),
       customStyleHookMapping: itemMapping,
-      extraProps: other,
+      props: [
+        itemProps,
+        {
+          role: 'menuitemcheckbox',
+          'aria-checked': checked,
+          onClick: (event: React.MouseEvent) => {
+            setChecked((currentlyChecked) => !currentlyChecked);
+            onCheckedChange?.(!checked, event.nativeEvent);
+          },
+        },
+        elementProps,
+        getItemProps,
+      ],
+      ref: [itemRef, forwardedRef],
     });
 
     return (
-      <MenuCheckboxItemContext.Provider value={state}>
-        {renderElement()}
-      </MenuCheckboxItemContext.Provider>
+      <MenuCheckboxItemContext.Provider value={state}>{element}</MenuCheckboxItemContext.Provider>
     );
   }),
 );
@@ -80,7 +94,7 @@ export const MenuCheckboxItem = React.forwardRef(function MenuCheckboxItem(
   props: MenuCheckboxItem.Props,
   forwardedRef: React.ForwardedRef<Element>,
 ) {
-  const { id: idProp, label, closeOnClick = false, ...other } = props;
+  const { id: idProp, label, closeOnClick = false, nativeButton = false, ...other } = props;
 
   const itemRef = React.useRef<HTMLElement>(null);
   const listItem = useCompositeListItem({ label });
@@ -107,6 +121,7 @@ export const MenuCheckboxItem = React.forwardRef(function MenuCheckboxItem(
       allowMouseUpTriggerRef={allowMouseUpTriggerRef}
       typingRef={typingRef}
       closeOnClick={closeOnClick}
+      nativeButton={nativeButton}
     />
   );
 });
@@ -118,6 +133,7 @@ interface InnerMenuCheckboxItemProps extends MenuCheckboxItem.Props {
   allowMouseUpTriggerRef: React.RefObject<boolean>;
   typingRef: React.RefObject<boolean>;
   closeOnClick: boolean;
+  nativeButton: boolean;
 }
 
 export namespace MenuCheckboxItem {
@@ -177,5 +193,12 @@ export namespace MenuCheckboxItem {
      * @default false
      */
     closeOnClick?: boolean;
+    /**
+     * Whether the component renders a native `<button>` element when replacing it
+     * via the `render` prop.
+     * Set to `false` if the rendered element is not a button (e.g. `<div>`).
+     * @default false
+     */
+    nativeButton?: boolean;
   }
 }

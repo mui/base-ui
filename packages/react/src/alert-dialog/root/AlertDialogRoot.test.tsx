@@ -101,13 +101,13 @@ describe('<AlertDialog.Root />', () => {
       await user.click(openButton);
 
       expect(handleOpenChange.callCount).to.equal(1);
-      expect(handleOpenChange.firstCall.args[2]).to.equal('click');
+      expect(handleOpenChange.firstCall.args[2]).to.equal('trigger-press');
 
       const closeButton = screen.getByText('Close');
       await user.click(closeButton);
 
       expect(handleOpenChange.callCount).to.equal(2);
-      expect(handleOpenChange.secondCall.args[2]).to.equal('click');
+      expect(handleOpenChange.secondCall.args[2]).to.equal('close-press');
     });
 
     it('calls onOpenChange with the reason for change when pressed Esc while the dialog is open', async () => {

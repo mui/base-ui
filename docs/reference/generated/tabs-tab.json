@@ -3,8 +3,13 @@
   "description": "An individual interactive tab button that toggles the corresponding panel.\nRenders a `<button>` element.",
   "props": {
     "value": {
-      "type": "any",
+      "type": "Tabs.Tab.Value",
       "description": "The value of the Tab.\nWhen not specified, the value is the child position index."
+    },
+    "nativeButton": {
+      "type": "boolean",
+      "default": "true",
+      "description": "Whether the component renders a native `<button>` element when replacing it\nvia the `render` prop.\nSet to `false` if the rendered element is not a button (e.g. `<div>`)."
     },
     "className": {
       "type": "string | ((state: Tabs.Tab.State) => string)",

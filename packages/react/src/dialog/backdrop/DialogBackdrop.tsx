@@ -1,14 +1,12 @@
 'use client';
 import * as React from 'react';
 import { useDialogRootContext } from '../root/DialogRootContext';
-import { mergeProps } from '../../merge-props';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import { useRenderElement } from '../../utils/useRenderElement';
 import { type TransitionStatus } from '../../utils/useTransitionStatus';
 import { type BaseUIComponentProps } from '../../utils/types';
 import { type CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping';
 import { transitionStatusMapping } from '../../utils/styleHookMapping';
-import { useForkRef } from '../../utils/useForkRef';
 
 const customStyleHookMapping: CustomStyleHookMapping<DialogBackdrop.State> = {
   ...baseMapping,
@@ -22,10 +20,10 @@ const customStyleHookMapping: CustomStyleHookMapping<DialogBackdrop.State> = {
  * Documentation: [Base UI Dialog](https://base-ui.com/react/components/dialog)
  */
 export const DialogBackdrop = React.forwardRef(function DialogBackdrop(
-  props: DialogBackdrop.Props,
+  componentProps: DialogBackdrop.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, ...other } = props;
+  const { render, className, ...elementProps } = componentProps;
   const { open, nested, mounted, transitionStatus, backdropRef } = useDialogRootContext();
 
   const state: DialogBackdrop.State = React.useMemo(
@@ -36,14 +34,11 @@ export const DialogBackdrop = React.forwardRef(function DialogBackdrop(
     [open, transitionStatus],
   );
 
-  const mergedRef = useForkRef(backdropRef, forwardedRef);
-
-  const { renderElement } = useComponentRenderer({
-    render: render ?? 'div',
-    className,
+  return useRenderElement('div', componentProps, {
     state,
-    ref: mergedRef,
-    extraProps: mergeProps(
+    ref: [backdropRef, forwardedRef],
+    customStyleHookMapping,
+    props: [
       {
         role: 'presentation',
         hidden: !mounted,
@@ -52,18 +47,11 @@ export const DialogBackdrop = React.forwardRef(function DialogBackdrop(
           WebkitUserSelect: 'none',
         },
       },
-      other,
-    ),
-    customStyleHookMapping,
+      elementProps,
+    ],
+    // no need to render nested backdrops
+    enabled: !nested,
   });
-
-  // no need to render nested backdrops
-  const shouldRender = !nested;
-  if (!shouldRender) {
-    return null;
-  }
-
-  return renderElement();
 });
 
 export namespace DialogBackdrop {

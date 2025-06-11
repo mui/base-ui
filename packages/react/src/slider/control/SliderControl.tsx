@@ -8,7 +8,6 @@ import { useEventCallback } from '../../utils/useEventCallback';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { valueToPercent } from '../../utils/valueToPercent';
 import { useDirection } from '../../direction-provider/DirectionContext';
-import { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
 import { useSliderRootContext } from '../root/SliderRootContext';
 import { sliderStyleHookMapping } from '../root/styleHooks';
 import type { SliderRoot } from '../root/SliderRoot';
@@ -98,6 +97,7 @@ export const SliderControl = React.forwardRef(function SliderControl(
     active: activeThumbIndex,
     disabled,
     dragging,
+    fieldControlValidation,
     lastChangedValueRef,
     max,
     min,
@@ -105,7 +105,7 @@ export const SliderControl = React.forwardRef(function SliderControl(
     onValueCommitted,
     orientation,
     range,
-    registerInputValidationRef,
+    registerFieldControlRef,
     setActive,
     setDragging,
     setValue,
@@ -135,7 +135,6 @@ export const SliderControl = React.forwardRef(function SliderControl(
   const offsetRef = React.useRef(0);
 
   const direction = useDirection();
-  const { commitValidation } = useFieldControlValidation();
 
   const getFingerState = useEventCallback(
     (
@@ -281,8 +280,15 @@ export const SliderControl = React.forwardRef(function SliderControl(
 
     setActive(-1);
 
-    commitValidation(lastChangedValueRef.current ?? finger.value);
+    fieldControlValidation.commitValidation(lastChangedValueRef.current ?? finger.value);
     onValueCommitted(lastChangedValueRef.current ?? finger.value, nativeEvent);
+
+    if (
+      'pointerType' in nativeEvent &&
+      controlRef.current?.hasPointerCapture(nativeEvent.pointerId)
+    ) {
+      controlRef.current?.releasePointerCapture(nativeEvent.pointerId);
+    }
 
     touchIdRef.current = null;
     // eslint-disable-next-line @typescript-eslint/no-use-before-define
@@ -353,7 +359,7 @@ export const SliderControl = React.forwardRef(function SliderControl(
 
   const element = useRenderElement('div', componentProps, {
     state,
-    ref: [forwardedRef, registerInputValidationRef, controlRef, setStylesRef],
+    ref: [forwardedRef, registerFieldControlRef, controlRef, setStylesRef],
     props: [
       {
         onPointerDown(event: React.PointerEvent<HTMLDivElement>) {
@@ -393,6 +399,10 @@ export const SliderControl = React.forwardRef(function SliderControl(
             } else {
               setValue(finger.value, finger.thumbIndex, event.nativeEvent);
             }
+          }
+
+          if (event.nativeEvent.pointerId) {
+            controlRef.current?.setPointerCapture(event.nativeEvent.pointerId);
           }
 
           moveCountRef.current = 0;

@@ -11,8 +11,11 @@ import { useRenderElement } from '../utils/useRenderElement';
 export function useRender<
   State extends Record<string, unknown>,
   RenderedElementType extends Element,
->(params: useRender.Parameters<State, RenderedElementType>): useRender.ReturnValue {
-  const renderParams = params as useRender.Parameters<State, RenderedElementType> & {
+  Enabled extends boolean | undefined = undefined,
+>(
+  params: useRender.Parameters<State, RenderedElementType, Enabled>,
+): useRender.ReturnValue<Enabled> {
+  const renderParams = params as useRender.Parameters<State, RenderedElementType, Enabled> & {
     disableStyleHooks: boolean;
   };
   renderParams.disableStyleHooks = true;
@@ -44,7 +47,11 @@ export namespace useRender {
       | React.ReactElement<Record<string, unknown>>;
   };
 
-  export interface Parameters<State, RenderedElementType extends Element> {
+  export interface Parameters<
+    State,
+    RenderedElementType extends Element,
+    Enabled extends boolean | undefined,
+  > {
     /**
      * The React element or a function that returns one to override the default element.
      */
@@ -64,7 +71,15 @@ export namespace useRender {
      * internal ones.
      */
     props?: Record<string, unknown>;
+    /**
+     * If `false`, the hook will skip most of its internal logic and return `null`.
+     * This is useful for rendering a component conditionally.
+     * @default true
+     */
+    enabled?: Enabled;
   }
 
-  export type ReturnValue = React.ReactElement;
+  export type ReturnValue<Enabled extends boolean | undefined> = Enabled extends false
+    ? null
+    : React.ReactElement;
 }

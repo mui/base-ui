@@ -11,10 +11,6 @@ export interface DialogRootContext {
 
 export const DialogRootContext = React.createContext<DialogRootContext | undefined>(undefined);
 
-if (process.env.NODE_ENV !== 'production') {
-  DialogRootContext.displayName = 'DialogRootContext';
-}
-
 export function useOptionalDialogRootContext() {
   const dialogRootContext = React.useContext(DialogRootContext);
   const dialogContext = React.useContext(DialogContext);

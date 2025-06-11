@@ -41,10 +41,6 @@ export const ScrollAreaRootContext = React.createContext<ScrollAreaRootContext |
   undefined,
 );
 
-if (process.env.NODE_ENV !== 'production') {
-  ScrollAreaRootContext.displayName = 'ScrollAreaRootContext';
-}
-
 export function useScrollAreaRootContext() {
   const context = React.useContext(ScrollAreaRootContext);
   if (context === undefined) {

@@ -3,7 +3,6 @@ import * as React from 'react';
 import { activeElement, contains, getTarget, useLatestRef } from '@floating-ui/react/utils';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { ToastViewportContext } from './ToastViewportContext';
-import { FloatingPortalLite } from '../../utils/FloatingPortalLite';
 import { FocusGuard } from './FocusGuard';
 import { useToastContext } from '../provider/ToastProviderContext';
 import { useRenderElement } from '../../utils/useRenderElement';
@@ -240,10 +239,8 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
 
   return (
     <ToastViewportContext.Provider value={contextValue}>
-      <FloatingPortalLite>
-        {numToasts > 0 && prevFocusElement && <FocusGuard onFocus={handleFocusGuard} />}
-        {element}
-      </FloatingPortalLite>
+      {numToasts > 0 && prevFocusElement && <FocusGuard onFocus={handleFocusGuard} />}
+      {element}
     </ToastViewportContext.Provider>
   );
 });

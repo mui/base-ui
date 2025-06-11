@@ -29,7 +29,7 @@
       "description": "Whether the select menu is currently open."
     },
     "onOpenChange": {
-      "type": "((open: boolean, event: Event | undefined, reason: OpenChangeReason | undefined) => void)",
+      "type": "(open: boolean, event?: Event, reason?: Select.Root.OpenChangeReason) => void",
       "description": "Event handler called when the select menu is opened or closed."
     },
     "actionsRef": {

@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { FloatingNode, FloatingTree, useFloatingNodeId, useFloatingTree } from '@floating-ui/react';
-import { MenuOrientation } from '../menu/root/useMenuRoot';
+import { type MenuRoot } from '../menu/root/MenuRoot';
 import { BaseUIComponentProps } from '../utils/types';
 import { MenubarContext, useMenubarContext } from './MenubarContext';
 import { useScrollLock } from '../utils';
@@ -143,7 +143,7 @@ export namespace Menubar {
      * The orientation of the menubar.
      * @default 'horizontal'
      */
-    orientation?: MenuOrientation;
+    orientation?: MenuRoot.Orientation;
     /**
      * Whether to loop keyboard focus back to the first item
      * when the end of the list is reached while using the arrow keys.

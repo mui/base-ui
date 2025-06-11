@@ -1,21 +1,19 @@
-import type { OpenChangeReason as NativeReason } from '@floating-ui/react';
+import type { OpenChangeReason as FloatingUIOpenChangeReason } from '@floating-ui/react';
 
-export type OpenChangeReason =
-  | 'click'
-  | 'hover'
-  | 'focus'
+export type BaseOpenChangeReason =
+  | 'trigger-press'
+  | 'trigger-hover'
+  | 'trigger-focus'
   | 'focus-out'
   | 'escape-key'
   | 'outside-press'
-  | 'trigger-press'
   | 'list-navigation'
-  | 'sibling-open'
   | 'item-press'
   | 'cancel-open';
 
 export function translateOpenChangeReason(
-  nativeReason?: NativeReason,
-): OpenChangeReason | undefined {
+  nativeReason?: FloatingUIOpenChangeReason,
+): BaseOpenChangeReason | undefined {
   if (!nativeReason) {
     return undefined;
   }
@@ -23,17 +21,17 @@ export function translateOpenChangeReason(
   return (
     {
       // Identical mappings
-      click: 'click',
-      hover: 'hover',
-      focus: 'focus',
       'focus-out': 'focus-out',
       'escape-key': 'escape-key',
       'outside-press': 'outside-press',
       'list-navigation': 'list-navigation',
 
       // New mappings
+      click: 'trigger-press',
+      hover: 'trigger-hover',
+      focus: 'trigger-focus',
       'reference-press': 'trigger-press',
-      'safe-polygon': 'hover',
+      'safe-polygon': 'trigger-hover',
       'ancestor-scroll': undefined, // Not supported
     } as const
   )[nativeReason];

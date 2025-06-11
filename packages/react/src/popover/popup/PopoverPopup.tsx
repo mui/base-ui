@@ -13,6 +13,7 @@ import { InteractionType } from '../../utils/useEnhancedClickHandler';
 import { transitionStatusMapping } from '../../utils/styleHookMapping';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useRenderElement } from '../../utils/useRenderElement';
+import { DISABLED_TRANSITIONS_STYLE, EMPTY_OBJECT } from '../../utils/constants';
 
 const customStyleHookMapping: CustomStyleHookMapping<PopoverPopup.State> = {
   ...baseMapping,
@@ -79,9 +80,7 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
     props: [
       popupProps,
       props,
-      {
-        style: transitionStatus === 'starting' ? { transition: 'none' } : {},
-      },
+      transitionStatus === 'starting' ? DISABLED_TRANSITIONS_STYLE : EMPTY_OBJECT,
       elementProps,
     ],
     customStyleHookMapping,
@@ -91,7 +90,7 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
     <FloatingFocusManager
       context={positioner.context}
       modal={modal === 'trap-focus'}
-      disabled={!mounted || openReason === 'hover'}
+      disabled={!mounted || openReason === 'trigger-hover'}
       initialFocus={resolvedInitialFocus}
       returnFocus={finalFocus}
     >

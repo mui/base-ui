@@ -11,10 +11,6 @@ export const CompositeRootContext = React.createContext<CompositeRootContext | u
   undefined,
 );
 
-if (process.env.NODE_ENV !== 'production') {
-  CompositeRootContext.displayName = 'CompositeRootContext';
-}
-
 export function useCompositeRootContext(optional: true): CompositeRootContext | undefined;
 export function useCompositeRootContext(optional?: false): CompositeRootContext;
 export function useCompositeRootContext(optional = false) {

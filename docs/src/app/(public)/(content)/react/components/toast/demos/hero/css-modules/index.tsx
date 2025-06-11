@@ -7,9 +7,11 @@ export default function ExampleToast() {
   return (
     <Toast.Provider>
       <ToastButton />
-      <Toast.Viewport className={styles.Viewport}>
-        <ToastList />
-      </Toast.Viewport>
+      <Toast.Portal>
+        <Toast.Viewport className={styles.Viewport}>
+          <ToastList />
+        </Toast.Viewport>
+      </Toast.Portal>
     </Toast.Provider>
   );
 }

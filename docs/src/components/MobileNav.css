@@ -182,7 +182,7 @@
   .MobileNavLink {
     flex-grow: 1;
     display: flex;
-    gap: 0.675rem;
+    gap: 4px;
     align-items: center;
     height: var(--mobile-nav-item-height);
     padding-inline: var(--mobile-nav-item-padding-x);
@@ -203,6 +203,18 @@
       /* This activates only on real link taps */
       -webkit-tap-highlight-color: var(--color-gray-300);
     }
+  }
+
+  .MobileNavBadge {
+    color: var(--color-red);
+    line-height: inherit;
+    user-select: none;
+    text-transform: uppercase;
+    font-size: 0.6875rem;
+    font-weight: 500;
+    letter-spacing: 0.035em;
+    padding-inline: 2px;
+    translate: 0 -3px;
   }
 }
 

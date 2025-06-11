@@ -5,5 +5,7 @@ export { ToastDescription as Description } from './description/ToastDescription'
 export { ToastTitle as Title } from './title/ToastTitle';
 export { ToastClose as Close } from './close/ToastClose';
 export { ToastAction as Action } from './action/ToastAction';
+export { ToastPortal as Portal } from './portal/ToastPortal';
+
 export { useToastManager } from './useToastManager';
 export { createToastManager } from './createToastManager';

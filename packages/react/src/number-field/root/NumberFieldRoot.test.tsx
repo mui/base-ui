@@ -162,10 +162,10 @@ describe('<NumberField />', () => {
   });
 
   describe('prop: name', () => {
-    it('should set the name attribute on the input', async () => {
-      await render(<NumberField name="test" />);
-      const input = screen.getByRole('textbox');
-      expect(input).to.have.attribute('name', 'test');
+    it('should set the name attribute on the hidden input', async () => {
+      const { container } = await render(<NumberField name="test" />);
+      const hiddenInput = container.querySelector('input[type=hidden]');
+      expect(hiddenInput).to.have.attribute('name', 'test');
     });
   });
 
@@ -426,35 +426,75 @@ describe('<NumberField />', () => {
         skip();
       }
 
-      let stringifiedFormData = '';
+      let fieldValue = '';
 
       await render(
-        <form
+        <Form
           onSubmit={(event) => {
             event.preventDefault();
             const formData = new FormData(event.currentTarget);
-            stringifiedFormData = new URLSearchParams(formData as any).toString();
+            fieldValue = formData.get('test') as string;
           }}
         >
-          <NumberField name="test-number-field" />
-          <button type="submit" data-testid="submit">
-            Submit
-          </button>
-        </form>,
+          <Field.Root name="test">
+            <NumberFieldBase.Root defaultValue={undefined}>
+              <NumberFieldBase.Input />
+            </NumberFieldBase.Root>
+            <button type="submit">Submit</button>
+          </Field.Root>
+        </Form>,
       );
 
-      const numberField = screen.getByRole('textbox');
-      const submitButton = screen.getByTestId('submit');
+      const submitButton = screen.getByText('Submit');
+      await act(async () => submitButton.click());
+      expect(fieldValue).to.equal('');
+
+      fireEvent.change(screen.getByRole('textbox'), { target: { value: '50' } });
+      await act(async () => submitButton.click());
+      expect(fieldValue).to.equal('50');
+    });
+
+    it('should not include formatting in the submitted value', async ({ skip }) => {
+      if (isJSDOM) {
+        // FormData is not available in JSDOM
+        skip();
+      }
+
+      const format: Intl.NumberFormatOptions = {
+        style: 'currency',
+        currency: 'EUR',
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      };
+
+      let fieldValue = '';
+
+      await render(
+        <Form
+          onSubmit={(event) => {
+            event.preventDefault();
+            const formData = new FormData(event.currentTarget);
+            fieldValue = formData.get('test') as string;
+          }}
+        >
+          <Field.Root name="test">
+            <NumberFieldBase.Root defaultValue={54.5} format={format} locale="de-DE">
+              <NumberFieldBase.Input />
+            </NumberFieldBase.Root>
+            <button type="submit">Submit</button>
+          </Field.Root>
+        </Form>,
+      );
+
+      const input = screen.getByRole('textbox');
+      const expectedValue = new Intl.NumberFormat('de-DE', format).format(54.5);
+      expect(input).to.have.value(expectedValue);
+
+      const submitButton = screen.getByText('Submit');
 
       await act(async () => submitButton.click());
 
-      expect(stringifiedFormData).to.equal('test-number-field=');
-
-      fireEvent.change(numberField, { target: { value: '5' } });
-
-      await act(async () => submitButton.click());
-
-      expect(stringifiedFormData).to.equal('test-number-field=5');
+      expect(fieldValue).to.equal('54.5');
     });
 
     it('triggers native HTML validation on submit', async () => {
@@ -478,6 +518,38 @@ describe('<NumberField />', () => {
 
       const error = screen.getByTestId('error');
       expect(error).to.have.text('required');
+    });
+
+    it('focuses the input when the field receives an error from Form', async () => {
+      function App() {
+        const [errors, setErrors] = React.useState<Form.Props['errors']>({});
+        return (
+          <Form
+            errors={errors}
+            onClearErrors={setErrors}
+            onSubmit={(event) => {
+              event.preventDefault();
+              setErrors({ quantity: 'server error' });
+            }}
+          >
+            <Field.Root name="quantity" data-testid="field">
+              <NumberField defaultValue={1} />
+              <Field.Error data-testid="error" />
+            </Field.Root>
+            <button type="submit">Submit</button>
+          </Form>
+        );
+      }
+
+      const { user } = await render(<App />);
+      expect(screen.queryByTestId('error')).to.equal(null);
+      const submit = screen.getByText('Submit');
+      await user.click(submit);
+
+      const input = screen.getByRole('textbox');
+      expect(input).toHaveFocus();
+      expect(input).to.have.attribute('aria-invalid', 'true');
+      expect(screen.queryByTestId('error')).to.have.text('server error');
     });
 
     it('clears errors on change', async () => {
@@ -709,11 +781,13 @@ describe('<NumberField />', () => {
       const validate = spy(() => 'error');
 
       await render(
-        <Field.Root validationMode="onBlur" validate={validate}>
-          <NumberFieldBase.Root>
-            <NumberFieldBase.Input />
-          </NumberFieldBase.Root>
-        </Field.Root>,
+        <Form>
+          <Field.Root validationMode="onBlur" validate={validate} name="quantity">
+            <NumberFieldBase.Root defaultValue={undefined}>
+              <NumberFieldBase.Input />
+            </NumberFieldBase.Root>
+          </Field.Root>
+        </Form>,
       );
 
       const input = screen.getByRole('textbox');
@@ -723,7 +797,7 @@ describe('<NumberField />', () => {
       fireEvent.blur(input);
 
       expect(validate.callCount).to.equal(1);
-      expect(validate.firstCall.args).to.deep.equal([1]);
+      expect(validate.firstCall.args).to.deep.equal([1, { quantity: 1 }]);
     });
 
     it('Field.Label', async () => {

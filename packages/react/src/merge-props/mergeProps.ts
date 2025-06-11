@@ -171,6 +171,13 @@ function resolvePropsGetter<T extends ElementType>(
 }
 
 function mergeEventHandlers(ourHandler: Function, theirHandler: Function) {
+  if (!theirHandler) {
+    return ourHandler;
+  }
+  if (!ourHandler) {
+    return theirHandler;
+  }
+
   return (event: unknown) => {
     if (isSyntheticEvent(event)) {
       const baseUIEvent = event as BaseUIEvent<typeof event>;

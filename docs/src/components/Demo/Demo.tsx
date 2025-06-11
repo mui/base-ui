@@ -45,12 +45,14 @@ export function Demo({
                   aria-label="Copy code"
                   render={<GhostButton />}
                   onCopied={() => {
+                    /* eslint-disable no-restricted-syntax */
                     const newTimeout = window.setTimeout(() => {
                       window.clearTimeout(newTimeout);
                       setCopyTimeout(0);
                     }, 2000);
                     window.clearTimeout(copyTimeout);
                     setCopyTimeout(newTimeout);
+                    /* eslint-enable no-restricted-syntax */
                   }}
                 >
                   Copy

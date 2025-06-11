@@ -29,7 +29,7 @@ export function useCollapsibleRoot(
     state: 'open',
   });
 
-  const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
+  const { mounted, setMounted, transitionStatus } = useTransitionStatus(open, true);
   const [visible, setVisible] = React.useState(open);
   const [{ height, width }, setDimensions] = React.useState<Dimensions>({
     height: undefined,

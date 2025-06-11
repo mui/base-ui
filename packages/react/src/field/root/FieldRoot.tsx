@@ -56,7 +56,9 @@ export const FieldRoot = React.forwardRef(function FieldRoot(
     setDirtyUnwrapped(value);
   }, []);
 
-  const invalid = Boolean(invalidProp || (name && {}.hasOwnProperty.call(errors, name)));
+  const invalid = Boolean(
+    invalidProp || (name && {}.hasOwnProperty.call(errors, name) && errors[name] !== undefined),
+  );
 
   const [validityData, setValidityData] = React.useState<FieldValidityData>({
     state: DEFAULT_VALIDITY_STATE,
@@ -188,7 +190,10 @@ export namespace FieldRoot {
      * A function for custom validation. Return a string or an array of strings with
      * the error message(s) if the value is invalid, or `null` if the value is valid.
      */
-    validate?: (value: unknown) => string | string[] | null | Promise<string | string[] | null>;
+    validate?: (
+      value: unknown,
+      formValues: Record<string, unknown>,
+    ) => string | string[] | null | Promise<string | string[] | null>;
     /**
      * Determines when the field should be validated.
      *

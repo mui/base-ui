@@ -17,12 +17,16 @@ import {
   type Padding,
   type FloatingContext,
   type Side as PhysicalSide,
+  type MiddlewareState,
+  type AutoUpdateOptions,
+  type Middleware,
 } from '@floating-ui/react';
-import { getSide, getAlignment, type Rect } from '@floating-ui/utils';
+import { getSide, getAlignment, type Rect, getSideAxis } from '@floating-ui/utils';
 import { useModernLayoutEffect } from './useModernLayoutEffect';
 import { useDirection } from '../direction-provider/DirectionContext';
 import { useLatestRef } from './useLatestRef';
 import { useEventCallback } from './useEventCallback';
+import { ownerDocument } from './owner';
 
 function getLogicalSide(sideParam: Side, renderedSide: PhysicalSide, isRtl: boolean): Side {
   const isLogicalSideParam = sideParam === 'inline-start' || sideParam === 'inline-end';
@@ -38,6 +42,17 @@ function getLogicalSide(sideParam: Side, renderedSide: PhysicalSide, isRtl: bool
   )[renderedSide];
 }
 
+function getOffsetData(state: MiddlewareState, sideParam: Side, isRtl: boolean) {
+  const { rects, placement } = state;
+  const data = {
+    side: getLogicalSide(sideParam, getSide(placement), isRtl),
+    align: getAlignment(placement) || 'center',
+    anchor: { width: rects.reference.width, height: rects.reference.height },
+    positioner: { width: rects.floating.width, height: rects.floating.height },
+  } as const;
+  return data;
+}
+
 export type Side = 'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start';
 export type Align = 'start' | 'center' | 'end';
 export type Boundary = 'clipping-ancestors' | Element | Element[] | Rect;
@@ -47,6 +62,40 @@ export type OffsetFunction = (data: {
   anchor: { width: number; height: number };
   positioner: { width: number; height: number };
 }) => number;
+
+interface SideFlipMode {
+  /**
+   * How to avoid collisions on the side axis.
+   */
+  side?: 'flip' | 'none';
+  /**
+   * How to avoid collisions on the align axis.
+   */
+  align?: 'flip' | 'shift' | 'none';
+  /**
+   * If both sides on the preferred axis do not fit, determines whether to fallback
+   * to a side on the perpendicular axis and which logical side to prefer.
+   */
+  fallbackAxisSide?: 'start' | 'end' | 'none';
+}
+
+interface SideShiftMode {
+  /**
+   * How to avoid collisions on the side axis.
+   */
+  side?: 'shift' | 'none';
+  /**
+   * How to avoid collisions on the align axis.
+   */
+  align?: 'shift' | 'none';
+  /**
+   * If both sides on the preferred axis do not fit, determines whether to fallback
+   * to a side on the perpendicular axis and which logical side to prefer.
+   */
+  fallbackAxisSide?: 'start' | 'end' | 'none';
+}
+
+export type CollisionAvoidance = SideFlipMode | SideShiftMode;
 
 /**
  * Provides standardized anchor positioning behavior for floating elements. Wraps Floating UI's
@@ -67,13 +116,20 @@ export function useAnchorPositioning(
     collisionPadding = 5,
     sticky = false,
     arrowPadding = 5,
+    trackAnchor = true,
     // Private parameters
     keepMounted = false,
     floatingRootContext,
     mounted,
-    trackAnchor = true,
+    collisionAvoidance,
+    shiftCrossAxis = false,
     nodeId,
+    adaptiveOrigin,
   } = params;
+
+  const collisionAvoidanceSide = collisionAvoidance.side || 'flip';
+  const collisionAvoidanceAlign = collisionAvoidance.align || 'flip';
+  const collisionAvoidanceFallbackAxisSide = collisionAvoidance.fallbackAxisSide || 'end';
 
   const anchorFn = typeof anchor === 'function' ? anchor : undefined;
   const anchorFnCallback = useEventCallback(anchorFn);
@@ -102,7 +158,7 @@ export function useAnchorPositioning(
   } as const;
 
   // Using a ref assumes that the arrow element is always present in the DOM for the lifetime of the
-  // tooltip. If this assumption ends up being false, we can switch to state to manage the arrow's
+  // popup. If this assumption ends up being false, we can switch to state to manage the arrow's
   // presence.
   const arrowRef = React.useRef<Element | null>(null);
 
@@ -114,13 +170,8 @@ export function useAnchorPositioning(
 
   const middleware: UseFloatingOptions['middleware'] = [
     offset(
-      ({ rects, placement: currentPlacement }) => {
-        const data = {
-          side: getLogicalSide(sideParam, getSide(currentPlacement), isRtl),
-          align: getAlignment(currentPlacement) || 'center',
-          anchor: { width: rects.reference.width, height: rects.reference.height },
-          positioner: { width: rects.floating.width, height: rects.floating.height },
-        } as const;
+      (state) => {
+        const data = getOffsetData(state, sideParam, isRtl);
 
         const sideAxis =
           typeof sideOffsetRef.current === 'function'
@@ -141,28 +192,60 @@ export function useAnchorPositioning(
     ),
   ];
 
-  const flipMiddleware = flip(commonCollisionProps);
-  const shiftMiddleware = shift({
-    ...commonCollisionProps,
-    crossAxis: sticky,
-    limiter: sticky
-      ? undefined
-      : limitShift(() => {
-          if (!arrowRef.current) {
-            return {};
-          }
-          const { height } = arrowRef.current.getBoundingClientRect();
+  const shiftDisabled = collisionAvoidanceAlign === 'none' && collisionAvoidanceSide !== 'shift';
+  const crossAxisShiftEnabled =
+    !shiftDisabled && (sticky || shiftCrossAxis || collisionAvoidanceSide === 'shift');
+
+  const flipMiddleware =
+    collisionAvoidanceSide === 'none'
+      ? null
+      : flip({
+          ...commonCollisionProps,
+          mainAxis: !shiftCrossAxis && collisionAvoidanceSide === 'flip',
+          crossAxis: collisionAvoidanceAlign === 'flip' ? 'alignment' : false,
+          fallbackAxisSideDirection: collisionAvoidanceFallbackAxisSide,
+        });
+  const shiftMiddleware = shiftDisabled
+    ? null
+    : shift(
+        (data) => {
+          const html = ownerDocument(data.elements.floating).documentElement;
           return {
-            offset: height / 2 + (typeof collisionPadding === 'number' ? collisionPadding : 0),
+            ...commonCollisionProps,
+            // Use the Layout Viewport to avoid shifting around when pinch-zooming
+            // for context menus.
+            rootBoundary: shiftCrossAxis
+              ? { x: 0, y: 0, width: html.clientWidth, height: html.clientHeight }
+              : undefined,
+            mainAxis: collisionAvoidanceAlign !== 'none',
+            crossAxis: crossAxisShiftEnabled,
+            limiter:
+              sticky || shiftCrossAxis
+                ? undefined
+                : limitShift(() => {
+                    if (!arrowRef.current) {
+                      return {};
+                    }
+                    const { height } = arrowRef.current.getBoundingClientRect();
+                    return {
+                      offset:
+                        height / 2 + (typeof collisionPadding === 'number' ? collisionPadding : 0),
+                    };
+                  }),
           };
-        }),
-  });
+        },
+        [commonCollisionProps, sticky, shiftCrossAxis, collisionPadding, collisionAvoidanceAlign],
+      );
 
   // https://floating-ui.com/docs/flip#combining-with-shift
-  if (align !== 'center') {
-    middleware.push(flipMiddleware, shiftMiddleware);
-  } else {
+  if (
+    collisionAvoidanceSide === 'shift' ||
+    collisionAvoidanceAlign === 'shift' ||
+    align === 'center'
+  ) {
     middleware.push(shiftMiddleware, flipMiddleware);
+  } else {
+    middleware.push(flipMiddleware, shiftMiddleware);
   }
 
   middleware.push(
@@ -191,28 +274,45 @@ export function useAnchorPositioning(
     hide(),
     {
       name: 'transformOrigin',
-      fn({ elements, middlewareData, placement: renderedPlacement }) {
+      fn(state) {
+        const { elements, middlewareData, placement: renderedPlacement, rects, y } = state;
+
         const currentRenderedSide = getSide(renderedPlacement);
+        const currentRenderedAxis = getSideAxis(currentRenderedSide);
         const arrowEl = arrowRef.current;
-        const arrowX = middlewareData.arrow?.x ?? 0;
-        const arrowY = middlewareData.arrow?.y ?? 0;
-        const arrowWidth = arrowEl?.clientWidth ?? 0;
-        const arrowHeight = arrowEl?.clientHeight ?? 0;
+        const arrowX = middlewareData.arrow?.x || 0;
+        const arrowY = middlewareData.arrow?.y || 0;
+        const arrowWidth = arrowEl?.clientWidth || 0;
+        const arrowHeight = arrowEl?.clientHeight || 0;
         const transformX = arrowX + arrowWidth / 2;
         const transformY = arrowY + arrowHeight / 2;
+        const shiftY = Math.abs(middlewareData.shift?.y || 0);
+        const halfAnchorHeight = rects.reference.height / 2;
+        const isOverlappingAnchor =
+          shiftY >
+          (typeof sideOffset === 'function'
+            ? sideOffset(getOffsetData(state, sideParam, isRtl))
+            : sideOffset);
 
-        const transformOrigin = {
+        const adjacentTransformOrigin = {
           top: `${transformX}px calc(100% + ${sideOffset}px)`,
           bottom: `${transformX}px ${-sideOffset}px`,
           left: `calc(100% + ${sideOffset}px) ${transformY}px`,
           right: `${-sideOffset}px ${transformY}px`,
         }[currentRenderedSide];
+        const overlapTransformOrigin = `${transformX}px ${rects.reference.y + halfAnchorHeight - y}px`;
 
-        elements.floating.style.setProperty('--transform-origin', transformOrigin);
+        elements.floating.style.setProperty(
+          '--transform-origin',
+          crossAxisShiftEnabled && currentRenderedAxis === 'y' && isOverlappingAnchor
+            ? overlapTransformOrigin
+            : adjacentTransformOrigin,
+        );
 
         return {};
       },
     },
+    adaptiveOrigin,
   );
 
   // Ensure positioning doesn't run initially for `keepMounted` elements that
@@ -225,7 +325,7 @@ export function useAnchorPositioning(
     };
   }
 
-  const autoUpdateOptions = React.useMemo(
+  const autoUpdateOptions: AutoUpdateOptions = React.useMemo(
     () => ({
       elementResize: trackAnchor && typeof ResizeObserver !== 'undefined',
       layoutShift: trackAnchor && typeof IntersectionObserver !== 'undefined',
@@ -236,12 +336,14 @@ export function useAnchorPositioning(
   const {
     refs,
     elements,
-    floatingStyles,
+    x,
+    y,
     middlewareData,
     update,
     placement: renderedPlacement,
     context,
     isPositioned,
+    floatingStyles: originalFloatingStyles,
   } = useFloating({
     rootContext,
     placement,
@@ -252,6 +354,16 @@ export function useAnchorPositioning(
       : (...args) => autoUpdate(...args, autoUpdateOptions),
     nodeId,
   });
+
+  const { sideX, sideY } = middlewareData.adaptiveOrigin || {};
+
+  const floatingStyles = React.useMemo<React.CSSProperties>(
+    () =>
+      adaptiveOrigin
+        ? { position: positionMethod, [sideX]: `${x}px`, [sideY]: `${y}px` }
+        : originalFloatingStyles,
+    [adaptiveOrigin, sideX, sideY, positionMethod, x, y, originalFloatingStyles],
+  );
 
   const registeredPositionReferenceRef = React.useRef<Element | VirtualElement | null>(null);
 
@@ -323,6 +435,7 @@ export function useAnchorPositioning(
       refs,
       context,
       isPositioned,
+      update,
     }),
     [
       floatingStyles,
@@ -335,6 +448,7 @@ export function useAnchorPositioning(
       refs,
       context,
       isPositioned,
+      update,
     ],
   );
 }
@@ -425,16 +539,22 @@ export namespace useAnchorPositioning {
      * @default true
      */
     trackAnchor?: boolean;
+    /**
+     * Determines how to handle collisions when positioning the popup.
+     */
+    collisionAvoidance?: CollisionAvoidance;
   }
 
   export interface Parameters extends SharedParameters {
-    open?: boolean;
     keepMounted?: boolean;
     trackCursorAxis?: 'none' | 'x' | 'y' | 'both';
     floatingRootContext?: FloatingRootContext;
     mounted: boolean;
     trackAnchor: boolean;
     nodeId?: string;
+    adaptiveOrigin?: Middleware;
+    collisionAvoidance: CollisionAvoidance;
+    shiftCrossAxis?: boolean;
   }
 
   export interface ReturnValue {
@@ -448,5 +568,6 @@ export namespace useAnchorPositioning {
     refs: ReturnType<typeof useFloating>['refs'];
     context: FloatingContext;
     isPositioned: boolean;
+    update: () => void;
   }
 }

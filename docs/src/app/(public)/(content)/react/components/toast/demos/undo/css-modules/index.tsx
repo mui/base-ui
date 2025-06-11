@@ -7,9 +7,11 @@ export default function UndoToastExample() {
   return (
     <Toast.Provider>
       <Form />
-      <Toast.Viewport className={styles.Viewport}>
-        <ToastList />
-      </Toast.Viewport>
+      <Toast.Portal>
+        <Toast.Viewport className={styles.Viewport}>
+          <ToastList />
+        </Toast.Viewport>
+      </Toast.Portal>
     </Toast.Provider>
   );
 }

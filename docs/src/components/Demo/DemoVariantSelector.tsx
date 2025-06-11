@@ -126,9 +126,9 @@ export function DemoVariantSelector({
       {renderLanguageSelector && (
         <Select.Root value={selectedLocalVariant.language} onValueChange={handleLanguageChange}>
           <Select.Trigger
-            ssrFallback={
+            placeholder={
               currentVariantLanguages.find((item) => item.value === selectedLocalVariant.language)
-                ?.label
+                ?.label ?? ''
             }
           />
           <Select.Popup>
@@ -144,8 +144,8 @@ export function DemoVariantSelector({
       {renderVariantSelector && (
         <Select.Root value={selectedLocalVariant.name} onValueChange={handleVariantChange}>
           <Select.Trigger
-            ssrFallback={translations.variants[selectedLocalVariant.name]}
             aria-label="Styling method"
+            placeholder={translations.variants[selectedLocalVariant.name]}
           />
           <Select.Popup>
             {Object.keys(variantsMap).map((variantName) => (

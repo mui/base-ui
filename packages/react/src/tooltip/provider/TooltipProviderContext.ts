@@ -9,10 +9,6 @@ export const TooltipProviderContext = React.createContext<TooltipProviderContext
   undefined,
 );
 
-if (process.env.NODE_ENV !== 'production') {
-  TooltipProviderContext.displayName = 'TooltipProviderContext';
-}
-
 export function useTooltipProviderContext(): TooltipProviderContext | undefined {
   return React.useContext(TooltipProviderContext);
 }

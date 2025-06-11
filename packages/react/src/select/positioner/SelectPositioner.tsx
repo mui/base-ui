@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useSelectRootContext } from '../root/SelectRootContext';
+import { useSelectRootContext, useSelectFloatingContext } from '../root/SelectRootContext';
 import { CompositeList } from '../../composite/list/CompositeList';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { popupStateMapping } from '../../utils/popupStateMapping';
@@ -9,7 +9,14 @@ import type { Align, Side } from '../../utils/useAnchorPositioning';
 import { SelectPositionerContext } from './SelectPositionerContext';
 import { InternalBackdrop } from '../../utils/InternalBackdrop';
 import { inertValue } from '../../utils/inertValue';
+import { useOnFirstRender } from '../../utils/useOnFirstRender';
+import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { useRenderElement } from '../../utils/useRenderElement';
+import { DROPDOWN_COLLISION_AVOIDANCE } from '../../utils/constants';
+import { clearPositionerStyles } from '../popup/utils';
+import { useEventCallback } from '../../utils/useEventCallback';
+import { useSelector } from '../../utils/store';
+import { selectors } from '../store';
 
 /**
  * Positions the select menu popup.
@@ -36,42 +43,61 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
     sticky = false,
     trackAnchor = true,
     alignItemWithTrigger = true,
+    collisionAvoidance = DROPDOWN_COLLISION_AVOIDANCE,
     ...elementProps
   } = componentProps;
 
-  const {
-    open,
-    mounted,
-    setPositionerElement,
-    listRef,
-    labelsRef,
-    floatingRootContext,
-    modal,
-    touchModality,
-    scrollUpArrowVisible,
-    setScrollUpArrowVisible,
-    scrollDownArrowVisible,
-    setScrollDownArrowVisible,
-    alignItemWithTriggerActiveRef,
-  } = useSelectRootContext();
+  const { store, listRef, labelsRef, alignItemWithTriggerActiveRef, valuesRef } =
+    useSelectRootContext();
+  const floatingRootContext = useSelectFloatingContext();
 
-  const [controlledItemAnchor, setControlledItemAnchor] = React.useState(alignItemWithTrigger);
-  const alignItemWithTriggerActive = mounted && controlledItemAnchor && !touchModality;
+  const open = useSelector(store, selectors.open);
+  const mounted = useSelector(store, selectors.mounted);
+  const modal = useSelector(store, selectors.modal);
+  const value = useSelector(store, selectors.value);
+  const touchModality = useSelector(store, selectors.touchModality);
+  const positionerElement = useSelector(store, selectors.positionerElement);
+  const controlledItemAnchor = useSelector(store, selectors.controlledItemAnchor);
+  const alignItemWithTriggerActive = useSelector(store, selectors.alignItemWithTriggerActive);
 
-  React.useImperativeHandle(alignItemWithTriggerActiveRef, () => alignItemWithTriggerActive);
+  useOnFirstRender(() => {
+    // XXX: Should those options be applied on the root component?
+
+    const controlledItemAnchorV = alignItemWithTrigger;
+    const alignItemWithTriggerActiveV = mounted && controlledItemAnchor && !touchModality;
+
+    store.state.controlledItemAnchor = controlledItemAnchorV;
+    store.state.alignItemWithTriggerActive = alignItemWithTriggerActiveV;
+  });
+
+  useModernLayoutEffect(() => {
+    return store.subscribe((state) => {
+      const alignItemWithTriggerActiveV =
+        selectors.mounted(state) &&
+        selectors.controlledItemAnchor(state) &&
+        !selectors.touchModality(state);
+      store.set('alignItemWithTriggerActive', alignItemWithTriggerActiveV);
+    });
+  }, [store]);
+
+  React.useImperativeHandle(alignItemWithTriggerActiveRef, () =>
+    selectors.alignItemWithTriggerActive(store.state),
+  );
 
   if (!mounted && controlledItemAnchor !== alignItemWithTrigger) {
-    setControlledItemAnchor(alignItemWithTrigger);
+    store.set('controlledItemAnchor', alignItemWithTrigger);
   }
 
-  if (!alignItemWithTrigger || !mounted) {
-    if (scrollUpArrowVisible) {
-      setScrollUpArrowVisible(false);
+  useModernLayoutEffect(() => {
+    if (!alignItemWithTrigger || !mounted) {
+      if (selectors.scrollUpArrowVisible(store.state)) {
+        store.set('scrollUpArrowVisible', false);
+      }
+      if (selectors.scrollDownArrowVisible(store.state)) {
+        store.set('scrollDownArrowVisible', false);
+      }
     }
-    if (scrollDownArrowVisible) {
-      setScrollDownArrowVisible(false);
-    }
-  }
+  }, [store, mounted, alignItemWithTrigger]);
 
   const positioner = useSelectPositioner({
     anchor,
@@ -87,7 +113,7 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
     collisionPadding,
     sticky,
     trackAnchor,
-    alignItemWithTriggerActive,
+    collisionAvoidance,
     keepMounted: true,
   });
 
@@ -101,6 +127,10 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
     [open, positioner.side, positioner.align, positioner.anchorHidden],
   );
 
+  const setPositionerElement = useEventCallback((element) => {
+    store.set('positionerElement', element);
+  });
+
   const element = useRenderElement('div', componentProps, {
     ref: [forwardedRef, setPositionerElement],
     state,
@@ -108,19 +138,49 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
     props: [positioner.getPositionerProps, elementProps],
   });
 
-  const contextValue: SelectPositionerContext = React.useMemo(
-    () => ({
-      ...positioner,
-      alignItemWithTriggerActive,
-      controlledItemAnchor,
-      setControlledItemAnchor,
-    }),
-    [positioner, alignItemWithTriggerActive, controlledItemAnchor],
-  );
+  const prevMapSizeRef = React.useRef(0);
+
+  const onMapChange = useEventCallback((map: Map<Element, { index?: number | null } | null>) => {
+    if (map.size === 0 && prevMapSizeRef.current === 0) {
+      return;
+    }
+
+    if (valuesRef.current.length === 0) {
+      return;
+    }
+
+    const prevSize = prevMapSizeRef.current;
+    prevMapSizeRef.current = map.size;
+
+    if (map.size === prevSize) {
+      return;
+    }
+
+    if (value !== null) {
+      const valueIndex = valuesRef.current.indexOf(value);
+      if (valueIndex === -1) {
+        store.apply({
+          label: '',
+          selectedIndex: null,
+        });
+      }
+    }
+
+    if (open && alignItemWithTriggerActive) {
+      store.apply({
+        scrollUpArrowVisible: false,
+        scrollDownArrowVisible: false,
+      });
+
+      if (positionerElement) {
+        clearPositionerStyles(positionerElement, { height: '' });
+      }
+    }
+  });
 
   return (
-    <CompositeList elementsRef={listRef} labelsRef={labelsRef}>
-      <SelectPositionerContext.Provider value={contextValue}>
+    <CompositeList elementsRef={listRef} labelsRef={labelsRef} onMapChange={onMapChange}>
+      <SelectPositionerContext.Provider value={positioner}>
         {mounted && modal && <InternalBackdrop inert={inertValue(!open)} />}
         {element}
       </SelectPositionerContext.Provider>

@@ -7,10 +7,6 @@ export interface SelectGroupContext {
 
 export const SelectGroupContext = React.createContext<SelectGroupContext | undefined>(undefined);
 
-if (process.env.NODE_ENV !== 'production') {
-  SelectGroupContext.displayName = 'SelectGroupContext';
-}
-
 export function useSelectGroupContext() {
   const context = React.useContext(SelectGroupContext);
   if (context === undefined) {

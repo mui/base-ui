@@ -3,12 +3,12 @@
   "private": true,
   "type": "module",
   "dependencies": {
-    "@types/lodash": "^4.17.16",
+    "@types/lodash": "^4.17.17",
     "@types/yargs": "^17.0.33",
     "lodash": "^4.17.21",
-    "react-api-extractor": "https://pkg.pr.new/michaldudak/react-api-extractor@a8b9c7c",
     "rimraf": "^6.0.1",
     "tsx": "^4.19.4",
+    "typescript-api-extractor": "1.0.0-alpha.2",
     "yargs": "^17.7.2"
   },
   "scripts": {

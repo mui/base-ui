@@ -42,6 +42,8 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
 
   const direction = useDirection();
 
+  const programmaticScrollRef = React.useRef(true);
+
   const computeThumbPosition = useEventCallback(() => {
     const viewportEl = viewportRef.current;
     const scrollbarYEl = scrollbarYRef.current;
@@ -197,7 +199,11 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
     };
   }, [computeThumbPosition, viewportRef]);
 
-  const props = {
+  const handleUserInteraction = useEventCallback(() => {
+    programmaticScrollRef.current = false;
+  });
+
+  const props: React.ComponentProps<'div'> = {
     role: 'presentation',
     ...(rootId && { 'data-id': `${rootId}-viewport` }),
     // https://accessibilityinsights.io/info-examples/web/scrollable-region-focusable/
@@ -212,11 +218,20 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
 
       computeThumbPosition();
 
-      handleScroll({
-        x: viewportRef.current.scrollLeft,
-        y: viewportRef.current.scrollTop,
-      });
+      if (!programmaticScrollRef.current) {
+        handleScroll({
+          x: viewportRef.current.scrollLeft,
+          y: viewportRef.current.scrollTop,
+        });
+      }
+
+      programmaticScrollRef.current = true;
     },
+    onWheel: handleUserInteraction,
+    onTouchMove: handleUserInteraction,
+    onPointerMove: handleUserInteraction,
+    onPointerEnter: handleUserInteraction,
+    onKeyDown: handleUserInteraction,
   };
 
   const element = useRenderElement('div', componentProps, {

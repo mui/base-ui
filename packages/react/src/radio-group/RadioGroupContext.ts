@@ -28,10 +28,6 @@ export const RadioGroupContext = React.createContext<RadioGroupContext>({
   setTouched: NOOP,
 });
 
-if (process.env.NODE_ENV !== 'production') {
-  RadioGroupContext.displayName = 'RadioGroupContext';
-}
-
 export function useRadioGroupContext() {
   return React.useContext(RadioGroupContext);
 }

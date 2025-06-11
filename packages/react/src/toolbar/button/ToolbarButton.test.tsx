@@ -644,7 +644,7 @@ describe('<Toolbar.Button />', () => {
         const { user } = await render(
           <Toolbar.Root>
             <AlertDialog.Root onOpenChange={onOpenChange}>
-              <Toolbar.Button render={<Dialog.Trigger />}>dialog</Toolbar.Button>
+              <Toolbar.Button render={<AlertDialog.Trigger />}>dialog</Toolbar.Button>
               <AlertDialog.Portal>
                 <AlertDialog.Popup />
               </AlertDialog.Portal>

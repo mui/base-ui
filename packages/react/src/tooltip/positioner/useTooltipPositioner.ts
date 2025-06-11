@@ -6,14 +6,14 @@ import { useTooltipRootContext } from '../root/TooltipRootContext';
 export function useTooltipPositioner(
   params: useTooltipPositioner.Parameters,
 ): useTooltipPositioner.ReturnValue {
-  const { open, trackCursorAxis, mounted } = useTooltipRootContext();
+  const { open, trackCursorAxis, hoverable, mounted } = useTooltipRootContext();
 
   const positioning = useAnchorPositioning(params);
 
   const props = React.useMemo<HTMLProps>(() => {
     const hiddenStyles: React.CSSProperties = {};
 
-    if (!open || trackCursorAxis === 'both') {
+    if (!open || trackCursorAxis === 'both' || !hoverable) {
       hiddenStyles.pointerEvents = 'none';
     }
 
@@ -25,7 +25,7 @@ export function useTooltipPositioner(
         ...hiddenStyles,
       },
     };
-  }, [open, trackCursorAxis, mounted, positioning.positionerStyles]);
+  }, [open, trackCursorAxis, hoverable, mounted, positioning.positionerStyles]);
 
   return React.useMemo(
     () => ({
