@@ -9,7 +9,7 @@ import { validateDate } from '../utils/temporal/date-helpers';
 import { getInitialReferenceDate } from '../utils/temporal/getInitialReferenceDate';
 import { TemporalManager } from '../utils/temporal/types';
 
-export type State<TValue extends TemporalSupportedValue = any> = {
+export interface State<TValue extends TemporalSupportedValue = any> {
   /**
    * The value of the calendar, as passed to `props.value` or `props.defaultValue`.
    */
@@ -57,7 +57,7 @@ export type State<TValue extends TemporalSupportedValue = any> = {
    * Not publicly exposed, is only set in state to avoid passing it to the selectors.
    */
   adapter: TemporalAdapter;
-};
+}
 
 export type SharedCalendarStore = Store<State>;
 

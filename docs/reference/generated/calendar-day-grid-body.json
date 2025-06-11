@@ -9,7 +9,7 @@
     "focusOnMount": {
       "type": "boolean",
       "default": "false",
-      "description": "If `true`, the first tabbable children inside this component will be focused on mount.\nWarning: If several components are rendered at the same time with focusOnMount={true}, the result might be unpredictable."
+      "description": "If `true`, the first tabbable children inside this component will be focused on mount."
     },
     "freezeMonth": {
       "type": "boolean",
