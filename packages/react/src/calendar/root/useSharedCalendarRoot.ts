@@ -6,7 +6,7 @@ import { SharedCalendarRootContext } from './SharedCalendarRootContext';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { TemporalManager, TemporalTimezoneProps } from '../../utils/temporal/types';
 import { Store, useSelector } from '../../utils/store';
-import { selectors, SharedCalendarStore, State } from '../store';
+import { selectors, SharedCalendarStore, CalendarState } from '../store';
 import { useLazyRef } from '../../utils/useLazyRef';
 import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { useAssertModelConsistency } from '../../utils/useAssertModelConsistency';
@@ -77,7 +77,7 @@ export function useSharedCalendarRoot<TValue extends TemporalSupportedValue, TEr
       });
     }
 
-    return new Store<State<TValue>>({
+    return new Store<CalendarState<TValue>>({
       adapter,
       manager,
       visibleDate: initialVisibleDate,
