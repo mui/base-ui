@@ -1,7 +1,3 @@
-import { hasComputedStyleMapSupport } from '../utils/hasComputedStyleMapSupport';
-import { ownerWindow } from '../utils/owner';
-import type { TextDirection } from '../direction-provider/DirectionContext';
-
 export {
   stopEvent,
   isIndexOutOfListBounds,
@@ -41,16 +37,6 @@ export const ALT = 'Alt' as const;
 export const META = 'Meta' as const;
 export const MODIFIER_KEYS = new Set([SHIFT, CONTROL, ALT, META] as const);
 export type ModifierKey = typeof MODIFIER_KEYS extends Set<infer Keys> ? Keys : never;
-
-export function getTextDirection(element: HTMLElement): TextDirection {
-  if (hasComputedStyleMapSupport()) {
-    const direction = element.computedStyleMap().get('direction');
-
-    return (direction as CSSKeywordValue)?.value as TextDirection;
-  }
-
-  return ownerWindow(element).getComputedStyle(element).direction as TextDirection;
-}
 
 export function isNativeInput(
   element: EventTarget,
