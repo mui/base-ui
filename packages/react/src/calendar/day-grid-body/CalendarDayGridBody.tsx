@@ -7,14 +7,14 @@ import { useSharedCalendarDayGridBody } from './useSharedCalendarDayGridBody';
 import { CompositeRoot } from '../../composite/root/CompositeRoot';
 
 /**
- * Groups all rows of the calendar's day grid.
- * Renders a `<div>` element.
+ * Groups all parts of the calendar's day grid.
+ * Renders a `<tbody>` element.
  *
  * Documentation: [Base UI Calendar](https://base-ui.com/react/components/calendar)
  */
 export const CalendarDayGridBody = React.forwardRef(function CalendarDayGrid(
   componentProps: CalendarDayGridBody.Props,
-  forwardedRef: React.ForwardedRef<HTMLDivElement>,
+  forwardedRef: React.ForwardedRef<HTMLTableSectionElement>,
 ) {
   const { className, render, children, fixedWeekNumber, offset, ...elementProps } = componentProps;
 
@@ -24,7 +24,7 @@ export const CalendarDayGridBody = React.forwardRef(function CalendarDayGrid(
     offset,
   });
 
-  const element = useRenderElement('div', componentProps, {
+  const element = useRenderElement('tbody', componentProps, {
     ref: [forwardedRef, ref],
     props: [props, elementProps],
   });
@@ -40,6 +40,6 @@ export namespace CalendarDayGridBody {
   export interface State {}
 
   export interface Props
-    extends Omit<BaseUIComponentProps<'div', State>, 'children'>,
+    extends Omit<BaseUIComponentProps<'tbody', State>, 'children'>,
       useSharedCalendarDayGridBody.Parameters {}
 }

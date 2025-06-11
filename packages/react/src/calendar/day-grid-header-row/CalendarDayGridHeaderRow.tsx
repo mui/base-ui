@@ -3,22 +3,28 @@ import * as React from 'react';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { TemporalSupportedObject } from '../../models';
+import { useTemporalAdapter } from '../../temporal-adapter-provider/TemporalAdapterContext';
 import { useDayList } from '../../use-day-list';
 
 /**
- * Groups all cells of a given calendar's day grid row.
+ * Groups all cells of the calendar's day grid header row.
  * Renders a `<tr>` element.
  *
  * Documentation: [Base UI Calendar](https://base-ui.com/react/components/calendar)
  */
-export const CalendarDayGridRow = React.forwardRef(function CalendarDayGridRow(
-  componentProps: CalendarDayGridRow.Props,
+export const CalendarDayGridHeaderRow = React.forwardRef(function CalendarDayGridHeaderRow(
+  componentProps: CalendarDayGridHeaderRow.Props,
   forwardedRef: React.ForwardedRef<HTMLTableRowElement>,
 ) {
-  const { className, render, value, children, ...elementProps } = componentProps;
+  const { className, render, children, ...elementProps } = componentProps;
+
+  const adapter = useTemporalAdapter();
 
   const getDayList = useDayList();
-  const days = React.useMemo(() => getDayList({ date: value, amount: 7 }), [getDayList, value]);
+  const days = React.useMemo(
+    () => getDayList({ date: adapter.startOfWeek(adapter.now('default')), amount: 7 }),
+    [adapter, getDayList],
+  );
 
   const resolvedChildren = React.useMemo(() => {
     if (!React.isValidElement(children) && typeof children === 'function') {
@@ -36,14 +42,10 @@ export const CalendarDayGridRow = React.forwardRef(function CalendarDayGridRow(
   return element;
 });
 
-export namespace CalendarDayGridRow {
+export namespace CalendarDayGridHeaderRow {
   export interface State {}
 
   export interface Props extends Omit<BaseUIComponentProps<'tr', State>, 'children'> {
-    /**
-     * The date object representing the week.
-     */
-    value: TemporalSupportedObject;
     /**
      * The children of the component.
      * If a function is provided, it will be called for each day of the week as its parameter.
@@ -55,12 +57,5 @@ export namespace CalendarDayGridRow {
           index: number,
           days: TemporalSupportedObject[],
         ) => React.ReactNode);
-  }
-
-  export interface ChildrenParameters {
-    /**
-     * The days of the week.
-     */
-    days: TemporalSupportedObject[];
   }
 }

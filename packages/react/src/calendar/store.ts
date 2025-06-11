@@ -5,7 +5,7 @@ import {
 } from '../models/temporal';
 import { TemporalAdapter } from '../models/temporal-adapter';
 import { Store, createSelector, createSelectorMemoized } from '../utils/store';
-import { validateDate } from '../utils/temporal/date-helpers';
+import { validateDate } from '../utils/temporal/validateDate';
 import { getInitialReferenceDate } from '../utils/temporal/getInitialReferenceDate';
 import { TemporalManager } from '../utils/temporal/types';
 
@@ -142,16 +142,16 @@ const isDayButtonSelectedSelector = createSelector(
 );
 
 const isSetMonthButtonDisabledSelector = createSelector(
-  (state: CalendarState, disabled: boolean | undefined) => state.disabled || disabled,
+  (state: CalendarState) => state.adapter,
   (state: CalendarState, disabled: boolean | undefined, targetDate: TemporalSupportedObject) =>
     targetDate,
   (state: CalendarState) => state.validationProps,
-  (state: CalendarState) => state.adapter,
+  (state: CalendarState, disabled: boolean | undefined) => state.disabled || disabled,
   (
-    isForcedDisabled: boolean | undefined,
+    adapter: TemporalAdapter,
     targetDate: TemporalSupportedObject,
     validationProps: validateDate.ValidationProps,
-    adapter: TemporalAdapter,
+    isForcedDisabled: boolean | undefined,
   ) => {
     if (isForcedDisabled) {
       return true;

@@ -42,13 +42,15 @@ function DayGrid(props: { offset: 0 | 1 }) {
   return (
     <Calendar.DayGrid className={styles.DayGrid}>
       <Calendar.DayGridHeader className={styles.DayGridHeader}>
-        {(day) => (
-          <Calendar.DayGridHeaderCell
-            value={day}
-            key={day.toString()}
-            className={styles.DayGridHeaderCell}
-          />
-        )}
+        <Calendar.DayGridHeaderRow className={styles.DayGridHeaderRow}>
+          {(day) => (
+            <Calendar.DayGridHeaderCell
+              value={day}
+              key={day.toString()}
+              className={styles.DayGridHeaderCell}
+            />
+          )}
+        </Calendar.DayGridHeaderRow>
       </Calendar.DayGridHeader>
       <Calendar.DayGridBody className={styles.DayGridBody} offset={offset}>
         {(week) => (

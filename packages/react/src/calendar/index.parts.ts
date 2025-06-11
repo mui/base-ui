@@ -3,6 +3,7 @@ export { CalendarRoot as Root } from './root/CalendarRoot';
 // Days
 export { CalendarDayGrid as DayGrid } from './day-grid/CalendarDayGrid';
 export { CalendarDayGridHeader as DayGridHeader } from './day-grid-header/CalendarDayGridHeader';
+export { CalendarDayGridHeaderRow as DayGridHeaderRow } from './day-grid-header-row/CalendarDayGridHeaderRow';
 export { CalendarDayGridHeaderCell as DayGridHeaderCell } from './day-grid-header-cell/CalendarDayGridHeaderCell';
 export { CalendarDayGridBody as DayGridBody } from './day-grid-body/CalendarDayGridBody';
 export { CalendarDayGridRow as DayGridRow } from './day-grid-row/CalendarDayGridRow';

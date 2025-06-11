@@ -19,14 +19,10 @@ const InnerCalendarDayGridHeaderCell = React.forwardRef(function InnerCalendarDa
   const { className, render, value, formatter = defaultFormatter, ...otherProps } = componentProps;
 
   const formattedValue = React.useMemo(() => formatter(value), [formatter, value]);
-  const ariaLabel = React.useMemo(() => adapter.format(value, 'weekday'), [adapter, value]);
 
   const element = useRenderElement('span', componentProps, {
     ref: forwardedRef,
-    props: [
-      { role: 'columnheader', 'aria-label': ariaLabel, children: formattedValue },
-      otherProps,
-    ],
+    props: [{ children: formattedValue }, otherProps],
   });
 
   return element;

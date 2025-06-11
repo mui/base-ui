@@ -21,7 +21,9 @@ import { Calendar } from '@base-ui-components/react/calendar';
   <Calendar.SetMonth />
   <Calendar.DayGrid>
     <Calendar.DayGridHeader>
-      <Calendar.DayGridHeaderCell />
+      <Calendar.DayGridHeaderRow className={styles.DayGridHeaderRow}>
+        <Calendar.DayGridHeaderCell />
+      </Calendar.DayGridHeaderRow>
     </Calendar.DayGridHeader>
     <Calendar.DayGridBody>
       <Calendar.DayGridRow>

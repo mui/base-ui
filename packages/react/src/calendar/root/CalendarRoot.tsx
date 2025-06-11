@@ -7,7 +7,7 @@ import { useDateManager } from '../../utils/temporal/useDateManager';
 import { CalendarContext } from '../use-context/CalendarContext';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { BaseUIComponentProps } from '../../utils/types';
-import { validateDate } from '../../utils/temporal/date-helpers';
+import { validateDate } from '../../utils/temporal/validateDate';
 import { useTemporalAdapter } from '../../temporal-adapter-provider/TemporalAdapterContext';
 import { useSelector } from '../../utils/store';
 import { selectors } from '../store';

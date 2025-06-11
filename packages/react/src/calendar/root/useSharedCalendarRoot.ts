@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { TemporalSupportedObject, TemporalSupportedValue } from '../../models';
-import { validateDate, mergeDateAndTime } from '../../utils/temporal/date-helpers';
+import { mergeDateAndTime } from '../../utils/temporal/date-helpers';
+import { validateDate } from '../../utils/temporal/validateDate';
 import { useTemporalAdapter } from '../../temporal-adapter-provider/TemporalAdapterContext';
 import { SharedCalendarRootContext } from './SharedCalendarRootContext';
 import { useEventCallback } from '../../utils/useEventCallback';

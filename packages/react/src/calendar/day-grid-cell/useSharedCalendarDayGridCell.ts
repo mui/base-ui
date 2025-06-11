@@ -25,7 +25,6 @@ export function useSharedCalendarDayGridCell(parameters: useSharedCalendarDayGri
   const props: HTMLProps = {
     role: 'gridcell',
     'aria-disabled': isDisabled || isOutsideCurrentMonth || isUnavailable ? true : undefined,
-    'aria-colindex': adapter.getDayOfWeek(value),
   };
 
   const context: SharedCalendarDayGridCellContext = React.useMemo(

@@ -7,12 +7,12 @@ import { SharedCalendarDayGridCellContext } from './SharedCalendarDayGridCellCon
 
 const InnerCalendarDayGridCell = React.forwardRef(function InnerCalendarDayGridCell(
   componentProps: CalendarDayGridCell.Props,
-  forwardedRef: React.ForwardedRef<HTMLDivElement>,
+  forwardedRef: React.ForwardedRef<HTMLTableCellElement>,
 ) {
   const { className, render, value, ...elementProps } = componentProps;
   const { props, context } = useSharedCalendarDayGridCell({ value });
 
-  const element = useRenderElement('div', componentProps, {
+  const element = useRenderElement('td', componentProps, {
     ref: [forwardedRef],
     props: [props, elementProps],
   });
@@ -26,7 +26,7 @@ const InnerCalendarDayGridCell = React.forwardRef(function InnerCalendarDayGridC
 
 /**
  * An individual day cell in the calendar.
- * Renders a `<div>` element.
+ * Renders a `<td>` element.
  *
  * Documentation: [Base UI Calendar](https://base-ui.com/react/components/calendar)
  */
@@ -36,6 +36,6 @@ export namespace CalendarDayGridCell {
   export interface State {}
 
   export interface Props
-    extends BaseUIComponentProps<'div', State>,
+    extends BaseUIComponentProps<'td', State>,
       useSharedCalendarDayGridCell.Parameters {}
 }

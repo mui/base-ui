@@ -32,22 +32,24 @@ function MyCalendar() {
           </header>
           <Calendar.DayGrid className={styles.DayGrid}>
             <Calendar.DayGridHeader className={styles.DayGridHeader}>
-              <span
-                role="columnheader"
-                aria-label="Week number"
-                className={styles.DayGridHeaderCell}
-              >
-                #
-              </span>
-              {getDayList({ date: DateTime.now().startOf('week'), amount: 7 }).map(
-                (day) => (
-                  <Calendar.DayGridHeaderCell
-                    value={day}
-                    key={day.toString()}
-                    className={styles.DayGridHeaderCell}
-                  />
-                ),
-              )}
+              <Calendar.DayGridHeaderRow className={styles.DayGridHeaderRow}>
+                <th
+                  role="columnheader"
+                  aria-label="Week number"
+                  className={styles.DayGridHeaderCell}
+                >
+                  #
+                </th>
+                {getDayList({ date: DateTime.now().startOf('week'), amount: 7 }).map(
+                  (day) => (
+                    <Calendar.DayGridHeaderCell
+                      value={day}
+                      key={day.toString()}
+                      className={styles.DayGridHeaderCell}
+                    />
+                  ),
+                )}
+              </Calendar.DayGridHeaderRow>
             </Calendar.DayGridHeader>
             <Calendar.DayGridBody className={styles.DayGridBody}>
               {getWeekList({
@@ -59,13 +61,13 @@ function MyCalendar() {
                   key={week.toString()}
                   className={styles.DayGridRow}
                 >
-                  <div
+                  <td
                     className={styles.DayWeekNumber}
                     role="rowheader"
                     aria-label={`Week ${week.weekNumber}`}
                   >
                     {week.weekNumber}
-                  </div>
+                  </td>
                   {getDayList({ date: week, amount: 7 }).map((day) => (
                     <Calendar.DayGridCell
                       value={day}

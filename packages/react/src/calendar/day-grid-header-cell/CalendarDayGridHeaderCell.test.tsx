@@ -15,7 +15,9 @@ describe('<Calendar.DayGridHeaderCell />', () => {
       return render(
         <Calendar.Root>
           <Calendar.DayGrid>
-            <Calendar.DayGridHeader>{node}</Calendar.DayGridHeader>
+            <Calendar.DayGridHeader>
+              <Calendar.DayGridHeaderRow>{node}</Calendar.DayGridHeaderRow>
+            </Calendar.DayGridHeader>
           </Calendar.DayGrid>
         </Calendar.Root>,
       );
@@ -28,7 +30,9 @@ describe('<Calendar.DayGridHeaderCell />', () => {
         <Calendar.Root>
           <Calendar.DayGrid>
             <Calendar.DayGridHeader>
-              <Calendar.DayGridHeaderCell value={adapter.date('2025-02-04', 'default')} />
+              <Calendar.DayGridHeaderRow>
+                <Calendar.DayGridHeaderCell value={adapter.date('2025-02-04', 'default')} />
+              </Calendar.DayGridHeaderRow>
             </Calendar.DayGridHeader>
           </Calendar.DayGrid>
         </Calendar.Root>,
@@ -43,10 +47,12 @@ describe('<Calendar.DayGridHeaderCell />', () => {
         <Calendar.Root>
           <Calendar.DayGrid>
             <Calendar.DayGridHeader>
-              <Calendar.DayGridHeaderCell
-                value={adapter.date('2025-02-04', 'default')}
-                formatter={() => 'Test'}
-              />
+              <Calendar.DayGridHeaderRow>
+                <Calendar.DayGridHeaderCell
+                  value={adapter.date('2025-02-04', 'default')}
+                  formatter={() => 'Test'}
+                />
+              </Calendar.DayGridHeaderRow>
             </Calendar.DayGridHeader>
           </Calendar.DayGrid>
         </Calendar.Root>,
@@ -63,7 +69,9 @@ describe('<Calendar.DayGridHeaderCell />', () => {
         <Calendar.Root>
           <Calendar.DayGrid>
             <Calendar.DayGridHeader>
-              <Calendar.DayGridHeaderCell value={adapter.date('2025-02-04', 'default')} />
+              <Calendar.DayGridHeaderRow>
+                <Calendar.DayGridHeaderCell value={adapter.date('2025-02-04', 'default')} />
+              </Calendar.DayGridHeaderRow>
             </Calendar.DayGridHeader>
           </Calendar.DayGrid>
         </Calendar.Root>,

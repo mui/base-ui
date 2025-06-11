@@ -108,7 +108,7 @@
 }
 
 .DayGridRow,
-.DayGridHeader {
+.DayGridHeaderRow {
   display: flex;
   justify-content: center;
 }

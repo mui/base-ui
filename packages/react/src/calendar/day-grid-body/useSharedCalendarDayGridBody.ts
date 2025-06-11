@@ -96,7 +96,6 @@ export function useSharedCalendarDayGridBody(
   };
 
   const props: HTMLProps = {
-    role: 'rowgroup',
     children: resolvedChildren,
   };
 
