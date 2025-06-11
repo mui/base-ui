@@ -1,7 +1,6 @@
 import * as React from 'react';
 import { useSharedCalendarRootContext } from '../root/SharedCalendarRootContext';
 import { SharedCalendarDayGridBodyContext } from './SharedCalendarDayGridBodyContext';
-import { useScrollableList } from '../utils/useScrollableList';
 import { HTMLProps } from '../../utils/types';
 import { useTemporalAdapter } from '../../temporal-adapter-provider/TemporalAdapterContext';
 import { TemporalSupportedObject } from '../../models';
@@ -37,7 +36,12 @@ export function useSharedCalendarDayGridBody(
 
   const month = freezeMonth ? lastNonFrozenMonthRef.current : rawMonth;
 
-  useScrollableList({ focusOnMount, ref });
+  const initialFocusOnMount = React.useRef(focusOnMount);
+  React.useEffect(() => {
+    if (initialFocusOnMount.current) {
+      ref.current?.querySelector<HTMLElement>('[tabindex="0"]')?.focus();
+    }
+  }, [ref]);
 
   React.useEffect(() => {
     return registerDayGrid(month);
@@ -121,7 +125,7 @@ export function useSharedCalendarDayGridBody(
 }
 
 export namespace useSharedCalendarDayGridBody {
-  export interface Parameters extends useScrollableList.PublicParameters {
+  export interface Parameters {
     /**
      * The children of the component.
      * If a function is provided, it will be called for each week to render as its parameter.
@@ -149,6 +153,11 @@ export namespace useSharedCalendarDayGridBody {
      * This is mostly useful when doing transitions between several months to avoid having the exiting month updated to the new visible date.
      */
     freezeMonth?: boolean;
+    /**
+     * If `true`, the first tabbable children inside this component will be focused on mount.
+     * @default false
+     */
+    focusOnMount?: boolean;
   }
 
   export interface ItemMetadata {
