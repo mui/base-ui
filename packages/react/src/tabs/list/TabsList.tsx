@@ -68,7 +68,7 @@ export const TabsList = React.forwardRef(function TabsList(
       (tabsList.clientHeight < tabsList.scrollHeight &&
         activeTab.offsetTop + activeTab.offsetHeight > tabsList.clientHeight)
     ) {
-      activeTab.scrollIntoView({ behavior: 'auto' });
+      activeTab.scrollIntoView({ behavior: 'auto', block: 'nearest', inline: 'nearest' });
     }
   }, [activeTab, direction]);
 
