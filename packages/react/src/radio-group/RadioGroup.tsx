@@ -11,7 +11,6 @@ import type { BaseUIComponentProps } from '../utils/types';
 import { visuallyHidden } from '../utils/visuallyHidden';
 import { SHIFT } from '../composite/composite';
 import { CompositeRoot } from '../composite/root/CompositeRoot';
-import { useDirection } from '../direction-provider/DirectionContext';
 import { useFormContext } from '../form/FormContext';
 import { useField } from '../field/useField';
 import { useFieldRootContext } from '../field/root/FieldRootContext';
@@ -48,8 +47,6 @@ export const RadioGroup = React.forwardRef(function RadioGroup(
     id: idProp,
     ...elementProps
   } = componentProps;
-
-  const direction = useDirection();
 
   const {
     labelId,
@@ -215,7 +212,6 @@ export const RadioGroup = React.forwardRef(function RadioGroup(
   return (
     <RadioGroupContext.Provider value={contextValue}>
       <CompositeRoot
-        direction={direction}
         enableHomeAndEndKeys={false}
         modifierKeys={MODIFIER_KEYS}
         render={element}

@@ -5,6 +5,7 @@ import { useForcedRerendering } from '../../utils/useForcedRerendering';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useOnMount } from '../../utils/useOnMount';
 import type { BaseUIComponentProps } from '../../utils/types';
+import { useDirection } from '../../direction-provider/DirectionContext';
 import type { TabsRoot } from '../root/TabsRoot';
 import { useTabsRootContext } from '../root/TabsRootContext';
 import { tabsStyleHookMapping } from '../root/styleHooks';
@@ -39,7 +40,7 @@ export const TabsIndicator = React.forwardRef(function TabIndicator(
 ) {
   const { className, render, renderBeforeHydration = false, ...elementProps } = componentProps;
 
-  const { direction, getTabElementBySelectedValue, orientation, tabActivationDirection, value } =
+  const { getTabElementBySelectedValue, orientation, tabActivationDirection, value } =
     useTabsRootContext();
 
   const { tabsListRef } = useTabsListContext();
@@ -47,6 +48,8 @@ export const TabsIndicator = React.forwardRef(function TabIndicator(
   const [instanceId] = React.useState(() => generateId('tab'));
   const [isMounted, setIsMounted] = React.useState(false);
   const { value: activeTabValue } = useTabsRootContext();
+
+  const direction = useDirection();
 
   useOnMount(() => setIsMounted(true));
 

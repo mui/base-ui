@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useDirection, type TextDirection } from '../../direction-provider/DirectionContext';
+import type { TextDirection } from '../../direction-provider/DirectionContext';
 import { isElementDisabled } from '../../utils/isElementDisabled';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { useForkRef } from '../../utils/useForkRef';
@@ -44,7 +44,7 @@ export interface UseCompositeRootParameters {
   highlightedIndex?: number;
   onHighlightedIndexChange?: (index: number) => void;
   dense?: boolean;
-  direction?: TextDirection;
+  direction: TextDirection;
   itemSizes?: Array<Dimensions>;
   rootRef?: React.Ref<Element>;
   /**
@@ -81,7 +81,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
     loop = true,
     dense = false,
     orientation = 'both',
-    direction: directionProp,
+    direction,
     highlightedIndex: externalHighlightedIndex,
     onHighlightedIndexChange: externalSetHighlightedIndex,
     rootRef: externalRef,
@@ -99,9 +99,6 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
   const onHighlightedIndexChange = useEventCallback(
     externalSetHighlightedIndex ?? internalSetHighlightedIndex,
   );
-
-  const contextDirection = useDirection();
-  const direction = directionProp ?? contextDirection;
 
   const rootRef = React.useRef<HTMLElement | null>(null);
   const mergedRef = useForkRef(rootRef, externalRef);
