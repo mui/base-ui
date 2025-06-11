@@ -1,6 +1,6 @@
 {
   "name": "CalendarDayGridHeaderCell",
-  "description": "An individual day header cell in the calendar.\nRenders a `<span>` element.",
+  "description": "An individual day header cell in the calendar.\nRenders a `<th>` element.",
   "props": {
     "value": {
       "type": "DateTime<boolean>",
