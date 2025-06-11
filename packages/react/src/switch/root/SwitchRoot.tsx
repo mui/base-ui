@@ -78,7 +78,7 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
   const id = useBaseUiId(idProp);
 
   useModernLayoutEffect(() => {
-    const element = switchRef?.current;
+    const element = switchRef.current;
     if (!element) {
       return undefined;
     }
