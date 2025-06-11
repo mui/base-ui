@@ -8,6 +8,8 @@ import { TemporalSupportedObject } from '../../models';
 import { useWeekList } from '../../use-week-list';
 import { useSelector } from '../../utils/store';
 import { selectors } from '../store';
+import { CompositeMetadata } from '../../composite/list/CompositeList';
+import { CompositeRoot } from '../../composite/root/CompositeRoot';
 
 export function useSharedCalendarDayGridBody(
   parameters: useSharedCalendarDayGridBody.Parameters,
@@ -84,6 +86,27 @@ export function useSharedCalendarDayGridBody(
     return children;
   }, [children, weeks]);
 
+  const [itemMap, setItemMap] = React.useState(
+    () => new Map<Node, CompositeMetadata<useSharedCalendarDayGridBody.ItemMetadata> | null>(),
+  );
+
+  const disabledIndices = React.useMemo(() => {
+    const output: number[] = [];
+    for (const itemMetadata of itemMap.values()) {
+      if (itemMetadata?.index && !itemMetadata.focusableWhenDisabled) {
+        output.push(itemMetadata.index);
+      }
+    }
+    return output;
+  }, [itemMap]);
+
+  const compositeRootProps: CompositeRoot.Props<useSharedCalendarDayGridBody.ItemMetadata> = {
+    cols: 7,
+    disabledIndices,
+    enableHomeAndEndKeys: true,
+    onMapChange: setItemMap,
+  };
+
   const props: HTMLProps = {
     role: 'rowgroup',
     children: resolvedChildren,
@@ -94,7 +117,7 @@ export function useSharedCalendarDayGridBody(
     [month, canCellBeTabbed],
   );
 
-  return { props, context, ref };
+  return { props, compositeRootProps, context, ref };
 }
 
 export namespace useSharedCalendarDayGridBody {
@@ -128,6 +151,10 @@ export namespace useSharedCalendarDayGridBody {
     freezeMonth?: boolean;
   }
 
+  export interface ItemMetadata {
+    focusableWhenDisabled?: boolean;
+  }
+
   export interface ChildrenParameters {
     weeks: TemporalSupportedObject[];
   }
@@ -137,6 +164,10 @@ export namespace useSharedCalendarDayGridBody {
      * The props to apply to the element.
      */
     props: HTMLProps;
+    /**
+     * The props to apply to the composite root.
+     */
+    compositeRootProps: CompositeRoot.Props<ItemMetadata>;
     /**
      * The context to provide to the children of the component.
      */

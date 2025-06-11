@@ -27,7 +27,7 @@ export const CalendarDayGridBody = React.forwardRef(function CalendarDayGrid(
     ...elementProps
   } = componentProps;
 
-  const { props, context, ref } = useSharedCalendarDayGridBody({
+  const { props, compositeRootProps, context, ref } = useSharedCalendarDayGridBody({
     children,
     fixedWeekNumber,
     focusOnMount,
@@ -42,7 +42,7 @@ export const CalendarDayGridBody = React.forwardRef(function CalendarDayGrid(
 
   return (
     <SharedCalendarDayGridBodyContext.Provider value={context}>
-      <CompositeRoot cols={7} enableHomeAndEndKeys render={element} />
+      <CompositeRoot {...compositeRootProps} render={element} />
     </SharedCalendarDayGridBodyContext.Provider>
   );
 });

@@ -88,6 +88,11 @@ const InnerCalendarDayButton = React.forwardRef(function InnerCalendarDayButton(
     selectDate(value);
   });
 
+  const itemMetadata = React.useMemo(
+    () => ({ focusableWhenDisabled: !isDisabled && !isOutsideCurrentMonth }),
+    [isDisabled, isOutsideCurrentMonth],
+  );
+
   const props: React.ButtonHTMLAttributes<HTMLButtonElement> = {
     'aria-label': formattedDate,
     'aria-selected': isSelected ? true : undefined,
@@ -116,7 +121,7 @@ const InnerCalendarDayButton = React.forwardRef(function InnerCalendarDayButton(
     customStyleHookMapping,
   });
 
-  return <CompositeItem render={element} />;
+  return <CompositeItem metadata={itemMetadata} render={element} />;
 });
 
 /**
