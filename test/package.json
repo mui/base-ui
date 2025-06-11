@@ -7,7 +7,7 @@
   "devDependencies": {
     "@base-ui-components/react": "workspace:*",
     "@mui/internal-test-utils": "^2.0.9",
-    "@playwright/test": "1.52.0",
+    "@playwright/test": "1.53.0",
     "@testing-library/dom": "^10.4.0",
     "@types/chai": "^4.3.20",
     "@types/chai-dom": "^1.11.3",
