@@ -37,17 +37,17 @@ export function getInitialReferenceDate(
     adapter,
     timezone,
     precision,
-    externalDate: controlledDate,
-    referenceDate: inReferenceDate = null,
+    externalDate,
+    externalReferenceDate,
     validationProps: { minDate, maxDate, minTime, maxTime },
   } = parameters;
 
-  if (adapter.isValid(controlledDate)) {
-    return controlledDate;
+  if (adapter.isValid(externalDate)) {
+    return externalDate;
   }
 
-  if (adapter.isValid(inReferenceDate)) {
-    return inReferenceDate;
+  if (adapter.isValid(externalReferenceDate)) {
+    return externalReferenceDate;
   }
 
   let referenceDate = roundDate(adapter, precision, getCurrentDate(adapter, timezone, false));
@@ -91,7 +91,7 @@ export namespace getInitialReferenceDate {
     /**
      * The reference date provided by the user, if any.
      */
-    referenceDate?: TemporalSupportedObject | undefined;
+    externalReferenceDate: TemporalSupportedObject | null;
     /**
      * The precision of the reference date to create.
      * For example, a Calendar will use "day" but a Time Field with the format "hh:mm" will use "minute".

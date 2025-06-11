@@ -30,7 +30,7 @@ export function useSharedCalendarRoot<TValue extends TemporalSupportedValue, TEr
     onValueChange,
     value: valueProp,
     timezone: timezoneProp,
-    referenceDate: referenceDateProp,
+    referenceDate: referenceDateProp = null,
     // Visible date props
     onVisibleDateChange,
     visibleDate: visibleDateProp,
@@ -70,11 +70,11 @@ export function useSharedCalendarRoot<TValue extends TemporalSupportedValue, TEr
     } else {
       initialVisibleDate = getInitialReferenceDate({
         adapter,
-        timezone: timezoneProp ?? 'default',
-        externalDate: initialReferenceDateFromValue,
-        validationProps: { minDate, maxDate },
-        referenceDate: referenceDateProp,
         precision: 'day',
+        timezone: timezoneProp ?? 'default',
+        validationProps: { minDate, maxDate },
+        externalReferenceDate: referenceDateProp,
+        externalDate: initialReferenceDateFromValue,
       });
     }
 

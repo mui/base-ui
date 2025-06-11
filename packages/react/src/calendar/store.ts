@@ -29,7 +29,7 @@ export interface CalendarState<TValue extends TemporalSupportedValue = any> {
   /**
    * The reference date as passed to `props.referenceDate`.
    */
-  referenceDateProp: TemporalSupportedObject | undefined;
+  referenceDateProp: TemporalSupportedObject | null;
   /**
    * Whether the calendar is disabled.
    */
@@ -94,10 +94,10 @@ const referenceDateSelector = createSelectorMemoized(
     getInitialReferenceDate({
       adapter,
       timezone,
-      externalDate: initialReferenceDateFromValue,
       validationProps,
-      referenceDate: referenceDateProp,
       precision: 'day',
+      externalReferenceDate: referenceDateProp,
+      externalDate: initialReferenceDateFromValue,
     }),
 );
 
