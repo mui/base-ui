@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import { act, fireEvent, screen } from '@mui/internal-test-utils';
+import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { Switch } from '@base-ui-components/react/switch';
 import { userEvent } from '@testing-library/user-event';
 import { describeConformance, createRenderer, isJSDOM } from '#test-utils';
@@ -547,25 +547,55 @@ describe('<Switch.Root />', () => {
         });
       });
 
-      it('explicit association', async () => {
-        await render(
-          <Field.Root>
-            <Field.Label data-testid="label" id="MyLabel">
-              Label
-            </Field.Label>
-            <Switch.Root data-testid="button" id="MySwitch" />
-          </Field.Root>,
-        );
+      describe('explicit association', () => {
+        it('when the label is sibling to the switch', async () => {
+          await render(
+            <Field.Root>
+              <Field.Label data-testid="label">Label</Field.Label>
+              <Switch.Root data-testid="button" />
+            </Field.Root>,
+          );
 
-        const label = screen.getByTestId('label');
-        expect(label).to.have.attribute('for', 'MySwitch');
+          const label = screen.getByTestId('label');
+          const button = screen.getByRole('switch');
 
-        const button = screen.getByTestId('button');
-        expect(button).to.have.attribute('aria-labelledby', 'MyLabel');
-        expect(button).to.have.attribute('aria-checked', 'false');
+          await waitFor(() => {
+            expect(label.getAttribute('for')).to.not.equal(null);
+          });
 
-        fireEvent.click(label);
-        expect(button).to.have.attribute('aria-checked', 'true');
+          expect(label.getAttribute('for')).to.equal(button.getAttribute('id'));
+          expect(button.getAttribute('aria-labelledby')).to.equal(label.getAttribute('id'));
+
+          expect(button).to.have.attribute('aria-checked', 'false');
+
+          fireEvent.click(label);
+          expect(button).to.have.attribute('aria-checked', 'true');
+        });
+
+        it('when rendering a non-native label', async () => {
+          await render(
+            <Field.Root>
+              <Field.Label data-testid="label" render={<span />}>
+                <Switch.Root data-testid="button" />
+              </Field.Label>
+            </Field.Root>,
+          );
+
+          const label = screen.getByTestId('label');
+          const button = screen.getByRole('switch');
+
+          await waitFor(() => {
+            expect(label.getAttribute('for')).to.not.equal(null);
+          });
+
+          expect(label.getAttribute('for')).to.equal(button.getAttribute('id'));
+          expect(button.getAttribute('aria-labelledby')).to.equal(label.getAttribute('id'));
+
+          expect(button).to.have.attribute('aria-checked', 'false');
+
+          fireEvent.click(label);
+          expect(button).to.have.attribute('aria-checked', 'false');
+        });
       });
     });
 
