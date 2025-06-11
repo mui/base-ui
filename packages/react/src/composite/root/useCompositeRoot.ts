@@ -28,14 +28,13 @@ import {
   isListIndexDisabled,
   isIndexOutOfListBounds,
   isNativeInput,
+  scrollIntoViewIfNeeded,
   type Dimensions,
   type ModifierKey,
 } from '../composite';
 import { ACTIVE_COMPOSITE_ITEM } from '../constants';
 import { CompositeMetadata } from '../list/CompositeList';
 import { HTMLProps } from '../../utils/types';
-
-import { scrollIntoViewIfNeeded } from './scrollIntoViewIfNeeded';
 
 export interface UseCompositeRootParameters {
   orientation?: 'horizontal' | 'vertical' | 'both';
