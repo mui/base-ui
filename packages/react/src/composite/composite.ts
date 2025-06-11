@@ -1,3 +1,5 @@
+import type { TextDirection } from '../direction-provider/DirectionContext';
+
 export {
   stopEvent,
   isIndexOutOfListBounds,
@@ -10,7 +12,6 @@ export {
   getMaxListIndex,
   getMinListIndex,
 } from '@floating-ui/react/utils';
-import type { TextDirection } from '../direction-provider/DirectionContext';
 
 export interface Dimensions {
   width: number;
