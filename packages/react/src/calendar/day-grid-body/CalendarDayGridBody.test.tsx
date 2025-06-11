@@ -6,7 +6,7 @@ describe('<Calendar.DayGridBody />', () => {
   const { render } = createTemporalRenderer();
 
   describeConformance(<Calendar.DayGridBody />, () => ({
-    refInstanceof: window.HTMLDivElement,
+    refInstanceof: window.HTMLTableSectionElement,
     render(node) {
       return render(
         <Calendar.Root>

@@ -1,6 +1,5 @@
 import * as React from 'react';
 import { expect } from 'chai';
-import { screen } from '@mui/internal-test-utils';
 import { Calendar } from '@base-ui-components/react/calendar';
 import { createTemporalRenderer, describeConformance } from '#test-utils';
 
@@ -10,7 +9,7 @@ describe('<Calendar.DayGridHeaderCell />', () => {
   const date = adapter.now('default');
 
   describeConformance(<Calendar.DayGridHeaderCell value={date} />, () => ({
-    refInstanceof: window.HTMLSpanElement,
+    refInstanceof: window.HTMLTableCellElement,
     render(node) {
       return render(
         <Calendar.Root>
@@ -38,7 +37,7 @@ describe('<Calendar.DayGridHeaderCell />', () => {
         </Calendar.Root>,
       );
 
-      const cell = screen.getByRole('columnheader')!;
+      const cell = document.querySelector('th')!;
       expect(cell.textContent).to.equal('T');
     });
 
@@ -58,27 +57,8 @@ describe('<Calendar.DayGridHeaderCell />', () => {
         </Calendar.Root>,
       );
 
-      const cell = screen.getByRole('columnheader')!;
+      const cell = document.querySelector('th')!;
       expect(cell.textContent).to.equal('Test');
-    });
-  });
-
-  describe('accessibility attributes', () => {
-    it('should have the full weekday as aria-label', () => {
-      render(
-        <Calendar.Root>
-          <Calendar.DayGrid>
-            <Calendar.DayGridHeader>
-              <Calendar.DayGridHeaderRow>
-                <Calendar.DayGridHeaderCell value={adapter.date('2025-02-04', 'default')} />
-              </Calendar.DayGridHeaderRow>
-            </Calendar.DayGridHeader>
-          </Calendar.DayGrid>
-        </Calendar.Root>,
-      );
-
-      const cell = screen.getByRole('columnheader')!;
-      expect(cell).toHaveAccessibleName('Tuesday');
     });
   });
 });

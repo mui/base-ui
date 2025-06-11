@@ -9,7 +9,7 @@ describe('<Calendar.DayGridCell />', () => {
   const startOfWeek = adapter.startOfWeek(date);
 
   describeConformance(<Calendar.DayGridCell value={date} />, () => ({
-    refInstanceof: window.HTMLDivElement,
+    refInstanceof: window.HTMLTableCellElement,
     render(node) {
       return render(
         <Calendar.Root>

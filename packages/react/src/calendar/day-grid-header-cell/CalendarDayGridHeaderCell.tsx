@@ -20,7 +20,7 @@ const InnerCalendarDayGridHeaderCell = React.forwardRef(function InnerCalendarDa
 
   const formattedValue = React.useMemo(() => formatter(value), [formatter, value]);
 
-  const element = useRenderElement('span', componentProps, {
+  const element = useRenderElement('th', componentProps, {
     ref: forwardedRef,
     props: [{ children: formattedValue }, otherProps],
   });
@@ -30,7 +30,7 @@ const InnerCalendarDayGridHeaderCell = React.forwardRef(function InnerCalendarDa
 
 /**
  * An individual day header cell in the calendar.
- * Renders a `<span>` element.
+ * Renders a `<th>` element.
  *
  * Documentation: [Base UI Calendar](https://base-ui.com/react/components/calendar)
  */
@@ -39,7 +39,7 @@ export const CalendarDayGridHeaderCell = React.memo(InnerCalendarDayGridHeaderCe
 export namespace CalendarDayGridHeaderCell {
   export interface State {}
 
-  export interface Props extends BaseUIComponentProps<'span', State> {
+  export interface Props extends BaseUIComponentProps<'th', State> {
     value: TemporalSupportedObject;
     /**
      * The formatter function used to display the day of the week.
