@@ -1,0 +1,42 @@
+{
+  "name": "ComboboxItem",
+  "description": "An individual option in the combobox popup.\nRenders a `<div>` element.",
+  "props": {
+    "label": {
+      "type": "string",
+      "description": "Overrides the text label to use on the trigger when this item is selected\nand when the item is matched during keyboard text navigation."
+    },
+    "value": {
+      "type": "any",
+      "default": "null",
+      "description": "A unique value that identifies this select item."
+    },
+    "nativeButton": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Whether the component renders a native `<button>` element when replacing it\nvia the `render` prop.\nSet to `false` if the rendered element is not a button (e.g. `<div>`)."
+    },
+    "onHighlightedChange": {
+      "type": "((highlighted: boolean, keyboardHighlight: boolean) => void)",
+      "description": "A callback that is called when the highlighted state changes."
+    },
+    "disabled": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Whether the component should ignore user interaction."
+    },
+    "children": {
+      "type": "ReactNode"
+    },
+    "className": {
+      "type": "string | ((state: Combobox.Item.State) => string)",
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
+    },
+    "render": {
+      "type": "ReactElement | ((props: HTMLProps, state: Combobox.Item.State) => ReactElement)",
+      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
+    }
+  },
+  "dataAttributes": {},
+  "cssVariables": {}
+}

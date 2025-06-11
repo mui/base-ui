@@ -1,0 +1,73 @@
+{
+  "name": "ComboboxRoot",
+  "description": "Groups all parts of a combobox.\nDoesn't render its own HTML element.",
+  "props": {
+    "name": {
+      "type": "string",
+      "description": "Identifies the field when a form is submitted."
+    },
+    "defaultValue": {
+      "type": "Value | null",
+      "default": "null",
+      "description": "The uncontrolled value of the combobox when it’s initially rendered.\n\nTo render a controlled combobox, use the `value` prop instead."
+    },
+    "value": {
+      "type": "Value",
+      "description": "The value of the combobox."
+    },
+    "onValueChange": {
+      "type": "((value: Value, event: Event | undefined, reason: string | undefined) => void)",
+      "description": "Callback fired when the value of the combobox changes. Use when controlled."
+    },
+    "defaultOpen": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Whether the combobox popup is initially open.\n\nTo render a controlled combobox popup, use the `open` prop instead."
+    },
+    "open": {
+      "type": "boolean",
+      "description": "Whether the combobox popup is currently open."
+    },
+    "onOpenChange": {
+      "type": "(open: boolean, event?: Event, reason?: combobox.Root.OpenChangeReason) => void",
+      "description": "Event handler called when the combobox popup is opened or closed."
+    },
+    "actionsRef": {
+      "type": "RefObject<Actions>",
+      "description": "A ref to imperative actions.\n- `unmount`: When specified, the combobox will not be unmounted when closed.\nInstead, the `unmount` function must be called to unmount the combobox manually.\nUseful when the combobox's animation is controlled by an external library."
+    },
+    "onOpenChangeComplete": {
+      "type": "((open: boolean) => void)",
+      "description": "Event handler called after any animations complete when the combobox popup is opened or closed."
+    },
+    "selectable": {
+      "type": "boolean",
+      "default": "true",
+      "description": "Whether the combobox should be selectable."
+    },
+    "disabled": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Whether the component should ignore user interaction."
+    },
+    "readOnly": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Whether the user should be unable to choose a different option from the combobox popup."
+    },
+    "required": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Whether the user must choose a value before submitting a form."
+    },
+    "id": {
+      "type": "string",
+      "description": "The id of the combobox."
+    },
+    "children": {
+      "type": "ReactNode"
+    }
+  },
+  "dataAttributes": {},
+  "cssVariables": {}
+}

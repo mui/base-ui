@@ -1,0 +1,19 @@
+{
+  "name": "ComboboxValue",
+  "description": "The current value of the combobox.\nRenders a `<span>` element.",
+  "props": {
+    "children": {
+      "type": "ReactNode | ((value: any) => ReactNode)"
+    },
+    "className": {
+      "type": "string | ((state: Combobox.Value.State) => string)",
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
+    },
+    "render": {
+      "type": "ReactElement | ((props: HTMLProps, state: Combobox.Value.State) => ReactElement)",
+      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
+    }
+  },
+  "dataAttributes": {},
+  "cssVariables": {}
+}
