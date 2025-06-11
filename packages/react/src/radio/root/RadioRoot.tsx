@@ -47,6 +47,7 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
     touched,
     setTouched,
     fieldControlValidation,
+    registerControlRef,
   } = useRadioGroupContext();
 
   const { state: fieldState, disabled: fieldDisabled } = useFieldRootContext();
@@ -173,7 +174,7 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
 
   const element = useRenderElement('button', componentProps, {
     state,
-    ref: [forwardedRef, buttonRef],
+    ref: [forwardedRef, registerControlRef, buttonRef],
     props: [
       rootProps,
       fieldControlValidation?.getValidationProps ?? undefined,
