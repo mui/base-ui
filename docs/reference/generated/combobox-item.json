@@ -1,6 +1,6 @@
 {
   "name": "ComboboxItem",
-  "description": "An individual option in the combobox popup.\nRenders a `<div>` element.",
+  "description": "An individual item in the combobox popup.\nRenders a `<div>` element.",
   "props": {
     "label": {
       "type": "string",

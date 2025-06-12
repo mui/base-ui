@@ -9,7 +9,7 @@ import { useComboboxRootContext } from '../root/ComboboxRootContext';
 /**
  * Displays a status message for the combobox with screen reader support.
  * Renders a `<div>` element.
- * This component must not be conditionally rendered. Conditionally render its
+ * This component must not be conditionally rendered — conditionally render the
  * children instead.
  *
  * Documentation: [Base UI Combobox](https://base-ui.com/react/components/combobox)

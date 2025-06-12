@@ -14,7 +14,7 @@ import {
 } from '../../utils/translateOpenChangeReason';
 import { ComboboxFloatingContext, ComboboxRootContext } from './ComboboxRootContext';
 import { useControlled, useId, useModernLayoutEffect, useTransitionStatus } from '../../utils';
-import { selectors, State } from '../store';
+import { selectors, type State as StoreState } from '../store';
 import { Store, useSelector } from '../../utils/store';
 import { useLazyRef } from '../../utils/useLazyRef';
 import { useEventCallback } from '../../utils/useEventCallback';
@@ -51,7 +51,7 @@ export function ComboboxRoot<Value>(props: ComboboxRoot.Props<Value>) {
 
   const store = useLazyRef(
     () =>
-      new Store<State>({
+      new Store<StoreState>({
         id,
         value,
         open: openRaw,
