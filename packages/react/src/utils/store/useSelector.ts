@@ -1,4 +1,5 @@
-import { useSyncExternalStoreWithSelector } from 'use-sync-external-store/with-selector';
+// We need to import the shim because React 17 does not support the `useSyncExternalStore` API.
+import { useSyncExternalStoreWithSelector } from 'use-sync-external-store/shim/with-selector';
 import type { Store } from './Store';
 
 export function useSelector<State, Value>(
