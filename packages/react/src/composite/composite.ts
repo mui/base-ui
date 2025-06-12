@@ -75,37 +75,44 @@ export function scrollIntoViewIfNeeded(
     const side = direction === 'ltr' ? 'left' : 'right';
     const offsetX = elementRect[side] - scrollContainerRect[side];
 
-    if (
-      direction === 'ltr' &&
-      // overflow to the right
-      (element.offsetLeft + element.offsetWidth > scrollContainer.clientWidth ||
-        // overflow to the left
-        elementRect.left < scrollContainerRect.left)
-    ) {
-      targetX += offsetX + element.offsetWidth - scrollContainer.clientWidth;
+    const elementOffsetLeft = getOffset(scrollContainer, element, 'left');
+
+    if (direction === 'ltr') {
+      if (
+        elementOffsetLeft + element.offsetWidth >
+        scrollContainer.scrollLeft + scrollContainer.clientWidth
+      ) {
+        // overflow to the right, scroll to align right edges
+        targetX = elementOffsetLeft + element.offsetWidth - scrollContainer.clientWidth;
+      } else if (elementOffsetLeft < scrollContainer.scrollLeft) {
+        // overflow to the left, scroll to align left edges
+        targetX = elementOffsetLeft;
+      }
     }
 
     if (direction === 'rtl') {
-      if (element.offsetLeft < scrollContainer.scrollLeft) {
-        // overflow to the left
+      if (elementOffsetLeft < scrollContainer.scrollLeft) {
+        // overflow to the left, scroll to align left edges
         targetX += offsetX - element.offsetWidth + scrollContainer.clientWidth;
       } else if (elementRect.right > scrollContainerRect.right) {
-        // overflow to the right
+        // overflow to the right, scroll to align right edges
         targetX += elementRect.right - scrollContainerRect.right;
       }
     }
   }
 
   if (isOverflowingY && orientation !== 'horizontal') {
-    if (element.offsetTop < scrollContainer.scrollTop) {
-      // overflow upwards
-      targetY = element.offsetTop;
+    const elementOffsetTop = getOffset(scrollContainer, element, 'top');
+
+    if (elementOffsetTop < scrollContainer.scrollTop) {
+      // overflow upwards, align top edges
+      targetY = elementOffsetTop;
     } else if (
-      element.offsetTop + element.offsetHeight >
+      elementOffsetTop + element.offsetHeight >
       scrollContainer.scrollTop + scrollContainer.clientHeight
     ) {
-      // overflow downwards
-      targetY = element.offsetTop + element.offsetHeight - scrollContainer.clientHeight;
+      // overflow downwards, align bottom edges
+      targetY = elementOffsetTop + element.offsetHeight - scrollContainer.clientHeight;
     }
   }
 
@@ -114,4 +121,20 @@ export function scrollIntoViewIfNeeded(
     top: targetY,
     behavior: 'auto',
   });
+}
+
+function getOffset(ancestor: HTMLElement, element: HTMLElement, side: 'left' | 'top') {
+  const propName = side === 'left' ? 'offsetLeft' : 'offsetTop';
+
+  let result = 0;
+
+  while (element.offsetParent) {
+    result += element[propName];
+    if (element.offsetParent === ancestor) {
+      break;
+    }
+    element = element.offsetParent as HTMLElement;
+  }
+
+  return result;
 }
