@@ -166,15 +166,12 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
         return;
       }
 
-      const parsedValue = parseNumber(inputValue, locale, formatOptionsRef.current);
-      const canonicalText = formatNumber(parsedValue, locale, formatOptionsRef.current);
-      const maxPrecisionText = formatNumberMaxPrecision(
-        parsedValue,
-        locale,
-        formatOptionsRef.current,
-      );
-      const canonical = parseNumber(canonicalText, locale, formatOptionsRef.current);
-      const maxPrecision = parseNumber(maxPrecisionText, locale, formatOptionsRef.current);
+      const formatOptions = formatOptionsRef.current;
+      const parsedValue = parseNumber(inputValue, locale, formatOptions);
+      const canonicalText = formatNumber(parsedValue, locale, formatOptions);
+      const maxPrecisionText = formatNumberMaxPrecision(parsedValue, locale, formatOptions);
+      const canonical = parseNumber(canonicalText, locale, formatOptions);
+      const maxPrecision = parseNumber(maxPrecisionText, locale, formatOptions);
 
       if (parsedValue === null) {
         return;
