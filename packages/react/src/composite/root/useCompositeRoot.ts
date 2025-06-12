@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { activeElement } from '@floating-ui/react/utils';
 import type { TextDirection } from '../../direction-provider/DirectionContext';
 import { isElementDisabled } from '../../utils/isElementDisabled';
 import { useEventCallback } from '../../utils/useEventCallback';
@@ -35,6 +36,8 @@ import {
 import { ACTIVE_COMPOSITE_ITEM } from '../constants';
 import { CompositeMetadata } from '../list/CompositeList';
 import { HTMLProps } from '../../utils/types';
+import { ownerDocument } from '../../utils/owner';
+import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 
 export interface UseCompositeRootParameters {
   orientation?: 'horizontal' | 'vertical' | 'both';
@@ -106,6 +109,19 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
 
   const elementsRef = React.useRef<Array<HTMLDivElement | null>>([]);
   const hasSetDefaultIndexRef = React.useRef(false);
+
+  // Ensure external controlled updates moves focus to the highlighted item
+  // if focus is currently inside the list.
+  // https://github.com/mui/base-ui/issues/2101
+  useModernLayoutEffect(() => {
+    const activeEl = activeElement(ownerDocument(rootRef.current)) as HTMLDivElement | null;
+    if (elementsRef.current.includes(activeEl)) {
+      const focusedItem = elementsRef.current[highlightedIndex];
+      if (focusedItem && focusedItem !== activeEl) {
+        focusedItem.focus();
+      }
+    }
+  }, [highlightedIndex]);
 
   const onMapChange = useEventCallback((map: Map<Element, CompositeMetadata<any>>) => {
     if (map.size === 0 || hasSetDefaultIndexRef.current) {
