@@ -68,13 +68,7 @@ export function scrollIntoViewIfNeeded(
   const isOverflowingX = scrollContainer.clientWidth < scrollContainer.scrollWidth;
   const isOverflowingY = scrollContainer.clientHeight < scrollContainer.scrollHeight;
 
-  const scrollContainerRect = scrollContainer.getBoundingClientRect();
-  const elementRect = element.getBoundingClientRect();
-
   if (isOverflowingX && orientation !== 'vertical') {
-    const side = direction === 'ltr' ? 'left' : 'right';
-    const offsetX = elementRect[side] - scrollContainerRect[side];
-
     const elementOffsetLeft = getOffset(scrollContainer, element, 'left');
 
     if (direction === 'ltr') {
@@ -93,10 +87,13 @@ export function scrollIntoViewIfNeeded(
     if (direction === 'rtl') {
       if (elementOffsetLeft < scrollContainer.scrollLeft) {
         // overflow to the left, scroll to align left edges
-        targetX += offsetX - element.offsetWidth + scrollContainer.clientWidth;
-      } else if (elementRect.right > scrollContainerRect.right) {
+        targetX = elementOffsetLeft;
+      } else if (
+        elementOffsetLeft + element.offsetWidth >
+        scrollContainer.scrollLeft + scrollContainer.clientWidth
+      ) {
         // overflow to the right, scroll to align right edges
-        targetX += elementRect.right - scrollContainerRect.right;
+        targetX = elementOffsetLeft + element.offsetWidth - scrollContainer.clientWidth;
       }
     }
   }
