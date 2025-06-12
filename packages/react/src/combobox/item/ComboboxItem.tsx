@@ -17,7 +17,7 @@ import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useEventCallback } from '../../utils/useEventCallback';
 
 /**
- * An individual option in the combobox popup.
+ * An individual item in the combobox popup.
  * Renders a `<div>` element.
  *
  * Documentation: [Base UI Combobox](https://base-ui.com/react/components/combobox)
