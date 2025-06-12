@@ -31,6 +31,9 @@ import { ContextMenu } from '@base-ui-components/react/context-menu';
           <ContextMenu.RadioItem />
         </ContextMenu.RadioGroup>
         <ContextMenu.CheckboxItem />
+        <ContextMenu.SubmenuRoot>
+          <ContextMenu.SubmenuTrigger />
+        </ContextMenu.SubmenuRoot>
       </ContextMenu.Popup>
     </ContextMenu.Positioner>
   </ContextMenu.Portal>
@@ -51,6 +54,6 @@ import { ContextMenu } from '@base-ui-components/react/context-menu';
 
 ### Nested menu
 
-To create a submenu, nest [Menu](/react/components/menu) inside the parent context menu. Use the `<Menu.SubmenuTrigger>` part for the menu item that opens the nested menu.
+To create a submenu, create a `<ContextMenu.SubmenuRoot>` inside the parent context menu. Use the `<ContextMenu.SubmenuTrigger>` part for the menu item that opens the nested menu.
 
 <Demo path="./demos/submenu" />

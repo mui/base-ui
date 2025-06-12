@@ -31,6 +31,9 @@ import { Menu } from '@base-ui-components/react/menu';
           <Menu.RadioItem />
         </Menu.RadioGroup>
         <Menu.CheckboxItem />
+        <Menu.SubmenuRoot>
+          <Menu.SubmenuTrigger />
+        </Menu.SubmenuRoot>
       </Menu.Popup>
     </Menu.Positioner>
   </Menu.Portal>
@@ -84,7 +87,7 @@ Use the `<Menu.GroupLabel>` part to add a label to a `<Menu.Group>`
 
 ### Nested menu
 
-To create a submenu, nest another menu inside the parent menu. Use the `<Menu.SubmenuTrigger>` part for the menu item that opens the nested menu.
+To create a submenu, nest another menu inside the parent menu with `<Menu.SubmenuRoot>`. Use the `<Menu.SubmenuTrigger>` part for the menu item that opens the nested menu.
 
 ```jsx {11-21} {12}#strong title="Adding a submenu"
 <Menu.Root>
@@ -97,7 +100,7 @@ To create a submenu, nest another menu inside the parent menu. Use the `<Menu.Su
         <Menu.Item />
 
         {/* Submenu */}
-        <Menu.Root>
+        <Menu.SubmenuRoot>
           <Menu.SubmenuTrigger />
           <Menu.Portal>
             <Menu.Positioner>
@@ -107,7 +110,7 @@ To create a submenu, nest another menu inside the parent menu. Use the `<Menu.Su
               </Menu.Popup>
             </Menu.Positioner>
           </Menu.Portal>
-        </Menu.Root>
+        </Menu.SubmenuRoot>
       </Menu.Popup>
     </Menu.Positioner>
   </Menu.Portal>
