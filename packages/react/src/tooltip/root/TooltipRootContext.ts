@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import type { FloatingRootContext } from '@floating-ui/react';
+import type { FloatingRootContext } from '../../floating-ui-react';
 import type { HTMLProps } from '../../utils/types';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import type { TooltipOpenChangeReason } from './useTooltipRoot';

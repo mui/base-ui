@@ -1,5 +1,5 @@
-import { FloatingTreeType } from '@floating-ui/react';
-import { contains, getNodeChildren } from '@floating-ui/react/utils';
+import { FloatingTreeType } from '../../floating-ui-react';
+import { contains, getNodeChildren } from '../../floating-ui-react/utils';
 
 interface Targets {
   currentTarget: HTMLElement | null;
