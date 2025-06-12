@@ -55,6 +55,7 @@ function preventScrollStandard(referenceElement: Element | null) {
     scrollLeft = html.scrollLeft;
 
     originalHtmlStyles = {
+      scrollbarGutter: html.style.scrollbarGutter,
       overflowY: html.style.overflowY,
       overflowX: html.style.overflowX,
     };
@@ -71,7 +72,8 @@ function preventScrollStandard(referenceElement: Element | null) {
     };
 
     // Handle `scrollbar-gutter` in Chrome when there is no scrollable content.
-    const hasScrollbarGutterStable = htmlStyles.scrollbarGutter?.includes('stable');
+    const supportsStableScrollbarGutter =
+      typeof CSS !== 'undefined' && CSS.supports?.('scrollbar-gutter', 'stable');
 
     const isScrollableY = html.scrollHeight > html.clientHeight;
     const isScrollableX = html.scrollWidth > html.clientWidth;
@@ -95,10 +97,15 @@ function preventScrollStandard(referenceElement: Element | null) {
      */
 
     Object.assign(html.style, {
+      scrollbarGutter: 'stable',
       overflowY:
-        !hasScrollbarGutterStable && (isScrollableY || hasConstantOverflowY) ? 'scroll' : 'hidden',
+        !supportsStableScrollbarGutter && (isScrollableY || hasConstantOverflowY)
+          ? 'scroll'
+          : 'hidden',
       overflowX:
-        !hasScrollbarGutterStable && (isScrollableX || hasConstantOverflowX) ? 'scroll' : 'hidden',
+        !supportsStableScrollbarGutter && (isScrollableX || hasConstantOverflowX)
+          ? 'scroll'
+          : 'hidden',
     });
 
     Object.assign(body.style, {
