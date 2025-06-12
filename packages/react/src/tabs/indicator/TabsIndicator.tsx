@@ -20,14 +20,6 @@ const customStyleHookMapping = {
   selectedTabSize: () => null,
 };
 
-function getTabListStyles(styles: CSSStyleDeclaration) {
-  return {
-    borderTopWidth: parseFloat(styles.borderTopWidth),
-    borderLeftWidth: parseFloat(styles.borderLeftWidth),
-    borderRightWidth: parseFloat(styles.borderRightWidth),
-  };
-}
-
 /**
  * A visual indicator that can be styled to match the position of the currently active tab.
  * Renders a `<span>` element.
@@ -80,34 +72,26 @@ export const TabsIndicator = React.forwardRef(function TabIndicator(
 
   let isTabSelected = false;
 
-  const tabsListStylesRef = React.useRef<CSSStyleDeclaration>(null);
-
   if (value != null && tabsListRef.current != null) {
     const selectedTab = getTabElementBySelectedValue(value);
     const tabsList = tabsListRef.current;
     isTabSelected = true;
 
     if (selectedTab != null) {
-      const { right: tabRight, bottom: tabBottom } = selectedTab.getBoundingClientRect();
-      const { top: listTop, left: listLeft, right: listRight } = tabsList.getBoundingClientRect();
-
-      if (tabsListStylesRef.current == null) {
-        tabsListStylesRef.current = getComputedStyle(tabsList);
-      }
-
-      const {
-        borderTopWidth: listBorderTopWidth,
-        borderLeftWidth: listBorderLeftWidth,
-        borderRightWidth: listBorderRightWidth,
-      } = getTabListStyles(tabsListStylesRef.current);
-
-      left = selectedTab.offsetLeft - tabsList.clientLeft + listBorderLeftWidth;
+      left = selectedTab.offsetLeft - tabsList.clientLeft;
       right =
         direction === 'ltr'
-          ? listLeft + listBorderLeftWidth + tabsList.clientWidth - tabRight
-          : listRight - tabRight - listBorderRightWidth;
-      top = selectedTab.offsetTop - tabsList.clientTop + listBorderTopWidth;
-      bottom = listTop + listBorderTopWidth + tabsList.clientHeight - tabBottom;
+          ? tabsList.scrollWidth -
+            selectedTab.offsetLeft -
+            selectedTab.offsetWidth -
+            tabsList.clientLeft
+          : selectedTab.offsetLeft - tabsList.clientLeft;
+      top = selectedTab.offsetTop - tabsList.clientTop;
+      bottom =
+        tabsList.scrollHeight -
+        selectedTab.offsetTop -
+        selectedTab.offsetHeight -
+        tabsList.clientTop;
       width = selectedTab.offsetWidth;
       height = selectedTab.offsetHeight;
     }
