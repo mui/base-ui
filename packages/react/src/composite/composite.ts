@@ -71,30 +71,42 @@ export function scrollIntoViewIfNeeded(
   const scrollContainerRect = scrollContainer.getBoundingClientRect();
   const elementRect = element.getBoundingClientRect();
 
-  const side = direction === 'ltr' ? 'left' : 'right';
-  const offsetX = elementRect[side] - scrollContainerRect[side];
-
   if (isOverflowingX && orientation !== 'vertical') {
+    const side = direction === 'ltr' ? 'left' : 'right';
+    const offsetX = elementRect[side] - scrollContainerRect[side];
+
     if (
       direction === 'ltr' &&
-      element.offsetLeft + element.offsetWidth > scrollContainer.clientWidth
+      // overflow to the right
+      (element.offsetLeft + element.offsetWidth > scrollContainer.clientWidth ||
+        // overflow to the left
+        elementRect.left < scrollContainerRect.left)
     ) {
-      targetX = offsetX + element.offsetWidth - scrollContainer.clientWidth;
+      targetX += offsetX + element.offsetWidth - scrollContainer.clientWidth;
     }
 
-    if (direction === 'rtl' && element.offsetLeft < scrollContainer.scrollLeft) {
-      targetX = offsetX - element.offsetWidth + scrollContainer.clientWidth;
+    if (direction === 'rtl') {
+      if (element.offsetLeft < scrollContainer.scrollLeft) {
+        // overflow to the left
+        targetX += offsetX - element.offsetWidth + scrollContainer.clientWidth;
+      } else if (elementRect.right > scrollContainerRect.right) {
+        // overflow to the right
+        targetX += elementRect.right - scrollContainerRect.right;
+      }
     }
   }
 
-  if (
-    isOverflowingY &&
-    orientation !== 'horizontal' &&
-    element.offsetTop + element.offsetHeight > scrollContainer.clientHeight
-  ) {
-    const { borderTopWidth } = getScrollContainerStyles(scrollContainer);
-
-    targetY = elementRect.top - scrollContainerRect.top - borderTopWidth;
+  if (isOverflowingY && orientation !== 'horizontal') {
+    if (element.offsetTop < scrollContainer.scrollTop) {
+      // overflow upwards
+      targetY = element.offsetTop;
+    } else if (
+      element.offsetTop + element.offsetHeight >
+      scrollContainer.scrollTop + scrollContainer.clientHeight
+    ) {
+      // overflow downwards
+      targetY = element.offsetTop + element.offsetHeight - scrollContainer.clientHeight;
+    }
   }
 
   scrollContainer.scrollTo({
@@ -102,12 +114,4 @@ export function scrollIntoViewIfNeeded(
     top: targetY,
     behavior: 'auto',
   });
-}
-
-function getScrollContainerStyles(element: HTMLElement) {
-  const styles = getComputedStyle(element);
-
-  return {
-    borderTopWidth: parseFloat(styles.borderTopWidth),
-  };
 }

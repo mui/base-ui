@@ -91,7 +91,7 @@ export const settingsMetadata: SettingsMetadata<Settings> = {
     type: 'string',
     label: 'Orientation',
     options: ['horizontal', 'vertical'],
-    default: 'vertical',
+    default: 'horizontal',
   },
   activateOnFocus: {
     type: 'boolean',
