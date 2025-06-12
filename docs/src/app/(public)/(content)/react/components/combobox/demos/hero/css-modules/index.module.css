@@ -98,3 +98,14 @@
   height: 1px;
   background-color: var(--color-gray-200);
 }
+
+.NoResults {
+  padding-left: 1rem;
+  font-size: 0.925rem;
+  line-height: 1rem;
+  color: var(--color-gray-600);
+
+  > div {
+    margin: 0.5rem 0;
+  }
+}

@@ -14,7 +14,6 @@ import { ComboboxItemContext } from './ComboboxItemContext';
 import { selectors } from '../store';
 import { useButton } from '../../use-button';
 import { useBaseUiId } from '../../utils/useBaseUiId';
-import { useEventCallback } from '../../utils/useEventCallback';
 
 /**
  * An individual item in the combobox popup.
@@ -34,7 +33,6 @@ export const ComboboxItem = React.memo(
       label,
       disabled = false,
       nativeButton = false,
-      onHighlightedChange: onHighlightedChangeProp,
       ...elementProps
     } = componentProps;
 
@@ -58,6 +56,7 @@ export const ComboboxItem = React.memo(
       registerSelectedItem,
       keyboardActiveRef,
       allowActiveIndexSyncRef,
+      onItemHighlighted,
     } = useComboboxRootContext();
 
     const active = useSelector(store, selectors.isActive, listItem.index);
@@ -68,11 +67,6 @@ export const ComboboxItem = React.memo(
 
     const itemRef = React.useRef<HTMLDivElement | null>(null);
     const indexRef = useLatestRef(listItem.index);
-
-    const onHighlightedChange = useEventCallback(onHighlightedChangeProp);
-    useModernLayoutEffect(() => {
-      onHighlightedChange?.(active, keyboardActiveRef.current);
-    }, [active, onHighlightedChange, keyboardActiveRef]);
 
     const hasRegistered = listItem.index !== -1;
 
@@ -97,6 +91,7 @@ export const ComboboxItem = React.memo(
           const frame = requestAnimationFrame(() => {
             itemRef.current?.scrollIntoView({ inline: 'nearest', block: 'nearest' });
             store.set('activeIndex', listItem.index);
+            onItemHighlighted(value, keyboardActiveRef.current ? 'keyboard' : 'pointer');
             allowActiveIndexSyncRef.current = false;
           });
           return () => {
@@ -115,6 +110,8 @@ export const ComboboxItem = React.memo(
       store,
       selectable,
       allowActiveIndexSyncRef,
+      onItemHighlighted,
+      keyboardActiveRef,
     ]);
 
     const state: ComboboxItem.State = React.useMemo(
@@ -219,9 +216,5 @@ export namespace ComboboxItem {
      * @default false
      */
     nativeButton?: boolean;
-    /**
-     * A callback that is called when the highlighted state changes.
-     */
-    onHighlightedChange?: (highlighted: boolean, keyboardHighlight: boolean) => void;
   }
 }
