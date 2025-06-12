@@ -70,46 +70,80 @@ export function scrollIntoViewIfNeeded(
 
   if (isOverflowingX && orientation !== 'vertical') {
     const elementOffsetLeft = getOffset(scrollContainer, element, 'left');
+    const containerStyles = getStyles(element);
+    const elementStyles = getStyles(element);
 
     if (direction === 'ltr') {
       if (
-        elementOffsetLeft + element.offsetWidth >
-        scrollContainer.scrollLeft + scrollContainer.clientWidth
+        elementOffsetLeft + element.offsetWidth + elementStyles.scrollMarginRight >
+        scrollContainer.scrollLeft +
+          scrollContainer.clientWidth -
+          containerStyles.scrollPaddingRight
       ) {
         // overflow to the right, scroll to align right edges
-        targetX = elementOffsetLeft + element.offsetWidth - scrollContainer.clientWidth;
-      } else if (elementOffsetLeft < scrollContainer.scrollLeft) {
+        targetX =
+          elementOffsetLeft +
+          element.offsetWidth +
+          elementStyles.scrollMarginRight -
+          scrollContainer.clientWidth +
+          containerStyles.scrollPaddingRight;
+      } else if (
+        elementOffsetLeft - elementStyles.scrollMarginLeft <
+        scrollContainer.scrollLeft + containerStyles.scrollPaddingLeft
+      ) {
         // overflow to the left, scroll to align left edges
-        targetX = elementOffsetLeft;
+        targetX =
+          elementOffsetLeft - elementStyles.scrollMarginLeft - containerStyles.scrollPaddingLeft;
       }
     }
 
     if (direction === 'rtl') {
-      if (elementOffsetLeft < scrollContainer.scrollLeft) {
+      if (
+        elementOffsetLeft - elementStyles.scrollMarginRight <
+        scrollContainer.scrollLeft + containerStyles.scrollPaddingLeft
+      ) {
         // overflow to the left, scroll to align left edges
-        targetX = elementOffsetLeft;
+        targetX =
+          elementOffsetLeft - elementStyles.scrollMarginLeft - containerStyles.scrollPaddingLeft;
       } else if (
-        elementOffsetLeft + element.offsetWidth >
-        scrollContainer.scrollLeft + scrollContainer.clientWidth
+        elementOffsetLeft + element.offsetWidth + elementStyles.scrollMarginRight >
+        scrollContainer.scrollLeft +
+          scrollContainer.clientWidth -
+          containerStyles.scrollPaddingRight
       ) {
         // overflow to the right, scroll to align right edges
-        targetX = elementOffsetLeft + element.offsetWidth - scrollContainer.clientWidth;
+        targetX =
+          elementOffsetLeft +
+          element.offsetWidth +
+          elementStyles.scrollMarginRight -
+          scrollContainer.clientWidth +
+          containerStyles.scrollPaddingRight;
       }
     }
   }
 
   if (isOverflowingY && orientation !== 'horizontal') {
     const elementOffsetTop = getOffset(scrollContainer, element, 'top');
+    const containerStyles = getStyles(element);
+    const elementStyles = getStyles(element);
 
-    if (elementOffsetTop < scrollContainer.scrollTop) {
+    if (
+      elementOffsetTop - elementStyles.scrollMarginTop <
+      scrollContainer.scrollTop + containerStyles.scrollPaddingTop
+    ) {
       // overflow upwards, align top edges
-      targetY = elementOffsetTop;
+      targetY = elementOffsetTop - elementStyles.scrollMarginTop - containerStyles.scrollPaddingTop;
     } else if (
-      elementOffsetTop + element.offsetHeight >
-      scrollContainer.scrollTop + scrollContainer.clientHeight
+      elementOffsetTop + element.offsetHeight + elementStyles.scrollMarginBottom >
+      scrollContainer.scrollTop + scrollContainer.clientHeight - containerStyles.scrollPaddingBottom
     ) {
       // overflow downwards, align bottom edges
-      targetY = elementOffsetTop + element.offsetHeight - scrollContainer.clientHeight;
+      targetY =
+        elementOffsetTop +
+        element.offsetHeight +
+        elementStyles.scrollMarginBottom -
+        scrollContainer.clientHeight +
+        containerStyles.scrollPaddingBottom;
     }
   }
 
@@ -134,4 +168,18 @@ function getOffset(ancestor: HTMLElement, element: HTMLElement, side: 'left' | '
   }
 
   return result;
+}
+
+function getStyles(element: HTMLElement) {
+  const styles = getComputedStyle(element);
+  return {
+    scrollMarginTop: parseFloat(styles.scrollMarginTop) || 0,
+    scrollMarginRight: parseFloat(styles.scrollMarginRight) || 0,
+    scrollMarginBottom: parseFloat(styles.scrollMarginBottom) || 0,
+    scrollMarginLeft: parseFloat(styles.scrollMarginLeft) || 0,
+    scrollPaddingTop: parseFloat(styles.scrollPaddingTop) || 0,
+    scrollPaddingRight: parseFloat(styles.scrollPaddingRight) || 0,
+    scrollPaddingBottom: parseFloat(styles.scrollPaddingBottom) || 0,
+    scrollPaddingLeft: parseFloat(styles.scrollPaddingLeft) || 0,
+  };
 }
