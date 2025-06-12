@@ -43,7 +43,11 @@ export default function MenuFullyFeatured() {
         modal={settings.modal}
         disabled={settings.disabled}
       >
-        <Menu.Trigger className={classes.Button} render={triggerRender}>
+        <Menu.Trigger
+          className={classes.Button}
+          render={triggerRender}
+          nativeButton={triggerRender === undefined}
+        >
           Menu <ChevronDownIcon className={classes.ButtonIcon} />
         </Menu.Trigger>
         <Menu.Portal keepMounted>

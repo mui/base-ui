@@ -284,4 +284,52 @@ describe('<Popover.Trigger />', () => {
       expect(screen.getByText('Content')).not.to.equal(null);
     });
   });
+
+  it('should toggle closed with Enter or Space when rendering a <div>', async () => {
+    const { user } = await render(
+      <div>
+        <Popover.Root>
+          <Popover.Trigger render={<div />} nativeButton={false} data-testid="div-trigger">
+            Toggle
+          </Popover.Trigger>
+          <Popover.Portal>
+            <Popover.Positioner>
+              <Popover.Popup>Content</Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
+        </Popover.Root>
+        <button data-testid="other-button">Other button</button>
+      </div>,
+    );
+
+    const trigger = screen.getByTestId('div-trigger');
+
+    await act(async () => trigger.focus());
+    await user.keyboard('[Enter]');
+    expect(screen.queryByText('Content')).not.to.equal(null);
+
+    await user.tab({ shift: true });
+    expect(document.activeElement).to.equal(trigger);
+
+    await user.keyboard('[Enter]');
+    expect(screen.queryByText('Content')).to.equal(null);
+
+    await user.keyboard('[Enter]');
+    expect(screen.queryByText('Content')).not.to.equal(null);
+
+    await user.tab({ shift: true });
+    expect(document.activeElement).to.equal(trigger);
+
+    await user.keyboard('[Space]');
+    expect(screen.queryByText('Content')).to.equal(null);
+
+    await user.keyboard('[Space]');
+    expect(screen.queryByText('Content')).not.to.equal(null);
+
+    await user.tab({ shift: true });
+    expect(document.activeElement).to.equal(trigger);
+
+    await user.keyboard('[Space]');
+    expect(screen.queryByText('Content')).to.equal(null);
+  });
 });
