@@ -29,7 +29,13 @@ import { CompositeList } from '../../composite/list/CompositeList';
  * Documentation: [Base UI Combobox](https://base-ui.com/react/components/combobox)
  */
 export function ComboboxRoot<Value>(props: ComboboxRoot.Props<Value>) {
-  const { id: idProp, onOpenChangeComplete, defaultValue = '', selectable = false } = props;
+  const {
+    id: idProp,
+    onOpenChangeComplete,
+    defaultValue = '',
+    selectable = false,
+    onItemHighlighted: onItemHighlightedProp,
+  } = props;
 
   const id = useId(idProp);
 
@@ -68,6 +74,8 @@ export function ComboboxRoot<Value>(props: ComboboxRoot.Props<Value>) {
       }),
   ).current;
 
+  const onItemHighlighted = useEventCallback(onItemHighlightedProp);
+
   const activeIndex = useSelector(store, selectors.activeIndex);
   const triggerElement = useSelector(store, selectors.triggerElement);
   const positionerElement = useSelector(store, selectors.positionerElement);
@@ -91,6 +99,7 @@ export function ComboboxRoot<Value>(props: ComboboxRoot.Props<Value>) {
   const handleUnmount = useEventCallback(() => {
     setMounted(false);
     store.set('activeIndex', null);
+    onItemHighlighted(undefined, 'pointer');
     onOpenChangeComplete?.(false);
   });
 
@@ -181,6 +190,13 @@ export function ComboboxRoot<Value>(props: ComboboxRoot.Props<Value>) {
         return;
       }
 
+      const type = keyboardActiveRef.current ? 'keyboard' : 'pointer';
+      if (nextActiveIndex !== null) {
+        onItemHighlighted(valuesRef.current[nextActiveIndex], type);
+      } else {
+        onItemHighlighted(undefined, type);
+      }
+
       store.set('activeIndex', nextActiveIndex);
     },
   });
@@ -233,6 +249,7 @@ export function ComboboxRoot<Value>(props: ComboboxRoot.Props<Value>) {
       store,
       getItemProps,
       registerSelectedItem,
+      onItemHighlighted,
     }),
     [
       selectable,
@@ -246,6 +263,7 @@ export function ComboboxRoot<Value>(props: ComboboxRoot.Props<Value>) {
       store,
       getItemProps,
       registerSelectedItem,
+      onItemHighlighted,
     ],
   );
 
@@ -295,7 +313,7 @@ export namespace ComboboxRoot {
      */
     onValueChange?: (value: Value, event: Event | undefined, reason: string | undefined) => void;
     /**
-     * The uncontrolled value of the combobox when it’s initially rendered.
+     * The uncontrolled value of the combobox when it's initially rendered.
      *
      * To render a controlled combobox, use the `value` prop instead.
      * @default null
@@ -337,6 +355,11 @@ export namespace ComboboxRoot {
      * @default true
      */
     selectable?: boolean;
+    /**
+     * Callback fired when the user navigates the list and highlights an item.
+     * Passes the item's `value` or `undefined` when no item is highlighted.
+     */
+    onItemHighlighted?: (value: Value | undefined, type: 'keyboard' | 'pointer') => void;
   }
 
   export interface Actions {

@@ -28,6 +28,7 @@ export interface ComboboxRootContext {
   ) => Record<string, unknown>;
   valuesRef: React.RefObject<Array<any>>;
   registerSelectedItem: (index: number) => void;
+  onItemHighlighted: (value: any, type: 'keyboard' | 'pointer') => void;
 }
 
 export const ComboboxRootContext = React.createContext<ComboboxRootContext | undefined>(undefined);

@@ -21,7 +21,8 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
 ) {
   const { render, className, ...elementProps } = componentProps;
 
-  const { store, setValue, valuesRef, setOpen, keyboardActiveRef } = useComboboxRootContext();
+  const { store, setValue, valuesRef, setOpen, keyboardActiveRef, onItemHighlighted } =
+    useComboboxRootContext();
 
   const triggerProps = useSelector(store, selectors.triggerProps);
   const open = useSelector(store, selectors.open);
@@ -55,6 +56,9 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
         onChange(event) {
           setInputValue(event.target.value);
           store.set('activeIndex', null);
+          if (activeIndex !== null) {
+            onItemHighlighted(undefined, keyboardActiveRef.current ? 'keyboard' : 'pointer');
+          }
         },
         onKeyDown(event) {
           keyboardActiveRef.current = true;
@@ -70,6 +74,9 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
           ) {
             setOpen(true, event.nativeEvent, undefined);
             store.set('activeIndex', null);
+            if (activeIndex !== null) {
+              onItemHighlighted(undefined, keyboardActiveRef.current ? 'keyboard' : 'pointer');
+            }
           }
 
           if (activeIndex === null) {

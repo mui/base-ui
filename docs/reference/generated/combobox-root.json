@@ -9,7 +9,7 @@
     "defaultValue": {
       "type": "Value | null",
       "default": "null",
-      "description": "The uncontrolled value of the combobox when it’s initially rendered.\n\nTo render a controlled combobox, use the `value` prop instead."
+      "description": "The uncontrolled value of the combobox when it's initially rendered.\n\nTo render a controlled combobox, use the `value` prop instead."
     },
     "value": {
       "type": "Value",
@@ -35,6 +35,10 @@
     "actionsRef": {
       "type": "RefObject<Actions>",
       "description": "A ref to imperative actions.\n- `unmount`: When specified, the combobox will not be unmounted when closed.\nInstead, the `unmount` function must be called to unmount the combobox manually.\nUseful when the combobox's animation is controlled by an external library."
+    },
+    "onItemHighlighted": {
+      "type": "((value: Value | undefined, type: 'keyboard' | 'pointer') => void)",
+      "description": "Callback fired when the user navigates the list and highlights an item.\nPasses the item's `value` or `undefined` when no item is highlighted."
     },
     "onOpenChangeComplete": {
       "type": "((open: boolean) => void)",
