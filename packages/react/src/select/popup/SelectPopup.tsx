@@ -106,11 +106,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
   });
 
   useModernLayoutEffect(() => {
-    if (
-      alignItemWithTriggerActive ||
-      !positionerElement ||
-      Object.keys(originalPositionerStylesRef.current).length
-    ) {
+    if (!positionerElement || Object.keys(originalPositionerStylesRef.current).length) {
       return;
     }
 
@@ -125,7 +121,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
       marginTop: positionerElement.style.marginTop,
       marginBottom: positionerElement.style.marginBottom,
     };
-  }, [alignItemWithTriggerActive, positionerElement]);
+  }, [positionerElement]);
 
   useModernLayoutEffect(() => {
     if (mounted || alignItemWithTriggerActive) {

@@ -1,7 +1,8 @@
 import * as React from 'react';
-import { useAnchorPositioning } from '../../utils/useAnchorPositioning';
+import { type Side, useAnchorPositioning } from '../../utils/useAnchorPositioning';
 
-export interface SelectPositionerContext extends useAnchorPositioning.ReturnValue {
+export interface SelectPositionerContext extends Omit<useAnchorPositioning.ReturnValue, 'side'> {
+  side: 'none' | Side;
   alignItemWithTriggerActive: boolean;
   setControlledAlignItemWithTrigger: React.Dispatch<React.SetStateAction<boolean>>;
 }

@@ -17,6 +17,8 @@ import { useSelector } from '../../utils/store';
 import { selectors } from '../store';
 import { useScrollLock } from '../../utils';
 
+const FIXED: React.CSSProperties = { position: 'fixed' };
+
 /**
  * Positions the select menu popup.
  * Renders a `<div>` element.
@@ -104,10 +106,8 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
     keepMounted: true,
   });
 
-  const positionerStyles: React.CSSProperties = React.useMemo(
-    () => (alignItemWithTriggerActive ? { position: 'fixed' } : positioning.positionerStyles),
-    [alignItemWithTriggerActive, positioning.positionerStyles],
-  );
+  const renderedSide = alignItemWithTriggerActive ? 'none' : positioning.side;
+  const positionerStyles = alignItemWithTriggerActive ? FIXED : positioning.positionerStyles;
 
   const defaultProps: React.ComponentProps<'div'> = React.useMemo(() => {
     const hiddenStyles: React.CSSProperties = {};
@@ -129,11 +129,11 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
   const state: SelectPositioner.State = React.useMemo(
     () => ({
       open,
-      side: positioning.side,
+      side: renderedSide,
       align: positioning.align,
       anchorHidden: positioning.anchorHidden,
     }),
-    [open, positioning.side, positioning.align, positioning.anchorHidden],
+    [open, renderedSide, positioning.align, positioning.anchorHidden],
   );
 
   const setPositionerElement = useEventCallback((element) => {
@@ -190,10 +190,11 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
   const contextValue: SelectPositionerContext = React.useMemo(
     () => ({
       ...positioning,
+      side: renderedSide,
       alignItemWithTriggerActive,
       setControlledAlignItemWithTrigger,
     }),
-    [positioning, alignItemWithTriggerActive, setControlledAlignItemWithTrigger],
+    [positioning, renderedSide, alignItemWithTriggerActive, setControlledAlignItemWithTrigger],
   );
 
   return (
@@ -218,9 +219,7 @@ export namespace SelectPositioner {
     extends useAnchorPositioning.SharedParameters,
       BaseUIComponentProps<'div', State> {
     /**
-     * Whether the positioner overlaps the trigger so the selected item's text is aligned
-     * with the trigger's value text. This only applies to mouse input and is automatically
-     * disabled if there is not enough space.
+     * Whether the positioner overlaps the trigger so the selected item's text is aligned with the trigger's value text. This only applies to mouse input and is automatically disabled if there is not enough space.
      * @default true
      */
     alignItemWithTrigger?: boolean;
