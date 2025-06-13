@@ -3,31 +3,12 @@ import { expect } from 'chai';
 import { act } from '@mui/internal-test-utils';
 import { Tabs } from '@base-ui-components/react/tabs';
 import { createRenderer, describeConformance } from '#test-utils';
-import { TabsRootContext } from '../root/TabsRootContext';
 
 describe('<Tabs.List />', () => {
   const { render } = createRenderer();
 
   describeConformance(<Tabs.List />, () => ({
-    render: (node) => {
-      return render(
-        <TabsRootContext.Provider
-          value={{
-            value: '1',
-            onValueChange: () => {},
-            setTabMap() {},
-            getTabElementBySelectedValue: () => null,
-            getTabIdByPanelValueOrIndex: () => '',
-            getTabPanelIdByTabValueOrIndex: () => '',
-            direction: 'ltr',
-            orientation: 'horizontal',
-            tabActivationDirection: 'none',
-          }}
-        >
-          {node}
-        </TabsRootContext.Provider>,
-      );
-    },
+    render: (node) => render(<Tabs.Root>{node}</Tabs.Root>),
     refInstanceof: window.HTMLDivElement,
   }));
 

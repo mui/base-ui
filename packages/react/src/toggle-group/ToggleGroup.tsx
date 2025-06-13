@@ -4,7 +4,6 @@ import { useRenderElement } from '../utils/useRenderElement';
 import type { BaseUIComponentProps, Orientation } from '../utils/types';
 import { CompositeRoot } from '../composite/root/CompositeRoot';
 import { useControlled } from '../utils/useControlled';
-import { useDirection } from '../direction-provider/DirectionContext';
 import { useEventCallback } from '../utils/useEventCallback';
 import { useToolbarRootContext } from '../toolbar/root/ToolbarRootContext';
 import { ToggleGroupContext } from './ToggleGroupContext';
@@ -40,8 +39,6 @@ export const ToggleGroup = React.forwardRef(function ToggleGroup(
     render,
     ...elementProps
   } = componentProps;
-
-  const direction = useDirection();
 
   const toolbarContext = useToolbarRootContext(true);
 
@@ -112,7 +109,7 @@ export const ToggleGroup = React.forwardRef(function ToggleGroup(
       {toolbarContext ? (
         element
       ) : (
-        <CompositeRoot direction={direction} loop={loop} render={element} stopEventPropagation />
+        <CompositeRoot loop={loop} render={element} stopEventPropagation />
       )}
     </ToggleGroupContext.Provider>
   );
