@@ -20,6 +20,7 @@ import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { useSelector, Store } from '../../utils/store';
 import { warn } from '../../utils/warn';
+import type { SelectRoot } from './SelectRoot';
 import { selectors, State } from '../store';
 import type { SelectRootContext } from './SelectRootContext';
 import {
@@ -44,6 +45,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     modal = false,
     name: nameProp,
     onOpenChangeComplete,
+    items,
   } = params;
 
   const { clearErrors } = useFormContext();
@@ -86,11 +88,20 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
 
   const isValueControlled = params.value !== undefined;
 
+  const flatItems = React.useMemo(() => {
+    if (!items) {
+      return undefined;
+    }
+    return areItemsGrouped(items) ? items.flatMap((group) => group.items) : items;
+  }, [items]);
+
   const listRef = React.useRef<Array<HTMLElement | null>>([]);
-  const labelsRef = React.useRef<Array<string | null>>([]);
+  const labelsRef = React.useRef<Array<string | null>>(
+    flatItems ? flatItems.map((item) => item.label) : [],
+  );
   const popupRef = React.useRef<HTMLDivElement | null>(null);
   const valueRef = React.useRef<HTMLSpanElement | null>(null);
-  const valuesRef = React.useRef<Array<any>>([]);
+  const valuesRef = React.useRef<Array<any>>(flatItems ? flatItems.map((item) => item.value) : []);
   const typingRef = React.useRef(false);
   const keyboardActiveRef = React.useRef(false);
   const selectedItemTextRef = React.useRef<HTMLSpanElement | null>(null);
@@ -109,7 +120,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
         id,
         modal,
         value,
-        label: '',
+        label: flatItems?.find((item) => item.value === value)?.label ?? '',
         open,
         mounted,
         typeaheadReady: false,
@@ -393,6 +404,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
       onOpenChangeComplete,
       keyboardActiveRef,
       alignItemWithTriggerActiveRef,
+      items,
     }),
     [
       store,
@@ -415,6 +427,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
       fieldControlValidation,
       registerSelectedItem,
       onOpenChangeComplete,
+      items,
       keyboardActiveRef,
       alignItemWithTriggerActiveRef,
     ],
@@ -423,8 +436,15 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
   return { rootContext, floatingContext };
 }
 
+function areItemsGrouped<Value>(
+  items: SelectRoot.SelectOption<Value>[] | SelectRoot.SelectGroup<Value>[],
+): items is SelectRoot.SelectGroup<Value>[] {
+  return items.length > 0 && 'groupLabel' in items[0];
+}
+
 export namespace useSelectRoot {
   export interface Parameters<Value> {
+    items?: SelectRoot.SelectOption<Value>[] | SelectRoot.SelectGroup<Value>[];
     /**
      * Identifies the field when a form is submitted.
      */
