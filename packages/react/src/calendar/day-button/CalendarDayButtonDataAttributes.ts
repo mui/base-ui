@@ -4,10 +4,6 @@ export enum CalendarDayButtonDataAttributes {
    */
   selected = 'data-selected',
   /**
-   * Present when the select item is highlighted.
-   */
-  highlighted = 'data-highlighted',
-  /**
    * Present when the day is disabled.
    */
   disabled = 'data-disabled',

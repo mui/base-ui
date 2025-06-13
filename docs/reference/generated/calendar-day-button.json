@@ -25,9 +25,6 @@
     "data-selected": {
       "description": "Present when the day is selected."
     },
-    "data-highlighted": {
-      "description": "Present when the select item is highlighted."
-    },
     "data-disabled": {
       "description": "Present when the day is disabled."
     },
