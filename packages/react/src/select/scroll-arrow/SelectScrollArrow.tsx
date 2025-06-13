@@ -21,13 +21,12 @@ export const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
   const { render, className, direction, keepMounted = false, ...elementProps } = componentProps;
 
   const { store, popupRef, listRef } = useSelectRootContext();
-  const { side } = useSelectPositionerContext();
+  const { side, alignItemWithTriggerActive } = useSelectPositionerContext();
 
   const selector =
     direction === 'up' ? selectors.scrollUpArrowVisible : selectors.scrollDownArrowVisible;
 
   const visible = useSelector(store, selector);
-  const alignItemWithTriggerActive = useSelector(store, selectors.alignItemWithTriggerActive);
 
   const timeout = useTimeout();
   const scrollArrowRef = React.useRef<HTMLDivElement | null>(null);
