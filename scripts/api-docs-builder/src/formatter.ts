@@ -58,6 +58,10 @@ export function formatType(
     return typeValue;
   }
 
+  if (type.name === 'HTMLProps<any>') {
+    return 'HTMLProps';
+  }
+
   if (type instanceof tae.ReferenceNode) {
     if (/^ReactElement(<.*>)?/.test(type.name)) {
       return 'ReactElement';
@@ -72,7 +76,7 @@ export function formatType(
 
   if (type instanceof tae.UnionNode) {
     if (type.name) {
-      return getFullyQualifiedName(type.name, type.parentNamespaces);
+      return getFullyQualifiedName(type.name, type.parentNamespaces ?? []);
     }
 
     const memberTypes = type.types;
@@ -94,7 +98,7 @@ export function formatType(
 
   if (type instanceof tae.IntersectionNode) {
     if (type.name) {
-      return getFullyQualifiedName(type.name, type.parentNamespaces);
+      return getFullyQualifiedName(type.name, type.parentNamespaces ?? []);
     }
 
     return orderMembers(type.types)

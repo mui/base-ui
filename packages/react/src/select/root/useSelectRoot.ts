@@ -472,7 +472,6 @@ export namespace useSelectRoot {
     defaultOpen?: boolean;
     /**
      * Event handler called when the select menu is opened or closed.
-     * @type (open: boolean, event?: Event, reason?: Select.Root.OpenChangeReason) => void
      */
     onOpenChange?: (
       open: boolean,
