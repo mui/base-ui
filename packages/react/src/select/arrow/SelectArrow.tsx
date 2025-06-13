@@ -29,7 +29,7 @@ export const SelectArrow = React.forwardRef(function SelectArrow(
   const { className, render, ...elementProps } = componentProps;
 
   const { store } = useSelectRootContext();
-  const { side, align, arrowRef, arrowStyles, alignItemWithTriggerActive } =
+  const { side, align, arrowRef, arrowStyles, arrowUncentered, alignItemWithTriggerActive } =
     useSelectPositionerContext();
 
   const open = useSelector(store, selectors.open);
@@ -39,9 +39,9 @@ export const SelectArrow = React.forwardRef(function SelectArrow(
       open,
       side,
       align,
-      uncentered: align === 'center',
+      uncentered: arrowUncentered,
     }),
-    [open, side, align],
+    [open, side, align, arrowUncentered],
   );
 
   const element = useRenderElement('div', componentProps, {
