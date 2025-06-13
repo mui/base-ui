@@ -27,3 +27,7 @@ size-snapshot.json
 .github/styles/
 .nx/cache
 .nx/workspace-data
+
+# Remove if you want to pregenerate the docs md files
+docs/public/llms.txt
+docs/public/react
