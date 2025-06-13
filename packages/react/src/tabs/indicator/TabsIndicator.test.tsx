@@ -45,14 +45,12 @@ describe('<Tabs.Indicator />', () => {
       tabList: HTMLElement,
       activeTab: HTMLElement,
     ) {
-      const { top: listTop, left: listLeft } = tabList.getBoundingClientRect();
-
-      const { right: tabRight, bottom: tabBottom } = activeTab.getBoundingClientRect();
-
       const relativeLeft = activeTab.offsetLeft - tabList.clientLeft;
-      const relativeRight = listLeft + tabList.clientWidth - tabRight;
+      const relativeRight =
+        tabList.scrollWidth - activeTab.offsetLeft - activeTab.offsetWidth - tabList.clientLeft;
       const relativeTop = activeTab.offsetTop - tabList.clientTop;
-      const relativeBottom = listTop + tabList.clientHeight - tabBottom;
+      const relativeBottom =
+        tabList.scrollHeight - activeTab.offsetTop - activeTab.offsetHeight - tabList.clientTop;
 
       const bubbleComputedStyle = window.getComputedStyle(bubble);
       const actualLeft = bubbleComputedStyle.getPropertyValue('--active-tab-left');
