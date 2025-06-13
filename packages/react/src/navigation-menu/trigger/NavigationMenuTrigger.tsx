@@ -232,7 +232,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
 
   const { getReferenceProps } = useInteractions([hover, click, dismiss]);
 
-  const handleOpenEvent = useEventCallback((event: React.MouseEvent) => {
+  const handleOpenEvent = useEventCallback((event: React.MouseEvent | React.KeyboardEvent) => {
     if (!popupElement || !positionerElement) {
       return;
     }
@@ -313,6 +313,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
 
           if (openHorizontal || openVertical) {
             setValue(itemValue, event.nativeEvent, 'list-navigation');
+            handleOpenEvent(event);
             stopEvent(event);
           }
         },
