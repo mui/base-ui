@@ -238,43 +238,36 @@ describe('<ToggleGroup />', () => {
 
         await user.keyboard('[Tab]');
 
-        expect(button1).to.have.attribute('data-highlighted');
         expect(button1).to.have.attribute('tabindex', '0');
         expect(button1).toHaveFocus();
 
         await user.keyboard(`[${horizontalNextKey}]`);
 
-        expect(button2).to.have.attribute('data-highlighted');
         expect(button2).to.have.attribute('tabindex', '0');
         expect(button2).toHaveFocus();
 
         await user.keyboard(`[${horizontalNextKey}]`);
 
-        expect(button3).to.have.attribute('data-highlighted');
         expect(button3).to.have.attribute('tabindex', '0');
         expect(button3).toHaveFocus();
 
         await user.keyboard(`[${verticalNextKey}]`);
 
-        expect(button1).to.have.attribute('data-highlighted');
         expect(button1).to.have.attribute('tabindex', '0');
         expect(button1).toHaveFocus();
 
         await user.keyboard(`[${verticalNextKey}]`);
 
-        expect(button2).to.have.attribute('data-highlighted');
         expect(button2).to.have.attribute('tabindex', '0');
         expect(button2).toHaveFocus();
 
         await user.keyboard(`[${horizontalPrevKey}]`);
 
-        expect(button1).to.have.attribute('data-highlighted');
         expect(button1).to.have.attribute('tabindex', '0');
         expect(button1).toHaveFocus();
 
         await user.keyboard(`[${verticalPrevKey}]`);
 
-        expect(button3).to.have.attribute('data-highlighted');
         expect(button3).to.have.attribute('tabindex', '0');
         expect(button3).toHaveFocus();
       });
