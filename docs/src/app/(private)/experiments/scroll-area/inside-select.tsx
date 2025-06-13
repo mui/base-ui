@@ -5,9 +5,9 @@ import styles from './inside-select.module.css';
 
 export default function ExampleSelect() {
   return (
-    <Select.Root defaultValue="item-1">
+    <Select.Root defaultValue="item-1" defaultLabel="Item 1">
       <Select.Trigger className={styles.Select}>
-        <Select.Value placeholder="Item 1" />
+        <Select.Value />
         <Select.Icon className={styles.SelectIcon}>
           <ChevronUpDownIcon />
         </Select.Icon>
