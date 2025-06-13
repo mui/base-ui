@@ -13,6 +13,7 @@ import { styleHookMapping } from '../utils/styleHooks';
 import { useField } from '../../field/useField';
 import { useFormContext } from '../../form/FormContext';
 import { useRenderElement } from '../../utils/useRenderElement';
+import { formatNumber, formatNumberMaxPrecision } from '../../utils/formatNumber';
 
 const customStyleHookMapping = {
   ...fieldValidityMapping,
@@ -167,14 +168,34 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
         return;
       }
 
-      const parsedValue = parseNumber(inputValue, locale, formatOptionsRef.current);
+      const formatOptions = formatOptionsRef.current;
+      const parsedValue = parseNumber(inputValue, locale, formatOptions);
+      const canonicalText = formatNumber(parsedValue, locale, formatOptions);
+      const maxPrecisionText = formatNumberMaxPrecision(parsedValue, locale, formatOptions);
+      const canonical = parseNumber(canonicalText, locale, formatOptions);
+      const maxPrecision = parseNumber(maxPrecisionText, locale, formatOptions);
 
-      if (parsedValue !== null) {
-        blockRevalidationRef.current = true;
-        setValue(parsedValue, event.nativeEvent);
-        if (validationMode === 'onBlur') {
-          commitValidation(parsedValue);
+      if (parsedValue === null) {
+        return;
+      }
+
+      blockRevalidationRef.current = true;
+
+      if (validationMode === 'onBlur') {
+        commitValidation(canonical);
+      }
+
+      if (value !== maxPrecision) {
+        setValue(canonical, event.nativeEvent);
+      } else {
+        // If the current input represents the same value and matches the full precision format,
+        // preserve the current input value to maintain precision
+        if (parsedValue === value && inputValue === maxPrecisionText) {
+          // Keep the current inputValue to preserve precision
+          return;
         }
+
+        setInputValue(canonicalText);
       }
     },
     onChange(event) {
