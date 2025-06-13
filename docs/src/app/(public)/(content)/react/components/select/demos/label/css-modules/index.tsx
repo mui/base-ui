@@ -2,11 +2,25 @@ import * as React from 'react';
 import { Select } from '@base-ui-components/react/select';
 import styles from './index.module.css';
 
+const valueToLabel: Record<string, React.ReactNode> = {
+  sans: <span style={{ fontFamily: 'sans-serif' }}>Sans-serif</span>,
+  serif: <span style={{ fontFamily: 'serif' }}>Serif</span>,
+  mono: <span style={{ fontFamily: 'monospace' }}>Monospace</span>,
+  cursive: <span style={{ fontFamily: 'cursive' }}>Cursive</span>,
+};
+
+function renderValue(value: string | null) {
+  if (value == null) {
+    return 'Select a font';
+  }
+  return valueToLabel[value];
+}
+
 export default function ExampleSelect() {
   return (
-    <Select.Root defaultValue="Sans-serif">
+    <Select.Root>
       <Select.Trigger className={styles.Select}>
-        <Select.Value />
+        <Select.Value>{renderValue}</Select.Value>
         <Select.Icon className={styles.SelectIcon}>
           <ChevronUpDownIcon />
         </Select.Icon>
@@ -15,7 +29,7 @@ export default function ExampleSelect() {
         <Select.Positioner className={styles.Positioner} sideOffset={8}>
           <Select.ScrollUpArrow className={styles.ScrollArrow} />
           <Select.Popup className={styles.Popup}>
-            <Select.Item className={styles.Item} value="Sans-serif">
+            <Select.Item className={styles.Item} value="sans">
               <Select.ItemIndicator className={styles.ItemIndicator}>
                 <CheckIcon className={styles.ItemIndicatorIcon} />
               </Select.ItemIndicator>
@@ -23,13 +37,13 @@ export default function ExampleSelect() {
                 Sans-serif
               </Select.ItemText>
             </Select.Item>
-            <Select.Item className={styles.Item} value="Serif">
+            <Select.Item className={styles.Item} value="serif">
               <Select.ItemIndicator className={styles.ItemIndicator}>
                 <CheckIcon className={styles.ItemIndicatorIcon} />
               </Select.ItemIndicator>
               <Select.ItemText className={styles.ItemText}>Serif</Select.ItemText>
             </Select.Item>
-            <Select.Item className={styles.Item} value="Monospace">
+            <Select.Item className={styles.Item} value="mono">
               <Select.ItemIndicator className={styles.ItemIndicator}>
                 <CheckIcon className={styles.ItemIndicatorIcon} />
               </Select.ItemIndicator>
@@ -37,7 +51,7 @@ export default function ExampleSelect() {
                 Monospace
               </Select.ItemText>
             </Select.Item>
-            <Select.Item className={styles.Item} value="Cursive">
+            <Select.Item className={styles.Item} value="cursive">
               <Select.ItemIndicator className={styles.ItemIndicator}>
                 <CheckIcon className={styles.ItemIndicatorIcon} />
               </Select.ItemIndicator>

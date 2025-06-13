@@ -41,12 +41,12 @@ export default function ExampleToolbar() {
         </Toolbar.Button>
       </Toolbar.Group>
       <Toolbar.Separator className="m-1 h-4 w-px bg-gray-300" />
-      <Select.Root defaultValue="helvetica">
+      <Select.Root defaultValue="Helvetica">
         <Toolbar.Button
           render={<Select.Trigger />}
           className="flex h-8 min-w-32 items-center justify-between rounded-sm px-[0.75rem] font-[inherit] text-sm font-medium text-gray-600 select-none hover:bg-gray-100 focus-visible:bg-none focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 active:bg-gray-200 data-[pressed]:bg-gray-100 data-[pressed]:text-gray-900"
         >
-          <Select.Value placeholder="Helvetica" />
+          <Select.Value />
           <Select.Icon>
             <ChevronUpDownIcon />
           </Select.Icon>
@@ -59,7 +59,7 @@ export default function ExampleToolbar() {
               </Select.Arrow>
               <Select.Item
                 className="grid min-w-[var(--anchor-width)] cursor-default grid-cols-[0.75rem_1fr] items-center gap-2 py-2 pr-4 pl-2.5 text-sm leading-4 outline-none select-none group-data-[side=none]:min-w-[calc(var(--anchor-width)+1rem)] group-data-[side=none]:pr-12 group-data-[side=none]:text-base group-data-[side=none]:leading-4 data-[highlighted]:relative data-[highlighted]:z-0 data-[highlighted]:text-gray-50 data-[highlighted]:before:absolute data-[highlighted]:before:inset-x-1 data-[highlighted]:before:inset-y-0 data-[highlighted]:before:z-[-1] data-[highlighted]:before:rounded-sm data-[highlighted]:before:bg-gray-900"
-                value="helvetica"
+                value="Helvetica"
               >
                 <Select.ItemIndicator className="col-start-1">
                   <CheckIcon className="size-3" />
@@ -68,7 +68,7 @@ export default function ExampleToolbar() {
               </Select.Item>
               <Select.Item
                 className="grid min-w-[var(--anchor-width)] cursor-default grid-cols-[0.75rem_1fr] items-center gap-2 py-2 pr-4 pl-2.5 text-sm leading-4 outline-none select-none group-data-[side=none]:min-w-[calc(var(--anchor-width)+1rem)] group-data-[side=none]:pr-12 group-data-[side=none]:text-base group-data-[side=none]:leading-4 data-[highlighted]:relative data-[highlighted]:z-0 data-[highlighted]:text-gray-50 data-[highlighted]:before:absolute data-[highlighted]:before:inset-x-1 data-[highlighted]:before:inset-y-0 data-[highlighted]:before:z-[-1] data-[highlighted]:before:rounded-sm data-[highlighted]:before:bg-gray-900"
-                value="arial"
+                value="Arial"
               >
                 <Select.ItemIndicator className="col-start-1">
                   <CheckIcon className="size-3" />
