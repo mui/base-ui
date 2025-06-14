@@ -8,27 +8,38 @@ import * as Table from '../Table';
 import { TableCode } from '../TableCode';
 import { GhostButton } from '../GhostButton';
 
-const DATA: Record<
-  string,
-  { type: string; description?: string; default?: boolean; required?: boolean }
-> = {
-  className: {
-    type: 'string | ((state: Fieldset.Root.State) => string)',
-    description:
-      'CSS class applied to the element, or a function that\n' +
-      'returns a class based on the component’s state.',
-  },
-  render: {
-    type: 'ReactElement | ((props: HTMLProps, state: Fieldset.Root.State) => ReactElement)',
-    description:
-      'Allows you to replace the component’s HTML element\n' +
-      'with a different tag, or compose it with another component.\n' +
-      '\n' +
-      'Accepts a `ReactElement` or a function that returns the element to render.',
-  },
-};
+import type { PropDef } from '../ReferenceTable/types';
 
-export function CollapsibleReferenceTable({ type = 'props', ...props }) {
+interface PropsReferenceTableProps extends React.ComponentProps<typeof Table.Root> {
+  data: Record<string, PropDef>;
+  type?: 'props' | 'return';
+}
+
+// const DATA: Record<
+//   string,
+//   { type: string; description?: string; default?: boolean; required?: boolean }
+// > = {
+//   className: {
+//     type: 'string | ((state: Fieldset.Root.State) => string)',
+//     description:
+//       'CSS class applied to the element, or a function that\n' +
+//       'returns a class based on the component’s state.',
+//   },
+//   render: {
+//     type: 'ReactElement | ((props: HTMLProps, state: Fieldset.Root.State) => ReactElement)',
+//     description:
+//       'Allows you to replace the component’s HTML element\n' +
+//       'with a different tag, or compose it with another component.\n' +
+//       '\n' +
+//       'Accepts a `ReactElement` or a function that returns the element to render.',
+//   },
+// };
+
+export function CollapsibleReferenceTable({
+  data,
+  type = 'props',
+  ...props
+}: PropsReferenceTableProps) {
   // console.log(props);
   const descriptionColumnId = React.useId();
   return (
@@ -55,8 +66,8 @@ export function CollapsibleReferenceTable({ type = 'props', ...props }) {
           />
         </Table.Row>
       </Table.Head>
-      {Object.keys(DATA).map(async (name) => {
-        const prop = DATA[name];
+      {Object.keys(data).map(async (name) => {
+        const prop = data[name];
 
         const PropType = await createMdxComponent(`\`${prop.type}\``, {
           rehypePlugins: rehypeSyntaxHighlighting,
