@@ -127,10 +127,10 @@ export const AccordionPanel = React.forwardRef(function AccordionPanel(
         'aria-labelledby': triggerId,
         role: 'region',
         style: {
-          [AccordionPanelCssVars.accordionPanelHeight as string]: height
-            ? `${height}px`
-            : undefined,
-          [AccordionPanelCssVars.accordionPanelWidth as string]: width ? `${width}px` : undefined,
+          [AccordionPanelCssVars.accordionPanelHeight as string]:
+            height === undefined ? 'auto' : `${height}px`,
+          [AccordionPanelCssVars.accordionPanelWidth as string]:
+            width === undefined ? 'auto' : `${width}px`,
         },
       },
       elementProps,

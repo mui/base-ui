@@ -118,12 +118,10 @@ export const CollapsiblePanel = React.forwardRef(function CollapsiblePanel(
       props,
       {
         style: {
-          [CollapsiblePanelCssVars.collapsiblePanelHeight as string]: height
-            ? `${height}px`
-            : undefined,
-          [CollapsiblePanelCssVars.collapsiblePanelWidth as string]: width
-            ? `${width}px`
-            : undefined,
+          [CollapsiblePanelCssVars.collapsiblePanelHeight as string]:
+            height === undefined ? 'auto' : `${height}px`,
+          [CollapsiblePanelCssVars.collapsiblePanelWidth as string]:
+            width === undefined ? 'auto' : `${width}px`,
         },
       },
       elementProps,
