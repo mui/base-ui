@@ -48,7 +48,11 @@ export function CollapsibleReferenceTable({ type = 'props', ...props }) {
           {type === 'props' && (
             <Table.ColumnHeader className="max-md:hidden md:w-1/5">Default</Table.ColumnHeader>
           )}
-          <Table.ColumnHeader className="w-10" aria-label="Description" id={descriptionColumnId} />
+          <Table.ColumnHeader
+            className="w-10 max-xs:hidden"
+            aria-label="Description"
+            id={descriptionColumnId}
+          />
         </Table.Row>
       </Table.Head>
       {Object.keys(DATA).map(async (name) => {
@@ -72,12 +76,37 @@ export function CollapsibleReferenceTable({ type = 'props', ...props }) {
         return (
           <Collapsible.Root render={<Table.Body />} key={name} data-collapsible>
             <Table.Row>
-              <Table.RowHeader>
+              <Table.RowHeader className="max-xs:hidden">
                 <TableCode className="text-navy">
                   {name}
                   {prop.required ? <sup className="top-[-0.3em] text-xs text-red-800">*</sup> : ''}
                 </TableCode>
               </Table.RowHeader>
+
+              <Table.RowHeader className="min-xs:hidden">
+                <Collapsible.Trigger className="flex w-full items-center justify-between">
+                  <TableCode className="text-navy">
+                    {name}
+                    {prop.required ? (
+                      <sup className="top-[-0.3em] text-xs text-red-800">*</sup>
+                    ) : (
+                      ''
+                    )}
+                  </TableCode>
+                  <span className="flex min-h-[1rem] min-w-[1rem] items-center justify-center">
+                    <svg
+                      width="10"
+                      height="10"
+                      viewBox="0 0 10 10"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path d="M1 3.5L5 7.5L9 3.5" stroke="currentcolor" />
+                    </svg>
+                  </span>
+                </Collapsible.Trigger>
+              </Table.RowHeader>
+
               <Table.Cell className="max-xs:hidden">
                 <PropType />
               </Table.Cell>
@@ -86,7 +115,7 @@ export function CollapsibleReferenceTable({ type = 'props', ...props }) {
                   <PropDefault />
                 </Table.Cell>
               )}
-              <Table.Cell>
+              <Table.Cell className="max-xs:hidden">
                 {prop.description && (
                   <Collapsible.Trigger
                     render={
@@ -113,6 +142,7 @@ export function CollapsibleReferenceTable({ type = 'props', ...props }) {
             <Collapsible.Panel render={<Table.Row />} hiddenUntilFound>
               <Table.DetailsCell
                 colSpan={4}
+                /* TODO: the headers attr should point to the 1st col at the smallest breakpoint */
                 headers={descriptionColumnId}
                 className="whitespace-normal"
               >

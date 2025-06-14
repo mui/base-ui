@@ -119,10 +119,11 @@
     width: 100%;
     display: grid;
     grid-template-columns: auto;
-    padding-block: 0.25rem;
+    padding: --spacing(3) --spacing(4);
 
     @media (--xs) {
       grid-template-columns: --spacing(48) auto;
+      padding: 0.25rem 0;
     }
 
     @media (--sm) {
@@ -135,15 +136,38 @@
   }
 
   .DescriptionTerm {
+    @apply text-md;
     white-space: nowrap;
     word-break: keep-all;
-    padding: 0.5rem 0.75rem;
+    font-weight: var(--font-weight-bold);
+    color: var(--color-foreground);
+
+    margin-bottom: --spacing(1);
+
+    @media (--xs) {
+      color: revert-layer;
+      font-weight: normal;
+      padding: 0.5rem 0.75rem;
+    }
+
+    &:not(:first-of-type) {
+      border-top: 1px solid var(--color-gray-200);
+      padding-top: --spacing(2);
+      @media (--xs) {
+        border-top: 0;
+      }
+    }
   }
 
   .DescriptionDetails {
-    padding: 0.5rem 0.75rem;
     @apply text-md;
     color: var(--color-foreground);
+
+    margin-bottom: --spacing(3);
+
+    @media (--xs) {
+      padding: 0.5rem 0.75rem;
+    }
 
     @media (--md) {
       padding-left: 0;
