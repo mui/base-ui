@@ -51,6 +51,14 @@ export function RowHeader({
   );
 }
 
+export function DetailsCell({ children, className, ...props }: React.ComponentProps<'td'>) {
+  return (
+    <td className={clsx('TableDetailsCell', className)} {...props}>
+      <span className="TableDetailsCellInner">{children}</span>
+    </td>
+  );
+}
+
 export function Cell({ children, className, ...props }: React.ComponentProps<'td'>) {
   return (
     <td ref={observeInnerScrollable} className={clsx('TableCell', className)} {...props}>
