@@ -12,7 +12,7 @@ import type { AccordionItem } from '../item/AccordionItem';
 import { useAccordionItemContext } from '../item/AccordionItemContext';
 import { accordionStyleHookMapping } from '../item/styleHooks';
 import { AccordionPanelCssVars } from './AccordionPanelCssVars';
-import { usePanelResize } from '../../utils/usePanelResize';
+import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 
 /**
  * A collapsible panel with the accordion item contents.
@@ -80,7 +80,18 @@ export const AccordionPanel = React.forwardRef(function AccordionPanel(
     setKeepMounted(keepMounted);
   }, [setKeepMounted, keepMounted]);
 
-  usePanelResize(panelRef, setDimensions, open);
+  useOpenChangeComplete({
+    open,
+    ref: panelRef,
+    onComplete() {
+      const panel = panelRef.current;
+      if (!panel || !open || animationTypeRef.current === 'css-animation') {
+        return;
+      }
+
+      setDimensions({ width: undefined, height: undefined });
+    },
+  });
 
   const { props } = useCollapsiblePanel({
     abortControllerRef,
@@ -116,10 +127,10 @@ export const AccordionPanel = React.forwardRef(function AccordionPanel(
         'aria-labelledby': triggerId,
         role: 'region',
         style: {
-          [AccordionPanelCssVars.accordionPanelHeight as string]: height
-            ? `${height}px`
-            : undefined,
-          [AccordionPanelCssVars.accordionPanelWidth as string]: width ? `${width}px` : undefined,
+          [AccordionPanelCssVars.accordionPanelHeight as string]:
+            height === undefined ? 'auto' : `${height}px`,
+          [AccordionPanelCssVars.accordionPanelWidth as string]:
+            width === undefined ? 'auto' : `${width}px`,
         },
       },
       elementProps,
