@@ -126,29 +126,22 @@ export function CollapsibleReferenceTable({
                   <PropDefault />
                 </Table.Cell>
               )}
-              <Table.Cell className="max-xs:hidden">
+              <Table.TriggerCell className="relative max-xs:hidden">
                 {prop.description && (
-                  <Collapsible.Trigger
-                    render={
-                      <GhostButton
-                        aria-label="Info"
-                        layout="icon"
-                        className="data-[panel-open]:rotate-180"
-                      >
-                        <svg
-                          width="10"
-                          height="10"
-                          viewBox="0 0 10 10"
-                          fill="none"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <path d="M1 3.5L5 7.5L9 3.5" stroke="currentcolor" />
-                        </svg>
-                      </GhostButton>
-                    }
-                  />
+                  // className="data-[panel-open]:rotate-180"
+                  <Collapsible.Trigger aria-label="Info" className="Trigger">
+                    <svg
+                      width="10"
+                      height="10"
+                      viewBox="0 0 10 10"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path d="M1 3.5L5 7.5L9 3.5" stroke="currentcolor" />
+                    </svg>
+                  </Collapsible.Trigger>
                 )}
-              </Table.Cell>
+              </Table.TriggerCell>
             </Table.Row>
             <Collapsible.Panel render={<Table.Row />} hiddenUntilFound>
               <Table.DetailsCell

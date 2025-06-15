@@ -67,6 +67,14 @@ export function Cell({ children, className, ...props }: React.ComponentProps<'td
   );
 }
 
+export function TriggerCell({ children, className, ...props }: React.ComponentProps<'td'>) {
+  return (
+    <td ref={observeInnerScrollable} className={clsx('TableCell', className)} {...props}>
+      {children}
+    </td>
+  );
+}
+
 // Observe whether the "TableCellInner" node is scrollable and set a "[data-scrollable]"
 // attribute on the parent cell. We are rawdogging the DOM changes here to skip unnecessary renders.
 function observeInnerScrollable(node: HTMLElement | null) {
