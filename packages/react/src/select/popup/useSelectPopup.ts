@@ -11,7 +11,7 @@ import { isMouseWithinBounds } from '../../utils/isMouseWithinBounds';
 import { selectors } from '../store';
 
 export function useSelectPopup(): useSelectPopup.ReturnValue {
-  const { store, setOpen, valueRef, selectedItemTextRef, popupRef, keyboardActiveRef, events } =
+  const { store, setOpen, valueRef, selectedItemTextRef, popupRef, keyboardActiveRef } =
     useSelectRootContext();
 
   const id = useSelector(store, selectors.id);
@@ -247,7 +247,6 @@ export function useSelectPopup(): useSelectPopup.ReturnValue {
       }
       store.set('activeIndex', null);
       event.currentTarget.focus({ preventScroll: true });
-      events.emit('popupleave');
     },
     onScroll(event) {
       if (
