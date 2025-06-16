@@ -44,7 +44,7 @@
     "test:regressions:dev": "vite --config test/regressions/vite.config.mjs --port 5173",
     "test:regressions:run": "cross-env VITEST_ENV=chromium vitest run --project regressions",
     "test:regressions:server": "serve test/regressions -p 5173",
-    "test:_unit": "cross-env NODE_ENV=test vitest --project @base-ui-components/react --project docs",
+    "test:_unit": "cross-env NODE_ENV=test TZ=UTC vitest --project @base-ui-components/react --project docs",
     "test:jsdom": "cross-env VITEST_ENV=jsdom pnpm test:_unit",
     "test:jsdom:coverage": "pnpm test:jsdom --coverage",
     "test:chromium": "cross-env VITEST_ENV=chromium pnpm test:_unit",
