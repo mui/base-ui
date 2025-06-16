@@ -14,6 +14,11 @@
       "default": "false",
       "description": "Whether the component renders a native `<button>` element when replacing it\nvia the `render` prop.\nSet to `false` if the rendered element is not a button (e.g. `<div>`)."
     },
+    "disabled": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Whether the submenu trigger should ignore user interaction."
+    },
     "id": {
       "type": "string"
     },
