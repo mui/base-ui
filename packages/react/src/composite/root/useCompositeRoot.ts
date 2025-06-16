@@ -111,7 +111,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
       scrollIntoViewIfNeeded(rootRef.current, newActiveItem, direction, orientation);
     }
   });
-  
+
   // Ensure external controlled updates moves focus to the highlighted item
   // if focus is currently inside the list.
   // https://github.com/mui/base-ui/issues/2101
