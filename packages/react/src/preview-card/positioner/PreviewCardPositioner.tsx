@@ -1,5 +1,7 @@
 'use client';
 import * as React from 'react';
+import { inline } from '@floating-ui/react';
+import { isHTMLElement } from '@floating-ui/utils/dom';
 import { usePreviewCardRootContext } from '../root/PreviewCardContext';
 import { usePreviewCardPositioner } from './usePreviewCardPositioner';
 import { PreviewCardPositionerContext } from './PreviewCardPositionerContext';
@@ -38,7 +40,8 @@ export const PreviewCardPositioner = React.forwardRef(function PreviewCardPositi
     ...elementProps
   } = componentProps;
 
-  const { open, mounted, floatingRootContext, setPositionerElement } = usePreviewCardRootContext();
+  const { open, mounted, floatingRootContext, setPositionerElement, coordsRef } =
+    usePreviewCardRootContext();
   const keepMounted = usePreviewCardPortalContext();
 
   const positioning = useAnchorPositioning({
@@ -57,6 +60,24 @@ export const PreviewCardPositioner = React.forwardRef(function PreviewCardPositi
     trackAnchor,
     keepMounted,
     collisionAvoidance,
+    inline: inline((state) => {
+      const trigger = state.elements.reference;
+      if (!isHTMLElement(trigger) || !coordsRef.current) {
+        return {};
+      }
+
+      const rects = Array.from(trigger.getClientRects());
+      const rect = rects[coordsRef.current.rectIndex];
+
+      if (!rect) {
+        return {};
+      }
+
+      return {
+        x: rect.left + coordsRef.current.x,
+        y: rect.top + coordsRef.current.y,
+      };
+    }),
   });
 
   const defaultProps: HTMLProps = React.useMemo(() => {
