@@ -7,6 +7,7 @@ import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { useRenderElement } from '../../utils/useRenderElement';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useButton } from '../../use-button';
+import { ACTIVE_COMPOSITE_ITEM } from '../../composite/constants';
 import { useCompositeItem } from '../../composite/item/useCompositeItem';
 import type { TabsRoot } from '../root/TabsRoot';
 import { useTabsRootContext } from '../root/TabsRootContext';
@@ -167,6 +168,7 @@ export const TabsTab = React.forwardRef(function Tab(
         onClick,
         onFocus,
         onPointerDown,
+        [ACTIVE_COMPOSITE_ITEM as string]: selected ? '' : undefined,
         onKeyDownCapture() {
           isNavigatingRef.current = true;
         },

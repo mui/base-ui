@@ -51,7 +51,7 @@ export const SelectRoot: SelectRoot = function SelectRoot<Value>(
   });
   const store = rootContext.store;
 
-  const { setDirty, validityData, validationMode } = useFieldRootContext();
+  const { setDirty, validityData, validationMode, controlId } = useFieldRootContext();
 
   const value = store.state.value;
 
@@ -101,7 +101,7 @@ export const SelectRoot: SelectRoot = function SelectRoot<Value>(
                 }
               }
             },
-            id,
+            id: id || controlId || undefined,
             name: rootContext.name,
             disabled: rootContext.disabled,
             required: rootContext.required,
