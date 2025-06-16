@@ -51,6 +51,29 @@ describe('<NumberField.Increment />', () => {
     expect(screen.getByRole('textbox')).to.have.value('1');
   });
 
+  it('first increment after external controlled update', async () => {
+    function Controlled() {
+      const [value, setValue] = React.useState<number | null>(null);
+      return (
+        <NumberField.Root value={value} onValueChange={setValue}>
+          <NumberField.Input />
+          <NumberField.Increment />
+          <button onClick={() => setValue(1.23456)}>external</button>
+        </NumberField.Root>
+      );
+    }
+
+    const { user } = await render(<Controlled />);
+    const input = screen.getByRole('textbox');
+    const increase = screen.getByLabelText('Increase');
+
+    await user.click(screen.getByText('external'));
+    expect(input).to.have.value('1.23456');
+
+    await user.click(increase);
+    expect(input).to.have.value('2.235');
+  });
+
   describe('press and hold', () => {
     clock.withFakeTimers();
 
