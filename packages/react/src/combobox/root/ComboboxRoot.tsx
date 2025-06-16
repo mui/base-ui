@@ -1,12 +1,12 @@
 import * as React from 'react';
 import {
+  ElementProps,
   useDismiss,
   useFloatingRootContext,
   useInteractions,
   useListNavigation,
-  useRole,
 } from '@floating-ui/react';
-import { getTarget } from '@floating-ui/react/utils';
+import { contains, getTarget } from '@floating-ui/react/utils';
 import { useClick } from '../../utils/floating-ui/useClick';
 import {
   BaseOpenChangeReason,
@@ -63,7 +63,6 @@ export function ComboboxRoot<Value>(props: ComboboxRoot.Props<Value>) {
         open: openRaw,
         mounted,
         transitionStatus,
-        // If the combobox is rendered inline ("always-open")
         inline: false,
         activeIndex: null,
         selectedIndex: null,
@@ -160,9 +159,20 @@ export function ComboboxRoot<Value>(props: ComboboxRoot.Props<Value>) {
     },
   });
 
-  const role = useRole(floatingRootContext, {
-    role: 'combobox',
-  });
+  const role: ElementProps = React.useMemo(
+    () => ({
+      reference: {
+        role: 'combobox',
+        'aria-expanded': open ? 'true' : 'false',
+        'aria-haspopup': 'listbox',
+        'aria-controls': open ? floatingRootContext.floatingId : undefined,
+      },
+      floating: {
+        role: 'presentation',
+      },
+    }),
+    [open, floatingRootContext.floatingId],
+  );
 
   const click = useClick(floatingRootContext, {
     event: 'mousedown-only',
@@ -173,7 +183,7 @@ export function ComboboxRoot<Value>(props: ComboboxRoot.Props<Value>) {
     bubbles: true,
     outsidePress(event) {
       const target = getTarget(event) as Element | null;
-      return !triggerRef.current?.contains(target);
+      return !contains(triggerRef.current, target);
     },
   });
 
