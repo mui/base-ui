@@ -31,7 +31,7 @@ export default function ExampleMenubar() {
                 Save
               </Menu.Item>
 
-              <Menu.Root>
+              <Menu.SubmenuRoot>
                 <Menu.SubmenuTrigger className="flex w-full cursor-default items-center justify-between gap-4 px-4 py-2 text-sm leading-4 outline-none select-none data-[highlighted]:relative data-[highlighted]:z-0 data-[highlighted]:text-gray-50 data-[highlighted]:before:absolute data-[highlighted]:before:inset-x-1 data-[highlighted]:before:inset-y-0 data-[highlighted]:before:z-[-1] data-[highlighted]:before:rounded-sm data-[highlighted]:before:bg-gray-900 data-[popup-open]:relative data-[popup-open]:z-0 data-[popup-open]:before:absolute data-[popup-open]:before:inset-x-1 data-[popup-open]:before:inset-y-0 data-[popup-open]:before:z-[-1] data-[popup-open]:before:rounded-sm data-[popup-open]:before:bg-gray-100 data-[highlighted]:data-[popup-open]:before:bg-gray-900">
                   Export
                   <ChevronRightIcon />
@@ -60,7 +60,7 @@ export default function ExampleMenubar() {
                     </Menu.Popup>
                   </Menu.Positioner>
                 </Menu.Portal>
-              </Menu.Root>
+              </Menu.SubmenuRoot>
 
               <Menu.Separator className="mx-4 my-1.5 h-px bg-gray-200" />
               <Menu.Item
@@ -124,7 +124,7 @@ export default function ExampleMenubar() {
                 Zoom Out
               </Menu.Item>
 
-              <Menu.Root>
+              <Menu.SubmenuRoot>
                 <Menu.SubmenuTrigger className="flex w-full cursor-default items-center justify-between gap-4 px-4 py-2 text-sm leading-4 outline-none select-none data-[highlighted]:relative data-[highlighted]:z-0 data-[highlighted]:text-gray-50 data-[highlighted]:before:absolute data-[highlighted]:before:inset-x-1 data-[highlighted]:before:inset-y-0 data-[highlighted]:before:z-[-1] data-[highlighted]:before:rounded-sm data-[highlighted]:before:bg-gray-900 data-[popup-open]:relative data-[popup-open]:z-0 data-[popup-open]:before:absolute data-[popup-open]:before:inset-x-1 data-[popup-open]:before:inset-y-0 data-[popup-open]:before:z-[-1] data-[popup-open]:before:rounded-sm data-[popup-open]:before:bg-gray-100 data-[highlighted]:data-[popup-open]:before:bg-gray-900">
                   Layout
                   <ChevronRightIcon />
@@ -153,7 +153,7 @@ export default function ExampleMenubar() {
                     </Menu.Popup>
                   </Menu.Positioner>
                 </Menu.Portal>
-              </Menu.Root>
+              </Menu.SubmenuRoot>
 
               <Menu.Separator className="mx-4 my-1.5 h-px bg-gray-200" />
               <Menu.Item
