@@ -1,5 +1,4 @@
-import { fr } from 'date-fns/locale';
-import { parseISO } from 'date-fns/parseISO';
+import { fr } from 'date-fns/locale/fr';
 import { TemporalAdapterDateFns } from '@base-ui-components/react/temporal-adapter-date-fns';
 import { describeGregorianAdapter } from '#test-utils';
 
@@ -9,6 +8,6 @@ describe('TemporalAdapterDateFns', () => {
     adapterFr: new TemporalAdapterDateFns({ locale: fr }),
     setDefaultTimezone: () => {},
     // The Date object doesn't contain a locale
-    createDateInFrenchLocale: (dateStr) => parseISO(dateStr),
+    createDateInFrenchLocale: (dateStr) => new Date(dateStr),
   });
 });

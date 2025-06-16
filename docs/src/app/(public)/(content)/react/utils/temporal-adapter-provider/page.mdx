@@ -24,6 +24,36 @@ const adapter = new TemporalAdapterLuxon();
 </TemporalAdapterProvider>
 ```
 
+## Usage with date-fns
+
+```jsx title="Define the adapter"
+import fr from 'date-fns/locale/fr';
+import { TemporalAdapterProvider } from '@base-ui-components/react/temporal-adapter-provider';
+import { TemporalAdapterDateFns } from '@base-ui-components/react/temporal-adapter-date-fns';
+
+// Will use the default locale (enUS)
+const adapter = new TemporalAdapterDateFns();
+
+// Will use the french locale
+const adapter = new TemporalAdapterDateFns({ locale: fr });
+```
+
+```tsx title="Use the JavaScript Date object in the components"
+import * as React from 'react';
+import { format, parseISO } from 'date-fns';
+import { Calendar } from '@base-ui-components/react/calendar';
+
+function App() {
+  const [value, setValue] = React.useState<Date | null>(null);
+
+  return (
+    <Calendar.Root value={value} onChange={setValue} minDate={new Date('2025-01-01')}>
+      {/** Content of the calendar */}
+    </Calendar.Root>
+  );
+}
+```
+
 ## Usage with luxon
 
 ```jsx title="Define the adapter"
