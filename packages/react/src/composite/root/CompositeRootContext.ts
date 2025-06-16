@@ -3,7 +3,7 @@ import * as React from 'react';
 
 export interface CompositeRootContext {
   highlightedIndex: number;
-  onHighlightedIndexChange: (index: number) => void;
+  onHighlightedIndexChange: (index: number, shouldScrollIntoView?: boolean) => void;
   highlightItemOnHover: boolean;
 }
 
