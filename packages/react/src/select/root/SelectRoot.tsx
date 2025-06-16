@@ -77,7 +77,6 @@ export const SelectRoot: SelectRoot = function SelectRoot<Value>(
               // Move focus to the trigger element when the hidden input is focused.
               store.state.triggerElement?.focus();
             },
-
             // Handle browser autofill.
             onChange(event: React.ChangeEvent<HTMLSelectElement>) {
               // Workaround for https://github.com/facebook/react/issues/9023
