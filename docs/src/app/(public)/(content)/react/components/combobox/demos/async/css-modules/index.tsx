@@ -96,18 +96,20 @@ export default function AsyncCombobox() {
               <Combobox.Status className={styles.StatusItem}>
                 {status}
               </Combobox.Status>
-              {searchResults.map((movie) => (
-                <Combobox.Item
-                  key={movie.id}
-                  className={styles.Item}
-                  value={movie.title}
-                >
-                  <div className={styles.MovieItem}>
-                    <div className={styles.MovieName}>{movie.title}</div>
-                    <div className={styles.MovieYear}>{movie.year}</div>
-                  </div>
-                </Combobox.Item>
-              ))}
+              <Combobox.List>
+                {searchResults.map((movie) => (
+                  <Combobox.Item
+                    key={movie.id}
+                    className={styles.Item}
+                    value={movie.title}
+                  >
+                    <div className={styles.MovieItem}>
+                      <div className={styles.MovieName}>{movie.title}</div>
+                      <div className={styles.MovieYear}>{movie.year}</div>
+                    </div>
+                  </Combobox.Item>
+                ))}
+              </Combobox.List>
             </Combobox.Popup>
           </Combobox.Positioner>
         </Combobox.Portal>

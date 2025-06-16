@@ -46,15 +46,17 @@ export default function ExampleCombobox() {
             <Combobox.Status className={styles.NoResults}>
               {filteredCountries.length === 0 && <div>No countries found</div>}
             </Combobox.Status>
-            {filteredCountries.map((country) => (
-              <Combobox.Item
-                key={country.code}
-                className={styles.Item}
-                value={country.name}
-              >
-                {country.name}
-              </Combobox.Item>
-            ))}
+            <Combobox.List>
+              {filteredCountries.map((country) => (
+                <Combobox.Item
+                  key={country.code}
+                  className={styles.Item}
+                  value={country.name}
+                >
+                  {country.name}
+                </Combobox.Item>
+              ))}
+            </Combobox.List>
           </Combobox.Popup>
         </Combobox.Positioner>
       </Combobox.Portal>
