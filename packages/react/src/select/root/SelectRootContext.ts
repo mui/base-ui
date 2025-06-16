@@ -4,8 +4,10 @@ import type { SelectStore } from '../store';
 import type { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
 import type { HTMLProps } from '../../utils/types';
 import type { SelectOpenChangeReason } from './useSelectRoot';
+import type { SelectRoot } from './SelectRoot';
 
 export interface SelectRootContext {
+  items?: SelectRoot.SelectOption<any>[] | SelectRoot.SelectGroup<any>[];
   store: SelectStore;
   name: string | undefined;
   disabled: boolean;

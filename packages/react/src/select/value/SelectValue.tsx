@@ -44,7 +44,7 @@ export namespace SelectValue {
     /**
      * A placeholder to display before an item has been chosen.
      */
-    placeholder: React.ReactNode;
+    placeholder?: React.ReactNode;
   }
 
   export interface State {}
