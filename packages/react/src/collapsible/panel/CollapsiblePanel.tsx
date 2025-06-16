@@ -102,8 +102,7 @@ export const CollapsiblePanel = React.forwardRef(function CollapsiblePanel(
     open,
     ref: panelRef,
     onComplete() {
-      const panel = panelRef.current;
-      if (!panel || !open || animationTypeRef.current === 'css-animation') {
+      if (!open) {
         return;
       }
 

@@ -167,10 +167,6 @@ export namespace useCollapsibleRoot {
      * @default false
      */
     disabled: boolean;
-    /**
-     * The type of collapsible panel.
-     */
-    type: 'collapsible' | 'accordion';
   }
 
   export interface ReturnValue {

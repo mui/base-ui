@@ -33,7 +33,6 @@ export const CollapsibleRoot = React.forwardRef(function CollapsibleRoot(
     defaultOpen,
     onOpenChange,
     disabled,
-    type: 'collapsible',
   });
 
   const state: CollapsibleRoot.State = React.useMemo(
