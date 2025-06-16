@@ -10,11 +10,12 @@ import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 import { useSelectPopup } from './useSelectPopup';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import { useSelectPositionerContext } from '../positioner/SelectPositionerContext';
+import { styleDisableScrollbar } from '../../utils/styles';
 import { transitionStatusMapping } from '../../utils/styleHookMapping';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { selectors } from '../store';
-import { EMPTY_OBJECT, DISABLED_TRANSITIONS_STYLE } from '../../utils/constants';
+import { DISABLED_TRANSITIONS_STYLE } from '../../utils/constants';
 
 const customStyleHookMapping: CustomStyleHookMapping<SelectPopup.State> = {
   ...popupStateMapping,
@@ -36,7 +37,6 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
   const { store, popupRef, onOpenChangeComplete } = useSelectRootContext();
   const positioner = useSelectPositionerContext();
 
-  const id = useSelector(store, selectors.id);
   const open = useSelector(store, selectors.open);
   const mounted = useSelector(store, selectors.mounted);
   const popupProps = useSelector(store, selectors.popupProps);
@@ -72,28 +72,17 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
     props: [
       popupProps,
       props,
-      transitionStatus === 'starting' ? DISABLED_TRANSITIONS_STYLE : EMPTY_OBJECT,
+      {
+        style: transitionStatus === 'starting' ? DISABLED_TRANSITIONS_STYLE.style : undefined,
+        className: alignItemWithTriggerActive ? styleDisableScrollbar.className : undefined,
+      },
       elementProps,
     ],
   });
 
-  const popupSelector = `[data-id="${id}-popup"]`;
-
-  const html = React.useMemo(
-    () => ({
-      __html: `${popupSelector}{scrollbar-width:none}${popupSelector}::-webkit-scrollbar{display:none}`,
-    }),
-    [popupSelector],
-  );
-
   return (
     <React.Fragment>
-      {id && alignItemWithTriggerActive && (
-        <style
-          // eslint-disable-next-line react/no-danger
-          dangerouslySetInnerHTML={html}
-        />
-      )}
+      {styleDisableScrollbar.element}
       <FloatingFocusManager
         context={positioner.context}
         modal={false}

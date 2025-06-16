@@ -4,7 +4,7 @@ import { CustomStyleHookMapping, getStyleHookProps } from './getStyleHookProps';
 import { useForkRef, useForkRefN } from './useForkRef';
 import { resolveClassName } from './resolveClassName';
 import { isReactVersionAtLeast } from './reactVersion';
-import { mergeProps, mergePropsN } from '../merge-props';
+import { mergeProps, mergePropsN, mergeClassNames } from '../merge-props';
 import { mergeObjects } from './mergeObjects';
 import { EMPTY_OBJECT } from './constants';
 
@@ -97,7 +97,7 @@ function useRenderElementProps<
   }
 
   if (className !== undefined) {
-    outProps.className = className;
+    outProps.className = mergeClassNames(outProps.className, className);
   }
 
   return outProps;
