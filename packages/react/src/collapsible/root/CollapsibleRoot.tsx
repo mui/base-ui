@@ -23,6 +23,7 @@ export const CollapsibleRoot = React.forwardRef(function CollapsibleRoot(
     disabled = false,
     onOpenChange: onOpenChangeProp,
     open,
+    render,
     ...elementProps
   } = componentProps;
 

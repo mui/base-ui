@@ -10,18 +10,38 @@
     padding-inline: 1.5rem;
     grid-template-columns: 1fr;
 
+    --table-width: calc(100vw - 4rem);
+
     @media (--sm) {
       padding-inline: 2.5rem;
+
+      --table-width: min(48rem, calc(100dvw - var(--root-layout-padding-x) * 2));
     }
 
     @media (--show-side-nav) {
       padding-top: 0;
       padding-inline: 0;
       grid-template-columns: var(--sidebar-width) 1fr 3rem;
+
+      --table-width: min(
+        calc(
+          min(var(--breakpoint-max-layout-width), 100dvw) - var(--root-layout-padding-x) * 2 -
+            var(--sidebar-width) - 3rem - 1rem
+        ),
+        48rem
+      );
     }
 
     @media (--show-quick-nav) {
       grid-template-columns: var(--sidebar-width) 1fr var(--sidebar-width);
+
+      --table-width: min(
+        calc(
+          min(var(--breakpoint-max-layout-width), 100dvw) - var(--root-layout-padding-x) * 2 -
+            var(--sidebar-width) - var(--sidebar-width) - 1rem
+        ),
+        48rem
+      );
     }
   }
 
