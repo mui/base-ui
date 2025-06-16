@@ -183,17 +183,28 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
         commitValidation(canonical);
       }
 
-      if (value !== maxPrecision) {
+      const hasExplicitPrecision =
+        formatOptions?.maximumFractionDigits != null ||
+        formatOptions?.minimumFractionDigits != null;
+
+      if (hasExplicitPrecision) {
+        // When the consumer explicitly requests a precision, always round the number to that
+        // precision and normalize the displayed text accordingly.
+        if (value !== canonical) {
+          setValue(canonical, event.nativeEvent);
+        }
+        if (inputValue !== canonicalText) {
+          setInputValue(canonicalText);
+        }
+      } else if (value !== maxPrecision) {
+        // Default behaviour: preserve max precision until it differs from canonical
         setValue(canonical, event.nativeEvent);
       } else {
-        // If the current input represents the same value and matches the full precision format,
-        // preserve the current input value to maintain precision
-        if (parsedValue === value && inputValue === maxPrecisionText) {
-          // Keep the current inputValue to preserve precision
-          return;
+        const shouldPreserveFullPrecision =
+          parsedValue === value && inputValue === maxPrecisionText;
+        if (!shouldPreserveFullPrecision && inputValue !== canonicalText) {
+          setInputValue(canonicalText);
         }
-
-        setInputValue(canonicalText);
       }
     },
     onChange(event) {

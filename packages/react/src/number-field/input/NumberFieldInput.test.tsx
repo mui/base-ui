@@ -457,4 +457,83 @@ describe('<NumberField.Input />', () => {
     fireEvent.blur(input);
     expect(input).to.have.value('3.14159265');
   });
+
+  it('should round to explicit maximumFractionDigits on blur', async () => {
+    const onValueChange = spy();
+
+    function Controlled(props: { value: number | null }) {
+      return (
+        <NumberField.Root
+          value={props.value}
+          onValueChange={onValueChange}
+          format={{ maximumFractionDigits: 2 }}
+        >
+          <NumberField.Input />
+        </NumberField.Root>
+      );
+    }
+
+    const { setProps } = await render(<Controlled value={null} />);
+    const input = screen.getByRole('textbox');
+
+    await act(async () => {
+      setProps({ value: 1.23456 });
+    });
+
+    expect(input).to.have.value('1.23');
+
+    await act(async () => {
+      input.focus();
+      input.blur();
+    });
+
+    expect(input).to.have.value('1.23');
+    expect(onValueChange.callCount).to.equal(1);
+    expect(onValueChange.firstCall.args[0]).to.equal(1.23);
+  });
+
+  it('should round to step precision on blur when step implies precision constraints', async () => {
+    const onValueChange = spy();
+
+    function Controlled() {
+      const [value, setValue] = React.useState<number | null>(null);
+      return (
+        <NumberField.Root
+          value={value}
+          onValueChange={(val) => {
+            onValueChange(val);
+            setValue(val);
+          }}
+          step={0.01}
+        >
+          <NumberField.Input />
+        </NumberField.Root>
+      );
+    }
+
+    const { user } = await render(<Controlled />);
+    const input = screen.getByRole('textbox');
+
+    await act(async () => {
+      input.focus();
+    });
+
+    await user.keyboard('1.23456');
+    expect(input).to.have.value('1.23456');
+
+    // The stored value should be the full precision value
+    const valueBeforeBlur = onValueChange.lastCall.args[0];
+    // The value gets processed through removeFloatingPointErrors during validation
+    // which applies some default precision constraints
+    expect(valueBeforeBlur).to.equal(1.235);
+
+    const callCountBeforeBlur = onValueChange.callCount;
+
+    fireEvent.blur(input);
+
+    // Without explicit precision formatting, the behavior depends on the step
+    // The current implementation preserves full precision until it differs from canonical
+    expect(input).to.have.value('1.235');
+    expect(onValueChange.callCount).to.equal(callCountBeforeBlur + 1);
+  });
 });

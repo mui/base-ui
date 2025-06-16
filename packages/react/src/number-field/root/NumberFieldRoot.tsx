@@ -126,11 +126,12 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
   // locale. This causes a hydration mismatch, which we manually suppress. This is preferable to
   // rendering an empty input field and then updating it with the formatted value, as the user
   // can still see the value prior to hydration, even if it's not formatted correctly.
-  const [inputValue, setInputValue] = React.useState(() =>
-    valueProp !== undefined
-      ? formatNumberMaxPrecision(value, locale, format)
-      : formatNumber(value, locale, format),
-  );
+  const [inputValue, setInputValue] = React.useState(() => {
+    if (valueProp !== undefined) {
+      return getControlledInputValue(value, locale, format);
+    }
+    return formatNumber(value, locale, format);
+  });
   const [inputMode, setInputMode] = React.useState<InputMode>('numeric');
 
   const getAllowedNonNumericKeys = useEventCallback(() => {
@@ -269,8 +270,8 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
 
     const nextInputValue =
       valueProp !== undefined
-        ? formatNumberMaxPrecision(value, locale, formatOptionsRef.current)
-        : formatNumber(value, locale, formatOptionsRef.current);
+        ? getControlledInputValue(value, locale, format)
+        : formatNumber(value, locale, format);
 
     if (nextInputValue !== inputValue) {
       setInputValue(nextInputValue);
@@ -565,4 +566,16 @@ export namespace NumberFieldRoot {
      */
     scrubbing: boolean;
   }
+}
+
+function getControlledInputValue(
+  value: number | null,
+  locale: Intl.LocalesArgument,
+  format: Intl.NumberFormatOptions | undefined,
+) {
+  const explicitPrecision =
+    format?.maximumFractionDigits != null || format?.minimumFractionDigits != null;
+  return explicitPrecision
+    ? formatNumber(value, locale, format)
+    : formatNumberMaxPrecision(value, locale, format);
 }
