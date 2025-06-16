@@ -46,20 +46,21 @@ export default function AutofillCombobox() {
             }}
           />
         </label>
-
         {filteredCountries.length > 0 && (
           <Combobox.Portal>
             <Combobox.Positioner className={styles.Positioner} sideOffset={4}>
               <Combobox.Popup className={styles.Popup}>
-                {filteredCountries.map((country) => (
-                  <Combobox.Item
-                    key={country.code}
-                    value={country.name}
-                    className={styles.Item}
-                  >
-                    {country.name}
-                  </Combobox.Item>
-                ))}
+                <Combobox.List>
+                  {filteredCountries.map((country) => (
+                    <Combobox.Item
+                      key={country.code}
+                      value={country.name}
+                      className={styles.Item}
+                    >
+                      {country.name}
+                    </Combobox.Item>
+                  ))}
+                </Combobox.List>
               </Combobox.Popup>
             </Combobox.Positioner>
           </Combobox.Portal>

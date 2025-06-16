@@ -3,7 +3,7 @@
 <Subtitle>An input combined with a list of items to choose from.</Subtitle>
 <Meta
   name="description"
-  content="A high-quality, unstyled React combobox component that displays a popup containing a list of options to choose from."
+  content="A high-quality, unstyled React combobox component that renders an input combined with a list of items to choose from."
 />
 
 <Demo path="./demos/hero" />
@@ -18,20 +18,21 @@ import { Combobox } from '@base-ui-components/react/combobox';
 <Combobox.Root>
   <Combobox.Input />
   <Combobox.Value />
-  <Combobox.List />
   <Combobox.Trigger />
 
   <Combobox.Portal>
     <Combobox.Positioner>
       <Combobox.Popup>
         <Combobox.Status />
-        <Combobox.Item>
-          <Combobox.ItemIndicator />
-        </Combobox.Item>
-        <Combobox.Separator />
-        <Combobox.Group>
-          <Combobox.GroupLabel />
-        </Combobox.Group>
+        <Combobox.List>
+          <Combobox.Item>
+            <Combobox.ItemIndicator />
+          </Combobox.Item>
+          <Combobox.Separator />
+          <Combobox.Group>
+            <Combobox.GroupLabel />
+          </Combobox.Group>
+        </Combobox.List>
       </Combobox.Popup>
     </Combobox.Positioner>
   </Combobox.Portal>

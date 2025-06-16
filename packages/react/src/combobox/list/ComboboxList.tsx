@@ -7,9 +7,10 @@ import { useSelector } from '../../utils/store';
 import { selectors } from '../store';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
+import { useComboboxPositionerContext } from '../positioner/ComboboxPositionerContext';
 
 /**
- * The container for the combobox items when rendered inline, instead of `Popup`.
+ * The container for the combobox items.
  * Renders a `<div>` element.
  *
  * Documentation: [Base UI Combobox](https://base-ui.com/react/components/combobox)
@@ -22,30 +23,27 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
 
   const { store } = useComboboxRootContext();
   const popupProps = useSelector(store, selectors.popupProps);
+  const hasPositionerContext = Boolean(useComboboxPositionerContext(true));
 
   const setPositionerElement = useEventCallback((element) => {
     store.set('positionerElement', element);
   });
 
   useModernLayoutEffect(() => {
+    if (hasPositionerContext) {
+      return undefined;
+    }
+
     store.set('inline', true);
     return () => {
       store.set('inline', false);
     };
-  }, [store]);
+  }, [hasPositionerContext, store]);
 
-  const element = useRenderElement('div', componentProps, {
+  return useRenderElement('div', componentProps, {
     ref: [forwardedRef, setPositionerElement],
-    props: [
-      popupProps,
-      {
-        role: 'listbox',
-      },
-      elementProps,
-    ],
+    props: [popupProps, { role: 'listbox' }, elementProps],
   });
-
-  return element;
 });
 
 export namespace ComboboxList {
