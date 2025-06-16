@@ -221,7 +221,6 @@ export namespace useTooltipRoot {
     open?: boolean;
     /**
      * Event handler called when the tooltip is opened or closed.
-     * @type (open: boolean, event?: Event, reason?: Tooltip.Root.OpenChangeReason) => void
      */
     onOpenChange?: (
       open: boolean,
