@@ -7,6 +7,8 @@ import chaiPlugin from '@mui/internal-test-utils/chaiPlugin';
 // eslint-disable-next-line import/no-relative-packages
 import '../packages/react/test/addChaiAssertions';
 
+function NOOP() {}
+
 declare global {
   var before: typeof beforeAll;
   var after: typeof afterAll;
@@ -56,10 +58,12 @@ if (isVitestJsdom) {
   // @ts-expect-error
   globalThis.window.Touch = Touch;
 
-  globalThis.window.scrollTo = () => {};
+  globalThis.window.scrollTo = NOOP;
 
   globalThis.requestAnimationFrame = (cb) => {
     setTimeout(() => cb(0), 0);
     return 0;
   };
+
+  Element.prototype.scrollTo ??= NOOP;
 }
