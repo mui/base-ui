@@ -49,7 +49,7 @@ describe('<Select.Item />', () => {
     const { user } = await render(
       <Select.Root>
         <Select.Trigger data-testid="trigger">
-          <Select.Value placeholder="value" />
+          <Select.Value />
         </Select.Trigger>
         <Select.Portal>
           <Select.Positioner>

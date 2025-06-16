@@ -4,9 +4,9 @@ import styles from './index.module.css';
 
 export default function ExampleSelect() {
   return (
-    <Select.Root defaultValue="sans">
+    <Select.Root defaultValue="sans" defaultLabel="Sans-serif">
       <Select.Trigger className={styles.Select}>
-        <Select.Value placeholder="Sans-serif" />
+        <Select.Value />
         <Select.Icon className={styles.SelectIcon}>
           <ChevronUpDownIcon />
         </Select.Icon>

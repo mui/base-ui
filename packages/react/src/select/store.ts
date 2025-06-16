@@ -1,3 +1,4 @@
+import * as React from 'react';
 import { Store, createSelector } from '../utils/store';
 import type { TransitionStatus } from '../utils/useTransitionStatus';
 import type { HTMLProps } from '../utils/types';
@@ -8,10 +9,11 @@ export type State = {
 
   value: any;
   label: string;
+  defaultLabel: React.ReactNode;
 
   open: boolean;
   mounted: boolean;
-  typeaheadReady: boolean;
+  forceMount: boolean;
   transitionStatus: TransitionStatus;
   touchModality: boolean;
 
@@ -37,10 +39,11 @@ export const selectors = {
 
   value: createSelector((state: State) => state.value),
   label: createSelector((state: State) => state.label),
+  defaultLabel: createSelector((state: State) => state.defaultLabel),
 
   open: createSelector((state: State) => state.open),
   mounted: createSelector((state: State) => state.mounted),
-  typeaheadReady: createSelector((state: State) => state.typeaheadReady),
+  forceMount: createSelector((state: State) => state.forceMount),
   transitionStatus: createSelector((state: State) => state.transitionStatus),
   touchModality: createSelector((state: State) => state.touchModality),
 
