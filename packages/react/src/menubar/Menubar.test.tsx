@@ -49,7 +49,7 @@ function TestMenubar(props: Menubar.Props) {
             <Menu.Popup>
               <Menu.Item data-testid="view-item-1">Zoom In</Menu.Item>
               <Menu.Item data-testid="view-item-2">Zoom Out</Menu.Item>
-              <Menu.Root>
+              <Menu.SubmenuRoot>
                 <Menu.SubmenuTrigger data-testid="layout-trigger">Layout</Menu.SubmenuTrigger>
                 <Menu.Portal>
                   <Menu.Positioner data-testid="layout-menu">
@@ -65,7 +65,7 @@ function TestMenubar(props: Menubar.Props) {
                     </Menu.Popup>
                   </Menu.Positioner>
                 </Menu.Portal>
-              </Menu.Root>
+              </Menu.SubmenuRoot>
             </Menu.Popup>
           </Menu.Positioner>
         </Menu.Portal>
