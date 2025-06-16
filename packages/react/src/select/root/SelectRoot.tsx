@@ -86,20 +86,24 @@ export const SelectRoot: SelectRoot = function SelectRoot<Value>(
 
               const nextValue = event.target.value;
 
-              const exactValue = rootContext.valuesRef.current.find(
-                (v) =>
-                  v === nextValue ||
-                  (typeof value === 'string' && nextValue.toLowerCase() === v.toLowerCase()),
-              );
+              store.set('forceMount', true);
 
-              if (exactValue != null) {
-                setDirty(exactValue !== validityData.initialValue);
-                rootContext.setValue?.(exactValue, event.nativeEvent);
+              queueMicrotask(() => {
+                const exactValue = rootContext.valuesRef.current.find(
+                  (v) =>
+                    v === nextValue ||
+                    (typeof value === 'string' && nextValue.toLowerCase() === v.toLowerCase()),
+                );
 
-                if (validationMode === 'onChange') {
-                  rootContext.fieldControlValidation.commitValidation(exactValue);
+                if (exactValue != null) {
+                  setDirty(exactValue !== validityData.initialValue);
+                  rootContext.setValue?.(exactValue, event.nativeEvent);
+
+                  if (validationMode === 'onChange') {
+                    rootContext.fieldControlValidation.commitValidation(exactValue);
+                  }
                 }
-              }
+              });
             },
             id,
             name: rootContext.name,
