@@ -14,6 +14,8 @@ import { HeadingLink } from './components/HeadingLink';
 import { Subtitle } from './components/Subtitle/Subtitle';
 import { Kbd } from './components/Kbd/Kbd';
 
+import { PropsReferenceAccordion } from './components/ReferenceAccordion/PropsReferenceAccordion';
+
 interface MDXComponents {
   [key: string]: React.FC<any> | MDXComponents;
 }
@@ -111,6 +113,8 @@ export const mdxComponents: MDXComponents = {
     <CssVariablesReferenceTable className="mt-5 mb-6" {...props} />
   ),
   PropsReferenceTable: (props) => <PropsReferenceTable className="mt-5 mb-6" {...props} />,
+
+  PropsReferenceAccordion: (props) => <PropsReferenceAccordion className="mt-5 mb-6" {...props} />,
 };
 
 export const inlineMdxComponents: MDXComponents = {
