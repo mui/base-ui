@@ -1151,4 +1151,34 @@ describe('<Tabs.Root />', () => {
       });
     });
   });
+
+  it('updates the highlighted index when value changes externally', async () => {
+    const { getAllByRole, setProps } = await render(
+      <Tabs.Root value={0}>
+        <Tabs.List activateOnFocus={false}>
+          <Tabs.Tab value={0} />
+          <Tabs.Tab value={1} />
+          <Tabs.Tab value={2} />
+        </Tabs.List>
+      </Tabs.Root>,
+    );
+
+    const [firstTab, secondTab, thirdTab] = getAllByRole('tab');
+
+    expect(firstTab.tabIndex).to.equal(0);
+
+    await setProps({ value: 2 });
+    await flushMicrotasks();
+
+    expect(firstTab.tabIndex).to.equal(-1);
+    expect(secondTab.tabIndex).to.equal(-1);
+    expect(thirdTab.tabIndex).to.equal(0);
+
+    await setProps({ value: 1 });
+    await flushMicrotasks();
+
+    expect(firstTab.tabIndex).to.equal(-1);
+    expect(secondTab.tabIndex).to.equal(0);
+    expect(thirdTab.tabIndex).to.equal(-1);
+  });
 });
