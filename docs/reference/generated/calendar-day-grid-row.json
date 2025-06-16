@@ -3,12 +3,12 @@
   "description": "Groups all cells of a given calendar's day grid row.\nRenders a `<tr>` element.",
   "props": {
     "value": {
-      "type": "DateTime<boolean>",
+      "type": "DateTime<boolean> | Date",
       "required": true,
       "description": "The date object representing the week."
     },
     "children": {
-      "type": "ReactNode | ((day: DateTime<boolean>, index: number, days: DateTime<boolean>[]) => ReactNode)",
+      "type": "ReactNode | ((day: DateTime<boolean> | Date, index: number, days: (DateTime<boolean> | Date)[]) => ReactNode)",
       "description": "The children of the component.\nIf a function is provided, it will be called for each day of the week as its parameter."
     },
     "className": {

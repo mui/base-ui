@@ -566,9 +566,6 @@ importers:
       '@floating-ui/utils':
         specifier: ^0.2.9
         version: 0.2.9
-      luxon:
-        specifier: ^3.0.2
-        version: 3.6.1
       reselect:
         specifier: ^5.1.1
         version: 5.1.1
@@ -609,12 +606,18 @@ importers:
       chai:
         specifier: ^4.5.0
         version: 4.5.0
+      date-fns:
+        specifier: ^4.1.0
+        version: 4.1.0
       fs-extra:
         specifier: ^11.3.0
         version: 11.3.0
       lodash:
         specifier: ^4.17.21
         version: 4.17.21
+      luxon:
+        specifier: ^3.6.1
+        version: 3.6.1
       react:
         specifier: ^19.1.0
         version: 19.1.0
@@ -5572,6 +5575,9 @@ packages:
   data-view-byte-offset@1.0.1:
     resolution: {integrity: sha512-BS8PfmtDGnrgYdOonGZQdLZslWIeCGFP9tpan0hi1Co2Zr2NKADsvGYA8XxuG/4UWgJ6Cjtv+YJnB6MM69QGlQ==}
     engines: {node: '>= 0.4'}
+
+  date-fns@4.1.0:
+    resolution: {integrity: sha512-Ukq0owbQXxa/U3EGtsdVBkR1w7KOQ5gIBqdH2hkvknzZPYvBxb/aa6E8L7tmjFtkwZBu3UXBbjIgPo/Ez4xaNg==}
 
   dateformat@3.0.3:
     resolution: {integrity: sha512-jyCETtSl3VMZMWeRo7iY1FL19ges1t55hMo5yaam4Jrsm5EPL89UQkoQRyiI+Yf4k8r2ZpdngkV8hr1lIdjb3Q==}
@@ -16881,6 +16887,8 @@ snapshots:
       call-bound: 1.0.4
       es-errors: 1.3.0
       is-data-view: 1.0.2
+
+  date-fns@4.1.0: {}
 
   dateformat@3.0.3: {}
 
