@@ -15,9 +15,15 @@ export const DialogClose = React.forwardRef(function DialogClose(
   componentProps: DialogClose.Props,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
-  const { render, className, disabled = false, ...elementProps } = componentProps;
+  const {
+    render,
+    className,
+    disabled = false,
+    nativeButton = true,
+    ...elementProps
+  } = componentProps;
   const { open, setOpen } = useDialogRootContext();
-  const { getRootProps, ref } = useDialogClose({ disabled, open, setOpen });
+  const { getRootProps, ref } = useDialogClose({ disabled, open, setOpen, nativeButton });
 
   const state: DialogClose.State = React.useMemo(() => ({ disabled }), [disabled]);
 
@@ -29,7 +35,15 @@ export const DialogClose = React.forwardRef(function DialogClose(
 });
 
 export namespace DialogClose {
-  export interface Props extends BaseUIComponentProps<'button', State> {}
+  export interface Props extends BaseUIComponentProps<'button', State> {
+    /**
+     * Whether the component renders a native `<button>` element when replacing it
+     * via the `render` prop.
+     * Set to `false` if the rendered element is not a button (e.g. `<div>`).
+     * @default true
+     */
+    nativeButton?: boolean;
+  }
 
   export interface State {
     /**

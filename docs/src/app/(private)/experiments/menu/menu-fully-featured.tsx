@@ -42,6 +42,7 @@ export default function MenuFullyFeatured() {
         <Menu.Trigger
           className={classes.Button}
           render={triggerRender}
+          nativeButton={triggerRender === undefined}
           disabled={settings.disabled}
         >
           Menu <ChevronDownIcon className={classes.ButtonIcon} />

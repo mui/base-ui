@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { useBaseUiId } from '../../utils/useBaseUiId';
 import { NOOP } from '../../utils/noop';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useForkRef } from '../../utils/useForkRef';
@@ -32,6 +33,7 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
     required: requiredProp = false,
     value,
     inputRef: inputRefProp,
+    nativeButton = true,
     ...elementProps
   } = componentProps;
 
@@ -45,6 +47,7 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
     touched,
     setTouched,
     fieldControlValidation,
+    registerControlRef,
   } = useRadioGroupContext();
 
   const { state: fieldState, disabled: fieldDisabled } = useFieldRootContext();
@@ -104,12 +107,17 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
 
   const { getButtonProps, buttonRef } = useButton({
     disabled,
+    native: nativeButton,
   });
+
+  const id = useBaseUiId();
 
   const inputProps: React.ComponentPropsWithRef<'input'> = React.useMemo(
     () => ({
       type: 'radio',
       ref,
+      // Set `id` to stop Chrome warning about an unassociated input
+      id,
       tabIndex: -1,
       style: visuallyHidden,
       'aria-hidden': true,
@@ -135,18 +143,19 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
       },
     }),
     [
-      disabled,
       checked,
-      required,
-      readOnly,
-      value,
-      setFieldTouched,
-      setDirty,
-      validityData.initialValue,
-      setCheckedValue,
-      setFilled,
+      disabled,
+      id,
       onValueChange,
+      readOnly,
       ref,
+      required,
+      setCheckedValue,
+      setDirty,
+      setFieldTouched,
+      setFilled,
+      validityData.initialValue,
+      value,
     ],
   );
 
@@ -165,7 +174,7 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
 
   const element = useRenderElement('button', componentProps, {
     state,
-    ref: [forwardedRef, buttonRef],
+    ref: [forwardedRef, registerControlRef, buttonRef],
     props: [
       rootProps,
       fieldControlValidation?.getValidationProps ?? undefined,
@@ -208,6 +217,13 @@ export namespace RadioRoot {
      * A ref to access the hidden input element.
      */
     inputRef?: React.Ref<HTMLInputElement>;
+    /**
+     * Whether the component renders a native `<button>` element when replacing it
+     * via the `render` prop.
+     * Set to `false` if the rendered element is not a button (e.g. `<div>`).
+     * @default true
+     */
+    nativeButton?: boolean;
   }
 
   export interface State {

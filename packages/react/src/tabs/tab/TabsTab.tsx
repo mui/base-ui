@@ -7,6 +7,7 @@ import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { useRenderElement } from '../../utils/useRenderElement';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useButton } from '../../use-button';
+import { ACTIVE_COMPOSITE_ITEM } from '../../composite/constants';
 import { useCompositeItem } from '../../composite/item/useCompositeItem';
 import type { TabsRoot } from '../root/TabsRoot';
 import { useTabsRootContext } from '../root/TabsRootContext';
@@ -28,6 +29,7 @@ export const TabsTab = React.forwardRef(function Tab(
     render,
     value: valueProp,
     id: idProp,
+    nativeButton = true,
     ...elementProps
   } = componentProps;
 
@@ -81,6 +83,7 @@ export const TabsTab = React.forwardRef(function Tab(
 
   const { getButtonProps, buttonRef } = useButton({
     disabled,
+    native: nativeButton,
     focusableWhenDisabled: true,
   });
 
@@ -164,6 +167,7 @@ export const TabsTab = React.forwardRef(function Tab(
         onClick,
         onFocus,
         onPointerDown,
+        [ACTIVE_COMPOSITE_ITEM as string]: selected ? '' : undefined,
       },
       elementProps,
       getButtonProps,
@@ -213,5 +217,12 @@ export namespace TabsTab {
      * @type Tabs.Tab.Value
      */
     value?: Value;
+    /**
+     * Whether the component renders a native `<button>` element when replacing it
+     * via the `render` prop.
+     * Set to `false` if the rendered element is not a button (e.g. `<div>`).
+     * @default true
+     */
+    nativeButton?: boolean;
   }
 }

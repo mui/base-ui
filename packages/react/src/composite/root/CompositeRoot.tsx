@@ -3,11 +3,11 @@ import * as React from 'react';
 import { CompositeList, type CompositeMetadata } from '../list/CompositeList';
 import { useCompositeRoot } from './useCompositeRoot';
 import { CompositeRootContext } from './CompositeRootContext';
+import { useEventCallback } from '../../utils/useEventCallback';
 import { useRenderElement } from '../../utils/useRenderElement';
 import type { BaseUIComponentProps } from '../../utils/types';
-import type { TextDirection } from '../../direction-provider/DirectionContext';
 import type { Dimensions, ModifierKey } from '../composite';
-import { useEventCallback } from '../../utils/useEventCallback';
+import { useDirection } from '../../direction-provider/DirectionContext';
 
 const COMPOSITE_ROOT_STATE = {};
 
@@ -25,7 +25,6 @@ export function CompositeRoot<Metadata extends {}>(componentProps: CompositeRoot
     itemSizes,
     loop,
     cols,
-    direction,
     enableHomeAndEndKeys,
     onMapChange: onMapChangeProp,
     stopEventPropagation,
@@ -35,6 +34,8 @@ export function CompositeRoot<Metadata extends {}>(componentProps: CompositeRoot
     highlightItemOnHover = false,
     ...elementProps
   } = componentProps;
+
+  const direction = useDirection();
 
   const {
     props,
@@ -95,7 +96,6 @@ export namespace CompositeRoot {
     onHighlightedIndexChange?: (index: number) => void;
     itemSizes?: Dimensions[];
     dense?: boolean;
-    direction?: TextDirection;
     enableHomeAndEndKeys?: boolean;
     onMapChange?: (newMap: Map<Node, CompositeMetadata<Metadata> | null>) => void;
     stopEventPropagation?: boolean;

@@ -46,7 +46,7 @@ describe('<Dialog.Trigger />', () => {
     it('custom element', async () => {
       const { user } = await render(
         <Dialog.Root modal={false}>
-          <Dialog.Trigger disabled render={<span />} />
+          <Dialog.Trigger disabled render={<span />} nativeButton={false} />
           <Dialog.Portal>
             <Dialog.Backdrop />
             <Dialog.Popup>

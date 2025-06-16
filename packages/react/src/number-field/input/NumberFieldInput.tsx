@@ -13,6 +13,7 @@ import { styleHookMapping } from '../utils/styleHooks';
 import { useField } from '../../field/useField';
 import { useFormContext } from '../../form/FormContext';
 import { useRenderElement } from '../../utils/useRenderElement';
+import { formatNumber, formatNumberMaxPrecision } from '../../utils/formatNumber';
 
 const customStyleHookMapping = {
   ...fieldValidityMapping,
@@ -82,6 +83,8 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
     commitValidation,
     value,
     controlRef: inputRef,
+    name,
+    getValue: () => value ?? null,
   });
 
   const prevValueRef = React.useRef(value);
@@ -165,13 +168,44 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
         return;
       }
 
-      const parsedValue = parseNumber(inputValue, locale, formatOptionsRef.current);
+      const formatOptions = formatOptionsRef.current;
+      const parsedValue = parseNumber(inputValue, locale, formatOptions);
+      const canonicalText = formatNumber(parsedValue, locale, formatOptions);
+      const maxPrecisionText = formatNumberMaxPrecision(parsedValue, locale, formatOptions);
+      const canonical = parseNumber(canonicalText, locale, formatOptions);
+      const maxPrecision = parseNumber(maxPrecisionText, locale, formatOptions);
 
-      if (parsedValue !== null) {
-        blockRevalidationRef.current = true;
-        setValue(parsedValue, event.nativeEvent);
-        if (validationMode === 'onBlur') {
-          commitValidation(parsedValue);
+      if (parsedValue === null) {
+        return;
+      }
+
+      blockRevalidationRef.current = true;
+
+      if (validationMode === 'onBlur') {
+        commitValidation(canonical);
+      }
+
+      const hasExplicitPrecision =
+        formatOptions?.maximumFractionDigits != null ||
+        formatOptions?.minimumFractionDigits != null;
+
+      if (hasExplicitPrecision) {
+        // When the consumer explicitly requests a precision, always round the number to that
+        // precision and normalize the displayed text accordingly.
+        if (value !== canonical) {
+          setValue(canonical, event.nativeEvent);
+        }
+        if (inputValue !== canonicalText) {
+          setInputValue(canonicalText);
+        }
+      } else if (value !== maxPrecision) {
+        // Default behaviour: preserve max precision until it differs from canonical
+        setValue(canonical, event.nativeEvent);
+      } else {
+        const shouldPreserveFullPrecision =
+          parsedValue === value && inputValue === maxPrecisionText;
+        if (!shouldPreserveFullPrecision && inputValue !== canonicalText) {
+          setInputValue(canonicalText);
         }
       }
     },
