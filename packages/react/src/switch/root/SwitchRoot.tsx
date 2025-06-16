@@ -34,6 +34,7 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
     defaultChecked,
     id: idProp,
     inputRef: externalInputRef,
+    nativeButton = true,
     onCheckedChange: onCheckedChangeProp,
     readOnly = false,
     required = false,
@@ -69,19 +70,29 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
 
   const onCheckedChange = useEventCallback(onCheckedChangeProp);
 
-  const id = useBaseUiId(idProp);
-
-  useModernLayoutEffect(() => {
-    setControlId(id);
-    return () => {
-      setControlId(undefined);
-    };
-  }, [id, setControlId]);
-
   const inputRef = React.useRef<HTMLInputElement>(null);
   const handleInputRef = useForkRef(inputRef, externalInputRef, inputValidationRef);
 
   const switchRef = React.useRef<HTMLButtonElement | null>(null);
+
+  const id = useBaseUiId(idProp);
+
+  useModernLayoutEffect(() => {
+    const element = switchRef.current;
+    if (!element) {
+      return undefined;
+    }
+
+    if (element.closest('label') != null) {
+      setControlId(idProp ?? null);
+    } else {
+      setControlId(id);
+    }
+
+    return () => {
+      setControlId(undefined);
+    };
+  }, [id, idProp, setControlId]);
 
   const [checked, setCheckedState] = useControlled({
     controlled: checkedProp,
@@ -95,6 +106,8 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
     commitValidation,
     value: checked,
     controlRef: switchRef,
+    name,
+    getValue: () => checked,
   });
 
   useModernLayoutEffect(() => {
@@ -105,6 +118,7 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
 
   const { getButtonProps, buttonRef } = useButton({
     disabled,
+    native: nativeButton,
   });
 
   const rootProps: React.ComponentPropsWithRef<'button'> = React.useMemo(
@@ -159,6 +173,7 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
         {
           checked,
           disabled,
+          id: !name ? `${id}-input` : undefined,
           name,
           required,
           style: visuallyHidden,
@@ -190,20 +205,21 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
         getInputValidationProps,
       ),
     [
-      getInputValidationProps,
       checked,
-      disabled,
-      name,
-      required,
-      handleInputRef,
-      setDirty,
-      validityData.initialValue,
-      setFilled,
-      setCheckedState,
-      onCheckedChange,
       clearErrors,
-      validationMode,
       commitValidation,
+      disabled,
+      getInputValidationProps,
+      handleInputRef,
+      id,
+      name,
+      onCheckedChange,
+      required,
+      setCheckedState,
+      setDirty,
+      setFilled,
+      validationMode,
+      validityData.initialValue,
     ],
   );
 
@@ -269,6 +285,13 @@ export namespace SwitchRoot {
      * Identifies the field when a form is submitted.
      */
     name?: string;
+    /**
+     * Whether the component renders a native `<button>` element when replacing it
+     * via the `render` prop.
+     * Set to `false` if the rendered element is not a button (e.g. `<div>`).
+     * @default true
+     */
+    nativeButton?: boolean;
     /**
      * Event handler called when the switch is activated or deactivated.
      *

@@ -3,6 +3,7 @@ import { ownerDocument, ownerWindow } from './owner';
 import { useModernLayoutEffect } from './useModernLayoutEffect';
 import { Timeout } from './useTimeout';
 import { AnimationFrame } from './useAnimationFrame';
+import { NOOP } from './noop';
 
 /* eslint-disable lines-between-class-members */
 
@@ -54,6 +55,7 @@ function preventScrollStandard(referenceElement: Element | null) {
     scrollLeft = html.scrollLeft;
 
     originalHtmlStyles = {
+      scrollbarGutter: html.style.scrollbarGutter,
       overflowY: html.style.overflowY,
       overflowX: html.style.overflowX,
     };
@@ -70,7 +72,8 @@ function preventScrollStandard(referenceElement: Element | null) {
     };
 
     // Handle `scrollbar-gutter` in Chrome when there is no scrollable content.
-    const hasScrollbarGutterStable = htmlStyles.scrollbarGutter?.includes('stable');
+    const supportsStableScrollbarGutter =
+      typeof CSS !== 'undefined' && CSS.supports?.('scrollbar-gutter', 'stable');
 
     const isScrollableY = html.scrollHeight > html.clientHeight;
     const isScrollableX = html.scrollWidth > html.clientWidth;
@@ -94,10 +97,15 @@ function preventScrollStandard(referenceElement: Element | null) {
      */
 
     Object.assign(html.style, {
+      scrollbarGutter: 'stable',
       overflowY:
-        !hasScrollbarGutterStable && (isScrollableY || hasConstantOverflowY) ? 'scroll' : 'hidden',
+        !supportsStableScrollbarGutter && (isScrollableY || hasConstantOverflowY)
+          ? 'scroll'
+          : 'hidden',
       overflowX:
-        !hasScrollbarGutterStable && (isScrollableX || hasConstantOverflowX) ? 'scroll' : 'hidden',
+        !supportsStableScrollbarGutter && (isScrollableX || hasConstantOverflowX)
+          ? 'scroll'
+          : 'hidden',
     });
 
     Object.assign(body.style, {
@@ -170,6 +178,16 @@ class ScrollLocker {
 
   private lock(referenceElement: Element | null) {
     if (this.lockCount === 0 || this.restore !== null) {
+      return;
+    }
+
+    const doc = ownerDocument(referenceElement);
+    const html = doc.documentElement;
+    const htmlOverflowY = ownerWindow(html).getComputedStyle(html).overflowY;
+
+    // If the site author already hid overflow on <html>, respect it and bail out.
+    if (htmlOverflowY === 'hidden' || htmlOverflowY === 'clip') {
+      this.restore = NOOP;
       return;
     }
 

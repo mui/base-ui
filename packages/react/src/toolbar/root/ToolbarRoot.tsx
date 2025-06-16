@@ -1,10 +1,10 @@
 'use client';
 import * as React from 'react';
-import { BaseUIComponentProps, Orientation } from '../../utils/types';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import { BaseUIComponentProps, Orientation as BaseOrientation } from '../../utils/types';
+import { useRenderElement } from '../../utils/useRenderElement';
 import { CompositeRoot } from '../../composite/root/CompositeRoot';
+import type { CompositeMetadata } from '../../composite/list/CompositeList';
 import { ToolbarRootContext } from './ToolbarRootContext';
-import { useToolbarRoot } from './useToolbarRoot';
 
 /**
  * A container for grouping a set of controls, such as buttons, toggle groups, or menus.
@@ -13,7 +13,7 @@ import { useToolbarRoot } from './useToolbarRoot';
  * Documentation: [Base UI Toolbar](https://base-ui.com/react/components/toolbar)
  */
 export const ToolbarRoot = React.forwardRef(function ToolbarRoot(
-  props: ToolbarRoot.Props,
+  componentProps: ToolbarRoot.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const {
@@ -23,13 +23,22 @@ export const ToolbarRoot = React.forwardRef(function ToolbarRoot(
     orientation = 'horizontal',
     className,
     render,
-    ...otherProps
-  } = props;
+    ...elementProps
+  } = componentProps;
 
-  const { getRootProps, disabledIndices, setItemMap } = useToolbarRoot({
-    disabled,
-    orientation,
-  });
+  const [itemMap, setItemMap] = React.useState(
+    () => new Map<Node, CompositeMetadata<ToolbarRoot.ItemMetadata> | null>(),
+  );
+
+  const disabledIndices = React.useMemo(() => {
+    const output: number[] = [];
+    for (const itemMetadata of itemMap.values()) {
+      if (itemMetadata?.index && !itemMetadata.focusableWhenDisabled) {
+        output.push(itemMetadata.index);
+      }
+    }
+    return output;
+  }, [itemMap]);
 
   const toolbarRootContext: ToolbarRootContext = React.useMemo(
     () => ({
@@ -42,13 +51,16 @@ export const ToolbarRoot = React.forwardRef(function ToolbarRoot(
 
   const state = React.useMemo(() => ({ disabled, orientation }), [disabled, orientation]);
 
-  const { renderElement } = useComponentRenderer({
-    propGetter: getRootProps,
-    render: render ?? 'div',
-    className,
+  const element = useRenderElement('div', componentProps, {
     state,
-    extraProps: otherProps,
     ref: forwardedRef,
+    props: [
+      {
+        'aria-orientation': orientation,
+        role: 'toolbar',
+      },
+      elementProps,
+    ],
   });
 
   return (
@@ -59,17 +71,19 @@ export const ToolbarRoot = React.forwardRef(function ToolbarRoot(
         loop={loop}
         onMapChange={setItemMap}
         orientation={orientation}
-        render={renderElement()}
+        render={element}
       />
     </ToolbarRootContext.Provider>
   );
 });
 
-export interface ToolbarItemMetadata {
-  focusableWhenDisabled: boolean;
-}
-
 export namespace ToolbarRoot {
+  export interface ItemMetadata {
+    focusableWhenDisabled: boolean;
+  }
+
+  export type Orientation = BaseOrientation;
+
   export type State = {
     disabled: boolean;
     orientation: Orientation;
@@ -85,6 +99,7 @@ export namespace ToolbarRoot {
     disabled?: boolean;
     /**
      * The orientation of the toolbar.
+     * @type Toolbar.Root.Orientation
      * @default 'horizontal'
      */
     orientation?: Orientation;

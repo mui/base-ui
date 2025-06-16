@@ -1,15 +1,13 @@
 'use client';
 import * as React from 'react';
 import { useFloatingTree } from '@floating-ui/react';
-import { BaseUIComponentProps, HTMLProps } from '../../utils/types';
+import { BaseUIComponentProps } from '../../utils/types';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { useBaseUiId } from '../../utils/useBaseUiId';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { useForkRef } from '../../utils/useForkRef';
 import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
 import { useCompositeListItem } from '../../composite/list/useCompositeListItem';
-import { mergeProps } from '../../merge-props';
 import { useMenuItem } from '../item/useMenuItem';
+import { useRenderElement } from '../../utils/useRenderElement';
 
 /**
  * A menu item that opens a submenu.
@@ -18,10 +16,18 @@ import { useMenuItem } from '../item/useMenuItem';
  * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
  */
 export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerComponent(
-  props: MenuSubmenuTrigger.Props,
+  componentProps: MenuSubmenuTrigger.Props,
   forwardedRef: React.ForwardedRef<Element>,
 ) {
-  const { render, className, label, id: idProp, ...other } = props;
+  const {
+    render,
+    className,
+    label,
+    id: idProp,
+    nativeButton = false,
+    ...elementProps
+  } = componentProps;
+
   const id = useBaseUiId(idProp);
 
   const {
@@ -45,56 +51,44 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
 
   const highlighted = activeIndex === item.index;
 
-  const mergedRef = useForkRef(forwardedRef, item.ref);
-
   const { events: menuEvents } = useFloatingTree()!;
 
-  const { getItemProps, rootRef: menuItemRef } = useMenuItem({
+  const { getItemProps, itemRef } = useMenuItem({
     closeOnClick: false,
     disabled,
     highlighted,
     id,
     menuEvents,
-    ref: mergedRef,
     allowMouseUpTriggerRef,
     typingRef,
+    nativeButton,
+    submenuTrigger: true,
   });
-
-  const triggerRef = React.useRef<HTMLDivElement | null>(null);
-  const menuTriggerRef = useForkRef(triggerRef, menuItemRef, setTriggerElement);
-
-  const getTriggerProps = React.useCallback(
-    (externalProps?: HTMLProps) => {
-      return {
-        ...getItemProps(externalProps),
-        tabIndex: open || highlighted ? 0 : -1,
-        ref: menuTriggerRef,
-        onBlur() {
-          if (highlighted) {
-            setActiveIndex(null);
-          }
-        },
-      };
-    },
-    [getItemProps, highlighted, menuTriggerRef, open, setActiveIndex],
-  );
 
   const state: MenuSubmenuTrigger.State = React.useMemo(
     () => ({ disabled, highlighted, open }),
     [disabled, highlighted, open],
   );
 
-  const { renderElement } = useComponentRenderer({
-    render: render || 'div',
-    className,
+  return useRenderElement('div', componentProps, {
     state,
-    propGetter: (externalProps: HTMLProps) =>
-      mergeProps(rootTriggerProps, itemProps, externalProps, getTriggerProps),
+    ref: [forwardedRef, item.ref, itemRef, setTriggerElement],
     customStyleHookMapping: triggerOpenStateMapping,
-    extraProps: other,
+    props: [
+      rootTriggerProps,
+      itemProps,
+      elementProps,
+      getItemProps,
+      {
+        tabIndex: open || highlighted ? 0 : -1,
+        onBlur() {
+          if (highlighted) {
+            setActiveIndex(null);
+          }
+        },
+      },
+    ],
   });
-
-  return renderElement();
 });
 
 export namespace MenuSubmenuTrigger {
@@ -109,6 +103,13 @@ export namespace MenuSubmenuTrigger {
      * @ignore
      */
     id?: string;
+    /**
+     * Whether the component renders a native `<button>` element when replacing it
+     * via the `render` prop.
+     * Set to `false` if the rendered element is not a button (e.g. `<div>`).
+     * @default false
+     */
+    nativeButton?: boolean;
   }
 
   export interface State {

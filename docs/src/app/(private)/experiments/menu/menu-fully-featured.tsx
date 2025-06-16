@@ -28,6 +28,13 @@ export default function MenuFullyFeatured() {
     [settings.customTriggerElement],
   );
 
+  const handleItemClick = React.useCallback(
+    (event: React.MouseEvent<HTMLDivElement>) => {
+      console.log(`${event.currentTarget.textContent} clicked`);
+    },
+    [],
+  );
+
   return (
     <div>
       <h1>Fully featured menu</h1>
@@ -36,7 +43,11 @@ export default function MenuFullyFeatured() {
         modal={settings.modal}
         disabled={settings.disabled}
       >
-        <Menu.Trigger className={classes.Button} render={triggerRender}>
+        <Menu.Trigger
+          className={classes.Button}
+          render={triggerRender}
+          nativeButton={triggerRender === undefined}
+        >
           Menu <ChevronDownIcon className={classes.ButtonIcon} />
         </Menu.Trigger>
         <Menu.Portal keepMounted>
@@ -51,13 +62,21 @@ export default function MenuFullyFeatured() {
               <Menu.Arrow className={classes.Arrow}>
                 <ArrowIcon />
               </Menu.Arrow>
-              <Menu.Item className={classes.Item}>Item</Menu.Item>
-              <Menu.Item className={classes.Item}>Item</Menu.Item>
+              <Menu.Item className={classes.Item} onClick={handleItemClick}>
+                Item 1
+              </Menu.Item>
+              <Menu.Item className={classes.Item} onClick={handleItemClick}>
+                Item 2
+              </Menu.Item>
               <Menu.Separator className={classes.Separator} />
-              <Menu.Item className={classes.Item} closeOnClick={false}>
+              <Menu.Item
+                className={classes.Item}
+                closeOnClick={false}
+                onClick={handleItemClick}
+              >
                 Item (close on click disabled)
               </Menu.Item>
-              <Menu.Item className={classes.Item} disabled>
+              <Menu.Item className={classes.Item} disabled onClick={handleItemClick}>
                 Disabled Item
               </Menu.Item>
               <Menu.Separator className={classes.Separator} />
@@ -199,14 +218,23 @@ export default function MenuFullyFeatured() {
                             sideOffset={8}
                           >
                             <Menu.Popup className={classes.Popup}>
-                              <Menu.Item className={classes.Item}>
-                                Submenu item
+                              <Menu.Item
+                                className={classes.Item}
+                                onClick={handleItemClick}
+                              >
+                                Submenu item 1
                               </Menu.Item>
-                              <Menu.Item className={classes.Item}>
-                                Submenu item
+                              <Menu.Item
+                                className={classes.Item}
+                                onClick={handleItemClick}
+                              >
+                                Submenu item 2
                               </Menu.Item>
-                              <Menu.Item className={classes.Item}>
-                                Submenu item
+                              <Menu.Item
+                                className={classes.Item}
+                                onClick={handleItemClick}
+                              >
+                                Submenu item 3
                               </Menu.Item>
                             </Menu.Popup>
                           </Menu.Positioner>

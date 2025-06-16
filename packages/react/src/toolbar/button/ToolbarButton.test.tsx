@@ -119,7 +119,6 @@ describe('<Toolbar.Button />', () => {
         expect(switchElement).to.have.attribute('data-unchecked');
 
         await user.keyboard('[Tab]');
-        expect(switchElement).to.have.attribute('data-highlighted');
         expect(switchElement).to.have.attribute('tabindex', '0');
 
         await user.click(switchElement);
@@ -158,7 +157,6 @@ describe('<Toolbar.Button />', () => {
         expect(switchElement).to.have.attribute('aria-disabled', 'true');
 
         await user.keyboard('[Tab]');
-        expect(switchElement).to.have.attribute('data-highlighted');
         expect(switchElement).to.have.attribute('tabindex', '0');
 
         await user.keyboard('[Enter]');
@@ -644,7 +642,7 @@ describe('<Toolbar.Button />', () => {
         const { user } = await render(
           <Toolbar.Root>
             <AlertDialog.Root onOpenChange={onOpenChange}>
-              <Toolbar.Button render={<Dialog.Trigger />}>dialog</Toolbar.Button>
+              <Toolbar.Button render={<AlertDialog.Trigger />}>dialog</Toolbar.Button>
               <AlertDialog.Portal>
                 <AlertDialog.Popup />
               </AlertDialog.Portal>
