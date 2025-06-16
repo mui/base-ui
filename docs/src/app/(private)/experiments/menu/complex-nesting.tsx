@@ -48,7 +48,7 @@ export default function MenuComplexNestingExperiment() {
 
                 <Dialog.Root>
                   <Menu.Item
-                    render={<Dialog.Trigger />}
+                    render={<Dialog.Trigger nativeButton={false} />}
                     className={styles.Item}
                     closeOnClick={false}
                   >
