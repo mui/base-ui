@@ -313,6 +313,73 @@ describe('<CheckboxGroup />', () => {
     });
   });
 
+  describe('Field.Label', () => {
+    it('implicit association', async () => {
+      const changeSpy = spy();
+      const { container } = await render(
+        <Field.Root name="apple">
+          <CheckboxGroup defaultValue={['fuji-apple', 'gala-apple']}>
+            <Field.Label>
+              <Checkbox.Root value="fuji-apple" />
+              Fuji
+            </Field.Label>
+            <Field.Label>
+              <Checkbox.Root value="gala-apple" />
+              Gala
+            </Field.Label>
+            <Field.Label>
+              <Checkbox.Root value="granny-smith-apple" onCheckedChange={changeSpy} />
+              Granny Smith
+            </Field.Label>
+          </CheckboxGroup>
+        </Field.Root>,
+      );
+
+      const labels = container.querySelectorAll('label');
+      expect(labels.length).to.equal(3);
+      labels.forEach((label) => {
+        expect(label).to.not.have.attribute('for');
+      });
+
+      const buttons = screen.getAllByRole('checkbox');
+      buttons.forEach((button) => {
+        expect(button).to.not.have.attribute('aria-labelledby');
+      });
+
+      fireEvent.click(labels[2]);
+      expect(changeSpy.callCount).to.equal(1);
+    });
+
+    it('explicit association', async () => {
+      const changeSpy = spy();
+      await render(
+        <Field.Root name="apple">
+          <CheckboxGroup defaultValue={['fuji-apple', 'gala-apple']}>
+            <Field.Label id="Label1" htmlFor="Checkbox1">
+              Fuji
+            </Field.Label>
+            <Field.Label id="Label2" htmlFor="Checkbox2">
+              Gala
+            </Field.Label>
+            <Checkbox.Root id="Checkbox1" aria-labelledby="Label1" value="fuji-apple" />
+            <Checkbox.Root
+              id="Checkbox2"
+              aria-labelledby="Label2"
+              value="gala-apple"
+              onCheckedChange={changeSpy}
+            />
+          </CheckboxGroup>
+        </Field.Root>,
+      );
+
+      const label1 = screen.getByText('Fuji');
+      expect(label1).to.have.attribute('for', 'Checkbox1');
+
+      fireEvent.click(screen.getByText('Gala'));
+      expect(changeSpy.callCount).to.equal(1);
+    });
+  });
+
   describe.skipIf(isJSDOM)('Form', () => {
     it('includes the checkbox group value in form submission', async () => {
       const { getByRole } = await render(
