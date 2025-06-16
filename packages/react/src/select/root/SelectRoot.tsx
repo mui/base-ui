@@ -31,6 +31,7 @@ export const SelectRoot: SelectRoot = function SelectRoot<Value>(
     actionsRef,
     inputRef,
     onOpenChangeComplete,
+    items,
   } = props;
 
   const { rootContext, floatingContext } = useSelectRoot<Value>({
@@ -48,6 +49,7 @@ export const SelectRoot: SelectRoot = function SelectRoot<Value>(
     modal,
     actionsRef,
     onOpenChangeComplete,
+    items,
   });
   const store = rootContext.store;
 
@@ -119,7 +121,7 @@ export const SelectRoot: SelectRoot = function SelectRoot<Value>(
 };
 
 export namespace SelectRoot {
-  export interface Props<Value> extends useSelectRoot.Parameters<Value> {
+  export interface Props<Value> extends Omit<useSelectRoot.Parameters<Value>, 'itemTemplate'> {
     children?: React.ReactNode;
     /**
      * A ref to access the hidden input element.
@@ -132,6 +134,18 @@ export namespace SelectRoot {
   export type Actions = useSelectRoot.Actions;
 
   export type OpenChangeReason = SelectOpenChangeReason;
+
+  export interface SelectOption<Value> {
+    value: Value;
+    label: string;
+    disabled?: boolean;
+  }
+
+  export interface SelectGroup<Value> {
+    groupLabel: string;
+    items: SelectOption<Value>[];
+    disabled?: boolean;
+  }
 }
 
 export interface SelectRoot {

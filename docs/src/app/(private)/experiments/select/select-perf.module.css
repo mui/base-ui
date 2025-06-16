@@ -171,3 +171,11 @@
 .ItemText {
   grid-column-start: 2;
 }
+
+.GroupLabel {
+  padding-block: 0.5rem;
+  padding-inline: 0.625rem;
+  text-transform: uppercase;
+  font-size: 0.825rem;
+  font-weight: bold;
+}
