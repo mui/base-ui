@@ -11,6 +11,12 @@ import {
 } from 'react-aria-components';
 import * as Radix from '@radix-ui/react-select';
 import * as Ariakit from '@ariakit/react';
+import {
+  Listbox,
+  ListboxButton,
+  ListboxOption,
+  ListboxOptions,
+} from '@headlessui/react';
 
 const items = Array.from({ length: 1000 }, (_, i) => ({
   label: `Item ${i}`,
@@ -121,6 +127,30 @@ function AriakitSelect() {
   );
 }
 
+function HeadlessUISelect() {
+  return (
+    <Listbox>
+      <ListboxButton>Select an item</ListboxButton>
+      <ListboxOptions anchor="bottom">
+        {items.map((item) => (
+          <ListboxOption
+            key={item.value}
+            value={item.value}
+            className="data-focus:bg-blue-100"
+          >
+            {({ focus, selected }) => (
+              <div className={focus ? 'bg-black text-white' : undefined}>
+                {selected && <span className="size-5">✓</span>}
+                {item.label}
+              </div>
+            )}
+          </ListboxOption>
+        ))}
+      </ListboxOptions>
+    </Listbox>
+  );
+}
+
 export default function SelectBenchmark() {
   return (
     <div className="space-y-4">
@@ -132,6 +162,8 @@ export default function SelectBenchmark() {
       <RadixSelect />
       <h2 className="text-2xl font-bold">Ariakit</h2>
       <AriakitSelect />
+      <h2 className="text-2xl font-bold">Headless UI</h2>
+      <HeadlessUISelect />
     </div>
   );
 }
