@@ -50,6 +50,7 @@ import { startOfMonth } from 'date-fns/startOfMonth';
 import { startOfSecond } from 'date-fns/startOfSecond';
 import { startOfYear } from 'date-fns/startOfYear';
 import { startOfWeek } from 'date-fns/startOfWeek';
+import { TZDate } from '@date-fns/tz';
 import {
   TemporalAdapterFormats,
   DateBuilderReturnType,
@@ -87,7 +88,7 @@ declare module '@base-ui-components/react/models' {
 }
 
 export class TemporalAdapterDateFns implements TemporalAdapter {
-  public isTimezoneCompatible = false;
+  public isTimezoneCompatible = true;
 
   public lib = 'date-fns';
 
@@ -102,8 +103,11 @@ export class TemporalAdapterDateFns implements TemporalAdapter {
   }
 
   public now = (timezone: TemporalTimezone) => {
-    // @ts-ignore
-    return new Date();
+    if (timezone === 'system' || timezone === 'default') {
+      return new Date();
+    }
+
+    return TZDate.tz(timezone);
   };
 
   public date = <T extends string | null>(
@@ -115,15 +119,37 @@ export class TemporalAdapterDateFns implements TemporalAdapter {
       return null as unknown as R;
     }
 
-    return new Date(value) as unknown as R;
+    if (timezone === 'system' || timezone === 'default') {
+      return new Date(value) as unknown as R;
+    }
+
+    const date = new Date(value);
+    return new TZDate(
+      date.getFullYear(),
+      date.getMonth(),
+      date.getDate(),
+      date.getHours(),
+      date.getMinutes(),
+      date.getSeconds(),
+      date.getMilliseconds(),
+      timezone,
+    ) as unknown as R;
   };
 
-  public getTimezone = (): string => {
-    return 'default';
+  public getTimezone = (value: Date): string => {
+    if (value instanceof TZDate) {
+      return value.timeZone ?? 'system';
+    }
+
+    return 'system';
   };
 
-  public setTimezone = (value: Date): Date => {
-    return value;
+  public setTimezone = (value: Date, timezone: TemporalTimezone): Date => {
+    if (value instanceof TZDate) {
+      return value.withTimeZone(timezone);
+    }
+
+    return new TZDate(value, timezone);
   };
 
   public toJsDate = (value: Date) => {

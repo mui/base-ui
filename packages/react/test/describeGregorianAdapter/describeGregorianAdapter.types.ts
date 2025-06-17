@@ -21,8 +21,9 @@ export interface DescribeGregorianAdapterParameters {
   /**
    * Sets the default timezone of the date library.
    * This is used to ensure that the adapter works correctly when the timezone is set to "default".
+   * If the adapter does not support setting a default timezone, set this property to `null`.
    */
-  setDefaultTimezone: (timezone: TemporalTimezone | undefined) => void;
+  setDefaultTimezone: ((timezone: TemporalTimezone | undefined) => void) | null;
   /**
    * Creates a date in French locale.
    */

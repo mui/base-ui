@@ -6,7 +6,7 @@ describe('TemporalAdapterDateFns', () => {
   describeGregorianAdapter({
     adapter: new TemporalAdapterDateFns(),
     adapterFr: new TemporalAdapterDateFns({ locale: fr }),
-    setDefaultTimezone: () => {},
+    setDefaultTimezone: null,
     // The Date object doesn't contain a locale
     createDateInFrenchLocale: (dateStr) => new Date(dateStr),
   });

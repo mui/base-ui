@@ -50,14 +50,16 @@ export const testComputations: DescribeGregorianAdapterTestSuite = ({
         test('America/New_York');
         test('Europe/Paris');
 
-        setDefaultTimezone('America/New_York');
-        test('default', 'America/New_York');
+        if (setDefaultTimezone != null) {
+          setDefaultTimezone('America/New_York');
+          test('default', 'America/New_York');
 
-        setDefaultTimezone('Europe/Paris');
-        test('default', 'Europe/Paris');
+          setDefaultTimezone('Europe/Paris');
+          test('default', 'Europe/Paris');
 
-        // Reset to the default timezone
-        setDefaultTimezone(undefined);
+          // Reset to the default timezone
+          setDefaultTimezone(undefined);
+        }
       } else {
         expect(adapter.date(TEST_DATE_ISO_STRING, 'system')).toEqualDateTime(TEST_DATE_ISO_STRING);
         expect(adapter.date(TEST_DATE_ISO_STRING, 'default')).toEqualDateTime(TEST_DATE_ISO_STRING);
@@ -129,9 +131,11 @@ export const testComputations: DescribeGregorianAdapterTestSuite = ({
     testTimezone('America/New_York');
     testTimezone('UTC');
 
-    setDefaultTimezone('America/Chicago');
-    testTimezone('default', 'America/Chicago');
-    setDefaultTimezone(undefined);
+    if (setDefaultTimezone != null) {
+      setDefaultTimezone('America/Chicago');
+      testTimezone('default', 'America/Chicago');
+      setDefaultTimezone(undefined);
+    }
   });
 
   test.skipIf(!adapter.isTimezoneCompatible)(
@@ -144,19 +148,35 @@ export const testComputations: DescribeGregorianAdapterTestSuite = ({
 
   it('Method: setTimezone', () => {
     if (adapter.isTimezoneCompatible) {
-      const test = (timezone: TemporalTimezone) => {
-        setDefaultTimezone(timezone);
-        const dateWithLocaleTimezone = adapter.date(TEST_DATE_ISO_STRING, 'system');
-        const dateWithDefaultTimezone = adapter.setTimezone(dateWithLocaleTimezone, 'default');
+      const dateWithLocaleTimezone = adapter.date(TEST_DATE_ISO_STRING, 'system');
 
-        expect(adapter.getTimezone(dateWithDefaultTimezone)).to.equal(timezone);
-      };
+      expect(
+        adapter.getTimezone(adapter.setTimezone(dateWithLocaleTimezone, 'America/New_York')),
+      ).to.equal('America/New_York');
 
-      test('America/New_York');
-      test('Europe/Paris');
+      expect(
+        adapter.getTimezone(adapter.setTimezone(dateWithLocaleTimezone, 'Europe/Paris')),
+      ).to.equal('Europe/Paris');
+
+      expect(adapter.getTimezone(adapter.setTimezone(dateWithLocaleTimezone, 'UTC'))).to.equal(
+        'UTC',
+      );
+
+      if (setDefaultTimezone != null) {
+        setDefaultTimezone('America/New_York');
+        expect(
+          adapter.getTimezone(adapter.setTimezone(dateWithLocaleTimezone, 'default')),
+        ).to.equal('America/New_York');
+
+        setDefaultTimezone('Europe/Paris');
+        expect(
+          adapter.getTimezone(adapter.setTimezone(dateWithLocaleTimezone, 'default')),
+        ).to.equal('Europe/Paris');
+
+        setDefaultTimezone(undefined);
+      }
 
       // Reset to the default timezone
-      setDefaultTimezone(undefined);
     } else {
       const systemDate = adapter.date(TEST_DATE_ISO_STRING, 'system');
       expect(adapter.setTimezone(systemDate, 'default')).toEqualDateTime(systemDate);

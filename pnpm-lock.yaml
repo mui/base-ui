@@ -573,6 +573,9 @@ importers:
         specifier: ^1.5.0
         version: 1.5.0(react@19.1.0)
     devDependencies:
+      '@date-fns/tz':
+        specifier: 1.2.0
+        version: 1.2.0
       '@mui/internal-test-utils':
         specifier: ^2.0.7
         version: 2.0.9(@babel/core@7.27.4)(@types/react-dom@19.1.5(@types/react@19.1.6))(@types/react@19.1.6)(chai@4.5.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
@@ -1601,6 +1604,9 @@ packages:
 
   '@dabh/diagnostics@2.0.3':
     resolution: {integrity: sha512-hrlQOIi7hAfzsMqlGSFyVucrx38O+j6wiGOf//H2ecvIEqYN4ADBSS2iLMh5UFyDunCNniUIPk/q3riFv45xRA==}
+
+  '@date-fns/tz@1.2.0':
+    resolution: {integrity: sha512-LBrd7MiJZ9McsOgxqWX7AaxrDjcFVjWH/tIKJd7pnR7McaslGYOP1QmmiBXdJH/H/yLCT+rcQ7FaPBUxRGUtrg==}
 
   '@dependents/detective-less@5.0.1':
     resolution: {integrity: sha512-Y6+WUMsTFWE5jb20IFP4YGa5IrGY/+a/FbOSjDF/wz9gepU2hwCYSXRHP/vPwBvwcY3SVMASt4yXxbXNXigmZQ==}
@@ -12268,6 +12274,8 @@ snapshots:
       colorspace: 1.1.4
       enabled: 2.0.0
       kuler: 2.0.0
+
+  '@date-fns/tz@1.2.0': {}
 
   '@dependents/detective-less@5.0.1':
     dependencies:
