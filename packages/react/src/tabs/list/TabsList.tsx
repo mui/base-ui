@@ -32,7 +32,6 @@ export const TabsList = React.forwardRef(function TabsList(
   } = componentProps;
 
   const {
-    direction,
     getTabElementBySelectedValue,
     onValueChange,
     orientation,
@@ -105,7 +104,6 @@ export const TabsList = React.forwardRef(function TabsList(
         highlightedIndex={highlightedTabIndex}
         enableHomeAndEndKeys
         loop={loop}
-        direction={direction}
         orientation={orientation}
         onHighlightedIndexChange={setHighlightedTabIndex}
         onMapChange={setTabMap}
