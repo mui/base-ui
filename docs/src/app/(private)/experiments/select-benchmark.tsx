@@ -83,13 +83,21 @@ function AriakitSelect() {
   const [open, setOpen] = React.useState(false);
   return (
     <Ariakit.SelectProvider open={open} setOpen={setOpen}>
-      <Ariakit.Select className="button">
+      <Ariakit.Select>
         <Ariakit.SelectValue fallback="Select an item" />
       </Ariakit.Select>
       {open && (
-        <Ariakit.SelectPopover gutter={4} sameWidth className="popover">
+        <Ariakit.SelectPopover
+          gutter={4}
+          sameWidth
+          className="max-h-[var(--popover-available-height)] overflow-y-auto"
+        >
           {items.map((item) => (
-            <Ariakit.SelectItem key={item.value} value={item.value}>
+            <Ariakit.SelectItem
+              key={item.value}
+              value={item.value}
+              className="w-[200px]"
+            >
               {item.label}
             </Ariakit.SelectItem>
           ))}
