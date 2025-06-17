@@ -57,6 +57,7 @@ export const ComboboxItem = React.memo(
       keyboardActiveRef,
       allowActiveIndexSyncRef,
       onItemHighlighted,
+      multiple,
     } = useComboboxRootContext();
 
     const active = useSelector(store, selectors.isActive, listItem.index);
@@ -135,11 +136,15 @@ export const ComboboxItem = React.memo(
 
     const defaultProps: HTMLProps = {
       id,
+      role: 'option',
       'aria-disabled': disabled || undefined,
+      'aria-selected': selectable ? selected : undefined,
       tabIndex: -1,
       onClick(event) {
         setValue(value, event.nativeEvent, 'item-press');
-        setOpen(false, event.nativeEvent, 'item-press');
+        if (!multiple) {
+          setOpen(false, event.nativeEvent, 'item-press');
+        }
         const selectedIndex = listRef.current.indexOf(itemRef.current);
         if (selectedIndex !== -1) {
           store.set('selectedIndex', selectedIndex);
@@ -150,10 +155,6 @@ export const ComboboxItem = React.memo(
         event.preventDefault();
       },
     };
-
-    if (!selectable) {
-      defaultProps['aria-selected'] = undefined;
-    }
 
     const element = useRenderElement('div', componentProps, {
       ref: [buttonRef, forwardedRef, listItem.ref, itemRef],

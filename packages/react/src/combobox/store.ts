@@ -14,7 +14,7 @@ export type State = {
   inline: boolean;
 
   activeIndex: number | null;
-  selectedIndex: number | null;
+  selectedIndex: number | number[] | null;
 
   popupProps: HTMLProps;
   triggerProps: HTMLProps;
@@ -37,7 +37,12 @@ export const selectors = {
   activeIndex: createSelector((state: State) => state.activeIndex),
   selectedIndex: createSelector((state: State) => state.selectedIndex),
   isActive: createSelector((state: State, index: number) => state.activeIndex === index),
-  isSelected: createSelector((state: State, value: any) => state.value === value),
+  isSelected: createSelector((state: State, value: any) => {
+    if (Array.isArray(state.value)) {
+      return state.value.includes(value);
+    }
+    return state.value === value;
+  }),
 
   popupProps: createSelector((state: State) => state.popupProps),
   triggerProps: createSelector((state: State) => state.triggerProps),
