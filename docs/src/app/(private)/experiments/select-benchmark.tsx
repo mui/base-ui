@@ -47,7 +47,7 @@ function BaseUISelect() {
         <Select.Value placeholder="Select an item" />
       </Select.Trigger>
       <Select.Portal>
-        <Select.Positioner>
+        <Select.Positioner alignItemWithTrigger={false}>
           <Select.Popup>
             {items.map((item) => (
               <Select.Item
@@ -73,7 +73,7 @@ function RadixSelect() {
         <Radix.Value placeholder="Select an item" />
       </Radix.Trigger>
       <Radix.Portal>
-        <Radix.Content>
+        <Radix.Content position="popper">
           <Radix.Viewport>
             {items.map((item) => (
               <Radix.Item
@@ -112,6 +112,7 @@ function AriakitSelect() {
               className="w-full data-[active-item]:bg-black data-[active-item]:text-white"
             >
               {item.label}
+              <Ariakit.SelectItemCheck />
             </Ariakit.SelectItem>
           ))}
         </Ariakit.SelectPopover>
