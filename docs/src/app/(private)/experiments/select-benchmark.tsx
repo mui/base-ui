@@ -27,7 +27,12 @@ function ReactAriaSelect() {
       <Popover>
         <ListBox>
           {items.map((item) => (
-            <ListBoxItem key={item.value}>{item.label}</ListBoxItem>
+            <ListBoxItem
+              key={item.value}
+              className="data-[hovered]:bg-black data-[hovered]:text-white"
+            >
+              {item.label}
+            </ListBoxItem>
           ))}
         </ListBox>
       </Popover>
@@ -45,7 +50,11 @@ function BaseUISelect() {
         <Select.Positioner>
           <Select.Popup>
             {items.map((item) => (
-              <Select.Item key={item.value} value={item.value}>
+              <Select.Item
+                key={item.value}
+                value={item.value}
+                className="data-[highlighted]:bg-black data-[highlighted]:text-white"
+              >
                 <Select.ItemIndicator />
                 <Select.ItemText>{item.label}</Select.ItemText>
               </Select.Item>
@@ -67,7 +76,11 @@ function RadixSelect() {
         <Radix.Content>
           <Radix.Viewport>
             {items.map((item) => (
-              <Radix.Item key={item.value} value={item.value}>
+              <Radix.Item
+                key={item.value}
+                value={item.value}
+                className="data-[highlighted]:bg-black data-[highlighted]:text-white"
+              >
                 <Radix.ItemIndicator />
                 <Radix.ItemText>{item.label}</Radix.ItemText>
               </Radix.Item>
@@ -90,13 +103,13 @@ function AriakitSelect() {
         <Ariakit.SelectPopover
           gutter={4}
           sameWidth
-          className="max-h-[var(--popover-available-height)] overflow-y-auto"
+          className="max-h-[var(--popover-available-height)] w-[300px] overflow-y-auto"
         >
           {items.map((item) => (
             <Ariakit.SelectItem
               key={item.value}
               value={item.value}
-              className="w-[200px]"
+              className="w-full data-[active-item]:bg-black data-[active-item]:text-white"
             >
               {item.label}
             </Ariakit.SelectItem>
