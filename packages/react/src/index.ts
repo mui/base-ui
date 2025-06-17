@@ -29,7 +29,6 @@ export * from './separator';
 export * from './slider';
 export * from './switch';
 export * from './tabs';
-export * from './temporal-adapter-luxon';
 export * from './temporal-adapter-provider';
 export * from './toast';
 export * from './toggle';

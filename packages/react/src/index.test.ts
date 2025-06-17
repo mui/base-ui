@@ -24,7 +24,12 @@ describe('@base-ui-components/react', () => {
 
     await Promise.all(
       Object.keys(subpathExports)
-        .filter((key) => !['.', './utils'].includes(key) && !key.startsWith('./unstable-'))
+        .filter(
+          (key) =>
+            !['.', './utils', './temporal-adapter-luxon', './temporal-adapter-date-fns'].includes(
+              key,
+            ) && !key.startsWith('./unstable-'),
+        )
         .map(async (subpath) => {
           const importSpecifier = `@base-ui-components/react/${subpath.replace('./', '')}`;
           const module = await import(/* @vite-ignore */ importSpecifier);
