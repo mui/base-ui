@@ -30,7 +30,7 @@ function ReactAriaSelect() {
         <SelectValue />
         <span aria-hidden="true">▼</span>
       </Button>
-      <Popover>
+      <Popover className="max-h-[500px] overflow-y-auto">
         <ListBox>
           {items.map((item) => (
             <ListBoxItem
@@ -54,7 +54,7 @@ function BaseUISelect() {
       </Select.Trigger>
       <Select.Portal>
         <Select.Positioner alignItemWithTrigger={false}>
-          <Select.Popup>
+          <Select.Popup className="max-h-[var(--available-height)] overflow-y-auto">
             {items.map((item) => (
               <Select.Item
                 key={item.value}
