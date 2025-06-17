@@ -151,7 +151,7 @@ describe('<Toolbar.Root />', () => {
 
       // loop to the beginning
       await user.keyboard('[ArrowRight]');
-      expect(button1).to.have.attribute('data-highlighted');
+      expect(button1).to.have.attribute('tabindex', '0');
 
       await user.keyboard('[ArrowLeft]');
       expectFocusedWhenDisabled(input);
@@ -191,7 +191,7 @@ describe('<Toolbar.Root />', () => {
 
       // loop to the beginning
       await user.keyboard('[ArrowRight]');
-      expect(button1).to.have.attribute('data-highlighted');
+      expect(button1).to.have.attribute('tabindex', '0');
 
       await user.keyboard('[ArrowLeft]');
       expectFocusedWhenDisabled(input);

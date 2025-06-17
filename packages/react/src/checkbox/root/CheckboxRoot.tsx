@@ -188,13 +188,8 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
       disabled,
       // parent checkboxes unset `name` to be excluded from form submission
       name: parent ? undefined : name,
-      // set `id` when there is no `name` to avoid unassociated input warning
-      id: parent ? `${id}-input` : undefined,
-      // React <19 sets an empty value if `undefined` is passed explicitly
-      // To avoid this, we only set the value if it's defined
-      ...(valueProp !== undefined
-        ? { value: (groupContext ? checked && valueProp : valueProp) || '' }
-        : EMPTY),
+      // Set `id` to stop Chrome warning about an unassociated input
+      id: `${id}-input`,
       required,
       ref: mergedInputRef,
       style: visuallyHidden,
@@ -240,6 +235,11 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
         }
       },
     },
+    // React <19 sets an empty value if `undefined` is passed explicitly
+    // To avoid this, we only set the value if it's defined
+    valueProp !== undefined
+      ? { value: (groupContext ? checked && valueProp : valueProp) || '' }
+      : EMPTY,
     groupContext
       ? fieldControlValidation.getValidationProps
       : fieldControlValidation.getInputValidationProps,
