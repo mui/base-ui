@@ -1,4 +1,4 @@
-import { isFirefox, isIOS, isWebKit } from './detectBrowser';
+import { isFirefox, isIOS, isWebKit, isAndroid } from './detectBrowser';
 import { ownerDocument, ownerWindow } from './owner';
 import { useModernLayoutEffect } from './useModernLayoutEffect';
 import { Timeout } from './useTimeout';
@@ -84,7 +84,8 @@ function preventScrollStandard(referenceElement: Element | null) {
 
     // Values can be negative in Firefox
     const scrollbarWidth = isScrollableY ? Math.max(0, win.innerWidth - html.clientWidth) : 0;
-    const scrollbarHeight = isScrollableX ? Math.max(0, win.innerHeight - html.clientHeight) : 0;
+    const scrollbarHeight =
+      isScrollableX && !isAndroid ? Math.max(0, win.innerHeight - html.clientHeight) : 0;
 
     // Avoid shift due to the default <body> margin. This does cause elements to be clipped
     // with whitespace. Warn if <body> has margins?

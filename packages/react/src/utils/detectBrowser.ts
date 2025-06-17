@@ -20,6 +20,7 @@ export const isIOS =
     : /iP(hone|ad|od)|iOS/.test(nav.platform);
 
 export const isFirefox = typeof navigator !== 'undefined' && /firefox/i.test(getUserAgent());
+export const isAndroid = typeof navigator !== 'undefined' && /android/i.test(getUserAgent());
 
 // Avoid Chrome DevTools blue warning.
 function getNavigatorData(): { platform: string; maxTouchPoints: number } {
