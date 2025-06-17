@@ -3,6 +3,7 @@ import type { FloatingRootContext } from '@floating-ui/react';
 import type { BaseOpenChangeReason } from '../../utils/translateOpenChangeReason';
 import { ComboboxStore } from '../store';
 import { HTMLProps } from '../../utils/types';
+import type { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
 
 export type ValueChangeReason = 'item-press' | 'input-change';
 
@@ -34,6 +35,11 @@ export interface ComboboxRootContext<Value = any, Multiple extends boolean = fal
   registerSelectedItem: (index: number) => void;
   onItemHighlighted: (value: Value | undefined, type: 'keyboard' | 'pointer') => void;
   multiple: Multiple;
+  name: string | undefined;
+  disabled: boolean;
+  readOnly: boolean;
+  required: boolean;
+  fieldControlValidation: ReturnType<typeof useFieldControlValidation>;
 }
 
 export const ComboboxRootContext = React.createContext<ComboboxRootContext<any, any> | undefined>(

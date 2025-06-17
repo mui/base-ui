@@ -6,6 +6,14 @@ import { useRenderElement } from '../../utils/useRenderElement';
 import { useComboboxFloatingContext, useComboboxRootContext } from '../root/ComboboxRootContext';
 import { useSelector } from '../../utils/store';
 import { selectors } from '../store';
+import { popupStateMapping } from '../../utils/popupStateMapping';
+import { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
+import { useComboboxPositionerContext } from '../positioner/ComboboxPositionerContext';
+import type { Side, Align } from '../../utils/useAnchorPositioning';
+
+const customStyleHookMapping: CustomStyleHookMapping<ComboboxPopup.State> = {
+  ...popupStateMapping,
+};
 
 /**
  * A container for the combobox items.
@@ -20,8 +28,20 @@ export const ComboboxPopup = React.forwardRef(function ComboboxPopup(
   const { render, className, ...elementProps } = componentProps;
 
   const { store, popupRef, keyboardActiveRef } = useComboboxRootContext();
+  const positioning = useComboboxPositionerContext();
   const floatingRootContext = useComboboxFloatingContext();
   const popupProps = useSelector(store, selectors.popupProps);
+  const open = useSelector(store, selectors.open);
+
+  const state: ComboboxPopup.State = React.useMemo(
+    () => ({
+      open,
+      side: positioning.side,
+      align: positioning.align,
+      anchorHidden: positioning.anchorHidden,
+    }),
+    [open, positioning.side, positioning.align, positioning.anchorHidden],
+  );
 
   const element = useRenderElement('div', componentProps, {
     ref: [forwardedRef, popupRef],
@@ -37,6 +57,8 @@ export const ComboboxPopup = React.forwardRef(function ComboboxPopup(
       },
       elementProps,
     ],
+    customStyleHookMapping,
+    state,
   });
 
   return (
@@ -47,7 +69,14 @@ export const ComboboxPopup = React.forwardRef(function ComboboxPopup(
 });
 
 export namespace ComboboxPopup {
-  export interface State {}
+  export interface State {
+    open: boolean;
+    side: Side;
+    align: Align;
+    anchorHidden: boolean;
+  }
 
-  export interface Props extends BaseUIComponentProps<'div', State> {}
+  export interface Props extends BaseUIComponentProps<'div', State> {
+    id?: string;
+  }
 }

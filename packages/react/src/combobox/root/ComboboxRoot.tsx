@@ -13,7 +13,7 @@ import {
   translateOpenChangeReason,
 } from '../../utils/translateOpenChangeReason';
 import { ComboboxFloatingContext, ComboboxRootContext } from './ComboboxRootContext';
-import { useControlled, useId, useModernLayoutEffect, useTransitionStatus } from '../../utils';
+import { useControlled, useModernLayoutEffect, useTransitionStatus } from '../../utils';
 import { selectors, type State as StoreState } from '../store';
 import { Store, useSelector } from '../../utils/store';
 import { useLazyRef } from '../../utils/useLazyRef';
@@ -21,6 +21,14 @@ import { useEventCallback } from '../../utils/useEventCallback';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useOnFirstRender } from '../../utils/useOnFirstRender';
 import { CompositeList } from '../../composite/list/CompositeList';
+import { useFieldRootContext } from '../../field/root/FieldRootContext';
+import { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
+import { useFormContext } from '../../form/FormContext';
+import { useField } from '../../field/useField';
+import { visuallyHidden } from '../../utils/visuallyHidden';
+import { useForkRef } from '../../utils/useForkRef';
+import { useBaseUiId } from '../../utils/useBaseUiId';
+import { useLatestRef } from '../../utils/useLatestRef';
 
 /**
  * Groups all parts of a combobox.
@@ -38,9 +46,35 @@ export function ComboboxRoot<Value, Multiple extends boolean = false>(
     selectable = false,
     onItemHighlighted: onItemHighlightedProp,
     multiple = false as Multiple,
+    name: nameProp,
+    disabled: disabledProp = false,
+    readOnly = false,
+    required = false,
+    inputRef,
   } = props;
 
-  const id = useId(idProp);
+  const { clearErrors } = useFormContext();
+  const {
+    setDirty,
+    validityData,
+    validationMode,
+    setControlId,
+    setFilled,
+    name: fieldName,
+    disabled: fieldDisabled,
+  } = useFieldRootContext();
+  const fieldControlValidation = useFieldControlValidation();
+
+  const id = useBaseUiId(idProp);
+  const disabled = fieldDisabled || disabledProp;
+  const name = fieldName ?? nameProp;
+
+  useModernLayoutEffect(() => {
+    setControlId(id);
+    return () => {
+      setControlId(undefined);
+    };
+  }, [id, setControlId]);
 
   const getDefaultValue = (): Multiple extends true ? Value[] : Value => {
     if (multiple) {
@@ -84,6 +118,7 @@ export function ComboboxRoot<Value, Multiple extends boolean = false>(
         triggerProps: {},
         triggerElement: null,
         positionerElement: null,
+        listElement: null,
       }),
   ).current;
 
@@ -92,6 +127,7 @@ export function ComboboxRoot<Value, Multiple extends boolean = false>(
   const activeIndex = useSelector(store, selectors.activeIndex);
   const triggerElement = useSelector(store, selectors.triggerElement);
   const positionerElement = useSelector(store, selectors.positionerElement);
+  const listElement = useSelector(store, selectors.listElement);
   const inline = useSelector(store, selectors.inline);
   const open = inline ? true : openRaw;
 
@@ -101,6 +137,52 @@ export function ComboboxRoot<Value, Multiple extends boolean = false>(
   const valuesRef = React.useRef<Array<any>>([]);
   const keyboardActiveRef = React.useRef(true);
   const allowActiveIndexSyncRef = React.useRef(true);
+
+  const controlRef = useLatestRef(triggerElement);
+  const commitValidation = fieldControlValidation.commitValidation;
+
+  const updateValue = useEventCallback((nextValue: Multiple extends true ? Value[] : Value) => {
+    clearErrors(name);
+    setDirty(nextValue !== validityData.initialValue);
+  });
+
+  useField({
+    id,
+    commitValidation,
+    value,
+    controlRef,
+    name,
+    getValue: () => value,
+  });
+
+  const prevValueRef = React.useRef(value);
+
+  useModernLayoutEffect(() => {
+    if (prevValueRef.current === value) {
+      return;
+    }
+
+    clearErrors(name);
+    commitValidation?.(value, true);
+
+    if (validationMode === 'onChange') {
+      commitValidation?.(value);
+    }
+  }, [value, commitValidation, clearErrors, name, validationMode]);
+
+  useModernLayoutEffect(() => {
+    const hasValue = multiple
+      ? Array.isArray(value) && value.length > 0
+      : value !== null && value !== undefined && value !== '';
+    setFilled(hasValue);
+    if (prevValueRef.current !== value) {
+      updateValue(value);
+    }
+  }, [setFilled, updateValue, value, multiple]);
+
+  useModernLayoutEffect(() => {
+    prevValueRef.current = value;
+  }, [value]);
 
   const setOpen = useEventCallback(
     (nextOpen: boolean, event: Event | undefined, reason: BaseOpenChangeReason | undefined) => {
@@ -201,7 +283,7 @@ export function ComboboxRoot<Value, Multiple extends boolean = false>(
         role: 'combobox',
         'aria-expanded': open ? 'true' : 'false',
         'aria-haspopup': 'listbox',
-        'aria-controls': open ? floatingRootContext.floatingId : undefined,
+        'aria-controls': open ? listElement?.id : undefined,
         'aria-autocomplete': 'list',
         autoComplete: 'off',
         spellCheck: 'false',
@@ -212,15 +294,17 @@ export function ComboboxRoot<Value, Multiple extends boolean = false>(
         role: 'presentation',
       },
     }),
-    [open, floatingRootContext.floatingId],
+    [open, listElement?.id],
   );
 
   const click = useClick(floatingRootContext, {
+    enabled: !readOnly && !disabled,
     event: 'mousedown-only',
     toggle: false,
   });
 
   const dismiss = useDismiss(floatingRootContext, {
+    enabled: !readOnly && !disabled,
     bubbles: true,
     outsidePress(event) {
       const target = getTarget(event) as Element | null;
@@ -229,6 +313,7 @@ export function ComboboxRoot<Value, Multiple extends boolean = false>(
   });
 
   const listNavigation = useListNavigation(floatingRootContext, {
+    enabled: !readOnly && !disabled,
     listRef,
     activeIndex,
     virtual: true,
@@ -281,6 +366,15 @@ export function ComboboxRoot<Value, Multiple extends boolean = false>(
     });
   }, [store, id, value, open, mounted, transitionStatus, getFloatingProps, getReferenceProps]);
 
+  const hiddenInputRef = useForkRef(inputRef, fieldControlValidation.inputRef);
+
+  const serializedValue = React.useMemo(() => {
+    if (value == null || Array.isArray(value)) {
+      return ''; // avoid uncontrolled -> controlled error
+    }
+    return getFormValue(value);
+  }, [value]);
+
   const contextValue: ComboboxRootContext<Value, Multiple> = React.useMemo(
     () => ({
       selectable,
@@ -302,6 +396,11 @@ export function ComboboxRoot<Value, Multiple extends boolean = false>(
       registerSelectedItem,
       onItemHighlighted,
       multiple,
+      name,
+      disabled,
+      readOnly,
+      required,
+      fieldControlValidation,
     }),
     [
       selectable,
@@ -317,13 +416,67 @@ export function ComboboxRoot<Value, Multiple extends boolean = false>(
       registerSelectedItem,
       onItemHighlighted,
       multiple,
+      name,
+      disabled,
+      readOnly,
+      required,
+      fieldControlValidation,
     ],
   );
 
   return (
     <ComboboxRootContext.Provider value={contextValue}>
       <ComboboxFloatingContext.Provider value={floatingRootContext}>
-        <CompositeList elementsRef={listRef}>{props.children}</CompositeList>
+        <CompositeList elementsRef={listRef}>
+          {props.children}
+          <input
+            {...fieldControlValidation.getInputValidationProps({
+              onFocus() {
+                // Move focus to the trigger element when the hidden input is focused.
+                store.state.triggerElement?.focus();
+              },
+              // Handle browser autofill.
+              onChange(event: React.ChangeEvent<HTMLSelectElement>) {
+                // Workaround for https://github.com/facebook/react/issues/9023
+                if (event.nativeEvent.defaultPrevented) {
+                  return;
+                }
+
+                const nextValue = event.target.value;
+
+                const exactValue = valuesRef.current.find(
+                  (v: any) =>
+                    v === nextValue ||
+                    (typeof value === 'string' && nextValue.toLowerCase() === v.toLowerCase()),
+                );
+
+                if (exactValue != null) {
+                  setDirty(exactValue !== validityData.initialValue);
+                  setValue?.(exactValue, event.nativeEvent, 'input-change');
+
+                  if (validationMode === 'onChange') {
+                    fieldControlValidation.commitValidation(exactValue);
+                  }
+                }
+              },
+              id,
+              name: multiple ? undefined : name,
+              disabled,
+              required,
+              readOnly,
+              value: serializedValue,
+              ref: hiddenInputRef,
+              style: visuallyHidden,
+              tabIndex: -1,
+              'aria-hidden': true,
+            })}
+          />
+          {multiple &&
+            Array.isArray(value) &&
+            value.map((v, index) => (
+              <input key={index} type="hidden" name={name} value={getFormValue(v)} />
+            ))}
+        </CompositeList>
       </ComboboxFloatingContext.Provider>
     </ComboboxRootContext.Provider>
   );
@@ -422,9 +575,20 @@ export namespace ComboboxRoot {
      * Passes the item's `value` or `undefined` when no item is highlighted.
      */
     onItemHighlighted?: (value: Value | undefined, type: 'keyboard' | 'pointer') => void;
+    /**
+     * A ref to the hidden input element used for form submission.
+     */
+    inputRef?: React.RefObject<HTMLInputElement>;
   }
 
   export interface Actions {
     unmount: () => void;
   }
+}
+
+function getFormValue(value: any) {
+  if (value && typeof value === 'object') {
+    return value.id ?? value.value ?? value.name ?? String(value);
+  }
+  return String(value);
 }
