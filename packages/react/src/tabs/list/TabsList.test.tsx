@@ -56,6 +56,39 @@ describe('<Tabs.List />', () => {
       expect(tab2).to.have.attribute('aria-selected', 'false');
       expect(tab3).to.have.attribute('aria-selected', 'false');
     });
+
+    it('sets the aria-controls attribute referencing the associated tab panel', async () => {
+      const { getByText, getByTestId } = await render(
+        <Tabs.Root defaultValue={1}>
+          <Tabs.List>
+            <Tabs.Tab value={1}>Tab 1</Tabs.Tab>
+            <Tabs.Tab value={2}>Tab 2</Tabs.Tab>
+            <Tabs.Tab value={3}>Tab 3</Tabs.Tab>
+          </Tabs.List>
+          <Tabs.Panel data-testid="panel-1" value={1}>
+            Panel 1
+          </Tabs.Panel>
+          <Tabs.Panel data-testid="panel-2" id="explicit-id" value={2}>
+            Panel 2
+          </Tabs.Panel>
+          <Tabs.Panel data-testid="panel-3" value={3}>
+            Panel 3
+          </Tabs.Panel>
+        </Tabs.Root>,
+      );
+
+      const tab1 = getByText('Tab 1');
+      const tab2 = getByText('Tab 2');
+      const tab3 = getByText('Tab 3');
+
+      const panel1 = getByTestId('panel-1');
+      const panel2 = getByTestId('panel-2');
+      const panel3 = getByTestId('panel-3');
+
+      expect(tab1).to.have.attribute('aria-controls', panel1.id);
+      expect(tab2).to.have.attribute('aria-controls', panel2.id);
+      expect(tab3).to.have.attribute('aria-controls', panel3.id);
+    });
   });
 
   it('can be named via `aria-label`', async () => {

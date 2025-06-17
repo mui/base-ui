@@ -24,6 +24,7 @@ export const TabsPanel = React.forwardRef(function TabPanel(
     className,
     value,
     render,
+    id: idProp,
     keepMounted = false,
     ...elementProps
   } = componentProps;
@@ -35,7 +36,7 @@ export const TabsPanel = React.forwardRef(function TabPanel(
     tabActivationDirection,
   } = useTabsRootContext();
 
-  const id = useBaseUiId();
+  const id = useBaseUiId(idProp);
 
   const metadata = React.useMemo(
     () => ({
