@@ -27,27 +27,20 @@ export const TabsTab = React.forwardRef(function Tab(
     className,
     disabled = false,
     render,
-    value: valueProp,
+    value,
     id: idProp,
     nativeButton = true,
     ...elementProps
   } = componentProps;
 
-  const {
-    value: selectedTabValue,
-    getTabPanelIdByTabValueOrIndex,
-    orientation,
-  } = useTabsRootContext();
+  const { value: selectedTabValue, getTabPanelIdByTabValue, orientation } = useTabsRootContext();
 
   const { activateOnFocus, highlightedTabIndex, onTabActivation, setHighlightedTabIndex } =
     useTabsListContext();
 
   const id = useBaseUiId(idProp);
 
-  const tabMetadata = React.useMemo(
-    () => ({ disabled, id, value: valueProp }),
-    [disabled, id, valueProp],
-  );
+  const tabMetadata = React.useMemo(() => ({ disabled, id, value }), [disabled, id, value]);
 
   const {
     props: compositeItemProps,
@@ -57,17 +50,11 @@ export const TabsTab = React.forwardRef(function Tab(
     // because the index is needed for Tab internals
   } = useCompositeItem<TabsTab.Metadata>({ metadata: tabMetadata });
 
-  const tabValue = valueProp ?? index;
-
   // the `selected` state isn't set on the server (it relies on effects to be calculated),
   // so we fall back to checking the `value` param with the selectedTabValue from the TabsContext
   const selected = React.useMemo(() => {
-    if (valueProp === undefined) {
-      return index < 0 ? false : index === selectedTabValue;
-    }
-
-    return valueProp === selectedTabValue;
-  }, [index, selectedTabValue, valueProp]);
+    return value === selectedTabValue;
+  }, [selectedTabValue, value]);
 
   const isSelectionSyncedWithHighlightRef = React.useRef(false);
 
@@ -87,9 +74,7 @@ export const TabsTab = React.forwardRef(function Tab(
     focusableWhenDisabled: true,
   });
 
-  // const handleRef = useForkRef(compositeItemRef, buttonRef, externalRef);
-
-  const tabPanelId = index > -1 ? getTabPanelIdByTabValueOrIndex(valueProp, index) : undefined;
+  const tabPanelId = index > -1 ? getTabPanelIdByTabValue(value) : undefined;
 
   const isPressingRef = React.useRef(false);
   const isMainButtonRef = React.useRef(false);
@@ -101,7 +86,7 @@ export const TabsTab = React.forwardRef(function Tab(
       return;
     }
 
-    onTabActivation(tabValue, event.nativeEvent);
+    onTabActivation(value, event.nativeEvent);
   });
 
   const onFocus = useEventCallback((event: React.FocusEvent<HTMLButtonElement>) => {
@@ -121,7 +106,7 @@ export const TabsTab = React.forwardRef(function Tab(
       (activateOnFocus && !isPressingRef.current) || // keyboard focus
       (isPressingRef.current && isMainButtonRef.current) // focus caused by pointerdown
     ) {
-      onTabActivation(tabValue, event.nativeEvent);
+      onTabActivation(value, event.nativeEvent);
     }
   });
 
@@ -216,7 +201,7 @@ export namespace TabsTab {
      * When not specified, the value is the child position index.
      * @type Tabs.Tab.Value
      */
-    value?: Value;
+    value: Value;
     /**
      * Whether the component renders a native `<button>` element when replacing it
      * via the `render` prop.

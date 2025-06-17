@@ -66,24 +66,10 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
   );
 
   // get the `id` attribute of <Tabs.Panel> to set as the value of `aria-controls` on <Tabs.Tab>
-  const getTabPanelIdByTabValueOrIndex = React.useCallback(
-    (tabValue: TabsTab.Value | undefined, index: number) => {
-      if (tabValue === undefined && index < 0) {
-        return undefined;
-      }
-
+  const getTabPanelIdByTabValue = React.useCallback(
+    (tabValue: TabsTab.Value) => {
       for (const tabPanelMetadata of tabPanelMap.values()) {
-        // find by tabValue
         if (tabValue !== undefined && tabPanelMetadata && tabValue === tabPanelMetadata?.value) {
-          return tabPanelMetadata.id;
-        }
-
-        // find by index
-        if (
-          tabValue === undefined &&
-          tabPanelMetadata?.index &&
-          tabPanelMetadata?.index === index
-        ) {
           return tabPanelMetadata.id;
         }
       }
@@ -94,28 +80,10 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
   );
 
   // get the `id` attribute of <Tabs.Tab> to set as the value of `aria-labelledby` on <Tabs.Panel>
-  const getTabIdByPanelValueOrIndex = React.useCallback(
-    (tabPanelValue: TabsTab.Value | undefined, index: number) => {
-      if (tabPanelValue === undefined && index < 0) {
-        return undefined;
-      }
-
+  const getTabIdByPanelValue = React.useCallback(
+    (tabPanelValue: TabsTab.Value) => {
       for (const tabMetadata of tabMap.values()) {
-        // find by tabPanelValue
-        if (
-          tabPanelValue !== undefined &&
-          index > -1 &&
-          tabPanelValue === (tabMetadata?.value ?? tabMetadata?.index ?? undefined)
-        ) {
-          return tabMetadata?.id;
-        }
-
-        // find by index
-        if (
-          tabPanelValue === undefined &&
-          index > -1 &&
-          index === (tabMetadata?.value ?? tabMetadata?.index ?? undefined)
-        ) {
+        if (tabPanelValue === (tabMetadata?.value ?? tabMetadata?.index ?? undefined)) {
           return tabMetadata?.id;
         }
       }
@@ -127,13 +95,9 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
 
   // used in `useActivationDirectionDetector` for setting data-activation-direction
   const getTabElementBySelectedValue = React.useCallback(
-    (selectedValue: TabsTab.Value | undefined): HTMLElement | null => {
-      if (selectedValue === undefined) {
-        return null;
-      }
-
+    (selectedValue: TabsTab.Value): HTMLElement | null => {
       for (const [tabElement, tabMetadata] of tabMap.entries()) {
-        if (tabMetadata != null && selectedValue === (tabMetadata.value ?? tabMetadata.index)) {
+        if (tabMetadata != null && selectedValue === tabMetadata.value) {
           return tabElement as HTMLElement;
         }
       }
@@ -147,8 +111,8 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
     () => ({
       direction,
       getTabElementBySelectedValue,
-      getTabIdByPanelValueOrIndex,
-      getTabPanelIdByTabValueOrIndex,
+      getTabIdByPanelValue,
+      getTabPanelIdByTabValue,
       onValueChange,
       orientation,
       setTabMap,
@@ -158,8 +122,8 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
     [
       direction,
       getTabElementBySelectedValue,
-      getTabIdByPanelValueOrIndex,
-      getTabPanelIdByTabValueOrIndex,
+      getTabIdByPanelValue,
+      getTabPanelIdByTabValue,
       onValueChange,
       orientation,
       setTabMap,

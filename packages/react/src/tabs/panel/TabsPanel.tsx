@@ -8,7 +8,6 @@ import { tabsStyleHookMapping } from '../root/styleHooks';
 import { useTabsRootContext } from '../root/TabsRootContext';
 import type { TabsRoot } from '../root/TabsRoot';
 import type { TabsTab } from '../tab/TabsTab';
-import { TabsPanelDataAttributes } from './TabsPanelDataAttributes';
 
 /**
  * A panel displayed when the corresponding tab is active.
@@ -23,7 +22,7 @@ export const TabsPanel = React.forwardRef(function TabPanel(
   const {
     children,
     className,
-    value: valueProp,
+    value,
     render,
     keepMounted = false,
     ...elementProps
@@ -31,7 +30,7 @@ export const TabsPanel = React.forwardRef(function TabPanel(
 
   const {
     value: selectedValue,
-    getTabIdByPanelValueOrIndex,
+    getTabIdByPanelValue,
     orientation,
     tabActivationDirection,
   } = useTabsRootContext();
@@ -41,30 +40,29 @@ export const TabsPanel = React.forwardRef(function TabPanel(
   const metadata = React.useMemo(
     () => ({
       id,
-      value: valueProp,
+      value,
     }),
-    [id, valueProp],
+    [id, value],
   );
 
   const { ref: listItemRef, index } = useCompositeListItem<TabsPanel.Metadata>({
     metadata,
   });
 
-  const tabPanelValue = valueProp ?? index;
-
-  const hidden = tabPanelValue !== selectedValue;
+  const hidden = value !== selectedValue;
 
   const correspondingTabId = React.useMemo(() => {
-    return getTabIdByPanelValueOrIndex(valueProp, index);
-  }, [getTabIdByPanelValueOrIndex, index, valueProp]);
+    return getTabIdByPanelValue(value);
+  }, [getTabIdByPanelValue, value]);
 
   const state: TabsPanel.State = React.useMemo(
     () => ({
       hidden,
       orientation,
       tabActivationDirection,
+      index,
     }),
-    [hidden, orientation, tabActivationDirection],
+    [hidden, orientation, tabActivationDirection, index],
   );
 
   const element = useRenderElement('div', componentProps, {
@@ -77,7 +75,6 @@ export const TabsPanel = React.forwardRef(function TabPanel(
         id: id ?? undefined,
         role: 'tabpanel',
         tabIndex: hidden ? -1 : 0,
-        [TabsPanelDataAttributes.index as string]: index,
       },
       elementProps,
       { children: hidden && !keepMounted ? undefined : children },
@@ -105,7 +102,7 @@ export namespace TabsPanel {
      * It is recommended to explicitly provide it, as it's required for the tab panel to be rendered on the server.
      * @type Tabs.Tab.Value
      */
-    value?: TabsTab.Value;
+    value: TabsTab.Value;
     /**
      * Whether to keep the HTML element in the DOM while the panel is hidden.
      * @default false

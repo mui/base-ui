@@ -29,16 +29,13 @@ export interface TabsRootContext {
    * @param (any | undefined) panelValue Value to find the Tab for.
    * @param (number) index The index of the TabPanel to look for.
    */
-  getTabIdByPanelValueOrIndex: (
-    panelValue: TabsTab.Value | undefined,
-    index: number,
-  ) => string | undefined;
+  getTabIdByPanelValue: (panelValue: TabsTab.Value) => string | undefined;
   /**
    * Gets the `id` attribute of the TabPanel that corresponds to the given Tab value or index.
    * @param (any | undefined) tabValue Value to find the Tab for.
    * @param (number) index The index of the Tab to look for.
    */
-  getTabPanelIdByTabValueOrIndex: (tabValue: any, index: number) => string | undefined;
+  getTabPanelIdByTabValue: (tabValue: TabsTab.Value) => string | undefined;
   setTabMap: (map: Map<Node, (TabsTab.Metadata & { index?: number | null }) | null>) => void;
   /**
    * The position of the active tab relative to the previously active tab.
