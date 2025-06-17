@@ -2,6 +2,9 @@
   "name": "ComboboxPopup",
   "description": "A container for the combobox items.\nRenders a `<div>` element.",
   "props": {
+    "id": {
+      "type": "string"
+    },
     "className": {
       "type": "string | ((state: Combobox.Popup.State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
