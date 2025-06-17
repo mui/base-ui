@@ -5,6 +5,7 @@ import { useForcedRerendering } from '../../utils/useForcedRerendering';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useOnMount } from '../../utils/useOnMount';
 import type { BaseUIComponentProps } from '../../utils/types';
+import { useDirection } from '../../direction-provider/DirectionContext';
 import type { TabsRoot } from '../root/TabsRoot';
 import { useTabsRootContext } from '../root/TabsRootContext';
 import { tabsStyleHookMapping } from '../root/styleHooks';
@@ -18,10 +19,6 @@ const customStyleHookMapping = {
   selectedTabPosition: () => null,
   selectedTabSize: () => null,
 };
-
-function round(value: number) {
-  return Math.round(value * 100) * 0.01;
-}
 
 /**
  * A visual indicator that can be styled to match the position of the currently active tab.
@@ -43,6 +40,8 @@ export const TabsIndicator = React.forwardRef(function TabIndicator(
   const [instanceId] = React.useState(() => generateId('tab'));
   const [isMounted, setIsMounted] = React.useState(false);
   const { value: activeTabValue } = useTabsRootContext();
+
+  const direction = useDirection();
 
   useOnMount(() => setIsMounted(true));
 
@@ -74,30 +73,27 @@ export const TabsIndicator = React.forwardRef(function TabIndicator(
   let isTabSelected = false;
 
   if (value != null && tabsListRef.current != null) {
-    const selectedTabElement = getTabElementBySelectedValue(value);
+    const selectedTab = getTabElementBySelectedValue(value);
+    const tabsList = tabsListRef.current;
     isTabSelected = true;
 
-    if (selectedTabElement != null) {
-      const {
-        left: tabLeft,
-        right: tabRight,
-        bottom: tabBottom,
-        top: tabTop,
-      } = selectedTabElement.getBoundingClientRect();
-
-      const {
-        left: listLeft,
-        right: listRight,
-        top: listTop,
-        bottom: listBottom,
-      } = tabsListRef.current.getBoundingClientRect();
-
-      left = round(tabLeft - listLeft);
-      right = round(listRight - tabRight);
-      top = round(tabTop - listTop);
-      bottom = round(listBottom - tabBottom);
-      width = round(tabRight - tabLeft);
-      height = round(tabBottom - tabTop);
+    if (selectedTab != null) {
+      left = selectedTab.offsetLeft - tabsList.clientLeft;
+      right =
+        direction === 'ltr'
+          ? tabsList.scrollWidth -
+            selectedTab.offsetLeft -
+            selectedTab.offsetWidth -
+            tabsList.clientLeft
+          : selectedTab.offsetLeft - tabsList.clientLeft;
+      top = selectedTab.offsetTop - tabsList.clientTop;
+      bottom =
+        tabsList.scrollHeight -
+        selectedTab.offsetTop -
+        selectedTab.offsetHeight -
+        tabsList.clientTop;
+      width = selectedTab.offsetWidth;
+      height = selectedTab.offsetHeight;
     }
   }
 

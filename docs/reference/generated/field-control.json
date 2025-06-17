@@ -6,7 +6,7 @@
       "type": "string | number | string[]"
     },
     "onValueChange": {
-      "type": "((value: string | number | string[] | undefined, event: Event) => void)",
+      "type": "((value: string, event: Event) => void)",
       "description": "Callback fired when the `value` changes. Use when controlled."
     },
     "className": {

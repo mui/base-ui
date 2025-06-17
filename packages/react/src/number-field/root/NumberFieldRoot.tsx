@@ -11,7 +11,7 @@ import { useEventCallback } from '../../utils/useEventCallback';
 import { useTimeout } from '../../utils/useTimeout';
 import { useInterval } from '../../utils/useInterval';
 import { getNumberLocaleDetails, PERCENTAGES } from '../utils/parse';
-import { formatNumber } from '../../utils/formatNumber';
+import { formatNumber, formatNumberMaxPrecision } from '../../utils/formatNumber';
 import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { useLatestRef } from '../../utils/useLatestRef';
 import { useForcedRerendering } from '../../utils/useForcedRerendering';
@@ -126,7 +126,12 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
   // locale. This causes a hydration mismatch, which we manually suppress. This is preferable to
   // rendering an empty input field and then updating it with the formatted value, as the user
   // can still see the value prior to hydration, even if it's not formatted correctly.
-  const [inputValue, setInputValue] = React.useState(() => formatNumber(value, locale, format));
+  const [inputValue, setInputValue] = React.useState(() => {
+    if (valueProp !== undefined) {
+      return getControlledInputValue(value, locale, format);
+    }
+    return formatNumber(value, locale, format);
+  });
   const [inputMode, setInputMode] = React.useState<InputMode>('numeric');
 
   const getAllowedNonNumericKeys = useEventCallback(() => {
@@ -263,7 +268,10 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
       return;
     }
 
-    const nextInputValue = formatNumber(value, locale, formatOptionsRef.current);
+    const nextInputValue =
+      valueProp !== undefined
+        ? getControlledInputValue(value, locale, format)
+        : formatNumber(value, locale, format);
 
     if (nextInputValue !== inputValue) {
       setInputValue(nextInputValue);
@@ -558,4 +566,16 @@ export namespace NumberFieldRoot {
      */
     scrubbing: boolean;
   }
+}
+
+function getControlledInputValue(
+  value: number | null,
+  locale: Intl.LocalesArgument,
+  format: Intl.NumberFormatOptions | undefined,
+) {
+  const explicitPrecision =
+    format?.maximumFractionDigits != null || format?.minimumFractionDigits != null;
+  return explicitPrecision
+    ? formatNumber(value, locale, format)
+    : formatNumberMaxPrecision(value, locale, format);
 }

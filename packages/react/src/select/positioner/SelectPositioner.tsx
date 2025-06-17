@@ -61,11 +61,8 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
   const alignItemWithTriggerActive = useSelector(store, selectors.alignItemWithTriggerActive);
 
   useOnFirstRender(() => {
-    // XXX: Should those options be applied on the root component?
-
     const controlledItemAnchorV = alignItemWithTrigger;
     const alignItemWithTriggerActiveV = mounted && controlledItemAnchor && !touchModality;
-
     store.state.controlledItemAnchor = controlledItemAnchorV;
     store.state.alignItemWithTriggerActive = alignItemWithTriggerActiveV;
   });
@@ -80,13 +77,11 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
     });
   }, [store]);
 
-  React.useImperativeHandle(alignItemWithTriggerActiveRef, () =>
-    selectors.alignItemWithTriggerActive(store.state),
-  );
-
-  if (!mounted && controlledItemAnchor !== alignItemWithTrigger) {
-    store.set('controlledItemAnchor', alignItemWithTrigger);
-  }
+  useModernLayoutEffect(() => {
+    if (!mounted && controlledItemAnchor !== alignItemWithTrigger) {
+      store.set('controlledItemAnchor', alignItemWithTrigger);
+    }
+  }, [store, controlledItemAnchor, alignItemWithTrigger, mounted]);
 
   useModernLayoutEffect(() => {
     if (!alignItemWithTrigger || !mounted) {
@@ -98,6 +93,10 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
       }
     }
   }, [store, mounted, alignItemWithTrigger]);
+
+  React.useImperativeHandle(alignItemWithTriggerActiveRef, () =>
+    selectors.alignItemWithTriggerActive(store.state),
+  );
 
   const positioner = useSelectPositioner({
     anchor,

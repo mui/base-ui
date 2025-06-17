@@ -73,6 +73,10 @@ export namespace useField {
     id: string | undefined;
     name?: string | undefined;
     commitValidation: (value: unknown) => void;
+    /**
+     * A ref to a focusable element that receives focus when the field fails
+     * validation during form submission.
+     */
     controlRef: React.RefObject<any>;
   }
 }

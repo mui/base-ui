@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import { act, fireEvent, screen } from '@mui/internal-test-utils';
+import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { Switch } from '@base-ui-components/react/switch';
 import { userEvent } from '@testing-library/user-event';
 import { describeConformance, createRenderer, isJSDOM } from '#test-utils';
@@ -511,17 +511,92 @@ describe('<Switch.Root />', () => {
       expect(button).to.have.attribute('aria-invalid', 'true');
     });
 
-    it('Field.Label', async () => {
-      await render(
-        <Field.Root>
-          <Switch.Root data-testid="button" />
-          <Field.Label data-testid="label" />
-        </Field.Root>,
-      );
+    describe('Field.Label', () => {
+      describe('implicit', () => {
+        it('when rendering a native button', async () => {
+          await render(
+            <Field.Root>
+              <Field.Label data-testid="label">
+                <Switch.Root data-testid="button" />
+              </Field.Label>
+            </Field.Root>,
+          );
 
-      const button = screen.getByTestId('button');
+          const label = screen.getByTestId('label');
+          expect(label).to.not.have.attribute('for');
 
-      expect(screen.getByTestId('label')).to.have.attribute('for', button.id);
+          const button = screen.getByRole('switch');
+          expect(button).to.have.attribute('aria-checked', 'false');
+
+          fireEvent.click(label);
+          expect(button).to.have.attribute('aria-checked', 'true');
+        });
+
+        it('when rendering a non-native button', async () => {
+          await render(
+            <Field.Root>
+              <Field.Label data-testid="label">
+                <Switch.Root data-testid="button" render={<span />} nativeButton={false} />
+              </Field.Label>
+            </Field.Root>,
+          );
+
+          const label = screen.getByTestId('label');
+          const button = screen.getByRole('switch');
+          expect(button.getAttribute('aria-labelledby')).to.equal(label.getAttribute('id'));
+        });
+      });
+
+      describe('explicit association', () => {
+        it('when the label is sibling to the switch', async () => {
+          await render(
+            <Field.Root>
+              <Field.Label data-testid="label">Label</Field.Label>
+              <Switch.Root data-testid="button" />
+            </Field.Root>,
+          );
+
+          const label = screen.getByTestId('label');
+          const button = screen.getByRole('switch');
+
+          await waitFor(() => {
+            expect(label.getAttribute('for')).to.not.equal(null);
+          });
+
+          expect(label.getAttribute('for')).to.equal(button.getAttribute('id'));
+          expect(button.getAttribute('aria-labelledby')).to.equal(label.getAttribute('id'));
+
+          expect(button).to.have.attribute('aria-checked', 'false');
+
+          fireEvent.click(label);
+          expect(button).to.have.attribute('aria-checked', 'true');
+        });
+
+        it('when rendering a non-native label', async () => {
+          await render(
+            <Field.Root>
+              <Field.Label data-testid="label" render={<span />}>
+                <Switch.Root data-testid="button" />
+              </Field.Label>
+            </Field.Root>,
+          );
+
+          const label = screen.getByTestId('label');
+          const button = screen.getByRole('switch');
+
+          await waitFor(() => {
+            expect(label.getAttribute('for')).to.not.equal(null);
+          });
+
+          expect(label.getAttribute('for')).to.equal(button.getAttribute('id'));
+          expect(button.getAttribute('aria-labelledby')).to.equal(label.getAttribute('id'));
+
+          expect(button).to.have.attribute('aria-checked', 'false');
+
+          fireEvent.click(label);
+          expect(button).to.have.attribute('aria-checked', 'false');
+        });
+      });
     });
 
     it('Field.Description', async () => {

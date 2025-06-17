@@ -13,7 +13,11 @@ describe('<Menu.SubmenuTrigger />', () => {
   describeConformance(<Menu.Trigger />, () => ({
     refInstanceof: window.HTMLButtonElement,
     render(node) {
-      return render(<Menu.Root open>{node}</Menu.Root>);
+      return render(
+        <Menu.Root open>
+          <Menu.SubmenuRoot>{node}</Menu.SubmenuRoot>
+        </Menu.Root>,
+      );
     },
   }));
 
@@ -25,7 +29,7 @@ describe('<Menu.SubmenuTrigger />', () => {
             <Menu.Positioner>
               <Menu.Popup>
                 <Menu.Item>1</Menu.Item>
-                <Menu.Root>
+                <Menu.SubmenuRoot>
                   <Menu.SubmenuTrigger>2</Menu.SubmenuTrigger>
                   <Menu.Portal>
                     <Menu.Positioner>
@@ -35,7 +39,7 @@ describe('<Menu.SubmenuTrigger />', () => {
                       </Menu.Popup>
                     </Menu.Positioner>
                   </Menu.Portal>
-                </Menu.Root>
+                </Menu.SubmenuRoot>
               </Menu.Popup>
             </Menu.Positioner>
           </Menu.Portal>
