@@ -231,7 +231,6 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
       // flips back to `true` once scrolling has come to a rest. This ensures
       // that momentum scrolling (where no further user-interaction events fire)
       // is still treated as user-driven.
-      scrollEndTimeout.clear();
       // 100 ms without scroll events ≈ scroll end
       // https://developer.mozilla.org/en-US/docs/Web/API/Element/scrollend_event
       scrollEndTimeout.start(100, () => {
