@@ -381,7 +381,10 @@ export const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
     rtl: direction === 'rtl',
     disabledIndices(index) {
       const element = listRef.current[index];
-      return element == null || getComputedStyle(element).display === 'none';
+      return (
+        element == null ||
+        (typeof element.checkVisibility === 'function' ? !element.checkVisibility() : false)
+      );
     },
     onNavigate: setActiveIndex,
     openOnArrowKeyDown: parent.type !== 'context-menu',

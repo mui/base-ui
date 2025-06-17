@@ -128,7 +128,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
       element == null ||
       element.hasAttribute('disabled') ||
       element.getAttribute('aria-disabled') === 'true' ||
-      getComputedStyle(element).display === 'none'
+      !(typeof element.checkVisibility === 'function' ? element.checkVisibility() : true)
     );
   });
   const disabledIndices = disabledIndicesProp ?? disabledIndicesFn;

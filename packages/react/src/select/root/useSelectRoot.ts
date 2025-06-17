@@ -261,7 +261,10 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     selectedIndex,
     disabledIndices(index) {
       const element = listRef.current[index];
-      return element == null || getComputedStyle(element).display === 'none';
+      return (
+        element == null ||
+        (typeof element.checkVisibility === 'function' ? !element.checkVisibility() : false)
+      );
     },
     onNavigate(nextActiveIndex) {
       // Retain the highlight while transitioning out.
