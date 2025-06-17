@@ -1,5 +1,6 @@
 import * as React from 'react';
-import { TemporalAdapterLuxon, TemporalAdapterProvider } from '@base-ui-components/react';
+import { TemporalAdapterProvider } from '@base-ui-components/react/temporal-adapter-provider';
+import { TemporalAdapterLuxon } from '@base-ui-components/react/temporal-adapter-luxon';
 import { TemporalAdapter } from '@base-ui-components/react/models';
 import {
   createRenderer,
@@ -62,15 +63,6 @@ export namespace createTemporalRenderer {
     ): MuiRenderResult;
     adapter: TemporalAdapter;
   }
-
-  export type AdapterName =
-    // | 'date-fns'
-    // | 'dayjs'
-    'luxon';
-  // | 'moment'
-  // | 'moment-hijri'
-  // | 'moment-jalaali'
-  // | 'date-fns-jalali';
 }
 
 interface DataAttributes {
