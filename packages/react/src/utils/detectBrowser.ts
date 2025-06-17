@@ -6,6 +6,7 @@ interface NavigatorUAData {
   platform: string;
 }
 
+const hasNavigator = typeof navigator !== 'undefined';
 const nav = getNavigatorData();
 
 export const isWebKit =
@@ -19,12 +20,12 @@ export const isIOS =
     ? true
     : /iP(hone|ad|od)|iOS/.test(nav.platform);
 
-export const isFirefox = typeof navigator !== 'undefined' && /firefox/i.test(getUserAgent());
-export const isAndroid = typeof navigator !== 'undefined' && /android/i.test(getUserAgent());
+export const isFirefox = hasNavigator && /firefox/i.test(getUserAgent());
+export const isAndroid = hasNavigator && /android/i.test(getUserAgent());
 
 // Avoid Chrome DevTools blue warning.
 function getNavigatorData(): { platform: string; maxTouchPoints: number } {
-  if (typeof navigator === 'undefined') {
+  if (!hasNavigator) {
     return { platform: '', maxTouchPoints: -1 };
   }
 
