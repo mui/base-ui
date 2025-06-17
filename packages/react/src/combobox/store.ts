@@ -20,6 +20,7 @@ export type State = {
   triggerProps: HTMLProps;
   triggerElement: HTMLElement | null;
   positionerElement: HTMLElement | null;
+  listElement: HTMLElement | null;
 };
 
 export type ComboboxStore = Store<State>;
@@ -48,4 +49,5 @@ export const selectors = {
   triggerProps: createSelector((state: State) => state.triggerProps),
   triggerElement: createSelector((state: State) => state.triggerElement),
   positionerElement: createSelector((state: State) => state.positionerElement),
+  listElement: createSelector((state: State) => state.listElement),
 };
