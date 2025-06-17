@@ -8,12 +8,16 @@ import { BaseUIEvent, HTMLProps } from '../utils/types';
 import { useFocusableWhenDisabled } from '../utils/useFocusableWhenDisabled';
 
 export function useButton(parameters: useButton.Parameters = {}): useButton.ReturnValue {
-  const { disabled = false, focusableWhenDisabled, tabIndex = 0, native = true } = parameters;
+  const {
+    disabled = false,
+    focusableWhenDisabled,
+    tabIndex = 0,
+    native: isNativeButton = true,
+  } = parameters;
 
   const buttonRef = React.useRef<HTMLButtonElement | HTMLAnchorElement | HTMLElement | null>(null);
 
   const isCompositeItem = useCompositeRootContext(true) !== undefined;
-  const isNativeButton = native === true;
 
   const isValidLink = useEventCallback(() => {
     const element = buttonRef.current;
@@ -128,12 +132,12 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
             externalOnPointerDown?.(event);
           },
         },
-        !isNativeButton && !native ? { role: 'button' } : undefined,
+        !isNativeButton ? { role: 'button' } : undefined,
         focusableWhenDisabledProps,
         otherExternalProps,
       );
     },
-    [disabled, focusableWhenDisabledProps, isNativeButton, isValidLink, native],
+    [disabled, focusableWhenDisabledProps, isNativeButton, isValidLink],
   );
 
   return {
@@ -168,10 +172,10 @@ export namespace useButton {
     focusableWhenDisabled?: boolean;
     tabIndex?: NonNullable<React.HTMLAttributes<any>['tabIndex']>;
     /**
-     * Whether the component is being rendered as a native button or specific native tag.
+     * Whether the component is being rendered as a native button.
      * @default true
      */
-    native?: boolean | 'a';
+    native?: boolean;
   }
 
   export interface ReturnValue {
