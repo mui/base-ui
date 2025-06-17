@@ -28,20 +28,34 @@ import { CompositeList } from '../../composite/list/CompositeList';
  *
  * Documentation: [Base UI Combobox](https://base-ui.com/react/components/combobox)
  */
-export function ComboboxRoot<Value>(props: ComboboxRoot.Props<Value>) {
+export function ComboboxRoot<Value, Multiple extends boolean = false>(
+  props: ComboboxRoot.Props<Value, Multiple>,
+) {
   const {
     id: idProp,
     onOpenChangeComplete,
-    defaultValue = '',
+    defaultValue,
     selectable = false,
     onItemHighlighted: onItemHighlightedProp,
+    multiple = false as Multiple,
   } = props;
 
   const id = useId(idProp);
 
-  const [value, setValueUnwrapped] = useControlled<any>({
+  const getDefaultValue = (): Multiple extends true ? Value[] : Value => {
+    if (multiple) {
+      return (
+        defaultValue !== null && defaultValue !== undefined ? defaultValue : []
+      ) as Multiple extends true ? Value[] : Value;
+    }
+    return (
+      defaultValue !== null && defaultValue !== undefined ? defaultValue : ''
+    ) as Multiple extends true ? Value[] : Value;
+  };
+
+  const [value, setValueUnwrapped] = useControlled<Multiple extends true ? Value[] : Value>({
     controlled: props.value,
-    default: defaultValue,
+    default: getDefaultValue(),
     name: 'Combobox',
     state: 'value',
   });
@@ -114,7 +128,11 @@ export function ComboboxRoot<Value>(props: ComboboxRoot.Props<Value>) {
   });
 
   const setValue = useEventCallback(
-    (nextValue: any, event: Event | undefined, reason: string | undefined) => {
+    (
+      nextValue: Multiple extends true ? Value[] : Value,
+      event: Event | undefined,
+      reason: string | undefined,
+    ) => {
       props.onValueChange?.(nextValue, event, reason);
       setValueUnwrapped(nextValue);
       queueMicrotask(() => {
@@ -132,11 +150,29 @@ export function ComboboxRoot<Value>(props: ComboboxRoot.Props<Value>) {
       hasRegisteredRef.current = true;
     }
 
-    const index = suppliedIndex ?? valuesRef.current.indexOf(value);
-    const hasIndex = index !== -1;
+    if (multiple) {
+      // For multiple selection, we need to handle arrays
+      const currentValue = value as Value[];
+      const selectedIndices: number[] = [];
 
-    if (hasIndex || value === null) {
-      store.apply({ selectedIndex: index });
+      if (Array.isArray(currentValue)) {
+        currentValue.forEach((val) => {
+          const index = valuesRef.current.indexOf(val);
+          if (index !== -1) {
+            selectedIndices.push(index);
+          }
+        });
+      }
+
+      store.apply({ selectedIndex: selectedIndices.length > 0 ? selectedIndices : null });
+    } else {
+      // Single selection logic (existing)
+      const index = suppliedIndex ?? valuesRef.current.indexOf(value);
+      const hasIndex = index !== -1;
+
+      if (hasIndex || value === null) {
+        store.apply({ selectedIndex: index });
+      }
     }
   });
 
@@ -166,6 +202,11 @@ export function ComboboxRoot<Value>(props: ComboboxRoot.Props<Value>) {
         'aria-expanded': open ? 'true' : 'false',
         'aria-haspopup': 'listbox',
         'aria-controls': open ? floatingRootContext.floatingId : undefined,
+        'aria-autocomplete': 'list',
+        autoComplete: 'off',
+        spellCheck: 'false',
+        autoCorrect: 'off',
+        autoCapitalize: 'off',
       },
       floating: {
         role: 'presentation',
@@ -240,7 +281,7 @@ export function ComboboxRoot<Value>(props: ComboboxRoot.Props<Value>) {
     });
   }, [store, id, value, open, mounted, transitionStatus, getFloatingProps, getReferenceProps]);
 
-  const contextValue: ComboboxRootContext = React.useMemo(
+  const contextValue: ComboboxRootContext<Value, Multiple> = React.useMemo(
     () => ({
       selectable,
       mounted,
@@ -260,6 +301,7 @@ export function ComboboxRoot<Value>(props: ComboboxRoot.Props<Value>) {
       getItemProps,
       registerSelectedItem,
       onItemHighlighted,
+      multiple,
     }),
     [
       selectable,
@@ -274,6 +316,7 @@ export function ComboboxRoot<Value>(props: ComboboxRoot.Props<Value>) {
       getItemProps,
       registerSelectedItem,
       onItemHighlighted,
+      multiple,
     ],
   );
 
@@ -289,7 +332,7 @@ export function ComboboxRoot<Value>(props: ComboboxRoot.Props<Value>) {
 export namespace ComboboxRoot {
   export interface State {}
 
-  export interface Props<Value> {
+  export interface Props<Value, Multiple extends boolean = false> {
     children?: React.ReactNode;
     /**
      * Identifies the field when a form is submitted.
@@ -315,20 +358,29 @@ export namespace ComboboxRoot {
      */
     disabled?: boolean;
     /**
+     * Whether the combobox allows multiple selections.
+     * @default false
+     */
+    multiple?: Multiple;
+    /**
      * The value of the combobox.
      */
-    value?: Value;
+    value?: Multiple extends true ? Value[] : Value;
     /**
      * Callback fired when the value of the combobox changes. Use when controlled.
      */
-    onValueChange?: (value: Value, event: Event | undefined, reason: string | undefined) => void;
+    onValueChange?: (
+      value: Multiple extends true ? Value[] : Value,
+      event: Event | undefined,
+      reason: string | undefined,
+    ) => void;
     /**
      * The uncontrolled value of the combobox when it's initially rendered.
      *
      * To render a controlled combobox, use the `value` prop instead.
      * @default null
      */
-    defaultValue?: Value | null;
+    defaultValue?: Multiple extends true ? Value[] | null : Value | null;
     /**
      * Whether the combobox popup is initially open.
      *

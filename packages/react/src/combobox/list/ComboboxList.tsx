@@ -21,7 +21,7 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
 ) {
   const { render, className, ...elementProps } = componentProps;
 
-  const { store } = useComboboxRootContext();
+  const { store, multiple } = useComboboxRootContext();
   const popupProps = useSelector(store, selectors.popupProps);
   const hasPositionerContext = Boolean(useComboboxPositionerContext(true));
 
@@ -42,7 +42,14 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
 
   return useRenderElement('div', componentProps, {
     ref: [forwardedRef, setPositionerElement],
-    props: [popupProps, { role: 'listbox' }, elementProps],
+    props: [
+      popupProps,
+      {
+        role: 'listbox',
+        'aria-multiselectable': multiple ? 'true' : undefined,
+      },
+      elementProps,
+    ],
   });
 });
 
