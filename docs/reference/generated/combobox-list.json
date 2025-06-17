@@ -1,6 +1,6 @@
 {
   "name": "ComboboxList",
-  "description": "The container for the combobox items when rendered inline, instead of `Popup`.\nRenders a `<div>` element.",
+  "description": "The container for the combobox items.\nRenders a `<div>` element.",
   "props": {
     "className": {
       "type": "string | ((state: Combobox.List.State) => string)",

@@ -305,6 +305,54 @@ export default function Page() {
           <Field.Error className={styles.Error} />
         </Field.Root>
 
+        <Field.Root name="combobox" className={styles.Field}>
+          <Field.Label className={styles.Label}>Framework</Field.Label>
+          <Combobox.Root
+            name="combobox"
+            required={native}
+            value={comboboxValue}
+            onValueChange={(nextValue) => {
+              setComboboxValue(nextValue);
+              React.startTransition(() => {
+                setComboboxInputValue(nextValue);
+              });
+            }}
+          >
+            <Combobox.Input
+              placeholder="Select a framework"
+              className={styles.Input}
+              value={comboboxInputValue}
+              onChange={(event) => {
+                React.startTransition(() => {
+                  setComboboxInputValue(event.target.value);
+                });
+              }}
+            />
+            <Combobox.Portal>
+              <Combobox.Positioner className={styles.Positioner} sideOffset={8}>
+                <Combobox.Popup className={styles.Popup}>
+                  <Combobox.Status className={styles.StatusItem}>
+                    {filteredFrameworks.length === 0 && (
+                      <div>No frameworks found</div>
+                    )}
+                  </Combobox.Status>
+                  <Combobox.List>
+                    {filteredFrameworks.map((framework) => (
+                      <Combobox.Item
+                        key={framework}
+                        className={styles.Item}
+                        value={framework}
+                      >
+                        {framework}
+                      </Combobox.Item>
+                    ))}
+                  </Combobox.List>
+                </Combobox.Popup>
+              </Combobox.Positioner>
+            </Combobox.Portal>
+          </Combobox.Root>
+        </Field.Root>
+
         <Field.Root
           name="checkbox-group"
           render={<Fieldset.Root />}

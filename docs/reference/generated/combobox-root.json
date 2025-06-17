@@ -7,16 +7,16 @@
       "description": "Identifies the field when a form is submitted."
     },
     "defaultValue": {
-      "type": "Value | null",
+      "type": "Value[] | Value | null",
       "default": "null",
       "description": "The uncontrolled value of the combobox when it's initially rendered.\n\nTo render a controlled combobox, use the `value` prop instead."
     },
     "value": {
-      "type": "Value",
+      "type": "Value[] | Value",
       "description": "The value of the combobox."
     },
     "onValueChange": {
-      "type": "((value: Value, event: Event | undefined, reason: string | undefined) => void)",
+      "type": "((value: Value[] | Value, event: Event | undefined, reason: string | undefined) => void)",
       "description": "Callback fired when the value of the combobox changes. Use when controlled."
     },
     "defaultOpen": {
@@ -35,6 +35,11 @@
     "actionsRef": {
       "type": "RefObject<Actions>",
       "description": "A ref to imperative actions.\n- `unmount`: When specified, the combobox will not be unmounted when closed.\nInstead, the `unmount` function must be called to unmount the combobox manually.\nUseful when the combobox's animation is controlled by an external library."
+    },
+    "multiple": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Whether the combobox allows multiple selections."
     },
     "onItemHighlighted": {
       "type": "((value: Value | undefined, type: 'keyboard' | 'pointer') => void)",
@@ -63,6 +68,10 @@
       "type": "boolean",
       "default": "false",
       "description": "Whether the user must choose a value before submitting a form."
+    },
+    "inputRef": {
+      "type": "RefObject<HTMLInputElement>",
+      "description": "A ref to the hidden input element used for form submission."
     },
     "id": {
       "type": "string",
