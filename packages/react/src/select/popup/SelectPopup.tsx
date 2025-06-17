@@ -289,7 +289,6 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
   }, [setOpen, alignItemWithTriggerActive, positionerElement, mounted]);
 
   const defaultProps: HTMLProps = {
-    ['data-id' as string]: `${id}-popup`,
     onKeyDown() {
       keyboardActiveRef.current = true;
     },
@@ -391,8 +390,8 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
 
   return (
     <React.Fragment>
+      {styleDisableScrollbar.element}
       <FloatingFocusManager context={context} modal={false} disabled={!mounted} restoreFocus>
-        {styleDisableScrollbar.element}
         {element}
       </FloatingFocusManager>
     </React.Fragment>
