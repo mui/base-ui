@@ -2,7 +2,7 @@
 import * as React from 'react';
 import type { SwitchRoot } from '../root/SwitchRoot';
 import { useSwitchRootContext } from '../root/SwitchRootContext';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import { useRenderElement } from '../../utils/useRenderElement';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { styleHookMapping } from '../styleHooks';
@@ -14,26 +14,22 @@ import { styleHookMapping } from '../styleHooks';
  * Documentation: [Base UI Switch](https://base-ui.com/react/components/switch)
  */
 export const SwitchThumb = React.forwardRef(function SwitchThumb(
-  props: SwitchThumb.Props,
+  componentProps: SwitchThumb.Props,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
-  const { render, className, ...other } = props;
+  const { render, className, ...elementProps } = componentProps;
 
   const { state: fieldState } = useFieldRootContext();
 
   const state = useSwitchRootContext();
   const extendedState = { ...fieldState, ...state };
 
-  const { renderElement } = useComponentRenderer({
-    render: render || 'span',
-    className,
+  return useRenderElement('span', componentProps, {
     state: extendedState,
-    extraProps: other,
-    customStyleHookMapping: styleHookMapping,
     ref: forwardedRef,
+    customStyleHookMapping: styleHookMapping,
+    props: elementProps,
   });
-
-  return renderElement();
 });
 
 export namespace SwitchThumb {

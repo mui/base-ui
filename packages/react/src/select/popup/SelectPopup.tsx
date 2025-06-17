@@ -4,14 +4,18 @@ import { FloatingFocusManager } from '@floating-ui/react';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import { popupStateMapping } from '../../utils/popupStateMapping';
+import { useSelector } from '../../utils/store';
 import type { Side } from '../../utils/useAnchorPositioning';
 import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 import { useSelectPopup } from './useSelectPopup';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import { useSelectPositionerContext } from '../positioner/SelectPositionerContext';
+import { styleDisableScrollbar } from '../../utils/styles';
 import { transitionStatusMapping } from '../../utils/styleHookMapping';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useRenderElement } from '../../utils/useRenderElement';
+import { selectors } from '../store';
+import { DISABLED_TRANSITIONS_STYLE } from '../../utils/constants';
 
 const customStyleHookMapping: CustomStyleHookMapping<SelectPopup.State> = {
   ...popupStateMapping,
@@ -30,9 +34,14 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
 ) {
   const { render, className, ...elementProps } = componentProps;
 
-  const { id, open, popupRef, transitionStatus, mounted, onOpenChangeComplete, popupProps } =
-    useSelectRootContext();
+  const { store, popupRef, onOpenChangeComplete } = useSelectRootContext();
   const positioner = useSelectPositionerContext();
+
+  const open = useSelector(store, selectors.open);
+  const mounted = useSelector(store, selectors.mounted);
+  const popupProps = useSelector(store, selectors.popupProps);
+  const transitionStatus = useSelector(store, selectors.transitionStatus);
+  const alignItemWithTriggerActive = useSelector(store, selectors.alignItemWithTriggerActive);
 
   useOpenChangeComplete({
     open,
@@ -63,28 +72,17 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
     props: [
       popupProps,
       props,
-      transitionStatus === 'starting' ? { style: { transition: 'none' } } : {},
+      {
+        style: transitionStatus === 'starting' ? DISABLED_TRANSITIONS_STYLE.style : undefined,
+        className: alignItemWithTriggerActive ? styleDisableScrollbar.className : undefined,
+      },
       elementProps,
     ],
   });
 
-  const popupSelector = `[data-id="${id}-popup"]`;
-
-  const html = React.useMemo(
-    () => ({
-      __html: `${popupSelector}{scrollbar-width:none}${popupSelector}::-webkit-scrollbar{display:none}`,
-    }),
-    [popupSelector],
-  );
-
   return (
     <React.Fragment>
-      {id && positioner.alignItemWithTriggerActive && (
-        <style
-          // eslint-disable-next-line react/no-danger
-          dangerouslySetInnerHTML={html}
-        />
-      )}
+      {styleDisableScrollbar.element}
       <FloatingFocusManager
         context={positioner.context}
         modal={false}

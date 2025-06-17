@@ -156,7 +156,17 @@ export function useFieldControlValidation() {
       defaultValidationMessage = element.validationMessage;
       validationErrors = [element.validationMessage];
     } else {
-      const resultOrPromise = validate(value);
+      const formValues = Array.from(formRef.current.fields.values()).reduce(
+        (acc, field) => {
+          if (field.name && field.getValueRef) {
+            acc[field.name] = field.getValueRef.current?.();
+          }
+          return acc;
+        },
+        {} as Record<string, unknown>,
+      );
+
+      const resultOrPromise = validate(value, formValues);
       if (
         typeof resultOrPromise === 'object' &&
         resultOrPromise !== null &&

@@ -3,7 +3,6 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import {
   FloatingTree,
-  safePolygon,
   useDismiss,
   useFloatingRootContext,
   useFocus,
@@ -12,6 +11,7 @@ import {
   useListNavigation,
   useRole,
   useTypeahead,
+  safePolygon,
 } from '@floating-ui/react';
 import { useClick } from '../../utils/floating-ui/useClick';
 import { MenuRootContext, useMenuRootContext } from './MenuRootContext';
@@ -33,6 +33,7 @@ import {
   useContextMenuRootContext,
 } from '../../context-menu/root/ContextMenuRootContext';
 import { ownerDocument } from '../../utils/owner';
+import { useMenuSubmenuRootContext } from '../submenu-root/MenuSubmenuRootContext';
 
 const EMPTY_REF = { current: false };
 
@@ -75,13 +76,14 @@ export const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
   const positionerRef = React.useRef<HTMLElement | null>(null);
   const stickIfOpenTimeout = useTimeout();
   const contextMenuContext = useContextMenuRootContext(true);
+  const isSubmenu = useMenuSubmenuRootContext();
 
   let parent: MenuParent;
   {
     const parentContext = useMenuRootContext(true);
     const menubarContext = useMenubarContext(true);
 
-    if (parentContext) {
+    if (isSubmenu && parentContext) {
       parent = {
         type: 'menu',
         context: parentContext,
@@ -418,15 +420,15 @@ export const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
     typeahead,
   ]);
 
-  const triggerProps = React.useMemo(
-    () =>
-      getReferenceProps({
-        onMouseEnter() {
-          setHoverEnabled(true);
-        },
-      }),
-    [getReferenceProps],
-  );
+  const triggerProps = React.useMemo(() => {
+    const referenceProps = getReferenceProps({
+      onMouseEnter() {
+        setHoverEnabled(true);
+      },
+    });
+    delete referenceProps.role;
+    return referenceProps;
+  }, [getReferenceProps]);
 
   const popupProps = React.useMemo(
     () =>
@@ -582,8 +584,6 @@ export namespace MenuRoot {
     closeDelay?: number;
     /**
      * Whether the menu should also open when the trigger is hovered.
-     *
-     * Defaults to `true` for nested menus.
      */
     openOnHover?: boolean;
     /**

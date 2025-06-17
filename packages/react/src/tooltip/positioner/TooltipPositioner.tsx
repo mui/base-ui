@@ -8,7 +8,7 @@ import type { Side, Align } from '../../utils/useAnchorPositioning';
 import { popupStateMapping } from '../../utils/popupStateMapping';
 import { useTooltipPortalContext } from '../portal/TooltipPortalContext';
 import { useRenderElement } from '../../utils/useRenderElement';
-import { DEFAULT_COLLISION_AVOIDANCE } from '../../utils/constants';
+import { POPUP_COLLISION_AVOIDANCE } from '../../utils/constants';
 
 /**
  * Positions the tooltip against the trigger.
@@ -34,7 +34,7 @@ export const TooltipPositioner = React.forwardRef(function TooltipPositioner(
     arrowPadding = 5,
     sticky = false,
     trackAnchor = true,
-    collisionAvoidance = DEFAULT_COLLISION_AVOIDANCE,
+    collisionAvoidance = POPUP_COLLISION_AVOIDANCE,
     ...elementProps
   } = componentProps;
 

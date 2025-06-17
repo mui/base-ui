@@ -429,38 +429,70 @@ describe('<RadioGroup />', () => {
       });
     });
 
-    describe('with Field.Root', () => {
-      it('should receive disabled prop from Field.Root', () => {
-        render(
-          <Field.Root disabled>
-            <RadioGroup>
-              <Radio.Root value="a" data-testid="radio" />
-            </RadioGroup>
-          </Field.Root>,
-        );
+    describe('Field', () => {
+      describe('Field.Root', () => {
+        it('should receive disabled prop from Field.Root', () => {
+          render(
+            <Field.Root disabled>
+              <RadioGroup>
+                <Radio.Root value="a" data-testid="radio" />
+              </RadioGroup>
+            </Field.Root>,
+          );
 
-        const radioGroup = screen.getByRole('radiogroup');
-        const radio = screen.getByTestId('radio');
+          const radioGroup = screen.getByRole('radiogroup');
+          const radio = screen.getByTestId('radio');
 
-        expect(radioGroup).to.have.attribute('aria-disabled', 'true');
-        expect(radioGroup).to.have.attribute('data-disabled');
-        expect(radio).to.have.attribute('aria-disabled', 'true');
-        expect(radio).to.have.attribute('data-disabled');
+          expect(radioGroup).to.have.attribute('aria-disabled', 'true');
+          expect(radioGroup).to.have.attribute('data-disabled');
+          expect(radio).to.have.attribute('aria-disabled', 'true');
+          expect(radio).to.have.attribute('data-disabled');
+        });
+
+        it('should receive name prop from Field.Root', async () => {
+          await render(
+            <Field.Root name="field-radio">
+              <RadioGroup>
+                <Radio.Root value="a" data-testid="radio" />
+              </RadioGroup>
+            </Field.Root>,
+          );
+
+          const group = screen.getByRole('radiogroup');
+          const input = group.nextElementSibling as HTMLInputElement;
+
+          expect(input).to.have.attribute('name', 'field-radio');
+        });
       });
 
-      it('should receive name prop from Field.Root', async () => {
-        await render(
-          <Field.Root name="field-radio">
-            <RadioGroup>
-              <Radio.Root value="a" data-testid="radio" />
-            </RadioGroup>
-          </Field.Root>,
-        );
+      describe('Field.Label', () => {
+        it('associates implicitly', async () => {
+          const changeSpy = spy();
+          const { container } = await render(
+            <Field.Root name="options">
+              <RadioGroup onValueChange={changeSpy}>
+                <Field.Label>
+                  <Radio.Root value="apple" data-testid="radio1" />
+                  Apple
+                </Field.Label>
+                <Field.Label>
+                  <Radio.Root value="banana" data-testid="radio2" />
+                  Banana
+                </Field.Label>
+              </RadioGroup>
+            </Field.Root>,
+          );
 
-        const group = screen.getByRole('radiogroup');
-        const input = group.nextElementSibling as HTMLInputElement;
+          const labels = container.querySelectorAll('label');
+          expect(labels.length).to.equal(2);
+          labels.forEach((label) => {
+            expect(label).to.not.have.attribute('for');
+          });
 
-        expect(input).to.have.attribute('name', 'field-radio');
+          fireEvent.click(screen.getByText('Apple'));
+          expect(changeSpy.callCount).to.equal(1);
+          expect(changeSpy.args[0][0]).to.equal('apple');
+        });
       });
     });
 

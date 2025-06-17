@@ -67,6 +67,7 @@ export const nav = [
       {
         label: 'Context Menu',
         href: '/react/components/context-menu',
+        isNew: true,
       },
       {
         label: 'Dialog',
@@ -95,10 +96,15 @@ export const nav = [
       {
         label: 'Menubar',
         href: '/react/components/menubar',
+        isNew: true,
       },
       {
         label: 'Meter',
         href: '/react/components/meter',
+      },
+      {
+        label: 'Navigation Menu',
+        href: '/react/components/navigation-menu',
         isNew: true,
       },
       {
@@ -148,7 +154,6 @@ export const nav = [
       {
         label: 'Toast',
         href: '/react/components/toast',
-        isNew: true,
       },
       {
         label: 'Toggle',

@@ -7,14 +7,15 @@ import { ThickCheckIcon } from '../icons/ThickCheckIcon';
 export const Root = Select.Root;
 
 interface TriggerProps extends Omit<Select.Trigger.Props, 'children'> {
-  children: Select.Value.Props['children'];
+  placeholder: Select.Value.Props['placeholder'];
+  children?: Select.Value.Props['children'];
 }
 
-export function Trigger({ className, children, ...props }: TriggerProps) {
+export function Trigger({ className, children, placeholder, ...props }: TriggerProps) {
   return (
     // Implicitly relying on <GhostButton>, keep it in sync
     <Select.Trigger data-layout="text" className="GhostButton" {...props}>
-      <Select.Value>{children}</Select.Value>
+      <Select.Value placeholder={placeholder}>{children}</Select.Value>
       <Select.Icon render={<ChevronDownIcon className="-ml-0.5" />} />
     </Select.Trigger>
   );

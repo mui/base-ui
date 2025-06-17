@@ -20,7 +20,13 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
   componentProps: PopoverTrigger.Props,
   forwardedRef: React.ForwardedRef<any>,
 ) {
-  const { render, className, disabled = false, ...elementProps } = componentProps;
+  const {
+    render,
+    className,
+    disabled = false,
+    nativeButton = true,
+    ...elementProps
+  } = componentProps;
 
   const { open, setTriggerElement, triggerProps, openReason } = usePopoverRootContext();
 
@@ -34,7 +40,7 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
 
   const { getButtonProps, buttonRef } = useButton({
     disabled,
-    buttonRef: forwardedRef,
+    native: nativeButton,
   });
 
   const customStyleHookMapping: CustomStyleHookMapping<{ open: boolean }> = React.useMemo(
@@ -52,7 +58,7 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
 
   const element = useRenderElement('button', componentProps, {
     state,
-    ref: [buttonRef, setTriggerElement],
+    ref: [buttonRef, setTriggerElement, forwardedRef],
     props: [triggerProps, elementProps, getButtonProps],
     customStyleHookMapping,
   });
@@ -72,5 +78,13 @@ export namespace PopoverTrigger {
     open: boolean;
   }
 
-  export interface Props extends BaseUIComponentProps<'button', State> {}
+  export interface Props extends BaseUIComponentProps<'button', State> {
+    /**
+     * Whether the component renders a native `<button>` element when replacing it
+     * via the `render` prop.
+     * Set to `false` if the rendered element is not a button (e.g. `<div>`).
+     * @default true
+     */
+    nativeButton?: boolean;
+  }
 }

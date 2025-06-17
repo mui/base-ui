@@ -50,7 +50,7 @@ export default function MenubarExperiment() {
                 <Menu.Item className={menuClasses.Item}>Save as...</Menu.Item>
                 <Menu.Separator className={menuClasses.Separator} />
 
-                <Menu.Root>
+                <Menu.SubmenuRoot>
                   <Menu.SubmenuTrigger className={menuClasses.SubmenuTrigger}>
                     Share
                     <ChevronRightIcon />
@@ -72,7 +72,7 @@ export default function MenubarExperiment() {
                       </Menu.Popup>
                     </Menu.Positioner>
                   </Menu.Portal>
-                </Menu.Root>
+                </Menu.SubmenuRoot>
 
                 <Menu.Separator className={menuClasses.Separator} />
                 <Menu.Item className={menuClasses.Item}>Close</Menu.Item>
@@ -96,7 +96,7 @@ export default function MenubarExperiment() {
 
                 <Menu.Separator className={menuClasses.Separator} />
 
-                <Menu.Root>
+                <Menu.SubmenuRoot>
                   <Menu.SubmenuTrigger className={menuClasses.SubmenuTrigger}>
                     Find on page
                     <ChevronRightIcon />
@@ -113,7 +113,7 @@ export default function MenubarExperiment() {
                       </Menu.Popup>
                     </Menu.Positioner>
                   </Menu.Portal>
-                </Menu.Root>
+                </Menu.SubmenuRoot>
               </Menu.Popup>
             </Menu.Positioner>
           </Menu.Portal>
@@ -146,6 +146,55 @@ export default function MenubarExperiment() {
                     <span className={menuClasses.RadioItemText}>Dark mode</span>
                   </Menu.RadioItem>
                 </Menu.RadioGroup>
+
+                <Menu.Root>
+                  <Menu.SubmenuTrigger className={menuClasses.SubmenuTrigger}>
+                    Layout
+                    <ChevronRightIcon />
+                  </Menu.SubmenuTrigger>
+
+                  <Menu.Portal>
+                    <Menu.Positioner
+                      className={menuClasses.Positioner}
+                      sideOffset={8}
+                    >
+                      <Menu.Popup className={menuClasses.Popup}>
+                        <Menu.RadioGroup defaultValue="light">
+                          <Menu.RadioItem
+                            className={menuClasses.RadioItem}
+                            value="light"
+                          >
+                            <Menu.RadioItemIndicator
+                              className={menuClasses.RadioItemIndicator}
+                            >
+                              <CheckIcon
+                                className={menuClasses.RadioItemIndicatorIcon}
+                              />
+                            </Menu.RadioItemIndicator>
+                            <span className={menuClasses.RadioItemText}>
+                              Single column
+                            </span>
+                          </Menu.RadioItem>
+                          <Menu.RadioItem
+                            className={menuClasses.RadioItem}
+                            value="dark"
+                          >
+                            <Menu.RadioItemIndicator
+                              className={menuClasses.RadioItemIndicator}
+                            >
+                              <CheckIcon
+                                className={menuClasses.RadioItemIndicatorIcon}
+                              />
+                            </Menu.RadioItemIndicator>
+                            <span className={menuClasses.RadioItemText}>
+                              Multiple columns
+                            </span>
+                          </Menu.RadioItem>
+                        </Menu.RadioGroup>
+                      </Menu.Popup>
+                    </Menu.Positioner>
+                  </Menu.Portal>
+                </Menu.Root>
               </Menu.Popup>
             </Menu.Positioner>
           </Menu.Portal>

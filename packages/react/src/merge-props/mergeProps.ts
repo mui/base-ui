@@ -171,6 +171,13 @@ function resolvePropsGetter<T extends ElementType>(
 }
 
 function mergeEventHandlers(ourHandler: Function, theirHandler: Function) {
+  if (!theirHandler) {
+    return ourHandler;
+  }
+  if (!ourHandler) {
+    return theirHandler;
+  }
+
   return (event: unknown) => {
     if (isSyntheticEvent(event)) {
       const baseUIEvent = event as BaseUIEvent<typeof event>;
@@ -200,7 +207,10 @@ export function makeEventPreventable<T extends React.SyntheticEvent>(event: Base
   return event;
 }
 
-function mergeClassNames(ourClassName: string | undefined, theirClassName: string | undefined) {
+export function mergeClassNames(
+  ourClassName: string | undefined,
+  theirClassName: string | undefined,
+) {
   if (theirClassName) {
     if (ourClassName) {
       // eslint-disable-next-line prefer-template

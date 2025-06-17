@@ -1,0 +1,53 @@
+{
+  "name": "NavigationMenuRoot",
+  "description": "Groups all parts of the navigation menu.\nRenders a `<nav>` element at the root, or `<div>` element when nested.",
+  "props": {
+    "defaultValue": {
+      "type": "any",
+      "default": "null",
+      "description": "The uncontrolled value of the item that should be initially selected.\n\nTo render a controlled navigation menu, use the `value` prop instead."
+    },
+    "value": {
+      "type": "any",
+      "default": "null",
+      "description": "The controlled value of the navigation navigation menu item that should be currently open.\nWhen non-nullish, the menu will be open. When nullish, the menu will be closed.\n\nTo render an uncontrolled navigation navigation menu, use the `defaultValue` prop instead."
+    },
+    "onValueChange": {
+      "type": "((value: any, event: Event | undefined, reason: BaseOpenChangeReason | undefined) => void)",
+      "description": "Callback fired when the value changes."
+    },
+    "actionsRef": {
+      "type": "RefObject<{ unmount: () => void; }>",
+      "description": "A ref to imperative actions.\n- `unmount`: When specified, the navigation menu will not be unmounted when closed.\nInstead, the `unmount` function must be called to unmount the navigation menu manually.\nUseful when the navigation menu's animation is controlled by an external library."
+    },
+    "onOpenChangeComplete": {
+      "type": "((open: boolean) => void)",
+      "description": "Event handler called after any animations complete when the navigation menu is closed."
+    },
+    "delay": {
+      "type": "number",
+      "default": "50",
+      "description": "How long to wait before opening the navigation menu. Specified in milliseconds."
+    },
+    "closeDelay": {
+      "type": "number",
+      "default": "50",
+      "description": "How long to wait before closing the navigation menu. Specified in milliseconds."
+    },
+    "orientation": {
+      "type": "'horizontal' | 'vertical'",
+      "default": "'horizontal'",
+      "description": "The orientation of the navigation menu."
+    },
+    "className": {
+      "type": "string | ((state: NavigationMenu.Root.State) => string)",
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
+    },
+    "render": {
+      "type": "ReactElement | ((props: HTMLProps, state: NavigationMenu.Root.State) => ReactElement)",
+      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
+    }
+  },
+  "dataAttributes": {},
+  "cssVariables": {}
+}
