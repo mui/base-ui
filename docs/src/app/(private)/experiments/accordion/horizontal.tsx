@@ -23,7 +23,7 @@ export default function App() {
           openMultiple={false}
         >
           {['one', 'two', 'three'].map((value) => (
-            <Accordion.Item className={styles.Item} key={value}>
+            <Accordion.Item value={value} className={styles.Item} key={value}>
               <Accordion.Header className={styles.Header}>
                 <Accordion.Trigger className={styles.Trigger} data-value={value}>
                   <span className={styles.Label}>{displayValueMap[value]}</span>

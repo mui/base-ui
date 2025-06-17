@@ -5,7 +5,7 @@ import styles from './index.module.css';
 export default function ExampleAccordion() {
   return (
     <Accordion.Root className={styles.Accordion}>
-      <Accordion.Item className={styles.Item}>
+      <Accordion.Item value={0} className={styles.Item}>
         <Accordion.Header className={styles.Header}>
           <Accordion.Trigger className={styles.Trigger}>
             What is Base UI?
@@ -20,7 +20,7 @@ export default function ExampleAccordion() {
         </Accordion.Panel>
       </Accordion.Item>
 
-      <Accordion.Item className={styles.Item}>
+      <Accordion.Item value={1} className={styles.Item}>
         <Accordion.Header className={styles.Header}>
           <Accordion.Trigger className={styles.Trigger}>
             How do I get started?
@@ -35,7 +35,7 @@ export default function ExampleAccordion() {
         </Accordion.Panel>
       </Accordion.Item>
 
-      <Accordion.Item className={styles.Item}>
+      <Accordion.Item value={2} className={styles.Item}>
         <Accordion.Header className={styles.Header}>
           <Accordion.Trigger className={styles.Trigger}>
             Can I use it for my project?
