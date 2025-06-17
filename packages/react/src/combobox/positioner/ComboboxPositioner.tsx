@@ -99,6 +99,7 @@ export const ComboboxPositioner = React.forwardRef(function ComboboxPositioner(
       arrowRef: positioning.arrowRef,
       arrowUncentered: positioning.arrowUncentered,
       arrowStyles: positioning.arrowStyles,
+      anchorHidden: positioning.anchorHidden,
     }),
     [
       positioning.side,
@@ -106,6 +107,7 @@ export const ComboboxPositioner = React.forwardRef(function ComboboxPositioner(
       positioning.arrowRef,
       positioning.arrowUncentered,
       positioning.arrowStyles,
+      positioning.anchorHidden,
     ],
   );
 

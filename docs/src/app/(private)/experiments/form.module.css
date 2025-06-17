@@ -545,3 +545,7 @@
     outline: 2px solid var(--color-blue);
   }
 }
+
+.StatusItem > div {
+  padding: 1rem;
+}
