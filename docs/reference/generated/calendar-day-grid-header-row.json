@@ -3,7 +3,7 @@
   "description": "Groups all cells of the calendar's day grid header row.\nRenders a `<tr>` element.",
   "props": {
     "children": {
-      "type": "ReactNode | ((day: DateTime<boolean> | Date, index: number, days: (DateTime<boolean> | Date)[]) => ReactNode)",
+      "type": "ReactNode | ((day: Date | DateTime<boolean>, index: number, days: (Date | DateTime<boolean>)[]) => ReactNode)",
       "description": "The children of the component.\nIf a function is provided, it will be called for each day of the week as its parameter."
     },
     "className": {

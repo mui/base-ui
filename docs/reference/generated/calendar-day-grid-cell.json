@@ -3,7 +3,7 @@
   "description": "An individual day cell in the calendar.\nRenders a `<td>` element.",
   "props": {
     "value": {
-      "type": "DateTime<boolean> | Date",
+      "type": "Date | DateTime<boolean>",
       "required": true,
       "description": "The value to select when this cell is clicked."
     },
