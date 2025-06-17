@@ -142,24 +142,13 @@ describe('<Combobox.Root />', () => {
       const { user } = await render(
         <Combobox.Root multiple onValueChange={handleValueChange}>
           <Combobox.Input data-testid="input" />
-          <Combobox.Portal>
-            <Combobox.Positioner>
-              <Combobox.Popup>
-                <Combobox.List>
-                  <Combobox.Item value="a">a</Combobox.Item>
-                  <Combobox.Item value="b">b</Combobox.Item>
-                  <Combobox.Item value="c">c</Combobox.Item>
-                </Combobox.List>
-              </Combobox.Popup>
-            </Combobox.Positioner>
-          </Combobox.Portal>
+          <Combobox.List>
+            <Combobox.Item value="a">a</Combobox.Item>
+            <Combobox.Item value="b">b</Combobox.Item>
+            <Combobox.Item value="c">c</Combobox.Item>
+          </Combobox.List>
         </Combobox.Root>,
       );
-
-      const input = screen.getByTestId('input');
-
-      await user.click(input);
-      await flushMicrotasks();
 
       const optionA = screen.getByRole('option', { name: 'a' });
       await user.click(optionA);
