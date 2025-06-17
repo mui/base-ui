@@ -6,11 +6,15 @@ import { HTMLProps } from '../../utils/types';
 
 export type ValueChangeReason = 'item-press' | 'input-change';
 
-export interface ComboboxRootContext {
+export interface ComboboxRootContext<Value = any, Multiple extends boolean = false> {
   selectable: boolean;
   mounted: boolean;
-  value: any;
-  setValue: (value: any, event: Event | undefined, reason: ValueChangeReason | undefined) => void;
+  value: Multiple extends true ? Value[] : Value;
+  setValue: (
+    value: Multiple extends true ? Value[] : Value,
+    event: Event | undefined,
+    reason: ValueChangeReason | undefined,
+  ) => void;
   open: boolean;
   setOpen: (
     open: boolean,
@@ -28,14 +32,19 @@ export interface ComboboxRootContext {
   ) => Record<string, unknown>;
   valuesRef: React.RefObject<Array<any>>;
   registerSelectedItem: (index: number) => void;
-  onItemHighlighted: (value: any, type: 'keyboard' | 'pointer') => void;
+  onItemHighlighted: (value: Value | undefined, type: 'keyboard' | 'pointer') => void;
+  multiple: Multiple;
 }
 
-export const ComboboxRootContext = React.createContext<ComboboxRootContext | undefined>(undefined);
+export const ComboboxRootContext = React.createContext<ComboboxRootContext<any, any> | undefined>(
+  undefined,
+);
 export const ComboboxFloatingContext = React.createContext<FloatingRootContext | null>(null);
 
-export function useComboboxRootContext() {
-  const context = React.useContext(ComboboxRootContext);
+export function useComboboxRootContext<Value = any, Multiple extends boolean = false>() {
+  const context = React.useContext(ComboboxRootContext) as
+    | ComboboxRootContext<Value, Multiple>
+    | undefined;
   if (!context) {
     throw new Error(
       'Base UI: ComboboxRootContext is missing. Combobox parts must be placed within <Combobox.Root>.',
