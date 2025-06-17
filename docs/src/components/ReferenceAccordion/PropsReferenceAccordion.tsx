@@ -6,8 +6,12 @@ import { inlineMdxComponents } from 'docs/src/mdx-components';
 import { rehypeSyntaxHighlighting } from 'docs/src/syntax-highlighting';
 import * as Accordion from '../Accordion';
 import * as DescriptionList from '../DescriptionList';
-import type { PropDef } from '../ReferenceTable/types';
+import type { PropDef as BasePropDef } from '../ReferenceTable/types';
 import { TableCode } from '../TableCode';
+
+interface PropDef extends BasePropDef {
+  example?: string;
+}
 
 interface Props extends React.ComponentProps<typeof Accordion.Root> {
   data: Record<string, PropDef>;
@@ -131,10 +135,19 @@ export async function PropsReferenceAccordion({
           },
         );
 
-        const PropDescription = await createMdxComponent(prop.description, {
-          rehypePlugins: rehypeSyntaxHighlighting,
-          useMDXComponents: () => inlineMdxComponents,
-        });
+        const PropDescription = prop.description
+          ? await createMdxComponent(prop.description, {
+              rehypePlugins: rehypeSyntaxHighlighting,
+              useMDXComponents: () => inlineMdxComponents,
+            })
+          : null;
+
+        const ExampleSnippet = prop.example
+          ? await createMdxComponent(prop.example, {
+              rehypePlugins: rehypeSyntaxHighlighting,
+              useMDXComponents: () => inlineMdxComponents,
+            })
+          : null;
 
         return (
           <Accordion.Item>
@@ -173,10 +186,14 @@ export async function PropsReferenceAccordion({
                   Details
                 </h5>
                 <DescriptionList.Root className="max-xs:p-4">
-                  <DescriptionList.Term>Description</DescriptionList.Term>
-                  <DescriptionList.Details>
-                    <PropDescription />
-                  </DescriptionList.Details>
+                  {PropDescription != null && (
+                    <React.Fragment>
+                      <DescriptionList.Term>Description</DescriptionList.Term>
+                      <DescriptionList.Details>
+                        <PropDescription />
+                      </DescriptionList.Details>
+                    </React.Fragment>
+                  )}
                   <DescriptionList.Term>Type</DescriptionList.Term>
                   <DescriptionList.Details>
                     <PropType />
@@ -185,6 +202,14 @@ export async function PropsReferenceAccordion({
                   <DescriptionList.Details>
                     <PropDefault />
                   </DescriptionList.Details>
+                  {ExampleSnippet != null && (
+                    <React.Fragment>
+                      <DescriptionList.Term>Example</DescriptionList.Term>
+                      <DescriptionList.Details className="*:my-0">
+                        <ExampleSnippet />
+                      </DescriptionList.Details>
+                    </React.Fragment>
+                  )}
                 </DescriptionList.Root>
               </Accordion.Content>
             </Accordion.Panel>
