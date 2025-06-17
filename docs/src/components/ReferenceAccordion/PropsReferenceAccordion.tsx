@@ -12,6 +12,7 @@ import { TableCode } from '../TableCode';
 interface Props extends React.ComponentProps<typeof Accordion.Root> {
   data: Record<string, PropDef>;
   type?: 'props' | 'return';
+  name: string;
 }
 
 const DATA: Record<string, PropDef> = {
@@ -82,9 +83,18 @@ function getShortPropType(name: string, type: string | undefined) {
   return 'Union';
 }
 
-export async function PropsReferenceAccordion({ data = DATA, type = 'props', ...props }: Props) {
+export async function PropsReferenceAccordion({
+  data = DATA,
+  name: partName,
+  // type = 'props',
+  ...props
+}: Props) {
+  const captionId = `${partName}-caption`;
   return (
-    <Accordion.Root hiddenUntilFound {...props}>
+    <Accordion.Root hiddenUntilFound aria-describedby={captionId} {...props}>
+      <span id={captionId} style={visuallyHidden} aria-hidden>
+        Component props table
+      </span>
       <div
         aria-hidden
         className="TableHeadRow rounded-t-(--radius-md) border-b-1 border-(--color-gray-200) bg-(--color-gray-50)"
@@ -130,7 +140,7 @@ export async function PropsReferenceAccordion({ data = DATA, type = 'props', ...
           <Accordion.Item>
             <Accordion.Header render={<h4 />}>
               <Accordion.Trigger
-                aria-label={`prop: ${name}, type: ${shortPropTypeName} ${prop.default !== undefined && '(default: undefined)'} `}
+                aria-label={`prop: ${name}, type: ${shortPropTypeName} ${prop.default !== undefined ? `(default: ${prop.default})` : ''}`}
                 className="Table"
               >
                 <TableCode className="text-navy">{name}</TableCode>

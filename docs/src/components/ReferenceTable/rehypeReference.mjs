@@ -12,8 +12,8 @@ const REFERENCE = 'Reference';
 // The corresponding components exposed in "mdx-components.tsx"
 const ATTRIBUTES_TABLE = 'AttributesReferenceTable';
 const CSS_VARIABLES_TABLE = 'CssVariablesReferenceTable';
-const PROPS_TABLE = 'PropsReferenceTable';
 
+// const PROPS_TABLE = 'PropsReferenceTable';
 const NEW_PROPS_TABLE = 'PropsReferenceAccordion';
 
 /**
@@ -105,7 +105,7 @@ export function rehypeReference() {
             subtree.push(
               createMdxElement({
                 name: NEW_PROPS_TABLE,
-                props: { data: def.props },
+                props: { name: def.name, data: def.props },
               }),
             );
           }
