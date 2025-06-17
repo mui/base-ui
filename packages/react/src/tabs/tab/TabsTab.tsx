@@ -56,17 +56,20 @@ export const TabsTab = React.forwardRef(function Tab(
     return value === selectedTabValue;
   }, [selectedTabValue, value]);
 
-  const isSelectionSyncedWithHighlightRef = React.useRef(false);
+  const isNavigatingRef = React.useRef(false);
 
+  // Keep the highlighted item in sync with the currently selected tab
+  // when the value prop changes externally (controlled mode)
   useModernLayoutEffect(() => {
-    if (isSelectionSyncedWithHighlightRef.current === true) {
+    if (isNavigatingRef.current) {
+      isNavigatingRef.current = false;
       return;
     }
-    if (activateOnFocus && selected && index > -1 && highlightedTabIndex !== index) {
+
+    if (selected && index > -1 && highlightedTabIndex !== index) {
       setHighlightedTabIndex(index);
-      isSelectionSyncedWithHighlightRef.current = true;
     }
-  }, [activateOnFocus, highlightedTabIndex, index, selected, setHighlightedTabIndex]);
+  }, [selected, index, highlightedTabIndex, setHighlightedTabIndex, disabled]);
 
   const { getButtonProps, buttonRef } = useButton({
     disabled,
@@ -94,7 +97,7 @@ export const TabsTab = React.forwardRef(function Tab(
       return;
     }
 
-    if (index > 1 && index !== highlightedTabIndex) {
+    if (index > -1) {
       setHighlightedTabIndex(index);
     }
 
@@ -153,6 +156,9 @@ export const TabsTab = React.forwardRef(function Tab(
         onFocus,
         onPointerDown,
         [ACTIVE_COMPOSITE_ITEM as string]: selected ? '' : undefined,
+        onKeyDownCapture() {
+          isNavigatingRef.current = true;
+        },
       },
       elementProps,
       getButtonProps,
