@@ -150,7 +150,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
       element == null ||
       element.hasAttribute('disabled') ||
       element.getAttribute('aria-disabled') === 'true' ||
-      !(typeof element.checkVisibility === 'function' ? element.checkVisibility() : true)
+      (typeof element.checkVisibility === 'function' ? !element.checkVisibility() : false)
     );
   });
   const disabledIndices = disabledIndicesProp ?? disabledIndicesFn;
