@@ -12,7 +12,7 @@ export interface UseFocusableWhenDisabledParameters {
    */
   disabled: boolean;
   /**
-   * Whether this is a composite item or not
+   * Whether this is a composite item or not.
    * @default false
    */
   composite?: boolean;
