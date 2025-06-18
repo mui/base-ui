@@ -51,8 +51,21 @@ import { Select } from '@base-ui-components/react/select';
 
 ## Examples
 
-### Rendering a custom label in the trigger
+### Formatting the value
 
-The `Select.Value` component can accept a function as its child that is called with the current `value`, which enables you to render a custom label in the trigger based on the value.
+The `Select.Value` component can accept a function as its child that is called with the current `value` to format it.
+
+```jsx title="Formatting the value" "getLabel"
+function getLabel(value: string | null) {
+  if (value === null) {
+    return 'Select a font';
+  }
+  return labelMap.get(value);
+}
+
+<Select.Value>
+  {getLabel}
+</Select.Value>
+```
 
 <Demo path="./demos/label" compact />

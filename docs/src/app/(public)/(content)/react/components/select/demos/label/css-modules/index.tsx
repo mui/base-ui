@@ -2,25 +2,27 @@ import * as React from 'react';
 import { Select } from '@base-ui-components/react/select';
 import styles from './index.module.css';
 
-const valueToLabel: Record<string, React.ReactNode> = {
-  sans: <span style={{ fontFamily: 'sans-serif' }}>Sans-serif</span>,
-  serif: <span style={{ fontFamily: 'serif' }}>Serif</span>,
-  mono: <span style={{ fontFamily: 'monospace' }}>Monospace</span>,
-  cursive: <span style={{ fontFamily: 'cursive' }}>Cursive</span>,
-};
+const items = [
+  { fontFamily: 'sans-serif', label: 'Sans-serif' },
+  { fontFamily: 'serif', label: 'Serif' },
+  { fontFamily: 'monospace', label: 'Monospace' },
+  { fontFamily: 'cursive', label: 'Cursive' },
+];
 
-function renderValue(value: string | null) {
-  if (value == null) {
-    return 'Select a font';
-  }
-  return valueToLabel[value];
-}
+const labelMap = new Map(items.map((item) => [item.fontFamily, item.label]));
 
 export default function ExampleSelect() {
   return (
-    <Select.Root>
+    <Select.Root defaultValue="cursive">
       <Select.Trigger className={styles.Select}>
-        <Select.Value>{renderValue}</Select.Value>
+        <Select.Value>
+          {(value: string | null) => {
+            if (value === null) {
+              return 'Select a font';
+            }
+            return <span style={{ fontFamily: value }}>{labelMap.get(value)}</span>;
+          }}
+        </Select.Value>
         <Select.Icon className={styles.SelectIcon}>
           <ChevronUpDownIcon />
         </Select.Icon>
@@ -29,34 +31,20 @@ export default function ExampleSelect() {
         <Select.Positioner className={styles.Positioner} sideOffset={8}>
           <Select.ScrollUpArrow className={styles.ScrollArrow} />
           <Select.Popup className={styles.Popup}>
-            <Select.Item className={styles.Item} value="sans">
-              <Select.ItemIndicator className={styles.ItemIndicator}>
-                <CheckIcon className={styles.ItemIndicatorIcon} />
-              </Select.ItemIndicator>
-              <Select.ItemText className={styles.ItemText}>
-                Sans-serif
-              </Select.ItemText>
-            </Select.Item>
-            <Select.Item className={styles.Item} value="serif">
-              <Select.ItemIndicator className={styles.ItemIndicator}>
-                <CheckIcon className={styles.ItemIndicatorIcon} />
-              </Select.ItemIndicator>
-              <Select.ItemText className={styles.ItemText}>Serif</Select.ItemText>
-            </Select.Item>
-            <Select.Item className={styles.Item} value="mono">
-              <Select.ItemIndicator className={styles.ItemIndicator}>
-                <CheckIcon className={styles.ItemIndicatorIcon} />
-              </Select.ItemIndicator>
-              <Select.ItemText className={styles.ItemText}>
-                Monospace
-              </Select.ItemText>
-            </Select.Item>
-            <Select.Item className={styles.Item} value="cursive">
-              <Select.ItemIndicator className={styles.ItemIndicator}>
-                <CheckIcon className={styles.ItemIndicatorIcon} />
-              </Select.ItemIndicator>
-              <Select.ItemText className={styles.ItemText}>Cursive</Select.ItemText>
-            </Select.Item>
+            {items.map((item) => (
+              <Select.Item
+                key={item.fontFamily}
+                value={item.fontFamily}
+                className={styles.Item}
+              >
+                <Select.ItemIndicator className={styles.ItemIndicator}>
+                  <CheckIcon className={styles.ItemIndicatorIcon} />
+                </Select.ItemIndicator>
+                <Select.ItemText className={styles.ItemText}>
+                  {item.label}
+                </Select.ItemText>
+              </Select.Item>
+            ))}
           </Select.Popup>
           <Select.ScrollDownArrow className={styles.ScrollArrow} />
         </Select.Positioner>
