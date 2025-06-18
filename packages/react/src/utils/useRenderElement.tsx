@@ -1,7 +1,7 @@
 import * as React from 'react';
+import { useForkRef, useForkRefN } from '#use-fork-ref';
 import type { BaseUIComponentProps, ComponentRenderFn, HTMLProps } from './types';
 import { CustomStyleHookMapping, getStyleHookProps } from './getStyleHookProps';
-import { useForkRef, useForkRefN } from '#use-fork-ref';
 import { resolveClassName } from './resolveClassName';
 import { isReactVersionAtLeast } from './reactVersion';
 import { mergeProps, mergePropsN, mergeClassNames } from '../merge-props';
