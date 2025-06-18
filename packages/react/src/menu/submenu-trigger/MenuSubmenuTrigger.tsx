@@ -41,7 +41,7 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
   } = useMenuRootContext();
 
   if (parent.type !== 'menu') {
-    throw new Error('Base UI: SubmenuTrigger must be placed in a nested Menu.');
+    throw new Error('Base UI: <Menu.SubmenuTrigger> must be placed in <Menu.SubmenuRoot>.');
   }
 
   const parentMenuContext = parent.context;
@@ -62,6 +62,7 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
     allowMouseUpTriggerRef,
     typingRef,
     nativeButton,
+    submenuTrigger: true,
   });
 
   const state: MenuSubmenuTrigger.State = React.useMemo(

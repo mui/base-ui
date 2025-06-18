@@ -376,9 +376,12 @@ export function useAnchorPositioning(
     const resolvedAnchor = typeof anchorValue === 'function' ? anchorValue() : anchorValue;
     const unwrappedElement =
       (isRef(resolvedAnchor) ? resolvedAnchor.current : resolvedAnchor) || null;
+    const finalAnchor = unwrappedElement || null;
 
-    refs.setPositionReference(unwrappedElement);
-    registeredPositionReferenceRef.current = unwrappedElement;
+    if (finalAnchor !== registeredPositionReferenceRef.current) {
+      refs.setPositionReference(finalAnchor);
+      registeredPositionReferenceRef.current = finalAnchor;
+    }
   }, [mounted, refs, anchorDep, anchorValueRef]);
 
   React.useEffect(() => {

@@ -21,9 +21,8 @@ export const ToastClose = React.forwardRef(function ToastClose(
   const { close } = useToastContext();
   const { toast } = useToastRootContext();
 
-  const { getButtonProps } = useButton({
+  const { getButtonProps, buttonRef } = useButton({
     disabled,
-    buttonRef: forwardedRef,
     native: nativeButton,
   });
 
@@ -35,7 +34,7 @@ export const ToastClose = React.forwardRef(function ToastClose(
   );
 
   const element = useRenderElement('button', componentProps, {
-    ref: forwardedRef,
+    ref: [forwardedRef, buttonRef],
     state,
     props: [
       {

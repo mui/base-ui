@@ -92,15 +92,14 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     ...otherGroupProps
   } = groupProps;
 
-  const buttonRef = React.useRef<HTMLButtonElement>(null);
-
   const groupValue = groupContext?.value;
   const setGroupValue = groupContext?.setValue;
   const defaultGroupValue = groupContext?.defaultValue;
 
-  const { getButtonProps } = useButton({
+  const controlRef = React.useRef<HTMLButtonElement>(null);
+
+  const { getButtonProps, buttonRef } = useButton({
     disabled,
-    buttonRef,
     native: nativeButton,
   });
 
@@ -119,18 +118,30 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
   const id = useBaseUiId(idProp);
 
   useModernLayoutEffect(() => {
-    setControlId(id);
+    const element = controlRef?.current;
+    if (!element) {
+      return undefined;
+    }
+
+    if (groupContext) {
+      setControlId(idProp ?? null);
+    } else if (element.closest('label') == null) {
+      setControlId(id);
+    }
+
     return () => {
       setControlId(undefined);
     };
-  }, [id, setControlId]);
+  }, [groupContext, id, idProp, setControlId]);
 
   useField({
     enabled: !groupContext,
     id,
     commitValidation: fieldControlValidation.commitValidation,
     value: checked,
-    controlRef: buttonRef,
+    controlRef,
+    name,
+    getValue: () => checked,
   });
 
   const inputRef = React.useRef<HTMLInputElement>(null);
@@ -175,12 +186,10 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     {
       checked,
       disabled,
+      // parent checkboxes unset `name` to be excluded from form submission
       name: parent ? undefined : name,
-      // React <19 sets an empty value if `undefined` is passed explicitly
-      // To avoid this, we only set the value if it's defined
-      ...(valueProp !== undefined
-        ? { value: (groupContext ? checked && valueProp : valueProp) || '' }
-        : EMPTY),
+      // Set `id` to stop Chrome warning about an unassociated input
+      id: `${id}-input`,
       required,
       ref: mergedInputRef,
       style: visuallyHidden,
@@ -226,6 +235,11 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
         }
       },
     },
+    // React <19 sets an empty value if `undefined` is passed explicitly
+    // To avoid this, we only set the value if it's defined
+    valueProp !== undefined
+      ? { value: (groupContext ? checked && valueProp : valueProp) || '' }
+      : EMPTY,
     groupContext
       ? fieldControlValidation.getValidationProps
       : fieldControlValidation.getInputValidationProps,
@@ -239,8 +253,6 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
       parentContext.disabledStatesRef.current.set(name, disabled);
     }
   }, [parentContext, disabled, name]);
-
-  const mergedRef = useForkRef(forwardedRef, groupContext?.registerControlRef);
 
   const state: CheckboxRoot.State = React.useMemo(
     () => ({
@@ -258,11 +270,10 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
 
   const element = useRenderElement('button', componentProps, {
     state,
-    ref: mergedRef,
+    ref: [buttonRef, controlRef, forwardedRef, groupContext?.registerControlRef],
     props: [
       {
         id,
-        ref: buttonRef,
         role: 'checkbox',
         disabled,
         'aria-checked': groupIndeterminate ? 'mixed' : checked,

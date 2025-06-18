@@ -1,7 +1,7 @@
 export const TYPEAHEAD_RESET_MS = 500;
 export const PATIENT_CLICK_THRESHOLD = 500;
 export const DISABLED_TRANSITIONS_STYLE = { style: { transition: 'none' } };
-export const EMPTY_OBJ = {};
+export const EMPTY_OBJECT = {};
 
 /**
  * Used for dropdowns that usually strictly prefer top/bottom placements and

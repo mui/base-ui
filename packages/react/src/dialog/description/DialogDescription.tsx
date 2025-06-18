@@ -6,8 +6,6 @@ import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import type { BaseUIComponentProps } from '../../utils/types';
 
-const state = {};
-
 /**
  * A paragraph with additional information about the dialog.
  * Renders a `<p>` element.
@@ -31,9 +29,8 @@ export const DialogDescription = React.forwardRef(function DialogDescription(
   }, [id, setDescriptionElementId]);
 
   return useRenderElement('p', componentProps, {
-    state,
     ref: forwardedRef,
-    props: [elementProps, { id }],
+    props: [{ id }, elementProps],
   });
 });
 
