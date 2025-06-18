@@ -56,16 +56,9 @@ export const TabsTab = React.forwardRef(function Tab(
     return value === selectedTabValue;
   }, [selectedTabValue, value]);
 
-  const isNavigatingRef = React.useRef(false);
-
   // Keep the highlighted item in sync with the currently selected tab
   // when the value prop changes externally (controlled mode)
   useModernLayoutEffect(() => {
-    if (isNavigatingRef.current) {
-      isNavigatingRef.current = false;
-      return;
-    }
-
     if (selected && index > -1 && highlightedTabIndex !== index) {
       setHighlightedTabIndex(index);
     }
@@ -156,9 +149,6 @@ export const TabsTab = React.forwardRef(function Tab(
         onFocus,
         onPointerDown,
         [ACTIVE_COMPOSITE_ITEM as string]: selected ? '' : undefined,
-        onKeyDownCapture() {
-          isNavigatingRef.current = true;
-        },
       },
       elementProps,
       getButtonProps,
