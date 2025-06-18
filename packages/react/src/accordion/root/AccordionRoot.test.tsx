@@ -727,4 +727,43 @@ describe('<Accordion.Root />', () => {
       expect(onValueChange.args[1][0]).to.deep.equal(['two']);
     });
   });
+
+  describe('prop: defaultValue', () => {
+    it.skipIf(isJSDOM)(
+      'does not run an open transition when the panel is initially open',
+      async () => {
+        const styles = `
+        .panel {
+          box-sizing: border-box;
+          height: var(--accordion-panel-height);
+          overflow: hidden;
+          transition: height 500ms;
+
+          &[data-starting-style],
+          &[data-ending-style] {
+            height: 0;
+          }
+        }
+      `;
+
+        const { getByTestId } = await render(
+          <Accordion.Root defaultValue={[0]}>
+            <style>{styles}</style>
+
+            <Accordion.Item value={0}>
+              <Accordion.Header>
+                <Accordion.Trigger>Trigger 1</Accordion.Trigger>
+              </Accordion.Header>
+              <Accordion.Panel data-testid="panel" className="panel">
+                Test
+              </Accordion.Panel>
+            </Accordion.Item>
+          </Accordion.Root>,
+        );
+
+        const panel = getByTestId('panel');
+        expect(panel.getAnimations()).to.have.lengthOf(0);
+      },
+    );
+  });
 });
