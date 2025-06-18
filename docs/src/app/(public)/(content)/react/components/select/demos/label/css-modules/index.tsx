@@ -5,7 +5,7 @@ import styles from './index.module.css';
 type Font = keyof typeof fonts;
 
 const fonts = {
-  sans: 'Sans-serif',
+  'sans-serif': 'Sans-serif',
   serif: 'Serif',
   monospace: 'Monospace',
   cursive: 'Cursive',
