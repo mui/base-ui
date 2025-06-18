@@ -48,21 +48,3 @@ import { Select } from '@base-ui-components/react/select';
   component="Select"
   parts="Root, Trigger, Value, Icon, Backdrop, Portal, Positioner, Popup, Arrow, Item, ItemText, ItemIndicator, Group, GroupLabel, ScrollUpArrow, ScrollDownArrow, Separator"
 />
-
-## Examples
-
-### Formatting the value
-
-The `Select.Value` component can accept a function as its child that is called with the current `value` to format it.
-
-```jsx title="Formatting the value" "getLabel"
-function getLabel(value: string | null) {
-  return value && valueLabels[value];
-}
-
-<Select.Value placeholder="Select a font">
-  {getLabel}
-</Select.Value>
-```
-
-<Demo path="./demos/label" compact />
