@@ -25,6 +25,7 @@ export interface ComboboxRootContext<Value = any, Multiple extends boolean = fal
   listRef: React.RefObject<Array<HTMLElement | null>>;
   popupRef: React.RefObject<HTMLDivElement | null>;
   triggerRef: React.RefObject<HTMLButtonElement | null>;
+  inputRef: React.RefObject<HTMLInputElement | null>;
   keyboardActiveRef: React.RefObject<boolean>;
   allowActiveIndexSyncRef: React.RefObject<boolean>;
   store: ComboboxStore;

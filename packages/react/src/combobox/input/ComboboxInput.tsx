@@ -7,10 +7,10 @@ import { useSelector } from '../../utils/store';
 import { selectors } from '../store';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
-import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { fieldValidityMapping } from '../../field/utils/constants';
 import { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
+import { useComboboxChipsContext } from '../chips/ComboboxChipsContext';
 
 /**
  * A text input to search for items in the list.
@@ -47,7 +47,9 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
     multiple,
     disabled: comboboxDisabled,
     fieldControlValidation,
+    inputRef,
   } = useComboboxRootContext();
+  const comboboxChipsContext = useComboboxChipsContext();
 
   const triggerProps = useSelector(store, selectors.triggerProps);
   const open = useSelector(store, selectors.open);
@@ -70,28 +72,65 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
     [fieldState, open, disabled],
   );
 
-  const [inputValue, setInputValue] = React.useState(value);
+  function handleKeyDown(event: React.KeyboardEvent<HTMLInputElement>) {
+    if (!comboboxChipsContext) {
+      return undefined;
+    }
 
-  useModernLayoutEffect(() => {
-    setInputValue(value);
-  }, [value]);
+    let nextIndex: number | undefined;
+
+    const { highlightedChipIndex } = comboboxChipsContext;
+
+    if (highlightedChipIndex !== undefined) {
+      if (event.key === 'ArrowLeft') {
+        event.preventDefault();
+        if (highlightedChipIndex > 0) {
+          nextIndex = highlightedChipIndex - 1;
+        } else {
+          nextIndex = undefined;
+        }
+      } else if (event.key === 'ArrowRight') {
+        event.preventDefault();
+        if (highlightedChipIndex < value.length - 1) {
+          nextIndex = highlightedChipIndex + 1;
+        } else {
+          nextIndex = undefined;
+        }
+      } else if (event.key === 'Backspace' || event.key === 'Delete') {
+        event.preventDefault();
+        // Move highlight appropriately after removal.
+        const computedNextIndex =
+          highlightedChipIndex >= value.length - 1 ? value.length - 2 : highlightedChipIndex;
+        // If the computed index is negative, treat it as no highlight.
+        nextIndex = computedNextIndex >= 0 ? computedNextIndex : undefined;
+      }
+      return nextIndex;
+    }
+
+    // Handle navigation when no chip is highlighted
+    if (
+      event.key === 'ArrowLeft' &&
+      (event.currentTarget.selectionStart ?? 0) === 0 &&
+      value.length > 0
+    ) {
+      event.preventDefault();
+      const lastChipIndex = Math.max(value.length - 1, 0);
+      nextIndex = lastChipIndex;
+    } else if (event.key === 'Backspace' && event.currentTarget.value === '' && value.length > 0) {
+      event.preventDefault();
+    }
+
+    return nextIndex;
+  }
 
   const element = useRenderElement('input', componentProps, {
     state,
-    ref: [forwardedRef, setTriggerElement],
+    ref: [forwardedRef, setTriggerElement, inputRef],
     props: [
       triggerProps,
       {
-        value: inputValue,
         'aria-disabled': disabled || undefined,
         'aria-labelledby': labelId,
-        onChange(event) {
-          setInputValue(event.target.value);
-          store.set('activeIndex', null);
-          if (activeIndex !== null) {
-            onItemHighlighted(undefined, keyboardActiveRef.current ? 'keyboard' : 'pointer');
-          }
-        },
         onFocus() {
           setFocused(true);
         },
@@ -106,14 +145,34 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
         onKeyDown(event) {
           keyboardActiveRef.current = true;
 
+          // Handle deletion when no chip is highlighted and the input is empty.
+          if (
+            comboboxChipsContext &&
+            event.key === 'Backspace' &&
+            event.currentTarget.value === '' &&
+            comboboxChipsContext.highlightedChipIndex === undefined &&
+            Array.isArray(value) &&
+            value.length > 0
+          ) {
+            const newValue = value.slice(0, -1);
+            setValue(newValue, event.nativeEvent, undefined);
+            return;
+          }
+
+          const nextIndex = handleKeyDown(event);
+
+          comboboxChipsContext?.setHighlightedChipIndex(nextIndex);
+
+          if (nextIndex !== undefined) {
+            comboboxChipsContext?.chipsRef.current[nextIndex]?.focus();
+          } else {
+            inputRef.current?.focus();
+          }
+
           // Printable characters
           if (
             event.key === 'Backspace' ||
-            (event.key.length === 1 &&
-              !event.ctrlKey &&
-              !event.metaKey &&
-              !event.altKey &&
-              !event.shiftKey)
+            (event.key.length === 1 && !event.ctrlKey && !event.metaKey && !event.altKey)
           ) {
             setOpen(true, event.nativeEvent, undefined);
             store.set('activeIndex', null);
@@ -128,8 +187,20 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
 
           if (event.key === 'Enter') {
             event.preventDefault();
-            setValue(valuesRef.current[activeIndex], event.nativeEvent, 'item-press');
-            if (!multiple) {
+
+            const selectedValue = valuesRef.current[activeIndex];
+
+            if (multiple) {
+              const isSelected = Array.isArray(value) && value.includes(selectedValue);
+              const nextValue = isSelected
+                ? value.filter((v) => v !== selectedValue)
+                : Array.isArray(value)
+                  ? [...value, selectedValue]
+                  : [selectedValue];
+
+              setValue(nextValue, event.nativeEvent, 'item-press');
+            } else {
+              setValue(selectedValue, event.nativeEvent, 'item-press');
               setOpen(false, event.nativeEvent, 'item-press');
             }
           }
