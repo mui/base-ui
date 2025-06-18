@@ -83,18 +83,24 @@ function useRenderElementProps<
   // switching between them at runtime is safe. If this assertion fails, React will
   // throw at runtime anyway.
   /* eslint-disable react-hooks/rules-of-hooks */
+
+  let mergedRefs: React.RefCallback<any> | null = null;
+
   if (!enabled) {
     useForkRef(null, null);
-  } else if (Object.isExtensible(outProps)) {
+  } else if (Array.isArray(ref)) {
+    mergedRefs = useForkRefN(outProps.ref, getChildRef(renderProp), ...ref);
+  } else {
+    mergedRefs = useForkRef(outProps.ref, getChildRef(renderProp), ref);
+  }
+
+  /* eslint-enable react-hooks/rules-of-hooks */
+
+  if (Object.isExtensible(outProps)) {
     // Props are frozen in Next.js RSC implementation.
     // Refs are unnecessary anyway on the server, so we can skip them.
-    if (Array.isArray(ref)) {
-      outProps.ref = useForkRefN(outProps.ref, getChildRef(renderProp), ...ref);
-    } else {
-      outProps.ref = useForkRef(outProps.ref, getChildRef(renderProp), ref);
-    }
+    outProps.ref = mergedRefs;
   }
-  /* eslint-enable react-hooks/rules-of-hooks */
 
   if (!enabled) {
     return EMPTY_OBJECT;
