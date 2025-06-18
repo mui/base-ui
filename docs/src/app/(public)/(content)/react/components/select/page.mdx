@@ -56,8 +56,8 @@ import { Select } from '@base-ui-components/react/select';
 The `Select.Value` component can accept a function as its child that is called with the current `value` to format it.
 
 ```jsx title="Formatting the value" "getLabel"
-function getLabel(value: string) {
-  return valueLabels[value];
+function getLabel(value: string | null) {
+  return value && valueLabels[value];
 }
 
 <Select.Value placeholder="Select a font">

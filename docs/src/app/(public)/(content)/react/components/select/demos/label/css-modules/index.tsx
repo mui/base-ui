@@ -13,15 +13,15 @@ const fonts = {
 
 const values = Object.keys(fonts) as Array<Font>;
 
+function getLabel(value: Font | null) {
+  return value && <span style={{ fontFamily: value }}>{fonts[value]}</span>;
+}
+
 export default function ExampleSelect() {
   return (
     <Select.Root defaultValue="cursive">
       <Select.Trigger className={styles.Select}>
-        <Select.Value placeholder="Select a font">
-          {(value: Font) => (
-            <span style={{ fontFamily: value }}>{fonts[value]}</span>
-          )}
-        </Select.Value>
+        <Select.Value placeholder="Select a font">{getLabel}</Select.Value>
         <Select.Icon className={styles.SelectIcon}>
           <ChevronUpDownIcon />
         </Select.Icon>
