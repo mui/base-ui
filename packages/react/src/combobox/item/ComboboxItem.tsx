@@ -53,6 +53,7 @@ export const ComboboxItem = React.memo(
       setOpen,
       setValue,
       valuesRef,
+      inputRef,
       registerSelectedItem,
       keyboardActiveRef,
       allowActiveIndexSyncRef,
@@ -142,20 +143,22 @@ export const ComboboxItem = React.memo(
       tabIndex: -1,
       onClick(event) {
         if (multiple) {
-          // Handle multiple selection
           const currentValue = rootValue as any[];
           const isCurrentlySelected = Array.isArray(currentValue) && currentValue.includes(value);
 
           let nextValue: any[];
           if (isCurrentlySelected) {
-            // Remove from selection
             nextValue = currentValue.filter((v) => v !== value);
           } else {
-            // Add to selection
             nextValue = Array.isArray(currentValue) ? [...currentValue, value] : [value];
           }
 
-          setValue(nextValue as any, event.nativeEvent, 'item-press');
+          setValue(nextValue, event.nativeEvent, 'item-press');
+
+          const wasFiltering = inputRef.current ? inputRef.current.value.trim() !== '' : false;
+          if (wasFiltering) {
+            setOpen(false, event.nativeEvent, 'item-press');
+          }
         } else {
           setValue(value, event.nativeEvent, 'item-press');
           setOpen(false, event.nativeEvent, 'item-press');
@@ -165,6 +168,10 @@ export const ComboboxItem = React.memo(
         if (selectedIndex !== -1) {
           store.set('selectedIndex', selectedIndex);
         }
+
+        queueMicrotask(() => {
+          inputRef.current?.focus();
+        });
       },
       onPointerDown(event) {
         // Prevent the item from stealing focus from the input.

@@ -63,7 +63,7 @@ export default function ExamplePopoverCombobox() {
                 />
               </div>
               <Combobox.Status className={styles.NoResults}>
-                {filteredCountries.length === 0 && <div>No countries found</div>}
+                {filteredCountries.length === 0 && <div>No countries found.</div>}
               </Combobox.Status>
               <Combobox.List className={styles.List}>
                 {filteredCountries.map((country) => (

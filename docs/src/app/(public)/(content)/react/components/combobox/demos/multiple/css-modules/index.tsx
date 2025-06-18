@@ -1,168 +1,18 @@
 import * as React from 'react';
 import { Combobox } from '@base-ui-components/react/combobox';
 import styles from './index.module.css';
-import { programmingLanguages, type Language } from './data';
+import { langs, type Lang } from './data';
 
 export default function MultipleCombobox() {
-  const [isOpen, setIsOpen] = React.useState(false);
   const [inputValue, setInputValue] = React.useState('');
-  const [selectedLanguages, setSelectedLanguages] = React.useState<Language[]>([]);
-  const [highlightedChipIndex, setHighlightedChipIndex] = React.useState<
-    number | null
-  >(null);
-
-  const inputRef = React.useRef<HTMLInputElement | null>(null);
   const containerRef = React.useRef<HTMLDivElement | null>(null);
-  const chipsRef = React.useRef<Array<HTMLButtonElement | null>>([]);
-
   const id = React.useId();
 
-  function handleValueChange(newValue: Language | Language[]) {
-    let nextSelection: Language[];
-
-    if (Array.isArray(newValue)) {
-      nextSelection = newValue;
-    } else {
-      const exists = selectedLanguages.some((s) => s.id === newValue.id);
-      if (exists) {
-        nextSelection = selectedLanguages.filter((s) => s.id !== newValue.id);
-      } else {
-        nextSelection = [...selectedLanguages, newValue];
-      }
-    }
-
-    setSelectedLanguages(nextSelection);
-
-    const wasFiltering = inputValue.trim() !== '';
-    if (wasFiltering) {
-      setIsOpen(false);
-    }
-
-    setInputValue('');
-    setHighlightedChipIndex(null);
-  }
-
-  function handleInputChange(event: React.ChangeEvent<HTMLInputElement>) {
-    setInputValue(event.target.value);
-  }
-
-  function handleChipRemove(skill: Language) {
-    handleValueChange(skill);
-  }
-
-  function handleInputKeyDown(event: React.KeyboardEvent<HTMLInputElement>) {
-    if (highlightedChipIndex !== null) {
-      if (event.key === 'ArrowLeft') {
-        event.preventDefault();
-        if (highlightedChipIndex > 0) {
-          setHighlightedChipIndex(highlightedChipIndex - 1);
-        } else {
-          setHighlightedChipIndex(null);
-        }
-      } else if (event.key === 'ArrowRight') {
-        event.preventDefault();
-        if (highlightedChipIndex < selectedLanguages.length - 1) {
-          setHighlightedChipIndex(highlightedChipIndex + 1);
-        } else {
-          setHighlightedChipIndex(null);
-        }
-      } else if (event.key === 'Backspace' || event.key === 'Delete') {
-        event.preventDefault();
-        handleChipRemove(selectedLanguages[highlightedChipIndex]);
-        // Move highlight appropriately after removal.
-        const nextIndex =
-          highlightedChipIndex >= selectedLanguages.length - 1
-            ? selectedLanguages.length - 2
-            : highlightedChipIndex;
-        setHighlightedChipIndex(nextIndex >= 0 ? nextIndex : null);
-      }
-      return;
-    }
-
-    // Handle navigation when no chip is highlighted
-    if (
-      event.key === 'ArrowLeft' &&
-      (event.currentTarget.selectionStart ?? 0) === 0 &&
-      selectedLanguages.length > 0
-    ) {
-      event.preventDefault();
-      const lastChipIndex = selectedLanguages.length - 1;
-      setHighlightedChipIndex(lastChipIndex);
-      chipsRef.current[lastChipIndex]?.focus();
-    } else if (
-      event.key === 'Backspace' &&
-      inputValue === '' &&
-      selectedLanguages.length > 0
-    ) {
-      event.preventDefault();
-      // Remove the last chip when backspace is pressed with empty input
-      handleChipRemove(selectedLanguages[selectedLanguages.length - 1]);
-    }
-  }
-
-  function handleChipKeyDown(
-    event: React.KeyboardEvent<HTMLButtonElement>,
-    index: number,
-  ) {
-    if (event.key === 'ArrowLeft') {
-      event.preventDefault();
-      if (index > 0) {
-        setHighlightedChipIndex(index - 1);
-        chipsRef.current[index - 1]?.focus();
-      } else {
-        setHighlightedChipIndex(null);
-        inputRef.current?.focus();
-      }
-    } else if (event.key === 'ArrowRight') {
-      event.preventDefault();
-      if (index < selectedLanguages.length - 1) {
-        setHighlightedChipIndex(index + 1);
-        chipsRef.current[index + 1]?.focus();
-      } else {
-        setHighlightedChipIndex(null);
-        inputRef.current?.focus();
-      }
-    } else if (event.key === 'Backspace' || event.key === 'Delete') {
-      event.preventDefault();
-      handleChipRemove(selectedLanguages[index]);
-      // Move focus appropriately after removal.
-      queueMicrotask(() => {
-        const nextEl =
-          chipsRef.current[index] ?? chipsRef.current[index - 1] ?? inputRef.current;
-        nextEl?.focus();
-        const nextIndex =
-          index >= selectedLanguages.length - 1
-            ? selectedLanguages.length - 2
-            : index;
-        setHighlightedChipIndex(nextIndex >= 0 ? nextIndex : null);
-      });
-    } else if (event.key === 'Enter' || event.key === ' ') {
-      event.preventDefault();
-      setHighlightedChipIndex(null);
-      inputRef.current?.focus();
-    } else if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
-      event.preventDefault();
-      setIsOpen(true);
-      setHighlightedChipIndex(null);
-      inputRef.current?.focus();
-    } else if (
-      // Check for printable characters (letters, numbers, symbols)
-      event.key.length === 1 &&
-      !event.ctrlKey &&
-      !event.metaKey &&
-      !event.altKey
-    ) {
-      // Move focus to input and let the character be typed there
-      inputRef.current?.focus();
-      setHighlightedChipIndex(null);
-    }
-  }
-
-  const filteredLanguages = React.useMemo(() => {
+  const filteredLangs = React.useMemo(() => {
     if (inputValue.trim() === '') {
-      return programmingLanguages;
+      return langs;
     }
-    return programmingLanguages.filter((language) =>
+    return langs.filter((language) =>
       language.name.toLowerCase().includes(inputValue.toLowerCase()),
     );
   }, [inputValue]);
@@ -171,66 +21,45 @@ export default function MultipleCombobox() {
     <Combobox.Root
       multiple
       selectable
-      value={selectedLanguages}
-      onValueChange={handleValueChange}
-      open={isOpen}
-      onOpenChange={setIsOpen}
+      onValueChange={() => {
+        setInputValue('');
+      }}
     >
       <div className={styles.Container}>
         <label className={styles.Label} htmlFor={id}>
           Programming languages
         </label>
-        <div className={styles.ChipInputContainer} ref={containerRef}>
-          {selectedLanguages.map((language, index) => (
-            // eslint-disable-next-line jsx-a11y/no-static-element-interactions
-            <div
-              key={language.id}
-              className={styles.Chip}
-              data-highlighted={highlightedChipIndex === index ? '' : undefined}
-              onMouseDown={(event) => {
-                event.preventDefault();
-                inputRef.current?.focus();
-              }}
-              aria-label={`Remove ${language.name}`}
-            >
-              <button
-                type="button"
-                tabIndex={-1}
-                ref={(el) => {
-                  chipsRef.current[index] = el;
-                }}
-                className={styles.ChipButton}
-                onKeyDown={(event) => handleChipKeyDown(event, index)}
-                onFocus={() => setHighlightedChipIndex(index)}
-                onBlur={() => setHighlightedChipIndex(null)}
-              >
-                <span>{language.name}</span>
-              </button>
-              <button
-                type="button"
-                tabIndex={-1}
-                className={styles.ChipRemove}
-                onClick={(event) => {
-                  event.stopPropagation();
-                  handleChipRemove(language);
-                  inputRef.current?.focus();
-                }}
-              >
-                <XIcon />
-              </button>
-            </div>
-          ))}
-          <Combobox.Input
-            id={id}
-            ref={inputRef}
-            placeholder={selectedLanguages.length > 0 ? '' : 'e.g. TypeScript'}
-            className={styles.Input}
-            value={inputValue}
-            onChange={handleInputChange}
-            onKeyDown={handleInputKeyDown}
-            onBlur={() => setHighlightedChipIndex(null)}
-          />
-        </div>
+        <Combobox.Chips className={styles.Chips} ref={containerRef}>
+          <Combobox.Value>
+            {(value: Lang[]) => (
+              <React.Fragment>
+                {value.map((language) => (
+                  <Combobox.Chip
+                    key={language.id}
+                    className={styles.Chip}
+                    aria-label={language.name}
+                  >
+                    {language.name}
+                    <Combobox.ChipRemove className={styles.ChipRemove}>
+                      <XIcon />
+                    </Combobox.ChipRemove>
+                  </Combobox.Chip>
+                ))}
+                <Combobox.Input
+                  id={id}
+                  placeholder={value.length > 0 ? '' : 'e.g. TypeScript'}
+                  className={styles.Input}
+                  value={inputValue}
+                  onChange={(event) => {
+                    React.startTransition(() => {
+                      setInputValue(event.target.value);
+                    });
+                  }}
+                />
+              </React.Fragment>
+            )}
+          </Combobox.Value>
+        </Combobox.Chips>
       </div>
 
       <Combobox.Portal>
@@ -241,10 +70,10 @@ export default function MultipleCombobox() {
         >
           <Combobox.Popup className={styles.Popup}>
             <Combobox.Status className={styles.NoResults}>
-              {filteredLanguages.length === 0 && <div>No languages found.</div>}
+              {filteredLangs.length === 0 && <div>No languages found.</div>}
             </Combobox.Status>
             <Combobox.List>
-              {filteredLanguages.map((language) => (
+              {filteredLangs.map((language) => (
                 <Combobox.Item
                   key={language.id}
                   className={styles.Item}
@@ -284,6 +113,7 @@ function XIcon(props: React.ComponentProps<'svg'>) {
       strokeWidth="2"
       strokeLinecap="round"
       strokeLinejoin="round"
+      aria-hidden
       {...props}
     >
       <path d="M18 6 6 18" />
