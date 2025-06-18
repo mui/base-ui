@@ -9,7 +9,7 @@ const PROJECT_BUILD_DIR = path.join(PROJECT_ROOT, './build');
 
 type TransformedExports = Record<
   string,
-  Record<'require' | 'import', Record<'types' | 'default', string>>
+  Record<string, Record<string, string | Record<string, string>>>
 >;
 
 export async function createPackageManifest() {
@@ -44,6 +44,7 @@ export async function createPackageManifest() {
       './package.json': './package.json',
       ...retargetExports(exports),
     },
+    imports: retargetImports(imports),
     publishConfig,
   };
 
@@ -59,19 +60,47 @@ function retargetExports(originalExports: Record<string, string>) {
 
   for (const subpath of subpaths) {
     const originalPath = originalExports[subpath];
-    transformed[subpath] = {
-      require: {
-        types: originalPath.replace('/src/', '/cjs/').replace(/\.tsx?$/, '.d.ts'),
-        default: originalPath.replace('/src/', '/cjs/').replace(/\.tsx?$/, '.js'),
-      },
-      import: {
-        types: originalPath.replace('/src/', '/esm/').replace(/\.tsx?$/, '.d.ts'),
-        default: originalPath.replace('/src/', '/esm/').replace(/\.tsx?$/, '.js'),
-      },
-    };
+    transformed[subpath] = transformPath(originalPath);
   }
 
   return transformed;
+}
+
+function retargetImports(originalImports: Record<string, string | Record<string, string>>) {
+  const subpaths = Object.keys(originalImports);
+  const transformed: TransformedExports = {};
+
+  for (const subpath of subpaths) {
+    const originalPathOrConditions = originalImports[subpath];
+    if (typeof originalPathOrConditions === 'string') {
+      if (originalPathOrConditions.startsWith('./test')) {
+        continue;
+      }
+
+      transformed[subpath] = transformPath(originalPathOrConditions);
+    } else {
+      for (const condition of Object.keys(originalPathOrConditions)) {
+        const originalPath = originalPathOrConditions[condition];
+        transformed[subpath] = transformed[subpath] || {};
+        transformed[subpath][condition] = transformPath(originalPath);
+      }
+    }
+  }
+
+  return transformed;
+}
+
+function transformPath(originalPath: string) {
+  return {
+    require: {
+      types: originalPath.replace('/src/', '/cjs/').replace(/\.tsx?$/, '.d.ts'),
+      default: originalPath.replace('/src/', '/cjs/').replace(/\.tsx?$/, '.js'),
+    },
+    import: {
+      types: originalPath.replace('/src/', '/esm/').replace(/\.tsx?$/, '.d.ts'),
+      default: originalPath.replace('/src/', '/esm/').replace(/\.tsx?$/, '.js'),
+    },
+  };
 }
 
 await createPackageManifest();
