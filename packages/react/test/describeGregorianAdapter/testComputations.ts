@@ -26,6 +26,7 @@ export const testComputations: DescribeGregorianAdapterTestSuite = ({
   createDateInFrenchLocale,
 }) => {
   const testDateIso = adapter.date(TEST_DATE_ISO_STRING, 'default');
+  const testDateIsoInSystemTz = adapter.date(TEST_DATE_ISO_STRING, 'system');
   const testDateIsoFr = createDateInFrenchLocale(TEST_DATE_ISO_STRING);
   const testDateLastNonDSTDay = adapterTZ.isTimezoneCompatible
     ? adapterTZ.date('2022-03-27', 'Europe/Paris')
@@ -146,46 +147,56 @@ export const testComputations: DescribeGregorianAdapterTestSuite = ({
     },
   );
 
-  it('Method: setTimezone', () => {
-    if (adapter.isTimezoneCompatible) {
-      const dateWithLocaleTimezone = adapter.date(TEST_DATE_ISO_STRING, 'system');
+  describe('Method: setTimezone', () => {
+    it.skipIf(!adapter.isTimezoneCompatible)(
+      'should convert the date to the target timezone without impacting its timestamp',
+      () => {
+        const dateWithLocaleTimezone = adapter.date(TEST_DATE_ISO_STRING, 'system');
 
-      expect(
-        adapter.getTimezone(adapter.setTimezone(dateWithLocaleTimezone, 'America/New_York')),
-      ).to.equal('America/New_York');
+        const testTimezone = (timezone: TemporalTimezone) => {
+          const dateInTargetTimezone = adapter.setTimezone(dateWithLocaleTimezone, timezone);
+          expect(adapter.getTimezone(dateInTargetTimezone)).to.equal(timezone);
+          expect(adapter.toJsDate(dateInTargetTimezone).getTime()).to.equal(
+            adapter.toJsDate(dateWithLocaleTimezone).getTime(),
+          );
+        };
 
-      expect(
-        adapter.getTimezone(adapter.setTimezone(dateWithLocaleTimezone, 'Europe/Paris')),
-      ).to.equal('Europe/Paris');
+        testTimezone('America/New_York');
+        testTimezone('Europe/Paris');
+        testTimezone('Australia/Sydney');
+        testTimezone('UTC');
+      },
+    );
 
-      expect(adapter.getTimezone(adapter.setTimezone(dateWithLocaleTimezone, 'UTC'))).to.equal(
-        'UTC',
-      );
+    test.skipIf(!adapter.isTimezoneCompatible || setDefaultTimezone == null)(
+      'should convert the date to the default timezone',
+      () => {
+        setDefaultTimezone!('America/New_York');
+        expect(adapter.getTimezone(adapter.setTimezone(testDateIsoInSystemTz, 'default'))).to.equal(
+          'America/New_York',
+        );
 
-      if (setDefaultTimezone != null) {
-        setDefaultTimezone('America/New_York');
-        expect(
-          adapter.getTimezone(adapter.setTimezone(dateWithLocaleTimezone, 'default')),
-        ).to.equal('America/New_York');
+        setDefaultTimezone!('Europe/Paris');
+        expect(adapter.getTimezone(adapter.setTimezone(testDateIsoInSystemTz, 'default'))).to.equal(
+          'Europe/Paris',
+        );
 
-        setDefaultTimezone('Europe/Paris');
-        expect(
-          adapter.getTimezone(adapter.setTimezone(dateWithLocaleTimezone, 'default')),
-        ).to.equal('Europe/Paris');
+        setDefaultTimezone!(undefined);
+      },
+    );
 
-        setDefaultTimezone(undefined);
-      }
+    test.skipIf(!adapter.isTimezoneCompatible)(
+      'should do nothing if the adapter does not support timezones',
+      () => {
+        const systemDate = adapter.date(TEST_DATE_ISO_STRING, 'system');
+        expect(adapter.setTimezone(systemDate, 'default')).toEqualDateTime(systemDate);
+        expect(adapter.setTimezone(systemDate, 'system')).toEqualDateTime(systemDate);
 
-      // Reset to the default timezone
-    } else {
-      const systemDate = adapter.date(TEST_DATE_ISO_STRING, 'system');
-      expect(adapter.setTimezone(systemDate, 'default')).toEqualDateTime(systemDate);
-      expect(adapter.setTimezone(systemDate, 'system')).toEqualDateTime(systemDate);
-
-      const defaultDate = adapter.date(TEST_DATE_ISO_STRING, 'default');
-      expect(adapter.setTimezone(systemDate, 'default')).toEqualDateTime(defaultDate);
-      expect(adapter.setTimezone(systemDate, 'system')).toEqualDateTime(defaultDate);
-    }
+        const defaultDate = adapter.date(TEST_DATE_ISO_STRING, 'default');
+        expect(adapter.setTimezone(systemDate, 'default')).toEqualDateTime(defaultDate);
+        expect(adapter.setTimezone(systemDate, 'system')).toEqualDateTime(defaultDate);
+      },
+    );
   });
 
   it('Method: toJsDate', () => {

@@ -124,6 +124,8 @@ export class TemporalAdapterDateFns implements TemporalAdapter {
     }
 
     const date = new Date(value);
+    // `new TZDate(value, timezone)` returns a date with the same timestamp `new Date(value)` would return,
+    // whereas we want to create that represents the string in the given timezone.
     return new TZDate(
       date.getFullYear(),
       date.getMonth(),
@@ -149,7 +151,7 @@ export class TemporalAdapterDateFns implements TemporalAdapter {
 
     if (value instanceof TZDate) {
       if (isSystemTimezone) {
-        return new Date(value.getTime());
+        return this.toJsDate(value);
       }
       return value.withTimeZone(timezone);
     }
@@ -161,6 +163,9 @@ export class TemporalAdapterDateFns implements TemporalAdapter {
   };
 
   public toJsDate = (value: Date) => {
+    if (value instanceof TZDate) {
+      return new Date(value.getTime());
+    }
     return value;
   };
 
