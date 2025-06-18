@@ -11,5 +11,8 @@ export { ComboboxGroup as Group } from './group/ComboboxGroup';
 export { ComboboxGroupLabel as GroupLabel } from './group-label/ComboboxGroupLabel';
 export { ComboboxItem as Item } from './item/ComboboxItem';
 export { ComboboxItemIndicator as ItemIndicator } from './item-indicator/ComboboxItemIndicator';
+export { ComboboxChips as Chips } from './chips/ComboboxChips';
+export { ComboboxChip as Chip } from './chip/ComboboxChip';
+export { ComboboxChipRemove as ChipRemove } from './chip-remove/ComboboxChipRemove';
 
 export { Separator as ComboboxSeparator } from '../separator';

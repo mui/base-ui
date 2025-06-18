@@ -15,7 +15,7 @@
   color: var(--color-gray-900);
 }
 
-.ChipInputContainer {
+.Chips {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -39,8 +39,11 @@
   color: var(--color-gray-900);
   border-radius: 0.375rem;
   font-size: 0.925rem;
-  padding: 0.25rem 0.25rem 0.25rem 0;
+  padding: 0.25rem 0.25rem 0.25rem 0.5rem;
   overflow: hidden;
+  gap: 0.25rem;
+  outline: 0;
+  cursor: default;
 
   &:focus-within,
   &[data-highlighted] {

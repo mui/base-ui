@@ -1,9 +1,9 @@
-export interface Language {
+export interface Lang {
   id: string;
   name: string;
 }
 
-export const programmingLanguages: Language[] = [
+export const langs: Lang[] = [
   { id: 'js', name: 'JavaScript' },
   { id: 'ts', name: 'TypeScript' },
   { id: 'py', name: 'Python' },

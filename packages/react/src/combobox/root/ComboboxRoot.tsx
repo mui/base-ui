@@ -50,7 +50,7 @@ export function ComboboxRoot<Value, Multiple extends boolean = false>(
     disabled: disabledProp = false,
     readOnly = false,
     required = false,
-    inputRef,
+    inputRef: inputRefProp,
   } = props;
 
   const { clearErrors } = useFormContext();
@@ -76,7 +76,8 @@ export function ComboboxRoot<Value, Multiple extends boolean = false>(
     };
   }, [id, setControlId]);
 
-  const getDefaultValue = (): Multiple extends true ? Value[] : Value => {
+  // Memoize the initial uncontrolled value so its reference stays stable
+  const defaultUncontrolledValue = React.useMemo((): Multiple extends true ? Value[] : Value => {
     if (multiple) {
       return (
         defaultValue !== null && defaultValue !== undefined ? defaultValue : []
@@ -85,11 +86,11 @@ export function ComboboxRoot<Value, Multiple extends boolean = false>(
     return (
       defaultValue !== null && defaultValue !== undefined ? defaultValue : ''
     ) as Multiple extends true ? Value[] : Value;
-  };
+  }, []);
 
   const [value, setValueUnwrapped] = useControlled<Multiple extends true ? Value[] : Value>({
     controlled: props.value,
-    default: getDefaultValue(),
+    default: defaultUncontrolledValue,
     name: 'Combobox',
     state: 'value',
   });
@@ -135,6 +136,7 @@ export function ComboboxRoot<Value, Multiple extends boolean = false>(
   const popupRef = React.useRef<HTMLDivElement | null>(null);
   const triggerRef = React.useRef<HTMLButtonElement | null>(null);
   const valuesRef = React.useRef<Array<any>>([]);
+  const inputRef = React.useRef<HTMLInputElement | null>(null);
   const keyboardActiveRef = React.useRef(true);
   const allowActiveIndexSyncRef = React.useRef(true);
 
@@ -217,9 +219,6 @@ export function ComboboxRoot<Value, Multiple extends boolean = false>(
     ) => {
       props.onValueChange?.(nextValue, event, reason);
       setValueUnwrapped(nextValue);
-      queueMicrotask(() => {
-        triggerElement?.focus();
-      });
     },
   );
 
@@ -366,7 +365,7 @@ export function ComboboxRoot<Value, Multiple extends boolean = false>(
     });
   }, [store, id, value, open, mounted, transitionStatus, getFloatingProps, getReferenceProps]);
 
-  const hiddenInputRef = useForkRef(inputRef, fieldControlValidation.inputRef);
+  const hiddenInputRef = useForkRef(inputRefProp, fieldControlValidation.inputRef);
 
   const serializedValue = React.useMemo(() => {
     if (value == null || Array.isArray(value)) {
@@ -387,6 +386,7 @@ export function ComboboxRoot<Value, Multiple extends boolean = false>(
       popupRef,
       triggerRef,
       valuesRef,
+      inputRef,
       keyboardActiveRef,
       allowActiveIndexSyncRef,
       triggerElement,
