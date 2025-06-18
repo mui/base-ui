@@ -110,7 +110,7 @@
     "sinon": "^20.0.0",
     "typescript": "^5.8.3",
     "vitest": "^3.1.4",
-    "vitest-browser-react": "^0.2.0"
+    "vitest-browser-react": "^0.3.0"
   },
   "peerDependencies": {
     "@types/react": "^17 || ^18 || ^19",
