@@ -2,26 +2,25 @@ import * as React from 'react';
 import { Select } from '@base-ui-components/react/select';
 import styles from './index.module.css';
 
-const items = [
-  { fontFamily: 'sans-serif', label: 'Sans-serif' },
-  { fontFamily: 'serif', label: 'Serif' },
-  { fontFamily: 'monospace', label: 'Monospace' },
-  { fontFamily: 'cursive', label: 'Cursive' },
-];
+type Font = keyof typeof fonts;
 
-const labelMap = new Map(items.map((item) => [item.fontFamily, item.label]));
+const fonts = {
+  sans: 'Sans-serif',
+  serif: 'Serif',
+  monospace: 'Monospace',
+  cursive: 'Cursive',
+};
+
+const values = Object.keys(fonts) as Array<Font>;
 
 export default function ExampleSelect() {
   return (
     <Select.Root defaultValue="cursive">
       <Select.Trigger className={styles.Select}>
-        <Select.Value>
-          {(value: string | null) => {
-            if (value === null) {
-              return 'Select a font';
-            }
-            return <span style={{ fontFamily: value }}>{labelMap.get(value)}</span>;
-          }}
+        <Select.Value placeholder="Select a font">
+          {(value: Font) => (
+            <span style={{ fontFamily: value }}>{fonts[value]}</span>
+          )}
         </Select.Value>
         <Select.Icon className={styles.SelectIcon}>
           <ChevronUpDownIcon />
@@ -31,17 +30,13 @@ export default function ExampleSelect() {
         <Select.Positioner className={styles.Positioner} sideOffset={8}>
           <Select.ScrollUpArrow className={styles.ScrollArrow} />
           <Select.Popup className={styles.Popup}>
-            {items.map((item) => (
-              <Select.Item
-                key={item.fontFamily}
-                value={item.fontFamily}
-                className={styles.Item}
-              >
+            {values.map((value) => (
+              <Select.Item key={value} value={value} className={styles.Item}>
                 <Select.ItemIndicator className={styles.ItemIndicator}>
                   <CheckIcon className={styles.ItemIndicatorIcon} />
                 </Select.ItemIndicator>
                 <Select.ItemText className={styles.ItemText}>
-                  {item.label}
+                  {fonts[value]}
                 </Select.ItemText>
               </Select.Item>
             ))}

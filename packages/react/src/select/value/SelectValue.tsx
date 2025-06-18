@@ -29,7 +29,9 @@ export const SelectValue = React.forwardRef(function SelectValue(
 
   const displayValue = value != null ? value : placeholder;
   const children =
-    typeof childrenProp === 'function' ? childrenProp(value) : childrenProp || displayValue;
+    typeof childrenProp === 'function'
+      ? (childrenProp(value) ?? placeholder)
+      : (childrenProp ?? displayValue);
 
   const element = useRenderElement('span', componentProps, {
     ref: [forwardedRef, valueRef],
