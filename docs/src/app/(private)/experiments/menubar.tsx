@@ -50,7 +50,7 @@ export default function MenubarExperiment() {
                 <Menu.Item className={menuClasses.Item}>Save as...</Menu.Item>
                 <Menu.Separator className={menuClasses.Separator} />
 
-                <Menu.Root>
+                <Menu.SubmenuRoot>
                   <Menu.SubmenuTrigger className={menuClasses.SubmenuTrigger}>
                     Share
                     <ChevronRightIcon />
@@ -72,7 +72,7 @@ export default function MenubarExperiment() {
                       </Menu.Popup>
                     </Menu.Positioner>
                   </Menu.Portal>
-                </Menu.Root>
+                </Menu.SubmenuRoot>
 
                 <Menu.Separator className={menuClasses.Separator} />
                 <Menu.Item className={menuClasses.Item}>Close</Menu.Item>
@@ -96,7 +96,7 @@ export default function MenubarExperiment() {
 
                 <Menu.Separator className={menuClasses.Separator} />
 
-                <Menu.Root>
+                <Menu.SubmenuRoot>
                   <Menu.SubmenuTrigger className={menuClasses.SubmenuTrigger}>
                     Find on page
                     <ChevronRightIcon />
@@ -113,7 +113,7 @@ export default function MenubarExperiment() {
                       </Menu.Popup>
                     </Menu.Positioner>
                   </Menu.Portal>
-                </Menu.Root>
+                </Menu.SubmenuRoot>
               </Menu.Popup>
             </Menu.Positioner>
           </Menu.Portal>

@@ -463,7 +463,9 @@ describe('<Calendar.DayButton />', () => {
       );
 
       const button = document.querySelector('button')!;
-      expect(button).toHaveAccessibleName('Tuesday, February 4, 2025');
+      expect(button).toHaveAccessibleName(
+        adapter.format(date, 'localizedDateWithFullMonthAndWeekDay'),
+      );
     });
   });
 });

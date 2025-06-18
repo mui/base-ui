@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { TemporalAdapterProvider } from '@base-ui-components/react/temporal-adapter-provider';
-import { TemporalAdapterLuxon } from '@base-ui-components/react/temporal-adapter-luxon';
+import { TemporalAdapterDateFns } from '@base-ui-components/react/temporal-adapter-date-fns';
 import { TemporalAdapter } from '@base-ui-components/react/models';
 import {
   createRenderer,
@@ -16,7 +16,7 @@ export function createTemporalRenderer(
   parameters: createTemporalRenderer.Parameters = {},
 ): createTemporalRenderer.ReturnValue {
   const {
-    adapter = new TemporalAdapterLuxon(),
+    adapter = new TemporalAdapterDateFns(),
     clockConfig,
     ...createRendererOptions
   } = parameters;
@@ -51,7 +51,7 @@ export namespace createTemporalRenderer {
   export interface Parameters extends Omit<CreateRendererOptions, 'clock' | 'clockOptions'> {
     /**
      * Adapter to use for the tests.
-     * @default new TemporalAdapterLuxon()
+     * @default new TemporalAdapterDateFns()
      */
     adapter?: TemporalAdapter;
   }
