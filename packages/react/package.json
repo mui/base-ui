@@ -68,7 +68,11 @@
     "./utils": "./src/utils/index.ts"
   },
   "imports": {
-    "#test-utils": "./test/index.ts"
+    "#test-utils": "./test/index.ts",
+    "#use-fork-ref": {
+      "react-server": "./src/utils/useForkRef.server.ts",
+      "default": "./src/utils/useForkRef.ts"
+    }
   },
   "type": "commonjs",
   "scripts": {

@@ -1,7 +1,7 @@
 import * as React from 'react';
 import type { BaseUIComponentProps, ComponentRenderFn, HTMLProps } from './types';
 import { CustomStyleHookMapping, getStyleHookProps } from './getStyleHookProps';
-import { useForkRef, useForkRefN } from './useForkRef';
+import { useForkRef, useForkRefN } from '#use-fork-ref';
 import { resolveClassName } from './resolveClassName';
 import { isReactVersionAtLeast } from './reactVersion';
 import { mergeProps, mergePropsN, mergeClassNames } from '../merge-props';
@@ -85,10 +85,14 @@ function useRenderElementProps<
   /* eslint-disable react-hooks/rules-of-hooks */
   if (!enabled) {
     useForkRef(null, null);
-  } else if (Array.isArray(ref)) {
-    outProps.ref = useForkRefN(outProps.ref, getChildRef(renderProp), ...ref);
-  } else {
-    outProps.ref = useForkRef(outProps.ref, getChildRef(renderProp), ref);
+  } else if (Object.isExtensible(outProps)) {
+    // Props are frozen in Next.js RSC implementation.
+    // Refs are unnecessary anyway on the server, so we can skip them.
+    if (Array.isArray(ref)) {
+      outProps.ref = useForkRefN(outProps.ref, getChildRef(renderProp), ...ref);
+    } else {
+      outProps.ref = useForkRef(outProps.ref, getChildRef(renderProp), ref);
+    }
   }
   /* eslint-enable react-hooks/rules-of-hooks */
 
