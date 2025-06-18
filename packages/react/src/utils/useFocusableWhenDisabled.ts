@@ -1,45 +1,9 @@
 'use client';
 import * as React from 'react';
 
-export interface UseFocusableWhenDisabledParameters {
-  /**
-   * Whether the component should be focusable when disabled.
-   * When `undefined`, composite items are focusable when disabled by default.
-   */
-  focusableWhenDisabled?: boolean | undefined;
-  /**
-   * The disabled state of the component.
-   */
-  disabled: boolean;
-  /**
-   * Whether this is a composite item or not.
-   * @default false
-   */
-  composite?: boolean;
-  /**
-   * @default 0
-   */
-  tabIndex?: number;
-  /**
-   * @default true
-   */
-  isNativeButton: boolean;
-}
-
-export interface FocusableWhenDisabledProps {
-  'aria-disabled'?: boolean;
-  disabled?: boolean;
-  onKeyDown: (event: React.KeyboardEvent) => void;
-  tabIndex: number;
-}
-
-export interface UseFocusableWhenDisabledReturnValue {
-  props: FocusableWhenDisabledProps;
-}
-
 export function useFocusableWhenDisabled(
-  parameters: UseFocusableWhenDisabledParameters,
-): UseFocusableWhenDisabledReturnValue {
+  parameters: useFocusableWhenDisabled.Parameters,
+): useFocusableWhenDisabled.ReturnValue {
   const {
     focusableWhenDisabled,
     disabled,
@@ -84,4 +48,42 @@ export function useFocusableWhenDisabled(
   }, [disabled, focusableWhenDisabled, composite, isNativeButton, tabIndexProp]);
 
   return { props };
+}
+
+interface FocusableWhenDisabledProps {
+  'aria-disabled'?: boolean;
+  disabled?: boolean;
+  onKeyDown: (event: React.KeyboardEvent) => void;
+  tabIndex: number;
+}
+
+export namespace useFocusableWhenDisabled {
+  export interface Parameters {
+    /**
+     * Whether the component should be focusable when disabled.
+     * When `undefined`, composite items are focusable when disabled by default.
+     */
+    focusableWhenDisabled?: boolean | undefined;
+    /**
+     * The disabled state of the component.
+     */
+    disabled: boolean;
+    /**
+     * Whether this is a composite item or not.
+     * @default false
+     */
+    composite?: boolean;
+    /**
+     * @default 0
+     */
+    tabIndex?: number;
+    /**
+     * @default true
+     */
+    isNativeButton: boolean;
+  }
+
+  export interface ReturnValue {
+    props: FocusableWhenDisabledProps;
+  }
 }
