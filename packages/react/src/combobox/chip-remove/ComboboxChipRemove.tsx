@@ -18,19 +18,34 @@ export const ComboboxChipRemove = React.forwardRef(function ComboboxChipRemove(
 ) {
   const { render, className, nativeButton = true, ...elementProps } = componentProps;
 
-  const { value, setValue, inputRef } = useComboboxRootContext();
+  const { value, setValue, inputRef, disabled, readOnly } = useComboboxRootContext();
   const { index } = useComboboxChipContext();
 
   const { buttonRef, getButtonProps } = useButton({
     native: nativeButton,
+    disabled: disabled || readOnly,
+    focusableWhenDisabled: true,
   });
+
+  const state: ComboboxChipRemove.State = React.useMemo(
+    () => ({
+      disabled,
+    }),
+    [disabled],
+  );
 
   const element = useRenderElement('button', componentProps, {
     ref: [forwardedRef, buttonRef],
+    state,
     props: [
       {
         tabIndex: -1,
+        'aria-disabled': disabled || undefined,
+        'aria-readonly': readOnly || undefined,
         onClick(event) {
+          if (disabled || readOnly) {
+            return;
+          }
           event.stopPropagation();
           setValue(
             value.filter((_: any, i: number) => i !== index),
@@ -38,6 +53,22 @@ export const ComboboxChipRemove = React.forwardRef(function ComboboxChipRemove(
             undefined,
           );
           inputRef.current?.focus();
+        },
+        onKeyDown(event) {
+          if (disabled || readOnly) {
+            return;
+          }
+
+          if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault();
+            event.stopPropagation();
+            setValue(
+              value.filter((_: any, i: number) => i !== index),
+              event.nativeEvent,
+              undefined,
+            );
+            inputRef.current?.focus();
+          }
         },
       },
       elementProps,
@@ -49,7 +80,12 @@ export const ComboboxChipRemove = React.forwardRef(function ComboboxChipRemove(
 });
 
 export namespace ComboboxChipRemove {
-  export interface State {}
+  export interface State {
+    /**
+     * Whether the component should ignore user interaction.
+     */
+    disabled: boolean;
+  }
 
   export interface Props extends BaseUIComponentProps<'button', State> {
     /**

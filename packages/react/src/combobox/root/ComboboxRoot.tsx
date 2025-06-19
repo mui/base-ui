@@ -1,3 +1,4 @@
+'use client';
 import * as React from 'react';
 import {
   ElementProps,
@@ -76,7 +77,6 @@ export function ComboboxRoot<Value, Multiple extends boolean = false>(
     };
   }, [id, setControlId]);
 
-  // Memoize the initial uncontrolled value so its reference stays stable
   const defaultUncontrolledValue = React.useMemo((): Multiple extends true ? Value[] : Value => {
     if (multiple) {
       return (
@@ -86,7 +86,7 @@ export function ComboboxRoot<Value, Multiple extends boolean = false>(
     return (
       defaultValue !== null && defaultValue !== undefined ? defaultValue : ''
     ) as Multiple extends true ? Value[] : Value;
-  }, []);
+  }, [defaultValue, multiple]);
 
   const [value, setValueUnwrapped] = useControlled<Multiple extends true ? Value[] : Value>({
     controlled: props.value,

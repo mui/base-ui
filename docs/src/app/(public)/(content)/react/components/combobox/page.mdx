@@ -16,26 +16,29 @@ Import the components and place them together:
 import { Combobox } from '@base-ui-components/react/combobox';
 
 <Combobox.Root>
-  <Combobox.Chips>
-    <Combobox.Chip>
-      <Combobox.ChipRemove>
-        <Combobox.ChipRemoveIcon />
-      </Combobox.ChipRemove>
-    </Combobox.Chip>
-    <Combobox.Input />
-  </Combobox.Chips>
   <Combobox.Value />
   <Combobox.Trigger />
+
+  <Combobox.Chips>
+    <Combobox.Chip>
+      <Combobox.ChipRemove />
+    </Combobox.Chip>
+
+    <Combobox.Input />
+  </Combobox.Chips>
 
   <Combobox.Portal>
     <Combobox.Positioner>
       <Combobox.Popup>
         <Combobox.Status />
+
         <Combobox.List>
           <Combobox.Item>
             <Combobox.ItemIndicator />
           </Combobox.Item>
+
           <Combobox.Separator />
+
           <Combobox.Group>
             <Combobox.GroupLabel />
           </Combobox.Group>
