@@ -1,8 +1,6 @@
 import * as React from 'react';
 import { Select } from '@base-ui-components/react/select';
 
-type Font = keyof typeof fonts;
-
 const fonts = {
   sans: 'Sans-serif',
   serif: 'Serif',
@@ -10,7 +8,7 @@ const fonts = {
   cursive: 'Cursive',
 };
 
-const values = Object.keys(fonts) as Font[];
+const values = Object.keys(fonts) as Array<keyof typeof fonts>;
 
 export default function ExampleSelect() {
   return (
