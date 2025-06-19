@@ -27,7 +27,7 @@ describe('<NavigationMenu.Trigger />', () => {
           <NavigationMenu.Item>
             <NavigationMenu.Trigger>Overview</NavigationMenu.Trigger>
             <NavigationMenu.Content>
-              <NavigationMenu.Link href="#">Quick Start Install and</NavigationMenu.Link>
+              <NavigationMenu.Link href="#">Quick Start</NavigationMenu.Link>
             </NavigationMenu.Content>
           </NavigationMenu.Item>
           <NavigationMenu.Item>
