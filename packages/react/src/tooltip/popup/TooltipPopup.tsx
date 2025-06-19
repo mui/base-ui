@@ -10,7 +10,7 @@ import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import { transitionStatusMapping } from '../../utils/styleHookMapping';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useRenderElement } from '../../utils/useRenderElement';
-import { EMPTY_OBJ, DISABLED_TRANSITIONS_STYLE } from '../../utils/constants';
+import { EMPTY_OBJECT, DISABLED_TRANSITIONS_STYLE } from '../../utils/constants';
 
 const customStyleHookMapping: CustomStyleHookMapping<TooltipPopup.State> = {
   ...baseMapping,
@@ -59,7 +59,7 @@ export const TooltipPopup = React.forwardRef(function TooltipPopup(
     ref: [forwardedRef, popupRef],
     props: [
       popupProps,
-      transitionStatus === 'starting' ? DISABLED_TRANSITIONS_STYLE : EMPTY_OBJ,
+      transitionStatus === 'starting' ? DISABLED_TRANSITIONS_STYLE : EMPTY_OBJECT,
       elementProps,
     ],
     customStyleHookMapping,

@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import { contains } from '@floating-ui/react/utils';
+import { useFloatingTree } from '@floating-ui/react';
 import { CompositeItem } from '../../composite/item/CompositeItem';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { pressableTriggerOpenStateMapping } from '../../utils/popupStateMapping';
@@ -26,14 +27,19 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
   componentProps: MenuTrigger.Props,
   forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
-  const { render, className, disabled: disabledProp = false, ...elementProps } = componentProps;
+  const {
+    render,
+    className,
+    disabled: disabledProp = false,
+    nativeButton = true,
+    ...elementProps
+  } = componentProps;
 
   const {
     triggerProps: rootTriggerProps,
     disabled: menuDisabled,
     setTriggerElement,
     open,
-    setOpen,
     allowMouseUpTriggerRef,
     positionerRef,
     parent,
@@ -43,15 +49,15 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
   const disabled = disabledProp || menuDisabled;
 
   const triggerRef = React.useRef<HTMLElement | null>(null);
-  const mergedRef = useForkRef(forwardedRef, triggerRef);
   const allowMouseUpTriggerTimeout = useTimeout();
 
   const { getButtonProps, buttonRef } = useButton({
     disabled,
-    buttonRef: mergedRef,
+    native: nativeButton,
   });
 
   const handleRef = useForkRef(buttonRef, setTriggerElement);
+  const { events: menuEvents } = useFloatingTree()!;
 
   React.useEffect(() => {
     if (!open && parent.type === undefined) {
@@ -59,13 +65,17 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
     }
   }, [allowMouseUpTriggerRef, open, parent.type]);
 
-  const handleMouseUp = useEventCallback((mouseEvent: MouseEvent) => {
+  const handleDocumentMouseUp = useEventCallback((mouseEvent: MouseEvent) => {
     if (!triggerRef.current) {
       return;
     }
 
     allowMouseUpTriggerTimeout.clear();
     allowMouseUpTriggerRef.current = false;
+
+    if (!allowMouseUpTriggerRef.current) {
+      return;
+    }
 
     const mouseUpTarget = mouseEvent.target as Element | null;
 
@@ -88,15 +98,15 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
       return;
     }
 
-    setOpen(false, mouseEvent, 'cancel-open');
+    menuEvents.emit('close', { domEvent: mouseEvent, reason: 'cancel-open' });
   });
 
   React.useEffect(() => {
     if (open && lastOpenChangeReason === 'trigger-hover') {
       const doc = ownerDocument(triggerRef.current);
-      doc.addEventListener('mouseup', handleMouseUp, { once: true });
+      doc.addEventListener('mouseup', handleDocumentMouseUp, { once: true });
     }
-  }, [open, handleMouseUp, lastOpenChangeReason]);
+  }, [open, handleDocumentMouseUp, lastOpenChangeReason]);
 
   const getTriggerProps = React.useCallback(
     (externalProps?: HTMLProps): HTMLProps => {
@@ -115,7 +125,7 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
             });
 
             const doc = ownerDocument(event.currentTarget);
-            doc.addEventListener('mouseup', handleMouseUp, { once: true });
+            doc.addEventListener('mouseup', handleDocumentMouseUp, { once: true });
           },
         },
         externalProps,
@@ -128,7 +138,7 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
       open,
       allowMouseUpTriggerRef,
       allowMouseUpTriggerTimeout,
-      handleMouseUp,
+      handleDocumentMouseUp,
     ],
   );
 
@@ -143,6 +153,7 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
   const element = useRenderElement('button', componentProps, {
     state,
     customStyleHookMapping: pressableTriggerOpenStateMapping,
+    ref: [triggerRef, forwardedRef, buttonRef],
     props: [rootTriggerProps, elementProps, getTriggerProps],
   });
 
@@ -161,6 +172,13 @@ export namespace MenuTrigger {
      * @default false
      */
     disabled?: boolean;
+    /**
+     * Whether the component renders a native `<button>` element when replacing it
+     * via the `render` prop.
+     * Set to `false` if the rendered element is not a button (e.g. `<div>`).
+     * @default true
+     */
+    nativeButton?: boolean;
   }
 
   export type State = {

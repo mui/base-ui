@@ -9,6 +9,7 @@ import { useDirection } from '../../direction-provider/DirectionContext';
 import { getOffset } from '../utils/getOffset';
 import { MIN_THUMB_SIZE } from '../constants';
 import { clamp } from '../../utils/clamp';
+import { styleDisableScrollbar } from '../../utils/styles';
 import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { onVisible } from '../utils/onVisible';
 
@@ -41,6 +42,8 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
   } = useScrollAreaRootContext();
 
   const direction = useDirection();
+
+  const programmaticScrollRef = React.useRef(true);
 
   const computeThumbPosition = useEventCallback(() => {
     const viewportEl = viewportRef.current;
@@ -197,11 +200,16 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
     };
   }, [computeThumbPosition, viewportRef]);
 
-  const props = {
+  const handleUserInteraction = useEventCallback(() => {
+    programmaticScrollRef.current = false;
+  });
+
+  const props: React.ComponentProps<'div'> = {
     role: 'presentation',
     ...(rootId && { 'data-id': `${rootId}-viewport` }),
     // https://accessibilityinsights.io/info-examples/web/scrollable-region-focusable/
     ...((!hiddenState.scrollbarXHidden || !hiddenState.scrollbarYHidden) && { tabIndex: 0 }),
+    className: styleDisableScrollbar.className,
     style: {
       overflow: 'scroll',
     },
@@ -212,11 +220,20 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
 
       computeThumbPosition();
 
-      handleScroll({
-        x: viewportRef.current.scrollLeft,
-        y: viewportRef.current.scrollTop,
-      });
+      if (!programmaticScrollRef.current) {
+        handleScroll({
+          x: viewportRef.current.scrollLeft,
+          y: viewportRef.current.scrollTop,
+        });
+      }
+
+      programmaticScrollRef.current = true;
     },
+    onWheel: handleUserInteraction,
+    onTouchMove: handleUserInteraction,
+    onPointerMove: handleUserInteraction,
+    onPointerEnter: handleUserInteraction,
+    onKeyDown: handleUserInteraction,
   };
 
   const element = useRenderElement('div', componentProps, {

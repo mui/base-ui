@@ -30,7 +30,7 @@ export const MeterLabel = React.forwardRef(function MeterLabel(
 
   return useRenderElement('span', componentProps, {
     ref: forwardedRef,
-    props: [elementProps, { id }],
+    props: [{ id }, elementProps],
   });
 });
 

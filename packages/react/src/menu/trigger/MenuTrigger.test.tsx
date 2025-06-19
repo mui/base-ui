@@ -72,7 +72,9 @@ describe('<Menu.Trigger />', () => {
   describe('keyboard navigation', () => {
     [
       <Menu.Trigger>Open</Menu.Trigger>,
-      <Menu.Trigger render={<span />}>Open</Menu.Trigger>,
+      <Menu.Trigger render={<span />} nativeButton={false}>
+        Open
+      </Menu.Trigger>,
     ].forEach((buttonComponent) => {
       const buttonType = buttonComponent.props.slots?.root ? 'non-native' : 'native';
       ['ArrowUp', 'ArrowDown', 'Enter', ' '].forEach((key) => {
@@ -358,7 +360,7 @@ describe('<Menu.Trigger />', () => {
           <Popover.Positioner>
             <Popover.Popup>
               <Menu.Root>
-                <Menu.Trigger data-testid="menu-trigger" render={<span />} />
+                <Menu.Trigger data-testid="menu-trigger" render={<span />} nativeButton={false} />
               </Menu.Root>
             </Popover.Popup>
           </Popover.Positioner>

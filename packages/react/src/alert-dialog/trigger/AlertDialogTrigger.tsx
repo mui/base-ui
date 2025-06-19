@@ -16,7 +16,13 @@ export const AlertDialogTrigger = React.forwardRef(function AlertDialogTrigger(
   componentProps: AlertDialogTrigger.Props,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
-  const { render, className, disabled = false, ...elementProps } = componentProps;
+  const {
+    render,
+    className,
+    disabled = false,
+    nativeButton = true,
+    ...elementProps
+  } = componentProps;
 
   const { open, setTriggerElement, triggerProps } = useAlertDialogRootContext();
 
@@ -30,6 +36,7 @@ export const AlertDialogTrigger = React.forwardRef(function AlertDialogTrigger(
 
   const { getButtonProps, buttonRef } = useButton({
     disabled,
+    native: nativeButton,
   });
 
   return useRenderElement('button', componentProps, {
@@ -41,7 +48,15 @@ export const AlertDialogTrigger = React.forwardRef(function AlertDialogTrigger(
 });
 
 export namespace AlertDialogTrigger {
-  export interface Props extends BaseUIComponentProps<'button', State> {}
+  export interface Props extends BaseUIComponentProps<'button', State> {
+    /**
+     * Whether the component renders a native `<button>` element when replacing it
+     * via the `render` prop.
+     * Set to `false` if the rendered element is not a button (e.g. `<div>`).
+     * @default false
+     */
+    nativeButton?: boolean;
+  }
 
   export interface State {
     /**

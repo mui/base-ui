@@ -1215,6 +1215,38 @@ describe('<Select.Root />', () => {
       );
     });
 
+    it('Field.Label links to hidden input and focuses trigger', async () => {
+      const { container, user } = await render(
+        <Field.Root>
+          <Field.Label data-testid="label">Font</Field.Label>
+          <Select.Root>
+            <Select.Trigger data-testid="trigger">
+              <Select.Value placeholder="Select font" />
+            </Select.Trigger>
+            <Select.Portal>
+              <Select.Positioner>
+                <Select.Popup>
+                  <Select.Item value="sans">Sans-serif</Select.Item>
+                  <Select.Item value="serif">Serif</Select.Item>
+                </Select.Popup>
+              </Select.Positioner>
+            </Select.Portal>
+          </Select.Root>
+        </Field.Root>,
+      );
+
+      const label = screen.getByTestId<HTMLLabelElement>('label');
+      const trigger = screen.getByTestId('trigger');
+      const hiddenInput = container.querySelector('input[type="text"]');
+
+      expect(label).to.have.attribute('for', hiddenInput?.id);
+      expect(trigger).not.to.have.attribute('id', label?.htmlFor);
+
+      await user.click(label);
+
+      expect(trigger).toHaveFocus();
+    });
+
     it('Field.Description', async () => {
       await render(
         <Field.Root>

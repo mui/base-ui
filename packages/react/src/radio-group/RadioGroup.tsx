@@ -11,7 +11,6 @@ import type { BaseUIComponentProps } from '../utils/types';
 import { visuallyHidden } from '../utils/visuallyHidden';
 import { SHIFT } from '../composite/composite';
 import { CompositeRoot } from '../composite/root/CompositeRoot';
-import { useDirection } from '../direction-provider/DirectionContext';
 import { useFormContext } from '../form/FormContext';
 import { useField } from '../field/useField';
 import { useFieldRootContext } from '../field/root/FieldRootContext';
@@ -49,8 +48,6 @@ export const RadioGroup = React.forwardRef(function RadioGroup(
     ...elementProps
   } = componentProps;
 
-  const direction = useDirection();
-
   const {
     labelId,
     setTouched: setFieldTouched,
@@ -74,11 +71,20 @@ export const RadioGroup = React.forwardRef(function RadioGroup(
     state: 'value',
   });
 
+  const controlRef = React.useRef<HTMLElement>(null);
+  const registerControlRef = useEventCallback((element: HTMLElement | null) => {
+    if (controlRef.current == null && element != null) {
+      controlRef.current = element;
+    }
+  });
+
   useField({
     id,
     commitValidation: fieldControlValidation.commitValidation,
     value: checkedValue,
-    controlRef: fieldControlValidation.inputRef,
+    controlRef,
+    name,
+    getValue: () => checkedValue ?? null,
   });
 
   const prevValueRef = React.useRef(checkedValue);
@@ -170,6 +176,7 @@ export const RadioGroup = React.forwardRef(function RadioGroup(
       name,
       onValueChange,
       readOnly,
+      registerControlRef,
       required,
       setCheckedValue,
       setTouched,
@@ -182,6 +189,7 @@ export const RadioGroup = React.forwardRef(function RadioGroup(
       name,
       onValueChange,
       readOnly,
+      registerControlRef,
       required,
       setCheckedValue,
       setTouched,
@@ -213,7 +221,6 @@ export const RadioGroup = React.forwardRef(function RadioGroup(
   return (
     <RadioGroupContext.Provider value={contextValue}>
       <CompositeRoot
-        direction={direction}
         enableHomeAndEndKeys={false}
         modifierKeys={MODIFIER_KEYS}
         render={element}

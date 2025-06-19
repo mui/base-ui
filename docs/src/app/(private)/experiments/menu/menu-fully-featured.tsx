@@ -43,7 +43,11 @@ export default function MenuFullyFeatured() {
         modal={settings.modal}
         disabled={settings.disabled}
       >
-        <Menu.Trigger className={classes.Button} render={triggerRender}>
+        <Menu.Trigger
+          className={classes.Button}
+          render={triggerRender}
+          nativeButton={triggerRender === undefined}
+        >
           Menu <ChevronDownIcon className={classes.ButtonIcon} />
         </Menu.Trigger>
         <Menu.Portal keepMounted>
@@ -77,7 +81,7 @@ export default function MenuFullyFeatured() {
               </Menu.Item>
               <Menu.Separator className={classes.Separator} />
 
-              <Menu.Root>
+              <Menu.SubmenuRoot>
                 <Menu.SubmenuTrigger className={classes.SubmenuTrigger}>
                   Nested menu
                   <ChevronRightIcon />
@@ -203,7 +207,7 @@ export default function MenuFullyFeatured() {
 
                       <Menu.Separator className={classes.Separator} />
 
-                      <Menu.Root>
+                      <Menu.SubmenuRoot>
                         <Menu.SubmenuTrigger className={classes.SubmenuTrigger}>
                           Nested menu
                           <ChevronRightIcon />
@@ -235,13 +239,13 @@ export default function MenuFullyFeatured() {
                             </Menu.Popup>
                           </Menu.Positioner>
                         </Menu.Portal>
-                      </Menu.Root>
+                      </Menu.SubmenuRoot>
                     </Menu.Popup>
                   </Menu.Positioner>
                 </Menu.Portal>
-              </Menu.Root>
+              </Menu.SubmenuRoot>
 
-              <Menu.Root disabled>
+              <Menu.SubmenuRoot disabled>
                 <Menu.SubmenuTrigger className={classes.SubmenuTrigger}>
                   Disabled nested menu
                   <ChevronRightIcon />
@@ -255,7 +259,7 @@ export default function MenuFullyFeatured() {
                     </Menu.Popup>
                   </Menu.Positioner>
                 </Menu.Portal>
-              </Menu.Root>
+              </Menu.SubmenuRoot>
             </Menu.Popup>
           </Menu.Positioner>
         </Menu.Portal>
