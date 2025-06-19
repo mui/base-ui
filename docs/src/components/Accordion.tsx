@@ -3,26 +3,26 @@ import * as React from 'react';
 import { Accordion } from '@base-ui-components/react/accordion';
 import clsx from 'clsx';
 
-export function Root({ className, ...props }: Accordion.Root.Props) {
-  return <Accordion.Root className={clsx('AccordionRoot', className)} {...props} />;
+export function Root(props: Accordion.Root.Props) {
+  return <Accordion.Root {...props} className={clsx('AccordionRoot', props.className)} />;
 }
 
-export function Item({ className, ...props }: Accordion.Item.Props) {
-  return <Accordion.Item className={clsx('AccordionItem', className)} {...props} />;
+export function Item(props: Accordion.Item.Props) {
+  return <Accordion.Item {...props} className={clsx('AccordionItem', props.className)} />;
 }
 
-export function Header({ className, ...props }: Accordion.Header.Props) {
-  return <Accordion.Header className={clsx('AccordionHeader', className)} {...props} />;
+export function Header(props: Accordion.Header.Props) {
+  return <Accordion.Header {...props} className={clsx('AccordionHeader', props.className)} />;
 }
 
-export function Trigger({ className, ...props }: Accordion.Trigger.Props) {
-  return <Accordion.Trigger className={clsx('AccordionTrigger', className)} {...props} />;
+export function Trigger(props: Accordion.Trigger.Props) {
+  return <Accordion.Trigger {...props} className={clsx('AccordionTrigger', props.className)} />;
 }
 
-export function Panel({ className, ...props }: Accordion.Panel.Props) {
-  return <Accordion.Panel className={clsx('AccordionPanel', className)} {...props} />;
+export function Panel(props: Accordion.Panel.Props) {
+  return <Accordion.Panel {...props} className={clsx('AccordionPanel', props.className)} />;
 }
 
-export function Content({ className, ...props }: React.ComponentProps<'div'>) {
-  return <div className={clsx('AccordionContent', className)} {...props} />;
+export function Content(props: React.ComponentProps<'div'>) {
+  return <div {...props} className={clsx('AccordionContent', props.className)} />;
 }

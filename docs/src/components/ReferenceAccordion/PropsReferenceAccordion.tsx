@@ -36,24 +36,22 @@ const DATA: Record<string, PropDef> = {
   },
 };
 
-export function HeaderLabel({ className, children, ...props }: React.ComponentProps<'div'>) {
+export function HeaderLabel(props: React.ComponentProps<'div'>) {
   return (
     <div
+      {...props}
       className={clsx(
         'HeaderLabel',
         'py-[0.5rem] text-(length:--text-sm) font-medium tracking-[-0.00625em]',
-        className,
+        props.className,
       )}
-      {...props}
-    >
-      {children}
-    </div>
+    />
   );
 }
 
 function getShortPropType(name: string, type: string | undefined) {
   if (/^on[A-Z].*/.test(name)) {
-    return 'Function';
+    return 'function';
   }
 
   if (type === undefined || type === null) {
@@ -61,11 +59,11 @@ function getShortPropType(name: string, type: string | undefined) {
   }
 
   if (name === 'className') {
-    return 'string | Function';
+    return 'string | function';
   }
 
   if (name === 'render') {
-    return 'ReactElement | Function';
+    return 'ReactElement | function';
   }
 
   if (name.endsWith('Ref')) {
@@ -198,10 +196,14 @@ export async function PropsReferenceAccordion({
                   <DescriptionList.Details>
                     <PropType />
                   </DescriptionList.Details>
-                  <DescriptionList.Term>Default</DescriptionList.Term>
-                  <DescriptionList.Details>
-                    <PropDefault />
-                  </DescriptionList.Details>
+                  {prop.default !== undefined && (
+                    <React.Fragment>
+                      <DescriptionList.Term>Default</DescriptionList.Term>
+                      <DescriptionList.Details>
+                        <PropDefault />
+                      </DescriptionList.Details>
+                    </React.Fragment>
+                  )}
                   {ExampleSnippet != null && (
                     <React.Fragment>
                       <DescriptionList.Term>Example</DescriptionList.Term>
