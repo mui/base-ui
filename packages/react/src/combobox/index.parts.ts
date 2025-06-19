@@ -14,5 +14,6 @@ export { ComboboxItemIndicator as ItemIndicator } from './item-indicator/Combobo
 export { ComboboxChips as Chips } from './chips/ComboboxChips';
 export { ComboboxChip as Chip } from './chip/ComboboxChip';
 export { ComboboxChipRemove as ChipRemove } from './chip-remove/ComboboxChipRemove';
+export { ComboboxRow as Row } from './row/ComboboxRow';
 
 export { Separator as ComboboxSeparator } from '../separator';

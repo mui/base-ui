@@ -33,9 +33,11 @@ import { Combobox } from '@base-ui-components/react/combobox';
         <Combobox.Status />
 
         <Combobox.List>
-          <Combobox.Item>
-            <Combobox.ItemIndicator />
-          </Combobox.Item>
+          <Combobox.Row>
+            <Combobox.Item>
+              <Combobox.ItemIndicator />
+            </Combobox.Item>
+          </Combobox.Row>
 
           <Combobox.Separator />
 
@@ -53,7 +55,7 @@ import { Combobox } from '@base-ui-components/react/combobox';
 
 <Reference
   component="Combobox"
-  parts="Root, Input, Chips, Chip, ChipRemove, Value, List, Trigger, Portal, Positioner, Popup, Status, Item, ItemIndicator, Group, GroupLabel, Separator"
+  parts="Root, Input, Chips, Chip, ChipRemove, Value, List, Trigger, Portal, Positioner, Popup, Status, Row, Item, ItemIndicator, Group, GroupLabel, Separator"
 />
 
 ## Examples
@@ -81,3 +83,9 @@ The combobox can be rendered inline inside a parent popover to create a searchab
 Add the `multiple` prop to `Combobox.Root` to allow multiple selections.
 
 <Demo path="./demos/multiple" compact />
+
+### Grid layout
+
+The combobox items can be navigated in a grid layout by wrapping each row in `Combobox.Row` adding the `cols` prop to `Combobox.Root`.
+
+<Demo path="./demos/grid" compact />

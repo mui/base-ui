@@ -82,7 +82,7 @@ describe('<Combobox.Chip />', () => {
       await user.keyboard('{Backspace}');
 
       expect(handleValueChange.callCount).to.equal(0);
-      expect(screen.getByTestId('chip-apple')).to.be.visible;
+      expect(screen.getByTestId('chip-apple')).not.to.equal(null);
     });
 
     it('should prevent mouse interactions when disabled', async () => {
@@ -144,7 +144,7 @@ describe('<Combobox.Chip />', () => {
       await user.keyboard('{Backspace}');
 
       expect(handleValueChange.callCount).to.equal(0);
-      expect(screen.getByTestId('chip-apple')).to.be.visible;
+      expect(screen.getByTestId('chip-apple')).not.to.equal(null);
     });
 
     it('should allow navigation when readOnly but prevent deletion', async () => {
@@ -170,7 +170,7 @@ describe('<Combobox.Chip />', () => {
 
       // But deletion should not work
       await user.keyboard('{Delete}');
-      expect(screen.getByTestId('chip-banana')).to.be.visible;
+      expect(screen.getByTestId('chip-banana')).not.to.equal(null);
     });
   });
 

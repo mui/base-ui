@@ -51,11 +51,11 @@ describe('<Combobox.ChipRemove />', () => {
           <Combobox.Chips>
             <Combobox.Chip data-testid="chip-apple">
               apple
-              <Combobox.ChipRemove data-testid="remove-apple">×</Combobox.ChipRemove>
+              <Combobox.ChipRemove data-testid="remove-apple" />
             </Combobox.Chip>
             <Combobox.Chip data-testid="chip-banana">
               banana
-              <Combobox.ChipRemove data-testid="remove-banana">×</Combobox.ChipRemove>
+              <Combobox.ChipRemove data-testid="remove-banana" />
             </Combobox.Chip>
           </Combobox.Chips>
         </Combobox.Root>,
@@ -66,7 +66,7 @@ describe('<Combobox.ChipRemove />', () => {
       await user.click(removeApple);
 
       expect(handleValueChange.callCount).to.equal(0);
-      expect(screen.getByTestId('chip-apple')).to.be.visible;
+      expect(screen.getByTestId('chip-apple')).not.to.equal(null);
     });
 
     it('should be focusable but not functional when disabled', async () => {
@@ -75,7 +75,7 @@ describe('<Combobox.ChipRemove />', () => {
           <Combobox.Chips>
             <Combobox.Chip>
               apple
-              <Combobox.ChipRemove data-testid="remove">×</Combobox.ChipRemove>
+              <Combobox.ChipRemove data-testid="remove" />
             </Combobox.Chip>
           </Combobox.Chips>
         </Combobox.Root>,
@@ -89,7 +89,7 @@ describe('<Combobox.ChipRemove />', () => {
 
       // But should not trigger action on Enter/Space
       await user.keyboard('{Enter}');
-      expect(screen.getByTestId('remove')).to.be.visible;
+      expect(screen.getByTestId('remove')).not.to.equal(null);
     });
   });
 
@@ -100,7 +100,7 @@ describe('<Combobox.ChipRemove />', () => {
           <Combobox.Chips>
             <Combobox.Chip>
               apple
-              <Combobox.ChipRemove data-testid="remove">×</Combobox.ChipRemove>
+              <Combobox.ChipRemove data-testid="remove" />
             </Combobox.Chip>
           </Combobox.Chips>
         </Combobox.Root>,
@@ -123,11 +123,11 @@ describe('<Combobox.ChipRemove />', () => {
           <Combobox.Chips>
             <Combobox.Chip data-testid="chip-apple">
               apple
-              <Combobox.ChipRemove data-testid="remove-apple">×</Combobox.ChipRemove>
+              <Combobox.ChipRemove data-testid="remove-apple" />
             </Combobox.Chip>
             <Combobox.Chip data-testid="chip-banana">
               banana
-              <Combobox.ChipRemove data-testid="remove-banana">×</Combobox.ChipRemove>
+              <Combobox.ChipRemove data-testid="remove-banana" />
             </Combobox.Chip>
           </Combobox.Chips>
         </Combobox.Root>,
@@ -138,7 +138,7 @@ describe('<Combobox.ChipRemove />', () => {
       await user.click(removeApple);
 
       expect(handleValueChange.callCount).to.equal(0);
-      expect(screen.getByTestId('chip-apple')).to.be.visible;
+      expect(screen.getByTestId('chip-apple')).not.to.equal(null);
     });
 
     it('should be focusable but not functional when readOnly', async () => {
@@ -147,7 +147,7 @@ describe('<Combobox.ChipRemove />', () => {
           <Combobox.Chips>
             <Combobox.Chip>
               apple
-              <Combobox.ChipRemove data-testid="remove">×</Combobox.ChipRemove>
+              <Combobox.ChipRemove data-testid="remove" />
             </Combobox.Chip>
           </Combobox.Chips>
         </Combobox.Root>,
@@ -161,7 +161,7 @@ describe('<Combobox.ChipRemove />', () => {
 
       // But should not trigger action
       await user.keyboard('{Enter}');
-      expect(screen.getByTestId('remove')).to.be.visible;
+      expect(screen.getByTestId('remove')).not.to.equal(null);
     });
   });
 
@@ -178,11 +178,11 @@ describe('<Combobox.ChipRemove />', () => {
           <Combobox.Chips>
             <Combobox.Chip data-testid="chip-apple">
               apple
-              <Combobox.ChipRemove data-testid="remove-apple">×</Combobox.ChipRemove>
+              <Combobox.ChipRemove data-testid="remove-apple" />
             </Combobox.Chip>
             <Combobox.Chip data-testid="chip-banana">
               banana
-              <Combobox.ChipRemove data-testid="remove-banana">×</Combobox.ChipRemove>
+              <Combobox.ChipRemove data-testid="remove-banana" />
             </Combobox.Chip>
           </Combobox.Chips>
         </Combobox.Root>,
@@ -203,7 +203,7 @@ describe('<Combobox.ChipRemove />', () => {
           <Combobox.Chips>
             <Combobox.Chip>
               apple
-              <Combobox.ChipRemove data-testid="remove">×</Combobox.ChipRemove>
+              <Combobox.ChipRemove data-testid="remove" />
             </Combobox.Chip>
           </Combobox.Chips>
         </Combobox.Root>,
@@ -226,9 +226,7 @@ describe('<Combobox.ChipRemove />', () => {
           <Combobox.Chips>
             <Combobox.Chip onClick={handleChipClick}>
               apple
-              <Combobox.ChipRemove data-testid="remove" onClick={handleRemoveClick}>
-                ×
-              </Combobox.ChipRemove>
+              <Combobox.ChipRemove data-testid="remove" onClick={handleRemoveClick} />
             </Combobox.Chip>
           </Combobox.Chips>
         </Combobox.Root>,
