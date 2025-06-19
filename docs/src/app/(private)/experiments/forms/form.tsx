@@ -17,7 +17,7 @@ import styles from './form.module.css';
 import {
   SettingsMetadata,
   useExperimentSettings,
-} from '../../../components/Experiments/SettingsPanel';
+} from '../../../../components/Experiments/SettingsPanel';
 
 const schema = z.object({
   input: z.string().min(1, 'This field is required'),
