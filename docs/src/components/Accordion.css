@@ -29,10 +29,6 @@
     }
   }
 
-  .AccordionHeader {
-    margin: 0;
-  }
-
   .AccordionTrigger {
     box-sizing: border-box;
     position: relative;
