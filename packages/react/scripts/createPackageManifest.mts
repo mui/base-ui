@@ -9,15 +9,11 @@ const PROJECT_BUILD_DIR = path.join(PROJECT_ROOT, './build');
 
 type TransformedExports = Record<
   string,
-  Record<string, Record<string, string | Record<string, string>>>
+  Record<'require' | 'import', Record<'types' | 'default', string>>
 >;
 
-const sourceManifestPath = path.resolve(PROJECT_ROOT, './package.json');
-const targetRootManifestPath = path.resolve(PROJECT_BUILD_DIR, './package.json');
-const targetEsmImportsManifestPath = path.resolve(PROJECT_BUILD_DIR, './esm/package.json');
-
 export async function createPackageManifest() {
-  const packageData = await fse.readFile(sourceManifestPath, 'utf8');
+  const packageData = await fse.readFile(path.resolve(PROJECT_ROOT, './package.json'), 'utf8');
   const {
     imports,
     exports,
@@ -48,29 +44,13 @@ export async function createPackageManifest() {
       './package.json': './package.json',
       ...retargetExports(exports),
     },
-    imports: retargetImports(imports),
     publishConfig,
   };
 
-  await fse.writeFile(targetRootManifestPath, JSON.stringify(newPackageData, null, 2), 'utf8');
-  console.log(`Created package.json in ${targetRootManifestPath}`);
-}
+  const targetPath = path.resolve(PROJECT_BUILD_DIR, './package.json');
 
-export async function createEsmImportsManifest() {
-  const rootPackageData = JSON.parse(await fse.readFile(targetRootManifestPath, 'utf8'));
-
-  const esmPackageData = {
-    type: 'module',
-    sideEffects: false,
-    imports: generateEsmImports(rootPackageData.imports),
-  };
-
-  await fse.writeFile(
-    targetEsmImportsManifestPath,
-    JSON.stringify(esmPackageData, null, 2),
-    'utf8',
-  );
-  console.log(`Created ESM package.json in ${targetEsmImportsManifestPath}`);
+  await fse.writeFile(targetPath, JSON.stringify(newPackageData, null, 2), 'utf8');
+  console.log(`Created package.json in ${targetPath}`);
 }
 
 function retargetExports(originalExports: Record<string, string>) {
@@ -79,71 +59,19 @@ function retargetExports(originalExports: Record<string, string>) {
 
   for (const subpath of subpaths) {
     const originalPath = originalExports[subpath];
-    transformed[subpath] = transformPathForRootManifest(originalPath);
+    transformed[subpath] = {
+      require: {
+        types: originalPath.replace('/src/', '/cjs/').replace(/\.tsx?$/, '.d.ts'),
+        default: originalPath.replace('/src/', '/cjs/').replace(/\.tsx?$/, '.js'),
+      },
+      import: {
+        types: originalPath.replace('/src/', '/esm/').replace(/\.tsx?$/, '.d.ts'),
+        default: originalPath.replace('/src/', '/esm/').replace(/\.tsx?$/, '.js'),
+      },
+    };
   }
 
   return transformed;
-}
-
-function retargetImports(originalImports: Record<string, string | Record<string, string>>) {
-  const subpaths = Object.keys(originalImports);
-  const transformed: TransformedExports = {};
-
-  for (const subpath of subpaths) {
-    const originalPathOrConditions = originalImports[subpath];
-    if (typeof originalPathOrConditions === 'string') {
-      if (originalPathOrConditions.startsWith('./test')) {
-        continue;
-      }
-
-      transformed[subpath] = transformPathForRootManifest(originalPathOrConditions);
-    } else {
-      for (const condition of Object.keys(originalPathOrConditions)) {
-        const originalPath = originalPathOrConditions[condition];
-        transformed[subpath] = transformed[subpath] || {};
-        transformed[subpath][condition] = transformPathForRootManifest(originalPath);
-      }
-    }
-  }
-
-  return transformed;
-}
-
-function generateEsmImports(retargetedImports: TransformedExports) {
-  const subpaths = Object.keys(retargetedImports);
-  const transformed: TransformedExports = {};
-
-  for (const subpath of subpaths) {
-    for (const condition of Object.keys(retargetedImports[subpath])) {
-      if (retargetedImports[subpath][condition].hasOwnProperty('import')) {
-        transformed[subpath] = transformed[subpath] || {};
-        transformed[subpath][condition] = {};
-        Object.entries(retargetedImports[subpath][condition].import).forEach(([key, value]) => {
-          transformed[subpath][condition][key] = transformPathForEsmManifest(value);
-        });
-      }
-    }
-  }
-
-  return transformed;
-}
-
-function transformPathForRootManifest(originalPath: string) {
-  return {
-    require: {
-      types: originalPath.replace('/src/', '/cjs/').replace(/\.tsx?$/, '.d.ts'),
-      default: originalPath.replace('/src/', '/cjs/').replace(/\.tsx?$/, '.js'),
-    },
-    import: {
-      types: originalPath.replace('/src/', '/esm/').replace(/\.tsx?$/, '.d.ts'),
-      default: originalPath.replace('/src/', '/esm/').replace(/\.tsx?$/, '.js'),
-    },
-  };
-}
-
-function transformPathForEsmManifest(originalPath: string) {
-  return originalPath.replace('./esm/', './');
 }
 
 await createPackageManifest();
-await createEsmImportsManifest();

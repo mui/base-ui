@@ -192,14 +192,14 @@ describe('useButton', () => {
     it('should server-side render', async () => {
       function TestButton(props: React.ButtonHTMLAttributes<HTMLButtonElement>) {
         const { disabled, ...otherProps } = props;
-        const { getButtonProps } = useButton({ disabled, native: 'input' });
+        const { getButtonProps } = useButton({ disabled, native: false });
 
-        return <input {...getButtonProps(otherProps)} />;
+        return <span {...getButtonProps(otherProps)} />;
       }
 
-      const { container } = await renderToString(<TestButton disabled type="submit" />);
+      const { container } = await renderToString(<TestButton disabled />);
 
-      expect(container.firstChild).to.have.property('type', 'submit');
+      expect(container.firstChild).to.have.property('role', 'button');
     });
 
     it('adds disabled attribute', async () => {
