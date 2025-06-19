@@ -14,6 +14,7 @@ import { ComboboxItemContext } from './ComboboxItemContext';
 import { selectors } from '../store';
 import { useButton } from '../../use-button';
 import { useBaseUiId } from '../../utils/useBaseUiId';
+import { useComboboxRowContext } from '../row/ComboboxRowContext';
 
 /**
  * An individual item in the combobox popup.
@@ -61,6 +62,7 @@ export const ComboboxItem = React.memo(
       multiple,
       readOnly,
     } = useComboboxRootContext();
+    const isRow = useComboboxRowContext();
 
     const active = useSelector(store, selectors.isActive, listItem.index);
     const matchesSelectedValue = useSelector(store, selectors.isSelected, value);
@@ -138,7 +140,7 @@ export const ComboboxItem = React.memo(
 
     const defaultProps: HTMLProps = {
       id,
-      role: 'option',
+      role: isRow ? 'gridcell' : 'option',
       'aria-disabled': disabled || undefined,
       'aria-selected': selectable ? selected : undefined,
       tabIndex: -1,

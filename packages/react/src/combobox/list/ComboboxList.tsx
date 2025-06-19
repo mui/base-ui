@@ -1,11 +1,13 @@
 'use client';
 import * as React from 'react';
-import { BaseUIComponentProps } from '../../utils/types';
+import type { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useComboboxFloatingContext, useComboboxRootContext } from '../root/ComboboxRootContext';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { useComboboxPositionerContext } from '../positioner/ComboboxPositionerContext';
+import { useSelector } from '../../utils/store';
+import { selectors } from '../store';
 
 /**
  * The container for the combobox items.
@@ -19,9 +21,11 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
 ) {
   const { render, className, ...elementProps } = componentProps;
 
-  const { store, multiple } = useComboboxRootContext();
+  const { store, multiple, keyboardActiveRef } = useComboboxRootContext();
   const hasPositionerContext = Boolean(useComboboxPositionerContext(true));
   const floatingRootContext = useComboboxFloatingContext();
+
+  const popupProps = useSelector(store, selectors.popupProps);
 
   const setPositionerElement = useEventCallback((element) => {
     store.set('positionerElement', element);
@@ -45,10 +49,18 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
   return useRenderElement('div', componentProps, {
     ref: [forwardedRef, setListElement, hasPositionerContext ? null : setPositionerElement],
     props: [
+      popupProps,
       {
+        tabIndex: -1,
         id: floatingRootContext.floatingId,
         role: 'listbox',
         'aria-multiselectable': multiple ? 'true' : undefined,
+        onKeyDownCapture() {
+          keyboardActiveRef.current = true;
+        },
+        onPointerMoveCapture() {
+          keyboardActiveRef.current = false;
+        },
       },
       elementProps,
     ],

@@ -36,6 +36,11 @@
       "type": "RefObject<Actions>",
       "description": "A ref to imperative actions.\n- `unmount`: When specified, the combobox will not be unmounted when closed.\nInstead, the `unmount` function must be called to unmount the combobox manually.\nUseful when the combobox's animation is controlled by an external library."
     },
+    "cols": {
+      "type": "number",
+      "default": "1",
+      "description": "The number of columns the items are rendered in grid layout."
+    },
     "multiple": {
       "type": "boolean",
       "default": "false",

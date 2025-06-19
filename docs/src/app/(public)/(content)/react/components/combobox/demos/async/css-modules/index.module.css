@@ -44,6 +44,7 @@
     opacity 150ms;
   width: var(--anchor-width);
   max-height: min(var(--available-height), 23rem);
+  max-width: var(--available-width);
   overflow-y: auto;
   scroll-padding-block: 0.5rem;
   overscroll-behavior: contain;

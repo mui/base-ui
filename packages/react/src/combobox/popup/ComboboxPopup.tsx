@@ -7,13 +7,8 @@ import { useComboboxFloatingContext, useComboboxRootContext } from '../root/Comb
 import { useSelector } from '../../utils/store';
 import { selectors } from '../store';
 import { popupStateMapping } from '../../utils/popupStateMapping';
-import { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 import { useComboboxPositionerContext } from '../positioner/ComboboxPositionerContext';
 import type { Side, Align } from '../../utils/useAnchorPositioning';
-
-const customStyleHookMapping: CustomStyleHookMapping<ComboboxPopup.State> = {
-  ...popupStateMapping,
-};
 
 /**
  * A container for the combobox items.
@@ -27,10 +22,9 @@ export const ComboboxPopup = React.forwardRef(function ComboboxPopup(
 ) {
   const { render, className, ...elementProps } = componentProps;
 
-  const { store, popupRef, keyboardActiveRef } = useComboboxRootContext();
+  const { store, popupRef } = useComboboxRootContext();
   const positioning = useComboboxPositionerContext();
   const floatingRootContext = useComboboxFloatingContext();
-  const popupProps = useSelector(store, selectors.popupProps);
   const open = useSelector(store, selectors.open);
 
   const state: ComboboxPopup.State = React.useMemo(
@@ -44,21 +38,10 @@ export const ComboboxPopup = React.forwardRef(function ComboboxPopup(
   );
 
   const element = useRenderElement('div', componentProps, {
-    ref: [forwardedRef, popupRef],
-    props: [
-      popupProps,
-      {
-        onKeyDownCapture() {
-          keyboardActiveRef.current = true;
-        },
-        onPointerMoveCapture() {
-          keyboardActiveRef.current = false;
-        },
-      },
-      elementProps,
-    ],
-    customStyleHookMapping,
     state,
+    ref: [forwardedRef, popupRef],
+    props: elementProps,
+    customStyleHookMapping: popupStateMapping,
   });
 
   return (
