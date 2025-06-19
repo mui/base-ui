@@ -46,6 +46,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
     onItemHighlighted,
     multiple,
     disabled: comboboxDisabled,
+    readOnly,
     fieldControlValidation,
     inputRef,
   } = useComboboxRootContext();
@@ -68,8 +69,9 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
       valid: fieldState.valid ?? true,
       open,
       disabled,
+      readOnly,
     }),
-    [fieldState, open, disabled],
+    [fieldState, open, disabled, readOnly],
   );
 
   function handleKeyDown(event: React.KeyboardEvent<HTMLInputElement>) {
@@ -127,10 +129,13 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
     state,
     ref: [forwardedRef, setTriggerElement, inputRef],
     props: [
-      triggerProps,
+      // Filter triggerProps to remove click handlers when disabled
+      disabled ? { ...triggerProps, onClick: undefined, onMouseDown: undefined } : triggerProps,
       {
         'aria-disabled': disabled || undefined,
+        'aria-readonly': readOnly || undefined,
         'aria-labelledby': labelId,
+        readOnly,
         onFocus() {
           setFocused(true);
         },
@@ -143,6 +148,10 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
           }
         },
         onKeyDown(event) {
+          if (readOnly) {
+            return;
+          }
+
           keyboardActiveRef.current = true;
 
           // Handle deletion when no chip is highlighted and the input is empty.
@@ -171,8 +180,9 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
 
           // Printable characters
           if (
-            event.key === 'Backspace' ||
-            (event.key.length === 1 && !event.ctrlKey && !event.metaKey && !event.altKey)
+            !disabled && // Don't open popup when disabled
+            (event.key === 'Backspace' ||
+              (event.key.length === 1 && !event.ctrlKey && !event.metaKey && !event.altKey))
           ) {
             setOpen(true, event.nativeEvent, undefined);
             store.set('activeIndex', null);
@@ -192,11 +202,13 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
 
             if (multiple) {
               const isSelected = Array.isArray(value) && value.includes(selectedValue);
-              const nextValue = isSelected
-                ? value.filter((v) => v !== selectedValue)
-                : Array.isArray(value)
-                  ? [...value, selectedValue]
-                  : [selectedValue];
+
+              let nextValue: any[] = [];
+              if (isSelected) {
+                nextValue = value.filter((v) => v !== selectedValue);
+              } else {
+                nextValue = [...value, selectedValue];
+              }
 
               setValue(nextValue, event.nativeEvent, 'item-press');
             } else {
@@ -230,6 +242,10 @@ export namespace ComboboxInput {
      * Whether the component should ignore user interaction.
      */
     disabled: boolean;
+    /**
+     * Whether the user should be unable to choose a different option from the combobox popup.
+     */
+    readOnly: boolean;
     /**
      * Whether the field has been touched.
      */

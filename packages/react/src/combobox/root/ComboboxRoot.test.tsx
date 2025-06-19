@@ -135,6 +135,247 @@ describe('<Combobox.Root />', () => {
     });
   });
 
+  describe('prop: disabled', () => {
+    it('should render disabled state on all interactive components', async () => {
+      const { user } = await render(
+        <Combobox.Root disabled>
+          <Combobox.Input data-testid="input" />
+          <Combobox.Trigger data-testid="trigger">Open</Combobox.Trigger>
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  <Combobox.Item value="a" data-testid="item-a">
+                    a
+                  </Combobox.Item>
+                  <Combobox.Item value="b" data-testid="item-b">
+                    b
+                  </Combobox.Item>
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByTestId('input');
+      const trigger = screen.getByTestId('trigger');
+
+      expect(input).to.have.attribute('aria-disabled', 'true');
+      expect(trigger).to.have.attribute('aria-disabled', 'true');
+
+      // Verify interactions are disabled
+      await user.click(trigger);
+      expect(screen.queryByRole('listbox')).to.equal(null);
+    });
+
+    it('should not open popup when disabled', async () => {
+      const { user } = await render(
+        <Combobox.Root disabled>
+          <Combobox.Input data-testid="input" />
+          <Combobox.Trigger data-testid="trigger">Open</Combobox.Trigger>
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  <Combobox.Item value="a">a</Combobox.Item>
+                  <Combobox.Item value="b">b</Combobox.Item>
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByTestId('input');
+      const trigger = screen.getByTestId('trigger');
+
+      await user.click(input);
+      expect(screen.queryByRole('listbox')).to.equal(null);
+
+      await user.click(trigger);
+      expect(screen.queryByRole('listbox')).to.equal(null);
+    });
+
+    it('should prevent keyboard interactions when disabled', async () => {
+      const { user } = await render(
+        <Combobox.Root disabled>
+          <Combobox.Input data-testid="input" />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  <Combobox.Item value="a">a</Combobox.Item>
+                  <Combobox.Item value="b">b</Combobox.Item>
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByTestId('input');
+
+      await user.type(input, 'a');
+      expect(screen.queryByRole('listbox')).to.equal(null);
+    });
+
+    it('should set disabled attribute on hidden input', async () => {
+      const { container } = await render(
+        <Combobox.Root disabled name="test">
+          <Combobox.Input />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  <Combobox.Item value="a">a</Combobox.Item>
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const hiddenInput = container.querySelector('input[aria-hidden="true"]');
+      expect(hiddenInput).to.have.attribute('disabled');
+    });
+  });
+
+  describe('prop: readOnly', () => {
+    it('should render readOnly state on all interactive components', async () => {
+      const { user } = await render(
+        <Combobox.Root readOnly>
+          <Combobox.Input data-testid="input" />
+          <Combobox.Trigger data-testid="trigger">Open</Combobox.Trigger>
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  <Combobox.Item value="a" data-testid="item-a">
+                    a
+                  </Combobox.Item>
+                  <Combobox.Item value="b" data-testid="item-b">
+                    b
+                  </Combobox.Item>
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByTestId('input');
+      const trigger = screen.getByTestId('trigger');
+
+      expect(input).to.have.attribute('aria-readonly', 'true');
+      expect(input).to.have.attribute('readonly');
+      expect(trigger).to.have.attribute('aria-readonly', 'true');
+
+      // Verify interactions are disabled
+      await user.click(trigger);
+      expect(screen.queryByRole('listbox')).to.equal(null);
+    });
+
+    it('should not open popup when readOnly', async () => {
+      const { user } = await render(
+        <Combobox.Root readOnly>
+          <Combobox.Input data-testid="input" />
+          <Combobox.Trigger data-testid="trigger">Open</Combobox.Trigger>
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  <Combobox.Item value="a">a</Combobox.Item>
+                  <Combobox.Item value="b">b</Combobox.Item>
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByTestId('input');
+      const trigger = screen.getByTestId('trigger');
+
+      await user.click(input);
+      expect(screen.queryByRole('listbox')).to.equal(null);
+
+      await user.click(trigger);
+      expect(screen.queryByRole('listbox')).to.equal(null);
+    });
+
+    it('should prevent keyboard interactions when readOnly', async () => {
+      const { user } = await render(
+        <Combobox.Root readOnly>
+          <Combobox.Input data-testid="input" />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  <Combobox.Item value="a">a</Combobox.Item>
+                  <Combobox.Item value="b">b</Combobox.Item>
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByTestId('input');
+
+      await user.type(input, 'a');
+      expect(screen.queryByRole('listbox')).to.equal(null);
+    });
+
+    it('should set readOnly attribute on hidden input', async () => {
+      const { container } = await render(
+        <Combobox.Root readOnly name="test">
+          <Combobox.Input />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  <Combobox.Item value="a">a</Combobox.Item>
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const hiddenInput = container.querySelector('input[aria-hidden="true"]');
+      expect(hiddenInput).to.have.attribute('readonly');
+    });
+
+    it('should prevent value changes when readOnly with items', async () => {
+      const handleValueChange = spy();
+      const { user } = await render(
+        <Combobox.Root readOnly onValueChange={handleValueChange} defaultOpen>
+          <Combobox.Input data-testid="input" />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  <Combobox.Item value="a" data-testid="item-a">
+                    a
+                  </Combobox.Item>
+                  <Combobox.Item value="b" data-testid="item-b">
+                    b
+                  </Combobox.Item>
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const itemA = screen.getByTestId('item-a');
+      await user.click(itemA);
+
+      expect(handleValueChange.callCount).to.equal(0);
+    });
+  });
+
   describe('multiple selection', () => {
     it('should handle multiple selection', async () => {
       const handleValueChange = spy();
@@ -594,6 +835,82 @@ describe('<Combobox.Root />', () => {
         'aria-describedby',
         screen.getByTestId('description').id,
       );
+    });
+  });
+
+  describe('multiple selection with disabled state', () => {
+    it('should handle disabled state with chips', async () => {
+      const { user } = await render(
+        <Combobox.Root multiple disabled defaultValue={['a', 'b']}>
+          <Combobox.Input data-testid="input" />
+          <Combobox.Chips>
+            <Combobox.Chip data-testid="chip-a">
+              <Combobox.ChipRemove data-testid="remove-a" />
+            </Combobox.Chip>
+            <Combobox.Chip data-testid="chip-b">
+              <Combobox.ChipRemove data-testid="remove-b" />
+            </Combobox.Chip>
+          </Combobox.Chips>
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  <Combobox.Item value="a">a</Combobox.Item>
+                  <Combobox.Item value="b">b</Combobox.Item>
+                  <Combobox.Item value="c">c</Combobox.Item>
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const chipA = screen.getByTestId('chip-a');
+      const removeA = screen.getByTestId('remove-a');
+
+      expect(chipA).to.have.attribute('aria-disabled', 'true');
+      expect(removeA).to.have.attribute('aria-disabled', 'true');
+
+      // Verify chip removal is disabled
+      await user.click(removeA);
+      expect(screen.getByTestId('chip-a')).to.be.visible;
+    });
+
+    it('should handle readOnly state with chips', async () => {
+      const { user } = await render(
+        <Combobox.Root multiple readOnly defaultValue={['a', 'b']}>
+          <Combobox.Input data-testid="input" />
+          <Combobox.Chips>
+            <Combobox.Chip data-testid="chip-a">
+              <Combobox.ChipRemove data-testid="remove-a" />
+            </Combobox.Chip>
+            <Combobox.Chip data-testid="chip-b">
+              <Combobox.ChipRemove data-testid="remove-b" />
+            </Combobox.Chip>
+          </Combobox.Chips>
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  <Combobox.Item value="a">a</Combobox.Item>
+                  <Combobox.Item value="b">b</Combobox.Item>
+                  <Combobox.Item value="c">c</Combobox.Item>
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const chipA = screen.getByTestId('chip-a');
+      const removeA = screen.getByTestId('remove-a');
+
+      expect(chipA).to.have.attribute('aria-readonly', 'true');
+      expect(removeA).to.have.attribute('aria-readonly', 'true');
+
+      // Verify chip removal is disabled
+      await user.click(removeA);
+      expect(screen.getByTestId('chip-a')).to.be.visible;
     });
   });
 });

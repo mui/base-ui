@@ -59,6 +59,7 @@ export const ComboboxItem = React.memo(
       allowActiveIndexSyncRef,
       onItemHighlighted,
       multiple,
+      readOnly,
     } = useComboboxRootContext();
 
     const active = useSelector(store, selectors.isActive, listItem.index);
@@ -142,6 +143,10 @@ export const ComboboxItem = React.memo(
       'aria-selected': selectable ? selected : undefined,
       tabIndex: -1,
       onClick(event) {
+        if (disabled || readOnly) {
+          return;
+        }
+
         if (multiple) {
           const currentValue = rootValue as any[];
           const isCurrentlySelected = Array.isArray(currentValue) && currentValue.includes(value);

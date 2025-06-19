@@ -32,7 +32,7 @@ export const ComboboxChips = React.forwardRef(function ComboboxChips(
   });
 
   React.useEffect(() => {
-    if (open && highlightedChipIndex !== undefined) {
+    if (open) {
       setHighlightedChipIndex(undefined);
     }
   }, [open]);
