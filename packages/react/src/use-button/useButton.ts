@@ -5,50 +5,32 @@ import { useModernLayoutEffect } from '../utils/useModernLayoutEffect';
 import { useEventCallback } from '../utils/useEventCallback';
 import { useCompositeRootContext } from '../composite/root/CompositeRootContext';
 import { BaseUIEvent, HTMLProps } from '../utils/types';
+import { useFocusableWhenDisabled } from '../utils/useFocusableWhenDisabled';
 
 export function useButton(parameters: useButton.Parameters = {}): useButton.ReturnValue {
-  const { disabled = false, focusableWhenDisabled, tabIndex = 0, native = true } = parameters;
+  const {
+    disabled = false,
+    focusableWhenDisabled,
+    tabIndex = 0,
+    native: isNativeButton = true,
+  } = parameters;
 
   const buttonRef = React.useRef<HTMLButtonElement | HTMLAnchorElement | HTMLElement | null>(null);
 
   const isCompositeItem = useCompositeRootContext(true) !== undefined;
-  const isNativeButton = native === true;
 
   const isValidLink = useEventCallback(() => {
     const element = buttonRef.current;
     return Boolean(element?.tagName === 'A' && (element as HTMLAnchorElement)?.href);
   });
 
-  const buttonProps = React.useMemo(() => {
-    const additionalProps: AdditionalButtonProps = {};
-
-    if (tabIndex !== undefined && !isCompositeItem) {
-      additionalProps.tabIndex = tabIndex;
-    }
-
-    if (isNativeButton) {
-      if (focusableWhenDisabled || (isCompositeItem && focusableWhenDisabled !== false)) {
-        additionalProps['aria-disabled'] = disabled;
-      } else if (!isCompositeItem) {
-        additionalProps.disabled = disabled;
-      }
-    } else {
-      if (!native) {
-        additionalProps.role = 'button';
-      }
-      if (!isCompositeItem) {
-        additionalProps.tabIndex = tabIndex ?? 0;
-      }
-      if (disabled) {
-        additionalProps['aria-disabled'] = disabled as boolean;
-        if (!isCompositeItem) {
-          additionalProps.tabIndex = focusableWhenDisabled ? (tabIndex ?? 0) : -1;
-        }
-      }
-    }
-
-    return additionalProps;
-  }, [disabled, focusableWhenDisabled, isCompositeItem, isNativeButton, native, tabIndex]);
+  const { props: focusableWhenDisabledProps } = useFocusableWhenDisabled({
+    focusableWhenDisabled,
+    disabled,
+    composite: isCompositeItem,
+    tabIndex,
+    isNativeButton,
+  });
 
   // handles a disabled composite button rendering another button, e.g.
   // <Toolbar.Button disabled render={<Menu.Trigger />} />
@@ -60,10 +42,15 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
       return;
     }
 
-    if (isCompositeItem && disabled && buttonProps.disabled === undefined && element.disabled) {
+    if (
+      isCompositeItem &&
+      disabled &&
+      focusableWhenDisabledProps.disabled === undefined &&
+      element.disabled
+    ) {
       element.disabled = false;
     }
-  }, [disabled, buttonProps.disabled, isCompositeItem]);
+  }, [disabled, focusableWhenDisabledProps.disabled, isCompositeItem]);
 
   const getButtonProps = React.useCallback(
     (externalProps: GenericButtonProps = {}) => {
@@ -76,14 +63,9 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
         ...otherExternalProps
       } = externalProps;
 
-      let type: 'button' | 'text' | undefined;
-      if (native === 'input') {
-        type = 'text';
-      } else if (isNativeButton) {
-        type = 'button';
-      }
+      const type = isNativeButton ? 'button' : undefined;
 
-      return mergeProps<'button' | 'input'>(
+      return mergeProps<'button'>(
         {
           type,
           onClick(event: React.MouseEvent) {
@@ -99,14 +81,6 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
             }
           },
           onKeyDown(event: BaseUIEvent<React.KeyboardEvent>) {
-            if (
-              // allow Tabbing away from focusableWhenDisabled buttons
-              (disabled && focusableWhenDisabled && event.key !== 'Tab') ||
-              (event.target === event.currentTarget && !isNativeButton && event.key === ' ')
-            ) {
-              event.preventDefault();
-            }
-
             if (!disabled) {
               makeEventPreventable(event);
               externalOnKeyDown?.(event);
@@ -158,11 +132,12 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
             externalOnPointerDown?.(event);
           },
         },
-        buttonProps,
+        !isNativeButton ? { role: 'button' } : undefined,
+        focusableWhenDisabledProps,
         otherExternalProps,
       );
     },
-    [buttonProps, disabled, focusableWhenDisabled, isNativeButton, isValidLink, native],
+    [disabled, focusableWhenDisabledProps, isNativeButton, isValidLink],
   );
 
   return {
@@ -197,10 +172,10 @@ export namespace useButton {
     focusableWhenDisabled?: boolean;
     tabIndex?: NonNullable<React.HTMLAttributes<any>['tabIndex']>;
     /**
-     * Whether the component is being rendered as a native button or specific native tag.
+     * Whether the component is being rendered as a native button.
      * @default true
      */
-    native?: boolean | 'input' | 'a';
+    native?: boolean;
   }
 
   export interface ReturnValue {
