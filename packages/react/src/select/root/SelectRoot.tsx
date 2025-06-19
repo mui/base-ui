@@ -31,6 +31,7 @@ export const SelectRoot: SelectRoot = function SelectRoot<Value>(
     actionsRef,
     inputRef,
     onOpenChangeComplete,
+    items,
   } = props;
 
   const { rootContext, floatingContext } = useSelectRoot<Value>({
@@ -48,6 +49,7 @@ export const SelectRoot: SelectRoot = function SelectRoot<Value>(
     modal,
     actionsRef,
     onOpenChangeComplete,
+    items,
   });
   const store = rootContext.store;
 

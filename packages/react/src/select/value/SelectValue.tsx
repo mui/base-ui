@@ -26,12 +26,24 @@ export const SelectValue = React.forwardRef(function SelectValue(
 
   const { store, valueRef } = useSelectRootContext();
   const value = useSelector(store, selectors.value);
+  const items = useSelector(store, selectors.items);
 
-  const displayValue = value != null ? value : placeholder;
+  const labelFromItems = React.useMemo(() => {
+    if (items) {
+      if (Array.isArray(items)) {
+        return items.find((item) => item.value === value)?.label;
+      }
+      return items[value];
+    }
+    return null;
+  }, [items, value]);
+
+  const label = labelFromItems ?? (value != null ? value : placeholder);
+
   const children =
     typeof childrenProp === 'function'
       ? (childrenProp(value) ?? placeholder)
-      : (childrenProp ?? displayValue);
+      : (childrenProp ?? label);
 
   const element = useRenderElement('span', componentProps, {
     ref: [forwardedRef, valueRef],
@@ -43,9 +55,18 @@ export const SelectValue = React.forwardRef(function SelectValue(
 
 export namespace SelectValue {
   export interface Props extends Omit<BaseUIComponentProps<'span', State>, 'children'> {
+    /**
+     * Accepts a function that returns a `ReactNode` to format the selected value.
+     * @example
+     * ```tsx
+     * <Select.Value>
+     *   {(value: string | null) => value ? labels[value] : 'No value'}
+     * </Select.Value>
+     * ```
+     */
     children?: React.ReactNode | ((value: any) => React.ReactNode);
     /**
-     * A placeholder to display when no value is chosen.
+     * A placeholder to display when no value is chosen (`value == null`).
      */
     placeholder?: React.ReactNode;
   }

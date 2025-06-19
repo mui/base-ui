@@ -15,11 +15,9 @@ const values = Object.keys(fonts) as Font[];
 
 export default function ExampleSelect() {
   return (
-    <Select.Root defaultValue="sans">
+    <Select.Root items={fonts} defaultValue="sans">
       <Select.Trigger className={styles.Select}>
-        <Select.Value placeholder="Select a font">
-          {(value: Font | null) => value && fonts[value]}
-        </Select.Value>
+        <Select.Value placeholder="Select a font" />
         <Select.Icon className={styles.SelectIcon}>
           <ChevronUpDownIcon />
         </Select.Icon>

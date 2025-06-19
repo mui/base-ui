@@ -4,10 +4,11 @@
   "props": {
     "placeholder": {
       "type": "ReactNode",
-      "description": "A placeholder to display when no value is chosen."
+      "description": "A placeholder to display when no value is chosen (`value == null`)."
     },
     "children": {
-      "type": "ReactNode | ((value: any) => ReactNode)"
+      "type": "ReactNode | ((value: any) => ReactNode)",
+      "description": "Accepts a function that returns a `ReactNode` to format the selected value."
     },
     "className": {
       "type": "string | ((state: Select.Value.State) => string)",

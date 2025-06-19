@@ -6,6 +6,10 @@ export type State = {
   id: string | undefined;
   modal: boolean;
 
+  items:
+    | Record<string, React.ReactNode>
+    | Array<{ label: React.ReactNode; value: any }>
+    | undefined;
   value: any;
   label: string;
 
@@ -33,6 +37,7 @@ export const selectors = {
   id: createSelector((state: State) => state.id),
   modal: createSelector((state: State) => state.modal),
 
+  items: createSelector((state: State) => state.items),
   value: createSelector((state: State) => state.value),
   label: createSelector((state: State) => state.label),
 
