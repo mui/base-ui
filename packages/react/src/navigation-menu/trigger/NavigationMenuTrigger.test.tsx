@@ -3,6 +3,7 @@ import { NavigationMenu } from '@base-ui-components/react/navigation-menu';
 import { createRenderer, describeConformance } from '#test-utils';
 import { screen, flushMicrotasks } from '@mui/internal-test-utils';
 import userEvent from '@testing-library/user-event';
+import { expect } from 'chai'
 
 describe('<NavigationMenu.Trigger />', () => {
   const { render } = createRenderer();
