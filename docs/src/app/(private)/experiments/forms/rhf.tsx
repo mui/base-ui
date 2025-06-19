@@ -16,6 +16,13 @@ import { CheckboxGroup } from '@base-ui-components/react/checkbox-group';
 import styles from './form.module.css';
 import { CheckIcon, ChevronUpDownIcon, HorizontalRuleIcon } from './_icons';
 
+import {
+  SettingsMetadata,
+  useExperimentSettings,
+} from '../../../../components/Experiments/SettingsPanel';
+
+interface Settings extends Record<string, unknown> {}
+
 interface FormValues {
   username: string;
   checkbox: boolean;
@@ -28,6 +35,15 @@ interface FormValues {
   radioGroup: string;
   checkboxGroup: string[];
 }
+
+export const settingsMetadata: SettingsMetadata<Settings> = {
+  validationMode: {
+    type: 'string',
+    label: 'Validation mode',
+    options: ['onSubmit', 'onBlur'],
+    default: 'onBlur',
+  },
+};
 
 async function submitForm(data: any) {
   // Mimic a server response
@@ -51,24 +67,29 @@ async function submitForm(data: any) {
 }
 
 export default function ExampleForm() {
+  const { settings } = useExperimentSettings<Settings>();
+
   const [errors, setErrors] = React.useState({});
   const [loading, setLoading] = React.useState(false);
 
-  const { handleSubmit, control, formState, getValues } = useForm<FormValues>({
-    defaultValues: {
-      username: '',
-      checkbox: true,
-      requiredCheckbox: false,
-      switch: false,
-      slider: 25,
-      numberField: 45,
-      selectCountry: '',
-      selectState: '',
-      radioGroup: '',
-      checkboxGroup: [],
+  const { handleSubmit, control, reset, formState, getValues } = useForm<FormValues>(
+    {
+      defaultValues: {
+        username: '',
+        checkbox: true,
+        requiredCheckbox: false,
+        switch: false,
+        slider: 25,
+        numberField: 45,
+        selectCountry: '',
+        selectState: '',
+        radioGroup: '',
+        checkboxGroup: [],
+      },
+      // @ts-ignore
+      mode: settings.validationMode,
     },
-    mode: 'onBlur',
-  });
+  );
 
   return (
     <div style={{ fontFamily: 'var(--font-sans)' }}>
@@ -468,6 +489,16 @@ export default function ExampleForm() {
 
         <button disabled={loading} type="submit" className={styles.Button}>
           Submit
+        </button>
+
+        <button
+          type="button"
+          disabled={loading}
+          data-color="red"
+          className={styles.Button}
+          onClick={() => reset()}
+        >
+          Reset
         </button>
       </Form>
     </div>
