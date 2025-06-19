@@ -52,6 +52,7 @@ export function ComboboxRoot<Value, Multiple extends boolean = false>(
     readOnly = false,
     required = false,
     inputRef: inputRefProp,
+    cols = 1,
   } = props;
 
   const { clearErrors } = useFormContext();
@@ -319,6 +320,8 @@ export function ComboboxRoot<Value, Multiple extends boolean = false>(
     loop: true,
     allowEscape: true,
     focusItemOnOpen: false,
+    cols,
+    orientation: cols > 1 ? 'horizontal' : undefined,
     onNavigate(nextActiveIndex) {
       // Retain the highlight while transitioning out.
       if (nextActiveIndex === null && !open) {
@@ -579,6 +582,11 @@ export namespace ComboboxRoot {
      * A ref to the hidden input element used for form submission.
      */
     inputRef?: React.RefObject<HTMLInputElement>;
+    /**
+     * The number of columns the items are rendered in grid layout.
+     * @default 1
+     */
+    cols?: number;
   }
 
   export interface Actions {

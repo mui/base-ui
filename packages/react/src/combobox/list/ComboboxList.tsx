@@ -49,6 +49,7 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
         id: floatingRootContext.floatingId,
         role: 'listbox',
         'aria-multiselectable': multiple ? 'true' : undefined,
+        tabIndex: -1,
       },
       elementProps,
     ],

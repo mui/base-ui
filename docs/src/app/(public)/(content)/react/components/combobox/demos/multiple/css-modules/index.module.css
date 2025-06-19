@@ -143,7 +143,8 @@
   transition:
     transform 150ms,
     opacity 150ms;
-  min-width: var(--anchor-width);
+  width: var(--anchor-width);
+  max-width: var(--available-width);
   max-height: min(var(--available-height), 24rem);
   overflow-y: auto;
   scroll-padding-block: 0.5rem;
