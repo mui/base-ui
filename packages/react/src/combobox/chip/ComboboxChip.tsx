@@ -1,12 +1,12 @@
 'use client';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
+import { stopEvent } from '@floating-ui/react/utils';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useComboboxChipsContext } from '../chips/ComboboxChipsContext';
 import { useComboboxRootContext } from '../root/ComboboxRootContext';
 import { useCompositeListItem } from '../../composite/list/useCompositeListItem';
-import { stopEvent } from '@floating-ui/react/utils';
 import { ComboboxChipContext } from './ComboboxChipContext';
 
 /**
@@ -21,12 +21,18 @@ export const ComboboxChip = React.forwardRef(function ComboboxChip(
 ) {
   const { render, className, ...elementProps } = componentProps;
 
-  const { inputRef, value, setValue, setOpen } = useComboboxRootContext();
+  const { inputRef, value, setValue, setOpen, disabled, readOnly } = useComboboxRootContext();
   const { setHighlightedChipIndex, chipsRef } = useComboboxChipsContext()!;
 
   const { ref, index } = useCompositeListItem();
 
   function handleKeyDown(event: React.KeyboardEvent<HTMLDivElement>) {
+    if (disabled) {
+      // When disabled, prevent all keyboard interactions
+      event.preventDefault();
+      return index; // Return current index to keep focus on same chip
+    }
+
     let nextIndex: number | undefined = index;
 
     if (event.key === 'ArrowLeft') {
@@ -44,6 +50,10 @@ export const ComboboxChip = React.forwardRef(function ComboboxChip(
         nextIndex = undefined;
       }
     } else if (event.key === 'Backspace' || event.key === 'Delete') {
+      if (readOnly) {
+        event.preventDefault();
+        return index; // Return current index to keep focus on same chip when readOnly
+      }
       stopEvent(event);
       setValue(
         value.filter((_: any, i: number) => i !== index),
@@ -72,11 +82,21 @@ export const ComboboxChip = React.forwardRef(function ComboboxChip(
     return nextIndex;
   }
 
+  const state: ComboboxChip.State = React.useMemo(
+    () => ({
+      disabled,
+    }),
+    [disabled],
+  );
+
   const element = useRenderElement('div', componentProps, {
     ref: [forwardedRef, ref],
+    state,
     props: [
       {
-        tabIndex: -1,
+        tabIndex: disabled ? -1 : -1, // Always -1 since chips are not directly focusable
+        'aria-disabled': disabled || undefined,
+        'aria-readonly': readOnly || undefined,
         onKeyDown(event) {
           const nextIndex = handleKeyDown(event);
 
@@ -91,6 +111,9 @@ export const ComboboxChip = React.forwardRef(function ComboboxChip(
           }
         },
         onMouseDown(event) {
+          if (disabled) {
+            return;
+          }
           event.preventDefault();
           inputRef.current?.focus();
         },
@@ -112,7 +135,12 @@ export const ComboboxChip = React.forwardRef(function ComboboxChip(
 });
 
 export namespace ComboboxChip {
-  export interface State {}
+  export interface State {
+    /**
+     * Whether the component should ignore user interaction.
+     */
+    disabled: boolean;
+  }
 
   export interface Props extends BaseUIComponentProps<'div', State> {}
 }
