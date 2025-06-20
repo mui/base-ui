@@ -166,6 +166,7 @@ function PopoverComponent({
   );
 }
 
+/** @internal */
 export function Popover(props: Props) {
   const parentId = useFloatingParentNodeId();
 

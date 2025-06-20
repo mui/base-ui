@@ -108,6 +108,7 @@ interface NavigationProps {
   children?: React.ReactNode;
 }
 
+/** @internal */
 export function Navigation(props: NavigationProps) {
   return (
     <nav className="Navigation">
@@ -116,6 +117,7 @@ export function Navigation(props: NavigationProps) {
   );
 }
 
+/** @internal */
 export function Main() {
   return (
     <React.Fragment>
