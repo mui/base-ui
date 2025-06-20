@@ -123,8 +123,6 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
         positionerElement: null,
         scrollUpArrowVisible: false,
         scrollDownArrowVisible: false,
-        controlledItemAnchor: false,
-        alignItemWithTriggerActive: false,
       }),
   ).current;
 

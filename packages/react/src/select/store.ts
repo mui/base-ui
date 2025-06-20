@@ -25,8 +25,6 @@ export type State = {
 
   scrollUpArrowVisible: boolean;
   scrollDownArrowVisible: boolean;
-  controlledItemAnchor: boolean;
-  alignItemWithTriggerActive: boolean;
 };
 
 export type SelectStore = Store<State>;
@@ -61,6 +59,4 @@ export const selectors = {
 
   scrollUpArrowVisible: createSelector((state: State) => state.scrollUpArrowVisible),
   scrollDownArrowVisible: createSelector((state: State) => state.scrollDownArrowVisible),
-  controlledItemAnchor: createSelector((state: State) => state.controlledItemAnchor),
-  alignItemWithTriggerActive: createSelector((state: State) => state.alignItemWithTriggerActive),
 };
