@@ -749,7 +749,6 @@ describe('modal', () => {
       return (
         <>
           <input
-            // eslint-disable-next-line jsx-a11y/role-has-required-aria-props
             role="combobox"
             data-testid="reference"
             ref={refs.setReference}
