@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-shadow */
-import type { Placement } from '@floating-ui/react';
+import * as React from 'react';
+import type { Placement } from '../types';
 import {
   autoUpdate,
   flip,
@@ -16,11 +17,9 @@ import {
   useFloatingNodeId,
   useFloatingParentNodeId,
   useHover,
-  useId,
   useInteractions,
   useRole,
-} from '@floating-ui/react';
-import * as React from 'react';
+} from '../index';
 
 export function Main() {
   return (
@@ -117,7 +116,7 @@ function PopoverComponent({
     whileElementsMounted: autoUpdate,
   });
 
-  const id = useId();
+  const id = React.useId();
   const labelId = `${id}-label`;
   const descriptionId = `${id}-description`;
 
