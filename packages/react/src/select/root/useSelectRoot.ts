@@ -33,8 +33,6 @@ import { useField } from '../../field/useField';
 
 export type SelectOpenChangeReason = BaseOpenChangeReason | 'window-resize';
 
-const EMPTY_ARRAY: never[] = [];
-
 export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelectRoot.ReturnValue {
   const {
     id: idProp,
@@ -293,7 +291,13 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     listRef,
     activeIndex,
     selectedIndex,
-    disabledIndices: EMPTY_ARRAY,
+    disabledIndices(index) {
+      const element = listRef.current[index];
+      return (
+        element == null ||
+        (typeof element.checkVisibility === 'function' ? !element.checkVisibility() : false)
+      );
+    },
     onNavigate(nextActiveIndex) {
       // Retain the highlight while transitioning out.
       if (nextActiveIndex === null && !open) {
