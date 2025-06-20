@@ -556,7 +556,7 @@ importers:
         version: 7.27.6
       '@floating-ui/react-dom':
         specifier: ^2.1.2
-        version: 2.1.2(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+        version: 2.1.3(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@floating-ui/utils':
         specifier: ^0.2.9
         version: 0.2.9
@@ -1868,15 +1868,6 @@ packages:
       react: '>=16.8.0'
       react-dom: '>=16.8.0'
 
-<<<<<<< HEAD
-=======
-  '@floating-ui/react@0.27.12':
-    resolution: {integrity: sha512-kKlWNrpIQxF1B/a2MZvE0/uyKby4960yjO91W7nVyNKmmfNi62xU9HCjL1M1eWzx/LFj/VPSwJVbwQk9Pq/68A==}
-    peerDependencies:
-      react: '>=17.0.0'
-      react-dom: '>=17.0.0'
-
->>>>>>> upstream/master
   '@floating-ui/utils@0.2.9':
     resolution: {integrity: sha512-MDWhGtE+eHw5JW7lq4qhc5yRLS11ERl1c7Z6Xd0a58DozHES6EnNNwUWbMiG4J9Cgj053Bhk8zvlhFYKVhULwg==}
 
@@ -12538,17 +12529,6 @@ snapshots:
       react: 19.1.0
       react-dom: 19.1.0(react@19.1.0)
 
-<<<<<<< HEAD
-=======
-  '@floating-ui/react@0.27.12(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
-    dependencies:
-      '@floating-ui/react-dom': 2.1.3(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
-      '@floating-ui/utils': 0.2.9
-      react: 19.1.0
-      react-dom: 19.1.0(react@19.1.0)
-      tabbable: 6.2.0
-
->>>>>>> upstream/master
   '@floating-ui/utils@0.2.9': {}
 
   '@gitbeaker/core@38.12.1':
