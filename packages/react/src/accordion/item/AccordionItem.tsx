@@ -30,7 +30,7 @@ export const AccordionItem = React.forwardRef(function AccordionItem(
     disabled: disabledProp = false,
     onOpenChange: onOpenChangeProp,
     render,
-    value: valueProp,
+    value,
     ...elementProps
   } = componentProps;
 
@@ -43,8 +43,6 @@ export const AccordionItem = React.forwardRef(function AccordionItem(
     state: rootState,
     value: openValues,
   } = useAccordionRootContext();
-
-  const value = valueProp ?? index;
 
   const disabled = disabledProp || contextDisabled;
 
@@ -143,6 +141,6 @@ export namespace AccordionItem {
   export interface Props
     extends BaseUIComponentProps<'div', State>,
       Partial<Pick<useCollapsibleRoot.Parameters, 'disabled' | 'onOpenChange'>> {
-    value?: AccordionItemValue;
+    value: AccordionItemValue;
   }
 }

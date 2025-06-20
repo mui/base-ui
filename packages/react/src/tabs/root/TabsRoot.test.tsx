@@ -71,13 +71,13 @@ describe('<Tabs.Root />', () => {
           <Tabs.List>
             <Tabs.Tab value="tab-0" />
             <Tabs.Tab value="tab-1" id="explicit-tab-id-1" />
-            <Tabs.Tab />
-            <Tabs.Tab id="explicit-tab-id-3" />
+            <Tabs.Tab value="tab-2" />
+            <Tabs.Tab value="tab-3" id="explicit-tab-id-3" />
           </Tabs.List>
           <Tabs.Panel value="tab-1" />
           <Tabs.Panel value="tab-0" />
-          <Tabs.Panel />
-          <Tabs.Panel />
+          <Tabs.Panel value="tab-3" />
+          <Tabs.Panel value="tab-2" />
         </Tabs.Root>,
       );
 
@@ -86,8 +86,8 @@ describe('<Tabs.Root />', () => {
 
       expect(tabPanels[0]).to.have.attribute('aria-labelledby', tabs[1].id);
       expect(tabPanels[1]).to.have.attribute('aria-labelledby', tabs[0].id);
-      expect(tabPanels[2]).to.have.attribute('aria-labelledby', tabs[2].id);
-      expect(tabPanels[3]).to.have.attribute('aria-labelledby', tabs[3].id);
+      expect(tabPanels[2]).to.have.attribute('aria-labelledby', tabs[3].id);
+      expect(tabPanels[3]).to.have.attribute('aria-labelledby', tabs[2].id);
     });
 
     it('sets the aria-controls attribute on tabs to the corresponding tab panel id', async () => {
@@ -96,13 +96,13 @@ describe('<Tabs.Root />', () => {
           <Tabs.List>
             <Tabs.Tab value="tab-0" />
             <Tabs.Tab value="tab-1" id="explicit-tab-id-1" />
-            <Tabs.Tab />
-            <Tabs.Tab id="explicit-tab-id-3" />
+            <Tabs.Tab value="tab-2" />
+            <Tabs.Tab value="tab-3" id="explicit-tab-id-3" />
           </Tabs.List>
           <Tabs.Panel value="tab-1" />
           <Tabs.Panel value="tab-0" />
-          <Tabs.Panel />
-          <Tabs.Panel />
+          <Tabs.Panel value="tab-3" />
+          <Tabs.Panel value="tab-2" />
         </Tabs.Root>,
       );
 
@@ -111,8 +111,8 @@ describe('<Tabs.Root />', () => {
 
       expect(tabs[0]).to.have.attribute('aria-controls', tabPanels[1].id);
       expect(tabs[1]).to.have.attribute('aria-controls', tabPanels[0].id);
-      expect(tabs[2]).to.have.attribute('aria-controls', tabPanels[2].id);
-      expect(tabs[3]).to.have.attribute('aria-controls', tabPanels[3].id);
+      expect(tabs[2]).to.have.attribute('aria-controls', tabPanels[3].id);
+      expect(tabs[3]).to.have.attribute('aria-controls', tabPanels[2].id);
     });
   });
 
@@ -312,9 +312,9 @@ describe('<Tabs.Root />', () => {
             <Tabs.Tab value={1}>Tab 2</Tabs.Tab>
             <Tabs.Tab value={2}>Tab 3</Tabs.Tab>
           </Tabs.List>
-          <Tabs.Panel>Panel 1</Tabs.Panel>
-          <Tabs.Panel>Panel 2</Tabs.Panel>
-          <Tabs.Panel>Panel 3</Tabs.Panel>
+          <Tabs.Panel value={0}>Panel 1</Tabs.Panel>
+          <Tabs.Panel value={1}>Panel 2</Tabs.Panel>
+          <Tabs.Panel value={2}>Panel 3</Tabs.Panel>
         </Tabs.Root>,
       );
 
@@ -338,9 +338,9 @@ describe('<Tabs.Root />', () => {
             </Tabs.Tab>
             <Tabs.Tab value={2}>Tab 3</Tabs.Tab>
           </Tabs.List>
-          <Tabs.Panel>Panel 1</Tabs.Panel>
-          <Tabs.Panel>Panel 2</Tabs.Panel>
-          <Tabs.Panel>Panel 3</Tabs.Panel>
+          <Tabs.Panel value={0}>Panel 1</Tabs.Panel>
+          <Tabs.Panel value={1}>Panel 2</Tabs.Panel>
+          <Tabs.Panel value={2}>Panel 3</Tabs.Panel>
         </Tabs.Root>,
       );
 
@@ -1014,8 +1014,8 @@ describe('<Tabs.Root />', () => {
       const { getAllByRole, getByTestId } = await render(
         <Tabs.Root data-testid="root">
           <Tabs.List>
-            <Tabs.Tab />
-            <Tabs.Tab />
+            <Tabs.Tab value={0} />
+            <Tabs.Tab value={1} />
           </Tabs.List>
         </Tabs.Root>,
       );
@@ -1041,8 +1041,8 @@ describe('<Tabs.Root />', () => {
       const { getAllByRole, getByTestId } = await render(
         <Tabs.Root data-testid="root" orientation="vertical">
           <Tabs.List>
-            <Tabs.Tab style={{ display: 'block' }} />
-            <Tabs.Tab style={{ display: 'block' }} />
+            <Tabs.Tab value={0} style={{ display: 'block' }} />
+            <Tabs.Tab value={1} style={{ display: 'block' }} />
           </Tabs.List>
         </Tabs.Root>,
       );
