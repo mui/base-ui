@@ -11,6 +11,7 @@ import { CheckboxGroup } from '@base-ui-components/react/checkbox-group';
 import { Switch } from '@base-ui-components/react/switch';
 import { NumberField } from '@base-ui-components/react/number-field';
 import { Slider } from '@base-ui-components/react/slider';
+import { Combobox } from '@base-ui-components/react/combobox';
 import { z } from 'zod';
 import styles from './form.module.css';
 
@@ -27,7 +28,19 @@ const schema = z.object({
   'number-field': z.number().min(0).max(100),
   select: z.enum(['sans', 'serif', 'mono', 'cursive']),
   'radio-group': z.enum(['auto', 'scrolling', 'always']),
+  combobox: z.string().min(1, 'Please select a framework'),
 });
+
+const frameworks = [
+  'React',
+  'Vue',
+  'Angular',
+  'Svelte',
+  'Next.js',
+  'Nuxt.js',
+  'Gatsby',
+  'Remix',
+];
 
 interface Settings extends Record<string, boolean> {}
 
@@ -70,9 +83,20 @@ export default function Page() {
   const { settings } = useExperimentSettings<Settings>();
   const native = settings.native;
   const [errors, setErrors] = React.useState({});
+  const [comboboxValue, setComboboxValue] = React.useState('');
+  const [comboboxInputValue, setComboboxInputValue] = React.useState('');
+  const [checkboxGroupValue, setCheckboxGroupValue] = React.useState<string[]>([]);
 
   const numberFieldValueRef = React.useRef<number | null>(null);
-  const [checkboxGroupValue, setCheckboxGroupValue] = React.useState<string[]>([]);
+
+  const filteredFrameworks = React.useMemo(() => {
+    if (comboboxInputValue.trim() === '') {
+      return frameworks;
+    }
+    return frameworks.filter((framework) =>
+      framework.toLowerCase().includes(comboboxInputValue.toLowerCase()),
+    );
+  }, [comboboxInputValue]);
 
   return (
     <div style={{ fontFamily: 'var(--font-sans)' }}>
@@ -245,6 +269,54 @@ export default function Page() {
             </Field.Label>
           </RadioGroup>
           <Field.Error className={styles.Error} />
+        </Field.Root>
+
+        <Field.Root name="combobox" className={styles.Field}>
+          <Field.Label className={styles.Label}>Framework</Field.Label>
+          <Combobox.Root
+            name="combobox"
+            required={native}
+            value={comboboxValue}
+            onValueChange={(nextValue) => {
+              setComboboxValue(nextValue);
+              React.startTransition(() => {
+                setComboboxInputValue(nextValue);
+              });
+            }}
+          >
+            <Combobox.Input
+              placeholder="Select a framework"
+              className={styles.Input}
+              value={comboboxInputValue}
+              onChange={(event) => {
+                React.startTransition(() => {
+                  setComboboxInputValue(event.target.value);
+                });
+              }}
+            />
+            <Combobox.Portal>
+              <Combobox.Positioner className={styles.Positioner} sideOffset={8}>
+                <Combobox.Popup className={styles.Popup}>
+                  <Combobox.Status className={styles.StatusItem}>
+                    {filteredFrameworks.length === 0 && (
+                      <div>No frameworks found</div>
+                    )}
+                  </Combobox.Status>
+                  <Combobox.List>
+                    {filteredFrameworks.map((framework) => (
+                      <Combobox.Item
+                        key={framework}
+                        className={styles.Item}
+                        value={framework}
+                      >
+                        {framework}
+                      </Combobox.Item>
+                    ))}
+                  </Combobox.List>
+                </Combobox.Popup>
+              </Combobox.Positioner>
+            </Combobox.Portal>
+          </Combobox.Root>
         </Field.Root>
 
         <Field.Root

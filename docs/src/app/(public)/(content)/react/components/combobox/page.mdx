@@ -1,0 +1,89 @@
+# Combobox
+
+<Subtitle>An input combined with a list of items to choose from.</Subtitle>
+<Meta
+  name="description"
+  content="A high-quality, unstyled React combobox component that renders an input combined with a list of items to choose from."
+/>
+
+<Demo path="./demos/hero" />
+
+## Anatomy
+
+Import the components and place them together:
+
+```jsx title="Anatomy"
+import { Combobox } from '@base-ui-components/react/combobox';
+
+<Combobox.Root>
+  <Combobox.Value />
+  <Combobox.Trigger />
+
+  <Combobox.Chips>
+    <Combobox.Chip>
+      <Combobox.ChipRemove />
+    </Combobox.Chip>
+
+    <Combobox.Input />
+  </Combobox.Chips>
+
+  <Combobox.Portal>
+    <Combobox.Positioner>
+      <Combobox.Popup>
+        <Combobox.Status />
+
+        <Combobox.List>
+          <Combobox.Item>
+            <Combobox.ItemIndicator />
+          </Combobox.Item>
+
+          <Combobox.Separator />
+
+          <Combobox.Group>
+            <Combobox.GroupLabel />
+          </Combobox.Group>
+        </Combobox.List>
+      </Combobox.Popup>
+    </Combobox.Positioner>
+  </Combobox.Portal>
+</Combobox.Root>;
+```
+
+## API reference
+
+<Reference
+  component="Combobox"
+  parts="Root, Input, Chips, Chip, ChipRemove, Value, List, Trigger, Portal, Positioner, Popup, Status, Item, ItemIndicator, Group, GroupLabel, Separator"
+/>
+
+## Examples
+
+### Async search
+
+The combobox items can be loaded asynchronously.
+
+<Demo path="./demos/async" compact />
+
+### Input autofill
+
+The combobox's input can be autofilled with the highlighted item when navigating with arrow keys before selecting an item.
+
+<Demo path="./demos/autofill" compact />
+
+### Inside `Popover`
+
+The combobox can be rendered inline inside a parent popover to create a searchable select menu by adding the `selectable` prop to `Combobox.Root`.
+
+<Demo path="./demos/inside-popover" compact />
+
+### Multiple
+
+Add the `multiple` prop to `Combobox.Root` to allow multiple selections.
+
+<Demo path="./demos/multiple" compact />
+
+### Grid layout
+
+The combobox items can be navigated in a grid layout by adding the `cols` prop to `Combobox.Root`.
+
+<Demo path="./demos/grid" compact />
