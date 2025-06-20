@@ -27,15 +27,15 @@ describe('<Select.Value />', () => {
   });
 
   describe('prop: children', () => {
-    it('accepts a function with label and value parameters', async () => {
+    it('accepts a function with a value parameter', async () => {
       const children = spy();
       await render(
         <Select.Root value="1">
           <Select.Trigger>
             <Select.Value placeholder="placeholder">
-              {(label, value) => {
-                children(label, value);
-                return label;
+              {(value) => {
+                children(value);
+                return value;
               }}
             </Select.Value>
           </Select.Trigger>
@@ -49,17 +49,25 @@ describe('<Select.Value />', () => {
         </Select.Root>,
       );
 
-      fireEvent.click(screen.getByText('placeholder'));
+      fireEvent.click(screen.getByText('1'));
       await flushMicrotasks();
 
-      expect(children.firstCall.firstArg).to.equal('placeholder');
+      expect(children.firstCall.firstArg).to.equal('1');
       expect(children.firstCall.lastArg).to.equal('1');
-      expect(children.lastCall.firstArg).to.equal('one');
-      expect(children.lastCall.lastArg).to.equal('1');
+    });
+
+    it('overrides the text when children is a string', async () => {
+      await render(
+        <Select.Root value="1">
+          <Select.Value>one</Select.Value>
+        </Select.Root>,
+      );
+
+      expect(screen.getByText('one')).not.to.equal(null);
     });
   });
 
-  it('switches the label when the value changes', async () => {
+  it('changes text when the value changes', async () => {
     function App() {
       const [value, setValue] = React.useState<string | null>(null);
       return (

@@ -44,6 +44,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     modal = false,
     name: nameProp,
     onOpenChangeComplete,
+    items,
   } = params;
 
   const { clearErrors } = useFormContext();
@@ -114,6 +115,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
         mounted,
         typeaheadReady: false,
         transitionStatus,
+        items,
         touchModality: false,
         activeIndex: null,
         selectedIndex: null,
@@ -499,6 +501,21 @@ export namespace useSelectRoot {
      * Useful when the select's animation is controlled by an external library.
      */
     actionsRef?: React.RefObject<Actions>;
+    /**
+     * Data structure of the items rendered in the select menu.
+     * When specified, `<Select.Value>` renders the label of the selected item instead of the raw value.
+     * @example
+     * ```tsx
+     * const items = {
+     *   sans: 'Sans-serif',
+     *   serif: 'Serif',
+     *   mono: 'Monospace',
+     *   cursive: 'Cursive',
+     * };
+     * <Select.Root items={items} />
+     * ```
+     */
+    items?: Record<string, React.ReactNode> | Array<{ label: React.ReactNode; value: Value }>;
   }
 
   export type ReturnValue = {
