@@ -18,7 +18,7 @@ describe('<Select.Root />', () => {
     createComponent: (props) => (
       <Select.Root {...props.root}>
         <Select.Trigger {...props.trigger}>
-          <Select.Value placeholder="Item" />
+          <Select.Value />
         </Select.Trigger>
         <Select.Portal {...props.portal}>
           <Select.Positioner>
@@ -38,9 +38,9 @@ describe('<Select.Root />', () => {
   describe('prop: defaultValue', () => {
     it('should select the item by default', async () => {
       await render(
-        <Select.Root defaultValue="b">
+        <Select.Root defaultValue="b" defaultLabel="b">
           <Select.Trigger data-testid="trigger">
-            <Select.Value placeholder="a" />
+            <Select.Value />
           </Select.Trigger>
           <Select.Portal>
             <Select.Positioner>
@@ -69,9 +69,9 @@ describe('<Select.Root />', () => {
   describe('prop: value', () => {
     it('should select the item specified by the value prop', async () => {
       await render(
-        <Select.Root value="b">
+        <Select.Root value="b" defaultLabel="b">
           <Select.Trigger data-testid="trigger">
-            <Select.Value placeholder="a" />
+            <Select.Value />
           </Select.Trigger>
           <Select.Portal>
             <Select.Positioner>
@@ -98,9 +98,9 @@ describe('<Select.Root />', () => {
 
     it('should update the selected item when the value prop changes', async () => {
       const { setProps } = await render(
-        <Select.Root value="a">
+        <Select.Root value="a" defaultLabel="a">
           <Select.Trigger data-testid="trigger">
-            <Select.Value placeholder="a" />
+            <Select.Value />
           </Select.Trigger>
           <Select.Portal>
             <Select.Positioner>
@@ -135,9 +135,9 @@ describe('<Select.Root />', () => {
     it('should not update the internal value if the controlled value prop does not change', async () => {
       const onValueChange = spy();
       await render(
-        <Select.Root value="a" onValueChange={onValueChange}>
+        <Select.Root value="a" onValueChange={onValueChange} defaultLabel="a">
           <Select.Trigger data-testid="trigger">
-            <Select.Value placeholder="a" />
+            <Select.Value />
           </Select.Trigger>
           <Select.Portal>
             <Select.Positioner>
@@ -178,7 +178,7 @@ describe('<Select.Root />', () => {
       const handleValueChange = spy();
 
       function App() {
-        const [value, setValue] = React.useState('');
+        const [value, setValue] = React.useState<string | null>(null);
 
         return (
           <Select.Root
@@ -189,7 +189,7 @@ describe('<Select.Root />', () => {
             }}
           >
             <Select.Trigger data-testid="trigger">
-              <Select.Value placeholder="a" />
+              <Select.Value />
             </Select.Trigger>
             <Select.Portal>
               <Select.Positioner>
@@ -223,7 +223,7 @@ describe('<Select.Root />', () => {
       const { user } = await renderFakeTimers(
         <Select.Root onValueChange={handleValueChange}>
           <Select.Trigger data-testid="trigger">
-            <Select.Value placeholder="a" />
+            <Select.Value />
           </Select.Trigger>
           <Select.Portal>
             <Select.Positioner>
@@ -254,7 +254,7 @@ describe('<Select.Root />', () => {
       await render(
         <Select.Root defaultOpen>
           <Select.Trigger data-testid="trigger">
-            <Select.Value placeholder="a" />
+            <Select.Value />
           </Select.Trigger>
           <Select.Portal>
             <Select.Positioner>
@@ -278,7 +278,7 @@ describe('<Select.Root />', () => {
       const { user } = await render(
         <Select.Root onOpenChange={handleOpenChange}>
           <Select.Trigger data-testid="trigger">
-            <Select.Value placeholder="a" />
+            <Select.Value />
           </Select.Trigger>
           <Select.Portal>
             <Select.Positioner>
@@ -305,7 +305,7 @@ describe('<Select.Root />', () => {
     const { container } = await render(
       <Select.Root name="select">
         <Select.Trigger data-testid="trigger">
-          <Select.Value placeholder="a" />
+          <Select.Value />
         </Select.Trigger>
         <Select.Portal>
           <Select.Positioner>
@@ -320,12 +320,10 @@ describe('<Select.Root />', () => {
 
     const trigger = screen.getByTestId('trigger');
 
-    fireEvent.click(trigger);
-
+    fireEvent.change(container.querySelector('[name="select"]')!, { target: { value: 'b' } });
     await flushMicrotasks();
 
-    fireEvent.change(container.querySelector('[name="select"]')!, { target: { value: 'b' } });
-
+    fireEvent.click(trigger);
     await flushMicrotasks();
 
     expect(screen.getByRole('option', { name: 'b', hidden: false })).to.have.attribute(
@@ -637,9 +635,9 @@ describe('<Select.Root />', () => {
     it('sets the disabled state', async () => {
       const handleOpenChange = spy();
       const { user } = await render(
-        <Select.Root defaultValue="b" onOpenChange={handleOpenChange} disabled>
+        <Select.Root defaultValue="b" defaultLabel="b" onOpenChange={handleOpenChange} disabled>
           <Select.Trigger>
-            <Select.Value placeholder="a" />
+            <Select.Value />
           </Select.Trigger>
           <Select.Portal>
             <Select.Positioner>
@@ -671,9 +669,14 @@ describe('<Select.Root />', () => {
         return (
           <React.Fragment>
             <button onClick={() => setDisabled(!disabled)}>toggle</button>
-            <Select.Root defaultValue="b" onOpenChange={handleOpenChange} disabled={disabled}>
+            <Select.Root
+              defaultValue="b"
+              defaultLabel="b"
+              onOpenChange={handleOpenChange}
+              disabled={disabled}
+            >
               <Select.Trigger>
-                <Select.Value placeholder="a" />
+                <Select.Value />
               </Select.Trigger>
               <Select.Portal>
                 <Select.Positioner>
@@ -720,7 +723,7 @@ describe('<Select.Root />', () => {
       const { container } = await render(
         <Select.Root id="test-id">
           <Select.Trigger>
-            <Select.Value placeholder="a" />
+            <Select.Value />
           </Select.Trigger>
           <Select.Portal>
             <Select.Positioner>
@@ -744,7 +747,7 @@ describe('<Select.Root />', () => {
         <Field.Root disabled>
           <Select.Root>
             <Select.Trigger data-testid="trigger">
-              <Select.Value placeholder="a" />
+              <Select.Value />
             </Select.Trigger>
             <Select.Portal>
               <Select.Positioner>
@@ -767,7 +770,7 @@ describe('<Select.Root />', () => {
         <Field.Root name="field-select">
           <Select.Root>
             <Select.Trigger data-testid="trigger">
-              <Select.Value placeholder="a" />
+              <Select.Value />
             </Select.Trigger>
             <Select.Portal>
               <Select.Positioner>
@@ -848,7 +851,7 @@ describe('<Select.Root />', () => {
           <Field.Root name="test" data-testid="field">
             <Select.Root required>
               <Select.Trigger data-testid="trigger">
-                <Select.Value placeholder="a" />
+                <Select.Value />
               </Select.Trigger>
               <Select.Portal>
                 <Select.Positioner />
@@ -882,7 +885,7 @@ describe('<Select.Root />', () => {
             <Field.Root name="select">
               <Select.Root>
                 <Select.Trigger data-testid="trigger">
-                  <Select.Value placeholder="a" />
+                  <Select.Value />
                 </Select.Trigger>
                 <Select.Portal>
                   <Select.Positioner>

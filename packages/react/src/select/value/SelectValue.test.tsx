@@ -8,7 +8,7 @@ import { createRenderer, describeConformance } from '#test-utils';
 describe('<Select.Value />', () => {
   const { render } = createRenderer();
 
-  describeConformance(<Select.Value placeholder="value" />, () => ({
+  describeConformance(<Select.Value />, () => ({
     refInstanceof: window.HTMLSpanElement,
     render(node) {
       return render(<Select.Root open>{node}</Select.Root>);
@@ -30,9 +30,9 @@ describe('<Select.Value />', () => {
     it('accepts a function with label and value parameters', async () => {
       const children = spy();
       await render(
-        <Select.Root value="1">
+        <Select.Root value="1" defaultLabel="one">
           <Select.Trigger>
-            <Select.Value placeholder="placeholder">
+            <Select.Value>
               {(label, value) => {
                 children(label, value);
                 return label;
@@ -49,13 +49,11 @@ describe('<Select.Value />', () => {
         </Select.Root>,
       );
 
-      fireEvent.click(screen.getByText('placeholder'));
+      fireEvent.click(screen.getByText('one'));
       await flushMicrotasks();
 
-      expect(children.firstCall.firstArg).to.equal('placeholder');
+      expect(children.firstCall.firstArg).to.equal('one');
       expect(children.firstCall.lastArg).to.equal('1');
-      expect(children.lastCall.firstArg).to.equal('one');
-      expect(children.lastCall.lastArg).to.equal('1');
     });
   });
 

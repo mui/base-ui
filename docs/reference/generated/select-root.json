@@ -36,6 +36,11 @@
       "type": "RefObject<Actions>",
       "description": "A ref to imperative actions.\n- `unmount`: When specified, the select will not be unmounted when closed.\nInstead, the `unmount` function must be called to unmount the select manually.\nUseful when the select's animation is controlled by an external library."
     },
+    "defaultLabel": {
+      "type": "ReactNode",
+      "default": "''",
+      "description": "The default label of the select when an item is initially selected."
+    },
     "modal": {
       "type": "boolean",
       "default": "true",
