@@ -71,9 +71,8 @@ export const AlertDialogPopup = React.forwardRef(function AlertDialogPopup(
 
   const mergedRef = useForkRef(forwardedRef, popupRef);
 
-  const { getRootProps, resolvedInitialFocus } = useDialogPopup({
+  const { popupProps, resolvedInitialFocus } = useDialogPopup({
     descriptionElementId,
-    getPopupProps,
     initialFocus,
     modal: true,
     mounted,
@@ -99,6 +98,8 @@ export const AlertDialogPopup = React.forwardRef(function AlertDialogPopup(
   const element = useRenderElement('div', componentProps, {
     state,
     props: [
+      getPopupProps(),
+      popupProps,
       {
         style: {
           [AlertDialogPopupCssVars.nestedDialogs]: nestedOpenDialogCount,
@@ -106,7 +107,6 @@ export const AlertDialogPopup = React.forwardRef(function AlertDialogPopup(
         role: 'alertdialog',
       },
       elementProps,
-      getRootProps,
     ],
     customStyleHookMapping,
   });
