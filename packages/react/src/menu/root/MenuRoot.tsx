@@ -102,6 +102,7 @@ export const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
     } else {
       parent = {
         type: undefined,
+        context: undefined,
       };
     }
   }
@@ -425,11 +426,14 @@ export const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
     return referenceProps;
   }, [getReferenceProps]);
 
+  const rootMenu = findRootMenu(parent);
+  const rootOpensOnHover = rootMenu.type === 'menu' && rootMenu.context.openOnHover;
+
   const popupProps = React.useMemo(
     () =>
       getFloatingProps({
         onMouseEnter() {
-          if (!openOnHover || parent.type === 'menu') {
+          if (!openOnHover && !rootOpensOnHover) {
             setHoverEnabled(false);
           }
         },
@@ -439,7 +443,7 @@ export const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
           }
         },
       }),
-    [getFloatingProps, openOnHover, parent.type],
+    [getFloatingProps, openOnHover, rootOpensOnHover],
   );
 
   const itemProps = React.useMemo(() => getItemProps(), [getItemProps]);
@@ -471,6 +475,7 @@ export const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
       modal,
       disabled,
       parent,
+      openOnHover,
     }),
     [
       activeIndex,
@@ -492,6 +497,7 @@ export const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
       modal,
       disabled,
       parent,
+      openOnHover,
     ],
   );
 
@@ -623,4 +629,13 @@ export type MenuParent =
     }
   | {
       type: undefined;
+      context: undefined;
     };
+
+function findRootMenu(parent: MenuParent): MenuParent {
+  if (parent.type === 'menu' && parent.context.parent) {
+    return findRootMenu(parent.context.parent);
+  }
+
+  return parent;
+}
