@@ -72,9 +72,8 @@ export const DialogPopup = React.forwardRef(function DialogPopup(
 
   const mergedRef = useForkRef(forwardedRef, popupRef);
 
-  const { getRootProps, resolvedInitialFocus } = useDialogPopup({
+  const { popupProps, resolvedInitialFocus } = useDialogPopup({
     descriptionElementId,
-    getPopupProps,
     initialFocus,
     modal,
     mounted,
@@ -100,13 +99,14 @@ export const DialogPopup = React.forwardRef(function DialogPopup(
   const element = useRenderElement('div', componentProps, {
     state,
     props: [
+      getPopupProps(),
+      popupProps,
       {
         style: {
           [DialogPopupCssVars.nestedDialogs]: nestedOpenDialogCount,
         } as React.CSSProperties,
       },
       elementProps,
-      getRootProps,
     ],
     customStyleHookMapping,
   });
