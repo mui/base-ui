@@ -200,8 +200,10 @@ export default function MenubarExperiment() {
           </Menu.Portal>
         </Menu.Root>
 
-        <Menu.Root disabled>
-          <Menu.Trigger className={classes.Item}>Develop</Menu.Trigger>
+        <Menu.Root>
+          <Menu.Trigger className={classes.Item} disabled>
+            Develop
+          </Menu.Trigger>
           <Menu.Portal>
             <Menu.Positioner
               className={menuClasses.Positioner}

@@ -167,8 +167,11 @@ export default function ExampleMenubar() {
         </Menu.Portal>
       </Menu.Root>
 
-      <Menu.Root disabled>
-        <Menu.Trigger className="h-8 rounded px-3 text-sm font-medium text-gray-600 outline-none select-none focus-visible:bg-gray-100 data-[disabled]:opacity-50 data-[popup-open]:bg-gray-100">
+      <Menu.Root>
+        <Menu.Trigger
+          disabled
+          className="h-8 rounded px-3 text-sm font-medium text-gray-600 outline-none select-none focus-visible:bg-gray-100 data-[disabled]:opacity-50 data-[popup-open]:bg-gray-100"
+        >
           Help
         </Menu.Trigger>
       </Menu.Root>

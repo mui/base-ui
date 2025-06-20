@@ -30,26 +30,28 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
   const {
     render,
     className,
-    disabled: disabledProp = false,
+    disabled = false,
     nativeButton = true,
     ...elementProps
   } = componentProps;
 
   const {
     triggerProps: rootTriggerProps,
-    disabled: menuDisabled,
     setTriggerElement,
     open,
     allowMouseUpTriggerRef,
     positionerRef,
     parent,
     lastOpenChangeReason,
+    setDisabled,
   } = useMenuRootContext();
-
-  const disabled = disabledProp || menuDisabled;
 
   const triggerRef = React.useRef<HTMLElement | null>(null);
   const allowMouseUpTriggerTimeout = useTimeout();
+
+  React.useEffect(() => {
+    setDisabled(disabled);
+  }, [disabled, setDisabled]);
 
   const { getButtonProps, buttonRef } = useButton({
     disabled,
