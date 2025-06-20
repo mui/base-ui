@@ -159,13 +159,14 @@ function PopoverRootComponent({ props }: { props: PopoverRoot.Props }) {
 
   const { getReferenceProps, getFloatingProps } = useInteractions([hover, click, dismiss, role]);
 
-  const popoverContext = React.useMemo(
+  const popoverContext: PopoverRootContext = React.useMemo(
     () => ({
       open,
       setOpen,
       mounted,
       setMounted,
       transitionStatus,
+      triggerElement,
       setTriggerElement,
       positionerElement,
       setPositionerElement,
@@ -196,6 +197,7 @@ function PopoverRootComponent({ props }: { props: PopoverRoot.Props }) {
       titleId,
       descriptionId,
       getReferenceProps,
+      triggerElement,
       triggerProps,
       getFloatingProps,
       floatingContext,

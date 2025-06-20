@@ -16,6 +16,7 @@ export interface PopoverRootContext {
     event: Event | undefined,
     reason: PopoverOpenChangeReason | undefined,
   ) => void;
+  triggerElement: Element | null;
   setTriggerElement: (el: Element | null) => void;
   positionerElement: HTMLElement | null;
   setPositionerElement: (el: HTMLElement | null) => void;
