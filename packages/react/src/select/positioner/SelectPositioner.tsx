@@ -200,7 +200,7 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
   return (
     <CompositeList elementsRef={listRef} labelsRef={labelsRef} onMapChange={onMapChange}>
       <SelectPositionerContext.Provider value={contextValue}>
-        {mounted && modal && <InternalBackdrop inert={inertValue(!open)} />}
+        {mounted && modal && <InternalBackdrop inert={inertValue(!open)} cutout={triggerElement} />}
         {element}
       </SelectPositionerContext.Provider>
     </CompositeList>
