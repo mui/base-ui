@@ -21,6 +21,7 @@ interface SubItemProps {
   href: string;
 }
 
+/** @internal */
 export const NavigationSubItem = React.forwardRef<
   HTMLAnchorElement,
   SubItemProps & React.HTMLProps<HTMLAnchorElement>
@@ -38,6 +39,7 @@ interface ItemProps {
   children?: React.ReactNode;
 }
 
+/** @internal */
 export const NavigationItem = React.forwardRef<
   HTMLAnchorElement,
   ItemProps & React.HTMLProps<HTMLAnchorElement>

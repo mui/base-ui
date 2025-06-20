@@ -21,6 +21,7 @@ import {
   useRole,
 } from '../index';
 
+/** @internal */
 export function Main() {
   return (
     <React.Fragment>
@@ -96,6 +97,7 @@ interface Props {
   hover?: boolean;
 }
 
+/** @internal */
 function PopoverComponent({
   children,
   render,
