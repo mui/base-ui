@@ -85,7 +85,7 @@ function useRenderElementProps<
   // This also skips the `useForkRef` call on the server, which is fine because
   // refs are not used on the server side.
   /* eslint-disable react-hooks/rules-of-hooks */
-  if (typeof window !== 'undefined') {
+  if (typeof document !== 'undefined') {
     if (!enabled) {
       useForkRef(null, null);
     } else if (Array.isArray(ref)) {
