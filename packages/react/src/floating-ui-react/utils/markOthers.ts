@@ -54,7 +54,7 @@ function applyAttributeToOthers(
   ariaHidden: boolean,
   inert: boolean,
 ): Undo {
-  const markerName = 'data-floating-ui-inert';
+  const markerName = 'data-base-ui-inert';
   // eslint-disable-next-line no-nested-ternary
   const controlAttribute = inert ? 'inert' : ariaHidden ? 'aria-hidden' : null;
   const avoidElements = correctElements(body, uncorrectedAvoidElements);

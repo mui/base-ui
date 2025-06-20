@@ -1,4 +1,4 @@
-export const FOCUSABLE_ATTRIBUTE = 'data-floating-ui-focusable';
+export const FOCUSABLE_ATTRIBUTE = 'data-base-ui-focusable';
 export const ACTIVE_KEY = 'active';
 export const SELECTED_KEY = 'selected';
 export const TYPEABLE_SELECTOR =
