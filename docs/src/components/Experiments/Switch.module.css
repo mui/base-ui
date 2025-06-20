@@ -92,9 +92,10 @@
 }
 
 .Label {
+  width: 100%;
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  gap: 8px;
   font-size: 0.875rem;
   line-height: 1.25rem;
   font-weight: 500;
