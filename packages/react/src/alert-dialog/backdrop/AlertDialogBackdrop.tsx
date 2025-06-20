@@ -23,8 +23,9 @@ export const AlertDialogBackdrop = React.forwardRef(function AlertDialogBackdrop
   componentProps: AlertDialogBackdrop.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, ...elementProps } = componentProps;
-  const { open, nested, mounted, transitionStatus, backdropRef } = useAlertDialogRootContext();
+  const { render, className, renderMode = 'root', ...elementProps } = componentProps;
+  const { open, nested, mounted, transitionStatus, backdropRef, nestedOpenDialogCount } =
+    useAlertDialogRootContext();
 
   const state: AlertDialogBackdrop.State = React.useMemo(
     () => ({
@@ -33,6 +34,13 @@ export const AlertDialogBackdrop = React.forwardRef(function AlertDialogBackdrop
     }),
     [open, transitionStatus],
   );
+
+  let shouldRender = true;
+  if (renderMode === 'root') {
+    shouldRender = !nested;
+  } else if (renderMode === 'leaf') {
+    shouldRender = nestedOpenDialogCount === 0;
+  }
 
   return useRenderElement('div', componentProps, {
     state,
@@ -49,13 +57,22 @@ export const AlertDialogBackdrop = React.forwardRef(function AlertDialogBackdrop
       elementProps,
     ],
     customStyleHookMapping,
-    // no need to render nested backdrops
-    enabled: !nested,
+    enabled: shouldRender,
   });
 });
 
 export namespace AlertDialogBackdrop {
-  export interface Props extends BaseUIComponentProps<'div', State> {}
+  export interface Props extends BaseUIComponentProps<'div', State> {
+    /**
+     * How to render the backdrop when dialogs are nested in the React tree.
+     * @default 'root'
+     * @description
+     * - `root`: Render only one backdrop at the root dialog.
+     * - `leaf`: Render only one backdrop at the leaf dialog.
+     * - `always`: Always render the backdrop regardless of nesting.
+     */
+    renderMode?: 'root' | 'leaf' | 'always';
+  }
 
   export interface State {
     /**
