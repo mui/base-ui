@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useFloatingTree } from '@floating-ui/react';
+import { useFloatingTree } from '../../floating-ui-react';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { CompositeItem } from '../../composite/item/CompositeItem';

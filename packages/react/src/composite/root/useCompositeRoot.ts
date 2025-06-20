@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { activeElement } from '@floating-ui/react/utils';
+import { activeElement } from '../../floating-ui-react/utils';
 import type { TextDirection } from '../../direction-provider/DirectionContext';
 import { isElementDisabled } from '../../utils/isElementDisabled';
 import { useEventCallback } from '../../utils/useEventCallback';
