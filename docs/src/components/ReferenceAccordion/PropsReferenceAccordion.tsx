@@ -4,6 +4,7 @@ import { visuallyHidden } from '@base-ui-components/react/utils';
 import { createMdxComponent } from 'docs/src/mdx/createMdxComponent';
 import { inlineMdxComponents } from 'docs/src/mdx-components';
 import { rehypeSyntaxHighlighting } from 'docs/src/syntax-highlighting';
+import * as Accordion from '../Accordion';
 import * as DescriptionList from '../DescriptionList';
 import type { PropDef as BasePropDef } from '../ReferenceTable/types';
 import { TableCode } from '../TableCode';
@@ -66,6 +67,7 @@ const DATA: Record<string, PropDef> = {
 function HeaderLabel(props: React.ComponentProps<'div'>) {
   return (
     <div
+      {...props}
       className={clsx(
         'HeaderLabel',
         'py-[0.5rem] text-(length:--text-sm) font-medium tracking-[-0.00625em]',
@@ -118,12 +120,9 @@ export async function PropsReferenceAccordion({
   ...props
 }: Props) {
   const captionId = `${partName}-caption`;
+
   return (
-    <section
-      aria-describedby={captionId}
-      {...props}
-      className={clsx('AccordionRoot', props.className)}
-    >
+    <Accordion.Root aria-describedby={captionId} {...props}>
       <span id={captionId} style={visuallyHidden} aria-hidden>
         Component props table
       </span>
@@ -134,7 +133,7 @@ export async function PropsReferenceAccordion({
         <HeaderLabel className="max-xs:pl-[0.75rem]">Prop</HeaderLabel>
         <HeaderLabel className="max-xs:hidden">Type</HeaderLabel>
       </div>
-      {Object.keys(data).map(async (name) => {
+      {Object.keys(data).map(async (name, index) => {
         const prop = data[name];
 
         const PropType = await createMdxComponent(`\`${prop.type}\``, {
@@ -178,10 +177,10 @@ export async function PropsReferenceAccordion({
           : null;
 
         return (
-          <details className="AccordionItem">
-            <summary
+          <Accordion.Item>
+            <Accordion.Trigger
+              index={index}
               aria-label={`prop: ${name}, type: ${shortPropTypeName} ${prop.default !== undefined ? `(default: ${prop.default})` : ''}`}
-              className="AccordionTrigger"
             >
               <TableCode className="text-navy">{name}</TableCode>
               {prop.type && (
@@ -204,9 +203,9 @@ export async function PropsReferenceAccordion({
               >
                 <path d="M1 3.5L5 7.5L9 3.5" stroke="currentcolor" />
               </svg>
-            </summary>
-            <div className="AccordionPanel" aria-labelledby={`${name}-h5`}>
-              <div className="AccordionContent min-xs:py-[0.25rem]">
+            </Accordion.Trigger>
+            <Accordion.Panel aria-labelledby={`${name}-h5`}>
+              <Accordion.Content className="min-xs:py-[0.25rem]">
                 {/* avoid announcing the trigger again when moving from the trigger into content */}
                 <h5 id={`${name}-h5`} style={visuallyHidden} aria-hidden>
                   Details
@@ -241,11 +240,11 @@ export async function PropsReferenceAccordion({
                     </React.Fragment>
                   )}
                 </DescriptionList.Root>
-              </div>
-            </div>
-          </details>
+              </Accordion.Content>
+            </Accordion.Panel>
+          </Accordion.Item>
         );
       })}
-    </section>
+    </Accordion.Root>
   );
 }
