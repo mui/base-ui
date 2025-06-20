@@ -11,6 +11,7 @@ import {
   useHover,
   useInteractions,
 } from '../index';
+import { isJSDOM } from '../../utils/detectBrowser';
 
 vi.useFakeTimers();
 
@@ -85,166 +86,168 @@ function App() {
   );
 }
 
-test('groups delays correctly', async () => {
-  render(<App />);
+describe.skipIf(!isJSDOM)('FloatingDelayGroup', () => {
+  test('groups delays correctly', async () => {
+    render(<App />);
 
-  fireEvent.mouseEnter(screen.getByTestId('reference-one'));
+    fireEvent.mouseEnter(screen.getByTestId('reference-one'));
 
-  await act(async () => {
-    vi.advanceTimersByTime(1);
+    await act(async () => {
+      vi.advanceTimersByTime(1);
+    });
+
+    expect(screen.queryByTestId('floating-one')).not.toBeInTheDocument();
+
+    await act(async () => {
+      vi.advanceTimersByTime(999);
+    });
+
+    expect(screen.getByTestId('floating-one')).toBeInTheDocument();
+
+    fireEvent.mouseEnter(screen.getByTestId('reference-two'));
+
+    await act(async () => {
+      vi.advanceTimersByTime(1);
+    });
+
+    expect(screen.queryByTestId('floating-one')).not.toBeInTheDocument();
+    expect(screen.getByTestId('floating-two')).toBeInTheDocument();
+
+    fireEvent.mouseEnter(screen.getByTestId('reference-three'));
+
+    await act(async () => {
+      vi.advanceTimersByTime(1);
+    });
+
+    expect(screen.queryByTestId('floating-two')).not.toBeInTheDocument();
+    expect(screen.getByTestId('floating-three')).toBeInTheDocument();
+
+    fireEvent.mouseLeave(screen.getByTestId('reference-three'));
+
+    await act(async () => {
+      vi.advanceTimersByTime(1);
+    });
+
+    expect(screen.getByTestId('floating-three')).toBeInTheDocument();
+
+    await act(async () => {
+      vi.advanceTimersByTime(199);
+    });
+
+    expect(screen.queryByTestId('floating-three')).not.toBeInTheDocument();
   });
 
-  expect(screen.queryByTestId('floating-one')).not.toBeInTheDocument();
+  test('timeoutMs', async () => {
+    function App() {
+      return (
+        <FloatingDelayGroup delay={{ open: 1000, close: 100 }} timeoutMs={500}>
+          <Tooltip label="one">
+            <button data-testid="reference-one" />
+          </Tooltip>
+          <Tooltip label="two">
+            <button data-testid="reference-two" />
+          </Tooltip>
+          <Tooltip label="three">
+            <button data-testid="reference-three" />
+          </Tooltip>
+        </FloatingDelayGroup>
+      );
+    }
 
-  await act(async () => {
-    vi.advanceTimersByTime(999);
+    render(<App />);
+
+    fireEvent.mouseEnter(screen.getByTestId('reference-one'));
+
+    await act(async () => {
+      vi.advanceTimersByTime(1000);
+    });
+
+    fireEvent.mouseLeave(screen.getByTestId('reference-one'));
+
+    expect(screen.getByTestId('floating-one')).toBeInTheDocument();
+
+    await act(async () => {
+      vi.advanceTimersByTime(499);
+    });
+
+    expect(screen.queryByTestId('floating-one')).not.toBeInTheDocument();
+
+    fireEvent.mouseEnter(screen.getByTestId('reference-two'));
+
+    await act(async () => {
+      vi.advanceTimersByTime(1);
+    });
+
+    expect(screen.getByTestId('floating-two')).toBeInTheDocument();
+
+    fireEvent.mouseEnter(screen.getByTestId('reference-three'));
+
+    await act(async () => {
+      vi.advanceTimersByTime(1);
+    });
+
+    expect(screen.queryByTestId('floating-two')).not.toBeInTheDocument();
+    expect(screen.getByTestId('floating-three')).toBeInTheDocument();
+
+    fireEvent.mouseLeave(screen.getByTestId('reference-three'));
+
+    await act(async () => {
+      vi.advanceTimersByTime(1);
+    });
+
+    expect(screen.getByTestId('floating-three')).toBeInTheDocument();
+
+    await act(async () => {
+      vi.advanceTimersByTime(99);
+    });
+
+    expect(screen.queryByTestId('floating-three')).not.toBeInTheDocument();
   });
 
-  expect(screen.getByTestId('floating-one')).toBeInTheDocument();
+  it('does not re-render unrelated consumers', async () => {
+    function App() {
+      return (
+        <FloatingDelayGroup delay={{ open: 1000, close: 100 }} timeoutMs={500}>
+          <Tooltip label="one">
+            <button data-testid="reference-one" />
+          </Tooltip>
+          <Tooltip label="two">
+            <button data-testid="reference-two" />
+          </Tooltip>
+          <Tooltip label="three">
+            <button data-testid="reference-three" />
+          </Tooltip>
+        </FloatingDelayGroup>
+      );
+    }
 
-  fireEvent.mouseEnter(screen.getByTestId('reference-two'));
+    render(<App />);
 
-  await act(async () => {
-    vi.advanceTimersByTime(1);
+    fireEvent.mouseEnter(screen.getByTestId('reference-one'));
+
+    await act(async () => {
+      vi.advanceTimersByTime(1000);
+    });
+
+    fireEvent.mouseLeave(screen.getByTestId('reference-one'));
+
+    expect(screen.getByTestId('floating-one')).toBeInTheDocument();
+
+    await act(async () => {
+      vi.advanceTimersByTime(499);
+    });
+
+    expect(screen.queryByTestId('floating-one')).not.toBeInTheDocument();
+
+    fireEvent.mouseEnter(screen.getByTestId('reference-two'));
+
+    await act(async () => {
+      vi.advanceTimersByTime(1);
+    });
+
+    expect(screen.getByTestId('floating-two')).toBeInTheDocument();
+    expect(screen.queryByTestId('render-count-one')).toHaveTextContent('8');
+    expect(screen.queryByTestId('render-count-two')).toHaveTextContent('5');
+    expect(screen.queryByTestId('render-count-three')).toHaveTextContent('2');
   });
-
-  expect(screen.queryByTestId('floating-one')).not.toBeInTheDocument();
-  expect(screen.getByTestId('floating-two')).toBeInTheDocument();
-
-  fireEvent.mouseEnter(screen.getByTestId('reference-three'));
-
-  await act(async () => {
-    vi.advanceTimersByTime(1);
-  });
-
-  expect(screen.queryByTestId('floating-two')).not.toBeInTheDocument();
-  expect(screen.getByTestId('floating-three')).toBeInTheDocument();
-
-  fireEvent.mouseLeave(screen.getByTestId('reference-three'));
-
-  await act(async () => {
-    vi.advanceTimersByTime(1);
-  });
-
-  expect(screen.getByTestId('floating-three')).toBeInTheDocument();
-
-  await act(async () => {
-    vi.advanceTimersByTime(199);
-  });
-
-  expect(screen.queryByTestId('floating-three')).not.toBeInTheDocument();
-});
-
-test('timeoutMs', async () => {
-  function App() {
-    return (
-      <FloatingDelayGroup delay={{ open: 1000, close: 100 }} timeoutMs={500}>
-        <Tooltip label="one">
-          <button data-testid="reference-one" />
-        </Tooltip>
-        <Tooltip label="two">
-          <button data-testid="reference-two" />
-        </Tooltip>
-        <Tooltip label="three">
-          <button data-testid="reference-three" />
-        </Tooltip>
-      </FloatingDelayGroup>
-    );
-  }
-
-  render(<App />);
-
-  fireEvent.mouseEnter(screen.getByTestId('reference-one'));
-
-  await act(async () => {
-    vi.advanceTimersByTime(1000);
-  });
-
-  fireEvent.mouseLeave(screen.getByTestId('reference-one'));
-
-  expect(screen.getByTestId('floating-one')).toBeInTheDocument();
-
-  await act(async () => {
-    vi.advanceTimersByTime(499);
-  });
-
-  expect(screen.queryByTestId('floating-one')).not.toBeInTheDocument();
-
-  fireEvent.mouseEnter(screen.getByTestId('reference-two'));
-
-  await act(async () => {
-    vi.advanceTimersByTime(1);
-  });
-
-  expect(screen.getByTestId('floating-two')).toBeInTheDocument();
-
-  fireEvent.mouseEnter(screen.getByTestId('reference-three'));
-
-  await act(async () => {
-    vi.advanceTimersByTime(1);
-  });
-
-  expect(screen.queryByTestId('floating-two')).not.toBeInTheDocument();
-  expect(screen.getByTestId('floating-three')).toBeInTheDocument();
-
-  fireEvent.mouseLeave(screen.getByTestId('reference-three'));
-
-  await act(async () => {
-    vi.advanceTimersByTime(1);
-  });
-
-  expect(screen.getByTestId('floating-three')).toBeInTheDocument();
-
-  await act(async () => {
-    vi.advanceTimersByTime(99);
-  });
-
-  expect(screen.queryByTestId('floating-three')).not.toBeInTheDocument();
-});
-
-it('does not re-render unrelated consumers', async () => {
-  function App() {
-    return (
-      <FloatingDelayGroup delay={{ open: 1000, close: 100 }} timeoutMs={500}>
-        <Tooltip label="one">
-          <button data-testid="reference-one" />
-        </Tooltip>
-        <Tooltip label="two">
-          <button data-testid="reference-two" />
-        </Tooltip>
-        <Tooltip label="three">
-          <button data-testid="reference-three" />
-        </Tooltip>
-      </FloatingDelayGroup>
-    );
-  }
-
-  render(<App />);
-
-  fireEvent.mouseEnter(screen.getByTestId('reference-one'));
-
-  await act(async () => {
-    vi.advanceTimersByTime(1000);
-  });
-
-  fireEvent.mouseLeave(screen.getByTestId('reference-one'));
-
-  expect(screen.getByTestId('floating-one')).toBeInTheDocument();
-
-  await act(async () => {
-    vi.advanceTimersByTime(499);
-  });
-
-  expect(screen.queryByTestId('floating-one')).not.toBeInTheDocument();
-
-  fireEvent.mouseEnter(screen.getByTestId('reference-two'));
-
-  await act(async () => {
-    vi.advanceTimersByTime(1);
-  });
-
-  expect(screen.getByTestId('floating-two')).toBeInTheDocument();
-  expect(screen.queryByTestId('render-count-one')).toHaveTextContent('8');
-  expect(screen.queryByTestId('render-count-two')).toHaveTextContent('5');
-  expect(screen.queryByTestId('render-count-three')).toHaveTextContent('2');
 });
