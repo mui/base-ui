@@ -257,10 +257,10 @@ export namespace NavigationMenuRoot {
      */
     onOpenChangeComplete?: (open: boolean) => void;
     /**
-     * The controlled value of the navigation navigation menu item that should be currently open.
+     * The controlled value of the navigation menu item that should be currently open.
      * When non-nullish, the menu will be open. When nullish, the menu will be closed.
      *
-     * To render an uncontrolled navigation navigation menu, use the `defaultValue` prop instead.
+     * To render an uncontrolled navigation menu, use the `defaultValue` prop instead.
      * @default null
      */
     value?: any;

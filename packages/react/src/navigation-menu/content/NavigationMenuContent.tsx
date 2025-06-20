@@ -22,13 +22,12 @@ const customStyleHookMapping: CustomStyleHookMapping<NavigationMenuContent.State
   ...popupStateMapping,
   ...transitionStatusMapping,
   activationDirection(value) {
-    if (value === 'left') {
-      return { 'data-activation-direction': 'left' };
+    if (!value) {
+      return null;
     }
-    if (value === 'right') {
-      return { 'data-activation-direction': 'right' };
-    }
-    return null;
+    return {
+      'data-activation-direction': value,
+    };
   },
 };
 
