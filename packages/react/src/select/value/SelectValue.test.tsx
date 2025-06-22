@@ -8,23 +8,12 @@ import { createRenderer, describeConformance } from '#test-utils';
 describe('<Select.Value />', () => {
   const { render } = createRenderer();
 
-  describeConformance(<Select.Value placeholder="value" />, () => ({
+  describeConformance(<Select.Value />, () => ({
     refInstanceof: window.HTMLSpanElement,
     render(node) {
       return render(<Select.Root open>{node}</Select.Root>);
     },
   }));
-
-  describe('placeholder', () => {
-    it('renders a placeholder when the value is null', async () => {
-      await render(
-        <Select.Root>
-          <Select.Value placeholder="Select a font" />
-        </Select.Root>,
-      );
-      expect(screen.getByText('Select a font')).not.to.equal(null);
-    });
-  });
 
   describe('prop: children', () => {
     it('accepts a function with a value parameter', async () => {
@@ -32,7 +21,7 @@ describe('<Select.Value />', () => {
       await render(
         <Select.Root value="1">
           <Select.Trigger>
-            <Select.Value placeholder="placeholder">
+            <Select.Value>
               {(value) => {
                 children(value);
                 return value;
@@ -77,7 +66,7 @@ describe('<Select.Value />', () => {
           <button onClick={() => setValue(null)}>null</button>
           <Select.Root value={value} onValueChange={setValue}>
             <Select.Trigger>
-              <Select.Value data-testid="value" placeholder="initial" />
+              <Select.Value data-testid="value">{(val) => val ?? 'initial'}</Select.Value>
             </Select.Trigger>
             <Select.Portal>
               <Select.Positioner>

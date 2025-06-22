@@ -2,10 +2,6 @@
   "name": "SelectValue",
   "description": "A text label of the currently selected item.\nRenders a `<span>` element.",
   "props": {
-    "placeholder": {
-      "type": "ReactNode",
-      "description": "A placeholder to display when no value is chosen (`value == null`)."
-    },
     "children": {
       "type": "ReactNode | ((value: any) => ReactNode)",
       "description": "Accepts a function that returns a `ReactNode` to format the selected value."

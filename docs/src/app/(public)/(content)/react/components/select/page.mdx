@@ -48,3 +48,45 @@ import { Select } from '@base-ui-components/react/select';
   component="Select"
   parts="Root, Trigger, Value, Icon, Backdrop, Portal, Positioner, Popup, Arrow, Item, ItemText, ItemIndicator, Group, GroupLabel, ScrollUpArrow, ScrollDownArrow, Separator"
 />
+
+## Formatting the value
+
+By default, the `Select.Value` component will render the raw `value`.
+To render a formatted value, a lookup map is needed to match the value to its `Select.ItemText` (`labels` below):
+
+```jsx title="Lookup map"
+const labels = new Map([
+  [null, 'Select value'],
+  [1, 'One'],
+  [2, 'Two'],
+  [3, 'Three'],
+]);
+
+<Select.Value>{(value) => labels.get(value)}</Select.Value>;
+```
+
+If you have a data structure, you can pass an `items` prop to `Select.Root`, which will be used to render the matching label for the `Select.Value` component instead.
+
+```jsx title="Record data structure" {7}
+const items = {
+  null: 'Select value',
+  1: 'One',
+  ...
+};
+
+<Select.Root items={items}>
+  <Select.Value />
+</Select.Root>;
+```
+
+```jsx title="Array data structure" {7}
+const items = [
+  { value: null, label: 'Select value' },
+  { value: 1, label: 'One' },
+  ...
+];
+
+<Select.Root items={items}>
+  <Select.Value />
+</Select.Root>;
+```

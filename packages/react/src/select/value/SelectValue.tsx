@@ -16,13 +16,7 @@ export const SelectValue = React.forwardRef(function SelectValue(
   componentProps: SelectValue.Props,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
-  const {
-    className,
-    render,
-    children: childrenProp,
-    placeholder,
-    ...elementProps
-  } = componentProps;
+  const { className, render, children: childrenProp, ...elementProps } = componentProps;
 
   const { store, valueRef } = useSelectRootContext();
   const value = useSelector(store, selectors.value);
@@ -38,12 +32,10 @@ export const SelectValue = React.forwardRef(function SelectValue(
     return null;
   }, [items, value]);
 
-  const label = labelFromItems ?? (value != null ? value : placeholder);
-
   const children =
     typeof childrenProp === 'function'
-      ? (childrenProp(value) ?? placeholder)
-      : (childrenProp ?? label);
+      ? childrenProp(value)
+      : (childrenProp ?? labelFromItems ?? value);
 
   const element = useRenderElement('span', componentProps, {
     ref: [forwardedRef, valueRef],
@@ -65,10 +57,6 @@ export namespace SelectValue {
      * ```
      */
     children?: React.ReactNode | ((value: any) => React.ReactNode);
-    /**
-     * A placeholder to display when no value is chosen (`value == null`).
-     */
-    placeholder?: React.ReactNode;
   }
 
   export interface State {}
