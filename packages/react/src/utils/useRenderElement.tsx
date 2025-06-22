@@ -82,15 +82,18 @@ function useRenderElementProps<
   // SAFETY: The `useForkRef` functions use a single hook to store the same value,
   // switching between them at runtime is safe. If this assertion fails, React will
   // throw at runtime anyway.
+  // This also skips the `useForkRef` call on the server, which is fine because
+  // refs are not used on the server side.
   /* eslint-disable react-hooks/rules-of-hooks */
-  if (!enabled) {
-    useForkRef(null, null);
-  } else if (Array.isArray(ref)) {
-    outProps.ref = useForkRefN([outProps.ref, getChildRef(renderProp), ...ref]);
-  } else {
-    outProps.ref = useForkRef(outProps.ref, getChildRef(renderProp), ref);
+  if (typeof document !== 'undefined') {
+    if (!enabled) {
+      useForkRef(null, null);
+    } else if (Array.isArray(ref)) {
+      outProps.ref = useForkRefN(outProps.ref, getChildRef(renderProp), ...ref);
+    } else {
+      outProps.ref = useForkRef(outProps.ref, getChildRef(renderProp), ref);
+    }
   }
-  /* eslint-enable react-hooks/rules-of-hooks */
 
   if (!enabled) {
     return EMPTY_OBJECT;
