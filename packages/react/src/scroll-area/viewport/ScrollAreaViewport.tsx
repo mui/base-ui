@@ -12,6 +12,7 @@ import { clamp } from '../../utils/clamp';
 import { styleDisableScrollbar } from '../../utils/styles';
 import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { onVisible } from '../utils/onVisible';
+import { useTimeout } from '../../utils/useTimeout';
 
 /**
  * The actual scrollable container of the scroll area.
@@ -44,6 +45,7 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
   const direction = useDirection();
 
   const programmaticScrollRef = React.useRef(true);
+  const scrollEndTimeout = useTimeout();
 
   const computeThumbPosition = useEventCallback(() => {
     const viewportEl = viewportRef.current;
@@ -227,7 +229,15 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
         });
       }
 
-      programmaticScrollRef.current = true;
+      // Debounce the restoration of the programmatic flag so that it only
+      // flips back to `true` once scrolling has come to a rest. This ensures
+      // that momentum scrolling (where no further user-interaction events fire)
+      // is still treated as user-driven.
+      // 100 ms without scroll events ≈ scroll end
+      // https://developer.mozilla.org/en-US/docs/Web/API/Element/scrollend_event
+      scrollEndTimeout.start(100, () => {
+        programmaticScrollRef.current = true;
+      });
     },
     onWheel: handleUserInteraction,
     onTouchMove: handleUserInteraction,

@@ -113,7 +113,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
         label: '',
         open,
         mounted,
-        typeaheadReady: false,
+        forceMount: false,
         transitionStatus,
         items,
         touchModality: false,
@@ -127,6 +127,14 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
         scrollDownArrowVisible: false,
       }),
   ).current;
+
+  const initialValueRef = React.useRef(value);
+  useModernLayoutEffect(() => {
+    // Ensure the values and labels are registered for programmatic value changes.
+    if (value !== initialValueRef.current) {
+      store.set('forceMount', true);
+    }
+  }, [store, value]);
 
   const activeIndex = useSelector(store, selectors.activeIndex);
   const selectedIndex = useSelector(store, selectors.selectedIndex);

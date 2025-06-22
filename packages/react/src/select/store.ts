@@ -15,7 +15,7 @@ export type State = {
 
   open: boolean;
   mounted: boolean;
-  typeaheadReady: boolean;
+  forceMount: boolean;
   transitionStatus: TransitionStatus;
   touchModality: boolean;
 
@@ -43,7 +43,7 @@ export const selectors = {
 
   open: createSelector((state: State) => state.open),
   mounted: createSelector((state: State) => state.mounted),
-  typeaheadReady: createSelector((state: State) => state.typeaheadReady),
+  forceMount: createSelector((state: State) => state.forceMount),
   transitionStatus: createSelector((state: State) => state.transitionStatus),
   touchModality: createSelector((state: State) => state.touchModality),
 
