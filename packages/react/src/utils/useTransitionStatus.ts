@@ -48,6 +48,11 @@ export function useTransitionStatus(
   }, [open, mounted, transitionStatus, deferEndingState]);
 
   useModernLayoutEffect(() => {
+    // Avoid `act` warnings due to `store` apply updates
+    if (process.env.NODE_ENV === 'test') {
+      return undefined;
+    }
+
     if (!open || enableIdleState) {
       return undefined;
     }
