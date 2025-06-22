@@ -6,7 +6,9 @@ export default function ExampleSelect() {
   return (
     <Select.Root defaultValue="af">
       <Select.Trigger className={styles.Select}>
-        <Select.Value placeholder="Afghanistan" />
+        <Select.Value>
+          {(value) => countries.find((country) => country.code === value)?.name}
+        </Select.Value>
         <Select.Icon className={styles.SelectIcon}>
           <ChevronUpDownIcon />
         </Select.Icon>

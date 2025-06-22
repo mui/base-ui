@@ -18,7 +18,7 @@ describe('<Select.Item />', () => {
     await render(
       <Select.Root>
         <Select.Trigger data-testid="trigger">
-          <Select.Value data-testid="value" placeholder="null" />
+          <Select.Value data-testid="value" />
         </Select.Trigger>
         <Select.Positioner data-testid="positioner">
           <Select.Item value="one">one</Select.Item>
@@ -30,7 +30,7 @@ describe('<Select.Item />', () => {
     const trigger = screen.getByTestId('trigger');
     const positioner = screen.getByTestId('positioner');
 
-    expect(value.textContent).to.equal('null');
+    expect(value.textContent).to.equal('');
 
     fireEvent.click(trigger);
 
@@ -49,7 +49,7 @@ describe('<Select.Item />', () => {
     const { user } = await render(
       <Select.Root>
         <Select.Trigger data-testid="trigger">
-          <Select.Value placeholder="value" />
+          <Select.Value />
         </Select.Trigger>
         <Select.Portal>
           <Select.Positioner>
@@ -85,7 +85,7 @@ describe('<Select.Item />', () => {
     const { user } = await render(
       <Select.Root>
         <Select.Trigger data-testid="trigger">
-          <Select.Value data-testid="value" placeholder="null" />
+          <Select.Value data-testid="value" />
         </Select.Trigger>
         <Select.Portal>
           <Select.Positioner>
@@ -114,7 +114,7 @@ describe('<Select.Item />', () => {
     await render(
       <Select.Root open>
         <Select.Trigger data-testid="trigger">
-          <Select.Value data-testid="value" placeholder="value" />
+          <Select.Value data-testid="value" />
         </Select.Trigger>
         <Select.Portal>
           <Select.Positioner>
@@ -139,7 +139,7 @@ describe('<Select.Item />', () => {
     await render(
       <Select.Root>
         <Select.Trigger data-testid="trigger">
-          <Select.Value data-testid="value" placeholder="value" />
+          <Select.Value data-testid="value" />
         </Select.Trigger>
         <Select.Portal>
           <Select.Positioner>
@@ -158,14 +158,14 @@ describe('<Select.Item />', () => {
     await flushMicrotasks();
 
     fireEvent.click(screen.getByText('two'));
-    expect(screen.getByTestId('value').textContent).to.equal('value');
+    expect(screen.getByTestId('value').textContent).to.equal('');
   });
 
   it('should focus the selected item upon opening the popup', async () => {
     const { user } = await render(
       <Select.Root>
         <Select.Trigger data-testid="trigger">
-          <Select.Value data-testid="value" placeholder="one" />
+          <Select.Value data-testid="value" />
         </Select.Trigger>
         <Select.Portal>
           <Select.Positioner>
