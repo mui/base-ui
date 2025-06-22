@@ -51,27 +51,29 @@ import { Select } from '@base-ui-components/react/select';
 
 ## Formatting the value
 
-By default, the `Select.Value` component will render the raw `value`.
-To render a formatted value, a lookup map is needed to match the value to its `Select.ItemText` (`labels` below):
+By default, the `Select.Value` component renders the raw `value`.
 
-```jsx title="Lookup map"
-const labels = new Map([
-  [null, 'Select value'],
-  [1, 'One'],
-  [2, 'Two'],
-  [3, 'Three'],
-]);
+Passing the `items` prop to `Select.Root` instead renders the matching label for the rendered value:
 
-<Select.Value>{(value) => labels.get(value)}</Select.Value>;
+```jsx title="items prop (Array)" "items"1,3
+const items = [
+  { value: null, label: 'Select theme' },
+  { value: 'system', label: 'System default' },
+  { value: 'light', label: 'Light' },
+  { value: 'dark', label: 'Dark' },
+];
+
+<Select.Root items={items}>
+  <Select.Value />
+</Select.Root>;
 ```
 
-If you have a data structure, you can pass an `items` prop to `Select.Root`, which will be used to render the matching label for the `Select.Value` component instead.
-
-```jsx title="Record data structure" {7}
+```jsx title="items prop (Record)" "items"1,3
 const items = {
-  null: 'Select value',
-  1: 'One',
-  ...
+  null: 'Select theme',
+  system: 'System default',
+  light: 'Light',
+  dark: 'Dark',
 };
 
 <Select.Root items={items}>
@@ -79,14 +81,20 @@ const items = {
 </Select.Root>;
 ```
 
-```jsx title="Array data structure" {7}
-const items = [
-  { value: null, label: 'Select value' },
-  { value: 1, label: 'One' },
-  ...
-];
+A function can also be passed as the `children` prop of `Select.Value` to render a formatted value:
 
-<Select.Root items={items}>
-  <Select.Value />
-</Select.Root>;
+```jsx title="Lookup map" {8-12}
+const items = {
+  monospace: 'Monospace',
+  serif: 'Serif',
+  'san-serif': 'Sans-serif',
+};
+
+<Select.Value>
+  {(value: keyof typeof items) => (
+    <span style={{ fontFamily: value }}>
+      {items[value]}
+    </span>
+  )}
+</Select.Value>;
 ```
