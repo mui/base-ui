@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-shadow */
 import * as React from 'react';
-import type { Placement } from '../types';
+import type { Placement } from '../../src/floating-ui-react/types';
 import {
   autoUpdate,
   flip,
@@ -19,7 +19,7 @@ import {
   useHover,
   useInteractions,
   useRole,
-} from '../index';
+} from '../../src/floating-ui-react';
 
 /** @internal */
 export function Main() {

@@ -1,7 +1,7 @@
 import * as React from 'react';
 import c from 'clsx';
-import { useId } from '../../utils/useId';
-import type { Placement } from '../types';
+import { useId } from '../../src/utils/useId';
+import type { Placement } from '../../src/floating-ui-react/types';
 import {
   arrow,
   autoUpdate,
@@ -15,7 +15,7 @@ import {
   useInteractions,
   useListNavigation,
   useRole,
-} from '../index';
+} from '../../src/floating-ui-react';
 import { Button } from './Button';
 
 const emojis = [

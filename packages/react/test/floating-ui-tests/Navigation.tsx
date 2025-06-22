@@ -13,8 +13,8 @@ import {
   useFocus,
   useHover,
   useInteractions,
-} from '../index';
-import { useForkRef } from '../../utils';
+} from '../../src/floating-ui-react';
+import { useForkRef } from '../../src/utils/useForkRef';
 
 interface SubItemProps {
   label: string;

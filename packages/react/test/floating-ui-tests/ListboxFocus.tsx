@@ -1,7 +1,13 @@
 import * as React from 'react';
-import { CompositeList } from '../../composite/list/CompositeList';
-import { useCompositeListItem } from '../../composite/list/useCompositeListItem';
-import { useFloating, useInteractions, useListNavigation, useTypeahead, useRole } from '../index';
+import { CompositeList } from '../../src/composite/list/CompositeList';
+import { useCompositeListItem } from '../../src/composite/list/useCompositeListItem';
+import {
+  useFloating,
+  useInteractions,
+  useListNavigation,
+  useTypeahead,
+  useRole,
+} from '../../src/floating-ui-react';
 
 interface SelectContextValue {
   activeIndex: number | null;

@@ -1,8 +1,8 @@
 import c from 'clsx';
 import * as React from 'react';
-import { useForkRefN } from '../../utils/useForkRef';
-import { CompositeList } from '../../composite/list/CompositeList';
-import { useCompositeListItem } from '../../composite/list/useCompositeListItem';
+import { useForkRefN } from '../../src/utils/useForkRef';
+import { CompositeList } from '../../src/composite/list/CompositeList';
+import { useCompositeListItem } from '../../src/composite/list/useCompositeListItem';
 import {
   autoUpdate,
   flip,
@@ -25,7 +25,7 @@ import {
   useRole,
   useTypeahead,
   useFocus,
-} from '../index';
+} from '../../src/floating-ui-react';
 
 type MenuContextType = {
   getItemProps: ReturnType<typeof useInteractions>['getItemProps'];

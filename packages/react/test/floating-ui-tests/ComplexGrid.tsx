@@ -6,7 +6,7 @@ import {
   useFloating,
   useInteractions,
   useListNavigation,
-} from '../index';
+} from '../../src/floating-ui-react';
 
 interface Props {
   orientation?: 'horizontal' | 'both';
