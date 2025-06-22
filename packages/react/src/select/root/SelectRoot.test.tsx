@@ -168,7 +168,7 @@ describe('<Select.Root />', () => {
       const { setProps } = await render(
         <Select.Root value="b">
           <Select.Trigger data-testid="trigger">
-            <Select.Value placeholder="b" />
+            <Select.Value />
           </Select.Trigger>
           <Select.Portal>
             <Select.Positioner>
