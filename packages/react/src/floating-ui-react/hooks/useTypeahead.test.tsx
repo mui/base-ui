@@ -5,7 +5,7 @@ import { vi } from 'vitest';
 
 import { useClick, useFloating, useInteractions, useTypeahead } from '../index';
 import type { UseTypeaheadProps } from './useTypeahead';
-import { Main } from '../test-components/Menu';
+import { Main } from '../../../test/floating-ui-tests/Menu';
 
 /* eslint-disable testing-library/no-unnecessary-act */
 

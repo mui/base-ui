@@ -5,13 +5,13 @@ import { vi, it, describe } from 'vitest';
 
 import { useClick, useDismiss, useFloating, useInteractions, useListNavigation } from '../index';
 import type { UseListNavigationProps } from '../types';
-import { Main as ComplexGrid } from '../test-components/ComplexGrid';
-import { Main as Grid } from '../test-components/Grid';
-import { Main as EmojiPicker } from '../test-components/EmojiPicker';
-import { Main as ListboxFocus } from '../test-components/ListboxFocus';
-import { Main as NestedMenu } from '../test-components/Menu';
-import { HorizontalMenu } from '../test-components/MenuOrientation';
-import { Menu, MenuItem } from '../test-components/MenuVirtual';
+import { Main as ComplexGrid } from '../../../test/floating-ui-tests/ComplexGrid';
+import { Main as Grid } from '../../../test/floating-ui-tests/Grid';
+import { Main as EmojiPicker } from '../../../test/floating-ui-tests/EmojiPicker';
+import { Main as ListboxFocus } from '../../../test/floating-ui-tests/ListboxFocus';
+import { Main as NestedMenu } from '../../../test/floating-ui-tests/Menu';
+import { HorizontalMenu } from '../../../test/floating-ui-tests/MenuOrientation';
+import { Menu, MenuItem } from '../../../test/floating-ui-tests/MenuVirtual';
 import { isJSDOM } from '../../utils/detectBrowser';
 
 /* eslint-disable testing-library/no-unnecessary-act */

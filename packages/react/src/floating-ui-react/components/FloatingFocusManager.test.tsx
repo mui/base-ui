@@ -33,8 +33,8 @@ import {
 } from '../index';
 import type { FloatingFocusManagerProps } from './FloatingFocusManager';
 import { isJSDOM } from '../../utils/detectBrowser';
-import { Main as MenuVirtual } from '../test-components/MenuVirtual';
-import { Main as Navigation } from '../test-components/Navigation';
+import { Main as MenuVirtual } from '../../../test/floating-ui-tests/MenuVirtual';
+import { Main as Navigation } from '../../../test/floating-ui-tests/Navigation';
 
 beforeAll(() => {
   vi.spyOn(window, 'requestAnimationFrame').mockImplementation(
