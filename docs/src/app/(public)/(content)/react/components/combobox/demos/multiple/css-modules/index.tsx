@@ -19,8 +19,7 @@ export default function MultipleCombobox() {
 
   return (
     <Combobox.Root
-      multiple
-      selectable
+      select="multiple"
       onValueChange={() => {
         setInputValue('');
       }}

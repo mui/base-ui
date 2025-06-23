@@ -48,7 +48,7 @@ export const ComboboxItem = React.memo(
 
     const {
       store,
-      selectable,
+      select,
       listRef,
       getItemProps,
       setOpen,
@@ -59,9 +59,11 @@ export const ComboboxItem = React.memo(
       keyboardActiveRef,
       allowActiveIndexSyncRef,
       onItemHighlighted,
-      multiple,
       readOnly,
     } = useComboboxRootContext();
+
+    const selectable = select !== 'none';
+    const multiple = select === 'multiple';
     const isRow = useComboboxRowContext();
 
     const active = useSelector(store, selectors.isActive, listItem.index);

@@ -44,12 +44,14 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
     setOpen,
     keyboardActiveRef,
     onItemHighlighted,
-    multiple,
+    select,
     disabled: comboboxDisabled,
     readOnly,
     fieldControlValidation,
     inputRef,
   } = useComboboxRootContext();
+
+  const multiple = select === 'multiple';
   const comboboxChipsContext = useComboboxChipsContext();
 
   const triggerProps = useSelector(store, selectors.triggerProps);

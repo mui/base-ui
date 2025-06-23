@@ -48,7 +48,7 @@ export default function ExamplePopoverCombobox() {
                 setValue(nextValue);
                 setPopoverOpen(false);
               }}
-              selectable
+              select="single"
             >
               <div className={styles.InputContainer}>
                 <Combobox.Input
