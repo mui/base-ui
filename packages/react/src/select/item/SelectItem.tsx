@@ -52,7 +52,6 @@ export const SelectItem = React.memo(
       valuesRef,
       registerSelectedItem,
       keyboardActiveRef,
-      events,
     } = useSelectRootContext();
 
     const active = useSelector(store, selectors.isActive, listItem.index);
@@ -109,7 +108,6 @@ export const SelectItem = React.memo(
       selectionRef,
       indexRef,
       keyboardActiveRef,
-      events,
       rootProps,
       elementProps,
       nativeButton,

@@ -1,5 +1,4 @@
 import * as React from 'react';
-import type { FloatingEvents } from '../../floating-ui-react';
 import type { HTMLProps } from '../../utils/types';
 import { useButton } from '../../use-button';
 import { mergeProps } from '../../merge-props';
@@ -20,7 +19,6 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
     selectionRef,
     indexRef,
     keyboardActiveRef,
-    events,
     elementProps,
     rootProps,
     nativeButton,
@@ -56,7 +54,7 @@ export function useSelectItem(params: useSelectItem.Parameters): useSelectItem.R
       },
       onMouseEnter() {
         if (!keyboardActiveRef.current && store.state.selectedIndex === null) {
-          events.emit('itemhover', ref.current);
+          store.set('activeIndex', indexRef.current);
         }
       },
       onMouseMove() {
@@ -180,7 +178,7 @@ export namespace useSelectItem {
     /**
      * Determines if the user is currently typing for typeahead matching.
      */
-    typingRef: React.MutableRefObject<boolean>;
+    typingRef: React.RefObject<boolean>;
     /**
      * The function to handle the selection of the item.
      */
@@ -188,7 +186,7 @@ export namespace useSelectItem {
     /**
      * The ref to the selection state of the item.
      */
-    selectionRef: React.MutableRefObject<{
+    selectionRef: React.RefObject<{
       allowSelectedMouseUp: boolean;
       allowUnselectedMouseUp: boolean;
       allowSelect: boolean;
@@ -198,7 +196,6 @@ export namespace useSelectItem {
      */
     indexRef: React.RefObject<number>;
     keyboardActiveRef: React.RefObject<boolean>;
-    events: FloatingEvents;
     elementProps: HTMLProps;
     rootProps: HTMLProps;
     nativeButton: boolean;
