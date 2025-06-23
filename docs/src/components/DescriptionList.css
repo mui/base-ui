@@ -2,12 +2,10 @@
   width: 100%;
   display: grid;
   grid-template-columns: auto;
-  /*padding: --spacing(3) --spacing(4);*/
   row-gap: --spacing(2);
 
   @media (--xs) {
     grid-template-columns: --spacing(48) auto;
-    /*padding: 0.25rem 0;*/
   }
 
   @media (--sm) {
@@ -25,12 +23,9 @@
   white-space: nowrap;
   word-break: keep-all;
   font-weight: var(--font-weight-bold);
-  color: var(--color-foreground);
-
-  /*margin-bottom: --spacing(1);*/
+  color: inherit;
 
   @media (--xs) {
-    color: revert-layer;
     font-weight: normal;
     padding: 0.5rem 0.75rem;
   }
@@ -52,8 +47,6 @@
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
-
-  /*margin-bottom: --spacing(3);*/
 
   @media (--xs) {
     padding: 0.5rem 0.75rem;

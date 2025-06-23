@@ -113,7 +113,7 @@ export async function PropsReferenceAccordion({
         Component props table
       </span>
       <Accordion.HeaderRow>
-        <Accordion.HeaderLabel className="max-xs:pl-[0.75rem]">Prop</Accordion.HeaderLabel>
+        <Accordion.HeaderLabel>Prop</Accordion.HeaderLabel>
         <Accordion.HeaderLabel className="max-xs:hidden">Type</Accordion.HeaderLabel>
       </Accordion.HeaderRow>
       {Object.keys(data).map(async (name, index) => {
@@ -125,7 +125,6 @@ export async function PropsReferenceAccordion({
         });
 
         const shortPropTypeName = getShortPropType(name, prop.type);
-        // const shortPropTypeName = 'Union';
 
         const ShortPropType = await createMdxComponent(`\`${shortPropTypeName}\``, {
           rehypePlugins: rehypeSyntaxHighlighting,
@@ -164,6 +163,7 @@ export async function PropsReferenceAccordion({
             <Accordion.Trigger
               index={index}
               aria-label={`prop: ${name}, type: ${shortPropTypeName} ${prop.default !== undefined ? `(default: ${prop.default})` : ''}`}
+              className="max-xs:gap-4 md:gap-4"
             >
               <TableCode className="text-navy">{name}</TableCode>
               {prop.type && (
@@ -193,7 +193,7 @@ export async function PropsReferenceAccordion({
                 <h5 id={`${name}-h5`} style={visuallyHidden} aria-hidden>
                   Details
                 </h5>
-                <DescriptionList.Root className="max-xs:p-4">
+                <DescriptionList.Root className="max-xs:p-4 xs:text-gray-600">
                   {PropDescription != null && (
                     <React.Fragment>
                       <DescriptionList.Term>Description</DescriptionList.Term>
