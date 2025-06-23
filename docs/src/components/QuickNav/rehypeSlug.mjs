@@ -1,6 +1,6 @@
 import { headingRank } from 'hast-util-heading-rank';
 import { toString } from 'hast-util-to-string';
-import { visit } from 'unist-util-visit';
+import { visit, EXIT } from 'unist-util-visit';
 
 // This is a fork of https://github.com/rehypejs/rehype-slug/blob/main/lib/index.js, but better
 
@@ -39,8 +39,12 @@ export function rehypeSlug(options) {
   return (tree) => {
     visit(tree, 'element', (node) => {
       if (headingRank(node) && !node.properties.id) {
+        if (headingRank(node) === 1 && toString(node) === 'Releases') {
+          return EXIT;
+        }
         node.properties.id = prefix + stringToUrl(toString(node));
       }
+      return undefined;
     });
   };
 }
@@ -49,7 +53,7 @@ export function rehypeSlug(options) {
  * Converts a string into a well-formatted URL material, taking into account common contractions
  * `"1. Here’s a wicked example & more." => "1-here-is-a-wicked-example-and-more"`
  */
-function stringToUrl(string) {
+export function stringToUrl(string) {
   return string
     .replace(/([a-z])('|’|‘)ll([^a-z])/gi, '$1-will$3') // "you'll, we'll" => "you-will, we-will"
     .replace(/won('|’|‘)t([^a-z])/gi, 'will-not$2') // "won't" => "will-not"
@@ -67,3 +71,7 @@ function stringToUrl(string) {
     .replace(/^-|-$/gi, '')
     .toLowerCase();
 }
+
+// https://semver.org/#is-there-a-suggested-regular-expression-regex-to-check-a-semver-string
+const SEMVER_PATTERN =
+  /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$/gm;
