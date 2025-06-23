@@ -3,7 +3,6 @@ import clsx from 'clsx';
 import { createMdxComponent } from 'docs/src/mdx/createMdxComponent';
 import { inlineMdxComponents } from 'docs/src/mdx-components';
 import { rehypeSyntaxHighlighting } from 'docs/src/syntax-highlighting';
-import { ReferenceTablePopover } from './ReferenceTablePopover';
 import type { AttributeDef } from './types';
 import * as Table from '../Table';
 import * as Accordion from '../Accordion';
@@ -61,6 +60,8 @@ export async function AttributesReferenceTable({ data, ...props }: AttributesRef
             <Table.ColumnHeader className="w-10 xs:w-2/3">
               <div className="sr-only xs:not-sr-only xs:contents">Description</div>
             </Table.ColumnHeader>
+            {/* A cell to maintain a layout consistent with the props table */}
+            <Table.ColumnHeader className="w-10 max-xs:hidden" aria-hidden role="presentation" />
           </Table.Row>
         </Table.Head>
         <Table.Body>
@@ -77,15 +78,8 @@ export async function AttributesReferenceTable({ data, ...props }: AttributesRef
                 <Table.RowHeader>
                   <TableCode className="text-navy">{name}</TableCode>
                 </Table.RowHeader>
-                <Table.Cell>
-                  <div className="hidden xs:contents">
-                    <AttributeDescription />
-                  </div>
-                  <div className="contents xs:hidden">
-                    <ReferenceTablePopover>
-                      <AttributeDescription />
-                    </ReferenceTablePopover>
-                  </div>
+                <Table.Cell colSpan={2}>
+                  <AttributeDescription />
                 </Table.Cell>
               </Table.Row>
             );

@@ -17,21 +17,25 @@
     background-color: var(--color-gray-50);
 
     @media (--xs) {
-      padding-inline: 0.75rem 0.5rem;
       display: grid;
-      grid-template-columns: 1fr 1fr calc(var(--spacing) * 10);
+      grid-template-columns: --spacing(48) 1fr --spacing(10);
+    }
+
+    @media (--sm) {
+      grid-template-columns: --spacing(56) 1fr --spacing(10);
     }
 
     @media (--md) {
-      grid-template-columns: 1fr 2fr calc(var(--spacing) * 10);
+      grid-template-columns: 1fr 2fr --spacing(10);
     }
   }
 
   .AccordionHeaderLabel {
-    padding-block: 0.5rem;
+    padding: 0.5rem 0.75rem;
     font-size: var(--text-sm);
     font-weight: var(--font-weight-medium);
     letter-spacing: -0.00625em;
+    color: var(--color-foreground);
   }
 
   .AccordionItem {
@@ -46,7 +50,6 @@
     display: flex;
     width: 100%;
     min-height: 2.25rem;
-    gap: 1rem;
     align-items: baseline;
     /* make padding match TableCell height */
     padding-block: 0.625rem;
@@ -84,11 +87,15 @@
     /* temporary because it's painful to do this in TW */
     @media (--xs) {
       display: grid;
-      grid-template-columns: 1fr 1fr calc(var(--spacing) * 10);
+      grid-template-columns: --spacing(48) 1fr --spacing(10);
+    }
+
+    @media (--sm) {
+      grid-template-columns: --spacing(56) 1fr --spacing(10);
     }
 
     @media (--md) {
-      grid-template-columns: 1fr 2fr calc(var(--spacing) * 10);
+      grid-template-columns: 1fr 2fr --spacing(10);
     }
   }
 
