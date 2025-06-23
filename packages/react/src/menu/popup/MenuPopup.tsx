@@ -108,7 +108,6 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
       modal={false}
       disabled={!mounted}
       returnFocus={finalFocus || returnFocus}
-      initialFocus={parent.type === 'menu' ? -1 : 0}
       restoreFocus
     >
       {element}

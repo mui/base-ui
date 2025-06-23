@@ -6,9 +6,9 @@ import {
   useFloatingRootContext,
   useInteractions,
   useListNavigation,
-} from '@floating-ui/react';
-import { contains, getTarget } from '@floating-ui/react/utils';
-import { useClick } from '../../utils/floating-ui/useClick';
+  useClick,
+} from '../../floating-ui-react';
+import { contains, getTarget } from '../../floating-ui-react/utils';
 import {
   BaseOpenChangeReason,
   translateOpenChangeReason,
