@@ -3,6 +3,7 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import {
   FloatingTree,
+  useClick,
   useDismiss,
   useFloatingRootContext,
   useFocus,
@@ -12,8 +13,7 @@ import {
   useRole,
   useTypeahead,
   safePolygon,
-} from '@floating-ui/react';
-import { useClick } from '../../utils/floating-ui/useClick';
+} from '../../floating-ui-react';
 import { MenuRootContext, useMenuRootContext } from './MenuRootContext';
 import { MenubarContext, useMenubarContext } from '../../menubar/MenubarContext';
 import { useTimeout } from '../../utils/useTimeout';
@@ -33,6 +33,7 @@ import {
   useContextMenuRootContext,
 } from '../../context-menu/root/ContextMenuRootContext';
 import { ownerDocument } from '../../utils/owner';
+import { useMenuSubmenuRootContext } from '../submenu-root/MenuSubmenuRootContext';
 
 const EMPTY_ARRAY: never[] = [];
 const EMPTY_REF = { current: false };
@@ -76,13 +77,14 @@ export const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
   const positionerRef = React.useRef<HTMLElement | null>(null);
   const stickIfOpenTimeout = useTimeout();
   const contextMenuContext = useContextMenuRootContext(true);
+  const isSubmenu = useMenuSubmenuRootContext();
 
   let parent: MenuParent;
   {
     const parentContext = useMenuRootContext(true);
     const menubarContext = useMenubarContext(true);
 
-    if (parentContext) {
+    if (isSubmenu && parentContext) {
       parent = {
         type: 'menu',
         context: parentContext,
@@ -577,8 +579,6 @@ export namespace MenuRoot {
     closeDelay?: number;
     /**
      * Whether the menu should also open when the trigger is hovered.
-     *
-     * Defaults to `true` for nested menus.
      */
     openOnHover?: boolean;
     /**

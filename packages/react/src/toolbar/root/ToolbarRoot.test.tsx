@@ -115,7 +115,6 @@ describe('<Toolbar.Root />', () => {
       expect(element).to.have.attribute('data-disabled');
       expect(element).to.have.attribute('aria-disabled', 'true');
       expect(element).toHaveFocus();
-      expect(element).toHaveFocus();
     }
 
     it('toolbar items can be focused when disabled by default', async () => {
@@ -152,7 +151,7 @@ describe('<Toolbar.Root />', () => {
 
       // loop to the beginning
       await user.keyboard('[ArrowRight]');
-      expect(button1).to.have.attribute('data-highlighted');
+      expect(button1).to.have.attribute('tabindex', '0');
 
       await user.keyboard('[ArrowLeft]');
       expectFocusedWhenDisabled(input);
@@ -192,7 +191,7 @@ describe('<Toolbar.Root />', () => {
 
       // loop to the beginning
       await user.keyboard('[ArrowRight]');
-      expect(button1).to.have.attribute('data-highlighted');
+      expect(button1).to.have.attribute('tabindex', '0');
 
       await user.keyboard('[ArrowLeft]');
       expectFocusedWhenDisabled(input);

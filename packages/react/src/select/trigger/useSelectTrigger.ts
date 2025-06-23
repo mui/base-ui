@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { contains } from '@floating-ui/react/utils';
+import { contains } from '../../floating-ui-react/utils';
 import { useButton } from '../../use-button/useButton';
 import type { HTMLProps } from '../../utils/types';
 import { mergeProps } from '../../merge-props';
@@ -97,13 +97,13 @@ export function useSelectTrigger(
           setOpen(false, event.nativeEvent, 'focus-out');
         }
 
-        // Saves a re-render on initial click: `typeaheadReady === true` mounts
+        // Saves a re-render on initial click: `forceMount === true` mounts
         // the items before `open === true`. We could sync those cycles better
         // without a timeout, but this is enough for now.
         //
         // XXX: might be causing `act()` warnings.
         timeoutFocus.start(0, () => {
-          store.set('typeaheadReady', true);
+          store.set('forceMount', true);
         });
       },
       onBlur() {

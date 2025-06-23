@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
-import { contains } from '@floating-ui/react/utils';
-import { useFloatingTree } from '@floating-ui/react';
+import { contains } from '../../floating-ui-react/utils';
+import { useFloatingTree } from '../../floating-ui-react/index';
 import { CompositeItem } from '../../composite/item/CompositeItem';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { pressableTriggerOpenStateMapping } from '../../utils/popupStateMapping';
@@ -65,13 +65,17 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
     }
   }, [allowMouseUpTriggerRef, open, parent.type]);
 
-  const handleMouseUp = useEventCallback((mouseEvent: MouseEvent) => {
+  const handleDocumentMouseUp = useEventCallback((mouseEvent: MouseEvent) => {
     if (!triggerRef.current) {
       return;
     }
 
     allowMouseUpTriggerTimeout.clear();
     allowMouseUpTriggerRef.current = false;
+
+    if (!allowMouseUpTriggerRef.current) {
+      return;
+    }
 
     const mouseUpTarget = mouseEvent.target as Element | null;
 
@@ -100,9 +104,9 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
   React.useEffect(() => {
     if (open && lastOpenChangeReason === 'trigger-hover') {
       const doc = ownerDocument(triggerRef.current);
-      doc.addEventListener('mouseup', handleMouseUp, { once: true });
+      doc.addEventListener('mouseup', handleDocumentMouseUp, { once: true });
     }
-  }, [open, handleMouseUp, lastOpenChangeReason]);
+  }, [open, handleDocumentMouseUp, lastOpenChangeReason]);
 
   const getTriggerProps = React.useCallback(
     (externalProps?: HTMLProps): HTMLProps => {
@@ -121,7 +125,7 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
             });
 
             const doc = ownerDocument(event.currentTarget);
-            doc.addEventListener('mouseup', handleMouseUp, { once: true });
+            doc.addEventListener('mouseup', handleDocumentMouseUp, { once: true });
           },
         },
         externalProps,
@@ -134,7 +138,7 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
       open,
       allowMouseUpTriggerRef,
       allowMouseUpTriggerTimeout,
-      handleMouseUp,
+      handleDocumentMouseUp,
     ],
   );
 

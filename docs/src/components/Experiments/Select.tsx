@@ -9,7 +9,9 @@ export function Select(props: Select.Props) {
   return (
     <BaseSelect.Root value={value} onValueChange={onChange}>
       <BaseSelect.Trigger {...otherProps} className={clsx(classes.Select, otherProps.className)}>
-        <BaseSelect.Value placeholder="Select an option" />
+        <BaseSelect.Value placeholder="Select an option">
+          {(label, val) => val ?? label}
+        </BaseSelect.Value>
         <BaseSelect.Icon className={classes.SelectIcon}>
           <ChevronUpDownIcon />
         </BaseSelect.Icon>

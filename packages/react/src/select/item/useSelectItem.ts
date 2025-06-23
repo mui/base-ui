@@ -1,5 +1,5 @@
 import * as React from 'react';
-import type { FloatingEvents } from '@floating-ui/react';
+import type { FloatingEvents } from '../../floating-ui-react';
 import type { HTMLProps } from '../../utils/types';
 import { useButton } from '../../use-button';
 import { mergeProps } from '../../merge-props';

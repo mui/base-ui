@@ -1,6 +1,6 @@
 import * as React from 'react';
-import { useFloatingRootContext, FloatingRootContext } from '@floating-ui/react';
 import type { Timeout } from '../../utils/useTimeout';
+import { useFloatingRootContext, type FloatingRootContext } from '../../floating-ui-react';
 import type { SelectStore } from '../store';
 import type { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
 import type { HTMLProps } from '../../utils/types';

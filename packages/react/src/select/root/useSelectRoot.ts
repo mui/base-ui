@@ -1,5 +1,6 @@
 import * as React from 'react';
 import {
+  useClick,
   useDismiss,
   useFloatingRootContext,
   useInteractions,
@@ -7,8 +8,7 @@ import {
   useRole,
   useTypeahead,
   FloatingRootContext,
-} from '@floating-ui/react';
-import { useClick } from '../../utils/floating-ui/useClick';
+} from '../../floating-ui-react';
 import { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { useBaseUiId } from '../../utils/useBaseUiId';
@@ -114,7 +114,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
         label: '',
         open,
         mounted,
-        typeaheadReady: false,
+        forceMount: false,
         transitionStatus,
         touchModality: false,
         activeIndex: null,
@@ -125,10 +125,16 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
         positionerElement: null,
         scrollUpArrowVisible: false,
         scrollDownArrowVisible: false,
-        controlledItemAnchor: false,
-        alignItemWithTriggerActive: false,
       }),
   ).current;
+
+  const initialValueRef = React.useRef(value);
+  useModernLayoutEffect(() => {
+    // Ensure the values and labels are registered for programmatic value changes.
+    if (value !== initialValueRef.current) {
+      store.set('forceMount', true);
+    }
+  }, [store, value]);
 
   const activeIndex = useSelector(store, selectors.activeIndex);
   const selectedIndex = useSelector(store, selectors.selectedIndex);

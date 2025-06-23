@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { FloatingFocusManager } from '@floating-ui/react';
+import { FloatingFocusManager } from '../../floating-ui-react';
 import { useDialogPopup } from './useDialogPopup';
 import { useDialogRootContext } from '../root/DialogRootContext';
 import { useRenderElement } from '../../utils/useRenderElement';
@@ -72,9 +72,8 @@ export const DialogPopup = React.forwardRef(function DialogPopup(
 
   const mergedRef = useForkRef(forwardedRef, popupRef);
 
-  const { getRootProps, resolvedInitialFocus } = useDialogPopup({
+  const { popupProps, resolvedInitialFocus } = useDialogPopup({
     descriptionElementId,
-    getPopupProps,
     initialFocus,
     modal,
     mounted,
@@ -100,13 +99,14 @@ export const DialogPopup = React.forwardRef(function DialogPopup(
   const element = useRenderElement('div', componentProps, {
     state,
     props: [
+      getPopupProps(),
+      popupProps,
       {
         style: {
           [DialogPopupCssVars.nestedDialogs]: nestedOpenDialogCount,
         } as React.CSSProperties,
       },
       elementProps,
-      getRootProps,
     ],
     customStyleHookMapping,
   });

@@ -9,7 +9,7 @@ import {
   useFloatingTree,
   useHover,
   useInteractions,
-} from '@floating-ui/react';
+} from '../../floating-ui-react';
 import {
   contains,
   getNextTabbable,
@@ -17,7 +17,7 @@ import {
   getTarget,
   isOutsideEvent,
   stopEvent,
-} from '@floating-ui/react/utils';
+} from '../../floating-ui-react/utils';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useNavigationMenuItemContext } from '../item/NavigationMenuItemContext';
@@ -31,7 +31,7 @@ import {
   translateOpenChangeReason,
 } from '../../utils/translateOpenChangeReason';
 import { PATIENT_CLICK_THRESHOLD } from '../../utils/constants';
-import { FocusGuard } from '../../toast/viewport/FocusGuard';
+import { FocusGuard } from '../../utils/FocusGuard';
 import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { visuallyHidden } from '../../utils/visuallyHidden';
 import { CompositeItem } from '../../composite/item/CompositeItem';
@@ -40,6 +40,9 @@ import { isOutsideMenuEvent } from '../utils/isOutsideMenuEvent';
 import { useTimeout } from '../../utils/useTimeout';
 import { useAnimationFrame } from '../../utils/useAnimationFrame';
 import { useLatestRef } from '../../utils/useLatestRef';
+import { useAnimationsFinished } from '../../utils/useAnimationsFinished';
+import { NavigationMenuPopupCssVars } from '../popup/NavigationMenuPopupCssVars';
+import { NavigationMenuPositionerCssVars } from '../positioner/NavigationMenuPositionerCssVars';
 
 const TRIGGER_IDENTIFIER = 'data-navigation-menu-trigger';
 
@@ -98,10 +101,10 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
       return;
     }
 
-    popupElement.style.removeProperty('--popup-width');
-    popupElement.style.removeProperty('--popup-height');
-    positionerElement.style.removeProperty('--positioner-width');
-    positionerElement.style.removeProperty('--positioner-height');
+    popupElement.style.removeProperty(NavigationMenuPopupCssVars.popupWidth);
+    popupElement.style.removeProperty(NavigationMenuPopupCssVars.popupHeight);
+    positionerElement.style.removeProperty(NavigationMenuPositionerCssVars.positionerWidth);
+    positionerElement.style.removeProperty(NavigationMenuPositionerCssVars.positionerHeight);
 
     const nextWidth = popupElement.offsetWidth;
     const nextHeight = popupElement.offsetHeight;
@@ -111,18 +114,76 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
       currentHeight = nextHeight;
     }
 
-    popupElement.style.setProperty('--popup-width', `${currentWidth}px`);
-    popupElement.style.setProperty('--popup-height', `${currentHeight}px`);
-    positionerElement.style.setProperty('--positioner-width', `${nextWidth}px`);
-    positionerElement.style.setProperty('--positioner-height', `${nextHeight}px`);
+    popupElement.style.setProperty(NavigationMenuPopupCssVars.popupWidth, `${currentWidth}px`);
+    popupElement.style.setProperty(NavigationMenuPopupCssVars.popupHeight, `${currentHeight}px`);
+    positionerElement.style.setProperty(
+      NavigationMenuPositionerCssVars.positionerWidth,
+      `${nextWidth}px`,
+    );
+    positionerElement.style.setProperty(
+      NavigationMenuPositionerCssVars.positionerHeight,
+      `${nextHeight}px`,
+    );
 
     sizeFrame1.request(() => {
       sizeFrame2.request(() => {
-        popupElement.style.setProperty('--popup-width', `${nextWidth}px`);
-        popupElement.style.setProperty('--popup-height', `${nextHeight}px`);
+        popupElement.style.setProperty(NavigationMenuPopupCssVars.popupWidth, `${nextWidth}px`);
+        popupElement.style.setProperty(NavigationMenuPopupCssVars.popupHeight, `${nextHeight}px`);
       });
     });
   });
+
+  const setAutoSizes = useEventCallback(() => {
+    if (!popupElement) {
+      return;
+    }
+
+    popupElement.style.setProperty(NavigationMenuPopupCssVars.popupWidth, 'auto');
+    popupElement.style.setProperty(NavigationMenuPopupCssVars.popupHeight, 'auto');
+  });
+
+  const runOnceAnimationsFinish = useAnimationsFinished({ current: popupElement }, value);
+
+  useModernLayoutEffect(() => {
+    if (!positionerElement || !popupElement || !open) {
+      return undefined;
+    }
+
+    sizeFrame1.request(() => {
+      sizeFrame2.request(setAutoSizes);
+    });
+    return () => {
+      sizeFrame1.cancel();
+      sizeFrame2.cancel();
+    };
+  }, [open, popupElement, positionerElement, sizeFrame1, sizeFrame2, setAutoSizes]);
+
+  useModernLayoutEffect(() => {
+    if (!positionerElement || !popupElement || !value) {
+      return undefined;
+    }
+
+    const ac = new AbortController();
+    sizeFrame1.request(() => {
+      sizeFrame2.request(() => {
+        runOnceAnimationsFinish(setAutoSizes, ac.signal);
+      });
+    });
+
+    return () => {
+      sizeFrame1.cancel();
+      sizeFrame2.cancel();
+      ac.abort();
+    };
+  }, [
+    value,
+    popupElement,
+    positionerElement,
+    runOnceAnimationsFinish,
+    sizeFrame1,
+    sizeFrame2,
+    setAutoSizes,
+  ]);
 
   React.useEffect(() => {
     if (!open) {
@@ -165,6 +226,25 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
 
     if (!nextOpen && value !== itemValue) {
       return;
+    }
+
+    if (!nextOpen && popupElement && positionerElement) {
+      popupElement.style.setProperty(
+        NavigationMenuPopupCssVars.popupWidth,
+        `${popupElement.offsetWidth}px`,
+      );
+      popupElement.style.setProperty(
+        NavigationMenuPopupCssVars.popupHeight,
+        `${popupElement.offsetHeight}px`,
+      );
+      positionerElement.style.setProperty(
+        NavigationMenuPositionerCssVars.positionerWidth,
+        `${positionerElement.offsetWidth}px`,
+      );
+      positionerElement.style.setProperty(
+        NavigationMenuPositionerCssVars.positionerHeight,
+        `${positionerElement.offsetHeight}px`,
+      );
     }
 
     function changeState() {

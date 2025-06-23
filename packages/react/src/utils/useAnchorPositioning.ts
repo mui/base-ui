@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { getSide, getAlignment, type Rect, getSideAxis } from '@floating-ui/utils';
 import {
   autoUpdate,
   flip,
@@ -20,8 +21,7 @@ import {
   type MiddlewareState,
   type AutoUpdateOptions,
   type Middleware,
-} from '@floating-ui/react';
-import { getSide, getAlignment, type Rect, getSideAxis } from '@floating-ui/utils';
+} from '../floating-ui-react/index';
 import { useModernLayoutEffect } from './useModernLayoutEffect';
 import { useDirection } from '../direction-provider/DirectionContext';
 import { useLatestRef } from './useLatestRef';
@@ -376,9 +376,12 @@ export function useAnchorPositioning(
     const resolvedAnchor = typeof anchorValue === 'function' ? anchorValue() : anchorValue;
     const unwrappedElement =
       (isRef(resolvedAnchor) ? resolvedAnchor.current : resolvedAnchor) || null;
+    const finalAnchor = unwrappedElement || null;
 
-    refs.setPositionReference(unwrappedElement);
-    registeredPositionReferenceRef.current = unwrappedElement;
+    if (finalAnchor !== registeredPositionReferenceRef.current) {
+      refs.setPositionReference(finalAnchor);
+      registeredPositionReferenceRef.current = finalAnchor;
+    }
   }, [mounted, refs, anchorDep, anchorValueRef]);
 
   React.useEffect(() => {

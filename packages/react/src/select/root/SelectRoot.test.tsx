@@ -163,6 +163,33 @@ describe('<Select.Root />', () => {
       expect(onValueChange.callCount).to.equal(0);
       expect(trigger).to.have.text('a');
     });
+
+    it('updates <Select.Value /> label when the value prop changes before the popup opens', async () => {
+      const { setProps } = await render(
+        <Select.Root value="b">
+          <Select.Trigger data-testid="trigger">
+            <Select.Value placeholder="b" />
+          </Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup>
+                <Select.Item value="a">a</Select.Item>
+                <Select.Item value="b">b</Select.Item>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+
+      expect(trigger).to.have.text('b');
+
+      await setProps({ value: 'a' });
+      await flushMicrotasks();
+
+      expect(trigger).to.have.text('a');
+    });
   });
 
   describe('prop: onValueChange', () => {
@@ -320,12 +347,10 @@ describe('<Select.Root />', () => {
 
     const trigger = screen.getByTestId('trigger');
 
-    fireEvent.click(trigger);
-
+    fireEvent.change(container.querySelector('[name="select"]')!, { target: { value: 'b' } });
     await flushMicrotasks();
 
-    fireEvent.change(container.querySelector('[name="select"]')!, { target: { value: 'b' } });
-
+    fireEvent.click(trigger);
     await flushMicrotasks();
 
     expect(screen.getByRole('option', { name: 'b', hidden: false })).to.have.attribute(
@@ -1213,6 +1238,38 @@ describe('<Select.Root />', () => {
         'aria-labelledby',
         screen.getByTestId('label').id,
       );
+    });
+
+    it('Field.Label links to hidden input and focuses trigger', async () => {
+      const { container, user } = await render(
+        <Field.Root>
+          <Field.Label data-testid="label">Font</Field.Label>
+          <Select.Root>
+            <Select.Trigger data-testid="trigger">
+              <Select.Value placeholder="Select font" />
+            </Select.Trigger>
+            <Select.Portal>
+              <Select.Positioner>
+                <Select.Popup>
+                  <Select.Item value="sans">Sans-serif</Select.Item>
+                  <Select.Item value="serif">Serif</Select.Item>
+                </Select.Popup>
+              </Select.Positioner>
+            </Select.Portal>
+          </Select.Root>
+        </Field.Root>,
+      );
+
+      const label = screen.getByTestId<HTMLLabelElement>('label');
+      const trigger = screen.getByTestId('trigger');
+      const hiddenInput = container.querySelector('input[type="text"]');
+
+      expect(label).to.have.attribute('for', hiddenInput?.id);
+      expect(trigger).not.to.have.attribute('id', label?.htmlFor);
+
+      await user.click(label);
+
+      expect(trigger).toHaveFocus();
     });
 
     it('Field.Description', async () => {

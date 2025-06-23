@@ -5,6 +5,10 @@ import chai from 'chai';
 import chaiDom from 'chai-dom';
 import chaiPlugin from '@mui/internal-test-utils/chaiPlugin';
 
+import '@testing-library/jest-dom/vitest';
+
+function NOOP() {}
+
 declare global {
   var before: typeof beforeAll;
   var after: typeof afterAll;
@@ -54,10 +58,12 @@ if (isVitestJsdom) {
   // @ts-expect-error
   globalThis.window.Touch = Touch;
 
-  globalThis.window.scrollTo = () => {};
+  globalThis.window.scrollTo = NOOP;
 
   globalThis.requestAnimationFrame = (cb) => {
     setTimeout(() => cb(0), 0);
     return 0;
   };
+
+  Element.prototype.scrollTo ??= NOOP;
 }

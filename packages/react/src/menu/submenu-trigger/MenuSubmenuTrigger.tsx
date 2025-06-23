@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useFloatingTree } from '@floating-ui/react';
+import { useFloatingTree } from '../../floating-ui-react';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { useBaseUiId } from '../../utils/useBaseUiId';
@@ -41,7 +41,7 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
   } = useMenuRootContext();
 
   if (parent.type !== 'menu') {
-    throw new Error('Base UI: SubmenuTrigger must be placed in a nested Menu.');
+    throw new Error('Base UI: <Menu.SubmenuTrigger> must be placed in <Menu.SubmenuRoot>.');
   }
 
   const parentMenuContext = parent.context;
