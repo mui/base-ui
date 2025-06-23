@@ -412,8 +412,6 @@ export function useListNavigation(
     }
 
     if (activeIndex == null) {
-      forceSyncFocusRef.current = false;
-
       if (selectedIndexRef.current != null) {
         return;
       }
@@ -452,6 +450,8 @@ export function useListNavigation(
             onNavigate();
           }
         };
+
+        forceSyncFocusRef.current = false;
 
         waitForListPopulated();
       }
