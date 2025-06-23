@@ -4,7 +4,7 @@ import styles from './index.module.css';
 
 export default function ExampleSelect() {
   return (
-    <Select.Root defaultValue="sans">
+    <Select.Root>
       <Select.Trigger className={styles.Select}>
         <Select.Value placeholder="Sans-serif" />
         <Select.Icon className={styles.SelectIcon}>
