@@ -11,7 +11,11 @@
     border-radius: var(--radius-md);
   }
 
-  .AccordionRoot .TableHeadRow {
+  .AccordionHeaderRow {
+    border-radius: var(--radius-md) var(--radius-md) 0 0;
+    border-bottom: 1px solid var(--color-gray-200);
+    background-color: var(--color-gray-50);
+
     @media (--xs) {
       padding-inline: 0.75rem 0.5rem;
       display: grid;
@@ -21,6 +25,13 @@
     @media (--md) {
       grid-template-columns: 1fr 2fr calc(var(--spacing) * 10);
     }
+  }
+
+  .AccordionHeaderLabel {
+    padding-block: 0.5rem;
+    font-size: var(--text-sm);
+    font-weight: var(--font-weight-medium);
+    letter-spacing: -0.00625em;
   }
 
   .AccordionItem {
@@ -97,7 +108,7 @@
     box-sizing: border-box;
     height: auto;
     overflow: hidden;
-    color: var(--color-gray-600);
+    color: var(--color-foreground);
     font-size: 1rem;
     line-height: 1.5rem;
     box-shadow: 0 0 0 1px transparent;

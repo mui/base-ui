@@ -2,9 +2,9 @@
 import * as React from 'react';
 import clsx from 'clsx';
 
-export function Root({ children, className, ...props }: React.ComponentProps<'div'>) {
+export function Root({ children, ...props }: React.ComponentProps<'div'>) {
   return (
-    <div className={clsx('TableRoot', className)} {...props}>
+    <div {...props} className={clsx('TableRoot', props.className)}>
       <table className="TableRootTable">{children}</table>
     </div>
   );

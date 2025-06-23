@@ -95,3 +95,11 @@ export function Panel(props: React.ComponentProps<'div'>) {
 export function Content(props: React.ComponentProps<'div'>) {
   return <div {...props} className={clsx('AccordionContent', props.className)} />;
 }
+
+export function HeaderRow(props: React.ComponentProps<'div'>) {
+  return <div {...props} aria-hidden className={clsx('AccordionHeaderRow', props.className)} />;
+}
+
+export function HeaderLabel(props: React.ComponentProps<'div'>) {
+  return <div {...props} className={clsx('AccordionHeaderLabel', props.className)} />;
+}

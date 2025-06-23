@@ -1,5 +1,4 @@
 import * as React from 'react';
-import clsx from 'clsx';
 import { visuallyHidden } from '@base-ui-components/react/utils';
 import { createMdxComponent } from 'docs/src/mdx/createMdxComponent';
 import { inlineMdxComponents } from 'docs/src/mdx-components';
@@ -64,19 +63,6 @@ const DATA: Record<string, PropDef> = {
   },
 };
 
-function HeaderLabel(props: React.ComponentProps<'div'>) {
-  return (
-    <div
-      {...props}
-      className={clsx(
-        'HeaderLabel',
-        'py-[0.5rem] text-(length:--text-sm) font-medium tracking-[-0.00625em]',
-        props.className,
-      )}
-    />
-  );
-}
-
 function getShortPropType(name: string, type: string | undefined) {
   if (/^on[A-Z].*/.test(name)) {
     return 'function';
@@ -126,13 +112,10 @@ export async function PropsReferenceAccordion({
       <span id={captionId} style={visuallyHidden} aria-hidden>
         Component props table
       </span>
-      <div
-        aria-hidden
-        className="TableHeadRow rounded-t-(--radius-md) border-b-1 border-(--color-gray-200) bg-(--color-gray-50)"
-      >
-        <HeaderLabel className="max-xs:pl-[0.75rem]">Prop</HeaderLabel>
-        <HeaderLabel className="max-xs:hidden">Type</HeaderLabel>
-      </div>
+      <Accordion.HeaderRow>
+        <Accordion.HeaderLabel className="max-xs:pl-[0.75rem]">Prop</Accordion.HeaderLabel>
+        <Accordion.HeaderLabel className="max-xs:hidden">Type</Accordion.HeaderLabel>
+      </Accordion.HeaderRow>
       {Object.keys(data).map(async (name, index) => {
         const prop = data[name];
 
@@ -205,7 +188,7 @@ export async function PropsReferenceAccordion({
               </svg>
             </Accordion.Trigger>
             <Accordion.Panel aria-labelledby={`${name}-h5`}>
-              <Accordion.Content className="min-xs:py-[0.25rem]">
+              <Accordion.Content className="min-xs:py-1 min-md:py-2">
                 {/* avoid announcing the trigger again when moving from the trigger into content */}
                 <h5 id={`${name}-h5`} style={visuallyHidden} aria-hidden>
                   Details
