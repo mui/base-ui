@@ -1,10 +1,12 @@
 import * as React from 'react';
+import clsx from 'clsx';
 import { createMdxComponent } from 'docs/src/mdx/createMdxComponent';
 import { inlineMdxComponents } from 'docs/src/mdx-components';
 import { rehypeSyntaxHighlighting } from 'docs/src/syntax-highlighting';
 import { ReferenceTablePopover } from './ReferenceTablePopover';
 import type { AttributeDef } from './types';
 import * as Table from '../Table';
+import * as Accordion from '../Accordion';
 import { TableCode } from '../TableCode';
 
 interface AttributesReferenceTableProps extends React.ComponentProps<typeof Table.Root> {
@@ -13,21 +15,12 @@ interface AttributesReferenceTableProps extends React.ComponentProps<typeof Tabl
 
 export async function AttributesReferenceTable({ data, ...props }: AttributesReferenceTableProps) {
   return (
-    <Table.Root {...props}>
-      <Table.Head>
-        <Table.Row>
-          <Table.ColumnHeader className="w-full xs:w-48 sm:w-56 md:w-1/3">
-            Attribute
-          </Table.ColumnHeader>
-          <Table.ColumnHeader className="w-10 xs:w-2/3">
-            <div className="sr-only xs:not-sr-only xs:contents">Description</div>
-          </Table.ColumnHeader>
-          {/* A cell to maintain a layout consistent with the props table */}
-          <Table.ColumnHeader className="w-10 max-xs:hidden" aria-hidden role="presentation" />
-        </Table.Row>
-      </Table.Head>
-      <Table.Body>
-        {Object.keys(data).map(async (name) => {
+    <React.Fragment>
+      <Accordion.Root {...props} className={clsx(props.className, 'xs:hidden')}>
+        <Accordion.HeaderRow>
+          <Accordion.HeaderLabel className="pl-[0.75rem]">Attribute</Accordion.HeaderLabel>
+        </Accordion.HeaderRow>
+        {Object.keys(data).map(async (name, index) => {
           const attribute = data[name];
 
           const AttributeDescription = await createMdxComponent(attribute.description, {
@@ -36,24 +29,69 @@ export async function AttributesReferenceTable({ data, ...props }: AttributesRef
           });
 
           return (
-            <Table.Row key={name}>
-              <Table.RowHeader>
+            <Accordion.Item>
+              <Accordion.Trigger index={index}>
                 <TableCode className="text-navy">{name}</TableCode>
-              </Table.RowHeader>
-              <Table.Cell colSpan={2}>
-                <div className="hidden xs:contents">
+                <svg
+                  className="AccordionIcon"
+                  width="10"
+                  height="10"
+                  viewBox="0 0 10 10"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path d="M1 3.5L5 7.5L9 3.5" stroke="currentcolor" />
+                </svg>
+              </Accordion.Trigger>
+              <Accordion.Panel>
+                <Accordion.Content className="flex flex-col gap-3 p-4 text-md text-pretty">
                   <AttributeDescription />
-                </div>
-                <div className="contents xs:hidden">
-                  <ReferenceTablePopover>
-                    <AttributeDescription />
-                  </ReferenceTablePopover>
-                </div>
-              </Table.Cell>
-            </Table.Row>
+                </Accordion.Content>
+              </Accordion.Panel>
+            </Accordion.Item>
           );
         })}
-      </Table.Body>
-    </Table.Root>
+      </Accordion.Root>
+      <Table.Root {...props} className={clsx('hidden xs:block', props.className)}>
+        <Table.Head>
+          <Table.Row>
+            <Table.ColumnHeader className="w-full xs:w-48 sm:w-56 md:w-1/3">
+              Attribute
+            </Table.ColumnHeader>
+            <Table.ColumnHeader className="w-10 xs:w-2/3">
+              <div className="sr-only xs:not-sr-only xs:contents">Description</div>
+            </Table.ColumnHeader>
+          </Table.Row>
+        </Table.Head>
+        <Table.Body>
+          {Object.keys(data).map(async (name) => {
+            const attribute = data[name];
+
+            const AttributeDescription = await createMdxComponent(attribute.description, {
+              rehypePlugins: rehypeSyntaxHighlighting,
+              useMDXComponents: () => inlineMdxComponents,
+            });
+
+            return (
+              <Table.Row key={name}>
+                <Table.RowHeader>
+                  <TableCode className="text-navy">{name}</TableCode>
+                </Table.RowHeader>
+                <Table.Cell>
+                  <div className="hidden xs:contents">
+                    <AttributeDescription />
+                  </div>
+                  <div className="contents xs:hidden">
+                    <ReferenceTablePopover>
+                      <AttributeDescription />
+                    </ReferenceTablePopover>
+                  </div>
+                </Table.Cell>
+              </Table.Row>
+            );
+          })}
+        </Table.Body>
+      </Table.Root>
+    </React.Fragment>
   );
 }
