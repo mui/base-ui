@@ -1,0 +1,29 @@
+{
+  "name": "CalendarDayGridBody",
+  "description": "Groups all parts of the calendar's day grid.\nRenders a `<tbody>` element.",
+  "props": {
+    "fixedWeekNumber": {
+      "type": "number",
+      "description": "Will render the requested amount of weeks by adding weeks of the next month if needed.\nPut it to 6 to create a Gregorian calendar where all months have the same amount of weeks displayed."
+    },
+    "offset": {
+      "type": "number",
+      "default": "0",
+      "description": "The offset to apply to the rendered month compared to the current month.\nThis is mostly useful when displaying multiple day grids."
+    },
+    "children": {
+      "type": "ReactNode | ((week: Date | DateTime<boolean>, index: number, weeks: (Date | DateTime<boolean>)[]) => ReactNode)",
+      "description": "The children of the component.\nIf a function is provided, it will be called for each week to render as its parameter."
+    },
+    "className": {
+      "type": "string | ((state: Calendar.DayGridBody.State) => string)",
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
+    },
+    "render": {
+      "type": "ReactElement | ((props: HTMLProps, state: Calendar.DayGridBody.State) => ReactElement)",
+      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
+    }
+  },
+  "dataAttributes": {},
+  "cssVariables": {}
+}
