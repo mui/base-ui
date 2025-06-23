@@ -5,7 +5,7 @@ import { inlineMdxComponents } from 'docs/src/mdx-components';
 import { rehypeSyntaxHighlighting } from 'docs/src/syntax-highlighting';
 import * as Accordion from '../Accordion';
 import * as DescriptionList from '../DescriptionList';
-import type { PropDef as BasePropDef } from '../ReferenceTable/types';
+import type { PropDef as BasePropDef } from './types';
 import { TableCode } from '../TableCode';
 
 interface PropDef extends BasePropDef {
@@ -17,51 +17,6 @@ interface Props extends React.ComponentPropsWithoutRef<any> {
   type?: 'props' | 'return';
   name: string;
 }
-
-const DATA: Record<string, PropDef> = {
-  value: {
-    type: 'string',
-    description: 'A unique string that identifies the toggle when used\ninside a toggle group.',
-  },
-  defaultPressed: {
-    type: 'boolean',
-    default: 'false',
-    description:
-      'Whether the toggle button is currently pressed.\nThis is the uncontrolled counterpart of `pressed`.',
-  },
-  pressed: {
-    type: 'boolean',
-    description:
-      'Whether the toggle button is currently pressed.\nThis is the controlled counterpart of `defaultPressed`.',
-  },
-  onPressedChange: {
-    type: '((pressed: boolean, event: Event) => void)',
-    description: 'Callback fired when the pressed state is changed.',
-    example:
-      '```tsx\nconst [pressed, setPressed] = React.useState(true);\n\nreturn (\n  <Toggle pressed={pressed} onPressedChange={setPressed} />\n)\n```',
-  },
-  nativeButton: {
-    type: 'boolean',
-    default: 'true',
-    description:
-      'Whether the component renders a native `<button>` element when replacing it\nvia the `render` prop.\nSet to `false` if the rendered element is not a button (e.g. `<div>`).',
-  },
-  disabled: {
-    type: 'boolean',
-    default: 'false',
-    description: 'Whether the component should ignore user interaction.',
-  },
-  className: {
-    type: 'string | ((state: Toggle.State) => string)',
-    description:
-      'CSS class applied to the element, or a function that\nreturns a class based on the component’s state.',
-  },
-  render: {
-    type: 'ReactElement | ((props: HTMLProps, state: Toggle.State) => ReactElement)',
-    description:
-      'Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.',
-  },
-};
 
 function getShortPropType(name: string, type: string | undefined) {
   if (/^on[A-Z].*/.test(name)) {
@@ -100,7 +55,7 @@ function getShortPropType(name: string, type: string | undefined) {
 }
 
 export async function PropsReferenceAccordion({
-  data = DATA,
+  data,
   name: partName,
   // type = 'props',
   ...props
