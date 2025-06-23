@@ -5,7 +5,7 @@ import * as CodeBlock from './components/CodeBlock';
 import * as Table from './components/Table';
 import * as QuickNav from './components/QuickNav/QuickNav';
 import { Code } from './components/Code';
-import { PropsReferenceTable } from './components/ReferenceTable/PropsReferenceTable';
+import { PropsReferenceAccordion } from './components/ReferenceTable/PropsReferenceAccordion';
 import { AttributesReferenceTable } from './components/ReferenceTable/AttributesReferenceTable';
 import { CssVariablesReferenceTable } from './components/ReferenceTable/CssVariablesReferenceTable';
 import { getChildrenText } from './utils/getChildrenText';
@@ -13,8 +13,6 @@ import { Link } from './components/Link';
 import { HeadingLink } from './components/HeadingLink';
 import { Subtitle } from './components/Subtitle/Subtitle';
 import { Kbd } from './components/Kbd/Kbd';
-
-import { PropsReferenceAccordion } from './components/ReferenceAccordion/PropsReferenceAccordion';
 
 interface MDXComponents {
   [key: string]: React.FC<any> | MDXComponents;
@@ -112,9 +110,7 @@ export const mdxComponents: MDXComponents = {
   CssVariablesReferenceTable: (props) => (
     <CssVariablesReferenceTable className="mt-5 mb-6" {...props} />
   ),
-  PropsReferenceTable: (props) => <PropsReferenceTable className="mt-5 mb-6" {...props} />,
-
-  PropsReferenceAccordion: (props) => <PropsReferenceAccordion className="mt-5 mb-6" {...props} />,
+  PropsReferenceTable: (props) => <PropsReferenceAccordion className="mt-5 mb-6" {...props} />,
 };
 
 export const inlineMdxComponents: MDXComponents = {
