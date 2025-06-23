@@ -51,6 +51,29 @@ describe('mergeProps', () => {
     expect(log).to.deep.equal(['1', '2', '3']);
   });
 
+  it('merges undefined event handlers', () => {
+    const log: string[] = [];
+
+    const mergedProps = mergeProps<'button'>(
+      {
+        onClick() {
+          log.push('3');
+        },
+      },
+      {
+        onClick: undefined,
+      },
+      {
+        onClick() {
+          log.push('1');
+        },
+      },
+    );
+
+    mergedProps.onClick?.({ nativeEvent: new MouseEvent('click') } as any);
+    expect(log).to.deep.equal(['1', '3']);
+  });
+
   it('merges styles', () => {
     const theirProps = {
       style: { color: 'red' },
