@@ -47,6 +47,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
     valueRef,
     selectedItemTextRef,
     keyboardActiveRef,
+    highlightTimeout,
   } = useSelectRootContext();
   const { side, align, context, alignItemWithTriggerActive, setControlledAlignItemWithTrigger } =
     useSelectPositionerContext();
@@ -298,8 +299,13 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
       if (isMouseWithinBounds(event)) {
         return;
       }
-      store.set('activeIndex', null);
-      event.currentTarget.focus({ preventScroll: true });
+
+      const popup = event.currentTarget;
+
+      highlightTimeout.start(0, () => {
+        store.set('activeIndex', null);
+        popup.focus({ preventScroll: true });
+      });
     },
     onScroll(event) {
       if (
