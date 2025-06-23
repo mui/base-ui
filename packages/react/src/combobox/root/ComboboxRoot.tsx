@@ -44,9 +44,8 @@ export function ComboboxRoot<Value, Multiple extends boolean = false>(
     id: idProp,
     onOpenChangeComplete,
     defaultValue,
-    selectable = false,
+    select = 'none' as Multiple extends true ? 'multiple' : 'single',
     onItemHighlighted: onItemHighlightedProp,
-    multiple = false as Multiple,
     name: nameProp,
     disabled: disabledProp = false,
     readOnly = false,
@@ -77,6 +76,8 @@ export function ComboboxRoot<Value, Multiple extends boolean = false>(
       setControlId(undefined);
     };
   }, [id, setControlId]);
+
+  const multiple = select === 'multiple';
 
   const defaultUncontrolledValue = React.useMemo((): Multiple extends true ? Value[] : Value => {
     if (multiple) {
@@ -379,7 +380,7 @@ export function ComboboxRoot<Value, Multiple extends boolean = false>(
 
   const contextValue: ComboboxRootContext<Value, Multiple> = React.useMemo(
     () => ({
-      selectable,
+      select,
       mounted,
       value,
       setValue,
@@ -398,7 +399,6 @@ export function ComboboxRoot<Value, Multiple extends boolean = false>(
       getItemProps,
       registerSelectedItem,
       onItemHighlighted,
-      multiple,
       name,
       disabled,
       readOnly,
@@ -406,7 +406,7 @@ export function ComboboxRoot<Value, Multiple extends boolean = false>(
       fieldControlValidation,
     }),
     [
-      selectable,
+      select,
       mounted,
       open,
       positionerElement,
@@ -418,7 +418,6 @@ export function ComboboxRoot<Value, Multiple extends boolean = false>(
       getItemProps,
       registerSelectedItem,
       onItemHighlighted,
-      multiple,
       name,
       disabled,
       readOnly,
@@ -569,10 +568,13 @@ export namespace ComboboxRoot {
      */
     actionsRef?: React.RefObject<Actions>;
     /**
-     * Whether the combobox should be selectable.
-     * @default true
+     * How the combobox should remember the selected value.
+     * - `single`: Remembers the last selected value.
+     * - `multiple`: Remember all selected values.
+     * - `none`: Do not remember the selected value.
+     * @default 'none'
      */
-    selectable?: boolean;
+    select?: 'single' | 'multiple' | 'none';
     /**
      * Callback fired when the user navigates the list and highlights an item.
      * Passes the item's `value` or `undefined` when no item is highlighted.

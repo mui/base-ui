@@ -37,7 +37,7 @@ describe('<Combobox.Root />', () => {
 
   it('should handle browser autofill', async () => {
     const { container } = await render(
-      <Combobox.Root name="combobox" defaultOpen selectable>
+      <Combobox.Root name="combobox" defaultOpen select="single">
         <Combobox.Input data-testid="input" />
         <Combobox.Portal>
           <Combobox.Positioner>

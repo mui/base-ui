@@ -54,10 +54,10 @@
       "type": "((open: boolean) => void)",
       "description": "Event handler called after any animations complete when the combobox popup is opened or closed."
     },
-    "selectable": {
-      "type": "boolean",
-      "default": "true",
-      "description": "Whether the combobox should be selectable."
+    "select": {
+      "type": "'none' | 'multiple' | 'single'",
+      "default": "'none'",
+      "description": "How the combobox should remember the selected value.\n- `single`: Remembers the last selected value.\n- `multiple`: Remember all selected values.\n- `none`: Do not remember the selected value."
     },
     "disabled": {
       "type": "boolean",

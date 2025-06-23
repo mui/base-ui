@@ -8,7 +8,7 @@ import type { useFieldControlValidation } from '../../field/control/useFieldCont
 export type ValueChangeReason = 'item-press' | 'input-change';
 
 export interface ComboboxRootContext<Value = any, Multiple extends boolean = false> {
-  selectable: boolean;
+  select: 'single' | 'multiple' | 'none';
   mounted: boolean;
   value: Multiple extends true ? Value[] : Value;
   setValue: (
@@ -35,7 +35,6 @@ export interface ComboboxRootContext<Value = any, Multiple extends boolean = fal
   valuesRef: React.RefObject<Array<any>>;
   registerSelectedItem: (index: number) => void;
   onItemHighlighted: (value: Value | undefined, type: 'keyboard' | 'pointer') => void;
-  multiple: Multiple;
   name: string | undefined;
   disabled: boolean;
   readOnly: boolean;
