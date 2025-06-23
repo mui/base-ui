@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { SafeReact } from './safeReact';
 
 let globalId = 0;
 
@@ -20,9 +21,7 @@ function useGlobalId(idOverride?: string, prefix: string = 'mui'): string | unde
   return id;
 }
 
-// See https://github.com/mui/material-ui/issues/41190#issuecomment-2040873379 for why
-const safeReact = { ...React };
-const maybeReactUseId: undefined | (() => string) = safeReact.useId;
+const maybeReactUseId: undefined | (() => string) = SafeReact.useId;
 
 /**
  *
