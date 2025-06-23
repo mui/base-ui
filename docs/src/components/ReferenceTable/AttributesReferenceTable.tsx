@@ -12,6 +12,11 @@ interface AttributesReferenceTableProps extends React.ComponentProps<typeof Tabl
   data: Record<string, AttributeDef>;
 }
 
+const CREATE_MDX_OPTIONS = {
+  rehypePlugins: rehypeSyntaxHighlighting,
+  useMDXComponents: () => inlineMdxComponents,
+};
+
 export async function AttributesReferenceTable({ data, ...props }: AttributesReferenceTableProps) {
   return (
     <React.Fragment>
@@ -22,10 +27,10 @@ export async function AttributesReferenceTable({ data, ...props }: AttributesRef
         {Object.keys(data).map(async (name, index) => {
           const attribute = data[name];
 
-          const AttributeDescription = await createMdxComponent(attribute.description, {
-            rehypePlugins: rehypeSyntaxHighlighting,
-            useMDXComponents: () => inlineMdxComponents,
-          });
+          const AttributeDescription = await createMdxComponent(
+            attribute.description,
+            CREATE_MDX_OPTIONS,
+          );
 
           return (
             <Accordion.Item>
@@ -68,10 +73,10 @@ export async function AttributesReferenceTable({ data, ...props }: AttributesRef
           {Object.keys(data).map(async (name) => {
             const attribute = data[name];
 
-            const AttributeDescription = await createMdxComponent(attribute.description, {
-              rehypePlugins: rehypeSyntaxHighlighting,
-              useMDXComponents: () => inlineMdxComponents,
-            });
+            const AttributeDescription = await createMdxComponent(
+              attribute.description,
+              CREATE_MDX_OPTIONS,
+            );
 
             return (
               <Table.Row key={name}>
