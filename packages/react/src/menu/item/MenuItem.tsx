@@ -44,8 +44,9 @@ const InnerMenuItem = React.memo(
     const state: MenuItem.State = React.useMemo(
       () => ({
         disabled,
+        highlighted,
       }),
-      [disabled],
+      [disabled, highlighted],
     );
 
     return useRenderElement('div', componentProps, {
@@ -112,6 +113,10 @@ export namespace MenuItem {
      * Whether the item should ignore user interaction.
      */
     disabled: boolean;
+    /**
+     * Whether the item is highlighted.
+     */
+    highlighted: boolean;
   }
 
   export interface Props extends BaseUIComponentProps<'div', State> {
