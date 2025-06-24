@@ -34,6 +34,7 @@ import {
 } from '../../context-menu/root/ContextMenuRootContext';
 import { ownerDocument } from '../../utils/owner';
 import { useMenuSubmenuRootContext } from '../submenu-root/MenuSubmenuRootContext';
+import { useId } from '../../utils/useId';
 
 const EMPTY_ARRAY: never[] = [];
 const EMPTY_REF = { current: false };
@@ -104,6 +105,12 @@ export const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
         type: undefined,
       };
     }
+  }
+
+  let rootId = useId();
+
+  if (parent.type !== undefined) {
+    rootId = parent.context.rootId;
   }
 
   const modal =
@@ -471,6 +478,7 @@ export const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
       modal,
       disabled,
       parent,
+      rootId,
     }),
     [
       activeIndex,
@@ -492,6 +500,7 @@ export const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
       modal,
       disabled,
       parent,
+      rootId,
     ],
   );
 

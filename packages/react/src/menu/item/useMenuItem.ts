@@ -60,7 +60,10 @@ export function useMenuItem(params: useMenuItem.Parameters): useMenuItem.ReturnV
               if (!submenuTrigger) {
                 itemRef.current.click();
               }
-              menuEvents.emit('close', { domEvent: event, reason: 'item-press' });
+
+              if (closeOnClick) {
+                menuEvents.emit('close', { domEvent: event, reason: 'item-press' });
+              }
             }
           },
         },
