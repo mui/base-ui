@@ -87,7 +87,6 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
     state: fieldState,
     disabled: fieldDisabled,
     name: fieldName,
-    setControlId,
     setTouched,
     setDirty,
     validityData,
@@ -123,13 +122,6 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
   const [thumbMap, setThumbMap] = React.useState(
     () => new Map<Node, CompositeMetadata<ThumbMetadata> | null>(),
   );
-
-  useModernLayoutEffect(() => {
-    setControlId(id);
-    return () => {
-      setControlId(undefined);
-    };
-  }, [id, setControlId]);
 
   useField({
     id,
