@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { FloatingEvents } from '@floating-ui/react';
+import { FloatingEvents } from '../../floating-ui-react';
 import { useButton } from '../../use-button';
 import { mergeProps } from '../../merge-props';
 import { HTMLProps, BaseUIEvent } from '../../utils/types';

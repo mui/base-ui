@@ -1,7 +1,6 @@
 'use client';
 import * as React from 'react';
 import { useForkRef } from '../../utils/useForkRef';
-import { mergeProps } from '../../merge-props';
 import type { DialogOpenChangeReason } from '../root/useDialogRoot';
 import { type InteractionType } from '../../utils/useEnhancedClickHandler';
 import { HTMLProps } from '../../utils/types';
@@ -10,7 +9,6 @@ import { COMPOSITE_KEYS } from '../../composite/composite';
 export function useDialogPopup(parameters: useDialogPopup.Parameters): useDialogPopup.ReturnValue {
   const {
     descriptionElementId,
-    getPopupProps,
     initialFocus,
     modal,
     mounted,
@@ -47,28 +45,23 @@ export function useDialogPopup(parameters: useDialogPopup.Parameters): useDialog
     return initialFocus;
   }, [defaultInitialFocus, initialFocus, openMethod]);
 
-  const getRootProps = (externalProps: React.HTMLAttributes<any>) =>
-    mergeProps<'div'>(
-      {
-        'aria-labelledby': titleElementId ?? undefined,
-        'aria-describedby': descriptionElementId ?? undefined,
-        'aria-modal': mounted && modal === true ? true : undefined,
-        role: 'dialog',
-        tabIndex: -1,
-        ...getPopupProps(),
-        ref: handleRef,
-        hidden: !mounted,
-        onKeyDown(event) {
-          if (COMPOSITE_KEYS.has(event.key)) {
-            event.stopPropagation();
-          }
-        },
-      },
-      externalProps,
-    );
+  const popupProps: HTMLProps = {
+    'aria-labelledby': titleElementId ?? undefined,
+    'aria-describedby': descriptionElementId ?? undefined,
+    'aria-modal': mounted && modal === true ? true : undefined,
+    role: 'dialog',
+    tabIndex: -1,
+    ref: handleRef,
+    hidden: !mounted,
+    onKeyDown(event) {
+      if (COMPOSITE_KEYS.has(event.key)) {
+        event.stopPropagation();
+      }
+    },
+  };
 
   return {
-    getRootProps,
+    popupProps,
     resolvedInitialFocus,
   };
 }
@@ -109,22 +102,13 @@ export namespace useDialogPopup {
      */
     mounted: boolean;
     /**
-     * The resolver for the popup element props.
-     */
-    getPopupProps: () => HTMLProps;
-    /**
      * Callback to register the popup element.
      */
     setPopupElement: React.Dispatch<React.SetStateAction<HTMLElement | null>>;
   }
 
   export interface ReturnValue {
-    /**
-     * Resolver for the root element props.
-     */
-    getRootProps: (
-      externalProps: React.ComponentPropsWithRef<'div'>,
-    ) => React.ComponentPropsWithRef<'div'>;
+    popupProps: HTMLProps;
     resolvedInitialFocus: React.RefObject<HTMLElement | null> | number;
   }
 }

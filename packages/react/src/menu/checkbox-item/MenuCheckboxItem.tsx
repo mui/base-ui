@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { FloatingEvents, useFloatingTree } from '@floating-ui/react';
+import { FloatingEvents, useFloatingTree } from '../../floating-ui-react';
 import { MenuCheckboxItemContext } from './MenuCheckboxItemContext';
 import { useMenuItem } from '../item/useMenuItem';
 import { useCompositeListItem } from '../../composite/list/useCompositeListItem';

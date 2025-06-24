@@ -9,7 +9,7 @@ import type { CollapsibleRoot } from '../root/CollapsibleRoot';
 import { collapsibleStyleHookMapping } from '../root/styleHooks';
 import { useCollapsiblePanel } from './useCollapsiblePanel';
 import { CollapsiblePanelCssVars } from './CollapsiblePanelCssVars';
-import { usePanelResize } from '../../utils/usePanelResize';
+import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 
 /**
  * A panel with the collapsible contents.
@@ -98,7 +98,17 @@ export const CollapsiblePanel = React.forwardRef(function CollapsiblePanel(
     width,
   });
 
-  usePanelResize(panelRef, setDimensions, open);
+  useOpenChangeComplete({
+    open,
+    ref: panelRef,
+    onComplete() {
+      if (!open) {
+        return;
+      }
+
+      setDimensions({ height: undefined, width: undefined });
+    },
+  });
 
   const element = useRenderElement('div', componentProps, {
     state,
@@ -107,12 +117,10 @@ export const CollapsiblePanel = React.forwardRef(function CollapsiblePanel(
       props,
       {
         style: {
-          [CollapsiblePanelCssVars.collapsiblePanelHeight as string]: height
-            ? `${height}px`
-            : undefined,
-          [CollapsiblePanelCssVars.collapsiblePanelWidth as string]: width
-            ? `${width}px`
-            : undefined,
+          [CollapsiblePanelCssVars.collapsiblePanelHeight as string]:
+            height === undefined ? 'auto' : `${height}px`,
+          [CollapsiblePanelCssVars.collapsiblePanelWidth as string]:
+            width === undefined ? 'auto' : `${width}px`,
         },
       },
       elementProps,

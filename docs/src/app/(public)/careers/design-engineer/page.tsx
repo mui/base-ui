@@ -1,5 +1,5 @@
 import * as React from 'react';
-import type { Metadata, Viewport } from 'next';
+import type { Metadata } from 'next';
 import { ArrowRightIcon } from 'docs/src/icons/ArrowRightIcon';
 import { Header } from 'docs/src/components/Header';
 import '../../page.css';
@@ -192,28 +192,4 @@ export const metadata: Metadata = {
   openGraph: {
     description,
   },
-};
-
-export const viewport: Viewport = {
-  themeColor: [
-    // Desktop Safari page background
-    {
-      media: '(prefers-color-scheme: light) and (min-width: 1024px)',
-      color: 'oklch(95% 0.25% 264)',
-    },
-    {
-      media: '(prefers-color-scheme: dark) and (min-width: 1024px)',
-      color: 'oklch(25% 1% 264)',
-    },
-
-    // Mobile Safari header background (match the page)
-    {
-      media: '(prefers-color-scheme: light)',
-      color: '#FFF',
-    },
-    {
-      media: '(prefers-color-scheme: dark)',
-      color: '#000',
-    },
-  ],
 };
