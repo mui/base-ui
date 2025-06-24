@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { FloatingFocusManager } from '@floating-ui/react';
+import { FloatingFocusManager } from '../../floating-ui-react';
 import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import { popupStateMapping } from '../../utils/popupStateMapping';
@@ -47,7 +47,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
     valueRef,
     selectedItemTextRef,
     keyboardActiveRef,
-    events,
+    highlightTimeout,
   } = useSelectRootContext();
   const { side, align, context, alignItemWithTriggerActive, setControlledAlignItemWithTrigger } =
     useSelectPositionerContext();
@@ -299,9 +299,13 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
       if (isMouseWithinBounds(event)) {
         return;
       }
-      store.set('activeIndex', null);
-      event.currentTarget.focus({ preventScroll: true });
-      events.emit('popupleave');
+
+      const popup = event.currentTarget;
+
+      highlightTimeout.start(0, () => {
+        store.set('activeIndex', null);
+        popup.focus({ preventScroll: true });
+      });
     },
     onScroll(event) {
       if (
