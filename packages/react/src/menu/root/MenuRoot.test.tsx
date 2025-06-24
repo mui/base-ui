@@ -1323,7 +1323,7 @@ describe('<Menu.Root />', () => {
     });
   });
 
-  describe.skipIf(isJSDOM).only('mouse interaction', () => {
+  describe.skipIf(isJSDOM)('mouse interaction', () => {
     afterEach(async () => {
       const { cleanup } = await import('vitest-browser-react');
       cleanup();
