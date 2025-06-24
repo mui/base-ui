@@ -345,7 +345,7 @@ export const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
 
   const click = useClick(floatingRootContext, {
     enabled: !disabled && parent.type !== 'context-menu',
-    event: open ? 'click' : 'mousedown',
+    event: open && parent.type === 'menubar' ? 'click' : 'mousedown',
     toggle: !openOnHover || parent.type !== 'menu',
     ignoreMouse: openOnHover && parent.type === 'menu',
     stickIfOpen: parent.type === undefined ? stickIfOpen : false,
