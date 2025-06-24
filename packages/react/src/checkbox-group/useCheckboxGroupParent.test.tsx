@@ -3,19 +3,22 @@ import { createRenderer, fireEvent, screen } from '@mui/internal-test-utils';
 import { CheckboxGroup } from '@base-ui-components/react/checkbox-group';
 import { Checkbox } from '@base-ui-components/react/checkbox';
 import { expect } from 'chai';
+import { spy } from 'sinon';
 
 describe('useCheckboxGroupParent', () => {
   const { render } = createRenderer();
   const allValues = ['a', 'b', 'c'];
 
   it('should control child checkboxes', () => {
+    const parentCheckedChange = spy();
+    const childCheckedChange = spy();
     function App() {
       const [value, setValue] = React.useState<string[]>([]);
       return (
         <CheckboxGroup value={value} onValueChange={setValue} allValues={allValues}>
-          <Checkbox.Root parent data-testid="parent" />
+          <Checkbox.Root parent data-testid="parent" onCheckedChange={parentCheckedChange} />
           <Checkbox.Root name="a" />
-          <Checkbox.Root name="b" />
+          <Checkbox.Root name="b" onCheckedChange={childCheckedChange} />
           <Checkbox.Root name="c" />
         </CheckboxGroup>
       );
@@ -39,12 +42,18 @@ describe('useCheckboxGroupParent', () => {
       expect(checkbox).to.have.attribute('aria-checked', 'true');
     });
 
+    expect(parentCheckedChange.callCount).to.equal(1);
+    expect(childCheckedChange.callCount).to.equal(1);
+
     fireEvent.click(parent);
     expect(parent).to.have.attribute('aria-checked', 'false');
 
     checkboxes.forEach((checkbox) => {
       expect(checkbox).to.have.attribute('aria-checked', 'false');
     });
+
+    expect(parentCheckedChange.callCount).to.equal(2);
+    expect(childCheckedChange.callCount).to.equal(2);
   });
 
   it('parent should be marked as mixed if some children are checked', () => {
