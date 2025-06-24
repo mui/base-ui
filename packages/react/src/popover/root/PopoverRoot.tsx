@@ -26,7 +26,8 @@ import {
   PopoverRootContext,
   usePopoverRootContext,
 } from './PopoverRootContext';
-import { ownerDocument } from '../../utils/owner';
+import { mergeProps } from '../../merge-props';
+import { useMixedToggleClickHandler } from '../../utils/useMixedToggleClickHander';
 
 function PopoverRootComponent({ props }: { props: PopoverRoot.Props }) {
   const {
@@ -93,8 +94,6 @@ function PopoverRootComponent({ props }: { props: PopoverRoot.Props }) {
     }
   }, [stickIfOpenTimeout, open]);
 
-  const ignoreClickRef = React.useRef(false);
-
   const setOpen = useEventCallback(
     (nextOpen: boolean, event: Event | undefined, reason: PopoverOpenChangeReason | undefined) => {
       const isHover = reason === 'trigger-hover';
@@ -110,13 +109,6 @@ function PopoverRootComponent({ props }: { props: PopoverRoot.Props }) {
         }
       }
 
-      // As the popover opens on click and closes on mousedown,
-      // we need to ignore the click event immediately following mousedown.
-      if (reason === 'trigger-press' && event?.type === 'click' && ignoreClickRef.current) {
-        ignoreClickRef.current = false;
-        return;
-      }
-
       if (isHover) {
         // Only allow "patient" clicks to close the popover if it's open.
         // If they clicked within 500ms of the popover opening, keep it open.
@@ -128,20 +120,6 @@ function PopoverRootComponent({ props }: { props: PopoverRoot.Props }) {
         ReactDOM.flushSync(changeState);
       } else {
         changeState();
-      }
-
-      if (reason === 'trigger-press' && !nextOpen && event?.type === 'mousedown') {
-        ignoreClickRef.current = true;
-
-        ownerDocument(event.currentTarget as Element).addEventListener(
-          'click',
-          () => {
-            ignoreClickRef.current = false;
-          },
-          { once: true },
-        );
-      } else {
-        ignoreClickRef.current = false;
       }
 
       if (isKeyboardClick || isDismissClose) {
@@ -163,7 +141,13 @@ function PopoverRootComponent({ props }: { props: PopoverRoot.Props }) {
     },
   });
 
-  const { openMethod, triggerProps } = useOpenInteractionType(open);
+  const { openMethod, triggerProps: openInteractionTypeTriggerProps } =
+    useOpenInteractionType(open);
+
+  const triggerProps = useMixedToggleClickHandler({
+    open,
+    mouseDownAction: 'close',
+  });
 
   const computedRestMs = delay;
 
@@ -202,7 +186,7 @@ function PopoverRootComponent({ props }: { props: PopoverRoot.Props }) {
       setTitleId,
       descriptionId,
       setDescriptionId,
-      triggerProps: getReferenceProps(triggerProps),
+      triggerProps: mergeProps(getReferenceProps(), openInteractionTypeTriggerProps, triggerProps),
       popupProps: getFloatingProps(),
       floatingRootContext: floatingContext,
       instantType,
@@ -226,6 +210,7 @@ function PopoverRootComponent({ props }: { props: PopoverRoot.Props }) {
       getReferenceProps,
       triggerElement,
       triggerProps,
+      openInteractionTypeTriggerProps,
       getFloatingProps,
       floatingContext,
       instantType,
