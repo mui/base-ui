@@ -55,8 +55,7 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
 
   const submenuTrigger = React.useMemo(
     () => ({
-      setActiveIndex,
-      index: item.index,
+      setActive: () => setActiveIndex(item.index),
       allowMouseEnterEnabled: parentMenuContext.allowMouseEnter,
     }),
     [setActiveIndex, item.index, parentMenuContext.allowMouseEnter],

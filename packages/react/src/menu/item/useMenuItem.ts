@@ -35,15 +35,11 @@ export function useMenuItem(params: useMenuItem.Parameters): useMenuItem.ReturnV
           role: 'menuitem',
           tabIndex: highlighted ? 0 : -1,
           onMouseEnter() {
-            if (
-              !submenuTrigger.allowMouseEnterEnabled ||
-              !submenuTrigger.setActiveIndex ||
-              submenuTrigger.index == null
-            ) {
+            if (!submenuTrigger.allowMouseEnterEnabled || !submenuTrigger.setActive) {
               return;
             }
 
-            submenuTrigger.setActiveIndex(submenuTrigger.index);
+            submenuTrigger.setActive();
           },
           onKeyUp: (event: BaseUIEvent<React.KeyboardEvent>) => {
             if (event.key === ' ' && typingRef.current) {
@@ -134,8 +130,7 @@ export namespace useMenuItem {
      * Data about the submenu trigger.
      */
     submenuTrigger: {
-      setActiveIndex?: (index: number) => void;
-      index?: number;
+      setActive: () => void;
       allowMouseEnterEnabled?: boolean;
     };
   }
