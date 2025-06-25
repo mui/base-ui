@@ -27,7 +27,6 @@ import {
   usePopoverRootContext,
 } from './PopoverRootContext';
 import { mergeProps } from '../../merge-props';
-import { useMixedToggleClickHandler } from '../../utils/useMixedToggleClickHander';
 
 function PopoverRootComponent({ props }: { props: PopoverRoot.Props }) {
   const {
@@ -141,13 +140,7 @@ function PopoverRootComponent({ props }: { props: PopoverRoot.Props }) {
     },
   });
 
-  const { openMethod, triggerProps: openInteractionTypeTriggerProps } =
-    useOpenInteractionType(open);
-
-  const triggerProps = useMixedToggleClickHandler({
-    open,
-    mouseDownAction: 'close',
-  });
+  const { openMethod, triggerProps } = useOpenInteractionType(open);
 
   const computedRestMs = delay;
 
@@ -162,7 +155,6 @@ function PopoverRootComponent({ props }: { props: PopoverRoot.Props }) {
     },
   });
   const click = useClick(floatingContext, {
-    event: open ? 'mousedown' : 'click',
     stickIfOpen,
   });
   const dismiss = useDismiss(floatingContext);
@@ -186,7 +178,7 @@ function PopoverRootComponent({ props }: { props: PopoverRoot.Props }) {
       setTitleId,
       descriptionId,
       setDescriptionId,
-      triggerProps: mergeProps(getReferenceProps(), openInteractionTypeTriggerProps, triggerProps),
+      triggerProps: mergeProps(getReferenceProps(), triggerProps),
       popupProps: getFloatingProps(),
       floatingRootContext: floatingContext,
       instantType,
@@ -210,7 +202,6 @@ function PopoverRootComponent({ props }: { props: PopoverRoot.Props }) {
       getReferenceProps,
       triggerElement,
       triggerProps,
-      openInteractionTypeTriggerProps,
       getFloatingProps,
       floatingContext,
       instantType,
