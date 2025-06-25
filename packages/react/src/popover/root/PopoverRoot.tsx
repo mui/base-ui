@@ -44,6 +44,7 @@ function PopoverRootComponent({ props }: { props: PopoverRoot.Props }) {
   const [titleId, setTitleId] = React.useState<string>();
   const [descriptionId, setDescriptionId] = React.useState<string>();
   const [triggerElement, setTriggerElement] = React.useState<Element | null>(null);
+  console.log('triggerElement: ', triggerElement);
   const [positionerElement, setPositionerElement] = React.useState<HTMLElement | null>(null);
   const [openReason, setOpenReason] = React.useState<PopoverOpenChangeReason | null>(null);
   const [stickIfOpen, setStickIfOpen] = React.useState(true);
@@ -128,6 +129,27 @@ function PopoverRootComponent({ props }: { props: PopoverRoot.Props }) {
       }
     },
   );
+
+  React.useEffect(() => {
+    if (!triggerElement) {
+      return undefined;
+    }
+
+    const observer = new MutationObserver(() => {
+      const style = window.getComputedStyle(triggerElement);
+      if (style.display === 'none' || style.visibility === 'hidden') {
+        setOpen(false, undefined, 'cancel-open');
+      }
+    });
+
+    observer.observe(triggerElement, {
+      attributes: true,
+      attributeFilter: ['style', 'class'],
+      subtree: false,
+    });
+
+    return () => observer.disconnect();
+  }, [triggerElement, setOpen]);
 
   const floatingContext = useFloatingRootContext({
     elements: {
