@@ -53,6 +53,7 @@ export const FieldControl = React.forwardRef(function FieldControl(
   );
 
   const {
+    controlId,
     setControlId,
     labelId,
     setTouched,
@@ -66,14 +67,20 @@ export const FieldControl = React.forwardRef(function FieldControl(
   const { getValidationProps, getInputValidationProps, commitValidation, inputRef } =
     useFieldControlValidation();
 
-  const id = useBaseUiId(idProp);
+  const defaultId = useBaseUiId(idProp);
+  const id = controlId ?? defaultId;
 
   useIsoLayoutEffect(() => {
-    setControlId(id);
+    if (idProp) {
+      setControlId(idProp);
+    }
+
     return () => {
-      setControlId(undefined);
+      if (idProp) {
+        setControlId(undefined);
+      }
     };
-  }, [id, setControlId]);
+  }, [idProp, setControlId]);
 
   useIsoLayoutEffect(() => {
     const hasExternalValue = valueProp != null;
