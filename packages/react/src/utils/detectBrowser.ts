@@ -5,6 +5,7 @@ interface NavigatorUAData {
 }
 
 const hasNavigator = typeof navigator !== 'undefined';
+
 const nav = getNavigatorData();
 const platform = getPlatform();
 const userAgent = getUserAgent();
@@ -29,7 +30,7 @@ export const isJSDOM = userAgent.includes('jsdom/');
 
 // Avoid Chrome DevTools blue warning.
 function getNavigatorData(): { platform: string; maxTouchPoints: number } {
-  if (!hasNavigator) {
+  if (typeof navigator === 'undefined') {
     return { platform: '', maxTouchPoints: -1 };
   }
 
