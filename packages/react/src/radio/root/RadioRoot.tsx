@@ -34,6 +34,7 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
     value,
     inputRef: inputRefProp,
     nativeButton = true,
+    id: idProp,
     ...elementProps
   } = componentProps;
 
@@ -50,13 +51,19 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
     registerControlRef,
   } = useRadioGroupContext();
 
-  const { state: fieldState, disabled: fieldDisabled } = useFieldRootContext();
+  const {
+    setControlId,
+    setDirty,
+    validityData,
+    setTouched: setFieldTouched,
+    setFilled,
+    state: fieldState,
+    disabled: fieldDisabled,
+  } = useFieldRootContext();
 
   const disabled = fieldDisabled || disabledRoot || disabledProp;
   const readOnly = readOnlyRoot || readOnlyProp;
   const required = requiredRoot || requiredProp;
-
-  const { setDirty, validityData, setTouched: setFieldTouched, setFilled } = useFieldRootContext();
 
   const checked = checkedValue === value;
 
@@ -110,7 +117,24 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
     native: nativeButton,
   });
 
-  const id = useBaseUiId();
+  const id = useBaseUiId(idProp);
+
+  useModernLayoutEffect(() => {
+    const element = buttonRef.current;
+    if (!element) {
+      return undefined;
+    }
+
+    if (element.closest('label') != null) {
+      setControlId(idProp ?? null);
+    } else {
+      setControlId(id);
+    }
+
+    return () => {
+      setControlId(undefined);
+    };
+  }, [buttonRef, id, idProp, setControlId]);
 
   const inputProps: React.ComponentPropsWithRef<'input'> = React.useMemo(
     () => ({
