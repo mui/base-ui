@@ -193,9 +193,6 @@ class ScrollLocker {
 
     const isOverflowHiddenLock = isIOS || !hasInsetScrollbars(referenceElement);
 
-    // Firefox on macOS with overlay scrollbars uses a basic scroll lock that doesn't
-    // need the inset scrollbars handling to prevent overlay scrollbars from appearing
-    // on scroll containers briefly whenever the lock is enabled.
     // On iOS, scroll locking does not work if the navbar is collapsed. Due to numerous
     // side effects and bugs that arise on iOS, it must be researched extensively before
     // being enabled to ensure it doesn't cause the following issues:
