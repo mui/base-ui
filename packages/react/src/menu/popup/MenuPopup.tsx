@@ -93,7 +93,7 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
       popupProps,
       transitionStatus === 'starting' ? DISABLED_TRANSITIONS_STYLE : EMPTY_OBJECT,
       elementProps,
-      { 'data-rootownerid': rootId } as Record<string, string>, // This should be replaced with the actual root owner ID if available
+      { 'data-rootownerid': rootId } as Record<string, string>,
     ],
   });
 
