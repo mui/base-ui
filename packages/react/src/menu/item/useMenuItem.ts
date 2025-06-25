@@ -4,8 +4,7 @@ import { FloatingEvents } from '../../floating-ui-react';
 import { useButton } from '../../use-button';
 import { mergeProps } from '../../merge-props';
 import { HTMLProps, BaseUIEvent } from '../../utils/types';
-import { useForkRef, useModernLayoutEffect } from '../../utils';
-import { addHighlight, removeHighlight } from '../../utils/highlighted';
+import { useForkRef } from '../../utils';
 
 export function useMenuItem(params: useMenuItem.Parameters): useMenuItem.ReturnValue {
   const {
@@ -27,14 +26,6 @@ export function useMenuItem(params: useMenuItem.Parameters): useMenuItem.ReturnV
     focusableWhenDisabled: true,
     native: nativeButton,
   });
-
-  useModernLayoutEffect(() => {
-    if (highlighted) {
-      addHighlight(itemRef);
-    } else {
-      removeHighlight(itemRef);
-    }
-  }, [highlighted]);
 
   const getItemProps = React.useCallback(
     (externalProps?: HTMLProps): HTMLProps => {

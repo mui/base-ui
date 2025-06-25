@@ -26,6 +26,7 @@ export interface MenuRootContext {
   ) => void;
   positionerRef: React.RefObject<HTMLElement | null>;
   setPositionerElement: (element: HTMLElement | null) => void;
+  triggerElement: HTMLElement | null;
   setTriggerElement: (element: HTMLElement | null) => void;
   transitionStatus: TransitionStatus;
   allowMouseUpTriggerRef: React.RefObject<boolean>;

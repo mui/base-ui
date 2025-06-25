@@ -32,8 +32,9 @@ import {
   ContextMenuRootContext,
   useContextMenuRootContext,
 } from '../../context-menu/root/ContextMenuRootContext';
-import { ownerDocument } from '../../utils/owner';
 import { useMenuSubmenuRootContext } from '../submenu-root/MenuSubmenuRootContext';
+import { useMixedToggleClickHandler } from '../../utils/useMixedToggleClickHander';
+import { mergeProps } from '../../merge-props';
 import { useId } from '../../utils/useId';
 
 const EMPTY_ARRAY: never[] = [];
@@ -196,7 +197,6 @@ export const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
     },
   });
 
-  const ignoreClickRef = React.useRef(false);
   const allowTouchToCloseRef = React.useRef(true);
   const allowTouchToCloseTimeout = useTimeout();
 
@@ -207,13 +207,6 @@ export const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
       reason: MenuRoot.OpenChangeReason | undefined,
     ) => {
       if (open === nextOpen) {
-        return;
-      }
-
-      // As the menu opens on mousedown and closes on click,
-      // we need to ignore the click event immediately following mousedown.
-      if (reason === 'trigger-press' && event?.type === 'click' && ignoreClickRef.current) {
-        ignoreClickRef.current = false;
         return;
       }
 
@@ -237,20 +230,6 @@ export const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
       } else {
         allowTouchToCloseRef.current = true;
         allowTouchToCloseTimeout.clear();
-      }
-
-      if (reason === 'trigger-press' && nextOpen && event?.type === 'mousedown') {
-        ignoreClickRef.current = true;
-
-        ownerDocument(event.currentTarget as Element).addEventListener(
-          'click',
-          () => {
-            ignoreClickRef.current = false;
-          },
-          { once: true },
-        );
-      } else {
-        ignoreClickRef.current = false;
       }
 
       const isKeyboardClick =
@@ -352,7 +331,7 @@ export const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
 
   const click = useClick(floatingRootContext, {
     enabled: !disabled && parent.type !== 'context-menu',
-    event: open ? 'click' : 'mousedown',
+    event: open && parent.type === 'menubar' ? 'click' : 'mousedown',
     toggle: !openOnHover || parent.type !== 'menu',
     ignoreMouse: openOnHover && parent.type === 'menu',
     stickIfOpen: parent.type === undefined ? stickIfOpen : false,
@@ -422,15 +401,26 @@ export const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
     typeahead,
   ]);
 
+  const mixedToggleHandlers = useMixedToggleClickHandler({
+    open,
+    enabled: parent.type === 'menubar',
+    mouseDownAction: 'open',
+  });
+
   const triggerProps = React.useMemo(() => {
-    const referenceProps = getReferenceProps({
-      onMouseEnter() {
-        setHoverEnabled(true);
+    const referenceProps = mergeProps(
+      getReferenceProps(),
+      {
+        onMouseEnter() {
+          setHoverEnabled(true);
+        },
       },
-    });
+      mixedToggleHandlers,
+    );
+
     delete referenceProps.role;
     return referenceProps;
-  }, [getReferenceProps]);
+  }, [getReferenceProps, mixedToggleHandlers]);
 
   const popupProps = React.useMemo(
     () =>
@@ -468,6 +458,7 @@ export const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
       positionerRef,
       setOpen,
       setPositionerElement,
+      triggerElement,
       setTriggerElement,
       transitionStatus,
       lastOpenChangeReason,
@@ -493,6 +484,7 @@ export const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
       positionerRef,
       setOpen,
       transitionStatus,
+      triggerElement,
       setPositionerElement,
       lastOpenChangeReason,
       instantType,
