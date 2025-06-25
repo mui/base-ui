@@ -130,7 +130,7 @@ export namespace useMenuItem {
      * Data about the submenu trigger.
      */
     submenuTrigger: {
-      setActive: () => void;
+      setActive?: () => void;
       allowMouseEnterEnabled?: boolean;
     };
   }
