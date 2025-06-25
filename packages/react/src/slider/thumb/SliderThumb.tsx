@@ -21,7 +21,7 @@ import {
 } from '../../composite/composite';
 import { useCompositeListItem } from '../../composite/list/useCompositeListItem';
 import { useDirection } from '../../direction-provider/DirectionContext';
-import { useFieldRootContext } from '../../field/root/FieldRootContext';
+import { useFieldRootContext, type FieldRootContext } from '../../field/root/FieldRootContext';
 import { getSliderValue } from '../utils/getSliderValue';
 import { roundValueToStep } from '../utils/roundValueToStep';
 import { valueArrayToPercentages } from '../utils/valueArrayToPercentages';
@@ -111,9 +111,6 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     ...elementProps
   } = componentProps;
 
-  const id = useBaseUiId(idProp);
-  const inputId = `${id}-input`;
-
   const render = renderProp ?? defaultRender;
 
   const {
@@ -142,7 +139,6 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
   }
 
   const disabled = disabledProp || contextDisabled;
-
   const externalTabIndex = tabIndexProp ?? contextTabIndex;
 
   const direction = useDirection();
@@ -150,19 +146,28 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
 
   const thumbRef = React.useRef<HTMLElement>(null);
 
+  const id = useBaseUiId(idProp);
+  const inputId = `${id}-input`;
+
   useModernLayoutEffect(() => {
-    setControlId(inputId);
+    if (idProp) {
+      setControlId(idProp);
+    }
 
     return () => {
-      setControlId(undefined);
+      if (idProp) {
+        setControlId(undefined);
+      }
     };
-  }, [controlId, inputId, setControlId]);
+  }, [controlId, idProp, setControlId]);
+
+  const thumbInputId = idProp ? inputId : controlId;
 
   const thumbMetadata = React.useMemo(
     () => ({
-      inputId,
+      inputId: thumbInputId,
     }),
-    [inputId],
+    [thumbInputId],
   );
 
   const { ref: listItemRef, index } = useCompositeListItem<ThumbMetadata>({
@@ -336,7 +341,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
             ),
       [SliderThumbDataAttributes.index as string]: index,
       disabled,
-      id: inputId,
+      id: thumbInputId ?? undefined,
       max,
       min,
       onChange(event: React.ChangeEvent<HTMLInputElement>) {
@@ -388,7 +393,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
 });
 
 export interface ThumbMetadata {
-  inputId: string | undefined;
+  inputId: FieldRootContext['controlId'];
 }
 
 export namespace SliderThumb {
