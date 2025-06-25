@@ -1,8 +1,12 @@
-import { isIOS, isWebKit } from './detectBrowser';
-import { ownerDocument, ownerWindow } from './owner';
-import { useModernLayoutEffect } from './useModernLayoutEffect';
-import { Timeout } from './useTimeout';
-import { AnimationFrame } from './useAnimationFrame';
+import {
+  isIOS,
+  isWebKit,
+  ownerDocument,
+  ownerWindow,
+  useModernLayoutEffect,
+  Timeout,
+  AnimationFrame,
+} from '@base-ui-components/react-utils';
 import { NOOP } from './noop';
 
 /* eslint-disable lines-between-class-members */
