@@ -9,6 +9,7 @@ import {
   warn,
   useLatestRef,
 } from '@base-ui-components/react-utils';
+import { useSelector, Store } from '@base-ui-components/react-utils/store';
 import {
   useClick,
   useDismiss,
@@ -23,7 +24,6 @@ import { useFieldControlValidation } from '../../field/control/useFieldControlVa
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useTransitionStatus } from '../../utils/useTransitionStatus';
-import { useSelector, Store } from '../../utils/store';
 import { selectors, State } from '../store';
 import type { SelectRootContext } from './SelectRootContext';
 import {

@@ -8,11 +8,11 @@ import {
   useModernLayoutEffect,
   useEventCallback,
 } from '@base-ui-components/react-utils';
+import { useSelector } from '@base-ui-components/react-utils/store';
 import { FloatingFocusManager } from '../../floating-ui-react';
 import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import { popupStateMapping } from '../../utils/popupStateMapping';
-import { useSelector } from '../../utils/store';
 import type { Side } from '../../utils/useAnchorPositioning';
 import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';

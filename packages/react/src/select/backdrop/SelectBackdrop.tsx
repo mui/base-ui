@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { useSelector } from '@base-ui-components/react-utils/store';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import { popupStateMapping } from '../../utils/popupStateMapping';
@@ -7,7 +8,6 @@ import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import { transitionStatusMapping } from '../../utils/styleHookMapping';
 import { useRenderElement } from '../../utils/useRenderElement';
-import { useSelector } from '../../utils/store';
 import { selectors } from '../store';
 
 const customStyleHookMapping: CustomStyleHookMapping<SelectBackdrop.State> = {

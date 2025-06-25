@@ -5,6 +5,7 @@ import {
   useModernLayoutEffect,
   useEventCallback,
 } from '@base-ui-components/react-utils';
+import { useSelector } from '@base-ui-components/react-utils/store';
 import { useSelectRootContext, useSelectFloatingContext } from '../root/SelectRootContext';
 import { CompositeList } from '../../composite/list/CompositeList';
 import type { BaseUIComponentProps } from '../../utils/types';
@@ -15,7 +16,6 @@ import { InternalBackdrop } from '../../utils/InternalBackdrop';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { DROPDOWN_COLLISION_AVOIDANCE } from '../../utils/constants';
 import { clearPositionerStyles } from '../popup/utils';
-import { useSelector } from '../../utils/store';
 import { selectors } from '../store';
 import { useScrollLock } from '../../utils/useScrollLock';
 

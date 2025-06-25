@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { useSelector } from '@base-ui-components/react-utils/store';
 import { useSelectPositionerContext } from '../positioner/SelectPositionerContext';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import type { BaseUIComponentProps } from '../../utils/types';
@@ -8,7 +9,6 @@ import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping';
 import { transitionStatusMapping } from '../../utils/styleHookMapping';
 import { useRenderElement } from '../../utils/useRenderElement';
-import { useSelector } from '../../utils/store';
 import { selectors } from '../store';
 
 const customStyleHookMapping: CustomStyleHookMapping<SelectArrow.State> = {

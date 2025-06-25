@@ -5,13 +5,13 @@ import {
   useLatestRef,
   isMouseWithinBounds,
 } from '@base-ui-components/react-utils';
+import { useSelector } from '@base-ui-components/react-utils/store';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import {
   useCompositeListItem,
   IndexGuessBehavior,
 } from '../../composite/list/useCompositeListItem';
 import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
-import { useSelector } from '../../utils/store';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { SelectItemContext } from './SelectItemContext';
 import { selectors } from '../store';

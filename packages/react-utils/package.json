@@ -9,7 +9,8 @@
   },
   "license": "MIT",
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./store": "./src/store/index.ts"
   },
   "type": "commonjs",
   "scripts": {

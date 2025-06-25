@@ -6,13 +6,13 @@ import {
   useEventCallback,
   useForkRef,
 } from '@base-ui-components/react-utils';
+import { useSelector } from '@base-ui-components/react-utils/store';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { pressableTriggerOpenStateMapping } from '../../utils/popupStateMapping';
 import { fieldValidityMapping } from '../../field/utils/constants';
 import { useRenderElement } from '../../utils/useRenderElement';
-import { useSelector } from '../../utils/store';
 import { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 import { selectors } from '../store';
 import { getPseudoElementBounds } from '../../utils/getPseudoElementBounds';

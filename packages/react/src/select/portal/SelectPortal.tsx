@@ -1,9 +1,9 @@
 'use client';
 import * as React from 'react';
+import { useSelector } from '@base-ui-components/react-utils/store';
 import { FloatingPortal } from '../../floating-ui-react';
 import { SelectPortalContext } from './SelectPortalContext';
 import { useSelectRootContext } from '../root/SelectRootContext';
-import { useSelector } from '../../utils/store';
 import { selectors } from '../store';
 
 /**
