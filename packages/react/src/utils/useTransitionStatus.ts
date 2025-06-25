@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import * as ReactDOM from 'react-dom';
 import { useModernLayoutEffect } from './useModernLayoutEffect';
 import { AnimationFrame } from './useAnimationFrame';
 
@@ -48,17 +49,14 @@ export function useTransitionStatus(
   }, [open, mounted, transitionStatus, deferEndingState]);
 
   useModernLayoutEffect(() => {
-    // Avoid `act` warnings due to `store` apply updates
-    if (process.env.NODE_ENV === 'test') {
-      return undefined;
-    }
-
     if (!open || enableIdleState) {
       return undefined;
     }
 
     const frame = AnimationFrame.request(() => {
-      setTransitionStatus(undefined);
+      ReactDOM.flushSync(() => {
+        setTransitionStatus(undefined);
+      });
     });
 
     return () => {
