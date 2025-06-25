@@ -71,7 +71,6 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
     allowMouseUpTriggerRef,
     typingRef,
     nativeButton,
-    allowMouseEnterEnabled: parentMenuContext.allowMouseEnter,
     submenuTrigger,
   });
 
