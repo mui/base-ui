@@ -426,10 +426,10 @@ export const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
         },
       },
       mixedToggleHandlers,
-    });
+    );
     delete referenceProps.role;
     return referenceProps;
-  }, [getReferenceProps, setAllowMouseEnter]);
+  }, [getReferenceProps, mixedToggleHandlers, setAllowMouseEnter]);
 
   const popupProps = React.useMemo(
     () =>
