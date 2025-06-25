@@ -19,7 +19,7 @@ import {
 } from '../../composite/composite';
 import { useCompositeListItem } from '../../composite/list/useCompositeListItem';
 import { useDirection } from '../../direction-provider/DirectionContext';
-import { useFieldRootContext } from '../../field/root/FieldRootContext';
+import { useFieldRootContext, type FieldRootContext } from '../../field/root/FieldRootContext';
 import { getMidpoint } from '../utils/getMidpoint';
 import { getSliderValue } from '../utils/getSliderValue';
 import { roundValueToStep } from '../utils/roundValueToStep';
@@ -140,18 +140,24 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
   const inputRef = React.useRef<HTMLInputElement>(null);
 
   useIsoLayoutEffect(() => {
-    setControlId(inputId);
+    if (idProp) {
+      setControlId(idProp);
+    }
 
     return () => {
-      setControlId(undefined);
+      if (idProp) {
+        setControlId(undefined);
+      }
     };
-  }, [controlId, inputId, setControlId]);
+  }, [controlId, idProp, setControlId]);
+
+  const thumbInputId = idProp ? inputId : controlId;
 
   const thumbMetadata = React.useMemo(
     () => ({
-      inputId,
+      inputId: thumbInputId,
     }),
-    [inputId],
+    [thumbInputId],
   );
 
   const { ref: listItemRef, index: compositeIndex } = useCompositeListItem<ThumbMetadata>({
@@ -373,7 +379,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
 });
 
 export interface ThumbMetadata {
-  inputId: string | undefined;
+  inputId: FieldRootContext['controlId'];
 }
 
 export namespace SliderThumb {
