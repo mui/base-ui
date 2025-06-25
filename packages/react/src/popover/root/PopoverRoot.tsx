@@ -44,7 +44,6 @@ function PopoverRootComponent({ props }: { props: PopoverRoot.Props }) {
   const [titleId, setTitleId] = React.useState<string>();
   const [descriptionId, setDescriptionId] = React.useState<string>();
   const [triggerElement, setTriggerElement] = React.useState<Element | null>(null);
-  console.log('triggerElement: ', triggerElement);
   const [positionerElement, setPositionerElement] = React.useState<HTMLElement | null>(null);
   const [openReason, setOpenReason] = React.useState<PopoverOpenChangeReason | null>(null);
   const [stickIfOpen, setStickIfOpen] = React.useState(true);
