@@ -43,7 +43,7 @@ describe('useCheckboxGroupParent', () => {
     });
 
     expect(parentCheckedChange.callCount).to.equal(1);
-    expect(childCheckedChange.callCount).to.equal(1);
+    expect(childCheckedChange.callCount).to.equal(0);
 
     fireEvent.click(parent);
     expect(parent).to.have.attribute('aria-checked', 'false');
@@ -53,16 +53,17 @@ describe('useCheckboxGroupParent', () => {
     });
 
     expect(parentCheckedChange.callCount).to.equal(2);
-    expect(childCheckedChange.callCount).to.equal(2);
+    expect(childCheckedChange.callCount).to.equal(0);
   });
 
   it('parent should be marked as mixed if some children are checked', () => {
+    const childCheckedChange = spy();
     function App() {
       const [value, setValue] = React.useState<string[]>([]);
       return (
         <CheckboxGroup value={value} onValueChange={setValue} allValues={allValues}>
           <Checkbox.Root parent data-testid="parent" />
-          <Checkbox.Root name="a" />
+          <Checkbox.Root name="a" onCheckedChange={childCheckedChange} />
           <Checkbox.Root name="b" />
           <Checkbox.Root name="c" />
         </CheckboxGroup>
@@ -80,6 +81,7 @@ describe('useCheckboxGroupParent', () => {
     });
 
     fireEvent.click(checkboxes[0]);
+    expect(childCheckedChange.callCount).to.equal(1);
 
     expect(screen.getByTestId('parent')).to.have.attribute('aria-checked', 'mixed');
   });
