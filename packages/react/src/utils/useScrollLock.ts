@@ -83,8 +83,8 @@ function preventScrollStandard(referenceElement: Element | null) {
       htmlStyles.overflowX === 'scroll' || bodyStyles.overflowX === 'scroll';
 
     // Values can be negative in Firefox
-    const scrollbarWidth = isScrollableY ? Math.max(0, win.innerWidth - html.clientWidth) : 0;
-    const scrollbarHeight = isScrollableX ? Math.max(0, win.innerHeight - html.clientHeight) : 0;
+    const scrollbarWidth = Math.max(0, win.innerWidth - html.clientWidth);
+    const scrollbarHeight = Math.max(0, win.innerHeight - html.clientHeight);
 
     // Avoid shift due to the default <body> margin. This does cause elements to be clipped
     // with whitespace. Warn if <body> has margins?
