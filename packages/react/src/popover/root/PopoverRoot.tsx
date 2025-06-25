@@ -43,7 +43,8 @@ function PopoverRootComponent({ props }: { props: PopoverRoot.Props }) {
   const [instantType, setInstantType] = React.useState<'dismiss' | 'click'>();
   const [titleId, setTitleId] = React.useState<string>();
   const [descriptionId, setDescriptionId] = React.useState<string>();
-  const [triggerElement, setTriggerElement] = React.useState<Element | null>(null);
+  const [internalTriggerElement, setInternalTriggerElement] = React.useState<Element | null>(null);
+  const triggerElement = props.triggerRef?.current ?? internalTriggerElement;
   const [positionerElement, setPositionerElement] = React.useState<HTMLElement | null>(null);
   const [openReason, setOpenReason] = React.useState<PopoverOpenChangeReason | null>(null);
   const [stickIfOpen, setStickIfOpen] = React.useState(true);
@@ -170,7 +171,7 @@ function PopoverRootComponent({ props }: { props: PopoverRoot.Props }) {
       setMounted,
       transitionStatus,
       triggerElement,
-      setTriggerElement,
+      setTriggerElement: props.triggerRef ? () => {} : setInternalTriggerElement,
       positionerElement,
       setPositionerElement,
       popupRef,
@@ -212,6 +213,7 @@ function PopoverRootComponent({ props }: { props: PopoverRoot.Props }) {
       delay,
       closeDelay,
       modal,
+      props.triggerRef,
     ],
   );
 
@@ -303,6 +305,10 @@ export namespace PopoverRoot {
      * @default false
      */
     modal?: boolean | 'trap-focus';
+    /**
+     * A ref to an external DOM element that will serve as the popover's trigger.
+     */
+    triggerRef?: React.RefObject<HTMLElement | null>;
   }
 
   export interface Props extends Parameters {
