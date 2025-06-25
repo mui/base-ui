@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { InteractionType, useEnhancedClickHandler } from './useEnhancedClickHandler';
+import { InteractionType, useEnhancedClickHandler } from '@base-ui-components/react-utils';
 
 /**
  * Determines the interaction type (keyboard, mouse, touch, etc.) that opened the component.

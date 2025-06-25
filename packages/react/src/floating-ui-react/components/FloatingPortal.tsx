@@ -1,10 +1,8 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { isElement } from '@floating-ui/utils/dom';
-import { useId } from '../../utils/useId';
-import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
+import { useId, useModernLayoutEffect, visuallyHidden } from '@base-ui-components/react-utils';
 import { FocusGuard } from '../../utils/FocusGuard';
-import { visuallyHidden } from '../../utils/visuallyHidden';
 import {
   enableFocusInside,
   disableFocusInside,

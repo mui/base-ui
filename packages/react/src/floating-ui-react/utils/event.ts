@@ -1,4 +1,4 @@
-import { isAndroid, isJSDOM } from '../../utils/detectBrowser';
+import { isAndroid, isJSDOM } from '@base-ui-components/react-utils';
 
 export function stopEvent(event: Event | React.SyntheticEvent) {
   event.preventDefault();

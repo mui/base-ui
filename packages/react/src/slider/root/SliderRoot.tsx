@@ -1,19 +1,21 @@
 'use client';
 import * as React from 'react';
-import { activeElement } from '../../floating-ui-react/utils';
-import { areArraysEqual } from '../../utils/areArraysEqual';
-import { clamp } from '../../utils/clamp';
-import { ownerDocument } from '../../utils/owner';
+import {
+  ownerDocument,
+  useControlled,
+  useEventCallback,
+  useForkRef,
+  useLatestRef,
+  useModernLayoutEffect,
+  visuallyHidden,
+  warn,
+} from '@base-ui-components/react-utils';
 import type { BaseUIComponentProps, Orientation } from '../../utils/types';
 import { useBaseUiId } from '../../utils/useBaseUiId';
-import { useControlled } from '../../utils/useControlled';
-import { useEventCallback } from '../../utils/useEventCallback';
-import { useForkRef } from '../../utils/useForkRef';
-import { useLatestRef } from '../../utils/useLatestRef';
-import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { useRenderElement } from '../../utils/useRenderElement';
-import { visuallyHidden } from '../../utils/visuallyHidden';
-import { warn } from '../../utils/warn';
+import { clamp } from '../../utils/clamp';
+import { areArraysEqual } from '../../utils/areArraysEqual';
+import { activeElement } from '../../floating-ui-react/utils';
 import { CompositeList, type CompositeMetadata } from '../../composite/list/CompositeList';
 import type { FieldRoot } from '../../field/root/FieldRoot';
 import { useField } from '../../field/useField';

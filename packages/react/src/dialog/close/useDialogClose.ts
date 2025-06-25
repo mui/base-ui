@@ -1,9 +1,9 @@
 'use client';
 import * as React from 'react';
+import { useEventCallback } from '@base-ui-components/react-utils';
 import { useButton } from '../../use-button/useButton';
 import { mergeProps } from '../../merge-props';
 import type { HTMLProps } from '../../utils/types';
-import { useEventCallback } from '../../utils/useEventCallback';
 import { DialogOpenChangeReason } from '../root/useDialogRoot';
 
 export function useDialogClose(params: useDialogClose.Parameters): useDialogClose.ReturnValue {

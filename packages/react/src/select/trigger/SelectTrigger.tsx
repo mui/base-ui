@@ -1,5 +1,11 @@
 'use client';
 import * as React from 'react';
+import {
+  ownerDocument,
+  useTimeout,
+  useEventCallback,
+  useForkRef,
+} from '@base-ui-components/react-utils';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
@@ -11,11 +17,7 @@ import { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 import { selectors } from '../store';
 import { getPseudoElementBounds } from '../../utils/getPseudoElementBounds';
 import { contains } from '../../floating-ui-react/utils';
-import { ownerDocument } from '../../utils/owner';
 import { mergeProps } from '../../merge-props';
-import { useTimeout } from '../../utils/useTimeout';
-import { useEventCallback } from '../../utils/useEventCallback';
-import { useForkRef } from '../../utils';
 import { useButton } from '../../use-button';
 
 const BOUNDARY_OFFSET = 2;

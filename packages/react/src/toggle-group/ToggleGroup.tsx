@@ -1,10 +1,9 @@
 'use client';
 import * as React from 'react';
+import { useEventCallback, useControlled } from '@base-ui-components/react-utils';
 import { useRenderElement } from '../utils/useRenderElement';
 import type { BaseUIComponentProps, Orientation } from '../utils/types';
 import { CompositeRoot } from '../composite/root/CompositeRoot';
-import { useControlled } from '../utils/useControlled';
-import { useEventCallback } from '../utils/useEventCallback';
 import { useToolbarRootContext } from '../toolbar/root/ToolbarRootContext';
 import { ToggleGroupContext } from './ToggleGroupContext';
 import { ToggleGroupDataAttributes } from './ToggleGroupDataAttributes';

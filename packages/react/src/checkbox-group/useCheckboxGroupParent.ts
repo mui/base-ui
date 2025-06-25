@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
+import { useEventCallback } from '@base-ui-components/react-utils';
 import { useBaseUiId } from '../utils/useBaseUiId';
-import { useEventCallback } from '../utils/useEventCallback';
 
 const EMPTY: string[] = [];
 

@@ -1,23 +1,26 @@
 'use client';
 import * as React from 'react';
+import {
+  useControlled,
+  useEventCallback,
+  useTimeout,
+  useInterval,
+  useModernLayoutEffect,
+  useLatestRef,
+  useForcedRerendering,
+  ownerDocument,
+  ownerWindow,
+  isIOS,
+} from '@base-ui-components/react-utils';
 import { InputMode, NumberFieldRootContext } from './NumberFieldRootContext';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import type { BaseUIComponentProps } from '../../utils/types';
 import type { FieldRoot } from '../../field/root/FieldRoot';
 import { styleHookMapping } from '../utils/styleHooks';
 import { useRenderElement } from '../../utils/useRenderElement';
-import { useControlled } from '../../utils/useControlled';
-import { useEventCallback } from '../../utils/useEventCallback';
-import { useTimeout } from '../../utils/useTimeout';
-import { useInterval } from '../../utils/useInterval';
 import { getNumberLocaleDetails, PERCENTAGES } from '../utils/parse';
 import { formatNumber, formatNumberMaxPrecision } from '../../utils/formatNumber';
-import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
-import { useLatestRef } from '../../utils/useLatestRef';
-import { useForcedRerendering } from '../../utils/useForcedRerendering';
 import { useBaseUiId } from '../../utils/useBaseUiId';
-import { ownerDocument, ownerWindow } from '../../utils/owner';
-import { isIOS } from '../../utils/detectBrowser';
 import { CHANGE_VALUE_TICK_DELAY, DEFAULT_STEP, START_AUTO_CHANGE_DELAY } from '../utils/constants';
 import { toValidatedNumber } from '../utils/validate';
 import { EventWithOptionalKeyState } from '../utils/types';

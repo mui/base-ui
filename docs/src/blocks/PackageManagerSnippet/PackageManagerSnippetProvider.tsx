@@ -1,5 +1,5 @@
 'use client';
-import { useModernLayoutEffect } from '@base-ui-components/react/utils';
+import { useModernLayoutEffect } from '@base-ui-components/react-utils';
 import * as React from 'react';
 
 export interface PackageManagerSnippetContext {

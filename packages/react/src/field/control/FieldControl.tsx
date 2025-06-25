@@ -1,13 +1,16 @@
 'use client';
 import * as React from 'react';
+import {
+  useEventCallback,
+  useControlled,
+  useModernLayoutEffect,
+} from '@base-ui-components/react-utils';
 import { FieldRoot } from '../root/FieldRoot';
 import { useFieldRootContext } from '../root/FieldRootContext';
 import { fieldValidityMapping } from '../utils/constants';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
-import { useEventCallback } from '../../utils/useEventCallback';
 import { useField } from '../useField';
-import { useControlled, useModernLayoutEffect } from '../../utils';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useFieldControlValidation } from './useFieldControlValidation';
 

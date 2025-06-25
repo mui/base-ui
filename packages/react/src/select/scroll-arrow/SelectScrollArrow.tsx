@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
+import { useTimeout } from '@base-ui-components/react-utils';
 import type { BaseUIComponentProps } from '../../utils/types';
-import { useTimeout } from '../../utils/useTimeout';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import { useSelectPositionerContext } from '../positioner/SelectPositionerContext';
 import { Side } from '../../utils/useAnchorPositioning';

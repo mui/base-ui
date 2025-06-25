@@ -1,12 +1,10 @@
 'use client';
 import * as React from 'react';
+import { useEventCallback, ownerDocument, useTimeout } from '@base-ui-components/react-utils';
 import { contains, getTarget, stopEvent } from '../../floating-ui-react/utils';
 import type { BaseUIComponentProps } from '../../utils/types';
-import { useEventCallback } from '../../utils/useEventCallback';
 import { useContextMenuRootContext } from '../root/ContextMenuRootContext';
-import { ownerDocument } from '../../utils/owner';
 import { useRenderElement } from '../../utils/useRenderElement';
-import { useTimeout } from '../../utils/useTimeout';
 
 const LONG_PRESS_DELAY = 500;
 

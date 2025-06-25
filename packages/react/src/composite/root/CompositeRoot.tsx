@@ -1,9 +1,9 @@
 'use client';
 import * as React from 'react';
+import { useEventCallback } from '@base-ui-components/react-utils';
 import { CompositeList, type CompositeMetadata } from '../list/CompositeList';
 import { useCompositeRoot } from './useCompositeRoot';
 import { CompositeRootContext } from './CompositeRootContext';
-import { useEventCallback } from '../../utils/useEventCallback';
 import { useRenderElement } from '../../utils/useRenderElement';
 import type { BaseUIComponentProps } from '../../utils/types';
 import type { Dimensions, ModifierKey } from '../composite';

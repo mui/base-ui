@@ -1,9 +1,9 @@
 'use client';
 import * as React from 'react';
+import { useLatestRef } from '@base-ui-components/react-utils';
 import { MeterRootContext } from './MeterRootContext';
 import { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import { formatNumber } from '../../utils/formatNumber';
-import { useLatestRef } from '../../utils/useLatestRef';
 import { valueToPercent } from '../../utils/valueToPercent';
 import { useRenderElement } from '../../utils/useRenderElement';
 

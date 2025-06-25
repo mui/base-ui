@@ -1,18 +1,21 @@
 'use client';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
+import {
+  ownerDocument,
+  ownerWindow,
+  isWebKit,
+  useLatestRef,
+  useEventCallback,
+} from '@base-ui-components/react-utils';
 import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import { useNumberFieldRootContext } from '../root/NumberFieldRootContext';
 import type { NumberFieldRoot } from '../root/NumberFieldRoot';
 import { styleHookMapping } from '../utils/styleHooks';
 import { NumberFieldScrubAreaContext } from './NumberFieldScrubAreaContext';
 import { useRenderElement } from '../../utils/useRenderElement';
-import { ownerDocument, ownerWindow } from '../../utils/owner';
-import { isWebKit } from '../../utils/detectBrowser';
-import { useLatestRef } from '../../utils/useLatestRef';
 import { getViewportRect } from '../utils/getViewportRect';
 import { subscribeToVisualViewportResize } from '../utils/subscribeToVisualViewportResize';
-import { useEventCallback } from '../../utils/useEventCallback';
 import { DEFAULT_STEP } from '../utils/constants';
 
 /**

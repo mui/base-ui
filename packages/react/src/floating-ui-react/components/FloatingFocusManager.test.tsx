@@ -17,6 +17,7 @@ import {
 import { test } from 'vitest';
 import * as React from 'react';
 import * as ReactDOMClient from 'react-dom/client';
+import { isJSDOM } from '@base-ui-components/react-utils';
 import {
   FloatingFocusManager,
   FloatingNode,
@@ -32,7 +33,6 @@ import {
   useRole,
 } from '../index';
 import type { FloatingFocusManagerProps } from './FloatingFocusManager';
-import { isJSDOM } from '../../utils/detectBrowser';
 import { Main as MenuVirtual } from '../../../test/floating-ui-tests/MenuVirtual';
 import { Main as Navigation } from '../../../test/floating-ui-tests/Navigation';
 

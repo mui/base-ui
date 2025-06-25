@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { isElement } from '@floating-ui/utils/dom';
-import { useEventCallback } from '../../utils/useEventCallback';
+import { useEventCallback, useId } from '@base-ui-components/react-utils';
 
 import type {
   FloatingRootContext,
@@ -9,7 +9,6 @@ import type {
   OpenChangeReason,
 } from '../types';
 import { createEventEmitter } from '../utils/createEventEmitter';
-import { useId } from '../../utils/useId';
 import { useFloatingParentNodeId } from '../components/FloatingTree';
 
 export interface UseFloatingRootContextOptions {

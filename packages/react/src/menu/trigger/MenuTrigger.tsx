@@ -1,5 +1,11 @@
 'use client';
 import * as React from 'react';
+import {
+  useForkRef,
+  useTimeout,
+  ownerDocument,
+  useEventCallback,
+} from '@base-ui-components/react-utils';
 import { contains } from '../../floating-ui-react/utils';
 import { useFloatingTree } from '../../floating-ui-react/index';
 import { CompositeItem } from '../../composite/item/CompositeItem';
@@ -7,13 +13,9 @@ import { useMenuRootContext } from '../root/MenuRootContext';
 import { pressableTriggerOpenStateMapping } from '../../utils/popupStateMapping';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { BaseUIComponentProps, HTMLProps } from '../../utils/types';
-import { useForkRef } from '../../utils/useForkRef';
 import { mergeProps } from '../../merge-props';
 import { useButton } from '../../use-button/useButton';
-import { useTimeout } from '../../utils/useTimeout';
-import { ownerDocument } from '../../utils/owner';
 import { getPseudoElementBounds } from '../../utils/getPseudoElementBounds';
-import { useEventCallback } from '../../utils/useEventCallback';
 
 const BOUNDARY_OFFSET = 2;
 

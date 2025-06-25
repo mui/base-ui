@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
+import { useModernLayoutEffect } from '@base-ui-components/react-utils';
 import { useCompositeListContext } from './CompositeListContext';
 
 export interface UseCompositeListItemParameters<Metadata> {

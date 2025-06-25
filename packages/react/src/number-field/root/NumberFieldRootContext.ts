@@ -1,8 +1,8 @@
 'use client';
 import * as React from 'react';
+import { Timeout } from '@base-ui-components/react-utils';
 import type { NumberFieldRoot } from './NumberFieldRoot';
 import { EventWithOptionalKeyState } from '../utils/types';
-import { Timeout } from '../../utils/useTimeout';
 
 export type InputMode = 'numeric' | 'decimal' | 'text';
 

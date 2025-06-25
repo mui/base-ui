@@ -1,4 +1,4 @@
-import { ownerWindow } from '../../utils/owner';
+import { ownerWindow } from '@base-ui-components/react-utils';
 
 // Calculates the viewport rect for the virtual cursor.
 export function getViewportRect(teleportDistance: number | undefined, scrubAreaEl: HTMLElement) {

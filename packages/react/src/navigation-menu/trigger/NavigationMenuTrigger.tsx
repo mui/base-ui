@@ -2,6 +2,14 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import {
+  useEventCallback,
+  useModernLayoutEffect,
+  visuallyHidden,
+  useTimeout,
+  useAnimationFrame,
+  useLatestRef,
+} from '@base-ui-components/react-utils';
+import {
   safePolygon,
   useClick,
   useDismiss,
@@ -25,21 +33,15 @@ import {
   useNavigationMenuRootContext,
   useNavigationMenuTreeContext,
 } from '../root/NavigationMenuRootContext';
-import { useEventCallback } from '../../utils/useEventCallback';
 import {
   BaseOpenChangeReason,
   translateOpenChangeReason,
 } from '../../utils/translateOpenChangeReason';
 import { PATIENT_CLICK_THRESHOLD } from '../../utils/constants';
 import { FocusGuard } from '../../utils/FocusGuard';
-import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
-import { visuallyHidden } from '../../utils/visuallyHidden';
 import { CompositeItem } from '../../composite/item/CompositeItem';
 import { pressableTriggerOpenStateMapping } from '../../utils/popupStateMapping';
 import { isOutsideMenuEvent } from '../utils/isOutsideMenuEvent';
-import { useTimeout } from '../../utils/useTimeout';
-import { useAnimationFrame } from '../../utils/useAnimationFrame';
-import { useLatestRef } from '../../utils/useLatestRef';
 import { useAnimationsFinished } from '../../utils/useAnimationsFinished';
 import { NavigationMenuPopupCssVars } from '../popup/NavigationMenuPopupCssVars';
 import { NavigationMenuPositionerCssVars } from '../positioner/NavigationMenuPositionerCssVars';

@@ -1,5 +1,13 @@
 'use client';
 import * as React from 'react';
+import {
+  isWebKit,
+  ownerDocument,
+  ownerWindow,
+  isMouseWithinBounds,
+  useModernLayoutEffect,
+  useEventCallback,
+} from '@base-ui-components/react-utils';
 import { FloatingFocusManager } from '../../floating-ui-react';
 import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import { useSelectRootContext } from '../root/SelectRootContext';
@@ -15,11 +23,6 @@ import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { selectors } from '../store';
 import { clearPositionerStyles } from './utils';
-import { isWebKit } from '../../utils/detectBrowser';
-import { ownerDocument, ownerWindow } from '../../utils/owner';
-import { isMouseWithinBounds } from '../../utils/isMouseWithinBounds';
-import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
-import { useEventCallback } from '../../utils/useEventCallback';
 import { DISABLED_TRANSITIONS_STYLE } from '../../utils/constants';
 
 const customStyleHookMapping: CustomStyleHookMapping<SelectPopup.State> = {

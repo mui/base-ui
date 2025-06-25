@@ -1,9 +1,9 @@
 'use client';
 import * as React from 'react';
+import type { InteractionType } from '@base-ui-components/react-utils';
 import type { FloatingRootContext } from '../../floating-ui-react';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import type { HTMLProps } from '../../utils/types';
-import type { InteractionType } from '../../utils/useEnhancedClickHandler';
 import type { BaseOpenChangeReason } from '../../utils/translateOpenChangeReason';
 
 export type PopoverOpenChangeReason = BaseOpenChangeReason | 'close-press';

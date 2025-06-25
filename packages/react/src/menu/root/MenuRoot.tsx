@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
+import { useTimeout, useEventCallback, useControlled } from '@base-ui-components/react-utils';
 import {
   FloatingTree,
   useClick,
@@ -16,10 +17,7 @@ import {
 } from '../../floating-ui-react';
 import { MenuRootContext, useMenuRootContext } from './MenuRootContext';
 import { MenubarContext, useMenubarContext } from '../../menubar/MenubarContext';
-import { useTimeout } from '../../utils/useTimeout';
 import { useTransitionStatus } from '../../utils/useTransitionStatus';
-import { useEventCallback } from '../../utils/useEventCallback';
-import { useControlled } from '../../utils/useControlled';
 import { PATIENT_CLICK_THRESHOLD, TYPEAHEAD_RESET_MS } from '../../utils/constants';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useDirection } from '../../direction-provider/DirectionContext';

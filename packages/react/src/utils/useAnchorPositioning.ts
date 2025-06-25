@@ -2,6 +2,12 @@
 import * as React from 'react';
 import { getSide, getAlignment, type Rect, getSideAxis } from '@floating-ui/utils';
 import {
+  ownerDocument,
+  useEventCallback,
+  useLatestRef,
+  useModernLayoutEffect,
+} from '@base-ui-components/react-utils';
+import {
   autoUpdate,
   flip,
   limitShift,
@@ -22,11 +28,7 @@ import {
   type AutoUpdateOptions,
   type Middleware,
 } from '../floating-ui-react/index';
-import { useModernLayoutEffect } from './useModernLayoutEffect';
 import { useDirection } from '../direction-provider/DirectionContext';
-import { useLatestRef } from './useLatestRef';
-import { useEventCallback } from './useEventCallback';
-import { ownerDocument } from './owner';
 
 function getLogicalSide(sideParam: Side, renderedSide: PhysicalSide, isRtl: boolean): Side {
   const isLogicalSideParam = sideParam === 'inline-start' || sideParam === 'inline-end';

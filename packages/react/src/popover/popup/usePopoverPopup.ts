@@ -1,7 +1,7 @@
 import * as React from 'react';
+import type { InteractionType } from '@base-ui-components/react-utils';
 import type { HTMLProps } from '../../utils/types';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
-import type { InteractionType } from '../../utils/useEnhancedClickHandler';
 
 export function usePopoverPopup(params: usePopoverPopup.Parameters): usePopoverPopup.ReturnValue {
   const { titleId, descriptionId, initialFocus } = params;

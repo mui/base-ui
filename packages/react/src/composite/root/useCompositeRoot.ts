@@ -1,10 +1,14 @@
 'use client';
 import * as React from 'react';
+import {
+  isElementDisabled,
+  useEventCallback,
+  useForkRef,
+  ownerDocument,
+  useModernLayoutEffect,
+} from '@base-ui-components/react-utils';
 import { activeElement } from '../../floating-ui-react/utils';
 import type { TextDirection } from '../../direction-provider/DirectionContext';
-import { isElementDisabled } from '../../utils/isElementDisabled';
-import { useEventCallback } from '../../utils/useEventCallback';
-import { useForkRef } from '../../utils/useForkRef';
 import {
   ALL_KEYS,
   ARROW_DOWN,
@@ -36,8 +40,6 @@ import {
 import { ACTIVE_COMPOSITE_ITEM } from '../constants';
 import { CompositeMetadata } from '../list/CompositeList';
 import { HTMLProps } from '../../utils/types';
-import { ownerDocument } from '../../utils/owner';
-import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 
 export interface UseCompositeRootParameters {
   orientation?: 'horizontal' | 'vertical' | 'both';

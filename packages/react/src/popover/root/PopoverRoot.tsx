@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
+import { useTimeout, useControlled, useEventCallback } from '@base-ui-components/react-utils';
 import {
   useClick,
   useDismiss,
@@ -11,9 +12,6 @@ import {
   FloatingTree,
   safePolygon,
 } from '../../floating-ui-react';
-import { useTimeout } from '../../utils/useTimeout';
-import { useControlled } from '../../utils/useControlled';
-import { useEventCallback } from '../../utils/useEventCallback';
 import { useTransitionStatus } from '../../utils/useTransitionStatus';
 import { OPEN_DELAY } from '../utils/constants';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';

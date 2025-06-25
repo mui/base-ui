@@ -1,8 +1,7 @@
 'use client';
 import * as React from 'react';
+import { useControlled, useEventCallback } from '@base-ui-components/react-utils';
 import { useBaseUiId } from '../utils/useBaseUiId';
-import { useControlled } from '../utils/useControlled';
-import { useEventCallback } from '../utils/useEventCallback';
 import { useRenderElement } from '../utils/useRenderElement';
 import { CheckboxGroupContext } from './CheckboxGroupContext';
 import type { FieldRoot } from '../field/root/FieldRoot';

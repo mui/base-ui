@@ -331,6 +331,9 @@ importers:
       '@base-ui-components/react':
         specifier: workspace:*
         version: link:../packages/react/build
+      '@base-ui-components/react-utils':
+        specifier: workspace:*
+        version: link:../packages/react-utils/build
       '@emotion/cache':
         specifier: ^11.14.0
         version: 11.14.0

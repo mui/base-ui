@@ -1,10 +1,9 @@
 'use client';
 import * as React from 'react';
+import { useControlled, useEventCallback } from '@base-ui-components/react-utils';
 import { MenuRadioGroupContext } from './MenuRadioGroupContext';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
-import { useControlled } from '../../utils/useControlled';
-import { useEventCallback } from '../../utils/useEventCallback';
 
 /**
  * Groups related radio items.

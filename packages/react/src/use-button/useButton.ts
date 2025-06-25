@@ -1,8 +1,7 @@
 'use client';
 import * as React from 'react';
+import { useEventCallback, useModernLayoutEffect } from '@base-ui-components/react-utils';
 import { makeEventPreventable, mergeProps } from '../merge-props';
-import { useModernLayoutEffect } from '../utils/useModernLayoutEffect';
-import { useEventCallback } from '../utils/useEventCallback';
 import { useCompositeRootContext } from '../composite/root/CompositeRootContext';
 import { BaseUIEvent, HTMLProps } from '../utils/types';
 import { useFocusableWhenDisabled } from '../utils/useFocusableWhenDisabled';

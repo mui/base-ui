@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { AnimationFrame } from '@base-ui-components/react-utils';
 import {
   FloatingNode,
   FloatingTree,
@@ -10,10 +11,9 @@ import {
 import { type MenuRoot } from '../menu/root/MenuRoot';
 import { BaseUIComponentProps } from '../utils/types';
 import { MenubarContext, useMenubarContext } from './MenubarContext';
-import { useScrollLock } from '../utils';
+import { useScrollLock } from '../utils/useScrollLock';
 import { CompositeRoot } from '../composite/root/CompositeRoot';
 import { useRenderElement } from '../utils/useRenderElement';
-import { AnimationFrame } from '../utils/useAnimationFrame';
 
 /**
  * The container for menus.

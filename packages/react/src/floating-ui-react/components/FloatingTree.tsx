@@ -1,7 +1,6 @@
 import * as React from 'react';
 
-import { useId } from '../../utils/useId';
-import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
+import { useId, useModernLayoutEffect } from '@base-ui-components/react-utils';
 import type { FloatingNodeType, FloatingTreeType, ReferenceType } from '../types';
 import { createEventEmitter } from '../utils/createEventEmitter';
 

@@ -1,10 +1,10 @@
 'use client';
 import * as React from 'react';
+import { useModernLayoutEffect } from '@base-ui-components/react-utils';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useMenuGroupRootContext } from '../group/MenuGroupContext';
-import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 
 /**
  * An accessible label that is automatically associated with its parent group.

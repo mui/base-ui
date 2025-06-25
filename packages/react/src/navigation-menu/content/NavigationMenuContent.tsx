@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
+import { inertValue } from '@base-ui-components/react-utils';
 import { FloatingNode } from '../../floating-ui-react';
 import { contains } from '../../floating-ui-react/utils';
 import type { BaseUIComponentProps } from '../../utils/types';
@@ -15,7 +16,6 @@ import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { transitionStatusMapping } from '../../utils/styleHookMapping';
 import { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 import { CompositeRoot } from '../../composite/root/CompositeRoot';
-import { inertValue } from '../../utils/inertValue';
 import { popupStateMapping } from '../../utils/popupStateMapping';
 
 const customStyleHookMapping: CustomStyleHookMapping<NavigationMenuContent.State> = {

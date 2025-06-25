@@ -1,12 +1,14 @@
 import * as React from 'react';
 import { tabbable, isTabbable, focusable, type FocusableElement } from 'tabbable';
 import { getNodeName, isHTMLElement } from '@floating-ui/utils/dom';
-import { useForkRef } from '../../utils/useForkRef';
-import { useLatestRef } from '../../utils/useLatestRef';
-import { useEventCallback } from '../../utils/useEventCallback';
-import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
+import {
+  useForkRef,
+  useLatestRef,
+  useEventCallback,
+  useModernLayoutEffect,
+  visuallyHidden,
+} from '@base-ui-components/react-utils';
 import { FocusGuard } from '../../utils/FocusGuard';
-import { visuallyHidden } from '../../utils/visuallyHidden';
 import {
   activeElement,
   contains,

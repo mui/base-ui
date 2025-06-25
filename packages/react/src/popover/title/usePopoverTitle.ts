@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
+import { useModernLayoutEffect } from '@base-ui-components/react-utils';
 import { mergeProps } from '../../merge-props';
-import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import type { HTMLProps } from '../../utils/types';
 

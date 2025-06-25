@@ -1,14 +1,16 @@
 'use client';
 import * as React from 'react';
-import { contains } from '../floating-ui-react/utils';
-import { useBaseUiId } from '../utils/useBaseUiId';
-import { useControlled } from '../utils/useControlled';
-import { useForkRef } from '../utils/useForkRef';
-import { useModernLayoutEffect } from '../utils/useModernLayoutEffect';
+import {
+  useControlled,
+  useForkRef,
+  useModernLayoutEffect,
+  useEventCallback,
+  visuallyHidden,
+} from '@base-ui-components/react-utils';
 import { useRenderElement } from '../utils/useRenderElement';
-import { useEventCallback } from '../utils/useEventCallback';
 import type { BaseUIComponentProps } from '../utils/types';
-import { visuallyHidden } from '../utils/visuallyHidden';
+import { useBaseUiId } from '../utils/useBaseUiId';
+import { contains } from '../floating-ui-react/utils';
 import { SHIFT } from '../composite/composite';
 import { CompositeRoot } from '../composite/root/CompositeRoot';
 import { useFormContext } from '../form/FormContext';

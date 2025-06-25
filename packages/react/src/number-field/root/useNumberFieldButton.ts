@@ -1,5 +1,7 @@
 'use client';
 import * as React from 'react';
+import { useEventCallback } from '@base-ui-components/react-utils';
+import type { Timeout } from '@base-ui-components/react-utils';
 import {
   DEFAULT_STEP,
   MAX_POINTER_MOVES_AFTER_TOUCH,
@@ -7,10 +9,8 @@ import {
   TOUCH_TIMEOUT,
 } from '../utils/constants';
 import { parseNumber } from '../utils/parse';
-import { useEventCallback } from '../../utils/useEventCallback';
 import type { HTMLProps } from '../../utils/types';
 import type { EventWithOptionalKeyState } from '../utils/types';
-import type { Timeout } from '../../utils/useTimeout';
 
 export function useNumberFieldButton(
   params: useNumberFieldButton.Parameters,

@@ -1,8 +1,8 @@
 'use client';
 import * as React from 'react';
+import { useLatestRef } from '@base-ui-components/react-utils';
 import { formatNumber } from '../../utils/formatNumber';
 import { useRenderElement } from '../../utils/useRenderElement';
-import { useLatestRef } from '../../utils/useLatestRef';
 import { ProgressRootContext } from './ProgressRootContext';
 import { progressStyleHookMapping } from './styleHooks';
 import { BaseUIComponentProps } from '../../utils/types';

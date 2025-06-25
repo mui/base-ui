@@ -1,12 +1,14 @@
 'use client';
 import * as React from 'react';
+import {
+  useModernLayoutEffect,
+  useEventCallback,
+  useForkRef,
+  useOnMount,
+  AnimationFrame,
+  warn,
+} from '@base-ui-components/react-utils';
 import { HTMLProps } from '../../utils/types';
-import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
-import { useEventCallback } from '../../utils/useEventCallback';
-import { useForkRef } from '../../utils/useForkRef';
-import { useOnMount } from '../../utils/useOnMount';
-import { AnimationFrame } from '../../utils/useAnimationFrame';
-import { warn } from '../../utils/warn';
 import type { AnimationType, Dimensions } from '../root/useCollapsibleRoot';
 import { CollapsiblePanelDataAttributes } from './CollapsiblePanelDataAttributes';
 import { AccordionRootDataAttributes } from '../../accordion/root/AccordionRootDataAttributes';

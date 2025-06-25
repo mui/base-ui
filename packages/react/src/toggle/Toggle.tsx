@@ -1,7 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useControlled } from '../utils/useControlled';
-import { useEventCallback } from '../utils/useEventCallback';
+import { useEventCallback, useControlled } from '@base-ui-components/react-utils';
 import { useRenderElement } from '../utils/useRenderElement';
 import type { BaseUIComponentProps } from '../utils/types';
 import { CompositeItem } from '../composite/item/CompositeItem';

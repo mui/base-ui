@@ -1,15 +1,17 @@
 'use client';
 import * as React from 'react';
-import { useLatestRef } from '../../utils/useLatestRef';
+import {
+  useLatestRef,
+  ownerDocument,
+  useEventCallback,
+  generateId,
+  Timeout,
+} from '@base-ui-components/react-utils';
 import { activeElement, contains } from '../../floating-ui-react/utils';
 import { ToastContext } from './ToastProviderContext';
 import { ToastObject, useToastManager } from '../useToastManager';
-import { ownerDocument } from '../../utils/owner';
-import { useEventCallback } from '../../utils/useEventCallback';
 import { isFocusVisible } from '../utils/focusVisible';
-import { generateId } from '../../utils/generateId';
 import { resolvePromiseOptions } from '../utils/resolvePromiseOptions';
-import { Timeout } from '../../utils/useTimeout';
 import { createToastManager } from '../createToastManager';
 
 interface TimerInfo {

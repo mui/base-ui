@@ -1,12 +1,13 @@
 'use client';
 import * as React from 'react';
+import {
+  isElementDisabled,
+  useControlled,
+  useEventCallback,
+  useModernLayoutEffect,
+  warn,
+} from '@base-ui-components/react-utils';
 import { BaseUIComponentProps, Orientation } from '../../utils/types';
-import { isElementDisabled } from '../../utils/isElementDisabled';
-import { useControlled } from '../../utils/useControlled';
-import { useEventCallback } from '../../utils/useEventCallback';
-import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
-import { useRenderElement } from '../../utils/useRenderElement';
-import { warn } from '../../utils/warn';
 import {
   ARROW_DOWN,
   ARROW_UP,
@@ -19,6 +20,7 @@ import {
 import { CompositeList } from '../../composite/list/CompositeList';
 import { useDirection } from '../../direction-provider/DirectionContext';
 import { AccordionRootContext } from './AccordionRootContext';
+import { useRenderElement } from '../../utils/useRenderElement';
 
 const SUPPORTED_KEYS = new Set([ARROW_DOWN, ARROW_UP, ARROW_RIGHT, ARROW_LEFT, HOME, END]);
 

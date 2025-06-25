@@ -3,7 +3,7 @@ import * as React from 'react';
 import type { FloatingRootContext } from '../../floating-ui-react';
 import type { MenuParent, MenuRoot } from './MenuRoot';
 import { HTMLProps } from '../../utils/types';
-import { TransitionStatus } from '../../utils';
+import { TransitionStatus } from '../../utils/useTransitionStatus';
 
 export interface MenuRootContext {
   disabled: boolean;

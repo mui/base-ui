@@ -12,6 +12,7 @@ import userEvent from '@testing-library/user-event';
 import * as React from 'react';
 import { vi } from 'vitest';
 
+import { isJSDOM } from '@base-ui-components/react-utils';
 import {
   FloatingFocusManager,
   FloatingNode,
@@ -27,7 +28,6 @@ import {
 } from '../index';
 import type { UseDismissProps } from './useDismiss';
 import { normalizeProp } from './useDismiss';
-import { isJSDOM } from '../../utils/detectBrowser';
 
 beforeAll(() => {
   vi.spyOn(window, 'requestAnimationFrame').mockImplementation(

@@ -1,8 +1,6 @@
 'use client';
 import * as React from 'react';
-import { isSafari } from './detectBrowser';
-import { useModernLayoutEffect } from './useModernLayoutEffect';
-import { visuallyHidden } from './visuallyHidden';
+import { useModernLayoutEffect, isSafari, visuallyHidden } from '@base-ui-components/react-utils';
 
 /**
  * @internal

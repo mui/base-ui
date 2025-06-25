@@ -1,8 +1,7 @@
 'use client';
 import * as React from 'react';
+import { useEventCallback, useModernLayoutEffect } from '@base-ui-components/react-utils';
 import { BaseUIComponentProps } from '../../utils/types';
-import { useEventCallback } from '../../utils/useEventCallback';
-import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { CompositeRoot } from '../../composite/root/CompositeRoot';
 import { tabsStyleHookMapping } from '../root/styleHooks';

@@ -1,5 +1,6 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
+import { useControlled, useEventCallback } from '@base-ui-components/react-utils';
 import {
   useClientPoint,
   useDelayGroup,
@@ -11,9 +12,7 @@ import {
   safePolygon,
   type FloatingRootContext,
 } from '../../floating-ui-react';
-import { useControlled } from '../../utils/useControlled';
 import { useTransitionStatus } from '../../utils/useTransitionStatus';
-import { useEventCallback } from '../../utils/useEventCallback';
 import { OPEN_DELAY } from '../utils/constants';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import type { HTMLProps } from '../../utils/types';
