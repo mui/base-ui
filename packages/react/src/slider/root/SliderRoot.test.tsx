@@ -2094,13 +2094,15 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
       await render(
         <Field.Root>
           <Slider.Root data-testid="slider">
-            <Slider.Control />
+            <Slider.Control>
+              <Slider.Thumb />
+            </Slider.Control>
           </Slider.Root>
           <Field.Label data-testid="label" render={<span />} />
         </Field.Root>,
       );
 
-      expect(screen.getByTestId('slider')).to.have.attribute(
+      expect(screen.getByRole('slider')).to.have.attribute(
         'aria-labelledby',
         screen.getByTestId('label').id,
       );
