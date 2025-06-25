@@ -73,6 +73,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
   } = componentProps;
 
   const {
+    controlId,
     setControlId,
     setDirty,
     validityData,
@@ -96,14 +97,20 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
 
   const inputRef = React.useRef<HTMLInputElement>(null);
 
-  const id = useBaseUiId(idProp);
+  const defaultId = useBaseUiId(idProp);
+  const id = controlId ?? defaultId;
 
   useIsoLayoutEffect(() => {
-    setControlId(id);
+    if (idProp) {
+      setControlId(idProp);
+    }
+
     return () => {
-      setControlId(undefined);
+      if (idProp) {
+        setControlId(undefined);
+      }
     };
-  }, [id, setControlId]);
+  }, [idProp, setControlId]);
 
   const [valueUnwrapped, setValueUnwrapped] = useControlled<number | null>({
     controlled: valueProp,
