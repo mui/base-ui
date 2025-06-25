@@ -18,6 +18,7 @@ export function useMenuItem(params: useMenuItem.Parameters): useMenuItem.ReturnV
     typingRef,
     nativeButton,
     submenuTrigger,
+    allowMouseEnterEnabled = true,
   } = params;
 
   const itemRef = React.useRef<HTMLElement | null>(null);
@@ -43,6 +44,17 @@ export function useMenuItem(params: useMenuItem.Parameters): useMenuItem.ReturnV
           id,
           role: 'menuitem',
           tabIndex: highlighted ? 0 : -1,
+          onMouseEnter() {
+            if (!allowMouseEnterEnabled) {
+              return;
+            }
+
+            if (!submenuTrigger.setActiveIndex || submenuTrigger.index == null) {
+              return;
+            }
+
+            submenuTrigger.setActiveIndex(submenuTrigger.index);
+          },
           onKeyUp: (event: BaseUIEvent<React.KeyboardEvent>) => {
             if (event.key === ' ' && typingRef.current) {
               event.preventBaseUIHandler();
@@ -77,6 +89,7 @@ export function useMenuItem(params: useMenuItem.Parameters): useMenuItem.ReturnV
       menuEvents,
       allowMouseUpTriggerRef,
       submenuTrigger,
+      allowMouseEnterEnabled,
     ],
   );
 
@@ -129,9 +142,16 @@ export namespace useMenuItem {
      */
     nativeButton: boolean;
     /**
-     * Whether the item is a submenu trigger.
+     * Data about the submenu trigger.
      */
-    submenuTrigger: boolean;
+    submenuTrigger: {
+      setActiveIndex?: (index: number) => void;
+      index?: number;
+    };
+    /**
+     * Whether to allow mouseenter events.
+     */
+    allowMouseEnterEnabled?: boolean;
   }
 
   export interface ReturnValue {

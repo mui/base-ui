@@ -72,9 +72,12 @@ export const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
   const [lastOpenChangeReason, setLastOpenChangeReason] =
     React.useState<MenuRoot.OpenChangeReason | null>(null);
   const [stickIfOpen, setStickIfOpen] = React.useState(true);
+  const [allowMouseEnterState, setAllowMouseEnterState] = React.useState(false);
+
   const openEventRef = React.useRef<Event | null>(null);
   const popupRef = React.useRef<HTMLElement>(null);
   const positionerRef = React.useRef<HTMLElement | null>(null);
+
   const stickIfOpenTimeout = useTimeout();
   const contextMenuContext = useContextMenuRootContext(true);
   const isSubmenu = useMenuSubmenuRootContext();
@@ -108,6 +111,13 @@ export const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
 
   const modal =
     (parent.type === undefined || parent.type === 'context-menu') && (modalProp ?? true);
+
+  // If this menu is a submenu, it should inherit `allowMouseEnter` from its
+  // parent. Otherwise it manages the state on its own.
+  const allowMouseEnter =
+    parent.type === 'menu' ? parent.context.allowMouseEnter : allowMouseEnterState;
+  const setAllowMouseEnter =
+    parent.type === 'menu' ? parent.context.setAllowMouseEnter : setAllowMouseEnterState;
 
   if (process.env.NODE_ENV !== 'production') {
     if (parent.type !== undefined && modalProp !== undefined) {
@@ -175,6 +185,7 @@ export const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
   const handleUnmount = useEventCallback(() => {
     setMounted(false);
     setStickIfOpen(true);
+    setAllowMouseEnter(false);
     onOpenChangeComplete?.(false);
   });
 
@@ -330,8 +341,11 @@ export const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
     handleClose: safePolygon({ blockPointerEvents: true }),
     mouseOnly: true,
     move: parent.type === 'menu',
-    restMs: parent.type !== undefined ? undefined : delay,
-    delay: parent.type === 'menu' ? { open: delay, close: closeDelay } : { close: closeDelay },
+    restMs: parent.type !== undefined && !allowMouseEnter ? undefined : delay,
+    delay:
+      parent.type === 'menu'
+        ? { open: allowMouseEnter ? delay : 10 ** 10, close: closeDelay }
+        : { close: closeDelay },
   });
 
   const focus = useFocus(floatingRootContext, {
@@ -420,10 +434,13 @@ export const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
       onMouseEnter() {
         setHoverEnabled(true);
       },
+      onMouseMove() {
+        setAllowMouseEnter(true);
+      },
     });
     delete referenceProps.role;
     return referenceProps;
-  }, [getReferenceProps]);
+  }, [getReferenceProps, setAllowMouseEnter]);
 
   const popupProps = React.useMemo(
     () =>
@@ -433,13 +450,16 @@ export const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
             setHoverEnabled(false);
           }
         },
+        onMouseMove() {
+          setAllowMouseEnter(true);
+        },
         onClick() {
           if (openOnHover) {
             setHoverEnabled(false);
           }
         },
       }),
-    [getFloatingProps, openOnHover, parent.type],
+    [getFloatingProps, openOnHover, parent.type, setAllowMouseEnter],
   );
 
   const itemProps = React.useMemo(() => getItemProps(), [getItemProps]);
@@ -471,6 +491,8 @@ export const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
       modal,
       disabled,
       parent,
+      allowMouseEnter,
+      setAllowMouseEnter,
     }),
     [
       activeIndex,
@@ -492,6 +514,8 @@ export const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
       modal,
       disabled,
       parent,
+      allowMouseEnter,
+      setAllowMouseEnter,
     ],
   );
 
