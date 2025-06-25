@@ -234,7 +234,8 @@ export const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
 
       const isKeyboardClick =
         (reason === 'trigger-press' || reason === 'item-press') &&
-        (event as MouseEvent).detail === 0;
+        (event as MouseEvent).detail === 0 &&
+        event?.isTrusted;
       const isDismissClose = !nextOpen && (reason === 'escape-key' || reason == null);
 
       function changeState() {
