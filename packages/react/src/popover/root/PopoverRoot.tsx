@@ -171,7 +171,9 @@ function PopoverRootComponent({ props }: { props: PopoverRoot.Props }) {
       setMounted,
       transitionStatus,
       triggerElement,
-      setTriggerElement: props.triggerRef ? () => {} : setInternalTriggerElement,
+      setTriggerElement: props.triggerRef 
+        ? () => { console.warn("WHAT THE HELL ARE YOU DOING? THERE'S A REF ALREADY!") } 
+        : setInternalTriggerElement,
       positionerElement,
       setPositionerElement,
       popupRef,
