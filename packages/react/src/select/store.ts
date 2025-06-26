@@ -56,6 +56,8 @@ export const selectors = {
     if (state.multiple) {
       return Array.isArray(state.value) && state.value.includes(value);
     }
+    // `selectedIndex` is only updated after the items mount for the first time,
+    // the value check avoids a re-render for the initially selected item.
     return state.selectedIndex === index || state.value === value;
   }),
   isSelectedByFocus: createSelector((state: State, index: number) => {
