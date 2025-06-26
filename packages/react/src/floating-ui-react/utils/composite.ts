@@ -111,7 +111,7 @@ export function getGridNavigatedIndex(
       if (rowEl) {
         hasRoleRow = true;
       }
-      if (rowEl !== currentRowEl) {
+      if (rowEl !== currentRowEl || currentRowIndex === -1) {
         currentRowEl = rowEl;
         currentRowIndex += 1;
         rows[currentRowIndex] = [];
