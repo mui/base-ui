@@ -29,7 +29,8 @@
   "dependencies": {
     "@babel/runtime": "^7.27.6",
     "@floating-ui/utils": "^0.2.9",
-    "reselect": "^5.1.1"
+    "reselect": "^5.1.1",
+    "use-sync-external-store": "^1.5.0"
   },
   "devDependencies": {
     "@mui/internal-test-utils": "^2.0.9",
@@ -40,7 +41,7 @@
     "@types/react": "^19.1.6",
     "@types/sinon": "^17.0.4",
     "@types/use-sync-external-store": "^1.5.0",
-    "lodash": "^4.17.21",
+    "chai": "^4.5.0",
     "react": "^19.1.0",
     "sinon": "^21.0.0",
     "typescript": "^5.8.3",
@@ -49,6 +50,11 @@
   "peerDependencies": {
     "@types/react": "^17 || ^18 || ^19",
     "react": "^17 || ^18 || ^19"
+  },
+  "peerDependenciesMeta": {
+    "@types/react": {
+      "optional": true
+    }
   },
   "sideEffects": false,
   "publishConfig": {

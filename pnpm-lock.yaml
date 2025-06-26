@@ -649,10 +649,13 @@ importers:
       reselect:
         specifier: ^5.1.1
         version: 5.1.1
+      use-sync-external-store:
+        specifier: ^1.5.0
+        version: 1.5.0(react@19.1.0)
     devDependencies:
       '@mui/internal-test-utils':
         specifier: ^2.0.9
-        version: 2.0.9(@babel/core@7.27.4)(@types/react-dom@19.1.5(@types/react@19.1.6))(@types/react@19.1.6)(chai@5.2.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+        version: 2.0.9(@babel/core@7.27.4)(@types/react-dom@19.1.5(@types/react@19.1.6))(@types/react@19.1.6)(chai@4.5.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@testing-library/react':
         specifier: ^16.3.0
         version: 16.3.0(@testing-library/dom@10.4.0)(@types/react-dom@19.1.5(@types/react@19.1.6))(@types/react@19.1.6)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
@@ -674,9 +677,9 @@ importers:
       '@types/use-sync-external-store':
         specifier: ^1.5.0
         version: 1.5.0
-      lodash:
-        specifier: ^4.17.21
-        version: 4.17.21
+      chai:
+        specifier: ^4.5.0
+        version: 4.5.0
       react:
         specifier: ^19.1.0
         version: 19.1.0
