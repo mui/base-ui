@@ -71,6 +71,7 @@
     "@babel/preset-react": "^7.27.1",
     "@babel/preset-typescript": "^7.27.1",
     "@babel/register": "^7.27.1",
+    "@base-ui-components/monorepo-tests": "workspace:*",
     "@mui/internal-babel-plugin-display-name": "^1.0.2",
     "@mui/internal-babel-plugin-resolve-imports": "^2.0.5",
     "@mui/internal-bundle-size-checker": "^1.0.7",

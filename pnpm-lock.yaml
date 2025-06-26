@@ -52,6 +52,9 @@ importers:
       '@babel/register':
         specifier: ^7.27.1
         version: 7.27.1(@babel/core@7.27.4)
+      '@base-ui-components/monorepo-tests':
+        specifier: workspace:*
+        version: link:test
       '@mui/internal-babel-plugin-display-name':
         specifier: ^1.0.2
         version: 1.0.2(@babel/core@7.27.4)(@babel/preset-react@7.27.1(@babel/core@7.27.4))
