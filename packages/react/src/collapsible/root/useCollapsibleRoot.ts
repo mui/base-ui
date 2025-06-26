@@ -35,7 +35,8 @@ export function useCollapsibleRoot(
     width: undefined,
   });
 
-  const panelId = useBaseUiId(idProp);
+  const defaultPanelId = useBaseUiId(idProp);
+  const [panelId, setPanelId] = React.useState<string | undefined>(defaultPanelId);
 
   const [hiddenUntilFound, setHiddenUntilFound] = React.useState(false);
   const [keepMounted, setKeepMounted] = React.useState(false);
@@ -110,6 +111,7 @@ export function useCollapsibleRoot(
       setKeepMounted,
       setMounted,
       setOpen,
+      setPanelId,
       setVisible,
       transitionDimensionRef,
       transitionStatus,
@@ -196,6 +198,7 @@ export namespace useCollapsibleRoot {
     setKeepMounted: React.Dispatch<React.SetStateAction<boolean>>;
     setMounted: (open: boolean) => void;
     setOpen: (open: boolean) => void;
+    setPanelId: (id: string | undefined) => void;
     setVisible: React.Dispatch<React.SetStateAction<boolean>>;
     transitionDimensionRef: React.RefObject<'height' | 'width' | null>;
     transitionStatus: TransitionStatus;

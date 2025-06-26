@@ -30,6 +30,21 @@ describe('<Collapsible.Root />', () => {
       expect(trigger).to.have.attribute('aria-controls');
       expect(trigger.getAttribute('aria-controls')).to.equal(panel.getAttribute('id'));
     });
+
+    it('references manual panel id in trigger aria-controls', async () => {
+      const { getByTestId, getByRole } = await render(
+        <Collapsible.Root defaultOpen>
+          <Collapsible.Trigger />
+          <Collapsible.Panel id="custom-panel-id" data-testid="panel" />
+        </Collapsible.Root>,
+      );
+
+      const trigger = getByRole('button');
+      const panel = getByTestId('panel');
+
+      expect(trigger).to.have.attribute('aria-controls', 'custom-panel-id');
+      expect(panel).to.have.attribute('id', 'custom-panel-id');
+    });
   });
 
   describe('collapsible status', () => {
