@@ -381,7 +381,7 @@ describe('<Combobox.Root />', () => {
       const handleValueChange = spy();
 
       const { user } = await render(
-        <Combobox.Root multiple onValueChange={handleValueChange}>
+        <Combobox.Root select="multiple" onValueChange={handleValueChange}>
           <Combobox.Input data-testid="input" />
           <Combobox.List>
             <Combobox.Item value="a">a</Combobox.Item>
@@ -406,7 +406,7 @@ describe('<Combobox.Root />', () => {
 
     it('should create multiple hidden inputs for form submission', async () => {
       const { container } = await render(
-        <Combobox.Root multiple value={['a', 'b']} name="languages">
+        <Combobox.Root select="multiple" value={['a', 'b']} name="languages">
           <Combobox.Input />
           <Combobox.Portal>
             <Combobox.Positioner>
