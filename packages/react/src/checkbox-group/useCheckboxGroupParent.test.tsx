@@ -17,9 +17,9 @@ describe('useCheckboxGroupParent', () => {
       return (
         <CheckboxGroup value={value} onValueChange={setValue} allValues={allValues}>
           <Checkbox.Root parent data-testid="parent" onCheckedChange={parentCheckedChange} />
-          <Checkbox.Root name="a" />
-          <Checkbox.Root name="b" onCheckedChange={childCheckedChange} />
-          <Checkbox.Root name="c" />
+          <Checkbox.Root value="a" />
+          <Checkbox.Root value="b" onCheckedChange={childCheckedChange} />
+          <Checkbox.Root value="c" />
         </CheckboxGroup>
       );
     }
@@ -28,7 +28,7 @@ describe('useCheckboxGroupParent', () => {
 
     const checkboxes = screen
       .getAllByRole('checkbox')
-      .filter((v) => v.getAttribute('name') && v.tagName === 'BUTTON');
+      .filter((v) => v.getAttribute('value') && v.tagName === 'BUTTON');
     const parent = screen.getByTestId('parent');
 
     checkboxes.forEach((checkbox) => {
@@ -63,9 +63,9 @@ describe('useCheckboxGroupParent', () => {
       return (
         <CheckboxGroup value={value} onValueChange={setValue} allValues={allValues}>
           <Checkbox.Root parent data-testid="parent" />
-          <Checkbox.Root name="a" onCheckedChange={childCheckedChange} />
-          <Checkbox.Root name="b" />
-          <Checkbox.Root name="c" />
+          <Checkbox.Root value="a" onCheckedChange={childCheckedChange} />
+          <Checkbox.Root value="b" />
+          <Checkbox.Root value="c" />
         </CheckboxGroup>
       );
     }
@@ -74,12 +74,11 @@ describe('useCheckboxGroupParent', () => {
 
     const checkboxes = screen
       .getAllByRole('checkbox')
-      .filter((v) => v.getAttribute('name') && v.tagName === 'BUTTON');
+      .filter((v) => v.getAttribute('data-parent') == null && v.tagName === 'BUTTON');
 
     checkboxes.forEach((checkbox) => {
       expect(checkbox).to.have.attribute('aria-checked', 'false');
     });
-
     fireEvent.click(checkboxes[0]);
     expect(childCheckedChange.callCount).to.equal(1);
 
@@ -92,9 +91,9 @@ describe('useCheckboxGroupParent', () => {
       return (
         <CheckboxGroup value={value} onValueChange={setValue} allValues={allValues}>
           <Checkbox.Root parent data-testid="parent" />
-          <Checkbox.Root name="a" />
-          <Checkbox.Root name="b" />
-          <Checkbox.Root name="c" />
+          <Checkbox.Root value="a" data-testid="checkboxA" />
+          <Checkbox.Root value="b" />
+          <Checkbox.Root value="c" />
         </CheckboxGroup>
       );
     }
@@ -103,12 +102,7 @@ describe('useCheckboxGroupParent', () => {
 
     expect(screen.getByTestId('parent')).to.have.attribute('aria-checked', 'mixed');
 
-    const checkboxes = screen
-      .getAllByRole('checkbox')
-      .filter((v) => v.getAttribute('name') && v.tagName === 'BUTTON');
-    const checkboxA = checkboxes.find((v) => v.getAttribute('name') === 'a');
-
-    expect(checkboxA).to.have.attribute('aria-checked', 'true');
+    expect(screen.getByTestId('checkboxA')).to.have.attribute('aria-checked', 'true');
   });
 
   it('should update the values array when a child checkbox is clicked', () => {
@@ -117,9 +111,9 @@ describe('useCheckboxGroupParent', () => {
       return (
         <CheckboxGroup value={value} onValueChange={setValue} allValues={allValues}>
           <Checkbox.Root parent data-testid="parent" />
-          <Checkbox.Root name="a" />
-          <Checkbox.Root name="b" />
-          <Checkbox.Root name="c" />
+          <Checkbox.Root value="a" data-testid="checkboxA" />
+          <Checkbox.Root value="b" />
+          <Checkbox.Root value="c" />
         </CheckboxGroup>
       );
     }
@@ -130,9 +124,9 @@ describe('useCheckboxGroupParent', () => {
 
     const checkboxes = screen
       .getAllByRole('checkbox')
-      .filter((v) => v.getAttribute('name') && v.tagName === 'BUTTON');
-    const checkboxA = checkboxes.find((v) => v.getAttribute('name') === 'a');
+      .filter((v) => v.getAttribute('data-parent') == null && v.tagName === 'BUTTON');
 
+    const checkboxA = screen.getByTestId('checkboxA');
     expect(checkboxA).to.have.attribute('aria-checked', 'true');
 
     checkboxes.forEach((checkbox) => {
@@ -150,9 +144,9 @@ describe('useCheckboxGroupParent', () => {
       return (
         <CheckboxGroup value={value} onValueChange={setValue} allValues={allValues}>
           <Checkbox.Root parent data-testid="parent" />
-          <Checkbox.Root name="a" />
-          <Checkbox.Root name="b" />
-          <Checkbox.Root name="c" />
+          <Checkbox.Root value="a" />
+          <Checkbox.Root value="b" />
+          <Checkbox.Root value="c" />
         </CheckboxGroup>
       );
     }
@@ -171,9 +165,9 @@ describe('useCheckboxGroupParent', () => {
       return (
         <CheckboxGroup value={value} onValueChange={setValue} allValues={allValues}>
           <Checkbox.Root parent data-testid="parent" />
-          <Checkbox.Root name="a" />
-          <Checkbox.Root name="b" />
-          <Checkbox.Root name="c" />
+          <Checkbox.Root value="a" data-testid="checkboxA" />
+          <Checkbox.Root value="b" />
+          <Checkbox.Root value="c" />
         </CheckboxGroup>
       );
     }
@@ -182,8 +176,8 @@ describe('useCheckboxGroupParent', () => {
 
     const checkboxes = screen
       .getAllByRole('checkbox')
-      .filter((v) => v.getAttribute('name') && v.tagName === 'BUTTON');
-    const checkboxA = checkboxes.find((v) => v.getAttribute('name') === 'a')!;
+      .filter((v) => v.getAttribute('data-parent') == null && v.tagName === 'BUTTON');
+    const checkboxA = screen.getByTestId('checkboxA');
     const parent = screen.getByTestId('parent');
 
     fireEvent.click(checkboxA);
@@ -219,9 +213,9 @@ describe('useCheckboxGroupParent', () => {
       return (
         <CheckboxGroup value={value} onValueChange={setValue} allValues={allValues}>
           <Checkbox.Root parent data-testid="parent" />
-          <Checkbox.Root name="a" disabled />
-          <Checkbox.Root name="b" />
-          <Checkbox.Root name="c" />
+          <Checkbox.Root value="a" disabled data-testid="checkboxA" />
+          <Checkbox.Root value="b" />
+          <Checkbox.Root value="c" />
         </CheckboxGroup>
       );
     }
@@ -230,14 +224,14 @@ describe('useCheckboxGroupParent', () => {
 
     const checkboxes = screen
       .getAllByRole('checkbox')
-      .filter((v) => v.getAttribute('name') && v.tagName === 'BUTTON');
-    const checkboxA = checkboxes.find((v) => v.getAttribute('name') === 'a')!;
+      .filter((v) => v.getAttribute('value') && v.tagName === 'BUTTON');
+    // const checkboxA = checkboxes.find((v) => v.getAttribute('value') === 'a')!;
     const parent = screen.getByTestId('parent');
 
     fireEvent.click(parent);
 
     expect(parent).to.have.attribute('aria-checked', 'mixed');
-    expect(checkboxA).to.have.attribute('aria-checked', 'false');
+    expect(screen.getByTestId('checkboxA')).to.have.attribute('aria-checked', 'false');
   });
 
   it('handles checked disabled checkboxes', () => {
@@ -246,9 +240,9 @@ describe('useCheckboxGroupParent', () => {
       return (
         <CheckboxGroup value={value} onValueChange={setValue} allValues={allValues}>
           <Checkbox.Root parent data-testid="parent" />
-          <Checkbox.Root name="a" disabled />
-          <Checkbox.Root name="b" />
-          <Checkbox.Root name="c" />
+          <Checkbox.Root value="a" disabled />
+          <Checkbox.Root value="b" />
+          <Checkbox.Root value="c" />
         </CheckboxGroup>
       );
     }
@@ -257,9 +251,9 @@ describe('useCheckboxGroupParent', () => {
 
     const checkboxes = screen
       .getAllByRole('checkbox')
-      .filter((v) => v.getAttribute('name') && v.tagName === 'BUTTON');
-    const checkboxA = checkboxes.find((v) => v.getAttribute('name') === 'a')!;
-    const checkboxB = checkboxes.find((v) => v.getAttribute('name') === 'b')!;
+      .filter((v) => v.getAttribute('value') && v.tagName === 'BUTTON');
+    const checkboxA = checkboxes.find((v) => v.getAttribute('value') === 'a')!;
+    const checkboxB = checkboxes.find((v) => v.getAttribute('value') === 'b')!;
     const parent = screen.getByTestId('parent');
 
     fireEvent.click(parent);
