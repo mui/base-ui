@@ -1,13 +1,13 @@
 'use client';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import { stopEvent } from '@floating-ui/react/utils';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useComboboxChipsContext } from '../chips/ComboboxChipsContext';
 import { useComboboxRootContext } from '../root/ComboboxRootContext';
 import { useCompositeListItem } from '../../composite/list/useCompositeListItem';
 import { ComboboxChipContext } from './ComboboxChipContext';
+import { stopEvent } from '../../floating-ui-react/utils';
 
 /**
  * An individual chip that represents a value in a multiselectable combobox.
