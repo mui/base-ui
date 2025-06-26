@@ -78,7 +78,7 @@ export function useCollapsiblePanel(
        * https://react.dev/learn/referencing-values-with-refs#best-practices-for-refs
        */
       if (hasAnimation && hasTransition) {
-        if (process.env.NODE_ENV === 'development') {
+        if (process.env.NODE_ENV !== 'production') {
           warn(
             'CSS transitions and CSS animations both detected on Collapsible or Accordion panel.',
             'Only one of either animation type should be used.',
