@@ -162,11 +162,19 @@ export namespace SelectRoot {
   export type OpenChangeReason = SelectOpenChangeReason;
 
   export interface SingleProps<Value> extends Props<Value> {
+    /**
+     * Whether multiple items can be selected.
+     * @default false
+     */
     multiple?: false | undefined;
   }
 
   export interface MultipleProps<Value>
     extends Omit<Props<Value>, 'multiple' | 'value' | 'defaultValue' | 'onValueChange'> {
+    /**
+     * Whether multiple items can be selected.
+     * @default true
+     */
     multiple: true;
     value?: Value[] | null;
     defaultValue?: Value[] | null;

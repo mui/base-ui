@@ -46,7 +46,9 @@
       "description": "Determines if the select enters a modal state when open.\n- `true`: user interaction is limited to the select: document page scroll is locked and and pointer interactions on outside elements are disabled.\n- `false`: user interaction with the rest of the document is allowed."
     },
     "multiple": {
-      "type": "false"
+      "type": "false",
+      "default": "false",
+      "description": "Whether multiple items can be selected."
     },
     "onOpenChangeComplete": {
       "type": "((open: boolean) => void)",
