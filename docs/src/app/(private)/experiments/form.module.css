@@ -538,10 +538,25 @@
 }
 
 .Slider {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-gap: 0.25rem;
+  grid-row-gap: 0.5rem;
   width: 100%;
 }
 
+.SliderValue {
+  grid-column-start: 2;
+  margin: 0;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  color: var(--color-gray-900);
+  text-align: end;
+  white-space: nowrap;
+}
+
 .SliderControl {
+  grid-column: 1 / 3;
   box-sizing: border-box;
   display: flex;
   align-items: center;
