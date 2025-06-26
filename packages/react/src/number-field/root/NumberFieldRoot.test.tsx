@@ -579,6 +579,35 @@ describe('<NumberField />', () => {
       expect(input).not.to.have.attribute('aria-invalid');
       expect(screen.queryByTestId('error')).to.equal(null);
     });
+
+    it('revalidates immediately after form submission errors using increment button', async () => {
+      const { user } = await render(
+        <Form>
+          <Field.Root name="quantity">
+            <NumberField required />
+            <Field.Error match="valueMissing" data-testid="error">
+              required
+            </Field.Error>
+          </Field.Root>
+          <button type="submit" data-testid="submit">
+            Submit
+          </button>
+        </Form>,
+      );
+
+      const submit = screen.getByTestId('submit');
+      await user.click(submit);
+
+      expect(screen.getByTestId('error')).to.have.text('required');
+      const input = screen.getByRole('textbox');
+      expect(input).to.have.attribute('aria-invalid', 'true');
+
+      const incrementButton = screen.getByLabelText('Increase');
+      await user.click(incrementButton);
+
+      expect(screen.queryByTestId('error')).to.equal(null);
+      expect(input).not.to.have.attribute('aria-invalid');
+    });
   });
 
   describe('Field', () => {
