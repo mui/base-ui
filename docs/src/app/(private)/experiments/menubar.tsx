@@ -147,7 +147,7 @@ export default function MenubarExperiment() {
                   </Menu.RadioItem>
                 </Menu.RadioGroup>
 
-                <Menu.Root>
+                <Menu.SubmenuRoot>
                   <Menu.SubmenuTrigger className={menuClasses.SubmenuTrigger}>
                     Layout
                     <ChevronRightIcon />
@@ -194,7 +194,7 @@ export default function MenubarExperiment() {
                       </Menu.Popup>
                     </Menu.Positioner>
                   </Menu.Portal>
-                </Menu.Root>
+                </Menu.SubmenuRoot>
               </Menu.Popup>
             </Menu.Positioner>
           </Menu.Portal>

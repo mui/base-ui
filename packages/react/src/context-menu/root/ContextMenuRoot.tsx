@@ -3,6 +3,7 @@ import * as React from 'react';
 import { ContextMenuRootContext } from './ContextMenuRootContext';
 import { Menu } from '../../menu';
 import { MenuRootContext } from '../../menu/root/MenuRootContext';
+import { useId } from '../../utils/useId';
 
 /**
  * A component that creates a context menu activated by right clicking or long pressing.
@@ -22,6 +23,7 @@ export function ContextMenuRoot(props: ContextMenuRoot.Props) {
   const actionsRef: ContextMenuRootContext['actionsRef'] = React.useRef(null);
   const positionerRef = React.useRef<HTMLElement | null>(null);
   const allowMouseUpTriggerRef = React.useRef(true);
+  const id = useId();
 
   const contextValue: ContextMenuRootContext = React.useMemo(
     () => ({
@@ -32,8 +34,9 @@ export function ContextMenuRoot(props: ContextMenuRoot.Props) {
       internalBackdropRef,
       positionerRef,
       allowMouseUpTriggerRef,
+      rootId: id,
     }),
-    [anchor],
+    [anchor, id],
   );
 
   return (

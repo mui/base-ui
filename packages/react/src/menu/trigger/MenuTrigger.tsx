@@ -44,6 +44,7 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
     positionerRef,
     parent,
     lastOpenChangeReason,
+    rootId,
   } = useMenuRootContext();
 
   const disabled = disabledProp || menuDisabled;
@@ -73,10 +74,6 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
     allowMouseUpTriggerTimeout.clear();
     allowMouseUpTriggerRef.current = false;
 
-    if (!allowMouseUpTriggerRef.current) {
-      return;
-    }
-
     const mouseUpTarget = mouseEvent.target as Element | null;
 
     if (
@@ -84,6 +81,10 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
       contains(positionerRef.current, mouseUpTarget) ||
       mouseUpTarget === triggerRef.current
     ) {
+      return;
+    }
+
+    if (mouseUpTarget != null && findRootOwnerId(mouseUpTarget) === rootId) {
       return;
     }
 
@@ -187,4 +188,16 @@ export namespace MenuTrigger {
      */
     open: boolean;
   };
+}
+
+function findRootOwnerId(element: Element): string | undefined {
+  if (element.hasAttribute('data-rootownerid')) {
+    return element.getAttribute('data-rootownerid') ?? undefined;
+  }
+
+  if (!element.parentElement || element.parentElement === document.body) {
+    return undefined;
+  }
+
+  return findRootOwnerId(element.parentElement);
 }
