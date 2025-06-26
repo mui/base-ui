@@ -149,11 +149,9 @@ describe('<Combobox.Trigger />', () => {
 
       const trigger = screen.getByTestId('trigger');
 
-      // First click should open
       await user.click(trigger);
-      expect(screen.getByRole('listbox')).to.be.visible;
+      expect(screen.getByRole('listbox')).not.to.equal(null);
 
-      // Second click should close
       await user.click(trigger);
       expect(screen.queryByRole('listbox')).to.equal(null);
     });

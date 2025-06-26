@@ -620,7 +620,7 @@ export namespace MenuRoot {
     unmount: () => void;
   }
 
-  export type OpenChangeReason = BaseOpenChangeReason | 'sibling-open' | 'parent-close';
+  export type OpenChangeReason = BaseOpenChangeReason | 'sibling-open';
 
   export type Orientation = 'horizontal' | 'vertical';
 

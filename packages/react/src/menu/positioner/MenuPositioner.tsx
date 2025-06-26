@@ -138,14 +138,8 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
         if (event.nodeId !== nodeId && event.parentNodeId === parentNodeId) {
           setOpen(false, undefined, 'sibling-open');
         }
-      } else {
-        if (event.parentNodeId === nodeId) {
-          setHoverEnabled(true);
-        }
-        // Close this menu if its parent has closed
-        if (event.nodeId === parentNodeId && open) {
-          setOpen(false, undefined, 'parent-close');
-        }
+      } else if (event.parentNodeId === nodeId) {
+        setHoverEnabled(true);
       }
     }
 
@@ -154,7 +148,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
     return () => {
       menuEvents.off('openchange', onMenuOpenChange);
     };
-  }, [menuEvents, nodeId, parentNodeId, setOpen, setHoverEnabled, open]);
+  }, [menuEvents, nodeId, parentNodeId, setOpen, setHoverEnabled]);
 
   React.useEffect(() => {
     menuEvents.emit('openchange', { open, nodeId, parentNodeId });
