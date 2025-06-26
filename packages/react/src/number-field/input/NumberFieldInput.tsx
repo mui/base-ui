@@ -112,12 +112,7 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
       blockRevalidationRef.current = false;
       return;
     }
-
-    // Defer the validation until after React has committed the DOM updates
-    // to ensure the hidden input element reflects the latest value.
-    queueMicrotask(() => {
-      commitValidation(value, true);
-    });
+    commitValidation(value, true);
   }, [commitValidation, validationMode, value]);
 
   useModernLayoutEffect(() => {

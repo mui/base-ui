@@ -395,6 +395,26 @@ describe('<NumberField />', () => {
       }).format(1000);
       expect(input).to.have.value(expectedValue);
     });
+
+    it('reflects controlled value changes in the textbox', async () => {
+      function App() {
+        const [val, setVal] = React.useState<number | null>(1);
+        return (
+          <div>
+            <NumberField value={val} onValueChange={setVal} />
+            <button onClick={() => setVal(1234)}>set</button>
+          </div>
+        );
+      }
+
+      const { user } = await render(<App />);
+      const input = screen.getByRole('textbox');
+
+      expect(input).to.have.value('1');
+
+      await user.click(screen.getByText('set'));
+      expect(input).to.have.value((1234).toLocaleString());
+    });
   });
 
   describe('prop: allowWheelScrub', () => {

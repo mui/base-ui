@@ -31,6 +31,7 @@ import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useFormContext } from '../../form/FormContext';
 import { useLatestRef } from '../../utils/useLatestRef';
 import { useField } from '../../field/useField';
+import { serializeValue } from '../utils/serialize';
 
 export type SelectOpenChangeReason = BaseOpenChangeReason | 'window-resize';
 
@@ -157,11 +158,13 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     clearErrors(name);
     setDirty(nextValue !== validityData.initialValue);
 
-    // Defer the validation until after React has committed the DOM updates
-    // to ensure the hidden input element reflects the latest value.
-    queueMicrotask(() => {
-      commitValidation(nextValue, validationMode !== 'onChange');
-    });
+    // Ensure validation uses the latest value.
+    const inputEl = fieldControlValidation.inputRef.current;
+    if (inputEl) {
+      inputEl.value = serializeValue(nextValue);
+    }
+
+    commitValidation(nextValue, validationMode !== 'onChange');
   });
 
   useField({
