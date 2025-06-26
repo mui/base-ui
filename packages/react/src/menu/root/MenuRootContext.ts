@@ -36,6 +36,7 @@ export interface MenuRootContext {
   setHoverEnabled: React.Dispatch<React.SetStateAction<boolean>>;
   setActiveIndex: React.Dispatch<React.SetStateAction<number | null>>;
   parent: MenuParent;
+  openOnHover: boolean;
 }
 
 export const MenuRootContext = React.createContext<MenuRootContext | undefined>(undefined);
