@@ -6,7 +6,7 @@ import {
   useForkRef,
   useModernLayoutEffect,
   visuallyHidden,
-} from '@base-ui-components/react-utils';
+} from '@base-ui-components/utils';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import type { BaseUIComponentProps } from '../../utils/types';

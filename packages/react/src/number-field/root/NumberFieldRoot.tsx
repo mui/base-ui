@@ -11,7 +11,7 @@ import {
   ownerDocument,
   ownerWindow,
   isIOS,
-} from '@base-ui-components/react-utils';
+} from '@base-ui-components/utils';
 import { InputMode, NumberFieldRootContext } from './NumberFieldRootContext';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import type { BaseUIComponentProps } from '../../utils/types';

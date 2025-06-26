@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useEventCallback, useModernLayoutEffect } from '@base-ui-components/react-utils';
+import { useEventCallback, useModernLayoutEffect } from '@base-ui-components/utils';
 import { makeEventPreventable, mergeProps } from '../merge-props';
 import { useCompositeRootContext } from '../composite/root/CompositeRootContext';
 import { BaseUIEvent, HTMLProps } from '../utils/types';

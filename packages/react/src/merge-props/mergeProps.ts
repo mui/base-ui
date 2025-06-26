@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { mergeObjects } from '@base-ui-components/react-utils';
+import { mergeObjects } from '@base-ui-components/utils';
 import type { BaseUIEvent, WithBaseUIEvent } from '../utils/types';
 
 type ElementType = React.ElementType;

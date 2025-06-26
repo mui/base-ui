@@ -7,7 +7,7 @@ import {
   isWebKit,
   useLatestRef,
   useEventCallback,
-} from '@base-ui-components/react-utils';
+} from '@base-ui-components/utils';
 import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import { useNumberFieldRootContext } from '../root/NumberFieldRootContext';
 import type { NumberFieldRoot } from '../root/NumberFieldRoot';

@@ -1,5 +1,5 @@
 import * as ReactDOM from 'react-dom';
-import { useModernLayoutEffect, useLatestRef } from '@base-ui-components/react-utils';
+import { useModernLayoutEffect, useLatestRef } from '@base-ui-components/utils';
 import { getCombinedFieldValidityData } from './utils/getCombinedFieldValidityData';
 import { useFormContext } from '../form/FormContext';
 import { useFieldRootContext } from './root/FieldRootContext';

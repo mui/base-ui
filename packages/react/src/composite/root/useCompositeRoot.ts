@@ -6,7 +6,7 @@ import {
   useForkRef,
   ownerDocument,
   useModernLayoutEffect,
-} from '@base-ui-components/react-utils';
+} from '@base-ui-components/utils';
 import { activeElement } from '../../floating-ui-react/utils';
 import type { TextDirection } from '../../direction-provider/DirectionContext';
 import {

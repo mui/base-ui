@@ -4,8 +4,8 @@ import {
   useModernLayoutEffect,
   useLatestRef,
   isMouseWithinBounds,
-} from '@base-ui-components/react-utils';
-import { useSelector } from '@base-ui-components/react-utils/store';
+} from '@base-ui-components/utils';
+import { useSelector } from '@base-ui-components/utils/store';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import {
   useCompositeListItem,

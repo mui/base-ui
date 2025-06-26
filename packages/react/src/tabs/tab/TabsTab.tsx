@@ -1,10 +1,6 @@
 'use client';
 import * as React from 'react';
-import {
-  ownerDocument,
-  useEventCallback,
-  useModernLayoutEffect,
-} from '@base-ui-components/react-utils';
+import { ownerDocument, useEventCallback, useModernLayoutEffect } from '@base-ui-components/utils';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useRenderElement } from '../../utils/useRenderElement';
 import type { BaseUIComponentProps } from '../../utils/types';

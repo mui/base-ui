@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useForkRef, InteractionType, inertValue } from '@base-ui-components/react-utils';
+import { useForkRef, InteractionType, inertValue } from '@base-ui-components/utils';
 import { FloatingFocusManager } from '../../floating-ui-react';
 import { useDialogPopup } from '../../dialog/popup/useDialogPopup';
 import { useAlertDialogRootContext } from '../root/AlertDialogRootContext';

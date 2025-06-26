@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useTimeout, Timeout, useModernLayoutEffect } from '@base-ui-components/react-utils';
+import { useTimeout, Timeout, useModernLayoutEffect } from '@base-ui-components/utils';
 
 import { getDelay } from '../hooks/useHover';
 import type { FloatingRootContext, Delay } from '../types';

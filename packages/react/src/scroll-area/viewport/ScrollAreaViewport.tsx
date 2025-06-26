@@ -1,10 +1,6 @@
 'use client';
 import * as React from 'react';
-import {
-  useEventCallback,
-  useModernLayoutEffect,
-  useTimeout,
-} from '@base-ui-components/react-utils';
+import { useEventCallback, useModernLayoutEffect, useTimeout } from '@base-ui-components/utils';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useScrollAreaRootContext } from '../root/ScrollAreaRootContext';
 import { ScrollAreaViewportContext } from './ScrollAreaViewportContext';

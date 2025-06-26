@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useSelector } from '@base-ui-components/react-utils/store';
+import { useSelector } from '@base-ui-components/utils/store';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import { popupStateMapping } from '../../utils/popupStateMapping';

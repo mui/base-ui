@@ -1,5 +1,5 @@
 'use client';
-import { useId } from '@base-ui-components/react-utils';
+import { useId } from '@base-ui-components/utils';
 
 /**
  * Wraps `useId` and prefixes generated `id`s with `base-ui-`

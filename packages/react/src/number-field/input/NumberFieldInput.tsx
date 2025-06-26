@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useModernLayoutEffect } from '@base-ui-components/react-utils';
+import { useModernLayoutEffect } from '@base-ui-components/utils';
 import { stopEvent } from '../../floating-ui-react/utils';
 import { useNumberFieldRootContext } from '../root/NumberFieldRootContext';
 import type { BaseUIComponentProps } from '../../utils/types';

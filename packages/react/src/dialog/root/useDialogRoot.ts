@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
-import { useControlled, useEventCallback } from '@base-ui-components/react-utils';
-import { type InteractionType } from '@base-ui-components/react-utils';
+import { useControlled, useEventCallback } from '@base-ui-components/utils';
+import { type InteractionType } from '@base-ui-components/utils';
 import {
   FloatingRootContext,
   useClick,

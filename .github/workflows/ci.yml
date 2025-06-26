@@ -38,4 +38,4 @@ jobs:
       - run: pnpm validate-declarations
       - name: Publish to pkg-pr-new
         if: matrix.os == 'ubuntu-latest'
-        run: pnpm dlx pkg-pr-new publish './packages/react' './packages/react-utils' --compact --pnpm --peerDeps
+        run: pnpm dlx pkg-pr-new publish './packages/react' './packages/utils' --compact --pnpm --peerDeps

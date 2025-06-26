@@ -8,7 +8,7 @@ import {
   useTimeout,
   useAnimationFrame,
   useLatestRef,
-} from '@base-ui-components/react-utils';
+} from '@base-ui-components/utils';
 import {
   safePolygon,
   useClick,

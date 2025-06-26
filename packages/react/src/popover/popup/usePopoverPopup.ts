@@ -1,5 +1,5 @@
 import * as React from 'react';
-import type { InteractionType } from '@base-ui-components/react-utils';
+import type { InteractionType } from '@base-ui-components/utils';
 import type { HTMLProps } from '../../utils/types';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
 

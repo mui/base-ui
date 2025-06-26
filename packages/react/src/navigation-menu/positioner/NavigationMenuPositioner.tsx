@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { getSide } from '@floating-ui/utils';
-import { ownerDocument, useModernLayoutEffect } from '@base-ui-components/react-utils';
+import { ownerDocument, useModernLayoutEffect } from '@base-ui-components/utils';
 import type { Middleware } from '../../floating-ui-react';
 import {
   disableFocusInside,

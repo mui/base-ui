@@ -6,7 +6,7 @@ import {
   useEventCallback,
   generateId,
   Timeout,
-} from '@base-ui-components/react-utils';
+} from '@base-ui-components/utils';
 import { activeElement, contains } from '../../floating-ui-react/utils';
 import { ToastContext } from './ToastProviderContext';
 import { ToastObject, useToastManager } from '../useToastManager';

@@ -2,10 +2,10 @@
   "buildCommand": "build:codesandbox",
   "installCommand": "install:codesandbox",
   "node": "18",
-  "packages": ["packages/react", "packages/react-utils"],
+  "packages": ["packages/react", "packages/utils"],
   "publishDirectory": {
     "@base-ui-components/react": "packages/react/build",
-    "@base-ui-components/react-utils": "packages/react-utils/build"
+    "@base-ui-components/utils": "packages/utils/build"
   },
   "sandboxes": ["/.codesandbox/template"],
   "silent": true

@@ -1,10 +1,6 @@
 'use client';
 import * as React from 'react';
-import {
-  useControlled,
-  useModernLayoutEffect,
-  useEventCallback,
-} from '@base-ui-components/react-utils';
+import { useControlled, useModernLayoutEffect, useEventCallback } from '@base-ui-components/utils';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useAnimationsFinished } from '../../utils/useAnimationsFinished';
 import { useTransitionStatus, TransitionStatus } from '../../utils/useTransitionStatus';

@@ -1,6 +1,6 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import { useControlled, useEventCallback } from '@base-ui-components/react-utils';
+import { useControlled, useEventCallback } from '@base-ui-components/utils';
 import {
   useClientPoint,
   useDelayGroup,

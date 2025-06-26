@@ -1,10 +1,6 @@
 import * as React from 'react';
 import { isHTMLElement } from '@floating-ui/utils/dom';
-import {
-  useLatestRef,
-  useEventCallback,
-  useModernLayoutEffect,
-} from '@base-ui-components/react-utils';
+import { useLatestRef, useEventCallback, useModernLayoutEffect } from '@base-ui-components/utils';
 import {
   activeElement,
   contains,

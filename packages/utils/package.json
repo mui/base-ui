@@ -1,11 +1,11 @@
 {
-  "name": "@base-ui-components/react-utils",
+  "name": "@base-ui-components/utils",
   "version": "0.0.1",
   "description": "A collection of React utility functions for Base UI.",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/mui/base-ui.git",
-    "directory": "packages/react-utils"
+    "directory": "packages/utils"
   },
   "license": "MIT",
   "exports": {

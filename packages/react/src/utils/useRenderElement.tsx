@@ -4,7 +4,7 @@ import {
   useForkRefN,
   isReactVersionAtLeast,
   mergeObjects,
-} from '@base-ui-components/react-utils';
+} from '@base-ui-components/utils';
 import type { BaseUIComponentProps, ComponentRenderFn, HTMLProps } from './types';
 import { CustomStyleHookMapping, getStyleHookProps } from './getStyleHookProps';
 import { resolveClassName } from './resolveClassName';

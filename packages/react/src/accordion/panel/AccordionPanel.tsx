@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useModernLayoutEffect, warn } from '@base-ui-components/react-utils';
+import { useModernLayoutEffect, warn } from '@base-ui-components/utils';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useCollapsibleRootContext } from '../../collapsible/root/CollapsibleRootContext';
 import { useCollapsiblePanel } from '../../collapsible/panel/useCollapsiblePanel';

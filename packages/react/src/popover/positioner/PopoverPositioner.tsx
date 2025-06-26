@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { inertValue } from '@base-ui-components/react-utils';
+import { inertValue } from '@base-ui-components/utils';
 import { FloatingNode, useFloatingNodeId } from '../../floating-ui-react';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
 import { usePopoverPositioner } from './usePopoverPositioner';

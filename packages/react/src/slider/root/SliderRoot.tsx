@@ -9,7 +9,7 @@ import {
   useModernLayoutEffect,
   visuallyHidden,
   warn,
-} from '@base-ui-components/react-utils';
+} from '@base-ui-components/utils';
 import type { BaseUIComponentProps, Orientation } from '../../utils/types';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useRenderElement } from '../../utils/useRenderElement';

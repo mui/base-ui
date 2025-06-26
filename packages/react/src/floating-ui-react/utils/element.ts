@@ -1,5 +1,5 @@
 import { isHTMLElement, isShadowRoot } from '@floating-ui/utils/dom';
-import { isJSDOM } from '@base-ui-components/react-utils';
+import { isJSDOM } from '@base-ui-components/utils';
 import { FOCUSABLE_ATTRIBUTE, TYPEABLE_SELECTOR } from './constants';
 
 export function activeElement(doc: Document) {

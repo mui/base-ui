@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { generateId, useForcedRerendering, useOnMount } from '@base-ui-components/react-utils';
+import { generateId, useForcedRerendering, useOnMount } from '@base-ui-components/utils';
 import { useRenderElement } from '../../utils/useRenderElement';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useDirection } from '../../direction-provider/DirectionContext';

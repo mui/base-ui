@@ -334,9 +334,9 @@ importers:
       '@base-ui-components/react':
         specifier: workspace:*
         version: link:../packages/react/build
-      '@base-ui-components/react-utils':
+      '@base-ui-components/utils':
         specifier: workspace:*
-        version: link:../packages/react-utils/build
+        version: link:../packages/utils/build
       '@emotion/cache':
         specifier: ^11.14.0
         version: 11.14.0
@@ -560,9 +560,9 @@ importers:
       '@babel/runtime':
         specifier: ^7.27.6
         version: 7.27.6
-      '@base-ui-components/react-utils':
+      '@base-ui-components/utils':
         specifier: workspace:*
-        version: link:../react-utils/build
+        version: link:../utils/build
       '@floating-ui/react-dom':
         specifier: ^2.1.3
         version: 2.1.3(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
@@ -641,7 +641,7 @@ importers:
         version: 1.0.0(@types/react-dom@19.1.5(@types/react@19.1.6))(@types/react@19.1.6)(@vitest/browser@3.1.4)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(vitest@3.1.4)
     publishDirectory: build
 
-  packages/react-utils:
+  packages/utils:
     dependencies:
       '@babel/runtime':
         specifier: ^7.27.6

@@ -5,7 +5,7 @@ import {
   useLatestRef,
   useEventCallback,
   useModernLayoutEffect,
-} from '@base-ui-components/react-utils';
+} from '@base-ui-components/utils';
 import { contains, getDocument, isMouseLikePointerType } from '../utils';
 
 import { useFloatingParentNodeId, useFloatingTree } from '../components/FloatingTree';

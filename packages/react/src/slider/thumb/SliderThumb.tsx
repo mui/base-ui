@@ -5,7 +5,7 @@ import {
   useModernLayoutEffect,
   isReactVersionAtLeast,
   visuallyHidden,
-} from '@base-ui-components/react-utils';
+} from '@base-ui-components/utils';
 import { formatNumber } from '../../utils/formatNumber';
 import { getStyleHookProps } from '../../utils/getStyleHookProps';
 import { mergeProps } from '../../merge-props';

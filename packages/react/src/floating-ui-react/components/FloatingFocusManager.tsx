@@ -7,7 +7,7 @@ import {
   useEventCallback,
   useModernLayoutEffect,
   visuallyHidden,
-} from '@base-ui-components/react-utils';
+} from '@base-ui-components/utils';
 import { FocusGuard } from '../../utils/FocusGuard';
 import {
   activeElement,

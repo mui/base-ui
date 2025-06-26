@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useEventCallback, ownerDocument, useTimeout } from '@base-ui-components/react-utils';
+import { useEventCallback, ownerDocument, useTimeout } from '@base-ui-components/utils';
 import { contains, getTarget, stopEvent } from '../../floating-ui-react/utils';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useContextMenuRootContext } from '../root/ContextMenuRootContext';

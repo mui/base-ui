@@ -6,7 +6,7 @@ import {
   useOnMount,
   useTimeout,
   inertValue,
-} from '@base-ui-components/react-utils';
+} from '@base-ui-components/utils';
 import { activeElement, contains, getTarget } from '../../floating-ui-react/utils';
 import type { BaseUIComponentProps } from '../../utils/types';
 import type { ToastObject as ToastObjectType } from '../useToastManager';

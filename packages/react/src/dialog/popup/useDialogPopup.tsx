@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
-import { useForkRef } from '@base-ui-components/react-utils';
-import { type InteractionType } from '@base-ui-components/react-utils';
+import { useForkRef } from '@base-ui-components/utils';
+import { type InteractionType } from '@base-ui-components/utils';
 import type { DialogOpenChangeReason } from '../root/useDialogRoot';
 import { HTMLProps } from '../../utils/types';
 import { COMPOSITE_KEYS } from '../../composite/composite';

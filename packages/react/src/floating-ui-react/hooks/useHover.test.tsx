@@ -11,7 +11,7 @@ import {
 import * as React from 'react';
 import { vi, test } from 'vitest';
 import userEvent from '@testing-library/user-event';
-import { isJSDOM } from '@base-ui-components/react-utils';
+import { isJSDOM } from '@base-ui-components/utils';
 import { useFloating, useHover, useInteractions } from '../index';
 import type { UseHoverProps } from './useHover';
 import { Popover } from '../../../test/floating-ui-tests/Popover';

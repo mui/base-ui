@@ -1,6 +1,6 @@
 import * as React from 'react';
 import c from 'clsx';
-import { useId } from '@base-ui-components/react-utils';
+import { useId } from '@base-ui-components/utils';
 import type { Placement } from '../../src/floating-ui-react/types';
 import {
   arrow,

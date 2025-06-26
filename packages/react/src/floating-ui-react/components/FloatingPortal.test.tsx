@@ -1,7 +1,7 @@
 import { fireEvent, flushMicrotasks, render, screen } from '@mui/internal-test-utils';
 import * as React from 'react';
 
-import { isJSDOM } from '@base-ui-components/react-utils';
+import { isJSDOM } from '@base-ui-components/utils';
 import { FloatingPortal, useFloating } from '../index';
 
 function App(props: {

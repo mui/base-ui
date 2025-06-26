@@ -1,5 +1,5 @@
 import { isElement } from '@floating-ui/utils/dom';
-import { Timeout } from '@base-ui-components/react-utils';
+import { Timeout } from '@base-ui-components/utils';
 import type { Rect, Side } from './types';
 import type { HandleClose } from './hooks/useHover';
 import { contains, getTarget } from './utils/element';

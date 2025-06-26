@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { getWindow, isElement, isHTMLElement } from '@floating-ui/utils/dom';
-import { isMac, isSafari, useTimeout } from '@base-ui-components/react-utils';
+import { isMac, isSafari, useTimeout } from '@base-ui-components/utils';
 import {
   activeElement,
   contains,

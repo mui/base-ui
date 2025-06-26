@@ -10,7 +10,7 @@ import { Field } from '@base-ui-components/react/field';
 import { Slider } from '@base-ui-components/react/slider';
 import { Form } from '@base-ui-components/react/form';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
-import { isWebKit } from '@base-ui-components/react-utils';
+import { isWebKit } from '@base-ui-components/utils';
 import {
   ARROW_RIGHT,
   ARROW_LEFT,

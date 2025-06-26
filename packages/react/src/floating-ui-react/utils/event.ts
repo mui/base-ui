@@ -1,4 +1,4 @@
-import { isAndroid, isJSDOM } from '@base-ui-components/react-utils';
+import { isAndroid, isJSDOM } from '@base-ui-components/utils';
 
 export function stopEvent(event: Event | React.SyntheticEvent) {
   event.preventDefault();

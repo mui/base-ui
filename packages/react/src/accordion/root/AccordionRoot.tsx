@@ -6,7 +6,7 @@ import {
   useEventCallback,
   useModernLayoutEffect,
   warn,
-} from '@base-ui-components/react-utils';
+} from '@base-ui-components/utils';
 import { BaseUIComponentProps, Orientation } from '../../utils/types';
 import {
   ARROW_DOWN,

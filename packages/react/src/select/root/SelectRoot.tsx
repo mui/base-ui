@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { visuallyHidden, useForkRef } from '@base-ui-components/react-utils';
+import { visuallyHidden, useForkRef } from '@base-ui-components/utils';
 import { type SelectOpenChangeReason, useSelectRoot } from './useSelectRoot';
 import { SelectRootContext, SelectFloatingContext } from './SelectRootContext';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';

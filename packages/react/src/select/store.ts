@@ -1,4 +1,4 @@
-import { Store, createSelector } from '@base-ui-components/react-utils/store';
+import { Store, createSelector } from '@base-ui-components/utils/store';
 import type { TransitionStatus } from '../utils/useTransitionStatus';
 import type { HTMLProps } from '../utils/types';
 

@@ -1,3 +1,3 @@
-# @base-ui-components/react-utils
+# @base-ui-components/utils
 
 A collection of React utility functions for Base UI.

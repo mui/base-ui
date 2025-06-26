@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useEventCallback } from '@base-ui-components/react-utils';
+import { useEventCallback } from '@base-ui-components/utils';
 import { useButton } from '../../use-button/useButton';
 import { mergeProps } from '../../merge-props';
 import type { HTMLProps } from '../../utils/types';

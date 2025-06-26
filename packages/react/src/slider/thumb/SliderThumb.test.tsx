@@ -4,7 +4,7 @@ import { stub } from 'sinon';
 import { fireEvent, screen } from '@mui/internal-test-utils';
 import { Slider } from '@base-ui-components/react/slider';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
-import { isWebKit } from '@base-ui-components/react-utils';
+import { isWebKit } from '@base-ui-components/utils';
 
 type Touches = Array<Pick<Touch, 'identifier' | 'clientX' | 'clientY'>>;
 

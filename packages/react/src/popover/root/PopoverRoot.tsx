@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import { useTimeout, useControlled, useEventCallback } from '@base-ui-components/react-utils';
+import { useTimeout, useControlled, useEventCallback } from '@base-ui-components/utils';
 import {
   useClick,
   useDismiss,

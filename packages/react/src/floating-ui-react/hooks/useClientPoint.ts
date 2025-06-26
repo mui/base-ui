@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { getWindow } from '@floating-ui/utils/dom';
-import { useEventCallback, useModernLayoutEffect } from '@base-ui-components/react-utils';
+import { useEventCallback, useModernLayoutEffect } from '@base-ui-components/utils';
 import { contains, getTarget, isMouseLikePointerType } from '../utils';
 
 import type { ContextData, ElementProps, FloatingRootContext } from '../types';

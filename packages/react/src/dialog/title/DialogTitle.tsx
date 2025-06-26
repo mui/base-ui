@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useModernLayoutEffect } from '@base-ui-components/react-utils';
+import { useModernLayoutEffect } from '@base-ui-components/utils';
 import { useDialogRootContext } from '../root/DialogRootContext';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useBaseUiId } from '../../utils/useBaseUiId';

@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import { useAnimationFrame, useTimeout, useEventCallback } from '@base-ui-components/react-utils';
+import { useAnimationFrame, useTimeout, useEventCallback } from '@base-ui-components/utils';
 
 /**
  * Executes a function once all animations have finished on the provided element.

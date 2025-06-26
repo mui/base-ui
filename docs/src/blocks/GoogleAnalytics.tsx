@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useMediaQuery } from '@base-ui-components/react/unstable-use-media-query';
-import { useModernLayoutEffect } from '@base-ui-components/react-utils';
+import { useModernLayoutEffect } from '@base-ui-components/utils';
 
 let boundDataGaListener = false;
 

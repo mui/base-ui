@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useForkRef, useModernLayoutEffect, visuallyHidden } from '@base-ui-components/react-utils';
+import { useForkRef, useModernLayoutEffect, visuallyHidden } from '@base-ui-components/utils';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { NOOP } from '../../utils/noop';
 import type { BaseUIComponentProps } from '../../utils/types';

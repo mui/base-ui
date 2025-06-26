@@ -1,11 +1,6 @@
 'use client';
 import * as React from 'react';
-import {
-  useForkRef,
-  useTimeout,
-  ownerDocument,
-  useEventCallback,
-} from '@base-ui-components/react-utils';
+import { useForkRef, useTimeout, ownerDocument, useEventCallback } from '@base-ui-components/utils';
 import { contains } from '../../floating-ui-react/utils';
 import { useFloatingTree } from '../../floating-ui-react/index';
 import { CompositeItem } from '../../composite/item/CompositeItem';

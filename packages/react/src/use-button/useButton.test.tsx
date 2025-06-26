@@ -2,7 +2,7 @@ import * as React from 'react';
 import { expect } from 'chai';
 import { spy } from 'sinon';
 import { act, fireEvent } from '@mui/internal-test-utils';
-import { useForkRef } from '@base-ui-components/react-utils';
+import { useForkRef } from '@base-ui-components/utils';
 import { createRenderer, isJSDOM } from '#test-utils';
 import { useButton } from './useButton';
 

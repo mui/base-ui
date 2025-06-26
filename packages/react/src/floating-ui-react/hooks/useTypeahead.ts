@@ -4,7 +4,7 @@ import {
   useEventCallback,
   useModernLayoutEffect,
   useTimeout,
-} from '@base-ui-components/react-utils';
+} from '@base-ui-components/utils';
 import { stopEvent } from '../utils';
 
 import type { ElementProps, FloatingRootContext } from '../types';

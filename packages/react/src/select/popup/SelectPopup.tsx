@@ -7,8 +7,8 @@ import {
   isMouseWithinBounds,
   useModernLayoutEffect,
   useEventCallback,
-} from '@base-ui-components/react-utils';
-import { useSelector } from '@base-ui-components/react-utils/store';
+} from '@base-ui-components/utils';
+import { useSelector } from '@base-ui-components/utils/store';
 import { FloatingFocusManager } from '../../floating-ui-react';
 import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import { useSelectRootContext } from '../root/SelectRootContext';

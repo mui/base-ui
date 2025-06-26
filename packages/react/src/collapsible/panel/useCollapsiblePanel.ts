@@ -7,7 +7,7 @@ import {
   useOnMount,
   AnimationFrame,
   warn,
-} from '@base-ui-components/react-utils';
+} from '@base-ui-components/utils';
 import { HTMLProps } from '../../utils/types';
 import type { AnimationType, Dimensions } from '../root/useCollapsibleRoot';
 import { CollapsiblePanelDataAttributes } from './CollapsiblePanelDataAttributes';

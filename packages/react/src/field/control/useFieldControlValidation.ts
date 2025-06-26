@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useTimeout, useEventCallback } from '@base-ui-components/react-utils';
+import { useTimeout, useEventCallback } from '@base-ui-components/utils';
 import { useFieldRootContext } from '../root/FieldRootContext';
 import { mergeProps } from '../../merge-props';
 import { DEFAULT_VALIDITY_STATE } from '../utils/constants';

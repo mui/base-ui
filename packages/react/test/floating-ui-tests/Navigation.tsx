@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useForkRef } from '@base-ui-components/react-utils';
+import { useForkRef } from '@base-ui-components/utils';
 import {
   flip,
   FloatingFocusManager,

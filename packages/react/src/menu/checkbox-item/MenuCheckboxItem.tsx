@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useForkRef, useControlled } from '@base-ui-components/react-utils';
+import { useForkRef, useControlled } from '@base-ui-components/utils';
 import { FloatingEvents, useFloatingTree } from '../../floating-ui-react';
 import { MenuCheckboxItemContext } from './MenuCheckboxItemContext';
 import { useMenuItem } from '../item/useMenuItem';

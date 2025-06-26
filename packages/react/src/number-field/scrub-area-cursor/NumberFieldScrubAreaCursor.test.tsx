@@ -3,7 +3,7 @@ import { expect } from 'chai';
 import { screen, act } from '@mui/internal-test-utils';
 import sinon from 'sinon';
 import { NumberField } from '@base-ui-components/react/number-field';
-import { isWebKit } from '@base-ui-components/react-utils';
+import { isWebKit } from '@base-ui-components/utils';
 import { createRenderer, describeConformance } from '#test-utils';
 import { NumberFieldScrubAreaContext } from '../scrub-area/NumberFieldScrubAreaContext';
 

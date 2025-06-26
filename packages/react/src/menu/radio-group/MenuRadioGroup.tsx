@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useControlled, useEventCallback } from '@base-ui-components/react-utils';
+import { useControlled, useEventCallback } from '@base-ui-components/utils';
 import { MenuRadioGroupContext } from './MenuRadioGroupContext';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';

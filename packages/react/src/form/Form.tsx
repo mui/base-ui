@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useEventCallback } from '@base-ui-components/react-utils';
+import { useEventCallback } from '@base-ui-components/utils';
 import type { BaseUIComponentProps } from '../utils/types';
 import { FormContext } from './FormContext';
 import { useRenderElement } from '../utils/useRenderElement';

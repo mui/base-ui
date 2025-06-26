@@ -8,8 +8,8 @@ import {
   useTimeout,
   warn,
   useLatestRef,
-} from '@base-ui-components/react-utils';
-import { useSelector, Store } from '@base-ui-components/react-utils/store';
+} from '@base-ui-components/utils';
+import { useSelector, Store } from '@base-ui-components/utils/store';
 import {
   useClick,
   useDismiss,

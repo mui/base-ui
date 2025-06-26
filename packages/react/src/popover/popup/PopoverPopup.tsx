@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { InteractionType } from '@base-ui-components/react-utils';
+import { InteractionType } from '@base-ui-components/utils';
 import { FloatingFocusManager } from '../../floating-ui-react';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
 import { usePopoverPositionerContext } from '../positioner/PopoverPositionerContext';
