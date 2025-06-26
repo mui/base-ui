@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import * as ReactDOM from 'react-dom';
 import { useModernLayoutEffect } from './useModernLayoutEffect';
 import { AnimationFrame } from './useAnimationFrame';
 
@@ -53,7 +54,9 @@ export function useTransitionStatus(
     }
 
     const frame = AnimationFrame.request(() => {
-      setTransitionStatus(undefined);
+      ReactDOM.flushSync(() => {
+        setTransitionStatus(undefined);
+      });
     });
 
     return () => {

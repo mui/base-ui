@@ -8,6 +8,7 @@ import { resolveClassName } from '../../utils/resolveClassName';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useForkRef } from '../../utils/useForkRef';
+import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { visuallyHidden } from '../../utils/visuallyHidden';
 import {
   ARROW_DOWN,
@@ -145,9 +146,17 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
   const externalTabIndex = tabIndexProp ?? contextTabIndex;
 
   const direction = useDirection();
-  const { setTouched, setFocused, validationMode } = useFieldRootContext();
+  const { controlId, setControlId, setTouched, setFocused, validationMode } = useFieldRootContext();
 
   const thumbRef = React.useRef<HTMLElement>(null);
+
+  useModernLayoutEffect(() => {
+    setControlId(inputId);
+
+    return () => {
+      setControlId(undefined);
+    };
+  }, [controlId, inputId, setControlId]);
 
   const thumbMetadata = React.useMemo(
     () => ({

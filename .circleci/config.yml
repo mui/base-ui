@@ -249,7 +249,7 @@ jobs:
     <<: *default-job
     resource_class: 'medium+'
     docker:
-      - image: mcr.microsoft.com/playwright:v1.53.0-noble
+      - image: mcr.microsoft.com/playwright:v1.53.1-noble
     steps:
       - checkout
       - install_js:
@@ -274,7 +274,7 @@ jobs:
   test_regressions:
     <<: *default-job
     docker:
-      - image: mcr.microsoft.com/playwright:v1.53.0-noble
+      - image: mcr.microsoft.com/playwright:v1.53.1-noble
     steps:
       - checkout
       - install_js:
@@ -289,7 +289,7 @@ jobs:
   test_e2e:
     <<: *default-job
     docker:
-      - image: mcr.microsoft.com/playwright:v1.53.0-noble
+      - image: mcr.microsoft.com/playwright:v1.53.1-noble
     steps:
       - checkout
       - install_js:
