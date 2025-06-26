@@ -68,7 +68,6 @@ export const AccordionItem = React.forwardRef(function AccordionItem(
   });
 
   const collapsible = useCollapsibleRoot({
-    id: elementProps.id,
     open: isOpen,
     onOpenChange,
     disabled,

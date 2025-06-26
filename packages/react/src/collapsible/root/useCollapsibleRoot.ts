@@ -17,7 +17,7 @@ export interface Dimensions {
 export function useCollapsibleRoot(
   parameters: useCollapsibleRoot.Parameters,
 ): useCollapsibleRoot.ReturnValue {
-  const { open: openParam, defaultOpen, onOpenChange, disabled, id: idProp } = parameters;
+  const { open: openParam, defaultOpen, onOpenChange, disabled } = parameters;
 
   const isControlled = openParam !== undefined;
 
@@ -35,7 +35,7 @@ export function useCollapsibleRoot(
     width: undefined,
   });
 
-  const defaultPanelId = useBaseUiId(idProp);
+  const defaultPanelId = useBaseUiId();
   const [panelId, setPanelId] = React.useState<string | undefined>(defaultPanelId);
 
   const [hiddenUntilFound, setHiddenUntilFound] = React.useState(false);
@@ -145,7 +145,6 @@ export function useCollapsibleRoot(
 
 export namespace useCollapsibleRoot {
   export interface Parameters {
-    id?: string;
     /**
      * Whether the collapsible panel is currently open.
      *
