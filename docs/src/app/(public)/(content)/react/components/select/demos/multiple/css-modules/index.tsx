@@ -15,25 +15,35 @@ const languages = {
   swift: 'Swift',
 };
 
-const values = Object.keys(languages) as Array<keyof typeof languages>;
+type Language = keyof typeof languages;
+
+const values = Object.keys(languages) as Language[];
+
+function renderValue(value: Language[]) {
+  if (value.length === 0) {
+    return 'Select languages...';
+  }
+
+  const firstLanguage = languages[value[0]];
+  const additionalLanguages = value.length > 1 ? ` (+${value.length - 1} more)` : '';
+  return `${firstLanguage}${additionalLanguages}`;
+}
 
 export default function MultiSelectExample() {
   return (
     <Select.Root multiple defaultValue={['javascript', 'typescript']}>
       <Select.Trigger className={styles.Select}>
-        <Select.Value>
-          {(value) =>
-            Array.isArray(value) && value.length > 0
-              ? `${value.length} selected`
-              : 'Select languages...'
-          }
-        </Select.Value>
+        <Select.Value>{renderValue}</Select.Value>
         <Select.Icon className={styles.SelectIcon}>
           <ChevronUpDownIcon />
         </Select.Icon>
       </Select.Trigger>
       <Select.Portal>
-        <Select.Positioner className={styles.Positioner} sideOffset={8}>
+        <Select.Positioner
+          className={styles.Positioner}
+          sideOffset={8}
+          alignItemWithTrigger={false}
+        >
           <Select.ScrollUpArrow className={styles.ScrollArrow} />
           <Select.Popup className={styles.Popup}>
             {values.map((value) => (

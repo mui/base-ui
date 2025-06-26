@@ -17,7 +17,7 @@
   color: var(--color-gray-900);
   cursor: default;
   user-select: none;
-  min-width: 12rem;
+  min-width: 14rem;
 
   @media (hover: hover) {
     &:hover {
@@ -100,7 +100,7 @@
   grid-template-columns: 0.75rem 1fr;
   cursor: default;
   user-select: none;
-  scroll-margin-block: 1rem;
+  scroll-margin-block: 0.25rem;
 
   [data-side='none'] & {
     font-size: 1rem;

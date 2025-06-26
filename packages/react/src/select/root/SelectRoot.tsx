@@ -62,13 +62,16 @@ export function SelectRoot<Value>(props: SelectRoot.Props<Value>): React.JSX.Ele
   const ref = useForkRef(inputRef, rootContext.fieldControlValidation.inputRef);
 
   const serializedValue = React.useMemo(() => {
+    if (multiple) {
+      return undefined;
+    }
     if (value == null) {
       return ''; // avoid uncontrolled -> controlled error
     }
-    if (typeof value !== 'string' || (multiple && Array.isArray(value))) {
-      return JSON.stringify(value);
+    if (typeof value === 'string') {
+      return value;
     }
-    return value;
+    return JSON.stringify(value);
   }, [value, multiple]);
 
   return (
@@ -94,22 +97,10 @@ export function SelectRoot<Value>(props: SelectRoot.Props<Value>): React.JSX.Ele
 
               queueMicrotask(() => {
                 if (multiple) {
-                  // For multiple selection, try to parse as JSON array
-                  try {
-                    const parsedValue = JSON.parse(nextValue);
-                    if (Array.isArray(parsedValue)) {
-                      setDirty(
-                        JSON.stringify(parsedValue) !== JSON.stringify(validityData.initialValue),
-                      );
-                      rootContext.setValue?.(parsedValue, event.nativeEvent);
-
-                      if (validationMode === 'onChange') {
-                        rootContext.fieldControlValidation.commitValidation(parsedValue);
-                      }
-                    }
-                  } catch {
-                    // If parsing fails, ignore the change
-                  }
+                  // Browser autofill only ever writes one scalar value per field.
+                  // Because a multi-select expects an array, every mainstream engine skips it.
+                  // Reliably pre-selecting multiple options therefore has to be done in
+                  // application code, not via browser autofill.
                 } else {
                   // Handle single selection
                   const exactValue = rootContext.valuesRef.current.find(
@@ -130,17 +121,27 @@ export function SelectRoot<Value>(props: SelectRoot.Props<Value>): React.JSX.Ele
               });
             },
             id: id || controlId || undefined,
-            name: rootContext.name,
+            name: multiple ? undefined : rootContext.name,
+            value: serializedValue,
             disabled: rootContext.disabled,
             required: rootContext.required,
             readOnly: rootContext.readOnly,
-            value: serializedValue,
             ref,
             style: visuallyHidden,
             tabIndex: -1,
             'aria-hidden': true,
           })}
         />
+        {multiple && Array.isArray(value) && rootContext.name
+          ? value.map((v) => (
+              <input
+                key={String(v)}
+                type="hidden"
+                name={rootContext.name}
+                value={typeof v === 'string' ? v : JSON.stringify(v)}
+              />
+            ))
+          : null}
       </SelectFloatingContext.Provider>
     </SelectRootContext.Provider>
   );

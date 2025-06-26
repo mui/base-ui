@@ -1465,7 +1465,7 @@ describe('<Select.Root />', () => {
       await user.click(trigger);
       await flushMicrotasks();
 
-      const optionA = screen.getByRole('option', { name: 'a' });
+      const optionA = await screen.findByRole('option', { name: 'a' });
       await user.click(optionA);
       await flushMicrotasks();
 
@@ -1521,7 +1521,7 @@ describe('<Select.Root />', () => {
       await user.click(trigger);
       await flushMicrotasks();
 
-      const optionA = screen.getByRole('option', { name: 'a' });
+      const optionA = await screen.findByRole('option', { name: 'a' });
       const optionB = screen.getByRole('option', { name: 'b' });
 
       expect(optionA).to.have.attribute('data-selected', '');
@@ -1581,40 +1581,12 @@ describe('<Select.Root />', () => {
         </Select.Root>,
       );
 
-      const hiddenInput = container.querySelector('[name="select"]') as HTMLInputElement;
-      expect(hiddenInput.value).to.equal('["a","c"]');
-    });
-
-    it('should handle browser autofill for multiple values', async () => {
-      const { container } = await render(
-        <Select.Root multiple name="select">
-          <Select.Trigger data-testid="trigger">
-            <Select.Value />
-          </Select.Trigger>
-          <Select.Portal>
-            <Select.Positioner>
-              <Select.Popup>
-                <Select.Item value="a">a</Select.Item>
-                <Select.Item value="b">b</Select.Item>
-                <Select.Item value="c">c</Select.Item>
-              </Select.Popup>
-            </Select.Positioner>
-          </Select.Portal>
-        </Select.Root>,
-      );
-
-      const trigger = screen.getByTestId('trigger');
-      const hiddenInput = container.querySelector('[name="select"]')!;
-
-      fireEvent.change(hiddenInput, { target: { value: '["a","b"]' } });
-      await flushMicrotasks();
-
-      fireEvent.click(trigger);
-      await flushMicrotasks();
-
-      expect(screen.getByRole('option', { name: 'a' })).to.have.attribute('data-selected', '');
-      expect(screen.getByRole('option', { name: 'b' })).to.have.attribute('data-selected', '');
-      expect(screen.getByRole('option', { name: 'c' })).not.to.have.attribute('data-selected');
+      const hiddenInputs = container.querySelectorAll(
+        '[name="select"]',
+      ) as NodeListOf<HTMLInputElement>;
+      expect(hiddenInputs).to.have.length(2);
+      const values = Array.from(hiddenInputs).map((input) => input.value);
+      expect(values).to.deep.equal(['a', 'c']);
     });
 
     it('should not close popup when selecting items in multiple mode', async () => {
@@ -1640,9 +1612,11 @@ describe('<Select.Root />', () => {
       await user.click(trigger);
       await flushMicrotasks();
 
-      expect(screen.getByRole('listbox')).not.to.equal(null);
+      await waitFor(() => {
+        expect(screen.getByRole('listbox')).not.to.equal(null);
+      });
 
-      const optionA = screen.getByRole('option', { name: 'a' });
+      const optionA = await screen.findByRole('option', { name: 'a' });
       await user.click(optionA);
       await flushMicrotasks();
 
@@ -1678,9 +1652,11 @@ describe('<Select.Root />', () => {
       await user.click(trigger);
       await flushMicrotasks();
 
-      expect(screen.getByRole('listbox')).not.to.equal(null);
+      await waitFor(() => {
+        expect(screen.getByRole('listbox')).not.to.equal(null);
+      });
 
-      const optionA = screen.getByRole('option', { name: 'a' });
+      const optionA = await screen.findByRole('option', { name: 'a' });
       await user.click(optionA);
       await flushMicrotasks();
 
@@ -1712,7 +1688,10 @@ describe('<Select.Root />', () => {
       fireEvent.click(trigger);
       await flushMicrotasks();
 
-      expect(screen.getByRole('option', { name: 'a' })).to.have.attribute('data-selected', '');
+      expect(await screen.findByRole('option', { name: 'a' })).to.have.attribute(
+        'data-selected',
+        '',
+      );
       expect(screen.getByRole('option', { name: 'b' })).not.to.have.attribute('data-selected');
 
       await setProps({ value: ['a', 'b', 'c'] });

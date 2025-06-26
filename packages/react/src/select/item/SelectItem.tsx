@@ -51,7 +51,7 @@ export const SelectItem = React.memo(
       selectionRef,
       typingRef,
       valuesRef,
-      registerSelectedItem,
+      registerItemIndex,
       keyboardActiveRef,
       highlightTimeout,
       multiple,
@@ -85,13 +85,13 @@ export const SelectItem = React.memo(
         if (multiple) {
           const isValueSelected = Array.isArray(rootValue) && rootValue.includes(value);
           if (isValueSelected) {
-            registerSelectedItem(listItem.index);
+            registerItemIndex(listItem.index);
           }
         } else if (value === rootValue) {
-          registerSelectedItem(listItem.index);
+          registerItemIndex(listItem.index);
         }
       }
-    }, [hasRegistered, listItem.index, registerSelectedItem, value, rootValue, multiple]);
+    }, [hasRegistered, listItem.index, registerItemIndex, value, rootValue, multiple]);
 
     const state: SelectItem.State = React.useMemo(
       () => ({

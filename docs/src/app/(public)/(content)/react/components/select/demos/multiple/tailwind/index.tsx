@@ -14,25 +14,35 @@ const languages = {
   swift: 'Swift',
 };
 
-const values = Object.keys(languages) as Array<keyof typeof languages>;
+type Language = keyof typeof languages;
+
+const values = Object.keys(languages) as Language[];
+
+function renderValue(value: Language[]) {
+  if (value.length === 0) {
+    return 'Select languages...';
+  }
+
+  const firstLanguage = languages[value[0]];
+  const additionalLanguages = value.length > 1 ? ` (+${value.length - 1} more)` : '';
+  return `${firstLanguage}${additionalLanguages}`;
+}
 
 export default function MultiSelectExample() {
   return (
     <Select.Root multiple defaultValue={['javascript', 'typescript']}>
-      <Select.Trigger className="flex h-10 min-w-[12rem] items-center justify-between gap-3 rounded-md border border-gray-200 pr-3 pl-3.5 text-base text-gray-900 select-none hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 active:bg-gray-100 data-[popup-open]:bg-gray-100">
-        <Select.Value>
-          {(value) =>
-            Array.isArray(value) && value.length > 0
-              ? `${value.length} selected`
-              : 'Select languages...'
-          }
-        </Select.Value>
+      <Select.Trigger className="flex h-10 min-w-[14rem] items-center justify-between gap-3 rounded-md border border-gray-200 pr-3 pl-3.5 text-base text-gray-900 select-none hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 active:bg-gray-100 data-[popup-open]:bg-gray-100">
+        <Select.Value>{renderValue}</Select.Value>
         <Select.Icon className="flex">
           <ChevronUpDownIcon />
         </Select.Icon>
       </Select.Trigger>
       <Select.Portal>
-        <Select.Positioner className="outline-none" sideOffset={8}>
+        <Select.Positioner
+          className="outline-none"
+          sideOffset={8}
+          alignItemWithTrigger={false}
+        >
           <Select.ScrollUpArrow className="top-0 z-[1] flex h-4 w-full cursor-default items-center justify-center rounded-md bg-[canvas] text-center text-xs before:absolute before:top-[-100%] before:left-0 before:h-full before:w-full before:content-[''] data-[direction=down]:bottom-0 data-[direction=down]:before:bottom-[-100%]" />
           <Select.Popup className="group max-h-[var(--available-height)] origin-[var(--transform-origin)] overflow-y-auto rounded-md bg-[canvas] py-1 text-gray-900 shadow-lg shadow-gray-200 outline outline-1 outline-gray-200 transition-[transform,scale,opacity] data-[ending-style]:scale-90 data-[ending-style]:opacity-0 data-[ending-style]:transition-none data-[starting-style]:scale-90 data-[starting-style]:opacity-0 data-[side=none]:data-[starting-style]:scale-100 data-[side=none]:data-[starting-style]:opacity-100 data-[side=none]:data-[starting-style]:transition-none dark:shadow-none dark:-outline-offset-1 dark:outline-gray-300">
             {values.map((value) => (
