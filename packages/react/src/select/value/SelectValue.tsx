@@ -5,6 +5,11 @@ import type { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import { selectors } from '../store';
+import { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
+
+const customStyleHookMapping: CustomStyleHookMapping<SelectValue.State> = {
+  value: () => null,
+};
 
 /**
  * A text label of the currently selected item.
@@ -32,14 +37,23 @@ export const SelectValue = React.forwardRef(function SelectValue(
     return null;
   }, [items, value]);
 
+  const state: SelectValue.State = React.useMemo(
+    () => ({
+      value,
+    }),
+    [value],
+  );
+
   const children =
     typeof childrenProp === 'function'
       ? childrenProp(value)
       : (childrenProp ?? labelFromItems ?? value);
 
   const element = useRenderElement('span', componentProps, {
+    state,
     ref: [forwardedRef, valueRef],
     props: [{ children }, elementProps],
+    customStyleHookMapping,
   });
 
   return element;
@@ -59,5 +73,10 @@ export namespace SelectValue {
     children?: React.ReactNode | ((value: any) => React.ReactNode);
   }
 
-  export interface State {}
+  export interface State {
+    /**
+     * The value of the currently selected item.
+     */
+    value: any;
+  }
 }

@@ -34,6 +34,13 @@ export function useMenuItem(params: useMenuItem.Parameters): useMenuItem.ReturnV
           id,
           role: 'menuitem',
           tabIndex: highlighted ? 0 : -1,
+          onMouseEnter() {
+            if (!submenuTrigger.allowMouseEnterEnabled || !submenuTrigger.setActive) {
+              return;
+            }
+
+            submenuTrigger.setActive();
+          },
           onKeyUp: (event: BaseUIEvent<React.KeyboardEvent>) => {
             if (event.key === ' ' && typingRef.current) {
               event.preventBaseUIHandler();
@@ -120,9 +127,12 @@ export namespace useMenuItem {
      */
     nativeButton: boolean;
     /**
-     * Whether the item is a submenu trigger.
+     * Data about the submenu trigger.
      */
-    submenuTrigger: boolean;
+    submenuTrigger: {
+      setActive?: () => void;
+      allowMouseEnterEnabled?: boolean;
+    };
   }
 
   export interface ReturnValue {

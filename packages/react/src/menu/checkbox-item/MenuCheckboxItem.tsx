@@ -10,6 +10,7 @@ import { useRenderElement } from '../../utils/useRenderElement';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import { itemMapping } from '../utils/styleHookMapping';
+import { EMPTY_OBJECT } from '../../utils/constants';
 
 const InnerMenuCheckboxItem = React.memo(
   React.forwardRef(function InnerMenuCheckboxItem(
@@ -50,7 +51,7 @@ const InnerMenuCheckboxItem = React.memo(
       allowMouseUpTriggerRef,
       typingRef,
       nativeButton,
-      submenuTrigger: false,
+      submenuTrigger: EMPTY_OBJECT,
     });
 
     const state: MenuCheckboxItem.State = React.useMemo(
