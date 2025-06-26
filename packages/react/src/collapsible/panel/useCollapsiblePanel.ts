@@ -80,7 +80,8 @@ export function useCollapsiblePanel(
       if (hasAnimation && hasTransition) {
         if (process.env.NODE_ENV === 'development') {
           warn(
-            'CSS transitions and CSS animations both detected on Collapsible or Accordion panel',
+            'CSS transitions and CSS animations both detected on Collapsible or Accordion panel.',
+            'Only one of either animation type should be used.',
           );
         }
       } else if (panelStyles.animationName === 'none' && panelStyles.transitionDuration !== '0s') {
