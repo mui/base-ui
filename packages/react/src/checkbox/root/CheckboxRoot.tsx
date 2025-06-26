@@ -250,10 +250,10 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
   const computedIndeterminate = isGrouped ? groupIndeterminate || indeterminate : indeterminate;
 
   React.useEffect(() => {
-    if (parentContext && name) {
-      parentContext.disabledStatesRef.current.set(name, disabled);
+    if (parentContext && value) {
+      parentContext.disabledStatesRef.current.set(value, disabled);
     }
-  }, [parentContext, disabled, name]);
+  }, [parentContext, disabled, value]);
 
   const state: CheckboxRoot.State = React.useMemo(
     () => ({
