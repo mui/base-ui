@@ -1,6 +1,7 @@
 import type { CustomStyleHookMapping } from './getStyleHookProps';
 import { CollapsiblePanelDataAttributes } from '../collapsible/panel/CollapsiblePanelDataAttributes';
 import { CollapsibleTriggerDataAttributes } from '../collapsible/trigger/CollapsibleTriggerDataAttributes';
+import { transitionStatusMapping } from './styleHookMapping';
 
 const PANEL_OPEN_HOOK = {
   [CollapsiblePanelDataAttributes.open]: '',
@@ -13,6 +14,7 @@ const PANEL_CLOSED_HOOK = {
 export const triggerOpenStateMapping: CustomStyleHookMapping<{
   open: boolean;
 }> = {
+  ...transitionStatusMapping,
   open(value) {
     if (value) {
       return {
