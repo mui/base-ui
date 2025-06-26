@@ -24,7 +24,6 @@ export const CollapsiblePanel = React.forwardRef(function CollapsiblePanel(
   const {
     className,
     hiddenUntilFound: hiddenUntilFoundProp,
-    id: idProp,
     keepMounted: keepMountedProp,
     render,
     ...elementProps
@@ -56,7 +55,6 @@ export const CollapsiblePanel = React.forwardRef(function CollapsiblePanel(
     setKeepMounted,
     setMounted,
     setOpen,
-    setPanelId,
     setVisible,
     state,
     transitionDimensionRef,
@@ -81,7 +79,7 @@ export const CollapsiblePanel = React.forwardRef(function CollapsiblePanel(
     externalRef: forwardedRef,
     height,
     hiddenUntilFound,
-    id: idProp ?? panelId,
+    id: panelId,
     keepMounted,
     mounted,
     onOpenChange,
@@ -91,7 +89,6 @@ export const CollapsiblePanel = React.forwardRef(function CollapsiblePanel(
     setDimensions,
     setMounted,
     setOpen,
-    setPanelId,
     setVisible,
     transitionDimensionRef,
     visible,

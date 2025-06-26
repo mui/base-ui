@@ -29,6 +29,7 @@ export const CollapsibleRoot = React.forwardRef(function CollapsibleRoot(
   const onOpenChange = useEventCallback(onOpenChangeProp);
 
   const collapsible = useCollapsibleRoot({
+    id: elementProps.id,
     open,
     defaultOpen,
     onOpenChange,
