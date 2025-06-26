@@ -40,6 +40,7 @@ export interface ComboboxRootContext<Value = any, Multiple extends boolean = fal
   readOnly: boolean;
   required: boolean;
   fieldControlValidation: ReturnType<typeof useFieldControlValidation>;
+  cols: number;
 }
 
 export const ComboboxRootContext = React.createContext<ComboboxRootContext<any, any> | undefined>(

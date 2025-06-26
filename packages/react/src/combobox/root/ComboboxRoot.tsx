@@ -278,12 +278,19 @@ export function ComboboxRoot<Value, Multiple extends boolean = false>(
     },
   });
 
+  let ariaHasPopup: 'grid' | 'listbox' | undefined;
+  let ariaExpanded: 'true' | 'false' | undefined;
+  if (!inline) {
+    ariaHasPopup = cols > 1 ? 'grid' : 'listbox';
+    ariaExpanded = open ? 'true' : 'false';
+  }
+
   const role: ElementProps = React.useMemo(
     () => ({
       reference: {
         role: 'combobox',
-        'aria-expanded': open ? 'true' : 'false',
-        'aria-haspopup': 'listbox',
+        'aria-expanded': ariaExpanded,
+        'aria-haspopup': ariaHasPopup,
         'aria-controls': open ? listElement?.id : undefined,
         'aria-autocomplete': 'list',
         autoComplete: 'off',
@@ -295,7 +302,7 @@ export function ComboboxRoot<Value, Multiple extends boolean = false>(
         role: 'presentation',
       },
     }),
-    [open, listElement?.id],
+    [ariaExpanded, ariaHasPopup, listElement?.id, open],
   );
 
   const click = useClick(floatingRootContext, {
@@ -404,6 +411,7 @@ export function ComboboxRoot<Value, Multiple extends boolean = false>(
       readOnly,
       required,
       fieldControlValidation,
+      cols,
     }),
     [
       select,
@@ -423,6 +431,7 @@ export function ComboboxRoot<Value, Multiple extends boolean = false>(
       readOnly,
       required,
       fieldControlValidation,
+      cols,
     ],
   );
 
