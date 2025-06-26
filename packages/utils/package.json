@@ -1,6 +1,6 @@
 {
   "name": "@base-ui-components/utils",
-  "version": "0.0.1",
+  "version": "0.0.1-dev.0",
   "description": "A collection of React utility functions for Base UI.",
   "repository": {
     "type": "git",
