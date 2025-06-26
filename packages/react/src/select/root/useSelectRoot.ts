@@ -156,6 +156,12 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
 
     clearErrors(name);
     setDirty(nextValue !== validityData.initialValue);
+
+    // Defer the validation until after React has committed the DOM updates
+    // to ensure the hidden input element reflects the latest value.
+    queueMicrotask(() => {
+      commitValidation(nextValue, true);
+    });
   });
 
   useField({
