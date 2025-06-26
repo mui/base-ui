@@ -27,26 +27,40 @@ export const SelectValue = React.forwardRef(function SelectValue(
   const value = useSelector(store, selectors.value);
   const items = useSelector(store, selectors.items);
 
-  const labelFromItems = React.useMemo(() => {
-    if (items) {
-      if (multiple && Array.isArray(value)) {
-        if (Array.isArray(items)) {
-          const selectedLabels = value.map((v) => {
-            const foundItem = items.find((item) => item.value === v);
-            return foundItem?.label ?? v; // fallback to raw value if label not found
-          });
-          return selectedLabels.length > 0 ? selectedLabels.join(', ') : null;
-        }
-        const selectedLabels = value.map((v) => items[v] ?? v); // fallback to raw value if not in items
-        return selectedLabels.length > 0 ? selectedLabels.join(', ') : null;
-      }
-      if (Array.isArray(items)) {
-        return items.find((item) => item.value === value)?.label;
-      }
-      return items[value];
+  // Pre-compute a value → label map to enable O(1) look-ups when deriving the
+  // display label(s).
+  const valueLabelMap = React.useMemo(() => {
+    if (!items) {
+      return undefined;
     }
-    return null;
-  }, [items, value, multiple]);
+
+    if (Array.isArray(items)) {
+      const map = new Map<any, React.ReactNode>();
+      for (const { value: itemValue, label } of items) {
+        map.set(itemValue, label);
+      }
+      return map;
+    }
+
+    return new Map<any, React.ReactNode>(Object.entries(items));
+  }, [items]);
+
+  const labelFromItems = React.useMemo(() => {
+    if (!valueLabelMap) {
+      return null;
+    }
+
+    if (multiple && Array.isArray(value)) {
+      const selectedLabels = value.map((v) => {
+        const label = valueLabelMap.get(v) ?? valueLabelMap.get(String(v));
+        return label ?? v; // fallback to raw value if label not found
+      });
+      return selectedLabels.length > 0 ? selectedLabels.join(', ') : null;
+    }
+
+    const label = valueLabelMap.get(value) ?? valueLabelMap.get(String(value));
+    return label ?? null;
+  }, [valueLabelMap, value, multiple]);
 
   const state: SelectValue.State = React.useMemo(
     () => ({
