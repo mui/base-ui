@@ -49,7 +49,7 @@ export const CollapsibleTrigger = React.forwardRef(function CollapsibleTrigger(
 
   const props = React.useMemo(
     () => ({
-      'aria-controls': panelId,
+      'aria-controls': open ? panelId : undefined,
       'aria-expanded': open,
       disabled,
       onClick: handleTrigger,
