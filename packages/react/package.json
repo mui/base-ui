@@ -64,8 +64,7 @@
     "./tooltip": "./src/tooltip/index.ts",
     "./unstable-no-ssr": "./src/unstable-no-ssr/index.ts",
     "./unstable-use-media-query": "./src/unstable-use-media-query/index.ts",
-    "./use-render": "./src/use-render/index.ts",
-    "./utils": "./src/utils/index.ts"
+    "./use-render": "./src/use-render/index.ts"
   },
   "imports": {
     "#test-utils": "./test/index.ts"
@@ -79,7 +78,7 @@
     "build:types": "tsx ../../scripts/buildTypes.mts --copy build/cjs",
     "build:copy-files": "node ../../scripts/copyFiles.mjs ./.npmignore:./.npmignore",
     "build:manifest": "tsx ../../scripts/createPackageManifest.mts -p .",
-    "test:package": "publint ./build && attw --pack ./build --exclude-entrypoints package.json",
+    "test:package": "publint --pack pnpm && attw --pack ./build --exclude-entrypoints package.json",
     "release": "pnpm build && pnpm publish",
     "test": "cross-env NODE_ENV=test VITEST_ENV=jsdom vitest",
     "typescript": "tsc -b tsconfig.json"
