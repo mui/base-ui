@@ -95,8 +95,6 @@ export const TabsTab = React.forwardRef(function Tab(
   const isPressingRef = React.useRef(false);
   const isMainButtonRef = React.useRef(false);
 
-  const highlighted = index > -1 && index === highlightedTabIndex;
-
   const onClick = useEventCallback((event: React.MouseEvent<HTMLButtonElement>) => {
     if (selected || disabled) {
       return;
@@ -149,11 +147,10 @@ export const TabsTab = React.forwardRef(function Tab(
   const state: TabsTab.State = React.useMemo(
     () => ({
       disabled,
-      highlighted,
       selected,
       orientation,
     }),
-    [disabled, highlighted, selected, orientation],
+    [disabled, selected, orientation],
   );
 
   const element = useRenderElement('button', componentProps, {

@@ -13,6 +13,7 @@ import { useAccordionItemContext } from '../item/AccordionItemContext';
 import { accordionStyleHookMapping } from '../item/styleHooks';
 import { AccordionPanelCssVars } from './AccordionPanelCssVars';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
+import type { TransitionStatus } from '../../utils/useTransitionStatus';
 
 /**
  * A collapsible panel with the accordion item contents.
@@ -56,6 +57,7 @@ export const AccordionPanel = React.forwardRef(function AccordionPanel(
     transitionDimensionRef,
     visible,
     width,
+    transitionStatus,
   } = useCollapsibleRootContext();
 
   const hiddenUntilFound = hiddenUntilFoundProp ?? contextHiddenUntilFound;
@@ -117,8 +119,16 @@ export const AccordionPanel = React.forwardRef(function AccordionPanel(
 
   const { state, triggerId } = useAccordionItemContext();
 
+  const panelState: AccordionPanel.State = React.useMemo(
+    () => ({
+      ...state,
+      transitionStatus,
+    }),
+    [state, transitionStatus],
+  );
+
   const element = useRenderElement('div', componentProps, {
-    state,
+    state: panelState,
     ref: [forwardedRef, panelRef],
     props: [
       props,
@@ -146,6 +156,10 @@ export const AccordionPanel = React.forwardRef(function AccordionPanel(
 });
 
 export namespace AccordionPanel {
+  export interface State extends AccordionItem.State {
+    transitionStatus: TransitionStatus;
+  }
+
   export interface Props
     extends BaseUIComponentProps<'div', AccordionItem.State>,
       Pick<AccordionRoot.Props, 'hiddenUntilFound' | 'keepMounted'> {}

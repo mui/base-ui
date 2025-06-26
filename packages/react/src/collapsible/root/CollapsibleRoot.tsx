@@ -77,8 +77,7 @@ export const CollapsibleRoot = React.forwardRef(function CollapsibleRoot(
 });
 
 export namespace CollapsibleRoot {
-  export interface State
-    extends Pick<useCollapsibleRoot.ReturnValue, 'open' | 'disabled' | 'transitionStatus'> {}
+  export interface State extends Pick<useCollapsibleRoot.ReturnValue, 'open' | 'disabled'> {}
 
   export interface Props extends Omit<BaseUIComponentProps<'div', State>, 'render'> {
     /**

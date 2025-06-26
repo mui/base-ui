@@ -7,6 +7,12 @@ interface ElementBounds {
 
 export function getPseudoElementBounds(element: HTMLElement): ElementBounds {
   const elementRect = element.getBoundingClientRect();
+
+  // Avoid "Not implemented: window.getComputedStyle(elt, pseudoElt)"
+  if (process.env.NODE_ENV === 'test') {
+    return elementRect;
+  }
+
   const beforeStyles = window.getComputedStyle(element, '::before');
   const afterStyles = window.getComputedStyle(element, '::after');
 

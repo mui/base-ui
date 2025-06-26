@@ -26,6 +26,7 @@ import {
   PopoverRootContext,
   usePopoverRootContext,
 } from './PopoverRootContext';
+import { mergeProps } from '../../merge-props';
 
 function PopoverRootComponent({ props }: { props: PopoverRoot.Props }) {
   const {
@@ -153,19 +154,22 @@ function PopoverRootComponent({ props }: { props: PopoverRoot.Props }) {
       close: closeDelay,
     },
   });
-  const click = useClick(floatingContext, { stickIfOpen });
+  const click = useClick(floatingContext, {
+    stickIfOpen,
+  });
   const dismiss = useDismiss(floatingContext);
   const role = useRole(floatingContext);
 
   const { getReferenceProps, getFloatingProps } = useInteractions([hover, click, dismiss, role]);
 
-  const popoverContext = React.useMemo(
+  const popoverContext: PopoverRootContext = React.useMemo(
     () => ({
       open,
       setOpen,
       mounted,
       setMounted,
       transitionStatus,
+      triggerElement,
       setTriggerElement,
       positionerElement,
       setPositionerElement,
@@ -174,7 +178,7 @@ function PopoverRootComponent({ props }: { props: PopoverRoot.Props }) {
       setTitleId,
       descriptionId,
       setDescriptionId,
-      triggerProps: getReferenceProps(triggerProps),
+      triggerProps: mergeProps(getReferenceProps(), triggerProps),
       popupProps: getFloatingProps(),
       floatingRootContext: floatingContext,
       instantType,
@@ -196,6 +200,7 @@ function PopoverRootComponent({ props }: { props: PopoverRoot.Props }) {
       titleId,
       descriptionId,
       getReferenceProps,
+      triggerElement,
       triggerProps,
       getFloatingProps,
       floatingContext,

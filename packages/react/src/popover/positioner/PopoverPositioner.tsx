@@ -49,6 +49,7 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
     modal,
     openReason,
     openMethod,
+    triggerElement,
   } = usePopoverRootContext();
   const keepMounted = usePopoverPortalContext();
   const nodeId = useFloatingNodeId();
@@ -92,7 +93,7 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
   return (
     <PopoverPositionerContext.Provider value={positioner}>
       {mounted && modal === true && openReason !== 'trigger-hover' && openMethod !== 'touch' && (
-        <InternalBackdrop inert={inertValue(!open)} />
+        <InternalBackdrop inert={inertValue(!open)} cutout={triggerElement} />
       )}
       <FloatingNode id={nodeId}>{element}</FloatingNode>
     </PopoverPositionerContext.Provider>
