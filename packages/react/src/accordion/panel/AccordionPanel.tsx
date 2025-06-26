@@ -56,11 +56,8 @@ export const AccordionPanel = React.forwardRef(function AccordionPanel(
     transitionDimensionRef,
     visible,
     width,
-<<<<<<< fix/accordion-collapsible-aria-controls
     setPanelIdState,
-=======
     transitionStatus,
->>>>>>> master
   } = useCollapsibleRootContext();
 
   const hiddenUntilFound = hiddenUntilFoundProp ?? contextHiddenUntilFound;
