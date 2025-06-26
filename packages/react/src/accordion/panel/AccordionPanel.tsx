@@ -55,7 +55,7 @@ export const AccordionPanel = React.forwardRef(function AccordionPanel(
     transitionDimensionRef,
     visible,
     width,
-    setPanelId,
+    setPanelIdState,
   } = useCollapsibleRootContext();
 
   const hiddenUntilFound = hiddenUntilFoundProp ?? contextHiddenUntilFound;
@@ -74,13 +74,13 @@ export const AccordionPanel = React.forwardRef(function AccordionPanel(
 
   useModernLayoutEffect(() => {
     if (idProp) {
-      setPanelId(idProp);
+      setPanelIdState(idProp);
       return () => {
-        setPanelId(undefined);
+        setPanelIdState(undefined);
       };
     }
     return undefined;
-  }, [idProp, setPanelId]);
+  }, [idProp, setPanelIdState]);
 
   useModernLayoutEffect(() => {
     setHiddenUntilFound(hiddenUntilFound);
