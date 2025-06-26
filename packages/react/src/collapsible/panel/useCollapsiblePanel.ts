@@ -73,7 +73,9 @@ export function useCollapsiblePanel(
        * https://react.dev/learn/referencing-values-with-refs#best-practices-for-refs
        */
       if (panelStyles.animationName !== 'none' && panelStyles.transitionDuration !== '0s') {
-        warn('CSS transitions and CSS animations both detected');
+        if (process.env.NODE_ENV === 'development') {
+          warn('CSS transitions and CSS animations both detected');
+        }
       } else if (panelStyles.animationName === 'none' && panelStyles.transitionDuration !== '0s') {
         animationTypeRef.current = 'css-transition';
       } else if (panelStyles.animationName !== 'none' && panelStyles.transitionDuration === '0s') {
