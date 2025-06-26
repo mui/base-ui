@@ -1425,4 +1425,301 @@ describe('<Select.Root />', () => {
       expect(screen.queryByRole('option', { name: 'a' })).to.have.attribute('data-selected');
     });
   });
+
+  describe('prop: multiple', () => {
+    it('should allow multiple selections when multiple is true', async () => {
+      const handleValueChange = spy();
+
+      function App() {
+        const [value, setValue] = React.useState<string[]>([]);
+
+        return (
+          <Select.Root
+            multiple
+            value={value}
+            onValueChange={(newValue) => {
+              setValue(newValue as string[]);
+              handleValueChange(newValue);
+            }}
+          >
+            <Select.Trigger data-testid="trigger">
+              <Select.Value />
+            </Select.Trigger>
+            <Select.Portal>
+              <Select.Positioner>
+                <Select.Popup>
+                  <Select.Item value="a">a</Select.Item>
+                  <Select.Item value="b">b</Select.Item>
+                  <Select.Item value="c">c</Select.Item>
+                </Select.Popup>
+              </Select.Positioner>
+            </Select.Portal>
+          </Select.Root>
+        );
+      }
+
+      const { user } = await render(<App />);
+
+      const trigger = screen.getByTestId('trigger');
+
+      await user.click(trigger);
+      await flushMicrotasks();
+
+      const optionA = screen.getByRole('option', { name: 'a' });
+      await user.click(optionA);
+      await flushMicrotasks();
+
+      expect(handleValueChange.args[0][0]).to.deep.equal(['a']);
+      expect(optionA).to.have.attribute('data-selected', '');
+
+      const optionB = screen.getByRole('option', { name: 'b' });
+      await user.click(optionB);
+      await flushMicrotasks();
+
+      expect(handleValueChange.args[1][0]).to.deep.equal(['a', 'b']);
+      expect(optionA).to.have.attribute('data-selected', '');
+      expect(optionB).to.have.attribute('data-selected', '');
+
+      expect(screen.getByRole('listbox')).not.to.equal(null);
+    });
+
+    it('should deselect items when clicked again in multiple mode', async () => {
+      const handleValueChange = spy();
+
+      function App() {
+        const [value, setValue] = React.useState<string[]>(['a', 'b']);
+
+        return (
+          <Select.Root
+            multiple
+            value={value}
+            onValueChange={(newValue) => {
+              setValue(newValue as string[]);
+              handleValueChange(newValue);
+            }}
+          >
+            <Select.Trigger data-testid="trigger">
+              <Select.Value />
+            </Select.Trigger>
+            <Select.Portal>
+              <Select.Positioner>
+                <Select.Popup>
+                  <Select.Item value="a">a</Select.Item>
+                  <Select.Item value="b">b</Select.Item>
+                  <Select.Item value="c">c</Select.Item>
+                </Select.Popup>
+              </Select.Positioner>
+            </Select.Portal>
+          </Select.Root>
+        );
+      }
+
+      const { user } = await render(<App />);
+
+      const trigger = screen.getByTestId('trigger');
+
+      await user.click(trigger);
+      await flushMicrotasks();
+
+      const optionA = screen.getByRole('option', { name: 'a' });
+      const optionB = screen.getByRole('option', { name: 'b' });
+
+      expect(optionA).to.have.attribute('data-selected', '');
+      expect(optionB).to.have.attribute('data-selected', '');
+
+      await user.click(optionA);
+      await flushMicrotasks();
+
+      expect(handleValueChange.args[0][0]).to.deep.equal(['b']);
+      expect(optionA).not.to.have.attribute('data-selected');
+      expect(optionB).to.have.attribute('data-selected', '');
+    });
+
+    it('should handle defaultValue as array in multiple mode', async () => {
+      await render(
+        <Select.Root multiple defaultValue={['a', 'c']}>
+          <Select.Trigger data-testid="trigger">
+            <Select.Value />
+          </Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup>
+                <Select.Item value="a">a</Select.Item>
+                <Select.Item value="b">b</Select.Item>
+                <Select.Item value="c">c</Select.Item>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+
+      fireEvent.click(trigger);
+      await flushMicrotasks();
+
+      expect(screen.getByRole('option', { name: 'a' })).to.have.attribute('data-selected', '');
+      expect(screen.getByRole('option', { name: 'b' })).not.to.have.attribute('data-selected');
+      expect(screen.getByRole('option', { name: 'c' })).to.have.attribute('data-selected', '');
+    });
+
+    it('should serialize multiple values correctly for form submission', async () => {
+      const { container } = await render(
+        <Select.Root multiple name="select" value={['a', 'c']}>
+          <Select.Trigger data-testid="trigger">
+            <Select.Value />
+          </Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup>
+                <Select.Item value="a">a</Select.Item>
+                <Select.Item value="b">b</Select.Item>
+                <Select.Item value="c">c</Select.Item>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>,
+      );
+
+      const hiddenInput = container.querySelector('[name="select"]') as HTMLInputElement;
+      expect(hiddenInput.value).to.equal('["a","c"]');
+    });
+
+    it('should handle browser autofill for multiple values', async () => {
+      const { container } = await render(
+        <Select.Root multiple name="select">
+          <Select.Trigger data-testid="trigger">
+            <Select.Value />
+          </Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup>
+                <Select.Item value="a">a</Select.Item>
+                <Select.Item value="b">b</Select.Item>
+                <Select.Item value="c">c</Select.Item>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+      const hiddenInput = container.querySelector('[name="select"]')!;
+
+      fireEvent.change(hiddenInput, { target: { value: '["a","b"]' } });
+      await flushMicrotasks();
+
+      fireEvent.click(trigger);
+      await flushMicrotasks();
+
+      expect(screen.getByRole('option', { name: 'a' })).to.have.attribute('data-selected', '');
+      expect(screen.getByRole('option', { name: 'b' })).to.have.attribute('data-selected', '');
+      expect(screen.getByRole('option', { name: 'c' })).not.to.have.attribute('data-selected');
+    });
+
+    it('should not close popup when selecting items in multiple mode', async () => {
+      const { user } = await render(
+        <Select.Root multiple>
+          <Select.Trigger data-testid="trigger">
+            <Select.Value />
+          </Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup>
+                <Select.Item value="a">a</Select.Item>
+                <Select.Item value="b">b</Select.Item>
+                <Select.Item value="c">c</Select.Item>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+
+      await user.click(trigger);
+      await flushMicrotasks();
+
+      expect(screen.getByRole('listbox')).not.to.equal(null);
+
+      const optionA = screen.getByRole('option', { name: 'a' });
+      await user.click(optionA);
+      await flushMicrotasks();
+
+      expect(screen.getByRole('listbox')).not.to.equal(null);
+
+      const optionB = screen.getByRole('option', { name: 'b' });
+      await user.click(optionB);
+      await flushMicrotasks();
+
+      expect(screen.getByRole('listbox')).not.to.equal(null);
+    });
+
+    it('should close popup in single select mode', async () => {
+      const { user } = await render(
+        <Select.Root>
+          <Select.Trigger data-testid="trigger">
+            <Select.Value />
+          </Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup>
+                <Select.Item value="a">a</Select.Item>
+                <Select.Item value="b">b</Select.Item>
+                <Select.Item value="c">c</Select.Item>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+
+      await user.click(trigger);
+      await flushMicrotasks();
+
+      expect(screen.getByRole('listbox')).not.to.equal(null);
+
+      const optionA = screen.getByRole('option', { name: 'a' });
+      await user.click(optionA);
+      await flushMicrotasks();
+
+      await waitFor(() => {
+        expect(screen.queryByRole('listbox')).to.equal(null);
+      });
+    });
+
+    it('should update selected items when value prop changes', async () => {
+      const { setProps } = await render(
+        <Select.Root multiple value={['a']}>
+          <Select.Trigger data-testid="trigger">
+            <Select.Value />
+          </Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup>
+                <Select.Item value="a">a</Select.Item>
+                <Select.Item value="b">b</Select.Item>
+                <Select.Item value="c">c</Select.Item>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+
+      fireEvent.click(trigger);
+      await flushMicrotasks();
+
+      expect(screen.getByRole('option', { name: 'a' })).to.have.attribute('data-selected', '');
+      expect(screen.getByRole('option', { name: 'b' })).not.to.have.attribute('data-selected');
+
+      await setProps({ value: ['a', 'b', 'c'] });
+
+      expect(screen.getByRole('option', { name: 'a' })).to.have.attribute('data-selected', '');
+      expect(screen.getByRole('option', { name: 'b' })).to.have.attribute('data-selected', '');
+      expect(screen.getByRole('option', { name: 'c' })).to.have.attribute('data-selected', '');
+    });
+  });
 });

@@ -12,9 +12,9 @@ import { useForkRef } from '../../utils/useForkRef';
  *
  * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
  */
-export const SelectRoot: SelectRoot = function SelectRoot<Value>(
-  props: SelectRoot.Props<Value>,
-): React.JSX.Element {
+export function SelectRoot<Value>(props: SelectRoot.SingleProps<Value>): React.JSX.Element;
+export function SelectRoot<Value>(props: SelectRoot.MultipleProps<Value>): React.JSX.Element;
+export function SelectRoot<Value>(props: SelectRoot.Props<Value>): React.JSX.Element {
   const {
     id,
     value: valueProp,
@@ -32,6 +32,7 @@ export const SelectRoot: SelectRoot = function SelectRoot<Value>(
     inputRef,
     onOpenChangeComplete,
     items,
+    multiple = false,
   } = props;
 
   const { rootContext, floatingContext } = useSelectRoot<Value>({
@@ -50,6 +51,7 @@ export const SelectRoot: SelectRoot = function SelectRoot<Value>(
     actionsRef,
     onOpenChangeComplete,
     items,
+    multiple,
   });
   const store = rootContext.store;
 
@@ -63,11 +65,11 @@ export const SelectRoot: SelectRoot = function SelectRoot<Value>(
     if (value == null) {
       return ''; // avoid uncontrolled -> controlled error
     }
-    if (typeof value === 'string') {
-      return value;
+    if (typeof value !== 'string' || (multiple && Array.isArray(value))) {
+      return JSON.stringify(value);
     }
-    return JSON.stringify(value);
-  }, [value]);
+    return value;
+  }, [value, multiple]);
 
   return (
     <SelectRootContext.Provider value={rootContext}>
@@ -91,18 +93,38 @@ export const SelectRoot: SelectRoot = function SelectRoot<Value>(
               store.set('forceMount', true);
 
               queueMicrotask(() => {
-                const exactValue = rootContext.valuesRef.current.find(
-                  (v) =>
-                    v === nextValue ||
-                    (typeof value === 'string' && nextValue.toLowerCase() === v.toLowerCase()),
-                );
+                if (multiple) {
+                  // For multiple selection, try to parse as JSON array
+                  try {
+                    const parsedValue = JSON.parse(nextValue);
+                    if (Array.isArray(parsedValue)) {
+                      setDirty(
+                        JSON.stringify(parsedValue) !== JSON.stringify(validityData.initialValue),
+                      );
+                      rootContext.setValue?.(parsedValue, event.nativeEvent);
 
-                if (exactValue != null) {
-                  setDirty(exactValue !== validityData.initialValue);
-                  rootContext.setValue?.(exactValue, event.nativeEvent);
+                      if (validationMode === 'onChange') {
+                        rootContext.fieldControlValidation.commitValidation(parsedValue);
+                      }
+                    }
+                  } catch {
+                    // If parsing fails, ignore the change
+                  }
+                } else {
+                  // Handle single selection
+                  const exactValue = rootContext.valuesRef.current.find(
+                    (v) =>
+                      v === nextValue ||
+                      (typeof value === 'string' && nextValue.toLowerCase() === v.toLowerCase()),
+                  );
 
-                  if (validationMode === 'onChange') {
-                    rootContext.fieldControlValidation.commitValidation(exactValue);
+                  if (exactValue != null) {
+                    setDirty(exactValue !== validityData.initialValue);
+                    rootContext.setValue?.(exactValue, event.nativeEvent);
+
+                    if (validationMode === 'onChange') {
+                      rootContext.fieldControlValidation.commitValidation(exactValue);
+                    }
                   }
                 }
               });
@@ -122,7 +144,7 @@ export const SelectRoot: SelectRoot = function SelectRoot<Value>(
       </SelectFloatingContext.Provider>
     </SelectRootContext.Provider>
   );
-};
+}
 
 export namespace SelectRoot {
   export interface Props<Value> extends useSelectRoot.Parameters<Value> {
@@ -138,8 +160,16 @@ export namespace SelectRoot {
   export type Actions = useSelectRoot.Actions;
 
   export type OpenChangeReason = SelectOpenChangeReason;
-}
 
-export interface SelectRoot {
-  <Value>(props: SelectRoot.Props<Value>): React.JSX.Element;
+  export interface SingleProps<Value> extends Props<Value> {
+    multiple?: false | undefined;
+  }
+
+  export interface MultipleProps<Value>
+    extends Omit<Props<Value>, 'multiple' | 'value' | 'defaultValue' | 'onValueChange'> {
+    multiple: true;
+    value?: Value[] | null;
+    defaultValue?: Value[] | null;
+    onValueChange?: (value: Value[], event?: Event) => void;
+  }
 }

@@ -23,19 +23,29 @@ export const SelectValue = React.forwardRef(function SelectValue(
 ) {
   const { className, render, children: childrenProp, ...elementProps } = componentProps;
 
-  const { store, valueRef } = useSelectRootContext();
+  const { store, valueRef, multiple } = useSelectRootContext();
   const value = useSelector(store, selectors.value);
   const items = useSelector(store, selectors.items);
 
   const labelFromItems = React.useMemo(() => {
     if (items) {
+      if (multiple && Array.isArray(value)) {
+        if (Array.isArray(items)) {
+          const selectedLabels = value
+            .map((v) => items.find((item) => item.value === v)?.label)
+            .filter(Boolean);
+          return selectedLabels.length > 0 ? selectedLabels.join(', ') : null;
+        }
+        const selectedLabels = value.map((v) => items[v]).filter(Boolean);
+        return selectedLabels.length > 0 ? selectedLabels.join(', ') : null;
+      }
       if (Array.isArray(items)) {
         return items.find((item) => item.value === value)?.label;
       }
       return items[value];
     }
     return null;
-  }, [items, value]);
+  }, [items, value, multiple]);
 
   const state: SelectValue.State = React.useMemo(
     () => ({

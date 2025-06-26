@@ -12,6 +12,7 @@ export interface SelectRootContext {
   disabled: boolean;
   readOnly: boolean;
   required: boolean;
+  multiple: boolean;
   setValue: (nextValue: any, event?: Event) => void;
   setOpen: (
     open: boolean,

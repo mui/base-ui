@@ -46,6 +46,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     name: nameProp,
     onOpenChangeComplete,
     items,
+    multiple = false,
   } = params;
 
   const { clearErrors } = useFormContext();
@@ -111,6 +112,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
       new Store<State>({
         id,
         modal,
+        multiple,
         value,
         label: '',
         open,
@@ -140,6 +142,20 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
 
   const activeIndex = useSelector(store, selectors.activeIndex);
   const selectedIndex = useSelector(store, selectors.selectedIndex);
+  const selectedIndexOnOpenRef = React.useRef<number | null>(null);
+
+  React.useEffect(() => {
+    if (!open) {
+      selectedIndexOnOpenRef.current = null;
+      return;
+    }
+
+    if (selectedIndexOnOpenRef.current === null) {
+      selectedIndexOnOpenRef.current = selectedIndex;
+    }
+  }, [open, selectedIndex]);
+
+  const navSelectedIndex = open ? selectedIndexOnOpenRef.current : selectedIndex;
   const triggerElement = useSelector(store, selectors.triggerElement);
   const positionerElement = useSelector(store, selectors.positionerElement);
 
@@ -147,12 +163,33 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
   const commitValidation = fieldControlValidation.commitValidation;
 
   const updateValue = useEventCallback((nextValue: any) => {
-    const index = valuesRef.current.indexOf(nextValue);
+    if (multiple) {
+      // For multiple selection, update the label and keep track of the last selected
+      // item via `selectedIndex`, which is needed when the popup (re)opens.
+      const currentValue = Array.isArray(nextValue) ? nextValue : [];
 
-    store.apply({
-      selectedIndex: index === -1 ? null : index,
-      label: labelsRef.current[index] ?? '',
-    });
+      const labels = currentValue
+        .map((v) => {
+          const index = valuesRef.current.indexOf(v);
+          return index !== -1 ? (labelsRef.current[index] ?? '') : '';
+        })
+        .filter(Boolean);
+
+      const lastValue = currentValue[currentValue.length - 1];
+      const lastIndex = lastValue != null ? valuesRef.current.indexOf(lastValue) : -1;
+
+      store.apply({
+        selectedIndex: lastIndex === -1 ? null : lastIndex,
+        label: labels.join(', '),
+      });
+    } else {
+      const index = valuesRef.current.indexOf(nextValue);
+
+      store.apply({
+        selectedIndex: index === -1 ? null : index,
+        label: labelsRef.current[index] ?? '',
+      });
+    }
 
     clearErrors(name);
     setDirty(nextValue !== validityData.initialValue);
@@ -247,22 +284,41 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
       hasRegisteredRef.current = true;
     }
 
-    const index = suppliedIndex ?? valuesRef.current.indexOf(value);
-    const hasIndex = index !== -1;
+    if (multiple) {
+      const currentValue = Array.isArray(value) ? value : [];
 
-    if (hasIndex || value === null) {
+      const labels = currentValue
+        .map((v) => {
+          const index = valuesRef.current.indexOf(v);
+          return index !== -1 ? (labelsRef.current[index] ?? '') : '';
+        })
+        .filter(Boolean);
+
+      const lastValue = currentValue[currentValue.length - 1];
+      const lastIndex = lastValue != null ? valuesRef.current.indexOf(lastValue) : -1;
+
       store.apply({
-        selectedIndex: index,
-        label: hasIndex ? (labelsRef.current[index] ?? '') : '',
+        selectedIndex: lastIndex === -1 ? null : lastIndex,
+        label: labels.join(', '),
       });
-      return;
-    }
+    } else {
+      const index = suppliedIndex ?? valuesRef.current.indexOf(value);
+      const hasIndex = index !== -1;
 
-    if (process.env.NODE_ENV !== 'production') {
-      if (value) {
-        const stringValue =
-          typeof value === 'string' || value === null ? value : JSON.stringify(value);
-        warn(`The value \`${stringValue}\` is not present in the select items.`);
+      if (hasIndex || value === null) {
+        store.apply({
+          selectedIndex: hasIndex ? index : null,
+          label: hasIndex ? (labelsRef.current[index] ?? '') : '',
+        });
+        return;
+      }
+
+      if (process.env.NODE_ENV !== 'production') {
+        if (value) {
+          const stringValue =
+            typeof value === 'string' || value === null ? value : JSON.stringify(value);
+          warn(`The value \`${stringValue}\` is not present in the select items.`);
+        }
       }
     }
   });
@@ -304,7 +360,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     enabled: !readOnly && !disabled,
     listRef,
     activeIndex,
-    selectedIndex,
+    selectedIndex: navSelectedIndex,
     disabledIndices: EMPTY_ARRAY,
     onNavigate(nextActiveIndex) {
       // Retain the highlight while transitioning out.
@@ -323,7 +379,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     enabled: !readOnly && !disabled,
     listRef: labelsRef,
     activeIndex,
-    selectedIndex,
+    selectedIndex: navSelectedIndex,
     onMatch(index) {
       if (open) {
         store.set('activeIndex', index);
@@ -360,6 +416,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     store.apply({
       id,
       modal,
+      multiple,
       value,
       open,
       mounted,
@@ -371,6 +428,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     store,
     id,
     modal,
+    multiple,
     value,
     open,
     mounted,
@@ -386,6 +444,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
       required,
       disabled,
       readOnly,
+      multiple,
       setValue,
       setOpen,
       listRef,
@@ -411,6 +470,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
       required,
       disabled,
       readOnly,
+      multiple,
       setValue,
       setOpen,
       listRef,
@@ -460,6 +520,11 @@ export namespace useSelectRoot {
      * @default false
      */
     disabled?: boolean;
+    /**
+     * Whether multiple items can be selected.
+     * @default false
+     */
+    multiple?: boolean;
     /**
      * The value of the select.
      */
