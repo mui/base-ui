@@ -31,12 +31,13 @@ export const SelectValue = React.forwardRef(function SelectValue(
     if (items) {
       if (multiple && Array.isArray(value)) {
         if (Array.isArray(items)) {
-          const selectedLabels = value
-            .map((v) => items.find((item) => item.value === v)?.label)
-            .filter(Boolean);
+          const selectedLabels = value.map((v) => {
+            const foundItem = items.find((item) => item.value === v);
+            return foundItem?.label ?? v; // fallback to raw value if label not found
+          });
           return selectedLabels.length > 0 ? selectedLabels.join(', ') : null;
         }
-        const selectedLabels = value.map((v) => items[v]).filter(Boolean);
+        const selectedLabels = value.map((v) => items[v] ?? v); // fallback to raw value if not in items
         return selectedLabels.length > 0 ? selectedLabels.join(', ') : null;
       }
       if (Array.isArray(items)) {
