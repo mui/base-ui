@@ -32,19 +32,28 @@ import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useLatestRef } from '../../utils/useLatestRef';
 
 /**
- * Groups all parts of a combobox.
+ * Groups all parts of the combobox.
  * Doesn't render its own HTML element.
  *
  * Documentation: [Base UI Combobox](https://base-ui.com/react/components/combobox)
  */
+export function ComboboxRoot<Value>(
+  props: ComboboxRoot.Props<Value, true> & { select?: 'multiple' },
+): React.JSX.Element;
+export function ComboboxRoot<Value>(
+  props: ComboboxRoot.Props<Value, false> & { select?: 'single' },
+): React.JSX.Element;
+export function ComboboxRoot<Value>(
+  props: ComboboxRoot.Props<Value, false> & { select?: 'none' },
+): React.JSX.Element;
 export function ComboboxRoot<Value, Multiple extends boolean = false>(
   props: ComboboxRoot.Props<Value, Multiple>,
-) {
+): React.JSX.Element {
   const {
     id: idProp,
     onOpenChangeComplete,
     defaultValue,
-    select = 'none' as Multiple extends true ? 'multiple' : 'single',
+    select: selectProp = 'none',
     onItemHighlighted: onItemHighlightedProp,
     name: nameProp,
     disabled: disabledProp = false,
@@ -77,7 +86,7 @@ export function ComboboxRoot<Value, Multiple extends boolean = false>(
     };
   }, [id, setControlId]);
 
-  const multiple = select === 'multiple';
+  const multiple = selectProp === 'multiple';
 
   const defaultUncontrolledValue = React.useMemo((): Multiple extends true ? Value[] : Value => {
     if (multiple) {
@@ -387,7 +396,7 @@ export function ComboboxRoot<Value, Multiple extends boolean = false>(
 
   const contextValue: ComboboxRootContext<Value, Multiple> = React.useMemo(
     () => ({
-      select,
+      select: selectProp,
       mounted,
       value,
       setValue,
@@ -414,7 +423,7 @@ export function ComboboxRoot<Value, Multiple extends boolean = false>(
       cols,
     }),
     [
-      select,
+      selectProp,
       mounted,
       open,
       positionerElement,
