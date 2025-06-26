@@ -21,7 +21,7 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
 ) {
   const { render, className, ...elementProps } = componentProps;
 
-  const { store, select, keyboardActiveRef } = useComboboxRootContext();
+  const { store, select, keyboardActiveRef, cols } = useComboboxRootContext();
   const multiple = select === 'multiple';
   const hasPositionerContext = Boolean(useComboboxPositionerContext(true));
   const floatingRootContext = useComboboxFloatingContext();
@@ -54,7 +54,7 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
       {
         tabIndex: -1,
         id: floatingRootContext.floatingId,
-        role: 'listbox',
+        role: cols > 1 ? 'grid' : 'listbox',
         'aria-multiselectable': multiple ? 'true' : undefined,
         onKeyDownCapture() {
           keyboardActiveRef.current = true;
