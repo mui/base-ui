@@ -140,34 +140,6 @@
 }
 
 .Popup {
-  /* CSS Spring Easing Generator */
-  --spring-easing: linear(
-    0,
-    0.0018,
-    0.0069 1.15%,
-    0.026 2.3%,
-    0.0637,
-    0.1135 5.18%,
-    0.2229 7.78%,
-    0.5977 15.84%,
-    0.7014,
-    0.7904,
-    0.8641,
-    0.9228,
-    0.9676 28.8%,
-    1.0032 31.68%,
-    1.0225,
-    1.0352 36.29%,
-    1.0431 38.88%,
-    1.046 42.05%,
-    1.0448 44.35%,
-    1.0407 47.23%,
-    1.0118 61.63%,
-    1.0025 69.41%,
-    0.9981 80.35%,
-    0.9992 99.94%
-  );
-  --spring-duration: 0.4s;
   --input-container-height: 3rem;
   box-sizing: border-box;
   border-radius: 0.5rem;
@@ -175,17 +147,15 @@
   color: var(--color-gray-900);
   transform-origin: var(--transform-origin);
   transition:
-    transform var(--spring-duration) var(--spring-easing),
+    transform 150ms,
     opacity 150ms;
-  max-height: min(21rem, var(--available-height));
   max-width: var(--available-width);
+  max-height: min(21rem, var(--available-height));
 
   &[data-starting-style],
   &[data-ending-style] {
     opacity: 0;
-    transform: scale(0.8);
-    transition-timing-function: ease-in-out;
-    transition-duration: 0.1s;
+    transform: scale(0.9);
   }
 
   @media (prefers-color-scheme: light) {
@@ -204,7 +174,7 @@
 .List {
   overflow: auto;
   scroll-padding-top: 2.5rem;
-  scroll-padding-bottom: 0.5rem;
+  scroll-padding-bottom: 0.35rem;
   overscroll-behavior: contain;
   max-height: min(
     calc(21rem - var(--input-container-height)),
