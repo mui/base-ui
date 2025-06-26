@@ -28,11 +28,6 @@
       "type": "((open: boolean) => void)",
       "description": "Event handler called after any animations complete when the menu is closed."
     },
-    "disabled": {
-      "type": "boolean",
-      "default": "false",
-      "description": "Whether the component should ignore user interaction."
-    },
     "openOnHover": {
       "type": "boolean",
       "default": "true",

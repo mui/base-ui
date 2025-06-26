@@ -23,6 +23,7 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
     render,
     className,
     label,
+    disabled = false,
     id: idProp,
     nativeButton = false,
     ...elementProps
@@ -36,13 +37,17 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
     setTriggerElement,
     open,
     typingRef,
-    disabled,
+    setDisabled,
     allowMouseUpTriggerRef,
   } = useMenuRootContext();
 
   if (parent.type !== 'menu') {
     throw new Error('Base UI: <Menu.SubmenuTrigger> must be placed in <Menu.SubmenuRoot>.');
   }
+
+  React.useEffect(() => {
+    setDisabled(disabled);
+  }, [disabled, setDisabled]);
 
   const parentMenuContext = parent.context;
 
@@ -110,6 +115,11 @@ export namespace MenuSubmenuTrigger {
      * @default false
      */
     nativeButton?: boolean;
+    /**
+     * Whether the submenu trigger should ignore user interaction.
+     * @default false
+     */
+    disabled?: boolean;
   }
 
   export interface State {
