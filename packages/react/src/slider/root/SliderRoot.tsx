@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { activeElement } from '@floating-ui/react/utils';
+import { activeElement } from '../../floating-ui-react/utils';
 import { areArraysEqual } from '../../utils/areArraysEqual';
 import { clamp } from '../../utils/clamp';
 import { ownerDocument } from '../../utils/owner';
@@ -87,7 +87,6 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
     state: fieldState,
     disabled: fieldDisabled,
     name: fieldName,
-    setControlId,
     setTouched,
     setDirty,
     validityData,
@@ -123,13 +122,6 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
   const [thumbMap, setThumbMap] = React.useState(
     () => new Map<Node, CompositeMetadata<ThumbMetadata> | null>(),
   );
-
-  useModernLayoutEffect(() => {
-    setControlId(id);
-    return () => {
-      setControlId(undefined);
-    };
-  }, [id, setControlId]);
 
   useField({
     id,

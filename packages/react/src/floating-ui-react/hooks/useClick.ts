@@ -1,9 +1,9 @@
 'use client';
 import * as React from 'react';
-import type { ElementProps, FloatingRootContext } from '@floating-ui/react';
-import { isMouseLikePointerType } from '@floating-ui/react/utils';
-import { useAnimationFrame } from '../useAnimationFrame';
-import { EMPTY_OBJECT } from '../constants';
+import { EMPTY_OBJECT } from '../../utils/constants';
+import type { ElementProps, FloatingRootContext } from '../types';
+import { isMouseLikePointerType } from '../utils';
+import { useAnimationFrame } from '../../utils/useAnimationFrame';
 
 export interface UseClickProps {
   /**
@@ -74,12 +74,13 @@ export function useClick(context: FloatingRootContext, props: UseClickProps = {}
           return;
         }
 
+        const openEvent = dataRef.current.openEvent;
+        const openEventType = openEvent?.type;
         const nextOpen = !(
           open &&
           toggle &&
-          (dataRef.current.openEvent && stickIfOpen
-            ? dataRef.current.openEvent.type === 'click' ||
-              dataRef.current.openEvent.type === 'mousedown'
+          (openEvent && stickIfOpen
+            ? openEventType === 'click' || openEventType === 'mousedown'
             : true)
         );
         // Wait until focus is set on the element. This is an alternative to
@@ -100,12 +101,16 @@ export function useClick(context: FloatingRootContext, props: UseClickProps = {}
           return;
         }
 
+        const openEvent = dataRef.current.openEvent;
+        const openEventType = openEvent?.type;
         const nextOpen = !(
           open &&
           toggle &&
-          (dataRef.current.openEvent && stickIfOpen
-            ? dataRef.current.openEvent.type === 'click' ||
-              dataRef.current.openEvent.type === 'mousedown'
+          (openEvent && stickIfOpen
+            ? openEventType === 'click' ||
+              openEventType === 'mousedown' ||
+              openEventType === 'keydown' ||
+              openEventType === 'keyup'
             : true)
         );
         onOpenChange(nextOpen, event.nativeEvent, 'click');

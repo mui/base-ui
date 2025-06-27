@@ -7,14 +7,14 @@ import {
   useHover,
   useInteractions,
   useFloatingRootContext,
-} from '@floating-ui/react';
+} from '../../floating-ui-react';
 import { PreviewCardRootContext } from './PreviewCardContext';
 import { CLOSE_DELAY, OPEN_DELAY } from '../utils/constants';
 import {
   translateOpenChangeReason,
   type BaseOpenChangeReason,
 } from '../../utils/translateOpenChangeReason';
-import { useFocusWithDelay } from '../../utils/floating-ui/useFocusWithDelay';
+import { useFocusWithDelay } from '../../utils/interactions/useFocusWithDelay';
 import { useControlled } from '../../utils/useControlled';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useEventCallback } from '../../utils/useEventCallback';

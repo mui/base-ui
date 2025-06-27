@@ -2,7 +2,7 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import {
   useClientPoint,
-  useNextDelayGroup,
+  useDelayGroup,
   useDismiss,
   useFloatingRootContext,
   useFocus,
@@ -10,7 +10,7 @@ import {
   useInteractions,
   safePolygon,
   type FloatingRootContext,
-} from '@floating-ui/react';
+} from '../../floating-ui-react';
 import { useControlled } from '../../utils/useControlled';
 import { useTransitionStatus } from '../../utils/useTransitionStatus';
 import { useEventCallback } from '../../utils/useEventCallback';
@@ -120,7 +120,7 @@ export function useTooltipRoot(params: useTooltipRoot.Parameters): useTooltipRoo
   });
 
   const providerContext = useTooltipProviderContext();
-  const { delayRef, isInstantPhase, hasProvider } = useNextDelayGroup(context);
+  const { delayRef, isInstantPhase, hasProvider } = useDelayGroup(context);
 
   const instantType = isInstantPhase ? ('delay' as const) : instantTypeState;
 

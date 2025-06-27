@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useFloatingTree } from '@floating-ui/react';
+import { useFloatingTree } from '../../floating-ui-react';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { useBaseUiId } from '../../utils/useBaseUiId';
@@ -41,7 +41,7 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
   } = useMenuRootContext();
 
   if (parent.type !== 'menu') {
-    throw new Error('Base UI: SubmenuTrigger must be placed in a nested Menu.');
+    throw new Error('Base UI: <Menu.SubmenuTrigger> must be placed in <Menu.SubmenuRoot>.');
   }
 
   const parentMenuContext = parent.context;
@@ -53,6 +53,14 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
 
   const { events: menuEvents } = useFloatingTree()!;
 
+  const submenuTrigger = React.useMemo(
+    () => ({
+      setActive: () => setActiveIndex(item.index),
+      allowMouseEnterEnabled: parentMenuContext.allowMouseEnter,
+    }),
+    [setActiveIndex, item.index, parentMenuContext.allowMouseEnter],
+  );
+
   const { getItemProps, itemRef } = useMenuItem({
     closeOnClick: false,
     disabled,
@@ -62,7 +70,7 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
     allowMouseUpTriggerRef,
     typingRef,
     nativeButton,
-    submenuTrigger: true,
+    submenuTrigger,
   });
 
   const state: MenuSubmenuTrigger.State = React.useMemo(

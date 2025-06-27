@@ -4,12 +4,10 @@ import { useSelectRootContext, useSelectFloatingContext } from '../root/SelectRo
 import { CompositeList } from '../../composite/list/CompositeList';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { popupStateMapping } from '../../utils/popupStateMapping';
-import { useSelectPositioner } from './useSelectPositioner';
-import type { Align, Side } from '../../utils/useAnchorPositioning';
+import { useAnchorPositioning, type Align, type Side } from '../../utils/useAnchorPositioning';
 import { SelectPositionerContext } from './SelectPositionerContext';
 import { InternalBackdrop } from '../../utils/InternalBackdrop';
 import { inertValue } from '../../utils/inertValue';
-import { useOnFirstRender } from '../../utils/useOnFirstRender';
 import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { DROPDOWN_COLLISION_AVOIDANCE } from '../../utils/constants';
@@ -17,6 +15,9 @@ import { clearPositionerStyles } from '../popup/utils';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { useSelector } from '../../utils/store';
 import { selectors } from '../store';
+import { useScrollLock } from '../../utils';
+
+const FIXED: React.CSSProperties = { position: 'fixed' };
 
 /**
  * Positions the select menu popup.
@@ -57,35 +58,14 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
   const value = useSelector(store, selectors.value);
   const touchModality = useSelector(store, selectors.touchModality);
   const positionerElement = useSelector(store, selectors.positionerElement);
-  const controlledItemAnchor = useSelector(store, selectors.controlledItemAnchor);
-  const alignItemWithTriggerActive = useSelector(store, selectors.alignItemWithTriggerActive);
+  const triggerElement = useSelector(store, selectors.triggerElement);
 
-  useOnFirstRender(() => {
-    // XXX: Should those options be applied on the root component?
+  const [controlledAlignItemWithTrigger, setControlledAlignItemWithTrigger] =
+    React.useState(alignItemWithTrigger);
+  const alignItemWithTriggerActive = mounted && controlledAlignItemWithTrigger && !touchModality;
 
-    const controlledItemAnchorV = alignItemWithTrigger;
-    const alignItemWithTriggerActiveV = mounted && controlledItemAnchor && !touchModality;
-
-    store.state.controlledItemAnchor = controlledItemAnchorV;
-    store.state.alignItemWithTriggerActive = alignItemWithTriggerActiveV;
-  });
-
-  useModernLayoutEffect(() => {
-    return store.subscribe((state) => {
-      const alignItemWithTriggerActiveV =
-        selectors.mounted(state) &&
-        selectors.controlledItemAnchor(state) &&
-        !selectors.touchModality(state);
-      store.set('alignItemWithTriggerActive', alignItemWithTriggerActiveV);
-    });
-  }, [store]);
-
-  React.useImperativeHandle(alignItemWithTriggerActiveRef, () =>
-    selectors.alignItemWithTriggerActive(store.state),
-  );
-
-  if (!mounted && controlledItemAnchor !== alignItemWithTrigger) {
-    store.set('controlledItemAnchor', alignItemWithTrigger);
+  if (!mounted && controlledAlignItemWithTrigger !== alignItemWithTrigger) {
+    setControlledAlignItemWithTrigger(alignItemWithTrigger);
   }
 
   useModernLayoutEffect(() => {
@@ -99,7 +79,16 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
     }
   }, [store, mounted, alignItemWithTrigger]);
 
-  const positioner = useSelectPositioner({
+  React.useImperativeHandle(alignItemWithTriggerActiveRef, () => alignItemWithTriggerActive);
+
+  useScrollLock({
+    enabled: (alignItemWithTriggerActive || modal) && open,
+    mounted,
+    open,
+    referenceElement: triggerElement,
+  });
+
+  const positioning = useAnchorPositioning({
     anchor,
     floatingRootContext,
     positionMethod,
@@ -112,19 +101,39 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
     collisionBoundary,
     collisionPadding,
     sticky,
-    trackAnchor,
+    trackAnchor: trackAnchor ?? !alignItemWithTriggerActive,
     collisionAvoidance,
     keepMounted: true,
   });
 
+  const renderedSide = alignItemWithTriggerActive ? 'none' : positioning.side;
+  const positionerStyles = alignItemWithTriggerActive ? FIXED : positioning.positionerStyles;
+
+  const defaultProps: React.ComponentProps<'div'> = React.useMemo(() => {
+    const hiddenStyles: React.CSSProperties = {};
+
+    if (!open) {
+      hiddenStyles.pointerEvents = 'none';
+    }
+
+    return {
+      role: 'presentation',
+      hidden: !mounted,
+      style: {
+        ...positionerStyles,
+        ...hiddenStyles,
+      },
+    };
+  }, [open, mounted, positionerStyles]);
+
   const state: SelectPositioner.State = React.useMemo(
     () => ({
       open,
-      side: positioner.side,
-      align: positioner.align,
-      anchorHidden: positioner.anchorHidden,
+      side: renderedSide,
+      align: positioning.align,
+      anchorHidden: positioning.anchorHidden,
     }),
-    [open, positioner.side, positioner.align, positioner.anchorHidden],
+    [open, renderedSide, positioning.align, positioning.anchorHidden],
   );
 
   const setPositionerElement = useEventCallback((element) => {
@@ -135,7 +144,7 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
     ref: [forwardedRef, setPositionerElement],
     state,
     customStyleHookMapping: popupStateMapping,
-    props: [positioner.getPositionerProps, elementProps],
+    props: [defaultProps, elementProps],
   });
 
   const prevMapSizeRef = React.useRef(0);
@@ -178,10 +187,20 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
     }
   });
 
+  const contextValue: SelectPositionerContext = React.useMemo(
+    () => ({
+      ...positioning,
+      side: renderedSide,
+      alignItemWithTriggerActive,
+      setControlledAlignItemWithTrigger,
+    }),
+    [positioning, renderedSide, alignItemWithTriggerActive, setControlledAlignItemWithTrigger],
+  );
+
   return (
     <CompositeList elementsRef={listRef} labelsRef={labelsRef} onMapChange={onMapChange}>
-      <SelectPositionerContext.Provider value={positioner}>
-        {mounted && modal && <InternalBackdrop inert={inertValue(!open)} />}
+      <SelectPositionerContext.Provider value={contextValue}>
+        {mounted && modal && <InternalBackdrop inert={inertValue(!open)} cutout={triggerElement} />}
         {element}
       </SelectPositionerContext.Provider>
     </CompositeList>
@@ -197,6 +216,12 @@ export namespace SelectPositioner {
   }
 
   export interface Props
-    extends useSelectPositioner.SharedParameters,
-      BaseUIComponentProps<'div', State> {}
+    extends useAnchorPositioning.SharedParameters,
+      BaseUIComponentProps<'div', State> {
+    /**
+     * Whether the positioner overlaps the trigger so the selected item's text is aligned with the trigger's value text. This only applies to mouse input and is automatically disabled if there is not enough space.
+     * @default true
+     */
+    alignItemWithTrigger?: boolean;
+  }
 }

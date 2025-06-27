@@ -79,7 +79,7 @@ export function mergePropsN<T extends ElementType>(props: InputProps<T>[]): Prop
     return EMPTY_PROPS as PropsOf<T>;
   }
   if (props.length === 1) {
-    return resolvePropsGetter(props[0], EMPTY_PROPS);
+    return resolvePropsGetter(props[0], EMPTY_PROPS) as PropsOf<T>;
   }
 
   // We need to mutably own `merged`
@@ -149,7 +149,7 @@ function isEventHandler(key: string, value: unknown) {
     code1 === 110 /* n */ &&
     code2 >= 65 /* A */ &&
     code2 <= 90 /* Z */ &&
-    typeof value === 'function'
+    (typeof value === 'function' || typeof value === 'undefined')
   );
 }
 
@@ -170,7 +170,7 @@ function resolvePropsGetter<T extends ElementType>(
   return inputProps ?? (EMPTY_PROPS as PropsOf<T>);
 }
 
-function mergeEventHandlers(ourHandler: Function, theirHandler: Function) {
+function mergeEventHandlers(ourHandler: Function | undefined, theirHandler: Function | undefined) {
   if (!theirHandler) {
     return ourHandler;
   }
@@ -207,7 +207,10 @@ export function makeEventPreventable<T extends React.SyntheticEvent>(event: Base
   return event;
 }
 
-function mergeClassNames(ourClassName: string | undefined, theirClassName: string | undefined) {
+export function mergeClassNames(
+  ourClassName: string | undefined,
+  theirClassName: string | undefined,
+) {
   if (theirClassName) {
     if (ourClassName) {
       // eslint-disable-next-line prefer-template

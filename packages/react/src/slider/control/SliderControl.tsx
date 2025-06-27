@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { activeElement } from '@floating-ui/react/utils';
+import { activeElement } from '../../floating-ui-react/utils';
 import { clamp } from '../../utils/clamp';
 import { ownerDocument } from '../../utils/owner';
 import type { BaseUIComponentProps, Orientation } from '../../utils/types';

@@ -1,5 +1,6 @@
 import * as React from 'react';
 import {
+  useClick,
   useDismiss,
   useFloatingRootContext,
   useInteractions,
@@ -7,8 +8,7 @@ import {
   useRole,
   useTypeahead,
   FloatingRootContext,
-} from '@floating-ui/react';
-import { useClick } from '../../utils/floating-ui/useClick';
+} from '../../floating-ui-react';
 import { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { useBaseUiId } from '../../utils/useBaseUiId';
@@ -19,6 +19,7 @@ import { useTransitionStatus } from '../../utils';
 import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { useSelector, Store } from '../../utils/store';
+import { useTimeout } from '../../utils/useTimeout';
 import { warn } from '../../utils/warn';
 import { selectors, State } from '../store';
 import type { SelectRootContext } from './SelectRootContext';
@@ -44,6 +45,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     modal = false,
     name: nameProp,
     onOpenChangeComplete,
+    items,
   } = params;
 
   const { clearErrors } = useFormContext();
@@ -100,6 +102,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     allowSelect: false,
   });
   const alignItemWithTriggerActiveRef = React.useRef(false);
+  const highlightTimeout = useTimeout();
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
 
@@ -112,8 +115,9 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
         label: '',
         open,
         mounted,
-        typeaheadReady: false,
+        forceMount: false,
         transitionStatus,
+        items,
         touchModality: false,
         activeIndex: null,
         selectedIndex: null,
@@ -123,10 +127,16 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
         positionerElement: null,
         scrollUpArrowVisible: false,
         scrollDownArrowVisible: false,
-        controlledItemAnchor: false,
-        alignItemWithTriggerActive: false,
       }),
   ).current;
+
+  const initialValueRef = React.useRef(value);
+  useModernLayoutEffect(() => {
+    // Ensure the values and labels are registered for programmatic value changes.
+    if (value !== initialValueRef.current) {
+      store.set('forceMount', true);
+    }
+  }, [store, value]);
 
   const activeIndex = useSelector(store, selectors.activeIndex);
   const selectedIndex = useSelector(store, selectors.selectedIndex);
@@ -393,6 +403,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
       onOpenChangeComplete,
       keyboardActiveRef,
       alignItemWithTriggerActiveRef,
+      highlightTimeout,
     }),
     [
       store,
@@ -417,6 +428,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
       onOpenChangeComplete,
       keyboardActiveRef,
       alignItemWithTriggerActiveRef,
+      highlightTimeout,
     ],
   );
 
@@ -500,6 +512,21 @@ export namespace useSelectRoot {
      * Useful when the select's animation is controlled by an external library.
      */
     actionsRef?: React.RefObject<Actions>;
+    /**
+     * Data structure of the items rendered in the select menu.
+     * When specified, `<Select.Value>` renders the label of the selected item instead of the raw value.
+     * @example
+     * ```tsx
+     * const items = {
+     *   sans: 'Sans-serif',
+     *   serif: 'Serif',
+     *   mono: 'Monospace',
+     *   cursive: 'Cursive',
+     * };
+     * <Select.Root items={items} />
+     * ```
+     */
+    items?: Record<string, React.ReactNode> | Array<{ label: React.ReactNode; value: Value }>;
   }
 
   export type ReturnValue = {
