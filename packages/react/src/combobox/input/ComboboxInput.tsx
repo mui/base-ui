@@ -39,7 +39,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
   } = useFieldRootContext();
   const {
     store,
-    setValue,
+    setSelectedValue,
     valuesRef,
     setOpen,
     keyboardActiveRef,
@@ -49,6 +49,8 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
     readOnly,
     fieldControlValidation,
     inputRef,
+    value: contextInputValue,
+    setValue: setInputValue,
   } = useComboboxRootContext();
 
   const multiple = select === 'multiple';
@@ -131,12 +133,12 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
     state,
     ref: [forwardedRef, setTriggerElement, inputRef],
     props: [
-      // Filter triggerProps to remove click handlers when disabled
-      disabled ? { ...triggerProps, onClick: undefined, onMouseDown: undefined } : triggerProps,
+      triggerProps,
       {
         'aria-disabled': disabled || undefined,
         'aria-readonly': readOnly || undefined,
         'aria-labelledby': labelId,
+        disabled: disabled || undefined,
         readOnly,
         onFocus() {
           setFocused(true);
@@ -148,6 +150,13 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
           if (validationMode === 'onBlur') {
             fieldControlValidation.commitValidation(value);
           }
+        },
+        onChange(event: React.ChangeEvent<HTMLInputElement>) {
+          // If consumer didn't control value prop, sync with context
+          if (componentProps.value === undefined) {
+            setInputValue(event.target.value, undefined, 'input-change');
+          }
+          // Do not forward to avoid event typing mismatch.
         },
         onKeyDown(event) {
           if (readOnly) {
@@ -166,7 +175,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
             value.length > 0
           ) {
             const newValue = value.slice(0, -1);
-            setValue(newValue, event.nativeEvent, undefined);
+            setSelectedValue(newValue, event.nativeEvent, undefined);
             return;
           }
 
@@ -212,9 +221,9 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
                 nextValue = [...value, selectedValue];
               }
 
-              setValue(nextValue, event.nativeEvent, 'item-press');
+              setSelectedValue(nextValue, event.nativeEvent, 'item-press');
             } else {
-              setValue(selectedValue, event.nativeEvent, 'item-press');
+              setSelectedValue(selectedValue, event.nativeEvent, 'item-press');
               setOpen(false, event.nativeEvent, 'item-press');
             }
           }
@@ -225,6 +234,10 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
         onPointerDown() {
           keyboardActiveRef.current = false;
         },
+      },
+      {
+        // Provide uncontrolled value from context when not controlled via props
+        value: componentProps.value ?? contextInputValue,
       },
       fieldControlValidation.getValidationProps(elementProps),
     ],

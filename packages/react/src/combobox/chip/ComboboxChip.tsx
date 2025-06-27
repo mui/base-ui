@@ -21,7 +21,14 @@ export const ComboboxChip = React.forwardRef(function ComboboxChip(
 ) {
   const { render, className, ...elementProps } = componentProps;
 
-  const { inputRef, value, setValue, setOpen, disabled, readOnly } = useComboboxRootContext();
+  const {
+    inputRef,
+    selectedValue: value,
+    setSelectedValue: setValue,
+    setOpen,
+    disabled,
+    readOnly,
+  } = useComboboxRootContext();
   const { setHighlightedChipIndex, chipsRef } = useComboboxChipsContext()!;
 
   const { ref, index } = useCompositeListItem();

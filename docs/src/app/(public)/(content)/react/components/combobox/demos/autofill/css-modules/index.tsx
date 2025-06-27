@@ -4,27 +4,32 @@ import styles from './index.module.css';
 import { countries } from './data';
 
 export default function AutofillCombobox() {
-  const [inputValue, setInputValue] = React.useState('');
+  const [searchValue, setSearchValue] = React.useState('');
   const [inputHighlightValue, setInputHighlightValue] = React.useState('');
-  const [value, setValue] = React.useState('');
+  const [selectedValue, setSelectedValue] = React.useState<string | null>('');
 
   const filteredCountries = React.useMemo(() => {
-    if (inputValue.trim() === '') {
+    if (searchValue.trim() === '') {
       return countries;
     }
     return countries.filter((country) =>
-      country.name.toLowerCase().includes(inputValue.toLowerCase()),
+      country.name.toLowerCase().includes(searchValue.toLowerCase()),
     );
-  }, [inputValue]);
+  }, [searchValue]);
 
   return (
     <div className={styles.Container}>
       <Combobox.Root
-        value={value}
+        selectedValue={selectedValue}
+        onSelectedValueChange={(nextValue) => {
+          setInputHighlightValue('');
+          setSelectedValue(nextValue);
+          setSearchValue(nextValue ?? '');
+        }}
+        value={inputHighlightValue || searchValue}
         onValueChange={(nextValue) => {
           setInputHighlightValue('');
-          setValue(nextValue);
-          setInputValue(nextValue);
+          setSearchValue(nextValue);
         }}
         onItemHighlighted={(highlightedValue, type) => {
           if (highlightedValue && type === 'keyboard') {
@@ -37,13 +42,6 @@ export default function AutofillCombobox() {
           <Combobox.Input
             placeholder="e.g. United Kingdom"
             className={styles.Input}
-            value={inputHighlightValue || inputValue}
-            onChange={(event) => {
-              React.startTransition(() => {
-                setInputHighlightValue('');
-                setInputValue(event.target.value);
-              });
-            }}
           />
         </label>
         {filteredCountries.length > 0 && (

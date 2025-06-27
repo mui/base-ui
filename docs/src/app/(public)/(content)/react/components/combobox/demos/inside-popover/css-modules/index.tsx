@@ -6,17 +6,17 @@ import { countries } from './data';
 
 export default function ExamplePopoverCombobox() {
   const [popoverOpen, setPopoverOpen] = React.useState(false);
-  const [value, setValue] = React.useState('');
-  const [inputValue, setInputValue] = React.useState('');
+  const [searchValue, setSearchValue] = React.useState('');
+  const [selectedValue, setSelectedValue] = React.useState<string | null>('');
 
   const filteredCountries = React.useMemo(() => {
-    if (inputValue.trim() === '') {
+    if (searchValue.trim() === '') {
       return countries;
     }
     return countries.filter((country) =>
-      country.name.toLowerCase().includes(inputValue.toLowerCase()),
+      country.name.toLowerCase().includes(searchValue.toLowerCase()),
     );
-  }, [inputValue]);
+  }, [searchValue]);
 
   return (
     <Popover.Root
@@ -24,12 +24,12 @@ export default function ExamplePopoverCombobox() {
       onOpenChange={setPopoverOpen}
       onOpenChangeComplete={(open) => {
         if (!open) {
-          setInputValue('');
+          setSearchValue('');
         }
       }}
     >
       <Popover.Trigger className={styles.Trigger}>
-        {value || 'Select country'}
+        {selectedValue || 'Select country'}
         <span aria-hidden className={styles.TriggerIcon}>
           <ChevronUpDownIcon />
         </span>
@@ -43,23 +43,19 @@ export default function ExamplePopoverCombobox() {
           <Popover.Popup className={styles.Popup} aria-label="Select country">
             <Combobox.Root
               open={popoverOpen}
-              value={value}
-              onValueChange={(nextValue) => {
-                setValue(nextValue);
+              selectedValue={selectedValue}
+              onSelectedValueChange={(nextValue) => {
+                setSelectedValue(nextValue);
                 setPopoverOpen(false);
               }}
+              value={searchValue}
+              onValueChange={setSearchValue}
               select="single"
             >
               <div className={styles.InputContainer}>
                 <Combobox.Input
                   placeholder="e.g. United Kingdom"
                   className={styles.Input}
-                  value={inputValue}
-                  onChange={(event) => {
-                    React.startTransition(() => {
-                      setInputValue(event.target.value);
-                    });
-                  }}
                 />
               </div>
               <Combobox.Status className={styles.NoResults}>

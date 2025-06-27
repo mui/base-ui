@@ -52,7 +52,7 @@ export const ComboboxItem = React.memo(
       listRef,
       getItemProps,
       setOpen,
-      setValue,
+      setSelectedValue,
       valuesRef,
       inputRef,
       registerSelectedItem,
@@ -162,14 +162,14 @@ export const ComboboxItem = React.memo(
             nextValue = Array.isArray(currentValue) ? [...currentValue, value] : [value];
           }
 
-          setValue(nextValue, event.nativeEvent, 'item-press');
+          setSelectedValue(nextValue, event.nativeEvent, 'item-press');
 
           const wasFiltering = inputRef.current ? inputRef.current.value.trim() !== '' : false;
           if (wasFiltering) {
             setOpen(false, event.nativeEvent, 'item-press');
           }
         } else {
-          setValue(value, event.nativeEvent, 'item-press');
+          setSelectedValue(value, event.nativeEvent, 'item-press');
           setOpen(false, event.nativeEvent, 'item-press');
         }
 
