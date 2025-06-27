@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { createRenderer, screen, fireEvent } from '@mui/internal-test-utils';
+import { createRenderer, screen, fireEvent, waitFor } from '@mui/internal-test-utils';
 import { CheckboxGroup } from '@base-ui-components/react/checkbox-group';
 import { Checkbox } from '@base-ui-components/react/checkbox';
 import { Field } from '@base-ui-components/react/field';
@@ -211,9 +211,15 @@ describe('<CheckboxGroup />', () => {
       render(
         <Field.Root validationMode="onChange" validate={validateSpy} name="apple">
           <CheckboxGroup defaultValue={['fuji-apple']}>
-            <Checkbox.Root value="fuji-apple" data-testid="button-1" />
-            <Checkbox.Root value="gala-apple" data-testid="button-2" />
-            <Checkbox.Root value="granny-smith-apple" data-testid="button-3" />
+            <Field.Item>
+              <Checkbox.Root value="fuji-apple" data-testid="button-1" />
+            </Field.Item>
+            <Field.Item>
+              <Checkbox.Root value="gala-apple" data-testid="button-2" />
+            </Field.Item>
+            <Field.Item>
+              <Checkbox.Root value="granny-smith-apple" data-testid="button-3" />
+            </Field.Item>
           </CheckboxGroup>
         </Field.Root>,
       );
@@ -265,9 +271,15 @@ describe('<CheckboxGroup />', () => {
       render(
         <Field.Root validationMode="onBlur" validate={validateSpy} name="apple">
           <CheckboxGroup defaultValue={['fuji-apple']}>
-            <Checkbox.Root value="fuji-apple" data-testid="button-1" />
-            <Checkbox.Root value="gala-apple" data-testid="button-2" />
-            <Checkbox.Root value="granny-smith-apple" data-testid="button-3" />
+            <Field.Item>
+              <Checkbox.Root value="fuji-apple" data-testid="button-1" />
+            </Field.Item>
+            <Field.Item>
+              <Checkbox.Root value="gala-apple" data-testid="button-2" />
+            </Field.Item>
+            <Field.Item>
+              <Checkbox.Root value="granny-smith-apple" data-testid="button-3" />
+            </Field.Item>
           </CheckboxGroup>
           <Field.Error data-testid="error" />
         </Field.Root>,
@@ -319,18 +331,24 @@ describe('<CheckboxGroup />', () => {
       const { container } = await render(
         <Field.Root name="apple">
           <CheckboxGroup defaultValue={['fuji-apple', 'gala-apple']}>
-            <Field.Label>
-              <Checkbox.Root value="fuji-apple" />
-              Fuji
-            </Field.Label>
-            <Field.Label>
-              <Checkbox.Root value="gala-apple" />
-              Gala
-            </Field.Label>
-            <Field.Label>
-              <Checkbox.Root value="granny-smith-apple" onCheckedChange={changeSpy} />
-              Granny Smith
-            </Field.Label>
+            <Field.Item>
+              <Field.Label>
+                <Checkbox.Root value="fuji-apple" />
+                Fuji
+              </Field.Label>
+            </Field.Item>
+            <Field.Item>
+              <Field.Label>
+                <Checkbox.Root value="gala-apple" />
+                Gala
+              </Field.Label>
+            </Field.Item>
+            <Field.Item>
+              <Field.Label>
+                <Checkbox.Root value="granny-smith-apple" onCheckedChange={changeSpy} />
+                Granny Smith
+              </Field.Label>
+            </Field.Item>
           </CheckboxGroup>
         </Field.Root>,
       );
@@ -350,25 +368,25 @@ describe('<CheckboxGroup />', () => {
       await render(
         <Field.Root name="apple">
           <CheckboxGroup defaultValue={['fuji-apple', 'gala-apple']}>
-            <Field.Label id="Label1" htmlFor="Checkbox1">
-              Fuji
-            </Field.Label>
-            <Field.Label id="Label2" htmlFor="Checkbox2">
-              Gala
-            </Field.Label>
-            <Checkbox.Root id="Checkbox1" aria-labelledby="Label1" value="fuji-apple" />
-            <Checkbox.Root
-              id="Checkbox2"
-              aria-labelledby="Label2"
-              value="gala-apple"
-              onCheckedChange={changeSpy}
-            />
+            <Field.Item>
+              <Checkbox.Root value="fuji-apple" />
+              <Field.Label>Fuji</Field.Label>
+            </Field.Item>
+            <Field.Item>
+              <Checkbox.Root value="gala-apple" onCheckedChange={changeSpy} />
+              <Field.Label>Gala</Field.Label>
+            </Field.Item>
           </CheckboxGroup>
         </Field.Root>,
       );
 
+      const checkboxes = screen.getAllByRole('checkbox');
+
       const label1 = screen.getByText('Fuji');
-      expect(label1).to.have.attribute('for', 'Checkbox1');
+      await waitFor(() => {
+        expect(label1.getAttribute('for')).to.not.equal(null);
+      });
+      expect(label1.getAttribute('for')).to.equal(checkboxes[0].getAttribute('id'));
 
       fireEvent.click(screen.getByText('Gala'));
       expect(changeSpy.callCount).to.equal(1);
@@ -387,9 +405,15 @@ describe('<CheckboxGroup />', () => {
         >
           <Field.Root name="apple">
             <CheckboxGroup defaultValue={['fuji-apple', 'gala-apple']}>
-              <Checkbox.Root value="fuji-apple" data-testid="button-1" />
-              <Checkbox.Root value="gala-apple" data-testid="button-2" />
-              <Checkbox.Root value="granny-smith-apple" data-testid="button-3" />
+              <Field.Item>
+                <Checkbox.Root value="fuji-apple" data-testid="button-1" />
+              </Field.Item>
+              <Field.Item>
+                <Checkbox.Root value="gala-apple" data-testid="button-2" />
+              </Field.Item>
+              <Field.Item>
+                <Checkbox.Root value="granny-smith-apple" data-testid="button-3" />
+              </Field.Item>
             </CheckboxGroup>
           </Field.Root>
           <button type="submit">Submit</button>
@@ -410,9 +434,15 @@ describe('<CheckboxGroup />', () => {
         >
           <Field.Root name="apple" validate={validateSpy}>
             <CheckboxGroup defaultValue={['fuji-apple', 'gala-apple']}>
-              <Checkbox.Root value="fuji-apple" data-testid="button-1" />
-              <Checkbox.Root value="gala-apple" data-testid="button-2" />
-              <Checkbox.Root value="granny-smith-apple" data-testid="button-3" />
+              <Field.Item>
+                <Checkbox.Root value="fuji-apple" data-testid="button-1" />
+              </Field.Item>
+              <Field.Item>
+                <Checkbox.Root value="gala-apple" data-testid="button-2" />
+              </Field.Item>
+              <Field.Item>
+                <Checkbox.Root value="granny-smith-apple" data-testid="button-3" />
+              </Field.Item>
             </CheckboxGroup>
           </Field.Root>
           <button type="submit">Submit</button>
@@ -439,8 +469,12 @@ describe('<CheckboxGroup />', () => {
           >
             <Field.Root name="group" data-testid="field">
               <CheckboxGroup defaultValue={['one']}>
-                <Checkbox.Root value="one" />
-                <Checkbox.Root value="two" />
+                <Field.Item>
+                  <Checkbox.Root value="one" />
+                </Field.Item>
+                <Field.Item>
+                  <Checkbox.Root value="two" />
+                </Field.Item>
               </CheckboxGroup>
               <Field.Error data-testid="error" />
             </Field.Root>
@@ -479,10 +513,18 @@ describe('<CheckboxGroup />', () => {
           >
             <Field.Root name="apple">
               <CheckboxGroup value={value} onValueChange={setValue} allValues={allValues}>
-                <Checkbox.Root parent />
-                <Checkbox.Root value="fuji-apple" />
-                <Checkbox.Root value="gala-apple" />
-                <Checkbox.Root value="granny-smith-apple" />
+                <Field.Item>
+                  <Checkbox.Root parent />
+                </Field.Item>
+                <Field.Item>
+                  <Checkbox.Root value="fuji-apple" />
+                </Field.Item>
+                <Field.Item>
+                  <Checkbox.Root value="gala-apple" />
+                </Field.Item>
+                <Field.Item>
+                  <Checkbox.Root value="granny-smith-apple" />
+                </Field.Item>
               </CheckboxGroup>
             </Field.Root>
             <button type="submit">Submit</button>
