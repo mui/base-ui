@@ -71,7 +71,9 @@ export function formatType(
   }
 
   if (type instanceof tae.IntrinsicNode) {
-    return type.name;
+    return type.name
+      ? getFullyQualifiedName(type.name, type.parentNamespaces ?? [])
+      : type.intrinsic;
   }
 
   if (type instanceof tae.UnionNode) {
@@ -83,7 +85,7 @@ export function formatType(
 
     if (removeUndefined) {
       const types = memberTypes.filter(
-        (t) => !(t instanceof tae.IntrinsicNode && t.name === 'undefined'),
+        (t) => !(t instanceof tae.IntrinsicNode && t.intrinsic === 'undefined'),
       );
 
       return orderMembers(types)
@@ -215,7 +217,7 @@ function orderMembers(members: readonly tae.TypeNode[]): readonly tae.TypeNode[]
 
 function pushToEnd(members: readonly tae.TypeNode[], name: string): readonly tae.TypeNode[] {
   const index = members.findIndex((member: tae.TypeNode) => {
-    return member instanceof tae.IntrinsicNode && member.name === name;
+    return member instanceof tae.IntrinsicNode && member.intrinsic === name;
   });
 
   if (index !== -1) {
