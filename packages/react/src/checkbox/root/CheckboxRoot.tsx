@@ -210,6 +210,10 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     inputRef.current?.click();
   });
 
+  const fieldItemMessageIds = fieldItemContext?.messageIds.length
+    ? { 'aria-describedby': fieldItemContext.messageIds.join(' ') }
+    : undefined;
+
   const inputId = useBaseUiId();
 
   const inputProps = mergeProps<'input'>(
@@ -274,6 +278,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     groupContext
       ? fieldControlValidation.getValidationProps
       : fieldControlValidation.getInputValidationProps,
+    fieldItemMessageIds,
   );
 
   const computedChecked = isGroupedWithParent ? Boolean(groupChecked) : checked;
@@ -319,6 +324,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
         onClick,
       },
       fieldControlValidation.getValidationProps,
+      fieldItemMessageIds,
       elementProps,
       otherGroupProps,
       getButtonProps,
