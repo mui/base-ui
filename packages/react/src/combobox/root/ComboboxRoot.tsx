@@ -37,18 +37,9 @@ import { useLatestRef } from '../../utils/useLatestRef';
  *
  * Documentation: [Base UI Combobox](https://base-ui.com/react/components/combobox)
  */
-export function ComboboxRoot<Value>(
-  props: ComboboxRoot.Props<Value, true> & { select?: 'multiple' },
-): React.JSX.Element;
-export function ComboboxRoot<Value>(
-  props: ComboboxRoot.Props<Value, false> & { select?: 'single' },
-): React.JSX.Element;
-export function ComboboxRoot<Value>(
-  props: ComboboxRoot.Props<Value, false> & { select?: 'none' },
-): React.JSX.Element;
-export function ComboboxRoot<Value, Multiple extends boolean = false>(
-  props: ComboboxRoot.Props<Value, Multiple>,
-): React.JSX.Element {
+export function ComboboxRoot<Value>(props: ComboboxRoot.SingleProps<Value>): React.JSX.Element;
+export function ComboboxRoot<Value>(props: ComboboxRoot.MultipleProps<Value>): React.JSX.Element;
+export function ComboboxRoot<Value>(props: ComboboxRoot.Props<Value>): React.JSX.Element {
   const {
     id: idProp,
     onOpenChangeComplete,
@@ -88,18 +79,14 @@ export function ComboboxRoot<Value, Multiple extends boolean = false>(
 
   const multiple = selectProp === 'multiple';
 
-  const defaultUncontrolledValue = React.useMemo((): Multiple extends true ? Value[] : Value => {
+  const defaultUncontrolledValue = React.useMemo(() => {
     if (multiple) {
-      return (
-        defaultValue !== null && defaultValue !== undefined ? defaultValue : []
-      ) as Multiple extends true ? Value[] : Value;
+      return defaultValue !== null && defaultValue !== undefined ? defaultValue : [];
     }
-    return (
-      defaultValue !== null && defaultValue !== undefined ? defaultValue : ''
-    ) as Multiple extends true ? Value[] : Value;
+    return defaultValue !== null && defaultValue !== undefined ? defaultValue : '';
   }, [defaultValue, multiple]);
 
-  const [value, setValueUnwrapped] = useControlled<Multiple extends true ? Value[] : Value>({
+  const [value, setValueUnwrapped] = useControlled<any>({
     controlled: props.value,
     default: defaultUncontrolledValue,
     name: 'Combobox',
@@ -154,7 +141,7 @@ export function ComboboxRoot<Value, Multiple extends boolean = false>(
   const controlRef = useLatestRef(triggerElement);
   const commitValidation = fieldControlValidation.commitValidation;
 
-  const updateValue = useEventCallback((nextValue: Multiple extends true ? Value[] : Value) => {
+  const updateValue = useEventCallback((nextValue: any) => {
     clearErrors(name);
     setDirty(nextValue !== validityData.initialValue);
   });
@@ -223,11 +210,7 @@ export function ComboboxRoot<Value, Multiple extends boolean = false>(
   });
 
   const setValue = useEventCallback(
-    (
-      nextValue: Multiple extends true ? Value[] : Value,
-      event: Event | undefined,
-      reason: string | undefined,
-    ) => {
+    (nextValue: any, event: Event | undefined, reason: string | undefined) => {
       props.onValueChange?.(nextValue, event, reason);
       setValueUnwrapped(nextValue);
     },
@@ -244,7 +227,7 @@ export function ComboboxRoot<Value, Multiple extends boolean = false>(
 
     if (multiple) {
       // For multiple selection, we need to handle arrays
-      const currentValue = value as Value[];
+      const currentValue = value as any[];
       const selectedIndices: number[] = [];
 
       if (Array.isArray(currentValue)) {
@@ -394,7 +377,7 @@ export function ComboboxRoot<Value, Multiple extends boolean = false>(
     return getFormValue(value);
   }, [value]);
 
-  const contextValue: ComboboxRootContext<Value, Multiple> = React.useMemo(
+  const contextValue: ComboboxRootContext<Value> = React.useMemo(
     () => ({
       select: selectProp,
       mounted,
@@ -425,12 +408,12 @@ export function ComboboxRoot<Value, Multiple extends boolean = false>(
     [
       selectProp,
       mounted,
+      value,
+      setValue,
       open,
       positionerElement,
       setOpen,
-      setValue,
       triggerElement,
-      value,
       store,
       getItemProps,
       registerSelectedItem,
@@ -505,7 +488,7 @@ export function ComboboxRoot<Value, Multiple extends boolean = false>(
 export namespace ComboboxRoot {
   export interface State {}
 
-  export interface Props<Value, Multiple extends boolean = false> {
+  interface BaseProps<Value> {
     children?: React.ReactNode;
     /**
      * Identifies the field when a form is submitted.
@@ -530,30 +513,6 @@ export namespace ComboboxRoot {
      * @default false
      */
     disabled?: boolean;
-    /**
-     * Whether the combobox allows multiple selections.
-     * @default false
-     */
-    multiple?: Multiple;
-    /**
-     * The value of the combobox.
-     */
-    value?: Multiple extends true ? Value[] : Value;
-    /**
-     * Callback fired when the value of the combobox changes. Use when controlled.
-     */
-    onValueChange?: (
-      value: Multiple extends true ? Value[] : Value,
-      event: Event | undefined,
-      reason: string | undefined,
-    ) => void;
-    /**
-     * The uncontrolled value of the combobox when it's initially rendered.
-     *
-     * To render a controlled combobox, use the `value` prop instead.
-     * @default null
-     */
-    defaultValue?: Multiple extends true ? Value[] | null : Value | null;
     /**
      * Whether the combobox popup is initially open.
      *
@@ -608,6 +567,57 @@ export namespace ComboboxRoot {
      */
     cols?: number;
   }
+
+  export interface SingleProps<Value> extends BaseProps<Value> {
+    /**
+     * How the combobox should remember the selected value.
+     * @default 'none'
+     */
+    select?: 'single' | 'none' | undefined;
+    /**
+     * The value of the combobox.
+     */
+    value?: Value | null;
+    /**
+     * Callback fired when the value of the combobox changes.
+     */
+    onValueChange?: (
+      value: Value | null,
+      event: Event | undefined,
+      reason: string | undefined,
+    ) => void;
+    /**
+     * The uncontrolled value of the combobox when it's initially rendered.
+     *
+     * To render a controlled combobox, use the `value` prop instead.
+     * @default null
+     */
+    defaultValue?: Value | null;
+  }
+
+  export interface MultipleProps<Value> extends BaseProps<Value> {
+    /**
+     * How the combobox should remember the selected value.
+     */
+    select: 'multiple';
+    /**
+     * The values of the combobox.
+     */
+    value?: Value[];
+    /**
+     * Callback fired when the values of the combobox changes.
+     */
+    onValueChange?: (value: Value[], event: Event | undefined, reason: string | undefined) => void;
+    /**
+     * The uncontrolled values of the combobox when it's initially rendered.
+     *
+     * To render a controlled combobox, use the `value` prop instead.
+     * @default null
+     */
+    defaultValue?: Value[] | null;
+  }
+
+  export type Props<Value> = SingleProps<Value> | MultipleProps<Value>;
 
   export interface Actions {
     unmount: () => void;

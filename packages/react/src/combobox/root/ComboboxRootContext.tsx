@@ -7,15 +7,11 @@ import type { useFieldControlValidation } from '../../field/control/useFieldCont
 
 export type ValueChangeReason = 'item-press' | 'input-change';
 
-export interface ComboboxRootContext<Value = any, Multiple extends boolean = false> {
+export interface ComboboxRootContext<Value = any> {
   select: 'single' | 'multiple' | 'none';
   mounted: boolean;
-  value: Multiple extends true ? Value[] : Value;
-  setValue: (
-    value: Multiple extends true ? Value[] : Value,
-    event: Event | undefined,
-    reason: ValueChangeReason | undefined,
-  ) => void;
+  value: any;
+  setValue: (value: any, event: Event | undefined, reason: ValueChangeReason | undefined) => void;
   open: boolean;
   setOpen: (
     open: boolean,
@@ -41,17 +37,17 @@ export interface ComboboxRootContext<Value = any, Multiple extends boolean = fal
   required: boolean;
   fieldControlValidation: ReturnType<typeof useFieldControlValidation>;
   cols: number;
+  triggerElement: HTMLElement | null;
+  positionerElement: HTMLElement | null;
 }
 
-export const ComboboxRootContext = React.createContext<ComboboxRootContext<any, any> | undefined>(
+export const ComboboxRootContext = React.createContext<ComboboxRootContext<any> | undefined>(
   undefined,
 );
 export const ComboboxFloatingContext = React.createContext<FloatingRootContext | null>(null);
 
-export function useComboboxRootContext<Value = any, Multiple extends boolean = false>() {
-  const context = React.useContext(ComboboxRootContext) as
-    | ComboboxRootContext<Value, Multiple>
-    | undefined;
+export function useComboboxRootContext<Value = any>() {
+  const context = React.useContext(ComboboxRootContext) as ComboboxRootContext<Value> | undefined;
   if (!context) {
     throw new Error(
       'Base UI: ComboboxRootContext is missing. Combobox parts must be placed within <Combobox.Root>.',

@@ -7,17 +7,17 @@
       "description": "Identifies the field when a form is submitted."
     },
     "defaultValue": {
-      "type": "Value[] | null",
+      "type": "Value | null",
       "default": "null",
       "description": "The uncontrolled value of the combobox when it's initially rendered.\n\nTo render a controlled combobox, use the `value` prop instead."
     },
     "value": {
-      "type": "Value[]",
+      "type": "Value | null",
       "description": "The value of the combobox."
     },
     "onValueChange": {
-      "type": "((value: Value[], event: Event | undefined, reason: string | undefined) => void)",
-      "description": "Callback fired when the value of the combobox changes. Use when controlled."
+      "type": "((value: Value | null, event: Event | undefined, reason: string | undefined) => void)",
+      "description": "Callback fired when the value of the combobox changes."
     },
     "defaultOpen": {
       "type": "boolean",
@@ -41,11 +41,6 @@
       "default": "1",
       "description": "The number of columns the items are rendered in grid layout."
     },
-    "multiple": {
-      "type": "true",
-      "default": "false",
-      "description": "Whether the combobox allows multiple selections."
-    },
     "onItemHighlighted": {
       "type": "((value: Value | undefined, type: 'keyboard' | 'pointer') => void)",
       "description": "Callback fired when the user navigates the list and highlights an item.\nPasses the item's `value` or `undefined` when no item is highlighted."
@@ -55,9 +50,9 @@
       "description": "Event handler called after any animations complete when the combobox popup is opened or closed."
     },
     "select": {
-      "type": "'none' | 'multiple' | 'single'",
+      "type": "'none' | 'single'",
       "default": "'none'",
-      "description": "How the combobox should remember the selected value.\n- `single`: Remembers the last selected value.\n- `multiple`: Remember all selected values.\n- `none`: Do not remember the selected value."
+      "description": "How the combobox should remember the selected value."
     },
     "disabled": {
       "type": "boolean",
