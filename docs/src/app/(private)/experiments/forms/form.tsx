@@ -146,7 +146,11 @@ export default function Page() {
           </Field.Label>
         </Field.Root>
 
-        <Field.Root name="required-checkbox" className={styles.Field}>
+        <Field.Root
+          name="required-checkbox"
+          validationMode="onChange"
+          className={styles.Field}
+        >
           <Field.Label className={styles.Label}>
             <Checkbox.Root required={native} className={styles.Checkbox}>
               <Checkbox.Indicator className={styles.CheckboxIndicator}>
@@ -287,7 +291,7 @@ export default function Page() {
               <div className={styles.FieldItemName}>
                 <Field.Label className={styles.Label}>Automatically</Field.Label>
                 <Field.Description className={styles.Description}>
-                  Based on mouse or trackpad Based on mouse or trackpad
+                  Based on mouse or trackpad
                 </Field.Description>
               </div>
             </Field.Item>

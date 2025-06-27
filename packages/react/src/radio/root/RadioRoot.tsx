@@ -84,7 +84,6 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
     }
   }, [setFilled]);
 
-  const id = useBaseUiId(idProp);
   let radioId = fieldRootControlId;
   if (fieldItemContext) {
     radioId = fieldItemContext.controlId;
@@ -135,29 +134,23 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
 
   useIsoLayoutEffect(() => {
     const element = buttonRef.current;
-    if (!element) {
+
+    if (!element || !fieldItemContext) {
       return undefined;
     }
 
     const implicit = element.closest('label') != null;
 
-    /* if (fieldItemContext) {
-      if (idProp) {
-        fieldItemContext.setControlId(idProp);
-      } else if (!implicit) {
-        console.log('b', id);
-        fieldItemContext.setControlId(id);
-      }
-    } else if (implicit) {
-      setControlId(idProp ?? null);
+    if (implicit) {
+      fieldItemContext.setControlId(idProp ?? null);
     } else {
-      setControlId(id);
-    } */
+      fieldItemContext.setControlId(radioId);
+    }
 
     return () => {
       setControlId(undefined);
     };
-  }, [buttonRef, fieldItemContext, id, idProp, setControlId]);
+  }, [buttonRef, fieldItemContext, idProp, radioId, setControlId]);
 
   const inputId = useBaseUiId();
 

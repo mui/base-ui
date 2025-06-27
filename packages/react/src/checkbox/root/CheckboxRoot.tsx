@@ -137,8 +137,12 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
 
     const implicit = element.closest('label') != null;
 
-    if (groupContext && fieldItemContext && !parent) {
-      fieldItemContext.setControlId(checkboxId);
+    if (groupContext && fieldItemContext) {
+      if (implicit) {
+        fieldItemContext.setControlId(idProp ?? null);
+      } else if (!parent) {
+        fieldItemContext.setControlId(checkboxId);
+      }
     } else if (implicit) {
       setControlId(idProp ?? null);
     } else {
