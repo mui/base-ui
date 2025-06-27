@@ -67,13 +67,23 @@ export function useCollapsiblePanel(
     }
     if (animationTypeRef.current == null || transitionDimensionRef.current == null) {
       const panelStyles = getComputedStyle(element);
+
+      const hasAnimation = panelStyles.animationName !== 'none' && panelStyles.animationName !== '';
+      const hasTransition =
+        panelStyles.transitionDuration !== '0s' && panelStyles.transitionDuration !== '';
+
       /**
        * animationTypeRef is safe to read in render because it's only ever set
        * once here during the first render and never again.
        * https://react.dev/learn/referencing-values-with-refs#best-practices-for-refs
        */
-      if (panelStyles.animationName !== 'none' && panelStyles.transitionDuration !== '0s') {
-        warn('CSS transitions and CSS animations both detected');
+      if (hasAnimation && hasTransition) {
+        if (process.env.NODE_ENV !== 'production') {
+          warn(
+            'CSS transitions and CSS animations both detected on Collapsible or Accordion panel.',
+            'Only one of either animation type should be used.',
+          );
+        }
       } else if (panelStyles.animationName === 'none' && panelStyles.transitionDuration !== '0s') {
         animationTypeRef.current = 'css-transition';
       } else if (panelStyles.animationName !== 'none' && panelStyles.transitionDuration === '0s') {
