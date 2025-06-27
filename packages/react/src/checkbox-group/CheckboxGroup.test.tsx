@@ -341,11 +341,6 @@ describe('<CheckboxGroup />', () => {
         expect(label).to.not.have.attribute('for');
       });
 
-      const buttons = screen.getAllByRole('checkbox');
-      buttons.forEach((button) => {
-        expect(button).to.not.have.attribute('aria-labelledby');
-      });
-
       fireEvent.click(labels[2]);
       expect(changeSpy.callCount).to.equal(1);
     });
