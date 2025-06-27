@@ -7,12 +7,12 @@ import type { useFieldControlValidation } from '../../field/control/useFieldCont
 
 export type ValueChangeReason = 'item-press' | 'input-change';
 
-export interface ComboboxRootContext<Value> {
+export interface ComboboxRootContext {
   select: 'single' | 'multiple' | 'none';
   mounted: boolean;
-  selectedValue: Value;
+  selectedValue: any;
   setSelectedValue: (
-    value: Value,
+    value: any,
     event: Event | undefined,
     reason: ValueChangeReason | undefined,
   ) => void;
@@ -34,7 +34,7 @@ export interface ComboboxRootContext<Value> {
   ) => Record<string, unknown>;
   valuesRef: React.RefObject<Array<any>>;
   registerSelectedItem: (index: number) => void;
-  onItemHighlighted: (value: Value | undefined, type: 'keyboard' | 'pointer') => void;
+  onItemHighlighted: (value: any | undefined, type: 'keyboard' | 'pointer') => void;
   name: string | undefined;
   disabled: boolean;
   readOnly: boolean;
@@ -43,6 +43,10 @@ export interface ComboboxRootContext<Value> {
   cols: number;
   triggerElement: HTMLElement | null;
   positionerElement: HTMLElement | null;
+  items?: any[];
+  filteredItems?: any[];
+  flatItems?: any[];
+  isGrouped?: boolean;
   value: React.ComponentProps<'input'>['value'];
   setValue: (
     value: string,
@@ -51,13 +55,11 @@ export interface ComboboxRootContext<Value> {
   ) => void;
 }
 
-export const ComboboxRootContext = React.createContext<ComboboxRootContext<any> | undefined>(
-  undefined,
-);
+export const ComboboxRootContext = React.createContext<ComboboxRootContext | undefined>(undefined);
 export const ComboboxFloatingContext = React.createContext<FloatingRootContext | null>(null);
 
-export function useComboboxRootContext<Value = any>() {
-  const context = React.useContext(ComboboxRootContext) as ComboboxRootContext<Value> | undefined;
+export function useComboboxRootContext() {
+  const context = React.useContext(ComboboxRootContext) as ComboboxRootContext | undefined;
   if (!context) {
     throw new Error(
       'Base UI: ComboboxRootContext is missing. Combobox parts must be placed within <Combobox.Root>.',

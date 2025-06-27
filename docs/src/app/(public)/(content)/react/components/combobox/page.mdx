@@ -60,6 +60,18 @@ import { Combobox } from '@base-ui-components/react/combobox';
 
 ## Examples
 
+### Basic
+
+A simple combobox with predefined options, demonstrating search history without filtering.
+
+<Demo path="./demos/basic" compact />
+
+### Grouped
+
+Group related options together by passing an array of group objects to the `items` prop.
+
+<Demo path="./demos/grouped" compact />
+
 ### Async search
 
 The combobox items can be loaded asynchronously.
@@ -74,7 +86,7 @@ The combobox's input can be autofilled with the highlighted item when navigating
 
 ### Inside `Popover`
 
-The combobox can be rendered inline inside a parent popover to create a searchable select menu by adding the `selectable` prop to `Combobox.Root`.
+The combobox can be rendered inline inside a parent popover to create a searchable select menu by adding `select="single"` prop to `Combobox.Root` to remember the selected value.
 
 <Demo path="./demos/inside-popover" compact />
 

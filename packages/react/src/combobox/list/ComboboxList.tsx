@@ -8,6 +8,7 @@ import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { useComboboxPositionerContext } from '../positioner/ComboboxPositionerContext';
 import { useSelector } from '../../utils/store';
 import { selectors } from '../store';
+import { ComboboxCollection } from '../collection/ComboboxCollection';
 
 /**
  * The container for the combobox items.
@@ -19,7 +20,7 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
   componentProps: ComboboxList.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, ...elementProps } = componentProps;
+  const { render, className, children, ...elementProps } = componentProps;
 
   const { store, select, keyboardActiveRef, cols } = useComboboxRootContext();
   const multiple = select === 'multiple';
@@ -47,11 +48,21 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
     };
   }, [hasPositionerContext, store]);
 
+  // Support "closed template" API: if children is a function, implicitly wrap it
+  // with a Combobox.Collection that reads items from context/root.
+  const resolvedChildren = React.useMemo(() => {
+    if (typeof children === 'function') {
+      return <ComboboxCollection>{children}</ComboboxCollection>;
+    }
+    return children;
+  }, [children]);
+
   return useRenderElement('div', componentProps, {
     ref: [forwardedRef, setListElement, hasPositionerContext ? null : setPositionerElement],
     props: [
       popupProps,
       {
+        children: resolvedChildren,
         tabIndex: -1,
         id: floatingRootContext.floatingId,
         role: cols > 1 ? 'grid' : 'listbox',
@@ -71,5 +82,7 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
 export namespace ComboboxList {
   export interface State {}
 
-  export interface Props extends BaseUIComponentProps<'div', State> {}
+  export interface Props extends Omit<BaseUIComponentProps<'div', State>, 'children'> {
+    children?: React.ReactNode | ((item: any) => React.ReactNode);
+  }
 }

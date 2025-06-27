@@ -12,17 +12,17 @@ import { fieldValidityMapping } from '../../field/utils/constants';
 import { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 import { useComboboxChipsContext } from '../chips/ComboboxChipsContext';
 
+const customStyleHookMapping: CustomStyleHookMapping<ComboboxInput.State> = {
+  ...triggerOpenStateMapping,
+  ...fieldValidityMapping,
+};
+
 /**
  * A text input to search for items in the list.
  * Renders an `<input>` element.
  *
  * Documentation: [Base UI Combobox](https://base-ui.com/react/components/combobox)
  */
-const customStyleHookMapping: CustomStyleHookMapping<ComboboxInput.State> = {
-  ...triggerOpenStateMapping,
-  ...fieldValidityMapping,
-};
-
 export const ComboboxInput = React.forwardRef(function ComboboxInput(
   componentProps: ComboboxInput.Props,
   forwardedRef: React.ForwardedRef<HTMLInputElement>,
@@ -135,6 +135,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
     props: [
       triggerProps,
       {
+        value: componentProps.value ?? contextInputValue,
         'aria-disabled': disabled || undefined,
         'aria-readonly': readOnly || undefined,
         'aria-labelledby': labelId,
@@ -234,10 +235,6 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
         onPointerDown() {
           keyboardActiveRef.current = false;
         },
-      },
-      {
-        // Provide uncontrolled value from context when not controlled via props
-        value: componentProps.value ?? contextInputValue,
       },
       fieldControlValidation.getValidationProps(elementProps),
     ],
