@@ -8,6 +8,24 @@ import upperFirst from 'lodash/upperFirst.js';
  * - Converts `path` prop value into an absolute pathname
  * - Adds `scope` prop based on the `path` value
  * - Adds corresponding import statements for the live demo components
+
+  
+  // Remove any null bytes and normalize
+  const cleanPath = inputPath.replace(/\0/g, '');
+  
+  // Resolve the path relative to base directory
+  const resolvedPath = path.resolve(baseDir, cleanPath);
+  
+  // Ensure the resolved path is within the base directory
+  if (!resolvedPath.startsWith(path.resolve(baseDir))) {
+    throw new Error('Path traversal attempt detected');
+  }
+  
+  return resolvedPath;
+}
+
+// Read the original file content and apply the fix
+
  *
  * Example input:
  * ```
