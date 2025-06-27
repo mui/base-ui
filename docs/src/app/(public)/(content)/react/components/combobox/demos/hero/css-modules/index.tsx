@@ -4,40 +4,27 @@ import styles from './index.module.css';
 import { countries } from './data';
 
 export default function ExampleCombobox() {
-  const [inputValue, setInputValue] = React.useState('');
-  const [value, setValue] = React.useState('');
+  const [searchValue, setSearchValue] = React.useState('');
+  const [selectedValue, setSelectedValue] = React.useState<string | null>('');
 
   const filteredCountries = React.useMemo(() => {
-    if (inputValue.trim() === '') {
+    if (searchValue.trim() === '') {
       return countries;
     }
     return countries.filter((country) =>
-      country.name.toLowerCase().includes(inputValue.toLowerCase()),
+      country.name.toLowerCase().includes(searchValue.toLowerCase()),
     );
-  }, [inputValue]);
+  }, [searchValue]);
 
   return (
     <Combobox.Root
-      value={value}
-      onValueChange={(nextValue) => {
-        setValue(nextValue);
-        React.startTransition(() => {
-          setInputValue(nextValue);
-        });
-      }}
+      selectedValue={selectedValue}
+      onSelectedValueChange={setSelectedValue}
+      onValueChange={setSearchValue}
     >
       <label className={styles.Label}>
         Enter country
-        <Combobox.Input
-          placeholder="e.g. United Kingdom"
-          className={styles.Input}
-          value={inputValue}
-          onChange={(event) => {
-            React.startTransition(() => {
-              setInputValue(event.target.value);
-            });
-          }}
-        />
+        <Combobox.Input placeholder="e.g. United Kingdom" className={styles.Input} />
       </label>
 
       <Combobox.Portal>

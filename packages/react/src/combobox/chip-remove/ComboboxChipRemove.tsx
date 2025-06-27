@@ -18,7 +18,13 @@ export const ComboboxChipRemove = React.forwardRef(function ComboboxChipRemove(
 ) {
   const { render, className, nativeButton = true, ...elementProps } = componentProps;
 
-  const { value, setValue, inputRef, disabled, readOnly } = useComboboxRootContext();
+  const {
+    selectedValue: value,
+    setSelectedValue: setValue,
+    inputRef,
+    disabled,
+    readOnly,
+  } = useComboboxRootContext();
   const { index } = useComboboxChipContext();
 
   const { buttonRef, getButtonProps } = useButton({

@@ -7,11 +7,15 @@ import type { useFieldControlValidation } from '../../field/control/useFieldCont
 
 export type ValueChangeReason = 'item-press' | 'input-change';
 
-export interface ComboboxRootContext<Value = any> {
+export interface ComboboxRootContext<Value> {
   select: 'single' | 'multiple' | 'none';
   mounted: boolean;
-  value: any;
-  setValue: (value: any, event: Event | undefined, reason: ValueChangeReason | undefined) => void;
+  selectedValue: Value;
+  setSelectedValue: (
+    value: Value,
+    event: Event | undefined,
+    reason: ValueChangeReason | undefined,
+  ) => void;
   open: boolean;
   setOpen: (
     open: boolean,
@@ -39,6 +43,12 @@ export interface ComboboxRootContext<Value = any> {
   cols: number;
   triggerElement: HTMLElement | null;
   positionerElement: HTMLElement | null;
+  value: React.ComponentProps<'input'>['value'];
+  setValue: (
+    value: string,
+    event: Event | undefined,
+    reason: ValueChangeReason | undefined,
+  ) => void;
 }
 
 export const ComboboxRootContext = React.createContext<ComboboxRootContext<any> | undefined>(

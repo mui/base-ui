@@ -4,25 +4,24 @@ import styles from './index.module.css';
 import { langs, type Lang } from './data';
 
 export default function MultipleCombobox() {
-  const [inputValue, setInputValue] = React.useState('');
+  const [searchValue, setSearchValue] = React.useState('');
   const containerRef = React.useRef<HTMLDivElement | null>(null);
   const id = React.useId();
 
   const filteredLangs = React.useMemo(() => {
-    if (inputValue.trim() === '') {
+    if (searchValue.trim() === '') {
       return langs;
     }
     return langs.filter((language) =>
-      language.name.toLowerCase().includes(inputValue.toLowerCase()),
+      language.name.toLowerCase().includes(searchValue.toLowerCase()),
     );
-  }, [inputValue]);
+  }, [searchValue]);
 
   return (
     <Combobox.Root
       select="multiple"
-      onValueChange={() => {
-        setInputValue('');
-      }}
+      onSelectedValueChange={() => setSearchValue('')}
+      onValueChange={setSearchValue}
     >
       <div className={styles.Container}>
         <label className={styles.Label} htmlFor={id}>
@@ -48,12 +47,6 @@ export default function MultipleCombobox() {
                   id={id}
                   placeholder={value.length > 0 ? '' : 'e.g. TypeScript'}
                   className={styles.Input}
-                  value={inputValue}
-                  onChange={(event) => {
-                    React.startTransition(() => {
-                      setInputValue(event.target.value);
-                    });
-                  }}
                 />
               </React.Fragment>
             )}

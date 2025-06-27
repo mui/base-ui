@@ -4,17 +4,16 @@ import styles from './index.module.css';
 import { top100Movies, type Movie } from './data';
 
 export default function AsyncCombobox() {
-  const [inputValue, setInputValue] = React.useState('');
-  const [value, setValue] = React.useState('');
+  const [searchValue, setSearchValue] = React.useState('');
+  const [selectedValue, setSelectedValue] = React.useState<string | null>('');
   const [isLoading, setIsLoading] = React.useState(false);
   const [searchResults, setSearchResults] = React.useState<Movie[]>([]);
   const [error, setError] = React.useState<string | null>(null);
 
-  const trimmedInputValue = inputValue.trim();
-  const shouldRenderPopup = trimmedInputValue !== '';
+  const shouldRenderPopup = searchValue !== '';
 
   React.useEffect(() => {
-    if (!trimmedInputValue) {
+    if (!searchValue) {
       setSearchResults([]);
       setIsLoading(false);
       return undefined;
@@ -27,7 +26,7 @@ export default function AsyncCombobox() {
 
     async function fetchMovies() {
       try {
-        const results = await searchMovies(trimmedInputValue);
+        const results = await searchMovies(searchValue);
         if (!ignore) {
           setSearchResults(results);
         }
@@ -49,7 +48,7 @@ export default function AsyncCombobox() {
       clearTimeout(timeoutId);
       ignore = true;
     };
-  }, [trimmedInputValue]);
+  }, [searchValue]);
 
   let status: React.ReactNode = `${searchResults.length} result${searchResults.length === 1 ? '' : 's'} found`;
   if (isLoading) {
@@ -61,28 +60,24 @@ export default function AsyncCombobox() {
     );
   } else if (error) {
     status = error;
-  } else if (searchResults.length === 0 && trimmedInputValue) {
-    status = `Movie or year "${inputValue}" does not exist in the Top 100 IMDb movies`;
+  } else if (searchResults.length === 0 && searchValue) {
+    status = `Movie or year "${searchValue}" does not exist in the Top 100 IMDb movies`;
   }
 
   return (
     <Combobox.Root
-      value={value}
-      onValueChange={(nextValue) => {
-        setValue(nextValue);
-        React.startTransition(() => setInputValue(nextValue));
+      selectedValue={selectedValue}
+      onSelectedValueChange={(nextValue) => {
+        setSelectedValue(nextValue);
+        setSearchValue(nextValue ?? '');
       }}
+      onValueChange={setSearchValue}
     >
       <label className={styles.Label}>
         Search movies by name or year
         <Combobox.Input
           placeholder="e.g. Pulp Fiction or 1994"
           className={styles.Input}
-          value={inputValue}
-          onChange={(event) => {
-            setInputValue(event.target.value);
-          }}
-          aria-busy={isLoading || undefined}
         />
       </label>
       {shouldRenderPopup && (
@@ -92,7 +87,10 @@ export default function AsyncCombobox() {
             sideOffset={4}
             align="start"
           >
-            <Combobox.Popup className={styles.Popup}>
+            <Combobox.Popup
+              className={styles.Popup}
+              aria-busy={isLoading || undefined}
+            >
               <Combobox.Status className={styles.StatusItem}>
                 {status}
               </Combobox.Status>

@@ -12,7 +12,7 @@ describe('<Combobox.ChipRemove />', () => {
     refInstanceof: window.HTMLButtonElement,
     render(node) {
       return render(
-        <Combobox.Root multiple>
+        <Combobox.Root select="multiple">
           <Combobox.Chips>
             <Combobox.Chip>{node}</Combobox.Chip>
           </Combobox.Chips>
@@ -24,7 +24,7 @@ describe('<Combobox.ChipRemove />', () => {
   describe('prop: disabled', () => {
     it('should render aria-disabled attribute when disabled', async () => {
       await render(
-        <Combobox.Root multiple disabled>
+        <Combobox.Root select="multiple" disabled>
           <Combobox.Chips>
             <Combobox.Chip>
               apple
@@ -42,10 +42,10 @@ describe('<Combobox.ChipRemove />', () => {
       const handleValueChange = spy();
       const { user } = await render(
         <Combobox.Root
-          multiple
+          select="multiple"
           disabled
-          defaultValue={['apple', 'banana']}
-          onValueChange={handleValueChange}
+          defaultSelectedValue={['apple', 'banana']}
+          onSelectedValueChange={handleValueChange}
         >
           <Combobox.Input data-testid="input" />
           <Combobox.Chips>
@@ -71,7 +71,7 @@ describe('<Combobox.ChipRemove />', () => {
 
     it('should be focusable but not functional when disabled', async () => {
       const { user } = await render(
-        <Combobox.Root multiple disabled>
+        <Combobox.Root select="multiple" disabled>
           <Combobox.Chips>
             <Combobox.Chip>
               apple
@@ -96,7 +96,7 @@ describe('<Combobox.ChipRemove />', () => {
   describe('prop: readOnly', () => {
     it('should render aria-readonly attribute when readOnly', async () => {
       await render(
-        <Combobox.Root multiple readOnly>
+        <Combobox.Root select="multiple" readOnly>
           <Combobox.Chips>
             <Combobox.Chip>
               apple
@@ -114,10 +114,10 @@ describe('<Combobox.ChipRemove />', () => {
       const handleValueChange = spy();
       const { user } = await render(
         <Combobox.Root
-          multiple
+          select="multiple"
           readOnly
-          defaultValue={['apple', 'banana']}
-          onValueChange={handleValueChange}
+          defaultSelectedValue={['apple', 'banana']}
+          onSelectedValueChange={handleValueChange}
         >
           <Combobox.Input data-testid="input" />
           <Combobox.Chips>
@@ -143,7 +143,7 @@ describe('<Combobox.ChipRemove />', () => {
 
     it('should be focusable but not functional when readOnly', async () => {
       const { user } = await render(
-        <Combobox.Root multiple readOnly>
+        <Combobox.Root select="multiple" readOnly>
           <Combobox.Chips>
             <Combobox.Chip>
               apple
@@ -170,9 +170,9 @@ describe('<Combobox.ChipRemove />', () => {
       const handleValueChange = spy();
       const { user } = await render(
         <Combobox.Root
-          multiple
-          defaultValue={['apple', 'banana']}
-          onValueChange={handleValueChange}
+          select="multiple"
+          defaultSelectedValue={['apple', 'banana']}
+          onSelectedValueChange={handleValueChange}
         >
           <Combobox.Input data-testid="input" />
           <Combobox.Chips>
@@ -198,7 +198,7 @@ describe('<Combobox.ChipRemove />', () => {
 
     it('should focus input after removing chip', async () => {
       const { user } = await render(
-        <Combobox.Root multiple defaultValue={['apple']}>
+        <Combobox.Root select="multiple" defaultSelectedValue={['apple']}>
           <Combobox.Input data-testid="input" />
           <Combobox.Chips>
             <Combobox.Chip>
@@ -221,7 +221,7 @@ describe('<Combobox.ChipRemove />', () => {
       const handleChipClick = spy();
       const handleRemoveClick = spy();
       const { user } = await render(
-        <Combobox.Root multiple defaultValue={['apple']}>
+        <Combobox.Root select="multiple" defaultSelectedValue={['apple']}>
           <Combobox.Input data-testid="input" />
           <Combobox.Chips>
             <Combobox.Chip onClick={handleChipClick}>
@@ -245,9 +245,9 @@ describe('<Combobox.ChipRemove />', () => {
       const handleValueChange = spy();
       const { user } = await render(
         <Combobox.Root
-          multiple
-          defaultValue={['apple', 'banana']}
-          onValueChange={handleValueChange}
+          select="multiple"
+          defaultSelectedValue={['apple', 'banana']}
+          onSelectedValueChange={handleValueChange}
         >
           <Combobox.Input data-testid="input" />
           <Combobox.Chips>
@@ -271,7 +271,7 @@ describe('<Combobox.ChipRemove />', () => {
 
     it('should have proper tab index', async () => {
       await render(
-        <Combobox.Root multiple>
+        <Combobox.Root select="multiple">
           <Combobox.Chips>
             <Combobox.Chip>
               apple

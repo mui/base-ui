@@ -53,7 +53,7 @@ export default function EmojiPicker() {
       .filter((category) => category.rows.length > 0);
   }, [searchValue]);
 
-  function handleComboboxValueChange(value: string) {
+  function handleComboboxValueChange(value: string | null) {
     if (!value || !textInputRef.current) {
       return;
     }
@@ -114,18 +114,13 @@ export default function EmojiPicker() {
                 <Combobox.Root
                   cols={COLS}
                   open={popoverOpen}
-                  onValueChange={handleComboboxValueChange}
+                  onSelectedValueChange={handleComboboxValueChange}
+                  onValueChange={setSearchValue}
                 >
                   <div className={styles.InputContainer}>
                     <Combobox.Input
-                      className={styles.Input}
                       placeholder="Search emojis..."
-                      value={searchValue}
-                      onChange={(event) => {
-                        React.startTransition(() => {
-                          setSearchValue(event.target.value);
-                        });
-                      }}
+                      className={styles.Input}
                     />
                   </div>
                   <Combobox.Status className={styles.NoResults}>

@@ -350,7 +350,7 @@ describe('<Combobox.Root />', () => {
     it('should prevent value changes when readOnly with items', async () => {
       const handleValueChange = spy();
       const { user } = await render(
-        <Combobox.Root readOnly onValueChange={handleValueChange} defaultOpen>
+        <Combobox.Root readOnly onSelectedValueChange={handleValueChange} defaultOpen>
           <Combobox.Input data-testid="input" />
           <Combobox.Portal>
             <Combobox.Positioner>
@@ -381,7 +381,7 @@ describe('<Combobox.Root />', () => {
       const handleValueChange = spy();
 
       const { user } = await render(
-        <Combobox.Root select="multiple" onValueChange={handleValueChange}>
+        <Combobox.Root select="multiple" onSelectedValueChange={handleValueChange}>
           <Combobox.Input data-testid="input" />
           <Combobox.List>
             <Combobox.Item value="a">a</Combobox.Item>
@@ -406,7 +406,7 @@ describe('<Combobox.Root />', () => {
 
     it('should create multiple hidden inputs for form submission', async () => {
       const { container } = await render(
-        <Combobox.Root select="multiple" value={['a', 'b']} name="languages">
+        <Combobox.Root select="multiple" selectedValue={['a', 'b']} name="languages">
           <Combobox.Input />
           <Combobox.Portal>
             <Combobox.Positioner>
@@ -637,7 +637,7 @@ describe('<Combobox.Root />', () => {
       it('adds [data-filled] attribute when already filled', async () => {
         await render(
           <Field.Root>
-            <Combobox.Root defaultValue="1">
+            <Combobox.Root defaultSelectedValue="1">
               <Combobox.Input data-testid="input" />
               <Combobox.Portal>
                 <Combobox.Positioner>
@@ -841,7 +841,7 @@ describe('<Combobox.Root />', () => {
   describe('multiple selection with disabled state', () => {
     it('should handle disabled state with chips', async () => {
       const { user } = await render(
-        <Combobox.Root multiple disabled defaultValue={['a', 'b']}>
+        <Combobox.Root select="multiple" disabled defaultSelectedValue={['a', 'b']}>
           <Combobox.Input data-testid="input" />
           <Combobox.Chips>
             <Combobox.Chip data-testid="chip-a">
@@ -877,7 +877,7 @@ describe('<Combobox.Root />', () => {
 
     it('should handle readOnly state with chips', async () => {
       const { user } = await render(
-        <Combobox.Root multiple readOnly defaultValue={['a', 'b']}>
+        <Combobox.Root select="multiple" readOnly defaultSelectedValue={['a', 'b']}>
           <Combobox.Input data-testid="input" />
           <Combobox.Chips>
             <Combobox.Chip data-testid="chip-a">

@@ -13,7 +13,11 @@ import {
   BaseOpenChangeReason,
   translateOpenChangeReason,
 } from '../../utils/translateOpenChangeReason';
-import { ComboboxFloatingContext, ComboboxRootContext } from './ComboboxRootContext';
+import {
+  ComboboxFloatingContext,
+  ComboboxRootContext,
+  ValueChangeReason,
+} from './ComboboxRootContext';
 import { useControlled, useModernLayoutEffect, useTransitionStatus } from '../../utils';
 import { selectors, type State as StoreState } from '../store';
 import { Store, useSelector } from '../../utils/store';
@@ -43,7 +47,11 @@ export function ComboboxRoot<Value>(props: ComboboxRoot.Props<Value>): React.JSX
   const {
     id: idProp,
     onOpenChangeComplete,
-    defaultValue,
+    defaultSelectedValue,
+    selectedValue: selectedValueProp,
+    onSelectedValueChange,
+    defaultValue = '',
+    value: valueProp,
     select: selectProp = 'none',
     onItemHighlighted: onItemHighlightedProp,
     name: nameProp,
@@ -81,14 +89,25 @@ export function ComboboxRoot<Value>(props: ComboboxRoot.Props<Value>): React.JSX
 
   const defaultUncontrolledValue = React.useMemo(() => {
     if (multiple) {
-      return defaultValue !== null && defaultValue !== undefined ? defaultValue : [];
+      return defaultSelectedValue !== null && defaultSelectedValue !== undefined
+        ? defaultSelectedValue
+        : [];
     }
-    return defaultValue !== null && defaultValue !== undefined ? defaultValue : '';
-  }, [defaultValue, multiple]);
+    return defaultSelectedValue !== null && defaultSelectedValue !== undefined
+      ? defaultSelectedValue
+      : '';
+  }, [defaultSelectedValue, multiple]);
 
-  const [value, setValueUnwrapped] = useControlled<any>({
-    controlled: props.value,
+  const [selectedValue, setSelectedValueUnwrapped] = useControlled<any>({
+    controlled: selectedValueProp,
     default: defaultUncontrolledValue,
+    name: 'Combobox',
+    state: 'selectedValue',
+  });
+
+  const [inputValue, setInputValueUnwrapped] = useControlled({
+    controlled: valueProp,
+    default: defaultValue,
     name: 'Combobox',
     state: 'value',
   });
@@ -106,7 +125,7 @@ export function ComboboxRoot<Value>(props: ComboboxRoot.Props<Value>): React.JSX
     () =>
       new Store<StoreState>({
         id,
-        value,
+        value: selectedValue,
         open: openRaw,
         mounted,
         transitionStatus,
@@ -149,40 +168,47 @@ export function ComboboxRoot<Value>(props: ComboboxRoot.Props<Value>): React.JSX
   useField({
     id,
     commitValidation,
-    value,
+    value: selectedValue,
     controlRef,
     name,
-    getValue: () => value,
+    getValue: () => selectedValue,
   });
 
-  const prevValueRef = React.useRef(value);
+  const prevValueRef = React.useRef(selectedValue);
 
   useModernLayoutEffect(() => {
-    if (prevValueRef.current === value) {
+    if (prevValueRef.current === selectedValue) {
       return;
     }
 
     clearErrors(name);
-    commitValidation?.(value, true);
+    commitValidation?.(selectedValue, true);
 
     if (validationMode === 'onChange') {
-      commitValidation?.(value);
+      commitValidation?.(selectedValue);
     }
-  }, [value, commitValidation, clearErrors, name, validationMode]);
+  }, [selectedValue, commitValidation, clearErrors, name, validationMode]);
 
   useModernLayoutEffect(() => {
     const hasValue = multiple
-      ? Array.isArray(value) && value.length > 0
-      : value !== null && value !== undefined && value !== '';
+      ? Array.isArray(selectedValue) && selectedValue.length > 0
+      : selectedValue !== null && selectedValue !== undefined && selectedValue !== '';
     setFilled(hasValue);
-    if (prevValueRef.current !== value) {
-      updateValue(value);
+    if (prevValueRef.current !== selectedValue) {
+      updateValue(selectedValue);
     }
-  }, [setFilled, updateValue, value, multiple]);
+  }, [setFilled, updateValue, selectedValue, multiple]);
 
   useModernLayoutEffect(() => {
-    prevValueRef.current = value;
-  }, [value]);
+    prevValueRef.current = selectedValue;
+  }, [selectedValue]);
+
+  const setInputValue = useEventCallback(
+    (next: string, event: Event | undefined, reason: ValueChangeReason | undefined) => {
+      props.onValueChange?.(next, event, reason);
+      setInputValueUnwrapped(next);
+    },
+  );
 
   const setOpen = useEventCallback(
     (nextOpen: boolean, event: Event | undefined, reason: BaseOpenChangeReason | undefined) => {
@@ -209,10 +235,16 @@ export function ComboboxRoot<Value>(props: ComboboxRoot.Props<Value>): React.JSX
     },
   });
 
-  const setValue = useEventCallback(
+  const setSelectedValue = useEventCallback(
     (nextValue: any, event: Event | undefined, reason: string | undefined) => {
-      props.onValueChange?.(nextValue, event, reason);
-      setValueUnwrapped(nextValue);
+      onSelectedValueChange?.(nextValue, event, reason);
+      setSelectedValueUnwrapped(nextValue);
+
+      // If input value is uncontrolled, keep it in sync for single selection
+      if (!multiple && props.value === undefined) {
+        const stringVal = nextValue == null ? '' : String(nextValue);
+        setInputValueUnwrapped(stringVal);
+      }
     },
   );
 
@@ -227,7 +259,7 @@ export function ComboboxRoot<Value>(props: ComboboxRoot.Props<Value>): React.JSX
 
     if (multiple) {
       // For multiple selection, we need to handle arrays
-      const currentValue = value as any[];
+      const currentValue = selectedValue as any[];
       const selectedIndices: number[] = [];
 
       if (Array.isArray(currentValue)) {
@@ -242,10 +274,10 @@ export function ComboboxRoot<Value>(props: ComboboxRoot.Props<Value>): React.JSX
       store.apply({ selectedIndex: selectedIndices.length > 0 ? selectedIndices : null });
     } else {
       // Single selection logic (existing)
-      const index = suppliedIndex ?? valuesRef.current.indexOf(value);
+      const index = suppliedIndex ?? valuesRef.current.indexOf(selectedValue);
       const hasIndex = index !== -1;
 
-      if (hasIndex || value === null) {
+      if (hasIndex || selectedValue === null) {
         store.apply({ selectedIndex: index });
       }
     }
@@ -257,7 +289,7 @@ export function ComboboxRoot<Value>(props: ComboboxRoot.Props<Value>): React.JSX
     }
 
     registerSelectedItem(undefined);
-  }, [value, registerSelectedItem]);
+  }, [selectedValue, registerSelectedItem]);
 
   const floatingRootContext = useFloatingRootContext({
     open: inline ? true : open,
@@ -359,30 +391,39 @@ export function ComboboxRoot<Value>(props: ComboboxRoot.Props<Value>): React.JSX
   React.useEffect(() => {
     store.apply({
       id,
-      value,
+      value: selectedValue,
       open,
       mounted,
       transitionStatus,
       popupProps: getFloatingProps(),
       triggerProps: getReferenceProps(),
     });
-  }, [store, id, value, open, mounted, transitionStatus, getFloatingProps, getReferenceProps]);
+  }, [
+    store,
+    id,
+    selectedValue,
+    open,
+    mounted,
+    transitionStatus,
+    getFloatingProps,
+    getReferenceProps,
+  ]);
 
   const hiddenInputRef = useForkRef(inputRefProp, fieldControlValidation.inputRef);
 
   const serializedValue = React.useMemo(() => {
-    if (value == null || Array.isArray(value)) {
+    if (selectedValue == null || Array.isArray(selectedValue)) {
       return ''; // avoid uncontrolled -> controlled error
     }
-    return getFormValue(value);
-  }, [value]);
+    return getFormValue(selectedValue);
+  }, [selectedValue]);
 
   const contextValue: ComboboxRootContext<Value> = React.useMemo(
     () => ({
       select: selectProp,
       mounted,
-      value,
-      setValue,
+      selectedValue,
+      setSelectedValue,
       open,
       setOpen,
       listRef,
@@ -398,6 +439,8 @@ export function ComboboxRoot<Value>(props: ComboboxRoot.Props<Value>): React.JSX
       getItemProps,
       registerSelectedItem,
       onItemHighlighted,
+      value: inputValue,
+      setValue: setInputValue,
       name,
       disabled,
       readOnly,
@@ -408,8 +451,8 @@ export function ComboboxRoot<Value>(props: ComboboxRoot.Props<Value>): React.JSX
     [
       selectProp,
       mounted,
-      value,
-      setValue,
+      selectedValue,
+      setSelectedValue,
       open,
       positionerElement,
       setOpen,
@@ -418,6 +461,8 @@ export function ComboboxRoot<Value>(props: ComboboxRoot.Props<Value>): React.JSX
       getItemProps,
       registerSelectedItem,
       onItemHighlighted,
+      inputValue,
+      setInputValue,
       name,
       disabled,
       readOnly,
@@ -450,12 +495,13 @@ export function ComboboxRoot<Value>(props: ComboboxRoot.Props<Value>): React.JSX
                 const exactValue = valuesRef.current.find(
                   (v: any) =>
                     v === nextValue ||
-                    (typeof value === 'string' && nextValue.toLowerCase() === v.toLowerCase()),
+                    (typeof selectedValue === 'string' &&
+                      nextValue.toLowerCase() === v.toLowerCase()),
                 );
 
                 if (exactValue != null) {
                   setDirty(exactValue !== validityData.initialValue);
-                  setValue?.(exactValue, event.nativeEvent, 'input-change');
+                  setSelectedValue?.(exactValue, event.nativeEvent, 'input-change');
 
                   if (validationMode === 'onChange') {
                     fieldControlValidation.commitValidation(exactValue);
@@ -474,11 +520,11 @@ export function ComboboxRoot<Value>(props: ComboboxRoot.Props<Value>): React.JSX
               'aria-hidden': true,
             })}
           />
-          {multiple &&
-            Array.isArray(value) &&
-            value.map((v, index) => (
-              <input key={index} type="hidden" name={name} value={getFormValue(v)} />
-            ))}
+          {multiple && Array.isArray(selectedValue) && name
+            ? selectedValue.map((v, index) => (
+                <input key={index} type="hidden" name={name} value={getFormValue(v)} />
+              ))
+            : null}
         </CompositeList>
       </ComboboxFloatingContext.Provider>
     </ComboboxRootContext.Provider>
@@ -538,20 +584,33 @@ export namespace ComboboxRoot {
      */
     open?: boolean;
     /**
+     * The input value of the combobox.
+     */
+    value?: React.ComponentProps<'input'>['value'];
+    /**
+     * Callback fired when the input value of the combobox changes.
+     */
+    onValueChange?: (value: string, event: Event | undefined, reason: string | undefined) => void;
+    /**
+     * The uncontrolled input value when initially rendered.
+     */
+    defaultValue?: React.ComponentProps<'input'>['defaultValue'];
+    /**
+     * How the combobox should remember the selected value.
+     * - `single`: Remembers the last selected value.
+     * - `multiple`: Remember all selected values.
+     * - `none`: Do not remember the selected value.
+     * @type 'single' | 'multiple' | 'none'
+     * @default 'none'
+     */
+    select?: 'single' | 'multiple' | 'none';
+    /**
      * A ref to imperative actions.
      * - `unmount`: When specified, the combobox will not be unmounted when closed.
      * Instead, the `unmount` function must be called to unmount the combobox manually.
      * Useful when the combobox's animation is controlled by an external library.
      */
     actionsRef?: React.RefObject<Actions>;
-    /**
-     * How the combobox should remember the selected value.
-     * - `single`: Remembers the last selected value.
-     * - `multiple`: Remember all selected values.
-     * - `none`: Do not remember the selected value.
-     * @default 'none'
-     */
-    select?: 'single' | 'multiple' | 'none';
     /**
      * Callback fired when the user navigates the list and highlights an item.
      * Passes the item's `value` or `undefined` when no item is highlighted.
@@ -571,50 +630,63 @@ export namespace ComboboxRoot {
   export interface SingleProps<Value> extends BaseProps<Value> {
     /**
      * How the combobox should remember the selected value.
+     * - `single`: Remembers the last selected value.
+     * - `multiple`: Remember all selected values.
+     * - `none`: Do not remember the selected value.
+     * @type 'single' | 'multiple' | 'none'
      * @default 'none'
      */
-    select?: 'single' | 'none' | undefined;
+    select?: 'single';
     /**
-     * The value of the combobox.
+     * The selected value of the combobox.
      */
-    value?: Value | null;
+    selectedValue?: Value | null;
     /**
-     * Callback fired when the value of the combobox changes.
+     * Callback fired when the selected value of the combobox changes.
      */
-    onValueChange?: (
+    onSelectedValueChange?: (
       value: Value | null,
       event: Event | undefined,
       reason: string | undefined,
     ) => void;
     /**
-     * The uncontrolled value of the combobox when it's initially rendered.
+     * The uncontrolled selected value of the combobox when it's initially rendered.
      *
-     * To render a controlled combobox, use the `value` prop instead.
+     * To render a controlled combobox, use the `selectedValue` prop instead.
      * @default null
      */
-    defaultValue?: Value | null;
+    defaultSelectedValue?: Value | null;
   }
 
   export interface MultipleProps<Value> extends BaseProps<Value> {
     /**
      * How the combobox should remember the selected value.
+     * - `single`: Remembers the last selected value.
+     * - `multiple`: Remember all selected values.
+     * - `none`: Do not remember the selected value.
+     * @type 'single' | 'multiple' | 'none'
+     * @default 'none'
      */
-    select: 'multiple';
+    select?: 'multiple';
     /**
-     * The values of the combobox.
+     * The selected values of the combobox.
      */
-    value?: Value[];
+    selectedValue?: Value[];
     /**
-     * Callback fired when the values of the combobox changes.
+     * Callback fired when the selected values of the combobox change.
      */
-    onValueChange?: (value: Value[], event: Event | undefined, reason: string | undefined) => void;
+    onSelectedValueChange?: (
+      value: Value[],
+      event: Event | undefined,
+      reason: string | undefined,
+    ) => void;
     /**
-     * The uncontrolled values of the combobox when it's initially rendered.
+     * The uncontrolled selected values of the combobox when it's initially rendered.
      *
-     * To render a controlled combobox, use the `value` prop instead.
+     * To render a controlled combobox, use the `selectedValue` prop instead.
      * @default null
      */
-    defaultValue?: Value[] | null;
+    defaultSelectedValue?: Value[] | null;
   }
 
   export type Props<Value> = SingleProps<Value> | MultipleProps<Value>;
