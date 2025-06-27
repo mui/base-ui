@@ -5,7 +5,7 @@ import { Combobox } from '@base-ui-components/react/combobox';
 import { emojiCategories } from './data';
 import styles from './index.module.css';
 
-const COLS = 5;
+const COLUMNS = 5;
 
 function chunkArray<T>(array: T[], size: number): T[][] {
   const result: T[][] = [];
@@ -15,45 +15,35 @@ function chunkArray<T>(array: T[], size: number): T[][] {
   return result;
 }
 
-const filterableEmojis = emojiCategories.map((category) => {
-  const emojis = category.emojis.map((emoji) => ({
+interface EmojiItem {
+  emoji: string;
+  value: string;
+  name: string;
+}
+
+interface EmojiGroup {
+  value: string;
+  label: string;
+  items: EmojiItem[];
+}
+
+const emojiGroups: EmojiGroup[] = emojiCategories.map((category) => ({
+  value: category.label,
+  label: category.label,
+  items: category.emojis.map((emoji) => ({
     ...emoji,
-    lowerName: emoji.name.toLowerCase(),
-  }));
-  return {
-    label: category.label,
-    emojis,
-    rows: chunkArray(emojis, COLS),
-  };
-});
+    value: emoji.name.toLowerCase(),
+  })),
+}));
 
 export default function EmojiPicker() {
   const [popoverOpen, setPopoverOpen] = React.useState(false);
-  const [textValue, setTextValue] = React.useState<string>('');
+  const [textValue, setTextValue] = React.useState('');
   const [searchValue, setSearchValue] = React.useState('');
-  const textInputRef = React.useRef<HTMLInputElement>(null);
 
-  const filteredEmojis = React.useMemo(() => {
-    const query = searchValue.trim().toLowerCase();
-    if (!query) {
-      return filterableEmojis;
-    }
+  const textInputRef = React.useRef<HTMLInputElement | null>(null);
 
-    return filterableEmojis
-      .map((category) => {
-        const emojis = category.emojis.filter((emoji) =>
-          emoji.lowerName.includes(query),
-        );
-        return {
-          label: category.label,
-          emojis,
-          rows: chunkArray(emojis, COLS),
-        };
-      })
-      .filter((category) => category.rows.length > 0);
-  }, [searchValue]);
-
-  function handleComboboxValueChange(value: string | null) {
+  function handleInsertEmoji(value: string | null) {
     if (!value || !textInputRef.current) {
       return;
     }
@@ -67,6 +57,7 @@ export default function EmojiPicker() {
     setTextValue((prev) => prev.slice(0, start) + emoji + prev.slice(end));
     setPopoverOpen(false);
 
+    // FIXME: this should not be necessary
     requestAnimationFrame(() => {
       const input = textInputRef.current;
       if (input) {
@@ -86,10 +77,9 @@ export default function EmojiPicker() {
           className={styles.TextInput}
           placeholder="iMessage"
           value={textValue}
-          onChange={(event) => {
-            setTextValue(event.target.value);
-          }}
+          onChange={(event) => setTextValue(event.target.value)}
         />
+
         <Popover.Root
           open={popoverOpen}
           onOpenChange={setPopoverOpen}
@@ -105,42 +95,52 @@ export default function EmojiPicker() {
           <Popover.Portal>
             <Popover.Positioner
               className={styles.Positioner}
-              align="end"
               sideOffset={4}
-              collisionAvoidance={{ fallbackAxisSide: 'none' }}
               side="top"
+              align="end"
             >
               <Popover.Popup className={styles.Popup} aria-label="Select emoji">
                 <Combobox.Root
-                  cols={COLS}
+                  items={emojiGroups}
+                  cols={COLUMNS}
                   open={popoverOpen}
-                  onSelectedValueChange={handleComboboxValueChange}
+                  value={searchValue}
                   onValueChange={setSearchValue}
+                  onSelectedValueChange={(value) => {
+                    handleInsertEmoji(value);
+                    setSearchValue(searchValue);
+                  }}
                 >
                   <div className={styles.InputContainer}>
                     <Combobox.Input
-                      placeholder="Search emojis..."
+                      placeholder="Search emojis…"
                       className={styles.Input}
                     />
                   </div>
-                  <Combobox.Status className={styles.NoResults}>
-                    {filteredEmojis.length === 0 && <div>No emojis found</div>}
-                  </Combobox.Status>
-                  <Combobox.List className={styles.List}>
-                    {filteredEmojis.map((category) => (
-                      <Combobox.Group key={category.label} className={styles.Group}>
+                  <Combobox.Empty className={styles.NoResults}>
+                    <div>No emojis found</div>
+                  </Combobox.Empty>
+                  <Combobox.List
+                    className={styles.List}
+                    style={{ '--cols': COLUMNS } as React.CSSProperties}
+                  >
+                    {(group: EmojiGroup) => (
+                      <Combobox.Group
+                        key={group.value}
+                        className={styles.Group}
+                        items={group.items}
+                      >
                         <Combobox.GroupLabel className={styles.GroupLabel}>
-                          {category.label}
+                          {group.label}
                         </Combobox.GroupLabel>
-                        <div className={styles.ListContainer}>
-                          {category.rows.map((row, rowIndex) => (
-                            <Combobox.Row key={rowIndex} className={styles.Grid}>
+                        <div className={styles.Grid}>
+                          {chunkArray(group.items, COLUMNS).map((row, rowIdx) => (
+                            <Combobox.Row key={rowIdx} className={styles.Row}>
                               {row.map((emoji) => (
                                 <Combobox.Item
                                   key={emoji.emoji}
                                   value={emoji.emoji}
                                   className={styles.Item}
-                                  aria-label={emoji.name}
                                 >
                                   <span className={styles.Emoji}>{emoji.emoji}</span>
                                 </Combobox.Item>
@@ -149,7 +149,7 @@ export default function EmojiPicker() {
                           ))}
                         </div>
                       </Combobox.Group>
-                    ))}
+                    )}
                   </Combobox.List>
                 </Combobox.Root>
               </Popover.Popup>

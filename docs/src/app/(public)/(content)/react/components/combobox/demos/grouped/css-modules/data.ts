@@ -4,7 +4,12 @@ export interface Country {
   continent: string;
 }
 
-export const countries: Country[] = [
+export interface CountryGroup {
+  value: string;
+  items: Country[];
+}
+
+const countriesData: Country[] = [
   { code: 'af', value: 'Afghanistan', continent: 'Asia' },
   { code: 'al', value: 'Albania', continent: 'Europe' },
   { code: 'dz', value: 'Algeria', continent: 'Africa' },
@@ -162,7 +167,7 @@ export const countries: Country[] = [
   { code: 'es', value: 'Spain', continent: 'Europe' },
   { code: 'lk', value: 'Sri Lanka', continent: 'Asia' },
   { code: 'sd', value: 'Sudan', continent: 'Africa' },
-  { code: 'sr', value: 'Surivalue', continent: 'South America' },
+  { code: 'sr', value: 'Suriname', continent: 'South America' },
   { code: 'se', value: 'Sweden', continent: 'Europe' },
   { code: 'ch', value: 'Switzerland', continent: 'Europe' },
   { code: 'sy', value: 'Syria', continent: 'Asia' },
@@ -193,3 +198,20 @@ export const countries: Country[] = [
   { code: 'zm', value: 'Zambia', continent: 'Africa' },
   { code: 'zw', value: 'Zimbabwe', continent: 'Africa' },
 ];
+
+function groupCountriesByContinent(countries: Country[]): CountryGroup[] {
+  const groups: { [key: string]: Country[] } = {};
+
+  countries.forEach((country) => {
+    (groups[country.continent] ??= []).push(country);
+  });
+
+  const continents = ['Africa', 'Asia', 'Europe', 'North America', 'South America', 'Oceania'];
+
+  return continents.map((continent) => ({
+    value: continent,
+    items: groups[continent],
+  }));
+}
+
+export const groupedCountries = groupCountriesByContinent(countriesData);

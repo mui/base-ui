@@ -4,25 +4,11 @@ import styles from './index.module.css';
 import { langs, type Lang } from './data';
 
 export default function MultipleCombobox() {
-  const [searchValue, setSearchValue] = React.useState('');
   const containerRef = React.useRef<HTMLDivElement | null>(null);
   const id = React.useId();
 
-  const filteredLangs = React.useMemo(() => {
-    if (searchValue.trim() === '') {
-      return langs;
-    }
-    return langs.filter((language) =>
-      language.name.toLowerCase().includes(searchValue.toLowerCase()),
-    );
-  }, [searchValue]);
-
   return (
-    <Combobox.Root
-      select="multiple"
-      onSelectedValueChange={() => setSearchValue('')}
-      onValueChange={setSearchValue}
-    >
+    <Combobox.Root items={langs} select="multiple">
       <div className={styles.Container}>
         <label className={styles.Label} htmlFor={id}>
           Programming languages
@@ -35,9 +21,9 @@ export default function MultipleCombobox() {
                   <Combobox.Chip
                     key={language.id}
                     className={styles.Chip}
-                    aria-label={language.name}
+                    aria-label={language.value}
                   >
-                    {language.name}
+                    {language.value}
                     <Combobox.ChipRemove className={styles.ChipRemove}>
                       <XIcon />
                     </Combobox.ChipRemove>
@@ -54,33 +40,35 @@ export default function MultipleCombobox() {
         </Combobox.Chips>
       </div>
 
-      <Combobox.Portal>
-        <Combobox.Positioner
-          className={styles.Positioner}
-          sideOffset={4}
-          anchor={containerRef}
-        >
-          <Combobox.Popup className={styles.Popup}>
-            <Combobox.Status className={styles.NoResults}>
-              {filteredLangs.length === 0 && <div>No languages found.</div>}
-            </Combobox.Status>
-            <Combobox.List>
-              {filteredLangs.map((language) => (
-                <Combobox.Item
-                  key={language.id}
-                  className={styles.Item}
-                  value={language}
-                >
-                  <Combobox.ItemIndicator className={styles.ItemIndicator}>
-                    <CheckIcon className={styles.ItemIndicatorIcon} />
-                  </Combobox.ItemIndicator>
-                  <div className={styles.ItemText}>{language.name}</div>
-                </Combobox.Item>
-              ))}
-            </Combobox.List>
-          </Combobox.Popup>
-        </Combobox.Positioner>
-      </Combobox.Portal>
+      <Combobox.Value>
+        <Combobox.Portal>
+          <Combobox.Positioner
+            className={styles.Positioner}
+            sideOffset={4}
+            anchor={containerRef}
+          >
+            <Combobox.Popup className={styles.Popup}>
+              <Combobox.Empty className={styles.NoResults}>
+                <div>No languages found.</div>
+              </Combobox.Empty>
+              <Combobox.List>
+                {(language: Lang) => (
+                  <Combobox.Item
+                    key={language.id}
+                    className={styles.Item}
+                    value={language}
+                  >
+                    <Combobox.ItemIndicator className={styles.ItemIndicator}>
+                      <CheckIcon className={styles.ItemIndicatorIcon} />
+                    </Combobox.ItemIndicator>
+                    <div className={styles.ItemText}>{language.value}</div>
+                  </Combobox.Item>
+                )}
+              </Combobox.List>
+            </Combobox.Popup>
+          </Combobox.Positioner>
+        </Combobox.Portal>
+      </Combobox.Value>
     </Combobox.Root>
   );
 }

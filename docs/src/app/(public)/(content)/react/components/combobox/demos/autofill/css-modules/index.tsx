@@ -6,14 +6,14 @@ import { countries } from './data';
 export default function AutofillCombobox() {
   const [searchValue, setSearchValue] = React.useState('');
   const [inputHighlightValue, setInputHighlightValue] = React.useState('');
-  const [selectedValue, setSelectedValue] = React.useState<string | null>('');
+  const [selectedValue, setSelectedValue] = React.useState('');
 
   const filteredCountries = React.useMemo(() => {
     if (searchValue.trim() === '') {
       return countries;
     }
     return countries.filter((country) =>
-      country.name.toLowerCase().includes(searchValue.toLowerCase()),
+      country.value.toLowerCase().includes(searchValue.toLowerCase()),
     );
   }, [searchValue]);
 
@@ -44,6 +44,7 @@ export default function AutofillCombobox() {
             className={styles.Input}
           />
         </label>
+
         {filteredCountries.length > 0 && (
           <Combobox.Portal>
             <Combobox.Positioner className={styles.Positioner} sideOffset={4}>
@@ -52,10 +53,10 @@ export default function AutofillCombobox() {
                   {filteredCountries.map((country) => (
                     <Combobox.Item
                       key={country.code}
-                      value={country.name}
+                      value={country.value}
                       className={styles.Item}
                     >
-                      {country.name}
+                      {country.value}
                     </Combobox.Item>
                   ))}
                 </Combobox.List>

@@ -1,0 +1,15 @@
+{
+  "name": "GroupCollectionProvider",
+  "props": {
+    "items": {
+      "type": "any[]",
+      "required": true
+    },
+    "children": {
+      "type": "ReactNode",
+      "required": true
+    }
+  },
+  "dataAttributes": {},
+  "cssVariables": {}
+}

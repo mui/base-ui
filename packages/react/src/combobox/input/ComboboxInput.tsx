@@ -11,6 +11,12 @@ import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { fieldValidityMapping } from '../../field/utils/constants';
 import { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 import { useComboboxChipsContext } from '../chips/ComboboxChipsContext';
+import type { FieldRoot } from '../../field/root/FieldRoot';
+
+const customStyleHookMapping: CustomStyleHookMapping<ComboboxInput.State> = {
+  ...triggerOpenStateMapping,
+  ...fieldValidityMapping,
+};
 
 /**
  * A text input to search for items in the list.
@@ -18,11 +24,6 @@ import { useComboboxChipsContext } from '../chips/ComboboxChipsContext';
  *
  * Documentation: [Base UI Combobox](https://base-ui.com/react/components/combobox)
  */
-const customStyleHookMapping: CustomStyleHookMapping<ComboboxInput.State> = {
-  ...triggerOpenStateMapping,
-  ...fieldValidityMapping,
-};
-
 export const ComboboxInput = React.forwardRef(function ComboboxInput(
   componentProps: ComboboxInput.Props,
   forwardedRef: React.ForwardedRef<HTMLInputElement>,
@@ -52,9 +53,9 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
     value: contextInputValue,
     setValue: setInputValue,
   } = useComboboxRootContext();
+  const comboboxChipsContext = useComboboxChipsContext();
 
   const multiple = select === 'multiple';
-  const comboboxChipsContext = useComboboxChipsContext();
 
   const triggerProps = useSelector(store, selectors.triggerProps);
   const open = useSelector(store, selectors.open);
@@ -70,7 +71,6 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
   const state: ComboboxInput.State = React.useMemo(
     () => ({
       ...fieldState,
-      valid: fieldState.valid ?? true,
       open,
       disabled,
       readOnly,
@@ -135,6 +135,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
     props: [
       triggerProps,
       {
+        value: componentProps.value ?? contextInputValue,
         'aria-disabled': disabled || undefined,
         'aria-readonly': readOnly || undefined,
         'aria-labelledby': labelId,
@@ -154,9 +155,15 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
         onChange(event: React.ChangeEvent<HTMLInputElement>) {
           // If consumer didn't control value prop, sync with context
           if (componentProps.value === undefined) {
-            setInputValue(event.target.value, undefined, 'input-change');
+            setInputValue(event.target.value, event.nativeEvent, 'input-change');
           }
-          // Do not forward to avoid event typing mismatch.
+          // When the user types, ensure the list resets its highlight so that
+          // virtual focus returns to the input (aria-activedescendant is
+          // cleared).
+          if (open && activeIndex !== null) {
+            store.set('activeIndex', null);
+            onItemHighlighted(undefined, keyboardActiveRef.current ? 'keyboard' : 'pointer');
+          }
         },
         onKeyDown(event) {
           if (readOnly) {
@@ -191,7 +198,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
 
           // Printable characters
           if (
-            !disabled && // Don't open popup when disabled
+            !disabled &&
             (event.key === 'Backspace' ||
               (event.key.length === 1 && !event.ctrlKey && !event.metaKey && !event.altKey))
           ) {
@@ -214,7 +221,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
             if (multiple) {
               const isSelected = Array.isArray(value) && value.includes(selectedValue);
 
-              let nextValue: any[] = [];
+              let nextValue = [];
               if (isSelected) {
                 nextValue = value.filter((v) => v !== selectedValue);
               } else {
@@ -235,10 +242,6 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
           keyboardActiveRef.current = false;
         },
       },
-      {
-        // Provide uncontrolled value from context when not controlled via props
-        value: componentProps.value ?? contextInputValue,
-      },
       fieldControlValidation.getValidationProps(elementProps),
     ],
     customStyleHookMapping,
@@ -248,39 +251,11 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
 });
 
 export namespace ComboboxInput {
-  export interface State {
+  export interface State extends FieldRoot.State {
     /**
      * Whether the combobox popup is open.
      */
     open: boolean;
-    /**
-     * Whether the component should ignore user interaction.
-     */
-    disabled: boolean;
-    /**
-     * Whether the user should be unable to choose a different option from the combobox popup.
-     */
-    readOnly: boolean;
-    /**
-     * Whether the field has been touched.
-     */
-    touched: boolean;
-    /**
-     * Whether the field value has been modified.
-     */
-    dirty: boolean;
-    /**
-     * Whether the field is valid.
-     */
-    valid: boolean;
-    /**
-     * Whether the field has a value.
-     */
-    filled: boolean;
-    /**
-     * Whether the field is focused.
-     */
-    focused: boolean;
   }
 
   export interface Props extends BaseUIComponentProps<'input', State> {

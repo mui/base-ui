@@ -1,18 +1,13 @@
 {
-  "name": "ComboboxInput",
-  "description": "A text input to search for items in the list.\nRenders an `<input>` element.",
+  "name": "ComboboxEmpty",
+  "description": "Renders its children only when the combobox list is empty with\nscreen reader support.",
   "props": {
-    "disabled": {
-      "type": "boolean",
-      "default": "false",
-      "description": "Whether the component should ignore user interaction."
-    },
     "className": {
-      "type": "string | ((state: Combobox.Input.State) => string)",
+      "type": "string | ((state: Combobox.Empty.State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "render": {
-      "type": "ReactElement | ((props: HTMLProps, state: Combobox.Input.State) => ReactElement)",
+      "type": "ReactElement | ((props: HTMLProps, state: Combobox.Empty.State) => ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
     }
   },

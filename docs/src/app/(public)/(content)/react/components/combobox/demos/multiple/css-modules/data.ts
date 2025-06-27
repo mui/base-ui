@@ -1,18 +1,18 @@
 export interface Lang {
   id: string;
-  name: string;
+  value: string;
 }
 
 export const langs: Lang[] = [
-  { id: 'js', name: 'JavaScript' },
-  { id: 'ts', name: 'TypeScript' },
-  { id: 'py', name: 'Python' },
-  { id: 'java', name: 'Java' },
-  { id: 'cpp', name: 'C++' },
-  { id: 'cs', name: 'C#' },
-  { id: 'php', name: 'PHP' },
-  { id: 'ruby', name: 'Ruby' },
-  { id: 'go', name: 'Go' },
-  { id: 'rust', name: 'Rust' },
-  { id: 'swift', name: 'Swift' },
+  { id: 'js', value: 'JavaScript' },
+  { id: 'ts', value: 'TypeScript' },
+  { id: 'py', value: 'Python' },
+  { id: 'java', value: 'Java' },
+  { id: 'cpp', value: 'C++' },
+  { id: 'cs', value: 'C#' },
+  { id: 'php', value: 'PHP' },
+  { id: 'ruby', value: 'Ruby' },
+  { id: 'go', value: 'Go' },
+  { id: 'rust', value: 'Rust' },
+  { id: 'swift', value: 'Swift' },
 ];

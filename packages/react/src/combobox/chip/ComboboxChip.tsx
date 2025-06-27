@@ -35,9 +35,8 @@ export const ComboboxChip = React.forwardRef(function ComboboxChip(
 
   function handleKeyDown(event: React.KeyboardEvent<HTMLDivElement>) {
     if (disabled) {
-      // When disabled, prevent all keyboard interactions
       event.preventDefault();
-      return index; // Return current index to keep focus on same chip
+      return index;
     }
 
     let nextIndex: number | undefined = index;
@@ -59,21 +58,23 @@ export const ComboboxChip = React.forwardRef(function ComboboxChip(
     } else if (event.key === 'Backspace' || event.key === 'Delete') {
       if (readOnly) {
         event.preventDefault();
-        return index; // Return current index to keep focus on same chip when readOnly
+        return index;
       }
+
+      const computedNextIndex = index >= value.length - 1 ? value.length - 2 : index;
+      nextIndex = computedNextIndex >= 0 ? computedNextIndex : undefined;
+
       stopEvent(event);
       setValue(
         value.filter((_: any, i: number) => i !== index),
         event.nativeEvent,
         undefined,
       );
-      const computedNextIndex = index >= value.length - 1 ? value.length - 2 : index;
-      nextIndex = computedNextIndex >= 0 ? computedNextIndex : undefined;
     } else if (event.key === 'Enter' || event.key === ' ') {
-      event.preventDefault();
+      stopEvent(event);
       nextIndex = undefined;
     } else if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
-      event.preventDefault();
+      stopEvent(event);
       setOpen(true, event.nativeEvent, undefined);
       nextIndex = undefined;
     } else if (
@@ -101,7 +102,7 @@ export const ComboboxChip = React.forwardRef(function ComboboxChip(
     state,
     props: [
       {
-        tabIndex: disabled ? -1 : -1, // Always -1 since chips are not directly focusable
+        tabIndex: -1,
         'aria-disabled': disabled || undefined,
         'aria-readonly': readOnly || undefined,
         onKeyDown(event) {

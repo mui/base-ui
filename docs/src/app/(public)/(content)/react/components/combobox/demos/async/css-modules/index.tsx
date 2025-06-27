@@ -5,12 +5,9 @@ import { top100Movies, type Movie } from './data';
 
 export default function AsyncCombobox() {
   const [searchValue, setSearchValue] = React.useState('');
-  const [selectedValue, setSelectedValue] = React.useState<string | null>('');
   const [isLoading, setIsLoading] = React.useState(false);
-  const [searchResults, setSearchResults] = React.useState<Movie[]>([]);
+  const [searchResults, setSearchResults] = React.useState<MovieItem[]>([]);
   const [error, setError] = React.useState<string | null>(null);
-
-  const shouldRenderPopup = searchValue !== '';
 
   React.useEffect(() => {
     if (!searchValue) {
@@ -64,14 +61,16 @@ export default function AsyncCombobox() {
     status = `Movie or year "${searchValue}" does not exist in the Top 100 IMDb movies`;
   }
 
+  const shouldRenderPopup = searchValue !== '';
+
   return (
     <Combobox.Root
-      selectedValue={selectedValue}
-      onSelectedValueChange={(nextValue) => {
-        setSelectedValue(nextValue);
-        setSearchValue(nextValue ?? '');
-      }}
+      items={searchResults}
+      value={searchValue}
       onValueChange={setSearchValue}
+      onSelectedValueChange={(value) => {
+        setSearchValue(value ?? '');
+      }}
     >
       <label className={styles.Label}>
         Search movies by name or year
@@ -80,6 +79,7 @@ export default function AsyncCombobox() {
           className={styles.Input}
         />
       </label>
+
       {shouldRenderPopup && (
         <Combobox.Portal>
           <Combobox.Positioner
@@ -95,18 +95,18 @@ export default function AsyncCombobox() {
                 {status}
               </Combobox.Status>
               <Combobox.List>
-                {searchResults.map((movie) => (
+                {(movie: MovieItem) => (
                   <Combobox.Item
                     key={movie.id}
                     className={styles.Item}
-                    value={movie.title}
+                    value={movie.value}
                   >
                     <div className={styles.MovieItem}>
                       <div className={styles.MovieName}>{movie.title}</div>
                       <div className={styles.MovieYear}>{movie.year}</div>
                     </div>
                   </Combobox.Item>
-                ))}
+                )}
               </Combobox.List>
             </Combobox.Popup>
           </Combobox.Positioner>
@@ -116,7 +116,11 @@ export default function AsyncCombobox() {
   );
 }
 
-async function searchMovies(query: string): Promise<Movie[]> {
+interface MovieItem extends Movie {
+  value: string;
+}
+
+async function searchMovies(query: string): Promise<MovieItem[]> {
   // Simulate network delay
   await new Promise((resolve) => {
     setTimeout(resolve, Math.random() * 500 + 100);
@@ -127,9 +131,9 @@ async function searchMovies(query: string): Promise<Movie[]> {
     throw new Error('Network error');
   }
 
-  return top100Movies.filter(
-    (movie) =>
-      movie.title.toLowerCase().includes(query.toLowerCase()) ||
-      movie.year.toString().includes(query),
-  );
+  const lowerQuery = query.toLowerCase();
+
+  return top100Movies
+    .map((movie) => ({ ...movie, value: `${movie.title} - ${movie.year}` }))
+    .filter((movie) => movie.value.toLowerCase().includes(lowerQuery));
 }

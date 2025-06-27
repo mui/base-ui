@@ -5,6 +5,7 @@ import { BaseUIComponentProps } from '../../utils/types';
 import { useComboboxRootContext } from '../root/ComboboxRootContext';
 import { useComboboxChipContext } from '../chip/ComboboxChipContext';
 import { useButton } from '../../use-button';
+import { stopEvent } from '../../floating-ui-react/utils';
 
 /**
  * A button to remove a combobox chip.
@@ -66,8 +67,7 @@ export const ComboboxChipRemove = React.forwardRef(function ComboboxChipRemove(
           }
 
           if (event.key === 'Enter' || event.key === ' ') {
-            event.preventDefault();
-            event.stopPropagation();
+            stopEvent(event);
             setValue(
               value.filter((_: any, i: number) => i !== index),
               event.nativeEvent,

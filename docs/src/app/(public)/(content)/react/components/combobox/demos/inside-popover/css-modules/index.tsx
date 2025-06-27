@@ -2,21 +2,12 @@ import * as React from 'react';
 import { Popover } from '@base-ui-components/react/popover';
 import { Combobox } from '@base-ui-components/react/combobox';
 import styles from './index.module.css';
-import { countries } from './data';
+import { countries, type Country } from './data';
 
 export default function ExamplePopoverCombobox() {
   const [popoverOpen, setPopoverOpen] = React.useState(false);
   const [searchValue, setSearchValue] = React.useState('');
-  const [selectedValue, setSelectedValue] = React.useState<string | null>('');
-
-  const filteredCountries = React.useMemo(() => {
-    if (searchValue.trim() === '') {
-      return countries;
-    }
-    return countries.filter((country) =>
-      country.name.toLowerCase().includes(searchValue.toLowerCase()),
-    );
-  }, [searchValue]);
+  const [selectedValue, setSelectedValue] = React.useState('');
 
   return (
     <Popover.Root
@@ -42,7 +33,8 @@ export default function ExamplePopoverCombobox() {
         >
           <Popover.Popup className={styles.Popup} aria-label="Select country">
             <Combobox.Root
-              open={popoverOpen}
+              items={countries}
+              select="single"
               selectedValue={selectedValue}
               onSelectedValueChange={(nextValue) => {
                 setSelectedValue(nextValue);
@@ -50,7 +42,6 @@ export default function ExamplePopoverCombobox() {
               }}
               value={searchValue}
               onValueChange={setSearchValue}
-              select="single"
             >
               <div className={styles.InputContainer}>
                 <Combobox.Input
@@ -58,22 +49,22 @@ export default function ExamplePopoverCombobox() {
                   className={styles.Input}
                 />
               </div>
-              <Combobox.Status className={styles.NoResults}>
-                {filteredCountries.length === 0 && <div>No countries found.</div>}
-              </Combobox.Status>
+              <Combobox.Empty className={styles.NoResults}>
+                <div>No countries found.</div>
+              </Combobox.Empty>
               <Combobox.List className={styles.List}>
-                {filteredCountries.map((country) => (
+                {(country: Country) => (
                   <Combobox.Item
                     key={country.code}
-                    value={country.name}
+                    value={country.value}
                     className={styles.Item}
                   >
                     <Combobox.ItemIndicator className={styles.ItemIndicator}>
                       <CheckIcon className={styles.ItemIndicatorIcon} />
                     </Combobox.ItemIndicator>
-                    <div className={styles.ItemText}>{country.name}</div>
+                    <div className={styles.ItemText}>{country.value}</div>
                   </Combobox.Item>
-                ))}
+                )}
               </Combobox.List>
             </Combobox.Root>
           </Popover.Popup>
