@@ -11,6 +11,7 @@ import { useButton } from '../../use-button';
 import { ACTIVE_COMPOSITE_ITEM } from '../../composite/constants';
 import { CompositeItem } from '../../composite/item/CompositeItem';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
+import { useFieldItemContext } from '../../field/item/FieldItemContext';
 import { customStyleHookMapping } from '../utils/customStyleHookMapping';
 import { useRadioGroupContext } from '../../radio-group/RadioGroupContext';
 import { RadioRootContext } from './RadioRootContext';
@@ -52,6 +53,7 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
   } = useRadioGroupContext();
 
   const {
+    controlId: fieldRootControlId,
     setControlId,
     setDirty,
     validityData,
@@ -60,6 +62,8 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
     state: fieldState,
     disabled: fieldDisabled,
   } = useFieldRootContext();
+
+  const fieldItemContext = useFieldItemContext();
 
   const disabled = fieldDisabled || disabledRoot || disabledProp;
   const readOnly = readOnlyRoot || readOnlyProp;
@@ -76,6 +80,13 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
     }
   }, [setFilled]);
 
+  const id = useBaseUiId(idProp);
+  let radioId = fieldRootControlId;
+  if (fieldItemContext) {
+    radioId = fieldItemContext.controlId;
+  }
+  radioId = idProp ?? radioId;
+
   const rootProps: React.ComponentPropsWithRef<'button'> = React.useMemo(
     () => ({
       role: 'radio',
@@ -84,6 +95,7 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
       'aria-disabled': disabled || undefined,
       'aria-readonly': readOnly || undefined,
       [ACTIVE_COMPOSITE_ITEM as string]: checked ? '' : undefined,
+      id: radioId ?? undefined,
       disabled,
       onKeyDown(event) {
         if (event.key === 'Enter') {
@@ -109,7 +121,7 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
         setTouched(false);
       },
     }),
-    [checked, required, disabled, readOnly, touched, setTouched],
+    [checked, radioId, required, disabled, readOnly, touched, setTouched],
   );
 
   const { getButtonProps, buttonRef } = useButton({
@@ -117,31 +129,40 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
     native: nativeButton,
   });
 
-  const id = useBaseUiId(idProp);
-
   useModernLayoutEffect(() => {
     const element = buttonRef.current;
     if (!element) {
       return undefined;
     }
 
-    if (element.closest('label') != null) {
+    const implicit = element.closest('label') != null;
+
+    /*if (fieldItemContext) {
+      if (idProp) {
+        fieldItemContext.setControlId(idProp);
+      } else if (!implicit) {
+        console.log('b', id);
+        fieldItemContext.setControlId(id);
+      }
+    } else if (implicit) {
       setControlId(idProp ?? null);
     } else {
       setControlId(id);
-    }
+    }*/
 
     return () => {
       setControlId(undefined);
     };
-  }, [buttonRef, id, idProp, setControlId]);
+  }, [buttonRef, fieldItemContext, id, idProp, setControlId]);
+
+  const inputId = useBaseUiId();
 
   const inputProps: React.ComponentPropsWithRef<'input'> = React.useMemo(
     () => ({
       type: 'radio',
       ref,
       // Set `id` to stop Chrome warning about an unassociated input
-      id,
+      id: inputId,
       tabIndex: -1,
       style: visuallyHidden,
       'aria-hidden': true,
@@ -169,7 +190,7 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
     [
       checked,
       disabled,
-      id,
+      inputId,
       onValueChange,
       readOnly,
       ref,
