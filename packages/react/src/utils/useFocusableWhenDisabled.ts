@@ -40,7 +40,11 @@ export function useFocusableWhenDisabled(
       additionalProps['aria-disabled'] = disabled;
     }
 
-    if (isNativeButton && !composite && !focusableWhenDisabled) {
+    if (
+      isNativeButton &&
+      ((!composite && focusableWhenDisabled !== true) ||
+        (composite && focusableWhenDisabled === false))
+    ) {
       additionalProps.disabled = disabled;
     }
 
