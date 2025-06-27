@@ -3,6 +3,7 @@ import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { FieldRoot } from '../root/FieldRoot';
 import { useFieldRootContext } from '../root/FieldRootContext';
+import { useFieldItemContext } from '../item/FieldItemContext';
 import { fieldValidityMapping } from '../utils/constants';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useBaseUiId } from '../../utils/useBaseUiId';
@@ -25,18 +26,20 @@ export const FieldDescription = React.forwardRef(function FieldDescription(
   const id = useBaseUiId(idProp);
 
   const { setMessageIds } = useFieldRootContext();
+  const fieldItemContext = useFieldItemContext();
+  const setIds = fieldItemContext?.setMessageIds ?? setMessageIds;
 
   useIsoLayoutEffect(() => {
     if (!id) {
       return undefined;
     }
 
-    setMessageIds((v) => v.concat(id));
+    setIds((v) => v.concat(id));
 
     return () => {
-      setMessageIds((v) => v.filter((item) => item !== id));
+      setIds((v) => v.filter((item) => item !== id));
     };
-  }, [id, setMessageIds]);
+  }, [id, setIds]);
 
   const element = useRenderElement('p', componentProps, {
     ref: forwardedRef,

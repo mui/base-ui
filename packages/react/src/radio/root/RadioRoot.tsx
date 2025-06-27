@@ -90,6 +90,10 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
   }
   radioId = idProp ?? radioId;
 
+  const fieldItemMessageIds = fieldItemContext?.messageIds.length
+    ? { 'aria-describedby': fieldItemContext.messageIds.join(' ') }
+    : undefined;
+
   const rootProps: React.ComponentPropsWithRef<'button'> = React.useMemo(
     () => ({
       role: 'radio',
@@ -224,6 +228,7 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
   const props = [
     rootProps,
     fieldControlValidation?.getValidationProps ?? EMPTY_OBJECT,
+    fieldItemMessageIds ?? EMPTY_OBJECT,
     elementProps,
     getButtonProps,
   ];
