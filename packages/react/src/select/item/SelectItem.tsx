@@ -146,7 +146,7 @@ export const SelectItem = React.memo(
         store.set('activeIndex', indexRef.current);
       },
       onMouseLeave(event) {
-        if (keyboardActiveRef.current || !isMouseWithinBounds(event)) {
+        if (keyboardActiveRef.current || isMouseWithinBounds(event)) {
           return;
         }
 
