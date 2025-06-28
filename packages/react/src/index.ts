@@ -1,5 +1,6 @@
 export * from './accordion';
 export * from './alert-dialog';
+export * from './aspect-ratio';
 export * from './avatar';
 export * from './checkbox';
 export * from './checkbox-group';

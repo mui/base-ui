@@ -1,0 +1,20 @@
+{
+  "name": "AspectRatio",
+  "description": "A component that displays content within a desired ratio (e.g., 16 / 9, 4 / 3).",
+  "props": {
+    "ratio": {
+      "type": "number",
+      "description": "The desired aspect ratio (e.g., 16 / 9, 4 / 3)."
+    },
+    "className": {
+      "type": "string | ((state: AspectRatio.State) => string)",
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
+    },
+    "render": {
+      "type": "ReactElement | ((props: HTMLProps, state: AspectRatio.State) => ReactElement)",
+      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
+    }
+  },
+  "dataAttributes": {},
+  "cssVariables": {}
+}

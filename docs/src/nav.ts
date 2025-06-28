@@ -49,6 +49,11 @@ export const nav = [
         href: '/react/components/alert-dialog',
       },
       {
+        label: 'Aspect Ratio',
+        href: '/react/components/aspect-ratio',
+        isNew: true,
+      },
+      {
         label: 'Avatar',
         href: '/react/components/avatar',
       },
