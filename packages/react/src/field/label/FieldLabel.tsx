@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { getTarget } from '@floating-ui/react/utils';
+import { getTarget } from '../../floating-ui-react/utils';
 import { FieldRoot } from '../root/FieldRoot';
 import { useFieldRootContext } from '../root/FieldRootContext';
 import { fieldValidityMapping } from '../utils/constants';

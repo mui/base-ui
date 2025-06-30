@@ -22,8 +22,8 @@ export function Switch(props: Switch.Props) {
     <Field.Root {...otherProps}>
       {label ? (
         <Field.Label className={classes.Label}>
-          {component}
           {label}
+          {component}
         </Field.Label>
       ) : (
         component

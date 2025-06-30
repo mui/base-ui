@@ -3,20 +3,23 @@ import { createRenderer, fireEvent, screen } from '@mui/internal-test-utils';
 import { CheckboxGroup } from '@base-ui-components/react/checkbox-group';
 import { Checkbox } from '@base-ui-components/react/checkbox';
 import { expect } from 'chai';
+import { spy } from 'sinon';
 
 describe('useCheckboxGroupParent', () => {
   const { render } = createRenderer();
   const allValues = ['a', 'b', 'c'];
 
   it('should control child checkboxes', () => {
+    const parentCheckedChange = spy();
+    const childCheckedChange = spy();
     function App() {
       const [value, setValue] = React.useState<string[]>([]);
       return (
         <CheckboxGroup value={value} onValueChange={setValue} allValues={allValues}>
-          <Checkbox.Root parent data-testid="parent" />
-          <Checkbox.Root name="a" />
-          <Checkbox.Root name="b" />
-          <Checkbox.Root name="c" />
+          <Checkbox.Root parent data-testid="parent" onCheckedChange={parentCheckedChange} />
+          <Checkbox.Root value="a" />
+          <Checkbox.Root value="b" onCheckedChange={childCheckedChange} />
+          <Checkbox.Root value="c" />
         </CheckboxGroup>
       );
     }
@@ -25,7 +28,7 @@ describe('useCheckboxGroupParent', () => {
 
     const checkboxes = screen
       .getAllByRole('checkbox')
-      .filter((v) => v.getAttribute('name') && v.tagName === 'BUTTON');
+      .filter((v) => v.getAttribute('value') && v.tagName === 'BUTTON');
     const parent = screen.getByTestId('parent');
 
     checkboxes.forEach((checkbox) => {
@@ -39,23 +42,30 @@ describe('useCheckboxGroupParent', () => {
       expect(checkbox).to.have.attribute('aria-checked', 'true');
     });
 
+    expect(parentCheckedChange.callCount).to.equal(1);
+    expect(childCheckedChange.callCount).to.equal(0);
+
     fireEvent.click(parent);
     expect(parent).to.have.attribute('aria-checked', 'false');
 
     checkboxes.forEach((checkbox) => {
       expect(checkbox).to.have.attribute('aria-checked', 'false');
     });
+
+    expect(parentCheckedChange.callCount).to.equal(2);
+    expect(childCheckedChange.callCount).to.equal(0);
   });
 
   it('parent should be marked as mixed if some children are checked', () => {
+    const childCheckedChange = spy();
     function App() {
       const [value, setValue] = React.useState<string[]>([]);
       return (
         <CheckboxGroup value={value} onValueChange={setValue} allValues={allValues}>
           <Checkbox.Root parent data-testid="parent" />
-          <Checkbox.Root name="a" />
-          <Checkbox.Root name="b" />
-          <Checkbox.Root name="c" />
+          <Checkbox.Root value="a" onCheckedChange={childCheckedChange} />
+          <Checkbox.Root value="b" />
+          <Checkbox.Root value="c" />
         </CheckboxGroup>
       );
     }
@@ -64,13 +74,13 @@ describe('useCheckboxGroupParent', () => {
 
     const checkboxes = screen
       .getAllByRole('checkbox')
-      .filter((v) => v.getAttribute('name') && v.tagName === 'BUTTON');
+      .filter((v) => v.getAttribute('data-parent') == null && v.tagName === 'BUTTON');
 
     checkboxes.forEach((checkbox) => {
       expect(checkbox).to.have.attribute('aria-checked', 'false');
     });
-
     fireEvent.click(checkboxes[0]);
+    expect(childCheckedChange.callCount).to.equal(1);
 
     expect(screen.getByTestId('parent')).to.have.attribute('aria-checked', 'mixed');
   });
@@ -81,9 +91,9 @@ describe('useCheckboxGroupParent', () => {
       return (
         <CheckboxGroup value={value} onValueChange={setValue} allValues={allValues}>
           <Checkbox.Root parent data-testid="parent" />
-          <Checkbox.Root name="a" />
-          <Checkbox.Root name="b" />
-          <Checkbox.Root name="c" />
+          <Checkbox.Root value="a" data-testid="checkboxA" />
+          <Checkbox.Root value="b" />
+          <Checkbox.Root value="c" />
         </CheckboxGroup>
       );
     }
@@ -92,12 +102,7 @@ describe('useCheckboxGroupParent', () => {
 
     expect(screen.getByTestId('parent')).to.have.attribute('aria-checked', 'mixed');
 
-    const checkboxes = screen
-      .getAllByRole('checkbox')
-      .filter((v) => v.getAttribute('name') && v.tagName === 'BUTTON');
-    const checkboxA = checkboxes.find((v) => v.getAttribute('name') === 'a');
-
-    expect(checkboxA).to.have.attribute('aria-checked', 'true');
+    expect(screen.getByTestId('checkboxA')).to.have.attribute('aria-checked', 'true');
   });
 
   it('should update the values array when a child checkbox is clicked', () => {
@@ -106,9 +111,9 @@ describe('useCheckboxGroupParent', () => {
       return (
         <CheckboxGroup value={value} onValueChange={setValue} allValues={allValues}>
           <Checkbox.Root parent data-testid="parent" />
-          <Checkbox.Root name="a" />
-          <Checkbox.Root name="b" />
-          <Checkbox.Root name="c" />
+          <Checkbox.Root value="a" data-testid="checkboxA" />
+          <Checkbox.Root value="b" />
+          <Checkbox.Root value="c" />
         </CheckboxGroup>
       );
     }
@@ -119,9 +124,9 @@ describe('useCheckboxGroupParent', () => {
 
     const checkboxes = screen
       .getAllByRole('checkbox')
-      .filter((v) => v.getAttribute('name') && v.tagName === 'BUTTON');
-    const checkboxA = checkboxes.find((v) => v.getAttribute('name') === 'a');
+      .filter((v) => v.getAttribute('data-parent') == null && v.tagName === 'BUTTON');
 
+    const checkboxA = screen.getByTestId('checkboxA');
     expect(checkboxA).to.have.attribute('aria-checked', 'true');
 
     checkboxes.forEach((checkbox) => {
@@ -139,9 +144,9 @@ describe('useCheckboxGroupParent', () => {
       return (
         <CheckboxGroup value={value} onValueChange={setValue} allValues={allValues}>
           <Checkbox.Root parent data-testid="parent" />
-          <Checkbox.Root name="a" />
-          <Checkbox.Root name="b" />
-          <Checkbox.Root name="c" />
+          <Checkbox.Root value="a" />
+          <Checkbox.Root value="b" />
+          <Checkbox.Root value="c" />
         </CheckboxGroup>
       );
     }
@@ -160,9 +165,9 @@ describe('useCheckboxGroupParent', () => {
       return (
         <CheckboxGroup value={value} onValueChange={setValue} allValues={allValues}>
           <Checkbox.Root parent data-testid="parent" />
-          <Checkbox.Root name="a" />
-          <Checkbox.Root name="b" />
-          <Checkbox.Root name="c" />
+          <Checkbox.Root value="a" data-testid="checkboxA" />
+          <Checkbox.Root value="b" />
+          <Checkbox.Root value="c" />
         </CheckboxGroup>
       );
     }
@@ -171,8 +176,8 @@ describe('useCheckboxGroupParent', () => {
 
     const checkboxes = screen
       .getAllByRole('checkbox')
-      .filter((v) => v.getAttribute('name') && v.tagName === 'BUTTON');
-    const checkboxA = checkboxes.find((v) => v.getAttribute('name') === 'a')!;
+      .filter((v) => v.getAttribute('data-parent') == null && v.tagName === 'BUTTON');
+    const checkboxA = screen.getByTestId('checkboxA');
     const parent = screen.getByTestId('parent');
 
     fireEvent.click(checkboxA);
@@ -208,25 +213,20 @@ describe('useCheckboxGroupParent', () => {
       return (
         <CheckboxGroup value={value} onValueChange={setValue} allValues={allValues}>
           <Checkbox.Root parent data-testid="parent" />
-          <Checkbox.Root name="a" disabled />
-          <Checkbox.Root name="b" />
-          <Checkbox.Root name="c" />
+          <Checkbox.Root value="a" disabled data-testid="checkboxA" />
+          <Checkbox.Root value="b" />
+          <Checkbox.Root value="c" />
         </CheckboxGroup>
       );
     }
 
     render(<App />);
 
-    const checkboxes = screen
-      .getAllByRole('checkbox')
-      .filter((v) => v.getAttribute('name') && v.tagName === 'BUTTON');
-    const checkboxA = checkboxes.find((v) => v.getAttribute('name') === 'a')!;
     const parent = screen.getByTestId('parent');
-
     fireEvent.click(parent);
 
     expect(parent).to.have.attribute('aria-checked', 'mixed');
-    expect(checkboxA).to.have.attribute('aria-checked', 'false');
+    expect(screen.getByTestId('checkboxA')).to.have.attribute('aria-checked', 'false');
   });
 
   it('handles checked disabled checkboxes', () => {
@@ -235,29 +235,24 @@ describe('useCheckboxGroupParent', () => {
       return (
         <CheckboxGroup value={value} onValueChange={setValue} allValues={allValues}>
           <Checkbox.Root parent data-testid="parent" />
-          <Checkbox.Root name="a" disabled />
-          <Checkbox.Root name="b" />
-          <Checkbox.Root name="c" />
+          <Checkbox.Root value="a" data-testid="checkboxA" disabled />
+          <Checkbox.Root value="b" data-testid="checkboxB" />
+          <Checkbox.Root value="c" />
         </CheckboxGroup>
       );
     }
 
     render(<App />);
 
-    const checkboxes = screen
-      .getAllByRole('checkbox')
-      .filter((v) => v.getAttribute('name') && v.tagName === 'BUTTON');
-    const checkboxA = checkboxes.find((v) => v.getAttribute('name') === 'a')!;
-    const checkboxB = checkboxes.find((v) => v.getAttribute('name') === 'b')!;
+    const checkboxA = screen.getByTestId('checkboxA');
+    const checkboxB = screen.getByTestId('checkboxB');
     const parent = screen.getByTestId('parent');
 
     fireEvent.click(parent);
-
     expect(checkboxA).to.have.attribute('aria-checked', 'true');
     expect(checkboxB).to.have.attribute('aria-checked', 'true');
 
     fireEvent.click(parent);
-
     expect(checkboxA).to.have.attribute('aria-checked', 'true');
     expect(checkboxB).to.have.attribute('aria-checked', 'false');
   });

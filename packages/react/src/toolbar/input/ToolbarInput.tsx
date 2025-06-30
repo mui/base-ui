@@ -1,10 +1,10 @@
 'use client';
 import * as React from 'react';
 import { BaseUIComponentProps } from '../../utils/types';
+import { useFocusableWhenDisabled } from '../../utils/useFocusableWhenDisabled';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { ARROW_LEFT, ARROW_RIGHT, stopEvent } from '../../composite/composite';
 import { CompositeItem } from '../../composite/item/CompositeItem';
-import { useButton } from '../../use-button';
 import type { ToolbarRoot } from '../root/ToolbarRoot';
 import { useToolbarRootContext } from '../root/ToolbarRootContext';
 import { useToolbarGroupContext } from '../group/ToolbarGroupContext';
@@ -35,10 +35,11 @@ export const ToolbarInput = React.forwardRef(function ToolbarInput(
 
   const disabled = toolbarDisabled || (groupContext?.disabled ?? false) || disabledProp;
 
-  const { getButtonProps, buttonRef } = useButton({
+  const { props: focusableWhenDisabledProps } = useFocusableWhenDisabled({
+    composite: true,
     disabled,
     focusableWhenDisabled,
-    native: 'input',
+    isNativeButton: false,
   });
 
   const state: ToolbarInput.State = React.useMemo(
@@ -52,7 +53,7 @@ export const ToolbarInput = React.forwardRef(function ToolbarInput(
 
   const element = useRenderElement('input', componentProps, {
     state,
-    ref: [forwardedRef, buttonRef],
+    ref: forwardedRef,
     props: [
       {
         onClick(event) {
@@ -72,7 +73,7 @@ export const ToolbarInput = React.forwardRef(function ToolbarInput(
         },
       },
       elementProps,
-      getButtonProps,
+      focusableWhenDisabledProps,
     ],
   });
 

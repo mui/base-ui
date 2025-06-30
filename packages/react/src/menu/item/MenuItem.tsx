@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { FloatingEvents, useFloatingTree } from '@floating-ui/react';
+import { FloatingEvents, useFloatingTree } from '../../floating-ui-react';
 import { useMenuItem } from './useMenuItem';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { useRenderElement } from '../../utils/useRenderElement';
@@ -8,6 +8,7 @@ import { useBaseUiId } from '../../utils/useBaseUiId';
 import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import { useForkRef } from '../../utils/useForkRef';
 import { useCompositeListItem } from '../../composite/list/useCompositeListItem';
+import { EMPTY_OBJECT } from '../../utils/constants';
 
 const InnerMenuItem = React.memo(
   React.forwardRef(function InnerMenuItem(
@@ -38,14 +39,15 @@ const InnerMenuItem = React.memo(
       allowMouseUpTriggerRef,
       typingRef,
       nativeButton,
-      submenuTrigger: false,
+      submenuTrigger: EMPTY_OBJECT,
     });
 
     const state: MenuItem.State = React.useMemo(
       () => ({
         disabled,
+        highlighted,
       }),
-      [disabled],
+      [disabled, highlighted],
     );
 
     return useRenderElement('div', componentProps, {
@@ -112,6 +114,10 @@ export namespace MenuItem {
      * Whether the item should ignore user interaction.
      */
     disabled: boolean;
+    /**
+     * Whether the item is highlighted.
+     */
+    highlighted: boolean;
   }
 
   export interface Props extends BaseUIComponentProps<'div', State> {

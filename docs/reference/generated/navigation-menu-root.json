@@ -10,7 +10,7 @@
     "value": {
       "type": "any",
       "default": "null",
-      "description": "The controlled value of the navigation navigation menu item that should be currently open.\nWhen non-nullish, the menu will be open. When nullish, the menu will be closed.\n\nTo render an uncontrolled navigation navigation menu, use the `defaultValue` prop instead."
+      "description": "The controlled value of the navigation menu item that should be currently open.\nWhen non-nullish, the menu will be open. When nullish, the menu will be closed.\n\nTo render an uncontrolled navigation menu, use the `defaultValue` prop instead."
     },
     "onValueChange": {
       "type": "((value: any, event: Event | undefined, reason: BaseOpenChangeReason | undefined) => void)",

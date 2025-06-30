@@ -85,4 +85,33 @@ describe('<Dialog.Close />', () => {
       expect(handleOpenChange.callCount).to.equal(1);
     });
   });
+
+  it('closes the dialog when undefined is passed to the `onClick` prop', async () => {
+    const handleOpenChange = spy();
+
+    const { user } = await render(
+      <Dialog.Root onOpenChange={handleOpenChange}>
+        <Dialog.Trigger>Open</Dialog.Trigger>
+        <Dialog.Portal>
+          <Dialog.Popup>
+            <Dialog.Close onClick={undefined}>Close</Dialog.Close>
+          </Dialog.Popup>
+        </Dialog.Portal>
+      </Dialog.Root>,
+    );
+
+    expect(handleOpenChange.callCount).to.equal(0);
+
+    const openButton = screen.getByText('Open');
+    await user.click(openButton);
+
+    expect(handleOpenChange.callCount).to.equal(1);
+    expect(handleOpenChange.firstCall.args[0]).to.equal(true);
+
+    const closeButton = screen.getByText('Close');
+    await user.click(closeButton);
+
+    expect(handleOpenChange.callCount).to.equal(2);
+    expect(handleOpenChange.secondCall.args[0]).to.equal(false);
+  });
 });
