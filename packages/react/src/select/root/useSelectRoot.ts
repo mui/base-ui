@@ -31,7 +31,6 @@ import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useFormContext } from '../../form/FormContext';
 import { useLatestRef } from '../../utils/useLatestRef';
 import { useField } from '../../field/useField';
-import { serializeValue } from '../utils/serialize';
 
 export type SelectOpenChangeReason = BaseOpenChangeReason | 'window-resize';
 
@@ -145,26 +144,6 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
   const controlRef = useLatestRef(store.state.triggerElement);
   const commitValidation = fieldControlValidation.commitValidation;
 
-  const updateValue = useEventCallback((nextValue: any) => {
-    const index = valuesRef.current.indexOf(nextValue);
-
-    store.apply({
-      selectedIndex: index === -1 ? null : index,
-      label: labelsRef.current[index] ?? '',
-    });
-
-    clearErrors(name);
-    setDirty(nextValue !== validityData.initialValue);
-
-    // Ensure validation uses the latest value.
-    const inputEl = fieldControlValidation.inputRef.current;
-    if (inputEl) {
-      inputEl.value = serializeValue(nextValue);
-    }
-
-    commitValidation(nextValue, validationMode !== 'onChange');
-  });
-
   useField({
     id,
     commitValidation,
@@ -177,23 +156,39 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
   const prevValueRef = React.useRef(value);
 
   useModernLayoutEffect(() => {
+    setFilled(value !== null);
+  }, [value, setFilled]);
+
+  useModernLayoutEffect(() => {
     if (prevValueRef.current === value) {
       return;
     }
 
+    const index = valuesRef.current.indexOf(value);
+
+    store.apply({
+      selectedIndex: index === -1 ? null : index,
+      label: labelsRef.current[index] ?? '',
+    });
+
     clearErrors(name);
-    commitValidation?.(value, true);
+    setDirty(value !== validityData.initialValue);
+    commitValidation(value, validationMode !== 'onChange');
+
     if (validationMode === 'onChange') {
       commitValidation?.(value);
     }
-  }, [value, commitValidation, clearErrors, name, validationMode]);
-
-  useModernLayoutEffect(() => {
-    setFilled(value !== null);
-    if (prevValueRef.current !== value) {
-      updateValue(value);
-    }
-  }, [setFilled, updateValue, value]);
+  }, [
+    value,
+    commitValidation,
+    clearErrors,
+    name,
+    validationMode,
+    store,
+    setDirty,
+    validityData.initialValue,
+    setFilled,
+  ]);
 
   useModernLayoutEffect(() => {
     prevValueRef.current = value;
@@ -435,7 +430,11 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     ],
   );
 
-  return { rootContext, floatingContext };
+  return {
+    rootContext,
+    floatingContext,
+    value,
+  };
 }
 
 export namespace useSelectRoot {
@@ -536,6 +535,7 @@ export namespace useSelectRoot {
   export type ReturnValue = {
     rootContext: SelectRootContext;
     floatingContext: FloatingRootContext;
+    value: any;
   };
 
   export interface Actions {

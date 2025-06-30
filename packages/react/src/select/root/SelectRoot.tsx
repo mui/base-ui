@@ -35,7 +35,7 @@ export const SelectRoot: SelectRoot = function SelectRoot<Value>(
     items,
   } = props;
 
-  const { rootContext, floatingContext } = useSelectRoot<Value>({
+  const { rootContext, floatingContext, value } = useSelectRoot<Value>({
     id,
     value: valueProp,
     defaultValue,
@@ -55,8 +55,6 @@ export const SelectRoot: SelectRoot = function SelectRoot<Value>(
   const store = rootContext.store;
 
   const { setDirty, validityData, validationMode, controlId } = useFieldRootContext();
-
-  const value = store.state.value;
 
   const ref = useForkRef(inputRef, rootContext.fieldControlValidation.inputRef);
 
