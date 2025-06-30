@@ -176,7 +176,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     commitValidation(value, validationMode !== 'onChange');
 
     if (validationMode === 'onChange') {
-      commitValidation?.(value);
+      commitValidation(value);
     }
   }, [
     value,
