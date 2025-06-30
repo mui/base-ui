@@ -6,28 +6,15 @@ _Jun 30, 2025_
 
 ### General changes
 
-- Unify component export patterns (#1478) by @michaldudak
-- Default `tabIndex` to `0` (#1939) by @atomiks
 - Make error messages consistent (#2049) by @michaldudak
 - Do not overwrite event handler when `undefined` is passed explicitly (#2151) by @michaldudak
 
 ### Accordion
 
-- Use `useRenderElement` (#1771) by @mj12albert
-- Stop event propagation (#1871) by @atomiks
 - Allow content to resize naturally (#2043) by @atomiks
 - Fix transition status mapping (#2169) by @atomiks
 - Fix `aria-controls` reference (#2170) by @atomiks
 - Fix test warning about mixed animation types (#2180) by @atomiks
-
-### Alert Dialog
-
-- **Breaking change:** Use basic scroll lock on iOS.
-  Due to numerous bugs on iOS, we decided to not lock the scroll when modal popups are open.
-  (#1890) by @atomiks
-- **Breaking change:** Refine `OpenChangeReason`.
-  Renamed several keys and introduced component-specific reasons.
-  (#1782) by @atomiks
 
 ### Checkbox
 
@@ -39,15 +26,10 @@ _Jun 30, 2025_
 
 ### Checkbox Group
 
-- **Breaking change:** Enable submitting checkbox group value as one field.
-  Specifying the `name` prop on `CheckboxGroup` allows to submit the values of all child checkboxes.
-  (#1948) by @mj12albert
-- Fix `validate` fn incorrectly running twice (#1959) by @mj12albert
 - Fix `onCheckedChange` not running when parent checkbox is present (#2155) by @mj12albert
 
 ### Collapsible
 
-- Use `useRenderElement` (#1771) by @mj12albert
 - Allow content to resize naturally (#2043) by @atomiks
 - Fix `aria-controls` reference (#2170) by @atomiks
 - Fix test warning about mixed animation types (#2180) by @atomiks
@@ -57,34 +39,17 @@ _Jun 30, 2025_
 - **Breaking change:** Add `SubmenuRoot` part.
   Nested menus should be defined with `Menu.SubmenuRoot` instead of `Menu.Root` to to avoid ambiguity.
   (#2042) by @atomiks
-- Create new `ContextMenu` component (#1665) by @atomiks
 - Fix CheckboxItemIndicator export (#2009) by @aarongarciah
 
 ### Dialog
 
-- **Breaking change:** Use basic scroll lock on iOS.
-  Due to numerous bugs on iOS, we decided to not lock the scroll when modal popups are open.
-  (#1890) by @atomiks
-- **Breaking change:** Refine `OpenChangeReason`.
-  Renamed several keys and introduced component-specific reasons.
-  (#1782) by @atomiks
 - Fix popup prop merging (#2119) by @atomiks
 
 ### Field
 
-- **Breaking change:** Consolidate `Field.Error` `forceShow` into `match` prop.
-  `match` now has boolean type, consolidating the always-show behavior into it rather than the separate `forceShow` prop.
-  (#1919) by @atomiks
 - **Breaking change:** Support implicit `Field.Label`.
   If `Field.Label` encloses Switch/Checkbox/Radio, the `htmlFor`/`id` attributes are no longer explicitly set to associate them.
   (#2036) by @mj12albert
-- Fix integration of Base UI components (#1755) by @atomiks
-- Set `valueMissing` to false if only error and not dirtied (#1810) by @atomiks
-- `validate` with latest value on blur (#1850) by @atomiks
-- Revalidate only `required` on change (#1840) by @atomiks
-- Run validate function after native validations (#1926) by @mj12albert
-- Fix `validate` fn incorrectly running twice (#1959) by @mj12albert
-- Integrate range sliders with Form and Field (#1929) by @mj12albert
 - Enable custom validation based on other form values (#1941) by @mj12albert
 - Fix `onValueChange` `value` type (#2112) by @atomiks
 - Fix `Field.Label` focusing trigger (#2118) by @atomiks
@@ -96,39 +61,17 @@ _Jun 30, 2025_
 
 ### Form
 
-- **Breaking change:** Enable submitting checkbox group value as one field.
-  Specifying the `name` prop on `CheckboxGroup` allows to submit the values of all child checkboxes.
-  (#1948) by @mj12albert
-- Fix integration of Base UI components (#1755) by @atomiks
-- Select inputs on focus (#1858) by @atomiks
-- Exclude number formatting from form value (#1957) by @mj12albert
-- Integrate range sliders with Form and Field (#1929) by @mj12albert
 - Enable custom validation based on other form values (#1941) by @mj12albert
 
 ### Input
 
-- Fix `Input.Props` type (#1915) by @mj12albert
-- Extend `Field.Control.State` (#1954) by @atomiks
 - Fix `onValueChange` `value` type (#2112) by @atomiks
 
 ### Menu
 
-- **Breaking change:** Use basic scroll lock on iOS.
-  Due to numerous bugs on iOS, we decided to not lock the scroll when modal popups are open.
-  (#1890) by @atomiks
-- **Breaking change:** Refine `OpenChangeReason`.
-  Renamed several keys and introduced component-specific reasons.
-  (#1782) by @atomiks
 - **Breaking change:** Add `SubmenuRoot` part.
   Nested menus should be defined with `Menu.SubmenuRoot` instead of `Menu.Root` to to avoid ambiguity.
   (#2042) by @atomiks
-- Fix function dependency handling (#1787) by @atomiks
-- Add missing `'use client'` to `RadioGroup` part (#1851) by @atomiks
-- Ensure `null` items are removed from composite lists (#1847) by @atomiks
-- Avoid `:focus-visible` style appearing (#1846) by @atomiks
-- Better handle dynamic and non-string items (#1861) by @atomiks
-- Add `collisionAvoidance` prop (#1849) by @atomiks
-- Add `finalFocus` and `closeDelay` props (#1918) by @atomiks
 - Unset `role` from Trigger (#2047) by @atomiks
 - Emit `close` event on `cancel-open` (#2067) by @atomiks
 - Fix close toggle when rendering non-native button (#2071) by @atomiks
@@ -139,56 +82,29 @@ _Jun 30, 2025_
 
 ### Menubar
 
-- Create the Menubar component (#1684) by @michaldudak
 - Fix `closeOnClick: false` not working in nested menus (#2094) by @michaldudak
 
 ### Navigation Menu
 
-- New `NavigationMenu` component (#1741) by @atomiks
 - Fix typos (#2139) by @atomiks
 - Handle layout resize while open (#2070) by @atomiks
 - Fix positioner height when opening menu using the keyboard arrows (#2060) by @juliomerisio
 
 ### Number Field
 
-- `validate` with latest value on blur (#1850) by @atomiks
-- Move scrubbing logic to `ScrubArea` component (#1859) by @atomiks
-- Remove floating point errors when `snapOnStep` is disabled (#1857) by @atomiks
-- Stop event propagation (#1871) by @atomiks
-- Exclude number formatting from form value (#1957) by @mj12albert
 - Ensure `onValueChange` is called with already-formatted parsed value (#1905) by @atomiks
 - Fix revalidation on change (#2174) by @atomiks
 
 ### Popover
 
-- **Breaking change:** Use basic scroll lock on iOS.
-  Due to numerous bugs on iOS, we decided to not lock the scroll when modal popups are open.
-  (#1890) by @atomiks
-- **Breaking change:** Refine `OpenChangeReason`.
-  Renamed several keys and introduced component-specific reasons.
-  (#1782) by @atomiks
-- Fix function dependency handling (#1787) by @atomiks
-- Avoid prop getters when merging props (#1852) by @atomiks
-- Add `collisionAvoidance` prop (#1849) by @atomiks
-- Fix nested `openOnHover` (#1938) by @atomiks
 - Fix close toggle when rendering non-native button (#2071) by @atomiks
 - Cut out internal backdrop to allow interacting with triggers (#2141) by @michaldudak
-
-### Preview Card
-
-- **Breaking change:** Refine `OpenChangeReason`.
-  Renamed several keys and introduced component-specific reasons.
-  (#1782) by @atomiks
-- Fix function dependency handling (#1787) by @atomiks
-- Add `collisionAvoidance` prop (#1849) by @atomiks
 
 ### Radio Group
 
 - **Breaking change:** Support implicit `Field.Label`.
   If `Field.Label` encloses Radio, the `htmlFor`/`id` attributes are no longer explicitly set to associate them.
   (#2036) by @mj12albert
-- Add `inputRef` props (#1683) by @atomiks
-- Stop event propagation (#1871) by @atomiks
 - Refactor to `useRenderElement` (#2053) by @mj12albert
 
 ### Scroll Area
@@ -198,34 +114,9 @@ _Jun 30, 2025_
 
 ### Select
 
-- **Breaking change:** Move item anchoring prop to `Positioner`.
-  Removed `alignItemToTrigger` prop from Root, to be configured on `Positioner` instead.
-  Changed the prop name to `alignItemWithTrigger`.
-  (#1713) by @atomiks
-- **Breaking change:** Use basic scroll lock on iOS.
-  Due to numerous bugs on iOS, we decided to not lock the scroll when modal popups are open.
-  (#1890) by @atomiks
-- **Breaking change:** Defer mounting until typeahead is needed.
-  This defers mounting the `<Select.Portal>` component until it's needed for closed typeahead (when the trigger is focused).
-  After it opens for the first time, it stays mounted, which helps performance when opening/closing large lists.
-  (#1906) by @atomiks
-- **Breaking change:** Refine `OpenChangeReason`.
-  Renamed several keys and introduced component-specific reasons.
-  (#1782) by @atomiks
 - **Breaking change:** Print raw value in `Select.Value`.
   `<Select.Value>` now prints the raw value by default unless an `items` prop is specified on `Select.Root`.
   (#2087) by @atomiks
-- Fix function dependency handling (#1787) by @atomiks
-- Add `inputRef` props (#1683) by @atomiks
-- Refactor to `useRenderElement` (#1797) by @atomiks
-- Ensure `null` items are removed from composite lists (#1847) by @atomiks
-- Fix `id` prop forwarding to hidden input (#1862) by @atomiks
-- Avoid `:focus-visible` style appearing (#1846) by @atomiks
-- Fix `transitionStatus` mapping on `ItemIndicator` (#1925) by @atomiks
-- Better handle dynamic and non-string items (#1861) by @atomiks
-- Use `Select.ItemText` ref to grab default text content (#1943) by @atomiks
-- Add `collisionAvoidance` prop (#1849) by @atomiks
-- Revert `placeholder` API (#1985) by @atomiks
 - Performance: avoid re-renders (#1961) by @romgrk
 - Fix close toggle when rendering non-native button (#2071) by @atomiks
 - Fix re-render warning in `Positioner` on fallback (#2089) by @atomiks
@@ -241,15 +132,6 @@ _Jun 30, 2025_
 
 ### Slider
 
-- **Breaking change:** Drop `inputId` prop from Thumb.
-  We decided to only expose the `inputRef`.
-  The `<input>` element's id is now the Thumb's `id` + `"-input"`
-  (#1914) by @mj12albert
-- Add `inputRef` props (#1683) by @atomiks
-- Add `locale` prop (#1796) by @mj12albert
-- Stop event propagation (#1871) by @atomiks
-- Set data-dragging on touchstart and pointerdown (#1874) by @mj12albert
-- Integrate range sliders with Form and Field (#1929) by @mj12albert
 - Use pointer capture when dragging (#2059) by @mj12albert
 - Fix slider field label (#2154) by @mj12albert
 
@@ -265,47 +147,15 @@ _Jun 30, 2025_
 - Fix focus going out of sync when selected value is changed externally (#2107) by @atomiks
 - Remove highlighted state (#2164) by @atomiks
 
-### Toast
-
-- **Breaking change:** Add `Portal` part.
-  The `<Toast.Portal>` component is required around the `<Toast.Viewport>`.
-  (#1962) by @atomiks
-- **Breaking change:** Avoid removing limited toasts from the DOM.
-  Toasts that did not fit on the screen are not longer automatically removed.
-  (#1953) by @atomiks
-- Fix swipe jump on iOS (#1785) by @atomiks
-
-### Toggle
-
-- Stop event propagation (#1871) by @atomiks
-
 ### Toolbar
 
-- Stop event propagation (#1871) by @atomiks
 - Set `disabled` attr on toolbar button when `focusableWhenDisabled={false}` (#2176) by @mj12albert
-
-### Tooltip
-
-- **Breaking change:** Refine `OpenChangeReason`.
-  Renamed several keys and introduced component-specific reasons.
-  (#1782) by @atomiks
-- Fix function dependency handling (#1787) by @atomiks
-- Avoid prop getters when merging props (#1852) by @atomiks
-- Remove `trackCursorAxis` type from `Positioner` (#1895) by @atomiks
-- Apply `pointer-events: none` to `Positioner` when not hoverable (#1917) by @atomiks
-- Add `collisionAvoidance` prop (#1849) by @atomiks
 
 ### useRender
 
-- **Breaking change:** Performance/refactor: `useRender`.
-  `useRender` now returns a JSX element, not a function that returns one.
-  The `refs` parameter was renamed to `ref`.
-  (#1934) by @romgrk
-- Skip most of useRenderElement logic when unnecessary (#1967) by @michaldudak
-- Fix return type (#1968) by @michaldudak
 - Make useRender RSC-friendly (#2134) by @michaldudak
 
-All contributors of this release in alphabetical order: @aarongarciah, @atomiks, @bernardobelchior, @brijeshb42, @flaviendelangle, @Janpot, @JCQuintas, @juliomerisio, @lesha1201, @michaldudak, @mj12albert, @oliviertassinari, @romgrk, @Yonava, @ZeeshanTamboli
+All contributors of this release in alphabetical order: @aarongarciah, @atomiks, @bernardobelchior, @brijeshb42, @Janpot, @juliomerisio, @lesha1201, @michaldudak, @mj12albert, @oliviertassinari, @romgrk
 
 ## v1.0.0-beta.0
 
