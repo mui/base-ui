@@ -5,6 +5,7 @@ import { SelectRootContext, SelectFloatingContext } from './SelectRootContext';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { visuallyHidden } from '../../utils/visuallyHidden';
 import { useForkRef } from '../../utils/useForkRef';
+import { serializeValue } from '../utils/serialize';
 
 /**
  * Groups all parts of the select.
@@ -35,7 +36,7 @@ export function SelectRoot<Value>(props: SelectRoot.Props<Value>): React.JSX.Ele
     multiple = false,
   } = props;
 
-  const { rootContext, floatingContext } = useSelectRoot<Value>({
+  const { rootContext, floatingContext, value } = useSelectRoot<Value>({
     id,
     value: valueProp,
     defaultValue,
@@ -57,21 +58,10 @@ export function SelectRoot<Value>(props: SelectRoot.Props<Value>): React.JSX.Ele
 
   const { setDirty, validityData, validationMode, controlId } = useFieldRootContext();
 
-  const value = store.state.value;
-
   const ref = useForkRef(inputRef, rootContext.fieldControlValidation.inputRef);
 
   const serializedValue = React.useMemo(() => {
-    if (multiple) {
-      return undefined;
-    }
-    if (value == null) {
-      return ''; // avoid uncontrolled -> controlled error
-    }
-    if (typeof value === 'string') {
-      return value;
-    }
-    return JSON.stringify(value);
+    return multiple ? undefined : serializeValue(value);
   }, [value, multiple]);
 
   return (

@@ -55,7 +55,7 @@ export const mdxComponents: MDXComponents = {
   h5: (props) => <h5 className="mt-8 mb-1.5 scroll-mt-6 font-medium text-balance" {...props} />,
   h6: (props) => <h6 className="mt-8 mb-1.5 scroll-mt-6 font-medium text-balance" {...props} />,
   p: (props) => <p className="mb-4" {...props} />,
-  li: (props) => <li className="mb-0.5" {...props} />,
+  li: (props) => <li className="mb-0.5 [&>p]:mb-2" {...props} />,
   ul: (props) => <ul className="mb-4 ml-4.5 list-disc" {...props} />,
   ol: (props) => <ol className="mb-4 ml-7 list-decimal" {...props} />,
   kbd: Kbd,

@@ -87,8 +87,6 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     state: 'open',
   });
 
-  const isValueControlled = params.value !== undefined;
-
   const listRef = React.useRef<Array<HTMLElement | null>>([]);
   const labelsRef = React.useRef<Array<string | null>>([]);
   const popupRef = React.useRef<HTMLDivElement | null>(null);
@@ -152,41 +150,6 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
   const controlRef = useLatestRef(store.state.triggerElement);
   const commitValidation = fieldControlValidation.commitValidation;
 
-  const updateValue = useEventCallback((nextValue: any) => {
-    if (multiple) {
-      // For multiple selection, update the label and keep track of the last selected
-      // item via `selectedIndex`, which is needed when the popup (re)opens.
-      const currentValue = Array.isArray(nextValue) ? nextValue : [];
-
-      const labels = currentValue
-        .map((v) => {
-          const index = valuesRef.current.indexOf(v);
-          return index !== -1 ? (labelsRef.current[index] ?? '') : '';
-        })
-        .filter(Boolean);
-
-      const lastValue = currentValue[currentValue.length - 1];
-      const lastIndex = lastValue != null ? valuesRef.current.indexOf(lastValue) : -1;
-
-      // Store the last selected index for later use when closing the popup.
-      lastSelectedIndexRef.current = lastIndex === -1 ? null : lastIndex;
-
-      store.apply({
-        label: labels.join(', '),
-      });
-    } else {
-      const index = valuesRef.current.indexOf(nextValue);
-
-      store.apply({
-        selectedIndex: index === -1 ? null : index,
-        label: labelsRef.current[index] ?? '',
-      });
-    }
-
-    clearErrors(name);
-    setDirty(nextValue !== validityData.initialValue);
-  });
-
   useField({
     id,
     commitValidation,
@@ -199,23 +162,39 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
   const prevValueRef = React.useRef(value);
 
   useModernLayoutEffect(() => {
+    setFilled(value !== null);
+  }, [value, setFilled]);
+
+  useModernLayoutEffect(() => {
     if (prevValueRef.current === value) {
       return;
     }
 
-    clearErrors(name);
-    commitValidation?.(value, true);
-    if (validationMode === 'onChange') {
-      commitValidation?.(value);
-    }
-  }, [value, commitValidation, clearErrors, name, validationMode]);
+    const index = valuesRef.current.indexOf(value);
 
-  useModernLayoutEffect(() => {
-    setFilled(value !== null);
-    if (prevValueRef.current !== value) {
-      updateValue(value);
+    store.apply({
+      selectedIndex: index === -1 ? null : index,
+      label: labelsRef.current[index] ?? '',
+    });
+
+    clearErrors(name);
+    setDirty(value !== validityData.initialValue);
+    commitValidation(value, validationMode !== 'onChange');
+
+    if (validationMode === 'onChange') {
+      commitValidation(value);
     }
-  }, [setFilled, updateValue, value]);
+  }, [
+    value,
+    commitValidation,
+    clearErrors,
+    name,
+    validationMode,
+    store,
+    setDirty,
+    validityData.initialValue,
+    setFilled,
+  ]);
 
   useModernLayoutEffect(() => {
     prevValueRef.current = value;
@@ -268,10 +247,6 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
   const setValue = useEventCallback((nextValue: any, event?: Event) => {
     params.onValueChange?.(nextValue, event);
     setValueUnwrapped(nextValue);
-
-    if (!isValueControlled) {
-      updateValue(nextValue);
-    }
   });
 
   /**
@@ -511,7 +486,11 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     ],
   );
 
-  return { rootContext, floatingContext };
+  return {
+    rootContext,
+    floatingContext,
+    value,
+  };
 }
 
 export namespace useSelectRoot {
@@ -617,6 +596,7 @@ export namespace useSelectRoot {
   export type ReturnValue = {
     rootContext: SelectRootContext;
     floatingContext: FloatingRootContext;
+    value: any;
   };
 
   export interface Actions {
