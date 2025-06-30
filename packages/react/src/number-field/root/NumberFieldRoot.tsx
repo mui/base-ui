@@ -179,9 +179,15 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
       setValueUnwrapped(validatedValue);
       setDirty(validatedValue !== validityData.initialValue);
 
-      // We need to force a re-render, because while the value may be unchanged, the formatting may
-      // be different. This forces the `useModernLayoutEffect` to run which acts as a single source of
-      // truth to sync the input value.
+      // Keep the visible input in sync immediately when programmatic changes occur
+      // (increment/decrement, wheel, etc). During direct typing we don't want
+      // to overwrite the user-provided text until blur, so we gate on
+      // `allowInputSyncRef`.
+      if (allowInputSyncRef.current) {
+        setInputValue(formatNumber(validatedValue, locale, format));
+      }
+
+      // Formatting can change even if the numeric value hasn't, so ensure a re-render when needed.
       forceRender();
     },
   );

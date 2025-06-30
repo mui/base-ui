@@ -37,6 +37,8 @@ export interface MenuRootContext {
   setActiveIndex: React.Dispatch<React.SetStateAction<number | null>>;
   parent: MenuParent;
   rootId: string | undefined;
+  allowMouseEnter: boolean;
+  setAllowMouseEnter: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export const MenuRootContext = React.createContext<MenuRootContext | undefined>(undefined);
