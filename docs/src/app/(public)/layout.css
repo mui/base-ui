@@ -63,6 +63,7 @@
 
     @media (--show-side-nav) {
       padding-block: var(--header-height);
+      padding-bottom: 0;
 
       &::before,
       &::after {
@@ -91,5 +92,11 @@
     flex-grow: 1;
     flex-direction: column;
     background-color: var(--color-content);
+  }
+
+  .RootLayoutFooter {
+    background-color: var(--color-background);
+    width: 100%;
+    height: var(--header-height);
   }
 }
