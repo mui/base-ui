@@ -12,6 +12,9 @@ export function useFocusableWhenDisabled(
     isNativeButton,
   } = parameters;
 
+  const isFocusableComposite = composite && focusableWhenDisabled !== false;
+  const isNonFocusableComposite = composite && focusableWhenDisabled === false;
+
   // we can't explicitly assign `undefined` to any of these props because it
   // would otherwise prevent subsequently merged props from setting them
   const props = React.useMemo(() => {
@@ -33,23 +36,26 @@ export function useFocusableWhenDisabled(
     }
 
     if (
-      (isNativeButton &&
-        (focusableWhenDisabled || (composite && focusableWhenDisabled !== false))) ||
+      (isNativeButton && (focusableWhenDisabled || isFocusableComposite)) ||
       (!isNativeButton && disabled)
     ) {
       additionalProps['aria-disabled'] = disabled;
     }
 
-    if (
-      isNativeButton &&
-      ((!composite && focusableWhenDisabled !== true) ||
-        (composite && focusableWhenDisabled === false))
-    ) {
+    if (isNativeButton && (!focusableWhenDisabled || isNonFocusableComposite)) {
       additionalProps.disabled = disabled;
     }
 
     return additionalProps;
-  }, [disabled, focusableWhenDisabled, composite, isNativeButton, tabIndexProp]);
+  }, [
+    composite,
+    disabled,
+    focusableWhenDisabled,
+    isFocusableComposite,
+    isNonFocusableComposite,
+    isNativeButton,
+    tabIndexProp,
+  ]);
 
   return { props };
 }
