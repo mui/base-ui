@@ -11,7 +11,7 @@ import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import { useForkRef } from '../../utils/useForkRef';
 import { itemMapping } from '../utils/styleHookMapping';
 import { useControlled } from '../../utils/useControlled';
-import { EMPTY_OBJECT } from '../../utils/constants';
+import { REGULAR_ITEM } from '../item/MenuItem';
 
 const InnerMenuCheckboxItem = React.memo(
   React.forwardRef(function InnerMenuCheckboxItem(
@@ -52,7 +52,7 @@ const InnerMenuCheckboxItem = React.memo(
       allowMouseUpTriggerRef,
       typingRef,
       nativeButton,
-      submenuTrigger: EMPTY_OBJECT,
+      itemMetadata: REGULAR_ITEM,
     });
 
     const state: MenuCheckboxItem.State = React.useMemo(

@@ -8,7 +8,10 @@ import { useBaseUiId } from '../../utils/useBaseUiId';
 import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import { useForkRef } from '../../utils/useForkRef';
 import { useCompositeListItem } from '../../composite/list/useCompositeListItem';
-import { EMPTY_OBJECT } from '../../utils/constants';
+
+export const REGULAR_ITEM = {
+  type: 'regular-item' as const,
+};
 
 const InnerMenuItem = React.memo(
   React.forwardRef(function InnerMenuItem(
@@ -39,7 +42,7 @@ const InnerMenuItem = React.memo(
       allowMouseUpTriggerRef,
       typingRef,
       nativeButton,
-      submenuTrigger: EMPTY_OBJECT,
+      itemMetadata: REGULAR_ITEM,
     });
 
     const state: MenuItem.State = React.useMemo(

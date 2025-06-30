@@ -11,7 +11,7 @@ import { MenuRadioItemContext } from './MenuRadioItemContext';
 import { itemMapping } from '../utils/styleHookMapping';
 import { useCompositeListItem } from '../../composite/list/useCompositeListItem';
 import { useMenuItem } from '../item/useMenuItem';
-import { EMPTY_OBJECT } from '../../utils/constants';
+import { REGULAR_ITEM } from '../item/MenuItem';
 
 const InnerMenuRadioItem = React.memo(
   React.forwardRef(function InnerMenuRadioItem(
@@ -44,7 +44,7 @@ const InnerMenuRadioItem = React.memo(
       allowMouseUpTriggerRef,
       typingRef,
       nativeButton,
-      submenuTrigger: EMPTY_OBJECT,
+      itemMetadata: REGULAR_ITEM,
     });
 
     const state: MenuRadioItem.State = { disabled, highlighted, checked };

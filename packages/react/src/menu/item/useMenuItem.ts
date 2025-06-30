@@ -16,7 +16,7 @@ export function useMenuItem(params: useMenuItem.Parameters): useMenuItem.ReturnV
     allowMouseUpTriggerRef,
     typingRef,
     nativeButton,
-    submenuTrigger,
+    itemMetadata,
   } = params;
 
   const itemRef = React.useRef<HTMLElement | null>(null);
@@ -35,11 +35,11 @@ export function useMenuItem(params: useMenuItem.Parameters): useMenuItem.ReturnV
           role: 'menuitem',
           tabIndex: highlighted ? 0 : -1,
           onMouseEnter() {
-            if (!submenuTrigger.allowMouseEnterEnabled || !submenuTrigger.setActive) {
+            if (itemMetadata.type !== 'submenu-trigger') {
               return;
             }
 
-            submenuTrigger.setActive();
+            itemMetadata.setActive();
           },
           onKeyUp: (event: BaseUIEvent<React.KeyboardEvent>) => {
             if (event.key === ' ' && typingRef.current) {
@@ -55,7 +55,7 @@ export function useMenuItem(params: useMenuItem.Parameters): useMenuItem.ReturnV
             if (itemRef.current && allowMouseUpTriggerRef.current) {
               // This fires whenever the user clicks on the trigger, moves the cursor, and releases it over the item.
               // We trigger the click and override the `closeOnClick` preference to always close the menu.
-              if (!submenuTrigger) {
+              if (itemMetadata.type === 'regular-item') {
                 itemRef.current.click();
               }
             }
@@ -73,7 +73,7 @@ export function useMenuItem(params: useMenuItem.Parameters): useMenuItem.ReturnV
       closeOnClick,
       menuEvents,
       allowMouseUpTriggerRef,
-      submenuTrigger,
+      itemMetadata,
     ],
   );
 
@@ -126,13 +126,20 @@ export namespace useMenuItem {
      */
     nativeButton: boolean;
     /**
-     * Data about the submenu trigger.
+     * Additional data specific to the item type.
      */
-    submenuTrigger: {
-      setActive?: () => void;
-      allowMouseEnterEnabled?: boolean;
-    };
+    itemMetadata: Metadata;
   }
+
+  export type Metadata =
+    | {
+        type: 'regular-item';
+      }
+    | {
+        type: 'submenu-trigger';
+        setActive: () => void;
+        allowMouseEnterEnabled: boolean;
+      };
 
   export interface ReturnValue {
     /**
