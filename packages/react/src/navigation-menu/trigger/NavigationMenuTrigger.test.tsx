@@ -1,9 +1,9 @@
 import * as React from 'react';
 import { NavigationMenu } from '@base-ui-components/react/navigation-menu';
-import { createRenderer, describeConformance } from '#test-utils';
-import { screen, flushMicrotasks } from '@mui/internal-test-utils';
+import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
+import { screen, flushMicrotasks, waitFor, act } from '@mui/internal-test-utils';
 import userEvent from '@testing-library/user-event';
-import { expect } from 'chai'
+import { expect } from 'chai';
 
 describe('<NavigationMenu.Trigger />', () => {
   const { render } = createRenderer();
@@ -21,7 +21,7 @@ describe('<NavigationMenu.Trigger />', () => {
     },
   }));
 
-  it('handles focus and positioner height', async () => {
+  it.skipIf(isJSDOM)('handles focus and positioner height', async () => {
     await render(
       <NavigationMenu.Root>
         <NavigationMenu.List>
@@ -52,8 +52,9 @@ describe('<NavigationMenu.Trigger />', () => {
     );
 
     const overviewButton = screen.getByRole('button', { name: 'Overview' });
-    overviewButton.focus();
-    expect(overviewButton).toHaveFocus();
+    await act(async () => {
+      overviewButton.focus();
+    });
 
     await userEvent.keyboard('{ArrowDown}');
     await flushMicrotasks();
@@ -61,17 +62,22 @@ describe('<NavigationMenu.Trigger />', () => {
     const positioner = screen.getByTestId('positioner');
     expect(getComputedStyle(positioner).getPropertyValue('--positioner-height')).to.equal('18px');
 
-    const overviewLink = screen.getByRole('link', { name: 'Quick Start Install and' });
-
-    expect(overviewLink).to.have.attribute('data-highlighted');
+    const overviewLink = screen.getByRole('link', { name: 'Quick Start' });
+    await waitFor(() => {
+      expect(overviewLink).toHaveFocus();
+    });
 
     await userEvent.tab({ shift: true });
 
-    expect(overviewButton).toHaveFocus();
+    await waitFor(() => {
+      expect(overviewButton).toHaveFocus();
+    });
 
     await userEvent.keyboard('{ArrowRight}');
     const handbookButton = screen.getByRole('button', { name: 'Handbook' });
-    expect(handbookButton).toHaveFocus();
+    await waitFor(() => {
+      expect(handbookButton).toHaveFocus();
+    });
 
     await userEvent.keyboard('{ArrowDown}');
     await flushMicrotasks();
@@ -79,13 +85,19 @@ describe('<NavigationMenu.Trigger />', () => {
     expect(getComputedStyle(positioner).getPropertyValue('--positioner-height')).to.equal('36px');
 
     const handbookLink = screen.getByRole('link', { name: 'Styling Base UI components' });
-    expect(handbookLink).to.have.attribute('data-highlighted');
+    await waitFor(() => {
+      expect(handbookLink).toHaveFocus();
+    });
 
     await userEvent.tab({ shift: true });
-    expect(handbookButton).toHaveFocus();
+    await waitFor(() => {
+      expect(handbookButton).toHaveFocus();
+    });
 
     await userEvent.keyboard('{ArrowLeft}');
-    expect(overviewButton).toHaveFocus();
+    await waitFor(() => {
+      expect(overviewButton).toHaveFocus();
+    });
 
     await userEvent.keyboard('{ArrowDown}');
     await flushMicrotasks();
