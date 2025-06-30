@@ -3,6 +3,311 @@
 <Subtitle>Changelogs for each Base UI release.</Subtitle>
 <Meta name="description" content="Changelogs for each Base UI release." />
 
+## v1.0.0-beta.1
+
+_Jun 30, 2025_
+
+### General changes
+
+- Unify component export patterns ([#1478](https://github.com/mui/base-ui/pull/1478))
+- Default `tabIndex` to `0` ([#1939](https://github.com/mui/base-ui/pull/1939))
+- Make error messages consistent ([#2049](https://github.com/mui/base-ui/pull/2049))
+- Do not overwrite event handler when `undefined` is passed explicitly ([#2151](https://github.com/mui/base-ui/pull/2151))
+
+### Accordion
+
+- Use `useRenderElement` ([#1771](https://github.com/mui/base-ui/pull/1771))
+- Stop event propagation ([#1871](https://github.com/mui/base-ui/pull/1871))
+- Allow content to resize naturally ([#2043](https://github.com/mui/base-ui/pull/2043))
+- Fix transition status mapping ([#2169](https://github.com/mui/base-ui/pull/2169))
+- Fix `aria-controls` reference ([#2170](https://github.com/mui/base-ui/pull/2170))
+- Fix test warning about mixed animation types ([#2180](https://github.com/mui/base-ui/pull/2180))
+
+### Alert Dialog
+
+- **Breaking change:** Use basic scroll lock on iOS.
+  Due to numerous bugs on iOS, we decided to not lock the scroll when modal popups are open.
+  ([#1890](https://github.com/mui/base-ui/pull/1890))
+- **Breaking change:** Refine `OpenChangeReason`.
+  Renamed several keys and introduced component-specific reasons.
+  ([#1782](https://github.com/mui/base-ui/pull/1782))
+
+### Checkbox
+
+- **Breaking change:** Support implicit `Field.Label`.
+  If Field.Label encloses Switch/Checkbox/Radio, the `htmlFor`/`id` attributes are no longer explicitly set to associate them.
+  ([#2036](https://github.com/mui/base-ui/pull/2036))
+- Refactor to `useRenderElement` ([#2053](https://github.com/mui/base-ui/pull/2053))
+- Always set `id` on the `&lt;input&gt;` element ([#2115](https://github.com/mui/base-ui/pull/2115))
+
+### Checkbox Group
+
+- **Breaking change:** Enable submitting checkbox group value as one field.
+  Specifying the `name` prop on `CheckboxGroup` allows to submit the values of all child checkboxes.
+  ([#1948](https://github.com/mui/base-ui/pull/1948))
+- Fix `validate` fn incorrectly running twice ([#1959](https://github.com/mui/base-ui/pull/1959))
+- Fix `onCheckedChange` not running when parent checkbox is present ([#2155](https://github.com/mui/base-ui/pull/2155))
+
+### Collapsible
+
+- Use `useRenderElement` ([#1771](https://github.com/mui/base-ui/pull/1771))
+- Allow content to resize naturally ([#2043](https://github.com/mui/base-ui/pull/2043))
+- Fix `aria-controls` reference ([#2170](https://github.com/mui/base-ui/pull/2170))
+- Fix test warning about mixed animation types ([#2180](https://github.com/mui/base-ui/pull/2180))
+
+### Context Menu
+
+- **Breaking change:** Add `SubmenuRoot` part.
+  Nested menus should be defined with `Menu.SubmenuRoot` instead of `Menu.Root` to to avoid ambiguity.
+  ([#2042](https://github.com/mui/base-ui/pull/2042))
+- Create new `ContextMenu` component ([#1665](https://github.com/mui/base-ui/pull/1665))
+- Fix CheckboxItemIndicator export ([#2009](https://github.com/mui/base-ui/pull/2009))
+
+### Dialog
+
+- **Breaking change:** Use basic scroll lock on iOS.
+  Due to numerous bugs on iOS, we decided to not lock the scroll when modal popups are open.
+  ([#1890](https://github.com/mui/base-ui/pull/1890))
+- **Breaking change:** Refine `OpenChangeReason`.
+  Renamed several keys and introduced component-specific reasons.
+  ([#1782](https://github.com/mui/base-ui/pull/1782))
+- Fix popup prop merging ([#2119](https://github.com/mui/base-ui/pull/2119))
+
+### Field
+
+- **Breaking change:** Consolidate `Field.Error` `forceShow` into `match` prop.
+  `match` now has boolean type, consolidating the always-show behavior into it rather than the separate `forceShow` prop.
+  ([#1919](https://github.com/mui/base-ui/pull/1919))
+- **Breaking change:** Support implicit `Field.Label`.
+  If Field.Label encloses Switch/Checkbox/Radio, the `htmlFor`/`id` attributes are no longer explicitly set to associate them.
+  ([#2036](https://github.com/mui/base-ui/pull/2036))
+- Fix integration of Base UI components ([#1755](https://github.com/mui/base-ui/pull/1755))
+- Set `valueMissing` to false if only error and not dirtied ([#1810](https://github.com/mui/base-ui/pull/1810))
+- `validate` with latest value on blur ([#1850](https://github.com/mui/base-ui/pull/1850))
+- Revalidate only `required` on change ([#1840](https://github.com/mui/base-ui/pull/1840))
+- Run validate function after native validations ([#1926](https://github.com/mui/base-ui/pull/1926))
+- Fix `validate` fn incorrectly running twice ([#1959](https://github.com/mui/base-ui/pull/1959))
+- Integrate range sliders with Form and Field ([#1929](https://github.com/mui/base-ui/pull/1929))
+- Enable custom validation based on other form values ([#1941](https://github.com/mui/base-ui/pull/1941))
+- Fix `onValueChange` `value` type ([#2112](https://github.com/mui/base-ui/pull/2112))
+- Fix `Field.Label` focusing trigger ([#2118](https://github.com/mui/base-ui/pull/2118))
+- Fix slider field label ([#2154](https://github.com/mui/base-ui/pull/2154))
+
+### Fieldset
+
+- Refactor to `useRenderElement` ([#2053](https://github.com/mui/base-ui/pull/2053))
+
+### Form
+
+- **Breaking change:** Enable submitting checkbox group value as one field.
+  Specifying the `name` prop on `CheckboxGroup` allows to submit the values of all child checkboxes.
+  ([#1948](https://github.com/mui/base-ui/pull/1948))
+- Fix integration of Base UI components ([#1755](https://github.com/mui/base-ui/pull/1755))
+- Select inputs on focus ([#1858](https://github.com/mui/base-ui/pull/1858))
+- Exclude number formatting from form value ([#1957](https://github.com/mui/base-ui/pull/1957))
+- Integrate range sliders with Form and Field ([#1929](https://github.com/mui/base-ui/pull/1929))
+- Enable custom validation based on other form values ([#1941](https://github.com/mui/base-ui/pull/1941))
+
+### Input
+
+- Fix `Input.Props` type ([#1915](https://github.com/mui/base-ui/pull/1915))
+- Extend `Field.Control.State` ([#1954](https://github.com/mui/base-ui/pull/1954))
+- Fix `onValueChange` `value` type ([#2112](https://github.com/mui/base-ui/pull/2112))
+
+### Menu
+
+- **Breaking change:** Use basic scroll lock on iOS.
+  Due to numerous bugs on iOS, we decided to not lock the scroll when modal popups are open.
+  ([#1890](https://github.com/mui/base-ui/pull/1890))
+- **Breaking change:** Refine `OpenChangeReason`.
+  Renamed several keys and introduced component-specific reasons.
+  ([#1782](https://github.com/mui/base-ui/pull/1782))
+- **Breaking change:** Add `SubmenuRoot` part.
+  Nested menus should be defined with `Menu.SubmenuRoot` instead of `Menu.Root` to to avoid ambiguity.
+  ([#2042](https://github.com/mui/base-ui/pull/2042))
+- Fix function dependency handling ([#1787](https://github.com/mui/base-ui/pull/1787))
+- Add missing `'use client'` to `RadioGroup` part ([#1851](https://github.com/mui/base-ui/pull/1851))
+- Ensure `null` items are removed from composite lists ([#1847](https://github.com/mui/base-ui/pull/1847))
+- Avoid `:focus-visible` style appearing ([#1846](https://github.com/mui/base-ui/pull/1846))
+- Better handle dynamic and non-string items ([#1861](https://github.com/mui/base-ui/pull/1861))
+- Add `collisionAvoidance` prop ([#1849](https://github.com/mui/base-ui/pull/1849))
+- Add `finalFocus` and `closeDelay` props ([#1918](https://github.com/mui/base-ui/pull/1918))
+- Unset `role` from Trigger ([#2047](https://github.com/mui/base-ui/pull/2047))
+- Emit `close` event on `cancel-open` ([#2067](https://github.com/mui/base-ui/pull/2067))
+- Fix close toggle when rendering non-native button ([#2071](https://github.com/mui/base-ui/pull/2071))
+- Add `highlighted` to item `State` ([#2079](https://github.com/mui/base-ui/pull/2079))
+- Remove highlighted effect ([#2162](https://github.com/mui/base-ui/pull/2162))
+- Cut out internal backdrop to allow interacting with triggers ([#2141](https://github.com/mui/base-ui/pull/2141))
+- Fix active index sync on hover ([#2163](https://github.com/mui/base-ui/pull/2163))
+
+### Menubar
+
+- Create the Menubar component ([#1684](https://github.com/mui/base-ui/pull/1684))
+- Fix `closeOnClick: false` not working in nested menus ([#2094](https://github.com/mui/base-ui/pull/2094))
+
+### Navigation Menu
+
+- New `NavigationMenu` component ([#1741](https://github.com/mui/base-ui/pull/1741))
+- Fix typos ([#2139](https://github.com/mui/base-ui/pull/2139))
+- Handle layout resize while open ([#2070](https://github.com/mui/base-ui/pull/2070))
+- Fix positioner height when opening menu using the keyboard arrows ([#2060](https://github.com/mui/base-ui/pull/2060))
+
+### Number Field
+
+- `validate` with latest value on blur ([#1850](https://github.com/mui/base-ui/pull/1850))
+- Move scrubbing logic to `ScrubArea` component ([#1859](https://github.com/mui/base-ui/pull/1859))
+- Remove floating point errors when `snapOnStep` is disabled ([#1857](https://github.com/mui/base-ui/pull/1857))
+- Stop event propagation ([#1871](https://github.com/mui/base-ui/pull/1871))
+- Exclude number formatting from form value ([#1957](https://github.com/mui/base-ui/pull/1957))
+- Ensure `onValueChange` is called with already-formatted parsed value ([#1905](https://github.com/mui/base-ui/pull/1905))
+- Fix revalidation on change ([#2174](https://github.com/mui/base-ui/pull/2174))
+
+### Popover
+
+- **Breaking change:** Use basic scroll lock on iOS.
+  Due to numerous bugs on iOS, we decided to not lock the scroll when modal popups are open.
+  ([#1890](https://github.com/mui/base-ui/pull/1890))
+- **Breaking change:** Refine `OpenChangeReason`.
+  Renamed several keys and introduced component-specific reasons.
+  ([#1782](https://github.com/mui/base-ui/pull/1782))
+- Fix function dependency handling ([#1787](https://github.com/mui/base-ui/pull/1787))
+- Avoid prop getters when merging props ([#1852](https://github.com/mui/base-ui/pull/1852))
+- Add `collisionAvoidance` prop ([#1849](https://github.com/mui/base-ui/pull/1849))
+- Fix nested `openOnHover` ([#1938](https://github.com/mui/base-ui/pull/1938))
+- Fix close toggle when rendering non-native button ([#2071](https://github.com/mui/base-ui/pull/2071))
+- Cut out internal backdrop to allow interacting with triggers ([#2141](https://github.com/mui/base-ui/pull/2141))
+
+### Preview Card
+
+- **Breaking change:** Refine `OpenChangeReason`.
+  Renamed several keys and introduced component-specific reasons.
+  ([#1782](https://github.com/mui/base-ui/pull/1782))
+- Fix function dependency handling ([#1787](https://github.com/mui/base-ui/pull/1787))
+- Add `collisionAvoidance` prop ([#1849](https://github.com/mui/base-ui/pull/1849))
+
+### Radio Group
+
+- **Breaking change:** Support implicit `Field.Label`.
+  If Field.Label encloses Switch/Checkbox/Radio, the `htmlFor`/`id` attributes are no longer explicitly set to associate them.
+  ([#2036](https://github.com/mui/base-ui/pull/2036))
+- Add `inputRef` props ([#1683](https://github.com/mui/base-ui/pull/1683))
+- Stop event propagation ([#1871](https://github.com/mui/base-ui/pull/1871))
+- Refactor to `useRenderElement` ([#2053](https://github.com/mui/base-ui/pull/2053))
+
+### Scroll Area
+
+- Ignore `data-scrolling` during programmatic scroll ([#1908](https://github.com/mui/base-ui/pull/1908))
+- Handle touch momentum scrolling for programmatic scroll check ([#2111](https://github.com/mui/base-ui/pull/2111))
+
+### Select
+
+- **Breaking change:** Move item anchoring prop to `Positioner`.
+  Removed `alignItemToTrigger` prop from Root, to be configured on `Positioner` instead.
+  Changed the prop name to `alignItemWithTrigger`.
+  ([#1713](https://github.com/mui/base-ui/pull/1713))
+- **Breaking change:** Use basic scroll lock on iOS.
+  Due to numerous bugs on iOS, we decided to not lock the scroll when modal popups are open.
+  ([#1890](https://github.com/mui/base-ui/pull/1890))
+- **Breaking change:** Defer mounting until typeahead is needed.
+  This defers mounting the `<Select.Portal>` component until it's needed for closed typeahead (when the trigger is focused).
+  After it opens for the first time, it stays mounted, which helps performance when opening/closing large lists.
+  ([#1906](https://github.com/mui/base-ui/pull/1906))
+- **Breaking change:** Refine `OpenChangeReason`.
+  Renamed several keys and introduced component-specific reasons.
+  ([#1782](https://github.com/mui/base-ui/pull/1782))
+- **Breaking change:** Print raw value in `Select.Value`.
+  `<Select.Value>` now prints the raw value by default unless an `items` prop is specified on `Select.Root`.
+  ([#2087](https://github.com/mui/base-ui/pull/2087))
+- Fix function dependency handling ([#1787](https://github.com/mui/base-ui/pull/1787))
+- Add `inputRef` props ([#1683](https://github.com/mui/base-ui/pull/1683))
+- Refactor to `useRenderElement` ([#1797](https://github.com/mui/base-ui/pull/1797))
+- Ensure `null` items are removed from composite lists ([#1847](https://github.com/mui/base-ui/pull/1847))
+- Fix `id` prop forwarding to hidden input ([#1862](https://github.com/mui/base-ui/pull/1862))
+- Avoid `:focus-visible` style appearing ([#1846](https://github.com/mui/base-ui/pull/1846))
+- Fix `transitionStatus` mapping on `ItemIndicator` ([#1925](https://github.com/mui/base-ui/pull/1925))
+- Better handle dynamic and non-string items ([#1861](https://github.com/mui/base-ui/pull/1861))
+- Use `Select.ItemText` ref to grab default text content ([#1943](https://github.com/mui/base-ui/pull/1943))
+- Add `collisionAvoidance` prop ([#1849](https://github.com/mui/base-ui/pull/1849))
+- Revert `placeholder` API ([#1985](https://github.com/mui/base-ui/pull/1985))
+- Performance: avoid re-renders ([#1961](https://github.com/mui/base-ui/pull/1961))
+- Fix close toggle when rendering non-native button ([#2071](https://github.com/mui/base-ui/pull/2071))
+- Fix re-render warning in `Positioner` on fallback ([#2089](https://github.com/mui/base-ui/pull/2089))
+- Fix `Field.Label` focusing trigger ([#2118](https://github.com/mui/base-ui/pull/2118))
+- Fix position flicker when no default value is set ([#2110](https://github.com/mui/base-ui/pull/2110))
+- Fix programmatic value changes and autofill handling ([#2084](https://github.com/mui/base-ui/pull/2084))
+- Add `highlighted` to item `State` ([#2079](https://github.com/mui/base-ui/pull/2079))
+- Cut out internal backdrop to allow interacting with triggers ([#2141](https://github.com/mui/base-ui/pull/2141))
+- Pass `value` as state ([#2153](https://github.com/mui/base-ui/pull/2153))
+- Fix inverted flag in item mouseleave ([#2179](https://github.com/mui/base-ui/pull/2179))
+- Extend `FieldRoot.State` type ([#2192](https://github.com/mui/base-ui/pull/2192))
+- Fix revalidation on change ([#2174](https://github.com/mui/base-ui/pull/2174))
+
+### Slider
+
+- **Breaking change:** Drop `inputId` prop from Thumb.
+  We decided to only expose the `inputRef`.
+  The `<input>` element's id is now the Thumb's `id` + `"-input"`
+  ([#1914](https://github.com/mui/base-ui/pull/1914))
+- Add `inputRef` props ([#1683](https://github.com/mui/base-ui/pull/1683))
+- Add `locale` prop ([#1796](https://github.com/mui/base-ui/pull/1796))
+- Stop event propagation ([#1871](https://github.com/mui/base-ui/pull/1871))
+- Set data-dragging on touchstart and pointerdown ([#1874](https://github.com/mui/base-ui/pull/1874))
+- Integrate range sliders with Form and Field ([#1929](https://github.com/mui/base-ui/pull/1929))
+- Use pointer capture when dragging ([#2059](https://github.com/mui/base-ui/pull/2059))
+- Fix slider field label ([#2154](https://github.com/mui/base-ui/pull/2154))
+
+### Switch
+
+- **Breaking change:** Support implicit `Field.Label`.
+  If Field.Label encloses Switch/Checkbox/Radio, the `htmlFor`/`id` attributes are no longer explicitly set to associate them.
+  ([#2036](https://github.com/mui/base-ui/pull/2036))
+
+### Tabs
+
+- Fix indicator positioning when TabsList overflows ([#2093](https://github.com/mui/base-ui/pull/2093))
+- Fix focus going out of sync when selected value is changed externally ([#2107](https://github.com/mui/base-ui/pull/2107))
+- Remove highlighted state ([#2164](https://github.com/mui/base-ui/pull/2164))
+
+### Toast
+
+- **Breaking change:** Add `Portal` part.
+  The `<Toast.Portal>` component is required around the `<Toast.Viewport>`.
+  ([#1962](https://github.com/mui/base-ui/pull/1962))
+- **Breaking change:** Avoid removing limited toasts from the DOM.
+  Toasts that did not fit on the screen are not longer automatically removed.
+  ([#1953](https://github.com/mui/base-ui/pull/1953))
+- Fix swipe jump on iOS ([#1785](https://github.com/mui/base-ui/pull/1785))
+
+### Toggle
+
+- Stop event propagation ([#1871](https://github.com/mui/base-ui/pull/1871))
+
+### Toolbar
+
+- Stop event propagation ([#1871](https://github.com/mui/base-ui/pull/1871))
+- Set `disabled` attr on toolbar button when `focusableWhenDisabled={false}` ([#2176](https://github.com/mui/base-ui/pull/2176))
+
+### Tooltip
+
+- **Breaking change:** Refine `OpenChangeReason`.
+  Renamed several keys and introduced component-specific reasons.
+  ([#1782](https://github.com/mui/base-ui/pull/1782))
+- Fix function dependency handling ([#1787](https://github.com/mui/base-ui/pull/1787))
+- Avoid prop getters when merging props ([#1852](https://github.com/mui/base-ui/pull/1852))
+- Remove `trackCursorAxis` type from `Positioner` ([#1895](https://github.com/mui/base-ui/pull/1895))
+- Apply `pointer-events: none` to `Positioner` when not hoverable ([#1917](https://github.com/mui/base-ui/pull/1917))
+- Add `collisionAvoidance` prop ([#1849](https://github.com/mui/base-ui/pull/1849))
+
+### useRender
+
+- **Breaking change:** Performance/refactor: `useRender`.
+  `useRender` now returns a JSX element, not a function that returns one.
+  The `refs` parameter was renamed to `ref`.
+  ([#1934](https://github.com/mui/base-ui/pull/1934))
+- Skip most of useRenderElement logic when unnecessary ([#1967](https://github.com/mui/base-ui/pull/1967))
+- Fix return type ([#1968](https://github.com/mui/base-ui/pull/1968))
+- Make useRender RSC-friendly ([#2134](https://github.com/mui/base-ui/pull/2134))
+
 ## v1.0.0-beta.0
 
 **May 29, 2025**
