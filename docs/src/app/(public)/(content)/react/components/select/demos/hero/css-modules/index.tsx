@@ -2,18 +2,17 @@ import * as React from 'react';
 import { Select } from '@base-ui-components/react/select';
 import styles from './index.module.css';
 
-const fonts = {
-  sans: 'Sans-serif',
-  serif: 'Serif',
-  mono: 'Monospace',
-  cursive: 'Cursive',
-};
-
-const values = Object.keys(fonts) as Array<keyof typeof fonts>;
+const fonts = [
+  { label: 'Select font', value: null },
+  { label: 'Sans-serif', value: 'sans' },
+  { label: 'Serif', value: 'serif' },
+  { label: 'Monospace', value: 'mono' },
+  { label: 'Cursive', value: 'cursive' },
+];
 
 export default function ExampleSelect() {
   return (
-    <Select.Root items={fonts} defaultValue="sans">
+    <Select.Root items={fonts}>
       <Select.Trigger className={styles.Select}>
         <Select.Value />
         <Select.Icon className={styles.SelectIcon}>
@@ -24,13 +23,13 @@ export default function ExampleSelect() {
         <Select.Positioner className={styles.Positioner} sideOffset={8}>
           <Select.ScrollUpArrow className={styles.ScrollArrow} />
           <Select.Popup className={styles.Popup}>
-            {values.map((value) => (
-              <Select.Item key={value} value={value} className={styles.Item}>
+            {fonts.map(({ label, value }) => (
+              <Select.Item key={label} value={value} className={styles.Item}>
                 <Select.ItemIndicator className={styles.ItemIndicator}>
                   <CheckIcon className={styles.ItemIndicatorIcon} />
                 </Select.ItemIndicator>
                 <Select.ItemText className={styles.ItemText}>
-                  {fonts[value]}
+                  {label}
                 </Select.ItemText>
               </Select.Item>
             ))}
