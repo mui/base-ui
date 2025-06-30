@@ -10,8 +10,7 @@ import { useMenuRadioGroupContext } from '../radio-group/MenuRadioGroupContext';
 import { MenuRadioItemContext } from './MenuRadioItemContext';
 import { itemMapping } from '../utils/styleHookMapping';
 import { useCompositeListItem } from '../../composite/list/useCompositeListItem';
-import { useMenuItem } from '../item/useMenuItem';
-import { REGULAR_ITEM } from '../item/MenuItem';
+import { REGULAR_ITEM, useMenuItem } from '../item/useMenuItem';
 
 const InnerMenuRadioItem = React.memo(
   React.forwardRef(function InnerMenuRadioItem(

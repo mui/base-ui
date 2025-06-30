@@ -1,17 +1,13 @@
 'use client';
 import * as React from 'react';
 import { FloatingEvents, useFloatingTree } from '../../floating-ui-react';
-import { useMenuItem } from './useMenuItem';
+import { REGULAR_ITEM, useMenuItem } from './useMenuItem';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import { useForkRef } from '../../utils/useForkRef';
 import { useCompositeListItem } from '../../composite/list/useCompositeListItem';
-
-export const REGULAR_ITEM = {
-  type: 'regular-item' as const,
-};
 
 const InnerMenuItem = React.memo(
   React.forwardRef(function InnerMenuItem(

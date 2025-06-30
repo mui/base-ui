@@ -5,7 +5,10 @@ import { useButton } from '../../use-button';
 import { mergeProps } from '../../merge-props';
 import { HTMLProps, BaseUIEvent } from '../../utils/types';
 import { useForkRef } from '../../utils';
-import { REGULAR_ITEM } from './MenuItem';
+
+export const REGULAR_ITEM = {
+  type: 'regular-item' as const,
+};
 
 export function useMenuItem(params: useMenuItem.Parameters): useMenuItem.ReturnValue {
   const {
