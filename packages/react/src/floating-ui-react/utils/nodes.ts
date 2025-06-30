@@ -6,21 +6,14 @@ export function getNodeChildren<RT extends ReferenceType = ReferenceType>(
   nodes: Array<FloatingNodeType<RT>>,
   id: string | undefined,
   onlyOpenChildren = true,
-) {
-  let allChildren = nodes.filter((node) => node.parentId === id && node.context?.open);
-  let currentChildren = allChildren;
-
-  while (currentChildren.length) {
-    currentChildren = onlyOpenChildren
-      ? nodes.filter((node) =>
-          currentChildren?.some((n) => node.parentId === n.id && node.context?.open),
-        )
-      : nodes;
-
-    allChildren = allChildren.concat(currentChildren);
-  }
-
-  return allChildren;
+): Array<FloatingNodeType<RT>> {
+  const directChildren = nodes.filter(
+    (node) => node.parentId === id && (!onlyOpenChildren || node.context?.open),
+  );
+  return directChildren.flatMap((child) => [
+    child,
+    ...getNodeChildren(nodes, child.id, onlyOpenChildren),
+  ]);
 }
 
 export function getDeepestNode<RT extends ReferenceType = ReferenceType>(
