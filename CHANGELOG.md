@@ -32,7 +32,7 @@ _Jun 30, 2025_
 ### Checkbox
 
 - **Breaking change:** Support implicit `Field.Label`.
-  If Field.Label encloses Switch/Checkbox/Radio, the `htmlFor`/`id` attributes are no longer explicitly set to associate them.
+  If `Field.Label` encloses Switch/Checkbox/Radio, the `htmlFor`/`id` attributes are no longer explicitly set to associate them.
   (#2036) by @mj12albert
 - Refactor to `useRenderElement` (#2053) by @mj12albert
 - Always set `id` on the `&lt;input&gt;` element (#2115) by @mj12albert
@@ -76,7 +76,7 @@ _Jun 30, 2025_
   `match` now has boolean type, consolidating the always-show behavior into it rather than the separate `forceShow` prop.
   (#1919) by @atomiks
 - **Breaking change:** Support implicit `Field.Label`.
-  If Field.Label encloses Switch/Checkbox/Radio, the `htmlFor`/`id` attributes are no longer explicitly set to associate them.
+  If `Field.Label` encloses Switch/Checkbox/Radio, the `htmlFor`/`id` attributes are no longer explicitly set to associate them.
   (#2036) by @mj12albert
 - Fix integration of Base UI components (#1755) by @atomiks
 - Set `valueMissing` to false if only error and not dirtied (#1810) by @atomiks
@@ -185,7 +185,7 @@ _Jun 30, 2025_
 ### Radio Group
 
 - **Breaking change:** Support implicit `Field.Label`.
-  If Field.Label encloses Switch/Checkbox/Radio, the `htmlFor`/`id` attributes are no longer explicitly set to associate them.
+  If `Field.Label` encloses Radio, the `htmlFor`/`id` attributes are no longer explicitly set to associate them.
   (#2036) by @mj12albert
 - Add `inputRef` props (#1683) by @atomiks
 - Stop event propagation (#1871) by @atomiks
@@ -256,7 +256,7 @@ _Jun 30, 2025_
 ### Switch
 
 - **Breaking change:** Support implicit `Field.Label`.
-  If Field.Label encloses Switch/Checkbox/Radio, the `htmlFor`/`id` attributes are no longer explicitly set to associate them.
+  If `Field.Label` encloses Switch, the `htmlFor`/`id` attributes are no longer explicitly set to associate them.
   (#2036) by @mj12albert
 
 ### Tabs
