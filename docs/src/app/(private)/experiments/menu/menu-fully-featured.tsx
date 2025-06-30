@@ -245,6 +245,20 @@ export default function MenuFullyFeatured() {
                 </Menu.Portal>
               </Menu.SubmenuRoot>
 
+              <Menu.SubmenuRoot>
+                <Menu.SubmenuTrigger className={classes.SubmenuTrigger}>
+                  Adjacent nested menu
+                  <ChevronRightIcon />
+                </Menu.SubmenuTrigger>
+                <Menu.Portal>
+                  <Menu.Positioner className={classes.Positioner} sideOffset={8}>
+                    <Menu.Popup className={classes.Popup}>
+                      <Menu.Item className={classes.Item}>Item 1</Menu.Item>
+                    </Menu.Popup>
+                  </Menu.Positioner>
+                </Menu.Portal>
+              </Menu.SubmenuRoot>
+
               <Menu.SubmenuRoot disabled>
                 <Menu.SubmenuTrigger className={classes.SubmenuTrigger}>
                   Disabled nested menu

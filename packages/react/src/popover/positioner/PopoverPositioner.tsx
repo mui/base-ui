@@ -1,11 +1,10 @@
 'use client';
 import * as React from 'react';
-import { FloatingNode, useFloatingNodeId } from '@floating-ui/react';
+import { FloatingNode, useFloatingNodeId } from '../../floating-ui-react';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
-import { usePopoverPositioner } from './usePopoverPositioner';
 import { PopoverPositionerContext } from './PopoverPositionerContext';
-import type { BaseUIComponentProps } from '../../utils/types';
-import type { Side, Align } from '../../utils/useAnchorPositioning';
+import { useAnchorPositioning, type Side, type Align } from '../../utils/useAnchorPositioning';
+import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import { popupStateMapping } from '../../utils/popupStateMapping';
 import { usePopoverPortalContext } from '../portal/PopoverPortalContext';
 import { inertValue } from '../../utils/inertValue';
@@ -49,11 +48,12 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
     modal,
     openReason,
     openMethod,
+    triggerElement,
   } = usePopoverRootContext();
   const keepMounted = usePopoverPortalContext();
   const nodeId = useFloatingNodeId();
 
-  const positioner = usePopoverPositioner({
+  const positioning = useAnchorPositioning({
     anchor,
     floatingRootContext,
     positionMethod,
@@ -71,6 +71,31 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
     nodeId,
     collisionAvoidance,
   });
+
+  const defaultProps: HTMLProps = React.useMemo(() => {
+    const hiddenStyles: React.CSSProperties = {};
+
+    if (!open) {
+      hiddenStyles.pointerEvents = 'none';
+    }
+
+    return {
+      role: 'presentation',
+      hidden: !mounted,
+      style: {
+        ...positioning.positionerStyles,
+        ...hiddenStyles,
+      },
+    };
+  }, [open, mounted, positioning.positionerStyles]);
+
+  const positioner = React.useMemo(
+    () => ({
+      props: defaultProps,
+      ...positioning,
+    }),
+    [defaultProps, positioning],
+  );
 
   const state: PopoverPositioner.State = React.useMemo(
     () => ({
@@ -92,7 +117,7 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
   return (
     <PopoverPositionerContext.Provider value={positioner}>
       {mounted && modal === true && openReason !== 'trigger-hover' && openMethod !== 'touch' && (
-        <InternalBackdrop inert={inertValue(!open)} />
+        <InternalBackdrop inert={inertValue(!open)} cutout={triggerElement} />
       )}
       <FloatingNode id={nodeId}>{element}</FloatingNode>
     </PopoverPositionerContext.Provider>
@@ -111,6 +136,6 @@ export namespace PopoverPositioner {
   }
 
   export interface Props
-    extends usePopoverPositioner.SharedParameters,
+    extends useAnchorPositioning.SharedParameters,
       BaseUIComponentProps<'div', State> {}
 }

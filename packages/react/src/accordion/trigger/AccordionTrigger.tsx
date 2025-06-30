@@ -52,7 +52,7 @@ export const AccordionTrigger = React.forwardRef(function AccordionTrigger(
 
   const props = React.useMemo(
     () => ({
-      'aria-controls': panelId,
+      'aria-controls': open ? panelId : undefined,
       'aria-expanded': open,
       disabled,
       id,

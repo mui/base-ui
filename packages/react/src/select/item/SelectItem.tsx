@@ -5,14 +5,15 @@ import {
   useCompositeListItem,
   IndexGuessBehavior,
 } from '../../composite/list/useCompositeListItem';
-import type { BaseUIComponentProps } from '../../utils/types';
-import { useSelectItem } from './useSelectItem';
+import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { useLatestRef } from '../../utils/useLatestRef';
 import { useSelector } from '../../utils/store';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { SelectItemContext } from './SelectItemContext';
 import { selectors } from '../store';
+import { useButton } from '../../use-button';
+import { isMouseWithinBounds } from '../../utils/isMouseWithinBounds';
 
 /**
  * An individual option in the select menu.
@@ -50,13 +51,12 @@ export const SelectItem = React.memo(
       selectionRef,
       typingRef,
       valuesRef,
-      popupRef,
       registerSelectedItem,
       keyboardActiveRef,
-      events,
+      highlightTimeout,
     } = useSelectRootContext();
 
-    const active = useSelector(store, selectors.isActive, listItem.index);
+    const highlighted = useSelector(store, selectors.isActive, listItem.index);
     const selected = useSelector(store, selectors.isSelected, listItem.index, value);
     const rootValue = useSelector(store, selectors.value);
 
@@ -88,38 +88,130 @@ export const SelectItem = React.memo(
       () => ({
         disabled,
         selected,
+        highlighted,
       }),
-      [disabled, selected],
+      [disabled, selected, highlighted],
     );
 
-    const rootProps = getItemProps({ active, selected });
+    const rootProps = getItemProps({ active: highlighted, selected });
     // With our custom `focusItemOnHover` implementation, this interferes with the logic and can
     // cause the index state to be stuck when leaving the select popup.
     delete rootProps.onFocus;
     delete rootProps.id;
 
-    const { props, rootRef } = useSelectItem({
-      setOpen,
+    const lastKeyRef = React.useRef<string | null>(null);
+    const pointerTypeRef = React.useRef<'mouse' | 'touch' | 'pen'>('mouse');
+    const didPointerDownRef = React.useRef(false);
+
+    const { getButtonProps, buttonRef } = useButton({
       disabled,
-      highlighted: active,
-      selected,
-      ref: forwardedRef,
-      typingRef,
-      handleSelect: (event) => setValue(value, event),
-      selectionRef,
-      indexRef,
-      popupRef,
-      keyboardActiveRef,
-      events,
-      rootProps,
-      elementProps,
-      nativeButton,
+      focusableWhenDisabled: true,
+      native: nativeButton,
     });
 
+    function commitSelection(event: MouseEvent) {
+      setValue(value, event);
+      setOpen(false, event, 'item-press');
+    }
+
+    const defaultProps: HTMLProps = {
+      'aria-disabled': disabled || undefined,
+      tabIndex: highlighted ? 0 : -1,
+      onFocus() {
+        store.set('activeIndex', indexRef.current);
+      },
+      onMouseEnter() {
+        if (!keyboardActiveRef.current && store.state.selectedIndex === null) {
+          store.set('activeIndex', indexRef.current);
+        }
+      },
+      onMouseMove() {
+        store.set('activeIndex', indexRef.current);
+      },
+      onMouseLeave(event) {
+        if (keyboardActiveRef.current || isMouseWithinBounds(event)) {
+          return;
+        }
+
+        highlightTimeout.start(0, () => {
+          if (store.state.activeIndex === indexRef.current) {
+            store.set('activeIndex', null);
+          }
+        });
+      },
+      onTouchStart() {
+        selectionRef.current = {
+          allowSelectedMouseUp: false,
+          allowUnselectedMouseUp: false,
+          allowSelect: true,
+        };
+      },
+      onKeyDown(event) {
+        selectionRef.current.allowSelect = true;
+        lastKeyRef.current = event.key;
+        store.set('activeIndex', indexRef.current);
+      },
+      onClick(event) {
+        didPointerDownRef.current = false;
+
+        // Prevent double commit on {Enter}
+        if (event.type === 'keydown' && lastKeyRef.current === null) {
+          return;
+        }
+
+        if (
+          disabled ||
+          (lastKeyRef.current === ' ' && typingRef.current) ||
+          (pointerTypeRef.current !== 'touch' && !highlighted)
+        ) {
+          return;
+        }
+
+        if (selectionRef.current.allowSelect) {
+          lastKeyRef.current = null;
+          commitSelection(event.nativeEvent);
+        }
+      },
+      onPointerEnter(event) {
+        pointerTypeRef.current = event.pointerType;
+      },
+      onPointerDown(event) {
+        pointerTypeRef.current = event.pointerType;
+        didPointerDownRef.current = true;
+      },
+      onMouseUp(event) {
+        if (disabled) {
+          return;
+        }
+
+        if (didPointerDownRef.current) {
+          didPointerDownRef.current = false;
+          return;
+        }
+
+        const disallowSelectedMouseUp = !selectionRef.current.allowSelectedMouseUp && selected;
+        const disallowUnselectedMouseUp = !selectionRef.current.allowUnselectedMouseUp && !selected;
+
+        if (
+          disallowSelectedMouseUp ||
+          disallowUnselectedMouseUp ||
+          (pointerTypeRef.current !== 'touch' && !highlighted)
+        ) {
+          return;
+        }
+
+        if (selectionRef.current.allowSelect || !selected) {
+          commitSelection(event.nativeEvent);
+        }
+
+        selectionRef.current.allowSelect = true;
+      },
+    };
+
     const element = useRenderElement('div', componentProps, {
-      ref: [rootRef, forwardedRef, listItem.ref, itemRef],
+      ref: [buttonRef, forwardedRef, listItem.ref, itemRef],
       state,
-      props,
+      props: [rootProps, defaultProps, elementProps, getButtonProps],
     });
 
     const contextValue: SelectItemContext = React.useMemo(
@@ -145,6 +237,10 @@ export namespace SelectItem {
      * Whether the item is selected.
      */
     selected: boolean;
+    /**
+     * Whether the item is highlighted.
+     */
+    highlighted: boolean;
   }
 
   export interface Props extends Omit<BaseUIComponentProps<'div', State>, 'id'> {

@@ -24,6 +24,7 @@ const schema = z.object({
   checkbox: z.enum(['on']),
   switch: z.enum(['on']),
   slider: z.number().min(40),
+  'range-slider': z.array(z.number()),
   'number-field': z.number().min(0).max(100),
   select: z.enum(['sans', 'serif', 'mono', 'cursive']),
   'radio-group': z.enum(['auto', 'scrolling', 'always']),
@@ -127,11 +128,44 @@ export default function Page() {
         </Field.Root>
 
         <Field.Root name="slider" className={styles.Field}>
-          <Field.Label className={styles.Label}>Volume</Field.Label>
           <Slider.Root defaultValue={25} className={styles.Slider}>
+            <Field.Label className={styles.Label}>Volume</Field.Label>
+            <Slider.Value className={styles.SliderValue} />
             <Slider.Control className={styles.SliderControl}>
               <Slider.Track className={styles.SliderTrack}>
                 <Slider.Indicator className={styles.SliderIndicator} />
+                <Slider.Thumb className={styles.SliderThumb} />
+              </Slider.Track>
+            </Slider.Control>
+          </Slider.Root>
+          <Field.Error className={styles.Error} />
+        </Field.Root>
+
+        <Field.Root
+          name="range-slider"
+          render={<Fieldset.Root />}
+          className={styles.Field}
+        >
+          <Slider.Root
+            defaultValue={[500, 1200]}
+            min={100}
+            max={2000}
+            step={1}
+            minStepsBetweenValues={1}
+            className={styles.Slider}
+            format={{
+              style: 'currency',
+              currency: 'EUR',
+            }}
+            locale="nl-NL"
+            role={undefined}
+          >
+            <Fieldset.Legend className={styles.Label}>Price range</Fieldset.Legend>
+            <Slider.Value className={styles.SliderValue} />
+            <Slider.Control className={styles.SliderControl}>
+              <Slider.Track className={styles.SliderTrack}>
+                <Slider.Indicator className={styles.SliderIndicator} />
+                <Slider.Thumb className={styles.SliderThumb} />
                 <Slider.Thumb className={styles.SliderThumb} />
               </Slider.Track>
             </Slider.Control>
@@ -165,7 +199,7 @@ export default function Page() {
           <Field.Label className={styles.Label}>Font</Field.Label>
           <Select.Root required={native}>
             <Select.Trigger className={styles.Select}>
-              <Select.Value placeholder="Select value" />
+              <Select.Value />
               <Select.Icon className={styles.SelectIcon}>
                 <ChevronUpDownIcon />
               </Select.Icon>

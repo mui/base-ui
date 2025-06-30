@@ -6,12 +6,16 @@ export type State = {
   id: string | undefined;
   modal: boolean;
 
+  items:
+    | Record<string, React.ReactNode>
+    | Array<{ label: React.ReactNode; value: any }>
+    | undefined;
   value: any;
   label: string;
 
   open: boolean;
   mounted: boolean;
-  typeaheadReady: boolean;
+  forceMount: boolean;
   transitionStatus: TransitionStatus;
   touchModality: boolean;
 
@@ -33,12 +37,13 @@ export const selectors = {
   id: createSelector((state: State) => state.id),
   modal: createSelector((state: State) => state.modal),
 
+  items: createSelector((state: State) => state.items),
   value: createSelector((state: State) => state.value),
   label: createSelector((state: State) => state.label),
 
   open: createSelector((state: State) => state.open),
   mounted: createSelector((state: State) => state.mounted),
-  typeaheadReady: createSelector((state: State) => state.typeaheadReady),
+  forceMount: createSelector((state: State) => state.forceMount),
   transitionStatus: createSelector((state: State) => state.transitionStatus),
   touchModality: createSelector((state: State) => state.touchModality),
 

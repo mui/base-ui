@@ -1,9 +1,8 @@
 'use client';
 import * as React from 'react';
-import { FloatingFocusManager } from '@floating-ui/react';
+import { FloatingFocusManager } from '../../floating-ui-react';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
 import { usePopoverPositionerContext } from '../positioner/PopoverPositionerContext';
-import { usePopoverPopup } from './usePopoverPopup';
 import type { Side, Align } from '../../utils/useAnchorPositioning';
 import type { BaseUIComponentProps } from '../../utils/types';
 import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
@@ -44,6 +43,7 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
     openReason,
     onOpenChangeComplete,
     modal,
+    openMethod,
   } = usePopoverRootContext();
   const positioner = usePopoverPositionerContext();
 
@@ -57,11 +57,20 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
     },
   });
 
-  const { props, resolvedInitialFocus } = usePopoverPopup({
-    titleId,
-    descriptionId,
-    initialFocus,
-  });
+  const resolvedInitialFocus = React.useMemo(() => {
+    if (initialFocus == null) {
+      if (openMethod === 'touch') {
+        return popupRef;
+      }
+      return 0;
+    }
+
+    if (typeof initialFocus === 'function') {
+      return initialFocus(openMethod ?? '');
+    }
+
+    return initialFocus;
+  }, [initialFocus, openMethod, popupRef]);
 
   const state: PopoverPopup.State = React.useMemo(
     () => ({
@@ -79,7 +88,10 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
     ref: [forwardedRef, popupRef],
     props: [
       popupProps,
-      props,
+      {
+        'aria-labelledby': titleId,
+        'aria-describedby': descriptionId,
+      },
       transitionStatus === 'starting' ? DISABLED_TRANSITIONS_STYLE : EMPTY_OBJECT,
       elementProps,
     ],
