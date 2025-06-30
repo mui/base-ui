@@ -12,6 +12,7 @@ export function popupConformanceTests(config: PopupTestConfig) {
     expectedPopupRole,
     expectedAriaHasPopupValue = expectedPopupRole,
     alwaysMounted: alwaysMountedParam = false,
+    combobox = false,
   } = config;
 
   const alwaysMounted = alwaysMountedParam === 'only-after-open' ? false : alwaysMountedParam;
@@ -95,7 +96,11 @@ export function popupConformanceTests(config: PopupTestConfig) {
             expect(trigger).to.have.attribute('aria-expanded', 'false');
             await user.click(trigger);
             await waitFor(() => {
-              expect(getPopup()).to.have.attribute('data-open');
+              if (combobox) {
+                expect(getPopup()).to.have.attribute('role', 'listbox');
+              } else {
+                expect(getPopup()).to.have.attribute('data-open');
+              }
             });
             expect(trigger).to.have.attribute('aria-expanded', 'true');
           });
@@ -243,6 +248,10 @@ export interface PopupTestConfig {
    * Whether the popup contents are always present in the DOM.
    */
   alwaysMounted?: boolean | 'only-after-open';
+  /**
+   * Whether the popup is a combobox.
+   */
+  combobox?: boolean;
 }
 
 interface RootProps {
