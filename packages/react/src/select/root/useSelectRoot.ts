@@ -170,12 +170,35 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
       return;
     }
 
-    const index = valuesRef.current.indexOf(value);
+    if (multiple) {
+      // For multiple selection, update the label and keep track of the last selected
+      // item via `selectedIndex`, which is needed when the popup (re)opens.
+      const currentValue = Array.isArray(value) ? value : [];
 
-    store.apply({
-      selectedIndex: index === -1 ? null : index,
-      label: labelsRef.current[index] ?? '',
-    });
+      const labels = currentValue
+        .map((v) => {
+          const index = valuesRef.current.indexOf(v);
+          return index !== -1 ? (labelsRef.current[index] ?? '') : '';
+        })
+        .filter(Boolean);
+
+      const lastValue = currentValue[currentValue.length - 1];
+      const lastIndex = lastValue != null ? valuesRef.current.indexOf(lastValue) : -1;
+
+      // Store the last selected index for later use when closing the popup.
+      lastSelectedIndexRef.current = lastIndex === -1 ? null : lastIndex;
+
+      store.apply({
+        label: labels.join(', '),
+      });
+    } else {
+      const index = valuesRef.current.indexOf(value);
+
+      store.apply({
+        selectedIndex: index === -1 ? null : index,
+        label: labelsRef.current[index] ?? '',
+      });
+    }
 
     clearErrors(name);
     setDirty(value !== validityData.initialValue);
@@ -194,6 +217,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     setDirty,
     validityData.initialValue,
     setFilled,
+    multiple,
   ]);
 
   useModernLayoutEffect(() => {
