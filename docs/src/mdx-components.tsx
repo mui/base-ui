@@ -13,6 +13,7 @@ import { Link } from './components/Link';
 import { HeadingLink } from './components/HeadingLink';
 import { Subtitle } from './components/Subtitle/Subtitle';
 import { Kbd } from './components/Kbd/Kbd';
+import { MarkdownLink } from './components/MarkdownLink';
 
 interface MDXComponents {
   [key: string]: React.FC<any> | MDXComponents;
@@ -25,7 +26,10 @@ export const mdxComponents: MDXComponents = {
   h1: (props) => (
     // Do not wrap heading tags in divs, that confuses Safari Reader
     <React.Fragment>
-      <h1 className="mb-4 text-3xl font-bold text-balance" {...props} />
+      <div className="flex items-center justify-between">
+        <h1 className="mb-4 text-3xl font-bold text-balance" {...props} />
+        <MarkdownLink />
+      </div>
       <title>{`${getChildrenText(props.children)} · Base UI`}</title>
     </React.Fragment>
   ),
