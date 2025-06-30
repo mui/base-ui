@@ -229,7 +229,6 @@ export namespace useDialogRoot {
     modal?: boolean | 'trap-focus';
     /**
      * Event handler called when the dialog is opened or closed.
-     * @type (open: boolean, event?: Event, reason?: Dialog.Root.OpenChangeReason) => void
      */
     onOpenChange?: (
       open: boolean,

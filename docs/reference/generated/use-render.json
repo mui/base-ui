@@ -3,7 +3,7 @@
   "description": "Renders a Base UI element.",
   "parameters": {
     "render": {
-      "type": "useRender.RenderProp",
+      "type": "useRender.RenderProp<State>",
       "required": true,
       "description": "The React element or a function that returns one to override the default element."
     },

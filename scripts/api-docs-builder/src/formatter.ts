@@ -58,6 +58,10 @@ export function formatType(
     return typeValue;
   }
 
+  if (type.name === 'HTMLProps<any>') {
+    return 'HTMLProps';
+  }
+
   if (type instanceof tae.ReferenceNode) {
     if (/^ReactElement(<.*>)?/.test(type.name)) {
       return 'ReactElement';
@@ -67,19 +71,21 @@ export function formatType(
   }
 
   if (type instanceof tae.IntrinsicNode) {
-    return type.name;
+    return type.name
+      ? getFullyQualifiedName(type.name, type.parentNamespaces ?? [])
+      : type.intrinsic;
   }
 
   if (type instanceof tae.UnionNode) {
     if (type.name) {
-      return getFullyQualifiedName(type.name, type.parentNamespaces);
+      return getFullyQualifiedName(type.name, type.parentNamespaces ?? []);
     }
 
     const memberTypes = type.types;
 
     if (removeUndefined) {
       const types = memberTypes.filter(
-        (t) => !(t instanceof tae.IntrinsicNode && t.name === 'undefined'),
+        (t) => !(t instanceof tae.IntrinsicNode && t.intrinsic === 'undefined'),
       );
 
       return orderMembers(types)
@@ -94,7 +100,7 @@ export function formatType(
 
   if (type instanceof tae.IntersectionNode) {
     if (type.name) {
-      return getFullyQualifiedName(type.name, type.parentNamespaces);
+      return getFullyQualifiedName(type.name, type.parentNamespaces ?? []);
     }
 
     return orderMembers(type.types)
@@ -211,7 +217,7 @@ function orderMembers(members: readonly tae.TypeNode[]): readonly tae.TypeNode[]
 
 function pushToEnd(members: readonly tae.TypeNode[], name: string): readonly tae.TypeNode[] {
   const index = members.findIndex((member: tae.TypeNode) => {
-    return member instanceof tae.IntrinsicNode && member.name === name;
+    return member instanceof tae.IntrinsicNode && member.intrinsic === name;
   });
 
   if (index !== -1) {
