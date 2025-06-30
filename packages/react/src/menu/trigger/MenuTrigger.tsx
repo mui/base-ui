@@ -195,7 +195,7 @@ function findRootOwnerId(element: Element): string | undefined {
     return element.getAttribute('data-rootownerid') ?? undefined;
   }
 
-  if (!element.parentElement || element.parentElement === document.body) {
+  if (element.parentElement == null) {
     return undefined;
   }
 
