@@ -25,9 +25,9 @@ export const CollapsiblePanel = React.forwardRef(function CollapsiblePanel(
   const {
     className,
     hiddenUntilFound: hiddenUntilFoundProp,
-    id: idProp,
     keepMounted: keepMountedProp,
     render,
+    id: idProp,
     ...elementProps
   } = componentProps;
 
@@ -56,8 +56,8 @@ export const CollapsiblePanel = React.forwardRef(function CollapsiblePanel(
     setHiddenUntilFound,
     setKeepMounted,
     setMounted,
+    setPanelIdState,
     setOpen,
-    setPanelId,
     setVisible,
     state,
     transitionDimensionRef,
@@ -68,6 +68,16 @@ export const CollapsiblePanel = React.forwardRef(function CollapsiblePanel(
 
   const hiddenUntilFound = hiddenUntilFoundProp ?? false;
   const keepMounted = keepMountedProp ?? false;
+
+  useModernLayoutEffect(() => {
+    if (idProp) {
+      setPanelIdState(idProp);
+      return () => {
+        setPanelIdState(undefined);
+      };
+    }
+    return undefined;
+  }, [idProp, setPanelIdState]);
 
   useModernLayoutEffect(() => {
     setHiddenUntilFound(hiddenUntilFound);
@@ -83,7 +93,7 @@ export const CollapsiblePanel = React.forwardRef(function CollapsiblePanel(
     externalRef: forwardedRef,
     height,
     hiddenUntilFound,
-    id: idProp ?? panelId,
+    id: panelId,
     keepMounted,
     mounted,
     onOpenChange,
@@ -93,7 +103,6 @@ export const CollapsiblePanel = React.forwardRef(function CollapsiblePanel(
     setDimensions,
     setMounted,
     setOpen,
-    setPanelId,
     setVisible,
     transitionDimensionRef,
     visible,

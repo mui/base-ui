@@ -31,12 +31,32 @@ describe('<Accordion.Root />', () => {
 
       const root = container.firstElementChild as HTMLElement;
       const trigger = getByRole('button');
-      const panel = queryByText(PANEL_CONTENT_1);
+      const panel = queryByText(PANEL_CONTENT_1) as HTMLElement;
 
       expect(root).to.have.attribute('role', 'region');
-      expect(panel?.getAttribute('id')).to.equal(trigger?.getAttribute('aria-controls'));
+      expect(trigger).to.have.attribute('aria-controls');
+      expect(panel.getAttribute('id')).to.equal(trigger.getAttribute('aria-controls'));
       expect(panel).to.have.attribute('role', 'region');
-      expect(trigger?.getAttribute('id')).to.equal(panel?.getAttribute('aria-labelledby'));
+      expect(trigger.getAttribute('id')).to.equal(panel.getAttribute('aria-labelledby'));
+    });
+
+    it('references manual panel id in trigger aria-controls', async () => {
+      const { getByRole, queryByText } = await render(
+        <Accordion.Root defaultValue={[0]}>
+          <Accordion.Item>
+            <Accordion.Header>
+              <Accordion.Trigger>Trigger 1</Accordion.Trigger>
+            </Accordion.Header>
+            <Accordion.Panel id="custom-panel-id">{PANEL_CONTENT_1}</Accordion.Panel>
+          </Accordion.Item>
+        </Accordion.Root>,
+      );
+
+      const trigger = getByRole('button');
+      const panel = queryByText(PANEL_CONTENT_1) as HTMLElement;
+
+      expect(trigger).to.have.attribute('aria-controls', 'custom-panel-id');
+      expect(panel).to.have.attribute('id', 'custom-panel-id');
     });
   });
 
