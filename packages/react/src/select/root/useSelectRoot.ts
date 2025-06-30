@@ -87,8 +87,6 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     state: 'open',
   });
 
-  const isValueControlled = params.value !== undefined;
-
   const listRef = React.useRef<Array<HTMLElement | null>>([]);
   const labelsRef = React.useRef<Array<string | null>>([]);
   const popupRef = React.useRef<HTMLDivElement | null>(null);
@@ -243,10 +241,6 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
   const setValue = useEventCallback((nextValue: any, event?: Event) => {
     params.onValueChange?.(nextValue, event);
     setValueUnwrapped(nextValue);
-
-    if (!isValueControlled) {
-      updateValue(nextValue);
-    }
   });
 
   const hasRegisteredRef = React.useRef(false);
