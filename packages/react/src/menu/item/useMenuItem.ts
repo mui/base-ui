@@ -5,6 +5,7 @@ import { useButton } from '../../use-button';
 import { mergeProps } from '../../merge-props';
 import { HTMLProps, BaseUIEvent } from '../../utils/types';
 import { useForkRef } from '../../utils';
+import { REGULAR_ITEM } from './MenuItem';
 
 export function useMenuItem(params: useMenuItem.Parameters): useMenuItem.ReturnValue {
   const {
@@ -132,9 +133,7 @@ export namespace useMenuItem {
   }
 
   export type Metadata =
-    | {
-        type: 'regular-item';
-      }
+    | typeof REGULAR_ITEM
     | {
         type: 'submenu-trigger';
         setActive: () => void;
