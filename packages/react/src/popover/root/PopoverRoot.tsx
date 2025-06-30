@@ -261,7 +261,7 @@ export namespace PopoverRoot {
     onOpenChange?: (
       open: boolean,
       event: Event | undefined,
-      reason: PopoverOpenChangeReason | undefined,
+      reason: OpenChangeReason | undefined,
     ) => void;
     /**
      * Event handler called after any animations complete when the popover is opened or closed.

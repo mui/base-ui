@@ -60,7 +60,7 @@ export namespace AlertDialogRoot {
     onOpenChange?: (
       open: boolean,
       event: Event | undefined,
-      reason: DialogOpenChangeReason | undefined,
+      reason: OpenChangeReason | undefined,
     ) => void;
   }
 
