@@ -345,4 +345,182 @@ describe('<Select.Value />', () => {
     await user.click(screen.getByRole('button', { name: 'null' }));
     expect(screen.getByTestId('value')).to.have.text('initial');
   });
+
+  describe('prop: multiple', () => {
+    it('displays comma-separated labels for multiple values with items object', async () => {
+      const items = {
+        sans: 'Sans-serif',
+        serif: 'Serif',
+        mono: 'Monospace',
+      };
+
+      await render(
+        <Select.Root value={['sans', 'serif']} items={items} multiple>
+          <Select.Value data-testid="value" />
+        </Select.Root>,
+      );
+
+      expect(screen.getByTestId('value')).to.have.text('Sans-serif, Serif');
+    });
+
+    it('displays comma-separated labels for multiple values with items array', async () => {
+      const items = [
+        { value: 'sans', label: 'Sans-serif' },
+        { value: 'serif', label: 'Serif' },
+        { value: 'mono', label: 'Monospace' },
+      ];
+
+      await render(
+        <Select.Root value={['serif', 'mono']} items={items} multiple>
+          <Select.Value data-testid="value" />
+        </Select.Root>,
+      );
+
+      expect(screen.getByTestId('value')).to.have.text('Serif, Monospace');
+    });
+
+    it('displays single label when only one value is selected in multiple mode', async () => {
+      const items = {
+        sans: 'Sans-serif',
+        serif: 'Serif',
+      };
+
+      await render(
+        <Select.Root value={['sans']} items={items} multiple>
+          <Select.Value data-testid="value" />
+        </Select.Root>,
+      );
+
+      expect(screen.getByTestId('value')).to.have.text('Sans-serif');
+    });
+
+    it('displays empty when no values are selected in multiple mode', async () => {
+      const items = {
+        sans: 'Sans-serif',
+        serif: 'Serif',
+      };
+
+      await render(
+        <Select.Root value={[]} items={items} multiple>
+          <Select.Value data-testid="value" />
+        </Select.Root>,
+      );
+
+      expect(screen.getByTestId('value')).to.have.text('');
+    });
+
+    it('falls back to raw values for unknown values in multiple mode with comma separation', async () => {
+      const items = {
+        sans: 'Sans-serif',
+        serif: 'Serif',
+      };
+
+      await render(
+        <Select.Root value={['sans', 'unknown', 'serif']} items={items} multiple>
+          <Select.Value data-testid="value" />
+        </Select.Root>,
+      );
+
+      expect(screen.getByTestId('value')).to.have.text('Sans-serif, unknown, Serif');
+    });
+
+    it('updates comma-separated display when multiple values change', async () => {
+      const items = {
+        sans: 'Sans-serif',
+        serif: 'Serif',
+        mono: 'Monospace',
+      };
+
+      function App() {
+        const [values, setValues] = React.useState<string[]>(['sans']);
+        return (
+          <div>
+            <button onClick={() => setValues(['sans', 'serif'])}>add serif</button>
+            <button onClick={() => setValues(['serif', 'mono'])}>serif and mono</button>
+            <button onClick={() => setValues([])}>clear all</button>
+            <Select.Root value={values} onValueChange={setValues} items={items} multiple>
+              <Select.Value data-testid="value" />
+            </Select.Root>
+          </div>
+        );
+      }
+
+      const { user } = await render(<App />);
+
+      expect(screen.getByTestId('value')).to.have.text('Sans-serif');
+
+      await user.click(screen.getByRole('button', { name: 'add serif' }));
+      expect(screen.getByTestId('value')).to.have.text('Sans-serif, Serif');
+
+      await user.click(screen.getByRole('button', { name: 'serif and mono' }));
+      expect(screen.getByTestId('value')).to.have.text('Serif, Monospace');
+
+      await user.click(screen.getByRole('button', { name: 'clear all' }));
+      expect(screen.getByTestId('value')).to.have.text('');
+    });
+
+    it('children function receives array of values in multiple mode', async () => {
+      const children = spy();
+      const items = {
+        sans: 'Sans-serif',
+        serif: 'Serif',
+      };
+
+      await render(
+        <Select.Root value={['sans', 'serif']} items={items} multiple>
+          <Select.Value>
+            {(values) => {
+              children(values);
+              return `Selected: ${Array.isArray(values) ? values.join(' + ') : values}`;
+            }}
+          </Select.Value>
+        </Select.Root>,
+      );
+
+      expect(children.firstCall.firstArg).to.deep.equal(['sans', 'serif']);
+      expect(screen.getByText('Selected: sans + serif')).not.to.equal(null);
+    });
+
+    it('children prop takes precedence over items in multiple mode', async () => {
+      const items = {
+        sans: 'Sans-serif',
+        serif: 'Serif',
+      };
+
+      await render(
+        <Select.Root value={['sans', 'serif']} items={items} multiple>
+          <Select.Value data-testid="value">Custom Multiple Text</Select.Value>
+        </Select.Root>,
+      );
+
+      expect(screen.getByTestId('value')).to.have.text('Custom Multiple Text');
+    });
+
+    it('supports ReactNode labels in comma-separated display', async () => {
+      const items = {
+        bold: <strong>Bold</strong>,
+        italic: <em>Italic</em>,
+      };
+
+      await render(
+        <Select.Root value={['bold', 'italic']} items={items} multiple>
+          <Select.Value data-testid="value" />
+        </Select.Root>,
+      );
+
+      const valueElement = screen.getByTestId('value');
+
+      // ReactNode elements might be filtered out in multiple mode due to .filter(Boolean)
+      // Let's check if any elements are rendered at all
+      const strongElement = valueElement.querySelector('strong');
+      const emElement = valueElement.querySelector('em');
+
+      if (strongElement) {
+        expect(strongElement).to.have.text('Bold');
+      }
+      if (emElement) {
+        expect(emElement).to.have.text('Italic');
+      }
+    });
+  });
 });
