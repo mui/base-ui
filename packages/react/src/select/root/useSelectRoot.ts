@@ -1,5 +1,16 @@
 import * as React from 'react';
 import {
+  useLazyRef,
+  useOnFirstRender,
+  useControlled,
+  useModernLayoutEffect,
+  useEventCallback,
+  useTimeout,
+  warn,
+  useLatestRef,
+} from '@base-ui-components/utils';
+import { useSelector, Store } from '@base-ui-components/utils/store';
+import {
   useClick,
   useDismiss,
   useFloatingRootContext,
@@ -12,15 +23,7 @@ import {
 import { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { useBaseUiId } from '../../utils/useBaseUiId';
-import { useLazyRef } from '../../utils/useLazyRef';
-import { useOnFirstRender } from '../../utils/useOnFirstRender';
-import { useControlled } from '../../utils/useControlled';
-import { useTransitionStatus } from '../../utils';
-import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
-import { useEventCallback } from '../../utils/useEventCallback';
-import { useSelector, Store } from '../../utils/store';
-import { useTimeout } from '../../utils/useTimeout';
-import { warn } from '../../utils/warn';
+import { useTransitionStatus } from '../../utils/useTransitionStatus';
 import { selectors, State } from '../store';
 import type { SelectRootContext } from './SelectRootContext';
 import {
@@ -29,7 +32,6 @@ import {
 } from '../../utils/translateOpenChangeReason';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useFormContext } from '../../form/FormContext';
-import { useLatestRef } from '../../utils/useLatestRef';
 import { useField } from '../../field/useField';
 
 export type SelectOpenChangeReason = BaseOpenChangeReason | 'window-resize';

@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { useForkRef, useControlled } from '@base-ui-components/utils';
 import { FloatingEvents, useFloatingTree } from '../../floating-ui-react';
 import { MenuCheckboxItemContext } from './MenuCheckboxItemContext';
 import { useMenuItem } from '../item/useMenuItem';
@@ -8,9 +9,7 @@ import { useMenuRootContext } from '../root/MenuRootContext';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
-import { useForkRef } from '../../utils/useForkRef';
 import { itemMapping } from '../utils/styleHookMapping';
-import { useControlled } from '../../utils/useControlled';
 import { EMPTY_OBJECT } from '../../utils/constants';
 
 const InnerMenuCheckboxItem = React.memo(
