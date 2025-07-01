@@ -110,7 +110,6 @@ _Jul 1, 2025_
 ### Scroll Area
 
 - Ignore `data-scrolling` during programmatic scroll (#1908) by @atomiks
-- Handle touch momentum scrolling for programmatic scroll check (#2111) by @atomiks
 
 ### Select
 
@@ -119,16 +118,12 @@ _Jul 1, 2025_
   (#2087) by @atomiks
 - Performance: avoid re-renders (#1961) by @romgrk
 - Fix close toggle when rendering non-native button (#2071) by @atomiks
-- Fix re-render warning in `Positioner` on fallback (#2089) by @atomiks
 - Fix `Field.Label` focusing trigger (#2118) by @atomiks
-- Fix position flicker when no default value is set (#2110) by @atomiks
 - Fix programmatic value changes and autofill handling (#2084) by @atomiks
 - Add `highlighted` to item `State` (#2079) by @atomiks
 - Cut out internal backdrop to allow interacting with triggers (#2141) by @michaldudak
 - Pass `value` as state (#2153) by @atomiks
-- Fix inverted flag in item mouseleave (#2179) by @atomiks
 - Extend `FieldRoot.State` type (#2192) by @atomiks
-- Fix revalidation on change (#2174) by @atomiks
 
 ### Slider
 
