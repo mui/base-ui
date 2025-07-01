@@ -328,7 +328,8 @@ export const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
     handleClose: safePolygon({ blockPointerEvents: true }),
     mouseOnly: true,
     move: parent.type === 'menu',
-    restMs: parent.type !== undefined && !allowMouseEnter ? undefined : delay,
+    restMs:
+      parent.type === undefined || (parent.type === 'menu' && allowMouseEnter) ? delay : undefined,
     delay:
       parent.type === 'menu'
         ? { open: allowMouseEnter ? delay : 10 ** 10, close: closeDelay }
