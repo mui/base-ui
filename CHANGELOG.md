@@ -1,5 +1,158 @@
 # Versions
 
+## v1.0.0-beta.1
+
+_Jul 1, 2025_
+
+### General changes
+
+- Make error messages consistent (#2049) by @michaldudak
+- Do not overwrite event handler when `undefined` is passed explicitly (#2151) by @michaldudak
+
+### Accordion
+
+- Allow content to resize naturally (#2043) by @atomiks
+- Fix transition status mapping (#2169) by @atomiks
+- Fix `aria-controls` reference (#2170) by @atomiks
+- Fix test warning about mixed animation types (#2180) by @atomiks
+
+### Checkbox
+
+- **Breaking change:** Support implicit `Field.Label`.
+  If `Field.Label` encloses Switch/Checkbox/Radio, the `htmlFor`/`id` attributes are no longer explicitly set to associate them.
+  (#2036) by @mj12albert
+- Refactor to `useRenderElement` (#2053) by @mj12albert
+- Always set `id` on the `&lt;input&gt;` element (#2115) by @mj12albert
+
+### Checkbox Group
+
+- Fix `onCheckedChange` not running when parent checkbox is present (#2155) by @mj12albert
+
+### Collapsible
+
+- Allow content to resize naturally (#2043) by @atomiks
+- Fix `aria-controls` reference (#2170) by @atomiks
+- Fix test warning about mixed animation types (#2180) by @atomiks
+
+### Context Menu
+
+- **Breaking change:** Add `SubmenuRoot` part.
+  Nested menus should be defined with `Menu.SubmenuRoot` instead of `Menu.Root` to to avoid ambiguity.
+  (#2042) by @atomiks
+- Fix CheckboxItemIndicator export (#2009) by @aarongarciah
+
+### Dialog
+
+- Fix popup prop merging (#2119) by @atomiks
+
+### Field
+
+- **Breaking change:** Support implicit `Field.Label`.
+  If `Field.Label` encloses Switch/Checkbox/Radio, the `htmlFor`/`id` attributes are no longer explicitly set to associate them.
+  (#2036) by @mj12albert
+- Enable custom validation based on other form values (#1941) by @mj12albert
+- Fix `onValueChange` `value` type (#2112) by @atomiks
+- Fix `Field.Label` focusing trigger (#2118) by @atomiks
+- Fix slider field label (#2154) by @mj12albert
+
+### Fieldset
+
+- Refactor to `useRenderElement` (#2053) by @mj12albert
+
+### Form
+
+- Enable custom validation based on other form values (#1941) by @mj12albert
+
+### Input
+
+- Fix `onValueChange` `value` type (#2112) by @atomiks
+
+### Menu
+
+- **Breaking change:** Add `SubmenuRoot` part.
+  Nested menus should be defined with `Menu.SubmenuRoot` instead of `Menu.Root` to to avoid ambiguity.
+  (#2042) by @atomiks
+- Unset `role` from Trigger (#2047) by @atomiks
+- Emit `close` event on `cancel-open` (#2067) by @atomiks
+- Fix close toggle when rendering non-native button (#2071) by @atomiks
+- Add `highlighted` to item `State` (#2079) by @atomiks
+- Remove highlighted effect (#2162) by @atomiks
+- Cut out internal backdrop to allow interacting with triggers (#2141) by @michaldudak
+- Fix active index sync on hover (#2163) by @atomiks
+- Fix focus returning to root when submenus have exit transitions (#2163) by @atomiks
+
+### Menubar
+
+- Fix `closeOnClick: false` not working in nested menus (#2094) by @michaldudak
+
+### Navigation Menu
+
+- Handle layout resize while open (#2070) by @atomiks
+- Fix positioner height when opening menu using the keyboard arrows (#2060) by @juliomerisio
+
+### Number Field
+
+- Ensure `onValueChange` is called with already-formatted parsed value (#1905) by @atomiks
+- Fix revalidation on change (#2174) by @atomiks
+
+### Popover
+
+- Fix close toggle when rendering non-native button (#2071) by @atomiks
+- Cut out internal backdrop to allow interacting with triggers (#2141) by @michaldudak
+
+### Radio Group
+
+- **Breaking change:** Support implicit `Field.Label`.
+  If `Field.Label` encloses Radio, the `htmlFor`/`id` attributes are no longer explicitly set to associate them.
+  (#2036) by @mj12albert
+- Refactor to `useRenderElement` (#2053) by @mj12albert
+
+### Scroll Area
+
+- Ignore `data-scrolling` during programmatic scroll (#1908) by @atomiks
+
+### Select
+
+- **Breaking change:** Print raw value in `Select.Value`.
+  `<Select.Value>` now prints the raw value by default unless an `items` prop is specified on `Select.Root`.
+  See https://base-ui.com/react/components/select#formatting-the-value for more information.
+  (#2087) by @atomiks
+- Performance: avoid re-renders (#1961) by @romgrk
+- Fix close toggle when rendering non-native button (#2071) by @atomiks
+- Fix `Field.Label` focusing trigger (#2118) by @atomiks
+- Fix programmatic value changes and autofill handling (#2084) by @atomiks
+- Add `highlighted` to item `State` (#2079) by @atomiks
+- Cut out internal backdrop to allow interacting with triggers (#2141) by @michaldudak
+- Pass `value` as state (#2153) by @atomiks
+- Extend `FieldRoot.State` type (#2192) by @atomiks
+
+### Slider
+
+- Use pointer capture when dragging (#2059) by @mj12albert
+- Fix slider field label (#2154) by @mj12albert
+
+### Switch
+
+- **Breaking change:** Support implicit `Field.Label`.
+  If `Field.Label` encloses Switch, the `htmlFor`/`id` attributes are no longer explicitly set to associate them.
+  (#2036) by @mj12albert
+
+### Tabs
+
+- Fix indicator positioning when TabsList overflows (#2093) by @mj12albert
+- Fix focus going out of sync when selected value is changed externally (#2107) by @atomiks
+- Remove highlighted state (#2164) by @atomiks
+
+### Toolbar
+
+- Set `disabled` attr on toolbar button when `focusableWhenDisabled={false}` (#2176) by @mj12albert
+
+### useRender
+
+- Make useRender RSC-friendly (#2134) by @michaldudak
+
+All contributors of this release in alphabetical order: @aarongarciah, @atomiks, @bernardobelchior, @brijeshb42, @Janpot, @juliomerisio, @lesha1201, @michaldudak, @mj12albert, @oliviertassinari, @romgrk
+
 ## v1.0.0-beta.0
 
 _May 29, 2025_
