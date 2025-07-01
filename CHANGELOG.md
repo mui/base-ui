@@ -115,6 +115,7 @@ _Jul 1, 2025_
 
 - **Breaking change:** Print raw value in `Select.Value`.
   `<Select.Value>` now prints the raw value by default unless an `items` prop is specified on `Select.Root`.
+  See https://base-ui.com/react/components/select#formatting-the-value for more information.
   (#2087) by @atomiks
 - Performance: avoid re-renders (#1961) by @romgrk
 - Fix close toggle when rendering non-native button (#2071) by @atomiks
