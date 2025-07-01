@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { getParentNode, isHTMLElement, isLastTraversableNode } from '@floating-ui/utils/dom';
 import { contains } from '../../floating-ui-react/utils';
 import { useFloatingTree } from '../../floating-ui-react/index';
 import { CompositeItem } from '../../composite/item/CompositeItem';
@@ -190,14 +191,14 @@ export namespace MenuTrigger {
   };
 }
 
-function findRootOwnerId(element: Element): string | undefined {
-  if (element.hasAttribute('data-rootownerid')) {
-    return element.getAttribute('data-rootownerid') ?? undefined;
+function findRootOwnerId(node: Node): string | undefined {
+  if (isHTMLElement(node) && node.hasAttribute('data-rootownerid')) {
+    return node.getAttribute('data-rootownerid') ?? undefined;
   }
 
-  if (element.parentElement == null) {
+  if (isLastTraversableNode(node)) {
     return undefined;
   }
 
-  return findRootOwnerId(element.parentElement);
+  return findRootOwnerId(getParentNode(node));
 }
