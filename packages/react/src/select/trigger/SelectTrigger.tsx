@@ -17,6 +17,7 @@ import { useTimeout } from '../../utils/useTimeout';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { useForkRef } from '../../utils';
 import { useButton } from '../../use-button';
+import type { FieldRoot } from '../../field/root/FieldRoot';
 
 const BOUNDARY_OFFSET = 2;
 
@@ -242,7 +243,7 @@ export namespace SelectTrigger {
     nativeButton?: boolean;
   }
 
-  export interface State {
+  export interface State extends FieldRoot.State {
     /**
      * Whether the select menu is currently open.
      */

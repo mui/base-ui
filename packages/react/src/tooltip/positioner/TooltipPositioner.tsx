@@ -2,9 +2,8 @@
 import * as React from 'react';
 import { useTooltipRootContext } from '../root/TooltipRootContext';
 import { TooltipPositionerContext } from './TooltipPositionerContext';
-import { useTooltipPositioner } from './useTooltipPositioner';
-import type { BaseUIComponentProps } from '../../utils/types';
-import type { Side, Align } from '../../utils/useAnchorPositioning';
+import { useAnchorPositioning, type Side, type Align } from '../../utils/useAnchorPositioning';
+import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import { popupStateMapping } from '../../utils/popupStateMapping';
 import { useTooltipPortalContext } from '../portal/TooltipPortalContext';
 import { useRenderElement } from '../../utils/useRenderElement';
@@ -38,14 +37,14 @@ export const TooltipPositioner = React.forwardRef(function TooltipPositioner(
     ...elementProps
   } = componentProps;
 
-  const { open, setPositionerElement, mounted, floatingRootContext } = useTooltipRootContext();
+  const { open, setPositionerElement, mounted, floatingRootContext, trackCursorAxis, hoverable } =
+    useTooltipRootContext();
   const keepMounted = useTooltipPortalContext();
 
-  const positioner = useTooltipPositioner({
+  const positioning = useAnchorPositioning({
     anchor,
     positionMethod,
     floatingRootContext,
-    trackAnchor,
     mounted,
     side,
     sideOffset,
@@ -55,9 +54,35 @@ export const TooltipPositioner = React.forwardRef(function TooltipPositioner(
     collisionPadding,
     sticky,
     arrowPadding,
+    trackAnchor,
     keepMounted,
     collisionAvoidance,
   });
+
+  const defaultProps: HTMLProps = React.useMemo(() => {
+    const hiddenStyles: React.CSSProperties = {};
+
+    if (!open || trackCursorAxis === 'both' || !hoverable) {
+      hiddenStyles.pointerEvents = 'none';
+    }
+
+    return {
+      role: 'presentation',
+      hidden: !mounted,
+      style: {
+        ...positioning.positionerStyles,
+        ...hiddenStyles,
+      },
+    };
+  }, [open, trackCursorAxis, hoverable, mounted, positioning.positionerStyles]);
+
+  const positioner = React.useMemo(
+    () => ({
+      props: defaultProps,
+      ...positioning,
+    }),
+    [defaultProps, positioning],
+  );
 
   const state: TooltipPositioner.State = React.useMemo(
     () => ({
@@ -106,5 +131,12 @@ export namespace TooltipPositioner {
 
   export interface Props
     extends BaseUIComponentProps<'div', State>,
-      useTooltipPositioner.SharedParameters {}
+      Omit<useAnchorPositioning.SharedParameters, 'side'> {
+    /**
+     * Which side of the anchor element to align the popup against.
+     * May automatically change to avoid collisions.
+     * @default 'top'
+     */
+    side?: Side;
+  }
 }

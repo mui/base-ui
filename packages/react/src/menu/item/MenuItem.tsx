@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { FloatingEvents, useFloatingTree } from '../../floating-ui-react';
-import { useMenuItem } from './useMenuItem';
+import { REGULAR_ITEM, useMenuItem } from './useMenuItem';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useBaseUiId } from '../../utils/useBaseUiId';
@@ -38,7 +38,7 @@ const InnerMenuItem = React.memo(
       allowMouseUpTriggerRef,
       typingRef,
       nativeButton,
-      submenuTrigger: false,
+      itemMetadata: REGULAR_ITEM,
     });
 
     const state: MenuItem.State = React.useMemo(

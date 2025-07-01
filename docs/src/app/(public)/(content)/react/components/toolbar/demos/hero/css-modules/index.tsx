@@ -36,9 +36,9 @@ export default function ExampleToolbar() {
         </Toolbar.Button>
       </Toolbar.Group>
       <Toolbar.Separator className={styles.Separator} />
-      <Select.Root defaultValue="helvetica">
+      <Select.Root defaultValue="Helvetica">
         <Toolbar.Button render={<Select.Trigger />} className={styles.Button}>
-          <Select.Value placeholder="Helvetica" />
+          <Select.Value />
           <Select.Icon>
             <ChevronUpDownIcon />
           </Select.Icon>
@@ -49,7 +49,7 @@ export default function ExampleToolbar() {
               <Select.Arrow className={styles.Arrow}>
                 <ArrowSvg />
               </Select.Arrow>
-              <Select.Item className={styles.Item} value="helvetica">
+              <Select.Item className={styles.Item} value="Helvetica">
                 <Select.ItemIndicator className={styles.ItemIndicator}>
                   <CheckIcon className={styles.ItemIndicatorIcon} />
                 </Select.ItemIndicator>
@@ -57,7 +57,7 @@ export default function ExampleToolbar() {
                   Helvetica
                 </Select.ItemText>
               </Select.Item>
-              <Select.Item className={styles.Item} value="arial">
+              <Select.Item className={styles.Item} value="Arial">
                 <Select.ItemIndicator className={styles.ItemIndicator}>
                   <CheckIcon className={styles.ItemIndicatorIcon} />
                 </Select.ItemIndicator>

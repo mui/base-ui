@@ -26,6 +26,7 @@ export interface MenuRootContext {
   ) => void;
   positionerRef: React.RefObject<HTMLElement | null>;
   setPositionerElement: (element: HTMLElement | null) => void;
+  triggerElement: HTMLElement | null;
   setTriggerElement: (element: HTMLElement | null) => void;
   transitionStatus: TransitionStatus;
   allowMouseUpTriggerRef: React.RefObject<boolean>;
@@ -35,6 +36,9 @@ export interface MenuRootContext {
   setHoverEnabled: React.Dispatch<React.SetStateAction<boolean>>;
   setActiveIndex: React.Dispatch<React.SetStateAction<number | null>>;
   parent: MenuParent;
+  rootId: string | undefined;
+  allowMouseEnter: boolean;
+  setAllowMouseEnter: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export const MenuRootContext = React.createContext<MenuRootContext | undefined>(undefined);

@@ -11,6 +11,7 @@ export default function Layout({ children }: React.PropsWithChildren) {
       <div className="RootLayout">
         <div className="RootLayoutContainer">
           <div className="RootLayoutContent">{children}</div>
+          <span className="RootLayoutFooter" />
         </div>
       </div>
       <GoogleAnalytics />

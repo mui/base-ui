@@ -4,6 +4,8 @@ on:
   issues:
     types: [closed]
 
+permissions: {}
+
 jobs:
   add-comment:
     runs-on: ubuntu-latest
