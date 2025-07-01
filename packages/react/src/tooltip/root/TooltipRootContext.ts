@@ -3,14 +3,16 @@ import * as React from 'react';
 import type { FloatingRootContext } from '../../floating-ui-react';
 import type { HTMLProps } from '../../utils/types';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
-import type { TooltipRoot } from './TooltipRoot';
+import { BaseOpenChangeReason } from '../../utils/translateOpenChangeReason';
+
+export type TooltipOpenChangeReason = BaseOpenChangeReason | 'disabled';
 
 export interface TooltipRootContext {
   open: boolean;
   setOpen: (
     open: boolean,
     event: Event | undefined,
-    reason: TooltipRoot.OpenChangeReason | undefined,
+    reason: TooltipOpenChangeReason | undefined,
   ) => void;
   setTriggerElement: (el: Element | null) => void;
   positionerElement: HTMLElement | null;
