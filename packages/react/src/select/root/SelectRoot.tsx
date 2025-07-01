@@ -1,10 +1,11 @@
 'use client';
 import * as React from 'react';
-import { type SelectOpenChangeReason, useSelectRoot } from './useSelectRoot';
+import { useSelectRoot } from './useSelectRoot';
 import { SelectRootContext, SelectFloatingContext } from './SelectRootContext';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { visuallyHidden } from '../../utils/visuallyHidden';
 import { useForkRef } from '../../utils/useForkRef';
+import { BaseOpenChangeReason } from '../../utils/translateOpenChangeReason';
 
 /**
  * Groups all parts of the select.
@@ -137,7 +138,7 @@ export namespace SelectRoot {
 
   export type Actions = useSelectRoot.Actions;
 
-  export type OpenChangeReason = SelectOpenChangeReason;
+  export type OpenChangeReason = BaseOpenChangeReason | 'window-resize';
 }
 
 export interface SelectRoot {

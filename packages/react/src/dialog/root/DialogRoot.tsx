@@ -2,7 +2,8 @@
 import * as React from 'react';
 import { DialogRootContext, useOptionalDialogRootContext } from './DialogRootContext';
 import { DialogContext } from '../utils/DialogContext';
-import { type DialogOpenChangeReason, useDialogRoot } from './useDialogRoot';
+import { useDialogRoot } from './useDialogRoot';
+import { BaseOpenChangeReason } from '../../utils/translateOpenChangeReason';
 
 /**
  * Groups all parts of the dialog.
@@ -64,5 +65,5 @@ export namespace DialogRoot {
 
   export type Actions = useDialogRoot.Actions;
 
-  export type OpenChangeReason = DialogOpenChangeReason;
+  export type OpenChangeReason = BaseOpenChangeReason | 'close-press';
 }

@@ -17,14 +17,10 @@ import { useEventCallback } from '../../utils/useEventCallback';
 import { OPEN_DELAY } from '../utils/constants';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import type { HTMLProps } from '../../utils/types';
-import {
-  translateOpenChangeReason,
-  type BaseOpenChangeReason,
-} from '../../utils/translateOpenChangeReason';
+import { translateOpenChangeReason } from '../../utils/translateOpenChangeReason';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useTooltipProviderContext } from '../provider/TooltipProviderContext';
-
-export type TooltipOpenChangeReason = BaseOpenChangeReason | 'disabled';
+import { TooltipRoot } from './TooltipRoot';
 
 export function useTooltipRoot(params: useTooltipRoot.Parameters): useTooltipRoot.ReturnValue {
   const {
@@ -58,7 +54,11 @@ export function useTooltipRoot(params: useTooltipRoot.Parameters): useTooltipRoo
   const onOpenChange = useEventCallback(onOpenChangeProp);
 
   const setOpen = useEventCallback(
-    (nextOpen: boolean, event: Event | undefined, reason: TooltipOpenChangeReason | undefined) => {
+    (
+      nextOpen: boolean,
+      event: Event | undefined,
+      reason: TooltipRoot.OpenChangeReason | undefined,
+    ) => {
       const isHover = reason === 'trigger-hover';
       const isFocusOpen = nextOpen && reason === 'trigger-focus';
       const isDismissClose = !nextOpen && (reason === 'trigger-press' || reason === 'escape-key');
@@ -225,7 +225,7 @@ export namespace useTooltipRoot {
     onOpenChange?: (
       open: boolean,
       event: Event | undefined,
-      reason: TooltipOpenChangeReason | undefined,
+      reason: TooltipRoot.OpenChangeReason | undefined,
     ) => void;
     /**
      * Event handler called after any animations complete when the tooltip is opened or closed.
@@ -270,7 +270,7 @@ export namespace useTooltipRoot {
     setOpen: (
       open: boolean,
       event: Event | undefined,
-      reason: TooltipOpenChangeReason | undefined,
+      reason: TooltipRoot.OpenChangeReason | undefined,
     ) => void;
     mounted: boolean;
     setMounted: React.Dispatch<React.SetStateAction<boolean>>;

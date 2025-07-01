@@ -1,8 +1,9 @@
 'use client';
 import * as React from 'react';
 import { TooltipRootContext } from './TooltipRootContext';
-import { type TooltipOpenChangeReason, useTooltipRoot } from './useTooltipRoot';
+import { useTooltipRoot } from './useTooltipRoot';
 import { OPEN_DELAY } from '../utils/constants';
+import { BaseOpenChangeReason } from '../../utils/translateOpenChangeReason';
 
 /**
  * Groups all parts of the tooltip.
@@ -66,5 +67,5 @@ export namespace TooltipRoot {
 
   export type Actions = useTooltipRoot.Actions;
 
-  export type OpenChangeReason = TooltipOpenChangeReason;
+  export type OpenChangeReason = BaseOpenChangeReason | 'disabled';
 }

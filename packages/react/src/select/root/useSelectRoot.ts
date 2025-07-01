@@ -23,16 +23,12 @@ import { useTimeout } from '../../utils/useTimeout';
 import { warn } from '../../utils/warn';
 import { selectors, State } from '../store';
 import type { SelectRootContext } from './SelectRootContext';
-import {
-  translateOpenChangeReason,
-  type BaseOpenChangeReason,
-} from '../../utils/translateOpenChangeReason';
+import { translateOpenChangeReason } from '../../utils/translateOpenChangeReason';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useFormContext } from '../../form/FormContext';
 import { useLatestRef } from '../../utils/useLatestRef';
 import { useField } from '../../field/useField';
-
-export type SelectOpenChangeReason = BaseOpenChangeReason | 'window-resize';
+import { type SelectRoot } from './SelectRoot';
 
 const EMPTY_ARRAY: never[] = [];
 
@@ -193,7 +189,11 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
   }, [value]);
 
   const setOpen = useEventCallback(
-    (nextOpen: boolean, event: Event | undefined, reason: SelectOpenChangeReason | undefined) => {
+    (
+      nextOpen: boolean,
+      event: Event | undefined,
+      reason: SelectRoot.OpenChangeReason | undefined,
+    ) => {
       params.onOpenChange?.(nextOpen, event, reason);
       setOpenUnwrapped(nextOpen);
 
@@ -488,7 +488,7 @@ export namespace useSelectRoot {
     onOpenChange?: (
       open: boolean,
       event: Event | undefined,
-      reason: SelectOpenChangeReason | undefined,
+      reason: SelectRoot.OpenChangeReason | undefined,
     ) => void;
     /**
      * Event handler called after any animations complete when the select menu is opened or closed.

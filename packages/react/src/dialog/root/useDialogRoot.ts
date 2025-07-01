@@ -18,12 +18,8 @@ import { type InteractionType } from '../../utils/useEnhancedClickHandler';
 import type { RequiredExcept, HTMLProps } from '../../utils/types';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
-import {
-  type BaseOpenChangeReason,
-  translateOpenChangeReason,
-} from '../../utils/translateOpenChangeReason';
-
-export type DialogOpenChangeReason = BaseOpenChangeReason | 'close-press';
+import { translateOpenChangeReason } from '../../utils/translateOpenChangeReason';
+import { type DialogRoot } from './DialogRoot';
 
 export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.ReturnValue {
   const {
@@ -58,7 +54,11 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
 
   const setOpen = useEventCallback(
-    (nextOpen: boolean, event: Event | undefined, reason: DialogOpenChangeReason | undefined) => {
+    (
+      nextOpen: boolean,
+      event: Event | undefined,
+      reason: DialogRoot.OpenChangeReason | undefined,
+    ) => {
       onOpenChangeParameter?.(nextOpen, event, reason);
       setOpenUnwrapped(nextOpen);
     },
@@ -233,7 +233,7 @@ export namespace useDialogRoot {
     onOpenChange?: (
       open: boolean,
       event: Event | undefined,
-      reason: DialogOpenChangeReason | undefined,
+      reason: DialogRoot.OpenChangeReason | undefined,
     ) => void;
     /**
      * Event handler called after any animations complete when the dialog is opened or closed.
@@ -299,7 +299,7 @@ export namespace useDialogRoot {
     setOpen: (
       open: boolean,
       event: Event | undefined,
-      reason: DialogOpenChangeReason | undefined,
+      reason: DialogRoot.OpenChangeReason | undefined,
     ) => void;
     /**
      * Whether the dialog is currently open.

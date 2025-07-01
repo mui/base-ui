@@ -4,7 +4,7 @@ import { useFloatingRootContext, type FloatingRootContext } from '../../floating
 import type { SelectStore } from '../store';
 import type { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
 import type { HTMLProps } from '../../utils/types';
-import type { SelectOpenChangeReason } from './useSelectRoot';
+import type { SelectRoot } from './SelectRoot';
 
 export interface SelectRootContext {
   store: SelectStore;
@@ -16,7 +16,7 @@ export interface SelectRootContext {
   setOpen: (
     open: boolean,
     event: Event | undefined,
-    reason: SelectOpenChangeReason | undefined,
+    reason: SelectRoot.OpenChangeReason | undefined,
   ) => void;
   listRef: React.MutableRefObject<Array<HTMLElement | null>>;
   popupRef: React.MutableRefObject<HTMLDivElement | null>;
