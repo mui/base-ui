@@ -87,7 +87,6 @@ _Jul 1, 2025_
 
 ### Navigation Menu
 
-- Fix typos (#2139) by @atomiks
 - Handle layout resize while open (#2070) by @atomiks
 - Fix positioner height when opening menu using the keyboard arrows (#2060) by @juliomerisio
 
