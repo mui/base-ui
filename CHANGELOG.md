@@ -22,7 +22,7 @@ _Jul 1, 2025_
   If `Field.Label` encloses Switch/Checkbox/Radio, the `htmlFor`/`id` attributes are no longer explicitly set to associate them.
   (#2036) by @mj12albert
 - Refactor to `useRenderElement` (#2053) by @mj12albert
-- Always set `id` on the `&lt;input&gt;` element (#2115) by @mj12albert
+- Always set `id` on the `<input>` element (#2115) by @mj12albert
 
 ### Checkbox Group
 
