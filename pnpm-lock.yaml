@@ -407,8 +407,8 @@ importers:
         specifier: ^11.0.6
         version: 11.0.6(postcss@8.5.4)
       postcss-import:
-        specifier: ^16.1.0
-        version: 16.1.0(postcss@8.5.4)
+        specifier: ^16.1.1
+        version: 16.1.1(postcss@8.5.4)
       react:
         specifier: ^19.1.0
         version: 19.1.0
@@ -8852,8 +8852,8 @@ packages:
     peerDependencies:
       postcss: ^8.4
 
-  postcss-import@16.1.0:
-    resolution: {integrity: sha512-7hsAZ4xGXl4MW+OKEWCnF6T5jqBw80/EE9aXg1r2yyn1RsVEU8EtKXbijEODa+rg7iih4bKf7vlvTGYR4CnPNg==}
+  postcss-import@16.1.1:
+    resolution: {integrity: sha512-2xVS1NCZAfjtVdvXiyegxzJ447GyqCeEI5V7ApgQVOWnros1p5lGNovJNapwPpMombyFBfqDwt7AD3n2l0KOfQ==}
     engines: {node: '>=18.0.0'}
     peerDependencies:
       postcss: ^8.0.0
@@ -21000,7 +21000,7 @@ snapshots:
       '@csstools/media-query-list-parser': 4.0.3(@csstools/css-parser-algorithms@3.0.5(@csstools/css-tokenizer@3.0.4))(@csstools/css-tokenizer@3.0.4)
       postcss: 8.5.4
 
-  postcss-import@16.1.0(postcss@8.5.4):
+  postcss-import@16.1.1(postcss@8.5.4):
     dependencies:
       postcss: 8.5.4
       postcss-value-parser: 4.2.0
