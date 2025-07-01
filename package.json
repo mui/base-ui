@@ -90,7 +90,7 @@
     "@types/yargs": "^17.0.33",
     "@typescript-eslint/eslint-plugin": "^8.33.0",
     "@typescript-eslint/parser": "^8.33.0",
-    "@vitejs/plugin-react": "^4.5.0",
+    "@vitejs/plugin-react": "^4.6.0",
     "@vitest/browser": "^3.1.4",
     "@vitest/coverage-istanbul": "3.1.4",
     "@vitest/ui": "3.1.4",
