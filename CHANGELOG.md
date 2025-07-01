@@ -79,6 +79,7 @@ _Jul 1, 2025_
 - Remove highlighted effect (#2162) by @atomiks
 - Cut out internal backdrop to allow interacting with triggers (#2141) by @michaldudak
 - Fix active index sync on hover (#2163) by @atomiks
+- Fix focus returning to root when submenus have exit transitions (#2163) by @atomiks
 
 ### Menubar
 
