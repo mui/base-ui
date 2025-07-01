@@ -569,7 +569,7 @@ export function useListNavigation(
 
         forceSyncFocusRef.current = true;
 
-        if (focusItemOnHover) {
+        if (!focusItemOnHover) {
           return;
         }
 
