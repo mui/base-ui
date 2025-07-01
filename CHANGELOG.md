@@ -2,7 +2,7 @@
 
 ## v1.0.0-beta.1
 
-Jul 1, 2025_
+_Jul 1, 2025_
 
 ### General changes
 
