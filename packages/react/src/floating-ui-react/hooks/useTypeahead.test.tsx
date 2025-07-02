@@ -1,13 +1,11 @@
 import * as React from 'react';
-import { act, render, screen } from '@testing-library/react';
+import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { vi } from 'vitest';
 
 import { useClick, useFloating, useInteractions, useTypeahead } from '../index';
 import type { UseTypeaheadProps } from './useTypeahead';
 import { Main } from '../../../test/floating-ui-tests/Menu';
-
-/* eslint-disable testing-library/no-unnecessary-act */
 
 vi.useFakeTimers({ shouldAdvanceTime: true });
 
@@ -231,9 +229,10 @@ describe('useTypeahead', () => {
     render(<Main />);
 
     await userEvent.click(screen.getByText('Edit'));
-    await act(async () => {});
 
-    expect(screen.getByRole('menu')).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByRole('menu')).toBeInTheDocument();
+    });
 
     await userEvent.keyboard('c');
 
