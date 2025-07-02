@@ -11,6 +11,7 @@ export interface ContextMenuRootContext {
   } | null>;
   positionerRef: React.RefObject<HTMLElement | null>;
   allowMouseUpTriggerRef: React.RefObject<boolean>;
+  rootId: string | undefined;
 }
 
 export const ContextMenuRootContext = React.createContext<ContextMenuRootContext | undefined>(
