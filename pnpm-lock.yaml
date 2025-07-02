@@ -713,7 +713,7 @@ importers:
         specifier: ^19.1.0
         version: 19.1.0(react@19.1.0)
       react-router:
-        specifier: ^7.5.3
+        specifier: ^7.6.3
         version: 7.6.3(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       sinon:
         specifier: ^20.0.0
