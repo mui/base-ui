@@ -22,12 +22,7 @@ const TestComponent = function TestComponent({
   const onAnimationsFinishedFn = useEventCallback(onAnimationsFinished);
 
   React.useEffect(() => {
-    const controller = new AbortController();
-    onAnimationsFinishedEvent(onAnimationsFinishedFn, controller.signal);
-
-    return () => {
-      controller.abort();
-    };
+    onAnimationsFinishedEvent(onAnimationsFinishedFn);
   }, [onAnimationsFinishedEvent, onAnimationsFinishedFn]);
 
   return <div ref={divRef} />;
