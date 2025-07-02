@@ -34,10 +34,12 @@ export namespace TooltipProvider {
     children?: React.ReactNode;
     /**
      * How long to wait before opening a tooltip. Specified in milliseconds.
+     * @default 600
      */
     delay?: number;
     /**
      * How long to wait before closing a tooltip. Specified in milliseconds.
+     * @default 0
      */
     closeDelay?: number;
     /**
