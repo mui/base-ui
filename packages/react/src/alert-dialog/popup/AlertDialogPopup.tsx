@@ -15,7 +15,6 @@ import { AlertDialogPopupCssVars } from './AlertDialogPopupCssVars';
 import { AlertDialogPopupDataAttributes } from './AlertDialogPopupDataAttributes';
 import { InternalBackdrop } from '../../utils/InternalBackdrop';
 import { useAlertDialogPortalContext } from '../portal/AlertDialogPortalContext';
-import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { inertValue } from '../../utils/inertValue';
 
 const customStyleHookMapping: CustomStyleHookMapping<AlertDialogPopup.State> = {
@@ -53,21 +52,10 @@ export const AlertDialogPopup = React.forwardRef(function AlertDialogPopup(
     titleElementId,
     transitionStatus,
     modal,
-    onOpenChangeComplete,
     internalBackdropRef,
   } = useAlertDialogRootContext();
 
   useAlertDialogPortalContext();
-
-  useOpenChangeComplete({
-    open,
-    ref: popupRef,
-    onComplete() {
-      if (open) {
-        onOpenChangeComplete?.(true);
-      }
-    },
-  });
 
   const mergedRef = useForkRef(forwardedRef, popupRef);
 

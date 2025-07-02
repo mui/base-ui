@@ -15,7 +15,6 @@ import { DialogPopupCssVars } from './DialogPopupCssVars';
 import { DialogPopupDataAttributes } from './DialogPopupDataAttributes';
 import { InternalBackdrop } from '../../utils/InternalBackdrop';
 import { useDialogPortalContext } from '../portal/DialogPortalContext';
-import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { inertValue } from '../../utils/inertValue';
 
 const customStyleHookMapping: CustomStyleHookMapping<DialogPopup.State> = {
@@ -54,21 +53,10 @@ export const DialogPopup = React.forwardRef(function DialogPopup(
     setPopupElement,
     titleElementId,
     transitionStatus,
-    onOpenChangeComplete,
     internalBackdropRef,
   } = useDialogRootContext();
 
   useDialogPortalContext();
-
-  useOpenChangeComplete({
-    open,
-    ref: popupRef,
-    onComplete() {
-      if (open) {
-        onOpenChangeComplete?.(true);
-      }
-    },
-  });
 
   const mergedRef = useForkRef(forwardedRef, popupRef);
 

@@ -74,7 +74,9 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
     open,
     ref: popupRef,
     onComplete() {
-      if (!open) {
+      if (open) {
+        onOpenChangeComplete?.(true);
+      } else if (mounted) {
         handleUnmount();
       }
     },

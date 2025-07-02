@@ -811,7 +811,7 @@ describe('<Dialog.Root />', () => {
         expect(screen.queryByTestId('popup')).not.to.equal(null);
       });
 
-      expect(onOpenChangeComplete.callCount).to.equal(2);
+      expect(onOpenChangeComplete.callCount).to.equal(1);
       expect(onOpenChangeComplete.firstCall.args[0]).to.equal(true);
     });
 
@@ -878,6 +878,49 @@ describe('<Dialog.Root />', () => {
       );
 
       expect(onOpenChangeComplete.callCount).to.equal(0);
+    });
+
+    it('is called on open / close when popup is not mounted', async () => {
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+      const onOpenChangeComplete = spy();
+
+      function Test() {
+        const [open, setOpen] = React.useState(false);
+
+        return (
+          <div>
+            <button onClick={() => setOpen(true)}>Open</button>
+            <Dialog.Root
+              open={open}
+              onOpenChange={setOpen}
+              onOpenChangeComplete={onOpenChangeComplete}
+            >
+              <Dialog.Portal>
+                <div data-portal-content>
+                  <Dialog.Close>Close</Dialog.Close>
+                </div>
+              </Dialog.Portal>
+            </Dialog.Root>
+          </div>
+        );
+      }
+
+      const { user } = await render(<Test />);
+
+      const openButton = screen.getByText('Open');
+      await user.click(openButton);
+
+      expect(onOpenChangeComplete.callCount).to.equal(1);
+      expect(onOpenChangeComplete.firstCall.args[0]).to.equal(true);
+      expect(document.querySelector('[data-portal-content]')).not.to.equal(null);
+
+      const closeButton = screen.getByText('Close');
+      await user.click(closeButton);
+
+      expect(onOpenChangeComplete.callCount).to.equal(2);
+      expect(onOpenChangeComplete.secondCall.args[0]).to.equal(false);
+      expect(document.querySelector('[data-portal-content]')).to.equal(null);
     });
   });
 });
