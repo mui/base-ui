@@ -423,6 +423,8 @@ describe('<Tooltip.Root />', () => {
 
   describe.skipIf(isJSDOM)('prop: onOpenChangeComplete', () => {
     it('is called on close when there is no exit animation defined', async () => {
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
       const onOpenChangeComplete = spy();
 
       function Test() {
@@ -510,6 +512,8 @@ describe('<Tooltip.Root />', () => {
     });
 
     it('is called on open when there is no enter animation defined', async () => {
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
       const onOpenChangeComplete = spy();
 
       function Test() {
@@ -595,6 +599,8 @@ describe('<Tooltip.Root />', () => {
     });
 
     it('does not get called on mount when not open', async () => {
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
       const onOpenChangeComplete = spy();
 
       await render(
@@ -608,6 +614,51 @@ describe('<Tooltip.Root />', () => {
       );
 
       expect(onOpenChangeComplete.callCount).to.equal(0);
+    });
+
+    it('is called on open / close when popup is not mounted', async () => {
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+      const onOpenChangeComplete = spy();
+
+      function Test() {
+        const [open, setOpen] = React.useState(false);
+
+        return (
+          <div>
+            <button onClick={() => setOpen(true)}>Open</button>
+            <Tooltip.Root
+              open={open}
+              onOpenChange={setOpen}
+              onOpenChangeComplete={onOpenChangeComplete}
+            >
+              <Tooltip.Portal>
+                <div data-portal-content>
+                  <Tooltip.Trigger>Close</Tooltip.Trigger>
+                </div>
+              </Tooltip.Portal>
+            </Tooltip.Root>
+          </div>
+        );
+      }
+
+      const { user } = await render(<Test />);
+
+      const openButton = screen.getByText('Open');
+      await user.click(openButton);
+
+      expect(onOpenChangeComplete.callCount).to.equal(1);
+      expect(onOpenChangeComplete.firstCall.args[0]).to.equal(true);
+      // eslint-disable-next-line testing-library/no-node-access
+      expect(document.querySelector('[data-portal-content]')).not.to.equal(null);
+
+      const closeButton = screen.getByText('Close');
+      await user.click(closeButton);
+
+      expect(onOpenChangeComplete.callCount).to.equal(2);
+      expect(onOpenChangeComplete.secondCall.args[0]).to.equal(false);
+      // eslint-disable-next-line testing-library/no-node-access
+      expect(document.querySelector('[data-portal-content]')).to.equal(null);
     });
   });
 

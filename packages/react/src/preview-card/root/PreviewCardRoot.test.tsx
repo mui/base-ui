@@ -511,6 +511,8 @@ describe('<PreviewCard.Root />', () => {
 
   describe.skipIf(isJSDOM)('prop: onOpenChangeComplete', () => {
     it('is called on close when there is no exit animation defined', async () => {
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
       const onOpenChangeComplete = spy();
 
       function Test() {
@@ -598,6 +600,8 @@ describe('<PreviewCard.Root />', () => {
     });
 
     it('is called on open when there is no enter animation defined', async () => {
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
       const onOpenChangeComplete = spy();
 
       function Test() {
@@ -683,6 +687,8 @@ describe('<PreviewCard.Root />', () => {
     });
 
     it('does not get called on mount when not open', async () => {
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
       const onOpenChangeComplete = spy();
 
       await render(
