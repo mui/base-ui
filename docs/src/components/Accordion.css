@@ -57,6 +57,7 @@
     border: none;
     outline: none;
     text-align: left;
+    background-color: var(--color-content);
 
     /* remove default disclosure triangle  */
     &::-webkit-details-marker {
@@ -66,8 +67,12 @@
 
     @media (hover: hover) {
       &:hover {
-        background-color: var(--color-gray-50);
+        background-color: var(--color-gray-75);
       }
+    }
+
+    &:active {
+      background-color: var(--color-gray-100);
     }
 
     &:focus-visible {
@@ -118,15 +123,14 @@
     color: var(--color-foreground);
     font-size: 1rem;
     line-height: 1.5rem;
-    box-shadow: 0 0 0 1px transparent;
   }
 
   .AccordionContent {
     [open] & {
       background-color: var(--color-gray-50);
       box-shadow:
-        inset 0 0 0 1px var(--color-gray-100),
-        inset 0 10px 10px -10px var(--color-gray-200);
+        inset 0 0 0 1px transparent,
+        inset 0px 1px 0px 0px var(--color-gray-100);
     }
 
     .AccordionItem:last-child & {
