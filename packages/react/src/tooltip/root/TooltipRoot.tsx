@@ -101,7 +101,9 @@ export function TooltipRoot(props: TooltipRoot.Props) {
     open: openState,
     ref: popupRef,
     onComplete() {
-      if (!openState) {
+      if (openState) {
+        onOpenChangeComplete?.(true);
+      } else if (mounted) {
         handleUnmount();
       }
     },

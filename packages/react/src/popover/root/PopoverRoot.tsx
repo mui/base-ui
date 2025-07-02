@@ -79,7 +79,9 @@ function PopoverRootComponent({ props }: { props: PopoverRoot.Props }) {
     open,
     ref: popupRef,
     onComplete() {
-      if (!open) {
+      if (open) {
+        onOpenChangeComplete?.(true);
+      } else if (mounted) {
         handleUnmount();
       }
     },

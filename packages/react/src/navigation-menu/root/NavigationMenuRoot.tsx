@@ -118,7 +118,7 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot(
     open,
     ref: { current: popupElement },
     onComplete() {
-      if (!open) {
+      if (!open && mounted) {
         handleUnmount();
       }
     },

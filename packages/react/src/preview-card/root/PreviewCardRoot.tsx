@@ -67,7 +67,9 @@ export function PreviewCardRoot(props: PreviewCardRoot.Props) {
     open,
     ref: popupRef,
     onComplete() {
-      if (!open) {
+      if (open) {
+        onOpenChangeComplete?.(true);
+      } else if (mounted) {
         handleUnmount();
       }
     },

@@ -11,7 +11,6 @@ import type { Side } from '../../utils/useAnchorPositioning';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping';
 import { transitionStatusMapping } from '../../utils/styleHookMapping';
-import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { EMPTY_OBJECT, DISABLED_TRANSITIONS_STYLE } from '../../utils/constants';
 
 const customStyleHookMapping: CustomStyleHookMapping<MenuPopup.State> = {
@@ -39,22 +38,11 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
     popupProps,
     mounted,
     instantType,
-    onOpenChangeComplete,
     parent,
     lastOpenChangeReason,
     rootId,
   } = useMenuRootContext();
   const { side, align, floatingContext } = useMenuPositionerContext();
-
-  useOpenChangeComplete({
-    open,
-    ref: popupRef,
-    onComplete() {
-      if (open) {
-        onOpenChangeComplete?.(true);
-      }
-    },
-  });
 
   const { events: menuEvents } = useFloatingTree()!;
 

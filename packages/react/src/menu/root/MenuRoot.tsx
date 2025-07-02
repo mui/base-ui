@@ -202,7 +202,9 @@ export const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
     open,
     ref: popupRef,
     onComplete() {
-      if (!open) {
+      if (open) {
+        onOpenChangeComplete?.(true);
+      } else if (mounted) {
         handleUnmount();
       }
     },

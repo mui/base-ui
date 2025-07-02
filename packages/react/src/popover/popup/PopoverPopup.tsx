@@ -10,7 +10,6 @@ import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping';
 import { InteractionType } from '../../utils/useEnhancedClickHandler';
 import { transitionStatusMapping } from '../../utils/styleHookMapping';
-import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { DISABLED_TRANSITIONS_STYLE, EMPTY_OBJECT } from '../../utils/constants';
 
@@ -41,21 +40,10 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
     popupRef,
     mounted,
     openReason,
-    onOpenChangeComplete,
     modal,
     openMethod,
   } = usePopoverRootContext();
   const positioner = usePopoverPositionerContext();
-
-  useOpenChangeComplete({
-    open,
-    ref: popupRef,
-    onComplete() {
-      if (open) {
-        onOpenChangeComplete?.(true);
-      }
-    },
-  });
 
   const resolvedInitialFocus = React.useMemo(() => {
     if (initialFocus == null) {

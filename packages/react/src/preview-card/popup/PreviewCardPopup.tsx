@@ -8,7 +8,6 @@ import type { BaseUIComponentProps } from '../../utils/types';
 import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import { transitionStatusMapping } from '../../utils/styleHookMapping';
-import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { DISABLED_TRANSITIONS_STYLE, EMPTY_OBJECT } from '../../utils/constants';
 
@@ -29,19 +28,8 @@ export const PreviewCardPopup = React.forwardRef(function PreviewCardPopup(
 ) {
   const { className, render, ...elementProps } = componentProps;
 
-  const { open, transitionStatus, popupRef, onOpenChangeComplete, popupProps } =
-    usePreviewCardRootContext();
+  const { open, transitionStatus, popupRef, popupProps } = usePreviewCardRootContext();
   const { side, align } = usePreviewCardPositionerContext();
-
-  useOpenChangeComplete({
-    open,
-    ref: popupRef,
-    onComplete() {
-      if (open) {
-        onOpenChangeComplete?.(true);
-      }
-    },
-  });
 
   const state: PreviewCardPopup.State = React.useMemo(
     () => ({

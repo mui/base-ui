@@ -11,7 +11,6 @@ import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import { useSelectPositionerContext } from '../positioner/SelectPositionerContext';
 import { styleDisableScrollbar } from '../../utils/styles';
 import { transitionStatusMapping } from '../../utils/styleHookMapping';
-import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { selectors } from '../store';
 import { clearPositionerStyles } from './utils';
@@ -42,7 +41,6 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
   const {
     store,
     popupRef,
-    onOpenChangeComplete,
     setOpen,
     valueRef,
     selectedItemTextRef,
@@ -60,16 +58,6 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
   const positionerElement = useSelector(store, selectors.positionerElement);
   const scrollUpArrowVisible = useSelector(store, selectors.scrollUpArrowVisible);
   const scrollDownArrowVisible = useSelector(store, selectors.scrollDownArrowVisible);
-
-  useOpenChangeComplete({
-    open,
-    ref: popupRef,
-    onComplete() {
-      if (open) {
-        onOpenChangeComplete?.(true);
-      }
-    },
-  });
 
   const state: SelectPopup.State = React.useMemo(
     () => ({

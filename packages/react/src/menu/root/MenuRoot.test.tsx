@@ -1014,7 +1014,7 @@ describe('<Menu.Root />', () => {
         expect(screen.queryByTestId('popup')).not.to.equal(null);
       });
 
-      expect(onOpenChangeComplete.callCount).to.equal(2);
+      expect(onOpenChangeComplete.callCount).to.equal(1);
       expect(onOpenChangeComplete.firstCall.args[0]).to.equal(true);
     });
 

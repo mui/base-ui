@@ -554,7 +554,7 @@ describe('<PreviewCard.Root />', () => {
               opacity: 0;
             }
           }
-  
+
           .animation-test-indicator[data-ending-style] {
             animation: test-anim 1ms;
           }
@@ -625,7 +625,7 @@ describe('<PreviewCard.Root />', () => {
         expect(screen.queryByTestId('popup')).not.to.equal(null);
       });
 
-      expect(onOpenChangeComplete.callCount).to.equal(2);
+      expect(onOpenChangeComplete.callCount).to.equal(1);
       expect(onOpenChangeComplete.firstCall.args[0]).to.equal(true);
     });
 
@@ -641,7 +641,7 @@ describe('<PreviewCard.Root />', () => {
               opacity: 0;
             }
           }
-  
+
           .animation-test-indicator[data-starting-style] {
             animation: test-anim 1ms;
           }

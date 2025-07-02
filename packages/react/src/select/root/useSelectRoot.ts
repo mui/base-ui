@@ -225,7 +225,9 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     open,
     ref: popupRef,
     onComplete() {
-      if (!open) {
+      if (open) {
+        onOpenChangeComplete?.(true);
+      } else if (mounted) {
         handleUnmount();
       }
     },
