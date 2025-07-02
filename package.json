@@ -127,7 +127,7 @@
     "fs-extra": "^11.3.0",
     "globby": "^14.1.0",
     "jsonc-parser": "^3.3.1",
-    "lerna": "^8.2.2",
+    "lerna": "^8.2.3",
     "lodash": "^4.17.21",
     "markdownlint-cli2": "^0.17.2",
     "nx": "^20.8.2",
