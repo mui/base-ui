@@ -2,13 +2,12 @@
 import * as React from 'react';
 import { useForkRef } from '@base-ui-components/utils';
 import { FloatingEvents, useFloatingTree } from '../../floating-ui-react';
-import { useMenuItem } from './useMenuItem';
+import { REGULAR_ITEM, useMenuItem } from './useMenuItem';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import { useCompositeListItem } from '../../composite/list/useCompositeListItem';
-import { EMPTY_OBJECT } from '../../utils/constants';
 
 const InnerMenuItem = React.memo(
   React.forwardRef(function InnerMenuItem(
@@ -39,7 +38,7 @@ const InnerMenuItem = React.memo(
       allowMouseUpTriggerRef,
       typingRef,
       nativeButton,
-      submenuTrigger: EMPTY_OBJECT,
+      itemMetadata: REGULAR_ITEM,
     });
 
     const state: MenuItem.State = React.useMemo(

@@ -3,14 +3,13 @@ import * as React from 'react';
 import { useForkRef, useControlled } from '@base-ui-components/utils';
 import { FloatingEvents, useFloatingTree } from '../../floating-ui-react';
 import { MenuCheckboxItemContext } from './MenuCheckboxItemContext';
-import { useMenuItem } from '../item/useMenuItem';
+import { REGULAR_ITEM, useMenuItem } from '../item/useMenuItem';
 import { useCompositeListItem } from '../../composite/list/useCompositeListItem';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import { itemMapping } from '../utils/styleHookMapping';
-import { EMPTY_OBJECT } from '../../utils/constants';
 
 const InnerMenuCheckboxItem = React.memo(
   React.forwardRef(function InnerMenuCheckboxItem(
@@ -51,7 +50,7 @@ const InnerMenuCheckboxItem = React.memo(
       allowMouseUpTriggerRef,
       typingRef,
       nativeButton,
-      submenuTrigger: EMPTY_OBJECT,
+      itemMetadata: REGULAR_ITEM,
     });
 
     const state: MenuCheckboxItem.State = React.useMemo(

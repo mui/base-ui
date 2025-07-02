@@ -20,7 +20,7 @@ interface Props {
   children: React.JSX.Element;
 }
 
-export function Tooltip({ children, label }: Props) {
+function Tooltip({ children, label }: Props) {
   const [open, setOpen] = React.useState(false);
 
   const { x, y, refs, strategy, context } = useFloating({

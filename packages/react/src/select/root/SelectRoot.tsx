@@ -4,6 +4,7 @@ import { visuallyHidden, useForkRef } from '@base-ui-components/utils';
 import { type SelectOpenChangeReason, useSelectRoot } from './useSelectRoot';
 import { SelectRootContext, SelectFloatingContext } from './SelectRootContext';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
+import { serializeValue } from '../utils/serialize';
 
 /**
  * Groups all parts of the select.
@@ -33,7 +34,7 @@ export const SelectRoot: SelectRoot = function SelectRoot<Value>(
     items,
   } = props;
 
-  const { rootContext, floatingContext } = useSelectRoot<Value>({
+  const { rootContext, floatingContext, value } = useSelectRoot<Value>({
     id,
     value: valueProp,
     defaultValue,
@@ -54,19 +55,9 @@ export const SelectRoot: SelectRoot = function SelectRoot<Value>(
 
   const { setDirty, validityData, validationMode, controlId } = useFieldRootContext();
 
-  const value = store.state.value;
-
   const ref = useForkRef(inputRef, rootContext.fieldControlValidation.inputRef);
 
-  const serializedValue = React.useMemo(() => {
-    if (value == null) {
-      return ''; // avoid uncontrolled -> controlled error
-    }
-    if (typeof value === 'string') {
-      return value;
-    }
-    return JSON.stringify(value);
-  }, [value]);
+  const serializedValue = React.useMemo(() => serializeValue(value), [value]);
 
   return (
     <SelectRootContext.Provider value={rootContext}>

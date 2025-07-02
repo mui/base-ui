@@ -14,6 +14,7 @@ import { MenubarContext, useMenubarContext } from './MenubarContext';
 import { useScrollLock } from '../utils/useScrollLock';
 import { CompositeRoot } from '../composite/root/CompositeRoot';
 import { useRenderElement } from '../utils/useRenderElement';
+import { useBaseUiId } from '../utils/useBaseUiId';
 
 /**
  * The container for menus.
@@ -30,6 +31,7 @@ export const Menubar = React.forwardRef(function Menubar(
     render,
     className,
     modal = true,
+    id: idProp,
     ...otherProps
   } = props;
 
@@ -42,6 +44,8 @@ export const Menubar = React.forwardRef(function Menubar(
     mounted: hasSubmenuOpen,
     referenceElement: contentElement,
   });
+
+  const id = useBaseUiId(idProp);
 
   const state = React.useMemo(
     () => ({
@@ -56,7 +60,7 @@ export const Menubar = React.forwardRef(function Menubar(
 
   const element = useRenderElement('div', props, {
     state,
-    props: [{ role: 'menubar' }, otherProps],
+    props: [{ role: 'menubar', id }, otherProps],
     ref: [forwardedRef, setContentElement, contentRef],
   });
 
@@ -69,8 +73,9 @@ export const Menubar = React.forwardRef(function Menubar(
       modal,
       orientation,
       allowMouseUpTriggerRef,
+      rootId: id,
     }),
-    [contentElement, hasSubmenuOpen, modal, orientation],
+    [contentElement, hasSubmenuOpen, modal, orientation, id],
   );
 
   return (

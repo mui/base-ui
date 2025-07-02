@@ -664,7 +664,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
       const isFocusInsideFloatingTree =
         contains(floating, activeEl) ||
         (tree &&
-          getNodeChildren(tree.nodesRef.current, getNodeId()).some((node) =>
+          getNodeChildren(tree.nodesRef.current, getNodeId(), false).some((node) =>
             contains(node.context?.elements.floating, activeEl),
           ));
 

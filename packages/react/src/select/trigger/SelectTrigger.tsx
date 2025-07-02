@@ -14,6 +14,7 @@ import { getPseudoElementBounds } from '../../utils/getPseudoElementBounds';
 import { contains } from '../../floating-ui-react/utils';
 import { mergeProps } from '../../merge-props';
 import { useButton } from '../../use-button';
+import type { FieldRoot } from '../../field/root/FieldRoot';
 
 const BOUNDARY_OFFSET = 2;
 
@@ -239,7 +240,7 @@ export namespace SelectTrigger {
     nativeButton?: boolean;
   }
 
-  export interface State {
+  export interface State extends FieldRoot.State {
     /**
      * Whether the select menu is currently open.
      */

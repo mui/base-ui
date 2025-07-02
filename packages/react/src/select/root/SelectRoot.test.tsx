@@ -941,6 +941,49 @@ describe('<Select.Root />', () => {
       expect(screen.queryByTestId('error')).to.equal(null);
       expect(trigger).not.to.have.attribute('aria-invalid');
     });
+
+    it('revalidates immediately after form submission errors', async () => {
+      const { user } = await renderFakeTimers(
+        <Form>
+          <Field.Root name="select">
+            <Select.Root required>
+              <Select.Trigger data-testid="trigger">
+                <Select.Value />
+              </Select.Trigger>
+              <Select.Portal>
+                <Select.Positioner>
+                  <Select.Popup>
+                    <Select.Item value="a">a</Select.Item>
+                    <Select.Item value="b">b</Select.Item>
+                  </Select.Popup>
+                </Select.Positioner>
+              </Select.Portal>
+            </Select.Root>
+            <Field.Error match="valueMissing" data-testid="error">
+              required
+            </Field.Error>
+          </Field.Root>
+          <button type="submit" data-testid="submit">
+            Submit
+          </button>
+        </Form>,
+      );
+
+      const submit = screen.getByTestId('submit');
+      await user.click(submit);
+
+      expect(screen.getByTestId('error')).to.have.text('required');
+      const trigger = screen.getByTestId('trigger');
+      expect(trigger).to.have.attribute('aria-invalid', 'true');
+
+      await user.click(trigger);
+      await flushMicrotasks();
+      clock.tick(200);
+      await user.click(screen.getByRole('option', { name: 'b' }));
+
+      expect(screen.queryByTestId('error')).to.equal(null);
+      expect(trigger).not.to.have.attribute('aria-invalid');
+    });
   });
 
   describe('Field', () => {

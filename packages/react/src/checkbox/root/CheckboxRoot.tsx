@@ -90,7 +90,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
   const {
     checked: groupChecked = checkedProp,
     indeterminate: groupIndeterminate = indeterminate,
-    onCheckedChange: groupOnChange = onCheckedChange,
+    onCheckedChange: groupOnChange,
     ...otherGroupProps
   } = groupProps;
 
@@ -209,6 +209,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
         setDirty(nextChecked !== validityData.initialValue);
         setCheckedState(nextChecked);
         groupOnChange?.(nextChecked, event.nativeEvent);
+        onCheckedChange(nextChecked, event.nativeEvent);
         clearErrors(name);
 
         if (!groupContext) {
@@ -251,10 +252,10 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
   const computedIndeterminate = isGrouped ? groupIndeterminate || indeterminate : indeterminate;
 
   React.useEffect(() => {
-    if (parentContext && name) {
-      parentContext.disabledStatesRef.current.set(name, disabled);
+    if (parentContext && value) {
+      parentContext.disabledStatesRef.current.set(value, disabled);
     }
-  }, [parentContext, disabled, name]);
+  }, [parentContext, disabled, value]);
 
   const state: CheckboxRoot.State = React.useMemo(
     () => ({

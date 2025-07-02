@@ -1,7 +1,6 @@
 'use client';
 import * as React from 'react';
 import { usePreviewCardRootContext } from '../root/PreviewCardContext';
-import { usePreviewCardPositioner } from './usePreviewCardPositioner';
 import { PreviewCardPositionerContext } from './PreviewCardPositionerContext';
 import { type Side, type Align, useAnchorPositioning } from '../../utils/useAnchorPositioning';
 import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
@@ -129,6 +128,6 @@ export namespace PreviewCardPositioner {
   }
 
   export interface Props
-    extends usePreviewCardPositioner.SharedParameters,
+    extends useAnchorPositioning.SharedParameters,
       BaseUIComponentProps<'div', State> {}
 }

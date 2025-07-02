@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import { useTimeout, useEventCallback, useControlled } from '@base-ui-components/utils';
+import { useTimeout, useEventCallback, useControlled, useId } from '@base-ui-components/utils';
 import {
   FloatingTree,
   useClick,
@@ -106,6 +106,12 @@ export const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
         type: undefined,
       };
     }
+  }
+
+  let rootId = useId();
+
+  if (parent.type !== undefined) {
+    rootId = parent.context.rootId;
   }
 
   const modal =
@@ -236,7 +242,8 @@ export const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
 
       const isKeyboardClick =
         (reason === 'trigger-press' || reason === 'item-press') &&
-        (event as MouseEvent).detail === 0;
+        (event as MouseEvent).detail === 0 &&
+        event?.isTrusted;
       const isDismissClose = !nextOpen && (reason === 'escape-key' || reason == null);
 
       function changeState() {
@@ -318,7 +325,8 @@ export const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
     handleClose: safePolygon({ blockPointerEvents: true }),
     mouseOnly: true,
     move: parent.type === 'menu',
-    restMs: parent.type !== undefined && !allowMouseEnter ? undefined : delay,
+    restMs:
+      parent.type === undefined || (parent.type === 'menu' && allowMouseEnter) ? delay : undefined,
     delay:
       parent.type === 'menu'
         ? { open: allowMouseEnter ? delay : 10 ** 10, close: closeDelay }
@@ -479,6 +487,7 @@ export const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
       modal,
       disabled,
       parent,
+      rootId,
       allowMouseEnter,
       setAllowMouseEnter,
     }),
@@ -503,6 +512,7 @@ export const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
       modal,
       disabled,
       parent,
+      rootId,
       allowMouseEnter,
       setAllowMouseEnter,
     ],

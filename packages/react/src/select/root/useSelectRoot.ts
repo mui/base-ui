@@ -88,8 +88,6 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     state: 'open',
   });
 
-  const isValueControlled = params.value !== undefined;
-
   const listRef = React.useRef<Array<HTMLElement | null>>([]);
   const labelsRef = React.useRef<Array<string | null>>([]);
   const popupRef = React.useRef<HTMLDivElement | null>(null);
@@ -148,18 +146,6 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
   const controlRef = useLatestRef(store.state.triggerElement);
   const commitValidation = fieldControlValidation.commitValidation;
 
-  const updateValue = useEventCallback((nextValue: any) => {
-    const index = valuesRef.current.indexOf(nextValue);
-
-    store.apply({
-      selectedIndex: index === -1 ? null : index,
-      label: labelsRef.current[index] ?? '',
-    });
-
-    clearErrors(name);
-    setDirty(nextValue !== validityData.initialValue);
-  });
-
   useField({
     id,
     commitValidation,
@@ -172,23 +158,39 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
   const prevValueRef = React.useRef(value);
 
   useModernLayoutEffect(() => {
+    setFilled(value !== null);
+  }, [value, setFilled]);
+
+  useModernLayoutEffect(() => {
     if (prevValueRef.current === value) {
       return;
     }
 
-    clearErrors(name);
-    commitValidation?.(value, true);
-    if (validationMode === 'onChange') {
-      commitValidation?.(value);
-    }
-  }, [value, commitValidation, clearErrors, name, validationMode]);
+    const index = valuesRef.current.indexOf(value);
 
-  useModernLayoutEffect(() => {
-    setFilled(value !== null);
-    if (prevValueRef.current !== value) {
-      updateValue(value);
+    store.apply({
+      selectedIndex: index === -1 ? null : index,
+      label: labelsRef.current[index] ?? '',
+    });
+
+    clearErrors(name);
+    setDirty(value !== validityData.initialValue);
+    commitValidation(value, validationMode !== 'onChange');
+
+    if (validationMode === 'onChange') {
+      commitValidation(value);
     }
-  }, [setFilled, updateValue, value]);
+  }, [
+    value,
+    commitValidation,
+    clearErrors,
+    name,
+    validationMode,
+    store,
+    setDirty,
+    validityData.initialValue,
+    setFilled,
+  ]);
 
   useModernLayoutEffect(() => {
     prevValueRef.current = value;
@@ -236,10 +238,6 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
   const setValue = useEventCallback((nextValue: any, event?: Event) => {
     params.onValueChange?.(nextValue, event);
     setValueUnwrapped(nextValue);
-
-    if (!isValueControlled) {
-      updateValue(nextValue);
-    }
   });
 
   const hasRegisteredRef = React.useRef(false);
@@ -434,7 +432,11 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     ],
   );
 
-  return { rootContext, floatingContext };
+  return {
+    rootContext,
+    floatingContext,
+    value,
+  };
 }
 
 export namespace useSelectRoot {
@@ -535,6 +537,7 @@ export namespace useSelectRoot {
   export type ReturnValue = {
     rootContext: SelectRootContext;
     floatingContext: FloatingRootContext;
+    value: any;
   };
 
   export interface Actions {

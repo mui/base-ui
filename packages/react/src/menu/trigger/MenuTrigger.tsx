@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { getParentNode, isHTMLElement, isLastTraversableNode } from '@floating-ui/utils/dom';
 import { useForkRef, useTimeout, ownerDocument, useEventCallback } from '@base-ui-components/utils';
 import { contains } from '../../floating-ui-react/utils';
 import { useFloatingTree } from '../../floating-ui-react/index';
@@ -41,6 +42,7 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
     positionerRef,
     parent,
     lastOpenChangeReason,
+    rootId,
   } = useMenuRootContext();
 
   const disabled = disabledProp || menuDisabled;
@@ -70,10 +72,6 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
     allowMouseUpTriggerTimeout.clear();
     allowMouseUpTriggerRef.current = false;
 
-    if (!allowMouseUpTriggerRef.current) {
-      return;
-    }
-
     const mouseUpTarget = mouseEvent.target as Element | null;
 
     if (
@@ -81,6 +79,10 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
       contains(positionerRef.current, mouseUpTarget) ||
       mouseUpTarget === triggerRef.current
     ) {
+      return;
+    }
+
+    if (mouseUpTarget != null && findRootOwnerId(mouseUpTarget) === rootId) {
       return;
     }
 
@@ -184,4 +186,16 @@ export namespace MenuTrigger {
      */
     open: boolean;
   };
+}
+
+function findRootOwnerId(node: Node): string | undefined {
+  if (isHTMLElement(node) && node.hasAttribute('data-rootownerid')) {
+    return node.getAttribute('data-rootownerid') ?? undefined;
+  }
+
+  if (isLastTraversableNode(node)) {
+    return undefined;
+  }
+
+  return findRootOwnerId(getParentNode(node));
 }
