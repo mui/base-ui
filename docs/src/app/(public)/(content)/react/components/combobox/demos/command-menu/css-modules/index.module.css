@@ -118,6 +118,10 @@
   scroll-padding-block: 0.5rem;
   overscroll-behavior: contain;
   padding: 0.5rem 1rem;
+
+  &:empty {
+    padding: 0;
+  }
 }
 
 .Group:not(:last-child) {
@@ -175,9 +179,8 @@
   }
 }
 
-.Empty div {
+.Empty:not(:empty) {
   padding: 1rem;
-  text-align: center;
   font-size: 0.925rem;
   line-height: 1rem;
   color: var(--color-gray-600);

@@ -52,6 +52,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
     inputRef,
     value: contextInputValue,
     setValue: setInputValue,
+    listRef,
   } = useComboboxRootContext();
   const comboboxChipsContext = useComboboxChipsContext();
 
@@ -204,6 +205,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
           ) {
             setOpen(true, event.nativeEvent, undefined);
             store.set('activeIndex', null);
+            store.set('selectedIndex', null);
             if (activeIndex !== null) {
               onItemHighlighted(undefined, keyboardActiveRef.current ? 'keyboard' : 'pointer');
             }
@@ -216,22 +218,29 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
           if (event.key === 'Enter') {
             event.preventDefault();
 
-            const selectedValue = valuesRef.current[activeIndex];
+            const highlightedItemElement = listRef.current[activeIndex];
 
-            if (multiple) {
-              const isSelected = Array.isArray(value) && value.includes(selectedValue);
-
-              let nextValue = [];
-              if (isSelected) {
-                nextValue = value.filter((v) => v !== selectedValue);
-              } else {
-                nextValue = [...value, selectedValue];
-              }
-
-              setSelectedValue(nextValue, event.nativeEvent, 'item-press');
+            if (highlightedItemElement) {
+              highlightedItemElement.click();
             } else {
-              setSelectedValue(selectedValue, event.nativeEvent, 'item-press');
-              setOpen(false, event.nativeEvent, 'item-press');
+              // Fallback to the original behavior if we can't find the element
+              const selectedValue = valuesRef.current[activeIndex];
+
+              if (multiple) {
+                const isSelected = Array.isArray(value) && value.includes(selectedValue);
+
+                let nextValue = [];
+                if (isSelected) {
+                  nextValue = value.filter((v) => v !== selectedValue);
+                } else {
+                  nextValue = [...value, selectedValue];
+                }
+
+                setSelectedValue(nextValue, event.nativeEvent, 'item-press');
+              } else {
+                setSelectedValue(selectedValue, event.nativeEvent, 'item-press');
+                setOpen(false, event.nativeEvent, 'item-press');
+              }
             }
           }
         },

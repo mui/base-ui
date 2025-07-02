@@ -127,6 +127,10 @@
     calc(24rem - var(--input-container-height)),
     calc(var(--available-height) - var(--input-container-height))
   );
+
+  &:empty {
+    padding: 0;
+  }
 }
 
 .Item {
@@ -180,13 +184,9 @@
   background-color: var(--color-gray-200);
 }
 
-.NoResults {
-  padding-left: 1rem;
+.Empty:not(:empty) {
   font-size: 0.925rem;
   line-height: 1rem;
   color: var(--color-gray-600);
-
-  > div {
-    margin-top: 1rem;
-  }
+  padding: 1rem;
 }

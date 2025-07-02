@@ -31,6 +31,7 @@ import { Combobox } from '@base-ui-components/react/combobox';
     <Combobox.Positioner>
       <Combobox.Popup>
         <Combobox.Status />
+        <Combobox.Empty />
 
         <Combobox.List>
           <Combobox.Row>
@@ -44,6 +45,8 @@ import { Combobox } from '@base-ui-components/react/combobox';
           <Combobox.Group>
             <Combobox.GroupLabel />
           </Combobox.Group>
+
+          <Combobox.Collection />
         </Combobox.List>
       </Combobox.Popup>
     </Combobox.Positioner>
@@ -55,20 +58,20 @@ import { Combobox } from '@base-ui-components/react/combobox';
 
 <Reference
   component="Combobox"
-  parts="Root, Input, Chips, Chip, ChipRemove, Value, List, Trigger, Portal, Positioner, Popup, Status, Row, Item, ItemIndicator, Group, GroupLabel, Separator"
+  parts="Root, Input, Chips, Chip, ChipRemove, Value, List, Trigger, Portal, Positioner, Popup, Status, Empty, Collection, Row, Item, ItemIndicator, Group, GroupLabel, Separator"
 />
 
 ## Examples
 
 ### Basic
 
-A simple combobox with predefined options, demonstrating search history without filtering.
+The combobox can display predefined options without filtering or selection state, demonstrating search history.
 
 <Demo path="./demos/basic" compact />
 
 ### Grouped
 
-Group related options together by passing an array of group objects to the `items` prop.
+The combobox can group related options together by passing an array of group objects to the `items` prop.
 
 <Demo path="./demos/grouped" compact />
 
@@ -84,15 +87,21 @@ The combobox's input can be autofilled with the highlighted item when navigating
 
 <Demo path="./demos/autofill" compact />
 
+### Select
+
+The combobox can require the input value to match one of its predefined options.
+
+<Demo path="./demos/option-only" compact />
+
 ### Inside `Popover`
 
-The combobox can be rendered inline inside a parent popover to create a searchable select menu by adding `select="single"` prop to `Combobox.Root` to remember the selected value.
+The combobox can be rendered inline inside a parent popover to create a searchable select menu.
 
 <Demo path="./demos/inside-popover" compact />
 
 ### Multiple
 
-Set `select="multiple"` on `Combobox.Root` to allow multiple selections.
+The combobox can be used to create a multiple select menu, rendering chips for each selected value in the input.
 
 <Demo path="./demos/multiple" compact />
 
@@ -104,6 +113,12 @@ The combobox items can be navigated in a grid layout by wrapping each row in `Co
 
 ### Command menu
 
-The combobox can be used to create a command menu by adding the `command` prop to `Combobox.Root`.
+The combobox can be used to create a command menu when rendered inside a `Dialog` component.
 
 <Demo path="./demos/command-menu" compact />
+
+### Search highlights
+
+Search highlights can be created by wrapping text with `<mark>` tags.
+
+<Demo path="./demos/search-highlights" compact />

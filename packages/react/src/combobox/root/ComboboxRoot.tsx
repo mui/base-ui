@@ -48,13 +48,13 @@ import {
  *
  * Documentation: [Base UI Combobox](https://base-ui.com/react/components/combobox)
  */
-export function ComboboxRoot<Item extends { value: unknown } = { value: string }>(
+export function ComboboxRoot<Item = ComboboxRoot.Item>(
   props: ComboboxRoot.SingleProps<Item>,
 ): React.JSX.Element;
-export function ComboboxRoot<Item extends { value: unknown } = { value: string }>(
+export function ComboboxRoot<Item = ComboboxRoot.Item>(
   props: ComboboxRoot.MultipleProps<Item>,
 ): React.JSX.Element;
-export function ComboboxRoot<Item extends { value: unknown } = { value: string }>(
+export function ComboboxRoot<Item = ComboboxRoot.Item>(
   props: ComboboxRoot.Props<Item>,
 ): React.JSX.Element {
   const {
@@ -200,6 +200,7 @@ export function ComboboxRoot<Item extends { value: unknown } = { value: string }
   const onItemHighlighted = useEventCallback(onItemHighlightedProp);
 
   const activeIndex = useSelector(store, selectors.activeIndex);
+  const selectedIndex = useSelector(store, selectors.selectedIndex);
   const triggerElement = useSelector(store, selectors.triggerElement);
   const positionerElement = useSelector(store, selectors.positionerElement);
   const listElement = useSelector(store, selectors.listElement);
@@ -280,6 +281,8 @@ export function ComboboxRoot<Item extends { value: unknown } = { value: string }
 
   const handleUnmount = useEventCallback(() => {
     closingRef.current = false;
+    allowActiveIndexSyncRef.current = true;
+    listRef.current = [];
     setMounted(false);
     store.set('activeIndex', null);
     onItemHighlighted(undefined, 'pointer');
@@ -336,7 +339,6 @@ export function ComboboxRoot<Item extends { value: unknown } = { value: string }
     }
 
     if (multiple) {
-      // For multiple selection, we need to handle arrays
       const currentValue = selectedValue as any[];
       const selectedIndices: number[] = [];
 
@@ -349,14 +351,20 @@ export function ComboboxRoot<Item extends { value: unknown } = { value: string }
         });
       }
 
-      store.apply({ selectedIndex: selectedIndices.length > 0 ? selectedIndices : null });
+      store.set(
+        'selectedIndex',
+        selectedIndices.length > 0 ? selectedIndices[selectedIndices.length - 1] : null,
+      );
     } else {
-      // Single selection logic (existing)
       const index = suppliedIndex ?? valuesRef.current.indexOf(selectedValue);
       const hasIndex = index !== -1;
 
-      if (hasIndex || selectedValue === null) {
-        store.apply({ selectedIndex: index });
+      // Always clear the selected index when nothing is selected.
+      if (selectedValue === null) {
+        store.set('selectedIndex', null);
+      } else if (allowActiveIndexSyncRef.current && hasIndex) {
+        // Otherwise, sync only when synchronization is enabled.
+        store.set('selectedIndex', index);
       }
     }
   });
@@ -422,14 +430,22 @@ export function ComboboxRoot<Item extends { value: unknown } = { value: string }
     },
   });
 
+  const hasActualSelections = React.useMemo(() => {
+    if (multiple) {
+      return Array.isArray(selectedValue) && selectedValue.length > 0;
+    }
+    return Boolean(selectedValue);
+  }, [multiple, selectedValue]);
+
   const listNavigation = useListNavigation(floatingRootContext, {
     enabled: !readOnly && !disabled,
     listRef,
     activeIndex,
+    selectedIndex,
     virtual: true,
     loop: true,
     allowEscape: true,
-    focusItemOnOpen: false,
+    focusItemOnOpen: selectProp !== 'none' && selectedIndex !== null && hasActualSelections,
     cols,
     orientation: cols > 1 ? 'horizontal' : undefined,
     onNavigate(nextActiveIndex) {
@@ -622,7 +638,9 @@ export function ComboboxRoot<Item extends { value: unknown } = { value: string }
 export namespace ComboboxRoot {
   export interface State {}
 
-  interface BaseProps<Item extends { value: unknown } = { value: string }> {
+  type ItemValue<T> = T extends { value: infer V } ? V : T;
+
+  interface BaseProps<ItemObject = Item> {
     children?: React.ReactNode;
     /**
      * Identifies the field when a form is submitted.
@@ -703,7 +721,10 @@ export namespace ComboboxRoot {
      * Callback fired when the user navigates the list and highlights an item.
      * Passes the item's `value` or `undefined` when no item is highlighted.
      */
-    onItemHighlighted?: (value: Item['value'] | undefined, type: 'keyboard' | 'pointer') => void;
+    onItemHighlighted?: (
+      value: ItemValue<ItemObject> | undefined,
+      type: 'keyboard' | 'pointer',
+    ) => void;
     /**
      * A ref to the hidden input element used for form submission.
      */
@@ -717,15 +738,14 @@ export namespace ComboboxRoot {
      * The items to be displayed in the combobox.
      * Can be either a flat array of items or an array of groups with items.
      */
-    items?: Item[] | ComboboxGroup<Item>[];
+    items?: ItemObject[] | ComboboxGroup<ItemObject>[];
     /**
      * Filter function used to match items vs input query.
      */
-    filter?: (item: Item, query: string) => boolean;
+    filter?: (item: ItemObject, query: string) => boolean;
   }
 
-  export interface SingleProps<Item extends { value: unknown } = { value: string }>
-    extends BaseProps<Item> {
+  export interface SingleProps<ItemObject = Item> extends BaseProps<ItemObject> {
     /**
      * How the combobox should remember the selected value.
      * - `single`: Remembers the last selected value.
@@ -738,12 +758,12 @@ export namespace ComboboxRoot {
     /**
      * The selected value of the combobox.
      */
-    selectedValue?: Item['value'];
+    selectedValue?: ItemValue<ItemObject>;
     /**
      * Callback fired when the selected value of the combobox changes.
      */
     onSelectedValueChange?: (
-      value: Item['value'],
+      value: ItemValue<ItemObject>,
       event: Event | undefined,
       reason: string | undefined,
     ) => void;
@@ -752,11 +772,10 @@ export namespace ComboboxRoot {
      *
      * To render a controlled combobox, use the `selectedValue` prop instead.
      */
-    defaultSelectedValue?: Item['value'];
+    defaultSelectedValue?: ItemValue<ItemObject>;
   }
 
-  export interface MultipleProps<Item extends { value: unknown } = { value: string }>
-    extends BaseProps<Item> {
+  export interface MultipleProps<ItemObject = Item> extends BaseProps<ItemObject> {
     /**
      * How the combobox should remember the selected value.
      * - `single`: Remembers the last selected value.
@@ -769,12 +788,12 @@ export namespace ComboboxRoot {
     /**
      * The selected values of the combobox.
      */
-    selectedValue?: Item['value'][];
+    selectedValue?: ItemValue<ItemObject>[];
     /**
      * Callback fired when the selected values of the combobox change.
      */
     onSelectedValueChange?: (
-      value: Item['value'][],
+      value: ItemValue<ItemObject>[],
       event: Event | undefined,
       reason: string | undefined,
     ) => void;
@@ -783,12 +802,12 @@ export namespace ComboboxRoot {
      *
      * To render a controlled combobox, use the `selectedValue` prop instead.
      */
-    defaultSelectedValue?: Item['value'][];
+    defaultSelectedValue?: ItemValue<ItemObject>[];
   }
 
-  export type Props<Item extends { value: unknown } = { value: string }> =
-    | SingleProps<Item>
-    | MultipleProps<Item>;
+  export type Item = ({ value: unknown } & Record<string, unknown>) | string | number;
+
+  export type Props<ItemObject = Item> = SingleProps<ItemObject> | MultipleProps<ItemObject>;
 
   export interface Actions {
     unmount: () => void;

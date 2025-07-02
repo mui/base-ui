@@ -49,8 +49,8 @@ export default function ExamplePopoverCombobox() {
                   className={styles.Input}
                 />
               </div>
-              <Combobox.Empty className={styles.NoResults}>
-                <div>No countries found.</div>
+              <Combobox.Empty className={styles.Empty}>
+                No countries found.
               </Combobox.Empty>
               <Combobox.List className={styles.List}>
                 {(country: Country) => (

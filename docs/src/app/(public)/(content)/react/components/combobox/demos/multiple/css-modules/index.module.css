@@ -241,13 +241,9 @@
   color: inherit;
 }
 
-.NoResults {
-  padding-left: 1rem;
+.Empty:not(:empty) {
   font-size: 0.925rem;
   line-height: 1rem;
   color: var(--color-gray-600);
-
-  > div {
-    margin: 0.5rem 0;
-  }
+  padding: 0.5rem 1rem;
 }

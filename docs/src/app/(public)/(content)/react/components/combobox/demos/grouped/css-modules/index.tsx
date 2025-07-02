@@ -14,8 +14,8 @@ export default function GroupedCombobox() {
       <Combobox.Portal>
         <Combobox.Positioner className={styles.Positioner} sideOffset={4}>
           <Combobox.Popup className={styles.Popup}>
-            <Combobox.Empty className={styles.NoResults}>
-              <div>No countries found</div>
+            <Combobox.Empty className={styles.Empty}>
+              No countries found.
             </Combobox.Empty>
             <Combobox.List className={styles.List}>
               {(group: CountryGroup) => (

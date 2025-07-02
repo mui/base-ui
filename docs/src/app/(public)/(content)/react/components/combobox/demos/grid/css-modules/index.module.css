@@ -180,6 +180,10 @@
     calc(20.5rem - var(--input-container-height)),
     calc(var(--available-height) - var(--input-container-height))
   );
+
+  &:empty {
+    padding: 0;
+  }
 }
 
 .ListContainer {
@@ -267,13 +271,9 @@
   opacity: 1;
 }
 
-.NoResults {
-  padding-left: 1rem;
+.Empty:not(:empty) {
+  padding: 0.5rem 1rem 1rem;
   font-size: 0.925rem;
   line-height: 1rem;
   color: var(--color-gray-600);
-
-  > div {
-    margin: 0.75rem 0 1rem;
-  }
 }

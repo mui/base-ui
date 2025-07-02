@@ -34,7 +34,8 @@
 
 .Popup {
   box-sizing: border-box;
-  border-radius: 0.5rem;
+  padding-block: 0.5rem;
+  border-radius: 0.375rem;
   background-color: canvas;
   color: var(--color-gray-900);
   transform-origin: var(--transform-origin);
@@ -42,9 +43,11 @@
     transform 150ms,
     opacity 150ms;
   width: var(--anchor-width);
-  max-height: min(var(--available-height), 22.5rem);
+  max-height: min(var(--available-height), 23rem);
   max-width: var(--available-width);
-  overflow: hidden;
+  overflow-y: auto;
+  scroll-padding-block: 0.5rem;
+  overscroll-behavior: contain;
 
   &[data-ending-style] {
     opacity: 0;
@@ -63,39 +66,17 @@
   }
 }
 
-.List {
-  overflow: auto;
-  scroll-padding-top: 2.5rem;
-  scroll-padding-bottom: 0.35rem;
-  overscroll-behavior: contain;
-  max-height: min(22.5rem, var(--available-height));
-}
-
-.Group {
-  display: block;
-  padding-bottom: 0.5rem;
-}
-
-.GroupLabel {
-  padding: 0.5rem 1rem;
-  font-size: 0.75rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.025em;
-  background-color: canvas;
-  position: sticky;
-  top: 0;
-  z-index: 1;
-  margin: 0;
-  width: 100%;
-}
-
 .Item {
   outline: 0;
   cursor: default;
   user-select: none;
-  padding: 0.5rem 2rem 0.5rem 1rem;
-  display: flex;
+  padding-block: 0.5rem;
+  padding-left: 1rem;
+  padding-right: 2rem;
+  display: grid;
+  gap: 0.5rem;
+  align-items: center;
+  grid-template-columns: 0.75rem 1fr;
   font-size: 1rem;
   line-height: 1rem;
 
@@ -116,15 +97,23 @@
   }
 }
 
-.Separator {
-  margin: 0.375rem 1rem;
-  height: 1px;
-  background-color: var(--color-gray-200);
+.ItemText {
+  grid-column-start: 2;
+}
+
+.ItemIndicator {
+  grid-column-start: 1;
+}
+
+.ItemIndicatorIcon {
+  display: block;
+  width: 0.75rem;
+  height: 0.75rem;
 }
 
 .Empty:not(:empty) {
-  padding: 1rem;
   font-size: 0.925rem;
   line-height: 1rem;
   color: var(--color-gray-600);
+  padding: 0.5rem 1rem;
 }

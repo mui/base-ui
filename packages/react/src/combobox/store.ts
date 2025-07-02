@@ -14,7 +14,7 @@ export type State = {
   inline: boolean;
 
   activeIndex: number | null;
-  selectedIndex: number | number[] | null;
+  selectedIndex: number | null;
 
   popupProps: HTMLProps;
   triggerProps: HTMLProps;

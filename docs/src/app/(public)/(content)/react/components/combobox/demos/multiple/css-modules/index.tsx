@@ -48,8 +48,8 @@ export default function MultipleCombobox() {
             anchor={containerRef}
           >
             <Combobox.Popup className={styles.Popup}>
-              <Combobox.Empty className={styles.NoResults}>
-                <div>No languages found.</div>
+              <Combobox.Empty className={styles.Empty}>
+                No languages found.
               </Combobox.Empty>
               <Combobox.List>
                 {(language: Lang) => (

@@ -117,8 +117,8 @@ export default function EmojiPicker() {
                       className={styles.Input}
                     />
                   </div>
-                  <Combobox.Empty className={styles.NoResults}>
-                    <div>No emojis found</div>
+                  <Combobox.Empty className={styles.Empty}>
+                    No emojis found
                   </Combobox.Empty>
                   <Combobox.List
                     className={styles.List}
