@@ -64,6 +64,7 @@ describe('<Form />', () => {
     const submit = screen.getByText('Submit');
 
     await user.click(submit);
+    expect(submitSpy.callCount).to.equal(0);
     expect(screen.getByTestId('email')).to.have.attribute('aria-invalid', 'true');
 
     await user.click(screen.getByRole('checkbox'));
