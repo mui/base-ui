@@ -110,6 +110,16 @@ export default defineConfig(
     extends: createDocsConfig(),
     rules: {
       '@typescript-eslint/no-use-before-define': 'off',
+      'import/extensions': [
+        'error',
+        // Ignores extensions in package imports as well as local ts/tsx imports but .mjs is always required
+        'ignorePackages',
+        {
+          ts: 'never',
+          tsx: 'never',
+          mjs: 'always',
+        },
+      ],
       'no-restricted-imports': [
         'error',
         {
