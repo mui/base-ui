@@ -1,4 +1,4 @@
-import sortBy from 'lodash/sortBy.js';
+import sortBy from 'lodash/sortBy';
 import * as tae from 'typescript-api-extractor';
 import fs from 'fs';
 import path from 'path';
