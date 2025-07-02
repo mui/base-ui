@@ -1,4 +1,3 @@
-/* eslint-disable no-var */
 /* eslint-disable vars-on-top */
 import { beforeAll, afterAll } from 'vitest';
 import chai from 'chai';
