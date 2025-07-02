@@ -8,10 +8,6 @@ export const ScrollAreaViewportContext = React.createContext<ScrollAreaViewportC
   undefined,
 );
 
-if (process.env.NODE_ENV !== 'production') {
-  ScrollAreaViewportContext.displayName = 'ScrollAreaViewportContext';
-}
-
 export function useScrollAreaViewportContext() {
   const context = React.useContext(ScrollAreaViewportContext);
   if (context === undefined) {

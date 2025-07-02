@@ -1,11 +1,11 @@
 'use client';
 import * as React from 'react';
-import { useSelectRoot } from './useSelectRoot';
-import { SelectRootContext } from './SelectRootContext';
-import { SelectIndexContext } from './SelectIndexContext';
+import { type SelectOpenChangeReason, useSelectRoot } from './useSelectRoot';
+import { SelectRootContext, SelectFloatingContext } from './SelectRootContext';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { visuallyHidden } from '../../utils/visuallyHidden';
 import { useForkRef } from '../../utils/useForkRef';
+import { serializeValue } from '../utils/serialize';
 
 /**
  * Groups all parts of the select.
@@ -32,9 +32,10 @@ export const SelectRoot: SelectRoot = function SelectRoot<Value>(
     actionsRef,
     inputRef,
     onOpenChangeComplete,
+    items,
   } = props;
 
-  const selectRoot = useSelectRoot<Value>({
+  const { rootContext, floatingContext, value } = useSelectRoot<Value>({
     id,
     value: valueProp,
     defaultValue,
@@ -49,34 +50,25 @@ export const SelectRoot: SelectRoot = function SelectRoot<Value>(
     modal,
     actionsRef,
     onOpenChangeComplete,
+    items,
   });
+  const store = rootContext.store;
 
-  const { setDirty, validityData, validationMode } = useFieldRootContext();
-
-  const { rootContext } = selectRoot;
-  const value = rootContext.value;
+  const { setDirty, validityData, validationMode, controlId } = useFieldRootContext();
 
   const ref = useForkRef(inputRef, rootContext.fieldControlValidation.inputRef);
 
-  const serializedValue = React.useMemo(() => {
-    if (value == null) {
-      return ''; // avoid uncontrolled -> controlled error
-    }
-    if (typeof value === 'string') {
-      return value;
-    }
-    return JSON.stringify(value);
-  }, [value]);
+  const serializedValue = React.useMemo(() => serializeValue(value), [value]);
 
   return (
-    <SelectRootContext.Provider value={selectRoot.rootContext}>
-      <SelectIndexContext.Provider value={selectRoot.indexContext}>
+    <SelectRootContext.Provider value={rootContext}>
+      <SelectFloatingContext.Provider value={floatingContext}>
         {props.children}
         <input
           {...rootContext.fieldControlValidation.getInputValidationProps({
             onFocus() {
               // Move focus to the trigger element when the hidden input is focused.
-              rootContext.triggerElement?.focus();
+              store.state.triggerElement?.focus();
             },
             // Handle browser autofill.
             onChange(event: React.ChangeEvent<HTMLSelectElement>) {
@@ -87,22 +79,26 @@ export const SelectRoot: SelectRoot = function SelectRoot<Value>(
 
               const nextValue = event.target.value;
 
-              const exactValue = rootContext.valuesRef.current.find(
-                (v) =>
-                  v === nextValue ||
-                  (typeof value === 'string' && nextValue.toLowerCase() === v.toLowerCase()),
-              );
+              store.set('forceMount', true);
 
-              if (exactValue != null) {
-                setDirty(exactValue !== validityData.initialValue);
-                rootContext.setValue?.(exactValue, event.nativeEvent);
+              queueMicrotask(() => {
+                const exactValue = rootContext.valuesRef.current.find(
+                  (v) =>
+                    v === nextValue ||
+                    (typeof value === 'string' && nextValue.toLowerCase() === v.toLowerCase()),
+                );
 
-                if (validationMode === 'onChange') {
-                  selectRoot.rootContext.fieldControlValidation.commitValidation(exactValue);
+                if (exactValue != null) {
+                  setDirty(exactValue !== validityData.initialValue);
+                  rootContext.setValue?.(exactValue, event.nativeEvent);
+
+                  if (validationMode === 'onChange') {
+                    rootContext.fieldControlValidation.commitValidation(exactValue);
+                  }
                 }
-              }
+              });
             },
-            id: rootContext.id,
+            id: id || controlId || undefined,
             name: rootContext.name,
             disabled: rootContext.disabled,
             required: rootContext.required,
@@ -114,7 +110,7 @@ export const SelectRoot: SelectRoot = function SelectRoot<Value>(
             'aria-hidden': true,
           })}
         />
-      </SelectIndexContext.Provider>
+      </SelectFloatingContext.Provider>
     </SelectRootContext.Provider>
   );
 };
@@ -131,6 +127,8 @@ export namespace SelectRoot {
   export interface State {}
 
   export type Actions = useSelectRoot.Actions;
+
+  export type OpenChangeReason = SelectOpenChangeReason;
 }
 
 export interface SelectRoot {

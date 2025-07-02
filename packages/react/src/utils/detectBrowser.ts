@@ -1,13 +1,35 @@
-import { getUserAgent } from '@floating-ui/react/utils';
-
 interface NavigatorUAData {
   brands: Array<{ brand: string; version: string }>;
   mobile: boolean;
   platform: string;
 }
 
+const hasNavigator = typeof navigator !== 'undefined';
+
+const nav = getNavigatorData();
+const platform = getPlatform();
+const userAgent = getUserAgent();
+
+export const isWebKit =
+  typeof CSS === 'undefined' || !CSS.supports
+    ? false
+    : CSS.supports('-webkit-backdrop-filter:none');
+
+export const isIOS =
+  // iPads can claim to be MacIntel
+  nav.platform === 'MacIntel' && nav.maxTouchPoints > 1
+    ? true
+    : /iP(hone|ad|od)|iOS/.test(nav.platform);
+
+export const isFirefox = hasNavigator && /firefox/i.test(userAgent);
+export const isSafari = hasNavigator && /apple/i.test(navigator.vendor);
+export const isAndroid = (hasNavigator && /android/i.test(platform)) || /android/i.test(userAgent);
+export const isMac =
+  hasNavigator && platform.toLowerCase().startsWith('mac') && !navigator.maxTouchPoints;
+export const isJSDOM = userAgent.includes('jsdom/');
+
 // Avoid Chrome DevTools blue warning.
-export function getNavigatorData(): { platform: string; maxTouchPoints: number } {
+function getNavigatorData(): { platform: string; maxTouchPoints: number } {
   if (typeof navigator === 'undefined') {
     return { platform: '', maxTouchPoints: -1 };
   }
@@ -27,25 +49,30 @@ export function getNavigatorData(): { platform: string; maxTouchPoints: number }
   };
 }
 
-export function isWebKit() {
-  if (typeof CSS === 'undefined' || !CSS.supports) {
-    return false;
-  }
-  return CSS.supports('-webkit-backdrop-filter:none');
-}
-
-export function isIOS() {
-  const nav = getNavigatorData();
-
-  // iPads can claim to be MacIntel
-  // https://github.com/getsentry/sentry-javascript/issues/12127
-  if (nav.platform === 'MacIntel' && nav.maxTouchPoints > 1) {
-    return true;
+function getUserAgent(): string {
+  if (!hasNavigator) {
+    return '';
   }
 
-  return /iP(hone|ad|od)|iOS/.test(nav.platform);
+  const uaData = (navigator as any).userAgentData as NavigatorUAData | undefined;
+
+  if (uaData && Array.isArray(uaData.brands)) {
+    return uaData.brands.map(({ brand, version }) => `${brand}/${version}`).join(' ');
+  }
+
+  return navigator.userAgent;
 }
 
-export function isFirefox() {
-  return /firefox/i.test(getUserAgent());
+function getPlatform(): string {
+  if (!hasNavigator) {
+    return '';
+  }
+
+  const uaData = (navigator as any).userAgentData as NavigatorUAData | undefined;
+
+  if (uaData?.platform) {
+    return uaData.platform;
+  }
+
+  return navigator.platform;
 }

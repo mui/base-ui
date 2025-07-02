@@ -36,7 +36,7 @@ export const ProgressIndicator = React.forwardRef(function ProgressIndicator(
     };
   }, [percentageValue]);
 
-  const renderElement = useRenderElement('div', componentProps, {
+  const element = useRenderElement('div', componentProps, {
     state,
     ref: forwardedRef,
     props: [
@@ -48,7 +48,7 @@ export const ProgressIndicator = React.forwardRef(function ProgressIndicator(
     customStyleHookMapping: progressStyleHookMapping,
   });
 
-  return renderElement();
+  return element;
 });
 
 export namespace ProgressIndicator {

@@ -25,7 +25,7 @@ export const FieldsetRoot = React.forwardRef(function FieldsetRoot(
     [disabled],
   );
 
-  const renderElement = useRenderElement('fieldset', componentProps, {
+  const element = useRenderElement('fieldset', componentProps, {
     ref: forwardedRef,
     state,
     props: [
@@ -46,9 +46,7 @@ export const FieldsetRoot = React.forwardRef(function FieldsetRoot(
   );
 
   return (
-    <FieldsetRootContext.Provider value={contextValue}>
-      {renderElement()}
-    </FieldsetRootContext.Provider>
+    <FieldsetRootContext.Provider value={contextValue}>{element}</FieldsetRootContext.Provider>
   );
 });
 

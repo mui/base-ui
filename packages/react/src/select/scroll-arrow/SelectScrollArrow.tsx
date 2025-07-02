@@ -1,13 +1,15 @@
 'use client';
 import * as React from 'react';
 import type { BaseUIComponentProps } from '../../utils/types';
+import { useTimeout } from '../../utils/useTimeout';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import { useSelectPositionerContext } from '../positioner/SelectPositionerContext';
 import { Side } from '../../utils/useAnchorPositioning';
 import { type TransitionStatus, useTransitionStatus } from '../../utils/useTransitionStatus';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
-import { useSelectIndexContext } from '../root/SelectIndexContext';
 import { useRenderElement } from '../../utils/useRenderElement';
+import { useSelector } from '../../utils/store';
+import { selectors } from '../store';
 
 /**
  * @internal
@@ -18,20 +20,15 @@ export const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
 ) {
   const { render, className, direction, keepMounted = false, ...elementProps } = componentProps;
 
-  const {
-    popupRef,
-    scrollUpArrowVisible,
-    scrollDownArrowVisible,
-    setScrollUpArrowVisible,
-    setScrollDownArrowVisible,
-    listRef,
-  } = useSelectRootContext();
+  const { store, popupRef, listRef } = useSelectRootContext();
   const { side, alignItemWithTriggerActive } = useSelectPositionerContext();
-  const { setActiveIndex } = useSelectIndexContext();
 
-  const visible = direction === 'up' ? scrollUpArrowVisible : scrollDownArrowVisible;
+  const selector =
+    direction === 'up' ? selectors.scrollUpArrowVisible : selectors.scrollDownArrowVisible;
 
-  const timeoutRef = React.useRef(-1);
+  const visible = useSelector(store, selector);
+
+  const timeout = useTimeout();
   const scrollArrowRef = React.useRef<HTMLDivElement | null>(null);
 
   const { mounted, transitionStatus, setMounted } = useTransitionStatus(visible);
@@ -59,7 +56,7 @@ export const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
   const defaultProps: React.ComponentProps<'div'> = {
     hidden: !mounted,
     'aria-hidden': true,
-    children: direction === 'down' ? '▼' : '▲',
+    children: direction === 'up' ? '▲' : '▼',
     style: {
       position: 'absolute',
     },
@@ -67,12 +64,12 @@ export const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
       if (
         (event.movementX === 0 && event.movementY === 0) ||
         !alignItemWithTriggerActive ||
-        timeoutRef.current !== -1
+        timeout.isStarted()
       ) {
         return;
       }
 
-      setActiveIndex(null);
+      store.set('activeIndex', null);
 
       function scrollNextItem() {
         const popupElement = popupRef.current;
@@ -80,7 +77,7 @@ export const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
           return;
         }
 
-        setActiveIndex(null);
+        store.set('activeIndex', null);
 
         const isScrolledToTop = popupElement.scrollTop === 0;
         const isScrolledToBottom =
@@ -88,16 +85,16 @@ export const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
           popupElement.scrollHeight;
 
         if (direction === 'up') {
-          setScrollUpArrowVisible(!isScrolledToTop);
+          store.set('scrollUpArrowVisible', !isScrolledToTop);
         } else if (direction === 'down') {
-          setScrollDownArrowVisible(!isScrolledToBottom);
+          store.set('scrollDownArrowVisible', !isScrolledToBottom);
         }
 
         if (
           (direction === 'up' && isScrolledToTop) ||
           (direction === 'down' && isScrolledToBottom)
         ) {
-          timeoutRef.current = -1;
+          timeout.clear();
           return;
         }
 
@@ -155,20 +152,17 @@ export const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
           }
         }
 
-        timeoutRef.current = window.setTimeout(scrollNextItem, 40);
+        timeout.start(40, scrollNextItem);
       }
 
-      timeoutRef.current = window.setTimeout(scrollNextItem, 40);
+      timeout.start(40, scrollNextItem);
     },
     onMouseLeave() {
-      if (timeoutRef.current !== -1) {
-        clearTimeout(timeoutRef.current);
-        timeoutRef.current = -1;
-      }
+      timeout.clear();
     },
   };
 
-  const renderElement = useRenderElement('div', componentProps, {
+  const element = useRenderElement('div', componentProps, {
     ref: [forwardedRef, scrollArrowRef],
     state,
     props: [defaultProps, elementProps],
@@ -179,7 +173,7 @@ export const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
     return null;
   }
 
-  return renderElement();
+  return element;
 });
 
 export namespace SelectScrollArrow {

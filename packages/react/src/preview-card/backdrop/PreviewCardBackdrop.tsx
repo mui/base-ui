@@ -1,13 +1,12 @@
 'use client';
 import * as React from 'react';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { usePreviewCardRootContext } from '../root/PreviewCardContext';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { type CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import { transitionStatusMapping } from '../../utils/styleHookMapping';
-import { mergeProps } from '../../merge-props';
+import { useRenderElement } from '../../utils/useRenderElement';
 
 const customStyleHookMapping: CustomStyleHookMapping<PreviewCardBackdrop.State> = {
   ...baseMapping,
@@ -21,10 +20,10 @@ const customStyleHookMapping: CustomStyleHookMapping<PreviewCardBackdrop.State> 
  * Documentation: [Base UI Preview Card](https://base-ui.com/react/components/preview-card)
  */
 export const PreviewCardBackdrop = React.forwardRef(function PreviewCardBackdrop(
-  props: PreviewCardBackdrop.Props,
+  componentProps: PreviewCardBackdrop.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, ...other } = props;
+  const { render, className, ...elementProps } = componentProps;
 
   const { open, mounted, transitionStatus } = usePreviewCardRootContext();
 
@@ -36,12 +35,10 @@ export const PreviewCardBackdrop = React.forwardRef(function PreviewCardBackdrop
     [open, transitionStatus],
   );
 
-  const { renderElement } = useComponentRenderer({
-    render: render ?? 'div',
-    className,
+  const element = useRenderElement('div', componentProps, {
     state,
-    ref: forwardedRef,
-    extraProps: mergeProps<'div'>(
+    ref: [forwardedRef],
+    props: [
       {
         role: 'presentation',
         hidden: !mounted,
@@ -51,12 +48,12 @@ export const PreviewCardBackdrop = React.forwardRef(function PreviewCardBackdrop
           WebkitUserSelect: 'none',
         },
       },
-      other,
-    ),
+      elementProps,
+    ],
     customStyleHookMapping,
   });
 
-  return renderElement();
+  return element;
 });
 
 export namespace PreviewCardBackdrop {

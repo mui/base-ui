@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { useAlertDialogRootContext } from '../root/AlertDialogRootContext';
 import { useDialogClose } from '../../dialog/close/useDialogClose';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import { useRenderElement } from '../../utils/useRenderElement';
 import type { BaseUIComponentProps } from '../../utils/types';
 
 /**
@@ -12,28 +12,38 @@ import type { BaseUIComponentProps } from '../../utils/types';
  * Documentation: [Base UI Alert Dialog](https://base-ui.com/react/components/alert-dialog)
  */
 export const AlertDialogClose = React.forwardRef(function AlertDialogClose(
-  props: AlertDialogClose.Props,
+  componentProps: AlertDialogClose.Props,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
-  const { render, className, disabled = false, ...other } = props;
+  const {
+    render,
+    className,
+    disabled = false,
+    nativeButton = true,
+    ...elementProps
+  } = componentProps;
   const { open, setOpen } = useAlertDialogRootContext();
-  const { getRootProps } = useDialogClose({ disabled, open, setOpen, rootRef: forwardedRef });
+  const { getRootProps, ref } = useDialogClose({ disabled, open, setOpen, nativeButton });
 
   const state: AlertDialogClose.State = React.useMemo(() => ({ disabled }), [disabled]);
 
-  const { renderElement } = useComponentRenderer({
-    render: render ?? 'button',
-    className,
+  return useRenderElement('button', componentProps, {
     state,
-    propGetter: getRootProps,
-    extraProps: other,
+    ref: [forwardedRef, ref],
+    props: [elementProps, getRootProps],
   });
-
-  return renderElement();
 });
 
 export namespace AlertDialogClose {
-  export interface Props extends BaseUIComponentProps<'button', State> {}
+  export interface Props extends BaseUIComponentProps<'button', State> {
+    /**
+     * Whether the component renders a native `<button>` element when replacing it
+     * via the `render` prop.
+     * Set to `false` if the rendered element is not a button (e.g. `<div>`).
+     * @default true
+     */
+    nativeButton?: boolean;
+  }
 
   export interface State {
     /**

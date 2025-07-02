@@ -9,7 +9,8 @@ import type { CollapsibleRoot } from '../root/CollapsibleRoot';
 import { collapsibleStyleHookMapping } from '../root/styleHooks';
 import { useCollapsiblePanel } from './useCollapsiblePanel';
 import { CollapsiblePanelCssVars } from './CollapsiblePanelCssVars';
-import { usePanelResize } from '../../utils/usePanelResize';
+import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
+import type { TransitionStatus } from '../../utils/useTransitionStatus';
 
 /**
  * A panel with the collapsible contents.
@@ -24,9 +25,9 @@ export const CollapsiblePanel = React.forwardRef(function CollapsiblePanel(
   const {
     className,
     hiddenUntilFound: hiddenUntilFoundProp,
-    id: idProp,
     keepMounted: keepMountedProp,
     render,
+    id: idProp,
     ...elementProps
   } = componentProps;
 
@@ -55,17 +56,28 @@ export const CollapsiblePanel = React.forwardRef(function CollapsiblePanel(
     setHiddenUntilFound,
     setKeepMounted,
     setMounted,
+    setPanelIdState,
     setOpen,
-    setPanelId,
     setVisible,
     state,
     transitionDimensionRef,
     visible,
     width,
+    transitionStatus,
   } = useCollapsibleRootContext();
 
   const hiddenUntilFound = hiddenUntilFoundProp ?? false;
   const keepMounted = keepMountedProp ?? false;
+
+  useModernLayoutEffect(() => {
+    if (idProp) {
+      setPanelIdState(idProp);
+      return () => {
+        setPanelIdState(undefined);
+      };
+    }
+    return undefined;
+  }, [idProp, setPanelIdState]);
 
   useModernLayoutEffect(() => {
     setHiddenUntilFound(hiddenUntilFound);
@@ -81,7 +93,7 @@ export const CollapsiblePanel = React.forwardRef(function CollapsiblePanel(
     externalRef: forwardedRef,
     height,
     hiddenUntilFound,
-    id: idProp ?? panelId,
+    id: panelId,
     keepMounted,
     mounted,
     onOpenChange,
@@ -91,28 +103,43 @@ export const CollapsiblePanel = React.forwardRef(function CollapsiblePanel(
     setDimensions,
     setMounted,
     setOpen,
-    setPanelId,
     setVisible,
     transitionDimensionRef,
     visible,
     width,
   });
 
-  usePanelResize(panelRef, setDimensions, open);
+  useOpenChangeComplete({
+    open,
+    ref: panelRef,
+    onComplete() {
+      if (!open) {
+        return;
+      }
 
-  const renderElement = useRenderElement('div', componentProps, {
-    state,
+      setDimensions({ height: undefined, width: undefined });
+    },
+  });
+
+  const panelState: CollapsiblePanel.State = React.useMemo(
+    () => ({
+      ...state,
+      transitionStatus,
+    }),
+    [state, transitionStatus],
+  );
+
+  const element = useRenderElement('div', componentProps, {
+    state: panelState,
     ref: [forwardedRef, panelRef],
     props: [
       props,
       {
         style: {
-          [CollapsiblePanelCssVars.collapsiblePanelHeight as string]: height
-            ? `${height}px`
-            : undefined,
-          [CollapsiblePanelCssVars.collapsiblePanelWidth as string]: width
-            ? `${width}px`
-            : undefined,
+          [CollapsiblePanelCssVars.collapsiblePanelHeight as string]:
+            height === undefined ? 'auto' : `${height}px`,
+          [CollapsiblePanelCssVars.collapsiblePanelWidth as string]:
+            width === undefined ? 'auto' : `${width}px`,
         },
       },
       elementProps,
@@ -126,10 +153,14 @@ export const CollapsiblePanel = React.forwardRef(function CollapsiblePanel(
     return null;
   }
 
-  return renderElement();
+  return element;
 });
 
 export namespace CollapsiblePanel {
+  export interface State extends CollapsibleRoot.State {
+    transitionStatus: TransitionStatus;
+  }
+
   export interface Props extends BaseUIComponentProps<'div', CollapsibleRoot.State> {
     /**
      * Allows the browser’s built-in page search to find and expand the panel contents.

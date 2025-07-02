@@ -11,9 +11,10 @@ import { type Orientation } from '../../utils/types';
 import { CompositeRootContext } from '../../composite/root/CompositeRootContext';
 import { ARROW_UP, ARROW_DOWN, ARROW_LEFT, ARROW_RIGHT } from '../../composite/composite';
 
-const testCompositeContext = {
+const testCompositeContext: CompositeRootContext = {
   highlightedIndex: 0,
   onHighlightedIndexChange: NOOP,
+  highlightItemOnHover: false,
 };
 
 const testToolbarContext: ToolbarRootContext = {
@@ -130,7 +131,6 @@ describe('<Toolbar.Input />', () => {
       const input = screen.getByRole('textbox');
 
       await user.keyboard('[Tab]');
-      expect(input).to.have.attribute('data-highlighted');
       expect(input).to.have.attribute('tabindex', '0');
       expect(input).toHaveFocus();
 
@@ -164,7 +164,6 @@ describe('<Toolbar.Input />', () => {
       expect(input).to.have.attribute('aria-disabled', 'true');
 
       await user.keyboard('[Tab]');
-      expect(input).to.have.attribute('data-highlighted');
       expect(input).to.have.attribute('tabindex', '0');
       expect(input).toHaveFocus();
 

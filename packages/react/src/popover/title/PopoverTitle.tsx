@@ -29,12 +29,12 @@ export const PopoverTitle = React.forwardRef(function PopoverTitle(
     };
   }, [setTitleId, id]);
 
-  const renderElement = useRenderElement('h2', componentProps, {
+  const element = useRenderElement('h2', componentProps, {
     ref: forwardedRef,
     props: [{ id }, elementProps],
   });
 
-  return renderElement();
+  return element;
 });
 
 export namespace PopoverTitle {

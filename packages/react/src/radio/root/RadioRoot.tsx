@@ -1,14 +1,19 @@
 'use client';
 import * as React from 'react';
-import type { BaseUIComponentProps } from '../../utils/types';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { useRadioGroupContext } from '../../radio-group/RadioGroupContext';
-import { useRadioRoot } from './useRadioRoot';
-import { RadioRootContext } from './RadioRootContext';
-import { CompositeItem } from '../../composite/item/CompositeItem';
+import { useBaseUiId } from '../../utils/useBaseUiId';
 import { NOOP } from '../../utils/noop';
+import type { BaseUIComponentProps } from '../../utils/types';
+import { useForkRef } from '../../utils/useForkRef';
+import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
+import { useRenderElement } from '../../utils/useRenderElement';
+import { visuallyHidden } from '../../utils/visuallyHidden';
+import { useButton } from '../../use-button';
+import { ACTIVE_COMPOSITE_ITEM } from '../../composite/constants';
+import { CompositeItem } from '../../composite/item/CompositeItem';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { customStyleHookMapping } from '../utils/customStyleHookMapping';
+import { useRadioGroupContext } from '../../radio-group/RadioGroupContext';
+import { RadioRootContext } from './RadioRootContext';
 
 /**
  * Represents the radio button itself.
@@ -17,7 +22,7 @@ import { customStyleHookMapping } from '../utils/customStyleHookMapping';
  * Documentation: [Base UI Radio](https://base-ui.com/react/components/radio)
  */
 export const RadioRoot = React.forwardRef(function RadioRoot(
-  props: RadioRoot.Props,
+  componentProps: RadioRoot.Props,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
   const {
@@ -27,15 +32,22 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
     readOnly: readOnlyProp = false,
     required: requiredProp = false,
     value,
-    inputRef,
-    ...otherProps
-  } = props;
+    inputRef: inputRefProp,
+    nativeButton = true,
+    ...elementProps
+  } = componentProps;
 
   const {
     disabled: disabledRoot,
     readOnly: readOnlyRoot,
     required: requiredRoot,
+    checkedValue,
     setCheckedValue,
+    onValueChange,
+    touched,
+    setTouched,
+    fieldControlValidation,
+    registerControlRef,
   } = useRadioGroupContext();
 
   const { state: fieldState, disabled: fieldDisabled } = useFieldRootContext();
@@ -44,12 +56,108 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
   const readOnly = readOnlyRoot || readOnlyProp;
   const required = requiredRoot || requiredProp;
 
-  const { getRootProps, getInputProps, checked } = useRadioRoot({
-    ...props,
+  const { setDirty, validityData, setTouched: setFieldTouched, setFilled } = useFieldRootContext();
+
+  const checked = checkedValue === value;
+
+  const inputRef = React.useRef<HTMLInputElement>(null);
+  const ref = useForkRef(inputRefProp, inputRef);
+
+  useModernLayoutEffect(() => {
+    if (inputRef.current?.checked) {
+      setFilled(true);
+    }
+  }, [setFilled]);
+
+  const rootProps: React.ComponentPropsWithRef<'button'> = React.useMemo(
+    () => ({
+      role: 'radio',
+      'aria-checked': checked,
+      'aria-required': required || undefined,
+      'aria-disabled': disabled || undefined,
+      'aria-readonly': readOnly || undefined,
+      [ACTIVE_COMPOSITE_ITEM as string]: checked ? '' : undefined,
+      disabled,
+      onKeyDown(event) {
+        if (event.key === 'Enter') {
+          event.preventDefault();
+        }
+      },
+      onClick(event) {
+        if (event.defaultPrevented || disabled || readOnly) {
+          return;
+        }
+
+        event.preventDefault();
+
+        inputRef.current?.click();
+      },
+      onFocus(event) {
+        if (event.defaultPrevented || disabled || readOnly || !touched) {
+          return;
+        }
+
+        inputRef.current?.click();
+
+        setTouched(false);
+      },
+    }),
+    [checked, required, disabled, readOnly, touched, setTouched],
+  );
+
+  const { getButtonProps, buttonRef } = useButton({
     disabled,
-    readOnly,
-    inputRef,
+    native: nativeButton,
   });
+
+  const id = useBaseUiId();
+
+  const inputProps: React.ComponentPropsWithRef<'input'> = React.useMemo(
+    () => ({
+      type: 'radio',
+      ref,
+      // Set `id` to stop Chrome warning about an unassociated input
+      id,
+      tabIndex: -1,
+      style: visuallyHidden,
+      'aria-hidden': true,
+      disabled,
+      checked,
+      required,
+      readOnly,
+      onChange(event) {
+        // Workaround for https://github.com/facebook/react/issues/9023
+        if (event.nativeEvent.defaultPrevented) {
+          return;
+        }
+
+        if (disabled || readOnly || value === undefined) {
+          return;
+        }
+
+        setFieldTouched(true);
+        setDirty(value !== validityData.initialValue);
+        setCheckedValue(value);
+        setFilled(true);
+        onValueChange?.(value, event.nativeEvent);
+      },
+    }),
+    [
+      checked,
+      disabled,
+      id,
+      onValueChange,
+      readOnly,
+      ref,
+      required,
+      setCheckedValue,
+      setDirty,
+      setFieldTouched,
+      setFilled,
+      validityData.initialValue,
+      value,
+    ],
+  );
 
   const state: RadioRoot.State = React.useMemo(
     () => ({
@@ -64,20 +172,22 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
 
   const contextValue: RadioRootContext = React.useMemo(() => state, [state]);
 
-  const { renderElement } = useComponentRenderer({
-    propGetter: getRootProps,
-    render: render ?? 'button',
-    ref: forwardedRef,
-    className,
+  const element = useRenderElement('button', componentProps, {
     state,
-    extraProps: otherProps,
+    ref: [forwardedRef, registerControlRef, buttonRef],
+    props: [
+      rootProps,
+      fieldControlValidation?.getValidationProps ?? undefined,
+      elementProps,
+      getButtonProps,
+    ],
     customStyleHookMapping,
   });
 
   return (
     <RadioRootContext.Provider value={contextValue}>
-      {setCheckedValue === NOOP ? renderElement() : <CompositeItem render={renderElement()} />}
-      <input {...getInputProps()} />
+      {setCheckedValue === NOOP ? element : <CompositeItem render={element} />}
+      <input {...inputProps} />
     </RadioRootContext.Provider>
   );
 });
@@ -107,6 +217,13 @@ export namespace RadioRoot {
      * A ref to access the hidden input element.
      */
     inputRef?: React.Ref<HTMLInputElement>;
+    /**
+     * Whether the component renders a native `<button>` element when replacing it
+     * via the `render` prop.
+     * Set to `false` if the rendered element is not a button (e.g. `<div>`).
+     * @default true
+     */
+    nativeButton?: boolean;
   }
 
   export interface State {

@@ -5,6 +5,8 @@ import { FormContext } from './FormContext';
 import { useEventCallback } from '../utils/useEventCallback';
 import { useRenderElement } from '../utils/useRenderElement';
 
+const EMPTY = {};
+
 /**
  * A native form element with consolidated error handling.
  * Renders a `<form>` element.
@@ -55,10 +57,8 @@ export const Form = React.forwardRef(function Form(
     }
   }, [errors, focusControl]);
 
-  const state = React.useMemo<Form.State>(() => ({}), []);
-
-  const renderElement = useRenderElement('form', componentProps, {
-    state,
+  const element = useRenderElement('form', componentProps, {
+    state: EMPTY,
     ref: forwardedRef,
     props: [
       {
@@ -89,7 +89,7 @@ export const Form = React.forwardRef(function Form(
   });
 
   const clearErrors = useEventCallback((name: string | undefined) => {
-    if (name && errors && {}.hasOwnProperty.call(errors, name)) {
+    if (name && errors && EMPTY.hasOwnProperty.call(errors, name)) {
       const nextErrors = { ...errors };
       delete nextErrors[name];
       onClearErrors(nextErrors);
@@ -105,7 +105,7 @@ export const Form = React.forwardRef(function Form(
     [formRef, errors, clearErrors],
   );
 
-  return <FormContext.Provider value={contextValue}>{renderElement()}</FormContext.Provider>;
+  return <FormContext.Provider value={contextValue}>{element}</FormContext.Provider>;
 });
 
 export namespace Form {

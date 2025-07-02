@@ -1,7 +1,17 @@
 import * as React from 'react';
+import { Form } from '@base-ui-components/react/form';
+import { NumberField } from '@base-ui-components/react/number-field';
+import { Radio } from '@base-ui-components/react/radio';
+import { RadioGroup } from '@base-ui-components/react/radio-group';
+import { Select } from '@base-ui-components/react/select';
+import { Checkbox } from '@base-ui-components/react/checkbox';
+import { CheckboxGroup } from '@base-ui-components/react/checkbox-group';
+import { Switch } from '@base-ui-components/react/switch';
+import { Slider } from '@base-ui-components/react/slider';
 import { Field } from '@base-ui-components/react/field';
 import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
 import { expect } from 'chai';
+import { spy } from 'sinon';
 import { createRenderer, describeConformance } from '#test-utils';
 
 describe('<Field.Root />', () => {
@@ -111,6 +121,46 @@ describe('<Field.Root />', () => {
       });
     });
 
+    it('runs after native validations', async () => {
+      await render(
+        <Field.Root validate={() => 'custom error'}>
+          <Field.Control required />
+          <Field.Error match="valueMissing">value missing</Field.Error>
+          <Field.Error match="customError" />
+        </Field.Root>,
+      );
+
+      expect(screen.queryByText('value missing')).to.equal(null);
+      expect(screen.queryByText('custom error')).to.equal(null);
+
+      const input = screen.getByRole<HTMLInputElement>('textbox');
+
+      fireEvent.focus(input);
+      fireEvent.change(input, { target: { value: 'a' } });
+      fireEvent.change(input, { target: { value: '' } });
+      fireEvent.blur(input);
+
+      await flushMicrotasks();
+
+      await waitFor(() => {
+        expect(screen.queryByText('value missing')).to.not.equal(null);
+      });
+      await waitFor(() => {
+        expect(screen.queryByText('custom error')).to.equal(null);
+      });
+
+      fireEvent.focus(input);
+      fireEvent.change(input, { target: { value: 'ab' } });
+      fireEvent.blur(input);
+
+      await waitFor(() => {
+        expect(screen.queryByText('value missing')).to.equal(null);
+      });
+      await waitFor(() => {
+        expect(screen.queryByText('custom error')).to.not.equal(null);
+      });
+    });
+
     it('should apply [data-field] style hooks to field components', async () => {
       await render(
         <Field.Root>
@@ -173,6 +223,87 @@ describe('<Field.Root />', () => {
       fireEvent.blur(control);
 
       expect(control).to.have.attribute('aria-invalid', 'true');
+    });
+
+    it('receives all form values as the 2nd argument', async () => {
+      const validateSpy = spy();
+
+      await render(
+        <Form>
+          <Field.Root name="checkbox">
+            <Checkbox.Root defaultChecked />
+          </Field.Root>
+
+          <Field.Root name="checkbox-group">
+            <CheckboxGroup defaultValue={['apple', 'banana']}>
+              <Checkbox.Root value="apple" />
+              <Checkbox.Root value="banana" />
+            </CheckboxGroup>
+          </Field.Root>
+
+          <Field.Root name="input" validate={validateSpy}>
+            <Field.Control data-testid="input" type="url" defaultValue="https://base-ui.com" />
+          </Field.Root>
+
+          <Field.Root name="number-field">
+            <NumberField.Root defaultValue={13}>
+              <NumberField.Input />
+            </NumberField.Root>
+          </Field.Root>
+
+          <Field.Root name="radio-group">
+            <RadioGroup defaultValue="cats">
+              <Radio.Root value="cats" />
+            </RadioGroup>
+          </Field.Root>
+
+          <Field.Root name="select">
+            <Select.Root defaultValue="sans">
+              <Select.Trigger />
+              <Select.Portal>
+                <Select.Positioner>
+                  <Select.Popup>
+                    <Select.Item value="sans" />
+                  </Select.Popup>
+                </Select.Positioner>
+              </Select.Portal>
+            </Select.Root>
+          </Field.Root>
+
+          <Field.Root name="slider">
+            <Slider.Root defaultValue={12}>
+              <Slider.Control />
+            </Slider.Root>
+          </Field.Root>
+
+          <Field.Root name="range-slider">
+            <Slider.Root defaultValue={[25, 70]}>
+              <Slider.Control />
+            </Slider.Root>
+          </Field.Root>
+
+          <Field.Root name="switch">
+            <Switch.Root defaultChecked={false} />
+          </Field.Root>
+        </Form>,
+      );
+
+      const input = screen.getByTestId('input');
+      fireEvent.focus(input);
+      fireEvent.blur(input);
+
+      expect(validateSpy.callCount).to.equal(1);
+      expect(validateSpy.firstCall.args[1]).to.deep.equal({
+        checkbox: true,
+        'checkbox-group': ['apple', 'banana'],
+        input: 'https://base-ui.com',
+        'number-field': 13,
+        'radio-group': 'cats',
+        select: 'sans',
+        slider: 12,
+        'range-slider': [25, 70],
+        switch: false,
+      });
     });
   });
 
@@ -333,6 +464,120 @@ describe('<Field.Root />', () => {
 
       expect(control).to.have.attribute('aria-invalid', 'true');
       expect(screen.queryByText('error')).not.to.equal(null);
+    });
+  });
+
+  describe('revalidation', () => {
+    it('revalidates on change for `valueMissing`', async () => {
+      await render(
+        <Field.Root>
+          <Field.Control required />
+          <Field.Error />
+        </Field.Root>,
+      );
+
+      const control = screen.getByRole('textbox');
+      const message = screen.queryByText('error');
+
+      expect(message).to.equal(null);
+
+      fireEvent.focus(control);
+      fireEvent.change(control, { target: { value: 't' } });
+      fireEvent.blur(control);
+
+      expect(control).not.to.have.attribute('aria-invalid', 'true');
+
+      fireEvent.focus(control);
+      fireEvent.change(control, { target: { value: '' } });
+      fireEvent.blur(control);
+
+      expect(control).to.have.attribute('aria-invalid');
+    });
+
+    it('handles both `required` and `typeMismatch`', async () => {
+      await render(
+        <Field.Root>
+          <Field.Control type="email" required />
+          <Field.Error data-testid="error" />
+        </Field.Root>,
+      );
+
+      const control = screen.getByRole('textbox');
+      const message = screen.queryByTestId('error');
+
+      expect(message).to.equal(null);
+
+      fireEvent.focus(control);
+      fireEvent.blur(control);
+
+      expect(control).not.to.have.attribute('aria-invalid');
+
+      fireEvent.focus(control);
+      fireEvent.change(control, { target: { value: 'tt' } });
+      fireEvent.blur(control);
+
+      expect(control).to.have.attribute('aria-invalid', 'true');
+
+      fireEvent.focus(control);
+      fireEvent.change(control, { target: { value: '' } });
+      fireEvent.blur(control);
+
+      expect(control).to.have.attribute('aria-invalid', 'true');
+
+      fireEvent.focus(control);
+      fireEvent.change(control, { target: { value: 'email@email.com' } });
+      fireEvent.blur(control);
+
+      expect(control).not.to.have.attribute('aria-invalid');
+    });
+
+    it('clears valueMissing on change but defers other native errors like typeMismatch until blur when both are active', async () => {
+      await render(
+        <Field.Root>
+          <Field.Control type="email" required data-testid="control" />
+          <Field.Error data-testid="error" />
+        </Field.Root>,
+      );
+
+      const control = screen.getByTestId('control');
+
+      fireEvent.focus(control);
+      fireEvent.blur(control);
+      expect(control).not.to.have.attribute('aria-invalid', 'true');
+      expect(screen.queryByTestId('error')).to.equal(null);
+
+      fireEvent.focus(control);
+      fireEvent.change(control, { target: { value: 'a' } });
+      fireEvent.change(control, { target: { value: '' } });
+      fireEvent.blur(control);
+
+      expect(control).to.have.attribute('aria-invalid', 'true');
+      expect(screen.getByTestId('error')).not.to.equal(null);
+
+      fireEvent.focus(control);
+      fireEvent.change(control, { target: { value: 't' } });
+
+      // The field becomes temporarily valid because only 'valueMissing' is checked for immediate clearing.
+      // Other errors like 'typeMismatch' are deferred to the next blur/submit.
+      expect(control).not.to.have.attribute('aria-invalid', 'true');
+      expect(screen.queryByTestId('error')).to.equal(null);
+
+      fireEvent.blur(control);
+
+      expect(control).to.have.attribute('aria-invalid', 'true');
+      expect(screen.getByTestId('error')).not.to.equal(null);
+      expect(screen.getByTestId('error').textContent).not.to.equal('');
+
+      fireEvent.focus(control);
+      fireEvent.change(control, { target: { value: 'test@example.com' } });
+
+      expect(control).not.to.have.attribute('aria-invalid', 'true');
+      expect(screen.queryByTestId('error')).to.equal(null);
+
+      fireEvent.blur(control);
+
+      expect(control).not.to.have.attribute('aria-invalid', 'true');
+      expect(screen.queryByTestId('error')).to.equal(null);
     });
   });
 

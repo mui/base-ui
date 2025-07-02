@@ -3,7 +3,7 @@ import { Checkbox } from '@base-ui-components/react/checkbox';
 import { CheckboxGroup } from '@base-ui-components/react/checkbox-group';
 import styles from './index.module.css';
 
-const fruits = ['fuji-apple', 'gala-apple', 'granny-smith'];
+const fruits = ['fuji-apple', 'gala-apple', 'granny-smith-apple'];
 
 export default function ExampleCheckboxGroup() {
   const [value, setValue] = React.useState<string[]>([]);
@@ -40,7 +40,7 @@ export default function ExampleCheckboxGroup() {
       </label>
 
       <label className={styles.Item}>
-        <Checkbox.Root name="fuji-apple" className={styles.Checkbox}>
+        <Checkbox.Root value="fuji-apple" className={styles.Checkbox}>
           <Checkbox.Indicator className={styles.Indicator}>
             <CheckIcon className={styles.Icon} />
           </Checkbox.Indicator>
@@ -49,7 +49,7 @@ export default function ExampleCheckboxGroup() {
       </label>
 
       <label className={styles.Item}>
-        <Checkbox.Root name="gala-apple" className={styles.Checkbox}>
+        <Checkbox.Root value="gala-apple" className={styles.Checkbox}>
           <Checkbox.Indicator className={styles.Indicator}>
             <CheckIcon className={styles.Icon} />
           </Checkbox.Indicator>
@@ -58,7 +58,7 @@ export default function ExampleCheckboxGroup() {
       </label>
 
       <label className={styles.Item}>
-        <Checkbox.Root name="granny-smith" className={styles.Checkbox}>
+        <Checkbox.Root value="granny-smith-apple" className={styles.Checkbox}>
           <Checkbox.Indicator className={styles.Indicator}>
             <CheckIcon className={styles.Icon} />
           </Checkbox.Indicator>

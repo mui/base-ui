@@ -26,12 +26,12 @@ export const SelectGroupLabel = React.forwardRef(function SelectGroupLabel(
     setLabelId(id);
   }, [id, setLabelId]);
 
-  const renderElement = useRenderElement('div', componentProps, {
+  const element = useRenderElement('div', componentProps, {
     ref: forwardedRef,
     props: [{ id }, elementProps],
   });
 
-  return renderElement();
+  return element;
 });
 
 export namespace SelectGroupLabel {

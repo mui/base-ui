@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { PreviewCard } from '@base-ui-components/react/preview-card';
-import { describeSkipIf, screen } from '@mui/internal-test-utils';
+import { screen } from '@mui/internal-test-utils';
 import { expect } from 'chai';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 
@@ -34,7 +34,7 @@ describe('<PreviewCard.Positioner />', () => {
   const triggerStyle = { width: anchorWidth, height: anchorHeight };
   const popupStyle = { width: popupWidth, height: popupHeight };
 
-  describeSkipIf(isJSDOM)('prop: sideOffset', () => {
+  describe.skipIf(isJSDOM)('prop: sideOffset', () => {
     it('offsets the side when a number is specified', async () => {
       const sideOffset = 7;
       await render(
@@ -147,7 +147,7 @@ describe('<PreviewCard.Positioner />', () => {
     });
   });
 
-  describeSkipIf(isJSDOM)('prop: alignOffset', () => {
+  describe.skipIf(isJSDOM)('prop: alignOffset', () => {
     it('offsets the align when a number is specified', async () => {
       const alignOffset = 7;
       await render(

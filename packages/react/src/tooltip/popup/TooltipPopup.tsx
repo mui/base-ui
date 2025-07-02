@@ -10,6 +10,7 @@ import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import { transitionStatusMapping } from '../../utils/styleHookMapping';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useRenderElement } from '../../utils/useRenderElement';
+import { EMPTY_OBJECT, DISABLED_TRANSITIONS_STYLE } from '../../utils/constants';
 
 const customStyleHookMapping: CustomStyleHookMapping<TooltipPopup.State> = {
   ...baseMapping,
@@ -53,20 +54,18 @@ export const TooltipPopup = React.forwardRef(function TooltipPopup(
     [open, side, align, instantType, transitionStatus],
   );
 
-  const renderElement = useRenderElement('div', componentProps, {
+  const element = useRenderElement('div', componentProps, {
     state,
     ref: [forwardedRef, popupRef],
     props: [
       popupProps,
-      {
-        style: transitionStatus === 'starting' ? { transition: 'none' } : {},
-      },
+      transitionStatus === 'starting' ? DISABLED_TRANSITIONS_STYLE : EMPTY_OBJECT,
       elementProps,
     ],
     customStyleHookMapping,
   });
 
-  return renderElement();
+  return element;
 });
 
 export namespace TooltipPopup {

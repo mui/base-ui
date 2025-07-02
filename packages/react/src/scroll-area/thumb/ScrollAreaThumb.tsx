@@ -1,12 +1,10 @@
 'use client';
 import * as React from 'react';
 import type { BaseUIComponentProps } from '../../utils/types';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useScrollAreaRootContext } from '../root/ScrollAreaRootContext';
-import { useForkRef } from '../../utils/useForkRef';
-import { mergeProps } from '../../merge-props';
 import { useScrollAreaScrollbarContext } from '../scrollbar/ScrollAreaScrollbarContext';
 import { ScrollAreaScrollbarCssVars } from '../scrollbar/ScrollAreaScrollbarCssVars';
+import { useRenderElement } from '../../utils/useRenderElement';
 
 /**
  * The draggable part of the the scrollbar that indicates the current scroll position.
@@ -15,10 +13,10 @@ import { ScrollAreaScrollbarCssVars } from '../scrollbar/ScrollAreaScrollbarCssV
  * Documentation: [Base UI Scroll Area](https://base-ui.com/react/components/scroll-area)
  */
 export const ScrollAreaThumb = React.forwardRef(function ScrollAreaThumb(
-  props: ScrollAreaThumb.Props,
+  componentProps: ScrollAreaThumb.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, ...otherProps } = props;
+  const { render, className, ...elementProps } = componentProps;
 
   const {
     thumbYRef,
@@ -32,16 +30,12 @@ export const ScrollAreaThumb = React.forwardRef(function ScrollAreaThumb(
 
   const { orientation } = useScrollAreaScrollbarContext();
 
-  const mergedRef = useForkRef(forwardedRef, orientation === 'vertical' ? thumbYRef : thumbXRef);
-
   const state: ScrollAreaThumb.State = React.useMemo(() => ({ orientation }), [orientation]);
 
-  const { renderElement } = useComponentRenderer({
-    render: render ?? 'div',
-    ref: mergedRef,
-    className,
+  const element = useRenderElement('div', componentProps, {
+    ref: [forwardedRef, orientation === 'vertical' ? thumbYRef : thumbXRef],
     state,
-    extraProps: mergeProps<'div'>(
+    props: [
       {
         onPointerDown: handlePointerDown,
         onPointerMove: handlePointerMove,
@@ -63,11 +57,11 @@ export const ScrollAreaThumb = React.forwardRef(function ScrollAreaThumb(
           }),
         },
       },
-      otherProps,
-    ),
+      elementProps,
+    ],
   });
 
-  return renderElement();
+  return element;
 });
 
 export namespace ScrollAreaThumb {

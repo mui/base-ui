@@ -12,10 +12,6 @@ export type MeterRootContext = {
 
 export const MeterRootContext = React.createContext<MeterRootContext | undefined>(undefined);
 
-if (process.env.NODE_ENV !== 'production') {
-  MeterRootContext.displayName = 'MeterRootContext';
-}
-
 export function useMeterRootContext() {
   const context = React.useContext(MeterRootContext);
   if (context === undefined) {

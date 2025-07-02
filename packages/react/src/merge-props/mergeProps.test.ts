@@ -51,6 +51,29 @@ describe('mergeProps', () => {
     expect(log).to.deep.equal(['1', '2', '3']);
   });
 
+  it('merges undefined event handlers', () => {
+    const log: string[] = [];
+
+    const mergedProps = mergeProps<'button'>(
+      {
+        onClick() {
+          log.push('3');
+        },
+      },
+      {
+        onClick: undefined,
+      },
+      {
+        onClick() {
+          log.push('1');
+        },
+      },
+    );
+
+    mergedProps.onClick?.({ nativeEvent: new MouseEvent('click') } as any);
+    expect(log).to.deep.equal(['1', '3']);
+  });
+
   it('merges styles', () => {
     const theirProps = {
       style: { color: 'red' },
@@ -199,7 +222,12 @@ describe('mergeProps', () => {
 
   describe('props getters', () => {
     it('calls the props getter with the props defined after it', () => {
-      const propsGetter = spy((props) => props);
+      let observedProps;
+      const propsGetter = spy((props) => {
+        observedProps = { ...props };
+        return props;
+      });
+
       mergeProps(
         {
           id: '2',
@@ -213,11 +241,16 @@ describe('mergeProps', () => {
       );
 
       expect(propsGetter.calledOnce).to.equal(true);
-      expect(propsGetter.firstCall.args[0]).to.deep.equal({ id: '2', className: 'test-class' });
+      expect(observedProps).to.deep.equal({ id: '2', className: 'test-class' });
     });
 
     it('calls the props getter with merged props defined after it', () => {
-      const propsGetter = spy((props) => props);
+      let observedProps;
+      const propsGetter = spy((props) => {
+        observedProps = { ...props };
+        return props;
+      });
+
       mergeProps(
         {
           role: 'button',
@@ -233,18 +266,23 @@ describe('mergeProps', () => {
       );
 
       expect(propsGetter.calledOnce).to.equal(true);
-      expect(propsGetter.firstCall.args[0]).to.deep.equal({
+      expect(observedProps).to.deep.equal({
         role: 'tab',
         className: 'test-class',
       });
     });
 
     it('calls the props getter with an empty object if no props are defined after it', () => {
-      const propsGetter = spy((props) => props);
+      let observedProps;
+      const propsGetter = spy((props) => {
+        observedProps = { ...props };
+        return props;
+      });
+
       mergeProps(propsGetter, { id: '1' });
 
       expect(propsGetter.calledOnce).to.equal(true);
-      expect(propsGetter.firstCall.args[0]).to.deep.equal({});
+      expect(observedProps).to.deep.equal({});
     });
 
     it('accepts the result of the props getter', () => {

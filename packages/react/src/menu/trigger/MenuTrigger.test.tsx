@@ -3,6 +3,7 @@ import { expect } from 'chai';
 import userEvent from '@testing-library/user-event';
 import { act, fireEvent, flushMicrotasks, screen } from '@mui/internal-test-utils';
 import { Menu } from '@base-ui-components/react/menu';
+import { Popover } from '@base-ui-components/react/popover';
 import { describeConformance, createRenderer } from '#test-utils';
 import { PATIENT_CLICK_THRESHOLD } from '../../utils/constants';
 
@@ -49,7 +50,7 @@ describe('<Menu.Trigger />', () => {
   });
 
   it('toggles the menu state when clicked', async () => {
-    const { getByRole, queryByRole } = await render(
+    const { getByRole, findByRole } = await render(
       <Menu.Root>
         <Menu.Trigger>Open</Menu.Trigger>
         <Menu.Portal>
@@ -63,16 +64,17 @@ describe('<Menu.Trigger />', () => {
     const button = getByRole('button', { name: 'Open' });
     await user.click(button);
 
-    const menuPopup = queryByRole('menu', { hidden: false });
+    const menuPopup = await findByRole('menu', { hidden: false });
     expect(menuPopup).not.to.equal(null);
-
     expect(menuPopup).to.have.attribute('data-open', '');
   });
 
   describe('keyboard navigation', () => {
     [
       <Menu.Trigger>Open</Menu.Trigger>,
-      <Menu.Trigger render={<span />}>Open</Menu.Trigger>,
+      <Menu.Trigger render={<span />} nativeButton={false}>
+        Open
+      </Menu.Trigger>,
     ].forEach((buttonComponent) => {
       const buttonType = buttonComponent.props.slots?.root ? 'non-native' : 'native';
       ['ArrowUp', 'ArrowDown', 'Enter', ' '].forEach((key) => {
@@ -154,6 +156,7 @@ describe('<Menu.Trigger />', () => {
       const trigger = screen.getByRole('button');
 
       await act(async () => {
+        // eslint-disable-next-line testing-library/no-node-access
         trigger.click();
       });
 
@@ -328,5 +331,45 @@ describe('<Menu.Trigger />', () => {
 
       expect(queryByRole('menu', { hidden: false })).to.equal(null);
     });
+  });
+
+  it('does not have role prop inside a Popover', async () => {
+    const { getByTestId } = await render(
+      <Popover.Root open>
+        <Popover.Trigger>Open</Popover.Trigger>
+        <Popover.Portal>
+          <Popover.Positioner>
+            <Popover.Popup>
+              <Menu.Root>
+                <Menu.Trigger data-testid="menu-trigger" />
+              </Menu.Root>
+            </Popover.Popup>
+          </Popover.Positioner>
+        </Popover.Portal>
+      </Popover.Root>,
+    );
+
+    const button = getByTestId('menu-trigger');
+    expect(button).not.to.have.attribute('role');
+  });
+
+  it('has a role prop inside a Popover when not a native button', async () => {
+    const { getByTestId } = await render(
+      <Popover.Root open>
+        <Popover.Trigger>Open</Popover.Trigger>
+        <Popover.Portal>
+          <Popover.Positioner>
+            <Popover.Popup>
+              <Menu.Root>
+                <Menu.Trigger data-testid="menu-trigger" render={<span />} nativeButton={false} />
+              </Menu.Root>
+            </Popover.Popup>
+          </Popover.Positioner>
+        </Popover.Portal>
+      </Popover.Root>,
+    );
+
+    const button = getByTestId('menu-trigger');
+    expect(button).to.have.attribute('role', 'button');
   });
 });

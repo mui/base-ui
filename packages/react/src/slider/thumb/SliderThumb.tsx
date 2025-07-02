@@ -8,6 +8,7 @@ import { resolveClassName } from '../../utils/resolveClassName';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useForkRef } from '../../utils/useForkRef';
+import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { visuallyHidden } from '../../utils/visuallyHidden';
 import {
   ARROW_DOWN,
@@ -16,10 +17,10 @@ import {
   ARROW_LEFT,
   HOME,
   END,
+  COMPOSITE_KEYS,
 } from '../../composite/composite';
 import { useCompositeListItem } from '../../composite/list/useCompositeListItem';
 import { useDirection } from '../../direction-provider/DirectionContext';
-import { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { getSliderValue } from '../utils/getSliderValue';
 import { roundValueToStep } from '../utils/roundValueToStep';
@@ -31,8 +32,16 @@ import { SliderThumbDataAttributes } from './SliderThumbDataAttributes';
 const PAGE_UP = 'PageUp';
 const PAGE_DOWN = 'PageDown';
 
-const COMPOSITE_KEYS = [ARROW_UP, ARROW_DOWN, ARROW_LEFT, ARROW_RIGHT, HOME, END];
-const ALL_KEYS = [ARROW_UP, ARROW_DOWN, ARROW_LEFT, ARROW_RIGHT, HOME, END, PAGE_UP, PAGE_DOWN];
+const ALL_KEYS = new Set([
+  ARROW_UP,
+  ARROW_DOWN,
+  ARROW_LEFT,
+  ARROW_RIGHT,
+  HOME,
+  END,
+  PAGE_UP,
+  PAGE_DOWN,
+]);
 
 function defaultRender(
   props: React.ComponentPropsWithRef<'div'>,
@@ -95,17 +104,15 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     getAriaLabel: getAriaLabelProp,
     getAriaValueText: getAriaValueTextProp,
     id: idProp,
-    inputId: inputIdProp,
     onBlur: onBlurProp,
     onFocus: onFocusProp,
     onKeyDown: onKeyDownProp,
     tabIndex: tabIndexProp,
-    inputRef: inputRefProp,
     ...elementProps
   } = componentProps;
 
   const id = useBaseUiId(idProp);
-  const inputId = useBaseUiId(inputIdProp);
+  const inputId = `${id}-input`;
 
   const render = renderProp ?? defaultRender;
 
@@ -113,6 +120,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     active: activeIndex,
     handleInputChange,
     disabled: contextDisabled,
+    fieldControlValidation,
     formatOptionsRef,
     labelId,
     largeStep,
@@ -120,7 +128,6 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     max,
     min,
     minStepsBetweenValues,
-    name,
     orientation,
     setActive,
     state,
@@ -139,16 +146,17 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
   const externalTabIndex = tabIndexProp ?? contextTabIndex;
 
   const direction = useDirection();
-  const { setTouched, setFocused, validationMode } = useFieldRootContext();
-  const {
-    getInputValidationProps,
-    inputRef: inputValidationRef,
-    commitValidation,
-  } = useFieldControlValidation();
+  const { controlId, setControlId, setTouched, setFocused, validationMode } = useFieldRootContext();
 
   const thumbRef = React.useRef<HTMLElement>(null);
-  const inputRef = React.useRef<HTMLInputElement>(null);
-  const mergedInputRef = useForkRef(inputRef, inputRefProp, inputValidationRef);
+
+  useModernLayoutEffect(() => {
+    setControlId(inputId);
+
+    return () => {
+      setControlId(undefined);
+    };
+  }, [controlId, inputId, setControlId]);
 
   const thumbMetadata = React.useMemo(
     () => ({
@@ -214,18 +222,19 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
         setFocused(false);
 
         if (validationMode === 'onBlur') {
-          commitValidation(
+          fieldControlValidation.commitValidation(
             getSliderValue(thumbValue, index, min, max, sliderValues.length > 1, sliderValues),
           );
         }
       },
       onKeyDown(event: React.KeyboardEvent) {
-        if (!ALL_KEYS.includes(event.key)) {
+        if (!ALL_KEYS.has(event.key)) {
           return;
         }
-        if (COMPOSITE_KEYS.includes(event.key)) {
+        if (COMPOSITE_KEYS.has(event.key)) {
           event.stopPropagation();
         }
+
         let newValue = null;
         const isRange = sliderValues.length > 1;
         const roundedValue = roundValueToStep(thumbValue, step, min);
@@ -330,11 +339,9 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
       id: inputId,
       max,
       min,
-      name,
       onChange(event: React.ChangeEvent<HTMLInputElement>) {
         handleInputChange(event.target.valueAsNumber, index, event);
       },
-      ref: mergedInputRef,
       step,
       style: {
         ...visuallyHidden,
@@ -347,7 +354,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
       type: 'range',
       value: thumbValue ?? '',
     },
-    getInputValidationProps({ disabled }),
+    fieldControlValidation.getValidationProps,
   );
 
   if (typeof render === 'function') {
@@ -359,10 +366,11 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
 
   const children = thumbProps.children ?? renderPropsChildren;
 
-  return React.cloneElement(render, {
-    ...mergeProps(
+  return React.cloneElement(
+    render,
+    mergeProps(
+      thumbProps,
       {
-        ...thumbProps,
         children: (
           <React.Fragment>
             {/* @ts-ignore */}
@@ -372,10 +380,11 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
         ),
       },
       otherRenderProps,
+      {
+        ref: thumbProps.ref,
+      },
     ),
-    // @ts-ignore
-    ref: thumbProps.ref,
-  });
+  );
 });
 
 export interface ThumbMetadata {
@@ -386,10 +395,6 @@ export namespace SliderThumb {
   export interface State extends SliderRoot.State {}
 
   export interface Props extends Omit<BaseUIComponentProps<'div', State>, 'render'> {
-    /**
-     * A ref to access the hidden input element.
-     */
-    inputRef?: React.Ref<HTMLInputElement>;
     /**
      * Whether the thumb should ignore user interaction.
      * @default false
@@ -412,7 +417,6 @@ export namespace SliderThumb {
      * @type {((formattedValue: string, value: number, index: number) => string) | null}
      */
     getAriaValueText?: ((formattedValue: string, value: number, index: number) => string) | null;
-    inputId?: string;
     /**
      * Allows you to replace the component’s HTML element
      * with a different tag, or compose it with another component.

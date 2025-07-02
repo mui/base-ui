@@ -12,9 +12,11 @@ export interface FormContext {
     fields: Map<
       string,
       {
+        name: string | undefined;
         validate: () => void;
         validityData: FieldValidityData;
         controlRef: React.RefObject<HTMLElement>;
+        getValueRef: React.RefObject<(() => unknown) | undefined>;
       }
     >;
   }>;
@@ -29,10 +31,6 @@ export const FormContext = React.createContext<FormContext>({
   errors: {},
   clearErrors: NOOP,
 });
-
-if (process.env.NODE_ENV !== 'production') {
-  FormContext.displayName = 'FormContext';
-}
 
 export function useFormContext() {
   return React.useContext(FormContext);

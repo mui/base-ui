@@ -79,8 +79,8 @@
   cursor: default;
   z-index: calc(1000 - var(--toast-index));
   transform: translateX(var(--toast-swipe-movement-x))
-    translateY(calc(var(--toast-swipe-movement-y) + (var(--toast-index) * -20%)))
-    scale(calc(1 - (var(--toast-index) * 0.1)));
+    translateY(calc(var(--toast-swipe-movement-y) + (min(var(--toast-index), 10) * -20%)))
+    scale(calc(max(0, 1 - (var(--toast-index) * 0.1))));
 
   &::after {
     top: 100%;
@@ -91,8 +91,12 @@
   }
 
   &[data-starting-style],
-  &[data-ending-style]:not([data-limited]) {
+  &[data-ending-style] {
     transform: translateY(150%);
+  }
+
+  &[data-limited] {
+    opacity: 0;
   }
 
   &[data-ending-style] {

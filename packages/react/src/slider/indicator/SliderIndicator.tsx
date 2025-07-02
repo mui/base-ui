@@ -68,14 +68,14 @@ export const SliderIndicator = React.forwardRef(function SliderIndicator(
     };
   }
 
-  const renderElement = useRenderElement('div', componentProps, {
+  const element = useRenderElement('div', componentProps, {
     state,
     ref: forwardedRef,
     props: [{ style }, elementProps],
     customStyleHookMapping: sliderStyleHookMapping,
   });
 
-  return renderElement();
+  return element;
 });
 
 export namespace SliderIndicator {

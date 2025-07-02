@@ -1,11 +1,10 @@
 'use client';
 import * as React from 'react';
 import type { BaseUIComponentProps } from '../../utils/types';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useToastRootContext } from '../root/ToastRootContext';
-import { mergeProps } from '../../merge-props';
 import { useToastContext } from '../provider/ToastProviderContext';
 import { useButton } from '../../use-button/useButton';
+import { useRenderElement } from '../../utils/useRenderElement';
 
 /**
  * Closes the toast when clicked.
@@ -14,17 +13,17 @@ import { useButton } from '../../use-button/useButton';
  * Documentation: [Base UI Toast](https://base-ui.com/react/components/toast)
  */
 export const ToastClose = React.forwardRef(function ToastClose(
-  props: ToastClose.Props,
+  componentProps: ToastClose.Props,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
-  const { render, className, disabled, ...other } = props;
+  const { render, className, disabled, nativeButton = true, ...elementProps } = componentProps;
 
   const { close } = useToastContext();
   const { toast } = useToastRootContext();
 
-  const { getButtonProps } = useButton({
+  const { getButtonProps, buttonRef } = useButton({
     disabled,
-    buttonRef: forwardedRef,
+    native: nativeButton,
   });
 
   const state: ToastClose.State = React.useMemo(
@@ -34,23 +33,21 @@ export const ToastClose = React.forwardRef(function ToastClose(
     [toast.type],
   );
 
-  const { renderElement } = useComponentRenderer({
-    render: render ?? 'button',
-    ref: forwardedRef,
-    className,
+  const element = useRenderElement('button', componentProps, {
+    ref: [forwardedRef, buttonRef],
     state,
-    extraProps: mergeProps<'button'>(
+    props: [
       {
         onClick() {
           close(toast.id);
         },
       },
-      other,
+      elementProps,
       getButtonProps,
-    ),
+    ],
   });
 
-  return renderElement();
+  return element;
 });
 
 export namespace ToastClose {
@@ -61,5 +58,13 @@ export namespace ToastClose {
     type: string | undefined;
   }
 
-  export interface Props extends BaseUIComponentProps<'button', State> {}
+  export interface Props extends BaseUIComponentProps<'button', State> {
+    /**
+     * Whether the component renders a native `<button>` element when replacing it
+     * via the `render` prop.
+     * Set to `false` if the rendered element is not a button (e.g. `<div>`).
+     * @default true
+     */
+    nativeButton?: boolean;
+  }
 }

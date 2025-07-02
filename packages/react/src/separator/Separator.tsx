@@ -1,8 +1,7 @@
 'use client';
 import * as React from 'react';
 import type { BaseUIComponentProps, Orientation } from '../utils/types';
-import { mergeProps } from '../merge-props';
-import { useComponentRenderer } from '../utils/useComponentRenderer';
+import { useRenderElement } from '../utils/useRenderElement';
 
 /**
  * A separator element accessible to screen readers.
@@ -11,34 +10,20 @@ import { useComponentRenderer } from '../utils/useComponentRenderer';
  * Documentation: [Base UI Separator](https://base-ui.com/react/components/separator)
  */
 export const Separator = React.forwardRef(function SeparatorComponent(
-  props: Separator.Props,
+  componentProps: Separator.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { className, render, orientation = 'horizontal', ...other } = props;
+  const { className, render, orientation = 'horizontal', ...elementProps } = componentProps;
 
   const state: Separator.State = React.useMemo(() => ({ orientation }), [orientation]);
 
-  const getSeparatorProps = React.useCallback(
-    (externalProps = {}) =>
-      mergeProps(
-        {
-          'aria-orientation': orientation,
-        },
-        externalProps,
-      ),
-    [orientation],
-  );
-
-  const { renderElement } = useComponentRenderer({
-    propGetter: getSeparatorProps,
-    render: render ?? 'div',
-    className,
+  const element = useRenderElement('div', componentProps, {
     state,
-    extraProps: { role: 'separator', ...other },
     ref: forwardedRef,
+    props: [{ role: 'separator', 'aria-orientation': orientation }, elementProps],
   });
 
-  return renderElement();
+  return element;
 });
 
 export namespace Separator {

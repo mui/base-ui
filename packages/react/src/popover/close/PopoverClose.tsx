@@ -18,19 +18,19 @@ export const PopoverClose = React.forwardRef(function PopoverClose(
 
   const { setOpen } = usePopoverRootContext();
 
-  const renderElement = useRenderElement('button', props, {
+  const element = useRenderElement('button', props, {
     ref: forwardedRef,
     props: [
       {
-        onClick() {
-          setOpen(false, undefined, undefined);
+        onClick(event) {
+          setOpen(false, event.nativeEvent, 'close-press');
         },
       },
       elementProps,
     ],
   });
 
-  return renderElement();
+  return element;
 });
 
 export namespace PopoverClose {

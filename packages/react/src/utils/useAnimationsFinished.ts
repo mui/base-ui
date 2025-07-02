@@ -2,6 +2,8 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { useEventCallback } from './useEventCallback';
+import { useTimeout } from './useTimeout';
+import { useAnimationFrame } from './useAnimationFrame';
 
 /**
  * Executes a function once all animations have finished on the provided element.
@@ -12,15 +14,8 @@ export function useAnimationsFinished(
   ref: React.RefObject<HTMLElement | null>,
   waitForNextTick = false,
 ) {
-  const frameRef = React.useRef(-1);
-  const timeoutRef = React.useRef(-1);
-
-  const cancelTasks = useEventCallback(() => {
-    cancelAnimationFrame(frameRef.current);
-    clearTimeout(timeoutRef.current);
-  });
-
-  React.useEffect(() => cancelTasks, [cancelTasks]);
+  const frame = useAnimationFrame();
+  const timeout = useTimeout();
 
   return useEventCallback(
     (
@@ -35,7 +30,8 @@ export function useAnimationsFinished(
        */
       signal: AbortSignal | null = null,
     ) => {
-      cancelTasks();
+      frame.cancel();
+      timeout.clear();
 
       const element = ref.current;
 
@@ -46,7 +42,7 @@ export function useAnimationsFinished(
       if (typeof element.getAnimations !== 'function' || globalThis.BASE_UI_ANIMATIONS_DISABLED) {
         fnToExecute();
       } else {
-        frameRef.current = requestAnimationFrame(() => {
+        frame.request(() => {
           function exec() {
             if (!element) {
               return;
@@ -64,7 +60,7 @@ export function useAnimationsFinished(
 
           // `open: true` animations need to wait for the next tick to be detected
           if (waitForNextTick) {
-            timeoutRef.current = window.setTimeout(exec);
+            timeout.start(0, exec);
           } else {
             exec();
           }

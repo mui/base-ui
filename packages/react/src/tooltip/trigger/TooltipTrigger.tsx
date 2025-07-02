@@ -21,14 +21,14 @@ export const TooltipTrigger = React.forwardRef(function TooltipTrigger(
 
   const state: TooltipTrigger.State = React.useMemo(() => ({ open }), [open]);
 
-  const renderElement = useRenderElement('button', componentProps, {
+  const element = useRenderElement('button', componentProps, {
     state,
     ref: [forwardedRef, setTriggerElement],
     props: [triggerProps, elementProps],
     customStyleHookMapping: triggerOpenStateMapping,
   });
 
-  return renderElement();
+  return element;
 });
 
 export namespace TooltipTrigger {

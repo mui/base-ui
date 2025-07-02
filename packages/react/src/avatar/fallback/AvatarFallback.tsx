@@ -1,7 +1,8 @@
 'use client';
 import * as React from 'react';
 import { BaseUIComponentProps } from '../../utils/types';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import { useRenderElement } from '../../utils/useRenderElement';
+import { useTimeout } from '../../utils/useTimeout';
 import { useAvatarRootContext } from '../root/AvatarRootContext';
 import type { AvatarRoot } from '../root/AvatarRoot';
 import { avatarStyleHookMapping } from '../root/styleHooks';
@@ -13,25 +14,21 @@ import { avatarStyleHookMapping } from '../root/styleHooks';
  * Documentation: [Base UI Avatar](https://base-ui.com/react/components/avatar)
  */
 export const AvatarFallback = React.forwardRef(function AvatarFallback(
-  props: AvatarFallback.Props,
+  componentProps: AvatarFallback.Props,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
-  const { className, render, delay, ...otherProps } = props;
+  const { className, render, delay, ...elementProps } = componentProps;
 
   const { imageLoadingStatus } = useAvatarRootContext();
   const [delayPassed, setDelayPassed] = React.useState(delay === undefined);
+  const timeout = useTimeout();
 
   React.useEffect(() => {
-    let timerId: number | undefined;
-
     if (delay !== undefined) {
-      timerId = window.setTimeout(() => setDelayPassed(true), delay);
+      timeout.start(delay, () => setDelayPassed(true));
     }
-
-    return () => {
-      window.clearTimeout(timerId);
-    };
-  }, [delay]);
+    return timeout.clear;
+  }, [timeout, delay]);
 
   const state: AvatarRoot.State = React.useMemo(
     () => ({
@@ -40,18 +37,15 @@ export const AvatarFallback = React.forwardRef(function AvatarFallback(
     [imageLoadingStatus],
   );
 
-  const { renderElement } = useComponentRenderer({
-    render: render ?? 'span',
+  const element = useRenderElement('span', componentProps, {
     state,
-    className,
     ref: forwardedRef,
-    extraProps: otherProps,
+    props: elementProps,
     customStyleHookMapping: avatarStyleHookMapping,
+    enabled: imageLoadingStatus !== 'loaded' && delayPassed,
   });
 
-  const shouldRender = imageLoadingStatus !== 'loaded' && delayPassed;
-
-  return shouldRender ? renderElement() : null;
+  return element;
 });
 
 export namespace AvatarFallback {

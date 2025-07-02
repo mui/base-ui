@@ -1,9 +1,8 @@
 'use client';
 import * as React from 'react';
-import { FloatingFocusManager } from '@floating-ui/react';
+import { FloatingFocusManager } from '../../floating-ui-react';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
 import { usePopoverPositionerContext } from '../positioner/PopoverPositionerContext';
-import { usePopoverPopup } from './usePopoverPopup';
 import type { Side, Align } from '../../utils/useAnchorPositioning';
 import type { BaseUIComponentProps } from '../../utils/types';
 import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
@@ -13,6 +12,7 @@ import { InteractionType } from '../../utils/useEnhancedClickHandler';
 import { transitionStatusMapping } from '../../utils/styleHookMapping';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useRenderElement } from '../../utils/useRenderElement';
+import { DISABLED_TRANSITIONS_STYLE, EMPTY_OBJECT } from '../../utils/constants';
 
 const customStyleHookMapping: CustomStyleHookMapping<PopoverPopup.State> = {
   ...baseMapping,
@@ -43,6 +43,7 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
     openReason,
     onOpenChangeComplete,
     modal,
+    openMethod,
   } = usePopoverRootContext();
   const positioner = usePopoverPositionerContext();
 
@@ -56,11 +57,20 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
     },
   });
 
-  const { props, resolvedInitialFocus } = usePopoverPopup({
-    titleId,
-    descriptionId,
-    initialFocus,
-  });
+  const resolvedInitialFocus = React.useMemo(() => {
+    if (initialFocus == null) {
+      if (openMethod === 'touch') {
+        return popupRef;
+      }
+      return 0;
+    }
+
+    if (typeof initialFocus === 'function') {
+      return initialFocus(openMethod ?? '');
+    }
+
+    return initialFocus;
+  }, [initialFocus, openMethod, popupRef]);
 
   const state: PopoverPopup.State = React.useMemo(
     () => ({
@@ -73,15 +83,16 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
     [open, positioner.side, positioner.align, instantType, transitionStatus],
   );
 
-  const renderElement = useRenderElement('div', componentProps, {
+  const element = useRenderElement('div', componentProps, {
     state,
     ref: [forwardedRef, popupRef],
     props: [
       popupProps,
-      props,
       {
-        style: transitionStatus === 'starting' ? { transition: 'none' } : {},
+        'aria-labelledby': titleId,
+        'aria-describedby': descriptionId,
       },
+      transitionStatus === 'starting' ? DISABLED_TRANSITIONS_STYLE : EMPTY_OBJECT,
       elementProps,
     ],
     customStyleHookMapping,
@@ -91,11 +102,11 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
     <FloatingFocusManager
       context={positioner.context}
       modal={modal === 'trap-focus'}
-      disabled={!mounted || openReason === 'hover'}
+      disabled={!mounted || openReason === 'trigger-hover'}
       initialFocus={resolvedInitialFocus}
       returnFocus={finalFocus}
     >
-      {renderElement()}
+      {element}
     </FloatingFocusManager>
   );
 });

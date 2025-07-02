@@ -79,16 +79,20 @@
       "default": "false",
       "description": "Whether the field is forcefully marked as invalid."
     },
+    "inputRef": {
+      "type": "Ref<HTMLInputElement>",
+      "description": "A ref to access the hidden input element."
+    },
     "id": {
       "type": "string",
       "description": "The id of the input element."
     },
     "className": {
-      "type": "string | ((state: State) => string)",
+      "type": "string | ((state: NumberField.Root.State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "render": {
-      "type": "ReactElement | ((props: GenericHTMLProps, state: State) => ReactElement)",
+      "type": "ReactElement | ((props: HTMLProps, state: NumberField.Root.State) => ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
     }
   },

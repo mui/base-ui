@@ -38,7 +38,7 @@ export const FieldRoot = React.forwardRef(function FieldRoot(
 
   const disabled = disabledFieldset || disabledProp;
 
-  const [controlId, setControlId] = React.useState<string | undefined>(undefined);
+  const [controlId, setControlId] = React.useState<string | null | undefined>(undefined);
   const [labelId, setLabelId] = React.useState<string | undefined>(undefined);
   const [messageIds, setMessageIds] = React.useState<string[]>([]);
 
@@ -56,7 +56,9 @@ export const FieldRoot = React.forwardRef(function FieldRoot(
     setDirtyUnwrapped(value);
   }, []);
 
-  const invalid = Boolean(invalidProp || (name && {}.hasOwnProperty.call(errors, name)));
+  const invalid = Boolean(
+    invalidProp || (name && {}.hasOwnProperty.call(errors, name) && errors[name] !== undefined),
+  );
 
   const [validityData, setValidityData] = React.useState<FieldValidityData>({
     state: DEFAULT_VALIDITY_STATE,
@@ -129,16 +131,14 @@ export const FieldRoot = React.forwardRef(function FieldRoot(
     ],
   );
 
-  const renderElement = useRenderElement('div', componentProps, {
+  const element = useRenderElement('div', componentProps, {
     ref: forwardedRef,
     state,
     props: elementProps,
     customStyleHookMapping: fieldValidityMapping,
   });
 
-  return (
-    <FieldRootContext.Provider value={contextValue}>{renderElement()}</FieldRootContext.Provider>
-  );
+  return <FieldRootContext.Provider value={contextValue}>{element}</FieldRootContext.Provider>;
 });
 
 export interface FieldValidityData {
@@ -190,7 +190,10 @@ export namespace FieldRoot {
      * A function for custom validation. Return a string or an array of strings with
      * the error message(s) if the value is invalid, or `null` if the value is valid.
      */
-    validate?: (value: unknown) => string | string[] | null | Promise<string | string[] | null>;
+    validate?: (
+      value: unknown,
+      formValues: Record<string, unknown>,
+    ) => string | string[] | null | Promise<string | string[] | null>;
     /**
      * Determines when the field should be validated.
      *

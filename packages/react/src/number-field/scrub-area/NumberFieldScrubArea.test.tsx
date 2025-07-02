@@ -33,7 +33,7 @@ describe('<NumberField.ScrubArea />', () => {
   });
 
   // Only run the following tests in Chromium/Firefox.
-  if (isJSDOM || isWebKit()) {
+  if (isJSDOM || isWebKit) {
     return;
   }
 

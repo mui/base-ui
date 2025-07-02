@@ -13,8 +13,5 @@
     "outDir": "build/esm"
   },
   "include": ["src/**/*.ts*"],
-  "exclude": ["src/**/*.spec.ts*", "src/**/*.test.ts*"],
-  "tsc-alias": {
-    "resolveFullPaths": true
-  }
+  "exclude": ["src/**/*.spec.ts*", "src/**/*.test.ts*"]
 }

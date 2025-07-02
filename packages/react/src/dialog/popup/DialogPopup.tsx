@@ -1,9 +1,9 @@
 'use client';
 import * as React from 'react';
-import { FloatingFocusManager } from '@floating-ui/react';
+import { FloatingFocusManager } from '../../floating-ui-react';
 import { useDialogPopup } from './useDialogPopup';
 import { useDialogRootContext } from '../root/DialogRootContext';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import { useRenderElement } from '../../utils/useRenderElement';
 import { type BaseUIComponentProps } from '../../utils/types';
 import { type TransitionStatus } from '../../utils/useTransitionStatus';
 import { type CustomStyleHookMapping } from '../../utils/getStyleHookProps';
@@ -33,10 +33,10 @@ const customStyleHookMapping: CustomStyleHookMapping<DialogPopup.State> = {
  * Documentation: [Base UI Dialog](https://base-ui.com/react/components/dialog)
  */
 export const DialogPopup = React.forwardRef(function DialogPopup(
-  props: DialogPopup.Props,
+  componentProps: DialogPopup.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { className, finalFocus, initialFocus, render, ...other } = props;
+  const { className, finalFocus, initialFocus, render, ...elementProps } = componentProps;
 
   const {
     descriptionElementId,
@@ -72,9 +72,8 @@ export const DialogPopup = React.forwardRef(function DialogPopup(
 
   const mergedRef = useForkRef(forwardedRef, popupRef);
 
-  const { getRootProps, resolvedInitialFocus } = useDialogPopup({
+  const { popupProps, resolvedInitialFocus } = useDialogPopup({
     descriptionElementId,
-    getPopupProps,
     initialFocus,
     modal,
     mounted,
@@ -97,15 +96,18 @@ export const DialogPopup = React.forwardRef(function DialogPopup(
     [open, nested, transitionStatus, nestedDialogOpen],
   );
 
-  const { renderElement } = useComponentRenderer({
-    render: render ?? 'div',
-    className,
+  const element = useRenderElement('div', componentProps, {
     state,
-    propGetter: getRootProps,
-    extraProps: {
-      ...other,
-      style: { ...other.style, [DialogPopupCssVars.nestedDialogs]: nestedOpenDialogCount },
-    },
+    props: [
+      getPopupProps(),
+      popupProps,
+      {
+        style: {
+          [DialogPopupCssVars.nestedDialogs]: nestedOpenDialogCount,
+        } as React.CSSProperties,
+      },
+      elementProps,
+    ],
     customStyleHookMapping,
   });
 
@@ -122,7 +124,7 @@ export const DialogPopup = React.forwardRef(function DialogPopup(
         returnFocus={finalFocus}
         modal={modal !== false}
       >
-        {renderElement()}
+        {element}
       </FloatingFocusManager>
     </React.Fragment>
   );

@@ -20,7 +20,7 @@ export const SliderTrack = React.forwardRef(function SliderTrack(
 
   const { state } = useSliderRootContext();
 
-  const renderElement = useRenderElement('div', componentProps, {
+  const element = useRenderElement('div', componentProps, {
     state,
     ref: forwardedRef,
     props: [
@@ -34,7 +34,7 @@ export const SliderTrack = React.forwardRef(function SliderTrack(
     customStyleHookMapping: sliderStyleHookMapping,
   });
 
-  return renderElement();
+  return element;
 });
 
 export namespace SliderTrack {

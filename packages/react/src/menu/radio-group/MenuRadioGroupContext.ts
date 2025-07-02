@@ -10,10 +10,6 @@ export const MenuRadioGroupContext = React.createContext<MenuRadioGroupContext |
   undefined,
 );
 
-if (process.env.NODE_ENV !== 'production') {
-  MenuRadioGroupContext.displayName = 'MenuRadioGroupContext';
-}
-
 export function useMenuRadioGroupContext() {
   const context = React.useContext(MenuRadioGroupContext);
   if (context === undefined) {

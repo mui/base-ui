@@ -38,14 +38,14 @@ export const FieldDescription = React.forwardRef(function FieldDescription(
     };
   }, [id, setMessageIds]);
 
-  const renderElement = useRenderElement('p', componentProps, {
+  const element = useRenderElement('p', componentProps, {
     ref: forwardedRef,
     state,
     props: [{ id }, elementProps],
     customStyleHookMapping: fieldValidityMapping,
   });
 
-  return renderElement();
+  return element;
 });
 
 export namespace FieldDescription {

@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { BaseUIComponentProps } from '../../utils/types';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import { useRenderElement } from '../../utils/useRenderElement';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { useAvatarRootContext } from '../root/AvatarRootContext';
@@ -16,7 +16,7 @@ import { useImageLoadingStatus, ImageLoadingStatus } from './useImageLoadingStat
  * Documentation: [Base UI Avatar](https://base-ui.com/react/components/avatar)
  */
 export const AvatarImage = React.forwardRef(function AvatarImage(
-  props: AvatarImage.Props,
+  componentProps: AvatarImage.Props,
   forwardedRef: React.ForwardedRef<HTMLImageElement>,
 ) {
   const {
@@ -25,11 +25,11 @@ export const AvatarImage = React.forwardRef(function AvatarImage(
     onLoadingStatusChange: onLoadingStatusChangeProp,
     referrerPolicy,
     crossOrigin,
-    ...otherProps
-  } = props;
+    ...elementProps
+  } = componentProps;
 
   const context = useAvatarRootContext();
-  const imageLoadingStatus = useImageLoadingStatus(props.src, {
+  const imageLoadingStatus = useImageLoadingStatus(componentProps.src, {
     referrerPolicy,
     crossOrigin,
   });
@@ -52,16 +52,15 @@ export const AvatarImage = React.forwardRef(function AvatarImage(
     [imageLoadingStatus],
   );
 
-  const { renderElement } = useComponentRenderer({
-    render: render ?? 'img',
+  const element = useRenderElement('img', componentProps, {
     state,
-    className,
     ref: forwardedRef,
-    extraProps: otherProps,
+    props: elementProps,
     customStyleHookMapping: avatarStyleHookMapping,
+    enabled: imageLoadingStatus === 'loaded',
   });
 
-  return imageLoadingStatus === 'loaded' ? renderElement() : null;
+  return element;
 });
 
 export namespace AvatarImage {

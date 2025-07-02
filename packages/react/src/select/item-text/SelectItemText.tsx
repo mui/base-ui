@@ -1,51 +1,9 @@
 'use client';
 import * as React from 'react';
-import { useForkRef } from '../../utils/useForkRef';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import { useSelectItemContext } from '../item/SelectItemContext';
 import { useRenderElement } from '../../utils/useRenderElement';
-
-interface InnerSelectItemTextProps extends SelectItemText.Props {
-  selected: boolean;
-  selectedItemTextRef: React.RefObject<HTMLElement | null>;
-  indexRef: React.RefObject<number>;
-}
-
-const InnerSelectItemText = React.memo(
-  React.forwardRef(function InnerSelectItemText(
-    componentProps: InnerSelectItemTextProps,
-    forwardedRef: React.ForwardedRef<HTMLDivElement>,
-  ) {
-    const { className, render, selected, selectedItemTextRef, indexRef, ...elementProps } =
-      componentProps;
-
-    const mergedRef = useForkRef<HTMLElement>(forwardedRef);
-
-    const ref = React.useCallback(
-      (node: HTMLElement | null) => {
-        if (mergedRef) {
-          mergedRef(node);
-        }
-
-        // Wait for the DOM indices to be set.
-        queueMicrotask(() => {
-          if (selected || (selectedItemTextRef.current === null && indexRef.current === 0)) {
-            selectedItemTextRef.current = node;
-          }
-        });
-      },
-      [mergedRef, selected, selectedItemTextRef, indexRef],
-    );
-
-    const renderElement = useRenderElement('div', componentProps, {
-      ref,
-      props: elementProps,
-    });
-
-    return renderElement();
-  }),
-);
 
 /**
  * A text label of the select item.
@@ -53,24 +11,41 @@ const InnerSelectItemText = React.memo(
  *
  * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
  */
-export const SelectItemText = React.forwardRef(function SelectItemText(
-  props: SelectItemText.Props,
-  forwardedRef: React.ForwardedRef<HTMLDivElement>,
-) {
-  const { selected, indexRef } = useSelectItemContext();
-  const { selectedItemTextRef } = useSelectRootContext();
-  const mergedRef = useForkRef<HTMLElement>(forwardedRef);
+export const SelectItemText = React.memo(
+  React.forwardRef(function SelectItemText(
+    componentProps: SelectItemText.Props,
+    forwardedRef: React.ForwardedRef<HTMLDivElement>,
+  ) {
+    const { selected, indexRef, textRef } = useSelectItemContext();
+    const { selectedItemTextRef } = useSelectRootContext();
 
-  return (
-    <InnerSelectItemText
-      ref={mergedRef}
-      selected={selected}
-      selectedItemTextRef={selectedItemTextRef}
-      indexRef={indexRef}
-      {...props}
-    />
-  );
-});
+    const { className, render, ...elementProps } = componentProps;
+
+    const localRef = React.useCallback(
+      (node: HTMLElement | null) => {
+        if (!node) {
+          return;
+        }
+        // Wait for the DOM indices to be set.
+        queueMicrotask(() => {
+          const hasNoSelectedItemText =
+            selectedItemTextRef.current === null || !selectedItemTextRef.current.isConnected;
+          if (selected || (hasNoSelectedItemText && indexRef.current === 0)) {
+            selectedItemTextRef.current = node;
+          }
+        });
+      },
+      [selected, selectedItemTextRef, indexRef],
+    );
+
+    const element = useRenderElement('div', componentProps, {
+      ref: [localRef, forwardedRef, textRef],
+      props: elementProps,
+    });
+
+    return element;
+  }),
+);
 
 export namespace SelectItemText {
   export interface Props extends BaseUIComponentProps<'div', State> {}

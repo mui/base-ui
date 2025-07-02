@@ -6,16 +6,19 @@ export function getStyleHookProps<State extends Record<string, any>>(
   state: State,
   customMapping?: CustomStyleHookMapping<State>,
 ) {
-  let props: Record<string, string> = {};
+  const props: Record<string, string> = {};
 
-  Object.entries(state).forEach(([key, value]) => {
+  /* eslint-disable-next-line guard-for-in */
+  for (const key in state) {
+    const value = state[key];
+
     if (customMapping?.hasOwnProperty(key)) {
       const customProps = customMapping[key]!(value);
       if (customProps != null) {
-        props = { ...props, ...customProps };
+        Object.assign(props, customProps);
       }
 
-      return;
+      continue;
     }
 
     if (value === true) {
@@ -23,7 +26,7 @@ export function getStyleHookProps<State extends Record<string, any>>(
     } else if (value) {
       props[`data-${key.toLowerCase()}`] = value.toString();
     }
-  });
+  }
 
   return props;
 }

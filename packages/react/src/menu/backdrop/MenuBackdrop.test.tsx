@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Menu } from '@base-ui-components/react/menu';
 import { createRenderer, describeConformance } from '#test-utils';
-import { screen } from '@mui/internal-test-utils';
+import { screen, waitFor } from '@mui/internal-test-utils';
 
 describe('<Menu.Backdrop />', () => {
   const { render } = createRenderer();
@@ -33,7 +33,7 @@ describe('<Menu.Backdrop />', () => {
 
   it('does not set `pointer-events: none` style on backdrop if opened by click', async () => {
     const { user } = await render(
-      <Menu.Root delay={0} openOnHover>
+      <Menu.Root delay={0}>
         <Menu.Trigger>Open</Menu.Trigger>
         <Menu.Portal>
           <Menu.Backdrop data-testid="backdrop" />
@@ -46,6 +46,8 @@ describe('<Menu.Backdrop />', () => {
 
     await user.click(screen.getByText('Open'));
 
-    expect(screen.getByTestId('backdrop').style.pointerEvents).not.to.equal('none');
+    await waitFor(() => {
+      expect(screen.getByTestId('backdrop').style.pointerEvents).not.to.equal('none');
+    });
   });
 });

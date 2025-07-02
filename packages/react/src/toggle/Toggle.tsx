@@ -28,6 +28,7 @@ export const Toggle = React.forwardRef(function Toggle(
     render,
     type, // cannot change button type
     value: valueProp,
+    nativeButton = true,
     ...elementProps
   } = componentProps;
 
@@ -55,7 +56,7 @@ export const Toggle = React.forwardRef(function Toggle(
 
   const { getButtonProps, buttonRef } = useButton({
     disabled,
-    buttonRef: forwardedRef,
+    native: nativeButton,
   });
 
   const state: Toggle.State = React.useMemo(
@@ -66,9 +67,9 @@ export const Toggle = React.forwardRef(function Toggle(
     [disabled, pressed],
   );
 
-  const renderElement = useRenderElement('button', componentProps, {
+  const element = useRenderElement('button', componentProps, {
     state,
-    ref: buttonRef,
+    ref: [buttonRef, forwardedRef],
     props: [
       {
         'aria-pressed': pressed,
@@ -77,14 +78,13 @@ export const Toggle = React.forwardRef(function Toggle(
           setPressedState(nextPressed);
           onPressedChange(nextPressed, event.nativeEvent);
         },
-        ref: buttonRef,
       },
       elementProps,
       getButtonProps,
     ],
   });
 
-  return groupContext ? <CompositeItem render={renderElement()} /> : renderElement();
+  return groupContext ? <CompositeItem render={element} /> : element;
 });
 
 export namespace Toggle {
@@ -128,5 +128,12 @@ export namespace Toggle {
      * inside a toggle group.
      */
     value?: string;
+    /**
+     * Whether the component renders a native `<button>` element when replacing it
+     * via the `render` prop.
+     * Set to `false` if the rendered element is not a button (e.g. `<div>`).
+     * @default true
+     */
+    nativeButton?: boolean;
   }
 }

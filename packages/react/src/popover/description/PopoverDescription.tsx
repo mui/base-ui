@@ -2,8 +2,8 @@
 import * as React from 'react';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
 import type { BaseUIComponentProps } from '../../utils/types';
-import { useModernLayoutEffect } from '../../utils';
 import { useBaseUiId } from '../../utils/useBaseUiId';
+import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { useRenderElement } from '../../utils/useRenderElement';
 
 /**
@@ -29,12 +29,12 @@ export const PopoverDescription = React.forwardRef(function PopoverDescription(
     };
   }, [setDescriptionId, id]);
 
-  const renderElement = useRenderElement('p', componentProps, {
+  const element = useRenderElement('p', componentProps, {
     ref: forwardedRef,
     props: [{ id }, elementProps],
   });
 
-  return renderElement();
+  return element;
 });
 
 export namespace PopoverDescription {

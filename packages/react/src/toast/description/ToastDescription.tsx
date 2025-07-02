@@ -1,10 +1,10 @@
 'use client';
 import * as React from 'react';
 import type { BaseUIComponentProps } from '../../utils/types';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useToastRootContext } from '../root/ToastRootContext';
 import { useId } from '../../utils/useId';
 import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
+import { useRenderElement } from '../../utils/useRenderElement';
 
 /**
  * A description that describes the toast.
@@ -14,10 +14,10 @@ import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
  * Documentation: [Base UI Toast](https://base-ui.com/react/components/toast)
  */
 export const ToastDescription = React.forwardRef(function ToastDescription(
-  props: ToastDescription.Props,
+  componentProps: ToastDescription.Props,
   forwardedRef: React.ForwardedRef<HTMLParagraphElement>,
 ) {
-  const { render, className, id: idProp, children: childrenProp, ...other } = props;
+  const { render, className, id: idProp, children: childrenProp, ...elementProps } = componentProps;
 
   const { toast } = useToastRootContext();
 
@@ -48,13 +48,11 @@ export const ToastDescription = React.forwardRef(function ToastDescription(
     [toast.type],
   );
 
-  const { renderElement } = useComponentRenderer({
-    render: render ?? 'p',
+  const element = useRenderElement('p', componentProps, {
     ref: forwardedRef,
-    className,
     state,
-    extraProps: {
-      ...other,
+    props: {
+      ...elementProps,
       id,
       children,
     },
@@ -64,7 +62,7 @@ export const ToastDescription = React.forwardRef(function ToastDescription(
     return null;
   }
 
-  return renderElement();
+  return element;
 });
 
 export namespace ToastDescription {

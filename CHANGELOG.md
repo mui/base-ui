@@ -1,5 +1,353 @@
 # Versions
 
+## v1.0.0-beta.1
+
+_Jul 1, 2025_
+
+### General changes
+
+- Make error messages consistent (#2049) by @michaldudak
+- Do not overwrite event handler when `undefined` is passed explicitly (#2151) by @michaldudak
+
+### Accordion
+
+- Allow content to resize naturally (#2043) by @atomiks
+- Fix transition status mapping (#2169) by @atomiks
+- Fix `aria-controls` reference (#2170) by @atomiks
+- Fix test warning about mixed animation types (#2180) by @atomiks
+
+### Checkbox
+
+- **Breaking change:** Support implicit `Field.Label`.
+  If `Field.Label` encloses Switch/Checkbox/Radio, the `htmlFor`/`id` attributes are no longer explicitly set to associate them.
+  (#2036) by @mj12albert
+- Refactor to `useRenderElement` (#2053) by @mj12albert
+- Always set `id` on the `<input>` element (#2115) by @mj12albert
+
+### Checkbox Group
+
+- Fix `onCheckedChange` not running when parent checkbox is present (#2155) by @mj12albert
+
+### Collapsible
+
+- Allow content to resize naturally (#2043) by @atomiks
+- Fix `aria-controls` reference (#2170) by @atomiks
+- Fix test warning about mixed animation types (#2180) by @atomiks
+
+### Context Menu
+
+- **Breaking change:** Add `SubmenuRoot` part.
+  Nested menus should be defined with `Menu.SubmenuRoot` instead of `Menu.Root` to to avoid ambiguity.
+  (#2042) by @atomiks
+- Fix CheckboxItemIndicator export (#2009) by @aarongarciah
+
+### Dialog
+
+- Fix popup prop merging (#2119) by @atomiks
+
+### Field
+
+- **Breaking change:** Support implicit `Field.Label`.
+  If `Field.Label` encloses Switch/Checkbox/Radio, the `htmlFor`/`id` attributes are no longer explicitly set to associate them.
+  (#2036) by @mj12albert
+- Enable custom validation based on other form values (#1941) by @mj12albert
+- Fix `onValueChange` `value` type (#2112) by @atomiks
+- Fix `Field.Label` focusing trigger (#2118) by @atomiks
+- Fix slider field label (#2154) by @mj12albert
+
+### Fieldset
+
+- Refactor to `useRenderElement` (#2053) by @mj12albert
+
+### Form
+
+- Enable custom validation based on other form values (#1941) by @mj12albert
+
+### Input
+
+- Fix `onValueChange` `value` type (#2112) by @atomiks
+
+### Menu
+
+- **Breaking change:** Add `SubmenuRoot` part.
+  Nested menus should be defined with `Menu.SubmenuRoot` instead of `Menu.Root` to to avoid ambiguity.
+  (#2042) by @atomiks
+- Unset `role` from Trigger (#2047) by @atomiks
+- Emit `close` event on `cancel-open` (#2067) by @atomiks
+- Fix close toggle when rendering non-native button (#2071) by @atomiks
+- Add `highlighted` to item `State` (#2079) by @atomiks
+- Remove highlighted effect (#2162) by @atomiks
+- Cut out internal backdrop to allow interacting with triggers (#2141) by @michaldudak
+- Fix active index sync on hover (#2163) by @atomiks
+- Fix focus returning to root when submenus have exit transitions (#2163) by @atomiks
+
+### Menubar
+
+- Fix `closeOnClick: false` not working in nested menus (#2094) by @michaldudak
+
+### Navigation Menu
+
+- Handle layout resize while open (#2070) by @atomiks
+- Fix positioner height when opening menu using the keyboard arrows (#2060) by @juliomerisio
+
+### Number Field
+
+- Ensure `onValueChange` is called with already-formatted parsed value (#1905) by @atomiks
+- Fix revalidation on change (#2174) by @atomiks
+
+### Popover
+
+- Fix close toggle when rendering non-native button (#2071) by @atomiks
+- Cut out internal backdrop to allow interacting with triggers (#2141) by @michaldudak
+
+### Radio Group
+
+- **Breaking change:** Support implicit `Field.Label`.
+  If `Field.Label` encloses Radio, the `htmlFor`/`id` attributes are no longer explicitly set to associate them.
+  (#2036) by @mj12albert
+- Refactor to `useRenderElement` (#2053) by @mj12albert
+
+### Scroll Area
+
+- Ignore `data-scrolling` during programmatic scroll (#1908) by @atomiks
+
+### Select
+
+- **Breaking change:** Print raw value in `Select.Value`.
+  `<Select.Value>` now prints the raw value by default unless an `items` prop is specified on `Select.Root`.
+  See https://base-ui.com/react/components/select#formatting-the-value for more information.
+  (#2087) by @atomiks
+- Performance: avoid re-renders (#1961) by @romgrk
+- Fix close toggle when rendering non-native button (#2071) by @atomiks
+- Fix `Field.Label` focusing trigger (#2118) by @atomiks
+- Fix programmatic value changes and autofill handling (#2084) by @atomiks
+- Add `highlighted` to item `State` (#2079) by @atomiks
+- Cut out internal backdrop to allow interacting with triggers (#2141) by @michaldudak
+- Pass `value` as state (#2153) by @atomiks
+- Extend `FieldRoot.State` type (#2192) by @atomiks
+
+### Slider
+
+- Use pointer capture when dragging (#2059) by @mj12albert
+- Fix slider field label (#2154) by @mj12albert
+
+### Switch
+
+- **Breaking change:** Support implicit `Field.Label`.
+  If `Field.Label` encloses Switch, the `htmlFor`/`id` attributes are no longer explicitly set to associate them.
+  (#2036) by @mj12albert
+
+### Tabs
+
+- Fix indicator positioning when TabsList overflows (#2093) by @mj12albert
+- Fix focus going out of sync when selected value is changed externally (#2107) by @atomiks
+- Remove highlighted state (#2164) by @atomiks
+
+### Toolbar
+
+- Set `disabled` attr on toolbar button when `focusableWhenDisabled={false}` (#2176) by @mj12albert
+
+### useRender
+
+- Make useRender RSC-friendly (#2134) by @michaldudak
+
+All contributors of this release in alphabetical order: @aarongarciah, @atomiks, @bernardobelchior, @brijeshb42, @Janpot, @juliomerisio, @lesha1201, @michaldudak, @mj12albert, @oliviertassinari, @romgrk
+
+## v1.0.0-beta.0
+
+_May 29, 2025_
+
+### General changes
+
+- Remove proptypes (#1760) by @michaldudak
+- Unify component export patterns (#1478) by @michaldudak
+- Default `tabIndex` to `0` on `<button>` parts (#1939) by @atomiks
+
+### Accordion
+
+- Stop event propagation to allow composite components to be used within popups (#1871) by @atomiks
+
+### Alert Dialog
+
+- **Breaking change:** Refine `OpenChangeReason`. `hover` is now `trigger-hover`; `click` is now `trigger-press`; `focus` is now `trigger-focus`.
+  (#1782) by @atomiks
+- Use basic scroll lock on iOS
+  (#1890) by @atomiks
+
+### Checkbox
+
+- Set `aria-required`, use `useButton` (#1777) by @mj12albert
+
+### Checkbox Group
+
+- **Breaking change:** Enable submitting checkbox group value as one field.
+  For parent checkboxes, use `value` instead of `name` on each `Checkbox.Root` part to link as the values.
+  (#1948) by @mj12albert
+- Fix `validate` fn incorrectly running twice (#1959) by @mj12albert
+
+### Context Menu
+
+- New `ContextMenu` component (#1665) by @atomiks
+
+### Dialog
+
+- **Breaking change:** Refine `OpenChangeReason`. `hover` is now `trigger-hover`; `click` is now `trigger-press`; `focus` is now `trigger-focus`.
+  (#1782) by @atomiks
+- Use basic scroll lock on iOS
+  (#1890) by @atomiks
+
+### Field
+
+- **Breaking change:** Consolidate `Field.Error` `forceShow` into `match` prop.
+  Use `match={true}` (or implicit boolean) instead of `forceShow`.
+  (#1919) by @atomiks
+- Improve `Label` logic that prevents text selection on double click (#1784) by @atomiks
+- Fix validation inconsistency (#1779) by @atomiks
+- Fix integration of Base UI components (#1755) by @atomiks
+- Set `valueMissing` to false if only error and not dirtied (#1810) by @atomiks
+- `validate` with latest value on blur (#1850) by @atomiks
+- Revalidate only `required` on change (#1840) by @atomiks
+- Run validate function after native validations (#1926) by @mj12albert
+- Fix `validate` fn incorrectly running twice (#1959) by @mj12albert
+- Integrate range sliders with Form and Field (#1929) by @mj12albert
+
+### Form
+
+- Fix integration of Base UI components (#1755) by @atomiks
+- Select inputs on focus (#1858) by @atomiks
+- Exclude number formatting from form value (#1957) by @mj12albert
+- Integrate range sliders with Form and Field (#1929) by @mj12albert
+
+### Input
+
+- Fix `Input.Props` type (#1915) by @mj12albert
+- Extend `Field.Control.State` (#1954) by @atomiks
+
+### Menu
+
+- **Breaking change:** Refine `OpenChangeReason`. `hover` is now `trigger-hover`; `click` is now `trigger-press`; `focus` is now `trigger-focus`.
+  (#1782) by @atomiks
+- Fix function dependency handling (#1787) by @atomiks
+- Add missing `'use client'` to `RadioGroup` part (#1851) by @atomiks
+- Ensure `null` items are removed from composite lists (#1847) by @atomiks
+- Avoid `:focus-visible` style appearing (#1846) by @atomiks
+- Better handle dynamic and non-string items (#1861) by @atomiks
+- Add `collisionAvoidance` prop (#1849) by @atomiks
+- Add `finalFocus` and `closeDelay` props (#1918) by @atomiks
+- Use basic scroll lock on iOS
+  (#1890) by @atomiks
+
+### Menubar
+
+- New `Menubar` component (#1684) by @michaldudak
+
+### Navigation Menu
+
+- New `NavigationMenu` component (#1741) by @atomiks
+
+### Number Field
+
+- `validate` with latest value on blur (#1850) by @atomiks
+- Move scrubbing logic to `ScrubArea` component (#1859) by @atomiks
+- Remove floating point errors when `snapOnStep` is disabled (#1857) by @atomiks
+- Stop event propagation to allow composite components to be used within popups (#1871) by @atomiks
+- Exclude number formatting from form value (#1957) by @mj12albert
+
+### Popover
+
+- **Breaking change:** Refine `OpenChangeReason`. `hover` is now `trigger-hover`; `click` is now `trigger-press`; `focus` is now `trigger-focus`.
+  (#1782) by @atomiks
+- Fix function dependency handling (#1787) by @atomiks
+- Avoid prop getters when merging props (#1852) by @atomiks
+- Add `collisionAvoidance` prop (#1849) by @atomiks
+- Fix nested `openOnHover` (#1938) by @atomiks
+- Use basic scroll lock on iOS
+  (#1890) by @atomiks
+
+### Preview Card
+
+- **Breaking change:** Refine `OpenChangeReason`. `hover` is now `trigger-hover`; `click` is now `trigger-press`; `focus` is now `trigger-focus`.
+  (#1782) by @atomiks
+- Fix function dependency handling (#1787) by @atomiks
+- Add `collisionAvoidance` prop (#1849) by @atomiks
+
+### Radio Group
+
+- Fix composite focus of initially selected radio item (#1753) by @atomiks
+- Add `inputRef` props (#1683) by @atomiks
+- Stop event propagation to allow composite components to be used within popups (#1871) by @atomiks
+
+### Select
+
+- **Breaking change:** Move item anchoring prop to `Positioner`.
+  Use `<Select.Positioner alignItemWithTrigger={false}>` instead of `<Select.Root alignItemToTrigger={false}>` (note the `With` instead of `To`).
+  (#1713) by @atomiks
+- **Breaking change:** Defer mounting until typeahead is needed.
+  The `placeholder` prop is now required. Previously, only SSR needed it to prevent a hydration flash, but client-side rendering now also requires it.
+  (#1906) by @atomiks
+- **Breaking change:** Refine `OpenChangeReason`. `hover` is now `trigger-hover`; `click` is now `trigger-press`; `focus` is now `trigger-focus`.
+  (#1782) by @atomiks
+- Fix function dependency handling (#1787) by @atomiks
+- Add `inputRef` props (#1683) by @atomiks
+- Refactor to `useRenderElement` (#1797) by @atomiks
+- Ensure `null` items are removed from composite lists (#1847) by @atomiks
+- Fix `id` prop forwarding to hidden input (#1862) by @atomiks
+- Avoid `:focus-visible` style appearing (#1846) by @atomiks
+- Fix `transitionStatus` mapping on `ItemIndicator` (#1925) by @atomiks
+- Better handle dynamic and non-string items (#1861) by @atomiks
+- Use `Select.ItemText` ref to grab default text content (#1943) by @atomiks
+- Add `collisionAvoidance` prop (#1849) by @atomiks
+- Use basic scroll lock on iOS
+  (#1890) by @atomiks
+
+### Slider
+
+- **Breaking change:** Drop `inputId` prop from Thumb.
+  (#1914) by @mj12albert
+- Position thumb based on value instead of pointer location when dragging (#1750) by @DarthSim
+- Use `useRenderElement` (#1772) by @mj12albert
+- Add `inputRef` props (#1683) by @atomiks
+- Add `locale` prop (#1796) by @mj12albert
+- Stop event propagation to allow composite components to be used within popups (#1871) by @atomiks
+- set `data-dragging` on touchstart and pointerdown (#1874) by @mj12albert
+- Integrate range sliders with Form and Field (#1929) by @mj12albert
+
+### Toast
+
+- **Breaking change:** Add `Portal` part.
+  Place `<Toast.Viewport>` inside of `<Toast.Portal>`.
+  (#1962) by @atomiks
+- **Breaking change:** Avoid removing limited toasts from the DOM.
+  The `[data-limited]` styles in the demos were updated to handle limited toasts remaining in the DOM. They should now be a standalone style as `&[data-limited] { opacity: 0 }`.
+  (#1953) by @atomiks
+- Fix swipe jump on iOS (#1785) by @atomiks
+
+### Toggle
+
+- Stop event propagation to allow composite components to be used within popups (#1871) by @atomiks
+
+### Toolbar
+
+- Stop event propagation to allow composite components to be used within popups (#1871) by @atomiks
+
+### Tooltip
+
+- **Breaking change:** Refine `OpenChangeReason`. `hover` is now `trigger-hover`; `click` is now `trigger-press`; `focus` is now `trigger-focus`.
+  (#1782) by @atomiks
+- Fix function dependency handling (#1787) by @atomiks
+- Avoid prop getters when merging props (#1852) by @atomiks
+- Remove `trackCursorAxis` type from `Positioner` (#1895) by @atomiks
+- Apply `pointer-events: none` to `Positioner` when not hoverable (#1917) by @atomiks
+- Add `collisionAvoidance` prop (#1849) by @atomiks
+
+### useRender
+
+- **Breaking change:** Performance/refactor: `useRender`. An object with a `renderElement` property is no longer returned; instead, the hook returns the element directly (`const element = useRender(...)`). The `refs` option was also renamed to `ref`.
+  (#1934) by @romgrk
+- Skip most of useRenderElement logic when unnecessary (#1967) by @michaldudak
+
+All contributors of this release in alphabetical order: @aarongarciah, @atomiks, @brijeshb42, @DarthSim, @flaviendelangle, @Janpot, @JCQuintas, @michaldudak, @mj12albert, @oliviertassinari, @romgrk, @Yonava, @ZeeshanTamboli
+
 ## v1.0.0-alpha.8
 
 _Apr 17, 2025_

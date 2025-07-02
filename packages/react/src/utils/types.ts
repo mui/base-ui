@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-export type GenericHTMLProps<T = any> = React.HTMLAttributes<T> & {
+export type HTMLProps<T = any> = React.HTMLAttributes<T> & {
   ref?: React.Ref<T> | undefined;
 };
 
@@ -42,7 +42,7 @@ export type ComponentRenderFn<Props, State> = (
 export type BaseUIComponentProps<
   ElementType extends React.ElementType,
   State,
-  RenderFunctionProps = GenericHTMLProps,
+  RenderFunctionProps = HTMLProps,
 > = Omit<
   WithBaseUIEvent<React.ComponentPropsWithoutRef<ElementType>>,
   'className' | 'color' | 'defaultValue' | 'defaultChecked'

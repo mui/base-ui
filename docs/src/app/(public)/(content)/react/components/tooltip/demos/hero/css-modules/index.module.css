@@ -1,6 +1,5 @@
 .Panel {
   display: flex;
-  gap: 1px;
   border: 1px solid var(--color-gray-200);
   background-color: var(--color-gray-50);
   border-radius: 0.375rem;

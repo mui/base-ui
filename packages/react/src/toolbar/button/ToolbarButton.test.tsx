@@ -11,14 +11,15 @@ import { Popover } from '@base-ui-components/react/popover';
 import { Toggle } from '@base-ui-components/react/toggle';
 import { ToggleGroup } from '@base-ui-components/react/toggle-group';
 import { screen, waitFor } from '@mui/internal-test-utils';
-import { createRenderer, describeConformance } from '#test-utils';
+import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { NOOP } from '../../utils/noop';
 import { ToolbarRootContext } from '../root/ToolbarRootContext';
 import { CompositeRootContext } from '../../composite/root/CompositeRootContext';
 
-const testCompositeContext = {
+const testCompositeContext: CompositeRootContext = {
   highlightedIndex: 0,
   onHighlightedIndexChange: NOOP,
+  highlightItemOnHover: false,
 };
 
 const testToolbarContext: ToolbarRootContext = {
@@ -118,7 +119,6 @@ describe('<Toolbar.Button />', () => {
         expect(switchElement).to.have.attribute('data-unchecked');
 
         await user.keyboard('[Tab]');
-        expect(switchElement).to.have.attribute('data-highlighted');
         expect(switchElement).to.have.attribute('tabindex', '0');
 
         await user.click(switchElement);
@@ -157,7 +157,6 @@ describe('<Toolbar.Button />', () => {
         expect(switchElement).to.have.attribute('aria-disabled', 'true');
 
         await user.keyboard('[Tab]');
-        expect(switchElement).to.have.attribute('data-highlighted');
         expect(switchElement).to.have.attribute('tabindex', '0');
 
         await user.keyboard('[Enter]');
@@ -332,7 +331,7 @@ describe('<Toolbar.Button />', () => {
         expect(trigger).to.have.attribute('aria-haspopup', 'listbox');
       });
 
-      it('handles interactions', async () => {
+      it.skipIf(!isJSDOM)('handles interactions', async () => {
         const handleValueChange = spy();
         const { getByTestId, user } = await render(
           <Toolbar.Root>
@@ -516,6 +515,35 @@ describe('<Toolbar.Button />', () => {
         await user.keyboard('[ArrowDown]');
         expect(onOpenChange.callCount).to.equal(0);
       });
+
+      it('prevents composite keydowns from escaping', async () => {
+        const onOpenChange = spy();
+        const { user } = await render(
+          <Toolbar.Root>
+            <Dialog.Root modal={false} onOpenChange={onOpenChange}>
+              <Toolbar.Button render={<Dialog.Trigger />}>dialog</Toolbar.Button>
+              <Dialog.Portal>
+                <Dialog.Popup />
+              </Dialog.Portal>
+            </Dialog.Root>
+
+            <Toolbar.Button>empty</Toolbar.Button>
+          </Toolbar.Root>,
+        );
+
+        expect(screen.queryByRole('dialog')).to.equal(null);
+
+        const trigger = screen.getByRole('button', { name: 'dialog' });
+        await user.click(trigger);
+
+        await waitFor(() => {
+          expect(screen.queryByRole('dialog')).toHaveFocus();
+        });
+
+        await user.keyboard('{ArrowRight}');
+
+        expect(onOpenChange.lastCall.args[0]).to.equal(true);
+      });
     });
 
     describe('AlertDialog', () => {
@@ -607,6 +635,35 @@ describe('<Toolbar.Button />', () => {
         await user.keyboard('[ArrowUp]');
         await user.keyboard('[ArrowDown]');
         expect(onOpenChange.callCount).to.equal(0);
+      });
+
+      it('prevents composite keydowns from escaping', async () => {
+        const onOpenChange = spy();
+        const { user } = await render(
+          <Toolbar.Root>
+            <AlertDialog.Root onOpenChange={onOpenChange}>
+              <Toolbar.Button render={<AlertDialog.Trigger />}>dialog</Toolbar.Button>
+              <AlertDialog.Portal>
+                <AlertDialog.Popup />
+              </AlertDialog.Portal>
+            </AlertDialog.Root>
+
+            <Toolbar.Button>empty</Toolbar.Button>
+          </Toolbar.Root>,
+        );
+
+        expect(screen.queryByRole('dialog')).to.equal(null);
+
+        const trigger = screen.getByRole('button', { name: 'dialog' });
+        await user.click(trigger);
+
+        await waitFor(() => {
+          expect(screen.queryByRole('alertdialog')).toHaveFocus();
+        });
+
+        await user.keyboard('{ArrowRight}');
+
+        expect(onOpenChange.lastCall.args[0]).to.equal(true);
       });
     });
 

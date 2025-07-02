@@ -4,21 +4,21 @@ import * as React from 'react';
 export interface CompositeListContextValue<Metadata> {
   register: (node: Element, metadata: Metadata) => void;
   unregister: (node: Element) => void;
-  map: Map<Element, Metadata | null>;
+  subscribeMapChange: (fn: (map: Map<Element, Metadata | null>) => void) => () => void;
   elementsRef: React.RefObject<Array<HTMLElement | null>>;
   labelsRef?: React.RefObject<Array<string | null>>;
+  nextIndexRef: React.RefObject<number>;
 }
 
 export const CompositeListContext = React.createContext<CompositeListContextValue<any>>({
   register: () => {},
   unregister: () => {},
-  map: new Map(),
+  subscribeMapChange: () => {
+    return () => {};
+  },
   elementsRef: { current: [] },
+  nextIndexRef: { current: 0 },
 });
-
-if (process.env.NODE_ENV !== 'production') {
-  CompositeListContext.displayName = 'CompositeListContext';
-}
 
 export function useCompositeListContext() {
   return React.useContext(CompositeListContext);

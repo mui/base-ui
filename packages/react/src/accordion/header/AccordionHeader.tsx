@@ -20,14 +20,14 @@ export const AccordionHeader = React.forwardRef(function AccordionHeader(
 
   const { state } = useAccordionItemContext();
 
-  const renderElement = useRenderElement('h3', componentProps, {
+  const element = useRenderElement('h3', componentProps, {
     state,
     ref: forwardedRef,
     props: elementProps,
     customStyleHookMapping: accordionStyleHookMapping,
   });
 
-  return renderElement();
+  return element;
 });
 
 export namespace AccordionHeader {

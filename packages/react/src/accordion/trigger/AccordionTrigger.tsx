@@ -20,7 +20,14 @@ export const AccordionTrigger = React.forwardRef(function AccordionTrigger(
   componentProps: AccordionTrigger.Props,
   forwardedRef: React.ForwardedRef<Element>,
 ) {
-  const { disabled: disabledProp, className, id: idProp, render, ...elementProps } = componentProps;
+  const {
+    disabled: disabledProp,
+    className,
+    id: idProp,
+    render,
+    nativeButton = true,
+    ...elementProps
+  } = componentProps;
 
   const { panelId, open, handleTrigger, disabled: contextDisabled } = useCollapsibleRootContext();
 
@@ -29,6 +36,7 @@ export const AccordionTrigger = React.forwardRef(function AccordionTrigger(
   const { getButtonProps, buttonRef } = useButton({
     disabled,
     focusableWhenDisabled: true,
+    native: nativeButton,
   });
 
   const { state, setTriggerId, triggerId: id } = useAccordionItemContext();
@@ -44,7 +52,7 @@ export const AccordionTrigger = React.forwardRef(function AccordionTrigger(
 
   const props = React.useMemo(
     () => ({
-      'aria-controls': panelId,
+      'aria-controls': open ? panelId : undefined,
       'aria-expanded': open,
       disabled,
       id,
@@ -53,16 +61,24 @@ export const AccordionTrigger = React.forwardRef(function AccordionTrigger(
     [panelId, disabled, id, open, handleTrigger],
   );
 
-  const renderElement = useRenderElement('button', componentProps, {
+  const element = useRenderElement('button', componentProps, {
     state,
     ref: [forwardedRef, buttonRef],
     props: [props, elementProps, getButtonProps],
     customStyleHookMapping: triggerOpenStateMapping,
   });
 
-  return renderElement();
+  return element;
 });
 
 export namespace AccordionTrigger {
-  export interface Props extends BaseUIComponentProps<'button', AccordionItem.State> {}
+  export interface Props extends BaseUIComponentProps<'button', AccordionItem.State> {
+    /**
+     * Whether the component renders a native `<button>` element when replacing it
+     * via the `render` prop.
+     * Set to `false` if the rendered element is not a button (e.g. `<div>`).
+     * @default true
+     */
+    nativeButton?: boolean;
+  }
 }

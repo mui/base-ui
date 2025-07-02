@@ -3,11 +3,11 @@ import * as React from 'react';
 import { CompositeList, type CompositeMetadata } from '../list/CompositeList';
 import { useCompositeRoot } from './useCompositeRoot';
 import { CompositeRootContext } from './CompositeRootContext';
+import { useEventCallback } from '../../utils/useEventCallback';
 import { useRenderElement } from '../../utils/useRenderElement';
 import type { BaseUIComponentProps } from '../../utils/types';
-import type { TextDirection } from '../../direction-provider/DirectionContext';
 import type { Dimensions, ModifierKey } from '../composite';
-import { useEventCallback } from '../../utils/useEventCallback';
+import { useDirection } from '../../direction-provider/DirectionContext';
 
 const COMPOSITE_ROOT_STATE = {};
 
@@ -25,15 +25,17 @@ export function CompositeRoot<Metadata extends {}>(componentProps: CompositeRoot
     itemSizes,
     loop,
     cols,
-    direction,
     enableHomeAndEndKeys,
     onMapChange: onMapChangeProp,
     stopEventPropagation,
     rootRef,
     disabledIndices,
     modifierKeys,
+    highlightItemOnHover = false,
     ...elementProps
   } = componentProps;
+
+  const direction = useDirection();
 
   const {
     props,
@@ -64,20 +66,20 @@ export function CompositeRoot<Metadata extends {}>(componentProps: CompositeRoot
     },
   );
 
-  const renderElement = useRenderElement('div', componentProps, {
+  const element = useRenderElement('div', componentProps, {
     state: COMPOSITE_ROOT_STATE,
     props: [props, elementProps],
   });
 
   const contextValue: CompositeRootContext = React.useMemo(
-    () => ({ highlightedIndex, onHighlightedIndexChange }),
-    [highlightedIndex, onHighlightedIndexChange],
+    () => ({ highlightedIndex, onHighlightedIndexChange, highlightItemOnHover }),
+    [highlightedIndex, onHighlightedIndexChange, highlightItemOnHover],
   );
 
   return (
     <CompositeRootContext.Provider value={contextValue}>
       <CompositeList<Metadata> elementsRef={elementsRef} onMapChange={onMapChange}>
-        {renderElement()}
+        {element}
       </CompositeList>
     </CompositeRootContext.Provider>
   );
@@ -94,12 +96,12 @@ export namespace CompositeRoot {
     onHighlightedIndexChange?: (index: number) => void;
     itemSizes?: Dimensions[];
     dense?: boolean;
-    direction?: TextDirection;
     enableHomeAndEndKeys?: boolean;
     onMapChange?: (newMap: Map<Node, CompositeMetadata<Metadata> | null>) => void;
     stopEventPropagation?: boolean;
     rootRef?: React.RefObject<HTMLElement | null>;
     disabledIndices?: number[];
     modifierKeys?: ModifierKey[];
+    highlightItemOnHover?: boolean;
   }
 }

@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { getTarget } from '@floating-ui/react/utils';
+import { getTarget } from '../../floating-ui-react/utils';
 import { FieldRoot } from '../root/FieldRoot';
 import { useFieldRootContext } from '../root/FieldRootContext';
 import { fieldValidityMapping } from '../utils/constants';
@@ -24,21 +24,24 @@ export const FieldLabel = React.forwardRef(function FieldLabel(
   const { labelId, setLabelId, state, controlId } = useFieldRootContext(false);
 
   const id = useBaseUiId(idProp);
+  const htmlFor = controlId ?? undefined;
 
   useModernLayoutEffect(() => {
-    setLabelId(id);
+    if (controlId != null || idProp) {
+      setLabelId(id);
+    }
     return () => {
       setLabelId(undefined);
     };
-  }, [id, setLabelId]);
+  }, [controlId, id, idProp, setLabelId]);
 
-  const renderElement = useRenderElement('label', componentProps, {
+  const element = useRenderElement('label', componentProps, {
     ref: forwardedRef,
     state,
     props: [
       {
         id: labelId,
-        htmlFor: controlId,
+        htmlFor,
         onMouseDown(event) {
           const target = getTarget(event.nativeEvent) as HTMLElement | null;
           if (target?.closest('button,input,select,textarea')) {
@@ -56,7 +59,7 @@ export const FieldLabel = React.forwardRef(function FieldLabel(
     customStyleHookMapping: fieldValidityMapping,
   });
 
-  return renderElement();
+  return element;
 });
 
 export namespace FieldLabel {

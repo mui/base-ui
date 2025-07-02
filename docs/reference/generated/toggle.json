@@ -19,17 +19,22 @@
       "type": "((pressed: boolean, event: Event) => void)",
       "description": "Callback fired when the pressed state is changed."
     },
+    "nativeButton": {
+      "type": "boolean",
+      "default": "true",
+      "description": "Whether the component renders a native `<button>` element when replacing it\nvia the `render` prop.\nSet to `false` if the rendered element is not a button (e.g. `<div>`)."
+    },
     "disabled": {
       "type": "boolean",
       "default": "false",
       "description": "Whether the component should ignore user interaction."
     },
     "className": {
-      "type": "string | ((state: State) => string)",
+      "type": "string | ((state: Toggle.State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "render": {
-      "type": "ReactElement | ((props: GenericHTMLProps, state: State) => ReactElement)",
+      "type": "ReactElement | ((props: HTMLProps, state: Toggle.State) => ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
     }
   },

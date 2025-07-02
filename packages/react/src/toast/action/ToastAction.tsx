@@ -1,10 +1,9 @@
 'use client';
 import * as React from 'react';
 import type { BaseUIComponentProps } from '../../utils/types';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useToastRootContext } from '../root/ToastRootContext';
-import { mergeProps } from '../../merge-props';
 import { useButton } from '../../use-button/useButton';
+import { useRenderElement } from '../../utils/useRenderElement';
 
 /**
  * Performs an action when clicked.
@@ -13,19 +12,19 @@ import { useButton } from '../../use-button/useButton';
  * Documentation: [Base UI Toast](https://base-ui.com/react/components/toast)
  */
 export const ToastAction = React.forwardRef(function ToastAction(
-  props: ToastAction.Props,
+  componentProps: ToastAction.Props,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
-  const { render, className, disabled, ...other } = props;
+  const { render, className, disabled, nativeButton = true, ...elementProps } = componentProps;
 
   const { toast } = useToastRootContext();
 
-  const computedChildren = toast.actionProps?.children ?? other.children;
+  const computedChildren = toast.actionProps?.children ?? elementProps.children;
   const shouldRender = Boolean(computedChildren);
 
-  const { getButtonProps } = useButton({
+  const { getButtonProps, buttonRef } = useButton({
     disabled,
-    buttonRef: forwardedRef,
+    native: nativeButton,
   });
 
   const state: ToastAction.State = React.useMemo(
@@ -35,21 +34,24 @@ export const ToastAction = React.forwardRef(function ToastAction(
     [toast.type],
   );
 
-  const { renderElement } = useComponentRenderer({
-    render: render ?? 'button',
-    ref: forwardedRef,
-    className,
+  const element = useRenderElement('button', componentProps, {
+    ref: [forwardedRef, buttonRef],
     state,
-    extraProps: mergeProps<'button'>(toast.actionProps, other, getButtonProps, {
-      children: computedChildren,
-    }),
+    props: [
+      elementProps,
+      toast.actionProps,
+      getButtonProps,
+      {
+        children: computedChildren,
+      },
+    ],
   });
 
   if (!shouldRender) {
     return null;
   }
 
-  return renderElement();
+  return element;
 });
 
 export namespace ToastAction {
@@ -60,5 +62,13 @@ export namespace ToastAction {
     type: string | undefined;
   }
 
-  export interface Props extends BaseUIComponentProps<'button', State> {}
+  export interface Props extends BaseUIComponentProps<'button', State> {
+    /**
+     * Whether the component renders a native `<button>` element when replacing it
+     * via the `render` prop.
+     * Set to `false` if the rendered element is not a button (e.g. `<div>`).
+     * @default true
+     */
+    nativeButton?: boolean;
+  }
 }
