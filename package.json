@@ -85,7 +85,7 @@
     "@tailwindcss/postcss": "4.1.11",
     "@types/fs-extra": "^11.0.4",
     "@types/lodash": "^4.17.20",
-    "@types/node": "^18.19.110",
+    "@types/node": "^18.19.115",
     "@types/react": "^19.1.6",
     "@types/yargs": "^17.0.33",
     "@typescript-eslint/eslint-plugin": "^8.33.0",
@@ -174,7 +174,7 @@
     "@babel/preset-react": "^7.27.1",
     "@babel/preset-typescript": "^7.27.1",
     "@babel/types": "^7.27.3",
-    "@types/node": "^18.19.110",
+    "@types/node": "^18.19.115",
     "@types/react": "^19.1.6",
     "@types/react-dom": "^19.1.5"
   }
