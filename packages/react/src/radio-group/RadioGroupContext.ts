@@ -14,6 +14,7 @@ export interface RadioGroupContext {
   touched: boolean;
   setTouched: React.Dispatch<React.SetStateAction<boolean>>;
   fieldControlValidation?: ReturnType<typeof useFieldControlValidation>;
+  registerControlRef: (element: HTMLElement | null) => void;
 }
 
 export const RadioGroupContext = React.createContext<RadioGroupContext>({
@@ -26,11 +27,8 @@ export const RadioGroupContext = React.createContext<RadioGroupContext>({
   onValueChange: NOOP,
   touched: false,
   setTouched: NOOP,
+  registerControlRef: NOOP,
 });
-
-if (process.env.NODE_ENV !== 'production') {
-  RadioGroupContext.displayName = 'RadioGroupContext';
-}
 
 export function useRadioGroupContext() {
   return React.useContext(RadioGroupContext);

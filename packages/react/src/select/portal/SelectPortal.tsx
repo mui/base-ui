@@ -1,7 +1,10 @@
 'use client';
 import * as React from 'react';
-import { FloatingPortal } from '@floating-ui/react';
+import { FloatingPortal } from '../../floating-ui-react';
 import { SelectPortalContext } from './SelectPortalContext';
+import { useSelectRootContext } from '../root/SelectRootContext';
+import { useSelector } from '../../utils/store';
+import { selectors } from '../store';
 
 /**
  * A portal element that moves the popup to a different part of the DOM.
@@ -11,6 +14,15 @@ import { SelectPortalContext } from './SelectPortalContext';
  */
 export function SelectPortal(props: SelectPortal.Props) {
   const { children, container } = props;
+
+  const { store } = useSelectRootContext();
+  const mounted = useSelector(store, selectors.mounted);
+  const forceMount = useSelector(store, selectors.forceMount);
+
+  const shouldRender = mounted || forceMount;
+  if (!shouldRender) {
+    return null;
+  }
 
   return (
     <SelectPortalContext.Provider value>

@@ -1,14 +1,17 @@
 'use client';
 import * as React from 'react';
+import { NOOP } from '../../utils/noop';
 import { DEFAULT_VALIDITY_STATE } from '../utils/constants';
 import type { FieldRoot, FieldValidityData } from './FieldRoot';
 
-const NOOP = () => {};
-
 export interface FieldRootContext {
   invalid: boolean | undefined;
-  controlId: string | undefined;
-  setControlId: React.Dispatch<React.SetStateAction<string | undefined>>;
+  /**
+   * The `id` of the labelable element that corresponds to the `for` attribute of a `Field.Label`.
+   * When `null` the association is implicit.
+   */
+  controlId: string | null | undefined;
+  setControlId: React.Dispatch<React.SetStateAction<string | null | undefined>>;
   labelId: string | undefined;
   setLabelId: React.Dispatch<React.SetStateAction<string | undefined>>;
   messageIds: string[];
@@ -25,7 +28,10 @@ export interface FieldRootContext {
   setFilled: React.Dispatch<React.SetStateAction<boolean>>;
   focused: boolean;
   setFocused: React.Dispatch<React.SetStateAction<boolean>>;
-  validate: (value: unknown) => string | string[] | null | Promise<string | string[] | null>;
+  validate: (
+    value: unknown,
+    formValues: Record<string, unknown>,
+  ) => string | string[] | null | Promise<string | string[] | null>;
   validationMode: 'onBlur' | 'onChange';
   validationDebounceTime: number;
   state: FieldRoot.State;
@@ -71,10 +77,6 @@ export const FieldRootContext = React.createContext<FieldRootContext>({
   },
   markedDirtyRef: { current: false },
 });
-
-if (process.env.NODE_ENV !== 'production') {
-  FieldRootContext.displayName = 'FieldRootContext';
-}
 
 export function useFieldRootContext(optional = true) {
   const context = React.useContext(FieldRootContext);

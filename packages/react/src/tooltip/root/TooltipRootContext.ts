@@ -1,13 +1,19 @@
 'use client';
 import * as React from 'react';
-import type { FloatingRootContext } from '@floating-ui/react';
+import type { FloatingRootContext } from '../../floating-ui-react';
 import type { HTMLProps } from '../../utils/types';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
-import type { OpenChangeReason } from '../../utils/translateOpenChangeReason';
+import { BaseOpenChangeReason } from '../../utils/translateOpenChangeReason';
+
+export type TooltipOpenChangeReason = BaseOpenChangeReason | 'disabled';
 
 export interface TooltipRootContext {
   open: boolean;
-  setOpen: (open: boolean, event?: Event, reason?: OpenChangeReason) => void;
+  setOpen: (
+    open: boolean,
+    event: Event | undefined,
+    reason: TooltipOpenChangeReason | undefined,
+  ) => void;
   setTriggerElement: (el: Element | null) => void;
   positionerElement: HTMLElement | null;
   setPositionerElement: (el: HTMLElement | null) => void;
@@ -23,6 +29,7 @@ export interface TooltipRootContext {
   trackCursorAxis: 'none' | 'x' | 'y' | 'both';
   transitionStatus: TransitionStatus;
   onOpenChangeComplete: ((open: boolean) => void) | undefined;
+  hoverable: boolean;
 }
 
 export const TooltipRootContext = React.createContext<TooltipRootContext | undefined>(undefined);

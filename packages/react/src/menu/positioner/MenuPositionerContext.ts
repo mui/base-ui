@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import type { FloatingContext } from '@floating-ui/react';
+import type { FloatingContext } from '../../floating-ui-react';
 import type { Side } from '../../utils/useAnchorPositioning';
 
 export interface MenuPositionerContext {
@@ -21,10 +21,6 @@ export interface MenuPositionerContext {
 export const MenuPositionerContext = React.createContext<MenuPositionerContext | undefined>(
   undefined,
 );
-
-if (process.env.NODE_ENV !== 'production') {
-  MenuPositionerContext.displayName = 'MenuPositionerContext';
-}
 
 export function useMenuPositionerContext() {
   const context = React.useContext(MenuPositionerContext);

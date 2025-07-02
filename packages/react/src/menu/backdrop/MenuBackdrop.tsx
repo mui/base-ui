@@ -1,13 +1,13 @@
 'use client';
 import * as React from 'react';
 import { useMenuRootContext } from '../root/MenuRootContext';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import { useRenderElement } from '../../utils/useRenderElement';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { type StateAttributesMapping } from '../../utils/mapStateAttributes';
 import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
-import { mergeProps } from '../../merge-props';
+import { useContextMenuRootContext } from '../../context-menu/root/ContextMenuRootContext';
 
 const stateAttributesMapping: StateAttributesMapping<MenuBackdrop.State> = {
   ...baseMapping,
@@ -21,11 +21,13 @@ const stateAttributesMapping: StateAttributesMapping<MenuBackdrop.State> = {
  * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
  */
 export const MenuBackdrop = React.forwardRef(function MenuBackdrop(
-  props: MenuBackdrop.Props,
+  componentProps: MenuBackdrop.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { className, render, ...other } = props;
+  const { className, render, ...elementProps } = componentProps;
+
   const { open, mounted, transitionStatus, lastOpenChangeReason } = useMenuRootContext();
+  const contextMenuContext = useContextMenuRootContext();
 
   const state: MenuBackdrop.State = React.useMemo(
     () => ({
@@ -35,27 +37,25 @@ export const MenuBackdrop = React.forwardRef(function MenuBackdrop(
     [open, transitionStatus],
   );
 
-  const { renderElement } = useComponentRenderer({
-    render: render ?? 'div',
-    className,
+  return useRenderElement('div', componentProps, {
+    ref: contextMenuContext?.backdropRef
+      ? [forwardedRef, contextMenuContext.backdropRef]
+      : forwardedRef,
     state,
-    ref: forwardedRef,
-    extraProps: mergeProps<'div'>(
+    stateAttributesMapping,
+    props: [
       {
         role: 'presentation',
         hidden: !mounted,
         style: {
-          pointerEvents: lastOpenChangeReason === 'hover' ? 'none' : undefined,
+          pointerEvents: lastOpenChangeReason === 'trigger-hover' ? 'none' : undefined,
           userSelect: 'none',
           WebkitUserSelect: 'none',
         },
       },
-      other,
-    ),
-    stateAttributesMapping,
+      elementProps,
+    ],
   });
-
-  return renderElement();
 });
 
 export namespace MenuBackdrop {

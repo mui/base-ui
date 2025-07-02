@@ -5,10 +5,6 @@ export type SwitchRootContext = SwitchRoot.State;
 
 export const SwitchRootContext = React.createContext<SwitchRootContext | undefined>(undefined);
 
-if (process.env.NODE_ENV !== 'production') {
-  SwitchRootContext.displayName = 'SwitchRootContext';
-}
-
 export function useSwitchRootContext() {
   const context = React.useContext(SwitchRootContext);
   if (context === undefined) {

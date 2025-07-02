@@ -1,9 +1,9 @@
 'use client';
 import * as React from 'react';
-import { FloatingFocusManager } from '@floating-ui/react';
+import { FloatingFocusManager } from '../../floating-ui-react';
 import { useDialogPopup } from '../../dialog/popup/useDialogPopup';
 import { useAlertDialogRootContext } from '../root/AlertDialogRootContext';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import { useRenderElement } from '../../utils/useRenderElement';
 import type { BaseUIComponentProps } from '../../utils/types';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import type { StateAttributesMapping } from '../../utils/mapStateAttributes';
@@ -11,6 +11,7 @@ import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping'
 import { useForkRef } from '../../utils/useForkRef';
 import { InteractionType } from '../../utils/useEnhancedClickHandler';
 import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
+import { AlertDialogPopupCssVars } from './AlertDialogPopupCssVars';
 import { AlertDialogPopupDataAttributes } from './AlertDialogPopupDataAttributes';
 import { InternalBackdrop } from '../../utils/InternalBackdrop';
 import { useAlertDialogPortalContext } from '../portal/AlertDialogPortalContext';
@@ -32,10 +33,10 @@ const stateAttributesMapping: StateAttributesMapping<AlertDialogPopup.State> = {
  * Documentation: [Base UI Alert Dialog](https://base-ui.com/react/components/alert-dialog)
  */
 export const AlertDialogPopup = React.forwardRef(function AlertDialogPopup(
-  props: AlertDialogPopup.Props,
+  componentProps: AlertDialogPopup.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { className, render, initialFocus, finalFocus, ...other } = props;
+  const { className, render, initialFocus, finalFocus, ...elementProps } = componentProps;
 
   const {
     descriptionElementId,
@@ -70,9 +71,8 @@ export const AlertDialogPopup = React.forwardRef(function AlertDialogPopup(
 
   const mergedRef = useForkRef(forwardedRef, popupRef);
 
-  const { getRootProps, resolvedInitialFocus } = useDialogPopup({
+  const { popupProps, resolvedInitialFocus } = useDialogPopup({
     descriptionElementId,
-    getPopupProps,
     initialFocus,
     modal: true,
     mounted,
@@ -95,16 +95,19 @@ export const AlertDialogPopup = React.forwardRef(function AlertDialogPopup(
     [open, nested, transitionStatus, nestedDialogOpen],
   );
 
-  const { renderElement } = useComponentRenderer({
-    render: render ?? 'div',
-    className,
+  const element = useRenderElement('div', componentProps, {
     state,
-    propGetter: getRootProps,
-    extraProps: {
-      ...other,
-      style: { ...other.style, '--nested-dialogs': nestedOpenDialogCount },
-      role: 'alertdialog',
-    },
+    props: [
+      getPopupProps(),
+      popupProps,
+      {
+        style: {
+          [AlertDialogPopupCssVars.nestedDialogs]: nestedOpenDialogCount,
+        } as React.CSSProperties,
+        role: 'alertdialog',
+      },
+      elementProps,
+    ],
     stateAttributesMapping,
   });
 
@@ -117,7 +120,7 @@ export const AlertDialogPopup = React.forwardRef(function AlertDialogPopup(
         initialFocus={resolvedInitialFocus}
         returnFocus={finalFocus}
       >
-        {renderElement()}
+        {element}
       </FloatingFocusManager>
     </React.Fragment>
   );

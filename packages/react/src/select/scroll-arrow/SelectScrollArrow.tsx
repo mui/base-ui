@@ -7,8 +7,9 @@ import { useSelectPositionerContext } from '../positioner/SelectPositionerContex
 import { Side } from '../../utils/useAnchorPositioning';
 import { type TransitionStatus, useTransitionStatus } from '../../utils/useTransitionStatus';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
-import { useSelectIndexContext } from '../root/SelectIndexContext';
 import { useRenderElement } from '../../utils/useRenderElement';
+import { useSelector } from '../../utils/store';
+import { selectors } from '../store';
 
 /**
  * @internal
@@ -19,18 +20,13 @@ export const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
 ) {
   const { render, className, direction, keepMounted = false, ...elementProps } = componentProps;
 
-  const {
-    popupRef,
-    scrollUpArrowVisible,
-    scrollDownArrowVisible,
-    setScrollUpArrowVisible,
-    setScrollDownArrowVisible,
-    listRef,
-  } = useSelectRootContext();
+  const { store, popupRef, listRef } = useSelectRootContext();
   const { side, alignItemWithTriggerActive } = useSelectPositionerContext();
-  const { setActiveIndex } = useSelectIndexContext();
 
-  const visible = direction === 'up' ? scrollUpArrowVisible : scrollDownArrowVisible;
+  const selector =
+    direction === 'up' ? selectors.scrollUpArrowVisible : selectors.scrollDownArrowVisible;
+
+  const visible = useSelector(store, selector);
 
   const timeout = useTimeout();
   const scrollArrowRef = React.useRef<HTMLDivElement | null>(null);
@@ -60,7 +56,7 @@ export const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
   const defaultProps: React.ComponentProps<'div'> = {
     hidden: !mounted,
     'aria-hidden': true,
-    children: direction === 'down' ? '▼' : '▲',
+    children: direction === 'up' ? '▲' : '▼',
     style: {
       position: 'absolute',
     },
@@ -73,7 +69,7 @@ export const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
         return;
       }
 
-      setActiveIndex(null);
+      store.set('activeIndex', null);
 
       function scrollNextItem() {
         const popupElement = popupRef.current;
@@ -81,7 +77,7 @@ export const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
           return;
         }
 
-        setActiveIndex(null);
+        store.set('activeIndex', null);
 
         const isScrolledToTop = popupElement.scrollTop === 0;
         const isScrolledToBottom =
@@ -89,9 +85,9 @@ export const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
           popupElement.scrollHeight;
 
         if (direction === 'up') {
-          setScrollUpArrowVisible(!isScrolledToTop);
+          store.set('scrollUpArrowVisible', !isScrolledToTop);
         } else if (direction === 'down') {
-          setScrollDownArrowVisible(!isScrolledToBottom);
+          store.set('scrollDownArrowVisible', !isScrolledToBottom);
         }
 
         if (

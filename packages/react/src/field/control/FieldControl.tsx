@@ -89,15 +89,14 @@ export const FieldControl = React.forwardRef(function FieldControl(
     state: 'value',
   });
 
-  const setValue = useEventCallback(
-    (nextValue: string | number | readonly string[], event: Event) => {
-      setValueUnwrapped(nextValue);
-      onValueChange?.(nextValue, event);
-    },
-  );
+  const setValue = useEventCallback((nextValue: string, event: Event) => {
+    setValueUnwrapped(nextValue);
+    onValueChange?.(nextValue, event);
+  });
 
   useField({
     id,
+    name,
     commitValidation,
     value,
     getValue: () => inputRef.current?.value,
@@ -158,7 +157,7 @@ export namespace FieldControl {
     /**
      * Callback fired when the `value` changes. Use when controlled.
      */
-    onValueChange?: (value: React.ComponentProps<'input'>['value'], event: Event) => void;
+    onValueChange?: (value: string, event: Event) => void;
     defaultValue?: React.ComponentProps<'input'>['defaultValue'];
   }
 }

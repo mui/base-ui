@@ -1,15 +1,23 @@
 'use client';
 import * as React from 'react';
-import { useSelectRootContext } from '../root/SelectRootContext';
+import { useSelectRootContext, useSelectFloatingContext } from '../root/SelectRootContext';
 import { CompositeList } from '../../composite/list/CompositeList';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { popupStateMapping } from '../../utils/popupStateMapping';
-import { useSelectPositioner } from './useSelectPositioner';
-import type { Align, Side } from '../../utils/useAnchorPositioning';
+import { useAnchorPositioning, type Align, type Side } from '../../utils/useAnchorPositioning';
 import { SelectPositionerContext } from './SelectPositionerContext';
 import { InternalBackdrop } from '../../utils/InternalBackdrop';
 import { inertValue } from '../../utils/inertValue';
+import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { useRenderElement } from '../../utils/useRenderElement';
+import { DROPDOWN_COLLISION_AVOIDANCE } from '../../utils/constants';
+import { clearPositionerStyles } from '../popup/utils';
+import { useEventCallback } from '../../utils/useEventCallback';
+import { useSelector } from '../../utils/store';
+import { selectors } from '../store';
+import { useScrollLock } from '../../utils';
+
+const FIXED: React.CSSProperties = { position: 'fixed' };
 
 /**
  * Positions the select menu popup.
@@ -36,44 +44,51 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
     sticky = false,
     trackAnchor = true,
     alignItemWithTrigger = true,
+    collisionAvoidance = DROPDOWN_COLLISION_AVOIDANCE,
     ...elementProps
   } = componentProps;
 
-  const {
-    open,
-    mounted,
-    setPositionerElement,
-    listRef,
-    labelsRef,
-    floatingRootContext,
-    modal,
-    touchModality,
-    scrollUpArrowVisible,
-    setScrollUpArrowVisible,
-    scrollDownArrowVisible,
-    setScrollDownArrowVisible,
-    alignItemWithTriggerActiveRef,
-  } = useSelectRootContext();
+  const { store, listRef, labelsRef, alignItemWithTriggerActiveRef, valuesRef } =
+    useSelectRootContext();
+  const floatingRootContext = useSelectFloatingContext();
 
-  const [controlledItemAnchor, setControlledItemAnchor] = React.useState(alignItemWithTrigger);
-  const alignItemWithTriggerActive = mounted && controlledItemAnchor && !touchModality;
+  const open = useSelector(store, selectors.open);
+  const mounted = useSelector(store, selectors.mounted);
+  const modal = useSelector(store, selectors.modal);
+  const value = useSelector(store, selectors.value);
+  const touchModality = useSelector(store, selectors.touchModality);
+  const positionerElement = useSelector(store, selectors.positionerElement);
+  const triggerElement = useSelector(store, selectors.triggerElement);
+
+  const [controlledAlignItemWithTrigger, setControlledAlignItemWithTrigger] =
+    React.useState(alignItemWithTrigger);
+  const alignItemWithTriggerActive = mounted && controlledAlignItemWithTrigger && !touchModality;
+
+  if (!mounted && controlledAlignItemWithTrigger !== alignItemWithTrigger) {
+    setControlledAlignItemWithTrigger(alignItemWithTrigger);
+  }
+
+  useModernLayoutEffect(() => {
+    if (!alignItemWithTrigger || !mounted) {
+      if (selectors.scrollUpArrowVisible(store.state)) {
+        store.set('scrollUpArrowVisible', false);
+      }
+      if (selectors.scrollDownArrowVisible(store.state)) {
+        store.set('scrollDownArrowVisible', false);
+      }
+    }
+  }, [store, mounted, alignItemWithTrigger]);
 
   React.useImperativeHandle(alignItemWithTriggerActiveRef, () => alignItemWithTriggerActive);
 
-  if (!mounted && controlledItemAnchor !== alignItemWithTrigger) {
-    setControlledItemAnchor(alignItemWithTrigger);
-  }
+  useScrollLock({
+    enabled: (alignItemWithTriggerActive || modal) && open,
+    mounted,
+    open,
+    referenceElement: triggerElement,
+  });
 
-  if (!alignItemWithTrigger || !mounted) {
-    if (scrollUpArrowVisible) {
-      setScrollUpArrowVisible(false);
-    }
-    if (scrollDownArrowVisible) {
-      setScrollDownArrowVisible(false);
-    }
-  }
-
-  const positioner = useSelectPositioner({
+  const positioning = useAnchorPositioning({
     anchor,
     floatingRootContext,
     positionMethod,
@@ -86,42 +101,106 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
     collisionBoundary,
     collisionPadding,
     sticky,
-    trackAnchor,
-    alignItemWithTriggerActive,
+    trackAnchor: trackAnchor ?? !alignItemWithTriggerActive,
+    collisionAvoidance,
     keepMounted: true,
   });
+
+  const renderedSide = alignItemWithTriggerActive ? 'none' : positioning.side;
+  const positionerStyles = alignItemWithTriggerActive ? FIXED : positioning.positionerStyles;
+
+  const defaultProps: React.ComponentProps<'div'> = React.useMemo(() => {
+    const hiddenStyles: React.CSSProperties = {};
+
+    if (!open) {
+      hiddenStyles.pointerEvents = 'none';
+    }
+
+    return {
+      role: 'presentation',
+      hidden: !mounted,
+      style: {
+        ...positionerStyles,
+        ...hiddenStyles,
+      },
+    };
+  }, [open, mounted, positionerStyles]);
 
   const state: SelectPositioner.State = React.useMemo(
     () => ({
       open,
-      side: positioner.side,
-      align: positioner.align,
-      anchorHidden: positioner.anchorHidden,
+      side: renderedSide,
+      align: positioning.align,
+      anchorHidden: positioning.anchorHidden,
     }),
-    [open, positioner.side, positioner.align, positioner.anchorHidden],
+    [open, renderedSide, positioning.align, positioning.anchorHidden],
   );
+
+  const setPositionerElement = useEventCallback((element) => {
+    store.set('positionerElement', element);
+  });
 
   const element = useRenderElement('div', componentProps, {
     ref: [forwardedRef, setPositionerElement],
     state,
     stateAttributesMapping: popupStateMapping,
-    props: [positioner.getPositionerProps, elementProps],
+    props: [defaultProps, elementProps],
+  });
+
+  const prevMapSizeRef = React.useRef(0);
+
+  const onMapChange = useEventCallback((map: Map<Element, { index?: number | null } | null>) => {
+    if (map.size === 0 && prevMapSizeRef.current === 0) {
+      return;
+    }
+
+    if (valuesRef.current.length === 0) {
+      return;
+    }
+
+    const prevSize = prevMapSizeRef.current;
+    prevMapSizeRef.current = map.size;
+
+    if (map.size === prevSize) {
+      return;
+    }
+
+    if (value !== null) {
+      const valueIndex = valuesRef.current.indexOf(value);
+      if (valueIndex === -1) {
+        store.apply({
+          label: '',
+          selectedIndex: null,
+        });
+      }
+    }
+
+    if (open && alignItemWithTriggerActive) {
+      store.apply({
+        scrollUpArrowVisible: false,
+        scrollDownArrowVisible: false,
+      });
+
+      if (positionerElement) {
+        clearPositionerStyles(positionerElement, { height: '' });
+      }
+    }
   });
 
   const contextValue: SelectPositionerContext = React.useMemo(
     () => ({
-      ...positioner,
+      ...positioning,
+      side: renderedSide,
       alignItemWithTriggerActive,
-      controlledItemAnchor,
-      setControlledItemAnchor,
+      setControlledAlignItemWithTrigger,
     }),
-    [positioner, alignItemWithTriggerActive, controlledItemAnchor],
+    [positioning, renderedSide, alignItemWithTriggerActive, setControlledAlignItemWithTrigger],
   );
 
   return (
-    <CompositeList elementsRef={listRef} labelsRef={labelsRef}>
+    <CompositeList elementsRef={listRef} labelsRef={labelsRef} onMapChange={onMapChange}>
       <SelectPositionerContext.Provider value={contextValue}>
-        {mounted && modal && <InternalBackdrop inert={inertValue(!open)} />}
+        {mounted && modal && <InternalBackdrop inert={inertValue(!open)} cutout={triggerElement} />}
         {element}
       </SelectPositionerContext.Provider>
     </CompositeList>
@@ -137,6 +216,12 @@ export namespace SelectPositioner {
   }
 
   export interface Props
-    extends useSelectPositioner.SharedParameters,
-      BaseUIComponentProps<'div', State> {}
+    extends useAnchorPositioning.SharedParameters,
+      BaseUIComponentProps<'div', State> {
+    /**
+     * Whether the positioner overlaps the trigger so the selected item's text is aligned with the trigger's value text. This only applies to mouse input and is automatically disabled if there is not enough space.
+     * @default true
+     */
+    alignItemWithTrigger?: boolean;
+  }
 }

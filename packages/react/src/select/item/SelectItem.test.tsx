@@ -7,14 +7,6 @@ import { expect } from 'chai';
 describe('<Select.Item />', () => {
   const { render } = createRenderer();
 
-  const { render: renderFakeTimers, clock } = createRenderer({
-    clockOptions: {
-      shouldAdvanceTime: true,
-    },
-  });
-
-  clock.withFakeTimers();
-
   describeConformance(<Select.Item value="" />, () => ({
     refInstanceof: window.HTMLDivElement,
     render(node) {
@@ -26,7 +18,7 @@ describe('<Select.Item />', () => {
     await render(
       <Select.Root>
         <Select.Trigger data-testid="trigger">
-          <Select.Value placeholder="null" data-testid="value" />
+          <Select.Value data-testid="value" />
         </Select.Trigger>
         <Select.Positioner data-testid="positioner">
           <Select.Item value="one">one</Select.Item>
@@ -38,7 +30,7 @@ describe('<Select.Item />', () => {
     const trigger = screen.getByTestId('trigger');
     const positioner = screen.getByTestId('positioner');
 
-    expect(value.textContent).to.equal('null');
+    expect(value.textContent).to.equal('');
 
     fireEvent.click(trigger);
 
@@ -71,10 +63,7 @@ describe('<Select.Item />', () => {
       </Select.Root>,
     );
 
-    const trigger = screen.getByTestId('trigger');
-
-    fireEvent.click(trigger);
-
+    fireEvent.click(screen.getByTestId('trigger'));
     await flushMicrotasks();
 
     await waitFor(() => {
@@ -96,7 +85,7 @@ describe('<Select.Item />', () => {
     const { user } = await render(
       <Select.Root>
         <Select.Trigger data-testid="trigger">
-          <Select.Value placeholder="null" data-testid="value" />
+          <Select.Value data-testid="value" />
         </Select.Trigger>
         <Select.Portal>
           <Select.Positioner>
@@ -109,11 +98,7 @@ describe('<Select.Item />', () => {
       </Select.Root>,
     );
 
-    const trigger = screen.getByTestId('trigger');
-    const value = screen.getByTestId('value');
-
-    await user.click(trigger);
-
+    fireEvent.click(screen.getByTestId('trigger'));
     await flushMicrotasks();
 
     await user.keyboard('{ArrowDown}');
@@ -121,7 +106,7 @@ describe('<Select.Item />', () => {
     await user.keyboard('{Enter}');
 
     await waitFor(() => {
-      expect(value.textContent).to.equal('two');
+      expect(screen.getByTestId('value').textContent).to.equal('two');
     });
   });
 
@@ -169,20 +154,15 @@ describe('<Select.Item />', () => {
       </Select.Root>,
     );
 
-    const trigger = screen.getByTestId('trigger');
-    const value = screen.getByTestId('value');
-
-    fireEvent.click(trigger);
-
+    fireEvent.click(screen.getByTestId('trigger'));
     await flushMicrotasks();
 
     fireEvent.click(screen.getByText('two'));
-
-    expect(value.textContent).to.equal('');
+    expect(screen.getByTestId('value').textContent).to.equal('');
   });
 
   it('should focus the selected item upon opening the popup', async () => {
-    const { user } = await renderFakeTimers(
+    const { user } = await render(
       <Select.Root>
         <Select.Trigger data-testid="trigger">
           <Select.Value data-testid="value" />
@@ -201,11 +181,9 @@ describe('<Select.Item />', () => {
 
     const trigger = screen.getByTestId('trigger');
 
-    await user.click(trigger);
-    clock.tick(200);
-
+    fireEvent.click(trigger);
     await user.click(screen.getByRole('option', { name: 'three' }));
-    await user.click(trigger);
+    fireEvent.click(trigger);
 
     await waitFor(() => {
       expect(screen.getByRole('option', { name: 'three' })).toHaveFocus();
@@ -232,21 +210,17 @@ describe('<Select.Item />', () => {
         </Select.Root>,
       );
 
-      const trigger = screen.getByTestId('trigger');
-      const attr = 'data-highlighted';
-
-      fireEvent.click(trigger);
-
+      fireEvent.click(screen.getByTestId('trigger'));
       await flushMicrotasks();
 
-      expect(screen.getByRole('option', { name: 'a' })).to.have.attribute(attr, '');
-      expect(screen.getByRole('option', { name: 'b' })).not.to.have.attribute(attr);
+      expect(screen.getByRole('option', { name: 'a' })).to.have.attribute('data-highlighted', '');
+      expect(screen.getByRole('option', { name: 'b' })).not.to.have.attribute('data-highlighted');
 
       await user.keyboard('{ArrowDown}');
       await flushMicrotasks();
 
-      expect(screen.getByRole('option', { name: 'a' })).not.to.have.attribute(attr);
-      expect(screen.getByRole('option', { name: 'b' })).to.have.attribute(attr, '');
+      expect(screen.getByRole('option', { name: 'a' })).not.to.have.attribute('data-highlighted');
+      expect(screen.getByRole('option', { name: 'b' })).to.have.attribute('data-highlighted', '');
     });
 
     it('should apply data-selected attribute when item is selected', async () => {
@@ -264,26 +238,17 @@ describe('<Select.Item />', () => {
         </Select.Root>,
       );
 
-      const trigger = screen.getByTestId('trigger');
-      const attr = 'data-selected';
-
-      fireEvent.click(trigger);
-
+      fireEvent.click(screen.getByTestId('trigger'));
       await flushMicrotasks();
-
-      expect(screen.getByRole('option', { name: 'a' })).not.to.have.attribute(attr);
-      expect(screen.getByRole('option', { name: 'b' })).not.to.have.attribute(attr);
 
       fireEvent.click(screen.getByRole('option', { name: 'a' }));
 
       await flushMicrotasks();
 
-      fireEvent.click(trigger);
-
+      fireEvent.click(screen.getByTestId('trigger'));
       await flushMicrotasks();
-
-      expect(screen.getByRole('option', { name: 'a' })).to.have.attribute(attr, '');
-      expect(screen.getByRole('option', { name: 'b' })).not.to.have.attribute(attr);
+      expect(screen.getByRole('option', { name: 'a' })).to.have.attribute('data-selected', '');
+      expect(screen.getByRole('option', { name: 'b' })).not.to.have.attribute('data-selected');
     });
   });
 });

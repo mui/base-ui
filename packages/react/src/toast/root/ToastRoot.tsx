@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { activeElement, contains, getTarget } from '@floating-ui/react/utils';
+import { activeElement, contains, getTarget } from '../../floating-ui-react/utils';
 import type { BaseUIComponentProps } from '../../utils/types';
 import type { ToastObject as ToastObjectType } from '../useToastManager';
 import { ToastRootContext } from './ToastRootContext';
@@ -15,6 +15,7 @@ import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { ToastRootCssVars } from './ToastRootCssVars';
 import { useOnMount } from '../../utils/useOnMount';
 import { useTimeout } from '../../utils/useTimeout';
+import { inertValue } from '../../utils/inertValue';
 
 const stateAttributesMapping: StateAttributesMapping<ToastRoot.State> = {
   ...transitionStatusMapping,
@@ -518,6 +519,7 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
     onPointerMove: handlePointerMove,
     onPointerUp: handlePointerUp,
     onKeyDown: handleKeyDown,
+    inert: inertValue(toast.limited),
     style: {
       ...getDragStyles(),
       [ToastRootCssVars.index]: toast.transitionStatus === 'ending' ? domIndex : visibleIndex,

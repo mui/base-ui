@@ -35,6 +35,28 @@ function PopoverWithArrow({ side }: { side: Side }) {
   );
 }
 
+function ShiftSide({ side }: { side: Side }) {
+  return (
+    <PopoverPrimitive.Root>
+      <PopoverPrimitive.Trigger className={styles.Trigger}>
+        {side}
+      </PopoverPrimitive.Trigger>
+      <PopoverPrimitive.Portal>
+        <PopoverPrimitive.Positioner
+          side={side}
+          sideOffset={20}
+          collisionAvoidance={{ side: 'shift' }}
+        >
+          <PopoverPrimitive.Popup
+            className={styles.Popup}
+            style={{ height: 600, maxHeight: 'var(--available-height)' }}
+          />
+        </PopoverPrimitive.Positioner>
+      </PopoverPrimitive.Portal>
+    </PopoverPrimitive.Root>
+  );
+}
+
 export default function PopupTransformOrigin() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
@@ -45,11 +67,17 @@ export default function PopupTransformOrigin() {
         <Popover side="bottom" />
         <Popover side="left" />
       </div>
+      <h2>With arrow</h2>
       <div style={{ display: 'flex', gap: 10 }}>
         <PopoverWithArrow side="top" />
         <PopoverWithArrow side="right" />
         <PopoverWithArrow side="bottom" />
         <PopoverWithArrow side="left" />
+      </div>
+      <h2>Shift side</h2>
+      <div style={{ display: 'flex', gap: 10 }}>
+        <ShiftSide side="top" />
+        <ShiftSide side="bottom" />
       </div>
     </div>
   );

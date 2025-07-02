@@ -1,14 +1,20 @@
 'use client';
 
 import * as React from 'react';
-import { FloatingNode, FloatingTree, useFloatingNodeId, useFloatingTree } from '@floating-ui/react';
-import { MenuOrientation } from '../menu/root/useMenuRoot';
+import {
+  FloatingNode,
+  FloatingTree,
+  useFloatingNodeId,
+  useFloatingTree,
+} from '../floating-ui-react';
+import { type MenuRoot } from '../menu/root/MenuRoot';
 import { BaseUIComponentProps } from '../utils/types';
 import { MenubarContext, useMenubarContext } from './MenubarContext';
 import { useScrollLock } from '../utils';
 import { CompositeRoot } from '../composite/root/CompositeRoot';
 import { useRenderElement } from '../utils/useRenderElement';
 import { AnimationFrame } from '../utils/useAnimationFrame';
+import { useBaseUiId } from '../utils/useBaseUiId';
 
 /**
  * The container for menus.
@@ -25,6 +31,7 @@ export const Menubar = React.forwardRef(function Menubar(
     render,
     className,
     modal = true,
+    id: idProp,
     ...otherProps
   } = props;
 
@@ -37,6 +44,8 @@ export const Menubar = React.forwardRef(function Menubar(
     mounted: hasSubmenuOpen,
     referenceElement: contentElement,
   });
+
+  const id = useBaseUiId(idProp);
 
   const state = React.useMemo(
     () => ({
@@ -51,7 +60,7 @@ export const Menubar = React.forwardRef(function Menubar(
 
   const element = useRenderElement('div', props, {
     state,
-    props: [{ role: 'menubar' }, otherProps],
+    props: [{ role: 'menubar', id }, otherProps],
     ref: [forwardedRef, setContentElement, contentRef],
   });
 
@@ -64,8 +73,9 @@ export const Menubar = React.forwardRef(function Menubar(
       modal,
       orientation,
       allowMouseUpTriggerRef,
+      rootId: id,
     }),
-    [contentElement, hasSubmenuOpen, modal, orientation],
+    [contentElement, hasSubmenuOpen, modal, orientation, id],
   );
 
   return (
@@ -143,7 +153,7 @@ export namespace Menubar {
      * The orientation of the menubar.
      * @default 'horizontal'
      */
-    orientation?: MenuOrientation;
+    orientation?: MenuRoot.Orientation;
     /**
      * Whether to loop keyboard focus back to the first item
      * when the end of the list is reached while using the arrow keys.

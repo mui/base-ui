@@ -672,4 +672,52 @@ describe('<Tooltip.Root />', () => {
       expect(screen.queryByText('Content')).to.equal(null);
     });
   });
+
+  describe('prop: hoverable', () => {
+    it('applies pointer-events: none to the positioner when not hoverable', async () => {
+      await render(
+        <Root delay={0} hoverable={false}>
+          <Tooltip.Trigger />
+          <Tooltip.Portal>
+            <Tooltip.Positioner data-testid="positioner">
+              <Tooltip.Popup>Content</Tooltip.Popup>
+            </Tooltip.Positioner>
+          </Tooltip.Portal>
+        </Root>,
+      );
+
+      const trigger = screen.getByRole('button');
+
+      fireEvent.pointerDown(trigger, { pointerType: 'mouse' });
+      fireEvent.mouseEnter(trigger);
+      fireEvent.mouseMove(trigger);
+
+      await flushMicrotasks();
+
+      expect(screen.getByTestId('positioner').style.pointerEvents).to.equal('none');
+    });
+
+    it('does not apply pointer-events: none to the positioner when hoverable', async () => {
+      await render(
+        <Root delay={0} hoverable>
+          <Tooltip.Trigger />
+          <Tooltip.Portal>
+            <Tooltip.Positioner data-testid="positioner">
+              <Tooltip.Popup>Content</Tooltip.Popup>
+            </Tooltip.Positioner>
+          </Tooltip.Portal>
+        </Root>,
+      );
+
+      const trigger = screen.getByRole('button');
+
+      fireEvent.pointerDown(trigger, { pointerType: 'mouse' });
+      fireEvent.mouseEnter(trigger);
+      fireEvent.mouseMove(trigger);
+
+      await flushMicrotasks();
+
+      expect(screen.getByTestId('positioner').style.pointerEvents).to.equal('');
+    });
+  });
 });

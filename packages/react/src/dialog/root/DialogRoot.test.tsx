@@ -102,13 +102,13 @@ describe('<Dialog.Root />', () => {
       await user.click(openButton);
 
       expect(handleOpenChange.callCount).to.equal(1);
-      expect(handleOpenChange.firstCall.args[2]).to.equal('click');
+      expect(handleOpenChange.firstCall.args[2]).to.equal('trigger-press');
 
       const closeButton = screen.getByText('Close');
       await user.click(closeButton);
 
       expect(handleOpenChange.callCount).to.equal(2);
-      expect(handleOpenChange.secondCall.args[2]).to.equal('click');
+      expect(handleOpenChange.secondCall.args[2]).to.equal('close-press');
     });
 
     it('calls onOpenChange with the reason for change when pressed Esc while the dialog is open', async () => {
@@ -614,6 +614,51 @@ describe('<Dialog.Root />', () => {
 
       await waitFor(() => {
         expect(screen.queryByRole('dialog')).to.equal(null);
+      });
+    });
+
+    it('should not close the parent menu when Escape is pressed in a nested dialog', async () => {
+      const { user } = await render(
+        <Menu.Root>
+          <Menu.Trigger>Open menu</Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Dialog.Root>
+                  <Menu.Item closeOnClick={false} render={<Dialog.Trigger nativeButton={false} />}>
+                    Open dialog
+                  </Menu.Item>
+                  <Dialog.Portal>
+                    <Dialog.Popup />
+                  </Dialog.Portal>
+                </Dialog.Root>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>,
+      );
+
+      const menuTrigger = screen.getByRole('button', { name: 'Open menu' });
+      await user.click(menuTrigger);
+
+      await waitFor(() => {
+        expect(screen.queryByRole('menu')).not.to.equal(null);
+      });
+
+      const dialogTrigger = screen.getByRole('menuitem', { name: 'Open dialog' });
+      await user.click(dialogTrigger);
+
+      await waitFor(() => {
+        expect(screen.queryByRole('dialog')).not.to.equal(null);
+      });
+
+      await user.keyboard('[Escape]');
+
+      await waitFor(() => {
+        expect(screen.queryByRole('dialog')).to.equal(null);
+      });
+      await waitFor(() => {
+        expect(screen.queryByRole('menu')).not.to.equal(null);
       });
     });
   });
