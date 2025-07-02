@@ -1,19 +1,20 @@
 /* eslint-disable no-console */
 import path from 'node:path';
 import fse from 'fs-extra';
-import { fileURLToPath } from 'node:url';
-
-const CURRENT_DIR = path.dirname(fileURLToPath(import.meta.url));
-const PROJECT_ROOT = path.resolve(CURRENT_DIR, '..');
-const PROJECT_BUILD_DIR = path.join(PROJECT_ROOT, './build');
+import yargs from 'yargs';
+import { hideBin } from 'yargs/helpers';
 
 type TransformedExports = Record<
   string,
   Record<'require' | 'import', Record<'types' | 'default', string>>
 >;
 
-export async function createPackageManifest() {
-  const packageData = await fse.readFile(path.resolve(PROJECT_ROOT, './package.json'), 'utf8');
+export async function createPackageManifest(options: RunOptions) {
+  const { projectRoot } = options;
+  const projectRootDir = path.resolve(projectRoot);
+  const projectBuildDir = path.resolve(projectRootDir, './build');
+
+  const packageData = await fse.readFile(path.resolve(projectRootDir, './package.json'), 'utf8');
   const {
     imports,
     exports,
@@ -47,7 +48,7 @@ export async function createPackageManifest() {
     publishConfig,
   };
 
-  const targetPath = path.resolve(PROJECT_BUILD_DIR, './package.json');
+  const targetPath = path.resolve(projectBuildDir, './package.json');
 
   await fse.writeFile(targetPath, JSON.stringify(newPackageData, null, 2), 'utf8');
   console.log(`Created package.json in ${targetPath}`);
@@ -74,4 +75,25 @@ function retargetExports(originalExports: Record<string, string>) {
   return transformed;
 }
 
-await createPackageManifest();
+interface RunOptions {
+  projectRoot: string;
+}
+
+yargs(hideBin(process.argv))
+  .command<RunOptions>(
+    '$0',
+    'Extracts the API descriptions from a set of files',
+    (command) => {
+      return command.option('projectRoot', {
+        alias: 'p',
+        type: 'string',
+        demandOption: true,
+        description: 'Directory where the project is located',
+      });
+    },
+    createPackageManifest,
+  )
+  .help()
+  .strict()
+  .version(false)
+  .parse();
