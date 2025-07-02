@@ -63,6 +63,15 @@ export function useField(params: useField.Parameters) {
     validityData,
     value,
   ]);
+
+  useModernLayoutEffect(() => {
+    const fields = formRef.current.fields;
+    return () => {
+      if (id) {
+        fields.delete(id);
+      }
+    };
+  }, [formRef, id]);
 }
 
 export namespace useField {
