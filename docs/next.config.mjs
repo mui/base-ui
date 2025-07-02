@@ -2,7 +2,6 @@
 import * as path from 'path';
 import * as url from 'url';
 import * as fs from 'fs';
-// eslint-disable-next-line no-restricted-imports
 import withDocsInfra from '@mui/monorepo/docs/nextConfigDocsInfra.js';
 import nextMdx from '@next/mdx';
 import rehypeExtractToc from '@stefanprobst/rehype-extract-toc';

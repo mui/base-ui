@@ -6,7 +6,7 @@ import * as inspector from 'node:inspector';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import * as tae from 'typescript-api-extractor';
-import kebabCase from 'lodash/kebabCase.js';
+import kebabCase from 'lodash/kebabCase';
 import ts from 'typescript';
 import { isPublicComponent, formatComponentData } from './componentHandler';
 import { isPublicHook, formatHookData } from './hookHandler';
