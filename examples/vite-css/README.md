@@ -34,6 +34,7 @@ pnpm build
 ```bash
 pnpm preview
 ```
+
 Make sure to build the project for production with `pnpm build` first.
 
 ## Linting
