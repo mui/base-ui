@@ -34,27 +34,31 @@ export function useAnimationsFinished(
       timeout.clear();
 
       const element = ref.current;
-
-      if (!element) {
-        return;
-      }
-
-      if (typeof element.getAnimations !== 'function' || globalThis.BASE_UI_ANIMATIONS_DISABLED) {
+      const runActiveFnToExecute = () => {
+        if (signal != null && signal.aborted) {
+          return;
+        }
         fnToExecute();
+      };
+
+      if (
+        !element ||
+        typeof element.getAnimations !== 'function' ||
+        globalThis.BASE_UI_ANIMATIONS_DISABLED
+      ) {
+        runActiveFnToExecute();
       } else {
         frame.request(() => {
           function exec() {
             if (!element) {
+              runActiveFnToExecute();
               return;
             }
 
             Promise.allSettled(element.getAnimations().map((anim) => anim.finished)).then(() => {
-              if (signal != null && signal.aborted) {
-                return;
-              }
               // Synchronously flush the unmounting of the component so that the browser doesn't
               // paint: https://github.com/mui/base-ui/issues/979
-              ReactDOM.flushSync(fnToExecute);
+              ReactDOM.flushSync(runActiveFnToExecute);
             });
           }
 
