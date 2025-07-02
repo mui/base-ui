@@ -53,8 +53,9 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
 
   const { events: menuEvents } = useFloatingTree()!;
 
-  const submenuTrigger = React.useMemo(
+  const itemMetadata = React.useMemo(
     () => ({
+      type: 'submenu-trigger' as const,
       setActive: () => setActiveIndex(item.index),
       allowMouseEnterEnabled: parentMenuContext.allowMouseEnter,
     }),
@@ -70,7 +71,7 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
     allowMouseUpTriggerRef,
     typingRef,
     nativeButton,
-    submenuTrigger,
+    itemMetadata,
   });
 
   const state: MenuSubmenuTrigger.State = React.useMemo(
