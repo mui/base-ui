@@ -6,8 +6,8 @@
   },
   "devDependencies": {
     "@base-ui-components/react": "workspace:*",
-    "@mui/internal-test-utils": "^2.0.9",
-    "@playwright/test": "1.53.1",
+    "@mui/internal-test-utils": "^2.0.10",
+    "@playwright/test": "1.53.2",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.6.3",
     "@types/chai": "^4.3.20",
