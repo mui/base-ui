@@ -79,6 +79,20 @@ export function Trigger({
         if (nextIndex > -1) {
           triggers.item(nextIndex).focus();
         }
+
+        props.onKeyDown?.(event);
+      }}
+      onClick={(event) => {
+        const selection = window.getSelection();
+        if (!selection?.isCollapsed) {
+          event.preventDefault();
+        }
+        props.onClick?.(event);
+      }}
+      onMouseDown={(event) => {
+        if (!event.defaultPrevented && event.detail > 1) {
+          event.preventDefault();
+        }
       }}
     />
   );
