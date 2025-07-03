@@ -203,6 +203,7 @@ export const RadioGroup = React.forwardRef(function RadioGroup(
     props: [
       {
         role: 'radiogroup',
+        'aria-required': required || undefined,
         'aria-disabled': disabled || undefined,
         'aria-readonly': readOnly || undefined,
         'aria-labelledby': labelId,

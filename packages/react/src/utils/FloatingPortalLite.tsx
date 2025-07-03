@@ -1,6 +1,6 @@
 'use client';
 import * as ReactDOM from 'react-dom';
-import { useFloatingPortalNode } from '../floating-ui-react';
+import { FloatingPortalProps, useFloatingPortalNode } from '../floating-ui-react';
 
 /**
  * `FloatingPortal` includes tabbable logic handling for focus management.
@@ -15,6 +15,6 @@ export function FloatingPortalLite(props: FloatingPortalLite.Props) {
 export namespace FloatingPortalLite {
   export interface Props {
     children?: React.ReactNode;
-    root?: HTMLElement | null | React.RefObject<HTMLElement | null>;
+    root?: FloatingPortalProps['root'];
   }
 }
