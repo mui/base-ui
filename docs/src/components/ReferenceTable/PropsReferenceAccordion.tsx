@@ -105,7 +105,7 @@ export async function PropsReferenceAccordion({ data, name: partName, ...props }
           : null;
 
         return (
-          <Accordion.Item>
+          <Accordion.Item key={name}>
             <Accordion.Trigger
               index={index}
               aria-label={`prop: ${name}, type: ${shortPropTypeName} ${prop.default !== undefined ? `(default: ${prop.default})` : ''}`}
