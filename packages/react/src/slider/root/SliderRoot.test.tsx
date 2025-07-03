@@ -262,9 +262,10 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
           createTouches([{ identifier: 1, clientX: 21, clientY: 0 }]),
         );
 
-        const thumb = getByRole('slider');
+        const slider = getByRole('slider');
+        const thumb = getByTestId('thumb');
 
-        expect(thumb).to.have.attribute('aria-valuenow', '21');
+        expect(slider).to.have.attribute('aria-valuenow', '21');
         expect(thumb).toHaveFocus();
 
         await setProps({ disabled: true });
@@ -276,7 +277,7 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
           createTouches([{ identifier: 1, clientX: 30, clientY: 0 }]),
         );
 
-        expect(thumb).to.have.attribute('aria-valuenow', '21');
+        expect(slider).to.have.attribute('aria-valuenow', '21');
       },
     );
 
@@ -864,10 +865,10 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
       expect(handleValueChange.callCount).to.equal(2);
     });
 
-    it.skipIf(isWebKit)('should focus the slider when touching', async () => {
-      const { getByRole, getByTestId } = await render(<TestSlider defaultValue={30} />);
-      const slider = getByRole('slider');
-      const sliderControl = getByTestId('control');
+    it.skipIf(isWebKit)('should focus the thumb when touching', async () => {
+      await render(<TestSlider defaultValue={30} />);
+      const sliderThumb = screen.getByTestId('thumb');
+      const sliderControl = screen.getByTestId('control');
 
       stub(sliderControl, 'getBoundingClientRect').callsFake(
         () => GETBOUNDINGCLIENTRECT_HORIZONTAL_SLIDER_RETURN_VAL,
@@ -878,14 +879,13 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
         createTouches([{ identifier: 1, clientX: 0, clientY: 0 }]),
       );
 
-      expect(slider).toHaveFocus();
+      expect(sliderThumb).toHaveFocus();
     });
 
-    it('should focus the slider when dragging', async () => {
-      const { getByRole, getByTestId } = await render(<TestSlider defaultValue={30} step={10} />);
-      const slider = getByRole('slider');
-      const sliderThumb = getByTestId('thumb');
-      const sliderControl = getByTestId('control');
+    it('should focus the thumb when dragging', async () => {
+      await render(<TestSlider defaultValue={30} step={10} />);
+      const sliderThumb = screen.getByTestId('thumb');
+      const sliderControl = screen.getByTestId('control');
 
       stub(sliderControl, 'getBoundingClientRect').callsFake(
         () => GETBOUNDINGCLIENTRECT_HORIZONTAL_SLIDER_RETURN_VAL,
@@ -896,7 +896,7 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
         clientX: 1,
       });
 
-      expect(slider).toHaveFocus();
+      expect(sliderThumb).toHaveFocus();
     });
 
     it.skipIf(isWebKit)('should not override the event.target on touch events', async () => {
