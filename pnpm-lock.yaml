@@ -53,14 +53,14 @@ importers:
         specifier: ^7.27.1
         version: 7.27.1(@babel/core@7.28.0)
       '@mui/internal-babel-plugin-display-name':
-        specifier: ^1.0.2
-        version: 1.0.2(@babel/core@7.28.0)(@babel/preset-react@7.27.1(@babel/core@7.28.0))
+        specifier: ^1.0.4-canary.2
+        version: 1.0.4-canary.2(@babel/core@7.28.0)(@babel/preset-react@7.27.1(@babel/core@7.28.0))
       '@mui/internal-babel-plugin-resolve-imports':
-        specifier: ^2.0.5
-        version: 2.0.5(@babel/core@7.28.0)
+        specifier: ^2.0.7-canary.3
+        version: 2.0.7-canary.3(@babel/core@7.28.0)
       '@mui/internal-bundle-size-checker':
-        specifier: ^1.0.7
-        version: 1.0.7(@types/node@18.19.115)(jiti@2.4.2)(lightningcss@1.30.1)(rollup@4.40.1)(terser@5.39.0)(tsx@4.19.4)(webpack-cli@6.0.1(webpack-bundle-analyzer@4.10.2)(webpack@5.99.9))(yaml@2.7.1)
+        specifier: ^1.0.9-canary.3
+        version: 1.0.9-canary.3(@types/node@18.19.115)(jiti@2.4.2)(lightningcss@1.30.1)(rollup@4.40.1)(terser@5.39.0)(tsx@4.19.4)(webpack-cli@6.0.1(webpack-bundle-analyzer@4.10.2)(webpack@5.99.9))(yaml@2.7.1)
       '@mui/internal-code-infra':
         specifier: ^0.0.2-canary.12
         version: 0.0.2-canary.12(@typescript-eslint/parser@8.35.1(eslint@9.30.1(jiti@2.4.2))(typescript@5.8.3))(eslint@9.30.1(jiti@2.4.2))(prettier@3.5.3)(typescript@5.8.3)
@@ -2205,19 +2205,19 @@ packages:
       '@types/react': ^19.1.8
       react: '>=16'
 
-  '@mui/internal-babel-plugin-display-name@1.0.2':
-    resolution: {integrity: sha512-hnvpDAxATJVGfL6TaPtTFLCxyENMLU4i19gVi9Bx6sqC+aNDIgdpEzqEZRWr6raeLqdJvdoj8CMgsCDjJ1vbVg==}
+  '@mui/internal-babel-plugin-display-name@1.0.4-canary.2':
+    resolution: {integrity: sha512-0n7ampSn7qkZJPOwoLSr/rQe3/b4VfwjfkG2pzdX9Bcg0TFKfQuYd+UoGpFgUp/kQ2M6WQHx0S1M4YlyQAEJWw==}
     peerDependencies:
       '@babel/core': ^7.28.0
       '@babel/preset-react': ^7.27.1
 
-  '@mui/internal-babel-plugin-resolve-imports@2.0.5':
-    resolution: {integrity: sha512-FGnxs2ZD+1xDvbnvwqTZvlKgVmCmoApbuw9HjUtloh7H0TV1w8uCIaTZpxQg+HkUJ+aeVkUsHeys0208rXoG5w==}
+  '@mui/internal-babel-plugin-resolve-imports@2.0.7-canary.3':
+    resolution: {integrity: sha512-Hsvp3j4ZMIDQPnxv8HI2VNODmdzEjtDPowCWr1ZOcVLXBO67sTY0LiIg6EzUbE3OAodLLZwAKZl4K7dARBSMYw==}
     peerDependencies:
       '@babel/core': ^7.28.0
 
-  '@mui/internal-bundle-size-checker@1.0.7':
-    resolution: {integrity: sha512-JznE7TsF20iUEXe3v/AZVGInoQUm15uTTDxgepJ8crnwnk5gR0V4qpooXGQOEebyXbsIcOSvEsafEs01QCOb+w==}
+  '@mui/internal-bundle-size-checker@1.0.9-canary.3':
+    resolution: {integrity: sha512-xUO1GQDl6xbFdQJMYOgKMdxD8duz/HRVO9FfOravWvHGqvfErFo9+mcS0Q99czlmViSol05CVqOOBdjZwFy+OQ==}
     hasBin: true
 
   '@mui/internal-code-infra@0.0.2-canary.12':
@@ -13017,7 +13017,7 @@ snapshots:
       '@types/react': 19.1.8
       react: 19.1.0
 
-  '@mui/internal-babel-plugin-display-name@1.0.2(@babel/core@7.28.0)(@babel/preset-react@7.27.1(@babel/core@7.28.0))':
+  '@mui/internal-babel-plugin-display-name@1.0.4-canary.2(@babel/core@7.28.0)(@babel/preset-react@7.27.1(@babel/core@7.28.0))':
     dependencies:
       '@babel/core': 7.28.0
       '@babel/helper-module-imports': 7.27.1
@@ -13026,12 +13026,12 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@mui/internal-babel-plugin-resolve-imports@2.0.5(@babel/core@7.28.0)':
+  '@mui/internal-babel-plugin-resolve-imports@2.0.7-canary.3(@babel/core@7.28.0)':
     dependencies:
       '@babel/core': 7.28.0
       resolve: 1.22.10
 
-  '@mui/internal-bundle-size-checker@1.0.7(@types/node@18.19.115)(jiti@2.4.2)(lightningcss@1.30.1)(rollup@4.40.1)(terser@5.39.0)(tsx@4.19.4)(webpack-cli@6.0.1(webpack-bundle-analyzer@4.10.2)(webpack@5.99.9))(yaml@2.7.1)':
+  '@mui/internal-bundle-size-checker@1.0.9-canary.3(@types/node@18.19.115)(jiti@2.4.2)(lightningcss@1.30.1)(rollup@4.40.1)(terser@5.39.0)(tsx@4.19.4)(webpack-cli@6.0.1(webpack-bundle-analyzer@4.10.2)(webpack@5.99.9))(yaml@2.7.1)':
     dependencies:
       '@aws-sdk/client-s3': 3.797.0
       '@aws-sdk/credential-providers': 3.797.0

@@ -305,6 +305,49 @@ describe('<Field.Root />', () => {
         switch: false,
       });
     });
+
+    it('unmounted fields are excluded from the validate fn', async () => {
+      const validateSpy = spy();
+      function App() {
+        const [checked, setChecked] = React.useState(true);
+
+        return (
+          <Form>
+            <input type="checkbox" checked={checked} onChange={() => setChecked(!checked)} />
+            {checked && (
+              <Field.Root name="input1">
+                <Field.Control data-testid="input1" defaultValue="one" />
+              </Field.Root>
+            )}
+            <Field.Root name="input2" validate={validateSpy}>
+              <Field.Control data-testid="input2" defaultValue="two" />
+            </Field.Root>
+            <button>Submit</button>
+          </Form>
+        );
+      }
+      await render(<App />);
+
+      const input = screen.getByTestId('input2');
+      fireEvent.focus(input);
+      fireEvent.blur(input);
+
+      expect(validateSpy.callCount).to.equal(1);
+      expect(validateSpy.firstCall.args[1]).to.deep.equal({
+        input1: 'one',
+        input2: 'two',
+      });
+
+      fireEvent.click(screen.getByRole('checkbox'));
+
+      fireEvent.focus(input);
+      fireEvent.blur(input);
+
+      expect(validateSpy.callCount).to.equal(2);
+      expect(validateSpy.lastCall.args[1]).to.deep.equal({
+        input2: 'two',
+      });
+    });
   });
 
   describe('prop: validationMode', () => {
