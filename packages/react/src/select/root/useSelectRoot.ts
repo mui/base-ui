@@ -394,7 +394,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
   });
 
   const typeahead = useTypeahead(floatingContext, {
-    enabled: !readOnly && !disabled,
+    enabled: !readOnly && !disabled && !multiple,
     listRef: labelsRef,
     activeIndex,
     selectedIndex,
