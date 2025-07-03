@@ -25,7 +25,7 @@ function renderValue(value: Language[]) {
 
   const firstLanguage = languages[value[0]];
   const additionalLanguages = value.length > 1 ? ` (+${value.length - 1} more)` : '';
-  return `${firstLanguage}${additionalLanguages}`;
+  return firstLanguage + additionalLanguages;
 }
 
 export default function MultiSelectExample() {
