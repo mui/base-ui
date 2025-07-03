@@ -7,6 +7,7 @@ import { ownerDocument } from '../../utils/owner';
 import type { BaseUIComponentProps, Orientation } from '../../utils/types';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useControlled } from '../../utils/useControlled';
+import { useForkRef } from '../../utils/useForkRef';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { useLatestRef } from '../../utils/useLatestRef';
 import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
@@ -54,7 +55,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
     defaultValue,
     disabled: disabledProp = false,
     id: idProp,
-    inputRef: externalInputRef,
+    inputRef: inputRefProp,
     format,
     largeStep = 10,
     locale,
@@ -109,6 +110,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
   const sliderRef = React.useRef<HTMLElement>(null);
   const controlRef = React.useRef<HTMLElement>(null);
   const thumbRefs = React.useRef<(HTMLElement | null)[]>([]);
+  const inputRef = useForkRef(inputRefProp, fieldControlValidation.inputRef);
   const lastChangedValueRef = React.useRef<number | readonly number[] | null>(null);
   const formatOptionsRef = useLatestRef(format);
 
@@ -194,6 +196,11 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
     },
   );
 
+  const handleHiddenInputFocus = useEventCallback(() => {
+    // focus the first thumb if the hidden input receives focus
+    thumbRefs.current?.[0]?.focus();
+  });
+
   useModernLayoutEffect(() => {
     if (valueProp === undefined || dragging) {
       return;
@@ -251,7 +258,6 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       active,
       disabled,
       dragging,
-      externalInputRef,
       fieldControlValidation,
       formatOptionsRef,
       handleInputChange,
@@ -281,7 +287,6 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       ariaLabelledby,
       disabled,
       dragging,
-      externalInputRef,
       externalTabIndex,
       fieldControlValidation,
       formatOptionsRef,
@@ -332,12 +337,14 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
               <input
                 key={`${name}-input-${index}`}
                 {...fieldControlValidation.getInputValidationProps({
-                  type: 'hidden',
                   disabled,
                   name,
-                  ref: fieldControlValidation.inputRef,
+                  ref: inputRef,
                   value,
+                  onFocus: handleHiddenInputFocus,
                   style: visuallyHidden,
+                  tabIndex: -1,
+                  'aria-hidden': true,
                 })}
               />
             );
@@ -345,12 +352,14 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
         ) : (
           <input
             {...fieldControlValidation.getInputValidationProps({
-              type: 'hidden',
               disabled,
               name,
-              ref: fieldControlValidation.inputRef,
+              ref: inputRef,
               value: valueUnwrapped,
+              onFocus: handleHiddenInputFocus,
               style: visuallyHidden,
+              tabIndex: -1,
+              'aria-hidden': true,
             })}
           />
         )}
