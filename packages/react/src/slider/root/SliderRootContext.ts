@@ -13,6 +13,7 @@ export interface SliderRootContext {
   active: number;
   dragging: boolean;
   disabled: boolean;
+  externalInputRef?: React.Ref<HTMLInputElement>;
   fieldControlValidation: useFieldControlValidation.ReturnValue;
   formatOptionsRef: React.RefObject<Intl.NumberFormatOptions | undefined>;
   handleInputChange: (

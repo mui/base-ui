@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useForm, Controller } from 'react-hook-form';
+import { useForm, Controller, type Mode } from 'react-hook-form';
 import { Form } from '@base-ui-components/react/form';
 import { Fieldset } from '@base-ui-components/react/fieldset';
 import { Field } from '@base-ui-components/react/field';
@@ -21,7 +21,9 @@ import {
   useExperimentSettings,
 } from '../../../../components/Experiments/SettingsPanel';
 
-interface Settings extends Record<string, unknown> {}
+interface Settings {
+  validationMode: Mode;
+}
 
 interface FormValues {
   username: string;
@@ -31,7 +33,6 @@ interface FormValues {
   slider: number;
   numberField: number;
   selectCountry: string;
-  selectState: string;
   radioGroup: string;
   checkboxGroup: string[];
 }
@@ -72,24 +73,20 @@ export default function ExampleForm() {
   const [errors, setErrors] = React.useState({});
   const [loading, setLoading] = React.useState(false);
 
-  const { handleSubmit, control, reset, formState, getValues } = useForm<FormValues>(
-    {
-      defaultValues: {
-        username: '',
-        checkbox: true,
-        requiredCheckbox: false,
-        switch: false,
-        slider: 25,
-        numberField: 45,
-        selectCountry: '',
-        selectState: '',
-        radioGroup: '',
-        checkboxGroup: [],
-      },
-      // @ts-ignore
-      mode: settings.validationMode,
+  const { handleSubmit, control, reset, formState, getValues } = useForm<FormValues>({
+    defaultValues: {
+      username: '',
+      checkbox: true,
+      requiredCheckbox: false,
+      switch: false,
+      slider: 45,
+      numberField: 5,
+      selectCountry: '',
+      radioGroup: 'auto',
+      checkboxGroup: [],
     },
-  );
+    mode: settings.validationMode,
+  });
 
   return (
     <div style={{ fontFamily: 'var(--font-sans)' }}>
@@ -213,7 +210,15 @@ export default function ExampleForm() {
         <Controller
           name="slider"
           control={control}
-          render={({ field }) => {
+          rules={{
+            validate: (value) => {
+              if (value > 90) {
+                return 'Too loud';
+              }
+              return true;
+            },
+          }}
+          render={({ field, fieldState }) => {
             return (
               <Field.Root name={field.name} className={styles.Field}>
                 <Field.Label className={styles.Label}>Volume</Field.Label>
@@ -226,13 +231,13 @@ export default function ExampleForm() {
                   <Slider.Control className={styles.SliderControl}>
                     <Slider.Track className={styles.SliderTrack}>
                       <Slider.Indicator className={styles.SliderIndicator} />
-                      <Slider.Thumb
-                        onBlur={field.onBlur}
-                        className={styles.SliderThumb}
-                      />
+                      <Slider.Thumb onBlur={field.onBlur} className={styles.SliderThumb} />
                     </Slider.Track>
                   </Slider.Control>
                 </Slider.Root>
+                <Field.Error className={styles.Error} match={!!fieldState.error}>
+                  {fieldState.error?.message ?? ''}
+                </Field.Error>
               </Field.Root>
             );
           }}
@@ -241,6 +246,14 @@ export default function ExampleForm() {
         <Controller
           name="numberField"
           control={control}
+          rules={{
+            validate: (value) => {
+              if (value > 20) {
+                return 'Out of stock';
+              }
+              return true;
+            },
+          }}
           render={({ field, fieldState }) => {
             return (
               <Field.Root name={field.name} className={styles.Field}>
@@ -251,17 +264,13 @@ export default function ExampleForm() {
                   className={styles.Field}
                 >
                   <NumberField.Group className={styles.NumberField}>
-                    <NumberField.Decrement className={styles.Decrement}>
-                      -
-                    </NumberField.Decrement>
+                    <NumberField.Decrement className={styles.Decrement}>-</NumberField.Decrement>
                     <NumberField.Input
                       onBlur={field.onBlur}
                       ref={field.ref}
                       className={styles.Input}
                     />
-                    <NumberField.Increment className={styles.Increment}>
-                      +
-                    </NumberField.Increment>
+                    <NumberField.Increment className={styles.Increment}>+</NumberField.Increment>
                   </NumberField.Group>
                 </NumberField.Root>
                 <Field.Error className={styles.Error} match={!!fieldState.error}>
@@ -275,6 +284,9 @@ export default function ExampleForm() {
         <Controller
           name="selectCountry"
           control={control}
+          rules={{
+            required: 'You must select a country',
+          }}
           render={({ field, fieldState }) => {
             return (
               <Field.Root name={field.name} className={styles.Field}>
@@ -285,7 +297,15 @@ export default function ExampleForm() {
                   inputRef={field.ref}
                 >
                   <Select.Trigger onBlur={field.onBlur} className={styles.Select}>
-                    <Select.Value placeholder="Select value" />
+                    <Select.Value>
+                      {(value) => {
+                        if (value == null) {
+                          return 'Select…';
+                        }
+                        const country = COUNTRIES.find((c) => c.iso2 === value);
+                        return country?.name;
+                      }}
+                    </Select.Value>
                     <Select.Icon className={styles.SelectIcon}>
                       <ChevronUpDownIcon />
                     </Select.Icon>
@@ -332,14 +352,8 @@ export default function ExampleForm() {
           render={({ field, fieldState }) => {
             // TODO: where exactly to put field.onBlur?
             return (
-              <Field.Root
-                name={field.name}
-                render={<Fieldset.Root />}
-                className={styles.Field}
-              >
-                <Fieldset.Legend className={styles.Legend}>
-                  Show scroll bars
-                </Fieldset.Legend>
+              <Field.Root name={field.name} render={<Fieldset.Root />} className={styles.Field}>
+                <Fieldset.Legend className={styles.Legend}>Show scroll bars</Fieldset.Legend>
                 <RadioGroup
                   value={field.value}
                   onValueChange={field.onChange}
@@ -384,14 +398,8 @@ export default function ExampleForm() {
           render={({ field, fieldState }) => {
             // TODO: where exactly to put field.onBlur?
             return (
-              <Field.Root
-                name={field.name}
-                render={<Fieldset.Root />}
-                className={styles.Field}
-              >
-                <Fieldset.Legend className={styles.Legend}>
-                  Content blocking
-                </Fieldset.Legend>
+              <Field.Root name={field.name} render={<Fieldset.Root />} className={styles.Field}>
+                <Fieldset.Legend className={styles.Legend}>Content blocking</Fieldset.Legend>
                 <CheckboxGroup
                   aria-labelledby="parent-label"
                   value={field.value}
@@ -428,11 +436,7 @@ export default function ExampleForm() {
                   </Field.Label>
 
                   <Field.Label className={styles.Label}>
-                    <Checkbox.Root
-                      value="ads"
-                      onBlur={field.onBlur}
-                      className={styles.Checkbox}
-                    >
+                    <Checkbox.Root value="ads" onBlur={field.onBlur} className={styles.Checkbox}>
                       <Checkbox.Indicator className={styles.CheckboxIndicator}>
                         <CheckIcon className={styles.Icon} />
                       </Checkbox.Indicator>
