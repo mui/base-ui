@@ -242,13 +242,16 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
 
   const contextValue = React.useMemo(() => ({ viewportRef }), [viewportRef]);
 
-  const highPriorityToasts = toasts.filter((toast) => toast.priority === 'high');
+  const highPriorityToasts = React.useMemo(
+    () => toasts.filter((toast) => toast.priority === 'high'),
+    [toasts],
+  );
 
   return (
     <ToastViewportContext.Provider value={contextValue}>
       {numToasts > 0 && prevFocusElement && <FocusGuard onFocus={handleFocusGuard} />}
       {element}
-      {!focused && (
+      {!focused && highPriorityToasts.length > 0 && (
         <div style={visuallyHidden}>
           {highPriorityToasts.map((toast) => (
             <div key={toast.id} role="alert" aria-atomic>
