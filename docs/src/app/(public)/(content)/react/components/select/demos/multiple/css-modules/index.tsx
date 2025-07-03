@@ -51,9 +51,7 @@ export default function MultiSelectExample() {
                 <Select.ItemIndicator className={styles.ItemIndicator}>
                   <CheckIcon className={styles.ItemIndicatorIcon} />
                 </Select.ItemIndicator>
-                <Select.ItemText className={styles.ItemText}>
-                  {languages[value]}
-                </Select.ItemText>
+                <Select.ItemText className={styles.ItemText}>{languages[value]}</Select.ItemText>
               </Select.Item>
             ))}
           </Select.Popup>
