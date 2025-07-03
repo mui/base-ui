@@ -38,10 +38,8 @@
     color: var(--color-foreground);
   }
 
-  .AccordionItem {
-    &:not(:last-child) {
-      border-bottom: 1px solid var(--color-gray-200);
-    }
+  .AccordionItem:not(:last-child) {
+    border-bottom: 1px solid var(--color-gray-200);
   }
 
   .AccordionTrigger {
@@ -80,11 +78,11 @@
       z-index: 1;
     }
 
-    &[data-panel-open] {
-      border-bottom: 1px solid var(--color-gray-200);
+    [open] & {
+      box-shadow: -5px 10px 10px -10px var(--color-gray-100);
     }
 
-    .AccordionItem[data-closed]:last-child & {
+    .AccordionItem:not([open]):last-child & {
       border-bottom-left-radius: var(--radius-md);
       border-bottom-right-radius: var(--radius-md);
     }
