@@ -54,7 +54,7 @@
     "test:webkit": "cross-env VITEST_ENV=webkit pnpm test:_unit",
     "test:webkit:ui": "pnpm test:webkit --browser.headless=false",
     "test:browsers": "cross-env VITEST_ENV=all-browsers pnpm test:_unit",
-    "test:argos": "node ./scripts/pushArgos.mjs",
+    "test:argos": "code-infra push-argos --folder test/regressions/screenshots/chrome",
     "typescript": "tsc -b tsconfig.json",
     "validate-declarations": "tsx scripts/validateTypescriptDeclarations.mts",
     "inline-scripts": "tsx ./scripts/inlineScripts.mts"
