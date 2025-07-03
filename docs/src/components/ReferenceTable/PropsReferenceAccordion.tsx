@@ -1,4 +1,5 @@
 import * as React from 'react';
+import clsx from 'clsx';
 import { visuallyHidden } from '@base-ui-components/react/utils';
 import { createMdxComponent } from 'docs/src/mdx/createMdxComponent';
 import { inlineMdxComponents } from 'docs/src/mdx-components';
@@ -58,9 +59,9 @@ export async function PropsReferenceAccordion({ data, name: partName, ...props }
       <span id={captionId} style={visuallyHidden} aria-hidden>
         Component props table
       </span>
-      <Accordion.HeaderRow>
-        <Accordion.HeaderLabel>Prop</Accordion.HeaderLabel>
-        <Accordion.HeaderLabel className="max-xs:hidden">Type</Accordion.HeaderLabel>
+      <Accordion.HeaderRow className={GRID_LAYOUT_CLASSES}>
+        <Accordion.HeaderCell>Prop</Accordion.HeaderCell>
+        <Accordion.HeaderCell className="max-xs:hidden">Type</Accordion.HeaderCell>
       </Accordion.HeaderRow>
       {Object.keys(data).map(async (name, index) => {
         const prop = data[name];
@@ -109,7 +110,7 @@ export async function PropsReferenceAccordion({ data, name: partName, ...props }
             <Accordion.Trigger
               index={index}
               aria-label={`prop: ${name}, type: ${shortPropTypeName} ${prop.default !== undefined ? `(default: ${prop.default})` : ''}`}
-              className="max-xs:gap-4 md:gap-4"
+              className={clsx('max-xs:gap-4 md:gap-4', GRID_LAYOUT_CLASSES)}
             >
               <TableCode className="text-navy">{name}</TableCode>
               {prop.type && (
@@ -133,13 +134,9 @@ export async function PropsReferenceAccordion({ data, name: partName, ...props }
                 <path d="M1 3.5L5 7.5L9 3.5" stroke="currentcolor" />
               </svg>
             </Accordion.Trigger>
-            <Accordion.Panel aria-labelledby={`${name}-h5`}>
+            <Accordion.Panel>
               <Accordion.Content className="min-xs:py-1 min-md:py-2">
-                {/* avoid announcing the trigger again when moving from the trigger into content */}
-                <h5 id={`${name}-h5`} style={visuallyHidden} aria-hidden>
-                  Details
-                </h5>
-                <DescriptionList.Root className="max-xs:p-4 xs:text-gray-600">
+                <DescriptionList.Root className="max-xs:p-4 xs:text-gray-600" aria-label="Info">
                   {PropDescription != null && (
                     <React.Fragment>
                       <DescriptionList.Term>Description</DescriptionList.Term>
@@ -177,3 +174,9 @@ export async function PropsReferenceAccordion({ data, name: partName, ...props }
     </Accordion.Root>
   );
 }
+
+const GRID_LAYOUT_CLASSES =
+  'grid ' +
+  'grid-cols-[theme(spacing.48)_1fr_theme(spacing.10)] ' +
+  'sm:grid-cols-[theme(spacing.56)_1fr_theme(spacing.10)] ' +
+  'md:grid-cols-[1fr_2fr_theme(spacing.10)] ';

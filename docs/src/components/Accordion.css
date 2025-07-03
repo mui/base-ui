@@ -15,22 +15,9 @@
     border-radius: var(--radius-md) var(--radius-md) 0 0;
     border-bottom: 1px solid var(--color-gray-200);
     background-color: var(--color-gray-50);
-
-    @media (--xs) {
-      display: grid;
-      grid-template-columns: --spacing(48) 1fr --spacing(10);
-    }
-
-    @media (--sm) {
-      grid-template-columns: --spacing(56) 1fr --spacing(10);
-    }
-
-    @media (--md) {
-      grid-template-columns: 1fr 2fr --spacing(10);
-    }
   }
 
-  .AccordionHeaderLabel {
+  .AccordionHeaderCell {
     padding: 0.5rem 0.75rem;
     font-size: var(--text-sm);
     font-weight: var(--font-weight-medium);
@@ -85,20 +72,6 @@
     .AccordionItem:not([open]):last-child & {
       border-bottom-left-radius: var(--radius-md);
       border-bottom-right-radius: var(--radius-md);
-    }
-
-    /* temporary because it's painful to do this in TW */
-    @media (--xs) {
-      display: grid;
-      grid-template-columns: --spacing(48) 1fr --spacing(10);
-    }
-
-    @media (--sm) {
-      grid-template-columns: --spacing(56) 1fr --spacing(10);
-    }
-
-    @media (--md) {
-      grid-template-columns: 1fr 2fr --spacing(10);
     }
   }
 

@@ -100,6 +100,6 @@ export function HeaderRow(props: React.ComponentProps<'div'>) {
   return <div {...props} aria-hidden className={clsx('AccordionHeaderRow', props.className)} />;
 }
 
-export function HeaderLabel(props: React.ComponentProps<'div'>) {
-  return <div {...props} className={clsx('AccordionHeaderLabel', props.className)} />;
+export function HeaderCell(props: React.ComponentProps<'div'>) {
+  return <div {...props} className={clsx('AccordionHeaderCell', props.className)} />;
 }

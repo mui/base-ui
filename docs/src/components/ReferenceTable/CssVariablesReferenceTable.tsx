@@ -25,7 +25,7 @@ export async function CssVariablesReferenceTable({
     <React.Fragment>
       <Accordion.Root {...props} className={clsx(props.className, 'xs:hidden')}>
         <Accordion.HeaderRow>
-          <Accordion.HeaderLabel className="pl-[0.75rem]">CSS Variable</Accordion.HeaderLabel>
+          <Accordion.HeaderCell className="pl-[0.75rem]">CSS Variable</Accordion.HeaderCell>
         </Accordion.HeaderRow>
         {Object.keys(data).map(async (name, index) => {
           const attribute = data[name];
@@ -36,7 +36,7 @@ export async function CssVariablesReferenceTable({
           );
 
           return (
-            <Accordion.Item>
+            <Accordion.Item key={name}>
               <Accordion.Trigger index={index}>
                 <TableCode className="text-navy">{name}</TableCode>
                 <svg
