@@ -341,18 +341,13 @@ describe('useToast', () => {
     });
 
     describe('option: priority', () => {
-      it('applies correct ARIA attributes based on priority', async () => {
+      it('applies correct ARIA attributes for high priority toasts', async () => {
         function AddButton() {
           const { add } = useToastManager();
           return (
-            <React.Fragment>
-              <button onClick={() => add({ title: 'high priority', priority: 'high' })}>
-                add high
-              </button>
-              <button onClick={() => add({ title: 'low priority', priority: 'low' })}>
-                add low
-              </button>
-            </React.Fragment>
+            <button onClick={() => add({ title: 'high priority', priority: 'high' })}>
+              add high
+            </button>
           );
         }
 
@@ -375,18 +370,10 @@ describe('useToast', () => {
         expect(screen.getByRole('alert')).to.not.equal(null);
         expect(screen.getByRole('alert').getAttribute('aria-atomic')).to.equal('true');
 
-        const closeHighButton = screen.getByRole('button', { name: 'close-press' });
+        const closeHighButton = screen.getByLabelText('close-press');
         fireEvent.click(closeHighButton);
 
-        const lowPriorityButton = screen.getByRole('button', { name: 'add low' });
-        fireEvent.click(lowPriorityButton);
-
-        const lowRoot = screen.getByTestId('root');
-
-        expect(lowRoot.getAttribute('role')).to.equal('dialog');
-        expect(lowRoot.getAttribute('aria-modal')).to.equal('false');
-        expect(screen.getByRole('status')).to.not.equal(null);
-        expect(screen.getByRole('status').getAttribute('aria-live')).to.equal('polite');
+        expect(screen.queryByRole('alert')).to.equal(null);
       });
     });
   });

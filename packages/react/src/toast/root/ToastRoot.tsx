@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { activeElement, contains, getTarget } from '../../floating-ui-react/utils';
-import type { BaseUIComponentProps } from '../../utils/types';
+import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import type { ToastObject as ToastObjectType } from '../useToastManager';
 import { ToastRootContext } from './ToastRootContext';
 import { transitionStatusMapping } from '../../utils/styleHookMapping';
@@ -497,12 +497,15 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
     };
   }
 
-  const props = {
-    role: toast.priority === 'high' ? 'alertdialog' : 'dialog',
+  const isHighPriority = toast.priority === 'high';
+
+  const defaultProps: HTMLProps = {
+    role: isHighPriority ? 'alertdialog' : 'dialog',
     tabIndex: 0,
     'aria-modal': false,
     'aria-labelledby': titleId,
     'aria-describedby': descriptionId,
+    'aria-hidden': isHighPriority && !focused ? true : undefined,
     onPointerDown: handlePointerDown,
     onPointerMove: handlePointerMove,
     onPointerUp: handlePointerUp,
@@ -510,8 +513,9 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
     inert: inertValue(toast.limited),
     style: {
       ...getDragStyles(),
-      [ToastRootCssVars.index]: toast.transitionStatus === 'ending' ? domIndex : visibleIndex,
-      [ToastRootCssVars.offsetY]: `${offsetY}px`,
+      [ToastRootCssVars.index as string]:
+        toast.transitionStatus === 'ending' ? domIndex : visibleIndex,
+      [ToastRootCssVars.offsetY as string]: `${offsetY}px`,
     },
   };
 
@@ -554,7 +558,7 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
     ref: [forwardedRef, toastRoot.rootRef],
     state,
     customStyleHookMapping,
-    props: [props, elementProps],
+    props: [defaultProps, elementProps],
   });
 
   return <ToastRootContext.Provider value={toastRoot}>{element}</ToastRootContext.Provider>;

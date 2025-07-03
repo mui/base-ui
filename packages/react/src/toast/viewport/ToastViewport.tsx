@@ -9,6 +9,7 @@ import { useToastContext } from '../provider/ToastProviderContext';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { isFocusVisible } from '../utils/focusVisible';
 import { ownerDocument, ownerWindow } from '../../utils/owner';
+import { visuallyHidden } from '../../utils';
 
 /**
  * A container viewport for toasts.
@@ -204,7 +205,7 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
     'aria-live': 'polite',
     'aria-atomic': false,
     'aria-relevant': 'additions text',
-    'aria-label': `${numToasts} notification${numToasts !== 1 ? 's' : ''} (F6)`,
+    'aria-label': numToasts > 0 ? 'Notifications (F6)' : undefined,
     onMouseEnter: handleMouseEnter,
     onMouseMove: handleMouseEnter,
     onMouseLeave: handleMouseLeave,
@@ -241,10 +242,22 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
 
   const contextValue = React.useMemo(() => ({ viewportRef }), [viewportRef]);
 
+  const highPriorityToasts = toasts.filter((toast) => toast.priority === 'high');
+
   return (
     <ToastViewportContext.Provider value={contextValue}>
       {numToasts > 0 && prevFocusElement && <FocusGuard onFocus={handleFocusGuard} />}
       {element}
+      {!focused && (
+        <div style={visuallyHidden}>
+          {highPriorityToasts.map((toast) => (
+            <div key={toast.id} role="alert" aria-atomic>
+              <div>{toast.title}</div>
+              <div>{toast.description}</div>
+            </div>
+          ))}
+        </div>
+      )}
     </ToastViewportContext.Provider>
   );
 });
