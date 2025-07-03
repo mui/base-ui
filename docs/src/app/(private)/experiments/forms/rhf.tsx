@@ -46,34 +46,13 @@ export const settingsMetadata: SettingsMetadata<Settings> = {
   },
 };
 
-async function submitForm(data: any) {
-  // Mimic a server response
-  await new Promise((resolve) => {
-    setTimeout(resolve, 500);
-  });
-
-  console.log('submitForm', data);
-
-  // try {
-  //   const url = new URL(value);
-
-  //   if (url.hostname.endsWith('example.com')) {
-  //     return { error: 'The example domain is not allowed' };
-  //   }
-  // } catch {
-  //   return { error: 'This is not a valid URL' };
-  // }
-
-  return { success: true };
-}
-
 export default function ExampleForm() {
   const { settings } = useExperimentSettings<Settings>();
 
   const [errors, setErrors] = React.useState({});
   const [loading, setLoading] = React.useState(false);
 
-  const { handleSubmit, control, reset, formState, getValues } = useForm<FormValues>({
+  const { handleSubmit, control, reset, setError, setFocus } = useForm<FormValues>({
     defaultValues: {
       username: '',
       checkbox: true,
@@ -87,6 +66,28 @@ export default function ExampleForm() {
     },
     mode: settings.validationMode,
   });
+
+  async function submitForm(data: FormValues) {
+    setLoading(true);
+
+    // Mimic a server response
+    await new Promise((resolve) => {
+      setTimeout(resolve, 500);
+    });
+
+    console.log('submitted', data);
+
+    if (data.username === 'alice') {
+      setError('username', {
+        type: 'serverError',
+        message: 'Username is already taken',
+      });
+      setFocus('username');
+    }
+
+    setLoading(false);
+    return { success: true };
+  }
 
   return (
     <div style={{ fontFamily: 'var(--font-sans)' }}>
@@ -108,7 +109,7 @@ export default function ExampleForm() {
           }}
           render={({ field, fieldState }) => {
             return (
-              <Field.Root name={field.name} className={styles.Field}>
+              <Field.Root name={field.name} invalid={fieldState.invalid} className={styles.Field}>
                 <Field.Label className={styles.Label}>Username</Field.Label>
                 <Field.Control
                   placeholder="Required"
@@ -129,10 +130,9 @@ export default function ExampleForm() {
         <Controller
           name="checkbox"
           control={control}
-          render={({ field }) => {
-            // console.log(fieldState.error);
+          render={({ field, fieldState }) => {
             return (
-              <Field.Root name={field.name} className={styles.Field}>
+              <Field.Root name={field.name} invalid={fieldState.invalid} className={styles.Field}>
                 <Field.Label className={styles.Label}>
                   <Checkbox.Root
                     checked={field.value}
@@ -159,9 +159,8 @@ export default function ExampleForm() {
             required: 'You must check this to continue',
           }}
           render={({ field, fieldState }) => {
-            // console.log(fieldState.error);
             return (
-              <Field.Root name={field.name} className={styles.Field}>
+              <Field.Root name={field.name} invalid={fieldState.invalid} className={styles.Field}>
                 <Field.Label className={styles.Label}>
                   <Checkbox.Root
                     checked={field.value}
@@ -187,9 +186,9 @@ export default function ExampleForm() {
         <Controller
           name="switch"
           control={control}
-          render={({ field }) => {
+          render={({ field, fieldState }) => {
             return (
-              <Field.Root name={field.name} className={styles.Field}>
+              <Field.Root name={field.name} invalid={fieldState.invalid} className={styles.Field}>
                 <Field.Label className={styles.Label}>
                   <Switch.Root
                     checked={field.value}
@@ -220,7 +219,7 @@ export default function ExampleForm() {
           }}
           render={({ field, fieldState }) => {
             return (
-              <Field.Root name={field.name} className={styles.Field}>
+              <Field.Root name={field.name} invalid={fieldState.invalid} className={styles.Field}>
                 <Field.Label className={styles.Label}>Volume</Field.Label>
                 <Slider.Root
                   value={field.value}
@@ -256,7 +255,7 @@ export default function ExampleForm() {
           }}
           render={({ field, fieldState }) => {
             return (
-              <Field.Root name={field.name} className={styles.Field}>
+              <Field.Root name={field.name} invalid={fieldState.invalid} className={styles.Field}>
                 <Field.Label className={styles.Label}>Quantity</Field.Label>
                 <NumberField.Root
                   value={field.value}
@@ -289,7 +288,7 @@ export default function ExampleForm() {
           }}
           render={({ field, fieldState }) => {
             return (
-              <Field.Root name={field.name} className={styles.Field}>
+              <Field.Root name={field.name} invalid={fieldState.invalid} className={styles.Field}>
                 <Field.Label className={styles.Label}>Country</Field.Label>
                 <Select.Root
                   value={field.value}
@@ -352,7 +351,12 @@ export default function ExampleForm() {
           render={({ field, fieldState }) => {
             // TODO: where exactly to put field.onBlur?
             return (
-              <Field.Root name={field.name} render={<Fieldset.Root />} className={styles.Field}>
+              <Field.Root
+                name={field.name}
+                invalid={fieldState.invalid}
+                render={<Fieldset.Root />}
+                className={styles.Field}
+              >
                 <Fieldset.Legend className={styles.Legend}>Show scroll bars</Fieldset.Legend>
                 <RadioGroup
                   value={field.value}
@@ -398,7 +402,12 @@ export default function ExampleForm() {
           render={({ field, fieldState }) => {
             // TODO: where exactly to put field.onBlur?
             return (
-              <Field.Root name={field.name} render={<Fieldset.Root />} className={styles.Field}>
+              <Field.Root
+                name={field.name}
+                invalid={fieldState.invalid}
+                render={<Fieldset.Root />}
+                className={styles.Field}
+              >
                 <Fieldset.Legend className={styles.Legend}>Content blocking</Fieldset.Legend>
                 <CheckboxGroup
                   aria-labelledby="parent-label"
