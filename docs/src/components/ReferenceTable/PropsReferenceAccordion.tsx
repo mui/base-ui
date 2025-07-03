@@ -35,31 +35,22 @@ function getShortPropType(name: string, type: string | undefined) {
     return 'ReactElement | function';
   }
 
-  if (name.endsWith('Ref')) {
-    return type;
-  }
-
-  if (['children'].includes(name)) {
-    return type;
-  }
-
-  if (['boolean', 'string', 'number'].includes(type)) {
-    return type;
-  }
-
-  if (!type.includes(' | ') || type.split('|').length < 3) {
+  if (
+    name.endsWith('Ref') ||
+    name === 'children' ||
+    type === 'boolean' ||
+    type === 'string' ||
+    type === 'number' ||
+    type.indexOf(' | ') === -1 ||
+    (type.split('|').length < 3 && type.length < 30)
+  ) {
     return type;
   }
 
   return 'Union';
 }
 
-export async function PropsReferenceAccordion({
-  data,
-  name: partName,
-  // type = 'props',
-  ...props
-}: Props) {
+export async function PropsReferenceAccordion({ data, name: partName, ...props }: Props) {
   const captionId = `${partName}-caption`;
 
   return (
