@@ -2,6 +2,7 @@ import sortBy from 'lodash/sortBy';
 import * as tae from 'typescript-api-extractor';
 import fs from 'fs';
 import path from 'path';
+import _ from 'lodash';
 
 export function formatProperties(props: tae.PropertyNode[]) {
   const result: Record<string, any> = {};
@@ -81,21 +82,34 @@ export function formatType(
       return getFullyQualifiedName(type.name, type.parentNamespaces ?? []);
     }
 
-    const memberTypes = type.types;
+    let memberTypes = type.types;
 
     if (removeUndefined) {
-      const types = memberTypes.filter(
+      memberTypes = memberTypes.filter(
         (t) => !(t instanceof tae.IntrinsicNode && t.intrinsic === 'undefined'),
       );
-
-      return orderMembers(types)
-        .map((t) => formatType(t, removeUndefined))
-        .join(' | ');
     }
 
-    return orderMembers(memberTypes)
-      .map((t) => formatType(t, removeUndefined))
-      .join(' | ');
+    // Deduplicates types in unions.
+    // Plain unions are handled by TypeScript API Extractor, but we also display unions in type parameters constraints,
+    // so we need to merge those here.
+    const flattenedMemberTypes = memberTypes.flatMap((t) => {
+      if (t instanceof tae.UnionNode) {
+        return t.name ? t : t.types;
+      }
+
+      if (t instanceof tae.TypeParameterNode && t.constraint instanceof tae.UnionNode) {
+        return t.constraint.types;
+      }
+
+      return t;
+    });
+
+    const formattedMemeberTypes = _.uniq(
+      orderMembers(flattenedMemberTypes).map((t) => formatType(t, removeUndefined)),
+    );
+
+    return formattedMemeberTypes.join(' | ');
   }
 
   if (type instanceof tae.IntersectionNode) {
@@ -162,7 +176,7 @@ export function formatType(
   }
 
   if (type instanceof tae.TypeParameterNode) {
-    return type.constraint ?? type.name;
+    return type.constraint !== undefined ? formatType(type.constraint, removeUndefined) : type.name;
   }
 
   return 'unknown';

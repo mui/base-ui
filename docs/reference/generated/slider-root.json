@@ -7,19 +7,19 @@
       "description": "Identifies the field when a form is submitted."
     },
     "defaultValue": {
-      "type": "number | readonly number[]",
+      "type": "number | number[]",
       "description": "The uncontrolled value of the slider when it’s initially rendered.\n\nTo render a controlled slider, use the `value` prop instead."
     },
     "value": {
-      "type": "number | readonly number[]",
+      "type": "number | number[]",
       "description": "The value of the slider.\nFor ranged sliders, provide an array with two values."
     },
     "onValueChange": {
-      "type": "((value: number | number | readonly number[], event: Event, activeThumbIndex: number) => void)",
+      "type": "((value: number | number[], event: Event, activeThumbIndex: number) => void)",
       "description": "Callback function that is fired when the slider's value changed."
     },
     "onValueCommitted": {
-      "type": "((value: number | number | readonly number[], event: Event) => void)",
+      "type": "((value: number | number[], event: Event) => void)",
       "description": "Callback function that is fired when the `pointerup` is triggered."
     },
     "locale": {
