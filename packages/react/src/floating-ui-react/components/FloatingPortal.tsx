@@ -1,6 +1,6 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import { isElement } from '@floating-ui/utils/dom';
+import { isNode } from '@floating-ui/utils/dom';
 import { useId } from '../../utils/useId';
 import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { FocusGuard } from '../../utils/FocusGuard';
@@ -40,7 +40,7 @@ const attr = createAttribute('portal');
 
 export interface UseFloatingPortalNodeProps {
   id?: string;
-  root?: HTMLElement | null | React.MutableRefObject<HTMLElement | null>;
+  root?: HTMLElement | ShadowRoot | null | React.RefObject<HTMLElement | ShadowRoot | null>;
 }
 
 /**
@@ -105,7 +105,7 @@ export function useFloatingPortalNode(props: UseFloatingPortalNodeProps = {}) {
     }
 
     let container = root || portalContext?.portalNode;
-    if (container && !isElement(container)) {
+    if (container && !isNode(container)) {
       container = container.current;
     }
     container = container || document.body;
@@ -142,7 +142,7 @@ export interface FloatingPortalProps {
   /**
    * Specifies the root node the portal container will be appended to.
    */
-  root?: HTMLElement | null | React.MutableRefObject<HTMLElement | null>;
+  root?: UseFloatingPortalNodeProps['root'];
   /**
    * When using non-modal focus management using `FloatingFocusManager`, this
    * will preserve the tab order context based on the React tree instead of the
