@@ -6,15 +6,12 @@ import type { ToastObject as ToastObjectType } from '../useToastManager';
 import { ToastRootContext } from './ToastRootContext';
 import { transitionStatusMapping } from '../../utils/styleHookMapping';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
-import { visuallyHidden } from '../../utils/visuallyHidden';
 import { useToastContext } from '../provider/ToastProviderContext';
 import { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { ownerDocument } from '../../utils/owner';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { ToastRootCssVars } from './ToastRootCssVars';
-import { useOnMount } from '../../utils/useOnMount';
-import { useTimeout } from '../../utils/useTimeout';
 import { inertValue } from '../../utils/inertValue';
 
 const customStyleHookMapping: CustomStyleHookMapping<ToastRoot.State> = {
@@ -86,7 +83,6 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
     toast,
     render,
     className,
-    children,
     swipeDirection = ['down', 'right'],
     ...elementProps
   } = componentProps;
@@ -105,7 +101,6 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
     hasDifferingHeights,
   } = useToastContext();
 
-  const [renderScreenReaderContent, setRenderScreenReaderContent] = React.useState(false);
   const [currentSwipeDirection, setCurrentSwipeDirection] = React.useState<
     'up' | 'down' | 'left' | 'right' | undefined
   >(undefined);
@@ -479,13 +474,6 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
     };
   }, []);
 
-  // macOS Safari needs some time to pass after the status node has been
-  // created before changing its text content to reliably announce its content.
-  const screenReaderTimeout = useTimeout();
-  useOnMount(() => {
-    screenReaderTimeout.start(50, () => setRenderScreenReaderContent(true));
-  });
-
   function getDragStyles() {
     if (
       !isSwiping &&
@@ -530,7 +518,6 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
   const toastRoot = React.useMemo(
     () => ({
       rootRef,
-      renderScreenReaderContent,
       toast,
       titleId,
       setTitleId,
@@ -539,7 +526,7 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
       swiping: isSwiping,
       swipeDirection: currentSwipeDirection,
     }),
-    [renderScreenReaderContent, toast, titleId, descriptionId, isSwiping, currentSwipeDirection],
+    [toast, titleId, descriptionId, isSwiping, currentSwipeDirection],
   );
 
   const state: ToastRoot.State = React.useMemo(
@@ -567,35 +554,7 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
     ref: [forwardedRef, toastRoot.rootRef],
     state,
     customStyleHookMapping,
-    props: [
-      props,
-      elementProps,
-      {
-        // Screen readers won't announce the text upon DOM insertion of the component.
-        // We need to wait until the next tick to render the children so that screen
-        // readers can announce the contents.
-        children: (
-          <React.Fragment>
-            {children}
-            {!focused && (
-              <div
-                style={visuallyHidden}
-                {...(toast.priority === 'high'
-                  ? { role: 'alert', 'aria-atomic': true }
-                  : { role: 'status', 'aria-live': 'polite' })}
-              >
-                {toastRoot.renderScreenReaderContent && (
-                  <React.Fragment>
-                    {toast.title && <div>{toast.title}</div>}
-                    {toast.description && <div>{toast.description}</div>}
-                  </React.Fragment>
-                )}
-              </div>
-            )}
-          </React.Fragment>
-        ),
-      },
-    ],
+    props: [props, elementProps],
   });
 
   return <ToastRootContext.Provider value={toastRoot}>{element}</ToastRootContext.Provider>;

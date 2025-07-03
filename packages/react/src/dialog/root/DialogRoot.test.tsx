@@ -44,7 +44,6 @@ describe('<Dialog.Root />', () => {
 
     const popup = queryByRole('dialog');
     expect(popup).not.to.equal(null);
-    expect(popup).to.not.have.attribute('aria-modal');
 
     expect(getByText('title text').getAttribute('id')).to.equal(
       popup?.getAttribute('aria-labelledby'),

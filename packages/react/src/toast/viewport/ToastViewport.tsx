@@ -3,7 +3,7 @@ import * as React from 'react';
 import { activeElement, contains, getTarget } from '../../floating-ui-react/utils';
 import { useLatestRef } from '../../utils/useLatestRef';
 import { FocusGuard } from '../../utils/FocusGuard';
-import type { BaseUIComponentProps } from '../../utils/types';
+import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import { ToastViewportContext } from './ToastViewportContext';
 import { useToastContext } from '../provider/ToastProviderContext';
 import { useRenderElement } from '../../utils/useRenderElement';
@@ -198,9 +198,12 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
     resumeTimers();
   }
 
-  const props = {
-    role: 'region',
+  const defaultProps: HTMLProps = {
     tabIndex: -1,
+    role: 'region',
+    'aria-live': 'polite',
+    'aria-atomic': false,
+    'aria-relevant': 'additions text',
     'aria-label': `${numToasts} notification${numToasts !== 1 ? 's' : ''} (F6)`,
     onMouseEnter: handleMouseEnter,
     onMouseMove: handleMouseEnter,
@@ -222,7 +225,7 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
     ref: [forwardedRef, viewportRef],
     state,
     props: [
-      props,
+      defaultProps,
       {
         ...elementProps,
         children: (
