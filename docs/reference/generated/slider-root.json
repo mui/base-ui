@@ -23,7 +23,7 @@
       "description": "Callback function that is fired when the `pointerup` is triggered."
     },
     "locale": {
-      "type": "LocalesArgument",
+      "type": "Intl.LocalesArgument",
       "description": "The locale used by `Intl.NumberFormat` when formatting the value.\nDefaults to the user's runtime locale."
     },
     "ref": {
@@ -59,7 +59,7 @@
       "description": "The maximum allowed value of the slider.\nShould not be equal to min."
     },
     "format": {
-      "type": "NumberFormatOptions",
+      "type": "Intl.NumberFormatOptions",
       "description": "Options to format the input value."
     },
     "disabled": {

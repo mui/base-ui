@@ -12,7 +12,7 @@
       "description": "A function that returns a string value that provides a human-readable text alternative for the current value of the meter."
     },
     "locale": {
-      "type": "LocalesArgument",
+      "type": "Intl.LocalesArgument",
       "description": "The locale used by `Intl.NumberFormat` when formatting the value.\nDefaults to the user's runtime locale."
     },
     "min": {
@@ -26,7 +26,7 @@
       "description": "The maximum value"
     },
     "format": {
-      "type": "NumberFormatOptions",
+      "type": "Intl.NumberFormatOptions",
       "description": "Options to format the value."
     },
     "className": {
