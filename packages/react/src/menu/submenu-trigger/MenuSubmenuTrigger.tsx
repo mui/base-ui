@@ -82,7 +82,7 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
   return useRenderElement('div', componentProps, {
     state,
     ref: [forwardedRef, item.ref, itemRef, setTriggerElement],
-    customStyleHookMapping: triggerOpenStateMapping,
+    stateAttributesMapping: triggerOpenStateMapping,
     props: [
       rootTriggerProps,
       itemProps,

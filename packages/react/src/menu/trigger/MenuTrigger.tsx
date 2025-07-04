@@ -154,7 +154,7 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
 
   const element = useRenderElement('button', componentProps, {
     state,
-    customStyleHookMapping: pressableTriggerOpenStateMapping,
+    stateAttributesMapping: pressableTriggerOpenStateMapping,
     ref: [triggerRef, forwardedRef, buttonRef],
     props: [rootTriggerProps, elementProps, getTriggerProps],
   });

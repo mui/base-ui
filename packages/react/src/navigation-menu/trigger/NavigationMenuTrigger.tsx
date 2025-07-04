@@ -414,7 +414,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
       },
       elementProps,
     ],
-    customStyleHookMapping: pressableTriggerOpenStateMapping,
+    stateAttributesMapping: pressableTriggerOpenStateMapping,
   });
 
   return (

@@ -4,7 +4,7 @@ import { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useSliderRootContext } from '../root/SliderRootContext';
 import type { SliderRoot } from '../root/SliderRoot';
-import { sliderStyleHookMapping } from '../root/styleHooks';
+import { sliderMapping } from '../root/stateAttributesMapping';
 
 /**
  * Contains the slider indicator and represents the entire range of the slider.
@@ -31,7 +31,7 @@ export const SliderTrack = React.forwardRef(function SliderTrack(
       },
       elementProps,
     ],
-    customStyleHookMapping: sliderStyleHookMapping,
+    stateAttributesMapping: sliderMapping,
   });
 
   return element;

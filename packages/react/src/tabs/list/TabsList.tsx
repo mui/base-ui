@@ -5,7 +5,7 @@ import { useEventCallback } from '../../utils/useEventCallback';
 import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { CompositeRoot } from '../../composite/root/CompositeRoot';
-import { tabsStyleHookMapping } from '../root/styleHooks';
+import { tabsMapping } from '../root/stateAttributesMapping';
 import { useTabsRootContext } from '../root/TabsRootContext';
 import type { TabsRoot } from '../root/TabsRoot';
 import type { TabsTab } from '../tab/TabsTab';
@@ -76,7 +76,7 @@ export const TabsList = React.forwardRef(function TabsList(
       },
       elementProps,
     ],
-    customStyleHookMapping: tabsStyleHookMapping,
+    stateAttributesMapping: tabsMapping,
   });
 
   const tabsListContextValue: TabsListContext = React.useMemo(

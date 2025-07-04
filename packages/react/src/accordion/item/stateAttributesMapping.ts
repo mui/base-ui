@@ -1,10 +1,10 @@
-import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
+import type { StateAttributesMapping } from '../../utils/mapStateAttributes';
 import { collapsibleOpenStateMapping as baseMapping } from '../../utils/collapsibleOpenStateMapping';
 import type { AccordionItem } from './AccordionItem';
-import { transitionStatusMapping } from '../../utils/styleHookMapping';
+import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
 import { AccordionItemDataAttributes } from './AccordionItemDataAttributes';
 
-export const accordionStyleHookMapping: CustomStyleHookMapping<AccordionItem.State> = {
+export const accordionMapping: StateAttributesMapping<AccordionItem.State> = {
   ...baseMapping,
   index: (value) => {
     return Number.isInteger(value) ? { [AccordionItemDataAttributes.index]: String(value) } : null;

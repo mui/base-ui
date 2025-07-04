@@ -6,7 +6,7 @@ import { useEventCallback } from '../../utils/useEventCallback';
 import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { useAvatarRootContext } from '../root/AvatarRootContext';
 import type { AvatarRoot } from '../root/AvatarRoot';
-import { avatarStyleHookMapping } from '../root/styleHooks';
+import { avatarMapping } from '../root/stateAttributesMapping';
 import { useImageLoadingStatus, ImageLoadingStatus } from './useImageLoadingStatus';
 
 /**
@@ -56,7 +56,7 @@ export const AvatarImage = React.forwardRef(function AvatarImage(
     state,
     ref: forwardedRef,
     props: elementProps,
-    customStyleHookMapping: avatarStyleHookMapping,
+    stateAttributesMapping: avatarMapping,
     enabled: imageLoadingStatus === 'loaded',
   });
 

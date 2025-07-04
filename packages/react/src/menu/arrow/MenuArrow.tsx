@@ -34,7 +34,7 @@ export const MenuArrow = React.forwardRef(function MenuArrow(
 
   return useRenderElement('div', componentProps, {
     ref: [arrowRef, forwardedRef],
-    customStyleHookMapping: popupStateMapping,
+    stateAttributesMapping: popupStateMapping,
     state,
     props: {
       style: arrowStyles,

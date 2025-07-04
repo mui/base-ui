@@ -9,7 +9,7 @@ import { useRenderElement } from '../../utils/useRenderElement';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import { useForkRef } from '../../utils/useForkRef';
-import { itemMapping } from '../utils/styleHookMapping';
+import { itemMapping } from '../utils/stateAttributesMapping';
 import { useControlled } from '../../utils/useControlled';
 
 const InnerMenuCheckboxItem = React.memo(
@@ -61,7 +61,7 @@ const InnerMenuCheckboxItem = React.memo(
 
     const element = useRenderElement('div', componentProps, {
       state,
-      customStyleHookMapping: itemMapping,
+      stateAttributesMapping: itemMapping,
       props: [
         itemProps,
         {

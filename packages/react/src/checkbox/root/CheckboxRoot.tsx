@@ -4,7 +4,7 @@ import type { BaseUIComponentProps } from '../../utils/types';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useControlled } from '../../utils/useControlled';
-import { useCustomStyleHookMapping } from '../utils/useCustomStyleHookMapping';
+import { useStateAttributesMapping } from '../utils/useStateAttributesMapping';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { useForkRef } from '../../utils/useForkRef';
 import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
@@ -270,7 +270,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     [fieldState, computedChecked, disabled, readOnly, required, computedIndeterminate],
   );
 
-  const customStyleHookMapping = useCustomStyleHookMapping(state);
+  const stateAttributesMapping = useStateAttributesMapping(state);
 
   const element = useRenderElement('button', componentProps, {
     state,
@@ -294,7 +294,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
       otherGroupProps,
       getButtonProps,
     ],
-    customStyleHookMapping,
+    stateAttributesMapping,
   });
 
   return (

@@ -219,7 +219,7 @@ export const RadioGroup = React.forwardRef(function RadioGroup(
       fieldControlValidation.getValidationProps,
       elementProps,
     ],
-    customStyleHookMapping: fieldValidityMapping,
+    stateAttributesMapping: fieldValidityMapping,
   });
 
   return (

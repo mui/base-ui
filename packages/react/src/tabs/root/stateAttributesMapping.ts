@@ -1,8 +1,8 @@
 import type { TabsRoot } from './TabsRoot';
-import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
+import type { StateAttributesMapping } from '../../utils/mapStateAttributes';
 import { TabsRootDataAttributes } from './TabsRootDataAttributes';
 
-export const tabsStyleHookMapping: CustomStyleHookMapping<TabsRoot.State> = {
+export const tabsMapping: StateAttributesMapping<TabsRoot.State> = {
   tabActivationDirection: (dir) => ({
     [TabsRootDataAttributes.activationDirection]: dir,
   }),
