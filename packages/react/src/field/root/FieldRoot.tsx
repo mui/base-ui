@@ -3,6 +3,7 @@ import * as React from 'react';
 import { FieldRootContext } from './FieldRootContext';
 import { DEFAULT_VALIDITY_STATE, fieldValidityMapping } from '../utils/constants';
 import { useFieldsetRootContext } from '../../fieldset/root/FieldsetRootContext';
+import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useEventCallback } from '../../utils/useEventCallback';
 import { useFormContext } from '../../form/FormContext';
 import { BaseUIComponentProps } from '../../utils/types';
@@ -38,7 +39,9 @@ export const FieldRoot = React.forwardRef(function FieldRoot(
 
   const disabled = disabledFieldset || disabledProp;
 
-  const [controlId, setControlId] = React.useState<string | null | undefined>(undefined);
+  const defaultControlId = useBaseUiId();
+
+  const [controlId, setControlId] = React.useState<string | null | undefined>(defaultControlId);
   const [labelId, setLabelId] = React.useState<string | undefined>(undefined);
   const [messageIds, setMessageIds] = React.useState<string[]>([]);
 
