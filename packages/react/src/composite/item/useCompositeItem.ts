@@ -10,23 +10,22 @@ export interface UseCompositeItemParameters<Metadata> {
 }
 
 export function useCompositeItem<Metadata>(params: UseCompositeItemParameters<Metadata> = {}) {
-  const { highlightedIndex, onHighlightedIndexChange, highlightItemOnHover } =
-    useCompositeRootContext();
+  const compositeRootContext = useCompositeRootContext(true);
   const { ref, index } = useCompositeListItem(params);
-  const isHighlighted = highlightedIndex === index;
+  const isHighlighted = compositeRootContext?.highlightedIndex === index;
 
   const itemRef = React.useRef<HTMLElement | null>(null);
   const mergedRef = useForkRef(ref, itemRef);
 
-  const props = React.useMemo<HTMLProps>(
+  const compositeProps = React.useMemo<HTMLProps>(
     () => ({
       tabIndex: isHighlighted ? 0 : -1,
       onFocus() {
-        onHighlightedIndexChange(index);
+        compositeRootContext?.onHighlightedIndexChange(index);
       },
       onMouseMove() {
         const item = itemRef.current;
-        if (!highlightItemOnHover || !item) {
+        if (!compositeRootContext?.highlightItemOnHover || !item) {
           return;
         }
 
@@ -36,15 +35,12 @@ export function useCompositeItem<Metadata>(params: UseCompositeItemParameters<Me
         }
       },
     }),
-    [index, isHighlighted, onHighlightedIndexChange, highlightItemOnHover],
+    [index, isHighlighted, compositeRootContext],
   );
 
-  return React.useMemo(
-    () => ({
-      props,
-      ref: mergedRef as React.RefCallback<HTMLElement | null>,
-      index,
-    }),
-    [props, index, mergedRef],
-  );
+  return {
+    compositeProps,
+    compositeRef: mergedRef as React.RefCallback<HTMLElement | null>,
+    index,
+  };
 }

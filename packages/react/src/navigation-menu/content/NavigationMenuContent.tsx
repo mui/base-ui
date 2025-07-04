@@ -3,8 +3,7 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { FloatingNode } from '../../floating-ui-react';
 import { contains } from '../../floating-ui-react/utils';
-import type { BaseUIComponentProps } from '../../utils/types';
-import { useRenderElement } from '../../utils/useRenderElement';
+import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import {
   useNavigationMenuRootContext,
   useNavigationMenuTreeContext,
@@ -90,7 +89,7 @@ export const NavigationMenuContent = React.forwardRef(function NavigationMenuCon
     [currentContentRef],
   );
 
-  const commonProps: React.ComponentProps<'div'> = {
+  const commonProps: HTMLProps = {
     onFocus() {
       setFocusInside(true);
     },
@@ -101,32 +100,32 @@ export const NavigationMenuContent = React.forwardRef(function NavigationMenuCon
     },
   };
 
+  const defaultProps: HTMLProps =
+    !open && mounted
+      ? {
+          style: { position: 'absolute', top: 0, left: 0 },
+          inert: inertValue(!focusInside),
+          ...commonProps,
+        }
+      : commonProps;
+
   const shouldRender = viewportElement !== null && mounted;
 
-  const element = useRenderElement('div', componentProps, {
-    enabled: shouldRender,
-    state,
-    ref: [forwardedRef, ref, handleCurrentContentRef],
-    props: [
-      !open && mounted
-        ? {
-            style: { position: 'absolute', top: 0, left: 0 },
-            inert: inertValue(!focusInside),
-            ...commonProps,
-          }
-        : commonProps,
-      elementProps,
-    ],
-    customStyleHookMapping,
-  });
-
-  if (!viewportElement || !element) {
+  if (!viewportElement || !shouldRender) {
     return null;
   }
 
   return ReactDOM.createPortal(
     <FloatingNode id={nodeId}>
-      <CompositeRoot render={element} stopEventPropagation />
+      <CompositeRoot
+        render={render}
+        className={className}
+        state={state}
+        refs={[forwardedRef, ref, handleCurrentContentRef]}
+        props={[defaultProps, elementProps]}
+        customStyleHookMapping={customStyleHookMapping}
+        stopEventPropagation
+      />
     </FloatingNode>,
     viewportElement,
   );

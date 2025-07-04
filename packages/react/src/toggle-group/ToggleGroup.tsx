@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useRenderElement } from '../utils/useRenderElement';
-import type { BaseUIComponentProps, Orientation } from '../utils/types';
+import type { BaseUIComponentProps, HTMLProps, Orientation } from '../utils/types';
 import { CompositeRoot } from '../composite/root/CompositeRoot';
 import { useControlled } from '../utils/useControlled';
 import { useEventCallback } from '../utils/useEventCallback';
@@ -92,15 +92,15 @@ export const ToggleGroup = React.forwardRef(function ToggleGroup(
     [disabled, orientation, setGroupValue, groupValue],
   );
 
+  const defaultProps: HTMLProps = {
+    role: 'group',
+  };
+
   const element = useRenderElement('div', componentProps, {
+    enabled: Boolean(toolbarContext),
     state,
     ref: forwardedRef,
-    props: [
-      {
-        role: 'group',
-      },
-      elementProps,
-    ],
+    props: [defaultProps, elementProps],
     customStyleHookMapping,
   });
 
@@ -109,7 +109,16 @@ export const ToggleGroup = React.forwardRef(function ToggleGroup(
       {toolbarContext ? (
         element
       ) : (
-        <CompositeRoot loop={loop} render={element} stopEventPropagation />
+        <CompositeRoot
+          render={render}
+          className={className}
+          state={state}
+          refs={[forwardedRef]}
+          props={[defaultProps, elementProps]}
+          customStyleHookMapping={customStyleHookMapping}
+          loop={loop}
+          stopEventPropagation
+        />
       )}
     </ToggleGroupContext.Provider>
   );

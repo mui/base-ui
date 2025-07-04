@@ -15,6 +15,7 @@ import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { customStyleHookMapping } from '../utils/customStyleHookMapping';
 import { useRadioGroupContext } from '../../radio-group/RadioGroupContext';
 import { RadioRootContext } from './RadioRootContext';
+import { EMPTY_OBJECT } from '../../utils/constants';
 
 /**
  * Represents the radio button itself.
@@ -173,21 +174,39 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
 
   const contextValue: RadioRootContext = React.useMemo(() => state, [state]);
 
+  const isRadioGroup = setCheckedValue !== NOOP;
+
+  const refs = [forwardedRef, registerControlRef, buttonRef];
+  const props = [
+    rootProps,
+    fieldControlValidation?.getValidationProps ?? EMPTY_OBJECT,
+    elementProps,
+    getButtonProps,
+  ];
+
   const element = useRenderElement('button', componentProps, {
+    enabled: !isRadioGroup,
     state,
-    ref: [forwardedRef, registerControlRef, buttonRef],
-    props: [
-      rootProps,
-      fieldControlValidation?.getValidationProps ?? undefined,
-      elementProps,
-      getButtonProps,
-    ],
+    ref: refs,
+    props,
     customStyleHookMapping,
   });
 
   return (
     <RadioRootContext.Provider value={contextValue}>
-      {setCheckedValue === NOOP ? element : <CompositeItem render={element} />}
+      {isRadioGroup ? (
+        <CompositeItem
+          tag="button"
+          render={render}
+          className={className}
+          state={state}
+          refs={refs}
+          props={props}
+          customStyleHookMapping={customStyleHookMapping}
+        />
+      ) : (
+        element
+      )}
       <input {...inputProps} />
     </RadioRootContext.Provider>
   );

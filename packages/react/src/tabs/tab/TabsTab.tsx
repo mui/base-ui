@@ -50,8 +50,8 @@ export const TabsTab = React.forwardRef(function Tab(
   );
 
   const {
-    props: compositeItemProps,
-    ref: compositeItemRef,
+    compositeProps,
+    compositeRef,
     index,
     // hook is used instead of the CompositeItem component
     // because the index is needed for Tab internals
@@ -155,8 +155,9 @@ export const TabsTab = React.forwardRef(function Tab(
 
   const element = useRenderElement('button', componentProps, {
     state,
-    ref: [forwardedRef, buttonRef, compositeItemRef],
+    ref: [forwardedRef, buttonRef, compositeRef],
     props: [
+      compositeProps,
       {
         role: 'tab',
         'aria-controls': tabPanelId,
@@ -172,7 +173,6 @@ export const TabsTab = React.forwardRef(function Tab(
       },
       elementProps,
       getButtonProps,
-      compositeItemProps,
     ],
   });
 
