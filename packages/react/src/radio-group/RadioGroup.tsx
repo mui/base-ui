@@ -212,14 +212,14 @@ export const RadioGroup = React.forwardRef(function RadioGroup(
   return (
     <RadioGroupContext.Provider value={contextValue}>
       <CompositeRoot
-        enableHomeAndEndKeys={false}
-        modifierKeys={MODIFIER_KEYS}
         render={render}
         className={className}
         state={state}
         props={[defaultProps, fieldControlValidation.getValidationProps, elementProps]}
         refs={[forwardedRef]}
         customStyleHookMapping={fieldValidityMapping}
+        enableHomeAndEndKeys={false}
+        modifierKeys={MODIFIER_KEYS}
         stopEventPropagation
       />
       <input {...inputProps} />
