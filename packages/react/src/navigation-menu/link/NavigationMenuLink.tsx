@@ -1,14 +1,13 @@
 'use client';
 import * as React from 'react';
 import { useFloatingTree } from '../../floating-ui-react';
-import type { BaseUIComponentProps } from '../../utils/types';
-import { useRenderElement } from '../../utils/useRenderElement';
+import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import {
   useNavigationMenuRootContext,
   useNavigationMenuTreeContext,
 } from '../root/NavigationMenuRootContext';
 import { isOutsideMenuEvent } from '../utils/isOutsideMenuEvent';
-import { useCompositeItem } from '../../composite/item/useCompositeItem';
+import { CompositeItem } from '../../composite/item/CompositeItem';
 
 /**
  * A link in the navigation menu that can be used to navigate to a different page or section.
@@ -25,31 +24,33 @@ export const NavigationMenuLink = React.forwardRef(function NavigationMenuLink(
   const { setValue, popupElement, rootRef } = useNavigationMenuRootContext();
   const nodeId = useNavigationMenuTreeContext();
   const tree = useFloatingTree();
-  const { compositeProps, compositeRef } = useCompositeItem();
 
-  return useRenderElement('a', componentProps, {
-    ref: [forwardedRef, compositeRef],
-    props: [
-      compositeProps,
-      {
-        tabIndex: undefined,
-        onBlur(event) {
-          if (
-            isOutsideMenuEvent(
-              {
-                currentTarget: event.currentTarget,
-                relatedTarget: event.relatedTarget as HTMLElement | null,
-              },
-              { popupElement, rootRef, tree, nodeId },
-            )
-          ) {
-            setValue(null, event.nativeEvent, undefined);
-          }
-        },
-      },
-      elementProps,
-    ],
-  });
+  const defaultProps: HTMLProps = {
+    tabIndex: undefined,
+    onBlur(event) {
+      if (
+        isOutsideMenuEvent(
+          {
+            currentTarget: event.currentTarget,
+            relatedTarget: event.relatedTarget as HTMLElement | null,
+          },
+          { popupElement, rootRef, tree, nodeId },
+        )
+      ) {
+        setValue(null, event.nativeEvent, undefined);
+      }
+    },
+  };
+
+  return (
+    <CompositeItem
+      tag="a"
+      render={render}
+      className={className}
+      refs={[forwardedRef]}
+      props={[defaultProps, elementProps]}
+    />
+  );
 });
 
 export namespace NavigationMenuLink {

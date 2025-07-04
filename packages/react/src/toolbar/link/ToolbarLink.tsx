@@ -1,10 +1,9 @@
 'use client';
 import * as React from 'react';
-import { useRenderElement } from '../../utils/useRenderElement';
 import { BaseUIComponentProps } from '../../utils/types';
 import type { ToolbarRoot } from '../root/ToolbarRoot';
 import { useToolbarRootContext } from '../root/ToolbarRootContext';
-import { useCompositeItem } from '../../composite/item/useCompositeItem';
+import { CompositeItem } from '../../composite/item/CompositeItem';
 
 const TOOLBAR_LINK_METADATA = {
   // links cannot be disabled, this metadata is only used for deriving `disabledIndices``
@@ -25,9 +24,6 @@ export const ToolbarLink = React.forwardRef(function ToolbarLink(
   const { className, render, ...elementProps } = componentProps;
 
   const { orientation } = useToolbarRootContext();
-  const { compositeProps, compositeRef } = useCompositeItem({
-    metadata: TOOLBAR_LINK_METADATA,
-  });
 
   const state: ToolbarLink.State = React.useMemo(
     () => ({
@@ -36,11 +32,17 @@ export const ToolbarLink = React.forwardRef(function ToolbarLink(
     [orientation],
   );
 
-  return useRenderElement('a', componentProps, {
-    state,
-    ref: [forwardedRef, compositeRef],
-    props: [compositeProps, elementProps],
-  });
+  return (
+    <CompositeItem
+      tag="a"
+      render={render}
+      className={className}
+      metadata={TOOLBAR_LINK_METADATA}
+      state={state}
+      refs={[forwardedRef]}
+      props={[elementProps]}
+    />
+  );
 });
 
 export namespace ToolbarLink {

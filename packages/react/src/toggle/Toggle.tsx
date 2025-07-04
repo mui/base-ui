@@ -6,7 +6,7 @@ import { useRenderElement } from '../utils/useRenderElement';
 import type { BaseUIComponentProps } from '../utils/types';
 import { useToggleGroupContext } from '../toggle-group/ToggleGroupContext';
 import { useButton } from '../use-button/useButton';
-import { useCompositeItem } from '../composite/item/useCompositeItem';
+import { CompositeItem } from '../composite/item/CompositeItem';
 
 /**
  * A two-state button that can be on or off.
@@ -35,7 +35,6 @@ export const Toggle = React.forwardRef(function Toggle(
   const value = valueProp ?? '';
 
   const groupContext = useToggleGroupContext();
-  const { compositeProps, compositeRef } = useCompositeItem();
 
   const groupValue = groupContext?.value ?? [];
 
@@ -68,23 +67,41 @@ export const Toggle = React.forwardRef(function Toggle(
     [disabled, pressed],
   );
 
-  return useRenderElement('button', componentProps, {
-    state,
-    ref: [buttonRef, forwardedRef, groupContext ? compositeRef : undefined],
-    props: [
-      groupContext ? compositeProps : undefined,
-      {
-        'aria-pressed': pressed,
-        onClick(event: React.MouseEvent) {
-          const nextPressed = !pressed;
-          setPressedState(nextPressed);
-          onPressedChange(nextPressed, event.nativeEvent);
-        },
+  const refs = [buttonRef, forwardedRef];
+  const props = [
+    {
+      'aria-pressed': pressed,
+      onClick(event: React.MouseEvent) {
+        const nextPressed = !pressed;
+        setPressedState(nextPressed);
+        onPressedChange(nextPressed, event.nativeEvent);
       },
-      elementProps,
-      getButtonProps,
-    ],
+    },
+    elementProps,
+    getButtonProps,
+  ];
+
+  const element = useRenderElement('button', componentProps, {
+    enabled: !groupContext,
+    state,
+    ref: refs,
+    props,
   });
+
+  if (groupContext) {
+    return (
+      <CompositeItem
+        tag="button"
+        render={render}
+        className={className}
+        state={state}
+        refs={refs}
+        props={props}
+      />
+    );
+  }
+
+  return element;
 });
 
 export namespace Toggle {

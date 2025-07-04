@@ -1,12 +1,11 @@
 'use client';
 import * as React from 'react';
 import { BaseUIComponentProps } from '../../utils/types';
-import { useRenderElement } from '../../utils/useRenderElement';
 import { useButton } from '../../use-button';
 import type { ToolbarRoot } from '../root/ToolbarRoot';
 import { useToolbarRootContext } from '../root/ToolbarRootContext';
 import { useToolbarGroupContext } from '../group/ToolbarGroupContext';
-import { useCompositeItem } from '../../composite/item/useCompositeItem';
+import { CompositeItem } from '../../composite/item/CompositeItem';
 
 /**
  * A button that can be used as-is or as a trigger for other components.
@@ -30,9 +29,6 @@ export const ToolbarButton = React.forwardRef(function ToolbarButton(
   const itemMetadata = React.useMemo(() => ({ focusableWhenDisabled }), [focusableWhenDisabled]);
 
   const { disabled: toolbarDisabled, orientation } = useToolbarRootContext();
-  const { compositeProps, compositeRef } = useCompositeItem({
-    metadata: itemMetadata,
-  });
 
   const groupContext = useToolbarGroupContext(true);
 
@@ -53,19 +49,24 @@ export const ToolbarButton = React.forwardRef(function ToolbarButton(
     [disabled, focusableWhenDisabled, orientation],
   );
 
-  return useRenderElement('button', componentProps, {
-    state,
-    ref: [forwardedRef, buttonRef, compositeRef],
-    props: [
-      compositeProps,
-      elementProps,
-      // for integrating with Menu and Select disabled states, `disabled` is
-      // intentionally duplicated even though getButtonProps includes it already
-      // TODO: follow up after https://github.com/mui/base-ui/issues/1976#issuecomment-2916905663
-      { disabled },
-      getButtonProps,
-    ],
-  });
+  return (
+    <CompositeItem
+      tag="button"
+      render={render}
+      className={className}
+      metadata={itemMetadata}
+      state={state}
+      refs={[forwardedRef, buttonRef]}
+      props={[
+        elementProps,
+        // for integrating with Menu and Select disabled states, `disabled` is
+        // intentionally duplicated even though getButtonProps includes it already
+        // TODO: follow up after https://github.com/mui/base-ui/issues/1976#issuecomment-2916905663
+        { disabled },
+        getButtonProps,
+      ]}
+    />
+  );
 });
 
 export namespace ToolbarButton {

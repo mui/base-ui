@@ -14,7 +14,7 @@ import { useTimeout } from '../../utils/useTimeout';
 import { ownerDocument } from '../../utils/owner';
 import { getPseudoElementBounds } from '../../utils/getPseudoElementBounds';
 import { useEventCallback } from '../../utils/useEventCallback';
-import { useCompositeItem } from '../../composite/item/useCompositeItem';
+import { CompositeItem } from '../../composite/item/CompositeItem';
 
 const BOUNDARY_OFFSET = 2;
 
@@ -47,7 +47,6 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
     lastOpenChangeReason,
     rootId,
   } = useMenuRootContext();
-  const { compositeProps, compositeRef } = useCompositeItem();
 
   const disabled = disabledProp || menuDisabled;
 
@@ -155,17 +154,32 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
 
   const isMenubar = parent.type === 'menubar';
 
-  return useRenderElement('button', componentProps, {
-    state,
+  const ref = [triggerRef, forwardedRef, buttonRef];
+  const props = [rootTriggerProps, elementProps, getTriggerProps];
+
+  const element = useRenderElement('button', componentProps, {
+    enabled: !isMenubar,
     customStyleHookMapping: pressableTriggerOpenStateMapping,
-    ref: [triggerRef, forwardedRef, buttonRef, isMenubar ? compositeRef : undefined],
-    props: [
-      isMenubar ? compositeProps : undefined,
-      rootTriggerProps,
-      elementProps,
-      getTriggerProps,
-    ],
+    state,
+    ref,
+    props,
   });
+
+  if (isMenubar) {
+    return (
+      <CompositeItem
+        tag="button"
+        render={render}
+        className={className}
+        state={state}
+        refs={ref}
+        props={props}
+        customStyleHookMapping={pressableTriggerOpenStateMapping}
+      />
+    );
+  }
+
+  return element;
 });
 
 export namespace MenuTrigger {
