@@ -198,37 +198,29 @@ const componentNames: string[] = fs
   .filter((dirent) => dirent.isDirectory())
   .map((dirent) => kebabToPascal(dirent.name));
 
-let d = 0;
-const maxD = 3;
-
 function getFullyQualifiedName(typeName: tae.TypeName): string {
-  //d += 1;
-  try {
-    const nameWithTypeArgs = d >= maxD ? typeName.name : createNameWithTypeArguments(typeName);
+  const nameWithTypeArgs = createNameWithTypeArguments(typeName);
 
-    if (!typeName.namespaces || typeName.namespaces.length === 0) {
-      return nameWithTypeArgs;
+  if (!typeName.namespaces || typeName.namespaces.length === 0) {
+    return nameWithTypeArgs;
+  }
+
+  // Our components are defined in the source as [ComponentName][Part], but exported as [ComponentName].[Part].
+  // The following code adjusts the namespaces to match the exported names.
+  const joinedNamespaces = typeName.namespaces.map((namespace) => {
+    const componentNameInNamespace = componentNames.find((componentName) =>
+      new RegExp(`^${componentName}[A-Z]`).test(namespace),
+    );
+
+    if (componentNameInNamespace) {
+      const dotPosition = componentNameInNamespace.length;
+      return `${namespace.substring(0, dotPosition)}.${namespace.substring(dotPosition)}`;
     }
 
-    // Our components are defined in the source as [ComponentName][Part], but exported as [ComponentName].[Part].
-    // The following code adjusts the namespaces to match the exported names.
-    const joinedNamespaces = typeName.namespaces.map((namespace) => {
-      const componentNameInNamespace = componentNames.find((componentName) =>
-        new RegExp(`^${componentName}[A-Z]`).test(namespace),
-      );
+    return namespace;
+  });
 
-      if (componentNameInNamespace) {
-        const dotPosition = componentNameInNamespace.length;
-        return `${namespace.substring(0, dotPosition)}.${namespace.substring(dotPosition)}`;
-      }
-
-      return namespace;
-    });
-
-    return `${joinedNamespaces}.${nameWithTypeArgs}`;
-  } finally {
-    //d -= 1;
-  }
+  return `${joinedNamespaces}.${nameWithTypeArgs}`;
 }
 
 function createNameWithTypeArguments(typeName: tae.TypeName) {
