@@ -8,4 +8,6 @@ permissions: {}
 
 jobs:
   test-label-applied:
+    permissions:
+      contents: read
     uses: mui/mui-public/.github/workflows/check-if-pr-has-label-base.yml@gh-actions
