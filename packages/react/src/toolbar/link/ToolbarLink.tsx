@@ -25,7 +25,7 @@ export const ToolbarLink = React.forwardRef(function ToolbarLink(
   const { className, render, ...elementProps } = componentProps;
 
   const { orientation } = useToolbarRootContext();
-  const { props: compositeProps, ref: compositeRef } = useCompositeItem({
+  const { compositeProps, compositeRef } = useCompositeItem({
     metadata: TOOLBAR_LINK_METADATA,
   });
 

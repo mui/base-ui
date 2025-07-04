@@ -25,7 +25,7 @@ export const NavigationMenuLink = React.forwardRef(function NavigationMenuLink(
   const { setValue, popupElement, rootRef } = useNavigationMenuRootContext();
   const nodeId = useNavigationMenuTreeContext();
   const tree = useFloatingTree();
-  const { props: compositeProps, ref: compositeRef } = useCompositeItem();
+  const { compositeProps, compositeRef } = useCompositeItem();
 
   return useRenderElement('a', componentProps, {
     ref: [forwardedRef, compositeRef],

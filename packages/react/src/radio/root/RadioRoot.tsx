@@ -49,7 +49,7 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
     fieldControlValidation,
     registerControlRef,
   } = useRadioGroupContext();
-  const { props: compositeProps, ref: compositeRef } = useCompositeItem();
+  const { compositeProps, compositeRef } = useCompositeItem();
 
   const { state: fieldState, disabled: fieldDisabled } = useFieldRootContext();
 

@@ -10,11 +10,11 @@ import type { BaseUIComponentProps } from '../../utils/types';
 export function CompositeItem<Metadata>(componentProps: CompositeItem.Props<Metadata>) {
   const { render, className, itemRef = null, metadata, ...elementProps } = componentProps;
 
-  const { props, ref } = useCompositeItem({ metadata });
+  const { compositeProps, compositeRef } = useCompositeItem({ metadata });
 
   return useRenderElement('div', componentProps, {
-    ref: [itemRef, ref],
-    props: [props, elementProps],
+    ref: [itemRef, compositeRef],
+    props: [compositeProps, elementProps],
   });
 }
 

@@ -30,7 +30,7 @@ export const ToolbarButton = React.forwardRef(function ToolbarButton(
   const itemMetadata = React.useMemo(() => ({ focusableWhenDisabled }), [focusableWhenDisabled]);
 
   const { disabled: toolbarDisabled, orientation } = useToolbarRootContext();
-  const { props: compositeProps, ref: compositeRef } = useCompositeItem({
+  const { compositeProps, compositeRef } = useCompositeItem({
     metadata: itemMetadata,
   });
 

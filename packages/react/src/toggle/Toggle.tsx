@@ -35,7 +35,7 @@ export const Toggle = React.forwardRef(function Toggle(
   const value = valueProp ?? '';
 
   const groupContext = useToggleGroupContext();
-  const { props: compositeProps, ref: compositeRef } = useCompositeItem();
+  const { compositeProps, compositeRef } = useCompositeItem();
 
   const groupValue = groupContext?.value ?? [];
 

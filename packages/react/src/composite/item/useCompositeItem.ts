@@ -17,7 +17,7 @@ export function useCompositeItem<Metadata>(params: UseCompositeItemParameters<Me
   const itemRef = React.useRef<HTMLElement | null>(null);
   const mergedRef = useForkRef(ref, itemRef);
 
-  const props = React.useMemo<HTMLProps>(
+  const compositeProps = React.useMemo<HTMLProps>(
     () => ({
       tabIndex: isHighlighted ? 0 : -1,
       onFocus() {
@@ -38,12 +38,9 @@ export function useCompositeItem<Metadata>(params: UseCompositeItemParameters<Me
     [index, isHighlighted, compositeRootContext],
   );
 
-  return React.useMemo(
-    () => ({
-      props,
-      ref: mergedRef as React.RefCallback<HTMLElement | null>,
-      index,
-    }),
-    [props, index, mergedRef],
-  );
+  return {
+    compositeProps,
+    compositeRef: mergedRef as React.RefCallback<HTMLElement | null>,
+    index,
+  };
 }

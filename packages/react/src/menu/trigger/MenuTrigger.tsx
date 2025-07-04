@@ -47,7 +47,7 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
     lastOpenChangeReason,
     rootId,
   } = useMenuRootContext();
-  const { props: compositeProps, ref: compositeRef } = useCompositeItem();
+  const { compositeProps, compositeRef } = useCompositeItem();
 
   const disabled = disabledProp || menuDisabled;
 

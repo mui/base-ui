@@ -81,7 +81,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
   const itemValue = useNavigationMenuItemContext();
   const nodeId = useNavigationMenuTreeContext();
   const tree = useFloatingTree();
-  const { props: compositeProps, ref: compositeRef } = useCompositeItem();
+  const { compositeProps, compositeRef } = useCompositeItem();
 
   const stickIfOpenTimeout = useTimeout();
   const focusFrame = useAnimationFrame();
