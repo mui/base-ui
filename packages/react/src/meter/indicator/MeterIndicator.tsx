@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import { BaseUIComponentProps } from '../../utils/types';
+import { valueToPercent } from '../../utils/valueToPercent';
 import type { MeterRoot } from '../root/MeterRoot';
 import { useMeterRootContext } from '../root/MeterRootContext';
 import { useRenderElement } from '../../utils/useRenderElement';
@@ -17,7 +18,9 @@ export const MeterIndicator = React.forwardRef(function MeterIndicator(
 ) {
   const { render, className, ...elementProps } = componentProps;
 
-  const { percentageValue } = useMeterRootContext();
+  const context = useMeterRootContext();
+
+  const percentageWidth = valueToPercent(context.value, context.min, context.max);
 
   return useRenderElement('div', componentProps, {
     ref: forwardedRef,
@@ -26,7 +29,7 @@ export const MeterIndicator = React.forwardRef(function MeterIndicator(
         style: {
           insetInlineStart: 0,
           height: 'inherit',
-          width: `${percentageValue}%`,
+          width: `${percentageWidth}%`,
         },
       },
       elementProps,

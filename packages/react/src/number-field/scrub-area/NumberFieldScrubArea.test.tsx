@@ -3,7 +3,7 @@ import { expect } from 'chai';
 import { screen, waitFor, act } from '@mui/internal-test-utils';
 import { NumberField } from '@base-ui-components/react/number-field';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
-import { isWebKit } from '../../utils/detectBrowser';
+import { isWebKit } from '@base-ui-components/utils/detectBrowser';
 
 function createPointerMoveEvent({ movementX = 0, movementY = 0 }) {
   return new PointerEvent('pointermove', {

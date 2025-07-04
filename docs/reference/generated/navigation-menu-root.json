@@ -17,8 +17,8 @@
       "description": "Callback fired when the value changes."
     },
     "actionsRef": {
-      "type": "RefObject<{ unmount: () => void; }>",
-      "description": "A ref to imperative actions.\n- `unmount`: When specified, the navigation menu will not be unmounted when closed.\nInstead, the `unmount` function must be called to unmount the navigation menu manually.\nUseful when the navigation menu's animation is controlled by an external library."
+      "type": "RefObject<NavigationMenu.Root.Actions>",
+      "description": "A ref to imperative actions."
     },
     "onOpenChangeComplete": {
       "type": "((open: boolean) => void)",

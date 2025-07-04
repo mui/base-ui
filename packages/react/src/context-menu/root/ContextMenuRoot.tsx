@@ -1,9 +1,9 @@
 'use client';
 import * as React from 'react';
+import { useId } from '@base-ui-components/utils/useId';
 import { ContextMenuRootContext } from './ContextMenuRootContext';
 import { Menu } from '../../menu';
 import { MenuRootContext } from '../../menu/root/MenuRootContext';
-import { useId } from '../../utils/useId';
 
 /**
  * A component that creates a context menu activated by right clicking or long pressing.

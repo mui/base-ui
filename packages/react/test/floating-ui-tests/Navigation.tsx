@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { useForkRef } from '@base-ui-components/utils/useForkRef';
 import {
   flip,
   FloatingFocusManager,
@@ -14,7 +15,6 @@ import {
   useHover,
   useInteractions,
 } from '../../src/floating-ui-react';
-import { useForkRef } from '../../src/utils/useForkRef';
 
 interface SubItemProps {
   label: string;

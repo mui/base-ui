@@ -2,6 +2,7 @@ import sortBy from 'lodash/sortBy';
 import * as tae from 'typescript-api-extractor';
 import fs from 'fs';
 import path from 'path';
+import _ from 'lodash';
 
 export function formatProperties(props: tae.PropertyNode[]) {
   const result: Record<string, any> = {};
@@ -46,7 +47,7 @@ export function formatEnum(enumNode: tae.EnumNode) {
 }
 
 export function formatType(
-  type: tae.TypeNode,
+  type: tae.AnyType,
   removeUndefined: boolean,
   jsdocTags: tae.DocumentationTag[] | undefined = undefined,
   expandObjects: boolean = false,
@@ -58,43 +59,60 @@ export function formatType(
     return typeValue;
   }
 
-  if (type instanceof tae.ReferenceNode) {
-    if (/^ReactElement(<.*>)?/.test(type.name)) {
+  if (type instanceof tae.ExternalTypeNode) {
+    if (/^ReactElement(<.*>)?/.test(type.typeName.name || '')) {
       return 'ReactElement';
     }
 
-    return type.name;
+    if (type.typeName.namespaces?.length === 1 && type.typeName.namespaces[0] === 'React') {
+      return createNameWithTypeArguments(type.typeName);
+    }
+
+    return getFullyQualifiedName(type.typeName);
   }
 
   if (type instanceof tae.IntrinsicNode) {
-    return type.name;
+    return type.typeName ? getFullyQualifiedName(type.typeName) : type.intrinsic;
   }
 
   if (type instanceof tae.UnionNode) {
-    if (type.name) {
-      return getFullyQualifiedName(type.name, type.parentNamespaces);
+    if (type.typeName) {
+      return getFullyQualifiedName(type.typeName);
     }
 
-    const memberTypes = type.types;
+    let memberTypes = type.types;
 
     if (removeUndefined) {
-      const types = memberTypes.filter(
-        (t) => !(t instanceof tae.IntrinsicNode && t.name === 'undefined'),
+      memberTypes = memberTypes.filter(
+        (t) => !(t instanceof tae.IntrinsicNode && t.intrinsic === 'undefined'),
       );
-
-      return orderMembers(types)
-        .map((t) => formatType(t, removeUndefined))
-        .join(' | ');
     }
 
-    return orderMembers(memberTypes)
-      .map((t) => formatType(t, removeUndefined))
-      .join(' | ');
+    // Deduplicates types in unions.
+    // Plain unions are handled by TypeScript API Extractor, but we also display unions in type parameters constraints,
+    // so we need to merge those here.
+    const flattenedMemberTypes = memberTypes.flatMap((t) => {
+      if (t instanceof tae.UnionNode) {
+        return t.typeName ? t : t.types;
+      }
+
+      if (t instanceof tae.TypeParameterNode && t.constraint instanceof tae.UnionNode) {
+        return t.constraint.types;
+      }
+
+      return t;
+    });
+
+    const formattedMemeberTypes = _.uniq(
+      orderMembers(flattenedMemberTypes).map((t) => formatType(t, removeUndefined)),
+    );
+
+    return formattedMemeberTypes.join(' | ');
   }
 
   if (type instanceof tae.IntersectionNode) {
-    if (type.name) {
-      return getFullyQualifiedName(type.name, type.parentNamespaces);
+    if (type.typeName) {
+      return getFullyQualifiedName(type.typeName);
     }
 
     return orderMembers(type.types)
@@ -103,8 +121,8 @@ export function formatType(
   }
 
   if (type instanceof tae.ObjectNode) {
-    if (type.name && !expandObjects) {
-      return getFullyQualifiedName(type.name, type.parentNamespaces);
+    if (type.typeName && !expandObjects) {
+      return getFullyQualifiedName(type.typeName);
     }
 
     if (isObjectEmpty(type.properties)) {
@@ -131,8 +149,8 @@ export function formatType(
   }
 
   if (type instanceof tae.FunctionNode) {
-    if (type.name && type.name !== 'ComponentRenderFn') {
-      return getFullyQualifiedName(type.name, type.parentNamespaces);
+    if (type.typeName && !type.typeName.name?.startsWith('ComponentRenderFn')) {
+      return getFullyQualifiedName(type.typeName);
     }
 
     const functionSignature = type.callSignatures
@@ -148,15 +166,15 @@ export function formatType(
   }
 
   if (type instanceof tae.TupleNode) {
-    if (type.name) {
-      return getFullyQualifiedName(type.name, type.parentNamespaces);
+    if (type.typeName) {
+      return getFullyQualifiedName(type.typeName);
     }
 
-    return `[${type.types.map((member: tae.TypeNode) => formatType(member, false)).join(', ')}]`;
+    return `[${type.types.map((member: tae.AnyType) => formatType(member, false)).join(', ')}]`;
   }
 
   if (type instanceof tae.TypeParameterNode) {
-    return type.constraint ?? type.name;
+    return type.constraint !== undefined ? formatType(type.constraint, removeUndefined) : type.name;
   }
 
   return 'unknown';
@@ -176,14 +194,16 @@ const componentNames: string[] = fs
   .filter((dirent) => dirent.isDirectory())
   .map((dirent) => kebabToPascal(dirent.name));
 
-function getFullyQualifiedName(localName: string, namespaces: string[]): string {
-  if (namespaces.length === 0) {
-    return localName;
+function getFullyQualifiedName(typeName: tae.TypeName): string {
+  const nameWithTypeArgs = createNameWithTypeArguments(typeName);
+
+  if (!typeName.namespaces || typeName.namespaces.length === 0) {
+    return nameWithTypeArgs;
   }
 
   // Our components are defined in the source as [ComponentName][Part], but exported as [ComponentName].[Part].
   // The following code adjusts the namespaces to match the exported names.
-  const joinedNamespaces = namespaces.map((namespace) => {
+  const joinedNamespaces = typeName.namespaces.map((namespace) => {
     const componentNameInNamespace = componentNames.find((componentName) =>
       new RegExp(`^${componentName}[A-Z]`).test(namespace),
     );
@@ -196,22 +216,34 @@ function getFullyQualifiedName(localName: string, namespaces: string[]): string 
     return namespace;
   });
 
-  return `${joinedNamespaces}.${localName}`;
+  return `${joinedNamespaces}.${nameWithTypeArgs}`;
+}
+
+function createNameWithTypeArguments(typeName: tae.TypeName) {
+  if (
+    typeName.typeArguments &&
+    typeName.typeArguments.length > 0 &&
+    typeName.typeArguments.some((ta) => ta.equalToDefault === false)
+  ) {
+    return `${typeName.name}<${typeName.typeArguments.map((ta) => formatType(ta.type, false)).join(', ')}>`;
+  }
+
+  return typeName.name;
 }
 
 /**
  * Looks for 'any', 'null' and 'undefined' types and moves them to the end of the array of types.
  */
-function orderMembers(members: readonly tae.TypeNode[]): readonly tae.TypeNode[] {
+function orderMembers(members: readonly tae.AnyType[]): readonly tae.AnyType[] {
   let orderedMembers = pushToEnd(members, 'any');
   orderedMembers = pushToEnd(orderedMembers, 'null');
   orderedMembers = pushToEnd(orderedMembers, 'undefined');
   return orderedMembers;
 }
 
-function pushToEnd(members: readonly tae.TypeNode[], name: string): readonly tae.TypeNode[] {
-  const index = members.findIndex((member: tae.TypeNode) => {
-    return member instanceof tae.IntrinsicNode && member.name === name;
+function pushToEnd(members: readonly tae.AnyType[], name: string): readonly tae.AnyType[] {
+  const index = members.findIndex((member: tae.AnyType) => {
+    return member instanceof tae.IntrinsicNode && member.intrinsic === name;
   });
 
   if (index !== -1) {

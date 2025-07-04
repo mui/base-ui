@@ -1,9 +1,9 @@
 import * as ReactDOM from 'react-dom';
-import { useModernLayoutEffect } from '../utils/useModernLayoutEffect';
+import { useModernLayoutEffect } from '@base-ui-components/utils/useModernLayoutEffect';
+import { useLatestRef } from '@base-ui-components/utils/useLatestRef';
 import { getCombinedFieldValidityData } from './utils/getCombinedFieldValidityData';
 import { useFormContext } from '../form/FormContext';
 import { useFieldRootContext } from './root/FieldRootContext';
-import { useLatestRef } from '../utils/useLatestRef';
 
 export function useField(params: useField.Parameters) {
   const { formRef } = useFormContext();

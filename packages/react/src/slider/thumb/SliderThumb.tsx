@@ -1,15 +1,15 @@
 'use client';
 import * as React from 'react';
+import { useForkRef } from '@base-ui-components/utils/useForkRef';
+import { useModernLayoutEffect } from '@base-ui-components/utils/useModernLayoutEffect';
+import { isReactVersionAtLeast } from '@base-ui-components/utils/reactVersion';
+import { visuallyHidden } from '@base-ui-components/utils/visuallyHidden';
 import { formatNumber } from '../../utils/formatNumber';
 import { getStyleHookProps } from '../../utils/getStyleHookProps';
 import { mergeProps } from '../../merge-props';
-import { isReactVersionAtLeast } from '../../utils/reactVersion';
 import { resolveClassName } from '../../utils/resolveClassName';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useBaseUiId } from '../../utils/useBaseUiId';
-import { useForkRef } from '../../utils/useForkRef';
-import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
-import { visuallyHidden } from '../../utils/visuallyHidden';
 import {
   ARROW_DOWN,
   ARROW_UP,
@@ -118,10 +118,10 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
 
   const {
     active: activeIndex,
-    handleInputChange,
     disabled: contextDisabled,
     fieldControlValidation,
     formatOptionsRef,
+    handleInputChange,
     labelId,
     largeStep,
     locale,
@@ -404,7 +404,6 @@ export namespace SliderThumb {
      * Accepts a function which returns a string value that provides a user-friendly name for the input associated with the thumb
      * @param {number} index The index of the input
      * @returns {string}
-     * @type {((index: number) => string) | null}
      */
     getAriaLabel?: ((index: number) => string) | null;
     /**
@@ -414,7 +413,6 @@ export namespace SliderThumb {
      * @param {number} value The thumb's numerical value.
      * @param {number} index The thumb's index.
      * @returns {string}
-     * @type {((formattedValue: string, value: number, index: number) => string) | null}
      */
     getAriaValueText?: ((formattedValue: string, value: number, index: number) => string) | null;
     /**

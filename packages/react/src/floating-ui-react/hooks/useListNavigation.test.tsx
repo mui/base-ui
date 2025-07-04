@@ -3,6 +3,7 @@ import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event';
 import { vi, it, describe } from 'vitest';
 
+import { isJSDOM } from '@base-ui-components/utils/detectBrowser';
 import { useClick, useDismiss, useFloating, useInteractions, useListNavigation } from '../index';
 import type { UseListNavigationProps } from '../types';
 import { Main as ComplexGrid } from '../../../test/floating-ui-tests/ComplexGrid';
@@ -12,7 +13,6 @@ import { Main as ListboxFocus } from '../../../test/floating-ui-tests/ListboxFoc
 import { Main as NestedMenu } from '../../../test/floating-ui-tests/Menu';
 import { HorizontalMenu } from '../../../test/floating-ui-tests/MenuOrientation';
 import { Menu, MenuItem } from '../../../test/floating-ui-tests/MenuVirtual';
-import { isJSDOM } from '../../utils/detectBrowser';
 
 /* eslint-disable testing-library/no-unnecessary-act */
 

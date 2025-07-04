@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
+import { useModernLayoutEffect } from '@base-ui-components/utils/useModernLayoutEffect';
 import { NOOP } from '../../utils/noop';
-import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 
 export type ImageLoadingStatus = 'idle' | 'loading' | 'loaded' | 'error';
 

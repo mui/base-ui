@@ -58,7 +58,7 @@ export function scrollIntoViewIfNeeded(
   direction: TextDirection,
   orientation: 'horizontal' | 'vertical' | 'both',
 ) {
-  if (!scrollContainer || !element) {
+  if (!scrollContainer || !element || !element.scrollTo) {
     return;
   }
 

@@ -1,8 +1,8 @@
 'use client';
 import * as React from 'react';
+import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useLatestRef } from '@base-ui-components/utils/useLatestRef';
 import { useAnimationsFinished } from './useAnimationsFinished';
-import { useEventCallback } from './useEventCallback';
-import { useLatestRef } from './useLatestRef';
 
 /**
  * Calls the provided function when the CSS open/close animation or transition completes.

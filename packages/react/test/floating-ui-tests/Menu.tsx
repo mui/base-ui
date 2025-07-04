@@ -1,6 +1,6 @@
 import c from 'clsx';
 import * as React from 'react';
-import { useForkRefN } from '../../src/utils/useForkRef';
+import { useForkRefN } from '@base-ui-components/utils/useForkRef';
 import { CompositeList } from '../../src/composite/list/CompositeList';
 import { useCompositeListItem } from '../../src/composite/list/useCompositeListItem';
 import {

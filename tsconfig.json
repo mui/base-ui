@@ -8,6 +8,9 @@
     },
     {
       "path": "packages/react/tsconfig.json"
+    },
+    {
+      "path": "packages/utils/tsconfig.json"
     }
   ]
 }

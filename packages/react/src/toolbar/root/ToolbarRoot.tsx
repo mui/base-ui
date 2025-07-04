@@ -1,7 +1,6 @@
 'use client';
 import * as React from 'react';
-import { BaseUIComponentProps, Orientation as BaseOrientation } from '../../utils/types';
-import { useRenderElement } from '../../utils/useRenderElement';
+import { BaseUIComponentProps, Orientation as BaseOrientation, HTMLProps } from '../../utils/types';
 import { CompositeRoot } from '../../composite/root/CompositeRoot';
 import type { CompositeMetadata } from '../../composite/list/CompositeList';
 import { ToolbarRootContext } from './ToolbarRootContext';
@@ -51,27 +50,24 @@ export const ToolbarRoot = React.forwardRef(function ToolbarRoot(
 
   const state = React.useMemo(() => ({ disabled, orientation }), [disabled, orientation]);
 
-  const element = useRenderElement('div', componentProps, {
-    state,
-    ref: forwardedRef,
-    props: [
-      {
-        'aria-orientation': orientation,
-        role: 'toolbar',
-      },
-      elementProps,
-    ],
-  });
+  const defaultProps: HTMLProps = {
+    'aria-orientation': orientation,
+    role: 'toolbar',
+  };
 
   return (
     <ToolbarRootContext.Provider value={toolbarRootContext}>
       <CompositeRoot
+        render={render}
+        className={className}
+        state={state}
+        refs={[forwardedRef]}
+        props={[defaultProps, elementProps]}
         cols={cols}
         disabledIndices={disabledIndices}
         loop={loop}
         onMapChange={setItemMap}
         orientation={orientation}
-        render={element}
       />
     </ToolbarRootContext.Provider>
   );
@@ -99,7 +95,6 @@ export namespace ToolbarRoot {
     disabled?: boolean;
     /**
      * The orientation of the toolbar.
-     * @type Toolbar.Root.Orientation
      * @default 'horizontal'
      */
     orientation?: Orientation;

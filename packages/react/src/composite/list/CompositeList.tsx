@@ -1,10 +1,10 @@
 /* eslint-disable no-bitwise */
 'use client';
 import * as React from 'react';
+import { useLazyRef } from '@base-ui-components/utils/useLazyRef';
+import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useModernLayoutEffect } from '@base-ui-components/utils/useModernLayoutEffect';
 import { CompositeListContext } from './CompositeListContext';
-import { useLazyRef } from '../../utils/useLazyRef';
-import { useEventCallback } from '../../utils/useEventCallback';
-import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 
 export type CompositeMetadata<CustomMetadata> = { index?: number | null } & CustomMetadata;
 

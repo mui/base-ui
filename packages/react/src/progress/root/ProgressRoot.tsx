@@ -1,11 +1,11 @@
 'use client';
 import * as React from 'react';
+import { useLatestRef } from '@base-ui-components/utils/useLatestRef';
 import { formatNumber } from '../../utils/formatNumber';
 import { useRenderElement } from '../../utils/useRenderElement';
-import { useLatestRef } from '../../utils/useLatestRef';
 import { ProgressRootContext } from './ProgressRootContext';
 import { progressStyleHookMapping } from './styleHooks';
-import { BaseUIComponentProps } from '../../utils/types';
+import { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 
 function formatValue(
   value: number | null,
@@ -43,7 +43,7 @@ export const ProgressRoot = React.forwardRef(function ProgressRoot(
 ) {
   const {
     format,
-    getAriaValueText,
+    getAriaValueText = getDefaultAriaValueText,
     locale,
     max = 100,
     min = 0,
@@ -70,6 +70,15 @@ export const ProgressRoot = React.forwardRef(function ProgressRoot(
     [status],
   );
 
+  const defaultProps: HTMLProps = {
+    'aria-labelledby': labelId,
+    'aria-valuemax': max,
+    'aria-valuemin': min,
+    'aria-valuenow': value ?? undefined,
+    'aria-valuetext': getAriaValueText(formattedValue, value),
+    role: 'progressbar',
+  };
+
   const contextValue: ProgressRootContext = React.useMemo(
     () => ({
       formattedValue,
@@ -86,19 +95,7 @@ export const ProgressRoot = React.forwardRef(function ProgressRoot(
   const element = useRenderElement('div', componentProps, {
     state,
     ref: forwardedRef,
-    props: [
-      {
-        'aria-labelledby': labelId,
-        'aria-valuemax': max,
-        'aria-valuemin': min,
-        'aria-valuenow': value ?? undefined,
-        'aria-valuetext': getAriaValueText
-          ? getAriaValueText(formattedValue, value)
-          : (componentProps['aria-valuetext'] ?? getDefaultAriaValueText(formattedValue, value)),
-        role: 'progressbar',
-      },
-      elementProps,
-    ],
+    props: [defaultProps, elementProps],
     customStyleHookMapping: progressStyleHookMapping,
   });
 
@@ -115,6 +112,10 @@ export namespace ProgressRoot {
   };
 
   export interface Props extends BaseUIComponentProps<'div', State> {
+    /**
+     * A string value that provides a user-friendly name for `aria-valuenow`, the current value of the meter.
+     */
+    'aria-valuetext'?: React.AriaAttributes['aria-valuetext'];
     /**
      * Options to format the value.
      */

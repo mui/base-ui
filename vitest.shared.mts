@@ -1,6 +1,8 @@
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { type UserWorkspaceConfig } from 'vitest/config';
+// eslint-disable-next-line import/extensions
+import viteConfig from '@base-ui-components/monorepo-tests/vite.shared.config.mjs';
 
 const CURRENT_DIR = dirname(fileURLToPath(import.meta.url));
 const WORKSPACE_ROOT = resolve(CURRENT_DIR, './');
@@ -59,11 +61,7 @@ const config: UserWorkspaceConfig = {
     },
     retry: 1,
   },
-  resolve: {
-    alias: {
-      docs: resolve(WORKSPACE_ROOT, './docs'),
-    },
-  },
+  resolve: viteConfig.resolve,
 };
 
 export default config;

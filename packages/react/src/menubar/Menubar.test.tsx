@@ -672,4 +672,17 @@ describe('<Menubar />', () => {
       });
     },
   );
+
+  describe('role', () => {
+    it('sets role="menubar" on the root element', async () => {
+      await render(<TestMenubar />);
+      expect(screen.queryByRole('menubar')).not.to.equal(null);
+    });
+
+    it('sets role="menuitem" on menu triggers', async () => {
+      await render(<TestMenubar />);
+      const menuItems = screen.getAllByRole('menuitem');
+      expect(menuItems).to.have.length(3);
+    });
+  });
 });

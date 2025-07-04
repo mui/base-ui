@@ -1,9 +1,9 @@
 import * as React from 'react';
+import { useId } from '@base-ui-components/utils/useId';
 import { getFloatingFocusElement } from '../utils';
 
 import { useFloatingParentNodeId } from '../components/FloatingTree';
 import type { ElementProps, FloatingRootContext } from '../types';
-import { useId } from '../../utils/useId';
 import type { ExtendedUserProps } from './useInteractions';
 
 type AriaRole = 'tooltip' | 'dialog' | 'alertdialog' | 'menu' | 'listbox' | 'grid' | 'tree';

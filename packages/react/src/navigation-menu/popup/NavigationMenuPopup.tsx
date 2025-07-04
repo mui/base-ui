@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { useModernLayoutEffect } from '@base-ui-components/utils/useModernLayoutEffect';
 import {
   getNextTabbable,
   getPreviousTabbable,
@@ -8,7 +9,6 @@ import {
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useNavigationMenuRootContext } from '../root/NavigationMenuRootContext';
-import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import { transitionStatusMapping } from '../../utils/styleHookMapping';
 import { useBaseUiId } from '../../utils/useBaseUiId';

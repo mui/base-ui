@@ -91,6 +91,10 @@
   color: var(--color-gray-900);
   user-select: none;
 
+  &[data-color='red'] {
+    color: var(--color-red);
+  }
+
   @media (hover: hover) {
     &:hover {
       background-color: var(--color-gray-100);
@@ -148,6 +152,7 @@
     background-color: var(--color-gray-100);
   }
 
+  &:focus,
   &:focus-visible {
     outline: 2px solid var(--color-blue);
     outline-offset: -1px;
@@ -367,6 +372,7 @@
     background-color: var(--color-gray-900);
   }
 
+  &:focus,
   &:focus-visible {
     outline: 2px solid var(--color-blue);
     outline-offset: 2px;
@@ -428,6 +434,7 @@
     background-color: canvas;
   }
 
+  &:focus,
   &:focus-visible {
     outline: 2px solid var(--color-blue);
     outline-offset: 2px;
@@ -499,6 +506,7 @@
     }
   }
 
+  &:focus,
   &:focus-visible {
     &::before {
       content: '';
@@ -589,6 +597,7 @@
   outline: 1px solid var(--color-gray-300);
   user-select: none;
 
+  &:focus,
   &:focus-visible {
     outline: 2px solid var(--color-blue);
   }

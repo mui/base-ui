@@ -45,7 +45,7 @@ describe('<Select.Item />', () => {
     expect(positioner).not.toBeVisible();
   });
 
-  it('navigating with keyboard should highlight item', async () => {
+  it.skipIf(!isJSDOM)('navigating with keyboard should focus item', async () => {
     const { user } = await render(
       <Select.Root>
         <Select.Trigger data-testid="trigger">
@@ -67,21 +67,24 @@ describe('<Select.Item />', () => {
     await flushMicrotasks();
 
     await waitFor(() => {
+      expect(screen.getByRole('listbox')).not.to.equal(null);
+    });
+    await waitFor(() => {
       expect(screen.getByText('one')).toHaveFocus();
     });
 
     await user.keyboard('{ArrowDown}');
-
     await waitFor(() => {
       expect(screen.getByText('two')).toHaveFocus();
     });
+
+    await user.keyboard('{ArrowDown}');
+    await waitFor(() => {
+      expect(screen.getByText('three')).toHaveFocus();
+    });
   });
 
-  it('should select item when Enter key is pressed', async ({ skip }) => {
-    if (!isJSDOM) {
-      skip();
-    }
-
+  it.skipIf(!isJSDOM)('should select item when Enter key is pressed', async () => {
     const { user } = await render(
       <Select.Root>
         <Select.Trigger data-testid="trigger">
@@ -191,37 +194,36 @@ describe('<Select.Item />', () => {
   });
 
   describe('style hooks', () => {
-    it('should apply data-highlighted attribute when item is highlighted', async ({ skip }) => {
-      if (!isJSDOM) {
-        skip();
-      }
+    it.skipIf(!isJSDOM)(
+      'should apply data-highlighted attribute when item is highlighted',
+      async () => {
+        const { user } = await render(
+          <Select.Root defaultValue="a">
+            <Select.Trigger data-testid="trigger" />
+            <Select.Portal>
+              <Select.Positioner>
+                <Select.Popup>
+                  <Select.Item value="a">a</Select.Item>
+                  <Select.Item value="b">b</Select.Item>
+                </Select.Popup>
+              </Select.Positioner>
+            </Select.Portal>
+          </Select.Root>,
+        );
 
-      const { user } = await render(
-        <Select.Root defaultValue="a">
-          <Select.Trigger data-testid="trigger" />
-          <Select.Portal>
-            <Select.Positioner>
-              <Select.Popup>
-                <Select.Item value="a">a</Select.Item>
-                <Select.Item value="b">b</Select.Item>
-              </Select.Popup>
-            </Select.Positioner>
-          </Select.Portal>
-        </Select.Root>,
-      );
+        fireEvent.click(screen.getByTestId('trigger'));
+        await flushMicrotasks();
 
-      fireEvent.click(screen.getByTestId('trigger'));
-      await flushMicrotasks();
+        expect(screen.getByRole('option', { name: 'a' })).to.have.attribute('data-highlighted', '');
+        expect(screen.getByRole('option', { name: 'b' })).not.to.have.attribute('data-highlighted');
 
-      expect(screen.getByRole('option', { name: 'a' })).to.have.attribute('data-highlighted', '');
-      expect(screen.getByRole('option', { name: 'b' })).not.to.have.attribute('data-highlighted');
+        await user.keyboard('{ArrowDown}');
+        await flushMicrotasks();
 
-      await user.keyboard('{ArrowDown}');
-      await flushMicrotasks();
-
-      expect(screen.getByRole('option', { name: 'a' })).not.to.have.attribute('data-highlighted');
-      expect(screen.getByRole('option', { name: 'b' })).to.have.attribute('data-highlighted', '');
-    });
+        expect(screen.getByRole('option', { name: 'a' })).not.to.have.attribute('data-highlighted');
+        expect(screen.getByRole('option', { name: 'b' })).to.have.attribute('data-highlighted', '');
+      },
+    );
 
     it('should apply data-selected attribute when item is selected', async () => {
       await render(
@@ -242,12 +244,12 @@ describe('<Select.Item />', () => {
       await flushMicrotasks();
 
       fireEvent.click(screen.getByRole('option', { name: 'a' }));
-
       await flushMicrotasks();
 
       fireEvent.click(screen.getByTestId('trigger'));
-      await flushMicrotasks();
-      expect(screen.getByRole('option', { name: 'a' })).to.have.attribute('data-selected', '');
+      await waitFor(() => {
+        expect(screen.getByRole('option', { name: 'a' })).to.have.attribute('data-selected', '');
+      });
       expect(screen.getByRole('option', { name: 'b' })).not.to.have.attribute('data-selected');
     });
   });

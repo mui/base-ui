@@ -2,9 +2,9 @@ import * as React from 'react';
 import { expect } from 'chai';
 import { spy } from 'sinon';
 import { act, fireEvent } from '@mui/internal-test-utils';
+import { useForkRef } from '@base-ui-components/utils/useForkRef';
 import { createRenderer, isJSDOM } from '#test-utils';
 import { useButton } from './useButton';
-import { useForkRef } from '../utils';
 
 describe('useButton', () => {
   const { render, renderToString } = createRenderer();
