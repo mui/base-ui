@@ -158,6 +158,7 @@
 }
 
 .Content {
+  box-sizing: border-box;
   transition:
     opacity calc(var(--duration) * 0.5) ease,
     transform var(--duration) var(--easing);
