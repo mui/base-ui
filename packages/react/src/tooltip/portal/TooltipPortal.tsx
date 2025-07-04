@@ -3,6 +3,7 @@ import * as React from 'react';
 import { useTooltipRootContext } from '../root/TooltipRootContext';
 import { TooltipPortalContext } from './TooltipPortalContext';
 import { FloatingPortalLite } from '../../utils/FloatingPortalLite';
+import type { FloatingPortalProps } from '../../floating-ui-react';
 
 /**
  * A portal element that moves the popup to a different part of the DOM.
@@ -38,6 +39,6 @@ export namespace TooltipPortal {
     /**
      * A parent element to render the portal element into.
      */
-    container?: HTMLElement | null | React.RefObject<HTMLElement | null>;
+    container?: FloatingPortalProps['root'];
   }
 }
