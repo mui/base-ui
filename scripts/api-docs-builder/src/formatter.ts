@@ -59,10 +59,6 @@ export function formatType(
     return typeValue;
   }
 
-  if ('typeName' in type && type.typeName?.name === 'HTMLProps') {
-    return 'HTMLProps';
-  }
-
   if (type instanceof tae.ExternalTypeNode) {
     if (/^ReactElement(<.*>)?/.test(type.typeName.name || '')) {
       return 'ReactElement';
@@ -224,8 +220,12 @@ function getFullyQualifiedName(typeName: tae.TypeName): string {
 }
 
 function createNameWithTypeArguments(typeName: tae.TypeName) {
-  if (typeName.typeArguments && typeName.typeArguments.length > 0) {
-    return `${typeName.name}<${typeName.typeArguments.map((ta) => formatType(ta, false)).join(', ')}>`;
+  if (
+    typeName.typeArguments &&
+    typeName.typeArguments.length > 0 &&
+    typeName.typeArguments.some((ta) => ta.equalToDefault === false)
+  ) {
+    return `${typeName.name}<${typeName.typeArguments.map((ta) => formatType(ta.type, false)).join(', ')}>`;
   }
 
   return typeName.name;
