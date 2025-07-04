@@ -16,7 +16,7 @@
       "description": "Event handler called when the popover is opened or closed."
     },
     "actionsRef": {
-      "type": "RefObject<PopoverRoot.Actions>",
+      "type": "RefObject<Popover.Root.Actions>",
       "description": "A ref to imperative actions.\n- `unmount`: When specified, the popover will not be unmounted when closed.\nInstead, the `unmount` function must be called to unmount the popover manually.\nUseful when the popover's animation is controlled by an external library."
     },
     "modal": {

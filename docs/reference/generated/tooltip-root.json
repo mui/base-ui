@@ -16,7 +16,7 @@
       "description": "Event handler called when the tooltip is opened or closed."
     },
     "actionsRef": {
-      "type": "RefObject<TooltipRoot.Actions>",
+      "type": "RefObject<Tooltip.Root.Actions>",
       "description": "A ref to imperative actions.\n- `unmount`: When specified, the tooltip will not be unmounted when closed.\nInstead, the `unmount` function must be called to unmount the tooltip manually.\nUseful when the tooltip's animation is controlled by an external library."
     },
     "onOpenChangeComplete": {

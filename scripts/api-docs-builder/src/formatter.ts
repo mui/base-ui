@@ -59,13 +59,17 @@ export function formatType(
     return typeValue;
   }
 
+  if ('typeName' in type && type.typeName?.name === 'HTMLProps') {
+    return 'HTMLProps';
+  }
+
   if (type instanceof tae.ExternalTypeNode) {
     if (/^ReactElement(<.*>)?/.test(type.typeName.name || '')) {
       return 'ReactElement';
     }
 
     if (type.typeName.namespaces?.length === 1 && type.typeName.namespaces[0] === 'React') {
-      return type.typeName.name;
+      return createNameWithTypeArguments(type.typeName);
     }
 
     return type.typeName.toString();
@@ -194,27 +198,45 @@ const componentNames: string[] = fs
   .filter((dirent) => dirent.isDirectory())
   .map((dirent) => kebabToPascal(dirent.name));
 
+let d = 0;
+const maxD = 3;
+
 function getFullyQualifiedName(typeName: tae.TypeName): string {
-  if (!typeName.namespaces || typeName.namespaces.length === 0) {
-    return typeName.name;
-  }
+  //d += 1;
+  try {
+    const nameWithTypeArgs = d >= maxD ? typeName.name : createNameWithTypeArguments(typeName);
 
-  // Our components are defined in the source as [ComponentName][Part], but exported as [ComponentName].[Part].
-  // The following code adjusts the namespaces to match the exported names.
-  const joinedNamespaces = typeName.namespaces.map((namespace) => {
-    const componentNameInNamespace = componentNames.find((componentName) =>
-      new RegExp(`^${componentName}[A-Z]`).test(namespace),
-    );
-
-    if (componentNameInNamespace) {
-      const dotPosition = componentNameInNamespace.length;
-      return `${namespace.substring(0, dotPosition)}.${namespace.substring(dotPosition)}`;
+    if (!typeName.namespaces || typeName.namespaces.length === 0) {
+      return nameWithTypeArgs;
     }
 
-    return namespace;
-  });
+    // Our components are defined in the source as [ComponentName][Part], but exported as [ComponentName].[Part].
+    // The following code adjusts the namespaces to match the exported names.
+    const joinedNamespaces = typeName.namespaces.map((namespace) => {
+      const componentNameInNamespace = componentNames.find((componentName) =>
+        new RegExp(`^${componentName}[A-Z]`).test(namespace),
+      );
 
-  return `${joinedNamespaces}.${typeName.name}`;
+      if (componentNameInNamespace) {
+        const dotPosition = componentNameInNamespace.length;
+        return `${namespace.substring(0, dotPosition)}.${namespace.substring(dotPosition)}`;
+      }
+
+      return namespace;
+    });
+
+    return `${joinedNamespaces}.${nameWithTypeArgs}`;
+  } finally {
+    //d -= 1;
+  }
+}
+
+function createNameWithTypeArguments(typeName: tae.TypeName) {
+  if (typeName.typeArguments && typeName.typeArguments.length > 0) {
+    return `${typeName.name}<${typeName.typeArguments.map((ta) => formatType(ta, false)).join(', ')}>`;
+  }
+
+  return typeName.name;
 }
 
 /**

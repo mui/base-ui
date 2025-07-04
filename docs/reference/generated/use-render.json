@@ -3,12 +3,12 @@
   "description": "Renders a Base UI element.",
   "parameters": {
     "render": {
-      "type": "useRender.RenderProp<State>",
+      "type": "useRender.RenderProp<Record<string, unknown>>",
       "required": true,
       "description": "The React element or a function that returns one to override the default element."
     },
     "ref": {
-      "type": "Ref<RenderedElementType> | Ref<RenderedElementType>[]",
+      "type": "Ref<Element> | Ref<Element>[]",
       "description": "The ref to apply to the rendered element."
     },
     "state": {
