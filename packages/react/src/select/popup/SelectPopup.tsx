@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import * as ReactDOM from 'react-dom';
 import { FloatingFocusManager } from '../../floating-ui-react';
 import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import { useSelectRootContext } from '../root/SelectRootContext';
@@ -230,7 +231,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
       if (fallbackToAlignPopupToTrigger || isPinchZoomed) {
         initialPlacedRef.current = true;
         clearPositionerStyles(positionerElement, originalPositionerStylesRef.current);
-        setControlledAlignItemWithTrigger(false);
+        ReactDOM.flushSync(() => setControlledAlignItemWithTrigger(false));
         return;
       }
 
@@ -317,7 +318,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
         return;
       }
 
-      if (reachedMaxHeightRef.current || !alignItemWithTriggerActive) {
+      if (reachedMaxHeightRef.current) {
         handleScrollArrowVisibility();
         return;
       }
