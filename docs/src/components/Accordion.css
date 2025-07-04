@@ -1,0 +1,112 @@
+@layer components {
+  .AccordionRoot {
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    color: var(--color-gray);
+
+    border: 1px solid var(--color-gray-200);
+    border-collapse: separate;
+    border-radius: var(--radius-md);
+  }
+
+  .AccordionHeaderRow {
+    border-radius: var(--radius-md) var(--radius-md) 0 0;
+    border-bottom: 1px solid var(--color-gray-200);
+    background-color: var(--color-gray-50);
+  }
+
+  .AccordionHeaderCell {
+    padding: 0.5rem 0.75rem;
+    font-size: var(--text-sm);
+    font-weight: var(--font-weight-medium);
+    letter-spacing: -0.00625em;
+    color: var(--color-foreground);
+  }
+
+  .AccordionItem:not(:last-child) {
+    border-bottom: 1px solid var(--color-gray-200);
+  }
+
+  .AccordionTrigger {
+    box-sizing: border-box;
+    position: relative;
+    display: flex;
+    width: 100%;
+    min-height: 2.25rem;
+    align-items: baseline;
+    /* make padding match TableCell height */
+    padding-block: 0.625rem;
+    padding-inline: 0.75rem 0.5rem;
+    border: none;
+    outline: none;
+    text-align: left;
+    background-color: var(--color-content);
+
+    /* remove default disclosure triangle  */
+    &::-webkit-details-marker {
+      display: none;
+    }
+    list-style: none;
+
+    @media (hover: hover) {
+      &:hover {
+        background-color: var(--color-gray-75);
+      }
+    }
+
+    &:active {
+      background-color: var(--color-gray-100);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--color-blue);
+      z-index: 1;
+    }
+
+    [open] & {
+      box-shadow: -5px 10px 10px -10px var(--color-gray-100);
+    }
+
+    .AccordionItem:not([open]):last-child & {
+      border-bottom-left-radius: var(--radius-md);
+      border-bottom-right-radius: var(--radius-md);
+    }
+  }
+
+  .AccordionIcon {
+    box-sizing: border-box;
+    flex-shrink: 0;
+    width: 0.75rem;
+    height: 0.75rem;
+    margin-inline: auto 0.5rem;
+
+    [open] & {
+      transform: rotate(180deg);
+    }
+  }
+
+  .AccordionPanel {
+    box-sizing: border-box;
+    height: auto;
+    overflow: hidden;
+    color: var(--color-foreground);
+    font-size: 1rem;
+    line-height: 1.5rem;
+  }
+
+  .AccordionContent {
+    [open] & {
+      background-color: var(--color-gray-50);
+      box-shadow:
+        inset 0 0 0 1px transparent,
+        inset 0px 1px 0px 0px var(--color-gray-100);
+    }
+
+    .AccordionItem:last-child & {
+      border-bottom-left-radius: var(--radius-md);
+      border-bottom-right-radius: var(--radius-md);
+    }
+  }
+}
