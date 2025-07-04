@@ -235,6 +235,9 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
           }
         }
       },
+      onFocus() {
+        controlRef.current?.focus();
+      },
     },
     // React <19 sets an empty value if `undefined` is passed explicitly
     // To avoid this, we only set the value if it's defined
