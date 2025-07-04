@@ -3,7 +3,8 @@
   "description": "Groups an accordion header with the corresponding panel.\nRenders a `<div>` element.",
   "props": {
     "value": {
-      "type": "any"
+      "type": "any",
+      "required": true
     },
     "onOpenChange": {
       "type": "((open: boolean) => void)",

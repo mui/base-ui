@@ -4,6 +4,7 @@
   "props": {
     "value": {
       "type": "Tabs.Tab.Value",
+      "required": true,
       "description": "The value of the Tab.\nWhen not specified, the value is the child position index."
     },
     "nativeButton": {
