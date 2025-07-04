@@ -15,7 +15,6 @@ import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { customStyleHookMapping } from '../utils/customStyleHookMapping';
 import { useRadioGroupContext } from '../../radio-group/RadioGroupContext';
 import { RadioRootContext } from './RadioRootContext';
-import { CompositeItem } from '../../composite/item/CompositeItem';
 import { EMPTY_OBJECT } from '../../utils/constants';
 
 /**
