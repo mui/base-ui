@@ -154,6 +154,9 @@ export const RadioGroup = React.forwardRef(function RadioGroup(
       'aria-hidden': true,
       tabIndex: -1,
       style: visuallyHidden,
+      onFocus() {
+        controlRef.current?.focus();
+      },
     },
     fieldControlValidation.getInputValidationProps,
   );
