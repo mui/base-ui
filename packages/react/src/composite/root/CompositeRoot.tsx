@@ -95,7 +95,7 @@ export function CompositeRoot<Metadata extends {}, State extends Record<string, 
 
 export namespace CompositeRoot {
   export interface Props<Metadata, State extends Record<string, any>>
-    extends BaseUIComponentProps<'div', State> {
+    extends Pick<BaseUIComponentProps<'div', State>, 'render' | 'className' | 'children'> {
     props?: Array<Record<string, any> | (() => Record<string, any>)>;
     state?: State;
     customStyleHookMapping?: CustomStyleHookMapping<State>;
