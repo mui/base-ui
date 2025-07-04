@@ -1,12 +1,12 @@
 import * as React from 'react';
 import { tabbable, isTabbable, focusable, type FocusableElement } from 'tabbable';
 import { getNodeName, isHTMLElement } from '@floating-ui/utils/dom';
-import { useForkRef } from '../../utils/useForkRef';
-import { useLatestRef } from '../../utils/useLatestRef';
-import { useEventCallback } from '../../utils/useEventCallback';
-import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
+import { useForkRef } from '@base-ui-components/utils/useForkRef';
+import { useLatestRef } from '@base-ui-components/utils/useLatestRef';
+import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useModernLayoutEffect } from '@base-ui-components/utils/useModernLayoutEffect';
+import { visuallyHidden } from '@base-ui-components/utils/visuallyHidden';
 import { FocusGuard } from '../../utils/FocusGuard';
-import { visuallyHidden } from '../../utils/visuallyHidden';
 import {
   activeElement,
   contains,
@@ -504,8 +504,6 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     );
 
     const ancestors = tree ? getNodeAncestors(tree.nodesRef.current, getNodeId()) : [];
-    const ancestorFloatingNodes =
-      tree && !modal ? ancestors.map((node) => node.context?.elements.floating) : [];
     const rootAncestorComboboxDomReference = ancestors.find((node) =>
       isTypeableCombobox(node.context?.elements.domReference || null),
     )?.context?.elements.domReference;
@@ -514,7 +512,6 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
       floating,
       rootAncestorComboboxDomReference,
       ...portalNodes,
-      ...ancestorFloatingNodes,
       ...getInsideElements(),
       startDismissButtonRef.current,
       endDismissButtonRef.current,

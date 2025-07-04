@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { AnimationFrame } from '@base-ui-components/utils/useAnimationFrame';
 import {
   FloatingNode,
   FloatingTree,
@@ -10,10 +11,8 @@ import {
 import { type MenuRoot } from '../menu/root/MenuRoot';
 import { BaseUIComponentProps } from '../utils/types';
 import { MenubarContext, useMenubarContext } from './MenubarContext';
-import { useScrollLock } from '../utils';
+import { useScrollLock } from '../utils/useScrollLock';
 import { CompositeRoot } from '../composite/root/CompositeRoot';
-import { useRenderElement } from '../utils/useRenderElement';
-import { AnimationFrame } from '../utils/useAnimationFrame';
 import { useBaseUiId } from '../utils/useBaseUiId';
 
 /**
@@ -32,7 +31,7 @@ export const Menubar = React.forwardRef(function Menubar(
     className,
     modal = true,
     id: idProp,
-    ...otherProps
+    ...elementProps
   } = props;
 
   const [contentElement, setContentElement] = React.useState<HTMLElement | null>(null);
@@ -58,12 +57,6 @@ export const Menubar = React.forwardRef(function Menubar(
   const contentRef = React.useRef<HTMLDivElement>(null);
   const allowMouseUpTriggerRef = React.useRef(false);
 
-  const element = useRenderElement('div', props, {
-    state,
-    props: [{ role: 'menubar', id }, otherProps],
-    ref: [forwardedRef, setContentElement, contentRef],
-  });
-
   const context: MenubarContext = React.useMemo(
     () => ({
       contentElement,
@@ -83,7 +76,11 @@ export const Menubar = React.forwardRef(function Menubar(
       <FloatingTree>
         <MenubarContent>
           <CompositeRoot
-            render={element}
+            render={render}
+            className={className}
+            state={state}
+            refs={[forwardedRef, setContentElement, contentRef]}
+            props={[{ role: 'menubar', id }, elementProps]}
             orientation={orientation}
             loop={loop}
             highlightItemOnHover={hasSubmenuOpen}

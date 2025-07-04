@@ -2,6 +2,11 @@
   "name": "AlertDialogBackdrop",
   "description": "An overlay displayed beneath the popup.\nRenders a `<div>` element.",
   "props": {
+    "forceRender": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Whether the backdrop is forced to render even when nested."
+    },
     "className": {
       "type": "string | ((state: AlertDialog.Backdrop.State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."

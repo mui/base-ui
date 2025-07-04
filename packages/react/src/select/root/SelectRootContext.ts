@@ -1,10 +1,10 @@
 import * as React from 'react';
-import type { Timeout } from '../../utils/useTimeout';
+import type { Timeout } from '@base-ui-components/utils/useTimeout';
 import { useFloatingRootContext, type FloatingRootContext } from '../../floating-ui-react';
 import type { SelectStore } from '../store';
 import type { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
 import type { HTMLProps } from '../../utils/types';
-import type { SelectOpenChangeReason } from './useSelectRoot';
+import type { SelectRoot } from './SelectRoot';
 
 export interface SelectRootContext {
   store: SelectStore;
@@ -12,11 +12,12 @@ export interface SelectRootContext {
   disabled: boolean;
   readOnly: boolean;
   required: boolean;
+  multiple: boolean;
   setValue: (nextValue: any, event?: Event) => void;
   setOpen: (
     open: boolean,
     event: Event | undefined,
-    reason: SelectOpenChangeReason | undefined,
+    reason: SelectRoot.OpenChangeReason | undefined,
   ) => void;
   listRef: React.MutableRefObject<Array<HTMLElement | null>>;
   popupRef: React.MutableRefObject<HTMLDivElement | null>;
@@ -35,7 +36,11 @@ export interface SelectRootContext {
   }>;
   selectedItemTextRef: React.MutableRefObject<HTMLSpanElement | null>;
   fieldControlValidation: ReturnType<typeof useFieldControlValidation>;
-  registerSelectedItem: (index: number) => void;
+  /**
+   * Called by each <Select.Item> when it knows its stable list index.
+   * Allows the root to map option values to their DOM positions.
+   */
+  registerItemIndex: (index: number) => void;
   onOpenChangeComplete?: (open: boolean) => void;
   keyboardActiveRef: React.MutableRefObject<boolean>;
   alignItemWithTriggerActiveRef: React.RefObject<boolean>;

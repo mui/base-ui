@@ -23,7 +23,7 @@ export const AlertDialogBackdrop = React.forwardRef(function AlertDialogBackdrop
   componentProps: AlertDialogBackdrop.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, ...elementProps } = componentProps;
+  const { render, className, forceRender = false, ...elementProps } = componentProps;
   const { open, nested, mounted, transitionStatus, backdropRef } = useAlertDialogRootContext();
 
   const state: AlertDialogBackdrop.State = React.useMemo(
@@ -49,13 +49,18 @@ export const AlertDialogBackdrop = React.forwardRef(function AlertDialogBackdrop
       elementProps,
     ],
     customStyleHookMapping,
-    // no need to render nested backdrops
-    enabled: !nested,
+    enabled: forceRender || !nested,
   });
 });
 
 export namespace AlertDialogBackdrop {
-  export interface Props extends BaseUIComponentProps<'div', State> {}
+  export interface Props extends BaseUIComponentProps<'div', State> {
+    /**
+     * Whether the backdrop is forced to render even when nested.
+     * @default false
+     */
+    forceRender?: boolean;
+  }
 
   export interface State {
     /**

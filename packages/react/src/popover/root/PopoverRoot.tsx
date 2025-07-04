@@ -1,6 +1,9 @@
 'use client';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
+import { useTimeout } from '@base-ui-components/utils/useTimeout';
+import { useControlled } from '@base-ui-components/utils/useControlled';
+import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import {
   useClick,
   useDismiss,
@@ -11,9 +14,6 @@ import {
   FloatingTree,
   safePolygon,
 } from '../../floating-ui-react';
-import { useTimeout } from '../../utils/useTimeout';
-import { useControlled } from '../../utils/useControlled';
-import { useEventCallback } from '../../utils/useEventCallback';
 import { useTransitionStatus } from '../../utils/useTransitionStatus';
 import { OPEN_DELAY } from '../utils/constants';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
@@ -257,12 +257,11 @@ export namespace PopoverRoot {
     open?: boolean;
     /**
      * Event handler called when the popover is opened or closed.
-     * @type (open: boolean, event?: Event, reason?: Popover.Root.OpenChangeReason) => void
      */
     onOpenChange?: (
       open: boolean,
       event: Event | undefined,
-      reason: PopoverOpenChangeReason | undefined,
+      reason: OpenChangeReason | undefined,
     ) => void;
     /**
      * Event handler called after any animations complete when the popover is opened or closed.
