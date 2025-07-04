@@ -4,10 +4,10 @@ import { BaseUIComponentProps } from '../../utils/types';
 import { useFocusableWhenDisabled } from '../../utils/useFocusableWhenDisabled';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { ARROW_LEFT, ARROW_RIGHT, stopEvent } from '../../composite/composite';
-import { CompositeItem } from '../../composite/item/CompositeItem';
 import type { ToolbarRoot } from '../root/ToolbarRoot';
 import { useToolbarRootContext } from '../root/ToolbarRootContext';
 import { useToolbarGroupContext } from '../group/ToolbarGroupContext';
+import { useCompositeItem } from '../../composite/item/useCompositeItem';
 
 /**
  * A native input element that integrates with Toolbar keyboard navigation.
@@ -27,11 +27,14 @@ export const ToolbarInput = React.forwardRef(function ToolbarInput(
     ...elementProps
   } = componentProps;
 
+  const itemMetadata = React.useMemo(() => ({ focusableWhenDisabled }), [focusableWhenDisabled]);
+
   const { disabled: toolbarDisabled, orientation } = useToolbarRootContext();
+  const { props: compositeProps, ref: compositeRef } = useCompositeItem({
+    metadata: itemMetadata,
+  });
 
   const groupContext = useToolbarGroupContext(true);
-
-  const itemMetadata = React.useMemo(() => ({ focusableWhenDisabled }), [focusableWhenDisabled]);
 
   const disabled = toolbarDisabled || (groupContext?.disabled ?? false) || disabledProp;
 
@@ -51,10 +54,11 @@ export const ToolbarInput = React.forwardRef(function ToolbarInput(
     [disabled, focusableWhenDisabled, orientation],
   );
 
-  const element = useRenderElement('input', componentProps, {
+  return useRenderElement('input', componentProps, {
     state,
-    ref: forwardedRef,
+    ref: [forwardedRef, compositeRef],
     props: [
+      compositeProps,
       {
         onClick(event) {
           if (disabled) {
@@ -76,8 +80,6 @@ export const ToolbarInput = React.forwardRef(function ToolbarInput(
       focusableWhenDisabledProps,
     ],
   });
-
-  return <CompositeItem<ToolbarRoot.ItemMetadata> metadata={itemMetadata} render={element} />;
 });
 
 export namespace ToolbarInput {
