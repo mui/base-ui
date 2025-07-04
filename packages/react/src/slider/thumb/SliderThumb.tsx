@@ -118,10 +118,11 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
 
   const {
     active: activeIndex,
-    handleInputChange,
     disabled: contextDisabled,
+    externalInputRef,
     fieldControlValidation,
     formatOptionsRef,
+    handleInputChange,
     labelId,
     largeStep,
     locale,
@@ -342,6 +343,10 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
       onChange(event: React.ChangeEvent<HTMLInputElement>) {
         handleInputChange(event.target.valueAsNumber, index, event);
       },
+      onFocus() {
+        thumbRef.current?.focus();
+      },
+      ref: index === 0 ? externalInputRef : undefined,
       step,
       style: {
         ...visuallyHidden,

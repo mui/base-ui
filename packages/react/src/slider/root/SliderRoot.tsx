@@ -8,7 +8,6 @@ import type { BaseUIComponentProps, Orientation } from '../../utils/types';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useControlled } from '../../utils/useControlled';
 import { useEventCallback } from '../../utils/useEventCallback';
-import { useForkRef } from '../../utils/useForkRef';
 import { useLatestRef } from '../../utils/useLatestRef';
 import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { useRenderElement } from '../../utils/useRenderElement';
@@ -55,7 +54,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
     defaultValue,
     disabled: disabledProp = false,
     id: idProp,
-    inputRef: inputRefProp,
+    inputRef: externalInputRef,
     format,
     largeStep = 10,
     locale,
@@ -110,7 +109,6 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
   const sliderRef = React.useRef<HTMLElement>(null);
   const controlRef = React.useRef<HTMLElement>(null);
   const thumbRefs = React.useRef<(HTMLElement | null)[]>([]);
-  const inputRef = useForkRef(inputRefProp, fieldControlValidation.inputRef);
   const lastChangedValueRef = React.useRef<number | readonly number[] | null>(null);
   const formatOptionsRef = useLatestRef(format);
 
@@ -253,6 +251,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       active,
       disabled,
       dragging,
+      externalInputRef,
       fieldControlValidation,
       formatOptionsRef,
       handleInputChange,
@@ -282,6 +281,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       ariaLabelledby,
       disabled,
       dragging,
+      externalInputRef,
       externalTabIndex,
       fieldControlValidation,
       formatOptionsRef,
@@ -335,7 +335,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
                   type: 'hidden',
                   disabled,
                   name,
-                  ref: inputRef,
+                  ref: fieldControlValidation.inputRef,
                   value,
                   style: visuallyHidden,
                 })}
@@ -348,7 +348,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
               type: 'hidden',
               disabled,
               name,
-              ref: inputRef,
+              ref: fieldControlValidation.inputRef,
               value: valueUnwrapped,
               style: visuallyHidden,
             })}
