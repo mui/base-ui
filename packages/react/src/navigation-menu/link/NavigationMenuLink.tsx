@@ -3,12 +3,12 @@ import * as React from 'react';
 import { useFloatingTree } from '../../floating-ui-react';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
-import { CompositeItem } from '../../composite/item/CompositeItem';
 import {
   useNavigationMenuRootContext,
   useNavigationMenuTreeContext,
 } from '../root/NavigationMenuRootContext';
 import { isOutsideMenuEvent } from '../utils/isOutsideMenuEvent';
+import { useCompositeItem } from '../../composite/item/useCompositeItem';
 
 /**
  * A link in the navigation menu that can be used to navigate to a different page or section.
@@ -25,11 +25,14 @@ export const NavigationMenuLink = React.forwardRef(function NavigationMenuLink(
   const { setValue, popupElement, rootRef } = useNavigationMenuRootContext();
   const nodeId = useNavigationMenuTreeContext();
   const tree = useFloatingTree();
+  const { props: compositeProps, ref: compositeRef } = useCompositeItem();
 
-  const element = useRenderElement('a', componentProps, {
-    ref: forwardedRef,
+  return useRenderElement('a', componentProps, {
+    ref: [forwardedRef, compositeRef],
     props: [
+      compositeProps,
       {
+        tabIndex: undefined,
         onBlur(event) {
           if (
             isOutsideMenuEvent(
@@ -47,8 +50,6 @@ export const NavigationMenuLink = React.forwardRef(function NavigationMenuLink(
       elementProps,
     ],
   });
-
-  return <CompositeItem render={element} tabIndex={undefined} />;
 });
 
 export namespace NavigationMenuLink {

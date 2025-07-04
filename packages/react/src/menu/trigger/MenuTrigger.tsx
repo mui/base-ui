@@ -3,7 +3,6 @@ import * as React from 'react';
 import { getParentNode, isHTMLElement, isLastTraversableNode } from '@floating-ui/utils/dom';
 import { contains } from '../../floating-ui-react/utils';
 import { useFloatingTree } from '../../floating-ui-react/index';
-import { CompositeItem } from '../../composite/item/CompositeItem';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { pressableTriggerOpenStateMapping } from '../../utils/popupStateMapping';
 import { useRenderElement } from '../../utils/useRenderElement';
@@ -15,6 +14,7 @@ import { useTimeout } from '../../utils/useTimeout';
 import { ownerDocument } from '../../utils/owner';
 import { getPseudoElementBounds } from '../../utils/getPseudoElementBounds';
 import { useEventCallback } from '../../utils/useEventCallback';
+import { useCompositeItem } from '../../composite/item/useCompositeItem';
 
 const BOUNDARY_OFFSET = 2;
 
@@ -47,6 +47,7 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
     lastOpenChangeReason,
     rootId,
   } = useMenuRootContext();
+  const { props: compositeProps, ref: compositeRef } = useCompositeItem();
 
   const disabled = disabledProp || menuDisabled;
 
@@ -152,18 +153,19 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
     [disabled, open],
   );
 
-  const element = useRenderElement('button', componentProps, {
+  const isMenubar = parent.type === 'menubar';
+
+  return useRenderElement('button', componentProps, {
     state,
     customStyleHookMapping: pressableTriggerOpenStateMapping,
-    ref: [triggerRef, forwardedRef, buttonRef],
-    props: [rootTriggerProps, elementProps, getTriggerProps],
+    ref: [triggerRef, forwardedRef, buttonRef, isMenubar ? compositeRef : undefined],
+    props: [
+      isMenubar ? compositeProps : undefined,
+      rootTriggerProps,
+      elementProps,
+      getTriggerProps,
+    ],
   });
-
-  if (parent.type === 'menubar') {
-    return <CompositeItem render={element} />;
-  }
-
-  return element;
 });
 
 export namespace MenuTrigger {

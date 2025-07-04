@@ -34,7 +34,6 @@ import { PATIENT_CLICK_THRESHOLD } from '../../utils/constants';
 import { FocusGuard } from '../../utils/FocusGuard';
 import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { visuallyHidden } from '../../utils/visuallyHidden';
-import { CompositeItem } from '../../composite/item/CompositeItem';
 import { pressableTriggerOpenStateMapping } from '../../utils/popupStateMapping';
 import { isOutsideMenuEvent } from '../utils/isOutsideMenuEvent';
 import { useTimeout } from '../../utils/useTimeout';
@@ -43,6 +42,7 @@ import { useLatestRef } from '../../utils/useLatestRef';
 import { useAnimationsFinished } from '../../utils/useAnimationsFinished';
 import { NavigationMenuPopupCssVars } from '../popup/NavigationMenuPopupCssVars';
 import { NavigationMenuPositionerCssVars } from '../positioner/NavigationMenuPositionerCssVars';
+import { useCompositeItem } from '../../composite/item/useCompositeItem';
 
 const TRIGGER_IDENTIFIER = 'data-navigation-menu-trigger';
 
@@ -81,6 +81,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
   const itemValue = useNavigationMenuItemContext();
   const nodeId = useNavigationMenuTreeContext();
   const tree = useFloatingTree();
+  const { props: compositeProps, ref: compositeRef } = useCompositeItem();
 
   const stickIfOpenTimeout = useTimeout();
   const focusFrame = useAnimationFrame();
@@ -371,8 +372,9 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
 
   const element = useRenderElement('button', componentProps, {
     state,
-    ref: [forwardedRef, setTriggerElement],
+    ref: [forwardedRef, setTriggerElement, compositeRef],
     props: [
+      compositeProps,
       getReferenceProps,
       {
         tabIndex: 0,
@@ -419,7 +421,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
 
   return (
     <React.Fragment>
-      <CompositeItem render={element} />
+      {element}
       {isActiveItem && (
         <React.Fragment>
           <FocusGuard

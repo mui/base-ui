@@ -10,10 +10,9 @@ export interface UseCompositeItemParameters<Metadata> {
 }
 
 export function useCompositeItem<Metadata>(params: UseCompositeItemParameters<Metadata> = {}) {
-  const { highlightedIndex, onHighlightedIndexChange, highlightItemOnHover } =
-    useCompositeRootContext();
+  const compositeRootContext = useCompositeRootContext(true);
   const { ref, index } = useCompositeListItem(params);
-  const isHighlighted = highlightedIndex === index;
+  const isHighlighted = compositeRootContext?.highlightedIndex === index;
 
   const itemRef = React.useRef<HTMLElement | null>(null);
   const mergedRef = useForkRef(ref, itemRef);
@@ -22,11 +21,11 @@ export function useCompositeItem<Metadata>(params: UseCompositeItemParameters<Me
     () => ({
       tabIndex: isHighlighted ? 0 : -1,
       onFocus() {
-        onHighlightedIndexChange(index);
+        compositeRootContext?.onHighlightedIndexChange(index);
       },
       onMouseMove() {
         const item = itemRef.current;
-        if (!highlightItemOnHover || !item) {
+        if (!compositeRootContext?.highlightItemOnHover || !item) {
           return;
         }
 
@@ -36,7 +35,7 @@ export function useCompositeItem<Metadata>(params: UseCompositeItemParameters<Me
         }
       },
     }),
-    [index, isHighlighted, onHighlightedIndexChange, highlightItemOnHover],
+    [index, isHighlighted, compositeRootContext],
   );
 
   return React.useMemo(

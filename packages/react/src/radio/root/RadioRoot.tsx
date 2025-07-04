@@ -9,11 +9,11 @@ import { useRenderElement } from '../../utils/useRenderElement';
 import { visuallyHidden } from '../../utils/visuallyHidden';
 import { useButton } from '../../use-button';
 import { ACTIVE_COMPOSITE_ITEM } from '../../composite/constants';
-import { CompositeItem } from '../../composite/item/CompositeItem';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { customStyleHookMapping } from '../utils/customStyleHookMapping';
 import { useRadioGroupContext } from '../../radio-group/RadioGroupContext';
 import { RadioRootContext } from './RadioRootContext';
+import { useCompositeItem } from '../../composite/item/useCompositeItem';
 
 /**
  * Represents the radio button itself.
@@ -49,6 +49,7 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
     fieldControlValidation,
     registerControlRef,
   } = useRadioGroupContext();
+  const { props: compositeProps, ref: compositeRef } = useCompositeItem();
 
   const { state: fieldState, disabled: fieldDisabled } = useFieldRootContext();
 
@@ -172,10 +173,13 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
 
   const contextValue: RadioRootContext = React.useMemo(() => state, [state]);
 
+  const isRadioGroup = setCheckedValue !== NOOP;
+
   const element = useRenderElement('button', componentProps, {
     state,
-    ref: [forwardedRef, registerControlRef, buttonRef],
+    ref: [forwardedRef, registerControlRef, buttonRef, isRadioGroup ? compositeRef : undefined],
     props: [
+      isRadioGroup ? compositeProps : undefined,
       rootProps,
       fieldControlValidation?.getValidationProps ?? undefined,
       elementProps,
@@ -186,7 +190,7 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
 
   return (
     <RadioRootContext.Provider value={contextValue}>
-      {setCheckedValue === NOOP ? element : <CompositeItem render={element} />}
+      {element}
       <input {...inputProps} />
     </RadioRootContext.Provider>
   );

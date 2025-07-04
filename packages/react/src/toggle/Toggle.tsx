@@ -4,9 +4,9 @@ import { useControlled } from '../utils/useControlled';
 import { useEventCallback } from '../utils/useEventCallback';
 import { useRenderElement } from '../utils/useRenderElement';
 import type { BaseUIComponentProps } from '../utils/types';
-import { CompositeItem } from '../composite/item/CompositeItem';
 import { useToggleGroupContext } from '../toggle-group/ToggleGroupContext';
 import { useButton } from '../use-button/useButton';
+import { useCompositeItem } from '../composite/item/useCompositeItem';
 
 /**
  * A two-state button that can be on or off.
@@ -35,6 +35,7 @@ export const Toggle = React.forwardRef(function Toggle(
   const value = valueProp ?? '';
 
   const groupContext = useToggleGroupContext();
+  const { props: compositeProps, ref: compositeRef } = useCompositeItem();
 
   const groupValue = groupContext?.value ?? [];
 
@@ -67,10 +68,11 @@ export const Toggle = React.forwardRef(function Toggle(
     [disabled, pressed],
   );
 
-  const element = useRenderElement('button', componentProps, {
+  return useRenderElement('button', componentProps, {
     state,
-    ref: [buttonRef, forwardedRef],
+    ref: [buttonRef, forwardedRef, groupContext ? compositeRef : undefined],
     props: [
+      groupContext ? compositeProps : undefined,
       {
         'aria-pressed': pressed,
         onClick(event: React.MouseEvent) {
@@ -83,8 +85,6 @@ export const Toggle = React.forwardRef(function Toggle(
       getButtonProps,
     ],
   });
-
-  return groupContext ? <CompositeItem render={element} /> : element;
 });
 
 export namespace Toggle {
