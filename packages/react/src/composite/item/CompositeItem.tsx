@@ -42,6 +42,6 @@ export namespace CompositeItem {
     props?: Array<Record<string, any> | (() => Record<string, any>)>;
     state?: State;
     customStyleHookMapping?: CustomStyleHookMapping<State>;
-    tag: keyof React.JSX.IntrinsicElements;
+    tag?: keyof React.JSX.IntrinsicElements;
   }
 }
