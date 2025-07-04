@@ -7,8 +7,8 @@ import { ownerDocument } from '../../utils/owner';
 import type { BaseUIComponentProps, Orientation } from '../../utils/types';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useControlled } from '../../utils/useControlled';
-import { useEventCallback } from '../../utils/useEventCallback';
 import { useForkRef } from '../../utils/useForkRef';
+import { useEventCallback } from '../../utils/useEventCallback';
 import { useLatestRef } from '../../utils/useLatestRef';
 import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { useRenderElement } from '../../utils/useRenderElement';
@@ -196,6 +196,11 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
     },
   );
 
+  const handleHiddenInputFocus = useEventCallback(() => {
+    // focus the first thumb if the hidden input receives focus
+    thumbRefs.current?.[0]?.focus();
+  });
+
   useModernLayoutEffect(() => {
     if (valueProp === undefined || dragging) {
       return;
@@ -332,12 +337,14 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
               <input
                 key={`${name}-input-${index}`}
                 {...fieldControlValidation.getInputValidationProps({
-                  type: 'hidden',
                   disabled,
                   name,
                   ref: inputRef,
                   value,
+                  onFocus: handleHiddenInputFocus,
                   style: visuallyHidden,
+                  tabIndex: -1,
+                  'aria-hidden': true,
                 })}
               />
             );
@@ -345,12 +352,14 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
         ) : (
           <input
             {...fieldControlValidation.getInputValidationProps({
-              type: 'hidden',
               disabled,
               name,
               ref: inputRef,
               value: valueUnwrapped,
+              onFocus: handleHiddenInputFocus,
               style: visuallyHidden,
+              tabIndex: -1,
+              'aria-hidden': true,
             })}
           />
         )}

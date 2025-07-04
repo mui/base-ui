@@ -9,6 +9,8 @@ import { useRenderElement } from '../../utils/useRenderElement';
 import { visuallyHidden } from '../../utils/visuallyHidden';
 import { useButton } from '../../use-button';
 import { ACTIVE_COMPOSITE_ITEM } from '../../composite/constants';
+import { CompositeItem } from '../../composite/item/CompositeItem';
+import type { FieldRoot } from '../../field/root/FieldRoot';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { customStyleHookMapping } from '../utils/customStyleHookMapping';
 import { useRadioGroupContext } from '../../radio-group/RadioGroupContext';
@@ -245,11 +247,14 @@ export namespace RadioRoot {
     nativeButton?: boolean;
   }
 
-  export interface State {
+  export interface State extends FieldRoot.State {
     /**
      * Whether the radio button is currently selected.
      */
     checked: boolean;
+    /**
+     * Whether the component should ignore user interaction.
+     */
     disabled: boolean;
     /**
      * Whether the user should be unable to select the radio button.
