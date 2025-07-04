@@ -26,16 +26,28 @@ export const SelectValue = React.forwardRef(function SelectValue(
   const { store, valueRef } = useSelectRootContext();
   const value = useSelector(store, selectors.value);
   const items = useSelector(store, selectors.items);
+  const isChildrenPropFunction = typeof childrenProp === 'function';
 
   const labelFromItems = React.useMemo(() => {
-    if (items) {
-      if (Array.isArray(items)) {
-        return items.find((item) => item.value === value)?.label;
-      }
-      return items[value];
+    if (!items || isChildrenPropFunction) {
+      return undefined;
     }
-    return null;
-  }, [items, value]);
+
+    if (Array.isArray(value)) {
+      if (Array.isArray(items)) {
+        const lookup = new Map(items.map((item) => [item.value, item.label]));
+        return value.map((v) => lookup.get(v) ?? v).join(', ');
+      }
+
+      return value.map((v) => items[v] ?? v).join(', ');
+    }
+
+    if (Array.isArray(items)) {
+      return items.find((item) => item.value === value)?.label;
+    }
+
+    return items[value];
+  }, [value, items, isChildrenPropFunction]);
 
   const state: SelectValue.State = React.useMemo(
     () => ({

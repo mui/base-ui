@@ -19,6 +19,14 @@ import {
   useExperimentSettings,
 } from '../../../components/Experiments/SettingsPanel';
 
+const fonts = [
+  { value: null, label: 'Select multiple fonts' },
+  { value: 'sans', label: 'Sans-serif' },
+  { value: 'serif', label: 'Serif' },
+  { value: 'mono', label: 'Monospace' },
+  { value: 'cursive', label: 'Cursive' },
+];
+
 const schema = z.object({
   input: z.string().min(1, 'This field is required'),
   checkbox: z.enum(['on']),
@@ -28,6 +36,7 @@ const schema = z.object({
   'number-field': z.number().min(0).max(100),
   select: z.enum(['sans', 'serif', 'mono', 'cursive']),
   'radio-group': z.enum(['auto', 'scrolling', 'always']),
+  'multi-select': z.array(z.enum(['sans', 'serif', 'mono', 'cursive'])).min(1),
 });
 
 interface Settings extends Record<string, boolean> {}
@@ -53,6 +62,7 @@ async function submitForm(event: React.FormEvent<HTMLFormElement>, values: Value
 
   entries['number-field'] = values.numberField;
   entries.slider = Number(entries.slider);
+  entries['multi-select'] = formData.getAll('multi-select');
 
   const result = schema.safeParse(entries);
 
@@ -141,11 +151,7 @@ export default function Page() {
           <Field.Error className={styles.Error} />
         </Field.Root>
 
-        <Field.Root
-          name="range-slider"
-          render={<Fieldset.Root />}
-          className={styles.Field}
-        >
+        <Field.Root name="range-slider" render={<Fieldset.Root />} className={styles.Field}>
           <Slider.Root
             defaultValue={[500, 1200]}
             min={100}
@@ -183,13 +189,9 @@ export default function Page() {
             }}
           >
             <NumberField.Group className={styles.NumberField}>
-              <NumberField.Decrement className={styles.Decrement}>
-                -
-              </NumberField.Decrement>
+              <NumberField.Decrement className={styles.Decrement}>-</NumberField.Decrement>
               <NumberField.Input className={styles.Input} />
-              <NumberField.Increment className={styles.Increment}>
-                +
-              </NumberField.Increment>
+              <NumberField.Increment className={styles.Increment}>+</NumberField.Increment>
             </NumberField.Group>
           </NumberField.Root>
           <Field.Error className={styles.Error} />
@@ -212,33 +214,25 @@ export default function Page() {
                     <Select.ItemIndicator className={styles.ItemIndicator}>
                       <CheckIcon className={styles.ItemIndicatorIcon} />
                     </Select.ItemIndicator>
-                    <Select.ItemText className={styles.ItemText}>
-                      Sans-serif
-                    </Select.ItemText>
+                    <Select.ItemText className={styles.ItemText}>Sans-serif</Select.ItemText>
                   </Select.Item>
                   <Select.Item className={styles.Item} value="serif">
                     <Select.ItemIndicator className={styles.ItemIndicator}>
                       <CheckIcon className={styles.ItemIndicatorIcon} />
                     </Select.ItemIndicator>
-                    <Select.ItemText className={styles.ItemText}>
-                      Serif
-                    </Select.ItemText>
+                    <Select.ItemText className={styles.ItemText}>Serif</Select.ItemText>
                   </Select.Item>
                   <Select.Item className={styles.Item} value="mono">
                     <Select.ItemIndicator className={styles.ItemIndicator}>
                       <CheckIcon className={styles.ItemIndicatorIcon} />
                     </Select.ItemIndicator>
-                    <Select.ItemText className={styles.ItemText}>
-                      Monospace
-                    </Select.ItemText>
+                    <Select.ItemText className={styles.ItemText}>Monospace</Select.ItemText>
                   </Select.Item>
                   <Select.Item className={styles.Item} value="cursive">
                     <Select.ItemIndicator className={styles.ItemIndicator}>
                       <CheckIcon className={styles.ItemIndicatorIcon} />
                     </Select.ItemIndicator>
-                    <Select.ItemText className={styles.ItemText}>
-                      Cursive
-                    </Select.ItemText>
+                    <Select.ItemText className={styles.ItemText}>Cursive</Select.ItemText>
                   </Select.Item>
                 </Select.Popup>
                 <Select.ScrollDownArrow className={styles.ScrollArrow} />
@@ -248,14 +242,8 @@ export default function Page() {
           <Field.Error className={styles.Error} />
         </Field.Root>
 
-        <Field.Root
-          name="radio-group"
-          render={<Fieldset.Root />}
-          className={styles.Field}
-        >
-          <Fieldset.Legend className={styles.Legend}>
-            Show scroll bars
-          </Fieldset.Legend>
+        <Field.Root name="radio-group" render={<Fieldset.Root />} className={styles.Field}>
+          <Fieldset.Legend className={styles.Legend}>Show scroll bars</Fieldset.Legend>
           <RadioGroup required={native} className={styles.RadioGroup}>
             <Field.Label className={styles.Label}>
               <Radio.Root value="auto" className={styles.Radio}>
@@ -281,14 +269,8 @@ export default function Page() {
           <Field.Error className={styles.Error} />
         </Field.Root>
 
-        <Field.Root
-          name="checkbox-group"
-          render={<Fieldset.Root />}
-          className={styles.Field}
-        >
-          <Fieldset.Legend className={styles.Legend}>
-            Content blocking
-          </Fieldset.Legend>
+        <Field.Root name="checkbox-group" render={<Fieldset.Root />} className={styles.Field}>
+          <Fieldset.Legend className={styles.Legend}>Content blocking</Fieldset.Legend>
           <CheckboxGroup
             aria-labelledby="parent-label"
             value={checkboxGroupValue}
@@ -297,11 +279,7 @@ export default function Page() {
             className={styles.CheckboxGroup}
             style={{ marginLeft: '1rem' }}
           >
-            <Field.Label
-              className={styles.Label}
-              style={{ marginLeft: '-1rem' }}
-              id="parent-label"
-            >
+            <Field.Label className={styles.Label} style={{ marginLeft: '-1rem' }} id="parent-label">
               <Checkbox.Root parent className={styles.Checkbox}>
                 <Checkbox.Indicator
                   className={styles.CheckboxIndicator}
@@ -355,6 +333,35 @@ export default function Page() {
               Block trackers
             </Field.Label>
           </CheckboxGroup>
+          <Field.Error className={styles.Error} />
+        </Field.Root>
+
+        <Field.Root name="multi-select" className={styles.Field}>
+          <Field.Label className={styles.Label}>Fonts (multiple)</Field.Label>
+          <Select.Root multiple required={native} items={fonts}>
+            <Select.Trigger className={styles.Select}>
+              <Select.Value />
+              <Select.Icon className={styles.SelectIcon}>
+                <ChevronUpDownIcon />
+              </Select.Icon>
+            </Select.Trigger>
+            <Select.Portal>
+              <Select.Positioner className={styles.Positioner} sideOffset={8}>
+                <Select.ScrollUpArrow className={styles.ScrollArrow} />
+                <Select.Popup className={styles.Popup}>
+                  {fonts.slice(1).map(({ value, label }) => (
+                    <Select.Item key={value} className={styles.Item} value={value}>
+                      <Select.ItemIndicator className={styles.ItemIndicator}>
+                        <CheckIcon className={styles.ItemIndicatorIcon} />
+                      </Select.ItemIndicator>
+                      <Select.ItemText className={styles.ItemText}>{label}</Select.ItemText>
+                    </Select.Item>
+                  ))}
+                </Select.Popup>
+                <Select.ScrollDownArrow className={styles.ScrollArrow} />
+              </Select.Positioner>
+            </Select.Portal>
+          </Select.Root>
           <Field.Error className={styles.Error} />
         </Field.Root>
 
