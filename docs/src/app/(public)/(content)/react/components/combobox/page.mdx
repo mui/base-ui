@@ -1,0 +1,124 @@
+# Combobox
+
+<Subtitle>An input combined with a list of items to choose from.</Subtitle>
+<Meta
+  name="description"
+  content="A high-quality, unstyled React combobox component that renders an input combined with a list of items to choose from."
+/>
+
+<Demo path="./demos/hero" />
+
+## Anatomy
+
+Import the components and place them together:
+
+```jsx title="Anatomy"
+import { Combobox } from '@base-ui-components/react/combobox';
+
+<Combobox.Root>
+  <Combobox.Value />
+  <Combobox.Trigger />
+
+  <Combobox.Chips>
+    <Combobox.Chip>
+      <Combobox.ChipRemove />
+    </Combobox.Chip>
+
+    <Combobox.Input />
+  </Combobox.Chips>
+
+  <Combobox.Portal>
+    <Combobox.Positioner>
+      <Combobox.Popup>
+        <Combobox.Status />
+        <Combobox.Empty />
+
+        <Combobox.List>
+          <Combobox.Row>
+            <Combobox.Item>
+              <Combobox.ItemIndicator />
+            </Combobox.Item>
+          </Combobox.Row>
+
+          <Combobox.Separator />
+
+          <Combobox.Group>
+            <Combobox.GroupLabel />
+          </Combobox.Group>
+
+          <Combobox.Collection />
+        </Combobox.List>
+      </Combobox.Popup>
+    </Combobox.Positioner>
+  </Combobox.Portal>
+</Combobox.Root>;
+```
+
+## API reference
+
+<Reference
+  component="Combobox"
+  parts="Root, Input, Chips, Chip, ChipRemove, Value, List, Trigger, Portal, Positioner, Popup, Status, Empty, Collection, Row, Item, ItemIndicator, Group, GroupLabel, Separator"
+/>
+
+## Examples
+
+### Basic
+
+The combobox can display predefined options without filtering or selection state, demonstrating search history.
+
+<Demo path="./demos/basic" compact />
+
+### Grouped
+
+The combobox can group related options together by passing an array of group objects to the `items` prop.
+
+<Demo path="./demos/grouped" compact />
+
+### Async search
+
+The combobox items can be loaded asynchronously.
+
+<Demo path="./demos/async" compact />
+
+### Input autofill
+
+The combobox's input can be autofilled with the highlighted item when navigating with arrow keys before selecting an item.
+
+<Demo path="./demos/autofill" compact />
+
+### Select
+
+The combobox can require the input value to match one of its predefined options.
+
+<Demo path="./demos/option-only" compact />
+
+### Inside `Popover`
+
+The combobox can be rendered inline inside a parent popover to create a searchable select menu.
+
+<Demo path="./demos/inside-popover" compact />
+
+### Multiple
+
+The combobox can be used to create a multiple select menu, rendering chips for each selected value in the input.
+
+<Demo path="./demos/multiple" compact />
+
+### Grid layout
+
+The combobox items can be navigated in a grid layout by wrapping each row in `Combobox.Row` adding the `cols` prop to `Combobox.Root`.
+
+<Demo path="./demos/grid" compact />
+
+### Command menu
+
+The combobox can be used to create a command menu when rendered inside a `Dialog` component.
+
+<Demo path="./demos/command-menu" compact />
+
+### Search highlights
+
+Search highlights can be created by wrapping text with `<mark>` tags.
+
+<Demo path="./demos/search-highlights" compact />
