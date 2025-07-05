@@ -1,37 +1,15 @@
 'use client';
 import * as React from 'react';
 import { NavigationMenu } from '@base-ui-components/react/navigation-menu';
+import { Collapsible } from '@base-ui-components/react/collapsible';
 import styles from './navigation-menu.module.css';
 
 export default function ExampleNavigationMenu() {
   const [renderExtraItem, setRenderExtraItem] = React.useState(false);
-  const [renderExtraItem2, setRenderExtraItem2] = React.useState(false);
-
-  React.useEffect(() => {
-    setTimeout(() => {
-      setRenderExtraItem(true);
-    }, 2500);
-    setTimeout(() => {
-      setRenderExtraItem2(true);
-    }, 5000);
-  }, []);
+  const [hoveredLink, setHoveredLink] = React.useState<string | null>(null);
 
   return (
     <div>
-      <ol style={{ listStyle: 'decimal' }}>
-        <li>Open the menu</li>
-        <li>
-          After 2500ms since mount, a new item will be rendered in the Overview menu
-        </li>
-        <li>Move to the Handbook menu</li>
-        <li>
-          After 5000ms since mount, a new item will be rendered in the Handbook menu
-        </li>
-        <li>
-          Resizing while open also works as expected - the menu will resize to the
-          new size
-        </li>
-      </ol>
       <NavigationMenu.Root className={styles.Root}>
         <NavigationMenu.List className={styles.List}>
           <NavigationMenu.Item>
@@ -42,29 +20,82 @@ export default function ExampleNavigationMenu() {
               </NavigationMenu.Icon>
             </NavigationMenu.Trigger>
             <NavigationMenu.Content className={styles.Content}>
-              <ul className={styles.GridLinkList}>
-                {overviewLinks.map((item) => (
-                  <li key={item.href}>
-                    <Link className={styles.LinkCard} href={item.href}>
-                      <h3 className={styles.LinkTitle}>{item.title}</h3>
-                      <p className={styles.LinkDescription}>{item.description}</p>
-                    </Link>
-                  </li>
-                ))}
-                {renderExtraItem && (
-                  <li>
-                    <Link
-                      className={styles.LinkCard}
-                      href="/react/overview/quick-start"
+              <div style={{ display: 'flex', gap: 20 }}>
+                {/* Left side - Links */}
+                <div style={{ flex: 1 }}>
+                  <ul className={styles.GridLinkList}>
+                    {overviewLinks.map((item) => (
+                      <li key={item.href}>
+                        <Link
+                          className={styles.LinkCard}
+                          href={item.href}
+                          onMouseEnter={() => {
+                            setHoveredLink(item.href);
+                          }}
+                        >
+                          <h3 className={styles.LinkTitle}>{item.title}</h3>
+                          <p className={styles.LinkDescription}>{item.description}</p>
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                {/* Right side - Dynamic content */}
+                <div style={{ flex: 1 }}>
+                  {hoveredLink && (
+                    <div
+                      style={{
+                        backgroundColor: 'black',
+                        color: 'white',
+                        padding: 20,
+                        borderRadius: 8,
+                        minHeight: 200,
+                        width: hoveredLink === '/react/overview/quick-start' ? 200 : 400,
+                        height: hoveredLink === '/react/overview/accessibility' ? 150 : 300,
+                      }}
                     >
-                      <h3 className={styles.LinkTitle}>Quick Start</h3>
-                      <p className={styles.LinkDescription}>
-                        Install and assemble your first component.
-                      </p>
-                    </Link>
-                  </li>
-                )}
-              </ul>
+                      {hoveredLink === '/react/overview/quick-start' && (
+                        <div>
+                          <h4 style={{ marginBottom: 10 }}>Quick Start Guide</h4>
+                          <p>
+                            All components are included in a single package. Base UI is
+                            tree-shakeable, so your app bundle will contain only the components that
+                            you actually use.
+                          </p>
+                        </div>
+                      )}
+                      {hoveredLink === '/react/overview/accessibility' && (
+                        <div>
+                          <h4 style={{ marginBottom: 10 }}>Accessibility Features</h4>
+                          <p>
+                            ARIA attributes built-in, keyboard navigation, screen reader support,
+                            and focus management.
+                          </p>
+                        </div>
+                      )}
+                      {hoveredLink === '/react/overview/releases' && (
+                        <div>
+                          <h4 style={{ marginBottom: 10 }}>Latest Releases</h4>
+                          <p>
+                            v1.0.0 - Major release with new components, performance improvements,
+                            and bug fixes.
+                          </p>
+                        </div>
+                      )}
+                      {hoveredLink === '/react/overview/about' && (
+                        <div>
+                          <h4 style={{ marginBottom: 10 }}>About Base UI</h4>
+                          <p>
+                            Unstyled components that are fully customizable, and built by the MUI
+                            team.
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </div>
             </NavigationMenu.Content>
           </NavigationMenu.Item>
 
@@ -76,6 +107,23 @@ export default function ExampleNavigationMenu() {
               </NavigationMenu.Icon>
             </NavigationMenu.Trigger>
             <NavigationMenu.Content className={styles.Content}>
+              <Collapsible.Root className="flex w-56 flex-col justify-center text-gray-900">
+                <Collapsible.Trigger className="group flex items-center gap-2 rounded-sm bg-gray-100 px-2 py-1 text-sm font-medium hover:bg-gray-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-800 active:bg-gray-200">
+                  Recovery keys
+                </Collapsible.Trigger>
+                <Collapsible.Panel className="flex h-[var(--collapsible-panel-height)] flex-col justify-end overflow-hidden text-sm transition-all ease-out data-[ending-style]:h-0 data-[starting-style]:h-0">
+                  <div className="mt-1 flex cursor-text flex-col gap-2 rounded-sm bg-gray-100 py-2 pl-7">
+                    <div>alien-bean-pasta</div>
+                    <div>wild-irish-burrito</div>
+                    <div>horse-battery-staple</div>
+                  </div>
+                </Collapsible.Panel>
+              </Collapsible.Root>
+
+              <button type="button" onClick={() => setRenderExtraItem(!renderExtraItem)}>
+                Render extra item
+              </button>
+
               <ul className={styles.FlexLinkList}>
                 {handbookLinks.map((item) => (
                   <li key={item.href}>
@@ -85,12 +133,9 @@ export default function ExampleNavigationMenu() {
                     </Link>
                   </li>
                 ))}
-                {renderExtraItem2 && (
+                {renderExtraItem && (
                   <li>
-                    <Link
-                      className={styles.LinkCard}
-                      href="/react/overview/quick-start"
-                    >
+                    <Link className={styles.LinkCard} href="/react/overview/quick-start">
                       <h3 className={styles.LinkTitle}>Quick Start</h3>
                       <p className={styles.LinkDescription}>
                         Install and assemble your first component.
@@ -111,6 +156,7 @@ export default function ExampleNavigationMenu() {
 
         <NavigationMenu.Portal>
           <NavigationMenu.Positioner
+            align="center"
             className={styles.Positioner}
             sideOffset={10}
             collisionPadding={{ top: 5, bottom: 5, left: 20, right: 20 }}
@@ -125,10 +171,7 @@ export default function ExampleNavigationMenu() {
         </NavigationMenu.Portal>
       </NavigationMenu.Root>
 
-      <NavigationMenu.Root
-        className={styles.Root}
-        style={{ position: 'absolute', bottom: 100 }}
-      >
+      <NavigationMenu.Root className={styles.Root} style={{ position: 'absolute', bottom: 100 }}>
         <NavigationMenu.List className={styles.List}>
           <NavigationMenu.Item>
             <NavigationMenu.Trigger className={styles.Trigger}>
@@ -147,19 +190,6 @@ export default function ExampleNavigationMenu() {
                     </Link>
                   </li>
                 ))}
-                {renderExtraItem && (
-                  <li>
-                    <Link
-                      className={styles.LinkCard}
-                      href="/react/overview/quick-start"
-                    >
-                      <h3 className={styles.LinkTitle}>Quick Start</h3>
-                      <p className={styles.LinkDescription}>
-                        Install and assemble your first component.
-                      </p>
-                    </Link>
-                  </li>
-                )}
               </ul>
             </NavigationMenu.Content>
           </NavigationMenu.Item>
@@ -172,6 +202,10 @@ export default function ExampleNavigationMenu() {
               </NavigationMenu.Icon>
             </NavigationMenu.Trigger>
             <NavigationMenu.Content className={styles.Content}>
+              <button type="button" onClick={() => setRenderExtraItem(!renderExtraItem)}>
+                Render extra item
+              </button>
+
               <ul className={styles.FlexLinkList}>
                 {handbookLinks.map((item) => (
                   <li key={item.href}>
@@ -181,12 +215,9 @@ export default function ExampleNavigationMenu() {
                     </Link>
                   </li>
                 ))}
-                {renderExtraItem2 && (
+                {renderExtraItem && (
                   <li>
-                    <Link
-                      className={styles.LinkCard}
-                      href="/react/overview/quick-start"
-                    >
+                    <Link className={styles.LinkCard} href="/react/overview/quick-start">
                       <h3 className={styles.LinkTitle}>Quick Start</h3>
                       <p className={styles.LinkDescription}>
                         Install and assemble your first component.
@@ -284,7 +315,7 @@ const overviewLinks = [
   {
     href: '/react/overview/about',
     title: 'About',
-    description: 'Learn more about Base UI and our mission.',
+    description: 'Learn more about Base UI and our mission.',
   },
 ] as const;
 
@@ -293,18 +324,18 @@ const handbookLinks = [
     href: '/react/handbook/styling',
     title: 'Styling',
     description:
-      'Base UI components can be styled with plain CSS, Tailwind CSS, CSS-in-JS, or CSS Modules.',
+      'Base UI components can be styled with plain CSS, Tailwind CSS, CSS-in-JS, or CSS Modules.',
   },
   {
     href: '/react/handbook/animation',
     title: 'Animation',
     description:
-      'Base UI components can be animated with CSS transitions, CSS animations, or JavaScript libraries.',
+      'Base UI components can be animated with CSS transitions, CSS animations, or JavaScript libraries.',
   },
   {
     href: '/react/handbook/composition',
     title: 'Composition',
     description:
-      'Base UI components can be replaced and composed with your own existing components.',
+      'Base UI components can be replaced and composed with your own existing components.',
   },
 ] as const;

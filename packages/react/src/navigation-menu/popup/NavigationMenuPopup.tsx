@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import { useModernLayoutEffect } from '@base-ui-components/utils/useModernLayoutEffect';
 import {
   getNextTabbable,
   getPreviousTabbable,
@@ -38,7 +37,6 @@ export const NavigationMenuPopup = React.forwardRef(function NavigationMenuPopup
   const {
     open,
     transitionStatus,
-    popupElement,
     positionerElement,
     setPopupElement,
     beforeInsideRef,
@@ -61,19 +59,6 @@ export const NavigationMenuPopup = React.forwardRef(function NavigationMenuPopup
     }),
     [open, transitionStatus, positioning.side, positioning.align, positioning.anchorHidden],
   );
-
-  // Allow the arrow to transition while the popup's size transitions.
-  useModernLayoutEffect(() => {
-    if (!popupElement || typeof ResizeObserver === 'undefined') {
-      return undefined;
-    }
-
-    const observer = new ResizeObserver(positioning.update);
-    observer.observe(popupElement);
-    return () => {
-      observer.disconnect();
-    };
-  }, [popupElement, positioning.update]);
 
   // Ensure popup size transitions correctly when anchored to `bottom` (side=top) or `right` (side=left).
   let isOriginSide = positioning.side === 'top';
