@@ -17,6 +17,7 @@ export const DialogRoot: React.FC<DialogRoot.Props> = function DialogRoot(props)
     dismissible = true,
     modal = true,
     onOpenChange,
+    alert = false,
     open,
     actionsRef,
     onOpenChangeComplete,
@@ -25,11 +26,12 @@ export const DialogRoot: React.FC<DialogRoot.Props> = function DialogRoot(props)
   const parentDialogRootContext = useOptionalDialogRootContext();
 
   const dialogRoot = useDialogRoot({
+    alert,
     open,
     defaultOpen,
     onOpenChange,
-    modal,
-    dismissible,
+    modal: alert ? true : modal,
+    dismissible: alert ? false : dismissible,
     actionsRef,
     onOpenChangeComplete,
     onNestedDialogClose: parentDialogRootContext?.onNestedDialogClose,
@@ -46,7 +48,7 @@ export const DialogRoot: React.FC<DialogRoot.Props> = function DialogRoot(props)
     }),
     [dialogRoot, nested, onOpenChangeComplete],
   );
-  const dialogRootContextValue = React.useMemo(() => ({ dismissible }), [dismissible]);
+  const dialogRootContextValue = React.useMemo(() => ({ dismissible, alert }), [dismissible, alert]);
 
   return (
     <DialogContext.Provider value={dialogContextValue}>

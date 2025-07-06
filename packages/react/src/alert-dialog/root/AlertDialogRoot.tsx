@@ -10,7 +10,7 @@ import { type DialogOpenChangeReason, useDialogRoot } from '../../dialog/root/us
  *
  * Documentation: [Base UI Alert Dialog](https://base-ui.com/react/components/alert-dialog)
  */
-export const AlertDialogRoot: React.FC<AlertDialogRoot.Props> = function AlertDialogRoot(props) {
+export const AlertDialogRoot: React.FC<Omit<AlertDialogRoot.Props, 'alert'>> = function AlertDialogRoot(props) {
   const {
     children,
     defaultOpen = false,
@@ -23,6 +23,7 @@ export const AlertDialogRoot: React.FC<AlertDialogRoot.Props> = function AlertDi
   const parentDialogRootContext = React.useContext(AlertDialogRootContext);
 
   const dialogRoot = useDialogRoot({
+    alert: true,
     open,
     defaultOpen,
     onOpenChange,

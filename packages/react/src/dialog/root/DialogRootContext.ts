@@ -7,6 +7,10 @@ export interface DialogRootContext {
    * Determines whether the dialog should close on outside clicks.
    */
   dismissible: boolean;
+  /**
+   * Whether the dialog is an alert dialog.
+   */
+  alert?: boolean;
 }
 
 export const DialogRootContext = React.createContext<DialogRootContext | undefined>(undefined);
