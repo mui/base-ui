@@ -61,8 +61,30 @@ export function SelectRoot<Value>(props: SelectRoot.Props<Value>): React.JSX.Ele
   const ref = useForkRef(inputRef, rootContext.fieldControlValidation.inputRef);
 
   const serializedValue = React.useMemo(() => {
-    return multiple ? undefined : serializeValue(value);
-  }, [value, multiple]);
+    if (multiple && Array.isArray(value) && value.length === 0) {
+      return '';
+    }
+
+    return serializeValue(value);
+  }, [multiple, value]);
+
+  const hiddenInputs = React.useMemo(() => {
+    if (!multiple || !Array.isArray(value) || !rootContext.name) {
+      return null;
+    }
+
+    return value.map((v) => {
+      const currentSerializedValue = serializeValue(v);
+      return (
+        <input
+          key={currentSerializedValue}
+          type="hidden"
+          name={rootContext.name}
+          value={currentSerializedValue}
+        />
+      );
+    });
+  }, [multiple, value, rootContext.name]);
 
   return (
     <SelectRootContext.Provider value={rootContext}>
@@ -122,16 +144,7 @@ export function SelectRoot<Value>(props: SelectRoot.Props<Value>): React.JSX.Ele
             'aria-hidden': true,
           })}
         />
-        {multiple && Array.isArray(value) && rootContext.name
-          ? value.map((v) => (
-              <input
-                key={String(v)}
-                type="hidden"
-                name={rootContext.name}
-                value={typeof v === 'string' ? v : JSON.stringify(v)}
-              />
-            ))
-          : null}
+        {hiddenInputs}
       </SelectFloatingContext.Provider>
     </SelectRootContext.Provider>
   );
@@ -164,7 +177,7 @@ export namespace SelectRoot {
     extends Omit<Props<Value>, 'multiple' | 'value' | 'defaultValue' | 'onValueChange'> {
     /**
      * Whether multiple items can be selected.
-     * @default true
+     * @default false
      */
     multiple: true;
     value?: Value[] | null;

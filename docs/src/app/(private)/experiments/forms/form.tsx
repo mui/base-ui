@@ -20,7 +20,6 @@ import {
 } from '../../../../components/Experiments/SettingsPanel';
 
 const fonts = [
-  { value: null, label: 'Select multiple fonts' },
   { value: 'sans', label: 'Sans-serif' },
   { value: 'serif', label: 'Serif' },
   { value: 'mono', label: 'Monospace' },
@@ -340,7 +339,13 @@ export default function Page() {
           <Field.Label className={styles.Label}>Fonts (multiple)</Field.Label>
           <Select.Root multiple required={native} items={fonts}>
             <Select.Trigger className={styles.Select}>
-              <Select.Value />
+              <Select.Value>
+                {(value: string[]) =>
+                  value.length > 0
+                    ? value.map((v) => fonts.find((f) => f.value === v)?.label).join(', ')
+                    : 'Select fonts...'
+                }
+              </Select.Value>
               <Select.Icon className={styles.SelectIcon}>
                 <ChevronUpDownIcon />
               </Select.Icon>
@@ -349,7 +354,7 @@ export default function Page() {
               <Select.Positioner className={styles.Positioner} sideOffset={8}>
                 <Select.ScrollUpArrow className={styles.ScrollArrow} />
                 <Select.Popup className={styles.Popup}>
-                  {fonts.slice(1).map(({ value, label }) => (
+                  {fonts.map(({ value, label }) => (
                     <Select.Item key={value} className={styles.Item} value={value}>
                       <Select.ItemIndicator className={styles.ItemIndicator}>
                         <CheckIcon className={styles.ItemIndicatorIcon} />

@@ -1474,14 +1474,14 @@ describe('<Select.Root />', () => {
       const handleValueChange = spy();
 
       function App() {
-        const [value, setValue] = React.useState<string[]>([]);
+        const [value, setValue] = React.useState([]);
 
         return (
           <Select.Root
             multiple
             value={value}
             onValueChange={(newValue) => {
-              setValue(newValue as string[]);
+              setValue(newValue);
               handleValueChange(newValue);
             }}
           >
@@ -1530,14 +1530,14 @@ describe('<Select.Root />', () => {
       const handleValueChange = spy();
 
       function App() {
-        const [value, setValue] = React.useState<string[]>(['a', 'b']);
+        const [value, setValue] = React.useState(['a', 'b']);
 
         return (
           <Select.Root
             multiple
             value={value}
             onValueChange={(newValue) => {
-              setValue(newValue as string[]);
+              setValue(newValue);
               handleValueChange(newValue);
             }}
           >
@@ -1630,6 +1630,34 @@ describe('<Select.Root />', () => {
       expect(hiddenInputs).to.have.length(2);
       const values = Array.from(hiddenInputs).map((input) => input.value);
       expect(values).to.deep.equal(['a', 'c']);
+    });
+
+    it('should serialize empty array as empty string in multiple mode', async () => {
+      const { container } = await render(
+        <Select.Root multiple name="select">
+          <Select.Trigger data-testid="trigger">
+            <Select.Value />
+          </Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup>
+                <Select.Item value="a">a</Select.Item>
+                <Select.Item value="b">b</Select.Item>
+                <Select.Item value="c">c</Select.Item>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>,
+      );
+
+      // In multiple mode with empty array, no hidden inputs with name should exist
+      const namedHiddenInputs = container.querySelectorAll('[name="select"]');
+      expect(namedHiddenInputs).to.have.length(0);
+
+      // But the main input should have the serialized empty value for Field validation purposes
+      const mainInput = container.querySelector<HTMLInputElement>('input[aria-hidden="true"]');
+      expect(mainInput).not.to.equal(null);
+      expect(mainInput?.value).to.equal('');
     });
 
     it('should not close popup when selecting items in multiple mode', async () => {

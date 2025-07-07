@@ -75,7 +75,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
 
   const [value, setValueUnwrapped] = useControlled({
     controlled: params.value,
-    default: params.defaultValue,
+    default: multiple ? (params.defaultValue ?? EMPTY_ARRAY) : params.defaultValue,
     name: 'Select',
     state: 'value',
   });

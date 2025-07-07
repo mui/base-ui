@@ -29,17 +29,17 @@ export const SelectValue = React.forwardRef(function SelectValue(
   const isChildrenPropFunction = typeof childrenProp === 'function';
 
   const labelFromItems = React.useMemo(() => {
-    if (!items || isChildrenPropFunction) {
+    if (isChildrenPropFunction) {
       return undefined;
     }
 
+    // `multiple` selects should always use a custom `children` render function
     if (Array.isArray(value)) {
-      if (Array.isArray(items)) {
-        const lookup = new Map(items.map((item) => [item.value, item.label]));
-        return value.map((v) => lookup.get(v) ?? v).join(', ');
-      }
+      return value.join(', ');
+    }
 
-      return value.map((v) => items[v] ?? v).join(', ');
+    if (!items) {
+      return undefined;
     }
 
     if (Array.isArray(items)) {
