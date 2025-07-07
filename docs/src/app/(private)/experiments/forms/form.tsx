@@ -17,7 +17,7 @@ import styles from './form.module.css';
 import {
   SettingsMetadata,
   useExperimentSettings,
-} from '../../../components/Experiments/SettingsPanel';
+} from '../../../../components/Experiments/SettingsPanel';
 
 const fonts = [
   { value: null, label: 'Select multiple fonts' },
