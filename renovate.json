@@ -35,10 +35,6 @@
       "automerge": true
     },
     {
-      "automerge": true,
-      "matchPackageNames": ["@types/**"]
-    },
-    {
       "groupName": "Infra packages",
       "matchPackageNames": ["@mui/internal-*", "@mui/docs"],
       "followTag": "canary",
@@ -78,8 +74,8 @@
       "allowedVersions": "< 19.0.0"
     },
     {
-      "groupName": "Vitest",
-      "matchPackagePatterns": ["^vitest$", "^@vitest/"]
+      "groupName": "Vite + Vitest",
+      "matchPackagePatterns": ["^vitest$", "^@vitest/", "^vitest-", "^vite$", "^@vitejs/plugin-"]
     },
     {
       "matchDepTypes": ["engines"],
@@ -103,16 +99,6 @@
       "groupName": "chai - incompatible versions",
       "matchPackageNames": ["chai", "@types/chai"],
       "allowedVersions": "< 5.0.0"
-    },
-    {
-      "groupName": "react-docgen - incompatible versions",
-      "matchPackageNames": ["react-docgen"],
-      "allowedVersions": "< 6.0.0"
-    },
-    {
-      "groupName": "eslint - incompatible versions",
-      "matchPackageNames": ["eslint", "@types/eslint"],
-      "allowedVersions": "< 9.0.0"
     }
   ],
   "postUpdateOptions": ["pnpmDedupe"],
