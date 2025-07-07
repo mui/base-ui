@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { expect } from 'chai';
+import { expect } from 'vitest';
 import { afterEach } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';

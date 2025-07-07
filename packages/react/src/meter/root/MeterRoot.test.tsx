@@ -1,4 +1,4 @@
-import { expect } from 'chai';
+import { expect } from 'vitest';
 import * as React from 'react';
 import { Meter } from '@base-ui-components/react/meter';
 import { screen } from '@mui/internal-test-utils';

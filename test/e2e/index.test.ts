@@ -1,4 +1,4 @@
-import { expect } from 'chai';
+import { expect } from 'vitest';
 import { chromium, ElementHandle, Page, Browser } from '@playwright/test';
 import { describe, it, beforeAll } from 'vitest';
 import type {

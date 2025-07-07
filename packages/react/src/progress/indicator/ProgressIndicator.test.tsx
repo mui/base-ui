@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { expect } from 'chai';
+import { expect } from 'vitest';
 import { Progress } from '@base-ui-components/react/progress';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 

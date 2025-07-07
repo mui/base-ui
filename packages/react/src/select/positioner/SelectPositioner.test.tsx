@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Select } from '@base-ui-components/react/select';
 import { screen } from '@mui/internal-test-utils';
-import { expect } from 'chai';
+import { expect } from 'vitest';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 
 const Trigger = React.forwardRef(function Trigger(

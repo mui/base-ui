@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Select } from '@base-ui-components/react/select';
 import { spy } from 'sinon';
-import { expect } from 'chai';
+import { expect } from 'vitest';
 import { fireEvent, flushMicrotasks, screen } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance } from '#test-utils';
 

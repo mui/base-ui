@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Select } from '@base-ui-components/react/select';
 import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
-import { expect } from 'chai';
+import { expect } from 'vitest';
 
 describe('<Select.Item />', () => {
   const { render } = createRenderer();

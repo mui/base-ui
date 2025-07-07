@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { PreviewCard } from '@base-ui-components/react/preview-card';
 import { act, fireEvent, screen, flushMicrotasks, waitFor } from '@mui/internal-test-utils';
-import { expect } from 'chai';
+import { expect } from 'vitest';
 import { spy } from 'sinon';
 import { createRenderer, isJSDOM, popupConformanceTests } from '#test-utils';
 import { CLOSE_DELAY, OPEN_DELAY } from '../utils/constants';
@@ -554,7 +554,7 @@ describe('<PreviewCard.Root />', () => {
               opacity: 0;
             }
           }
-  
+
           .animation-test-indicator[data-ending-style] {
             animation: test-anim 1ms;
           }
@@ -641,7 +641,7 @@ describe('<PreviewCard.Root />', () => {
               opacity: 0;
             }
           }
-  
+
           .animation-test-indicator[data-starting-style] {
             animation: test-anim 1ms;
           }

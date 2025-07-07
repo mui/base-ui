@@ -72,7 +72,6 @@
     "@types/react": "^19.1.8",
     "@types/react-dom": "^19.1.6",
     "@types/unist": "^3.0.3",
-    "chai": "^4.5.0",
     "fs-extra": "^11.3.0",
     "mdast-util-mdx-jsx": "^3.2.0",
     "motion": "^12.9.4",

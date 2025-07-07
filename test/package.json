@@ -15,7 +15,6 @@
     "@types/react": "^19.1.8",
     "@types/react-dom": "^19.1.6",
     "@types/sinon": "^17.0.4",
-    "chai": "^4.5.0",
     "docs": "workspace:^",
     "fast-glob": "^3.3.3",
     "fs-extra": "^11.3.0",

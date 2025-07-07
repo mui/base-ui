@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { expect } from 'chai';
+import { expect } from 'vitest';
 import { createRenderer } from '@mui/internal-test-utils';
 import { useRender } from '@base-ui-components/react/use-render';
 

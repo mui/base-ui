@@ -2,7 +2,7 @@ import * as React from 'react';
 import { ScrollArea } from '@base-ui-components/react/scroll-area';
 import { screen } from '@mui/internal-test-utils';
 import { createRenderer, isJSDOM } from '#test-utils';
-import { expect } from 'chai';
+import { expect } from 'vitest';
 import { describeConformance } from '../../../test/describeConformance';
 
 const VIEWPORT_SIZE = 200;

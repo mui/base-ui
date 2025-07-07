@@ -7,7 +7,7 @@ import {
   DirectionProvider,
   type TextDirection,
 } from '@base-ui-components/react/direction-provider';
-import { expect } from 'chai';
+import { expect } from 'vitest';
 import { spy } from 'sinon';
 import { isJSDOM, createRenderer as createAsyncRenderer } from '#test-utils';
 import { act, screen, fireEvent, createRenderer } from '@mui/internal-test-utils';

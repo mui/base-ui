@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { expect } from 'chai';
+import { expect } from 'vitest';
 import { spy } from 'sinon';
 import { Meter } from '@base-ui-components/react/meter';
 import { createRenderer, describeConformance } from '#test-utils';

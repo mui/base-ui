@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Popover } from '@base-ui-components/react/popover';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
-import { expect } from 'chai';
+import { expect } from 'vitest';
 import { act, fireEvent, flushMicrotasks, screen } from '@mui/internal-test-utils';
 import { PATIENT_CLICK_THRESHOLD } from '../../utils/constants';
 

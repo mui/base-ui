@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { expect } from 'chai';
+import { expect } from 'vitest';
 import { spy } from 'sinon';
 import { AlertDialog } from '@base-ui-components/react/alert-dialog';
 import { screen } from '@mui/internal-test-utils';
