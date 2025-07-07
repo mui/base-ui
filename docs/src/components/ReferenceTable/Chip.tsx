@@ -18,7 +18,7 @@ export function Chip(props: React.ComponentProps<'code'>) {
       <TableCode
         {...props}
         className={clsx(
-          ' text-navy bg-(--color-content) rounded-sm p-1 -m-1 hover:cursor-text',
+          ' text-navy bg-(--color-gray-50) rounded-sm p-1 -m-1 hover:cursor-text',
           props.className,
         )}
       />
