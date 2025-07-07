@@ -19,11 +19,11 @@
     },
     {
       "groupName": "Babel",
-      "matchPackageNames": ["/^@babel//", "/^@types/babel/"]
+      "matchPackageNames": ["babel-*", "@babel/*", "@types/babel/*"]
     },
     {
       "groupName": "Emotion",
-      "matchPackageNames": ["/@emotion/*/"]
+      "matchPackageNames": ["@emotion/*"]
     },
     {
       "groupName": "Tailwind CSS",
@@ -31,7 +31,7 @@
     },
     {
       "groupName": "ESlint",
-      "matchPackageNames": ["/eslint/", "/eslint-*/", "/@typescript-eslint/*/"]
+      "matchPackageNames": ["eslint", "eslint-*", "@typescript-eslint/*"]
     },
     {
       "groupName": "MUI internal packages",
