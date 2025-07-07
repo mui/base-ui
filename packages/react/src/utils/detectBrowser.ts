@@ -30,7 +30,7 @@ export const isJSDOM = userAgent.includes('jsdom/');
 
 // Avoid Chrome DevTools blue warning.
 function getNavigatorData(): { platform: string; maxTouchPoints: number } {
-  if (typeof navigator === 'undefined') {
+  if (!hasNavigator) {
     return { platform: '', maxTouchPoints: -1 };
   }
 
@@ -44,8 +44,8 @@ function getNavigatorData(): { platform: string; maxTouchPoints: number } {
   }
 
   return {
-    platform: navigator.platform,
-    maxTouchPoints: navigator.maxTouchPoints,
+    platform: navigator.platform ?? "",
+    maxTouchPoints: navigator.maxTouchPoints ?? -1,
   };
 }
 
@@ -74,5 +74,5 @@ function getPlatform(): string {
     return uaData.platform;
   }
 
-  return navigator.platform;
+  return navigator.platform ?? "";
 }
