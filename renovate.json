@@ -19,11 +19,11 @@
     },
     {
       "groupName": "Babel",
-      "matchPackagePatterns": ["^@babel/", "^@types/babel"]
+      "matchPackageNames": ["/^@babel//", "/^@types/babel/"]
     },
     {
       "groupName": "Emotion",
-      "matchPackagePatterns": "@emotion/*"
+      "matchPackageNames": ["/@emotion/*/"]
     },
     {
       "groupName": "Tailwind CSS",
@@ -31,7 +31,7 @@
     },
     {
       "groupName": "ESlint",
-      "matchPackagePatterns": ["eslint", "eslint-*", "@typescript-eslint/*"]
+      "matchPackageNames": ["/eslint/", "/eslint-*/", "/@typescript-eslint/*/"]
     },
     {
       "groupName": "MUI internal packages",
@@ -73,7 +73,7 @@
     },
     {
       "groupName": "Vite + Vitest",
-      "matchPackagePatterns": ["^vitest$", "^@vitest/", "^vitest-", "^vite$", "^@vitejs/plugin-"]
+      "matchPackageNames": ["vitest", "@vitest/*", "vitest-*", "vite"]
     },
     {
       "matchDepTypes": ["engines"],
@@ -82,7 +82,7 @@
     },
     {
       "groupName": "CodeSandbox template",
-      "matchPaths": [".codesandbox/template/package.json"],
+      "matchFileNames": [".codesandbox/template/package.json"],
       "enabled": false
     },
     {
