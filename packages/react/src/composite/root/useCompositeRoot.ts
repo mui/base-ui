@@ -366,7 +366,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
   );
 }
 
-function isModifierKeySet(event: React.KeyboardEvent<any>, ignoredModifierKeys: ModifierKey[]) {
+function isModifierKeySet(event: React.KeyboardEvent, ignoredModifierKeys: ModifierKey[]) {
   for (const key of MODIFIER_KEYS.values()) {
     if (ignoredModifierKeys.includes(key)) {
       continue;
