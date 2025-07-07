@@ -35,7 +35,7 @@ export const TooltipArrow = React.forwardRef(function TooltipArrow(
     state,
     ref: [forwardedRef, arrowRef],
     props: [{ style: arrowStyles, 'aria-hidden': true }, elementProps],
-    customStyleHookMapping: popupStateMapping,
+    stateAttributesMapping: popupStateMapping,
   });
 
   return element;

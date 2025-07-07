@@ -24,7 +24,7 @@ import { asc } from '../utils/asc';
 import { getSliderValue } from '../utils/getSliderValue';
 import { validateMinimumDistance } from '../utils/validateMinimumDistance';
 import type { ThumbMetadata } from '../thumb/SliderThumb';
-import { sliderStyleHookMapping } from './styleHooks';
+import { sliderMapping } from './stateAttributesMapping';
 import { SliderRootContext } from './SliderRootContext';
 
 function areValuesEqual(
@@ -324,7 +324,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       fieldControlValidation.getValidationProps,
       elementProps,
     ],
-    customStyleHookMapping: sliderStyleHookMapping,
+    stateAttributesMapping: sliderMapping,
   });
 
   return (

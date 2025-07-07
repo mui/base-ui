@@ -37,7 +37,7 @@ export const NavigationMenuArrow = React.forwardRef(function NavigationMenuArrow
     state,
     ref: [forwardedRef, arrowRef],
     props: [{ style: arrowStyles, 'aria-hidden': true }, elementProps],
-    customStyleHookMapping: popupStateMapping,
+    stateAttributesMapping: popupStateMapping,
   });
 
   return element;

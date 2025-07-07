@@ -64,7 +64,7 @@ describe('<Popover.Trigger />', () => {
     });
   });
 
-  describe('style hooks', () => {
+  describe('state attribute mappings', () => {
     it('should have the data-popup-open and data-pressed attributes when open by clicking', async () => {
       await render(
         <Popover.Root>

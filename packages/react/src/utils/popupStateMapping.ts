@@ -1,5 +1,5 @@
-import type { CustomStyleHookMapping } from './getStyleHookProps';
-import { TransitionStatusDataAttributes } from './styleHookMapping';
+import type { StateAttributesMapping } from './mapStateAttributes';
+import { TransitionStatusDataAttributes } from './stateAttributesMapping';
 
 export enum CommonPopupDataAttributes {
   /**
@@ -63,7 +63,7 @@ export const triggerOpenStateMapping = {
     }
     return null;
   },
-} satisfies CustomStyleHookMapping<{ open: boolean }>;
+} satisfies StateAttributesMapping<{ open: boolean }>;
 
 export const pressableTriggerOpenStateMapping = {
   open(value) {
@@ -72,7 +72,7 @@ export const pressableTriggerOpenStateMapping = {
     }
     return null;
   },
-} satisfies CustomStyleHookMapping<{ open: boolean }>;
+} satisfies StateAttributesMapping<{ open: boolean }>;
 
 export const popupStateMapping = {
   open(value) {
@@ -87,4 +87,4 @@ export const popupStateMapping = {
     }
     return null;
   },
-} satisfies CustomStyleHookMapping<{ open: boolean; anchorHidden: boolean }>;
+} satisfies StateAttributesMapping<{ open: boolean; anchorHidden: boolean }>;

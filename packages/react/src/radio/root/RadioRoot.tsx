@@ -12,7 +12,7 @@ import { ACTIVE_COMPOSITE_ITEM } from '../../composite/constants';
 import { CompositeItem } from '../../composite/item/CompositeItem';
 import type { FieldRoot } from '../../field/root/FieldRoot';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
-import { customStyleHookMapping } from '../utils/customStyleHookMapping';
+import { stateAttributesMapping } from '../utils/stateAttributesMapping';
 import { useRadioGroupContext } from '../../radio-group/RadioGroupContext';
 import { RadioRootContext } from './RadioRootContext';
 
@@ -182,7 +182,7 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
       elementProps,
       getButtonProps,
     ],
-    customStyleHookMapping,
+    stateAttributesMapping,
   });
 
   return (

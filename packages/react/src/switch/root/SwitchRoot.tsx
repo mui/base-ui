@@ -11,7 +11,7 @@ import { visuallyHidden } from '../../utils/visuallyHidden';
 import { mergeProps } from '../../merge-props';
 import { useButton } from '../../use-button';
 import { SwitchRootContext } from './SwitchRootContext';
-import { styleHookMapping } from '../styleHooks';
+import { stateAttributesMapping } from '../stateAttributesMapping';
 import { useField } from '../../field/useField';
 import type { FieldRoot } from '../../field/root/FieldRoot';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
@@ -238,7 +238,7 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
     state,
     ref: [forwardedRef, switchRef, buttonRef],
     props: [rootProps, getValidationProps, elementProps, getButtonProps],
-    customStyleHookMapping: styleHookMapping,
+    stateAttributesMapping,
   });
 
   return (

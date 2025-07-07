@@ -25,7 +25,7 @@ export const PreviewCardTrigger = React.forwardRef(function PreviewCardTrigger(
     ref: [setTriggerElement, forwardedRef],
     state,
     props: [triggerProps, elementProps],
-    customStyleHookMapping: triggerOpenStateMapping,
+    stateAttributesMapping: triggerOpenStateMapping,
   });
 
   return element;

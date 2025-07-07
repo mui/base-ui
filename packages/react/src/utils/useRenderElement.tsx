@@ -1,6 +1,6 @@
 import * as React from 'react';
 import type { BaseUIComponentProps, ComponentRenderFn, HTMLProps } from './types';
-import { CustomStyleHookMapping, getStyleHookProps } from './getStyleHookProps';
+import { StateAttributesMapping, mapStateAttributes } from './mapStateAttributes';
 import { useForkRef, useForkRefN } from './useForkRef';
 import { resolveClassName } from './resolveClassName';
 import { isReactVersionAtLeast } from './reactVersion';
@@ -57,26 +57,27 @@ function useRenderElementProps<
     state = EMPTY_OBJECT as State,
     ref,
     props,
-    disableStyleHooks,
-    customStyleHookMapping,
+    disableStateAttributesMapping,
+    stateAttributesMapping,
     enabled = true,
   } = params;
 
   const className = enabled ? resolveClassName(classNameProp, state) : undefined;
 
-  let styleHooks: Record<string, string> | undefined;
-  if (disableStyleHooks !== true) {
-    // SAFETY: We use typings to ensure `disableStyleHooks` is either always set or
+  let dataAttributeProps: Record<string, string> | undefined;
+  if (disableStateAttributesMapping !== true) {
+    // SAFETY: We use typings to ensure `disableStateAttributesMapping` is either always set or
     // always unset, so this `if` block is stable across renders.
     /* eslint-disable-next-line react-hooks/rules-of-hooks */
-    styleHooks = React.useMemo(
-      () => (enabled ? getStyleHookProps(state, customStyleHookMapping) : EMPTY_OBJECT),
-      [state, customStyleHookMapping, enabled],
+    dataAttributeProps = React.useMemo(
+      () => (enabled ? mapStateAttributes(state, stateAttributesMapping) : EMPTY_OBJECT),
+      [state, stateAttributesMapping, enabled],
     );
   }
 
   const outProps: React.HTMLAttributes<any> & React.RefAttributes<any> = enabled
-    ? (mergeObjects(styleHooks, Array.isArray(props) ? mergePropsN(props) : props) ?? EMPTY_OBJECT)
+    ? (mergeObjects(dataAttributeProps, Array.isArray(props) ? mergePropsN(props) : props) ??
+      EMPTY_OBJECT)
     : EMPTY_OBJECT;
 
   // SAFETY: The `useForkRef` functions use a single hook to store the same value,
@@ -189,21 +190,21 @@ export namespace useRenderElement {
           | ((props: RenderFunctionProps<TagName>) => RenderFunctionProps<TagName>)
         >;
     /**
-     * A mapping of state to style hooks.
+     * A mapping of state to data-attributes.
      */
-    customStyleHookMapping?: CustomStyleHookMapping<State>;
-  } /* This typing ensures `disableStyleHookMapping` is constantly defined or undefined */ & (
+    stateAttributesMapping?: StateAttributesMapping<State>;
+  } /* This typing ensures `disableMapping` is constantly defined or undefined */ & (
     | {
         /**
-         * Disable style hook mapping.
+         * Disable state mapping.
          */
-        disableStyleHooks: true;
+        disableStateAttributesMapping: true;
       }
     | {
         /**
-         * Disable style hook mapping.
+         * Disable state mapping.
          */
-        disableStyleHooks?: false;
+        disableStateAttributesMapping?: false;
       }
   );
 

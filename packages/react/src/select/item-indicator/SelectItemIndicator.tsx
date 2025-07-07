@@ -5,7 +5,7 @@ import { useSelectItemContext } from '../item/SelectItemContext';
 import { type TransitionStatus, useTransitionStatus } from '../../utils/useTransitionStatus';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useRenderElement } from '../../utils/useRenderElement';
-import { transitionStatusMapping } from '../../utils/styleHookMapping';
+import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
 
 /**
  * Indicates whether the select item is selected.
@@ -65,7 +65,7 @@ const Inner = React.memo(
           },
           elementProps,
         ],
-        customStyleHookMapping: transitionStatusMapping,
+        stateAttributesMapping: transitionStatusMapping,
       });
 
       useOpenChangeComplete({

@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { formatNumber } from '../../utils/formatNumber';
-import { getStyleHookProps } from '../../utils/getStyleHookProps';
+import { mapStateAttributes } from '../../utils/mapStateAttributes';
 import { mergeProps } from '../../merge-props';
 import { isReactVersionAtLeast } from '../../utils/reactVersion';
 import { resolveClassName } from '../../utils/resolveClassName';
@@ -198,8 +198,8 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     } satisfies React.CSSProperties;
   }, [activeIndex, isRtl, orientation, percent, index]);
 
-  const styleHooks = React.useMemo(
-    () => getStyleHookProps({ disabled, dragging: index !== -1 && activeIndex === index }),
+  const stateAttributesMapping = React.useMemo(
+    () => mapStateAttributes({ disabled, dragging: index !== -1 && activeIndex === index }),
     [activeIndex, disabled, index],
   );
 
@@ -300,7 +300,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
       style: getThumbStyle(),
       tabIndex: externalTabIndex ?? (disabled ? undefined : 0),
     },
-    styleHooks,
+    stateAttributesMapping,
     elementProps,
   );
 

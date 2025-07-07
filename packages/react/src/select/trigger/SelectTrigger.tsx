@@ -7,7 +7,7 @@ import { pressableTriggerOpenStateMapping } from '../../utils/popupStateMapping'
 import { fieldValidityMapping } from '../../field/utils/constants';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useSelector } from '../../utils/store';
-import { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
+import { StateAttributesMapping } from '../../utils/mapStateAttributes';
 import { selectors } from '../store';
 import { getPseudoElementBounds } from '../../utils/getPseudoElementBounds';
 import { contains } from '../../floating-ui-react/utils';
@@ -21,7 +21,7 @@ import type { FieldRoot } from '../../field/root/FieldRoot';
 
 const BOUNDARY_OFFSET = 2;
 
-const customStyleHookMapping: CustomStyleHookMapping<SelectTrigger.State> = {
+const stateAttributesMapping: StateAttributesMapping<SelectTrigger.State> = {
   ...pressableTriggerOpenStateMapping,
   ...fieldValidityMapping,
   value: () => null,
@@ -224,7 +224,7 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
   return useRenderElement('div', componentProps, {
     ref: [forwardedRef, triggerRef],
     state,
-    customStyleHookMapping,
+    stateAttributesMapping,
     props,
   });
 });

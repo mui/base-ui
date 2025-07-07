@@ -5,9 +5,9 @@ import type { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import { selectors } from '../store';
-import { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
+import { StateAttributesMapping } from '../../utils/mapStateAttributes';
 
-const customStyleHookMapping: CustomStyleHookMapping<SelectValue.State> = {
+const stateAttributesMapping: StateAttributesMapping<SelectValue.State> = {
   value: () => null,
 };
 
@@ -53,7 +53,7 @@ export const SelectValue = React.forwardRef(function SelectValue(
     state,
     ref: [forwardedRef, valueRef],
     props: [{ children }, elementProps],
-    customStyleHookMapping,
+    stateAttributesMapping,
   });
 
   return element;

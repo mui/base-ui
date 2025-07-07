@@ -1,5 +1,5 @@
 import type { TransitionStatus } from './useTransitionStatus';
-import type { CustomStyleHookMapping } from './getStyleHookProps';
+import type { StateAttributesMapping } from './mapStateAttributes';
 
 export enum TransitionStatusDataAttributes {
   /**
@@ -25,4 +25,4 @@ export const transitionStatusMapping = {
     }
     return null;
   },
-} satisfies CustomStyleHookMapping<{ transitionStatus: TransitionStatus }>;
+} satisfies StateAttributesMapping<{ transitionStatus: TransitionStatus }>;
