@@ -44,21 +44,12 @@ export default function ExamplePopoverCombobox() {
               onValueChange={setSearchValue}
             >
               <div className={styles.InputContainer}>
-                <Combobox.Input
-                  placeholder="e.g. United Kingdom"
-                  className={styles.Input}
-                />
+                <Combobox.Input placeholder="e.g. United Kingdom" className={styles.Input} />
               </div>
-              <Combobox.Empty className={styles.Empty}>
-                No countries found.
-              </Combobox.Empty>
+              <Combobox.Empty className={styles.Empty}>No countries found.</Combobox.Empty>
               <Combobox.List className={styles.List}>
                 {(country: Country) => (
-                  <Combobox.Item
-                    key={country.code}
-                    value={country.value}
-                    className={styles.Item}
-                  >
+                  <Combobox.Item key={country.code} value={country.value} className={styles.Item}>
                     <Combobox.ItemIndicator className={styles.ItemIndicator}>
                       <CheckIcon className={styles.ItemIndicatorIcon} />
                     </Combobox.ItemIndicator>

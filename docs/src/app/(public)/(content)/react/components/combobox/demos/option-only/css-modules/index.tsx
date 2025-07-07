@@ -49,9 +49,7 @@ export default function OptionOnlyCombobox() {
       <Combobox.Portal>
         <Combobox.Positioner className={styles.Positioner} sideOffset={4}>
           <Combobox.Popup className={styles.Popup}>
-            <Combobox.Empty className={styles.Empty}>
-              No fruits found.
-            </Combobox.Empty>
+            <Combobox.Empty className={styles.Empty}>No fruits found.</Combobox.Empty>
             <Combobox.List className={styles.List}>
               {(item: string) => (
                 <Combobox.Item key={item} value={item} className={styles.Item}>

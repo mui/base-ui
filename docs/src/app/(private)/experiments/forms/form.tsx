@@ -265,7 +265,7 @@ export default function Page() {
 
         <Field.Root name="combobox" className={styles.Field}>
           <Field.Label className={styles.Label}>Framework</Field.Label>
-          <Combobox.Root name="combobox" required={native} items={frameworks}>
+          <Combobox.Root required={native} items={frameworks}>
             <Combobox.Input placeholder="Select a framework" className={styles.Input} />
             <Combobox.Portal>
               <Combobox.Positioner className={styles.Positioner} sideOffset={8}>
@@ -282,6 +282,7 @@ export default function Page() {
               </Combobox.Positioner>
             </Combobox.Portal>
           </Combobox.Root>
+          <Field.Error className={styles.Error} />
         </Field.Root>
 
         <Field.Root name="checkbox-group" render={<Fieldset.Root />} className={styles.Field}>

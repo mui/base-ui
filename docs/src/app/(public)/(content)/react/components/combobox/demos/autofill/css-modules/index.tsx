@@ -39,10 +39,7 @@ export default function AutofillCombobox() {
       >
         <label className={styles.Label}>
           Enter country
-          <Combobox.Input
-            placeholder="e.g. United Kingdom"
-            className={styles.Input}
-          />
+          <Combobox.Input placeholder="e.g. United Kingdom" className={styles.Input} />
         </label>
 
         {filteredCountries.length > 0 && (
@@ -51,11 +48,7 @@ export default function AutofillCombobox() {
               <Combobox.Popup className={styles.Popup}>
                 <Combobox.List>
                   {filteredCountries.map((country) => (
-                    <Combobox.Item
-                      key={country.code}
-                      value={country.value}
-                      className={styles.Item}
-                    >
+                    <Combobox.Item key={country.code} value={country.value} className={styles.Item}>
                       {country.value}
                     </Combobox.Item>
                   ))}

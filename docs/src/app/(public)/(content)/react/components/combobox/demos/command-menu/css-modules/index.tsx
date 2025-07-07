@@ -50,17 +50,11 @@ export default function CommandMenuCombobox() {
               placeholder="Search for apps and commands..."
             />
 
-            <Combobox.Empty className={styles.Empty}>
-              No results found.
-            </Combobox.Empty>
+            <Combobox.Empty className={styles.Empty}>No results found.</Combobox.Empty>
 
             <Combobox.List className={styles.List}>
               {(group: Group) => (
-                <Combobox.Group
-                  key={group.value}
-                  items={group.items}
-                  className={styles.Group}
-                >
+                <Combobox.Group key={group.value} items={group.items} className={styles.Group}>
                   <Combobox.GroupLabel className={styles.GroupLabel}>
                     {group.value}
                   </Combobox.GroupLabel>

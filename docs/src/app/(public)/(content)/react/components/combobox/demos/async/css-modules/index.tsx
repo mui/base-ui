@@ -74,33 +74,17 @@ export default function AsyncCombobox() {
     >
       <label className={styles.Label}>
         Search movies by name or year
-        <Combobox.Input
-          placeholder="e.g. Pulp Fiction or 1994"
-          className={styles.Input}
-        />
+        <Combobox.Input placeholder="e.g. Pulp Fiction or 1994" className={styles.Input} />
       </label>
 
       {shouldRenderPopup && (
         <Combobox.Portal>
-          <Combobox.Positioner
-            className={styles.Positioner}
-            sideOffset={4}
-            align="start"
-          >
-            <Combobox.Popup
-              className={styles.Popup}
-              aria-busy={isLoading || undefined}
-            >
-              <Combobox.Status className={styles.StatusItem}>
-                {status}
-              </Combobox.Status>
+          <Combobox.Positioner className={styles.Positioner} sideOffset={4} align="start">
+            <Combobox.Popup className={styles.Popup} aria-busy={isLoading || undefined}>
+              <Combobox.Status className={styles.StatusItem}>{status}</Combobox.Status>
               <Combobox.List>
                 {(movie: MovieItem) => (
-                  <Combobox.Item
-                    key={movie.id}
-                    className={styles.Item}
-                    value={movie.value}
-                  >
+                  <Combobox.Item key={movie.id} className={styles.Item} value={movie.value}>
                     <div className={styles.MovieItem}>
                       <div className={styles.MovieName}>{movie.title}</div>
                       <div className={styles.MovieYear}>{movie.year}</div>

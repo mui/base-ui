@@ -49,10 +49,8 @@ export default function EmojiPicker() {
     }
 
     const emoji = value;
-    const start =
-      textInputRef.current.selectionStart ?? textInputRef.current.value.length ?? 0;
-    const end =
-      textInputRef.current.selectionEnd ?? textInputRef.current.value.length ?? 0;
+    const start = textInputRef.current.selectionStart ?? textInputRef.current.value.length ?? 0;
+    const end = textInputRef.current.selectionEnd ?? textInputRef.current.value.length ?? 0;
 
     setTextValue((prev) => prev.slice(0, start) + emoji + prev.slice(end));
     setPopoverOpen(false);
@@ -93,12 +91,7 @@ export default function EmojiPicker() {
             😀
           </Popover.Trigger>
           <Popover.Portal>
-            <Popover.Positioner
-              className={styles.Positioner}
-              sideOffset={4}
-              side="top"
-              align="end"
-            >
+            <Popover.Positioner className={styles.Positioner} sideOffset={4} side="top" align="end">
               <Popover.Popup className={styles.Popup} aria-label="Select emoji">
                 <Combobox.Root
                   items={emojiGroups}
@@ -112,14 +105,9 @@ export default function EmojiPicker() {
                   }}
                 >
                   <div className={styles.InputContainer}>
-                    <Combobox.Input
-                      placeholder="Search emojis…"
-                      className={styles.Input}
-                    />
+                    <Combobox.Input placeholder="Search emojis…" className={styles.Input} />
                   </div>
-                  <Combobox.Empty className={styles.Empty}>
-                    No emojis found
-                  </Combobox.Empty>
+                  <Combobox.Empty className={styles.Empty}>No emojis found</Combobox.Empty>
                   <Combobox.List
                     className={styles.List}
                     style={{ '--cols': COLUMNS } as React.CSSProperties}

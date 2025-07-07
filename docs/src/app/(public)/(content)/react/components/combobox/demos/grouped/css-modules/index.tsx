@@ -14,26 +14,16 @@ export default function GroupedCombobox() {
       <Combobox.Portal>
         <Combobox.Positioner className={styles.Positioner} sideOffset={4}>
           <Combobox.Popup className={styles.Popup}>
-            <Combobox.Empty className={styles.Empty}>
-              No countries found.
-            </Combobox.Empty>
+            <Combobox.Empty className={styles.Empty}>No countries found.</Combobox.Empty>
             <Combobox.List className={styles.List}>
               {(group: CountryGroup) => (
-                <Combobox.Group
-                  key={group.value}
-                  className={styles.Group}
-                  items={group.items}
-                >
+                <Combobox.Group key={group.value} className={styles.Group} items={group.items}>
                   <Combobox.GroupLabel className={styles.GroupLabel}>
                     {group.value}
                   </Combobox.GroupLabel>
                   <Combobox.Collection>
                     {(country: Country) => (
-                      <Combobox.Item
-                        key={country.code}
-                        className={styles.Item}
-                        value={country}
-                      >
+                      <Combobox.Item key={country.code} className={styles.Item} value={country}>
                         {country.value}
                       </Combobox.Item>
                     )}

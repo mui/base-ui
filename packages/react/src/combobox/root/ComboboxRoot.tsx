@@ -224,13 +224,15 @@ export function ComboboxRoot<Item = ComboboxRoot.Item>(
     setDirty(nextValue !== validityData.initialValue);
   });
 
+  const formValue = selectProp === 'none' ? inputValue : selectedValue;
+
   useField({
     id,
     commitValidation,
-    value: selectedValue,
+    value: formValue,
     controlRef,
     name,
-    getValue: () => selectedValue,
+    getValue: () => formValue,
   });
 
   const prevValueRef = React.useRef(selectedValue);
@@ -506,11 +508,11 @@ export function ComboboxRoot<Item = ComboboxRoot.Item>(
   const hiddenInputRef = useForkRef(inputRefProp, fieldControlValidation.inputRef);
 
   const serializedValue = React.useMemo(() => {
-    if (selectedValue == null || Array.isArray(selectedValue)) {
+    if (formValue == null || Array.isArray(formValue)) {
       return ''; // avoid uncontrolled -> controlled error
     }
-    return getFormValue(selectedValue);
-  }, [selectedValue]);
+    return getFormValue(formValue);
+  }, [formValue]);
 
   const contextValue: ComboboxRootContext = React.useMemo(
     () => ({

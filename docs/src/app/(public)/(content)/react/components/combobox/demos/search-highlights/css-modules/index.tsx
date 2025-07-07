@@ -9,9 +9,7 @@ function highlightText(text: string, query: string): React.ReactNode {
   }
 
   // Split query into unique, lower-cased words
-  const queryWords = Array.from(
-    new Set(query.toLowerCase().trim().split(/\s+/).filter(Boolean)),
-  );
+  const queryWords = Array.from(new Set(query.toLowerCase().trim().split(/\s+/).filter(Boolean)));
 
   if (queryWords.length === 0) {
     return text;
@@ -22,18 +20,14 @@ function highlightText(text: string, query: string): React.ReactNode {
   queryWords.sort((a, b) => b.length - a.length);
 
   // Build a single regex that matches any of the query words.
-  const escapedWords = queryWords.map((word) =>
-    word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'),
-  );
+  const escapedWords = queryWords.map((word) => word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
   const pattern = new RegExp(`(${escapedWords.join('|')})`, 'gi');
 
   // Split the text by the pattern. The capturing group ensures the matched
   // substrings are included in the resulting array.
   return text
     .split(pattern)
-    .map((part, index) =>
-      index % 2 === 1 ? <mark key={index}>{part}</mark> : part,
-    );
+    .map((part, index) => (index % 2 === 1 ? <mark key={index}>{part}</mark> : part));
 }
 
 // Custom filter that searches in title and description
@@ -70,10 +64,7 @@ export default function SearchHighlightsCombobox() {
     >
       <label className={styles.Label}>
         Search documentation
-        <Combobox.Input
-          placeholder="e.g. React hooks, CSS flexbox..."
-          className={styles.Input}
-        />
+        <Combobox.Input placeholder="e.g. React hooks, CSS flexbox..." className={styles.Input} />
       </label>
 
       <Combobox.Portal>
@@ -85,15 +76,9 @@ export default function SearchHighlightsCombobox() {
 
             <Combobox.List className={styles.List}>
               {(item: SearchResult) => (
-                <Combobox.Item
-                  key={item.value}
-                  value={item.value}
-                  className={styles.Item}
-                >
+                <Combobox.Item key={item.value} value={item.value} className={styles.Item}>
                   <div className={styles.ItemContent}>
-                    <div className={styles.ItemTitle}>
-                      {highlightText(item.title, searchValue)}
-                    </div>
+                    <div className={styles.ItemTitle}>{highlightText(item.title, searchValue)}</div>
                     <div className={styles.ItemDescription}>
                       {highlightText(item.description, searchValue)}
                     </div>

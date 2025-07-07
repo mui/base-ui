@@ -42,22 +42,12 @@ export default function MultipleCombobox() {
 
       <Combobox.Value>
         <Combobox.Portal>
-          <Combobox.Positioner
-            className={styles.Positioner}
-            sideOffset={4}
-            anchor={containerRef}
-          >
+          <Combobox.Positioner className={styles.Positioner} sideOffset={4} anchor={containerRef}>
             <Combobox.Popup className={styles.Popup}>
-              <Combobox.Empty className={styles.Empty}>
-                No languages found.
-              </Combobox.Empty>
+              <Combobox.Empty className={styles.Empty}>No languages found.</Combobox.Empty>
               <Combobox.List>
                 {(language: Lang) => (
-                  <Combobox.Item
-                    key={language.id}
-                    className={styles.Item}
-                    value={language}
-                  >
+                  <Combobox.Item key={language.id} className={styles.Item} value={language}>
                     <Combobox.ItemIndicator className={styles.ItemIndicator}>
                       <CheckIcon className={styles.ItemIndicatorIcon} />
                     </Combobox.ItemIndicator>
