@@ -35,6 +35,43 @@ describe('<Form />', () => {
     expect(onSubmit.called).to.equal(false);
   });
 
+  it('unmounted fields should be removed from the form', async () => {
+    const submitSpy = spy((event) => event.preventDefault());
+    function App() {
+      const [checked, setChecked] = React.useState(true);
+
+      return (
+        <Form onSubmit={submitSpy}>
+          <Field.Root name="name">
+            <Field.Control defaultValue="Alice" />
+          </Field.Root>
+
+          <input type="checkbox" checked={checked} onChange={() => setChecked(!checked)} />
+
+          {checked && (
+            <Field.Root name="email">
+              <Field.Control defaultValue="" required data-testid="email" />
+            </Field.Root>
+          )}
+
+          <button>Submit</button>
+        </Form>
+      );
+    }
+
+    const { user } = await render(<App />);
+
+    const submit = screen.getByText('Submit');
+
+    await user.click(submit);
+    expect(submitSpy.callCount).to.equal(0);
+    expect(screen.getByTestId('email')).to.have.attribute('aria-invalid', 'true');
+
+    await user.click(screen.getByRole('checkbox'));
+    await user.click(submit);
+    expect(submitSpy.callCount).to.equal(1);
+  });
+
   describe('prop: errors', () => {
     function App() {
       const [errors, setErrors] = React.useState<Form.Props['errors']>({

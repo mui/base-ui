@@ -1,7 +1,6 @@
 'use client';
 import * as React from 'react';
 import type { BaseUIComponentProps } from '../../utils/types';
-import { useRenderElement } from '../../utils/useRenderElement';
 import { CompositeRoot } from '../../composite/root/CompositeRoot';
 import { useNavigationMenuRootContext } from '../root/NavigationMenuRootContext';
 
@@ -26,14 +25,17 @@ export const NavigationMenuList = React.forwardRef(function NavigationMenuList(
     [open],
   );
 
-  const element = useRenderElement('div', componentProps, {
-    state,
-    ref: forwardedRef,
-    props: elementProps,
-  });
-
   return (
-    <CompositeRoot render={element} loop={false} orientation={orientation} stopEventPropagation />
+    <CompositeRoot
+      render={render}
+      className={className}
+      state={state}
+      refs={[forwardedRef]}
+      props={[elementProps]}
+      loop={false}
+      orientation={orientation}
+      stopEventPropagation
+    />
   );
 });
 
