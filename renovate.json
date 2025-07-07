@@ -34,6 +34,15 @@
       "matchPackageNames": ["eslint", "eslint-*", "@typescript-eslint/*"]
     },
     {
+      "groupName": "Floating UI",
+      "matchPackageNames": ["@floating-ui/*"],
+      "schedule": "null"
+    },
+    {
+      "groupName": "Types",
+      "matchPackageNames": ["@types/*"]
+    },
+    {
       "groupName": "MUI internal packages",
       "matchPackageNames": ["@mui/internal-*", "@mui/docs"],
       "followTag": "canary",
@@ -42,18 +51,11 @@
     {
       "groupName": "MUI public packages",
       "matchPackageNames": ["@mui/*", "!@mui/internal-*", "!@mui/docs"],
-      "allowedVersions": "!/-dev/",
-      "schedule": "before 6:00am on Wednesday"
+      "allowedVersions": "!/-dev/"
     },
     {
       "groupName": "Playwright",
       "matchPackageNames": ["@playwright/test", "mcr.microsoft.com/playwright"]
-    },
-    {
-      "groupName": "Public packages' dependencies",
-      "matchFileNames": ["packages/*/package.json"],
-      "matchDepTypes": ["dependencies", "devDependencies"],
-      "schedule": "before 6:00am on Wednesday"
     },
     {
       "groupName": "React",
@@ -98,6 +100,6 @@
   "prConcurrentLimit": 30,
   "prHourlyLimit": 0,
   "rangeStrategy": "bump",
-  "schedule": "on the first day of the month before 4:00am",
+  "schedule": "before 6:00am on Friday",
   "timezone": "UTC"
 }
