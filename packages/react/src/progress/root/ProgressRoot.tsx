@@ -113,6 +113,10 @@ export namespace ProgressRoot {
 
   export interface Props extends BaseUIComponentProps<'div', State> {
     /**
+     * A string value that provides a user-friendly name for `aria-valuenow`, the current value of the meter.
+     */
+    'aria-valuetext'?: React.AriaAttributes['aria-valuetext'];
+    /**
      * Options to format the value.
      */
     format?: Intl.NumberFormatOptions;
