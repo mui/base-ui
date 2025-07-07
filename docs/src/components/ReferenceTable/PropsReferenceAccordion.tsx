@@ -8,6 +8,7 @@ import * as Accordion from '../Accordion';
 import * as DescriptionList from '../DescriptionList';
 import type { PropDef as BasePropDef } from './types';
 import { TableCode } from '../TableCode';
+import { Chip } from './Chip';
 
 interface PropDef extends BasePropDef {
   example?: string;
@@ -112,7 +113,9 @@ export async function PropsReferenceAccordion({ data, name: partName, ...props }
               aria-label={`prop: ${name}, type: ${shortPropTypeName} ${prop.default !== undefined ? `(default: ${prop.default})` : ''}`}
               className={clsx('max-xs:gap-4 md:gap-4', GRID_LAYOUT_CLASSES)}
             >
-              <TableCode className="text-navy">{name}</TableCode>
+              <span>
+                <Chip>{name}</Chip>
+              </span>
               {prop.type && (
                 <span className="flex items-baseline gap-4 text-sm">
                   <ShortPropType />

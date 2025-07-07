@@ -7,6 +7,7 @@ import type { AttributeDef } from './types';
 import * as Table from '../Table';
 import * as Accordion from '../Accordion';
 import { TableCode } from '../TableCode';
+import { Chip } from './Chip';
 
 interface AttributesReferenceTableProps extends React.ComponentProps<typeof Table.Root> {
   data: Record<string, AttributeDef>;
@@ -35,7 +36,7 @@ export async function AttributesReferenceTable({ data, ...props }: AttributesRef
           return (
             <Accordion.Item key={name}>
               <Accordion.Trigger index={index}>
-                <TableCode className="text-navy">{name}</TableCode>
+                <Chip>{name}</Chip>
                 <svg
                   className="AccordionIcon"
                   width="10"
