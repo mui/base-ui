@@ -25,6 +25,7 @@
     "jsonlint": "code-infra jsonlint",
     "eslint": "eslint . --cache --report-unused-disable-directives --ext .js,.ts,.tsx --max-warnings 0",
     "eslint:ci": "eslint . --report-unused-disable-directives --ext .js,.ts,.tsx --max-warnings 0",
+    "pkg-pr-new:release": "pnpm dlx pkg-pr-new publish './packages/react' --compact --pnpm --peerDeps",
     "stylelint": "stylelint --reportInvalidScopeDisables --reportNeedlessDisables \"docs/**/*.{js,ts,tsx}\" \"**/*.css\" --ignore-path .gitignore",
     "markdownlint": "markdownlint-cli2 \"**/*.{md,mdx}\"",
     "valelint": "pnpm vale sync && git ls-files | grep -h \".md$\" | xargs pnpm vale --filter='.Level==\"error\"'",
