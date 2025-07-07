@@ -1,5 +1,13 @@
 @layer components {
   .AccordionRoot {
+    --color-trigger-hover: hsl(0 0 99);
+    --color-open-trigger-shadow: var(--color-gray-300);
+
+    @media (prefers-color-scheme: dark) {
+      --color-trigger-hover: hsl(0 0 5);
+      --color-open-trigger-shadow: hsl(0 0 5);
+    }
+
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
@@ -52,7 +60,7 @@
 
     @media (hover: hover) {
       &:hover {
-        background-color: var(--color-gray-75);
+        background-color: var(--color-trigger-hover);
         cursor: default;
       }
     }
@@ -67,7 +75,9 @@
     }
 
     [open] & {
-      box-shadow: -5px 10px 10px -10px var(--color-gray-100);
+      box-shadow:
+        0 2px 3px -2px var(--color-open-trigger-shadow),
+        inset 0 -1px 1px transparent;
     }
 
     .AccordionItem:not([open]):last-child & {
@@ -100,9 +110,7 @@
   .AccordionContent {
     [open] & {
       background-color: var(--color-gray-50);
-      box-shadow:
-        inset 0 0 0 1px transparent,
-        inset 0px 1px 0px 0px var(--color-gray-100);
+      box-shadow: inset 0px 1px 0px 0px var(--color-gray-100);
     }
 
     .AccordionItem:last-child & {
