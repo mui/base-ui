@@ -5,9 +5,8 @@ import { useBaseUiId } from '../utils/useBaseUiId';
 import { useControlled } from '../utils/useControlled';
 import { useForkRef } from '../utils/useForkRef';
 import { useModernLayoutEffect } from '../utils/useModernLayoutEffect';
-import { useRenderElement } from '../utils/useRenderElement';
 import { useEventCallback } from '../utils/useEventCallback';
-import type { BaseUIComponentProps } from '../utils/types';
+import type { BaseUIComponentProps, HTMLProps } from '../utils/types';
 import { visuallyHidden } from '../utils/visuallyHidden';
 import { SHIFT } from '../composite/composite';
 import { CompositeRoot } from '../composite/root/CompositeRoot';
@@ -154,6 +153,9 @@ export const RadioGroup = React.forwardRef(function RadioGroup(
       'aria-hidden': true,
       tabIndex: -1,
       style: visuallyHidden,
+      onFocus() {
+        controlRef.current?.focus();
+      },
     },
     fieldControlValidation.getInputValidationProps,
   );
@@ -197,34 +199,30 @@ export const RadioGroup = React.forwardRef(function RadioGroup(
     ],
   );
 
-  const element = useRenderElement('div', componentProps, {
-    ref: forwardedRef,
-    state,
-    props: [
-      {
-        role: 'radiogroup',
-        'aria-required': required || undefined,
-        'aria-disabled': disabled || undefined,
-        'aria-readonly': readOnly || undefined,
-        'aria-labelledby': labelId,
-        onFocus() {
-          setFocused(true);
-        },
-        onBlur,
-        onKeyDownCapture,
-      },
-      fieldControlValidation.getValidationProps,
-      elementProps,
-    ],
-    customStyleHookMapping: fieldValidityMapping,
-  });
+  const defaultProps: HTMLProps = {
+    role: 'radiogroup',
+    'aria-required': required || undefined,
+    'aria-disabled': disabled || undefined,
+    'aria-readonly': readOnly || undefined,
+    'aria-labelledby': labelId,
+    onFocus() {
+      setFocused(true);
+    },
+    onBlur,
+    onKeyDownCapture,
+  };
 
   return (
     <RadioGroupContext.Provider value={contextValue}>
       <CompositeRoot
+        render={render}
+        className={className}
+        state={state}
+        props={[defaultProps, fieldControlValidation.getValidationProps, elementProps]}
+        refs={[forwardedRef]}
+        customStyleHookMapping={fieldValidityMapping}
         enableHomeAndEndKeys={false}
         modifierKeys={MODIFIER_KEYS}
-        render={element}
         stopEventPropagation
       />
       <input {...inputProps} />

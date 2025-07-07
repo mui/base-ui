@@ -18,7 +18,7 @@ import styles from './form.module.css';
 import {
   SettingsMetadata,
   useExperimentSettings,
-} from '../../../components/Experiments/SettingsPanel';
+} from '../../../../components/Experiments/SettingsPanel';
 
 const schema = z.object({
   input: z.string().min(1, 'This field is required'),
@@ -34,16 +34,7 @@ const schema = z.object({
 
 interface Settings extends Record<string, boolean> {}
 
-const frameworks = [
-  'React',
-  'Vue',
-  'Angular',
-  'Svelte',
-  'Next.js',
-  'Nuxt.js',
-  'Gatsby',
-  'Remix',
-];
+const frameworks = ['React', 'Vue', 'Angular', 'Svelte', 'Next.js', 'Nuxt.js', 'Gatsby', 'Remix'];
 
 interface Values {
   numberField: number | null;
@@ -87,17 +78,6 @@ export default function Page() {
 
   const numberFieldValueRef = React.useRef<number | null>(null);
   const [checkboxGroupValue, setCheckboxGroupValue] = React.useState<string[]>([]);
-  const [comboboxValue, setComboboxValue] = React.useState('');
-  const [comboboxInputValue, setComboboxInputValue] = React.useState('');
-
-  const filteredFrameworks = React.useMemo(() => {
-    if (comboboxInputValue.trim() === '') {
-      return frameworks;
-    }
-    return frameworks.filter((framework) =>
-      framework.toLowerCase().includes(comboboxInputValue.toLowerCase()),
-    );
-  }, [comboboxInputValue]);
 
   return (
     <div style={{ fontFamily: 'var(--font-sans)' }}>
@@ -165,11 +145,7 @@ export default function Page() {
           <Field.Error className={styles.Error} />
         </Field.Root>
 
-        <Field.Root
-          name="range-slider"
-          render={<Fieldset.Root />}
-          className={styles.Field}
-        >
+        <Field.Root name="range-slider" render={<Fieldset.Root />} className={styles.Field}>
           <Slider.Root
             defaultValue={[500, 1200]}
             min={100}
@@ -207,13 +183,9 @@ export default function Page() {
             }}
           >
             <NumberField.Group className={styles.NumberField}>
-              <NumberField.Decrement className={styles.Decrement}>
-                -
-              </NumberField.Decrement>
+              <NumberField.Decrement className={styles.Decrement}>-</NumberField.Decrement>
               <NumberField.Input className={styles.Input} />
-              <NumberField.Increment className={styles.Increment}>
-                +
-              </NumberField.Increment>
+              <NumberField.Increment className={styles.Increment}>+</NumberField.Increment>
             </NumberField.Group>
           </NumberField.Root>
           <Field.Error className={styles.Error} />
@@ -236,33 +208,25 @@ export default function Page() {
                     <Select.ItemIndicator className={styles.ItemIndicator}>
                       <CheckIcon className={styles.ItemIndicatorIcon} />
                     </Select.ItemIndicator>
-                    <Select.ItemText className={styles.ItemText}>
-                      Sans-serif
-                    </Select.ItemText>
+                    <Select.ItemText className={styles.ItemText}>Sans-serif</Select.ItemText>
                   </Select.Item>
                   <Select.Item className={styles.Item} value="serif">
                     <Select.ItemIndicator className={styles.ItemIndicator}>
                       <CheckIcon className={styles.ItemIndicatorIcon} />
                     </Select.ItemIndicator>
-                    <Select.ItemText className={styles.ItemText}>
-                      Serif
-                    </Select.ItemText>
+                    <Select.ItemText className={styles.ItemText}>Serif</Select.ItemText>
                   </Select.Item>
                   <Select.Item className={styles.Item} value="mono">
                     <Select.ItemIndicator className={styles.ItemIndicator}>
                       <CheckIcon className={styles.ItemIndicatorIcon} />
                     </Select.ItemIndicator>
-                    <Select.ItemText className={styles.ItemText}>
-                      Monospace
-                    </Select.ItemText>
+                    <Select.ItemText className={styles.ItemText}>Monospace</Select.ItemText>
                   </Select.Item>
                   <Select.Item className={styles.Item} value="cursive">
                     <Select.ItemIndicator className={styles.ItemIndicator}>
                       <CheckIcon className={styles.ItemIndicatorIcon} />
                     </Select.ItemIndicator>
-                    <Select.ItemText className={styles.ItemText}>
-                      Cursive
-                    </Select.ItemText>
+                    <Select.ItemText className={styles.ItemText}>Cursive</Select.ItemText>
                   </Select.Item>
                 </Select.Popup>
                 <Select.ScrollDownArrow className={styles.ScrollArrow} />
@@ -272,14 +236,8 @@ export default function Page() {
           <Field.Error className={styles.Error} />
         </Field.Root>
 
-        <Field.Root
-          name="radio-group"
-          render={<Fieldset.Root />}
-          className={styles.Field}
-        >
-          <Fieldset.Legend className={styles.Legend}>
-            Show scroll bars
-          </Fieldset.Legend>
+        <Field.Root name="radio-group" render={<Fieldset.Root />} className={styles.Field}>
+          <Fieldset.Legend className={styles.Legend}>Show scroll bars</Fieldset.Legend>
           <RadioGroup required={native} className={styles.RadioGroup}>
             <Field.Label className={styles.Label}>
               <Radio.Root value="auto" className={styles.Radio}>
@@ -307,45 +265,18 @@ export default function Page() {
 
         <Field.Root name="combobox" className={styles.Field}>
           <Field.Label className={styles.Label}>Framework</Field.Label>
-          <Combobox.Root
-            name="combobox"
-            required={native}
-            value={comboboxValue}
-            onValueChange={(nextValue) => {
-              setComboboxValue(nextValue);
-              React.startTransition(() => {
-                setComboboxInputValue(nextValue);
-              });
-            }}
-          >
-            <Combobox.Input
-              placeholder="Select a framework"
-              className={styles.Input}
-              value={comboboxInputValue}
-              onChange={(event) => {
-                React.startTransition(() => {
-                  setComboboxInputValue(event.target.value);
-                });
-              }}
-            />
+          <Combobox.Root name="combobox" required={native} items={frameworks}>
+            <Combobox.Input placeholder="Select a framework" className={styles.Input} />
             <Combobox.Portal>
               <Combobox.Positioner className={styles.Positioner} sideOffset={8}>
                 <Combobox.Popup className={styles.Popup}>
-                  <Combobox.Status className={styles.StatusItem}>
-                    {filteredFrameworks.length === 0 && (
-                      <div>No frameworks found</div>
-                    )}
-                  </Combobox.Status>
+                  <Combobox.Empty className={styles.Empty}>No frameworks found</Combobox.Empty>
                   <Combobox.List>
-                    {filteredFrameworks.map((framework) => (
-                      <Combobox.Item
-                        key={framework}
-                        className={styles.Item}
-                        value={framework}
-                      >
+                    {(framework) => (
+                      <Combobox.Item key={framework} className={styles.Item} value={framework}>
                         {framework}
                       </Combobox.Item>
-                    ))}
+                    )}
                   </Combobox.List>
                 </Combobox.Popup>
               </Combobox.Positioner>
@@ -353,14 +284,8 @@ export default function Page() {
           </Combobox.Root>
         </Field.Root>
 
-        <Field.Root
-          name="checkbox-group"
-          render={<Fieldset.Root />}
-          className={styles.Field}
-        >
-          <Fieldset.Legend className={styles.Legend}>
-            Content blocking
-          </Fieldset.Legend>
+        <Field.Root name="checkbox-group" render={<Fieldset.Root />} className={styles.Field}>
+          <Fieldset.Legend className={styles.Legend}>Content blocking</Fieldset.Legend>
           <CheckboxGroup
             aria-labelledby="parent-label"
             value={checkboxGroupValue}
@@ -369,11 +294,7 @@ export default function Page() {
             className={styles.CheckboxGroup}
             style={{ marginLeft: '1rem' }}
           >
-            <Field.Label
-              className={styles.Label}
-              style={{ marginLeft: '-1rem' }}
-              id="parent-label"
-            >
+            <Field.Label className={styles.Label} style={{ marginLeft: '-1rem' }} id="parent-label">
               <Checkbox.Root parent className={styles.Checkbox}>
                 <Checkbox.Indicator
                   className={styles.CheckboxIndicator}
@@ -427,55 +348,6 @@ export default function Page() {
               Block trackers
             </Field.Label>
           </CheckboxGroup>
-        </Field.Root>
-
-        <Field.Root name="combobox" className={styles.Field}>
-          <Field.Label className={styles.Label}>Framework</Field.Label>
-          <Combobox.Root
-            name="combobox"
-            required={native}
-            value={comboboxValue}
-            onValueChange={(nextValue) => {
-              setComboboxValue(nextValue);
-              React.startTransition(() => {
-                setComboboxInputValue(nextValue);
-              });
-            }}
-          >
-            <Combobox.Input
-              placeholder="Select a framework"
-              className={styles.Input}
-              value={comboboxInputValue}
-              onChange={(event) => {
-                React.startTransition(() => {
-                  setComboboxInputValue(event.target.value);
-                });
-              }}
-            />
-            <Combobox.Portal>
-              <Combobox.Positioner className={styles.Positioner} sideOffset={8}>
-                <Combobox.Popup className={styles.Popup}>
-                  <Combobox.Status className={styles.StatusItem}>
-                    {filteredFrameworks.length === 0 && (
-                      <div>No frameworks found</div>
-                    )}
-                  </Combobox.Status>
-                  <Combobox.List>
-                    {filteredFrameworks.map((framework) => (
-                      <Combobox.Item
-                        key={framework}
-                        className={styles.Item}
-                        value={framework}
-                      >
-                        {framework}
-                      </Combobox.Item>
-                    ))}
-                  </Combobox.List>
-                </Combobox.Popup>
-              </Combobox.Positioner>
-            </Combobox.Portal>
-          </Combobox.Root>
-          <Field.Error className={styles.Error} />
         </Field.Root>
 
         <button type="submit" className={styles.Button}>

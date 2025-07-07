@@ -39,9 +39,19 @@
       "matchPackageNames": ["@types/**"]
     },
     {
+      "groupName": "Infra packages",
+      "matchPackageNames": ["@mui/internal-*", "@mui/docs"],
+      "followTag": "canary",
+      "schedule": null
+    },
+    {
       "groupName": "MUI",
-      "matchPackagePatterns": ["@mui/*", "@playwright/test", "mcr.microsoft.com/playwright"],
-      "description": "MUI packages and Playwright. These are updated together as the playwright version used by @mui/internal-test-utils must be the same as mcr.microsoft.com/playwright image.",
+      "matchPackagePatterns": [
+        "@mui/internal-test-utils",
+        "@playwright/test",
+        "mcr.microsoft.com/playwright"
+      ],
+      "description": "@mui/internal-test-utils and Playwright. These are updated together as the playwright version used by @mui/internal-test-utils must be the same as mcr.microsoft.com/playwright image.",
       "allowedVersions": "!/-dev/",
       "schedule": "before 6:00am on Wednesday"
     },
