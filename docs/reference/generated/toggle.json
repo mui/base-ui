@@ -17,8 +17,7 @@
     },
     "onPressedChange": {
       "type": "((pressed: boolean, event: Event) => void)",
-      "description": "Callback fired when the pressed state is changed.",
-      "example": "```tsx\nconst [pressed, setPressed] = React.useState(true);\n\nreturn (\n  <Toggle pressed={pressed} onPressedChange={setPressed} />\n)\n```"
+      "description": "Callback fired when the pressed state is changed."
     },
     "nativeButton": {
       "type": "boolean",
