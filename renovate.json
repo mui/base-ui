@@ -94,6 +94,11 @@
     {
       "groupName": "GitHub Actions",
       "matchManagers": ["github-actions"]
+    },
+    {
+      "groupName": "chai - incompatible versions",
+      "matchPackageNames": ["chai", "@types/chai"],
+      "allowedVersions": "< 5.0.0"
     }
   ],
   "postUpdateOptions": ["pnpmDedupe"],
