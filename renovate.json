@@ -18,7 +18,7 @@
       "rangeStrategy": "widen"
     },
     {
-      "groupName": "babel",
+      "groupName": "Babel",
       "matchPackagePatterns": ["^@babel/", "^@types/babel"]
     },
     {
@@ -30,26 +30,24 @@
       "matchPackageNames": ["tailwindcss", "@tailwindcss/*", "prettier-plugin-tailwindcss"]
     },
     {
-      "groupName": "eslint",
-      "matchPackagePatterns": ["eslint", "eslint-*", "@typescript-eslint/*"],
-      "automerge": true
+      "groupName": "ESlint",
+      "matchPackagePatterns": ["eslint", "eslint-*", "@typescript-eslint/*"]
     },
     {
-      "groupName": "Infra packages",
+      "groupName": "MUI internal packages",
       "matchPackageNames": ["@mui/internal-*", "@mui/docs"],
       "followTag": "canary",
       "schedule": null
     },
     {
-      "groupName": "MUI",
-      "matchPackagePatterns": [
-        "@mui/internal-test-utils",
-        "@playwright/test",
-        "mcr.microsoft.com/playwright"
-      ],
-      "description": "@mui/internal-test-utils and Playwright. These are updated together as the playwright version used by @mui/internal-test-utils must be the same as mcr.microsoft.com/playwright image.",
+      "groupName": "MUI public packages",
+      "matchPackageNames": ["@mui/*", "!@mui/internal-*", "!@mui/docs"],
       "allowedVersions": "!/-dev/",
       "schedule": "before 6:00am on Wednesday"
+    },
+    {
+      "groupName": "Playwright",
+      "matchPackageNames": ["@playwright/test", "mcr.microsoft.com/playwright"]
     },
     {
       "groupName": "Public packages' dependencies",
