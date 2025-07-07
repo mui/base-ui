@@ -1,8 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useEventCallback, useModernLayoutEffect } from '@base-ui-components/utils';
-import { BaseUIComponentProps } from '../../utils/types';
-import { useRenderElement } from '../../utils/useRenderElement';
+import { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import { CompositeRoot } from '../../composite/root/CompositeRoot';
 import { tabsStyleHookMapping } from '../root/styleHooks';
 import { useTabsRootContext } from '../root/TabsRootContext';
@@ -65,18 +64,10 @@ export const TabsList = React.forwardRef(function TabsList(
     [orientation, tabActivationDirection],
   );
 
-  const element = useRenderElement('div', componentProps, {
-    state,
-    ref: [forwardedRef, tabsListRef],
-    props: [
-      {
-        'aria-orientation': orientation === 'vertical' ? 'vertical' : undefined,
-        role: 'tablist',
-      },
-      elementProps,
-    ],
-    customStyleHookMapping: tabsStyleHookMapping,
-  });
+  const defaultProps: HTMLProps = {
+    'aria-orientation': orientation === 'vertical' ? 'vertical' : undefined,
+    role: 'tablist',
+  };
 
   const tabsListContextValue: TabsListContext = React.useMemo(
     () => ({
@@ -99,14 +90,19 @@ export const TabsList = React.forwardRef(function TabsList(
 
   return (
     <TabsListContext.Provider value={tabsListContextValue}>
-      <CompositeRoot<TabsTab.Metadata>
+      <CompositeRoot
+        render={render}
+        className={className}
+        state={state}
+        refs={[forwardedRef, tabsListRef]}
+        props={[defaultProps, elementProps]}
+        customStyleHookMapping={tabsStyleHookMapping}
         highlightedIndex={highlightedTabIndex}
         enableHomeAndEndKeys
         loop={loop}
         orientation={orientation}
         onHighlightedIndexChange={setHighlightedTabIndex}
         onMapChange={setTabMap}
-        render={element}
         disabledIndices={EMPTY_ARRAY}
       />
     </TabsListContext.Provider>

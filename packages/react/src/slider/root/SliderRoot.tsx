@@ -198,6 +198,11 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
     },
   );
 
+  const handleHiddenInputFocus = useEventCallback(() => {
+    // focus the first thumb if the hidden input receives focus
+    thumbRefs.current?.[0]?.focus();
+  });
+
   useModernLayoutEffect(() => {
     if (valueProp === undefined || dragging) {
       return;
@@ -334,12 +339,14 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
               <input
                 key={`${name}-input-${index}`}
                 {...fieldControlValidation.getInputValidationProps({
-                  type: 'hidden',
                   disabled,
                   name,
                   ref: inputRef,
                   value,
+                  onFocus: handleHiddenInputFocus,
                   style: visuallyHidden,
+                  tabIndex: -1,
+                  'aria-hidden': true,
                 })}
               />
             );
@@ -347,12 +354,14 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
         ) : (
           <input
             {...fieldControlValidation.getInputValidationProps({
-              type: 'hidden',
               disabled,
               name,
               ref: inputRef,
               value: valueUnwrapped,
+              onFocus: handleHiddenInputFocus,
               style: visuallyHidden,
+              tabIndex: -1,
+              'aria-hidden': true,
             })}
           />
         )}

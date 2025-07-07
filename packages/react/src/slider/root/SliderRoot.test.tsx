@@ -1924,7 +1924,7 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
         </Field.Root>,
       );
 
-      const input = container.querySelector('input[type="hidden"]');
+      const input = container.querySelector('input[aria-hidden="true"]');
       expect(input).to.have.attribute('name', 'field-slider');
     });
 

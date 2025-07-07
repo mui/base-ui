@@ -21,6 +21,7 @@ const BOUNDARY_OFFSET = 2;
 const customStyleHookMapping: CustomStyleHookMapping<SelectTrigger.State> = {
   ...pressableTriggerOpenStateMapping,
   ...fieldValidityMapping,
+  value: () => null,
 };
 
 /**
@@ -211,8 +212,10 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
       ...fieldState,
       open,
       disabled,
+      value,
+      readOnly,
     }),
-    [fieldState, open, disabled],
+    [fieldState, open, disabled, readOnly, value],
   );
 
   return useRenderElement('div', componentProps, {
@@ -245,5 +248,13 @@ export namespace SelectTrigger {
      * Whether the select menu is currently open.
      */
     open: boolean;
+    /**
+     * Whether the select menu is readonly.
+     */
+    readOnly: boolean;
+    /**
+     * The value of the currently selected item.
+     */
+    value: any;
   }
 }

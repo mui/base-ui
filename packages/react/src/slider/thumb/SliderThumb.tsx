@@ -120,10 +120,10 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
 
   const {
     active: activeIndex,
-    handleInputChange,
     disabled: contextDisabled,
     fieldControlValidation,
     formatOptionsRef,
+    handleInputChange,
     labelId,
     largeStep,
     locale,

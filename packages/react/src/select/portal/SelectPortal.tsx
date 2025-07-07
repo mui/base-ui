@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useSelector } from '@base-ui-components/utils/store';
-import { FloatingPortal } from '../../floating-ui-react';
+import { FloatingPortal, FloatingPortalProps } from '../../floating-ui-react';
 import { SelectPortalContext } from './SelectPortalContext';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import { selectors } from '../store';
@@ -37,6 +37,6 @@ export namespace SelectPortal {
     /**
      * A parent element to render the portal element into.
      */
-    container?: HTMLElement | null | React.RefObject<HTMLElement | null>;
+    container?: FloatingPortalProps['root'];
   }
 }

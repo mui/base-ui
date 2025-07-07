@@ -7,8 +7,7 @@ import {
   useEventCallback,
   visuallyHidden,
 } from '@base-ui-components/utils';
-import { useRenderElement } from '../utils/useRenderElement';
-import type { BaseUIComponentProps } from '../utils/types';
+import type { BaseUIComponentProps, HTMLProps } from '../utils/types';
 import { useBaseUiId } from '../utils/useBaseUiId';
 import { contains } from '../floating-ui-react/utils';
 import { SHIFT } from '../composite/composite';
@@ -156,6 +155,9 @@ export const RadioGroup = React.forwardRef(function RadioGroup(
       'aria-hidden': true,
       tabIndex: -1,
       style: visuallyHidden,
+      onFocus() {
+        controlRef.current?.focus();
+      },
     },
     fieldControlValidation.getInputValidationProps,
   );
@@ -199,34 +201,30 @@ export const RadioGroup = React.forwardRef(function RadioGroup(
     ],
   );
 
-  const element = useRenderElement('div', componentProps, {
-    ref: forwardedRef,
-    state,
-    props: [
-      {
-        role: 'radiogroup',
-        'aria-required': required || undefined,
-        'aria-disabled': disabled || undefined,
-        'aria-readonly': readOnly || undefined,
-        'aria-labelledby': labelId,
-        onFocus() {
-          setFocused(true);
-        },
-        onBlur,
-        onKeyDownCapture,
-      },
-      fieldControlValidation.getValidationProps,
-      elementProps,
-    ],
-    customStyleHookMapping: fieldValidityMapping,
-  });
+  const defaultProps: HTMLProps = {
+    role: 'radiogroup',
+    'aria-required': required || undefined,
+    'aria-disabled': disabled || undefined,
+    'aria-readonly': readOnly || undefined,
+    'aria-labelledby': labelId,
+    onFocus() {
+      setFocused(true);
+    },
+    onBlur,
+    onKeyDownCapture,
+  };
 
   return (
     <RadioGroupContext.Provider value={contextValue}>
       <CompositeRoot
+        render={render}
+        className={className}
+        state={state}
+        props={[defaultProps, fieldControlValidation.getValidationProps, elementProps]}
+        refs={[forwardedRef]}
+        customStyleHookMapping={fieldValidityMapping}
         enableHomeAndEndKeys={false}
         modifierKeys={MODIFIER_KEYS}
-        render={element}
         stopEventPropagation
       />
       <input {...inputProps} />

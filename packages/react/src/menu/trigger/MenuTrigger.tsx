@@ -4,7 +4,6 @@ import { getParentNode, isHTMLElement, isLastTraversableNode } from '@floating-u
 import { useForkRef, useTimeout, ownerDocument, useEventCallback } from '@base-ui-components/utils';
 import { contains } from '../../floating-ui-react/utils';
 import { useFloatingTree } from '../../floating-ui-react/index';
-import { CompositeItem } from '../../composite/item/CompositeItem';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { pressableTriggerOpenStateMapping } from '../../utils/popupStateMapping';
 import { useRenderElement } from '../../utils/useRenderElement';
@@ -12,6 +11,7 @@ import { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import { mergeProps } from '../../merge-props';
 import { useButton } from '../../use-button/useButton';
 import { getPseudoElementBounds } from '../../utils/getPseudoElementBounds';
+import { CompositeItem } from '../../composite/item/CompositeItem';
 
 const BOUNDARY_OFFSET = 2;
 
@@ -149,15 +149,31 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
     [disabled, open],
   );
 
+  const isMenubar = parent.type === 'menubar';
+
+  const ref = [triggerRef, forwardedRef, buttonRef];
+  const props = [rootTriggerProps, elementProps, getTriggerProps];
+
   const element = useRenderElement('button', componentProps, {
-    state,
+    enabled: !isMenubar,
     customStyleHookMapping: pressableTriggerOpenStateMapping,
-    ref: [triggerRef, forwardedRef, buttonRef],
-    props: [rootTriggerProps, elementProps, getTriggerProps],
+    state,
+    ref,
+    props,
   });
 
-  if (parent.type === 'menubar') {
-    return <CompositeItem render={element} />;
+  if (isMenubar) {
+    return (
+      <CompositeItem
+        tag="button"
+        render={render}
+        className={className}
+        state={state}
+        refs={ref}
+        props={props}
+        customStyleHookMapping={pressableTriggerOpenStateMapping}
+      />
+    );
   }
 
   return element;

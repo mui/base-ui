@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { FloatingPortal } from '../../floating-ui-react';
+import { FloatingPortal, FloatingPortalProps } from '../../floating-ui-react';
 import { useDialogRootContext } from '../root/DialogRootContext';
 import { DialogPortalContext } from './DialogPortalContext';
 
@@ -38,6 +38,6 @@ export namespace DialogPortal {
     /**
      * A parent element to render the portal element into.
      */
-    container?: HTMLElement | null | React.RefObject<HTMLElement | null>;
+    container?: FloatingPortalProps['root'];
   }
 }
