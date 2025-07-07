@@ -4,7 +4,6 @@ import { MeterRootContext } from './MeterRootContext';
 import { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import { formatNumber } from '../../utils/formatNumber';
 import { useLatestRef } from '../../utils/useLatestRef';
-import { valueToPercent } from '../../utils/valueToPercent';
 import { useRenderElement } from '../../utils/useRenderElement';
 
 function formatValue(
@@ -35,7 +34,7 @@ export const MeterRoot = React.forwardRef(function MeterRoot(
     locale,
     max = 100,
     min = 0,
-    value,
+    value: valueProp,
     render,
     className,
     ...elementProps
@@ -44,13 +43,11 @@ export const MeterRoot = React.forwardRef(function MeterRoot(
   const formatOptionsRef = useLatestRef(format);
 
   const [labelId, setLabelId] = React.useState<string | undefined>();
+  const formattedValue = formatValue(valueProp, locale, formatOptionsRef.current);
 
-  const percentageValue = valueToPercent(value, min, max);
-  const formattedValue = formatValue(value, locale, formatOptionsRef.current);
-
-  let ariaValuetext = `${percentageValue}%`;
+  let ariaValuetext = `${valueProp}%`;
   if (getAriaValueText) {
-    ariaValuetext = getAriaValueText(formattedValue, value);
+    ariaValuetext = getAriaValueText(formattedValue, valueProp);
   } else if (format) {
     ariaValuetext = formattedValue;
   }
@@ -59,7 +56,7 @@ export const MeterRoot = React.forwardRef(function MeterRoot(
     'aria-labelledby': labelId,
     'aria-valuemax': max,
     'aria-valuemin': min,
-    'aria-valuenow': percentageValue / 100,
+    'aria-valuenow': valueProp,
     'aria-valuetext': ariaValuetext,
     role: 'meter',
   };
@@ -69,11 +66,10 @@ export const MeterRoot = React.forwardRef(function MeterRoot(
       formattedValue,
       max,
       min,
-      percentageValue,
       setLabelId,
-      value,
+      value: valueProp,
     }),
-    [formattedValue, max, min, percentageValue, setLabelId, value],
+    [formattedValue, max, min, setLabelId, valueProp],
   );
 
   const element = useRenderElement('div', componentProps, {
