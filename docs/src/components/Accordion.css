@@ -53,6 +53,7 @@
     @media (hover: hover) {
       &:hover {
         background-color: var(--color-gray-75);
+        cursor: default;
       }
     }
 
