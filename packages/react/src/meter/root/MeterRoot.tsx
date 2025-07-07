@@ -59,7 +59,7 @@ export const MeterRoot = React.forwardRef(function MeterRoot(
     'aria-labelledby': labelId,
     'aria-valuemax': max,
     'aria-valuemin': min,
-    'aria-valuenow': percentageValue / 100,
+    'aria-valuenow': value,
     'aria-valuetext': ariaValuetext,
     role: 'meter',
   };
