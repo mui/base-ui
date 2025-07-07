@@ -44,7 +44,7 @@ function getNavigatorData(): { platform: string; maxTouchPoints: number } {
   }
 
   return {
-    platform: navigator.platform ?? "",
+    platform: navigator.platform ?? '',
     maxTouchPoints: navigator.maxTouchPoints ?? -1,
   };
 }
@@ -74,5 +74,5 @@ function getPlatform(): string {
     return uaData.platform;
   }
 
-  return navigator.platform ?? "";
+  return navigator.platform ?? '';
 }
