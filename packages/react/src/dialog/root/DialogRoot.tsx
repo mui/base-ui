@@ -63,7 +63,9 @@ export namespace DialogRoot {
     children?: React.ReactNode;
   }
 
-  export type Actions = useDialogRoot.Actions;
+  export interface Actions {
+    unmount: () => void;
+  }
 
   export type OpenChangeReason = BaseOpenChangeReason | 'close-press';
 }

@@ -53,7 +53,8 @@ export const AlertDialogRoot: React.FC<AlertDialogRoot.Props> = function AlertDi
 };
 
 export namespace AlertDialogRoot {
-  export interface Props extends Omit<DialogRoot.Props, 'modal' | 'dismissible' | 'onOpenChange'> {
+  export interface Props
+    extends Omit<DialogRoot.Props, 'modal' | 'dismissible' | 'onOpenChange' | 'actionsRef'> {
     /**
      * Event handler called when the dialog is opened or closed.
      */
@@ -62,6 +63,13 @@ export namespace AlertDialogRoot {
       event: Event | undefined,
       reason: OpenChangeReason | undefined,
     ) => void;
+    /**
+     * A ref to imperative actions.
+     * - `unmount`: When specified, the dialog will not be unmounted when closed.
+     * Instead, the `unmount` function must be called to unmount the dialog manually.
+     * Useful when the dialog's animation is controlled by an external library.
+     */
+    actionsRef?: React.RefObject<AlertDialogRoot.Actions>;
   }
 
   export type Actions = DialogRoot.Actions;

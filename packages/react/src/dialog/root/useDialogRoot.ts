@@ -250,7 +250,7 @@ export namespace useDialogRoot {
      * Instead, the `unmount` function must be called to unmount the dialog manually.
      * Useful when the dialog's animation is controlled by an external library.
      */
-    actionsRef?: React.RefObject<{ unmount: () => void }>;
+    actionsRef?: React.RefObject<DialogRoot.Actions>;
   }
 
   export interface Parameters
@@ -266,10 +266,6 @@ export namespace useDialogRoot {
      * Callback to invoke when a nested dialog is closed.
      */
     onNestedDialogClose?: () => void;
-    /**
-     * A ref to imperative actions.
-     */
-    actionsRef?: React.RefObject<Actions>;
   }
 
   export interface ReturnValue {
@@ -361,9 +357,5 @@ export namespace useDialogRoot {
      * The Floating UI root context.
      */
     floatingRootContext: FloatingRootContext;
-  }
-
-  export interface Actions {
-    unmount: () => void;
   }
 }
