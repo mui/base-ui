@@ -7,9 +7,13 @@
       "required": true,
       "description": "The current value."
     },
+    "aria-valuetext": {
+      "type": "string",
+      "description": "A string value that provides a user-friendly name for `aria-valuenow`, the current value of the meter."
+    },
     "getAriaValueText": {
       "type": "((formattedValue: string, value: number) => string)",
-      "description": "A function that returns a string value that provides a human-readable text alternative for the current value of the meter."
+      "description": "A function that returns a string value that provides a human-readable text alternative for `aria-valuenow`, the current value of the meter."
     },
     "locale": {
       "type": "LocalesArgument",

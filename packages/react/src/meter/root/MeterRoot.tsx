@@ -85,11 +85,15 @@ export namespace MeterRoot {
 
   export interface Props extends BaseUIComponentProps<'div', State> {
     /**
+     * A string value that provides a user-friendly name for `aria-valuenow`, the current value of the meter.
+     */
+    'aria-valuetext'?: React.AriaAttributes['aria-valuetext'];
+    /**
      * Options to format the value.
      */
     format?: Intl.NumberFormatOptions;
     /**
-     * A function that returns a string value that provides a human-readable text alternative for the current value of the meter.
+     * A function that returns a string value that provides a human-readable text alternative for `aria-valuenow`, the current value of the meter.
      * @param {string} formattedValue The formatted value
      * @param {number} value The raw value
      * @returns {string}
