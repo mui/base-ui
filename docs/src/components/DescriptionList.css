@@ -20,14 +20,12 @@
 
 .DescriptionTerm {
   @apply text-sm;
-  font-weight: var(--font-weight-bold);
   letter-spacing: -0.00625em;
   color: inherit;
   white-space: nowrap;
   word-break: keep-all;
 
   @media (--xs) {
-    font-weight: var(--font-weight-medium);
     padding: 0.5rem 0.75rem;
   }
 

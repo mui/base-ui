@@ -110,11 +110,11 @@ export async function PropsReferenceAccordion({ data, name: partName, ...props }
             <Accordion.Trigger
               index={index}
               aria-label={`prop: ${name}, type: ${shortPropTypeName} ${prop.default !== undefined ? `(default: ${prop.default})` : ''}`}
-              className={clsx('max-xs:gap-4 md:gap-4', GRID_LAYOUT_CLASSES)}
+              className={clsx('max-xs:gap-4 md:gap-5', GRID_LAYOUT_CLASSES)}
             >
               <TableCode className="text-navy">{name}</TableCode>
               {prop.type && (
-                <span className="flex items-baseline gap-4 text-sm">
+                <span className="flex items-baseline gap-2 text-sm leading-none">
                   <ShortPropType />
                   {prop.default !== undefined && (
                     <span className="max-sm:hidden">
@@ -124,7 +124,7 @@ export async function PropsReferenceAccordion({ data, name: partName, ...props }
                 </span>
               )}
               <svg
-                className="AccordionIcon"
+                className="AccordionIcon translate-y-px"
                 width="10"
                 height="10"
                 viewBox="0 0 10 10"
@@ -135,8 +135,12 @@ export async function PropsReferenceAccordion({ data, name: partName, ...props }
               </svg>
             </Accordion.Trigger>
             <Accordion.Panel>
-              <Accordion.Content className="min-xs:py-1 min-md:py-2">
+              <Accordion.Content className="min-xs:py-1">
                 <DescriptionList.Root className="max-xs:p-4 xs:text-gray-600" aria-label="Info">
+                  <DescriptionList.Term>Name</DescriptionList.Term>
+                  <DescriptionList.Details>
+                    <TableCode className="text-(--color-blue)">{name}</TableCode>
+                  </DescriptionList.Details>
                   {PropDescription != null && (
                     <React.Fragment>
                       <DescriptionList.Term>Description</DescriptionList.Term>
