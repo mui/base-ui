@@ -17,5 +17,6 @@ export { ComboboxChipRemove as ChipRemove } from './chip-remove/ComboboxChipRemo
 export { ComboboxRow as Row } from './row/ComboboxRow';
 export { ComboboxCollection as Collection } from './collection/ComboboxCollection';
 export { ComboboxEmpty as Empty } from './empty/ComboboxEmpty';
+export { ComboboxClear as Clear } from './clear/ComboboxClear';
 
 export { Separator as ComboboxSeparator } from '../separator';

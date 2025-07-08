@@ -5,7 +5,7 @@ import type { HTMLProps } from '../../utils/types';
 import type { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
 import type { BaseOpenChangeReason } from '../../utils/translateOpenChangeReason';
 
-export type ValueChangeReason = 'item-press' | 'input-change';
+export type ValueChangeReason = 'item-press' | 'input-change' | 'input-clear';
 
 export interface ComboboxRootContext {
   select: 'single' | 'multiple' | 'none';
