@@ -63,8 +63,8 @@ export function ComboboxRoot<Item = ComboboxRoot.Item>(
     defaultSelectedValue,
     selectedValue: selectedValueProp,
     onSelectedValueChange,
-    defaultValue = '',
-    value: valueProp,
+    defaultInputValue = '',
+    inputValue: inputValueProp,
     select: selectProp = 'none',
     onItemHighlighted: onItemHighlightedProp,
     name: nameProp,
@@ -120,8 +120,8 @@ export function ComboboxRoot<Item = ComboboxRoot.Item>(
   });
 
   const [inputValue, setInputValueUnwrapped] = useControlled({
-    controlled: valueProp,
-    default: defaultValue,
+    controlled: inputValueProp,
+    default: defaultInputValue,
     name: 'Combobox',
     state: 'value',
   });
@@ -182,10 +182,15 @@ export function ComboboxRoot<Item = ComboboxRoot.Item>(
     () =>
       new Store<StoreState>({
         id,
-        value: selectedValue,
+        selectedValue,
+        inputValue,
         open: openRaw,
         mounted,
         transitionStatus,
+        items,
+        filter,
+        flatItems,
+        filteredItems,
         inline: false,
         activeIndex: null,
         selectedIndex: null,
@@ -266,7 +271,7 @@ export function ComboboxRoot<Item = ComboboxRoot.Item>(
 
   const setInputValue = useEventCallback(
     (next: string, event: Event | undefined, reason: ValueChangeReason | undefined) => {
-      props.onValueChange?.(next, event, reason);
+      props.onInputValueChange?.(next, event, reason);
       setInputValueUnwrapped(next);
     },
   );
@@ -308,7 +313,7 @@ export function ComboboxRoot<Item = ComboboxRoot.Item>(
       setSelectedValueUnwrapped(nextValue);
 
       // If input value is uncontrolled, keep it in sync for single selection
-      if (!multiple && props.value === undefined) {
+      if (!multiple && props.inputValue === undefined) {
         let stringVal: string;
         if (nextValue == null) {
           stringVal = '';
@@ -322,7 +327,7 @@ export function ComboboxRoot<Item = ComboboxRoot.Item>(
 
       // Clear the uncontrolled input after a selection in multiple-select mode when filtering was used.
       const hadInputValue = inputRef.current ? inputRef.current.value.trim() !== '' : false;
-      if (multiple && props.value === undefined && hadInputValue) {
+      if (multiple && props.inputValue === undefined && hadInputValue) {
         setInputValueUnwrapped('');
         // Reset active index and clear any highlighted item since the list will re-filter.
         store.set('activeIndex', null);
@@ -487,7 +492,8 @@ export function ComboboxRoot<Item = ComboboxRoot.Item>(
   React.useEffect(() => {
     store.apply({
       id,
-      value: selectedValue,
+      selectedValue,
+      inputValue,
       open,
       mounted,
       transitionStatus,
@@ -498,6 +504,7 @@ export function ComboboxRoot<Item = ComboboxRoot.Item>(
     store,
     id,
     selectedValue,
+    inputValue,
     open,
     mounted,
     transitionStatus,
@@ -518,10 +525,6 @@ export function ComboboxRoot<Item = ComboboxRoot.Item>(
     () => ({
       select: selectProp,
       mounted,
-      selectedValue,
-      setSelectedValue,
-      open,
-      setOpen,
       listRef,
       popupRef,
       triggerRef,
@@ -529,52 +532,40 @@ export function ComboboxRoot<Item = ComboboxRoot.Item>(
       inputRef,
       keyboardActiveRef,
       allowActiveIndexSyncRef,
-      triggerElement,
-      positionerElement,
       store,
       getItemProps,
       registerSelectedItem,
       onItemHighlighted,
-      value: inputValue,
-      setValue: setInputValue,
+      setOpen,
+      setInputValue,
+      setSelectedValue,
+      selectedValue,
       name,
       disabled,
       readOnly,
       required,
       fieldControlValidation,
       cols,
-      items,
-      filteredItems,
-      flatItems,
       isGrouped,
-      filter,
     }),
     [
       selectProp,
       mounted,
-      selectedValue,
-      setSelectedValue,
-      open,
-      positionerElement,
-      setOpen,
-      triggerElement,
       store,
       getItemProps,
       registerSelectedItem,
       onItemHighlighted,
-      inputValue,
+      setOpen,
       setInputValue,
+      selectedValue,
+      setSelectedValue,
       name,
       disabled,
       readOnly,
       required,
       fieldControlValidation,
       cols,
-      items,
-      filteredItems,
-      flatItems,
       isGrouped,
-      filter,
     ],
   );
 
@@ -694,15 +685,19 @@ export namespace ComboboxRoot {
     /**
      * The input value of the combobox.
      */
-    value?: React.ComponentProps<'input'>['value'];
+    inputValue?: React.ComponentProps<'input'>['value'];
     /**
      * Callback fired when the input value of the combobox changes.
      */
-    onValueChange?: (value: string, event: Event | undefined, reason: string | undefined) => void;
+    onInputValueChange?: (
+      value: string,
+      event: Event | undefined,
+      reason: string | undefined,
+    ) => void;
     /**
      * The uncontrolled input value when initially rendered.
      */
-    defaultValue?: React.ComponentProps<'input'>['defaultValue'];
+    defaultInputValue?: React.ComponentProps<'input'>['defaultValue'];
     /**
      * How the combobox should remember the selected value.
      * - `single`: Remembers the last selected value.

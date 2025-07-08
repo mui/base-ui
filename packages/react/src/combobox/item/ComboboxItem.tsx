@@ -68,7 +68,7 @@ export const ComboboxItem = React.memo(
 
     const active = useSelector(store, selectors.isActive, listItem.index);
     const matchesSelectedValue = useSelector(store, selectors.isSelected, value);
-    const rootValue = useSelector(store, selectors.value);
+    const rootSelectedValue = useSelector(store, selectors.selectedValue);
 
     const selected = matchesSelectedValue && selectable;
 
@@ -91,7 +91,7 @@ export const ComboboxItem = React.memo(
     }, [hasRegistered, listItem.index, value, valuesRef]);
 
     useModernLayoutEffect(() => {
-      if (hasRegistered && value === rootValue) {
+      if (hasRegistered && value === rootSelectedValue) {
         registerSelectedItem(listItem.index);
 
         if (selectable && allowActiveIndexSyncRef.current) {
@@ -113,7 +113,7 @@ export const ComboboxItem = React.memo(
       listItem.index,
       registerSelectedItem,
       value,
-      rootValue,
+      rootSelectedValue,
       store,
       selectable,
       allowActiveIndexSyncRef,
@@ -152,14 +152,17 @@ export const ComboboxItem = React.memo(
         }
 
         if (multiple) {
-          const currentValue = rootValue as any[];
-          const isCurrentlySelected = Array.isArray(currentValue) && currentValue.includes(value);
+          const currentSelectedValue = rootSelectedValue as any[];
+          const isCurrentlySelected =
+            Array.isArray(currentSelectedValue) && currentSelectedValue.includes(value);
 
           let nextValue: any[];
           if (isCurrentlySelected) {
-            nextValue = currentValue.filter((v) => v !== value);
+            nextValue = currentSelectedValue.filter((v) => v !== value);
           } else {
-            nextValue = Array.isArray(currentValue) ? [...currentValue, value] : [value];
+            nextValue = Array.isArray(currentSelectedValue)
+              ? [...currentSelectedValue, value]
+              : [value];
           }
 
           setSelectedValue(nextValue, event.nativeEvent, 'item-press');

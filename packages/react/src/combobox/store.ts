@@ -5,7 +5,14 @@ import type { HTMLProps } from '../utils/types';
 export type State = {
   id: string | undefined;
 
-  value: any;
+  items?: any[];
+  filteredItems?: any[];
+  flatItems?: any[];
+
+  filter: (item: any, query: string) => boolean;
+
+  selectedValue: any;
+  inputValue: React.ComponentProps<'input'>['value'];
 
   open: boolean;
   mounted: boolean;
@@ -28,7 +35,12 @@ export type ComboboxStore = Store<State>;
 export const selectors = {
   id: createSelector((state: State) => state.id),
 
-  value: createSelector((state: State) => state.value),
+  items: createSelector((state: State) => state.items),
+  filteredItems: createSelector((state: State) => state.filteredItems),
+  flatItems: createSelector((state: State) => state.flatItems),
+
+  selectedValue: createSelector((state: State) => state.selectedValue),
+  inputValue: createSelector((state: State) => state.inputValue),
 
   open: createSelector((state: State) => state.open),
   mounted: createSelector((state: State) => state.mounted),
@@ -38,11 +50,11 @@ export const selectors = {
   activeIndex: createSelector((state: State) => state.activeIndex),
   selectedIndex: createSelector((state: State) => state.selectedIndex),
   isActive: createSelector((state: State, index: number) => state.activeIndex === index),
-  isSelected: createSelector((state: State, value: any) => {
-    if (Array.isArray(state.value)) {
-      return state.value.includes(value);
+  isSelected: createSelector((state: State, selectedValue: any) => {
+    if (Array.isArray(state.selectedValue)) {
+      return state.selectedValue.includes(selectedValue);
     }
-    return state.value === value;
+    return state.selectedValue === selectedValue;
   }),
 
   popupProps: createSelector((state: State) => state.popupProps),

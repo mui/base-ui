@@ -50,20 +50,19 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
     readOnly,
     fieldControlValidation,
     inputRef,
-    value: contextInputValue,
-    setValue: setInputValue,
+    setInputValue,
     listRef,
   } = useComboboxRootContext();
   const comboboxChipsContext = useComboboxChipsContext();
 
-  const multiple = select === 'multiple';
-
   const triggerProps = useSelector(store, selectors.triggerProps);
   const open = useSelector(store, selectors.open);
   const activeIndex = useSelector(store, selectors.activeIndex);
-  const value = useSelector(store, selectors.value);
+  const selectedValue = useSelector(store, selectors.selectedValue);
+  const inputValue = useSelector(store, selectors.inputValue);
 
   const disabled = fieldDisabled || comboboxDisabled || disabledProp;
+  const multiple = select === 'multiple';
 
   const setTriggerElement = useEventCallback((element) => {
     store.set('triggerElement', element);
@@ -98,7 +97,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
         }
       } else if (event.key === 'ArrowRight') {
         event.preventDefault();
-        if (highlightedChipIndex < value.length - 1) {
+        if (highlightedChipIndex < selectedValue.length - 1) {
           nextIndex = highlightedChipIndex + 1;
         } else {
           nextIndex = undefined;
@@ -107,7 +106,9 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
         event.preventDefault();
         // Move highlight appropriately after removal.
         const computedNextIndex =
-          highlightedChipIndex >= value.length - 1 ? value.length - 2 : highlightedChipIndex;
+          highlightedChipIndex >= selectedValue.length - 1
+            ? selectedValue.length - 2
+            : highlightedChipIndex;
         // If the computed index is negative, treat it as no highlight.
         nextIndex = computedNextIndex >= 0 ? computedNextIndex : undefined;
       }
@@ -118,12 +119,16 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
     if (
       event.key === 'ArrowLeft' &&
       (event.currentTarget.selectionStart ?? 0) === 0 &&
-      value.length > 0
+      selectedValue.length > 0
     ) {
       event.preventDefault();
-      const lastChipIndex = Math.max(value.length - 1, 0);
+      const lastChipIndex = Math.max(selectedValue.length - 1, 0);
       nextIndex = lastChipIndex;
-    } else if (event.key === 'Backspace' && event.currentTarget.value === '' && value.length > 0) {
+    } else if (
+      event.key === 'Backspace' &&
+      event.currentTarget.value === '' &&
+      selectedValue.length > 0
+    ) {
       event.preventDefault();
     }
 
@@ -136,8 +141,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
     props: [
       triggerProps,
       {
-        value: componentProps.value ?? contextInputValue,
-        'aria-disabled': disabled || undefined,
+        value: componentProps.value ?? inputValue,
         'aria-readonly': readOnly || undefined,
         'aria-labelledby': labelId,
         disabled: disabled || undefined,
@@ -150,7 +154,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
           setFocused(false);
 
           if (validationMode === 'onBlur') {
-            fieldControlValidation.commitValidation(value);
+            fieldControlValidation.commitValidation(selectedValue);
           }
         },
         onChange(event: React.ChangeEvent<HTMLInputElement>) {
@@ -179,10 +183,10 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
             event.key === 'Backspace' &&
             event.currentTarget.value === '' &&
             comboboxChipsContext.highlightedChipIndex === undefined &&
-            Array.isArray(value) &&
-            value.length > 0
+            Array.isArray(selectedValue) &&
+            selectedValue.length > 0
           ) {
-            const newValue = value.slice(0, -1);
+            const newValue = selectedValue.slice(0, -1);
             setSelectedValue(newValue, event.nativeEvent, undefined);
             return;
           }
@@ -224,16 +228,17 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
               highlightedItemElement.click();
             } else {
               // Fallback to the original behavior if we can't find the element
-              const selectedValue = valuesRef.current[activeIndex];
+              const nextSelectedValue = valuesRef.current[activeIndex];
 
               if (multiple) {
-                const isSelected = Array.isArray(value) && value.includes(selectedValue);
+                const isSelected =
+                  Array.isArray(nextSelectedValue) && selectedValue.includes(nextSelectedValue);
 
                 let nextValue = [];
                 if (isSelected) {
-                  nextValue = value.filter((v) => v !== selectedValue);
+                  nextValue = nextSelectedValue.filter((v) => v !== selectedValue);
                 } else {
-                  nextValue = [...value, selectedValue];
+                  nextValue = [...selectedValue, nextSelectedValue];
                 }
 
                 setSelectedValue(nextValue, event.nativeEvent, 'item-press');

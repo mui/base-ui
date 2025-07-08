@@ -6,18 +6,6 @@
       "type": "string",
       "description": "Identifies the field when a form is submitted."
     },
-    "defaultValue": {
-      "type": "string | number | string[] | string[]",
-      "description": "The uncontrolled input value when initially rendered."
-    },
-    "value": {
-      "type": "string | number | string[] | string[]",
-      "description": "The input value of the combobox."
-    },
-    "onValueChange": {
-      "type": "((value: string, event: Event | undefined, reason: string | undefined) => void)",
-      "description": "Callback fired when the input value of the combobox changes."
-    },
     "defaultOpen": {
       "type": "boolean",
       "default": "false",
@@ -40,6 +28,10 @@
       "default": "1",
       "description": "The number of columns the items are rendered in grid layout."
     },
+    "defaultInputValue": {
+      "type": "string | number | string[] | string[]",
+      "description": "The uncontrolled input value when initially rendered."
+    },
     "defaultSelectedValue": {
       "type": "V | Item",
       "description": "The uncontrolled selected value of the combobox when it's initially rendered.\n\nTo render a controlled combobox, use the `selectedValue` prop instead."
@@ -48,9 +40,17 @@
       "type": "((item: Item, query: string) => boolean)",
       "description": "Filter function used to match items vs input query."
     },
+    "inputValue": {
+      "type": "string | number | string[] | string[]",
+      "description": "The input value of the combobox."
+    },
     "items": {
       "type": "Item[] | ComboboxGroup[]",
       "description": "The items to be displayed in the combobox.\nCan be either a flat array of items or an array of groups with items."
+    },
+    "onInputValueChange": {
+      "type": "((value: string, event: Event | undefined, reason: string | undefined) => void)",
+      "description": "Callback fired when the input value of the combobox changes."
     },
     "onItemHighlighted": {
       "type": "((value: V | Item | undefined, type: 'keyboard' | 'pointer') => void)",

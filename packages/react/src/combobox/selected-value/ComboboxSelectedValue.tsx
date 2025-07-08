@@ -5,26 +5,24 @@ import { useComboboxRootContext } from '../root/ComboboxRootContext';
 import { selectors } from '../store';
 
 /**
- * The current value of the combobox.
+ * The currently selected value of the combobox.
  * Doesn't render its own HTML element.
  *
  * Documentation: [Base UI Combobox](https://base-ui.com/react/components/combobox)
  */
-export function ComboboxValue(componentProps: ComboboxValue.Props) {
-  const { children: childrenProp } = componentProps;
+export function ComboboxSelectedValue(props: ComboboxSelectedValue.Props) {
+  const { children: childrenProp } = props;
 
   const { store } = useComboboxRootContext();
-  const value = useSelector(store, selectors.value);
+  const selectedValue = useSelector(store, selectors.selectedValue);
 
-  const children = typeof childrenProp === 'function' ? childrenProp(value) : childrenProp;
-
-  return children;
+  return typeof childrenProp === 'function' ? childrenProp(selectedValue) : childrenProp;
 }
 
-export namespace ComboboxValue {
+export namespace ComboboxSelectedValue {
   export interface State {}
 
   export interface Props {
-    children?: React.ReactNode | ((value: any) => React.ReactNode);
+    children?: React.ReactNode | ((selectedValue: any) => React.ReactNode);
   }
 }

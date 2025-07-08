@@ -3,6 +3,8 @@ import * as React from 'react';
 import { FloatingPortal } from '../../floating-ui-react';
 import { useComboboxRootContext } from '../root/ComboboxRootContext';
 import { ComboboxPortalContext } from './ComboboxPortalContext';
+import { useSelector } from '../../utils/store';
+import { selectors } from '../store';
 
 /**
  * A portal element that moves the popup to a different part of the DOM.
@@ -13,7 +15,8 @@ import { ComboboxPortalContext } from './ComboboxPortalContext';
 export function ComboboxPortal(props: ComboboxPortal.Props) {
   const { children, keepMounted = false, container } = props;
 
-  const { mounted } = useComboboxRootContext();
+  const { store } = useComboboxRootContext();
+  const mounted = useSelector(store, selectors.mounted);
 
   const shouldRender = mounted || keepMounted;
   if (!shouldRender) {

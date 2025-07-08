@@ -5,6 +5,8 @@ import { BaseUIComponentProps } from '../../utils/types';
 import { ComboboxChipsContext } from './ComboboxChipsContext';
 import { CompositeList } from '../../composite/list/CompositeList';
 import { useComboboxRootContext } from '../root/ComboboxRootContext';
+import { useSelector } from '../../utils/store';
+import { selectors } from '../store';
 
 /**
  * A container for the combobox chips in a multiselectable combobox.
@@ -18,7 +20,8 @@ export const ComboboxChips = React.forwardRef(function ComboboxChips(
 ) {
   const { render, className, ...elementProps } = componentProps;
 
-  const { open } = useComboboxRootContext();
+  const { store } = useComboboxRootContext();
+  const open = useSelector(store, selectors.open);
 
   const [highlightedChipIndex, setHighlightedChipIndex] = React.useState<number | undefined>(
     undefined,

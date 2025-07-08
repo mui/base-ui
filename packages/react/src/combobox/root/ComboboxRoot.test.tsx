@@ -108,7 +108,7 @@ describe('<Combobox.Root />', () => {
       );
 
       const input = screen.getByTestId('input');
-      expect(input).to.have.attribute('aria-disabled', 'true');
+      expect(input).to.have.attribute('disabled');
     });
 
     it('should receive name prop from Field.Root', async () => {
@@ -161,8 +161,8 @@ describe('<Combobox.Root />', () => {
       const input = screen.getByTestId('input');
       const trigger = screen.getByTestId('trigger');
 
-      expect(input).to.have.attribute('aria-disabled', 'true');
-      expect(trigger).to.have.attribute('aria-disabled', 'true');
+      expect(input).to.have.attribute('disabled');
+      expect(trigger).to.have.attribute('disabled');
 
       // Verify interactions are disabled
       await user.click(trigger);

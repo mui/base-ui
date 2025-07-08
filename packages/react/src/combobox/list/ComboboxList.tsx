@@ -23,9 +23,10 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
   const { render, className, children, ...elementProps } = componentProps;
 
   const { store, select, keyboardActiveRef, cols } = useComboboxRootContext();
+  const floatingRootContext = useComboboxFloatingContext();
+
   const multiple = select === 'multiple';
   const hasPositionerContext = Boolean(useComboboxPositionerContext(true));
-  const floatingRootContext = useComboboxFloatingContext();
 
   const popupProps = useSelector(store, selectors.popupProps);
 

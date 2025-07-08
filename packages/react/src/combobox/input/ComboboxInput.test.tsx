@@ -24,7 +24,7 @@ describe('<Combobox.Input />', () => {
       );
 
       const input = screen.getByTestId('input');
-      expect(input).to.have.attribute('aria-disabled', 'true');
+      expect(input).to.have.attribute('disabled');
     });
 
     it('should inherit disabled state from ComboboxRoot', async () => {
@@ -35,7 +35,7 @@ describe('<Combobox.Input />', () => {
       );
 
       const input = screen.getByTestId('input');
-      expect(input).to.have.attribute('aria-disabled', 'true');
+      expect(input).to.have.attribute('disabled');
     });
 
     it('should inherit disabled state from Field.Root', async () => {
@@ -48,7 +48,7 @@ describe('<Combobox.Input />', () => {
       );
 
       const input = screen.getByTestId('input');
-      expect(input).to.have.attribute('aria-disabled', 'true');
+      expect(input).to.have.attribute('disabled');
     });
 
     it('should not open popup when disabled', async () => {
@@ -82,7 +82,7 @@ describe('<Combobox.Input />', () => {
       );
 
       const input = screen.getByTestId('input');
-      expect(input).to.have.attribute('aria-disabled', 'true');
+      expect(input).to.have.attribute('disabled');
     });
   });
 
@@ -197,9 +197,9 @@ describe('<Combobox.Input />', () => {
       const chip = screen.getByTestId('chip');
       const remove = screen.getByTestId('remove');
 
-      expect(input).to.have.attribute('aria-disabled', 'true');
+      expect(input).to.have.attribute('disabled');
       expect(chip).to.have.attribute('aria-disabled', 'true');
-      expect(remove).to.have.attribute('aria-disabled', 'true');
+      expect(remove).to.have.attribute('disabled');
 
       await user.type(input, '{backspace}');
       expect(screen.getByTestId('chip')).not.to.equal(null);

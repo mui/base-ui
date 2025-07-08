@@ -8,6 +8,8 @@ import { useComboboxRootContext } from '../root/ComboboxRootContext';
 import { useCompositeListItem } from '../../composite/list/useCompositeListItem';
 import { ComboboxChipContext } from './ComboboxChipContext';
 import { stopEvent } from '../../floating-ui-react/utils';
+import { useSelector } from '../../utils/store';
+import { selectors } from '../store';
 
 /**
  * An individual chip that represents a value in a multiselectable combobox.
@@ -21,15 +23,11 @@ export const ComboboxChip = React.forwardRef(function ComboboxChip(
 ) {
   const { render, className, ...elementProps } = componentProps;
 
-  const {
-    inputRef,
-    selectedValue: value,
-    setSelectedValue: setValue,
-    setOpen,
-    disabled,
-    readOnly,
-  } = useComboboxRootContext();
+  const { inputRef, store, setSelectedValue, setOpen, disabled, readOnly } =
+    useComboboxRootContext();
   const { setHighlightedChipIndex, chipsRef } = useComboboxChipsContext()!;
+
+  const selectedValue = useSelector(store, selectors.selectedValue);
 
   const { ref, index } = useCompositeListItem();
 
@@ -50,7 +48,7 @@ export const ComboboxChip = React.forwardRef(function ComboboxChip(
       }
     } else if (event.key === 'ArrowRight') {
       event.preventDefault();
-      if (index < value.length - 1) {
+      if (index < selectedValue.length - 1) {
         nextIndex = index + 1;
       } else {
         nextIndex = undefined;
@@ -61,12 +59,13 @@ export const ComboboxChip = React.forwardRef(function ComboboxChip(
         return index;
       }
 
-      const computedNextIndex = index >= value.length - 1 ? value.length - 2 : index;
+      const computedNextIndex =
+        index >= selectedValue.length - 1 ? selectedValue.length - 2 : index;
       nextIndex = computedNextIndex >= 0 ? computedNextIndex : undefined;
 
       stopEvent(event);
-      setValue(
-        value.filter((_: any, i: number) => i !== index),
+      setSelectedValue(
+        selectedValue.filter((_: any, i: number) => i !== index),
         event.nativeEvent,
         undefined,
       );

@@ -58,7 +58,7 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
     state,
     props: [
       {
-        'aria-disabled': disabled || undefined,
+        disabled,
         'aria-readonly': readOnly || undefined,
         onClick(event) {
           if (disabled || readOnly) {

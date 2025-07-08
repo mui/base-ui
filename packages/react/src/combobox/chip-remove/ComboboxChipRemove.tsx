@@ -6,6 +6,8 @@ import { useComboboxRootContext } from '../root/ComboboxRootContext';
 import { useComboboxChipContext } from '../chip/ComboboxChipContext';
 import { useButton } from '../../use-button';
 import { stopEvent } from '../../floating-ui-react/utils';
+import { useSelector } from '../../utils/store';
+import { selectors } from '../store';
 
 /**
  * A button to remove a combobox chip.
@@ -19,14 +21,10 @@ export const ComboboxChipRemove = React.forwardRef(function ComboboxChipRemove(
 ) {
   const { render, className, nativeButton = true, ...elementProps } = componentProps;
 
-  const {
-    selectedValue: value,
-    setSelectedValue: setValue,
-    inputRef,
-    disabled,
-    readOnly,
-  } = useComboboxRootContext();
+  const { store, inputRef, disabled, readOnly, setSelectedValue } = useComboboxRootContext();
   const { index } = useComboboxChipContext();
+
+  const selectedValue = useSelector(store, selectors.selectedValue);
 
   const { buttonRef, getButtonProps } = useButton({
     native: nativeButton,
@@ -47,15 +45,15 @@ export const ComboboxChipRemove = React.forwardRef(function ComboboxChipRemove(
     props: [
       {
         tabIndex: -1,
-        'aria-disabled': disabled || undefined,
+        disabled,
         'aria-readonly': readOnly || undefined,
         onClick(event) {
           if (disabled || readOnly) {
             return;
           }
           event.stopPropagation();
-          setValue(
-            value.filter((_: any, i: number) => i !== index),
+          setSelectedValue(
+            selectedValue.filter((_: any, i: number) => i !== index),
             event.nativeEvent,
             undefined,
           );
@@ -68,8 +66,8 @@ export const ComboboxChipRemove = React.forwardRef(function ComboboxChipRemove(
 
           if (event.key === 'Enter' || event.key === ' ') {
             stopEvent(event);
-            setValue(
-              value.filter((_: any, i: number) => i !== index),
+            setSelectedValue(
+              selectedValue.filter((_: any, i: number) => i !== index),
               event.nativeEvent,
               undefined,
             );

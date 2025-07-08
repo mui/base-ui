@@ -3,6 +3,8 @@ import * as React from 'react';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useComboboxRootContext } from '../root/ComboboxRootContext';
+import { selectors } from '../store';
+import { useSelector } from '../../utils/store';
 
 /**
  * Renders its children only when the combobox list is empty with
@@ -16,7 +18,8 @@ export const ComboboxEmpty = React.forwardRef(function ComboboxEmpty(
 ) {
   const { render, className, children: childrenProp, ...elementProps } = componentProps;
 
-  const { filteredItems } = useComboboxRootContext();
+  const { store } = useComboboxRootContext();
+  const filteredItems = useSelector(store, selectors.filteredItems);
 
   const children = filteredItems?.length === 0 ? childrenProp : null;
 

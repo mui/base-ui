@@ -2,6 +2,8 @@
 import * as React from 'react';
 import { useComboboxRootContext } from '../root/ComboboxRootContext';
 import { useGroupCollectionContext } from './GroupCollectionContext';
+import { useSelector } from '../../utils/store';
+import { selectors } from '../store';
 
 /**
  * Renders filtered items.
@@ -14,7 +16,8 @@ export function ComboboxCollection<Item extends { value: unknown }>(
 ): React.JSX.Element | null {
   const { children } = props;
 
-  const { filteredItems } = useComboboxRootContext();
+  const { store } = useComboboxRootContext();
+  const filteredItems = useSelector(store, selectors.filteredItems);
   const groupContext = useGroupCollectionContext();
 
   // If we're inside a group, use the group's items
