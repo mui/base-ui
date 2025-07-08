@@ -26,8 +26,8 @@ export default function AutofillCombobox() {
           setSelectedValue(nextValue);
           setSearchValue(nextValue ?? '');
         }}
-        value={inputHighlightValue || searchValue}
-        onValueChange={(nextValue) => {
+        inputValue={inputHighlightValue || searchValue}
+        onInputValueChange={(nextValue) => {
           setInputHighlightValue('');
           setSearchValue(nextValue);
         }}

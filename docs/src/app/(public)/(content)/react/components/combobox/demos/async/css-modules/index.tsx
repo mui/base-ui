@@ -66,8 +66,8 @@ export default function AsyncCombobox() {
   return (
     <Combobox.Root
       items={searchResults}
-      value={searchValue}
-      onValueChange={setSearchValue}
+      inputValue={searchValue}
+      onInputValueChange={setSearchValue}
       onSelectedValueChange={(value) => {
         setSearchValue(value ?? '');
       }}

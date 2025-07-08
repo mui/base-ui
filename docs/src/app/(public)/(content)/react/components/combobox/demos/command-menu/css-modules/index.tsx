@@ -41,8 +41,8 @@ export default function CommandMenuCombobox() {
         <Dialog.Popup className={styles.Popup} aria-label="Command menu">
           <Combobox.Root
             items={groupedItems}
-            value={searchValue}
-            onValueChange={setSearchValue}
+            inputValue={searchValue}
+            onInputValueChange={setSearchValue}
             filter={customFilter}
           >
             <Combobox.Input

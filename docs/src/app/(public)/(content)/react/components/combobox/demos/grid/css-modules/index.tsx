@@ -97,8 +97,8 @@ export default function EmojiPicker() {
                   items={emojiGroups}
                   cols={COLUMNS}
                   open={popoverOpen}
-                  value={searchValue}
-                  onValueChange={setSearchValue}
+                  inputValue={searchValue}
+                  onInputValueChange={setSearchValue}
                   onSelectedValueChange={(value) => {
                     handleInsertEmoji(value);
                     setSearchValue(searchValue);

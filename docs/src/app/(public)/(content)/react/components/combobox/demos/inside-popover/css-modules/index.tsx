@@ -40,8 +40,8 @@ export default function ExamplePopoverCombobox() {
                 setSelectedValue(nextValue);
                 setPopoverOpen(false);
               }}
-              value={searchValue}
-              onValueChange={setSearchValue}
+              inputValue={searchValue}
+              onInputValueChange={setSearchValue}
             >
               <div className={styles.InputContainer}>
                 <Combobox.Input placeholder="e.g. United Kingdom" className={styles.Input} />

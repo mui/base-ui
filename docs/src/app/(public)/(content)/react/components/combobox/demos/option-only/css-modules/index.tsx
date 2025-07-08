@@ -30,8 +30,8 @@ export default function OptionOnlyCombobox() {
         setSearchValue(nextValue);
         setOpen(false);
       }}
-      value={searchValue}
-      onValueChange={setSearchValue}
+      inputValue={searchValue}
+      onInputValueChange={setSearchValue}
       filter={customFilter}
       open={open}
       onOpenChange={setOpen}

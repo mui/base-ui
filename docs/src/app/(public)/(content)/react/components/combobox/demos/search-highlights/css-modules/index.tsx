@@ -49,8 +49,8 @@ export default function SearchHighlightsCombobox() {
   return (
     <Combobox.Root
       items={searchResults}
-      value={searchValue}
-      onValueChange={setSearchValue}
+      inputValue={searchValue}
+      onInputValueChange={setSearchValue}
       selectedValue={selectedValue}
       onSelectedValueChange={(nextValue) => {
         setSelectedValue(nextValue);

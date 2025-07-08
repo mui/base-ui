@@ -14,7 +14,7 @@ export default function MultipleCombobox() {
           Programming languages
         </label>
         <Combobox.Chips className={styles.Chips} ref={containerRef}>
-          <Combobox.Value>
+          <Combobox.SelectedValue>
             {(value: Lang[]) => (
               <React.Fragment>
                 {value.map((language) => (
@@ -36,29 +36,27 @@ export default function MultipleCombobox() {
                 />
               </React.Fragment>
             )}
-          </Combobox.Value>
+          </Combobox.SelectedValue>
         </Combobox.Chips>
       </div>
 
-      <Combobox.Value>
-        <Combobox.Portal>
-          <Combobox.Positioner className={styles.Positioner} sideOffset={4} anchor={containerRef}>
-            <Combobox.Popup className={styles.Popup}>
-              <Combobox.Empty className={styles.Empty}>No languages found.</Combobox.Empty>
-              <Combobox.List>
-                {(language: Lang) => (
-                  <Combobox.Item key={language.id} className={styles.Item} value={language}>
-                    <Combobox.ItemIndicator className={styles.ItemIndicator}>
-                      <CheckIcon className={styles.ItemIndicatorIcon} />
-                    </Combobox.ItemIndicator>
-                    <div className={styles.ItemText}>{language.value}</div>
-                  </Combobox.Item>
-                )}
-              </Combobox.List>
-            </Combobox.Popup>
-          </Combobox.Positioner>
-        </Combobox.Portal>
-      </Combobox.Value>
+      <Combobox.Portal>
+        <Combobox.Positioner className={styles.Positioner} sideOffset={4} anchor={containerRef}>
+          <Combobox.Popup className={styles.Popup}>
+            <Combobox.Empty className={styles.Empty}>No languages found.</Combobox.Empty>
+            <Combobox.List>
+              {(language: Lang) => (
+                <Combobox.Item key={language.id} className={styles.Item} value={language}>
+                  <Combobox.ItemIndicator className={styles.ItemIndicator}>
+                    <CheckIcon className={styles.ItemIndicatorIcon} />
+                  </Combobox.ItemIndicator>
+                  <div className={styles.ItemText}>{language.value}</div>
+                </Combobox.Item>
+              )}
+            </Combobox.List>
+          </Combobox.Popup>
+        </Combobox.Positioner>
+      </Combobox.Portal>
     </Combobox.Root>
   );
 }
