@@ -4,7 +4,6 @@ import { useComboboxRootContext } from '../root/ComboboxRootContext';
 import { useGroupCollectionContext } from './GroupCollectionContext';
 import { useSelector } from '../../utils/store';
 import { selectors } from '../store';
-import type { ComboboxRoot } from '../root/ComboboxRoot';
 
 /**
  * Renders filtered items.
@@ -12,9 +11,7 @@ import type { ComboboxRoot } from '../root/ComboboxRoot';
  * If you only need a flat list you can omit this component – pass a function
  * child to `Combobox.List` and it will implicitly wrap it.
  */
-export function ComboboxCollection<Item extends ComboboxRoot.Item>(
-  props: ComboboxCollection.Props<Item>,
-): React.JSX.Element | null {
+export function ComboboxCollection(props: ComboboxCollection.Props): React.JSX.Element | null {
   const { children } = props;
 
   const { store } = useComboboxRootContext();
@@ -28,13 +25,11 @@ export function ComboboxCollection<Item extends ComboboxRoot.Item>(
     return null;
   }
 
-  return (
-    <React.Fragment>{itemsToRender.map((item, index) => children(item, index))}</React.Fragment>
-  );
+  return <React.Fragment>{itemsToRender.map((item) => children(item))}</React.Fragment>;
 }
 
 export namespace ComboboxCollection {
-  export interface Props<Item> {
-    children: (item: Item, index: number) => React.ReactNode;
+  export interface Props {
+    children: (item: any) => React.ReactNode;
   }
 }
