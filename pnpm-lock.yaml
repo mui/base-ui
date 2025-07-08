@@ -796,9 +796,16 @@ importers:
       '@base-ui-components/react':
         specifier: workspace:*
         version: link:../../packages/react/build
+      '@base-ui-components/utils':
+        specifier: workspace:*
+        version: link:../../packages/utils/build
       radix-ui:
         specifier: ^1.4.2
         version: 1.4.2(@types/react-dom@19.1.6(@types/react@19.1.8))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+    devDependencies:
+      cross-env:
+        specifier: ^7.0.3
+        version: 7.0.3
 
   test/node-resolution:
     dependencies:
