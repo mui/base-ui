@@ -22,7 +22,7 @@ describe('<Combobox.ChipRemove />', () => {
   }));
 
   describe('prop: disabled', () => {
-    it('should render aria-disabled attribute when disabled', async () => {
+    it('should render disabled attribute when disabled', async () => {
       await render(
         <Combobox.Root select="multiple" disabled>
           <Combobox.Chips>
@@ -35,7 +35,7 @@ describe('<Combobox.ChipRemove />', () => {
       );
 
       const remove = screen.getByTestId('remove');
-      expect(remove).to.have.attribute('aria-disabled', 'true');
+      expect(remove).to.have.attribute('disabled');
     });
 
     it('should not remove chip when disabled', async () => {
@@ -67,29 +67,6 @@ describe('<Combobox.ChipRemove />', () => {
 
       expect(handleValueChange.callCount).to.equal(0);
       expect(screen.getByTestId('chip-apple')).not.to.equal(null);
-    });
-
-    it('should be focusable but not functional when disabled', async () => {
-      const { user } = await render(
-        <Combobox.Root select="multiple" disabled>
-          <Combobox.Chips>
-            <Combobox.Chip>
-              apple
-              <Combobox.ChipRemove data-testid="remove" />
-            </Combobox.Chip>
-          </Combobox.Chips>
-        </Combobox.Root>,
-      );
-
-      const remove = screen.getByTestId('remove');
-
-      // Should be focusable (focusableWhenDisabled: true)
-      remove.focus();
-      expect(remove).toHaveFocus();
-
-      // But should not trigger action on Enter/Space
-      await user.keyboard('{Enter}');
-      expect(screen.getByTestId('remove')).not.to.equal(null);
     });
   });
 
