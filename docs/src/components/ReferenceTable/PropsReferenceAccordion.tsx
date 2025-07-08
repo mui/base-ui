@@ -136,7 +136,7 @@ export async function PropsReferenceAccordion({ data, name: partName, ...props }
             </Accordion.Trigger>
             <Accordion.Panel>
               <Accordion.Content className="min-xs:py-1">
-                <DescriptionList.Root className="max-xs:p-4 xs:text-gray-600" aria-label="Info">
+                <DescriptionList.Root className="max-xs:p-4 text-gray-600" aria-label="Info">
                   <DescriptionList.Term>Name</DescriptionList.Term>
                   <DescriptionList.Details>
                     <TableCode className="text-(--color-blue)">{name}</TableCode>
