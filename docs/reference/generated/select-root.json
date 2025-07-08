@@ -33,7 +33,7 @@
       "description": "Event handler called when the select menu is opened or closed."
     },
     "actionsRef": {
-      "type": "RefObject<useSelectRoot.Actions>",
+      "type": "RefObject<Select.Root.Actions>",
       "description": "A ref to imperative actions.\n- `unmount`: When specified, the select will not be unmounted when closed.\nInstead, the `unmount` function must be called to unmount the select manually.\nUseful when the select's animation is controlled by an external library."
     },
     "items": {
