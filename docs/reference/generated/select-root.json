@@ -7,16 +7,16 @@
       "description": "Identifies the field when a form is submitted."
     },
     "defaultValue": {
-      "type": "Value | null",
+      "type": "Value | Value[] | null",
       "default": "null",
       "description": "The uncontrolled value of the select when it’s initially rendered.\n\nTo render a controlled select, use the `value` prop instead."
     },
     "value": {
-      "type": "Value | null",
+      "type": "Value | Value[] | null",
       "description": "The value of the select."
     },
     "onValueChange": {
-      "type": "((value: Value, event: Event | undefined) => void)",
+      "type": "((value: Value, event: Event | undefined) => void) | ((value: Value[], event: Event | undefined) => void)",
       "description": "Callback fired when the value of the select changes. Use when controlled."
     },
     "defaultOpen": {
@@ -44,6 +44,11 @@
       "type": "boolean",
       "default": "true",
       "description": "Determines if the select enters a modal state when open.\n- `true`: user interaction is limited to the select: document page scroll is locked and and pointer interactions on outside elements are disabled.\n- `false`: user interaction with the rest of the document is allowed."
+    },
+    "multiple": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Whether multiple items can be selected."
     },
     "onOpenChangeComplete": {
       "type": "((open: boolean) => void)",

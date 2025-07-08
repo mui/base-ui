@@ -18,8 +18,7 @@ import {
   isOutsideEvent,
   stopEvent,
 } from '../../floating-ui-react/utils';
-import type { BaseUIComponentProps } from '../../utils/types';
-import { useRenderElement } from '../../utils/useRenderElement';
+import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import { useNavigationMenuItemContext } from '../item/NavigationMenuItemContext';
 import {
   useNavigationMenuRootContext,
@@ -34,7 +33,6 @@ import { PATIENT_CLICK_THRESHOLD } from '../../utils/constants';
 import { FocusGuard } from '../../utils/FocusGuard';
 import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { visuallyHidden } from '../../utils/visuallyHidden';
-import { CompositeItem } from '../../composite/item/CompositeItem';
 import { pressableTriggerOpenStateMapping } from '../../utils/popupStateMapping';
 import { isOutsideMenuEvent } from '../utils/isOutsideMenuEvent';
 import { useTimeout } from '../../utils/useTimeout';
@@ -43,6 +41,7 @@ import { useLatestRef } from '../../utils/useLatestRef';
 import { useAnimationsFinished } from '../../utils/useAnimationsFinished';
 import { NavigationMenuPopupCssVars } from '../popup/NavigationMenuPopupCssVars';
 import { NavigationMenuPositionerCssVars } from '../positioner/NavigationMenuPositionerCssVars';
+import { CompositeItem } from '../../composite/item/CompositeItem';
 
 const TRIGGER_IDENTIFIER = 'data-navigation-menu-trigger';
 
@@ -369,57 +368,56 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     setPointerType(event.pointerType);
   }
 
-  const element = useRenderElement('button', componentProps, {
-    state,
-    ref: [forwardedRef, setTriggerElement],
-    props: [
-      getReferenceProps,
-      {
-        tabIndex: 0,
-        onMouseEnter: handleOpenEvent,
-        onClick: handleOpenEvent,
-        onPointerEnter: handleSetPointerType,
-        onPointerDown: handleSetPointerType,
-        'aria-expanded': isActiveItem,
-        'aria-controls': isActiveItem ? popupElement?.id : undefined,
-        [TRIGGER_IDENTIFIER as string]: '',
-        onMouseMove() {
-          allowFocusRef.current = false;
-        },
-        onKeyDown(event) {
-          allowFocusRef.current = true;
-          const openHorizontal = orientation === 'horizontal' && event.key === 'ArrowDown';
-          const openVertical = orientation === 'vertical' && event.key === 'ArrowRight';
+  const defaultProps: HTMLProps = {
+    tabIndex: 0,
+    onMouseEnter: handleOpenEvent,
+    onClick: handleOpenEvent,
+    onPointerEnter: handleSetPointerType,
+    onPointerDown: handleSetPointerType,
+    'aria-expanded': isActiveItem,
+    'aria-controls': isActiveItem ? popupElement?.id : undefined,
+    [TRIGGER_IDENTIFIER as string]: '',
+    onMouseMove() {
+      allowFocusRef.current = false;
+    },
+    onKeyDown(event) {
+      allowFocusRef.current = true;
+      const openHorizontal = orientation === 'horizontal' && event.key === 'ArrowDown';
+      const openVertical = orientation === 'vertical' && event.key === 'ArrowRight';
 
-          if (openHorizontal || openVertical) {
-            setValue(itemValue, event.nativeEvent, 'list-navigation');
-            handleOpenEvent(event);
-            stopEvent(event);
-          }
-        },
-        onBlur(event) {
-          if (
-            event.relatedTarget &&
-            isOutsideMenuEvent(
-              {
-                currentTarget: event.currentTarget,
-                relatedTarget: event.relatedTarget as HTMLElement | null,
-              },
-              { popupElement, rootRef, tree, nodeId },
-            )
-          ) {
-            setValue(null, event.nativeEvent, 'focus-out');
-          }
-        },
-      },
-      elementProps,
-    ],
-    customStyleHookMapping: pressableTriggerOpenStateMapping,
-  });
+      if (openHorizontal || openVertical) {
+        setValue(itemValue, event.nativeEvent, 'list-navigation');
+        handleOpenEvent(event);
+        stopEvent(event);
+      }
+    },
+    onBlur(event) {
+      if (
+        event.relatedTarget &&
+        isOutsideMenuEvent(
+          {
+            currentTarget: event.currentTarget,
+            relatedTarget: event.relatedTarget as HTMLElement | null,
+          },
+          { popupElement, rootRef, tree, nodeId },
+        )
+      ) {
+        setValue(null, event.nativeEvent, 'focus-out');
+      }
+    },
+  };
 
   return (
     <React.Fragment>
-      <CompositeItem render={element} />
+      <CompositeItem
+        tag="button"
+        render={render}
+        className={className}
+        state={state}
+        customStyleHookMapping={pressableTriggerOpenStateMapping}
+        refs={[forwardedRef, setTriggerElement]}
+        props={[getReferenceProps, defaultProps, elementProps]}
+      />
       {isActiveItem && (
         <React.Fragment>
           <FocusGuard
