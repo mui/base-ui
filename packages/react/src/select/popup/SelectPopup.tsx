@@ -48,6 +48,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
     selectedItemTextRef,
     keyboardActiveRef,
     highlightTimeout,
+    multiple,
   } = useSelectRootContext();
   const { side, align, context, alignItemWithTriggerActive, setControlledAlignItemWithTrigger } =
     useSelectPositionerContext();
@@ -289,6 +290,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
   }, [setOpen, alignItemWithTriggerActive, positionerElement, mounted]);
 
   const defaultProps: HTMLProps = {
+    'aria-multiselectable': multiple || undefined,
     onKeyDown() {
       keyboardActiveRef.current = true;
     },

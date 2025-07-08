@@ -13,9 +13,9 @@ import { serializeValue } from '../utils/serialize';
  *
  * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
  */
-export const SelectRoot: SelectRoot = function SelectRoot<Value>(
-  props: SelectRoot.Props<Value>,
-): React.JSX.Element {
+export function SelectRoot<Value>(props: SelectRoot.SingleProps<Value>): React.JSX.Element;
+export function SelectRoot<Value>(props: SelectRoot.MultipleProps<Value>): React.JSX.Element;
+export function SelectRoot<Value>(props: SelectRoot.Props<Value>): React.JSX.Element {
   const {
     id,
     value: valueProp,
@@ -33,6 +33,7 @@ export const SelectRoot: SelectRoot = function SelectRoot<Value>(
     inputRef,
     onOpenChangeComplete,
     items,
+    multiple = false,
   } = props;
 
   const { rootContext, floatingContext, value } = useSelectRoot<Value>({
@@ -51,6 +52,7 @@ export const SelectRoot: SelectRoot = function SelectRoot<Value>(
     actionsRef,
     onOpenChangeComplete,
     items,
+    multiple,
   });
   const store = rootContext.store;
 
@@ -58,7 +60,31 @@ export const SelectRoot: SelectRoot = function SelectRoot<Value>(
 
   const ref = useForkRef(inputRef, rootContext.fieldControlValidation.inputRef);
 
-  const serializedValue = React.useMemo(() => serializeValue(value), [value]);
+  const serializedValue = React.useMemo(() => {
+    if (multiple && Array.isArray(value) && value.length === 0) {
+      return '';
+    }
+
+    return serializeValue(value);
+  }, [multiple, value]);
+
+  const hiddenInputs = React.useMemo(() => {
+    if (!multiple || !Array.isArray(value) || !rootContext.name) {
+      return null;
+    }
+
+    return value.map((v) => {
+      const currentSerializedValue = serializeValue(v);
+      return (
+        <input
+          key={currentSerializedValue}
+          type="hidden"
+          name={rootContext.name}
+          value={currentSerializedValue}
+        />
+      );
+    });
+  }, [multiple, value, rootContext.name]);
 
   return (
     <SelectRootContext.Provider value={rootContext}>
@@ -82,38 +108,47 @@ export const SelectRoot: SelectRoot = function SelectRoot<Value>(
               store.set('forceMount', true);
 
               queueMicrotask(() => {
-                const exactValue = rootContext.valuesRef.current.find(
-                  (v) =>
-                    v === nextValue ||
-                    (typeof value === 'string' && nextValue.toLowerCase() === v.toLowerCase()),
-                );
+                if (multiple) {
+                  // Browser autofill only ever writes one scalar value per field.
+                  // Because a multi-select expects an array, every mainstream engine skips it.
+                  // Reliably pre-selecting multiple options therefore has to be done in
+                  // application code, not via browser autofill.
+                } else {
+                  // Handle single selection
+                  const exactValue = rootContext.valuesRef.current.find(
+                    (v) =>
+                      v === nextValue ||
+                      (typeof value === 'string' && nextValue.toLowerCase() === v.toLowerCase()),
+                  );
 
-                if (exactValue != null) {
-                  setDirty(exactValue !== validityData.initialValue);
-                  rootContext.setValue?.(exactValue, event.nativeEvent);
+                  if (exactValue != null) {
+                    setDirty(exactValue !== validityData.initialValue);
+                    rootContext.setValue?.(exactValue, event.nativeEvent);
 
-                  if (validationMode === 'onChange') {
-                    rootContext.fieldControlValidation.commitValidation(exactValue);
+                    if (validationMode === 'onChange') {
+                      rootContext.fieldControlValidation.commitValidation(exactValue);
+                    }
                   }
                 }
               });
             },
             id: id || controlId || undefined,
-            name: rootContext.name,
+            name: multiple ? undefined : rootContext.name,
+            value: serializedValue,
             disabled: rootContext.disabled,
             required: rootContext.required,
             readOnly: rootContext.readOnly,
-            value: serializedValue,
             ref,
             style: visuallyHidden,
             tabIndex: -1,
             'aria-hidden': true,
           })}
         />
+        {hiddenInputs}
       </SelectFloatingContext.Provider>
     </SelectRootContext.Provider>
   );
-};
+}
 
 export namespace SelectRoot {
   export interface Props<Value> extends useSelectRoot.Parameters<Value> {
@@ -129,8 +164,24 @@ export namespace SelectRoot {
   export type Actions = useSelectRoot.Actions;
 
   export type OpenChangeReason = SelectOpenChangeReason;
-}
 
-export interface SelectRoot {
-  <Value>(props: SelectRoot.Props<Value>): React.JSX.Element;
+  export interface SingleProps<Value> extends Props<Value> {
+    /**
+     * Whether multiple items can be selected.
+     * @default false
+     */
+    multiple?: false | undefined;
+  }
+
+  export interface MultipleProps<Value>
+    extends Omit<Props<Value>, 'multiple' | 'value' | 'defaultValue' | 'onValueChange'> {
+    /**
+     * Whether multiple items can be selected.
+     * @default false
+     */
+    multiple: true;
+    value?: Value[] | null;
+    defaultValue?: Value[] | null;
+    onValueChange?: (value: Value[], event?: Event) => void;
+  }
 }
