@@ -157,6 +157,26 @@ export function useAnchorPositioning(
     padding: collisionPadding,
   } as const;
 
+  // Ensure the popup flips if it's been limited by its --available-height and it resizes.
+  // Since the size() padding is smaller than the flip() padding, flip() will take precedence.
+  let sizeCollisionPadding: Padding | undefined;
+  const epsilon = 0.01;
+  if (typeof collisionPadding === 'number') {
+    sizeCollisionPadding = collisionPadding - epsilon;
+  } else if (collisionPadding) {
+    sizeCollisionPadding = {
+      top: (collisionPadding.top || 0) - epsilon,
+      right: (collisionPadding.right || 0) - epsilon,
+      bottom: (collisionPadding.bottom || 0) - epsilon,
+      left: (collisionPadding.left || 0) - epsilon,
+    };
+  }
+
+  const sizeCollisionProps = {
+    boundary: commonCollisionProps.boundary,
+    padding: sizeCollisionPadding,
+  } as const;
+
   // Using a ref assumes that the arrow element is always present in the DOM for the lifetime of the
   // popup. If this assumption ends up being false, we can switch to state to manage the arrow's
   // presence.
@@ -250,7 +270,7 @@ export function useAnchorPositioning(
 
   middleware.push(
     size({
-      ...commonCollisionProps,
+      ...sizeCollisionProps,
       apply({ elements: { floating }, rects: { reference }, availableWidth, availableHeight }) {
         Object.entries({
           '--available-width': `${availableWidth}px`,
