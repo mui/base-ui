@@ -7,7 +7,6 @@ export type State = {
 
   items?: any[];
   filteredItems?: any[];
-  flatItems?: any[];
 
   filter: (item: any, query: string) => boolean;
 
@@ -37,7 +36,6 @@ export const selectors = {
 
   items: createSelector((state: State) => state.items),
   filteredItems: createSelector((state: State) => state.filteredItems),
-  flatItems: createSelector((state: State) => state.flatItems),
 
   selectedValue: createSelector((state: State) => state.selectedValue),
   inputValue: createSelector((state: State) => state.inputValue),

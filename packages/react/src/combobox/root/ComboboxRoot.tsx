@@ -169,12 +169,11 @@ export function ComboboxRoot<Item = ComboboxRoot.Item>(
         .filter((group): group is ComboboxGroup<Item> => group !== null);
     }
 
-    const flatItemsArray = items as Item[];
     if (query.trim() === '') {
-      return flatItemsArray;
+      return flatItems;
     }
-    return flatItemsArray.filter((item) => filter(item, query));
-  }, [items, query, filter, isGrouped]);
+    return flatItems.filter((item) => filter(item, query));
+  }, [items, flatItems, query, filter, isGrouped]);
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(openRaw);
 
@@ -189,7 +188,6 @@ export function ComboboxRoot<Item = ComboboxRoot.Item>(
         transitionStatus,
         items,
         filter,
-        flatItems,
         filteredItems,
         inline: false,
         activeIndex: null,
@@ -499,6 +497,7 @@ export function ComboboxRoot<Item = ComboboxRoot.Item>(
       transitionStatus,
       popupProps: getFloatingProps(),
       triggerProps: getReferenceProps(),
+      filteredItems,
     });
   }, [
     store,
@@ -510,6 +509,7 @@ export function ComboboxRoot<Item = ComboboxRoot.Item>(
     transitionStatus,
     getFloatingProps,
     getReferenceProps,
+    filteredItems,
   ]);
 
   const hiddenInputRef = useForkRef(inputRefProp, fieldControlValidation.inputRef);
