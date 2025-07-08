@@ -19,7 +19,7 @@
       "description": "Callback fired when the number value changes."
     },
     "locale": {
-      "type": "LocalesArgument",
+      "type": "Intl.LocalesArgument",
       "description": "The locale of the input element.\nDefaults to the user's runtime locale."
     },
     "snapOnStep": {
@@ -56,7 +56,7 @@
       "description": "Whether to allow the user to scrub the input value with the mouse wheel while focused and\nhovering over the input."
     },
     "format": {
-      "type": "NumberFormatOptions",
+      "type": "Intl.NumberFormatOptions",
       "description": "Options to format the input value."
     },
     "disabled": {
