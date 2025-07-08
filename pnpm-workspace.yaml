@@ -4,6 +4,8 @@ packages:
   - test
   - test/*
   - scripts/*
+  - examples/*
+
 onlyBuiltDependencies:
   - '@mui/internal-babel-plugin-display-name'
   - '@mui/monorepo'
