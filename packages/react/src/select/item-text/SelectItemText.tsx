@@ -16,7 +16,7 @@ export const SelectItemText = React.memo(
     componentProps: SelectItemText.Props,
     forwardedRef: React.ForwardedRef<HTMLDivElement>,
   ) {
-    const { selected, indexRef, textRef } = useSelectItemContext();
+    const { indexRef, textRef, selectedByFocus } = useSelectItemContext();
     const { selectedItemTextRef } = useSelectRootContext();
 
     const { className, render, ...elementProps } = componentProps;
@@ -30,12 +30,12 @@ export const SelectItemText = React.memo(
         queueMicrotask(() => {
           const hasNoSelectedItemText =
             selectedItemTextRef.current === null || !selectedItemTextRef.current.isConnected;
-          if (selected || (hasNoSelectedItemText && indexRef.current === 0)) {
+          if (selectedByFocus || (hasNoSelectedItemText && indexRef.current === 0)) {
             selectedItemTextRef.current = node;
           }
         });
       },
-      [selected, selectedItemTextRef, indexRef],
+      [selectedItemTextRef, indexRef, selectedByFocus],
     );
 
     const element = useRenderElement('div', componentProps, {

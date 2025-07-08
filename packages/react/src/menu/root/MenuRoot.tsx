@@ -553,7 +553,6 @@ export namespace MenuRoot {
     modal?: boolean;
     /**
      * Event handler called when the menu is opened or closed.
-     * @type (open: boolean, event?: Event, reason?: Menu.Root.OpenChangeReason) => void
      */
     onOpenChange?: (
       open: boolean,

@@ -1,6 +1,12 @@
 'use client';
 import * as React from 'react';
-import { ownerDocument, useTimeout, useEventCallback, useForkRef } from '@base-ui-components/utils';
+import {
+  ownerDocument,
+  useTimeout,
+  useEventCallback,
+  useForkRef,
+  useLatestRef,
+} from '@base-ui-components/utils';
 import { useSelector } from '@base-ui-components/utils/store';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import { BaseUIComponentProps, HTMLProps } from '../../utils/types';
@@ -60,6 +66,8 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
   const value = useSelector(store, selectors.value);
   const triggerProps = useSelector(store, selectors.triggerProps);
   const positionerElement = useSelector(store, selectors.positionerElement);
+
+  const positionerRef = useLatestRef(positionerElement);
 
   const { labelId, setTouched, setFocused, validationMode } = useFieldRootContext();
 
@@ -172,7 +180,7 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
           // Early return if clicked on trigger element or its children
           if (
             contains(triggerRef.current, mouseUpTarget) ||
-            contains(positionerElement, mouseUpTarget) ||
+            contains(positionerRef.current, mouseUpTarget) ||
             mouseUpTarget === triggerRef.current
           ) {
             return;

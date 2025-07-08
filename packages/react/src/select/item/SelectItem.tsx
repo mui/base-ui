@@ -53,14 +53,16 @@ export const SelectItem = React.memo(
       selectionRef,
       typingRef,
       valuesRef,
-      registerSelectedItem,
+      registerItemIndex,
       keyboardActiveRef,
       highlightTimeout,
+      multiple,
     } = useSelectRootContext();
 
     const highlighted = useSelector(store, selectors.isActive, listItem.index);
     const selected = useSelector(store, selectors.isSelected, listItem.index, value);
     const rootValue = useSelector(store, selectors.value);
+    const selectedByFocus = useSelector(store, selectors.isSelectedByFocus, listItem.index);
 
     const itemRef = React.useRef<HTMLDivElement | null>(null);
     const indexRef = useLatestRef(listItem.index);
@@ -81,10 +83,17 @@ export const SelectItem = React.memo(
     }, [hasRegistered, listItem.index, value, valuesRef]);
 
     useModernLayoutEffect(() => {
-      if (hasRegistered && value === rootValue) {
-        registerSelectedItem(listItem.index);
+      if (hasRegistered) {
+        if (multiple) {
+          const isValueSelected = Array.isArray(rootValue) && rootValue.includes(value);
+          if (isValueSelected) {
+            registerItemIndex(listItem.index);
+          }
+        } else if (value === rootValue) {
+          registerItemIndex(listItem.index);
+        }
       }
-    }, [hasRegistered, listItem.index, registerSelectedItem, value, rootValue]);
+    }, [hasRegistered, listItem.index, registerItemIndex, value, rootValue, multiple]);
 
     const state: SelectItem.State = React.useMemo(
       () => ({
@@ -112,8 +121,16 @@ export const SelectItem = React.memo(
     });
 
     function commitSelection(event: MouseEvent) {
-      setValue(value, event);
-      setOpen(false, event, 'item-press');
+      if (multiple) {
+        const currentValue = Array.isArray(rootValue) ? rootValue : [];
+        const nextValue = selected
+          ? currentValue.filter((v) => v !== value)
+          : [...currentValue, value];
+        setValue(nextValue, event);
+      } else {
+        setValue(value, event);
+        setOpen(false, event, 'item-press');
+      }
     }
 
     const defaultProps: HTMLProps = {
@@ -221,8 +238,9 @@ export const SelectItem = React.memo(
         selected,
         indexRef,
         textRef,
+        selectedByFocus,
       }),
-      [selected, indexRef, textRef],
+      [selected, indexRef, textRef, selectedByFocus],
     );
 
     return <SelectItemContext.Provider value={contextValue}>{element}</SelectItemContext.Provider>;

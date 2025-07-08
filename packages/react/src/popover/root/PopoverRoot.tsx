@@ -255,12 +255,11 @@ export namespace PopoverRoot {
     open?: boolean;
     /**
      * Event handler called when the popover is opened or closed.
-     * @type (open: boolean, event?: Event, reason?: Popover.Root.OpenChangeReason) => void
      */
     onOpenChange?: (
       open: boolean,
       event: Event | undefined,
-      reason: PopoverOpenChangeReason | undefined,
+      reason: OpenChangeReason | undefined,
     ) => void;
     /**
      * Event handler called after any animations complete when the popover is opened or closed.

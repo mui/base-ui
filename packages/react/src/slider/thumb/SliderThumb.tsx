@@ -406,7 +406,6 @@ export namespace SliderThumb {
      * Accepts a function which returns a string value that provides a user-friendly name for the input associated with the thumb
      * @param {number} index The index of the input
      * @returns {string}
-     * @type {((index: number) => string) | null}
      */
     getAriaLabel?: ((index: number) => string) | null;
     /**
@@ -416,7 +415,6 @@ export namespace SliderThumb {
      * @param {number} value The thumb's numerical value.
      * @param {number} index The thumb's index.
      * @returns {string}
-     * @type {((formattedValue: string, value: number, index: number) => string) | null}
      */
     getAriaValueText?: ((formattedValue: string, value: number, index: number) => string) | null;
     /**

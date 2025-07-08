@@ -337,8 +337,8 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
       }
 
       // Reset the `openEvent` to `undefined` when the active item changes so that a
-      // `click` -> `hover` move to new trigger -> `hover` move back doesn't unepxpectedly
-      // cause the popup to remain stuck open.
+      // `click` -> `hover` on new trigger -> `hover` back to old trigger doesn't unexpectedly
+      // cause the popup to remain stuck open when leaving the old trigger.
       if (event.type !== 'click') {
         context.dataRef.current.openEvent = undefined;
       }

@@ -192,13 +192,7 @@ export namespace TabsRoot {
   export type Orientation = BaseOrientation;
 
   export type State = {
-    /**
-     * @type Tabs.Root.Orientation
-     */
     orientation: Orientation;
-    /**
-     * @type Tabs.Tab.ActivationDirection
-     */
     tabActivationDirection: TabsTab.ActivationDirection;
   };
 
@@ -206,19 +200,16 @@ export namespace TabsRoot {
     /**
      * The value of the currently selected `Tab`. Use when the component is controlled.
      * When the value is `null`, no Tab will be selected.
-     * @type Tabs.Tab.Value
      */
     value?: TabsTab.Value;
     /**
      * The default value. Use when the component is not controlled.
      * When the value is `null`, no Tab will be selected.
-     * @type Tabs.Tab.Value
      * @default 0
      */
     defaultValue?: TabsTab.Value;
     /**
      * The component orientation (layout flow direction).
-     * @type Tabs.Root.Orientation
      * @default 'horizontal'
      */
     orientation?: Orientation;

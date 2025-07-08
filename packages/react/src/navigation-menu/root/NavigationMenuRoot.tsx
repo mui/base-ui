@@ -246,11 +246,8 @@ export namespace NavigationMenuRoot {
   export interface Props extends BaseUIComponentProps<'nav', State> {
     /**
      * A ref to imperative actions.
-     * - `unmount`: When specified, the navigation menu will not be unmounted when closed.
-     * Instead, the `unmount` function must be called to unmount the navigation menu manually.
-     * Useful when the navigation menu's animation is controlled by an external library.
      */
-    actionsRef?: React.RefObject<{ unmount: () => void }>;
+    actionsRef?: React.RefObject<Actions>;
     /**
      * Event handler called after any animations complete when the navigation menu is closed.
      */
@@ -293,5 +290,14 @@ export namespace NavigationMenuRoot {
      * @default 'horizontal'
      */
     orientation?: 'horizontal' | 'vertical';
+  }
+
+  export interface Actions {
+    /**
+     * When specified, the navigation menu will not be unmounted when closed.
+     * Instead, the `unmount` function must be called to unmount the navigation menu manually.
+     * Useful when the navigation menu's animation is controlled by an external library.
+     */
+    unmount: () => void;
   }
 }

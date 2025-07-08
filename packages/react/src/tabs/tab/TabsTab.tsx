@@ -213,7 +213,6 @@ export namespace TabsTab {
     /**
      * The value of the Tab.
      * When not specified, the value is the child position index.
-     * @type Tabs.Tab.Value
      */
     value?: Value;
     /**

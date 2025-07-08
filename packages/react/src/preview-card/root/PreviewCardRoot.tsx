@@ -190,7 +190,6 @@ export namespace PreviewCardRoot {
     open?: boolean;
     /**
      * Event handler called when the preview card is opened or closed.
-     * @type (open: boolean, event?: Event, reason?: PreviewCard.Root.OpenChangeReason) => void
      */
     onOpenChange?: (
       open: boolean,
