@@ -14,13 +14,13 @@ const rootDir = path.resolve(import.meta.dirname, '../..');
  */
 export default defineConfig(async () => {
   // Read the package.json to get exports
-  const packageJsonPath = path.join(rootDir, 'packages/react/package.json');
-  const packageJsonContent = await fs.readFile(packageJsonPath, 'utf8');
-  const packageJson = JSON.parse(packageJsonContent);
+  const reactPackageJsonPath = path.join(rootDir, 'packages/react/package.json');
+  const reactPackageJsonContent = await fs.readFile(reactPackageJsonPath, 'utf8');
+  const reactPackageJson = JSON.parse(reactPackageJsonContent);
 
-  // Get all export paths from package.json
-  const exports = packageJson.exports;
-  const entrypoints = Object.keys(exports).map((exportKey) => {
+  // Get all export paths from @base-ui-components/react package.json
+  const reactExports = reactPackageJson.exports;
+  const reactEntrypoints = Object.keys(reactExports).map((exportKey) => {
     // Convert from "./accordion" to "@base-ui-components/react/accordion"
     const entrypoint =
       exportKey === '.'
@@ -30,7 +30,7 @@ export default defineConfig(async () => {
   });
 
   return {
-    entrypoints,
+    entrypoints: [...reactEntrypoints, '@base-ui-components/utils'],
     upload: !!process.env.CI,
   };
 });
