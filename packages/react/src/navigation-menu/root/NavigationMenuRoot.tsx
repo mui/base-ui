@@ -1,7 +1,9 @@
 'use client';
 import * as React from 'react';
 import { isHTMLElement } from '@floating-ui/utils/dom';
-import { useControlled, useEventCallback, ownerDocument } from '@base-ui-components/utils';
+import { useControlled } from '@base-ui-components/utils/useControlled';
+import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { ownerDocument } from '@base-ui-components/utils/owner';
 import {
   FloatingTree,
   useFloatingNodeId,

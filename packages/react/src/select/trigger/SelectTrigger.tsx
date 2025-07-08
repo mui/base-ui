@@ -1,12 +1,10 @@
 'use client';
 import * as React from 'react';
-import {
-  ownerDocument,
-  useTimeout,
-  useEventCallback,
-  useForkRef,
-  useLatestRef,
-} from '@base-ui-components/utils';
+import { ownerDocument } from '@base-ui-components/utils/owner';
+import { useTimeout } from '@base-ui-components/utils/useTimeout';
+import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useForkRef } from '@base-ui-components/utils/useForkRef';
+import { useLatestRef } from '@base-ui-components/utils/useLatestRef';
 import { useSelector } from '@base-ui-components/utils/store';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import { BaseUIComponentProps, HTMLProps } from '../../utils/types';

@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useForkRef } from '@base-ui-components/utils';
+import { useForkRef } from '@base-ui-components/utils/useForkRef';
 import { FloatingEvents } from '../../floating-ui-react';
 import { useButton } from '../../use-button';
 import { mergeProps } from '../../merge-props';

@@ -1,6 +1,8 @@
 'use client';
 import * as React from 'react';
-import { inertValue, useModernLayoutEffect, useEventCallback } from '@base-ui-components/utils';
+import { inertValue } from '@base-ui-components/utils/inertValue';
+import { useModernLayoutEffect } from '@base-ui-components/utils/useModernLayoutEffect';
+import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { useSelector } from '@base-ui-components/utils/store';
 import { useSelectRootContext, useSelectFloatingContext } from '../root/SelectRootContext';
 import { CompositeList } from '../../composite/list/CompositeList';

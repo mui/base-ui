@@ -1,7 +1,8 @@
 'use client';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import { useModernLayoutEffect, AnimationFrame } from '@base-ui-components/utils';
+import { useModernLayoutEffect } from '@base-ui-components/utils/useModernLayoutEffect';
+import { AnimationFrame } from '@base-ui-components/utils/useAnimationFrame';
 
 export type TransitionStatus = 'starting' | 'ending' | 'idle' | undefined;
 

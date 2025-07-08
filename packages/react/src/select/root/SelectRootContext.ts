@@ -1,5 +1,5 @@
 import * as React from 'react';
-import type { Timeout } from '@base-ui-components/utils';
+import type { Timeout } from '@base-ui-components/utils/useTimeout';
 import { useFloatingRootContext, type FloatingRootContext } from '../../floating-ui-react';
 import type { SelectStore } from '../store';
 import type { useFieldControlValidation } from '../../field/control/useFieldControlValidation';

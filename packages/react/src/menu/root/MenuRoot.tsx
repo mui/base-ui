@@ -1,7 +1,10 @@
 'use client';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import { useTimeout, useEventCallback, useControlled, useId } from '@base-ui-components/utils';
+import { useTimeout } from '@base-ui-components/utils/useTimeout';
+import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useControlled } from '@base-ui-components/utils/useControlled';
+import { useId } from '@base-ui-components/utils/useId';
 import {
   FloatingTree,
   useClick,

@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useTimeout } from '@base-ui-components/utils';
+import { useTimeout } from '@base-ui-components/utils/useTimeout';
 import { useSelector } from '@base-ui-components/utils/store';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useSelectRootContext } from '../root/SelectRootContext';

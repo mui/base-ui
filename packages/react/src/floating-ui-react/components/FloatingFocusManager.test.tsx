@@ -17,7 +17,7 @@ import {
 import { test } from 'vitest';
 import * as React from 'react';
 import * as ReactDOMClient from 'react-dom/client';
-import { isJSDOM } from '@base-ui-components/utils';
+import { isJSDOM } from '@base-ui-components/utils/detectBrowser';
 import {
   FloatingFocusManager,
   FloatingNode,

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { ownerDocument } from '@base-ui-components/utils';
+import { ownerDocument } from '@base-ui-components/utils/owner';
 import { BaseUIEvent } from './types';
 import { EMPTY_OBJECT } from './constants';
 

@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useModernLayoutEffect } from '@base-ui-components/utils';
+import { useModernLayoutEffect } from '@base-ui-components/utils/useModernLayoutEffect';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useFieldsetRootContext } from '../root/FieldsetRootContext';

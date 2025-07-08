@@ -1,12 +1,10 @@
 'use client';
 import * as React from 'react';
-import {
-  isElementDisabled,
-  useControlled,
-  useEventCallback,
-  useModernLayoutEffect,
-  warn,
-} from '@base-ui-components/utils';
+import { isElementDisabled } from '@base-ui-components/utils/isElementDisabled';
+import { useControlled } from '@base-ui-components/utils/useControlled';
+import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useModernLayoutEffect } from '@base-ui-components/utils/useModernLayoutEffect';
+import { warn } from '@base-ui-components/utils/warn';
 import { BaseUIComponentProps, Orientation } from '../../utils/types';
 import {
   ARROW_DOWN,

@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { Tabs } from '@base-ui-components/react/tabs';
-import { useModernLayoutEffect } from '@base-ui-components/utils';
+import { useModernLayoutEffect } from '@base-ui-components/utils/useModernLayoutEffect';
 import { usePackageManagerSnippetContext } from './PackageManagerSnippetProvider';
 
 export function PackageManagerSnippetRoot(props: PackageManagerSnippetRoot.Props) {

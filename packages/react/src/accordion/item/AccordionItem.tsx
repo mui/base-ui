@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
-import { useForkRef, useEventCallback } from '@base-ui-components/utils';
+import { useForkRef } from '@base-ui-components/utils/useForkRef';
+import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useCollapsibleRoot } from '../../collapsible/root/useCollapsibleRoot';

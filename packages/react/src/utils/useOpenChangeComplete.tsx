@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
-import { useEventCallback, useLatestRef } from '@base-ui-components/utils';
+import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useLatestRef } from '@base-ui-components/utils/useLatestRef';
 import { useAnimationsFinished } from './useAnimationsFinished';
 
 /**

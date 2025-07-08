@@ -1,12 +1,10 @@
 'use client';
 import * as React from 'react';
-import {
-  isElementDisabled,
-  useEventCallback,
-  useForkRef,
-  ownerDocument,
-  useModernLayoutEffect,
-} from '@base-ui-components/utils';
+import { isElementDisabled } from '@base-ui-components/utils/isElementDisabled';
+import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useForkRef } from '@base-ui-components/utils/useForkRef';
+import { ownerDocument } from '@base-ui-components/utils/owner';
+import { useModernLayoutEffect } from '@base-ui-components/utils/useModernLayoutEffect';
 import { activeElement } from '../../floating-ui-react/utils';
 import type { TextDirection } from '../../direction-provider/DirectionContext';
 import {

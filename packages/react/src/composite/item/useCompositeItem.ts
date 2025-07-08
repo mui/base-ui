@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useForkRef } from '@base-ui-components/utils';
+import { useForkRef } from '@base-ui-components/utils/useForkRef';
 import { useCompositeRootContext } from '../root/CompositeRootContext';
 import { useCompositeListItem } from '../list/useCompositeListItem';
 import { HTMLProps } from '../../utils/types';

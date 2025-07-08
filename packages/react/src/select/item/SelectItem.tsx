@@ -1,10 +1,8 @@
 'use client';
 import * as React from 'react';
-import {
-  useModernLayoutEffect,
-  useLatestRef,
-  isMouseWithinBounds,
-} from '@base-ui-components/utils';
+import { useModernLayoutEffect } from '@base-ui-components/utils/useModernLayoutEffect';
+import { useLatestRef } from '@base-ui-components/utils/useLatestRef';
+import { isMouseWithinBounds } from '@base-ui-components/utils/isMouseWithinBounds';
 import { useSelector } from '@base-ui-components/utils/store';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import {

@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
-import { useEventCallback, useModernLayoutEffect } from '@base-ui-components/utils';
+import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useModernLayoutEffect } from '@base-ui-components/utils/useModernLayoutEffect';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useAvatarRootContext } from '../root/AvatarRootContext';

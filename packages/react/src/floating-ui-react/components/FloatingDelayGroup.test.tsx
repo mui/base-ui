@@ -4,7 +4,7 @@ import * as React from 'react';
 import { act, fireEvent, render, screen } from '@mui/internal-test-utils';
 import { vi } from 'vitest';
 
-import { isJSDOM } from '@base-ui-components/utils';
+import { isJSDOM } from '@base-ui-components/utils/detectBrowser';
 import {
   FloatingDelayGroup,
   useDelayGroup,

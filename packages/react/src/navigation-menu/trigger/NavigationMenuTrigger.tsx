@@ -1,14 +1,12 @@
 'use client';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import {
-  useEventCallback,
-  useModernLayoutEffect,
-  visuallyHidden,
-  useTimeout,
-  useAnimationFrame,
-  useLatestRef,
-} from '@base-ui-components/utils';
+import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useModernLayoutEffect } from '@base-ui-components/utils/useModernLayoutEffect';
+import { visuallyHidden } from '@base-ui-components/utils/visuallyHidden';
+import { useTimeout } from '@base-ui-components/utils/useTimeout';
+import { useAnimationFrame } from '@base-ui-components/utils/useAnimationFrame';
+import { useLatestRef } from '@base-ui-components/utils/useLatestRef';
 import {
   safePolygon,
   useClick,

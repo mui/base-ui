@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { Timeout } from '@base-ui-components/utils';
+import { Timeout } from '@base-ui-components/utils/useTimeout';
 import type { NumberFieldRoot } from './NumberFieldRoot';
 import { EventWithOptionalKeyState } from '../utils/types';
 

@@ -1,12 +1,10 @@
 'use client';
 import * as React from 'react';
-import {
-  useControlled,
-  useForkRef,
-  useModernLayoutEffect,
-  useEventCallback,
-  visuallyHidden,
-} from '@base-ui-components/utils';
+import { useControlled } from '@base-ui-components/utils/useControlled';
+import { useForkRef } from '@base-ui-components/utils/useForkRef';
+import { useModernLayoutEffect } from '@base-ui-components/utils/useModernLayoutEffect';
+import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { visuallyHidden } from '@base-ui-components/utils/visuallyHidden';
 import type { BaseUIComponentProps, HTMLProps } from '../utils/types';
 import { useBaseUiId } from '../utils/useBaseUiId';
 import { contains } from '../floating-ui-react/utils';

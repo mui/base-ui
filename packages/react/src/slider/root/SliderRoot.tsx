@@ -1,15 +1,13 @@
 'use client';
 import * as React from 'react';
-import {
-  ownerDocument,
-  useControlled,
-  useEventCallback,
-  useForkRef,
-  useLatestRef,
-  useModernLayoutEffect,
-  visuallyHidden,
-  warn,
-} from '@base-ui-components/utils';
+import { ownerDocument } from '@base-ui-components/utils/owner';
+import { useControlled } from '@base-ui-components/utils/useControlled';
+import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useForkRef } from '@base-ui-components/utils/useForkRef';
+import { useLatestRef } from '@base-ui-components/utils/useLatestRef';
+import { useModernLayoutEffect } from '@base-ui-components/utils/useModernLayoutEffect';
+import { visuallyHidden } from '@base-ui-components/utils/visuallyHidden';
+import { warn } from '@base-ui-components/utils/warn';
 import type { BaseUIComponentProps, Orientation } from '../../utils/types';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useRenderElement } from '../../utils/useRenderElement';

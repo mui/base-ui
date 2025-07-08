@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
-import { useEventCallback, useTimeout } from '@base-ui-components/utils';
+import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useTimeout } from '@base-ui-components/utils/useTimeout';
 import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import { ScrollAreaRootContext } from './ScrollAreaRootContext';
 import { useRenderElement } from '../../utils/useRenderElement';

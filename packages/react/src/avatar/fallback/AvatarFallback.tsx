@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useTimeout } from '@base-ui-components/utils';
+import { useTimeout } from '@base-ui-components/utils/useTimeout';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useAvatarRootContext } from '../root/AvatarRootContext';

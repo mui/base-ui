@@ -1,11 +1,9 @@
 import * as React from 'react';
 import { isElement } from '@floating-ui/utils/dom';
-import {
-  useTimeout,
-  useLatestRef,
-  useEventCallback,
-  useModernLayoutEffect,
-} from '@base-ui-components/utils';
+import { useTimeout } from '@base-ui-components/utils/useTimeout';
+import { useLatestRef } from '@base-ui-components/utils/useLatestRef';
+import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useModernLayoutEffect } from '@base-ui-components/utils/useModernLayoutEffect';
 import { contains, getDocument, isMouseLikePointerType } from '../utils';
 
 import { useFloatingParentNodeId, useFloatingTree } from '../components/FloatingTree';

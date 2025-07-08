@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { inertValue } from '@base-ui-components/utils';
+import { inertValue } from '@base-ui-components/utils/inertValue';
 import {
   FloatingNode,
   useFloatingNodeId,

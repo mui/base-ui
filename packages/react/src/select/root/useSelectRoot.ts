@@ -1,14 +1,12 @@
 import * as React from 'react';
-import {
-  useLazyRef,
-  useOnFirstRender,
-  useControlled,
-  useModernLayoutEffect,
-  useEventCallback,
-  useTimeout,
-  warn,
-  useLatestRef,
-} from '@base-ui-components/utils';
+import { useLazyRef } from '@base-ui-components/utils/useLazyRef';
+import { useOnFirstRender } from '@base-ui-components/utils/useOnFirstRender';
+import { useControlled } from '@base-ui-components/utils/useControlled';
+import { useModernLayoutEffect } from '@base-ui-components/utils/useModernLayoutEffect';
+import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useTimeout } from '@base-ui-components/utils/useTimeout';
+import { warn } from '@base-ui-components/utils/warn';
+import { useLatestRef } from '@base-ui-components/utils/useLatestRef';
 import { useSelector, Store } from '@base-ui-components/utils/store';
 import {
   useClick,

@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { expect } from 'chai';
-import { getReactElementRef } from '@base-ui-components/utils';
+import { getReactElementRef } from '@base-ui-components/utils/getReactElementRef';
 
 describe('getReactElementRef', () => {
   it('should return undefined when not used correctly', () => {

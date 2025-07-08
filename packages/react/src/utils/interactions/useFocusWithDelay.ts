@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { getWindow, isHTMLElement } from '@floating-ui/utils/dom';
-import { useTimeout } from '@base-ui-components/utils';
+import { useTimeout } from '@base-ui-components/utils/useTimeout';
 import type { FloatingRootContext, ElementProps } from '../../floating-ui-react';
 import { activeElement, contains, getDocument } from '../../floating-ui-react/utils';
 

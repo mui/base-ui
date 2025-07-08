@@ -1,13 +1,10 @@
 'use client';
 import * as React from 'react';
-import {
-  isWebKit,
-  ownerDocument,
-  ownerWindow,
-  isMouseWithinBounds,
-  useModernLayoutEffect,
-  useEventCallback,
-} from '@base-ui-components/utils';
+import { isWebKit } from '@base-ui-components/utils/detectBrowser';
+import { ownerDocument, ownerWindow } from '@base-ui-components/utils/owner';
+import { isMouseWithinBounds } from '@base-ui-components/utils/isMouseWithinBounds';
+import { useModernLayoutEffect } from '@base-ui-components/utils/useModernLayoutEffect';
+import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { useSelector } from '@base-ui-components/utils/store';
 import { FloatingFocusManager } from '../../floating-ui-react';
 import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';

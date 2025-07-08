@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { isElement } from '@floating-ui/utils/dom';
-import { useEventCallback, useId } from '@base-ui-components/utils';
+import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useId } from '@base-ui-components/utils/useId';
 
 import type {
   FloatingRootContext,

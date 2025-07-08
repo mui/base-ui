@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import type { InteractionType } from '@base-ui-components/utils';
+import type { InteractionType } from '@base-ui-components/utils/useEnhancedClickHandler';
 import type { FloatingRootContext } from '../../floating-ui-react';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import type { HTMLProps } from '../../utils/types';

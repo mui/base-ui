@@ -1,12 +1,10 @@
 'use client';
 import * as React from 'react';
-import {
-  useLatestRef,
-  ownerDocument,
-  useEventCallback,
-  generateId,
-  Timeout,
-} from '@base-ui-components/utils';
+import { useLatestRef } from '@base-ui-components/utils/useLatestRef';
+import { ownerDocument } from '@base-ui-components/utils/owner';
+import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { generateId } from '@base-ui-components/utils/generateId';
+import { Timeout } from '@base-ui-components/utils/useTimeout';
 import { activeElement, contains } from '../../floating-ui-react/utils';
 import { ToastContext } from './ToastProviderContext';
 import { ToastObject, useToastManager } from '../useToastManager';

@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useLatestRef } from '@base-ui-components/utils';
+import { useLatestRef } from '@base-ui-components/utils/useLatestRef';
 import { formatNumber } from '../../utils/formatNumber';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { ProgressRootContext } from './ProgressRootContext';

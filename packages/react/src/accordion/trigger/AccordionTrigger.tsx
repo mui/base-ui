@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useModernLayoutEffect } from '@base-ui-components/utils';
+import { useModernLayoutEffect } from '@base-ui-components/utils/useModernLayoutEffect';
 import { triggerOpenStateMapping } from '../../utils/collapsibleOpenStateMapping';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useButton } from '../../use-button';

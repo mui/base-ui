@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
-import { useLatestRef, ownerDocument, ownerWindow } from '@base-ui-components/utils';
+import { useLatestRef } from '@base-ui-components/utils/useLatestRef';
+import { ownerDocument, ownerWindow } from '@base-ui-components/utils/owner';
 import { activeElement, contains, getTarget } from '../../floating-ui-react/utils';
 import { FocusGuard } from '../../utils/FocusGuard';
 import type { BaseUIComponentProps } from '../../utils/types';

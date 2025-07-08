@@ -1,4 +1,4 @@
-import { ownerWindow } from '@base-ui-components/utils';
+import { ownerWindow } from '@base-ui-components/utils/owner';
 
 // This lets us invert the scale of the cursor to match the OS scale, in which the cursor doesn't
 // scale with the content on pinch-zoom.

@@ -1,7 +1,8 @@
 'use client';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import { isWebKit, ownerDocument } from '@base-ui-components/utils';
+import { isWebKit } from '@base-ui-components/utils/detectBrowser';
+import { ownerDocument } from '@base-ui-components/utils/owner';
 import { useNumberFieldRootContext } from '../root/NumberFieldRootContext';
 import type { BaseUIComponentProps } from '../../utils/types';
 import type { NumberFieldRoot } from '../root/NumberFieldRoot';

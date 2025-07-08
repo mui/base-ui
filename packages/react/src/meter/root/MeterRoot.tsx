@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useLatestRef } from '@base-ui-components/utils';
+import { useLatestRef } from '@base-ui-components/utils/useLatestRef';
 import { MeterRootContext } from './MeterRootContext';
 import { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import { formatNumber } from '../../utils/formatNumber';

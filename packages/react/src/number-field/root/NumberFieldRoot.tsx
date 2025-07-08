@@ -1,17 +1,14 @@
 'use client';
 import * as React from 'react';
-import {
-  useControlled,
-  useEventCallback,
-  useTimeout,
-  useInterval,
-  useModernLayoutEffect,
-  useLatestRef,
-  useForcedRerendering,
-  ownerDocument,
-  ownerWindow,
-  isIOS,
-} from '@base-ui-components/utils';
+import { useControlled } from '@base-ui-components/utils/useControlled';
+import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useTimeout } from '@base-ui-components/utils/useTimeout';
+import { useInterval } from '@base-ui-components/utils/useInterval';
+import { useModernLayoutEffect } from '@base-ui-components/utils/useModernLayoutEffect';
+import { useLatestRef } from '@base-ui-components/utils/useLatestRef';
+import { useForcedRerendering } from '@base-ui-components/utils/useForcedRerendering';
+import { ownerDocument, ownerWindow } from '@base-ui-components/utils/owner';
+import { isIOS } from '@base-ui-components/utils/detectBrowser';
 import { InputMode, NumberFieldRootContext } from './NumberFieldRootContext';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import type { BaseUIComponentProps } from '../../utils/types';

@@ -1,13 +1,11 @@
 'use client';
 import * as React from 'react';
-import {
-  useModernLayoutEffect,
-  useEventCallback,
-  useForkRef,
-  useOnMount,
-  AnimationFrame,
-  warn,
-} from '@base-ui-components/utils';
+import { useModernLayoutEffect } from '@base-ui-components/utils/useModernLayoutEffect';
+import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useForkRef } from '@base-ui-components/utils/useForkRef';
+import { useOnMount } from '@base-ui-components/utils/useOnMount';
+import { AnimationFrame } from '@base-ui-components/utils/useAnimationFrame';
+import { warn } from '@base-ui-components/utils/warn';
 import { HTMLProps } from '../../utils/types';
 import type { AnimationType, Dimensions } from '../root/useCollapsibleRoot';
 import { CollapsiblePanelDataAttributes } from './CollapsiblePanelDataAttributes';

@@ -8,7 +8,8 @@ import {
   isLastTraversableNode,
   isWebKit,
 } from '@floating-ui/utils/dom';
-import { useTimeout, Timeout, useEventCallback } from '@base-ui-components/utils';
+import { useTimeout, Timeout } from '@base-ui-components/utils/useTimeout';
+import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import {
   contains,
   getDocument,

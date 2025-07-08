@@ -1,10 +1,8 @@
 import * as React from 'react';
-import {
-  useLatestRef,
-  useEventCallback,
-  useModernLayoutEffect,
-  useTimeout,
-} from '@base-ui-components/utils';
+import { useLatestRef } from '@base-ui-components/utils/useLatestRef';
+import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useModernLayoutEffect } from '@base-ui-components/utils/useModernLayoutEffect';
+import { useTimeout } from '@base-ui-components/utils/useTimeout';
 import { stopEvent } from '../utils';
 
 import type { ElementProps, FloatingRootContext } from '../types';

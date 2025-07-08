@@ -1,6 +1,8 @@
 'use client';
 import * as React from 'react';
-import { useEventCallback, useControlled, useModernLayoutEffect } from '@base-ui-components/utils';
+import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useControlled } from '@base-ui-components/utils/useControlled';
+import { useModernLayoutEffect } from '@base-ui-components/utils/useModernLayoutEffect';
 import { FieldRoot } from '../root/FieldRoot';
 import { useFieldRootContext } from '../root/FieldRootContext';
 import { fieldValidityMapping } from '../utils/constants';

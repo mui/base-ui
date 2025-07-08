@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useForkRef } from '@base-ui-components/utils';
+import { useForkRef } from '@base-ui-components/utils/useForkRef';
 import { FloatingEvents, useFloatingTree } from '../../floating-ui-react';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { useRenderElement } from '../../utils/useRenderElement';

@@ -1,7 +1,10 @@
 'use client';
 import * as React from 'react';
 import { getParentNode, isHTMLElement, isLastTraversableNode } from '@floating-ui/utils/dom';
-import { useForkRef, useTimeout, ownerDocument, useEventCallback } from '@base-ui-components/utils';
+import { useForkRef } from '@base-ui-components/utils/useForkRef';
+import { useTimeout } from '@base-ui-components/utils/useTimeout';
+import { ownerDocument } from '@base-ui-components/utils/owner';
+import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { contains } from '../../floating-ui-react/utils';
 import { useFloatingTree } from '../../floating-ui-react/index';
 import { useMenuRootContext } from '../root/MenuRootContext';

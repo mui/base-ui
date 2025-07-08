@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
-import { useModernLayoutEffect, useId } from '@base-ui-components/utils';
+import { useModernLayoutEffect } from '@base-ui-components/utils/useModernLayoutEffect';
+import { useId } from '@base-ui-components/utils/useId';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useToastRootContext } from '../root/ToastRootContext';
 import { useRenderElement } from '../../utils/useRenderElement';

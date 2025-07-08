@@ -1,11 +1,9 @@
 'use client';
 import * as React from 'react';
-import {
-  useForkRef,
-  useModernLayoutEffect,
-  isReactVersionAtLeast,
-  visuallyHidden,
-} from '@base-ui-components/utils';
+import { useForkRef } from '@base-ui-components/utils/useForkRef';
+import { useModernLayoutEffect } from '@base-ui-components/utils/useModernLayoutEffect';
+import { isReactVersionAtLeast } from '@base-ui-components/utils/reactVersion';
+import { visuallyHidden } from '@base-ui-components/utils/visuallyHidden';
 import { formatNumber } from '../../utils/formatNumber';
 import { getStyleHookProps } from '../../utils/getStyleHookProps';
 import { mergeProps } from '../../merge-props';

@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
-import { useEventCallback } from '@base-ui-components/utils';
-import type { Timeout } from '@base-ui-components/utils';
+import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import type { Timeout } from '@base-ui-components/utils/useTimeout';
 import {
   DEFAULT_STEP,
   MAX_POINTER_MOVES_AFTER_TOUCH,

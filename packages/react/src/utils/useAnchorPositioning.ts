@@ -1,12 +1,10 @@
 'use client';
 import * as React from 'react';
 import { getSide, getAlignment, type Rect, getSideAxis } from '@floating-ui/utils';
-import {
-  ownerDocument,
-  useEventCallback,
-  useLatestRef,
-  useModernLayoutEffect,
-} from '@base-ui-components/utils';
+import { ownerDocument } from '@base-ui-components/utils/owner';
+import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useLatestRef } from '@base-ui-components/utils/useLatestRef';
+import { useModernLayoutEffect } from '@base-ui-components/utils/useModernLayoutEffect';
 import {
   autoUpdate,
   flip,

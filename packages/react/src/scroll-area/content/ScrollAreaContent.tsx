@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useModernLayoutEffect } from '@base-ui-components/utils';
+import { useModernLayoutEffect } from '@base-ui-components/utils/useModernLayoutEffect';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useScrollAreaViewportContext } from '../viewport/ScrollAreaViewportContext';
 import { useRenderElement } from '../../utils/useRenderElement';
