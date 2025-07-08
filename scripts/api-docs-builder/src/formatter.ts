@@ -68,7 +68,7 @@ export function formatType(
       return createNameWithTypeArguments(type.typeName);
     }
 
-    return type.typeName.toString();
+    return getFullyQualifiedName(type.typeName);
   }
 
   if (type instanceof tae.IntrinsicNode) {
