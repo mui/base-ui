@@ -26,6 +26,44 @@
   line-height: 1.25rem;
   font-weight: 500;
   color: var(--color-gray-900);
+  position: relative;
+}
+
+.ActionButtons {
+  --size: 1.5rem;
+  box-sizing: border-box;
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  bottom: calc(2.5rem / 2 - var(--size) / 2);
+  height: var(--size);
+  right: 0.5rem;
+  border-radius: 0.25rem;
+  border: none;
+  color: var(--color-gray-600);
+  padding: 0;
+}
+
+.Trigger,
+.Clear {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--size);
+  height: var(--size);
+  color: var(--color-gray-600);
+  border: none;
+  padding: 0;
+  border-radius: 0.25rem;
+  background: none;
+}
+
+.ClearIcon,
+.TriggerIcon {
+  width: 1rem;
+  height: 1rem;
 }
 
 .Positioner {

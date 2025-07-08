@@ -75,6 +75,7 @@ export function ComboboxRoot<Item = ComboboxRoot.Item>(
     cols = 1,
     items,
     filter = defaultItemFilter,
+    openOnClick = true,
   } = props;
 
   const { clearErrors } = useFormContext();
@@ -103,13 +104,9 @@ export function ComboboxRoot<Item = ComboboxRoot.Item>(
 
   const defaultUncontrolledValue = React.useMemo(() => {
     if (multiple) {
-      return defaultSelectedValue !== null && defaultSelectedValue !== undefined
-        ? defaultSelectedValue
-        : [];
+      return defaultSelectedValue != null ? defaultSelectedValue : [];
     }
-    return defaultSelectedValue !== null && defaultSelectedValue !== undefined
-      ? defaultSelectedValue
-      : '';
+    return defaultSelectedValue != null ? defaultSelectedValue : '';
   }, [defaultSelectedValue, multiple]);
 
   const [selectedValue, setSelectedValueUnwrapped] = useControlled<any>({
@@ -421,7 +418,7 @@ export function ComboboxRoot<Item = ComboboxRoot.Item>(
   );
 
   const click = useClick(floatingRootContext, {
-    enabled: !readOnly && !disabled,
+    enabled: !readOnly && !disabled && openOnClick,
     event: 'mousedown-only',
     toggle: false,
   });
@@ -682,6 +679,11 @@ export namespace ComboboxRoot {
      * Whether the combobox popup is currently open.
      */
     open?: boolean;
+    /**
+     * Whether the combobox popup should open when the input is clicked.
+     * @default true
+     */
+    openOnClick?: boolean;
     /**
      * The input value of the combobox.
      */

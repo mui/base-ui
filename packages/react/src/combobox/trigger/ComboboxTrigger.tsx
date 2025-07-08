@@ -33,6 +33,7 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
     triggerRef,
     disabled: comboboxDisabled,
     readOnly,
+    inputRef,
   } = useComboboxRootContext();
 
   const open = useSelector(store, selectors.open);
@@ -60,11 +61,18 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
       {
         disabled,
         'aria-readonly': readOnly || undefined,
+        onMouseDown(event) {
+          if (disabled || readOnly) {
+            return;
+          }
+          event.preventDefault();
+        },
         onClick(event) {
           if (disabled || readOnly) {
             return;
           }
           setOpen(!open, event.nativeEvent, undefined);
+          inputRef.current?.focus();
         },
       },
       elementProps,

@@ -1,7 +1,17 @@
 {
   "name": "ComboboxClear",
-  "description": "Clears the input value of the combobox when clicked.",
+  "description": "Clears the input and selected value of the combobox when clicked.\nOnly renders when the combobox is in single select mode and the input value is not empty.",
   "props": {
+    "nativeButton": {
+      "type": "boolean",
+      "default": "true",
+      "description": "Whether the component renders a native `<button>` element when replacing it\nvia the `render` prop.\nSet to `false` if the rendered element is not a button (e.g. `<div>`)."
+    },
+    "disabled": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Whether the component should ignore user interaction."
+    },
     "className": {
       "type": "string | ((state: Combobox.Clear.State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."

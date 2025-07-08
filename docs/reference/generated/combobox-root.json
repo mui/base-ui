@@ -64,6 +64,11 @@
       "type": "((value: V | Item, event: Event | undefined, reason: string | undefined) => void)",
       "description": "Callback fired when the selected value of the combobox changes."
     },
+    "openOnClick": {
+      "type": "boolean",
+      "default": "true",
+      "description": "Whether the combobox popup should open when the input is clicked."
+    },
     "select": {
       "type": "'single'",
       "default": "'none'",
