@@ -9,7 +9,7 @@ describe('<Accordion.Trigger />', () => {
     render: (node) =>
       render(
         <Accordion.Root>
-          <Accordion.Item>{node}</Accordion.Item>
+          <Accordion.Item value={0}>{node}</Accordion.Item>
         </Accordion.Root>,
       ),
     refInstanceof: window.HTMLButtonElement,

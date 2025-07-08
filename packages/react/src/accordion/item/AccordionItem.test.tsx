@@ -23,7 +23,7 @@ const accordionRootContextValue: AccordionRootContext = {
 describe('<Accordion.Item />', () => {
   const { render } = createRenderer();
 
-  describeConformance(<Accordion.Item />, () => ({
+  describeConformance(<Accordion.Item value={0} />, () => ({
     render: (node) =>
       render(
         <AccordionRootContext.Provider value={accordionRootContextValue}>
