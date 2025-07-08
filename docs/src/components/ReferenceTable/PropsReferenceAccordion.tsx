@@ -114,7 +114,7 @@ export async function PropsReferenceAccordion({ data, name: partName, ...props }
             >
               <TableCode className="text-navy">{name}</TableCode>
               {prop.type && (
-                <span className="flex items-baseline gap-2 text-sm leading-none">
+                <span className="flex items-baseline gap-2 text-sm leading-none max-xs:hidden">
                   <ShortPropType />
                   {prop.default !== undefined && (
                     <span className="max-sm:hidden">
@@ -181,6 +181,7 @@ export async function PropsReferenceAccordion({ data, name: partName, ...props }
 
 const GRID_LAYOUT_CLASSES =
   'grid ' +
-  'grid-cols-[theme(spacing.48)_1fr_theme(spacing.10)] ' +
+  'grid-cols-[1fr_theme(spacing.10)] ' +
+  'xs:grid-cols-[theme(spacing.48)_1fr_theme(spacing.10)] ' +
   'sm:grid-cols-[theme(spacing.56)_1fr_theme(spacing.10)] ' +
   'md:grid-cols-[1fr_2fr_theme(spacing.10)] ';
