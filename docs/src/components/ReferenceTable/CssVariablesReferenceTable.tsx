@@ -7,7 +7,6 @@ import * as Accordion from '../Accordion';
 import * as Table from '../Table';
 import type { CssVariableDef } from './types';
 import { TableCode } from '../TableCode';
-import { Chip } from './Chip';
 
 interface CssVariablesReferenceTableProps extends React.ComponentProps<typeof Table.Root> {
   data: Record<string, CssVariableDef>;
@@ -39,7 +38,7 @@ export async function CssVariablesReferenceTable({
           return (
             <Accordion.Item key={name}>
               <Accordion.Trigger index={index}>
-                <Chip>{name}</Chip>
+                <TableCode className="text-navy">{name}</TableCode>
                 <svg
                   className="AccordionIcon"
                   width="10"
