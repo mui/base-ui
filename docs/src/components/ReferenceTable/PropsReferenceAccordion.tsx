@@ -8,6 +8,7 @@ import * as Accordion from '../Accordion';
 import * as DescriptionList from '../DescriptionList';
 import type { PropDef as BasePropDef } from './types';
 import { TableCode } from '../TableCode';
+import * as ReferenceTableTooltip from './ReferenceTableTooltip';
 
 interface PropDef extends BasePropDef {
   example?: string;
@@ -21,19 +22,19 @@ interface Props extends React.ComponentPropsWithoutRef<any> {
 
 function getShortPropType(name: string, type: string | undefined) {
   if (/^(on|get)[A-Z].*/.test(name)) {
-    return 'function';
+    return { type: 'function', detailedType: true };
   }
 
   if (type === undefined || type === null) {
-    return String(type);
+    return { type: String(type), detailedType: false };
   }
 
   if (name === 'className') {
-    return 'string | function';
+    return { type: 'string | function', detailedType: true };
   }
 
   if (name === 'render') {
-    return 'ReactElement | function';
+    return { type: 'ReactElement | function', detailedType: true };
   }
 
   if (
@@ -45,10 +46,10 @@ function getShortPropType(name: string, type: string | undefined) {
     type.indexOf(' | ') === -1 ||
     (type.split('|').length < 3 && type.length < 30)
   ) {
-    return type;
+    return { type, detailedType: false };
   }
 
-  return 'Union';
+  return { type: 'Union', detailedType: false };
 }
 
 export async function PropsReferenceAccordion({ data, name: partName, ...props }: Props) {
@@ -71,7 +72,7 @@ export async function PropsReferenceAccordion({ data, name: partName, ...props }
           useMDXComponents: () => ({ code: TableCode }),
         });
 
-        const shortPropTypeName = getShortPropType(name, prop.type);
+        const { type: shortPropTypeName, detailedType } = getShortPropType(name, prop.type);
 
         const ShortPropType = await createMdxComponent(`\`${shortPropTypeName}\``, {
           rehypePlugins: rehypeSyntaxHighlighting,
@@ -110,7 +111,16 @@ export async function PropsReferenceAccordion({ data, name: partName, ...props }
               </TableCode>
               {prop.type && (
                 <span className="flex items-baseline gap-2 text-sm leading-none max-xs:hidden">
-                  <ShortPropType />
+                  {detailedType ? (
+                    <ReferenceTableTooltip.Root>
+                      <ReferenceTableTooltip.Trigger render={<ShortPropType />} />
+                      <ReferenceTableTooltip.Popup>
+                        <PropType />
+                      </ReferenceTableTooltip.Popup>
+                    </ReferenceTableTooltip.Root>
+                  ) : (
+                    <ShortPropType />
+                  )}
                   {prop.default !== undefined && (
                     <span className="inline-flex items-baseline gap-1">
                       <span>(</span>default: <PropDefault />)
