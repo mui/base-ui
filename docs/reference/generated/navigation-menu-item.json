@@ -6,6 +6,11 @@
       "type": "any",
       "description": "A unique value that identifies this navigation menu item.\nIf no value is provided, a unique ID will be generated automatically.\nUse when controlling the navigation menu programmatically."
     },
+    "openOnHover": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Whether the navigation menu popup will open when the trigger is hovered\nin addition to clicking the trigger."
+    },
     "className": {
       "type": "string | ((state: NavigationMenu.Item.State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
