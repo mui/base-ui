@@ -317,6 +317,10 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
       return;
     }
 
+    if (!openOnHover && event.type === 'mouseenter') {
+      return;
+    }
+
     const currentWidth = popupElement.offsetWidth;
     const currentHeight = popupElement.offsetHeight;
 
