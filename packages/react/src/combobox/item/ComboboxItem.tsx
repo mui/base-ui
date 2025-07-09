@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { isHTMLElement } from '@floating-ui/utils/dom';
 import { useComboboxRootContext } from '../root/ComboboxRootContext';
 import {
   useCompositeListItem,
@@ -146,8 +147,11 @@ export const ComboboxItem = React.memo(
       'aria-disabled': disabled || undefined,
       'aria-selected': selectable ? selected : undefined,
       tabIndex: -1,
-      onFocus() {
-        inputRef.current?.focus();
+      onFocus(event) {
+        const refocusTarget = isHTMLElement(event.relatedTarget)
+          ? event.relatedTarget
+          : inputRef.current;
+        refocusTarget?.focus();
       },
       onClick(event) {
         if (disabled || readOnly) {
@@ -183,8 +187,6 @@ export const ComboboxItem = React.memo(
         if (selectedIndex !== -1) {
           store.set('selectedIndex', selectedIndex);
         }
-
-        inputRef.current?.focus();
       },
     };
 
