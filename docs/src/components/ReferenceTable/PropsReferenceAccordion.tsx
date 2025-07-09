@@ -20,7 +20,7 @@ interface Props extends React.ComponentPropsWithoutRef<any> {
 }
 
 function getShortPropType(name: string, type: string | undefined) {
-  if (/^on[A-Z].*/.test(name)) {
+  if (/^(on|get)[A-Z].*/.test(name)) {
     return 'function';
   }
 
@@ -109,7 +109,7 @@ export async function PropsReferenceAccordion({ data, name: partName, ...props }
           <Accordion.Item key={name}>
             <Accordion.Trigger
               index={index}
-              aria-label={`prop: ${name}, type: ${shortPropTypeName} ${prop.default !== undefined ? `(default: ${prop.default})` : ''}`}
+              aria-label={`prop: ${name},${prop.required ? ' required,' : ''} type: ${shortPropTypeName} ${prop.default !== undefined ? `(default: ${prop.default})` : ''}`}
               className={clsx('max-xs:gap-4 md:gap-5', GRID_LAYOUT_CLASSES)}
             >
               <TableCode className="text-navy">
