@@ -23,16 +23,12 @@ import { useTimeout } from '../../utils/useTimeout';
 import { warn } from '../../utils/warn';
 import { selectors, State } from '../store';
 import type { SelectRootContext } from './SelectRootContext';
-import {
-  translateOpenChangeReason,
-  type BaseOpenChangeReason,
-} from '../../utils/translateOpenChangeReason';
+import { translateOpenChangeReason } from '../../utils/translateOpenChangeReason';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useFormContext } from '../../form/FormContext';
 import { useLatestRef } from '../../utils/useLatestRef';
 import { useField } from '../../field/useField';
-
-export type SelectOpenChangeReason = BaseOpenChangeReason | 'window-resize';
+import { type SelectRoot } from './SelectRoot';
 
 const EMPTY_ARRAY: never[] = [];
 
@@ -225,7 +221,11 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
   }, [value]);
 
   const setOpen = useEventCallback(
-    (nextOpen: boolean, event: Event | undefined, reason: SelectOpenChangeReason | undefined) => {
+    (
+      nextOpen: boolean,
+      event: Event | undefined,
+      reason: SelectRoot.OpenChangeReason | undefined,
+    ) => {
       params.onOpenChange?.(nextOpen, event, reason);
       setOpenUnwrapped(nextOpen);
 
@@ -394,7 +394,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
   });
 
   const typeahead = useTypeahead(floatingContext, {
-    enabled: !readOnly && !disabled && !multiple,
+    enabled: !readOnly && !disabled && (open || !multiple),
     listRef: labelsRef,
     activeIndex,
     selectedIndex,
@@ -518,112 +518,12 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
 }
 
 export namespace useSelectRoot {
-  export interface Parameters<Value> {
-    /**
-     * Identifies the field when a form is submitted.
-     */
-    name?: string;
-    /**
-     * The id of the Select.
-     */
-    id?: string;
-    /**
-     * Whether the user must choose a value before submitting a form.
-     * @default false
-     */
-    required?: boolean;
-    /**
-     * Whether the user should be unable to choose a different option from the select menu.
-     * @default false
-     */
-    readOnly?: boolean;
-    /**
-     * Whether the component should ignore user interaction.
-     * @default false
-     */
-    disabled?: boolean;
-    /**
-     * Whether multiple items can be selected.
-     * @default false
-     */
-    multiple?: boolean;
-    /**
-     * The value of the select.
-     */
-    value?: Value | null;
-    /**
-     * Callback fired when the value of the select changes. Use when controlled.
-     */
-    onValueChange?: (value: Value, event?: Event) => void;
-    /**
-     * The uncontrolled value of the select when it’s initially rendered.
-     *
-     * To render a controlled select, use the `value` prop instead.
-     * @default null
-     */
-    defaultValue?: Value | null;
-    /**
-     * Whether the select menu is initially open.
-     *
-     * To render a controlled select menu, use the `open` prop instead.
-     * @default false
-     */
-    defaultOpen?: boolean;
-    /**
-     * Event handler called when the select menu is opened or closed.
-     * @type (open: boolean, event?: Event, reason?: Select.Root.OpenChangeReason) => void
-     */
-    onOpenChange?: (
-      open: boolean,
-      event: Event | undefined,
-      reason: SelectOpenChangeReason | undefined,
-    ) => void;
-    /**
-     * Event handler called after any animations complete when the select menu is opened or closed.
-     */
-    onOpenChangeComplete?: (open: boolean) => void;
-    /**
-     * Whether the select menu is currently open.
-     */
-    open?: boolean;
-    /**
-     * Determines if the select enters a modal state when open.
-     * - `true`: user interaction is limited to the select: document page scroll is locked and and pointer interactions on outside elements are disabled.
-     * - `false`: user interaction with the rest of the document is allowed.
-     * @default true
-     */
-    modal?: boolean;
-    /**
-     * A ref to imperative actions.
-     * - `unmount`: When specified, the select will not be unmounted when closed.
-     * Instead, the `unmount` function must be called to unmount the select manually.
-     * Useful when the select's animation is controlled by an external library.
-     */
-    actionsRef?: React.RefObject<Actions>;
-    /**
-     * Data structure of the items rendered in the select menu.
-     * When specified, `<Select.Value>` renders the label of the selected item instead of the raw value.
-     * @example
-     * ```tsx
-     * const items = {
-     *   sans: 'Sans-serif',
-     *   serif: 'Serif',
-     *   mono: 'Monospace',
-     *   cursive: 'Cursive',
-     * };
-     * <Select.Root items={items} />
-     * ```
-     */
-    items?: Record<string, React.ReactNode> | Array<{ label: React.ReactNode; value: Value }>;
-  }
+  export interface Parameters<Value>
+    extends Omit<SelectRoot.Props<Value>, 'children' | 'inputRef'> {}
 
   export type ReturnValue = {
     rootContext: SelectRootContext;
     floatingContext: FloatingRootContext;
     value: any;
   };
-
-  export interface Actions {
-    unmount: () => void;
-  }
 }
