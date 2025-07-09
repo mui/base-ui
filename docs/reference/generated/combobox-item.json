@@ -2,14 +2,9 @@
   "name": "ComboboxItem",
   "description": "An individual item in the combobox popup.\nRenders a `<div>` element.",
   "props": {
-    "label": {
-      "type": "string",
-      "description": "Overrides the text label to use on the trigger when this item is selected\nand when the item is matched during keyboard text navigation."
-    },
     "value": {
       "type": "any",
-      "default": "null",
-      "description": "A unique value that identifies this select item."
+      "description": "A unique value that identifies this combobox item."
     },
     "nativeButton": {
       "type": "boolean",

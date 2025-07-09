@@ -21,22 +21,7 @@ export function defaultItemFilter(item: any, query: string, itemToString?: (item
   if (item == null) {
     return false;
   }
-
-  let candidate: string;
-
-  if (itemToString) {
-    candidate = itemToString(item);
-  } else {
-    let value: unknown = item;
-
-    if (typeof item === 'object' && 'value' in (item as any)) {
-      value = (item as any).value;
-    }
-
-    candidate = String(value);
-  }
-
-  return candidate.toLowerCase().includes(query);
+  return stringifyItem(item, itemToString).toLocaleLowerCase().includes(query.toLocaleLowerCase());
 }
 
 /**
@@ -53,55 +38,24 @@ export function singleSelectionFilter(
     return false;
   }
 
-  // Show all items when query is empty
   if (query.trim() === '') {
     return true;
   }
 
-  // Get the string representation of the item
-  let candidate: string;
-  if (itemToString) {
-    candidate = itemToString(item);
-  } else {
-    let value: unknown = item;
-    if (typeof item === 'object' && 'value' in (item as any)) {
-      value = (item as any).value;
-    }
-    candidate = String(value);
-  }
+  const candidate = stringifyItem(item, itemToString);
+  const selectedString = stringifyItem(selectedValue, itemToString);
 
-  // Get the string representation of the selected value
-  let selectedString = '';
-  if (selectedValue != null) {
-    if (itemToString) {
-      selectedString = itemToString(selectedValue);
-    } else {
-      let value: unknown = selectedValue;
-      if (typeof selectedValue === 'object' && 'value' in (selectedValue as any)) {
-        value = (selectedValue as any).value;
-      }
-      selectedString = String(value);
-    }
-  }
-
-  // Show all items when query matches current selection
-  if (query.toLowerCase() === selectedString.toLowerCase()) {
+  if (query.toLocaleLowerCase() === selectedString.toLocaleLowerCase()) {
     return true;
   }
 
-  // Otherwise, use standard filtering
-  return candidate.toLowerCase().includes(query.toLowerCase());
+  return candidate.toLocaleLowerCase().includes(query.toLocaleLowerCase());
 }
 
 export function isGroupedItems(
   items: (any | ComboboxGroup)[] | undefined,
 ): items is ComboboxGroup[] {
-  return (
-    items != null &&
-    items.length > 0 &&
-    typeof items[0] === 'object' &&
-    'items' in (items[0] as any)
-  );
+  return items != null && items.length > 0 && typeof items[0] === 'object' && 'items' in items[0];
 }
 
 export function defaultGroupFilter(
@@ -126,16 +80,12 @@ export function defaultGroupFilter(
   };
 }
 
-export function getFormValue(value: any, itemToValue?: (item: any) => string) {
-  if (itemToValue && value != null) {
-    return itemToValue(value) ?? '';
-  }
-  return serializeValue(value);
-}
-
-export function getItemString(item: any, itemToString?: (item: any) => string) {
+export function stringifyItem(item: any, itemToString?: (item: any) => string) {
   if (itemToString && item != null) {
     return itemToString(item) ?? '';
+  }
+  if (item !== null && typeof item === 'object' && typeof item.value === 'string') {
+    return item.value;
   }
   return serializeValue(item);
 }

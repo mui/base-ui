@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Combobox } from '@base-ui-components/react/combobox';
 import styles from './index.module.css';
-import { CountryGroup, groupedCountries, type Country } from './data';
+import { groupedCountries, type Country, type CountryGroup } from './data';
 
 export default function GroupedCombobox() {
   return (

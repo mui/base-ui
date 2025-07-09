@@ -31,8 +31,7 @@ export const ComboboxItem = React.memo(
     const {
       render,
       className,
-      value = null,
-      label,
+      value,
       disabled = false,
       nativeButton = false,
       ...elementProps
@@ -42,7 +41,6 @@ export const ComboboxItem = React.memo(
 
     const textRef = React.useRef<HTMLElement | null>(null);
     const listItem = useCompositeListItem({
-      label,
       textRef,
       indexGuessBehavior: IndexGuessBehavior.GuessFromOrder,
     });
@@ -230,8 +228,7 @@ export namespace ComboboxItem {
   export interface Props extends Omit<BaseUIComponentProps<'div', State>, 'id'> {
     children?: React.ReactNode;
     /**
-     * A unique value that identifies this select item.
-     * @default null
+     * A unique value that identifies this combobox item.
      */
     value?: any;
     /**
@@ -239,11 +236,6 @@ export namespace ComboboxItem {
      * @default false
      */
     disabled?: boolean;
-    /**
-     * Overrides the text label to use on the trigger when this item is selected
-     * and when the item is matched during keyboard text navigation.
-     */
-    label?: string;
     /**
      * Whether the component renders a native `<button>` element when replacing it
      * via the `render` prop.

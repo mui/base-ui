@@ -40,10 +40,10 @@ import {
   singleSelectionFilter,
   isGroupedItems,
   defaultGroupFilter,
-  getFormValue,
-  getItemString,
+  stringifyItem,
 } from './utils';
 import { EMPTY_ARRAY } from '../../utils/constants';
+import { serializeValue } from '../../utils/serializeValue';
 
 /**
  * Groups all parts of the combobox.
@@ -298,9 +298,9 @@ export function ComboboxRoot(props: ComboboxRoot.Props): React.JSX.Element {
     // Reset input value to selected value when popup closes without selection in single mode
     // This happens after the closing animation completes to avoid flicker
     if (selectProp === 'single' && props.inputValue === undefined) {
-      const stringVal = selectedValue == null ? '' : getItemString(selectedValue, itemToString);
+      const stringVal = stringifyItem(selectedValue, itemToString);
       if (inputRef.current && inputRef.current.value !== stringVal) {
-        setInputValueUnwrapped(stringVal);
+        setInputValue(stringVal, undefined, 'item-press');
       }
     }
   });
@@ -321,16 +321,21 @@ export function ComboboxRoot(props: ComboboxRoot.Props): React.JSX.Element {
       onSelectedValueChange?.(nextValue, event, reason);
       setSelectedValueUnwrapped(nextValue);
 
-      // If input value is uncontrolled, keep it in sync for single selection
       if (selectProp === 'none' && !multiple && props.inputValue === undefined) {
-        const stringVal = nextValue == null ? '' : getItemString(nextValue, itemToString);
-        setInputValueUnwrapped(stringVal);
+        const stringVal = stringifyItem(nextValue, itemToString);
+        setInputValue(stringVal, undefined, undefined);
+      }
+
+      // If input value is uncontrolled, keep it in sync for single selection mode
+      if (selectProp === 'single' && props.inputValue === undefined) {
+        const stringVal = stringifyItem(nextValue, itemToString);
+        setInputValue(stringVal, undefined, undefined);
       }
 
       // Clear the uncontrolled input after a selection in multiple-select mode when filtering was used.
       const hadInputValue = inputRef.current ? inputRef.current.value.trim() !== '' : false;
       if (multiple && props.inputValue === undefined && hadInputValue) {
-        setInputValueUnwrapped('');
+        setInputValue('', undefined, undefined);
         // Reset active index and clear any highlighted item since the list will re-filter.
         store.set('activeIndex', null);
         onItemHighlighted(undefined, keyboardActiveRef.current ? 'keyboard' : 'pointer');
@@ -615,7 +620,10 @@ export function ComboboxRoot(props: ComboboxRoot.Props): React.JSX.Element {
     if (Array.isArray(formValue)) {
       return '';
     }
-    return getFormValue(formValue, itemToValue);
+    if (itemToValue && formValue != null) {
+      return itemToValue(formValue);
+    }
+    return serializeValue(formValue);
   }, [formValue, itemToValue]);
 
   const hiddenInputs = React.useMemo(() => {
@@ -624,7 +632,7 @@ export function ComboboxRoot(props: ComboboxRoot.Props): React.JSX.Element {
     }
 
     return selectedValue.map((value) => {
-      const currentSerializedValue = getFormValue(value, itemToValue);
+      const currentSerializedValue = itemToValue ? itemToValue(value) : serializeValue(value);
       return (
         <input
           key={currentSerializedValue}
