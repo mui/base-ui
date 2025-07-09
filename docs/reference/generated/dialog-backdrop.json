@@ -5,7 +5,7 @@
     "forceRender": {
       "type": "boolean",
       "default": "false",
-      "description": "Whether the backdrop should be rendered regardless of nesting."
+      "description": "Whether the backdrop is forced to render even when nested."
     },
     "className": {
       "type": "string | ((state: Dialog.Backdrop.State) => string)",
