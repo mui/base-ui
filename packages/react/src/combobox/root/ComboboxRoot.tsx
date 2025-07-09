@@ -549,6 +549,7 @@ export function ComboboxRoot(props: ComboboxRoot.Props): React.JSX.Element {
       transitionStatus,
       popupProps: getFloatingProps(),
       triggerProps: getReferenceProps(),
+      items,
       filteredItems,
     });
   }, [
@@ -561,6 +562,7 @@ export function ComboboxRoot(props: ComboboxRoot.Props): React.JSX.Element {
     transitionStatus,
     getFloatingProps,
     getReferenceProps,
+    items,
     filteredItems,
   ]);
 
