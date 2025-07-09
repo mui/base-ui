@@ -45,6 +45,7 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
 
   const { clearErrors } = useFormContext();
   const {
+    controlId,
     state: fieldState,
     labelId,
     setControlId,
@@ -75,7 +76,8 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
 
   const switchRef = React.useRef<HTMLButtonElement | null>(null);
 
-  const id = useBaseUiId(idProp);
+  const defaultId = useBaseUiId(idProp);
+  const id = controlId ?? defaultId;
 
   useModernLayoutEffect(() => {
     const element = switchRef.current;
