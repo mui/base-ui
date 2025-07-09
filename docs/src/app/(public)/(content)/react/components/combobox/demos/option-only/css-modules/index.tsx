@@ -4,43 +4,8 @@ import styles from './index.module.css';
 import { options } from './data';
 
 export default function OptionOnlyCombobox() {
-  const [searchValue, setSearchValue] = React.useState('');
-  const [selectedValue, setSelectedValue] = React.useState('');
-  const [open, setOpen] = React.useState(false);
-
-  // Show all items when query is empty or matches current selection
-  const customFilter = React.useCallback(
-    (item: string, query: string) => {
-      const q = query.trim().toLowerCase();
-      if (q === '' || q === selectedValue.toLowerCase()) {
-        return true;
-      }
-      return item.toLowerCase().includes(q);
-    },
-    [selectedValue],
-  );
-
   return (
-    <Combobox.Root
-      items={options}
-      select="single"
-      selectedValue={selectedValue}
-      onSelectedValueChange={(nextValue) => {
-        setSelectedValue(nextValue);
-        setSearchValue(nextValue);
-        setOpen(false);
-      }}
-      inputValue={searchValue}
-      onInputValueChange={setSearchValue}
-      filter={customFilter}
-      open={open}
-      onOpenChange={setOpen}
-      onOpenChangeComplete={(nextOpen) => {
-        if (!nextOpen) {
-          setSearchValue(selectedValue);
-        }
-      }}
-    >
+    <Combobox.Root items={options} select="single">
       <label className={styles.Label}>
         Choose a fruit
         <Combobox.Input placeholder="e.g. Apple" className={styles.Input} />

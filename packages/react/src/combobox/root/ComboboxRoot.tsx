@@ -37,6 +37,7 @@ import { useLatestRef } from '../../utils/useLatestRef';
 import {
   type ComboboxGroup,
   defaultItemFilter,
+  singleSelectionFilter,
   isGroupedItems,
   defaultGroupFilter,
   getFormValue,
@@ -70,7 +71,7 @@ export function ComboboxRoot(props: ComboboxRoot.Props): React.JSX.Element {
     inputRef: inputRefProp,
     cols = 1,
     items,
-    filter = defaultItemFilter,
+    filter: filterProp,
     openOnInputClick = true,
     itemToString,
     itemToValue,
@@ -106,6 +107,19 @@ export function ComboboxRoot(props: ComboboxRoot.Props): React.JSX.Element {
     name: 'Combobox',
     state: 'selectedValue',
   });
+
+  // Use enhanced filter for single selection mode to show all items when query is empty
+  // or matches current selection, falling back to user-provided filter or default
+  const filter = React.useMemo(() => {
+    if (filterProp) {
+      return filterProp;
+    }
+    if (selectProp === 'single') {
+      return (item: any, query: string, itemToStringArg?: (item: any) => string) =>
+        singleSelectionFilter(item, query, itemToStringArg, selectedValue);
+    }
+    return defaultItemFilter;
+  }, [filterProp, selectProp, selectedValue]);
 
   const [inputValue, setInputValueUnwrapped] = useControlled({
     controlled: inputValueProp,
@@ -280,6 +294,15 @@ export function ComboboxRoot(props: ComboboxRoot.Props): React.JSX.Element {
     store.set('activeIndex', null);
     onItemHighlighted(undefined, 'pointer');
     onOpenChangeComplete?.(false);
+
+    // Reset input value to selected value when popup closes without selection in single mode
+    // This happens after the closing animation completes to avoid flicker
+    if (selectProp === 'single' && props.inputValue === undefined) {
+      const stringVal = selectedValue == null ? '' : getItemString(selectedValue, itemToString);
+      if (inputRef.current && inputRef.current.value !== stringVal) {
+        setInputValueUnwrapped(stringVal);
+      }
+    }
   });
 
   useOpenChangeComplete({
@@ -299,7 +322,7 @@ export function ComboboxRoot(props: ComboboxRoot.Props): React.JSX.Element {
       setSelectedValueUnwrapped(nextValue);
 
       // If input value is uncontrolled, keep it in sync for single selection
-      if (!multiple && props.inputValue === undefined) {
+      if (selectProp === 'none' && !multiple && props.inputValue === undefined) {
         const stringVal = nextValue == null ? '' : getItemString(nextValue, itemToString);
         setInputValueUnwrapped(stringVal);
       }
@@ -311,6 +334,17 @@ export function ComboboxRoot(props: ComboboxRoot.Props): React.JSX.Element {
         // Reset active index and clear any highlighted item since the list will re-filter.
         store.set('activeIndex', null);
         onItemHighlighted(undefined, keyboardActiveRef.current ? 'keyboard' : 'pointer');
+      }
+
+      // Auto-close popup after selection in single mode when open state is uncontrolled
+      // Don't auto-close during autofill to avoid interfering with browser behavior
+      if (
+        selectProp === 'single' &&
+        props.open === undefined &&
+        nextValue != null &&
+        reason !== 'input-change'
+      ) {
+        setOpen(false, event, 'item-press');
       }
     },
   );

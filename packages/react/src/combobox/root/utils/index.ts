@@ -39,6 +39,60 @@ export function defaultItemFilter(item: any, query: string, itemToString?: (item
   return candidate.toLowerCase().includes(query);
 }
 
+/**
+ * Enhanced filter for single selection mode that shows all items when query is empty
+ * or matches the current selection, making it easier to browse options.
+ */
+export function singleSelectionFilter(
+  item: any,
+  query: string,
+  itemToString?: (item: any) => string,
+  selectedValue?: any,
+) {
+  if (item == null) {
+    return false;
+  }
+
+  // Show all items when query is empty
+  if (query.trim() === '') {
+    return true;
+  }
+
+  // Get the string representation of the item
+  let candidate: string;
+  if (itemToString) {
+    candidate = itemToString(item);
+  } else {
+    let value: unknown = item;
+    if (typeof item === 'object' && 'value' in (item as any)) {
+      value = (item as any).value;
+    }
+    candidate = String(value);
+  }
+
+  // Get the string representation of the selected value
+  let selectedString = '';
+  if (selectedValue != null) {
+    if (itemToString) {
+      selectedString = itemToString(selectedValue);
+    } else {
+      let value: unknown = selectedValue;
+      if (typeof selectedValue === 'object' && 'value' in (selectedValue as any)) {
+        value = (selectedValue as any).value;
+      }
+      selectedString = String(value);
+    }
+  }
+
+  // Show all items when query matches current selection
+  if (query.toLowerCase() === selectedString.toLowerCase()) {
+    return true;
+  }
+
+  // Otherwise, use standard filtering
+  return candidate.toLowerCase().includes(query.toLowerCase());
+}
+
 export function isGroupedItems(
   items: (any | ComboboxGroup)[] | undefined,
 ): items is ComboboxGroup[] {
