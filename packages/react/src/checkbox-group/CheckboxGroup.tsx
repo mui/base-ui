@@ -79,6 +79,8 @@ export const CheckboxGroup = React.forwardRef(function CheckboxGroup(
     commitValidation: fieldControlValidation.commitValidation,
     value,
     controlRef,
+    name: fieldName,
+    getValue: () => value,
   });
 
   const state: CheckboxGroup.State = React.useMemo(

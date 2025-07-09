@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { NextFloatingDelayGroup } from '@floating-ui/react';
+import { FloatingDelayGroup } from '../../floating-ui-react';
 import { TooltipProviderContext } from './TooltipProviderContext';
 
 /**
@@ -20,11 +20,13 @@ export const TooltipProvider: React.FC<TooltipProvider.Props> = function Tooltip
     [delay, closeDelay],
   );
 
+  const delayValue = React.useMemo(() => ({ open: delay, close: closeDelay }), [delay, closeDelay]);
+
   return (
     <TooltipProviderContext.Provider value={contextValue}>
-      <NextFloatingDelayGroup delay={{ open: delay, close: closeDelay }} timeoutMs={timeout}>
+      <FloatingDelayGroup delay={delayValue} timeoutMs={timeout}>
         {props.children}
-      </NextFloatingDelayGroup>
+      </FloatingDelayGroup>
     </TooltipProviderContext.Provider>
   );
 };

@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useFloatingTree } from '@floating-ui/react';
+import { useFloatingTree } from '../../floating-ui-react';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { useBaseUiId } from '../../utils/useBaseUiId';
@@ -19,7 +19,15 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
   componentProps: MenuSubmenuTrigger.Props,
   forwardedRef: React.ForwardedRef<Element>,
 ) {
-  const { render, className, label, id: idProp, ...elementProps } = componentProps;
+  const {
+    render,
+    className,
+    label,
+    id: idProp,
+    nativeButton = false,
+    ...elementProps
+  } = componentProps;
+
   const id = useBaseUiId(idProp);
 
   const {
@@ -33,7 +41,7 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
   } = useMenuRootContext();
 
   if (parent.type !== 'menu') {
-    throw new Error('Base UI: SubmenuTrigger must be placed in a nested Menu.');
+    throw new Error('Base UI: <Menu.SubmenuTrigger> must be placed in <Menu.SubmenuRoot>.');
   }
 
   const parentMenuContext = parent.context;
@@ -45,6 +53,15 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
 
   const { events: menuEvents } = useFloatingTree()!;
 
+  const itemMetadata = React.useMemo(
+    () => ({
+      type: 'submenu-trigger' as const,
+      setActive: () => setActiveIndex(item.index),
+      allowMouseEnterEnabled: parentMenuContext.allowMouseEnter,
+    }),
+    [setActiveIndex, item.index, parentMenuContext.allowMouseEnter],
+  );
+
   const { getItemProps, itemRef } = useMenuItem({
     closeOnClick: false,
     disabled,
@@ -53,6 +70,8 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
     menuEvents,
     allowMouseUpTriggerRef,
     typingRef,
+    nativeButton,
+    itemMetadata,
   });
 
   const state: MenuSubmenuTrigger.State = React.useMemo(
@@ -93,6 +112,13 @@ export namespace MenuSubmenuTrigger {
      * @ignore
      */
     id?: string;
+    /**
+     * Whether the component renders a native `<button>` element when replacing it
+     * via the `render` prop.
+     * Set to `false` if the rendered element is not a button (e.g. `<div>`).
+     * @default false
+     */
+    nativeButton?: boolean;
   }
 
   export interface State {

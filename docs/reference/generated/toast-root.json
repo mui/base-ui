@@ -3,12 +3,12 @@
   "description": "Groups all parts of an individual toast.\nRenders a `<div>` element.",
   "props": {
     "swipeDirection": {
-      "type": "'left' | 'right' | 'up' | 'down' | ('left' | 'right' | 'up' | 'down')[]",
+      "type": "'right' | 'left' | 'up' | 'down' | ('right' | 'left' | 'up' | 'down')[]",
       "default": "['down', 'right']",
       "description": "Direction(s) in which the toast can be swiped to dismiss."
     },
     "toast": {
-      "type": "Toast.Root.ToastObject",
+      "type": "Toast.Root.ToastObject<any>",
       "required": true,
       "description": "The toast to render."
     },

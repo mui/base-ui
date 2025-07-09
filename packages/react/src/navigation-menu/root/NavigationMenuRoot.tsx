@@ -1,13 +1,13 @@
 'use client';
 import * as React from 'react';
+import { isHTMLElement } from '@floating-ui/utils/dom';
 import {
   FloatingTree,
   useFloatingNodeId,
   useFloatingParentNodeId,
   type FloatingRootContext,
-} from '@floating-ui/react';
-import { activeElement, contains } from '@floating-ui/react/utils';
-import { isHTMLElement } from '@floating-ui/utils/dom';
+} from '../../floating-ui-react';
+import { activeElement, contains } from '../../floating-ui-react/utils';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import {
@@ -247,20 +247,17 @@ export namespace NavigationMenuRoot {
   export interface Props extends BaseUIComponentProps<'nav', State> {
     /**
      * A ref to imperative actions.
-     * - `unmount`: When specified, the navigation menu will not be unmounted when closed.
-     * Instead, the `unmount` function must be called to unmount the navigation menu manually.
-     * Useful when the navigation menu's animation is controlled by an external library.
      */
-    actionsRef?: React.RefObject<{ unmount: () => void }>;
+    actionsRef?: React.RefObject<Actions>;
     /**
      * Event handler called after any animations complete when the navigation menu is closed.
      */
     onOpenChangeComplete?: (open: boolean) => void;
     /**
-     * The controlled value of the navigation navigation menu item that should be currently open.
+     * The controlled value of the navigation menu item that should be currently open.
      * When non-nullish, the menu will be open. When nullish, the menu will be closed.
      *
-     * To render an uncontrolled navigation navigation menu, use the `defaultValue` prop instead.
+     * To render an uncontrolled navigation menu, use the `defaultValue` prop instead.
      * @default null
      */
     value?: any;
@@ -294,5 +291,14 @@ export namespace NavigationMenuRoot {
      * @default 'horizontal'
      */
     orientation?: 'horizontal' | 'vertical';
+  }
+
+  export interface Actions {
+    /**
+     * When specified, the navigation menu will not be unmounted when closed.
+     * Instead, the `unmount` function must be called to unmount the navigation menu manually.
+     * Useful when the navigation menu's animation is controlled by an external library.
+     */
+    unmount: () => void;
   }
 }

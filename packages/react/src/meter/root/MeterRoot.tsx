@@ -1,14 +1,10 @@
 'use client';
 import * as React from 'react';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { MeterRootContext } from './MeterRootContext';
-import { mergeProps } from '../../merge-props';
-import { BaseUIComponentProps } from '../../utils/types';
+import { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import { formatNumber } from '../../utils/formatNumber';
 import { useLatestRef } from '../../utils/useLatestRef';
-import { valueToPercent } from '../../utils/valueToPercent';
-
-const EMPTY = {};
+import { useRenderElement } from '../../utils/useRenderElement';
 
 function formatValue(
   value: number,
@@ -21,6 +17,7 @@ function formatValue(
 
   return formatNumber(value, locale, format);
 }
+
 /**
  * Groups all parts of the meter and provides the value for screen readers.
  * Renders a `<div>` element.
@@ -28,7 +25,7 @@ function formatValue(
  * Documentation: [Base UI Meter](https://base-ui.com/react/components/meter)
  */
 export const MeterRoot = React.forwardRef(function MeterRoot(
-  props: MeterRoot.Props,
+  componentProps: MeterRoot.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const {
@@ -37,67 +34,50 @@ export const MeterRoot = React.forwardRef(function MeterRoot(
     locale,
     max = 100,
     min = 0,
-    value,
+    value: valueProp,
     render,
     className,
-    ...otherProps
-  } = props;
+    ...elementProps
+  } = componentProps;
 
   const formatOptionsRef = useLatestRef(format);
 
   const [labelId, setLabelId] = React.useState<string | undefined>();
+  const formattedValue = formatValue(valueProp, locale, formatOptionsRef.current);
 
-  const percentageValue = valueToPercent(value, min, max);
+  let ariaValuetext = `${valueProp}%`;
+  if (getAriaValueText) {
+    ariaValuetext = getAriaValueText(formattedValue, valueProp);
+  } else if (format) {
+    ariaValuetext = formattedValue;
+  }
 
-  const formattedValue = formatValue(value, locale, formatOptionsRef.current);
-
-  const propGetter = React.useCallback(
-    (externalProps = {}) => {
-      let ariaValuetext = `${percentageValue}%`;
-      if (getAriaValueText) {
-        ariaValuetext = getAriaValueText(formattedValue, value);
-      } else if (format) {
-        ariaValuetext = formattedValue;
-      }
-      return mergeProps<'div'>(
-        {
-          'aria-labelledby': labelId,
-          'aria-valuemax': max,
-          'aria-valuemin': min,
-          'aria-valuenow': percentageValue / 100,
-          'aria-valuetext': ariaValuetext,
-          role: 'meter',
-        },
-        externalProps,
-      );
-    },
-    [format, formattedValue, getAriaValueText, labelId, max, min, value, percentageValue],
-  );
+  const defaultProps: HTMLProps = {
+    'aria-labelledby': labelId,
+    'aria-valuemax': max,
+    'aria-valuemin': min,
+    'aria-valuenow': valueProp,
+    'aria-valuetext': ariaValuetext,
+    role: 'meter',
+  };
 
   const contextValue: MeterRootContext = React.useMemo(
     () => ({
       formattedValue,
       max,
       min,
-      percentageValue,
       setLabelId,
-      value,
+      value: valueProp,
     }),
-    [formattedValue, max, min, percentageValue, setLabelId, value],
+    [formattedValue, max, min, setLabelId, valueProp],
   );
 
-  const { renderElement } = useComponentRenderer({
-    propGetter,
-    render: render ?? 'div',
-    state: EMPTY,
-    className,
+  const element = useRenderElement('div', componentProps, {
     ref: forwardedRef,
-    extraProps: otherProps,
+    props: [defaultProps, elementProps],
   });
 
-  return (
-    <MeterRootContext.Provider value={contextValue}>{renderElement()}</MeterRootContext.Provider>
-  );
+  return <MeterRootContext.Provider value={contextValue}>{element}</MeterRootContext.Provider>;
 });
 
 export namespace MeterRoot {
@@ -105,11 +85,15 @@ export namespace MeterRoot {
 
   export interface Props extends BaseUIComponentProps<'div', State> {
     /**
+     * A string value that provides a user-friendly name for `aria-valuenow`, the current value of the meter.
+     */
+    'aria-valuetext'?: React.AriaAttributes['aria-valuetext'];
+    /**
      * Options to format the value.
      */
     format?: Intl.NumberFormatOptions;
     /**
-     * A function that returns a string value that provides a human-readable text alternative for the current value of the meter.
+     * A function that returns a string value that provides a human-readable text alternative for `aria-valuenow`, the current value of the meter.
      * @param {string} formattedValue The formatted value
      * @param {number} value The raw value
      * @returns {string}

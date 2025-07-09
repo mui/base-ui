@@ -1,11 +1,10 @@
 'use client';
 import * as React from 'react';
 import type { BaseUIComponentProps } from '../../utils/types';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import { useRenderElement } from '../../utils/useRenderElement';
 import { useRadioRootContext } from '../root/RadioRootContext';
 import { customStyleHookMapping } from '../utils/customStyleHookMapping';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
-import { useForkRef } from '../../utils/useForkRef';
 import { type TransitionStatus, useTransitionStatus } from '../../utils/useTransitionStatus';
 
 /**
@@ -15,10 +14,10 @@ import { type TransitionStatus, useTransitionStatus } from '../../utils/useTrans
  * Documentation: [Base UI Radio](https://base-ui.com/react/components/radio)
  */
 export const RadioIndicator = React.forwardRef(function RadioIndicator(
-  props: RadioIndicator.Props,
+  componentProps: RadioIndicator.Props,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
-  const { render, className, keepMounted = false, ...otherProps } = props;
+  const { render, className, keepMounted = false, ...elementProps } = componentProps;
 
   const rootState = useRadioRootContext();
 
@@ -35,14 +34,14 @@ export const RadioIndicator = React.forwardRef(function RadioIndicator(
   );
 
   const indicatorRef = React.useRef<HTMLSpanElement | null>(null);
-  const mergedRef = useForkRef(forwardedRef, indicatorRef);
 
-  const { renderElement } = useComponentRenderer({
-    render: render ?? 'span',
-    ref: mergedRef,
-    className,
+  const shouldRender = keepMounted || rendered;
+
+  const element = useRenderElement('span', componentProps, {
+    enabled: shouldRender,
+    ref: [forwardedRef, indicatorRef],
     state,
-    extraProps: otherProps,
+    props: elementProps,
     customStyleHookMapping,
   });
 
@@ -56,12 +55,11 @@ export const RadioIndicator = React.forwardRef(function RadioIndicator(
     },
   });
 
-  const shouldRender = keepMounted || rendered;
   if (!shouldRender) {
     return null;
   }
 
-  return renderElement();
+  return element;
 });
 
 export namespace RadioIndicator {

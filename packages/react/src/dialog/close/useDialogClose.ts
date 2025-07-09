@@ -4,10 +4,10 @@ import { useButton } from '../../use-button/useButton';
 import { mergeProps } from '../../merge-props';
 import type { HTMLProps } from '../../utils/types';
 import { useEventCallback } from '../../utils/useEventCallback';
-import { DialogOpenChangeReason } from '../root/useDialogRoot';
+import type { DialogRoot } from '../root/DialogRoot';
 
 export function useDialogClose(params: useDialogClose.Parameters): useDialogClose.ReturnValue {
-  const { open, setOpen, disabled } = params;
+  const { open, setOpen, disabled, nativeButton } = params;
 
   const handleClick = useEventCallback((event: React.MouseEvent) => {
     if (open) {
@@ -17,6 +17,7 @@ export function useDialogClose(params: useDialogClose.Parameters): useDialogClos
 
   const { getButtonProps, buttonRef } = useButton({
     disabled,
+    native: nativeButton,
   });
 
   const getRootProps = (externalProps: HTMLProps) =>
@@ -44,8 +45,15 @@ export namespace useDialogClose {
     setOpen: (
       open: boolean,
       event: Event | undefined,
-      reason: DialogOpenChangeReason | undefined,
+      reason: DialogRoot.OpenChangeReason | undefined,
     ) => void;
+    /**
+     * Whether the component renders a native `<button>` element when replacing it
+     * via the `render` prop.
+     * Set to `false` if the rendered element is not a button (e.g. `<div>`).
+     * @default true
+     */
+    nativeButton: boolean;
   }
 
   export interface ReturnValue {
@@ -53,6 +61,6 @@ export namespace useDialogClose {
      * Resolver for the root element props.
      */
     getRootProps: (externalProps: React.HTMLAttributes<any>) => React.HTMLAttributes<any>;
-    ref: React.RefCallback<HTMLElement> | null;
+    ref: React.RefObject<HTMLElement | null>;
   }
 }

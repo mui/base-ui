@@ -188,7 +188,11 @@ const shikiLanguageMapping = {
  * @param paths Paths to the files to read.
  * @param preferTs Whether to prefer TS files over JS files when resolving extensionless imports.
  */
-export async function getDependencyFiles(paths: string[], preferTs: boolean): Promise<DemoFile[]> {
+export async function getDependencyFiles(
+  paths: string[],
+  preferTs: boolean,
+  visited: Set<string> = new Set(),
+): Promise<DemoFile[]> {
   const files = await Promise.all(
     paths.map(async (path) => {
       let extension = extname(path);
@@ -197,6 +201,11 @@ export async function getDependencyFiles(paths: string[], preferTs: boolean): Pr
         path = resolveExtensionlessFile(path, preferTs);
         extension = extname(path);
       }
+
+      if (visited.has(path)) {
+        return [];
+      }
+      visited.add(path);
 
       let type: string;
       if (extension === '.ts' || extension === '.tsx') {
@@ -215,7 +224,7 @@ export async function getDependencyFiles(paths: string[], preferTs: boolean): Pr
 
       const canHaveDependencies = type === 'ts' || type === 'js';
       const transitiveDependencies = canHaveDependencies
-        ? await getDependencyFiles(getLocalImports(content, dirname(path)), type === 'ts')
+        ? await getDependencyFiles(getLocalImports(content, dirname(path)), type === 'ts', visited)
         : [];
 
       return [

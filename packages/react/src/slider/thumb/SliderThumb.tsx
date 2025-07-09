@@ -8,6 +8,7 @@ import { resolveClassName } from '../../utils/resolveClassName';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useForkRef } from '../../utils/useForkRef';
+import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { visuallyHidden } from '../../utils/visuallyHidden';
 import {
   ARROW_DOWN,
@@ -117,10 +118,10 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
 
   const {
     active: activeIndex,
-    handleInputChange,
     disabled: contextDisabled,
     fieldControlValidation,
     formatOptionsRef,
+    handleInputChange,
     labelId,
     largeStep,
     locale,
@@ -145,9 +146,17 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
   const externalTabIndex = tabIndexProp ?? contextTabIndex;
 
   const direction = useDirection();
-  const { setTouched, setFocused, validationMode } = useFieldRootContext();
+  const { controlId, setControlId, setTouched, setFocused, validationMode } = useFieldRootContext();
 
   const thumbRef = React.useRef<HTMLElement>(null);
+
+  useModernLayoutEffect(() => {
+    setControlId(inputId);
+
+    return () => {
+      setControlId(undefined);
+    };
+  }, [controlId, inputId, setControlId]);
 
   const thumbMetadata = React.useMemo(
     () => ({
@@ -395,7 +404,6 @@ export namespace SliderThumb {
      * Accepts a function which returns a string value that provides a user-friendly name for the input associated with the thumb
      * @param {number} index The index of the input
      * @returns {string}
-     * @type {((index: number) => string) | null}
      */
     getAriaLabel?: ((index: number) => string) | null;
     /**
@@ -405,7 +413,6 @@ export namespace SliderThumb {
      * @param {number} value The thumb's numerical value.
      * @param {number} index The thumb's index.
      * @returns {string}
-     * @type {((formattedValue: string, value: number, index: number) => string) | null}
      */
     getAriaValueText?: ((formattedValue: string, value: number, index: number) => string) | null;
     /**

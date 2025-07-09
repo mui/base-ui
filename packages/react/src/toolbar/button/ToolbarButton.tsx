@@ -1,12 +1,11 @@
 'use client';
 import * as React from 'react';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useButton } from '../../use-button';
-import { CompositeItem } from '../../composite/item/CompositeItem';
-import type { ToolbarRoot, ToolbarItemMetadata } from '../root/ToolbarRoot';
+import type { ToolbarRoot } from '../root/ToolbarRoot';
 import { useToolbarRootContext } from '../root/ToolbarRootContext';
 import { useToolbarGroupContext } from '../group/ToolbarGroupContext';
+import { CompositeItem } from '../../composite/item/CompositeItem';
 
 /**
  * A button that can be used as-is or as a trigger for other components.
@@ -15,7 +14,7 @@ import { useToolbarGroupContext } from '../group/ToolbarGroupContext';
  * Documentation: [Base UI Toolbar](https://base-ui.com/react/components/toolbar)
  */
 export const ToolbarButton = React.forwardRef(function ToolbarButton(
-  props: ToolbarButton.Props,
+  componentProps: ToolbarButton.Props,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
   const {
@@ -23,21 +22,22 @@ export const ToolbarButton = React.forwardRef(function ToolbarButton(
     disabled: disabledProp = false,
     focusableWhenDisabled = true,
     render,
-    ...otherProps
-  } = props;
+    nativeButton = true,
+    ...elementProps
+  } = componentProps;
+
+  const itemMetadata = React.useMemo(() => ({ focusableWhenDisabled }), [focusableWhenDisabled]);
 
   const { disabled: toolbarDisabled, orientation } = useToolbarRootContext();
 
   const groupContext = useToolbarGroupContext(true);
 
-  const itemMetadata = React.useMemo(() => ({ focusableWhenDisabled }), [focusableWhenDisabled]);
-
   const disabled = toolbarDisabled || (groupContext?.disabled ?? false) || disabledProp;
 
-  const { getButtonProps } = useButton({
-    buttonRef: forwardedRef,
+  const { getButtonProps, buttonRef } = useButton({
     disabled,
     focusableWhenDisabled,
+    native: nativeButton,
   });
 
   const state: ToolbarButton.State = React.useMemo(
@@ -49,15 +49,24 @@ export const ToolbarButton = React.forwardRef(function ToolbarButton(
     [disabled, focusableWhenDisabled, orientation],
   );
 
-  const { renderElement } = useComponentRenderer({
-    propGetter: getButtonProps,
-    render: render ?? 'button',
-    state,
-    className,
-    extraProps: { ...otherProps, disabled },
-  });
-
-  return <CompositeItem<ToolbarItemMetadata> metadata={itemMetadata} render={renderElement()} />;
+  return (
+    <CompositeItem
+      tag="button"
+      render={render}
+      className={className}
+      metadata={itemMetadata}
+      state={state}
+      refs={[forwardedRef, buttonRef]}
+      props={[
+        elementProps,
+        // for integrating with Menu and Select disabled states, `disabled` is
+        // intentionally duplicated even though getButtonProps includes it already
+        // TODO: follow up after https://github.com/mui/base-ui/issues/1976#issuecomment-2916905663
+        { disabled },
+        getButtonProps,
+      ]}
+    />
+  );
 });
 
 export namespace ToolbarButton {
@@ -77,5 +86,12 @@ export namespace ToolbarButton {
      * @default true
      */
     focusableWhenDisabled?: boolean;
+    /**
+     * Whether the component renders a native `<button>` element when replacing it
+     * via the `render` prop.
+     * Set to `false` if the rendered element is not a button (e.g. `<div>`).
+     * @default true
+     */
+    nativeButton?: boolean;
   }
 }

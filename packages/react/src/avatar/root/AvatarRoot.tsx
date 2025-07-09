@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { BaseUIComponentProps } from '../../utils/types';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import { useRenderElement } from '../../utils/useRenderElement';
 import { AvatarRootContext } from './AvatarRootContext';
 import { avatarStyleHookMapping } from './styleHooks';
 
@@ -12,10 +12,10 @@ import { avatarStyleHookMapping } from './styleHooks';
  * Documentation: [Base UI Avatar](https://base-ui.com/react/components/avatar)
  */
 export const AvatarRoot = React.forwardRef(function AvatarRoot(
-  props: AvatarRoot.Props,
+  componentProps: AvatarRoot.Props,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
-  const { className, render, ...otherProps } = props;
+  const { className, render, ...elementProps } = componentProps;
 
   const [imageLoadingStatus, setImageLoadingStatus] = React.useState<ImageLoadingStatus>('idle');
 
@@ -34,18 +34,14 @@ export const AvatarRoot = React.forwardRef(function AvatarRoot(
     [imageLoadingStatus, setImageLoadingStatus],
   );
 
-  const { renderElement } = useComponentRenderer({
-    render: render ?? 'span',
+  const element = useRenderElement('span', componentProps, {
     state,
-    className,
     ref: forwardedRef,
-    extraProps: otherProps,
+    props: elementProps,
     customStyleHookMapping: avatarStyleHookMapping,
   });
 
-  return (
-    <AvatarRootContext.Provider value={contextValue}>{renderElement()}</AvatarRootContext.Provider>
-  );
+  return <AvatarRootContext.Provider value={contextValue}>{element}</AvatarRootContext.Provider>;
 });
 
 export type ImageLoadingStatus = 'idle' | 'loading' | 'loaded' | 'error';
