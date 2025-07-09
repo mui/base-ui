@@ -55,15 +55,12 @@ export default function EmojiPicker() {
     setTextValue((prev) => prev.slice(0, start) + emoji + prev.slice(end));
     setPopoverOpen(false);
 
-    // FIXME: this should not be necessary
-    requestAnimationFrame(() => {
-      const input = textInputRef.current;
-      if (input) {
-        input.focus();
-        const caretPos = start + emoji.length;
-        input.setSelectionRange(caretPos, caretPos);
-      }
-    });
+    const input = textInputRef.current;
+    if (input) {
+      input.focus();
+      const caretPos = start + emoji.length;
+      input.setSelectionRange(caretPos, caretPos);
+    }
   }
 
   return (

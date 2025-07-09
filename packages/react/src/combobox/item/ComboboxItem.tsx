@@ -146,6 +146,9 @@ export const ComboboxItem = React.memo(
       'aria-disabled': disabled || undefined,
       'aria-selected': selectable ? selected : undefined,
       tabIndex: -1,
+      onFocus() {
+        inputRef.current?.focus();
+      },
       onClick(event) {
         if (disabled || readOnly) {
           return;
@@ -181,13 +184,7 @@ export const ComboboxItem = React.memo(
           store.set('selectedIndex', selectedIndex);
         }
 
-        queueMicrotask(() => {
-          inputRef.current?.focus();
-        });
-      },
-      onPointerDown(event) {
-        // Prevent the item from stealing focus from the input.
-        event.preventDefault();
+        inputRef.current?.focus();
       },
     };
 

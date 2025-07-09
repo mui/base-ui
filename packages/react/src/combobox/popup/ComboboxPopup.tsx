@@ -22,7 +22,7 @@ export const ComboboxPopup = React.forwardRef(function ComboboxPopup(
 ) {
   const { render, className, ...elementProps } = componentProps;
 
-  const { store, popupRef } = useComboboxRootContext();
+  const { store, popupRef, inputRef } = useComboboxRootContext();
   const positioning = useComboboxPositionerContext();
   const floatingRootContext = useComboboxFloatingContext();
   const open = useSelector(store, selectors.open);
@@ -40,7 +40,15 @@ export const ComboboxPopup = React.forwardRef(function ComboboxPopup(
   const element = useRenderElement('div', componentProps, {
     state,
     ref: [forwardedRef, popupRef],
-    props: elementProps,
+    props: [
+      {
+        tabIndex: -1,
+        onFocus() {
+          inputRef.current?.focus();
+        },
+      },
+      elementProps,
+    ],
     customStyleHookMapping: popupStateMapping,
   });
 
