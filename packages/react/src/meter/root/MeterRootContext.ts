@@ -5,7 +5,6 @@ export type MeterRootContext = {
   formattedValue: string;
   max: number;
   min: number;
-  percentageValue: number;
   setLabelId: React.Dispatch<React.SetStateAction<string | undefined>>;
   value: number;
 };
