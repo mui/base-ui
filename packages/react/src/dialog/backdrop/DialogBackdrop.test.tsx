@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { expect } from 'chai';
+import { expect } from 'vitest';
 import { Dialog } from '@base-ui-components/react/dialog';
 import { createRenderer, describeConformance } from '#test-utils';
 

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { expect } from 'chai';
+import { expect } from 'vitest';
 import { createRenderer, MuiRenderResult, screen } from '@mui/internal-test-utils';
 import { spy } from 'sinon';
 import { useForkRef } from './useForkRef';

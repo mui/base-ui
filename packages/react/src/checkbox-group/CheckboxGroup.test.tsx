@@ -5,7 +5,7 @@ import { Checkbox } from '@base-ui-components/react/checkbox';
 import { Field } from '@base-ui-components/react/field';
 import { Form } from '@base-ui-components/react/form';
 import { spy } from 'sinon';
-import { expect } from 'chai';
+import { expect } from 'vitest';
 import { describeConformance, isJSDOM } from '#test-utils';
 
 describe('<CheckboxGroup />', () => {

@@ -2,7 +2,7 @@ import * as React from 'react';
 import { screen, waitFor } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { Radio } from '@base-ui-components/react/radio';
-import { expect } from 'chai';
+import { expect } from 'vitest';
 import { RadioGroup } from '@base-ui-components/react/radio-group';
 
 describe('<Radio.Indicator />', () => {

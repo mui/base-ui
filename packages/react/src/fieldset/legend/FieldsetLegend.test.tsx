@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { createRenderer, screen } from '@mui/internal-test-utils';
 import { Fieldset } from '@base-ui-components/react/fieldset';
-import { expect } from 'chai';
+import { expect } from 'vitest';
 import { describeConformance } from '../../../test/describeConformance';
 
 describe('<Fieldset.Legend />', () => {

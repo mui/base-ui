@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { expect } from 'chai';
+import { expect } from 'vitest';
 import { Toolbar } from '@base-ui-components/react/toolbar';
 import {
   DirectionProvider,

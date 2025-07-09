@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { expect } from 'chai';
+import { expect } from 'vitest';
 import { screen, act } from '@mui/internal-test-utils';
 import sinon from 'sinon';
 import { NumberField } from '@base-ui-components/react/number-field';

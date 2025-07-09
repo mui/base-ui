@@ -1,5 +1,4 @@
-import { describe, it } from 'vitest';
-import { expect } from 'chai';
+import { describe, it, expect } from 'vitest';
 import { DemoFile } from 'docs/src/blocks/Demo';
 import { packDemo } from './packDemo';
 

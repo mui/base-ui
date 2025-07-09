@@ -1,4 +1,4 @@
-import { expect } from 'chai';
+import { expect } from 'vitest';
 import { clamp } from './clamp';
 
 describe('clamp', () => {

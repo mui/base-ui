@@ -1,4 +1,4 @@
-import { expect } from 'chai';
+import { expect } from 'vitest';
 import { getNumberLocaleDetails, parseNumber } from './parse';
 
 describe('NumberField parse', () => {

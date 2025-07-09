@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { ScrollArea } from '@base-ui-components/react/scroll-area';
-import { expect } from 'chai';
+import { expect } from 'vitest';
 import { screen } from '@mui/internal-test-utils';
 import { createRenderer, isJSDOM } from '#test-utils';
 import { describeConformance } from '../../../test/describeConformance';

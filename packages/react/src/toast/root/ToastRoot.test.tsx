@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Toast } from '@base-ui-components/react/toast';
 import { act, screen, fireEvent, waitFor } from '@mui/internal-test-utils';
-import { expect } from 'chai';
+import { expect } from 'vitest';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { List, Button } from '../utils/test-utils';
 

@@ -1,4 +1,4 @@
-import { expect } from 'chai';
+import { expect } from 'vitest';
 import * as React from 'react';
 import { spy, stub } from 'sinon';
 import { act, flushMicrotasks, fireEvent, screen } from '@mui/internal-test-utils';

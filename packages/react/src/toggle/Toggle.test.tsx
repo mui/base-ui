@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { expect } from 'chai';
+import { expect } from 'vitest';
 import { spy } from 'sinon';
 import { act } from '@mui/internal-test-utils';
 import { Toggle } from '@base-ui-components/react/toggle';

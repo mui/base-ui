@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { expect } from 'chai';
+import { expect } from 'vitest';
 import { Separator } from '@base-ui-components/react/separator';
 import { createRenderer, describeConformance } from '#test-utils';
 

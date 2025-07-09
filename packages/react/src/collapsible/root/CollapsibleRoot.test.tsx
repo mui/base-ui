@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { expect } from 'chai';
+import { expect } from 'vitest';
 import { Collapsible } from '@base-ui-components/react/collapsible';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 

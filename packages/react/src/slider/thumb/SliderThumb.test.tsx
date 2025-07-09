@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { expect } from 'chai';
+import { expect } from 'vitest';
 import { stub } from 'sinon';
 import { fireEvent, screen } from '@mui/internal-test-utils';
 import { Slider } from '@base-ui-components/react/slider';

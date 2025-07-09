@@ -10,7 +10,7 @@ import { Switch } from '@base-ui-components/react/switch';
 import { Slider } from '@base-ui-components/react/slider';
 import { Field } from '@base-ui-components/react/field';
 import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
-import { expect } from 'chai';
+import { expect } from 'vitest';
 import { spy } from 'sinon';
 import { createRenderer, describeConformance } from '#test-utils';
 

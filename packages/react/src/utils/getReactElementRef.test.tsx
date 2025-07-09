@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { expect } from 'chai';
+import { expect } from 'vitest';
 import { getReactElementRef } from '@base-ui-components/react/utils';
 
 describe('getReactElementRef', () => {

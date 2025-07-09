@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Menu } from '@base-ui-components/react/menu';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { screen, waitFor } from '@mui/internal-test-utils';
-import { expect } from 'chai';
+import { expect } from 'vitest';
 
 describe('<Menu.CheckboxItemIndicator />', () => {
   beforeEach(() => {
