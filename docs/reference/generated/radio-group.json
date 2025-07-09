@@ -7,11 +7,11 @@
       "description": "Identifies the field when a form is submitted."
     },
     "defaultValue": {
-      "type": "any",
+      "type": "unknown",
       "description": "The uncontrolled value of the radio button that should be initially selected.\n\nTo render a controlled radio group, use the `value` prop instead."
     },
     "value": {
-      "type": "any",
+      "type": "unknown",
       "description": "The controlled value of the radio item that should be currently selected.\n\nTo render an uncontrolled radio group, use the `defaultValue` prop instead."
     },
     "onValueChange": {

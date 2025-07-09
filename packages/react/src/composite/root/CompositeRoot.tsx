@@ -8,16 +8,22 @@ import { useRenderElement } from '../../utils/useRenderElement';
 import type { BaseUIComponentProps } from '../../utils/types';
 import type { Dimensions, ModifierKey } from '../composite';
 import { useDirection } from '../../direction-provider/DirectionContext';
-
-const COMPOSITE_ROOT_STATE = {};
+import { EMPTY_ARRAY, EMPTY_OBJECT } from '../../utils/constants';
+import { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 
 /**
  * @internal
  */
-export function CompositeRoot<Metadata extends {}>(componentProps: CompositeRoot.Props<Metadata>) {
+export function CompositeRoot<Metadata extends {}, State extends Record<string, any>>(
+  componentProps: CompositeRoot.Props<Metadata, State>,
+) {
   const {
     render,
     className,
+    refs = EMPTY_ARRAY,
+    props = EMPTY_ARRAY,
+    state = EMPTY_OBJECT as State,
+    customStyleHookMapping,
     highlightedIndex: highlightedIndexProp,
     onHighlightedIndexChange: onHighlightedIndexChangeProp,
     orientation,
@@ -38,7 +44,7 @@ export function CompositeRoot<Metadata extends {}>(componentProps: CompositeRoot
   const direction = useDirection();
 
   const {
-    props,
+    props: defaultProps,
     highlightedIndex,
     onHighlightedIndexChange,
     elementsRef,
@@ -67,8 +73,10 @@ export function CompositeRoot<Metadata extends {}>(componentProps: CompositeRoot
   );
 
   const element = useRenderElement('div', componentProps, {
-    state: COMPOSITE_ROOT_STATE,
-    props: [props, elementProps],
+    state,
+    ref: refs,
+    props: [defaultProps, ...props, elementProps],
+    customStyleHookMapping,
   });
 
   const contextValue: CompositeRootContext = React.useMemo(
@@ -86,9 +94,13 @@ export function CompositeRoot<Metadata extends {}>(componentProps: CompositeRoot
 }
 
 export namespace CompositeRoot {
-  export interface State {}
-
-  export interface Props<Metadata> extends BaseUIComponentProps<'div', State> {
+  export interface Props<Metadata, State extends Record<string, any>>
+    extends Pick<BaseUIComponentProps<'div', State>, 'render' | 'className' | 'children'> {
+    props?: Array<Record<string, any> | (() => Record<string, any>)>;
+    state?: State;
+    customStyleHookMapping?: CustomStyleHookMapping<State>;
+    refs?: React.Ref<HTMLElement | null>[];
+    tag?: keyof React.JSX.IntrinsicElements;
     orientation?: 'horizontal' | 'vertical' | 'both';
     cols?: number;
     loop?: boolean;
