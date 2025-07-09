@@ -77,14 +77,14 @@
       "default": "true",
       "description": "Whether the combobox popup should open when the input is clicked."
     },
-    "select": {
-      "type": "'single' | 'multiple'",
-      "default": "'none'",
-      "description": "How the combobox should remember the selected value.\n- `single`: Remembers the last selected value in state.\n- `multiple`: Remember all selected values in state.\n- `none`: Does not remember the selected value in state."
-    },
     "selectedValue": {
       "type": "any[] | any",
       "description": "The selected value of the combobox."
+    },
+    "selectionMode": {
+      "type": "'single' | 'multiple'",
+      "default": "'none'",
+      "description": "How the combobox should remember the selected value.\n- `single`: Remembers the last selected value in state.\n- `multiple`: Remember all selected values in state.\n- `none`: Does not remember the selected value in state."
     },
     "disabled": {
       "type": "boolean",

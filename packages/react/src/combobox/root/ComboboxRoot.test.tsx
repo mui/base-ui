@@ -37,7 +37,7 @@ describe('<Combobox.Root />', () => {
 
   it('should handle browser autofill', async () => {
     const { container } = await render(
-      <Combobox.Root name="combobox" defaultOpen select="single">
+      <Combobox.Root name="combobox" defaultOpen selectionMode="single">
         <Combobox.Input data-testid="input" />
         <Combobox.Portal>
           <Combobox.Positioner>
@@ -381,7 +381,7 @@ describe('<Combobox.Root />', () => {
       const handleValueChange = spy();
 
       const { user } = await render(
-        <Combobox.Root select="multiple" onSelectedValueChange={handleValueChange}>
+        <Combobox.Root selectionMode="multiple" onSelectedValueChange={handleValueChange}>
           <Combobox.Input data-testid="input" />
           <Combobox.List>
             <Combobox.Item value="a">a</Combobox.Item>
@@ -406,7 +406,7 @@ describe('<Combobox.Root />', () => {
 
     it('should create multiple hidden inputs for form submission', async () => {
       const { container } = await render(
-        <Combobox.Root select="multiple" selectedValue={['a', 'b']} name="languages">
+        <Combobox.Root selectionMode="multiple" selectedValue={['a', 'b']} name="languages">
           <Combobox.Input />
           <Combobox.Portal>
             <Combobox.Positioner>
@@ -841,7 +841,7 @@ describe('<Combobox.Root />', () => {
   describe('multiple selection with disabled state', () => {
     it('should handle disabled state with chips', async () => {
       const { user } = await render(
-        <Combobox.Root select="multiple" disabled defaultSelectedValue={['a', 'b']}>
+        <Combobox.Root selectionMode="multiple" disabled defaultSelectedValue={['a', 'b']}>
           <Combobox.Input data-testid="input" />
           <Combobox.Chips>
             <Combobox.Chip data-testid="chip-a">
@@ -877,7 +877,7 @@ describe('<Combobox.Root />', () => {
 
     it('should handle readOnly state with chips', async () => {
       const { user } = await render(
-        <Combobox.Root select="multiple" readOnly defaultSelectedValue={['a', 'b']}>
+        <Combobox.Root selectionMode="multiple" readOnly defaultSelectedValue={['a', 'b']}>
           <Combobox.Input data-testid="input" />
           <Combobox.Chips>
             <Combobox.Chip data-testid="chip-a">
@@ -918,7 +918,7 @@ describe('<Combobox.Root />', () => {
         const items = ['apple', 'banana', 'cherry'];
 
         const { user } = await render(
-          <Combobox.Root select="single" items={items}>
+          <Combobox.Root selectionMode="single" items={items}>
             <Combobox.Input data-testid="input" />
             <Combobox.Trigger data-testid="trigger">Open</Combobox.Trigger>
             <Combobox.Portal>
@@ -954,7 +954,7 @@ describe('<Combobox.Root />', () => {
         const items = ['apple', 'banana', 'cherry'];
 
         const { user } = await render(
-          <Combobox.Root select="single" items={items} open>
+          <Combobox.Root selectionMode="single" items={items} open>
             <Combobox.Input data-testid="input" />
             <Combobox.Trigger data-testid="trigger">Open</Combobox.Trigger>
             <Combobox.Portal>
@@ -981,7 +981,7 @@ describe('<Combobox.Root />', () => {
         const items = ['apple', 'banana', 'cherry'];
 
         await render(
-          <Combobox.Root select="single" items={items} defaultOpen>
+          <Combobox.Root selectionMode="single" items={items} defaultOpen>
             <Combobox.Input data-testid="input" />
             <Combobox.Portal>
               <Combobox.Positioner>
@@ -1008,7 +1008,7 @@ describe('<Combobox.Root />', () => {
         const items = ['apple', 'banana', 'cherry'];
 
         const { user } = await render(
-          <Combobox.Root select="single" items={items} defaultSelectedValue="apple">
+          <Combobox.Root selectionMode="single" items={items} defaultSelectedValue="apple">
             <Combobox.Input data-testid="input" />
             <Combobox.Trigger data-testid="trigger">Open</Combobox.Trigger>
             <Combobox.Portal>
@@ -1046,7 +1046,7 @@ describe('<Combobox.Root />', () => {
         const items = ['apple', 'banana', 'cherry'];
 
         const { user } = await render(
-          <Combobox.Root select="single" items={items} defaultSelectedValue="apple">
+          <Combobox.Root selectionMode="single" items={items} defaultSelectedValue="apple">
             <Combobox.Input data-testid="input" />
             <Combobox.Trigger data-testid="trigger">Open</Combobox.Trigger>
             <Combobox.Portal>
@@ -1087,7 +1087,7 @@ describe('<Combobox.Root />', () => {
         const items = ['apple', 'banana', 'cherry'];
 
         const { container } = await render(
-          <Combobox.Root select="single" items={items} name="test" defaultOpen>
+          <Combobox.Root selectionMode="single" items={items} name="test" defaultOpen>
             <Combobox.Input data-testid="input" />
             <Combobox.Portal>
               <Combobox.Positioner>
@@ -1130,7 +1130,7 @@ describe('<Combobox.Root />', () => {
           items={items}
           itemToString={(item) => item.country}
           itemToValue={(item) => item.code}
-          select="single"
+          selectionMode="single"
           defaultOpen
         >
           <Combobox.Input />
@@ -1170,7 +1170,7 @@ describe('<Combobox.Root />', () => {
           items={items}
           itemToString={(item) => item.country}
           itemToValue={(item) => item.code}
-          select="single"
+          selectionMode="single"
           defaultSelectedValue={items[0]}
         >
           <Combobox.Input />
@@ -1201,7 +1201,7 @@ describe('<Combobox.Root />', () => {
           items={items}
           itemToString={(item) => item.country}
           itemToValue={(item) => item.code}
-          select="multiple"
+          selectionMode="multiple"
           defaultSelectedValue={[items[0], items[1]]}
         >
           <Combobox.Input />

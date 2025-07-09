@@ -62,7 +62,7 @@ export function ComboboxRoot(props: ComboboxRoot.Props): React.JSX.Element {
     onSelectedValueChange,
     defaultInputValue = '',
     inputValue: inputValueProp,
-    select: selectProp = 'none',
+    selectionMode = 'none',
     onItemHighlighted: onItemHighlightedProp,
     name: nameProp,
     disabled: disabledProp = false,
@@ -92,7 +92,7 @@ export function ComboboxRoot(props: ComboboxRoot.Props): React.JSX.Element {
   const id = useBaseUiId(idProp);
   const disabled = fieldDisabled || disabledProp;
   const name = fieldName ?? nameProp;
-  const multiple = selectProp === 'multiple';
+  const multiple = selectionMode === 'multiple';
 
   useModernLayoutEffect(() => {
     setControlId(id);
@@ -114,12 +114,12 @@ export function ComboboxRoot(props: ComboboxRoot.Props): React.JSX.Element {
     if (filterProp) {
       return filterProp;
     }
-    if (selectProp === 'single') {
+    if (selectionMode === 'single') {
       return (item: any, query: string, itemToStringArg?: (item: any) => string) =>
         singleSelectionFilter(item, query, itemToStringArg, selectedValue);
     }
     return defaultItemFilter;
-  }, [filterProp, selectProp, selectedValue]);
+  }, [filterProp, selectionMode, selectedValue]);
 
   const [inputValue, setInputValueUnwrapped] = useControlled({
     controlled: inputValueProp,
@@ -229,7 +229,7 @@ export function ComboboxRoot(props: ComboboxRoot.Props): React.JSX.Element {
     setDirty(nextValue !== validityData.initialValue);
   });
 
-  const formValue = selectProp === 'none' ? inputValue : selectedValue;
+  const formValue = selectionMode === 'none' ? inputValue : selectedValue;
 
   useField({
     id,
@@ -297,7 +297,7 @@ export function ComboboxRoot(props: ComboboxRoot.Props): React.JSX.Element {
 
     // Reset input value to selected value when popup closes without selection in single mode
     // This happens after the closing animation completes to avoid flicker
-    if (selectProp === 'single' && props.inputValue === undefined) {
+    if (selectionMode === 'single' && props.inputValue === undefined) {
       const stringVal = stringifyItem(selectedValue, itemToString);
       if (inputRef.current && inputRef.current.value !== stringVal) {
         setInputValue(stringVal, undefined, 'item-press');
@@ -321,13 +321,13 @@ export function ComboboxRoot(props: ComboboxRoot.Props): React.JSX.Element {
       onSelectedValueChange?.(nextValue, event, reason);
       setSelectedValueUnwrapped(nextValue);
 
-      if (selectProp === 'none' && !multiple && props.inputValue === undefined) {
+      if (selectionMode === 'none' && !multiple && props.inputValue === undefined) {
         const stringVal = stringifyItem(nextValue, itemToString);
         setInputValue(stringVal, undefined, undefined);
       }
 
       // If input value is uncontrolled, keep it in sync for single selection mode
-      if (selectProp === 'single' && props.inputValue === undefined) {
+      if (selectionMode === 'single' && props.inputValue === undefined) {
         const stringVal = stringifyItem(nextValue, itemToString);
         setInputValue(stringVal, undefined, undefined);
       }
@@ -344,7 +344,7 @@ export function ComboboxRoot(props: ComboboxRoot.Props): React.JSX.Element {
       // Auto-close popup after selection in single mode when open state is uncontrolled
       // Don't auto-close during autofill to avoid interfering with browser behavior
       if (
-        selectProp === 'single' &&
+        selectionMode === 'single' &&
         props.open === undefined &&
         nextValue != null &&
         reason !== 'input-change'
@@ -502,7 +502,7 @@ export function ComboboxRoot(props: ComboboxRoot.Props): React.JSX.Element {
     virtual: true,
     loop: true,
     allowEscape: true,
-    focusItemOnOpen: selectProp !== 'none' && selectedIndex !== null && hasActualSelections,
+    focusItemOnOpen: selectionMode !== 'none' && selectedIndex !== null && hasActualSelections,
     cols,
     orientation: cols > 1 ? 'horizontal' : undefined,
     onNavigate(nextActiveIndex) {
@@ -570,7 +570,7 @@ export function ComboboxRoot(props: ComboboxRoot.Props): React.JSX.Element {
 
   const contextValue: ComboboxRootContext = React.useMemo(
     () => ({
-      select: selectProp,
+      selectionMode,
       mounted,
       listRef,
       popupRef,
@@ -597,7 +597,7 @@ export function ComboboxRoot(props: ComboboxRoot.Props): React.JSX.Element {
       isGrouped,
     }),
     [
-      selectProp,
+      selectionMode,
       mounted,
       store,
       getItemProps,
@@ -782,7 +782,7 @@ export namespace ComboboxRoot {
      * @type 'single' | 'multiple' | 'none'
      * @default 'none'
      */
-    select?: 'single' | 'multiple' | 'none';
+    selectionMode?: 'single' | 'multiple' | 'none';
     /**
      * A ref to imperative actions.
      * - `unmount`: When specified, the combobox will not be unmounted when closed.
@@ -842,7 +842,7 @@ export namespace ComboboxRoot {
     defaultSelectedValue?: any;
   }
 
-  export interface SingleProps extends Omit<Props, 'select'> {
+  export interface SingleProps extends Omit<Props, 'selectionMode'> {
     /**
      * How the combobox should remember the selected value.
      * - `single`: Remembers the last selected value in state.
@@ -851,13 +851,13 @@ export namespace ComboboxRoot {
      * @type 'single' | 'multiple' | 'none'
      * @default 'none'
      */
-    select?: 'single';
+    selectionMode?: 'single';
   }
 
   export interface MultipleProps
     extends Omit<
       Props,
-      'select' | 'selectedValue' | 'onSelectedValueChange' | 'defaultSelectedValue'
+      'selectionMode' | 'selectedValue' | 'onSelectedValueChange' | 'defaultSelectedValue'
     > {
     /**
      * How the combobox should remember the selected value.
@@ -867,7 +867,7 @@ export namespace ComboboxRoot {
      * @type 'single' | 'multiple' | 'none'
      * @default 'none'
      */
-    select?: 'multiple';
+    selectionMode?: 'multiple';
     /**
      * The selected values of the combobox.
      */

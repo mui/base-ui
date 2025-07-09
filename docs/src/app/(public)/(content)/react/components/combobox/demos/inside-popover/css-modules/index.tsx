@@ -34,7 +34,7 @@ export default function ExamplePopoverCombobox() {
           <Popover.Popup className={styles.Popup} aria-label="Select country">
             <Combobox.Root
               items={countries}
-              select="single"
+              selectionMode="single"
               selectedValue={selectedValue}
               onSelectedValueChange={(nextValue) => {
                 setSelectedValue(nextValue);

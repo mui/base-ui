@@ -31,7 +31,7 @@ export const ComboboxClear = React.forwardRef(function ComboboxClear(
     setSelectedValue,
     inputRef,
     store,
-    select,
+    selectionMode,
     disabled: comboboxDisabled,
     readOnly,
   } = useComboboxRootContext();
@@ -40,7 +40,7 @@ export const ComboboxClear = React.forwardRef(function ComboboxClear(
   const open = useSelector(store, selectors.open);
   const selectedValue = useSelector(store, selectors.selectedValue);
 
-  const shouldRender = select === 'single' ? Boolean(selectedValue) : false;
+  const shouldRender = selectionMode === 'single' ? Boolean(selectedValue) : false;
 
   const disabled = fieldDisabled || comboboxDisabled || disabledProp;
 

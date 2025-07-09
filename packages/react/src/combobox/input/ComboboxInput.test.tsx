@@ -172,7 +172,7 @@ describe('<Combobox.Input />', () => {
 
     it('should handle multiple selection with chips when disabled', async () => {
       const { user } = await render(
-        <Combobox.Root select="multiple" disabled defaultSelectedValue={['apple']}>
+        <Combobox.Root selectionMode="multiple" disabled defaultSelectedValue={['apple']}>
           <Combobox.Input data-testid="input" />
           <Combobox.Chips>
             <Combobox.Chip data-testid="chip">
@@ -207,7 +207,7 @@ describe('<Combobox.Input />', () => {
 
     it('should handle multiple selection with chips when readOnly', async () => {
       const { user } = await render(
-        <Combobox.Root select="multiple" readOnly defaultSelectedValue={['apple']}>
+        <Combobox.Root selectionMode="multiple" readOnly defaultSelectedValue={['apple']}>
           <Combobox.Input data-testid="input" />
           <Combobox.Chips>
             <Combobox.Chip data-testid="chip">

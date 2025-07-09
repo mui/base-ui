@@ -5,7 +5,7 @@ import { options } from './data';
 
 export default function OptionOnlyCombobox() {
   return (
-    <Combobox.Root items={options} select="single">
+    <Combobox.Root items={options} selectionMode="single">
       <label className={styles.Label}>
         Choose a fruit
         <Combobox.Input placeholder="e.g. Apple" className={styles.Input} />

@@ -8,7 +8,7 @@ import type { BaseOpenChangeReason } from '../../utils/translateOpenChangeReason
 export type ValueChangeReason = 'item-press' | 'input-change' | 'input-clear';
 
 export interface ComboboxRootContext {
-  select: 'single' | 'multiple' | 'none';
+  selectionMode: 'single' | 'multiple' | 'none';
   setOpen: (
     open: boolean,
     event: Event | undefined,
