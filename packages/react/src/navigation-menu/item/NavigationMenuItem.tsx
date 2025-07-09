@@ -57,9 +57,8 @@ export namespace NavigationMenuItem {
      */
     value?: any;
     /**
-     * Whether the navigation menu popup will open when the trigger is hovered
-     * in addition to clicking the trigger.
-     * @default false
+     * Whether the navigation menu popup should open when the trigger is hovered.
+     * @default true
      */
     openOnHover?: boolean;
   }

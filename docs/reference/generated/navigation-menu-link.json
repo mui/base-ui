@@ -5,7 +5,7 @@
     "closeOnClick": {
       "type": "boolean",
       "default": "true",
-      "description": "Whether clicking the link also closes the navigation menu popup."
+      "description": "Whether the navigation menu popup should close when the link is clicked."
     },
     "className": {
       "type": "string | ((state: NavigationMenu.Link.State) => string)",

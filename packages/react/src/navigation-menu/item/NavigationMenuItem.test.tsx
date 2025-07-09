@@ -15,7 +15,7 @@ describe('<NavigationMenu.Item />', () => {
   }));
 
   describe('prop: openOnHover', () => {
-    it('should open the navigation menu popup when hovering the trigger by default', async () => {
+    it('opens the popup when hovering the trigger by default (true)', async () => {
       const { user } = await render(
         <NavigationMenu.Root>
           <NavigationMenu.List>
@@ -44,7 +44,7 @@ describe('<NavigationMenu.Item />', () => {
       });
     });
 
-    it('should not open the navigation menu popup when hovering the trigger if openOnHover is false', async () => {
+    it('does not open the popup when hovering the trigger if false', async () => {
       const { user } = await render(
         <NavigationMenu.Root>
           <NavigationMenu.List>

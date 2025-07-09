@@ -64,7 +64,7 @@ export namespace NavigationMenuLink {
 
   export interface Props extends BaseUIComponentProps<'a', State> {
     /**
-     * Whether clicking the link also closes the navigation menu popup.
+     * Whether the navigation menu popup should close when the link is clicked.
      * @default true
      */
     closeOnClick?: boolean;

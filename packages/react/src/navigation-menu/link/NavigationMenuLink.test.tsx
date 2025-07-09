@@ -19,7 +19,7 @@ describe('<NavigationMenu.Link />', () => {
   }));
 
   describe('prop: closeOnClick', () => {
-    it('should close the navigation menu popup when clicking the link by default', async () => {
+    it('closes the popup when clicking the link by default (true)', async () => {
       const { user } = await render(
         <NavigationMenu.Root defaultValue="1">
           <NavigationMenu.List>
@@ -47,7 +47,7 @@ describe('<NavigationMenu.Link />', () => {
       });
     });
 
-    it('should not close the navigation menu popup when closeOnClick is false', async () => {
+    it('does not close the popup when false', async () => {
       const { user } = await render(
         <NavigationMenu.Root defaultValue="1">
           <NavigationMenu.List>
