@@ -397,6 +397,38 @@ export function ComboboxRoot(props: ComboboxRoot.Props): React.JSX.Element {
     registerSelectedItem(undefined);
   }, [selectedValue, registerSelectedItem]);
 
+  const handleEnterSelection = useEventCallback((event: Event) => {
+    if (activeIndex === null) {
+      return;
+    }
+
+    const highlightedItemElement = listRef.current[activeIndex];
+
+    if (highlightedItemElement) {
+      highlightedItemElement.click();
+    } else {
+      // Fallback to the original behavior if we can't find the element
+      const nextSelectedValue = valuesRef.current[activeIndex];
+
+      if (multiple) {
+        const isSelected =
+          Array.isArray(selectedValue) && selectedValue.includes(nextSelectedValue);
+
+        let nextValue = [];
+        if (isSelected) {
+          nextValue = selectedValue.filter((v) => v !== nextSelectedValue);
+        } else {
+          nextValue = [...selectedValue, nextSelectedValue];
+        }
+
+        setSelectedValue(nextValue, event, 'item-press');
+      } else {
+        setSelectedValue(nextSelectedValue, event, 'item-press');
+        setOpen(false, event, 'item-press');
+      }
+    }
+  });
+
   const floatingRootContext = useFloatingRootContext({
     open: inline ? true : open,
     onOpenChange(nextOpen, event, reason) {
@@ -548,6 +580,7 @@ export function ComboboxRoot(props: ComboboxRoot.Props): React.JSX.Element {
       setInputValue,
       setSelectedValue,
       selectedValue,
+      handleEnterSelection,
       name,
       disabled,
       readOnly,
@@ -567,6 +600,7 @@ export function ComboboxRoot(props: ComboboxRoot.Props): React.JSX.Element {
       setInputValue,
       selectedValue,
       setSelectedValue,
+      handleEnterSelection,
       name,
       disabled,
       readOnly,

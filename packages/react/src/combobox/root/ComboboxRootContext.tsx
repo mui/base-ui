@@ -37,6 +37,7 @@ export interface ComboboxRootContext {
   valuesRef: React.RefObject<Array<any>>;
   registerSelectedItem: (index: number) => void;
   onItemHighlighted: (value: any | undefined, type: 'keyboard' | 'pointer') => void;
+  handleEnterSelection: (event: Event) => void;
   name: string | undefined;
   disabled: boolean;
   readOnly: boolean;

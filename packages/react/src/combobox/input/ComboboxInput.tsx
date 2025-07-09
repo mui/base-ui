@@ -12,6 +12,7 @@ import { fieldValidityMapping } from '../../field/utils/constants';
 import { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 import { useComboboxChipsContext } from '../chips/ComboboxChipsContext';
 import type { FieldRoot } from '../../field/root/FieldRoot';
+import { stopEvent } from '../../floating-ui-react/utils';
 
 const customStyleHookMapping: CustomStyleHookMapping<ComboboxInput.State> = {
   ...triggerOpenStateMapping,
@@ -41,17 +42,15 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
   const {
     store,
     setSelectedValue,
-    valuesRef,
     setOpen,
     keyboardActiveRef,
     onItemHighlighted,
-    select,
     disabled: comboboxDisabled,
     readOnly,
     fieldControlValidation,
     inputRef,
     setInputValue,
-    listRef,
+    handleEnterSelection,
   } = useComboboxRootContext();
   const comboboxChipsContext = useComboboxChipsContext();
 
@@ -62,7 +61,6 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
   const inputValue = useSelector(store, selectors.inputValue);
 
   const disabled = fieldDisabled || comboboxDisabled || disabledProp;
-  const multiple = select === 'multiple';
 
   const setTriggerElement = useEventCallback((element) => {
     store.set('triggerElement', element);
@@ -220,33 +218,8 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
           }
 
           if (event.key === 'Enter') {
-            event.preventDefault();
-
-            const highlightedItemElement = listRef.current[activeIndex];
-
-            if (highlightedItemElement) {
-              highlightedItemElement.click();
-            } else {
-              // Fallback to the original behavior if we can't find the element
-              const nextSelectedValue = valuesRef.current[activeIndex];
-
-              if (multiple) {
-                const isSelected =
-                  Array.isArray(nextSelectedValue) && selectedValue.includes(nextSelectedValue);
-
-                let nextValue = [];
-                if (isSelected) {
-                  nextValue = nextSelectedValue.filter((v) => v !== selectedValue);
-                } else {
-                  nextValue = [...selectedValue, nextSelectedValue];
-                }
-
-                setSelectedValue(nextValue, event.nativeEvent, 'item-press');
-              } else {
-                setSelectedValue(selectedValue, event.nativeEvent, 'item-press');
-                setOpen(false, event.nativeEvent, 'item-press');
-              }
-            }
+            stopEvent(event);
+            handleEnterSelection(event.nativeEvent);
           }
         },
         onPointerMove() {

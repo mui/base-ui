@@ -9,6 +9,7 @@ import { useComboboxPositionerContext } from '../positioner/ComboboxPositionerCo
 import { useSelector } from '../../utils/store';
 import { selectors } from '../store';
 import { ComboboxCollection } from '../collection/ComboboxCollection';
+import { stopEvent } from '../../floating-ui-react/utils';
 
 /**
  * The container for the combobox items.
@@ -22,7 +23,7 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
 ) {
   const { render, className, children, ...elementProps } = componentProps;
 
-  const { store, select, keyboardActiveRef, cols } = useComboboxRootContext();
+  const { store, select, keyboardActiveRef, cols, handleEnterSelection } = useComboboxRootContext();
   const floatingRootContext = useComboboxFloatingContext();
 
   const multiple = select === 'multiple';
@@ -36,6 +37,13 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
 
   const setListElement = useEventCallback((element) => {
     store.set('listElement', element);
+  });
+
+  const handleKeyDown = useEventCallback((event: React.KeyboardEvent<HTMLDivElement>) => {
+    if (event.key === 'Enter') {
+      stopEvent(event);
+      handleEnterSelection(event.nativeEvent);
+    }
   });
 
   useModernLayoutEffect(() => {
@@ -68,6 +76,7 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
         id: floatingRootContext.floatingId,
         role: cols > 1 ? 'grid' : 'listbox',
         'aria-multiselectable': multiple ? 'true' : undefined,
+        onKeyDown: handleKeyDown,
         onKeyDownCapture() {
           keyboardActiveRef.current = true;
         },
