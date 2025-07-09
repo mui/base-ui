@@ -2,10 +2,10 @@
   "name": "DialogBackdrop",
   "description": "An overlay displayed beneath the popup.\nRenders a `<div>` element.",
   "props": {
-    "renderMode": {
-      "type": "'root' | 'leaf' | 'always'",
-      "default": "'root'",
-      "description": "How to render the backdrop when dialogs are nested in the React tree."
+    "forceRender": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Whether the backdrop should be rendered regardless of nesting."
     },
     "className": {
       "type": "string | ((state: Dialog.Backdrop.State) => string)",
