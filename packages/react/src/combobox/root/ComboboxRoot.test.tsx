@@ -911,4 +911,115 @@ describe('<Combobox.Root />', () => {
       expect(screen.getByTestId('chip-a')).not.to.equal(null);
     });
   });
+
+  describe('prop: itemToString', () => {
+    const items = [
+      { country: 'United States', code: 'US' },
+      { country: 'Canada', code: 'CA' },
+      { country: 'Australia', code: 'AU' },
+    ];
+
+    it('uses itemToString for input value synchronization', async () => {
+      const { user } = await render(
+        <Combobox.Root
+          items={items}
+          itemToString={(item) => item.country}
+          itemToValue={(item) => item.code}
+          select="single"
+          defaultOpen
+        >
+          <Combobox.Input />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  {items.map((item) => (
+                    <Combobox.Item key={item.code} value={item}>
+                      {item.country}
+                    </Combobox.Item>
+                  ))}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByRole('combobox');
+      await user.click(screen.getByText('Canada'));
+      expect(input).to.have.value('Canada');
+    });
+  });
+
+  describe('prop: itemToValue', () => {
+    const items = [
+      { country: 'United States', code: 'US' },
+      { country: 'Canada', code: 'CA' },
+      { country: 'Australia', code: 'AU' },
+    ];
+
+    it('uses itemToValue for form submission', async () => {
+      const { container } = await render(
+        <Combobox.Root
+          name="country"
+          items={items}
+          itemToString={(item) => item.country}
+          itemToValue={(item) => item.code}
+          select="single"
+          defaultSelectedValue={items[0]}
+        >
+          <Combobox.Input />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  {items.map((item) => (
+                    <Combobox.Item key={item.code} value={item}>
+                      {item.country}
+                    </Combobox.Item>
+                  ))}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const hiddenInput = container.querySelector('input[name="country"]');
+      expect(hiddenInput).to.have.value('US');
+    });
+
+    it('uses itemToValue for multiple selection form submission', async () => {
+      const { container } = await render(
+        <Combobox.Root
+          name="countries"
+          items={items}
+          itemToString={(item) => item.country}
+          itemToValue={(item) => item.code}
+          select="multiple"
+          defaultSelectedValue={[items[0], items[1]]}
+        >
+          <Combobox.Input />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  {items.map((item) => (
+                    <Combobox.Item key={item.code} value={item}>
+                      {item.country}
+                    </Combobox.Item>
+                  ))}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const hiddenInputs = container.querySelectorAll('input[name="countries"]');
+      expect(hiddenInputs).to.have.length(2);
+      expect(hiddenInputs[0]).to.have.value('US');
+      expect(hiddenInputs[1]).to.have.value('CA');
+    });
+  });
 });

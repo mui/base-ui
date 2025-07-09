@@ -1,36 +1,47 @@
-export type ComboboxGroup<Item> = {
+import { serializeValue } from '../../../utils/serializeValue';
+
+export interface ComboboxGroup {
   /**
    * A label or value that identifies this group when required by the consumer.
    * When `Item` is an object with a `value` field, this should typically match that type;
    * however, for simple string items it can be any value.
    */
   value: unknown;
-  items: Item[];
-};
+  items: any[];
+}
 
 /**
  * The default filtering behaviour matches the stringified value of the item against the query.
  *
+ * Uses the provided `itemToString` function if available, otherwise falls back to:
  * • When `item` is an object with a `value` property, that property is used.
  * • When `item` is a primitive (e.g. `string`), it is used directly.
  */
-export function defaultItemFilter<Item>(item: Item, query: string) {
+export function defaultItemFilter(item: any, query: string, itemToString?: (item: any) => string) {
   if (item == null) {
     return false;
   }
 
-  let candidate: unknown = item;
+  let candidate: string;
 
-  if (typeof item === 'object' && 'value' in (item as any)) {
-    candidate = (item as any).value;
+  if (itemToString) {
+    candidate = itemToString(item);
+  } else {
+    let value: unknown = item;
+
+    if (typeof item === 'object' && 'value' in (item as any)) {
+      value = (item as any).value;
+    }
+
+    candidate = String(value);
   }
 
-  return String(candidate).toLowerCase().includes(query);
+  return candidate.toLowerCase().includes(query);
 }
 
-export function isGroupedItems<Item>(
-  items: (Item | ComboboxGroup<Item>)[] | undefined,
-): items is ComboboxGroup<Item>[] {
+export function isGroupedItems(
+  items: (any | ComboboxGroup)[] | undefined,
+): items is ComboboxGroup[] {
   return (
     items != null &&
     items.length > 0 &&
@@ -39,16 +50,17 @@ export function isGroupedItems<Item>(
   );
 }
 
-export function defaultGroupFilter<Item>(
-  group: ComboboxGroup<Item>,
+export function defaultGroupFilter(
+  group: ComboboxGroup,
   query: string,
-  itemFilter: (item: Item, query: string) => boolean,
-): ComboboxGroup<Item> | null {
+  itemFilter: (item: any, query: string, itemToString?: (item: any) => string) => boolean,
+  itemToString?: (item: any) => string,
+): ComboboxGroup | null {
   if (query.trim() === '') {
     return group;
   }
 
-  const filteredItems = group.items.filter((item) => itemFilter(item, query));
+  const filteredItems = group.items.filter((item) => itemFilter(item, query, itemToString));
 
   if (filteredItems.length === 0) {
     return null;
@@ -60,9 +72,16 @@ export function defaultGroupFilter<Item>(
   };
 }
 
-export function getFormValue(value: any) {
-  if (value && typeof value === 'object') {
-    return value.value ?? String(value);
+export function getFormValue(value: any, itemToValue?: (item: any) => string) {
+  if (itemToValue && value != null) {
+    return itemToValue(value) ?? '';
   }
-  return String(value);
+  return serializeValue(value);
+}
+
+export function getItemString(item: any, itemToString?: (item: any) => string) {
+  if (itemToString && item != null) {
+    return itemToString(item) ?? '';
+  }
+  return serializeValue(item);
 }
