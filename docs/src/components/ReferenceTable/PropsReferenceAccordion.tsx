@@ -83,14 +83,6 @@ export async function PropsReferenceAccordion({ data, name: partName, ...props }
           useMDXComponents: () => ({ code: TableCode }),
         });
 
-        const ShortPropTypeWithDefault = await createMdxComponent(
-          `\`${prop.required ? '—' : `(\`default\`: ${prop.default}\` )`}`,
-          {
-            rehypePlugins: rehypeSyntaxHighlighting,
-            useMDXComponents: () => ({ code: TableCode }),
-          },
-        );
-
         const PropDescription = prop.description
           ? await createMdxComponent(prop.description, {
               rehypePlugins: rehypeSyntaxHighlighting,
@@ -120,8 +112,8 @@ export async function PropsReferenceAccordion({ data, name: partName, ...props }
                 <span className="flex items-baseline gap-2 text-sm leading-none max-xs:hidden">
                   <ShortPropType />
                   {prop.default !== undefined && (
-                    <span className="max-sm:hidden">
-                      <ShortPropTypeWithDefault />
+                    <span className="inline-flex items-baseline gap-1">
+                      <span>(</span>default: <PropDefault />)
                     </span>
                   )}
                 </span>
