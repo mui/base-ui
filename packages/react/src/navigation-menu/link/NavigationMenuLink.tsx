@@ -19,7 +19,7 @@ export const NavigationMenuLink = React.forwardRef(function NavigationMenuLink(
   componentProps: NavigationMenuLink.Props,
   forwardedRef: React.ForwardedRef<HTMLAnchorElement>,
 ) {
-  const { className, render, ...elementProps } = componentProps;
+  const { className, render, closeOnClick = true, onClick, ...elementProps } = componentProps;
 
   const { setValue, popupElement, rootRef } = useNavigationMenuRootContext();
   const nodeId = useNavigationMenuTreeContext();
@@ -40,6 +40,12 @@ export const NavigationMenuLink = React.forwardRef(function NavigationMenuLink(
         setValue(null, event.nativeEvent, undefined);
       }
     },
+    onClick(event) {
+      if (!closeOnClick) {
+        return;
+      }
+      setValue(null, event.nativeEvent, undefined);
+    },
   };
 
   return (
@@ -56,5 +62,11 @@ export const NavigationMenuLink = React.forwardRef(function NavigationMenuLink(
 export namespace NavigationMenuLink {
   export interface State {}
 
-  export interface Props extends BaseUIComponentProps<'a', State> {}
+  export interface Props extends BaseUIComponentProps<'a', State> {
+    /**
+     * Whether clicking the link also closes the navigation menu popup.
+     * @default true
+     */
+    closeOnClick?: boolean;
+  }
 }

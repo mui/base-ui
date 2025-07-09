@@ -15,7 +15,13 @@ export const NavigationMenuItem = React.forwardRef(function NavigationMenuItem(
   componentProps: NavigationMenuItem.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { className, render, value: valueProp, ...elementProps } = componentProps;
+  const {
+    className,
+    render,
+    value: valueProp,
+    openOnHover = true,
+    ...elementProps
+  } = componentProps;
 
   const fallbackValue = useBaseUiId();
   const value = valueProp ?? fallbackValue;
@@ -25,8 +31,18 @@ export const NavigationMenuItem = React.forwardRef(function NavigationMenuItem(
     props: elementProps,
   });
 
+  const contextValue: NavigationMenuItemContext = React.useMemo(
+    () => ({
+      value,
+      openOnHover,
+    }),
+    [value, openOnHover],
+  );
+
   return (
-    <NavigationMenuItemContext.Provider value={value}>{element}</NavigationMenuItemContext.Provider>
+    <NavigationMenuItemContext.Provider value={contextValue}>
+      {element}
+    </NavigationMenuItemContext.Provider>
   );
 });
 
@@ -40,5 +56,11 @@ export namespace NavigationMenuItem {
      * Use when controlling the navigation menu programmatically.
      */
     value?: any;
+    /**
+     * Whether the navigation menu popup will open when the trigger is hovered
+     * in addition to clicking the trigger.
+     * @default false
+     */
+    openOnHover?: boolean;
   }
 }

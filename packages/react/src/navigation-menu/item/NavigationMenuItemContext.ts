@@ -1,13 +1,20 @@
 import * as React from 'react';
 
-export const NavigationMenuItemContext = React.createContext<string | undefined>(undefined);
+export interface NavigationMenuItemContext {
+  value: string | undefined;
+  openOnHover: boolean;
+}
+
+export const NavigationMenuItemContext = React.createContext<NavigationMenuItemContext | undefined>(
+  undefined,
+);
 
 export function useNavigationMenuItemContext() {
-  const value = React.useContext(NavigationMenuItemContext);
-  if (value === undefined) {
+  const context = React.useContext(NavigationMenuItemContext);
+  if (!context) {
     throw new Error(
-      'Base UI: NavigationMenuItem parts must be used within a <NavigationMenu.Item>.',
+      'Base UI: NavigationMenuItemContext is missing. NavigationMenuItem parts must be placed within <NavigationMenu.Item>.',
     );
   }
-  return value;
+  return context;
 }
