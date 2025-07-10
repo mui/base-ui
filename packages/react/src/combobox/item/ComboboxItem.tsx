@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import { isHTMLElement } from '@floating-ui/utils/dom';
 import { useComboboxRootContext } from '../root/ComboboxRootContext';
 import {
   useCompositeListItem,
@@ -16,6 +15,7 @@ import { selectors } from '../store';
 import { useButton } from '../../use-button';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useComboboxRowContext } from '../row/ComboboxRowContext';
+import { useAnimationFrame } from '../../utils/useAnimationFrame';
 
 /**
  * An individual item in the combobox popup.
@@ -73,6 +73,8 @@ export const ComboboxItem = React.memo(
     const itemRef = React.useRef<HTMLDivElement | null>(null);
     const indexRef = useLatestRef(listItem.index);
 
+    const frame = useAnimationFrame();
+
     const hasRegistered = listItem.index !== -1;
 
     useModernLayoutEffect(() => {
@@ -93,14 +95,14 @@ export const ComboboxItem = React.memo(
         registerSelectedItem(listItem.index);
 
         if (selectable && allowActiveIndexSyncRef.current) {
-          const frame = requestAnimationFrame(() => {
+          frame.request(() => {
             itemRef.current?.scrollIntoView?.({ inline: 'nearest', block: 'nearest' });
             store.set('activeIndex', listItem.index);
             onItemHighlighted(value, keyboardActiveRef.current ? 'keyboard' : 'pointer');
             allowActiveIndexSyncRef.current = false;
           });
           return () => {
-            cancelAnimationFrame(frame);
+            frame.cancel();
           };
         }
       }
@@ -117,6 +119,7 @@ export const ComboboxItem = React.memo(
       allowActiveIndexSyncRef,
       onItemHighlighted,
       keyboardActiveRef,
+      frame,
     ]);
 
     const state: ComboboxItem.State = React.useMemo(
@@ -143,12 +146,12 @@ export const ComboboxItem = React.memo(
       role: isRow ? 'gridcell' : 'option',
       'aria-disabled': disabled || undefined,
       'aria-selected': selectable ? selected : undefined,
-      tabIndex: -1,
-      onFocus(event) {
-        const refocusTarget = isHTMLElement(event.relatedTarget)
-          ? event.relatedTarget
-          : inputRef.current;
-        refocusTarget?.focus();
+      // Focusable items steal focus from the input upon mouseup.
+      // Warn if the user renders a natively focusable element like `<button>`,
+      // as it should be a `<div>` instead.
+      tabIndex: undefined,
+      onPointerDown(event) {
+        event.preventDefault();
       },
       onClick(event) {
         if (disabled || readOnly) {

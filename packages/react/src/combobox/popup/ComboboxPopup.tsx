@@ -27,6 +27,8 @@ export const ComboboxPopup = React.forwardRef(function ComboboxPopup(
   const floatingRootContext = useComboboxFloatingContext();
   const open = useSelector(store, selectors.open);
 
+  const didPointerDown = React.useRef(false);
+
   const state: ComboboxPopup.State = React.useMemo(
     () => ({
       open,
@@ -43,8 +45,22 @@ export const ComboboxPopup = React.forwardRef(function ComboboxPopup(
     props: [
       {
         tabIndex: -1,
-        onFocus() {
+        onPointerDown({ pointerType }) {
+          if (pointerType === 'touch') {
+            return;
+          }
+
+          didPointerDown.current = true;
           inputRef.current?.focus();
+          setTimeout(() => {
+            didPointerDown.current = false;
+          });
+        },
+        onFocus() {
+          if (didPointerDown.current) {
+            inputRef.current?.focus();
+            didPointerDown.current = false;
+          }
         },
       },
       elementProps,

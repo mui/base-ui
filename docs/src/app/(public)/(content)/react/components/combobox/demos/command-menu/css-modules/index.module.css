@@ -52,15 +52,16 @@
 }
 
 .Popup {
-  --input-container-height: 4rem; /* 1rem top margin + 2.5rem input height + 0.5rem bottom margin */
-  --footer-height: 2.5rem; /* 0.75rem padding top/bottom + 1rem line height */
-  --item-height: 2rem; /* 0.5rem padding top + 1rem line height + 0.5rem padding bottom */
+  --input-container-height: 4rem;
+  --footer-height: 2.5rem;
+  --item-height: 2rem;
   box-sizing: border-box;
   position: fixed;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 28rem;
+  width: calc(100vw - 1rem);
+  max-width: 28rem;
   border-radius: 0.5rem;
   background-color: canvas;
   color: var(--color-gray-900);
