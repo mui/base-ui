@@ -51,9 +51,11 @@ import { serializeValue } from '../../utils/serializeValue';
  *
  * Documentation: [Base UI Combobox](https://base-ui.com/react/components/combobox)
  */
-export function ComboboxRoot(props: ComboboxRoot.SingleProps): React.JSX.Element;
-export function ComboboxRoot(props: ComboboxRoot.MultipleProps): React.JSX.Element;
-export function ComboboxRoot(props: ComboboxRoot.Props): React.JSX.Element {
+export function ComboboxRoot<Item = any>(props: ComboboxRoot.SingleProps<Item>): React.JSX.Element;
+export function ComboboxRoot<Item = any>(
+  props: ComboboxRoot.MultipleProps<Item>,
+): React.JSX.Element;
+export function ComboboxRoot<Item = any>(props: ComboboxRoot.Props<Item>): React.JSX.Element {
   const {
     id: idProp,
     onOpenChangeComplete,
@@ -151,10 +153,10 @@ export function ComboboxRoot(props: ComboboxRoot.Props): React.JSX.Element {
     }
 
     if (isGrouped) {
-      return (items as ComboboxGroup[]).flatMap((group) => group.items);
+      return (items as ComboboxGroup<Item>[]).flatMap((group) => group.items);
     }
 
-    return items as any[];
+    return items as Item[];
   }, [items, isGrouped]);
 
   const filteredItems = React.useMemo(() => {
@@ -163,13 +165,13 @@ export function ComboboxRoot(props: ComboboxRoot.Props): React.JSX.Element {
     }
 
     if (isGrouped) {
-      const groupedItems = items as ComboboxGroup[];
+      const groupedItems = items as ComboboxGroup<Item>[];
       if (query.trim() === '') {
         return groupedItems;
       }
       return groupedItems
         .map((group) => defaultGroupFilter(group, query, filter, itemToString))
-        .filter((group): group is ComboboxGroup => group !== null);
+        .filter((group): group is ComboboxGroup<Item> => group !== null);
     }
 
     if (query.trim() === '') {
@@ -303,7 +305,7 @@ export function ComboboxRoot(props: ComboboxRoot.Props): React.JSX.Element {
     // Reset input value to selected value when popup closes without selection in single mode
     // This happens after the closing animation completes to avoid flicker
     if (selectionMode === 'single' && props.inputValue === undefined) {
-      const stringVal = stringifyItem(selectedValue, itemToString);
+      const stringVal = stringifyItem(selectedValue as Item, itemToString);
       if (inputRef.current && inputRef.current.value !== stringVal) {
         setInputValue(stringVal, undefined, 'item-press');
       }
@@ -322,18 +324,18 @@ export function ComboboxRoot(props: ComboboxRoot.Props): React.JSX.Element {
   });
 
   const setSelectedValue = useEventCallback(
-    (nextValue: any, event: Event | undefined, reason: string | undefined) => {
-      onSelectedValueChange?.(nextValue, event, reason);
+    (nextValue: Item | Item[], event: Event | undefined, reason: string | undefined) => {
+      onSelectedValueChange?.(nextValue as Item, event, reason);
       setSelectedValueUnwrapped(nextValue);
 
       if (selectionMode === 'none' && !multiple && props.inputValue === undefined) {
-        const stringVal = stringifyItem(nextValue, itemToString);
+        const stringVal = stringifyItem(nextValue as Item, itemToString);
         setInputValue(stringVal, undefined, undefined);
       }
 
       // If input value is uncontrolled, keep it in sync for single selection mode
       if (selectionMode === 'single' && props.inputValue === undefined) {
-        const stringVal = stringifyItem(nextValue, itemToString);
+        const stringVal = stringifyItem(nextValue as Item, itemToString);
         setInputValue(stringVal, undefined, undefined);
       }
 
@@ -373,7 +375,7 @@ export function ComboboxRoot(props: ComboboxRoot.Props): React.JSX.Element {
     }
 
     if (multiple) {
-      const currentValue = selectedValue as any[];
+      const currentValue = selectedValue as Item[];
       const selectedIndices: number[] = [];
 
       if (Array.isArray(currentValue)) {
@@ -390,7 +392,7 @@ export function ComboboxRoot(props: ComboboxRoot.Props): React.JSX.Element {
         selectedIndices.length > 0 ? selectedIndices[selectedIndices.length - 1] : null,
       );
     } else {
-      const index = suppliedIndex ?? valuesRef.current.indexOf(selectedValue);
+      const index = suppliedIndex ?? valuesRef.current.indexOf(selectedValue as Item);
       const hasIndex = index !== -1;
 
       // Always clear the selected index when nothing is selected.
@@ -709,7 +711,7 @@ export function ComboboxRoot(props: ComboboxRoot.Props): React.JSX.Element {
 export namespace ComboboxRoot {
   export interface State {}
 
-  export interface Props {
+  export interface Props<Item = any> {
     children?: React.ReactNode;
     /**
      * Identifies the field when a form is submitted.
@@ -743,7 +745,6 @@ export namespace ComboboxRoot {
     defaultOpen?: boolean;
     /**
      * Event handler called when the combobox popup is opened or closed.
-     * @type (open: boolean, event?: Event, reason?: combobox.Root.OpenChangeReason) => void
      */
     onOpenChange?: (
       open: boolean,
@@ -784,7 +785,6 @@ export namespace ComboboxRoot {
      * - `single`: Remembers the last selected value.
      * - `multiple`: Remember all selected values.
      * - `none`: Do not remember the selected value.
-     * @type 'single' | 'multiple' | 'none'
      * @default 'none'
      */
     selectionMode?: 'single' | 'multiple' | 'none';
@@ -799,7 +799,7 @@ export namespace ComboboxRoot {
      * Callback fired when the user navigates the list and highlights an item.
      * Passes the item's `value` or `undefined` when no item is highlighted.
      */
-    onItemHighlighted?: (value: any, type: 'keyboard' | 'pointer') => void;
+    onItemHighlighted?: (value: Item | undefined, type: 'keyboard' | 'pointer') => void;
     /**
      * A ref to the hidden input element used for form submission.
      */
@@ -813,29 +813,29 @@ export namespace ComboboxRoot {
      * The items to be displayed in the combobox.
      * Can be either a flat array of items or an array of groups with items.
      */
-    items?: any[] | ComboboxGroup[];
+    items?: Item[] | ComboboxGroup<Item>[];
     /**
      * Filter function used to match items vs input query.
      * The `itemToString` function is provided to help convert items to strings for comparison.
      */
-    filter?: (item: any, query: string, itemToString?: (item: any) => string) => boolean;
+    filter?: (item: Item, query: string, itemToString?: (item: Item) => string) => boolean;
     /**
      * Function to convert an item to a string for display in the combobox.
      */
-    itemToString?: (item: any) => string;
+    itemToString?: (item: Item) => string;
     /**
      * Function to convert an item to its value for form submission.
      */
-    itemToValue?: (item: any) => string;
+    itemToValue?: (item: Item) => string;
     /**
      * The selected value of the combobox.
      */
-    selectedValue?: any;
+    selectedValue?: Item;
     /**
      * Callback fired when the selected value of the combobox changes.
      */
     onSelectedValueChange?: (
-      value: any,
+      value: Item,
       event: Event | undefined,
       reason: string | undefined,
     ) => void;
@@ -844,7 +844,7 @@ export namespace ComboboxRoot {
      *
      * To render a controlled combobox, use the `selectedValue` prop instead.
      */
-    defaultSelectedValue?: any;
+    defaultSelectedValue?: Item;
     /**
      * Whether the combobox popup is closed while there are no items to display.
      * @default false
@@ -852,21 +852,20 @@ export namespace ComboboxRoot {
     closeWhileEmpty?: boolean;
   }
 
-  export interface SingleProps extends Omit<Props, 'selectionMode'> {
+  export interface SingleProps<Item = any> extends Omit<Props<Item>, 'selectionMode'> {
     /**
      * How the combobox should remember the selected value.
      * - `single`: Remembers the last selected value in state.
      * - `multiple`: Remember all selected values in state.
      * - `none`: Does not remember the selected value in state.
-     * @type 'single' | 'multiple' | 'none'
      * @default 'none'
      */
     selectionMode?: 'single';
   }
 
-  export interface MultipleProps
+  export interface MultipleProps<Item = any>
     extends Omit<
-      Props,
+      Props<Item>,
       'selectionMode' | 'selectedValue' | 'onSelectedValueChange' | 'defaultSelectedValue'
     > {
     /**
@@ -874,19 +873,18 @@ export namespace ComboboxRoot {
      * - `single`: Remembers the last selected value.
      * - `multiple`: Remember all selected values.
      * - `none`: Do not remember the selected value.
-     * @type 'single' | 'multiple' | 'none'
      * @default 'none'
      */
     selectionMode?: 'multiple';
     /**
      * The selected values of the combobox.
      */
-    selectedValue?: any[];
+    selectedValue?: Item[];
     /**
      * Callback fired when the selected values of the combobox change.
      */
     onSelectedValueChange?: (
-      value: any[],
+      value: Item[],
       event: Event | undefined,
       reason: string | undefined,
     ) => void;
@@ -895,7 +893,7 @@ export namespace ComboboxRoot {
      *
      * To render a controlled combobox, use the `selectedValue` prop instead.
      */
-    defaultSelectedValue?: any[];
+    defaultSelectedValue?: Item[];
   }
 
   export interface Actions {

@@ -1,13 +1,13 @@
 import { serializeValue } from '../../../utils/serializeValue';
 
-export interface ComboboxGroup {
+export interface ComboboxGroup<Item = any> {
   /**
    * A label or value that identifies this group when required by the consumer.
    * When `Item` is an object with a `value` field, this should typically match that type;
    * however, for simple string items it can be any value.
    */
   value: unknown;
-  items: any[];
+  items: Item[];
 }
 
 /**
@@ -43,7 +43,7 @@ export function singleSelectionFilter(
   }
 
   const candidate = stringifyItem(item, itemToString);
-  const selectedString = stringifyItem(selectedValue, itemToString);
+  const selectedString = selectedValue != null ? stringifyItem(selectedValue, itemToString) : '';
 
   if (query.toLocaleLowerCase() === selectedString.toLocaleLowerCase()) {
     return true;
@@ -53,17 +53,17 @@ export function singleSelectionFilter(
 }
 
 export function isGroupedItems(
-  items: (any | ComboboxGroup)[] | undefined,
-): items is ComboboxGroup[] {
+  items: (any | ComboboxGroup<any>)[] | undefined,
+): items is ComboboxGroup<any>[] {
   return items != null && items.length > 0 && typeof items[0] === 'object' && 'items' in items[0];
 }
 
 export function defaultGroupFilter(
-  group: ComboboxGroup,
+  group: ComboboxGroup<any>,
   query: string,
   itemFilter: (item: any, query: string, itemToString?: (item: any) => string) => boolean,
   itemToString?: (item: any) => string,
-): ComboboxGroup | null {
+): ComboboxGroup<any> | null {
   if (query.trim() === '') {
     return group;
   }
@@ -80,11 +80,11 @@ export function defaultGroupFilter(
   };
 }
 
-export function stringifyItem(item: any, itemToString?: (item: any) => string) {
+export function stringifyItem(item: any | null | undefined, itemToString?: (item: any) => string) {
   if (itemToString && item != null) {
     return itemToString(item) ?? '';
   }
-  if (item !== null && typeof item === 'object' && typeof item.value === 'string') {
+  if (item != null && typeof item === 'object' && typeof item.value === 'string') {
     return item.value;
   }
   return serializeValue(item);
