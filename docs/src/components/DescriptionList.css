@@ -1,57 +1,45 @@
-.DescriptionList {
-  width: 100%;
-  display: grid;
-  grid-template-columns: auto;
-  row-gap: --spacing(2);
-
-  @media (--xs) {
-    grid-template-columns: --spacing(48) auto;
+@layer components {
+  .DescriptionList {
+    width: 100%;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    row-gap: --spacing(2);
   }
 
-  @media (--sm) {
-    grid-template-columns: --spacing(56) auto;
-    row-gap: 0;
+  .DescriptionListItem {
+    @media (--xs) {
+      display: grid;
+      grid-template-columns: subgrid;
+      grid-column: span 3;
+    }
   }
 
-  @media (--md) {
-    grid-template-columns: calc(1 / 3 * 100%) auto;
-  }
-}
-
-.DescriptionTerm {
-  @apply text-sm;
-  letter-spacing: -0.00625em;
-  color: inherit;
-  white-space: nowrap;
-  word-break: keep-all;
-
-  @media (--xs) {
-    padding: 0.5rem 0.75rem;
-  }
-
-  &:not(:first-of-type) {
+  .DescriptionListSeparator {
     border-top: 1px solid var(--color-gray-200);
+    padding-top: --spacing(2);
 
     @media (--xs) {
       border-top: 0;
-      margin-top: 0;
+      padding-top: 0;
     }
   }
-}
 
-.DescriptionDetails {
-  @apply text-sm;
-  color: var(--color-foreground);
-
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-
-  @media (--xs) {
-    padding: 0.5rem 0.75rem;
+  .DescriptionTerm {
+    @apply text-sm;
+    letter-spacing: -0.00625em;
+    color: inherit;
+    white-space: nowrap;
+    word-break: keep-all;
+    margin-bottom: --spacing(1);
   }
 
-  @media (--md) {
-    padding-left: 0;
+  .DescriptionDetails {
+    @apply text-sm;
+    color: var(--color-foreground);
+
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    grid-column: span 2;
   }
 }
