@@ -111,18 +111,20 @@ export function ComboboxRoot<Item = any>(props: ComboboxRoot.Props<Item>): React
     state: 'selectedValue',
   });
 
+  const [queryChangedAfterOpen, setQueryChangedAfterOpen] = React.useState(false);
+
   // Use enhanced filter for single selection mode to show all items when query is empty
   // or matches current selection, falling back to user-provided filter or default
   const filter = React.useMemo(() => {
     if (filterProp) {
       return filterProp;
     }
-    if (selectionMode === 'single') {
+    if (selectionMode === 'single' && !queryChangedAfterOpen) {
       return (item: any, query: string, itemToStringArg?: (item: any) => string) =>
         singleSelectionFilter(item, query, itemToStringArg, selectedValue);
     }
     return defaultItemFilter;
-  }, [filterProp, selectionMode, selectedValue]);
+  }, [filterProp, selectionMode, selectedValue, queryChangedAfterOpen]);
 
   const [inputValue, setInputValueUnwrapped] = useControlled({
     controlled: inputValueProp,
@@ -142,7 +144,7 @@ export function ComboboxRoot<Item = any>(props: ComboboxRoot.Props<Item>): React
     if (inputValue == null) {
       return '';
     }
-    return String(inputValue).toLowerCase();
+    return String(inputValue).toLocaleLowerCase();
   }, [inputValue]);
 
   const isGrouped = React.useMemo(() => isGroupedItems(items), [items]);
@@ -223,6 +225,7 @@ export function ComboboxRoot<Item = any>(props: ComboboxRoot.Props<Item>): React
   const keyboardActiveRef = React.useRef(true);
   const allowActiveIndexSyncRef = React.useRef(true);
   const closingRef = React.useRef(false);
+  const prevQueryRef = React.useRef(query);
 
   const controlRef = useLatestRef(triggerElement);
   const commitValidation = fieldControlValidation.commitValidation;
@@ -242,6 +245,23 @@ export function ComboboxRoot<Item = any>(props: ComboboxRoot.Props<Item>): React
     name,
     getValue: () => formValue,
   });
+
+  useModernLayoutEffect(() => {
+    if (
+      prevQueryRef.current === query ||
+      !open ||
+      query === '' ||
+      query === String(defaultInputValue).toLocaleLowerCase()
+    ) {
+      return;
+    }
+
+    setQueryChangedAfterOpen(true);
+  }, [open, query, defaultInputValue]);
+
+  useModernLayoutEffect(() => {
+    prevQueryRef.current = query;
+  }, [query]);
 
   const prevValueRef = React.useRef(selectedValue);
 
@@ -297,10 +317,13 @@ export function ComboboxRoot<Item = any>(props: ComboboxRoot.Props<Item>): React
     closingRef.current = false;
     allowActiveIndexSyncRef.current = true;
     listRef.current = [];
+
     setMounted(false);
-    store.set('activeIndex', null);
     onItemHighlighted(undefined, 'pointer');
     onOpenChangeComplete?.(false);
+    setQueryChangedAfterOpen(false);
+
+    store.set('activeIndex', null);
 
     // Reset input value to selected value when popup closes without selection in single mode
     // This happens after the closing animation completes to avoid flicker
