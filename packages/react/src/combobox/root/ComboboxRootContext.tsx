@@ -36,7 +36,13 @@ export interface ComboboxRootContext {
   ) => Record<string, unknown>;
   valuesRef: React.RefObject<Array<any>>;
   registerSelectedItem: (index: number) => void;
-  onItemHighlighted: (value: any | undefined, type: 'keyboard' | 'pointer') => void;
+  onItemHighlighted: (
+    value: any,
+    data: {
+      type: 'keyboard' | 'pointer';
+      index: number;
+    },
+  ) => void;
   handleEnterSelection: (event: Event) => void;
   name: string | undefined;
   disabled: boolean;
@@ -44,7 +50,8 @@ export interface ComboboxRootContext {
   required: boolean;
   fieldControlValidation: ReturnType<typeof useFieldControlValidation>;
   cols: number;
-  isGrouped?: boolean;
+  isGrouped: boolean;
+  virtualized: boolean;
 }
 
 export const ComboboxRootContext = React.createContext<ComboboxRootContext | undefined>(undefined);

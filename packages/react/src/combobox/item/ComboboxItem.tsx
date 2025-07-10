@@ -58,24 +58,45 @@ export const ComboboxItem = React.memo(
       allowActiveIndexSyncRef,
       onItemHighlighted,
       readOnly,
+      virtualized,
+      listRef,
     } = useComboboxRootContext();
 
     const selectable = selectionMode !== 'none';
     const multiple = selectionMode === 'multiple';
     const isRow = useComboboxRowContext();
+    const items = useSelector(store, selectors.items);
+    const index = virtualized && items ? items.indexOf(value) : listItem.index;
 
-    const active = useSelector(store, selectors.isActive, listItem.index);
+    const active = useSelector(store, selectors.isActive, index);
     const matchesSelectedValue = useSelector(store, selectors.isSelected, value);
     const rootSelectedValue = useSelector(store, selectors.selectedValue);
 
     const selected = matchesSelectedValue && selectable;
 
     const itemRef = React.useRef<HTMLDivElement | null>(null);
-    const indexRef = useLatestRef(listItem.index);
+    const indexRef = useLatestRef(index);
 
     const frame = useAnimationFrame();
 
     const hasRegistered = listItem.index !== -1;
+
+    useModernLayoutEffect(() => {
+      if (!items || !virtualized) {
+        return undefined;
+      }
+
+      const list = listRef.current;
+
+      if (index !== -1) {
+        list[index] = itemRef.current;
+        return () => {
+          list[index] = null;
+        };
+      }
+
+      return undefined;
+    }, [index, virtualized, listRef, items]);
 
     useModernLayoutEffect(() => {
       if (!hasRegistered) {
@@ -83,22 +104,29 @@ export const ComboboxItem = React.memo(
       }
 
       const values = valuesRef.current;
-      values[listItem.index] = value;
+      values[index] = value;
 
       return () => {
-        delete values[listItem.index];
+        delete values[index];
       };
-    }, [hasRegistered, listItem.index, value, valuesRef]);
+    }, [hasRegistered, index, value, valuesRef]);
 
     useModernLayoutEffect(() => {
+      if (virtualized) {
+        return undefined;
+      }
+
       if (hasRegistered && value === rootSelectedValue) {
-        registerSelectedItem(listItem.index);
+        registerSelectedItem(index);
 
         if (selectable && allowActiveIndexSyncRef.current) {
           frame.request(() => {
             itemRef.current?.scrollIntoView?.({ inline: 'nearest', block: 'nearest' });
-            store.set('activeIndex', listItem.index);
-            onItemHighlighted(value, keyboardActiveRef.current ? 'keyboard' : 'pointer');
+            store.set('activeIndex', index);
+            onItemHighlighted(value, {
+              type: keyboardActiveRef.current ? 'keyboard' : 'pointer',
+              index,
+            });
             allowActiveIndexSyncRef.current = false;
           });
           return () => {
@@ -110,7 +138,7 @@ export const ComboboxItem = React.memo(
       return undefined;
     }, [
       hasRegistered,
-      listItem.index,
+      index,
       registerSelectedItem,
       value,
       rootSelectedValue,
@@ -120,6 +148,7 @@ export const ComboboxItem = React.memo(
       onItemHighlighted,
       keyboardActiveRef,
       frame,
+      virtualized,
     ]);
 
     const state: ComboboxItem.State = React.useMemo(

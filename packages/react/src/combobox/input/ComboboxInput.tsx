@@ -165,7 +165,10 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
           // cleared).
           if (open && activeIndex !== null) {
             store.set('activeIndex', null);
-            onItemHighlighted(undefined, keyboardActiveRef.current ? 'keyboard' : 'pointer');
+            onItemHighlighted(undefined, {
+              type: keyboardActiveRef.current ? 'keyboard' : 'pointer',
+              index: -1,
+            });
           }
         },
         onKeyDown(event) {
@@ -209,7 +212,10 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
             store.set('activeIndex', null);
             store.set('selectedIndex', null);
             if (activeIndex !== null) {
-              onItemHighlighted(undefined, keyboardActiveRef.current ? 'keyboard' : 'pointer');
+              onItemHighlighted(undefined, {
+                type: keyboardActiveRef.current ? 'keyboard' : 'pointer',
+                index: -1,
+              });
             }
           }
 

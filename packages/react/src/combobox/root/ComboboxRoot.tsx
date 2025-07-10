@@ -86,6 +86,7 @@ export function ComboboxRoot<Item = any>(props: ComboboxRoot.Props<Item>): React
     itemToString,
     itemToValue,
     closeWhileEmpty = false,
+    virtualized = false,
   } = props;
 
   const { clearErrors } = useFormContext();
@@ -225,7 +226,14 @@ export function ComboboxRoot<Item = any>(props: ComboboxRoot.Props<Item>): React
   const inline = useSelector(store, selectors.inline);
   const open = inline ? true : openRaw;
 
-  const listRef = React.useRef<Array<HTMLElement | null>>([]);
+  const initialList = React.useMemo(() => {
+    if (virtualized && items) {
+      return Array.from({ length: items.length }, () => null);
+    }
+    return [];
+  }, [virtualized, items]);
+
+  const listRef = React.useRef<Array<HTMLElement | null>>(initialList);
   const popupRef = React.useRef<HTMLDivElement | null>(null);
   const triggerRef = React.useRef<HTMLButtonElement | null>(null);
   const valuesRef = React.useRef<Array<any>>([]);
@@ -253,6 +261,10 @@ export function ComboboxRoot<Item = any>(props: ComboboxRoot.Props<Item>): React
     name,
     getValue: () => formValue,
   });
+
+  useModernLayoutEffect(() => {
+    listRef.current = initialList;
+  }, [initialList]);
 
   useModernLayoutEffect(() => {
     if (
@@ -324,10 +336,13 @@ export function ComboboxRoot<Item = any>(props: ComboboxRoot.Props<Item>): React
   const handleUnmount = useEventCallback(() => {
     closingRef.current = false;
     allowActiveIndexSyncRef.current = true;
-    listRef.current = [];
+    listRef.current = initialList;
 
     setMounted(false);
-    onItemHighlighted(undefined, 'pointer');
+    onItemHighlighted(undefined, {
+      type: keyboardActiveRef.current ? 'keyboard' : 'pointer',
+      index: -1,
+    });
     onOpenChangeComplete?.(false);
     setQueryChangedAfterOpen(false);
 
@@ -359,7 +374,7 @@ export function ComboboxRoot<Item = any>(props: ComboboxRoot.Props<Item>): React
       onSelectedValueChange?.(nextValue as Item, event, reason);
       setSelectedValueUnwrapped(nextValue);
 
-      if (selectionMode === 'none' && !multiple && props.inputValue === undefined) {
+      if (selectionMode === 'none' && !multiple) {
         const stringVal = stringifyItem(nextValue as Item, itemToString);
         setInputValue(stringVal, undefined, undefined);
       }
@@ -376,7 +391,10 @@ export function ComboboxRoot<Item = any>(props: ComboboxRoot.Props<Item>): React
         setInputValue('', undefined, undefined);
         // Reset active index and clear any highlighted item since the list will re-filter.
         store.set('activeIndex', null);
-        onItemHighlighted(undefined, keyboardActiveRef.current ? 'keyboard' : 'pointer');
+        onItemHighlighted(undefined, {
+          type: keyboardActiveRef.current ? 'keyboard' : 'pointer',
+          index: -1,
+        });
       }
 
       // Auto-close popup after selection in single mode when open state is uncontrolled
@@ -454,8 +472,12 @@ export function ComboboxRoot<Item = any>(props: ComboboxRoot.Props<Item>): React
     if (highlightedItemElement) {
       highlightedItemElement.click();
     } else {
-      // Fallback to the original behavior if we can't find the element
+      // Fallback for virtualized lists where DOM element might not exist
       const nextSelectedValue = valuesRef.current[activeIndex];
+
+      if (nextSelectedValue === undefined) {
+        return;
+      }
 
       if (multiple) {
         const isSelected =
@@ -547,6 +569,7 @@ export function ComboboxRoot<Item = any>(props: ComboboxRoot.Props<Item>): React
     focusItemOnOpen: selectionMode !== 'none' && selectedIndex !== null && hasActualSelections,
     cols,
     orientation: cols > 1 ? 'horizontal' : undefined,
+    disabledIndices: EMPTY_ARRAY,
     onNavigate(nextActiveIndex) {
       // Retain the highlight while transitioning out.
       if (nextActiveIndex === null && (closingRef.current || !open)) {
@@ -555,9 +578,9 @@ export function ComboboxRoot<Item = any>(props: ComboboxRoot.Props<Item>): React
 
       const type = keyboardActiveRef.current ? 'keyboard' : 'pointer';
       if (nextActiveIndex !== null) {
-        onItemHighlighted(valuesRef.current[nextActiveIndex], type);
+        onItemHighlighted(valuesRef.current[nextActiveIndex], { type, index: nextActiveIndex });
       } else {
-        onItemHighlighted(undefined, type);
+        onItemHighlighted(undefined, { type, index: -1 });
       }
 
       store.set('activeIndex', nextActiveIndex);
@@ -635,6 +658,7 @@ export function ComboboxRoot<Item = any>(props: ComboboxRoot.Props<Item>): React
       fieldControlValidation,
       cols,
       isGrouped,
+      virtualized,
     }),
     [
       selectionMode,
@@ -653,6 +677,7 @@ export function ComboboxRoot<Item = any>(props: ComboboxRoot.Props<Item>): React
       fieldControlValidation,
       cols,
       isGrouped,
+      virtualized,
     ],
   );
 
@@ -684,56 +709,59 @@ export function ComboboxRoot<Item = any>(props: ComboboxRoot.Props<Item>): React
     });
   }, [multiple, selectedValue, name, itemToValue]);
 
+  const children = (
+    <React.Fragment>
+      {props.children}
+      <input
+        {...fieldControlValidation.getInputValidationProps({
+          onFocus() {
+            // Move focus to the trigger element when the hidden input is focused.
+            store.state.triggerElement?.focus();
+          },
+          // Handle browser autofill.
+          onChange(event: React.ChangeEvent<HTMLSelectElement>) {
+            // Workaround for https://github.com/facebook/react/issues/9023
+            if (event.nativeEvent.defaultPrevented) {
+              return;
+            }
+
+            const nextValue = event.target.value;
+
+            const exactValue = valuesRef.current.find(
+              (v: any) =>
+                v === nextValue ||
+                (typeof selectedValue === 'string' && nextValue.toLowerCase() === v.toLowerCase()),
+            );
+
+            if (exactValue != null) {
+              setDirty(exactValue !== validityData.initialValue);
+              setSelectedValue?.(exactValue, event.nativeEvent, 'input-change');
+
+              if (validationMode === 'onChange') {
+                fieldControlValidation.commitValidation(exactValue);
+              }
+            }
+          },
+          id,
+          name: multiple ? undefined : name,
+          disabled,
+          required,
+          readOnly,
+          value: serializedValue,
+          ref: hiddenInputRef,
+          style: visuallyHidden,
+          tabIndex: -1,
+          'aria-hidden': true,
+        })}
+      />
+      {hiddenInputs}
+    </React.Fragment>
+  );
+
   return (
     <ComboboxRootContext.Provider value={contextValue}>
       <ComboboxFloatingContext.Provider value={floatingRootContext}>
-        <CompositeList elementsRef={listRef}>
-          {props.children}
-          <input
-            {...fieldControlValidation.getInputValidationProps({
-              onFocus() {
-                // Move focus to the trigger element when the hidden input is focused.
-                store.state.triggerElement?.focus();
-              },
-              // Handle browser autofill.
-              onChange(event: React.ChangeEvent<HTMLSelectElement>) {
-                // Workaround for https://github.com/facebook/react/issues/9023
-                if (event.nativeEvent.defaultPrevented) {
-                  return;
-                }
-
-                const nextValue = event.target.value;
-
-                const exactValue = valuesRef.current.find(
-                  (v: any) =>
-                    v === nextValue ||
-                    (typeof selectedValue === 'string' &&
-                      nextValue.toLowerCase() === v.toLowerCase()),
-                );
-
-                if (exactValue != null) {
-                  setDirty(exactValue !== validityData.initialValue);
-                  setSelectedValue?.(exactValue, event.nativeEvent, 'input-change');
-
-                  if (validationMode === 'onChange') {
-                    fieldControlValidation.commitValidation(exactValue);
-                  }
-                }
-              },
-              id,
-              name: multiple ? undefined : name,
-              disabled,
-              required,
-              readOnly,
-              value: serializedValue,
-              ref: hiddenInputRef,
-              style: visuallyHidden,
-              tabIndex: -1,
-              'aria-hidden': true,
-            })}
-          />
-          {hiddenInputs}
-        </CompositeList>
+        {virtualized ? children : <CompositeList elementsRef={listRef}>{children}</CompositeList>}
       </ComboboxFloatingContext.Provider>
     </ComboboxRootContext.Provider>
   );
@@ -830,7 +858,13 @@ export namespace ComboboxRoot {
      * Callback fired when the user navigates the list and highlights an item.
      * Passes the item's `value` or `undefined` when no item is highlighted.
      */
-    onItemHighlighted?: (value: Item | undefined, type: 'keyboard' | 'pointer') => void;
+    onItemHighlighted?: (
+      value: Item | undefined,
+      data: {
+        type: 'keyboard' | 'pointer';
+        index: number;
+      },
+    ) => void;
     /**
      * A ref to the hidden input element used for form submission.
      */
@@ -881,6 +915,11 @@ export namespace ComboboxRoot {
      * @default false
      */
     closeWhileEmpty?: boolean;
+    /**
+     * Whether the combobox popup should be virtualized.
+     * @default false
+     */
+    virtualized?: boolean;
   }
 
   export interface SingleProps<Item = any> extends Omit<Props<Item>, 'selectionMode'> {

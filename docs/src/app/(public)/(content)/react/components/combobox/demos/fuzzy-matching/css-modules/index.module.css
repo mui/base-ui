@@ -13,7 +13,7 @@
   padding-left: 0.875rem;
   margin: 0;
   border: 1px solid var(--color-gray-200);
-  width: 18rem;
+  width: 20rem;
   height: 2.5rem;
   border-radius: 0.375rem;
   font-family: inherit;
@@ -43,7 +43,7 @@
     transform 150ms,
     opacity 150ms;
   width: var(--anchor-width);
-  max-height: min(var(--available-height), 25rem);
+  max-height: min(var(--available-height), 28rem);
   max-width: var(--available-width);
   overflow-y: auto;
   scroll-padding-block: 0.5rem;
@@ -103,9 +103,17 @@
   width: 100%;
 }
 
+.ItemHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+}
+
 .ItemTitle {
   font-weight: 500;
   line-height: 1.25rem;
+  flex: 1;
 }
 
 .ItemDescription {
@@ -125,4 +133,8 @@
   background-color: transparent;
   color: var(--color-blue);
   font-weight: 600;
+}
+
+.ItemCategory mark {
+  color: var(--color-blue);
 }

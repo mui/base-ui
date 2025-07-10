@@ -31,7 +31,7 @@ export default function AutofillCombobox() {
           setInputHighlightValue('');
           setSearchValue(nextValue);
         }}
-        onItemHighlighted={(highlightedValue, type) => {
+        onItemHighlighted={(highlightedValue, { type }) => {
           if (type !== 'keyboard') {
             return;
           }
