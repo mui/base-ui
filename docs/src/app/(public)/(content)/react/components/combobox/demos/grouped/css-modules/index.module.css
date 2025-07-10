@@ -59,7 +59,6 @@
 
   @media (prefers-color-scheme: dark) {
     outline: 1px solid var(--color-gray-300);
-    outline-offset: -1px;
   }
 }
 
@@ -85,7 +84,6 @@
   background-color: canvas;
   position: sticky;
   top: 0;
-  z-index: 1;
   margin: 0;
   width: 100%;
 }
