@@ -11,12 +11,15 @@
       display: grid;
       grid-template-columns: subgrid;
       grid-column: span 3;
+      align-items: start;
     }
   }
 
   .DescriptionListSeparator {
     border-top: 1px solid var(--color-gray-200);
     padding-top: --spacing(2);
+    display: flex;
+    align-items: center;
 
     @media (--xs) {
       border-top: 0;
@@ -30,7 +33,13 @@
     color: inherit;
     white-space: nowrap;
     word-break: keep-all;
+    display: flex;
+    align-items: center;
     margin-bottom: --spacing(1);
+
+    @media (--xs) {
+      margin-bottom: --spacing(0);
+    }
   }
 
   .DescriptionDetails {
@@ -38,8 +47,16 @@
     color: var(--color-foreground);
 
     display: flex;
-    flex-direction: column;
     gap: 0.5rem;
     grid-column: span 2;
+  }
+
+  .DescriptionListInner {
+    min-height: 2.5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: start;
+    padding: 0.5rem 0.75rem;
   }
 }

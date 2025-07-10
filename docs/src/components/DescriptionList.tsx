@@ -7,11 +7,19 @@ export function Root(props: React.ComponentProps<'dl'>) {
 }
 
 export function Term(props: React.ComponentProps<'dt'>) {
-  return <dt {...props} className={clsx('DescriptionTerm', props.className)} />;
+  return (
+    <dt {...props} className={clsx('DescriptionTerm', props.className)}>
+      <Inner>{props.children}</Inner>
+    </dt>
+  );
 }
 
 export function Details(props: React.ComponentProps<'dd'>) {
-  return <dd {...props} className={clsx('DescriptionDetails', props.className)} />;
+  return (
+    <dd {...props} className={clsx('DescriptionDetails', props.className)}>
+      <Inner>{props.children}</Inner>
+    </dd>
+  );
 }
 
 export function Item(props: React.ComponentProps<'div'>) {
@@ -20,4 +28,8 @@ export function Item(props: React.ComponentProps<'div'>) {
 
 export function Separator(props: React.ComponentProps<'div'>) {
   return <div {...props} className={clsx('DescriptionListSeparator', props.className)} />;
+}
+
+function Inner(props: React.ComponentProps<'div'>) {
+  return <div {...props} className={clsx('DescriptionListInner gap-3', props.className)} />;
 }
