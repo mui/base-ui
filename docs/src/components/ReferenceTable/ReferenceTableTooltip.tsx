@@ -17,7 +17,7 @@ export function Popup({ children, ...props }: Tooltip.Popup.Props) {
         align="center"
         side="top"
         alignOffset={-4}
-        sideOffset={9}
+        sideOffset={6}
         collisionPadding={16}
       >
         <Tooltip.Popup

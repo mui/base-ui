@@ -60,7 +60,7 @@ export async function PropsReferenceAccordion({ data, name: partName, ...props }
       <span id={captionId} style={visuallyHidden} aria-hidden>
         Component props table
       </span>
-      <Accordion.HeaderRow className={GRID_LAYOUT_CLASSES}>
+      <Accordion.HeaderRow className={TRIGGER_GRID_LAYOUT}>
         <Accordion.HeaderCell>Prop</Accordion.HeaderCell>
         <Accordion.HeaderCell className="max-xs:hidden">Type</Accordion.HeaderCell>
       </Accordion.HeaderRow>
@@ -103,7 +103,7 @@ export async function PropsReferenceAccordion({ data, name: partName, ...props }
             <Accordion.Trigger
               index={index}
               aria-label={`prop: ${name},${prop.required ? ' required,' : ''} type: ${shortPropTypeName} ${prop.default !== undefined ? `(default: ${prop.default})` : ''}`}
-              className={clsx('max-xs:gap-4 md:gap-5', GRID_LAYOUT_CLASSES)}
+              className={clsx('items-center max-xs:gap-4 md:gap-5', TRIGGER_GRID_LAYOUT)}
             >
               <TableCode className="text-navy">
                 {name}
@@ -140,9 +140,9 @@ export async function PropsReferenceAccordion({ data, name: partName, ...props }
               </svg>
             </Accordion.Trigger>
             <Accordion.Panel>
-              <Accordion.Content className="min-xs:py-1">
+              <Accordion.Content>
                 <DescriptionList.Root
-                  className={clsx('text-gray-600 pl-3 pr-2 py-3 sm:py-2', PANEL_GRID_LAYOUT)}
+                  className={clsx('text-gray-600 pl-3 pr-2 py-3 xs:p-0', PANEL_GRID_LAYOUT)}
                   aria-label="Info"
                 >
                   <DescriptionList.Item>
@@ -203,7 +203,7 @@ export async function PropsReferenceAccordion({ data, name: partName, ...props }
   );
 }
 
-const GRID_LAYOUT_CLASSES =
+const TRIGGER_GRID_LAYOUT =
   'grid ' +
   'grid-cols-[1fr_theme(spacing.10)] ' +
   'xs:grid-cols-[theme(spacing.48)_1fr_theme(spacing.10)] ' +
@@ -214,7 +214,6 @@ const PANEL_GRID_LAYOUT =
   'gap-2 ' +
   'max-xs:flex max-xs:flex-col ' +
   'xs:grid-cols-[theme(spacing.48)_1fr_theme(spacing.10)] ' +
-  'xs:gap-x-0 ' +
+  'xs:gap-0 ' +
   'sm:grid-cols-[theme(spacing.56)_1fr_theme(spacing.10)] ' +
-  'md:grid-cols-[1fr_2fr_theme(spacing.10)] ' +
-  'md:gap-x-5 md:gap-y-4';
+  'md:grid-cols-[1fr_2fr_theme(spacing.10)] ';
