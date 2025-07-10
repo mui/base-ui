@@ -141,38 +141,57 @@ export async function PropsReferenceAccordion({ data, name: partName, ...props }
             </Accordion.Trigger>
             <Accordion.Panel>
               <Accordion.Content className="min-xs:py-1">
-                <DescriptionList.Root className="max-xs:p-4 text-gray-600" aria-label="Info">
-                  <DescriptionList.Term>Name</DescriptionList.Term>
-                  <DescriptionList.Details>
-                    <TableCode className="text-(--color-blue)">{name}</TableCode>
-                  </DescriptionList.Details>
+                <DescriptionList.Root
+                  className={clsx('text-gray-600 pl-3 pr-2 py-3 sm:py-2', PANEL_GRID_LAYOUT)}
+                  aria-label="Info"
+                >
+                  <DescriptionList.Item>
+                    <DescriptionList.Term>Name</DescriptionList.Term>
+                    <DescriptionList.Details>
+                      <TableCode className="text-(--color-blue)">{name}</TableCode>
+                    </DescriptionList.Details>
+                  </DescriptionList.Item>
+
                   {PropDescription != null && (
-                    <React.Fragment>
-                      <DescriptionList.Term>Description</DescriptionList.Term>
+                    <DescriptionList.Item>
+                      <DescriptionList.Separator>
+                        <DescriptionList.Term>Description</DescriptionList.Term>
+                      </DescriptionList.Separator>
                       <DescriptionList.Details>
                         <PropDescription />
                       </DescriptionList.Details>
-                    </React.Fragment>
+                    </DescriptionList.Item>
                   )}
-                  <DescriptionList.Term>Type</DescriptionList.Term>
-                  <DescriptionList.Details>
-                    <PropType />
-                  </DescriptionList.Details>
+
+                  <DescriptionList.Item>
+                    <DescriptionList.Separator>
+                      <DescriptionList.Term>Type</DescriptionList.Term>
+                    </DescriptionList.Separator>
+                    <DescriptionList.Details>
+                      <PropType />
+                    </DescriptionList.Details>
+                  </DescriptionList.Item>
+
                   {prop.default !== undefined && (
-                    <React.Fragment>
-                      <DescriptionList.Term>Default</DescriptionList.Term>
+                    <DescriptionList.Item>
+                      <DescriptionList.Separator>
+                        <DescriptionList.Term>Default</DescriptionList.Term>
+                      </DescriptionList.Separator>
                       <DescriptionList.Details>
                         <PropDefault />
                       </DescriptionList.Details>
-                    </React.Fragment>
+                    </DescriptionList.Item>
                   )}
+
                   {ExampleSnippet != null && (
-                    <React.Fragment>
-                      <DescriptionList.Term>Example</DescriptionList.Term>
+                    <DescriptionList.Item>
+                      <DescriptionList.Separator>
+                        <DescriptionList.Term>Example</DescriptionList.Term>
+                      </DescriptionList.Separator>
                       <DescriptionList.Details className="*:my-0">
                         <ExampleSnippet />
                       </DescriptionList.Details>
-                    </React.Fragment>
+                    </DescriptionList.Item>
                   )}
                 </DescriptionList.Root>
               </Accordion.Content>
@@ -190,3 +209,12 @@ const GRID_LAYOUT_CLASSES =
   'xs:grid-cols-[theme(spacing.48)_1fr_theme(spacing.10)] ' +
   'sm:grid-cols-[theme(spacing.56)_1fr_theme(spacing.10)] ' +
   'md:grid-cols-[1fr_2fr_theme(spacing.10)] ';
+
+const PANEL_GRID_LAYOUT =
+  'gap-2 ' +
+  'max-xs:flex max-xs:flex-col ' +
+  'xs:grid-cols-[theme(spacing.48)_1fr_theme(spacing.10)] ' +
+  'xs:gap-x-0 ' +
+  'sm:grid-cols-[theme(spacing.56)_1fr_theme(spacing.10)] ' +
+  'md:grid-cols-[1fr_2fr_theme(spacing.10)] ' +
+  'md:gap-x-5 md:gap-y-4';
