@@ -16,21 +16,31 @@
   }
 
   .DescriptionListSeparator {
-    border-top: 1px solid var(--color-gray-200);
-    padding-top: --spacing(2);
+    position: relative;
     display: flex;
     align-items: center;
 
+    &::before {
+      content: '';
+      box-shadow: inset 0 1px 0 0 var(--color-gray-200);
+      position: absolute;
+      top: 0;
+      inset-inline: 0.75rem 1rem;
+      height: 1px;
+    }
+
     @media (--xs) {
-      border-top: 0;
-      padding-top: 0;
+      &::before {
+        height: 0;
+      }
     }
   }
 
   .DescriptionTerm {
-    @apply text-sm;
+    @apply text-md;
+    @apply font-bold;
     letter-spacing: -0.00625em;
-    color: inherit;
+    color: var(--color-foreground);
     white-space: nowrap;
     word-break: keep-all;
     display: flex;
@@ -38,7 +48,10 @@
     margin-bottom: --spacing(1);
 
     @media (--xs) {
-      margin-bottom: --spacing(0);
+      @apply text-sm;
+      font-weight: revert-layer;
+      color: revert-layer;
+      margin-bottom: 0;
     }
   }
 
@@ -52,11 +65,15 @@
   }
 
   .DescriptionListInner {
-    min-height: 2.5rem;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: start;
-    padding: 0.5rem 0.75rem;
+    padding-inline: 0.75rem;
+
+    @media (--xs) {
+      min-height: 2.5rem;
+      padding: 0.5rem 0.75rem;
+    }
   }
 }
