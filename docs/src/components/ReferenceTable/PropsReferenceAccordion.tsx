@@ -142,7 +142,7 @@ export async function PropsReferenceAccordion({ data, name: partName, ...props }
             <Accordion.Panel>
               <Accordion.Content>
                 <DescriptionList.Root
-                  className={clsx('text-gray-600 pl-3 pr-2 py-3 xs:p-0', PANEL_GRID_LAYOUT)}
+                  className={clsx('text-gray-600 max-xs:py-3', PANEL_GRID_LAYOUT)}
                   aria-label="Info"
                 >
                   <DescriptionList.Item>
@@ -154,7 +154,7 @@ export async function PropsReferenceAccordion({ data, name: partName, ...props }
 
                   {PropDescription != null && (
                     <DescriptionList.Item>
-                      <DescriptionList.Separator>
+                      <DescriptionList.Separator className="max-xs:pt-2">
                         <DescriptionList.Term>Description</DescriptionList.Term>
                       </DescriptionList.Separator>
                       <DescriptionList.Details>
@@ -164,7 +164,7 @@ export async function PropsReferenceAccordion({ data, name: partName, ...props }
                   )}
 
                   <DescriptionList.Item>
-                    <DescriptionList.Separator>
+                    <DescriptionList.Separator className="max-xs:pt-2">
                       <DescriptionList.Term>Type</DescriptionList.Term>
                     </DescriptionList.Separator>
                     <DescriptionList.Details>
@@ -174,7 +174,7 @@ export async function PropsReferenceAccordion({ data, name: partName, ...props }
 
                   {prop.default !== undefined && (
                     <DescriptionList.Item>
-                      <DescriptionList.Separator>
+                      <DescriptionList.Separator className="max-xs:pt-2">
                         <DescriptionList.Term>Default</DescriptionList.Term>
                       </DescriptionList.Separator>
                       <DescriptionList.Details>
@@ -185,7 +185,7 @@ export async function PropsReferenceAccordion({ data, name: partName, ...props }
 
                   {ExampleSnippet != null && (
                     <DescriptionList.Item>
-                      <DescriptionList.Separator>
+                      <DescriptionList.Separator className="max-xs:pt-2">
                         <DescriptionList.Term>Example</DescriptionList.Term>
                       </DescriptionList.Separator>
                       <DescriptionList.Details className="*:my-0">
@@ -211,7 +211,7 @@ const TRIGGER_GRID_LAYOUT =
   'md:grid-cols-[1fr_2fr_theme(spacing.10)] ';
 
 const PANEL_GRID_LAYOUT =
-  'gap-2 ' +
+  'gap-3 ' +
   'max-xs:flex max-xs:flex-col ' +
   'xs:grid-cols-[theme(spacing.48)_1fr_theme(spacing.10)] ' +
   'xs:gap-0 ' +
