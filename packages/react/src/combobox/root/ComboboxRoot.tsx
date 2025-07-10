@@ -75,6 +75,7 @@ export function ComboboxRoot(props: ComboboxRoot.Props): React.JSX.Element {
     openOnInputClick = true,
     itemToString,
     itemToValue,
+    closeWhileEmpty = false,
   } = props;
 
   const { clearErrors } = useFormContext();
@@ -286,6 +287,10 @@ export function ComboboxRoot(props: ComboboxRoot.Props): React.JSX.Element {
     },
   );
 
+  if (filteredItems.length === 0 && open && closeWhileEmpty) {
+    setOpen(false, undefined, undefined);
+  }
+
   const handleUnmount = useEventCallback(() => {
     closingRef.current = false;
     allowActiveIndexSyncRef.current = true;
@@ -361,6 +366,10 @@ export function ComboboxRoot(props: ComboboxRoot.Props): React.JSX.Element {
   const registerSelectedItem = useEventCallback((suppliedIndex: number | undefined) => {
     if (suppliedIndex !== undefined) {
       hasRegisteredRef.current = true;
+    }
+
+    if (selectionMode === 'none') {
+      return;
     }
 
     if (multiple) {
@@ -571,7 +580,6 @@ export function ComboboxRoot(props: ComboboxRoot.Props): React.JSX.Element {
   const contextValue: ComboboxRootContext = React.useMemo(
     () => ({
       selectionMode,
-      mounted,
       listRef,
       popupRef,
       triggerRef,
@@ -586,7 +594,6 @@ export function ComboboxRoot(props: ComboboxRoot.Props): React.JSX.Element {
       setOpen,
       setInputValue,
       setSelectedValue,
-      selectedValue,
       handleEnterSelection,
       name,
       disabled,
@@ -598,14 +605,12 @@ export function ComboboxRoot(props: ComboboxRoot.Props): React.JSX.Element {
     }),
     [
       selectionMode,
-      mounted,
       store,
       getItemProps,
       registerSelectedItem,
       onItemHighlighted,
       setOpen,
       setInputValue,
-      selectedValue,
       setSelectedValue,
       handleEnterSelection,
       name,
@@ -840,6 +845,11 @@ export namespace ComboboxRoot {
      * To render a controlled combobox, use the `selectedValue` prop instead.
      */
     defaultSelectedValue?: any;
+    /**
+     * Whether the combobox popup is closed while there are no items to display.
+     * @default false
+     */
+    closeWhileEmpty?: boolean;
   }
 
   export interface SingleProps extends Omit<Props, 'selectionMode'> {

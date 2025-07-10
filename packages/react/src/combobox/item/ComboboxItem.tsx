@@ -48,7 +48,6 @@ export const ComboboxItem = React.memo(
     const {
       store,
       selectionMode,
-      listRef,
       getItemProps,
       setOpen,
       setSelectedValue,
@@ -179,11 +178,6 @@ export const ComboboxItem = React.memo(
         } else {
           setSelectedValue(value, event.nativeEvent, 'item-press');
           setOpen(false, event.nativeEvent, 'item-press');
-        }
-
-        const selectedIndex = listRef.current.indexOf(itemRef.current);
-        if (selectedIndex !== -1) {
-          store.set('selectedIndex', selectedIndex);
         }
       },
     };
