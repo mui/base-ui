@@ -45,12 +45,20 @@ import {
 import { EMPTY_ARRAY } from '../../utils/constants';
 import { serializeValue } from '../../utils/serializeValue';
 
+type ExtractItemType<T> = T extends ComboboxGroup<infer U>[] ? U : T extends (infer U)[] ? U : T;
+
 /**
  * Groups all parts of the combobox.
  * Doesn't render its own HTML element.
  *
  * Documentation: [Base UI Combobox](https://base-ui.com/react/components/combobox)
  */
+export function ComboboxRoot<Item = any>(
+  props: ComboboxRoot.SingleGroupedProps<Item>,
+): React.JSX.Element;
+export function ComboboxRoot<Item = any>(
+  props: ComboboxRoot.MultipleGroupedProps<Item>,
+): React.JSX.Element;
 export function ComboboxRoot<Item = any>(props: ComboboxRoot.SingleProps<Item>): React.JSX.Element;
 export function ComboboxRoot<Item = any>(
   props: ComboboxRoot.MultipleProps<Item>,
@@ -853,7 +861,7 @@ export namespace ComboboxRoot {
     /**
      * The selected value of the combobox.
      */
-    selectedValue?: Item;
+    selectedValue?: Item | null;
     /**
      * Callback fired when the selected value of the combobox changes.
      */
@@ -917,6 +925,22 @@ export namespace ComboboxRoot {
      * To render a controlled combobox, use the `selectedValue` prop instead.
      */
     defaultSelectedValue?: Item[];
+  }
+
+  export interface SingleGroupedProps<Item = any>
+    extends Omit<SingleProps<ExtractItemType<Item>>, 'items'> {
+    /**
+     * The items to be displayed in the combobox as groups.
+     */
+    items: ComboboxGroup<Item>[];
+  }
+
+  export interface MultipleGroupedProps<Item = any>
+    extends Omit<MultipleProps<ExtractItemType<Item>>, 'items'> {
+    /**
+     * The items to be displayed in the combobox as groups.
+     */
+    items: ComboboxGroup<Item>[];
   }
 
   export interface Actions {

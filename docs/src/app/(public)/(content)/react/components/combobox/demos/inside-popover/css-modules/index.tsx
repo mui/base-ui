@@ -7,7 +7,7 @@ import { countries, type Country } from './data';
 export default function ExamplePopoverCombobox() {
   const [popoverOpen, setPopoverOpen] = React.useState(false);
   const [searchValue, setSearchValue] = React.useState('');
-  const [selectedValue, setSelectedValue] = React.useState('');
+  const [selectedValue, setSelectedValue] = React.useState<Country | null>(null);
 
   return (
     <Popover.Root
@@ -20,7 +20,7 @@ export default function ExamplePopoverCombobox() {
       }}
     >
       <Popover.Trigger className={styles.Trigger}>
-        {selectedValue || 'Select country'}
+        {selectedValue ? selectedValue.value : 'Select country'}
         <span aria-hidden className={styles.TriggerIcon}>
           <ChevronUpDownIcon />
         </span>
@@ -49,7 +49,7 @@ export default function ExamplePopoverCombobox() {
               <Combobox.Empty className={styles.Empty}>No countries found.</Combobox.Empty>
               <Combobox.List className={styles.List}>
                 {(country: Country) => (
-                  <Combobox.Item key={country.code} value={country.value} className={styles.Item}>
+                  <Combobox.Item key={country.code} value={country} className={styles.Item}>
                     <Combobox.ItemIndicator className={styles.ItemIndicator}>
                       <CheckIcon className={styles.ItemIndicatorIcon} />
                     </Combobox.ItemIndicator>

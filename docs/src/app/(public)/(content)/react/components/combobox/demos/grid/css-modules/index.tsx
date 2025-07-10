@@ -97,7 +97,7 @@ export default function EmojiPicker() {
                   inputValue={searchValue}
                   onInputValueChange={setSearchValue}
                   onSelectedValueChange={(value) => {
-                    handleInsertEmoji(value);
+                    handleInsertEmoji(value.emoji);
                     setSearchValue(searchValue);
                   }}
                 >
@@ -124,7 +124,7 @@ export default function EmojiPicker() {
                               {row.map((emoji) => (
                                 <Combobox.Item
                                   key={emoji.emoji}
-                                  value={emoji.emoji}
+                                  value={emoji}
                                   className={styles.Item}
                                 >
                                   <span className={styles.Emoji}>{emoji.emoji}</span>

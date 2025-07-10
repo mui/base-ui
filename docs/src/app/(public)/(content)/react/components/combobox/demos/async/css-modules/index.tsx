@@ -68,8 +68,8 @@ export default function AsyncCombobox() {
       items={searchResults}
       inputValue={searchValue}
       onInputValueChange={setSearchValue}
-      onSelectedValueChange={(value) => {
-        setSearchValue(value ?? '');
+      onSelectedValueChange={(item) => {
+        setSearchValue(item.value ?? '');
       }}
     >
       <label className={styles.Label}>
@@ -84,7 +84,7 @@ export default function AsyncCombobox() {
               <Combobox.Status className={styles.StatusItem}>{status}</Combobox.Status>
               <Combobox.List>
                 {(movie: MovieItem) => (
-                  <Combobox.Item key={movie.id} className={styles.Item} value={movie.value}>
+                  <Combobox.Item key={movie.id} className={styles.Item} value={movie}>
                     <div className={styles.MovieItem}>
                       <div className={styles.MovieName}>{movie.title}</div>
                       <div className={styles.MovieYear}>{movie.year}</div>

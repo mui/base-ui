@@ -44,23 +44,18 @@ function searchFilter(item: SearchResult, query: string): boolean {
 
 export default function SearchHighlightsCombobox() {
   const [searchValue, setSearchValue] = React.useState('');
-  const [selectedValue, setSelectedValue] = React.useState('');
 
   return (
     <Combobox.Root
       items={searchResults}
       inputValue={searchValue}
+      filter={searchFilter}
       onInputValueChange={setSearchValue}
-      selectedValue={selectedValue}
       onSelectedValueChange={(nextValue) => {
-        setSelectedValue(nextValue);
-        // Set the search value to the selected item's title
-        const selectedItem = searchResults.find((item) => item.value === nextValue);
-        if (selectedItem) {
-          setSearchValue(selectedItem.title);
+        if (nextValue) {
+          setSearchValue(nextValue.title);
         }
       }}
-      filter={searchFilter}
     >
       <label className={styles.Label}>
         Search documentation
@@ -76,7 +71,7 @@ export default function SearchHighlightsCombobox() {
 
             <Combobox.List className={styles.List}>
               {(item: SearchResult) => (
-                <Combobox.Item key={item.value} value={item.value} className={styles.Item}>
+                <Combobox.Item key={item.value} value={item} className={styles.Item}>
                   <div className={styles.ItemContent}>
                     <div className={styles.ItemTitle}>{highlightText(item.title, searchValue)}</div>
                     <div className={styles.ItemDescription}>

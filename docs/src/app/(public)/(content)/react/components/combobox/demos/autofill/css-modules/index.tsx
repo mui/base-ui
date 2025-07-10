@@ -32,14 +32,16 @@ export default function AutofillCombobox() {
           setSearchValue(nextValue);
         }}
         onItemHighlighted={(highlightedValue, type) => {
+          if (type !== 'keyboard') {
+            return;
+          }
+
           if (!highlightedValue) {
             setInputHighlightValue('');
             return;
           }
 
-          if (type === 'keyboard') {
-            setInputHighlightValue(highlightedValue);
-          }
+          setInputHighlightValue(highlightedValue);
         }}
       >
         <label className={styles.Label}>

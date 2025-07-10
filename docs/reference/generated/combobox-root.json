@@ -38,11 +38,11 @@
       "description": "The uncontrolled input value when initially rendered."
     },
     "defaultSelectedValue": {
-      "type": "Item | Item[]",
+      "type": "U | Item | (U | Item)[] | Item[]",
       "description": "The uncontrolled selected value of the combobox when it's initially rendered.\n\nTo render a controlled combobox, use the `selectedValue` prop instead."
     },
     "filter": {
-      "type": "((item: Item, query: string, itemToString: ((item: Item) => string) | undefined) => boolean)",
+      "type": "((item: U | Item, query: string, itemToString: ((item: U | Item) => string) | undefined) => boolean) | ((item: Item, query: string, itemToString: ((item: Item) => string) | undefined) => boolean)",
       "description": "Filter function used to match items vs input query.\nThe `itemToString` function is provided to help convert items to strings for comparison."
     },
     "inputValue": {
@@ -50,23 +50,23 @@
       "description": "The input value of the combobox."
     },
     "itemToString": {
-      "type": "((item: Item) => string)",
+      "type": "((item: U | Item) => string) | ((item: Item) => string)",
       "description": "Function to convert an item to a string for display in the combobox."
     },
     "itemToValue": {
-      "type": "((item: Item) => string)",
+      "type": "((item: U | Item) => string) | ((item: Item) => string)",
       "description": "Function to convert an item to its value for form submission."
     },
     "items": {
-      "type": "Item[] | ComboboxGroup<Item>[]",
-      "description": "The items to be displayed in the combobox.\nCan be either a flat array of items or an array of groups with items."
+      "type": "ComboboxGroup<Item>[] | Item[]",
+      "description": "The items to be displayed in the combobox as groups."
     },
     "onInputValueChange": {
       "type": "((value: string, event: Event | undefined, reason: string | undefined) => void)",
       "description": "Callback fired when the input value of the combobox changes."
     },
     "onItemHighlighted": {
-      "type": "((value: Item | undefined, type: 'keyboard' | 'pointer') => void)",
+      "type": "((value: U | Item | undefined, type: 'keyboard' | 'pointer') => void) | ((value: Item | undefined, type: 'keyboard' | 'pointer') => void)",
       "description": "Callback fired when the user navigates the list and highlights an item.\nPasses the item's `value` or `undefined` when no item is highlighted."
     },
     "onOpenChangeComplete": {
@@ -74,7 +74,7 @@
       "description": "Event handler called after any animations complete when the combobox popup is opened or closed."
     },
     "onSelectedValueChange": {
-      "type": "((value: Item, event: Event | undefined, reason: string | undefined) => void) | ((value: Item[], event: Event | undefined, reason: string | undefined) => void)",
+      "type": "((value: U | Item, event: Event | undefined, reason: string | undefined) => void) | ((value: (U | Item)[], event: Event | undefined, reason: string | undefined) => void) | ((value: Item, event: Event | undefined, reason: string | undefined) => void) | ((value: Item[], event: Event | undefined, reason: string | undefined) => void)",
       "description": "Callback fired when the selected value of the combobox changes."
     },
     "openOnInputClick": {
@@ -83,7 +83,7 @@
       "description": "Whether the combobox popup should open when the input is clicked."
     },
     "selectedValue": {
-      "type": "Item | Item[]",
+      "type": "U | Item | (U | Item)[] | Item[] | null",
       "description": "The selected value of the combobox."
     },
     "selectionMode": {
