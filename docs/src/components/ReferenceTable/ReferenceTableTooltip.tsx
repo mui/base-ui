@@ -7,7 +7,7 @@ export function Trigger(props: Tooltip.Trigger.Props) {
 }
 
 export function Root(props: Tooltip.Root.Props) {
-  return <Tooltip.Root delay={100} {...props} />;
+  return <Tooltip.Root {...props} />;
 }
 
 export function Popup({ children, ...props }: Tooltip.Popup.Props) {
@@ -20,7 +20,10 @@ export function Popup({ children, ...props }: Tooltip.Popup.Props) {
         sideOffset={9}
         collisionPadding={16}
       >
-        <Tooltip.Popup render={<BasePopup className="px-4 py-3 text-md" />} {...props}>
+        <Tooltip.Popup
+          render={<BasePopup className="px-4 py-3 text-md overflow-visible" />}
+          {...props}
+        >
           <div className="flex max-w-72 flex-col gap-3 text-pretty">{children}</div>
           <Tooltip.Arrow className="data-[side=bottom]:top-[-8px] data-[side=left]:right-[-13px] data-[side=left]:rotate-90 data-[side=right]:left-[-13px] data-[side=right]:-rotate-90 data-[side=top]:bottom-[-8px] data-[side=top]:rotate-180">
             <svg width="20" height="10" viewBox="0 0 20 10" fill="none">
