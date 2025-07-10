@@ -49,7 +49,7 @@ function getShortPropType(name: string, type: string | undefined) {
     return { type, detailedType: false };
   }
 
-  return { type: 'Union', detailedType: false };
+  return { type: 'Union', detailedType: true };
 }
 
 export async function PropsReferenceAccordion({ data, name: partName, ...props }: Props) {
