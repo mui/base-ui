@@ -112,7 +112,7 @@ export async function PropsReferenceAccordion({ data, name: partName, ...props }
               {prop.type && (
                 <span className="flex items-baseline gap-2 text-sm leading-none max-xs:hidden">
                   {detailedType ? (
-                    <ReferenceTableTooltip.Root>
+                    <ReferenceTableTooltip.Root delay={300} hoverable={false}>
                       <ReferenceTableTooltip.Trigger render={<ShortPropType />} />
                       <ReferenceTableTooltip.Popup>
                         <PropType />
