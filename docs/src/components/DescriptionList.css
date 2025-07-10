@@ -31,7 +31,7 @@
 
   &:not(:first-of-type) {
     border-top: 1px solid var(--color-gray-200);
-    padding-top: --spacing(1.5);
+
     @media (--xs) {
       border-top: 0;
       margin-top: 0;
