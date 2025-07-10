@@ -162,10 +162,18 @@ export function useAnchorPositioning(
   let sizeCollisionPadding: Padding | undefined;
   const epsilon = 0.01;
   if (typeof collisionPadding === 'number') {
-    sizeCollisionPadding = collisionPadding - epsilon;
+    sizeCollisionPadding = {
+      // Create a bias to `bottom`. On iOS when the mobile software keyboard opens,
+      // the input is exactly centered in the viewport, but this can cause it to
+      // flip to the top undesirably.
+      top: collisionPadding + 0.5,
+      right: collisionPadding - epsilon,
+      bottom: collisionPadding - epsilon,
+      left: collisionPadding - epsilon,
+    };
   } else if (collisionPadding) {
     sizeCollisionPadding = {
-      top: (collisionPadding.top || 0) - epsilon,
+      top: (collisionPadding.top || 0) + 0.5,
       right: (collisionPadding.right || 0) - epsilon,
       bottom: (collisionPadding.bottom || 0) - epsilon,
       left: (collisionPadding.left || 0) - epsilon,
