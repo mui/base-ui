@@ -374,7 +374,7 @@ export function ComboboxRoot<Item = any>(props: ComboboxRoot.Props<Item>): React
       onSelectedValueChange?.(nextValue as Item, event, reason);
       setSelectedValueUnwrapped(nextValue);
 
-      if (selectionMode === 'none' && !multiple) {
+      if (selectionMode === 'none' && !multiple && popupRef.current) {
         const stringVal = stringifyItem(nextValue as Item, itemToString);
         setInputValue(stringVal, undefined, undefined);
       }
