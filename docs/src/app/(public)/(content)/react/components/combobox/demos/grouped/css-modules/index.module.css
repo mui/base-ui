@@ -83,6 +83,7 @@
   letter-spacing: 0.025em;
   background-color: canvas;
   position: sticky;
+  z-index: 1;
   top: 0;
   margin: 0;
   width: 100%;
