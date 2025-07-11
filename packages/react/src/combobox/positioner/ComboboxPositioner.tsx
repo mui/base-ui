@@ -1,5 +1,7 @@
 'use client';
 import * as React from 'react';
+import { useSelector } from '@base-ui-components/utils/store';
+import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { useComboboxFloatingContext, useComboboxRootContext } from '../root/ComboboxRootContext';
 import { ComboboxPositionerContext } from './ComboboxPositionerContext';
 import { type Side, type Align, useAnchorPositioning } from '../../utils/useAnchorPositioning';
@@ -8,8 +10,6 @@ import { popupStateMapping } from '../../utils/popupStateMapping';
 import { useComboboxPortalContext } from '../portal/ComboboxPortalContext';
 import { DROPDOWN_COLLISION_AVOIDANCE } from '../../utils/constants';
 import { useRenderElement } from '../../utils/useRenderElement';
-import { useEventCallback } from '../../utils/useEventCallback';
-import { useSelector } from '../../utils/store';
 import { selectors } from '../store';
 
 /**

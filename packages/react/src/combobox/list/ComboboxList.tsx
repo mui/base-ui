@@ -1,12 +1,12 @@
 'use client';
 import * as React from 'react';
+import { useSelector } from '@base-ui-components/utils/store';
+import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useModernLayoutEffect } from '@base-ui-components/utils/useModernLayoutEffect';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useComboboxFloatingContext, useComboboxRootContext } from '../root/ComboboxRootContext';
-import { useEventCallback } from '../../utils/useEventCallback';
-import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { useComboboxPositionerContext } from '../positioner/ComboboxPositionerContext';
-import { useSelector } from '../../utils/store';
 import { selectors } from '../store';
 import { ComboboxCollection } from '../collection/ComboboxCollection';
 import { stopEvent } from '../../floating-ui-react/utils';

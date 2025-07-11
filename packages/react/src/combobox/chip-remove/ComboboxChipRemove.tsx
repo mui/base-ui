@@ -1,12 +1,12 @@
 'use client';
 import * as React from 'react';
+import { useSelector } from '@base-ui-components/utils/store';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useComboboxRootContext } from '../root/ComboboxRootContext';
 import { useComboboxChipContext } from '../chip/ComboboxChipContext';
 import { useButton } from '../../use-button';
 import { stopEvent } from '../../floating-ui-react/utils';
-import { useSelector } from '../../utils/store';
 import { selectors } from '../store';
 
 /**

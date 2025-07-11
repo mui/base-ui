@@ -1,21 +1,22 @@
 'use client';
 import * as React from 'react';
+import { useSelector } from '@base-ui-components/utils/store';
+import { useLatestRef } from '@base-ui-components/utils/useLatestRef';
+import { useModernLayoutEffect } from '@base-ui-components/utils/useModernLayoutEffect';
+import { useAnimationFrame } from '@base-ui-components/utils/useAnimationFrame';
+
 import { useComboboxRootContext } from '../root/ComboboxRootContext';
 import {
   useCompositeListItem,
   IndexGuessBehavior,
 } from '../../composite/list/useCompositeListItem';
 import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
-import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
-import { useLatestRef } from '../../utils/useLatestRef';
-import { useSelector } from '../../utils/store';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { ComboboxItemContext } from './ComboboxItemContext';
 import { selectors } from '../store';
 import { useButton } from '../../use-button';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useComboboxRowContext } from '../row/ComboboxRowContext';
-import { useAnimationFrame } from '../../utils/useAnimationFrame';
 
 /**
  * An individual item in the combobox popup.

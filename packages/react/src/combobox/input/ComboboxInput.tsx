@@ -1,11 +1,11 @@
 'use client';
 import * as React from 'react';
+import { useSelector } from '@base-ui-components/utils/store';
+import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useComboboxRootContext } from '../root/ComboboxRootContext';
-import { useSelector } from '../../utils/store';
 import { selectors } from '../store';
-import { useEventCallback } from '../../utils/useEventCallback';
 import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { fieldValidityMapping } from '../../field/utils/constants';

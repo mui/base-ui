@@ -1,8 +1,8 @@
 'use client';
 import * as React from 'react';
+import { useModernLayoutEffect } from '@base-ui-components/utils/useModernLayoutEffect';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useBaseUiId } from '../../utils/useBaseUiId';
-import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { useComboboxGroupContext } from '../group/ComboboxGroupContext';
 import { useRenderElement } from '../../utils/useRenderElement';
 

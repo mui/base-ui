@@ -1,9 +1,9 @@
 'use client';
 import * as React from 'react';
+import { useSelector } from '@base-ui-components/utils/store';
 import { useComboboxRootContext } from '../root/ComboboxRootContext';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
-import { useSelector } from '../../utils/store';
 import { selectors } from '../store';
 import { useButton } from '../../use-button';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';

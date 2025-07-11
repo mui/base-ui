@@ -5,8 +5,6 @@ import { useForkRef } from '@base-ui-components/utils/useForkRef';
 import { useSelectRoot } from './useSelectRoot';
 import { SelectRootContext, SelectFloatingContext } from './SelectRootContext';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
-import { visuallyHidden } from '../../utils/visuallyHidden';
-import { useForkRef } from '../../utils/useForkRef';
 import { serializeValue } from '../../utils/serializeValue';
 import type { BaseOpenChangeReason } from '../../utils/translateOpenChangeReason';
 

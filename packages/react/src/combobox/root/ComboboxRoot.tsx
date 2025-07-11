@@ -1,5 +1,14 @@
 'use client';
 import * as React from 'react';
+import { useControlled } from '@base-ui-components/utils/useControlled';
+import { useModernLayoutEffect } from '@base-ui-components/utils/useModernLayoutEffect';
+import { useOnFirstRender } from '@base-ui-components/utils/useOnFirstRender';
+import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useForkRef } from '@base-ui-components/utils/useForkRef';
+import { useLatestRef } from '@base-ui-components/utils/useLatestRef';
+import { visuallyHidden } from '@base-ui-components/utils/visuallyHidden';
+import { useLazyRef } from '@base-ui-components/utils/useLazyRef';
+import { Store, useSelector } from '@base-ui-components/utils/store';
 import {
   ElementProps,
   useDismiss,
@@ -19,22 +28,14 @@ import {
   ComboboxRootContext,
   ValueChangeReason,
 } from './ComboboxRootContext';
-import { useControlled, useModernLayoutEffect, useTransitionStatus } from '../../utils';
 import { selectors, type State as StoreState } from '../store';
-import { Store, useSelector } from '../../utils/store';
-import { useLazyRef } from '../../utils/useLazyRef';
-import { useEventCallback } from '../../utils/useEventCallback';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
-import { useOnFirstRender } from '../../utils/useOnFirstRender';
 import { CompositeList } from '../../composite/list/CompositeList';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
 import { useFormContext } from '../../form/FormContext';
 import { useField } from '../../field/useField';
-import { visuallyHidden } from '../../utils/visuallyHidden';
-import { useForkRef } from '../../utils/useForkRef';
 import { useBaseUiId } from '../../utils/useBaseUiId';
-import { useLatestRef } from '../../utils/useLatestRef';
 import {
   type ComboboxGroup,
   defaultItemFilter,
@@ -45,6 +46,7 @@ import {
 } from './utils';
 import { EMPTY_ARRAY } from '../../utils/constants';
 import { serializeValue } from '../../utils/serializeValue';
+import { useTransitionStatus } from '../../utils/useTransitionStatus';
 
 type ExtractItemType<T> = T extends ComboboxGroup<infer U>[] ? U : T extends (infer U)[] ? U : T;
 
