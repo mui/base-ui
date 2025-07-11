@@ -815,12 +815,35 @@ export function useListNavigation(
     return {
       'aria-orientation': orientation === 'both' ? undefined : orientation,
       ...(!typeableComboboxReference ? ariaActiveDescendantProp : {}),
-      onKeyDown: commonOnKeyDown,
+      onKeyDown(event: React.KeyboardEvent) {
+        // Close submenu on Shift+Tab
+        if (event.key === 'Tab' && event.shiftKey && open && !virtual) {
+          stopEvent(event);
+          onOpenChange(false, event.nativeEvent, 'list-navigation');
+
+          if (isHTMLElement(elements.domReference)) {
+            elements.domReference.focus();
+          }
+
+          return;
+        }
+
+        commonOnKeyDown(event);
+      },
       onPointerMove() {
         isPointerModalityRef.current = true;
       },
     };
-  }, [ariaActiveDescendantProp, commonOnKeyDown, orientation, typeableComboboxReference]);
+  }, [
+    ariaActiveDescendantProp,
+    commonOnKeyDown,
+    orientation,
+    typeableComboboxReference,
+    onOpenChange,
+    open,
+    virtual,
+    elements.domReference,
+  ]);
 
   const reference: ElementProps['reference'] = React.useMemo(() => {
     function checkVirtualMouse(event: React.PointerEvent) {
