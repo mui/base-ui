@@ -52,12 +52,22 @@ export interface ComboboxRootContext {
   cols: number;
   isGrouped: boolean;
   virtualized: boolean;
+  openOnlyWithMatch: boolean;
+  items: any[] | undefined;
+}
+
+export interface ComboboxDerivedItemsContext {
+  query: string;
+  filteredItems: any[];
 }
 
 export const ComboboxRootContext = React.createContext<ComboboxRootContext | undefined>(undefined);
 export const ComboboxFloatingContext = React.createContext<FloatingRootContext | undefined>(
   undefined,
 );
+export const ComboboxDerivedItemsContext = React.createContext<
+  ComboboxDerivedItemsContext | undefined
+>(undefined);
 
 export function useComboboxRootContext() {
   const context = React.useContext(ComboboxRootContext) as ComboboxRootContext | undefined;
@@ -74,6 +84,16 @@ export function useComboboxFloatingContext() {
   if (!context) {
     throw new Error(
       'Base UI: ComboboxFloatingContext is missing. Combobox parts must be placed within <Combobox.Root>.',
+    );
+  }
+  return context;
+}
+
+export function useComboboxDerivedItemsContext() {
+  const context = React.useContext(ComboboxDerivedItemsContext);
+  if (!context) {
+    throw new Error(
+      'Base UI: ComboboxItemsContext is missing. Combobox parts must be placed within <Combobox.Root>.',
     );
   }
   return context;

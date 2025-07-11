@@ -53,7 +53,8 @@ export default function AddOptionCombobox() {
           <Combobox.Popup className={styles.Popup}>
             <Combobox.List>
               {(item: string) => {
-                const isAddOption = showAddOption && item === inputValue.trim();
+                const isAddOption =
+                  showAddOption && item.toLowerCase().trim() === inputValue.toLowerCase().trim();
                 return (
                   <Combobox.Item key={item} value={item} className={styles.Item}>
                     {isAddOption ? `Add "${item}"` : item}

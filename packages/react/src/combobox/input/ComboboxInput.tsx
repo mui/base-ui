@@ -158,7 +158,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
         onChange(event: React.ChangeEvent<HTMLInputElement>) {
           // If consumer didn't control value prop, sync with context
           if (componentProps.value === undefined) {
-            setInputValue(event.target.value, event.nativeEvent, 'input-change');
+            setInputValue(event.currentTarget.value, event.nativeEvent, 'input-change');
           }
           // When the user types, ensure the list resets its highlight so that
           // virtual focus returns to the input (aria-activedescendant is
@@ -209,8 +209,10 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
               (event.key.length === 1 && !event.ctrlKey && !event.metaKey && !event.altKey))
           ) {
             setOpen(true, event.nativeEvent, undefined);
+
             store.set('activeIndex', null);
             store.set('selectedIndex', null);
+
             if (activeIndex !== null) {
               onItemHighlighted(undefined, {
                 type: keyboardActiveRef.current ? 'keyboard' : 'pointer',

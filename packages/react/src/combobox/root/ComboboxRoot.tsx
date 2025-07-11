@@ -15,6 +15,7 @@ import {
 } from '../../utils/translateOpenChangeReason';
 import {
   ComboboxFloatingContext,
+  ComboboxDerivedItemsContext,
   ComboboxRootContext,
   ValueChangeReason,
 } from './ComboboxRootContext';
@@ -82,10 +83,9 @@ export function ComboboxRoot<Item = any>(props: ComboboxRoot.Props<Item>): React
     cols = 1,
     items,
     filter: filterProp,
-    openOnInputClick = true,
+    openOnlyWithMatch = false,
     itemToString,
     itemToValue,
-    closeWhileEmpty = false,
     virtualized = false,
   } = props;
 
@@ -150,10 +150,10 @@ export function ComboboxRoot<Item = any>(props: ComboboxRoot.Props<Item>): React
   });
 
   const query = React.useMemo(() => {
-    if (inputValue == null) {
+    if (inputValue === '') {
       return '';
     }
-    return String(inputValue).toLocaleLowerCase();
+    return String(inputValue).trim().toLocaleLowerCase();
   }, [inputValue]);
 
   const isGrouped = React.useMemo(() => isGroupedItems(items), [items]);
@@ -177,7 +177,7 @@ export function ComboboxRoot<Item = any>(props: ComboboxRoot.Props<Item>): React
 
     if (isGrouped) {
       const groupedItems = items as ComboboxGroup<Item>[];
-      if (query.trim() === '') {
+      if (query === '') {
         return groupedItems;
       }
       return groupedItems
@@ -185,13 +185,11 @@ export function ComboboxRoot<Item = any>(props: ComboboxRoot.Props<Item>): React
         .filter((group): group is ComboboxGroup<Item> => group !== null);
     }
 
-    if (query.trim() === '') {
+    if (query === '') {
       return flatItems;
     }
     return flatItems.filter((item) => filter(item, query, itemToString));
   }, [items, flatItems, query, filter, isGrouped, itemToString]);
-
-  const { mounted, setMounted, transitionStatus } = useTransitionStatus(openRaw);
 
   const store = useLazyRef(
     () =>
@@ -200,11 +198,10 @@ export function ComboboxRoot<Item = any>(props: ComboboxRoot.Props<Item>): React
         selectedValue,
         inputValue,
         open: openRaw,
-        mounted,
-        transitionStatus,
-        items,
         filter,
-        filteredItems,
+        query,
+        mounted: false,
+        transitionStatus: 'idle',
         inline: false,
         activeIndex: null,
         selectedIndex: null,
@@ -224,7 +221,10 @@ export function ComboboxRoot<Item = any>(props: ComboboxRoot.Props<Item>): React
   const positionerElement = useSelector(store, selectors.positionerElement);
   const listElement = useSelector(store, selectors.listElement);
   const inline = useSelector(store, selectors.inline);
-  const open = inline ? true : openRaw;
+  const forceClosed = openOnlyWithMatch && filteredItems.length === 0;
+  const open = inline || (openRaw && !forceClosed);
+
+  const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
 
   const initialList = React.useMemo(() => {
     if (virtualized && items) {
@@ -328,10 +328,6 @@ export function ComboboxRoot<Item = any>(props: ComboboxRoot.Props<Item>): React
       setOpenUnwrapped(nextOpen);
     },
   );
-
-  if (filteredItems.length === 0 && open && closeWhileEmpty) {
-    setOpen(false, undefined, undefined);
-  }
 
   const handleUnmount = useEventCallback(() => {
     closingRef.current = false;
@@ -537,7 +533,7 @@ export function ComboboxRoot<Item = any>(props: ComboboxRoot.Props<Item>): React
   );
 
   const click = useClick(floatingRootContext, {
-    enabled: !readOnly && !disabled && openOnInputClick,
+    enabled: !readOnly && !disabled && !openOnlyWithMatch,
     event: 'mousedown-only',
     toggle: false,
   });
@@ -614,8 +610,6 @@ export function ComboboxRoot<Item = any>(props: ComboboxRoot.Props<Item>): React
       transitionStatus,
       popupProps: getFloatingProps(),
       triggerProps: getReferenceProps(),
-      items,
-      filteredItems,
     });
   }, [
     store,
@@ -627,8 +621,6 @@ export function ComboboxRoot<Item = any>(props: ComboboxRoot.Props<Item>): React
     transitionStatus,
     getFloatingProps,
     getReferenceProps,
-    items,
-    filteredItems,
   ]);
 
   const hiddenInputRef = useForkRef(inputRefProp, fieldControlValidation.inputRef);
@@ -659,6 +651,8 @@ export function ComboboxRoot<Item = any>(props: ComboboxRoot.Props<Item>): React
       cols,
       isGrouped,
       virtualized,
+      openOnlyWithMatch,
+      items,
     }),
     [
       selectionMode,
@@ -678,7 +672,17 @@ export function ComboboxRoot<Item = any>(props: ComboboxRoot.Props<Item>): React
       cols,
       isGrouped,
       virtualized,
+      openOnlyWithMatch,
+      items,
     ],
+  );
+
+  const itemsContextValue: ComboboxDerivedItemsContext = React.useMemo(
+    () => ({
+      query,
+      filteredItems,
+    }),
+    [query, filteredItems],
   );
 
   const serializedValue = React.useMemo(() => {
@@ -761,7 +765,9 @@ export function ComboboxRoot<Item = any>(props: ComboboxRoot.Props<Item>): React
   return (
     <ComboboxRootContext.Provider value={contextValue}>
       <ComboboxFloatingContext.Provider value={floatingRootContext}>
-        {virtualized ? children : <CompositeList elementsRef={listRef}>{children}</CompositeList>}
+        <ComboboxDerivedItemsContext.Provider value={itemsContextValue}>
+          {virtualized ? children : <CompositeList elementsRef={listRef}>{children}</CompositeList>}
+        </ComboboxDerivedItemsContext.Provider>
       </ComboboxFloatingContext.Provider>
     </ComboboxRootContext.Provider>
   );
@@ -819,10 +825,10 @@ export namespace ComboboxRoot {
      */
     open?: boolean;
     /**
-     * Whether the combobox popup should open when the input is clicked.
-     * @default true
+     * Whether the combobox popup is only open when the input value is not empty and matches at least one item.
+     * @default false
      */
-    openOnInputClick?: boolean;
+    openOnlyWithMatch?: boolean;
     /**
      * The input value of the combobox.
      */
@@ -910,11 +916,6 @@ export namespace ComboboxRoot {
      * To render a controlled combobox, use the `selectedValue` prop instead.
      */
     defaultSelectedValue?: Item;
-    /**
-     * Whether the combobox popup is closed while there are no items to display.
-     * @default false
-     */
-    closeWhileEmpty?: boolean;
     /**
      * Whether the combobox popup should be virtualized.
      * @default false

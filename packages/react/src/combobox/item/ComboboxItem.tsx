@@ -60,14 +60,14 @@ export const ComboboxItem = React.memo(
       readOnly,
       virtualized,
       listRef,
+      items,
     } = useComboboxRootContext();
 
     const selectable = selectionMode !== 'none';
     const multiple = selectionMode === 'multiple';
-    const isRow = useComboboxRowContext();
-    const items = useSelector(store, selectors.items);
     const index = virtualized && items ? items.indexOf(value) : listItem.index;
 
+    const isRow = useComboboxRowContext();
     const active = useSelector(store, selectors.isActive, index);
     const matchesSelectedValue = useSelector(store, selectors.isSelected, value);
     const rootSelectedValue = useSelector(store, selectors.selectedValue);

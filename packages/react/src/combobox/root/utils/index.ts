@@ -38,7 +38,7 @@ export function singleSelectionFilter(
     return false;
   }
 
-  if (query.trim() === '') {
+  if (query === '') {
     return true;
   }
 
@@ -64,7 +64,7 @@ export function defaultGroupFilter(
   itemFilter: (item: any, query: string, itemToString?: (item: any) => string) => boolean,
   itemToString?: (item: any) => string,
 ): ComboboxGroup<any> | null {
-  if (query.trim() === '') {
+  if (query === '') {
     return group;
   }
 

@@ -5,8 +5,7 @@ import type { HTMLProps } from '../utils/types';
 export type State = {
   id: string | undefined;
 
-  items?: any[];
-  filteredItems?: any[];
+  query: string;
 
   filter: (item: any, query: string) => boolean;
 
@@ -34,8 +33,7 @@ export type ComboboxStore = Store<State>;
 export const selectors = {
   id: createSelector((state: State) => state.id),
 
-  items: createSelector((state: State) => state.items),
-  filteredItems: createSelector((state: State) => state.filteredItems),
+  query: createSelector((state: State) => state.query),
 
   selectedValue: createSelector((state: State) => state.selectedValue),
   inputValue: createSelector((state: State) => state.inputValue),

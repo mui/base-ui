@@ -64,17 +64,29 @@ import { Combobox } from '@base-ui-components/react/combobox';
 
 ## Examples
 
-### Basic
+### Select
+
+The combobox can require the input value to match one of its predefined options. Trigger and clear buttons are also added to the input container.
+
+<Demo path="./demos/option-only" compact />
+
+### Multiple select
+
+The combobox can be used to create a multiple select menu, rendering chips for each selected value in the input.
+
+<Demo path="./demos/multiple" compact />
+
+### Autocomplete
+
+The combobox popup can only show while the query matches at least one item.
+
+<Demo path="./demos/autocomplete" compact />
+
+### Without autocomplete
 
 The combobox can display predefined options without filtering or selection state, demonstrating search history.
 
-<Demo path="./demos/basic" compact />
-
-### Grouped
-
-The combobox can group related options together by passing an array of group objects to the `items` prop.
-
-<Demo path="./demos/grouped" compact />
+<Demo path="./demos/without-autocomplete" compact />
 
 ### Async search
 
@@ -88,23 +100,17 @@ The combobox's input can be autofilled with the highlighted item when navigating
 
 <Demo path="./demos/autofill" compact />
 
-### Select
+### Grouped
 
-The combobox can require the input value to match one of its predefined options. Trigger and clear buttons are also added to the input container.
+The combobox can group related options together by passing an array of group objects to the `items` prop.
 
-<Demo path="./demos/option-only" compact />
+<Demo path="./demos/grouped" compact />
 
 ### Inside `Popover`
 
 The combobox can be rendered inline inside a parent popover to create a searchable select menu.
 
 <Demo path="./demos/inside-popover" compact />
-
-### Multiple
-
-The combobox can be used to create a multiple select menu, rendering chips for each selected value in the input.
-
-<Demo path="./demos/multiple" compact />
 
 ### Grid layout
 

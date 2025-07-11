@@ -23,11 +23,6 @@
       "type": "RefObject<Combobox.Root.Actions>",
       "description": "A ref to imperative actions.\n- `unmount`: When specified, the combobox will not be unmounted when closed.\nInstead, the `unmount` function must be called to unmount the combobox manually.\nUseful when the combobox's animation is controlled by an external library."
     },
-    "closeWhileEmpty": {
-      "type": "boolean",
-      "default": "false",
-      "description": "Whether the combobox popup is closed while there are no items to display."
-    },
     "cols": {
       "type": "number",
       "default": "1",
@@ -66,7 +61,7 @@
       "description": "Callback fired when the input value of the combobox changes."
     },
     "onItemHighlighted": {
-      "type": "((value: U | Item | undefined, type: 'keyboard' | 'pointer') => void) | ((value: Item | undefined, type: 'keyboard' | 'pointer') => void)",
+      "type": "((value: U | Item | undefined, data: { type: 'keyboard' | 'pointer', index: number }) => void) | ((value: Item | undefined, data: { type: 'keyboard' | 'pointer', index: number }) => void)",
       "description": "Callback fired when the user navigates the list and highlights an item.\nPasses the item's `value` or `undefined` when no item is highlighted."
     },
     "onOpenChangeComplete": {
@@ -77,10 +72,10 @@
       "type": "((value: U | Item, event: Event | undefined, reason: string | undefined) => void) | ((value: (U | Item)[], event: Event | undefined, reason: string | undefined) => void) | ((value: Item, event: Event | undefined, reason: string | undefined) => void) | ((value: Item[], event: Event | undefined, reason: string | undefined) => void)",
       "description": "Callback fired when the selected value of the combobox changes."
     },
-    "openOnInputClick": {
+    "openOnlyWithMatch": {
       "type": "boolean",
-      "default": "true",
-      "description": "Whether the combobox popup should open when the input is clicked."
+      "default": "false",
+      "description": "Whether the combobox popup is only open when the input value is not empty and matches at least one item."
     },
     "selectedValue": {
       "type": "U | Item | (U | Item)[] | Item[] | null",
@@ -90,6 +85,11 @@
       "type": "'single' | 'multiple'",
       "default": "'none'",
       "description": "How the combobox should remember the selected value.\n- `single`: Remembers the last selected value in state.\n- `multiple`: Remember all selected values in state.\n- `none`: Does not remember the selected value in state."
+    },
+    "virtualized": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Whether the combobox popup should be virtualized."
     },
     "disabled": {
       "type": "boolean",
