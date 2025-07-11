@@ -25,7 +25,7 @@ describe('<Meter.Root />', () => {
 
       const meter = getByRole('meter');
 
-      expect(meter).to.have.attribute('aria-valuenow', '0.3');
+      expect(meter).to.have.attribute('aria-valuenow', '30');
       expect(meter).to.have.attribute('aria-valuemin', '0');
       expect(meter).to.have.attribute('aria-valuemax', '100');
       expect(meter).to.have.attribute('aria-valuetext', '30%');
@@ -44,7 +44,7 @@ describe('<Meter.Root />', () => {
       );
       const meter = getByRole('meter');
       await setProps({ value: 77 });
-      expect(meter).to.have.attribute('aria-valuenow', '0.77');
+      expect(meter).to.have.attribute('aria-valuenow', '77');
     });
   });
 
