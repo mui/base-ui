@@ -17,7 +17,7 @@ export interface UseClickProps {
    * Keyboard clicks work as normal.
    * @default 'click'
    */
-  event?: 'click' | 'mousedown';
+  event?: 'click' | 'mousedown' | 'mousedown-only';
   /**
    * Whether to toggle the open state with repeated clicks.
    * @default true
@@ -90,6 +90,10 @@ export function useClick(context: FloatingRootContext, props: UseClickProps = {}
         });
       },
       onClick(event) {
+        if (eventOption === 'mousedown-only') {
+          return;
+        }
+
         const pointerType = pointerTypeRef.current;
 
         if (eventOption === 'mousedown' && pointerType) {
