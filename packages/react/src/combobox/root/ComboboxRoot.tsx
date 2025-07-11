@@ -202,6 +202,7 @@ export function ComboboxRoot<Item = any>(props: ComboboxRoot.Props<Item>): React
         open: openRaw,
         filter,
         query,
+        initialList: [],
         mounted: false,
         transitionStatus: 'idle',
         inline: false,
@@ -610,6 +611,7 @@ export function ComboboxRoot<Item = any>(props: ComboboxRoot.Props<Item>): React
       open,
       mounted,
       transitionStatus,
+      initialList,
       popupProps: getFloatingProps(),
       triggerProps: getReferenceProps(),
     });
@@ -621,6 +623,7 @@ export function ComboboxRoot<Item = any>(props: ComboboxRoot.Props<Item>): React
     open,
     mounted,
     transitionStatus,
+    initialList,
     getFloatingProps,
     getReferenceProps,
   ]);

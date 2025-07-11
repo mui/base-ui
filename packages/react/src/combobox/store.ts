@@ -7,6 +7,8 @@ export type State = {
 
   query: string;
 
+  initialList: any[];
+
   filter: (item: any, query: string) => boolean;
 
   selectedValue: any;
@@ -34,6 +36,8 @@ export const selectors = {
   id: createSelector((state: State) => state.id),
 
   query: createSelector((state: State) => state.query),
+
+  initialList: createSelector((state: State) => state.initialList),
 
   selectedValue: createSelector((state: State) => state.selectedValue),
   inputValue: createSelector((state: State) => state.inputValue),

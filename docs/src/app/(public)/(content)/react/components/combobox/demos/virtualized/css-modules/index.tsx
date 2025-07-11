@@ -71,11 +71,16 @@ export default function VirtualizedCombobox() {
             <Combobox.List className={styles.List}>
               {filteredItems.length > 0 && (
                 <div
+                  role="presentation"
                   ref={handleScrollElementRef}
                   className={styles.Scroller}
                   style={{ '--total-size': totalSizePx } as React.CSSProperties}
                 >
-                  <div className={styles.VirtualizedPlaceholder} style={{ height: totalSizePx }}>
+                  <div
+                    role="presentation"
+                    className={styles.VirtualizedPlaceholder}
+                    style={{ height: totalSizePx }}
+                  >
                     {virtualizer.getVirtualItems().map((virtualItem) => {
                       const item = filteredItems[virtualItem.index];
                       if (!item) {
