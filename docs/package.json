@@ -23,7 +23,7 @@
     "@mdx-js/react": "^3.1.0",
     "@mui/system": "7.2.0",
     "@next/mdx": "^15.3.4",
-    "@react-spring/web": "^9.7.5",
+    "@react-spring/web": "^10.0.1",
     "@stefanprobst/rehype-extract-toc": "^3.0.0",
     "@types/mdx": "^2.0.13",
     "clipboard-copy": "^4.0.1",
@@ -45,7 +45,6 @@
     "react-error-boundary": "^4.1.2",
     "react-hook-form": "^7.59.0",
     "react-is": "^19.1.0",
-    "react-runner": "^1.0.5",
     "rehype-pretty-code": "^0.14.1",
     "remark": "^15.0.1",
     "remark-frontmatter": "^5.0.0",
@@ -84,6 +83,6 @@
     "unified": "^11.0.5",
     "webpack-bundle-analyzer": "^4.10.2",
     "yargs": "^17.7.2",
-    "zod": "^3.24.3"
+    "zod": "^3.25.76"
   }
 }
