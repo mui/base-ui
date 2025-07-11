@@ -25,7 +25,7 @@ export const isFirefox = hasNavigator && /firefox/i.test(userAgent);
 export const isSafari = hasNavigator && /apple/i.test(navigator.vendor);
 export const isAndroid = (hasNavigator && /android/i.test(platform)) || /android/i.test(userAgent);
 export const isMac =
-  hasNavigator && platform.toLowerCase().startsWith('mac') && !navigator.maxTouchPoints;
+  hasNavigator && platform?.toLowerCase().startsWith('mac') && !navigator.maxTouchPoints;
 export const isJSDOM = userAgent.includes('jsdom/');
 
 // Avoid Chrome DevTools blue warning.
