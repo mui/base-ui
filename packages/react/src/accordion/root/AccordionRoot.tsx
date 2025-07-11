@@ -57,6 +57,7 @@ export const AccordionRoot = React.forwardRef(function AccordionRoot(
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const {
+    render,
     className,
     disabled = false,
     hiddenUntilFound: hiddenUntilFoundProp,
