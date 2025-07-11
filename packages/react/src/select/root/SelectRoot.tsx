@@ -1,12 +1,14 @@
 'use client';
 import * as React from 'react';
+import { visuallyHidden } from '@base-ui-components/utils/visuallyHidden';
+import { useForkRef } from '@base-ui-components/utils/useForkRef';
 import { useSelectRoot } from './useSelectRoot';
 import { SelectRootContext, SelectFloatingContext } from './SelectRootContext';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { visuallyHidden } from '../../utils/visuallyHidden';
 import { useForkRef } from '../../utils/useForkRef';
-import { BaseOpenChangeReason } from '../../utils/translateOpenChangeReason';
 import { serializeValue } from '../../utils/serializeValue';
+import type { BaseOpenChangeReason } from '../../utils/translateOpenChangeReason';
 
 /**
  * Groups all parts of the select.

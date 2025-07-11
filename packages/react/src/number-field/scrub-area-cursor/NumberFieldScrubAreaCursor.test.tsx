@@ -3,8 +3,8 @@ import { expect } from 'chai';
 import { screen, act } from '@mui/internal-test-utils';
 import sinon from 'sinon';
 import { NumberField } from '@base-ui-components/react/number-field';
+import { isWebKit } from '@base-ui-components/utils/detectBrowser';
 import { createRenderer, describeConformance } from '#test-utils';
-import { isWebKit } from '../../utils/detectBrowser';
 import { NumberFieldScrubAreaContext } from '../scrub-area/NumberFieldScrubAreaContext';
 
 const defaultScrubAreaContext: NumberFieldScrubAreaContext = {

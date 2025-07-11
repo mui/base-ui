@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { inertValue } from '@base-ui-components/utils/inertValue';
 import {
   FloatingNode,
   useFloatingNodeId,
@@ -13,7 +14,6 @@ import { useRenderElement } from '../../utils/useRenderElement';
 import { BaseUIComponentProps } from '../../utils/types';
 import { popupStateMapping } from '../../utils/popupStateMapping';
 import { CompositeList } from '../../composite/list/CompositeList';
-import { inertValue } from '../../utils/inertValue';
 import { InternalBackdrop } from '../../utils/InternalBackdrop';
 import { useMenuPortalContext } from '../portal/MenuPortalContext';
 import { DROPDOWN_COLLISION_AVOIDANCE } from '../../utils/constants';
