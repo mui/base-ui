@@ -1,6 +1,8 @@
 'use client';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
+import { useControlled } from '@base-ui-components/utils/useControlled';
+import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { TooltipOpenChangeReason, TooltipRootContext } from './TooltipRootContext';
 import {
   useClientPoint,
@@ -12,9 +14,7 @@ import {
   useInteractions,
   safePolygon,
 } from '../../floating-ui-react';
-import { useControlled } from '../../utils/useControlled';
 import { useTransitionStatus } from '../../utils/useTransitionStatus';
-import { useEventCallback } from '../../utils/useEventCallback';
 import { OPEN_DELAY } from '../utils/constants';
 import { translateOpenChangeReason } from '../../utils/translateOpenChangeReason';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';

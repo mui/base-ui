@@ -1,9 +1,9 @@
 'use client';
 import * as React from 'react';
-import { ownerDocument } from '../../utils/owner';
+import { ownerDocument } from '@base-ui-components/utils/owner';
+import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useModernLayoutEffect } from '@base-ui-components/utils/useModernLayoutEffect';
 import { useBaseUiId } from '../../utils/useBaseUiId';
-import { useEventCallback } from '../../utils/useEventCallback';
-import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { useRenderElement } from '../../utils/useRenderElement';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useButton } from '../../use-button';

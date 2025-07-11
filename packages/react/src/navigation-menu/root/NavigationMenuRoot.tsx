@@ -1,6 +1,9 @@
 'use client';
 import * as React from 'react';
 import { isHTMLElement } from '@floating-ui/utils/dom';
+import { useControlled } from '@base-ui-components/utils/useControlled';
+import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { ownerDocument } from '@base-ui-components/utils/owner';
 import {
   FloatingTree,
   useFloatingNodeId,
@@ -15,11 +18,9 @@ import {
   NavigationMenuTreeContext,
   useNavigationMenuRootContext,
 } from './NavigationMenuRootContext';
-import { useControlled, useTransitionStatus } from '../../utils';
 import type { BaseOpenChangeReason } from '../../utils/translateOpenChangeReason';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
-import { useEventCallback } from '../../utils/useEventCallback';
-import { ownerDocument } from '../../utils/owner';
+import { useTransitionStatus } from '../../utils/useTransitionStatus';
 
 /**
  * Groups all parts of the navigation menu.

@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
+import { useModernLayoutEffect } from '@base-ui-components/utils/useModernLayoutEffect';
 import { useBaseUiId } from '../../utils/useBaseUiId';
-import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { useMeterRootContext } from '../root/MeterRootContext';
 import type { MeterRoot } from '../root/MeterRoot';
 import { BaseUIComponentProps } from '../../utils/types';

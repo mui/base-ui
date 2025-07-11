@@ -1,15 +1,15 @@
 'use client';
 import * as React from 'react';
+import { useForkRef } from '@base-ui-components/utils/useForkRef';
+import { useModernLayoutEffect } from '@base-ui-components/utils/useModernLayoutEffect';
+import { isReactVersionAtLeast } from '@base-ui-components/utils/reactVersion';
+import { visuallyHidden } from '@base-ui-components/utils/visuallyHidden';
 import { formatNumber } from '../../utils/formatNumber';
 import { getStyleHookProps } from '../../utils/getStyleHookProps';
 import { mergeProps } from '../../merge-props';
-import { isReactVersionAtLeast } from '../../utils/reactVersion';
 import { resolveClassName } from '../../utils/resolveClassName';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useBaseUiId } from '../../utils/useBaseUiId';
-import { useForkRef } from '../../utils/useForkRef';
-import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
-import { visuallyHidden } from '../../utils/visuallyHidden';
 import {
   ARROW_DOWN,
   ARROW_UP,

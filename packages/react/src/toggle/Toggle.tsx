@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
-import { useControlled } from '../utils/useControlled';
-import { useEventCallback } from '../utils/useEventCallback';
+import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useControlled } from '@base-ui-components/utils/useControlled';
 import { useRenderElement } from '../utils/useRenderElement';
 import type { BaseUIComponentProps } from '../utils/types';
 import { useToggleGroupContext } from '../toggle-group/ToggleGroupContext';
