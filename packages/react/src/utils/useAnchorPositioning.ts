@@ -1,6 +1,10 @@
 'use client';
 import * as React from 'react';
 import { getSide, getAlignment, type Rect, getSideAxis } from '@floating-ui/utils';
+import { ownerDocument } from '@base-ui-components/utils/owner';
+import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useLatestRef } from '@base-ui-components/utils/useLatestRef';
+import { useModernLayoutEffect } from '@base-ui-components/utils/useModernLayoutEffect';
 import {
   autoUpdate,
   flip,
@@ -22,11 +26,7 @@ import {
   type AutoUpdateOptions,
   type Middleware,
 } from '../floating-ui-react/index';
-import { useModernLayoutEffect } from './useModernLayoutEffect';
 import { useDirection } from '../direction-provider/DirectionContext';
-import { useLatestRef } from './useLatestRef';
-import { useEventCallback } from './useEventCallback';
-import { ownerDocument } from './owner';
 
 function getLogicalSide(sideParam: Side, renderedSide: PhysicalSide, isRtl: boolean): Side {
   const isLogicalSideParam = sideParam === 'inline-start' || sideParam === 'inline-end';

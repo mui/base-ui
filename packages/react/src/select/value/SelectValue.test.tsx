@@ -345,4 +345,101 @@ describe('<Select.Value />', () => {
     await user.click(screen.getByRole('button', { name: 'null' }));
     expect(screen.getByTestId('value')).to.have.text('initial');
   });
+
+  describe('prop: multiple', () => {
+    it('displays comma-separated labels for multiple values with items object', async () => {
+      const items = {
+        sans: 'Sans-serif',
+        serif: 'Serif',
+        mono: 'Monospace',
+      };
+
+      await render(
+        <Select.Root value={['sans', 'serif']} items={items} multiple>
+          <Select.Value data-testid="value" />
+        </Select.Root>,
+      );
+
+      expect(screen.getByTestId('value')).to.have.text('sans, serif');
+    });
+
+    it('displays comma-separated values for multiple values with items array', async () => {
+      await render(
+        <Select.Root value={['serif', 'mono']} multiple>
+          <Select.Value data-testid="value" />
+        </Select.Root>,
+      );
+
+      expect(screen.getByTestId('value')).to.have.text('serif, mono');
+    });
+
+    it('displays single value when only one value is selected in multiple mode', async () => {
+      await render(
+        <Select.Root value={['sans']} multiple>
+          <Select.Value data-testid="value" />
+        </Select.Root>,
+      );
+
+      expect(screen.getByTestId('value')).to.have.text('sans');
+    });
+
+    it('displays empty when no values are selected in multiple mode', async () => {
+      await render(
+        <Select.Root value={[]} multiple>
+          <Select.Value data-testid="value" />
+        </Select.Root>,
+      );
+
+      expect(screen.getByTestId('value')).to.have.text('');
+    });
+
+    it('children function receives array of values in multiple mode', async () => {
+      const children = spy();
+      const items = {
+        sans: 'Sans-serif',
+        serif: 'Serif',
+      };
+
+      await render(
+        <Select.Root value={['sans', 'serif']} items={items} multiple>
+          <Select.Value>
+            {(values) => {
+              children(values);
+              return `Selected: ${Array.isArray(values) ? values.join(' + ') : values}`;
+            }}
+          </Select.Value>
+        </Select.Root>,
+      );
+
+      expect(children.firstCall.firstArg).to.deep.equal(['sans', 'serif']);
+      expect(screen.getByText('Selected: sans + serif')).not.to.equal(null);
+    });
+
+    it('children prop takes precedence over items in multiple mode', async () => {
+      const items = {
+        sans: 'Sans-serif',
+        serif: 'Serif',
+      };
+
+      await render(
+        <Select.Root value={['sans', 'serif']} items={items} multiple>
+          <Select.Value data-testid="value">Custom Multiple Text</Select.Value>
+        </Select.Root>,
+      );
+
+      expect(screen.getByTestId('value')).to.have.text('Custom Multiple Text');
+    });
+
+    it('defaults to empty array when no value is provided', async () => {
+      const renderValue = spy();
+
+      await render(
+        <Select.Root multiple>
+          <Select.Value>{renderValue}</Select.Value>
+        </Select.Root>,
+      );
+
+      expect(renderValue.firstCall.firstArg).to.deep.equal([]);
+    });
+  });
 });

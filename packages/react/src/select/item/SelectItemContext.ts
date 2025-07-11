@@ -4,6 +4,7 @@ export interface SelectItemContext {
   selected: boolean;
   indexRef: React.RefObject<number>;
   textRef: React.RefObject<HTMLElement | null>;
+  selectedByFocus: boolean;
 }
 
 export const SelectItemContext = React.createContext<SelectItemContext | undefined>(undefined);

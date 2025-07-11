@@ -1,10 +1,10 @@
 'use client';
 import * as React from 'react';
+import { useForkRef } from '@base-ui-components/utils/useForkRef';
 import { FloatingEvents } from '../../floating-ui-react';
 import { useButton } from '../../use-button';
 import { mergeProps } from '../../merge-props';
 import { HTMLProps, BaseUIEvent } from '../../utils/types';
-import { useForkRef } from '../../utils';
 
 export const REGULAR_ITEM = {
   type: 'regular-item' as const,

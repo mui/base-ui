@@ -1,9 +1,9 @@
 'use client';
 import * as React from 'react';
-import { generateId } from '../../utils/generateId';
-import { useForcedRerendering } from '../../utils/useForcedRerendering';
+import { generateId } from '@base-ui-components/utils/generateId';
+import { useForcedRerendering } from '@base-ui-components/utils/useForcedRerendering';
+import { useOnMount } from '@base-ui-components/utils/useOnMount';
 import { useRenderElement } from '../../utils/useRenderElement';
-import { useOnMount } from '../../utils/useOnMount';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useDirection } from '../../direction-provider/DirectionContext';
 import type { TabsRoot } from '../root/TabsRoot';

@@ -2,10 +2,14 @@
   "private": true,
   "description": "Bundle size measurement workspace for MUI packages",
   "scripts": {
-    "check": "NODE_OPTIONS=\"--max-old-space-size=4096\" bundle-size-checker --output ../size-snapshot.json --vite"
+    "check": "cross-env NODE_OPTIONS=\"--max-old-space-size=4096\" bundle-size-checker --output ../size-snapshot.json --vite"
   },
   "dependencies": {
     "@base-ui-components/react": "workspace:*",
+    "@base-ui-components/utils": "workspace:*",
     "radix-ui": "^1.4.2"
+  },
+  "devDependencies": {
+    "cross-env": "^7.0.3"
   }
 }

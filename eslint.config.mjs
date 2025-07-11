@@ -6,7 +6,7 @@ import {
   EXTENSION_TEST_FILE,
   EXTENSION_TS,
 } from '@mui/internal-code-infra/eslint';
-import { defineConfig } from 'eslint/config';
+import { defineConfig, globalIgnores } from 'eslint/config';
 import * as path from 'node:path';
 import { fileURLToPath } from 'url';
 
@@ -31,6 +31,7 @@ const NO_RESTRICTED_IMPORTS_PATHS_TOP_LEVEL_PACKAGES = [
 ];
 
 export default defineConfig(
+  globalIgnores(['./examples']),
   {
     name: 'Base Config',
     extends: createBaseConfig({
