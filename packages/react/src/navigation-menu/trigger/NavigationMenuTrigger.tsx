@@ -90,10 +90,31 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
   const [stickIfOpen, setStickIfOpen] = React.useState(true);
   const [pointerType, setPointerType] = React.useState<'mouse' | 'touch' | 'pen' | ''>('');
 
+  const allowFocusRef = React.useRef(false);
+  const prevSizeRef = React.useRef({ width: 0, height: 0 });
+  const abortControllerRef = React.useRef(new AbortController());
+
   const isActiveItem = open && value === itemValue;
   const isActiveItemRef = useLatestRef(isActiveItem);
 
-  const allowFocusRef = React.useRef(false);
+  const runOnceAnimationsFinish = useAnimationsFinished({ current: popupElement });
+
+  if (!open && pointerType !== '') {
+    setPointerType('');
+  }
+
+  React.useEffect(() => {
+    abortControllerRef.current.abort();
+  }, [isActiveItem]);
+
+  const setAutoSizes = useEventCallback(() => {
+    if (!popupElement) {
+      return;
+    }
+
+    popupElement.style.setProperty(NavigationMenuPopupCssVars.popupWidth, 'auto');
+    popupElement.style.setProperty(NavigationMenuPopupCssVars.popupHeight, 'auto');
+  });
 
   const handleValueChange = useEventCallback((currentWidth: number, currentHeight: number) => {
     if (!popupElement || !positionerElement) {
@@ -128,76 +149,63 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
       sizeFrame2.request(() => {
         popupElement.style.setProperty(NavigationMenuPopupCssVars.popupWidth, `${nextWidth}px`);
         popupElement.style.setProperty(NavigationMenuPopupCssVars.popupHeight, `${nextHeight}px`);
+        runOnceAnimationsFinish(setAutoSizes, abortControllerRef.current.signal);
       });
     });
   });
-
-  const setAutoSizes = useEventCallback(() => {
-    if (!popupElement) {
-      return;
-    }
-
-    popupElement.style.setProperty(NavigationMenuPopupCssVars.popupWidth, 'auto');
-    popupElement.style.setProperty(NavigationMenuPopupCssVars.popupHeight, 'auto');
-  });
-
-  const runOnceAnimationsFinish = useAnimationsFinished({ current: popupElement }, value);
-
-  useModernLayoutEffect(() => {
-    if (!positionerElement || !popupElement || !open) {
-      return undefined;
-    }
-
-    sizeFrame1.request(() => {
-      sizeFrame2.request(setAutoSizes);
-    });
-    return () => {
-      sizeFrame1.cancel();
-      sizeFrame2.cancel();
-    };
-  }, [open, popupElement, positionerElement, sizeFrame1, sizeFrame2, setAutoSizes]);
-
-  useModernLayoutEffect(() => {
-    if (!positionerElement || !popupElement || !value) {
-      return undefined;
-    }
-
-    const ac = new AbortController();
-    sizeFrame1.request(() => {
-      sizeFrame2.request(() => {
-        runOnceAnimationsFinish(setAutoSizes, ac.signal);
-      });
-    });
-
-    return () => {
-      sizeFrame1.cancel();
-      sizeFrame2.cancel();
-      ac.abort();
-    };
-  }, [
-    value,
-    popupElement,
-    positionerElement,
-    runOnceAnimationsFinish,
-    sizeFrame1,
-    sizeFrame2,
-    setAutoSizes,
-  ]);
 
   React.useEffect(() => {
     if (!open) {
-      setPointerType('');
       stickIfOpenTimeout.clear();
       sizeFrame1.cancel();
       sizeFrame2.cancel();
     }
   }, [stickIfOpenTimeout, open, sizeFrame1, sizeFrame2]);
 
-  useModernLayoutEffect(() => {
-    if (isActiveItemRef.current && open && popupElement) {
-      handleValueChange(0, 0);
+  React.useEffect(() => {
+    if (!popupElement || typeof ResizeObserver !== 'function') {
+      return undefined;
     }
-  }, [isActiveItemRef, open, popupElement, handleValueChange]);
+
+    const resizeObserver = new ResizeObserver(() => {
+      prevSizeRef.current = {
+        width: popupElement.offsetWidth,
+        height: popupElement.offsetHeight,
+      };
+    });
+
+    resizeObserver.observe(popupElement);
+
+    return () => {
+      resizeObserver.disconnect();
+    };
+  }, [popupElement]);
+
+  React.useEffect(() => {
+    if (!popupElement || !isActiveItem || typeof MutationObserver !== 'function') {
+      return undefined;
+    }
+
+    const mutationObserver = new MutationObserver(() => {
+      if (!popupElement) {
+        return;
+      }
+
+      abortControllerRef.current.abort();
+      abortControllerRef.current = new AbortController();
+      handleValueChange(prevSizeRef.current.width, prevSizeRef.current.height);
+    });
+
+    mutationObserver.observe(popupElement, {
+      childList: true,
+      subtree: true,
+      characterData: true,
+    });
+
+    return () => {
+      mutationObserver.disconnect();
+    };
+  }, [popupElement, positionerElement, isActiveItem, handleValueChange, setAutoSizes]);
 
   React.useEffect(() => {
     if (isActiveItem && open && popupElement && allowFocusRef.current) {
@@ -211,6 +219,12 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
       focusFrame.cancel();
     };
   }, [beforeOutsideRef, focusFrame, handleValueChange, isActiveItem, open, popupElement]);
+
+  useModernLayoutEffect(() => {
+    if (isActiveItemRef.current && open && popupElement) {
+      handleValueChange(0, 0);
+    }
+  }, [isActiveItemRef, open, popupElement, handleValueChange]);
 
   function handleOpenChange(
     nextOpen: boolean,
