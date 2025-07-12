@@ -89,6 +89,59 @@ function TestNestedNavigationMenu() {
   );
 }
 
+function TestInlineNestedNavigationMenu() {
+  return (
+    <NavigationMenu.Root>
+      <NavigationMenu.List>
+        <NavigationMenu.Item value="item-1">
+          <NavigationMenu.Trigger data-testid="trigger-1">Item 1</NavigationMenu.Trigger>
+
+          <NavigationMenu.Content data-testid="popup-1">
+            <NavigationMenu.Link href="#link-1">Link 1</NavigationMenu.Link>
+            <NavigationMenu.Root defaultValue="nested-item-1">
+              <NavigationMenu.List>
+                <NavigationMenu.Item value="nested-item-1">
+                  <NavigationMenu.Trigger data-testid="nested-trigger-1">
+                    Nested Item 1
+                  </NavigationMenu.Trigger>
+                  <NavigationMenu.Content data-testid="nested-popup-1">
+                    <NavigationMenu.Link href="#nested-link-1">Nested Link 1</NavigationMenu.Link>
+                  </NavigationMenu.Content>
+                </NavigationMenu.Item>
+                <NavigationMenu.Item value="nested-item-2">
+                  <NavigationMenu.Trigger data-testid="nested-trigger-2">
+                    Nested Item 2
+                  </NavigationMenu.Trigger>
+                  <NavigationMenu.Content data-testid="nested-popup-2">
+                    <NavigationMenu.Link href="#nested-link-2">Nested Link 2</NavigationMenu.Link>
+                  </NavigationMenu.Content>
+                </NavigationMenu.Item>
+              </NavigationMenu.List>
+
+              <NavigationMenu.Viewport />
+            </NavigationMenu.Root>
+          </NavigationMenu.Content>
+        </NavigationMenu.Item>
+
+        <NavigationMenu.Item value="item-2">
+          <NavigationMenu.Trigger data-testid="trigger-2">Item 2</NavigationMenu.Trigger>
+          <NavigationMenu.Content data-testid="popup-2">
+            <NavigationMenu.Link href="#link-3">Link 3</NavigationMenu.Link>
+          </NavigationMenu.Content>
+        </NavigationMenu.Item>
+      </NavigationMenu.List>
+
+      <NavigationMenu.Portal>
+        <NavigationMenu.Positioner>
+          <NavigationMenu.Popup>
+            <NavigationMenu.Viewport />
+          </NavigationMenu.Popup>
+        </NavigationMenu.Positioner>
+      </NavigationMenu.Portal>
+    </NavigationMenu.Root>
+  );
+}
+
 describe('<NavigationMenu.Root />', () => {
   const { render, clock } = createRenderer({
     clockOptions: {
@@ -505,6 +558,57 @@ describe('<NavigationMenu.Root />', () => {
       expect(screen.queryByTestId('nested-popup-1')).not.to.equal(null);
       expect(trigger1).to.have.attribute('aria-expanded', 'true');
       expect(nestedTrigger1).to.have.attribute('aria-expanded', 'true');
+    });
+
+    it('handles inline nested menu without positioner/popup correctly', async () => {
+      await render(<TestInlineNestedNavigationMenu />);
+      const trigger1 = screen.getByTestId('trigger-1');
+
+      // Open the first level menu
+      fireEvent.mouseEnter(trigger1);
+      fireEvent.mouseMove(trigger1);
+      clock.tick(OPEN_DELAY);
+      await flushMicrotasks();
+
+      const popup1 = screen.getByTestId('popup-1');
+      expect(popup1).not.to.equal(null);
+      expect(trigger1).to.have.attribute('aria-expanded', 'true');
+
+      // Search for the nested trigger *within* the first popup
+      const nestedTrigger1 = within(popup1).getByTestId('nested-trigger-1');
+
+      // Hover over the nested trigger to open the second level menu
+      fireEvent.mouseEnter(nestedTrigger1);
+      fireEvent.mouseMove(nestedTrigger1);
+      clock.tick(OPEN_DELAY);
+      await flushMicrotasks();
+
+      const nestedPopup1 = screen.getByTestId('nested-popup-1');
+      expect(nestedPopup1).not.to.equal(null);
+      expect(nestedTrigger1).to.have.attribute('aria-expanded', 'true');
+
+      // Hover over the nested popup content
+      fireEvent.mouseEnter(nestedPopup1);
+      fireEvent.mouseMove(nestedPopup1);
+      await flushMicrotasks();
+
+      // Both menus should remain open
+      expect(screen.queryByTestId('popup-1')).not.to.equal(null);
+      expect(screen.queryByTestId('nested-popup-1')).not.to.equal(null);
+      expect(trigger1).to.have.attribute('aria-expanded', 'true');
+      expect(nestedTrigger1).to.have.attribute('aria-expanded', 'true');
+
+      // Test switching between nested items
+      const nestedTrigger2 = within(popup1).getByTestId('nested-trigger-2');
+      fireEvent.mouseEnter(nestedTrigger2);
+      fireEvent.mouseMove(nestedTrigger2);
+      clock.tick(OPEN_DELAY);
+      await flushMicrotasks();
+
+      const nestedPopup2 = screen.getByTestId('nested-popup-2');
+      expect(nestedPopup2).not.to.equal(null);
+      expect(nestedTrigger2).to.have.attribute('aria-expanded', 'true');
+      expect(nestedTrigger1).to.have.attribute('aria-expanded', 'false');
     });
 
     describe('tabbing', () => {

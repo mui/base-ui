@@ -8,6 +8,7 @@ import {
 } from '../root/NavigationMenuRootContext';
 import { isOutsideMenuEvent } from '../utils/isOutsideMenuEvent';
 import { CompositeItem } from '../../composite/item/CompositeItem';
+import { setFixedSize } from '../utils/setFixedSize';
 
 /**
  * A link in the navigation menu that can be used to navigate to a different page or section.
@@ -21,7 +22,7 @@ export const NavigationMenuLink = React.forwardRef(function NavigationMenuLink(
 ) {
   const { className, render, ...elementProps } = componentProps;
 
-  const { setValue, popupElement, rootRef } = useNavigationMenuRootContext();
+  const { setValue, popupElement, positionerElement, rootRef } = useNavigationMenuRootContext();
   const nodeId = useNavigationMenuTreeContext();
   const tree = useFloatingTree();
 
@@ -29,6 +30,8 @@ export const NavigationMenuLink = React.forwardRef(function NavigationMenuLink(
     tabIndex: undefined,
     onBlur(event) {
       if (
+        positionerElement &&
+        popupElement &&
         isOutsideMenuEvent(
           {
             currentTarget: event.currentTarget,
@@ -37,6 +40,8 @@ export const NavigationMenuLink = React.forwardRef(function NavigationMenuLink(
           { popupElement, rootRef, tree, nodeId },
         )
       ) {
+        setFixedSize(popupElement, 'popup');
+        setFixedSize(positionerElement, 'positioner');
         setValue(null, event.nativeEvent, undefined);
       }
     },

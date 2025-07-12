@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
+import { isTabbable } from 'tabbable';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { useModernLayoutEffect } from '@base-ui-components/utils/useModernLayoutEffect';
 import { visuallyHidden } from '@base-ui-components/utils/visuallyHidden';
@@ -42,6 +43,7 @@ import { useAnimationsFinished } from '../../utils/useAnimationsFinished';
 import { NavigationMenuPopupCssVars } from '../popup/NavigationMenuPopupCssVars';
 import { NavigationMenuPositionerCssVars } from '../positioner/NavigationMenuPositionerCssVars';
 import { CompositeItem } from '../../composite/item/CompositeItem';
+import { setFixedSize } from '../utils/setFixedSize';
 
 const TRIGGER_IDENTIFIER = 'data-navigation-menu-trigger';
 
@@ -67,6 +69,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     setActivationDirection,
     setFloatingRootContext,
     popupElement,
+    viewportElement,
     rootRef,
     beforeOutsideRef,
     afterOutsideRef,
@@ -76,6 +79,8 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     delay,
     closeDelay,
     orientation,
+    inline,
+    setViewportInert,
   } = useNavigationMenuRootContext();
   const itemValue = useNavigationMenuItemContext();
   const nodeId = useNavigationMenuTreeContext();
@@ -96,6 +101,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
 
   const isActiveItem = open && value === itemValue;
   const isActiveItemRef = useLatestRef(isActiveItem);
+  const interactionsEnabled = inline ? !value : true;
 
   const runOnceAnimationsFinish = useAnimationsFinished({ current: popupElement });
 
@@ -159,6 +165,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
       stickIfOpenTimeout.clear();
       sizeFrame1.cancel();
       sizeFrame2.cancel();
+      prevSizeRef.current = { width: 0, height: 0 };
     }
   }, [stickIfOpenTimeout, open, sizeFrame1, sizeFrame2]);
 
@@ -242,22 +249,8 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     }
 
     if (!nextOpen && popupElement && positionerElement) {
-      popupElement.style.setProperty(
-        NavigationMenuPopupCssVars.popupWidth,
-        `${popupElement.offsetWidth}px`,
-      );
-      popupElement.style.setProperty(
-        NavigationMenuPopupCssVars.popupHeight,
-        `${popupElement.offsetHeight}px`,
-      );
-      positionerElement.style.setProperty(
-        NavigationMenuPositionerCssVars.positionerWidth,
-        `${positionerElement.offsetWidth}px`,
-      );
-      positionerElement.style.setProperty(
-        NavigationMenuPositionerCssVars.positionerHeight,
-        `${positionerElement.offsetHeight}px`,
-      );
+      setFixedSize(popupElement, 'popup');
+      setFixedSize(positionerElement, 'positioner');
     }
 
     function changeState() {
@@ -292,22 +285,24 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     },
     elements: {
       reference: triggerElement,
-      floating: positionerElement,
+      floating: positionerElement || viewportElement,
     },
   });
 
   const hover = useHover(context, {
+    enabled: interactionsEnabled,
     move: false,
     handleClose: safePolygon({ blockPointerEvents: pointerType !== 'touch' }),
-    restMs: mounted ? 0 : delay,
+    restMs: mounted && positionerElement ? 0 : delay,
     delay: { close: closeDelay },
   });
   const click = useClick(context, {
+    enabled: interactionsEnabled,
     stickIfOpen,
     toggle: isActiveItem,
   });
   const dismiss = useDismiss(context, {
-    enabled: isActiveItem,
+    enabled: isActiveItem && interactionsEnabled,
     outsidePress(event) {
       // When pressing a new trigger with touch input, prevent closing the popup.
       const target = getTarget(event) as HTMLElement | null;
@@ -326,7 +321,43 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
   const { getReferenceProps } = useInteractions([hover, click, dismiss]);
 
   const handleOpenEvent = useEventCallback((event: React.MouseEvent | React.KeyboardEvent) => {
+    // For nested scenarios without positioner/popup, we can still open the menu
+    // but we can't do size calculations
     if (!popupElement || !positionerElement) {
+      ReactDOM.flushSync(() => {
+        const prevTriggerRect = prevTriggerElementRef.current?.getBoundingClientRect();
+
+        if (mounted && prevTriggerRect && triggerElement) {
+          const nextTriggerRect = triggerElement.getBoundingClientRect();
+          const isMovingRight = nextTriggerRect.left > prevTriggerRect.left;
+          const isMovingDown = nextTriggerRect.top > prevTriggerRect.top;
+
+          if (orientation === 'horizontal' && nextTriggerRect.left !== prevTriggerRect.left) {
+            setActivationDirection(isMovingRight ? 'right' : 'left');
+          } else if (orientation === 'vertical' && nextTriggerRect.top !== prevTriggerRect.top) {
+            setActivationDirection(isMovingDown ? 'down' : 'up');
+          }
+        }
+
+        // Reset the `openEvent` to `undefined` when the active item changes so that a
+        // `click` -> `hover` on new trigger -> `hover` back to old trigger doesn't unexpectedly
+        // cause the popup to remain stuck open when leaving the old trigger.
+        if (event.type !== 'click') {
+          context.dataRef.current.openEvent = undefined;
+        }
+
+        if (pointerType === 'touch' && event.type !== 'click') {
+          return;
+        }
+
+        if (value != null) {
+          setValue(
+            itemValue,
+            event.nativeEvent,
+            event.type === 'mouseenter' ? 'trigger-hover' : 'trigger-press',
+          );
+        }
+      });
       return;
     }
 
@@ -391,6 +422,12 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     'aria-expanded': isActiveItem,
     'aria-controls': isActiveItem ? popupElement?.id : undefined,
     [TRIGGER_IDENTIFIER as string]: '',
+    onFocus() {
+      if (!isActiveItem) {
+        return;
+      }
+      setViewportInert(false);
+    },
     onMouseMove() {
       allowFocusRef.current = false;
     },
@@ -408,18 +445,21 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     onBlur(event) {
       if (
         event.relatedTarget &&
+        !inline &&
         isOutsideMenuEvent(
           {
             currentTarget: event.currentTarget,
             relatedTarget: event.relatedTarget as HTMLElement | null,
           },
-          { popupElement, rootRef, tree, nodeId },
+          { popupElement, viewportElement, rootRef, tree, nodeId },
         )
       ) {
         setValue(null, event.nativeEvent, 'focus-out');
       }
     },
   };
+
+  const referenceElement = positionerElement || viewportElement;
 
   return (
     <React.Fragment>
@@ -437,7 +477,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
           <FocusGuard
             ref={beforeOutsideRef}
             onFocus={(event) => {
-              if (positionerElement && isOutsideEvent(event, positionerElement)) {
+              if (referenceElement && isOutsideEvent(event, referenceElement)) {
                 beforeInsideRef.current?.focus();
               } else {
                 const prevTabbable = getPreviousTabbable(triggerElement);
@@ -445,12 +485,16 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
               }
             }}
           />
-          <span aria-owns={popupElement?.id} style={visuallyHidden} />
+          <span aria-owns={viewportElement?.id} style={visuallyHidden} />
           <FocusGuard
             ref={afterOutsideRef}
             onFocus={(event) => {
-              if (positionerElement && isOutsideEvent(event, positionerElement)) {
-                afterInsideRef.current?.focus();
+              if (referenceElement && isOutsideEvent(event, referenceElement)) {
+                const elementToFocus =
+                  afterInsideRef.current && isTabbable(afterInsideRef.current)
+                    ? afterInsideRef.current
+                    : triggerElement;
+                elementToFocus?.focus();
               } else {
                 const nextTabbable = getNextTabbable(triggerElement);
                 nextTabbable?.focus();

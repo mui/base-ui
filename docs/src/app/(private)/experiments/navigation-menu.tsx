@@ -148,6 +148,84 @@ export default function ExampleNavigationMenu() {
           </NavigationMenu.Item>
 
           <NavigationMenu.Item>
+            <NavigationMenu.Trigger className={styles.Trigger}>
+              Nested
+              <NavigationMenu.Icon className={styles.Icon}>
+                <ChevronDownIcon />
+              </NavigationMenu.Icon>
+            </NavigationMenu.Trigger>
+            <NavigationMenu.Content className={styles.Content}>
+              <NavigationMenu.Root className={styles.Root} defaultValue="overview">
+                <NavigationMenu.List className={styles.List}>
+                  <NavigationMenu.Item value="overview">
+                    <NavigationMenu.Trigger className={styles.Trigger}>
+                      Overview
+                      <NavigationMenu.Icon className={styles.Icon}>
+                        <ChevronDownIcon />
+                      </NavigationMenu.Icon>
+                    </NavigationMenu.Trigger>
+                    <NavigationMenu.Content className={styles.Content}>
+                      <ul className={styles.GridLinkList}>
+                        {overviewLinks.map((item) => (
+                          <li key={item.href}>
+                            <Link className={styles.LinkCard} href={item.href}>
+                              <h3 className={styles.LinkTitle}>{item.title}</h3>
+                              <p className={styles.LinkDescription}>{item.description}</p>
+                            </Link>
+                          </li>
+                        ))}
+                      </ul>
+                    </NavigationMenu.Content>
+                  </NavigationMenu.Item>
+
+                  <NavigationMenu.Item value="handbook">
+                    <NavigationMenu.Trigger className={styles.Trigger}>
+                      Handbook
+                      <NavigationMenu.Icon className={styles.Icon}>
+                        <ChevronDownIcon />
+                      </NavigationMenu.Icon>
+                    </NavigationMenu.Trigger>
+                    <NavigationMenu.Content className={styles.Content}>
+                      <button type="button" onClick={() => setRenderExtraItem(!renderExtraItem)}>
+                        Render extra item
+                      </button>
+
+                      <ul className={styles.FlexLinkList}>
+                        {handbookLinks.map((item) => (
+                          <li key={item.href}>
+                            <Link className={styles.LinkCard} href={item.href}>
+                              <h3 className={styles.LinkTitle}>{item.title}</h3>
+                              <p className={styles.LinkDescription}>{item.description}</p>
+                            </Link>
+                          </li>
+                        ))}
+                        {renderExtraItem && (
+                          <li>
+                            <Link className={styles.LinkCard} href="/react/overview/quick-start">
+                              <h3 className={styles.LinkTitle}>Quick Start</h3>
+                              <p className={styles.LinkDescription}>
+                                Install and assemble your first component.
+                              </p>
+                            </Link>
+                          </li>
+                        )}
+                      </ul>
+                    </NavigationMenu.Content>
+                  </NavigationMenu.Item>
+
+                  <NavigationMenu.Item>
+                    <Link className={styles.Trigger} href="https://github.com/mui/base-ui">
+                      GitHub
+                    </Link>
+                  </NavigationMenu.Item>
+                </NavigationMenu.List>
+
+                <NavigationMenu.Viewport className={styles.Viewport} />
+              </NavigationMenu.Root>
+            </NavigationMenu.Content>
+          </NavigationMenu.Item>
+
+          <NavigationMenu.Item>
             <Link className={styles.Trigger} href="https://github.com/mui/base-ui">
               GitHub
             </Link>
@@ -156,9 +234,10 @@ export default function ExampleNavigationMenu() {
 
         <NavigationMenu.Portal>
           <NavigationMenu.Positioner
-            align="center"
+            align="start"
             className={styles.Positioner}
             sideOffset={10}
+            alignOffset={-100}
             collisionPadding={{ top: 5, bottom: 5, left: 20, right: 20 }}
           >
             <NavigationMenu.Popup className={styles.Popup}>

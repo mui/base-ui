@@ -4,7 +4,6 @@ import * as ReactDOM from 'react-dom';
 import { getSide } from '@floating-ui/utils';
 import { ownerDocument, ownerWindow } from '@base-ui-components/utils/owner';
 import { useTimeout } from '@base-ui-components/utils/useTimeout';
-import { useModernLayoutEffect } from '@base-ui-components/utils/useModernLayoutEffect';
 import type { Middleware } from '../../floating-ui-react';
 import {
   disableFocusInside,
@@ -130,16 +129,6 @@ export const NavigationMenuPositioner = React.forwardRef(function NavigationMenu
 
   const positionerRef = React.useRef<HTMLDivElement | null>(null);
   const prevTriggerElementRef = React.useRef<Element | null>(null);
-
-  // When the current trigger element changes, enable transitions on the
-  // positioner temporarily
-  useModernLayoutEffect(() => {
-    const currentTriggerElement = floatingRootContext?.elements.domReference;
-
-    if (currentTriggerElement) {
-      prevTriggerElementRef.current = currentTriggerElement;
-    }
-  }, [floatingRootContext?.elements.domReference]);
 
   // https://codesandbox.io/s/tabbable-portal-f4tng?file=/src/TabbablePortal.tsx
   React.useEffect(() => {
