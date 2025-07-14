@@ -1,19 +1,19 @@
 'use client';
 import * as React from 'react';
 import { getParentNode, isHTMLElement, isLastTraversableNode } from '@floating-ui/utils/dom';
+import { useForkRef } from '@base-ui-components/utils/useForkRef';
+import { useTimeout } from '@base-ui-components/utils/useTimeout';
+import { ownerDocument } from '@base-ui-components/utils/owner';
+import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { contains } from '../../floating-ui-react/utils';
 import { useFloatingTree } from '../../floating-ui-react/index';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { pressableTriggerOpenStateMapping } from '../../utils/popupStateMapping';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { BaseUIComponentProps, HTMLProps } from '../../utils/types';
-import { useForkRef } from '../../utils/useForkRef';
 import { mergeProps } from '../../merge-props';
 import { useButton } from '../../use-button/useButton';
-import { useTimeout } from '../../utils/useTimeout';
-import { ownerDocument } from '../../utils/owner';
 import { getPseudoElementBounds } from '../../utils/getPseudoElementBounds';
-import { useEventCallback } from '../../utils/useEventCallback';
 import { CompositeItem } from '../../composite/item/CompositeItem';
 
 const BOUNDARY_OFFSET = 2;

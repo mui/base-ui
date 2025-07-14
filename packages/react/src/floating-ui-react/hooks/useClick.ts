@@ -1,9 +1,9 @@
 'use client';
 import * as React from 'react';
+import { useAnimationFrame } from '@base-ui-components/utils/useAnimationFrame';
 import { EMPTY_OBJECT } from '../../utils/constants';
 import type { ElementProps, FloatingRootContext } from '../types';
 import { isMouseLikePointerType } from '../utils';
-import { useAnimationFrame } from '../../utils/useAnimationFrame';
 
 export interface UseClickProps {
   /**

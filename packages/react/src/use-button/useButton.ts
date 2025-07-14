@@ -1,8 +1,8 @@
 'use client';
 import * as React from 'react';
+import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useModernLayoutEffect } from '@base-ui-components/utils/useModernLayoutEffect';
 import { makeEventPreventable, mergeProps } from '../merge-props';
-import { useModernLayoutEffect } from '../utils/useModernLayoutEffect';
-import { useEventCallback } from '../utils/useEventCallback';
 import { useCompositeRootContext } from '../composite/root/CompositeRootContext';
 import { BaseUIEvent, HTMLProps } from '../utils/types';
 import { useFocusableWhenDisabled } from '../utils/useFocusableWhenDisabled';
@@ -90,16 +90,23 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
               return;
             }
 
-            // Keyboard accessibility for non interactive elements
-            if (
+            const shouldClick =
               event.target === event.currentTarget &&
               !isNativeButton &&
               !isValidLink() &&
-              event.key === 'Enter' &&
-              !disabled
-            ) {
-              externalOnClick?.(event);
-              event.preventDefault();
+              !disabled;
+            const isEnterKey = event.key === 'Enter';
+            const isSpaceKey = event.key === ' ';
+
+            // Keyboard accessibility for non interactive elements
+            if (shouldClick) {
+              if (isSpaceKey || isEnterKey) {
+                event.preventDefault();
+              }
+
+              if (isEnterKey) {
+                externalOnClick?.(event);
+              }
             }
           },
           onKeyUp(event: BaseUIEvent<React.KeyboardEvent>) {
