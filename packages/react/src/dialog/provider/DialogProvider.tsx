@@ -3,7 +3,7 @@ import * as React from 'react';
 const DialogProviderContext = React.createContext<DialogProviderContext | undefined>(undefined);
 
 export function DialogProvider(props: React.PropsWithChildren<{}>) {
-  const dialogsRef = React.useRef<Map<string, DialogHandle>>(new Map());
+  const dialogsRef = React.useRef<Map<string, DialogHandle<any>>>(new Map());
 
   const context = React.useMemo<DialogProviderContext>(
     () => ({
@@ -28,17 +28,19 @@ export function DialogProvider(props: React.PropsWithChildren<{}>) {
 }
 
 export interface DialogProviderContext {
-  registerDialog: (dialog: DialogHandle) => void;
+  registerDialog: (dialog: DialogHandle<any>) => void;
   unregisterDialog: (dialogId: string) => void;
-  getDialog: (dialogId: string) => DialogHandle | undefined;
+  getDialog: (dialogId: string) => DialogHandle<any> | undefined;
 }
 
-interface DialogHandle {
-  open: (payload: any) => void;
+interface DialogHandle<TPayload = any> {
+  open: (payload: TPayload) => void;
   close: () => void;
   isOpen: boolean;
   id: string;
 }
+
+export type { DialogHandle };
 
 export function useDialogProviderContext(optional?: false): DialogProviderContext;
 export function useDialogProviderContext(optional: true): DialogProviderContext | undefined;

@@ -1,14 +1,21 @@
-/* eslint-disable react/no-unused-prop-types */
 'use client';
 import * as React from 'react';
 import { Dialog } from '@base-ui-components/react/dialog';
 import classes from './perf.module.css';
 
-type DialogPayload<T> = {
-  payload: T;
-};
+interface ItemData {
+  index: number;
+  name: string;
+}
 
-const items = Array.from({ length: 200 }, (_, i) => `Item ${i + 1}`);
+const items: ItemData[] = Array.from({ length: 200 }, (_, i) => ({
+  index: i + 1,
+  name: `Item ${i + 1}`,
+}));
+
+// Create typed dialog handles
+const editDialog = Dialog.createDialog<ItemData>('edit-item-dialog');
+const deleteDialog = Dialog.createDialog<string>('delete-item-dialog');
 
 export default function DialogDetachedTriggers() {
   return (
@@ -16,19 +23,15 @@ export default function DialogDetachedTriggers() {
       <h1>Detached Dialog Triggers</h1>
       <ul className={classes.list}>
         {items.map((item) => (
-          <li key={item} className={classes.listItem}>
-            <span>{item}</span>
+          <li key={item.name} className={classes.listItem}>
+            <span>{item.name}</span>
             <span className={classes.actions}>
-              <Dialog.DetachedTrigger
-                target="edit-item-dialog"
-                payload={item}
-                className={classes.action}
-              >
+              <Dialog.DetachedTrigger dialog={editDialog} payload={item} className={classes.action}>
                 <EditIcon />
               </Dialog.DetachedTrigger>
               <Dialog.DetachedTrigger
-                target="delete-item-dialog"
-                payload={item}
+                dialog={deleteDialog}
+                payload={item.name}
                 className={classes.action}
               >
                 <DeleteIcon />
@@ -38,24 +41,24 @@ export default function DialogDetachedTriggers() {
         ))}
       </ul>
 
-      <Dialog.Root id="edit-item-dialog">
-        {({ payload }: DialogPayload<string>) => <EditForm item={payload} />}
-      </Dialog.Root>
-      <Dialog.Root id="delete-item-dialog">
-        {({ payload }: DialogPayload<string>) => <DeleteForm item={payload} />}
-      </Dialog.Root>
+      <Dialog.TypedRoot dialog={editDialog}>
+        {({ payload }) => <EditForm item={payload} />}
+      </Dialog.TypedRoot>
+      <Dialog.TypedRoot dialog={deleteDialog}>
+        {({ payload }) => <DeleteForm item={payload} />}
+      </Dialog.TypedRoot>
     </Dialog.Provider>
   );
 }
 
-function EditForm({ item }: { item: string }) {
+function EditForm({ item }: { item: ItemData }) {
   return (
     <Dialog.Portal>
       <Dialog.Popup className={classes.dialog}>
-        <Dialog.Title className={classes.title}>Edit {item}</Dialog.Title>
         {item ? (
           <React.Fragment>
-            <input type="text" className={classes.input} defaultValue={item} />
+            <Dialog.Title className={classes.title}>Edit {item.name}</Dialog.Title>
+            <input type="text" className={classes.input} defaultValue={item.name} />
             <div className={classes.controls}>
               <Dialog.Close className={classes.button}>Save</Dialog.Close>
               <Dialog.Close className={classes.button}>Cancel</Dialog.Close>

@@ -1,18 +1,21 @@
 'use client';
 import * as React from 'react';
-import { DialogRootContext, useOptionalDialogRootContext } from './DialogRootContext';
+import { DialogRootContext, useOptionalDialogRootContext } from '../root/DialogRootContext';
 import { DialogContext } from '../utils/DialogContext';
-import { useDialogRoot } from './useDialogRoot';
+import { useDialogRoot } from '../root/useDialogRoot';
 import { BaseOpenChangeReason } from '../../utils/translateOpenChangeReason';
 import { useDialogProviderContext } from '../provider/DialogProvider';
+import type { TypedDialogHandle } from '../factory/createDialog';
 
 /**
- * Groups all parts of the dialog.
- * Doesn’t render its own HTML element.
+ * Groups all parts of the dialog with typed payload support.
+ * Doesn't render its own HTML element.
  *
  * Documentation: [Base UI Dialog](https://base-ui.com/react/components/dialog)
  */
-export const DialogRoot: React.FC<DialogRoot.Props> = function DialogRoot(props) {
+export const TypedDialogRoot = function TypedDialogRoot<TPayload>(
+  props: TypedDialogRoot.Props<TPayload>,
+) {
   const {
     children,
     defaultOpen = false,
@@ -22,7 +25,7 @@ export const DialogRoot: React.FC<DialogRoot.Props> = function DialogRoot(props)
     open,
     actionsRef,
     onOpenChangeComplete,
-    id,
+    dialog,
   } = props;
 
   const parentDialogRootContext = useOptionalDialogRootContext();
@@ -41,30 +44,27 @@ export const DialogRoot: React.FC<DialogRoot.Props> = function DialogRoot(props)
   });
 
   const { open: isOpen, setOpen } = dialogRoot;
-  const [payload, setPayload] = React.useState<any>(undefined);
+  const [payload, setPayload] = React.useState<TPayload | undefined>(undefined);
 
   React.useEffect(() => {
-    if (id && dialogProviderContext) {
+    if (dialog && dialogProviderContext) {
       dialogProviderContext.registerDialog({
-        id,
+        id: dialog.id,
         isOpen,
-        open: (triggerPayload: any) => {
+        open: (triggerPayload: TPayload) => {
           setPayload(triggerPayload);
           setOpen(true, undefined, 'detached-open-press' as any);
         },
         close: () => setOpen(false, undefined, 'detached-close-press' as any),
       });
 
-      console.log('registering dialog', id);
-
       return () => {
-        console.log('unregistering dialog', id);
-        dialogProviderContext.unregisterDialog(id);
+        dialogProviderContext.unregisterDialog(dialog.id);
       };
     }
 
     return undefined;
-  }, [dialogProviderContext, isOpen, id, setOpen]); // TODO: remove isOpen from dependencies
+  }, [dialogProviderContext, isOpen, dialog, setOpen]); // TODO: remove isOpen from dependencies
 
   const nested = Boolean(parentDialogRootContext);
 
@@ -81,16 +81,16 @@ export const DialogRoot: React.FC<DialogRoot.Props> = function DialogRoot(props)
   return (
     <DialogContext.Provider value={dialogContextValue}>
       <DialogRootContext.Provider value={dialogRootContextValue}>
-        {typeof children === 'function' ? children({ payload }) : children}
+        {typeof children === 'function' ? children({ payload: payload! }) : children}
       </DialogRootContext.Provider>
     </DialogContext.Provider>
   );
 };
 
-export namespace DialogRoot {
-  export interface Props extends useDialogRoot.SharedParameters {
-    children?: React.ReactNode | (({ payload }: { payload: any }) => React.ReactNode);
-    id?: string;
+export namespace TypedDialogRoot {
+  export interface Props<TPayload> extends useDialogRoot.SharedParameters {
+    children?: React.ReactNode | (({ payload }: { payload: TPayload }) => React.ReactNode);
+    dialog: TypedDialogHandle<TPayload>;
   }
 
   export interface Actions {

@@ -4,7 +4,9 @@ export { DialogDescription as Description } from './description/DialogDescriptio
 export { DialogPopup as Popup } from './popup/DialogPopup';
 export { DialogPortal as Portal } from './portal/DialogPortal';
 export { DialogRoot as Root } from './root/DialogRoot';
+export { TypedDialogRoot as TypedRoot } from './typed-root/TypedDialogRoot';
 export { DialogTitle as Title } from './title/DialogTitle';
 export { DialogTrigger as Trigger } from './trigger/DialogTrigger';
 export { DialogProvider as Provider } from './provider/DialogProvider';
 export { DialogDetachedTrigger as DetachedTrigger } from './detached-trigger/DialogDetachedTrigger';
+export { createDialog } from './factory/createDialog';

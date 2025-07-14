@@ -6,6 +6,7 @@ import type { BaseUIComponentProps } from '../../utils/types';
 import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
 import { useDialogProviderContext } from '../provider/DialogProvider';
 import { useEventCallback } from '../../utils/useEventCallback';
+import type { TypedDialogHandle } from '../factory/createDialog';
 
 /**
  * A button that opens the dialog.
@@ -13,8 +14,8 @@ import { useEventCallback } from '../../utils/useEventCallback';
  *
  * Documentation: [Base UI Dialog](https://base-ui.com/react/components/dialog)
  */
-export const DialogDetachedTrigger = React.forwardRef(function DialogDetachedTrigger(
-  componentProps: DialogDetachedTrigger.Props,
+function DialogDetachedTriggerInner<TPayload = any>(
+  componentProps: DialogDetachedTrigger.Props<TPayload>,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
   const {
@@ -22,6 +23,7 @@ export const DialogDetachedTrigger = React.forwardRef(function DialogDetachedTri
     className,
     disabled = false,
     nativeButton = true,
+    dialog,
     target,
     payload,
     ...elementProps
@@ -29,7 +31,12 @@ export const DialogDetachedTrigger = React.forwardRef(function DialogDetachedTri
 
   const { getDialog } = useDialogProviderContext();
 
-  const targetDialog = getDialog(target);
+  const dialogId = dialog?.id || target;
+  if (!dialogId) {
+    throw new Error('DialogDetachedTrigger requires either a dialog or target prop');
+  }
+
+  const targetDialog = getDialog(dialogId);
 
   const state: DialogDetachedTrigger.State = React.useMemo(
     () => ({
@@ -45,8 +52,7 @@ export const DialogDetachedTrigger = React.forwardRef(function DialogDetachedTri
   });
 
   const handleClick = useEventCallback(() => {
-    const tg = getDialog(target);
-    console.log('detached trigger clicked', { tg, payload });
+    const tg = getDialog(dialogId);
     if (tg) {
       tg.open(payload);
     }
@@ -58,10 +64,16 @@ export const DialogDetachedTrigger = React.forwardRef(function DialogDetachedTri
     props: [{ onClick: handleClick }, elementProps, getButtonProps],
     customStyleHookMapping: triggerOpenStateMapping,
   });
-});
+}
+
+export const DialogDetachedTrigger = React.forwardRef(DialogDetachedTriggerInner) as <
+  TPayload = any,
+>(
+  props: DialogDetachedTrigger.Props<TPayload> & { ref?: React.ForwardedRef<HTMLButtonElement> },
+) => React.ReactElement;
 
 export namespace DialogDetachedTrigger {
-  export interface Props extends BaseUIComponentProps<'button', State> {
+  export interface Props<TPayload = any> extends BaseUIComponentProps<'button', State> {
     /**
      * Whether the component renders a native `<button>` element when replacing it
      * via the `render` prop.
@@ -69,8 +81,9 @@ export namespace DialogDetachedTrigger {
      * @default true
      */
     nativeButton?: boolean;
-    target: string;
-    payload?: any;
+    dialog?: TypedDialogHandle<TPayload>;
+    target?: string;
+    payload?: TPayload;
   }
 
   export interface State {
