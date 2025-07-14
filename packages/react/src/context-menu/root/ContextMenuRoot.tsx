@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { useId } from '@base-ui-components/utils/useId';
 import { ContextMenuRootContext } from './ContextMenuRootContext';
 import { Menu } from '../../menu';
 import { MenuRootContext } from '../../menu/root/MenuRootContext';
@@ -22,6 +23,7 @@ export function ContextMenuRoot(props: ContextMenuRoot.Props) {
   const actionsRef: ContextMenuRootContext['actionsRef'] = React.useRef(null);
   const positionerRef = React.useRef<HTMLElement | null>(null);
   const allowMouseUpTriggerRef = React.useRef(true);
+  const id = useId();
 
   const contextValue: ContextMenuRootContext = React.useMemo(
     () => ({
@@ -32,8 +34,9 @@ export function ContextMenuRoot(props: ContextMenuRoot.Props) {
       internalBackdropRef,
       positionerRef,
       allowMouseUpTriggerRef,
+      rootId: id,
     }),
-    [anchor],
+    [anchor, id],
   );
 
   return (

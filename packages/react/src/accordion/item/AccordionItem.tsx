@@ -1,11 +1,9 @@
 'use client';
 import * as React from 'react';
-import { useForkRef } from '../../utils/useForkRef';
+import { useForkRef } from '@base-ui-components/utils/useForkRef';
+import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useBaseUiId } from '../../utils/useBaseUiId';
-import { useEventCallback } from '../../utils/useEventCallback';
-import { useRenderElement } from '../../utils/useRenderElement';
-import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import { useCollapsibleRoot } from '../../collapsible/root/useCollapsibleRoot';
 import type { CollapsibleRoot } from '../../collapsible/root/CollapsibleRoot';
 import { CollapsibleRootContext } from '../../collapsible/root/CollapsibleRootContext';
@@ -14,6 +12,7 @@ import type { AccordionRoot } from '../root/AccordionRoot';
 import { useAccordionRootContext } from '../root/AccordionRootContext';
 import { AccordionItemContext } from './AccordionItemContext';
 import { accordionStyleHookMapping } from './styleHooks';
+import { useRenderElement } from '../../utils/useRenderElement';
 
 /**
  * Groups an accordion header with the corresponding panel.
@@ -78,9 +77,8 @@ export const AccordionItem = React.forwardRef(function AccordionItem(
       open: collapsible.open,
       disabled: collapsible.disabled,
       hidden: !collapsible.mounted,
-      transitionStatus: collapsible.transitionStatus,
     }),
-    [collapsible.open, collapsible.disabled, collapsible.mounted, collapsible.transitionStatus],
+    [collapsible.open, collapsible.disabled, collapsible.mounted],
   );
 
   const collapsibleContext: CollapsibleRootContext = React.useMemo(
@@ -88,6 +86,7 @@ export const AccordionItem = React.forwardRef(function AccordionItem(
       ...collapsible,
       onOpenChange,
       state: collapsibleState,
+      transitionStatus: collapsible.transitionStatus,
     }),
     [collapsible, collapsibleState, onOpenChange],
   );
@@ -98,9 +97,8 @@ export const AccordionItem = React.forwardRef(function AccordionItem(
       index,
       disabled,
       open: isOpen,
-      transitionStatus: collapsible.transitionStatus,
     }),
-    [collapsible.transitionStatus, disabled, index, isOpen, rootState],
+    [disabled, index, isOpen, rootState],
   );
 
   const [triggerId, setTriggerId] = React.useState<string | undefined>(useBaseUiId());
@@ -137,7 +135,6 @@ export namespace AccordionItem {
   export interface State extends AccordionRoot.State {
     index: number;
     open: boolean;
-    transitionStatus: TransitionStatus;
   }
 
   export interface Props

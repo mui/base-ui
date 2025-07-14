@@ -1,10 +1,10 @@
 'use client';
 import * as React from 'react';
-import { activeElement } from '@floating-ui/react/utils';
+import { ownerDocument } from '@base-ui-components/utils/owner';
+import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { activeElement } from '../../floating-ui-react/utils';
 import { clamp } from '../../utils/clamp';
-import { ownerDocument } from '../../utils/owner';
 import type { BaseUIComponentProps, Orientation } from '../../utils/types';
-import { useEventCallback } from '../../utils/useEventCallback';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { valueToPercent } from '../../utils/valueToPercent';
 import { useDirection } from '../../direction-provider/DirectionContext';
@@ -283,6 +283,13 @@ export const SliderControl = React.forwardRef(function SliderControl(
     fieldControlValidation.commitValidation(lastChangedValueRef.current ?? finger.value);
     onValueCommitted(lastChangedValueRef.current ?? finger.value, nativeEvent);
 
+    if (
+      'pointerType' in nativeEvent &&
+      controlRef.current?.hasPointerCapture(nativeEvent.pointerId)
+    ) {
+      controlRef.current?.releasePointerCapture(nativeEvent.pointerId);
+    }
+
     touchIdRef.current = null;
     // eslint-disable-next-line @typescript-eslint/no-use-before-define
     stopListening();
@@ -392,6 +399,10 @@ export const SliderControl = React.forwardRef(function SliderControl(
             } else {
               setValue(finger.value, finger.thumbIndex, event.nativeEvent);
             }
+          }
+
+          if (event.nativeEvent.pointerId) {
+            controlRef.current?.setPointerCapture(event.nativeEvent.pointerId);
           }
 
           moveCountRef.current = 0;

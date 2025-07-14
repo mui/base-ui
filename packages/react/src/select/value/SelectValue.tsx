@@ -1,8 +1,15 @@
 'use client';
 import * as React from 'react';
-import { useSelectRootContext } from '../root/SelectRootContext';
+import { useSelector } from '@base-ui-components/utils/store';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
+import { useSelectRootContext } from '../root/SelectRootContext';
+import { selectors } from '../store';
+import { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
+
+const customStyleHookMapping: CustomStyleHookMapping<SelectValue.State> = {
+  value: () => null,
+};
 
 /**
  * A text label of the currently selected item.
@@ -14,21 +21,51 @@ export const SelectValue = React.forwardRef(function SelectValue(
   componentProps: SelectValue.Props,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
-  const { className, render, children, placeholder, ...elementProps } = componentProps;
+  const { className, render, children: childrenProp, ...elementProps } = componentProps;
 
-  const { value, label, valueRef } = useSelectRootContext();
+  const { store, valueRef } = useSelectRootContext();
+  const value = useSelector(store, selectors.value);
+  const items = useSelector(store, selectors.items);
+  const isChildrenPropFunction = typeof childrenProp === 'function';
+
+  const labelFromItems = React.useMemo(() => {
+    if (isChildrenPropFunction) {
+      return undefined;
+    }
+
+    // `multiple` selects should always use a custom `children` render function
+    if (Array.isArray(value)) {
+      return value.join(', ');
+    }
+
+    if (!items) {
+      return undefined;
+    }
+
+    if (Array.isArray(items)) {
+      return items.find((item) => item.value === value)?.label;
+    }
+
+    return items[value];
+  }, [value, items, isChildrenPropFunction]);
+
+  const state: SelectValue.State = React.useMemo(
+    () => ({
+      value,
+    }),
+    [value],
+  );
+
+  const children =
+    typeof childrenProp === 'function'
+      ? childrenProp(value)
+      : (childrenProp ?? labelFromItems ?? value);
 
   const element = useRenderElement('span', componentProps, {
+    state,
     ref: [forwardedRef, valueRef],
-    props: [
-      {
-        children:
-          typeof children === 'function'
-            ? children(!label && placeholder ? placeholder : label, value)
-            : label || placeholder,
-      },
-      elementProps,
-    ],
+    props: [{ children }, elementProps],
+    customStyleHookMapping,
   });
 
   return element;
@@ -36,12 +73,22 @@ export const SelectValue = React.forwardRef(function SelectValue(
 
 export namespace SelectValue {
   export interface Props extends Omit<BaseUIComponentProps<'span', State>, 'children'> {
-    children?: null | ((label: React.ReactNode, value: any) => React.ReactNode);
     /**
-     * A placeholder to display before an item has been chosen.
+     * Accepts a function that returns a `ReactNode` to format the selected value.
+     * @example
+     * ```tsx
+     * <Select.Value>
+     *   {(value: string | null) => value ? labels[value] : 'No value'}
+     * </Select.Value>
+     * ```
      */
-    placeholder: React.ReactNode;
+    children?: React.ReactNode | ((value: any) => React.ReactNode);
   }
 
-  export interface State {}
+  export interface State {
+    /**
+     * The value of the currently selected item.
+     */
+    value: any;
+  }
 }

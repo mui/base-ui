@@ -1,15 +1,17 @@
 'use client';
 import * as React from 'react';
+import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useModernLayoutEffect } from '@base-ui-components/utils/useModernLayoutEffect';
+import { useTimeout } from '@base-ui-components/utils/useTimeout';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useScrollAreaRootContext } from '../root/ScrollAreaRootContext';
 import { ScrollAreaViewportContext } from './ScrollAreaViewportContext';
 import { useRenderElement } from '../../utils/useRenderElement';
-import { useEventCallback } from '../../utils/useEventCallback';
 import { useDirection } from '../../direction-provider/DirectionContext';
 import { getOffset } from '../utils/getOffset';
 import { MIN_THUMB_SIZE } from '../constants';
 import { clamp } from '../../utils/clamp';
-import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
+import { styleDisableScrollbar } from '../../utils/styles';
 import { onVisible } from '../utils/onVisible';
 
 /**
@@ -41,6 +43,9 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
   } = useScrollAreaRootContext();
 
   const direction = useDirection();
+
+  const programmaticScrollRef = React.useRef(true);
+  const scrollEndTimeout = useTimeout();
 
   const computeThumbPosition = useEventCallback(() => {
     const viewportEl = viewportRef.current;
@@ -197,11 +202,16 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
     };
   }, [computeThumbPosition, viewportRef]);
 
-  const props = {
+  const handleUserInteraction = useEventCallback(() => {
+    programmaticScrollRef.current = false;
+  });
+
+  const props: React.ComponentProps<'div'> = {
     role: 'presentation',
     ...(rootId && { 'data-id': `${rootId}-viewport` }),
     // https://accessibilityinsights.io/info-examples/web/scrollable-region-focusable/
     ...((!hiddenState.scrollbarXHidden || !hiddenState.scrollbarYHidden) && { tabIndex: 0 }),
+    className: styleDisableScrollbar.className,
     style: {
       overflow: 'scroll',
     },
@@ -212,11 +222,28 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
 
       computeThumbPosition();
 
-      handleScroll({
-        x: viewportRef.current.scrollLeft,
-        y: viewportRef.current.scrollTop,
+      if (!programmaticScrollRef.current) {
+        handleScroll({
+          x: viewportRef.current.scrollLeft,
+          y: viewportRef.current.scrollTop,
+        });
+      }
+
+      // Debounce the restoration of the programmatic flag so that it only
+      // flips back to `true` once scrolling has come to a rest. This ensures
+      // that momentum scrolling (where no further user-interaction events fire)
+      // is still treated as user-driven.
+      // 100 ms without scroll events ≈ scroll end
+      // https://developer.mozilla.org/en-US/docs/Web/API/Element/scrollend_event
+      scrollEndTimeout.start(100, () => {
+        programmaticScrollRef.current = true;
       });
     },
+    onWheel: handleUserInteraction,
+    onTouchMove: handleUserInteraction,
+    onPointerMove: handleUserInteraction,
+    onPointerEnter: handleUserInteraction,
+    onKeyDown: handleUserInteraction,
   };
 
   const element = useRenderElement('div', componentProps, {

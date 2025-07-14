@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { FloatingFocusManager, useFloatingTree } from '@floating-ui/react';
+import { FloatingFocusManager, useFloatingTree } from '../../floating-ui-react';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import type { MenuRoot } from '../root/MenuRoot';
 import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
@@ -12,14 +12,12 @@ import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping';
 import { transitionStatusMapping } from '../../utils/styleHookMapping';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
+import { EMPTY_OBJECT, DISABLED_TRANSITIONS_STYLE } from '../../utils/constants';
 
 const customStyleHookMapping: CustomStyleHookMapping<MenuPopup.State> = {
   ...baseMapping,
   ...transitionStatusMapping,
 };
-
-const DISABLED_TRANSITIONS_STYLE = { style: { transition: 'none' } };
-const EMPTY_OBJ = {};
 
 /**
  * A container for the menu items.
@@ -44,6 +42,7 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
     onOpenChangeComplete,
     parent,
     lastOpenChangeReason,
+    rootId,
   } = useMenuRootContext();
   const { side, align, floatingContext } = useMenuPositionerContext();
 
@@ -91,9 +90,10 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
     ref: [forwardedRef, popupRef],
     customStyleHookMapping,
     props: [
-      transitionStatus === 'starting' ? DISABLED_TRANSITIONS_STYLE : EMPTY_OBJ,
       popupProps,
+      transitionStatus === 'starting' ? DISABLED_TRANSITIONS_STYLE : EMPTY_OBJECT,
       elementProps,
+      { 'data-rootownerid': rootId } as Record<string, string>,
     ],
   });
 

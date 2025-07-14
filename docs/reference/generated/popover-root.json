@@ -12,11 +12,11 @@
       "description": "Whether the popover is currently open."
     },
     "onOpenChange": {
-      "type": "(open: boolean, event?: Event, reason?: Popover.Root.OpenChangeReason) => void",
+      "type": "((open: boolean, event: Event | undefined, reason: Popover.Root.OpenChangeReason | undefined) => void)",
       "description": "Event handler called when the popover is opened or closed."
     },
     "actionsRef": {
-      "type": "RefObject<Actions>",
+      "type": "RefObject<Popover.Root.Actions>",
       "description": "A ref to imperative actions.\n- `unmount`: When specified, the popover will not be unmounted when closed.\nInstead, the `unmount` function must be called to unmount the popover manually.\nUseful when the popover's animation is controlled by an external library."
     },
     "modal": {

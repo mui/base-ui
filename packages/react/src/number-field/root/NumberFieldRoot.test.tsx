@@ -395,6 +395,26 @@ describe('<NumberField />', () => {
       }).format(1000);
       expect(input).to.have.value(expectedValue);
     });
+
+    it('reflects controlled value changes in the textbox', async () => {
+      function App() {
+        const [val, setVal] = React.useState<number | null>(1);
+        return (
+          <div>
+            <NumberField value={val} onValueChange={setVal} />
+            <button onClick={() => setVal(1234)}>set</button>
+          </div>
+        );
+      }
+
+      const { user } = await render(<App />);
+      const input = screen.getByRole('textbox');
+
+      expect(input).to.have.value('1');
+
+      await user.click(screen.getByText('set'));
+      expect(input).to.have.value((1234).toLocaleString());
+    });
   });
 
   describe('prop: allowWheelScrub', () => {
@@ -578,6 +598,35 @@ describe('<NumberField />', () => {
 
       expect(input).not.to.have.attribute('aria-invalid');
       expect(screen.queryByTestId('error')).to.equal(null);
+    });
+
+    it('revalidates immediately after form submission errors using increment button', async () => {
+      const { user } = await render(
+        <Form>
+          <Field.Root name="quantity">
+            <NumberField required />
+            <Field.Error match="valueMissing" data-testid="error">
+              required
+            </Field.Error>
+          </Field.Root>
+          <button type="submit" data-testid="submit">
+            Submit
+          </button>
+        </Form>,
+      );
+
+      const submit = screen.getByTestId('submit');
+      await user.click(submit);
+
+      expect(screen.getByTestId('error')).to.have.text('required');
+      const input = screen.getByRole('textbox');
+      expect(input).to.have.attribute('aria-invalid', 'true');
+
+      const incrementButton = screen.getByLabelText('Increase');
+      await user.click(incrementButton);
+
+      expect(screen.queryByTestId('error')).to.equal(null);
+      expect(input).not.to.have.attribute('aria-invalid');
     });
   });
 
@@ -781,11 +830,13 @@ describe('<NumberField />', () => {
       const validate = spy(() => 'error');
 
       await render(
-        <Field.Root validationMode="onBlur" validate={validate}>
-          <NumberFieldBase.Root>
-            <NumberFieldBase.Input />
-          </NumberFieldBase.Root>
-        </Field.Root>,
+        <Form>
+          <Field.Root validationMode="onBlur" validate={validate} name="quantity">
+            <NumberFieldBase.Root defaultValue={undefined}>
+              <NumberFieldBase.Input />
+            </NumberFieldBase.Root>
+          </Field.Root>
+        </Form>,
       );
 
       const input = screen.getByRole('textbox');
@@ -795,7 +846,7 @@ describe('<NumberField />', () => {
       fireEvent.blur(input);
 
       expect(validate.callCount).to.equal(1);
-      expect(validate.firstCall.args).to.deep.equal([1]);
+      expect(validate.firstCall.args).to.deep.equal([1, { quantity: 1 }]);
     });
 
     it('Field.Label', async () => {

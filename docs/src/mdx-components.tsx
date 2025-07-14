@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { NoSsr } from '@base-ui-components/react/unstable-no-ssr';
 import { DemoLoader } from './components/Demo/DemoLoader';
 import * as CodeBlock from './components/CodeBlock';
 import * as Table from './components/Table';
@@ -58,7 +59,7 @@ export const mdxComponents: MDXComponents = {
   h5: (props) => <h5 className="mt-8 mb-1.5 scroll-mt-6 font-medium text-balance" {...props} />,
   h6: (props) => <h6 className="mt-8 mb-1.5 scroll-mt-6 font-medium text-balance" {...props} />,
   p: (props) => <p className="mb-4" {...props} />,
-  li: (props) => <li className="mb-0.5" {...props} />,
+  li: (props) => <li className="mb-0.5 [&>p]:mb-2" {...props} />,
   ul: (props) => <ul className="mb-4 ml-4.5 list-disc" {...props} />,
   ol: (props) => <ol className="mb-4 ml-7 list-decimal" {...props} />,
   kbd: Kbd,
@@ -89,7 +90,14 @@ export const mdxComponents: MDXComponents = {
   td: Table.Cell,
 
   // Custom components
-  Demo: (props) => <DemoLoader className="mt-5 mb-6" {...props} />,
+  Demo:
+    process.env.DISABLE_DEMO_SSR === 'true'
+      ? (props) => (
+          <NoSsr>
+            <DemoLoader className="mt-5 mb-6" {...props} />
+          </NoSsr>
+        )
+      : (props) => <DemoLoader className="mt-5 mb-6" {...props} />,
   QuickNav,
   Meta: (props: React.ComponentProps<'meta'>) => {
     if (props.name === 'description' && String(props.content).length > 170) {

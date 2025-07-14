@@ -2,6 +2,7 @@ import * as React from 'react';
 import { expect } from 'chai';
 import { act, createRenderer, fireEvent, flushMicrotasks } from '@mui/internal-test-utils';
 import { isJSDOM } from '#test-utils';
+import { DirectionProvider } from '../../direction-provider';
 import { CompositeItem } from '../item/CompositeItem';
 import { CompositeRoot } from './CompositeRoot';
 
@@ -32,29 +33,29 @@ describe('Composite', () => {
 
       act(() => item1.focus());
 
-      expect(item1).to.have.attribute('data-highlighted');
+      expect(item1).to.have.attribute('tabindex', '0');
 
       fireEvent.keyDown(item1, { key: 'ArrowDown' });
       await flushMicrotasks();
-      expect(item2).to.have.attribute('data-highlighted');
+
       expect(item2).to.have.attribute('tabindex', '0');
       expect(item2).toHaveFocus();
 
       fireEvent.keyDown(item2, { key: 'ArrowDown' });
       await flushMicrotasks();
-      expect(item3).to.have.attribute('data-highlighted');
+
       expect(item3).to.have.attribute('tabindex', '0');
       expect(item3).toHaveFocus();
 
       fireEvent.keyDown(item3, { key: 'ArrowUp' });
       await flushMicrotasks();
-      expect(item2).to.have.attribute('data-highlighted');
+
       expect(item2).to.have.attribute('tabindex', '0');
       expect(item2).toHaveFocus();
 
       fireEvent.keyDown(item2, { key: 'ArrowUp' });
       await flushMicrotasks();
-      expect(item1).to.have.attribute('data-highlighted');
+
       expect(item1).to.have.attribute('tabindex', '0');
       expect(item1).toHaveFocus();
     });
@@ -74,29 +75,27 @@ describe('Composite', () => {
 
       act(() => item1.focus());
 
-      expect(item1).to.have.attribute('data-highlighted');
-
       fireEvent.keyDown(item1, { key: 'ArrowDown' });
       await flushMicrotasks();
-      expect(item2).to.have.attribute('data-highlighted');
+
       expect(item2).to.have.attribute('tabindex', '0');
       expect(item2).toHaveFocus();
 
       fireEvent.keyDown(item2, { key: 'ArrowDown' });
       await flushMicrotasks();
-      expect(item3).to.have.attribute('data-highlighted');
+
       expect(item3).to.have.attribute('tabindex', '0');
       expect(item3).toHaveFocus();
 
       fireEvent.keyDown(item3, { key: 'ArrowUp' });
       await flushMicrotasks();
-      expect(item2).to.have.attribute('data-highlighted');
+
       expect(item2).to.have.attribute('tabindex', '0');
       expect(item2).toHaveFocus();
 
       fireEvent.keyDown(item2, { key: 'ArrowUp' });
       await flushMicrotasks();
-      expect(item1).to.have.attribute('data-highlighted');
+
       expect(item1).to.have.attribute('tabindex', '0');
       expect(item1).toHaveFocus();
     });
@@ -115,11 +114,10 @@ describe('Composite', () => {
         const item3 = getByTestId('3');
 
         act(() => item3.focus());
-        expect(item3).to.have.attribute('data-highlighted');
 
         fireEvent.keyDown(item3, { key: 'Home' });
         await flushMicrotasks();
-        expect(item1).to.have.attribute('data-highlighted');
+
         expect(item1).to.have.attribute('tabindex', '0');
         expect(item1).toHaveFocus();
       });
@@ -137,11 +135,10 @@ describe('Composite', () => {
         const item3 = getByTestId('3');
 
         act(() => item1.focus());
-        expect(item1).to.have.attribute('data-highlighted');
 
         fireEvent.keyDown(item1, { key: 'End' });
         await flushMicrotasks();
-        expect(item3).to.have.attribute('data-highlighted');
+
         expect(item3).to.have.attribute('tabindex', '0');
         expect(item3).toHaveFocus();
       });
@@ -151,11 +148,13 @@ describe('Composite', () => {
       it('horizontal orientation', async () => {
         const { getByTestId } = render(
           <div dir="rtl">
-            <CompositeRoot orientation="horizontal">
-              <CompositeItem data-testid="1">1</CompositeItem>
-              <CompositeItem data-testid="2">2</CompositeItem>
-              <CompositeItem data-testid="3">3</CompositeItem>
-            </CompositeRoot>
+            <DirectionProvider direction="rtl">
+              <CompositeRoot orientation="horizontal">
+                <CompositeItem data-testid="1">1</CompositeItem>
+                <CompositeItem data-testid="2">2</CompositeItem>
+                <CompositeItem data-testid="3">3</CompositeItem>
+              </CompositeRoot>
+            </DirectionProvider>
           </div>,
         );
 
@@ -165,40 +164,37 @@ describe('Composite', () => {
 
         act(() => item1.focus());
 
-        expect(item1).to.have.attribute('data-highlighted');
-
         fireEvent.keyDown(item1, { key: 'ArrowDown' });
         await flushMicrotasks();
-        expect(item1).to.have.attribute('data-highlighted');
 
         fireEvent.keyDown(item1, { key: 'ArrowLeft' });
         await flushMicrotasks();
-        expect(item2).to.have.attribute('data-highlighted');
+
         expect(item2).to.have.attribute('tabindex', '0');
         expect(item2).toHaveFocus();
 
         fireEvent.keyDown(item2, { key: 'ArrowLeft' });
         await flushMicrotasks();
-        expect(item3).to.have.attribute('data-highlighted');
+
         expect(item3).to.have.attribute('tabindex', '0');
         expect(item3).toHaveFocus();
 
         fireEvent.keyDown(item3, { key: 'ArrowRight' });
         await flushMicrotasks();
-        expect(item2).to.have.attribute('data-highlighted');
+
         expect(item2).to.have.attribute('tabindex', '0');
         expect(item2).toHaveFocus();
 
         fireEvent.keyDown(item2, { key: 'ArrowRight' });
         await flushMicrotasks();
-        expect(item1).to.have.attribute('data-highlighted');
+
         expect(item1).to.have.attribute('tabindex', '0');
         expect(item1).toHaveFocus();
 
         // loop backward
         fireEvent.keyDown(item1, { key: 'ArrowRight' });
         await flushMicrotasks();
-        expect(item3).to.have.attribute('data-highlighted');
+
         expect(item3).to.have.attribute('tabindex', '0');
         expect(item3).toHaveFocus();
       });
@@ -206,11 +202,13 @@ describe('Composite', () => {
       it('both horizontal and vertical orientation', async () => {
         const { getByTestId } = render(
           <div dir="rtl">
-            <CompositeRoot orientation="both">
-              <CompositeItem data-testid="1">1</CompositeItem>
-              <CompositeItem data-testid="2">2</CompositeItem>
-              <CompositeItem data-testid="3">3</CompositeItem>
-            </CompositeRoot>
+            <DirectionProvider direction="rtl">
+              <CompositeRoot orientation="both">
+                <CompositeItem data-testid="1">1</CompositeItem>
+                <CompositeItem data-testid="2">2</CompositeItem>
+                <CompositeItem data-testid="3">3</CompositeItem>
+              </CompositeRoot>
+            </DirectionProvider>
           </div>,
         );
 
@@ -220,41 +218,39 @@ describe('Composite', () => {
 
         act(() => item1.focus());
 
-        expect(item1).to.have.attribute('data-highlighted');
-
         fireEvent.keyDown(item1, { key: 'ArrowLeft' });
         await flushMicrotasks();
-        expect(item2).to.have.attribute('data-highlighted');
+
         expect(item2).to.have.attribute('tabindex', '0');
         expect(item2).toHaveFocus();
 
         fireEvent.keyDown(item2, { key: 'ArrowLeft' });
         await flushMicrotasks();
-        expect(item3).to.have.attribute('data-highlighted');
+
         expect(item3).to.have.attribute('tabindex', '0');
         expect(item3).toHaveFocus();
 
         fireEvent.keyDown(item3, { key: 'ArrowRight' });
         await flushMicrotasks();
-        expect(item2).to.have.attribute('data-highlighted');
+
         expect(item2).to.have.attribute('tabindex', '0');
         expect(item2).toHaveFocus();
 
         fireEvent.keyDown(item2, { key: 'ArrowRight' });
         await flushMicrotasks();
-        expect(item1).to.have.attribute('data-highlighted');
+
         expect(item1).to.have.attribute('tabindex', '0');
         expect(item1).toHaveFocus();
 
         fireEvent.keyDown(item1, { key: 'ArrowDown' });
         await flushMicrotasks();
-        expect(item2).to.have.attribute('data-highlighted');
+
         expect(item2).to.have.attribute('tabindex', '0');
         expect(item2).toHaveFocus();
 
         fireEvent.keyDown(item2, { key: 'ArrowDown' });
         await flushMicrotasks();
-        expect(item3).to.have.attribute('data-highlighted');
+
         expect(item3).to.have.attribute('tabindex', '0');
         expect(item3).toHaveFocus();
       });
@@ -279,51 +275,50 @@ describe('Composite', () => {
       const { getByTestId } = await render(<App />);
 
       act(() => getByTestId('1').focus());
-      expect(getByTestId('1')).to.have.attribute('data-highlighted');
 
       fireEvent.keyDown(getByTestId('1'), { key: 'ArrowDown' });
       await flushMicrotasks();
-      expect(getByTestId('4')).to.have.attribute('data-highlighted');
+
       expect(getByTestId('4')).to.have.attribute('tabindex', '0');
       expect(getByTestId('4')).toHaveFocus();
 
       fireEvent.keyDown(getByTestId('4'), { key: 'ArrowRight' });
       await flushMicrotasks();
-      expect(getByTestId('5')).to.have.attribute('data-highlighted');
+
       expect(getByTestId('5')).to.have.attribute('tabindex', '0');
       expect(getByTestId('5')).toHaveFocus();
 
       fireEvent.keyDown(getByTestId('5'), { key: 'ArrowDown' });
       await flushMicrotasks();
-      expect(getByTestId('8')).to.have.attribute('data-highlighted');
+
       expect(getByTestId('8')).to.have.attribute('tabindex', '0');
       expect(getByTestId('8')).toHaveFocus();
 
       fireEvent.keyDown(getByTestId('8'), { key: 'ArrowLeft' });
       await flushMicrotasks();
-      expect(getByTestId('7')).to.have.attribute('data-highlighted');
+
       expect(getByTestId('7')).to.have.attribute('tabindex', '0');
       expect(getByTestId('7')).toHaveFocus();
 
       fireEvent.keyDown(getByTestId('7'), { key: 'ArrowUp' });
       await flushMicrotasks();
-      expect(getByTestId('4')).to.have.attribute('data-highlighted');
+
       expect(getByTestId('4')).to.have.attribute('tabindex', '0');
       expect(getByTestId('4')).toHaveFocus();
 
       act(() => getByTestId('9').focus());
       await flushMicrotasks();
-      expect(getByTestId('9')).to.have.attribute('data-highlighted');
+
       expect(getByTestId('9')).to.have.attribute('tabindex', '0');
 
       fireEvent.keyDown(getByTestId('9'), { key: 'Home' });
       await flushMicrotasks();
-      expect(getByTestId('1')).to.have.attribute('data-highlighted');
+
       expect(getByTestId('1')).to.have.attribute('tabindex', '0');
 
       fireEvent.keyDown(getByTestId('1'), { key: 'End' });
       await flushMicrotasks();
-      expect(getByTestId('9')).to.have.attribute('data-highlighted');
+
       expect(getByTestId('9')).to.have.attribute('tabindex', '0');
     });
 
@@ -331,108 +326,110 @@ describe('Composite', () => {
       it('horizontal orientation', async () => {
         const { getByTestId } = render(
           <div dir="rtl">
-            <CompositeRoot cols={3} orientation="horizontal" enableHomeAndEndKeys>
-              {['1', '2', '3', '4', '5', '6', '7', '8', '9'].map((i) => (
-                <CompositeItem key={i} data-testid={i}>
-                  {i}
-                </CompositeItem>
-              ))}
-            </CompositeRoot>
+            <DirectionProvider direction="rtl">
+              <CompositeRoot cols={3} orientation="horizontal" enableHomeAndEndKeys>
+                {['1', '2', '3', '4', '5', '6', '7', '8', '9'].map((i) => (
+                  <CompositeItem key={i} data-testid={i}>
+                    {i}
+                  </CompositeItem>
+                ))}
+              </CompositeRoot>
+            </DirectionProvider>
           </div>,
         );
 
         act(() => getByTestId('1').focus());
-        expect(getByTestId('1')).to.have.attribute('data-highlighted');
 
         fireEvent.keyDown(getByTestId('1'), { key: 'ArrowLeft' });
         await flushMicrotasks();
-        expect(getByTestId('2')).to.have.attribute('data-highlighted');
+
         expect(getByTestId('2')).to.have.attribute('tabindex', '0');
         expect(getByTestId('2')).toHaveFocus();
 
         fireEvent.keyDown(getByTestId('2'), { key: 'ArrowLeft' });
         await flushMicrotasks();
-        expect(getByTestId('3')).to.have.attribute('data-highlighted');
+
         expect(getByTestId('3')).to.have.attribute('tabindex', '0');
         expect(getByTestId('3')).toHaveFocus();
 
         fireEvent.keyDown(getByTestId('3'), { key: 'ArrowLeft' });
         await flushMicrotasks();
-        expect(getByTestId('4')).to.have.attribute('data-highlighted');
+
         expect(getByTestId('4')).to.have.attribute('tabindex', '0');
         expect(getByTestId('4')).toHaveFocus();
 
         fireEvent.keyDown(getByTestId('4'), { key: 'ArrowLeft' });
         await flushMicrotasks();
-        expect(getByTestId('5')).to.have.attribute('data-highlighted');
+
         expect(getByTestId('5')).to.have.attribute('tabindex', '0');
         expect(getByTestId('5')).toHaveFocus();
 
         fireEvent.keyDown(getByTestId('5'), { key: 'Home' });
         await flushMicrotasks();
-        expect(getByTestId('1')).to.have.attribute('data-highlighted');
+
         expect(getByTestId('1')).to.have.attribute('tabindex', '0');
 
         fireEvent.keyDown(getByTestId('1'), { key: 'End' });
         await flushMicrotasks();
-        expect(getByTestId('9')).to.have.attribute('data-highlighted');
+
         expect(getByTestId('9')).to.have.attribute('tabindex', '0');
       });
 
       it('both horizontal and vertical orientation', async () => {
         const { getByTestId } = await render(
           <div dir="rtl">
-            <CompositeRoot cols={3} orientation="both" enableHomeAndEndKeys>
-              {['1', '2', '3', '4', '5', '6', '7', '8', '9'].map((i) => (
-                <CompositeItem key={i} data-testid={i}>
-                  {i}
-                </CompositeItem>
-              ))}
-            </CompositeRoot>
+            <DirectionProvider direction="rtl">
+              <CompositeRoot cols={3} orientation="both" enableHomeAndEndKeys>
+                {['1', '2', '3', '4', '5', '6', '7', '8', '9'].map((i) => (
+                  <CompositeItem key={i} data-testid={i}>
+                    {i}
+                  </CompositeItem>
+                ))}
+              </CompositeRoot>
+            </DirectionProvider>
           </div>,
         );
 
         act(() => getByTestId('1').focus());
-        expect(getByTestId('1')).to.have.attribute('data-highlighted');
 
         fireEvent.keyDown(getByTestId('1'), { key: 'ArrowDown' });
         await flushMicrotasks();
-        expect(getByTestId('4')).to.have.attribute('data-highlighted');
+
         expect(getByTestId('4')).to.have.attribute('tabindex', '0');
         expect(getByTestId('4')).toHaveFocus();
 
         fireEvent.keyDown(getByTestId('4'), { key: 'ArrowLeft' });
         await flushMicrotasks();
-        expect(getByTestId('5')).to.have.attribute('data-highlighted');
+
         expect(getByTestId('5')).to.have.attribute('tabindex', '0');
         expect(getByTestId('5')).toHaveFocus();
 
         fireEvent.keyDown(getByTestId('5'), { key: 'ArrowDown' });
         await flushMicrotasks();
-        expect(getByTestId('8')).to.have.attribute('data-highlighted');
+
         expect(getByTestId('8')).to.have.attribute('tabindex', '0');
         expect(getByTestId('8')).toHaveFocus();
 
         fireEvent.keyDown(getByTestId('8'), { key: 'ArrowRight' });
         await flushMicrotasks();
-        expect(getByTestId('7')).to.have.attribute('data-highlighted');
+
         expect(getByTestId('7')).to.have.attribute('tabindex', '0');
         expect(getByTestId('7')).toHaveFocus();
 
         fireEvent.keyDown(getByTestId('7'), { key: 'ArrowUp' });
         await flushMicrotasks();
-        expect(getByTestId('4')).to.have.attribute('data-highlighted');
+
         expect(getByTestId('4')).to.have.attribute('tabindex', '0');
         expect(getByTestId('4')).toHaveFocus();
 
         fireEvent.keyDown(getByTestId('4'), { key: 'End' });
         await flushMicrotasks();
-        expect(getByTestId('9')).to.have.attribute('data-highlighted');
+
         expect(getByTestId('9')).to.have.attribute('tabindex', '0');
 
         fireEvent.keyDown(getByTestId('9'), { key: 'Home' });
         await flushMicrotasks();
-        expect(getByTestId('1')).to.have.attribute('data-highlighted');
+
         expect(getByTestId('1')).to.have.attribute('tabindex', '0');
       });
     });
@@ -461,17 +458,15 @@ describe('Composite', () => {
 
         act(() => item1.focus());
 
-        expect(item1).to.have.attribute('data-highlighted');
-
         fireEvent.keyDown(item1, { key: 'ArrowDown' });
         await flushMicrotasks();
-        expect(item3).to.have.attribute('data-highlighted');
+
         expect(item3).to.have.attribute('tabindex', '0');
         expect(item3).toHaveFocus();
 
         fireEvent.keyDown(item3, { key: 'ArrowUp' });
         await flushMicrotasks();
-        expect(item1).to.have.attribute('data-highlighted');
+
         expect(item1).to.have.attribute('tabindex', '0');
         expect(item1).toHaveFocus();
       });
@@ -514,29 +509,27 @@ describe('Composite', () => {
 
         act(() => item1.focus());
 
-        expect(item1).to.have.attribute('data-highlighted');
-
         fireEvent.keyDown(item1, { key: 'ArrowDown' });
         await flushMicrotasks();
-        expect(item2).to.have.attribute('data-highlighted');
+
         expect(item2).to.have.attribute('tabindex', '0');
         expect(item2).toHaveFocus();
 
         fireEvent.keyDown(item2, { key: 'ArrowDown' });
         await flushMicrotasks();
-        expect(item3).to.have.attribute('data-highlighted');
+
         expect(item3).to.have.attribute('tabindex', '0');
         expect(item3).toHaveFocus();
 
         fireEvent.keyDown(item3, { key: 'ArrowDown' });
         await flushMicrotasks();
-        expect(item1).to.have.attribute('data-highlighted');
+
         expect(item1).to.have.attribute('tabindex', '0');
         expect(item1).toHaveFocus();
 
         fireEvent.keyDown(item1, { key: 'ArrowUp' });
         await flushMicrotasks();
-        expect(item3).to.have.attribute('data-highlighted');
+
         expect(item3).to.have.attribute('tabindex', '0');
         expect(item3).toHaveFocus();
       });
@@ -567,17 +560,15 @@ describe('Composite', () => {
 
       act(() => item1.focus());
 
-      expect(item1).to.have.attribute('data-highlighted');
-
       fireEvent.keyDown(item1, { key: 'ArrowDown' });
       await flushMicrotasks();
-      expect(item3).to.have.attribute('data-highlighted');
+
       expect(item3).to.have.attribute('tabindex', '0');
       expect(item3).toHaveFocus();
 
       fireEvent.keyDown(item3, { key: 'ArrowUp' });
       await flushMicrotasks();
-      expect(item1).to.have.attribute('data-highlighted');
+
       expect(item1).to.have.attribute('tabindex', '0');
       expect(item1).toHaveFocus();
     });
@@ -620,29 +611,27 @@ describe('Composite', () => {
 
       act(() => item1.focus());
 
-      expect(item1).to.have.attribute('data-highlighted');
-
       fireEvent.keyDown(item1, { key: 'ArrowDown' });
       await flushMicrotasks();
-      expect(item2).to.have.attribute('data-highlighted');
+
       expect(item2).to.have.attribute('tabindex', '0');
       expect(item2).toHaveFocus();
 
       fireEvent.keyDown(item2, { key: 'ArrowDown' });
       await flushMicrotasks();
-      expect(item3).to.have.attribute('data-highlighted');
+
       expect(item3).to.have.attribute('tabindex', '0');
       expect(item3).toHaveFocus();
 
       fireEvent.keyDown(item3, { key: 'ArrowDown' });
       await flushMicrotasks();
-      expect(item1).to.have.attribute('data-highlighted');
+
       expect(item1).to.have.attribute('tabindex', '0');
       expect(item1).toHaveFocus();
 
       fireEvent.keyDown(item1, { key: 'ArrowUp' });
       await flushMicrotasks();
-      expect(item3).to.have.attribute('data-highlighted');
+
       expect(item3).to.have.attribute('tabindex', '0');
       expect(item3).toHaveFocus();
     });

@@ -1,12 +1,10 @@
 'use client';
 import * as React from 'react';
+import { useModernLayoutEffect } from '@base-ui-components/utils/useModernLayoutEffect';
 import { useDialogRootContext } from '../root/DialogRootContext';
 import { useRenderElement } from '../../utils/useRenderElement';
-import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import type { BaseUIComponentProps } from '../../utils/types';
-
-const state = {};
 
 /**
  * A paragraph with additional information about the dialog.
@@ -31,9 +29,8 @@ export const DialogDescription = React.forwardRef(function DialogDescription(
   }, [id, setDescriptionElementId]);
 
   return useRenderElement('p', componentProps, {
-    state,
     ref: forwardedRef,
-    props: [elementProps, { id }],
+    props: [{ id }, elementProps],
   });
 });
 

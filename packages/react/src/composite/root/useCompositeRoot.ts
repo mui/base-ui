@@ -1,9 +1,12 @@
 'use client';
 import * as React from 'react';
+import { isElementDisabled } from '@base-ui-components/utils/isElementDisabled';
+import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useForkRef } from '@base-ui-components/utils/useForkRef';
+import { ownerDocument } from '@base-ui-components/utils/owner';
+import { useModernLayoutEffect } from '@base-ui-components/utils/useModernLayoutEffect';
+import { activeElement } from '../../floating-ui-react/utils';
 import type { TextDirection } from '../../direction-provider/DirectionContext';
-import { isElementDisabled } from '../../utils/isElementDisabled';
-import { useEventCallback } from '../../utils/useEventCallback';
-import { useForkRef } from '../../utils/useForkRef';
 import {
   ALL_KEYS,
   ARROW_DOWN,
@@ -27,8 +30,8 @@ import {
   getMinListIndex,
   isListIndexDisabled,
   isIndexOutOfListBounds,
-  getTextDirection,
   isNativeInput,
+  scrollIntoViewIfNeeded,
   type Dimensions,
   type ModifierKey,
 } from '../composite';
@@ -43,7 +46,7 @@ export interface UseCompositeRootParameters {
   highlightedIndex?: number;
   onHighlightedIndexChange?: (index: number) => void;
   dense?: boolean;
-  direction?: TextDirection;
+  direction: TextDirection;
   itemSizes?: Array<Dimensions>;
   rootRef?: React.Ref<Element>;
   /**
@@ -94,18 +97,33 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
 
   const isGrid = cols > 1;
 
-  const highlightedIndex = externalHighlightedIndex ?? internalHighlightedIndex;
-  const onHighlightedIndexChange = useEventCallback(
-    externalSetHighlightedIndex ?? internalSetHighlightedIndex,
-  );
-
-  const textDirectionRef = React.useRef<TextDirection | null>(direction ?? null);
-
   const rootRef = React.useRef<HTMLElement | null>(null);
   const mergedRef = useForkRef(rootRef, externalRef);
 
   const elementsRef = React.useRef<Array<HTMLDivElement | null>>([]);
   const hasSetDefaultIndexRef = React.useRef(false);
+
+  const highlightedIndex = externalHighlightedIndex ?? internalHighlightedIndex;
+  const onHighlightedIndexChange = useEventCallback((index, shouldScrollIntoView = false) => {
+    (externalSetHighlightedIndex ?? internalSetHighlightedIndex)(index);
+    if (shouldScrollIntoView) {
+      const newActiveItem = elementsRef.current[index];
+      scrollIntoViewIfNeeded(rootRef.current, newActiveItem, direction, orientation);
+    }
+  });
+
+  // Ensure external controlled updates moves focus to the highlighted item
+  // if focus is currently inside the list.
+  // https://github.com/mui/base-ui/issues/2101
+  useModernLayoutEffect(() => {
+    const activeEl = activeElement(ownerDocument(rootRef.current)) as HTMLDivElement | null;
+    if (elementsRef.current.includes(activeEl)) {
+      const focusedItem = elementsRef.current[highlightedIndex];
+      if (focusedItem && focusedItem !== activeEl) {
+        focusedItem.focus();
+      }
+    }
+  }, [highlightedIndex]);
 
   const onMapChange = useEventCallback((map: Map<Element, CompositeMetadata<any>>) => {
     if (map.size === 0 || hasSetDefaultIndexRef.current) {
@@ -113,13 +131,17 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
     }
     hasSetDefaultIndexRef.current = true;
     const sortedElements = Array.from(map.keys());
-    // Set the default highlighted index of an arbitrary composite item.
-    const activeIndex = sortedElements.findIndex((compositeElement) =>
+    const activeItem = (sortedElements.find((compositeElement) =>
       compositeElement?.hasAttribute(ACTIVE_COMPOSITE_ITEM),
-    );
+    ) ?? null) as HTMLElement | null;
+    // Set the default highlighted index of an arbitrary composite item.
+    const activeIndex = activeItem ? sortedElements.indexOf(activeItem) : -1;
+
     if (activeIndex !== -1) {
       onHighlightedIndexChange(activeIndex);
     }
+
+    scrollIntoViewIfNeeded(rootRef.current, activeItem, direction, orientation);
   });
 
   const props = React.useMemo<HTMLProps>(
@@ -147,11 +169,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
         if (!element) {
           return;
         }
-
-        if (textDirectionRef?.current == null) {
-          textDirectionRef.current = getTextDirection(element);
-        }
-        const isRtl = textDirectionRef.current === 'rtl';
+        const isRtl = direction === 'rtl';
 
         const horizontalForwardKey = isRtl ? ARROW_LEFT : ARROW_RIGHT;
         const forwardKey = {
@@ -307,7 +325,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
           if (preventedKeys.has(event.key)) {
             event.preventDefault();
           }
-          onHighlightedIndexChange(nextIndex);
+          onHighlightedIndexChange(nextIndex, true);
 
           // Wait for FocusManager `returnFocus` to execute.
           queueMicrotask(() => {
@@ -319,6 +337,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
     [
       cols,
       dense,
+      direction,
       disabledIndices,
       elementsRef,
       enableHomeAndEndKeys,
@@ -347,12 +366,12 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
   );
 }
 
-function isModifierKeySet(event: React.KeyboardEvent<any>, ignoredModifierKeys: ModifierKey[]) {
+function isModifierKeySet(event: React.KeyboardEvent, ignoredModifierKeys: ModifierKey[]) {
   for (const key of MODIFIER_KEYS.values()) {
-    if (ignoredModifierKeys.includes(key as any)) {
+    if (ignoredModifierKeys.includes(key)) {
       continue;
     }
-    if (event.getModifierState(key as any)) {
+    if (event.getModifierState(key)) {
       return true;
     }
   }

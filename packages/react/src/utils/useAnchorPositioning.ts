@@ -1,5 +1,10 @@
 'use client';
 import * as React from 'react';
+import { getSide, getAlignment, type Rect, getSideAxis } from '@floating-ui/utils';
+import { ownerDocument } from '@base-ui-components/utils/owner';
+import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useLatestRef } from '@base-ui-components/utils/useLatestRef';
+import { useModernLayoutEffect } from '@base-ui-components/utils/useModernLayoutEffect';
 import {
   autoUpdate,
   flip,
@@ -20,13 +25,8 @@ import {
   type MiddlewareState,
   type AutoUpdateOptions,
   type Middleware,
-} from '@floating-ui/react';
-import { getSide, getAlignment, type Rect, getSideAxis } from '@floating-ui/utils';
-import { useModernLayoutEffect } from './useModernLayoutEffect';
+} from '../floating-ui-react/index';
 import { useDirection } from '../direction-provider/DirectionContext';
-import { useLatestRef } from './useLatestRef';
-import { useEventCallback } from './useEventCallback';
-import { ownerDocument } from './owner';
 
 function getLogicalSide(sideParam: Side, renderedSide: PhysicalSide, isRtl: boolean): Side {
   const isLogicalSideParam = sideParam === 'inline-start' || sideParam === 'inline-end';
@@ -376,9 +376,12 @@ export function useAnchorPositioning(
     const resolvedAnchor = typeof anchorValue === 'function' ? anchorValue() : anchorValue;
     const unwrappedElement =
       (isRef(resolvedAnchor) ? resolvedAnchor.current : resolvedAnchor) || null;
+    const finalAnchor = unwrappedElement || null;
 
-    refs.setPositionReference(unwrappedElement);
-    registeredPositionReferenceRef.current = unwrappedElement;
+    if (finalAnchor !== registeredPositionReferenceRef.current) {
+      refs.setPositionReference(finalAnchor);
+      registeredPositionReferenceRef.current = finalAnchor;
+    }
   }, [mounted, refs, anchorDep, anchorValueRef]);
 
   React.useEffect(() => {

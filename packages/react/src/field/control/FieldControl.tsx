@@ -1,13 +1,14 @@
 'use client';
 import * as React from 'react';
+import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useControlled } from '@base-ui-components/utils/useControlled';
+import { useModernLayoutEffect } from '@base-ui-components/utils/useModernLayoutEffect';
 import { FieldRoot } from '../root/FieldRoot';
 import { useFieldRootContext } from '../root/FieldRootContext';
 import { fieldValidityMapping } from '../utils/constants';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
-import { useEventCallback } from '../../utils/useEventCallback';
 import { useField } from '../useField';
-import { useControlled, useModernLayoutEffect } from '../../utils';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useFieldControlValidation } from './useFieldControlValidation';
 
@@ -89,15 +90,14 @@ export const FieldControl = React.forwardRef(function FieldControl(
     state: 'value',
   });
 
-  const setValue = useEventCallback(
-    (nextValue: string | number | readonly string[], event: Event) => {
-      setValueUnwrapped(nextValue);
-      onValueChange?.(nextValue, event);
-    },
-  );
+  const setValue = useEventCallback((nextValue: string, event: Event) => {
+    setValueUnwrapped(nextValue);
+    onValueChange?.(nextValue, event);
+  });
 
   useField({
     id,
+    name,
     commitValidation,
     value,
     getValue: () => inputRef.current?.value,
@@ -158,7 +158,7 @@ export namespace FieldControl {
     /**
      * Callback fired when the `value` changes. Use when controlled.
      */
-    onValueChange?: (value: React.ComponentProps<'input'>['value'], event: Event) => void;
+    onValueChange?: (value: string, event: Event) => void;
     defaultValue?: React.ComponentProps<'input'>['defaultValue'];
   }
 }

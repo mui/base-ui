@@ -1,13 +1,14 @@
 'use client';
 import * as React from 'react';
-import { activeElement, contains, getTarget, useLatestRef } from '@floating-ui/react/utils';
+import { useLatestRef } from '@base-ui-components/utils/useLatestRef';
+import { ownerDocument, ownerWindow } from '@base-ui-components/utils/owner';
+import { activeElement, contains, getTarget } from '../../floating-ui-react/utils';
+import { FocusGuard } from '../../utils/FocusGuard';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { ToastViewportContext } from './ToastViewportContext';
-import { FocusGuard } from './FocusGuard';
 import { useToastContext } from '../provider/ToastProviderContext';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { isFocusVisible } from '../utils/focusVisible';
-import { ownerDocument, ownerWindow } from '../../utils/owner';
 
 /**
  * A container viewport for toasts.

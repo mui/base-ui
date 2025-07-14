@@ -1,8 +1,8 @@
 'use client';
 import * as React from 'react';
+import { useControlled } from '@base-ui-components/utils/useControlled';
+import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { useBaseUiId } from '../utils/useBaseUiId';
-import { useControlled } from '../utils/useControlled';
-import { useEventCallback } from '../utils/useEventCallback';
 import { useRenderElement } from '../utils/useRenderElement';
 import { CheckboxGroupContext } from './CheckboxGroupContext';
 import type { FieldRoot } from '../field/root/FieldRoot';
@@ -79,6 +79,8 @@ export const CheckboxGroup = React.forwardRef(function CheckboxGroup(
     commitValidation: fieldControlValidation.commitValidation,
     value,
     controlRef,
+    name: fieldName,
+    getValue: () => value,
   });
 
   const state: CheckboxGroup.State = React.useMemo(

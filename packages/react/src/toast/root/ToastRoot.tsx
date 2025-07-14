@@ -1,21 +1,21 @@
 'use client';
 import * as React from 'react';
-import { activeElement, contains, getTarget } from '@floating-ui/react/utils';
+import { visuallyHidden } from '@base-ui-components/utils/visuallyHidden';
+import { ownerDocument } from '@base-ui-components/utils/owner';
+import { useOnMount } from '@base-ui-components/utils/useOnMount';
+import { useTimeout } from '@base-ui-components/utils/useTimeout';
+import { inertValue } from '@base-ui-components/utils/inertValue';
+import { activeElement, contains, getTarget } from '../../floating-ui-react/utils';
 import type { BaseUIComponentProps } from '../../utils/types';
 import type { ToastObject as ToastObjectType } from '../useToastManager';
 import { ToastRootContext } from './ToastRootContext';
 import { transitionStatusMapping } from '../../utils/styleHookMapping';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
-import { visuallyHidden } from '../../utils/visuallyHidden';
 import { useToastContext } from '../provider/ToastProviderContext';
 import { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 import { useRenderElement } from '../../utils/useRenderElement';
-import { ownerDocument } from '../../utils/owner';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { ToastRootCssVars } from './ToastRootCssVars';
-import { useOnMount } from '../../utils/useOnMount';
-import { useTimeout } from '../../utils/useTimeout';
-import { inertValue } from '../../utils/inertValue';
 
 const customStyleHookMapping: CustomStyleHookMapping<ToastRoot.State> = {
   ...transitionStatusMapping,

@@ -1,15 +1,16 @@
 'use client';
 import * as React from 'react';
+import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useTimeout } from '@base-ui-components/utils/useTimeout';
 import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import { ScrollAreaRootContext } from './ScrollAreaRootContext';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { ScrollAreaRootCssVars } from './ScrollAreaRootCssVars';
-import { useEventCallback } from '../../utils/useEventCallback';
 import { SCROLL_TIMEOUT } from '../constants';
 import { getOffset } from '../utils/getOffset';
 import { ScrollAreaScrollbarDataAttributes } from '../scrollbar/ScrollAreaScrollbarDataAttributes';
+import { styleDisableScrollbar } from '../../utils/styles';
 import { useBaseUiId } from '../../utils/useBaseUiId';
-import { useTimeout } from '../../utils/useTimeout';
 
 interface Size {
   width: number;
@@ -257,23 +258,9 @@ export const ScrollAreaRoot = React.forwardRef(function ScrollAreaRoot(
     ],
   );
 
-  const viewportId = `[data-id="${rootId}-viewport"]`;
-
-  const html = React.useMemo(
-    () => ({
-      __html: `${viewportId}{scrollbar-width:none}${viewportId}::-webkit-scrollbar{display:none}`,
-    }),
-    [viewportId],
-  );
-
   return (
     <ScrollAreaRootContext.Provider value={contextValue}>
-      {rootId && (
-        <style
-          // eslint-disable-next-line react/no-danger
-          dangerouslySetInnerHTML={html}
-        />
-      )}
+      {styleDisableScrollbar.element}
       {element}
     </ScrollAreaRootContext.Provider>
   );

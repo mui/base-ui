@@ -1,8 +1,8 @@
 'use client';
 import * as React from 'react';
+import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
-import { useEventCallback } from '../../utils/useEventCallback';
 import { useCollapsibleRoot } from './useCollapsibleRoot';
 import { CollapsibleRootContext } from './CollapsibleRootContext';
 import { collapsibleStyleHookMapping } from './styleHooks';
@@ -77,8 +77,7 @@ export const CollapsibleRoot = React.forwardRef(function CollapsibleRoot(
 });
 
 export namespace CollapsibleRoot {
-  export interface State
-    extends Pick<useCollapsibleRoot.ReturnValue, 'open' | 'disabled' | 'transitionStatus'> {}
+  export interface State extends Pick<useCollapsibleRoot.ReturnValue, 'open' | 'disabled'> {}
 
   export interface Props extends Omit<BaseUIComponentProps<'div', State>, 'render'> {
     /**

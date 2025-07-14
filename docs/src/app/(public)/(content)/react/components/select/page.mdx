@@ -48,3 +48,59 @@ import { Select } from '@base-ui-components/react/select';
   component="Select"
   parts="Root, Trigger, Value, Icon, Backdrop, Portal, Positioner, Popup, Arrow, Item, ItemText, ItemIndicator, Group, GroupLabel, ScrollUpArrow, ScrollDownArrow, Separator"
 />
+
+## Formatting the value
+
+By default, the `Select.Value` component renders the raw `value`.
+
+Passing the `items` prop to `Select.Root` instead renders the matching label for the rendered value:
+
+```jsx title="items prop (Array)" "items"1,3
+const items = [
+  { value: null, label: 'Select theme' },
+  { value: 'system', label: 'System default' },
+  { value: 'light', label: 'Light' },
+  { value: 'dark', label: 'Dark' },
+];
+
+<Select.Root items={items}>
+  <Select.Value />
+</Select.Root>;
+```
+
+```jsx title="items prop (Record)" "items"1,3
+const items = {
+  null: 'Select theme',
+  system: 'System default',
+  light: 'Light',
+  dark: 'Dark',
+};
+
+<Select.Root items={items}>
+  <Select.Value />
+</Select.Root>;
+```
+
+A function can also be passed as the `children` prop of `Select.Value` to render a formatted value:
+
+```jsx title="Lookup map" {8-12}
+const items = {
+  monospace: 'Monospace',
+  serif: 'Serif',
+  'san-serif': 'Sans-serif',
+};
+
+<Select.Value>
+  {(value: keyof typeof items) => (
+    <span style={{ fontFamily: value }}>
+      {items[value]}
+    </span>
+  )}
+</Select.Value>;
+```
+
+## Multiple selection
+
+Add the `multiple` prop to the `Select.Root` component to allow multiple selections.
+
+<Demo path="./demos/multiple" compact />

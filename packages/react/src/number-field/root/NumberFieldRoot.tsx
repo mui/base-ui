@@ -1,23 +1,23 @@
 'use client';
 import * as React from 'react';
+import { useControlled } from '@base-ui-components/utils/useControlled';
+import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useTimeout } from '@base-ui-components/utils/useTimeout';
+import { useInterval } from '@base-ui-components/utils/useInterval';
+import { useModernLayoutEffect } from '@base-ui-components/utils/useModernLayoutEffect';
+import { useLatestRef } from '@base-ui-components/utils/useLatestRef';
+import { useForcedRerendering } from '@base-ui-components/utils/useForcedRerendering';
+import { ownerDocument, ownerWindow } from '@base-ui-components/utils/owner';
+import { isIOS } from '@base-ui-components/utils/detectBrowser';
 import { InputMode, NumberFieldRootContext } from './NumberFieldRootContext';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import type { BaseUIComponentProps } from '../../utils/types';
 import type { FieldRoot } from '../../field/root/FieldRoot';
 import { styleHookMapping } from '../utils/styleHooks';
 import { useRenderElement } from '../../utils/useRenderElement';
-import { useControlled } from '../../utils/useControlled';
-import { useEventCallback } from '../../utils/useEventCallback';
-import { useTimeout } from '../../utils/useTimeout';
-import { useInterval } from '../../utils/useInterval';
 import { getNumberLocaleDetails, PERCENTAGES } from '../utils/parse';
-import { formatNumber } from '../../utils/formatNumber';
-import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
-import { useLatestRef } from '../../utils/useLatestRef';
-import { useForcedRerendering } from '../../utils/useForcedRerendering';
+import { formatNumber, formatNumberMaxPrecision } from '../../utils/formatNumber';
 import { useBaseUiId } from '../../utils/useBaseUiId';
-import { ownerDocument, ownerWindow } from '../../utils/owner';
-import { isIOS } from '../../utils/detectBrowser';
 import { CHANGE_VALUE_TICK_DELAY, DEFAULT_STEP, START_AUTO_CHANGE_DELAY } from '../utils/constants';
 import { toValidatedNumber } from '../utils/validate';
 import { EventWithOptionalKeyState } from '../utils/types';
@@ -126,7 +126,12 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
   // locale. This causes a hydration mismatch, which we manually suppress. This is preferable to
   // rendering an empty input field and then updating it with the formatted value, as the user
   // can still see the value prior to hydration, even if it's not formatted correctly.
-  const [inputValue, setInputValue] = React.useState(() => formatNumber(value, locale, format));
+  const [inputValue, setInputValue] = React.useState(() => {
+    if (valueProp !== undefined) {
+      return getControlledInputValue(value, locale, format);
+    }
+    return formatNumber(value, locale, format);
+  });
   const [inputMode, setInputMode] = React.useState<InputMode>('numeric');
 
   const getAllowedNonNumericKeys = useEventCallback(() => {
@@ -174,9 +179,15 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
       setValueUnwrapped(validatedValue);
       setDirty(validatedValue !== validityData.initialValue);
 
-      // We need to force a re-render, because while the value may be unchanged, the formatting may
-      // be different. This forces the `useModernLayoutEffect` to run which acts as a single source of
-      // truth to sync the input value.
+      // Keep the visible input in sync immediately when programmatic changes occur
+      // (increment/decrement, wheel, etc). During direct typing we don't want
+      // to overwrite the user-provided text until blur, so we gate on
+      // `allowInputSyncRef`.
+      if (allowInputSyncRef.current) {
+        setInputValue(formatNumber(validatedValue, locale, format));
+      }
+
+      // Formatting can change even if the numeric value hasn't, so ensure a re-render when needed.
       forceRender();
     },
   );
@@ -263,7 +274,10 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
       return;
     }
 
-    const nextInputValue = formatNumber(value, locale, formatOptionsRef.current);
+    const nextInputValue =
+      valueProp !== undefined
+        ? getControlledInputValue(value, locale, format)
+        : formatNumber(value, locale, format);
 
     if (nextInputValue !== inputValue) {
       setInputValue(nextInputValue);
@@ -558,4 +572,16 @@ export namespace NumberFieldRoot {
      */
     scrubbing: boolean;
   }
+}
+
+function getControlledInputValue(
+  value: number | null,
+  locale: Intl.LocalesArgument,
+  format: Intl.NumberFormatOptions | undefined,
+) {
+  const explicitPrecision =
+    format?.maximumFractionDigits != null || format?.minimumFractionDigits != null;
+  return explicitPrecision
+    ? formatNumber(value, locale, format)
+    : formatNumberMaxPrecision(value, locale, format);
 }

@@ -1,8 +1,14 @@
 'use client';
 import * as React from 'react';
-import type { Middleware } from '@floating-ui/react';
 import { getSide } from '@floating-ui/utils';
-import { disableFocusInside, enableFocusInside, isOutsideEvent } from '@floating-ui/react/utils';
+import { ownerDocument } from '@base-ui-components/utils/owner';
+import { useModernLayoutEffect } from '@base-ui-components/utils/useModernLayoutEffect';
+import type { Middleware } from '../../floating-ui-react';
+import {
+  disableFocusInside,
+  enableFocusInside,
+  isOutsideEvent,
+} from '../../floating-ui-react/utils';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import {
@@ -12,9 +18,7 @@ import {
 import { useNavigationMenuPortalContext } from '../portal/NavigationMenuPortalContext';
 import { useAnchorPositioning, type Align, type Side } from '../../utils/useAnchorPositioning';
 import { NavigationMenuPositionerContext } from './NavigationMenuPositionerContext';
-import { ownerDocument } from '../../utils/owner';
 import { useAnimationsFinished } from '../../utils/useAnimationsFinished';
-import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { popupStateMapping } from '../../utils/popupStateMapping';
 import { DROPDOWN_COLLISION_AVOIDANCE, POPUP_COLLISION_AVOIDANCE } from '../../utils/constants';
 

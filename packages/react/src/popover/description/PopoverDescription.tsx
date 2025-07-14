@@ -1,8 +1,8 @@
 'use client';
 import * as React from 'react';
+import { useModernLayoutEffect } from '@base-ui-components/utils/useModernLayoutEffect';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
 import type { BaseUIComponentProps } from '../../utils/types';
-import { useModernLayoutEffect } from '../../utils';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useRenderElement } from '../../utils/useRenderElement';
 

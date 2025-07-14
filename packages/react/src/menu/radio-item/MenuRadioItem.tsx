@@ -1,16 +1,16 @@
 'use client';
 import * as React from 'react';
-import { FloatingEvents, useFloatingTree } from '@floating-ui/react';
+import { useForkRef } from '@base-ui-components/utils/useForkRef';
+import { FloatingEvents, useFloatingTree } from '../../floating-ui-react';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
-import { useForkRef } from '../../utils/useForkRef';
 import { useMenuRadioGroupContext } from '../radio-group/MenuRadioGroupContext';
 import { MenuRadioItemContext } from './MenuRadioItemContext';
 import { itemMapping } from '../utils/styleHookMapping';
 import { useCompositeListItem } from '../../composite/list/useCompositeListItem';
-import { useMenuItem } from '../item/useMenuItem';
+import { REGULAR_ITEM, useMenuItem } from '../item/useMenuItem';
 
 const InnerMenuRadioItem = React.memo(
   React.forwardRef(function InnerMenuRadioItem(
@@ -30,6 +30,7 @@ const InnerMenuRadioItem = React.memo(
       render,
       allowMouseUpTriggerRef,
       typingRef,
+      nativeButton,
       ...elementProps
     } = componentProps;
 
@@ -41,6 +42,8 @@ const InnerMenuRadioItem = React.memo(
       menuEvents,
       allowMouseUpTriggerRef,
       typingRef,
+      nativeButton,
+      itemMetadata: REGULAR_ITEM,
     });
 
     const state: MenuRadioItem.State = { disabled, highlighted, checked };
@@ -81,6 +84,7 @@ export const MenuRadioItem = React.forwardRef(function MenuRadioItem(
     label,
     disabled: disabledProp = false,
     closeOnClick = false,
+    nativeButton = false,
     ...other
   } = props;
 
@@ -135,6 +139,7 @@ export const MenuRadioItem = React.forwardRef(function MenuRadioItem(
         setChecked={setChecked}
         typingRef={typingRef}
         closeOnClick={closeOnClick}
+        nativeButton={nativeButton}
       />
     </MenuRadioItemContext.Provider>
   );
@@ -149,6 +154,7 @@ interface InnerMenuRadioItemProps extends Omit<MenuRadioItem.Props, 'value'> {
   setChecked: (event: Event) => void;
   typingRef: React.RefObject<boolean>;
   closeOnClick: boolean;
+  nativeButton: boolean;
 }
 
 export namespace MenuRadioItem {
@@ -196,5 +202,12 @@ export namespace MenuRadioItem {
      * @default false
      */
     closeOnClick?: boolean;
+    /**
+     * Whether the component renders a native `<button>` element when replacing it
+     * via the `render` prop.
+     * Set to `false` if the rendered element is not a button (e.g. `<div>`).
+     * @default false
+     */
+    nativeButton?: boolean;
   }
 }
