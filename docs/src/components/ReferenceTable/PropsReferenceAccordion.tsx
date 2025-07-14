@@ -157,7 +157,8 @@ export async function PropsReferenceAccordion({ data, name: partName, ...props }
                       <DescriptionList.Separator className="max-xs:pt-2">
                         <DescriptionList.Term>Description</DescriptionList.Term>
                       </DescriptionList.Separator>
-                      <DescriptionList.Details>
+                      {/* one-off override of the default mt/mb on CodeBlock.Root */}
+                      <DescriptionList.Details className="[&_[role='figure']]:mt-1 [&_[role='figure']]:mb-1">
                         <PropDescription />
                       </DescriptionList.Details>
                     </DescriptionList.Item>
