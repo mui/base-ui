@@ -104,6 +104,8 @@
   }
 
   .AccordionContent {
+    padding-block: 1px;
+
     [open] & {
       background-color: var(--color-gray-50);
       box-shadow: inset 0px 1px 0px 0px var(--color-gray-100);
