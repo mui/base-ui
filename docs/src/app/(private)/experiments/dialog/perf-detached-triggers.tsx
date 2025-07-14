@@ -26,32 +26,26 @@ export default function DialogDetachedTriggers() {
           <li key={item.name} className={classes.listItem}>
             <span>{item.name}</span>
             <span className={classes.actions}>
-              <Dialog.DetachedTrigger dialog={editDialog} payload={item} className={classes.action}>
+              <Dialog.Trigger dialog={editDialog} payload={item} className={classes.action}>
                 <EditIcon />
-              </Dialog.DetachedTrigger>
-              <Dialog.DetachedTrigger
-                dialog={deleteDialog}
-                payload={item.name}
-                className={classes.action}
-              >
+              </Dialog.Trigger>
+              <Dialog.Trigger dialog={deleteDialog} payload={item.name} className={classes.action}>
                 <DeleteIcon />
-              </Dialog.DetachedTrigger>
+              </Dialog.Trigger>
             </span>
           </li>
         ))}
       </ul>
 
-      <Dialog.TypedRoot dialog={editDialog}>
-        {({ payload }) => <EditForm item={payload} />}
-      </Dialog.TypedRoot>
-      <Dialog.TypedRoot dialog={deleteDialog}>
+      <Dialog.Root dialog={editDialog}>{({ payload }) => <EditForm item={payload} />}</Dialog.Root>
+      <Dialog.Root dialog={deleteDialog}>
         {({ payload }) => <DeleteForm item={payload} />}
-      </Dialog.TypedRoot>
+      </Dialog.Root>
     </Dialog.Provider>
   );
 }
 
-function EditForm({ item }: { item: ItemData }) {
+function EditForm({ item }: { item: ItemData | undefined }) {
   return (
     <Dialog.Portal>
       <Dialog.Popup className={classes.dialog}>
@@ -72,7 +66,7 @@ function EditForm({ item }: { item: ItemData }) {
   );
 }
 
-function DeleteForm({ item }: { item: string }) {
+function DeleteForm({ item }: { item: string | undefined }) {
   return (
     <Dialog.Portal>
       <Dialog.Popup className={classes.dialog}>
