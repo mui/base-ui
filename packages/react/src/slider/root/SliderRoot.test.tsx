@@ -10,6 +10,7 @@ import { Field } from '@base-ui-components/react/field';
 import { Slider } from '@base-ui-components/react/slider';
 import { Form } from '@base-ui-components/react/form';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
+import { isWebKit } from '@base-ui-components/utils/detectBrowser';
 import {
   ARROW_RIGHT,
   ARROW_LEFT,
@@ -20,7 +21,6 @@ import {
 } from '../../composite/composite';
 import type { Orientation } from '../../utils/types';
 import type { SliderRoot } from './SliderRoot';
-import { isWebKit } from '../../utils/detectBrowser';
 
 const USD_NUMBER_FORMAT: Intl.NumberFormatOptions = {
   style: 'currency',
@@ -1924,7 +1924,7 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
         </Field.Root>,
       );
 
-      const input = container.querySelector('input[type="hidden"]');
+      const input = container.querySelector('input[aria-hidden="true"]');
       expect(input).to.have.attribute('name', 'field-slider');
     });
 

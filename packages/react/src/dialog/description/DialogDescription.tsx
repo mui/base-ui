@@ -1,8 +1,8 @@
 'use client';
 import * as React from 'react';
+import { useModernLayoutEffect } from '@base-ui-components/utils/useModernLayoutEffect';
 import { useDialogRootContext } from '../root/DialogRootContext';
 import { useRenderElement } from '../../utils/useRenderElement';
-import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import type { BaseUIComponentProps } from '../../utils/types';
 

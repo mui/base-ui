@@ -1,8 +1,8 @@
 import { fireEvent, flushMicrotasks, render, screen } from '@mui/internal-test-utils';
 import * as React from 'react';
 
+import { isJSDOM } from '@base-ui-components/utils/detectBrowser';
 import { FloatingPortal, useFloating } from '../index';
-import { isJSDOM } from '../../utils/detectBrowser';
 
 function App(props: {
   root?: HTMLElement | null | React.RefObject<HTMLElement | null>;

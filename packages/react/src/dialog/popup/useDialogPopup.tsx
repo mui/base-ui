@@ -1,8 +1,8 @@
 'use client';
 import * as React from 'react';
-import { useForkRef } from '../../utils/useForkRef';
-import type { DialogOpenChangeReason } from '../root/useDialogRoot';
-import { type InteractionType } from '../../utils/useEnhancedClickHandler';
+import { useForkRef } from '@base-ui-components/utils/useForkRef';
+import { type InteractionType } from '@base-ui-components/utils/useEnhancedClickHandler';
+import type { DialogRoot } from '../root/DialogRoot';
 import { HTMLProps } from '../../utils/types';
 import { COMPOSITE_KEYS } from '../../composite/composite';
 
@@ -80,7 +80,7 @@ export namespace useDialogPopup {
     setOpen: (
       open: boolean,
       event: Event | undefined,
-      reason: DialogOpenChangeReason | undefined,
+      reason: DialogRoot.OpenChangeReason | undefined,
     ) => void;
     /**
      * The id of the title element associated with the dialog.

@@ -1,20 +1,20 @@
 'use client';
 import * as React from 'react';
 import { getParentNode, isHTMLElement, isLastTraversableNode } from '@floating-ui/utils/dom';
+import { useForkRef } from '@base-ui-components/utils/useForkRef';
+import { useTimeout } from '@base-ui-components/utils/useTimeout';
+import { ownerDocument } from '@base-ui-components/utils/owner';
+import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { contains } from '../../floating-ui-react/utils';
 import { useFloatingTree } from '../../floating-ui-react/index';
-import { CompositeItem } from '../../composite/item/CompositeItem';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { pressableTriggerOpenStateMapping } from '../../utils/popupStateMapping';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { BaseUIComponentProps, HTMLProps } from '../../utils/types';
-import { useForkRef } from '../../utils/useForkRef';
 import { mergeProps } from '../../merge-props';
 import { useButton } from '../../use-button/useButton';
-import { useTimeout } from '../../utils/useTimeout';
-import { ownerDocument } from '../../utils/owner';
 import { getPseudoElementBounds } from '../../utils/getPseudoElementBounds';
-import { useEventCallback } from '../../utils/useEventCallback';
+import { CompositeItem } from '../../composite/item/CompositeItem';
 
 const BOUNDARY_OFFSET = 2;
 
@@ -152,15 +152,31 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
     [disabled, open],
   );
 
+  const isMenubar = parent.type === 'menubar';
+
+  const ref = [triggerRef, forwardedRef, buttonRef];
+  const props = [rootTriggerProps, elementProps, getTriggerProps];
+
   const element = useRenderElement('button', componentProps, {
-    state,
+    enabled: !isMenubar,
     customStyleHookMapping: pressableTriggerOpenStateMapping,
-    ref: [triggerRef, forwardedRef, buttonRef],
-    props: [rootTriggerProps, elementProps, getTriggerProps],
+    state,
+    ref,
+    props,
   });
 
-  if (parent.type === 'menubar') {
-    return <CompositeItem render={element} />;
+  if (isMenubar) {
+    return (
+      <CompositeItem
+        tag="button"
+        render={render}
+        className={className}
+        state={state}
+        refs={ref}
+        props={props}
+        customStyleHookMapping={pressableTriggerOpenStateMapping}
+      />
+    );
   }
 
   return element;
