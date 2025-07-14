@@ -18,48 +18,44 @@
       "rangeStrategy": "widen"
     },
     {
-      "groupName": "babel",
-      "matchPackagePatterns": ["^@babel/", "^@types/babel"]
+      "groupName": "Babel",
+      "matchPackageNames": ["babel-*", "@babel/*", "@types/babel/*"]
     },
     {
       "groupName": "Emotion",
-      "matchPackagePatterns": "@emotion/*"
+      "matchPackageNames": ["@emotion/*"]
     },
     {
       "groupName": "Tailwind CSS",
       "matchPackageNames": ["tailwindcss", "@tailwindcss/*", "prettier-plugin-tailwindcss"]
     },
     {
-      "groupName": "eslint",
-      "matchPackagePatterns": ["eslint", "eslint-*", "@typescript-eslint/*"],
-      "automerge": true
+      "groupName": "ESlint",
+      "matchPackageNames": ["eslint", "eslint-*", "@typescript-eslint/*"]
     },
     {
-      "automerge": true,
-      "matchPackageNames": ["@types/**"]
+      "groupName": "Floating UI",
+      "matchPackageNames": ["@floating-ui/*"],
+      "schedule": "null"
     },
     {
-      "groupName": "Infra packages",
+      "groupName": "Types",
+      "matchPackageNames": ["@types/*"]
+    },
+    {
+      "groupName": "MUI internal packages",
       "matchPackageNames": ["@mui/internal-*", "@mui/docs"],
       "followTag": "canary",
       "schedule": null
     },
     {
-      "groupName": "MUI",
-      "matchPackagePatterns": [
-        "@mui/internal-test-utils",
-        "@playwright/test",
-        "mcr.microsoft.com/playwright"
-      ],
-      "description": "@mui/internal-test-utils and Playwright. These are updated together as the playwright version used by @mui/internal-test-utils must be the same as mcr.microsoft.com/playwright image.",
-      "allowedVersions": "!/-dev/",
-      "schedule": "before 6:00am on Wednesday"
+      "groupName": "MUI public packages",
+      "matchPackageNames": ["@mui/*", "!@mui/internal-*", "!@mui/docs"],
+      "allowedVersions": "!/-dev/"
     },
     {
-      "groupName": "Public packages' dependencies",
-      "matchFileNames": ["packages/*/package.json"],
-      "matchDepTypes": ["dependencies", "devDependencies"],
-      "schedule": "before 6:00am on Wednesday"
+      "groupName": "Playwright",
+      "matchPackageNames": ["@playwright/test", "mcr.microsoft.com/playwright"]
     },
     {
       "groupName": "React",
@@ -78,8 +74,8 @@
       "allowedVersions": "< 19.0.0"
     },
     {
-      "groupName": "Vitest",
-      "matchPackagePatterns": ["^vitest$", "^@vitest/"]
+      "groupName": "Vite + Vitest",
+      "matchPackageNames": ["vitest", "@vitest/*", "vitest-*", "vite"]
     },
     {
       "matchDepTypes": ["engines"],
@@ -88,7 +84,7 @@
     },
     {
       "groupName": "CodeSandbox template",
-      "matchPaths": [".codesandbox/template/package.json"],
+      "matchFileNames": [".codesandbox/template/package.json"],
       "enabled": false
     },
     {
@@ -103,22 +99,12 @@
       "groupName": "chai - incompatible versions",
       "matchPackageNames": ["chai", "@types/chai"],
       "allowedVersions": "< 5.0.0"
-    },
-    {
-      "groupName": "react-docgen - incompatible versions",
-      "matchPackageNames": ["react-docgen"],
-      "allowedVersions": "< 6.0.0"
-    },
-    {
-      "groupName": "eslint - incompatible versions",
-      "matchPackageNames": ["eslint", "@types/eslint"],
-      "allowedVersions": "< 9.0.0"
     }
   ],
   "postUpdateOptions": ["pnpmDedupe"],
   "prConcurrentLimit": 30,
   "prHourlyLimit": 0,
   "rangeStrategy": "bump",
-  "schedule": "on the first day of the month before 4:00am",
+  "schedule": "before 6:00am on Friday",
   "timezone": "UTC"
 }
