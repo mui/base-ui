@@ -4,6 +4,7 @@ import { visuallyHidden } from '@base-ui-components/react/utils';
 import { createMdxComponent } from 'docs/src/mdx/createMdxComponent';
 import { inlineMdxComponents } from 'docs/src/mdx-components';
 import { rehypeSyntaxHighlighting } from 'docs/src/syntax-highlighting';
+import { Link } from 'docs/src/components/Link';
 import * as Accordion from '../Accordion';
 import * as DescriptionList from '../DescriptionList';
 import type { PropDef as BasePropDef } from './types';
@@ -98,12 +99,19 @@ export async function PropsReferenceAccordion({ data, name: partName, ...props }
             })
           : null;
 
+        // anchor hash for each prop
+        const id = `${partName}-${name}`;
+
         return (
           <Accordion.Item key={name}>
             <Accordion.Trigger
+              id={id}
               index={index}
               aria-label={`prop: ${name},${prop.required ? ' required,' : ''} type: ${shortPropTypeName} ${prop.default !== undefined ? `(default: ${prop.default})` : ''}`}
-              className={clsx('items-center max-xs:gap-4 md:gap-5', TRIGGER_GRID_LAYOUT)}
+              className={clsx(
+                'items-center max-xs:gap-4 md:gap-5 scroll-mt-16 md:scroll-mt-6',
+                TRIGGER_GRID_LAYOUT,
+              )}
             >
               <TableCode className="text-navy">
                 {name}
@@ -148,7 +156,9 @@ export async function PropsReferenceAccordion({ data, name: partName, ...props }
                   <DescriptionList.Item>
                     <DescriptionList.Term>Name</DescriptionList.Term>
                     <DescriptionList.Details>
-                      <TableCode className="text-(--color-blue)">{name}</TableCode>
+                      <Link href={`#${id}`}>
+                        <TableCode className="text-(--color-blue)">{name}</TableCode>
+                      </Link>
                     </DescriptionList.Details>
                   </DescriptionList.Item>
 
