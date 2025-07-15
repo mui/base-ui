@@ -21,7 +21,10 @@ interface RunOptions {
 
 function run(options: RunOptions) {
   const config = tae.loadConfig(options.configPath);
-  const files = options.files ?? config.fileNames;
+  const files =
+    options.files !== undefined
+      ? options.files.map((fileName) => path.resolve(path.dirname(options.configPath), fileName))
+      : config.fileNames;
   const program = ts.createProgram(files, config.options);
 
   const { exports, errorCount } = findAllExports(program, files);
@@ -50,30 +53,30 @@ yargs(hideBin(process.argv))
     'Extracts the API descriptions from a set of files',
     (command) => {
       return command
-        .option('files', {
-          alias: 'f',
-          type: 'array',
-          demandOption: false,
-          description:
-            'The files to extract the API descriptions from. If not provided, all files in the tsconfig.json are used',
-        })
         .option('configPath', {
           alias: 'c',
           type: 'string',
           demandOption: true,
           description: 'The path to the tsconfig.json file',
         })
-        .option('includeExternal', {
-          alias: 'e',
-          type: 'boolean',
-          default: false,
-          description: 'Include props defined outside of the project',
-        })
         .option('out', {
           alias: 'o',
           demandOption: true,
           type: 'string',
           description: 'The output directory.',
+        })
+        .option('files', {
+          alias: 'f',
+          type: 'array',
+          demandOption: false,
+          description:
+            'The files to extract the API descriptions from. If not provided, all files in the tsconfig.json are used. You can use globs like `src/**/*.ts`. Paths are relative to the tsconfig.json file.',
+        })
+        .option('includeExternal', {
+          alias: 'e',
+          type: 'boolean',
+          default: false,
+          description: 'Include props defined outside of the project',
         });
     },
     run,
