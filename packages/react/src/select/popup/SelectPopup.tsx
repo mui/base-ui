@@ -4,7 +4,7 @@ import * as ReactDOM from 'react-dom';
 import { isWebKit } from '@base-ui-components/utils/detectBrowser';
 import { ownerDocument, ownerWindow } from '@base-ui-components/utils/owner';
 import { isMouseWithinBounds } from '@base-ui-components/utils/isMouseWithinBounds';
-import { useModernLayoutEffect } from '@base-ui-components/utils/useModernLayoutEffect';
+import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { useSelector } from '@base-ui-components/utils/store';
 import { FloatingFocusManager } from '../../floating-ui-react';
@@ -107,7 +107,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
     }
   });
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     if (!positionerElement || Object.keys(originalPositionerStylesRef.current).length) {
       return;
     }
@@ -125,7 +125,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
     };
   }, [positionerElement]);
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     if (mounted || alignItemWithTriggerActive) {
       return;
     }
@@ -140,7 +140,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
     }
   }, [mounted, alignItemWithTriggerActive, positionerElement]);
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     const popupElement = popupRef.current;
 
     if (
