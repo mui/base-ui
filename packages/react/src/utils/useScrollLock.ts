@@ -1,8 +1,8 @@
-import { isIOS, isWebKit } from './detectBrowser';
-import { ownerDocument, ownerWindow } from './owner';
-import { useModernLayoutEffect } from './useModernLayoutEffect';
-import { Timeout } from './useTimeout';
-import { AnimationFrame } from './useAnimationFrame';
+import { isIOS, isWebKit } from '@base-ui-components/utils/detectBrowser';
+import { ownerDocument, ownerWindow } from '@base-ui-components/utils/owner';
+import { useModernLayoutEffect } from '@base-ui-components/utils/useModernLayoutEffect';
+import { Timeout } from '@base-ui-components/utils/useTimeout';
+import { AnimationFrame } from '@base-ui-components/utils/useAnimationFrame';
 import { NOOP } from './noop';
 
 /* eslint-disable lines-between-class-members */

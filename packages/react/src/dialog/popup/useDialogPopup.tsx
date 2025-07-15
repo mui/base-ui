@@ -1,8 +1,8 @@
 'use client';
 import * as React from 'react';
-import { useForkRef } from '../../utils/useForkRef';
+import { useForkRef } from '@base-ui-components/utils/useForkRef';
+import { type InteractionType } from '@base-ui-components/utils/useEnhancedClickHandler';
 import type { DialogRoot } from '../root/DialogRoot';
-import { type InteractionType } from '../../utils/useEnhancedClickHandler';
 import { HTMLProps } from '../../utils/types';
 import { COMPOSITE_KEYS } from '../../composite/composite';
 

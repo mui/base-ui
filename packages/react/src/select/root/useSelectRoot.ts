@@ -1,4 +1,13 @@
 import * as React from 'react';
+import { useLazyRef } from '@base-ui-components/utils/useLazyRef';
+import { useOnFirstRender } from '@base-ui-components/utils/useOnFirstRender';
+import { useControlled } from '@base-ui-components/utils/useControlled';
+import { useModernLayoutEffect } from '@base-ui-components/utils/useModernLayoutEffect';
+import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useTimeout } from '@base-ui-components/utils/useTimeout';
+import { warn } from '@base-ui-components/utils/warn';
+import { useLatestRef } from '@base-ui-components/utils/useLatestRef';
+import { useSelector, Store } from '@base-ui-components/utils/store';
 import {
   useClick,
   useDismiss,
@@ -12,21 +21,12 @@ import {
 import { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { useBaseUiId } from '../../utils/useBaseUiId';
-import { useLazyRef } from '../../utils/useLazyRef';
-import { useOnFirstRender } from '../../utils/useOnFirstRender';
-import { useControlled } from '../../utils/useControlled';
-import { useTransitionStatus } from '../../utils';
-import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
-import { useEventCallback } from '../../utils/useEventCallback';
-import { useSelector, Store } from '../../utils/store';
-import { useTimeout } from '../../utils/useTimeout';
-import { warn } from '../../utils/warn';
+import { useTransitionStatus } from '../../utils/useTransitionStatus';
 import { selectors, State } from '../store';
 import type { SelectRootContext } from './SelectRootContext';
 import { translateOpenChangeReason } from '../../utils/translateOpenChangeReason';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useFormContext } from '../../form/FormContext';
-import { useLatestRef } from '../../utils/useLatestRef';
 import { useField } from '../../field/useField';
 import { type SelectRoot } from './SelectRoot';
 

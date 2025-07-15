@@ -1,9 +1,9 @@
 'use client';
 import * as React from 'react';
+import { useForkRef } from '@base-ui-components/utils/useForkRef';
 import { useCompositeRootContext } from '../root/CompositeRootContext';
 import { useCompositeListItem } from '../list/useCompositeListItem';
 import { HTMLProps } from '../../utils/types';
-import { useForkRef } from '../../utils';
 
 export interface UseCompositeItemParameters<Metadata> {
   metadata?: Metadata;

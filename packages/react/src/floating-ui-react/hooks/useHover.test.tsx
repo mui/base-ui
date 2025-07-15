@@ -11,10 +11,10 @@ import {
 import * as React from 'react';
 import { vi, test } from 'vitest';
 import userEvent from '@testing-library/user-event';
+import { isJSDOM } from '@base-ui-components/utils/detectBrowser';
 import { useFloating, useHover, useInteractions } from '../index';
 import type { UseHoverProps } from './useHover';
 import { Popover } from '../../../test/floating-ui-tests/Popover';
-import { isJSDOM } from '../../utils/detectBrowser';
 
 vi.useFakeTimers();
 
