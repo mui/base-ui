@@ -24,7 +24,7 @@ export function Popup({ children, ...props }: Tooltip.Popup.Props) {
           render={<BasePopup className="px-3 py-2 text-md overflow-visible" />}
           {...props}
         >
-          <div className="flex max-w-72 flex-col gap-3 text-pretty">{children}</div>
+          <div className="flex max-w-120 flex-col gap-3 text-pretty">{children}</div>
           <Tooltip.Arrow className="data-[side=bottom]:top-[-8px] data-[side=left]:right-[-13px] data-[side=left]:rotate-90 data-[side=right]:left-[-13px] data-[side=right]:-rotate-90 data-[side=top]:bottom-[-8px] data-[side=top]:rotate-180">
             <svg width="20" height="10" viewBox="0 0 20 10" fill="none">
               <path
