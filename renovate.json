@@ -1,52 +1,22 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "automerge": false,
-  "commitMessageAction": "Bump",
-  "commitMessageExtra": "to {{newValue}}",
-  "commitMessageTopic": "{{depName}}",
-  "dependencyDashboard": true,
-  "rebaseWhen": "conflicted",
-  "ignoreDeps": [],
-  "labels": ["dependencies"],
+  "extends": ["github>mui/mui-public//renovate/default"],
+  "schedule": "on tuesday before 6:00am",
   "lockFileMaintenance": {
-    "enabled": true,
-    "schedule": "before 6:00am on the first day of the month"
+    "schedule": "before 6:00am on the third day of the month"
   },
   "packageRules": [
     {
-      "matchDepTypes": ["peerDependencies"],
-      "rangeStrategy": "widen"
-    },
-    {
-      "groupName": "babel",
-      "matchPackagePatterns": ["^@babel/", "^@types/babel"]
-    },
-    {
-      "groupName": "Emotion",
-      "matchPackagePatterns": "@emotion/*"
-    },
-    {
       "groupName": "Tailwind CSS",
       "matchPackageNames": ["tailwindcss", "@tailwindcss/*", "prettier-plugin-tailwindcss"]
-    },
-    {
-      "groupName": "eslint",
-      "matchPackagePatterns": ["eslint", "eslint-*", "@typescript-eslint/*"],
-      "automerge": true
     },
     {
       "automerge": true,
       "matchPackageNames": ["@types/**"]
     },
     {
-      "groupName": "Infra packages",
-      "matchPackageNames": ["@mui/internal-*", "@mui/docs"],
-      "followTag": "canary",
-      "schedule": null
-    },
-    {
       "groupName": "MUI",
-      "matchPackagePatterns": [
+      "matchPackageNames": [
         "@mui/internal-test-utils",
         "@playwright/test",
         "mcr.microsoft.com/playwright"
@@ -62,24 +32,9 @@
       "schedule": "before 6:00am on Wednesday"
     },
     {
-      "groupName": "React",
-      "matchPackageNames": [
-        "react",
-        "react-dom",
-        "react-is",
-        "@types/react",
-        "@types/react-dom",
-        "@types/react-is"
-      ]
-    },
-    {
-      "groupName": "Node.js",
+      "groupName": "node",
       "matchPackageNames": ["node", "@types/node", "cimg/node"],
       "allowedVersions": "< 19.0.0"
-    },
-    {
-      "groupName": "Vitest",
-      "matchPackagePatterns": ["^vitest$", "^@vitest/"]
     },
     {
       "matchDepTypes": ["engines"],
@@ -92,14 +47,6 @@
       "enabled": false
     },
     {
-      "matchDepTypes": ["action"],
-      "pinDigests": true
-    },
-    {
-      "groupName": "GitHub Actions",
-      "matchManagers": ["github-actions"]
-    },
-    {
       "groupName": "chai - incompatible versions",
       "matchPackageNames": ["chai", "@types/chai"],
       "allowedVersions": "< 5.0.0"
@@ -108,17 +55,6 @@
       "groupName": "react-docgen - incompatible versions",
       "matchPackageNames": ["react-docgen"],
       "allowedVersions": "< 6.0.0"
-    },
-    {
-      "groupName": "eslint - incompatible versions",
-      "matchPackageNames": ["eslint", "@types/eslint"],
-      "allowedVersions": "< 9.0.0"
     }
-  ],
-  "postUpdateOptions": ["pnpmDedupe"],
-  "prConcurrentLimit": 30,
-  "prHourlyLimit": 0,
-  "rangeStrategy": "bump",
-  "schedule": "on the first day of the month before 4:00am",
-  "timezone": "UTC"
+  ]
 }
