@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import clsx from 'clsx';
+import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 
 const ARROW_UP = 'ArrowUp';
 const ARROW_DOWN = 'ArrowDown';
@@ -29,6 +30,7 @@ export function Root(props: React.ComponentProps<'section'>) {
 
 export function Trigger({
   index: thisIndex,
+  id,
   ...props
 }: React.ComponentProps<'summary'> & {
   index: number;
@@ -38,6 +40,7 @@ export function Trigger({
   return (
     <summary
       {...props}
+      id={id}
       className={clsx('AccordionTrigger', props.className)}
       onKeyDown={(event) => {
         if (!context || !SUPPORTED_KEYS.has(event.key)) {
@@ -99,7 +102,30 @@ export function Trigger({
 }
 
 export function Item(props: React.ComponentProps<'details'>) {
-  return <details {...props} className={clsx('AccordionItem', props.className)} />;
+  const [open, setOpen] = React.useState<boolean>(false);
+  // in Chrome, the <details> opens automatically when the hash part of a URL
+  // matches the `id` on <summary> but needs to be manually handled for Safari
+  // and Firefox
+  const handleRef = useEventCallback((element: HTMLDetailsElement | null) => {
+    if (element) {
+      const trigger = element.querySelector<HTMLElement>('summary');
+      const triggerId = trigger?.getAttribute('id');
+      const hash = window.location.hash.slice(1);
+
+      if (triggerId && hash && triggerId === hash) {
+        setOpen(true);
+      }
+    }
+  });
+
+  return (
+    <details
+      {...props}
+      ref={handleRef}
+      open={open || undefined}
+      className={clsx('AccordionItem', props.className)}
+    />
+  );
 }
 
 export function Panel(props: React.ComponentProps<'div'>) {
