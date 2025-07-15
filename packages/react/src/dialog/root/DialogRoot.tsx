@@ -87,15 +87,19 @@ export const DialogRoot = function DialogRoot<Payload = any>(props: DialogRoot.P
 
 export namespace DialogRoot {
   export interface Props<Payload = any> extends useDialogRoot.SharedParameters {
-    children?:
-      | React.ReactNode
-      | (({ payload }: { payload: Payload | undefined }) => React.ReactNode);
+    children?: React.ReactNode | ChildRenderFunction<Payload>;
     dialog?: TypedDialogHandle<Payload>;
   }
 
   export interface Actions {
     unmount: () => void;
   }
+
+  export type ChildRenderFunction<Payload> = ({
+    payload,
+  }: {
+    payload: Payload | undefined;
+  }) => React.ReactNode;
 
   export type OpenChangeReason = BaseOpenChangeReason | 'close-press';
 }

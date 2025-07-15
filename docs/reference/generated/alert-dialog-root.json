@@ -19,12 +19,15 @@
       "type": "RefObject<AlertDialog.Root.Actions>",
       "description": "A ref to imperative actions.\n- `unmount`: When specified, the dialog will not be unmounted when closed.\nInstead, the `unmount` function must be called to unmount the dialog manually.\nUseful when the dialog's animation is controlled by an external library."
     },
+    "dialog": {
+      "type": "TypedDialogHandle<any>"
+    },
     "onOpenChangeComplete": {
       "type": "((open: boolean) => void)",
       "description": "Event handler called after any animations complete when the dialog is opened or closed."
     },
     "children": {
-      "type": "ReactNode"
+      "type": "ReactNode | Dialog.Root.ChildRenderFunction<any>"
     }
   },
   "dataAttributes": {},
