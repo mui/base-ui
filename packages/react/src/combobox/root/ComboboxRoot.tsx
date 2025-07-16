@@ -49,7 +49,11 @@ import { EMPTY_ARRAY } from '../../utils/constants';
 import { serializeValue } from '../../utils/serializeValue';
 import { useTransitionStatus } from '../../utils/useTransitionStatus';
 
-type ExtractItemType<T> = T extends ComboboxGroup<infer U>[] ? U : T extends (infer U)[] ? U : T;
+type ExtractItemType<Item> = Item extends ComboboxGroup<infer GroupItem>[]
+  ? GroupItem
+  : Item extends (infer GroupItem)[]
+    ? GroupItem
+    : Item;
 
 /**
  * Groups all parts of the combobox.
@@ -980,19 +984,45 @@ export namespace ComboboxRoot {
   }
 
   export interface SingleGroupedProps<Item = any>
-    extends Omit<SingleProps<ExtractItemType<Item>>, 'items'> {
+    extends Omit<SingleProps<ExtractItemType<Item>>, 'items' | 'itemToString' | 'filter'> {
     /**
      * The items to be displayed in the combobox as groups.
      */
     items: ComboboxGroup<Item>[];
+    /**
+     * Filter function used to match items vs input query.
+     * The `itemToString` function is provided to help convert items to strings for comparison.
+     */
+    filter?: (
+      item: ExtractItemType<Item>,
+      query: string,
+      itemToString?: (item: ExtractItemType<Item>) => string,
+    ) => boolean;
+    /**
+     * Function to convert an item to a string for display in the combobox.
+     */
+    itemToString?: (item: ExtractItemType<Item>) => string;
   }
 
   export interface MultipleGroupedProps<Item = any>
-    extends Omit<MultipleProps<ExtractItemType<Item>>, 'items'> {
+    extends Omit<MultipleProps<ExtractItemType<Item>>, 'items' | 'itemToString' | 'filter'> {
     /**
      * The items to be displayed in the combobox as groups.
      */
     items: ComboboxGroup<Item>[];
+    /**
+     * Filter function used to match items vs input query.
+     * The `itemToString` function is provided to help convert items to strings for comparison.
+     */
+    filter?: (
+      item: ExtractItemType<Item>,
+      query: string,
+      itemToString?: (item: ExtractItemType<Item>) => string,
+    ) => boolean;
+    /**
+     * Function to convert an item to a string for display in the combobox.
+     */
+    itemToString?: (item: ExtractItemType<Item>) => string;
   }
 
   export interface Actions {
