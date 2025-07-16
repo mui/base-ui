@@ -1,4 +1,16 @@
-export const nav = [
+export interface NavItemn {
+  label: string;
+  href: string;
+  external?: boolean;
+  isNew?: boolean;
+}
+
+export interface NavGroup {
+  label: string;
+  links: NavItemn[];
+}
+
+export const nav: NavGroup[] = [
   {
     label: 'Overview',
     links: [
@@ -37,6 +49,7 @@ export const nav = [
       },
       {
         label: 'llms.txt',
+        external: true,
         href: '/llms.txt',
       },
     ],
