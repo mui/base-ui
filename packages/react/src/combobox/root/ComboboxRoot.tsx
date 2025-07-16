@@ -38,12 +38,13 @@ import { useField } from '../../field/useField';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import {
   type ComboboxGroup,
-  defaultItemFilter,
-  singleSelectionFilter,
   isGroupedItems,
   defaultGroupFilter,
   stringifyItem,
+  createCollatorItemFilter,
+  createSingleSelectionCollatorFilter,
 } from './utils';
+import { useFilter } from './utils/useFilter';
 import { EMPTY_ARRAY } from '../../utils/constants';
 import { serializeValue } from '../../utils/serializeValue';
 import { useTransitionStatus } from '../../utils/useTransitionStatus';
@@ -124,18 +125,24 @@ export function ComboboxRoot<Item = any>(props: ComboboxRoot.Props<Item>): React
 
   const [queryChangedAfterOpen, setQueryChangedAfterOpen] = React.useState(false);
 
-  // Use enhanced filter for single selection mode to show all items when query is empty
-  // or matches current selection, falling back to user-provided filter or default
+  const collatorFilter = useFilter({ sensitivity: 'base' });
+
   const filter = React.useMemo(() => {
     if (filterProp) {
       return filterProp;
     }
     if (selectionMode === 'single' && !queryChangedAfterOpen) {
-      return (item: any, query: string, itemToStringArg?: (item: any) => string) =>
-        singleSelectionFilter(item, query, itemToStringArg, selectedValue);
+      return createSingleSelectionCollatorFilter(collatorFilter, itemToString, selectedValue);
     }
-    return defaultItemFilter;
-  }, [filterProp, selectionMode, selectedValue, queryChangedAfterOpen]);
+    return createCollatorItemFilter(collatorFilter, itemToString);
+  }, [
+    filterProp,
+    selectionMode,
+    selectedValue,
+    queryChangedAfterOpen,
+    collatorFilter,
+    itemToString,
+  ]);
 
   const [inputValue, setInputValueUnwrapped] = useControlled({
     controlled: inputValueProp,

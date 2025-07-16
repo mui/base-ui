@@ -1,4 +1,5 @@
 import { serializeValue } from '../../../utils/serializeValue';
+import { useFilter } from './useFilter';
 
 export interface ComboboxGroup<Item = any> {
   /**
@@ -8,48 +9,6 @@ export interface ComboboxGroup<Item = any> {
    */
   value: unknown;
   items: Item[];
-}
-
-/**
- * The default filtering behaviour matches the stringified value of the item against the query.
- *
- * Uses the provided `itemToString` function if available, otherwise falls back to:
- * • When `item` is an object with a `value` property, that property is used.
- * • When `item` is a primitive (e.g. `string`), it is used directly.
- */
-export function defaultItemFilter(item: any, query: string, itemToString?: (item: any) => string) {
-  if (item == null) {
-    return false;
-  }
-  return stringifyItem(item, itemToString).toLocaleLowerCase().includes(query.toLocaleLowerCase());
-}
-
-/**
- * Enhanced filter for single selection mode that shows all items when query is empty
- * or matches the current selection, making it easier to browse options.
- */
-export function singleSelectionFilter(
-  item: any,
-  query: string,
-  itemToString?: (item: any) => string,
-  selectedValue?: any,
-) {
-  if (item == null) {
-    return false;
-  }
-
-  if (query === '') {
-    return true;
-  }
-
-  const candidate = stringifyItem(item, itemToString);
-  const selectedString = selectedValue != null ? stringifyItem(selectedValue, itemToString) : '';
-
-  if (query.toLocaleLowerCase() === selectedString.toLocaleLowerCase()) {
-    return true;
-  }
-
-  return candidate.toLocaleLowerCase().includes(query.toLocaleLowerCase());
 }
 
 export function isGroupedItems(
@@ -84,8 +43,60 @@ export function stringifyItem(item: any | null | undefined, itemToString?: (item
   if (itemToString && item != null) {
     return itemToString(item) ?? '';
   }
-  if (item != null && typeof item === 'object' && typeof item.value === 'string') {
-    return item.value;
+  if (item != null && typeof item === 'object' && 'value' in item) {
+    return String(item.value);
   }
   return serializeValue(item);
+}
+
+/**
+ * Enhanced filter using Intl.Collator for more robust string matching.
+ * Uses the provided `itemToString` function if available, otherwise falls back to:
+ * • When `item` is an object with a `value` property, that property is used.
+ * • When `item` is a primitive (e.g. `string`), it is used directly.
+ */
+export function createCollatorItemFilter(
+  collatorFilter: ReturnType<typeof useFilter>,
+  itemToString?: (item: any) => string,
+) {
+  return (item: any, query: string) => {
+    if (item == null) {
+      return false;
+    }
+    const itemString = stringifyItem(item, itemToString);
+    return collatorFilter.contains(itemString, query);
+  };
+}
+
+/**
+ * Enhanced filter for single selection mode using Intl.Collator that shows all items
+ * when query is empty or matches the current selection, making it easier to browse options.
+ */
+export function createSingleSelectionCollatorFilter(
+  collatorFilter: ReturnType<typeof useFilter>,
+  itemToString?: (item: any) => string,
+  selectedValue?: any,
+) {
+  return (item: any, query: string) => {
+    if (item == null) {
+      return false;
+    }
+    if (!query) {
+      return true;
+    }
+
+    const itemString = stringifyItem(item, itemToString);
+    const selectedString = selectedValue != null ? stringifyItem(selectedValue, itemToString) : '';
+
+    // Handle case-insensitive matching consistently
+    if (
+      selectedString &&
+      collatorFilter.contains(selectedString, query) &&
+      selectedString.length === query.length
+    ) {
+      return true;
+    }
+
+    return collatorFilter.contains(itemString, query);
+  };
 }

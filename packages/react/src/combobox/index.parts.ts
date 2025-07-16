@@ -20,3 +20,5 @@ export { ComboboxEmpty as Empty } from './empty/ComboboxEmpty';
 export { ComboboxClear as Clear } from './clear/ComboboxClear';
 
 export { Separator as ComboboxSeparator } from '../separator';
+
+export { useFilter } from './root/utils/useFilter';

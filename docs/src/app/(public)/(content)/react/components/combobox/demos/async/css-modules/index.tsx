@@ -6,7 +6,7 @@ import { top100Movies, type Movie } from './data';
 export default function AsyncCombobox() {
   const [searchValue, setSearchValue] = React.useState('');
   const [isLoading, setIsLoading] = React.useState(false);
-  const [searchResults, setSearchResults] = React.useState<MovieItem[]>([]);
+  const [searchResults, setSearchResults] = React.useState<Movie[]>([]);
   const [error, setError] = React.useState<string | null>(null);
 
   React.useEffect(() => {
@@ -63,14 +63,15 @@ export default function AsyncCombobox() {
 
   const shouldRenderPopup = searchValue !== '';
 
+  const itemToString = React.useCallback((item: Movie) => item.title, []);
+
   return (
     <Combobox.Root
       items={searchResults}
       inputValue={searchValue}
       onInputValueChange={setSearchValue}
-      onSelectedValueChange={(item) => {
-        setSearchValue(item.value ?? '');
-      }}
+      onSelectedValueChange={(item) => setSearchValue(item.title)}
+      itemToString={itemToString}
     >
       <label className={styles.Label}>
         Search movies by name or year
@@ -83,7 +84,7 @@ export default function AsyncCombobox() {
             <Combobox.Popup className={styles.Popup} aria-busy={isLoading || undefined}>
               <Combobox.Status className={styles.StatusItem}>{status}</Combobox.Status>
               <Combobox.List>
-                {(movie: MovieItem) => (
+                {(movie: Movie) => (
                   <Combobox.Item key={movie.id} className={styles.Item} value={movie}>
                     <div className={styles.MovieItem}>
                       <div className={styles.MovieName}>{movie.title}</div>
@@ -100,24 +101,21 @@ export default function AsyncCombobox() {
   );
 }
 
-interface MovieItem extends Movie {
-  value: string;
-}
-
-async function searchMovies(query: string): Promise<MovieItem[]> {
+async function searchMovies(query: string): Promise<Movie[]> {
   // Simulate network delay
   await new Promise((resolve) => {
     setTimeout(resolve, Math.random() * 500 + 100);
   });
 
   // Simulate occasional network errors (1% chance)
-  if (Math.random() < 0.01) {
+  if (Math.random() < 0.01 || query === 'will_error') {
     throw new Error('Network error');
   }
 
   const lowerQuery = query.toLowerCase();
 
-  return top100Movies
-    .map((movie) => ({ ...movie, value: `${movie.title} - ${movie.year}` }))
-    .filter((movie) => movie.value.toLowerCase().includes(lowerQuery));
+  return top100Movies.filter(
+    (movie) =>
+      movie.title.toLowerCase().includes(lowerQuery) || movie.year.toString().includes(lowerQuery),
+  );
 }
