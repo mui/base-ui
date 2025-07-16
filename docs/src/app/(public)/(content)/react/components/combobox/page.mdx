@@ -59,32 +59,32 @@ import { Combobox } from '@base-ui-components/react/combobox';
 
 <Reference
   component="Combobox"
-  parts="Root, Input, Clear, Chips, Chip, ChipRemove, SelectedValue, List, Trigger, Portal, Positioner, Popup, Status, Empty, Collection, Row, Item, ItemIndicator, Group, GroupLabel, Separator"
+  parts="Root, Input, Clear, Trigger, Chips, Chip, ChipRemove, SelectedValue, List, Portal, Positioner, Popup, Status, Empty, Collection, Row, Item, ItemIndicator, Group, GroupLabel, Separator"
 />
 
 ## Examples
 
 ### Select
 
-The combobox can require the input value to match one of its predefined options. Trigger and clear buttons are also added to the input container.
+The combobox can require the input value to match one of its predefined options by adding `selectionMode="single"` to `Combobox.Root`. `Combobox.Clear` is used to allow the user to clear the selection.
 
-<Demo path="./demos/option-only" compact />
+<Demo path="./demos/select" compact />
 
 ### Multiple select
 
-The combobox can be used to create a multiple select menu, rendering chips for each selected value in the input.
+The combobox can allow multiple selections by adding `selectionMode="multiple"` to `Combobox.Root`, rendering chips with `Combobox.Chip` for each selected value in the input that can be removed.
 
 <Demo path="./demos/multiple" compact />
 
 ### Autocomplete
 
-The combobox popup can only show while the query matches at least one item.
+The combobox popup can show only while the query matches at least one item by adding `openOnlyWithMatch` to `Combobox.Root`.
 
 <Demo path="./demos/autocomplete" compact />
 
 ### Without autocomplete
 
-The combobox can display predefined options without filtering or selection state, demonstrating search history.
+The combobox can display predefined options without filtering or selection state by rendering each `Combobox.Item` as a static option without passing the `items` prop, demonstrating search history.
 
 <Demo path="./demos/without-autocomplete" compact />
 
@@ -114,7 +114,7 @@ The combobox can be rendered inline inside a parent popover to create a searchab
 
 ### Grid layout
 
-The combobox items can be navigated in a grid layout by wrapping each row in `Combobox.Row` adding the `cols` prop to `Combobox.Root`.
+The combobox list can form a grid with each row wrapped in `Combobox.Row` and a `cols` prop specified on `Combobox.Root` marking the maximum number of columns that can be displayed.
 
 <Demo path="./demos/grid" compact />
 
@@ -126,7 +126,7 @@ The combobox can be used to create a command menu when rendered inside a `Dialog
 
 ### Fuzzy matching
 
-The combobox can use fuzzy matching to find relevant results even when the search query doesn't exactly match the item text. This demo uses the `match-sorter` library to implement intelligent search capabilities.
+The combobox can use fuzzy matching to find relevant results even when the search query doesn't exactly match the item text using a library like `match-sorter` to implement intelligent search capabilities.
 
 <Demo path="./demos/fuzzy-matching" compact />
 
