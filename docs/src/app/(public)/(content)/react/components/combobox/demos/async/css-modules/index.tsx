@@ -3,11 +3,27 @@ import { Combobox } from '@base-ui-components/react/combobox';
 import styles from './index.module.css';
 import { top100Movies, type Movie } from './data';
 
+function itemToString(item: Movie) {
+  return item.title;
+}
+
 export default function AsyncCombobox() {
   const [searchValue, setSearchValue] = React.useState('');
   const [isLoading, setIsLoading] = React.useState(false);
   const [searchResults, setSearchResults] = React.useState<Movie[]>([]);
   const [error, setError] = React.useState<string | null>(null);
+
+  const filter = Combobox.useFilter({ sensitivity: 'base' });
+
+  const filterByTitleOrYear = React.useCallback(
+    (movie: Movie, query: string) => {
+      if (!query) {
+        return true;
+      }
+      return filter.contains(movie.title, query) || filter.contains(movie.year.toString(), query);
+    },
+    [filter],
+  );
 
   React.useEffect(() => {
     if (!searchValue) {
@@ -23,7 +39,7 @@ export default function AsyncCombobox() {
 
     async function fetchMovies() {
       try {
-        const results = await searchMovies(searchValue);
+        const results = await searchMovies(searchValue, filterByTitleOrYear);
         if (!ignore) {
           setSearchResults(results);
         }
@@ -45,7 +61,7 @@ export default function AsyncCombobox() {
       clearTimeout(timeoutId);
       ignore = true;
     };
-  }, [searchValue]);
+  }, [searchValue, filterByTitleOrYear]);
 
   let status: React.ReactNode = `${searchResults.length} result${searchResults.length === 1 ? '' : 's'} found`;
   if (isLoading) {
@@ -63,8 +79,6 @@ export default function AsyncCombobox() {
 
   const shouldRenderPopup = searchValue !== '';
 
-  const itemToString = React.useCallback((item: Movie) => item.title, []);
-
   return (
     <Combobox.Root
       items={searchResults}
@@ -72,6 +86,7 @@ export default function AsyncCombobox() {
       onInputValueChange={setSearchValue}
       onSelectedValueChange={(item) => setSearchValue(item.title)}
       itemToString={itemToString}
+      filter={filterByTitleOrYear}
     >
       <label className={styles.Label}>
         Search movies by name or year
@@ -101,7 +116,10 @@ export default function AsyncCombobox() {
   );
 }
 
-async function searchMovies(query: string): Promise<Movie[]> {
+async function searchMovies(
+  query: string,
+  filter: (movie: Movie, query: string) => boolean,
+): Promise<Movie[]> {
   // Simulate network delay
   await new Promise((resolve) => {
     setTimeout(resolve, Math.random() * 500 + 100);
@@ -112,10 +130,5 @@ async function searchMovies(query: string): Promise<Movie[]> {
     throw new Error('Network error');
   }
 
-  const lowerQuery = query.toLowerCase();
-
-  return top100Movies.filter(
-    (movie) =>
-      movie.title.toLowerCase().includes(lowerQuery) || movie.year.toString().includes(lowerQuery),
-  );
+  return top100Movies.filter((movie) => filter(movie, query));
 }
