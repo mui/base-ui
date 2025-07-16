@@ -6,15 +6,18 @@ import styles from './index.module.css';
 import { type FuzzyItem, fuzzyItems } from './data';
 
 function highlightText(text: string, query: string): React.ReactNode {
-  if (!query.trim()) {
+  const trimmed = query.trim();
+  if (!trimmed) {
     return text;
   }
 
-  const regex = new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+  const limited = trimmed.slice(0, 100);
+  const escaped = limited.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const regex = new RegExp(`(${escaped})`, 'gi');
 
   return text
     .split(regex)
-    .map((part, index) => (regex.test(part) ? <mark key={index}>{part}</mark> : part));
+    .map((part, idx) => (regex.test(part) ? <mark key={idx}>{part}</mark> : part));
 }
 
 function fuzzyFilter(item: FuzzyItem, query: string): boolean {
