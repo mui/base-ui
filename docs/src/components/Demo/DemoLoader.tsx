@@ -5,6 +5,7 @@ import { basename, dirname, extname, resolve, join } from 'node:path';
 import type { DemoFile, DemoVariant } from 'docs/src/blocks/Demo';
 import camelCase from 'lodash/camelCase';
 import upperFirst from 'lodash/upperFirst';
+import rangeParser from 'parse-numeric-range';
 import { highlighter } from 'docs/src/syntax-highlighting';
 import { Demo } from './Demo';
 
@@ -13,10 +14,11 @@ export interface DemoLoaderProps extends Omit<React.ComponentProps<typeof Demo>,
   path: string;
   /** Modules that are imported into the current scope in order to render the demo */
   scope: Record<string, any>;
+  highlight?: string;
 }
 
-export async function DemoLoader({ path, scope, ...props }: DemoLoaderProps) {
-  const variants = await loadDemo({ path, scope });
+export async function DemoLoader({ path, scope, highlight, ...props }: DemoLoaderProps) {
+  const variants = await loadDemo({ path, scope, highlight });
 
   if (!variants.length) {
     throw new Error(`\nCould not load demo: no demos found in "${path}".`);
@@ -25,12 +27,18 @@ export async function DemoLoader({ path, scope, ...props }: DemoLoaderProps) {
   return <Demo variants={variants} {...props} />;
 }
 
-async function loadDemo({ path, scope }: DemoLoaderProps): Promise<DemoVariant[]> {
+async function loadDemo({
+  path,
+  scope,
+  highlight: highlightProp,
+}: DemoLoaderProps): Promise<DemoVariant[]> {
   if (existsSync(path)) {
+    const highlight = highlightProp ? rangeParser(highlightProp) : undefined;
+
     // Is the entry point a single file?
     if (statSync(path).isFile()) {
       // For simple demos, we call the variant "default".
-      return getDemoFromFile(path, 'default', scope.default);
+      return getDemoFromFile(path, 'default', scope.default, highlight);
     }
 
     const subdirectories = (await readdir(path)).filter((entry) => {
@@ -47,7 +55,7 @@ async function loadDemo({ path, scope }: DemoLoaderProps): Promise<DemoVariant[]
         // Assuming that the entry point for each variant is an index.tsx file.
         const variantPath = `${path}/${dir}/index.tsx`;
         const DemoComponent = upperFirst(camelCase(dir));
-        return getDemoFromFile(variantPath, dir, scope[DemoComponent]);
+        return getDemoFromFile(variantPath, dir, scope[DemoComponent], highlight);
       }),
     ).then((variants) => variants.flat());
   }
@@ -88,6 +96,7 @@ async function getDemoFromFile(
   path: string,
   variantName: string,
   DemoComponent: any,
+  highlight?: number[],
 ): Promise<DemoVariant[]> {
   if (/\.(t|j)sx?$/.test(path) === false) {
     throw new Error(
@@ -100,6 +109,15 @@ async function getDemoFromFile(
   const mainPrettyContent = highlighter.codeToHtml(mainContent, {
     lang: `${mainFileLanguage}x`,
     theme: 'base-ui',
+    transformers: [
+      {
+        line(node, line) {
+          if (highlight && highlight.includes(line)) {
+            node.properties['data-highlighted-line'] = '';
+          }
+        },
+      },
+    ],
   });
 
   const localImports = getLocalImports(mainContent, dirname(path));
@@ -128,6 +146,15 @@ async function getDemoFromFile(
     const jsPrettyContent = highlighter.codeToHtml(jsContent, {
       lang: 'jsx',
       theme: 'base-ui',
+      transformers: [
+        {
+          line(node, line) {
+            if (highlight && highlight.includes(line)) {
+              node.properties['data-highlighted-line'] = '';
+            }
+          },
+        },
+      ],
     });
 
     const jsLocalImports = getLocalImports(mainContent, dirname(jsFilePath));
