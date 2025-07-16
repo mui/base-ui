@@ -10,13 +10,15 @@ export function MarkdownLink() {
   return (
     <a
       href={`${pathname}.md`}
-      className="MarkdownLink"
+      className="flex-shrink-0"
       aria-label="View markdown source"
       rel="alternate"
       type="text/markdown"
     >
-      <MarkdownIcon />
-      View as Markdown
+      <span className="MarkdownLink">
+        <MarkdownIcon />
+        View as Markdown
+      </span>
     </a>
   );
 }

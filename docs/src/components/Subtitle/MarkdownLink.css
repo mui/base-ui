@@ -4,7 +4,7 @@
   align-items: baseline;
   gap: 0.5em;
   padding: 0.5em;
-
+  margin-inline: -0.5em;
   color: inherit;
 
   &:focus-visible {
@@ -25,6 +25,6 @@
 }
 
 .MarkdownLink svg {
-  /* visually align icon so we can baseline align it */
+  /* visually center the icon so we can baseline align it */
   transform: translateY(3px);
 }
