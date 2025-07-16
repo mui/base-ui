@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { usePathname } from 'next/navigation';
-import { MarkdownIcon } from '../icons/MarkdownIcon';
+import { MarkdownIcon } from '../../icons/MarkdownIcon';
 
 export function MarkdownLink() {
   const pathname = usePathname();
@@ -10,12 +10,13 @@ export function MarkdownLink() {
   return (
     <a
       href={`${pathname}.md`}
-      className="inline-flex items-center text-base text-gray-500 transition-colors hover:text-gray-800"
+      className="MarkdownLink"
       aria-label="View markdown source"
       rel="alternate"
       type="text/markdown"
     >
       <MarkdownIcon />
+      View as Markdown
     </a>
   );
 }
