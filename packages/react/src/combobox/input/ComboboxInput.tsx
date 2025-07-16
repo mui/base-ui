@@ -221,12 +221,14 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
             }
           }
 
-          if (activeIndex === null) {
-            return;
-          }
-
           if (event.key === 'Enter') {
             stopEvent(event);
+
+            if (activeIndex === null) {
+              setOpen(false, event.nativeEvent, undefined);
+              return;
+            }
+
             handleEnterSelection(event.nativeEvent);
           }
         },
