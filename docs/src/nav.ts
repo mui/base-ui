@@ -35,6 +35,10 @@ export const nav = [
         label: 'Composition',
         href: '/react/handbook/composition',
       },
+      {
+        label: 'llms.txt',
+        href: '/llms.txt',
+      },
     ],
   },
   {
