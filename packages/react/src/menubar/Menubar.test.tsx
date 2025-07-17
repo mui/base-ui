@@ -675,14 +675,13 @@ describe('<Menubar />', () => {
 
   describe('role', () => {
     it('sets role="menubar" on the root element', async () => {
-      const { container } = await render(<TestMenubar />);
-      const menubar = container.firstChild as HTMLElement;
-      expect(menubar).to.have.attribute('role', 'menubar');
+      await render(<TestMenubar />);
+      expect(screen.queryByRole('menubar')).not.to.equal(null);
     });
 
     it('sets role="menuitem" on menu triggers', async () => {
-      const { getAllByRole } = await render(<TestMenubar />);
-      const menuItems = getAllByRole('menuitem');
+      await render(<TestMenubar />);
+      const menuItems = screen.getAllByRole('menuitem');
       expect(menuItems).to.have.length(3);
     });
   });
