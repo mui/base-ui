@@ -54,10 +54,10 @@ export function safePolygon(options: SafePolygonOptions = {}) {
   let hasLanded = false;
   let lastX: number | null = null;
   let lastY: number | null = null;
-  let lastCursorTime = performance.now();
+  let lastCursorTime = Date.now();
 
   function getCursorSpeed(x: number, y: number): number | null {
-    const currentTime = performance.now();
+    const currentTime = Date.now();
     const elapsedTime = currentTime - lastCursorTime;
 
     if (lastX === null || lastY === null || elapsedTime === 0) {
