@@ -110,10 +110,13 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
     }
   }, [open, handleDocumentMouseUp, lastOpenChangeReason]);
 
+  const isMenubar = parent.type === 'menubar';
+
   const getTriggerProps = React.useCallback(
     (externalProps?: HTMLProps): HTMLProps => {
       return mergeProps(
         {
+          role: isMenubar ? 'menuitem' : undefined,
           'aria-haspopup': 'menu' as const,
           ref: handleRef,
           onMouseDown: (event: React.MouseEvent) => {
@@ -141,6 +144,7 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
       allowMouseUpTriggerRef,
       allowMouseUpTriggerTimeout,
       handleDocumentMouseUp,
+      isMenubar,
     ],
   );
 
@@ -151,8 +155,6 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
     }),
     [disabled, open],
   );
-
-  const isMenubar = parent.type === 'menubar';
 
   const ref = [triggerRef, forwardedRef, buttonRef];
   const props = [rootTriggerProps, elementProps, getTriggerProps];
