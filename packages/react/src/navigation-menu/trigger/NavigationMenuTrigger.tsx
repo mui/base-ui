@@ -321,50 +321,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
 
   const { getReferenceProps } = useInteractions([hover, click, dismiss]);
 
-  const handleOpenEvent = useEventCallback((event: React.MouseEvent | React.KeyboardEvent) => {
-    // For nested scenarios without positioner/popup, we can still open the menu
-    // but we can't do size calculations
-    if (!popupElement || !positionerElement) {
-      ReactDOM.flushSync(() => {
-        const prevTriggerRect = prevTriggerElementRef.current?.getBoundingClientRect();
-
-        if (mounted && prevTriggerRect && triggerElement) {
-          const nextTriggerRect = triggerElement.getBoundingClientRect();
-          const isMovingRight = nextTriggerRect.left > prevTriggerRect.left;
-          const isMovingDown = nextTriggerRect.top > prevTriggerRect.top;
-
-          if (orientation === 'horizontal' && nextTriggerRect.left !== prevTriggerRect.left) {
-            setActivationDirection(isMovingRight ? 'right' : 'left');
-          } else if (orientation === 'vertical' && nextTriggerRect.top !== prevTriggerRect.top) {
-            setActivationDirection(isMovingDown ? 'down' : 'up');
-          }
-        }
-
-        // Reset the `openEvent` to `undefined` when the active item changes so that a
-        // `click` -> `hover` on new trigger -> `hover` back to old trigger doesn't unexpectedly
-        // cause the popup to remain stuck open when leaving the old trigger.
-        if (event.type !== 'click') {
-          context.dataRef.current.openEvent = undefined;
-        }
-
-        if (pointerType === 'touch' && event.type !== 'click') {
-          return;
-        }
-
-        if (value != null) {
-          setValue(
-            itemValue,
-            event.nativeEvent,
-            event.type === 'mouseenter' ? 'trigger-hover' : 'trigger-press',
-          );
-        }
-      });
-      return;
-    }
-
-    const currentWidth = popupElement.offsetWidth;
-    const currentHeight = popupElement.offsetHeight;
-
+  function handleActivation(event: React.MouseEvent | React.KeyboardEvent) {
     ReactDOM.flushSync(() => {
       const prevTriggerRect = prevTriggerElementRef.current?.getBoundingClientRect();
 
@@ -399,7 +356,20 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
         );
       }
     });
+  }
 
+  const handleOpenEvent = useEventCallback((event: React.MouseEvent | React.KeyboardEvent) => {
+    // For nested scenarios without positioner/popup, we can still open the menu
+    // but we can't do size calculations
+    if (!popupElement || !positionerElement) {
+      handleActivation(event);
+      return;
+    }
+
+    const currentWidth = popupElement.offsetWidth;
+    const currentHeight = popupElement.offsetHeight;
+
+    handleActivation(event);
     handleValueChange(currentWidth, currentHeight);
   });
 
@@ -465,7 +435,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     focusableWhenDisabled: true,
     native: nativeButton,
   });
-  
+
   const referenceElement = positionerElement || viewportElement;
 
   return (
