@@ -25,8 +25,6 @@ export interface NavigationMenuRootContext {
   setFloatingRootContext: React.Dispatch<React.SetStateAction<FloatingRootContext | undefined>>;
   currentContentRef: React.RefObject<HTMLDivElement | null>;
   nested: boolean;
-  inline: boolean;
-  setInline: React.Dispatch<React.SetStateAction<boolean>>;
   rootRef: React.RefObject<HTMLDivElement | null>;
   beforeInsideRef: React.RefObject<HTMLSpanElement | null>;
   afterInsideRef: React.RefObject<HTMLSpanElement | null>;

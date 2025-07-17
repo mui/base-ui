@@ -69,7 +69,6 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot(
   const [floatingRootContext, setFloatingRootContext] = React.useState<
     FloatingRootContext | undefined
   >(undefined);
-  const [inline, setInline] = React.useState(true);
   const [viewportInert, setViewportInert] = React.useState(false);
 
   const prevTriggerElementRef = React.useRef<Element | null | undefined>(null);
@@ -167,8 +166,6 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot(
       setFloatingRootContext,
       currentContentRef,
       nested,
-      inline,
-      setInline,
       rootRef,
       beforeInsideRef,
       afterInsideRef,
@@ -194,7 +191,6 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot(
       activationDirection,
       floatingRootContext,
       nested,
-      inline,
       delay,
       closeDelay,
       orientation,

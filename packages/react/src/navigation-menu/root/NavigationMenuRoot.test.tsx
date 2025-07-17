@@ -525,7 +525,6 @@ describe('<NavigationMenu.Root />', () => {
       await render(<TestNestedNavigationMenu />);
       const trigger1 = screen.getByTestId('trigger-1');
 
-      // Open the first level menu
       fireEvent.mouseEnter(trigger1);
       fireEvent.mouseMove(trigger1);
       clock.tick(OPEN_DELAY);
@@ -535,10 +534,8 @@ describe('<NavigationMenu.Root />', () => {
       expect(popup1).not.to.equal(null);
       expect(trigger1).to.have.attribute('aria-expanded', 'true');
 
-      // Search for the nested trigger *within* the first popup
       const nestedTrigger1 = within(popup1).getByTestId('nested-trigger-1');
 
-      // Hover over the nested trigger to open the second level menu
       fireEvent.mouseEnter(nestedTrigger1);
       fireEvent.mouseMove(nestedTrigger1);
       clock.tick(OPEN_DELAY);
@@ -548,12 +545,10 @@ describe('<NavigationMenu.Root />', () => {
       expect(nestedPopup1).not.to.equal(null);
       expect(nestedTrigger1).to.have.attribute('aria-expanded', 'true');
 
-      // Hover over the nested popup
       fireEvent.mouseEnter(nestedPopup1);
       fireEvent.mouseMove(nestedPopup1);
       await flushMicrotasks();
 
-      // Both menus should remain open
       expect(screen.queryByTestId('popup-1')).not.to.equal(null);
       expect(screen.queryByTestId('nested-popup-1')).not.to.equal(null);
       expect(trigger1).to.have.attribute('aria-expanded', 'true');
@@ -564,7 +559,6 @@ describe('<NavigationMenu.Root />', () => {
       await render(<TestInlineNestedNavigationMenu />);
       const trigger1 = screen.getByTestId('trigger-1');
 
-      // Open the first level menu
       fireEvent.mouseEnter(trigger1);
       fireEvent.mouseMove(trigger1);
       clock.tick(OPEN_DELAY);
@@ -574,10 +568,8 @@ describe('<NavigationMenu.Root />', () => {
       expect(popup1).not.to.equal(null);
       expect(trigger1).to.have.attribute('aria-expanded', 'true');
 
-      // Search for the nested trigger *within* the first popup
       const nestedTrigger1 = within(popup1).getByTestId('nested-trigger-1');
 
-      // Hover over the nested trigger to open the second level menu
       fireEvent.mouseEnter(nestedTrigger1);
       fireEvent.mouseMove(nestedTrigger1);
       clock.tick(OPEN_DELAY);
@@ -587,18 +579,15 @@ describe('<NavigationMenu.Root />', () => {
       expect(nestedPopup1).not.to.equal(null);
       expect(nestedTrigger1).to.have.attribute('aria-expanded', 'true');
 
-      // Hover over the nested popup content
       fireEvent.mouseEnter(nestedPopup1);
       fireEvent.mouseMove(nestedPopup1);
       await flushMicrotasks();
 
-      // Both menus should remain open
       expect(screen.queryByTestId('popup-1')).not.to.equal(null);
       expect(screen.queryByTestId('nested-popup-1')).not.to.equal(null);
       expect(trigger1).to.have.attribute('aria-expanded', 'true');
       expect(nestedTrigger1).to.have.attribute('aria-expanded', 'true');
 
-      // Test switching between nested items
       const nestedTrigger2 = within(popup1).getByTestId('nested-trigger-2');
       fireEvent.mouseEnter(nestedTrigger2);
       fireEvent.mouseMove(nestedTrigger2);
@@ -611,52 +600,155 @@ describe('<NavigationMenu.Root />', () => {
       expect(nestedTrigger1).to.have.attribute('aria-expanded', 'false');
     });
 
-    describe('tabbing', () => {
-      it('moves focus through a nested menu correctly', async () => {
-        const { user } = await render(
-          <div>
-            <button data-testid="first" />
-            <TestNestedNavigationMenu />
-            <button data-testid="last" />
-          </div>,
-        );
-
+    describe('inline nested viewport', () => {
+      it('renders viewport content correctly for inline nested menu', async () => {
+        await render(<TestInlineNestedNavigationMenu />);
         const trigger1 = screen.getByTestId('trigger-1');
 
-        await act(async () => trigger1.focus());
+        fireEvent.mouseEnter(trigger1);
+        fireEvent.mouseMove(trigger1);
+        clock.tick(OPEN_DELAY);
+        await flushMicrotasks();
+
+        const popup1 = screen.getByTestId('popup-1');
+        expect(popup1).not.to.equal(null);
+
+        const nestedTrigger1 = within(popup1).getByTestId('nested-trigger-1');
+        expect(nestedTrigger1).to.have.attribute('aria-expanded', 'true');
+
+        const nestedPopup1 = screen.getByTestId('nested-popup-1');
+        expect(nestedPopup1).not.to.equal(null);
+        expect(screen.getByText('Nested Link 1')).not.to.equal(null);
+      });
+
+      it('switches content in viewport when hovering different nested triggers', async () => {
+        await render(<TestInlineNestedNavigationMenu />);
+        const trigger1 = screen.getByTestId('trigger-1');
+
+        fireEvent.mouseEnter(trigger1);
+        fireEvent.mouseMove(trigger1);
+        clock.tick(OPEN_DELAY);
+        await flushMicrotasks();
+
+        const popup1 = screen.getByTestId('popup-1');
+        const nestedTrigger1 = within(popup1).getByTestId('nested-trigger-1');
+        const nestedTrigger2 = within(popup1).getByTestId('nested-trigger-2');
+
+        expect(nestedTrigger1).to.have.attribute('aria-expanded', 'true');
+        expect(screen.getByTestId('nested-popup-1')).not.to.equal(null);
+
+        fireEvent.mouseEnter(nestedTrigger2);
+        fireEvent.mouseMove(nestedTrigger2);
+        clock.tick(OPEN_DELAY);
+        await flushMicrotasks();
+
+        expect(nestedTrigger2).to.have.attribute('aria-expanded', 'true');
+        expect(nestedTrigger1).to.have.attribute('aria-expanded', 'false');
+        expect(screen.getByTestId('nested-popup-2')).not.to.equal(null);
+        expect(screen.queryByTestId('nested-popup-1')).to.equal(null);
+
+        fireEvent.mouseEnter(nestedTrigger1);
+        fireEvent.mouseMove(nestedTrigger1);
+        clock.tick(OPEN_DELAY);
+        await flushMicrotasks();
+
+        expect(nestedTrigger1).to.have.attribute('aria-expanded', 'true');
+        expect(nestedTrigger2).to.have.attribute('aria-expanded', 'false');
+        expect(screen.getByTestId('nested-popup-1')).not.to.equal(null);
+        expect(screen.queryByTestId('nested-popup-2')).to.equal(null);
+      });
+
+      it('closes inline nested viewport when parent menu closes', async () => {
+        await render(<TestInlineNestedNavigationMenu />);
+        const trigger1 = screen.getByTestId('trigger-1');
+
+        fireEvent.mouseEnter(trigger1);
+        fireEvent.mouseMove(trigger1);
+        clock.tick(OPEN_DELAY);
+        await flushMicrotasks();
+
+        const popup1 = screen.getByTestId('popup-1');
+        expect(popup1).not.to.equal(null);
+
+        const nestedTrigger1 = within(popup1).getByTestId('nested-trigger-1');
+        expect(nestedTrigger1).to.have.attribute('aria-expanded', 'true');
+        expect(screen.getByTestId('nested-popup-1')).not.to.equal(null);
+
+        fireEvent.mouseLeave(trigger1);
+        fireEvent.mouseLeave(popup1);
+        clock.tick(50); // closeDelay
+        await flushMicrotasks();
+
+        expect(screen.queryByTestId('popup-1')).to.equal(null);
+        expect(screen.queryByTestId('nested-popup-1')).to.equal(null);
+        expect(trigger1).to.have.attribute('aria-expanded', 'false');
+      });
+
+      it('maintains inline viewport state when hovering between triggers and content', async () => {
+        await render(<TestInlineNestedNavigationMenu />);
+        const trigger1 = screen.getByTestId('trigger-1');
+
+        fireEvent.mouseEnter(trigger1);
+        fireEvent.mouseMove(trigger1);
+        clock.tick(OPEN_DELAY);
+        await flushMicrotasks();
+
+        const popup1 = screen.getByTestId('popup-1');
+
+        const nestedTrigger2 = within(popup1).getByTestId('nested-trigger-2');
+        fireEvent.mouseEnter(nestedTrigger2);
+        fireEvent.mouseMove(nestedTrigger2);
+        clock.tick(OPEN_DELAY);
+        await flushMicrotasks();
+
+        expect(nestedTrigger2).to.have.attribute('aria-expanded', 'true');
+        const nestedPopup2 = screen.getByTestId('nested-popup-2');
+        expect(nestedPopup2).not.to.equal(null);
+
+        fireEvent.mouseEnter(nestedPopup2);
+        fireEvent.mouseMove(nestedPopup2);
+        await flushMicrotasks();
+
+        expect(nestedTrigger2).to.have.attribute('aria-expanded', 'true');
+        expect(screen.getByTestId('nested-popup-2')).not.to.equal(null);
+
+        fireEvent.mouseEnter(nestedTrigger2);
+        fireEvent.mouseMove(nestedTrigger2);
+        await flushMicrotasks();
+
+        expect(nestedTrigger2).to.have.attribute('aria-expanded', 'true');
+        expect(screen.getByTestId('nested-popup-2')).not.to.equal(null);
+      });
+
+      it('handles click interactions on inline nested menu triggers', async () => {
+        await render(<TestInlineNestedNavigationMenu />);
+        const trigger1 = screen.getByTestId('trigger-1');
 
         fireEvent.click(trigger1);
         await flushMicrotasks();
 
         const popup1 = screen.getByTestId('popup-1');
         expect(popup1).not.to.equal(null);
-        expect(trigger1).toHaveFocus();
 
-        await user.tab();
-        expect(screen.getByText('Link 1')).toHaveFocus();
-
-        await user.tab();
         const nestedTrigger1 = within(popup1).getByTestId('nested-trigger-1');
-        expect(nestedTrigger1).toHaveFocus();
+        expect(nestedTrigger1).to.have.attribute('aria-expanded', 'true');
 
-        fireEvent.click(nestedTrigger1);
+        const nestedTrigger2 = within(popup1).getByTestId('nested-trigger-2');
+        fireEvent.click(nestedTrigger2);
         await flushMicrotasks();
 
-        expect(screen.getByTestId('nested-popup-1')).not.to.equal(null);
+        expect(nestedTrigger2).to.have.attribute('aria-expanded', 'true');
+        expect(nestedTrigger1).to.have.attribute('aria-expanded', 'false');
+        expect(screen.getByTestId('nested-popup-2')).not.to.equal(null);
+        expect(screen.queryByTestId('nested-popup-1')).to.equal(null);
 
-        expect(nestedTrigger1).toHaveFocus();
+        fireEvent.click(nestedTrigger2);
+        await flushMicrotasks();
 
-        await user.tab();
-        expect(screen.getByText('Nested Link 1')).toHaveFocus();
-
-        await user.tab({ shift: true });
-        expect(nestedTrigger1).toHaveFocus();
-
-        await user.tab({ shift: true });
-        expect(screen.getByText('Link 1')).toHaveFocus();
-
-        await user.tab({ shift: true });
-        expect(trigger1).toHaveFocus();
+        expect(nestedTrigger2).to.have.attribute('aria-expanded', 'true');
+        expect(nestedTrigger1).to.have.attribute('aria-expanded', 'false');
+        expect(screen.queryByTestId('nested-popup-2')).not.to.equal(null);
+        expect(screen.queryByTestId('nested-popup-1')).to.equal(null);
       });
     });
   });

@@ -42,7 +42,7 @@ export const NavigationMenuLink = React.forwardRef(function NavigationMenuLink(
       ) {
         setFixedSize(popupElement, 'popup');
         setFixedSize(positionerElement, 'positioner');
-        setValue(null, event.nativeEvent, undefined);
+        setValue(null, event.nativeEvent, 'focus-out');
       }
     },
   };
