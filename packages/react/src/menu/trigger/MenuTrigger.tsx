@@ -56,6 +56,7 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
   const { getButtonProps, buttonRef } = useButton({
     disabled,
     native: nativeButton,
+    name: 'Menu.Trigger',
   });
 
   const handleRef = useForkRef(buttonRef, setTriggerElement);

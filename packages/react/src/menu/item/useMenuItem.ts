@@ -29,6 +29,7 @@ export function useMenuItem(params: useMenuItem.Parameters): useMenuItem.ReturnV
     disabled,
     focusableWhenDisabled: true,
     native: nativeButton,
+    name: 'Menu.Item',
   });
 
   const getItemProps = React.useCallback(

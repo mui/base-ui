@@ -41,6 +41,7 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
   const { getButtonProps, buttonRef } = useButton({
     disabled,
     native: nativeButton,
+    name: 'Popover.Trigger',
   });
 
   const customStyleHookMapping: CustomStyleHookMapping<{ open: boolean }> = React.useMemo(

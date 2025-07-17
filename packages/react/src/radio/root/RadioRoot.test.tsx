@@ -10,6 +10,8 @@ describe('<Radio.Root />', () => {
 
   describeConformance(<Radio.Root value="" />, () => ({
     refInstanceof: window.HTMLButtonElement,
+    testComponentPropWith: 'button',
+    button: true,
     render,
   }));
 

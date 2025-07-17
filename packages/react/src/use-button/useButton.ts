@@ -2,17 +2,19 @@
 import * as React from 'react';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { useModernLayoutEffect } from '@base-ui-components/utils/useModernLayoutEffect';
+import { error } from '@base-ui-components/utils/error';
 import { makeEventPreventable, mergeProps } from '../merge-props';
 import { useCompositeRootContext } from '../composite/root/CompositeRootContext';
 import { BaseUIEvent, HTMLProps } from '../utils/types';
 import { useFocusableWhenDisabled } from '../utils/useFocusableWhenDisabled';
 
-export function useButton(parameters: useButton.Parameters = {}): useButton.ReturnValue {
+export function useButton(parameters: useButton.Parameters): useButton.ReturnValue {
   const {
     disabled = false,
     focusableWhenDisabled,
     tabIndex = 0,
     native: isNativeButton = true,
+    name,
   } = parameters;
 
   const buttonRef = React.useRef<HTMLButtonElement | HTMLAnchorElement | HTMLElement | null>(null);
@@ -31,6 +33,31 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
     tabIndex,
     isNativeButton,
   });
+
+  if (process.env.NODE_ENV !== 'production') {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    React.useEffect(() => {
+      if (!buttonRef.current) {
+        return;
+      }
+
+      const isButtonTag = buttonRef.current.tagName === 'BUTTON';
+
+      if (isNativeButton) {
+        if (!isButtonTag) {
+          error(
+            `<${name}>`,
+            'was not rendered as a native <button> which is its default. Ensure that the element passed to the `render` prop is a real <button>, or set the `nativeButton` prop to `false`.',
+          );
+        }
+      } else if (isButtonTag) {
+        error(
+          `<${name}>`,
+          'was rendered as a native <button> which is not its default. Ensure that the element passed to the `render` prop is not a <button>, or set the `nativeButton` prop to `true`.',
+        );
+      }
+    }, [isNativeButton, name]);
+  }
 
   // handles a disabled composite button rendering another button, e.g.
   // <Toolbar.Button disabled render={<Menu.Trigger />} />
@@ -183,6 +210,11 @@ export namespace useButton {
      * @default true
      */
     native?: boolean;
+    /**
+     * Debug name for the component used in error messages.
+     * @example 'Popover.Trigger'
+     */
+    name: string;
   }
 
   export interface ReturnValue {

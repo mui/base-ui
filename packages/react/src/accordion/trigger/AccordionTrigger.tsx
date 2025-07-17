@@ -37,6 +37,7 @@ export const AccordionTrigger = React.forwardRef(function AccordionTrigger(
     disabled,
     focusableWhenDisabled: true,
     native: nativeButton,
+    name: 'Accordion.Trigger',
   });
 
   const { state, setTriggerId, triggerId: id } = useAccordionItemContext();

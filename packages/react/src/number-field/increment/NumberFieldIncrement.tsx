@@ -18,7 +18,13 @@ export const NumberFieldIncrement = React.forwardRef(function NumberFieldIncreme
   componentProps: NumberFieldIncrement.Props,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
-  const { render, className, disabled: disabledProp = false, ...elementProps } = componentProps;
+  const {
+    render,
+    className,
+    disabled: disabledProp = false,
+    nativeButton = true,
+    ...elementProps
+  } = componentProps;
 
   const {
     allowInputSyncRef,
@@ -72,6 +78,8 @@ export const NumberFieldIncrement = React.forwardRef(function NumberFieldIncreme
 
   const { getButtonProps, buttonRef } = useButton({
     disabled,
+    native: nativeButton,
+    name: 'NumberField.Increment',
   });
 
   const element = useRenderElement('button', componentProps, {
@@ -87,5 +95,13 @@ export const NumberFieldIncrement = React.forwardRef(function NumberFieldIncreme
 export namespace NumberFieldIncrement {
   export interface State extends NumberFieldRoot.State {}
 
-  export interface Props extends BaseUIComponentProps<'button', State> {}
+  export interface Props extends BaseUIComponentProps<'button', State> {
+    /**
+     * Whether the component renders a native `<button>` element when replacing it
+     * via the `render` prop.
+     * Set to `false` if the rendered element is not a button (e.g. `<div>`).
+     * @default true
+     */
+    nativeButton?: boolean;
+  }
 }

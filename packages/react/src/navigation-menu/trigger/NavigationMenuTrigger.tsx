@@ -412,6 +412,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     disabled,
     focusableWhenDisabled: true,
     native: nativeButton,
+    name: 'NavigationMenu.Trigger',
   });
 
   return (
