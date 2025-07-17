@@ -115,8 +115,8 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
   const getTriggerProps = React.useCallback(
     (externalProps?: HTMLProps): HTMLProps => {
       return mergeProps(
+        isMenubar ? { role: 'menuitem' } : {},
         {
-          role: isMenubar ? 'menuitem' : undefined,
           'aria-haspopup': 'menu' as const,
           ref: handleRef,
           onMouseDown: (event: React.MouseEvent) => {
