@@ -182,7 +182,7 @@ async function generateLlmsTxt() {
       parser: 'markdown',
     });
 
-    await fs.writeFile(path.join(OUTPUT_BASE_DIR, 'llms.txt'), llmsTxtContent, 'utf-8');
+    await fs.writeFile(llmsFilePath, llmsTxtContent, 'utf-8');
 
     // Calculate the total number of files processed
     const totalFiles =
