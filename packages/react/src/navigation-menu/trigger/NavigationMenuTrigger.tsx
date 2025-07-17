@@ -44,6 +44,7 @@ import { NavigationMenuPopupCssVars } from '../popup/NavigationMenuPopupCssVars'
 import { NavigationMenuPositionerCssVars } from '../positioner/NavigationMenuPositionerCssVars';
 import { CompositeItem } from '../../composite/item/CompositeItem';
 import { setFixedSize } from '../utils/setFixedSize';
+import { useButton } from '../../use-button';
 
 const TRIGGER_IDENTIFIER = 'data-navigation-menu-trigger';
 
@@ -58,7 +59,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
   componentProps: NavigationMenuTrigger.Props,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
-  const { className, render, ...elementProps } = componentProps;
+  const { className, render, nativeButton = true, disabled, ...elementProps } = componentProps;
 
   const {
     value,
@@ -459,6 +460,12 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     },
   };
 
+  const { getButtonProps, buttonRef } = useButton({
+    disabled,
+    focusableWhenDisabled: true,
+    native: nativeButton,
+  });
+  
   const referenceElement = positionerElement || viewportElement;
 
   return (
@@ -469,8 +476,8 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
         className={className}
         state={state}
         customStyleHookMapping={pressableTriggerOpenStateMapping}
-        refs={[forwardedRef, setTriggerElement]}
-        props={[getReferenceProps, defaultProps, elementProps]}
+        refs={[forwardedRef, setTriggerElement, buttonRef]}
+        props={[getReferenceProps, defaultProps, elementProps, getButtonProps]}
       />
       {isActiveItem && (
         <React.Fragment>
@@ -519,5 +526,13 @@ export namespace NavigationMenuTrigger {
     open: boolean;
   }
 
-  export interface Props extends BaseUIComponentProps<'button', State> {}
+  export interface Props extends BaseUIComponentProps<'button', State> {
+    /**
+     * Whether the component renders a native `<button>` element when replacing it
+     * via the `render` prop.
+     * Set to `false` if the rendered element is not a button (e.g. `<div>`).
+     * @default true
+     */
+    nativeButton?: boolean;
+  }
 }

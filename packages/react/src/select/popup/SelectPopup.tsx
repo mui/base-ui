@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import * as ReactDOM from 'react-dom';
 import { isWebKit } from '@base-ui-components/utils/detectBrowser';
 import { ownerDocument, ownerWindow } from '@base-ui-components/utils/owner';
 import { isMouseWithinBounds } from '@base-ui-components/utils/isMouseWithinBounds';
@@ -231,7 +232,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
       if (fallbackToAlignPopupToTrigger || isPinchZoomed) {
         initialPlacedRef.current = true;
         clearPositionerStyles(positionerElement, originalPositionerStylesRef.current);
-        setControlledAlignItemWithTrigger(false);
+        ReactDOM.flushSync(() => setControlledAlignItemWithTrigger(false));
         return;
       }
 
@@ -319,7 +320,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
         return;
       }
 
-      if (reachedMaxHeightRef.current || !alignItemWithTriggerActive) {
+      if (reachedMaxHeightRef.current) {
         handleScrollArrowVisibility();
         return;
       }
