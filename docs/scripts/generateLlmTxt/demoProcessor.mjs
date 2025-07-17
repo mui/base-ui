@@ -64,14 +64,14 @@ export function processDemo(node, mdxFilePath) {
   // Define implementation types and their configurations
   const implementationTypes = [
     {
-      id: 'css-modules',
-      title: 'CSS Modules',
-      description: 'This example shows how to implement the component using CSS Modules.',
-    },
-    {
       id: 'tailwind',
       title: 'Tailwind',
       description: 'This example shows how to implement the component using Tailwind CSS.',
+    },
+    {
+      id: 'css-modules',
+      title: 'CSS Modules',
+      description: 'This example shows how to implement the component using CSS Modules.',
     },
   ];
 
