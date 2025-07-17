@@ -27,6 +27,7 @@ import {
   usePopoverRootContext,
 } from './PopoverRootContext';
 import { mergeProps } from '../../merge-props';
+import { OpenChangeHandler, PopupHandle } from '../../utils/createPopup';
 
 function PopoverRootComponent({ props }: { props: PopoverRoot.Props }) {
   const {
@@ -38,6 +39,7 @@ function PopoverRootComponent({ props }: { props: PopoverRoot.Props }) {
     openOnHover = false,
     onOpenChangeComplete,
     modal = false,
+    handle,
   } = props;
 
   const [instantType, setInstantType] = React.useState<'dismiss' | 'click'>();
@@ -93,39 +95,55 @@ function PopoverRootComponent({ props }: { props: PopoverRoot.Props }) {
     }
   }, [stickIfOpenTimeout, open]);
 
-  const setOpen = useEventCallback(
-    (nextOpen: boolean, event: Event | undefined, reason: PopoverOpenChangeReason | undefined) => {
-      const isHover = reason === 'trigger-hover';
-      const isKeyboardClick = reason === 'trigger-press' && (event as MouseEvent).detail === 0;
-      const isDismissClose = !nextOpen && (reason === 'escape-key' || reason == null);
+  const setOpen = useEventCallback(function setOpenImpl(
+    nextOpen: boolean,
+    event: Event | undefined,
+    reason: PopoverOpenChangeReason | undefined,
+  ) {
+    if (event && nextOpen) {
+      setTriggerElement(event.target as Element);
+    }
 
-      function changeState() {
-        onOpenChange?.(nextOpen, event, reason);
-        setOpenUnwrapped(nextOpen);
+    const isHover = reason === 'trigger-hover';
+    const isKeyboardClick = reason === 'trigger-press' && (event as MouseEvent).detail === 0;
+    const isDismissClose = !nextOpen && (reason === 'escape-key' || reason == null);
 
-        if (nextOpen) {
-          setOpenReason(reason ?? null);
-        }
+    function changeState() {
+      onOpenChange?.(nextOpen, event, reason);
+      setOpenUnwrapped(nextOpen);
+
+      if (nextOpen) {
+        setOpenReason(reason ?? null);
       }
+    }
 
-      if (isHover) {
-        // Only allow "patient" clicks to close the popover if it's open.
-        // If they clicked within 500ms of the popover opening, keep it open.
-        setStickIfOpen(true);
-        stickIfOpenTimeout.start(PATIENT_CLICK_THRESHOLD, () => {
-          setStickIfOpen(false);
-        });
+    if (isHover) {
+      // Only allow "patient" clicks to close the popover if it's open.
+      // If they clicked within 500ms of the popover opening, keep it open.
+      setStickIfOpen(true);
+      stickIfOpenTimeout.start(PATIENT_CLICK_THRESHOLD, () => {
+        setStickIfOpen(false);
+      });
 
-        ReactDOM.flushSync(changeState);
-      } else {
-        changeState();
-      }
+      ReactDOM.flushSync(changeState);
+    } else {
+      changeState();
+    }
 
-      if (isKeyboardClick || isDismissClose) {
-        setInstantType(isKeyboardClick ? 'click' : 'dismiss');
-      } else {
-        setInstantType(undefined);
-      }
+    if (isKeyboardClick || isDismissClose) {
+      setInstantType(isKeyboardClick ? 'click' : 'dismiss');
+    } else {
+      setInstantType(undefined);
+    }
+  });
+
+  const [payload, setPayload] = React.useState<unknown>(undefined);
+
+  const handleExternalOpenChange: OpenChangeHandler<unknown> = useEventCallback(
+    (nextOpen, nextPayload, trigger, event, reason) => {
+      setPayload(nextPayload);
+      setTriggerElement(trigger ?? null);
+      setOpen(nextOpen, event, reason as PopoverOpenChangeReason);
     },
   );
 
@@ -162,6 +180,22 @@ function PopoverRootComponent({ props }: { props: PopoverRoot.Props }) {
 
   const { getReferenceProps, getFloatingProps } = useInteractions([hover, click, dismiss, role]);
 
+  const mergedTriggerProps = React.useMemo(() => {
+    return mergeProps(triggerProps, getReferenceProps());
+  }, [triggerProps, getReferenceProps]);
+
+  React.useEffect(() => {
+    if (handle !== undefined) {
+      handle.registerPopup(null, handleExternalOpenChange, mergedTriggerProps);
+    }
+
+    return () => {
+      if (handle !== undefined) {
+        handle.unregisterPopup();
+      }
+    };
+  }, [handle, handleExternalOpenChange, mergedTriggerProps]);
+
   const popoverContext: PopoverRootContext = React.useMemo(
     () => ({
       open,
@@ -178,7 +212,7 @@ function PopoverRootComponent({ props }: { props: PopoverRoot.Props }) {
       setTitleId,
       descriptionId,
       setDescriptionId,
-      triggerProps: mergeProps(getReferenceProps(), triggerProps),
+      triggerProps: mergedTriggerProps,
       popupProps: getFloatingProps(),
       floatingRootContext: floatingContext,
       instantType,
@@ -199,9 +233,8 @@ function PopoverRootComponent({ props }: { props: PopoverRoot.Props }) {
       positionerElement,
       titleId,
       descriptionId,
-      getReferenceProps,
       triggerElement,
-      triggerProps,
+      mergedTriggerProps,
       getFloatingProps,
       floatingContext,
       instantType,
@@ -217,7 +250,7 @@ function PopoverRootComponent({ props }: { props: PopoverRoot.Props }) {
 
   return (
     <PopoverRootContext.Provider value={popoverContext}>
-      {props.children}
+      {typeof props.children === 'function' ? props.children({ payload }) : props.children}
     </PopoverRootContext.Provider>
   );
 }
@@ -243,7 +276,7 @@ export function PopoverRoot(props: PopoverRoot.Props) {
 export namespace PopoverRoot {
   export interface State {}
 
-  interface Parameters {
+  export interface Props {
     /**
      * Whether the popover is initially open.
      *
@@ -302,10 +335,8 @@ export namespace PopoverRoot {
      * @default false
      */
     modal?: boolean | 'trap-focus';
-  }
-
-  export interface Props extends Parameters {
-    children?: React.ReactNode;
+    children?: React.ReactNode | (({ payload }: { payload: any }) => React.ReactNode);
+    handle: PopupHandle<any>;
   }
 
   export interface Actions {
