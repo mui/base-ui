@@ -18,6 +18,7 @@ export const CollapsibleRoot = React.forwardRef(function CollapsibleRoot(
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const {
+    render,
     className,
     defaultOpen = false,
     disabled = false,
