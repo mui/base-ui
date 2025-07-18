@@ -88,6 +88,7 @@ export const TabsTab = React.forwardRef(function Tab(
     disabled,
     native: nativeButton,
     focusableWhenDisabled: true,
+    name: 'Tabs.Tab',
   });
 
   const tabPanelId = index > -1 ? getTabPanelIdByTabValueOrIndex(valueProp, index) : undefined;

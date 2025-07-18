@@ -11,7 +11,7 @@ export function testRenderProp(
   element: React.ReactElement<ConformantComponentProps>,
   getOptions: () => BaseUiConformanceTestsOptions,
 ) {
-  const { render, testRenderPropWith: Element = 'div' } = getOptions();
+  const { render, testRenderPropWith: Element = 'div', button = false } = getOptions();
 
   if (!render) {
     throwMissingPropError('render');
@@ -34,6 +34,7 @@ export function testRenderProp(
       const { queryByTestId } = await render(
         React.cloneElement(element, {
           render: (props: {}) => <Wrapper {...props} data-test-value={testValue} />,
+          ...(button && { nativeButton: Element === 'button' }),
         }),
       );
 
@@ -47,6 +48,7 @@ export function testRenderProp(
       const { queryByTestId } = await render(
         React.cloneElement(element, {
           render: <Wrapper data-test-value={testValue} />,
+          ...(button && { nativeButton: Element === 'button' }),
         }),
       );
 
@@ -59,6 +61,7 @@ export function testRenderProp(
       await render(
         React.cloneElement(element, {
           render: <Wrapper />,
+          ...(button && { nativeButton: Element === 'button' }),
         }),
       );
 
@@ -75,6 +78,7 @@ export function testRenderProp(
           },
           render: (props: {}) => <Wrapper {...props} />,
           'data-testid': 'wrapped',
+          ...(button && { nativeButton: Element === 'button' }),
         });
       }
 
@@ -100,6 +104,7 @@ export function testRenderProp(
             />
           ),
           'data-testid': 'wrapped',
+          ...(button && { nativeButton: Element === 'button' }),
         });
       }
 
@@ -119,6 +124,7 @@ export function testRenderProp(
           className: 'component-classname',
           render: <Element className="render-prop-classname" />,
           'data-testid': 'test-component',
+          ...(button && { nativeButton: Element === 'button' }),
         });
       }
 
@@ -135,6 +141,7 @@ export function testRenderProp(
           className: () => 'conditional-component-classname',
           render: <Element className="render-prop-classname" />,
           'data-testid': 'test-component',
+          ...(button && { nativeButton: Element === 'button' }),
         });
       }
 

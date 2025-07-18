@@ -9,6 +9,9 @@ describe('<Popover.Close />', () => {
 
   describeConformance(<Popover.Close />, () => ({
     refInstanceof: window.HTMLButtonElement,
+    testComponentPropWith: 'button',
+    button: true,
+
     render(node) {
       return render(
         <Popover.Root open>

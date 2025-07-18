@@ -37,6 +37,7 @@ export const AlertDialogTrigger = React.forwardRef(function AlertDialogTrigger(
   const { getButtonProps, buttonRef } = useButton({
     disabled,
     native: nativeButton,
+    name: 'AlertDialog.Trigger',
   });
 
   return useRenderElement('button', componentProps, {

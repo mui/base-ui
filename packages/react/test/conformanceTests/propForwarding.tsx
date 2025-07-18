@@ -11,7 +11,7 @@ export function testPropForwarding(
   element: React.ReactElement<ConformantComponentProps>,
   getOptions: () => BaseUiConformanceTestsOptions,
 ) {
-  const { render, testRenderPropWith: Element = 'div' } = getOptions();
+  const { render, testRenderPropWith: Element = 'div', button = false } = getOptions();
 
   if (!render) {
     throwMissingPropError('render');
@@ -39,6 +39,7 @@ export function testPropForwarding(
       const otherProps = {
         lang: 'fr',
         'data-foobar': randomStringValue(),
+        ...(button && { nativeButton: Element === 'button' }),
       };
 
       const { getByTestId } = await render(
@@ -59,6 +60,7 @@ export function testPropForwarding(
       const otherProps = {
         lang: 'fr',
         'data-foobar': randomStringValue(),
+        ...(button && { nativeButton: Element === 'button' }),
       };
 
       const { getByTestId } = await render(
@@ -96,6 +98,7 @@ export function testPropForwarding(
           render: (props: any) => (
             <Element {...props} style={{ color: 'green' }} data-testid="custom-root" />
           ),
+          ...(button && { nativeButton: Element === 'button' }),
         }),
       );
 
@@ -110,6 +113,7 @@ export function testPropForwarding(
       const { getByTestId } = await render(
         React.cloneElement(element, {
           render: <Element style={{ color: 'green' }} data-testid="custom-root" />,
+          ...(button && { nativeButton: Element === 'button' }),
         }),
       );
 

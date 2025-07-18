@@ -10,6 +10,8 @@ describe('<Dialog.Close />', () => {
 
   describeConformance(<Dialog.Close />, () => ({
     refInstanceof: window.HTMLButtonElement,
+    testComponentPropWith: 'button',
+    button: true,
     render: (node) => {
       return render(
         <Dialog.Root open modal={false}>

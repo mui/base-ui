@@ -116,6 +116,7 @@ export const SelectItem = React.memo(
       disabled,
       focusableWhenDisabled: true,
       native: nativeButton,
+      name: 'Select.Item',
     });
 
     function commitSelection(event: MouseEvent) {

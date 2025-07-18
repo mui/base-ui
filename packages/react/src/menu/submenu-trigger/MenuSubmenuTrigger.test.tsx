@@ -12,6 +12,8 @@ describe('<Menu.SubmenuTrigger />', () => {
 
   describeConformance(<Menu.Trigger />, () => ({
     refInstanceof: window.HTMLButtonElement,
+    testComponentPropWith: 'button',
+    button: true,
     render(node) {
       return render(
         <Menu.Root open>
