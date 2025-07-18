@@ -751,16 +751,20 @@ export function useListNavigation(
 
       if (isMainOrientationToEndKey(event.key, orientation, rtl)) {
         if (loop) {
-          indexRef.current =
-            // eslint-disable-next-line no-nested-ternary
-            currentIndex >= maxIndex
-              ? allowEscape && currentIndex !== listRef.current.length
-                ? -1
-                : minIndex
-              : findNonDisabledListIndex(listRef, {
-                  startingIndex: currentIndex,
-                  disabledIndices,
-                });
+          if (currentIndex >= maxIndex) {
+            if (allowEscape && currentIndex !== listRef.current.length) {
+              indexRef.current = -1;
+            } else {
+              // Give time for virtualizers to update the listRef.
+              forceSyncFocusRef.current = false;
+              indexRef.current = minIndex;
+            }
+          } else {
+            indexRef.current = findNonDisabledListIndex(listRef, {
+              startingIndex: currentIndex,
+              disabledIndices,
+            });
+          }
         } else {
           indexRef.current = Math.min(
             maxIndex,
@@ -771,17 +775,21 @@ export function useListNavigation(
           );
         }
       } else if (loop) {
-        indexRef.current =
-          // eslint-disable-next-line no-nested-ternary
-          currentIndex <= minIndex
-            ? allowEscape && currentIndex !== -1
-              ? listRef.current.length
-              : maxIndex
-            : findNonDisabledListIndex(listRef, {
-                startingIndex: currentIndex,
-                decrement: true,
-                disabledIndices,
-              });
+        if (currentIndex <= minIndex) {
+          if (allowEscape && currentIndex !== -1) {
+            indexRef.current = listRef.current.length;
+          } else {
+            // Give time for virtualizers to update the listRef.
+            forceSyncFocusRef.current = false;
+            indexRef.current = maxIndex;
+          }
+        } else {
+          indexRef.current = findNonDisabledListIndex(listRef, {
+            startingIndex: currentIndex,
+            decrement: true,
+            disabledIndices,
+          });
+        }
       } else {
         indexRef.current = Math.max(
           minIndex,
