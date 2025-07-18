@@ -1,9 +1,6 @@
 'use client';
 import * as React from 'react';
-import { visuallyHidden } from '@base-ui-components/utils/visuallyHidden';
 import { ownerDocument } from '@base-ui-components/utils/owner';
-import { useOnMount } from '@base-ui-components/utils/useOnMount';
-import { useTimeout } from '@base-ui-components/utils/useTimeout';
 import { inertValue } from '@base-ui-components/utils/inertValue';
 import { activeElement, contains, getTarget } from '../../floating-ui-react/utils';
 import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
