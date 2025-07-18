@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useControlled } from '@base-ui-components/utils/useControlled';
-import { useModernLayoutEffect } from '@base-ui-components/utils/useModernLayoutEffect';
+import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useAnimationsFinished } from '../../utils/useAnimationsFinished';
@@ -85,7 +85,7 @@ export function useCollapsibleRoot(
     }
   });
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     /**
      * Unmount immediately when closing in controlled mode and keepMounted={false}
      * and no CSS animations or transitions are applied

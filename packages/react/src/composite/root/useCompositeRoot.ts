@@ -4,7 +4,7 @@ import { isElementDisabled } from '@base-ui-components/utils/isElementDisabled';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { useForkRef } from '@base-ui-components/utils/useForkRef';
 import { ownerDocument } from '@base-ui-components/utils/owner';
-import { useModernLayoutEffect } from '@base-ui-components/utils/useModernLayoutEffect';
+import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { activeElement } from '../../floating-ui-react/utils';
 import type { TextDirection } from '../../direction-provider/DirectionContext';
 import {
@@ -115,7 +115,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
   // Ensure external controlled updates moves focus to the highlighted item
   // if focus is currently inside the list.
   // https://github.com/mui/base-ui/issues/2101
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     const activeEl = activeElement(ownerDocument(rootRef.current)) as HTMLDivElement | null;
     if (elementsRef.current.includes(activeEl)) {
       const focusedItem = elementsRef.current[highlightedIndex];

@@ -2,7 +2,7 @@ import * as React from 'react';
 import { useLazyRef } from '@base-ui-components/utils/useLazyRef';
 import { useOnFirstRender } from '@base-ui-components/utils/useOnFirstRender';
 import { useControlled } from '@base-ui-components/utils/useControlled';
-import { useModernLayoutEffect } from '@base-ui-components/utils/useModernLayoutEffect';
+import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { useTimeout } from '@base-ui-components/utils/useTimeout';
 import { warn } from '@base-ui-components/utils/warn';
@@ -62,7 +62,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
   const disabled = fieldDisabled || disabledProp;
   const name = fieldName ?? nameProp;
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     setControlId(id);
     return () => {
       setControlId(undefined);
@@ -130,7 +130,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
   ).current;
 
   const initialValueRef = React.useRef(value);
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     // Ensure the values and labels are registered for programmatic value changes.
     if (value !== initialValueRef.current) {
       store.set('forceMount', true);
@@ -157,11 +157,11 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
 
   const prevValueRef = React.useRef(value);
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     setFilled(value !== null);
   }, [value, setFilled]);
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     if (prevValueRef.current === value) {
       return;
     }
@@ -216,7 +216,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
     multiple,
   ]);
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     prevValueRef.current = value;
   }, [value]);
 
@@ -347,7 +347,7 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
   });
 
   // Keep store in sync whenever `value` changes after registration.
-  useModernLayoutEffect(syncSelectedState, [value, syncSelectedState]);
+  useIsoLayoutEffect(syncSelectedState, [value, syncSelectedState]);
 
   const floatingContext = useFloatingRootContext({
     open,

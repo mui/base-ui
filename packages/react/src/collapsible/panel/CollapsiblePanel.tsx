@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useModernLayoutEffect } from '@base-ui-components/utils/useModernLayoutEffect';
+import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { warn } from '@base-ui-components/utils/warn';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
@@ -33,7 +33,7 @@ export const CollapsiblePanel = React.forwardRef(function CollapsiblePanel(
 
   if (process.env.NODE_ENV !== 'production') {
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    useModernLayoutEffect(() => {
+    useIsoLayoutEffect(() => {
       if (hiddenUntilFoundProp && keepMountedProp === false) {
         warn(
           'The `keepMounted={false}` prop on a Collapsible will be ignored when using `hiddenUntilFound` since it requires the Panel to remain mounted even when closed.',
@@ -69,7 +69,7 @@ export const CollapsiblePanel = React.forwardRef(function CollapsiblePanel(
   const hiddenUntilFound = hiddenUntilFoundProp ?? false;
   const keepMounted = keepMountedProp ?? false;
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     if (idProp) {
       setPanelIdState(idProp);
       return () => {
@@ -79,11 +79,11 @@ export const CollapsiblePanel = React.forwardRef(function CollapsiblePanel(
     return undefined;
   }, [idProp, setPanelIdState]);
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     setHiddenUntilFound(hiddenUntilFound);
   }, [setHiddenUntilFound, hiddenUntilFound]);
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     setKeepMounted(keepMounted);
   }, [setKeepMounted, keepMounted]);
 

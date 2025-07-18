@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useModernLayoutEffect } from '@base-ui-components/utils/useModernLayoutEffect';
+import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { useCompositeListContext } from './CompositeListContext';
 
 export interface UseCompositeListItemParameters<Metadata> {
@@ -68,7 +68,7 @@ export function useCompositeListItem<Metadata>(
     [index, elementsRef, labelsRef, label, textRef],
   );
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     const node = componentRef.current;
     if (node) {
       register(node, metadata);
@@ -79,7 +79,7 @@ export function useCompositeListItem<Metadata>(
     return undefined;
   }, [register, unregister, metadata]);
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     return subscribeMapChange((map) => {
       const i = componentRef.current ? map.get(componentRef.current)?.index : null;
 

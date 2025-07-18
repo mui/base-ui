@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useModernLayoutEffect } from '@base-ui-components/utils/useModernLayoutEffect';
+import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useMeterRootContext } from '../root/MeterRootContext';
 import type { MeterRoot } from '../root/MeterRoot';
@@ -23,7 +23,7 @@ export const MeterLabel = React.forwardRef(function MeterLabel(
 
   const { setLabelId } = useMeterRootContext();
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     setLabelId(id);
     return () => setLabelId(undefined);
   }, [id, setLabelId]);

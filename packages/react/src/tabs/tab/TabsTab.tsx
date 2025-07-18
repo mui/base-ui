@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { ownerDocument } from '@base-ui-components/utils/owner';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
-import { useModernLayoutEffect } from '@base-ui-components/utils/useModernLayoutEffect';
+import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useRenderElement } from '../../utils/useRenderElement';
 import type { BaseUIComponentProps } from '../../utils/types';
@@ -73,7 +73,7 @@ export const TabsTab = React.forwardRef(function Tab(
 
   // Keep the highlighted item in sync with the currently selected tab
   // when the value prop changes externally (controlled mode)
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     if (isNavigatingRef.current) {
       isNavigatingRef.current = false;
       return;

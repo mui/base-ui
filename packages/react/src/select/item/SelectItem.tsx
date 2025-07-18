@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useModernLayoutEffect } from '@base-ui-components/utils/useModernLayoutEffect';
+import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { useLatestRef } from '@base-ui-components/utils/useLatestRef';
 import { isMouseWithinBounds } from '@base-ui-components/utils/isMouseWithinBounds';
 import { useSelector } from '@base-ui-components/utils/store';
@@ -67,7 +67,7 @@ export const SelectItem = React.memo(
 
     const hasRegistered = listItem.index !== -1;
 
-    useModernLayoutEffect(() => {
+    useIsoLayoutEffect(() => {
       if (!hasRegistered) {
         return undefined;
       }
@@ -80,7 +80,7 @@ export const SelectItem = React.memo(
       };
     }, [hasRegistered, listItem.index, value, valuesRef]);
 
-    useModernLayoutEffect(() => {
+    useIsoLayoutEffect(() => {
       if (hasRegistered) {
         if (multiple) {
           const isValueSelected = Array.isArray(rootValue) && rootValue.includes(value);

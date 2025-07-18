@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import { useModernLayoutEffect } from '@base-ui-components/utils/useModernLayoutEffect';
+import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { AnimationFrame } from '@base-ui-components/utils/useAnimationFrame';
 
 export type TransitionStatus = 'starting' | 'ending' | 'idle' | undefined;
@@ -34,7 +34,7 @@ export function useTransitionStatus(
     setTransitionStatus(undefined);
   }
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     if (!open && mounted && transitionStatus !== 'ending' && deferEndingState) {
       const frame = AnimationFrame.request(() => {
         setTransitionStatus('ending');
@@ -48,7 +48,7 @@ export function useTransitionStatus(
     return undefined;
   }, [open, mounted, transitionStatus, deferEndingState]);
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     if (!open || enableIdleState) {
       return undefined;
     }
@@ -64,7 +64,7 @@ export function useTransitionStatus(
     };
   }, [enableIdleState, open]);
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     if (!open || !enableIdleState) {
       return undefined;
     }

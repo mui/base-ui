@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { useLatestRef } from '@base-ui-components/utils/useLatestRef';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
-import { useModernLayoutEffect } from '@base-ui-components/utils/useModernLayoutEffect';
+import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { useTimeout } from '@base-ui-components/utils/useTimeout';
 import { stopEvent } from '../utils';
 
@@ -87,7 +87,7 @@ export function useTypeahead(context: FloatingRootContext, props: UseTypeaheadPr
   const findMatchRef = useLatestRef(findMatch);
   const ignoreKeysRef = useLatestRef(ignoreKeys);
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     if (open) {
       timeout.clear();
       matchIndexRef.current = null;
@@ -95,7 +95,7 @@ export function useTypeahead(context: FloatingRootContext, props: UseTypeaheadPr
     }
   }, [open, timeout]);
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     // Sync arrow key navigation but not typeahead navigation.
     if (open && stringRef.current === '') {
       prevIndexRef.current = selectedIndex ?? activeIndex ?? -1;

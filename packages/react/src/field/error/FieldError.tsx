@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useModernLayoutEffect } from '@base-ui-components/utils/useModernLayoutEffect';
+import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { FieldRoot } from '../root/FieldRoot';
 import { useFieldRootContext } from '../root/FieldRootContext';
 import { fieldValidityMapping } from '../utils/constants';
@@ -38,7 +38,7 @@ export const FieldError = React.forwardRef(function FieldError(
     rendered = validityData.state.valid === false;
   }
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     if (!rendered || !id) {
       return undefined;
     }

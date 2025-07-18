@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { useControlled } from '@base-ui-components/utils/useControlled';
 import { useForkRef } from '@base-ui-components/utils/useForkRef';
-import { useModernLayoutEffect } from '@base-ui-components/utils/useModernLayoutEffect';
+import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { visuallyHidden } from '@base-ui-components/utils/visuallyHidden';
 import type { BaseUIComponentProps, HTMLProps } from '../utils/types';
@@ -88,7 +88,7 @@ export const RadioGroup = React.forwardRef(function RadioGroup(
 
   const prevValueRef = React.useRef(checkedValue);
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     if (prevValueRef.current === checkedValue) {
       return;
     }
@@ -102,7 +102,7 @@ export const RadioGroup = React.forwardRef(function RadioGroup(
     }
   }, [name, clearErrors, validationMode, checkedValue, fieldControlValidation]);
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     prevValueRef.current = checkedValue;
   }, [checkedValue]);
 

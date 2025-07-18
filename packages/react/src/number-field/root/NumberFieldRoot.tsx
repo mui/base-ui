@@ -4,7 +4,7 @@ import { useControlled } from '@base-ui-components/utils/useControlled';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { useTimeout } from '@base-ui-components/utils/useTimeout';
 import { useInterval } from '@base-ui-components/utils/useInterval';
-import { useModernLayoutEffect } from '@base-ui-components/utils/useModernLayoutEffect';
+import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { useLatestRef } from '@base-ui-components/utils/useLatestRef';
 import { useForcedRerendering } from '@base-ui-components/utils/useForcedRerendering';
 import { ownerDocument, ownerWindow } from '@base-ui-components/utils/owner';
@@ -82,7 +82,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
 
   const id = useBaseUiId(idProp);
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     setControlId(id);
     return () => {
       setControlId(undefined);
@@ -99,7 +99,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
   const value = valueUnwrapped ?? null;
   const valueRef = useLatestRef(value);
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     setFilled(value !== null);
   }, [setFilled, value]);
 
@@ -116,7 +116,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
   const allowInputSyncRef = React.useRef(true);
   const unsubscribeFromGlobalContextMenuRef = React.useRef<() => void>(() => {});
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     if (validityData.initialValue === null && value !== validityData.initialValue) {
       setValidityData((prev) => ({ ...prev, initialValue: value }));
     }
@@ -267,7 +267,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
   // ESLint is disabled because it needs to run even if the parsed value hasn't changed, since the
   // value still can be formatted differently.
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  useModernLayoutEffect(function syncFormattedInputValueOnValueChange() {
+  useIsoLayoutEffect(function syncFormattedInputValueOnValueChange() {
     // This ensures the value is only updated on blur rather than every keystroke, but still
     // allows the input value to be updated when the value is changed externally.
     if (!allowInputSyncRef.current) {
@@ -284,7 +284,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
     }
   });
 
-  useModernLayoutEffect(
+  useIsoLayoutEffect(
     function setDynamicInputModeForIOS() {
       if (!isIOS) {
         return;

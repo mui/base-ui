@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useModernLayoutEffect } from '@base-ui-components/utils/useModernLayoutEffect';
+import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { triggerOpenStateMapping } from '../../utils/collapsibleOpenStateMapping';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useButton } from '../../use-button';
@@ -41,7 +41,7 @@ export const AccordionTrigger = React.forwardRef(function AccordionTrigger(
 
   const { state, setTriggerId, triggerId: id } = useAccordionItemContext();
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     if (idProp) {
       setTriggerId(idProp);
     }

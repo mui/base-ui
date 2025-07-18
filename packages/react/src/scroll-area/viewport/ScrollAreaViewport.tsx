@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
-import { useModernLayoutEffect } from '@base-ui-components/utils/useModernLayoutEffect';
+import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { useTimeout } from '@base-ui-components/utils/useTimeout';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useScrollAreaRootContext } from '../root/ScrollAreaRootContext';
@@ -164,7 +164,7 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
     });
   });
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     if (!viewportRef.current) {
       return undefined;
     }
@@ -173,12 +173,12 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
     return cleanup;
   }, [computeThumbPosition, viewportRef]);
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     // Wait for scrollbar-related refs to be set
     queueMicrotask(computeThumbPosition);
   }, [computeThumbPosition, hiddenState, direction]);
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     // `onMouseEnter` doesn't fire upon load, so we need to check if the viewport is already
     // being hovered.
     if (viewportRef.current?.matches(':hover')) {

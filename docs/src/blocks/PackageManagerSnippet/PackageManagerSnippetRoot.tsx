@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { Tabs } from '@base-ui-components/react/tabs';
-import { useModernLayoutEffect } from '@base-ui-components/utils/useModernLayoutEffect';
+import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { usePackageManagerSnippetContext } from './PackageManagerSnippetProvider';
 
 export function PackageManagerSnippetRoot(props: PackageManagerSnippetRoot.Props) {
@@ -19,7 +19,7 @@ export function PackageManagerSnippetRoot(props: PackageManagerSnippetRoot.Props
     [setGlobalPreference],
   );
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     if (options.some((option) => option.value === globalPreference)) {
       setValue(globalPreference);
     }

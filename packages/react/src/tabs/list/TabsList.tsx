@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
-import { useModernLayoutEffect } from '@base-ui-components/utils/useModernLayoutEffect';
+import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import { CompositeRoot } from '../../composite/root/CompositeRoot';
 import { tabsStyleHookMapping } from '../root/styleHooks';
@@ -129,7 +129,7 @@ function useActivationDirectionDetector(
 ): (newValue: any) => TabsTab.ActivationDirection {
   const previousTabEdge = React.useRef<number | null>(null);
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     // Whenever orientation changes, reset the state.
     if (selectedTabValue == null || tabsListRef.current == null) {
       previousTabEdge.current = null;

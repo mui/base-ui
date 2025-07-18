@@ -2,7 +2,7 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
-import { useModernLayoutEffect } from '@base-ui-components/utils/useModernLayoutEffect';
+import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { visuallyHidden } from '@base-ui-components/utils/visuallyHidden';
 import { useTimeout } from '@base-ui-components/utils/useTimeout';
 import { useAnimationFrame } from '@base-ui-components/utils/useAnimationFrame';
@@ -144,7 +144,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
 
   const runOnceAnimationsFinish = useAnimationsFinished({ current: popupElement }, value);
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     if (!positionerElement || !popupElement || !open) {
       return undefined;
     }
@@ -158,7 +158,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     };
   }, [open, popupElement, positionerElement, sizeFrame1, sizeFrame2, setAutoSizes]);
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     if (!positionerElement || !popupElement || !value) {
       return undefined;
     }
@@ -194,7 +194,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     }
   }, [stickIfOpenTimeout, open, sizeFrame1, sizeFrame2]);
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     if (isActiveItemRef.current && open && popupElement) {
       handleValueChange(0, 0);
     }
@@ -303,7 +303,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     },
   });
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     if (isActiveItem) {
       setFloatingRootContext(context);
       prevTriggerElementRef.current = triggerElement;

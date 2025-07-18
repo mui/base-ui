@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useModernLayoutEffect } from '@base-ui-components/utils/useModernLayoutEffect';
+import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
 import { useRenderElement } from '../../utils/useRenderElement';
@@ -22,7 +22,7 @@ export const PopoverTitle = React.forwardRef(function PopoverTitle(
 
   const id = useBaseUiId(elementProps.id);
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     setTitleId(id);
     return () => {
       setTitleId(undefined);

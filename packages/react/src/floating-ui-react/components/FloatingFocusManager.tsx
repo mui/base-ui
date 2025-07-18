@@ -4,7 +4,7 @@ import { getNodeName, isHTMLElement } from '@floating-ui/utils/dom';
 import { useForkRef } from '@base-ui-components/utils/useForkRef';
 import { useLatestRef } from '@base-ui-components/utils/useLatestRef';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
-import { useModernLayoutEffect } from '@base-ui-components/utils/useModernLayoutEffect';
+import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { visuallyHidden } from '@base-ui-components/utils/visuallyHidden';
 import { FocusGuard } from '../../utils/FocusGuard';
 import {
@@ -548,7 +548,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     getInsideElements,
   ]);
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     if (disabled || !isHTMLElement(floatingFocusElement)) {
       return;
     }
@@ -581,7 +581,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     initialFocusRef,
   ]);
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     if (disabled || !floatingFocusElement) {
       return undefined;
     }
@@ -712,7 +712,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
 
   // Synchronize the `context` & `modal` value to the FloatingPortal context.
   // It will decide whether or not it needs to render its own guards.
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     if (disabled) {
       return undefined;
     }
@@ -733,7 +733,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     };
   }, [disabled, portalContext, modal, open, onOpenChange, closeOnFocusOut, domReference]);
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     if (disabled) {
       return;
     }
