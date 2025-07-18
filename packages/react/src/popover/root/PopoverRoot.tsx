@@ -157,7 +157,9 @@ function PopoverRootComponent({ props }: { props: PopoverRoot.Props }) {
   const click = useClick(floatingContext, {
     stickIfOpen,
   });
-  const dismiss = useDismiss(floatingContext);
+  const dismiss = useDismiss(floatingContext, {
+    outsidePressEvent: 'click',
+  });
   const role = useRole(floatingContext);
 
   const { getReferenceProps, getFloatingProps } = useInteractions([hover, click, dismiss, role]);

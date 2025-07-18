@@ -101,7 +101,7 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
   const role = useRole(context);
   const click = useClick(context);
   const dismiss = useDismiss(context, {
-    outsidePressEvent: 'mousedown',
+    outsidePressEvent: 'click',
     outsidePress(event) {
       if (event.button !== 0) {
         return false;
