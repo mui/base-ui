@@ -47,7 +47,7 @@ export const AlertDialogRoot: React.FC<AlertDialogRoot.Props> = function AlertDi
 
   return (
     <AlertDialogRootContext.Provider value={contextValue}>
-      {children}
+      {typeof children === 'function' ? children({ payload: undefined }) : children}
     </AlertDialogRootContext.Provider>
   );
 };
