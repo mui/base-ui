@@ -61,11 +61,16 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot(
   const [positionerElement, setPositionerElement] = React.useState<HTMLElement | null>(null);
   const [popupElement, setPopupElement] = React.useState<HTMLElement | null>(null);
   const [viewportElement, setViewportElement] = React.useState<HTMLElement | null>(null);
+  const [viewportTargetElement, setViewportTargetElement] = React.useState<HTMLElement | null>(
+    null,
+  );
   const [activationDirection, setActivationDirection] =
     React.useState<NavigationMenuRootContext['activationDirection']>(null);
   const [floatingRootContext, setFloatingRootContext] = React.useState<
     FloatingRootContext | undefined
   >(undefined);
+  const [inline, setInline] = React.useState(true);
+  const [viewportInert, setViewportInert] = React.useState(false);
 
   const prevTriggerElementRef = React.useRef<Element | null | undefined>(null);
   const currentContentRef = React.useRef<HTMLDivElement | null>(null);
@@ -75,6 +80,10 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot(
   const afterOutsideRef = React.useRef<HTMLSpanElement | null>(null);
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
+
+  React.useEffect(() => {
+    setViewportInert(false);
+  }, [value]);
 
   const setValue = useEventCallback(
     (nextValue: any, event: Event | undefined, reason: BaseOpenChangeReason | undefined) => {
@@ -99,7 +108,8 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot(
     if (
       closeReasonRef.current !== 'trigger-hover' &&
       isHTMLElement(prevTriggerElementRef.current) &&
-      (contains(popupElement, activeEl) || activeEl === doc.body)
+      (contains(popupElement, activeEl) || activeEl === doc.body) &&
+      popupElement
     ) {
       prevTriggerElementRef.current.focus({ preventScroll: true });
       prevTriggerElementRef.current = undefined;
@@ -125,6 +135,17 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot(
     },
   });
 
+  useOpenChangeComplete({
+    enabled: !actionsRef,
+    open,
+    ref: { current: viewportTargetElement },
+    onComplete() {
+      if (!open) {
+        handleUnmount();
+      }
+    },
+  });
+
   const contextValue: NavigationMenuRootContext = React.useMemo(
     () => ({
       open,
@@ -138,12 +159,16 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot(
       setPopupElement,
       viewportElement,
       setViewportElement,
+      viewportTargetElement,
+      setViewportTargetElement,
       activationDirection,
       setActivationDirection,
       floatingRootContext,
       setFloatingRootContext,
       currentContentRef,
       nested,
+      inline,
+      setInline,
       rootRef,
       beforeInsideRef,
       afterInsideRef,
@@ -153,6 +178,8 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot(
       delay,
       closeDelay,
       orientation,
+      viewportInert,
+      setViewportInert,
     }),
     [
       open,
@@ -163,12 +190,15 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot(
       positionerElement,
       popupElement,
       viewportElement,
+      viewportTargetElement,
       activationDirection,
       floatingRootContext,
       nested,
+      inline,
       delay,
       closeDelay,
       orientation,
+      viewportInert,
     ],
   );
 

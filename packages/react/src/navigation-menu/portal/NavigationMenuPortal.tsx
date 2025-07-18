@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { useModernLayoutEffect } from '@base-ui-components/utils/useModernLayoutEffect';
 import { FloatingPortal } from '../../floating-ui-react';
 import { useNavigationMenuRootContext } from '../root/NavigationMenuRootContext';
 import { NavigationMenuPortalContext } from './NavigationMenuPortalContext';
@@ -13,7 +14,14 @@ import { NavigationMenuPortalContext } from './NavigationMenuPortalContext';
 export function NavigationMenuPortal(props: NavigationMenuPortal.Props) {
   const { children, keepMounted = false, container } = props;
 
-  const { mounted } = useNavigationMenuRootContext();
+  const { mounted, setInline } = useNavigationMenuRootContext();
+
+  useModernLayoutEffect(() => {
+    setInline(false);
+    return () => {
+      setInline(false);
+    };
+  }, [setInline]);
 
   const shouldRender = mounted || keepMounted;
   if (!shouldRender) {

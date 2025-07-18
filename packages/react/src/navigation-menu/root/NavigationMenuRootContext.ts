@@ -15,6 +15,8 @@ export interface NavigationMenuRootContext {
   setPositionerElement: React.Dispatch<React.SetStateAction<HTMLElement | null>>;
   viewportElement: HTMLElement | null;
   setViewportElement: React.Dispatch<React.SetStateAction<HTMLElement | null>>;
+  viewportTargetElement: HTMLElement | null;
+  setViewportTargetElement: React.Dispatch<React.SetStateAction<HTMLElement | null>>;
   activationDirection: 'left' | 'right' | 'up' | 'down' | null;
   setActivationDirection: React.Dispatch<
     React.SetStateAction<'left' | 'right' | 'up' | 'down' | null>
@@ -23,6 +25,8 @@ export interface NavigationMenuRootContext {
   setFloatingRootContext: React.Dispatch<React.SetStateAction<FloatingRootContext | undefined>>;
   currentContentRef: React.RefObject<HTMLDivElement | null>;
   nested: boolean;
+  inline: boolean;
+  setInline: React.Dispatch<React.SetStateAction<boolean>>;
   rootRef: React.RefObject<HTMLDivElement | null>;
   beforeInsideRef: React.RefObject<HTMLSpanElement | null>;
   afterInsideRef: React.RefObject<HTMLSpanElement | null>;
@@ -32,6 +36,8 @@ export interface NavigationMenuRootContext {
   delay: number;
   closeDelay: number;
   orientation: 'horizontal' | 'vertical';
+  viewportInert: boolean;
+  setViewportInert: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export const NavigationMenuRootContext = React.createContext<NavigationMenuRootContext | undefined>(

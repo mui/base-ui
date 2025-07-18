@@ -8,13 +8,14 @@ interface Targets {
 
 interface Params {
   popupElement: HTMLElement | null;
+  viewportElement?: HTMLElement | null;
   rootRef: React.RefObject<HTMLDivElement | null>;
   tree: FloatingTreeType | null;
   nodeId: string | undefined;
 }
 
 export function isOutsideMenuEvent({ currentTarget, relatedTarget }: Targets, params: Params) {
-  const { popupElement, rootRef, tree, nodeId } = params;
+  const { popupElement, viewportElement, rootRef, tree, nodeId } = params;
 
   const nodeChildrenContains = tree
     ? getNodeChildren(tree.nodesRef.current, nodeId).some((node) =>
@@ -22,13 +23,22 @@ export function isOutsideMenuEvent({ currentTarget, relatedTarget }: Targets, pa
       )
     : [];
 
+  // For nested scenarios without popupElement, we need to be more lenient
+  // and only close if we're definitely outside the root
+  if (!popupElement) {
+    return !contains(rootRef.current, relatedTarget) && !nodeChildrenContains;
+  }
+
+  // Use popupElement as the primary floating element, but fall back to viewportElement if needed
+  const floatingElement = popupElement || viewportElement;
+
   return (
-    !contains(popupElement, currentTarget) &&
-    !contains(popupElement, relatedTarget) &&
+    !contains(floatingElement, currentTarget) &&
+    !contains(floatingElement, relatedTarget) &&
     !contains(rootRef.current, relatedTarget) &&
     !nodeChildrenContains &&
     !(
-      contains(popupElement, relatedTarget) &&
+      contains(floatingElement, relatedTarget) &&
       relatedTarget?.hasAttribute('data-base-ui-focus-guard')
     )
   );
