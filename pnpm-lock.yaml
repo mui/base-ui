@@ -813,6 +813,15 @@ importers:
         specifier: workspace:*
         version: link:../../packages/react/build
 
+  test/public-types:
+    dependencies:
+      '@base-ui-components/react':
+        specifier: workspace:*
+        version: link:../../packages/react/build
+      react:
+        specifier: 19.1.0
+        version: 19.1.0
+
 packages:
 
   '@adobe/css-tools@4.4.3':
