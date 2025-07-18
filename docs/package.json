@@ -24,6 +24,7 @@
     "@mui/system": "7.2.0",
     "@next/mdx": "^15.3.4",
     "@react-spring/web": "^9.7.5",
+    "@shikijs/transformers": "^3.8.0",
     "@stefanprobst/rehype-extract-toc": "^3.0.0",
     "@types/mdx": "^2.0.13",
     "clipboard-copy": "^4.0.1",

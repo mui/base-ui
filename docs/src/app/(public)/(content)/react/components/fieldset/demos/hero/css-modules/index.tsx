@@ -5,8 +5,9 @@ import styles from './index.module.css';
 
 export default function ExampleField() {
   return (
-    <Fieldset.Root className={styles.Fieldset}>
-      <Fieldset.Legend className={styles.Legend}>Billing details</Fieldset.Legend>
+    /* prettier-ignore */
+    <Fieldset.Root className={styles.Fieldset}> {/* [!code highlight] */}
+      <Fieldset.Legend className={styles.Legend}>Billing details</Fieldset.Legend> {/* [!code highlight] */}
 
       <Field.Root className={styles.Field}>
         <Field.Label className={styles.Label}>Company</Field.Label>

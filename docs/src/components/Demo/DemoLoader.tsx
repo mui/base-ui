@@ -6,6 +6,7 @@ import type { DemoFile, DemoVariant } from 'docs/src/blocks/Demo';
 import camelCase from 'lodash/camelCase';
 import upperFirst from 'lodash/upperFirst';
 import rangeParser from 'parse-numeric-range';
+import { transformerNotationHighlight } from '@shikijs/transformers';
 import { highlighter } from 'docs/src/syntax-highlighting';
 import { Demo } from './Demo';
 
@@ -110,15 +111,30 @@ async function getDemoFromFile(
     lang: `${mainFileLanguage}x`,
     theme: 'base-ui',
     transformers: [
+      transformerNotationHighlight(),
       {
+        // tokens(node) {
+        //   console.log(node);
+        // },
         line(node, line) {
-          if (highlight && highlight.includes(line)) {
-            node.properties['data-highlighted-line'] = '';
+          if (node.children.length >= 3) {
+            const secondLastNode = node.children.slice(
+              node.children.length - 2,
+              node.children.length - 1,
+            )?.[0];
+            if (secondLastNode.children[0].value === '/* [!code highlight] */') {
+              console.log('BINGO line', line);
+              node.children.pop();
+              console.log(node.children);
+            }
           }
         },
       },
     ],
   });
+  // console.log(mainContent);
+  // console.log('---------after---------');
+  // console.log(mainPrettyContent);
 
   const localImports = getLocalImports(mainContent, dirname(path));
 
@@ -146,15 +162,16 @@ async function getDemoFromFile(
     const jsPrettyContent = highlighter.codeToHtml(jsContent, {
       lang: 'jsx',
       theme: 'base-ui',
-      transformers: [
-        {
-          line(node, line) {
-            if (highlight && highlight.includes(line)) {
-              node.properties['data-highlighted-line'] = '';
-            }
-          },
-        },
-      ],
+      // transformers: [
+      //   transformerNotationHighlight(),
+      //   {
+      //     line(node, line) {
+      //       if (highlight && highlight.includes(line)) {
+      //         node.properties['data-highlighted-line'] = '';
+      //       }
+      //     },
+      //   },
+      // ],
     });
 
     const jsLocalImports = getLocalImports(mainContent, dirname(jsFilePath));

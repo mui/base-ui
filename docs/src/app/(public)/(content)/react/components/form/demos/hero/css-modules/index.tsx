@@ -10,9 +10,10 @@ export default function ExampleForm() {
   return (
     <Form
       className={styles.Form}
-      errors={errors}
-      onClearErrors={setErrors}
-      onSubmit={async (event) => {
+      errors={errors} // [\!code highlight]
+      onClearErrors={setErrors} // [\!code highlight]
+      // prettier-ignore
+      onSubmit={async (event) => { // [\!code highlight]
         event.preventDefault();
         const formData = new FormData(event.currentTarget);
         const value = formData.get('url') as string;
