@@ -11,12 +11,14 @@
     "allowSyntheticDefaultImports": true,
     "noErrorTruncation": false,
     "allowJs": true,
-    "skipLibCheck": false,
-    "declaration": true,
     "emitDeclarationOnly": true,
     "allowImportingTsExtensions": true,
     "rootDir": ".",
-    "outDir": "./build"
+    "outDir": "./build",
+
+    // Don't touch these settings
+    "skipLibCheck": false,
+    "declaration": true
   },
   "include": ["**/*.ts", "**/*.tsx"],
   "exclude": ["node_modules"]
