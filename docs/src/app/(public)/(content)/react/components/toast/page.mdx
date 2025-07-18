@@ -9,12 +9,6 @@
 
 <Demo path="./demos/hero" />
 
-## Usage
-
-- `<Toast.Provider>` can be wrapped around your entire app, ensuring all toasts are rendered in the same viewport.
-- <kbd>F6</kbd> lets users jump into the toast viewport landmark region to navigate toasts with
-  keyboard focus.
-
 ## Anatomy
 
 Import the component and assemble its parts:
@@ -228,6 +222,12 @@ const toastId = toastManager.promise(
 );
 ```
 
+## General usage
+
+- `<Toast.Provider>` can be wrapped around your entire app, ensuring all toasts are rendered in the same viewport.
+- <kbd>F6</kbd> lets users jump into the toast viewport landmark region to navigate toasts with
+  keyboard focus.
+
 ## Global manager
 
 A global toast manager can be created by passing the `toastManager` prop to the `Toast.Provider`. This enables you to queue a toast from anywhere in the app (such as in functions outside the React tree) while still using the same toast renderer.
@@ -246,7 +246,7 @@ const toastManager = Toast.createToastManager();
 
 The `--toast-index` CSS variable can be used to determine the stacking order of the toasts. The 0th index toast appears at the front.
 
-```css
+```css title="z-index stacking"
 .Toast {
   z-index: calc(1000 - var(--toast-index));
   transform: scale(1 - calc(0.1 * var(--toast-index)));
@@ -255,7 +255,7 @@ The `--toast-index` CSS variable can be used to determine the stacking order of 
 
 The `--toast-offset-y` CSS variable can be used to determine the vertical offset of the toasts when positioned absolutely with a translation offset — this is usually used with the `data-expanded` attribute, present when the toast viewport is being hovered or has focus.
 
-```css
+```css title="Expanded offset"
 .Toast[data-expanded] {
   transform: translateY(var(--toast-offset-y));
 }
@@ -263,7 +263,7 @@ The `--toast-offset-y` CSS variable can be used to determine the vertical offset
 
 The `--toast-swipe-movement-x` and `--toast-swipe-movement-y` CSS variables are used to determine the swipe movement of the toasts in order to add a translation offset.
 
-```css "--toast-swipe-movement-x" "--toast-swipe-movement-y"
+```css title="Swipe offset"  "--toast-swipe-movement-x" "--toast-swipe-movement-y"
 .Toast {
   transform: scale(1 - calc(0.1 * var(--toast-index))) + translateX(var(--toast-swipe-movement-x)) +
     translateY(calc(var(--toast-swipe-movement-y) + (var(--toast-index) * -20%)));
@@ -272,7 +272,7 @@ The `--toast-swipe-movement-x` and `--toast-swipe-movement-y` CSS variables are 
 
 The `data-swipe-direction` attribute can be used to determine the swipe direction of the toasts to add a translation offset upon dismissal.
 
-```css "data-swipe-direction"
+```css title="Swipe direction" "data-swipe-direction"
 &[data-ending-style] {
   opacity: 0;
 
@@ -299,22 +299,22 @@ The `data-limited` attribute indicates that the toast was removed from the list 
 
 The position of the toasts is controlled by your own CSS. To change the toasts' position, you can modify the `Viewport` and `Root` styles. A more general component could accept a `data-position` attribute, which the CSS handles for each variation. The following shows a top-center position:
 
-<Demo path="./demos/position" />
+<Demo path="./demos/position" compact />
 
 ### Undo action
 
 When adding a toast, the `actionProps` option can be used to define props for an action button inside of it—this enables the ability to undo an action associated with the toast.
 
-<Demo path="./demos/undo" />
+<Demo path="./demos/undo" compact />
 
 ### Promise
 
 An asynchronous toast can be created with three possible states: `loading`, `success`, and `error`. The `type` string matches these states to change the styling. Each of the states also accepts the [method options](/react/components/toast#method-options) object for more granular control.
 
-<Demo path="./demos/promise" />
+<Demo path="./demos/promise" compact />
 
 ### Custom
 
 A toast with custom data can be created by passing any typed object interface to the `data` option. This enables you to pass any data (including functions) you need to the toast and access it in the toast's rendering logic.
 
-<Demo path="./demos/custom" />
+<Demo path="./demos/custom" compact />

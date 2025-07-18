@@ -23,7 +23,7 @@ export const DialogBackdrop = React.forwardRef(function DialogBackdrop(
   componentProps: DialogBackdrop.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, ...elementProps } = componentProps;
+  const { render, className, forceRender = false, ...elementProps } = componentProps;
   const { open, nested, mounted, transitionStatus, backdropRef } = useDialogRootContext();
 
   const state: DialogBackdrop.State = React.useMemo(
@@ -49,13 +49,18 @@ export const DialogBackdrop = React.forwardRef(function DialogBackdrop(
       },
       elementProps,
     ],
-    // no need to render nested backdrops
-    enabled: !nested,
+    enabled: forceRender || !nested,
   });
 });
 
 export namespace DialogBackdrop {
-  export interface Props extends BaseUIComponentProps<'div', State> {}
+  export interface Props extends BaseUIComponentProps<'div', State> {
+    /**
+     * Whether the backdrop is forced to render even when nested.
+     * @default false
+     */
+    forceRender?: boolean;
+  }
 
   export interface State {
     /**

@@ -64,8 +64,7 @@
     "./tooltip": "./src/tooltip/index.ts",
     "./unstable-no-ssr": "./src/unstable-no-ssr/index.ts",
     "./unstable-use-media-query": "./src/unstable-use-media-query/index.ts",
-    "./use-render": "./src/use-render/index.ts",
-    "./utils": "./src/utils/index.ts"
+    "./use-render": "./src/use-render/index.ts"
   },
   "imports": {
     "#test-utils": "./test/index.ts"
@@ -78,14 +77,15 @@
     "build:stable": "node ../../scripts/build.mjs stable --cjsDir ./cjs",
     "build:types": "tsx ../../scripts/buildTypes.mts --copy build/cjs",
     "build:copy-files": "node ../../scripts/copyFiles.mjs ./.npmignore:./.npmignore",
-    "build:manifest": "tsx ./scripts/createPackageManifest.mts",
-    "test:package": "publint ./build && attw --pack ./build --exclude-entrypoints package.json",
+    "build:manifest": "tsx ../../scripts/createPackageManifest.mts -p .",
+    "test:package": "publint --pack pnpm && attw --pack ./build --exclude-entrypoints package.json",
     "release": "pnpm build && pnpm publish",
     "test": "cross-env NODE_ENV=test VITEST_ENV=jsdom vitest",
     "typescript": "tsc -b tsconfig.json"
   },
   "dependencies": {
     "@babel/runtime": "^7.27.6",
+    "@base-ui-components/utils": "workspace:*",
     "@floating-ui/react-dom": "^2.1.4",
     "@floating-ui/utils": "^0.2.10",
     "tabbable": "^6.2.0",
