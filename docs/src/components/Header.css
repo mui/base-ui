@@ -47,7 +47,7 @@
     &:focus-visible {
       z-index: 1;
       outline: 2px solid var(--color-blue);
-      outline-offset: -1px;
+      outline-offset: -2px;
     }
 
     & > * {
