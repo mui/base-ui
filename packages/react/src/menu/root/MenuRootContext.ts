@@ -14,8 +14,8 @@ export interface MenuRootContext {
   itemProps: HTMLProps;
   popupProps: HTMLProps;
   triggerProps: HTMLProps;
-  itemDomElements: React.MutableRefObject<(HTMLElement | null)[]>;
-  itemLabels: React.MutableRefObject<(string | null)[]>;
+  listRef: React.MutableRefObject<(HTMLElement | null)[]>;
+  labelsRef: React.MutableRefObject<(string | null)[]>;
   mounted: boolean;
   open: boolean;
   popupRef: React.RefObject<HTMLElement | null>;
