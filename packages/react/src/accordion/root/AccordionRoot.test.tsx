@@ -480,6 +480,41 @@ describe('<Accordion.Root />', () => {
       });
     });
 
+    it('does not affect composite keys on interactive elements in the panel', async () => {
+      const { getByRole, user } = await render(
+        <Accordion.Root defaultValue={[0]}>
+          <Accordion.Item value={0}>
+            <Accordion.Header>
+              <Accordion.Trigger>Trigger 1</Accordion.Trigger>
+            </Accordion.Header>
+            <Accordion.Panel>
+              <input type="text" defaultValue="abcd" />
+            </Accordion.Panel>
+          </Accordion.Item>
+          <Accordion.Item value={1}>
+            <Accordion.Header>
+              <Accordion.Trigger>Trigger 2</Accordion.Trigger>
+            </Accordion.Header>
+            <Accordion.Panel>2</Accordion.Panel>
+          </Accordion.Item>
+        </Accordion.Root>,
+      );
+
+      const input = getByRole('textbox') as HTMLInputElement;
+
+      await user.keyboard('[Tab]');
+      await user.keyboard('[Tab]');
+      expect(input).toHaveFocus();
+
+      // Firefox doesn't support document.getSelection() in inputs
+      expect(input.selectionStart).to.equal(0);
+      expect(input.selectionEnd).to.equal(4);
+
+      await user.keyboard('[ArrowLeft]');
+      expect(input.selectionStart).to.equal(0);
+      expect(input.selectionEnd).to.equal(0);
+    });
+
     describe('prop: loop', () => {
       it('can disable focus looping between triggers', async () => {
         const { getAllByRole, user } = await render(
