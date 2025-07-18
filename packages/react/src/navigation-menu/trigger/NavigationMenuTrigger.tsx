@@ -78,7 +78,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     closeDelay,
     orientation,
   } = useNavigationMenuRootContext();
-  const itemValue = useNavigationMenuItemContext();
+  const { value: itemValue, openOnHover } = useNavigationMenuItemContext();
   const nodeId = useNavigationMenuTreeContext();
   const tree = useFloatingTree();
 
@@ -284,6 +284,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
   });
 
   const hover = useHover(context, {
+    enabled: openOnHover,
     move: false,
     handleClose: safePolygon({ blockPointerEvents: pointerType !== 'touch' }),
     restMs: mounted ? 0 : delay,
@@ -314,6 +315,10 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
 
   const handleOpenEvent = useEventCallback((event: React.MouseEvent | React.KeyboardEvent) => {
     if (!popupElement || !positionerElement) {
+      return;
+    }
+
+    if (!openOnHover && event.type === 'mouseenter') {
       return;
     }
 
