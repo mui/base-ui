@@ -25,10 +25,6 @@
     }
   }
 
-  &:active {
-    background-color: var(--color-gray-100);
-  }
-
   &[data-popup-open] {
     background-color: var(--color-gray-100);
   }
@@ -101,6 +97,11 @@
   cursor: default;
   user-select: none;
   scroll-margin-block: 0.25rem;
+
+  @media (pointer: coarse) {
+    padding-block: 0.625rem;
+    font-size: 0.925rem;
+  }
 
   [data-side='none'] & {
     font-size: 1rem;
