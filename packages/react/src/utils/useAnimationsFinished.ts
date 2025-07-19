@@ -60,7 +60,7 @@ export function useAnimationsFinished(
 
           // `open: true` animations need to wait for the next tick to be detected
           if (waitForNextTick) {
-            timeout.start(0, exec);
+            frame.request(exec);
           } else {
             exec();
           }
