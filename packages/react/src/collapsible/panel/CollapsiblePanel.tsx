@@ -110,7 +110,7 @@ export const CollapsiblePanel = React.forwardRef(function CollapsiblePanel(
   });
 
   useOpenChangeComplete({
-    open,
+    open: open && transitionStatus === 'idle',
     ref: panelRef,
     onComplete() {
       if (!open) {
