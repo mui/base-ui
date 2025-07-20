@@ -25,6 +25,7 @@ import {
 import { useFloatingTree } from '../components/FloatingTree';
 import type { ElementProps, FloatingRootContext } from '../types';
 import { createAttribute } from '../utils/createAttribute';
+import { getNodeAncestors } from '../utils/nodes';
 
 const bubbleHandlerKeys = {
   pointerdown: 'onPointerDown',
@@ -226,6 +227,7 @@ export function useDismiss(
     const markers = getDocument(elements.floating).querySelectorAll(inertSelector);
 
     let targetRootAncestor = isElement(target) ? target : null;
+
     while (targetRootAncestor && !isLastTraversableNode(targetRootAncestor)) {
       const nextParent = getParentNode(targetRootAncestor);
       if (isLastTraversableNode(nextParent) || !isElement(nextParent)) {
@@ -235,6 +237,8 @@ export function useDismiss(
       targetRootAncestor = nextParent;
     }
 
+    const nodeId = dataRef.current.floatingContext?.nodeId;
+
     // Check if the click occurred on a third-party element injected after the
     // floating element rendered.
     if (
@@ -243,6 +247,10 @@ export function useDismiss(
       !isRootElement(target) &&
       // Clicked on a direct ancestor (e.g. FloatingOverlay).
       !contains(target, elements.floating) &&
+      // If the target is not within an ancestor floating element in the tree.
+      getNodeAncestors(tree?.nodesRef.current ?? [], nodeId).every(
+        (node) => !isEventTargetWithin(event, node.context?.elements.floating),
+      ) &&
       // If the target root element contains none of the markers, then the
       // element was injected after the floating element rendered.
       Array.from(markers).every((marker) => !contains(targetRootAncestor, marker))
@@ -282,8 +290,6 @@ export function useDismiss(
         return;
       }
     }
-
-    const nodeId = dataRef.current.floatingContext?.nodeId;
 
     const targetIsInsideChildren =
       tree &&
