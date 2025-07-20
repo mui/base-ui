@@ -356,6 +356,6 @@ export namespace NumberFieldInput {
      * A string value that provides a user-friendly name for the role of the input.
      * @default 'Number field'
      */
-    'aria-roledescription': React.AriaAttributes['aria-roledescription'];
+    'aria-roledescription'?: React.AriaAttributes['aria-roledescription'] | undefined;
   }
 }

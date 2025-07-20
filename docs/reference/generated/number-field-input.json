@@ -3,9 +3,8 @@
   "description": "The native input control in the number field.\nRenders an `<input>` element.",
   "props": {
     "aria-roledescription": {
-      "type": "string | undefined",
+      "type": "string",
       "default": "'Number field'",
-      "required": true,
       "description": "A string value that provides a user-friendly name for the role of the input."
     },
     "className": {
