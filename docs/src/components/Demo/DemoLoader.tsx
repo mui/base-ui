@@ -3,6 +3,7 @@ import { existsSync, statSync } from 'node:fs';
 import { readFile, readdir } from 'node:fs/promises';
 import { basename, dirname, extname, resolve, join } from 'node:path';
 import type { DemoFile, DemoVariant } from 'docs/src/blocks/Demo';
+import type { Element, Text } from 'hast';
 import camelCase from 'lodash/camelCase';
 import upperFirst from 'lodash/upperFirst';
 import rangeParser from 'parse-numeric-range';
@@ -111,30 +112,52 @@ async function getDemoFromFile(
     lang: `${mainFileLanguage}x`,
     theme: 'base-ui',
     transformers: [
-      transformerNotationHighlight(),
       {
-        // tokens(node) {
-        //   console.log(node);
-        // },
-        line(node, line) {
+        preprocess(code) {
+          return (
+            code
+              // remove prettier-ignore lines
+              .replace(/^.*\/\* prettier-ignore \*\/\s*(?:\r?\n|$)/gm, '')
+          );
+        },
+        line(node) {
           if (node.children.length >= 3) {
-            const secondLastNode = node.children.slice(
+            const secondLastNode = (node.children as Element[]).slice(
               node.children.length - 2,
               node.children.length - 1,
             )?.[0];
-            if (secondLastNode.children[0].value === '/* [!code highlight] */') {
-              console.log('BINGO line', line);
-              node.children.pop();
-              console.log(node.children);
+            if ((secondLastNode.children as Text[])[0].value === '/* [!code highlight] */') {
+              const newChildren = (node.children as Element[]).map((element, index) => {
+                if (index === node.children.length - 1) {
+                  return null;
+                }
+
+                if (index === node.children.length - 3) {
+                  if (element.children && element.children[0]) {
+                    const textValue = (element.children[0] as Text)?.value;
+                    if (textValue.endsWith(' {')) {
+                      const newTextValue = textValue.slice(0, -2);
+                      element.children = [
+                        {
+                          type: 'text',
+                          value: newTextValue,
+                        },
+                      ];
+                      return element;
+                    }
+                  }
+                }
+
+                return element;
+              });
+              node.children = newChildren.filter((v) => !!v);
             }
           }
         },
       },
+      transformerNotationHighlight(),
     ],
   });
-  // console.log(mainContent);
-  // console.log('---------after---------');
-  // console.log(mainPrettyContent);
 
   const localImports = getLocalImports(mainContent, dirname(path));
 
