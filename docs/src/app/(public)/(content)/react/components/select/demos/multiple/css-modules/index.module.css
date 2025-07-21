@@ -109,20 +109,22 @@
     min-width: calc(var(--anchor-width) + 1rem);
   }
 
-  &[data-highlighted] {
-    z-index: 0;
-    position: relative;
-    color: var(--color-gray-50);
-  }
+  @media (hover: hover) {
+    &[data-highlighted] {
+      z-index: 0;
+      position: relative;
+      color: var(--color-gray-50);
+    }
 
-  &[data-highlighted]::before {
-    content: '';
-    z-index: -1;
-    position: absolute;
-    inset-block: 0;
-    inset-inline: 0.25rem;
-    border-radius: 0.25rem;
-    background-color: var(--color-gray-900);
+    &[data-highlighted]::before {
+      content: '';
+      z-index: -1;
+      position: absolute;
+      inset-block: 0;
+      inset-inline: 0.25rem;
+      border-radius: 0.25rem;
+      background-color: var(--color-gray-900);
+    }
   }
 }
 
