@@ -97,6 +97,8 @@ function PopoverRootComponent({ props }: { props: PopoverRoot.Props }) {
     }
   }, [stickIfOpenTimeout, open]);
 
+  // TODO: call this conditionally when handle is available
+  // @ts-ignore
   const triggerElements = useSelector(handle.store, selectors.triggers);
 
   const setOpen = useEventCallback(function setOpen(

@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import { inertValue } from '@base-ui-components/utils/inertValue';
+import { useAnimationFrame } from '@base-ui-components/utils/useAnimationFrame';
 import { FloatingNode, useFloatingNodeId } from '../../floating-ui-react';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
 import { PopoverPositionerContext } from './PopoverPositionerContext';
@@ -11,7 +12,6 @@ import { usePopoverPortalContext } from '../portal/PopoverPortalContext';
 import { InternalBackdrop } from '../../utils/InternalBackdrop';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { POPUP_COLLISION_AVOIDANCE } from '../../utils/constants';
-import { useAnimationFrame } from '@base-ui-components/utils/useAnimationFrame';
 
 /**
  * Positions the popover against the trigger.
