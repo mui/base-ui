@@ -31,6 +31,7 @@ import { enqueueFocus } from '../utils/enqueueFocus';
 import { markOthers, supportsInert } from '../utils/markOthers';
 import { usePortalContext } from './FloatingPortal';
 import { useFloatingTree } from './FloatingTree';
+import { CLICK_TRIGGER_IDENTIFIER } from '../../utils/constants';
 
 const LIST_LIMIT = 20;
 let previouslyFocusedElements: Element[] = [];
@@ -367,9 +368,6 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     // In Safari, buttons lose focus when pressing them.
     function handlePointerDown() {
       isPointerDownRef.current = true;
-      setTimeout(() => {
-        isPointerDownRef.current = false;
-      });
     }
 
     function handleFocusOutside(event: FocusEvent) {
@@ -438,13 +436,17 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
           return;
         }
 
+        if (isPointerDownRef.current) {
+          isPointerDownRef.current = false;
+          return;
+        }
+
         // Focus did not move inside the floating tree, and there are no tabbable
         // portal guards to handle closing.
         if (
           (isUntrappedTypeableCombobox ? true : !modal) &&
           relatedTarget &&
           movedToUnrelatedNode &&
-          !isPointerDownRef.current &&
           // Fix React 18 Strict Mode returnFocus due to double rendering.
           relatedTarget !== getPreviouslyFocusedElement()
         ) {
@@ -709,6 +711,25 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
       preventReturnFocusRef.current = false;
     });
   }, [disabled]);
+
+  React.useEffect(() => {
+    if (disabled || !open) {
+      return undefined;
+    }
+
+    function handlePointerDown(event: MouseEvent) {
+      const target = getTarget(event) as Element | null;
+      if (target?.closest(`[${CLICK_TRIGGER_IDENTIFIER}]`)) {
+        isPointerDownRef.current = true;
+      }
+    }
+
+    const doc = getDocument(floatingFocusElement);
+    doc.addEventListener('mousedown', handlePointerDown, true);
+    return () => {
+      doc.removeEventListener('mousedown', handlePointerDown, true);
+    };
+  }, [disabled, open, floatingFocusElement]);
 
   // Synchronize the `context` & `modal` value to the FloatingPortal context.
   // It will decide whether or not it needs to render its own guards.

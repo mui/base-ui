@@ -9,6 +9,7 @@ import {
 } from '../../utils/popupStateMapping';
 import { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 import { useRenderElement } from '../../utils/useRenderElement';
+import { CLICK_TRIGGER_IDENTIFIER } from '../../utils/constants';
 
 /**
  * A button that opens the popover.
@@ -59,7 +60,12 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
   const element = useRenderElement('button', componentProps, {
     state,
     ref: [buttonRef, setTriggerElement, forwardedRef],
-    props: [triggerProps, elementProps, getButtonProps],
+    props: [
+      triggerProps,
+      { [CLICK_TRIGGER_IDENTIFIER as string]: '' },
+      elementProps,
+      getButtonProps,
+    ],
     customStyleHookMapping,
   });
 
