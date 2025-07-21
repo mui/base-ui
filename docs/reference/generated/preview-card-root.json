@@ -12,11 +12,11 @@
       "description": "Whether the preview card is currently open."
     },
     "onOpenChange": {
-      "type": "(open: boolean, event?: Event, reason?: PreviewCard.Root.OpenChangeReason) => void",
+      "type": "((open: boolean, event: Event | undefined, reason: PreviewCard.Root.OpenChangeReason | undefined) => void)",
       "description": "Event handler called when the preview card is opened or closed."
     },
     "actionsRef": {
-      "type": "RefObject<Actions>",
+      "type": "RefObject<PreviewCard.Root.Actions>",
       "description": "A ref to imperative actions.\n- `unmount`: When specified, the preview card will not be unmounted when closed.\nInstead, the `unmount` function must be called to unmount the preview card manually.\nUseful when the preview card's animation is controlled by an external library."
     },
     "onOpenChangeComplete": {

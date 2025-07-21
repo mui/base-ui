@@ -1,7 +1,7 @@
 import { isElement } from '@floating-ui/utils/dom';
+import { Timeout } from '@base-ui-components/utils/useTimeout';
 import type { Rect, Side } from './types';
 import type { HandleClose } from './hooks/useHover';
-import { Timeout } from '../utils/useTimeout';
 import { contains, getTarget } from './utils/element';
 import { getNodeChildren } from './utils/nodes';
 
@@ -54,7 +54,7 @@ export function safePolygon(options: SafePolygonOptions = {}) {
   let hasLanded = false;
   let lastX: number | null = null;
   let lastY: number | null = null;
-  let lastCursorTime = performance.now();
+  let lastCursorTime = typeof performance !== 'undefined' ? performance.now() : 0;
 
   function getCursorSpeed(x: number, y: number): number | null {
     const currentTime = performance.now();

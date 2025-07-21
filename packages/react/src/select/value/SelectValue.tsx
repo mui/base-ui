@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useSelector } from '../../utils/store';
+import { useSelector } from '@base-ui-components/utils/store';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useSelectRootContext } from '../root/SelectRootContext';
@@ -26,16 +26,28 @@ export const SelectValue = React.forwardRef(function SelectValue(
   const { store, valueRef } = useSelectRootContext();
   const value = useSelector(store, selectors.value);
   const items = useSelector(store, selectors.items);
+  const isChildrenPropFunction = typeof childrenProp === 'function';
 
   const labelFromItems = React.useMemo(() => {
-    if (items) {
-      if (Array.isArray(items)) {
-        return items.find((item) => item.value === value)?.label;
-      }
-      return items[value];
+    if (isChildrenPropFunction) {
+      return undefined;
     }
-    return null;
-  }, [items, value]);
+
+    // `multiple` selects should always use a custom `children` render function
+    if (Array.isArray(value)) {
+      return value.join(', ');
+    }
+
+    if (!items) {
+      return undefined;
+    }
+
+    if (Array.isArray(items)) {
+      return items.find((item) => item.value === value)?.label;
+    }
+
+    return items[value];
+  }, [value, items, isChildrenPropFunction]);
 
   const state: SelectValue.State = React.useMemo(
     () => ({

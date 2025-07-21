@@ -1,6 +1,12 @@
 'use client';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
+import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useModernLayoutEffect } from '@base-ui-components/utils/useModernLayoutEffect';
+import { visuallyHidden } from '@base-ui-components/utils/visuallyHidden';
+import { useTimeout } from '@base-ui-components/utils/useTimeout';
+import { useAnimationFrame } from '@base-ui-components/utils/useAnimationFrame';
+import { useLatestRef } from '@base-ui-components/utils/useLatestRef';
 import {
   safePolygon,
   useClick,
@@ -18,31 +24,25 @@ import {
   isOutsideEvent,
   stopEvent,
 } from '../../floating-ui-react/utils';
-import type { BaseUIComponentProps } from '../../utils/types';
-import { useRenderElement } from '../../utils/useRenderElement';
+import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import { useNavigationMenuItemContext } from '../item/NavigationMenuItemContext';
 import {
   useNavigationMenuRootContext,
   useNavigationMenuTreeContext,
 } from '../root/NavigationMenuRootContext';
-import { useEventCallback } from '../../utils/useEventCallback';
 import {
   BaseOpenChangeReason,
   translateOpenChangeReason,
 } from '../../utils/translateOpenChangeReason';
 import { PATIENT_CLICK_THRESHOLD } from '../../utils/constants';
 import { FocusGuard } from '../../utils/FocusGuard';
-import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
-import { visuallyHidden } from '../../utils/visuallyHidden';
-import { CompositeItem } from '../../composite/item/CompositeItem';
 import { pressableTriggerOpenStateMapping } from '../../utils/popupStateMapping';
 import { isOutsideMenuEvent } from '../utils/isOutsideMenuEvent';
-import { useTimeout } from '../../utils/useTimeout';
-import { useAnimationFrame } from '../../utils/useAnimationFrame';
-import { useLatestRef } from '../../utils/useLatestRef';
 import { useAnimationsFinished } from '../../utils/useAnimationsFinished';
 import { NavigationMenuPopupCssVars } from '../popup/NavigationMenuPopupCssVars';
 import { NavigationMenuPositionerCssVars } from '../positioner/NavigationMenuPositionerCssVars';
+import { CompositeItem } from '../../composite/item/CompositeItem';
+import { useButton } from '../../use-button';
 
 const TRIGGER_IDENTIFIER = 'data-navigation-menu-trigger';
 
@@ -57,7 +57,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
   componentProps: NavigationMenuTrigger.Props,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
-  const { className, render, ...elementProps } = componentProps;
+  const { className, render, nativeButton = true, disabled, ...elementProps } = componentProps;
 
   const {
     value,
@@ -336,8 +336,8 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
       }
 
       // Reset the `openEvent` to `undefined` when the active item changes so that a
-      // `click` -> `hover` move to new trigger -> `hover` move back doesn't unepxpectedly
-      // cause the popup to remain stuck open.
+      // `click` -> `hover` on new trigger -> `hover` back to old trigger doesn't unexpectedly
+      // cause the popup to remain stuck open when leaving the old trigger.
       if (event.type !== 'click') {
         context.dataRef.current.openEvent = undefined;
       }
@@ -369,57 +369,62 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     setPointerType(event.pointerType);
   }
 
-  const element = useRenderElement('button', componentProps, {
-    state,
-    ref: [forwardedRef, setTriggerElement],
-    props: [
-      getReferenceProps,
-      {
-        tabIndex: 0,
-        onMouseEnter: handleOpenEvent,
-        onClick: handleOpenEvent,
-        onPointerEnter: handleSetPointerType,
-        onPointerDown: handleSetPointerType,
-        'aria-expanded': isActiveItem,
-        'aria-controls': isActiveItem ? popupElement?.id : undefined,
-        [TRIGGER_IDENTIFIER as string]: '',
-        onMouseMove() {
-          allowFocusRef.current = false;
-        },
-        onKeyDown(event) {
-          allowFocusRef.current = true;
-          const openHorizontal = orientation === 'horizontal' && event.key === 'ArrowDown';
-          const openVertical = orientation === 'vertical' && event.key === 'ArrowRight';
+  const defaultProps: HTMLProps = {
+    tabIndex: 0,
+    onMouseEnter: handleOpenEvent,
+    onClick: handleOpenEvent,
+    onPointerEnter: handleSetPointerType,
+    onPointerDown: handleSetPointerType,
+    'aria-expanded': isActiveItem,
+    'aria-controls': isActiveItem ? popupElement?.id : undefined,
+    [TRIGGER_IDENTIFIER as string]: '',
+    onMouseMove() {
+      allowFocusRef.current = false;
+    },
+    onKeyDown(event) {
+      allowFocusRef.current = true;
+      const openHorizontal = orientation === 'horizontal' && event.key === 'ArrowDown';
+      const openVertical = orientation === 'vertical' && event.key === 'ArrowRight';
 
-          if (openHorizontal || openVertical) {
-            setValue(itemValue, event.nativeEvent, 'list-navigation');
-            handleOpenEvent(event);
-            stopEvent(event);
-          }
-        },
-        onBlur(event) {
-          if (
-            event.relatedTarget &&
-            isOutsideMenuEvent(
-              {
-                currentTarget: event.currentTarget,
-                relatedTarget: event.relatedTarget as HTMLElement | null,
-              },
-              { popupElement, rootRef, tree, nodeId },
-            )
-          ) {
-            setValue(null, event.nativeEvent, 'focus-out');
-          }
-        },
-      },
-      elementProps,
-    ],
-    customStyleHookMapping: pressableTriggerOpenStateMapping,
+      if (openHorizontal || openVertical) {
+        setValue(itemValue, event.nativeEvent, 'list-navigation');
+        handleOpenEvent(event);
+        stopEvent(event);
+      }
+    },
+    onBlur(event) {
+      if (
+        event.relatedTarget &&
+        isOutsideMenuEvent(
+          {
+            currentTarget: event.currentTarget,
+            relatedTarget: event.relatedTarget as HTMLElement | null,
+          },
+          { popupElement, rootRef, tree, nodeId },
+        )
+      ) {
+        setValue(null, event.nativeEvent, 'focus-out');
+      }
+    },
+  };
+
+  const { getButtonProps, buttonRef } = useButton({
+    disabled,
+    focusableWhenDisabled: true,
+    native: nativeButton,
   });
 
   return (
     <React.Fragment>
-      <CompositeItem render={element} />
+      <CompositeItem
+        tag="button"
+        render={render}
+        className={className}
+        state={state}
+        customStyleHookMapping={pressableTriggerOpenStateMapping}
+        refs={[forwardedRef, setTriggerElement, buttonRef]}
+        props={[getReferenceProps, defaultProps, elementProps, getButtonProps]}
+      />
       {isActiveItem && (
         <React.Fragment>
           <FocusGuard
@@ -463,5 +468,13 @@ export namespace NavigationMenuTrigger {
     open: boolean;
   }
 
-  export interface Props extends BaseUIComponentProps<'button', State> {}
+  export interface Props extends BaseUIComponentProps<'button', State> {
+    /**
+     * Whether the component renders a native `<button>` element when replacing it
+     * via the `render` prop.
+     * Set to `false` if the rendered element is not a button (e.g. `<div>`).
+     * @default true
+     */
+    nativeButton?: boolean;
+  }
 }

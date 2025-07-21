@@ -1,14 +1,13 @@
 'use client';
 import * as React from 'react';
-import { contains } from '../floating-ui-react/utils';
+import { useControlled } from '@base-ui-components/utils/useControlled';
+import { useForkRef } from '@base-ui-components/utils/useForkRef';
+import { useModernLayoutEffect } from '@base-ui-components/utils/useModernLayoutEffect';
+import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { visuallyHidden } from '@base-ui-components/utils/visuallyHidden';
+import type { BaseUIComponentProps, HTMLProps } from '../utils/types';
 import { useBaseUiId } from '../utils/useBaseUiId';
-import { useControlled } from '../utils/useControlled';
-import { useForkRef } from '../utils/useForkRef';
-import { useModernLayoutEffect } from '../utils/useModernLayoutEffect';
-import { useRenderElement } from '../utils/useRenderElement';
-import { useEventCallback } from '../utils/useEventCallback';
-import type { BaseUIComponentProps } from '../utils/types';
-import { visuallyHidden } from '../utils/visuallyHidden';
+import { contains } from '../floating-ui-react/utils';
 import { SHIFT } from '../composite/composite';
 import { CompositeRoot } from '../composite/root/CompositeRoot';
 import { useFormContext } from '../form/FormContext';
@@ -200,34 +199,30 @@ export const RadioGroup = React.forwardRef(function RadioGroup(
     ],
   );
 
-  const element = useRenderElement('div', componentProps, {
-    ref: forwardedRef,
-    state,
-    props: [
-      {
-        role: 'radiogroup',
-        'aria-required': required || undefined,
-        'aria-disabled': disabled || undefined,
-        'aria-readonly': readOnly || undefined,
-        'aria-labelledby': labelId,
-        onFocus() {
-          setFocused(true);
-        },
-        onBlur,
-        onKeyDownCapture,
-      },
-      fieldControlValidation.getValidationProps,
-      elementProps,
-    ],
-    customStyleHookMapping: fieldValidityMapping,
-  });
+  const defaultProps: HTMLProps = {
+    role: 'radiogroup',
+    'aria-required': required || undefined,
+    'aria-disabled': disabled || undefined,
+    'aria-readonly': readOnly || undefined,
+    'aria-labelledby': labelId,
+    onFocus() {
+      setFocused(true);
+    },
+    onBlur,
+    onKeyDownCapture,
+  };
 
   return (
     <RadioGroupContext.Provider value={contextValue}>
       <CompositeRoot
+        render={render}
+        className={className}
+        state={state}
+        props={[defaultProps, fieldControlValidation.getValidationProps, elementProps]}
+        refs={[forwardedRef]}
+        customStyleHookMapping={fieldValidityMapping}
         enableHomeAndEndKeys={false}
         modifierKeys={MODIFIER_KEYS}
-        render={element}
         stopEventPropagation
       />
       <input {...inputProps} />

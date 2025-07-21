@@ -1,6 +1,9 @@
 'use client';
 import * as React from 'react';
 import { isHTMLElement } from '@floating-ui/utils/dom';
+import { useControlled } from '@base-ui-components/utils/useControlled';
+import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { ownerDocument } from '@base-ui-components/utils/owner';
 import {
   FloatingTree,
   useFloatingNodeId,
@@ -15,11 +18,9 @@ import {
   NavigationMenuTreeContext,
   useNavigationMenuRootContext,
 } from './NavigationMenuRootContext';
-import { useControlled, useTransitionStatus } from '../../utils';
 import type { BaseOpenChangeReason } from '../../utils/translateOpenChangeReason';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
-import { useEventCallback } from '../../utils/useEventCallback';
-import { ownerDocument } from '../../utils/owner';
+import { useTransitionStatus } from '../../utils/useTransitionStatus';
 
 /**
  * Groups all parts of the navigation menu.
@@ -247,11 +248,8 @@ export namespace NavigationMenuRoot {
   export interface Props extends BaseUIComponentProps<'nav', State> {
     /**
      * A ref to imperative actions.
-     * - `unmount`: When specified, the navigation menu will not be unmounted when closed.
-     * Instead, the `unmount` function must be called to unmount the navigation menu manually.
-     * Useful when the navigation menu's animation is controlled by an external library.
      */
-    actionsRef?: React.RefObject<{ unmount: () => void }>;
+    actionsRef?: React.RefObject<Actions>;
     /**
      * Event handler called after any animations complete when the navigation menu is closed.
      */
@@ -294,5 +292,14 @@ export namespace NavigationMenuRoot {
      * @default 'horizontal'
      */
     orientation?: 'horizontal' | 'vertical';
+  }
+
+  export interface Actions {
+    /**
+     * When specified, the navigation menu will not be unmounted when closed.
+     * Instead, the `unmount` function must be called to unmount the navigation menu manually.
+     * Useful when the navigation menu's animation is controlled by an external library.
+     */
+    unmount: () => void;
   }
 }

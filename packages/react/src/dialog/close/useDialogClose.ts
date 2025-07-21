@@ -1,10 +1,10 @@
 'use client';
 import * as React from 'react';
+import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { useButton } from '../../use-button/useButton';
 import { mergeProps } from '../../merge-props';
 import type { HTMLProps } from '../../utils/types';
-import { useEventCallback } from '../../utils/useEventCallback';
-import { DialogOpenChangeReason } from '../root/useDialogRoot';
+import type { DialogRoot } from '../root/DialogRoot';
 
 export function useDialogClose(params: useDialogClose.Parameters): useDialogClose.ReturnValue {
   const { open, setOpen, disabled, nativeButton } = params;
@@ -45,7 +45,7 @@ export namespace useDialogClose {
     setOpen: (
       open: boolean,
       event: Event | undefined,
-      reason: DialogOpenChangeReason | undefined,
+      reason: DialogRoot.OpenChangeReason | undefined,
     ) => void;
     /**
      * Whether the component renders a native `<button>` element when replacing it

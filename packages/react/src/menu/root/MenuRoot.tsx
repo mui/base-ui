@@ -1,6 +1,10 @@
 'use client';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
+import { useTimeout } from '@base-ui-components/utils/useTimeout';
+import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useControlled } from '@base-ui-components/utils/useControlled';
+import { useId } from '@base-ui-components/utils/useId';
 import {
   FloatingTree,
   useClick,
@@ -16,10 +20,7 @@ import {
 } from '../../floating-ui-react';
 import { MenuRootContext, useMenuRootContext } from './MenuRootContext';
 import { MenubarContext, useMenubarContext } from '../../menubar/MenubarContext';
-import { useTimeout } from '../../utils/useTimeout';
 import { useTransitionStatus } from '../../utils/useTransitionStatus';
-import { useEventCallback } from '../../utils/useEventCallback';
-import { useControlled } from '../../utils/useControlled';
 import { PATIENT_CLICK_THRESHOLD, TYPEAHEAD_RESET_MS } from '../../utils/constants';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useDirection } from '../../direction-provider/DirectionContext';
@@ -35,7 +36,6 @@ import {
 import { useMenuSubmenuRootContext } from '../submenu-root/MenuSubmenuRootContext';
 import { useMixedToggleClickHandler } from '../../utils/useMixedToggleClickHander';
 import { mergeProps } from '../../merge-props';
-import { useId } from '../../utils/useId';
 
 const EMPTY_ARRAY: never[] = [];
 const EMPTY_REF = { current: false };
@@ -556,7 +556,6 @@ export namespace MenuRoot {
     modal?: boolean;
     /**
      * Event handler called when the menu is opened or closed.
-     * @type (open: boolean, event?: Event, reason?: Menu.Root.OpenChangeReason) => void
      */
     onOpenChange?: (
       open: boolean,
