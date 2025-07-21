@@ -16,6 +16,7 @@
   line-height: 1.5rem;
   color: var(--color-gray-900);
   cursor: default;
+  -webkit-user-select: none;
   user-select: none;
   min-width: 9rem;
 
@@ -131,6 +132,7 @@
   align-items: center;
   grid-template-columns: 0.75rem 1fr;
   cursor: default;
+  -webkit-user-select: none;
   user-select: none;
   scroll-margin-block: 1rem;
 
