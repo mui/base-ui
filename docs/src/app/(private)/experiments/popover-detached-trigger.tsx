@@ -4,9 +4,17 @@ import { Popover } from '@base-ui-components/react/popover';
 
 // eslint-disable-next-line no-restricted-imports
 import { PopupHandle } from '@base-ui-components/react/utils/createPopup';
+import {
+  SettingsMetadata,
+  useExperimentSettings,
+} from 'docs/src/components/Experiments/SettingsPanel';
 import styles from './popover-detached-trigger.module.css';
 
 const popover1 = new PopupHandle<unknown>();
+
+interface Settings {
+  openOnHover: boolean;
+}
 
 export default function PopoverDetachedTrigger() {
   return (
@@ -39,9 +47,10 @@ function StyledTrigger<Payload>(props: { handle: PopupHandle<Payload>; payload: 
 
 function StyledPopover(props: StyledPopoverProps) {
   const { handle } = props;
+  const { settings } = useExperimentSettings<Settings>();
 
   return (
-    <Popover.Root handle={handle} delay={0}>
+    <Popover.Root handle={handle} openOnHover={settings.openOnHover} delay={0} closeDelay={300}>
       {({ payload }) => (
         <Popover.Portal>
           <Popover.Positioner sideOffset={8} className={styles.Positioner}>
@@ -79,6 +88,13 @@ function Content({ payload }: { payload: number }) {
     </div>
   );
 }
+
+export const settingsMetadata: SettingsMetadata<Settings> = {
+  openOnHover: {
+    type: 'boolean',
+    label: 'Open on hover',
+  },
+};
 
 function ArrowSvg(props: React.ComponentProps<'svg'>) {
   return (
