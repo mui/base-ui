@@ -11,7 +11,7 @@ const popover1 = new PopupHandle<unknown>();
 export default function PopoverDetachedTrigger() {
   return (
     <div className={styles.Container}>
-      <StyledPopover handle={popover1} title="Popover" />
+      <StyledPopover handle={popover1} />
       <StyledTrigger handle={popover1} payload={1} />
       <StyledTrigger handle={popover1} payload={2} />
       <StyledTrigger handle={popover1} payload={3} />
@@ -22,7 +22,6 @@ export default function PopoverDetachedTrigger() {
 }
 
 interface StyledPopoverProps {
-  title: string;
   handle: PopupHandle<unknown>;
 }
 
@@ -39,7 +38,7 @@ function StyledTrigger<Payload>(props: { handle: PopupHandle<Payload>; payload: 
 }
 
 function StyledPopover(props: StyledPopoverProps) {
-  const { title, handle } = props;
+  const { handle } = props;
 
   return (
     <Popover.Root handle={handle} delay={0}>
@@ -50,9 +49,7 @@ function StyledPopover(props: StyledPopoverProps) {
               <Popover.Arrow className={styles.Arrow}>
                 <ArrowSvg />
               </Popover.Arrow>
-              <Popover.Title className={styles.Title}>
-                {title} {payload}
-              </Popover.Title>
+              <Popover.Title className={styles.Title}>Popover {payload}</Popover.Title>
               <Content payload={payload as number} />
             </Popover.Popup>
           </Popover.Positioner>
@@ -68,11 +65,9 @@ function Content({ payload }: { payload: number }) {
   return (
     <div>
       <div className={styles.PopoverSection}>
-        {Array(payload as number)
-          .fill(0)
-          .map((_, i) => (
-            <p key={i}>Lorem ipsum dolor sit amet.</p>
-          ))}
+        {Array.from({ length: payload }).map((_, i) => (
+          <p key={i}>Lorem ipsum dolor sit amet.</p>
+        ))}
       </div>
 
       <div className={styles.PopoverSection}>
