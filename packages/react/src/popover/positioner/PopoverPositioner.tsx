@@ -11,6 +11,7 @@ import { usePopoverPortalContext } from '../portal/PopoverPortalContext';
 import { InternalBackdrop } from '../../utils/InternalBackdrop';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { POPUP_COLLISION_AVOIDANCE } from '../../utils/constants';
+import { useAnimationFrame } from '@base-ui-components/utils/useAnimationFrame';
 
 /**
  * Positions the popover against the trigger.
@@ -97,14 +98,27 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
     [defaultProps, positioning],
   );
 
+  const [instant, setInstant] = React.useState(true);
+  const instantAF = useAnimationFrame();
+  React.useEffect(() => {
+    if (open) {
+      instantAF.request(() => {
+        setInstant(false);
+      });
+    } else {
+      setInstant(true);
+    }
+  }, [open, instantAF]);
+
   const state: PopoverPositioner.State = React.useMemo(
     () => ({
       open,
       side: positioner.side,
       align: positioner.align,
       anchorHidden: positioner.anchorHidden,
+      instant,
     }),
-    [open, positioner.side, positioner.align, positioner.anchorHidden],
+    [open, positioner.side, positioner.align, positioner.anchorHidden, instant],
   );
 
   const element = useRenderElement('div', componentProps, {

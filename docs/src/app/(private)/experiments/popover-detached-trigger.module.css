@@ -46,8 +46,12 @@
   height: 1.25rem;
 }
 
-.Positioner[data-open] {
-  transition: all 100ms;
+.Positioner {
+  transition: transform 0.1s;
+
+  &[data-instant] {
+    transition: none;
+  }
 }
 
 .Popup {
