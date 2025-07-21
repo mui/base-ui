@@ -46,6 +46,10 @@
   height: 1.25rem;
 }
 
+.Positioner[data-open] {
+  transition: all 100ms;
+}
+
 .Popup {
   box-sizing: border-box;
   padding: 1rem 1.5rem;
@@ -53,9 +57,6 @@
   background-color: canvas;
   color: var(--color-gray-900);
   transform-origin: var(--transform-origin);
-  transition:
-    transform 150ms,
-    opacity 150ms;
 
   &[data-starting-style],
   &[data-ending-style] {
@@ -134,4 +135,25 @@
   display: flex;
   justify-content: end;
   gap: 1rem;
+}
+
+.PopoverSection {
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+
+  &:not(:last-child) {
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--color-gray-200);
+  }
+
+  & button {
+    padding: 0.25rem 0.75rem;
+    background-color: var(--color-gray-200);
+    border-radius: 4px;
+    margin-top: 0.5rem;
+
+    &:hover {
+      background-color: var(--color-gray-300);
+    }
+  }
 }

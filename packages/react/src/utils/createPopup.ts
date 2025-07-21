@@ -11,10 +11,12 @@ export type OpenChangeHandler<Payload> = (
 
 interface PopupHandleState {
   triggerProps: HTMLProps | null;
+  triggers: Set<HTMLElement>;
 }
 
 export const selectors = {
   triggerProps: createSelector((state: PopupHandleState) => state.triggerProps),
+  triggers: createSelector((state: PopupHandleState) => state.triggers),
 };
 
 export class PopupHandle<Payload = unknown> {
@@ -24,6 +26,7 @@ export class PopupHandle<Payload = unknown> {
 
   readonly store: Store<PopupHandleState> = new Store<PopupHandleState>({
     triggerProps: null,
+    triggers: new Set<HTMLElement>(),
   });
 
   public get popupElement(): HTMLElement | null {
@@ -48,6 +51,26 @@ export class PopupHandle<Payload = unknown> {
 
     this.store.apply({
       triggerProps,
+    });
+  }
+
+  registerTrigger(triggerElement: HTMLElement) {
+    const triggers = this.store.state.triggers;
+    triggers.add(triggerElement);
+
+    this.store.apply({
+      // TODO: verify if triggers need a new reference
+      triggers: new Set(triggers),
+    });
+  }
+
+  unregisterTrigger(triggerElement: HTMLElement) {
+    const triggers = this.store.state.triggers;
+    triggers.delete(triggerElement);
+
+    this.store.apply({
+      // TODO: verify if triggers need a new reference
+      triggers: new Set(triggers),
     });
   }
 

@@ -11,7 +11,7 @@ const popover1 = new PopupHandle<unknown>();
 export default function PopoverDetachedTrigger() {
   return (
     <div className={styles.Container}>
-      <StyledPopover handle={popover1} title="Popover 1" />
+      <StyledPopover handle={popover1} title="Popover" />
       <StyledTrigger handle={popover1} payload={1} />
       <StyledTrigger handle={popover1} payload={2} />
       <StyledTrigger handle={popover1} payload={3} />
@@ -33,7 +33,7 @@ function StyledTrigger<Payload>(props: { handle: PopupHandle<Payload>; payload: 
       handle={props.handle as PopupHandle<unknown>}
       payload={props.payload}
     >
-      <BellIcon aria-label="Notifications" className={styles.Icon} />
+      <PopupIcon aria-label="Notifications" className={styles.Icon} />
     </Popover.DetachedTrigger>
   );
 }
@@ -42,23 +42,41 @@ function StyledPopover(props: StyledPopoverProps) {
   const { title, handle } = props;
 
   return (
-    <Popover.Root handle={handle}>
+    <Popover.Root handle={handle} delay={0}>
       {({ payload }) => (
         <Popover.Portal>
-          <Popover.Positioner sideOffset={8}>
+          <Popover.Positioner sideOffset={8} className={styles.Positioner}>
             <Popover.Popup className={styles.Popup}>
               <Popover.Arrow className={styles.Arrow}>
                 <ArrowSvg />
               </Popover.Arrow>
               <Popover.Title className={styles.Title}>{title}</Popover.Title>
-              <Popover.Description className={styles.Description}>
-                Payload: {payload}
-              </Popover.Description>
+              <Content payload={payload as number} />
             </Popover.Popup>
           </Popover.Positioner>
         </Popover.Portal>
       )}
     </Popover.Root>
+  );
+}
+
+function Content({ payload }: { payload: number }) {
+  const [localState, setLocalState] = React.useState(0);
+
+  return (
+    <div>
+      <div className={styles.PopoverSection}>
+        {Array(payload as number).map((_, i) => (
+          <p key={i}>Lorem ipsum dolor sit amet</p>
+        ))}
+      </div>
+      <div className={styles.PopoverSection}>
+        <p>Local state: {localState}</p>
+        <button type="button" onClick={() => setLocalState((s) => s + 1)}>
+          Increment local state
+        </button>
+      </div>
+    </div>
   );
 }
 
@@ -81,10 +99,17 @@ function ArrowSvg(props: React.ComponentProps<'svg'>) {
   );
 }
 
-function BellIcon(props: React.ComponentProps<'svg'>) {
+function PopupIcon(props: React.ComponentProps<'svg'>) {
   return (
-    <svg fill="currentcolor" width="20" height="20" viewBox="0 0 16 16" {...props}>
-      <path d="M 8 1 C 7.453125 1 7 1.453125 7 2 L 7 3.140625 C 5.28125 3.589844 4 5.144531 4 7 L 4 10.984375 C 4 10.984375 3.984375 11.261719 3.851563 11.519531 C 3.71875 11.78125 3.558594 12 3 12 L 3 13 L 13 13 L 13 12 C 12.40625 12 12.253906 11.78125 12.128906 11.53125 C 12.003906 11.277344 12 11.003906 12 11.003906 L 12 7 C 12 5.144531 10.71875 3.589844 9 3.140625 L 9 2 C 9 1.453125 8.546875 1 8 1 Z M 8 13 C 7.449219 13 7 13.449219 7 14 C 7 14.550781 7.449219 15 8 15 C 8.550781 15 9 14.550781 9 14 C 9 13.449219 8.550781 13 8 13 Z M 8 4 C 9.664063 4 11 5.335938 11 7 L 11 10.996094 C 11 10.996094 10.988281 11.472656 11.234375 11.96875 C 11.238281 11.980469 11.246094 11.988281 11.25 12 L 4.726563 12 C 4.730469 11.992188 4.738281 11.984375 4.742188 11.980469 C 4.992188 11.488281 5 11.015625 5 11.015625 L 5 7 C 5 5.335938 6.335938 4 8 4 Z" />
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      {...props}
+      height="24px"
+      viewBox="0 -960 960 960"
+      width="24px"
+      fill="#606060"
+    >
+      <path d="M480-80 373-240H160q-33 0-56.5-23.5T80-320v-480q0-33 23.5-56.5T160-880h640q33 0 56.5 23.5T880-800v480q0 33-23.5 56.5T800-240H587L480-80Zm0-144 64-96h256v-480H160v480h256l64 96Zm0-336Z" />
     </svg>
   );
 }

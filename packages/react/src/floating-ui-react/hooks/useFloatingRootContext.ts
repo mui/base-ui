@@ -8,16 +8,18 @@ import type {
   ReferenceElement,
   ContextData,
   OpenChangeReason,
+  OpenChangeCallback,
 } from '../types';
 import { createEventEmitter } from '../utils/createEventEmitter';
 import { useFloatingParentNodeId } from '../components/FloatingTree';
 
 export interface UseFloatingRootContextOptions {
   open?: boolean;
-  onOpenChange?: (open: boolean, event?: Event, reason?: OpenChangeReason) => void;
+  onOpenChange?: OpenChangeCallback;
   elements: {
     reference: Element | null;
     floating: HTMLElement | null;
+    triggers?: Element[];
   };
 }
 
@@ -40,6 +42,8 @@ export function useFloatingRootContext(
         'instead.',
       );
     }
+
+    // TODO: validate if elements.inactiveReferences is an array of DOM elements
   }
 
   const [positionReference, setPositionReference] = React.useState<ReferenceElement | null>(
@@ -47,10 +51,16 @@ export function useFloatingRootContext(
   );
 
   const onOpenChange = useEventCallback(
-    (newOpen: boolean, event?: Event, reason?: OpenChangeReason) => {
+    (
+      newOpen: boolean,
+      event: Event | undefined,
+      reason: OpenChangeReason | undefined,
+      triggerElement: Element | undefined,
+      data: unknown | undefined,
+    ) => {
       dataRef.current.openEvent = newOpen ? event : undefined;
-      events.emit('openchange', { open: newOpen, event, reason, nested });
-      onOpenChangeProp?.(newOpen, event, reason);
+      events.emit('openchange', { open: newOpen, event, reason, nested, triggerElement, data });
+      onOpenChangeProp?.(newOpen, event, reason, triggerElement, data);
     },
   );
 
@@ -66,8 +76,9 @@ export function useFloatingRootContext(
       reference: positionReference || elementsProp.reference || null,
       floating: elementsProp.floating || null,
       domReference: elementsProp.reference as Element | null,
+      triggers: elementsProp.triggers ?? [],
     }),
-    [positionReference, elementsProp.reference, elementsProp.floating],
+    [positionReference, elementsProp.reference, elementsProp.floating, elementsProp.triggers],
   );
 
   return React.useMemo<FloatingRootContext>(

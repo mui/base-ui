@@ -88,6 +88,17 @@ export const PopoverDetachedTrigger = React.forwardRef(function PopoverDetachedT
     throw new Error('PopoverDetachedTrigger requires a `handle` prop to be passed.');
   }
 
+  const onMount = React.useCallback(
+    (element: HTMLElement) => {
+      handle.registerTrigger(element);
+
+      return () => {
+        handle.unregisterTrigger(element);
+      };
+    },
+    [handle],
+  );
+
   const triggerProps = useSelector(handle.store, selectors.triggerProps) ?? {};
 
   const state: PopoverTrigger.State = React.useMemo(
@@ -118,7 +129,7 @@ export const PopoverDetachedTrigger = React.forwardRef(function PopoverDetachedT
 
   const element = useRenderElement('button', componentProps, {
     state,
-    ref: [buttonRef, forwardedRef],
+    ref: [buttonRef, forwardedRef, onMount],
     props: [triggerProps, elementProps, getButtonProps],
     customStyleHookMapping,
   });

@@ -99,6 +99,7 @@ export interface UseHoverProps {
    * @default true
    */
   move?: boolean;
+  data?: unknown;
 }
 
 /**
@@ -115,6 +116,7 @@ export function useHover(context: FloatingRootContext, props: UseHoverProps = {}
     mouseOnly = false,
     restMs = 0,
     move = true,
+    data,
   } = props;
 
   const tree = useFloatingTree();
@@ -173,7 +175,7 @@ export function useHover(context: FloatingRootContext, props: UseHoverProps = {}
 
     function onLeave(event: MouseEvent) {
       if (isHoverOpen()) {
-        onOpenChange(false, event, 'hover');
+        onOpenChange(false, event, 'hover', (event.currentTarget as Element) ?? undefined, data);
       }
     }
 
@@ -182,19 +184,19 @@ export function useHover(context: FloatingRootContext, props: UseHoverProps = {}
     return () => {
       html.removeEventListener('mouseleave', onLeave);
     };
-  }, [elements.floating, open, onOpenChange, enabled, handleCloseRef, isHoverOpen]);
+  }, [elements.floating, open, onOpenChange, enabled, handleCloseRef, isHoverOpen, data]);
 
   const closeWithDelay = React.useCallback(
     (event: Event, runElseBranch = true, reason: OpenChangeReason = 'hover') => {
       const closeDelay = getDelay(delayRef.current, 'close', pointerTypeRef.current);
       if (closeDelay && !handlerRef.current) {
-        timeout.start(closeDelay, () => onOpenChange(false, event, reason));
+        timeout.start(closeDelay, () => onOpenChange(false, event, reason, undefined, data));
       } else if (runElseBranch) {
         timeout.clear();
-        onOpenChange(false, event, reason);
+        onOpenChange(false, event, reason, undefined, data);
       }
     },
-    [delayRef, onOpenChange, timeout],
+    [delayRef, onOpenChange, timeout, data],
   );
 
   const cleanupMouseMoveHandler = useEventCallback(() => {
@@ -241,11 +243,11 @@ export function useHover(context: FloatingRootContext, props: UseHoverProps = {}
       if (openDelay) {
         timeout.start(openDelay, () => {
           if (!openRef.current) {
-            onOpenChange(true, event, 'hover');
+            onOpenChange(true, event, 'hover', (event.currentTarget as Element) ?? undefined, data);
           }
         });
       } else if (!open) {
-        onOpenChange(true, event, 'hover');
+        onOpenChange(true, event, 'hover', (event.currentTarget as Element) ?? undefined, data);
       }
     }
 
@@ -339,8 +341,8 @@ export function useHover(context: FloatingRootContext, props: UseHoverProps = {}
       }
     }
 
-    if (isElement(elements.domReference)) {
-      const reference = elements.domReference as unknown as HTMLElement;
+    if (isElement(elements.domReference) && !elements.triggers?.length) {
+      const reference = elements.domReference as HTMLElement;
       const floating = elements.floating;
 
       if (open) {
@@ -382,6 +384,53 @@ export function useHover(context: FloatingRootContext, props: UseHoverProps = {}
       };
     }
 
+    if (elements.triggers?.length) {
+      if (elements.domReference && isElement(elements.domReference && open)) {
+        (elements.domReference as HTMLElement).addEventListener('mouseleave', onScrollMouseLeave);
+      }
+
+      const triggers = elements.triggers as HTMLElement[];
+      const floating = elements.floating;
+
+      for (const trigger of triggers) {
+        if (move) {
+          trigger.addEventListener('mousemove', onReferenceMouseEnter, {
+            once: true,
+          });
+        }
+
+        trigger.addEventListener('mouseenter', onReferenceMouseEnter);
+        trigger.addEventListener('mouseleave', onReferenceMouseLeave);
+      }
+
+      if (floating) {
+        floating.addEventListener('mouseleave', onScrollMouseLeave);
+        floating.addEventListener('mouseenter', onFloatingMouseEnter);
+        floating.addEventListener('mouseleave', onFloatingMouseLeave);
+      }
+
+      return () => {
+        if (elements.domReference && isElement(elements.domReference && open)) {
+          (elements.domReference as HTMLElement).addEventListener('mouseleave', onScrollMouseLeave);
+        }
+
+        for (const trigger of triggers) {
+          if (move) {
+            trigger.removeEventListener('mousemove', onReferenceMouseEnter);
+          }
+
+          trigger.removeEventListener('mouseenter', onReferenceMouseEnter);
+          trigger.removeEventListener('mouseleave', onReferenceMouseLeave);
+        }
+
+        if (floating) {
+          floating.removeEventListener('mouseleave', onScrollMouseLeave);
+          floating.removeEventListener('mouseenter', onFloatingMouseEnter);
+          floating.removeEventListener('mouseleave', onFloatingMouseLeave);
+        }
+      };
+    }
+
     return undefined;
   }, [
     elements,
@@ -403,6 +452,7 @@ export function useHover(context: FloatingRootContext, props: UseHoverProps = {}
     restMsRef,
     timeout,
     restTimeout,
+    data,
   ]);
 
   // Block pointer-events of every element other than the reference and floating
@@ -485,7 +535,7 @@ export function useHover(context: FloatingRootContext, props: UseHoverProps = {}
 
         function handleMouseMove() {
           if (!blockMouseMoveRef.current && !openRef.current) {
-            onOpenChange(true, nativeEvent, 'hover');
+            onOpenChange(true, nativeEvent, 'hover', event.currentTarget, data);
           }
         }
 
@@ -512,7 +562,7 @@ export function useHover(context: FloatingRootContext, props: UseHoverProps = {}
         }
       },
     };
-  }, [mouseOnly, onOpenChange, open, openRef, restMsRef, restTimeout]);
+  }, [mouseOnly, onOpenChange, open, openRef, restMsRef, restTimeout, data]);
 
   return React.useMemo(() => (enabled ? { reference } : {}), [enabled, reference]);
 }

@@ -15,6 +15,8 @@ export interface PopoverRootContext {
     open: boolean,
     event: Event | undefined,
     reason: PopoverOpenChangeReason | undefined,
+    triggerElement: Element | undefined,
+    data?: unknown,
   ) => void;
   triggerElement: Element | null;
   setTriggerElement: (el: Element | null) => void;

@@ -4,6 +4,7 @@ import * as ReactDOM from 'react-dom';
 import { useTimeout } from '@base-ui-components/utils/useTimeout';
 import { useControlled } from '@base-ui-components/utils/useControlled';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useSelector } from '@base-ui-components/utils/store';
 import {
   useClick,
   useDismiss,
@@ -27,7 +28,7 @@ import {
   usePopoverRootContext,
 } from './PopoverRootContext';
 import { mergeProps } from '../../merge-props';
-import { OpenChangeHandler, PopupHandle } from '../../utils/createPopup';
+import { PopupHandle, selectors } from '../../utils/createPopup';
 
 function PopoverRootComponent({ props }: { props: PopoverRoot.Props }) {
   const {
@@ -49,6 +50,7 @@ function PopoverRootComponent({ props }: { props: PopoverRoot.Props }) {
   const [positionerElement, setPositionerElement] = React.useState<HTMLElement | null>(null);
   const [openReason, setOpenReason] = React.useState<PopoverOpenChangeReason | null>(null);
   const [stickIfOpen, setStickIfOpen] = React.useState(true);
+  const [payload, setPayload] = React.useState<unknown>(undefined);
 
   const popupRef = React.useRef<HTMLElement>(null);
   const stickIfOpenTimeout = useTimeout();
@@ -95,13 +97,21 @@ function PopoverRootComponent({ props }: { props: PopoverRoot.Props }) {
     }
   }, [stickIfOpenTimeout, open]);
 
-  const setOpen = useEventCallback(function setOpenImpl(
+  const setOpen = useEventCallback(function setOpen(
     nextOpen: boolean,
     event: Event | undefined,
     reason: PopoverOpenChangeReason | undefined,
+    trigger: Element | undefined,
+    _data: unknown,
   ) {
-    if (event && nextOpen) {
-      setTriggerElement(event.target as Element);
+    if (event && nextOpen && trigger) {
+      setTriggerElement(trigger);
+    }
+
+    console.log('setopen', nextOpen, reason);
+
+    if (payload !== undefined) {
+      setPayload(payload);
     }
 
     const isHover = reason === 'trigger-hover';
@@ -137,24 +147,17 @@ function PopoverRootComponent({ props }: { props: PopoverRoot.Props }) {
     }
   });
 
-  const [payload, setPayload] = React.useState<unknown>(undefined);
-
-  const handleExternalOpenChange: OpenChangeHandler<unknown> = useEventCallback(
-    (nextOpen, nextPayload, trigger, event, reason) => {
-      setPayload(nextPayload);
-      setTriggerElement(trigger ?? null);
-      setOpen(nextOpen, event, reason as PopoverOpenChangeReason);
-    },
-  );
+  const triggerElements = useSelector(handle.store, selectors.triggers);
 
   const floatingContext = useFloatingRootContext({
     elements: {
       reference: triggerElement,
       floating: positionerElement,
+      triggers: Array.from(triggerElements),
     },
     open,
-    onOpenChange(openValue, eventValue, reasonValue) {
-      setOpen(openValue, eventValue, translateOpenChangeReason(reasonValue));
+    onOpenChange(openValue, eventValue, reasonValue, trigger, data) {
+      setOpen(openValue, eventValue, translateOpenChangeReason(reasonValue), trigger, data);
     },
   });
 
@@ -175,10 +178,10 @@ function PopoverRootComponent({ props }: { props: PopoverRoot.Props }) {
   const click = useClick(floatingContext, {
     stickIfOpen,
   });
-  const dismiss = useDismiss(floatingContext);
+  // const dismiss = useDismiss(floatingContext);
   const role = useRole(floatingContext);
 
-  const { getReferenceProps, getFloatingProps } = useInteractions([hover, click, dismiss, role]);
+  const { getReferenceProps, getFloatingProps } = useInteractions([hover, click, role]);
 
   const mergedTriggerProps = React.useMemo(() => {
     return mergeProps(triggerProps, getReferenceProps());
@@ -186,7 +189,7 @@ function PopoverRootComponent({ props }: { props: PopoverRoot.Props }) {
 
   React.useEffect(() => {
     if (handle !== undefined) {
-      handle.registerPopup(null, handleExternalOpenChange, mergedTriggerProps);
+      handle.registerPopup(null, () => {}, mergedTriggerProps);
     }
 
     return () => {
@@ -194,7 +197,7 @@ function PopoverRootComponent({ props }: { props: PopoverRoot.Props }) {
         handle.unregisterPopup();
       }
     };
-  }, [handle, handleExternalOpenChange, mergedTriggerProps]);
+  }, [handle, mergedTriggerProps]);
 
   const popoverContext: PopoverRootContext = React.useMemo(
     () => ({
@@ -336,7 +339,7 @@ export namespace PopoverRoot {
      */
     modal?: boolean | 'trap-focus';
     children?: React.ReactNode | (({ payload }: { payload: any }) => React.ReactNode);
-    handle: PopupHandle<any>;
+    handle?: PopupHandle<any>;
   }
 
   export interface Actions {

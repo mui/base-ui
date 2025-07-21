@@ -751,7 +751,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     return (
       <VisuallyHiddenDismiss
         ref={location === 'start' ? startDismissButtonRef : endDismissButtonRef}
-        onClick={(event) => onOpenChange(false, event.nativeEvent)}
+        onClick={(event) => onOpenChange(false, event.nativeEvent, undefined)}
       >
         {typeof visuallyHiddenDismiss === 'string' ? visuallyHiddenDismiss : 'Dismiss'}
       </VisuallyHiddenDismiss>

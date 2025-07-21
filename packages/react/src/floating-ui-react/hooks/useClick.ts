@@ -36,6 +36,10 @@ export interface UseClickProps {
    * @default true
    */
   stickIfOpen?: boolean;
+  /**
+   * Additional data to pass to the `onOpenChange` callback.
+   */
+  data?: unknown;
 }
 
 /**
@@ -43,13 +47,14 @@ export interface UseClickProps {
  * @see https://floating-ui.com/docs/useClick
  */
 export function useClick(context: FloatingRootContext, props: UseClickProps = {}): ElementProps {
-  const { open, onOpenChange, dataRef } = context;
+  const { open, onOpenChange, dataRef, elements } = context;
   const {
     enabled = true,
     event: eventOption = 'click',
     toggle = true,
     ignoreMouse = false,
     stickIfOpen = true,
+    data,
   } = props;
 
   const pointerTypeRef = React.useRef<'mouse' | 'pen' | 'touch'>(undefined);
@@ -76,17 +81,19 @@ export function useClick(context: FloatingRootContext, props: UseClickProps = {}
 
         const openEvent = dataRef.current.openEvent;
         const openEventType = openEvent?.type;
-        const nextOpen = !(
-          open &&
-          toggle &&
-          (openEvent && stickIfOpen
-            ? openEventType === 'click' || openEventType === 'mousedown'
-            : true)
-        );
+        const nextOpen =
+          (open && elements.domReference !== event.currentTarget) ||
+          !(
+            open &&
+            toggle &&
+            (openEvent && stickIfOpen
+              ? openEventType === 'click' || openEventType === 'mousedown'
+              : true)
+          );
         // Wait until focus is set on the element. This is an alternative to
         // `event.preventDefault()` to avoid :focus-visible from appearing when using a pointer.
         frame.request(() => {
-          onOpenChange(nextOpen, nativeEvent, 'click');
+          onOpenChange(nextOpen, nativeEvent, 'click', event.currentTarget, data);
         });
       },
       onClick(event) {
@@ -103,24 +110,40 @@ export function useClick(context: FloatingRootContext, props: UseClickProps = {}
 
         const openEvent = dataRef.current.openEvent;
         const openEventType = openEvent?.type;
-        const nextOpen = !(
-          open &&
-          toggle &&
-          (openEvent && stickIfOpen
-            ? openEventType === 'click' ||
-              openEventType === 'mousedown' ||
-              openEventType === 'keydown' ||
-              openEventType === 'keyup'
-            : true)
-        );
-        onOpenChange(nextOpen, event.nativeEvent, 'click');
+        const nextOpen =
+          (open && elements.domReference !== event.currentTarget) ||
+          !(
+            open &&
+            toggle &&
+            (openEvent && stickIfOpen
+              ? openEventType === 'click' ||
+                openEventType === 'mousedown' ||
+                openEventType === 'keydown' ||
+                openEventType === 'keyup'
+              : true)
+          );
+        onOpenChange(nextOpen, event.nativeEvent, 'click', event.currentTarget, data);
       },
       onKeyDown() {
         pointerTypeRef.current = undefined;
       },
     }),
-    [dataRef, eventOption, ignoreMouse, onOpenChange, open, stickIfOpen, toggle, frame],
+    [
+      dataRef,
+      eventOption,
+      ignoreMouse,
+      onOpenChange,
+      open,
+      stickIfOpen,
+      toggle,
+      frame,
+      data,
+      elements.domReference,
+    ],
   );
 
-  return React.useMemo(() => (enabled ? { reference } : EMPTY_OBJECT), [enabled, reference]);
+  return React.useMemo(
+    () => (enabled ? { reference, trigger: reference } : EMPTY_OBJECT),
+    [enabled, reference],
+  );
 }
