@@ -6,7 +6,6 @@ import type { DemoFile, DemoVariant } from 'docs/src/blocks/Demo';
 import type { Element, Text } from 'hast';
 import camelCase from 'lodash/camelCase';
 import upperFirst from 'lodash/upperFirst';
-import rangeParser from 'parse-numeric-range';
 import { transformerNotationHighlight } from '@shikijs/transformers';
 import { highlighter } from 'docs/src/syntax-highlighting';
 import { Demo } from './Demo';
@@ -29,18 +28,12 @@ export async function DemoLoader({ path, scope, highlight, ...props }: DemoLoade
   return <Demo variants={variants} {...props} />;
 }
 
-async function loadDemo({
-  path,
-  scope,
-  highlight: highlightProp,
-}: DemoLoaderProps): Promise<DemoVariant[]> {
+async function loadDemo({ path, scope }: DemoLoaderProps): Promise<DemoVariant[]> {
   if (existsSync(path)) {
-    const highlight = highlightProp ? rangeParser(highlightProp) : undefined;
-
     // Is the entry point a single file?
     if (statSync(path).isFile()) {
       // For simple demos, we call the variant "default".
-      return getDemoFromFile(path, 'default', scope.default, highlight);
+      return getDemoFromFile(path, 'default', scope.default);
     }
 
     const subdirectories = (await readdir(path)).filter((entry) => {
@@ -57,7 +50,7 @@ async function loadDemo({
         // Assuming that the entry point for each variant is an index.tsx file.
         const variantPath = `${path}/${dir}/index.tsx`;
         const DemoComponent = upperFirst(camelCase(dir));
-        return getDemoFromFile(variantPath, dir, scope[DemoComponent], highlight);
+        return getDemoFromFile(variantPath, dir, scope[DemoComponent]);
       }),
     ).then((variants) => variants.flat());
   }
@@ -88,6 +81,50 @@ async function getThemeFile(): Promise<DemoFile> {
   };
 }
 
+function removePrettierIgnore(code: string) {
+  return code.replace(/^.*\/\* prettier-ignore \*\/\s*(?:\r?\n|$)/gm, '');
+}
+
+function highlightedLinesTransformer(node: Element) {
+  // the official `transformerNotationHighlight` leaves the curly braces
+  // when removing
+  // ref: https://github.com/shikijs/shiki/issues/770
+  if (node.children.length >= 3) {
+    const secondLastNode = node.children.slice(
+      node.children.length - 2,
+      node.children.length - 1,
+    )?.[0];
+    if (((secondLastNode as Element).children as Text[])[0].value === '/* [!code highlight] */') {
+      const newChildren = (node.children as Element[]).map((element, index) => {
+        // remove the last node that contains `}`
+        if (index === node.children.length - 1) {
+          return null;
+        }
+
+        // remove the third-last node that contains ` {`
+        if (index === node.children.length - 3) {
+          if (element.children && element.children[0]) {
+            const textValue = (element.children[0] as Text)?.value;
+            if (textValue.endsWith(' {')) {
+              const newTextValue = textValue.slice(0, -2);
+              element.children = [
+                {
+                  type: 'text',
+                  value: newTextValue,
+                },
+              ];
+              return element;
+            }
+          }
+        }
+
+        return element;
+      });
+      node.children = newChildren.filter((v) => !!v);
+    }
+  }
+}
+
 /**
  * Loads a demo that's either a JS file or TS + (translated) JS files, plus their dependencies.
  *
@@ -98,7 +135,6 @@ async function getDemoFromFile(
   path: string,
   variantName: string,
   DemoComponent: any,
-  highlight?: number[],
 ): Promise<DemoVariant[]> {
   if (/\.(t|j)sx?$/.test(path) === false) {
     throw new Error(
@@ -113,47 +149,8 @@ async function getDemoFromFile(
     theme: 'base-ui',
     transformers: [
       {
-        preprocess(code) {
-          return (
-            code
-              // remove prettier-ignore lines
-              .replace(/^.*\/\* prettier-ignore \*\/\s*(?:\r?\n|$)/gm, '')
-          );
-        },
-        line(node) {
-          if (node.children.length >= 3) {
-            const secondLastNode = (node.children as Element[]).slice(
-              node.children.length - 2,
-              node.children.length - 1,
-            )?.[0];
-            if ((secondLastNode.children as Text[])[0].value === '/* [!code highlight] */') {
-              const newChildren = (node.children as Element[]).map((element, index) => {
-                if (index === node.children.length - 1) {
-                  return null;
-                }
-
-                if (index === node.children.length - 3) {
-                  if (element.children && element.children[0]) {
-                    const textValue = (element.children[0] as Text)?.value;
-                    if (textValue.endsWith(' {')) {
-                      const newTextValue = textValue.slice(0, -2);
-                      element.children = [
-                        {
-                          type: 'text',
-                          value: newTextValue,
-                        },
-                      ];
-                      return element;
-                    }
-                  }
-                }
-
-                return element;
-              });
-              node.children = newChildren.filter((v) => !!v);
-            }
-          }
-        },
+        preprocess: removePrettierIgnore,
+        line: highlightedLinesTransformer,
       },
       transformerNotationHighlight(),
     ],
@@ -185,16 +182,13 @@ async function getDemoFromFile(
     const jsPrettyContent = highlighter.codeToHtml(jsContent, {
       lang: 'jsx',
       theme: 'base-ui',
-      // transformers: [
-      //   transformerNotationHighlight(),
-      //   {
-      //     line(node, line) {
-      //       if (highlight && highlight.includes(line)) {
-      //         node.properties['data-highlighted-line'] = '';
-      //       }
-      //     },
-      //   },
-      // ],
+      transformers: [
+        {
+          preprocess: removePrettierIgnore,
+          line: highlightedLinesTransformer,
+        },
+        transformerNotationHighlight(),
+      ],
     });
 
     const jsLocalImports = getLocalImports(mainContent, dirname(jsFilePath));

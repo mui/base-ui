@@ -5,6 +5,7 @@ import styles from './index.module.css';
 export default function ExampleSeparator() {
   return (
     <div className={styles.Container}>
+      {/* [!code highlight:3] */}
       <a href="#" className={styles.Link}>
         Home
       </a>
