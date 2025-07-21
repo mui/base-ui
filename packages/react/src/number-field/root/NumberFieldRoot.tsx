@@ -491,11 +491,6 @@ export namespace NumberFieldRoot {
      */
     disabled?: boolean;
     /**
-     * Whether the field is forcefully marked as invalid.
-     * @default false
-     */
-    invalid?: boolean;
-    /**
      * Whether the user should be unable to change the field value.
      * @default false
      */
