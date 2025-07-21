@@ -59,19 +59,18 @@ function PopoverRootComponent({ props }: { props: PopoverRoot.Props }) {
   });
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
-
-  useScrollLock({
-    enabled: open && modal === true && openReason !== 'trigger-hover',
-    mounted,
-    open,
-    referenceElement: positionerElement,
-  });
+  const {
+    openMethod,
+    triggerProps,
+    reset: resetOpenInteractionType,
+  } = useOpenInteractionType(open);
 
   const handleUnmount = useEventCallback(() => {
     setMounted(false);
     setStickIfOpen(true);
     setOpenReason(null);
     onOpenChangeComplete?.(false);
+    resetOpenInteractionType();
   });
 
   useOpenChangeComplete({
@@ -140,7 +139,12 @@ function PopoverRootComponent({ props }: { props: PopoverRoot.Props }) {
     },
   });
 
-  const { openMethod, triggerProps } = useOpenInteractionType(open);
+  useScrollLock({
+    enabled: open && modal === true && openReason !== 'trigger-hover' && openMethod !== 'touch',
+    mounted,
+    open,
+    referenceElement: positionerElement,
+  });
 
   const computedRestMs = delay;
 
@@ -157,7 +161,9 @@ function PopoverRootComponent({ props }: { props: PopoverRoot.Props }) {
   const click = useClick(floatingContext, {
     stickIfOpen,
   });
-  const dismiss = useDismiss(floatingContext);
+  const dismiss = useDismiss(floatingContext, {
+    outsidePressEvent: 'up',
+  });
   const role = useRole(floatingContext);
 
   const { getReferenceProps, getFloatingProps } = useInteractions([hover, click, dismiss, role]);

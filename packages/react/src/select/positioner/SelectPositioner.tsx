@@ -82,7 +82,7 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
   React.useImperativeHandle(alignItemWithTriggerActiveRef, () => alignItemWithTriggerActive);
 
   useScrollLock({
-    enabled: (alignItemWithTriggerActive || modal) && open,
+    enabled: (alignItemWithTriggerActive || modal) && open && !touchModality,
     mounted,
     open,
     referenceElement: triggerElement,

@@ -28,9 +28,7 @@ export default function ExampleSelect() {
                 <Select.ItemIndicator className={styles.ItemIndicator}>
                   <CheckIcon className={styles.ItemIndicatorIcon} />
                 </Select.ItemIndicator>
-                <Select.ItemText className={styles.ItemText}>
-                  {label}
-                </Select.ItemText>
+                <Select.ItemText className={styles.ItemText}>{label}</Select.ItemText>
               </Select.Item>
             ))}
           </Select.Popup>
