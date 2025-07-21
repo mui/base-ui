@@ -36,10 +36,6 @@ export interface UseClickProps {
    * @default true
    */
   stickIfOpen?: boolean;
-  /**
-   * Additional data to pass to the `onOpenChange` callback.
-   */
-  data?: unknown;
 }
 
 /**
@@ -54,7 +50,6 @@ export function useClick(context: FloatingRootContext, props: UseClickProps = {}
     toggle = true,
     ignoreMouse = false,
     stickIfOpen = true,
-    data,
   } = props;
 
   const pointerTypeRef = React.useRef<'mouse' | 'pen' | 'touch'>(undefined);
@@ -93,7 +88,7 @@ export function useClick(context: FloatingRootContext, props: UseClickProps = {}
         // Wait until focus is set on the element. This is an alternative to
         // `event.preventDefault()` to avoid :focus-visible from appearing when using a pointer.
         frame.request(() => {
-          onOpenChange(nextOpen, nativeEvent, 'click', event.currentTarget, data);
+          onOpenChange(nextOpen, nativeEvent, 'click', event.currentTarget);
         });
       },
       onClick(event) {
@@ -122,7 +117,7 @@ export function useClick(context: FloatingRootContext, props: UseClickProps = {}
                 openEventType === 'keyup'
               : true)
           );
-        onOpenChange(nextOpen, event.nativeEvent, 'click', event.currentTarget, data);
+        onOpenChange(nextOpen, event.nativeEvent, 'click', event.currentTarget);
       },
       onKeyDown() {
         pointerTypeRef.current = undefined;
@@ -137,7 +132,6 @@ export function useClick(context: FloatingRootContext, props: UseClickProps = {}
       stickIfOpen,
       toggle,
       frame,
-      data,
       elements.domReference,
     ],
   );

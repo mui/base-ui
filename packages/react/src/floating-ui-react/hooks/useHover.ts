@@ -99,7 +99,6 @@ export interface UseHoverProps {
    * @default true
    */
   move?: boolean;
-  data?: unknown;
 }
 
 /**
@@ -116,7 +115,6 @@ export function useHover(context: FloatingRootContext, props: UseHoverProps = {}
     mouseOnly = false,
     restMs = 0,
     move = true,
-    data,
   } = props;
 
   const tree = useFloatingTree();
@@ -175,7 +173,7 @@ export function useHover(context: FloatingRootContext, props: UseHoverProps = {}
 
     function onLeave(event: MouseEvent) {
       if (isHoverOpen()) {
-        onOpenChange(false, event, 'hover', (event.currentTarget as Element) ?? undefined, data);
+        onOpenChange(false, event, 'hover', (event.currentTarget as Element) ?? undefined);
       }
     }
 
@@ -184,19 +182,19 @@ export function useHover(context: FloatingRootContext, props: UseHoverProps = {}
     return () => {
       html.removeEventListener('mouseleave', onLeave);
     };
-  }, [elements.floating, open, onOpenChange, enabled, handleCloseRef, isHoverOpen, data]);
+  }, [elements.floating, open, onOpenChange, enabled, handleCloseRef, isHoverOpen]);
 
   const closeWithDelay = React.useCallback(
     (event: Event, runElseBranch = true, reason: OpenChangeReason = 'hover') => {
       const closeDelay = getDelay(delayRef.current, 'close', pointerTypeRef.current);
       if (closeDelay && !handlerRef.current) {
-        timeout.start(closeDelay, () => onOpenChange(false, event, reason, undefined, data));
+        timeout.start(closeDelay, () => onOpenChange(false, event, reason, undefined));
       } else if (runElseBranch) {
         timeout.clear();
-        onOpenChange(false, event, reason, undefined, data);
+        onOpenChange(false, event, reason, undefined);
       }
     },
-    [delayRef, onOpenChange, timeout, data],
+    [delayRef, onOpenChange, timeout],
   );
 
   const cleanupMouseMoveHandler = useEventCallback(() => {
@@ -243,11 +241,11 @@ export function useHover(context: FloatingRootContext, props: UseHoverProps = {}
       if (openDelay) {
         timeout.start(openDelay, () => {
           if (!openRef.current) {
-            onOpenChange(true, event, 'hover', (event.currentTarget as Element) ?? undefined, data);
+            onOpenChange(true, event, 'hover', (event.currentTarget as Element) ?? undefined);
           }
         });
       } else if (!open) {
-        onOpenChange(true, event, 'hover', (event.currentTarget as Element) ?? undefined, data);
+        onOpenChange(true, event, 'hover', (event.currentTarget as Element) ?? undefined);
       }
     }
 
@@ -452,7 +450,6 @@ export function useHover(context: FloatingRootContext, props: UseHoverProps = {}
     restMsRef,
     timeout,
     restTimeout,
-    data,
   ]);
 
   // Block pointer-events of every element other than the reference and floating
@@ -535,7 +532,7 @@ export function useHover(context: FloatingRootContext, props: UseHoverProps = {}
 
         function handleMouseMove() {
           if (!blockMouseMoveRef.current && !openRef.current) {
-            onOpenChange(true, nativeEvent, 'hover', event.currentTarget, data);
+            onOpenChange(true, nativeEvent, 'hover', event.currentTarget);
           }
         }
 
@@ -562,7 +559,7 @@ export function useHover(context: FloatingRootContext, props: UseHoverProps = {}
         }
       },
     };
-  }, [mouseOnly, onOpenChange, open, openRef, restMsRef, restTimeout, data]);
+  }, [mouseOnly, onOpenChange, open, openRef, restMsRef, restTimeout]);
 
   return React.useMemo(() => (enabled ? { reference } : {}), [enabled, reference]);
 }

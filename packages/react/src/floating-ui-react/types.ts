@@ -135,7 +135,6 @@ export type OpenChangeCallback = (
   event: Event | undefined,
   reason: OpenChangeReason | undefined,
   triggerElement?: Element | undefined,
-  data?: unknown | undefined,
 ) => void;
 
 export interface FloatingRootContext<RT extends ReferenceType = ReferenceType> {

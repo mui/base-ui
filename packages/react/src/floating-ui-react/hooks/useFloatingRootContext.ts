@@ -56,11 +56,10 @@ export function useFloatingRootContext(
       event: Event | undefined,
       reason: OpenChangeReason | undefined,
       triggerElement: Element | undefined,
-      data: unknown | undefined,
     ) => {
       dataRef.current.openEvent = newOpen ? event : undefined;
-      events.emit('openchange', { open: newOpen, event, reason, nested, triggerElement, data });
-      onOpenChangeProp?.(newOpen, event, reason, triggerElement, data);
+      events.emit('openchange', { open: newOpen, event, reason, nested, triggerElement });
+      onOpenChangeProp?.(newOpen, event, reason, triggerElement);
     },
   );
 
