@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useSelector } from '@base-ui-components/utils/store';
+import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
 import { useButton } from '../../use-button/useButton';
 import type { BaseUIComponentProps } from '../../utils/types';
@@ -88,15 +89,19 @@ export const PopoverDetachedTrigger = React.forwardRef(function PopoverDetachedT
     throw new Error('PopoverDetachedTrigger requires a `handle` prop to be passed.');
   }
 
+  const getPayload = useEventCallback(() => {
+    return payload;
+  });
+
   const onMount = React.useCallback(
     (element: HTMLElement) => {
-      handle.registerTrigger(element);
+      handle.registerTrigger(element, getPayload);
 
       return () => {
         handle.unregisterTrigger(element);
       };
     },
-    [handle],
+    [handle, getPayload],
   );
 
   const triggerProps = useSelector(handle.store, selectors.triggerProps) ?? {};

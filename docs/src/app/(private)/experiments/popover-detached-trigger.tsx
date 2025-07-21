@@ -50,7 +50,9 @@ function StyledPopover(props: StyledPopoverProps) {
               <Popover.Arrow className={styles.Arrow}>
                 <ArrowSvg />
               </Popover.Arrow>
-              <Popover.Title className={styles.Title}>{title}</Popover.Title>
+              <Popover.Title className={styles.Title}>
+                {title} {payload}
+              </Popover.Title>
               <Content payload={payload as number} />
             </Popover.Popup>
           </Popover.Positioner>
@@ -66,10 +68,13 @@ function Content({ payload }: { payload: number }) {
   return (
     <div>
       <div className={styles.PopoverSection}>
-        {Array(payload as number).map((_, i) => (
-          <p key={i}>Lorem ipsum dolor sit amet</p>
-        ))}
+        {Array(payload as number)
+          .fill(0)
+          .map((_, i) => (
+            <p key={i}>Lorem ipsum dolor sit amet.</p>
+          ))}
       </div>
+
       <div className={styles.PopoverSection}>
         <p>Local state: {localState}</p>
         <button type="button" onClick={() => setLocalState((s) => s + 1)}>

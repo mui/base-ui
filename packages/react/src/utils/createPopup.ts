@@ -9,58 +9,44 @@ export type OpenChangeHandler<Payload> = (
   reason: string,
 ) => void;
 
-interface PopupHandleState {
+interface PopupHandleState<Payload = unknown> {
   triggerProps: HTMLProps | null;
-  triggers: Set<HTMLElement>;
+  triggers: Map<HTMLElement, (() => Payload) | undefined>;
+  payload?: unknown | undefined;
 }
 
 export const selectors = {
   triggerProps: createSelector((state: PopupHandleState) => state.triggerProps),
   triggers: createSelector((state: PopupHandleState) => state.triggers),
+  payload: createSelector((state: PopupHandleState) => state.payload),
 };
 
 export class PopupHandle<Payload = unknown> {
-  #onOpenChange: OpenChangeHandler<Payload> | null = null;
-
-  #popupElement: HTMLElement | null = null;
-
   readonly store: Store<PopupHandleState> = new Store<PopupHandleState>({
     triggerProps: null,
-    triggers: new Set<HTMLElement>(),
+    triggers: new Map<HTMLElement, (() => Payload) | undefined>(),
+    payload: undefined,
   });
 
-  public get popupElement(): HTMLElement | null {
-    return this.#popupElement;
+  setPayload(payload: Payload) {
+    this.store.apply({
+      payload,
+    });
   }
 
-  open(payload: Payload, trigger: HTMLElement, event: Event | undefined, reason: string) {
-    this.#onOpenChange?.(true, payload, trigger, event, reason);
-  }
-
-  close(event: Event | undefined, reason: string) {
-    this.#onOpenChange?.(false, undefined, undefined, event, reason);
-  }
-
-  registerPopup(
-    element: HTMLElement | null,
-    onOpenChange: OpenChangeHandler<Payload>,
-    triggerProps: HTMLProps,
-  ) {
-    this.#popupElement = element;
-    this.#onOpenChange = onOpenChange;
-
+  registerPopup(triggerProps: HTMLProps) {
     this.store.apply({
       triggerProps,
     });
   }
 
-  registerTrigger(triggerElement: HTMLElement) {
+  registerTrigger(triggerElement: HTMLElement, getPayload?: () => Payload) {
     const triggers = this.store.state.triggers;
-    triggers.add(triggerElement);
+    triggers.set(triggerElement, getPayload);
 
     this.store.apply({
       // TODO: verify if triggers need a new reference
-      triggers: new Set(triggers),
+      triggers: new Map(triggers),
     });
   }
 
@@ -70,12 +56,7 @@ export class PopupHandle<Payload = unknown> {
 
     this.store.apply({
       // TODO: verify if triggers need a new reference
-      triggers: new Set(triggers),
+      triggers: new Map(triggers),
     });
-  }
-
-  unregisterPopup() {
-    this.#popupElement = null;
-    this.#onOpenChange = null;
   }
 }

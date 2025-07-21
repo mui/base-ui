@@ -97,12 +97,13 @@ function PopoverRootComponent({ props }: { props: PopoverRoot.Props }) {
     }
   }, [stickIfOpenTimeout, open]);
 
+  const triggerElements = useSelector(handle.store, selectors.triggers);
+
   const setOpen = useEventCallback(function setOpen(
     nextOpen: boolean,
     event: Event | undefined,
     reason: PopoverOpenChangeReason | undefined,
     trigger: Element | undefined,
-    _data: unknown,
   ) {
     if (event && nextOpen && trigger) {
       setTriggerElement(trigger);
@@ -110,8 +111,12 @@ function PopoverRootComponent({ props }: { props: PopoverRoot.Props }) {
 
     console.log('setopen', nextOpen, reason);
 
-    if (payload !== undefined) {
-      setPayload(payload);
+    if (nextOpen && trigger) {
+      const triggerPayload = triggerElements.get(trigger as HTMLElement);
+      if (triggerPayload !== undefined) {
+        console.log('setting payload', triggerPayload());
+        setPayload(triggerPayload());
+      }
     }
 
     const isHover = reason === 'trigger-hover';
@@ -147,17 +152,15 @@ function PopoverRootComponent({ props }: { props: PopoverRoot.Props }) {
     }
   });
 
-  const triggerElements = useSelector(handle.store, selectors.triggers);
-
   const floatingContext = useFloatingRootContext({
     elements: {
       reference: triggerElement,
       floating: positionerElement,
-      triggers: Array.from(triggerElements),
+      triggers: Array.from(triggerElements.keys()),
     },
     open,
-    onOpenChange(openValue, eventValue, reasonValue, trigger, data) {
-      setOpen(openValue, eventValue, translateOpenChangeReason(reasonValue), trigger, data);
+    onOpenChange(openValue, eventValue, reasonValue, trigger) {
+      setOpen(openValue, eventValue, translateOpenChangeReason(reasonValue), trigger);
     },
   });
 
@@ -178,10 +181,10 @@ function PopoverRootComponent({ props }: { props: PopoverRoot.Props }) {
   const click = useClick(floatingContext, {
     stickIfOpen,
   });
-  // const dismiss = useDismiss(floatingContext);
+  const dismiss = useDismiss(floatingContext);
   const role = useRole(floatingContext);
 
-  const { getReferenceProps, getFloatingProps } = useInteractions([hover, click, role]);
+  const { getReferenceProps, getFloatingProps } = useInteractions([hover, click, dismiss, role]);
 
   const mergedTriggerProps = React.useMemo(() => {
     return mergeProps(triggerProps, getReferenceProps());
@@ -189,14 +192,8 @@ function PopoverRootComponent({ props }: { props: PopoverRoot.Props }) {
 
   React.useEffect(() => {
     if (handle !== undefined) {
-      handle.registerPopup(null, () => {}, mergedTriggerProps);
+      handle.registerPopup(mergedTriggerProps);
     }
-
-    return () => {
-      if (handle !== undefined) {
-        handle.unregisterPopup();
-      }
-    };
   }, [handle, mergedTriggerProps]);
 
   const popoverContext: PopoverRootContext = React.useMemo(
