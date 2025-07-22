@@ -1,6 +1,6 @@
 import * as React from 'react';
 import clsx from 'clsx';
-import { visuallyHidden } from '@base-ui-components/react/utils';
+import { visuallyHidden } from '@base-ui-components/utils/visuallyHidden';
 import { createMdxComponent } from 'docs/src/mdx/createMdxComponent';
 import { inlineMdxComponents } from 'docs/src/mdx-components';
 import { rehypeSyntaxHighlighting } from 'docs/src/syntax-highlighting';
