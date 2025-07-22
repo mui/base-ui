@@ -109,7 +109,7 @@ export async function PropsReferenceAccordion({ data, name: partName, ...props }
               index={index}
               aria-label={`prop: ${name},${prop.required ? ' required,' : ''} type: ${shortPropTypeName} ${prop.default !== undefined ? `(default: ${prop.default})` : ''}`}
               className={clsx(
-                'max-xs:gap-4 md:gap-5 scroll-mt-16 md:scroll-mt-6',
+                'max-xs:gap-4 md:gap-5 scroll-mt-12 md:scroll-mt-0',
                 TRIGGER_GRID_LAYOUT,
               )}
             >
