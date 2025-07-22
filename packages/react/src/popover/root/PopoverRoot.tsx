@@ -5,6 +5,7 @@ import { useTimeout } from '@base-ui-components/utils/useTimeout';
 import { useControlled } from '@base-ui-components/utils/useControlled';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { useSelector } from '@base-ui-components/utils/store';
+import { useModernLayoutEffect } from '@base-ui-components/utils/useModernLayoutEffect';
 import {
   useClick,
   useDismiss,
@@ -48,6 +49,7 @@ function PopoverRootComponent({ props }: { props: PopoverRoot.Props }) {
   const [descriptionId, setDescriptionId] = React.useState<string>();
   const [triggerElement, setTriggerElement] = React.useState<Element | null>(null);
   const [positionerElement, setPositionerElement] = React.useState<HTMLElement | null>(null);
+  const [popupElement, setPopupElement] = React.useState<HTMLElement | null>(null);
   const [openReason, setOpenReason] = React.useState<PopoverOpenChangeReason | null>(null);
   const [stickIfOpen, setStickIfOpen] = React.useState(true);
   const [payload, setPayload] = React.useState<unknown>(undefined);
@@ -61,6 +63,8 @@ function PopoverRootComponent({ props }: { props: PopoverRoot.Props }) {
     name: 'Popover',
     state: 'open',
   });
+
+  useAutoResize(popupElement, open, payload);
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
 
@@ -116,7 +120,6 @@ function PopoverRootComponent({ props }: { props: PopoverRoot.Props }) {
     if (nextOpen && trigger) {
       const triggerPayload = triggerElements.get(trigger as HTMLElement);
       if (triggerPayload !== undefined) {
-        console.log('setting payload', triggerPayload());
         setPayload(triggerPayload());
       }
     }
@@ -209,6 +212,7 @@ function PopoverRootComponent({ props }: { props: PopoverRoot.Props }) {
       setTriggerElement,
       positionerElement,
       setPositionerElement,
+      setPopupElement,
       popupRef,
       titleId,
       setTitleId,
@@ -346,4 +350,65 @@ export namespace PopoverRoot {
   }
 
   export type OpenChangeReason = PopoverOpenChangeReason;
+}
+
+// A stable, external function for the listener's logic
+function transitionEndListener(event: TransitionEvent, element: HTMLElement) {
+  if (event.propertyName === 'width') {
+    element.style.setProperty('--positioner-width', 'auto');
+    element.style.setProperty('--positioner-height', 'auto');
+    element.style.transition = 'none';
+  }
+}
+
+export function useAutoResize(element: HTMLElement | null, open: boolean, content: any) {
+  const isInitialRender = React.useRef(true);
+
+  useModernLayoutEffect(() => {
+    // Your correct logic: Reset the state when the popup is not open.
+    if (!open) {
+      isInitialRender.current = true;
+      return undefined;
+    }
+
+    if (!element) {
+      return undefined;
+    }
+
+    // Path 1: Initial Render (for each time the popup opens).
+    if (isInitialRender.current) {
+      element.style.setProperty('--positioner-width', 'auto');
+      element.style.setProperty('--positioner-height', 'auto');
+      isInitialRender.current = false;
+      return undefined;
+    }
+
+    // Path 2: All Subsequent Renders while open (The Animation).
+
+    // Define a stable listener for THIS specific render to prevent cleanup race conditions.
+    const listener = (event: TransitionEvent) => {
+      transitionEndListener(event, element);
+    };
+
+    const startRect = element.getBoundingClientRect();
+
+    element.style.setProperty('--positioner-width', 'auto');
+    element.style.setProperty('--positioner-height', 'auto');
+    const newRect = element.getBoundingClientRect();
+
+    element.style.setProperty('--positioner-width', `${startRect.width}px`);
+    element.style.setProperty('--positioner-height', `${startRect.height}px`);
+
+    requestAnimationFrame(() => {
+      element.style.transition = 'width .35s ease, height .35s ease';
+      element.style.setProperty('--positioner-width', `${newRect.width}px`);
+      element.style.setProperty('--positioner-height', `${newRect.height}px`);
+      element.addEventListener('transitionend', listener, { once: true });
+    });
+
+    // The effect's cleanup function, which closes over the correct 'listener'.
+    return () => {
+      element.removeEventListener('transitionend', listener);
+    };
+  }, [element, open, content]);
 }

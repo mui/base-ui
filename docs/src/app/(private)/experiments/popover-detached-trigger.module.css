@@ -47,7 +47,7 @@
 }
 
 .Positioner {
-  transition: transform 0.1s;
+  transition: transform 0.5s;
 
   &[data-instant] {
     transition: none;
@@ -61,6 +61,15 @@
   background-color: canvas;
   color: var(--color-gray-900);
   transform-origin: var(--transform-origin);
+
+  width: var(--positioner-width, auto);
+  height: var(--positioner-height, auto);
+
+  overflow: hidden;
+
+  transition:
+    width 0.2s,
+    height 0.2s;
 
   &[data-starting-style],
   &[data-ending-style] {

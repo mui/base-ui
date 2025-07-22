@@ -22,6 +22,7 @@ export interface PopoverRootContext {
   setTriggerElement: (el: Element | null) => void;
   positionerElement: HTMLElement | null;
   setPositionerElement: (el: HTMLElement | null) => void;
+  setPopupElement: (el: HTMLElement | null) => void;
   popupRef: React.RefObject<HTMLElement | null>;
   delay: number;
   closeDelay: number;

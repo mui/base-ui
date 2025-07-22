@@ -44,6 +44,7 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
     onOpenChangeComplete,
     modal,
     openMethod,
+    setPopupElement,
   } = usePopoverRootContext();
   const positioner = usePopoverPositionerContext();
 
@@ -85,7 +86,7 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
 
   const element = useRenderElement('div', componentProps, {
     state,
-    ref: [forwardedRef, popupRef],
+    ref: [forwardedRef, popupRef, setPopupElement],
     props: [
       popupProps,
       {
