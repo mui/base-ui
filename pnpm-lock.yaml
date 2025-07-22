@@ -410,8 +410,8 @@ importers:
         specifier: ^11.1.2
         version: 11.1.2
       remark-typography:
-        specifier: 0.6.21
-        version: 0.6.21
+        specifier: 0.6.25
+        version: 0.6.25
       scroll-into-view-if-needed:
         specifier: 3.1.0
         version: 3.1.0
@@ -9571,8 +9571,8 @@ packages:
   remark-stringify@11.0.0:
     resolution: {integrity: sha512-1OSmLd3awB/t8qdoEOMazZkNsfVTeY4fTsgzcQFdXNq8ToTN4ZGwrMnlda4K6smTFKD+GRV6O48i6Z4iKgPPpw==}
 
-  remark-typography@0.6.21:
-    resolution: {integrity: sha512-QDgiY49aJKlm83dICsXuT7npc5UDHUHEHGTHBLQ6npSEZpNGZCSEsqqSoNfBaQIryF42u0hJtgQGyP2kbicNQw==}
+  remark-typography@0.6.25:
+    resolution: {integrity: sha512-UJqx8X5jcegPs8KOu3Hr3kZ755kfIy6TidDZMDvyfspJNz1DVIVWmgkXgWCpx4PrfxyCK+k591vwSz4O4y4WkA==}
     engines: {node: '>=14.18.0'}
 
   remark@15.0.1:
@@ -22001,7 +22001,7 @@ snapshots:
       mdast-util-to-markdown: 2.1.2
       unified: 11.0.5
 
-  remark-typography@0.6.21: {}
+  remark-typography@0.6.25: {}
 
   remark@15.0.1:
     dependencies:
