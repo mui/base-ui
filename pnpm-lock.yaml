@@ -712,6 +712,9 @@ importers:
       '@types/yargs':
         specifier: ^17.0.33
         version: 17.0.33
+      fast-glob:
+        specifier: ^3.3.3
+        version: 3.3.3
       lodash:
         specifier: ^4.17.21
         version: 4.17.21
