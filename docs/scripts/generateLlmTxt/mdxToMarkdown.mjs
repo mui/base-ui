@@ -185,7 +185,7 @@ export async function mdxToMarkdown(mdxContent, mdxFilePath) {
   const file = await unified()
     .use(remarkParse)
     .use(remarkMdx)
-    .use(remarkGfm) // Add GitHub Flavored Markdown support
+    .use(remarkGfm)
     .use(extractMetadata)
     .use(transformJsx)
     .use(remarkStringify, {

@@ -6,12 +6,45 @@ import fs from 'fs/promises';
 import path from 'path';
 import glob from 'fast-glob';
 import * as prettier from 'prettier';
+import { unified } from 'unified';
+import remarkParse from 'remark-parse';
+import remarkGfm from 'remark-gfm';
+import remarkStringify from 'remark-stringify';
+import { visit } from 'unist-util-visit';
 import { mdxToMarkdown } from './mdxToMarkdown.mjs';
 
 const PROJECT_ROOT = path.resolve(import.meta.dirname, '../..');
 const MDX_SOURCE_DIR = path.join(PROJECT_ROOT, 'src/app/(public)/(content)/react');
 const OUTPUT_BASE_DIR = path.join(PROJECT_ROOT, 'public');
 const OUTPUT_REACT_DIR = path.join(OUTPUT_BASE_DIR, 'react');
+
+/**
+ * Remark plugin to increment heading levels by a specified amount
+ * @param {number} increment - Amount to increment each heading level
+ */
+function incrementHeaders(increment = 1) {
+  return (tree) => {
+    visit(tree, 'heading', (node) => {
+      node.depth = Math.min(node.depth + increment, 6); // Cap at h6
+    });
+  };
+}
+
+/**
+ * Function to process markdown and increment headers
+ * @param {string} markdown - Markdown string to process
+ * @param {number} increment - Amount to increment headers by
+ * @returns {Promise<string>} - Processed markdown
+ */
+async function incrementMarkdownHeaders(markdown, increment) {
+  const result = await unified()
+    .use(remarkParse)
+    .use(remarkGfm)
+    .use(incrementHeaders, increment)
+    .use(remarkStringify)
+    .process(markdown);
+  return String(result.value);
+}
 
 /**
  * Generate llms.txt and markdown files from MDX content
@@ -24,13 +57,16 @@ async function generateLlmsTxt() {
     await fs.mkdir(OUTPUT_BASE_DIR, { recursive: true });
     await fs.mkdir(OUTPUT_REACT_DIR, { recursive: true });
 
-    // Store metadata for each section
+    // Store metadata for each section as objects indexed by ID
     const metadataBySection = {
-      overview: [],
-      handbook: [],
-      components: [],
-      utils: [],
+      overview: {},
+      handbook: {},
+      components: {},
+      utils: {},
     };
+
+    // Counter for total files processed
+    let totalFiles = 0;
 
     // Process files from a specific section
     const processSection = async (sectionName) => {
@@ -87,13 +123,17 @@ async function generateLlmsTxt() {
         const fileId = path.basename(dirPath);
 
         // Store metadata for this file in the appropriate section
-        metadataBySection[sectionName].push({
+        metadataBySection[sectionName][fileId] = {
           id: fileId,
           title: title || 'Untitled',
           subtitle: subtitle || '',
           description: description || '',
           urlPath: `./react/${urlPath}.md`,
-        });
+          fullMarkdown: markdown,
+        };
+
+        // Increment the counter
+        totalFiles += 1;
 
         console.log(`Processed: ${relativePath}`);
       }
@@ -105,93 +145,99 @@ async function generateLlmsTxt() {
     await processSection('components');
     await processSection('utils');
 
-    // Build structured content for llms.txt
-    const sections = ['# Base UI', ''];
-
-    sections.push(
+    // Build shared preamble for both files
+    const preamble = [
+      '# Base UI',
+      '',
       'This is the documentation for the `@base-ui-components/react` package.',
       'It contains a collection of components and utilities for building user interfaces in React.',
       'The library is designed to be composable and styling agnostic.',
       '',
-    );
+    ];
 
-    // Create formatted sections in specific order
-    const formatSection = (items, title) => {
-      if (items.length > 0) {
-        sections.push(`## ${title}`, '');
-
-        // Add each item as a link with description, starting with a bullet (-)
-        items.forEach((item) => {
-          sections.push(`- [${item.title}](${item.urlPath}): ${item.description}`);
-        });
-
-        sections.push(''); // Add empty line after section
-      }
+    // Page rendering functions - focused only on their unique logic
+    const renderPageAsLink = (page) => [`- [${page.title}](${page.urlPath}): ${page.description}`];
+    const renderPageAsInline = async (page) => {
+      // Increment all headers in the markdown by 2 levels (so h1 becomes h3, etc.)
+      const content = await incrementMarkdownHeaders(page.fullMarkdown, 2);
+      return [content];
     };
 
     // Define specific orders for sections
     const overviewOrder = ['quick-start', 'accessibility', 'releases', 'about'];
     const handbookOrder = ['styling', 'animation', 'composition'];
+    const componentsOrder = Object.keys(metadataBySection.components).sort();
+    const utilsOrder = Object.keys(metadataBySection.utils).sort();
 
-    // Validate that all expected overview items exist
-    overviewOrder.forEach((id) => {
-      if (!metadataBySection.overview.some((item) => item.id === id)) {
-        throw new Error(`Missing expected overview item: ${id}`);
+    // Helper function to map ordered IDs to their metadata objects
+    const mapOrderToMetadata = (orderArray, metadataObject) =>
+      orderArray.map((id) => metadataObject[id]);
+
+    // Create the file structure with all sections and pages in correct order
+    const structure = {
+      sections: [
+        {
+          title: 'Overview',
+          pages: mapOrderToMetadata(overviewOrder, metadataBySection.overview),
+        },
+        {
+          title: 'Handbook',
+          pages: mapOrderToMetadata(handbookOrder, metadataBySection.handbook),
+        },
+        {
+          title: 'Components',
+          pages: mapOrderToMetadata(componentsOrder, metadataBySection.components),
+        },
+        {
+          title: 'Utilities',
+          pages: mapOrderToMetadata(utilsOrder, metadataBySection.utils),
+        },
+      ],
+    };
+
+    const createFile = async (filename, pageRenderer) => {
+      // Generate sections with shared logic
+      const sections = [];
+
+      for (const section of structure.sections) {
+        if (section.pages.length === 0) {
+          continue;
+        }
+
+        const sectionContent = [`## ${section.title}`, ''];
+
+        // Use the page renderer for each page (handle async renderers)
+        for (const page of section.pages) {
+          const renderedPage = await pageRenderer(page);
+          sectionContent.push(...renderedPage);
+        }
+
+        sectionContent.push(''); // Add empty line after section
+        sections.push(...sectionContent);
       }
-    });
 
-    // Validate that all expected handbook items exist
-    handbookOrder.forEach((id) => {
-      if (!metadataBySection.handbook.some((item) => item.id === id)) {
-        throw new Error(`Missing expected handbook item: ${id}`);
-      }
-    });
+      let content = [...preamble, ...sections].join('\n');
 
-    // Sort overview by predefined order
-    const sortedOverview = [...metadataBySection.overview].sort((a, b) => {
-      return overviewOrder.indexOf(a.id) - overviewOrder.indexOf(b.id);
-    });
+      // Apply prettier formatting
+      const filePath = path.join(OUTPUT_BASE_DIR, filename);
+      const prettierOptions = await prettier.resolveConfig(filePath);
 
-    // Sort handbook by predefined order
-    const sortedHandbook = [...metadataBySection.handbook].sort((a, b) => {
-      return handbookOrder.indexOf(a.id) - handbookOrder.indexOf(b.id);
-    });
+      content = await prettier.format(content, {
+        ...prettierOptions,
+        filepath: filePath,
+        parser: 'markdown',
+      });
 
-    // Sort components and utilities alphabetically by id
-    const sortedComponents = [...metadataBySection.components].sort((a, b) =>
-      a.id.localeCompare(b.id),
-    );
-    const sortedUtils = [...metadataBySection.utils].sort((a, b) => a.id.localeCompare(b.id));
+      await fs.writeFile(filePath, content, 'utf-8');
+    };
 
-    // Add sections in the required order
-    formatSection(sortedOverview, 'Overview');
-    formatSection(sortedHandbook, 'Handbook');
-    formatSection(sortedComponents, 'Components');
-    formatSection(sortedUtils, 'Utilities');
+    // Generate both files in parallel
+    await Promise.all([
+      createFile('llms.txt', renderPageAsLink),
+      createFile('llms-full.txt', renderPageAsInline),
+    ]);
 
-    // Create llms.txt content and format with prettier
-    let llmsTxtContent = sections.join('\n');
-
-    // Apply prettier formatting using the project's configuration
-    const llmsFilePath = path.join(OUTPUT_BASE_DIR, 'llms.txt');
-    const prettierOptions = await prettier.resolveConfig(llmsFilePath);
-
-    llmsTxtContent = await prettier.format(llmsTxtContent, {
-      ...prettierOptions,
-      filepath: llmsFilePath,
-      parser: 'markdown',
-    });
-
-    await fs.writeFile(llmsFilePath, llmsTxtContent, 'utf-8');
-
-    // Calculate the total number of files processed
-    const totalFiles =
-      metadataBySection.overview.length +
-      metadataBySection.handbook.length +
-      metadataBySection.components.length +
-      metadataBySection.utils.length;
-
-    console.log(`Successfully generated ${totalFiles} markdown files and llms.txt`);
+    console.log(`Successfully generated ${totalFiles} markdown files, llms.txt, and llms-full.txt`);
   } catch (error) {
     console.error('Error generating llms.txt:', error);
     process.exit(1);
