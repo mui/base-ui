@@ -177,6 +177,8 @@ export const ScrollAreaScrollbar = React.forwardRef(function ScrollAreaScrollbar
     style: {
       position: 'absolute',
       touchAction: 'none',
+      WebkitUserSelect: 'none',
+      userSelect: 'none',
       ...(orientation === 'vertical' && {
         top: 0,
         bottom: `var(${ScrollAreaRootCssVars.scrollAreaCornerHeight})`,
