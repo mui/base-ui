@@ -61,7 +61,7 @@ export async function PropsReferenceAccordion({ data, name: partName, ...props }
       <span id={captionId} style={visuallyHidden} aria-hidden>
         Component props table
       </span>
-      <Accordion.HeaderRow className={TRIGGER_GRID_LAYOUT}>
+      <Accordion.HeaderRow className={clsx('grid', TRIGGER_GRID_LAYOUT)}>
         <Accordion.HeaderCell>Prop</Accordion.HeaderCell>
         <Accordion.HeaderCell className="max-xs:hidden">Type</Accordion.HeaderCell>
       </Accordion.HeaderRow>
@@ -109,7 +109,7 @@ export async function PropsReferenceAccordion({ data, name: partName, ...props }
               index={index}
               aria-label={`prop: ${name},${prop.required ? ' required,' : ''} type: ${shortPropTypeName} ${prop.default !== undefined ? `(default: ${prop.default})` : ''}`}
               className={clsx(
-                'items-center max-xs:gap-4 md:gap-5 scroll-mt-16 md:scroll-mt-6',
+                'max-xs:gap-4 md:gap-5 scroll-mt-16 md:scroll-mt-6',
                 TRIGGER_GRID_LAYOUT,
               )}
             >
@@ -215,8 +215,7 @@ export async function PropsReferenceAccordion({ data, name: partName, ...props }
 }
 
 const TRIGGER_GRID_LAYOUT =
-  'grid ' +
-  'grid-cols-[1fr_theme(spacing.10)] ' +
+  'xs:grid ' +
   'xs:grid-cols-[theme(spacing.48)_1fr_theme(spacing.10)] ' +
   'sm:grid-cols-[theme(spacing.56)_1fr_theme(spacing.10)] ' +
   'md:grid-cols-[1fr_2fr_theme(spacing.10)] ';

@@ -43,7 +43,7 @@
     display: flex;
     width: 100%;
     min-height: 2.5rem;
-    align-items: baseline;
+    align-items: center;
     /* make padding match TableCell height */
     padding-block: 0.5rem;
     padding-inline: 0.75rem 0.5rem;

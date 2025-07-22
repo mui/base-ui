@@ -38,7 +38,7 @@
 
   .DescriptionTerm {
     @apply text-md;
-    @apply font-bold;
+    @apply font-semibold;
     letter-spacing: -0.00625em;
     color: var(--color-foreground);
     white-space: nowrap;
