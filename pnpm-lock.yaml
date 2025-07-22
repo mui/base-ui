@@ -63,7 +63,7 @@ importers:
         version: 1.0.9-canary.4(@types/node@18.19.115)(jiti@2.4.2)(lightningcss@1.30.1)(rollup@4.40.1)(terser@5.39.0)(tsx@4.19.4)(webpack-cli@6.0.1(webpack-bundle-analyzer@4.10.2)(webpack@5.99.9))(yaml@2.7.1)
       '@mui/internal-code-infra':
         specifier: ^0.0.2-canary.16
-        version: 0.0.2-canary.16(eslint@9.30.1(jiti@2.4.2))(prettier@3.5.3)(typescript@5.8.3)
+        version: 0.0.2-canary.16(eslint@9.30.1(jiti@2.4.2))(prettier@3.6.2)(typescript@5.8.3)
       '@mui/internal-docs-utils':
         specifier: ^2.0.1
         version: 2.0.1
@@ -203,14 +203,14 @@ importers:
         specifier: ^0.7.1
         version: 0.7.1(postcss@8.5.6)
       prettier:
-        specifier: ^3.5.3
-        version: 3.5.3
+        specifier: ^3.6.2
+        version: 3.6.2
       prettier-plugin-tailwindcss:
         specifier: ^0.6.13
-        version: 0.6.13(prettier@3.5.3)
+        version: 0.6.13(prettier@3.6.2)
       pretty-quick:
         specifier: ^4.1.1
-        version: 4.1.1(prettier@3.5.3)
+        version: 4.1.1(prettier@3.6.2)
       process:
         specifier: ^0.11.10
         version: 0.11.10
@@ -477,8 +477,8 @@ importers:
         specifier: ^12.9.4
         version: 12.9.4(@emotion/is-prop-valid@1.3.1)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       prettier:
-        specifier: ^3.5.3
-        version: 3.5.3
+        specifier: ^3.6.2
+        version: 3.6.2
       rimraf:
         specifier: ^6.0.1
         version: 6.0.1
@@ -9164,8 +9164,8 @@ packages:
       prettier-plugin-svelte:
         optional: true
 
-  prettier@3.5.3:
-    resolution: {integrity: sha512-QQtaxnoDJeAkDvDKWCLiwIXkTgRhwYDEQCghU9Z6q03iyek/rxRh/2lC3HB7P8sWT2xC/y5JDctPLBIGzHKbhw==}
+  prettier@3.6.2:
+    resolution: {integrity: sha512-I7AIg5boAr5R0FFtJ6rCfD+LFsWHp81dolrFD8S79U9tb8Az2nGrJncnMSnys+bpQJfRUzqs9hnA81OAA3hCuQ==}
     engines: {node: '>=14'}
     hasBin: true
 
@@ -13259,7 +13259,7 @@ snapshots:
       - webpack-cli
       - yaml
 
-  '@mui/internal-code-infra@0.0.2-canary.16(eslint@9.30.1(jiti@2.4.2))(prettier@3.5.3)(typescript@5.8.3)':
+  '@mui/internal-code-infra@0.0.2-canary.16(eslint@9.30.1(jiti@2.4.2))(prettier@3.6.2)(typescript@5.8.3)':
     dependencies:
       '@argos-ci/core': 3.2.0
       '@eslint/compat': 1.3.1(eslint@9.30.1(jiti@2.4.2))
@@ -13284,7 +13284,7 @@ snapshots:
       globals: 16.3.0
       globby: 14.1.0
       minimatch: 10.0.3
-      prettier: 3.5.3
+      prettier: 3.6.2
       semver: 7.7.2
       typescript-eslint: 8.35.1(eslint@9.30.1(jiti@2.4.2))(typescript@5.8.3)
       yargs: 17.7.2
@@ -21437,11 +21437,11 @@ snapshots:
 
   prelude-ls@1.2.1: {}
 
-  prettier-plugin-tailwindcss@0.6.13(prettier@3.5.3):
+  prettier-plugin-tailwindcss@0.6.13(prettier@3.6.2):
     dependencies:
-      prettier: 3.5.3
+      prettier: 3.6.2
 
-  prettier@3.5.3: {}
+  prettier@3.6.2: {}
 
   pretty-format@27.5.1:
     dependencies:
@@ -21459,14 +21459,14 @@ snapshots:
     dependencies:
       parse-ms: 4.0.0
 
-  pretty-quick@4.1.1(prettier@3.5.3):
+  pretty-quick@4.1.1(prettier@3.6.2):
     dependencies:
       find-up: 5.0.0
       ignore: 7.0.4
       mri: 1.2.0
       picocolors: 1.1.1
       picomatch: 4.0.2
-      prettier: 3.5.3
+      prettier: 3.6.2
       tinyexec: 0.3.2
       tslib: 2.8.1
 
