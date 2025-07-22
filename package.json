@@ -136,7 +136,7 @@
     "stylelint": "^16.19.1",
     "stylelint-config-standard": "^38.0.0",
     "tailwindcss": "4.1.11",
-    "terser": "^5.39.0",
+    "terser": "^5.43.1",
     "terser-webpack-plugin": "^5.3.14",
     "tsx": "^4.19.4",
     "typescript": "^5.8.3",
