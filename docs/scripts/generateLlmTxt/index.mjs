@@ -44,7 +44,7 @@ function githubSlugify(text) {
     .replace(/^-+|-+$/g, ''); // trim leading/trailing hyphens
 }
 
-function resolveRelativeLinks({ metadataByUrl = new Map() }) {
+function resolveRelativeLinks({ base, metadataByUrl = new Map() }) {
   return (tree) => {
     visit(tree, 'link', (node) => {
       if (!node.url || isAbsoluteUrl(node.url)) {
@@ -53,12 +53,13 @@ function resolveRelativeLinks({ metadataByUrl = new Map() }) {
 
       const urlPath = node.url.endsWith('.md') ? node.url.slice(0, -3) : node.url;
       const metadata = metadataByUrl.get(urlPath);
-      if (!metadata) {
-        return;
-      }
 
-      const hash = githubSlugify(metadata.title);
-      node.url = `#${hash}`;
+      if (metadata) {
+        const hash = githubSlugify(metadata.title);
+        node.url = `#${hash}`;
+      } else {
+        node.url = resolveUrl(node.url, base);
+      }
     });
   };
 }
@@ -74,7 +75,7 @@ async function prepareForInlineMarkdown(markdown, increment, metadataByUrl) {
     .use(remarkParse)
     .use(remarkGfm)
     .use(incrementHeaders, increment)
-    .use(resolveRelativeLinks, { metadataByUrl })
+    .use(resolveRelativeLinks, { base: BASE_URL, metadataByUrl })
     .use(remarkStringify)
     .process(markdown);
   return String(result.value);
