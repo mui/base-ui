@@ -118,6 +118,8 @@
   }
 
   .AccordionScrollable {
+    overflow-x: hidden;
+
     &[data-scrollable] {
       position: relative;
 

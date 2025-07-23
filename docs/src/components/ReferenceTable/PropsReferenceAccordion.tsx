@@ -113,12 +113,14 @@ export async function PropsReferenceAccordion({ data, name: partName, ...props }
                 TRIGGER_GRID_LAYOUT,
               )}
             >
-              <TableCode className="text-navy">
-                {name}
-                {prop.required ? <sup className="top-[-0.3em] text-xs text-red-800">*</sup> : ''}
-              </TableCode>
+              <Accordion.Scrollable>
+                <TableCode className="text-navy whitespace-nowrap">
+                  {name}
+                  {prop.required ? <sup className="top-[-0.3em] text-xs text-red-800">*</sup> : ''}
+                </TableCode>
+              </Accordion.Scrollable>
               {prop.type && (
-                <Accordion.Scrollable className="flex items-baseline gap-2 overflow-x-hidden text-sm leading-none break-keep whitespace-nowrap max-xs:hidden">
+                <Accordion.Scrollable className="flex items-baseline gap-2 text-sm leading-none break-keep whitespace-nowrap max-xs:hidden">
                   {detailedType ? (
                     <ReferenceTableTooltip.Root delay={300} hoverable={false}>
                       <ReferenceTableTooltip.Trigger render={<ShortPropType />} />
