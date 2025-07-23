@@ -53,6 +53,11 @@ export const nav = [
         href: '/react/components/avatar',
       },
       {
+        label: 'Button',
+        href: '/react/components/button',
+        isNew: true,
+      },
+      {
         label: 'Checkbox',
         href: '/react/components/checkbox',
       },
