@@ -1,0 +1,45 @@
+# Button
+
+<Subtitle>
+  A button component that can be rendered as another tag with support for a loading state.
+</Subtitle>
+<Meta
+  name="description"
+  content="A high-quality, unstyled React button component that can be rendered as another tag, with support for a loading state."
+/>
+
+<Demo path="./demos/hero" />
+
+## Anatomy
+
+Import the component:
+
+```jsx title="Anatomy"
+import { Button } from '@base-ui-components/react/button';
+
+<Button />;
+```
+
+## API reference
+
+<Reference component="Button" />
+
+## Examples
+
+### Rendering as another tag
+
+The button can remain keyboard accessible while being rendered as another tag, such as a `<div>`, by specifying `nativeButton={false}`.
+
+```jsx title="div button"
+import { Button } from '@base-ui-components/react/button';
+
+<Button render={<div />} nativeButton={false}>
+  Button
+</Button>;
+```
+
+### Displaying a loading state
+
+The `loading` prop can be used to indicate that the button is in a loading state, which will disable interactions without using the native `disabled` attribute to prevent the button from losing focus.
+
+<Demo path="./demos/loading" compact />
