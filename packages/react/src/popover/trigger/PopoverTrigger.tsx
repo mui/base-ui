@@ -110,6 +110,8 @@ export const PopoverDetachedTrigger = React.forwardRef(function PopoverDetachedT
 
   const store = handle.store;
 
+  const [triggerElement, setTriggerElement] = React.useState<HTMLElement | null>(null);
+
   const getPayload = useEventCallback(() => {
     return payload;
   });
@@ -124,6 +126,7 @@ export const PopoverDetachedTrigger = React.forwardRef(function PopoverDetachedT
     },
     [handle, getPayload],
   );
+
   const floatingContext = useSelector(handle.store, selectors.floatingRootContext);
 
   const open = useSelector(store, selectors.open);
@@ -147,7 +150,9 @@ export const PopoverDetachedTrigger = React.forwardRef(function PopoverDetachedT
     delay: {
       close: closeDelay,
     },
+    triggerElement,
   });
+
   const click = useClick(floatingContext, { enabled: floatingContext != null, stickIfOpen: false });
 
   const localProps = useInteractions([click, hover]);
@@ -182,7 +187,7 @@ export const PopoverDetachedTrigger = React.forwardRef(function PopoverDetachedT
 
   const element = useRenderElement('button', componentProps, {
     state,
-    ref: [buttonRef, forwardedRef, onMount],
+    ref: [buttonRef, forwardedRef, onMount, setTriggerElement],
     props: [
       localProps.getReferenceProps(),
       rootTriggerProps,

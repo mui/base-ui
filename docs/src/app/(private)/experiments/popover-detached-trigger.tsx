@@ -25,9 +25,6 @@ export default function PopoverDetachedTrigger() {
       <StyledTrigger handle={popover1} payload={3} />
       <StyledTrigger handle={popover1} payload={4} />
       <StyledTrigger handle={popover1} payload={5} />
-      <StyledTrigger handle={popover1} payload={5} />
-      <StyledTrigger handle={popover1} payload={5} />
-      <StyledTrigger handle={popover1} payload={5} />
     </div>
   );
 }
@@ -44,8 +41,7 @@ function StyledTrigger<Payload>(props: { handle: PopoverHandle<Payload>; payload
       handle={props.handle as PopoverHandle<unknown>}
       payload={props.payload}
       openOnHover={settings.openOnHover}
-      delay={0}
-      closeDelay={300}
+      delay={50}
     >
       <PopupIcon aria-label="Notifications" className={styles.Icon} />
     </Popover.DetachedTrigger>
