@@ -15,6 +15,7 @@ import { processReference } from './referenceProcessor.mjs';
 import { processDemo } from './demoProcessor.mjs';
 import { processPropsReferenceTable } from './propsReferenceTableProcessor.mjs';
 import * as mdx from './mdxNodeHelpers.mjs';
+import { resolveMdLinks } from './resolver.mjs';
 
 /**
  * Plugin to extract metadata from the MDX content
@@ -175,7 +176,7 @@ function transformJsx() {
  * @param {string} mdxFilePath - Optional path to the MDX file for context
  * @returns {Promise<Object>} An object containing the markdown and metadata
  */
-export async function mdxToMarkdown(mdxContent, mdxFilePath) {
+export async function mdxToMarkdown(mdxContent, mdxFilePath, { urlPath, urlsWithMdVersion } = {}) {
   // Process the MDX content and include file path for context
   const vfile = {
     path: mdxFilePath,
@@ -188,6 +189,7 @@ export async function mdxToMarkdown(mdxContent, mdxFilePath) {
     .use(remarkGfm)
     .use(extractMetadata)
     .use(transformJsx)
+    .use(resolveMdLinks, { urlPath, urlsWithMdVersion })
     .use(remarkStringify, {
       bullet: '-',
       emphasis: '*',

@@ -12,11 +12,15 @@ import remarkGfm from 'remark-gfm';
 import remarkStringify from 'remark-stringify';
 import { visit } from 'unist-util-visit';
 import { mdxToMarkdown } from './mdxToMarkdown.mjs';
+import { resolveUrl, resolveRelativeLinks } from './resolver.mjs';
 
 const PROJECT_ROOT = path.resolve(import.meta.dirname, '../..');
 const MDX_SOURCE_DIR = path.join(PROJECT_ROOT, 'src/app/(public)/(content)/react');
 const OUTPUT_BASE_DIR = path.join(PROJECT_ROOT, 'public');
 const OUTPUT_REACT_DIR = path.join(OUTPUT_BASE_DIR, 'react');
+
+// Use the deployment URL if available, just root relative otherwise
+const BASE_URL = process.env.DEPLOY_PRIME_URL || '/';
 
 /**
  * Remark plugin to increment heading levels by a specified amount
@@ -36,11 +40,12 @@ function incrementHeaders(increment = 1) {
  * @param {number} increment - Amount to increment headers by
  * @returns {Promise<string>} - Processed markdown
  */
-async function incrementMarkdownHeaders(markdown, increment) {
+async function prepareForInlineMarkdown(markdown, increment, base) {
   const result = await unified()
     .use(remarkParse)
     .use(remarkGfm)
     .use(incrementHeaders, increment)
+    .use(resolveRelativeLinks, { base })
     .use(remarkStringify)
     .process(markdown);
   return String(result.value);
@@ -57,6 +62,7 @@ async function generateLlmsTxt() {
     await fs.mkdir(OUTPUT_BASE_DIR, { recursive: true });
     await fs.mkdir(OUTPUT_REACT_DIR, { recursive: true });
 
+    const metadataByUrl = new Map();
     // Store metadata for each section as objects indexed by ID
     const metadataBySection = {
       overview: {},
@@ -68,28 +74,37 @@ async function generateLlmsTxt() {
     // Counter for total files processed
     let totalFiles = 0;
 
+    const mdxFiles = await glob('**/*/page.mdx', {
+      cwd: MDX_SOURCE_DIR,
+      absolute: true,
+    });
+
+    const mdxFilesInfo = mdxFiles.map((mdxFile) => {
+      const relativePath = path.relative(MDX_SOURCE_DIR, mdxFile);
+      const dirPath = path.dirname(relativePath);
+      const urlPath = `/${path.join('react', dirPath).replace(/\\/g, '/')}`;
+      const outputFilePath = path.join(OUTPUT_REACT_DIR, `${dirPath}.md`);
+      return { urlPath, mdxFile, outputFilePath };
+    });
+
+    const urlsWithMdVersion = new Set(mdxFilesInfo.map((info) => info.urlPath));
+
     // Process files from a specific section
     const processSection = async (sectionName) => {
       console.log(`Processing ${sectionName} section...`);
 
-      // Find all MDX files in this section
-      const sectionPath = path.join(MDX_SOURCE_DIR, sectionName);
-      const mdxFiles = await glob('**/*/page.mdx', {
-        cwd: sectionPath,
-        absolute: true,
-      });
-
-      console.log(`Found ${mdxFiles.length} files in ${sectionName}`);
-
-      for (const mdxFile of mdxFiles) {
-        const relativePath = path.relative(MDX_SOURCE_DIR, mdxFile);
-        const dirPath = path.dirname(relativePath);
-        const urlPath = dirPath.replace(/\\/g, '/');
-        const outputFilePath = path.join(OUTPUT_REACT_DIR, `${dirPath}.md`);
+      for (const { urlPath, mdxFile, outputFilePath } of mdxFilesInfo) {
+        if (!urlPath.startsWith(`/react/${sectionName}/`)) {
+          continue;
+        }
 
         const mdxContent = await fs.readFile(mdxFile, 'utf-8');
 
-        const { markdown, title, subtitle, description } = await mdxToMarkdown(mdxContent, mdxFile);
+        const { markdown, title, subtitle, description } = await mdxToMarkdown(
+          mdxContent,
+          mdxFile,
+          { urlPath, urlsWithMdVersion },
+        );
 
         // Create directories for output if needed
         await fs.mkdir(path.dirname(outputFilePath), { recursive: true });
@@ -120,22 +135,26 @@ async function generateLlmsTxt() {
         await fs.writeFile(outputFilePath, content, 'utf-8');
 
         // Extract the filename without extension to use as id
-        const fileId = path.basename(dirPath);
+        const fileId = path.basename(outputFilePath, '.md');
 
-        // Store metadata for this file in the appropriate section
-        metadataBySection[sectionName][fileId] = {
+        const pageMeta = {
           id: fileId,
           title: title || 'Untitled',
           subtitle: subtitle || '',
           description: description || '',
-          urlPath: `./react/${urlPath}.md`,
+          urlPath,
+          mdUrlPath: `${urlPath}.md`,
           fullMarkdown: markdown,
         };
+
+        // Store metadata for this file in the appropriate section
+        metadataBySection[sectionName][fileId] = pageMeta;
+        metadataByUrl.set(urlPath, pageMeta);
 
         // Increment the counter
         totalFiles += 1;
 
-        console.log(`Processed: ${relativePath}`);
+        console.log(`Processed: ${mdxFile}`);
       }
     };
 
@@ -156,10 +175,12 @@ async function generateLlmsTxt() {
     ];
 
     // Page rendering functions - focused only on their unique logic
-    const renderPageAsLink = (page) => [`- [${page.title}](${page.urlPath}): ${page.description}`];
+    const renderPageAsLink = (page) => {
+      const resolvedUrl = resolveUrl(page.mdUrlPath, BASE_URL);
+      return [`- [${page.title}](${resolvedUrl}): ${page.description}`];
+    };
     const renderPageAsInline = async (page) => {
-      // Increment all headers in the markdown by 2 levels (so h1 becomes h3, etc.)
-      const content = await incrementMarkdownHeaders(page.fullMarkdown, 2);
+      const content = await prepareForInlineMarkdown(page.fullMarkdown, 2, BASE_URL);
       return [content];
     };
 
