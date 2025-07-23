@@ -12,7 +12,7 @@ import remarkGfm from 'remark-gfm';
 import remarkStringify from 'remark-stringify';
 import { visit } from 'unist-util-visit';
 import { mdxToMarkdown } from './mdxToMarkdown.mjs';
-import { resolveUrl, resolveRelativeLinks } from './resolver.mjs';
+import { resolveUrl, isAbsoluteUrl } from './resolver.mjs';
 
 const PROJECT_ROOT = path.resolve(import.meta.dirname, '../..');
 const MDX_SOURCE_DIR = path.join(PROJECT_ROOT, 'src/app/(public)/(content)/react');
@@ -34,18 +34,47 @@ function incrementHeaders(increment = 1) {
   };
 }
 
+function githubSlugify(text) {
+  return text
+    .trim()
+    .toLowerCase()
+    .replace(/[^\w\s-]/g, '') // remove punctuation except - and space
+    .replace(/\s+/g, '-') // spaces to hyphens
+    .replace(/-+/g, '-') // collapse multiple hyphens
+    .replace(/^-+|-+$/g, ''); // trim leading/trailing hyphens
+}
+
+function resolveRelativeLinks({ metadataByUrl = new Map() }) {
+  return (tree) => {
+    visit(tree, 'link', (node) => {
+      if (!node.url || isAbsoluteUrl(node.url)) {
+        return;
+      }
+
+      const urlPath = node.url.endsWith('.md') ? node.url.slice(0, -3) : node.url;
+      const metadata = metadataByUrl.get(urlPath);
+      if (!metadata) {
+        return;
+      }
+
+      const hash = githubSlugify(metadata.title);
+      node.url = `#${hash}`;
+    });
+  };
+}
+
 /**
  * Function to process markdown and increment headers
  * @param {string} markdown - Markdown string to process
  * @param {number} increment - Amount to increment headers by
  * @returns {Promise<string>} - Processed markdown
  */
-async function prepareForInlineMarkdown(markdown, increment, base) {
+async function prepareForInlineMarkdown(markdown, increment, metadataByUrl) {
   const result = await unified()
     .use(remarkParse)
     .use(remarkGfm)
     .use(incrementHeaders, increment)
-    .use(resolveRelativeLinks, { base })
+    .use(resolveRelativeLinks, { metadataByUrl })
     .use(remarkStringify)
     .process(markdown);
   return String(result.value);
@@ -180,7 +209,7 @@ async function generateLlmsTxt() {
       return [`- [${page.title}](${resolvedUrl}): ${page.description}`];
     };
     const renderPageAsInline = async (page) => {
-      const content = await prepareForInlineMarkdown(page.fullMarkdown, 2, BASE_URL);
+      const content = await prepareForInlineMarkdown(page.fullMarkdown, 2, metadataByUrl);
       return [content];
     };
 

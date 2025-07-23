@@ -1,6 +1,6 @@
 import { visit } from 'unist-util-visit';
 
-function isAbsoluteUrl(url) {
+export function isAbsoluteUrl(url) {
   try {
     return !!new URL(url);
   } catch {
@@ -39,18 +39,6 @@ export function resolveMdLinks({ urlPath, urlsWithMdVersion }) {
       }
 
       node.url = resolveMdLink(node.url, { urlPath, urlsWithMdVersion });
-    });
-  };
-}
-
-export function resolveRelativeLinks({ base = '/' }) {
-  return (tree) => {
-    visit(tree, 'link', (node) => {
-      if (!node.url || isAbsoluteUrl(node.url)) {
-        return;
-      }
-
-      node.url = resolveUrl(node.url, base);
     });
   };
 }
