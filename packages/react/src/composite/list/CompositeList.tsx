@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { useLazyRef } from '@base-ui-components/utils/useLazyRef';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
-import { useModernLayoutEffect } from '@base-ui-components/utils/useModernLayoutEffect';
+import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { CompositeListContext } from './CompositeListContext';
 
 export type CompositeMetadata<CustomMetadata> = { index?: number | null } & CustomMetadata;
@@ -57,7 +57,7 @@ export function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
     return newMap;
   }, [map, mapTick]);
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     const shouldUpdateLengths = lastTickRef.current === mapTick;
     if (shouldUpdateLengths) {
       if (elementsRef.current.length !== sortedMap.size) {
@@ -78,7 +78,7 @@ export function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
     };
   });
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     listeners.forEach((l) => l(sortedMap));
   }, [listeners, sortedMap]);
 
