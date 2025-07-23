@@ -18,16 +18,16 @@ export const PopoverDescription = React.forwardRef(function PopoverDescription(
 ) {
   const { render, className, ...elementProps } = componentProps;
 
-  const { setDescriptionId } = usePopoverRootContext();
+  const { store } = usePopoverRootContext();
 
   const id = useBaseUiId(elementProps.id);
 
   useModernLayoutEffect(() => {
-    setDescriptionId(id);
+    store.set('descriptionId', id);
     return () => {
-      setDescriptionId(undefined);
+      store.set('descriptionId', undefined);
     };
-  }, [setDescriptionId, id]);
+  }, [store, id]);
 
   const element = useRenderElement('p', componentProps, {
     ref: forwardedRef,

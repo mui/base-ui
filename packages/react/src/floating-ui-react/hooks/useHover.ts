@@ -17,6 +17,7 @@ import type {
   SafePolygonOptions,
 } from '../types';
 import { createAttribute } from '../utils/createAttribute';
+import { getEmptyContext } from './useFloatingRootContext';
 
 const safePolygonIdentifier = createAttribute('safe-polygon');
 
@@ -106,8 +107,11 @@ export interface UseHoverProps {
  * CSS `:hover`.
  * @see https://floating-ui.com/docs/useHover
  */
-export function useHover(context: FloatingRootContext, props: UseHoverProps = {}): ElementProps {
-  const { open, onOpenChange, dataRef, events, elements } = context;
+export function useHover(
+  context: FloatingRootContext | null,
+  props: UseHoverProps = {},
+): ElementProps {
+  const { open, onOpenChange, dataRef, events, elements } = context ?? getEmptyContext();
   const {
     enabled = true,
     delay = 0,

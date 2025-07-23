@@ -2,6 +2,7 @@
 import * as React from 'react';
 import { useSelector } from '@base-ui-components/utils/store';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useModernLayoutEffect } from '@base-ui-components/utils/useModernLayoutEffect';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
 import { useButton } from '../../use-button/useButton';
 import type { BaseUIComponentProps } from '../../utils/types';
@@ -11,7 +12,11 @@ import {
 } from '../../utils/popupStateMapping';
 import { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 import { useRenderElement } from '../../utils/useRenderElement';
-import { PopupHandle, selectors } from '../../utils/createPopup';
+import { safePolygon, useClick, useHover, useInteractions } from '../../floating-ui-react';
+import { OPEN_DELAY } from '../utils/constants';
+import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
+import { selectors } from '../store';
+import { PopoverHandle } from '../handle/createPopover';
 
 /**
  * A button that opens the popover.
@@ -33,7 +38,11 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
     ...elementProps
   } = componentProps;
 
-  const { open, setTriggerElement, triggerProps, openReason } = usePopoverRootContext();
+  const { store } = usePopoverRootContext();
+
+  const open = useSelector(store, selectors.open);
+  const openReason = useSelector(store, selectors.openReason);
+  const triggerProps = useSelector(store, selectors.triggerProps);
 
   const state: PopoverTrigger.State = React.useMemo(
     () => ({
@@ -61,6 +70,13 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
     [openReason],
   );
 
+  const setTriggerElement = React.useCallback(
+    (element: HTMLElement | null) => {
+      store.set('activeTriggerElement', element);
+    },
+    [store],
+  );
+
   const element = useRenderElement('button', componentProps, {
     state,
     ref: [buttonRef, setTriggerElement, forwardedRef],
@@ -72,7 +88,7 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
 });
 
 export const PopoverDetachedTrigger = React.forwardRef(function PopoverDetachedTrigger(
-  componentProps: PopoverTrigger.Props,
+  componentProps: PopoverDetachedTrigger.Props,
   forwardedRef: React.ForwardedRef<any>,
 ) {
   const {
@@ -82,12 +98,17 @@ export const PopoverDetachedTrigger = React.forwardRef(function PopoverDetachedT
     nativeButton = true,
     handle,
     payload,
+    openOnHover = false,
+    delay = OPEN_DELAY,
+    closeDelay = 0,
     ...elementProps
   } = componentProps;
 
   if (!handle) {
     throw new Error('PopoverDetachedTrigger requires a `handle` prop to be passed.');
   }
+
+  const store = handle.store;
 
   const getPayload = useEventCallback(() => {
     return payload;
@@ -103,8 +124,35 @@ export const PopoverDetachedTrigger = React.forwardRef(function PopoverDetachedT
     },
     [handle, getPayload],
   );
+  const floatingContext = useSelector(handle.store, selectors.floatingRootContext);
 
-  const triggerProps = useSelector(handle.store, selectors.triggerProps) ?? {};
+  const open = useSelector(store, selectors.open);
+  const openReason = useSelector(store, selectors.openReason);
+
+  const { openMethod, triggerProps: interactionTypeTriggerProps } = useOpenInteractionType(open);
+
+  useModernLayoutEffect(() => {
+    store.set('openMethod', openMethod);
+  }, [store, openMethod]);
+
+  const hover = useHover(floatingContext, {
+    enabled:
+      floatingContext != null &&
+      openOnHover &&
+      (openMethod !== 'touch' || openReason !== 'trigger-press'),
+    mouseOnly: true,
+    move: false,
+    handleClose: safePolygon({ blockPointerEvents: true }),
+    restMs: delay,
+    delay: {
+      close: closeDelay,
+    },
+  });
+  const click = useClick(floatingContext, { enabled: floatingContext != null, stickIfOpen: false });
+
+  const localProps = useInteractions([click, hover]);
+
+  const rootTriggerProps = useSelector(handle.store, selectors.triggerProps);
 
   const state: PopoverTrigger.State = React.useMemo(
     () => ({
@@ -135,7 +183,13 @@ export const PopoverDetachedTrigger = React.forwardRef(function PopoverDetachedT
   const element = useRenderElement('button', componentProps, {
     state,
     ref: [buttonRef, forwardedRef, onMount],
-    props: [triggerProps, elementProps, getButtonProps],
+    props: [
+      localProps.getReferenceProps(),
+      rootTriggerProps,
+      interactionTypeTriggerProps,
+      elementProps,
+      getButtonProps,
+    ],
     customStyleHookMapping,
   });
 
@@ -163,7 +217,15 @@ export namespace PopoverTrigger {
      */
     nativeButton?: boolean;
 
-    handle?: PopupHandle<unknown>;
+    handle?: PopoverHandle<unknown>;
     payload?: any;
+  }
+}
+
+export namespace PopoverDetachedTrigger {
+  export interface Props extends PopoverTrigger.Props {
+    openOnHover?: boolean;
+    delay?: number;
+    closeDelay?: number;
   }
 }

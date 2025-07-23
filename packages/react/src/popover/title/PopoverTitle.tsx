@@ -18,16 +18,16 @@ export const PopoverTitle = React.forwardRef(function PopoverTitle(
 ) {
   const { render, className, ...elementProps } = componentProps;
 
-  const { setTitleId } = usePopoverRootContext();
+  const { store } = usePopoverRootContext();
 
   const id = useBaseUiId(elementProps.id);
 
   useModernLayoutEffect(() => {
-    setTitleId(id);
+    store.set('titleId', id);
     return () => {
-      setTitleId(undefined);
+      store.set('titleId', undefined);
     };
-  }, [setTitleId, id]);
+  }, [store, id]);
 
   const element = useRenderElement('h2', componentProps, {
     ref: forwardedRef,

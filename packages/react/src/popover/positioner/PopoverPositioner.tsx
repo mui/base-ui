@@ -2,6 +2,7 @@
 import * as React from 'react';
 import { inertValue } from '@base-ui-components/utils/inertValue';
 import { useAnimationFrame } from '@base-ui-components/utils/useAnimationFrame';
+import { useSelector } from '@base-ui-components/utils/store';
 import { FloatingNode, useFloatingNodeId } from '../../floating-ui-react';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
 import { PopoverPositionerContext } from './PopoverPositionerContext';
@@ -12,6 +13,7 @@ import { usePopoverPortalContext } from '../portal/PopoverPortalContext';
 import { InternalBackdrop } from '../../utils/InternalBackdrop';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { POPUP_COLLISION_AVOIDANCE } from '../../utils/constants';
+import { selectors } from '../store';
 
 /**
  * Positions the popover against the trigger.
@@ -41,18 +43,17 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
     ...elementProps
   } = componentProps;
 
-  const {
-    floatingRootContext,
-    open,
-    mounted,
-    setPositionerElement,
-    modal,
-    openReason,
-    openMethod,
-    triggerElement,
-  } = usePopoverRootContext();
+  const { store } = usePopoverRootContext();
   const keepMounted = usePopoverPortalContext();
   const nodeId = useFloatingNodeId();
+
+  const floatingRootContext = useSelector(store, selectors.floatingRootContext);
+  const mounted = useSelector(store, selectors.mounted);
+  const open = useSelector(store, selectors.open);
+  const openMethod = useSelector(store, selectors.openMethod);
+  const openReason = useSelector(store, selectors.openReason);
+  const triggerElement = useSelector(store, selectors.activeTriggerElement);
+  const modal = useSelector(store, selectors.modal);
 
   const positioning = useAnchorPositioning({
     anchor,
@@ -119,6 +120,13 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
       instant,
     }),
     [open, positioner.side, positioner.align, positioner.anchorHidden, instant],
+  );
+
+  const setPositionerElement = React.useCallback(
+    (element: HTMLElement | null) => {
+      store.set('positionerElement', element);
+    },
+    [store],
   );
 
   const element = useRenderElement('div', componentProps, {

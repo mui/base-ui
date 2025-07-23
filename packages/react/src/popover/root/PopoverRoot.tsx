@@ -4,20 +4,17 @@ import * as ReactDOM from 'react-dom';
 import { useTimeout } from '@base-ui-components/utils/useTimeout';
 import { useControlled } from '@base-ui-components/utils/useControlled';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
-import { useSelector } from '@base-ui-components/utils/store';
+import { Store, useSelector } from '@base-ui-components/utils/store';
+import { useLazyRef } from '@base-ui-components/utils/useLazyRef';
+import { useModernLayoutEffect } from '@base-ui-components/utils/useModernLayoutEffect';
 import {
-  useClick,
   useDismiss,
   useFloatingRootContext,
-  useHover,
   useInteractions,
   useRole,
   FloatingTree,
-  safePolygon,
 } from '../../floating-ui-react';
 import { useTransitionStatus } from '../../utils/useTransitionStatus';
-import { OPEN_DELAY } from '../utils/constants';
-import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
 import { translateOpenChangeReason } from '../../utils/translateOpenChangeReason';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { PATIENT_CLICK_THRESHOLD } from '../../utils/constants';
@@ -27,32 +24,55 @@ import {
   PopoverRootContext,
   usePopoverRootContext,
 } from './PopoverRootContext';
-import { mergeProps } from '../../merge-props';
-import { PopupHandle, selectors } from '../../utils/createPopup';
 import { usePopupAutoResize } from '../../utils/usePopupAutoResize';
+import { State, selectors } from '../store';
+import { getEmptyContext } from '../../floating-ui-react/hooks/useFloatingRootContext';
+import { PopoverHandle } from '../handle/createPopover';
 
 function PopoverRootComponent({ props }: { props: PopoverRoot.Props }) {
   const {
     open: externalOpen,
     onOpenChange,
     defaultOpen = false,
-    delay = OPEN_DELAY,
-    closeDelay = 0,
-    openOnHover = false,
+    // delay = OPEN_DELAY,
+    // closeDelay = 0,
+    // openOnHover = false,
     onOpenChangeComplete,
     modal = false,
     handle,
   } = props;
 
-  const [instantType, setInstantType] = React.useState<'dismiss' | 'click'>();
-  const [titleId, setTitleId] = React.useState<string>();
-  const [descriptionId, setDescriptionId] = React.useState<string>();
-  const [triggerElement, setTriggerElement] = React.useState<Element | null>(null);
-  const [positionerElement, setPositionerElement] = React.useState<HTMLElement | null>(null);
-  const [popupElement, setPopupElement] = React.useState<HTMLElement | null>(null);
-  const [openReason, setOpenReason] = React.useState<PopoverOpenChangeReason | null>(null);
-  const [stickIfOpen, setStickIfOpen] = React.useState(true);
-  const [payload, setPayload] = React.useState<unknown>(undefined);
+  const store = useLazyRef((localHandle) => {
+    return (
+      localHandle?.store ||
+      new Store<State>({
+        open: false,
+        modal: false,
+        mounted: false,
+        activeTriggerElement: null,
+        positionerElement: null,
+        popupElement: null,
+        triggers: new Map<HTMLElement, (() => unknown) | undefined>(),
+        instantType: undefined,
+        transitionStatus: 'idle',
+        openMethod: null,
+        openReason: null,
+        titleId: undefined,
+        descriptionId: undefined,
+        floatingRootContext: getEmptyContext(),
+        triggerProps: {},
+        popupProps: {},
+        payload: undefined,
+        stickIfOpen: true,
+      })
+    );
+  }, handle).current;
+
+  const positionerElement = useSelector(store, selectors.positionerElement);
+  const popupElement = useSelector(store, selectors.popupElement);
+  const activeTriggerElement = useSelector(store, selectors.activeTriggerElement);
+  const payload = useSelector(store, selectors.payload);
+  const openReason = useSelector(store, selectors.openReason);
 
   const popupRef = React.useRef<HTMLElement>(null);
   const stickIfOpenTimeout = useTimeout();
@@ -67,6 +87,13 @@ function PopoverRootComponent({ props }: { props: PopoverRoot.Props }) {
   usePopupAutoResize(popupElement, open, payload);
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
+  React.useLayoutEffect(() => {
+    store.apply({ open, mounted });
+  }, [store, open, mounted]);
+
+  useModernLayoutEffect(() => {
+    store.set('transitionStatus', transitionStatus);
+  }, [store, transitionStatus]);
 
   useScrollLock({
     enabled: open && modal === true && openReason !== 'trigger-hover',
@@ -77,8 +104,7 @@ function PopoverRootComponent({ props }: { props: PopoverRoot.Props }) {
 
   const handleUnmount = useEventCallback(() => {
     setMounted(false);
-    setStickIfOpen(true);
-    setOpenReason(null);
+    store.apply({ stickIfOpen: true, openReason: null });
     onOpenChangeComplete?.(false);
   });
 
@@ -101,9 +127,7 @@ function PopoverRootComponent({ props }: { props: PopoverRoot.Props }) {
     }
   }, [stickIfOpenTimeout, open]);
 
-  // TODO: call this conditionally when handle is available
-  // @ts-ignore
-  const triggerElements = useSelector(handle.store, selectors.triggers);
+  const triggerElements = useSelector(store, selectors.triggers);
 
   const setOpen = useEventCallback(function setOpen(
     nextOpen: boolean,
@@ -111,14 +135,16 @@ function PopoverRootComponent({ props }: { props: PopoverRoot.Props }) {
     reason: PopoverOpenChangeReason | undefined,
     trigger: Element | undefined,
   ) {
+    console.log('setOpen', nextOpen, event, reason, trigger);
+
     if (event && nextOpen && trigger) {
-      setTriggerElement(trigger);
+      store.set('activeTriggerElement', trigger);
     }
 
     if (nextOpen && trigger) {
       const triggerPayload = triggerElements.get(trigger as HTMLElement);
       if (triggerPayload !== undefined) {
-        setPayload(triggerPayload());
+        store.set('payload', triggerPayload());
       }
     }
 
@@ -131,16 +157,16 @@ function PopoverRootComponent({ props }: { props: PopoverRoot.Props }) {
       setOpenUnwrapped(nextOpen);
 
       if (nextOpen) {
-        setOpenReason(reason ?? null);
+        store.set('openReason', reason ?? null);
       }
     }
 
     if (isHover) {
       // Only allow "patient" clicks to close the popover if it's open.
       // If they clicked within 500ms of the popover opening, keep it open.
-      setStickIfOpen(true);
+      store.set('stickIfOpen', true);
       stickIfOpenTimeout.start(PATIENT_CLICK_THRESHOLD, () => {
-        setStickIfOpen(false);
+        store.set('stickIfOpen', false);
       });
 
       ReactDOM.flushSync(changeState);
@@ -149,15 +175,15 @@ function PopoverRootComponent({ props }: { props: PopoverRoot.Props }) {
     }
 
     if (isKeyboardClick || isDismissClose) {
-      setInstantType(isKeyboardClick ? 'click' : 'dismiss');
+      store.set('instantType', isKeyboardClick ? 'click' : 'dismiss');
     } else {
-      setInstantType(undefined);
+      store.set('instantType', undefined);
     }
   });
 
   const floatingContext = useFloatingRootContext({
     elements: {
-      reference: triggerElement,
+      reference: activeTriggerElement,
       floating: positionerElement,
       triggers: Array.from(triggerElements.keys()),
     },
@@ -167,89 +193,33 @@ function PopoverRootComponent({ props }: { props: PopoverRoot.Props }) {
     },
   });
 
-  const { openMethod, triggerProps } = useOpenInteractionType(open);
-
-  const computedRestMs = delay;
-
-  const hover = useHover(floatingContext, {
-    enabled: openOnHover && (openMethod !== 'touch' || openReason !== 'trigger-press'),
-    mouseOnly: true,
-    move: false,
-    handleClose: safePolygon({ blockPointerEvents: true }),
-    restMs: computedRestMs,
-    delay: {
-      close: closeDelay,
-    },
-  });
-  const click = useClick(floatingContext, {
-    stickIfOpen,
-  });
   const dismiss = useDismiss(floatingContext);
   const role = useRole(floatingContext);
 
-  const { getReferenceProps, getFloatingProps } = useInteractions([hover, click, dismiss, role]);
+  const { getReferenceProps, getFloatingProps } = useInteractions([dismiss, role]);
 
-  const mergedTriggerProps = React.useMemo(() => {
-    return mergeProps(triggerProps, getReferenceProps());
-  }, [triggerProps, getReferenceProps]);
+  useModernLayoutEffect(() => {
+    store.apply({
+      triggerProps: getReferenceProps(),
+      popupProps: getFloatingProps(),
+      floatingRootContext: floatingContext,
+    });
+  }, [getReferenceProps, getFloatingProps, floatingContext, store]);
 
   React.useEffect(() => {
     if (handle !== undefined) {
-      handle.registerPopup(mergedTriggerProps);
+      handle.registerPopup(floatingContext);
     }
-  }, [handle, mergedTriggerProps]);
+  }, [handle, floatingContext]);
 
   const popoverContext: PopoverRootContext = React.useMemo(
     () => ({
-      open,
       setOpen,
-      mounted,
-      setMounted,
-      transitionStatus,
-      triggerElement,
-      setTriggerElement,
-      positionerElement,
-      setPositionerElement,
-      setPopupElement,
       popupRef,
-      titleId,
-      setTitleId,
-      descriptionId,
-      setDescriptionId,
-      triggerProps: mergedTriggerProps,
-      popupProps: getFloatingProps(),
-      floatingRootContext: floatingContext,
-      instantType,
-      openMethod,
-      openReason,
       onOpenChangeComplete,
-      openOnHover,
-      delay,
-      closeDelay,
-      modal,
+      store,
     }),
-    [
-      open,
-      setOpen,
-      mounted,
-      setMounted,
-      transitionStatus,
-      positionerElement,
-      titleId,
-      descriptionId,
-      triggerElement,
-      mergedTriggerProps,
-      getFloatingProps,
-      floatingContext,
-      instantType,
-      openMethod,
-      openReason,
-      onOpenChangeComplete,
-      openOnHover,
-      delay,
-      closeDelay,
-      modal,
-    ],
+    [setOpen, popupRef, onOpenChangeComplete, store],
   );
 
   return (
@@ -340,7 +310,7 @@ export namespace PopoverRoot {
      */
     modal?: boolean | 'trap-focus';
     children?: React.ReactNode | (({ payload }: { payload: any }) => React.ReactNode);
-    handle?: PopupHandle<any>;
+    handle?: PopoverHandle<any>;
   }
 
   export interface Actions {

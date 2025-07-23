@@ -3,14 +3,14 @@ import * as React from 'react';
 import { Popover } from '@base-ui-components/react/popover';
 
 // eslint-disable-next-line no-restricted-imports
-import { PopupHandle } from '@base-ui-components/react/utils/createPopup';
+import { PopoverHandle } from '@base-ui-components/react/popover/handle/createPopover';
 import {
   SettingsMetadata,
   useExperimentSettings,
 } from 'docs/src/components/Experiments/SettingsPanel';
 import styles from './popover-detached-trigger.module.css';
 
-const popover1 = new PopupHandle<unknown>();
+const popover1 = new PopoverHandle<unknown>();
 
 interface Settings {
   openOnHover: boolean;
@@ -25,20 +25,27 @@ export default function PopoverDetachedTrigger() {
       <StyledTrigger handle={popover1} payload={3} />
       <StyledTrigger handle={popover1} payload={4} />
       <StyledTrigger handle={popover1} payload={5} />
+      <StyledTrigger handle={popover1} payload={5} />
+      <StyledTrigger handle={popover1} payload={5} />
+      <StyledTrigger handle={popover1} payload={5} />
     </div>
   );
 }
 
 interface StyledPopoverProps {
-  handle: PopupHandle<unknown>;
+  handle: PopoverHandle<unknown>;
 }
 
-function StyledTrigger<Payload>(props: { handle: PopupHandle<Payload>; payload: Payload }) {
+function StyledTrigger<Payload>(props: { handle: PopoverHandle<Payload>; payload: Payload }) {
+  const { settings } = useExperimentSettings<Settings>();
   return (
     <Popover.DetachedTrigger
       className={styles.IconButton}
-      handle={props.handle as PopupHandle<unknown>}
+      handle={props.handle as PopoverHandle<unknown>}
       payload={props.payload}
+      openOnHover={settings.openOnHover}
+      delay={0}
+      closeDelay={300}
     >
       <PopupIcon aria-label="Notifications" className={styles.Icon} />
     </Popover.DetachedTrigger>
@@ -47,10 +54,9 @@ function StyledTrigger<Payload>(props: { handle: PopupHandle<Payload>; payload: 
 
 function StyledPopover(props: StyledPopoverProps) {
   const { handle } = props;
-  const { settings } = useExperimentSettings<Settings>();
 
   return (
-    <Popover.Root handle={handle} openOnHover={settings.openOnHover} delay={0} closeDelay={300}>
+    <Popover.Root handle={handle}>
       {({ payload }) => (
         <Popover.Portal>
           <Popover.Positioner sideOffset={8} className={styles.Positioner}>

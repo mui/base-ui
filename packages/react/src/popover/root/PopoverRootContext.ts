@@ -1,16 +1,11 @@
 'use client';
 import * as React from 'react';
-import type { InteractionType } from '@base-ui-components/utils/useEnhancedClickHandler';
-import type { FloatingRootContext } from '../../floating-ui-react';
-import type { TransitionStatus } from '../../utils/useTransitionStatus';
-import type { HTMLProps } from '../../utils/types';
 import type { BaseOpenChangeReason } from '../../utils/translateOpenChangeReason';
+import type { PopoverStore } from '../store';
 
 export type PopoverOpenChangeReason = BaseOpenChangeReason | 'close-press';
 
 export interface PopoverRootContext {
-  open: boolean;
-  openOnHover: boolean;
   setOpen: (
     open: boolean,
     event: Event | undefined,
@@ -18,29 +13,9 @@ export interface PopoverRootContext {
     triggerElement: Element | undefined,
     data?: unknown,
   ) => void;
-  triggerElement: Element | null;
-  setTriggerElement: (el: Element | null) => void;
-  positionerElement: HTMLElement | null;
-  setPositionerElement: (el: HTMLElement | null) => void;
-  setPopupElement: (el: HTMLElement | null) => void;
   popupRef: React.RefObject<HTMLElement | null>;
-  delay: number;
-  closeDelay: number;
-  instantType: 'dismiss' | 'click' | undefined;
-  mounted: boolean;
-  setMounted: React.Dispatch<React.SetStateAction<boolean>>;
-  transitionStatus: TransitionStatus;
-  titleId: string | undefined;
-  setTitleId: React.Dispatch<React.SetStateAction<string | undefined>>;
-  descriptionId: string | undefined;
-  setDescriptionId: React.Dispatch<React.SetStateAction<string | undefined>>;
-  floatingRootContext: FloatingRootContext;
-  triggerProps: HTMLProps;
-  popupProps: HTMLProps;
-  openMethod: InteractionType | null;
-  openReason: PopoverOpenChangeReason | null;
   onOpenChangeComplete: ((open: boolean) => void) | undefined;
-  modal: boolean | 'trap-focus';
+  store: PopoverStore;
 }
 
 export const PopoverRootContext = React.createContext<PopoverRootContext | undefined>(undefined);
