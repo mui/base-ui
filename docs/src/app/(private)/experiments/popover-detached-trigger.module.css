@@ -62,14 +62,14 @@
   color: var(--color-gray-900);
   transform-origin: var(--transform-origin);
 
-  width: var(--positioner-width, auto);
-  height: var(--positioner-height, auto);
+  width: var(--popup-width, auto);
+  height: var(--popup-height, auto);
 
   overflow: hidden;
 
   transition:
-    width 0.2s,
-    height 0.2s;
+    width 0.2s cubic-bezier(0.165, 0.84, 0.44, 1),
+    height 0.2s cubic-bezier(0.165, 0.84, 0.44, 1);
 
   &[data-starting-style],
   &[data-ending-style] {
@@ -168,5 +168,87 @@
     &:hover {
       background-color: var(--color-gray-300);
     }
+  }
+}
+
+.content-switcher {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden; /* This is the viewport */
+}
+
+.slide-item {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  transform: translateX(0); /* Start in the center */
+}
+
+/* --- Forward Animation --- */
+.slide-item.exit-forward {
+  animation: slideOutToLeft 0.4s ease-in-out forwards;
+}
+
+.slide-item.enter-forward {
+  animation: slideInFromRight 0.4s ease-in-out forwards;
+}
+
+@keyframes slideOutToLeft {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+
+  to {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+}
+
+@keyframes slideInFromRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* --- Backward Animation --- */
+.slide-item.exit-backward {
+  animation: slideOutToRight 0.4s ease-in-out forwards;
+}
+
+.slide-item.enter-backward {
+  animation: slideInFromLeft 0.4s ease-in-out forwards;
+}
+
+@keyframes slideOutToRight {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+
+  to {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+
+@keyframes slideInFromLeft {
+  from {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateX(0);
+    opacity: 1;
   }
 }
