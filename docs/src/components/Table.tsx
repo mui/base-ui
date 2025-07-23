@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import clsx from 'clsx';
+import { observeScrollableInner } from '../utils/observeScrollableInner';
 
 export function Root({ children, ...props }: React.ComponentProps<'div'>) {
   return (
@@ -42,7 +43,7 @@ export function RowHeader({
   return (
     <th
       scope="row"
-      ref={observeInnerScrollable}
+      ref={observeScrollableInner}
       className={clsx('TableCell', className)}
       {...props}
     >
@@ -53,31 +54,8 @@ export function RowHeader({
 
 export function Cell({ children, className, ...props }: React.ComponentProps<'td'>) {
   return (
-    <td ref={observeInnerScrollable} className={clsx('TableCell', className)} {...props}>
+    <td ref={observeScrollableInner} className={clsx('TableCell', className)} {...props}>
       <span className="TableCellInner">{children}</span>
     </td>
   );
-}
-
-// Observe whether the "TableCellInner" node is scrollable and set a "[data-scrollable]"
-// attribute on the parent cell. We are rawdogging the DOM changes here to skip unnecessary renders.
-function observeInnerScrollable(node: HTMLElement | null) {
-  if (!node) {
-    return;
-  }
-
-  const inner = node.children[0] as HTMLElement;
-  const observer = new ResizeObserver(() => {
-    if (inner.scrollWidth > inner.offsetWidth) {
-      node.setAttribute('data-scrollable', '');
-    } else {
-      node.removeAttribute('data-scrollable');
-    }
-  });
-
-  if (inner) {
-    observer.observe(inner);
-  } else {
-    console.warn('Expected to find a TableCellInner element');
-  }
 }

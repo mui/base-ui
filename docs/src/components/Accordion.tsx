@@ -2,6 +2,7 @@
 import * as React from 'react';
 import clsx from 'clsx';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { observeScrollableInner } from '../utils/observeScrollableInner';
 
 const ARROW_UP = 'ArrowUp';
 const ARROW_DOWN = 'ArrowDown';
@@ -136,10 +137,25 @@ export function Content(props: React.ComponentProps<'div'>) {
   return <div {...props} className={clsx('AccordionContent', props.className)} />;
 }
 
+/* Scroll container with an overscroll overlay graphic for overflowing content inside the trigger */
+export function Scrollable({ children, className, ...props }: React.ComponentProps<'span'>) {
+  return (
+    <span
+      ref={observeScrollableInner}
+      className={clsx('AccordionScrollable', className)}
+      {...props}
+    >
+      <span className="AccordionScrollableInner">{children}</span>
+    </span>
+  );
+}
+
+/* Fake <tr> */
 export function HeaderRow(props: React.ComponentProps<'div'>) {
   return <div {...props} aria-hidden className={clsx('AccordionHeaderRow', props.className)} />;
 }
 
+/* Fake <th scope="col"> */
 export function HeaderCell(props: React.ComponentProps<'div'>) {
   return <div {...props} className={clsx('AccordionHeaderCell', props.className)} />;
 }

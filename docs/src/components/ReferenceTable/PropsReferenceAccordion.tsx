@@ -109,7 +109,7 @@ export async function PropsReferenceAccordion({ data, name: partName, ...props }
               index={index}
               aria-label={`prop: ${name},${prop.required ? ' required,' : ''} type: ${shortPropTypeName} ${prop.default !== undefined ? `(default: ${prop.default})` : ''}`}
               className={clsx(
-                'max-xs:gap-4 md:gap-5 scroll-mt-12 md:scroll-mt-0',
+                'min-h-min scroll-mt-12 py-0 max-xs:gap-4 md:scroll-mt-0 md:gap-5',
                 TRIGGER_GRID_LAYOUT,
               )}
             >
@@ -118,7 +118,7 @@ export async function PropsReferenceAccordion({ data, name: partName, ...props }
                 {prop.required ? <sup className="top-[-0.3em] text-xs text-red-800">*</sup> : ''}
               </TableCode>
               {prop.type && (
-                <span className="flex items-baseline gap-2 text-sm leading-none max-xs:hidden">
+                <Accordion.Scrollable className="flex items-baseline gap-2 overflow-x-hidden text-sm leading-none break-keep whitespace-nowrap max-xs:hidden">
                   {detailedType ? (
                     <ReferenceTableTooltip.Root delay={300} hoverable={false}>
                       <ReferenceTableTooltip.Trigger render={<ShortPropType />} />
@@ -130,11 +130,11 @@ export async function PropsReferenceAccordion({ data, name: partName, ...props }
                     <ShortPropType />
                   )}
                   {prop.default !== undefined && (
-                    <span className="inline-flex items-baseline gap-1">
+                    <span className="inline-flex items-baseline gap-1 break-keep whitespace-nowrap">
                       <span>(</span>default: <PropDefault />)
                     </span>
                   )}
-                </span>
+                </Accordion.Scrollable>
               )}
               <svg
                 className="AccordionIcon translate-y-px"
