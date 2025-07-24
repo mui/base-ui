@@ -205,7 +205,7 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
     'aria-live': 'polite',
     'aria-atomic': false,
     'aria-relevant': 'additions text',
-    'aria-label': numToasts > 0 ? 'Notifications (F6)' : undefined,
+    'aria-label': 'Notifications (F6)',
     onMouseEnter: handleMouseEnter,
     onMouseMove: handleMouseEnter,
     onMouseLeave: handleMouseLeave,
