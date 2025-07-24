@@ -28,7 +28,7 @@
   },
   "dependencies": {
     "@babel/runtime": "^7.27.6",
-    "@floating-ui/utils": "^0.2.9",
+    "@floating-ui/utils": "^0.2.10",
     "reselect": "^5.1.1",
     "use-sync-external-store": "^1.5.0"
   },
@@ -38,7 +38,7 @@
     "@testing-library/user-event": "^14.6.1",
     "@types/chai": "^4.3.20",
     "@types/chai-dom": "^1.11.3",
-    "@types/react": "^19.1.6",
+    "@types/react": "^19.1.8",
     "@types/sinon": "^17.0.4",
     "@types/use-sync-external-store": "^1.5.0",
     "chai": "^4.5.0",
@@ -46,7 +46,7 @@
     "react-dom": "^19.1.0",
     "sinon": "^21.0.0",
     "typescript": "^5.8.3",
-    "vitest": "^3.1.4"
+    "vitest": "^3.2.4"
   },
   "peerDependencies": {
     "@types/react": "^17 || ^18 || ^19",
