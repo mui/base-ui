@@ -5,7 +5,7 @@ import { useControlled } from '@base-ui-components/utils/useControlled';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { useForkRef } from '@base-ui-components/utils/useForkRef';
 import { useLatestRef } from '@base-ui-components/utils/useLatestRef';
-import { useModernLayoutEffect } from '@base-ui-components/utils/useModernLayoutEffect';
+import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { visuallyHidden } from '@base-ui-components/utils/visuallyHidden';
 import { warn } from '@base-ui-components/utils/warn';
 import type { BaseUIComponentProps, Orientation } from '../../utils/types';
@@ -201,7 +201,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
     thumbRefs.current?.[0]?.focus();
   });
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     if (valueProp === undefined || dragging) {
       return;
     }
@@ -211,7 +211,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
     }
   }, [dragging, min, max, valueProp]);
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     const activeEl = activeElement(ownerDocument(sliderRef.current));
     if (disabled && sliderRef.current?.contains(activeEl)) {
       // This is necessary because Firefox and Safari will keep focus

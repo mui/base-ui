@@ -84,6 +84,10 @@ export const ScrollAreaRoot = React.forwardRef(function ScrollAreaRoot(
   });
 
   const handlePointerDown = useEventCallback((event: React.PointerEvent) => {
+    if (event.button !== 0) {
+      return;
+    }
+
     thumbDraggingRef.current = true;
     startYRef.current = event.clientY;
     startXRef.current = event.clientX;

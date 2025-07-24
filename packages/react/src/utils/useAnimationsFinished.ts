@@ -2,7 +2,6 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { useAnimationFrame } from '@base-ui-components/utils/useAnimationFrame';
-import { useTimeout } from '@base-ui-components/utils/useTimeout';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 
 /**
@@ -15,7 +14,6 @@ export function useAnimationsFinished(
   waitForNextTick = false,
 ) {
   const frame = useAnimationFrame();
-  const timeout = useTimeout();
 
   return useEventCallback(
     (
@@ -31,7 +29,6 @@ export function useAnimationsFinished(
       signal: AbortSignal | null = null,
     ) => {
       frame.cancel();
-      timeout.clear();
 
       if (elementOrRef == null) {
         return;
@@ -69,7 +66,7 @@ export function useAnimationsFinished(
 
           // `open: true` animations need to wait for the next tick to be detected
           if (waitForNextTick) {
-            timeout.start(0, exec);
+            frame.request(exec);
           } else {
             exec();
           }

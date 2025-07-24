@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useModernLayoutEffect } from '@base-ui-components/utils/useModernLayoutEffect';
+import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import {
   getNextTabbable,
   getPreviousTabbable,
@@ -63,7 +63,7 @@ export const NavigationMenuPopup = React.forwardRef(function NavigationMenuPopup
   );
 
   // Allow the arrow to transition while the popup's size transitions.
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     if (!popupElement || typeof ResizeObserver === 'undefined') {
       return undefined;
     }
