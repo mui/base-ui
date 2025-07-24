@@ -162,7 +162,10 @@ function PopoverRootComponent({ props }: { props: PopoverRoot.Props }) {
     stickIfOpen,
   });
   const dismiss = useDismiss(floatingContext, {
-    outsidePressEvent: 'up',
+    outsidePressEvent: {
+      mouse: 'intentional',
+      touch: 'sloppy',
+    },
   });
   const role = useRole(floatingContext);
 

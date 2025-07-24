@@ -898,9 +898,9 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
     });
   });
 
-  describe('outsidePressEvent up', () => {
+  describe('outsidePressEvent: intentional', () => {
     test('dragging outside the floating element does not close', () => {
-      render(<App outsidePressEvent="up" />);
+      render(<App outsidePressEvent="intentional" />);
       const floatingEl = screen.getByRole('tooltip');
       fireEvent.mouseDown(floatingEl);
       fireEvent.mouseUp(document.body);
@@ -909,7 +909,7 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
     });
 
     test('dragging inside the floating element does not close', () => {
-      render(<App outsidePressEvent="up" />);
+      render(<App outsidePressEvent="intentional" />);
       const floatingEl = screen.getByRole('tooltip');
       fireEvent.mouseDown(document.body);
       fireEvent.mouseUp(floatingEl);
@@ -918,7 +918,7 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
     });
 
     test('dragging outside the floating element then clicking outside closes', async () => {
-      render(<App outsidePressEvent="up" />);
+      render(<App outsidePressEvent="intentional" />);
       const floatingEl = screen.getByRole('tooltip');
       fireEvent.mouseDown(floatingEl);
       fireEvent.mouseUp(document.body);
