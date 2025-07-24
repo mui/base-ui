@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useModernLayoutEffect } from '@base-ui-components/utils/useModernLayoutEffect';
+import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { stopEvent } from '../../floating-ui-react/utils';
 import { useNumberFieldRootContext } from '../root/NumberFieldRootContext';
 import type { BaseUIComponentProps } from '../../utils/types';
@@ -91,7 +91,7 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
   const prevValueRef = React.useRef(value);
   const prevInputValueRef = React.useRef(inputValue);
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     if (prevValueRef.current === value && prevInputValueRef.current === inputValue) {
       return;
     }
@@ -103,7 +103,7 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
     }
   }, [value, inputValue, name, clearErrors, validationMode, commitValidation]);
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     if (prevValueRef.current === value || validationMode === 'onChange') {
       return;
     }
@@ -115,7 +115,7 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
     commitValidation(value, true);
   }, [commitValidation, validationMode, value]);
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     prevValueRef.current = value;
     prevInputValueRef.current = inputValue;
   }, [value, inputValue]);

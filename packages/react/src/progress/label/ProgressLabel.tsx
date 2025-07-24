@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useModernLayoutEffect } from '@base-ui-components/utils/useModernLayoutEffect';
+import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useProgressRootContext } from '../root/ProgressRootContext';
@@ -24,7 +24,7 @@ export const ProgressLabel = React.forwardRef(function ProgressLabel(
 
   const { setLabelId, state } = useProgressRootContext();
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     setLabelId(id);
     return () => setLabelId(undefined);
   }, [id, setLabelId]);
