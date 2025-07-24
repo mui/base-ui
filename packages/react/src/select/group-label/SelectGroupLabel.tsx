@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useModernLayoutEffect } from '@base-ui-components/utils/useModernLayoutEffect';
+import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useSelectGroupContext } from '../group/SelectGroupContext';
@@ -22,7 +22,7 @@ export const SelectGroupLabel = React.forwardRef(function SelectGroupLabel(
 
   const id = useBaseUiId(idProp);
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     setLabelId(id);
   }, [id, setLabelId]);
 

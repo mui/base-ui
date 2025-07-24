@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useForkRef } from '@base-ui-components/utils/useForkRef';
-import { useModernLayoutEffect } from '@base-ui-components/utils/useModernLayoutEffect';
+import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { visuallyHidden } from '@base-ui-components/utils/visuallyHidden';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { NOOP } from '../../utils/noop';
@@ -65,7 +65,7 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
   const inputRef = React.useRef<HTMLInputElement>(null);
   const ref = useForkRef(inputRefProp, inputRef);
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     if (inputRef.current?.checked) {
       setFilled(true);
     }

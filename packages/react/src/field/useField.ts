@@ -1,5 +1,5 @@
 import * as ReactDOM from 'react-dom';
-import { useModernLayoutEffect } from '@base-ui-components/utils/useModernLayoutEffect';
+import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { useLatestRef } from '@base-ui-components/utils/useLatestRef';
 import { getCombinedFieldValidityData } from './utils/getCombinedFieldValidityData';
 import { useFormContext } from '../form/FormContext';
@@ -12,7 +12,7 @@ export function useField(params: useField.Parameters) {
 
   const getValueRef = useLatestRef(params.getValue);
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     if (!enabled) {
       return;
     }
@@ -27,7 +27,7 @@ export function useField(params: useField.Parameters) {
     }
   }, [enabled, setValidityData, value, validityData.initialValue, getValueRef]);
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     if (!enabled) {
       return;
     }
@@ -64,7 +64,7 @@ export function useField(params: useField.Parameters) {
     value,
   ]);
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     const fields = formRef.current.fields;
     return () => {
       if (id) {

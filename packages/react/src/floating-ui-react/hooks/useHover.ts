@@ -3,7 +3,7 @@ import { isElement } from '@floating-ui/utils/dom';
 import { useTimeout } from '@base-ui-components/utils/useTimeout';
 import { useLatestRef } from '@base-ui-components/utils/useLatestRef';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
-import { useModernLayoutEffect } from '@base-ui-components/utils/useModernLayoutEffect';
+import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { contains, getDocument, isMouseLikePointerType } from '../utils';
 
 import { useFloatingParentNodeId, useFloatingTree } from '../components/FloatingTree';
@@ -409,7 +409,7 @@ export function useHover(context: FloatingRootContext, props: UseHoverProps = {}
   // while the floating element is open and has a `handleClose` handler. Also
   // handles nested floating elements.
   // https://github.com/floating-ui/floating-ui/issues/1722
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     if (!enabled) {
       return undefined;
     }
@@ -447,7 +447,7 @@ export function useHover(context: FloatingRootContext, props: UseHoverProps = {}
     return undefined;
   }, [enabled, open, parentId, elements, tree, handleCloseRef, isHoverOpen]);
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     if (!open) {
       pointerTypeRef.current = undefined;
       restTimeoutPendingRef.current = false;
