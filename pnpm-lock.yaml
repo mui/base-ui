@@ -636,7 +636,7 @@ importers:
         specifier: ^7.27.6
         version: 7.27.6
       '@floating-ui/utils':
-        specifier: ^0.2.9
+        specifier: ^0.2.10
         version: 0.2.10
       reselect:
         specifier: ^5.1.1
