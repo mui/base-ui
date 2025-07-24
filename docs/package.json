@@ -52,7 +52,7 @@
     "remark-mdx-frontmatter": "^5.1.0",
     "remark-parse": "^11.0.0",
     "remark-rehype": "^11.1.2",
-    "remark-typography": "0.6.21",
+    "remark-typography": "0.6.25",
     "scroll-into-view-if-needed": "3.1.0",
     "shiki": "^3.8.1",
     "to-vfile": "^8.0.0",
