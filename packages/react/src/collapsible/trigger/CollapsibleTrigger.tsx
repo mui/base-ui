@@ -45,7 +45,6 @@ export const CollapsibleTrigger = React.forwardRef(function CollapsibleTrigger(
     disabled,
     focusableWhenDisabled: true,
     native: nativeButton,
-    name: 'Collapsible.Trigger',
   });
 
   const props = React.useMemo(

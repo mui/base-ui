@@ -101,7 +101,6 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
   const { getButtonProps, buttonRef } = useButton({
     disabled,
     native: nativeButton,
-    name: 'Checkbox.Root',
   });
 
   const localFieldControlValidation = useFieldControlValidation();

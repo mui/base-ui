@@ -38,7 +38,6 @@ export const ToolbarButton = React.forwardRef(function ToolbarButton(
     disabled,
     focusableWhenDisabled,
     native: nativeButton,
-    name: 'Toolbar.Button',
   });
 
   const state: ToolbarButton.State = React.useMemo(

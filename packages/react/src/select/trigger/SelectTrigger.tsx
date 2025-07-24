@@ -76,7 +76,6 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
   const { getButtonProps, buttonRef } = useButton({
     disabled,
     native: nativeButton,
-    name: 'Select.Trigger',
   });
 
   const setTriggerElement = useEventCallback((element) => {

@@ -19,7 +19,7 @@ import { useTabsListContext } from '../list/TabsListContext';
  *
  * Documentation: [Base UI Tabs](https://base-ui.com/react/components/tabs)
  */
-export const TabsTab = React.forwardRef(function Tab(
+export const TabsTab = React.forwardRef(function TabsTab(
   componentProps: TabsTab.Props,
   forwardedRef: React.ForwardedRef<Element>,
 ) {
@@ -88,7 +88,6 @@ export const TabsTab = React.forwardRef(function Tab(
     disabled,
     native: nativeButton,
     focusableWhenDisabled: true,
-    name: 'Tabs.Tab',
   });
 
   const tabPanelId = index > -1 ? getTabPanelIdByTabValueOrIndex(valueProp, index) : undefined;

@@ -21,7 +21,6 @@ export const PopoverClose = React.forwardRef(function PopoverClose(
     disabled,
     focusableWhenDisabled: false,
     native: nativeButton,
-    name: 'Popover.Close',
   });
 
   const { setOpen } = usePopoverRootContext();

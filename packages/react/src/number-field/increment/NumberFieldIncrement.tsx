@@ -79,7 +79,6 @@ export const NumberFieldIncrement = React.forwardRef(function NumberFieldIncreme
   const { getButtonProps, buttonRef } = useButton({
     disabled,
     native: nativeButton,
-    name: 'NumberField.Increment',
   });
 
   const element = useRenderElement('button', componentProps, {

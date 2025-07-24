@@ -70,7 +70,6 @@ export const AccordionTrigger = React.forwardRef(function AccordionTrigger(
     disabled,
     focusableWhenDisabled: true,
     native: nativeButton,
-    name: 'Accordion.Trigger',
   });
 
   const { accordionItemRefs, direction, loop, orientation } = useAccordionRootContext();

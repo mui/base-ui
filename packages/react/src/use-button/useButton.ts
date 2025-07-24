@@ -8,7 +8,7 @@ import { useCompositeRootContext } from '../composite/root/CompositeRootContext'
 import { BaseUIEvent, HTMLProps } from '../utils/types';
 import { useFocusableWhenDisabled } from '../utils/useFocusableWhenDisabled';
 
-export function useButton(parameters: useButton.Parameters): useButton.ReturnValue {
+export function useButton(parameters: useButton.Parameters = {}): useButton.ReturnValue {
   const {
     disabled = false,
     focusableWhenDisabled,
@@ -35,6 +35,8 @@ export function useButton(parameters: useButton.Parameters): useButton.ReturnVal
   });
 
   if (process.env.NODE_ENV !== 'production') {
+    const componentName =
+      name ?? new Error().stack?.split('\n')[2]?.split('at ')[1]?.split(' ')[0] ?? '';
     // eslint-disable-next-line react-hooks/rules-of-hooks
     React.useEffect(() => {
       if (!buttonRef.current) {
@@ -46,17 +48,17 @@ export function useButton(parameters: useButton.Parameters): useButton.ReturnVal
       if (isNativeButton) {
         if (!isButtonTag) {
           error(
-            `<${name}>`,
+            componentName,
             'was not rendered as a native <button> which is its default. Ensure that the element passed to the `render` prop is a real <button>, or set the `nativeButton` prop to `false`.',
           );
         }
       } else if (isButtonTag) {
         error(
-          `<${name}>`,
+          componentName,
           'was rendered as a native <button> which is not its default. Ensure that the element passed to the `render` prop is not a <button>, or set the `nativeButton` prop to `true`.',
         );
       }
-    }, [isNativeButton, name]);
+    }, [isNativeButton, componentName]);
   }
 
   // handles a disabled composite button rendering another button, e.g.
@@ -211,10 +213,10 @@ export namespace useButton {
      */
     native?: boolean;
     /**
-     * Debug name for the component used in error messages.
-     * @example 'Popover.Trigger'
+     * Optional debug name for the component used in error messages.
+     * Overrides the default name based on the stack trace.
      */
-    name: string;
+    name?: string;
   }
 
   export interface ReturnValue {

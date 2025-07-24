@@ -119,7 +119,6 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
   const { getButtonProps, buttonRef } = useButton({
     disabled,
     native: nativeButton,
-    name: 'Switch.Root',
   });
 
   const rootProps: React.ComponentPropsWithRef<'button'> = React.useMemo(

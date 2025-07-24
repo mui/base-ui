@@ -57,7 +57,6 @@ export const Toggle = React.forwardRef(function Toggle(
   const { getButtonProps, buttonRef } = useButton({
     disabled,
     native: nativeButton,
-    name: 'Toggle',
   });
 
   const state: Toggle.State = React.useMemo(

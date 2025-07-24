@@ -110,7 +110,6 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
   const { getButtonProps, buttonRef } = useButton({
     disabled,
     native: nativeButton,
-    name: 'Radio.Root',
   });
 
   const id = useBaseUiId();

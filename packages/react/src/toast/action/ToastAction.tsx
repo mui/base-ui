@@ -25,7 +25,6 @@ export const ToastAction = React.forwardRef(function ToastAction(
   const { getButtonProps, buttonRef } = useButton({
     disabled,
     native: nativeButton,
-    name: 'Toast.Action',
   });
 
   const state: ToastAction.State = React.useMemo(

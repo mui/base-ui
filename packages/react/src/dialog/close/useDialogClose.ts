@@ -18,7 +18,6 @@ export function useDialogClose(params: useDialogClose.Parameters): useDialogClos
   const { getButtonProps, buttonRef } = useButton({
     disabled,
     native: nativeButton,
-    name: 'Dialog.Close',
   });
 
   const getRootProps = (externalProps: HTMLProps) =>
