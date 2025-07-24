@@ -630,6 +630,365 @@ describe('useToast', () => {
 
       await flushMicrotasks();
     });
+
+    describe('timeout handling', () => {
+      it('auto-dismisses success toast after default timeout when promise resolves', async () => {
+        function AddButton() {
+          const { promise } = useToastManager();
+          return (
+            <button
+              onClick={() => {
+                promise(
+                  new Promise((res) => {
+                    setTimeout(() => {
+                      res('success');
+                    }, 1000);
+                  }),
+                  {
+                    loading: 'loading',
+                    success: 'success',
+                    error: 'error',
+                  },
+                );
+              }}
+            >
+              add
+            </button>
+          );
+        }
+
+        await render(
+          <Toast.Provider>
+            <Toast.Viewport>
+              <CustomList />
+            </Toast.Viewport>
+            <AddButton />
+          </Toast.Provider>,
+        );
+
+        const button = screen.getByRole('button', { name: 'add' });
+        fireEvent.click(button);
+
+        expect(screen.getByTestId('description')).to.have.text('loading');
+
+        clock.tick(1000);
+        await flushMicrotasks();
+
+        expect(screen.getByTestId('description')).to.have.text('success');
+
+        clock.tick(5000);
+        expect(screen.queryByTestId('root')).to.equal(null);
+      });
+
+      it('auto-dismisses error toast after default timeout when promise rejects', async () => {
+        function AddButton() {
+          const { promise } = useToastManager();
+          return (
+            <button
+              onClick={() => {
+                promise(
+                  new Promise((res, rej) => {
+                    setTimeout(() => {
+                      rej(new Error('error'));
+                    }, 1000);
+                  }),
+                  {
+                    loading: 'loading',
+                    success: 'success',
+                    error: 'error',
+                  },
+                ).catch(() => {
+                  // Explicitly catch rejection to prevent test failure
+                });
+              }}
+            >
+              add
+            </button>
+          );
+        }
+
+        await render(
+          <Toast.Provider>
+            <Toast.Viewport>
+              <CustomList />
+            </Toast.Viewport>
+            <AddButton />
+          </Toast.Provider>,
+        );
+
+        const button = screen.getByRole('button', { name: 'add' });
+        fireEvent.click(button);
+
+        expect(screen.getByTestId('description')).to.have.text('loading');
+
+        clock.tick(1000);
+        await flushMicrotasks();
+
+        expect(screen.getByTestId('description')).to.have.text('error');
+
+        clock.tick(5000);
+        expect(screen.queryByTestId('root')).to.equal(null);
+      });
+
+      it('uses custom timeout from success options when promise resolves', async () => {
+        function AddButton() {
+          const { promise } = useToastManager();
+          return (
+            <button
+              onClick={() => {
+                promise(
+                  new Promise((res) => {
+                    setTimeout(() => {
+                      res('success');
+                    }, 1000);
+                  }),
+                  {
+                    loading: 'loading',
+                    success: {
+                      description: 'success',
+                      timeout: 2000,
+                    },
+                    error: 'error',
+                  },
+                );
+              }}
+            >
+              add
+            </button>
+          );
+        }
+
+        await render(
+          <Toast.Provider>
+            <Toast.Viewport>
+              <CustomList />
+            </Toast.Viewport>
+            <AddButton />
+          </Toast.Provider>,
+        );
+
+        const button = screen.getByRole('button', { name: 'add' });
+        fireEvent.click(button);
+
+        clock.tick(1000);
+        await flushMicrotasks();
+
+        expect(screen.getByTestId('description')).to.have.text('success');
+
+        clock.tick(1000);
+        expect(screen.getByTestId('root')).not.to.equal(null);
+
+        clock.tick(1000);
+        expect(screen.queryByTestId('root')).to.equal(null);
+      });
+
+      it('uses custom timeout from error options when promise rejects', async () => {
+        function AddButton() {
+          const { promise } = useToastManager();
+          return (
+            <button
+              onClick={() => {
+                promise(
+                  new Promise((res, rej) => {
+                    setTimeout(() => {
+                      rej(new Error('error'));
+                    }, 1000);
+                  }),
+                  {
+                    loading: 'loading',
+                    success: 'success',
+                    error: {
+                      description: 'error',
+                      timeout: 3000,
+                    },
+                  },
+                ).catch(() => {
+                  // Explicitly catch rejection to prevent test failure
+                });
+              }}
+            >
+              add
+            </button>
+          );
+        }
+
+        await render(
+          <Toast.Provider>
+            <Toast.Viewport>
+              <CustomList />
+            </Toast.Viewport>
+            <AddButton />
+          </Toast.Provider>,
+        );
+
+        const button = screen.getByRole('button', { name: 'add' });
+        fireEvent.click(button);
+
+        clock.tick(1000);
+        await flushMicrotasks();
+
+        expect(screen.getByTestId('description')).to.have.text('error');
+
+        clock.tick(2000);
+        expect(screen.getByTestId('root')).not.to.equal(null);
+
+        clock.tick(1000);
+        expect(screen.queryByTestId('root')).to.equal(null);
+      });
+
+      it('uses provider timeout when no custom timeout is specified', async () => {
+        function AddButton() {
+          const { promise } = useToastManager();
+          return (
+            <button
+              onClick={() => {
+                promise(
+                  new Promise((res) => {
+                    setTimeout(() => {
+                      res('success');
+                    }, 1000);
+                  }),
+                  {
+                    loading: 'loading',
+                    success: 'success',
+                    error: 'error',
+                  },
+                );
+              }}
+            >
+              add
+            </button>
+          );
+        }
+
+        await render(
+          <Toast.Provider timeout={1000}>
+            <Toast.Viewport>
+              <CustomList />
+            </Toast.Viewport>
+            <AddButton />
+          </Toast.Provider>,
+        );
+
+        const button = screen.getByRole('button', { name: 'add' });
+        fireEvent.click(button);
+
+        clock.tick(1000);
+        await flushMicrotasks();
+
+        expect(screen.getByTestId('description')).to.have.text('success');
+
+        clock.tick(1000);
+        expect(screen.queryByTestId('root')).to.equal(null);
+      });
+
+      it('does not auto-dismiss when timeout is set to 0', async () => {
+        function AddButton() {
+          const { promise } = useToastManager();
+          return (
+            <button
+              onClick={() => {
+                promise(
+                  new Promise((res) => {
+                    setTimeout(() => {
+                      res('success');
+                    }, 1000);
+                  }),
+                  {
+                    loading: 'loading',
+                    success: {
+                      description: 'success',
+                      timeout: 0,
+                    },
+                    error: 'error',
+                  },
+                );
+              }}
+            >
+              add
+            </button>
+          );
+        }
+
+        await render(
+          <Toast.Provider>
+            <Toast.Viewport>
+              <CustomList />
+            </Toast.Viewport>
+            <AddButton />
+          </Toast.Provider>,
+        );
+
+        const button = screen.getByRole('button', { name: 'add' });
+        fireEvent.click(button);
+
+        clock.tick(1000);
+        await flushMicrotasks();
+
+        expect(screen.getByTestId('description')).to.have.text('success');
+
+        clock.tick(10000);
+        expect(screen.getByTestId('root')).not.to.equal(null);
+      });
+
+      it('pauses timers when hovering over toast', async () => {
+        function AddButton() {
+          const { promise } = useToastManager();
+          return (
+            <button
+              onClick={() => {
+                promise(
+                  new Promise((res) => {
+                    setTimeout(() => {
+                      res('success');
+                    }, 1000);
+                  }),
+                  {
+                    loading: 'loading',
+                    success: {
+                      description: 'success',
+                      timeout: 3000,
+                    },
+                    error: 'error',
+                  },
+                );
+              }}
+            >
+              add
+            </button>
+          );
+        }
+
+        await render(
+          <Toast.Provider>
+            <Toast.Viewport>
+              <CustomList />
+            </Toast.Viewport>
+            <AddButton />
+          </Toast.Provider>,
+        );
+
+        const button = screen.getByRole('button', { name: 'add' });
+        fireEvent.click(button);
+
+        clock.tick(1000);
+        await flushMicrotasks();
+
+        expect(screen.getByTestId('description')).to.have.text('success');
+
+        clock.tick(1000);
+
+        const toast = screen.getByTestId('root');
+        fireEvent.mouseEnter(toast);
+
+        clock.tick(5000);
+        expect(screen.getByTestId('root')).not.to.equal(null);
+
+        fireEvent.mouseLeave(toast);
+        clock.tick(2000);
+        expect(screen.queryByTestId('root')).to.equal(null);
+      });
+    });
   });
 
   describe('update', () => {
