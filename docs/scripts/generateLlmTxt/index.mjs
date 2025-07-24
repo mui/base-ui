@@ -221,8 +221,13 @@ async function generateLlmsTxt() {
     const utilsOrder = Object.keys(metadataBySection.utils).sort();
 
     // Helper function to map ordered IDs to their metadata objects
-    const mapOrderToMetadata = (orderArray, metadataObject) =>
-      orderArray.map((id) => metadataObject[id]);
+    const mapOrderToMetadata = (orderArray, metadataObject) => {
+      const metadataList = Object.values(metadataObject);
+      const orderMap = new Map(orderArray.map((id, index) => [id, index]));
+      return metadataList.sort((a, b) => {
+        return (orderMap.get(a.id) ?? Infinity) - (orderMap.get(b.id) ?? Infinity);
+      });
+    };
 
     // Create the file structure with all sections and pages in correct order
     const structure = {
