@@ -48,9 +48,9 @@ export const nav: NavGroup[] = [
         href: '/react/handbook/composition',
       },
       {
-        label: 'llms-full.txt',
+        label: 'llms.txt',
         external: true,
-        href: '/llms-full.txt',
+        href: '/llms.txt',
       },
     ],
   },
