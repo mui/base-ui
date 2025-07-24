@@ -93,7 +93,7 @@ export const AccordionPanel = React.forwardRef(function AccordionPanel(
   }, [setKeepMounted, keepMounted]);
 
   useOpenChangeComplete({
-    open,
+    open: open && transitionStatus === 'idle',
     ref: panelRef,
     onComplete() {
       if (!open) {
