@@ -61,7 +61,6 @@ const nextConfig = {
 
 const mergedConfig = withMdx(withDocsInfra(nextConfig));
 
-delete mergedConfig.experimental?.esmExternals;
 if (!process.env.CI) {
   delete mergedConfig.experimental?.cpus;
 }

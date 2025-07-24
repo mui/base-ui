@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useMediaQuery } from '@base-ui-components/react/unstable-use-media-query';
-import { useModernLayoutEffect } from '@base-ui-components/utils/useModernLayoutEffect';
+import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 
 let boundDataGaListener = false;
 
@@ -20,7 +20,7 @@ export const GoogleAnalytics = React.memo(function GoogleAnalytics(props: Google
     userLanguage,
   } = props;
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     // @ts-expect-error
     window.dataLayer = window.dataLayer || [];
 

@@ -131,6 +131,7 @@ async function getLinksAndAnchors(
 
   const links = [...rawLinks]
     .filter((link) => link.startsWith('/') || link.startsWith('#'))
+    .filter((link) => !link.endsWith('.md') && !link.endsWith('.txt'))
     .map((link) => {
       if (link.startsWith('#')) {
         return `${pageUrl}${link}`;

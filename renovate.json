@@ -1,40 +1,29 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": ["github>mui/mui-public//renovate/default"],
-  "schedule": "on tuesday before 6:00am",
+  "schedule": "* 2-6 * * 5",
   "lockFileMaintenance": {
     "schedule": "* 0-5 3 * *"
   },
   "packageRules": [
     {
+      "groupName": "Floating UI",
+      "description": "Update Floating UI as soon as the new version is released",
+      "matchPackageNames": ["@floating-ui/*"],
+      "schedule": null
+    },
+    {
       "groupName": "Tailwind CSS",
       "matchPackageNames": ["tailwindcss", "@tailwindcss/*", "prettier-plugin-tailwindcss"]
     },
     {
-      "automerge": true,
-      "matchPackageNames": ["@types/**"]
+      "groupName": "MUI public packages",
+      "matchPackageNames": ["@mui/*", "!@mui/internal-*", "!@mui/docs"],
+      "allowedVersions": "!/-dev/"
     },
     {
-      "groupName": "MUI",
-      "matchPackageNames": [
-        "@mui/internal-test-utils",
-        "@playwright/test",
-        "mcr.microsoft.com/playwright"
-      ],
-      "description": "@mui/internal-test-utils and Playwright. These are updated together as the playwright version used by @mui/internal-test-utils must be the same as mcr.microsoft.com/playwright image.",
-      "allowedVersions": "!/-dev/",
-      "schedule": "before 6:00am on Wednesday"
-    },
-    {
-      "groupName": "Public packages' dependencies",
-      "matchFileNames": ["packages/*/package.json"],
-      "matchDepTypes": ["dependencies", "devDependencies"],
-      "schedule": "before 6:00am on Wednesday"
-    },
-    {
-      "groupName": "node",
-      "matchPackageNames": ["node", "@types/node", "cimg/node"],
-      "allowedVersions": "< 19.0.0"
+      "groupName": "Types",
+      "matchPackageNames": ["@types/*"]
     },
     {
       "matchDepTypes": ["engines"],
@@ -43,18 +32,13 @@
     },
     {
       "groupName": "CodeSandbox template",
-      "matchPaths": [".codesandbox/template/package.json"],
+      "matchFileNames": [".codesandbox/template/package.json"],
       "enabled": false
     },
     {
       "groupName": "chai - incompatible versions",
       "matchPackageNames": ["chai", "@types/chai"],
       "allowedVersions": "< 5.0.0"
-    },
-    {
-      "groupName": "react-docgen - incompatible versions",
-      "matchPackageNames": ["react-docgen"],
-      "allowedVersions": "< 6.0.0"
     }
   ]
 }
