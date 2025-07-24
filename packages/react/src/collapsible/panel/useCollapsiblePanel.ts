@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useModernLayoutEffect } from '@base-ui-components/utils/useModernLayoutEffect';
+import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { useForkRef } from '@base-ui-components/utils/useForkRef';
 import { useOnMount } from '@base-ui-components/utils/useOnMount';
@@ -154,7 +154,7 @@ export function useCollapsiblePanel(
 
   const mergedPanelRef = useForkRef(externalRef, panelRef, handlePanelRef);
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     if (animationTypeRef.current !== 'css-transition') {
       return undefined;
     }
@@ -236,7 +236,7 @@ export function useCollapsiblePanel(
     transitionDimensionRef,
   ]);
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     if (animationTypeRef.current !== 'css-animation') {
       return;
     }
@@ -290,7 +290,7 @@ export function useCollapsiblePanel(
     return () => AnimationFrame.cancel(frame);
   });
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     if (!hiddenUntilFound) {
       return undefined;
     }
@@ -322,7 +322,7 @@ export function useCollapsiblePanel(
     };
   }, [hiddenUntilFound, open, panelRef, setDimensions]);
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     const panel = panelRef.current;
 
     if (panel && hiddenUntilFound && hidden) {
