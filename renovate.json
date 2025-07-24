@@ -1,7 +1,7 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": ["github>mui/mui-public//renovate/default"],
-  "schedule": "before 6:00am on Friday",
+  "schedule": "* 2-6 * * 5",
   "lockFileMaintenance": {
     "schedule": "* 0-5 3 * *"
   },
@@ -17,13 +17,13 @@
       "matchPackageNames": ["tailwindcss", "@tailwindcss/*", "prettier-plugin-tailwindcss"]
     },
     {
-      "groupName": "Types",
-      "matchPackageNames": ["@types/*"]
-    },
-    {
       "groupName": "MUI public packages",
       "matchPackageNames": ["@mui/*", "!@mui/internal-*", "!@mui/docs"],
       "allowedVersions": "!/-dev/"
+    },
+    {
+      "groupName": "Types",
+      "matchPackageNames": ["@types/*"]
     },
     {
       "matchDepTypes": ["engines"],
