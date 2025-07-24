@@ -154,8 +154,10 @@
     /* Ensure consistent height of the cells */
     display: flex;
     align-items: center;
+    gap: 0.5rem;
     min-height: 2.5rem;
     padding-block: 0.5rem;
+    padding-right: 1rem;
 
     /* Make individual cells scrollable */
     overflow-x: auto;

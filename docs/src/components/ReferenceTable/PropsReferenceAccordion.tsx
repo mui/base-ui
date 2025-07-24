@@ -120,7 +120,7 @@ export async function PropsReferenceAccordion({ data, name: partName, ...props }
                 </TableCode>
               </Accordion.Scrollable>
               {prop.type && (
-                <Accordion.Scrollable className="flex items-baseline gap-2 text-sm leading-none break-keep whitespace-nowrap max-xs:hidden">
+                <Accordion.Scrollable className="flex items-baseline text-sm leading-none break-keep whitespace-nowrap max-xs:hidden">
                   {detailedType ? (
                     <ReferenceTableTooltip.Root delay={300} hoverable={false}>
                       <ReferenceTableTooltip.Trigger render={<ShortPropType />} />
