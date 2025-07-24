@@ -24,5 +24,10 @@ export function Link({ href, className, ...props }: React.ComponentProps<typeof 
     );
   }
 
+  if (typeof href === 'string' && (href.endsWith('.md') || href.endsWith('.txt'))) {
+    // Relative url, but outside the Next.js router
+    return <a href={href} className={clsx('Link', className)} {...props} />;
+  }
+
   return <NextLink href={href} className={clsx('Link', className)} {...props} />;
 }
