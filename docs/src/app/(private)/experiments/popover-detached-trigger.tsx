@@ -75,7 +75,7 @@ interface StyledPopoverProps {
 function StyledTrigger<Payload>(props: { handle: PopoverHandle<Payload>; payload: Payload }) {
   const { settings } = useExperimentSettings<Settings>();
   return (
-    <Popover.DetachedTrigger
+    <Popover.Trigger
       className={styles.IconButton}
       handle={props.handle as PopoverHandle<unknown>}
       payload={props.payload}
@@ -83,7 +83,7 @@ function StyledTrigger<Payload>(props: { handle: PopoverHandle<Payload>; payload
       delay={50}
     >
       <PopupIcon aria-label="Notifications" className={styles.Icon} />
-    </Popover.DetachedTrigger>
+    </Popover.Trigger>
   );
 }
 
