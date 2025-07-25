@@ -11,20 +11,59 @@ import {
 import styles from './popover-detached-trigger.module.css';
 
 const popover1 = new PopoverHandle<unknown>();
+const popover2 = new PopoverHandle<unknown>();
 
 interface Settings {
   openOnHover: boolean;
 }
 
+const contents = [
+  <React.Fragment>
+    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+    <p>
+      Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
+      quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+    </p>
+  </React.Fragment>,
+  <p>Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>,
+  <p>Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.</p>,
+  <p>Ex ea commodo consequat.</p>,
+  <React.Fragment>
+    <p>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat.</p>
+    <p>
+      Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim
+      id est laborum.
+    </p>
+    <p>
+      Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
+      pariatur.
+    </p>
+    <p>
+      Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim
+      id est laborum.
+    </p>
+  </React.Fragment>,
+];
+
 export default function PopoverDetachedTrigger() {
   return (
-    <div className={styles.Container}>
-      <StyledPopover handle={popover1} />
-      <StyledTrigger handle={popover1} payload={1} />
-      <StyledTrigger handle={popover1} payload={2} />
-      <StyledTrigger handle={popover1} payload={3} />
-      <StyledTrigger handle={popover1} payload={4} />
-      <StyledTrigger handle={popover1} payload={5} />
+    <div className={styles.Page}>
+      <div className={styles.Container}>
+        <StyledPopover handle={popover1} />
+        <StyledTrigger handle={popover1} payload={0} />
+        <StyledTrigger handle={popover1} payload={1} />
+        <StyledTrigger handle={popover1} payload={2} />
+        <StyledTrigger handle={popover1} payload={3} />
+        <StyledTrigger handle={popover1} payload={4} />
+      </div>
+      <div className={styles.Container}>
+        <StyledPopover handle={popover2} />
+        <StyledTrigger handle={popover2} payload={0} />
+        <StyledTrigger handle={popover2} payload={1} />
+        <StyledTrigger handle={popover2} payload={2} />
+        <StyledTrigger handle={popover2} payload={3} />
+        <StyledTrigger handle={popover2} payload={4} />
+      </div>
     </div>
   );
 }
@@ -75,11 +114,7 @@ function Content({ payload }: { payload: number }) {
 
   return (
     <div>
-      <div className={styles.PopoverSection}>
-        {Array.from({ length: payload }).map((_, i) => (
-          <p key={i}>Lorem ipsum dolor sit amet.</p>
-        ))}
-      </div>
+      <div className={styles.PopoverSection}>{contents[payload]}</div>
 
       <div className={styles.PopoverSection}>
         <p>Local state: {localState}</p>
