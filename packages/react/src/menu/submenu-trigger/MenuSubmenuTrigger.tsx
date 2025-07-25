@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useFloatingTree } from '../../floating-ui-react';
-import { BaseUIComponentProps, ButtonProps } from '../../utils/types';
+import { BaseUIComponentProps, NonNativeButtonProps } from '../../utils/types';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
@@ -101,7 +101,7 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
 });
 
 export namespace MenuSubmenuTrigger {
-  export interface Props extends ButtonProps, BaseUIComponentProps<'div', State> {
+  export interface Props extends NonNativeButtonProps, BaseUIComponentProps<'div', State> {
     children?: React.ReactNode;
     onClick?: React.MouseEventHandler<HTMLElement>;
     /**

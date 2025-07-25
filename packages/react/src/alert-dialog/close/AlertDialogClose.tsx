@@ -3,7 +3,7 @@ import * as React from 'react';
 import { useAlertDialogRootContext } from '../root/AlertDialogRootContext';
 import { useDialogClose } from '../../dialog/close/useDialogClose';
 import { useRenderElement } from '../../utils/useRenderElement';
-import type { BaseUIComponentProps, ButtonProps } from '../../utils/types';
+import type { BaseUIComponentProps, NativeButtonProps } from '../../utils/types';
 
 /**
  * A button that closes the alert dialog.
@@ -35,7 +35,7 @@ export const AlertDialogClose = React.forwardRef(function AlertDialogClose(
 });
 
 export namespace AlertDialogClose {
-  export interface Props extends ButtonProps, BaseUIComponentProps<'button', State> {}
+  export interface Props extends NativeButtonProps, BaseUIComponentProps<'button', State> {}
 
   export interface State {
     /**

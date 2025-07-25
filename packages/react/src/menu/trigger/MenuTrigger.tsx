@@ -10,7 +10,7 @@ import { useFloatingTree } from '../../floating-ui-react/index';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { pressableTriggerOpenStateMapping } from '../../utils/popupStateMapping';
 import { useRenderElement } from '../../utils/useRenderElement';
-import { BaseUIComponentProps, ButtonProps, HTMLProps } from '../../utils/types';
+import { BaseUIComponentProps, NativeButtonProps, HTMLProps } from '../../utils/types';
 import { mergeProps } from '../../merge-props';
 import { useButton } from '../../use-button/useButton';
 import { getPseudoElementBounds } from '../../utils/getPseudoElementBounds';
@@ -185,7 +185,7 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
 });
 
 export namespace MenuTrigger {
-  export interface Props extends ButtonProps, BaseUIComponentProps<'button', State> {
+  export interface Props extends NativeButtonProps, BaseUIComponentProps<'button', State> {
     children?: React.ReactNode;
     /**
      * Whether the component should ignore user interaction.

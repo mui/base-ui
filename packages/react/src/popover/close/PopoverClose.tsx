@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import type { BaseUIComponentProps, ButtonProps } from '../../utils/types';
+import type { BaseUIComponentProps, NativeButtonProps } from '../../utils/types';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useButton } from '../../use-button';
@@ -44,5 +44,5 @@ export const PopoverClose = React.forwardRef(function PopoverClose(
 export namespace PopoverClose {
   export interface State {}
 
-  export interface Props extends ButtonProps, BaseUIComponentProps<'button', State> {}
+  export interface Props extends NativeButtonProps, BaseUIComponentProps<'button', State> {}
 }

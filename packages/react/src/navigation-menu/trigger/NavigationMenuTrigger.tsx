@@ -24,7 +24,7 @@ import {
   isOutsideEvent,
   stopEvent,
 } from '../../floating-ui-react/utils';
-import type { BaseUIComponentProps, ButtonProps, HTMLProps } from '../../utils/types';
+import type { BaseUIComponentProps, NativeButtonProps, HTMLProps } from '../../utils/types';
 import { useNavigationMenuItemContext } from '../item/NavigationMenuItemContext';
 import {
   useNavigationMenuRootContext,
@@ -468,5 +468,5 @@ export namespace NavigationMenuTrigger {
     open: boolean;
   }
 
-  export interface Props extends ButtonProps, BaseUIComponentProps<'button', State> {}
+  export interface Props extends NativeButtonProps, BaseUIComponentProps<'button', State> {}
 }

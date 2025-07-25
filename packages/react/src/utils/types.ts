@@ -63,12 +63,22 @@ export type BaseUIComponentProps<
     | React.ReactElement<Record<string, unknown>>;
 };
 
-export interface ButtonProps {
+export interface NativeButtonProps {
   /**
    * Whether the component renders a native `<button>` element when replacing it
    * via the `render` prop.
    * Set to `false` if the rendered element is not a button (e.g. `<div>`).
    * @default true
+   */
+  nativeButton?: boolean;
+}
+
+export interface NonNativeButtonProps {
+  /**
+   * Whether the component renders a native `<button>` element when replacing it
+   * via the `render` prop.
+   * Set to `true` if the rendered element is a native button.
+   * @default false
    */
   nativeButton?: boolean;
 }

@@ -4,7 +4,7 @@ import { triggerOpenStateMapping } from '../../utils/collapsibleOpenStateMapping
 import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 import { transitionStatusMapping } from '../../utils/styleHookMapping';
 import { useRenderElement } from '../../utils/useRenderElement';
-import { BaseUIComponentProps, ButtonProps } from '../../utils/types';
+import { BaseUIComponentProps, NativeButtonProps } from '../../utils/types';
 import { useButton } from '../../use-button';
 import { useCollapsibleRootContext } from '../root/CollapsibleRootContext';
 import { CollapsibleRoot } from '../root/CollapsibleRoot';
@@ -69,6 +69,6 @@ export const CollapsibleTrigger = React.forwardRef(function CollapsibleTrigger(
 
 export namespace CollapsibleTrigger {
   export interface Props
-    extends ButtonProps,
+    extends NativeButtonProps,
       BaseUIComponentProps<'button', CollapsibleRoot.State> {}
 }

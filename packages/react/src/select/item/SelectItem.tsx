@@ -9,7 +9,7 @@ import {
   useCompositeListItem,
   IndexGuessBehavior,
 } from '../../composite/list/useCompositeListItem';
-import type { BaseUIComponentProps, ButtonProps, HTMLProps } from '../../utils/types';
+import type { BaseUIComponentProps, HTMLProps, NonNativeButtonProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { SelectItemContext } from './SelectItemContext';
 import { selectors } from '../store';
@@ -261,7 +261,9 @@ export namespace SelectItem {
     highlighted: boolean;
   }
 
-  export interface Props extends ButtonProps, Omit<BaseUIComponentProps<'div', State>, 'id'> {
+  export interface Props
+    extends NonNativeButtonProps,
+      Omit<BaseUIComponentProps<'div', State>, 'id'> {
     children?: React.ReactNode;
     /**
      * A unique value that identifies this select item.

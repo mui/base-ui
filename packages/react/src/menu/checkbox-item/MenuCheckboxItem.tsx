@@ -9,7 +9,7 @@ import { useCompositeListItem } from '../../composite/list/useCompositeListItem'
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useBaseUiId } from '../../utils/useBaseUiId';
-import type { BaseUIComponentProps, ButtonProps, HTMLProps } from '../../utils/types';
+import type { BaseUIComponentProps, HTMLProps, NonNativeButtonProps } from '../../utils/types';
 import { itemMapping } from '../utils/styleHookMapping';
 
 const InnerMenuCheckboxItem = React.memo(
@@ -152,7 +152,7 @@ export namespace MenuCheckboxItem {
     checked: boolean;
   };
 
-  export interface Props extends ButtonProps, BaseUIComponentProps<'div', State> {
+  export interface Props extends NonNativeButtonProps, BaseUIComponentProps<'div', State> {
     /**
      * Whether the checkbox item is currently ticked.
      *

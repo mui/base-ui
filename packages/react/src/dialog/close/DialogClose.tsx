@@ -3,7 +3,7 @@ import * as React from 'react';
 import { useDialogClose } from './useDialogClose';
 import { useDialogRootContext } from '../root/DialogRootContext';
 import { useRenderElement } from '../../utils/useRenderElement';
-import type { BaseUIComponentProps, ButtonProps } from '../../utils/types';
+import type { BaseUIComponentProps, NativeButtonProps } from '../../utils/types';
 
 /**
  * A button that closes the dialog.
@@ -35,7 +35,7 @@ export const DialogClose = React.forwardRef(function DialogClose(
 });
 
 export namespace DialogClose {
-  export interface Props extends ButtonProps, BaseUIComponentProps<'button', State> {}
+  export interface Props extends NativeButtonProps, BaseUIComponentProps<'button', State> {}
 
   export interface State {
     /**

@@ -5,7 +5,7 @@ import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect
 import { visuallyHidden } from '@base-ui-components/utils/visuallyHidden';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { NOOP } from '../../utils/noop';
-import type { BaseUIComponentProps, ButtonProps } from '../../utils/types';
+import type { BaseUIComponentProps, NativeButtonProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useButton } from '../../use-button';
 import { ACTIVE_COMPOSITE_ITEM } from '../../composite/constants';
@@ -213,7 +213,9 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
 });
 
 export namespace RadioRoot {
-  export interface Props extends ButtonProps, Omit<BaseUIComponentProps<'button', State>, 'value'> {
+  export interface Props
+    extends NativeButtonProps,
+      Omit<BaseUIComponentProps<'button', State>, 'value'> {
     /**
      * The unique identifying value of the radio in a group.
      */

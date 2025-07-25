@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { BaseUIComponentProps, ButtonProps } from '../../utils/types';
+import { BaseUIComponentProps, NativeButtonProps } from '../../utils/types';
 import { useButton } from '../../use-button';
 import type { ToolbarRoot } from '../root/ToolbarRoot';
 import { useToolbarRootContext } from '../root/ToolbarRootContext';
@@ -75,7 +75,9 @@ export namespace ToolbarButton {
     focusable: boolean;
   }
 
-  export interface Props extends ButtonProps, BaseUIComponentProps<'button', ToolbarRoot.State> {
+  export interface Props
+    extends NativeButtonProps,
+      BaseUIComponentProps<'button', ToolbarRoot.State> {
     /**
      * When `true` the item is disabled.
      * @default false

@@ -7,7 +7,7 @@ import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect
 import { visuallyHidden } from '@base-ui-components/utils/visuallyHidden';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useBaseUiId } from '../../utils/useBaseUiId';
-import type { BaseUIComponentProps, ButtonProps } from '../../utils/types';
+import type { BaseUIComponentProps, NativeButtonProps } from '../../utils/types';
 import { mergeProps } from '../../merge-props';
 import { useButton } from '../../use-button';
 import { SwitchRootContext } from './SwitchRootContext';
@@ -254,7 +254,7 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
 
 export namespace SwitchRoot {
   export interface Props
-    extends ButtonProps,
+    extends NativeButtonProps,
       Omit<BaseUIComponentProps<'button', SwitchRoot.State>, 'onChange'> {
     /**
      * The id of the switch element.
