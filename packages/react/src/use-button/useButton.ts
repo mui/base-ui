@@ -45,12 +45,12 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
       if (isNativeButton) {
         if (!isButtonTag) {
           error(
-            'A button component was not rendered as a native <button> which is its default. Ensure that the element passed to the `render` prop is a real <button>, or set the `nativeButton` prop to `false`.',
+            'A component that acts as a button was not rendered as a native <button>, which does not match the default. Ensure that the element passed to the `render` prop of the component is a real <button>, or set the `nativeButton` prop on the component to `false`.',
           );
         }
       } else if (isButtonTag) {
         error(
-          'A button component was rendered as a native <button> which is not its default. Ensure that the element passed to the `render` prop is not a <button>, or set the `nativeButton` prop to `true`.',
+          'A component that acts as a button was rendered as a native <button>, which does not match the default. Ensure that the element passed to the `render` prop of the component is not a real <button>, or set the `nativeButton` prop on the component to `true`.',
         );
       }
     }, [isNativeButton]);
