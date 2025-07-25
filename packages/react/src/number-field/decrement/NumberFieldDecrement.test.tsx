@@ -410,5 +410,31 @@ describe('<NumberField.Decrement />', () => {
       expect(handleValueChange.callCount).to.equal(0);
       expect(input).to.have.value('0');
     });
+
+    describe('should be provided to className prop as a fn argument', async () => {
+      it('when root is disabled', async () => {
+        const classNameSpy = spy();
+        await render(
+          <NumberField.Root disabled>
+            <NumberField.Decrement className={classNameSpy} />
+            <NumberField.Input />
+          </NumberField.Root>,
+        );
+
+        expect(classNameSpy.lastCall.args[0]).to.have.property('disabled', true);
+      });
+
+      it('when button is disabled', async () => {
+        const classNameSpy = spy();
+        await render(
+          <NumberField.Root>
+            <NumberField.Decrement disabled className={classNameSpy} />
+            <NumberField.Input />
+          </NumberField.Root>,
+        );
+
+        expect(classNameSpy.lastCall.args[0]).to.have.property('disabled', true);
+      });
+    });
   });
 });
