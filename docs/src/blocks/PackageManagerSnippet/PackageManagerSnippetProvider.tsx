@@ -1,5 +1,5 @@
 'use client';
-import { useModernLayoutEffect } from '@base-ui-components/utils/useModernLayoutEffect';
+import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import * as React from 'react';
 
 export interface PackageManagerSnippetContext {
@@ -35,7 +35,7 @@ export function PackageManagerSnippetProvider(props: PackageManagerSnippetProvid
     localStorage.setItem(STORAGE_KEY, newValue);
   }, []);
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     const savedValue = localStorage.getItem(STORAGE_KEY);
 
     if (savedValue) {
