@@ -17,6 +17,8 @@ export function testRenderProp(
     throwMissingPropError('render');
   }
 
+  const nativeButton = Element === 'button';
+
   const Wrapper = React.forwardRef<any, { children?: React.ReactNode }>(
     function Wrapper(props, forwardedRef) {
       return (
@@ -34,7 +36,7 @@ export function testRenderProp(
       const { queryByTestId } = await render(
         React.cloneElement(element, {
           render: (props: {}) => <Wrapper {...props} data-test-value={testValue} />,
-          ...(button && { nativeButton: Element === 'button' }),
+          ...(button && { nativeButton }),
         }),
       );
 
@@ -48,7 +50,7 @@ export function testRenderProp(
       const { queryByTestId } = await render(
         React.cloneElement(element, {
           render: <Wrapper data-test-value={testValue} />,
-          ...(button && { nativeButton: Element === 'button' }),
+          ...(button && { nativeButton }),
         }),
       );
 
@@ -78,7 +80,7 @@ export function testRenderProp(
           },
           render: (props: {}) => <Wrapper {...props} />,
           'data-testid': 'wrapped',
-          ...(button && { nativeButton: Element === 'button' }),
+          ...(button && { nativeButton }),
         });
       }
 
@@ -104,7 +106,7 @@ export function testRenderProp(
             />
           ),
           'data-testid': 'wrapped',
-          ...(button && { nativeButton: Element === 'button' }),
+          ...(button && { nativeButton }),
         });
       }
 
@@ -124,7 +126,7 @@ export function testRenderProp(
           className: 'component-classname',
           render: <Element className="render-prop-classname" />,
           'data-testid': 'test-component',
-          ...(button && { nativeButton: Element === 'button' }),
+          ...(button && { nativeButton }),
         });
       }
 
@@ -141,7 +143,7 @@ export function testRenderProp(
           className: () => 'conditional-component-classname',
           render: <Element className="render-prop-classname" />,
           'data-testid': 'test-component',
-          ...(button && { nativeButton: Element === 'button' }),
+          ...(button && { nativeButton }),
         });
       }
 

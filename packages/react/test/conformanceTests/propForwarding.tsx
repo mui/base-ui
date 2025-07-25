@@ -17,6 +17,8 @@ export function testPropForwarding(
     throwMissingPropError('render');
   }
 
+  const nativeButton = Element === 'button';
+
   describe('prop forwarding', () => {
     it('forwards custom props to the default element', async () => {
       const otherProps = {
@@ -39,7 +41,7 @@ export function testPropForwarding(
       const otherProps = {
         lang: 'fr',
         'data-foobar': randomStringValue(),
-        ...(button && { nativeButton: Element === 'button' }),
+        ...(button && { nativeButton }),
       };
 
       const { getByTestId } = await render(
@@ -60,7 +62,7 @@ export function testPropForwarding(
       const otherProps = {
         lang: 'fr',
         'data-foobar': randomStringValue(),
-        ...(button && { nativeButton: Element === 'button' }),
+        ...(button && { nativeButton }),
       };
 
       const { getByTestId } = await render(
@@ -98,7 +100,7 @@ export function testPropForwarding(
           render: (props: any) => (
             <Element {...props} style={{ color: 'green' }} data-testid="custom-root" />
           ),
-          ...(button && { nativeButton: Element === 'button' }),
+          ...(button && { nativeButton }),
         }),
       );
 
@@ -113,7 +115,7 @@ export function testPropForwarding(
       const { getByTestId } = await render(
         React.cloneElement(element, {
           render: <Element style={{ color: 'green' }} data-testid="custom-root" />,
-          ...(button && { nativeButton: Element === 'button' }),
+          ...(button && { nativeButton }),
         }),
       );
 
