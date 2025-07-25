@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useFloatingTree } from '../../floating-ui-react';
-import { BaseUIComponentProps } from '../../utils/types';
+import { BaseUIComponentProps, ButtonProps } from '../../utils/types';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
@@ -101,7 +101,7 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
 });
 
 export namespace MenuSubmenuTrigger {
-  export interface Props extends BaseUIComponentProps<'div', State> {
+  export interface Props extends ButtonProps, BaseUIComponentProps<'div', State> {
     children?: React.ReactNode;
     onClick?: React.MouseEventHandler<HTMLElement>;
     /**
@@ -112,13 +112,6 @@ export namespace MenuSubmenuTrigger {
      * @ignore
      */
     id?: string;
-    /**
-     * Whether the component renders a native `<button>` element when replacing it
-     * via the `render` prop.
-     * Set to `false` if the rendered element is not a button (e.g. `<div>`).
-     * @default false
-     */
-    nativeButton?: boolean;
   }
 
   export interface State {

@@ -8,7 +8,7 @@ import { visuallyHidden } from '@base-ui-components/utils/visuallyHidden';
 import { useCustomStyleHookMapping } from '../utils/useCustomStyleHookMapping';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useBaseUiId } from '../../utils/useBaseUiId';
-import type { BaseUIComponentProps } from '../../utils/types';
+import type { BaseUIComponentProps, ButtonProps } from '../../utils/types';
 import { mergeProps } from '../../merge-props';
 import { useButton } from '../../use-button/useButton';
 import type { FieldRoot } from '../../field/root/FieldRoot';
@@ -332,7 +332,9 @@ export namespace CheckboxRoot {
     indeterminate: boolean;
   }
 
-  export interface Props extends Omit<BaseUIComponentProps<'button', State>, 'onChange' | 'value'> {
+  export interface Props
+    extends ButtonProps,
+      Omit<BaseUIComponentProps<'button', State>, 'onChange' | 'value'> {
     /**
      * The id of the input element.
      */
@@ -398,12 +400,5 @@ export namespace CheckboxRoot {
      * The value of the selected checkbox.
      */
     value?: string;
-    /**
-     * Whether the component renders a native `<button>` element when replacing it
-     * via the `render` prop.
-     * Set to `false` if the rendered element is not a button (e.g. `<div>`).
-     * @default true
-     */
-    nativeButton?: boolean;
   }
 }

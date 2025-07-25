@@ -7,7 +7,7 @@ import { useForkRef } from '@base-ui-components/utils/useForkRef';
 import { useLatestRef } from '@base-ui-components/utils/useLatestRef';
 import { useSelector } from '@base-ui-components/utils/store';
 import { useSelectRootContext } from '../root/SelectRootContext';
-import { BaseUIComponentProps, HTMLProps } from '../../utils/types';
+import { BaseUIComponentProps, ButtonProps, HTMLProps } from '../../utils/types';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { pressableTriggerOpenStateMapping } from '../../utils/popupStateMapping';
 import { fieldValidityMapping } from '../../field/utils/constants';
@@ -233,20 +233,13 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
 });
 
 export namespace SelectTrigger {
-  export interface Props extends BaseUIComponentProps<'div', State> {
+  export interface Props extends ButtonProps, BaseUIComponentProps<'div', State> {
     children?: React.ReactNode;
     /**
      * Whether the component should ignore user interaction.
      * @default false
      */
     disabled?: boolean;
-    /**
-     * Whether the component renders a native `<button>` element when replacing it
-     * via the `render` prop.
-     * Set to `false` if the rendered element is not a button (e.g. `<div>`).
-     * @default false
-     */
-    nativeButton?: boolean;
   }
 
   export interface State extends FieldRoot.State {

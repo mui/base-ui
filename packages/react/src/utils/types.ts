@@ -63,6 +63,16 @@ export type BaseUIComponentProps<
     | React.ReactElement<Record<string, unknown>>;
 };
 
+export interface ButtonProps {
+  /**
+   * Whether the component renders a native `<button>` element when replacing it
+   * via the `render` prop.
+   * Set to `false` if the rendered element is not a button (e.g. `<div>`).
+   * @default true
+   */
+  nativeButton?: boolean;
+}
+
 /**
  * Simplifies the display of a type (without modifying it).
  * Taken from https://effectivetypescript.com/2022/02/25/gentips-4-display/

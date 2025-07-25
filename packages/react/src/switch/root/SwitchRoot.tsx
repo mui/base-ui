@@ -7,7 +7,7 @@ import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect
 import { visuallyHidden } from '@base-ui-components/utils/visuallyHidden';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useBaseUiId } from '../../utils/useBaseUiId';
-import type { BaseUIComponentProps } from '../../utils/types';
+import type { BaseUIComponentProps, ButtonProps } from '../../utils/types';
 import { mergeProps } from '../../merge-props';
 import { useButton } from '../../use-button';
 import { SwitchRootContext } from './SwitchRootContext';
@@ -254,7 +254,8 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
 
 export namespace SwitchRoot {
   export interface Props
-    extends Omit<BaseUIComponentProps<'button', SwitchRoot.State>, 'onChange'> {
+    extends ButtonProps,
+      Omit<BaseUIComponentProps<'button', SwitchRoot.State>, 'onChange'> {
     /**
      * The id of the switch element.
      */
@@ -285,13 +286,6 @@ export namespace SwitchRoot {
      * Identifies the field when a form is submitted.
      */
     name?: string;
-    /**
-     * Whether the component renders a native `<button>` element when replacing it
-     * via the `render` prop.
-     * Set to `false` if the rendered element is not a button (e.g. `<div>`).
-     * @default true
-     */
-    nativeButton?: boolean;
     /**
      * Event handler called when the switch is activated or deactivated.
      *
