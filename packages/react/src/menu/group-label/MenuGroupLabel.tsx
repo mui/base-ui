@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useModernLayoutEffect } from '@base-ui-components/utils/useModernLayoutEffect';
+import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useBaseUiId } from '../../utils/useBaseUiId';
@@ -22,7 +22,7 @@ export const MenuGroupLabel = React.forwardRef(function MenuGroupLabelComponent(
 
   const { setLabelId } = useMenuGroupRootContext();
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     setLabelId(id);
     return () => {
       setLabelId(undefined);

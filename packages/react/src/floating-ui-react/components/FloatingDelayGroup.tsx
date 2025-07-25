@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useTimeout, Timeout } from '@base-ui-components/utils/useTimeout';
-import { useModernLayoutEffect } from '@base-ui-components/utils/useModernLayoutEffect';
+import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 
 import { getDelay } from '../hooks/useHover';
 import type { FloatingRootContext, Delay } from '../types';
@@ -131,7 +131,7 @@ export function useDelayGroup(
 
   const [isInstantPhase, setIsInstantPhase] = React.useState(false);
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     function unset() {
       setIsInstantPhase(false);
       currentContextRef.current?.setIsInstantPhase(false);
@@ -172,7 +172,7 @@ export function useDelayGroup(
     timeout,
   ]);
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     if (!enabled) {
       return;
     }
@@ -212,7 +212,7 @@ export function useDelayGroup(
     timeout,
   ]);
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     return () => {
       currentContextRef.current = null;
     };

@@ -695,4 +695,51 @@ describe('<Popover.Root />', () => {
       expect(onOpenChangeComplete.callCount).to.equal(0);
     });
   });
+
+  it('should close child popover when clicking parent popover', async () => {
+    const { user } = await render(
+      <Popover.Root>
+        <Popover.Trigger data-testid="parent-trigger">parent</Popover.Trigger>
+        <Popover.Portal>
+          <Popover.Positioner>
+            <Popover.Popup data-testid="parent-popup">
+              <Popover.Root>
+                <Popover.Trigger data-testid="child-trigger">child</Popover.Trigger>
+                <Popover.Portal>
+                  <Popover.Positioner>
+                    <Popover.Popup data-testid="child-popup" />
+                  </Popover.Positioner>
+                </Popover.Portal>
+              </Popover.Root>
+            </Popover.Popup>
+          </Popover.Positioner>
+        </Popover.Portal>
+      </Popover.Root>,
+    );
+
+    expect(screen.queryByTestId('parent-popup')).to.equal(null);
+    expect(screen.queryByTestId('child-popup')).to.equal(null);
+
+    const parentTrigger = screen.getByTestId('parent-trigger');
+    await user.click(parentTrigger);
+    await flushMicrotasks();
+
+    const parentPopup = screen.getByTestId('parent-popup');
+
+    expect(parentPopup).not.to.equal(null);
+    expect(screen.queryByTestId('child-popup')).to.equal(null);
+
+    const childTrigger = screen.getByTestId('child-trigger');
+    await user.click(childTrigger);
+    await flushMicrotasks();
+
+    expect(parentPopup).not.to.equal(null);
+    expect(screen.getByTestId('child-popup')).not.to.equal(null);
+
+    await user.click(parentPopup);
+    await flushMicrotasks();
+
+    expect(screen.queryByTestId('parent-popup')).not.to.equal(null);
+    expect(screen.queryByTestId('child-popup')).to.equal(null);
+  });
 });
