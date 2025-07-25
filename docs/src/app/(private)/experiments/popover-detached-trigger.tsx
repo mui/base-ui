@@ -11,10 +11,10 @@ import {
 import styles from './popover-detached-trigger.module.css';
 
 const popover1 = new PopoverHandle<unknown>();
-const popover2 = new PopoverHandle<unknown>();
 
 interface Settings {
   openOnHover: boolean;
+  side: 'top' | 'bottom' | 'left' | 'right';
 }
 
 const contents = [
@@ -46,9 +46,12 @@ const contents = [
 ];
 
 export default function PopoverDetachedTrigger() {
+  const { settings } = useExperimentSettings<Settings>();
   return (
     <div className={styles.Page}>
+      <h1>Popovers</h1>
       <div className={styles.Container}>
+        <h2>Detached triggers</h2>
         <StyledPopover handle={popover1} />
         <StyledTrigger handle={popover1} payload={0} />
         <StyledTrigger handle={popover1} payload={1} />
@@ -57,12 +60,11 @@ export default function PopoverDetachedTrigger() {
         <StyledTrigger handle={popover1} payload={4} />
       </div>
       <div className={styles.Container}>
-        <StyledPopover handle={popover2} />
-        <StyledTrigger handle={popover2} payload={0} />
-        <StyledTrigger handle={popover2} payload={1} />
-        <StyledTrigger handle={popover2} payload={2} />
-        <StyledTrigger handle={popover2} payload={3} />
-        <StyledTrigger handle={popover2} payload={4} />
+        <h2>Ordinary popover</h2>
+        <Popover.Root>
+          <StyledTrigger />
+          {renderPopoverContent(0, settings)}
+        </Popover.Root>
       </div>
     </div>
   );
@@ -72,7 +74,7 @@ interface StyledPopoverProps {
   handle: PopoverHandle<unknown>;
 }
 
-function StyledTrigger<Payload>(props: { handle: PopoverHandle<Payload>; payload: Payload }) {
+function StyledTrigger<Payload>(props: { handle?: PopoverHandle<Payload>; payload?: Payload }) {
   const { settings } = useExperimentSettings<Settings>();
   return (
     <Popover.Trigger
@@ -89,32 +91,37 @@ function StyledTrigger<Payload>(props: { handle: PopoverHandle<Payload>; payload
 
 function StyledPopover(props: StyledPopoverProps) {
   const { handle } = props;
+  const { settings } = useExperimentSettings<Settings>();
 
   return (
     <Popover.Root handle={handle}>
-      {({ payload }) => (
-        <Popover.Portal>
-          <Popover.Positioner sideOffset={8} className={styles.Positioner}>
-            <Popover.Popup className={styles.Popup}>
-              <Popover.Arrow className={styles.Arrow}>
-                <ArrowSvg />
-              </Popover.Arrow>
-              <Popover.Title className={styles.Title}>Popover {payload}</Popover.Title>
-              <Content payload={payload as number} />
-            </Popover.Popup>
-          </Popover.Positioner>
-        </Popover.Portal>
-      )}
+      {({ payload }) => renderPopoverContent(payload as number, settings)}
     </Popover.Root>
   );
 }
 
-function Content({ payload }: { payload: number }) {
+function renderPopoverContent(contentIndex: number, settings: Settings) {
+  return (
+    <Popover.Portal>
+      <Popover.Positioner sideOffset={8} className={styles.Positioner} side={settings.side}>
+        <Popover.Popup className={styles.Popup}>
+          <Popover.Arrow className={styles.Arrow}>
+            <ArrowSvg />
+          </Popover.Arrow>
+          <Popover.Title className={styles.Title}>Popover {contentIndex}</Popover.Title>
+          <Content contentIndex={contentIndex} />
+        </Popover.Popup>
+      </Popover.Positioner>
+    </Popover.Portal>
+  );
+}
+
+function Content({ contentIndex }: { contentIndex: number }) {
   const [localState, setLocalState] = React.useState(0);
 
   return (
     <div>
-      <div className={styles.PopoverSection}>{contents[payload]}</div>
+      <div className={styles.PopoverSection}>{contents[contentIndex]}</div>
 
       <div className={styles.PopoverSection}>
         <p>Local state: {localState}</p>
@@ -130,6 +137,12 @@ export const settingsMetadata: SettingsMetadata<Settings> = {
   openOnHover: {
     type: 'boolean',
     label: 'Open on hover',
+  },
+  side: {
+    type: 'string',
+    label: 'Side',
+    options: ['top', 'bottom', 'left', 'right'],
+    default: 'bottom',
   },
 };
 

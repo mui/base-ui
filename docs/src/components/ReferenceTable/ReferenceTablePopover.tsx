@@ -8,8 +8,10 @@ import { Popup } from '../Popup';
 export function ReferenceTablePopover({ children }: React.PropsWithChildren) {
   const isMobile = useMediaQuery('@media (width < 48rem)', { noSsr: true });
   return (
-    <Popover.Root openOnHover delay={100} modal>
+    <Popover.Root modal>
       <Popover.Trigger
+        openOnHover
+        delay={100}
         render={
           <GhostButton aria-label="Info" layout="icon">
             <svg

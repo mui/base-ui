@@ -228,8 +228,8 @@ describe('<Popover.Root />', () => {
 
     it('should open after delay with rest type by default', async () => {
       await render(
-        <Root openOnHover delay={100}>
-          <Popover.Trigger />
+        <Root>
+          <Popover.Trigger openOnHover delay={100} />
           <Popover.Portal>
             <Popover.Positioner>
               <Popover.Popup>Content</Popover.Popup>
@@ -260,8 +260,8 @@ describe('<Popover.Root />', () => {
 
     it('should close after delay', async () => {
       await render(
-        <Root openOnHover closeDelay={100}>
-          <Popover.Trigger />
+        <Root>
+          <Popover.Trigger openOnHover closeDelay={100} />
           <Popover.Portal>
             <Popover.Positioner>
               <Popover.Popup>Content</Popover.Popup>
@@ -331,8 +331,10 @@ describe('<Popover.Root />', () => {
 
     it('does not move focus to the popover when opened with hover', async () => {
       const { user } = await render(
-        <Popover.Root openOnHover delay={0}>
-          <Popover.Trigger>Toggle</Popover.Trigger>
+        <Popover.Root>
+          <Popover.Trigger openOnHover delay={0}>
+            Toggle
+          </Popover.Trigger>
           <Popover.Portal>
             <Popover.Positioner>
               <Popover.Popup>
@@ -376,8 +378,10 @@ describe('<Popover.Root />', () => {
           {/* eslint-disable-next-line react/no-danger */}
           <style dangerouslySetInnerHTML={{ __html: style }} />
           <input type="text" data-testid="first-input" />
-          <Popover.Root openOnHover delay={0} closeDelay={0}>
-            <Popover.Trigger>Toggle</Popover.Trigger>
+          <Popover.Root>
+            <Popover.Trigger openOnHover delay={0} closeDelay={0}>
+              Toggle
+            </Popover.Trigger>
             <Popover.Portal>
               <Popover.Positioner>
                 <Popover.Popup className="popup" />

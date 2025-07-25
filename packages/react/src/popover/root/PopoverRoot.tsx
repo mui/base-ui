@@ -6,7 +6,7 @@ import { useControlled } from '@base-ui-components/utils/useControlled';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { Store, useSelector } from '@base-ui-components/utils/store';
 import { useLazyRef } from '@base-ui-components/utils/useLazyRef';
-import { useModernLayoutEffect } from '@base-ui-components/utils/useModernLayoutEffect';
+import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import {
   useDismiss,
   useFloatingRootContext,
@@ -70,6 +70,7 @@ function PopoverRootComponent({ props }: { props: PopoverRoot.Props }) {
   const activeTriggerElement = useSelector(store, selectors.activeTriggerElement);
   const payload = useSelector(store, selectors.payload);
   const openReason = useSelector(store, selectors.openReason);
+  const triggers = useSelector(store, selectors.triggers);
 
   const popupRef = React.useRef<HTMLElement>(null);
   const stickIfOpenTimeout = useTimeout();
@@ -81,14 +82,19 @@ function PopoverRootComponent({ props }: { props: PopoverRoot.Props }) {
     state: 'open',
   });
 
-  usePopupAutoResize(popupElement, open, payload);
+  usePopupAutoResize({
+    element: popupElement,
+    open,
+    content: payload,
+    enabled: triggers.size > 1,
+  });
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
-  React.useLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     store.apply({ open, mounted });
   }, [store, open, mounted]);
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     store.set('transitionStatus', transitionStatus);
   }, [store, transitionStatus]);
 
@@ -132,8 +138,6 @@ function PopoverRootComponent({ props }: { props: PopoverRoot.Props }) {
     reason: PopoverOpenChangeReason | undefined,
     trigger: Element | undefined,
   ) {
-    console.log('setOpen', nextOpen, event, reason, trigger);
-
     if (event && nextOpen && trigger) {
       store.set('activeTriggerElement', trigger);
     }
@@ -195,7 +199,7 @@ function PopoverRootComponent({ props }: { props: PopoverRoot.Props }) {
 
   const { getReferenceProps, getFloatingProps } = useInteractions([dismiss, role]);
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     store.apply({
       triggerProps: getReferenceProps(),
       popupProps: getFloatingProps(),
@@ -271,26 +275,6 @@ export namespace PopoverRoot {
      * Event handler called after any animations complete when the popover is opened or closed.
      */
     onOpenChangeComplete?: (open: boolean) => void;
-    /**
-     * Whether the popover should also open when the trigger is hovered.
-     * @default false
-     */
-    openOnHover?: boolean;
-    /**
-     * How long to wait before the popover may be opened on hover. Specified in milliseconds.
-     *
-     * Requires the `openOnHover` prop.
-     * @default 300
-     */
-    delay?: number;
-    /**
-     * How long to wait before closing the popover that was opened on hover.
-     * Specified in milliseconds.
-     *
-     * Requires the `openOnHover` prop.
-     * @default 0
-     */
-    closeDelay?: number;
     /**
      * A ref to imperative actions.
      * - `unmount`: When specified, the popover will not be unmounted when closed.

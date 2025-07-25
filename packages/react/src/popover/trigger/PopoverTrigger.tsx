@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { useSelector } from '@base-ui-components/utils/store';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
-import { useModernLayoutEffect } from '@base-ui-components/utils/useModernLayoutEffect';
+import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
 import { useButton } from '../../use-button/useButton';
 import type { BaseUIComponentProps } from '../../utils/types';
@@ -63,7 +63,7 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
   const [triggerElement, setTriggerElement] = React.useState<HTMLElement | null>(null);
   const { openMethod, triggerProps: interactionTypeTriggerProps } = useOpenInteractionType(open);
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     store.set('openMethod', openMethod);
   }, [store, openMethod]);
 
@@ -176,8 +176,25 @@ export namespace PopoverTrigger {
 
     handle?: PopoverHandle<unknown>;
     payload?: any;
+    /**
+     * Whether the popover should also open when the trigger is hovered.
+     * @default false
+     */
     openOnHover?: boolean;
+    /**
+     * How long to wait before the popover may be opened on hover. Specified in milliseconds.
+     *
+     * Requires the `openOnHover` prop.
+     * @default 300
+     */
     delay?: number;
+    /**
+     * How long to wait before closing the popover that was opened on hover.
+     * Specified in milliseconds.
+     *
+     * Requires the `openOnHover` prop.
+     * @default 0
+     */
     closeDelay?: number;
   }
 }

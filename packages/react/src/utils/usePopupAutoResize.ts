@@ -1,24 +1,22 @@
 import * as React from 'react';
 import { useAnimationFrame } from '@base-ui-components/utils/useAnimationFrame';
-import { useModernLayoutEffect } from '@base-ui-components/utils/useModernLayoutEffect';
+import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { useAnimationsFinished } from './useAnimationsFinished';
 
 /**
  * Allows the element to automatically resize based on its content while supporting animations.
- *
- * @param element Element to resize.
- * @param open Whether the popup is open.
- * @param content Content that may change and trigger a resize. This doesn't have to be the actual content of the popup, but a value that triggers a resize.
  */
-export function usePopupAutoResize(element: HTMLElement | null, open: boolean, content: unknown) {
+export function usePopupAutoResize(parameters: UsePopupAutoResizeParameters) {
+  const { element, open, content, enabled = true } = parameters;
+
   const isInitialRender = React.useRef(true);
   const runOnceAnimationsFinish = useAnimationsFinished(element, true);
   const animationFrame = useAnimationFrame();
   const previousDimensionsRef = React.useRef<{ width: number; height: number } | null>(null);
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     // Reset the state when the popup is closed.
-    if (!open) {
+    if (!open || !enabled) {
       isInitialRender.current = true;
       previousDimensionsRef.current = null;
       return undefined;
@@ -74,5 +72,25 @@ export function usePopupAutoResize(element: HTMLElement | null, open: boolean, c
       abortController.abort();
       animationFrame.cancel();
     };
-  }, [content, element, open, runOnceAnimationsFinish, animationFrame]);
+  }, [content, element, open, runOnceAnimationsFinish, animationFrame, enabled]);
+}
+
+interface UsePopupAutoResizeParameters {
+  /**
+   * Element to resize.
+   */
+  element: HTMLElement | null;
+  /**
+   * Whether the popup is open.
+   */
+  open: boolean;
+  /*
+   * Content that may change and trigger a resize.
+   * This doesn't have to be the actual content of the popup, but a value that triggers a resize.
+   */
+  content: unknown;
+  /**
+   * Whether the auto-resize is enabled.
+   */
+  enabled?: boolean;
 }
