@@ -14,7 +14,6 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
     focusableWhenDisabled,
     tabIndex = 0,
     native: isNativeButton = true,
-    name,
   } = parameters;
 
   const buttonRef = React.useRef<HTMLButtonElement | HTMLAnchorElement | HTMLElement | null>(null);
@@ -35,8 +34,6 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
   });
 
   if (process.env.NODE_ENV !== 'production') {
-    const componentName =
-      name ?? new Error().stack?.split('\n')[2]?.split('at ')[1]?.split(' ')[0] ?? '';
     // eslint-disable-next-line react-hooks/rules-of-hooks
     React.useEffect(() => {
       if (!buttonRef.current) {
@@ -48,17 +45,15 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
       if (isNativeButton) {
         if (!isButtonTag) {
           error(
-            componentName,
-            'was not rendered as a native <button> which is its default. Ensure that the element passed to the `render` prop is a real <button>, or set the `nativeButton` prop to `false`.',
+            'A button component was not rendered as a native <button> which is its default. Ensure that the element passed to the `render` prop is a real <button>, or set the `nativeButton` prop to `false`.',
           );
         }
       } else if (isButtonTag) {
         error(
-          componentName,
-          'was rendered as a native <button> which is not its default. Ensure that the element passed to the `render` prop is not a <button>, or set the `nativeButton` prop to `true`.',
+          'A button component was rendered as a native <button> which is not its default. Ensure that the element passed to the `render` prop is not a <button>, or set the `nativeButton` prop to `true`.',
         );
       }
-    }, [isNativeButton, componentName]);
+    }, [isNativeButton]);
   }
 
   // handles a disabled composite button rendering another button, e.g.
@@ -212,11 +207,6 @@ export namespace useButton {
      * @default true
      */
     native?: boolean;
-    /**
-     * Optional debug name for the component used in error messages.
-     * Overrides the default name based on the stack trace.
-     */
-    name?: string;
   }
 
   export interface ReturnValue {

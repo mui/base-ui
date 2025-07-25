@@ -226,8 +226,7 @@ describe('useButton', () => {
       }
       await render(<TestButton />);
       expect(errorSpy.firstCall.args[0]).to.equal(
-        `Base UI: TestButton ` +
-          'was not rendered as a native <button> which is its default. Ensure that the element passed to the `render` prop is a real <button>, or set the `nativeButton` prop to `false`.',
+        'Base UI: A button component was not rendered as a native <button> which is its default. Ensure that the element passed to the `render` prop is a real <button>, or set the `nativeButton` prop to `false`.',
       );
       errorSpy.restore();
     });
@@ -240,8 +239,7 @@ describe('useButton', () => {
       }
       await render(<TestButton />);
       expect(errorSpy.firstCall.args[0]).to.equal(
-        `Base UI: TestButton ` +
-          'was rendered as a native <button> which is not its default. Ensure that the element passed to the `render` prop is not a <button>, or set the `nativeButton` prop to `true`.',
+        'Base UI: A button component was rendered as a native <button> which is not its default. Ensure that the element passed to the `render` prop is not a <button>, or set the `nativeButton` prop to `true`.',
       );
       errorSpy.restore();
     });
