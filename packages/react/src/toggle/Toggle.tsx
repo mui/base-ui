@@ -3,7 +3,7 @@ import * as React from 'react';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { useControlled } from '@base-ui-components/utils/useControlled';
 import { useRenderElement } from '../utils/useRenderElement';
-import type { BaseUIComponentProps } from '../utils/types';
+import type { BaseUIComponentProps, NativeButtonProps } from '../utils/types';
 import { useToggleGroupContext } from '../toggle-group/ToggleGroupContext';
 import { useButton } from '../use-button/useButton';
 import { CompositeItem } from '../composite/item/CompositeItem';
@@ -116,7 +116,7 @@ export namespace Toggle {
     disabled: boolean;
   }
 
-  export interface Props extends BaseUIComponentProps<'button', State> {
+  export interface Props extends NativeButtonProps, BaseUIComponentProps<'button', State> {
     /**
      * Whether the toggle button is currently pressed.
      * This is the controlled counterpart of `defaultPressed`.
@@ -145,12 +145,5 @@ export namespace Toggle {
      * inside a toggle group.
      */
     value?: string;
-    /**
-     * Whether the component renders a native `<button>` element when replacing it
-     * via the `render` prop.
-     * Set to `false` if the rendered element is not a button (e.g. `<div>`).
-     * @default true
-     */
-    nativeButton?: boolean;
   }
 }

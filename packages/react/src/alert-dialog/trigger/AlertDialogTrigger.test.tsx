@@ -9,6 +9,8 @@ describe('<AlertDialog.Trigger />', () => {
 
   describeConformance(<AlertDialog.Trigger />, () => ({
     refInstanceof: window.HTMLButtonElement,
+    testComponentPropWith: 'button',
+    button: true,
     render: (node) => {
       return render(
         <AlertDialog.Root open>

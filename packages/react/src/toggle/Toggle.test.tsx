@@ -11,6 +11,8 @@ describe('<Toggle />', () => {
 
   describeConformance(<Toggle />, () => ({
     refInstanceof: window.HTMLButtonElement,
+    testComponentPropWith: 'button',
+    button: true,
     render,
   }));
 

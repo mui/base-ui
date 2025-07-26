@@ -3,7 +3,7 @@ import * as React from 'react';
 import { isElementDisabled } from '@base-ui-components/utils/isElementDisabled';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { triggerOpenStateMapping } from '../../utils/collapsibleOpenStateMapping';
-import { BaseUIComponentProps } from '../../utils/types';
+import { BaseUIComponentProps, NativeButtonProps } from '../../utils/types';
 import { useButton } from '../../use-button';
 import { useCollapsibleRootContext } from '../../collapsible/root/CollapsibleRootContext';
 import {
@@ -185,13 +185,7 @@ export const AccordionTrigger = React.forwardRef(function AccordionTrigger(
 });
 
 export namespace AccordionTrigger {
-  export interface Props extends BaseUIComponentProps<'button', AccordionItem.State> {
-    /**
-     * Whether the component renders a native `<button>` element when replacing it
-     * via the `render` prop.
-     * Set to `false` if the rendered element is not a button (e.g. `<div>`).
-     * @default true
-     */
-    nativeButton?: boolean;
-  }
+  export interface Props
+    extends NativeButtonProps,
+      BaseUIComponentProps<'button', AccordionItem.State> {}
 }

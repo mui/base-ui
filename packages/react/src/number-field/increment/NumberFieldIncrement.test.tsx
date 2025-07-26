@@ -11,6 +11,8 @@ describe('<NumberField.Increment />', () => {
 
   describeConformance(<NumberField.Increment />, () => ({
     refInstanceof: window.HTMLButtonElement,
+    testComponentPropWith: 'button',
+    button: true,
     render(node) {
       return render(<NumberField.Root>{node}</NumberField.Root>);
     },

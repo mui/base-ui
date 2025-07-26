@@ -1,8 +1,9 @@
 'use client';
 import * as React from 'react';
-import type { BaseUIComponentProps } from '../../utils/types';
+import type { BaseUIComponentProps, NativeButtonProps } from '../../utils/types';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
 import { useRenderElement } from '../../utils/useRenderElement';
+import { useButton } from '../../use-button';
 
 /**
  * A button that closes the popover.
@@ -14,12 +15,18 @@ export const PopoverClose = React.forwardRef(function PopoverClose(
   props: PopoverClose.Props,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
-  const { render, className, ...elementProps } = props;
+  const { render, className, disabled = false, nativeButton = true, ...elementProps } = props;
+
+  const { buttonRef, getButtonProps } = useButton({
+    disabled,
+    focusableWhenDisabled: false,
+    native: nativeButton,
+  });
 
   const { setOpen } = usePopoverRootContext();
 
   const element = useRenderElement('button', props, {
-    ref: forwardedRef,
+    ref: [forwardedRef, buttonRef],
     props: [
       {
         onClick(event) {
@@ -27,6 +34,7 @@ export const PopoverClose = React.forwardRef(function PopoverClose(
         },
       },
       elementProps,
+      getButtonProps,
     ],
   });
 
@@ -36,5 +44,5 @@ export const PopoverClose = React.forwardRef(function PopoverClose(
 export namespace PopoverClose {
   export interface State {}
 
-  export interface Props extends BaseUIComponentProps<'button', State> {}
+  export interface Props extends NativeButtonProps, BaseUIComponentProps<'button', State> {}
 }

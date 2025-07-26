@@ -9,7 +9,7 @@ import {
   useCompositeListItem,
   IndexGuessBehavior,
 } from '../../composite/list/useCompositeListItem';
-import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
+import type { BaseUIComponentProps, HTMLProps, NonNativeButtonProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { SelectItemContext } from './SelectItemContext';
 import { selectors } from '../store';
@@ -261,7 +261,9 @@ export namespace SelectItem {
     highlighted: boolean;
   }
 
-  export interface Props extends Omit<BaseUIComponentProps<'div', State>, 'id'> {
+  export interface Props
+    extends NonNativeButtonProps,
+      Omit<BaseUIComponentProps<'div', State>, 'id'> {
     children?: React.ReactNode;
     /**
      * A unique value that identifies this select item.
@@ -278,12 +280,5 @@ export namespace SelectItem {
      * and when the item is matched during keyboard text navigation.
      */
     label?: string;
-    /**
-     * Whether the component renders a native `<button>` element when replacing it
-     * via the `render` prop.
-     * Set to `false` if the rendered element is not a button (e.g. `<div>`).
-     * @default false
-     */
-    nativeButton?: boolean;
   }
 }

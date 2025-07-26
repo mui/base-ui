@@ -3,7 +3,7 @@ import * as React from 'react';
 import { useAlertDialogRootContext } from '../root/AlertDialogRootContext';
 import { useDialogClose } from '../../dialog/close/useDialogClose';
 import { useRenderElement } from '../../utils/useRenderElement';
-import type { BaseUIComponentProps } from '../../utils/types';
+import type { BaseUIComponentProps, NativeButtonProps } from '../../utils/types';
 
 /**
  * A button that closes the alert dialog.
@@ -35,15 +35,7 @@ export const AlertDialogClose = React.forwardRef(function AlertDialogClose(
 });
 
 export namespace AlertDialogClose {
-  export interface Props extends BaseUIComponentProps<'button', State> {
-    /**
-     * Whether the component renders a native `<button>` element when replacing it
-     * via the `render` prop.
-     * Set to `false` if the rendered element is not a button (e.g. `<div>`).
-     * @default true
-     */
-    nativeButton?: boolean;
-  }
+  export interface Props extends NativeButtonProps, BaseUIComponentProps<'button', State> {}
 
   export interface State {
     /**

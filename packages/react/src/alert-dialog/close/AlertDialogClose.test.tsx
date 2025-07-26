@@ -10,6 +10,8 @@ describe('<AlertDialog.Close />', () => {
 
   describeConformance(<AlertDialog.Close />, () => ({
     refInstanceof: window.HTMLButtonElement,
+    testComponentPropWith: 'button',
+    button: true,
     render: (node) => {
       return render(
         <AlertDialog.Root open>
