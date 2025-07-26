@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useModernLayoutEffect } from '@base-ui-components/utils/useModernLayoutEffect';
+import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { useId } from '@base-ui-components/utils/useId';
 import { inertValue } from '@base-ui-components/utils/inertValue';
 import type { BaseUIComponentProps } from '../../utils/types';
@@ -86,7 +86,7 @@ export const NavigationMenuViewport = React.forwardRef(function NavigationMenuVi
   const hasPositioner = Boolean(useNavigationMenuPositionerContext(true));
   const domReference = floatingRootContext?.elements.domReference;
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     if (domReference) {
       prevTriggerElementRef.current = domReference;
     }
