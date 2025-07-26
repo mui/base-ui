@@ -50,7 +50,7 @@ export const NavigationMenuContent = React.forwardRef(function NavigationMenuCon
     activationDirection,
     currentContentRef,
   } = useNavigationMenuRootContext();
-  const itemValue = useNavigationMenuItemContext();
+  const { value: itemValue } = useNavigationMenuItemContext();
   const nodeId = useNavigationMenuTreeContext();
 
   const open = popupMounted && value === itemValue;
