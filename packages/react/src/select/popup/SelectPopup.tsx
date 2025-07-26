@@ -298,8 +298,8 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
     onMouseMove() {
       keyboardActiveRef.current = false;
     },
-    onMouseLeave(event) {
-      if (isMouseWithinBounds(event)) {
+    onPointerLeave(event) {
+      if (isMouseWithinBounds(event) || event.pointerType === 'touch') {
         return;
       }
 
