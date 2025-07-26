@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
-import { useModernLayoutEffect } from '@base-ui-components/utils/useModernLayoutEffect';
+import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { makeEventPreventable, mergeProps } from '../merge-props';
 import { useCompositeRootContext } from '../composite/root/CompositeRootContext';
 import { BaseUIEvent, HTMLProps } from '../utils/types';
@@ -36,7 +36,7 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
   // <Toolbar.Button disabled render={<Menu.Trigger />} />
   // the `disabled` prop needs to pass through 2 `useButton`s then finally
   // delete the `disabled` attribute from DOM
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     const element = buttonRef.current;
     if (!(element instanceof HTMLButtonElement)) {
       return;
