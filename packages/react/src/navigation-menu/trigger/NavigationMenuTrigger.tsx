@@ -47,6 +47,8 @@ import { setFixedSize } from '../utils/setFixedSize';
 import { useButton } from '../../use-button';
 
 const TRIGGER_IDENTIFIER = 'data-navigation-menu-trigger';
+const DEFAULT_SIZE = { width: 0, height: 0 };
+const DEFAULT_ABORT_CONTROLLER = new AbortController();
 
 /**
  * Opens the navigation menu popup when hovered or clicked, revealing the
@@ -96,14 +98,14 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
   const [pointerType, setPointerType] = React.useState<'mouse' | 'touch' | 'pen' | ''>('');
 
   const allowFocusRef = React.useRef(false);
-  const prevSizeRef = React.useRef({ width: 0, height: 0 });
-  const abortControllerRef = React.useRef(new AbortController());
+  const prevSizeRef = React.useRef(DEFAULT_SIZE);
+  const abortControllerRef = React.useRef(DEFAULT_ABORT_CONTROLLER);
 
   const isActiveItem = open && value === itemValue;
   const isActiveItemRef = useLatestRef(isActiveItem);
   const interactionsEnabled = positionerElement ? true : !value;
 
-  const runOnceAnimationsFinish = useAnimationsFinished({ current: popupElement });
+  const runOnceAnimationsFinish = useAnimationsFinished(popupElement);
 
   if (!open && pointerType !== '') {
     setPointerType('');
