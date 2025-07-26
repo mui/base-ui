@@ -194,7 +194,7 @@ interface SelectRootProps<Value> {
   /**
    * Callback fired when the value of the select changes. Use when controlled.
    */
-  onValueChange?: (value: Value, event?: Event) => void;
+  onValueChange?: (value: Value | null, event?: Event) => void;
   /**
    * The uncontrolled value of the select when it’s initially rendered.
    *
@@ -283,7 +283,10 @@ export type SelectRootConditionalProps<Value, Multiple extends boolean | undefin
   /**
    * Callback fired when the value of the select changes. Use when controlled.
    */
-  onValueChange?: (value: SelectValueType<Value, Multiple>, event?: Event) => void;
+  onValueChange?: (
+    value: SelectValueType<Value, Multiple> | (Multiple extends true ? never : null),
+    event: Event | undefined,
+  ) => void;
 };
 
 export namespace SelectRoot {
