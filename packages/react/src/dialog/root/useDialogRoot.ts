@@ -209,6 +209,10 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
 export namespace useDialogRoot {
   export interface SharedParameters {
     /**
+     * Whether the dialog is an alert dialog. Defaults to `false`.
+     */
+    alert?: boolean;
+    /**
      * Whether the dialog is currently open.
      */
     open?: boolean;
@@ -297,6 +301,10 @@ export namespace useDialogRoot {
       event: Event | undefined,
       reason: DialogRoot.OpenChangeReason | undefined,
     ) => void;
+    /**
+     * Whether the dialog is an alert dialog. Defaults to `false`.
+     */
+    alert?: boolean;
     /**
      * Whether the dialog is currently open.
      */
