@@ -5,6 +5,7 @@ import { useButton } from '../../use-button/useButton';
 import { useRenderElement } from '../../utils/useRenderElement';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
+import { CLICK_TRIGGER_IDENTIFIER } from '../../utils/constants';
 
 /**
  * A button that opens the dialog.
@@ -42,7 +43,12 @@ export const DialogTrigger = React.forwardRef(function DialogTrigger(
   return useRenderElement('button', componentProps, {
     state,
     ref: [buttonRef, forwardedRef, setTriggerElement],
-    props: [triggerProps, elementProps, getButtonProps],
+    props: [
+      triggerProps,
+      { [CLICK_TRIGGER_IDENTIFIER as string]: '' },
+      elementProps,
+      getButtonProps,
+    ],
     customStyleHookMapping: triggerOpenStateMapping,
   });
 });
