@@ -31,8 +31,8 @@ import { useField } from '../../field/useField';
 import type { SelectRootConditionalProps, SelectRoot } from './SelectRoot';
 import { EMPTY_ARRAY } from '../../utils/constants';
 
-export function useSelectRoot<T, Multiple extends boolean | undefined = false>(
-  params: useSelectRoot.Parameters<T, Multiple>,
+export function useSelectRoot<Value, Multiple extends boolean | undefined>(
+  params: useSelectRoot.Parameters<Value, Multiple>,
 ): useSelectRoot.ReturnValue {
   const {
     id: idProp,
