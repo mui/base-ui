@@ -45,6 +45,7 @@
 
 .Positioner {
   outline: none;
+  z-index: 1;
 }
 
 .Popup {
