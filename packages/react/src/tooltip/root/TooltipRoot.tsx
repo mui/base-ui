@@ -30,7 +30,7 @@ export function TooltipRoot(props: TooltipRoot.Props) {
   const {
     disabled = false,
     defaultOpen = false,
-    onOpenChange: onOpenChangeProp,
+    onOpenChange,
     open,
     delay,
     closeDelay,
@@ -49,44 +49,46 @@ export function TooltipRoot(props: TooltipRoot.Props) {
 
   const popupRef = React.useRef<HTMLElement>(null);
 
-  const [openState, setOpenUnwrapped] = useControlled({
+  const [openState, setOpenState] = useControlled({
     controlled: open,
     default: defaultOpen,
     name: 'Tooltip',
     state: 'open',
   });
 
-  const onOpenChange = useEventCallback(onOpenChangeProp);
+  function setOpenUnwrapped(
+    nextOpen: boolean,
+    event: Event | undefined,
+    reason: TooltipOpenChangeReason | undefined,
+  ) {
+    const isHover = reason === 'trigger-hover';
+    const isFocusOpen = nextOpen && reason === 'trigger-focus';
+    const isDismissClose = !nextOpen && (reason === 'trigger-press' || reason === 'escape-key');
 
-  const setOpen = useEventCallback(
-    (nextOpen: boolean, event: Event | undefined, reason: TooltipOpenChangeReason | undefined) => {
-      const isHover = reason === 'trigger-hover';
-      const isFocusOpen = nextOpen && reason === 'trigger-focus';
-      const isDismissClose = !nextOpen && (reason === 'trigger-press' || reason === 'escape-key');
+    function changeState() {
+      onOpenChange?.(nextOpen, event, reason);
+      setOpenState(nextOpen);
+    }
 
-      function changeState() {
-        onOpenChange(nextOpen, event, reason);
-        setOpenUnwrapped(nextOpen);
-      }
+    if (isHover) {
+      // If a hover reason is provided, we need to flush the state synchronously. This ensures
+      // `node.getAnimations()` knows about the new state.
+      ReactDOM.flushSync(changeState);
+    } else {
+      changeState();
+    }
 
-      if (isHover) {
-        // If a hover reason is provided, we need to flush the state synchronously. This ensures
-        // `node.getAnimations()` knows about the new state.
-        ReactDOM.flushSync(changeState);
-      } else {
-        changeState();
-      }
+    if (isFocusOpen || isDismissClose) {
+      setInstantTypeState(isFocusOpen ? 'focus' : 'dismiss');
+    } else if (reason === 'trigger-hover') {
+      setInstantTypeState(undefined);
+    }
+  }
 
-      if (isFocusOpen || isDismissClose) {
-        setInstantTypeState(isFocusOpen ? 'focus' : 'dismiss');
-      } else if (reason === 'trigger-hover') {
-        setInstantTypeState(undefined);
-      }
-    },
-  );
+  const setOpen = useEventCallback(setOpenUnwrapped);
 
   if (openState && disabled) {
-    setOpen(false, undefined, 'disabled');
+    setOpenUnwrapped(false, undefined, 'disabled');
   }
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(openState);

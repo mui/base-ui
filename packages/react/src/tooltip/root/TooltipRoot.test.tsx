@@ -671,6 +671,21 @@ describe('<Tooltip.Root />', () => {
 
       expect(screen.queryByText('Content')).to.equal(null);
     });
+
+    it('does not throw error when combined with defaultOpen', async () => {
+      await render(
+        <Root defaultOpen disabled>
+          <Tooltip.Trigger />
+          <Tooltip.Portal>
+            <Tooltip.Positioner>
+              <Tooltip.Popup>Content</Tooltip.Popup>
+            </Tooltip.Positioner>
+          </Tooltip.Portal>
+        </Root>,
+      );
+
+      expect(screen.queryByText('Content')).not.to.equal(null);
+    });
   });
 
   describe('prop: hoverable', () => {
