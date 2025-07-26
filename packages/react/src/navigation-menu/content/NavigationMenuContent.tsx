@@ -49,6 +49,7 @@ export const NavigationMenuContent = React.forwardRef(function NavigationMenuCon
     value,
     activationDirection,
     currentContentRef,
+    viewportTargetElement,
   } = useNavigationMenuRootContext();
   const itemValue = useNavigationMenuItemContext();
   const nodeId = useNavigationMenuTreeContext();
@@ -109,9 +110,10 @@ export const NavigationMenuContent = React.forwardRef(function NavigationMenuCon
         }
       : commonProps;
 
-  const shouldRender = viewportElement !== null && mounted;
+  const portalContainer = viewportTargetElement || viewportElement;
+  const shouldRender = portalContainer !== null && mounted;
 
-  if (!viewportElement || !shouldRender) {
+  if (!portalContainer || !shouldRender) {
     return null;
   }
 
@@ -127,7 +129,7 @@ export const NavigationMenuContent = React.forwardRef(function NavigationMenuCon
         stopEventPropagation
       />
     </FloatingNode>,
-    viewportElement,
+    portalContainer,
   );
 });
 
