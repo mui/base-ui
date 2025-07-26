@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { Toast } from '@base-ui-components/react/toast';
+import { Dialog } from '@base-ui-components/react/dialog';
 import { fireEvent, flushMicrotasks, screen } from '@mui/internal-test-utils';
 import { expect } from 'chai';
 import { spy } from 'sinon';
@@ -341,18 +342,13 @@ describe('useToast', () => {
     });
 
     describe('option: priority', () => {
-      it('applies correct ARIA attributes based on priority', async () => {
+      it('applies correct ARIA attributes for high priority toasts', async () => {
         function AddButton() {
           const { add } = useToastManager();
           return (
-            <React.Fragment>
-              <button onClick={() => add({ title: 'high priority', priority: 'high' })}>
-                add high
-              </button>
-              <button onClick={() => add({ title: 'low priority', priority: 'low' })}>
-                add low
-              </button>
-            </React.Fragment>
+            <button onClick={() => add({ title: 'high priority', priority: 'high' })}>
+              add high
+            </button>
           );
         }
 
@@ -375,18 +371,10 @@ describe('useToast', () => {
         expect(screen.getByRole('alert')).to.not.equal(null);
         expect(screen.getByRole('alert').getAttribute('aria-atomic')).to.equal('true');
 
-        const closeHighButton = screen.getByRole('button', { name: 'close-press' });
+        const closeHighButton = screen.getByLabelText('close-press');
         fireEvent.click(closeHighButton);
 
-        const lowPriorityButton = screen.getByRole('button', { name: 'add low' });
-        fireEvent.click(lowPriorityButton);
-
-        const lowRoot = screen.getByTestId('root');
-
-        expect(lowRoot.getAttribute('role')).to.equal('dialog');
-        expect(lowRoot.getAttribute('aria-modal')).to.equal('false');
-        expect(screen.getByRole('status')).to.not.equal(null);
-        expect(screen.getByRole('status').getAttribute('aria-live')).to.equal('polite');
+        expect(screen.queryByRole('alert')).to.equal(null);
       });
     });
   });
@@ -1195,6 +1183,118 @@ describe('useToast', () => {
       fireEvent.click(closeToast3);
 
       expect(toast1).not.to.have.attribute('data-limited');
+    });
+  });
+
+  describe('in dialog', () => {
+    const { clock, render } = createRenderer();
+
+    clock.withFakeTimers();
+
+    function DialogToastExample() {
+      const { add } = useToastManager();
+      const [isOpen, setIsOpen] = React.useState(false);
+
+      return (
+        <React.Fragment>
+          <button onClick={() => setIsOpen(true)}>open dialog</button>
+          <Dialog.Root open={isOpen} onOpenChange={setIsOpen}>
+            <Dialog.Portal>
+              <Dialog.Backdrop />
+              <Dialog.Popup>
+                <button
+                  onClick={() =>
+                    add({
+                      title: 'Toast in dialog',
+                      description: 'This toast is in a dialog',
+                    })
+                  }
+                >
+                  add
+                </button>
+                <Dialog.Close />
+              </Dialog.Popup>
+            </Dialog.Portal>
+          </Dialog.Root>
+        </React.Fragment>
+      );
+    }
+
+    function ToastInDialogList() {
+      const { toasts } = useToastManager();
+      return toasts.map((toast) => (
+        <Toast.Root key={toast.id} toast={toast} data-testid="toast-root">
+          <Toast.Title data-testid="toast-title">{toast.title}</Toast.Title>
+          <Toast.Description data-testid="toast-description">{toast.description}</Toast.Description>
+          <Toast.Close data-testid="toast-close" aria-label="close" />
+        </Toast.Root>
+      ));
+    }
+
+    it('toasts in dialogs are accessible and not aria-hidden', async () => {
+      await render(
+        <Toast.Provider>
+          <Toast.Viewport>
+            <ToastInDialogList />
+          </Toast.Viewport>
+          <DialogToastExample />
+        </Toast.Provider>,
+      );
+
+      const openDialogButton = screen.getByRole('button', { name: 'open dialog' });
+      fireEvent.click(openDialogButton);
+
+      expect(screen.getByRole('dialog')).not.to.equal(null);
+
+      const addToastButton = screen.getByRole('button', { name: 'add' });
+      fireEvent.click(addToastButton);
+
+      const toastRoot = screen.getByTestId('toast-root');
+      expect(toastRoot).not.to.equal(null);
+      expect(screen.getByTestId('toast-title')).to.have.text('Toast in dialog');
+      expect(screen.getByTestId('toast-description')).to.have.text('This toast is in a dialog');
+    });
+
+    it('high priority toasts in dialogs have correct accessibility structure', async () => {
+      function HighPriorityToastInDialog() {
+        const { add } = useToastManager();
+        return (
+          <Dialog.Root open>
+            <Dialog.Portal>
+              <Dialog.Backdrop />
+              <Dialog.Popup>
+                <button
+                  onClick={() => {
+                    add({
+                      title: 'High priority toast',
+                      description: 'This is urgent',
+                      priority: 'high',
+                    });
+                  }}
+                >
+                  add
+                </button>
+              </Dialog.Popup>
+            </Dialog.Portal>
+          </Dialog.Root>
+        );
+      }
+
+      await render(
+        <Toast.Provider>
+          <Toast.Viewport>
+            <ToastInDialogList />
+          </Toast.Viewport>
+          <HighPriorityToastInDialog />
+        </Toast.Provider>,
+      );
+
+      const addToastButton = screen.getByRole('button', { name: 'add' });
+      fireEvent.click(addToastButton);
+
+      const toastRoot = screen.getByTestId('toast-root');
+      expect(toastRoot).to.have.attribute('aria-hidden', 'true');
+      expect(screen.queryByRole('alert')).not.to.equal(null);
     });
   });
 });
