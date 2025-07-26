@@ -5,6 +5,9 @@ import { useButton } from '../../use-button/useButton';
 import { useRenderElement } from '../../utils/useRenderElement';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
+import { TypedDialogHandle } from '../factory/createDialog';
+import { useDialogProviderContext } from '../provider/DialogProvider';
+import { NOOP } from '../../utils/noop';
 
 /**
  * A button that opens the dialog.
@@ -12,8 +15,8 @@ import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
  *
  * Documentation: [Base UI Dialog](https://base-ui.com/react/components/dialog)
  */
-export const DialogTrigger = React.forwardRef(function DialogTrigger(
-  componentProps: DialogTrigger.Props,
+export const DialogTrigger = React.forwardRef(function DialogTrigger<Payload>(
+  componentProps: DialogTrigger.Props<Payload>,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
   const {
@@ -21,10 +24,51 @@ export const DialogTrigger = React.forwardRef(function DialogTrigger(
     className,
     disabled = false,
     nativeButton = true,
+    dialog,
+    payload,
     ...elementProps
   } = componentProps;
 
-  const { open, setTriggerElement, triggerProps } = useDialogRootContext();
+  const isStandalone = dialog !== undefined;
+
+  const rootContext = useDialogRootContext(true);
+  const providerContext = useDialogProviderContext(true);
+
+  if (process.env.NODE_ENV === 'development') {
+    if (isStandalone && !providerContext) {
+      throw new Error(
+        'Base UI: DialogTrigger with the `dialog` prop requires a DialogProvider context',
+      );
+    } else if (!isStandalone && !rootContext) {
+      throw new Error(
+        'Base UI: DialogTrigger without the `dialog` prop must be used within a Dialog.Root',
+      );
+    }
+  }
+
+  let setTriggerElement: React.Dispatch<React.SetStateAction<Element | null>>;
+  let open: boolean;
+  let triggerProps: React.ButtonHTMLAttributes<HTMLButtonElement>;
+
+  if (isStandalone) {
+    const { getDialog } = providerContext!;
+    const targetDialog = getDialog(dialog.id);
+
+    setTriggerElement = NOOP;
+    open = targetDialog?.isOpen ?? false;
+    triggerProps = {
+      onClick: () => {
+        const target = getDialog(dialog.id);
+        target?.open(payload); // TODO: pass in the event
+      },
+      'aria-haspopup': 'dialog',
+      'aria-expanded': open,
+    };
+  } else {
+    setTriggerElement = rootContext!.setTriggerElement;
+    open = rootContext!.open;
+    triggerProps = rootContext!.triggerProps;
+  }
 
   const state: DialogTrigger.State = React.useMemo(
     () => ({
@@ -45,10 +89,10 @@ export const DialogTrigger = React.forwardRef(function DialogTrigger(
     props: [triggerProps, elementProps, getButtonProps],
     customStyleHookMapping: triggerOpenStateMapping,
   });
-});
+}) as DialogTrigger.ComponentType;
 
 export namespace DialogTrigger {
-  export interface Props extends BaseUIComponentProps<'button', State> {
+  export interface Props<Payload = any> extends BaseUIComponentProps<'button', State> {
     /**
      * Whether the component renders a native `<button>` element when replacing it
      * via the `render` prop.
@@ -56,6 +100,8 @@ export namespace DialogTrigger {
      * @default true
      */
     nativeButton?: boolean;
+    dialog?: TypedDialogHandle<Payload>;
+    payload?: Payload;
   }
 
   export interface State {
@@ -67,5 +113,9 @@ export namespace DialogTrigger {
      * Whether the dialog is currently open.
      */
     open: boolean;
+  }
+
+  export interface ComponentType {
+    <Payload>(componentProps: DialogTrigger.Props<Payload>): React.JSX.Element;
   }
 }

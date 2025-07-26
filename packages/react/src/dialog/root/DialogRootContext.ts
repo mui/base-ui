@@ -25,11 +25,21 @@ export function useOptionalDialogRootContext() {
   };
 }
 
-export function useDialogRootContext() {
+export function useDialogRootContext(optional?: false): DialogRootContext & DialogContext;
+export function useDialogRootContext(
+  optional: true,
+): (DialogRootContext & DialogContext) | undefined;
+export function useDialogRootContext(
+  optional?: boolean,
+): (DialogRootContext & DialogContext) | undefined {
   const dialogRootContext = React.useContext(DialogRootContext);
   const dialogContext = React.useContext(DialogContext);
 
   if (dialogContext === undefined) {
+    if (optional === true) {
+      return undefined;
+    }
+
     throw new Error(
       'Base UI: DialogRootContext is missing. Dialog parts must be placed within <Dialog.Root>.',
     );
@@ -38,5 +48,5 @@ export function useDialogRootContext() {
   return {
     ...dialogRootContext,
     ...dialogContext,
-  };
+  } as DialogRootContext & DialogContext;
 }
