@@ -28,11 +28,12 @@ import { translateOpenChangeReason } from '../../utils/translateOpenChangeReason
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useFormContext } from '../../form/FormContext';
 import { useField } from '../../field/useField';
-import { type SelectRoot } from './SelectRoot';
+import type { SelectRootConditionalProps, SelectRoot } from './SelectRoot';
+import { EMPTY_ARRAY } from '../../utils/constants';
 
-const EMPTY_ARRAY: never[] = [];
-
-export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelectRoot.ReturnValue {
+export function useSelectRoot<Value, Multiple extends boolean | undefined>(
+  params: useSelectRoot.Parameters<Value, Multiple>,
+): useSelectRoot.ReturnValue {
   const {
     id: idProp,
     disabled: disabledProp = false,
@@ -518,8 +519,8 @@ export function useSelectRoot<T>(params: useSelectRoot.Parameters<T>): useSelect
 }
 
 export namespace useSelectRoot {
-  export interface Parameters<Value>
-    extends Omit<SelectRoot.Props<Value>, 'children' | 'inputRef'> {}
+  export interface Parameters<Value, Multiple extends boolean | undefined = false>
+    extends Omit<SelectRootConditionalProps<Value, Multiple>, 'children' | 'inputRef'> {}
 
   export type ReturnValue = {
     rootContext: SelectRootContext;
