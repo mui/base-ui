@@ -222,7 +222,7 @@ export function useScrollLock(params: {
 
   // https://github.com/mui/base-ui/issues/1135
   useIsoLayoutEffect(() => {
-    if (isWebKit && mounted && !open) {
+    if (enabled && isWebKit && mounted && !open) {
       const doc = ownerDocument(referenceElement);
       const originalUserSelect = doc.body.style.userSelect;
       const originalWebkitUserSelect = doc.body.style.webkitUserSelect;
@@ -234,7 +234,7 @@ export function useScrollLock(params: {
       };
     }
     return undefined;
-  }, [mounted, open, referenceElement]);
+  }, [enabled, mounted, open, referenceElement]);
 
   useIsoLayoutEffect(() => {
     if (!enabled) {

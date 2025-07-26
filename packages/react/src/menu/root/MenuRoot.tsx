@@ -25,6 +25,7 @@ import { PATIENT_CLICK_THRESHOLD, TYPEAHEAD_RESET_MS } from '../../utils/constan
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useDirection } from '../../direction-provider/DirectionContext';
 import { useScrollLock } from '../../utils/useScrollLock';
+import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
 import {
   type BaseOpenChangeReason,
   translateOpenChangeReason,
@@ -178,9 +179,14 @@ export const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
   }, []);
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
+  const {
+    openMethod,
+    triggerProps: interactionTypeProps,
+    reset: resetOpenInteractionType,
+  } = useOpenInteractionType(open);
 
   useScrollLock({
-    enabled: open && modal && lastOpenChangeReason !== 'trigger-hover',
+    enabled: open && modal && lastOpenChangeReason !== 'trigger-hover' && openMethod !== 'touch',
     mounted,
     open,
     referenceElement: positionerElement,
@@ -195,6 +201,7 @@ export const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
     setStickIfOpen(true);
     setAllowMouseEnter(false);
     onOpenChangeComplete?.(false);
+    resetOpenInteractionType();
   });
 
   useOpenChangeComplete({
@@ -356,7 +363,6 @@ export const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
   const dismiss = useDismiss(floatingRootContext, {
     enabled: !disabled,
     bubbles: closeParentOnEsc && parent.type === 'menu',
-    outsidePressEvent: 'mousedown',
     outsidePress() {
       if (parent.type !== 'context-menu' || openEventRef.current?.type === 'contextmenu') {
         return true;
@@ -434,11 +440,12 @@ export const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
           setAllowMouseEnter(true);
         },
       },
+      interactionTypeProps,
       mixedToggleHandlers,
     );
     delete referenceProps.role;
     return referenceProps;
-  }, [getReferenceProps, mixedToggleHandlers, setAllowMouseEnter]);
+  }, [getReferenceProps, mixedToggleHandlers, setAllowMouseEnter, interactionTypeProps]);
 
   const popupProps = React.useMemo(
     () =>
