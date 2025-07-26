@@ -31,7 +31,7 @@ export function TooltipRoot(props: TooltipRoot.Props) {
     disabled = false,
     defaultOpen = false,
     onOpenChange,
-    open,
+    open: openProp,
     delay,
     closeDelay,
     hoverable = true,
@@ -50,11 +50,13 @@ export function TooltipRoot(props: TooltipRoot.Props) {
   const popupRef = React.useRef<HTMLElement>(null);
 
   const [openState, setOpenState] = useControlled({
-    controlled: open,
+    controlled: openProp,
     default: defaultOpen,
     name: 'Tooltip',
     state: 'open',
   });
+
+  const open = !disabled && openState;
 
   function setOpenUnwrapped(
     nextOpen: boolean,
@@ -91,7 +93,7 @@ export function TooltipRoot(props: TooltipRoot.Props) {
     setOpenUnwrapped(false, undefined, 'disabled');
   }
 
-  const { mounted, setMounted, transitionStatus } = useTransitionStatus(openState);
+  const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
 
   const handleUnmount = useEventCallback(() => {
     setMounted(false);
@@ -100,10 +102,10 @@ export function TooltipRoot(props: TooltipRoot.Props) {
 
   useOpenChangeComplete({
     enabled: !actionsRef,
-    open: openState,
+    open,
     ref: popupRef,
     onComplete() {
-      if (!openState) {
+      if (!open) {
         handleUnmount();
       }
     },
@@ -116,7 +118,7 @@ export function TooltipRoot(props: TooltipRoot.Props) {
       reference: triggerElement,
       floating: positionerElement,
     },
-    open: openState,
+    open,
     onOpenChange(openValue, eventValue, reasonValue) {
       setOpen(openValue, eventValue, translateOpenChangeReason(reasonValue));
     },
@@ -178,7 +180,7 @@ export function TooltipRoot(props: TooltipRoot.Props) {
 
   const tooltipRoot = React.useMemo(
     () => ({
-      open: openState,
+      open,
       setOpen,
       mounted,
       setMounted,
@@ -194,7 +196,7 @@ export function TooltipRoot(props: TooltipRoot.Props) {
       onOpenChangeComplete,
     }),
     [
-      openState,
+      open,
       setOpen,
       mounted,
       setMounted,

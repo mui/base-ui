@@ -675,7 +675,6 @@ describe('<Tooltip.Root />', () => {
     it('does not throw error when combined with defaultOpen', async () => {
       await render(
         <Root defaultOpen disabled>
-          <Tooltip.Trigger />
           <Tooltip.Portal>
             <Tooltip.Positioner>
               <Tooltip.Popup>Content</Tooltip.Popup>
@@ -684,7 +683,7 @@ describe('<Tooltip.Root />', () => {
         </Root>,
       );
 
-      expect(screen.queryByText('Content')).not.to.equal(null);
+      expect(screen.queryByText('Content')).to.equal(null);
     });
   });
 
