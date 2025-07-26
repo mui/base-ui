@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useModernLayoutEffect } from '@base-ui-components/utils/useModernLayoutEffect';
+import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { warn } from '@base-ui-components/utils/warn';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useCollapsibleRootContext } from '../../collapsible/root/CollapsibleRootContext';
@@ -65,7 +65,7 @@ export const AccordionPanel = React.forwardRef(function AccordionPanel(
 
   if (process.env.NODE_ENV !== 'production') {
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    useModernLayoutEffect(() => {
+    useIsoLayoutEffect(() => {
       if (keepMountedProp === false && hiddenUntilFound) {
         warn(
           'The `keepMounted={false}` prop on a Accordion.Panel will be ignored when using `contextHiddenUntilFound` on the Panel or the Root since it requires the panel to remain mounted when closed.',
@@ -74,7 +74,7 @@ export const AccordionPanel = React.forwardRef(function AccordionPanel(
     }, [hiddenUntilFound, keepMountedProp]);
   }
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     if (idProp) {
       setPanelIdState(idProp);
       return () => {
@@ -84,16 +84,16 @@ export const AccordionPanel = React.forwardRef(function AccordionPanel(
     return undefined;
   }, [idProp, setPanelIdState]);
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     setHiddenUntilFound(hiddenUntilFound);
   }, [setHiddenUntilFound, hiddenUntilFound]);
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     setKeepMounted(keepMounted);
   }, [setKeepMounted, keepMounted]);
 
   useOpenChangeComplete({
-    open,
+    open: open && transitionStatus === 'idle',
     ref: panelRef,
     onComplete() {
       if (!open) {

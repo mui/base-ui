@@ -3,7 +3,7 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { isTabbable } from 'tabbable';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
-import { useModernLayoutEffect } from '@base-ui-components/utils/useModernLayoutEffect';
+import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { visuallyHidden } from '@base-ui-components/utils/visuallyHidden';
 import { useTimeout } from '@base-ui-components/utils/useTimeout';
 import { useAnimationFrame } from '@base-ui-components/utils/useAnimationFrame';
@@ -227,7 +227,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     };
   }, [beforeOutsideRef, focusFrame, handleValueChange, isActiveItem, open, popupElement]);
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     if (isActiveItemRef.current && open && popupElement) {
       handleValueChange(0, 0);
     }
@@ -311,7 +311,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     },
   });
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     if (isActiveItem) {
       setFloatingRootContext(context);
       prevTriggerElementRef.current = triggerElement;

@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { getSide, getAlignment, type Rect, getSideAxis } from '@floating-ui/utils';
 import { ownerDocument } from '@base-ui-components/utils/owner';
-import { useModernLayoutEffect } from '@base-ui-components/utils/useModernLayoutEffect';
+import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { useLatestRef } from '@base-ui-components/utils/useLatestRef';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import {
@@ -368,7 +368,7 @@ export function useAnchorPositioning(
 
   const registeredPositionReferenceRef = React.useRef<Element | VirtualElement | null>(null);
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     if (!mounted) {
       return;
     }
