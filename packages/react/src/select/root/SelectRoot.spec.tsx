@@ -55,3 +55,11 @@ function App() {
     />
   );
 }
+
+<Select.Root
+  defaultValue="test"
+  onValueChange={(value) => {
+    // @ts-expect-error
+    value.length;
+  }}
+/>;
