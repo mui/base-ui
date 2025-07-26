@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { useSelector } from '@base-ui-components/utils/store';
 import { InteractionType } from '@base-ui-components/utils/useEnhancedClickHandler';
 import { FloatingFocusManager } from '../../floating-ui-react';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
@@ -13,6 +14,7 @@ import { transitionStatusMapping } from '../../utils/styleHookMapping';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { DISABLED_TRANSITIONS_STYLE, EMPTY_OBJECT } from '../../utils/constants';
+import { selectors } from '../store';
 
 const customStyleHookMapping: CustomStyleHookMapping<PopoverPopup.State> = {
   ...baseMapping,
@@ -31,21 +33,19 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
 ) {
   const { className, render, initialFocus, finalFocus, ...elementProps } = componentProps;
 
-  const {
-    open,
-    instantType,
-    transitionStatus,
-    popupProps,
-    titleId,
-    descriptionId,
-    popupRef,
-    mounted,
-    openReason,
-    onOpenChangeComplete,
-    modal,
-    openMethod,
-  } = usePopoverRootContext();
+  const { popupRef, onOpenChangeComplete, store } = usePopoverRootContext();
+
   const positioner = usePopoverPositionerContext();
+  const open = useSelector(store, selectors.open);
+  const openMethod = useSelector(store, selectors.openMethod);
+  const instantType = useSelector(store, selectors.instantType);
+  const transitionStatus = useSelector(store, selectors.transitionStatus);
+  const popupProps = useSelector(store, selectors.popupProps);
+  const titleId = useSelector(store, selectors.titleId);
+  const descriptionId = useSelector(store, selectors.descriptionId);
+  const modal = useSelector(store, selectors.modal);
+  const mounted = useSelector(store, selectors.mounted);
+  const openReason = useSelector(store, selectors.openReason);
 
   useOpenChangeComplete({
     open,
@@ -83,9 +83,16 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
     [open, positioner.side, positioner.align, instantType, transitionStatus],
   );
 
+  const setPopupElement = React.useCallback(
+    (element: HTMLElement | null) => {
+      store.set('popupElement', element);
+    },
+    [store],
+  );
+
   const element = useRenderElement('div', componentProps, {
     state,
-    ref: [forwardedRef, popupRef],
+    ref: [forwardedRef, popupRef, setPopupElement],
     props: [
       popupProps,
       {
@@ -105,6 +112,7 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
       disabled={!mounted || openReason === 'trigger-hover'}
       initialFocus={resolvedInitialFocus}
       returnFocus={finalFocus}
+      closeOnFocusOut={false}
     >
       {element}
     </FloatingFocusManager>

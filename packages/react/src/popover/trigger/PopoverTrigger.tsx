@@ -1,5 +1,8 @@
 'use client';
 import * as React from 'react';
+import { useSelector } from '@base-ui-components/utils/store';
+import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
 import { useButton } from '../../use-button/useButton';
 import type { BaseUIComponentProps } from '../../utils/types';
@@ -9,6 +12,11 @@ import {
 } from '../../utils/popupStateMapping';
 import { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 import { useRenderElement } from '../../utils/useRenderElement';
+import { safePolygon, useClick, useHover, useInteractions } from '../../floating-ui-react';
+import { OPEN_DELAY } from '../utils/constants';
+import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
+import { PopoverStore, selectors } from '../store';
+import { PopoverHandle } from '../handle/createPopover';
 
 /**
  * A button that opens the popover.
@@ -25,10 +33,83 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
     className,
     disabled = false,
     nativeButton = true,
+    handle,
+    payload,
+    openOnHover = false,
+    delay = OPEN_DELAY,
+    closeDelay = 0,
     ...elementProps
   } = componentProps;
 
-  const { open, setTriggerElement, triggerProps, openReason } = usePopoverRootContext();
+  const rootContext = usePopoverRootContext(true);
+
+  let store: PopoverStore;
+
+  if (handle) {
+    store = handle.store;
+  } else if (rootContext) {
+    store = rootContext.store;
+  } else {
+    throw new Error(
+      'Base UI: PopoverTrigger must be either used within a PopoverRoot component or have the `handle` prop set.',
+    );
+  }
+
+  const floatingContext = useSelector(store, selectors.floatingRootContext);
+  const open = useSelector(store, selectors.open);
+  const openReason = useSelector(store, selectors.openReason);
+  const rootTriggerProps = useSelector(store, selectors.triggerProps);
+
+  const [triggerElement, setTriggerElement] = React.useState<HTMLElement | null>(null);
+  const { openMethod, triggerProps: interactionTypeTriggerProps } = useOpenInteractionType(open);
+
+  useIsoLayoutEffect(() => {
+    store.set('openMethod', openMethod);
+  }, [store, openMethod]);
+
+  const hover = useHover(floatingContext, {
+    enabled:
+      floatingContext != null &&
+      openOnHover &&
+      (openMethod !== 'touch' || openReason !== 'trigger-press'),
+    mouseOnly: true,
+    move: false,
+    handleClose: safePolygon({ blockPointerEvents: true }),
+    restMs: delay,
+    delay: {
+      close: closeDelay,
+    },
+    triggerElement,
+  });
+
+  const click = useClick(floatingContext, { enabled: floatingContext != null, stickIfOpen: false });
+
+  const localProps = useInteractions([click, hover]);
+
+  const getPayload = useEventCallback(() => {
+    return payload;
+  });
+
+  const registerTrigger = React.useCallback(
+    (element: HTMLElement) => {
+      store.set('activeTriggerElement', element);
+      setTriggerElement(element);
+
+      if (handle) {
+        handle.registerTrigger(element, getPayload);
+      }
+
+      return () => {
+        store.set('activeTriggerElement', null);
+        setTriggerElement(null);
+
+        if (handle) {
+          handle.unregisterTrigger(element);
+        }
+      };
+    },
+    [handle, getPayload, store],
+  );
 
   const state: PopoverTrigger.State = React.useMemo(
     () => ({
@@ -58,8 +139,14 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
 
   const element = useRenderElement('button', componentProps, {
     state,
-    ref: [buttonRef, setTriggerElement, forwardedRef],
-    props: [triggerProps, elementProps, getButtonProps],
+    ref: [buttonRef, forwardedRef, registerTrigger],
+    props: [
+      localProps.getReferenceProps(),
+      rootTriggerProps,
+      interactionTypeTriggerProps,
+      elementProps,
+      getButtonProps,
+    ],
     customStyleHookMapping,
   });
 
@@ -86,5 +173,28 @@ export namespace PopoverTrigger {
      * @default true
      */
     nativeButton?: boolean;
+
+    handle?: PopoverHandle<unknown>;
+    payload?: any;
+    /**
+     * Whether the popover should also open when the trigger is hovered.
+     * @default false
+     */
+    openOnHover?: boolean;
+    /**
+     * How long to wait before the popover may be opened on hover. Specified in milliseconds.
+     *
+     * Requires the `openOnHover` prop.
+     * @default 300
+     */
+    delay?: number;
+    /**
+     * How long to wait before closing the popover that was opened on hover.
+     * Specified in milliseconds.
+     *
+     * Requires the `openOnHover` prop.
+     * @default 0
+     */
+    closeDelay?: number;
   }
 }
