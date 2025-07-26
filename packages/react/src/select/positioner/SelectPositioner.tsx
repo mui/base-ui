@@ -1,5 +1,9 @@
 'use client';
 import * as React from 'react';
+import { inertValue } from '@base-ui-components/utils/inertValue';
+import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
+import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useSelector } from '@base-ui-components/utils/store';
 import { useSelectRootContext, useSelectFloatingContext } from '../root/SelectRootContext';
 import { CompositeList } from '../../composite/list/CompositeList';
 import type { BaseUIComponentProps } from '../../utils/types';
@@ -7,15 +11,11 @@ import { popupStateMapping } from '../../utils/popupStateMapping';
 import { useAnchorPositioning, type Align, type Side } from '../../utils/useAnchorPositioning';
 import { SelectPositionerContext } from './SelectPositionerContext';
 import { InternalBackdrop } from '../../utils/InternalBackdrop';
-import { inertValue } from '../../utils/inertValue';
-import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { DROPDOWN_COLLISION_AVOIDANCE } from '../../utils/constants';
 import { clearPositionerStyles } from '../popup/utils';
-import { useEventCallback } from '../../utils/useEventCallback';
-import { useSelector } from '../../utils/store';
 import { selectors } from '../store';
-import { useScrollLock } from '../../utils';
+import { useScrollLock } from '../../utils/useScrollLock';
 
 const FIXED: React.CSSProperties = { position: 'fixed' };
 
@@ -68,7 +68,7 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
     setControlledAlignItemWithTrigger(alignItemWithTrigger);
   }
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     if (!alignItemWithTrigger || !mounted) {
       if (selectors.scrollUpArrowVisible(store.state)) {
         store.set('scrollUpArrowVisible', false);

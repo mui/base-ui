@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { useFloating as usePosition, type VirtualElement } from '@floating-ui/react-dom';
 import { isElement } from '@floating-ui/utils/dom';
-import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
+import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 
 import { useFloatingTree } from '../components/FloatingTree';
 import type {
@@ -43,7 +43,7 @@ export function useFloating<RT extends ReferenceType = ReferenceType>(
 
   const tree = useFloatingTree();
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     if (domReference) {
       domReferenceRef.current = domReference;
     }
@@ -126,7 +126,7 @@ export function useFloating<RT extends ReferenceType = ReferenceType>(
     [position, refs, elements, nodeId, rootContext],
   );
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     rootContext.dataRef.current.floatingContext = context;
 
     const node = tree?.nodesRef.current.find((n) => n.id === nodeId);

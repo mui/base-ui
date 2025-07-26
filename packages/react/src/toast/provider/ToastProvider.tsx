@@ -1,15 +1,15 @@
 'use client';
 import * as React from 'react';
-import { useLatestRef } from '../../utils/useLatestRef';
+import { useLatestRef } from '@base-ui-components/utils/useLatestRef';
+import { ownerDocument } from '@base-ui-components/utils/owner';
+import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { generateId } from '@base-ui-components/utils/generateId';
+import { Timeout } from '@base-ui-components/utils/useTimeout';
 import { activeElement, contains } from '../../floating-ui-react/utils';
 import { ToastContext } from './ToastProviderContext';
 import { ToastObject, useToastManager } from '../useToastManager';
-import { ownerDocument } from '../../utils/owner';
-import { useEventCallback } from '../../utils/useEventCallback';
 import { isFocusVisible } from '../utils/focusVisible';
-import { generateId } from '../../utils/generateId';
 import { resolvePromiseOptions } from '../utils/resolvePromiseOptions';
-import { Timeout } from '../../utils/useTimeout';
 import { createToastManager } from '../createToastManager';
 
 interface TimerInfo {
@@ -257,12 +257,16 @@ export const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvid
 
       const handledPromise = promiseValue
         .then((result: Value) => {
+          const successOptions = resolvePromiseOptions(options.success, result);
           update(id, {
-            ...resolvePromiseOptions(options.success, result),
+            ...successOptions,
             type: 'success',
           });
 
-          scheduleTimer(id, timeout, () => close(id));
+          const successTimeout = successOptions.timeout ?? timeout;
+          if (successTimeout > 0) {
+            scheduleTimer(id, successTimeout, () => close(id));
+          }
 
           if (hoveringRef.current || focusedRef.current || !windowFocusedRef.current) {
             pauseTimers();
@@ -271,12 +275,16 @@ export const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvid
           return result;
         })
         .catch((error) => {
+          const errorOptions = resolvePromiseOptions(options.error, error);
           update(id, {
-            ...resolvePromiseOptions(options.error, error),
+            ...errorOptions,
             type: 'error',
           });
 
-          scheduleTimer(id, timeout, () => close(id));
+          const errorTimeout = errorOptions.timeout ?? timeout;
+          if (errorTimeout > 0) {
+            scheduleTimer(id, errorTimeout, () => close(id));
+          }
 
           if (hoveringRef.current || focusedRef.current || !windowFocusedRef.current) {
             pauseTimers();

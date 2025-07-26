@@ -1,50 +1,18 @@
 'use client';
 import * as React from 'react';
+import { useControlled } from '@base-ui-components/utils/useControlled';
+import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
+import { warn } from '@base-ui-components/utils/warn';
 import { BaseUIComponentProps, Orientation } from '../../utils/types';
-import { isElementDisabled } from '../../utils/isElementDisabled';
-import { useControlled } from '../../utils/useControlled';
-import { useEventCallback } from '../../utils/useEventCallback';
-import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
-import { useRenderElement } from '../../utils/useRenderElement';
-import { warn } from '../../utils/warn';
-import {
-  ARROW_DOWN,
-  ARROW_UP,
-  ARROW_RIGHT,
-  ARROW_LEFT,
-  HOME,
-  END,
-  stopEvent,
-} from '../../composite/composite';
 import { CompositeList } from '../../composite/list/CompositeList';
 import { useDirection } from '../../direction-provider/DirectionContext';
 import { AccordionRootContext } from './AccordionRootContext';
-
-const SUPPORTED_KEYS = new Set([ARROW_DOWN, ARROW_UP, ARROW_RIGHT, ARROW_LEFT, HOME, END]);
+import { useRenderElement } from '../../utils/useRenderElement';
 
 const rootStyleHookMapping = {
   value: () => null,
 };
-
-function getActiveTriggers(accordionItemRefs: {
-  current: (HTMLElement | null)[];
-}): HTMLButtonElement[] {
-  const { current: accordionItemElements } = accordionItemRefs;
-
-  const output: HTMLButtonElement[] = [];
-
-  for (let i = 0; i < accordionItemElements.length; i += 1) {
-    const section = accordionItemElements[i];
-    if (!isElementDisabled(section)) {
-      const trigger = section?.querySelector('[type="button"]') as HTMLButtonElement;
-      if (!isElementDisabled(trigger)) {
-        output.push(trigger);
-      }
-    }
-  }
-
-  return output;
-}
 
 /**
  * Groups all parts of the accordion.
@@ -57,6 +25,7 @@ export const AccordionRoot = React.forwardRef(function AccordionRoot(
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const {
+    render,
     className,
     disabled = false,
     hiddenUntilFound: hiddenUntilFoundProp,
@@ -74,7 +43,7 @@ export const AccordionRoot = React.forwardRef(function AccordionRoot(
 
   if (process.env.NODE_ENV !== 'production') {
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    useModernLayoutEffect(() => {
+    useIsoLayoutEffect(() => {
       if (hiddenUntilFoundProp && keepMountedProp === false) {
         warn(
           'The `keepMounted={false}` prop on a Accordion.Root will be ignored when using `hiddenUntilFound` since it requires Panels to remain mounted when closed.',
@@ -124,9 +93,6 @@ export const AccordionRoot = React.forwardRef(function AccordionRoot(
     [onValueChange, openMultiple, setValue, value],
   );
 
-  const isRtl = direction === 'rtl';
-  const isHorizontal = orientation === 'horizontal';
-
   const state: AccordionRoot.State = React.useMemo(
     () => ({
       value,
@@ -144,6 +110,7 @@ export const AccordionRoot = React.forwardRef(function AccordionRoot(
       handleValueChange,
       hiddenUntilFound: hiddenUntilFoundProp ?? false,
       keepMounted: keepMountedProp ?? false,
+      loop,
       orientation,
       state,
       value,
@@ -154,6 +121,7 @@ export const AccordionRoot = React.forwardRef(function AccordionRoot(
       handleValueChange,
       hiddenUntilFoundProp,
       keepMountedProp,
+      loop,
       orientation,
       state,
       value,
@@ -167,81 +135,6 @@ export const AccordionRoot = React.forwardRef(function AccordionRoot(
       {
         dir: direction,
         role: 'region',
-        onKeyDown(event: React.KeyboardEvent) {
-          if (!SUPPORTED_KEYS.has(event.key)) {
-            return;
-          }
-
-          stopEvent(event);
-
-          const triggers = getActiveTriggers(accordionItemRefs);
-
-          const numOfEnabledTriggers = triggers.length;
-          const lastIndex = numOfEnabledTriggers - 1;
-
-          let nextIndex = -1;
-
-          const thisIndex = triggers.indexOf(event.target as HTMLButtonElement);
-
-          function toNext() {
-            if (loop) {
-              nextIndex = thisIndex + 1 > lastIndex ? 0 : thisIndex + 1;
-            } else {
-              nextIndex = Math.min(thisIndex + 1, lastIndex);
-            }
-          }
-
-          function toPrev() {
-            if (loop) {
-              nextIndex = thisIndex === 0 ? lastIndex : thisIndex - 1;
-            } else {
-              nextIndex = thisIndex - 1;
-            }
-          }
-
-          switch (event.key) {
-            case ARROW_DOWN:
-              if (!isHorizontal) {
-                toNext();
-              }
-              break;
-            case ARROW_UP:
-              if (!isHorizontal) {
-                toPrev();
-              }
-              break;
-            case ARROW_RIGHT:
-              if (isHorizontal) {
-                if (isRtl) {
-                  toPrev();
-                } else {
-                  toNext();
-                }
-              }
-              break;
-            case ARROW_LEFT:
-              if (isHorizontal) {
-                if (isRtl) {
-                  toNext();
-                } else {
-                  toPrev();
-                }
-              }
-              break;
-            case 'Home':
-              nextIndex = 0;
-              break;
-            case 'End':
-              nextIndex = lastIndex;
-              break;
-            default:
-              break;
-          }
-
-          if (nextIndex > -1) {
-            triggers[nextIndex].focus();
-          }
-        },
       },
       elementProps,
     ],

@@ -1,6 +1,12 @@
 'use client';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
+import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
+import { visuallyHidden } from '@base-ui-components/utils/visuallyHidden';
+import { useTimeout } from '@base-ui-components/utils/useTimeout';
+import { useAnimationFrame } from '@base-ui-components/utils/useAnimationFrame';
+import { useLatestRef } from '@base-ui-components/utils/useLatestRef';
 import {
   safePolygon,
   useClick,
@@ -24,24 +30,19 @@ import {
   useNavigationMenuRootContext,
   useNavigationMenuTreeContext,
 } from '../root/NavigationMenuRootContext';
-import { useEventCallback } from '../../utils/useEventCallback';
 import {
   BaseOpenChangeReason,
   translateOpenChangeReason,
 } from '../../utils/translateOpenChangeReason';
 import { PATIENT_CLICK_THRESHOLD } from '../../utils/constants';
 import { FocusGuard } from '../../utils/FocusGuard';
-import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
-import { visuallyHidden } from '../../utils/visuallyHidden';
 import { pressableTriggerOpenStateMapping } from '../../utils/popupStateMapping';
 import { isOutsideMenuEvent } from '../utils/isOutsideMenuEvent';
-import { useTimeout } from '../../utils/useTimeout';
-import { useAnimationFrame } from '../../utils/useAnimationFrame';
-import { useLatestRef } from '../../utils/useLatestRef';
 import { useAnimationsFinished } from '../../utils/useAnimationsFinished';
 import { NavigationMenuPopupCssVars } from '../popup/NavigationMenuPopupCssVars';
 import { NavigationMenuPositionerCssVars } from '../positioner/NavigationMenuPositionerCssVars';
 import { CompositeItem } from '../../composite/item/CompositeItem';
+import { useButton } from '../../use-button';
 
 const TRIGGER_IDENTIFIER = 'data-navigation-menu-trigger';
 
@@ -56,7 +57,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
   componentProps: NavigationMenuTrigger.Props,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
-  const { className, render, ...elementProps } = componentProps;
+  const { className, render, nativeButton = true, disabled, ...elementProps } = componentProps;
 
   const {
     value,
@@ -143,7 +144,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
 
   const runOnceAnimationsFinish = useAnimationsFinished({ current: popupElement }, value);
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     if (!positionerElement || !popupElement || !open) {
       return undefined;
     }
@@ -157,7 +158,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     };
   }, [open, popupElement, positionerElement, sizeFrame1, sizeFrame2, setAutoSizes]);
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     if (!positionerElement || !popupElement || !value) {
       return undefined;
     }
@@ -193,7 +194,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     }
   }, [stickIfOpenTimeout, open, sizeFrame1, sizeFrame2]);
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     if (isActiveItemRef.current && open && popupElement) {
       handleValueChange(0, 0);
     }
@@ -303,7 +304,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     },
   });
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     if (isActiveItem) {
       setFloatingRootContext(context);
       prevTriggerElementRef.current = triggerElement;
@@ -412,6 +413,12 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     },
   };
 
+  const { getButtonProps, buttonRef } = useButton({
+    disabled,
+    focusableWhenDisabled: true,
+    native: nativeButton,
+  });
+
   return (
     <React.Fragment>
       <CompositeItem
@@ -420,8 +427,8 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
         className={className}
         state={state}
         customStyleHookMapping={pressableTriggerOpenStateMapping}
-        refs={[forwardedRef, setTriggerElement]}
-        props={[getReferenceProps, defaultProps, elementProps]}
+        refs={[forwardedRef, setTriggerElement, buttonRef]}
+        props={[getReferenceProps, defaultProps, elementProps, getButtonProps]}
       />
       {isActiveItem && (
         <React.Fragment>
@@ -466,5 +473,13 @@ export namespace NavigationMenuTrigger {
     open: boolean;
   }
 
-  export interface Props extends BaseUIComponentProps<'button', State> {}
+  export interface Props extends BaseUIComponentProps<'button', State> {
+    /**
+     * Whether the component renders a native `<button>` element when replacing it
+     * via the `render` prop.
+     * Set to `false` if the rendered element is not a button (e.g. `<div>`).
+     * @default true
+     */
+    nativeButton?: boolean;
+  }
 }

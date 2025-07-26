@@ -1,9 +1,9 @@
 'use client';
 import * as React from 'react';
+import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
-import { useEventCallback } from '../../utils/useEventCallback';
-import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { useAvatarRootContext } from '../root/AvatarRootContext';
 import type { AvatarRoot } from '../root/AvatarRoot';
 import { avatarStyleHookMapping } from '../root/styleHooks';
@@ -39,7 +39,7 @@ export const AvatarImage = React.forwardRef(function AvatarImage(
     context.setImageLoadingStatus(status);
   });
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     if (imageLoadingStatus !== 'idle') {
       handleLoadingStatusChange(imageLoadingStatus);
     }

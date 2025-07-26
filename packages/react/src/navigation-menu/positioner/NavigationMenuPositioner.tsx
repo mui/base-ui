@@ -1,6 +1,8 @@
 'use client';
 import * as React from 'react';
 import { getSide } from '@floating-ui/utils';
+import { ownerDocument } from '@base-ui-components/utils/owner';
+import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import type { Middleware } from '../../floating-ui-react';
 import {
   disableFocusInside,
@@ -16,9 +18,7 @@ import {
 import { useNavigationMenuPortalContext } from '../portal/NavigationMenuPortalContext';
 import { useAnchorPositioning, type Align, type Side } from '../../utils/useAnchorPositioning';
 import { NavigationMenuPositionerContext } from './NavigationMenuPositionerContext';
-import { ownerDocument } from '../../utils/owner';
 import { useAnimationsFinished } from '../../utils/useAnimationsFinished';
-import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { popupStateMapping } from '../../utils/popupStateMapping';
 import { DROPDOWN_COLLISION_AVOIDANCE, POPUP_COLLISION_AVOIDANCE } from '../../utils/constants';
 
@@ -123,7 +123,7 @@ export const NavigationMenuPositioner = React.forwardRef(function NavigationMenu
 
   // When the current trigger element changes, enable transitions on the
   // positioner temporarily
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     const currentTriggerElement = floatingRootContext?.elements.domReference;
     const prevTriggerElement = prevTriggerElementRef.current;
 

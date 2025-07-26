@@ -1,19 +1,19 @@
 'use client';
 import * as React from 'react';
-import { activeElement } from '../../floating-ui-react/utils';
-import { areArraysEqual } from '../../utils/areArraysEqual';
-import { clamp } from '../../utils/clamp';
-import { ownerDocument } from '../../utils/owner';
+import { ownerDocument } from '@base-ui-components/utils/owner';
+import { useControlled } from '@base-ui-components/utils/useControlled';
+import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useForkRef } from '@base-ui-components/utils/useForkRef';
+import { useLatestRef } from '@base-ui-components/utils/useLatestRef';
+import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
+import { visuallyHidden } from '@base-ui-components/utils/visuallyHidden';
+import { warn } from '@base-ui-components/utils/warn';
 import type { BaseUIComponentProps, Orientation } from '../../utils/types';
 import { useBaseUiId } from '../../utils/useBaseUiId';
-import { useControlled } from '../../utils/useControlled';
-import { useForkRef } from '../../utils/useForkRef';
-import { useEventCallback } from '../../utils/useEventCallback';
-import { useLatestRef } from '../../utils/useLatestRef';
-import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { useRenderElement } from '../../utils/useRenderElement';
-import { visuallyHidden } from '../../utils/visuallyHidden';
-import { warn } from '../../utils/warn';
+import { clamp } from '../../utils/clamp';
+import { areArraysEqual } from '../../utils/areArraysEqual';
+import { activeElement } from '../../floating-ui-react/utils';
 import { CompositeList, type CompositeMetadata } from '../../composite/list/CompositeList';
 import type { FieldRoot } from '../../field/root/FieldRoot';
 import { useField } from '../../field/useField';
@@ -201,7 +201,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
     thumbRefs.current?.[0]?.focus();
   });
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     if (valueProp === undefined || dragging) {
       return;
     }
@@ -211,7 +211,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
     }
   }, [dragging, min, max, valueProp]);
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     const activeEl = activeElement(ownerDocument(sliderRef.current));
     if (disabled && sliderRef.current?.contains(activeEl)) {
       // This is necessary because Firefox and Safari will keep focus

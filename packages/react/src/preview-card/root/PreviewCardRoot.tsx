@@ -1,6 +1,8 @@
 'use client';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
+import { useControlled } from '@base-ui-components/utils/useControlled';
+import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import {
   safePolygon,
   useDismiss,
@@ -15,9 +17,7 @@ import {
   type BaseOpenChangeReason,
 } from '../../utils/translateOpenChangeReason';
 import { useFocusWithDelay } from '../../utils/interactions/useFocusWithDelay';
-import { useControlled } from '../../utils/useControlled';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
-import { useEventCallback } from '../../utils/useEventCallback';
 import { useTransitionStatus } from '../../utils/useTransitionStatus';
 
 /**

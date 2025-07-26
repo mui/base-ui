@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { getWindow } from '@floating-ui/utils/dom';
-import { useEventCallback } from '../../utils/useEventCallback';
-import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
+import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { contains, getTarget, isMouseLikePointerType } from '../utils';
 
 import type { ContextData, ElementProps, FloatingRootContext } from '../types';
@@ -226,7 +226,7 @@ export function useClientPoint(
     }
   }, [enabled, open]);
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     if (enabled && (x != null || y != null)) {
       initialRef.current = false;
       setReference(x, y);

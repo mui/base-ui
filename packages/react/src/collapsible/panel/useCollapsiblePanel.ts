@@ -1,12 +1,12 @@
 'use client';
 import * as React from 'react';
+import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
+import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useForkRef } from '@base-ui-components/utils/useForkRef';
+import { useOnMount } from '@base-ui-components/utils/useOnMount';
+import { AnimationFrame } from '@base-ui-components/utils/useAnimationFrame';
+import { warn } from '@base-ui-components/utils/warn';
 import { HTMLProps } from '../../utils/types';
-import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
-import { useEventCallback } from '../../utils/useEventCallback';
-import { useForkRef } from '../../utils/useForkRef';
-import { useOnMount } from '../../utils/useOnMount';
-import { AnimationFrame } from '../../utils/useAnimationFrame';
-import { warn } from '../../utils/warn';
 import type { AnimationType, Dimensions } from '../root/useCollapsibleRoot';
 import { CollapsiblePanelDataAttributes } from './CollapsiblePanelDataAttributes';
 import { AccordionRootDataAttributes } from '../../accordion/root/AccordionRootDataAttributes';
@@ -154,7 +154,7 @@ export function useCollapsiblePanel(
 
   const mergedPanelRef = useForkRef(externalRef, panelRef, handlePanelRef);
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     if (animationTypeRef.current !== 'css-transition') {
       return undefined;
     }
@@ -236,7 +236,7 @@ export function useCollapsiblePanel(
     transitionDimensionRef,
   ]);
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     if (animationTypeRef.current !== 'css-animation') {
       return;
     }
@@ -290,7 +290,7 @@ export function useCollapsiblePanel(
     return () => AnimationFrame.cancel(frame);
   });
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     if (!hiddenUntilFound) {
       return undefined;
     }
@@ -322,7 +322,7 @@ export function useCollapsiblePanel(
     };
   }, [hiddenUntilFound, open, panelRef, setDimensions]);
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     const panel = panelRef.current;
 
     if (panel && hiddenUntilFound && hidden) {

@@ -1,7 +1,7 @@
 import * as React from 'react';
 
-import { useId } from '../../utils/useId';
-import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
+import { useId } from '@base-ui-components/utils/useId';
+import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import type { FloatingNodeType, FloatingTreeType, ReferenceType } from '../types';
 import { createEventEmitter } from '../utils/createEventEmitter';
 
@@ -33,7 +33,7 @@ export function useFloatingNodeId(customParentId?: string): string | undefined {
   const reactParentId = useFloatingParentNodeId();
   const parentId = customParentId || reactParentId;
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     if (!id) {
       return undefined;
     }

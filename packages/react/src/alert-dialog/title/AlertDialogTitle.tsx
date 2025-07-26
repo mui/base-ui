@@ -1,8 +1,8 @@
 'use client';
 import * as React from 'react';
+import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { useAlertDialogRootContext } from '../root/AlertDialogRootContext';
 import { useRenderElement } from '../../utils/useRenderElement';
-import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import type { BaseUIComponentProps } from '../../utils/types';
 
@@ -21,7 +21,7 @@ export const AlertDialogTitle = React.forwardRef(function AlertDialogTitle(
 
   const id = useBaseUiId(idProp);
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     setTitleElementId(id);
     return () => {
       setTitleElementId(undefined);

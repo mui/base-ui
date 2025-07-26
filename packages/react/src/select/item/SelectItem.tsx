@@ -1,19 +1,19 @@
 'use client';
 import * as React from 'react';
+import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
+import { useLatestRef } from '@base-ui-components/utils/useLatestRef';
+import { isMouseWithinBounds } from '@base-ui-components/utils/isMouseWithinBounds';
+import { useSelector } from '@base-ui-components/utils/store';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import {
   useCompositeListItem,
   IndexGuessBehavior,
 } from '../../composite/list/useCompositeListItem';
 import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
-import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
-import { useLatestRef } from '../../utils/useLatestRef';
-import { useSelector } from '../../utils/store';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { SelectItemContext } from './SelectItemContext';
 import { selectors } from '../store';
 import { useButton } from '../../use-button';
-import { isMouseWithinBounds } from '../../utils/isMouseWithinBounds';
 
 /**
  * An individual option in the select menu.
@@ -67,7 +67,7 @@ export const SelectItem = React.memo(
 
     const hasRegistered = listItem.index !== -1;
 
-    useModernLayoutEffect(() => {
+    useIsoLayoutEffect(() => {
       if (!hasRegistered) {
         return undefined;
       }
@@ -80,7 +80,7 @@ export const SelectItem = React.memo(
       };
     }, [hasRegistered, listItem.index, value, valuesRef]);
 
-    useModernLayoutEffect(() => {
+    useIsoLayoutEffect(() => {
       if (hasRegistered) {
         if (multiple) {
           const isValueSelected = Array.isArray(rootValue) && rootValue.includes(value);

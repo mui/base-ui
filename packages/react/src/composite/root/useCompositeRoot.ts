@@ -1,10 +1,12 @@
 'use client';
 import * as React from 'react';
+import { isElementDisabled } from '@base-ui-components/utils/isElementDisabled';
+import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useForkRef } from '@base-ui-components/utils/useForkRef';
+import { ownerDocument } from '@base-ui-components/utils/owner';
+import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { activeElement } from '../../floating-ui-react/utils';
 import type { TextDirection } from '../../direction-provider/DirectionContext';
-import { isElementDisabled } from '../../utils/isElementDisabled';
-import { useEventCallback } from '../../utils/useEventCallback';
-import { useForkRef } from '../../utils/useForkRef';
 import {
   ALL_KEYS,
   ARROW_DOWN,
@@ -36,8 +38,6 @@ import {
 import { ACTIVE_COMPOSITE_ITEM } from '../constants';
 import { CompositeMetadata } from '../list/CompositeList';
 import { HTMLProps } from '../../utils/types';
-import { ownerDocument } from '../../utils/owner';
-import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 
 export interface UseCompositeRootParameters {
   orientation?: 'horizontal' | 'vertical' | 'both';
@@ -115,7 +115,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
   // Ensure external controlled updates moves focus to the highlighted item
   // if focus is currently inside the list.
   // https://github.com/mui/base-ui/issues/2101
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     const activeEl = activeElement(ownerDocument(rootRef.current)) as HTMLDivElement | null;
     if (elementsRef.current.includes(activeEl)) {
       const focusedItem = elementsRef.current[highlightedIndex];

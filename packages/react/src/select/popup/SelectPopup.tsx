@@ -1,10 +1,16 @@
 'use client';
 import * as React from 'react';
+import * as ReactDOM from 'react-dom';
+import { isWebKit } from '@base-ui-components/utils/detectBrowser';
+import { ownerDocument, ownerWindow } from '@base-ui-components/utils/owner';
+import { isMouseWithinBounds } from '@base-ui-components/utils/isMouseWithinBounds';
+import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
+import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useSelector } from '@base-ui-components/utils/store';
 import { FloatingFocusManager } from '../../floating-ui-react';
 import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import { popupStateMapping } from '../../utils/popupStateMapping';
-import { useSelector } from '../../utils/store';
 import type { Side } from '../../utils/useAnchorPositioning';
 import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
@@ -15,11 +21,6 @@ import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { selectors } from '../store';
 import { clearPositionerStyles } from './utils';
-import { isWebKit } from '../../utils/detectBrowser';
-import { ownerDocument, ownerWindow } from '../../utils/owner';
-import { isMouseWithinBounds } from '../../utils/isMouseWithinBounds';
-import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
-import { useEventCallback } from '../../utils/useEventCallback';
 import { DISABLED_TRANSITIONS_STYLE } from '../../utils/constants';
 
 const customStyleHookMapping: CustomStyleHookMapping<SelectPopup.State> = {
@@ -106,7 +107,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
     }
   });
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     if (!positionerElement || Object.keys(originalPositionerStylesRef.current).length) {
       return;
     }
@@ -124,7 +125,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
     };
   }, [positionerElement]);
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     if (mounted || alignItemWithTriggerActive) {
       return;
     }
@@ -139,7 +140,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
     }
   }, [mounted, alignItemWithTriggerActive, positionerElement]);
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     const popupElement = popupRef.current;
 
     if (
@@ -231,7 +232,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
       if (fallbackToAlignPopupToTrigger || isPinchZoomed) {
         initialPlacedRef.current = true;
         clearPositionerStyles(positionerElement, originalPositionerStylesRef.current);
-        setControlledAlignItemWithTrigger(false);
+        ReactDOM.flushSync(() => setControlledAlignItemWithTrigger(false));
         return;
       }
 
@@ -319,7 +320,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
         return;
       }
 
-      if (reachedMaxHeightRef.current || !alignItemWithTriggerActive) {
+      if (reachedMaxHeightRef.current) {
         handleScrollArrowVisibility();
         return;
       }

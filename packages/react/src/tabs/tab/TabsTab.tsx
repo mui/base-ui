@@ -1,9 +1,9 @@
 'use client';
 import * as React from 'react';
-import { ownerDocument } from '../../utils/owner';
+import { ownerDocument } from '@base-ui-components/utils/owner';
+import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { useBaseUiId } from '../../utils/useBaseUiId';
-import { useEventCallback } from '../../utils/useEventCallback';
-import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { useRenderElement } from '../../utils/useRenderElement';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useButton } from '../../use-button';
@@ -73,7 +73,7 @@ export const TabsTab = React.forwardRef(function Tab(
 
   // Keep the highlighted item in sync with the currently selected tab
   // when the value prop changes externally (controlled mode)
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     if (isNavigatingRef.current) {
       isNavigatingRef.current = false;
       return;

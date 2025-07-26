@@ -1,4 +1,4 @@
-import { generateId } from '../utils/generateId';
+import { generateId } from '@base-ui-components/utils/generateId';
 import { type ToastObject, useToastManager } from './useToastManager';
 
 export interface ToastManagerEvent {
