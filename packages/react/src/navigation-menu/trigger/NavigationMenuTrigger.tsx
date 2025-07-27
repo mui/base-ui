@@ -177,7 +177,10 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     }
 
     const resizeObserver = new ResizeObserver(() => {
-      prevSizeRef.current = getCssDimensions(popupElement);
+      prevSizeRef.current = {
+        width: popupElement.offsetWidth,
+        height: popupElement.offsetHeight,
+      };
     });
 
     resizeObserver.observe(popupElement);
