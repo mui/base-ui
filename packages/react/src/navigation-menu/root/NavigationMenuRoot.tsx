@@ -21,6 +21,7 @@ import {
 import type { BaseOpenChangeReason } from '../../utils/translateOpenChangeReason';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useTransitionStatus } from '../../utils/useTransitionStatus';
+import { setFixedSize } from '../utils/setFixedSize';
 
 /**
  * Groups all parts of the navigation menu.
@@ -90,6 +91,11 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot(
         closeReasonRef.current = reason;
         setActivationDirection(null);
         setFloatingRootContext(undefined);
+
+        if (positionerElement && popupElement) {
+          setFixedSize(popupElement, 'popup');
+          setFixedSize(positionerElement, 'positioner');
+        }
       }
 
       if (nextValue !== value) {
