@@ -26,7 +26,6 @@ export interface ComboboxRootContext {
   ) => void;
   listRef: React.RefObject<Array<HTMLElement | null>>;
   popupRef: React.RefObject<HTMLDivElement | null>;
-  triggerRef: React.RefObject<HTMLButtonElement | null>;
   inputRef: React.RefObject<HTMLInputElement | null>;
   keyboardActiveRef: React.RefObject<boolean>;
   allowActiveIndexSyncRef: React.RefObject<boolean>;
@@ -54,6 +53,7 @@ export interface ComboboxRootContext {
   virtualized: boolean;
   openOnlyWithMatch: boolean;
   items: any[] | undefined;
+  onOpenChangeComplete: (open: boolean) => void;
 }
 
 export interface ComboboxDerivedItemsContext {

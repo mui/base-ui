@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import { Popover } from '@base-ui-components/react/popover';
 import { Combobox } from '@base-ui-components/react/combobox';
 import { emojiCategories } from './data';
 import styles from './index.module.css';
@@ -37,10 +36,11 @@ const emojiGroups: EmojiGroup[] = emojiCategories.map((category) => ({
 }));
 
 export default function EmojiPicker() {
-  const [popoverOpen, setPopoverOpen] = React.useState(false);
+  const [pickerOpen, setPickerOpen] = React.useState(false);
   const [textValue, setTextValue] = React.useState('');
   const [searchValue, setSearchValue] = React.useState('');
 
+  const triggerRef = React.useRef<HTMLButtonElement | null>(null);
   const textInputRef = React.useRef<HTMLInputElement | null>(null);
 
   function handleInsertEmoji(value: string | null) {
@@ -53,7 +53,7 @@ export default function EmojiPicker() {
     const end = textInputRef.current.selectionEnd ?? textInputRef.current.value.length ?? 0;
 
     setTextValue((prev) => prev.slice(0, start) + emoji + prev.slice(end));
-    setPopoverOpen(false);
+    setPickerOpen(false);
 
     const input = textInputRef.current;
     if (input) {
@@ -75,72 +75,77 @@ export default function EmojiPicker() {
           onChange={(event) => setTextValue(event.target.value)}
         />
 
-        <Popover.Root
-          open={popoverOpen}
-          onOpenChange={setPopoverOpen}
+        <Combobox.Root
+          items={emojiGroups}
+          cols={COLUMNS}
+          open={pickerOpen}
+          onOpenChange={setPickerOpen}
           onOpenChangeComplete={(open) => {
             if (!open) {
               setSearchValue('');
             }
           }}
+          inputValue={searchValue}
+          onInputValueChange={(nextInputValue) => {
+            setSearchValue(nextInputValue);
+          }}
+          onSelectedValueChange={(value) => {
+            handleInsertEmoji(value.emoji);
+            setSearchValue('');
+            setPickerOpen(false);
+          }}
         >
-          <Popover.Trigger className={styles.EmojiButton} aria-label="Choose emoji">
+          <Combobox.Trigger
+            ref={triggerRef}
+            className={styles.EmojiButton}
+            aria-label="Choose emoji"
+          >
             😀
-          </Popover.Trigger>
-          <Popover.Portal>
-            <Popover.Positioner className={styles.Positioner} sideOffset={4} side="top" align="end">
-              <Popover.Popup className={styles.Popup} aria-label="Select emoji">
-                <Combobox.Root
-                  items={emojiGroups}
-                  cols={COLUMNS}
-                  open={popoverOpen}
-                  inputValue={searchValue}
-                  onInputValueChange={setSearchValue}
-                  onSelectedValueChange={(value) => {
-                    handleInsertEmoji(value.emoji);
-                    setSearchValue(searchValue);
-                  }}
+          </Combobox.Trigger>
+          <Combobox.Portal>
+            <Combobox.Positioner
+              anchor={triggerRef}
+              className={styles.Positioner}
+              sideOffset={4}
+              side="top"
+              align="end"
+            >
+              <Combobox.Popup className={styles.Popup} aria-label="Select emoji">
+                <div className={styles.InputContainer}>
+                  <Combobox.Input placeholder="Search emojis…" className={styles.Input} />
+                </div>
+                <Combobox.Empty className={styles.Empty}>No emojis found</Combobox.Empty>
+                <Combobox.List
+                  className={styles.List}
+                  style={{ '--cols': COLUMNS } as React.CSSProperties}
                 >
-                  <div className={styles.InputContainer}>
-                    <Combobox.Input placeholder="Search emojis…" className={styles.Input} />
-                  </div>
-                  <Combobox.Empty className={styles.Empty}>No emojis found</Combobox.Empty>
-                  <Combobox.List
-                    className={styles.List}
-                    style={{ '--cols': COLUMNS } as React.CSSProperties}
-                  >
-                    {(group: EmojiGroup) => (
-                      <Combobox.Group
-                        key={group.value}
-                        className={styles.Group}
-                        items={group.items}
-                      >
-                        <Combobox.GroupLabel className={styles.GroupLabel}>
-                          {group.label}
-                        </Combobox.GroupLabel>
-                        <div className={styles.Grid}>
-                          {chunkArray(group.items, COLUMNS).map((row, rowIdx) => (
-                            <Combobox.Row key={rowIdx} className={styles.Row}>
-                              {row.map((emoji) => (
-                                <Combobox.Item
-                                  key={emoji.emoji}
-                                  value={emoji}
-                                  className={styles.Item}
-                                >
-                                  <span className={styles.Emoji}>{emoji.emoji}</span>
-                                </Combobox.Item>
-                              ))}
-                            </Combobox.Row>
-                          ))}
-                        </div>
-                      </Combobox.Group>
-                    )}
-                  </Combobox.List>
-                </Combobox.Root>
-              </Popover.Popup>
-            </Popover.Positioner>
-          </Popover.Portal>
-        </Popover.Root>
+                  {(group: EmojiGroup) => (
+                    <Combobox.Group key={group.value} className={styles.Group} items={group.items}>
+                      <Combobox.GroupLabel className={styles.GroupLabel}>
+                        {group.label}
+                      </Combobox.GroupLabel>
+                      <div className={styles.Grid} role="presentation">
+                        {chunkArray(group.items, COLUMNS).map((row, rowIdx) => (
+                          <Combobox.Row key={rowIdx} className={styles.Row}>
+                            {row.map((emoji) => (
+                              <Combobox.Item
+                                key={emoji.emoji}
+                                value={emoji}
+                                className={styles.Item}
+                              >
+                                <span className={styles.Emoji}>{emoji.emoji}</span>
+                              </Combobox.Item>
+                            ))}
+                          </Combobox.Row>
+                        ))}
+                      </div>
+                    </Combobox.Group>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>
       </div>
     </div>
   );

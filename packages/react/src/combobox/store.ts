@@ -25,9 +25,11 @@ export type State = {
 
   popupProps: HTMLProps;
   triggerProps: HTMLProps;
-  triggerElement: HTMLElement | null;
+  anchorElement: HTMLElement | null;
   positionerElement: HTMLElement | null;
   listElement: HTMLElement | null;
+  triggerElement: HTMLElement | null;
+  inputElement: HTMLInputElement | null;
 };
 
 export type ComboboxStore = Store<State>;
@@ -57,9 +59,13 @@ export const selectors = {
     return state.selectedValue === selectedValue;
   }),
 
+  transitionStatus: createSelector((state: State) => state.transitionStatus),
+
   popupProps: createSelector((state: State) => state.popupProps),
   triggerProps: createSelector((state: State) => state.triggerProps),
-  triggerElement: createSelector((state: State) => state.triggerElement),
+  anchorElement: createSelector((state: State) => state.anchorElement),
   positionerElement: createSelector((state: State) => state.positionerElement),
   listElement: createSelector((state: State) => state.listElement),
+  triggerElement: createSelector((state: State) => state.triggerElement),
+  inputElement: createSelector((state: State) => state.inputElement),
 };

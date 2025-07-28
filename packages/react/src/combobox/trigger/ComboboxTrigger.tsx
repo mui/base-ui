@@ -1,12 +1,14 @@
 'use client';
 import * as React from 'react';
 import { useSelector } from '@base-ui-components/utils/store';
+import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useButton } from '../../use-button';
 import { useComboboxRootContext } from '../root/ComboboxRootContext';
 import { selectors } from '../store';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
+import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
 
 /**
  * A button that opens the combobox popup.
@@ -30,13 +32,14 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
   const {
     store,
     setOpen,
-    triggerRef,
     disabled: comboboxDisabled,
     readOnly,
     inputRef,
   } = useComboboxRootContext();
 
   const open = useSelector(store, selectors.open);
+  const anchorElement = useSelector(store, selectors.anchorElement);
+  const listElement = useSelector(store, selectors.listElement);
 
   const disabled = fieldDisabled || comboboxDisabled || disabledProp;
 
@@ -54,18 +57,30 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
     [open, disabled],
   );
 
+  const setTriggerElement = useEventCallback((element) => {
+    store.set('triggerElement', element);
+  });
+
   const element = useRenderElement('button', componentProps, {
-    ref: [forwardedRef, triggerRef, buttonRef],
+    ref: [forwardedRef, buttonRef, setTriggerElement],
     state,
     props: [
       {
+        role: 'combobox',
+        'aria-expanded': open,
+        'aria-haspopup': 'dialog',
+        'aria-autocomplete': 'list',
+        'aria-controls': open ? listElement?.id : undefined,
         disabled,
         'aria-readonly': readOnly || undefined,
         onMouseDown(event) {
           if (disabled || readOnly) {
             return;
           }
-          event.preventDefault();
+
+          if (inputRef.current === anchorElement) {
+            event.preventDefault();
+          }
         },
         onClick(event) {
           if (disabled || readOnly) {
@@ -78,6 +93,7 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
       elementProps,
       getButtonProps,
     ],
+    customStyleHookMapping: triggerOpenStateMapping,
   });
 
   return element;

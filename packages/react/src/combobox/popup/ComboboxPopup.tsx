@@ -9,6 +9,16 @@ import { selectors } from '../store';
 import { popupStateMapping } from '../../utils/popupStateMapping';
 import { useComboboxPositionerContext } from '../positioner/ComboboxPositionerContext';
 import type { Side, Align } from '../../utils/useAnchorPositioning';
+import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
+import { DISABLED_TRANSITIONS_STYLE, EMPTY_OBJECT } from '../../utils/constants';
+import type { TransitionStatus } from '../../utils/useTransitionStatus';
+import { transitionStatusMapping } from '../../utils/styleHookMapping';
+import { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
+
+const customStyleHookMapping: CustomStyleHookMapping<ComboboxPopup.State> = {
+  ...popupStateMapping,
+  ...transitionStatusMapping,
+};
 
 /**
  * A container for the combobox items.
@@ -22,12 +32,26 @@ export const ComboboxPopup = React.forwardRef(function ComboboxPopup(
 ) {
   const { render, className, ...elementProps } = componentProps;
 
-  const { store, popupRef, inputRef } = useComboboxRootContext();
+  const { store, popupRef, inputRef, onOpenChangeComplete } = useComboboxRootContext();
   const positioning = useComboboxPositionerContext();
   const floatingRootContext = useComboboxFloatingContext();
+
   const open = useSelector(store, selectors.open);
+  const transitionStatus = useSelector(store, selectors.transitionStatus);
+  const anchorElement = useSelector(store, selectors.anchorElement);
+  const inputElement = useSelector(store, selectors.inputElement);
 
   const didPointerDown = React.useRef(false);
+
+  useOpenChangeComplete({
+    open,
+    ref: popupRef,
+    onComplete() {
+      if (open) {
+        onOpenChangeComplete?.(true);
+      }
+    },
+  });
 
   const state: ComboboxPopup.State = React.useMemo(
     () => ({
@@ -35,8 +59,9 @@ export const ComboboxPopup = React.forwardRef(function ComboboxPopup(
       side: positioning.side,
       align: positioning.align,
       anchorHidden: positioning.anchorHidden,
+      transitionStatus,
     }),
-    [open, positioning.side, positioning.align, positioning.anchorHidden],
+    [open, positioning.side, positioning.align, positioning.anchorHidden, transitionStatus],
   );
 
   const element = useRenderElement('div', componentProps, {
@@ -63,13 +88,21 @@ export const ComboboxPopup = React.forwardRef(function ComboboxPopup(
           }
         },
       },
+      transitionStatus === 'starting' ? DISABLED_TRANSITIONS_STYLE : EMPTY_OBJECT,
       elementProps,
     ],
-    customStyleHookMapping: popupStateMapping,
+    customStyleHookMapping,
   });
 
+  const isAnchorInput = anchorElement === inputElement;
+
   return (
-    <FloatingFocusManager context={floatingRootContext} initialFocus={-1} returnFocus={false}>
+    <FloatingFocusManager
+      context={floatingRootContext}
+      modal={false}
+      initialFocus={isAnchorInput ? -1 : inputRef}
+      returnFocus={!isAnchorInput}
+    >
       {element}
     </FloatingFocusManager>
   );
@@ -81,9 +114,8 @@ export namespace ComboboxPopup {
     side: Side;
     align: Align;
     anchorHidden: boolean;
+    transitionStatus: TransitionStatus;
   }
 
-  export interface Props extends BaseUIComponentProps<'div', State> {
-    id?: string;
-  }
+  export interface Props extends BaseUIComponentProps<'div', State> {}
 }

@@ -5,7 +5,6 @@ import { useModernLayoutEffect } from '@base-ui-components/utils/useModernLayout
 import { useOnFirstRender } from '@base-ui-components/utils/useOnFirstRender';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { useForkRef } from '@base-ui-components/utils/useForkRef';
-import { useLatestRef } from '@base-ui-components/utils/useLatestRef';
 import { visuallyHidden } from '@base-ui-components/utils/visuallyHidden';
 import { useLazyRef } from '@base-ui-components/utils/useLazyRef';
 import { Store, useSelector } from '@base-ui-components/utils/store';
@@ -74,7 +73,7 @@ export function ComboboxRoot<Item = any>(
 export function ComboboxRoot<Item = any>(props: ComboboxRoot.Props<Item>): React.JSX.Element {
   const {
     id: idProp,
-    onOpenChangeComplete,
+    onOpenChangeComplete: onOpenChangeCompleteProp,
     defaultSelectedValue,
     selectedValue: selectedValueProp,
     onSelectedValueChange,
@@ -221,19 +220,23 @@ export function ComboboxRoot<Item = any>(props: ComboboxRoot.Props<Item>): React
         selectedIndex: null,
         popupProps: {},
         triggerProps: {},
-        triggerElement: null,
+        anchorElement: null,
         positionerElement: null,
         listElement: null,
+        triggerElement: null,
+        inputElement: null,
       }),
   ).current;
 
   const onItemHighlighted = useEventCallback(onItemHighlightedProp);
+  const onOpenChangeComplete = useEventCallback(onOpenChangeCompleteProp);
 
   const activeIndex = useSelector(store, selectors.activeIndex);
   const selectedIndex = useSelector(store, selectors.selectedIndex);
-  const triggerElement = useSelector(store, selectors.triggerElement);
+  const anchorElement = useSelector(store, selectors.anchorElement);
   const positionerElement = useSelector(store, selectors.positionerElement);
   const listElement = useSelector(store, selectors.listElement);
+  const triggerElement = useSelector(store, selectors.triggerElement);
   const inline = useSelector(store, selectors.inline);
   const forceClosed = openOnlyWithMatch && filteredItems.length === 0;
   const open = inline || (openRaw && !forceClosed);
@@ -249,7 +252,6 @@ export function ComboboxRoot<Item = any>(props: ComboboxRoot.Props<Item>): React
 
   const listRef = React.useRef<Array<HTMLElement | null>>(initialList);
   const popupRef = React.useRef<HTMLDivElement | null>(null);
-  const triggerRef = React.useRef<HTMLButtonElement | null>(null);
   const valuesRef = React.useRef<Array<any>>([]);
   const inputRef = React.useRef<HTMLInputElement | null>(null);
   const keyboardActiveRef = React.useRef(true);
@@ -257,7 +259,6 @@ export function ComboboxRoot<Item = any>(props: ComboboxRoot.Props<Item>): React
   const closingRef = React.useRef(false);
   const prevQueryRef = React.useRef(query);
 
-  const controlRef = useLatestRef(triggerElement);
   const commitValidation = fieldControlValidation.commitValidation;
 
   const updateValue = useEventCallback((nextValue: any) => {
@@ -271,7 +272,7 @@ export function ComboboxRoot<Item = any>(props: ComboboxRoot.Props<Item>): React
     id,
     commitValidation,
     value: formValue,
-    controlRef,
+    controlRef: inputRef,
     name,
     getValue: () => formValue,
   });
@@ -349,11 +350,11 @@ export function ComboboxRoot<Item = any>(props: ComboboxRoot.Props<Item>): React
     listRef.current = initialList;
 
     setMounted(false);
+    onOpenChangeComplete?.(false);
     onItemHighlighted(undefined, {
       type: keyboardActiveRef.current ? 'keyboard' : 'pointer',
       index: -1,
     });
-    onOpenChangeComplete?.(false);
     setQueryChangedAfterOpen(false);
 
     store.set('activeIndex', null);
@@ -381,24 +382,21 @@ export function ComboboxRoot<Item = any>(props: ComboboxRoot.Props<Item>): React
 
   const setSelectedValue = useEventCallback(
     (nextValue: Item | Item[], event: Event | undefined, reason: string | undefined) => {
-      onSelectedValueChange?.(nextValue as Item, event, reason);
-      setSelectedValueUnwrapped(nextValue);
-
       if (selectionMode === 'none' && !multiple && popupRef.current) {
         const stringVal = stringifyItem(nextValue as Item, itemToString);
-        setInputValue(stringVal, undefined, undefined);
+        setInputValue(stringVal, event, undefined);
       }
 
       // If input value is uncontrolled, keep it in sync for single selection mode
       if (selectionMode === 'single' && props.inputValue === undefined) {
         const stringVal = stringifyItem(nextValue as Item, itemToString);
-        setInputValue(stringVal, undefined, undefined);
+        setInputValue(stringVal, event, undefined);
       }
 
       // Clear the uncontrolled input after a selection in multiple-select mode when filtering was used.
       const hadInputValue = inputRef.current ? inputRef.current.value.trim() !== '' : false;
       if (multiple && props.inputValue === undefined && hadInputValue) {
-        setInputValue('', undefined, undefined);
+        setInputValue('', event, undefined);
         // Reset active index and clear any highlighted item since the list will re-filter.
         store.set('activeIndex', null);
         onItemHighlighted(undefined, {
@@ -406,6 +404,9 @@ export function ComboboxRoot<Item = any>(props: ComboboxRoot.Props<Item>): React
           index: -1,
         });
       }
+
+      onSelectedValueChange?.(nextValue as Item, event, reason);
+      setSelectedValueUnwrapped(nextValue);
 
       // Auto-close popup after selection in single mode when open state is uncontrolled
       // Don't auto-close during autofill to avoid interfering with browser behavior
@@ -514,7 +515,7 @@ export function ComboboxRoot<Item = any>(props: ComboboxRoot.Props<Item>): React
       setOpen(nextOpen, event, translateOpenChangeReason(reason));
     },
     elements: {
-      reference: triggerElement,
+      reference: anchorElement,
       floating: positionerElement,
     },
   });
@@ -557,7 +558,7 @@ export function ComboboxRoot<Item = any>(props: ComboboxRoot.Props<Item>): React
     bubbles: true,
     outsidePress(event) {
       const target = getTarget(event) as Element | null;
-      return !contains(triggerRef.current, target);
+      return !contains(triggerElement, target);
     },
   });
 
@@ -646,7 +647,6 @@ export function ComboboxRoot<Item = any>(props: ComboboxRoot.Props<Item>): React
       selectionMode,
       listRef,
       popupRef,
-      triggerRef,
       valuesRef,
       inputRef,
       keyboardActiveRef,
@@ -655,6 +655,7 @@ export function ComboboxRoot<Item = any>(props: ComboboxRoot.Props<Item>): React
       getItemProps,
       registerSelectedItem,
       onItemHighlighted,
+      onOpenChangeComplete,
       setOpen,
       setInputValue,
       setSelectedValue,
@@ -676,6 +677,7 @@ export function ComboboxRoot<Item = any>(props: ComboboxRoot.Props<Item>): React
       getItemProps,
       registerSelectedItem,
       onItemHighlighted,
+      onOpenChangeComplete,
       setOpen,
       setInputValue,
       setSelectedValue,
@@ -736,7 +738,8 @@ export function ComboboxRoot<Item = any>(props: ComboboxRoot.Props<Item>): React
         {...fieldControlValidation.getInputValidationProps({
           onFocus() {
             // Move focus to the trigger element when the hidden input is focused.
-            store.state.triggerElement?.focus();
+            const referenceElement = inputRef.current || triggerElement;
+            referenceElement?.focus();
           },
           // Handle browser autofill.
           onChange(event: React.ChangeEvent<HTMLSelectElement>) {

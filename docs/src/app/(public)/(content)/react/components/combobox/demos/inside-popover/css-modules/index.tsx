@@ -1,67 +1,62 @@
 import * as React from 'react';
-import { Popover } from '@base-ui-components/react/popover';
 import { Combobox } from '@base-ui-components/react/combobox';
 import styles from './index.module.css';
 import { countries, type Country } from './data';
 
 export default function ExamplePopoverCombobox() {
-  const [popoverOpen, setPopoverOpen] = React.useState(false);
   const [searchValue, setSearchValue] = React.useState('');
   const [selectedValue, setSelectedValue] = React.useState<Country | null>(null);
 
+  const triggerRef = React.useRef<HTMLButtonElement | null>(null);
+
   return (
-    <Popover.Root
-      open={popoverOpen}
-      onOpenChange={setPopoverOpen}
+    <Combobox.Root
+      items={countries}
+      selectionMode="single"
+      selectedValue={selectedValue}
+      onSelectedValueChange={(nextValue) => {
+        setSelectedValue(nextValue);
+      }}
+      inputValue={searchValue}
+      onInputValueChange={setSearchValue}
       onOpenChangeComplete={(open) => {
         if (!open) {
           setSearchValue('');
         }
       }}
     >
-      <Popover.Trigger className={styles.Trigger}>
+      <Combobox.Trigger ref={triggerRef} className={styles.Trigger}>
         {selectedValue ? selectedValue.value : 'Select country'}
         <span aria-hidden className={styles.TriggerIcon}>
           <ChevronUpDownIcon />
         </span>
-      </Popover.Trigger>
-      <Popover.Portal>
-        <Popover.Positioner
+      </Combobox.Trigger>
+      <Combobox.Portal>
+        <Combobox.Positioner
+          anchor={triggerRef}
           align="start"
           sideOffset={4}
           collisionAvoidance={{ fallbackAxisSide: 'none' }}
         >
-          <Popover.Popup className={styles.Popup} aria-label="Select country">
-            <Combobox.Root
-              items={countries}
-              selectionMode="single"
-              selectedValue={selectedValue}
-              onSelectedValueChange={(nextValue) => {
-                setSelectedValue(nextValue);
-                setPopoverOpen(false);
-              }}
-              inputValue={searchValue}
-              onInputValueChange={setSearchValue}
-            >
-              <div className={styles.InputContainer}>
-                <Combobox.Input placeholder="e.g. United Kingdom" className={styles.Input} />
-              </div>
-              <Combobox.Empty className={styles.Empty}>No countries found.</Combobox.Empty>
-              <Combobox.List className={styles.List}>
-                {(country: Country) => (
-                  <Combobox.Item key={country.code} value={country} className={styles.Item}>
-                    <Combobox.ItemIndicator className={styles.ItemIndicator}>
-                      <CheckIcon className={styles.ItemIndicatorIcon} />
-                    </Combobox.ItemIndicator>
-                    <div className={styles.ItemText}>{country.value}</div>
-                  </Combobox.Item>
-                )}
-              </Combobox.List>
-            </Combobox.Root>
-          </Popover.Popup>
-        </Popover.Positioner>
-      </Popover.Portal>
-    </Popover.Root>
+          <Combobox.Popup className={styles.Popup} aria-label="Select country">
+            <div className={styles.InputContainer}>
+              <Combobox.Input placeholder="e.g. United Kingdom" className={styles.Input} />
+            </div>
+            <Combobox.Empty className={styles.Empty}>No countries found.</Combobox.Empty>
+            <Combobox.List className={styles.List}>
+              {(country: Country) => (
+                <Combobox.Item key={country.code} value={country} className={styles.Item}>
+                  <Combobox.ItemIndicator className={styles.ItemIndicator}>
+                    <CheckIcon className={styles.ItemIndicatorIcon} />
+                  </Combobox.ItemIndicator>
+                  <div className={styles.ItemText}>{country.value}</div>
+                </Combobox.Item>
+              )}
+            </Combobox.List>
+          </Combobox.Popup>
+        </Combobox.Positioner>
+      </Combobox.Portal>
+    </Combobox.Root>
   );
 }
 

@@ -13,6 +13,7 @@ import { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 import { useComboboxChipsContext } from '../chips/ComboboxChipsContext';
 import type { FieldRoot } from '../../field/root/FieldRoot';
 import { stopEvent } from '../../floating-ui-react/utils';
+import { useComboboxPositionerContext } from '../positioner/ComboboxPositionerContext';
 
 const customStyleHookMapping: CustomStyleHookMapping<ComboboxInput.State> = {
   ...triggerOpenStateMapping,
@@ -53,6 +54,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
     handleEnterSelection,
   } = useComboboxRootContext();
   const comboboxChipsContext = useComboboxChipsContext();
+  const hasPositionerParent = Boolean(useComboboxPositionerContext(true));
 
   const triggerProps = useSelector(store, selectors.triggerProps);
   const open = useSelector(store, selectors.open);
@@ -62,8 +64,17 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
 
   const disabled = fieldDisabled || comboboxDisabled || disabledProp;
 
-  const setTriggerElement = useEventCallback((element) => {
-    store.set('triggerElement', element);
+  const setAnchorElement = useEventCallback((element) => {
+    // Combobox.Trigger is the anchor element for Combobox.Positioner
+    if (hasPositionerParent) {
+      return;
+    }
+
+    store.set('anchorElement', element);
+  });
+
+  const setInputElement = useEventCallback((element) => {
+    store.set('inputElement', element);
   });
 
   const state: ComboboxInput.State = React.useMemo(
@@ -135,7 +146,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
 
   const element = useRenderElement('input', componentProps, {
     state,
-    ref: [forwardedRef, setTriggerElement, inputRef],
+    ref: [forwardedRef, setAnchorElement, inputRef, setInputElement],
     props: [
       triggerProps,
       {

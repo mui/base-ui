@@ -143,20 +143,12 @@
   padding-block: 0.5rem;
   background-color: canvas;
   color: var(--color-gray-900);
-  transform-origin: var(--transform-origin);
-  transition:
-    transform 150ms,
-    opacity 150ms;
   width: var(--anchor-width);
   max-width: var(--available-width);
   max-height: min(var(--available-height), 24rem);
   overflow-y: auto;
   scroll-padding-block: 0.5rem;
   overscroll-behavior: contain;
-
-  &[data-ending-style] {
-    opacity: 0;
-  }
 
   @media (prefers-color-scheme: light) {
     outline: 1px solid var(--color-gray-200);
