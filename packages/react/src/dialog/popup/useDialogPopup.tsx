@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useForkRef } from '@base-ui-components/utils/useForkRef';
+import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
 import { type InteractionType } from '@base-ui-components/utils/useEnhancedClickHandler';
 import type { DialogRoot } from '../root/DialogRoot';
 import { HTMLProps } from '../../utils/types';
@@ -20,7 +20,7 @@ export function useDialogPopup(parameters: useDialogPopup.Parameters): useDialog
 
   const popupRef = React.useRef<HTMLElement>(null);
 
-  const handleRef = useForkRef(ref, popupRef, setPopupElement);
+  const handleRef = useMergedRefs(ref, popupRef, setPopupElement);
 
   // Default initial focus logic:
   // If opened by touch, focus the popup element to prevent the virtual keyboard from opening

@@ -1,5 +1,5 @@
 'use client';
-import { useLazyRef } from './useLazyRef';
+import { useRefWithInit } from './useRefWithInit';
 import { useOnMount } from './useOnMount';
 
 type AnimationFrameId = number;
@@ -124,7 +124,7 @@ export class AnimationFrame {
  * A `requestAnimationFrame` with automatic cleanup and guard.
  */
 export function useAnimationFrame() {
-  const timeout = useLazyRef(AnimationFrame.create).current;
+  const timeout = useRefWithInit(AnimationFrame.create).current;
 
   useOnMount(timeout.disposeEffect);
 

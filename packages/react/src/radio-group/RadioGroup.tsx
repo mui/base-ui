@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useControlled } from '@base-ui-components/utils/useControlled';
-import { useForkRef } from '@base-ui-components/utils/useForkRef';
+import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { visuallyHidden } from '@base-ui-components/utils/visuallyHidden';
@@ -139,7 +139,7 @@ export const RadioGroup = React.forwardRef(function RadioGroup(
     return JSON.stringify(checkedValue);
   }, [checkedValue]);
 
-  const mergedInputRef = useForkRef(fieldControlValidation.inputRef, inputRefProp);
+  const mergedInputRef = useMergedRefs(fieldControlValidation.inputRef, inputRefProp);
 
   const inputProps = mergeProps<'input'>(
     {

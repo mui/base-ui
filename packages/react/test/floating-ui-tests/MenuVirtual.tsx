@@ -1,6 +1,6 @@
 import * as React from 'react';
 import c from 'clsx';
-import { useForkRefN } from '@base-ui-components/utils/useForkRef';
+import { useMergedRefsN } from '@base-ui-components/utils/useMergedRefs';
 import { CompositeList } from '../../src/composite/list/CompositeList';
 import { useCompositeListItem } from '../../src/composite/list/useCompositeListItem';
 import {
@@ -172,7 +172,7 @@ export const MenuComponent = React.forwardRef<
   }, [allowHover]);
 
   const id = React.useId();
-  const mergedRef = useForkRefN([refs.setReference, item.ref, forwardedRef]);
+  const mergedRef = useMergedRefsN([refs.setReference, item.ref, forwardedRef]);
 
   return (
     <FloatingNode id={nodeId}>
@@ -293,7 +293,7 @@ export const MenuItem = React.forwardRef<
     <div
       {...props}
       id={id}
-      ref={useForkRefN([item.ref, forwardedRef])}
+      ref={useMergedRefsN([item.ref, forwardedRef])}
       role="option"
       tabIndex={-1}
       aria-selected={isActive}

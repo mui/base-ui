@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useTimeout } from '@base-ui-components/utils/useTimeout';
-import { useSelector } from '@base-ui-components/utils/store';
+import { useStore } from '@base-ui-components/utils/store';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import { useSelectPositionerContext } from '../positioner/SelectPositionerContext';
@@ -26,7 +26,7 @@ export const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
   const selector =
     direction === 'up' ? selectors.scrollUpArrowVisible : selectors.scrollDownArrowVisible;
 
-  const visible = useSelector(store, selector);
+  const visible = useStore(store, selector);
 
   const timeout = useTimeout();
   const scrollArrowRef = React.useRef<HTMLDivElement | null>(null);
