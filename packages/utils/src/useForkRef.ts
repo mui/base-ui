@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useLazyRef } from './useLazyRef';
+import { useRefWithInit } from './useRefWithInit';
 
 type Empty = null | undefined;
 type InputRef<I> = React.Ref<I> | Empty;
@@ -29,7 +29,7 @@ export function useForkRef<I>(
   c?: InputRef<I>,
   d?: InputRef<I>,
 ): Result<I> {
-  const forkRef = useLazyRef(createForkRef<I>).current;
+  const forkRef = useRefWithInit(createForkRef<I>).current;
   if (didChange(forkRef, a, b, c, d)) {
     update(forkRef, [a, b, c, d]);
   }
@@ -40,7 +40,7 @@ export function useForkRef<I>(
  * Merges variadic amount of refs into a single memoized callback ref or `null`.
  */
 export function useForkRefN<I>(refs: InputRef<I>[]): Result<I> {
-  const forkRef = useLazyRef(createForkRef<I>).current;
+  const forkRef = useRefWithInit(createForkRef<I>).current;
   if (didChangeN(forkRef, refs)) {
     update(forkRef, refs);
   }

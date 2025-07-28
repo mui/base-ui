@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useLazyRef } from '@base-ui-components/utils/useLazyRef';
+import { useRefWithInit } from '@base-ui-components/utils/useRefWithInit';
 import { useOnFirstRender } from '@base-ui-components/utils/useOnFirstRender';
 import { useControlled } from '@base-ui-components/utils/useControlled';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
@@ -105,7 +105,7 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
 
-  const store = useLazyRef(
+  const store = useRefWithInit(
     () =>
       new Store<State>({
         id,
