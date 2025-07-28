@@ -44,7 +44,7 @@ import { NavigationMenuPositionerCssVars } from '../positioner/NavigationMenuPos
 import { CompositeItem } from '../../composite/item/CompositeItem';
 import { useButton } from '../../use-button';
 
-const TRIGGER_IDENTIFIER = 'data-navigation-menu-trigger';
+const TRIGGER_IDENTIFIER = 'data-base-ui-navigation-menu-trigger';
 
 /**
  * Opens the navigation menu popup when hovered or clicked, revealing the
