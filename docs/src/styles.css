@@ -43,6 +43,7 @@
 @import './components/SideNav.css';
 @import './components/SkipNav.css';
 @import './components/Subtitle/Subtitle.css';
+@import './components/Subtitle/MarkdownLink.css';
 @import './components/Table.css';
 
 @import './components/Accordion.css';
