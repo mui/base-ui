@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useForkRef } from '@base-ui-components/utils/useForkRef';
+import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { isReactVersionAtLeast } from '@base-ui-components/utils/reactVersion';
 import { visuallyHidden } from '@base-ui-components/utils/visuallyHidden';
@@ -169,7 +169,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     metadata: thumbMetadata,
   });
 
-  const mergedThumbRef = useForkRef(renderPropRef, forwardedRef, listItemRef, thumbRef);
+  const mergedThumbRef = useMergedRefs(renderPropRef, forwardedRef, listItemRef, thumbRef);
 
   const thumbValue = sliderValues[index];
 

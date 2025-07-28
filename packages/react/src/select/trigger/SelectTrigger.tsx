@@ -3,7 +3,7 @@ import * as React from 'react';
 import { ownerDocument } from '@base-ui-components/utils/owner';
 import { useTimeout } from '@base-ui-components/utils/useTimeout';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
-import { useForkRef } from '@base-ui-components/utils/useForkRef';
+import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
 import { useLatestRef } from '@base-ui-components/utils/useLatestRef';
 import { useStore } from '@base-ui-components/utils/store';
 import { useSelectRootContext } from '../root/SelectRootContext';
@@ -82,7 +82,12 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
     store.set('triggerElement', element);
   });
 
-  const mergedRef = useForkRef<HTMLElement>(forwardedRef, triggerRef, buttonRef, setTriggerElement);
+  const mergedRef = useMergedRefs<HTMLElement>(
+    forwardedRef,
+    triggerRef,
+    buttonRef,
+    setTriggerElement,
+  );
 
   const timeout1 = useTimeout();
   const timeout2 = useTimeout();

@@ -14,16 +14,20 @@ type ForkRef<I> = {
 
 /**
  * Merges refs into a single memoized callback ref or `null`.
+ * This makes sure multiple refs are updated together and have the same value.
+ *
+ * This function accepts up to four refs. If you need to merge more, or have an unspecified number of refs to merge,
+ * use `useMergedRefsN` instead.
  */
-export function useForkRef<I>(a: InputRef<I>, b: InputRef<I>): Result<I>;
-export function useForkRef<I>(a: InputRef<I>, b: InputRef<I>, c: InputRef<I>): Result<I>;
-export function useForkRef<I>(
+export function useMergedRefs<I>(a: InputRef<I>, b: InputRef<I>): Result<I>;
+export function useMergedRefs<I>(a: InputRef<I>, b: InputRef<I>, c: InputRef<I>): Result<I>;
+export function useMergedRefs<I>(
   a: InputRef<I>,
   b: InputRef<I>,
   c: InputRef<I>,
   d: InputRef<I>,
 ): Result<I>;
-export function useForkRef<I>(
+export function useMergedRefs<I>(
   a: InputRef<I>,
   b: InputRef<I>,
   c?: InputRef<I>,
@@ -37,9 +41,11 @@ export function useForkRef<I>(
 }
 
 /**
- * Merges variadic amount of refs into a single memoized callback ref or `null`.
+ * Merges an array of refs into a single memoized callback ref or `null`.
+ *
+ * If you need to merge a fixed number (up to four) of refs, use `useMergedRefs` instead for better performance.
  */
-export function useForkRefN<I>(refs: InputRef<I>[]): Result<I> {
+export function useMergedRefsN<I>(refs: InputRef<I>[]): Result<I> {
   const forkRef = useRefWithInit(createForkRef<I>).current;
   if (didChangeN(forkRef, refs)) {
     update(forkRef, refs);
