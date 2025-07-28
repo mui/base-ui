@@ -1,6 +1,5 @@
 import { Store } from '@base-ui-components/utils/store';
 import { type HTMLProps } from '../../utils/types';
-import { type FloatingRootContext } from '../../floating-ui-react';
 import { PopoverStore, State } from '../store';
 import { getEmptyContext } from '../../floating-ui-react/hooks/useFloatingRootContext';
 
@@ -27,18 +26,6 @@ export class PopoverHandle<Payload = unknown> {
     popupProps: EMPTY_OBJ as HTMLProps,
     stickIfOpen: true,
   });
-
-  setPayload(payload: Payload) {
-    this.store.apply({
-      payload,
-    });
-  }
-
-  registerPopup(floatingContext: FloatingRootContext) {
-    this.store.apply({
-      floatingRootContext: floatingContext,
-    });
-  }
 
   registerTrigger(triggerElement: HTMLElement, getPayload?: () => Payload) {
     const triggers = this.store.state.triggers;

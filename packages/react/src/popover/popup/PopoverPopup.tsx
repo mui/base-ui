@@ -13,6 +13,8 @@ import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping'
 import { transitionStatusMapping } from '../../utils/styleHookMapping';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useRenderElement } from '../../utils/useRenderElement';
+import { usePopupAutoResize } from '../../utils/usePopupAutoResize';
+
 import { DISABLED_TRANSITIONS_STYLE, EMPTY_OBJECT } from '../../utils/constants';
 import { selectors } from '../store';
 
@@ -46,6 +48,9 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
   const modal = useSelector(store, selectors.modal);
   const mounted = useSelector(store, selectors.mounted);
   const openReason = useSelector(store, selectors.openReason);
+  const popupElement = useSelector(store, selectors.popupElement);
+  const triggers = useSelector(store, selectors.triggers);
+  const payload = useSelector(store, selectors.payload);
 
   useOpenChangeComplete({
     open,
@@ -89,6 +94,13 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
     },
     [store],
   );
+
+  usePopupAutoResize({
+    element: popupElement,
+    open,
+    content: payload,
+    enabled: triggers.size > 1,
+  });
 
   const element = useRenderElement('div', componentProps, {
     state,

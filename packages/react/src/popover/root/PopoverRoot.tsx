@@ -24,7 +24,6 @@ import {
   PopoverRootContext,
   usePopoverRootContext,
 } from './PopoverRootContext';
-import { usePopupAutoResize } from '../../utils/usePopupAutoResize';
 import { State, selectors } from '../store';
 import { getEmptyContext } from '../../floating-ui-react/hooks/useFloatingRootContext';
 import { PopoverHandle } from '../handle/createPopover';
@@ -39,9 +38,9 @@ function PopoverRootComponent({ props }: { props: PopoverRoot.Props }) {
     handle,
   } = props;
 
-  const store = useLazyRef((localHandle) => {
+  const store = useLazyRef(() => {
     return (
-      localHandle?.store ||
+      handle?.store ||
       new Store<State>({
         open: false,
         modal: false,
@@ -63,14 +62,12 @@ function PopoverRootComponent({ props }: { props: PopoverRoot.Props }) {
         stickIfOpen: true,
       })
     );
-  }, handle).current;
+  }).current;
 
   const positionerElement = useSelector(store, selectors.positionerElement);
-  const popupElement = useSelector(store, selectors.popupElement);
   const activeTriggerElement = useSelector(store, selectors.activeTriggerElement);
   const payload = useSelector(store, selectors.payload);
   const openReason = useSelector(store, selectors.openReason);
-  const triggers = useSelector(store, selectors.triggers);
 
   const popupRef = React.useRef<HTMLElement>(null);
   const stickIfOpenTimeout = useTimeout();
@@ -80,13 +77,6 @@ function PopoverRootComponent({ props }: { props: PopoverRoot.Props }) {
     default: defaultOpen,
     name: 'Popover',
     state: 'open',
-  });
-
-  usePopupAutoResize({
-    element: popupElement,
-    open,
-    content: payload,
-    enabled: triggers.size > 1,
   });
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
@@ -206,12 +196,6 @@ function PopoverRootComponent({ props }: { props: PopoverRoot.Props }) {
       floatingRootContext: floatingContext,
     });
   }, [getReferenceProps, getFloatingProps, floatingContext, store]);
-
-  React.useEffect(() => {
-    if (handle !== undefined) {
-      handle.registerPopup(floatingContext);
-    }
-  }, [handle, floatingContext]);
 
   const popoverContext: PopoverRootContext = React.useMemo(
     () => ({
