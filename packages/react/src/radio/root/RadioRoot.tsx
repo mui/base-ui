@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useForkRef } from '@base-ui-components/utils/useForkRef';
+import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { visuallyHidden } from '@base-ui-components/utils/visuallyHidden';
 import { useBaseUiId } from '../../utils/useBaseUiId';
@@ -63,7 +63,7 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
   const checked = checkedValue === value;
 
   const inputRef = React.useRef<HTMLInputElement>(null);
-  const ref = useForkRef(inputRefProp, inputRef);
+  const ref = useMergedRefs(inputRefProp, inputRef);
 
   useIsoLayoutEffect(() => {
     if (inputRef.current?.checked) {

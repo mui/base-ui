@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useLazyRef } from '@base-ui-components/utils/useLazyRef';
+import { useRefWithInit } from '@base-ui-components/utils/useRefWithInit';
 import { useOnFirstRender } from '@base-ui-components/utils/useOnFirstRender';
 import { useControlled } from '@base-ui-components/utils/useControlled';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
@@ -7,7 +7,7 @@ import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { useTimeout } from '@base-ui-components/utils/useTimeout';
 import { warn } from '@base-ui-components/utils/warn';
 import { useLatestRef } from '@base-ui-components/utils/useLatestRef';
-import { useSelector, Store } from '@base-ui-components/utils/store';
+import { useStore, Store } from '@base-ui-components/utils/store';
 import {
   useClick,
   useDismiss,
@@ -105,7 +105,7 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
 
-  const store = useLazyRef(
+  const store = useRefWithInit(
     () =>
       new Store<State>({
         id,
@@ -138,11 +138,11 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
     }
   }, [store, value]);
 
-  const activeIndex = useSelector(store, selectors.activeIndex);
-  const selectedIndex = useSelector(store, selectors.selectedIndex);
+  const activeIndex = useStore(store, selectors.activeIndex);
+  const selectedIndex = useStore(store, selectors.selectedIndex);
 
-  const triggerElement = useSelector(store, selectors.triggerElement);
-  const positionerElement = useSelector(store, selectors.positionerElement);
+  const triggerElement = useStore(store, selectors.triggerElement);
+  const positionerElement = useStore(store, selectors.positionerElement);
 
   const controlRef = useLatestRef(store.state.triggerElement);
   const commitValidation = fieldControlValidation.commitValidation;

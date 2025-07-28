@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useForkRef } from '@base-ui-components/utils/useForkRef';
+import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
 import { useControlled } from '@base-ui-components/utils/useControlled';
 import { FloatingEvents, useFloatingTree } from '../../floating-ui-react';
 import { MenuCheckboxItemContext } from './MenuCheckboxItemContext';
@@ -98,7 +98,7 @@ export const MenuCheckboxItem = React.forwardRef(function MenuCheckboxItem(
 
   const itemRef = React.useRef<HTMLElement>(null);
   const listItem = useCompositeListItem({ label });
-  const mergedRef = useForkRef(forwardedRef, listItem.ref, itemRef);
+  const mergedRef = useMergedRefs(forwardedRef, listItem.ref, itemRef);
 
   const { itemProps, activeIndex, allowMouseUpTriggerRef, typingRef } = useMenuRootContext();
   const id = useBaseUiId(idProp);

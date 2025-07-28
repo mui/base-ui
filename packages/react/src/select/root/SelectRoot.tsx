@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { visuallyHidden } from '@base-ui-components/utils/visuallyHidden';
-import { useForkRef } from '@base-ui-components/utils/useForkRef';
+import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
 import { useSelectRoot } from './useSelectRoot';
 import { SelectRootContext, SelectFloatingContext } from './SelectRootContext';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
@@ -61,7 +61,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
 
   const { setDirty, validityData, validationMode, controlId } = useFieldRootContext();
 
-  const ref = useForkRef(inputRef, rootContext.fieldControlValidation.inputRef);
+  const ref = useMergedRefs(inputRef, rootContext.fieldControlValidation.inputRef);
 
   const serializedValue = React.useMemo(() => {
     if (isMultiple && Array.isArray(value) && value.length === 0) {

@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useForkRef } from '@base-ui-components/utils/useForkRef';
+import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
 import { FloatingEvents, useFloatingTree } from '../../floating-ui-react';
 import { REGULAR_ITEM, useMenuItem } from './useMenuItem';
 import { useMenuRootContext } from '../root/MenuRootContext';
@@ -71,7 +71,7 @@ export const MenuItem = React.forwardRef(function MenuItem(
 
   const itemRef = React.useRef<HTMLElement>(null);
   const listItem = useCompositeListItem({ label });
-  const mergedRef = useForkRef(forwardedRef, listItem.ref, itemRef);
+  const mergedRef = useMergedRefs(forwardedRef, listItem.ref, itemRef);
 
   const { itemProps, activeIndex, allowMouseUpTriggerRef, typingRef } = useMenuRootContext();
   const id = useBaseUiId(idProp);
