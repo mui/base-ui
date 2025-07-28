@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { useSelector } from '@base-ui-components/utils/store';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
-import { useModernLayoutEffect } from '@base-ui-components/utils/useModernLayoutEffect';
+import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useComboboxFloatingContext, useComboboxRootContext } from '../root/ComboboxRootContext';
@@ -47,7 +47,7 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
     }
   });
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     if (hasPositionerContext) {
       return undefined;
     }

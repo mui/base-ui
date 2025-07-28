@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useControlled } from '@base-ui-components/utils/useControlled';
-import { useModernLayoutEffect } from '@base-ui-components/utils/useModernLayoutEffect';
+import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { useOnFirstRender } from '@base-ui-components/utils/useOnFirstRender';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { useForkRef } from '@base-ui-components/utils/useForkRef';
@@ -76,7 +76,7 @@ export function ComboboxRoot<
     cols = 1,
     items,
     filter: filterProp,
-    openOnlyWithMatch = false,
+    openOnInputClick = true,
     itemToString,
     itemToValue,
     virtualized = false,
@@ -99,7 +99,7 @@ export function ComboboxRoot<
   const name = fieldName ?? nameProp;
   const multiple = selectionMode === 'multiple';
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     setControlId(id);
     return () => {
       setControlId(undefined);
@@ -225,8 +225,7 @@ export function ComboboxRoot<
   const listElement = useSelector(store, selectors.listElement);
   const triggerElement = useSelector(store, selectors.triggerElement);
   const inline = useSelector(store, selectors.inline);
-  const forceClosed = openOnlyWithMatch && filteredItems.length === 0;
-  const open = inline || (openRaw && !forceClosed);
+  const open = inline || openRaw;
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
 
@@ -264,11 +263,11 @@ export function ComboboxRoot<
     getValue: () => formValue,
   });
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     listRef.current = initialList;
   }, [initialList]);
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     if (
       prevQueryRef.current === query ||
       !open ||
@@ -281,13 +280,13 @@ export function ComboboxRoot<
     setQueryChangedAfterOpen(true);
   }, [open, query, defaultInputValue]);
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     prevQueryRef.current = query;
   }, [query]);
 
   const prevValueRef = React.useRef(selectedValue);
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     if (prevValueRef.current === selectedValue) {
       return;
     }
@@ -300,7 +299,7 @@ export function ComboboxRoot<
     }
   }, [selectedValue, commitValidation, clearErrors, name, validationMode]);
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     const hasValue = multiple
       ? Array.isArray(selectedValue) && selectedValue.length > 0
       : selectedValue !== null && selectedValue !== undefined && selectedValue !== '';
@@ -310,7 +309,7 @@ export function ComboboxRoot<
     }
   }, [setFilled, updateValue, selectedValue, multiple]);
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     prevValueRef.current = selectedValue;
   }, [selectedValue]);
 
@@ -368,22 +367,22 @@ export function ComboboxRoot<
   });
 
   const setSelectedValue = useEventCallback(
-    (nextValue: Item | Item[], event: Event | undefined, reason: string | undefined) => {
+    (nextValue: Item | Item[], event: Event | undefined, reason: ValueChangeReason | undefined) => {
       if (selectionMode === 'none' && !multiple && popupRef.current) {
         const stringVal = stringifyItem(nextValue as Item, itemToString);
-        setInputValue(stringVal, event, undefined);
+        setInputValue(stringVal, event, reason);
       }
 
       // If input value is uncontrolled, keep it in sync for single selection mode
       if (selectionMode === 'single' && props.inputValue === undefined) {
         const stringVal = stringifyItem(nextValue as Item, itemToString);
-        setInputValue(stringVal, event, undefined);
+        setInputValue(stringVal, event, reason);
       }
 
       // Clear the uncontrolled input after a selection in multiple-select mode when filtering was used.
       const hadInputValue = inputRef.current ? inputRef.current.value.trim() !== '' : false;
       if (multiple && props.inputValue === undefined && hadInputValue) {
-        setInputValue('', event, undefined);
+        setInputValue('', event, reason);
         // Reset active index and clear any highlighted item since the list will re-filter.
         store.set('activeIndex', null);
         onItemHighlighted(undefined, {
@@ -454,7 +453,7 @@ export function ComboboxRoot<
     }
   });
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     if (!hasRegisteredRef.current) {
       return;
     }
@@ -537,7 +536,7 @@ export function ComboboxRoot<
   );
 
   const click = useClick(floatingRootContext, {
-    enabled: !readOnly && !disabled && !openOnlyWithMatch,
+    enabled: !readOnly && !disabled && openOnInputClick,
     event: 'mousedown-only',
     toggle: false,
   });
@@ -657,7 +656,6 @@ export function ComboboxRoot<
       cols,
       isGrouped,
       virtualized,
-      openOnlyWithMatch,
       items,
     }),
     [
@@ -679,7 +677,6 @@ export function ComboboxRoot<
       cols,
       isGrouped,
       virtualized,
-      openOnlyWithMatch,
       items,
     ],
   );
@@ -861,10 +858,10 @@ export namespace ComboboxRoot {
      */
     open?: boolean;
     /**
-     * Whether the combobox popup is only open when the input value is not empty and matches at least one item.
-     * @default false
+     * Whether the combobox popup opens when clicking the input.
+     * @default true
      */
-    openOnlyWithMatch?: boolean;
+    openOnInputClick?: boolean;
     /**
      * The input value of the combobox.
      */
@@ -953,84 +950,6 @@ export namespace ComboboxRoot {
      * @default false
      */
     virtualized?: boolean;
-  }
-
-  export interface SingleProps<Item = any> extends Omit<Props<Item, 'single'>, 'selectionMode'> {
-    /**
-     * How the combobox should remember the selected value.
-     * - `single`: Remembers the last selected value in state.
-     * - `multiple`: Remember all selected values in state.
-     * - `none`: Does not remember the selected value in state.
-     * @default 'none'
-     */
-    selectionMode?: 'single';
-  }
-
-  export interface MultipleProps<Item = any>
-    extends Omit<
-      Props<Item, 'multiple'>,
-      'selectionMode' | 'selectedValue' | 'onSelectedValueChange' | 'defaultSelectedValue'
-    > {
-    /**
-     * How the combobox should remember the selected value.
-     * - `single`: Remembers the last selected value.
-     * - `multiple`: Remember all selected values.
-     * - `none`: Do not remember the selected value.
-     * @default 'none'
-     */
-    selectionMode?: 'multiple';
-    /**
-     * The selected values of the combobox.
-     */
-    selectedValue?: Item[];
-    onSelectedValueChange?: (
-      value: Item[],
-      event: Event | undefined,
-      reason: string | undefined,
-    ) => void;
-    defaultSelectedValue?: Item[];
-  }
-
-  export interface SingleGroupedProps<Item = any>
-    extends Omit<SingleProps<ExtractItemType<Item>>, 'items' | 'itemToString' | 'filter'> {
-    /**
-     * The items to be displayed in the combobox as groups.
-     */
-    items: ComboboxGroup<Item>[];
-    /**
-     * Filter function used to match items vs input query.
-     * The `itemToString` function is provided to help convert items to strings for comparison.
-     */
-    filter?: (
-      item: ExtractItemType<Item>,
-      query: string,
-      itemToString?: (item: ExtractItemType<Item>) => string,
-    ) => boolean;
-    /**
-     * Function to convert an item to a string for display in the combobox.
-     */
-    itemToString?: (item: ExtractItemType<Item>) => string;
-  }
-
-  export interface MultipleGroupedProps<Item = any>
-    extends Omit<MultipleProps<ExtractItemType<Item>>, 'items' | 'itemToString' | 'filter'> {
-    /**
-     * The items to be displayed in the combobox as groups.
-     */
-    items: ComboboxGroup<Item>[];
-    /**
-     * Filter function used to match items vs input query.
-     * The `itemToString` function is provided to help convert items to strings for comparison.
-     */
-    filter?: (
-      item: ExtractItemType<Item>,
-      query: string,
-      itemToString?: (item: ExtractItemType<Item>) => string,
-    ) => boolean;
-    /**
-     * Function to convert an item to a string for display in the combobox.
-     */
-    itemToString?: (item: ExtractItemType<Item>) => string;
   }
 
   export interface Actions {

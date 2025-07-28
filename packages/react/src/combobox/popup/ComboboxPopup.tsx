@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useSelector } from '@base-ui-components/utils/store';
+import { useLatestRef } from '@base-ui-components/utils/useLatestRef';
 import { FloatingFocusManager } from '../../floating-ui-react';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
@@ -40,6 +41,7 @@ export const ComboboxPopup = React.forwardRef(function ComboboxPopup(
   const transitionStatus = useSelector(store, selectors.transitionStatus);
   const anchorElement = useSelector(store, selectors.anchorElement);
   const inputElement = useSelector(store, selectors.inputElement);
+  const triggerElement = useSelector(store, selectors.triggerElement);
 
   const didPointerDown = React.useRef(false);
 
@@ -95,13 +97,14 @@ export const ComboboxPopup = React.forwardRef(function ComboboxPopup(
   });
 
   const isAnchorInput = anchorElement === inputElement;
+  const triggerRef = useLatestRef(triggerElement);
 
   return (
     <FloatingFocusManager
       context={floatingRootContext}
       modal={false}
       initialFocus={isAnchorInput ? -1 : inputRef}
-      returnFocus={!isAnchorInput}
+      returnFocus={isAnchorInput ? false : triggerRef}
     >
       {element}
     </FloatingFocusManager>

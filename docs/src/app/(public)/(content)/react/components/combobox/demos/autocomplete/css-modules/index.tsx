@@ -5,7 +5,7 @@ import { countries, type Country } from './data';
 
 export default function AutocompleteCombobox() {
   return (
-    <Combobox.Root items={countries} openOnlyWithMatch>
+    <Combobox.Root items={countries} openOnInputClick={false}>
       <label className={styles.Label}>
         Enter country
         <Combobox.Input placeholder="e.g. United Kingdom" className={styles.Input} />

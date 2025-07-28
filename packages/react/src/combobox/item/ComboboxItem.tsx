@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { useSelector } from '@base-ui-components/utils/store';
 import { useLatestRef } from '@base-ui-components/utils/useLatestRef';
-import { useModernLayoutEffect } from '@base-ui-components/utils/useModernLayoutEffect';
+import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { useAnimationFrame } from '@base-ui-components/utils/useAnimationFrame';
 
 import { useComboboxRootContext } from '../root/ComboboxRootContext';
@@ -83,7 +83,7 @@ export const ComboboxItem = React.memo(
 
     const hasRegistered = listItem.index !== -1;
 
-    useModernLayoutEffect(() => {
+    useIsoLayoutEffect(() => {
       if (!items || !virtualized) {
         return undefined;
       }
@@ -100,7 +100,7 @@ export const ComboboxItem = React.memo(
       return undefined;
     }, [index, virtualized, listRef, items, initialList]);
 
-    useModernLayoutEffect(() => {
+    useIsoLayoutEffect(() => {
       if (!hasRegistered) {
         return undefined;
       }
@@ -113,7 +113,7 @@ export const ComboboxItem = React.memo(
       };
     }, [hasRegistered, index, value, valuesRef]);
 
-    useModernLayoutEffect(() => {
+    useIsoLayoutEffect(() => {
       if (virtualized) {
         return undefined;
       }

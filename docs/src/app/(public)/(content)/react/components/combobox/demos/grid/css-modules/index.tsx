@@ -86,13 +86,18 @@ export default function EmojiPicker() {
             }
           }}
           inputValue={searchValue}
-          onInputValueChange={(nextInputValue) => {
-            setSearchValue(nextInputValue);
+          onInputValueChange={(nextInputValue, event, reason) => {
+            if (reason !== 'item-press') {
+              setSearchValue(nextInputValue);
+            }
           }}
-          onSelectedValueChange={(value) => {
+          onSelectedValueChange={(value, event, reason) => {
             handleInsertEmoji(value.emoji);
-            setSearchValue('');
             setPickerOpen(false);
+
+            if (reason !== 'item-press') {
+              setSearchValue('');
+            }
           }}
         >
           <Combobox.Trigger

@@ -66,10 +66,8 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
     state,
     props: [
       {
-        role: 'combobox',
         'aria-expanded': open,
         'aria-haspopup': 'dialog',
-        'aria-autocomplete': 'list',
         'aria-controls': open ? listElement?.id : undefined,
         disabled,
         'aria-readonly': readOnly || undefined,
@@ -78,7 +76,7 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
             return;
           }
 
-          if (inputRef.current === anchorElement) {
+          if (anchorElement !== null) {
             event.preventDefault();
           }
         },

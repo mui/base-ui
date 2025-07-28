@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useModernLayoutEffect } from '@base-ui-components/utils/useModernLayoutEffect';
+import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useComboboxGroupContext } from '../group/ComboboxGroupContext';
@@ -22,8 +22,11 @@ export const ComboboxGroupLabel = React.forwardRef(function ComboboxGroupLabel(
 
   const id = useBaseUiId(idProp);
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     setLabelId(id);
+    return () => {
+      setLabelId(undefined);
+    };
   }, [id, setLabelId]);
 
   const element = useRenderElement('div', componentProps, {

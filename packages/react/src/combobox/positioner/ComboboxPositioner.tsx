@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import type { VirtualElement } from '@floating-ui/react-dom';
 import { useSelector } from '@base-ui-components/utils/store';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { useComboboxFloatingContext, useComboboxRootContext } from '../root/ComboboxRootContext';
@@ -141,6 +142,17 @@ export namespace ComboboxPositioner {
   }
 
   export interface Props
-    extends useAnchorPositioning.SharedParameters,
-      BaseUIComponentProps<'div', State> {}
+    extends Omit<useAnchorPositioning.SharedParameters, 'anchor'>,
+      BaseUIComponentProps<'div', State> {
+    /**
+     * An element to position the popup against.
+     * By default, the popup will be positioned against the input.
+     */
+    anchor?:
+      | Element
+      | null
+      | VirtualElement
+      | React.RefObject<Element | null>
+      | (() => Element | VirtualElement | null);
+  }
 }

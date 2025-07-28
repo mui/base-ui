@@ -33,7 +33,7 @@
     },
     "anchor": {
       "type": "Element | RefObject<Element | null> | VirtualElement | (() => Element | VirtualElement | null) | null",
-      "description": "An element to position the popup against.\nBy default, the popup will be positioned against the trigger."
+      "description": "An element to position the popup against.\nBy default, the popup will be positioned against the input."
     },
     "collisionBoundary": {
       "type": "Boundary",
