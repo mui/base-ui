@@ -6,6 +6,7 @@ import styles from './long-select.module.css';
 export default function ExampleSelect() {
   return (
     <Select.Root defaultValue="af">
+      <div style={{ width: 1, height: 2000 }} />
       <Select.Trigger className={styles.Select}>
         <Select.Value>
           {(value) => countries.find((country) => country.code === value)?.name}
@@ -22,23 +23,18 @@ export default function ExampleSelect() {
               <ArrowSvg />
             </Select.Arrow>
             {countries.map((country) => (
-              <Select.Item
-                key={country.code}
-                className={styles.Item}
-                value={country.code}
-              >
+              <Select.Item key={country.code} className={styles.Item} value={country.code}>
                 <Select.ItemIndicator className={styles.ItemIndicator}>
                   <CheckIcon className={styles.ItemIndicatorIcon} />
                 </Select.ItemIndicator>
-                <Select.ItemText className={styles.ItemText}>
-                  {country.name}
-                </Select.ItemText>
+                <Select.ItemText className={styles.ItemText}>{country.name}</Select.ItemText>
               </Select.Item>
             ))}
           </Select.Popup>
           <Select.ScrollDownArrow className={styles.ScrollArrow} />
         </Select.Positioner>
       </Select.Portal>
+      <div style={{ width: 1, height: 2000 }} />
     </Select.Root>
   );
 }
