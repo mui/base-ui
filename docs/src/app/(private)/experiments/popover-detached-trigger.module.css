@@ -3,6 +3,7 @@
   min-height: calc(100vh - 40px);
   flex-direction: column;
   justify-content: space-between;
+  padding-bottom: 30vh;
 }
 
 .Container {

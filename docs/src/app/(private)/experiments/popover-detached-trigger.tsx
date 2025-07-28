@@ -51,6 +51,22 @@ export default function PopoverDetachedTrigger() {
     <div className={styles.Page}>
       <h1>Popovers</h1>
       <div className={styles.Container}>
+        <h2>Ordinary popover</h2>
+        <Popover.Root>
+          <StyledTrigger />
+          {renderPopoverContent(0, settings)}
+        </Popover.Root>
+      </div>
+      <div className={styles.Container}>
+        <h2>Multiple triggers within Root</h2>
+        <Popover.Root>
+          <StyledTrigger />
+          <StyledTrigger />
+          <StyledTrigger />
+          {renderPopoverContent(0, settings)}
+        </Popover.Root>
+      </div>
+      <div className={styles.Container}>
         <h2>Detached triggers</h2>
         <StyledPopover handle={popover1} />
         <StyledTrigger handle={popover1} payload={0} />
@@ -58,13 +74,6 @@ export default function PopoverDetachedTrigger() {
         <StyledTrigger handle={popover1} payload={2} />
         <StyledTrigger handle={popover1} payload={3} />
         <StyledTrigger handle={popover1} payload={4} />
-      </div>
-      <div className={styles.Container}>
-        <h2>Ordinary popover</h2>
-        <Popover.Root>
-          <StyledTrigger />
-          {renderPopoverContent(0, settings)}
-        </Popover.Root>
       </div>
     </div>
   );
