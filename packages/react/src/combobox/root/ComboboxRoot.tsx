@@ -48,29 +48,16 @@ import { EMPTY_ARRAY } from '../../utils/constants';
 import { serializeValue } from '../../utils/serializeValue';
 import { useTransitionStatus } from '../../utils/useTransitionStatus';
 
-type ExtractItemType<Item> = Item extends ComboboxGroup<infer GroupItem>[]
-  ? GroupItem
-  : Item extends (infer GroupItem)[]
-    ? GroupItem
-    : Item;
-
 /**
  * Groups all parts of the combobox.
  * Doesn't render its own HTML element.
  *
  * Documentation: [Base UI Combobox](https://base-ui.com/react/components/combobox)
  */
-export function ComboboxRoot<Item = any>(
-  props: ComboboxRoot.SingleGroupedProps<Item>,
-): React.JSX.Element;
-export function ComboboxRoot<Item = any>(
-  props: ComboboxRoot.MultipleGroupedProps<Item>,
-): React.JSX.Element;
-export function ComboboxRoot<Item = any>(props: ComboboxRoot.SingleProps<Item>): React.JSX.Element;
-export function ComboboxRoot<Item = any>(
-  props: ComboboxRoot.MultipleProps<Item>,
-): React.JSX.Element;
-export function ComboboxRoot<Item = any>(props: ComboboxRoot.Props<Item>): React.JSX.Element {
+export function ComboboxRoot<
+  Item = any,
+  Mode extends 'single' | 'multiple' | 'none' | undefined = 'none',
+>(props: ComboboxRoot.Props<Item, Mode>): React.JSX.Element {
   const {
     id: idProp,
     onOpenChangeComplete: onOpenChangeCompleteProp,
@@ -405,7 +392,9 @@ export function ComboboxRoot<Item = any>(props: ComboboxRoot.Props<Item>): React
         });
       }
 
-      onSelectedValueChange?.(nextValue as Item, event, reason);
+      // Cast to `any` due to conditional value type (single vs. multiple).
+      // The runtime implementation already ensures the correct value shape.
+      onSelectedValueChange?.(nextValue as any, event, reason);
       setSelectedValueUnwrapped(nextValue);
 
       // Auto-close popup after selection in single mode when open state is uncontrolled
@@ -792,10 +781,38 @@ export function ComboboxRoot<Item = any>(props: ComboboxRoot.Props<Item>): React
   );
 }
 
+type ExtractItemType<Item> = Item extends ComboboxGroup<infer I>[]
+  ? I
+  : Item extends ComboboxGroup<infer I>
+    ? I
+    : Item extends (infer I)[]
+      ? I
+      : Item;
+
+type ComboboxValueType<
+  Item,
+  Mode extends 'single' | 'multiple' | 'none' | undefined,
+> = Mode extends 'multiple' ? Item[] : Item | null;
+
+type ComboboxDefaultValueType<
+  Item,
+  Mode extends 'single' | 'multiple' | 'none' | undefined,
+> = Mode extends 'multiple' ? Item[] : Item;
+
+type ComboboxOnSelectedValueChange<
+  Item,
+  Mode extends 'single' | 'multiple' | 'none' | undefined,
+> = Mode extends 'multiple'
+  ? (value: Item[], event: Event | undefined, reason: string | undefined) => void
+  : (value: Item, event: Event | undefined, reason: string | undefined) => void;
+
 export namespace ComboboxRoot {
   export interface State {}
 
-  export interface Props<Item = any> {
+  export interface Props<
+    Item = any,
+    Mode extends 'single' | 'multiple' | 'none' | undefined = 'none',
+  > {
     children?: React.ReactNode;
     /**
      * Identifies the field when a form is submitted.
@@ -871,7 +888,7 @@ export namespace ComboboxRoot {
      * - `none`: Do not remember the selected value.
      * @default 'none'
      */
-    selectionMode?: 'single' | 'multiple' | 'none';
+    selectionMode?: Mode;
     /**
      * A ref to imperative actions.
      * - `unmount`: When specified, the combobox will not be unmounted when closed.
@@ -920,21 +937,17 @@ export namespace ComboboxRoot {
     /**
      * The selected value of the combobox.
      */
-    selectedValue?: Item | null;
+    selectedValue?: ComboboxValueType<ExtractItemType<Item>, Mode>;
     /**
      * Callback fired when the selected value of the combobox changes.
      */
-    onSelectedValueChange?: (
-      value: Item,
-      event: Event | undefined,
-      reason: string | undefined,
-    ) => void;
+    onSelectedValueChange?: ComboboxOnSelectedValueChange<ExtractItemType<Item>, Mode>;
     /**
      * The uncontrolled selected value of the combobox when it's initially rendered.
      *
      * To render a controlled combobox, use the `selectedValue` prop instead.
      */
-    defaultSelectedValue?: Item;
+    defaultSelectedValue?: ComboboxDefaultValueType<ExtractItemType<Item>, Mode>;
     /**
      * Whether the combobox popup should be virtualized.
      * @default false
@@ -942,7 +955,7 @@ export namespace ComboboxRoot {
     virtualized?: boolean;
   }
 
-  export interface SingleProps<Item = any> extends Omit<Props<Item>, 'selectionMode'> {
+  export interface SingleProps<Item = any> extends Omit<Props<Item, 'single'>, 'selectionMode'> {
     /**
      * How the combobox should remember the selected value.
      * - `single`: Remembers the last selected value in state.
@@ -955,7 +968,7 @@ export namespace ComboboxRoot {
 
   export interface MultipleProps<Item = any>
     extends Omit<
-      Props<Item>,
+      Props<Item, 'multiple'>,
       'selectionMode' | 'selectedValue' | 'onSelectedValueChange' | 'defaultSelectedValue'
     > {
     /**
@@ -970,19 +983,11 @@ export namespace ComboboxRoot {
      * The selected values of the combobox.
      */
     selectedValue?: Item[];
-    /**
-     * Callback fired when the selected values of the combobox change.
-     */
     onSelectedValueChange?: (
       value: Item[],
       event: Event | undefined,
       reason: string | undefined,
     ) => void;
-    /**
-     * The uncontrolled selected values of the combobox when it's initially rendered.
-     *
-     * To render a controlled combobox, use the `selectedValue` prop instead.
-     */
     defaultSelectedValue?: Item[];
   }
 
