@@ -5,7 +5,7 @@ import { useTimeout } from '@base-ui-components/utils/useTimeout';
 import { useControlled } from '@base-ui-components/utils/useControlled';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { Store, useStore } from '@base-ui-components/utils/store';
-import { useLazyRef } from '@base-ui-components/utils/useLazyRef';
+import { useRefWithInit } from '@base-ui-components/utils/useRefWithInit';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import {
   useDismiss,
@@ -24,7 +24,7 @@ import {
   PopoverRootContext,
   usePopoverRootContext,
 } from './PopoverRootContext';
-import { State, selectors } from '../store';
+import { type State as PopoverState, selectors } from '../store';
 import { getEmptyContext } from '../../floating-ui-react/hooks/useFloatingRootContext';
 import { PopoverHandle } from '../handle/PopoverHandle';
 
@@ -38,10 +38,10 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
     handle,
   } = props;
 
-  const store = useLazyRef(() => {
+  const store = useRefWithInit(() => {
     return (
       handle?.store ||
-      new Store<State>({
+      new Store<PopoverState>({
         open: false,
         modal: false,
         mounted: false,
