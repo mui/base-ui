@@ -35,9 +35,12 @@ import { useFloatingTree } from './FloatingTree';
 const LIST_LIMIT = 20;
 let previouslyFocusedElements: Element[] = [];
 
-function addPreviouslyFocusedElement(element: Element | null) {
+function clearDisconnectedPreviouslyFocusedElements() {
   previouslyFocusedElements = previouslyFocusedElements.filter((el) => el.isConnected);
+}
 
+function addPreviouslyFocusedElement(element: Element | null) {
+  clearDisconnectedPreviouslyFocusedElements();
   if (element && getNodeName(element) !== 'body') {
     previouslyFocusedElements.push(element);
     if (previouslyFocusedElements.length > LIST_LIMIT) {
@@ -47,10 +50,8 @@ function addPreviouslyFocusedElement(element: Element | null) {
 }
 
 function getPreviouslyFocusedElement() {
-  return previouslyFocusedElements
-    .slice()
-    .reverse()
-    .find((el) => el.isConnected);
+  clearDisconnectedPreviouslyFocusedElements();
+  return previouslyFocusedElements[previouslyFocusedElements.length - 1];
 }
 
 function getFirstTabbableElement(container: Element) {
@@ -64,7 +65,7 @@ function getFirstTabbableElement(container: Element) {
 
 function handleTabIndex(
   floatingFocusElement: HTMLElement,
-  orderRef: React.MutableRefObject<Array<'reference' | 'floating' | 'content'>>,
+  orderRef: React.RefObject<Array<'reference' | 'floating' | 'content'>>,
 ) {
   if (
     !orderRef.current.includes('floating') &&
@@ -97,13 +98,6 @@ function handleTabIndex(
     floatingFocusElement.setAttribute('data-tabindex', '-1');
   }
 }
-
-const VisuallyHiddenDismiss = React.forwardRef(function VisuallyHiddenDismiss(
-  props: React.ButtonHTMLAttributes<HTMLButtonElement>,
-  ref: React.ForwardedRef<HTMLButtonElement>,
-) {
-  return <button {...props} type="button" ref={ref} tabIndex={-1} style={visuallyHidden} />;
-});
 
 export interface FloatingFocusManagerProps {
   children: React.JSX.Element;
@@ -159,15 +153,6 @@ export interface FloatingFocusManagerProps {
    */
   modal?: boolean;
   /**
-   * If your focus management is modal and there is no explicit close button
-   * available, you can use this prop to render a visually-hidden dismiss
-   * button at the start and end of the floating element. This allows
-   * touch-based screen readers to escape the floating element due to lack of
-   * an `esc` key.
-   * @default undefined
-   */
-  visuallyHiddenDismiss?: boolean | string;
-  /**
    * Determines whether `focusout` event listeners that control whether the
    * floating element should be closed if the focus moves outside of it are
    * attached to the reference and floating elements. This affects non-modal
@@ -204,7 +189,6 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     returnFocus = true,
     restoreFocus = false,
     modal = true,
-    visuallyHiddenDismiss = false,
     closeOnFocusOut = true,
     outsideElementsInert = false,
     getInsideElements: getInsideElementsProp = () => [],
@@ -259,17 +243,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     const content = getTabbableContent(container);
 
     return orderRef.current
-      .map((type) => {
-        if (domReference && type === 'reference') {
-          return domReference;
-        }
-
-        if (floatingFocusElement && type === 'floating') {
-          return floatingFocusElement;
-        }
-
-        return content;
-      })
+      .map(() => content)
       .filter(Boolean)
       .flat() as Array<FocusableElement>;
   });
@@ -291,27 +265,6 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
           !isUntrappedTypeableCombobox
         ) {
           stopEvent(event);
-        }
-
-        const els = getTabbableElements();
-        const target = getTarget(event);
-
-        if (orderRef.current[0] === 'reference' && target === domReference) {
-          stopEvent(event);
-          if (event.shiftKey) {
-            enqueueFocus(els[els.length - 1]);
-          } else {
-            enqueueFocus(els[1]);
-          }
-        }
-
-        if (
-          orderRef.current[1] === 'floating' &&
-          target === floatingFocusElement &&
-          event.shiftKey
-        ) {
-          stopEvent(event);
-          enqueueFocus(els[0]);
         }
       }
     }
@@ -519,7 +472,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
       afterGuardRef.current,
       portalContext?.beforeOutsideRef.current,
       portalContext?.afterOutsideRef.current,
-      orderRef.current.includes('reference') || isUntrappedTypeableCombobox ? domReference : null,
+      isUntrappedTypeableCombobox ? domReference : null,
     ].filter((x): x is Element => x != null);
 
     const cleanup =
@@ -731,29 +684,14 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
   }, [disabled, portalContext, modal, open, onOpenChange, closeOnFocusOut, domReference]);
 
   useIsoLayoutEffect(() => {
-    if (disabled) {
-      return;
-    }
-    if (!floatingFocusElement) {
-      return;
+    if (disabled || !floatingFocusElement) {
+      return undefined;
     }
     handleTabIndex(floatingFocusElement, orderRef);
+    return () => {
+      queueMicrotask(clearDisconnectedPreviouslyFocusedElements);
+    };
   }, [disabled, floatingFocusElement, orderRef]);
-
-  function renderDismissButton(location: 'start' | 'end') {
-    if (disabled || !visuallyHiddenDismiss || !modal) {
-      return null;
-    }
-
-    return (
-      <VisuallyHiddenDismiss
-        ref={location === 'start' ? startDismissButtonRef : endDismissButtonRef}
-        onClick={(event) => onOpenChange(false, event.nativeEvent)}
-      >
-        {typeof visuallyHiddenDismiss === 'string' ? visuallyHiddenDismiss : 'Dismiss'}
-      </VisuallyHiddenDismiss>
-    );
-  }
 
   const shouldRenderGuards =
     !disabled &&
@@ -770,7 +708,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
           onFocus={(event) => {
             if (modal) {
               const els = getTabbableElements();
-              enqueueFocus(order[0] === 'reference' ? els[0] : els[els.length - 1]);
+              enqueueFocus(els[els.length - 1]);
             } else if (portalContext?.preserveTabOrder && portalContext.portalNode) {
               preventReturnFocusRef.current = false;
               if (isOutsideEvent(event, portalContext.portalNode)) {
@@ -783,13 +721,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
           }}
         />
       )}
-      {/*
-        Ensure the first swipe is the list item. The end of the listbox popup
-        will have a dismiss button.
-      */}
-      {!isUntrappedTypeableCombobox && renderDismissButton('start')}
       {children}
-      {renderDismissButton('end')}
       {shouldRenderGuards && (
         <FocusGuard
           data-type="inside"

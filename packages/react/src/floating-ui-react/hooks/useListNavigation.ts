@@ -11,7 +11,6 @@ import {
   isVirtualClick,
   isVirtualPointerEvent,
   stopEvent,
-  getDeepestNode,
   getFloatingFocusElement,
   isIndexOutOfListBounds,
   getMinListIndex,
@@ -316,7 +315,6 @@ export function useListNavigation(
   const selectedIndexRef = useLatestRef(selectedIndex);
 
   const [activeId, setActiveId] = React.useState<string | undefined>();
-  const [virtualId, setVirtualId] = React.useState<string | undefined>();
 
   const focusItem = useEventCallback(() => {
     function runFocus(item: HTMLElement) {
@@ -493,34 +491,6 @@ export function useListNavigation(
       parent.focus({ preventScroll: true });
     }
   }, [enabled, elements.floating, tree, parentId, virtual]);
-
-  useIsoLayoutEffect(() => {
-    if (!enabled) {
-      return undefined;
-    }
-    if (!tree) {
-      return undefined;
-    }
-    if (!virtual) {
-      return undefined;
-    }
-    if (parentId) {
-      return undefined;
-    }
-
-    function handleVirtualFocus(item: HTMLElement) {
-      setVirtualId(item.id);
-
-      if (virtualItemRef) {
-        virtualItemRef.current = item;
-      }
-    }
-
-    tree.events.on('virtualfocus', handleVirtualFocus);
-    return () => {
-      tree.events.off('virtualfocus', handleVirtualFocus);
-    };
-  }, [enabled, tree, virtual, parentId, virtualItemRef]);
 
   useIsoLayoutEffect(() => {
     previousOnNavigateRef.current = onNavigate;
@@ -806,10 +776,10 @@ export function useListNavigation(
       virtual &&
       open &&
       hasActiveIndex && {
-        'aria-activedescendant': virtualId || activeId,
+        'aria-activedescendant': activeId,
       }
     );
-  }, [virtual, open, hasActiveIndex, virtualId, activeId]);
+  }, [virtual, open, hasActiveIndex, activeId]);
 
   const floating: ElementProps['floating'] = React.useMemo(() => {
     return {
@@ -843,10 +813,6 @@ export function useListNavigation(
         isPointerModalityRef.current = false;
 
         const isArrowKey = event.key.startsWith('Arrow');
-        const isHomeOrEndKey = ['Home', 'End'].includes(event.key);
-        const isMoveKey = isArrowKey || isHomeOrEndKey;
-        const isCrossOpenKey = isCrossOrientationOpenKey(event.key, orientation, rtl);
-        const isCrossCloseKey = isCrossOrientationCloseKey(event.key, orientation, rtl, cols);
         const isParentCrossOpenKey = isCrossOrientationOpenKey(
           event.key,
           getParentOrientation(),
@@ -859,49 +825,9 @@ export function useListNavigation(
           event.key.trim() === '';
 
         if (virtual && open) {
-          const rootNode = tree?.nodesRef.current.find((node) => node.parentId == null);
-          const deepestNode =
-            tree && rootNode ? getDeepestNode(tree.nodesRef.current, rootNode.id) : null;
-
-          if (isMoveKey && deepestNode && virtualItemRef) {
-            const eventObject = new KeyboardEvent('keydown', {
-              key: event.key,
-              bubbles: true,
-            });
-
-            if (isCrossOpenKey || isCrossCloseKey) {
-              const isCurrentTarget =
-                deepestNode.context?.elements.domReference === event.currentTarget;
-              const dispatchItem =
-                // eslint-disable-next-line no-nested-ternary
-                isCrossCloseKey && !isCurrentTarget
-                  ? deepestNode.context?.elements.domReference
-                  : isCrossOpenKey
-                    ? listRef.current.find((currentItem) => currentItem?.id === activeId)
-                    : null;
-
-              if (dispatchItem) {
-                stopEvent(event);
-                dispatchItem.dispatchEvent(eventObject);
-                setVirtualId(undefined);
-              }
-            }
-
-            if ((isMainKey || isHomeOrEndKey) && deepestNode.context) {
-              if (
-                deepestNode.context.open &&
-                deepestNode.parentId &&
-                event.currentTarget !== deepestNode.context.elements.domReference
-              ) {
-                stopEvent(event);
-                deepestNode.context.elements.domReference?.dispatchEvent(eventObject);
-                return undefined;
-              }
-            }
-          }
-
           return commonOnKeyDown(event);
         }
+
         // If a floating element should not open on arrow key down, avoid
         // setting `activeIndex` while it's closed.
         if (!open && !openOnArrowKeyDown && isArrowKey) {
@@ -960,9 +886,7 @@ export function useListNavigation(
       onClick: checkVirtualMouse,
     };
   }, [
-    activeId,
     ariaActiveDescendantProp,
-    cols,
     commonOnKeyDown,
     disabledIndicesRef,
     focusItemOnOpen,
@@ -976,9 +900,7 @@ export function useListNavigation(
     getParentOrientation,
     rtl,
     selectedIndex,
-    tree,
     virtual,
-    virtualItemRef,
   ]);
 
   return React.useMemo(
