@@ -19,6 +19,9 @@
       "type": "RefObject<Popover.Root.Actions>",
       "description": "A ref to imperative actions.\n- `unmount`: When specified, the popover will not be unmounted when closed.\nInstead, the `unmount` function must be called to unmount the popover manually.\nUseful when the popover's animation is controlled by an external library."
     },
+    "handle": {
+      "type": "PopoverHandle<Payload>"
+    },
     "modal": {
       "type": "boolean | 'trap-focus'",
       "default": "false",
@@ -28,23 +31,8 @@
       "type": "((open: boolean) => void)",
       "description": "Event handler called after any animations complete when the popover is opened or closed."
     },
-    "openOnHover": {
-      "type": "boolean",
-      "default": "false",
-      "description": "Whether the popover should also open when the trigger is hovered."
-    },
-    "delay": {
-      "type": "number",
-      "default": "300",
-      "description": "How long to wait before the popover may be opened on hover. Specified in milliseconds.\n\nRequires the `openOnHover` prop."
-    },
-    "closeDelay": {
-      "type": "number",
-      "default": "0",
-      "description": "How long to wait before closing the popover that was opened on hover.\nSpecified in milliseconds.\n\nRequires the `openOnHover` prop."
-    },
     "children": {
-      "type": "ReactNode"
+      "type": "ReactNode | Popover.Root.ChildRenderFunction<Payload>"
     }
   },
   "dataAttributes": {},

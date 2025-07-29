@@ -5,7 +5,7 @@ import { getEmptyContext } from '../../floating-ui-react/hooks/useFloatingRootCo
 
 const EMPTY_OBJ = {};
 
-export class PopoverHandle<Payload = unknown> {
+export class PopoverHandle<Payload = undefined> {
   readonly store: PopoverStore = new Store<State>({
     open: false,
     modal: false,

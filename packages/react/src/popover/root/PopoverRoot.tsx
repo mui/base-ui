@@ -26,9 +26,9 @@ import {
 } from './PopoverRootContext';
 import { State, selectors } from '../store';
 import { getEmptyContext } from '../../floating-ui-react/hooks/useFloatingRootContext';
-import { PopoverHandle } from '../handle/createPopover';
+import { PopoverHandle } from '../handle/PopoverHandle';
 
-function PopoverRootComponent({ props }: { props: PopoverRoot.Props }) {
+function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Payload> }) {
   const {
     open: externalOpen,
     onOpenChange,
@@ -66,7 +66,7 @@ function PopoverRootComponent({ props }: { props: PopoverRoot.Props }) {
 
   const positionerElement = useSelector(store, selectors.positionerElement);
   const activeTriggerElement = useSelector(store, selectors.activeTriggerElement);
-  const payload = useSelector(store, selectors.payload);
+  const payload = useSelector(store, selectors.payload) as Payload | undefined;
   const openReason = useSelector(store, selectors.openReason);
 
   const popupRef = React.useRef<HTMLElement>(null);
@@ -220,7 +220,7 @@ function PopoverRootComponent({ props }: { props: PopoverRoot.Props }) {
  *
  * Documentation: [Base UI Popover](https://base-ui.com/react/components/popover)
  */
-export function PopoverRoot(props: PopoverRoot.Props) {
+export function PopoverRoot<Payload = unknown>(props: PopoverRoot.Props<Payload>) {
   if (usePopoverRootContext(true)) {
     return <PopoverRootComponent props={props} />;
   }
@@ -235,7 +235,7 @@ export function PopoverRoot(props: PopoverRoot.Props) {
 export namespace PopoverRoot {
   export interface State {}
 
-  export interface Props {
+  export interface Props<Payload = unknown> {
     /**
      * Whether the popover is initially open.
      *
@@ -274,13 +274,19 @@ export namespace PopoverRoot {
      * @default false
      */
     modal?: boolean | 'trap-focus';
-    children?: React.ReactNode | (({ payload }: { payload: any }) => React.ReactNode);
-    handle?: PopoverHandle<any>;
+    children?: React.ReactNode | ChildRenderFunction<Payload>;
+    handle?: PopoverHandle<Payload>;
   }
 
   export interface Actions {
     unmount: () => void;
   }
+
+  export type ChildRenderFunction<Payload> = ({
+    payload,
+  }: {
+    payload: Payload | undefined;
+  }) => React.ReactNode;
 
   export type OpenChangeReason = PopoverOpenChangeReason;
 }

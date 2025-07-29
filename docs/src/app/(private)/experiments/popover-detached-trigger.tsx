@@ -3,14 +3,14 @@ import * as React from 'react';
 import { Popover } from '@base-ui-components/react/popover';
 
 // eslint-disable-next-line no-restricted-imports
-import { PopoverHandle } from '@base-ui-components/react/popover/handle/createPopover';
+import { PopoverHandle } from '@base-ui-components/react/popover/handle/PopoverHandle';
 import {
   SettingsMetadata,
   useExperimentSettings,
 } from 'docs/src/components/Experiments/SettingsPanel';
 import styles from './popover-detached-trigger.module.css';
 
-const popover1 = new PopoverHandle<unknown>();
+const popover1 = new Popover.Handle<number>();
 
 interface Settings {
   openOnHover: boolean;
@@ -79,16 +79,16 @@ export default function PopoverDetachedTrigger() {
   );
 }
 
-interface StyledPopoverProps {
-  handle: PopoverHandle<unknown>;
+interface StyledPopoverProps<Payload> {
+  handle: PopoverHandle<Payload>;
 }
 
-function StyledTrigger<Payload>(props: { handle?: PopoverHandle<Payload>; payload?: Payload }) {
+function StyledTrigger<Payload>(props: Popover.Trigger.Props<Payload>) {
   const { settings } = useExperimentSettings<Settings>();
   return (
     <Popover.Trigger
       className={styles.IconButton}
-      handle={props.handle as PopoverHandle<unknown>}
+      handle={props.handle}
       payload={props.payload}
       openOnHover={settings.openOnHover}
       delay={50}
@@ -98,13 +98,13 @@ function StyledTrigger<Payload>(props: { handle?: PopoverHandle<Payload>; payloa
   );
 }
 
-function StyledPopover(props: StyledPopoverProps) {
+function StyledPopover(props: StyledPopoverProps<number>) {
   const { handle } = props;
   const { settings } = useExperimentSettings<Settings>();
 
   return (
     <Popover.Root handle={handle}>
-      {({ payload }) => renderPopoverContent(payload as number, settings)}
+      {({ payload }) => payload !== undefined && renderPopoverContent(payload, settings)}
     </Popover.Root>
   );
 }

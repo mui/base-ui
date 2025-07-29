@@ -16,7 +16,7 @@ import { safePolygon, useClick, useHover, useInteractions } from '../../floating
 import { OPEN_DELAY } from '../utils/constants';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
 import { PopoverStore, selectors } from '../store';
-import { PopoverHandle } from '../handle/createPopover';
+import { PopoverHandle } from '../handle/PopoverHandle';
 
 /**
  * A button that opens the popover.
@@ -151,7 +151,7 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
   });
 
   return element;
-});
+}) as PopoverTrigger.ComponentType;
 
 export namespace PopoverTrigger {
   export interface State {
@@ -165,7 +165,7 @@ export namespace PopoverTrigger {
     open: boolean;
   }
 
-  export interface Props extends BaseUIComponentProps<'button', State> {
+  export type Props<Payload = unknown> = BaseUIComponentProps<'button', State> & {
     /**
      * Whether the component renders a native `<button>` element when replacing it
      * via the `render` prop.
@@ -173,9 +173,14 @@ export namespace PopoverTrigger {
      * @default true
      */
     nativeButton?: boolean;
-
-    handle?: PopoverHandle<unknown>;
-    payload?: any;
+    /**
+     * A handle to associate the trigger with a popover.
+     */
+    handle?: PopoverHandle<Payload>;
+    /**
+     * A payload to pass to the popover when it is opened.
+     */
+    payload?: Payload;
     /**
      * Whether the popover should also open when the trigger is hovered.
      * @default false
@@ -196,5 +201,11 @@ export namespace PopoverTrigger {
      * @default 0
      */
     closeDelay?: number;
+  };
+
+  export interface ComponentType {
+    <Payload>(
+      componentProps: PopoverTrigger.Props<Payload> & React.RefAttributes<HTMLElement>,
+    ): React.JSX.Element;
   }
 }
