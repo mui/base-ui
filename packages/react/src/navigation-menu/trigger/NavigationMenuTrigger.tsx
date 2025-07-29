@@ -154,8 +154,17 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
 
     sizeFrame1.request(() => {
       sizeFrame2.request(() => {
+        if (
+          Math.floor(width) === Math.floor(currentWidth) &&
+          Math.floor(height) === Math.floor(currentHeight)
+        ) {
+          setAutoSizes();
+          return;
+        }
+
         popupElement.style.setProperty(NavigationMenuPopupCssVars.popupWidth, `${width}px`);
         popupElement.style.setProperty(NavigationMenuPopupCssVars.popupHeight, `${height}px`);
+
         animationAbortControllerRef.current = new AbortController();
         runOnceAnimationsFinish(setAutoSizes, animationAbortControllerRef.current.signal);
       });
@@ -177,10 +186,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     }
 
     const resizeObserver = new ResizeObserver(() => {
-      prevSizeRef.current = {
-        width: popupElement.offsetWidth,
-        height: popupElement.offsetHeight,
-      };
+      prevSizeRef.current = getCssDimensions(popupElement);
     });
 
     resizeObserver.observe(popupElement);
