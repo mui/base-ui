@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useSelector } from '@base-ui-components/utils/store';
+import { useStore } from '@base-ui-components/utils/store';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useSelectRootContext } from '../root/SelectRootContext';
@@ -24,8 +24,8 @@ export const SelectValue = React.forwardRef(function SelectValue(
   const { className, render, children: childrenProp, ...elementProps } = componentProps;
 
   const { store, valueRef } = useSelectRootContext();
-  const value = useSelector(store, selectors.value);
-  const items = useSelector(store, selectors.items);
+  const value = useStore(store, selectors.value);
+  const items = useStore(store, selectors.items);
   const isChildrenPropFunction = typeof childrenProp === 'function';
 
   const labelFromItems = React.useMemo(() => {

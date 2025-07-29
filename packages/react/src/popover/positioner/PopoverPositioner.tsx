@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { inertValue } from '@base-ui-components/utils/inertValue';
-import { useSelector } from '@base-ui-components/utils/store';
+import { useStore } from '@base-ui-components/utils/store';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { FloatingNode, useFloatingNodeId } from '../../floating-ui-react';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
@@ -49,13 +49,13 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
   const keepMounted = usePopoverPortalContext();
   const nodeId = useFloatingNodeId();
 
-  const floatingRootContext = useSelector(store, selectors.floatingRootContext);
-  const mounted = useSelector(store, selectors.mounted);
-  const open = useSelector(store, selectors.open);
-  const openMethod = useSelector(store, selectors.openMethod);
-  const openReason = useSelector(store, selectors.openReason);
-  const triggerElement = useSelector(store, selectors.activeTriggerElement);
-  const modal = useSelector(store, selectors.modal);
+  const floatingRootContext = useStore(store, selectors.floatingRootContext);
+  const mounted = useStore(store, selectors.mounted);
+  const open = useStore(store, selectors.open);
+  const openMethod = useStore(store, selectors.openMethod);
+  const openReason = useStore(store, selectors.openReason);
+  const triggerElement = useStore(store, selectors.activeTriggerElement);
+  const modal = useStore(store, selectors.modal);
 
   const positionerRef = React.useRef<HTMLDivElement | null>(null);
   const prevTriggerElementRef = React.useRef<Element | null>(null);

@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useSelector } from '@base-ui-components/utils/store';
+import { useStore } from '@base-ui-components/utils/store';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { type CustomStyleHookMapping } from '../../utils/getStyleHookProps';
@@ -29,10 +29,10 @@ export const PopoverBackdrop = React.forwardRef(function PopoverBackdrop(
 
   const { store } = usePopoverRootContext();
 
-  const open = useSelector(store, selectors.open);
-  const mounted = useSelector(store, selectors.mounted);
-  const transitionStatus = useSelector(store, selectors.transitionStatus);
-  const openReason = useSelector(store, selectors.openReason);
+  const open = useStore(store, selectors.open);
+  const mounted = useStore(store, selectors.mounted);
+  const transitionStatus = useStore(store, selectors.transitionStatus);
+  const openReason = useStore(store, selectors.openReason);
 
   const state: PopoverBackdrop.State = React.useMemo(
     () => ({

@@ -74,9 +74,17 @@ export const NumberFieldDecrement = React.forwardRef(function NumberFieldDecreme
     disabled,
   });
 
+  const buttonState = React.useMemo(
+    () => ({
+      ...state,
+      disabled,
+    }),
+    [state, disabled],
+  );
+
   const element = useRenderElement('button', componentProps, {
     ref: [forwardedRef, buttonRef],
-    state,
+    state: buttonState,
     props: [props, elementProps, getButtonProps],
     customStyleHookMapping: styleHookMapping,
   });

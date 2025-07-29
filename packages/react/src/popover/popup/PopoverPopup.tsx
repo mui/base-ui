@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useSelector } from '@base-ui-components/utils/store';
+import { useStore } from '@base-ui-components/utils/store';
 import { InteractionType } from '@base-ui-components/utils/useEnhancedClickHandler';
 import { FloatingFocusManager } from '../../floating-ui-react';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
@@ -38,19 +38,19 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
   const { popupRef, onOpenChangeComplete, store } = usePopoverRootContext();
 
   const positioner = usePopoverPositionerContext();
-  const open = useSelector(store, selectors.open);
-  const openMethod = useSelector(store, selectors.openMethod);
-  const instantType = useSelector(store, selectors.instantType);
-  const transitionStatus = useSelector(store, selectors.transitionStatus);
-  const popupProps = useSelector(store, selectors.popupProps);
-  const titleId = useSelector(store, selectors.titleId);
-  const descriptionId = useSelector(store, selectors.descriptionId);
-  const modal = useSelector(store, selectors.modal);
-  const mounted = useSelector(store, selectors.mounted);
-  const openReason = useSelector(store, selectors.openReason);
-  const popupElement = useSelector(store, selectors.popupElement);
-  const triggers = useSelector(store, selectors.triggers);
-  const payload = useSelector(store, selectors.payload);
+  const open = useStore(store, selectors.open);
+  const openMethod = useStore(store, selectors.openMethod);
+  const instantType = useStore(store, selectors.instantType);
+  const transitionStatus = useStore(store, selectors.transitionStatus);
+  const popupProps = useStore(store, selectors.popupProps);
+  const titleId = useStore(store, selectors.titleId);
+  const descriptionId = useStore(store, selectors.descriptionId);
+  const modal = useStore(store, selectors.modal);
+  const mounted = useStore(store, selectors.mounted);
+  const openReason = useStore(store, selectors.openReason);
+  const popupElement = useStore(store, selectors.popupElement);
+  const triggers = useStore(store, selectors.triggers);
+  const payload = useStore(store, selectors.payload);
 
   useOpenChangeComplete({
     open,

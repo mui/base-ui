@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
-import { useForkRef } from '@base-ui-components/utils/useForkRef';
+import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
 import { useOnMount } from '@base-ui-components/utils/useOnMount';
 import { AnimationFrame } from '@base-ui-components/utils/useAnimationFrame';
 import { warn } from '@base-ui-components/utils/warn';
@@ -152,7 +152,7 @@ export function useCollapsiblePanel(
     };
   });
 
-  const mergedPanelRef = useForkRef(externalRef, panelRef, handlePanelRef);
+  const mergedPanelRef = useMergedRefs(externalRef, panelRef, handlePanelRef);
 
   useIsoLayoutEffect(() => {
     if (animationTypeRef.current !== 'css-transition') {

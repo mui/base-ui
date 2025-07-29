@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { tabbable, isTabbable, focusable, type FocusableElement } from 'tabbable';
 import { getNodeName, isHTMLElement } from '@floating-ui/utils/dom';
-import { useForkRef } from '@base-ui-components/utils/useForkRef';
+import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
 import { useLatestRef } from '@base-ui-components/utils/useLatestRef';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
@@ -487,8 +487,8 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
   const beforeGuardRef = React.useRef<HTMLSpanElement | null>(null);
   const afterGuardRef = React.useRef<HTMLSpanElement | null>(null);
 
-  const mergedBeforeGuardRef = useForkRef(beforeGuardRef, portalContext?.beforeInsideRef);
-  const mergedAfterGuardRef = useForkRef(afterGuardRef, portalContext?.afterInsideRef);
+  const mergedBeforeGuardRef = useMergedRefs(beforeGuardRef, portalContext?.beforeInsideRef);
+  const mergedAfterGuardRef = useMergedRefs(afterGuardRef, portalContext?.afterInsideRef);
 
   React.useEffect(() => {
     if (disabled) {

@@ -1,9 +1,9 @@
 'use client';
 import { useIsoLayoutEffect } from './useIsoLayoutEffect';
-import { useLazyRef } from './useLazyRef';
+import { useRefWithInit } from './useRefWithInit';
 
 export function useLatestRef<T>(value: T) {
-  const latest = useLazyRef(createLatestRef, value).current;
+  const latest = useRefWithInit(createLatestRef, value).current;
 
   latest.next = value;
 

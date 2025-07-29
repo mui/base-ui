@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useForkRef, useForkRefN } from '@base-ui-components/utils/useForkRef';
+import { useMergedRefs, useMergedRefsN } from '@base-ui-components/utils/useMergedRefs';
 import { isReactVersionAtLeast } from '@base-ui-components/utils/reactVersion';
 import { mergeObjects } from '@base-ui-components/utils/mergeObjects';
 import type { BaseUIComponentProps, ComponentRenderFn, HTMLProps } from './types';
@@ -79,19 +79,19 @@ function useRenderElementProps<
     ? (mergeObjects(styleHooks, Array.isArray(props) ? mergePropsN(props) : props) ?? EMPTY_OBJECT)
     : EMPTY_OBJECT;
 
-  // SAFETY: The `useForkRef` functions use a single hook to store the same value,
+  // SAFETY: The `useMergedRefs` functions use a single hook to store the same value,
   // switching between them at runtime is safe. If this assertion fails, React will
   // throw at runtime anyway.
-  // This also skips the `useForkRef` call on the server, which is fine because
+  // This also skips the `useMergedRefs` call on the server, which is fine because
   // refs are not used on the server side.
   /* eslint-disable react-hooks/rules-of-hooks */
   if (typeof document !== 'undefined') {
     if (!enabled) {
-      useForkRef(null, null);
+      useMergedRefs(null, null);
     } else if (Array.isArray(ref)) {
-      outProps.ref = useForkRefN([outProps.ref, getChildRef(renderProp), ...ref]);
+      outProps.ref = useMergedRefsN([outProps.ref, getChildRef(renderProp), ...ref]);
     } else {
-      outProps.ref = useForkRef(outProps.ref, getChildRef(renderProp), ref);
+      outProps.ref = useMergedRefs(outProps.ref, getChildRef(renderProp), ref);
     }
   }
 

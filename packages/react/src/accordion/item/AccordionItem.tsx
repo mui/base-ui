@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useForkRef } from '@base-ui-components/utils/useForkRef';
+import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useBaseUiId } from '../../utils/useBaseUiId';
@@ -34,7 +34,7 @@ export const AccordionItem = React.forwardRef(function AccordionItem(
   } = componentProps;
 
   const { ref: listItemRef, index } = useCompositeListItem();
-  const mergedRef = useForkRef(forwardedRef, listItemRef);
+  const mergedRef = useMergedRefs(forwardedRef, listItemRef);
 
   const {
     disabled: contextDisabled,

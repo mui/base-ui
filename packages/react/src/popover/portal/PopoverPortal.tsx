@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useSelector } from '@base-ui-components/utils/store';
+import { useStore } from '@base-ui-components/utils/store';
 import { FloatingPortal, FloatingPortalProps } from '../../floating-ui-react';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
 import { PopoverPortalContext } from './PopoverPortalContext';
@@ -16,7 +16,7 @@ export function PopoverPortal(props: PopoverPortal.Props) {
   const { children, keepMounted = false, container } = props;
 
   const { store } = usePopoverRootContext();
-  const mounted = useSelector(store, selectors.mounted);
+  const mounted = useStore(store, selectors.mounted);
 
   const shouldRender = mounted || keepMounted;
   if (!shouldRender) {

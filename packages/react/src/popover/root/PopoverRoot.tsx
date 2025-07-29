@@ -4,7 +4,7 @@ import * as ReactDOM from 'react-dom';
 import { useTimeout } from '@base-ui-components/utils/useTimeout';
 import { useControlled } from '@base-ui-components/utils/useControlled';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
-import { Store, useSelector } from '@base-ui-components/utils/store';
+import { Store, useStore } from '@base-ui-components/utils/store';
 import { useLazyRef } from '@base-ui-components/utils/useLazyRef';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import {
@@ -64,10 +64,10 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
     );
   }).current;
 
-  const positionerElement = useSelector(store, selectors.positionerElement);
-  const activeTriggerElement = useSelector(store, selectors.activeTriggerElement);
-  const payload = useSelector(store, selectors.payload) as Payload | undefined;
-  const openReason = useSelector(store, selectors.openReason);
+  const positionerElement = useStore(store, selectors.positionerElement);
+  const activeTriggerElement = useStore(store, selectors.activeTriggerElement);
+  const payload = useStore(store, selectors.payload) as Payload | undefined;
+  const openReason = useStore(store, selectors.openReason);
 
   const popupRef = React.useRef<HTMLElement>(null);
   const stickIfOpenTimeout = useTimeout();
@@ -120,7 +120,7 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
     }
   }, [stickIfOpenTimeout, open]);
 
-  const triggerElements = useSelector(store, selectors.triggers);
+  const triggerElements = useStore(store, selectors.triggers);
 
   const setOpen = useEventCallback(function setOpen(
     nextOpen: boolean,

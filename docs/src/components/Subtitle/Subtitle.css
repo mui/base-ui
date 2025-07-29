@@ -1,6 +1,11 @@
 .Subtitle {
   @apply text-lg;
-  text-wrap: balance;
+  text-wrap: pretty;
   color: var(--color-gray);
   margin-bottom: 1.25rem;
+  gap: 0.5rem;
+
+  @media (min-width: 768px) {
+    gap: 2rem;
+  }
 }

@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useSelector } from '@base-ui-components/utils/store';
+import { useStore } from '@base-ui-components/utils/store';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
@@ -55,11 +55,11 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
     );
   }
 
-  const floatingContext = useSelector(store, selectors.floatingRootContext);
-  const open = useSelector(store, selectors.open);
-  const openReason = useSelector(store, selectors.openReason);
-  const rootTriggerProps = useSelector(store, selectors.triggerProps);
-  const stickIfOpen = useSelector(store, selectors.stickIfOpen);
+  const floatingContext = useStore(store, selectors.floatingRootContext);
+  const open = useStore(store, selectors.open);
+  const openReason = useStore(store, selectors.openReason);
+  const rootTriggerProps = useStore(store, selectors.triggerProps);
+  const stickIfOpen = useStore(store, selectors.stickIfOpen);
 
   const [triggerElement, setTriggerElement] = React.useState<HTMLElement | null>(null);
   const { openMethod, triggerProps: interactionTypeTriggerProps } = useOpenInteractionType(open);
