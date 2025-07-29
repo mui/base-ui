@@ -33,7 +33,6 @@ import {
   useRole,
 } from '../index';
 import type { FloatingFocusManagerProps } from './FloatingFocusManager';
-import { Main as MenuVirtual } from '../../../test/floating-ui-tests/MenuVirtual';
 import { Main as Navigation } from '../../../test/floating-ui-tests/Navigation';
 
 beforeAll(() => {
@@ -1618,26 +1617,6 @@ describe.skipIf(!isJSDOM)('FloatingFocusManager', () => {
 
     expect(screen.getByText('outside')).not.toHaveAttribute('inert');
     expect(screen.getByText('outside')).toHaveAttribute('aria-hidden', 'true');
-  });
-
-  test('aria-hidden is not applied on root combobox with virtual nested menu', async () => {
-    render(<MenuVirtual />);
-
-    await userEvent.click(screen.getByRole('combobox'));
-    await flushMicrotasks();
-
-    await userEvent.keyboard('{ArrowDown}'); // undo
-    await userEvent.keyboard('{ArrowDown}'); // redo
-    await userEvent.keyboard('{ArrowDown}'); // copy as
-    await userEvent.keyboard('{ArrowRight}'); // submenu -> text
-
-    expect(screen.queryByRole('combobox')).not.toBe(null);
-
-    await userEvent.keyboard('{ArrowDown}'); // video
-    await userEvent.keyboard('{ArrowDown}'); // image
-    await userEvent.keyboard('{ArrowRight}'); // submenu -> .png
-
-    expect(screen.queryByRole('combobox')).not.toBe(null);
   });
 
   describe('getInsideElements', () => {

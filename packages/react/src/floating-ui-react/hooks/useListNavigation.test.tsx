@@ -12,7 +12,6 @@ import { Main as EmojiPicker } from '../../../test/floating-ui-tests/EmojiPicker
 import { Main as ListboxFocus } from '../../../test/floating-ui-tests/ListboxFocus';
 import { Main as NestedMenu } from '../../../test/floating-ui-tests/Menu';
 import { HorizontalMenu } from '../../../test/floating-ui-tests/MenuOrientation';
-import { Menu, MenuItem } from '../../../test/floating-ui-tests/MenuVirtual';
 
 /* eslint-disable testing-library/no-unnecessary-act */
 
