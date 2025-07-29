@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useForkRef } from '@base-ui-components/utils/useForkRef';
+import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
 import {
   flip,
   FloatingFocusManager,
@@ -70,7 +70,7 @@ export const NavigationItem = React.forwardRef<
     }),
   ]);
 
-  const mergedReferenceRef = useForkRef(ref, refs.setReference);
+  const mergedReferenceRef = useMergedRefs(ref, refs.setReference);
 
   return (
     <FloatingNode id={nodeId}>

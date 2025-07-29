@@ -1,9 +1,9 @@
 'use client';
 import * as React from 'react';
-import { useModernLayoutEffect } from '@base-ui-components/utils/useModernLayoutEffect';
+import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { useLatestRef } from '@base-ui-components/utils/useLatestRef';
 import { isMouseWithinBounds } from '@base-ui-components/utils/isMouseWithinBounds';
-import { useSelector } from '@base-ui-components/utils/store';
+import { useStore } from '@base-ui-components/utils/store';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import {
   useCompositeListItem,
@@ -57,17 +57,17 @@ export const SelectItem = React.memo(
       multiple,
     } = useSelectRootContext();
 
-    const highlighted = useSelector(store, selectors.isActive, listItem.index);
-    const selected = useSelector(store, selectors.isSelected, listItem.index, value);
-    const rootValue = useSelector(store, selectors.value);
-    const selectedByFocus = useSelector(store, selectors.isSelectedByFocus, listItem.index);
+    const highlighted = useStore(store, selectors.isActive, listItem.index);
+    const selected = useStore(store, selectors.isSelected, listItem.index, value);
+    const rootValue = useStore(store, selectors.value);
+    const selectedByFocus = useStore(store, selectors.isSelectedByFocus, listItem.index);
 
     const itemRef = React.useRef<HTMLDivElement | null>(null);
     const indexRef = useLatestRef(listItem.index);
 
     const hasRegistered = listItem.index !== -1;
 
-    useModernLayoutEffect(() => {
+    useIsoLayoutEffect(() => {
       if (!hasRegistered) {
         return undefined;
       }
@@ -80,7 +80,7 @@ export const SelectItem = React.memo(
       };
     }, [hasRegistered, listItem.index, value, valuesRef]);
 
-    useModernLayoutEffect(() => {
+    useIsoLayoutEffect(() => {
       if (hasRegistered) {
         if (multiple) {
           const isValueSelected = Array.isArray(rootValue) && rootValue.includes(value);

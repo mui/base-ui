@@ -3,9 +3,9 @@ import * as React from 'react';
 import { ownerDocument } from '@base-ui-components/utils/owner';
 import { useTimeout } from '@base-ui-components/utils/useTimeout';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
-import { useForkRef } from '@base-ui-components/utils/useForkRef';
+import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
 import { useLatestRef } from '@base-ui-components/utils/useLatestRef';
-import { useSelector } from '@base-ui-components/utils/store';
+import { useStore } from '@base-ui-components/utils/store';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
@@ -60,10 +60,10 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
 
   const disabled = fieldDisabled || selectDisabled || disabledProp;
 
-  const open = useSelector(store, selectors.open);
-  const value = useSelector(store, selectors.value);
-  const triggerProps = useSelector(store, selectors.triggerProps);
-  const positionerElement = useSelector(store, selectors.positionerElement);
+  const open = useStore(store, selectors.open);
+  const value = useStore(store, selectors.value);
+  const triggerProps = useStore(store, selectors.triggerProps);
+  const positionerElement = useStore(store, selectors.positionerElement);
 
   const positionerRef = useLatestRef(positionerElement);
 
@@ -82,7 +82,12 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
     store.set('triggerElement', element);
   });
 
-  const mergedRef = useForkRef<HTMLElement>(forwardedRef, triggerRef, buttonRef, setTriggerElement);
+  const mergedRef = useMergedRefs<HTMLElement>(
+    forwardedRef,
+    triggerRef,
+    buttonRef,
+    setTriggerElement,
+  );
 
   const timeout1 = useTimeout();
   const timeout2 = useTimeout();

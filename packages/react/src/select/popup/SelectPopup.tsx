@@ -4,9 +4,9 @@ import * as ReactDOM from 'react-dom';
 import { isWebKit } from '@base-ui-components/utils/detectBrowser';
 import { ownerDocument, ownerWindow } from '@base-ui-components/utils/owner';
 import { isMouseWithinBounds } from '@base-ui-components/utils/isMouseWithinBounds';
-import { useModernLayoutEffect } from '@base-ui-components/utils/useModernLayoutEffect';
+import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
-import { useSelector } from '@base-ui-components/utils/store';
+import { useStore } from '@base-ui-components/utils/store';
 import { FloatingFocusManager } from '../../floating-ui-react';
 import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import { useSelectRootContext } from '../root/SelectRootContext';
@@ -54,14 +54,14 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
   const { side, align, context, alignItemWithTriggerActive, setControlledAlignItemWithTrigger } =
     useSelectPositionerContext();
 
-  const open = useSelector(store, selectors.open);
-  const mounted = useSelector(store, selectors.mounted);
-  const popupProps = useSelector(store, selectors.popupProps);
-  const transitionStatus = useSelector(store, selectors.transitionStatus);
-  const triggerElement = useSelector(store, selectors.triggerElement);
-  const positionerElement = useSelector(store, selectors.positionerElement);
-  const scrollUpArrowVisible = useSelector(store, selectors.scrollUpArrowVisible);
-  const scrollDownArrowVisible = useSelector(store, selectors.scrollDownArrowVisible);
+  const open = useStore(store, selectors.open);
+  const mounted = useStore(store, selectors.mounted);
+  const popupProps = useStore(store, selectors.popupProps);
+  const transitionStatus = useStore(store, selectors.transitionStatus);
+  const triggerElement = useStore(store, selectors.triggerElement);
+  const positionerElement = useStore(store, selectors.positionerElement);
+  const scrollUpArrowVisible = useStore(store, selectors.scrollUpArrowVisible);
+  const scrollDownArrowVisible = useStore(store, selectors.scrollDownArrowVisible);
 
   useOpenChangeComplete({
     open,
@@ -107,7 +107,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
     }
   });
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     if (!positionerElement || Object.keys(originalPositionerStylesRef.current).length) {
       return;
     }
@@ -125,7 +125,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
     };
   }, [positionerElement]);
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     if (mounted || alignItemWithTriggerActive) {
       return;
     }
@@ -140,7 +140,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
     }
   }, [mounted, alignItemWithTriggerActive, positionerElement]);
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     const popupElement = popupRef.current;
 
     if (

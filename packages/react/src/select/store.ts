@@ -52,6 +52,7 @@ export const selectors = {
   activeIndex: createSelector((state: State) => state.activeIndex),
   selectedIndex: createSelector((state: State) => state.selectedIndex),
   isActive: createSelector((state: State, index: number) => state.activeIndex === index),
+
   isSelected: createSelector((state: State, index: number, value: any) => {
     if (state.multiple) {
       return Array.isArray(state.value) && state.value.includes(value);

@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { getParentNode, isHTMLElement, isLastTraversableNode } from '@floating-ui/utils/dom';
-import { useForkRef } from '@base-ui-components/utils/useForkRef';
+import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
 import { useTimeout } from '@base-ui-components/utils/useTimeout';
 import { ownerDocument } from '@base-ui-components/utils/owner';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
@@ -58,7 +58,7 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
     native: nativeButton,
   });
 
-  const handleRef = useForkRef(buttonRef, setTriggerElement);
+  const handleRef = useMergedRefs(buttonRef, setTriggerElement);
   const { events: menuEvents } = useFloatingTree()!;
 
   React.useEffect(() => {
@@ -110,9 +110,12 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
     }
   }, [open, handleDocumentMouseUp, lastOpenChangeReason]);
 
+  const isMenubar = parent.type === 'menubar';
+
   const getTriggerProps = React.useCallback(
     (externalProps?: HTMLProps): HTMLProps => {
       return mergeProps(
+        isMenubar ? { role: 'menuitem' } : {},
         {
           'aria-haspopup': 'menu' as const,
           ref: handleRef,
@@ -141,6 +144,7 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
       allowMouseUpTriggerRef,
       allowMouseUpTriggerTimeout,
       handleDocumentMouseUp,
+      isMenubar,
     ],
   );
 
@@ -151,8 +155,6 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
     }),
     [disabled, open],
   );
-
-  const isMenubar = parent.type === 'menubar';
 
   const ref = [triggerRef, forwardedRef, buttonRef];
   const props = [rootTriggerProps, elementProps, getTriggerProps];

@@ -52,10 +52,29 @@ type MergeParams<
   CTypes extends readonly unknown[],
 > = STypes['length'] extends 0 ? CTypes : MergeParams<DropFirst<STypes>, DropFirst<CTypes>>;
 
+/**
+ * Creates a selector function that can be used to derive values from the store's state.
+ * The selector can take up to three additional arguments that can be used in the selector logic.
+ * This function accepts up to six functions and combines them into a single selector function.
+ * The last parameter is the combiner function that combines the results of the previous selectors.
+ *
+ * @example
+ * const selector = createSelector(
+ *  (state) => state.disabled
+ * );
+ *
+ * @example
+ * const selector = createSelector(
+ *   (state) => state.disabled,
+ *   (state) => state.open,
+ *   (disabled, open) => ({ disabled, open })
+ * );
+ *
+ */
 /* eslint-disable id-denylist */
 export const createSelector = ((
   a: Function,
-  b: Function,
+  b?: Function,
   c?: Function,
   d?: Function,
   e?: Function,

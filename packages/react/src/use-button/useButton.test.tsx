@@ -2,7 +2,7 @@ import * as React from 'react';
 import { expect } from 'chai';
 import { spy } from 'sinon';
 import { act, fireEvent } from '@mui/internal-test-utils';
-import { useForkRef } from '@base-ui-components/utils/useForkRef';
+import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
 import { createRenderer, isJSDOM } from '#test-utils';
 import { useButton } from './useButton';
 
@@ -98,7 +98,7 @@ describe('useButton', () => {
       function TestButton() {
         const ref = React.useRef(null);
         const { getButtonProps, buttonRef } = useButton({ native: false });
-        useForkRef(ref, buttonRef);
+        useMergedRefs(ref, buttonRef);
 
         expect(getButtonProps().tabIndex).to.equal(0);
 

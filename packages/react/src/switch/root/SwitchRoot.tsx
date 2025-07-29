@@ -2,8 +2,8 @@
 import * as React from 'react';
 import { useControlled } from '@base-ui-components/utils/useControlled';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
-import { useForkRef } from '@base-ui-components/utils/useForkRef';
-import { useModernLayoutEffect } from '@base-ui-components/utils/useModernLayoutEffect';
+import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
+import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { visuallyHidden } from '@base-ui-components/utils/visuallyHidden';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useBaseUiId } from '../../utils/useBaseUiId';
@@ -71,13 +71,13 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
   const onCheckedChange = useEventCallback(onCheckedChangeProp);
 
   const inputRef = React.useRef<HTMLInputElement>(null);
-  const handleInputRef = useForkRef(inputRef, externalInputRef, inputValidationRef);
+  const handleInputRef = useMergedRefs(inputRef, externalInputRef, inputValidationRef);
 
   const switchRef = React.useRef<HTMLButtonElement | null>(null);
 
   const id = useBaseUiId(idProp);
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     const element = switchRef.current;
     if (!element) {
       return undefined;
@@ -110,7 +110,7 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
     getValue: () => checked,
   });
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     if (inputRef.current) {
       setFilled(inputRef.current.checked);
     }
