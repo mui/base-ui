@@ -59,6 +59,7 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
   const open = useSelector(store, selectors.open);
   const openReason = useSelector(store, selectors.openReason);
   const rootTriggerProps = useSelector(store, selectors.triggerProps);
+  const stickIfOpen = useSelector(store, selectors.stickIfOpen);
 
   const [triggerElement, setTriggerElement] = React.useState<HTMLElement | null>(null);
   const { openMethod, triggerProps: interactionTypeTriggerProps } = useOpenInteractionType(open);
@@ -82,7 +83,7 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
     triggerElement,
   });
 
-  const click = useClick(floatingContext, { enabled: floatingContext != null, stickIfOpen: false });
+  const click = useClick(floatingContext, { enabled: floatingContext != null, stickIfOpen });
 
   const localProps = useInteractions([click, hover]);
 
