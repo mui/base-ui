@@ -15,6 +15,8 @@ const popover1 = new Popover.Handle<number>();
 interface Settings {
   openOnHover: boolean;
   side: 'top' | 'bottom' | 'left' | 'right';
+  modal: boolean;
+  keepMounted: boolean;
 }
 
 const contents = [
@@ -51,10 +53,18 @@ export default function PopoverDetachedTrigger() {
     <div className={styles.Page}>
       <h1>Popovers</h1>
       <div className={styles.Container}>
-        <h2>Ordinary popover</h2>
+        <h2>Ordinary popovers</h2>
         <Popover.Root>
           <StyledTrigger />
           {renderPopoverContent(0, settings)}
+        </Popover.Root>
+        <Popover.Root>
+          <StyledTrigger />
+          {renderPopoverContent(1, settings)}
+        </Popover.Root>
+        <Popover.Root>
+          <StyledTrigger />
+          {renderPopoverContent(2, settings)}
         </Popover.Root>
       </div>
       <div className={styles.Container}>
@@ -111,7 +121,7 @@ function StyledPopover(props: StyledPopoverProps<number>) {
 
 function renderPopoverContent(contentIndex: number, settings: Settings) {
   return (
-    <Popover.Portal>
+    <Popover.Portal keepMounted={settings.keepMounted}>
       <Popover.Positioner sideOffset={8} className={styles.Positioner} side={settings.side}>
         <Popover.Popup className={styles.Popup}>
           <Popover.Arrow className={styles.Arrow}>
@@ -152,6 +162,16 @@ export const settingsMetadata: SettingsMetadata<Settings> = {
     label: 'Side',
     options: ['top', 'bottom', 'left', 'right'],
     default: 'bottom',
+  },
+  modal: {
+    type: 'boolean',
+    label: 'Modal',
+    default: false,
+  },
+  keepMounted: {
+    type: 'boolean',
+    label: 'Keep mounted',
+    default: false,
   },
 };
 

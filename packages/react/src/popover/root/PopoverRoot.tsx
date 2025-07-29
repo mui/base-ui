@@ -38,19 +38,28 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
     handle,
   } = props;
 
+  const [open, setOpenUnwrapped] = useControlled({
+    controlled: externalOpen,
+    default: defaultOpen,
+    name: 'Popover',
+    state: 'open',
+  });
+
+  const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
+
   const store = useRefWithInit(() => {
     return (
       handle?.store ||
       new Store<PopoverState>({
-        open: false,
-        modal: false,
-        mounted: false,
+        open,
+        modal,
+        mounted,
         activeTriggerElement: null,
         positionerElement: null,
         popupElement: null,
         triggers: new Map<HTMLElement, (() => unknown) | undefined>(),
         instantType: undefined,
-        transitionStatus: 'idle',
+        transitionStatus,
         openMethod: null,
         openReason: null,
         titleId: undefined,
@@ -72,14 +81,6 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
   const popupRef = React.useRef<HTMLElement>(null);
   const stickIfOpenTimeout = useTimeout();
 
-  const [open, setOpenUnwrapped] = useControlled({
-    controlled: externalOpen,
-    default: defaultOpen,
-    name: 'Popover',
-    state: 'open',
-  });
-
-  const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
   useIsoLayoutEffect(() => {
     store.apply({ open, mounted });
   }, [store, open, mounted]);
@@ -97,7 +98,7 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
 
   const handleUnmount = useEventCallback(() => {
     setMounted(false);
-    store.apply({ stickIfOpen: true, openReason: null });
+    store.apply({ stickIfOpen: true, openReason: null, mounted: false });
     onOpenChangeComplete?.(false);
   });
 
@@ -191,11 +192,12 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
 
   useIsoLayoutEffect(() => {
     store.apply({
+      modal,
       triggerProps: getReferenceProps(),
       popupProps: getFloatingProps(),
       floatingRootContext: floatingContext,
     });
-  }, [getReferenceProps, getFloatingProps, floatingContext, store]);
+  }, [modal, getReferenceProps, getFloatingProps, floatingContext, store]);
 
   const popoverContext: PopoverRootContext = React.useMemo(
     () => ({
