@@ -24,11 +24,10 @@ import {
   getNextTabbable,
   getPreviousTabbable,
 } from '../utils';
-
 import type { FloatingRootContext, OpenChangeReason } from '../types';
 import { createAttribute } from '../utils/createAttribute';
 import { enqueueFocus } from '../utils/enqueueFocus';
-import { markOthers, supportsInert } from '../utils/markOthers';
+import { markOthers } from '../utils/markOthers';
 import { usePortalContext } from './FloatingPortal';
 import { useFloatingTree } from './FloatingTree';
 
@@ -122,13 +121,7 @@ export interface FloatingFocusManagerProps {
    * specified by the `order`) or a ref.
    * @default 0
    */
-  initialFocus?: number | React.MutableRefObject<HTMLElement | null>;
-  /**
-   * Determines if the focus guards are rendered. If not, focus can escape into
-   * the address bar/console/browser UI, like in native dialogs.
-   * @default true
-   */
-  guards?: boolean;
+  initialFocus?: number | React.RefObject<HTMLElement | null>;
   /**
    * Determines if focus should be returned to the reference element once the
    * floating element closes/unmounts (or if that is not available, the
@@ -137,7 +130,7 @@ export interface FloatingFocusManagerProps {
    * It can be also set to a ref to explicitly control the element to return focus to.
    * @default true
    */
-  returnFocus?: boolean | React.MutableRefObject<HTMLElement | null>;
+  returnFocus?: boolean | React.RefObject<HTMLElement | null>;
   /**
    * Determines if focus should be restored to the nearest tabbable element if
    * focus inside the floating element is lost (such as due to the removal of
@@ -161,12 +154,6 @@ export interface FloatingFocusManagerProps {
    */
   closeOnFocusOut?: boolean;
   /**
-   * Determines whether outside elements are `inert` when `modal` is enabled.
-   * This enables pointer modality without a backdrop.
-   * @default false
-   */
-  outsideElementsInert?: boolean;
-  /**
    * Returns a list of elements that should be considered part of the
    * floating element.
    */
@@ -184,13 +171,11 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     children,
     disabled = false,
     order = ['content'],
-    guards: guardsProp = true,
     initialFocus = 0,
     returnFocus = true,
     restoreFocus = false,
     modal = true,
     closeOnFocusOut = true,
-    outsideElementsInert = false,
     getInsideElements: getInsideElementsProp = () => [],
   } = props;
   const {
@@ -211,11 +196,6 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
   // hidden dismiss button should only appear at the end of the list, not the
   // start.
   const isUntrappedTypeableCombobox = isTypeableCombobox(domReference) && ignoreInitialFocus;
-
-  // Force the guards to be rendered if the `inert` attribute is not supported.
-  const inertSupported = supportsInert();
-  const guards = inertSupported ? guardsProp : true;
-  const useInert = !guards || (inertSupported && outsideElementsInert);
 
   const orderRef = useLatestRef(order);
   const initialFocusRef = useLatestRef(initialFocus);
@@ -475,10 +455,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
       isUntrappedTypeableCombobox ? domReference : null,
     ].filter((x): x is Element => x != null);
 
-    const cleanup =
-      modal || isUntrappedTypeableCombobox
-        ? markOthers(insideElements, !useInert, useInert)
-        : markOthers(insideElements);
+    const cleanup = markOthers(insideElements, modal || isUntrappedTypeableCombobox);
 
     return () => {
       cleanup();
@@ -491,8 +468,6 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     orderRef,
     portalContext,
     isUntrappedTypeableCombobox,
-    guards,
-    useInert,
     tree,
     getNodeId,
     getInsideElements,
@@ -694,10 +669,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
   }, [disabled, floatingFocusElement, orderRef]);
 
   const shouldRenderGuards =
-    !disabled &&
-    guards &&
-    (modal ? !isUntrappedTypeableCombobox : true) &&
-    (isInsidePortal || modal);
+    !disabled && (modal ? !isUntrappedTypeableCombobox : true) && (isInsidePortal || modal);
 
   return (
     <React.Fragment>
