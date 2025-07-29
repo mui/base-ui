@@ -20,7 +20,8 @@
       "description": "A ref to imperative actions.\n- `unmount`: When specified, the popover will not be unmounted when closed.\nInstead, the `unmount` function must be called to unmount the popover manually.\nUseful when the popover's animation is controlled by an external library."
     },
     "handle": {
-      "type": "PopoverHandle<Payload>"
+      "type": "PopoverHandle<Payload>",
+      "description": "A handle to associate the popover with a trigger.\nIf specified, allows external triggers to control the popover's open state."
     },
     "modal": {
       "type": "boolean | 'trap-focus'",

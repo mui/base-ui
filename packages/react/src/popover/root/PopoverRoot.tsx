@@ -274,8 +274,12 @@ export namespace PopoverRoot {
      * @default false
      */
     modal?: boolean | 'trap-focus';
-    children?: React.ReactNode | ChildRenderFunction<Payload>;
+    /**
+     * A handle to associate the popover with a trigger.
+     * If specified, allows external triggers to control the popover's open state.
+     */
     handle?: PopoverHandle<Payload>;
+    children?: React.ReactNode | ChildRenderFunction<Payload>;
   }
 
   export interface Actions {
