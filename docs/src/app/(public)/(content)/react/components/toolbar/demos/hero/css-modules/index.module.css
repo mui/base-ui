@@ -140,6 +140,7 @@
   outline: 0;
   -webkit-user-select: none;
   user-select: none;
+  z-index: 1;
 }
 
 .Popup {
