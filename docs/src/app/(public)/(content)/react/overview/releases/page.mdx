@@ -67,7 +67,7 @@
 ### Navigation Menu
 
 - **Breaking change:** Support inlined nesting.
-  The popup collapses in size when animating out on a `<500px` wide viewport.
+  Ensure the `width` is set unconditionally (without the media query) on the `.Popup` class.
   ([#2269](https://github.com/mui/base-ui/pull/2269))
 - Avoid double `useRenderElement` passes ([#2256](https://github.com/mui/base-ui/pull/2256))
 - Add `useButton` integration to `Trigger` ([#2296](https://github.com/mui/base-ui/pull/2296))

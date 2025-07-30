@@ -64,7 +64,7 @@ _Jul 30, 2025_
 ### Navigation Menu
 
 - **Breaking change:** Support inlined nesting.
-  The popup collapses in size when animating out on a `<500px` wide viewport.
+  Ensure the `width` is set unconditionally (without the media query) on the `.Popup` class.
   (#2269) by @atomiks
 - Avoid double `useRenderElement` passes (#2256) by @atomiks
 - Add `useButton` integration to `Trigger` (#2296) by @atomiks
