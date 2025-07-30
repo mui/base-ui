@@ -4,20 +4,24 @@
   "props": {
     "limit": {
       "type": "number",
+      "expanded": "number | undefined",
       "default": "3",
       "description": "The maximum number of toasts that can be displayed at once.\nWhen the limit is reached, the oldest toast will be removed to make room for the new one."
     },
     "toastManager": {
       "type": "createToastManager.ToastManager",
+      "expanded": "{  subscribe: ((listener: ((data: ToastManagerEvent) => void)) => (() => void)), add: ((options: useToastManager.AddOptions<{}>) => string), close: ((id: string) => void), update: ((id: string, updates: useToastManager.UpdateOptions<{}>) => void), promise: ((promiseValue: Promise<Value>, options: useToastManager.PromiseOptions<Value, {}>) => Promise<Value>) } | undefined",
       "description": "A global manager for toasts to use outside of a React component."
     },
     "timeout": {
       "type": "number",
+      "expanded": "number | undefined",
       "default": "5000",
       "description": "The default amount of time (in ms) before a toast is auto dismissed.\nA value of `0` will prevent the toast from being dismissed automatically."
     },
     "children": {
-      "type": "ReactNode"
+      "type": "ReactNode",
+      "expanded": "React.ReactNode"
     }
   },
   "dataAttributes": {},

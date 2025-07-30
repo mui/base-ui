@@ -4,14 +4,17 @@
   "props": {
     "getAriaLabel": {
       "type": "((index: number) => string) | null",
+      "expanded": "((index: number) => string) | null | undefined",
       "description": "Accepts a function which returns a string value that provides a user-friendly name for the input associated with the thumb"
     },
     "getAriaValueText": {
       "type": "((formattedValue: string, value: number, index: number) => string) | null",
+      "expanded": "((formattedValue: string, value: number, index: number) => string) | null | undefined",
       "description": "Accepts a function which returns a string value that provides a user-friendly name for the current value of the slider.\nThis is important for screen reader users."
     },
     "disabled": {
       "type": "boolean",
+      "expanded": "boolean | undefined",
       "default": "false",
       "description": "Whether the thumb should ignore user interaction."
     },

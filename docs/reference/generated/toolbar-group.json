@@ -4,6 +4,7 @@
   "props": {
     "disabled": {
       "type": "boolean",
+      "expanded": "boolean | undefined",
       "default": "false",
       "description": "When `true` all toolbar items in the group are disabled."
     },

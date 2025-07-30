@@ -73,6 +73,11 @@ export async function PropsReferenceAccordion({ data, name: partName, ...props }
           useMDXComponents: () => ({ code: TableCode }),
         });
 
+        const PropExpandedType = await createMdxComponent(`\`${prop.expanded ?? prop.type}\``, {
+          rehypePlugins: rehypeSyntaxHighlighting,
+          useMDXComponents: () => ({ code: TableCode }),
+        });
+
         const { type: shortPropTypeName, detailedType } = getShortPropType(name, prop.type);
 
         const ShortPropType = await createMdxComponent(`\`${shortPropTypeName}\``, {
@@ -181,7 +186,7 @@ export async function PropsReferenceAccordion({ data, name: partName, ...props }
                       <DescriptionList.Term>Type</DescriptionList.Term>
                     </DescriptionList.Separator>
                     <DescriptionList.Details>
-                      <PropType />
+                      <PropExpandedType />
                     </DescriptionList.Details>
                   </DescriptionList.Item>
 

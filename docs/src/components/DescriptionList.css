@@ -75,5 +75,9 @@
       min-height: 2.5rem;
       padding: 0.625rem 0.75rem;
     }
+
+    .CodeBlockRoot {
+      margin: 0;
+    }
   }
 }

@@ -4,6 +4,7 @@
   "props": {
     "value": {
       "type": "any",
+      "expanded": "any",
       "description": "A unique value that identifies this navigation menu item.\nIf no value is provided, a unique ID will be generated automatically.\nUse when controlling the navigation menu programmatically."
     },
     "className": {

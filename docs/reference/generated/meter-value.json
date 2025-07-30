@@ -3,7 +3,8 @@
   "description": "A text element displaying the current value.\nRenders a `<span>` element.",
   "props": {
     "children": {
-      "type": "((formattedValue: string, value: number) => ReactNode) | null"
+      "type": "((formattedValue: string, value: number) => ReactNode) | null",
+      "expanded": "((formattedValue: string, value: number) => ReactNode) | null | undefined"
     },
     "className": {
       "type": "string | ((state: Meter.Root.State) => string)",

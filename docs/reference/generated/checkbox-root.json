@@ -4,63 +4,76 @@
   "props": {
     "name": {
       "type": "string",
+      "expanded": "string | undefined",
       "default": "undefined",
       "description": "Identifies the field when a form is submitted."
     },
     "defaultChecked": {
       "type": "boolean",
+      "expanded": "boolean | undefined",
       "default": "false",
       "description": "Whether the checkbox is initially ticked.\n\nTo render a controlled checkbox, use the `checked` prop instead."
     },
     "checked": {
       "type": "boolean",
+      "expanded": "boolean | undefined",
       "default": "undefined",
       "description": "Whether the checkbox is currently ticked.\n\nTo render an uncontrolled checkbox, use the `defaultChecked` prop instead."
     },
     "onCheckedChange": {
       "type": "((checked: boolean, event: Event) => void)",
+      "expanded": "((checked: boolean, event: Event) => void) | undefined",
       "description": "Event handler called when the checkbox is ticked or unticked."
     },
     "indeterminate": {
       "type": "boolean",
+      "expanded": "boolean | undefined",
       "default": "false",
       "description": "Whether the checkbox is in a mixed state: neither ticked, nor unticked."
     },
     "value": {
       "type": "string",
+      "expanded": "string | undefined",
       "description": "The value of the selected checkbox."
     },
     "nativeButton": {
       "type": "boolean",
+      "expanded": "boolean | undefined",
       "default": "true",
       "description": "Whether the component renders a native `<button>` element when replacing it\nvia the `render` prop.\nSet to `false` if the rendered element is not a button (e.g. `<div>`)."
     },
     "parent": {
       "type": "boolean",
+      "expanded": "boolean | undefined",
       "default": "false",
       "description": "Whether the checkbox controls a group of child checkboxes.\n\nMust be used in a [Checkbox Group](https://base-ui.com/react/components/checkbox-group)."
     },
     "disabled": {
       "type": "boolean",
+      "expanded": "boolean | undefined",
       "default": "false",
       "description": "Whether the component should ignore user interaction."
     },
     "readOnly": {
       "type": "boolean",
+      "expanded": "boolean | undefined",
       "default": "false",
       "description": "Whether the user should be unable to tick or untick the checkbox."
     },
     "required": {
       "type": "boolean",
+      "expanded": "boolean | undefined",
       "default": "false",
       "description": "Whether the user must tick the checkbox before submitting a form."
     },
     "inputRef": {
       "type": "Ref<HTMLInputElement>",
+      "expanded": "React.Ref<HTMLInputElement> | undefined",
       "description": "A ref to access the hidden `<input>` element."
     },
     "id": {
       "type": "string",
+      "expanded": "string | undefined",
       "description": "The id of the input element."
     },
     "className": {

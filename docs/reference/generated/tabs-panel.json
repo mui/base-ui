@@ -4,6 +4,7 @@
   "props": {
     "value": {
       "type": "Tabs.Tab.Value",
+      "expanded": "Tabs.Tab.Value",
       "description": "The value of the TabPanel. It will be shown when the Tab with the corresponding value is selected.\nIf not provided, it will fall back to the index of the panel.\nIt is recommended to explicitly provide it, as it's required for the tab panel to be rendered on the server."
     },
     "className": {
@@ -12,6 +13,7 @@
     },
     "keepMounted": {
       "type": "boolean",
+      "expanded": "boolean | undefined",
       "default": "false",
       "description": "Whether to keep the HTML element in the DOM while the panel is hidden."
     },

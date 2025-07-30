@@ -3,10 +3,12 @@
   "description": "A container for the select items.\nRenders a `<div>` element.",
   "props": {
     "id": {
-      "type": "string"
+      "type": "string",
+      "expanded": "string | undefined"
     },
     "children": {
-      "type": "ReactNode"
+      "type": "ReactNode",
+      "expanded": "React.ReactNode"
     },
     "className": {
       "type": "string | ((state: Select.Popup.State) => string)",

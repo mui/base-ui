@@ -4,13 +4,16 @@
   "props": {
     "finalFocus": {
       "type": "RefObject<HTMLElement | null>",
+      "expanded": "React.RefObject<HTMLElement | null> | undefined",
       "description": "Determines the element to focus when the menu is closed.\nBy default, focus returns to the trigger."
     },
     "id": {
-      "type": "string"
+      "type": "string",
+      "expanded": "string | undefined"
     },
     "children": {
-      "type": "ReactNode"
+      "type": "ReactNode",
+      "expanded": "React.ReactNode"
     },
     "className": {
       "type": "string | ((state: Menu.Popup.State) => string)",

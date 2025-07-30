@@ -3,14 +3,17 @@
   "description": "Groups an accordion header with the corresponding panel.\nRenders a `<div>` element.",
   "props": {
     "value": {
-      "type": "AccordionItemValue"
+      "type": "AccordionItemValue",
+      "expanded": "AccordionItemValue"
     },
     "onOpenChange": {
       "type": "((open: boolean) => void)",
+      "expanded": "((open: boolean) => void) | undefined",
       "description": "Event handler called when the panel is opened or closed."
     },
     "disabled": {
       "type": "boolean",
+      "expanded": "boolean | undefined",
       "default": "false",
       "description": "Whether the component should ignore user interaction."
     },

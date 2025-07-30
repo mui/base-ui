@@ -4,19 +4,23 @@
   "props": {
     "defaultOpen": {
       "type": "boolean",
+      "expanded": "boolean | undefined",
       "default": "false",
       "description": "Whether the collapsible panel is initially open.\n\nTo render a controlled collapsible, use the `open` prop instead."
     },
     "open": {
       "type": "boolean",
+      "expanded": "boolean | undefined",
       "description": "Whether the collapsible panel is currently open.\n\nTo render an uncontrolled collapsible, use the `defaultOpen` prop instead."
     },
     "onOpenChange": {
       "type": "((open: boolean) => void)",
+      "expanded": "((open: boolean) => void) | undefined",
       "description": "Event handler called when the panel is opened or closed."
     },
     "disabled": {
       "type": "boolean",
+      "expanded": "boolean | undefined",
       "default": "false",
       "description": "Whether the component should ignore user interaction."
     },

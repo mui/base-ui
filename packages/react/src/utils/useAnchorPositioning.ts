@@ -495,6 +495,18 @@ export namespace useAnchorPositioning {
      * - `data.positioner`: the dimensions of the positioner element with properties `width` and `height`.
      * - `data.side`: which side of the anchor element the positioner is aligned against.
      * - `data.align`: how the positioner is aligned relative to the specified side.
+     *
+     * @example
+     * ```jsx
+     * <Positioner
+     *   sideOffset={({ side, align, anchor, positioner }) => {
+     *     return side === 'top' || side === 'bottom'
+     *       ? anchor.height
+     *       : anchor.width;
+     *   }}
+     * />
+     * ```
+     *
      * @default 0
      */
     sideOffset?: number | OffsetFunction;
@@ -545,6 +557,18 @@ export namespace useAnchorPositioning {
     trackAnchor?: boolean;
     /**
      * Determines how to handle collisions when positioning the popup.
+     *
+     * @example
+     * ```jsx
+     * <Positioner
+     *   collisionAvoidance={{
+     *     side: 'shift',
+     *     align: 'shift',
+     *     fallbackAxisSide: 'none',
+     *   }}
+     * />
+     * ```
+     *
      */
     collisionAvoidance?: CollisionAvoidance;
   }

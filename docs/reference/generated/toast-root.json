@@ -4,11 +4,13 @@
   "props": {
     "swipeDirection": {
       "type": "'right' | 'left' | 'up' | 'down' | ('right' | 'left' | 'up' | 'down')[]",
+      "expanded": "'right' | 'left' | 'up' | 'down' | ('right' | 'left' | 'up' | 'down')[] | undefined",
       "default": "['down', 'right']",
       "description": "Direction(s) in which the toast can be swiped to dismiss."
     },
     "toast": {
       "type": "Toast.Root.ToastObject<any>",
+      "expanded": "{ id: string, ref: RefObject<HTMLElement | null>, title: string, type: string, description: string, timeout: number, priority: 'high' | 'low', transitionStatus: 'starting' | 'ending', limited: boolean, height: number, onClose: (() => void), onRemove: (() => void), actionProps: Omit<DetailedHTMLProps<ButtonHTMLAttributes<HTMLButtonElement>, HTMLButtonElement>, 'ref'>, data: any }",
       "required": true,
       "description": "The toast to render."
     },

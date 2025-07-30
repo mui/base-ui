@@ -4,33 +4,40 @@
   "props": {
     "defaultValue": {
       "type": "any[]",
+      "expanded": "any[] | undefined",
       "description": "The open state of the toggle group represented by an array of\nthe values of all pressed toggle buttons.\nThis is the uncontrolled counterpart of `value`."
     },
     "value": {
       "type": "any[]",
+      "expanded": "any[] | undefined",
       "description": "The open state of the toggle group represented by an array of\nthe values of all pressed toggle buttons.\nThis is the controlled counterpart of `defaultValue`."
     },
     "onValueChange": {
       "type": "((groupValue: any[], event: Event) => void)",
+      "expanded": "((groupValue: any[], event: Event) => void) | undefined",
       "description": "Callback fired when the pressed states of the toggle group changes."
     },
     "toggleMultiple": {
       "type": "boolean",
+      "expanded": "boolean | undefined",
       "default": "false",
       "description": "When `false` only one item in the group can be pressed. If any item in\nthe group becomes pressed, the others will become unpressed.\nWhen `true` multiple items can be pressed."
     },
     "disabled": {
       "type": "boolean",
+      "expanded": "boolean | undefined",
       "default": "false",
       "description": "Whether the toggle group should ignore user interaction."
     },
     "loop": {
       "type": "boolean",
+      "expanded": "boolean | undefined",
       "default": "true",
       "description": "Whether to loop keyboard focus back to the first item\nwhen the end of the list is reached while using the arrow keys."
     },
     "orientation": {
       "type": "Orientation",
+      "expanded": "'horizontal' | 'vertical' | undefined",
       "default": "'horizontal'"
     },
     "className": {

@@ -4,82 +4,100 @@
   "props": {
     "name": {
       "type": "string",
+      "expanded": "string | undefined",
       "description": "Identifies the field when a form is submitted."
     },
     "defaultValue": {
       "type": "number",
+      "expanded": "number | undefined",
       "description": "The uncontrolled value of the field when it’s initially rendered.\n\nTo render a controlled number field, use the `value` prop instead."
     },
     "value": {
       "type": "number | null",
+      "expanded": "number | null | undefined",
       "description": "The raw numeric value of the field."
     },
     "onValueChange": {
       "type": "((value: number | null, event: Event | undefined) => void)",
+      "expanded": "((value: number | null, event: Event | undefined) => void) | undefined",
       "description": "Callback fired when the number value changes."
     },
     "locale": {
       "type": "Intl.LocalesArgument",
+      "expanded": "Intl.LocalesArgument",
       "description": "The locale of the input element.\nDefaults to the user's runtime locale."
     },
     "snapOnStep": {
       "type": "boolean",
+      "expanded": "boolean | undefined",
       "default": "false",
       "description": "Whether the value should snap to the nearest step when incrementing or decrementing."
     },
     "step": {
       "type": "number",
+      "expanded": "number | undefined",
       "default": "1",
       "description": "Amount to increment and decrement with the buttons and arrow keys,\nor to scrub with pointer movement in the scrub area."
     },
     "smallStep": {
       "type": "number",
+      "expanded": "number | undefined",
       "default": "0.1",
       "description": "The small step value of the input element when incrementing while the meta key is held. Snaps\nto multiples of this value."
     },
     "largeStep": {
       "type": "number",
+      "expanded": "number | undefined",
       "default": "10",
       "description": "The large step value of the input element when incrementing while the shift key is held. Snaps\nto multiples of this value."
     },
     "min": {
       "type": "number",
+      "expanded": "number | undefined",
       "description": "The minimum value of the input element."
     },
     "max": {
       "type": "number",
+      "expanded": "number | undefined",
       "description": "The maximum value of the input element."
     },
     "allowWheelScrub": {
       "type": "boolean",
+      "expanded": "boolean | undefined",
       "default": "false",
       "description": "Whether to allow the user to scrub the input value with the mouse wheel while focused and\nhovering over the input."
     },
     "format": {
       "type": "Intl.NumberFormatOptions",
+      "expanded": "Intl.NumberFormatOptions | undefined",
       "description": "Options to format the input value."
     },
     "disabled": {
       "type": "boolean",
+      "expanded": "boolean | undefined",
       "default": "false",
       "description": "Whether the component should ignore user interaction."
     },
     "readOnly": {
       "type": "boolean",
+      "expanded": "boolean | undefined",
       "default": "false",
       "description": "Whether the user should be unable to change the field value."
     },
     "required": {
       "type": "boolean",
+      "expanded": "boolean | undefined",
       "default": "false",
       "description": "Whether the user must enter a value before submitting a form."
     },
     "inputRef": {
       "type": "Ref<HTMLInputElement>",
+      "expanded": "React.Ref<HTMLInputElement> | undefined",
       "description": "A ref to access the hidden input element."
     },
     "id": {
       "type": "string",
+      "expanded": "string | undefined",
       "description": "The id of the input element."
     },
     "className": {
