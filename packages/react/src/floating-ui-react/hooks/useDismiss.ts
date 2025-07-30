@@ -8,7 +8,7 @@ import {
   isLastTraversableNode,
   isWebKit,
 } from '@floating-ui/utils/dom';
-import { useTimeout, Timeout } from '@base-ui-components/utils/useTimeout';
+import { Timeout } from '@base-ui-components/utils/useTimeout';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import {
   contains,
@@ -148,7 +148,6 @@ export function useDismiss(
   const { escapeKey: escapeKeyCapture, outsidePress: outsidePressCapture } = normalizeProp(capture);
 
   const isComposingRef = React.useRef(false);
-  const blurTimeout = useTimeout();
 
   const closeOnEscapeKeyDown = useEventCallback(
     (event: React.KeyboardEvent<Element> | KeyboardEvent) => {
@@ -483,17 +482,8 @@ export function useDismiss(
       [captureHandlerKeys[outsidePressEvent]]: () => {
         dataRef.current.insideReactTree = true;
       },
-      onBlurCapture() {
-        if (tree) {
-          return;
-        }
-        dataRef.current.insideReactTree = true;
-        blurTimeout.start(0, () => {
-          dataRef.current.insideReactTree = false;
-        });
-      },
     }),
-    [closeOnEscapeKeyDown, outsidePressEvent, dataRef, tree, blurTimeout],
+    [closeOnEscapeKeyDown, outsidePressEvent, dataRef],
   );
 
   return React.useMemo(

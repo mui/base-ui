@@ -6,6 +6,7 @@ import { useLatestRef } from '@base-ui-components/utils/useLatestRef';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { visuallyHidden } from '@base-ui-components/utils/visuallyHidden';
+import { useTimeout } from '@base-ui-components/utils/useTimeout';
 import { FocusGuard } from '../../utils/FocusGuard';
 import {
   activeElement,
@@ -210,6 +211,8 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
   const isPointerDownRef = React.useRef(false);
   const tabbableIndexRef = React.useRef(-1);
 
+  const blurTimeout = useTimeout();
+
   const isInsidePortal = portalContext != null;
   const floatingFocusElement = getFloatingFocusElement(floating);
 
@@ -387,15 +390,32 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
       });
     }
 
+    const shouldHandleBlurCapture = Boolean(!tree && portalContext);
+
+    function markInsideReactTree() {
+      dataRef.current.insideReactTree = true;
+      blurTimeout.start(0, () => {
+        dataRef.current.insideReactTree = false;
+      });
+    }
+
     if (floating && isHTMLElement(domReference)) {
       domReference.addEventListener('focusout', handleFocusOutside);
       domReference.addEventListener('pointerdown', handlePointerDown);
       floating.addEventListener('focusout', handleFocusOutside);
 
+      if (shouldHandleBlurCapture) {
+        floating.addEventListener('focusout', markInsideReactTree, true);
+      }
+
       return () => {
         domReference.removeEventListener('focusout', handleFocusOutside);
         domReference.removeEventListener('pointerdown', handlePointerDown);
         floating.removeEventListener('focusout', handleFocusOutside);
+
+        if (shouldHandleBlurCapture) {
+          floating.removeEventListener('focusout', markInsideReactTree, true);
+        }
       };
     }
     return undefined;
@@ -415,6 +435,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     getNodeId,
     orderRef,
     dataRef,
+    blurTimeout,
   ]);
 
   const beforeGuardRef = React.useRef<HTMLSpanElement | null>(null);
