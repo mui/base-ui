@@ -46,7 +46,7 @@ import { CompositeItem } from '../../composite/item/CompositeItem';
 import { useButton } from '../../use-button';
 import { getCssDimensions } from '../../utils/getCssDimensions';
 
-const TRIGGER_IDENTIFIER = 'data-navigation-menu-trigger';
+const TRIGGER_IDENTIFIER = 'data-base-ui-navigation-menu-trigger';
 const DEFAULT_SIZE = { width: 0, height: 0 };
 const DEFAULT_ABORT_CONTROLLER = new AbortController();
 
