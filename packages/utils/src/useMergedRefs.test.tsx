@@ -2,10 +2,10 @@ import * as React from 'react';
 import { expect } from 'chai';
 import { createRenderer, MuiRenderResult, screen } from '@mui/internal-test-utils';
 import { spy } from 'sinon';
-import { useForkRef } from './useForkRef';
+import { useMergedRefs } from './useMergedRefs';
 import { getReactElementRef } from './getReactElementRef';
 
-describe('useForkRef', () => {
+describe('useMergedRefs', () => {
   const { render } = createRenderer();
 
   it('returns a single ref-setter function that forks the ref to its inputs', () => {
@@ -17,7 +17,7 @@ describe('useForkRef', () => {
       const { innerRef } = props;
       const [ownRefCurrent, ownRef] = React.useState<HTMLDivElement | null>(null);
 
-      const handleRef = useForkRef(innerRef, ownRef);
+      const handleRef = useMergedRefs(innerRef, ownRef);
 
       return <div ref={handleRef}>{ownRefCurrent ? 'has a ref' : 'has no ref'}</div>;
     }
@@ -34,7 +34,7 @@ describe('useForkRef', () => {
     const Component = React.forwardRef(function Component(props, ref) {
       const [hasRef, setHasRef] = React.useState(false);
       const handleOwnRef = React.useCallback(() => setHasRef(true), []);
-      const handleRef = useForkRef(handleOwnRef, ref);
+      const handleRef = useMergedRefs(handleOwnRef, ref);
 
       return (
         <div ref={handleRef} data-testid="hasRef">
@@ -57,7 +57,7 @@ describe('useForkRef', () => {
 
     const Outer = React.forwardRef<HTMLDivElement, TestComponentProps>(function Outer(props, ref) {
       const { children } = props;
-      const handleRef = useForkRef(getReactElementRef(children), ref);
+      const handleRef = useMergedRefs(getReactElementRef(children), ref);
 
       return React.cloneElement(children, { ref: handleRef });
     });
@@ -84,7 +84,7 @@ describe('useForkRef', () => {
 
     function Div(props: TestComponentProps) {
       const { leftRef, rightRef, ...other } = props;
-      const handleRef = useForkRef(leftRef, rightRef);
+      const handleRef = useMergedRefs(leftRef, rightRef);
 
       return <div {...other} ref={handleRef} />;
     }
@@ -149,7 +149,7 @@ describe('useForkRef', () => {
     }
 
     function App() {
-      const ref = useForkRef(onRefChangeWithCleanup, onRefChangeWithoutCleanup);
+      const ref = useMergedRefs(onRefChangeWithCleanup, onRefChangeWithoutCleanup);
       return <div id="test" ref={ref} />;
     }
 

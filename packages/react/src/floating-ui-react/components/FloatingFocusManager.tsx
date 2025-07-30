@@ -1,10 +1,10 @@
 import * as React from 'react';
 import { tabbable, isTabbable, focusable, type FocusableElement } from 'tabbable';
 import { getNodeName, isHTMLElement } from '@floating-ui/utils/dom';
-import { useForkRef } from '@base-ui-components/utils/useForkRef';
+import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
 import { useLatestRef } from '@base-ui-components/utils/useLatestRef';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
-import { useModernLayoutEffect } from '@base-ui-components/utils/useModernLayoutEffect';
+import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { visuallyHidden } from '@base-ui-components/utils/visuallyHidden';
 import { FocusGuard } from '../../utils/FocusGuard';
 import {
@@ -31,6 +31,7 @@ import { enqueueFocus } from '../utils/enqueueFocus';
 import { markOthers, supportsInert } from '../utils/markOthers';
 import { usePortalContext } from './FloatingPortal';
 import { useFloatingTree } from './FloatingTree';
+import { CLICK_TRIGGER_IDENTIFIER } from '../../utils/constants';
 
 const LIST_LIMIT = 20;
 let previouslyFocusedElements: Element[] = [];
@@ -367,9 +368,6 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     // In Safari, buttons lose focus when pressing them.
     function handlePointerDown() {
       isPointerDownRef.current = true;
-      setTimeout(() => {
-        isPointerDownRef.current = false;
-      });
     }
 
     function handleFocusOutside(event: FocusEvent) {
@@ -438,13 +436,17 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
           return;
         }
 
+        if (isPointerDownRef.current) {
+          isPointerDownRef.current = false;
+          return;
+        }
+
         // Focus did not move inside the floating tree, and there are no tabbable
         // portal guards to handle closing.
         if (
           (isUntrappedTypeableCombobox ? true : !modal) &&
           relatedTarget &&
           movedToUnrelatedNode &&
-          !isPointerDownRef.current &&
           // Fix React 18 Strict Mode returnFocus due to double rendering.
           relatedTarget !== getPreviouslyFocusedElement()
         ) {
@@ -487,8 +489,8 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
   const beforeGuardRef = React.useRef<HTMLSpanElement | null>(null);
   const afterGuardRef = React.useRef<HTMLSpanElement | null>(null);
 
-  const mergedBeforeGuardRef = useForkRef(beforeGuardRef, portalContext?.beforeInsideRef);
-  const mergedAfterGuardRef = useForkRef(afterGuardRef, portalContext?.afterInsideRef);
+  const mergedBeforeGuardRef = useMergedRefs(beforeGuardRef, portalContext?.beforeInsideRef);
+  const mergedAfterGuardRef = useMergedRefs(afterGuardRef, portalContext?.afterInsideRef);
 
   React.useEffect(() => {
     if (disabled) {
@@ -504,8 +506,6 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     );
 
     const ancestors = tree ? getNodeAncestors(tree.nodesRef.current, getNodeId()) : [];
-    const ancestorFloatingNodes =
-      tree && !modal ? ancestors.map((node) => node.context?.elements.floating) : [];
     const rootAncestorComboboxDomReference = ancestors.find((node) =>
       isTypeableCombobox(node.context?.elements.domReference || null),
     )?.context?.elements.domReference;
@@ -514,7 +514,6 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
       floating,
       rootAncestorComboboxDomReference,
       ...portalNodes,
-      ...ancestorFloatingNodes,
       ...getInsideElements(),
       startDismissButtonRef.current,
       endDismissButtonRef.current,
@@ -548,7 +547,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     getInsideElements,
   ]);
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     if (disabled || !isHTMLElement(floatingFocusElement)) {
       return;
     }
@@ -581,7 +580,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     initialFocusRef,
   ]);
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     if (disabled || !floatingFocusElement) {
       return undefined;
     }
@@ -710,9 +709,28 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     });
   }, [disabled]);
 
+  React.useEffect(() => {
+    if (disabled || !open) {
+      return undefined;
+    }
+
+    function handlePointerDown(event: MouseEvent) {
+      const target = getTarget(event) as Element | null;
+      if (target?.closest(`[${CLICK_TRIGGER_IDENTIFIER}]`)) {
+        isPointerDownRef.current = true;
+      }
+    }
+
+    const doc = getDocument(floatingFocusElement);
+    doc.addEventListener('pointerdown', handlePointerDown, true);
+    return () => {
+      doc.removeEventListener('pointerdown', handlePointerDown, true);
+    };
+  }, [disabled, open, floatingFocusElement]);
+
   // Synchronize the `context` & `modal` value to the FloatingPortal context.
   // It will decide whether or not it needs to render its own guards.
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     if (disabled) {
       return undefined;
     }
@@ -733,7 +751,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     };
   }, [disabled, portalContext, modal, open, onOpenChange, closeOnFocusOut, domReference]);
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     if (disabled) {
       return;
     }

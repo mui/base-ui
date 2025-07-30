@@ -2,6 +2,11 @@
   "name": "NumberFieldInput",
   "description": "The native input control in the number field.\nRenders an `<input>` element.",
   "props": {
+    "aria-roledescription": {
+      "type": "string",
+      "default": "'Number field'",
+      "description": "A string value that provides a user-friendly name for the role of the input."
+    },
     "className": {
       "type": "string | ((state: NumberField.Input.State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."

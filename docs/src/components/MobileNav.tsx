@@ -106,7 +106,12 @@ function PopupImpl(props: React.PropsWithChildren) {
       >
         <div className="MobileNavViewportInner">
           {/* We need the area behind the panel to close on tap but also to scroll the viewport. */}
-          <Dialog.Close className="MobileNavBackdropTapArea" tabIndex={-1} render={<div />} />
+          <Dialog.Close
+            className="MobileNavBackdropTapArea"
+            tabIndex={-1}
+            nativeButton={false}
+            render={<div />}
+          />
 
           <nav className="MobileNavPanel">
             {/* Reverse order to place the close button at the end of the DOM, but at sticky top visually */}

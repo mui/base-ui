@@ -59,6 +59,7 @@ function SelectDemo({ modal }: Props) {
         <Select.Trigger
           aria-label="Select font"
           render={<Tooltip.Trigger render={<Trigger />} />}
+          nativeButton
         >
           <Select.Value />
           <SelectDropdownArrow />
@@ -71,11 +72,7 @@ function SelectDemo({ modal }: Props) {
       </Tooltip.Root>
 
       <Select.Portal>
-        <Select.Positioner
-          sideOffset={5}
-          render={<Positioner />}
-          alignItemWithTrigger={false}
-        >
+        <Select.Positioner sideOffset={5} render={<Positioner />} alignItemWithTrigger={false}>
           <SelectPopup>
             <SelectItem value="system">
               <SelectItemIndicator render={<CheckIcon />} />
@@ -107,48 +104,27 @@ function MenuDemo({ modal }: Props) {
     <Menu.Root modal={modal}>
       <Menu.Trigger render={<Trigger />}>Format</Menu.Trigger>
       <Menu.Portal>
-        <Menu.Positioner
-          side="bottom"
-          align="start"
-          sideOffset={6}
-          render={<Positioner />}
-        >
+        <Menu.Positioner side="bottom" align="start" sideOffset={6} render={<Positioner />}>
           <MenuPopup>
-            <Menu.Root closeParentOnEsc={false}>
+            <Menu.SubmenuRoot closeParentOnEsc={false}>
               <SubmenuTrigger>Text color</SubmenuTrigger>
               <Menu.Portal>
-                <Menu.Positioner
-                  align="start"
-                  side="right"
-                  sideOffset={12}
-                  render={<Positioner />}
-                >
+                <Menu.Positioner align="start" side="right" sideOffset={12} render={<Positioner />}>
                   <MenuPopup>
-                    <MenuItem onClick={createHandleMenuClick('Text color/Black')}>
-                      Black
-                    </MenuItem>
-                    <MenuItem
-                      onClick={createHandleMenuClick('Text color/Dark grey')}
-                    >
+                    <MenuItem onClick={createHandleMenuClick('Text color/Black')}>Black</MenuItem>
+                    <MenuItem onClick={createHandleMenuClick('Text color/Dark grey')}>
                       Dark grey
                     </MenuItem>
-                    <MenuItem onClick={createHandleMenuClick('Text color/Accent')}>
-                      Accent
-                    </MenuItem>
+                    <MenuItem onClick={createHandleMenuClick('Text color/Accent')}>Accent</MenuItem>
                   </MenuPopup>
                 </Menu.Positioner>
               </Menu.Portal>
-            </Menu.Root>
+            </Menu.SubmenuRoot>
 
-            <Menu.Root>
+            <Menu.SubmenuRoot>
               <SubmenuTrigger>Style</SubmenuTrigger>
               <Menu.Portal>
-                <Menu.Positioner
-                  align="start"
-                  side="right"
-                  sideOffset={12}
-                  render={<Positioner />}
-                >
+                <Menu.Positioner align="start" side="right" sideOffset={12} render={<Positioner />}>
                   <MenuPopup>
                     <Menu.Root>
                       <SubmenuTrigger>Heading</SubmenuTrigger>
@@ -160,25 +136,13 @@ function MenuDemo({ modal }: Props) {
                           render={<Positioner />}
                         >
                           <MenuPopup>
-                            <MenuItem
-                              onClick={createHandleMenuClick(
-                                'Style/Heading/Level 1',
-                              )}
-                            >
+                            <MenuItem onClick={createHandleMenuClick('Style/Heading/Level 1')}>
                               Level 1
                             </MenuItem>
-                            <MenuItem
-                              onClick={createHandleMenuClick(
-                                'Style/Heading/Level 2',
-                              )}
-                            >
+                            <MenuItem onClick={createHandleMenuClick('Style/Heading/Level 2')}>
                               Level 2
                             </MenuItem>
-                            <MenuItem
-                              onClick={createHandleMenuClick(
-                                'Style/Heading/Level 3',
-                              )}
-                            >
+                            <MenuItem onClick={createHandleMenuClick('Style/Heading/Level 3')}>
                               Level 3
                             </MenuItem>
                           </MenuPopup>
@@ -198,14 +162,10 @@ function MenuDemo({ modal }: Props) {
                           render={<Positioner />}
                         >
                           <MenuPopup>
-                            <MenuItem
-                              onClick={createHandleMenuClick('Style/List/Ordered')}
-                            >
+                            <MenuItem onClick={createHandleMenuClick('Style/List/Ordered')}>
                               Ordered
                             </MenuItem>
-                            <MenuItem
-                              onClick={createHandleMenuClick('Style/List/Unordered')}
-                            >
+                            <MenuItem onClick={createHandleMenuClick('Style/List/Unordered')}>
                               Unordered
                             </MenuItem>
                           </MenuPopup>
@@ -215,7 +175,7 @@ function MenuDemo({ modal }: Props) {
                   </MenuPopup>
                 </Menu.Positioner>
               </Menu.Portal>
-            </Menu.Root>
+            </Menu.SubmenuRoot>
 
             <MenuItem onClick={createHandleMenuClick('Clear formatting')}>
               Clear formatting
@@ -267,10 +227,7 @@ const CheckIcon = styled(function CheckIcon(props: React.SVGProps<SVGSVGElement>
       viewBox="0 0 24 24"
       fill="none"
     >
-      <path
-        d="M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"
-        fill="currentColor"
-      />
+      <path d="M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" fill="currentColor" />
     </svg>
   );
 })`
@@ -325,10 +282,7 @@ const SelectPopup = styled(Select.Popup)`
     0 2px 4px rgb(0 0 0 / 0.1),
     0 0 0 1px rgb(0 0 0 / 0.1);
   max-height: var(--available-height);
-  min-width: min(
-    calc(var(--available-width) - 12px),
-    calc(var(--anchor-width) + 20px)
-  );
+  min-width: min(calc(var(--available-width) - 12px), calc(var(--anchor-width) + 20px));
   scroll-padding: 4px;
 
   &[data-side='none'] {

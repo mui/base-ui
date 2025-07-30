@@ -7,7 +7,7 @@ export default function ExampleToast() {
     <Toast.Provider>
       <ToastButton />
       <Toast.Portal>
-        <Toast.Viewport className="fixed top-[1rem] right-0 bottom-auto left-0 mx-auto flex w-full max-w-[300px]">
+        <Toast.Viewport className="fixed z-10 top-[1rem] right-0 bottom-auto left-0 mx-auto flex w-full max-w-[300px]">
           <ToastList />
         </Toast.Viewport>
       </Toast.Portal>

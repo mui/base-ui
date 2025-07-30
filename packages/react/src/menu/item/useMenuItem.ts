@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useForkRef } from '@base-ui-components/utils/useForkRef';
+import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
 import { FloatingEvents } from '../../floating-ui-react';
 import { useButton } from '../../use-button';
 import { mergeProps } from '../../merge-props';
@@ -81,7 +81,7 @@ export function useMenuItem(params: useMenuItem.Parameters): useMenuItem.ReturnV
     ],
   );
 
-  const mergedRef = useForkRef(itemRef, buttonRef);
+  const mergedRef = useMergedRefs(itemRef, buttonRef);
 
   return React.useMemo(
     () => ({

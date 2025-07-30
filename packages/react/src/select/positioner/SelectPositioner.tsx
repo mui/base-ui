@@ -1,9 +1,9 @@
 'use client';
 import * as React from 'react';
 import { inertValue } from '@base-ui-components/utils/inertValue';
-import { useModernLayoutEffect } from '@base-ui-components/utils/useModernLayoutEffect';
+import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
-import { useSelector } from '@base-ui-components/utils/store';
+import { useStore } from '@base-ui-components/utils/store';
 import { useSelectRootContext, useSelectFloatingContext } from '../root/SelectRootContext';
 import { CompositeList } from '../../composite/list/CompositeList';
 import type { BaseUIComponentProps } from '../../utils/types';
@@ -52,13 +52,13 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
     useSelectRootContext();
   const floatingRootContext = useSelectFloatingContext();
 
-  const open = useSelector(store, selectors.open);
-  const mounted = useSelector(store, selectors.mounted);
-  const modal = useSelector(store, selectors.modal);
-  const value = useSelector(store, selectors.value);
-  const touchModality = useSelector(store, selectors.touchModality);
-  const positionerElement = useSelector(store, selectors.positionerElement);
-  const triggerElement = useSelector(store, selectors.triggerElement);
+  const open = useStore(store, selectors.open);
+  const mounted = useStore(store, selectors.mounted);
+  const modal = useStore(store, selectors.modal);
+  const value = useStore(store, selectors.value);
+  const touchModality = useStore(store, selectors.touchModality);
+  const positionerElement = useStore(store, selectors.positionerElement);
+  const triggerElement = useStore(store, selectors.triggerElement);
 
   const [controlledAlignItemWithTrigger, setControlledAlignItemWithTrigger] =
     React.useState(alignItemWithTrigger);
@@ -68,7 +68,7 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
     setControlledAlignItemWithTrigger(alignItemWithTrigger);
   }
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     if (!alignItemWithTrigger || !mounted) {
       if (selectors.scrollUpArrowVisible(store.state)) {
         store.set('scrollUpArrowVisible', false);
@@ -82,7 +82,7 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
   React.useImperativeHandle(alignItemWithTriggerActiveRef, () => alignItemWithTriggerActive);
 
   useScrollLock({
-    enabled: (alignItemWithTriggerActive || modal) && open,
+    enabled: (alignItemWithTriggerActive || modal) && open && !touchModality,
     mounted,
     open,
     referenceElement: triggerElement,

@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useForkRef } from '@base-ui-components/utils/useForkRef';
+import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
 import { type InteractionType } from '@base-ui-components/utils/useEnhancedClickHandler';
 import type { DialogRoot } from '../root/DialogRoot';
 import { HTMLProps } from '../../utils/types';
@@ -10,7 +10,6 @@ export function useDialogPopup(parameters: useDialogPopup.Parameters): useDialog
   const {
     descriptionElementId,
     initialFocus,
-    modal,
     mounted,
     openMethod,
     ref,
@@ -20,7 +19,7 @@ export function useDialogPopup(parameters: useDialogPopup.Parameters): useDialog
 
   const popupRef = React.useRef<HTMLElement>(null);
 
-  const handleRef = useForkRef(ref, popupRef, setPopupElement);
+  const handleRef = useMergedRefs(ref, popupRef, setPopupElement);
 
   // Default initial focus logic:
   // If opened by touch, focus the popup element to prevent the virtual keyboard from opening
@@ -48,7 +47,6 @@ export function useDialogPopup(parameters: useDialogPopup.Parameters): useDialog
   const popupProps: HTMLProps = {
     'aria-labelledby': titleElementId ?? undefined,
     'aria-describedby': descriptionElementId ?? undefined,
-    'aria-modal': mounted && modal === true ? true : undefined,
     role: 'dialog',
     tabIndex: -1,
     ref: handleRef,
@@ -72,7 +70,6 @@ export namespace useDialogPopup {
      * The ref to the dialog element.
      */
     ref: React.Ref<HTMLElement>;
-    modal: boolean | 'trap-focus';
     openMethod: InteractionType | null;
     /**
      * Event handler called when the dialog is opened or closed.

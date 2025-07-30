@@ -1,6 +1,6 @@
 import { isIOS, isWebKit } from '@base-ui-components/utils/detectBrowser';
 import { ownerDocument, ownerWindow } from '@base-ui-components/utils/owner';
-import { useModernLayoutEffect } from '@base-ui-components/utils/useModernLayoutEffect';
+import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { Timeout } from '@base-ui-components/utils/useTimeout';
 import { AnimationFrame } from '@base-ui-components/utils/useAnimationFrame';
 import { NOOP } from './noop';
@@ -221,8 +221,8 @@ export function useScrollLock(params: {
   const { enabled = true, mounted, open, referenceElement = null } = params;
 
   // https://github.com/mui/base-ui/issues/1135
-  useModernLayoutEffect(() => {
-    if (isWebKit && mounted && !open) {
+  useIsoLayoutEffect(() => {
+    if (enabled && isWebKit && mounted && !open) {
       const doc = ownerDocument(referenceElement);
       const originalUserSelect = doc.body.style.userSelect;
       const originalWebkitUserSelect = doc.body.style.webkitUserSelect;
@@ -234,9 +234,9 @@ export function useScrollLock(params: {
       };
     }
     return undefined;
-  }, [mounted, open, referenceElement]);
+  }, [enabled, mounted, open, referenceElement]);
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     if (!enabled) {
       return undefined;
     }
