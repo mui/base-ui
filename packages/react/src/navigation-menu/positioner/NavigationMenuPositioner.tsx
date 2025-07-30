@@ -1,10 +1,8 @@
 'use client';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import { getSide } from '@floating-ui/utils';
-import { ownerDocument, ownerWindow } from '@base-ui-components/utils/owner';
+import { ownerWindow } from '@base-ui-components/utils/owner';
 import { useTimeout } from '@base-ui-components/utils/useTimeout';
-import type { Middleware } from '../../floating-ui-react';
 import {
   disableFocusInside,
   enableFocusInside,

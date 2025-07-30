@@ -3,16 +3,13 @@
   "description": "Groups all parts of the popover.\nDoesn’t render its own HTML element.",
   "props": {
     "defaultOpen": {
-      "type": "boolean",
-      "default": "false",
-      "description": "Whether the popover is initially open.\n\nTo render a controlled popover, use the `open` prop instead."
+      "type": "boolean | HTMLElement | null"
     },
     "open": {
-      "type": "boolean",
-      "description": "Whether the popover is currently open."
+      "type": "boolean | HTMLElement | null"
     },
     "onOpenChange": {
-      "type": "((open: boolean, event: Event | undefined, reason: Popover.Root.OpenChangeReason | undefined) => void)",
+      "type": "((nextActiveTrigger: HTMLElement | null, event: Event | undefined, reason: Popover.Root.OpenChangeReason | undefined) => void)",
       "description": "Event handler called when the popover is opened or closed."
     },
     "actionsRef": {
