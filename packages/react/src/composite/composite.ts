@@ -70,7 +70,7 @@ export function scrollIntoViewIfNeeded(
 
   if (isOverflowingX && orientation !== 'vertical') {
     const elementOffsetLeft = getOffset(scrollContainer, element, 'left');
-    const containerStyles = getStyles(element);
+    const containerStyles = getStyles(scrollContainer);
     const elementStyles = getStyles(element);
 
     if (direction === 'ltr') {
@@ -124,7 +124,7 @@ export function scrollIntoViewIfNeeded(
 
   if (isOverflowingY && orientation !== 'horizontal') {
     const elementOffsetTop = getOffset(scrollContainer, element, 'top');
-    const containerStyles = getStyles(element);
+    const containerStyles = getStyles(scrollContainer);
     const elementStyles = getStyles(element);
 
     if (

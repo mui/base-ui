@@ -14,6 +14,8 @@ describe('<Switch.Root />', () => {
 
   describeConformance(<Switch.Root />, () => ({
     refInstanceof: window.HTMLButtonElement,
+    testComponentPropWith: 'button',
+    button: true,
     render,
   }));
 

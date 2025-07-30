@@ -1,7 +1,8 @@
 'use client';
 import * as React from 'react';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
-import { useModernLayoutEffect } from '@base-ui-components/utils/useModernLayoutEffect';
+import { error } from '@base-ui-components/utils/error';
+import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { makeEventPreventable, mergeProps } from '../merge-props';
 import { useCompositeRootContext } from '../composite/root/CompositeRootContext';
 import { BaseUIEvent, HTMLProps } from '../utils/types';
@@ -32,11 +33,34 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
     isNativeButton,
   });
 
+  if (process.env.NODE_ENV !== 'production') {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    React.useEffect(() => {
+      if (!buttonRef.current) {
+        return;
+      }
+
+      const isButtonTag = buttonRef.current.tagName === 'BUTTON';
+
+      if (isNativeButton) {
+        if (!isButtonTag) {
+          error(
+            'A component that acts as a button was not rendered as a native <button>, which does not match the default. Ensure that the element passed to the `render` prop of the component is a real <button>, or set the `nativeButton` prop on the component to `false`.',
+          );
+        }
+      } else if (isButtonTag) {
+        error(
+          'A component that acts as a button was rendered as a native <button>, which does not match the default. Ensure that the element passed to the `render` prop of the component is not a real <button>, or set the `nativeButton` prop on the component to `true`.',
+        );
+      }
+    }, [isNativeButton]);
+  }
+
   // handles a disabled composite button rendering another button, e.g.
   // <Toolbar.Button disabled render={<Menu.Trigger />} />
   // the `disabled` prop needs to pass through 2 `useButton`s then finally
   // delete the `disabled` attribute from DOM
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     const element = buttonRef.current;
     if (!(element instanceof HTMLButtonElement)) {
       return;

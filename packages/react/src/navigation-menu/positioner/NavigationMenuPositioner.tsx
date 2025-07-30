@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { getSide } from '@floating-ui/utils';
 import { ownerDocument } from '@base-ui-components/utils/owner';
-import { useModernLayoutEffect } from '@base-ui-components/utils/useModernLayoutEffect';
+import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import type { Middleware } from '../../floating-ui-react';
 import {
   disableFocusInside,
@@ -123,7 +123,7 @@ export const NavigationMenuPositioner = React.forwardRef(function NavigationMenu
 
   // When the current trigger element changes, enable transitions on the
   // positioner temporarily
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     const currentTriggerElement = floatingRootContext?.elements.domReference;
     const prevTriggerElement = prevTriggerElementRef.current;
 

@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useSelector } from '@base-ui-components/utils/store';
+import { useStore } from '@base-ui-components/utils/store';
 import { useSelectPositionerContext } from '../positioner/SelectPositionerContext';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import type { BaseUIComponentProps } from '../../utils/types';
@@ -32,7 +32,7 @@ export const SelectArrow = React.forwardRef(function SelectArrow(
   const { side, align, arrowRef, arrowStyles, arrowUncentered, alignItemWithTriggerActive } =
     useSelectPositionerContext();
 
-  const open = useSelector(store, selectors.open);
+  const open = useStore(store, selectors.open, true);
 
   const state: SelectArrow.State = React.useMemo(
     () => ({

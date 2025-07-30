@@ -1,5 +1,5 @@
 'use client';
-import { useLazyRef } from './useLazyRef';
+import { useRefWithInit } from './useRefWithInit';
 import { useOnMount } from './useOnMount';
 
 type TimeoutId = number;
@@ -44,7 +44,7 @@ export class Timeout {
  * A `setTimeout` with automatic cleanup and guard.
  */
 export function useTimeout() {
-  const timeout = useLazyRef(Timeout.create).current;
+  const timeout = useRefWithInit(Timeout.create).current;
 
   useOnMount(timeout.disposeEffect);
 

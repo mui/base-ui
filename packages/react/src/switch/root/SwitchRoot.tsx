@@ -2,12 +2,12 @@
 import * as React from 'react';
 import { useControlled } from '@base-ui-components/utils/useControlled';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
-import { useForkRef } from '@base-ui-components/utils/useForkRef';
-import { useModernLayoutEffect } from '@base-ui-components/utils/useModernLayoutEffect';
+import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
+import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { visuallyHidden } from '@base-ui-components/utils/visuallyHidden';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useBaseUiId } from '../../utils/useBaseUiId';
-import type { BaseUIComponentProps } from '../../utils/types';
+import type { BaseUIComponentProps, NativeButtonProps } from '../../utils/types';
 import { mergeProps } from '../../merge-props';
 import { useButton } from '../../use-button';
 import { SwitchRootContext } from './SwitchRootContext';
@@ -71,13 +71,13 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
   const onCheckedChange = useEventCallback(onCheckedChangeProp);
 
   const inputRef = React.useRef<HTMLInputElement>(null);
-  const handleInputRef = useForkRef(inputRef, externalInputRef, inputValidationRef);
+  const handleInputRef = useMergedRefs(inputRef, externalInputRef, inputValidationRef);
 
   const switchRef = React.useRef<HTMLButtonElement | null>(null);
 
   const id = useBaseUiId(idProp);
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     const element = switchRef.current;
     if (!element) {
       return undefined;
@@ -110,7 +110,7 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
     getValue: () => checked,
   });
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     if (inputRef.current) {
       setFilled(inputRef.current.checked);
     }
@@ -254,7 +254,8 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
 
 export namespace SwitchRoot {
   export interface Props
-    extends Omit<BaseUIComponentProps<'button', SwitchRoot.State>, 'onChange'> {
+    extends NativeButtonProps,
+      Omit<BaseUIComponentProps<'button', SwitchRoot.State>, 'onChange'> {
     /**
      * The id of the switch element.
      */
@@ -285,13 +286,6 @@ export namespace SwitchRoot {
      * Identifies the field when a form is submitted.
      */
     name?: string;
-    /**
-     * Whether the component renders a native `<button>` element when replacing it
-     * via the `render` prop.
-     * Set to `false` if the rendered element is not a button (e.g. `<div>`).
-     * @default true
-     */
-    nativeButton?: boolean;
     /**
      * Event handler called when the switch is activated or deactivated.
      *
