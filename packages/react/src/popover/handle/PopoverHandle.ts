@@ -9,7 +9,6 @@ export class PopoverHandle<Payload = undefined> {
   readonly store: PopoverStore = new Store<State>({
     open: false,
     modal: false,
-    mounted: false,
     activeTriggerElement: null,
     positionerElement: null,
     popupElement: null,

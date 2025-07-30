@@ -80,9 +80,9 @@ describe('<Popover.Root />', () => {
         return (
           <Root
             open={open}
-            onOpenChange={(nextOpen) => {
+            onOpenChange={(trigger) => {
               handleChange(open);
-              setOpen(nextOpen);
+              setOpen(trigger !== null);
             }}
           >
             <Popover.Trigger />
@@ -124,9 +124,9 @@ describe('<Popover.Root />', () => {
         return (
           <Root
             open={open}
-            onOpenChange={(nextOpen) => {
+            onOpenChange={(trigger) => {
               handleChange(open);
-              setOpen(nextOpen);
+              setOpen(trigger !== null);
             }}
           >
             <Popover.Trigger />
@@ -657,7 +657,7 @@ describe('<Popover.Root />', () => {
             <button onClick={() => setOpen(true)}>Open</button>
             <Popover.Root
               open={open}
-              onOpenChange={setOpen}
+              onOpenChange={(trigger) => setOpen(trigger !== null)}
               onOpenChangeComplete={onOpenChangeComplete}
             >
               <Popover.Portal>

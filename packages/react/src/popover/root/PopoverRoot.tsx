@@ -30,36 +30,33 @@ import { PopoverHandle } from '../handle/PopoverHandle';
 
 function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Payload> }) {
   const {
-    open: externalOpen,
+    open: activeTriggerProp,
+    defaultOpen: defaultActiveTriggerProp = null,
     onOpenChange,
-    defaultOpen = false,
     onOpenChangeComplete,
     modal = false,
     handle,
   } = props;
 
-  const [open, setOpenUnwrapped] = useControlled({
-    controlled: externalOpen,
-    default: defaultOpen,
+  const [activeTriggerState, setActiveTriggerState] = useControlled({
+    controlled: activeTriggerProp,
+    default: defaultActiveTriggerProp,
     name: 'Popover',
     state: 'open',
   });
-
-  const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
 
   const store = useRefWithInit(() => {
     return (
       handle?.store ||
       new Store<PopoverState>({
-        open,
+        open: activeTriggerState !== null,
         modal,
-        mounted,
         activeTriggerElement: null,
         positionerElement: null,
         popupElement: null,
         triggers: new Map<HTMLElement, (() => unknown) | undefined>(),
         instantType: undefined,
-        transitionStatus,
+        transitionStatus: 'idle',
         openMethod: null,
         openReason: null,
         titleId: undefined,
@@ -73,17 +70,44 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
     );
   }).current;
 
+  const triggerElements = useStore(store, selectors.triggers);
+
+  let resolvedTriggerElement: HTMLElement | null = null;
+  if (activeTriggerState === true) {
+    if (triggerElements.size > 1) {
+      throw new Error(
+        'Base UI: PopoverRoot: When `open` is set to `true` there must be exactly one Trigger element inside the Root.',
+      );
+    } else if (triggerElements.size === 1) {
+      resolvedTriggerElement = triggerElements.keys().next().value || null;
+    }
+  } else {
+    resolvedTriggerElement = activeTriggerState as HTMLElement | null;
+  }
+
+  const open = useStore(store, selectors.open);
   const positionerElement = useStore(store, selectors.positionerElement);
   const activeTriggerElement = useStore(store, selectors.activeTriggerElement);
   const payload = useStore(store, selectors.payload) as Payload | undefined;
   const openReason = useStore(store, selectors.openReason);
 
+  const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
   const popupRef = React.useRef<HTMLElement>(null);
   const stickIfOpenTimeout = useTimeout();
 
   useIsoLayoutEffect(() => {
-    store.apply({ open, mounted });
+    store.set('open', open);
+
+    if (!mounted) {
+      store.set('activeTriggerElement', null);
+    }
   }, [store, open, mounted]);
+
+  useIsoLayoutEffect(() => {
+    if (resolvedTriggerElement != null) {
+      store.set('activeTriggerElement', resolvedTriggerElement);
+    }
+  }, [store, resolvedTriggerElement]);
 
   useIsoLayoutEffect(() => {
     store.set('transitionStatus', transitionStatus);
@@ -98,7 +122,7 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
 
   const handleUnmount = useEventCallback(() => {
     setMounted(false);
-    store.apply({ stickIfOpen: true, openReason: null, mounted: false });
+    store.apply({ stickIfOpen: true, openReason: null, activeTriggerElement: null });
     onOpenChangeComplete?.(false);
   });
 
@@ -121,16 +145,14 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
     }
   }, [stickIfOpenTimeout, open]);
 
-  const triggerElements = useStore(store, selectors.triggers);
-
   const setOpen = useEventCallback(function setOpen(
     nextOpen: boolean,
     event: Event | undefined,
     reason: PopoverOpenChangeReason | undefined,
-    trigger: Element | undefined,
+    trigger: HTMLElement | undefined,
   ) {
-    if (event && nextOpen && trigger) {
-      store.set('activeTriggerElement', trigger);
+    if (nextOpen && trigger) {
+      setActiveTriggerState(trigger as HTMLElement);
     }
 
     if (nextOpen && trigger) {
@@ -145,12 +167,13 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
     const isDismissClose = !nextOpen && (reason === 'escape-key' || reason == null);
 
     function changeState() {
-      onOpenChange?.(nextOpen, event, reason);
-      setOpenUnwrapped(nextOpen);
+      onOpenChange?.(nextOpen ? (trigger ?? null) : null, event, reason);
 
       if (nextOpen) {
         store.set('openReason', reason ?? null);
       }
+
+      store.set('open', nextOpen);
     }
 
     if (isHover) {
@@ -181,7 +204,12 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
     },
     open,
     onOpenChange(openValue, eventValue, reasonValue, trigger) {
-      setOpen(openValue, eventValue, translateOpenChangeReason(reasonValue), trigger);
+      setOpen(
+        openValue,
+        eventValue,
+        translateOpenChangeReason(reasonValue),
+        trigger as HTMLElement,
+      );
     },
   });
 
@@ -238,22 +266,13 @@ export namespace PopoverRoot {
   export interface State {}
 
   export interface Props<Payload = unknown> {
-    /**
-     * Whether the popover is initially open.
-     *
-     * To render a controlled popover, use the `open` prop instead.
-     * @default false
-     */
-    defaultOpen?: boolean;
-    /**
-     * Whether the popover is currently open.
-     */
-    open?: boolean;
+    open?: HTMLElement | null | boolean;
+    defaultOpen?: HTMLElement | null | boolean;
     /**
      * Event handler called when the popover is opened or closed.
      */
     onOpenChange?: (
-      open: boolean,
+      nextActiveTrigger: HTMLElement | null,
       event: Event | undefined,
       reason: OpenChangeReason | undefined,
     ) => void;

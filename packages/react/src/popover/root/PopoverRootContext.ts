@@ -10,8 +10,7 @@ export interface PopoverRootContext {
     open: boolean,
     event: Event | undefined,
     reason: PopoverOpenChangeReason | undefined,
-    triggerElement: Element | undefined,
-    data?: unknown,
+    target: HTMLElement | undefined,
   ) => void;
   popupRef: React.RefObject<HTMLElement | null>;
   onOpenChangeComplete: ((open: boolean) => void) | undefined;

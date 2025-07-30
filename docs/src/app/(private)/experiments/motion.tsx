@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from 'motion/react';
 function ConditionallyMounted() {
   const [open, setOpen] = React.useState(false);
   return (
-    <Popover.Root open={open} onOpenChange={setOpen}>
+    <Popover.Root open={open} onOpenChange={(trigger) => setOpen(trigger !== null)}>
       <Popover.Trigger>Trigger</Popover.Trigger>
       <AnimatePresence>
         {open && (
@@ -34,7 +34,7 @@ function ConditionallyMounted() {
 function AlwaysMounted() {
   const [open, setOpen] = React.useState(false);
   return (
-    <Popover.Root open={open} onOpenChange={setOpen}>
+    <Popover.Root open={open} onOpenChange={(trigger) => setOpen(trigger !== null)}>
       <Popover.Trigger>Trigger</Popover.Trigger>
       <Popover.Portal keepMounted>
         <Popover.Positioner>
@@ -62,7 +62,11 @@ function NoOpacity() {
   const actionsRef = React.useRef<Popover.Root.Actions>({ unmount: () => {} });
 
   return (
-    <Popover.Root open={open} onOpenChange={setOpen} actionsRef={actionsRef}>
+    <Popover.Root
+      open={open}
+      onOpenChange={(trigger) => setOpen(trigger !== null)}
+      actionsRef={actionsRef}
+    >
       <Popover.Trigger>Trigger</Popover.Trigger>
       <AnimatePresence>
         {open && (

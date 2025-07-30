@@ -6,11 +6,10 @@ import { type PopoverOpenChangeReason } from './root/PopoverRootContext';
 import { type HTMLProps } from '../utils/types';
 
 export type State = {
-  open: boolean;
   modal: boolean | 'trap-focus';
-  mounted: boolean;
 
-  activeTriggerElement: Element | null;
+  open: boolean;
+  activeTriggerElement: HTMLElement | null;
   positionerElement: HTMLElement | null;
   popupElement: HTMLElement | null;
   triggers: Map<HTMLElement, (() => unknown) | undefined>;
@@ -36,8 +35,7 @@ export type PopoverStore = Store<State>;
 
 export const selectors = {
   open: createSelector((state: State) => state.open),
-  modal: createSelector((state: State) => state.modal),
-  mounted: createSelector((state: State) => state.mounted),
+  mounted: createSelector((state: State) => state.activeTriggerElement !== null),
 
   activeTriggerElement: createSelector((state: State) => state.activeTriggerElement),
   positionerElement: createSelector((state: State) => state.positionerElement),
@@ -49,14 +47,15 @@ export const selectors = {
   openMethod: createSelector((state: State) => state.openMethod),
   openReason: createSelector((state: State) => state.openReason),
 
+  modal: createSelector((state: State) => state.modal),
+  stickIfOpen: createSelector((state: State) => state.stickIfOpen),
+  floatingRootContext: createSelector((state: State) => state.floatingRootContext),
+
   titleId: createSelector((state: State) => state.titleId),
   descriptionId: createSelector((state: State) => state.descriptionId),
-
-  floatingRootContext: createSelector((state: State) => state.floatingRootContext),
 
   payload: createSelector((state: State) => state.payload),
 
   triggerProps: createSelector((state: State) => state.triggerProps),
   popupProps: createSelector((state: State) => state.popupProps),
-  stickIfOpen: createSelector((state: State) => state.stickIfOpen),
 };
