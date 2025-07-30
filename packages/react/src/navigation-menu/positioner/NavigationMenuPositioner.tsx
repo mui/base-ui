@@ -1,6 +1,10 @@
 'use client';
 import * as React from 'react';
-import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
+import * as ReactDOM from 'react-dom';
+import { getSide } from '@floating-ui/utils';
+import { ownerDocument, ownerWindow } from '@base-ui-components/utils/owner';
+import { useTimeout } from '@base-ui-components/utils/useTimeout';
+import type { Middleware } from '../../floating-ui-react';
 import {
   disableFocusInside,
   enableFocusInside,
@@ -15,7 +19,6 @@ import {
 import { useNavigationMenuPortalContext } from '../portal/NavigationMenuPortalContext';
 import { useAnchorPositioning, type Align, type Side } from '../../utils/useAnchorPositioning';
 import { NavigationMenuPositionerContext } from './NavigationMenuPositionerContext';
-import { useAnimationsFinished } from '../../utils/useAnimationsFinished';
 import { popupStateMapping } from '../../utils/popupStateMapping';
 import { DROPDOWN_COLLISION_AVOIDANCE, POPUP_COLLISION_AVOIDANCE } from '../../utils/constants';
 import { adaptiveOrigin } from '../../utils/adaptiveOriginMiddleware';
@@ -54,40 +57,12 @@ export const NavigationMenuPositioner = React.forwardRef(function NavigationMenu
   const keepMounted = useNavigationMenuPortalContext();
   const nodeId = useNavigationMenuTreeContext();
 
-  const [instant, setInstant] = React.useState(true);
+  const resizeTimeout = useTimeout();
+
+  const [instant, setInstant] = React.useState(false);
 
   const positionerRef = React.useRef<HTMLDivElement | null>(null);
   const prevTriggerElementRef = React.useRef<Element | null>(null);
-
-  const runOnceAnimationsFinish = useAnimationsFinished(positionerRef);
-
-  // When the current trigger element changes, enable transitions on the
-  // positioner temporarily
-  useIsoLayoutEffect(() => {
-    const currentTriggerElement = floatingRootContext?.elements.domReference;
-    const prevTriggerElement = prevTriggerElementRef.current;
-
-    if (currentTriggerElement) {
-      prevTriggerElementRef.current = currentTriggerElement;
-    }
-
-    if (
-      prevTriggerElement &&
-      currentTriggerElement &&
-      currentTriggerElement !== prevTriggerElement
-    ) {
-      setInstant(false);
-      const ac = new AbortController();
-      runOnceAnimationsFinish(() => {
-        setInstant(true);
-      }, ac.signal);
-      return () => {
-        ac.abort();
-      };
-    }
-
-    return undefined;
-  }, [floatingRootContext?.elements.domReference, runOnceAnimationsFinish]);
 
   // https://codesandbox.io/s/tabbable-portal-f4tng?file=/src/TabbablePortal.tsx
   React.useEffect(() => {
@@ -165,6 +140,28 @@ export const NavigationMenuPositioner = React.forwardRef(function NavigationMenu
     }),
     [open, positioning.side, positioning.align, positioning.anchorHidden, instant],
   );
+
+  React.useEffect(() => {
+    if (!open) {
+      return undefined;
+    }
+
+    function handleResize() {
+      ReactDOM.flushSync(() => {
+        setInstant(true);
+      });
+
+      resizeTimeout.start(100, () => {
+        setInstant(false);
+      });
+    }
+
+    const win = ownerWindow(positionerElement);
+    win.addEventListener('resize', handleResize);
+    return () => {
+      win.removeEventListener('resize', handleResize);
+    };
+  }, [open, resizeTimeout, positionerElement]);
 
   const element = useRenderElement('div', componentProps, {
     state,

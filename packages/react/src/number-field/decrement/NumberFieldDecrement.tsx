@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { BaseUIComponentProps } from '../../utils/types';
+import { BaseUIComponentProps, NativeButtonProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useButton } from '../../use-button';
 import { useNumberFieldRootContext } from '../root/NumberFieldRootContext';
@@ -18,7 +18,13 @@ export const NumberFieldDecrement = React.forwardRef(function NumberFieldDecreme
   componentProps: NumberFieldDecrement.Props,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
-  const { render, className, disabled: disabledProp = false, ...elementProps } = componentProps;
+  const {
+    render,
+    className,
+    disabled: disabledProp = false,
+    nativeButton = true,
+    ...elementProps
+  } = componentProps;
 
   const {
     allowInputSyncRef,
@@ -72,6 +78,7 @@ export const NumberFieldDecrement = React.forwardRef(function NumberFieldDecreme
 
   const { getButtonProps, buttonRef } = useButton({
     disabled,
+    native: nativeButton,
   });
 
   const buttonState = React.useMemo(
@@ -95,5 +102,5 @@ export const NumberFieldDecrement = React.forwardRef(function NumberFieldDecreme
 export namespace NumberFieldDecrement {
   export interface State extends NumberFieldRoot.State {}
 
-  export interface Props extends BaseUIComponentProps<'button', State> {}
+  export interface Props extends NativeButtonProps, BaseUIComponentProps<'button', State> {}
 }

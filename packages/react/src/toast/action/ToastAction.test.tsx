@@ -15,6 +15,8 @@ describe('<Toast.Action />', () => {
 
   describeConformance(<Toast.Action>action</Toast.Action>, () => ({
     refInstanceof: window.HTMLButtonElement,
+    testComponentPropWith: 'button',
+    button: true,
     render(node) {
       return render(
         <Toast.Provider>
