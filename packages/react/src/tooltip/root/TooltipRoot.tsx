@@ -30,8 +30,8 @@ export function TooltipRoot(props: TooltipRoot.Props) {
   const {
     disabled = false,
     defaultOpen = false,
-    onOpenChange: onOpenChangeProp,
-    open,
+    onOpenChange,
+    open: openProp,
     delay,
     closeDelay,
     hoverable = true,
@@ -49,47 +49,51 @@ export function TooltipRoot(props: TooltipRoot.Props) {
 
   const popupRef = React.useRef<HTMLElement>(null);
 
-  const [openState, setOpenUnwrapped] = useControlled({
-    controlled: open,
+  const [openState, setOpenState] = useControlled({
+    controlled: openProp,
     default: defaultOpen,
     name: 'Tooltip',
     state: 'open',
   });
 
-  const onOpenChange = useEventCallback(onOpenChangeProp);
+  const open = !disabled && openState;
 
-  const setOpen = useEventCallback(
-    (nextOpen: boolean, event: Event | undefined, reason: TooltipOpenChangeReason | undefined) => {
-      const isHover = reason === 'trigger-hover';
-      const isFocusOpen = nextOpen && reason === 'trigger-focus';
-      const isDismissClose = !nextOpen && (reason === 'trigger-press' || reason === 'escape-key');
+  function setOpenUnwrapped(
+    nextOpen: boolean,
+    event: Event | undefined,
+    reason: TooltipOpenChangeReason | undefined,
+  ) {
+    const isHover = reason === 'trigger-hover';
+    const isFocusOpen = nextOpen && reason === 'trigger-focus';
+    const isDismissClose = !nextOpen && (reason === 'trigger-press' || reason === 'escape-key');
 
-      function changeState() {
-        onOpenChange(nextOpen, event, reason);
-        setOpenUnwrapped(nextOpen);
-      }
+    function changeState() {
+      onOpenChange?.(nextOpen, event, reason);
+      setOpenState(nextOpen);
+    }
 
-      if (isHover) {
-        // If a hover reason is provided, we need to flush the state synchronously. This ensures
-        // `node.getAnimations()` knows about the new state.
-        ReactDOM.flushSync(changeState);
-      } else {
-        changeState();
-      }
+    if (isHover) {
+      // If a hover reason is provided, we need to flush the state synchronously. This ensures
+      // `node.getAnimations()` knows about the new state.
+      ReactDOM.flushSync(changeState);
+    } else {
+      changeState();
+    }
 
-      if (isFocusOpen || isDismissClose) {
-        setInstantTypeState(isFocusOpen ? 'focus' : 'dismiss');
-      } else if (reason === 'trigger-hover') {
-        setInstantTypeState(undefined);
-      }
-    },
-  );
-
-  if (openState && disabled) {
-    setOpen(false, undefined, 'disabled');
+    if (isFocusOpen || isDismissClose) {
+      setInstantTypeState(isFocusOpen ? 'focus' : 'dismiss');
+    } else if (reason === 'trigger-hover') {
+      setInstantTypeState(undefined);
+    }
   }
 
-  const { mounted, setMounted, transitionStatus } = useTransitionStatus(openState);
+  const setOpen = useEventCallback(setOpenUnwrapped);
+
+  if (openState && disabled) {
+    setOpenUnwrapped(false, undefined, 'disabled');
+  }
+
+  const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
 
   const handleUnmount = useEventCallback(() => {
     setMounted(false);
@@ -98,10 +102,10 @@ export function TooltipRoot(props: TooltipRoot.Props) {
 
   useOpenChangeComplete({
     enabled: !actionsRef,
-    open: openState,
+    open,
     ref: popupRef,
     onComplete() {
-      if (!openState) {
+      if (!open) {
         handleUnmount();
       }
     },
@@ -114,7 +118,7 @@ export function TooltipRoot(props: TooltipRoot.Props) {
       reference: triggerElement,
       floating: positionerElement,
     },
-    open: openState,
+    open,
     onOpenChange(openValue, eventValue, reasonValue) {
       setOpen(openValue, eventValue, translateOpenChangeReason(reasonValue));
     },
@@ -176,7 +180,7 @@ export function TooltipRoot(props: TooltipRoot.Props) {
 
   const tooltipRoot = React.useMemo(
     () => ({
-      open: openState,
+      open,
       setOpen,
       mounted,
       setMounted,
@@ -192,7 +196,7 @@ export function TooltipRoot(props: TooltipRoot.Props) {
       onOpenChangeComplete,
     }),
     [
-      openState,
+      open,
       setOpen,
       mounted,
       setMounted,
