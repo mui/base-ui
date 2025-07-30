@@ -149,10 +149,10 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     );
 
     sizeFrame1.request(() => {
-      sizeFrame2.request(() => {
-        popupElement.style.setProperty(NavigationMenuPopupCssVars.popupWidth, `${width}px`);
-        popupElement.style.setProperty(NavigationMenuPopupCssVars.popupHeight, `${height}px`);
+      popupElement.style.setProperty(NavigationMenuPopupCssVars.popupWidth, `${width}px`);
+      popupElement.style.setProperty(NavigationMenuPopupCssVars.popupHeight, `${height}px`);
 
+      sizeFrame2.request(() => {
         animationAbortControllerRef.current = new AbortController();
         runOnceAnimationsFinish(setAutoSizes, animationAbortControllerRef.current.signal);
       });
