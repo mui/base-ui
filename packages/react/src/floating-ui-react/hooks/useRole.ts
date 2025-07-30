@@ -97,16 +97,12 @@ export function useRole(context: FloatingRootContext, props: UseRoleProps = {}):
       // avoid defaulting to `menuitem` as it may overwrite custom role props.
       switch (role) {
         case 'select':
-          return {
-            ...commonProps,
-            'aria-selected': active && selected,
-          };
-        case 'combobox': {
+        case 'combobox':
           return {
             ...commonProps,
             'aria-selected': selected,
           };
-        }
+
         default:
       }
 
