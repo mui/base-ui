@@ -60,6 +60,7 @@ export default function ExampleNavigationMenu() {
           className={styles.Positioner}
           sideOffset={10}
           collisionPadding={{ top: 5, bottom: 5, left: 20, right: 20 }}
+          collisionAvoidance={{ side: 'none' }}
         >
           <NavigationMenu.Popup className={styles.Popup}>
             <NavigationMenu.Arrow className={styles.Arrow}>

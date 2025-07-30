@@ -18,12 +18,8 @@ export default function ExampleNavigationMenu() {
               {overviewLinks.map((item) => (
                 <li key={item.href}>
                   <Link href={item.href} className={linkCardClassName}>
-                    <h3 className="m-0 mb-1 text-base leading-5 font-medium">
-                      {item.title}
-                    </h3>
-                    <p className="m-0 text-sm leading-5 text-gray-500">
-                      {item.description}
-                    </p>
+                    <h3 className="m-0 mb-1 text-base leading-5 font-medium">{item.title}</h3>
+                    <p className="m-0 text-sm leading-5 text-gray-500">{item.description}</p>
                   </Link>
                 </li>
               ))}
@@ -31,9 +27,7 @@ export default function ExampleNavigationMenu() {
                 <NavigationMenu.Root orientation="vertical">
                   <NavigationMenu.Item>
                     <NavigationMenu.Trigger className={linkCardClassName}>
-                      <span className="m-0 mb-1 text-base leading-5 font-medium">
-                        Handbook
-                      </span>
+                      <span className="m-0 mb-1 text-base leading-5 font-medium">Handbook</span>
                       <p className="m-0 text-sm leading-5 text-gray-500">
                         How to use Base UI effectively.
                       </p>
@@ -93,7 +87,7 @@ export default function ExampleNavigationMenu() {
             ['--easing' as string]: 'cubic-bezier(0.22, 1, 0.36, 1)',
           }}
         >
-          <NavigationMenu.Popup className="data-[ending-style]:easing-[ease] relative h-[var(--popup-height)] w-max origin-[var(--transform-origin)] rounded-lg bg-[canvas] text-gray-900 shadow-lg shadow-gray-200 outline outline-1 outline-gray-200 transition-[opacity,transform,width,height,scale,translate] duration-[var(--duration)] ease-[var(--easing)] data-[ending-style]:scale-90 data-[ending-style]:opacity-0 data-[ending-style]:duration-150 data-[starting-style]:scale-90 data-[starting-style]:opacity-0 min-[500px]:w-[var(--popup-width)] xs:w-[var(--popup-width)] dark:shadow-none dark:-outline-offset-1 dark:outline-gray-300">
+          <NavigationMenu.Popup className="data-[ending-style]:easing-[ease] relative h-[var(--popup-height)] origin-[var(--transform-origin)] rounded-lg bg-[canvas] text-gray-900 shadow-lg shadow-gray-200 outline outline-1 outline-gray-200 transition-[opacity,transform,width,height,scale,translate] duration-[var(--duration)] ease-[var(--easing)] data-[ending-style]:scale-90 data-[ending-style]:opacity-0 data-[ending-style]:duration-150 data-[starting-style]:scale-90 data-[starting-style]:opacity-0 w-[var(--popup-width)] dark:shadow-none dark:-outline-offset-1 dark:outline-gray-300">
             <NavigationMenu.Arrow className="flex transition-[left] duration-[var(--duration)] ease-[var(--easing)] data-[side=bottom]:top-[-8px] data-[side=left]:right-[-13px] data-[side=left]:rotate-90 data-[side=right]:left-[-13px] data-[side=right]:-rotate-90 data-[side=top]:bottom-[-8px] data-[side=top]:rotate-180">
               <ArrowSvg />
             </NavigationMenu.Arrow>
