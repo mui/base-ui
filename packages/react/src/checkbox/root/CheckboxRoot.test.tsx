@@ -13,6 +13,8 @@ describe('<Checkbox.Root />', () => {
 
   describeConformance(<Checkbox.Root />, () => ({
     refInstanceof: window.HTMLButtonElement,
+    testComponentPropWith: 'button',
+    button: true,
     render,
   }));
 

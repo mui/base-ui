@@ -13,7 +13,10 @@ describe('useButton', () => {
     it('allows disabled buttons to be focused', async () => {
       function TestButton(props: React.ButtonHTMLAttributes<HTMLButtonElement>) {
         const { disabled, ...otherProps } = props;
-        const { getButtonProps } = useButton({ disabled, focusableWhenDisabled: true });
+        const { getButtonProps } = useButton({
+          disabled,
+          focusableWhenDisabled: true,
+        });
 
         return <button {...getButtonProps(otherProps)} />;
       }
@@ -211,6 +214,34 @@ describe('useButton', () => {
 
       const { container } = renderToString(<TestButton disabled>Submit</TestButton>);
       expect(container.querySelector('button')).to.have.property('disabled');
+    });
+  });
+
+  describe('dev warnings', () => {
+    it('errors if nativeButton=true but ref is not a button', async () => {
+      const errorSpy = spy(console, 'error');
+      function TestButton() {
+        const { getButtonProps, buttonRef } = useButton({ native: true });
+        return <span {...getButtonProps()} ref={buttonRef} />;
+      }
+      await render(<TestButton />);
+      expect(errorSpy.firstCall.args[0]).to.equal(
+        'Base UI: A component that acts as a button was not rendered as a native <button>, which does not match the default. Ensure that the element passed to the `render` prop of the component is a real <button>, or set the `nativeButton` prop on the component to `false`.',
+      );
+      errorSpy.restore();
+    });
+
+    it('errors if nativeButton=false but ref is a button', async () => {
+      const errorSpy = spy(console, 'error');
+      function TestButton() {
+        const { getButtonProps, buttonRef } = useButton({ native: false });
+        return <button {...getButtonProps()} ref={buttonRef} />;
+      }
+      await render(<TestButton />);
+      expect(errorSpy.firstCall.args[0]).to.equal(
+        'Base UI: A component that acts as a button was rendered as a native <button>, which does not match the default. Ensure that the element passed to the `render` prop of the component is not a real <button>, or set the `nativeButton` prop on the component to `true`.',
+      );
+      errorSpy.restore();
     });
   });
 });
