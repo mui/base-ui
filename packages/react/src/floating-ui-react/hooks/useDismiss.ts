@@ -152,7 +152,7 @@ export function useDismiss(
     dismissOnMouseDown: boolean;
   } | null>(null);
   const cancelDismissOnEndTimeout = useTimeout();
-  const blurTimeout = useTimeout();
+  const insideReactTreeTimeout = useTimeout();
 
   const isComposingRef = React.useRef(false);
   const currentPointerTypeRef = React.useRef<PointerEvent['pointerType']>('');
@@ -632,22 +632,39 @@ export function useDismiss(
     endedOrStartedInsideRef.current = true;
   });
 
+  const handleCaptureInside = useEventCallback(() => {
+    dataRef.current.insideReactTree = true;
+    insideReactTreeTimeout.start(0, () => {
+      dataRef.current.insideReactTree = false;
+    });
+  });
+
   const floating: ElementProps['floating'] = React.useMemo(
     () => ({
       onKeyDown: closeOnEscapeKeyDown,
       onMouseDown: handlePressedInside,
       onMouseUp: handlePressedInside,
+      onPointerDownCapture: handleCaptureInside,
+      onMouseDownCapture: handleCaptureInside,
+      onClickCapture: handleCaptureInside,
       onBlurCapture() {
         if (tree) {
           return;
         }
         dataRef.current.insideReactTree = true;
-        blurTimeout.start(0, () => {
+        insideReactTreeTimeout.start(0, () => {
           dataRef.current.insideReactTree = false;
         });
       },
     }),
-    [closeOnEscapeKeyDown, handlePressedInside, dataRef, tree, blurTimeout],
+    [
+      closeOnEscapeKeyDown,
+      handlePressedInside,
+      handleCaptureInside,
+      dataRef,
+      tree,
+      insideReactTreeTimeout,
+    ],
   );
 
   return React.useMemo(
