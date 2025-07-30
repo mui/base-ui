@@ -368,7 +368,6 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
 
   const dismiss = useDismiss(floatingContext, {
     bubbles: false,
-    outsidePressEvent: 'mousedown',
   });
 
   const role = useRole(floatingContext, {

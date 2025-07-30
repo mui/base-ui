@@ -121,12 +121,9 @@
   transition-property: opacity, transform, width, height;
   transition-duration: var(--duration);
   transition-timing-function: var(--easing);
-  width: max-content;
+  width: var(--popup-width);
   height: var(--popup-height);
-
-  @media (min-width: 500px) {
-    width: var(--popup-width);
-  }
+  max-height: var(--available-height);
 
   &[data-starting-style],
   &[data-ending-style] {
@@ -164,6 +161,8 @@
   padding: 1.5rem;
   width: calc(100vw - 40px);
   height: 100%;
+  overflow-y: auto;
+  max-height: var(--available-height);
 
   @media (min-width: 500px) {
     width: max-content;

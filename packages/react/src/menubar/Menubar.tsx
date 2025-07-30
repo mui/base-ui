@@ -12,6 +12,7 @@ import { type MenuRoot } from '../menu/root/MenuRoot';
 import { BaseUIComponentProps } from '../utils/types';
 import { MenubarContext, useMenubarContext } from './MenubarContext';
 import { useScrollLock } from '../utils/useScrollLock';
+import { useOpenInteractionType } from '../utils/useOpenInteractionType';
 import { CompositeRoot } from '../composite/root/CompositeRoot';
 import { useBaseUiId } from '../utils/useBaseUiId';
 
@@ -37,8 +38,20 @@ export const Menubar = React.forwardRef(function Menubar(
   const [contentElement, setContentElement] = React.useState<HTMLElement | null>(null);
   const [hasSubmenuOpen, setHasSubmenuOpen] = React.useState(false);
 
+  const {
+    openMethod,
+    triggerProps: interactionTypeProps,
+    reset: resetOpenInteractionType,
+  } = useOpenInteractionType(hasSubmenuOpen);
+
+  React.useEffect(() => {
+    if (!hasSubmenuOpen) {
+      resetOpenInteractionType();
+    }
+  }, [hasSubmenuOpen, resetOpenInteractionType]);
+
   useScrollLock({
-    enabled: modal && hasSubmenuOpen,
+    enabled: modal && hasSubmenuOpen && openMethod !== 'touch',
     open: hasSubmenuOpen,
     mounted: hasSubmenuOpen,
     referenceElement: contentElement,
@@ -80,7 +93,7 @@ export const Menubar = React.forwardRef(function Menubar(
             className={className}
             state={state}
             refs={[forwardedRef, setContentElement, contentRef]}
-            props={[{ role: 'menubar', id }, elementProps]}
+            props={[{ role: 'menubar', id }, interactionTypeProps, elementProps]}
             orientation={orientation}
             loop={loop}
             highlightItemOnHover={hasSubmenuOpen}

@@ -74,7 +74,6 @@ export const AlertDialogPopup = React.forwardRef(function AlertDialogPopup(
   const { popupProps, resolvedInitialFocus } = useDialogPopup({
     descriptionElementId,
     initialFocus,
-    modal: true,
     mounted,
     setOpen,
     openMethod,
