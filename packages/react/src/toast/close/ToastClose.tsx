@@ -18,7 +18,7 @@ export const ToastClose = React.forwardRef(function ToastClose(
 ) {
   const { render, className, disabled, nativeButton = true, ...elementProps } = componentProps;
 
-  const { close } = useToastContext();
+  const { close, focused } = useToastContext();
   const { toast } = useToastRootContext();
 
   const { getButtonProps, buttonRef } = useButton({
@@ -38,6 +38,7 @@ export const ToastClose = React.forwardRef(function ToastClose(
     state,
     props: [
       {
+        'aria-hidden': !focused || undefined,
         onClick() {
           close(toast.id);
         },
