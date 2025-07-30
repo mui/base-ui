@@ -1,12 +1,12 @@
 'use client';
 import * as React from 'react';
-import { useForkRef } from '@base-ui-components/utils/useForkRef';
+import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
 import { FloatingEvents, useFloatingTree } from '../../floating-ui-react';
 import { REGULAR_ITEM, useMenuItem } from './useMenuItem';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useBaseUiId } from '../../utils/useBaseUiId';
-import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
+import type { BaseUIComponentProps, HTMLProps, NonNativeButtonProps } from '../../utils/types';
 import { useCompositeListItem } from '../../composite/list/useCompositeListItem';
 
 const InnerMenuItem = React.memo(
@@ -71,7 +71,7 @@ export const MenuItem = React.forwardRef(function MenuItem(
 
   const itemRef = React.useRef<HTMLElement>(null);
   const listItem = useCompositeListItem({ label });
-  const mergedRef = useForkRef(forwardedRef, listItem.ref, itemRef);
+  const mergedRef = useMergedRefs(forwardedRef, listItem.ref, itemRef);
 
   const { itemProps, activeIndex, allowMouseUpTriggerRef, typingRef } = useMenuRootContext();
   const id = useBaseUiId(idProp);
@@ -119,7 +119,7 @@ export namespace MenuItem {
     highlighted: boolean;
   }
 
-  export interface Props extends BaseUIComponentProps<'div', State> {
+  export interface Props extends NonNativeButtonProps, BaseUIComponentProps<'div', State> {
     children?: React.ReactNode;
     /**
      * The click handler for the menu item.
@@ -144,12 +144,5 @@ export namespace MenuItem {
      * @default true
      */
     closeOnClick?: boolean;
-    /**
-     * Whether the component renders a native `<button>` element when replacing it
-     * via the `render` prop.
-     * Set to `false` if the rendered element is not a button (e.g. `<div>`).
-     * @default false
-     */
-    nativeButton?: boolean;
   }
 }

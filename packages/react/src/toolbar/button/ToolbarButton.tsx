@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { BaseUIComponentProps } from '../../utils/types';
+import { BaseUIComponentProps, NativeButtonProps } from '../../utils/types';
 import { useButton } from '../../use-button';
 import type { ToolbarRoot } from '../root/ToolbarRoot';
 import { useToolbarRootContext } from '../root/ToolbarRootContext';
@@ -75,7 +75,9 @@ export namespace ToolbarButton {
     focusable: boolean;
   }
 
-  export interface Props extends BaseUIComponentProps<'button', ToolbarRoot.State> {
+  export interface Props
+    extends NativeButtonProps,
+      BaseUIComponentProps<'button', ToolbarRoot.State> {
     /**
      * When `true` the item is disabled.
      * @default false
@@ -86,12 +88,5 @@ export namespace ToolbarButton {
      * @default true
      */
     focusableWhenDisabled?: boolean;
-    /**
-     * Whether the component renders a native `<button>` element when replacing it
-     * via the `render` prop.
-     * Set to `false` if the rendered element is not a button (e.g. `<div>`).
-     * @default true
-     */
-    nativeButton?: boolean;
   }
 }

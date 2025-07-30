@@ -3,7 +3,7 @@ import * as React from 'react';
 import { useDialogRootContext } from '../root/DialogRootContext';
 import { useButton } from '../../use-button/useButton';
 import { useRenderElement } from '../../utils/useRenderElement';
-import type { BaseUIComponentProps } from '../../utils/types';
+import type { BaseUIComponentProps, NativeButtonProps } from '../../utils/types';
 import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
 import { CLICK_TRIGGER_IDENTIFIER } from '../../utils/constants';
 
@@ -54,15 +54,7 @@ export const DialogTrigger = React.forwardRef(function DialogTrigger(
 });
 
 export namespace DialogTrigger {
-  export interface Props extends BaseUIComponentProps<'button', State> {
-    /**
-     * Whether the component renders a native `<button>` element when replacing it
-     * via the `render` prop.
-     * Set to `false` if the rendered element is not a button (e.g. `<div>`).
-     * @default true
-     */
-    nativeButton?: boolean;
-  }
+  export interface Props extends NativeButtonProps, BaseUIComponentProps<'button', State> {}
 
   export interface State {
     /**

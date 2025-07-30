@@ -4,7 +4,7 @@ import { getSide, getAlignment, type Rect, getSideAxis } from '@floating-ui/util
 import { ownerDocument } from '@base-ui-components/utils/owner';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { useLatestRef } from '@base-ui-components/utils/useLatestRef';
-import { useModernLayoutEffect } from '@base-ui-components/utils/useModernLayoutEffect';
+import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import {
   autoUpdate,
   flip,
@@ -367,7 +367,7 @@ export function useAnchorPositioning(
 
   const registeredPositionReferenceRef = React.useRef<Element | VirtualElement | null>(null);
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     if (!mounted) {
       return;
     }

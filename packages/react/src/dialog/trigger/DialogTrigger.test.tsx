@@ -9,6 +9,8 @@ describe('<Dialog.Trigger />', () => {
 
   describeConformance(<Dialog.Trigger />, () => ({
     refInstanceof: window.HTMLButtonElement,
+    testComponentPropWith: 'button',
+    button: true,
     render: (node) => {
       return render(
         <Dialog.Root open modal={false}>

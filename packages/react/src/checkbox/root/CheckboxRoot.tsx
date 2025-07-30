@@ -2,13 +2,13 @@
 import * as React from 'react';
 import { useControlled } from '@base-ui-components/utils/useControlled';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
-import { useForkRef } from '@base-ui-components/utils/useForkRef';
-import { useModernLayoutEffect } from '@base-ui-components/utils/useModernLayoutEffect';
+import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
+import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { visuallyHidden } from '@base-ui-components/utils/visuallyHidden';
 import { useCustomStyleHookMapping } from '../utils/useCustomStyleHookMapping';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useBaseUiId } from '../../utils/useBaseUiId';
-import type { BaseUIComponentProps } from '../../utils/types';
+import type { BaseUIComponentProps, NativeButtonProps } from '../../utils/types';
 import { mergeProps } from '../../merge-props';
 import { useButton } from '../../use-button/useButton';
 import type { FieldRoot } from '../../field/root/FieldRoot';
@@ -117,7 +117,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
 
   const id = useBaseUiId(idProp);
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     const element = controlRef?.current;
     if (!element) {
       return undefined;
@@ -145,9 +145,9 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
   });
 
   const inputRef = React.useRef<HTMLInputElement>(null);
-  const mergedInputRef = useForkRef(inputRefProp, inputRef, fieldControlValidation.inputRef);
+  const mergedInputRef = useMergedRefs(inputRefProp, inputRef, fieldControlValidation.inputRef);
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     if (inputRef.current) {
       inputRef.current.indeterminate = groupIndeterminate;
       if (checked) {
@@ -332,7 +332,9 @@ export namespace CheckboxRoot {
     indeterminate: boolean;
   }
 
-  export interface Props extends Omit<BaseUIComponentProps<'button', State>, 'onChange' | 'value'> {
+  export interface Props
+    extends NativeButtonProps,
+      Omit<BaseUIComponentProps<'button', State>, 'onChange' | 'value'> {
     /**
      * The id of the input element.
      */
@@ -398,12 +400,5 @@ export namespace CheckboxRoot {
      * The value of the selected checkbox.
      */
     value?: string;
-    /**
-     * Whether the component renders a native `<button>` element when replacing it
-     * via the `render` prop.
-     * Set to `false` if the rendered element is not a button (e.g. `<div>`).
-     * @default true
-     */
-    nativeButton?: boolean;
   }
 }

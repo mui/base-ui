@@ -46,11 +46,12 @@ interface ItemProps extends React.ComponentProps<'li'> {
   active?: boolean;
   href: string;
   isNew?: boolean;
+  external?: boolean;
 }
 
 const SCROLL_MARGIN = 48;
 
-export function Item({ children, href, ...props }: ItemProps) {
+export function Item({ children, href, external, ...props }: ItemProps) {
   const ref = React.useRef<HTMLLIElement>(null);
   const pathname = usePathname();
   const active = pathname === href;
@@ -85,14 +86,16 @@ export function Item({ children, href, ...props }: ItemProps) {
     }
   }, [active]);
 
+  const LinkComponent = external ? 'a' : NextLink;
+
   return (
     <li ref={ref} {...props} className={clsx('SideNavItem', props.className)}>
-      <NextLink
+      <LinkComponent
         aria-current={active ? 'page' : undefined}
         data-active={active || undefined}
         className="SideNavLink"
         href={href}
-        scroll={!active}
+        scroll={external ? undefined : !active}
         onClick={() => {
           // Scroll to top smoothly when clicking on the currently active item
           if (active) {
@@ -101,7 +104,7 @@ export function Item({ children, href, ...props }: ItemProps) {
         }}
       >
         {children}
-      </NextLink>
+      </LinkComponent>
     </li>
   );
 }

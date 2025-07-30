@@ -1,10 +1,10 @@
 import * as React from 'react';
 import { tabbable, isTabbable, focusable, type FocusableElement } from 'tabbable';
 import { getNodeName, isHTMLElement } from '@floating-ui/utils/dom';
-import { useForkRef } from '@base-ui-components/utils/useForkRef';
+import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
 import { useLatestRef } from '@base-ui-components/utils/useLatestRef';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
-import { useModernLayoutEffect } from '@base-ui-components/utils/useModernLayoutEffect';
+import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { visuallyHidden } from '@base-ui-components/utils/visuallyHidden';
 import { FocusGuard } from '../../utils/FocusGuard';
 import {
@@ -489,8 +489,8 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
   const beforeGuardRef = React.useRef<HTMLSpanElement | null>(null);
   const afterGuardRef = React.useRef<HTMLSpanElement | null>(null);
 
-  const mergedBeforeGuardRef = useForkRef(beforeGuardRef, portalContext?.beforeInsideRef);
-  const mergedAfterGuardRef = useForkRef(afterGuardRef, portalContext?.afterInsideRef);
+  const mergedBeforeGuardRef = useMergedRefs(beforeGuardRef, portalContext?.beforeInsideRef);
+  const mergedAfterGuardRef = useMergedRefs(afterGuardRef, portalContext?.afterInsideRef);
 
   React.useEffect(() => {
     if (disabled) {
@@ -506,8 +506,6 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     );
 
     const ancestors = tree ? getNodeAncestors(tree.nodesRef.current, getNodeId()) : [];
-    const ancestorFloatingNodes =
-      tree && !modal ? ancestors.map((node) => node.context?.elements.floating) : [];
     const rootAncestorComboboxDomReference = ancestors.find((node) =>
       isTypeableCombobox(node.context?.elements.domReference || null),
     )?.context?.elements.domReference;
@@ -516,7 +514,6 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
       floating,
       rootAncestorComboboxDomReference,
       ...portalNodes,
-      ...ancestorFloatingNodes,
       ...getInsideElements(),
       startDismissButtonRef.current,
       endDismissButtonRef.current,
@@ -550,7 +547,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     getInsideElements,
   ]);
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     if (disabled || !isHTMLElement(floatingFocusElement)) {
       return;
     }
@@ -583,7 +580,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     initialFocusRef,
   ]);
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     if (disabled || !floatingFocusElement) {
       return undefined;
     }
@@ -733,7 +730,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
 
   // Synchronize the `context` & `modal` value to the FloatingPortal context.
   // It will decide whether or not it needs to render its own guards.
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     if (disabled) {
       return undefined;
     }
@@ -754,7 +751,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     };
   }, [disabled, portalContext, modal, open, onOpenChange, closeOnFocusOut, domReference]);
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     if (disabled) {
       return;
     }

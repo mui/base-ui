@@ -604,7 +604,7 @@ _Mar 20, 2025_
 - [test] Fix flaky browser tests (#1371) @atomiks
 - [test] Update vitest to ^3 (#1453) @michaldudak
 - [test] Skip flaky FieldRoot tests in real browsers (#1446) @michaldudak
-- [useForkRef] Support ref cleanup functions (#1553) @atomiks
+- [useMergedRefs] Support ref cleanup functions (#1553) @atomiks
 - [utils] Change order of args in `mergeReactProps` (#1533) @mnajdova
 
 ## v1.0.0-alpha.6
