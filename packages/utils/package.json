@@ -15,7 +15,7 @@
   "type": "commonjs",
   "scripts": {
     "prebuild": "rimraf --glob build build-tests \"*.tsbuildinfo\"",
-    "build": "code-infra build --bundle esm --bundle cjs && pnpm build:copy-files",
+    "build": "code-infra build --bundle esm --bundle cjs --cjsOutDir . && pnpm build:copy-files",
     "build:old": "pnpm build:node && pnpm build:stable && pnpm build:types && pnpm build:copy-files:old",
     "build:node": "node ../../scripts/build.mjs node --cjsDir ./cjs",
     "build:stable": "node ../../scripts/build.mjs stable --cjsDir ./cjs",
