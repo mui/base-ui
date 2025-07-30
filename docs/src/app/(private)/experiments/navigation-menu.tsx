@@ -226,6 +226,30 @@ export default function ExampleNavigationMenu() {
           </NavigationMenu.Item>
 
           <NavigationMenu.Item>
+            <NavigationMenu.Trigger className={styles.Trigger}>
+              Long List
+              <NavigationMenu.Icon className={styles.Icon}>
+                <ChevronDownIcon />
+              </NavigationMenu.Icon>
+            </NavigationMenu.Trigger>
+            <NavigationMenu.Content className={styles.Content}>
+              <ul className={styles.LongList}>
+                {Array.from({ length: 50 }, (_, index) => (
+                  <li key={index}>
+                    <Link className={styles.LinkCard} href={`/item-${index}`}>
+                      <h3 className={styles.LinkTitle}>Item {index + 1}</h3>
+                      <p className={styles.LinkDescription}>
+                        This is item number {index + 1} in the long list for testing scrollable
+                        menus.
+                      </p>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </NavigationMenu.Content>
+          </NavigationMenu.Item>
+
+          <NavigationMenu.Item>
             <Link className={styles.Trigger} href="https://github.com/mui/base-ui">
               GitHub
             </Link>

@@ -164,6 +164,8 @@
   padding: 1.5rem;
   width: calc(100vw - 40px);
   height: 100%;
+  max-height: var(--available-height);
+  overflow-y: auto;
 
   @media (min-width: 500px) {
     width: max-content;
@@ -256,6 +258,13 @@
   font-size: 0.875rem;
   line-height: 1.25rem;
   color: var(--color-gray-500);
+}
+
+.LongList {
+  display: flex;
+  flex-direction: column;
+  list-style: none;
+  overflow-y: auto;
 }
 
 .Arrow {

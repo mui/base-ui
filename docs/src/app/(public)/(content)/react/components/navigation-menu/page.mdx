@@ -81,7 +81,6 @@ When you have large menu content that doesn't fit in the viewport in some cases,
 You can change the layout of the navigation menu to render less content or be more compact by reducing the space it takes up. If your content is flexible, you can use the `max-height` property on `Popup` to limit the height of the navigation menu to let it compress itself while preventing overflow.
 
 ```css title="Compact layout"
-.Popup,
 .Content {
   max-height: var(--available-height);
 }
@@ -90,12 +89,8 @@ You can change the layout of the navigation menu to render less content or be mo
 2. Make the navigation menu scrollable
 
 ```css title="Scrollable layout"
-.Popup,
 .Content {
   max-height: var(--available-height);
-}
-
-.Content {
   overflow-y: auto;
 }
 ```
