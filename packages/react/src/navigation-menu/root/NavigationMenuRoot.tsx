@@ -113,7 +113,7 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot(
     if (
       closeReasonRef.current !== 'trigger-hover' &&
       isHTMLElement(prevTriggerElementRef.current) &&
-      (contains(popupElement, activeEl) || activeEl === doc.body) &&
+      contains(popupElement, activeEl) &&
       popupElement
     ) {
       prevTriggerElementRef.current.focus({ preventScroll: true });
