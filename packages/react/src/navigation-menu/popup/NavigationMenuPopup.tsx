@@ -1,18 +1,11 @@
 'use client';
 import * as React from 'react';
-import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
-import {
-  getNextTabbable,
-  getPreviousTabbable,
-  isOutsideEvent,
-} from '../../floating-ui-react/utils';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useNavigationMenuRootContext } from '../root/NavigationMenuRootContext';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import { transitionStatusMapping } from '../../utils/styleHookMapping';
 import { useBaseUiId } from '../../utils/useBaseUiId';
-import { FocusGuard } from '../../utils/FocusGuard';
 import { useNavigationMenuPositionerContext } from '../positioner/NavigationMenuPositionerContext';
 import { useDirection } from '../../direction-provider/DirectionContext';
 import { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
@@ -35,17 +28,7 @@ export const NavigationMenuPopup = React.forwardRef(function NavigationMenuPopup
 ) {
   const { className, render, id: idProp, ...elementProps } = componentProps;
 
-  const {
-    open,
-    transitionStatus,
-    popupElement,
-    positionerElement,
-    setPopupElement,
-    beforeInsideRef,
-    beforeOutsideRef,
-    afterInsideRef,
-    afterOutsideRef,
-  } = useNavigationMenuRootContext();
+  const { open, transitionStatus, setPopupElement } = useNavigationMenuRootContext();
   const positioning = useNavigationMenuPositionerContext();
   const direction = useDirection();
 
@@ -61,19 +44,6 @@ export const NavigationMenuPopup = React.forwardRef(function NavigationMenuPopup
     }),
     [open, transitionStatus, positioning.side, positioning.align, positioning.anchorHidden],
   );
-
-  // Allow the arrow to transition while the popup's size transitions.
-  useIsoLayoutEffect(() => {
-    if (!popupElement || typeof ResizeObserver === 'undefined') {
-      return undefined;
-    }
-
-    const observer = new ResizeObserver(positioning.update);
-    observer.observe(popupElement);
-    return () => {
-      observer.disconnect();
-    };
-  }, [popupElement, positioning.update]);
 
   // Ensure popup size transitions correctly when anchored to `bottom` (side=top) or `right` (side=left).
   let isOriginSide = positioning.side === 'top';
@@ -106,31 +76,7 @@ export const NavigationMenuPopup = React.forwardRef(function NavigationMenuPopup
     customStyleHookMapping,
   });
 
-  return (
-    <React.Fragment>
-      <FocusGuard
-        ref={beforeInsideRef}
-        onFocus={(event) => {
-          if (positionerElement && isOutsideEvent(event, positionerElement)) {
-            getNextTabbable(positionerElement)?.focus();
-          } else {
-            beforeOutsideRef.current?.focus();
-          }
-        }}
-      />
-      {element}
-      <FocusGuard
-        ref={afterInsideRef}
-        onFocus={(event) => {
-          if (positionerElement && isOutsideEvent(event, positionerElement)) {
-            getPreviousTabbable(positionerElement)?.focus();
-          } else {
-            afterOutsideRef.current?.focus();
-          }
-        }}
-      />
-    </React.Fragment>
-  );
+  return element;
 });
 
 export namespace NavigationMenuPopup {

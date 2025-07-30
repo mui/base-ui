@@ -467,16 +467,16 @@ describe('<Dialog.Root />', () => {
       );
     }
 
-    const { user } = await render(<App />);
+    await render(<App />);
 
     const trigger = screen.getByRole('button', { name: 'Trigger' });
-    await user.click(trigger);
+    fireEvent.click(trigger);
 
     const nestedButton1 = screen.getByRole('button', { name: 'Open nested 1' });
-    await user.click(nestedButton1);
+    fireEvent.click(nestedButton1);
 
     const nestedButton2 = screen.getByRole('button', { name: 'Open nested 2' });
-    await user.click(nestedButton2);
+    fireEvent.click(nestedButton2);
 
     const backdrops = Array.from(document.querySelectorAll('[role="presentation"]'));
     fireEvent.click(backdrops[backdrops.length - 1]);

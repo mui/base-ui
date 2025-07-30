@@ -52,6 +52,11 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
   const [popupElement, setPopupElement] = React.useState<HTMLElement | null>(null);
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
+  const {
+    openMethod,
+    triggerProps,
+    reset: resetOpenInteractionType,
+  } = useOpenInteractionType(open);
 
   const setOpen = useEventCallback(
     (
@@ -67,6 +72,7 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
   const handleUnmount = useEventCallback(() => {
     setMounted(false);
     onOpenChangeComplete?.(false);
+    resetOpenInteractionType();
   });
 
   useOpenChangeComplete({
@@ -101,7 +107,7 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
   const role = useRole(context);
   const click = useClick(context);
   const dismiss = useDismiss(context, {
-    outsidePressEvent: 'click',
+    outsidePressEvent: 'intentional',
     outsidePress(event) {
       if (event.button !== 0) {
         return false;
@@ -156,8 +162,6 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
   const handleNestedDialogClose = React.useCallback(() => {
     setOwnNestedOpenDialogs(0);
   }, []);
-
-  const { openMethod, triggerProps } = useOpenInteractionType(open);
 
   const dialogTriggerProps = React.useMemo(
     () => getReferenceProps(triggerProps),
