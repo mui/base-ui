@@ -123,6 +123,7 @@
   transition-timing-function: var(--easing);
   width: var(--popup-width);
   height: var(--popup-height);
+  max-height: var(--available-height);
 
   &[data-starting-style],
   &[data-ending-style] {
