@@ -722,9 +722,9 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     }
 
     const doc = getDocument(floatingFocusElement);
-    doc.addEventListener('mousedown', handlePointerDown, true);
+    doc.addEventListener('pointerdown', handlePointerDown, true);
     return () => {
-      doc.removeEventListener('mousedown', handlePointerDown, true);
+      doc.removeEventListener('pointerdown', handlePointerDown, true);
     };
   }, [disabled, open, floatingFocusElement]);
 
