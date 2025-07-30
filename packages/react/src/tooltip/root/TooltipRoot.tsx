@@ -3,7 +3,11 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { useControlled } from '@base-ui-components/utils/useControlled';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
-import { TooltipOpenChangeReason, TooltipRootContext } from './TooltipRootContext';
+import {
+  TooltipOpenChangeReason,
+  TooltipRootContext,
+  TooltipOpenChangeEvent,
+} from './TooltipRootContext';
 import {
   useClientPoint,
   useDelayGroup,
@@ -19,6 +23,7 @@ import { OPEN_DELAY } from '../utils/constants';
 import { translateOpenChangeReason } from '../../utils/translateOpenChangeReason';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useTooltipProviderContext } from '../provider/TooltipProviderContext';
+import { createBaseUIEvent } from '../../utils/createBaseUIEvent';
 
 /**
  * Groups all parts of the tooltip.
@@ -58,35 +63,41 @@ export function TooltipRoot(props: TooltipRoot.Props) {
 
   const onOpenChange = useEventCallback(onOpenChangeProp);
 
-  const setOpen = useEventCallback(
-    (nextOpen: boolean, event: Event | undefined, reason: TooltipOpenChangeReason | undefined) => {
-      const isHover = reason === 'trigger-hover';
-      const isFocusOpen = nextOpen && reason === 'trigger-focus';
-      const isDismissClose = !nextOpen && (reason === 'trigger-press' || reason === 'escape-key');
+  const setOpen = useEventCallback((nextOpen: boolean, event: TooltipOpenChangeEvent) => {
+    const reason = event.reason;
+    const isHover = reason === 'trigger-hover';
+    const isFocusOpen = nextOpen && reason === 'trigger-focus';
+    const isDismissClose = !nextOpen && (reason === 'trigger-press' || reason === 'escape-key');
 
-      function changeState() {
-        onOpenChange(nextOpen, event, reason);
-        setOpenUnwrapped(nextOpen);
-      }
+    onOpenChange?.(nextOpen, event);
 
-      if (isHover) {
-        // If a hover reason is provided, we need to flush the state synchronously. This ensures
-        // `node.getAnimations()` knows about the new state.
-        ReactDOM.flushSync(changeState);
-      } else {
-        changeState();
-      }
+    if (event.baseUIHandlerPrevented) {
+      return;
+    }
 
-      if (isFocusOpen || isDismissClose) {
-        setInstantTypeState(isFocusOpen ? 'focus' : 'dismiss');
-      } else if (reason === 'trigger-hover') {
-        setInstantTypeState(undefined);
-      }
-    },
-  );
+    function changeState() {
+      setOpenUnwrapped(nextOpen);
+    }
+
+    if (isHover) {
+      // If a hover reason is provided, we need to flush the state synchronously. This ensures
+      // `node.getAnimations()` knows about the new state.
+      ReactDOM.flushSync(changeState);
+    } else {
+      changeState();
+    }
+
+    if (isFocusOpen || isDismissClose) {
+      setInstantTypeState(isFocusOpen ? 'focus' : 'dismiss');
+    } else if (reason === 'trigger-hover') {
+      setInstantTypeState(undefined);
+    }
+  });
 
   if (openState && disabled) {
-    setOpen(false, undefined, 'disabled');
+    const disabledEvent = createBaseUIEvent() as TooltipOpenChangeEvent;
+    disabledEvent.reason = 'disabled';
+    setOpen(false, disabledEvent);
   }
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(openState);
@@ -116,7 +127,9 @@ export function TooltipRoot(props: TooltipRoot.Props) {
     },
     open: openState,
     onOpenChange(openValue, eventValue, reasonValue) {
-      setOpen(openValue, eventValue, translateOpenChangeReason(reasonValue));
+      const customEvent = createBaseUIEvent(eventValue as Event) as TooltipOpenChangeEvent;
+      customEvent.reason = translateOpenChangeReason(reasonValue);
+      setOpen(openValue, customEvent);
     },
   });
 
@@ -244,11 +257,7 @@ export namespace TooltipRoot {
     /**
      * Event handler called when the tooltip is opened or closed.
      */
-    onOpenChange?: (
-      open: boolean,
-      event: Event | undefined,
-      reason: OpenChangeReason | undefined,
-    ) => void;
+    onOpenChange?: (open: boolean, event: TooltipOpenChangeEvent) => void;
     /**
      * Event handler called after any animations complete when the tooltip is opened or closed.
      */
