@@ -5,6 +5,10 @@
     "build": {
       "cache": true,
       "dependsOn": ["^build"]
+    },
+    "build:old": {
+      "cache": true,
+      "dependsOn": ["^build:old"]
     }
   }
 }
