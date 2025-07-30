@@ -11,6 +11,7 @@ export function useDialogPopup(parameters: useDialogPopup.Parameters): useDialog
     descriptionElementId,
     initialFocus,
     modal,
+    alert,
     mounted,
     openMethod,
     ref,
@@ -49,7 +50,7 @@ export function useDialogPopup(parameters: useDialogPopup.Parameters): useDialog
     'aria-labelledby': titleElementId ?? undefined,
     'aria-describedby': descriptionElementId ?? undefined,
     'aria-modal': mounted && modal === true ? true : undefined,
-    role: 'dialog',
+    role: alert ? 'alertdialog' : 'dialog',
     tabIndex: -1,
     ref: handleRef,
     hidden: !mounted,
@@ -61,6 +62,7 @@ export function useDialogPopup(parameters: useDialogPopup.Parameters): useDialog
   };
 
   return {
+    alert,
     popupProps,
     resolvedInitialFocus,
   };
@@ -74,6 +76,10 @@ export namespace useDialogPopup {
     ref: React.Ref<HTMLElement>;
     modal: boolean | 'trap-focus';
     openMethod: InteractionType | null;
+    /**
+     * Whether the dialog is an alert dialog.
+     */
+    alert?: boolean;
     /**
      * Event handler called when the dialog is opened or closed.
      */
@@ -108,6 +114,7 @@ export namespace useDialogPopup {
   }
 
   export interface ReturnValue {
+    alert?: boolean;
     popupProps: HTMLProps;
     resolvedInitialFocus: React.RefObject<HTMLElement | null> | number;
   }

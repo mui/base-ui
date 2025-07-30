@@ -54,6 +54,32 @@ describe('<Dialog.Root />', () => {
     );
   });
 
+  it('ARIA attributes [alertdialog]', async () => {
+    const { queryByRole, getByText } = await render(
+      <Dialog.Root modal={false} open alert>
+        <Dialog.Trigger />
+        <Dialog.Portal>
+          <Dialog.Backdrop />
+          <Dialog.Popup>
+            <Dialog.Title>title text</Dialog.Title>
+            <Dialog.Description>description text</Dialog.Description>
+          </Dialog.Popup>
+        </Dialog.Portal>
+      </Dialog.Root>,
+    );
+
+    const popup = queryByRole('alertdialog');
+    expect(popup).not.to.equal(null);
+    expect(popup).to.have.attribute('aria-modal');
+
+    expect(getByText('title text').getAttribute('id')).to.equal(
+      popup?.getAttribute('aria-labelledby'),
+    );
+    expect(getByText('description text').getAttribute('id')).to.equal(
+      popup?.getAttribute('aria-describedby'),
+    );
+  });
+
   describe('prop: onOpenChange', () => {
     it('calls onOpenChange with the new open state', async () => {
       const handleOpenChange = spy();
