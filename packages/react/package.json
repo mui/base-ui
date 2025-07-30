@@ -86,7 +86,7 @@
   "dependencies": {
     "@babel/runtime": "^7.27.6",
     "@base-ui-components/utils": "workspace:*",
-    "@floating-ui/react-dom": "^2.1.4",
+    "@floating-ui/react-dom": "^2.1.5",
     "@floating-ui/utils": "^0.2.10",
     "tabbable": "^6.2.0",
     "reselect": "^5.1.1",
