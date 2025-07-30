@@ -107,10 +107,6 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
 
   const runOnceAnimationsFinish = useAnimationsFinished(popupElement);
 
-  if (!open && pointerType !== '') {
-    setPointerType('');
-  }
-
   React.useEffect(() => {
     animationAbortControllerRef.current.abort();
   }, [isActiveItem]);
@@ -152,16 +148,16 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
       `${height}px`,
     );
 
+    if (
+      Math.floor(width) === Math.floor(currentWidth) &&
+      Math.floor(height) === Math.floor(currentHeight)
+    ) {
+      setAutoSizes();
+      return;
+    }
+
     sizeFrame1.request(() => {
       sizeFrame2.request(() => {
-        if (
-          Math.floor(width) === Math.floor(currentWidth) &&
-          Math.floor(height) === Math.floor(currentHeight)
-        ) {
-          setAutoSizes();
-          return;
-        }
-
         popupElement.style.setProperty(NavigationMenuPopupCssVars.popupWidth, `${width}px`);
         popupElement.style.setProperty(NavigationMenuPopupCssVars.popupHeight, `${height}px`);
 
@@ -270,6 +266,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
         setValue(itemValue, event, reason);
       } else {
         setValue(null, event, reason);
+        setPointerType('');
       }
     }
 
