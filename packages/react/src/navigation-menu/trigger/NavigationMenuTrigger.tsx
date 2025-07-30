@@ -243,6 +243,10 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
   ) {
     const isHover = reason === 'trigger-hover';
 
+    if (!interactionsEnabled) {
+      return;
+    }
+
     if (pointerType === 'touch' && isHover) {
       return;
     }
@@ -288,7 +292,6 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
   });
 
   const hover = useHover(context, {
-    enabled: interactionsEnabled,
     move: false,
     handleClose: safePolygon({ blockPointerEvents: pointerType !== 'touch' }),
     restMs: mounted && positionerElement ? 0 : delay,
