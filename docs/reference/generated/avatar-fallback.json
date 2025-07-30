@@ -4,6 +4,7 @@
   "props": {
     "delay": {
       "type": "number",
+      "expanded": "number | undefined",
       "description": "How long to wait before showing the fallback. Specified in milliseconds."
     },
     "className": {

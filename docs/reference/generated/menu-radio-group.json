@@ -4,24 +4,29 @@
   "props": {
     "defaultValue": {
       "type": "any",
+      "expanded": "any",
       "description": "The uncontrolled value of the radio item that should be initially selected.\n\nTo render a controlled radio group, use the `value` prop instead."
     },
     "value": {
       "type": "any",
+      "expanded": "any",
       "description": "The controlled value of the radio item that should be currently selected.\n\nTo render an uncontrolled radio group, use the `defaultValue` prop instead."
     },
     "onValueChange": {
       "type": "((value: any, event: Event) => void)",
+      "expanded": "((value: any, event: Event) => void) | undefined",
       "default": "() => {}",
       "description": "Function called when the selected value changes."
     },
     "disabled": {
       "type": "boolean",
+      "expanded": "boolean | undefined",
       "default": "false",
       "description": "Whether the component should ignore user interaction."
     },
     "children": {
       "type": "ReactNode",
+      "expanded": "React.ReactNode",
       "description": "The content of the component."
     },
     "className": {

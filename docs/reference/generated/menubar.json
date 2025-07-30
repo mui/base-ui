@@ -4,21 +4,25 @@
   "props": {
     "modal": {
       "type": "boolean",
+      "expanded": "boolean | undefined",
       "default": "true",
       "description": "Whether the menubar is modal."
     },
     "disabled": {
       "type": "boolean",
+      "expanded": "boolean | undefined",
       "default": "false",
       "description": "Whether the whole menubar is disabled."
     },
     "loop": {
       "type": "boolean",
+      "expanded": "boolean | undefined",
       "default": "true",
       "description": "Whether to loop keyboard focus back to the first item\nwhen the end of the list is reached while using the arrow keys."
     },
     "orientation": {
       "type": "Menu.Root.Orientation",
+      "expanded": "'horizontal' | 'vertical' | undefined",
       "default": "'horizontal'",
       "description": "The orientation of the menubar."
     },

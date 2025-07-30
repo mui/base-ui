@@ -4,37 +4,45 @@
   "props": {
     "defaultOpen": {
       "type": "boolean",
+      "expanded": "boolean | undefined",
       "default": "false",
       "description": "Whether the preview card is initially open.\n\nTo render a controlled preview card, use the `open` prop instead."
     },
     "open": {
       "type": "boolean",
+      "expanded": "boolean | undefined",
       "description": "Whether the preview card is currently open."
     },
     "onOpenChange": {
       "type": "((open: boolean, event: Event | undefined, reason: PreviewCard.Root.OpenChangeReason | undefined) => void)",
+      "expanded": "((open: boolean, event: Event | undefined, reason: PreviewCard.Root.OpenChangeReason | undefined) => void) | undefined",
       "description": "Event handler called when the preview card is opened or closed."
     },
     "actionsRef": {
       "type": "RefObject<PreviewCard.Root.Actions>",
+      "expanded": "React.RefObject<PreviewCard.Root.Actions> | undefined",
       "description": "A ref to imperative actions.\n- `unmount`: When specified, the preview card will not be unmounted when closed.\nInstead, the `unmount` function must be called to unmount the preview card manually.\nUseful when the preview card's animation is controlled by an external library."
     },
     "onOpenChangeComplete": {
       "type": "((open: boolean) => void)",
+      "expanded": "((open: boolean) => void) | undefined",
       "description": "Event handler called after any animations complete when the preview card is opened or closed."
     },
     "delay": {
       "type": "number",
+      "expanded": "number | undefined",
       "default": "600",
       "description": "How long to wait before the preview card opens. Specified in milliseconds."
     },
     "closeDelay": {
       "type": "number",
+      "expanded": "number | undefined",
       "default": "300",
       "description": "How long to wait before closing the preview card. Specified in milliseconds."
     },
     "children": {
-      "type": "ReactNode"
+      "type": "ReactNode",
+      "expanded": "React.ReactNode"
     }
   },
   "dataAttributes": {},

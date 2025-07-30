@@ -4,6 +4,7 @@
   "props": {
     "children": {
       "type": "ReactNode",
+      "expanded": "React.ReactNode",
       "description": "The content of the component."
     },
     "className": {

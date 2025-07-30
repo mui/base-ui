@@ -4,19 +4,23 @@
   "props": {
     "defaultValue": {
       "type": "Tabs.Tab.Value",
+      "expanded": "Tabs.Tab.Value",
       "default": "0",
       "description": "The default value. Use when the component is not controlled.\nWhen the value is `null`, no Tab will be selected."
     },
     "value": {
       "type": "Tabs.Tab.Value",
+      "expanded": "Tabs.Tab.Value",
       "description": "The value of the currently selected `Tab`. Use when the component is controlled.\nWhen the value is `null`, no Tab will be selected."
     },
     "onValueChange": {
       "type": "((value: Tabs.Tab.Value, event: Event | undefined) => void)",
+      "expanded": "((value: Tabs.Tab.Value, event: Event | undefined) => void) | undefined",
       "description": "Callback invoked when new value is being set."
     },
     "orientation": {
       "type": "Tabs.Root.Orientation",
+      "expanded": "'horizontal' | 'vertical' | undefined",
       "default": "'horizontal'",
       "description": "The component orientation (layout flow direction)."
     },

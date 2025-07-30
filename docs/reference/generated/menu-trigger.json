@@ -4,16 +4,19 @@
   "props": {
     "nativeButton": {
       "type": "boolean",
+      "expanded": "boolean | undefined",
       "default": "true",
       "description": "Whether the component renders a native `<button>` element when replacing it\nvia the `render` prop.\nSet to `false` if the rendered element is not a button (e.g. `<div>`)."
     },
     "disabled": {
       "type": "boolean",
+      "expanded": "boolean | undefined",
       "default": "false",
       "description": "Whether the component should ignore user interaction."
     },
     "children": {
-      "type": "ReactNode"
+      "type": "ReactNode",
+      "expanded": "React.ReactNode"
     },
     "className": {
       "type": "string | ((state: Menu.Trigger.State) => string)",

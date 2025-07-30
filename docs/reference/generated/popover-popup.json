@@ -4,10 +4,12 @@
   "props": {
     "initialFocus": {
       "type": "RefObject<HTMLElement | null> | ((interactionType: InteractionType) => RefObject<HTMLElement | null>)",
+      "expanded": "React.RefObject<HTMLElement | null> | ((interactionType: InteractionType) => RefObject<HTMLElement | null>) | undefined",
       "description": "Determines the element to focus when the popover is opened.\nBy default, the first focusable element is focused."
     },
     "finalFocus": {
       "type": "RefObject<HTMLElement | null>",
+      "expanded": "React.RefObject<HTMLElement | null> | undefined",
       "description": "Determines the element to focus when the popover is closed.\nBy default, focus returns to the trigger."
     },
     "className": {

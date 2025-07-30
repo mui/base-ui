@@ -4,6 +4,7 @@
   "props": {
     "forceRender": {
       "type": "boolean",
+      "expanded": "boolean | undefined",
       "default": "false",
       "description": "Whether the backdrop is forced to render even when nested."
     },

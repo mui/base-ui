@@ -4,38 +4,46 @@
   "props": {
     "defaultValue": {
       "type": "any",
+      "expanded": "any",
       "default": "null",
       "description": "The uncontrolled value of the item that should be initially selected.\n\nTo render a controlled navigation menu, use the `value` prop instead."
     },
     "value": {
       "type": "any",
+      "expanded": "any",
       "default": "null",
       "description": "The controlled value of the navigation menu item that should be currently open.\nWhen non-nullish, the menu will be open. When nullish, the menu will be closed.\n\nTo render an uncontrolled navigation menu, use the `defaultValue` prop instead."
     },
     "onValueChange": {
       "type": "((value: any, event: Event | undefined, reason: BaseOpenChangeReason | undefined) => void)",
+      "expanded": "((value: any, event: Event | undefined, reason: BaseOpenChangeReason | undefined) => void) | undefined",
       "description": "Callback fired when the value changes."
     },
     "actionsRef": {
       "type": "RefObject<NavigationMenu.Root.Actions>",
+      "expanded": "React.RefObject<NavigationMenu.Root.Actions> | undefined",
       "description": "A ref to imperative actions."
     },
     "onOpenChangeComplete": {
       "type": "((open: boolean) => void)",
+      "expanded": "((open: boolean) => void) | undefined",
       "description": "Event handler called after any animations complete when the navigation menu is closed."
     },
     "delay": {
       "type": "number",
+      "expanded": "number | undefined",
       "default": "50",
       "description": "How long to wait before opening the navigation menu. Specified in milliseconds."
     },
     "closeDelay": {
       "type": "number",
+      "expanded": "number | undefined",
       "default": "50",
       "description": "How long to wait before closing the navigation menu. Specified in milliseconds."
     },
     "orientation": {
       "type": "'horizontal' | 'vertical'",
+      "expanded": "'horizontal' | 'vertical' | undefined",
       "default": "'horizontal'",
       "description": "The orientation of the navigation menu."
     },

@@ -4,10 +4,12 @@
   "props": {
     "errors": {
       "type": "Errors",
+      "expanded": "{} | undefined",
       "description": "An object where the keys correspond to the `name` attribute of the form fields,\nand the values correspond to the error(s) related to that field."
     },
     "onClearErrors": {
       "type": "((errors: Errors) => void)",
+      "expanded": "((errors: Errors) => void) | undefined",
       "description": "Event handler called when the `errors` object is cleared."
     },
     "className": {

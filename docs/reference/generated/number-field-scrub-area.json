@@ -4,16 +4,19 @@
   "props": {
     "direction": {
       "type": "'horizontal' | 'vertical'",
+      "expanded": "'horizontal' | 'vertical' | undefined",
       "default": "'horizontal'",
       "description": "Cursor movement direction in the scrub area."
     },
     "pixelSensitivity": {
       "type": "number",
+      "expanded": "number | undefined",
       "default": "2",
       "description": "Determines how many pixels the cursor must move before the value changes.\nA higher value will make scrubbing less sensitive."
     },
     "teleportDistance": {
       "type": "number",
+      "expanded": "number | undefined",
       "description": "If specified, determines the distance that the cursor may move from the center\nof the scrub area before it will loop back around."
     },
     "className": {

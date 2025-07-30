@@ -4,6 +4,7 @@
   "props": {
     "orientation": {
       "type": "'horizontal' | 'vertical'",
+      "expanded": "'horizontal' | 'vertical' | undefined",
       "default": "'vertical'",
       "description": "Whether the scrollbar controls vertical or horizontal scroll."
     },
@@ -13,6 +14,7 @@
     },
     "keepMounted": {
       "type": "boolean",
+      "expanded": "boolean | undefined",
       "default": "false",
       "description": "Whether to keep the HTML element in the DOM when the viewport isn’t scrollable."
     },

@@ -4,6 +4,7 @@
   "props": {
     "aria-roledescription": {
       "type": "string",
+      "expanded": "string | undefined",
       "default": "'Number field'",
       "description": "A string value that provides a user-friendly name for the role of the input."
     },

@@ -13,14 +13,14 @@ export function formatHookData(hook: tae.ExportNode) {
     parameters[0].type instanceof tae.ObjectNode &&
     parameters[0].name === 'params'
   ) {
-    formattedParameters = formatProperties(parameters[0].type.properties);
+    formattedParameters = formatProperties(parameters[0].type.properties, []);
   } else {
     formattedParameters = formatParameters(parameters);
   }
 
   let formattedReturnValue: Record<string, any> | string;
   if (signature.returnValueType instanceof tae.ObjectNode) {
-    formattedReturnValue = formatProperties(signature.returnValueType.properties);
+    formattedReturnValue = formatProperties(signature.returnValueType.properties, []);
   } else {
     formattedReturnValue = formatType(signature.returnValueType, false, true);
   }

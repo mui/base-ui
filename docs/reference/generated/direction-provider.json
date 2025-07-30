@@ -4,11 +4,13 @@
   "props": {
     "direction": {
       "type": "TextDirection",
+      "expanded": "'ltr' | 'rtl' | undefined",
       "default": "'ltr'",
       "description": "The reading direction of the text"
     },
     "children": {
-      "type": "ReactNode"
+      "type": "ReactNode",
+      "expanded": "React.ReactNode"
     }
   },
   "dataAttributes": {},

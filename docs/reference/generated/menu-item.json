@@ -4,32 +4,39 @@
   "props": {
     "label": {
       "type": "string",
+      "expanded": "string | undefined",
       "description": "Overrides the text label to use when the item is matched during keyboard text navigation."
     },
     "onClick": {
       "type": "MouseEventHandler<HTMLElement>",
+      "expanded": "React.MouseEventHandler<HTMLElement> | undefined",
       "description": "The click handler for the menu item."
     },
     "closeOnClick": {
       "type": "boolean",
+      "expanded": "boolean | undefined",
       "default": "true",
       "description": "Whether to close the menu when the item is clicked."
     },
     "nativeButton": {
       "type": "boolean",
+      "expanded": "boolean | undefined",
       "default": "false",
       "description": "Whether the component renders a native `<button>` element when replacing it\nvia the `render` prop.\nSet to `true` if the rendered element is a native button."
     },
     "disabled": {
       "type": "boolean",
+      "expanded": "boolean | undefined",
       "default": "false",
       "description": "Whether the component should ignore user interaction."
     },
     "id": {
-      "type": "string"
+      "type": "string",
+      "expanded": "string | undefined"
     },
     "children": {
-      "type": "ReactNode"
+      "type": "ReactNode",
+      "expanded": "React.ReactNode"
     },
     "className": {
       "type": "string | ((state: Menu.Item.State) => string)",

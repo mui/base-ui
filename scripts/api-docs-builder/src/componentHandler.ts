@@ -11,7 +11,7 @@ export function formatComponentData(component: tae.ExportNode, allExports: tae.E
     name: component.name,
     description,
     props: sortObjectByKeys(
-      formatProperties((component.type as tae.ComponentNode).props),
+      formatProperties((component.type as tae.ComponentNode).props, allExports),
       memberOrder.props,
     ),
     dataAttributes: dataAttributes

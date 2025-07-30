@@ -4,6 +4,7 @@
   "props": {
     "onLoadingStatusChange": {
       "type": "((status: ImageLoadingStatus) => void)",
+      "expanded": "((status: ImageLoadingStatus) => void) | undefined",
       "description": "Callback fired when the loading status changes."
     },
     "className": {

@@ -4,6 +4,7 @@
   "props": {
     "orientation": {
       "type": "Orientation",
+      "expanded": "'horizontal' | 'vertical' | undefined",
       "default": "'horizontal'",
       "description": "The orientation of the separator."
     },

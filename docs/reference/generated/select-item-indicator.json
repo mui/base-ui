@@ -3,7 +3,8 @@
   "description": "Indicates whether the select item is selected.\nRenders a `<span>` element.",
   "props": {
     "children": {
-      "type": "ReactNode"
+      "type": "ReactNode",
+      "expanded": "React.ReactNode"
     },
     "className": {
       "type": "string | ((state: Select.ItemIndicator.State) => string)",
@@ -11,6 +12,7 @@
     },
     "keepMounted": {
       "type": "boolean",
+      "expanded": "boolean | undefined",
       "default": "false",
       "description": "Whether to keep the HTML element in the DOM when the item is not selected."
     },

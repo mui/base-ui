@@ -4,31 +4,37 @@
   "props": {
     "value": {
       "type": "any",
+      "expanded": "any",
       "required": true,
       "description": "The unique identifying value of the radio in a group."
     },
     "nativeButton": {
       "type": "boolean",
+      "expanded": "boolean | undefined",
       "default": "true",
       "description": "Whether the component renders a native `<button>` element when replacing it\nvia the `render` prop.\nSet to `false` if the rendered element is not a button (e.g. `<div>`)."
     },
     "disabled": {
       "type": "boolean",
+      "expanded": "boolean | undefined",
       "default": "false",
       "description": "Whether the component should ignore user interaction."
     },
     "readOnly": {
       "type": "boolean",
+      "expanded": "boolean | undefined",
       "default": "false",
       "description": "Whether the user should be unable to select the radio button."
     },
     "required": {
       "type": "boolean",
+      "expanded": "boolean | undefined",
       "default": "false",
       "description": "Whether the user must choose a value before submitting a form."
     },
     "inputRef": {
       "type": "Ref<HTMLInputElement>",
+      "expanded": "React.Ref<HTMLInputElement> | undefined",
       "description": "A ref to access the hidden input element."
     },
     "className": {

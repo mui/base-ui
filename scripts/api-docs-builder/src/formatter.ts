@@ -4,15 +4,32 @@ import fs from 'fs';
 import path from 'path';
 import _ from 'lodash';
 
-export function formatProperties(props: tae.PropertyNode[]) {
+export function formatProperties(
+  props: tae.PropertyNode[],
+  allExports: tae.ExportNode[] | undefined = undefined,
+) {
   const result: Record<string, any> = {};
 
   for (const prop of props) {
+    const exampleTag = prop.documentation?.tags
+      ?.filter((tag) => tag.name === 'example')
+      .map((tag) => tag.value)
+      .join('\n');
+
+    let expandedType: string | undefined;
+    if (prop.name !== 'className' && prop.name !== 'render') {
+      expandedType = allExports
+        ? formatExpandedType(prop.type, allExports)
+        : formatType(prop.type, prop.optional, prop.documentation?.tags, true);
+    }
+
     result[prop.name] = {
       type: formatType(prop.type, prop.optional, prop.documentation?.tags),
+      expanded: expandedType,
       default: prop.documentation?.defaultValue,
       required: !prop.optional || undefined,
       description: prop.documentation?.description,
+      example: exampleTag || undefined,
     };
   }
 
@@ -23,15 +40,68 @@ export function formatParameters(params: tae.Parameter[]) {
   const result: Record<string, any> = {};
 
   for (const param of params) {
+    const exampleTag = param.documentation?.tags
+      ?.filter((tag) => tag.name === 'example')
+      .map((tag) => tag.value)
+      .join('\n');
+
     result[param.name] = {
       type: formatType(param.type, param.optional, param.documentation?.tags, true),
       default: param.defaultValue,
       optional: param.optional || undefined,
       description: param.documentation?.description,
+      example: exampleTag || undefined,
     };
   }
 
   return result;
+}
+
+export function formatExpandedType(
+  type: tae.AnyType,
+  allExports: tae.ExportNode[],
+  visited = new Set<string>(),
+): string {
+  // Prevent infinite recursion
+  if (type instanceof tae.ExternalTypeNode) {
+    const qualifiedName = getFullyQualifiedName(type.typeName);
+    if (visited.has(qualifiedName)) {
+      return qualifiedName;
+    }
+    visited.add(qualifiedName);
+
+    const exportNode = allExports.find((node) => node.name === type.typeName.name);
+    if (exportNode) {
+      return formatExpandedType(
+        (exportNode.type as unknown as tae.AnyType) ?? type,
+        allExports,
+        visited,
+      );
+    }
+
+    // Manually expand known external aliases when declaration is not in local exports
+    switch (true) {
+      case qualifiedName.endsWith('Padding'):
+        return '{ top?: number; right?: number; bottom?: number; left?: number } | number';
+      case qualifiedName.endsWith('Boundary'):
+        return "'clipping-ancestors' | Element | Element[] | Rect";
+      default:
+        return qualifiedName;
+    }
+  }
+
+  if (type instanceof tae.UnionNode) {
+    const memberTypes = type.types.map((t) => formatExpandedType(t, allExports, visited));
+    return _.uniq(memberTypes).join(' | ');
+  }
+
+  if (type instanceof tae.IntersectionNode) {
+    const memberTypes = type.types.map((t) => formatExpandedType(t, allExports, visited));
+    return _.uniq(memberTypes).join(' & ');
+  }
+
+  // For objects and everything else, reuse existing formatter with object expansion enabled
+  return formatType(type, false, undefined, true);
 }
 
 export function formatEnum(enumNode: tae.EnumNode) {

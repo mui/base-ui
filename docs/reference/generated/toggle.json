@@ -4,28 +4,34 @@
   "props": {
     "value": {
       "type": "string",
+      "expanded": "string | undefined",
       "description": "A unique string that identifies the toggle when used\ninside a toggle group."
     },
     "defaultPressed": {
       "type": "boolean",
+      "expanded": "boolean | undefined",
       "default": "false",
       "description": "Whether the toggle button is currently pressed.\nThis is the uncontrolled counterpart of `pressed`."
     },
     "pressed": {
       "type": "boolean",
+      "expanded": "boolean | undefined",
       "description": "Whether the toggle button is currently pressed.\nThis is the controlled counterpart of `defaultPressed`."
     },
     "onPressedChange": {
       "type": "((pressed: boolean, event: Event) => void)",
+      "expanded": "((pressed: boolean, event: Event) => void) | undefined",
       "description": "Callback fired when the pressed state is changed."
     },
     "nativeButton": {
       "type": "boolean",
+      "expanded": "boolean | undefined",
       "default": "true",
       "description": "Whether the component renders a native `<button>` element when replacing it\nvia the `render` prop.\nSet to `false` if the rendered element is not a button (e.g. `<div>`)."
     },
     "disabled": {
       "type": "boolean",
+      "expanded": "boolean | undefined",
       "default": "false",
       "description": "Whether the component should ignore user interaction."
     },

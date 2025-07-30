@@ -8,21 +8,25 @@
     },
     "value": {
       "type": "any",
+      "expanded": "any",
       "default": "null",
       "description": "A unique value that identifies this select item."
     },
     "nativeButton": {
       "type": "boolean",
+      "expanded": "boolean | undefined",
       "default": "false",
       "description": "Whether the component renders a native `<button>` element when replacing it\nvia the `render` prop.\nSet to `true` if the rendered element is a native button."
     },
     "disabled": {
       "type": "boolean",
+      "expanded": "boolean | undefined",
       "default": "false",
       "description": "Whether the component should ignore user interaction."
     },
     "children": {
-      "type": "ReactNode"
+      "type": "ReactNode",
+      "expanded": "React.ReactNode"
     },
     "className": {
       "type": "string | ((state: Select.Item.State) => string)",
