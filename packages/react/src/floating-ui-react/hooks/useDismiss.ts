@@ -624,21 +624,19 @@ export function useDismiss(
     [closeOnEscapeKeyDown, onOpenChange, referencePress, referencePressEvent],
   );
 
+  const handlePressedInside = useEventCallback((event: React.MouseEvent) => {
+    const target = getTarget(event.nativeEvent) as Element | null;
+    if (!contains(elements.floating, target)) {
+      return;
+    }
+    endedOrStartedInsideRef.current = true;
+  });
+
   const floating: ElementProps['floating'] = React.useMemo(
     () => ({
       onKeyDown: closeOnEscapeKeyDown,
-      onMouseDown() {
-        endedOrStartedInsideRef.current = true;
-      },
-      onMouseUp() {
-        endedOrStartedInsideRef.current = true;
-      },
-      onClickCapture() {
-        dataRef.current.insideReactTree = true;
-      },
-      onPointerDownCapture() {
-        dataRef.current.insideReactTree = true;
-      },
+      onMouseDown: handlePressedInside,
+      onMouseUp: handlePressedInside,
       onBlurCapture() {
         if (tree) {
           return;
@@ -649,7 +647,7 @@ export function useDismiss(
         });
       },
     }),
-    [closeOnEscapeKeyDown, dataRef, tree, blurTimeout],
+    [closeOnEscapeKeyDown, handlePressedInside, dataRef, tree, blurTimeout],
   );
 
   return React.useMemo(
