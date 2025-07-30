@@ -21,8 +21,6 @@ import { useAnchorPositioning, type Align, type Side } from '../../utils/useAnch
 import { NavigationMenuPositionerContext } from './NavigationMenuPositionerContext';
 import { popupStateMapping } from '../../utils/popupStateMapping';
 import { DROPDOWN_COLLISION_AVOIDANCE, POPUP_COLLISION_AVOIDANCE } from '../../utils/constants';
-import { NavigationMenuPopupCssVars } from '../popup/NavigationMenuPopupCssVars';
-import { NavigationMenuPositionerCssVars } from './NavigationMenuPositionerCssVars';
 
 const adaptiveOrigin: Middleware = {
   name: 'adaptiveOrigin',
@@ -92,15 +90,8 @@ export const NavigationMenuPositioner = React.forwardRef(function NavigationMenu
   componentProps: NavigationMenuPositioner.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const {
-    open,
-    mounted,
-    popupElement,
-    positionerElement,
-    setPositionerElement,
-    floatingRootContext,
-    nested,
-  } = useNavigationMenuRootContext();
+  const { open, mounted, positionerElement, setPositionerElement, floatingRootContext, nested } =
+    useNavigationMenuRootContext();
 
   const {
     className,
@@ -208,50 +199,17 @@ export const NavigationMenuPositioner = React.forwardRef(function NavigationMenu
   );
 
   React.useEffect(() => {
+    if (!open) {
+      return undefined;
+    }
+
     function handleResize() {
-      if (!popupElement || !positionerElement) {
-        return;
-      }
-
-      const originalPopupWidth = popupElement.style.getPropertyValue(
-        NavigationMenuPopupCssVars.popupWidth,
-      );
-      const originalPopupHeight = popupElement.style.getPropertyValue(
-        NavigationMenuPopupCssVars.popupHeight,
-      );
-      const originalPositionerWidth = positionerElement.style.getPropertyValue(
-        NavigationMenuPositionerCssVars.positionerWidth,
-      );
-      const originalPositionerHeight = positionerElement.style.getPropertyValue(
-        NavigationMenuPositionerCssVars.positionerHeight,
-      );
-
       ReactDOM.flushSync(() => {
         setInstant(true);
-        popupElement.style.setProperty(NavigationMenuPopupCssVars.popupWidth, 'auto');
-        popupElement.style.setProperty(NavigationMenuPopupCssVars.popupHeight, 'auto');
-        positionerElement.style.setProperty(
-          NavigationMenuPositionerCssVars.positionerWidth,
-          'auto',
-        );
-        positionerElement.style.setProperty(
-          NavigationMenuPositionerCssVars.positionerHeight,
-          'auto',
-        );
       });
 
       resizeTimeout.start(100, () => {
         setInstant(false);
-        popupElement.style.setProperty(NavigationMenuPopupCssVars.popupWidth, originalPopupWidth);
-        popupElement.style.setProperty(NavigationMenuPopupCssVars.popupHeight, originalPopupHeight);
-        positionerElement.style.setProperty(
-          NavigationMenuPositionerCssVars.positionerWidth,
-          originalPositionerWidth,
-        );
-        positionerElement.style.setProperty(
-          NavigationMenuPositionerCssVars.positionerHeight,
-          originalPositionerHeight,
-        );
       });
     }
 
@@ -260,7 +218,7 @@ export const NavigationMenuPositioner = React.forwardRef(function NavigationMenu
     return () => {
       win.removeEventListener('resize', handleResize);
     };
-  }, [resizeTimeout, popupElement, positionerElement]);
+  }, [open, resizeTimeout, positionerElement]);
 
   const element = useRenderElement('div', componentProps, {
     state,
