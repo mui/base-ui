@@ -647,24 +647,8 @@ export function useDismiss(
       onPointerDownCapture: handleCaptureInside,
       onMouseDownCapture: handleCaptureInside,
       onClickCapture: handleCaptureInside,
-      onBlurCapture() {
-        if (tree) {
-          return;
-        }
-        dataRef.current.insideReactTree = true;
-        insideReactTreeTimeout.start(0, () => {
-          dataRef.current.insideReactTree = false;
-        });
-      },
     }),
-    [
-      closeOnEscapeKeyDown,
-      handlePressedInside,
-      handleCaptureInside,
-      dataRef,
-      tree,
-      insideReactTreeTimeout,
-    ],
+    [closeOnEscapeKeyDown, handlePressedInside, handleCaptureInside],
   );
 
   return React.useMemo(
