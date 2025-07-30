@@ -10,6 +10,8 @@ describe('<Popover.Trigger />', () => {
 
   describeConformance(<Popover.Trigger />, () => ({
     refInstanceof: window.HTMLButtonElement,
+    testComponentPropWith: 'button',
+    button: true,
     render(node) {
       return render(<Popover.Root open>{node}</Popover.Root>);
     },
