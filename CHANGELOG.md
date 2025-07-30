@@ -64,7 +64,7 @@ _Jul 30, 2025_
 ### Navigation Menu
 
 - **Breaking change:** Support inlined nesting.
-  Ensure the `width` is set unconditionally (without the media query) on the `.Popup` class.
+  Ensure the popup's `width` is set to `var(--popup-width)` unconditionally (without the media query) on the `.Popup` class.
   (#2269) by @atomiks
 - Avoid double `useRenderElement` passes (#2256) by @atomiks
 - Add `useButton` integration to `Trigger` (#2296) by @atomiks
