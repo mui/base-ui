@@ -19,8 +19,10 @@ const MDX_SOURCE_DIR = path.join(PROJECT_ROOT, 'src/app/(public)/(content)/react
 const OUTPUT_BASE_DIR = path.join(PROJECT_ROOT, 'public');
 const OUTPUT_REACT_DIR = path.join(OUTPUT_BASE_DIR, 'react');
 
+const NETLIFY_DEPLOYMENT_URL =
+  process.env.PULL_REQUEST === 'true' ? process.env.DEPLOY_PRIME_URL : process.env.URL;
 // Use the deployment URL if available, just root relative otherwise
-const BASE_URL = process.env.DEPLOY_PRIME_URL || '/';
+const BASE_URL = NETLIFY_DEPLOYMENT_URL || '/';
 
 /**
  * Remark plugin to increment heading levels by a specified amount
