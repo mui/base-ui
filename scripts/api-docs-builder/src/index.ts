@@ -1,3 +1,4 @@
+/* eslint-disable no-await-in-loop */
 /* eslint-disable prefer-template */
 /* eslint-disable no-console */
 import * as fs from 'node:fs';
