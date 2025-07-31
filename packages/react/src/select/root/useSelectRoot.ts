@@ -117,7 +117,6 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
         mounted,
         forceMount: false,
         transitionStatus,
-        items,
         touchModality: false,
         activeIndex: null,
         selectedIndex: null,
@@ -481,6 +480,7 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
       keyboardActiveRef,
       alignItemWithTriggerActiveRef,
       highlightTimeout,
+      items,
     }),
     [
       store,
@@ -507,6 +507,7 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
       keyboardActiveRef,
       alignItemWithTriggerActiveRef,
       highlightTimeout,
+      items,
     ],
   );
 

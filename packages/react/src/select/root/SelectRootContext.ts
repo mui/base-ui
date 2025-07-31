@@ -45,6 +45,10 @@ export interface SelectRootContext {
   keyboardActiveRef: React.MutableRefObject<boolean>;
   alignItemWithTriggerActiveRef: React.RefObject<boolean>;
   highlightTimeout: Timeout;
+  items:
+    | Record<string, React.ReactNode>
+    | Array<{ label: React.ReactNode; value: any }>
+    | undefined;
 }
 
 export const SelectRootContext = React.createContext<SelectRootContext | null>(null);

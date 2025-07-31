@@ -272,6 +272,59 @@ describe('<Select.Value />', () => {
 
       expect(screen.getByTestId('value').querySelector('strong')).to.have.text('Bold Text');
     });
+
+    it('is not stale after being updated', async () => {
+      function App() {
+        const [value, setValue] = React.useState<string | null>('a');
+        const [items, setItems] = React.useState([
+          { value: 'a', label: 'a' },
+          { value: 'b', label: 'b' },
+        ]);
+
+        function updateItems() {
+          setItems([
+            { value: 'a', label: 'a new' },
+            { value: 'b', label: 'b new' },
+            { value: 'c', label: 'c' },
+          ]);
+        }
+
+        return (
+          <div>
+            <button onClick={updateItems}>update</button>
+            <button onClick={() => setValue('c')}>select c</button>
+            <Select.Root value={value} onValueChange={setValue} items={items}>
+              <Select.Trigger>
+                <Select.Value data-testid="value" />
+              </Select.Trigger>
+              <Select.Portal>
+                <Select.Positioner>
+                  <Select.Popup>
+                    {items.map((item) => (
+                      <Select.Item key={item.value} value={item.value}>
+                        {item.label}
+                      </Select.Item>
+                    ))}
+                  </Select.Popup>
+                </Select.Positioner>
+              </Select.Portal>
+            </Select.Root>
+          </div>
+        );
+      }
+
+      const { user } = await render(<App />);
+
+      expect(screen.getByTestId('value')).to.have.text('a');
+
+      await user.click(screen.getByRole('button', { name: 'update' }));
+
+      expect(screen.getByTestId('value')).to.have.text('a new');
+
+      await user.click(screen.getByRole('button', { name: 'select c' }));
+
+      expect(screen.getByTestId('value')).to.have.text('c');
+    });
   });
 
   describe('children prop takes precedence over items', () => {
