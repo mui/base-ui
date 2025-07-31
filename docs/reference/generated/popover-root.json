@@ -9,7 +9,7 @@
       "type": "boolean | HTMLElement | null"
     },
     "onOpenChange": {
-      "type": "((nextActiveTrigger: HTMLElement | null, event: Event | undefined, reason: Popover.Root.OpenChangeReason | undefined) => void)",
+      "type": "((nextOpen: boolean, event: Event | undefined, reason: Popover.Root.OpenChangeReason | undefined, nextActiveTrigger: HTMLElement | null) => void)",
       "description": "Event handler called when the popover is opened or closed."
     },
     "actionsRef": {
@@ -17,7 +17,7 @@
       "description": "A ref to imperative actions.\n- `unmount`: When specified, the popover will not be unmounted when closed.\nInstead, the `unmount` function must be called to unmount the popover manually.\nUseful when the popover's animation is controlled by an external library."
     },
     "handle": {
-      "type": "PopoverHandle<Payload>",
+      "type": "PopoverStore<Payload>",
       "description": "A handle to associate the popover with a trigger.\nIf specified, allows external triggers to control the popover's open state."
     },
     "modal": {
