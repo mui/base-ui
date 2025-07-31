@@ -217,7 +217,9 @@ export function formatType(
   }
 
   if (type instanceof tae.FunctionNode) {
-    if (type.typeName && !type.typeName.name?.startsWith('ComponentRenderFn')) {
+    // If object expansion is requested, we want to fully expand the function signature instead
+    // of returning the aliased type name (e.g., OffsetFunction).
+    if (!expandObjects && type.typeName && !type.typeName.name?.startsWith('ComponentRenderFn')) {
       return getFullyQualifiedName(type.typeName);
     }
 
