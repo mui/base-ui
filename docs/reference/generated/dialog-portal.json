@@ -4,7 +4,7 @@
   "props": {
     "container": {
       "type": "HTMLElement | ShadowRoot | RefObject<HTMLElement | ShadowRoot | null> | null",
-      "expanded": "HTMLElement | ShadowRoot | React.RefObject<HTMLElement | ShadowRoot | null> | null | undefined",
+      "expanded": "| HTMLElement\n| ShadowRoot\n| React.RefObject<HTMLElement | ShadowRoot | null>\n| null\n| undefined",
       "description": "A parent element to render the portal element into."
     },
     "children": {

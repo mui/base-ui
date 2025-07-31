@@ -19,7 +19,7 @@
     },
     "onValueChange": {
       "type": "((value: unknown, event: Event) => void)",
-      "expanded": "((value: unknown, event: Event) => void) | undefined",
+      "expanded": "| ((value: unknown, event: Event) => void)\n| undefined",
       "description": "Callback fired when the value changes."
     },
     "disabled": {
@@ -52,7 +52,7 @@
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: Radio.Group.State) => ReactElement)",
-      "expanded": "ReactElement | ((props: HTMLProps, state: Radio.Group.State) => ReactElement)",
+      "expanded": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Radio.Group.State,\n  ) => ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
     }
   },

@@ -15,12 +15,12 @@
     },
     "onOpenChange": {
       "type": "((open: boolean, event: Event | undefined, reason: AlertDialog.Root.OpenChangeReason | undefined) => void)",
-      "expanded": "((open: boolean, event: Event | undefined, reason: AlertDialog.Root.OpenChangeReason | undefined) => void) | undefined",
+      "expanded": "| ((\n    open: boolean,\n    event: Event | undefined,\n    reason: AlertDialog.Root.OpenChangeReason | undefined,\n  ) => void)\n| undefined",
       "description": "Event handler called when the dialog is opened or closed."
     },
     "actionsRef": {
       "type": "RefObject<AlertDialog.Root.Actions>",
-      "expanded": "React.RefObject<AlertDialog.Root.Actions> | undefined",
+      "expanded": "| React.RefObject<AlertDialog.Root.Actions>\n| undefined",
       "description": "A ref to imperative actions.\n- `unmount`: When specified, the dialog will not be unmounted when closed.\nInstead, the `unmount` function must be called to unmount the dialog manually.\nUseful when the dialog's animation is controlled by an external library."
     },
     "onOpenChangeComplete": {

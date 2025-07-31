@@ -16,12 +16,12 @@
     },
     "onValueChange": {
       "type": "((value: any, event: Event | undefined, reason: BaseOpenChangeReason | undefined) => void)",
-      "expanded": "((value: any, event: Event | undefined, reason: BaseOpenChangeReason | undefined) => void) | undefined",
+      "expanded": "| ((\n    value: any,\n    event: Event | undefined,\n    reason: BaseOpenChangeReason | undefined,\n  ) => void)\n| undefined",
       "description": "Callback fired when the value changes."
     },
     "actionsRef": {
       "type": "RefObject<NavigationMenu.Root.Actions>",
-      "expanded": "React.RefObject<NavigationMenu.Root.Actions> | undefined",
+      "expanded": "| React.RefObject<NavigationMenu.Root.Actions>\n| undefined",
       "description": "A ref to imperative actions."
     },
     "onOpenChangeComplete": {
@@ -49,12 +49,12 @@
     },
     "className": {
       "type": "string | ((state: NavigationMenu.Root.State) => string)",
-      "expanded": "string | ((state: NavigationMenu.Root.State) => string)",
+      "expanded": "| string\n| ((state: NavigationMenu.Root.State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: NavigationMenu.Root.State) => ReactElement)",
-      "expanded": "ReactElement | ((props: HTMLProps, state: NavigationMenu.Root.State) => ReactElement)",
+      "expanded": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: NavigationMenu.Root.State,\n  ) => ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
     }
   },

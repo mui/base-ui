@@ -2,7 +2,7 @@ import * as tae from 'typescript-api-extractor';
 import { formatProperties, formatEnum } from './formatter';
 import memberOrder from './order.json';
 
-export function formatComponentData(component: tae.ExportNode, allExports: tae.ExportNode[]) {
+export async function formatComponentData(component: tae.ExportNode, allExports: tae.ExportNode[]) {
   const description = component.documentation?.description?.replace(/\n\nDocumentation: .*$/ms, '');
   const dataAttributes = allExports.find((node) => node.name === `${component.name}DataAttributes`);
   const cssVariables = allExports.find((node) => node.name === `${component.name}CssVars`);
@@ -11,7 +11,7 @@ export function formatComponentData(component: tae.ExportNode, allExports: tae.E
     name: component.name,
     description,
     props: sortObjectByKeys(
-      formatProperties((component.type as tae.ComponentNode).props, allExports),
+      await formatProperties((component.type as tae.ComponentNode).props, allExports),
       memberOrder.props,
     ),
     dataAttributes: dataAttributes

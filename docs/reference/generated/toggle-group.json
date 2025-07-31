@@ -14,7 +14,7 @@
     },
     "onValueChange": {
       "type": "((groupValue: any[], event: Event) => void)",
-      "expanded": "((groupValue: any[], event: Event) => void) | undefined",
+      "expanded": "| ((groupValue: any[], event: Event) => void)\n| undefined",
       "description": "Callback fired when the pressed states of the toggle group changes."
     },
     "toggleMultiple": {
@@ -47,7 +47,7 @@
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: Toggle.Group.State) => ReactElement)",
-      "expanded": "ReactElement | ((props: HTMLProps, state: Toggle.Group.State) => ReactElement)",
+      "expanded": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Toggle.Group.State,\n  ) => ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
     }
   },

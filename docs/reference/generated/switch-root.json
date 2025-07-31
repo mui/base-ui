@@ -20,7 +20,7 @@
     },
     "onCheckedChange": {
       "type": "((checked: boolean, event: Event) => void)",
-      "expanded": "((checked: boolean, event: Event) => void) | undefined",
+      "expanded": "| ((checked: boolean, event: Event) => void)\n| undefined",
       "description": "Event handler called when the switch is activated or deactivated."
     },
     "nativeButton": {
@@ -64,7 +64,7 @@
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: Switch.Root.State) => ReactElement)",
-      "expanded": "ReactElement | ((props: HTMLProps, state: Switch.Root.State) => ReactElement)",
+      "expanded": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Switch.Root.State,\n  ) => ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
     }
   },

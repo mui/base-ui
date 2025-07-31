@@ -18,7 +18,7 @@
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: Input.State) => ReactElement)",
-      "expanded": "ReactElement | ((props: HTMLProps, state: Input.State) => ReactElement)",
+      "expanded": "| ReactElement\n| ((props: HTMLProps, state: Input.State) => ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
     }
   },

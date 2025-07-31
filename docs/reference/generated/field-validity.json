@@ -4,7 +4,7 @@
   "props": {
     "children": {
       "type": "((state: FieldValidityState) => ReactNode)",
-      "expanded": "((state: FieldValidityState) => ReactNode)",
+      "expanded": "(state: FieldValidityState) => ReactNode",
       "required": true,
       "description": "A function that accepts the field validity state as an argument.\n\n```jsx\n<Field.Validity>\n  {(validity) => {\n    return <div>...</div>\n  }}\n</Field.Validity>\n```"
     }

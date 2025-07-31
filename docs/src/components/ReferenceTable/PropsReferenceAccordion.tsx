@@ -11,6 +11,23 @@ import type { PropDef as BasePropDef } from './types';
 import { TableCode } from '../TableCode';
 import * as ReferenceTableTooltip from './ReferenceTableTooltip';
 
+function ExpandedCode(props: React.ComponentProps<'code'>) {
+  const { className = '', ...rest } = props;
+  const cleaned = className
+    .split(' ')
+    .filter((c) => c !== 'Code')
+    .join(' ');
+  return <code {...rest} className={cleaned} />;
+}
+
+function ExpandedPre(props: React.ComponentProps<'pre'>) {
+  return (
+    <Accordion.Scrollable gradientColor="var(--color-gray-50)">
+      <pre {...props} className="text-xs p-0 m-0" style={{ backgroundColor: 'none' }} />
+    </Accordion.Scrollable>
+  );
+}
+
 interface PropDef extends BasePropDef {
   example?: string;
 }
@@ -73,10 +90,16 @@ export async function PropsReferenceAccordion({ data, name: partName, ...props }
           useMDXComponents: () => ({ code: TableCode }),
         });
 
-        const PropExpandedType = await createMdxComponent(`\`${prop.expanded ?? prop.type}\``, {
-          rehypePlugins: rehypeSyntaxHighlighting,
-          useMDXComponents: () => ({ code: TableCode }),
-        });
+        const PropExpandedType = await createMdxComponent(
+          `\`\`\`ts\n${prop.expanded ?? prop.type}\n\`\`\``,
+          {
+            rehypePlugins: rehypeSyntaxHighlighting,
+            useMDXComponents: () => ({
+              code: ExpandedCode,
+              pre: ExpandedPre,
+            }),
+          },
+        );
 
         const { type: shortPropTypeName, detailedType } = getShortPropType(name, prop.type);
 

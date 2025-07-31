@@ -20,7 +20,7 @@
     },
     "onPressedChange": {
       "type": "((pressed: boolean, event: Event) => void)",
-      "expanded": "((pressed: boolean, event: Event) => void) | undefined",
+      "expanded": "| ((pressed: boolean, event: Event) => void)\n| undefined",
       "description": "Callback fired when the pressed state is changed."
     },
     "nativeButton": {
@@ -42,7 +42,7 @@
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: Toggle.State) => ReactElement)",
-      "expanded": "ReactElement | ((props: HTMLProps, state: Toggle.State) => ReactElement)",
+      "expanded": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Toggle.State,\n  ) => ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
     }
   },

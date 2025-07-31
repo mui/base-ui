@@ -4,7 +4,7 @@
   "props": {
     "match": {
       "type": "boolean | 'valid' | 'badInput' | 'customError' | 'patternMismatch' | 'rangeOverflow' | 'rangeUnderflow' | 'stepMismatch' | 'tooLong' | 'tooShort' | 'typeMismatch' | 'valueMissing'",
-      "expanded": "boolean | 'valid' | 'badInput' | 'customError' | 'patternMismatch' | 'rangeOverflow' | 'rangeUnderflow' | 'stepMismatch' | 'tooLong' | 'tooShort' | 'typeMismatch' | 'valueMissing' | undefined",
+      "expanded": "| boolean\n| 'valid'\n| 'badInput'\n| 'customError'\n| 'patternMismatch'\n| 'rangeOverflow'\n| 'rangeUnderflow'\n| 'stepMismatch'\n| 'tooLong'\n| 'tooShort'\n| 'typeMismatch'\n| 'valueMissing'\n| undefined",
       "description": "Determines whether to show the error message according to the field’s\n[ValidityState](https://developer.mozilla.org/en-US/docs/Web/API/ValidityState).\nSpecifying `true` will always show the error message, and lets external libraries\ncontrol the visibility."
     },
     "className": {
@@ -14,7 +14,7 @@
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: Field.Root.State) => ReactElement)",
-      "expanded": "ReactElement | ((props: HTMLProps, state: Field.Root.State) => ReactElement)",
+      "expanded": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Field.Root.State,\n  ) => ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
     }
   },

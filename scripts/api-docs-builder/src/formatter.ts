@@ -3,8 +3,9 @@ import * as tae from 'typescript-api-extractor';
 import fs from 'fs';
 import path from 'path';
 import _ from 'lodash';
+import * as prettier from 'prettier';
 
-export function formatProperties(
+export async function formatProperties(
   props: tae.PropertyNode[],
   allExports: tae.ExportNode[] | undefined = undefined,
 ) {
@@ -19,6 +20,37 @@ export function formatProperties(
     let expandedType = formatType(prop.type, prop.optional, prop.documentation?.tags);
     if (prop.name !== 'className' && prop.name !== 'render' && allExports) {
       expandedType = formatExpandedType(prop.type, allExports);
+    }
+
+    // eslint-disable-next-line no-await-in-loop
+    const formattedExpandedType = await prettier.format(`type _ = ${expandedType}`, {
+      parser: 'typescript',
+      singleQuote: true,
+      semi: false,
+      printWidth: 60,
+    });
+
+    // Improve readability by formatting complex types with Prettier.
+    // Prettier either formats the type on a single line or multiple lines.
+    // If it's on a single line, we remove the `type _ = ` prefix.
+    // If it's on multiple lines, we remove the first line (`type _ =`) and de-indent the rest.
+    const lines = formattedExpandedType.trimEnd().split('\n');
+    if (lines.length === 1) {
+      expandedType = lines[0].replace(/^type _ = /, '');
+    } else {
+      const codeLines = lines.slice(1);
+      const nonEmptyLines = codeLines.filter((l) => l.trim() !== '');
+      if (nonEmptyLines.length > 0) {
+        const minIndent = Math.min(...nonEmptyLines.map((l) => l.match(/^\s*/)?.[0].length ?? 0));
+
+        if (Number.isFinite(minIndent) && minIndent > 0) {
+          expandedType = codeLines.map((l) => l.substring(minIndent)).join('\n');
+        } else {
+          expandedType = codeLines.join('\n');
+        }
+      } else {
+        expandedType = codeLines.join('\n');
+      }
     }
 
     result[prop.name] = {

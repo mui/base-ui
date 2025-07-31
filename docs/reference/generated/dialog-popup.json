@@ -4,7 +4,7 @@
   "props": {
     "initialFocus": {
       "type": "RefObject<HTMLElement | null> | ((interactionType: InteractionType) => RefObject<HTMLElement | null>)",
-      "expanded": "React.RefObject<HTMLElement | null> | ((interactionType: InteractionType) => RefObject<HTMLElement | null>) | undefined",
+      "expanded": "| React.RefObject<HTMLElement | null>\n| ((\n    interactionType: InteractionType,\n  ) => RefObject<HTMLElement | null>)\n| undefined",
       "description": "Determines the element to focus when the dialog is opened.\nBy default, the first focusable element is focused."
     },
     "finalFocus": {
@@ -19,7 +19,7 @@
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: Dialog.Popup.State) => ReactElement)",
-      "expanded": "ReactElement | ((props: HTMLProps, state: Dialog.Popup.State) => ReactElement)",
+      "expanded": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Dialog.Popup.State,\n  ) => ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
     }
   },

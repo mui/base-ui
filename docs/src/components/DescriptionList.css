@@ -76,8 +76,9 @@
       padding: 0.625rem 0.75rem;
     }
 
-    .CodeBlockRoot {
+    [data-rehype-pretty-code-figure] {
       margin: 0;
+      max-width: 100%;
     }
   }
 }

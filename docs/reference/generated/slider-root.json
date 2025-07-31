@@ -19,12 +19,12 @@
     },
     "onValueChange": {
       "type": "((value: number | number[], event: Event, activeThumbIndex: number) => void)",
-      "expanded": "((value: number | number[], event: Event, activeThumbIndex: number) => void) | undefined",
+      "expanded": "| ((\n    value: number | number[],\n    event: Event,\n    activeThumbIndex: number,\n  ) => void)\n| undefined",
       "description": "Callback function that is fired when the slider's value changed."
     },
     "onValueCommitted": {
       "type": "((value: number | number[], event: Event) => void)",
-      "expanded": "((value: number | number[], event: Event) => void) | undefined",
+      "expanded": "| ((value: number | number[], event: Event) => void)\n| undefined",
       "description": "Callback function that is fired when the `pointerup` is triggered."
     },
     "locale": {
@@ -100,7 +100,7 @@
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: Slider.Root.State) => ReactElement)",
-      "expanded": "ReactElement | ((props: HTMLProps, state: Slider.Root.State) => ReactElement)",
+      "expanded": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Slider.Root.State,\n  ) => ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
     }
   },

@@ -4,7 +4,7 @@
   "props": {
     "container": {
       "type": "HTMLElement | RefObject<HTMLElement | null> | null",
-      "expanded": "HTMLElement | React.RefObject<HTMLElement | null> | null | undefined",
+      "expanded": "| HTMLElement\n| React.RefObject<HTMLElement | null>\n| null\n| undefined",
       "description": "A parent element to render the portal element into."
     },
     "children": {
