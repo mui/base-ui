@@ -173,5 +173,6 @@
     min-height: unset;
     padding: 0;
     gap: 0;
+    padding-right: 0.5rem;
   }
 }
