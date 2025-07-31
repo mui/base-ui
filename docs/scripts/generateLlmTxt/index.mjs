@@ -19,18 +19,6 @@ const MDX_SOURCE_DIR = path.join(PROJECT_ROOT, 'src/app/(public)/(content)/react
 const OUTPUT_BASE_DIR = path.join(PROJECT_ROOT, 'public');
 const OUTPUT_REACT_DIR = path.join(OUTPUT_BASE_DIR, 'react');
 
-console.log(
-  JSON.stringify(
-    {
-      PULL_REQUEST: process.env.PULL_REQUEST,
-      DEPLOY_PRIME_URL: process.env.DEPLOY_PRIME_URL,
-      URL: process.env.URL,
-    },
-    null,
-    2,
-  ),
-);
-
 const NETLIFY_DEPLOYMENT_URL =
   process.env.PULL_REQUEST === 'true' ? process.env.DEPLOY_PRIME_URL : process.env.URL;
 // Use the deployment URL if available, just root relative otherwise
