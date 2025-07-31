@@ -26,10 +26,12 @@
     },
     "className": {
       "type": "string | ((state: Collapsible.Root.State) => string)",
+      "expanded": "string | ((state: Collapsible.Root.State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "render": {
-      "type": "ReactElement | ((props: HTMLProps, state: Collapsible.Root.State) => ReactElement) | null"
+      "type": "ReactElement | ((props: HTMLProps, state: Collapsible.Root.State) => ReactElement) | null",
+      "expanded": "ReactElement | ((props: HTMLProps, state: Collapsible.Root.State) => ReactElement) | null"
     }
   },
   "dataAttributes": {},
