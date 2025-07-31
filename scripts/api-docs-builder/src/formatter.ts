@@ -113,8 +113,6 @@ export function formatDetailedType(
     switch (true) {
       case qualifiedName.endsWith('Padding'):
         return '{ top?: number; right?: number; bottom?: number; left?: number } | number';
-      case qualifiedName.endsWith('Boundary'):
-        return "'clipping-ancestors' | Element | Element[] | Rect";
       default:
         return qualifiedName;
     }
