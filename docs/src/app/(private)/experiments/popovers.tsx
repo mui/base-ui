@@ -94,10 +94,14 @@ export default function Popovers() {
       <h2>Uncontrolled, multiple triggers within Root</h2>
       <div className={styles.Container}>
         <Popover.Root>
-          <StyledTrigger />
-          <StyledTrigger />
-          <StyledTrigger />
-          {renderPopoverContent(0, settings)}
+          {({ payload }) => (
+            <React.Fragment>
+              <StyledTrigger payload={0} />
+              <StyledTrigger payload={1} />
+              <StyledTrigger payload={2} />
+              {renderPopoverContent(payload as number, settings)}
+            </React.Fragment>
+          )}
         </Popover.Root>
       </div>
 
@@ -107,10 +111,14 @@ export default function Popovers() {
           open={multipleTriggerOpen}
           onOpenChange={(open, event, reason, trigger) => setMultipleTriggerOpen(trigger)}
         >
-          <StyledTrigger />
-          <StyledTrigger ref={setSecondTrigger} />
-          <StyledTrigger />
-          {renderPopoverContent(0, settings)}
+          {({ payload }) => (
+            <React.Fragment>
+              <StyledTrigger payload={0} />
+              <StyledTrigger payload={1} ref={setSecondTrigger} />
+              <StyledTrigger payload={2} />
+              {renderPopoverContent(payload as number, settings)}
+            </React.Fragment>
+          )}
         </Popover.Root>
         <button
           type="button"
