@@ -276,8 +276,9 @@ export namespace SelectItem {
      */
     disabled?: boolean;
     /**
-     * Overrides the text label to use on the trigger when this item is selected
-     * and when the item is matched during keyboard text navigation.
+     * Specifies the text label to use when the item is matched during keyboard text navigation.
+     *
+     * Defaults to the item text content if not provided.
      */
     label?: string;
   }
