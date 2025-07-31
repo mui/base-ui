@@ -115,6 +115,7 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
         label: '',
         open,
         mounted,
+        items,
         forceMount: false,
         transitionStatus,
         touchModality: false,
@@ -440,6 +441,7 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
       transitionStatus,
       popupProps: getFloatingProps(),
       triggerProps: getReferenceProps(),
+      items,
     });
   }, [
     store,
@@ -452,6 +454,7 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
     transitionStatus,
     getFloatingProps,
     getReferenceProps,
+    items,
   ]);
 
   const rootContext: SelectRootContext = React.useMemo(
@@ -480,7 +483,6 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
       keyboardActiveRef,
       alignItemWithTriggerActiveRef,
       highlightTimeout,
-      items,
     }),
     [
       store,
@@ -507,7 +509,6 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
       keyboardActiveRef,
       alignItemWithTriggerActiveRef,
       highlightTimeout,
-      items,
     ],
   );
 
