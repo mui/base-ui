@@ -81,7 +81,7 @@ export default function Popovers() {
       <div className={styles.Container}>
         <Popover.Root
           open={singleTriggerOpen}
-          onOpenChange={(trigger) => setSingleTriggerOpen(trigger !== null)}
+          onOpenChange={(nextOpen) => setSingleTriggerOpen(nextOpen)}
         >
           <StyledTrigger />
           {renderPopoverContent(0, settings)}
@@ -167,10 +167,9 @@ function StyledTrigger<Payload>(
   return (
     <Popover.Trigger
       className={styles.IconButton}
-      handle={props.handle}
-      payload={props.payload}
       openOnHover={settings.openOnHover}
       delay={50}
+      {...props}
     >
       <PopupIcon aria-label="Notifications" className={styles.Icon} />
     </Popover.Trigger>
