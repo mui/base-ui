@@ -1,9 +1,12 @@
-import { type Store, createSelector } from '@base-ui-components/utils/store';
+import { Store, createSelector } from '@base-ui-components/utils/store';
 import { type InteractionType } from '@base-ui-components/utils/useEnhancedClickHandler';
 import { type FloatingRootContext } from '../floating-ui-react';
 import { type TransitionStatus } from '../utils/useTransitionStatus';
 import { type PopoverOpenChangeReason } from './root/PopoverRootContext';
 import { type HTMLProps } from '../utils/types';
+import { getEmptyContext } from '../floating-ui-react/hooks/useFloatingRootContext';
+
+const EMPTY_OBJ = {};
 
 export type State = {
   modal: boolean | 'trap-focus';
@@ -31,7 +34,57 @@ export type State = {
   stickIfOpen: boolean;
 };
 
-export type PopoverStore = Store<State>;
+function createInitialState<Payload>(): State {
+  return {
+    open: false,
+    modal: false,
+    activeTriggerElement: null,
+    positionerElement: null,
+    popupElement: null,
+    triggers: new Map<HTMLElement, (() => Payload) | undefined>(),
+    instantType: undefined,
+    transitionStatus: 'idle',
+    openMethod: null,
+    openReason: null,
+    titleId: undefined,
+    descriptionId: undefined,
+    floatingRootContext: getEmptyContext(),
+    payload: undefined,
+    triggerProps: EMPTY_OBJ as HTMLProps,
+    popupProps: EMPTY_OBJ as HTMLProps,
+    stickIfOpen: true,
+  };
+}
+
+export class PopoverStore<Payload = undefined> extends Store<State> {
+  constructor(initialState?: Partial<State>) {
+    super({ ...createInitialState<Payload>(), ...initialState });
+  }
+
+  registerTrigger(triggerElement: HTMLElement, getPayload?: () => Payload) {
+    const triggers = this.state.triggers;
+    triggers.set(triggerElement, getPayload);
+
+    this.apply({
+      // TODO: verify if triggers need a new reference
+      triggers: new Map(triggers),
+    });
+  }
+
+  unregisterTrigger(triggerElement: HTMLElement) {
+    const triggers = this.state.triggers;
+    triggers.delete(triggerElement);
+
+    this.apply({
+      // TODO: verify if triggers need a new reference
+      triggers: new Map(triggers),
+    });
+  }
+}
+
+export function createPopoverHandle<Payload = undefined>(): PopoverStore<Payload> {
+  return new PopoverStore<Payload>();
+}
 
 export const selectors = {
   open: createSelector((state: State) => state.open),

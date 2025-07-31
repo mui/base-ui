@@ -4,7 +4,7 @@ import * as ReactDOM from 'react-dom';
 import { useTimeout } from '@base-ui-components/utils/useTimeout';
 import { useControlled } from '@base-ui-components/utils/useControlled';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
-import { Store, useStore } from '@base-ui-components/utils/store';
+import { useStore } from '@base-ui-components/utils/store';
 import { useRefWithInit } from '@base-ui-components/utils/useRefWithInit';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import {
@@ -24,14 +24,12 @@ import {
   PopoverRootContext,
   usePopoverRootContext,
 } from './PopoverRootContext';
-import { type State as PopoverState, selectors } from '../store';
-import { getEmptyContext } from '../../floating-ui-react/hooks/useFloatingRootContext';
-import { PopoverHandle } from '../handle/PopoverHandle';
+import { PopoverStore, selectors } from '../store';
 
 function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Payload> }) {
   const {
-    open: activeTriggerProp,
-    defaultOpen: defaultActiveTriggerProp = null,
+    open: openProp,
+    defaultOpen: defaultOpenProp = null,
     onOpenChange,
     onOpenChangeComplete,
     modal = false,
@@ -39,33 +37,18 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
   } = props;
 
   const [activeTriggerState, setActiveTriggerState] = useControlled({
-    controlled: activeTriggerProp,
-    default: defaultActiveTriggerProp,
+    controlled: openProp,
+    default: defaultOpenProp,
     name: 'Popover',
     state: 'open',
   });
 
   const store = useRefWithInit(() => {
     return (
-      handle?.store ||
-      new Store<PopoverState>({
-        open: activeTriggerState !== null,
+      handle ||
+      new PopoverStore<Payload>({
+        open: activeTriggerState !== null && activeTriggerState !== false,
         modal,
-        activeTriggerElement: null,
-        positionerElement: null,
-        popupElement: null,
-        triggers: new Map<HTMLElement, (() => unknown) | undefined>(),
-        instantType: undefined,
-        transitionStatus: 'idle',
-        openMethod: null,
-        openReason: null,
-        titleId: undefined,
-        descriptionId: undefined,
-        floatingRootContext: getEmptyContext(),
-        triggerProps: {},
-        popupProps: {},
-        payload: undefined,
-        stickIfOpen: true,
       })
     );
   }).current;
@@ -81,6 +64,8 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
     } else if (triggerElements.size === 1) {
       resolvedTriggerElement = triggerElements.keys().next().value || null;
     }
+  } else if (activeTriggerState === false) {
+    resolvedTriggerElement = null;
   } else {
     resolvedTriggerElement = activeTriggerState as HTMLElement | null;
   }
@@ -97,12 +82,12 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
   const stickIfOpenTimeout = useTimeout();
 
   useIsoLayoutEffect(() => {
-    store.set('open', open);
+    store.set('open', activeTriggerState !== null && activeTriggerState !== false);
 
     if (!mounted) {
       store.set('activeTriggerElement', null);
     }
-  }, [store, open, mounted]);
+  }, [store, activeTriggerState, mounted]);
 
   useIsoLayoutEffect(() => {
     if (resolvedTriggerElement != null) {
@@ -300,7 +285,7 @@ export namespace PopoverRoot {
      * A handle to associate the popover with a trigger.
      * If specified, allows external triggers to control the popover's open state.
      */
-    handle?: PopoverHandle<Payload>;
+    handle?: PopoverStore<Payload>;
     children?: React.ReactNode | ChildRenderFunction<Payload>;
   }
 

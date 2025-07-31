@@ -8,4 +8,4 @@ export { PopoverBackdrop as Backdrop } from './backdrop/PopoverBackdrop';
 export { PopoverTitle as Title } from './title/PopoverTitle';
 export { PopoverDescription as Description } from './description/PopoverDescription';
 export { PopoverClose as Close } from './close/PopoverClose';
-export { PopoverHandle as Handle } from './handle/PopoverHandle';
+export { createPopoverHandle as createHandle } from './store';

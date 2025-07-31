@@ -17,7 +17,6 @@ import { safePolygon, useClick, useHover, useInteractions } from '../../floating
 import { OPEN_DELAY } from '../utils/constants';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
 import { PopoverStore, selectors } from '../store';
-import { PopoverHandle } from '../handle/PopoverHandle';
 
 /**
  * A button that opens the popover.
@@ -44,10 +43,10 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
 
   const rootContext = usePopoverRootContext(true);
 
-  let store: PopoverStore;
+  let store: PopoverStore<unknown>;
 
   if (handle) {
-    store = handle.store;
+    store = handle;
   } else if (rootContext) {
     store = rootContext.store;
   } else {
@@ -64,6 +63,7 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
   const mounted = useStore(store, selectors.mounted);
 
   const [triggerElement, setTriggerElement] = React.useState<HTMLElement | null>(null);
+
   const {
     openMethod,
     triggerProps: interactionTypeTriggerProps,
@@ -105,23 +105,15 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
 
   const registerTrigger = React.useCallback(
     (element: HTMLElement) => {
-      store.set('activeTriggerElement', element);
+      store.registerTrigger(element, getPayload);
       setTriggerElement(element);
 
-      if (handle) {
-        handle.registerTrigger(element, getPayload);
-      }
-
       return () => {
-        store.set('activeTriggerElement', null);
+        store.unregisterTrigger(element);
         setTriggerElement(null);
-
-        if (handle) {
-          handle.unregisterTrigger(element);
-        }
       };
     },
-    [handle, getPayload, store],
+    [getPayload, store],
   );
 
   const state: PopoverTrigger.State = React.useMemo(
@@ -191,7 +183,7 @@ export namespace PopoverTrigger {
       /**
        * A handle to associate the trigger with a popover.
        */
-      handle?: PopoverHandle<Payload>;
+      handle?: PopoverStore<Payload>;
       /**
        * A payload to pass to the popover when it is opened.
        */

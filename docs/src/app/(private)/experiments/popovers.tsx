@@ -7,7 +7,7 @@ import {
 } from 'docs/src/components/Experiments/SettingsPanel';
 import styles from './popovers.module.css';
 
-const popover1 = new Popover.Handle<number>();
+const popover1 = Popover.createHandle<number>();
 
 interface Settings {
   openOnHover: boolean;
@@ -151,11 +151,10 @@ export default function Popovers() {
   );
 }
 
-interface StyledPopoverProps<Payload> {
-  handle: Popover.Handle<Payload>;
-  open?: Popover.Root.Props<Payload>['open'];
-  onOpenChange?: Popover.Root.Props<Payload>['onOpenChange'];
-}
+type StyledPopoverProps<Payload> = Pick<
+  Popover.Root.Props<Payload>,
+  'handle' | 'open' | 'onOpenChange'
+>;
 
 function StyledTrigger<Payload>(
   props: Popover.Trigger.Props<Payload> & React.RefAttributes<HTMLButtonElement>,

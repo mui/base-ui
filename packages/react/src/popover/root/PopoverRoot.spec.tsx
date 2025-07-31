@@ -2,7 +2,7 @@ import * as React from 'react';
 import { expectType } from '#test-utils';
 import { Popover } from '@base-ui-components/react/popover';
 
-const numberPayloadHandle = new Popover.Handle<number>();
+const numberPayloadHandle = Popover.createHandle<number>();
 
 const rootWithDirectChildren = (
   <Popover.Root handle={numberPayloadHandle}>

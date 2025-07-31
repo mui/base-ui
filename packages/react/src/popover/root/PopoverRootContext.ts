@@ -14,7 +14,7 @@ export interface PopoverRootContext {
   ) => void;
   popupRef: React.RefObject<HTMLElement | null>;
   onOpenChangeComplete: ((open: boolean) => void) | undefined;
-  store: PopoverStore;
+  store: PopoverStore<unknown>;
 }
 
 export const PopoverRootContext = React.createContext<PopoverRootContext | undefined>(undefined);
