@@ -172,24 +172,24 @@ interface ItemProps extends React.ComponentPropsWithoutRef<'li'> {
   active?: boolean;
   href: string;
   rel?: string;
+  external?: boolean;
 }
 
-export function Item({ href, ...props }: ItemProps) {
+export function Item({ href, external, ...props }: ItemProps) {
   const setOpen = React.useContext(MobileNavStateCallback);
+
+  const LinkComponent = external ? 'a' : NextLink;
+
   return (
     <li {...props} className={clsx('MobileNavItem', props.className)}>
-      <NextLink
+      <LinkComponent
         aria-current={props.active ? 'page' : undefined}
         className="MobileNavLink"
         href={href}
         rel={props.rel}
         // We handle scroll manually
-        scroll={false}
+        scroll={external ? undefined : false}
         onClick={() => {
-          if (href.endsWith('txt')) {
-            return;
-          }
-
           if (href === window.location.pathname) {
             // If the URL is the same, close, wait a little, and scroll to top smoothly
             setOpen(false);
@@ -206,7 +206,7 @@ export function Item({ href, ...props }: ItemProps) {
         }}
       >
         {props.children}
-      </NextLink>
+      </LinkComponent>
     </li>
   );
 }
