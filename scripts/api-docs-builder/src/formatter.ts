@@ -16,11 +16,9 @@ export function formatProperties(
       .map((tag) => tag.value)
       .join('\n');
 
-    let expandedType: string | undefined;
-    if (prop.name !== 'className' && prop.name !== 'render') {
-      expandedType = allExports
-        ? formatExpandedType(prop.type, allExports)
-        : formatType(prop.type, prop.optional, prop.documentation?.tags, true);
+    let expandedType = formatType(prop.type, prop.optional, prop.documentation?.tags);
+    if (prop.name !== 'className' && prop.name !== 'render' && allExports) {
+      expandedType = formatExpandedType(prop.type, allExports);
     }
 
     result[prop.name] = {

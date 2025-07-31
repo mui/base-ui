@@ -4,6 +4,7 @@
   "parameters": {
     "render": {
       "type": "useRender.RenderProp<Record<string, unknown>>",
+      "expanded": "useRender.RenderProp<Record<string, unknown>>",
       "required": true,
       "description": "The React element or a function that returns one to override the default element."
     },
