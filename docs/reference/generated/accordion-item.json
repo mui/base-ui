@@ -4,27 +4,27 @@
   "props": {
     "value": {
       "type": "AccordionItemValue",
-      "expanded": "AccordionItemValue"
+      "detailedType": "AccordionItemValue"
     },
     "onOpenChange": {
       "type": "((open: boolean) => void)",
-      "expanded": "((open: boolean) => void) | undefined",
+      "detailedType": "((open: boolean) => void) | undefined",
       "description": "Event handler called when the panel is opened or closed."
     },
     "disabled": {
       "type": "boolean",
-      "expanded": "boolean | undefined",
+      "detailedType": "boolean | undefined",
       "default": "false",
       "description": "Whether the component should ignore user interaction."
     },
     "className": {
       "type": "string | ((state: Accordion.Item.State) => string)",
-      "expanded": "string | ((state: Accordion.Item.State) => string)",
+      "detailedType": "string | ((state: Accordion.Item.State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: Accordion.Item.State) => ReactElement)",
-      "expanded": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Accordion.Item.State,\n  ) => ReactElement)",
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Accordion.Item.State,\n  ) => ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
     }
   },

@@ -4,23 +4,23 @@
   "props": {
     "value": {
       "type": "Tabs.Tab.Value",
-      "expanded": "Tabs.Tab.Value",
+      "detailedType": "Tabs.Tab.Value",
       "description": "The value of the TabPanel. It will be shown when the Tab with the corresponding value is selected.\nIf not provided, it will fall back to the index of the panel.\nIt is recommended to explicitly provide it, as it's required for the tab panel to be rendered on the server."
     },
     "className": {
       "type": "string | ((state: Tabs.Panel.State) => string)",
-      "expanded": "string | ((state: Tabs.Panel.State) => string)",
+      "detailedType": "string | ((state: Tabs.Panel.State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "keepMounted": {
       "type": "boolean",
-      "expanded": "boolean | undefined",
+      "detailedType": "boolean | undefined",
       "default": "false",
       "description": "Whether to keep the HTML element in the DOM while the panel is hidden."
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: Tabs.Panel.State) => ReactElement)",
-      "expanded": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Tabs.Panel.State,\n  ) => ReactElement)",
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Tabs.Panel.State,\n  ) => ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
     }
   },

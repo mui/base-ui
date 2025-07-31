@@ -4,16 +4,16 @@
   "props": {
     "children": {
       "type": "((formattedValue: string | null, value: number | null) => ReactNode) | null",
-      "expanded": "| ((\n    formattedValue: string | null,\n    value: number | null,\n  ) => ReactNode)\n| null\n| undefined"
+      "detailedType": "| ((\n    formattedValue: string | null,\n    value: number | null,\n  ) => ReactNode)\n| null\n| undefined"
     },
     "className": {
       "type": "string | ((state: Progress.Root.State) => string)",
-      "expanded": "string | ((state: Progress.Root.State) => string)",
+      "detailedType": "string | ((state: Progress.Root.State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: Progress.Root.State) => ReactElement)",
-      "expanded": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Progress.Root.State,\n  ) => ReactElement)",
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Progress.Root.State,\n  ) => ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
     }
   },

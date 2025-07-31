@@ -4,67 +4,67 @@
   "props": {
     "name": {
       "type": "string",
-      "expanded": "string | undefined",
+      "detailedType": "string | undefined",
       "description": "Identifies the field when a form is submitted."
     },
     "defaultChecked": {
       "type": "boolean",
-      "expanded": "boolean | undefined",
+      "detailedType": "boolean | undefined",
       "default": "false",
       "description": "Whether the switch is initially active.\n\nTo render a controlled switch, use the `checked` prop instead."
     },
     "checked": {
       "type": "boolean",
-      "expanded": "boolean | undefined",
+      "detailedType": "boolean | undefined",
       "description": "Whether the switch is currently active.\n\nTo render an uncontrolled switch, use the `defaultChecked` prop instead."
     },
     "onCheckedChange": {
       "type": "((checked: boolean, event: Event) => void)",
-      "expanded": "| ((checked: boolean, event: Event) => void)\n| undefined",
+      "detailedType": "| ((checked: boolean, event: Event) => void)\n| undefined",
       "description": "Event handler called when the switch is activated or deactivated."
     },
     "nativeButton": {
       "type": "boolean",
-      "expanded": "boolean | undefined",
+      "detailedType": "boolean | undefined",
       "default": "true",
       "description": "Whether the component renders a native `<button>` element when replacing it\nvia the `render` prop.\nSet to `false` if the rendered element is not a button (e.g. `<div>`)."
     },
     "disabled": {
       "type": "boolean",
-      "expanded": "boolean | undefined",
+      "detailedType": "boolean | undefined",
       "default": "false",
       "description": "Whether the component should ignore user interaction."
     },
     "readOnly": {
       "type": "boolean",
-      "expanded": "boolean | undefined",
+      "detailedType": "boolean | undefined",
       "default": "false",
       "description": "Whether the user should be unable to activate or deactivate the switch."
     },
     "required": {
       "type": "boolean",
-      "expanded": "boolean | undefined",
+      "detailedType": "boolean | undefined",
       "default": "false",
       "description": "Whether the user must activate the switch before submitting a form."
     },
     "inputRef": {
       "type": "Ref<HTMLInputElement>",
-      "expanded": "React.Ref<HTMLInputElement> | undefined",
+      "detailedType": "React.Ref<HTMLInputElement> | undefined",
       "description": "A ref to access the hidden `<input>` element."
     },
     "id": {
       "type": "string",
-      "expanded": "string | undefined",
+      "detailedType": "string | undefined",
       "description": "The id of the switch element."
     },
     "className": {
       "type": "string | ((state: Switch.Root.State) => string)",
-      "expanded": "string | ((state: Switch.Root.State) => string)",
+      "detailedType": "string | ((state: Switch.Root.State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: Switch.Root.State) => ReactElement)",
-      "expanded": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Switch.Root.State,\n  ) => ReactElement)",
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Switch.Root.State,\n  ) => ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
     }
   },

@@ -4,28 +4,28 @@
   "props": {
     "nativeButton": {
       "type": "boolean",
-      "expanded": "boolean | undefined",
+      "detailedType": "boolean | undefined",
       "default": "false",
       "description": "Whether the component renders a native `<button>` element when replacing it\nvia the `render` prop.\nSet to `true` if the rendered element is a native button."
     },
     "disabled": {
       "type": "boolean",
-      "expanded": "boolean | undefined",
+      "detailedType": "boolean | undefined",
       "default": "false",
       "description": "Whether the component should ignore user interaction."
     },
     "children": {
       "type": "ReactNode",
-      "expanded": "React.ReactNode"
+      "detailedType": "React.ReactNode"
     },
     "className": {
       "type": "string | ((state: Select.Trigger.State) => string)",
-      "expanded": "string | ((state: Select.Trigger.State) => string)",
+      "detailedType": "string | ((state: Select.Trigger.State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: Select.Trigger.State) => ReactElement)",
-      "expanded": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Select.Trigger.State,\n  ) => ReactElement)",
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Select.Trigger.State,\n  ) => ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
     }
   },

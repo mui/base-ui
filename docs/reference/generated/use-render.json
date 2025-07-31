@@ -4,28 +4,28 @@
   "parameters": {
     "render": {
       "type": "useRender.RenderProp<Record<string, unknown>>",
-      "expanded": "useRender.RenderProp<Record<string, unknown>>",
+      "detailedType": "useRender.RenderProp<Record<string, unknown>>",
       "required": true,
       "description": "The React element or a function that returns one to override the default element."
     },
     "ref": {
       "type": "Ref<Element> | Ref<Element>[]",
-      "expanded": "React.Ref<Element> | Ref<Element>[] | undefined",
+      "detailedType": "React.Ref<Element> | Ref<Element>[] | undefined",
       "description": "The ref to apply to the rendered element."
     },
     "state": {
       "type": "Record<string, unknown>",
-      "expanded": "Record<string, unknown> | undefined",
+      "detailedType": "Record<string, unknown> | undefined",
       "description": "The state of the component, passed as the second argument to the `render` callback."
     },
     "props": {
       "type": "Record<string, unknown>",
-      "expanded": "Record<string, unknown> | undefined",
+      "detailedType": "Record<string, unknown> | undefined",
       "description": "Props to be spread on the rendered element.\nThey are merged with the internal props of the component, so that event handlers\nare merged, `className` strings and `style` properties are joined, while other external props overwrite the\ninternal ones."
     },
     "enabled": {
       "type": "boolean | undefined",
-      "expanded": "boolean | undefined | undefined",
+      "detailedType": "boolean | undefined | undefined",
       "default": "true",
       "description": "If `false`, the hook will skip most of its internal logic and return `null`.\nThis is useful for rendering a component conditionally."
     }

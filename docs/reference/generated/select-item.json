@@ -4,38 +4,39 @@
   "props": {
     "label": {
       "type": "string",
-      "description": "Specifies the text label to use when the item is matched during keyboard text navigation.\n\nDefaults to the item text content if not provided."
+      "detailedType": "string | undefined",
+      "description": "Overrides the text label to use on the trigger when this item is selected\nand when the item is matched during keyboard text navigation."
     },
     "value": {
       "type": "any",
-      "expanded": "any",
+      "detailedType": "any",
       "default": "null",
       "description": "A unique value that identifies this select item."
     },
     "nativeButton": {
       "type": "boolean",
-      "expanded": "boolean | undefined",
+      "detailedType": "boolean | undefined",
       "default": "false",
       "description": "Whether the component renders a native `<button>` element when replacing it\nvia the `render` prop.\nSet to `true` if the rendered element is a native button."
     },
     "disabled": {
       "type": "boolean",
-      "expanded": "boolean | undefined",
+      "detailedType": "boolean | undefined",
       "default": "false",
       "description": "Whether the component should ignore user interaction."
     },
     "children": {
       "type": "ReactNode",
-      "expanded": "React.ReactNode"
+      "detailedType": "React.ReactNode"
     },
     "className": {
       "type": "string | ((state: Select.Item.State) => string)",
-      "expanded": "string | ((state: Select.Item.State) => string)",
+      "detailedType": "string | ((state: Select.Item.State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: Select.Item.State) => ReactElement)",
-      "expanded": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Select.Item.State,\n  ) => ReactElement)",
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Select.Item.State,\n  ) => ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
     }
   },

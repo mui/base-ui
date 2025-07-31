@@ -4,55 +4,55 @@
   "props": {
     "name": {
       "type": "string",
-      "expanded": "string | undefined",
+      "detailedType": "string | undefined",
       "description": "Identifies the field when a form is submitted."
     },
     "defaultValue": {
       "type": "unknown",
-      "expanded": "unknown",
+      "detailedType": "unknown",
       "description": "The uncontrolled value of the radio button that should be initially selected.\n\nTo render a controlled radio group, use the `value` prop instead."
     },
     "value": {
       "type": "unknown",
-      "expanded": "unknown",
+      "detailedType": "unknown",
       "description": "The controlled value of the radio item that should be currently selected.\n\nTo render an uncontrolled radio group, use the `defaultValue` prop instead."
     },
     "onValueChange": {
       "type": "((value: unknown, event: Event) => void)",
-      "expanded": "| ((value: unknown, event: Event) => void)\n| undefined",
+      "detailedType": "| ((value: unknown, event: Event) => void)\n| undefined",
       "description": "Callback fired when the value changes."
     },
     "disabled": {
       "type": "boolean",
-      "expanded": "boolean | undefined",
+      "detailedType": "boolean | undefined",
       "default": "false",
       "description": "Whether the component should ignore user interaction."
     },
     "readOnly": {
       "type": "boolean",
-      "expanded": "boolean | undefined",
+      "detailedType": "boolean | undefined",
       "default": "false",
       "description": "Whether the user should be unable to select a different radio button in the group."
     },
     "required": {
       "type": "boolean",
-      "expanded": "boolean | undefined",
+      "detailedType": "boolean | undefined",
       "default": "false",
       "description": "Whether the user must choose a value before submitting a form."
     },
     "inputRef": {
       "type": "Ref<HTMLInputElement>",
-      "expanded": "React.Ref<HTMLInputElement> | undefined",
+      "detailedType": "React.Ref<HTMLInputElement> | undefined",
       "description": "A ref to access the hidden input element."
     },
     "className": {
       "type": "string | ((state: Radio.Group.State) => string)",
-      "expanded": "string | ((state: Radio.Group.State) => string)",
+      "detailedType": "string | ((state: Radio.Group.State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: Radio.Group.State) => ReactElement)",
-      "expanded": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Radio.Group.State,\n  ) => ReactElement)",
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Radio.Group.State,\n  ) => ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
     }
   },

@@ -4,22 +4,22 @@
   "props": {
     "children": {
       "type": "ReactNode",
-      "expanded": "React.ReactNode"
+      "detailedType": "React.ReactNode"
     },
     "className": {
       "type": "string | ((state: Select.ItemIndicator.State) => string)",
-      "expanded": "| string\n| ((state: Select.ItemIndicator.State) => string)",
+      "detailedType": "| string\n| ((state: Select.ItemIndicator.State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "keepMounted": {
       "type": "boolean",
-      "expanded": "boolean | undefined",
+      "detailedType": "boolean | undefined",
       "default": "false",
       "description": "Whether to keep the HTML element in the DOM when the item is not selected."
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: Select.ItemIndicator.State) => ReactElement)",
-      "expanded": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Select.ItemIndicator.State,\n  ) => ReactElement)",
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Select.ItemIndicator.State,\n  ) => ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
     }
   },

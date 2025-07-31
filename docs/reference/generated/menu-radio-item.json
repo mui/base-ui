@@ -4,54 +4,54 @@
   "props": {
     "label": {
       "type": "string",
-      "expanded": "string | undefined",
+      "detailedType": "string | undefined",
       "description": "Overrides the text label to use when the item is matched during keyboard text navigation."
     },
     "value": {
       "type": "any",
-      "expanded": "any",
+      "detailedType": "any",
       "required": true,
       "description": "Value of the radio item.\nThis is the value that will be set in the MenuRadioGroup when the item is selected."
     },
     "onClick": {
       "type": "MouseEventHandler<HTMLElement>",
-      "expanded": "React.MouseEventHandler<HTMLElement> | undefined",
+      "detailedType": "React.MouseEventHandler<HTMLElement> | undefined",
       "description": "The click handler for the menu item."
     },
     "closeOnClick": {
       "type": "boolean",
-      "expanded": "boolean | undefined",
+      "detailedType": "boolean | undefined",
       "default": "false",
       "description": "Whether to close the menu when the item is clicked."
     },
     "nativeButton": {
       "type": "boolean",
-      "expanded": "boolean | undefined",
+      "detailedType": "boolean | undefined",
       "default": "false",
       "description": "Whether the component renders a native `<button>` element when replacing it\nvia the `render` prop.\nSet to `true` if the rendered element is a native button."
     },
     "disabled": {
       "type": "boolean",
-      "expanded": "boolean | undefined",
+      "detailedType": "boolean | undefined",
       "default": "false",
       "description": "Whether the component should ignore user interaction."
     },
     "id": {
       "type": "string",
-      "expanded": "string | undefined"
+      "detailedType": "string | undefined"
     },
     "children": {
       "type": "ReactNode",
-      "expanded": "React.ReactNode"
+      "detailedType": "React.ReactNode"
     },
     "className": {
       "type": "string | ((state: Menu.RadioItem.State) => string)",
-      "expanded": "string | ((state: Menu.RadioItem.State) => string)",
+      "detailedType": "string | ((state: Menu.RadioItem.State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: Menu.RadioItem.State) => ReactElement)",
-      "expanded": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Menu.RadioItem.State,\n  ) => ReactElement)",
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Menu.RadioItem.State,\n  ) => ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
     }
   },

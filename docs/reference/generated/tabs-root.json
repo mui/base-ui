@@ -4,34 +4,34 @@
   "props": {
     "defaultValue": {
       "type": "Tabs.Tab.Value",
-      "expanded": "Tabs.Tab.Value",
+      "detailedType": "Tabs.Tab.Value",
       "default": "0",
       "description": "The default value. Use when the component is not controlled.\nWhen the value is `null`, no Tab will be selected."
     },
     "value": {
       "type": "Tabs.Tab.Value",
-      "expanded": "Tabs.Tab.Value",
+      "detailedType": "Tabs.Tab.Value",
       "description": "The value of the currently selected `Tab`. Use when the component is controlled.\nWhen the value is `null`, no Tab will be selected."
     },
     "onValueChange": {
       "type": "((value: Tabs.Tab.Value, event: Event | undefined) => void)",
-      "expanded": "| ((\n    value: Tabs.Tab.Value,\n    event: Event | undefined,\n  ) => void)\n| undefined",
+      "detailedType": "| ((\n    value: Tabs.Tab.Value,\n    event: Event | undefined,\n  ) => void)\n| undefined",
       "description": "Callback invoked when new value is being set."
     },
     "orientation": {
       "type": "Tabs.Root.Orientation",
-      "expanded": "'horizontal' | 'vertical' | undefined",
+      "detailedType": "'horizontal' | 'vertical' | undefined",
       "default": "'horizontal'",
       "description": "The component orientation (layout flow direction)."
     },
     "className": {
       "type": "string | ((state: Tabs.Root.State) => string)",
-      "expanded": "string | ((state: Tabs.Root.State) => string)",
+      "detailedType": "string | ((state: Tabs.Root.State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: Tabs.Root.State) => ReactElement)",
-      "expanded": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Tabs.Root.State,\n  ) => ReactElement)",
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Tabs.Root.State,\n  ) => ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
     }
   },
