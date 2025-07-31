@@ -4,9 +4,9 @@
   "props": {
     "direction": {
       "type": "TextDirection",
-      "detailedType": "'ltr' | 'rtl' | undefined",
       "default": "'ltr'",
-      "description": "The reading direction of the text"
+      "description": "The reading direction of the text",
+      "detailedType": "'ltr' | 'rtl' | undefined"
     },
     "children": {
       "type": "ReactNode",

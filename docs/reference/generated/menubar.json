@@ -4,37 +4,36 @@
   "props": {
     "modal": {
       "type": "boolean",
-      "detailedType": "boolean | undefined",
       "default": "true",
-      "description": "Whether the menubar is modal."
+      "description": "Whether the menubar is modal.",
+      "detailedType": "boolean | undefined"
     },
     "disabled": {
       "type": "boolean",
-      "detailedType": "boolean | undefined",
       "default": "false",
-      "description": "Whether the whole menubar is disabled."
+      "description": "Whether the whole menubar is disabled.",
+      "detailedType": "boolean | undefined"
     },
     "loop": {
       "type": "boolean",
-      "detailedType": "boolean | undefined",
       "default": "true",
-      "description": "Whether to loop keyboard focus back to the first item\nwhen the end of the list is reached while using the arrow keys."
+      "description": "Whether to loop keyboard focus back to the first item\nwhen the end of the list is reached while using the arrow keys.",
+      "detailedType": "boolean | undefined"
     },
     "orientation": {
       "type": "Menu.Root.Orientation",
-      "detailedType": "'horizontal' | 'vertical' | undefined",
       "default": "'horizontal'",
-      "description": "The orientation of the menubar."
+      "description": "The orientation of the menubar.",
+      "detailedType": "'horizontal' | 'vertical' | undefined"
     },
     "className": {
       "type": "string | ((state: Menubar.State) => string)",
-      "detailedType": "string | ((state: Menubar.State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: Menubar.State) => ReactElement)",
-      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Menubar.State,\n  ) => ReactElement)",
-      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
+      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Menubar.State,\n  ) => ReactElement)"
     }
   },
   "dataAttributes": {},

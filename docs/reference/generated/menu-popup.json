@@ -4,8 +4,8 @@
   "props": {
     "finalFocus": {
       "type": "RefObject<HTMLElement | null>",
-      "detailedType": "React.RefObject<HTMLElement | null> | undefined",
-      "description": "Determines the element to focus when the menu is closed.\nBy default, focus returns to the trigger."
+      "description": "Determines the element to focus when the menu is closed.\nBy default, focus returns to the trigger.",
+      "detailedType": "React.RefObject<HTMLElement | null> | undefined"
     },
     "id": {
       "type": "string",
@@ -17,13 +17,12 @@
     },
     "className": {
       "type": "string | ((state: Menu.Popup.State) => string)",
-      "detailedType": "string | ((state: Menu.Popup.State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: Menu.Popup.State) => ReactElement)",
-      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Menu.Popup.State,\n  ) => ReactElement)",
-      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
+      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Menu.Popup.State,\n  ) => ReactElement)"
     }
   },
   "dataAttributes": {

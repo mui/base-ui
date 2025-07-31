@@ -8,18 +8,17 @@
     },
     "onValueChange": {
       "type": "((value: string, event: Event) => void)",
-      "detailedType": "((value: string, event: Event) => void) | undefined",
-      "description": "Callback fired when the `value` changes. Use when controlled."
+      "description": "Callback fired when the `value` changes. Use when controlled.",
+      "detailedType": "((value: string, event: Event) => void) | undefined"
     },
     "className": {
       "type": "string | ((state: Input.State) => string)",
-      "detailedType": "string | ((state: Input.State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: Input.State) => ReactElement)",
-      "detailedType": "| ReactElement\n| ((props: HTMLProps, state: Input.State) => ReactElement)",
-      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
+      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
+      "detailedType": "| ReactElement\n| ((props: HTMLProps, state: Input.State) => ReactElement)"
     }
   },
   "dataAttributes": {

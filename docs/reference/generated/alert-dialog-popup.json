@@ -4,23 +4,23 @@
   "props": {
     "initialFocus": {
       "type": "RefObject<HTMLElement | null> | ((interactionType: InteractionType) => RefObject<HTMLElement | null>)",
-      "detailedType": "| React.RefObject<HTMLElement | null>\n| ((\n    interactionType: InteractionType,\n  ) => RefObject<HTMLElement | null>)\n| undefined",
-      "description": "Determines the element to focus when the dialog is opened.\nBy default, the first focusable element is focused."
+      "description": "Determines the element to focus when the dialog is opened.\nBy default, the first focusable element is focused.",
+      "detailedType": "| React.RefObject<HTMLElement | null>\n| ((\n    interactionType: InteractionType,\n  ) => RefObject<HTMLElement | null>)\n| undefined"
     },
     "finalFocus": {
       "type": "RefObject<HTMLElement | null>",
-      "detailedType": "React.RefObject<HTMLElement | null> | undefined",
-      "description": "Determines the element to focus when the dialog is closed.\nBy default, focus returns to the trigger."
+      "description": "Determines the element to focus when the dialog is closed.\nBy default, focus returns to the trigger.",
+      "detailedType": "React.RefObject<HTMLElement | null> | undefined"
     },
     "className": {
       "type": "string | ((state: AlertDialog.Popup.State) => string)",
-      "detailedType": "| string\n| ((state: AlertDialog.Popup.State) => string)",
-      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
+      "detailedType": "| string\n| ((state: AlertDialog.Popup.State) => string)"
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: AlertDialog.Popup.State) => ReactElement)",
-      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: AlertDialog.Popup.State,\n  ) => ReactElement)",
-      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
+      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: AlertDialog.Popup.State,\n  ) => ReactElement)"
     }
   },
   "dataAttributes": {

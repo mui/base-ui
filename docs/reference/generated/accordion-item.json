@@ -3,29 +3,27 @@
   "description": "Groups an accordion header with the corresponding panel.\nRenders a `<div>` element.",
   "props": {
     "value": {
-      "type": "AccordionItemValue",
-      "detailedType": "AccordionItemValue"
+      "type": "AccordionItemValue"
     },
     "onOpenChange": {
       "type": "((open: boolean) => void)",
-      "detailedType": "((open: boolean) => void) | undefined",
-      "description": "Event handler called when the panel is opened or closed."
+      "description": "Event handler called when the panel is opened or closed.",
+      "detailedType": "((open: boolean) => void) | undefined"
     },
     "disabled": {
       "type": "boolean",
-      "detailedType": "boolean | undefined",
       "default": "false",
-      "description": "Whether the component should ignore user interaction."
+      "description": "Whether the component should ignore user interaction.",
+      "detailedType": "boolean | undefined"
     },
     "className": {
       "type": "string | ((state: Accordion.Item.State) => string)",
-      "detailedType": "string | ((state: Accordion.Item.State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: Accordion.Item.State) => ReactElement)",
-      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Accordion.Item.State,\n  ) => ReactElement)",
-      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
+      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Accordion.Item.State,\n  ) => ReactElement)"
     }
   },
   "dataAttributes": {

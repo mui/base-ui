@@ -4,19 +4,19 @@
   "props": {
     "delay": {
       "type": "number",
-      "detailedType": "number | undefined",
-      "description": "How long to wait before opening a tooltip. Specified in milliseconds."
+      "description": "How long to wait before opening a tooltip. Specified in milliseconds.",
+      "detailedType": "number | undefined"
     },
     "closeDelay": {
       "type": "number",
-      "detailedType": "number | undefined",
-      "description": "How long to wait before closing a tooltip. Specified in milliseconds."
+      "description": "How long to wait before closing a tooltip. Specified in milliseconds.",
+      "detailedType": "number | undefined"
     },
     "timeout": {
       "type": "number",
-      "detailedType": "number | undefined",
       "default": "400",
-      "description": "Another tooltip will open instantly if the previous tooltip\nis closed within this timeout. Specified in milliseconds."
+      "description": "Another tooltip will open instantly if the previous tooltip\nis closed within this timeout. Specified in milliseconds.",
+      "detailedType": "number | undefined"
     },
     "children": {
       "type": "ReactNode",

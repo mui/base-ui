@@ -4,8 +4,8 @@
   "props": {
     "label": {
       "type": "string",
-      "detailedType": "string | undefined",
-      "description": "Overrides the text label to use when the item is matched during keyboard text navigation."
+      "description": "Overrides the text label to use when the item is matched during keyboard text navigation.",
+      "detailedType": "string | undefined"
     },
     "onClick": {
       "type": "MouseEventHandler<HTMLElement>",
@@ -13,9 +13,9 @@
     },
     "nativeButton": {
       "type": "boolean",
-      "detailedType": "boolean | undefined",
       "default": "false",
-      "description": "Whether the component renders a native `<button>` element when replacing it\nvia the `render` prop.\nSet to `true` if the rendered element is a native button."
+      "description": "Whether the component renders a native `<button>` element when replacing it\nvia the `render` prop.\nSet to `true` if the rendered element is a native button.",
+      "detailedType": "boolean | undefined"
     },
     "id": {
       "type": "string",
@@ -27,13 +27,13 @@
     },
     "className": {
       "type": "string | ((state: Menu.SubmenuTrigger.State) => string)",
-      "detailedType": "| string\n| ((state: Menu.SubmenuTrigger.State) => string)",
-      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
+      "detailedType": "| string\n| ((state: Menu.SubmenuTrigger.State) => string)"
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: Menu.SubmenuTrigger.State) => ReactElement)",
-      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Menu.SubmenuTrigger.State,\n  ) => ReactElement)",
-      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
+      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Menu.SubmenuTrigger.State,\n  ) => ReactElement)"
     }
   },
   "dataAttributes": {

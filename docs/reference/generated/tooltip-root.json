@@ -4,59 +4,59 @@
   "props": {
     "defaultOpen": {
       "type": "boolean",
-      "detailedType": "boolean | undefined",
       "default": "false",
-      "description": "Whether the tooltip is initially open.\n\nTo render a controlled tooltip, use the `open` prop instead."
+      "description": "Whether the tooltip is initially open.\n\nTo render a controlled tooltip, use the `open` prop instead.",
+      "detailedType": "boolean | undefined"
     },
     "open": {
       "type": "boolean",
-      "detailedType": "boolean | undefined",
-      "description": "Whether the tooltip is currently open."
+      "description": "Whether the tooltip is currently open.",
+      "detailedType": "boolean | undefined"
     },
     "onOpenChange": {
       "type": "((open: boolean, event: Event | undefined, reason: Tooltip.Root.OpenChangeReason | undefined) => void)",
-      "detailedType": "| ((\n    open: boolean,\n    event: Event | undefined,\n    reason: Tooltip.Root.OpenChangeReason | undefined,\n  ) => void)\n| undefined",
-      "description": "Event handler called when the tooltip is opened or closed."
+      "description": "Event handler called when the tooltip is opened or closed.",
+      "detailedType": "| ((\n    open: boolean,\n    event: Event | undefined,\n    reason: Tooltip.Root.OpenChangeReason | undefined,\n  ) => void)\n| undefined"
     },
     "actionsRef": {
       "type": "RefObject<Tooltip.Root.Actions>",
-      "detailedType": "React.RefObject<Tooltip.Root.Actions> | undefined",
-      "description": "A ref to imperative actions.\n- `unmount`: When specified, the tooltip will not be unmounted when closed.\nInstead, the `unmount` function must be called to unmount the tooltip manually.\nUseful when the tooltip's animation is controlled by an external library."
+      "description": "A ref to imperative actions.\n- `unmount`: When specified, the tooltip will not be unmounted when closed.\nInstead, the `unmount` function must be called to unmount the tooltip manually.\nUseful when the tooltip's animation is controlled by an external library.",
+      "detailedType": "React.RefObject<Tooltip.Root.Actions> | undefined"
     },
     "onOpenChangeComplete": {
       "type": "((open: boolean) => void)",
-      "detailedType": "((open: boolean) => void) | undefined",
-      "description": "Event handler called after any animations complete when the tooltip is opened or closed."
+      "description": "Event handler called after any animations complete when the tooltip is opened or closed.",
+      "detailedType": "((open: boolean) => void) | undefined"
     },
     "trackCursorAxis": {
       "type": "'none' | 'both' | 'x' | 'y'",
-      "detailedType": "'none' | 'both' | 'x' | 'y' | undefined",
       "default": "'none'",
-      "description": "Determines which axis the tooltip should track the cursor on."
+      "description": "Determines which axis the tooltip should track the cursor on.",
+      "detailedType": "'none' | 'both' | 'x' | 'y' | undefined"
     },
     "disabled": {
       "type": "boolean",
-      "detailedType": "boolean | undefined",
       "default": "false",
-      "description": "Whether the tooltip is disabled."
+      "description": "Whether the tooltip is disabled.",
+      "detailedType": "boolean | undefined"
     },
     "delay": {
       "type": "number",
-      "detailedType": "number | undefined",
       "default": "600",
-      "description": "How long to wait before opening the tooltip. Specified in milliseconds."
+      "description": "How long to wait before opening the tooltip. Specified in milliseconds.",
+      "detailedType": "number | undefined"
     },
     "closeDelay": {
       "type": "number",
-      "detailedType": "number | undefined",
       "default": "0",
-      "description": "How long to wait before closing the tooltip. Specified in milliseconds."
+      "description": "How long to wait before closing the tooltip. Specified in milliseconds.",
+      "detailedType": "number | undefined"
     },
     "hoverable": {
       "type": "boolean",
-      "detailedType": "boolean | undefined",
       "default": "true",
-      "description": "Whether the tooltip contents can be hovered without closing the tooltip."
+      "description": "Whether the tooltip contents can be hovered without closing the tooltip.",
+      "detailedType": "boolean | undefined"
     },
     "children": {
       "type": "ReactNode",
