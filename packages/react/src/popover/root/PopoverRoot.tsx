@@ -137,23 +137,23 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
     reason: PopoverOpenChangeReason | undefined,
     trigger: HTMLElement | undefined,
   ) {
-    if (nextOpen && trigger) {
-      setActiveTriggerState(trigger as HTMLElement);
-    }
-
-    if (nextOpen && trigger) {
-      const triggerPayload = triggerElements.get(trigger as HTMLElement);
-      if (triggerPayload !== undefined) {
-        store.set('payload', triggerPayload());
-      }
-    }
-
     const isHover = reason === 'trigger-hover';
     const isKeyboardClick = reason === 'trigger-press' && (event as MouseEvent).detail === 0;
     const isDismissClose = !nextOpen && (reason === 'escape-key' || reason == null);
 
     function changeState() {
       onOpenChange?.(nextOpen ? (trigger ?? null) : null, event, reason);
+
+      if (nextOpen && trigger) {
+        setActiveTriggerState(trigger as HTMLElement);
+
+        const triggerPayload = triggerElements.get(trigger as HTMLElement);
+        if (triggerPayload !== undefined) {
+          store.set('payload', triggerPayload());
+        }
+      } else if (nextOpen === false) {
+        setActiveTriggerState(null);
+      }
 
       if (nextOpen) {
         store.set('openReason', reason ?? null);

@@ -520,6 +520,7 @@ describe('<Popover.Root />', () => {
           <div>
             <button onClick={() => setOpen(false)}>Close</button>
             <Popover.Root open={open} onOpenChangeComplete={onOpenChangeComplete}>
+              <Popover.Trigger>Trigger</Popover.Trigger>
               <Popover.Portal>
                 <Popover.Positioner>
                   <Popover.Popup data-testid="popup" />
@@ -569,6 +570,7 @@ describe('<Popover.Root />', () => {
             <style dangerouslySetInnerHTML={{ __html: style }} />
             <button onClick={() => setOpen(false)}>Close</button>
             <Popover.Root open={open} onOpenChangeComplete={onOpenChangeComplete}>
+              <Popover.Trigger>Trigger</Popover.Trigger>
               <Popover.Portal>
                 <Popover.Positioner>
                   <Popover.Popup className="animation-test-indicator" data-testid="popup" />
@@ -607,6 +609,7 @@ describe('<Popover.Root />', () => {
           <div>
             <button onClick={() => setOpen(true)}>Open</button>
             <Popover.Root open={open} onOpenChangeComplete={onOpenChangeComplete}>
+              <Popover.Trigger>Trigger</Popover.Trigger>
               <Popover.Portal>
                 <Popover.Positioner>
                   <Popover.Popup data-testid="popup" />
@@ -660,6 +663,7 @@ describe('<Popover.Root />', () => {
               onOpenChange={(trigger) => setOpen(trigger !== null)}
               onOpenChangeComplete={onOpenChangeComplete}
             >
+              <Popover.Trigger>Trigger</Popover.Trigger>
               <Popover.Portal>
                 <Popover.Positioner>
                   <Popover.Popup className="animation-test-indicator" data-testid="popup" />

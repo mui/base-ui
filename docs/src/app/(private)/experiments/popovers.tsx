@@ -60,7 +60,7 @@ export default function Popovers() {
   return (
     <div className={styles.Page}>
       <h1>Popovers</h1>
-      <h2>Uncontrolled, single trigger</h2>
+      {/* <h2>Uncontrolled, single trigger</h2>
       <div className={styles.Container}>
         <Popover.Root>
           <StyledTrigger />
@@ -88,7 +88,7 @@ export default function Popovers() {
         <button type="button" className={styles.Button} onClick={() => setSingleTriggerOpen(true)}>
           Open externally
         </button>
-      </div>
+      </div> */}
 
       <h2>Uncontrolled, multiple triggers within Root</h2>
       <div className={styles.Container}>
@@ -100,7 +100,7 @@ export default function Popovers() {
         </Popover.Root>
       </div>
 
-      <h2>Controlled, multiple triggers within Root</h2>
+      {/* <h2>Controlled, multiple triggers within Root</h2>
       <div className={styles.Container}>
         <Popover.Root open={multipleTriggerOpen} onOpenChange={setMultipleTriggerOpen}>
           <StyledTrigger />
@@ -146,7 +146,7 @@ export default function Popovers() {
         >
           Open externally (2nd trigger)
         </button>
-      </div>
+      </div> */}
     </div>
   );
 }

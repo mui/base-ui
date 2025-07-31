@@ -19,6 +19,7 @@ describe('<Popover.Positioner />', () => {
     render(node) {
       return render(
         <Popover.Root open>
+          <Popover.Trigger>Trigger</Popover.Trigger>
           <Popover.Portal>{node}</Popover.Portal>
         </Popover.Root>,
       );
