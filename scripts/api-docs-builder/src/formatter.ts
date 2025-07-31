@@ -1,3 +1,4 @@
+/* eslint-disable no-await-in-loop */
 import sortBy from 'lodash/sortBy';
 import * as tae from 'typescript-api-extractor';
 import fs from 'fs';
@@ -22,7 +23,6 @@ export async function formatProperties(
       expandedType = formatExpandedType(prop.type, allExports);
     }
 
-    // eslint-disable-next-line no-await-in-loop
     const formattedExpandedType = await prettier.format(`type _ = ${expandedType}`, {
       parser: 'typescript',
       singleQuote: true,
