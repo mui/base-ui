@@ -15,12 +15,12 @@
     },
     "onOpenChange": {
       "type": "((open: boolean, event: Event | undefined, reason: PreviewCard.Root.OpenChangeReason | undefined) => void)",
-      "expanded": "((open: boolean, event: Event | undefined, reason: PreviewCard.Root.OpenChangeReason | undefined) => void) | undefined",
+      "expanded": "| ((\n    open: boolean,\n    event: Event | undefined,\n    reason: PreviewCard.Root.OpenChangeReason | undefined,\n  ) => void)\n| undefined",
       "description": "Event handler called when the preview card is opened or closed."
     },
     "actionsRef": {
       "type": "RefObject<PreviewCard.Root.Actions>",
-      "expanded": "React.RefObject<PreviewCard.Root.Actions> | undefined",
+      "expanded": "| React.RefObject<PreviewCard.Root.Actions>\n| undefined",
       "description": "A ref to imperative actions.\n- `unmount`: When specified, the preview card will not be unmounted when closed.\nInstead, the `unmount` function must be called to unmount the preview card manually.\nUseful when the preview card's animation is controlled by an external library."
     },
     "onOpenChangeComplete": {

@@ -15,7 +15,7 @@
     },
     "onOpenChange": {
       "type": "((open: boolean, event: Event | undefined, reason: Popover.Root.OpenChangeReason | undefined) => void)",
-      "expanded": "((open: boolean, event: Event | undefined, reason: Popover.Root.OpenChangeReason | undefined) => void) | undefined",
+      "expanded": "| ((\n    open: boolean,\n    event: Event | undefined,\n    reason: Popover.Root.OpenChangeReason | undefined,\n  ) => void)\n| undefined",
       "description": "Event handler called when the popover is opened or closed."
     },
     "actionsRef": {

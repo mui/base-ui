@@ -9,7 +9,7 @@
     },
     "getAriaValueText": {
       "type": "((formattedValue: string, value: number, index: number) => string) | null",
-      "expanded": "((formattedValue: string, value: number, index: number) => string) | null | undefined",
+      "expanded": "| ((\n    formattedValue: string,\n    value: number,\n    index: number,\n  ) => string)\n| null\n| undefined",
       "description": "Accepts a function which returns a string value that provides a user-friendly name for the current value of the slider.\nThis is important for screen reader users."
     },
     "disabled": {
@@ -25,7 +25,7 @@
     },
     "render": {
       "type": "((props: ComponentPropsWithRef<HTMLAttributes<HTMLDivElement>, HTMLDivElement>, inputProps: ComponentPropsWithRef<InputHTMLAttributes<HTMLInputElement>, HTMLInputElement>, state: Slider.Thumb.State) => ReactElement) | ReactElement & { ref: Ref<Element> }",
-      "expanded": "((props: ComponentPropsWithRef<HTMLAttributes<HTMLDivElement>, HTMLDivElement>, inputProps: ComponentPropsWithRef<InputHTMLAttributes<HTMLInputElement>, HTMLInputElement>, state: Slider.Thumb.State) => ReactElement) | ReactElement & { ref: Ref<Element> }",
+      "expanded": "| ((\n    props: ComponentPropsWithRef<\n      HTMLAttributes<HTMLDivElement>,\n      HTMLDivElement\n    >,\n    inputProps: ComponentPropsWithRef<\n      InputHTMLAttributes<HTMLInputElement>,\n      HTMLInputElement\n    >,\n    state: Slider.Thumb.State,\n  ) => ReactElement)\n| (ReactElement & { ref: Ref<Element> })",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
     }
   },

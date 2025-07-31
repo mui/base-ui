@@ -1,7 +1,7 @@
 import * as tae from 'typescript-api-extractor';
 import { formatProperties, formatParameters, formatType } from './formatter';
 
-export function formatHookData(hook: tae.ExportNode) {
+export async function formatHookData(hook: tae.ExportNode) {
   const description = hook.documentation?.description?.replace(/\n\nDocumentation: .*$/ms, '');
 
   // We don't support hooks with multiple signatures yet
@@ -13,14 +13,14 @@ export function formatHookData(hook: tae.ExportNode) {
     parameters[0].type instanceof tae.ObjectNode &&
     parameters[0].name === 'params'
   ) {
-    formattedParameters = formatProperties(parameters[0].type.properties, []);
+    formattedParameters = await formatProperties(parameters[0].type.properties, []);
   } else {
     formattedParameters = formatParameters(parameters);
   }
 
   let formattedReturnValue: Record<string, any> | string;
   if (signature.returnValueType instanceof tae.ObjectNode) {
-    formattedReturnValue = formatProperties(signature.returnValueType.properties, []);
+    formattedReturnValue = await formatProperties(signature.returnValueType.properties, []);
   } else {
     formattedReturnValue = formatType(signature.returnValueType, false, true);
   }

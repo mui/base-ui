@@ -4,7 +4,7 @@
   "props": {
     "collisionAvoidance": {
       "type": "CollisionAvoidance",
-      "expanded": "{ side: 'none' | 'flip', align: 'shift' | 'none' | 'flip', fallbackAxisSide: 'none' | 'start' | 'end' } | { side: 'shift' | 'none', align: 'shift' | 'none', fallbackAxisSide: 'none' | 'start' | 'end' } | undefined",
+      "expanded": "| {\n    side: 'none' | 'flip'\n    align: 'shift' | 'none' | 'flip'\n    fallbackAxisSide: 'none' | 'start' | 'end'\n  }\n| {\n    side: 'shift' | 'none'\n    align: 'shift' | 'none'\n    fallbackAxisSide: 'none' | 'start' | 'end'\n  }\n| undefined",
       "description": "Determines how to handle collisions when positioning the popup.",
       "example": "```jsx\n<Positioner\n  collisionAvoidance={{\n    side: 'shift',\n    align: 'shift',\n    fallbackAxisSide: 'none',\n  }}\n/>\n```"
     },
@@ -16,20 +16,20 @@
     },
     "alignOffset": {
       "type": "number | OffsetFunction",
-      "expanded": "number | ((data: { side: Side, align: Align, anchor: { width: number, height: number }, positioner: { width: number, height: number } }) => number) | undefined",
+      "expanded": "| number\n| ((data: {\n    side: Side\n    align: Align\n    anchor: { width: number; height: number }\n    positioner: { width: number; height: number }\n  }) => number)\n| undefined",
       "default": "0",
       "description": "Additional offset along the alignment axis in pixels.\nAlso accepts a function that returns the offset to read the dimensions of the anchor\nand positioner elements, along with its side and alignment.\n\nThe function takes a `data` object parameter with the following properties:\n- `data.anchor`: the dimensions of the anchor element with properties `width` and `height`.\n- `data.positioner`: the dimensions of the positioner element with properties `width` and `height`.\n- `data.side`: which side of the anchor element the positioner is aligned against.\n- `data.align`: how the positioner is aligned relative to the specified side.",
       "example": "```jsx\n<Positioner\n  alignOffset={({ side, align, anchor, positioner }) => {\n    return side === 'top' || side === 'bottom'\n      ? anchor.width\n      : anchor.height;\n  }}\n/>\n```"
     },
     "side": {
       "type": "Side",
-      "expanded": "'top' | 'right' | 'bottom' | 'left' | 'inline-end' | 'inline-start' | undefined",
+      "expanded": "| 'top'\n| 'right'\n| 'bottom'\n| 'left'\n| 'inline-end'\n| 'inline-start'\n| undefined",
       "default": "'bottom'",
       "description": "Which side of the anchor element to align the popup against.\nMay automatically change to avoid collisions."
     },
     "sideOffset": {
       "type": "number | OffsetFunction",
-      "expanded": "number | ((data: { side: Side, align: Align, anchor: { width: number, height: number }, positioner: { width: number, height: number } }) => number) | undefined",
+      "expanded": "| number\n| ((data: {\n    side: Side\n    align: Align\n    anchor: { width: number; height: number }\n    positioner: { width: number; height: number }\n  }) => number)\n| undefined",
       "default": "0",
       "description": "Distance between the anchor and the popup in pixels.\nAlso accepts a function that returns the distance to read the dimensions of the anchor\nand positioner elements, along with its side and alignment.\n\nThe function takes a `data` object parameter with the following properties:\n- `data.anchor`: the dimensions of the anchor element with properties `width` and `height`.\n- `data.positioner`: the dimensions of the positioner element with properties `width` and `height`.\n- `data.side`: which side of the anchor element the positioner is aligned against.\n- `data.align`: how the positioner is aligned relative to the specified side.",
       "example": "```jsx\n<Positioner\n  sideOffset={({ side, align, anchor, positioner }) => {\n    return side === 'top' || side === 'bottom'\n      ? anchor.height\n      : anchor.width;\n  }}\n/>\n```"
@@ -42,18 +42,18 @@
     },
     "anchor": {
       "type": "Element | RefObject<Element | null> | VirtualElement | (() => Element | VirtualElement | null) | null",
-      "expanded": "Element | React.RefObject<Element | null> | VirtualElement | (() => Element | VirtualElement | null) | null | undefined",
+      "expanded": "| Element\n| React.RefObject<Element | null>\n| VirtualElement\n| (() => Element | VirtualElement | null)\n| null\n| undefined",
       "description": "An element to position the popup against.\nBy default, the popup will be positioned against the trigger."
     },
     "collisionBoundary": {
       "type": "Boundary",
-      "expanded": "Element | any | Element[] | 'clipping-ancestors' | undefined",
+      "expanded": "| Element\n| any\n| Element[]\n| 'clipping-ancestors'\n| undefined",
       "default": "'clipping-ancestors'",
       "description": "An element or a rectangle that delimits the area that the popup is confined to."
     },
     "collisionPadding": {
       "type": "Padding",
-      "expanded": "{ top?: number; right?: number; bottom?: number; left?: number } | number | undefined",
+      "expanded": "| {\n    top?: number\n    right?: number\n    bottom?: number\n    left?: number\n  }\n| number\n| undefined",
       "default": "5",
       "description": "Additional space to maintain from the edge of the collision boundary."
     },
@@ -77,12 +77,12 @@
     },
     "className": {
       "type": "string | ((state: Popover.Positioner.State) => string)",
-      "expanded": "string | ((state: Popover.Positioner.State) => string)",
+      "expanded": "| string\n| ((state: Popover.Positioner.State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: Popover.Positioner.State) => ReactElement)",
-      "expanded": "ReactElement | ((props: HTMLProps, state: Popover.Positioner.State) => ReactElement)",
+      "expanded": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Popover.Positioner.State,\n  ) => ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
     }
   },

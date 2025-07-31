@@ -20,7 +20,7 @@
     },
     "validate": {
       "type": "((value: unknown, formValues: Record<string, unknown>) => string | string[] | Promise<string | string[] | null> | null)",
-      "expanded": "((value: unknown, formValues: Record<string, unknown>) => string | string[] | Promise<string | string[] | null> | null) | undefined",
+      "expanded": "| ((\n    value: unknown,\n    formValues: Record<string, unknown>,\n  ) =>\n    | string\n    | string[]\n    | Promise<string | string[] | null>\n    | null)\n| undefined",
       "description": "A function for custom validation. Return a string or an array of strings with\nthe error message(s) if the value is invalid, or `null` if the value is valid."
     },
     "validationMode": {
@@ -42,7 +42,7 @@
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: Field.Root.State) => ReactElement)",
-      "expanded": "ReactElement | ((props: HTMLProps, state: Field.Root.State) => ReactElement)",
+      "expanded": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Field.Root.State,\n  ) => ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
     }
   },
