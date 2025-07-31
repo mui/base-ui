@@ -24,9 +24,8 @@ export const SelectValue = React.forwardRef(function SelectValue(
   const { className, render, children: childrenProp, ...elementProps } = componentProps;
 
   const { store, valueRef } = useSelectRootContext();
-
-  const items = useStore(store, selectors.items);
   const value = useStore(store, selectors.value);
+  const items = useStore(store, selectors.items);
   const isChildrenPropFunction = typeof childrenProp === 'function';
 
   const labelFromItems = React.useMemo(() => {
