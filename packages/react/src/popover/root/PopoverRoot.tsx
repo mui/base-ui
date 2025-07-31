@@ -252,6 +252,9 @@ export namespace PopoverRoot {
   export interface State {}
 
   export interface Props<Payload = unknown> {
+    // TODO: Not sure if HTMLElement is the best type here.
+    // This requires getting the actual trigger element, which may be cumbersome.
+    // Considering a string id instead.
     open?: HTMLElement | null | boolean;
     defaultOpen?: HTMLElement | null | boolean;
     /**
