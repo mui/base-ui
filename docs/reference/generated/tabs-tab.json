@@ -4,24 +4,22 @@
   "props": {
     "value": {
       "type": "Tabs.Tab.Value",
-      "detailedType": "Tabs.Tab.Value",
       "description": "The value of the Tab.\nWhen not specified, the value is the child position index."
     },
     "nativeButton": {
       "type": "boolean",
-      "detailedType": "boolean | undefined",
       "default": "true",
-      "description": "Whether the component renders a native `<button>` element when replacing it\nvia the `render` prop.\nSet to `false` if the rendered element is not a button (e.g. `<div>`)."
+      "description": "Whether the component renders a native `<button>` element when replacing it\nvia the `render` prop.\nSet to `false` if the rendered element is not a button (e.g. `<div>`).",
+      "detailedType": "boolean | undefined"
     },
     "className": {
       "type": "string | ((state: Tabs.Tab.State) => string)",
-      "detailedType": "string | ((state: Tabs.Tab.State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: Tabs.Tab.State) => ReactElement)",
-      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Tabs.Tab.State,\n  ) => ReactElement)",
-      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
+      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Tabs.Tab.State,\n  ) => ReactElement)"
     }
   },
   "dataAttributes": {

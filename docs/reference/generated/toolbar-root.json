@@ -4,9 +4,9 @@
   "props": {
     "cols": {
       "type": "number",
-      "detailedType": "number | undefined",
       "default": "1",
-      "description": "The number of columns. When greater than 1, the toolbar is arranged into\na grid."
+      "description": "The number of columns. When greater than 1, the toolbar is arranged into\na grid.",
+      "detailedType": "number | undefined"
     },
     "disabled": {
       "type": "boolean",
@@ -14,25 +14,24 @@
     },
     "loop": {
       "type": "boolean",
-      "detailedType": "boolean | undefined",
       "default": "true",
-      "description": "If `true`, using keyboard navigation will wrap focus to the other end of the toolbar once the end is reached."
+      "description": "If `true`, using keyboard navigation will wrap focus to the other end of the toolbar once the end is reached.",
+      "detailedType": "boolean | undefined"
     },
     "orientation": {
       "type": "Toolbar.Root.Orientation",
-      "detailedType": "'horizontal' | 'vertical' | undefined",
       "default": "'horizontal'",
-      "description": "The orientation of the toolbar."
+      "description": "The orientation of the toolbar.",
+      "detailedType": "'horizontal' | 'vertical' | undefined"
     },
     "className": {
       "type": "string | ((state: Toolbar.Root.State) => string)",
-      "detailedType": "string | ((state: Toolbar.Root.State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: Toolbar.Root.State) => ReactElement)",
-      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Toolbar.Root.State,\n  ) => ReactElement)",
-      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
+      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Toolbar.Root.State,\n  ) => ReactElement)"
     }
   },
   "dataAttributes": {

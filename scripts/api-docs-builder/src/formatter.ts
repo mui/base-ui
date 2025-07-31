@@ -53,14 +53,22 @@ export async function formatProperties(
       }
     }
 
-    result[prop.name] = {
-      type: formatType(prop.type, prop.optional, prop.documentation?.tags),
-      detailedType,
+    const formattedType = formatType(prop.type, prop.optional, prop.documentation?.tags);
+
+    const resultObject: Record<string, any> = {
+      type: formattedType,
       default: prop.documentation?.defaultValue,
       required: !prop.optional || undefined,
       description: prop.documentation?.description,
       example: exampleTag || undefined,
+      detailedType,
     };
+
+    if (detailedType === formattedType) {
+      delete resultObject.detailedType;
+    }
+
+    result[prop.name] = resultObject;
   }
 
   return result;

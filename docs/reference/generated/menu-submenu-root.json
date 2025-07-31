@@ -4,76 +4,76 @@
   "props": {
     "defaultOpen": {
       "type": "boolean",
-      "detailedType": "boolean | undefined",
       "default": "false",
-      "description": "Whether the menu is initially open.\n\nTo render a controlled menu, use the `open` prop instead."
+      "description": "Whether the menu is initially open.\n\nTo render a controlled menu, use the `open` prop instead.",
+      "detailedType": "boolean | undefined"
     },
     "open": {
       "type": "boolean",
-      "detailedType": "boolean | undefined",
-      "description": "Whether the menu is currently open."
+      "description": "Whether the menu is currently open.",
+      "detailedType": "boolean | undefined"
     },
     "onOpenChange": {
       "type": "((open: boolean, event: Event | undefined, reason: Menu.Root.OpenChangeReason | undefined) => void)",
-      "detailedType": "| ((\n    open: boolean,\n    event: Event | undefined,\n    reason: Menu.Root.OpenChangeReason | undefined,\n  ) => void)\n| undefined",
-      "description": "Event handler called when the menu is opened or closed."
+      "description": "Event handler called when the menu is opened or closed.",
+      "detailedType": "| ((\n    open: boolean,\n    event: Event | undefined,\n    reason: Menu.Root.OpenChangeReason | undefined,\n  ) => void)\n| undefined"
     },
     "actionsRef": {
       "type": "RefObject<Menu.Root.Actions>",
-      "detailedType": "React.RefObject<Menu.Root.Actions> | undefined",
-      "description": "A ref to imperative actions.\n- `unmount`: When specified, the menu will not be unmounted when closed.\nInstead, the `unmount` function must be called to unmount the menu manually.\nUseful when the menu's animation is controlled by an external library."
+      "description": "A ref to imperative actions.\n- `unmount`: When specified, the menu will not be unmounted when closed.\nInstead, the `unmount` function must be called to unmount the menu manually.\nUseful when the menu's animation is controlled by an external library.",
+      "detailedType": "React.RefObject<Menu.Root.Actions> | undefined"
     },
     "closeParentOnEsc": {
       "type": "boolean",
-      "detailedType": "boolean | undefined",
       "default": "true",
-      "description": "When in a submenu, determines whether pressing the Escape key\ncloses the entire menu, or only the current child menu."
+      "description": "When in a submenu, determines whether pressing the Escape key\ncloses the entire menu, or only the current child menu.",
+      "detailedType": "boolean | undefined"
     },
     "onOpenChangeComplete": {
       "type": "((open: boolean) => void)",
-      "detailedType": "((open: boolean) => void) | undefined",
-      "description": "Event handler called after any animations complete when the menu is closed."
+      "description": "Event handler called after any animations complete when the menu is closed.",
+      "detailedType": "((open: boolean) => void) | undefined"
     },
     "disabled": {
       "type": "boolean",
-      "detailedType": "boolean | undefined",
       "default": "false",
-      "description": "Whether the component should ignore user interaction."
+      "description": "Whether the component should ignore user interaction.",
+      "detailedType": "boolean | undefined"
     },
     "openOnHover": {
       "type": "boolean",
-      "detailedType": "boolean | undefined",
       "default": "true",
-      "description": "Whether the submenu should open when the trigger is hovered."
+      "description": "Whether the submenu should open when the trigger is hovered.",
+      "detailedType": "boolean | undefined"
     },
     "delay": {
       "type": "number",
-      "detailedType": "number | undefined",
       "default": "100",
-      "description": "How long to wait before the menu may be opened on hover. Specified in milliseconds.\n\nRequires the `openOnHover` prop."
+      "description": "How long to wait before the menu may be opened on hover. Specified in milliseconds.\n\nRequires the `openOnHover` prop.",
+      "detailedType": "number | undefined"
     },
     "closeDelay": {
       "type": "number",
-      "detailedType": "number | undefined",
       "default": "0",
-      "description": "How long to wait before closing the menu that was opened on hover.\nSpecified in milliseconds.\n\nRequires the `openOnHover` prop."
+      "description": "How long to wait before closing the menu that was opened on hover.\nSpecified in milliseconds.\n\nRequires the `openOnHover` prop.",
+      "detailedType": "number | undefined"
     },
     "loop": {
       "type": "boolean",
-      "detailedType": "boolean | undefined",
       "default": "true",
-      "description": "Whether to loop keyboard focus back to the first item\nwhen the end of the list is reached while using the arrow keys."
+      "description": "Whether to loop keyboard focus back to the first item\nwhen the end of the list is reached while using the arrow keys.",
+      "detailedType": "boolean | undefined"
     },
     "orientation": {
       "type": "Menu.Root.Orientation",
-      "detailedType": "'horizontal' | 'vertical' | undefined",
       "default": "'vertical'",
-      "description": "The visual orientation of the menu.\nControls whether roving focus uses up/down or left/right arrow keys."
+      "description": "The visual orientation of the menu.\nControls whether roving focus uses up/down or left/right arrow keys.",
+      "detailedType": "'horizontal' | 'vertical' | undefined"
     },
     "children": {
       "type": "ReactNode",
-      "detailedType": "React.ReactNode",
-      "required": true
+      "required": true,
+      "detailedType": "React.ReactNode"
     }
   },
   "dataAttributes": {},

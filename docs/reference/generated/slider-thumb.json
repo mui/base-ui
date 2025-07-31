@@ -4,29 +4,28 @@
   "props": {
     "getAriaLabel": {
       "type": "((index: number) => string) | null",
-      "detailedType": "((index: number) => string) | null | undefined",
-      "description": "Accepts a function which returns a string value that provides a user-friendly name for the input associated with the thumb"
+      "description": "Accepts a function which returns a string value that provides a user-friendly name for the input associated with the thumb",
+      "detailedType": "((index: number) => string) | null | undefined"
     },
     "getAriaValueText": {
       "type": "((formattedValue: string, value: number, index: number) => string) | null",
-      "detailedType": "| ((\n    formattedValue: string,\n    value: number,\n    index: number,\n  ) => string)\n| null\n| undefined",
-      "description": "Accepts a function which returns a string value that provides a user-friendly name for the current value of the slider.\nThis is important for screen reader users."
+      "description": "Accepts a function which returns a string value that provides a user-friendly name for the current value of the slider.\nThis is important for screen reader users.",
+      "detailedType": "| ((\n    formattedValue: string,\n    value: number,\n    index: number,\n  ) => string)\n| null\n| undefined"
     },
     "disabled": {
       "type": "boolean",
-      "detailedType": "boolean | undefined",
       "default": "false",
-      "description": "Whether the thumb should ignore user interaction."
+      "description": "Whether the thumb should ignore user interaction.",
+      "detailedType": "boolean | undefined"
     },
     "className": {
       "type": "string | ((state: Slider.Thumb.State) => string)",
-      "detailedType": "string | ((state: Slider.Thumb.State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "render": {
       "type": "((props: ComponentPropsWithRef<HTMLAttributes<HTMLDivElement>, HTMLDivElement>, inputProps: ComponentPropsWithRef<InputHTMLAttributes<HTMLInputElement>, HTMLInputElement>, state: Slider.Thumb.State) => ReactElement) | ReactElement & { ref: Ref<Element> }",
-      "detailedType": "| ((\n    props: ComponentPropsWithRef<\n      HTMLAttributes<HTMLDivElement>,\n      HTMLDivElement\n    >,\n    inputProps: ComponentPropsWithRef<\n      InputHTMLAttributes<HTMLInputElement>,\n      HTMLInputElement\n    >,\n    state: Slider.Thumb.State,\n  ) => ReactElement)\n| (ReactElement & { ref: Ref<Element> })",
-      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
+      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
+      "detailedType": "| ((\n    props: ComponentPropsWithRef<\n      HTMLAttributes<HTMLDivElement>,\n      HTMLDivElement\n    >,\n    inputProps: ComponentPropsWithRef<\n      InputHTMLAttributes<HTMLInputElement>,\n      HTMLInputElement\n    >,\n    state: Slider.Thumb.State,\n  ) => ReactElement)\n| (ReactElement & { ref: Ref<Element> })"
     }
   },
   "dataAttributes": {
