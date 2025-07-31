@@ -491,6 +491,7 @@ export namespace useAnchorPositioning {
      * Also accepts a function that returns the distance to read the dimensions of the anchor
      * and positioner elements, along with its side and alignment.
      *
+     * The function takes a `data` object parameter with the following properties:
      * - `data.anchor`: the dimensions of the anchor element with properties `width` and `height`.
      * - `data.positioner`: the dimensions of the positioner element with properties `width` and `height`.
      * - `data.side`: which side of the anchor element the positioner is aligned against.
@@ -520,10 +521,23 @@ export namespace useAnchorPositioning {
      * Also accepts a function that returns the offset to read the dimensions of the anchor
      * and positioner elements, along with its side and alignment.
      *
+     * The function takes a `data` object parameter with the following properties:
      * - `data.anchor`: the dimensions of the anchor element with properties `width` and `height`.
      * - `data.positioner`: the dimensions of the positioner element with properties `width` and `height`.
      * - `data.side`: which side of the anchor element the positioner is aligned against.
      * - `data.align`: how the positioner is aligned relative to the specified side.
+     *
+     * @example
+     * ```jsx
+     * <Positioner
+     *   alignOffset={({ side, align, anchor, positioner }) => {
+     *     return side === 'top' || side === 'bottom'
+     *       ? anchor.width
+     *       : anchor.height;
+     *   }}
+     * />
+     * ```
+     *
      * @default 0
      */
     alignOffset?: number | OffsetFunction;
