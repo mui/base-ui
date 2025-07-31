@@ -4,21 +4,21 @@
   "props": {
     "defaultValue": {
       "type": "string | number | string[]",
-      "expanded": "string | number | string[] | undefined"
+      "detailedType": "string | number | string[] | undefined"
     },
     "onValueChange": {
       "type": "((value: string, event: Event) => void)",
-      "expanded": "((value: string, event: Event) => void) | undefined",
+      "detailedType": "((value: string, event: Event) => void) | undefined",
       "description": "Callback fired when the `value` changes. Use when controlled."
     },
     "className": {
       "type": "string | ((state: Input.State) => string)",
-      "expanded": "string | ((state: Input.State) => string)",
+      "detailedType": "string | ((state: Input.State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: Input.State) => ReactElement)",
-      "expanded": "| ReactElement\n| ((props: HTMLProps, state: Input.State) => ReactElement)",
+      "detailedType": "| ReactElement\n| ((props: HTMLProps, state: Input.State) => ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
     }
   },

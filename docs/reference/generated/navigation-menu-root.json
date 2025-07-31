@@ -4,57 +4,57 @@
   "props": {
     "defaultValue": {
       "type": "any",
-      "expanded": "any",
+      "detailedType": "any",
       "default": "null",
       "description": "The uncontrolled value of the item that should be initially selected.\n\nTo render a controlled navigation menu, use the `value` prop instead."
     },
     "value": {
       "type": "any",
-      "expanded": "any",
+      "detailedType": "any",
       "default": "null",
       "description": "The controlled value of the navigation menu item that should be currently open.\nWhen non-nullish, the menu will be open. When nullish, the menu will be closed.\n\nTo render an uncontrolled navigation menu, use the `defaultValue` prop instead."
     },
     "onValueChange": {
       "type": "((value: any, event: Event | undefined, reason: BaseOpenChangeReason | undefined) => void)",
-      "expanded": "| ((\n    value: any,\n    event: Event | undefined,\n    reason: BaseOpenChangeReason | undefined,\n  ) => void)\n| undefined",
+      "detailedType": "| ((\n    value: any,\n    event: Event | undefined,\n    reason: BaseOpenChangeReason | undefined,\n  ) => void)\n| undefined",
       "description": "Callback fired when the value changes."
     },
     "actionsRef": {
       "type": "RefObject<NavigationMenu.Root.Actions>",
-      "expanded": "| React.RefObject<NavigationMenu.Root.Actions>\n| undefined",
+      "detailedType": "| React.RefObject<NavigationMenu.Root.Actions>\n| undefined",
       "description": "A ref to imperative actions."
     },
     "onOpenChangeComplete": {
       "type": "((open: boolean) => void)",
-      "expanded": "((open: boolean) => void) | undefined",
+      "detailedType": "((open: boolean) => void) | undefined",
       "description": "Event handler called after any animations complete when the navigation menu is closed."
     },
     "delay": {
       "type": "number",
-      "expanded": "number | undefined",
+      "detailedType": "number | undefined",
       "default": "50",
       "description": "How long to wait before opening the navigation menu. Specified in milliseconds."
     },
     "closeDelay": {
       "type": "number",
-      "expanded": "number | undefined",
+      "detailedType": "number | undefined",
       "default": "50",
       "description": "How long to wait before closing the navigation menu. Specified in milliseconds."
     },
     "orientation": {
       "type": "'horizontal' | 'vertical'",
-      "expanded": "'horizontal' | 'vertical' | undefined",
+      "detailedType": "'horizontal' | 'vertical' | undefined",
       "default": "'horizontal'",
       "description": "The orientation of the navigation menu."
     },
     "className": {
       "type": "string | ((state: NavigationMenu.Root.State) => string)",
-      "expanded": "| string\n| ((state: NavigationMenu.Root.State) => string)",
+      "detailedType": "| string\n| ((state: NavigationMenu.Root.State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: NavigationMenu.Root.State) => ReactElement)",
-      "expanded": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: NavigationMenu.Root.State,\n  ) => ReactElement)",
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: NavigationMenu.Root.State,\n  ) => ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
     }
   },

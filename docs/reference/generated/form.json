@@ -4,22 +4,22 @@
   "props": {
     "errors": {
       "type": "Errors",
-      "expanded": "{} | undefined",
+      "detailedType": "{} | undefined",
       "description": "An object where the keys correspond to the `name` attribute of the form fields,\nand the values correspond to the error(s) related to that field."
     },
     "onClearErrors": {
       "type": "((errors: Errors) => void)",
-      "expanded": "((errors: Errors) => void) | undefined",
+      "detailedType": "((errors: Errors) => void) | undefined",
       "description": "Event handler called when the `errors` object is cleared."
     },
     "className": {
       "type": "string | ((state: Form.State) => string)",
-      "expanded": "string | ((state: Form.State) => string)",
+      "detailedType": "string | ((state: Form.State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: Form.State) => ReactElement)",
-      "expanded": "| ReactElement\n| ((props: HTMLProps, state: Form.State) => ReactElement)",
+      "detailedType": "| ReactElement\n| ((props: HTMLProps, state: Form.State) => ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
     }
   },

@@ -4,22 +4,22 @@
   "props": {
     "initialFocus": {
       "type": "RefObject<HTMLElement | null> | ((interactionType: InteractionType) => RefObject<HTMLElement | null>)",
-      "expanded": "| React.RefObject<HTMLElement | null>\n| ((\n    interactionType: InteractionType,\n  ) => RefObject<HTMLElement | null>)\n| undefined",
+      "detailedType": "| React.RefObject<HTMLElement | null>\n| ((\n    interactionType: InteractionType,\n  ) => RefObject<HTMLElement | null>)\n| undefined",
       "description": "Determines the element to focus when the popover is opened.\nBy default, the first focusable element is focused."
     },
     "finalFocus": {
       "type": "RefObject<HTMLElement | null>",
-      "expanded": "React.RefObject<HTMLElement | null> | undefined",
+      "detailedType": "React.RefObject<HTMLElement | null> | undefined",
       "description": "Determines the element to focus when the popover is closed.\nBy default, focus returns to the trigger."
     },
     "className": {
       "type": "string | ((state: Popover.Popup.State) => string)",
-      "expanded": "string | ((state: Popover.Popup.State) => string)",
+      "detailedType": "string | ((state: Popover.Popup.State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: Popover.Popup.State) => ReactElement)",
-      "expanded": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Popover.Popup.State,\n  ) => ReactElement)",
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Popover.Popup.State,\n  ) => ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
     }
   },

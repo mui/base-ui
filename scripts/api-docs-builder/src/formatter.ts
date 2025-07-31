@@ -18,12 +18,12 @@ export async function formatProperties(
       .map((tag) => tag.value)
       .join('\n');
 
-    let expandedType = formatType(prop.type, prop.optional, prop.documentation?.tags);
+    let detailedType = formatType(prop.type, prop.optional, prop.documentation?.tags);
     if (prop.name !== 'className' && prop.name !== 'render' && allExports) {
-      expandedType = formatExpandedType(prop.type, allExports);
+      detailedType = formatDetailedType(prop.type, allExports);
     }
 
-    const formattedExpandedType = await prettier.format(`type _ = ${expandedType}`, {
+    const formattedDetailedType = await prettier.format(`type _ = ${detailedType}`, {
       parser: 'typescript',
       singleQuote: true,
       semi: false,
@@ -34,9 +34,9 @@ export async function formatProperties(
     // Prettier either formats the type on a single line or multiple lines.
     // If it's on a single line, we remove the `type _ = ` prefix.
     // If it's on multiple lines, we remove the first line (`type _ =`) and de-indent the rest.
-    const lines = formattedExpandedType.trimEnd().split('\n');
+    const lines = formattedDetailedType.trimEnd().split('\n');
     if (lines.length === 1) {
-      expandedType = lines[0].replace(/^type _ = /, '');
+      detailedType = lines[0].replace(/^type _ = /, '');
     } else {
       const codeLines = lines.slice(1);
       const nonEmptyLines = codeLines.filter((l) => l.trim() !== '');
@@ -44,18 +44,18 @@ export async function formatProperties(
         const minIndent = Math.min(...nonEmptyLines.map((l) => l.match(/^\s*/)?.[0].length ?? 0));
 
         if (Number.isFinite(minIndent) && minIndent > 0) {
-          expandedType = codeLines.map((l) => l.substring(minIndent)).join('\n');
+          detailedType = codeLines.map((l) => l.substring(minIndent)).join('\n');
         } else {
-          expandedType = codeLines.join('\n');
+          detailedType = codeLines.join('\n');
         }
       } else {
-        expandedType = codeLines.join('\n');
+        detailedType = codeLines.join('\n');
       }
     }
 
     result[prop.name] = {
       type: formatType(prop.type, prop.optional, prop.documentation?.tags),
-      expanded: expandedType,
+      detailedType,
       default: prop.documentation?.defaultValue,
       required: !prop.optional || undefined,
       description: prop.documentation?.description,
@@ -87,7 +87,7 @@ export function formatParameters(params: tae.Parameter[]) {
   return result;
 }
 
-export function formatExpandedType(
+export function formatDetailedType(
   type: tae.AnyType,
   allExports: tae.ExportNode[],
   visited = new Set<string>(),
@@ -102,7 +102,7 @@ export function formatExpandedType(
 
     const exportNode = allExports.find((node) => node.name === type.typeName.name);
     if (exportNode) {
-      return formatExpandedType(
+      return formatDetailedType(
         (exportNode.type as unknown as tae.AnyType) ?? type,
         allExports,
         visited,
@@ -121,12 +121,12 @@ export function formatExpandedType(
   }
 
   if (type instanceof tae.UnionNode) {
-    const memberTypes = type.types.map((t) => formatExpandedType(t, allExports, visited));
+    const memberTypes = type.types.map((t) => formatDetailedType(t, allExports, visited));
     return _.uniq(memberTypes).join(' | ');
   }
 
   if (type instanceof tae.IntersectionNode) {
-    const memberTypes = type.types.map((t) => formatExpandedType(t, allExports, visited));
+    const memberTypes = type.types.map((t) => formatDetailedType(t, allExports, visited));
     return _.uniq(memberTypes).join(' & ');
   }
 

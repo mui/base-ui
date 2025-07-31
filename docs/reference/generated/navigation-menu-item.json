@@ -4,17 +4,17 @@
   "props": {
     "value": {
       "type": "any",
-      "expanded": "any",
+      "detailedType": "any",
       "description": "A unique value that identifies this navigation menu item.\nIf no value is provided, a unique ID will be generated automatically.\nUse when controlling the navigation menu programmatically."
     },
     "className": {
       "type": "string | ((state: NavigationMenu.Item.State) => string)",
-      "expanded": "| string\n| ((state: NavigationMenu.Item.State) => string)",
+      "detailedType": "| string\n| ((state: NavigationMenu.Item.State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: NavigationMenu.Item.State) => ReactElement)",
-      "expanded": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: NavigationMenu.Item.State,\n  ) => ReactElement)",
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: NavigationMenu.Item.State,\n  ) => ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
     }
   },

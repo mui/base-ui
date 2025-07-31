@@ -29,6 +29,7 @@ function ExpandedPre(props: React.ComponentProps<'pre'>) {
 }
 
 interface PropDef extends BasePropDef {
+  detailedType: string;
   example?: string;
 }
 
@@ -90,8 +91,8 @@ export async function PropsReferenceAccordion({ data, name: partName, ...props }
           useMDXComponents: () => ({ code: TableCode }),
         });
 
-        const PropExpandedType = await createMdxComponent(
-          `\`\`\`ts\n${prop.expanded ?? prop.type}\n\`\`\``,
+        const PropDetailedType = await createMdxComponent(
+          `\`\`\`ts\n${prop.detailedType ?? prop.type}\n\`\`\``,
           {
             rehypePlugins: rehypeSyntaxHighlighting,
             useMDXComponents: () => ({
@@ -209,7 +210,7 @@ export async function PropsReferenceAccordion({ data, name: partName, ...props }
                       <DescriptionList.Term>Type</DescriptionList.Term>
                     </DescriptionList.Separator>
                     <DescriptionList.Details>
-                      <PropExpandedType />
+                      <PropDetailedType />
                     </DescriptionList.Details>
                   </DescriptionList.Item>
 
