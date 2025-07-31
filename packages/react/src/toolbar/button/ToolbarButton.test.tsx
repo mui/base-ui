@@ -690,16 +690,10 @@ describe('<Toolbar.Button />', () => {
 
       it('handles interactions', async () => {
         const onOpenChange = spy();
-        let popoverTargetElement: HTMLElement | null = null;
         const { user } = await render(
           <Toolbar.Root>
             <Popover.Root onOpenChange={onOpenChange}>
-              <Toolbar.Button
-                render={<Popover.Trigger />}
-                ref={(el) => {
-                  popoverTargetElement = el;
-                }}
-              />
+              <Toolbar.Button render={<Popover.Trigger />} />
               <Popover.Portal>
                 <Popover.Positioner>
                   <Popover.Popup>Content</Popover.Popup>
@@ -719,11 +713,11 @@ describe('<Toolbar.Button />', () => {
         await user.keyboard('[Enter]');
         expect(screen.queryByText('Content')).to.not.equal(null);
         expect(onOpenChange.callCount).to.equal(1);
-        expect(onOpenChange.args[0][0]).to.equal(popoverTargetElement);
+        expect(onOpenChange.args[0][0]).to.equal(true);
 
         await user.keyboard('[Escape]');
         expect(onOpenChange.callCount).to.equal(2);
-        expect(onOpenChange.args[1][0]).to.equal(null);
+        expect(onOpenChange.args[1][0]).to.equal(false);
 
         await waitFor(() => {
           expect(trigger).toHaveFocus();

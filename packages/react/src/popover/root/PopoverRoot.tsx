@@ -142,7 +142,7 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
     const isDismissClose = !nextOpen && (reason === 'escape-key' || reason == null);
 
     function changeState() {
-      onOpenChange?.(nextOpen ? (trigger ?? null) : null, event, reason);
+      onOpenChange?.(nextOpen, event, reason, nextOpen ? (trigger ?? null) : null);
 
       if (nextOpen && trigger) {
         setActiveTriggerState(trigger as HTMLElement);
@@ -258,9 +258,10 @@ export namespace PopoverRoot {
      * Event handler called when the popover is opened or closed.
      */
     onOpenChange?: (
-      nextActiveTrigger: HTMLElement | null,
+      nextOpen: boolean,
       event: Event | undefined,
       reason: OpenChangeReason | undefined,
+      nextActiveTrigger: HTMLElement | null,
     ) => void;
     /**
      * Event handler called after any animations complete when the popover is opened or closed.

@@ -8,6 +8,7 @@ import {
 import styles from './popovers.module.css';
 
 const popover1 = Popover.createHandle<number>();
+const popover2 = Popover.createHandle<number>();
 
 interface Settings {
   openOnHover: boolean;
@@ -60,7 +61,7 @@ export default function Popovers() {
   return (
     <div className={styles.Page}>
       <h1>Popovers</h1>
-      {/* <h2>Uncontrolled, single trigger</h2>
+      <h2>Uncontrolled, single trigger</h2>
       <div className={styles.Container}>
         <Popover.Root>
           <StyledTrigger />
@@ -88,7 +89,7 @@ export default function Popovers() {
         <button type="button" className={styles.Button} onClick={() => setSingleTriggerOpen(true)}>
           Open externally
         </button>
-      </div> */}
+      </div>
 
       <h2>Uncontrolled, multiple triggers within Root</h2>
       <div className={styles.Container}>
@@ -100,9 +101,12 @@ export default function Popovers() {
         </Popover.Root>
       </div>
 
-      {/* <h2>Controlled, multiple triggers within Root</h2>
+      <h2>Controlled, multiple triggers within Root</h2>
       <div className={styles.Container}>
-        <Popover.Root open={multipleTriggerOpen} onOpenChange={setMultipleTriggerOpen}>
+        <Popover.Root
+          open={multipleTriggerOpen}
+          onOpenChange={(open, event, reason, trigger) => setMultipleTriggerOpen(trigger)}
+        >
           <StyledTrigger />
           <StyledTrigger ref={setSecondTrigger} />
           <StyledTrigger />
@@ -130,15 +134,15 @@ export default function Popovers() {
       <h2>Controlled, detached triggers</h2>
       <div className={styles.Container}>
         <StyledPopover
-          handle={popover1}
+          handle={popover2}
           open={detachedTriggerOpen}
-          onOpenChange={setDetachedTriggerOpen}
+          onOpenChange={(open, event, reason, trigger) => setDetachedTriggerOpen(trigger)}
         />
-        <StyledTrigger handle={popover1} payload={0} />
-        <StyledTrigger handle={popover1} payload={1} ref={setSecondDetachedTrigger} />
-        <StyledTrigger handle={popover1} payload={2} />
-        <StyledTrigger handle={popover1} payload={3} />
-        <StyledTrigger handle={popover1} payload={4} />
+        <StyledTrigger handle={popover2} payload={0} />
+        <StyledTrigger handle={popover2} payload={1} ref={setSecondDetachedTrigger} />
+        <StyledTrigger handle={popover2} payload={2} />
+        <StyledTrigger handle={popover2} payload={3} />
+        <StyledTrigger handle={popover2} payload={4} />
         <button
           type="button"
           className={styles.Button}
@@ -146,7 +150,7 @@ export default function Popovers() {
         >
           Open externally (2nd trigger)
         </button>
-      </div> */}
+      </div>
     </div>
   );
 }
