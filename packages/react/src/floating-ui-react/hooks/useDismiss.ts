@@ -657,7 +657,7 @@ export function useDismiss(
   );
 
   return React.useMemo(
-    () => (enabled ? { reference, floating } : {}),
+    () => (enabled ? { reference, floating, trigger: reference } : {}),
     [enabled, reference, floating],
   );
 }

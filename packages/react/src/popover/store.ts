@@ -29,7 +29,8 @@ export type State = {
 
   payload: unknown | undefined;
 
-  triggerProps: HTMLProps;
+  activeTriggerProps: HTMLProps;
+  inactiveTriggerProps: HTMLProps;
   popupProps: HTMLProps;
   stickIfOpen: boolean;
 };
@@ -50,7 +51,8 @@ function createInitialState<Payload>(): State {
     descriptionId: undefined,
     floatingRootContext: getEmptyContext(),
     payload: undefined,
-    triggerProps: EMPTY_OBJ as HTMLProps,
+    activeTriggerProps: EMPTY_OBJ as HTMLProps,
+    inactiveTriggerProps: EMPTY_OBJ as HTMLProps,
     popupProps: EMPTY_OBJ as HTMLProps,
     stickIfOpen: true,
   };
@@ -109,6 +111,7 @@ export const selectors = {
 
   payload: createSelector((state: State) => state.payload),
 
-  triggerProps: createSelector((state: State) => state.triggerProps),
+  activeTriggerProps: createSelector((state: State) => state.activeTriggerProps),
+  inactiveTriggerProps: createSelector((state: State) => state.inactiveTriggerProps),
   popupProps: createSelector((state: State) => state.popupProps),
 };

@@ -58,12 +58,15 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
   const floatingContext = useStore(store, selectors.floatingRootContext);
   const open = useStore(store, selectors.open);
   const openReason = useStore(store, selectors.openReason);
-  const rootTriggerProps = useStore(store, selectors.triggerProps);
+  const rootActiveTriggerProps = useStore(store, selectors.activeTriggerProps);
+  const rootInactiveTriggerProps = useStore(store, selectors.inactiveTriggerProps);
   const stickIfOpen = useStore(store, selectors.stickIfOpen);
   const mounted = useStore(store, selectors.mounted);
   const activeTrigger = useStore(store, selectors.activeTriggerElement);
 
   const [triggerElement, setTriggerElement] = React.useState<HTMLElement | null>(null);
+
+  const isTriggerActive = activeTrigger === triggerElement;
 
   const {
     openMethod,
@@ -148,7 +151,7 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
     ref: [buttonRef, forwardedRef, registerTrigger],
     props: [
       localProps.getReferenceProps(),
-      rootTriggerProps,
+      isTriggerActive ? rootActiveTriggerProps : rootInactiveTriggerProps,
       interactionTypeTriggerProps,
       { [CLICK_TRIGGER_IDENTIFIER as string]: '' },
       elementProps,

@@ -201,16 +201,17 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
   const dismiss = useDismiss(floatingContext);
   const role = useRole(floatingContext);
 
-  const { getReferenceProps, getFloatingProps } = useInteractions([dismiss, role]);
+  const { getReferenceProps, getFloatingProps, getTriggerProps } = useInteractions([dismiss, role]);
 
   useIsoLayoutEffect(() => {
     store.apply({
       modal,
-      triggerProps: getReferenceProps(),
+      activeTriggerProps: getReferenceProps(),
+      inactiveTriggerProps: getTriggerProps(),
       popupProps: getFloatingProps(),
       floatingRootContext: floatingContext,
     });
-  }, [modal, getReferenceProps, getFloatingProps, floatingContext, store]);
+  }, [modal, getReferenceProps, getTriggerProps, getFloatingProps, floatingContext, store]);
 
   const popoverContext: PopoverRootContext = React.useMemo(
     () => ({
