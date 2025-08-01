@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useSelector } from '@base-ui-components/utils/store';
+import { useStore } from '@base-ui-components/utils/store';
 import { useLatestRef } from '@base-ui-components/utils/useLatestRef';
 import { FloatingFocusManager } from '../../floating-ui-react';
 import { BaseUIComponentProps } from '../../utils/types';
@@ -37,11 +37,11 @@ export const ComboboxPopup = React.forwardRef(function ComboboxPopup(
   const positioning = useComboboxPositionerContext();
   const floatingRootContext = useComboboxFloatingContext();
 
-  const open = useSelector(store, selectors.open);
-  const transitionStatus = useSelector(store, selectors.transitionStatus);
-  const anchorElement = useSelector(store, selectors.anchorElement);
-  const inputElement = useSelector(store, selectors.inputElement);
-  const triggerElement = useSelector(store, selectors.triggerElement);
+  const open = useStore(store, selectors.open);
+  const transitionStatus = useStore(store, selectors.transitionStatus);
+  const anchorElement = useStore(store, selectors.anchorElement);
+  const inputElement = useStore(store, selectors.inputElement);
+  const triggerElement = useStore(store, selectors.triggerElement);
 
   const didPointerDown = React.useRef(false);
 

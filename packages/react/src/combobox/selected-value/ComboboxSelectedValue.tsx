@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useSelector } from '@base-ui-components/utils/store';
+import { useStore } from '@base-ui-components/utils/store';
 import { useComboboxRootContext } from '../root/ComboboxRootContext';
 import { selectors } from '../store';
 
@@ -14,7 +14,7 @@ export function ComboboxSelectedValue(props: ComboboxSelectedValue.Props) {
   const { children: childrenProp } = props;
 
   const { store } = useComboboxRootContext();
-  const selectedValue = useSelector(store, selectors.selectedValue);
+  const selectedValue = useStore(store, selectors.selectedValue);
 
   return typeof childrenProp === 'function' ? childrenProp(selectedValue) : childrenProp;
 }

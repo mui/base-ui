@@ -4,10 +4,10 @@ import { useControlled } from '@base-ui-components/utils/useControlled';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { useOnFirstRender } from '@base-ui-components/utils/useOnFirstRender';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
-import { useForkRef } from '@base-ui-components/utils/useForkRef';
+import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
 import { visuallyHidden } from '@base-ui-components/utils/visuallyHidden';
-import { useLazyRef } from '@base-ui-components/utils/useLazyRef';
-import { Store, useSelector } from '@base-ui-components/utils/store';
+import { useRefWithInit } from '@base-ui-components/utils/useRefWithInit';
+import { Store, useStore } from '@base-ui-components/utils/store';
 import {
   ElementProps,
   useDismiss,
@@ -44,9 +44,9 @@ import {
   createSingleSelectionCollatorFilter,
 } from './utils';
 import { useFilter } from './utils/useFilter';
-import { EMPTY_ARRAY } from '../../utils/constants';
 import { serializeValue } from '../../utils/serializeValue';
 import { useTransitionStatus } from '../../utils/useTransitionStatus';
+import { EMPTY_ARRAY } from '../../utils/constants';
 
 /**
  * Groups all parts of the combobox.
@@ -190,7 +190,7 @@ export function ComboboxRoot<
     return flatItems.filter((item) => filter(item, query, itemToString));
   }, [items, flatItems, query, filter, isGrouped, itemToString]);
 
-  const store = useLazyRef(
+  const store = useRefWithInit(
     () =>
       new Store<StoreState>({
         id,
@@ -218,13 +218,13 @@ export function ComboboxRoot<
   const onItemHighlighted = useEventCallback(onItemHighlightedProp);
   const onOpenChangeComplete = useEventCallback(onOpenChangeCompleteProp);
 
-  const activeIndex = useSelector(store, selectors.activeIndex);
-  const selectedIndex = useSelector(store, selectors.selectedIndex);
-  const anchorElement = useSelector(store, selectors.anchorElement);
-  const positionerElement = useSelector(store, selectors.positionerElement);
-  const listElement = useSelector(store, selectors.listElement);
-  const triggerElement = useSelector(store, selectors.triggerElement);
-  const inline = useSelector(store, selectors.inline);
+  const activeIndex = useStore(store, selectors.activeIndex);
+  const selectedIndex = useStore(store, selectors.selectedIndex);
+  const anchorElement = useStore(store, selectors.anchorElement);
+  const positionerElement = useStore(store, selectors.positionerElement);
+  const listElement = useStore(store, selectors.listElement);
+  const triggerElement = useStore(store, selectors.triggerElement);
+  const inline = useStore(store, selectors.inline);
   const open = inline || openRaw;
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
@@ -233,7 +233,7 @@ export function ComboboxRoot<
     if (virtualized && items) {
       return Array.from({ length: items.length }, () => null);
     }
-    return EMPTY_ARRAY;
+    return [];
   }, [virtualized, items]);
 
   const listRef = React.useRef<Array<HTMLElement | null>>(initialList);
@@ -264,8 +264,11 @@ export function ComboboxRoot<
   });
 
   useIsoLayoutEffect(() => {
+    if (!virtualized) {
+      return;
+    }
     listRef.current = initialList;
-  }, [initialList]);
+  }, [initialList, virtualized]);
 
   useIsoLayoutEffect(() => {
     if (
@@ -628,7 +631,7 @@ export function ComboboxRoot<
     getReferenceProps,
   ]);
 
-  const hiddenInputRef = useForkRef(inputRefProp, fieldControlValidation.inputRef);
+  const hiddenInputRef = useMergedRefs(inputRefProp, fieldControlValidation.inputRef);
 
   const contextValue: ComboboxRootContext = React.useMemo(
     () => ({

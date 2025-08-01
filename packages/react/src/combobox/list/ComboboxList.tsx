@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useSelector } from '@base-ui-components/utils/store';
+import { useStore } from '@base-ui-components/utils/store';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import type { BaseUIComponentProps } from '../../utils/types';
@@ -30,7 +30,7 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
   const multiple = selectionMode === 'multiple';
   const hasPositionerContext = Boolean(useComboboxPositionerContext(true));
 
-  const popupProps = useSelector(store, selectors.popupProps);
+  const popupProps = useStore(store, selectors.popupProps);
 
   const setPositionerElement = useEventCallback((element) => {
     store.set('positionerElement', element);

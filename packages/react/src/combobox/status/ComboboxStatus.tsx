@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useSelector } from '@base-ui-components/utils/store';
+import { useStore } from '@base-ui-components/utils/store';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { selectors } from '../store';
@@ -21,7 +21,7 @@ export const ComboboxStatus = React.forwardRef(function ComboboxStatus(
   const { render, className, ...elementProps } = componentProps;
 
   const { store } = useComboboxRootContext();
-  const open = useSelector(store, selectors.open);
+  const open = useStore(store, selectors.open);
 
   return useRenderElement('div', componentProps, {
     enabled: open,

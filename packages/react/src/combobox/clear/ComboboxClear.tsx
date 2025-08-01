@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useSelector } from '@base-ui-components/utils/store';
+import { useStore } from '@base-ui-components/utils/store';
 import { useComboboxRootContext } from '../root/ComboboxRootContext';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
@@ -37,8 +37,8 @@ export const ComboboxClear = React.forwardRef(function ComboboxClear(
   } = useComboboxRootContext();
   const { disabled: fieldDisabled } = useFieldRootContext();
 
-  const open = useSelector(store, selectors.open);
-  const selectedValue = useSelector(store, selectors.selectedValue);
+  const open = useStore(store, selectors.open);
+  const selectedValue = useStore(store, selectors.selectedValue);
 
   const shouldRender = selectionMode === 'single' ? Boolean(selectedValue) : false;
 

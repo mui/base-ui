@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useSelector } from '@base-ui-components/utils/store';
+import { useStore } from '@base-ui-components/utils/store';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
@@ -56,11 +56,11 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
   const comboboxChipsContext = useComboboxChipsContext();
   const hasPositionerParent = Boolean(useComboboxPositionerContext(true));
 
-  const triggerProps = useSelector(store, selectors.triggerProps);
-  const open = useSelector(store, selectors.open);
-  const activeIndex = useSelector(store, selectors.activeIndex);
-  const selectedValue = useSelector(store, selectors.selectedValue);
-  const inputValue = useSelector(store, selectors.inputValue);
+  const triggerProps = useStore(store, selectors.triggerProps);
+  const open = useStore(store, selectors.open);
+  const activeIndex = useStore(store, selectors.activeIndex);
+  const selectedValue = useStore(store, selectors.selectedValue);
+  const inputValue = useStore(store, selectors.inputValue);
 
   const disabled = fieldDisabled || comboboxDisabled || disabledProp;
 

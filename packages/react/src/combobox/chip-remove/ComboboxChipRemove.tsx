@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useSelector } from '@base-ui-components/utils/store';
+import { useStore } from '@base-ui-components/utils/store';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useComboboxRootContext } from '../root/ComboboxRootContext';
@@ -24,7 +24,7 @@ export const ComboboxChipRemove = React.forwardRef(function ComboboxChipRemove(
   const { store, inputRef, disabled, readOnly, setSelectedValue } = useComboboxRootContext();
   const { index } = useComboboxChipContext();
 
-  const selectedValue = useSelector(store, selectors.selectedValue);
+  const selectedValue = useStore(store, selectors.selectedValue);
 
   const { buttonRef, getButtonProps } = useButton({
     native: nativeButton,

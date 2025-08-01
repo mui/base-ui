@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import type { VirtualElement } from '@floating-ui/react-dom';
-import { useSelector } from '@base-ui-components/utils/store';
+import { useStore } from '@base-ui-components/utils/store';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { useComboboxFloatingContext, useComboboxRootContext } from '../root/ComboboxRootContext';
 import { ComboboxPositionerContext } from './ComboboxPositionerContext';
@@ -45,8 +45,8 @@ export const ComboboxPositioner = React.forwardRef(function ComboboxPositioner(
   const floatingRootContext = useComboboxFloatingContext();
   const keepMounted = useComboboxPortalContext();
 
-  const open = useSelector(store, selectors.open);
-  const mounted = useSelector(store, selectors.mounted);
+  const open = useStore(store, selectors.open);
+  const mounted = useStore(store, selectors.mounted);
 
   const positioning = useAnchorPositioning({
     anchor,

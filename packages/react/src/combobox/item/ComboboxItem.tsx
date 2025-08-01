@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useSelector } from '@base-ui-components/utils/store';
+import { useStore } from '@base-ui-components/utils/store';
 import { useLatestRef } from '@base-ui-components/utils/useLatestRef';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { useAnimationFrame } from '@base-ui-components/utils/useAnimationFrame';
@@ -69,10 +69,10 @@ export const ComboboxItem = React.memo(
     const index = virtualized && items ? items.indexOf(value) : listItem.index;
 
     const isRow = useComboboxRowContext();
-    const active = useSelector(store, selectors.isActive, index);
-    const matchesSelectedValue = useSelector(store, selectors.isSelected, value);
-    const rootSelectedValue = useSelector(store, selectors.selectedValue);
-    const initialList = useSelector(store, selectors.initialList);
+    const active = useStore(store, selectors.isActive, index);
+    const matchesSelectedValue = useStore(store, selectors.isSelected, value);
+    const rootSelectedValue = useStore(store, selectors.selectedValue);
+    const initialList = useStore(store, selectors.initialList);
 
     const selected = matchesSelectedValue && selectable;
 

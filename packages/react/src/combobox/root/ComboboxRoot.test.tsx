@@ -377,11 +377,7 @@ describe('<Combobox.Root />', () => {
   });
 
   describe('multiple selection', () => {
-    /**
-     * Unresolved test error:
-     * SyntaxError: Invalid regular expression: /file:\/\/\/(\w:)?/: Stack overflow
-     */
-    it.skipIf(isJSDOM)('should handle multiple selection', async () => {
+    it('should handle multiple selection', async () => {
       const handleValueChange = spy();
 
       const { user } = await render(

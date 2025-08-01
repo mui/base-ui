@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useSelector } from '@base-ui-components/utils/store';
+import { useStore } from '@base-ui-components/utils/store';
 import { FloatingPortal } from '../../floating-ui-react';
 import { useComboboxRootContext } from '../root/ComboboxRootContext';
 import { ComboboxPortalContext } from './ComboboxPortalContext';
@@ -16,7 +16,7 @@ export function ComboboxPortal(props: ComboboxPortal.Props) {
   const { children, keepMounted = false, container } = props;
 
   const { store } = useComboboxRootContext();
-  const mounted = useSelector(store, selectors.mounted);
+  const mounted = useStore(store, selectors.mounted);
 
   const shouldRender = mounted || keepMounted;
   if (!shouldRender) {
