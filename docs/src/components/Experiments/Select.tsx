@@ -39,7 +39,7 @@ export namespace Select {
   export interface Props
     extends Omit<React.HTMLAttributes<HTMLDivElement>, 'defaultValue' | 'onChange'> {
     value: string;
-    onChange: (value: string | null) => void;
+    onChange: (value: string) => void;
     options: string[];
   }
 }

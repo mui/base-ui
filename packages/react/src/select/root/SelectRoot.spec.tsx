@@ -59,7 +59,31 @@ function App() {
 <Select.Root
   defaultValue="test"
   onValueChange={(value) => {
-    // @ts-expect-error
     value.length;
   }}
 />;
+
+function App2() {
+  const [value, setValue] = React.useState('a');
+  return (
+    <Select.Root
+      value={value}
+      onValueChange={(newValue) => {
+        newValue.length;
+      }}
+    />
+  );
+}
+
+function App3() {
+  const [value, setValue] = React.useState<string | null>('a');
+  return (
+    <Select.Root
+      value={value}
+      onValueChange={(newValue) => {
+        // @ts-expect-error
+        newValue.length;
+      }}
+    />
+  );
+}

@@ -54,12 +54,9 @@ export function DemoVariantSelector({
 
   // Whenever user changes a setting, we update the global preference and not set the local one directly.
   const handleVariantChange = React.useCallback(
-    (value: string | null) => {
-      if (value === null) {
-        return;
-      }
+    (value: unknown) => {
       onVariantChange?.();
-      setGlobalVariantId(value);
+      setGlobalVariantId(value as string);
     },
     [onVariantChange, setGlobalVariantId],
   );
@@ -76,10 +73,7 @@ export function DemoVariantSelector({
 
   // As above.
   const handleLanguageChange = React.useCallback(
-    (value: string | null) => {
-      if (value === null) {
-        return;
-      }
+    (value: string) => {
       onVariantChange?.();
       const language = currentVariantLanguages.find((item) => item.value === value);
       if (language) {

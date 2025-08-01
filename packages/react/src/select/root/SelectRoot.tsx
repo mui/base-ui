@@ -190,11 +190,11 @@ interface SelectRootProps<Value> {
   /**
    * The value of the select.
    */
-  value?: Value | null;
+  value?: Value;
   /**
    * Callback fired when the value of the select changes. Use when controlled.
    */
-  onValueChange?: (value: Value | null, event: Event | undefined) => void;
+  onValueChange?: (value: Value, event: Event | undefined) => void;
   /**
    * The uncontrolled value of the select when it’s initially rendered.
    *
@@ -257,9 +257,7 @@ interface SelectRootProps<Value> {
 }
 
 type SelectValueType<Value, Multiple extends boolean | undefined> = Multiple extends true
-  ? Value extends readonly any[]
-    ? Value
-    : Value[]
+  ? Value[]
   : Value;
 
 export type SelectRootConditionalProps<Value, Multiple extends boolean | undefined = false> = Omit<
@@ -274,7 +272,7 @@ export type SelectRootConditionalProps<Value, Multiple extends boolean | undefin
   /**
    * The value of the select.
    */
-  value?: SelectValueType<Value, Multiple> | null;
+  value?: SelectValueType<Value, Multiple>;
   /**
    * The uncontrolled value of the select when it’s initially rendered.
    *
@@ -285,10 +283,7 @@ export type SelectRootConditionalProps<Value, Multiple extends boolean | undefin
   /**
    * Callback fired when the value of the select changes. Use when controlled.
    */
-  onValueChange?: (
-    value: SelectValueType<Value, Multiple> | (Multiple extends true ? never : null),
-    event: Event | undefined,
-  ) => void;
+  onValueChange?: (value: SelectValueType<Value, Multiple>, event: Event | undefined) => void;
 };
 
 export namespace SelectRoot {

@@ -205,7 +205,7 @@ describe('<Select.Root />', () => {
       const handleValueChange = spy();
 
       function App() {
-        const [value, setValue] = React.useState<string | null>('');
+        const [value, setValue] = React.useState('');
 
         return (
           <Select.Root
@@ -1408,7 +1408,7 @@ describe('<Select.Root />', () => {
     it('unselects the selected item if removed', async () => {
       function DynamicMenu() {
         const [items, setItems] = React.useState(['a', 'b', 'c']);
-        const [selectedItem, setSelectedItem] = React.useState<string | null>('a');
+        const [selectedItem, setSelectedItem] = React.useState('a');
 
         return (
           <div>

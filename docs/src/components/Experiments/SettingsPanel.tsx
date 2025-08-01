@@ -247,7 +247,7 @@ function renderSelect(
   label: string,
   value: string,
   options: string[],
-  onChange: (value: string | null) => void,
+  onChange: (value: string) => void,
 ) {
   return (
     <Field.Root key={key} className={classes.multiLineField}>
