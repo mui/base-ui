@@ -84,7 +84,7 @@
     "typescript": "tsc -b tsconfig.json"
   },
   "dependencies": {
-    "@babel/runtime": "^7.27.6",
+    "@babel/runtime": "^7.28.2",
     "@base-ui-components/utils": "workspace:*",
     "@floating-ui/react-dom": "^2.1.5",
     "@floating-ui/utils": "^0.2.10",
