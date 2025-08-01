@@ -3,13 +3,13 @@ import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { useLatestRef } from '@base-ui-components/utils/useLatestRef';
 import { isMouseWithinBounds } from '@base-ui-components/utils/isMouseWithinBounds';
-import { useSelector } from '@base-ui-components/utils/store';
+import { useStore } from '@base-ui-components/utils/store';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import {
   useCompositeListItem,
   IndexGuessBehavior,
 } from '../../composite/list/useCompositeListItem';
-import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
+import type { BaseUIComponentProps, HTMLProps, NonNativeButtonProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { SelectItemContext } from './SelectItemContext';
 import { selectors } from '../store';
@@ -57,10 +57,10 @@ export const SelectItem = React.memo(
       multiple,
     } = useSelectRootContext();
 
-    const highlighted = useSelector(store, selectors.isActive, listItem.index);
-    const selected = useSelector(store, selectors.isSelected, listItem.index, value);
-    const rootValue = useSelector(store, selectors.value);
-    const selectedByFocus = useSelector(store, selectors.isSelectedByFocus, listItem.index);
+    const highlighted = useStore(store, selectors.isActive, listItem.index);
+    const selected = useStore(store, selectors.isSelected, listItem.index, value);
+    const rootValue = useStore(store, selectors.value);
+    const selectedByFocus = useStore(store, selectors.isSelectedByFocus, listItem.index);
 
     const itemRef = React.useRef<HTMLDivElement | null>(null);
     const indexRef = useLatestRef(listItem.index);
@@ -261,7 +261,9 @@ export namespace SelectItem {
     highlighted: boolean;
   }
 
-  export interface Props extends Omit<BaseUIComponentProps<'div', State>, 'id'> {
+  export interface Props
+    extends NonNativeButtonProps,
+      Omit<BaseUIComponentProps<'div', State>, 'id'> {
     children?: React.ReactNode;
     /**
      * A unique value that identifies this select item.
@@ -274,16 +276,10 @@ export namespace SelectItem {
      */
     disabled?: boolean;
     /**
-     * Overrides the text label to use on the trigger when this item is selected
-     * and when the item is matched during keyboard text navigation.
+     * Specifies the text label to use when the item is matched during keyboard text navigation.
+     *
+     * Defaults to the item text content if not provided.
      */
     label?: string;
-    /**
-     * Whether the component renders a native `<button>` element when replacing it
-     * via the `render` prop.
-     * Set to `false` if the rendered element is not a button (e.g. `<div>`).
-     * @default false
-     */
-    nativeButton?: boolean;
   }
 }

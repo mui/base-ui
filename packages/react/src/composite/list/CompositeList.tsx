@@ -1,7 +1,7 @@
 /* eslint-disable no-bitwise */
 'use client';
 import * as React from 'react';
-import { useLazyRef } from '@base-ui-components/utils/useLazyRef';
+import { useRefWithInit } from '@base-ui-components/utils/useRefWithInit';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { CompositeListContext } from './CompositeListContext';
@@ -16,7 +16,7 @@ export function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
   const { children, elementsRef, labelsRef, onMapChange } = props;
 
   const nextIndexRef = React.useRef(0);
-  const listeners = useLazyRef(createListeners).current;
+  const listeners = useRefWithInit(createListeners).current;
 
   // We use a stable `map` to avoid O(n^2) re-allocation costs for large lists.
   // `mapTick` is our re-render trigger mechanism. We also need to update the
@@ -26,7 +26,7 @@ export function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
   // We also need to have them at the proper length because floating-ui uses that
   // information for list navigation.
 
-  const map = useLazyRef(createMap<Metadata>).current;
+  const map = useRefWithInit(createMap<Metadata>).current;
   const [mapTick, setMapTick] = React.useState(0);
   const lastTickRef = React.useRef(mapTick);
 

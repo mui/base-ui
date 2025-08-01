@@ -51,6 +51,7 @@ export const nav: NavGroup[] = [
         label: 'llms.txt',
         external: true,
         href: '/llms.txt',
+        isNew: true,
       },
     ],
   },
@@ -89,7 +90,6 @@ export const nav: NavGroup[] = [
       {
         label: 'Context Menu',
         href: '/react/components/context-menu',
-        isNew: true,
       },
       {
         label: 'Dialog',
@@ -118,7 +118,6 @@ export const nav: NavGroup[] = [
       {
         label: 'Menubar',
         href: '/react/components/menubar',
-        isNew: true,
       },
       {
         label: 'Meter',
@@ -127,7 +126,6 @@ export const nav: NavGroup[] = [
       {
         label: 'Navigation Menu',
         href: '/react/components/navigation-menu',
-        isNew: true,
       },
       {
         label: 'Number Field',
@@ -156,6 +154,7 @@ export const nav: NavGroup[] = [
       {
         label: 'Select',
         href: '/react/components/select',
+        isNew: true,
       },
       {
         label: 'Separator',

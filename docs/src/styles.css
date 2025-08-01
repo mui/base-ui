@@ -46,6 +46,9 @@
 @import './components/Subtitle/MarkdownLink.css';
 @import './components/Table.css';
 
+@import './components/Accordion.css';
+@import './components/DescriptionList.css';
+
 /* Handy link to the default Tailwind theme:
 /* https://github.com/tailwindlabs/tailwindcss/blob/next/packages/tailwindcss/theme.css */
 

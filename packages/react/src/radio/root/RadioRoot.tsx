@@ -1,11 +1,11 @@
 'use client';
 import * as React from 'react';
-import { useForkRef } from '@base-ui-components/utils/useForkRef';
+import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { visuallyHidden } from '@base-ui-components/utils/visuallyHidden';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { NOOP } from '../../utils/noop';
-import type { BaseUIComponentProps } from '../../utils/types';
+import type { BaseUIComponentProps, NativeButtonProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useButton } from '../../use-button';
 import { ACTIVE_COMPOSITE_ITEM } from '../../composite/constants';
@@ -63,7 +63,7 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
   const checked = checkedValue === value;
 
   const inputRef = React.useRef<HTMLInputElement>(null);
-  const ref = useForkRef(inputRefProp, inputRef);
+  const ref = useMergedRefs(inputRefProp, inputRef);
 
   useIsoLayoutEffect(() => {
     if (inputRef.current?.checked) {
@@ -213,7 +213,9 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
 });
 
 export namespace RadioRoot {
-  export interface Props extends Omit<BaseUIComponentProps<'button', State>, 'value'> {
+  export interface Props
+    extends NativeButtonProps,
+      Omit<BaseUIComponentProps<'button', State>, 'value'> {
     /**
      * The unique identifying value of the radio in a group.
      */
@@ -237,13 +239,6 @@ export namespace RadioRoot {
      * A ref to access the hidden input element.
      */
     inputRef?: React.Ref<HTMLInputElement>;
-    /**
-     * Whether the component renders a native `<button>` element when replacing it
-     * via the `render` prop.
-     * Set to `false` if the rendered element is not a button (e.g. `<div>`).
-     * @default true
-     */
-    nativeButton?: boolean;
   }
 
   export interface State extends FieldRoot.State {

@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { isElementDisabled } from '@base-ui-components/utils/isElementDisabled';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
-import { useForkRef } from '@base-ui-components/utils/useForkRef';
+import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
 import { ownerDocument } from '@base-ui-components/utils/owner';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { activeElement } from '../../floating-ui-react/utils';
@@ -98,7 +98,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
   const isGrid = cols > 1;
 
   const rootRef = React.useRef<HTMLElement | null>(null);
-  const mergedRef = useForkRef(rootRef, externalRef);
+  const mergedRef = useMergedRefs(rootRef, externalRef);
 
   const elementsRef = React.useRef<Array<HTMLDivElement | null>>([]);
   const hasSetDefaultIndexRef = React.useRef(false);

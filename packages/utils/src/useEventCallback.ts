@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useLazyRef } from './useLazyRef';
+import { useRefWithInit } from './useRefWithInit';
 
 // https://github.com/mui/material-ui/issues/41190#issuecomment-2040873379
 const useInsertionEffect = (React as any)[
@@ -26,7 +26,7 @@ type Stable<T extends Callback> = {
 };
 
 export function useEventCallback<T extends Callback>(callback: T | undefined): T {
-  const stable = useLazyRef(createStableCallback).current;
+  const stable = useRefWithInit(createStableCallback).current;
   stable.next = callback;
   useSafeInsertionEffect(stable.effect);
   return stable.trampoline;

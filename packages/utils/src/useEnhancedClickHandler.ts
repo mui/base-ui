@@ -14,13 +14,17 @@ export function useEnhancedClickHandler(
 ) {
   const lastClickInteractionTypeRef = React.useRef<InteractionType>('');
 
-  const handlePointerDown = React.useCallback((event: React.PointerEvent) => {
-    if (event.defaultPrevented) {
-      return;
-    }
+  const handlePointerDown = React.useCallback(
+    (event: React.PointerEvent) => {
+      if (event.defaultPrevented) {
+        return;
+      }
 
-    lastClickInteractionTypeRef.current = event.pointerType as InteractionType;
-  }, []);
+      lastClickInteractionTypeRef.current = event.pointerType as InteractionType;
+      handler(event, event.pointerType as InteractionType);
+    },
+    [handler],
+  );
 
   const handleClick = React.useCallback(
     (event: React.MouseEvent | React.PointerEvent) => {

@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { getParentNode, isHTMLElement, isLastTraversableNode } from '@floating-ui/utils/dom';
-import { useForkRef } from '@base-ui-components/utils/useForkRef';
+import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
 import { useTimeout } from '@base-ui-components/utils/useTimeout';
 import { ownerDocument } from '@base-ui-components/utils/owner';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
@@ -10,7 +10,7 @@ import { useFloatingTree } from '../../floating-ui-react/index';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { pressableTriggerOpenStateMapping } from '../../utils/popupStateMapping';
 import { useRenderElement } from '../../utils/useRenderElement';
-import { BaseUIComponentProps, HTMLProps } from '../../utils/types';
+import { BaseUIComponentProps, NativeButtonProps, HTMLProps } from '../../utils/types';
 import { mergeProps } from '../../merge-props';
 import { useButton } from '../../use-button/useButton';
 import { getPseudoElementBounds } from '../../utils/getPseudoElementBounds';
@@ -58,7 +58,7 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
     native: nativeButton,
   });
 
-  const handleRef = useForkRef(buttonRef, setTriggerElement);
+  const handleRef = useMergedRefs(buttonRef, setTriggerElement);
   const { events: menuEvents } = useFloatingTree()!;
 
   React.useEffect(() => {
@@ -185,20 +185,13 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
 });
 
 export namespace MenuTrigger {
-  export interface Props extends BaseUIComponentProps<'button', State> {
+  export interface Props extends NativeButtonProps, BaseUIComponentProps<'button', State> {
     children?: React.ReactNode;
     /**
      * Whether the component should ignore user interaction.
      * @default false
      */
     disabled?: boolean;
-    /**
-     * Whether the component renders a native `<button>` element when replacing it
-     * via the `render` prop.
-     * Set to `false` if the rendered element is not a button (e.g. `<div>`).
-     * @default true
-     */
-    nativeButton?: boolean;
   }
 
   export type State = {

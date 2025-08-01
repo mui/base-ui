@@ -33,6 +33,8 @@ describe('<Toolbar.Button />', () => {
 
   describeConformance(<Toolbar.Button />, () => ({
     refInstanceof: window.HTMLButtonElement,
+    testComponentPropWith: 'button',
+    button: true,
     render: (node) => {
       return render(
         <ToolbarRootContext.Provider value={testToolbarContext}>

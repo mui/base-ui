@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useForkRef } from '@base-ui-components/utils/useForkRef';
+import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
 import { InteractionType } from '@base-ui-components/utils/useEnhancedClickHandler';
 import { inertValue } from '@base-ui-components/utils/inertValue';
 import { FloatingFocusManager } from '../../floating-ui-react';
@@ -69,12 +69,11 @@ export const AlertDialogPopup = React.forwardRef(function AlertDialogPopup(
     },
   });
 
-  const mergedRef = useForkRef(forwardedRef, popupRef);
+  const mergedRef = useMergedRefs(forwardedRef, popupRef);
 
   const { popupProps, resolvedInitialFocus } = useDialogPopup({
     descriptionElementId,
     initialFocus,
-    modal: true,
     mounted,
     setOpen,
     openMethod,

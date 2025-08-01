@@ -3,7 +3,7 @@ import * as React from 'react';
 import { ownerDocument } from '@base-ui-components/utils/owner';
 import { useControlled } from '@base-ui-components/utils/useControlled';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
-import { useForkRef } from '@base-ui-components/utils/useForkRef';
+import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
 import { useLatestRef } from '@base-ui-components/utils/useLatestRef';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { visuallyHidden } from '@base-ui-components/utils/visuallyHidden';
@@ -110,7 +110,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
   const sliderRef = React.useRef<HTMLElement>(null);
   const controlRef = React.useRef<HTMLElement>(null);
   const thumbRefs = React.useRef<(HTMLElement | null)[]>([]);
-  const inputRef = useForkRef(inputRefProp, fieldControlValidation.inputRef);
+  const inputRef = useMergedRefs(inputRefProp, fieldControlValidation.inputRef);
   const lastChangedValueRef = React.useRef<number | readonly number[] | null>(null);
   const formatOptionsRef = useLatestRef(format);
 
