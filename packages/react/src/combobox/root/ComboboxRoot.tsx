@@ -233,7 +233,7 @@ export function ComboboxRoot<
     if (virtualized && items) {
       return Array.from({ length: items.length }, () => null);
     }
-    return [];
+    return EMPTY_ARRAY;
   }, [virtualized, items]);
 
   const listRef = React.useRef<Array<HTMLElement | null>>(initialList);
