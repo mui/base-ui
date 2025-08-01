@@ -12,7 +12,7 @@
       "description": "The uncontrolled value of the select when it’s initially rendered.\n\nTo render a controlled select, use the `value` prop instead."
     },
     "value": {
-      "type": "Value[] | Value | null",
+      "type": "Value[] | Value",
       "description": "The value of the select."
     },
     "onValueChange": {
