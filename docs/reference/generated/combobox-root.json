@@ -16,7 +16,7 @@
       "description": "Whether the combobox popup is currently open."
     },
     "onOpenChange": {
-      "type": "((open: boolean, event: Event | undefined, reason: BaseOpenChangeReason | undefined) => void)",
+      "type": "((open: boolean, event: Event | undefined, reason: Combobox.Root.OpenChangeReason | undefined) => void)",
       "description": "Event handler called when the combobox popup is opened or closed."
     },
     "actionsRef": {
@@ -33,7 +33,7 @@
       "description": "The uncontrolled input value when initially rendered."
     },
     "defaultSelectedValue": {
-      "type": "any",
+      "type": "(GroupItem | Item)[] | GroupItem | Item",
       "description": "The uncontrolled selected value of the combobox when it's initially rendered.\n\nTo render a controlled combobox, use the `selectedValue` prop instead."
     },
     "filter": {
@@ -69,27 +69,27 @@
       "description": "Event handler called after any animations complete when the combobox popup is opened or closed."
     },
     "onSelectedValueChange": {
-      "type": "((value: any, event: Event | undefined, reason: string | undefined) => void)",
+      "type": "((value: (GroupItem | Item)[] | GroupItem | Item, event: Event | undefined, reason: string | undefined) => void)",
       "description": "Callback fired when the selected value of the combobox changes."
     },
-    "openOnMatch": {
+    "openOnInputClick": {
       "type": "boolean",
-      "default": "false",
-      "description": "Whether the combobox popup is only open when the input value is not empty and matches at least one item."
+      "default": "true",
+      "description": "Whether the combobox popup opens when clicking the input."
     },
     "selectedValue": {
-      "type": "any",
+      "type": "(GroupItem | Item)[] | GroupItem | Item",
       "description": "The selected value of the combobox."
     },
     "selectionMode": {
-      "type": "'none' | 'single' | 'multiple' | undefined",
+      "type": "'none' | 'single' | 'multiple'",
       "default": "'none'",
       "description": "How the combobox should remember the selected value.\n- `single`: Remembers the last selected value.\n- `multiple`: Remember all selected values.\n- `none`: Do not remember the selected value."
     },
     "virtualized": {
       "type": "boolean",
       "default": "false",
-      "description": "Whether the combobox popup should be virtualized."
+      "description": "Whether the combobox items are virtualized."
     },
     "disabled": {
       "type": "boolean",

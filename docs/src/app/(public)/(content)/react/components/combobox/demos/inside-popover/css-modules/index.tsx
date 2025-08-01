@@ -5,7 +5,7 @@ import { countries, type Country } from './data';
 
 export default function ExamplePopoverCombobox() {
   const [searchValue, setSearchValue] = React.useState('');
-  const [selectedValue, setSelectedValue] = React.useState<Country | null>(null);
+  const [selectedValue, setSelectedValue] = React.useState<Country | undefined>(undefined);
 
   const triggerRef = React.useRef<HTMLButtonElement | null>(null);
 

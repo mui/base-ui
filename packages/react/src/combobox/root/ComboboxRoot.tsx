@@ -55,10 +55,9 @@ import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
  *
  * Documentation: [Base UI Combobox](https://base-ui.com/react/components/combobox)
  */
-export function ComboboxRoot<
-  Item = any,
-  Mode extends 'single' | 'multiple' | 'none' | undefined = 'none',
->(props: ComboboxRoot.Props<Item, Mode>): React.JSX.Element {
+export function ComboboxRoot<Item = any, Mode extends SelectionMode = 'none'>(
+  props: ComboboxRootConditionalProps<Item, Mode>,
+): React.JSX.Element {
   const {
     id: idProp,
     onOpenChangeComplete: onOpenChangeCompleteProp,
@@ -333,7 +332,11 @@ export function ComboboxRoot<
   );
 
   const setOpen = useEventCallback(
-    (nextOpen: boolean, event: Event | undefined, reason: BaseOpenChangeReason | undefined) => {
+    (
+      nextOpen: boolean,
+      event: Event | undefined,
+      reason: ComboboxRoot.OpenChangeReason | undefined,
+    ) => {
       // Mark that the popup is closing so we can retain the highlight until the
       // exit transition fully completes.
       closingRef.current = !nextOpen;
@@ -798,181 +801,182 @@ export function ComboboxRoot<
   );
 }
 
-type ExtractItemType<Item> = Item extends ComboboxGroup<infer I>[]
-  ? I
-  : Item extends ComboboxGroup<infer I>
-    ? I
-    : Item extends (infer I)[]
-      ? I
+type ExtractItemType<Item> = Item extends ComboboxGroup<infer GroupItem>[]
+  ? GroupItem
+  : Item extends ComboboxGroup<infer GroupItem>
+    ? GroupItem
+    : Item extends (infer GroupItem)[]
+      ? GroupItem
       : Item;
 
-type ComboboxValueType<
-  Item,
-  Mode extends 'single' | 'multiple' | 'none' | undefined,
-> = Mode extends 'multiple' ? Item[] : Item | null;
+type SelectionMode = 'single' | 'multiple' | 'none';
 
-type ComboboxDefaultValueType<
-  Item,
-  Mode extends 'single' | 'multiple' | 'none' | undefined,
-> = Mode extends 'multiple' ? Item[] : Item;
+type ComboboxValueType<Item, Mode extends SelectionMode> = Mode extends 'multiple' ? Item[] : Item;
 
-type ComboboxOnSelectedValueChange<
-  Item,
-  Mode extends 'single' | 'multiple' | 'none' | undefined,
-> = Mode extends 'multiple'
-  ? (value: Item[], event: Event | undefined, reason: string | undefined) => void
-  : (value: Item, event: Event | undefined, reason: string | undefined) => void;
+interface ComboboxRootProps<Item> {
+  children?: React.ReactNode;
+  /**
+   * Identifies the field when a form is submitted.
+   */
+  name?: string;
+  /**
+   * The id of the combobox.
+   */
+  id?: string;
+  /**
+   * Whether the user must choose a value before submitting a form.
+   * @default false
+   */
+  required?: boolean;
+  /**
+   * Whether the user should be unable to choose a different option from the combobox popup.
+   * @default false
+   */
+  readOnly?: boolean;
+  /**
+   * Whether the component should ignore user interaction.
+   * @default false
+   */
+  disabled?: boolean;
+  /**
+   * Whether the combobox popup is initially open.
+   *
+   * To render a controlled combobox popup, use the `open` prop instead.
+   * @default false
+   */
+  defaultOpen?: boolean;
+  /**
+   * Event handler called when the combobox popup is opened or closed.
+   */
+  onOpenChange?: (
+    open: boolean,
+    event: Event | undefined,
+    reason: ComboboxRoot.OpenChangeReason | undefined,
+  ) => void;
+  /**
+   * Event handler called after any animations complete when the combobox popup is opened or closed.
+   */
+  onOpenChangeComplete?: (open: boolean) => void;
+  /**
+   * Whether the combobox popup is currently open.
+   */
+  open?: boolean;
+  /**
+   * Whether the combobox popup opens when clicking the input.
+   * @default true
+   */
+  openOnInputClick?: boolean;
+  /**
+   * The input value of the combobox.
+   */
+  inputValue?: React.ComponentProps<'input'>['value'];
+  /**
+   * Callback fired when the input value of the combobox changes.
+   */
+  onInputValueChange?: (
+    value: string,
+    event: Event | undefined,
+    reason: string | undefined,
+  ) => void;
+  /**
+   * The uncontrolled input value when initially rendered.
+   */
+  defaultInputValue?: React.ComponentProps<'input'>['defaultValue'];
+  /**
+   * A ref to imperative actions.
+   * - `unmount`: When specified, the combobox will not be unmounted when closed.
+   * Instead, the `unmount` function must be called to unmount the combobox manually.
+   * Useful when the combobox's animation is controlled by an external library.
+   */
+  actionsRef?: React.RefObject<ComboboxRoot.Actions>;
+  /**
+   * Callback fired when the user navigates the list and highlights an item.
+   * Passes the item's `value` or `undefined` when no item is highlighted.
+   */
+  onItemHighlighted?: (
+    value: Item | undefined,
+    data: {
+      type: 'keyboard' | 'pointer';
+      index: number;
+    },
+  ) => void;
+  /**
+   * A ref to the hidden input element used for form submission.
+   */
+  inputRef?: React.RefObject<HTMLInputElement>;
+  /**
+   * The number of columns the items are rendered in grid layout.
+   * @default 1
+   */
+  cols?: number;
+  /**
+   * The items to be displayed in the combobox.
+   * Can be either a flat array of items or an array of groups with items.
+   */
+  items?: Item[] | ComboboxGroup<Item>[];
+  /**
+   * Filter function used to match items vs input query.
+   * The `itemToString` function is provided to help convert items to strings for comparison.
+   */
+  filter?: (item: Item, query: string, itemToString?: (item: Item) => string) => boolean;
+  /**
+   * Function to convert an item to a string for display in the combobox.
+   */
+  itemToString?: (item: Item) => string;
+  /**
+   * Function to convert an item to its value for form submission.
+   */
+  itemToValue?: (item: Item) => string;
+  /**
+   * Whether the combobox items are virtualized.
+   * @default false
+   */
+  virtualized?: boolean;
+}
+
+export type ComboboxRootConditionalProps<Item, Mode extends SelectionMode = 'none'> = Omit<
+  ComboboxRootProps<Item>,
+  'selectionMode' | 'selectedValue' | 'defaultSelectedValue' | 'onSelectedValueChange'
+> & {
+  /**
+   * How the combobox should remember the selected value.
+   * - `single`: Remembers the last selected value.
+   * - `multiple`: Remember all selected values.
+   * - `none`: Do not remember the selected value.
+   * @default 'none'
+   */
+  selectionMode?: Mode;
+  /**
+   * The selected value of the combobox.
+   */
+  selectedValue?: ComboboxValueType<ExtractItemType<Item>, Mode>;
+  /**
+   * The uncontrolled selected value of the combobox when it's initially rendered.
+   *
+   * To render a controlled combobox, use the `selectedValue` prop instead.
+   */
+  defaultSelectedValue?: ComboboxValueType<ExtractItemType<Item>, Mode>;
+  /**
+   * Callback fired when the selected value of the combobox changes.
+   */
+  onSelectedValueChange?: (
+    value: ComboboxValueType<ExtractItemType<Item>, Mode>,
+    event: Event | undefined,
+    reason: string | undefined,
+  ) => void;
+};
 
 export namespace ComboboxRoot {
-  export interface State {}
+  export type Props<Item, Mode extends SelectionMode = 'none'> = ComboboxRootConditionalProps<
+    Item,
+    Mode
+  >;
 
-  export interface Props<
-    Item = any,
-    Mode extends 'single' | 'multiple' | 'none' | undefined = 'none',
-  > {
-    children?: React.ReactNode;
-    /**
-     * Identifies the field when a form is submitted.
-     */
-    name?: string;
-    /**
-     * The id of the combobox.
-     */
-    id?: string;
-    /**
-     * Whether the user must choose a value before submitting a form.
-     * @default false
-     */
-    required?: boolean;
-    /**
-     * Whether the user should be unable to choose a different option from the combobox popup.
-     * @default false
-     */
-    readOnly?: boolean;
-    /**
-     * Whether the component should ignore user interaction.
-     * @default false
-     */
-    disabled?: boolean;
-    /**
-     * Whether the combobox popup is initially open.
-     *
-     * To render a controlled combobox popup, use the `open` prop instead.
-     * @default false
-     */
-    defaultOpen?: boolean;
-    /**
-     * Event handler called when the combobox popup is opened or closed.
-     */
-    onOpenChange?: (
-      open: boolean,
-      event: Event | undefined,
-      reason: BaseOpenChangeReason | undefined,
-    ) => void;
-    /**
-     * Event handler called after any animations complete when the combobox popup is opened or closed.
-     */
-    onOpenChangeComplete?: (open: boolean) => void;
-    /**
-     * Whether the combobox popup is currently open.
-     */
-    open?: boolean;
-    /**
-     * Whether the combobox popup opens when clicking the input.
-     * @default true
-     */
-    openOnInputClick?: boolean;
-    /**
-     * The input value of the combobox.
-     */
-    inputValue?: React.ComponentProps<'input'>['value'];
-    /**
-     * Callback fired when the input value of the combobox changes.
-     */
-    onInputValueChange?: (
-      value: string,
-      event: Event | undefined,
-      reason: string | undefined,
-    ) => void;
-    /**
-     * The uncontrolled input value when initially rendered.
-     */
-    defaultInputValue?: React.ComponentProps<'input'>['defaultValue'];
-    /**
-     * How the combobox should remember the selected value.
-     * - `single`: Remembers the last selected value.
-     * - `multiple`: Remember all selected values.
-     * - `none`: Do not remember the selected value.
-     * @default 'none'
-     */
-    selectionMode?: Mode;
-    /**
-     * A ref to imperative actions.
-     * - `unmount`: When specified, the combobox will not be unmounted when closed.
-     * Instead, the `unmount` function must be called to unmount the combobox manually.
-     * Useful when the combobox's animation is controlled by an external library.
-     */
-    actionsRef?: React.RefObject<Actions>;
-    /**
-     * Callback fired when the user navigates the list and highlights an item.
-     * Passes the item's `value` or `undefined` when no item is highlighted.
-     */
-    onItemHighlighted?: (
-      value: Item | undefined,
-      data: {
-        type: 'keyboard' | 'pointer';
-        index: number;
-      },
-    ) => void;
-    /**
-     * A ref to the hidden input element used for form submission.
-     */
-    inputRef?: React.RefObject<HTMLInputElement>;
-    /**
-     * The number of columns the items are rendered in grid layout.
-     * @default 1
-     */
-    cols?: number;
-    /**
-     * The items to be displayed in the combobox.
-     * Can be either a flat array of items or an array of groups with items.
-     */
-    items?: Item[] | ComboboxGroup<Item>[];
-    /**
-     * Filter function used to match items vs input query.
-     * The `itemToString` function is provided to help convert items to strings for comparison.
-     */
-    filter?: (item: Item, query: string, itemToString?: (item: Item) => string) => boolean;
-    /**
-     * Function to convert an item to a string for display in the combobox.
-     */
-    itemToString?: (item: Item) => string;
-    /**
-     * Function to convert an item to its value for form submission.
-     */
-    itemToValue?: (item: Item) => string;
-    /**
-     * The selected value of the combobox.
-     */
-    selectedValue?: ComboboxValueType<ExtractItemType<Item>, Mode>;
-    /**
-     * Callback fired when the selected value of the combobox changes.
-     */
-    onSelectedValueChange?: ComboboxOnSelectedValueChange<ExtractItemType<Item>, Mode>;
-    /**
-     * The uncontrolled selected value of the combobox when it's initially rendered.
-     *
-     * To render a controlled combobox, use the `selectedValue` prop instead.
-     */
-    defaultSelectedValue?: ComboboxDefaultValueType<ExtractItemType<Item>, Mode>;
-    /**
-     * Whether the combobox popup should be virtualized.
-     * @default false
-     */
-    virtualized?: boolean;
-  }
+  export interface State {}
 
   export interface Actions {
     unmount: () => void;
   }
+
+  export type OpenChangeReason = BaseOpenChangeReason | 'input-change' | 'input-clear';
 }
