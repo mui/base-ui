@@ -15,7 +15,7 @@ import { BaseOpenChangeReason } from '../../utils/translateOpenChangeReason';
  * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
  */
 export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
-  props: SelectRootConditionalProps<Value, Multiple>,
+  props: SelectRoot.Props<Value, Multiple>,
 ): React.JSX.Element {
   const {
     id,
@@ -194,7 +194,7 @@ interface SelectRootProps<Value> {
   /**
    * Callback fired when the value of the select changes. Use when controlled.
    */
-  onValueChange?: (value: Value | null, event?: Event) => void;
+  onValueChange?: (value: Value | null, event: Event | undefined) => void;
   /**
    * The uncontrolled value of the select when it’s initially rendered.
    *
@@ -257,7 +257,9 @@ interface SelectRootProps<Value> {
 }
 
 type SelectValueType<Value, Multiple extends boolean | undefined> = Multiple extends true
-  ? Value[]
+  ? Value extends readonly any[]
+    ? Value
+    : Value[]
   : Value;
 
 export type SelectRootConditionalProps<Value, Multiple extends boolean | undefined = false> = Omit<
