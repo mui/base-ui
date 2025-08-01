@@ -8,7 +8,8 @@
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: Progress.Root.State) => ReactElement)",
-      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
+      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Progress.Root.State,\n  ) => ReactElement)"
     }
   },
   "dataAttributes": {

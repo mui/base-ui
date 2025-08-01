@@ -5,7 +5,8 @@
     "renderBeforeHydration": {
       "type": "boolean",
       "default": "false",
-      "description": "Whether to render itself before React hydrates.\nThis minimizes the time that the indicator isn’t visible after server-side rendering."
+      "description": "Whether to render itself before React hydrates.\nThis minimizes the time that the indicator isn’t visible after server-side rendering.",
+      "detailedType": "boolean | undefined"
     },
     "className": {
       "type": "string | ((state: Tabs.Indicator.State) => string)",
@@ -13,7 +14,8 @@
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: Tabs.Indicator.State) => ReactElement)",
-      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
+      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Tabs.Indicator.State,\n  ) => ReactElement)"
     }
   },
   "dataAttributes": {

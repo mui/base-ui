@@ -4,15 +4,18 @@
   "props": {
     "container": {
       "type": "HTMLElement | ShadowRoot | RefObject<HTMLElement | ShadowRoot | null> | null",
-      "description": "A parent element to render the portal element into."
+      "description": "A parent element to render the portal element into.",
+      "detailedType": "| HTMLElement\n| ShadowRoot\n| React.RefObject<HTMLElement | ShadowRoot | null>\n| null\n| undefined"
     },
     "children": {
-      "type": "ReactNode"
+      "type": "ReactNode",
+      "detailedType": "React.ReactNode"
     },
     "keepMounted": {
       "type": "boolean",
       "default": "false",
-      "description": "Whether to keep the portal mounted in the DOM while the popup is hidden."
+      "description": "Whether to keep the portal mounted in the DOM while the popup is hidden.",
+      "detailedType": "boolean | undefined"
     }
   },
   "dataAttributes": {},

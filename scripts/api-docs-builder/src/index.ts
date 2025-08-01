@@ -1,3 +1,4 @@
+/* eslint-disable no-await-in-loop */
 /* eslint-disable prefer-template */
 /* eslint-disable no-console */
 import * as fs from 'node:fs';
@@ -33,13 +34,13 @@ async function run(options: RunOptions) {
   const { exports, errorCount } = findAllExports(program, files);
 
   for (const exportNode of exports.filter(isPublicComponent)) {
-    const componentApiReference = formatComponentData(exportNode, exports);
+    const componentApiReference = await formatComponentData(exportNode, exports);
     const json = JSON.stringify(componentApiReference, null, 2) + '\n';
     fs.writeFileSync(path.join(options.out, `${kebabCase(exportNode.name)}.json`), json);
   }
 
   for (const exportNode of exports.filter(isPublicHook)) {
-    const json = JSON.stringify(formatHookData(exportNode), null, 2) + '\n';
+    const json = JSON.stringify(await formatHookData(exportNode), null, 2) + '\n';
     fs.writeFileSync(path.join(options.out, `${kebabCase(exportNode.name)}.json`), json);
   }
 
