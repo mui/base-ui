@@ -160,23 +160,29 @@ export function useAnchorPositioning(
   // Ensure the popup flips if it's been limited by its --available-height and it resizes.
   // Since the size() padding is smaller than the flip() padding, flip() will take precedence.
   let sizeCollisionPadding: Padding | undefined;
-  const epsilon = 0.01;
+  const epsilon = -0.01;
+  const bias = 0.5;
+  const biasTop = side === 'bottom' ? bias : epsilon;
+  const biasBottom = side === 'top' ? bias : epsilon;
+  const biasLeft = side === 'right' ? bias : epsilon;
+  const biasRight = side === 'left' ? bias : epsilon;
+
   if (typeof collisionPadding === 'number') {
     sizeCollisionPadding = {
       // Create a bias to `bottom`. On iOS when the mobile software keyboard opens,
       // the input is exactly centered in the viewport, but this can cause it to
       // flip to the top undesirably.
-      top: collisionPadding + 0.5,
-      right: collisionPadding - epsilon,
-      bottom: collisionPadding - epsilon,
-      left: collisionPadding - epsilon,
+      top: collisionPadding + biasTop,
+      right: collisionPadding + biasRight,
+      bottom: collisionPadding + biasBottom,
+      left: collisionPadding + biasLeft,
     };
   } else if (collisionPadding) {
     sizeCollisionPadding = {
-      top: (collisionPadding.top || 0) + 0.5,
-      right: (collisionPadding.right || 0) - epsilon,
-      bottom: (collisionPadding.bottom || 0) - epsilon,
-      left: (collisionPadding.left || 0) - epsilon,
+      top: (collisionPadding.top || 0) + biasTop,
+      right: (collisionPadding.right || 0) + biasRight,
+      bottom: (collisionPadding.bottom || 0) + biasBottom,
+      left: (collisionPadding.left || 0) + biasLeft,
     };
   }
 
