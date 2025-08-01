@@ -40,6 +40,7 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
   const open = useStore(store, selectors.open);
   const anchorElement = useStore(store, selectors.anchorElement);
   const listElement = useStore(store, selectors.listElement);
+  const triggerProps = useStore(store, selectors.triggerProps);
 
   const disabled = fieldDisabled || comboboxDisabled || disabledProp;
 
@@ -65,6 +66,7 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
     ref: [forwardedRef, buttonRef, setTriggerElement],
     state,
     props: [
+      triggerProps,
       {
         'aria-expanded': open,
         'aria-haspopup': 'dialog',

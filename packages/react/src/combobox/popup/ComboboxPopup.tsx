@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { InteractionType } from '@base-ui-components/utils/useEnhancedClickHandler';
 import { useStore } from '@base-ui-components/utils/store';
 import { useLatestRef } from '@base-ui-components/utils/useLatestRef';
 import { FloatingFocusManager } from '../../floating-ui-react';
@@ -31,19 +32,20 @@ export const ComboboxPopup = React.forwardRef(function ComboboxPopup(
   componentProps: ComboboxPopup.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, ...elementProps } = componentProps;
+  const { render, className, initialFocus, finalFocus, ...elementProps } = componentProps;
 
   const { store, popupRef, inputRef, onOpenChangeComplete } = useComboboxRootContext();
   const positioning = useComboboxPositionerContext();
   const floatingRootContext = useComboboxFloatingContext();
 
   const open = useStore(store, selectors.open);
+  const openMethod = useStore(store, selectors.openMethod);
   const transitionStatus = useStore(store, selectors.transitionStatus);
   const anchorElement = useStore(store, selectors.anchorElement);
   const inputElement = useStore(store, selectors.inputElement);
   const triggerElement = useStore(store, selectors.triggerElement);
 
-  const didPointerDown = React.useRef(false);
+  const isAnchorInput = anchorElement === inputElement;
 
   useOpenChangeComplete({
     open,
@@ -72,23 +74,6 @@ export const ComboboxPopup = React.forwardRef(function ComboboxPopup(
     props: [
       {
         tabIndex: -1,
-        onPointerDown({ pointerType }) {
-          if (pointerType === 'touch') {
-            return;
-          }
-
-          didPointerDown.current = true;
-          inputRef.current?.focus();
-          setTimeout(() => {
-            didPointerDown.current = false;
-          });
-        },
-        onFocus() {
-          if (didPointerDown.current) {
-            inputRef.current?.focus();
-            didPointerDown.current = false;
-          }
-        },
       },
       transitionStatus === 'starting' ? DISABLED_TRANSITIONS_STYLE : EMPTY_OBJECT,
       elementProps,
@@ -96,15 +81,35 @@ export const ComboboxPopup = React.forwardRef(function ComboboxPopup(
     customStyleHookMapping,
   });
 
-  const isAnchorInput = anchorElement === inputElement;
   const triggerRef = useLatestRef(triggerElement);
+
+  const resolvedInitialFocus = React.useMemo(() => {
+    if (initialFocus == null) {
+      if (openMethod === 'touch') {
+        return popupRef;
+      }
+      return isAnchorInput ? -1 : inputRef;
+    }
+
+    if (typeof initialFocus === 'function') {
+      return initialFocus(openMethod ?? '');
+    }
+
+    return initialFocus;
+  }, [initialFocus, openMethod, popupRef, isAnchorInput, inputRef]);
+  const resolvedFinalFocus = React.useMemo(() => {
+    if (finalFocus != null) {
+      return finalFocus;
+    }
+    return isAnchorInput ? false : triggerRef;
+  }, [finalFocus, isAnchorInput, triggerRef]);
 
   return (
     <FloatingFocusManager
       context={floatingRootContext}
       modal={false}
-      initialFocus={isAnchorInput ? -1 : inputRef}
-      returnFocus={isAnchorInput ? false : triggerRef}
+      initialFocus={resolvedInitialFocus}
+      returnFocus={resolvedFinalFocus}
     >
       {element}
     </FloatingFocusManager>
@@ -120,5 +125,18 @@ export namespace ComboboxPopup {
     transitionStatus: TransitionStatus;
   }
 
-  export interface Props extends BaseUIComponentProps<'div', State> {}
+  export interface Props extends BaseUIComponentProps<'div', State> {
+    /**
+     * Determines the element to focus when the combobox popup is opened.
+     * By default, the first focusable element is focused.
+     */
+    initialFocus?:
+      | React.RefObject<HTMLElement | null>
+      | ((interactionType: InteractionType) => React.RefObject<HTMLElement | null>);
+    /**
+     * Determines the element to focus when the combobox popup is closed.
+     * By default, focus returns to the trigger.
+     */
+    finalFocus?: React.RefObject<HTMLElement | null>;
+  }
 }

@@ -56,7 +56,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
   const comboboxChipsContext = useComboboxChipsContext();
   const hasPositionerParent = Boolean(useComboboxPositionerContext(true));
 
-  const triggerProps = useStore(store, selectors.triggerProps);
+  const inputProps = useStore(store, selectors.inputProps);
   const open = useStore(store, selectors.open);
   const activeIndex = useStore(store, selectors.activeIndex);
   const selectedValue = useStore(store, selectors.selectedValue);
@@ -148,7 +148,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
     state,
     ref: [forwardedRef, setAnchorElement, inputRef, setInputElement],
     props: [
-      triggerProps,
+      inputProps,
       {
         value: componentProps.value ?? inputValue,
         'aria-readonly': readOnly || undefined,

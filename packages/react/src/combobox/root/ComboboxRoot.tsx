@@ -47,6 +47,7 @@ import { useFilter } from './utils/useFilter';
 import { serializeValue } from '../../utils/serializeValue';
 import { useTransitionStatus } from '../../utils/useTransitionStatus';
 import { EMPTY_ARRAY } from '../../utils/constants';
+import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
 
 /**
  * Groups all parts of the combobox.
@@ -206,12 +207,14 @@ export function ComboboxRoot<
         activeIndex: null,
         selectedIndex: null,
         popupProps: {},
+        inputProps: {},
         triggerProps: {},
         anchorElement: null,
         positionerElement: null,
         listElement: null,
         triggerElement: null,
         inputElement: null,
+        openMethod: null,
       }),
   ).current;
 
@@ -228,6 +231,11 @@ export function ComboboxRoot<
   const open = inline || openRaw;
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
+  const {
+    openMethod,
+    triggerProps,
+    reset: resetOpenInteractionType,
+  } = useOpenInteractionType(open);
 
   const initialList = React.useMemo(() => {
     if (virtualized && items) {
@@ -340,11 +348,12 @@ export function ComboboxRoot<
 
     setMounted(false);
     onOpenChangeComplete?.(false);
+    setQueryChangedAfterOpen(false);
+    resetOpenInteractionType();
     onItemHighlighted(undefined, {
       type: keyboardActiveRef.current ? 'keyboard' : 'pointer',
       index: -1,
     });
-    setQueryChangedAfterOpen(false);
 
     store.set('activeIndex', null);
 
@@ -601,7 +610,8 @@ export function ComboboxRoot<
     // between some values used in floating hooks above.
     store.apply({
       popupProps: getFloatingProps(),
-      triggerProps: getReferenceProps(),
+      inputProps: getReferenceProps(),
+      triggerProps,
     });
   });
 
@@ -616,7 +626,9 @@ export function ComboboxRoot<
       transitionStatus,
       initialList,
       popupProps: getFloatingProps(),
-      triggerProps: getReferenceProps(),
+      inputProps: getReferenceProps(),
+      triggerProps,
+      openMethod,
     });
   }, [
     store,
@@ -629,6 +641,8 @@ export function ComboboxRoot<
     initialList,
     getFloatingProps,
     getReferenceProps,
+    openMethod,
+    triggerProps,
   ]);
 
   const hiddenInputRef = useMergedRefs(inputRefProp, fieldControlValidation.inputRef);

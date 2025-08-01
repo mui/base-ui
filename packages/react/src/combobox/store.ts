@@ -1,4 +1,5 @@
 import { Store, createSelector } from '@base-ui-components/utils/store';
+import type { InteractionType } from '@base-ui-components/utils/useEnhancedClickHandler';
 import type { TransitionStatus } from '../utils/useTransitionStatus';
 import type { HTMLProps } from '../utils/types';
 
@@ -24,12 +25,15 @@ export type State = {
   selectedIndex: number | null;
 
   popupProps: HTMLProps;
+  inputProps: HTMLProps;
   triggerProps: HTMLProps;
   anchorElement: HTMLElement | null;
   positionerElement: HTMLElement | null;
   listElement: HTMLElement | null;
   triggerElement: HTMLElement | null;
   inputElement: HTMLInputElement | null;
+
+  openMethod: InteractionType | null;
 };
 
 export type ComboboxStore = Store<State>;
@@ -62,10 +66,13 @@ export const selectors = {
   transitionStatus: createSelector((state: State) => state.transitionStatus),
 
   popupProps: createSelector((state: State) => state.popupProps),
+  inputProps: createSelector((state: State) => state.inputProps),
   triggerProps: createSelector((state: State) => state.triggerProps),
   anchorElement: createSelector((state: State) => state.anchorElement),
   positionerElement: createSelector((state: State) => state.positionerElement),
   listElement: createSelector((state: State) => state.listElement),
   triggerElement: createSelector((state: State) => state.triggerElement),
   inputElement: createSelector((state: State) => state.inputElement),
+
+  openMethod: createSelector((state: State) => state.openMethod),
 };

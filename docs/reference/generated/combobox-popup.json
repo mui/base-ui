@@ -2,6 +2,14 @@
   "name": "ComboboxPopup",
   "description": "A container for the combobox items.\nRenders a `<div>` element.",
   "props": {
+    "initialFocus": {
+      "type": "RefObject<HTMLElement | null> | ((interactionType: InteractionType) => RefObject<HTMLElement | null>)",
+      "description": "Determines the element to focus when the combobox popup is opened.\nBy default, the first focusable element is focused."
+    },
+    "finalFocus": {
+      "type": "RefObject<HTMLElement | null>",
+      "description": "Determines the element to focus when the combobox popup is closed.\nBy default, focus returns to the trigger."
+    },
     "className": {
       "type": "string | ((state: Combobox.Popup.State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
