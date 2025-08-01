@@ -227,6 +227,7 @@ export function ComboboxRoot<
   const positionerElement = useStore(store, selectors.positionerElement);
   const listElement = useStore(store, selectors.listElement);
   const triggerElement = useStore(store, selectors.triggerElement);
+  const inputElement = useStore(store, selectors.inputElement);
   const inline = useStore(store, selectors.inline);
   const open = inline || openRaw;
 
@@ -556,6 +557,8 @@ export function ComboboxRoot<
   const dismiss = useDismiss(floatingRootContext, {
     enabled: !readOnly && !disabled,
     bubbles: true,
+    outsidePressEvent:
+      anchorElement !== inputElement ? { mouse: 'intentional', touch: 'sloppy' } : undefined,
     outsidePress(event) {
       const target = getTarget(event) as Element | null;
       return !contains(triggerElement, target);
