@@ -247,7 +247,7 @@ export interface PopupTestConfig {
 
 interface RootProps {
   open?: boolean;
-  onOpenChange?: (open: boolean) => void;
+  onOpenChange?: (open: boolean | HTMLElement | null) => void;
 }
 
 interface TriggerProps {
