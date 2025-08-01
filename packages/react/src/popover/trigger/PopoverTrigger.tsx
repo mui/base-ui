@@ -61,6 +61,7 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
   const rootTriggerProps = useStore(store, selectors.triggerProps);
   const stickIfOpen = useStore(store, selectors.stickIfOpen);
   const mounted = useStore(store, selectors.mounted);
+  const activeTrigger = useStore(store, selectors.activeTriggerElement);
 
   const [triggerElement, setTriggerElement] = React.useState<HTMLElement | null>(null);
 
@@ -119,9 +120,9 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
   const state: PopoverTrigger.State = React.useMemo(
     () => ({
       disabled,
-      open,
+      open: activeTrigger === triggerElement && open,
     }),
-    [disabled, open],
+    [disabled, open, activeTrigger, triggerElement],
   );
 
   const { getButtonProps, buttonRef } = useButton({
@@ -166,7 +167,7 @@ export namespace PopoverTrigger {
      */
     disabled: boolean;
     /**
-     * Whether the popover is currently open.
+     * Whether the popover is currently open by this trigger.
      */
     open: boolean;
   }
