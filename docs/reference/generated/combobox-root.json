@@ -33,7 +33,7 @@
       "description": "The uncontrolled input value when initially rendered."
     },
     "defaultSelectedValue": {
-      "type": "(GroupItem | Item)[] | GroupItem | Item",
+      "type": "(GroupItem | Item)[] | GroupItem | Item | null",
       "description": "The uncontrolled selected value of the combobox when it's initially rendered.\n\nTo render a controlled combobox, use the `selectedValue` prop instead."
     },
     "filter": {
@@ -69,7 +69,7 @@
       "description": "Event handler called after any animations complete when the combobox popup is opened or closed."
     },
     "onSelectedValueChange": {
-      "type": "((value: (GroupItem | Item)[] | GroupItem | Item, event: Event | undefined, reason: string | undefined) => void)",
+      "type": "((value: (GroupItem | Item)[] | GroupItem | Item | null, event: Event | undefined, reason: string | undefined) => void)",
       "description": "Callback fired when the selected value of the combobox changes."
     },
     "openOnInputClick": {
@@ -78,7 +78,7 @@
       "description": "Whether the combobox popup opens when clicking the input."
     },
     "selectedValue": {
-      "type": "(GroupItem | Item)[] | GroupItem | Item",
+      "type": "(GroupItem | Item)[] | GroupItem | Item | null",
       "description": "The selected value of the combobox."
     },
     "selectionMode": {

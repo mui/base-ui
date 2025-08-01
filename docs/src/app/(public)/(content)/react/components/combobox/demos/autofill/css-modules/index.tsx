@@ -6,7 +6,7 @@ import { countries } from './data';
 export default function AutofillCombobox() {
   const [searchValue, setSearchValue] = React.useState('');
   const [inputHighlightValue, setInputHighlightValue] = React.useState('');
-  const [selectedValue, setSelectedValue] = React.useState('');
+  const [selectedValue, setSelectedValue] = React.useState(null);
 
   const filteredCountries = React.useMemo(() => {
     if (searchValue.trim() === '') {
@@ -23,8 +23,8 @@ export default function AutofillCombobox() {
         selectedValue={selectedValue}
         onSelectedValueChange={(nextValue) => {
           setInputHighlightValue('');
-          setSelectedValue(nextValue);
           setSearchValue(nextValue ?? '');
+          setSelectedValue(nextValue);
         }}
         inputValue={inputHighlightValue || searchValue}
         onInputValueChange={(nextValue) => {

@@ -84,7 +84,11 @@ export default function AsyncCombobox() {
       items={searchResults}
       inputValue={searchValue}
       onInputValueChange={setSearchValue}
-      onSelectedValueChange={(item) => setSearchValue(item.title)}
+      onSelectedValueChange={(item) => {
+        if (item) {
+          setSearchValue(item.title);
+        }
+      }}
       itemToString={itemToString}
       filter={filterByTitleOrYear}
     >

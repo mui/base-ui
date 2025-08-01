@@ -811,7 +811,9 @@ type ExtractItemType<Item> = Item extends ComboboxGroup<infer GroupItem>[]
 
 type SelectionMode = 'single' | 'multiple' | 'none';
 
-type ComboboxValueType<Item, Mode extends SelectionMode> = Mode extends 'multiple' ? Item[] : Item;
+type ComboboxValueType<Item, Mode extends SelectionMode> = Mode extends 'multiple'
+  ? Item[]
+  : Item | null;
 
 interface ComboboxRootProps<Item> {
   children?: React.ReactNode;

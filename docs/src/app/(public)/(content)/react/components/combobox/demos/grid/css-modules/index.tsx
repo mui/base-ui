@@ -91,8 +91,11 @@ export default function EmojiPicker() {
               setSearchValue(nextInputValue);
             }
           }}
-          onSelectedValueChange={(value, event, reason) => {
-            handleInsertEmoji(value.emoji);
+          onSelectedValueChange={(item, event, reason) => {
+            if (item) {
+              handleInsertEmoji(item.emoji);
+            }
+
             setPickerOpen(false);
 
             if (reason !== 'item-press') {
