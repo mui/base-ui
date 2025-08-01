@@ -83,6 +83,11 @@ export const nav: NavGroup[] = [
         href: '/react/components/collapsible',
       },
       {
+        label: 'Combobox',
+        href: '/react/components/combobox',
+        isNew: true,
+      },
+      {
         label: 'Context Menu',
         href: '/react/components/context-menu',
       },
