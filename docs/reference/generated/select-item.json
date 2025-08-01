@@ -4,7 +4,7 @@
   "props": {
     "label": {
       "type": "string",
-      "description": "Overrides the text label to use on the trigger when this item is selected\nand when the item is matched during keyboard text navigation.",
+      "description": "Specifies the text label to use when the item is matched during keyboard text navigation.\n\nDefaults to the item text content if not provided.",
       "detailedType": "string | undefined"
     },
     "value": {
