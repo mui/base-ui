@@ -87,8 +87,8 @@
     "@tailwindcss/postcss": "4.1.11",
     "@types/fs-extra": "^11.0.4",
     "@types/lodash": "^4.17.20",
-    "@types/node": "^18.19.120",
-    "@types/react": "^19.1.8",
+    "@types/node": "^18.19.121",
+    "@types/react": "^19.1.9",
     "@types/yargs": "^17.0.33",
     "@vitejs/plugin-react": "^4.6.0",
     "@vitest/browser": "^3.1.4",
@@ -160,8 +160,8 @@
     "@babel/preset-react": "^7.27.1",
     "@babel/preset-typescript": "^7.27.1",
     "@babel/types": "^7.28.2",
-    "@types/node": "^18.19.120",
-    "@types/react": "^19.1.8",
-    "@types/react-dom": "^19.1.6"
+    "@types/node": "^18.19.121",
+    "@types/react": "^19.1.9",
+    "@types/react-dom": "^19.1.7"
   }
 }
