@@ -75,7 +75,7 @@
     "chai": "^4.5.0",
     "fs-extra": "^11.3.0",
     "mdast-util-mdx-jsx": "^3.2.0",
-    "motion": "^12.23.7",
+    "motion": "^12.23.12",
     "prettier": "^3.6.2",
     "react-reconciler": "^0.32.0",
     "remark-parse": "^11.0.0",
