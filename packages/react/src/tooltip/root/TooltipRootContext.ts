@@ -17,6 +17,8 @@ export interface TooltipRootContext {
   setTriggerElement: (el: Element | null) => void;
   positionerElement: HTMLElement | null;
   setPositionerElement: (el: HTMLElement | null) => void;
+  popupId: string | undefined;
+  setPopupId: (id: string | undefined) => void;
   popupRef: React.RefObject<HTMLElement | null>;
   delay: number;
   closeDelay: number;
