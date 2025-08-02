@@ -33,11 +33,7 @@ export default function ExampleCheckboxGroup() {
       </label>
 
       <label className={styles.Item}>
-        <Checkbox.Root
-          name="apple"
-          value="granny-smith-apple"
-          className={styles.Checkbox}
-        >
+        <Checkbox.Root name="apple" value="granny-smith-apple" className={styles.Checkbox}>
           <Checkbox.Indicator className={styles.Indicator}>
             <CheckIcon className={styles.Icon} />
           </Checkbox.Indicator>

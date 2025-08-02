@@ -6,9 +6,7 @@ import type { Side } from '../../../../../../packages/react/src/utils/useAnchorP
 function Popover({ side }: { side: Side }) {
   return (
     <PopoverPrimitive.Root>
-      <PopoverPrimitive.Trigger className={styles.Trigger}>
-        {side}
-      </PopoverPrimitive.Trigger>
+      <PopoverPrimitive.Trigger className={styles.Trigger}>{side}</PopoverPrimitive.Trigger>
       <PopoverPrimitive.Portal>
         <PopoverPrimitive.Positioner side={side} sideOffset={20}>
           <PopoverPrimitive.Popup className={styles.Popup} />
@@ -21,9 +19,7 @@ function Popover({ side }: { side: Side }) {
 function PopoverWithArrow({ side }: { side: Side }) {
   return (
     <PopoverPrimitive.Root>
-      <PopoverPrimitive.Trigger className={styles.Trigger}>
-        {side}
-      </PopoverPrimitive.Trigger>
+      <PopoverPrimitive.Trigger className={styles.Trigger}>{side}</PopoverPrimitive.Trigger>
       <PopoverPrimitive.Portal>
         <PopoverPrimitive.Positioner side={side} sideOffset={20}>
           <PopoverPrimitive.Popup className={styles.Popup}>
@@ -38,9 +34,7 @@ function PopoverWithArrow({ side }: { side: Side }) {
 function ShiftSide({ side }: { side: Side }) {
   return (
     <PopoverPrimitive.Root>
-      <PopoverPrimitive.Trigger className={styles.Trigger}>
-        {side}
-      </PopoverPrimitive.Trigger>
+      <PopoverPrimitive.Trigger className={styles.Trigger}>{side}</PopoverPrimitive.Trigger>
       <PopoverPrimitive.Portal>
         <PopoverPrimitive.Positioner
           side={side}
