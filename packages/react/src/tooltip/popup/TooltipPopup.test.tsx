@@ -33,4 +33,38 @@ describe('<Tooltip.Popup />', () => {
 
     expect(screen.getByText('Content')).not.to.equal(null);
   });
+
+  it('describes the trigger element with its generated id', async () => {
+    const { getByRole } = await render(
+      <Tooltip.Root open>
+        <Tooltip.Trigger>Open</Tooltip.Trigger>
+        <Tooltip.Portal>
+          <Tooltip.Positioner>
+            <Tooltip.Popup>Content</Tooltip.Popup>
+          </Tooltip.Positioner>
+        </Tooltip.Portal>
+      </Tooltip.Root>,
+    );
+
+    const trigger = getByRole('button', { name: 'Open' });
+    const popup = getByRole('tooltip');
+    expect(trigger).to.have.attribute('aria-describedby', popup.id);
+  });
+
+  it('describes the trigger element with its provided id', async () => {
+    const id = 'custom-tooltip-id';
+    const { getByRole } = await render(
+      <Tooltip.Root open>
+        <Tooltip.Trigger>Open</Tooltip.Trigger>
+        <Tooltip.Portal>
+          <Tooltip.Positioner>
+            <Tooltip.Popup id={id}>Content</Tooltip.Popup>
+          </Tooltip.Positioner>
+        </Tooltip.Portal>
+      </Tooltip.Root>,
+    );
+
+    const trigger = getByRole('button', { name: 'Open' });
+    expect(trigger).to.have.attribute('aria-describedby', id);
+  });
 });
