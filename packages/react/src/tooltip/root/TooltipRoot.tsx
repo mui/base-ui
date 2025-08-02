@@ -47,6 +47,8 @@ export function TooltipRoot(props: TooltipRoot.Props) {
   const [positionerElement, setPositionerElement] = React.useState<HTMLElement | null>(null);
   const [instantTypeState, setInstantTypeState] = React.useState<'dismiss' | 'focus'>();
 
+  const [popupId, setPopupId] = React.useState<string | undefined>(undefined);
+
   const popupRef = React.useRef<HTMLElement>(null);
 
   const [openState, setOpenState] = useControlled({
@@ -187,6 +189,8 @@ export function TooltipRoot(props: TooltipRoot.Props) {
       setTriggerElement,
       positionerElement,
       setPositionerElement,
+      popupId,
+      setPopupId,
       popupRef,
       triggerProps: getReferenceProps(),
       popupProps: getFloatingProps(),
@@ -203,6 +207,8 @@ export function TooltipRoot(props: TooltipRoot.Props) {
       setTriggerElement,
       positionerElement,
       setPositionerElement,
+      popupId,
+      setPopupId,
       popupRef,
       getReferenceProps,
       getFloatingProps,

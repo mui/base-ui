@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { useTooltipRootContext } from '../root/TooltipRootContext';
 import { useTooltipPositionerContext } from '../positioner/TooltipPositionerContext';
 import type { BaseUIComponentProps } from '../../utils/types';
@@ -8,6 +9,7 @@ import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import { transitionStatusMapping } from '../../utils/styleHookMapping';
+import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { EMPTY_OBJECT, DISABLED_TRANSITIONS_STYLE } from '../../utils/constants';
@@ -27,11 +29,27 @@ export const TooltipPopup = React.forwardRef(function TooltipPopup(
   componentProps: TooltipPopup.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { className, render, ...elementProps } = componentProps;
+  const { className, render, id: idProp, ...elementProps } = componentProps;
 
-  const { open, instantType, transitionStatus, popupProps, popupRef, onOpenChangeComplete } =
-    useTooltipRootContext();
+  const id = useBaseUiId(idProp);
+
+  const {
+    open,
+    instantType,
+    transitionStatus,
+    popupProps,
+    popupRef,
+    onOpenChangeComplete,
+    setPopupId,
+  } = useTooltipRootContext();
   const { side, align } = useTooltipPositionerContext();
+
+  useIsoLayoutEffect(() => {
+    setPopupId(id);
+    return () => {
+      setPopupId(undefined);
+    };
+  }, [setPopupId, id]);
 
   useOpenChangeComplete({
     open,
@@ -58,6 +76,10 @@ export const TooltipPopup = React.forwardRef(function TooltipPopup(
     state,
     ref: [forwardedRef, popupRef],
     props: [
+      {
+        id,
+        role: 'tooltip',
+      },
       popupProps,
       transitionStatus === 'starting' ? DISABLED_TRANSITIONS_STYLE : EMPTY_OBJECT,
       elementProps,
