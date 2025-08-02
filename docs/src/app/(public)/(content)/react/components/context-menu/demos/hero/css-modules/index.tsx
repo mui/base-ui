@@ -5,18 +5,12 @@ import styles from './index.module.css';
 export default function ExampleMenu() {
   return (
     <ContextMenu.Root>
-      <ContextMenu.Trigger className={styles.Trigger}>
-        Right click here
-      </ContextMenu.Trigger>
+      <ContextMenu.Trigger className={styles.Trigger}>Right click here</ContextMenu.Trigger>
       <ContextMenu.Portal>
         <ContextMenu.Positioner className={styles.Positioner}>
           <ContextMenu.Popup className={styles.Popup}>
-            <ContextMenu.Item className={styles.Item}>
-              Add to Library
-            </ContextMenu.Item>
-            <ContextMenu.Item className={styles.Item}>
-              Add to Playlist
-            </ContextMenu.Item>
+            <ContextMenu.Item className={styles.Item}>Add to Library</ContextMenu.Item>
+            <ContextMenu.Item className={styles.Item}>Add to Playlist</ContextMenu.Item>
             <ContextMenu.Separator className={styles.Separator} />
             <ContextMenu.Item className={styles.Item}>Play Next</ContextMenu.Item>
             <ContextMenu.Item className={styles.Item}>Play Last</ContextMenu.Item>

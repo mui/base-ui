@@ -57,16 +57,12 @@ export default function ExampleDialog() {
       <AlertDialog.Root open={confirmationOpen} onOpenChange={setConfirmationOpen}>
         <AlertDialog.Portal>
           <AlertDialog.Popup className={styles.Popup}>
-            <AlertDialog.Title className={styles.Title}>
-              Discard tweet?
-            </AlertDialog.Title>
+            <AlertDialog.Title className={styles.Title}>Discard tweet?</AlertDialog.Title>
             <AlertDialog.Description className={styles.Description}>
               Your tweet will be lost.
             </AlertDialog.Description>
             <div className={styles.Actions}>
-              <AlertDialog.Close className={styles.Button}>
-                Go back
-              </AlertDialog.Close>
+              <AlertDialog.Close className={styles.Button}>Go back</AlertDialog.Close>
               <button
                 type="button"
                 className={styles.Button}

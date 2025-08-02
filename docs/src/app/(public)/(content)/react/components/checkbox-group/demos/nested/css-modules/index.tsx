@@ -4,12 +4,7 @@ import { CheckboxGroup } from '@base-ui-components/react/checkbox-group';
 import styles from './index.module.css';
 
 const mainPermissions = ['view-dashboard', 'manage-users', 'access-reports'];
-const userManagementPermissions = [
-  'create-user',
-  'edit-user',
-  'delete-user',
-  'assign-roles',
-];
+const userManagementPermissions = ['create-user', 'edit-user', 'delete-user', 'assign-roles'];
 
 export default function PermissionsForm() {
   const [mainValue, setMainValue] = React.useState<string[]>([]);
@@ -31,11 +26,7 @@ export default function PermissionsForm() {
       className={styles.CheckboxGroup}
       style={{ marginLeft: '1rem' }}
     >
-      <label
-        className={styles.Item}
-        id="permissions-caption"
-        style={{ marginLeft: '-1rem' }}
-      >
+      <label className={styles.Item} id="permissions-caption" style={{ marginLeft: '-1rem' }}>
         <Checkbox.Root
           className={styles.Checkbox}
           parent
@@ -93,11 +84,7 @@ export default function PermissionsForm() {
         allValues={userManagementPermissions}
         style={{ marginLeft: '1rem' }}
       >
-        <label
-          className={styles.Item}
-          id="manage-users-caption"
-          style={{ marginLeft: '-1rem' }}
-        >
+        <label className={styles.Item} id="manage-users-caption" style={{ marginLeft: '-1rem' }}>
           <Checkbox.Root className={styles.Checkbox} parent>
             <Checkbox.Indicator
               className={styles.Indicator}

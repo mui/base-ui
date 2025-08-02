@@ -10,30 +10,22 @@ export default function ContextMenuExperiment() {
 
       {/* Scenario 1: Context menu within a context menu trigger */}
       <section className="space-y-4">
-        <h2 className="text-xl font-semibold">
-          1. Context Menu within Context Menu Trigger
-        </h2>
+        <h2 className="text-xl font-semibold">1. Context Menu within Context Menu Trigger</h2>
         <p className="text-gray-600">
-          Right-click on the outer box, then right-click on the inner box to see
-          nested context menus.
+          Right-click on the outer box, then right-click on the inner box to see nested context
+          menus.
         </p>
 
         <ContextMenu.Root>
           <ContextMenu.Trigger className="border-blue-300 bg-blue-50 rounded-lg border-2 p-8">
             <div className="text-center">
-              <span className="text-blue-700 block font-medium">
-                Outer Context Menu
-              </span>
+              <span className="text-blue-700 block font-medium">Outer Context Menu</span>
               <span className="text-blue-600 block text-sm">Right-click me</span>
 
               <ContextMenu.Root>
                 <ContextMenu.Trigger className="border-red-300 bg-red-50 mt-4 inline-block rounded border-2 p-4">
-                  <span className="text-red-700 block font-medium">
-                    Inner Context Menu
-                  </span>
-                  <span className="text-red-600 block text-sm">
-                    Right-click me too!
-                  </span>
+                  <span className="text-red-700 block font-medium">Inner Context Menu</span>
+                  <span className="text-red-600 block text-sm">Right-click me too!</span>
                 </ContextMenu.Trigger>
                 <ContextMenu.Portal>
                   <ContextMenu.Positioner className="outline-none">
@@ -75,12 +67,8 @@ export default function ContextMenuExperiment() {
 
       {/* Scenario 2: Context menu within context menu trigger, both with submenus */}
       <section className="space-y-4">
-        <h2 className="text-xl font-semibold">
-          2. Nested Context Menus with Submenus
-        </h2>
-        <p className="text-gray-600">
-          Right-click on either box and explore the submenu options.
-        </p>
+        <h2 className="text-xl font-semibold">2. Nested Context Menus with Submenus</h2>
+        <p className="text-gray-600">Right-click on either box and explore the submenu options.</p>
 
         <ContextMenu.Root>
           <ContextMenu.Trigger className="border-green-300 bg-green-50 rounded-lg border-2 p-8">
@@ -95,9 +83,7 @@ export default function ContextMenuExperiment() {
                   <span className="text-purple-700 block font-medium">
                     Inner Context Menu with Submenu
                   </span>
-                  <span className="text-purple-600 block text-sm">
-                    Right-click me too!
-                  </span>
+                  <span className="text-purple-600 block text-sm">Right-click me too!</span>
                 </ContextMenu.Trigger>
                 <ContextMenu.Portal>
                   <ContextMenu.Positioner className="outline-none">
@@ -173,20 +159,15 @@ export default function ContextMenuExperiment() {
 
       {/* Scenario 3: Context menu within context menu popup item, both with submenus */}
       <section className="space-y-4">
-        <h2 className="text-xl font-semibold">
-          3. Context Menu within Context Menu Popup Item
-        </h2>
+        <h2 className="text-xl font-semibold">3. Context Menu within Context Menu Popup Item</h2>
         <p className="text-gray-600">
-          Right-click on the box, then right-click on the "Special Item" in the
-          popup.
+          Right-click on the box, then right-click on the "Special Item" in the popup.
         </p>
 
         <ContextMenu.Root>
           <ContextMenu.Trigger className="border-orange-300 bg-orange-50 rounded-lg border-2 p-8">
             <div className="text-center">
-              <span className="text-orange-700 block font-medium">
-                Complex Context Menu
-              </span>
+              <span className="text-orange-700 block font-medium">Complex Context Menu</span>
               <span className="text-orange-600 block text-sm">
                 Right-click me, then right-click "Special Item"
               </span>

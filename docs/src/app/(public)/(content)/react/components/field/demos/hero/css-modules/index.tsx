@@ -12,9 +12,7 @@ export default function ExampleField() {
         Please enter your name
       </Field.Error>
 
-      <Field.Description className={styles.Description}>
-        Visible on your profile
-      </Field.Description>
+      <Field.Description className={styles.Description}>Visible on your profile</Field.Description>
     </Field.Root>
   );
 }

@@ -27,8 +27,7 @@ export default function AnchorPositioning() {
   const [collisionPadding, setCollisionPadding] = React.useState(5);
   const [arrowPadding, setArrowPadding] = React.useState(5);
   const [arrow, setArrow] = React.useState(true);
-  const [hideArrowWhenUncentered, setHideArrowWhenUncentered] =
-    React.useState(false);
+  const [hideArrowWhenUncentered, setHideArrowWhenUncentered] = React.useState(false);
   const [sticky, setSticky] = React.useState(false);
   const [constrainSize, setConstrainSize] = React.useState(false);
   const [visible, setVisible] = React.useState(false);
@@ -134,17 +133,14 @@ export default function AnchorPositioning() {
             width: 20,
             height: 20,
             [oppositeSideMap[renderedSide]]: -10,
-            ...(arrowUncentered &&
-              hideArrowWhenUncentered && { visibility: 'hidden' }),
+            ...(arrowUncentered && hideArrowWhenUncentered && { visibility: 'hidden' }),
           }}
         />
       )}
     </div>
   );
 
-  const popupNode = trackAnchor
-    ? popup
-    : ReactDOM.createPortal(popup, document.body);
+  const popupNode = trackAnchor ? popup : ReactDOM.createPortal(popup, document.body);
 
   return (
     <div style={{ fontFamily: 'sans-serif', margin: 50 }}>
@@ -217,12 +213,7 @@ export default function AnchorPositioning() {
             <legend>Side</legend>
             {(['top', 'bottom', 'left', 'right'] as const).map((s) => (
               <label key={s}>
-                <input
-                  name="side"
-                  type="radio"
-                  checked={s === side}
-                  onChange={() => setSide(s)}
-                />
+                <input name="side" type="radio" checked={s === side} onChange={() => setSide(s)} />
                 {s}
               </label>
             ))}
@@ -301,11 +292,7 @@ export default function AnchorPositioning() {
           </label>
 
           <label>
-            <input
-              type="checkbox"
-              checked={arrow}
-              onChange={() => setArrow((prev) => !prev)}
-            />
+            <input type="checkbox" checked={arrow} onChange={() => setArrow((prev) => !prev)} />
             Arrow
           </label>
 
@@ -319,11 +306,7 @@ export default function AnchorPositioning() {
           </label>
 
           <label>
-            <input
-              type="checkbox"
-              checked={sticky}
-              onChange={() => setSticky((prev) => !prev)}
-            />
+            <input type="checkbox" checked={sticky} onChange={() => setSticky((prev) => !prev)} />
             Sticky
           </label>
 

@@ -85,12 +85,7 @@ export default function RtlPopover() {
               Song <ChevronDownIcon className={s.ButtonIcon} />
             </Menu.Trigger>
             <Menu.Portal>
-              <Menu.Positioner
-                className={s.Positioner}
-                sideOffset={12}
-                side="inline-end"
-                dir={DIR}
-              >
+              <Menu.Positioner className={s.Positioner} sideOffset={12} side="inline-end" dir={DIR}>
                 <Menu.Popup className={s.Popup}>
                   <Menu.Arrow className={s.Arrow}>
                     <ArrowSvg />

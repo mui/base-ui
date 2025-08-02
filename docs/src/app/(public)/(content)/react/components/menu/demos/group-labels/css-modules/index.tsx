@@ -47,9 +47,7 @@ export default function ExampleMenu() {
             <Menu.Separator className={styles.Separator} />
 
             <Menu.Group>
-              <Menu.GroupLabel className={styles.GroupLabel}>
-                Workspace
-              </Menu.GroupLabel>
+              <Menu.GroupLabel className={styles.GroupLabel}>Workspace</Menu.GroupLabel>
               <Menu.CheckboxItem
                 checked={showMinimap}
                 onCheckedChange={setShowMinimap}

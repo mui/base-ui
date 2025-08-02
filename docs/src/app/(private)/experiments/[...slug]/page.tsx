@@ -49,10 +49,9 @@ export default async function Page(props: Props) {
 }
 
 export async function generateStaticParams() {
-  const files = glob.globSync(
-    ['**/*.tsx', '!infra/**/*', '!**/page.tsx', '!**/layout.tsx'],
-    { cwd: experimentsRootDirectory },
-  );
+  const files = glob.globSync(['**/*.tsx', '!infra/**/*', '!**/page.tsx', '!**/layout.tsx'], {
+    cwd: experimentsRootDirectory,
+  });
 
   return files.map((file) => {
     return {

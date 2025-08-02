@@ -16,14 +16,10 @@ export default function ExampleDialog() {
           <div className={styles.Actions}>
             <div className={styles.ActionsLeft}>
               <Dialog.Root>
-                <Dialog.Trigger className={styles.GhostButton}>
-                  Customize
-                </Dialog.Trigger>
+                <Dialog.Trigger className={styles.GhostButton}>Customize</Dialog.Trigger>
                 <Dialog.Portal>
                   <Dialog.Popup className={styles.Popup}>
-                    <Dialog.Title className={styles.Title}>
-                      Customize notifications
-                    </Dialog.Title>
+                    <Dialog.Title className={styles.Title}>Customize notifications</Dialog.Title>
                     <Dialog.Description className={styles.Description}>
                       Review your settings here.
                     </Dialog.Description>
