@@ -1,16 +1,17 @@
 'use client';
 import * as React from 'react';
+import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
+import { useTimeout } from '@base-ui-components/utils/useTimeout';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useScrollAreaRootContext } from '../root/ScrollAreaRootContext';
 import { ScrollAreaViewportContext } from './ScrollAreaViewportContext';
 import { useRenderElement } from '../../utils/useRenderElement';
-import { useEventCallback } from '../../utils/useEventCallback';
 import { useDirection } from '../../direction-provider/DirectionContext';
 import { getOffset } from '../utils/getOffset';
 import { MIN_THUMB_SIZE } from '../constants';
 import { clamp } from '../../utils/clamp';
 import { styleDisableScrollbar } from '../../utils/styles';
-import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { onVisible } from '../utils/onVisible';
 
 /**
@@ -44,6 +45,7 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
   const direction = useDirection();
 
   const programmaticScrollRef = React.useRef(true);
+  const scrollEndTimeout = useTimeout();
 
   const computeThumbPosition = useEventCallback(() => {
     const viewportEl = viewportRef.current;
@@ -162,7 +164,7 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
     });
   });
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     if (!viewportRef.current) {
       return undefined;
     }
@@ -171,12 +173,12 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
     return cleanup;
   }, [computeThumbPosition, viewportRef]);
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     // Wait for scrollbar-related refs to be set
     queueMicrotask(computeThumbPosition);
   }, [computeThumbPosition, hiddenState, direction]);
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     // `onMouseEnter` doesn't fire upon load, so we need to check if the viewport is already
     // being hovered.
     if (viewportRef.current?.matches(':hover')) {
@@ -227,7 +229,15 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
         });
       }
 
-      programmaticScrollRef.current = true;
+      // Debounce the restoration of the programmatic flag so that it only
+      // flips back to `true` once scrolling has come to a rest. This ensures
+      // that momentum scrolling (where no further user-interaction events fire)
+      // is still treated as user-driven.
+      // 100 ms without scroll events ≈ scroll end
+      // https://developer.mozilla.org/en-US/docs/Web/API/Element/scrollend_event
+      scrollEndTimeout.start(100, () => {
+        programmaticScrollRef.current = true;
+      });
     },
     onWheel: handleUserInteraction,
     onTouchMove: handleUserInteraction,

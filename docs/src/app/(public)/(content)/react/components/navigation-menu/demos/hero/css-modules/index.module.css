@@ -121,12 +121,8 @@
   transition-property: opacity, transform, width, height;
   transition-duration: var(--duration);
   transition-timing-function: var(--easing);
-  width: 100%;
+  width: var(--popup-width);
   height: var(--popup-height);
-
-  @media (min-width: 500px) {
-    width: var(--popup-width);
-  }
 
   &[data-starting-style],
   &[data-ending-style] {
@@ -157,6 +153,7 @@
 }
 
 .Content {
+  box-sizing: border-box;
   transition:
     opacity calc(var(--duration) * 0.5) ease,
     transform var(--duration) var(--easing);

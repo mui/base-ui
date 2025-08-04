@@ -1,9 +1,9 @@
 import * as ReactDOM from 'react-dom';
-import { useModernLayoutEffect } from '../utils/useModernLayoutEffect';
+import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
+import { useLatestRef } from '@base-ui-components/utils/useLatestRef';
 import { getCombinedFieldValidityData } from './utils/getCombinedFieldValidityData';
 import { useFormContext } from '../form/FormContext';
 import { useFieldRootContext } from './root/FieldRootContext';
-import { useLatestRef } from '../utils/useLatestRef';
 
 export function useField(params: useField.Parameters) {
   const { formRef } = useFormContext();
@@ -12,7 +12,7 @@ export function useField(params: useField.Parameters) {
 
   const getValueRef = useLatestRef(params.getValue);
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     if (!enabled) {
       return;
     }
@@ -27,7 +27,7 @@ export function useField(params: useField.Parameters) {
     }
   }, [enabled, setValidityData, value, validityData.initialValue, getValueRef]);
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     if (!enabled) {
       return;
     }
@@ -63,6 +63,15 @@ export function useField(params: useField.Parameters) {
     validityData,
     value,
   ]);
+
+  useIsoLayoutEffect(() => {
+    const fields = formRef.current.fields;
+    return () => {
+      if (id) {
+        fields.delete(id);
+      }
+    };
+  }, [formRef, id]);
 }
 
 export namespace useField {

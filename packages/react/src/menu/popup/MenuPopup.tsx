@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { FloatingFocusManager, useFloatingTree } from '@floating-ui/react';
+import { FloatingFocusManager, useFloatingTree } from '../../floating-ui-react';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import type { MenuRoot } from '../root/MenuRoot';
 import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
@@ -42,6 +42,7 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
     onOpenChangeComplete,
     parent,
     lastOpenChangeReason,
+    rootId,
   } = useMenuRootContext();
   const { side, align, floatingContext } = useMenuPositionerContext();
 
@@ -92,6 +93,7 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
       popupProps,
       transitionStatus === 'starting' ? DISABLED_TRANSITIONS_STYLE : EMPTY_OBJECT,
       elementProps,
+      { 'data-rootownerid': rootId } as Record<string, string>,
     ],
   });
 

@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { FloatingPortal } from '@floating-ui/react';
+import { FloatingPortal, FloatingPortalProps } from '../../floating-ui-react';
 import { useAlertDialogRootContext } from '../root/AlertDialogRootContext';
 import { AlertDialogPortalContext } from './AlertDialogPortalContext';
 
@@ -38,6 +38,6 @@ export namespace AlertDialogPortal {
     /**
      * A parent element to render the portal element into.
      */
-    container?: HTMLElement | null | React.RefObject<HTMLElement | null>;
+    container?: FloatingPortalProps['root'];
   }
 }

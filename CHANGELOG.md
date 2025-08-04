@@ -1,5 +1,300 @@
 # Versions
 
+## v1.0.0-beta.2
+
+_Jul 30, 2025_
+
+### General changes
+
+- Fix navigator checks and ensure safe platform retrieval (#2273) by @mo36924
+- Prevent `Space` key default on keydown (#2295) by @atomiks
+- Check for `performance` existence on server (#2316) by @atomiks
+
+### Accordion
+
+- Destructure `render` prop (#2280) by @atomiks
+- Fix keyboard interactions with elements in the panel (#2321) by @mj12albert
+- Fix open transitions in Safari/Firefox (#2327) by @atomiks
+
+### Alert Dialog
+
+- Support `ShadowRoot` containers (#2236) by @atomiks
+- Add `forceRender` prop to `Backdrop` part (#2037) by @atomiks
+- Improve outside press behavior with touch input (#2334) by @atomiks
+
+### Checkbox
+
+- Fix focusing form controls with `inputRef` (#2252) by @mj12albert
+
+### Collapsible
+
+- Destructure render prop (#2323) by @atomiks
+- Fix open transitions in Safari/Firefox (#2327) by @atomiks
+
+### Dialog
+
+- Support `ShadowRoot` containers (#2236) by @atomiks
+- Add `forceRender` prop to `Backdrop` part (#2037) by @atomiks
+- Improve outside press behavior with touch input (#2334) by @atomiks
+- Use `click` event for outside press dismissal (#2275) by @atomiks
+
+### Field
+
+- Deregister fields from `Form` when unmounting (#2231) by @mj12albert
+
+### Form
+
+- Deregister fields from `Form` when unmounting (#2231) by @mj12albert
+
+### Menu
+
+- Support `ShadowRoot` containers (#2236) by @atomiks
+- Avoid double `useRenderElement` passes (#2256) by @atomiks
+- Improve outside press behavior with touch input (#2334) by @atomiks
+- Close submenus when focus is lost by shift-tabbing (#2290) by @michaldudak
+
+### Menubar
+
+- Fix triggers role (#2317) by @atomiks
+
+### Meter
+
+- Fix ARIA attributes and update docs (#2267) by @mj12albert
+
+### Navigation Menu
+
+- **Breaking change:** Support inlined nesting.
+  Ensure the popup's `width` is set to `var(--popup-width)` unconditionally (without the media query) on the `.Popup` class.
+  (#2269) by @atomiks
+- Avoid double `useRenderElement` passes (#2256) by @atomiks
+- Add `useButton` integration to `Trigger` (#2296) by @atomiks
+- Fix popup size transitions on iOS (#2387) by @atomiks
+
+### Number Field
+
+- Remove `invalid` prop (#2315) by @atomiks
+- Fix button disabled state only including root disabled state (#2268) by @mj12albert
+
+### Popover
+
+- Support `ShadowRoot` containers (#2236) by @atomiks
+- Remove ancestor nodes from inside elements for outside press detection (#2339) by @atomiks
+- Improve outside press behavior with touch input (#2334) by @atomiks
+- Use `click` event for outside press dismissal (#2275) by @atomiks
+
+### Preview Card
+
+- Support `ShadowRoot` containers (#2236) by @atomiks
+
+### Progress
+
+- Fix ARIA attributes and update docs (#2267) by @mj12albert
+
+### Radio Group
+
+- Add aria-required attribute (#2227) by @cgatian
+- Extend state with `FieldRoot.State` (#2251) by @mj12albert
+- Fix focusing form controls with `inputRef` (#2252) by @mj12albert
+- Avoid double `useRenderElement` passes (#2256) by @atomiks
+
+### Scroll Area
+
+- Disable `user-select` on scrollbar and non-main button interactions (#2338) by @atomiks
+
+### Select
+
+- Support `ShadowRoot` containers (#2236) by @atomiks
+- Add `value` and `readOnly` to `Select.Trigger` state (#2237) by @atomiks
+- Add `multiple` prop (#2173) by @atomiks
+- Allow typeahead while open for `multiple` mode (#2274) by @atomiks
+- Ensure positionerElement is available in document mouseup (#2276) by @atomiks
+- Fix `alignItemWithTrigger` fallback scroll jump (#2241) by @atomiks
+- Support conditional `multiple` prop in types (#2369) by @atomiks
+- Fix multiple ARIA behavior on touch (#2333) by @atomiks
+- Improve outside press behavior with touch input (#2334) by @atomiks
+
+### Slider
+
+- Fix focusing form controls with `inputRef` (#2252) by @mj12albert
+
+### Toast
+
+- Fix `promise` method timeout option handling (#2294) by @atomiks
+- Make `Toast.Viewport` an announce container (#2246) by @atomiks
+
+### Toggle
+
+- Avoid double `useRenderElement` passes (#2256) by @atomiks
+
+### Toggle Group
+
+- Avoid double `useRenderElement` passes (#2256) by @atomiks
+
+### Toolbar
+
+- Avoid double `useRenderElement` passes (#2256) by @atomiks
+
+### Tooltip
+
+- Support `ShadowRoot` containers (#2236) by @atomiks
+- Memoize leftover object in tooltip (#2250) by @sai6855
+- Fix error when combining `defaultOpen` and `disabled` (#2374) by @atomiks
+
+All contributors of this release in alphabetical order: @aelfannir, @atomiks, @brijeshb42, @cgatian, @Janpot, @michaldudak, @mj12albert, @mo36924, @romgrk, @sai6855
+
+## v1.0.0-beta.1
+
+_Jul 1, 2025_
+
+### General changes
+
+- Make error messages consistent (#2049) by @michaldudak
+- Do not overwrite event handler when `undefined` is passed explicitly (#2151) by @michaldudak
+
+### Accordion
+
+- Allow content to resize naturally (#2043) by @atomiks
+- Fix transition status mapping (#2169) by @atomiks
+- Fix `aria-controls` reference (#2170) by @atomiks
+- Fix test warning about mixed animation types (#2180) by @atomiks
+
+### Checkbox
+
+- **Breaking change:** Support implicit `Field.Label`.
+  If `Field.Label` encloses Switch/Checkbox/Radio, the `htmlFor`/`id` attributes are no longer explicitly set to associate them.
+  (#2036) by @mj12albert
+- Refactor to `useRenderElement` (#2053) by @mj12albert
+- Always set `id` on the `<input>` element (#2115) by @mj12albert
+
+### Checkbox Group
+
+- Fix `onCheckedChange` not running when parent checkbox is present (#2155) by @mj12albert
+
+### Collapsible
+
+- Allow content to resize naturally (#2043) by @atomiks
+- Fix `aria-controls` reference (#2170) by @atomiks
+- Fix test warning about mixed animation types (#2180) by @atomiks
+
+### Context Menu
+
+- **Breaking change:** Add `SubmenuRoot` part.
+  Nested menus should be defined with `Menu.SubmenuRoot` instead of `Menu.Root` to to avoid ambiguity.
+  (#2042) by @atomiks
+- Fix CheckboxItemIndicator export (#2009) by @aarongarciah
+
+### Dialog
+
+- Fix popup prop merging (#2119) by @atomiks
+
+### Field
+
+- **Breaking change:** Support implicit `Field.Label`.
+  If `Field.Label` encloses Switch/Checkbox/Radio, the `htmlFor`/`id` attributes are no longer explicitly set to associate them.
+  (#2036) by @mj12albert
+- Enable custom validation based on other form values (#1941) by @mj12albert
+- Fix `onValueChange` `value` type (#2112) by @atomiks
+- Fix `Field.Label` focusing trigger (#2118) by @atomiks
+- Fix slider field label (#2154) by @mj12albert
+
+### Fieldset
+
+- Refactor to `useRenderElement` (#2053) by @mj12albert
+
+### Form
+
+- Enable custom validation based on other form values (#1941) by @mj12albert
+
+### Input
+
+- Fix `onValueChange` `value` type (#2112) by @atomiks
+
+### Menu
+
+- **Breaking change:** Add `SubmenuRoot` part.
+  Nested menus should be defined with `Menu.SubmenuRoot` instead of `Menu.Root` to to avoid ambiguity.
+  (#2042) by @atomiks
+- Unset `role` from Trigger (#2047) by @atomiks
+- Emit `close` event on `cancel-open` (#2067) by @atomiks
+- Fix close toggle when rendering non-native button (#2071) by @atomiks
+- Add `highlighted` to item `State` (#2079) by @atomiks
+- Remove highlighted effect (#2162) by @atomiks
+- Cut out internal backdrop to allow interacting with triggers (#2141) by @michaldudak
+- Fix active index sync on hover (#2163) by @atomiks
+- Fix focus returning to root when submenus have exit transitions (#2163) by @atomiks
+
+### Menubar
+
+- Fix `closeOnClick: false` not working in nested menus (#2094) by @michaldudak
+
+### Navigation Menu
+
+- Handle layout resize while open (#2070) by @atomiks
+- Fix positioner height when opening menu using the keyboard arrows (#2060) by @juliomerisio
+
+### Number Field
+
+- Ensure `onValueChange` is called with already-formatted parsed value (#1905) by @atomiks
+- Fix revalidation on change (#2174) by @atomiks
+
+### Popover
+
+- Fix close toggle when rendering non-native button (#2071) by @atomiks
+- Cut out internal backdrop to allow interacting with triggers (#2141) by @michaldudak
+
+### Radio Group
+
+- **Breaking change:** Support implicit `Field.Label`.
+  If `Field.Label` encloses Radio, the `htmlFor`/`id` attributes are no longer explicitly set to associate them.
+  (#2036) by @mj12albert
+- Refactor to `useRenderElement` (#2053) by @mj12albert
+
+### Scroll Area
+
+- Ignore `data-scrolling` during programmatic scroll (#1908) by @atomiks
+
+### Select
+
+- **Breaking change:** Print raw value in `Select.Value`.
+  `<Select.Value>` now prints the raw value by default unless an `items` prop is specified on `Select.Root`.
+  See https://base-ui.com/react/components/select#formatting-the-value for more information.
+  (#2087) by @atomiks
+- Performance: avoid re-renders (#1961) by @romgrk
+- Fix close toggle when rendering non-native button (#2071) by @atomiks
+- Fix `Field.Label` focusing trigger (#2118) by @atomiks
+- Fix programmatic value changes and autofill handling (#2084) by @atomiks
+- Add `highlighted` to item `State` (#2079) by @atomiks
+- Cut out internal backdrop to allow interacting with triggers (#2141) by @michaldudak
+- Pass `value` as state (#2153) by @atomiks
+- Extend `FieldRoot.State` type (#2192) by @atomiks
+
+### Slider
+
+- Use pointer capture when dragging (#2059) by @mj12albert
+- Fix slider field label (#2154) by @mj12albert
+
+### Switch
+
+- **Breaking change:** Support implicit `Field.Label`.
+  If `Field.Label` encloses Switch, the `htmlFor`/`id` attributes are no longer explicitly set to associate them.
+  (#2036) by @mj12albert
+
+### Tabs
+
+- Fix indicator positioning when TabsList overflows (#2093) by @mj12albert
+- Fix focus going out of sync when selected value is changed externally (#2107) by @atomiks
+- Remove highlighted state (#2164) by @atomiks
+
+### Toolbar
+
+- Set `disabled` attr on toolbar button when `focusableWhenDisabled={false}` (#2176) by @mj12albert
+
+### useRender
+
+- Make useRender RSC-friendly (#2134) by @michaldudak
+
+All contributors of this release in alphabetical order: @aarongarciah, @atomiks, @bernardobelchior, @brijeshb42, @Janpot, @juliomerisio, @lesha1201, @michaldudak, @mj12albert, @oliviertassinari, @romgrk
+
 ## v1.0.0-beta.0
 
 _May 29, 2025_
@@ -451,7 +746,7 @@ _Mar 20, 2025_
 - [test] Fix flaky browser tests (#1371) @atomiks
 - [test] Update vitest to ^3 (#1453) @michaldudak
 - [test] Skip flaky FieldRoot tests in real browsers (#1446) @michaldudak
-- [useForkRef] Support ref cleanup functions (#1553) @atomiks
+- [useMergedRefs] Support ref cleanup functions (#1553) @atomiks
 - [utils] Change order of args in `mergeReactProps` (#1533) @mnajdova
 
 ## v1.0.0-alpha.6

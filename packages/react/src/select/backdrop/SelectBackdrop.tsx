@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { useStore } from '@base-ui-components/utils/store';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import { popupStateMapping } from '../../utils/popupStateMapping';
@@ -7,7 +8,6 @@ import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import { transitionStatusMapping } from '../../utils/styleHookMapping';
 import { useRenderElement } from '../../utils/useRenderElement';
-import { useSelector } from '../../utils/store';
 import { selectors } from '../store';
 
 const customStyleHookMapping: CustomStyleHookMapping<SelectBackdrop.State> = {
@@ -29,9 +29,9 @@ export const SelectBackdrop = React.forwardRef(function SelectBackdrop(
 
   const { store } = useSelectRootContext();
 
-  const open = useSelector(store, selectors.open);
-  const mounted = useSelector(store, selectors.mounted);
-  const transitionStatus = useSelector(store, selectors.transitionStatus);
+  const open = useStore(store, selectors.open);
+  const mounted = useStore(store, selectors.mounted);
+  const transitionStatus = useStore(store, selectors.transitionStatus);
 
   const state: SelectBackdrop.State = React.useMemo(
     () => ({

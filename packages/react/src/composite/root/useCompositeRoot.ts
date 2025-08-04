@@ -1,10 +1,12 @@
 'use client';
 import * as React from 'react';
-import { activeElement } from '@floating-ui/react/utils';
+import { isElementDisabled } from '@base-ui-components/utils/isElementDisabled';
+import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
+import { ownerDocument } from '@base-ui-components/utils/owner';
+import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
+import { activeElement } from '../../floating-ui-react/utils';
 import type { TextDirection } from '../../direction-provider/DirectionContext';
-import { isElementDisabled } from '../../utils/isElementDisabled';
-import { useEventCallback } from '../../utils/useEventCallback';
-import { useForkRef } from '../../utils/useForkRef';
 import {
   ALL_KEYS,
   ARROW_DOWN,
@@ -36,8 +38,6 @@ import {
 import { ACTIVE_COMPOSITE_ITEM } from '../constants';
 import { CompositeMetadata } from '../list/CompositeList';
 import { HTMLProps } from '../../utils/types';
-import { ownerDocument } from '../../utils/owner';
-import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 
 export interface UseCompositeRootParameters {
   orientation?: 'horizontal' | 'vertical' | 'both';
@@ -98,7 +98,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
   const isGrid = cols > 1;
 
   const rootRef = React.useRef<HTMLElement | null>(null);
-  const mergedRef = useForkRef(rootRef, externalRef);
+  const mergedRef = useMergedRefs(rootRef, externalRef);
 
   const elementsRef = React.useRef<Array<HTMLDivElement | null>>([]);
   const hasSetDefaultIndexRef = React.useRef(false);
@@ -115,7 +115,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
   // Ensure external controlled updates moves focus to the highlighted item
   // if focus is currently inside the list.
   // https://github.com/mui/base-ui/issues/2101
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     const activeEl = activeElement(ownerDocument(rootRef.current)) as HTMLDivElement | null;
     if (elementsRef.current.includes(activeEl)) {
       const focusedItem = elementsRef.current[highlightedIndex];
@@ -366,12 +366,12 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
   );
 }
 
-function isModifierKeySet(event: React.KeyboardEvent<any>, ignoredModifierKeys: ModifierKey[]) {
+function isModifierKeySet(event: React.KeyboardEvent, ignoredModifierKeys: ModifierKey[]) {
   for (const key of MODIFIER_KEYS.values()) {
-    if (ignoredModifierKeys.includes(key as any)) {
+    if (ignoredModifierKeys.includes(key)) {
       continue;
     }
-    if (event.getModifierState(key as any)) {
+    if (event.getModifierState(key)) {
       return true;
     }
   }

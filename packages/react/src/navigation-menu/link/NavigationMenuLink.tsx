@@ -1,14 +1,13 @@
 'use client';
 import * as React from 'react';
-import { useFloatingTree } from '@floating-ui/react';
-import type { BaseUIComponentProps } from '../../utils/types';
-import { useRenderElement } from '../../utils/useRenderElement';
-import { CompositeItem } from '../../composite/item/CompositeItem';
+import { useFloatingTree } from '../../floating-ui-react';
+import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import {
   useNavigationMenuRootContext,
   useNavigationMenuTreeContext,
 } from '../root/NavigationMenuRootContext';
 import { isOutsideMenuEvent } from '../utils/isOutsideMenuEvent';
+import { CompositeItem } from '../../composite/item/CompositeItem';
 
 /**
  * A link in the navigation menu that can be used to navigate to a different page or section.
@@ -22,33 +21,38 @@ export const NavigationMenuLink = React.forwardRef(function NavigationMenuLink(
 ) {
   const { className, render, ...elementProps } = componentProps;
 
-  const { setValue, popupElement, rootRef } = useNavigationMenuRootContext();
+  const { setValue, popupElement, positionerElement, rootRef } = useNavigationMenuRootContext();
   const nodeId = useNavigationMenuTreeContext();
   const tree = useFloatingTree();
 
-  const element = useRenderElement('a', componentProps, {
-    ref: forwardedRef,
-    props: [
-      {
-        onBlur(event) {
-          if (
-            isOutsideMenuEvent(
-              {
-                currentTarget: event.currentTarget,
-                relatedTarget: event.relatedTarget as HTMLElement | null,
-              },
-              { popupElement, rootRef, tree, nodeId },
-            )
-          ) {
-            setValue(null, event.nativeEvent, undefined);
-          }
-        },
-      },
-      elementProps,
-    ],
-  });
+  const defaultProps: HTMLProps = {
+    tabIndex: undefined,
+    onBlur(event) {
+      if (
+        positionerElement &&
+        popupElement &&
+        isOutsideMenuEvent(
+          {
+            currentTarget: event.currentTarget,
+            relatedTarget: event.relatedTarget as HTMLElement | null,
+          },
+          { popupElement, rootRef, tree, nodeId },
+        )
+      ) {
+        setValue(null, event.nativeEvent, 'focus-out');
+      }
+    },
+  };
 
-  return <CompositeItem render={element} tabIndex={undefined} />;
+  return (
+    <CompositeItem
+      tag="a"
+      render={render}
+      className={className}
+      refs={[forwardedRef]}
+      props={[defaultProps, elementProps]}
+    />
+  );
 });
 
 export namespace NavigationMenuLink {

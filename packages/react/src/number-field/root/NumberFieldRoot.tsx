@@ -1,23 +1,23 @@
 'use client';
 import * as React from 'react';
+import { useControlled } from '@base-ui-components/utils/useControlled';
+import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useTimeout } from '@base-ui-components/utils/useTimeout';
+import { useInterval } from '@base-ui-components/utils/useInterval';
+import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
+import { useLatestRef } from '@base-ui-components/utils/useLatestRef';
+import { useForcedRerendering } from '@base-ui-components/utils/useForcedRerendering';
+import { ownerDocument, ownerWindow } from '@base-ui-components/utils/owner';
+import { isIOS } from '@base-ui-components/utils/detectBrowser';
 import { InputMode, NumberFieldRootContext } from './NumberFieldRootContext';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import type { BaseUIComponentProps } from '../../utils/types';
 import type { FieldRoot } from '../../field/root/FieldRoot';
 import { styleHookMapping } from '../utils/styleHooks';
 import { useRenderElement } from '../../utils/useRenderElement';
-import { useControlled } from '../../utils/useControlled';
-import { useEventCallback } from '../../utils/useEventCallback';
-import { useTimeout } from '../../utils/useTimeout';
-import { useInterval } from '../../utils/useInterval';
 import { getNumberLocaleDetails, PERCENTAGES } from '../utils/parse';
 import { formatNumber, formatNumberMaxPrecision } from '../../utils/formatNumber';
-import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
-import { useLatestRef } from '../../utils/useLatestRef';
-import { useForcedRerendering } from '../../utils/useForcedRerendering';
 import { useBaseUiId } from '../../utils/useBaseUiId';
-import { ownerDocument, ownerWindow } from '../../utils/owner';
-import { isIOS } from '../../utils/detectBrowser';
 import { CHANGE_VALUE_TICK_DELAY, DEFAULT_STEP, START_AUTO_CHANGE_DELAY } from '../utils/constants';
 import { toValidatedNumber } from '../utils/validate';
 import { EventWithOptionalKeyState } from '../utils/types';
@@ -82,7 +82,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
 
   const id = useBaseUiId(idProp);
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     setControlId(id);
     return () => {
       setControlId(undefined);
@@ -99,7 +99,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
   const value = valueUnwrapped ?? null;
   const valueRef = useLatestRef(value);
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     setFilled(value !== null);
   }, [setFilled, value]);
 
@@ -116,7 +116,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
   const allowInputSyncRef = React.useRef(true);
   const unsubscribeFromGlobalContextMenuRef = React.useRef<() => void>(() => {});
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     if (validityData.initialValue === null && value !== validityData.initialValue) {
       setValidityData((prev) => ({ ...prev, initialValue: value }));
     }
@@ -179,9 +179,15 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
       setValueUnwrapped(validatedValue);
       setDirty(validatedValue !== validityData.initialValue);
 
-      // We need to force a re-render, because while the value may be unchanged, the formatting may
-      // be different. This forces the `useModernLayoutEffect` to run which acts as a single source of
-      // truth to sync the input value.
+      // Keep the visible input in sync immediately when programmatic changes occur
+      // (increment/decrement, wheel, etc). During direct typing we don't want
+      // to overwrite the user-provided text until blur, so we gate on
+      // `allowInputSyncRef`.
+      if (allowInputSyncRef.current) {
+        setInputValue(formatNumber(validatedValue, locale, format));
+      }
+
+      // Formatting can change even if the numeric value hasn't, so ensure a re-render when needed.
       forceRender();
     },
   );
@@ -261,7 +267,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
   // ESLint is disabled because it needs to run even if the parsed value hasn't changed, since the
   // value still can be formatted differently.
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  useModernLayoutEffect(function syncFormattedInputValueOnValueChange() {
+  useIsoLayoutEffect(function syncFormattedInputValueOnValueChange() {
     // This ensures the value is only updated on blur rather than every keystroke, but still
     // allows the input value to be updated when the value is changed externally.
     if (!allowInputSyncRef.current) {
@@ -278,7 +284,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
     }
   });
 
-  useModernLayoutEffect(
+  useIsoLayoutEffect(
     function setDynamicInputModeForIOS() {
       if (!isIOS) {
         return;
@@ -484,11 +490,6 @@ export namespace NumberFieldRoot {
      * @default false
      */
     disabled?: boolean;
-    /**
-     * Whether the field is forcefully marked as invalid.
-     * @default false
-     */
-    invalid?: boolean;
     /**
      * Whether the user should be unable to change the field value.
      * @default false

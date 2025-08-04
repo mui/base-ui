@@ -111,6 +111,10 @@ export const ScrollAreaScrollbar = React.forwardRef(function ScrollAreaScrollbar
   const props: HTMLProps = {
     ...(rootId && { 'data-id': `${rootId}-scrollbar` }),
     onPointerDown(event) {
+      if (event.button !== 0) {
+        return;
+      }
+
       // Ignore clicks on thumb
       if (event.currentTarget !== event.target) {
         return;
@@ -177,6 +181,8 @@ export const ScrollAreaScrollbar = React.forwardRef(function ScrollAreaScrollbar
     style: {
       position: 'absolute',
       touchAction: 'none',
+      WebkitUserSelect: 'none',
+      userSelect: 'none',
       ...(orientation === 'vertical' && {
         top: 0,
         bottom: `var(${ScrollAreaRootCssVars.scrollAreaCornerHeight})`,

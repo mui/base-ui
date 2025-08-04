@@ -12,10 +12,12 @@ describe('<Menu.Trigger />', () => {
   const user = userEvent.setup();
 
   describeConformance(<Menu.Trigger />, () => ({
+    refInstanceof: window.HTMLButtonElement,
+    testComponentPropWith: 'button',
+    button: true,
     render: (node) => {
       return render(<Menu.Root open>{node}</Menu.Root>);
     },
-    refInstanceof: window.HTMLButtonElement,
   }));
 
   describe('prop: disabled', () => {
@@ -156,6 +158,7 @@ describe('<Menu.Trigger />', () => {
       const trigger = screen.getByRole('button');
 
       await act(async () => {
+        // eslint-disable-next-line testing-library/no-node-access
         trigger.click();
       });
 

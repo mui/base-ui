@@ -1,19 +1,21 @@
 'use client';
 import * as React from 'react';
+import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
+import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
+import { visuallyHidden } from '@base-ui-components/utils/visuallyHidden';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { NOOP } from '../../utils/noop';
-import type { BaseUIComponentProps } from '../../utils/types';
-import { useForkRef } from '../../utils/useForkRef';
-import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
+import type { BaseUIComponentProps, NativeButtonProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
-import { visuallyHidden } from '../../utils/visuallyHidden';
 import { useButton } from '../../use-button';
 import { ACTIVE_COMPOSITE_ITEM } from '../../composite/constants';
 import { CompositeItem } from '../../composite/item/CompositeItem';
+import type { FieldRoot } from '../../field/root/FieldRoot';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { customStyleHookMapping } from '../utils/customStyleHookMapping';
 import { useRadioGroupContext } from '../../radio-group/RadioGroupContext';
 import { RadioRootContext } from './RadioRootContext';
+import { EMPTY_OBJECT } from '../../utils/constants';
 
 /**
  * Represents the radio button itself.
@@ -61,9 +63,9 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
   const checked = checkedValue === value;
 
   const inputRef = React.useRef<HTMLInputElement>(null);
-  const ref = useForkRef(inputRefProp, inputRef);
+  const ref = useMergedRefs(inputRefProp, inputRef);
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     if (inputRef.current?.checked) {
       setFilled(true);
     }
@@ -172,28 +174,48 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
 
   const contextValue: RadioRootContext = React.useMemo(() => state, [state]);
 
+  const isRadioGroup = setCheckedValue !== NOOP;
+
+  const refs = [forwardedRef, registerControlRef, buttonRef];
+  const props = [
+    rootProps,
+    fieldControlValidation?.getValidationProps ?? EMPTY_OBJECT,
+    elementProps,
+    getButtonProps,
+  ];
+
   const element = useRenderElement('button', componentProps, {
+    enabled: !isRadioGroup,
     state,
-    ref: [forwardedRef, registerControlRef, buttonRef],
-    props: [
-      rootProps,
-      fieldControlValidation?.getValidationProps ?? undefined,
-      elementProps,
-      getButtonProps,
-    ],
+    ref: refs,
+    props,
     customStyleHookMapping,
   });
 
   return (
     <RadioRootContext.Provider value={contextValue}>
-      {setCheckedValue === NOOP ? element : <CompositeItem render={element} />}
+      {isRadioGroup ? (
+        <CompositeItem
+          tag="button"
+          render={render}
+          className={className}
+          state={state}
+          refs={refs}
+          props={props}
+          customStyleHookMapping={customStyleHookMapping}
+        />
+      ) : (
+        element
+      )}
       <input {...inputProps} />
     </RadioRootContext.Provider>
   );
 });
 
 export namespace RadioRoot {
-  export interface Props extends Omit<BaseUIComponentProps<'button', State>, 'value'> {
+  export interface Props
+    extends NativeButtonProps,
+      Omit<BaseUIComponentProps<'button', State>, 'value'> {
     /**
      * The unique identifying value of the radio in a group.
      */
@@ -217,20 +239,16 @@ export namespace RadioRoot {
      * A ref to access the hidden input element.
      */
     inputRef?: React.Ref<HTMLInputElement>;
-    /**
-     * Whether the component renders a native `<button>` element when replacing it
-     * via the `render` prop.
-     * Set to `false` if the rendered element is not a button (e.g. `<div>`).
-     * @default true
-     */
-    nativeButton?: boolean;
   }
 
-  export interface State {
+  export interface State extends FieldRoot.State {
     /**
      * Whether the radio button is currently selected.
      */
     checked: boolean;
+    /**
+     * Whether the component should ignore user interaction.
+     */
     disabled: boolean;
     /**
      * Whether the user should be unable to select the radio button.

@@ -1,23 +1,23 @@
 'use client';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
+import { useControlled } from '@base-ui-components/utils/useControlled';
+import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import {
   safePolygon,
   useDismiss,
   useHover,
   useInteractions,
   useFloatingRootContext,
-} from '@floating-ui/react';
+} from '../../floating-ui-react';
 import { PreviewCardRootContext } from './PreviewCardContext';
 import { CLOSE_DELAY, OPEN_DELAY } from '../utils/constants';
 import {
   translateOpenChangeReason,
   type BaseOpenChangeReason,
 } from '../../utils/translateOpenChangeReason';
-import { useFocusWithDelay } from '../../utils/floating-ui/useFocusWithDelay';
-import { useControlled } from '../../utils/useControlled';
+import { useFocusWithDelay } from '../../utils/interactions/useFocusWithDelay';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
-import { useEventCallback } from '../../utils/useEventCallback';
 import { useTransitionStatus } from '../../utils/useTransitionStatus';
 
 /**
@@ -191,7 +191,6 @@ export namespace PreviewCardRoot {
     open?: boolean;
     /**
      * Event handler called when the preview card is opened or closed.
-     * @type (open: boolean, event?: Event, reason?: PreviewCard.Root.OpenChangeReason) => void
      */
     onOpenChange?: (
       open: boolean,

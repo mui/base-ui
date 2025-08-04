@@ -1,5 +1,5 @@
 'use client';
-import { useId } from './useId';
+import { useId } from '@base-ui-components/utils/useId';
 
 /**
  * Wraps `useId` and prefixes generated `id`s with `base-ui-`

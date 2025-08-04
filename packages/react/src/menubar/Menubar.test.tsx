@@ -633,4 +633,56 @@ describe('<Menubar />', () => {
       });
     });
   });
+
+  it.skipIf(isJSDOM)(
+    'correctly opens new menu on hover after clicking on its trigger and entering from hover (#2222)',
+    async () => {
+      const { user } = await render(<TestMenubar />);
+
+      const fileTrigger = screen.getByTestId('file-trigger');
+      const editTrigger = screen.getByTestId('edit-trigger');
+      await user.click(fileTrigger);
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('file-menu')).to.not.equal(null);
+      });
+
+      await user.hover(editTrigger);
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('edit-menu')).to.not.equal(null);
+      });
+
+      await user.click(editTrigger);
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('edit-menu')).to.equal(null);
+      });
+
+      await user.click(fileTrigger);
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('file-menu')).to.not.equal(null);
+      });
+
+      await user.hover(editTrigger);
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('edit-menu')).to.not.equal(null);
+      });
+    },
+  );
+
+  describe('role', () => {
+    it('sets role="menubar" on the root element', async () => {
+      await render(<TestMenubar />);
+      expect(screen.queryByRole('menubar')).not.to.equal(null);
+    });
+
+    it('sets role="menuitem" on menu triggers', async () => {
+      await render(<TestMenubar />);
+      const menuItems = screen.getAllByRole('menuitem');
+      expect(menuItems).to.have.length(3);
+    });
+  });
 });

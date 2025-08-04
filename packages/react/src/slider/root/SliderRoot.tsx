@@ -1,19 +1,19 @@
 'use client';
 import * as React from 'react';
-import { activeElement } from '@floating-ui/react/utils';
-import { areArraysEqual } from '../../utils/areArraysEqual';
-import { clamp } from '../../utils/clamp';
-import { ownerDocument } from '../../utils/owner';
+import { ownerDocument } from '@base-ui-components/utils/owner';
+import { useControlled } from '@base-ui-components/utils/useControlled';
+import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
+import { useLatestRef } from '@base-ui-components/utils/useLatestRef';
+import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
+import { visuallyHidden } from '@base-ui-components/utils/visuallyHidden';
+import { warn } from '@base-ui-components/utils/warn';
 import type { BaseUIComponentProps, Orientation } from '../../utils/types';
 import { useBaseUiId } from '../../utils/useBaseUiId';
-import { useControlled } from '../../utils/useControlled';
-import { useEventCallback } from '../../utils/useEventCallback';
-import { useForkRef } from '../../utils/useForkRef';
-import { useLatestRef } from '../../utils/useLatestRef';
-import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { useRenderElement } from '../../utils/useRenderElement';
-import { visuallyHidden } from '../../utils/visuallyHidden';
-import { warn } from '../../utils/warn';
+import { clamp } from '../../utils/clamp';
+import { areArraysEqual } from '../../utils/areArraysEqual';
+import { activeElement } from '../../floating-ui-react/utils';
 import { CompositeList, type CompositeMetadata } from '../../composite/list/CompositeList';
 import type { FieldRoot } from '../../field/root/FieldRoot';
 import { useField } from '../../field/useField';
@@ -87,7 +87,6 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
     state: fieldState,
     disabled: fieldDisabled,
     name: fieldName,
-    setControlId,
     setTouched,
     setDirty,
     validityData,
@@ -111,7 +110,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
   const sliderRef = React.useRef<HTMLElement>(null);
   const controlRef = React.useRef<HTMLElement>(null);
   const thumbRefs = React.useRef<(HTMLElement | null)[]>([]);
-  const inputRef = useForkRef(inputRefProp, fieldControlValidation.inputRef);
+  const inputRef = useMergedRefs(inputRefProp, fieldControlValidation.inputRef);
   const lastChangedValueRef = React.useRef<number | readonly number[] | null>(null);
   const formatOptionsRef = useLatestRef(format);
 
@@ -123,13 +122,6 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
   const [thumbMap, setThumbMap] = React.useState(
     () => new Map<Node, CompositeMetadata<ThumbMetadata> | null>(),
   );
-
-  useModernLayoutEffect(() => {
-    setControlId(id);
-    return () => {
-      setControlId(undefined);
-    };
-  }, [id, setControlId]);
 
   useField({
     id,
@@ -204,7 +196,12 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
     },
   );
 
-  useModernLayoutEffect(() => {
+  const handleHiddenInputFocus = useEventCallback(() => {
+    // focus the first thumb if the hidden input receives focus
+    thumbRefs.current?.[0]?.focus();
+  });
+
+  useIsoLayoutEffect(() => {
     if (valueProp === undefined || dragging) {
       return;
     }
@@ -214,7 +211,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
     }
   }, [dragging, min, max, valueProp]);
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     const activeEl = activeElement(ownerDocument(sliderRef.current));
     if (disabled && sliderRef.current?.contains(activeEl)) {
       // This is necessary because Firefox and Safari will keep focus
@@ -340,12 +337,14 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
               <input
                 key={`${name}-input-${index}`}
                 {...fieldControlValidation.getInputValidationProps({
-                  type: 'hidden',
                   disabled,
                   name,
                   ref: inputRef,
                   value,
+                  onFocus: handleHiddenInputFocus,
                   style: visuallyHidden,
+                  tabIndex: -1,
+                  'aria-hidden': true,
                 })}
               />
             );
@@ -353,12 +352,14 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
         ) : (
           <input
             {...fieldControlValidation.getInputValidationProps({
-              type: 'hidden',
               disabled,
               name,
               ref: inputRef,
               value: valueUnwrapped,
+              onFocus: handleHiddenInputFocus,
               style: visuallyHidden,
+              tabIndex: -1,
+              'aria-hidden': true,
             })}
           />
         )}
@@ -490,8 +491,6 @@ export namespace SliderRoot {
      * @param {Event} event The corresponding event that initiated the change.
      * You can pull out the new value by accessing `event.target.value` (any).
      * @param {number} activeThumbIndex Index of the currently moved thumb.
-     *
-     * @type {((value: (number | number[]), event: Event, activeThumbIndex: number) => void)}
      */
     onValueChange?: (
       value: Value extends number ? number : Value,
@@ -504,8 +503,6 @@ export namespace SliderRoot {
      * @param {number | number[]} value The new value.
      * @param {Event} event The corresponding event that initiated the change.
      * **Warning**: This is a generic event not a change event.
-     *
-     * @type {((value: (number | number[]), event: Event) => void)}
      */
     onValueCommitted?: (value: Value extends number ? number : Value, event: Event) => void;
   }

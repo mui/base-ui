@@ -1,11 +1,14 @@
 'use client';
 import * as React from 'react';
-import { FloatingEvents } from '@floating-ui/react';
+import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
+import { FloatingEvents } from '../../floating-ui-react';
 import { useButton } from '../../use-button';
 import { mergeProps } from '../../merge-props';
 import { HTMLProps, BaseUIEvent } from '../../utils/types';
-import { useForkRef, useModernLayoutEffect } from '../../utils';
-import { addHighlight, removeHighlight } from '../../utils/highlighted';
+
+export const REGULAR_ITEM = {
+  type: 'regular-item' as const,
+};
 
 export function useMenuItem(params: useMenuItem.Parameters): useMenuItem.ReturnValue {
   const {
@@ -17,7 +20,7 @@ export function useMenuItem(params: useMenuItem.Parameters): useMenuItem.ReturnV
     allowMouseUpTriggerRef,
     typingRef,
     nativeButton,
-    submenuTrigger,
+    itemMetadata,
   } = params;
 
   const itemRef = React.useRef<HTMLElement | null>(null);
@@ -28,14 +31,6 @@ export function useMenuItem(params: useMenuItem.Parameters): useMenuItem.ReturnV
     native: nativeButton,
   });
 
-  useModernLayoutEffect(() => {
-    if (highlighted) {
-      addHighlight(itemRef);
-    } else {
-      removeHighlight(itemRef);
-    }
-  }, [highlighted]);
-
   const getItemProps = React.useCallback(
     (externalProps?: HTMLProps): HTMLProps => {
       return mergeProps(
@@ -43,6 +38,13 @@ export function useMenuItem(params: useMenuItem.Parameters): useMenuItem.ReturnV
           id,
           role: 'menuitem',
           tabIndex: highlighted ? 0 : -1,
+          onMouseEnter() {
+            if (itemMetadata.type !== 'submenu-trigger') {
+              return;
+            }
+
+            itemMetadata.setActive();
+          },
           onKeyUp: (event: BaseUIEvent<React.KeyboardEvent>) => {
             if (event.key === ' ' && typingRef.current) {
               event.preventBaseUIHandler();
@@ -53,14 +55,13 @@ export function useMenuItem(params: useMenuItem.Parameters): useMenuItem.ReturnV
               menuEvents.emit('close', { domEvent: event, reason: 'item-press' });
             }
           },
-          onMouseUp: (event: React.MouseEvent) => {
+          onMouseUp: () => {
             if (itemRef.current && allowMouseUpTriggerRef.current) {
               // This fires whenever the user clicks on the trigger, moves the cursor, and releases it over the item.
               // We trigger the click and override the `closeOnClick` preference to always close the menu.
-              if (!submenuTrigger) {
+              if (itemMetadata.type === 'regular-item') {
                 itemRef.current.click();
               }
-              menuEvents.emit('close', { domEvent: event, reason: 'item-press' });
             }
           },
         },
@@ -76,11 +77,11 @@ export function useMenuItem(params: useMenuItem.Parameters): useMenuItem.ReturnV
       closeOnClick,
       menuEvents,
       allowMouseUpTriggerRef,
-      submenuTrigger,
+      itemMetadata,
     ],
   );
 
-  const mergedRef = useForkRef(itemRef, buttonRef);
+  const mergedRef = useMergedRefs(itemRef, buttonRef);
 
   return React.useMemo(
     () => ({
@@ -129,10 +130,18 @@ export namespace useMenuItem {
      */
     nativeButton: boolean;
     /**
-     * Whether the item is a submenu trigger.
+     * Additional data specific to the item type.
      */
-    submenuTrigger: boolean;
+    itemMetadata: Metadata;
   }
+
+  export type Metadata =
+    | typeof REGULAR_ITEM
+    | {
+        type: 'submenu-trigger';
+        setActive: () => void;
+        allowMouseEnterEnabled: boolean;
+      };
 
   export interface ReturnValue {
     /**

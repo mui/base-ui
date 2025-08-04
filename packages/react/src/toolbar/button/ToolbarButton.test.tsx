@@ -11,7 +11,7 @@ import { Popover } from '@base-ui-components/react/popover';
 import { Toggle } from '@base-ui-components/react/toggle';
 import { ToggleGroup } from '@base-ui-components/react/toggle-group';
 import { screen, waitFor } from '@mui/internal-test-utils';
-import { createRenderer, describeConformance } from '#test-utils';
+import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { NOOP } from '../../utils/noop';
 import { ToolbarRootContext } from '../root/ToolbarRootContext';
 import { CompositeRootContext } from '../../composite/root/CompositeRootContext';
@@ -33,6 +33,8 @@ describe('<Toolbar.Button />', () => {
 
   describeConformance(<Toolbar.Button />, () => ({
     refInstanceof: window.HTMLButtonElement,
+    testComponentPropWith: 'button',
+    button: true,
     render: (node) => {
       return render(
         <ToolbarRootContext.Provider value={testToolbarContext}>
@@ -331,7 +333,7 @@ describe('<Toolbar.Button />', () => {
         expect(trigger).to.have.attribute('aria-haspopup', 'listbox');
       });
 
-      it('handles interactions', async () => {
+      it.skipIf(!isJSDOM)('handles interactions', async () => {
         const handleValueChange = spy();
         const { getByTestId, user } = await render(
           <Toolbar.Root>

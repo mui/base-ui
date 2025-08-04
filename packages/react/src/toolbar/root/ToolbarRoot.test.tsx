@@ -115,7 +115,6 @@ describe('<Toolbar.Root />', () => {
       expect(element).to.have.attribute('data-disabled');
       expect(element).to.have.attribute('aria-disabled', 'true');
       expect(element).toHaveFocus();
-      expect(element).toHaveFocus();
     }
 
     it('toolbar items can be focused when disabled by default', async () => {
@@ -175,11 +174,15 @@ describe('<Toolbar.Root />', () => {
 
       const input = getByRole('textbox');
       const buttons = getAllByRole('button');
-      [input, ...buttons].forEach((item) => {
+      const focusableWhenDisabledButtons = buttons.filter(
+        (button) => button.getAttribute('data-focusable') != null,
+      );
+      [input, ...focusableWhenDisabledButtons].forEach((item) => {
         expect(item).to.not.have.attribute('disabled');
       });
 
-      const [button1, groupedButton1] = buttons;
+      const [button1, groupedButton1, groupedButton2] = buttons;
+      expect(groupedButton2).to.have.attribute('disabled');
 
       await user.keyboard('[Tab]');
       expect(button1).toHaveFocus();

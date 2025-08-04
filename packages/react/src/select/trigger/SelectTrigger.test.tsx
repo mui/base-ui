@@ -10,6 +10,7 @@ describe('<Select.Trigger />', () => {
 
   describeConformance(<Select.Trigger />, () => ({
     refInstanceof: window.HTMLDivElement,
+    button: true,
     render(node) {
       return render(<Select.Root open>{node}</Select.Root>);
     },
@@ -20,7 +21,7 @@ describe('<Select.Trigger />', () => {
       const { user } = await render(
         <Select.Root defaultValue="b">
           <Select.Trigger data-testid="trigger" disabled>
-            <Select.Value placeholder="b" />
+            <Select.Value />
           </Select.Trigger>
           <Select.Portal>
             <Select.Positioner>
@@ -46,7 +47,7 @@ describe('<Select.Trigger />', () => {
       await render(
         <Select.Root defaultValue="b" onOpenChange={handleOpenChange}>
           <Select.Trigger data-testid="trigger" disabled>
-            <Select.Value placeholder="b" />
+            <Select.Value />
           </Select.Trigger>
           <Select.Portal>
             <Select.Positioner>

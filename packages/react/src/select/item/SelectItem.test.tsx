@@ -9,6 +9,7 @@ describe('<Select.Item />', () => {
 
   describeConformance(<Select.Item value="" />, () => ({
     refInstanceof: window.HTMLDivElement,
+    button: true,
     render(node) {
       return render(<Select.Root open>{node}</Select.Root>);
     },
@@ -18,7 +19,7 @@ describe('<Select.Item />', () => {
     await render(
       <Select.Root>
         <Select.Trigger data-testid="trigger">
-          <Select.Value data-testid="value" placeholder="null" />
+          <Select.Value data-testid="value" />
         </Select.Trigger>
         <Select.Positioner data-testid="positioner">
           <Select.Item value="one">one</Select.Item>
@@ -30,7 +31,7 @@ describe('<Select.Item />', () => {
     const trigger = screen.getByTestId('trigger');
     const positioner = screen.getByTestId('positioner');
 
-    expect(value.textContent).to.equal('null');
+    expect(value.textContent).to.equal('');
 
     fireEvent.click(trigger);
 
@@ -45,11 +46,11 @@ describe('<Select.Item />', () => {
     expect(positioner).not.toBeVisible();
   });
 
-  it('navigating with keyboard should highlight item', async () => {
+  it.skipIf(!isJSDOM)('navigating with keyboard should focus item', async () => {
     const { user } = await render(
       <Select.Root>
         <Select.Trigger data-testid="trigger">
-          <Select.Value placeholder="value" />
+          <Select.Value />
         </Select.Trigger>
         <Select.Portal>
           <Select.Positioner>
@@ -67,25 +68,28 @@ describe('<Select.Item />', () => {
     await flushMicrotasks();
 
     await waitFor(() => {
+      expect(screen.getByRole('listbox')).not.to.equal(null);
+    });
+    await waitFor(() => {
       expect(screen.getByText('one')).toHaveFocus();
     });
 
     await user.keyboard('{ArrowDown}');
-
     await waitFor(() => {
       expect(screen.getByText('two')).toHaveFocus();
     });
+
+    await user.keyboard('{ArrowDown}');
+    await waitFor(() => {
+      expect(screen.getByText('three')).toHaveFocus();
+    });
   });
 
-  it('should select item when Enter key is pressed', async ({ skip }) => {
-    if (!isJSDOM) {
-      skip();
-    }
-
+  it.skipIf(!isJSDOM)('should select item when Enter key is pressed', async () => {
     const { user } = await render(
       <Select.Root>
         <Select.Trigger data-testid="trigger">
-          <Select.Value data-testid="value" placeholder="null" />
+          <Select.Value data-testid="value" />
         </Select.Trigger>
         <Select.Portal>
           <Select.Positioner>
@@ -114,7 +118,7 @@ describe('<Select.Item />', () => {
     await render(
       <Select.Root open>
         <Select.Trigger data-testid="trigger">
-          <Select.Value data-testid="value" placeholder="value" />
+          <Select.Value data-testid="value" />
         </Select.Trigger>
         <Select.Portal>
           <Select.Positioner>
@@ -139,7 +143,7 @@ describe('<Select.Item />', () => {
     await render(
       <Select.Root>
         <Select.Trigger data-testid="trigger">
-          <Select.Value data-testid="value" placeholder="value" />
+          <Select.Value data-testid="value" />
         </Select.Trigger>
         <Select.Portal>
           <Select.Positioner>
@@ -158,14 +162,14 @@ describe('<Select.Item />', () => {
     await flushMicrotasks();
 
     fireEvent.click(screen.getByText('two'));
-    expect(screen.getByTestId('value').textContent).to.equal('value');
+    expect(screen.getByTestId('value').textContent).to.equal('');
   });
 
   it('should focus the selected item upon opening the popup', async () => {
     const { user } = await render(
       <Select.Root>
         <Select.Trigger data-testid="trigger">
-          <Select.Value data-testid="value" placeholder="one" />
+          <Select.Value data-testid="value" />
         </Select.Trigger>
         <Select.Portal>
           <Select.Positioner>
@@ -190,83 +194,8 @@ describe('<Select.Item />', () => {
     });
   });
 
-  it('should use Select.ItemText for display value, ignoring other child content when no explicit label is provided', async () => {
-    const { user } = await render(
-      <Select.Root>
-        <Select.Trigger data-testid="trigger">
-          <Select.Value data-testid="value" placeholder="placeholder" />
-        </Select.Trigger>
-        <Select.Positioner>
-          <Select.Popup>
-            <Select.Item value="complex" data-testid="complex-item">
-              <Select.ItemText>primary</Select.ItemText>
-              <svg aria-hidden>
-                <desc>svg</desc>
-              </svg>
-              <span>secondary</span>
-            </Select.Item>
-            <Select.Item value="simple" data-testid="simple-item">
-              <Select.ItemText>other item</Select.ItemText>
-            </Select.Item>
-          </Select.Popup>
-        </Select.Positioner>
-      </Select.Root>,
-    );
-
-    expect(screen.getByTestId('value').textContent).to.equal('placeholder');
-
-    fireEvent.click(screen.getByTestId('trigger'));
-    await flushMicrotasks();
-
-    const primary = screen.getByTestId('complex-item');
-    await user.click(primary);
-
-    expect(screen.getByTestId('value').textContent).to.equal('primary');
-  });
-
-  it('should prioritize explicit item label prop over Select.ItemText for display value', async () => {
-    const { user } = await render(
-      <Select.Root>
-        <Select.Trigger data-testid="trigger">
-          <Select.Value data-testid="value" placeholder="placeholder" />
-        </Select.Trigger>
-        <Select.Positioner>
-          <Select.Popup>
-            <Select.Item value="complex" data-testid="complex-item">
-              <Select.ItemText>primary</Select.ItemText>
-              <svg aria-hidden>
-                <desc>svg</desc>
-              </svg>
-              <span>secondary</span>
-            </Select.Item>
-            <Select.Item value="simple" data-testid="simple-item">
-              <Select.ItemText>other item</Select.ItemText>
-            </Select.Item>
-          </Select.Popup>
-        </Select.Positioner>
-      </Select.Root>,
-    );
-
-    expect(screen.getByTestId('value').textContent).to.equal('placeholder');
-
-    fireEvent.click(screen.getByTestId('trigger'));
-    await flushMicrotasks();
-
-    const primary = screen.getByTestId('complex-item');
-    await user.click(primary);
-    expect(screen.getByTestId('value').textContent).to.equal('primary');
-
-    await user.keyboard('{ArrowDown}');
-    await user.click(screen.getByTestId('simple-item'));
-    expect(screen.getByTestId('value').textContent).to.equal('other item');
-  });
-
-  describe('style hooks', () => {
-    it('should apply data-highlighted attribute when item is highlighted', async ({ skip }) => {
-      if (!isJSDOM) {
-        skip();
-      }
-
+  describe.skipIf(!isJSDOM)('style hooks', () => {
+    it('should apply data-highlighted attribute when item is highlighted', async () => {
       const { user } = await render(
         <Select.Root defaultValue="a">
           <Select.Trigger data-testid="trigger" />
@@ -313,12 +242,12 @@ describe('<Select.Item />', () => {
       await flushMicrotasks();
 
       fireEvent.click(screen.getByRole('option', { name: 'a' }));
-
       await flushMicrotasks();
 
       fireEvent.click(screen.getByTestId('trigger'));
-      await flushMicrotasks();
-      expect(screen.getByRole('option', { name: 'a' })).to.have.attribute('data-selected', '');
+      await waitFor(() => {
+        expect(screen.getByRole('option', { name: 'a' })).to.have.attribute('data-selected', '');
+      });
       expect(screen.getByRole('option', { name: 'b' })).not.to.have.attribute('data-selected');
     });
   });

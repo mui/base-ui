@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { useStore } from '@base-ui-components/utils/store';
 import { useSelectPositionerContext } from '../positioner/SelectPositionerContext';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import type { BaseUIComponentProps } from '../../utils/types';
@@ -8,7 +9,6 @@ import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping';
 import { transitionStatusMapping } from '../../utils/styleHookMapping';
 import { useRenderElement } from '../../utils/useRenderElement';
-import { useSelector } from '../../utils/store';
 import { selectors } from '../store';
 
 const customStyleHookMapping: CustomStyleHookMapping<SelectArrow.State> = {
@@ -29,10 +29,10 @@ export const SelectArrow = React.forwardRef(function SelectArrow(
   const { className, render, ...elementProps } = componentProps;
 
   const { store } = useSelectRootContext();
-  const { arrowRef, side, align, arrowUncentered, arrowStyles } = useSelectPositionerContext();
+  const { side, align, arrowRef, arrowStyles, arrowUncentered, alignItemWithTriggerActive } =
+    useSelectPositionerContext();
 
-  const open = useSelector(store, selectors.open);
-  const alignItemWithTriggerActive = useSelector(store, selectors.alignItemWithTriggerActive);
+  const open = useStore(store, selectors.open, true);
 
   const state: SelectArrow.State = React.useMemo(
     () => ({

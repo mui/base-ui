@@ -1,12 +1,16 @@
 'use client';
 import * as React from 'react';
+import { getSide, getAlignment, type Rect, getSideAxis } from '@floating-ui/utils';
+import { ownerDocument } from '@base-ui-components/utils/owner';
+import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
+import { useLatestRef } from '@base-ui-components/utils/useLatestRef';
+import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import {
   autoUpdate,
   flip,
   limitShift,
   offset,
   shift,
-  arrow,
   useFloating,
   size,
   hide,
@@ -20,13 +24,9 @@ import {
   type MiddlewareState,
   type AutoUpdateOptions,
   type Middleware,
-} from '@floating-ui/react';
-import { getSide, getAlignment, type Rect, getSideAxis } from '@floating-ui/utils';
-import { useModernLayoutEffect } from './useModernLayoutEffect';
+} from '../floating-ui-react/index';
 import { useDirection } from '../direction-provider/DirectionContext';
-import { useLatestRef } from './useLatestRef';
-import { useEventCallback } from './useEventCallback';
-import { ownerDocument } from './owner';
+import { arrow } from '../floating-ui-react/middleware/arrow';
 
 function getLogicalSide(sideParam: Side, renderedSide: PhysicalSide, isRtl: boolean): Side {
   const isLogicalSideParam = sideParam === 'inline-start' || sideParam === 'inline-end';
@@ -268,6 +268,7 @@ export function useAnchorPositioning(
         // we'll create a fake element.
         element: arrowRef.current || document.createElement('div'),
         padding: arrowPadding,
+        offsetParent: 'floating',
       }),
       [arrowPadding],
     ),
@@ -367,7 +368,7 @@ export function useAnchorPositioning(
 
   const registeredPositionReferenceRef = React.useRef<Element | VirtualElement | null>(null);
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     if (!mounted) {
       return;
     }

@@ -1,7 +1,11 @@
 'use client';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
+import { useTimeout } from '@base-ui-components/utils/useTimeout';
+import { useControlled } from '@base-ui-components/utils/useControlled';
+import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import {
+  useClick,
   useDismiss,
   useFloatingRootContext,
   useHover,
@@ -9,11 +13,7 @@ import {
   useRole,
   FloatingTree,
   safePolygon,
-} from '@floating-ui/react';
-import { useClick } from '../../utils/floating-ui/useClick';
-import { useTimeout } from '../../utils/useTimeout';
-import { useControlled } from '../../utils/useControlled';
-import { useEventCallback } from '../../utils/useEventCallback';
+} from '../../floating-ui-react';
 import { useTransitionStatus } from '../../utils/useTransitionStatus';
 import { OPEN_DELAY } from '../utils/constants';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
@@ -26,6 +26,7 @@ import {
   PopoverRootContext,
   usePopoverRootContext,
 } from './PopoverRootContext';
+import { mergeProps } from '../../merge-props';
 
 function PopoverRootComponent({ props }: { props: PopoverRoot.Props }) {
   const {
@@ -58,19 +59,18 @@ function PopoverRootComponent({ props }: { props: PopoverRoot.Props }) {
   });
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
-
-  useScrollLock({
-    enabled: open && modal === true && openReason !== 'trigger-hover',
-    mounted,
-    open,
-    referenceElement: positionerElement,
-  });
+  const {
+    openMethod,
+    triggerProps,
+    reset: resetOpenInteractionType,
+  } = useOpenInteractionType(open);
 
   const handleUnmount = useEventCallback(() => {
     setMounted(false);
     setStickIfOpen(true);
     setOpenReason(null);
     onOpenChangeComplete?.(false);
+    resetOpenInteractionType();
   });
 
   useOpenChangeComplete({
@@ -139,7 +139,12 @@ function PopoverRootComponent({ props }: { props: PopoverRoot.Props }) {
     },
   });
 
-  const { openMethod, triggerProps } = useOpenInteractionType(open);
+  useScrollLock({
+    enabled: open && modal === true && openReason !== 'trigger-hover' && openMethod !== 'touch',
+    mounted,
+    open,
+    referenceElement: positionerElement,
+  });
 
   const computedRestMs = delay;
 
@@ -153,19 +158,27 @@ function PopoverRootComponent({ props }: { props: PopoverRoot.Props }) {
       close: closeDelay,
     },
   });
-  const click = useClick(floatingContext, { stickIfOpen });
-  const dismiss = useDismiss(floatingContext);
+  const click = useClick(floatingContext, {
+    stickIfOpen,
+  });
+  const dismiss = useDismiss(floatingContext, {
+    outsidePressEvent: {
+      mouse: 'intentional',
+      touch: 'sloppy',
+    },
+  });
   const role = useRole(floatingContext);
 
   const { getReferenceProps, getFloatingProps } = useInteractions([hover, click, dismiss, role]);
 
-  const popoverContext = React.useMemo(
+  const popoverContext: PopoverRootContext = React.useMemo(
     () => ({
       open,
       setOpen,
       mounted,
       setMounted,
       transitionStatus,
+      triggerElement,
       setTriggerElement,
       positionerElement,
       setPositionerElement,
@@ -174,7 +187,7 @@ function PopoverRootComponent({ props }: { props: PopoverRoot.Props }) {
       setTitleId,
       descriptionId,
       setDescriptionId,
-      triggerProps: getReferenceProps(triggerProps),
+      triggerProps: mergeProps(getReferenceProps(), triggerProps),
       popupProps: getFloatingProps(),
       floatingRootContext: floatingContext,
       instantType,
@@ -196,6 +209,7 @@ function PopoverRootComponent({ props }: { props: PopoverRoot.Props }) {
       titleId,
       descriptionId,
       getReferenceProps,
+      triggerElement,
       triggerProps,
       getFloatingProps,
       floatingContext,
@@ -252,12 +266,11 @@ export namespace PopoverRoot {
     open?: boolean;
     /**
      * Event handler called when the popover is opened or closed.
-     * @type (open: boolean, event?: Event, reason?: Popover.Root.OpenChangeReason) => void
      */
     onOpenChange?: (
       open: boolean,
       event: Event | undefined,
-      reason: PopoverOpenChangeReason | undefined,
+      reason: OpenChangeReason | undefined,
     ) => void;
     /**
      * Event handler called after any animations complete when the popover is opened or closed.

@@ -1,9 +1,9 @@
 'use client';
 import * as React from 'react';
-import { FloatingPortal } from '@floating-ui/react';
+import { useStore } from '@base-ui-components/utils/store';
+import { FloatingPortal, FloatingPortalProps } from '../../floating-ui-react';
 import { SelectPortalContext } from './SelectPortalContext';
 import { useSelectRootContext } from '../root/SelectRootContext';
-import { useSelector } from '../../utils/store';
 import { selectors } from '../store';
 
 /**
@@ -16,10 +16,10 @@ export function SelectPortal(props: SelectPortal.Props) {
   const { children, container } = props;
 
   const { store } = useSelectRootContext();
-  const mounted = useSelector(store, selectors.mounted);
-  const typeaheadReady = useSelector(store, selectors.typeaheadReady);
+  const mounted = useStore(store, selectors.mounted);
+  const forceMount = useStore(store, selectors.forceMount);
 
-  const shouldRender = mounted || typeaheadReady;
+  const shouldRender = mounted || forceMount;
   if (!shouldRender) {
     return null;
   }
@@ -37,6 +37,6 @@ export namespace SelectPortal {
     /**
      * A parent element to render the portal element into.
      */
-    container?: HTMLElement | null | React.RefObject<HTMLElement | null>;
+    container?: FloatingPortalProps['root'];
   }
 }

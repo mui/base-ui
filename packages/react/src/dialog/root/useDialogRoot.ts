@@ -1,29 +1,25 @@
 'use client';
 import * as React from 'react';
+import { useControlled } from '@base-ui-components/utils/useControlled';
+import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { type InteractionType } from '@base-ui-components/utils/useEnhancedClickHandler';
 import {
   FloatingRootContext,
+  useClick,
   useDismiss,
   useFloatingRootContext,
   useInteractions,
   useRole,
   type OpenChangeReason as FloatingUIOpenChangeReason,
-} from '@floating-ui/react';
-import { getTarget } from '@floating-ui/react/utils';
-import { useClick } from '../../utils/floating-ui/useClick';
-import { useControlled } from '../../utils/useControlled';
-import { useEventCallback } from '../../utils/useEventCallback';
+} from '../../floating-ui-react';
+import { getTarget } from '../../floating-ui-react/utils';
 import { useScrollLock } from '../../utils/useScrollLock';
 import { useTransitionStatus, type TransitionStatus } from '../../utils/useTransitionStatus';
-import { type InteractionType } from '../../utils/useEnhancedClickHandler';
 import type { RequiredExcept, HTMLProps } from '../../utils/types';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
-import {
-  type BaseOpenChangeReason,
-  translateOpenChangeReason,
-} from '../../utils/translateOpenChangeReason';
-
-export type DialogOpenChangeReason = BaseOpenChangeReason | 'close-press';
+import { translateOpenChangeReason } from '../../utils/translateOpenChangeReason';
+import { type DialogRoot } from './DialogRoot';
 
 export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.ReturnValue {
   const {
@@ -56,9 +52,18 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
   const [popupElement, setPopupElement] = React.useState<HTMLElement | null>(null);
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
+  const {
+    openMethod,
+    triggerProps,
+    reset: resetOpenInteractionType,
+  } = useOpenInteractionType(open);
 
   const setOpen = useEventCallback(
-    (nextOpen: boolean, event: Event | undefined, reason: DialogOpenChangeReason | undefined) => {
+    (
+      nextOpen: boolean,
+      event: Event | undefined,
+      reason: DialogRoot.OpenChangeReason | undefined,
+    ) => {
       onOpenChangeParameter?.(nextOpen, event, reason);
       setOpenUnwrapped(nextOpen);
     },
@@ -67,6 +72,7 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
   const handleUnmount = useEventCallback(() => {
     setMounted(false);
     onOpenChangeComplete?.(false);
+    resetOpenInteractionType();
   });
 
   useOpenChangeComplete({
@@ -101,7 +107,7 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
   const role = useRole(context);
   const click = useClick(context);
   const dismiss = useDismiss(context, {
-    outsidePressEvent: 'mousedown',
+    outsidePressEvent: 'intentional',
     outsidePress(event) {
       if (event.button !== 0) {
         return false;
@@ -156,8 +162,6 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
   const handleNestedDialogClose = React.useCallback(() => {
     setOwnNestedOpenDialogs(0);
   }, []);
-
-  const { openMethod, triggerProps } = useOpenInteractionType(open);
 
   const dialogTriggerProps = React.useMemo(
     () => getReferenceProps(triggerProps),
@@ -229,12 +233,11 @@ export namespace useDialogRoot {
     modal?: boolean | 'trap-focus';
     /**
      * Event handler called when the dialog is opened or closed.
-     * @type (open: boolean, event?: Event, reason?: Dialog.Root.OpenChangeReason) => void
      */
     onOpenChange?: (
       open: boolean,
       event: Event | undefined,
-      reason: DialogOpenChangeReason | undefined,
+      reason: DialogRoot.OpenChangeReason | undefined,
     ) => void;
     /**
      * Event handler called after any animations complete when the dialog is opened or closed.
@@ -251,7 +254,7 @@ export namespace useDialogRoot {
      * Instead, the `unmount` function must be called to unmount the dialog manually.
      * Useful when the dialog's animation is controlled by an external library.
      */
-    actionsRef?: React.RefObject<{ unmount: () => void }>;
+    actionsRef?: React.RefObject<DialogRoot.Actions>;
   }
 
   export interface Parameters
@@ -267,10 +270,6 @@ export namespace useDialogRoot {
      * Callback to invoke when a nested dialog is closed.
      */
     onNestedDialogClose?: () => void;
-    /**
-     * A ref to imperative actions.
-     */
-    actionsRef?: React.RefObject<Actions>;
   }
 
   export interface ReturnValue {
@@ -300,7 +299,7 @@ export namespace useDialogRoot {
     setOpen: (
       open: boolean,
       event: Event | undefined,
-      reason: DialogOpenChangeReason | undefined,
+      reason: DialogRoot.OpenChangeReason | undefined,
     ) => void;
     /**
      * Whether the dialog is currently open.
@@ -362,9 +361,5 @@ export namespace useDialogRoot {
      * The Floating UI root context.
      */
     floatingRootContext: FloatingRootContext;
-  }
-
-  export interface Actions {
-    unmount: () => void;
   }
 }

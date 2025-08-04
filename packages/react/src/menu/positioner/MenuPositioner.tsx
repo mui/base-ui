@@ -1,11 +1,12 @@
 'use client';
 import * as React from 'react';
+import { inertValue } from '@base-ui-components/utils/inertValue';
 import {
   FloatingNode,
   useFloatingNodeId,
   useFloatingParentNodeId,
   useFloatingTree,
-} from '@floating-ui/react';
+} from '../../floating-ui-react';
 import { MenuPositionerContext } from './MenuPositionerContext';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { useAnchorPositioning, type Align, type Side } from '../../utils/useAnchorPositioning';
@@ -13,7 +14,6 @@ import { useRenderElement } from '../../utils/useRenderElement';
 import { BaseUIComponentProps } from '../../utils/types';
 import { popupStateMapping } from '../../utils/popupStateMapping';
 import { CompositeList } from '../../composite/list/CompositeList';
-import { inertValue } from '../../utils/inertValue';
 import { InternalBackdrop } from '../../utils/InternalBackdrop';
 import { useMenuPortalContext } from '../portal/MenuPortalContext';
 import { DROPDOWN_COLLISION_AVOIDANCE } from '../../utils/constants';
@@ -59,6 +59,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
     lastOpenChangeReason,
     parent,
     setHoverEnabled,
+    triggerElement,
   } = useMenuRootContext();
 
   const keepMounted = useMenuPortalContext();
@@ -199,7 +200,13 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
     ((parent.type !== 'menubar' && modal && lastOpenChangeReason !== 'trigger-hover') ||
       (parent.type === 'menubar' && parent.context.modal));
 
-  const backdropCutout = parent.type === 'menubar' ? parent.context.contentElement : undefined;
+  // cuts a hole in the backdrop to allow pointer interaction with the menubar or dropdown menu trigger element
+  let backdropCutout: HTMLElement | null = null;
+  if (parent.type === 'menubar') {
+    backdropCutout = parent.context.contentElement;
+  } else if (parent.type === undefined) {
+    backdropCutout = triggerElement;
+  }
 
   return (
     <MenuPositionerContext.Provider value={contextValue}>

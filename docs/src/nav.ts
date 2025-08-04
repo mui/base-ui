@@ -1,4 +1,16 @@
-export const nav = [
+export interface NavItemn {
+  label: string;
+  href: string;
+  external?: boolean;
+  isNew?: boolean;
+}
+
+export interface NavGroup {
+  label: string;
+  links: NavItemn[];
+}
+
+export const nav: NavGroup[] = [
   {
     label: 'Overview',
     links: [
@@ -34,6 +46,12 @@ export const nav = [
       {
         label: 'Composition',
         href: '/react/handbook/composition',
+      },
+      {
+        label: 'llms.txt',
+        external: true,
+        href: '/llms.txt',
+        isNew: true,
       },
     ],
   },
@@ -72,7 +90,6 @@ export const nav = [
       {
         label: 'Context Menu',
         href: '/react/components/context-menu',
-        isNew: true,
       },
       {
         label: 'Dialog',
@@ -101,7 +118,6 @@ export const nav = [
       {
         label: 'Menubar',
         href: '/react/components/menubar',
-        isNew: true,
       },
       {
         label: 'Meter',
@@ -110,7 +126,6 @@ export const nav = [
       {
         label: 'Navigation Menu',
         href: '/react/components/navigation-menu',
-        isNew: true,
       },
       {
         label: 'Number Field',
@@ -139,6 +154,7 @@ export const nav = [
       {
         label: 'Select',
         href: '/react/components/select',
+        isNew: true,
       },
       {
         label: 'Separator',

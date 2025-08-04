@@ -10,15 +10,15 @@
     "value": {
       "type": "any",
       "default": "null",
-      "description": "The controlled value of the navigation navigation menu item that should be currently open.\nWhen non-nullish, the menu will be open. When nullish, the menu will be closed.\n\nTo render an uncontrolled navigation navigation menu, use the `defaultValue` prop instead."
+      "description": "The controlled value of the navigation menu item that should be currently open.\nWhen non-nullish, the menu will be open. When nullish, the menu will be closed.\n\nTo render an uncontrolled navigation menu, use the `defaultValue` prop instead."
     },
     "onValueChange": {
       "type": "((value: any, event: Event | undefined, reason: BaseOpenChangeReason | undefined) => void)",
       "description": "Callback fired when the value changes."
     },
     "actionsRef": {
-      "type": "RefObject<{ unmount: () => void; }>",
-      "description": "A ref to imperative actions.\n- `unmount`: When specified, the navigation menu will not be unmounted when closed.\nInstead, the `unmount` function must be called to unmount the navigation menu manually.\nUseful when the navigation menu's animation is controlled by an external library."
+      "type": "RefObject<NavigationMenu.Root.Actions>",
+      "description": "A ref to imperative actions."
     },
     "onOpenChangeComplete": {
       "type": "((open: boolean) => void)",

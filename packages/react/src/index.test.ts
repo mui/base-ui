@@ -42,8 +42,5 @@ describe('@base-ui-components/react', () => {
           });
         }),
     );
-
-    // Ensure the utils are also exported
-    expect(BaseUI.utils).not.to.equal(undefined);
   });
 });

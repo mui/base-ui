@@ -1,11 +1,11 @@
 'use client';
 import * as React from 'react';
-import { ownerDocument } from '../../utils/owner';
+import { ownerDocument } from '@base-ui-components/utils/owner';
+import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { useBaseUiId } from '../../utils/useBaseUiId';
-import { useEventCallback } from '../../utils/useEventCallback';
-import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { useRenderElement } from '../../utils/useRenderElement';
-import type { BaseUIComponentProps } from '../../utils/types';
+import type { BaseUIComponentProps, NativeButtonProps } from '../../utils/types';
 import { useButton } from '../../use-button';
 import { ACTIVE_COMPOSITE_ITEM } from '../../composite/constants';
 import { useCompositeItem } from '../../composite/item/useCompositeItem';
@@ -19,7 +19,7 @@ import { useTabsListContext } from '../list/TabsListContext';
  *
  * Documentation: [Base UI Tabs](https://base-ui.com/react/components/tabs)
  */
-export const TabsTab = React.forwardRef(function Tab(
+export const TabsTab = React.forwardRef(function TabsTab(
   componentProps: TabsTab.Props,
   forwardedRef: React.ForwardedRef<Element>,
 ) {
@@ -50,8 +50,8 @@ export const TabsTab = React.forwardRef(function Tab(
   );
 
   const {
-    props: compositeItemProps,
-    ref: compositeItemRef,
+    compositeProps,
+    compositeRef,
     index,
     // hook is used instead of the CompositeItem component
     // because the index is needed for Tab internals
@@ -73,7 +73,7 @@ export const TabsTab = React.forwardRef(function Tab(
 
   // Keep the highlighted item in sync with the currently selected tab
   // when the value prop changes externally (controlled mode)
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     if (isNavigatingRef.current) {
       isNavigatingRef.current = false;
       return;
@@ -94,8 +94,6 @@ export const TabsTab = React.forwardRef(function Tab(
 
   const isPressingRef = React.useRef(false);
   const isMainButtonRef = React.useRef(false);
-
-  const highlighted = index > -1 && index === highlightedTabIndex;
 
   const onClick = useEventCallback((event: React.MouseEvent<HTMLButtonElement>) => {
     if (selected || disabled) {
@@ -149,17 +147,17 @@ export const TabsTab = React.forwardRef(function Tab(
   const state: TabsTab.State = React.useMemo(
     () => ({
       disabled,
-      highlighted,
       selected,
       orientation,
     }),
-    [disabled, highlighted, selected, orientation],
+    [disabled, selected, orientation],
   );
 
   const element = useRenderElement('button', componentProps, {
     state,
-    ref: [forwardedRef, buttonRef, compositeItemRef],
+    ref: [forwardedRef, buttonRef, compositeRef],
     props: [
+      compositeProps,
       {
         role: 'tab',
         'aria-controls': tabPanelId,
@@ -175,7 +173,6 @@ export const TabsTab = React.forwardRef(function Tab(
       },
       elementProps,
       getButtonProps,
-      compositeItemProps,
     ],
   });
 
@@ -214,19 +211,11 @@ export namespace TabsTab {
     orientation: TabsRoot.Orientation;
   }
 
-  export interface Props extends BaseUIComponentProps<'button', State> {
+  export interface Props extends NativeButtonProps, BaseUIComponentProps<'button', State> {
     /**
      * The value of the Tab.
      * When not specified, the value is the child position index.
-     * @type Tabs.Tab.Value
      */
     value?: Value;
-    /**
-     * Whether the component renders a native `<button>` element when replacing it
-     * via the `render` prop.
-     * Set to `false` if the rendered element is not a button (e.g. `<div>`).
-     * @default true
-     */
-    nativeButton?: boolean;
   }
 }

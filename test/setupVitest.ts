@@ -1,4 +1,3 @@
-/* eslint-disable no-var */
 /* eslint-disable vars-on-top */
 import { beforeAll, afterAll } from 'vitest';
 import chai from 'chai';
@@ -7,7 +6,7 @@ import chaiPlugin from '@mui/internal-test-utils/chaiPlugin';
 // eslint-disable-next-line import/no-relative-packages
 import '../packages/react/test/addChaiAssertions';
 
-function NOOP() {}
+import '@testing-library/jest-dom/vitest';
 
 declare global {
   var before: typeof beforeAll;
@@ -58,12 +57,8 @@ if (isVitestJsdom) {
   // @ts-expect-error
   globalThis.window.Touch = Touch;
 
-  globalThis.window.scrollTo = NOOP;
-
   globalThis.requestAnimationFrame = (cb) => {
     setTimeout(() => cb(0), 0);
     return 0;
   };
-
-  Element.prototype.scrollTo ??= NOOP;
 }
