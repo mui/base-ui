@@ -18,9 +18,7 @@ function Header() {
         <Calendar.SetPreviousMonth className={clsx(styles.SetPreviousMonth)}>
           ◀
         </Calendar.SetPreviousMonth>
-        <span className={styles.HeaderLabel}>
-          {visibleDate.toFormat('MMMM yyyy')}
-        </span>
+        <span className={styles.HeaderLabel}>{visibleDate.toFormat('MMMM yyyy')}</span>
         <span />
       </div>
       <div className={styles.HeaderPanel}>
@@ -28,9 +26,7 @@ function Header() {
         <span className={styles.HeaderLabel}>
           {visibleDate.plus({ month: 1 }).toFormat('MMMM yyyy')}
         </span>
-        <Calendar.SetNextMonth className={clsx(styles.SetNextMonth)}>
-          ▶
-        </Calendar.SetNextMonth>
+        <Calendar.SetNextMonth className={clsx(styles.SetNextMonth)}>▶</Calendar.SetNextMonth>
       </div>
     </header>
   );
@@ -54,17 +50,9 @@ function DayGrid(props: { offset: 0 | 1 }) {
       </Calendar.DayGridHeader>
       <Calendar.DayGridBody className={styles.DayGridBody} offset={offset}>
         {(week) => (
-          <Calendar.DayGridRow
-            value={week}
-            key={week.toString()}
-            className={styles.DayGridRow}
-          >
+          <Calendar.DayGridRow value={week} key={week.toString()} className={styles.DayGridRow}>
             {(day) => (
-              <Calendar.DayGridCell
-                value={day}
-                key={day.toString()}
-                className={styles.DayGridCell}
-              >
+              <Calendar.DayGridCell value={day} key={day.toString()} className={styles.DayGridCell}>
                 <Calendar.DayButton className={styles.DayButton} />
               </Calendar.DayGridCell>
             )}
@@ -78,10 +66,7 @@ function DayGrid(props: { offset: 0 | 1 }) {
 export default function CalendarTwoMonths() {
   return (
     <TemporalAdapterProvider adapter={adapter}>
-      <Calendar.Root
-        monthPageSize={2}
-        className={clsx(styles.Root, styles.RootWithTwoPanels)}
-      >
+      <Calendar.Root monthPageSize={2} className={clsx(styles.Root, styles.RootWithTwoPanels)}>
         <Header />
         <div className={styles.RootWithTwoPanelsContent}>
           <DayGrid offset={0} />

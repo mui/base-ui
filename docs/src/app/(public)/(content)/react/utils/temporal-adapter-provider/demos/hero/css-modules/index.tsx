@@ -24,12 +24,8 @@ function MyCalendar() {
             <Calendar.SetPreviousMonth className={styles.SetPreviousMonth}>
               ◀
             </Calendar.SetPreviousMonth>
-            <span className={styles.HeaderLabel}>
-              {visibleDate.toFormat('MMMM yyyy')}
-            </span>
-            <Calendar.SetNextMonth className={styles.SetNextMonth}>
-              ▶
-            </Calendar.SetNextMonth>
+            <span className={styles.HeaderLabel}>{visibleDate.toFormat('MMMM yyyy')}</span>
+            <Calendar.SetNextMonth className={styles.SetNextMonth}>▶</Calendar.SetNextMonth>
           </header>
           <Calendar.DayGrid className={styles.DayGrid}>
             <Calendar.DayGridHeader className={styles.DayGridHeader}>

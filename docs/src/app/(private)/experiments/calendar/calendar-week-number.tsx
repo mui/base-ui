@@ -23,12 +23,8 @@ function MyCalendar() {
             <Calendar.SetPreviousMonth className={styles.SetPreviousMonth}>
               ◀
             </Calendar.SetPreviousMonth>
-            <span className={styles.HeaderLabel}>
-              {visibleDate.toFormat('MMMM yyyy')}
-            </span>
-            <Calendar.SetNextMonth className={styles.SetNextMonth}>
-              ▶
-            </Calendar.SetNextMonth>
+            <span className={styles.HeaderLabel}>{visibleDate.toFormat('MMMM yyyy')}</span>
+            <Calendar.SetNextMonth className={styles.SetNextMonth}>▶</Calendar.SetNextMonth>
           </header>
           <Calendar.DayGrid className={styles.DayGrid}>
             <Calendar.DayGridHeader className={styles.DayGridHeader}>
@@ -40,15 +36,13 @@ function MyCalendar() {
                 >
                   #
                 </th>
-                {getDayList({ date: DateTime.now().startOf('week'), amount: 7 }).map(
-                  (day) => (
-                    <Calendar.DayGridHeaderCell
-                      value={day}
-                      key={day.toString()}
-                      className={styles.DayGridHeaderCell}
-                    />
-                  ),
-                )}
+                {getDayList({ date: DateTime.now().startOf('week'), amount: 7 }).map((day) => (
+                  <Calendar.DayGridHeaderCell
+                    value={day}
+                    key={day.toString()}
+                    className={styles.DayGridHeaderCell}
+                  />
+                ))}
               </Calendar.DayGridHeaderRow>
             </Calendar.DayGridHeader>
             <Calendar.DayGridBody className={styles.DayGridBody}>
