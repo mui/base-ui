@@ -11,9 +11,7 @@ export default function ExampleAlertDialog() {
       <AlertDialog.Portal>
         <AlertDialog.Backdrop className={styles.Backdrop} />
         <AlertDialog.Popup className={styles.Popup}>
-          <AlertDialog.Title className={styles.Title}>
-            Discard draft?
-          </AlertDialog.Title>
+          <AlertDialog.Title className={styles.Title}>Discard draft?</AlertDialog.Title>
           <AlertDialog.Description className={styles.Description}>
             You can't undo this action.
           </AlertDialog.Description>
