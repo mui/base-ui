@@ -48,7 +48,6 @@ import { getCssDimensions } from '../../utils/getCssDimensions';
 
 const TRIGGER_IDENTIFIER = 'data-base-ui-navigation-menu-trigger';
 const DEFAULT_SIZE = { width: 0, height: 0 };
-const DEFAULT_ABORT_CONTROLLER = new AbortController();
 
 /**
  * Opens the navigation menu popup when hovered or clicked, revealing the
@@ -99,7 +98,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
 
   const allowFocusRef = React.useRef(false);
   const prevSizeRef = React.useRef(DEFAULT_SIZE);
-  const animationAbortControllerRef = React.useRef(DEFAULT_ABORT_CONTROLLER);
+  const animationAbortControllerRef = React.useRef<AbortController | null>(null);
 
   const isActiveItem = open && value === itemValue;
   const isActiveItemRef = useLatestRef(isActiveItem);
@@ -108,7 +107,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
   const runOnceAnimationsFinish = useAnimationsFinished(popupElement);
 
   React.useEffect(() => {
-    animationAbortControllerRef.current.abort();
+    animationAbortControllerRef.current?.abort();
   }, [isActiveItem]);
 
   const setAutoSizes = useEventCallback(() => {
@@ -194,7 +193,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     }
 
     const mutationObserver = new MutationObserver(() => {
-      animationAbortControllerRef.current.abort();
+      animationAbortControllerRef.current?.abort();
       handleValueChange(prevSizeRef.current.width, prevSizeRef.current.height);
     });
 
