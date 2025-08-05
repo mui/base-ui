@@ -76,6 +76,7 @@ export function Demo({ defaultOpen = false, compact = false, className, ...props
 
           <DemoCodeBlock
             selectedFile={demo.selectedFile}
+            selectedFileLines={demo.selectedFileLines}
             collapsibleOpen={demo.expanded}
             compact={compact}
           />

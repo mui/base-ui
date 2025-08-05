@@ -6,6 +6,7 @@ import '@wooorm/starry-night/style/both';
 
 interface DemoCodeBlockProps {
   selectedFile: React.ReactNode;
+  selectedFileLines: number;
   collapsibleOpen: boolean;
   /** How many lines should the code block have to get collapsed instead of rendering fully */
   collapsibleLinesThreshold?: number;
@@ -36,24 +37,25 @@ function Root(props: React.ComponentProps<typeof ScrollArea.Root>) {
 
 export function DemoCodeBlock({
   selectedFile,
+  selectedFileLines,
   compact,
   collapsibleOpen,
-  // collapsibleLinesThreshold = 12,
+  collapsibleLinesThreshold = 12,
 }: DemoCodeBlockProps) {
-  // const lineBreaks = selectedFile.content.match(/\n/g) ?? [];
-
-  // if (lineBreaks.length < collapsibleLinesThreshold) {
-  //   return (
-  //     <Root>
-  //       <ScrollArea.Viewport>
-  //         <BaseDemo.SourceBrowser className="DemoSourceBrowser" />
-  //       </ScrollArea.Viewport>
-  //       <ScrollArea.Corner />
-  //       <ScrollArea.Scrollbar orientation="vertical" />
-  //       <ScrollArea.Scrollbar orientation="horizontal" />
-  //     </Root>
-  //   );
-  // }
+  if (selectedFileLines < collapsibleLinesThreshold) {
+    return (
+      <Root>
+        <ScrollArea.Viewport>
+          <pre className="DemoSourceBrowser" data-language={'TODO'}>
+            {selectedFile}
+          </pre>
+        </ScrollArea.Viewport>
+        <ScrollArea.Corner />
+        <ScrollArea.Scrollbar orientation="vertical" />
+        <ScrollArea.Scrollbar orientation="horizontal" />
+      </Root>
+    );
+  }
 
   return (
     <React.Fragment>
