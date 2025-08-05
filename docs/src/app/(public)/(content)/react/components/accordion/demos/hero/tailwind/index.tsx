@@ -13,8 +13,8 @@ export default function ExampleAccordion() {
         </Accordion.Header>
         <Accordion.Panel className="h-[var(--accordion-panel-height)] overflow-hidden text-base text-gray-600 transition-[height] ease-out data-[ending-style]:h-0 data-[starting-style]:h-0">
           <div className="p-3">
-            Base UI is a library of high-quality unstyled React components for design
-            systems and web apps.
+            Base UI is a library of high-quality unstyled React components for design systems and
+            web apps.
           </div>
         </Accordion.Panel>
       </Accordion.Item>
@@ -28,8 +28,8 @@ export default function ExampleAccordion() {
         </Accordion.Header>
         <Accordion.Panel className="h-[var(--accordion-panel-height)] overflow-hidden text-base text-gray-600 transition-[height] ease-out data-[ending-style]:h-0 data-[starting-style]:h-0">
           <div className="p-3">
-            Head to the “Quick start” guide in the docs. If you’ve used unstyled
-            libraries before, you’ll feel at home.
+            Head to the “Quick start” guide in the docs. If you’ve used unstyled libraries before,
+            you’ll feel at home.
           </div>
         </Accordion.Panel>
       </Accordion.Item>
