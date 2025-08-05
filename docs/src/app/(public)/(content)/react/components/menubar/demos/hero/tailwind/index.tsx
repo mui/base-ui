@@ -1,3 +1,5 @@
+'use client';
+
 import * as React from 'react';
 import { Menubar } from '@base-ui-components/react/menubar';
 import { Menu } from '@base-ui-components/react/menu';

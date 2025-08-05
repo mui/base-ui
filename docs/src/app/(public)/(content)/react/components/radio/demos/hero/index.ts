@@ -1,3 +1,5 @@
-'use client';
-export { default as CssModules } from './css-modules';
-export { default as Tailwind } from './tailwind';
+import { createDemoWithVariants } from 'docs/src/utils/createDemo';
+import CssModules from './css-modules';
+import Tailwind from './tailwind';
+
+export const DemoRadioHero = createDemoWithVariants(import.meta.url, { CssModules, Tailwind });

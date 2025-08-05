@@ -1,3 +1,5 @@
+'use client';
+
 import * as React from 'react';
 import { Checkbox } from '@base-ui-components/react/checkbox';
 import { CheckboxGroup } from '@base-ui-components/react/checkbox-group';
@@ -17,11 +19,7 @@ export default function ExampleCheckboxGroup() {
       className={styles.CheckboxGroup}
       style={{ marginLeft: '1rem' }}
     >
-      <label
-        className={styles.Item}
-        id="apples-caption"
-        style={{ marginLeft: '-1rem' }}
-      >
+      <label className={styles.Item} id="apples-caption" style={{ marginLeft: '-1rem' }}>
         <Checkbox.Root className={styles.Checkbox} name="apples" parent>
           <Checkbox.Indicator
             className={styles.Indicator}

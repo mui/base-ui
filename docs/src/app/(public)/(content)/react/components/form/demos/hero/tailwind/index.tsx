@@ -1,3 +1,5 @@
+'use client';
+
 import * as React from 'react';
 import { Field } from '@base-ui-components/react/field';
 import { Form } from '@base-ui-components/react/form';
@@ -27,9 +29,7 @@ export default function ExampleForm() {
       }}
     >
       <Field.Root name="url" className="flex flex-col items-start gap-1">
-        <Field.Label className="text-sm font-medium text-gray-900">
-          Homepage
-        </Field.Label>
+        <Field.Label className="text-sm font-medium text-gray-900">Homepage</Field.Label>
         <Field.Control
           type="url"
           required

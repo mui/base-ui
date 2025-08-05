@@ -1,3 +1,5 @@
+'use client';
+
 import * as React from 'react';
 import { Form } from '@base-ui-components/react/form';
 import { Fieldset } from '@base-ui-components/react/fieldset';
@@ -19,17 +21,9 @@ export default function ExampleCheckboxGroup() {
         setLoading(false);
       }}
     >
-      <Field.Root
-        name="toppings"
-        render={<Fieldset.Root />}
-        className={styles.Fieldset}
-      >
+      <Field.Root name="toppings" render={<Fieldset.Root />} className={styles.Fieldset}>
         <Fieldset.Legend className={styles.Legend}>Extra toppings</Fieldset.Legend>
-        <CheckboxGroup
-          defaultValue={[]}
-          disabled={loading}
-          className={styles.CheckboxGroup}
-        >
+        <CheckboxGroup defaultValue={[]} disabled={loading} className={styles.CheckboxGroup}>
           <Field.Label className={styles.Item}>
             <Checkbox.Root value="anchovies" className={styles.Checkbox}>
               <Checkbox.Indicator className={styles.Indicator}>

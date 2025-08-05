@@ -163,5 +163,8 @@
     "@types/node": "^18.19.121",
     "@types/react": "^19.1.9",
     "@types/react-dom": "^19.1.7"
+  },
+  "dependencies": {
+    "internal-docs-infra": "link:../../.local/share/pnpm/global/5/node_modules/@mui/internal-docs-infra"
   }
 }

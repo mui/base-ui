@@ -1,20 +1,19 @@
 import * as React from 'react';
-import * as BaseDemo from 'docs/src/blocks/Demo';
 import { ErrorBoundary } from 'react-error-boundary';
-import { useDemoContext } from 'docs/src/blocks/Demo/DemoContext';
 import { DemoErrorFallback } from './DemoErrorFallback';
 
-export function DemoPlayground() {
-  const { selectedVariant } = useDemoContext();
+export type DemoPlaygroundProps = {
+  component: React.ReactNode;
+  name?: string;
+};
 
+export function DemoPlayground({ component, name }: DemoPlaygroundProps) {
   return (
     <ErrorBoundary FallbackComponent={DemoErrorFallback}>
       <div className="DemoPlayground">
-        <BaseDemo.Playground
-          aria-label="Component demo"
-          data-demo={selectedVariant.name}
-          className="DemoPlaygroundInner"
-        />
+        <div aria-label="Component demo" data-demo={name} className="DemoPlaygroundInner">
+          {component}
+        </div>
       </div>
     </ErrorBoundary>
   );

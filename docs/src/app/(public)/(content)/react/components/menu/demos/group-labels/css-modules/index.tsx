@@ -1,3 +1,5 @@
+'use client';
+
 import * as React from 'react';
 import { Menu } from '@base-ui-components/react/menu';
 import styles from './index.module.css';
@@ -47,9 +49,7 @@ export default function ExampleMenu() {
             <Menu.Separator className={styles.Separator} />
 
             <Menu.Group>
-              <Menu.GroupLabel className={styles.GroupLabel}>
-                Workspace
-              </Menu.GroupLabel>
+              <Menu.GroupLabel className={styles.GroupLabel}>Workspace</Menu.GroupLabel>
               <Menu.CheckboxItem
                 checked={showMinimap}
                 onCheckedChange={setShowMinimap}
