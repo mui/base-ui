@@ -91,6 +91,7 @@ export function useSharedCalendarDayGridBody(
   const compositeRootProps: CompositeRoot.Props<useSharedCalendarDayGridBody.ItemMetadata, any> = {
     cols: 7,
     disabledIndices,
+    orientation: 'horizontal',
     enableHomeAndEndKeys: true,
     onMapChange: setItemMap,
   };
