@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { useStore } from '@base-ui-components/utils/store';
 import { TemporalNonRangeValue } from '../../models';
 import { SharedCalendarRootContext } from './SharedCalendarRootContext';
 import { useSharedCalendarRoot } from './useSharedCalendarRoot';
@@ -9,7 +10,6 @@ import { useRenderElement } from '../../utils/useRenderElement';
 import { BaseUIComponentProps } from '../../utils/types';
 import { validateDate } from '../../utils/temporal/validateDate';
 import { useTemporalAdapter } from '../../temporal-adapter-provider/TemporalAdapterContext';
-import { useSelector } from '../../utils/store';
 import { selectors } from '../store';
 
 const calendarValueManager: useSharedCalendarRoot.ValueManager<TemporalNonRangeValue> = {
@@ -87,7 +87,7 @@ export const CalendarRoot = React.forwardRef(function CalendarRoot(
     calendarValueManager,
   });
 
-  const visibleDate = useSelector(store, selectors.visibleDate);
+  const visibleDate = useStore(store, selectors.visibleDate);
   const publicContext: CalendarContext = React.useMemo(() => ({ visibleDate }), [visibleDate]);
 
   const resolvedChildren = React.useMemo(() => {

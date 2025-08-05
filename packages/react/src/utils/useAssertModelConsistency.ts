@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { warn } from './warn';
+import { warn } from '@base-ui-components/utils/warn';
 
 /**
  * Make sure a controlled prop is used correctly.

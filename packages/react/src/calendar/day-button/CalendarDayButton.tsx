@@ -1,5 +1,7 @@
 'use client';
 import * as React from 'react';
+import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useStore } from '@base-ui-components/utils/store';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { CalendarDayButtonDataAttributes } from './CalendarDayButtonDataAttributes';
@@ -9,9 +11,7 @@ import { useSharedCalendarRootContext } from '../root/SharedCalendarRootContext'
 import { useSharedCalendarDayGridBodyContext } from '../day-grid-body/SharedCalendarDayGridBodyContext';
 import { useTemporalAdapter } from '../../temporal-adapter-provider/TemporalAdapterContext';
 import { useCalendarDayGridCellContext } from '../day-grid-cell/SharedCalendarDayGridCellContext';
-import { useEventCallback } from '../../utils/useEventCallback';
 import { CompositeItem } from '../../composite/item/CompositeItem';
-import { useSelector } from '../../utils/store';
 import { selectors } from '../store';
 
 const customStyleHookMapping: CustomStyleHookMapping<CalendarDayButton.State> = {
@@ -55,7 +55,7 @@ const InnerCalendarDayButton = React.forwardRef(function InnerCalendarDayButton(
     isOutsideCurrentMonth,
     value,
   } = useCalendarDayGridCellContext();
-  const isSelected = useSelector(store, selectors.isDayButtonSelected, value);
+  const isSelected = useStore(store, selectors.isDayButtonSelected, value);
 
   const isCurrent = React.useMemo(
     () => adapter.isSameDay(value, adapter.now(adapter.getTimezone(value))),

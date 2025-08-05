@@ -1,9 +1,9 @@
 import * as React from 'react';
+import { useStore } from '@base-ui-components/utils/store';
 import { TemporalSupportedObject } from '../../models';
 import { SharedCalendarDayGridCellContext } from './SharedCalendarDayGridCellContext';
 import { HTMLProps } from '../../utils/types';
 import { useTemporalAdapter } from '../../temporal-adapter-provider/TemporalAdapterContext';
-import { useSelector } from '../../utils/store';
 import { useSharedCalendarDayGridBodyContext } from '../day-grid-body/SharedCalendarDayGridBodyContext';
 import { useSharedCalendarRootContext } from '../root/SharedCalendarRootContext';
 import { selectors } from '../store';
@@ -14,8 +14,8 @@ export function useSharedCalendarDayGridCell(parameters: useSharedCalendarDayGri
   const { store } = useSharedCalendarRootContext();
   const { month } = useSharedCalendarDayGridBodyContext();
 
-  const isDisabled = useSelector(store, selectors.isDayCellDisabled, value);
-  const isUnavailable = useSelector(store, selectors.isDayCellUnavailable, value);
+  const isDisabled = useStore(store, selectors.isDayCellDisabled, value);
+  const isUnavailable = useStore(store, selectors.isDayCellUnavailable, value);
 
   const isOutsideCurrentMonth = React.useMemo(
     () => (month == null ? false : !adapter.isSameMonth(month, value)),

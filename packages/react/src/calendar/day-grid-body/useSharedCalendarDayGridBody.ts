@@ -1,11 +1,11 @@
 import * as React from 'react';
+import { useStore } from '@base-ui-components/utils/store';
 import { useSharedCalendarRootContext } from '../root/SharedCalendarRootContext';
 import { SharedCalendarDayGridBodyContext } from './SharedCalendarDayGridBodyContext';
 import { HTMLProps } from '../../utils/types';
 import { useTemporalAdapter } from '../../temporal-adapter-provider/TemporalAdapterContext';
 import { TemporalSupportedObject } from '../../models';
 import { useWeekList } from '../../use-week-list';
-import { useSelector } from '../../utils/store';
 import { selectors } from '../store';
 import { CompositeMetadata } from '../../composite/list/CompositeList';
 import { CompositeRoot } from '../../composite/root/CompositeRoot';
@@ -17,9 +17,9 @@ export function useSharedCalendarDayGridBody(
 
   const adapter = useTemporalAdapter();
   const { store, registerDayGrid } = useSharedCalendarRootContext();
-  const visibleDate = useSelector(store, selectors.visibleDate);
-  const referenceDate = useSelector(store, selectors.referenceDate);
-  const selectedDates = useSelector(store, selectors.selectedDates);
+  const visibleDate = useStore(store, selectors.visibleDate);
+  const referenceDate = useStore(store, selectors.referenceDate);
+  const selectedDates = useStore(store, selectors.selectedDates);
   const ref = React.useRef<HTMLDivElement>(null);
 
   const month = React.useMemo(() => {
@@ -88,7 +88,7 @@ export function useSharedCalendarDayGridBody(
     return output;
   }, [itemMap]);
 
-  const compositeRootProps: CompositeRoot.Props<useSharedCalendarDayGridBody.ItemMetadata> = {
+  const compositeRootProps: CompositeRoot.Props<useSharedCalendarDayGridBody.ItemMetadata, any> = {
     cols: 7,
     disabledIndices,
     enableHomeAndEndKeys: true,
@@ -149,7 +149,7 @@ export namespace useSharedCalendarDayGridBody {
     /**
      * The props to apply to the composite root.
      */
-    compositeRootProps: CompositeRoot.Props<ItemMetadata>;
+    compositeRootProps: CompositeRoot.Props<ItemMetadata, any>;
     /**
      * The context to provide to the children of the component.
      */

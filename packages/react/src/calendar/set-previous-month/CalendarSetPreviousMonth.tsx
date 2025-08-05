@@ -1,13 +1,13 @@
 'use client';
 import * as React from 'react';
+import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useStore } from '@base-ui-components/utils/store';
 import { useSharedCalendarRootContext } from '../root/SharedCalendarRootContext';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useButton } from '../../use-button';
-import { useEventCallback } from '../../utils/useEventCallback';
 import { useTemporalAdapter } from '../../temporal-adapter-provider/TemporalAdapterContext';
 import { selectors } from '../store';
-import { useSelector } from '../../utils/store';
 
 /**
  * Displays an element to navigate to the previous month in the calendar.
@@ -24,15 +24,15 @@ export const CalendarSetPreviousMonth = React.forwardRef(function CalendarSetPre
 
   const { store, setVisibleDate } = useSharedCalendarRootContext();
   const adapter = useTemporalAdapter();
-  const monthPageSize = useSelector(store, selectors.monthPageSize);
-  const visibleDate = useSelector(store, selectors.visibleDate);
+  const monthPageSize = useStore(store, selectors.monthPageSize);
+  const visibleDate = useStore(store, selectors.visibleDate);
 
   const targetDate = React.useMemo(
     () => adapter.addMonths(visibleDate, -monthPageSize),
     [visibleDate, monthPageSize, adapter],
   );
 
-  const isDisabled = useSelector(store, selectors.isSetMonthButtonDisabled, disabled, targetDate);
+  const isDisabled = useStore(store, selectors.isSetMonthButtonDisabled, disabled, targetDate);
 
   const setTarget = useEventCallback(() => {
     if (isDisabled) {

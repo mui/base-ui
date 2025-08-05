@@ -1,10 +1,10 @@
+import { Store, createSelector, createSelectorMemoized } from '@base-ui-components/utils/store';
 import {
   TemporalSupportedObject,
   TemporalSupportedValue,
   TemporalTimezone,
 } from '../models/temporal';
 import { TemporalAdapter } from '../models/temporal-adapter';
-import { Store, createSelector, createSelectorMemoized } from '../utils/store';
 import { validateDate } from '../utils/temporal/validateDate';
 import { getInitialReferenceDate } from '../utils/temporal/getInitialReferenceDate';
 import { TemporalManager } from '../utils/temporal/types';

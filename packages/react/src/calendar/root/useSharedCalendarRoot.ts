@@ -1,15 +1,15 @@
 import * as React from 'react';
+import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { Store, useStore } from '@base-ui-components/utils/store';
+import { useRefWithInit } from '@base-ui-components/utils/useRefWithInit';
+import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { TemporalSupportedObject, TemporalSupportedValue } from '../../models';
 import { mergeDateAndTime } from '../../utils/temporal/date-helpers';
 import { validateDate } from '../../utils/temporal/validateDate';
 import { useTemporalAdapter } from '../../temporal-adapter-provider/TemporalAdapterContext';
 import { SharedCalendarRootContext } from './SharedCalendarRootContext';
-import { useEventCallback } from '../../utils/useEventCallback';
 import { TemporalManager, TemporalTimezoneProps } from '../../utils/temporal/types';
-import { Store, useSelector } from '../../utils/store';
 import { selectors, SharedCalendarStore, CalendarState } from '../store';
-import { useLazyRef } from '../../utils/useLazyRef';
-import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { useAssertModelConsistency } from '../../utils/useAssertModelConsistency';
 import { getInitialReferenceDate } from '../../utils/temporal/getInitialReferenceDate';
 
@@ -58,7 +58,7 @@ export function useSharedCalendarRoot<TValue extends TemporalSupportedValue, TEr
     defaultValue: defaultVisibleDate ?? null,
   });
 
-  const store = useLazyRef(() => {
+  const store = useRefWithInit(() => {
     const value = valueProp ?? defaultValue ?? manager.emptyValue;
     const initialReferenceDateFromValue = getDateToUseForReferenceDate(value);
 
@@ -92,9 +92,9 @@ export function useSharedCalendarRoot<TValue extends TemporalSupportedValue, TEr
       monthPageSize,
     });
   }).current;
-  const validationProps = useSelector(store, selectors.validationProps);
-  const value = useSelector(store, selectors.valueWithTimezoneToRender) as TValue;
-  const referenceDate = useSelector(store, selectors.referenceDate);
+  const validationProps = useStore(store, selectors.validationProps);
+  const value = useStore(store, selectors.valueWithTimezoneToRender) as TValue;
+  const referenceDate = useStore(store, selectors.referenceDate);
 
   const setValue = useEventCallback((newValue: TValue) => {
     const inputTimezone = manager.getTimezone(store.state.value);
@@ -226,7 +226,7 @@ export function useSharedCalendarRoot<TValue extends TemporalSupportedValue, TEr
     [store, handleVisibleDateChange, registerDayGrid, selectDate],
   );
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     store.apply({
       adapter,
       manager,
@@ -250,7 +250,7 @@ export function useSharedCalendarRoot<TValue extends TemporalSupportedValue, TEr
     monthPageSize,
   ]);
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     store.set('validationProps', { minDate, maxDate });
   }, [store, minDate, maxDate]);
 
