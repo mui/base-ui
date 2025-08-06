@@ -139,7 +139,7 @@ jobs:
           name: 'Prettier'
           command: pnpm prettier --check
       - run:
-          name: ESlint
+          name: ESLint
           command: pnpm eslint:ci
       - run:
           name: Stylelint
