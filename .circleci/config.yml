@@ -53,13 +53,11 @@ commands:
         description: The version of react to be used
         type: string
         default: stable
-
     steps:
       - run:
           name: Set npm registry public signing keys
           command: |
             echo "export COREPACK_INTEGRITY_KEYS='$(curl https://registry.npmjs.org/-/npm/v1/keys | jq -c '{npm: .keys}')'" >> $BASH_ENV
-
       - when:
           condition: << parameters.browsers >>
           steps:
@@ -74,7 +72,6 @@ commands:
                 name: Install pnpm package manager
                 # See https://stackoverflow.com/a/73411601
                 command: corepack enable --install-directory ~/bin
-
       - run:
           name: Resolve React version
           command: |
@@ -82,7 +79,6 @@ commands:
             node scripts/useReactVersion.mjs
             # log a patch for maintainers who want to check out this change
             git --no-pager diff HEAD
-
       - run:
           name: View install environment
           command: |
@@ -304,13 +300,11 @@ jobs:
       - checkout
       - install_js:
           react-version: << parameters.react-version >>
-
       - run:
           name: prepare danger on PRs
           command: pnpm danger ci
           environment:
             DANGER_COMMAND: prepareBundleSizeReport
-
       - run:
           name: Build packages
           command: pnpm release:build
@@ -320,7 +314,6 @@ jobs:
       - run:
           name: Verify built packages
           command: pnpm -r test:package
-
       - run:
           name: create and upload a size snapshot
           command: |
@@ -328,12 +321,12 @@ jobs:
             export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY_ARTIFACTS
             export AWS_REGION=$AWS_REGION_ARTIFACTS
             pnpm size:snapshot
-
       - run:
           name: Run danger on PRs
           command: pnpm danger ci --fail-on-errors
           environment:
             DANGER_COMMAND: reportBundleSize
+
 workflows:
   pipeline:
     when:
