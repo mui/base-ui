@@ -146,7 +146,7 @@ export const RadioGroup = React.forwardRef(function RadioGroup(
       value: serializedCheckedValue,
       ref: mergedInputRef,
       id,
-      name,
+      name: serializedCheckedValue ? name : undefined,
       disabled,
       readOnly,
       required,
