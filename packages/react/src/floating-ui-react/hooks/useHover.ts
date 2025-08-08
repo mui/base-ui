@@ -17,6 +17,7 @@ import type {
   SafePolygonOptions,
 } from '../types';
 import { createAttribute } from '../utils/createAttribute';
+import { getEmptyContext } from './useFloatingRootContext';
 
 const safePolygonIdentifier = createAttribute('safe-polygon');
 
@@ -99,6 +100,11 @@ export interface UseHoverProps {
    * @default true
    */
   move?: boolean;
+  /**
+   * Allows to override the element that will trigger the popup.
+   * This allows to have multiple triggers per floating element (assuming `useHover` is called per trigger).
+   */
+  triggerElement?: HTMLElement | null;
 }
 
 /**
@@ -106,8 +112,11 @@ export interface UseHoverProps {
  * CSS `:hover`.
  * @see https://floating-ui.com/docs/useHover
  */
-export function useHover(context: FloatingRootContext, props: UseHoverProps = {}): ElementProps {
-  const { open, onOpenChange, dataRef, events, elements } = context;
+export function useHover(
+  context: FloatingRootContext | null,
+  props: UseHoverProps = {},
+): ElementProps {
+  const { open, onOpenChange, dataRef, events, elements } = context ?? getEmptyContext();
   const {
     enabled = true,
     delay = 0,
@@ -115,6 +124,7 @@ export function useHover(context: FloatingRootContext, props: UseHoverProps = {}
     mouseOnly = false,
     restMs = 0,
     move = true,
+    triggerElement = null,
   } = props;
 
   const tree = useFloatingTree();
@@ -173,7 +183,7 @@ export function useHover(context: FloatingRootContext, props: UseHoverProps = {}
 
     function onLeave(event: MouseEvent) {
       if (isHoverOpen()) {
-        onOpenChange(false, event, 'hover');
+        onOpenChange(false, event, 'hover', (event.currentTarget as Element) ?? undefined);
       }
     }
 
@@ -188,10 +198,10 @@ export function useHover(context: FloatingRootContext, props: UseHoverProps = {}
     (event: Event, runElseBranch = true, reason: OpenChangeReason = 'hover') => {
       const closeDelay = getDelay(delayRef.current, 'close', pointerTypeRef.current);
       if (closeDelay && !handlerRef.current) {
-        timeout.start(closeDelay, () => onOpenChange(false, event, reason));
+        timeout.start(closeDelay, () => onOpenChange(false, event, reason, undefined));
       } else if (runElseBranch) {
         timeout.clear();
-        onOpenChange(false, event, reason);
+        onOpenChange(false, event, reason, undefined);
       }
     },
     [delayRef, onOpenChange, timeout],
@@ -237,15 +247,16 @@ export function useHover(context: FloatingRootContext, props: UseHoverProps = {}
       }
 
       const openDelay = getDelay(delayRef.current, 'open', pointerTypeRef.current);
+      const trigger = (event.currentTarget as Element) ?? undefined;
 
       if (openDelay) {
         timeout.start(openDelay, () => {
           if (!openRef.current) {
-            onOpenChange(true, event, 'hover');
+            onOpenChange(true, event, 'hover', trigger);
           }
         });
       } else if (!open) {
-        onOpenChange(true, event, 'hover');
+        onOpenChange(true, event, 'hover', trigger);
       }
     }
 
@@ -339,22 +350,23 @@ export function useHover(context: FloatingRootContext, props: UseHoverProps = {}
       }
     }
 
-    if (isElement(elements.domReference)) {
-      const reference = elements.domReference as unknown as HTMLElement;
+    const trigger = (triggerElement ?? elements.domReference) as HTMLElement | null;
+
+    if (isElement(trigger)) {
       const floating = elements.floating;
 
       if (open) {
-        reference.addEventListener('mouseleave', onScrollMouseLeave);
+        trigger.addEventListener('mouseleave', onScrollMouseLeave);
       }
 
       if (move) {
-        reference.addEventListener('mousemove', onReferenceMouseEnter, {
+        trigger.addEventListener('mousemove', onReferenceMouseEnter, {
           once: true,
         });
       }
 
-      reference.addEventListener('mouseenter', onReferenceMouseEnter);
-      reference.addEventListener('mouseleave', onReferenceMouseLeave);
+      trigger.addEventListener('mouseenter', onReferenceMouseEnter);
+      trigger.addEventListener('mouseleave', onReferenceMouseLeave);
 
       if (floating) {
         floating.addEventListener('mouseleave', onScrollMouseLeave);
@@ -364,15 +376,15 @@ export function useHover(context: FloatingRootContext, props: UseHoverProps = {}
 
       return () => {
         if (open) {
-          reference.removeEventListener('mouseleave', onScrollMouseLeave);
+          trigger.removeEventListener('mouseleave', onScrollMouseLeave);
         }
 
         if (move) {
-          reference.removeEventListener('mousemove', onReferenceMouseEnter);
+          trigger.removeEventListener('mousemove', onReferenceMouseEnter);
         }
 
-        reference.removeEventListener('mouseenter', onReferenceMouseEnter);
-        reference.removeEventListener('mouseleave', onReferenceMouseLeave);
+        trigger.removeEventListener('mouseenter', onReferenceMouseEnter);
+        trigger.removeEventListener('mouseleave', onReferenceMouseLeave);
 
         if (floating) {
           floating.removeEventListener('mouseleave', onScrollMouseLeave);
@@ -403,6 +415,7 @@ export function useHover(context: FloatingRootContext, props: UseHoverProps = {}
     restMsRef,
     timeout,
     restTimeout,
+    triggerElement,
   ]);
 
   // Block pointer-events of every element other than the reference and floating
@@ -423,7 +436,7 @@ export function useHover(context: FloatingRootContext, props: UseHoverProps = {}
         const body = getDocument(elements.floating).body;
         body.setAttribute(safePolygonIdentifier, '');
 
-        const ref = elements.domReference as unknown as HTMLElement | SVGSVGElement;
+        const ref = elements.domReference as HTMLElement | SVGSVGElement;
 
         const parentFloating = tree?.nodesRef.current.find((node) => node.id === parentId)?.context
           ?.elements.floating;
@@ -482,10 +495,11 @@ export function useHover(context: FloatingRootContext, props: UseHoverProps = {}
       onPointerEnter: setPointerRef,
       onMouseMove(event) {
         const { nativeEvent } = event;
+        const trigger = event.currentTarget as Element;
 
         function handleMouseMove() {
           if (!blockMouseMoveRef.current && !openRef.current) {
-            onOpenChange(true, nativeEvent, 'hover');
+            onOpenChange(true, nativeEvent, 'hover', trigger);
           }
         }
 

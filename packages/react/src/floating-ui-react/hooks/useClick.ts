@@ -4,6 +4,7 @@ import { useAnimationFrame } from '@base-ui-components/utils/useAnimationFrame';
 import { EMPTY_OBJECT } from '../../utils/constants';
 import type { ElementProps, FloatingRootContext } from '../types';
 import { isMouseLikePointerType } from '../utils';
+import { getEmptyContext } from './useFloatingRootContext';
 
 export interface UseClickProps {
   /**
@@ -42,8 +43,11 @@ export interface UseClickProps {
  * Opens or closes the floating element when clicking the reference element.
  * @see https://floating-ui.com/docs/useClick
  */
-export function useClick(context: FloatingRootContext, props: UseClickProps = {}): ElementProps {
-  const { open, onOpenChange, dataRef } = context;
+export function useClick(
+  context: FloatingRootContext | null,
+  props: UseClickProps = {},
+): ElementProps {
+  const { open, onOpenChange, dataRef, elements } = context ?? getEmptyContext();
   const {
     enabled = true,
     event: eventOption = 'click',
@@ -76,17 +80,19 @@ export function useClick(context: FloatingRootContext, props: UseClickProps = {}
 
         const openEvent = dataRef.current.openEvent;
         const openEventType = openEvent?.type;
-        const nextOpen = !(
-          open &&
-          toggle &&
-          (openEvent && stickIfOpen
-            ? openEventType === 'click' || openEventType === 'mousedown'
-            : true)
-        );
+        const nextOpen =
+          (open && elements.domReference !== event.currentTarget) ||
+          !(
+            open &&
+            toggle &&
+            (openEvent && stickIfOpen
+              ? openEventType === 'click' || openEventType === 'mousedown'
+              : true)
+          );
         // Wait until focus is set on the element. This is an alternative to
         // `event.preventDefault()` to avoid :focus-visible from appearing when using a pointer.
         frame.request(() => {
-          onOpenChange(nextOpen, nativeEvent, 'click');
+          onOpenChange(nextOpen, nativeEvent, 'click', event.currentTarget);
         });
       },
       onClick(event) {
@@ -103,23 +109,35 @@ export function useClick(context: FloatingRootContext, props: UseClickProps = {}
 
         const openEvent = dataRef.current.openEvent;
         const openEventType = openEvent?.type;
-        const nextOpen = !(
-          open &&
-          toggle &&
-          (openEvent && stickIfOpen
-            ? openEventType === 'click' ||
-              openEventType === 'mousedown' ||
-              openEventType === 'keydown' ||
-              openEventType === 'keyup'
-            : true)
-        );
-        onOpenChange(nextOpen, event.nativeEvent, 'click');
+        const nextOpen =
+          (open && elements.domReference !== event.currentTarget) ||
+          !(
+            open &&
+            toggle &&
+            (openEvent && stickIfOpen
+              ? openEventType === 'click' ||
+                openEventType === 'mousedown' ||
+                openEventType === 'keydown' ||
+                openEventType === 'keyup'
+              : true)
+          );
+        onOpenChange(nextOpen, event.nativeEvent, 'click', event.currentTarget);
       },
       onKeyDown() {
         pointerTypeRef.current = undefined;
       },
     }),
-    [dataRef, eventOption, ignoreMouse, onOpenChange, open, stickIfOpen, toggle, frame],
+    [
+      dataRef,
+      eventOption,
+      ignoreMouse,
+      onOpenChange,
+      open,
+      stickIfOpen,
+      toggle,
+      frame,
+      elements.domReference,
+    ],
   );
 
   return React.useMemo(() => (enabled ? { reference } : EMPTY_OBJECT), [enabled, reference]);
