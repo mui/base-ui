@@ -17,11 +17,10 @@ export default function CssAnimations() {
           <Collapsible.Panel className={styles.Panel} keepMounted>
             <div className={styles.Content}>
               <p>
-                He rubbed his eyes, and came close to the picture, and examined it
-                again. There were no signs of any change when he looked into the
-                actual painting, and yet there was no doubt that the whole expression
-                had altered. It was not a mere fancy of his own. The thing was
-                horribly apparent.
+                He rubbed his eyes, and came close to the picture, and examined it again. There were
+                no signs of any change when he looked into the actual painting, and yet there was no
+                doubt that the whole expression had altered. It was not a mere fancy of his own. The
+                thing was horribly apparent.
               </p>
             </div>
           </Collapsible.Panel>
@@ -35,11 +34,10 @@ export default function CssAnimations() {
           <Collapsible.Panel className={styles.Panel} keepMounted>
             <div className={styles.Content}>
               <p>
-                He rubbed his eyes, and came close to the picture, and examined it
-                again. There were no signs of any change when he looked into the
-                actual painting, and yet there was no doubt that the whole expression
-                had altered. It was not a mere fancy of his own. The thing was
-                horribly apparent.
+                He rubbed his eyes, and came close to the picture, and examined it again. There were
+                no signs of any change when he looked into the actual painting, and yet there was no
+                doubt that the whole expression had altered. It was not a mere fancy of his own. The
+                thing was horribly apparent.
               </p>
             </div>
           </Collapsible.Panel>
@@ -57,11 +55,10 @@ export default function CssAnimations() {
           <Collapsible.Panel className={styles.Panel} keepMounted={false}>
             <div className={styles.Content}>
               <p>
-                He rubbed his eyes, and came close to the picture, and examined it
-                again. There were no signs of any change when he looked into the
-                actual painting, and yet there was no doubt that the whole expression
-                had altered. It was not a mere fancy of his own. The thing was
-                horribly apparent.
+                He rubbed his eyes, and came close to the picture, and examined it again. There were
+                no signs of any change when he looked into the actual painting, and yet there was no
+                doubt that the whole expression had altered. It was not a mere fancy of his own. The
+                thing was horribly apparent.
               </p>
             </div>
           </Collapsible.Panel>
@@ -75,11 +72,10 @@ export default function CssAnimations() {
           <Collapsible.Panel className={styles.Panel} keepMounted={false}>
             <div className={styles.Content}>
               <p>
-                He rubbed his eyes, and came close to the picture, and examined it
-                again. There were no signs of any change when he looked into the
-                actual painting, and yet there was no doubt that the whole expression
-                had altered. It was not a mere fancy of his own. The thing was
-                horribly apparent.
+                He rubbed his eyes, and came close to the picture, and examined it again. There were
+                no signs of any change when he looked into the actual painting, and yet there was no
+                doubt that the whole expression had altered. It was not a mere fancy of his own. The
+                thing was horribly apparent.
               </p>
             </div>
           </Collapsible.Panel>

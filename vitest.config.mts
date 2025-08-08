@@ -7,7 +7,7 @@ const WORKSPACE_ROOT = resolve(CURRENT_DIR, './');
 
 export default defineConfig({
   test: {
-    workspace: [
+    projects: [
       'packages/*/vitest.config.mts',
       'docs/vitest.config.mts',
       'test/e2e/vitest.config.mts',
