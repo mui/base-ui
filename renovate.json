@@ -7,6 +7,11 @@
   },
   "packageRules": [
     {
+      "matchDepTypes": ["devDependencies"],
+      "matchUpdateTypes": ["minor", "patch", "pin", "digest"],
+      "automerge": true
+    },
+    {
       "groupName": "Floating UI",
       "description": "Update Floating UI as soon as the new version is released",
       "matchPackageNames": ["@floating-ui/*"],
