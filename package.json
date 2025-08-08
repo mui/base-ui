@@ -101,7 +101,7 @@
     "babel-plugin-optimize-clsx": "^2.6.2",
     "babel-plugin-react-remove-properties": "^0.3.0",
     "chai-dom": "^1.12.1",
-    "chalk": "^5.4.1",
+    "chalk": "^5.5.0",
     "compression-webpack-plugin": "^11.1.0",
     "concurrently": "^9.2.0",
     "cross-env": "^10.0.0",
