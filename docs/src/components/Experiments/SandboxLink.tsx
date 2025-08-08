@@ -3,7 +3,7 @@ import * as React from 'react';
 import { createCodeSandbox } from 'docs/src/blocks/createCodeSandbox/createCodeSandbox';
 import { DemoFile } from 'docs/src/blocks/Demo';
 import { Button } from './Button';
-import { resolveDependencies } from '../Demo/CodeSandboxLink';
+import { resolveDependencies } from '../Demo/Demo';
 
 export function SandboxLink(props: SandboxLinkProps) {
   const { files, ...otherProps } = props;

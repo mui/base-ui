@@ -75,20 +75,28 @@ function transformJsx() {
         'mdxJsxTextElement',
       ],
       (node, index, parent) => {
+        if (node.type === 'mdxjsEsm') {
+          if (node.data.estree.type === 'Program') {
+            const estree = node.data.estree;
+            if (estree.body[0].type === 'ImportDeclaration') {
+              // Handle import declarations in MDX
+              const importPath = estree.body[0].source.value;
+              const demoContent = processDemo(node, file.path || '', importPath);
+
+              // Replace the demo component with the generated content
+              parent.children.splice(index, 1, ...demoContent);
+              return visit.CONTINUE;
+            }
+          }
+        }
+
+        if (node.name.startsWith('Demo')) {
+          // handled by import
+          return visit.SKIP;
+        }
+
         // Process different component types
         switch (node.name) {
-          case 'Demo': {
-            // Get the file path for context
-            const filePath = file.path || '';
-
-            // Process the demo component using our dedicated processor
-            const demoContent = processDemo(node, filePath);
-
-            // Replace the demo component with the generated content
-            parent.children.splice(index, 1, ...demoContent);
-            return visit.CONTINUE;
-          }
-
           case 'Reference': {
             // Process the reference component using our dedicated processor
             const tables = processReference(node, parent, index);

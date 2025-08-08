@@ -1,9 +1,12 @@
 import * as React from 'react';
-import * as BaseDemo from 'docs/src/blocks/Demo';
 import { Collapsible } from '@base-ui-components/react/collapsible';
 import * as ScrollArea from '../ScrollArea';
 
+import '@wooorm/starry-night/style/both';
+
 interface DemoCodeBlockProps {
+  selectedFile: React.ReactNode;
+  selectedFileLines: number;
   collapsibleOpen: boolean;
   /** How many lines should the code block have to get collapsed instead of rendering fully */
   collapsibleLinesThreshold?: number;
@@ -33,24 +36,19 @@ function Root(props: React.ComponentProps<typeof ScrollArea.Root>) {
 }
 
 export function DemoCodeBlock({
+  selectedFile,
+  selectedFileLines,
   compact,
   collapsibleOpen,
   collapsibleLinesThreshold = 12,
 }: DemoCodeBlockProps) {
-  const demoContext = React.useContext(BaseDemo.DemoContext);
-
-  if (!demoContext) {
-    throw new Error('Demo.Playground must be used within a Demo.Root');
-  }
-
-  const { selectedFile } = demoContext;
-  const lineBreaks = selectedFile.content.match(/\n/g) ?? [];
-
-  if (lineBreaks.length < collapsibleLinesThreshold) {
+  if (selectedFileLines < collapsibleLinesThreshold) {
     return (
       <Root>
         <ScrollArea.Viewport>
-          <BaseDemo.SourceBrowser className="DemoSourceBrowser" />
+          <pre className="DemoSourceBrowser" data-language={'TODO'}>
+            {selectedFile}
+          </pre>
         </ScrollArea.Viewport>
         <ScrollArea.Corner />
         <ScrollArea.Scrollbar orientation="vertical" />
@@ -75,7 +73,9 @@ export function DemoCodeBlock({
           className="DemoCodeBlockViewport"
           {...(!collapsibleOpen && { tabIndex: undefined, style: { overflow: undefined } })}
         >
-          <BaseDemo.SourceBrowser className="DemoSourceBrowser" />
+          <pre className="DemoSourceBrowser" data-language={'TODO'}>
+            {selectedFile}
+          </pre>
         </ScrollArea.Viewport>
 
         {collapsibleOpen && (
