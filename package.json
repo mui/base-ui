@@ -117,7 +117,7 @@
     "lerna": "^8.2.3",
     "lodash": "^4.17.21",
     "markdownlint-cli2": "^0.18.1",
-    "nx": "^21.3.10",
+    "nx": "^21.3.11",
     "postcss": "^8.5.6",
     "postcss-loader": "^8.1.1",
     "postcss-styled-syntax": "^0.7.1",
