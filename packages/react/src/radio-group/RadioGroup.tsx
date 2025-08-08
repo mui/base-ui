@@ -131,7 +131,7 @@ export const RadioGroup = React.forwardRef(function RadioGroup(
 
   const serializedCheckedValue = React.useMemo(() => {
     if (checkedValue == null) {
-      return ''; // avoid uncontrolled -> controlled error
+      return null;
     }
     if (typeof checkedValue === 'string') {
       return checkedValue;
@@ -143,10 +143,10 @@ export const RadioGroup = React.forwardRef(function RadioGroup(
 
   const inputProps = mergeProps<'input'>(
     {
-      value: serializedCheckedValue,
+      value: serializedCheckedValue ?? '',
       ref: mergedInputRef,
       id,
-      name,
+      name: fieldName || serializedCheckedValue !== null ? name : undefined,
       disabled,
       readOnly,
       required,

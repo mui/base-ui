@@ -154,10 +154,52 @@ describe('<RadioGroup />', () => {
     expect(indicator).to.have.attribute('data-required', '');
   });
 
-  it('should set the name attribute on the input', async () => {
-    await render(<RadioGroup name="radio-group" />);
+  it('should set the name attribute on the input only when a value is selected', async () => {
+    await render(
+      <RadioGroup name="radio-group">
+        <Radio.Root value="a" data-testid="radio" />
+      </RadioGroup>,
+    );
     const group = screen.getByRole('radiogroup');
+    const radio = screen.getByTestId('radio');
+
+    expect(group.nextElementSibling).to.not.have.attribute('name');
+
+    act(() => {
+      radio.click();
+    });
     expect(group.nextElementSibling).to.have.attribute('name', 'radio-group');
+  });
+
+  it('should return null when no radio is selected (matching native behavior)', async ({
+    skip,
+  }) => {
+    if (isJSDOM) {
+      // FormData is not available in JSDOM
+      skip();
+    }
+
+    let formData: FormData;
+
+    await render(
+      <form
+        onSubmit={(event) => {
+          event.preventDefault();
+          formData = new FormData(event.currentTarget);
+        }}
+      >
+        <RadioGroup name="test-group">
+          <Radio.Root value="option-a" />
+          <Radio.Root value="option-b" />
+        </RadioGroup>
+        <button type="submit">Submit</button>
+      </form>,
+    );
+
+    const submitButton = screen.getByRole('button');
+    submitButton.click();
+
+    expect(formData!.get('test-group')).to.equal(null);
   });
 
   it('should include the radio value in the form submission', async ({ skip }) => {
@@ -166,14 +208,13 @@ describe('<RadioGroup />', () => {
       skip();
     }
 
-    let stringifiedFormData = '';
+    let formData: FormData;
 
     await render(
       <form
         onSubmit={(event) => {
           event.preventDefault();
-          const formData = new FormData(event.currentTarget);
-          stringifiedFormData = new URLSearchParams(formData as any).toString();
+          formData = new FormData(event.currentTarget);
         }}
       >
         <RadioGroup name="group">
@@ -190,7 +231,7 @@ describe('<RadioGroup />', () => {
 
     submitButton.click();
 
-    expect(stringifiedFormData).to.equal('group=');
+    expect(formData!.get('group')).to.equal(null);
 
     await act(async () => {
       radioA.click();
@@ -198,7 +239,7 @@ describe('<RadioGroup />', () => {
 
     submitButton.click();
 
-    expect(stringifiedFormData).to.equal('group=a');
+    expect(formData!.get('group')).to.equal('a');
   });
 
   it('should automatically select radio upon navigation', async () => {
