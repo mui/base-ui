@@ -209,7 +209,7 @@ describe('<Select.Value />', () => {
       ];
 
       function App() {
-        const [value, setValue] = React.useState<string | null>('sans');
+        const [value, setValue] = React.useState('sans');
         return (
           <div>
             <button onClick={() => setValue('serif')}>serif</button>
@@ -275,7 +275,7 @@ describe('<Select.Value />', () => {
 
     it('is not stale after being updated', async () => {
       function App() {
-        const [value, setValue] = React.useState<string | null>('a');
+        const [value, setValue] = React.useState('a');
         const [items, setItems] = React.useState([
           { value: 'a', label: 'a' },
           { value: 'b', label: 'b' },
