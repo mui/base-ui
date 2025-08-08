@@ -43,6 +43,7 @@ export function PreviewCardRoot(props: PreviewCardRoot.Props) {
   const [triggerElement, setTriggerElement] = React.useState<Element | null>(null);
   const [positionerElement, setPositionerElement] = React.useState<HTMLElement | null>(null);
   const [instantTypeState, setInstantTypeState] = React.useState<'dismiss' | 'focus'>();
+  const coordsRef: PreviewCardRootContext['coordsRef'] = React.useRef(undefined);
 
   const popupRef = React.useRef<HTMLDivElement | null>(null);
 
@@ -148,6 +149,7 @@ export function PreviewCardRoot(props: PreviewCardRoot.Props) {
       onOpenChangeComplete,
       delay: delayWithDefault,
       closeDelay: closeDelayWithDefault,
+      coordsRef,
     }),
     [
       open,
