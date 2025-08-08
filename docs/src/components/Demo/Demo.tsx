@@ -215,7 +215,7 @@ const versions = {
 const COMMIT_REF = process.env.PULL_REQUEST_ID ? process.env.COMMIT_REF : undefined;
 const SOURCE_CODE_REPO = process.env.SOURCE_CODE_REPO;
 
-function resolveDependencies(packageName: string): Record<string, string> {
+export function resolveDependencies(packageName: string): Record<string, string> {
   switch (packageName) {
     case '@base-ui-components/react': {
       if (COMMIT_REF === undefined || SOURCE_CODE_REPO !== 'https://github.com/mui/base-ui') {
