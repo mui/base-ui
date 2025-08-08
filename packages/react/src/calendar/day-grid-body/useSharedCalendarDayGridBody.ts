@@ -81,7 +81,7 @@ export function useSharedCalendarDayGridBody(
   const disabledIndices = React.useMemo(() => {
     const output: number[] = [];
     for (const itemMetadata of itemMap.values()) {
-      if (itemMetadata?.index && !itemMetadata.focusableWhenDisabled) {
+      if (itemMetadata?.index != null && !itemMetadata.focusableWhenDisabled) {
         output.push(itemMetadata.index);
       }
     }
