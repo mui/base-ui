@@ -12,7 +12,7 @@
       "description": "The offset to apply to the rendered month compared to the current month.\nThis is mostly useful when displaying multiple day grids."
     },
     "children": {
-      "type": "ReactNode | ((week: Date | DateTime<boolean>, index: number, weeks: (Date | DateTime<boolean>)[]) => ReactNode)",
+      "type": "ReactNode | ((week: Date | DateTime, index: number, weeks: (Date | DateTime)[]) => ReactNode)",
       "description": "The children of the component.\nIf a function is provided, it will be called for each week to render as its parameter."
     },
     "className": {

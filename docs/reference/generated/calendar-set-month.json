@@ -8,7 +8,7 @@
       "description": "Whether the component renders a native `<button>` element when replacing it\nvia the `render` prop.\nSet to `false` if the rendered element is not a button (e.g. `<div>`)."
     },
     "target": {
-      "type": "Date | DateTime<boolean>",
+      "type": "Date | DateTime",
       "required": true,
       "description": "The month to navigate to."
     },

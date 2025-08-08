@@ -11,23 +11,23 @@
       "description": "The controlled value that should be selected.\nTo render an uncontrolled (Range)Calendar, use the `defaultValue` prop instead."
     },
     "onValueChange": {
-      "type": "((value: TemporalNonRangeValue, context: useSharedCalendarRoot.ValueChangeHandlerContext) => void)",
+      "type": "((value: TemporalNonRangeValue, context: useSharedCalendarRoot.ValueChangeHandlerContext<validateDate.ReturnValue>) => void)",
       "description": "Event handler called when the selected value changes.\nProvides the new value as an argument."
     },
     "defaultVisibleDate": {
-      "type": "Date | DateTime<boolean>",
+      "type": "Date | DateTime",
       "description": "The date used to decide which month should be initially displayed in the Day Grid.\nTo render a controlled Calendar, use the `visibleDate` prop instead."
     },
     "isDateUnavailable": {
-      "type": "((day: Date | DateTime<boolean>) => boolean)",
+      "type": "((day: Date | DateTime) => boolean)",
       "description": "Mark specific dates as unavailable.\nThose dates will not be selectable but they will still be focusable with the keyboard."
     },
     "maxDate": {
-      "type": "Date | DateTime<boolean>",
+      "type": "Date | DateTime",
       "description": "Maximal selectable date."
     },
     "minDate": {
-      "type": "Date | DateTime<boolean>",
+      "type": "Date | DateTime",
       "description": "Minimal selectable date."
     },
     "monthPageSize": {
@@ -36,11 +36,11 @@
       "description": "The amount of months to move by when navigating.\nThis is mostly useful when displaying multiple day grids."
     },
     "onVisibleDateChange": {
-      "type": "((visibleDate: Date | DateTime<boolean>) => void)",
+      "type": "((visibleDate: Date | DateTime) => void)",
       "description": "Event handler called when the visible date changes.\nProvides the new visible date as an argument."
     },
     "referenceDate": {
-      "type": "Date | DateTime<boolean>",
+      "type": "Date | DateTime",
       "default": "The closest valid date using the validation props.",
       "description": "The date used to generate the new value when both `value` and `defaultValue` are empty."
     },
@@ -50,7 +50,7 @@
       "description": "Choose which timezone to use for the value.\nExample: \"default\", \"system\", \"UTC\", \"America/New_York\".\nIf you pass values from other timezones to some props, they will be converted to this timezone before being used."
     },
     "visibleDate": {
-      "type": "Date | DateTime<boolean>",
+      "type": "Date | DateTime",
       "description": "The date used to decide which month should be displayed in the Day Grid.\nTo render an uncontrolled Calendar, use the `defaultVisibleDate` prop instead."
     },
     "disabled": {

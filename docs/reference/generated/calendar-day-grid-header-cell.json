@@ -3,11 +3,11 @@
   "description": "An individual day header cell in the calendar.\nRenders a `<th>` element.",
   "props": {
     "value": {
-      "type": "Date | DateTime<boolean>",
+      "type": "Date | DateTime",
       "required": true
     },
     "formatter": {
-      "type": "((date: Date | DateTime<boolean>) => string)",
+      "type": "((date: Date | DateTime) => string)",
       "default": "(date) => adapter.format(date, 'weekday3Letters').charAt(0).toUpperCase()",
       "description": "The formatter function used to display the day of the week."
     },
