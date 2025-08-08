@@ -59,11 +59,11 @@ importers:
         specifier: ^2.0.7-canary.12
         version: 2.0.7-canary.12(@babel/core@7.28.0)
       '@mui/internal-bundle-size-checker':
-        specifier: ^1.0.9-canary.10
-        version: 1.0.9-canary.10(@types/node@22.17.0)(jiti@2.4.2)(lightningcss@1.30.1)(rollup@4.46.2)(terser@5.43.1)(tsx@4.20.3)(webpack-cli@6.0.1(webpack-bundle-analyzer@4.10.2)(webpack@5.101.0))(yaml@2.7.1)
+        specifier: ^1.0.9-canary.12
+        version: 1.0.9-canary.12(@types/node@22.17.0)(jiti@2.4.2)(lightningcss@1.30.1)(rollup@4.46.2)(terser@5.43.1)(tsx@4.20.3)(webpack-cli@6.0.1(webpack-bundle-analyzer@4.10.2)(webpack@5.101.0))(yaml@2.7.1)
       '@mui/internal-code-infra':
-        specifier: ^0.0.2-canary.25
-        version: 0.0.2-canary.25(eslint@9.32.0(jiti@2.4.2))(prettier@3.6.2)(typescript@5.9.2)
+        specifier: ^0.0.2-canary.26
+        version: 0.0.2-canary.26(eslint@9.32.0(jiti@2.4.2))(prettier@3.6.2)(typescript@5.9.2)
       '@mui/internal-docs-utils':
         specifier: ^2.0.1
         version: 2.0.1
@@ -2372,12 +2372,12 @@ packages:
     peerDependencies:
       '@babel/core': ^7.28.0
 
-  '@mui/internal-bundle-size-checker@1.0.9-canary.10':
-    resolution: {integrity: sha512-p2YZVgeSbNILLs8IHhfvTrkSr0v80dyTui9nMfsgnCk967QdDB+lHSZ976neFznZd/doQkFqp59hrIbC+ao/1Q==}
+  '@mui/internal-bundle-size-checker@1.0.9-canary.12':
+    resolution: {integrity: sha512-dH0gu5a2LbrjDj4TQziLYoU4/ojuEpOysVE+Q5QB2kk9PYnZFRD1yZkoY5Y1WA4JE2jcNzq8bsXJ4NKYe4OMnA==}
     hasBin: true
 
-  '@mui/internal-code-infra@0.0.2-canary.25':
-    resolution: {integrity: sha512-kqy6bV6CKZ1V/DBKtMkQOGFlOiPRw2RRXJZ9bYzr8P4ub1twGgNITIklkVZoredKx8KxloUirvswB+zxUcqT0A==}
+  '@mui/internal-code-infra@0.0.2-canary.26':
+    resolution: {integrity: sha512-6nntDkppu+Z6qF3k963HfGCHcAoSfQP8l2o+Gt8/CIQOfoJjom8lXwlwbRt3oxA1tgZ31H5U74EwZ28N/pEFvA==}
     hasBin: true
     peerDependencies:
       eslint: ^9.0.0
@@ -2851,6 +2851,10 @@ packages:
     resolution: {integrity: sha512-KJqLL/Zyx96hs+7pKbo/fsU7ZTFSLeZLnYQu05o6fvJJ5I1+p85t212/7vkbKKWJncyMospQdzLr3zLG3A/u8A==}
     cpu: [x64]
     os: [win32]
+
+  '@octokit/auth-action@6.0.1':
+    resolution: {integrity: sha512-6gmX/skhJUfBiqGbRc5kNaCMIL32lUT7RrQMq/9PDHIhvYRLYHRYFJJapNqe7It5a8ug/fgNuwR8UiivsPmtHw==}
+    engines: {node: '>= 20'}
 
   '@octokit/auth-token@4.0.0':
     resolution: {integrity: sha512-tY/msAuJo6ARbK6SPIxZrPBms3xPbfwBrulZe0Wtr/DIY9lje2HeV1uoebShn6mx7SjCHif6EjMvoREj+gZ+SA==}
@@ -13169,13 +13173,14 @@ snapshots:
       '@babel/core': 7.28.0
       resolve: 1.22.10
 
-  '@mui/internal-bundle-size-checker@1.0.9-canary.10(@types/node@22.17.0)(jiti@2.4.2)(lightningcss@1.30.1)(rollup@4.46.2)(terser@5.43.1)(tsx@4.20.3)(webpack-cli@6.0.1(webpack-bundle-analyzer@4.10.2)(webpack@5.101.0))(yaml@2.7.1)':
+  '@mui/internal-bundle-size-checker@1.0.9-canary.12(@types/node@22.17.0)(jiti@2.4.2)(lightningcss@1.30.1)(rollup@4.46.2)(terser@5.43.1)(tsx@4.20.3)(webpack-cli@6.0.1(webpack-bundle-analyzer@4.10.2)(webpack@5.101.0))(yaml@2.7.1)':
     dependencies:
       '@aws-sdk/client-s3': 3.797.0
       '@aws-sdk/credential-providers': 3.797.0
       '@babel/core': 7.28.0
       '@babel/preset-react': 7.27.1(@babel/core@7.28.0)
       '@babel/preset-typescript': 7.27.1(@babel/core@7.28.0)
+      '@octokit/auth-action': 6.0.1
       '@octokit/rest': 22.0.0
       babel-loader: 10.0.0(@babel/core@7.28.0)(webpack@5.101.0)
       chalk: 5.5.0
@@ -13218,7 +13223,7 @@ snapshots:
       - webpack-cli
       - yaml
 
-  '@mui/internal-code-infra@0.0.2-canary.25(eslint@9.32.0(jiti@2.4.2))(prettier@3.6.2)(typescript@5.9.2)':
+  '@mui/internal-code-infra@0.0.2-canary.26(eslint@9.32.0(jiti@2.4.2))(prettier@3.6.2)(typescript@5.9.2)':
     dependencies:
       '@argos-ci/core': 3.2.0
       '@eslint/compat': 1.3.1(eslint@9.32.0(jiti@2.4.2))
@@ -13226,12 +13231,12 @@ snapshots:
       '@octokit/rest': 22.0.0
       chalk: 5.5.0
       eslint: 9.32.0(jiti@2.4.2)
-      eslint-config-airbnb: 19.0.4(eslint-plugin-import@2.32.0(eslint@9.32.0(jiti@2.4.2)))(eslint-plugin-jsx-a11y@6.10.2(eslint@9.32.0(jiti@2.4.2)))(eslint-plugin-react-hooks@6.0.0-rc1(eslint@9.32.0(jiti@2.4.2)))(eslint-plugin-react@7.37.5(eslint@9.32.0(jiti@2.4.2)))(eslint@9.32.0(jiti@2.4.2))
-      eslint-config-airbnb-base: 15.0.0(eslint-plugin-import@2.32.0(eslint@9.32.0(jiti@2.4.2)))(eslint@9.32.0(jiti@2.4.2))
+      eslint-config-airbnb: 19.0.4(eslint-plugin-import@2.32.0(eslint-import-resolver-typescript@4.4.4(eslint-plugin-import@2.32.0(eslint@9.32.0(jiti@2.4.2)))(eslint@9.32.0(jiti@2.4.2)))(eslint@9.32.0(jiti@2.4.2)))(eslint-plugin-jsx-a11y@6.10.2(eslint@9.32.0(jiti@2.4.2)))(eslint-plugin-react-hooks@6.0.0-rc1(eslint@9.32.0(jiti@2.4.2)))(eslint-plugin-react@7.37.5(eslint@9.32.0(jiti@2.4.2)))(eslint@9.32.0(jiti@2.4.2))
+      eslint-config-airbnb-base: 15.0.0(eslint-plugin-import@2.32.0(eslint-import-resolver-typescript@4.4.4(eslint-plugin-import@2.32.0(eslint@9.32.0(jiti@2.4.2)))(eslint@9.32.0(jiti@2.4.2)))(eslint@9.32.0(jiti@2.4.2)))(eslint@9.32.0(jiti@2.4.2))
       eslint-config-prettier: 10.1.8(eslint@9.32.0(jiti@2.4.2))
       eslint-import-resolver-typescript: 4.4.4(eslint-plugin-import@2.32.0(eslint@9.32.0(jiti@2.4.2)))(eslint@9.32.0(jiti@2.4.2))
       eslint-module-utils: 2.12.1(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-typescript@4.4.4(eslint-plugin-import@2.32.0(eslint@9.32.0(jiti@2.4.2)))(eslint@9.32.0(jiti@2.4.2)))(eslint@9.32.0(jiti@2.4.2))
-      eslint-plugin-import: 2.32.0(eslint-import-resolver-typescript@4.4.4)(eslint@9.32.0(jiti@2.4.2))
+      eslint-plugin-import: 2.32.0(eslint-import-resolver-typescript@4.4.4(eslint-plugin-import@2.32.0(eslint@9.32.0(jiti@2.4.2)))(eslint@9.32.0(jiti@2.4.2)))(eslint@9.32.0(jiti@2.4.2))
       eslint-plugin-jsx-a11y: 6.10.2(eslint@9.32.0(jiti@2.4.2))
       eslint-plugin-mocha: 11.1.0(eslint@9.32.0(jiti@2.4.2))
       eslint-plugin-react: 7.37.5(eslint@9.32.0(jiti@2.4.2))
@@ -13841,6 +13846,11 @@ snapshots:
 
   '@nx/nx-win32-x64-msvc@21.3.11':
     optional: true
+
+  '@octokit/auth-action@6.0.1':
+    dependencies:
+      '@octokit/auth-token': 6.0.0
+      '@octokit/types': 14.1.0
 
   '@octokit/auth-token@4.0.0': {}
 
@@ -17605,20 +17615,20 @@ snapshots:
     optionalDependencies:
       source-map: 0.6.1
 
-  eslint-config-airbnb-base@15.0.0(eslint-plugin-import@2.32.0(eslint@9.32.0(jiti@2.4.2)))(eslint@9.32.0(jiti@2.4.2)):
+  eslint-config-airbnb-base@15.0.0(eslint-plugin-import@2.32.0(eslint-import-resolver-typescript@4.4.4(eslint-plugin-import@2.32.0(eslint@9.32.0(jiti@2.4.2)))(eslint@9.32.0(jiti@2.4.2)))(eslint@9.32.0(jiti@2.4.2)))(eslint@9.32.0(jiti@2.4.2)):
     dependencies:
       confusing-browser-globals: 1.0.11
       eslint: 9.32.0(jiti@2.4.2)
-      eslint-plugin-import: 2.32.0(eslint-import-resolver-typescript@4.4.4)(eslint@9.32.0(jiti@2.4.2))
+      eslint-plugin-import: 2.32.0(eslint-import-resolver-typescript@4.4.4(eslint-plugin-import@2.32.0(eslint@9.32.0(jiti@2.4.2)))(eslint@9.32.0(jiti@2.4.2)))(eslint@9.32.0(jiti@2.4.2))
       object.assign: 4.1.7
       object.entries: 1.1.9
       semver: 6.3.1
 
-  eslint-config-airbnb@19.0.4(eslint-plugin-import@2.32.0(eslint@9.32.0(jiti@2.4.2)))(eslint-plugin-jsx-a11y@6.10.2(eslint@9.32.0(jiti@2.4.2)))(eslint-plugin-react-hooks@6.0.0-rc1(eslint@9.32.0(jiti@2.4.2)))(eslint-plugin-react@7.37.5(eslint@9.32.0(jiti@2.4.2)))(eslint@9.32.0(jiti@2.4.2)):
+  eslint-config-airbnb@19.0.4(eslint-plugin-import@2.32.0(eslint-import-resolver-typescript@4.4.4(eslint-plugin-import@2.32.0(eslint@9.32.0(jiti@2.4.2)))(eslint@9.32.0(jiti@2.4.2)))(eslint@9.32.0(jiti@2.4.2)))(eslint-plugin-jsx-a11y@6.10.2(eslint@9.32.0(jiti@2.4.2)))(eslint-plugin-react-hooks@6.0.0-rc1(eslint@9.32.0(jiti@2.4.2)))(eslint-plugin-react@7.37.5(eslint@9.32.0(jiti@2.4.2)))(eslint@9.32.0(jiti@2.4.2)):
     dependencies:
       eslint: 9.32.0(jiti@2.4.2)
-      eslint-config-airbnb-base: 15.0.0(eslint-plugin-import@2.32.0(eslint@9.32.0(jiti@2.4.2)))(eslint@9.32.0(jiti@2.4.2))
-      eslint-plugin-import: 2.32.0(eslint-import-resolver-typescript@4.4.4)(eslint@9.32.0(jiti@2.4.2))
+      eslint-config-airbnb-base: 15.0.0(eslint-plugin-import@2.32.0(eslint-import-resolver-typescript@4.4.4(eslint-plugin-import@2.32.0(eslint@9.32.0(jiti@2.4.2)))(eslint@9.32.0(jiti@2.4.2)))(eslint@9.32.0(jiti@2.4.2)))(eslint@9.32.0(jiti@2.4.2))
+      eslint-plugin-import: 2.32.0(eslint-import-resolver-typescript@4.4.4(eslint-plugin-import@2.32.0(eslint@9.32.0(jiti@2.4.2)))(eslint@9.32.0(jiti@2.4.2)))(eslint@9.32.0(jiti@2.4.2))
       eslint-plugin-jsx-a11y: 6.10.2(eslint@9.32.0(jiti@2.4.2))
       eslint-plugin-react: 7.37.5(eslint@9.32.0(jiti@2.4.2))
       eslint-plugin-react-hooks: 6.0.0-rc1(eslint@9.32.0(jiti@2.4.2))
@@ -17655,7 +17665,7 @@ snapshots:
       tinyglobby: 0.2.14
       unrs-resolver: 1.9.2
     optionalDependencies:
-      eslint-plugin-import: 2.32.0(eslint-import-resolver-typescript@4.4.4)(eslint@9.32.0(jiti@2.4.2))
+      eslint-plugin-import: 2.32.0(eslint-import-resolver-typescript@4.4.4(eslint-plugin-import@2.32.0(eslint@9.32.0(jiti@2.4.2)))(eslint@9.32.0(jiti@2.4.2)))(eslint@9.32.0(jiti@2.4.2))
     transitivePeerDependencies:
       - supports-color
 
@@ -17669,7 +17679,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  eslint-plugin-import@2.32.0(eslint-import-resolver-typescript@4.4.4)(eslint@9.32.0(jiti@2.4.2)):
+  eslint-plugin-import@2.32.0(eslint-import-resolver-typescript@4.4.4(eslint-plugin-import@2.32.0(eslint@9.32.0(jiti@2.4.2)))(eslint@9.32.0(jiti@2.4.2)))(eslint@9.32.0(jiti@2.4.2)):
     dependencies:
       '@rtsao/scc': 1.1.0
       array-includes: 3.1.9
