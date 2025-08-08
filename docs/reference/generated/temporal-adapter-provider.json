@@ -1,0 +1,16 @@
+{
+  "name": "TemporalAdapterProvider",
+  "description": "Defines the date library adapter for Base UI temporal components.",
+  "props": {
+    "adapter": {
+      "type": "TemporalAdapter",
+      "required": true,
+      "description": "The date library adapter."
+    },
+    "children": {
+      "type": "ReactNode"
+    }
+  },
+  "dataAttributes": {},
+  "cssVariables": {}
+}
