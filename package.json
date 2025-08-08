@@ -134,7 +134,7 @@
     "rimraf": "^6.0.1",
     "serve": "^14.2.4",
     "style-loader": "^4.0.0",
-    "stylelint": "^16.23.0",
+    "stylelint": "^16.23.1",
     "stylelint-config-standard": "^38.0.0",
     "tailwindcss": "4.1.11",
     "terser": "^5.43.1",
