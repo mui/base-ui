@@ -5,7 +5,8 @@
     "orientation": {
       "type": "Orientation",
       "default": "'horizontal'",
-      "description": "The orientation of the separator."
+      "description": "The orientation of the separator.",
+      "detailedType": "'horizontal' | 'vertical' | undefined"
     },
     "className": {
       "type": "string | ((state: Separator.State) => string)",
@@ -13,7 +14,8 @@
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: Separator.State) => ReactElement)",
-      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
+      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Separator.State,\n  ) => ReactElement)"
     }
   },
   "dataAttributes": {},

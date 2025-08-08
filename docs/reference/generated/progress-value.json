@@ -3,7 +3,8 @@
   "description": "A text label displaying the current value.\nRenders a `<span>` element.",
   "props": {
     "children": {
-      "type": "((formattedValue: string | null, value: number | null) => ReactNode) | null"
+      "type": "((formattedValue: string | null, value: number | null) => ReactNode) | null",
+      "detailedType": "| ((\n    formattedValue: string | null,\n    value: number | null,\n  ) => ReactNode)\n| null\n| undefined"
     },
     "className": {
       "type": "string | ((state: Progress.Root.State) => string)",
@@ -11,7 +12,8 @@
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: Progress.Root.State) => ReactElement)",
-      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
+      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Progress.Root.State,\n  ) => ReactElement)"
     }
   },
   "dataAttributes": {

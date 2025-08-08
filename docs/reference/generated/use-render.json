@@ -9,20 +9,24 @@
     },
     "ref": {
       "type": "Ref<Element> | Ref<Element>[]",
-      "description": "The ref to apply to the rendered element."
+      "description": "The ref to apply to the rendered element.",
+      "detailedType": "React.Ref<Element> | Ref<Element>[] | undefined"
     },
     "state": {
       "type": "Record<string, unknown>",
-      "description": "The state of the component, passed as the second argument to the `render` callback."
+      "description": "The state of the component, passed as the second argument to the `render` callback.",
+      "detailedType": "Record<string, unknown> | undefined"
     },
     "props": {
       "type": "Record<string, unknown>",
-      "description": "Props to be spread on the rendered element.\nThey are merged with the internal props of the component, so that event handlers\nare merged, `className` strings and `style` properties are joined, while other external props overwrite the\ninternal ones."
+      "description": "Props to be spread on the rendered element.\nThey are merged with the internal props of the component, so that event handlers\nare merged, `className` strings and `style` properties are joined, while other external props overwrite the\ninternal ones.",
+      "detailedType": "Record<string, unknown> | undefined"
     },
     "enabled": {
       "type": "boolean | undefined",
       "default": "true",
-      "description": "If `false`, the hook will skip most of its internal logic and return `null`.\nThis is useful for rendering a component conditionally."
+      "description": "If `false`, the hook will skip most of its internal logic and return `null`.\nThis is useful for rendering a component conditionally.",
+      "detailedType": "boolean | undefined | undefined"
     }
   },
   "returnValue": "ReactElement | null"

@@ -4,7 +4,8 @@
   "props": {
     "delay": {
       "type": "number",
-      "description": "How long to wait before showing the fallback. Specified in milliseconds."
+      "description": "How long to wait before showing the fallback. Specified in milliseconds.",
+      "detailedType": "number | undefined"
     },
     "className": {
       "type": "string | ((state: Avatar.Root.State) => string)",
@@ -12,7 +13,8 @@
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: Avatar.Root.State) => ReactElement)",
-      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
+      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Avatar.Root.State,\n  ) => ReactElement)"
     }
   },
   "dataAttributes": {},

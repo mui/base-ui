@@ -5,36 +5,44 @@
     "defaultOpen": {
       "type": "boolean",
       "default": "false",
-      "description": "Whether the preview card is initially open.\n\nTo render a controlled preview card, use the `open` prop instead."
+      "description": "Whether the preview card is initially open.\n\nTo render a controlled preview card, use the `open` prop instead.",
+      "detailedType": "boolean | undefined"
     },
     "open": {
       "type": "boolean",
-      "description": "Whether the preview card is currently open."
+      "description": "Whether the preview card is currently open.",
+      "detailedType": "boolean | undefined"
     },
     "onOpenChange": {
       "type": "((open: boolean, event: Event | undefined, reason: PreviewCard.Root.OpenChangeReason | undefined) => void)",
-      "description": "Event handler called when the preview card is opened or closed."
+      "description": "Event handler called when the preview card is opened or closed.",
+      "detailedType": "| ((\n    open: boolean,\n    event: Event | undefined,\n    reason: PreviewCard.Root.OpenChangeReason | undefined,\n  ) => void)\n| undefined"
     },
     "actionsRef": {
       "type": "RefObject<PreviewCard.Root.Actions>",
-      "description": "A ref to imperative actions.\n- `unmount`: When specified, the preview card will not be unmounted when closed.\nInstead, the `unmount` function must be called to unmount the preview card manually.\nUseful when the preview card's animation is controlled by an external library."
+      "description": "A ref to imperative actions.\n- `unmount`: When specified, the preview card will not be unmounted when closed.\nInstead, the `unmount` function must be called to unmount the preview card manually.\nUseful when the preview card's animation is controlled by an external library.",
+      "detailedType": "| React.RefObject<PreviewCard.Root.Actions>\n| undefined"
     },
     "onOpenChangeComplete": {
       "type": "((open: boolean) => void)",
-      "description": "Event handler called after any animations complete when the preview card is opened or closed."
+      "description": "Event handler called after any animations complete when the preview card is opened or closed.",
+      "detailedType": "((open: boolean) => void) | undefined"
     },
     "delay": {
       "type": "number",
       "default": "600",
-      "description": "How long to wait before the preview card opens. Specified in milliseconds."
+      "description": "How long to wait before the preview card opens. Specified in milliseconds.",
+      "detailedType": "number | undefined"
     },
     "closeDelay": {
       "type": "number",
       "default": "300",
-      "description": "How long to wait before closing the preview card. Specified in milliseconds."
+      "description": "How long to wait before closing the preview card. Specified in milliseconds.",
+      "detailedType": "number | undefined"
     },
     "children": {
-      "type": "ReactNode"
+      "type": "ReactNode",
+      "detailedType": "React.ReactNode"
     }
   },
   "dataAttributes": {},

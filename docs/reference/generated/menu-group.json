@@ -4,7 +4,8 @@
   "props": {
     "children": {
       "type": "ReactNode",
-      "description": "The content of the component."
+      "description": "The content of the component.",
+      "detailedType": "React.ReactNode"
     },
     "className": {
       "type": "string | ((state: Menu.Group.State) => string)",
@@ -12,7 +13,8 @@
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: Menu.Group.State) => ReactElement)",
-      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
+      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Menu.Group.State,\n  ) => ReactElement)"
     }
   },
   "dataAttributes": {},

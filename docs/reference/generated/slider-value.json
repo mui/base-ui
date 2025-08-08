@@ -3,7 +3,8 @@
   "description": "Displays the current value of the slider as text.\nRenders an `<output>` element.",
   "props": {
     "children": {
-      "type": "((formattedValues: string[], values: number[]) => ReactNode) | null"
+      "type": "((formattedValues: string[], values: number[]) => ReactNode) | null",
+      "detailedType": "| ((\n    formattedValues: string[],\n    values: number[],\n  ) => ReactNode)\n| null\n| undefined"
     },
     "className": {
       "type": "string | ((state: Slider.Root.State) => string)",
@@ -11,7 +12,8 @@
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: Slider.Root.State) => ReactElement)",
-      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
+      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Slider.Root.State,\n  ) => ReactElement)"
     }
   },
   "dataAttributes": {

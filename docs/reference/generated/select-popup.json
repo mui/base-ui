@@ -3,10 +3,12 @@
   "description": "A container for the select items.\nRenders a `<div>` element.",
   "props": {
     "id": {
-      "type": "string"
+      "type": "string",
+      "detailedType": "string | undefined"
     },
     "children": {
-      "type": "ReactNode"
+      "type": "ReactNode",
+      "detailedType": "React.ReactNode"
     },
     "className": {
       "type": "string | ((state: Select.Popup.State) => string)",
@@ -14,7 +16,8 @@
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: Select.Popup.State) => ReactElement)",
-      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
+      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Select.Popup.State,\n  ) => ReactElement)"
     }
   },
   "dataAttributes": {
