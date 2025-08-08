@@ -171,43 +171,34 @@ describe('<RadioGroup />', () => {
     expect(group.nextElementSibling).to.have.attribute('name', 'radio-group');
   });
 
-  it('should return null when no radio is selected (matching native behavior)', async ({
-    skip,
-  }) => {
-    if (isJSDOM) {
-      // FormData is not available in JSDOM
-      skip();
-    }
+  it.skipIf(isJSDOM)(
+    'should return null when no radio is selected (matching native behavior)',
+    async () => {
+      let formData: FormData;
 
-    let formData: FormData;
+      await render(
+        <form
+          onSubmit={(event) => {
+            event.preventDefault();
+            formData = new FormData(event.currentTarget);
+          }}
+        >
+          <RadioGroup name="test-group">
+            <Radio.Root value="option-a" />
+            <Radio.Root value="option-b" />
+          </RadioGroup>
+          <button type="submit">Submit</button>
+        </form>,
+      );
 
-    await render(
-      <form
-        onSubmit={(event) => {
-          event.preventDefault();
-          formData = new FormData(event.currentTarget);
-        }}
-      >
-        <RadioGroup name="test-group">
-          <Radio.Root value="option-a" />
-          <Radio.Root value="option-b" />
-        </RadioGroup>
-        <button type="submit">Submit</button>
-      </form>,
-    );
+      const submitButton = screen.getByRole('button');
+      submitButton.click();
 
-    const submitButton = screen.getByRole('button');
-    submitButton.click();
+      expect(formData!.get('test-group')).to.equal(null);
+    },
+  );
 
-    expect(formData!.get('test-group')).to.equal(null);
-  });
-
-  it('should include the radio value in the form submission', async ({ skip }) => {
-    if (isJSDOM) {
-      // FormData is not available in JSDOM
-      skip();
-    }
-
+  it.skipIf(isJSDOM)('should include the radio value in the form submission', async () => {
     let formData: FormData;
 
     await render(
@@ -430,7 +421,7 @@ describe('<RadioGroup />', () => {
   });
 
   describe('Field', () => {
-    it('passes the `name` prop to the hidden input', async () => {
+    it('passes the `name` prop to the hidden input only when a value is selected', async () => {
       await render(
         <Field.Root name="test" data-testid="field">
           <RadioGroup name="group">
@@ -439,7 +430,17 @@ describe('<RadioGroup />', () => {
         </Field.Root>,
       );
 
-      const input = screen.getByTestId('field').querySelector('input[name="test"]');
+      // Initially, no name attribute when no value is selected
+      let input = screen.getByTestId('field').querySelector('input[name="test"]');
+      expect(input).to.equal(null);
+
+      // After selecting, should have name attribute
+      const radio = screen.getByTestId('item');
+      act(() => {
+        radio.click();
+      });
+
+      input = screen.getByTestId('field').querySelector('input[name="test"]');
       expect(input).not.to.equal(null);
     });
 
@@ -490,7 +491,7 @@ describe('<RadioGroup />', () => {
           expect(radio).to.have.attribute('data-disabled');
         });
 
-        it('should receive name prop from Field.Root', async () => {
+        it('should receive name prop from Field.Root only when a value is selected', async () => {
           await render(
             <Field.Root name="field-radio">
               <RadioGroup>
@@ -500,7 +501,16 @@ describe('<RadioGroup />', () => {
           );
 
           const group = screen.getByRole('radiogroup');
+          const radio = screen.getByTestId('radio');
           const input = group.nextElementSibling as HTMLInputElement;
+
+          // Initially, no name attribute when no value is selected
+          expect(input).to.not.have.attribute('name');
+
+          // After selecting, should have name attribute from Field.Root
+          act(() => {
+            radio.click();
+          });
 
           expect(input).to.have.attribute('name', 'field-radio');
         });
