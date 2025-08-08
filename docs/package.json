@@ -21,7 +21,7 @@
     "@emotion/styled": "^11.14.1",
     "@mdx-js/loader": "^3.1.0",
     "@mdx-js/react": "^3.1.0",
-    "@mui/system": "7.2.0",
+    "@mui/system": "7.3.1",
     "@next/mdx": "^15.4.5",
     "@react-spring/web": "^10.0.1",
     "@stefanprobst/rehype-extract-toc": "^3.0.0",
