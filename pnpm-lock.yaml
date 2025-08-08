@@ -312,8 +312,8 @@ importers:
         specifier: ^3.1.0
         version: 3.1.0(@types/react@19.1.9)(react@19.1.1)
       '@mui/internal-docs-infra':
-        specifier: 0.1.1-alpha.16
-        version: 0.1.1-alpha.16(@types/react@19.1.9)(next@15.4.5(@babel/core@7.28.0)(@playwright/test@1.54.2)(babel-plugin-macros@3.1.0)(react-dom@19.1.1(react@19.1.1))(react@19.1.1))(react@19.1.1)
+        specifier: 0.1.1-alpha.18
+        version: 0.1.1-alpha.18(@types/react@19.1.9)(next@15.4.5(@babel/core@7.28.0)(@playwright/test@1.54.2)(babel-plugin-macros@3.1.0)(react-dom@19.1.1(react@19.1.1))(react@19.1.1))(react@19.1.1)
       '@mui/system':
         specifier: 7.2.0
         version: 7.2.0(@emotion/react@11.14.0(@types/react@19.1.9)(react@19.1.1))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.1.9)(react@19.1.1))(@types/react@19.1.9)(react@19.1.1))(@types/react@19.1.9)(react@19.1.1)
@@ -2404,8 +2404,8 @@ packages:
       eslint: ^9.0.0
       prettier: ^3.5.3
 
-  '@mui/internal-docs-infra@0.1.1-alpha.16':
-    resolution: {integrity: sha512-pMWdQ54EGQ02/zzNyDMv7gaqvsJx+mzKNDVsG33Hq4o3BmXJSlt82YJfM7HhJLsTCmsKnIMdZj2SUikOxaMChw==}
+  '@mui/internal-docs-infra@0.1.1-alpha.18':
+    resolution: {integrity: sha512-8BETyICHGlB8+8m5SYh55oK/lJ775SqFYK1918Ugz6AOqnsTwAtLf/Gq9lAjT/NqPybNnneaiEhaNPdn+rMOpw==}
     engines: {node: '>=22.0.0'}
     peerDependencies:
       '@types/react': ^19.1.9
@@ -13405,7 +13405,7 @@ snapshots:
       - supports-color
       - typescript
 
-  '@mui/internal-docs-infra@0.1.1-alpha.16(@types/react@19.1.9)(next@15.4.5(@babel/core@7.28.0)(@playwright/test@1.54.2)(babel-plugin-macros@3.1.0)(react-dom@19.1.1(react@19.1.1))(react@19.1.1))(react@19.1.1)':
+  '@mui/internal-docs-infra@0.1.1-alpha.18(@types/react@19.1.9)(next@15.4.5(@babel/core@7.28.0)(@playwright/test@1.54.2)(babel-plugin-macros@3.1.0)(react-dom@19.1.1(react@19.1.1))(react@19.1.1))(react@19.1.1)':
     dependencies:
       '@babel/runtime': 7.28.2
       '@babel/standalone': 7.28.2
