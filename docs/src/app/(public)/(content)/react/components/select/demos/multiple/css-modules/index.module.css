@@ -67,6 +67,7 @@
     transition: none;
     transform: none;
     opacity: 1;
+    scroll-padding-block: 1rem;
   }
 
   @media (prefers-color-scheme: light) {
@@ -97,7 +98,7 @@
   grid-template-columns: 0.75rem 1fr;
   cursor: default;
   user-select: none;
-  scroll-margin-block: 0.25rem;
+  scroll-margin-block: 0.5rem;
 
   @media (pointer: coarse) {
     padding-block: 0.625rem;
