@@ -408,6 +408,46 @@ describe('<Popover.Root />', () => {
     });
   });
 
+  describe.skipIf(isJSDOM)('pointerdown removal', () => {
+    it('moves focus to the popup when a focused child is removed on pointerdown and outside press still dismisses', async () => {
+      function Test() {
+        const [showButton, setShowButton] = React.useState(true);
+        return (
+          <Popover.Root defaultOpen modal="trap-focus">
+            <Popover.Trigger>Toggle</Popover.Trigger>
+            <Popover.Portal>
+              <Popover.Positioner>
+                <Popover.Popup data-testid="popup">
+                  {showButton && (
+                    <button data-testid="remove" onPointerDown={() => setShowButton(false)}>
+                      Remove on pointer down
+                    </button>
+                  )}
+                </Popover.Popup>
+              </Popover.Positioner>
+            </Popover.Portal>
+          </Popover.Root>
+        );
+      }
+
+      const { user } = await render(<Test />);
+
+      const removeButton = screen.getByTestId('remove');
+      fireEvent.pointerDown(removeButton);
+
+      const popup = screen.getByTestId('popup');
+      await waitFor(() => {
+        expect(popup).toHaveFocus();
+      });
+
+      await user.click(document.body);
+
+      await waitFor(() => {
+        expect(screen.queryByRole('dialog')).to.equal(null);
+      });
+    });
+  });
+
   describe('prop: actionsRef', () => {
     it('unmounts the popover when the `unmount` method is called', async () => {
       const actionsRef = {
