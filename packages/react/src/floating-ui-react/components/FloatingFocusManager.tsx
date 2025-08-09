@@ -7,6 +7,7 @@ import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { visuallyHidden } from '@base-ui-components/utils/visuallyHidden';
 import { useTimeout } from '@base-ui-components/utils/useTimeout';
+import { useAnimationFrame } from '@base-ui-components/utils/useAnimationFrame';
 import { FocusGuard } from '../../utils/FocusGuard';
 import {
   activeElement,
@@ -217,6 +218,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
   const tabbableIndexRef = React.useRef(-1);
 
   const blurTimeout = useTimeout();
+  const restoreFocusFrame = useAnimationFrame();
 
   const isInsidePortal = portalContext != null;
   const floatingFocusElement = getFloatingFocusElement(floating);
@@ -356,12 +358,18 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
           // floating tree.
           if (isHTMLElement(floatingFocusElement)) {
             floatingFocusElement.focus();
-          }
-
-          // If explicitly requested to restore focus to the popup container, do not search
-          // for the next/previous tabbable element.
-          if (restoreFocus === 'popup') {
-            return;
+            // If explicitly requested to restore focus to the popup container, do not search
+            // for the next/previous tabbable element.
+            if (restoreFocus === 'popup') {
+              // If the element is removed on pointerdown, focus tries to move it,
+              // but since it's removed at the same time, focus gets lost as it
+              // happens after the .focus() call above.
+              // In this case, focus needs to be moved asynchronously.
+              restoreFocusFrame.request(() => {
+                floatingFocusElement.focus();
+              });
+              return;
+            }
           }
 
           const prevTabbableIndex = tabbableIndexRef.current;
@@ -448,6 +456,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     orderRef,
     dataRef,
     blurTimeout,
+    restoreFocusFrame,
   ]);
 
   const beforeGuardRef = React.useRef<HTMLSpanElement | null>(null);
