@@ -134,12 +134,16 @@ export interface FloatingFocusManagerProps {
    */
   returnFocus?: boolean | React.RefObject<HTMLElement | null>;
   /**
-   * Determines if focus should be restored to the nearest tabbable element if
-   * focus inside the floating element is lost (such as due to the removal of
-   * the currently focused element from the DOM).
+   * Determines where focus should be restored if focus inside the floating element is lost
+   * (such as due to the removal of the currently focused element from the DOM).
+   *
+   * - `true`: restore to the nearest tabbable element inside the floating tree (previous
+   *   tabbable if possible, otherwise the last tabbable, then the floating element itself)
+   * - `'popup'`: restore directly to the floating element (container) itself
+   * - `false`: do not restore focus
    * @default false
    */
-  restoreFocus?: boolean;
+  restoreFocus?: boolean | 'popup';
   /**
    * Determines if focus is “modal”, meaning focus is fully trapped inside the
    * floating element and outside content cannot be accessed. This includes
@@ -352,6 +356,12 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
           // floating tree.
           if (isHTMLElement(floatingFocusElement)) {
             floatingFocusElement.focus();
+          }
+
+          // If explicitly requested to restore focus to the popup container, do not search
+          // for the next/previous tabbable element.
+          if (restoreFocus === 'popup') {
+            return;
           }
 
           const prevTabbableIndex = tabbableIndexRef.current;
