@@ -11,6 +11,25 @@
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
     }
   },
-  "dataAttributes": {},
+  "dataAttributes": {
+    "data-has-overflow-x": {
+      "description": "Present when the scroll area has horizontal overflow."
+    },
+    "data-has-overflow-y": {
+      "description": "Present when the scroll area has vertical overflow."
+    },
+    "data-overflow-x-end": {
+      "description": "Present when there is overflow on the inline end side for the horizontal axis."
+    },
+    "data-overflow-x-start": {
+      "description": "Present when there is overflow on the inline start side for the horizontal axis."
+    },
+    "data-overflow-y-end": {
+      "description": "Present when there is overflow on the block end (bottom) side."
+    },
+    "data-overflow-y-start": {
+      "description": "Present when there is overflow on the block start (top) side."
+    }
+  },
   "cssVariables": {}
 }

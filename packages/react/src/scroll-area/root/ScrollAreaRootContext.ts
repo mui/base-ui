@@ -35,6 +35,28 @@ export interface ScrollAreaRootContext {
       cornerHidden: boolean;
     }>
   >;
+  overflowEdges: {
+    xStart: boolean;
+    xEnd: boolean;
+    yStart: boolean;
+    yEnd: boolean;
+  };
+  setOverflowEdges: React.Dispatch<
+    React.SetStateAction<{
+      xStart: boolean;
+      xEnd: boolean;
+      yStart: boolean;
+      yEnd: boolean;
+    }>
+  >;
+  viewportState: {
+    hasOverflowX: boolean;
+    hasOverflowY: boolean;
+    overflowXStart: boolean;
+    overflowXEnd: boolean;
+    overflowYStart: boolean;
+    overflowYEnd: boolean;
+  };
 }
 
 export const ScrollAreaRootContext = React.createContext<ScrollAreaRootContext | undefined>(

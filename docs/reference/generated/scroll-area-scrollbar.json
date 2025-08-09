@@ -26,8 +26,26 @@
       "description": "Indicates the orientation of the scrollbar.",
       "type": "'horizontal' | 'vertical'"
     },
+    "data-has-overflow-x": {
+      "description": "Present when the scroll area has horizontal overflow."
+    },
+    "data-has-overflow-y": {
+      "description": "Present when the scroll area has vertical overflow."
+    },
     "data-hovering": {
       "description": "Present when the pointer is over the scroll area."
+    },
+    "data-overflow-x-end": {
+      "description": "Present when there is overflow on the inline end side for the horizontal axis."
+    },
+    "data-overflow-x-start": {
+      "description": "Present when there is overflow on the inline start side for the horizontal axis."
+    },
+    "data-overflow-y-end": {
+      "description": "Present when there is overflow on the block end (bottom) side."
+    },
+    "data-overflow-y-start": {
+      "description": "Present when there is overflow on the block start (top) side."
     },
     "data-scrolling": {
       "description": "Present when the users scrolls inside the scroll area."
