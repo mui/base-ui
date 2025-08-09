@@ -226,130 +226,125 @@ export function useDismiss(
     getTarget(event)?.addEventListener('keydown', callback);
   });
 
-  const closeOnPressOutside = useEventCallback((event: MouseEvent) => {
-    if (shouldIgnoreEvent(event)) {
-      return;
-    }
-
-    // Given developers can stop the propagation of the synthetic event,
-    // we can only be confident with a positive value.
-    const insideReactTree = dataRef.current.insideReactTree;
-    dataRef.current.insideReactTree = false;
-
-    // When click outside is lazy (`up` event), handle dragging.
-    // Don't close if:
-    // - The click started inside the floating element.
-    // - The click ended inside the floating element.
-    const endedOrStartedInside = endedOrStartedInsideRef.current;
-    endedOrStartedInsideRef.current = false;
-
-    if (getOutsidePressEvent() === 'intentional' && endedOrStartedInside) {
-      return;
-    }
-
-    if (insideReactTree) {
-      return;
-    }
-
-    if (typeof outsidePress === 'function' && !outsidePress(event)) {
-      return;
-    }
-
-    const target = getTarget(event);
-    const inertSelector = `[${createAttribute('inert')}]`;
-    const markers = getDocument(elements.floating).querySelectorAll(inertSelector);
-
-    let targetRootAncestor = isElement(target) ? target : null;
-    while (targetRootAncestor && !isLastTraversableNode(targetRootAncestor)) {
-      const nextParent = getParentNode(targetRootAncestor);
-      if (isLastTraversableNode(nextParent) || !isElement(nextParent)) {
-        break;
-      }
-
-      targetRootAncestor = nextParent;
-    }
-
-    // Check if the click occurred on a third-party element injected after the
-    // floating element rendered.
-    if (
-      markers.length &&
-      isElement(target) &&
-      !isRootElement(target) &&
-      // Clicked on a direct ancestor (e.g. FloatingOverlay).
-      !contains(target, elements.floating) &&
-      // If the target root element contains none of the markers, then the
-      // element was injected after the floating element rendered.
-      Array.from(markers).every((marker) => !contains(targetRootAncestor, marker))
-    ) {
-      return;
-    }
-
-    // Check if the click occurred on the scrollbar
-    if (isHTMLElement(target)) {
-      const lastTraversableNode = isLastTraversableNode(target);
-      const style = getComputedStyle(target);
-      const scrollRe = /auto|scroll/;
-      const isScrollableX = lastTraversableNode || scrollRe.test(style.overflowX);
-      const isScrollableY = lastTraversableNode || scrollRe.test(style.overflowY);
-
-      const canScrollX =
-        isScrollableX && target.clientWidth > 0 && target.scrollWidth > target.clientWidth;
-      const canScrollY =
-        isScrollableY && target.clientHeight > 0 && target.scrollHeight > target.clientHeight;
-
-      const isRTL = style.direction === 'rtl';
-
-      // Check click position relative to scrollbar.
-      // In some browsers it is possible to change the <body> (or window)
-      // scrollbar to the left side, but is very rare and is difficult to
-      // check for. Plus, for modal dialogs with backdrops, it is more
-      // important that the backdrop is checked but not so much the window.
-      const pressedVerticalScrollbar =
-        canScrollY &&
-        (isRTL
-          ? event.offsetX <= target.offsetWidth - target.clientWidth
-          : event.offsetX > target.clientWidth);
-
-      const pressedHorizontalScrollbar = canScrollX && event.offsetY > target.clientHeight;
-
-      if (pressedVerticalScrollbar || pressedHorizontalScrollbar) {
+  const closeOnPressOutside = useEventCallback(
+    (event: MouseEvent, endedOrStartedInside = false) => {
+      if (shouldIgnoreEvent(event)) {
         return;
       }
-    }
 
-    const nodeId = dataRef.current.floatingContext?.nodeId;
+      // Given developers can stop the propagation of the synthetic event,
+      // we can only be confident with a positive value.
+      const insideReactTree = dataRef.current.insideReactTree;
+      dataRef.current.insideReactTree = false;
 
-    const targetIsInsideChildren =
-      tree &&
-      getNodeChildren(tree.nodesRef.current, nodeId).some((node) =>
-        isEventTargetWithin(event, node.context?.elements.floating),
-      );
+      if (getOutsidePressEvent() === 'intentional' && endedOrStartedInside) {
+        return;
+      }
 
-    if (
-      isEventTargetWithin(event, elements.floating) ||
-      isEventTargetWithin(event, elements.domReference) ||
-      targetIsInsideChildren
-    ) {
-      return;
-    }
+      if (insideReactTree) {
+        return;
+      }
 
-    const children = tree ? getNodeChildren(tree.nodesRef.current, nodeId) : [];
-    if (children.length > 0) {
-      let shouldDismiss = true;
+      if (typeof outsidePress === 'function' && !outsidePress(event)) {
+        return;
+      }
 
-      children.forEach((child) => {
-        if (child.context?.open && !child.context.dataRef.current.__outsidePressBubbles) {
-          shouldDismiss = false;
+      const target = getTarget(event);
+      const inertSelector = `[${createAttribute('inert')}]`;
+      const markers = getDocument(elements.floating).querySelectorAll(inertSelector);
+
+      let targetRootAncestor = isElement(target) ? target : null;
+      while (targetRootAncestor && !isLastTraversableNode(targetRootAncestor)) {
+        const nextParent = getParentNode(targetRootAncestor);
+        if (isLastTraversableNode(nextParent) || !isElement(nextParent)) {
+          break;
         }
-      });
 
-      if (!shouldDismiss) {
+        targetRootAncestor = nextParent;
+      }
+
+      // Check if the click occurred on a third-party element injected after the
+      // floating element rendered.
+      if (
+        markers.length &&
+        isElement(target) &&
+        !isRootElement(target) &&
+        // Clicked on a direct ancestor (e.g. FloatingOverlay).
+        !contains(target, elements.floating) &&
+        // If the target root element contains none of the markers, then the
+        // element was injected after the floating element rendered.
+        Array.from(markers).every((marker) => !contains(targetRootAncestor, marker))
+      ) {
         return;
       }
-    }
 
-    onOpenChange(false, event, 'outside-press');
-  });
+      // Check if the click occurred on the scrollbar
+      if (isHTMLElement(target)) {
+        const lastTraversableNode = isLastTraversableNode(target);
+        const style = getComputedStyle(target);
+        const scrollRe = /auto|scroll/;
+        const isScrollableX = lastTraversableNode || scrollRe.test(style.overflowX);
+        const isScrollableY = lastTraversableNode || scrollRe.test(style.overflowY);
+
+        const canScrollX =
+          isScrollableX && target.clientWidth > 0 && target.scrollWidth > target.clientWidth;
+        const canScrollY =
+          isScrollableY && target.clientHeight > 0 && target.scrollHeight > target.clientHeight;
+
+        const isRTL = style.direction === 'rtl';
+
+        // Check click position relative to scrollbar.
+        // In some browsers it is possible to change the <body> (or window)
+        // scrollbar to the left side, but is very rare and is difficult to
+        // check for. Plus, for modal dialogs with backdrops, it is more
+        // important that the backdrop is checked but not so much the window.
+        const pressedVerticalScrollbar =
+          canScrollY &&
+          (isRTL
+            ? event.offsetX <= target.offsetWidth - target.clientWidth
+            : event.offsetX > target.clientWidth);
+
+        const pressedHorizontalScrollbar = canScrollX && event.offsetY > target.clientHeight;
+
+        if (pressedVerticalScrollbar || pressedHorizontalScrollbar) {
+          return;
+        }
+      }
+
+      const nodeId = dataRef.current.floatingContext?.nodeId;
+
+      const targetIsInsideChildren =
+        tree &&
+        getNodeChildren(tree.nodesRef.current, nodeId).some((node) =>
+          isEventTargetWithin(event, node.context?.elements.floating),
+        );
+
+      if (
+        isEventTargetWithin(event, elements.floating) ||
+        isEventTargetWithin(event, elements.domReference) ||
+        targetIsInsideChildren
+      ) {
+        return;
+      }
+
+      const children = tree ? getNodeChildren(tree.nodesRef.current, nodeId) : [];
+      if (children.length > 0) {
+        let shouldDismiss = true;
+
+        children.forEach((child) => {
+          if (child.context?.open && !child.context.dataRef.current.__outsidePressBubbles) {
+            shouldDismiss = false;
+          }
+        });
+
+        if (!shouldDismiss) {
+          return;
+        }
+      }
+
+      onOpenChange(false, event, 'outside-press');
+    },
+  );
 
   const handlePointerDown = useEventCallback((event: PointerEvent) => {
     if (
@@ -384,6 +379,13 @@ export function useDismiss(
   });
 
   const closeOnPressOutsideCapture = useEventCallback((event: PointerEvent | MouseEvent) => {
+    // When click outside is lazy (`up` event), handle dragging.
+    // Don't close if:
+    // - The click started inside the floating element.
+    // - The click ended inside the floating element.
+    const endedOrStartedInside = endedOrStartedInsideRef.current;
+    endedOrStartedInsideRef.current = false;
+
     if (shouldIgnoreEvent(event)) {
       return;
     }
@@ -402,7 +404,7 @@ export function useDismiss(
       if (event.type === 'pointerdown') {
         handlePointerDown(event as PointerEvent);
       } else {
-        closeOnPressOutside(event as MouseEvent);
+        closeOnPressOutside(event as MouseEvent, endedOrStartedInside);
       }
       getTarget(event)?.removeEventListener(event.type, callback);
     };
