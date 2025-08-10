@@ -47,6 +47,8 @@ function PopoverRootComponent({ props }: { props: PopoverRoot.Props }) {
   const [positionerElement, setPositionerElement] = React.useState<HTMLElement | null>(null);
   const [openReason, setOpenReason] = React.useState<PopoverOpenChangeReason | null>(null);
   const [stickIfOpen, setStickIfOpen] = React.useState(true);
+  const backdropRef = React.useRef<HTMLDivElement | null>(null);
+  const internalBackdropRef = React.useRef<HTMLDivElement | null>(null);
 
   const popupRef = React.useRef<HTMLElement>(null);
   const stickIfOpenTimeout = useTimeout();
@@ -162,10 +164,10 @@ function PopoverRootComponent({ props }: { props: PopoverRoot.Props }) {
     stickIfOpen,
   });
   const dismiss = useDismiss(floatingContext, {
-    outsidePressEvent: {
-      mouse: 'intentional',
-      touch: 'sloppy',
-    },
+    outsidePressEvent: () =>
+      internalBackdropRef.current || backdropRef.current
+        ? { mouse: 'intentional', touch: 'sloppy' }
+        : 'sloppy',
   });
   const role = useRole(floatingContext);
 
@@ -187,6 +189,8 @@ function PopoverRootComponent({ props }: { props: PopoverRoot.Props }) {
       setTitleId,
       descriptionId,
       setDescriptionId,
+      backdropRef,
+      internalBackdropRef,
       triggerProps: mergeProps(getReferenceProps(), triggerProps),
       popupProps: getFloatingProps(),
       floatingRootContext: floatingContext,

@@ -94,7 +94,13 @@ export interface UseDismissProps {
     | {
         mouse: PressType;
         touch: PressType;
-      };
+      }
+    | (() =>
+        | PressType
+        | {
+            mouse: PressType;
+            touch: PressType;
+          });
   /**
    * Whether to dismiss the floating element upon scrolling an overflow
    * ancestor.
@@ -165,11 +171,14 @@ export function useDismiss(
     const type = currentPointerTypeRef.current as 'pen' | 'mouse' | 'touch' | '';
     const computedType = type === 'pen' || !type ? 'mouse' : type;
 
-    if (typeof outsidePressEvent === 'string') {
-      return outsidePressEvent;
+    const resolved =
+      typeof outsidePressEvent === 'function' ? outsidePressEvent() : outsidePressEvent;
+
+    if (typeof resolved === 'string') {
+      return resolved;
     }
 
-    return outsidePressEvent[computedType];
+    return resolved[computedType];
   });
 
   const closeOnEscapeKeyDown = useEventCallback(
@@ -586,7 +595,6 @@ export function useDismiss(
     elements,
     escapeKey,
     outsidePress,
-    outsidePressEvent,
     open,
     onOpenChange,
     ancestorScroll,
