@@ -80,7 +80,7 @@ importers:
         specifier: github:mui/material-ui#v7.3.1
         version: https://codeload.github.com/mui/material-ui/tar.gz/64a04af6e15e909362bafeb8946a9854bc082fad(@babel/core@7.28.0)(@types/express@5.0.3)(encoding@0.1.13)(rollup@4.46.2)
       '@next/eslint-plugin-next':
-        specifier: ^15.4.5
+        specifier: ^15.4.6
         version: 15.4.6
       '@octokit/rest':
         specifier: ^22.0.0
