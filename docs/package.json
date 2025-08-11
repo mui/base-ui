@@ -35,7 +35,7 @@
     "hast-util-heading-rank": "^3.0.0",
     "hast-util-to-string": "^3.0.1",
     "lodash": "^4.17.21",
-    "luxon": "^3.6.1",
+    "luxon": "^3.7.1",
     "lz-string": "^1.5.0",
     "next": "15.4.6",
     "postcss": "^8.5.6",
