@@ -4,21 +4,23 @@ import styles from './index.module.css';
 
 const initialOptions = ['React', 'Vue', 'Angular', 'Svelte', 'Solid', 'Preact'];
 
-function hasOption(options: string[], inputValue: string) {
-  return options.some((option) => option.toLowerCase() === inputValue.toLowerCase());
+function hasOption(
+  options: string[],
+  inputValue: string,
+  contains: (item: string, query: string) => boolean,
+) {
+  return options.some((option) => contains(option, inputValue));
 }
 
 export default function AddOptionCombobox() {
   const [options, setOptions] = React.useState(initialOptions);
   const [inputValue, setInputValue] = React.useState('');
 
+  const { contains } = Combobox.useFilter({ sensitivity: 'base' });
+
   const showAddOption = React.useMemo(() => {
-    const trimmedInput = inputValue.trim();
-    if (trimmedInput === '') {
-      return false;
-    }
-    return !hasOption(options, trimmedInput);
-  }, [inputValue, options]);
+    return !hasOption(options, inputValue, contains);
+  }, [options, inputValue, contains]);
 
   const items = React.useMemo(() => {
     const computedItems = [...options];
@@ -36,10 +38,9 @@ export default function AddOptionCombobox() {
       onSelectedValueChange={(value) => {
         setInputValue(value ?? '');
 
-        const trimmedInput = inputValue.trim();
-        if (trimmedInput && !hasOption(options, trimmedInput)) {
-          setOptions((prev) => [...prev, trimmedInput]);
-          setInputValue(trimmedInput);
+        if (inputValue && !hasOption(options, inputValue, contains)) {
+          setOptions((prev) => [...prev, inputValue]);
+          setInputValue(inputValue);
         }
       }}
     >

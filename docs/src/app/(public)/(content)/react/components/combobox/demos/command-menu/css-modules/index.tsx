@@ -4,20 +4,18 @@ import { Combobox } from '@base-ui-components/react/combobox';
 import styles from './index.module.css';
 import { type Item, type Group, groupedItems } from './data';
 
-function customFilter(item: Item, query: string) {
-  if (!query.trim()) {
-    return true;
-  }
-
-  const itemText = item.label.toLowerCase();
-  const queryWords = query.toLowerCase().trim().split(/\s+/);
-
-  return queryWords.every((word) => itemText.includes(word));
-}
-
 export default function CommandMenuCombobox() {
   const [open, setOpen] = React.useState(false);
   const [searchValue, setSearchValue] = React.useState('');
+
+  const { contains } = Combobox.useFilter({ sensitivity: 'base' });
+
+  const customFilter = React.useCallback(
+    (item: Item, query: string) => {
+      return contains(item.label, query);
+    },
+    [contains],
+  );
 
   function handleItemClick(item: Item) {
     // eslint-disable-next-line no-console

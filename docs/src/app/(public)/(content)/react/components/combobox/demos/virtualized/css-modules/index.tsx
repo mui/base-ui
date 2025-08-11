@@ -11,13 +11,11 @@ export default function VirtualizedCombobox() {
 
   const scrollElementRef = React.useRef<HTMLDivElement>(null);
 
+  const { contains } = Combobox.useFilter({ sensitivity: 'base' });
+
   const filteredItems = React.useMemo(() => {
-    if (!searchValue.trim()) {
-      return virtualItems;
-    }
-    const search = searchValue.toLowerCase();
-    return virtualItems.filter((item) => item.toLowerCase().includes(search));
-  }, [searchValue]);
+    return virtualItems.filter((item) => contains(item, searchValue));
+  }, [contains, searchValue]);
 
   const virtualizer = useVirtualizer({
     enabled: open,
