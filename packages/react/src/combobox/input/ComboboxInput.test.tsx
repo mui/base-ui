@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Combobox } from '@base-ui-components/react/combobox';
 import { createRenderer, describeConformance } from '#test-utils';
-import { screen } from '@mui/internal-test-utils';
+import { screen, waitFor } from '@mui/internal-test-utils';
 import { expect } from 'chai';
 import { Field } from '@base-ui-components/react/field';
 
@@ -143,6 +143,33 @@ describe('<Combobox.Input />', () => {
 
       await user.type(input, 'a');
       expect(screen.queryByRole('listbox')).to.equal(null);
+    });
+
+    it('allows interactions when readOnly={false}', async () => {
+      const { user } = await render(
+        <Combobox.Root readOnly={false}>
+          <Combobox.Input data-testid="input" />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  <Combobox.Item value="a">a</Combobox.Item>
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByTestId('input');
+      await user.click(input);
+      await waitFor(() => expect(screen.getByRole('listbox')).not.to.equal(null));
+
+      await waitFor(() => {
+        screen.getByRole('option', { name: 'a' });
+      });
+      await user.click(screen.getByRole('option', { name: 'a' }));
+      expect(input).to.have.value('a');
     });
   });
 

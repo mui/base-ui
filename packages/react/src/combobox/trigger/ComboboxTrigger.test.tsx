@@ -11,6 +11,7 @@ describe('<Combobox.Trigger />', () => {
 
   describeConformance(<Combobox.Trigger />, () => ({
     refInstanceof: window.HTMLButtonElement,
+    button: true,
     render(node) {
       return render(<Combobox.Root>{node}</Combobox.Root>);
     },
@@ -126,6 +127,27 @@ describe('<Combobox.Trigger />', () => {
       await user.click(trigger);
 
       expect(screen.queryByRole('listbox')).to.equal(null);
+    });
+
+    it('should not toggle when readOnly=false (control)', async () => {
+      const { user } = await render(
+        <Combobox.Root readOnly={false}>
+          <Combobox.Trigger data-testid="trigger">Open</Combobox.Trigger>
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  <Combobox.Item value="a">a</Combobox.Item>
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+      await user.click(trigger);
+      expect(screen.getByRole('listbox')).not.to.equal(null);
     });
   });
 

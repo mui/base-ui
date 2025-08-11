@@ -10,6 +10,7 @@ describe('<Combobox.ChipRemove />', () => {
 
   describeConformance(<Combobox.ChipRemove />, () => ({
     refInstanceof: window.HTMLButtonElement,
+    button: true,
     render(node) {
       return render(
         <Combobox.Root selectionMode="multiple">

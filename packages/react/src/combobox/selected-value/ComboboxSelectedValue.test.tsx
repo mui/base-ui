@@ -1,27 +1,24 @@
 import * as React from 'react';
 import { Combobox } from '@base-ui-components/react/combobox';
-import { createRenderer, describeConformance } from '#test-utils';
+import { createRenderer } from '#test-utils';
 import { screen } from '@mui/internal-test-utils';
 import { expect } from 'chai';
 
-describe('<Combobox.List />', () => {
+describe('<Combobox.SelectedValue />', () => {
   const { render } = createRenderer();
 
-  describeConformance(<Combobox.List />, () => ({
-    refInstanceof: window.HTMLDivElement,
-    render(node) {
-      return render(<Combobox.Root>{node}</Combobox.Root>);
-    },
-  }));
-
-  it('sets role=listbox and aria-multiselectable in multiple mode', async () => {
+  it('renders current selected value via function child', async () => {
     await render(
-      <Combobox.Root selectionMode="multiple" defaultOpen>
+      <Combobox.Root selectionMode="single" defaultSelectedValue="b">
+        <Combobox.SelectedValue>
+          {(val) => <div data-testid="value">{val}</div>}
+        </Combobox.SelectedValue>
         <Combobox.Portal>
           <Combobox.Positioner>
             <Combobox.Popup>
               <Combobox.List>
                 <Combobox.Item value="a">a</Combobox.Item>
+                <Combobox.Item value="b">b</Combobox.Item>
               </Combobox.List>
             </Combobox.Popup>
           </Combobox.Positioner>
@@ -29,7 +26,6 @@ describe('<Combobox.List />', () => {
       </Combobox.Root>,
     );
 
-    const list = screen.getByRole('listbox');
-    expect(list).to.have.attribute('aria-multiselectable', 'true');
+    expect(screen.getByTestId('value')).to.have.text('b');
   });
 });

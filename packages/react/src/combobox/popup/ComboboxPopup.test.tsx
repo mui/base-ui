@@ -1,6 +1,8 @@
 import * as React from 'react';
 import { Combobox } from '@base-ui-components/react/combobox';
 import { createRenderer, describeConformance } from '#test-utils';
+import { screen } from '@mui/internal-test-utils';
+import { expect } from 'chai';
 
 describe('<Combobox.Popup />', () => {
   const { render } = createRenderer();
@@ -17,4 +19,19 @@ describe('<Combobox.Popup />', () => {
       );
     },
   }));
+
+  it('exposes open state via data attributes mapping', async () => {
+    await render(
+      <Combobox.Root defaultOpen>
+        <Combobox.Portal>
+          <Combobox.Positioner>
+            <Combobox.Popup data-testid="popup" />
+          </Combobox.Positioner>
+        </Combobox.Portal>
+      </Combobox.Root>,
+    );
+
+    const popup = screen.getByTestId('popup');
+    expect(popup).to.have.attribute('data-open');
+  });
 });
