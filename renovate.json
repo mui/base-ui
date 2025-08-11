@@ -9,7 +9,8 @@
     {
       "matchDepTypes": ["devDependencies"],
       "matchUpdateTypes": ["minor", "patch", "pin", "digest"],
-      "automerge": true
+      "automerge": true,
+      "minimumReleaseAge": "3 days"
     },
     {
       "groupName": "Floating UI",
@@ -25,6 +26,13 @@
       "groupName": "MUI public packages",
       "matchPackageNames": ["@mui/*", "!@mui/internal-*", "!@mui/docs"],
       "allowedVersions": "!/-dev/"
+    },
+       {
+      "matchDepTypes": ["devDependencies"],
+      "matchUpdateTypes": ["minor", "patch", "pin", "digest"],
+      "matchPackageNames": ["@mui/*"],
+      "automerge": true,
+      "minimumReleaseAge": "1 minute"
     },
     {
       "groupName": "Types",
