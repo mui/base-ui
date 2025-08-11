@@ -256,7 +256,6 @@ function getScopeFromLabels(labels: string[]): ChangeScope {
   }
 
   if (
-    labels.includes('core') ||
     labels.includes('scope: infra') ||
     labels.includes('scope: code-infra') ||
     labels.includes('scope: docs-infra')
