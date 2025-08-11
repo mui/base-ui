@@ -6,7 +6,7 @@
       "type": "CollisionAvoidance",
       "description": "Determines how to handle collisions when positioning the popup.",
       "example": "```jsx\n<Positioner\n  collisionAvoidance={{\n    side: 'shift',\n    align: 'shift',\n    fallbackAxisSide: 'none',\n  }}\n/>\n```",
-      "detailedType": "| {\n    side: 'none' | 'flip'\n    align: 'shift' | 'none' | 'flip'\n    fallbackAxisSide: 'none' | 'start' | 'end'\n  }\n| {\n    side: 'shift' | 'none'\n    align: 'shift' | 'none'\n    fallbackAxisSide: 'none' | 'start' | 'end'\n  }\n| undefined"
+      "detailedType": "| {\n    side?: 'none' | 'flip'\n    align?: 'shift' | 'none' | 'flip'\n    fallbackAxisSide?: 'none' | 'start' | 'end'\n  }\n| {\n    side?: 'shift' | 'none'\n    align?: 'shift' | 'none'\n    fallbackAxisSide?: 'none' | 'start' | 'end'\n  }\n| undefined"
     },
     "align": {
       "type": "'center' | 'start' | 'end'",

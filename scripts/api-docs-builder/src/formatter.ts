@@ -236,7 +236,7 @@ export function formatType(
     }
 
     return `{ ${type.properties
-      .map((m) => `${m.name}: ${formatType(m.type, m.optional)}`)
+      .map((m) => `${m.name}${m.optional ? '?' : ''}: ${formatType(m.type, m.optional)}`)
       .join(', ')} }`;
   }
 
