@@ -61,12 +61,13 @@ export const ComboboxItem = React.memo(
       readOnly,
       virtualized,
       listRef,
-      items,
     } = useComboboxRootContext();
+
+    const storeItems = useStore(store, selectors.items);
 
     const selectable = selectionMode !== 'none';
     const multiple = selectionMode === 'multiple';
-    const index = virtualized && items ? items.indexOf(value) : listItem.index;
+    const index = virtualized && storeItems ? storeItems.indexOf(value) : listItem.index;
 
     const isRow = useComboboxRowContext();
     const active = useStore(store, selectors.isActive, index);
@@ -84,7 +85,7 @@ export const ComboboxItem = React.memo(
     const hasRegistered = listItem.index !== -1;
 
     useIsoLayoutEffect(() => {
-      if (!items || !virtualized) {
+      if (!storeItems || !virtualized) {
         return undefined;
       }
 
@@ -98,7 +99,7 @@ export const ComboboxItem = React.memo(
       }
 
       return undefined;
-    }, [index, virtualized, listRef, items, initialList]);
+    }, [index, virtualized, listRef, storeItems, initialList]);
 
     useIsoLayoutEffect(() => {
       if (!hasRegistered) {

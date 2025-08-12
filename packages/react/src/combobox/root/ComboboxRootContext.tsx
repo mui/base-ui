@@ -51,7 +51,6 @@ export interface ComboboxRootContext {
   cols: number;
   isGrouped: boolean;
   virtualized: boolean;
-  items: any[] | undefined;
   onOpenChangeComplete: (open: boolean) => void;
 }
 

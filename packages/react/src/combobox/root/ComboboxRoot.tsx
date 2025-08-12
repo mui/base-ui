@@ -199,6 +199,7 @@ export function ComboboxRoot<Item = any, Mode extends SelectionMode = 'none'>(
         open: openRaw,
         filter,
         query,
+        items,
         initialList: [],
         mounted: false,
         transitionStatus: 'idle',
@@ -630,6 +631,7 @@ export function ComboboxRoot<Item = any, Mode extends SelectionMode = 'none'>(
       open,
       mounted,
       transitionStatus,
+      items,
       initialList,
       popupProps: getFloatingProps(),
       inputProps: getReferenceProps(),
@@ -644,6 +646,7 @@ export function ComboboxRoot<Item = any, Mode extends SelectionMode = 'none'>(
     open,
     mounted,
     transitionStatus,
+    items,
     initialList,
     getFloatingProps,
     getReferenceProps,
@@ -679,7 +682,6 @@ export function ComboboxRoot<Item = any, Mode extends SelectionMode = 'none'>(
       cols,
       isGrouped,
       virtualized,
-      items,
     }),
     [
       selectionMode,
@@ -700,7 +702,6 @@ export function ComboboxRoot<Item = any, Mode extends SelectionMode = 'none'>(
       cols,
       isGrouped,
       virtualized,
-      items,
     ],
   );
 

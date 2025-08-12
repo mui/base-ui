@@ -12,6 +12,9 @@ export type State = {
 
   filter: (item: any, query: string) => boolean;
 
+  // The items provided to the combobox. Can be flat or grouped.
+  items: any[] | undefined;
+
   selectedValue: any;
   inputValue: React.ComponentProps<'input'>['value'];
 
@@ -44,6 +47,8 @@ export const selectors = {
   query: createSelector((state: State) => state.query),
 
   initialList: createSelector((state: State) => state.initialList),
+
+  items: createSelector((state: State) => state.items),
 
   selectedValue: createSelector((state: State) => state.selectedValue),
   inputValue: createSelector((state: State) => state.inputValue),
