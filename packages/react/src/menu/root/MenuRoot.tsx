@@ -25,6 +25,7 @@ import { PATIENT_CLICK_THRESHOLD, TYPEAHEAD_RESET_MS } from '../../utils/constan
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useDirection } from '../../direction-provider/DirectionContext';
 import { useScrollLock } from '../../utils/useScrollLock';
+import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
 import {
   type BaseOpenChangeReason,
   translateOpenChangeReason,
@@ -79,6 +80,9 @@ export const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
   const openEventRef = React.useRef<Event | null>(null);
   const popupRef = React.useRef<HTMLElement>(null);
   const positionerRef = React.useRef<HTMLElement | null>(null);
+
+  const itemDomElements = React.useRef<(HTMLElement | null)[]>([]);
+  const itemLabels = React.useRef<(string | null)[]>([]);
 
   const stickIfOpenTimeout = useTimeout();
   const contextMenuContext = useContextMenuRootContext(true);
@@ -178,9 +182,14 @@ export const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
   }, []);
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
+  const {
+    openMethod,
+    triggerProps: interactionTypeProps,
+    reset: resetOpenInteractionType,
+  } = useOpenInteractionType(open);
 
   useScrollLock({
-    enabled: open && modal && lastOpenChangeReason !== 'trigger-hover',
+    enabled: open && modal && lastOpenChangeReason !== 'trigger-hover' && openMethod !== 'touch',
     mounted,
     open,
     referenceElement: positionerElement,
@@ -195,6 +204,7 @@ export const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
     setStickIfOpen(true);
     setAllowMouseEnter(false);
     onOpenChangeComplete?.(false);
+    resetOpenInteractionType();
   });
 
   useOpenChangeComplete({
@@ -228,6 +238,19 @@ export const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
         !allowTouchToCloseRef.current
       ) {
         return;
+      }
+
+      // Workaround `enableFocusInside` in Floating UI setting `tabindex=0` of a non-highlighted
+      // option upon close when tabbing out due to `keepMounted=true`:
+      // https://github.com/floating-ui/floating-ui/pull/3004/files#diff-962a7439cdeb09ea98d4b622a45d517bce07ad8c3f866e089bda05f4b0bbd875R194-R199
+      // This otherwise causes options to retain `tabindex=0` incorrectly when the popup is closed
+      // when tabbing outside.
+      if (!nextOpen && activeIndex !== null) {
+        const activeOption = itemDomElements.current[activeIndex];
+        // Wait for Floating UI's focus effect to have fired
+        queueMicrotask(() => {
+          activeOption?.setAttribute('tabindex', '-1');
+        });
       }
 
       // Prevent the menu from closing on mobile devices that have a delayed click event.
@@ -356,7 +379,6 @@ export const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
   const dismiss = useDismiss(floatingRootContext, {
     enabled: !disabled,
     bubbles: closeParentOnEsc && parent.type === 'menu',
-    outsidePressEvent: 'mousedown',
     outsidePress() {
       if (parent.type !== 'context-menu' || openEventRef.current?.type === 'contextmenu') {
         return true;
@@ -369,9 +391,6 @@ export const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
   const role = useRole(floatingRootContext, {
     role: 'menu',
   });
-
-  const itemDomElements = React.useRef<(HTMLElement | null)[]>([]);
-  const itemLabels = React.useRef<(string | null)[]>([]);
 
   const direction = useDirection();
 
@@ -434,11 +453,12 @@ export const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
           setAllowMouseEnter(true);
         },
       },
+      interactionTypeProps,
       mixedToggleHandlers,
     );
     delete referenceProps.role;
     return referenceProps;
-  }, [getReferenceProps, mixedToggleHandlers, setAllowMouseEnter]);
+  }, [getReferenceProps, mixedToggleHandlers, setAllowMouseEnter, interactionTypeProps]);
 
   const popupProps = React.useMemo(
     () =>

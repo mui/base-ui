@@ -5,7 +5,7 @@ import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useRenderElement } from '../../utils/useRenderElement';
-import type { BaseUIComponentProps } from '../../utils/types';
+import type { BaseUIComponentProps, NativeButtonProps } from '../../utils/types';
 import { useButton } from '../../use-button';
 import { ACTIVE_COMPOSITE_ITEM } from '../../composite/constants';
 import { useCompositeItem } from '../../composite/item/useCompositeItem';
@@ -19,7 +19,7 @@ import { useTabsListContext } from '../list/TabsListContext';
  *
  * Documentation: [Base UI Tabs](https://base-ui.com/react/components/tabs)
  */
-export const TabsTab = React.forwardRef(function Tab(
+export const TabsTab = React.forwardRef(function TabsTab(
   componentProps: TabsTab.Props,
   forwardedRef: React.ForwardedRef<Element>,
 ) {
@@ -211,18 +211,11 @@ export namespace TabsTab {
     orientation: TabsRoot.Orientation;
   }
 
-  export interface Props extends BaseUIComponentProps<'button', State> {
+  export interface Props extends NativeButtonProps, BaseUIComponentProps<'button', State> {
     /**
      * The value of the Tab.
      * When not specified, the value is the child position index.
      */
     value?: Value;
-    /**
-     * Whether the component renders a native `<button>` element when replacing it
-     * via the `render` prop.
-     * Set to `false` if the rendered element is not a button (e.g. `<div>`).
-     * @default true
-     */
-    nativeButton?: boolean;
   }
 }

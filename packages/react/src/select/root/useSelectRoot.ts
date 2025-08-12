@@ -368,7 +368,6 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
 
   const dismiss = useDismiss(floatingContext, {
     bubbles: false,
-    outsidePressEvent: 'mousedown',
   });
 
   const role = useRole(floatingContext, {
@@ -442,6 +441,7 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
       transitionStatus,
       popupProps: getFloatingProps(),
       triggerProps: getReferenceProps(),
+      items,
     });
   }, [
     store,
@@ -454,6 +454,7 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
     transitionStatus,
     getFloatingProps,
     getReferenceProps,
+    items,
   ]);
 
   const rootContext: SelectRootContext = React.useMemo(

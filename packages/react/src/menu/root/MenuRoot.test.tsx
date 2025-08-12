@@ -535,6 +535,62 @@ describe('<Menu.Root />', () => {
       expect(submenu).not.to.equal(null);
       expect(await findByTestId('submenu-item')).to.have.text('Submenu Item');
     });
+
+    it('closes submenus when focus is lost by shift-tabbing from a nested menu', async () => {
+      const { getByRole, queryByTestId, findByTestId, user } = await render(
+        <Menu.Root>
+          <Menu.Trigger>Open Main</Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner data-testid="menu">
+              <Menu.Popup>
+                <Menu.Item>Item 1</Menu.Item>
+                <Menu.SubmenuRoot>
+                  <Menu.SubmenuTrigger data-testid="submenu-trigger">Submenu</Menu.SubmenuTrigger>
+                  <Menu.Portal>
+                    <Menu.Positioner data-testid="submenu">
+                      <Menu.Popup>
+                        <Menu.Item data-testid="submenu-item">Submenu Item</Menu.Item>
+                      </Menu.Popup>
+                    </Menu.Positioner>
+                  </Menu.Portal>
+                </Menu.SubmenuRoot>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>,
+      );
+
+      const mainTrigger = getByRole('button', { name: 'Open Main' });
+      await user.click(mainTrigger);
+
+      await findByTestId('menu');
+      expect(queryByTestId('submenu')).to.equal(null);
+
+      const submenuTrigger = await findByTestId('submenu-trigger');
+      await user.hover(submenuTrigger);
+
+      await waitFor(() => {
+        expect(queryByTestId('submenu')).not.to.equal(null);
+      });
+
+      const submenuItem = await findByTestId('submenu-item');
+      await act(async () => {
+        submenuItem.focus();
+      });
+
+      await waitFor(() => {
+        expect(submenuItem).toHaveFocus();
+      });
+
+      // Shift+Tab should close the submenu and focus should return to the submenu trigger
+      await user.keyboard('{Shift>}{Tab}{/Shift}');
+
+      await waitFor(() => {
+        expect(queryByTestId('submenu')).to.equal(null);
+      });
+
+      expect(submenuTrigger).toHaveFocus();
+    });
   });
 
   describe('focus management', () => {
