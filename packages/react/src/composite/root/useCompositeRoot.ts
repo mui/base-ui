@@ -112,19 +112,6 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
     }
   });
 
-  // Ensure external controlled updates moves focus to the highlighted item
-  // if focus is currently inside the list.
-  // https://github.com/mui/base-ui/issues/2101
-  useIsoLayoutEffect(() => {
-    const activeEl = activeElement(ownerDocument(rootRef.current)) as HTMLDivElement | null;
-    if (elementsRef.current.includes(activeEl)) {
-      const focusedItem = elementsRef.current[highlightedIndex];
-      if (focusedItem && focusedItem !== activeEl) {
-        focusedItem.focus();
-      }
-    }
-  }, [highlightedIndex]);
-
   const onMapChange = useEventCallback((map: Map<Element, CompositeMetadata<any>>) => {
     if (map.size === 0 || hasSetDefaultIndexRef.current) {
       return;
