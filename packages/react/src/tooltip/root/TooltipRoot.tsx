@@ -100,7 +100,7 @@ export function TooltipRoot(props: TooltipRoot.Props) {
   const setOpen = useEventCallback(setOpenUnwrapped);
 
   if (openState && disabled) {
-    setOpen(false, createBaseUIEventFromNative(undefined, DISABLED_EVENT_OPTIONS));
+    setOpenUnwrapped(false, createBaseUIEventFromNative(undefined, DISABLED_EVENT_OPTIONS));
   }
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
