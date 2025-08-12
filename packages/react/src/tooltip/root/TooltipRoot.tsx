@@ -4,9 +4,9 @@ import * as ReactDOM from 'react-dom';
 import { useControlled } from '@base-ui-components/utils/useControlled';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import {
+  TooltipOpenChangeEvent,
   TooltipOpenChangeReason,
   TooltipRootContext,
-  TooltipOpenChangeEvent,
 } from './TooltipRootContext';
 import {
   useClientPoint,
@@ -35,8 +35,8 @@ export function TooltipRoot(props: TooltipRoot.Props) {
   const {
     disabled = false,
     defaultOpen = false,
-    onOpenChange: onOpenChangeProp,
-    open,
+    onOpenChange,
+    open: openProp,
     delay,
     closeDelay,
     hoverable = true,
@@ -54,17 +54,18 @@ export function TooltipRoot(props: TooltipRoot.Props) {
 
   const popupRef = React.useRef<HTMLElement>(null);
 
-  const [openState, setOpenUnwrapped] = useControlled({
-    controlled: open,
+  const [openState, setOpenState] = useControlled({
+    controlled: openProp,
     default: defaultOpen,
     name: 'Tooltip',
     state: 'open',
   });
 
-  const onOpenChange = useEventCallback(onOpenChangeProp);
+  const open = !disabled && openState;
 
-  const setOpen = useEventCallback((nextOpen: boolean, event: TooltipOpenChangeEvent) => {
+  function setOpenUnwrapped(nextOpen: boolean, event: TooltipOpenChangeEvent) {
     const reason = event.reason;
+
     const isHover = reason === 'trigger-hover';
     const isFocusOpen = nextOpen && reason === 'trigger-focus';
     const isDismissClose = !nextOpen && (reason === 'trigger-press' || reason === 'escape-key');
@@ -76,7 +77,7 @@ export function TooltipRoot(props: TooltipRoot.Props) {
     }
 
     function changeState() {
-      setOpenUnwrapped(nextOpen);
+      setOpenState(nextOpen);
     }
 
     if (isHover) {
@@ -92,7 +93,9 @@ export function TooltipRoot(props: TooltipRoot.Props) {
     } else if (reason === 'trigger-hover') {
       setInstantTypeState(undefined);
     }
-  });
+  }
+
+  const setOpen = useEventCallback(setOpenUnwrapped);
 
   if (openState && disabled) {
     const disabledEvent = createBaseUIEvent() as TooltipOpenChangeEvent;
@@ -100,7 +103,7 @@ export function TooltipRoot(props: TooltipRoot.Props) {
     setOpen(false, disabledEvent);
   }
 
-  const { mounted, setMounted, transitionStatus } = useTransitionStatus(openState);
+  const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
 
   const handleUnmount = useEventCallback(() => {
     setMounted(false);
@@ -109,10 +112,10 @@ export function TooltipRoot(props: TooltipRoot.Props) {
 
   useOpenChangeComplete({
     enabled: !actionsRef,
-    open: openState,
+    open,
     ref: popupRef,
     onComplete() {
-      if (!openState) {
+      if (!open) {
         handleUnmount();
       }
     },
@@ -125,7 +128,7 @@ export function TooltipRoot(props: TooltipRoot.Props) {
       reference: triggerElement,
       floating: positionerElement,
     },
-    open: openState,
+    open,
     onOpenChange(openValue, eventValue, reasonValue) {
       const customEvent = createBaseUIEvent(eventValue as Event) as TooltipOpenChangeEvent;
       customEvent.reason = translateOpenChangeReason(reasonValue);
@@ -189,7 +192,7 @@ export function TooltipRoot(props: TooltipRoot.Props) {
 
   const tooltipRoot = React.useMemo(
     () => ({
-      open: openState,
+      open,
       setOpen,
       mounted,
       setMounted,
@@ -205,7 +208,7 @@ export function TooltipRoot(props: TooltipRoot.Props) {
       onOpenChangeComplete,
     }),
     [
-      openState,
+      open,
       setOpen,
       mounted,
       setMounted,
