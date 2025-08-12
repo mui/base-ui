@@ -103,6 +103,7 @@ export async function PropsReferenceAccordion({ data, name: partName, ...props }
         );
 
         const { type: shortPropTypeName, detailedType } = getShortPropType(name, prop.type);
+        const hasExpandedType = Boolean(prop.detailedType);
 
         const ShortPropType = await createMdxComponent(`\`${shortPropTypeName}\``, {
           rehypePlugins: rehypeSyntaxHighlighting,
@@ -150,11 +151,11 @@ export async function PropsReferenceAccordion({ data, name: partName, ...props }
               </Accordion.Scrollable>
               {prop.type && (
                 <Accordion.Scrollable className="flex items-baseline text-sm leading-none break-keep whitespace-nowrap max-xs:hidden">
-                  {detailedType ? (
+                  {hasExpandedType || detailedType ? (
                     <ReferenceTableTooltip.Root delay={300} hoverable={false}>
                       <ReferenceTableTooltip.Trigger render={<ShortPropType />} />
                       <ReferenceTableTooltip.Popup>
-                        <PropType />
+                        {hasExpandedType ? <PropDetailedType /> : <PropType />}
                       </ReferenceTableTooltip.Popup>
                     </ReferenceTableTooltip.Root>
                   ) : (

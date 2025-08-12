@@ -515,7 +515,7 @@ export namespace useAnchorPositioning {
      * How to align the popup relative to the specified side.
      * @default 'center'
      */
-    align?: 'start' | 'end' | 'center';
+    align?: Align;
     /**
      * Additional offset along the alignment axis in pixels.
      * Also accepts a function that returns the offset to read the dimensions of the anchor

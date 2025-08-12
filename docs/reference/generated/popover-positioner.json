@@ -9,7 +9,7 @@
       "detailedType": "| {\n    side?: 'none' | 'flip'\n    align?: 'shift' | 'none' | 'flip'\n    fallbackAxisSide?: 'none' | 'start' | 'end'\n  }\n| {\n    side?: 'shift' | 'none'\n    align?: 'shift' | 'none'\n    fallbackAxisSide?: 'none' | 'start' | 'end'\n  }\n| undefined"
     },
     "align": {
-      "type": "'center' | 'start' | 'end'",
+      "type": "Align",
       "default": "'center'",
       "description": "How to align the popup relative to the specified side.",
       "detailedType": "'center' | 'start' | 'end' | undefined"
