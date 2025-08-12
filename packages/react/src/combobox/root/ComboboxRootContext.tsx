@@ -52,6 +52,7 @@ export interface ComboboxRootContext {
   isGrouped: boolean;
   virtualized: boolean;
   onOpenChangeComplete: (open: boolean) => void;
+  openOnInputClick: boolean;
 }
 
 export interface ComboboxDerivedItemsContext {

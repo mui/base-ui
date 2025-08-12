@@ -682,6 +682,7 @@ export function ComboboxRoot<Item = any, Mode extends SelectionMode = 'none'>(
       cols,
       isGrouped,
       virtualized,
+      openOnInputClick,
     }),
     [
       selectionMode,
@@ -702,6 +703,7 @@ export function ComboboxRoot<Item = any, Mode extends SelectionMode = 'none'>(
       cols,
       isGrouped,
       virtualized,
+      openOnInputClick,
     ],
   );
 

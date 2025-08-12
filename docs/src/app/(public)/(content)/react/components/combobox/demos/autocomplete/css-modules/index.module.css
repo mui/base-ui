@@ -30,6 +30,10 @@
 
 .Positioner {
   outline: 0;
+
+  &[data-empty] {
+    display: none;
+  }
 }
 
 .Popup {

@@ -52,6 +52,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
     inputRef,
     setInputValue,
     handleEnterSelection,
+    openOnInputClick,
   } = useComboboxRootContext();
   const comboboxChipsContext = useComboboxChipsContext();
   const hasPositionerParent = Boolean(useComboboxPositionerContext(true));
@@ -171,6 +172,11 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
           if (componentProps.value === undefined) {
             setInputValue(event.currentTarget.value, event.nativeEvent, 'input-change');
           }
+
+          if (event.currentTarget.value === '' && !openOnInputClick) {
+            setOpen(false, event.nativeEvent, undefined);
+          }
+
           // When the user types, ensure the list resets its highlight so that
           // virtual focus returns to the input (aria-activedescendant is
           // cleared).
@@ -219,7 +225,9 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
             (event.key === 'Backspace' ||
               (event.key.length === 1 && !event.ctrlKey && !event.metaKey && !event.altKey))
           ) {
-            setOpen(true, event.nativeEvent, undefined);
+            if (openOnInputClick || event.key !== 'Backspace') {
+              setOpen(true, event.nativeEvent, undefined);
+            }
 
             store.set('activeIndex', null);
             store.set('selectedIndex', null);

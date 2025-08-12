@@ -6,7 +6,11 @@ import { useLatestRef } from '@base-ui-components/utils/useLatestRef';
 import { FloatingFocusManager } from '../../floating-ui-react';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
-import { useComboboxFloatingContext, useComboboxRootContext } from '../root/ComboboxRootContext';
+import {
+  useComboboxFloatingContext,
+  useComboboxRootContext,
+  useComboboxDerivedItemsContext,
+} from '../root/ComboboxRootContext';
 import { selectors } from '../store';
 import { popupStateMapping } from '../../utils/popupStateMapping';
 import { useComboboxPositionerContext } from '../positioner/ComboboxPositionerContext';
@@ -37,6 +41,7 @@ export const ComboboxPopup = React.forwardRef(function ComboboxPopup(
   const { store, popupRef, inputRef, onOpenChangeComplete } = useComboboxRootContext();
   const positioning = useComboboxPositionerContext();
   const floatingRootContext = useComboboxFloatingContext();
+  const { filteredItems } = useComboboxDerivedItemsContext();
 
   const open = useStore(store, selectors.open);
   const openMethod = useStore(store, selectors.openMethod);
@@ -46,6 +51,7 @@ export const ComboboxPopup = React.forwardRef(function ComboboxPopup(
   const triggerElement = useStore(store, selectors.triggerElement);
 
   const isAnchorInput = anchorElement === inputElement;
+  const empty = filteredItems.length === 0;
 
   useOpenChangeComplete({
     open,
@@ -64,8 +70,9 @@ export const ComboboxPopup = React.forwardRef(function ComboboxPopup(
       align: positioning.align,
       anchorHidden: positioning.anchorHidden,
       transitionStatus,
+      empty,
     }),
-    [open, positioning.side, positioning.align, positioning.anchorHidden, transitionStatus],
+    [open, positioning.side, positioning.align, positioning.anchorHidden, transitionStatus, empty],
   );
 
   const element = useRenderElement('div', componentProps, {
@@ -123,6 +130,7 @@ export namespace ComboboxPopup {
     align: Align;
     anchorHidden: boolean;
     transitionStatus: TransitionStatus;
+    empty: boolean;
   }
 
   export interface Props extends BaseUIComponentProps<'div', State> {

@@ -3,7 +3,11 @@ import * as React from 'react';
 import type { VirtualElement } from '@floating-ui/react-dom';
 import { useStore } from '@base-ui-components/utils/store';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
-import { useComboboxFloatingContext, useComboboxRootContext } from '../root/ComboboxRootContext';
+import {
+  useComboboxFloatingContext,
+  useComboboxRootContext,
+  useComboboxDerivedItemsContext,
+} from '../root/ComboboxRootContext';
 import { ComboboxPositionerContext } from './ComboboxPositionerContext';
 import { type Side, type Align, useAnchorPositioning } from '../../utils/useAnchorPositioning';
 import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
@@ -42,11 +46,13 @@ export const ComboboxPositioner = React.forwardRef(function ComboboxPositioner(
   } = componentProps;
 
   const { store } = useComboboxRootContext();
+  const { filteredItems } = useComboboxDerivedItemsContext();
   const floatingRootContext = useComboboxFloatingContext();
   const keepMounted = useComboboxPortalContext();
 
   const open = useStore(store, selectors.open);
   const mounted = useStore(store, selectors.mounted);
+  const empty = filteredItems.length === 0;
 
   const positioning = useAnchorPositioning({
     anchor,
@@ -89,8 +95,9 @@ export const ComboboxPositioner = React.forwardRef(function ComboboxPositioner(
       side: positioning.side,
       align: positioning.align,
       anchorHidden: positioning.anchorHidden,
+      empty,
     }),
-    [open, positioning.side, positioning.align, positioning.anchorHidden],
+    [open, positioning.side, positioning.align, positioning.anchorHidden, empty],
   );
 
   const contextValue: ComboboxPositionerContext = React.useMemo(
@@ -139,6 +146,7 @@ export namespace ComboboxPositioner {
     side: Side;
     align: Align;
     anchorHidden: boolean;
+    empty: boolean;
   }
 
   export interface Props
