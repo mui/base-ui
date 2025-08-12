@@ -3,7 +3,11 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { useControlled } from '@base-ui-components/utils/useControlled';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
-import { TooltipOpenChangeReason, TooltipRootContext } from './TooltipRootContext';
+import {
+  TooltipOpenChangeEvent,
+  TooltipOpenChangeReason,
+  TooltipRootContext,
+} from './TooltipRootContext';
 import {
   useClientPoint,
   useDelayGroup,
@@ -19,6 +23,9 @@ import { OPEN_DELAY } from '../utils/constants';
 import { translateOpenChangeReason } from '../../utils/translateOpenChangeReason';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useTooltipProviderContext } from '../provider/TooltipProviderContext';
+import { createBaseUIEventFromNative } from '../../utils/createBaseUIEvent';
+
+const DISABLED_EVENT_OPTIONS = { reason: 'disabled' } as const;
 
 /**
  * Groups all parts of the tooltip.
@@ -58,17 +65,20 @@ export function TooltipRoot(props: TooltipRoot.Props) {
 
   const open = !disabled && openState;
 
-  function setOpenUnwrapped(
-    nextOpen: boolean,
-    event: Event | undefined,
-    reason: TooltipOpenChangeReason | undefined,
-  ) {
+  function setOpenUnwrapped(nextOpen: boolean, event: TooltipOpenChangeEvent) {
+    const reason = event.reason;
+
     const isHover = reason === 'trigger-hover';
     const isFocusOpen = nextOpen && reason === 'trigger-focus';
     const isDismissClose = !nextOpen && (reason === 'trigger-press' || reason === 'escape-key');
 
+    onOpenChange?.(nextOpen, event);
+
+    if (event.baseUIHandlerPrevented) {
+      return;
+    }
+
     function changeState() {
-      onOpenChange?.(nextOpen, event, reason);
       setOpenState(nextOpen);
     }
 
@@ -90,7 +100,7 @@ export function TooltipRoot(props: TooltipRoot.Props) {
   const setOpen = useEventCallback(setOpenUnwrapped);
 
   if (openState && disabled) {
-    setOpenUnwrapped(false, undefined, 'disabled');
+    setOpenUnwrapped(false, createBaseUIEventFromNative(undefined, DISABLED_EVENT_OPTIONS));
   }
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
@@ -120,7 +130,10 @@ export function TooltipRoot(props: TooltipRoot.Props) {
     },
     open,
     onOpenChange(openValue, eventValue, reasonValue) {
-      setOpen(openValue, eventValue, translateOpenChangeReason(reasonValue));
+      setOpen(
+        openValue,
+        createBaseUIEventFromNative(eventValue, { reason: translateOpenChangeReason(reasonValue) }),
+      );
     },
   });
 
@@ -248,11 +261,7 @@ export namespace TooltipRoot {
     /**
      * Event handler called when the tooltip is opened or closed.
      */
-    onOpenChange?: (
-      open: boolean,
-      event: Event | undefined,
-      reason: OpenChangeReason | undefined,
-    ) => void;
+    onOpenChange?: (open: boolean, event: TooltipOpenChangeEvent) => void;
     /**
      * Event handler called after any animations complete when the tooltip is opened or closed.
      */
