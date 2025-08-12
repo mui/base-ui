@@ -23,7 +23,9 @@ import { OPEN_DELAY } from '../utils/constants';
 import { translateOpenChangeReason } from '../../utils/translateOpenChangeReason';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useTooltipProviderContext } from '../provider/TooltipProviderContext';
-import { createBaseUIEvent } from '../../utils/createBaseUIEvent';
+import { createBaseUIEventFromNative } from '../../utils/createBaseUIEvent';
+
+const DISABLED_EVENT_OPTIONS = { reason: 'disabled' } as const;
 
 /**
  * Groups all parts of the tooltip.
@@ -98,9 +100,7 @@ export function TooltipRoot(props: TooltipRoot.Props) {
   const setOpen = useEventCallback(setOpenUnwrapped);
 
   if (openState && disabled) {
-    const disabledEvent = createBaseUIEvent() as TooltipOpenChangeEvent;
-    disabledEvent.reason = 'disabled';
-    setOpen(false, disabledEvent);
+    setOpen(false, createBaseUIEventFromNative(undefined, DISABLED_EVENT_OPTIONS));
   }
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
@@ -130,9 +130,10 @@ export function TooltipRoot(props: TooltipRoot.Props) {
     },
     open,
     onOpenChange(openValue, eventValue, reasonValue) {
-      const customEvent = createBaseUIEvent(eventValue as Event) as TooltipOpenChangeEvent;
-      customEvent.reason = translateOpenChangeReason(reasonValue);
-      setOpen(openValue, customEvent);
+      setOpen(
+        openValue,
+        createBaseUIEventFromNative(eventValue, { reason: translateOpenChangeReason(reasonValue) }),
+      );
     },
   });
 

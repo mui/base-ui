@@ -4,19 +4,44 @@ import { makeEventPreventable } from '../merge-props/mergeProps';
 import { NOOP } from './noop';
 
 /**
- * Creates a SyntheticEvent that satisfies the `BaseUIEvent` contract.
+ * Creates a Base UI event from a React SyntheticEvent. The original event is mutated
+ * to include `preventBaseUIHandler`/`baseUIHandlerPrevented`.
  */
-export function createBaseUIEvent<E extends Event = Event>(
-  eventParam?: React.SyntheticEvent<Element, E> | E,
-): BaseUIEvent<React.SyntheticEvent<Element, E>> {
-  if (eventParam && typeof eventParam === 'object' && 'persist' in eventParam) {
-    const syntheticEvent = eventParam as React.SyntheticEvent<Element, E>;
-    const baseSynthetic = syntheticEvent as unknown as BaseUIEvent<typeof syntheticEvent>;
-    makeEventPreventable(baseSynthetic);
-    return baseSynthetic;
+export function createBaseUIEventFromSynthetic<E extends React.SyntheticEvent<Element, any>>(
+  syntheticEvent: E,
+): BaseUIEvent<E>;
+export function createBaseUIEventFromSynthetic<
+  E extends React.SyntheticEvent<Element, any>,
+  Extra extends object,
+>(syntheticEvent: E, extra: Extra): BaseUIEvent<E> & Extra;
+export function createBaseUIEventFromSynthetic<
+  E extends React.SyntheticEvent<Element, any>,
+  Extra extends object = {},
+>(syntheticEvent: E, extra?: Extra): BaseUIEvent<E> & Extra {
+  const baseSynthetic = syntheticEvent as unknown as BaseUIEvent<E>;
+  makeEventPreventable(baseSynthetic);
+  if (extra) {
+    Object.assign(baseSynthetic, extra);
   }
+  return baseSynthetic as BaseUIEvent<E> & Extra;
+}
 
-  const nativeEvent: E = (eventParam as E) ?? new Event('base-ui');
+/**
+ * Creates a Base UI event from a native Event (or none). A lightweight SyntheticEvent-shaped
+ * object is constructed so downstream code can always expect a consistent interface.
+ */
+export function createBaseUIEventFromNative<E extends Event = Event>(
+  eventParam?: E,
+): BaseUIEvent<React.SyntheticEvent<Element, E>>;
+export function createBaseUIEventFromNative<E extends Event, Extra extends object>(
+  eventParam: E | undefined,
+  extra: Extra,
+): BaseUIEvent<React.SyntheticEvent<Element, E>> & Extra;
+export function createBaseUIEventFromNative<E extends Event, Extra extends object = {}>(
+  eventParam?: E,
+  extra?: Extra,
+): BaseUIEvent<React.SyntheticEvent<Element, E>> & Extra {
+  const nativeEvent = (eventParam ?? new Event('base-ui')) as E;
 
   const syntheticEvent: React.SyntheticEvent<Element, E> = {
     nativeEvent,
@@ -26,7 +51,7 @@ export function createBaseUIEvent<E extends Event = Event>(
     defaultPrevented: nativeEvent.defaultPrevented,
     eventPhase: nativeEvent.eventPhase,
     isTrusted: nativeEvent.isTrusted,
-    target: nativeEvent.target as EventTarget,
+    target: nativeEvent.target as EventTarget & Element,
     timeStamp: nativeEvent.timeStamp,
     type: nativeEvent.type,
     preventDefault: nativeEvent.preventDefault,
@@ -38,6 +63,8 @@ export function createBaseUIEvent<E extends Event = Event>(
 
   const baseEvent = syntheticEvent as unknown as BaseUIEvent<typeof syntheticEvent>;
   makeEventPreventable(baseEvent);
-
-  return baseEvent as BaseUIEvent<React.SyntheticEvent<Element, E>>;
+  if (extra) {
+    Object.assign(baseEvent, extra);
+  }
+  return baseEvent as BaseUIEvent<React.SyntheticEvent<Element, E>> & Extra;
 }
