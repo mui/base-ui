@@ -3,34 +3,42 @@
   "description": "Groups all parts of the popover.\nDoesn’t render its own HTML element.",
   "props": {
     "defaultOpen": {
-      "type": "boolean | HTMLElement | null"
+      "type": "boolean | HTMLElement | null",
+      "detailedType": "boolean | HTMLElement | null | undefined"
     },
     "open": {
-      "type": "boolean | HTMLElement | null"
+      "type": "boolean | HTMLElement | null",
+      "detailedType": "boolean | HTMLElement | null | undefined"
     },
     "onOpenChange": {
       "type": "((nextOpen: boolean, event: Event | undefined, reason: Popover.Root.OpenChangeReason | undefined, nextActiveTrigger: HTMLElement | null) => void)",
-      "description": "Event handler called when the popover is opened or closed."
+      "description": "Event handler called when the popover is opened or closed.",
+      "detailedType": "| ((\n    nextOpen: boolean,\n    event: Event | undefined,\n    reason: Popover.Root.OpenChangeReason | undefined,\n    nextActiveTrigger: HTMLElement | null,\n  ) => void)\n| undefined"
     },
     "actionsRef": {
       "type": "RefObject<Popover.Root.Actions>",
-      "description": "A ref to imperative actions.\n- `unmount`: When specified, the popover will not be unmounted when closed.\nInstead, the `unmount` function must be called to unmount the popover manually.\nUseful when the popover's animation is controlled by an external library."
+      "description": "A ref to imperative actions.\n- `unmount`: When specified, the popover will not be unmounted when closed.\nInstead, the `unmount` function must be called to unmount the popover manually.\nUseful when the popover's animation is controlled by an external library.",
+      "detailedType": "React.RefObject<Popover.Root.Actions> | undefined"
     },
     "handle": {
       "type": "PopoverStore<Payload>",
-      "description": "A handle to associate the popover with a trigger.\nIf specified, allows external triggers to control the popover's open state."
+      "description": "A handle to associate the popover with a trigger.\nIf specified, allows external triggers to control the popover's open state.",
+      "detailedType": "{} | undefined"
     },
     "modal": {
       "type": "boolean | 'trap-focus'",
       "default": "false",
-      "description": "Determines if the popover enters a modal state when open.\n- `true`: user interaction is limited to the popover: document page scroll is locked, and pointer interactions on outside elements are disabled.\n- `false`: user interaction with the rest of the document is allowed.\n- `'trap-focus'`: focus is trapped inside the popover, but document page scroll is not locked and pointer interactions outside of it remain enabled."
+      "description": "Determines if the popover enters a modal state when open.\n- `true`: user interaction is limited to the popover: document page scroll is locked, and pointer interactions on outside elements are disabled.\n- `false`: user interaction with the rest of the document is allowed.\n- `'trap-focus'`: focus is trapped inside the popover, but document page scroll is not locked and pointer interactions outside of it remain enabled.",
+      "detailedType": "boolean | 'trap-focus' | undefined"
     },
     "onOpenChangeComplete": {
       "type": "((open: boolean) => void)",
-      "description": "Event handler called after any animations complete when the popover is opened or closed."
+      "description": "Event handler called after any animations complete when the popover is opened or closed.",
+      "detailedType": "((open: boolean) => void) | undefined"
     },
     "children": {
-      "type": "ReactNode | Popover.Root.ChildRenderFunction<Payload>"
+      "type": "ReactNode | Popover.Root.ChildRenderFunction<Payload>",
+      "detailedType": "| React.ReactNode\n| ((__0: { payload: Payload | undefined }) => ReactNode)"
     }
   },
   "dataAttributes": {},

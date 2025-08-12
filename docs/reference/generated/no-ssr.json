@@ -5,16 +5,19 @@
     "defer": {
       "type": "boolean",
       "default": "false",
-      "description": "If `true`, the component will not only prevent server-side rendering.\nIt will also defer the rendering of the children into a different screen frame."
+      "description": "If `true`, the component will not only prevent server-side rendering.\nIt will also defer the rendering of the children into a different screen frame.",
+      "detailedType": "boolean | undefined"
     },
     "fallback": {
       "type": "ReactNode",
       "default": "null",
-      "description": "The fallback content to display."
+      "description": "The fallback content to display.",
+      "detailedType": "React.ReactNode"
     },
     "children": {
       "type": "ReactNode",
-      "description": "You can wrap a node."
+      "description": "You can wrap a node.",
+      "detailedType": "React.ReactNode"
     }
   },
   "dataAttributes": {},
