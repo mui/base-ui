@@ -8,14 +8,14 @@ export default function AutofillCombobox() {
   const [inputHighlightValue, setInputHighlightValue] = React.useState('');
   const [selectedValue, setSelectedValue] = React.useState(null);
 
+  const filter = Combobox.useFilter({ sensitivity: 'base' });
+
   const filteredCountries = React.useMemo(() => {
     if (searchValue.trim() === '') {
       return countries;
     }
-    return countries.filter((country) =>
-      country.value.toLowerCase().includes(searchValue.toLowerCase()),
-    );
-  }, [searchValue]);
+    return countries.filter((country) => filter.contains(country.value, searchValue));
+  }, [searchValue, filter]);
 
   return (
     <div className={styles.Container}>
