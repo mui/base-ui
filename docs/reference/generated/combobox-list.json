@@ -3,7 +3,8 @@
   "description": "The container for the combobox items.\nRenders a `<div>` element.",
   "props": {
     "children": {
-      "type": "ReactNode | ((item: any) => ReactNode)"
+      "type": "ReactNode | ((item: any) => ReactNode)",
+      "detailedType": "React.ReactNode | ((item: any) => ReactNode)"
     },
     "className": {
       "type": "string | ((state: Combobox.List.State) => string)",
@@ -11,7 +12,8 @@
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: Combobox.List.State) => ReactElement)",
-      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
+      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Combobox.List.State,\n  ) => ReactElement)"
     }
   },
   "dataAttributes": {},

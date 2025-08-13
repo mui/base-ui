@@ -5,7 +5,8 @@
     "disabled": {
       "type": "boolean",
       "default": "false",
-      "description": "Whether the component should ignore user interaction."
+      "description": "Whether the component should ignore user interaction.",
+      "detailedType": "boolean | undefined"
     },
     "className": {
       "type": "string | ((state: Combobox.Input.State) => string)",
@@ -13,7 +14,8 @@
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: Combobox.Input.State) => ReactElement)",
-      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
+      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Combobox.Input.State,\n  ) => ReactElement)"
     }
   },
   "dataAttributes": {},

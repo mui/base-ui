@@ -7,7 +7,8 @@
     },
     "children": {
       "type": "ReactNode",
-      "required": true
+      "required": true,
+      "detailedType": "React.ReactNode"
     }
   },
   "dataAttributes": {},

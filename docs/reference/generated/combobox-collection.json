@@ -4,7 +4,8 @@
   "props": {
     "children": {
       "type": "((item: any) => ReactNode)",
-      "required": true
+      "required": true,
+      "detailedType": "(item: any) => ReactNode"
     }
   },
   "dataAttributes": {},

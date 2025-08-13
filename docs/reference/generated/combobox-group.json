@@ -4,7 +4,8 @@
   "props": {
     "items": {
       "type": "any[]",
-      "description": "Items to be rendered within this group.\nWhen provided, child Collection components will use these items."
+      "description": "Items to be rendered within this group.\nWhen provided, child Collection components will use these items.",
+      "detailedType": "any[] | undefined"
     },
     "className": {
       "type": "string | ((state: Combobox.Group.State) => string)",
@@ -12,7 +13,8 @@
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: Combobox.Group.State) => ReactElement)",
-      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
+      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Combobox.Group.State,\n  ) => ReactElement)"
     }
   },
   "dataAttributes": {},
