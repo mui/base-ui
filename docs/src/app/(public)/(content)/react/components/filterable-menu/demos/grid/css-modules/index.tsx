@@ -35,7 +35,7 @@ const emojiGroups: EmojiGroup[] = emojiCategories.map((category) => ({
   })),
 }));
 
-export default function EmojiPicker() {
+export default function ExampleEmojiPicker() {
   const [pickerOpen, setPickerOpen] = React.useState(false);
   const [textValue, setTextValue] = React.useState('');
   const [searchValue, setSearchValue] = React.useState('');

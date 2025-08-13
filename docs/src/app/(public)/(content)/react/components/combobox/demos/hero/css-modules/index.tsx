@@ -3,7 +3,7 @@ import { Combobox } from '@base-ui-components/react/combobox';
 import styles from './index.module.css';
 import { options } from './data';
 
-export default function OptionOnlyCombobox() {
+export default function ExampleCombobox() {
   return (
     <Combobox.Root items={options}>
       <label className={styles.Label}>

@@ -42,7 +42,7 @@ function itemToString(item: FuzzyItem): string {
   return item.title;
 }
 
-export default function FuzzyMatchingAutocomplete() {
+export default function ExampleFuzzyMatchingAutocomplete() {
   const [searchValue, setSearchValue] = React.useState('');
 
   return (

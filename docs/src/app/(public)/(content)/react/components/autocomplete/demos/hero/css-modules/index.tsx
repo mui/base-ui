@@ -3,7 +3,7 @@ import { Autocomplete } from '@base-ui-components/react/autocomplete';
 import styles from './index.module.css';
 import { tags, type Tag } from './data';
 
-export default function ExampleCombobox() {
+export default function ExampleAutocomplete() {
   return (
     <Autocomplete.Root items={tags}>
       <label className={styles.Label}>

@@ -12,7 +12,7 @@ function hasOption(
   return options.some((option) => contains(option, inputValue));
 }
 
-export default function AddOptionAutocomplete() {
+export default function ExampleAddOptionAutocomplete() {
   const [options, setOptions] = React.useState(initialOptions);
   const [inputValue, setInputValue] = React.useState('');
 

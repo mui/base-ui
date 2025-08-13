@@ -76,7 +76,7 @@
     },
     "openOnInputClick": {
       "type": "boolean",
-      "default": "true",
+      "default": "false",
       "description": "Whether the combobox popup opens when clicking the input.",
       "detailedType": "boolean | undefined"
     },

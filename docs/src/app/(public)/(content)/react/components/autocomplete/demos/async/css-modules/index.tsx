@@ -7,7 +7,7 @@ function itemToString(item: Movie) {
   return item.title;
 }
 
-export default function AsyncAutocomplete() {
+export default function ExampleAsyncAutocomplete() {
   const [searchValue, setSearchValue] = React.useState('');
   const [isLoading, setIsLoading] = React.useState(false);
   const [searchResults, setSearchResults] = React.useState<Movie[]>([]);

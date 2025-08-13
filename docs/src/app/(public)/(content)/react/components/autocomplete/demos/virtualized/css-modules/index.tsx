@@ -5,7 +5,7 @@ import { useVirtualizer } from '@tanstack/react-virtual';
 import styles from './index.module.css';
 import { virtualItems } from './data';
 
-export default function VirtualizedAutocomplete() {
+export default function ExampleVirtualizedAutocomplete() {
   const [open, setOpen] = React.useState(false);
   const [searchValue, setSearchValue] = React.useState('');
 

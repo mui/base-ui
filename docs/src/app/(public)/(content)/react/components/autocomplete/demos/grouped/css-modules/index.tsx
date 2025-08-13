@@ -7,7 +7,7 @@ function itemToString(tag: Tag) {
   return tag.label;
 }
 
-export default function GroupedAutocomplete() {
+export default function ExampleGroupAutocomplete() {
   return (
     <Autocomplete.Root items={groupedTags} itemToString={itemToString}>
       <label className={styles.Label}>

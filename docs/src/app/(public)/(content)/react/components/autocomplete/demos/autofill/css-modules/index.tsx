@@ -3,7 +3,7 @@ import { Autocomplete } from '@base-ui-components/react/autocomplete';
 import styles from './index.module.css';
 import { tags } from './data';
 
-export default function AutofillAutocomplete() {
+export default function ExampleAutofillAutocomplete() {
   const [searchValue, setSearchValue] = React.useState('');
   const [inputHighlightValue, setInputHighlightValue] = React.useState('');
   const [, setSelectedValue] = React.useState<string | null>(null);

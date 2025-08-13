@@ -9,10 +9,7 @@ import { ComboboxRoot } from '../../combobox/root/ComboboxRoot';
  * Documentation: [Base UI Autocomplete](https://base-ui.com/react/components/autocomplete)
  */
 export function AutocompleteRoot<Item = any>(
-  props: Omit<
-    ComboboxRoot.Props<Item, 'none'>,
-    'selectionMode' | 'selectedValue' | 'defaultSelectedValue' | 'fillInputOnItemPress'
-  >,
+  props: AutocompleteRoot.Props<Item>,
 ): React.JSX.Element {
   const { openOnInputClick = false, ...rest } = props;
   return (
@@ -23,4 +20,22 @@ export function AutocompleteRoot<Item = any>(
       fillInputOnItemPress
     />
   );
+}
+
+export namespace AutocompleteRoot {
+  export interface Props<Item = any>
+    extends Omit<
+      ComboboxRoot.Props<Item, 'none'>,
+      | 'selectionMode'
+      | 'selectedValue'
+      | 'defaultSelectedValue'
+      | 'fillInputOnItemPress'
+      | 'openOnInputClick'
+    > {
+    /**
+     * Whether the combobox popup opens when clicking the input.
+     * @default false
+     */
+    openOnInputClick?: boolean;
+  }
 }

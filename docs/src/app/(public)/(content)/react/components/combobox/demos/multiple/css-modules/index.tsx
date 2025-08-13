@@ -3,7 +3,7 @@ import { Combobox } from '@base-ui-components/react/combobox';
 import styles from './index.module.css';
 import { langs, type Lang } from './data';
 
-export default function MultipleCombobox() {
+export default function ExampleMultipleCombobox() {
   const containerRef = React.useRef<HTMLDivElement | null>(null);
   const id = React.useId();
 

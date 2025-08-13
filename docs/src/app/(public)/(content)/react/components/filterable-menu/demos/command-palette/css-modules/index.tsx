@@ -4,7 +4,7 @@ import { FilterableMenu } from '@base-ui-components/react/filterable-menu';
 import styles from './index.module.css';
 import { type Item, type Group, groupedItems } from './data';
 
-export default function CommandPaletteCombobox() {
+export default function ExampleCommandPalette() {
   const [open, setOpen] = React.useState(false);
   const [searchValue, setSearchValue] = React.useState('');
 

@@ -9,15 +9,27 @@ import { ComboboxRoot } from '../../combobox/root/ComboboxRoot';
  * Documentation: [Base UI Filterable Menu](https://base-ui.com/react/components/filterable-menu)
  */
 export function FilterableMenuRoot<Item = any>(
-  props: Omit<
-    ComboboxRoot.Props<Item, 'none'>,
-    | 'selectionMode'
-    | 'selectedValue'
-    | 'defaultSelectedValue'
-    | 'fillInputOnItemPress'
-    | 'itemToString'
-    | 'itemToValue'
-  >,
+  props: FilterableMenuRoot.Props<Item>,
 ): React.JSX.Element {
   return <ComboboxRoot {...props} selectionMode="none" fillInputOnItemPress={false} />;
+}
+
+export namespace FilterableMenuRoot {
+  export interface Props<Item = any>
+    extends Omit<
+      ComboboxRoot.Props<Item, 'none'>,
+      | 'selectionMode'
+      | 'selectedValue'
+      | 'defaultSelectedValue'
+      | 'fillInputOnItemPress'
+      | 'itemToString'
+      | 'itemToValue'
+      | 'openOnInputClick'
+    > {
+    /**
+     * Whether the combobox popup opens when clicking the input.
+     * @default false
+     */
+    openOnInputClick?: boolean;
+  }
 }

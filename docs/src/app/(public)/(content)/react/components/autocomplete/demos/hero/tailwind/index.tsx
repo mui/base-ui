@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Autocomplete } from '@base-ui-components/react/autocomplete';
 import { tags, type Tag } from '../css-modules/data';
 
-export default function ExampleCombobox() {
+export default function ExampleAutocomplete() {
   return (
     <Autocomplete.Root items={tags}>
       <label className="flex flex-col gap-1 text-sm leading-5 font-medium text-gray-900">
