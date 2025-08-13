@@ -206,8 +206,10 @@ function renderPopoverContent(contentIndex: number, settings: Settings) {
           <Popover.Arrow className={styles.Arrow}>
             <ArrowSvg />
           </Popover.Arrow>
-          <Popover.Title className={styles.Title}>Popover {contentIndex}</Popover.Title>
-          <Content contentIndex={contentIndex} />
+          <Popover.PopoverTransitionContainer className={styles.TransitionContainer}>
+            <Popover.Title className={styles.Title}>Popover {contentIndex}</Popover.Title>
+            <Content contentIndex={contentIndex} />
+          </Popover.PopoverTransitionContainer>
         </Popover.Popup>
       </Popover.Positioner>
     </Popover.Portal>
