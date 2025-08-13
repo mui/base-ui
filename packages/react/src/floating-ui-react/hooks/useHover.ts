@@ -266,6 +266,16 @@ export function useHover(
         return;
       }
 
+      if (
+        event.relatedTarget &&
+        elements.triggers &&
+        elements.triggers.includes(event.relatedTarget as Element)
+      ) {
+        // If the mouse is leaving the reference element to another trigger, don't explicitly close the popup
+        // as it will be moved.
+        return;
+      }
+
       unbindMouseMoveRef.current();
 
       const doc = getDocument(elements.floating);
@@ -322,6 +332,15 @@ export function useHover(
         return;
       }
       if (!dataRef.current.floatingContext) {
+        return;
+      }
+      if (
+        event.relatedTarget &&
+        elements.triggers &&
+        elements.triggers.includes(event.relatedTarget as Element)
+      ) {
+        // If the mouse is leaving the reference element to another trigger, don't explicitly close the popup
+        // as it will be moved.
         return;
       }
 
@@ -496,9 +515,11 @@ export function useHover(
       onMouseMove(event) {
         const { nativeEvent } = event;
         const trigger = event.currentTarget as Element;
+        const isOverNewTrigger =
+          elements.domReference && !elements.domReference.contains(event.target as Element);
 
         function handleMouseMove() {
-          if (!blockMouseMoveRef.current && !openRef.current) {
+          if (!blockMouseMoveRef.current && (!openRef.current || isOverNewTrigger)) {
             onOpenChange(true, nativeEvent, 'hover', trigger);
           }
         }
@@ -507,12 +528,16 @@ export function useHover(
           return;
         }
 
-        if (open || getRestMs(restMsRef.current) === 0) {
+        if ((open && !isOverNewTrigger) || getRestMs(restMsRef.current) === 0) {
           return;
         }
 
         // Ignore insignificant movements to account for tremors.
-        if (restTimeoutPendingRef.current && event.movementX ** 2 + event.movementY ** 2 < 2) {
+        if (
+          event.target === elements.domReference &&
+          restTimeoutPendingRef.current &&
+          event.movementX ** 2 + event.movementY ** 2 < 2
+        ) {
           return;
         }
 
@@ -520,13 +545,15 @@ export function useHover(
 
         if (pointerTypeRef.current === 'touch') {
           handleMouseMove();
+        } else if (isOverNewTrigger) {
+          handleMouseMove();
         } else {
           restTimeoutPendingRef.current = true;
           restTimeout.start(getRestMs(restMsRef.current), handleMouseMove);
         }
       },
     };
-  }, [mouseOnly, onOpenChange, open, openRef, restMsRef, restTimeout]);
+  }, [mouseOnly, onOpenChange, open, openRef, restMsRef, restTimeout, elements.domReference]);
 
   return React.useMemo(() => (enabled ? { reference } : {}), [enabled, reference]);
 }

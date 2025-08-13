@@ -12,6 +12,8 @@ const popover2 = Popover.createHandle<number>();
 
 interface Settings {
   openOnHover: boolean;
+  delay: number;
+  closeDelay: number;
   side: 'top' | 'bottom' | 'left' | 'right';
   modal: boolean;
   keepMounted: boolean;
@@ -176,7 +178,8 @@ function StyledTrigger<Payload>(
     <Popover.Trigger
       className={styles.IconButton}
       openOnHover={settings.openOnHover}
-      delay={50}
+      delay={settings.delay}
+      closeDelay={settings.closeDelay}
       {...props}
     >
       <PopupIcon aria-label="Notifications" className={styles.Icon} />
@@ -232,6 +235,16 @@ export const settingsMetadata: SettingsMetadata<Settings> = {
   openOnHover: {
     type: 'boolean',
     label: 'Open on hover',
+  },
+  delay: {
+    type: 'number',
+    label: 'Delay',
+    default: 200,
+  },
+  closeDelay: {
+    type: 'number',
+    label: 'Close Delay',
+    default: 0,
   },
   side: {
     type: 'string',

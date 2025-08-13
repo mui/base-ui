@@ -91,7 +91,7 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
       (openMethod !== 'touch' || openReason !== 'trigger-press'),
     mouseOnly: true,
     move: false,
-    handleClose: safePolygon({ blockPointerEvents: true }),
+    handleClose: safePolygon(),
     restMs: delay,
     delay: {
       close: closeDelay,
