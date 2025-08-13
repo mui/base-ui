@@ -9,10 +9,8 @@ import { useButton } from '../../use-button';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 
 /**
- * Clears the input and selected value of the combobox when clicked.
- * Only renders when the combobox is in single select mode and the input value is not empty.
- *
- * Documentation: [Base UI Combobox](https://base-ui.com/react/components/combobox)
+ * Clears the input and selected value when clicked.
+ * Only renders when in single select mode and the input value is not empty.
  */
 export const ComboboxClear = React.forwardRef(function ComboboxClear(
   componentProps: ComboboxClear.Props,

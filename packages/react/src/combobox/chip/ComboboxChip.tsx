@@ -12,10 +12,8 @@ import { stopEvent } from '../../floating-ui-react/utils';
 import { selectors } from '../store';
 
 /**
- * An individual chip that represents a value in a multiselectable combobox.
+ * An individual chip that represents a value in a multiselectable input.
  * Renders a `<div>` element.
- *
- * Documentation: [Base UI Combobox](https://base-ui.com/react/components/combobox)
  */
 export const ComboboxChip = React.forwardRef(function ComboboxChip(
   componentProps: ComboboxChip.Props,

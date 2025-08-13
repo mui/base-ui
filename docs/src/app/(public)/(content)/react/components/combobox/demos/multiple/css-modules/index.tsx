@@ -8,7 +8,7 @@ export default function MultipleCombobox() {
   const id = React.useId();
 
   return (
-    <Combobox.Root items={langs} selectionMode="multiple">
+    <Combobox.Root items={langs} multiple>
       <div className={styles.Container}>
         <label className={styles.Label} htmlFor={id}>
           Programming languages

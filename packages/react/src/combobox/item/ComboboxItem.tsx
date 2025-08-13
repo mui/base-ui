@@ -19,10 +19,8 @@ import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useComboboxRowContext } from '../row/ComboboxRowContext';
 
 /**
- * An individual item in the combobox popup.
+ * An individual item in the popup.
  * Renders a `<div>` element.
- *
- * Documentation: [Base UI Combobox](https://base-ui.com/react/components/combobox)
  */
 export const ComboboxItem = React.memo(
   React.forwardRef(function ComboboxItem(

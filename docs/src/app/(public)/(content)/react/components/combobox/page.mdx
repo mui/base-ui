@@ -1,12 +1,12 @@
 # Combobox
 
-<Subtitle>An input combined with a list of items to choose from.</Subtitle>
+<Subtitle>An input combined with a list of predefined items to select.</Subtitle>
 <Meta
   name="description"
   content="A high-quality, unstyled React combobox component that renders an input combined with a list of items to choose from."
 />
 
-<Demo path="./demos/hero" />
+<Demo path="./demos/select" />
 
 ## Anatomy
 
@@ -64,80 +64,14 @@ import { Combobox } from '@base-ui-components/react/combobox';
 
 ## Examples
 
-### Select
-
-The combobox can require the input value to match one of its predefined options by adding `selectionMode="single"` to `Combobox.Root`. `Combobox.Clear` is used to allow the user to clear the selection.
-
-<Demo path="./demos/select" compact />
-
 ### Multiple select
 
 The combobox can allow multiple selections by adding `selectionMode="multiple"` to `Combobox.Root`, rendering chips with `Combobox.Chip` for each selected value in the input that can be removed.
 
 <Demo path="./demos/multiple" compact />
 
-### Autocomplete
-
-The combobox popup can show after typing in the input by setting `openOnInputClick` to `false` on `Combobox.Root`.
-
-<Demo path="./demos/autocomplete" compact />
-
-### Without autocomplete
-
-The combobox can display predefined options without filtering or selection state by rendering each `Combobox.Item` as a static option without passing the `items` prop, demonstrating search history.
-
-<Demo path="./demos/without-autocomplete" compact />
-
-### Async search
-
-The combobox items can be loaded asynchronously.
-
-<Demo path="./demos/async" compact />
-
-### Input autofill
-
-The combobox's input can be autofilled with the highlighted item when navigating with arrow keys before selecting an item.
-
-<Demo path="./demos/autofill" compact />
-
-### Grouped
-
-The combobox can group related options together by passing an array of group objects to the `items` prop.
-
-<Demo path="./demos/grouped" compact />
-
-### Inside `Popover`
+### Input inside popup
 
 `Combobox.Input` can be rendered inside `Combobox.Popup` to create a searchable select menu.
 
-<Demo path="./demos/inside-popover" compact />
-
-### Grid layout
-
-The combobox list can form a grid with each row wrapped in `Combobox.Row` and a `cols` prop specified on `Combobox.Root` marking the maximum number of columns that can be displayed.
-
-<Demo path="./demos/grid" compact />
-
-### Command menu
-
-The combobox can be used to create a command menu when rendered inside a `Dialog` component.
-
-<Demo path="./demos/command-menu" compact />
-
-### Fuzzy matching
-
-The combobox can use fuzzy matching to find relevant results even when the search query doesn't exactly match the item text using a library like `match-sorter` to implement intelligent search capabilities.
-
-<Demo path="./demos/fuzzy-matching" compact />
-
-### Virtualized
-
-The combobox can efficiently handle large datasets using a virtualization library like `@tanstack/react-virtual`. A combobox with 10,000 items maintains smooth performance by only rendering items within a visible window.
-
-<Demo path="./demos/virtualized" compact />
-
-### Add option
-
-The combobox can allow users to add new options that are not in the predefined list.
-
-<Demo path="./demos/add-option" compact />
+<Demo path="./demos/input-inside-popup" compact />

@@ -49,12 +49,6 @@ import { useTransitionStatus } from '../../utils/useTransitionStatus';
 import { EMPTY_ARRAY } from '../../utils/constants';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
 
-/**
- * Groups all parts of the combobox.
- * Doesn't render its own HTML element.
- *
- * Documentation: [Base UI Combobox](https://base-ui.com/react/components/combobox)
- */
 export function ComboboxRoot<Item = any, Mode extends SelectionMode = 'none'>(
   props: ComboboxRootConditionalProps<Item, Mode>,
 ): React.JSX.Element {
@@ -80,6 +74,9 @@ export function ComboboxRoot<Item = any, Mode extends SelectionMode = 'none'>(
     itemToString,
     itemToValue,
     virtualized = false,
+    // When in selectionMode "none", controls whether selecting an item fills the input.
+    // Defaults to true to preserve current behavior.
+    fillInputOnItemPress = true,
   } = props;
 
   const { clearErrors } = useFormContext();
@@ -159,14 +156,14 @@ export function ComboboxRoot<Item = any, Mode extends SelectionMode = 'none'>(
 
   const flatItems = React.useMemo(() => {
     if (!items) {
-      return [];
+      return [] as ExtractItemType<Item>[];
     }
 
     if (isGrouped) {
-      return (items as ComboboxGroup<Item>[]).flatMap((group) => group.items);
+      return (items as ComboboxGroup<ExtractItemType<Item>>[]).flatMap((group) => group.items);
     }
 
-    return items as Item[];
+    return items as ExtractItemType<Item>[];
   }, [items, isGrouped]);
 
   const filteredItems = React.useMemo(() => {
@@ -175,13 +172,13 @@ export function ComboboxRoot<Item = any, Mode extends SelectionMode = 'none'>(
     }
 
     if (isGrouped) {
-      const groupedItems = items as ComboboxGroup<Item>[];
+      const groupedItems = items as ComboboxGroup<ExtractItemType<Item>>[];
       if (query === '') {
         return groupedItems;
       }
       return groupedItems
         .map((group) => defaultGroupFilter(group, query, filter, itemToString))
-        .filter((group): group is ComboboxGroup<Item> => group !== null);
+        .filter((group): group is ComboboxGroup<ExtractItemType<Item>> => group !== null);
     }
 
     if (query === '') {
@@ -386,8 +383,10 @@ export function ComboboxRoot<Item = any, Mode extends SelectionMode = 'none'>(
   const setSelectedValue = useEventCallback(
     (nextValue: Item | Item[], event: Event | undefined, reason: ValueChangeReason | undefined) => {
       if (selectionMode === 'none' && !multiple && popupRef.current) {
-        const stringVal = stringifyItem(nextValue as Item, itemToString);
-        setInputValue(stringVal, event, reason);
+        if (fillInputOnItemPress) {
+          const stringVal = stringifyItem(nextValue as Item, itemToString);
+          setInputValue(stringVal, event, reason);
+        }
       }
 
       // If input value is uncontrolled, keep it in sync for single selection mode
@@ -899,7 +898,7 @@ interface ComboboxRootProps<Item> {
    * Passes the item's `value` or `undefined` when no item is highlighted.
    */
   onItemHighlighted?: (
-    value: Item | undefined,
+    value: ExtractItemType<Item> | undefined,
     data: {
       type: 'keyboard' | 'pointer';
       index: number;
@@ -918,25 +917,34 @@ interface ComboboxRootProps<Item> {
    * The items to be displayed in the combobox.
    * Can be either a flat array of items or an array of groups with items.
    */
-  items?: Item[] | ComboboxGroup<Item>[];
+  items?: ExtractItemType<Item>[] | ComboboxGroup<ExtractItemType<Item>>[];
   /**
    * Filter function used to match items vs input query.
    * The `itemToString` function is provided to help convert items to strings for comparison.
    */
-  filter?: (item: Item, query: string, itemToString?: (item: Item) => string) => boolean;
+  filter?: (
+    item: ExtractItemType<Item>,
+    query: string,
+    itemToString?: (item: ExtractItemType<Item>) => string,
+  ) => boolean;
   /**
    * Function to convert an item to a string for display in the combobox.
    */
-  itemToString?: (item: Item) => string;
+  itemToString?: (item: ExtractItemType<Item>) => string;
   /**
    * Function to convert an item to its value for form submission.
    */
-  itemToValue?: (item: Item) => string;
+  itemToValue?: (item: ExtractItemType<Item>) => string;
   /**
    * Whether the combobox items are virtualized.
    * @default false
    */
   virtualized?: boolean;
+  /**
+   * INTERNAL: When `selectionMode` is `none`, controls whether selecting an item fills the input.
+   * Defaults to `true` to preserve legacy Combobox behavior.
+   */
+  fillInputOnItemPress?: boolean;
 }
 
 export type ComboboxRootConditionalProps<Item, Mode extends SelectionMode = 'none'> = Omit<

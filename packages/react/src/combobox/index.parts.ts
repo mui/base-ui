@@ -1,4 +1,4 @@
-export { ComboboxRoot as Root } from './root/ComboboxRoot';
+export { ComboboxRoot as Root } from './root/ComboboxPublicRoot';
 export { ComboboxSelectedValue as SelectedValue } from './selected-value/ComboboxSelectedValue';
 export { ComboboxInput as Input } from './input/ComboboxInput';
 export { ComboboxTrigger as Trigger } from './trigger/ComboboxTrigger';

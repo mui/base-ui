@@ -83,6 +83,11 @@ export const nav: NavGroup[] = [
         href: '/react/components/collapsible',
       },
       {
+        label: 'Autocomplete',
+        href: '/react/components/autocomplete',
+        isNew: true,
+      },
+      {
         label: 'Combobox',
         href: '/react/components/combobox',
         isNew: true,
@@ -90,6 +95,11 @@ export const nav: NavGroup[] = [
       {
         label: 'Context Menu',
         href: '/react/components/context-menu',
+      },
+      {
+        label: 'Filterable Menu',
+        href: '/react/components/filterable-menu',
+        isNew: true,
       },
       {
         label: 'Dialog',

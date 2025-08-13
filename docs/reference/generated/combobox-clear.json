@@ -1,6 +1,6 @@
 {
   "name": "ComboboxClear",
-  "description": "Clears the input and selected value of the combobox when clicked.\nOnly renders when the combobox is in single select mode and the input value is not empty.",
+  "description": "Clears the input and selected value when clicked.\nOnly renders when in single select mode and the input value is not empty.",
   "props": {
     "nativeButton": {
       "type": "boolean",

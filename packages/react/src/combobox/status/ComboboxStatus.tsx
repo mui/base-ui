@@ -7,12 +7,10 @@ import { selectors } from '../store';
 import { useComboboxRootContext } from '../root/ComboboxRootContext';
 
 /**
- * Displays a status message for the combobox with screen reader support.
+ * Displays a status message with screen reader support.
  * Renders a `<div>` element.
  * This component must not be conditionally rendered — conditionally render the
  * children instead.
- *
- * Documentation: [Base UI Combobox](https://base-ui.com/react/components/combobox)
  */
 export const ComboboxStatus = React.forwardRef(function ComboboxStatus(
   componentProps: ComboboxStatus.Props,

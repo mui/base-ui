@@ -1,6 +1,6 @@
 {
   "name": "ComboboxList",
-  "description": "The container for the combobox items.\nRenders a `<div>` element.",
+  "description": "The container for the items.\nRenders a `<div>` element.",
   "props": {
     "children": {
       "type": "ReactNode | ((item: any) => ReactNode)",

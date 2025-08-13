@@ -9,8 +9,6 @@ import { useRenderElement } from '../../utils/useRenderElement';
 /**
  * An accessible label that is automatically associated with its parent group.
  * Renders a `<div>` element.
- *
- * Documentation: [Base UI Combobox](https://base-ui.com/react/components/combobox)
  */
 export const ComboboxGroupLabel = React.forwardRef(function ComboboxGroupLabel(
   componentProps: ComboboxGroupLabel.Props,

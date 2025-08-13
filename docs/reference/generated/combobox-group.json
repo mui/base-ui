@@ -1,6 +1,6 @@
 {
   "name": "ComboboxGroup",
-  "description": "Groups related combobox items with the corresponding label.\nRenders a `<div>` element.",
+  "description": "Groups related items with the corresponding label.\nRenders a `<div>` element.",
   "props": {
     "items": {
       "type": "any[]",

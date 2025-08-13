@@ -12,10 +12,8 @@ import { ComboboxCollection } from '../collection/ComboboxCollection';
 import { stopEvent } from '../../floating-ui-react/utils';
 
 /**
- * The container for the combobox items.
+ * The container for the items.
  * Renders a `<div>` element.
- *
- * Documentation: [Base UI Combobox](https://base-ui.com/react/components/combobox)
  */
 export const ComboboxList = React.forwardRef(function ComboboxList(
   componentProps: ComboboxList.Props,

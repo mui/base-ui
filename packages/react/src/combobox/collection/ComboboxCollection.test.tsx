@@ -9,7 +9,7 @@ describe('<Combobox.Collection />', () => {
 
   it('renders filtered items', async () => {
     await render(
-      <Combobox.Root selectionMode="single" items={['alpha', 'beta', 'alpine']} defaultOpen>
+      <Combobox.Root items={['alpha', 'beta', 'alpine']} defaultOpen>
         <Combobox.Input />
         <Combobox.Portal>
           <Combobox.Positioner>

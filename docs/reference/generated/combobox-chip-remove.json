@@ -1,6 +1,6 @@
 {
   "name": "ComboboxChipRemove",
-  "description": "A button to remove a combobox chip.\nRenders a `<button>` element.",
+  "description": "A button to remove a chip.\nRenders a `<button>` element.",
   "props": {
     "nativeButton": {
       "type": "boolean",

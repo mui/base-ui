@@ -23,8 +23,6 @@ const customStyleHookMapping: CustomStyleHookMapping<ComboboxInput.State> = {
 /**
  * A text input to search for items in the list.
  * Renders an `<input>` element.
- *
- * Documentation: [Base UI Combobox](https://base-ui.com/react/components/combobox)
  */
 export const ComboboxInput = React.forwardRef(function ComboboxInput(
   componentProps: ComboboxInput.Props,
@@ -225,7 +223,8 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
             (event.key === 'Backspace' ||
               (event.key.length === 1 && !event.ctrlKey && !event.metaKey && !event.altKey))
           ) {
-            if (openOnInputClick || event.key !== 'Backspace') {
+            const inputValueTrimmed = event.currentTarget.value.trim();
+            if (openOnInputClick || event.key !== 'Backspace' || inputValueTrimmed.length > 1) {
               setOpen(true, event.nativeEvent, undefined);
             }
 

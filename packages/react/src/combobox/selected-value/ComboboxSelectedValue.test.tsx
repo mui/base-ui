@@ -9,7 +9,7 @@ describe('<Combobox.SelectedValue />', () => {
 
   it('renders current selected value via function child', async () => {
     await render(
-      <Combobox.Root selectionMode="single" defaultSelectedValue="b">
+      <Combobox.Root defaultSelectedValue="b">
         <Combobox.SelectedValue>
           {(val) => <div data-testid="value">{val}</div>}
         </Combobox.SelectedValue>

@@ -27,7 +27,7 @@ describe('<Combobox.Empty />', () => {
 
   it('renders when there are no filtered items', async () => {
     await render(
-      <Combobox.Root selectionMode="single" items={[]} defaultOpen>
+      <Combobox.Root items={[]} defaultOpen>
         <Combobox.Input />
         <Combobox.Portal>
           <Combobox.Positioner>
@@ -52,7 +52,7 @@ describe('<Combobox.Empty />', () => {
 
   it('does not render when there are items', async () => {
     await render(
-      <Combobox.Root selectionMode="single" items={['a']} defaultOpen>
+      <Combobox.Root items={['a']} defaultOpen>
         <Combobox.Input />
         <Combobox.Portal>
           <Combobox.Positioner>

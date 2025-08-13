@@ -1,6 +1,6 @@
 {
   "name": "ComboboxChip",
-  "description": "An individual chip that represents a value in a multiselectable combobox.\nRenders a `<div>` element.",
+  "description": "An individual chip that represents a value in a multiselectable input.\nRenders a `<div>` element.",
   "props": {
     "className": {
       "type": "string | ((state: Combobox.Chip.State) => string)",

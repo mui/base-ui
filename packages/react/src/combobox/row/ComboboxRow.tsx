@@ -5,10 +5,8 @@ import { useRenderElement } from '../../utils/useRenderElement';
 import { ComboboxRowContext } from './ComboboxRowContext';
 
 /**
- * Displays a single row of items in the combobox list.
+ * Displays a single row of items in the list.
  * Renders a `<div>` element.
- *
- * Documentation: [Base UI Combobox](https://base-ui.com/react/components/combobox)
  */
 export const ComboboxRow = React.forwardRef(function ComboboxRow(
   componentProps: ComboboxRow.Props,

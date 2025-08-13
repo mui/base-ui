@@ -1,6 +1,6 @@
 {
   "name": "ComboboxEmpty",
-  "description": "Renders its children only when the combobox list is empty with\nscreen reader support.",
+  "description": "Renders its children only when the list is empty with\nscreen reader support.",
   "props": {
     "className": {
       "type": "string | ((state: Combobox.Empty.State) => string)",

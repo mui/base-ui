@@ -1,6 +1,6 @@
 {
   "name": "ComboboxTrigger",
-  "description": "A button that opens the combobox popup.\nRenders a `<button>` element.",
+  "description": "A button that opens the popup.\nRenders a `<button>` element.",
   "props": {
     "nativeButton": {
       "type": "boolean",

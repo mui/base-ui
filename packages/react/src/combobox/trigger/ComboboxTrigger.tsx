@@ -11,10 +11,8 @@ import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
 
 /**
- * A button that opens the combobox popup.
+ * A button that opens the popup.
  * Renders a `<button>` element.
- *
- * Documentation: [Base UI Combobox](https://base-ui.com/react/components/combobox)
  */
 export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
   componentProps: ComboboxTrigger.Props,

@@ -1,0 +1,119 @@
+{
+  "name": "FilterableMenuRoot",
+  "description": "Groups all parts of the filterable menu.\nDoesn't render its own HTML element.",
+  "props": {
+    "name": {
+      "type": "string",
+      "description": "Identifies the field when a form is submitted.",
+      "detailedType": "string | undefined"
+    },
+    "defaultOpen": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Whether the combobox popup is initially open.\n\nTo render a controlled combobox popup, use the `open` prop instead.",
+      "detailedType": "boolean | undefined"
+    },
+    "open": {
+      "type": "boolean",
+      "description": "Whether the combobox popup is currently open.",
+      "detailedType": "boolean | undefined"
+    },
+    "onOpenChange": {
+      "type": "((open: boolean, event: Event | undefined, reason: Combobox.Root.OpenChangeReason | undefined) => void)",
+      "description": "Event handler called when the combobox popup is opened or closed.",
+      "detailedType": "| ((\n    open: boolean,\n    event: Event | undefined,\n    reason: Combobox.Root.OpenChangeReason | undefined,\n  ) => void)\n| undefined"
+    },
+    "actionsRef": {
+      "type": "RefObject<Combobox.Root.Actions>",
+      "description": "A ref to imperative actions.\n- `unmount`: When specified, the combobox will not be unmounted when closed.\nInstead, the `unmount` function must be called to unmount the combobox manually.\nUseful when the combobox's animation is controlled by an external library.",
+      "detailedType": "React.RefObject<Combobox.Root.Actions> | undefined"
+    },
+    "cols": {
+      "type": "number",
+      "default": "1",
+      "description": "The number of columns the items are rendered in grid layout.",
+      "detailedType": "number | undefined"
+    },
+    "defaultInputValue": {
+      "type": "string | number | string[]",
+      "description": "The uncontrolled input value when initially rendered.",
+      "detailedType": "string | number | string[] | undefined"
+    },
+    "filter": {
+      "type": "((item: GroupItem | Item, query: string, itemToString: ((item: GroupItem | Item) => string) | undefined) => boolean)",
+      "description": "Filter function used to match items vs input query.\nThe `itemToString` function is provided to help convert items to strings for comparison.",
+      "detailedType": "| ((\n    item: GroupItem | Item,\n    query: string,\n    itemToString:\n      | ((item: GroupItem | Item) => string)\n      | undefined,\n  ) => boolean)\n| undefined"
+    },
+    "inputValue": {
+      "type": "string | number | string[]",
+      "description": "The input value of the combobox.",
+      "detailedType": "string | number | string[] | undefined"
+    },
+    "items": {
+      "type": "(GroupItem | Item)[] | (ComboboxGroup<GroupItem | Item>)[]",
+      "description": "The items to be displayed in the combobox.\nCan be either a flat array of items or an array of groups with items.",
+      "detailedType": "| (GroupItem | Item)[]\n| ComboboxGroup<GroupItem | Item>[]\n| undefined"
+    },
+    "onInputValueChange": {
+      "type": "((value: string, event: Event | undefined, reason: string | undefined) => void)",
+      "description": "Callback fired when the input value of the combobox changes.",
+      "detailedType": "| ((\n    value: string,\n    event: Event | undefined,\n    reason: string | undefined,\n  ) => void)\n| undefined"
+    },
+    "onItemHighlighted": {
+      "type": "((value: GroupItem | Item | undefined, data: { type: 'keyboard' | 'pointer', index: number }) => void)",
+      "description": "Callback fired when the user navigates the list and highlights an item.\nPasses the item's `value` or `undefined` when no item is highlighted.",
+      "detailedType": "| ((\n    value: GroupItem | Item | undefined,\n    data: { type: 'keyboard' | 'pointer'; index: number },\n  ) => void)\n| undefined"
+    },
+    "onOpenChangeComplete": {
+      "type": "((open: boolean) => void)",
+      "description": "Event handler called after any animations complete when the combobox popup is opened or closed.",
+      "detailedType": "((open: boolean) => void) | undefined"
+    },
+    "openOnInputClick": {
+      "type": "boolean",
+      "default": "true",
+      "description": "Whether the combobox popup opens when clicking the input.",
+      "detailedType": "boolean | undefined"
+    },
+    "virtualized": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Whether the combobox items are virtualized.",
+      "detailedType": "boolean | undefined"
+    },
+    "disabled": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Whether the component should ignore user interaction.",
+      "detailedType": "boolean | undefined"
+    },
+    "readOnly": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Whether the user should be unable to choose a different option from the combobox popup.",
+      "detailedType": "boolean | undefined"
+    },
+    "required": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Whether the user must choose a value before submitting a form.",
+      "detailedType": "boolean | undefined"
+    },
+    "inputRef": {
+      "type": "RefObject<HTMLInputElement>",
+      "description": "A ref to the hidden input element used for form submission.",
+      "detailedType": "React.RefObject<HTMLInputElement> | undefined"
+    },
+    "id": {
+      "type": "string",
+      "description": "The id of the combobox.",
+      "detailedType": "string | undefined"
+    },
+    "children": {
+      "type": "ReactNode",
+      "detailedType": "React.ReactNode"
+    }
+  },
+  "dataAttributes": {},
+  "cssVariables": {}
+}

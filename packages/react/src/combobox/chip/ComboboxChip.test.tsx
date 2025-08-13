@@ -12,7 +12,7 @@ describe('<Combobox.Chip />', () => {
     refInstanceof: window.HTMLDivElement,
     render(node) {
       return render(
-        <Combobox.Root selectionMode="multiple">
+        <Combobox.Root multiple>
           <Combobox.Chips>{node}</Combobox.Chips>
         </Combobox.Root>,
       );
@@ -22,7 +22,7 @@ describe('<Combobox.Chip />', () => {
   describe('prop: disabled', () => {
     it('should render aria-disabled attribute when disabled', async () => {
       await render(
-        <Combobox.Root selectionMode="multiple" disabled>
+        <Combobox.Root multiple disabled>
           <Combobox.Chips>
             <Combobox.Chip data-testid="chip">apple</Combobox.Chip>
           </Combobox.Chips>
@@ -35,7 +35,7 @@ describe('<Combobox.Chip />', () => {
 
     it('should prevent keyboard navigation when disabled', async () => {
       const { user } = await render(
-        <Combobox.Root selectionMode="multiple" disabled defaultSelectedValue={['apple', 'banana']}>
+        <Combobox.Root multiple disabled defaultSelectedValue={['apple', 'banana']}>
           <Combobox.Input data-testid="input" />
           <Combobox.Chips>
             <Combobox.Chip data-testid="chip-apple">apple</Combobox.Chip>
@@ -60,7 +60,7 @@ describe('<Combobox.Chip />', () => {
       const handleValueChange = spy();
       const { user } = await render(
         <Combobox.Root
-          selectionMode="multiple"
+          multiple
           disabled
           defaultSelectedValue={['apple', 'banana']}
           onSelectedValueChange={handleValueChange}
@@ -87,7 +87,7 @@ describe('<Combobox.Chip />', () => {
 
     it('should prevent mouse interactions when disabled', async () => {
       const { user } = await render(
-        <Combobox.Root selectionMode="multiple" disabled>
+        <Combobox.Root multiple disabled>
           <Combobox.Input data-testid="input" />
           <Combobox.Chips>
             <Combobox.Chip data-testid="chip">apple</Combobox.Chip>
@@ -107,7 +107,7 @@ describe('<Combobox.Chip />', () => {
   describe('prop: readOnly', () => {
     it('should render aria-readonly attribute when readOnly', async () => {
       await render(
-        <Combobox.Root selectionMode="multiple" readOnly>
+        <Combobox.Root multiple readOnly>
           <Combobox.Chips>
             <Combobox.Chip data-testid="chip">apple</Combobox.Chip>
           </Combobox.Chips>
@@ -122,7 +122,7 @@ describe('<Combobox.Chip />', () => {
       const handleValueChange = spy();
       const { user } = await render(
         <Combobox.Root
-          selectionMode="multiple"
+          multiple
           readOnly
           defaultSelectedValue={['apple', 'banana']}
           onSelectedValueChange={handleValueChange}
@@ -149,7 +149,7 @@ describe('<Combobox.Chip />', () => {
 
     it('should allow navigation when readOnly but prevent deletion', async () => {
       const { user } = await render(
-        <Combobox.Root selectionMode="multiple" readOnly defaultSelectedValue={['apple', 'banana']}>
+        <Combobox.Root multiple readOnly defaultSelectedValue={['apple', 'banana']}>
           <Combobox.Input data-testid="input" />
           <Combobox.Chips>
             <Combobox.Chip data-testid="chip-apple">apple</Combobox.Chip>
@@ -177,10 +177,7 @@ describe('<Combobox.Chip />', () => {
   describe('interaction behavior', () => {
     it('should handle keyboard navigation when enabled', async () => {
       const { user } = await render(
-        <Combobox.Root
-          selectionMode="multiple"
-          defaultSelectedValue={['apple', 'banana', 'cherry']}
-        >
+        <Combobox.Root multiple defaultSelectedValue={['apple', 'banana', 'cherry']}>
           <Combobox.Input data-testid="input" />
           <Combobox.Chips>
             <Combobox.Chip data-testid="chip-apple">apple</Combobox.Chip>
@@ -220,7 +217,7 @@ describe('<Combobox.Chip />', () => {
       const handleValueChange = spy();
       const { user } = await render(
         <Combobox.Root
-          selectionMode="multiple"
+          multiple
           defaultSelectedValue={['apple', 'banana']}
           onSelectedValueChange={handleValueChange}
         >
@@ -244,7 +241,7 @@ describe('<Combobox.Chip />', () => {
 
     it('should focus input on mouse down when enabled', async () => {
       const { user } = await render(
-        <Combobox.Root selectionMode="multiple">
+        <Combobox.Root multiple>
           <Combobox.Input data-testid="input" />
           <Combobox.Chips>
             <Combobox.Chip data-testid="chip">apple</Combobox.Chip>

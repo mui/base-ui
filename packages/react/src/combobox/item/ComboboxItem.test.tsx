@@ -16,7 +16,7 @@ describe('<Combobox.Item />', () => {
 
   it('selects item and closes in single mode', async () => {
     await render(
-      <Combobox.Root selectionMode="single" defaultOpen>
+      <Combobox.Root defaultOpen>
         <Combobox.Input data-testid="input" />
         <Combobox.Portal>
           <Combobox.Positioner>
@@ -41,7 +41,7 @@ describe('<Combobox.Item />', () => {
 
   it('does not select disabled item', async () => {
     await render(
-      <Combobox.Root selectionMode="single" defaultOpen>
+      <Combobox.Root defaultOpen>
         <Combobox.Input data-testid="input" />
         <Combobox.Portal>
           <Combobox.Positioner>
@@ -67,7 +67,7 @@ describe('<Combobox.Item />', () => {
 
   it('Enter selects highlighted item', async () => {
     const { user } = await render(
-      <Combobox.Root selectionMode="single">
+      <Combobox.Root>
         <Combobox.Input data-testid="input" />
         <Combobox.Portal>
           <Combobox.Positioner>
@@ -94,7 +94,7 @@ describe('<Combobox.Item />', () => {
 
   it('multiple mode toggles selection and stays open', async () => {
     const { user } = await render(
-      <Combobox.Root selectionMode="multiple">
+      <Combobox.Root multiple>
         <Combobox.Input data-testid="input" />
         <Combobox.Portal>
           <Combobox.Positioner>
@@ -126,7 +126,7 @@ describe('<Combobox.Item />', () => {
 
   it('reflects selected value with aria-selected when reopening', async () => {
     const { user } = await render(
-      <Combobox.Root selectionMode="single" defaultSelectedValue="two">
+      <Combobox.Root defaultSelectedValue="two">
         <Combobox.Input data-testid="input" />
         <Combobox.Portal>
           <Combobox.Positioner>

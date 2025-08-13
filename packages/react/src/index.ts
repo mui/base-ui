@@ -1,5 +1,6 @@
 export * from './accordion';
 export * from './alert-dialog';
+export * from './autocomplete';
 export * from './avatar';
 export * from './checkbox';
 export * from './checkbox-group';
@@ -10,6 +11,7 @@ export * from './dialog';
 export * from './direction-provider';
 export * from './field';
 export * from './fieldset';
+export * from './filterable-menu';
 export * from './form';
 export * from './input';
 export * from './menu';

@@ -16,7 +16,7 @@ describe('<Combobox.List />', () => {
 
   it('sets role=listbox and aria-multiselectable in multiple mode', async () => {
     await render(
-      <Combobox.Root selectionMode="multiple" defaultOpen>
+      <Combobox.Root multiple defaultOpen>
         <Combobox.Portal>
           <Combobox.Positioner>
             <Combobox.Popup>

@@ -1,6 +1,6 @@
 {
   "name": "ComboboxItemIndicator",
-  "description": "Indicates whether the combobox item is selected.\nRenders a `<span>` element.",
+  "description": "Indicates whether the item is selected.\nRenders a `<span>` element.",
   "props": {
     "children": {
       "type": "ReactNode",
