@@ -79,6 +79,11 @@
       "description": "Event handler called after any animations complete when the combobox popup is opened or closed.",
       "detailedType": "((open: boolean) => void) | undefined"
     },
+    "onSelectedValueChange": {
+      "type": "((value: GroupItem | Item | null, event: Event | undefined, reason: string | undefined) => void)",
+      "description": "Callback fired when the selected value of the combobox changes.",
+      "detailedType": "| ((\n    value: GroupItem | Item | null,\n    event: Event | undefined,\n    reason: string | undefined,\n  ) => void)\n| undefined"
+    },
     "openOnInputClick": {
       "type": "boolean",
       "default": "true",
