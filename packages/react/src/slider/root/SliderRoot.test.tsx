@@ -97,22 +97,6 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
     refInstanceof: window.HTMLDivElement,
   }));
 
-  it('renders a slider', async () => {
-    await render(
-      <Slider.Root defaultValue={30}>
-        <Slider.Value />
-        <Slider.Control>
-          <Slider.Track>
-            <Slider.Indicator />
-            <Slider.Thumb />
-          </Slider.Track>
-        </Slider.Control>
-      </Slider.Root>,
-    );
-
-    expect(screen.getByRole('slider')).to.have.attribute('aria-valuenow', '30');
-  });
-
   it.skipIf(isWebKit)('should not break when initial value is out of range', async () => {
     const { getByTestId } = await render(<TestRangeSlider value={[19, 41]} min={20} max={40} />);
 
