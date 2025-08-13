@@ -67,6 +67,11 @@ export const nav: NavGroup[] = [
         href: '/react/components/alert-dialog',
       },
       {
+        label: 'Autocomplete',
+        href: '/react/components/autocomplete',
+        isNew: true,
+      },
+      {
         label: 'Avatar',
         href: '/react/components/avatar',
       },
@@ -83,11 +88,6 @@ export const nav: NavGroup[] = [
         href: '/react/components/collapsible',
       },
       {
-        label: 'Autocomplete',
-        href: '/react/components/autocomplete',
-        isNew: true,
-      },
-      {
         label: 'Combobox',
         href: '/react/components/combobox',
         isNew: true,
@@ -95,11 +95,6 @@ export const nav: NavGroup[] = [
       {
         label: 'Context Menu',
         href: '/react/components/context-menu',
-      },
-      {
-        label: 'Filterable Menu',
-        href: '/react/components/filterable-menu',
-        isNew: true,
       },
       {
         label: 'Dialog',
@@ -112,6 +107,11 @@ export const nav: NavGroup[] = [
       {
         label: 'Fieldset',
         href: '/react/components/fieldset',
+      },
+      {
+        label: 'Filterable Menu',
+        href: '/react/components/filterable-menu',
+        isNew: true,
       },
       {
         label: 'Form',
