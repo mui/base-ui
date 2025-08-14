@@ -266,6 +266,12 @@ export function useHover(
         return;
       }
 
+      unbindMouseMoveRef.current();
+
+      const doc = getDocument(elements.floating);
+      restTimeout.clear();
+      restTimeoutPendingRef.current = false;
+
       if (
         event.relatedTarget &&
         elements.triggers &&
@@ -275,12 +281,6 @@ export function useHover(
         // as it will be moved.
         return;
       }
-
-      unbindMouseMoveRef.current();
-
-      const doc = getDocument(elements.floating);
-      restTimeout.clear();
-      restTimeoutPendingRef.current = false;
 
       if (handleCloseRef.current && dataRef.current.floatingContext) {
         // Prevent clearing `onScrollMouseLeave` timeout.
