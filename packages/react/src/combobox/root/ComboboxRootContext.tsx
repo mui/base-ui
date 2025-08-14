@@ -34,11 +34,11 @@ export interface ComboboxRootContext {
     props?: HTMLProps & { active?: boolean; selected?: boolean },
   ) => Record<string, unknown>;
   valuesRef: React.RefObject<Array<any>>;
-  registerSelectedItem: (index: number) => void;
+  registerItemIndex: (index: number) => void;
   onItemHighlighted: (
     value: any,
     data: {
-      type: 'keyboard' | 'pointer';
+      type: 'keyboard' | 'pointer' | 'none';
       index: number;
     },
   ) => void;
@@ -54,6 +54,10 @@ export interface ComboboxRootContext {
   onOpenChangeComplete: (open: boolean) => void;
   openOnInputClick: boolean;
   itemToString?: (item: any) => string;
+  /**
+   * Whether the combobox behaves modally when open.
+   */
+  modal: boolean;
 }
 
 export interface ComboboxDerivedItemsContext {

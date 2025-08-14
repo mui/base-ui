@@ -8,6 +8,7 @@ import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
 import { visuallyHidden } from '@base-ui-components/utils/visuallyHidden';
 import { useRefWithInit } from '@base-ui-components/utils/useRefWithInit';
 import { Store, useStore } from '@base-ui-components/utils/store';
+import { useAnimationFrame } from '@base-ui-components/utils/useAnimationFrame';
 import {
   ElementProps,
   useDismiss,
@@ -74,9 +75,8 @@ export function ComboboxRoot<Item = any, Mode extends SelectionMode = 'none'>(
     itemToString,
     itemToValue,
     virtualized = false,
-    // When in selectionMode "none", controls whether selecting an item fills the input.
-    // Defaults to true to preserve current behavior.
     fillInputOnItemPress = true,
+    modal = false,
   } = props;
 
   const { clearErrors } = useFormContext();
@@ -95,6 +95,8 @@ export function ComboboxRoot<Item = any, Mode extends SelectionMode = 'none'>(
   const disabled = fieldDisabled || disabledProp;
   const name = fieldName ?? nameProp;
   const multiple = selectionMode === 'multiple';
+
+  const frame = useAnimationFrame();
 
   useIsoLayoutEffect(() => {
     setControlId(id);
@@ -248,9 +250,34 @@ export function ComboboxRoot<Item = any, Mode extends SelectionMode = 'none'>(
   const inputRef = React.useRef<HTMLInputElement | null>(null);
   const keyboardActiveRef = React.useRef(true);
   const allowActiveIndexSyncRef = React.useRef(true);
-  const closingRef = React.useRef(false);
   const hadInputClearRef = React.useRef(false);
   const prevQueryRef = React.useRef(query);
+
+  // Keep a full value map for virtualized lists so offscreen selections and
+  // navigation (e.g., ArrowUp to last item) use the correct indices.
+  // TODO: refactor to an alternative/inexpensive solution for this
+  useIsoLayoutEffect(() => {
+    if (!virtualized) {
+      return;
+    }
+    valuesRef.current = flatItems.slice();
+  }, [virtualized, flatItems]);
+
+  const enabledItemsSet = React.useMemo(() => {
+    if (!items || !virtualized) {
+      return null;
+    }
+    const set = new Set<any>();
+    if (isGrouped) {
+      const groups = filteredItems as ComboboxGroup<ExtractItemType<Item>>[];
+      groups.forEach((group) => {
+        group.items.forEach((it) => set.add(it));
+      });
+    } else {
+      (filteredItems as ExtractItemType<Item>[]).forEach((it) => set.add(it));
+    }
+    return set;
+  }, [items, isGrouped, filteredItems, virtualized]);
 
   const commitValidation = fieldControlValidation.commitValidation;
 
@@ -341,16 +368,54 @@ export function ComboboxRoot<Item = any, Mode extends SelectionMode = 'none'>(
       event: Event | undefined,
       reason: ComboboxRoot.OpenChangeReason | undefined,
     ) => {
-      // Mark that the popup is closing so we can retain the highlight until the
-      // exit transition fully completes.
-      closingRef.current = !nextOpen;
       props.onOpenChange?.(nextOpen, event, reason);
       setOpenUnwrapped(nextOpen);
     },
   );
 
+  const hasRegisteredRef = React.useRef(false);
+
+  const registerItemIndex = useEventCallback((suppliedIndex: number | undefined) => {
+    if (suppliedIndex !== undefined) {
+      hasRegisteredRef.current = true;
+    }
+
+    if (selectionMode === 'none') {
+      return;
+    }
+
+    if (multiple) {
+      const currentValue = selectedValue as Item[];
+      const selectedIndices: number[] = [];
+
+      if (Array.isArray(currentValue)) {
+        currentValue.forEach((val) => {
+          const index = valuesRef.current.indexOf(val);
+          if (index !== -1) {
+            selectedIndices.push(index);
+          }
+        });
+      }
+
+      store.set(
+        'selectedIndex',
+        selectedIndices.length > 0 ? selectedIndices[selectedIndices.length - 1] : null,
+      );
+    } else {
+      const index = suppliedIndex ?? valuesRef.current.indexOf(selectedValue as Item);
+      const hasIndex = index !== -1;
+
+      // Always clear the selected index when nothing is selected.
+      if (selectedValue == null) {
+        store.set('selectedIndex', null);
+      } else if (allowActiveIndexSyncRef.current && hasIndex) {
+        // Otherwise, sync only when synchronization is enabled.
+        store.set('selectedIndex', index);
+      }
+    }
+  });
+
   const handleUnmount = useEventCallback(() => {
-    closingRef.current = false;
     allowActiveIndexSyncRef.current = true;
     listRef.current = initialList;
 
@@ -358,12 +423,39 @@ export function ComboboxRoot<Item = any, Mode extends SelectionMode = 'none'>(
     onOpenChangeComplete?.(false);
     setQueryChangedAfterOpen(false);
     resetOpenInteractionType();
-    onItemHighlighted(undefined, {
-      type: keyboardActiveRef.current ? 'keyboard' : 'pointer',
-      index: -1,
+    onItemHighlighted(undefined, { type: 'none', index: -1 });
+
+    store.apply({
+      activeIndex: null,
     });
 
-    store.set('activeIndex', null);
+    // Restore selectedIndex back to its real value after the popup closes.
+    // It may have been set to null while filtering or typing to avoid
+    // interfering with navigation. On close, ensure it reflects the
+    // current selection so initial highlight on next open is correct.
+    if (selectionMode === 'none') {
+      store.set('selectedIndex', null);
+    } else if (multiple) {
+      const currentValue = Array.isArray(selectedValue) ? selectedValue : [];
+      const selectedIndices: number[] = [];
+      currentValue.forEach((val) => {
+        const idx = flatItems.indexOf(val);
+        if (idx !== -1) {
+          selectedIndices.push(idx);
+        }
+      });
+      store.set(
+        'selectedIndex',
+        selectedIndices.length > 0 ? selectedIndices[selectedIndices.length - 1] : null,
+      );
+    } else {
+      const idx = flatItems.indexOf(selectedValue as any);
+      if (idx !== -1) {
+        registerItemIndex(idx);
+      } else {
+        store.set('selectedIndex', null);
+      }
+    }
 
     // If an input-clear was requested while open, perform it here after close completes
     // to avoid mid-exit flicker.
@@ -374,10 +466,12 @@ export function ComboboxRoot<Item = any, Mode extends SelectionMode = 'none'>(
       hadInputClearRef.current = false;
     }
 
-    // Single selection mode (uncontrolled input):
+    // Single selection mode:
     // - If input is rendered inside the popup, clear it so the next open is blank
     // - If input is outside the popup, sync it to the selected value
-    if (selectionMode === 'single' && props.inputValue === undefined) {
+    // Applies to both controlled and uncontrolled input values so that controlled
+    // consumers can reset the input on close via onInputValueChange.
+    if (selectionMode === 'single') {
       const isInputInsidePopup = contains(popupRef.current, inputRef.current);
       if (isInputInsidePopup) {
         if (inputRef.current && inputRef.current.value !== '') {
@@ -431,16 +525,23 @@ export function ComboboxRoot<Item = any, Mode extends SelectionMode = 'none'>(
         setInputValue('', event, reason);
         // Reset active index and clear any highlighted item since the list will re-filter.
         store.set('activeIndex', null);
-        onItemHighlighted(undefined, {
-          type: keyboardActiveRef.current ? 'keyboard' : 'pointer',
-          index: -1,
-        });
+        onItemHighlighted(undefined, { type: 'none', index: -1 });
       }
 
       // Cast to `any` due to conditional value type (single vs. multiple).
       // The runtime implementation already ensures the correct value shape.
       onSelectedValueChange?.(nextValue as any, event, reason);
       setSelectedValueUnwrapped(nextValue);
+
+      // For virtualized lists in single-selection mode, ensure `selectedIndex`
+      // reflects the newly selected item's index even if its DOM node isn't
+      // currently rendered (outside the virtual window).
+      if (virtualized && !multiple && selectionMode !== 'none') {
+        const index = flatItems.indexOf(nextValue as any);
+        if (index !== -1) {
+          store.set('selectedIndex', index);
+        }
+      }
 
       // Auto-close popup after selection in single mode when open state is uncontrolled
       // Don't auto-close during autofill to avoid interfering with browser behavior
@@ -457,55 +558,13 @@ export function ComboboxRoot<Item = any, Mode extends SelectionMode = 'none'>(
 
   React.useImperativeHandle(props.actionsRef, () => ({ unmount: handleUnmount }), [handleUnmount]);
 
-  const hasRegisteredRef = React.useRef(false);
-
-  const registerSelectedItem = useEventCallback((suppliedIndex: number | undefined) => {
-    if (suppliedIndex !== undefined) {
-      hasRegisteredRef.current = true;
-    }
-
-    if (selectionMode === 'none') {
-      return;
-    }
-
-    if (multiple) {
-      const currentValue = selectedValue as Item[];
-      const selectedIndices: number[] = [];
-
-      if (Array.isArray(currentValue)) {
-        currentValue.forEach((val) => {
-          const index = valuesRef.current.indexOf(val);
-          if (index !== -1) {
-            selectedIndices.push(index);
-          }
-        });
-      }
-
-      store.set(
-        'selectedIndex',
-        selectedIndices.length > 0 ? selectedIndices[selectedIndices.length - 1] : null,
-      );
-    } else {
-      const index = suppliedIndex ?? valuesRef.current.indexOf(selectedValue as Item);
-      const hasIndex = index !== -1;
-
-      // Always clear the selected index when nothing is selected.
-      if (selectedValue === null || selectedValue === undefined) {
-        store.set('selectedIndex', null);
-      } else if (allowActiveIndexSyncRef.current && hasIndex) {
-        // Otherwise, sync only when synchronization is enabled.
-        store.set('selectedIndex', index);
-      }
-    }
-  });
-
   useIsoLayoutEffect(() => {
     if (!hasRegisteredRef.current) {
       return;
     }
 
-    registerSelectedItem(undefined);
-  }, [selectedValue, registerSelectedItem]);
+    registerItemIndex(undefined);
+  }, [selectedValue, registerItemIndex]);
 
   const handleEnterSelection = useEventCallback((event: Event) => {
     if (activeIndex === null) {
@@ -605,6 +664,19 @@ export function ComboboxRoot<Item = any, Mode extends SelectionMode = 'none'>(
     return Boolean(selectedValue);
   }, [multiple, selectedValue]);
 
+  useIsoLayoutEffect(() => {
+    if (!open || selectedIndex === null) {
+      return;
+    }
+
+    frame.request(() => {
+      onItemHighlighted(valuesRef.current[selectedIndex], {
+        type: 'none',
+        index: selectedIndex,
+      });
+    });
+  }, [open, selectedIndex, onItemHighlighted, frame]);
+
   const listNavigation = useListNavigation(floatingRootContext, {
     enabled: !readOnly && !disabled,
     listRef,
@@ -616,10 +688,20 @@ export function ComboboxRoot<Item = any, Mode extends SelectionMode = 'none'>(
     focusItemOnOpen: selectionMode !== 'none' && selectedIndex !== null && hasActualSelections,
     cols,
     orientation: cols > 1 ? 'horizontal' : undefined,
-    disabledIndices: EMPTY_ARRAY,
+    disabledIndices: virtualized
+      ? (index) => {
+          if (!enabledItemsSet) {
+            return false;
+          }
+          if (index < 0 || index >= flatItems.length) {
+            return true;
+          }
+          return !enabledItemsSet.has(flatItems[index]);
+        }
+      : EMPTY_ARRAY,
     onNavigate(nextActiveIndex) {
-      // Retain the highlight while transitioning out.
-      if (nextActiveIndex === null && (closingRef.current || !open)) {
+      // Retain the highlight only while actually transitioning out or closed.
+      if (nextActiveIndex === null && (!open || transitionStatus === 'ending')) {
         return;
       }
 
@@ -696,7 +778,7 @@ export function ComboboxRoot<Item = any, Mode extends SelectionMode = 'none'>(
       allowActiveIndexSyncRef,
       store,
       getItemProps,
-      registerSelectedItem,
+      registerItemIndex,
       onItemHighlighted,
       onOpenChangeComplete,
       setOpen,
@@ -713,12 +795,13 @@ export function ComboboxRoot<Item = any, Mode extends SelectionMode = 'none'>(
       virtualized,
       openOnInputClick,
       itemToString,
+      modal,
     }),
     [
       selectionMode,
       store,
       getItemProps,
-      registerSelectedItem,
+      registerItemIndex,
       onItemHighlighted,
       onOpenChangeComplete,
       setOpen,
@@ -735,6 +818,7 @@ export function ComboboxRoot<Item = any, Mode extends SelectionMode = 'none'>(
       virtualized,
       openOnInputClick,
       itemToString,
+      modal,
     ],
   );
 
@@ -927,12 +1011,15 @@ interface ComboboxRootProps<Item> {
   actionsRef?: React.RefObject<ComboboxRoot.Actions>;
   /**
    * Callback fired when the user navigates the list and highlights an item.
-   * Passes the item's `value` or `undefined` when no item is highlighted.
+   * Passes the item and the type of navigation or `undefined` when no item is highlighted.
+   * - `keyboard`: The item was highlighted via keyboard navigation.
+   * - `pointer`: The item was highlighted via pointer navigation.
+   * - `none`: The item was highlighted via programmatic navigation.
    */
   onItemHighlighted?: (
     value: ExtractItemType<Item> | undefined,
     data: {
-      type: 'keyboard' | 'pointer';
+      type: 'keyboard' | 'pointer' | 'none';
       index: number;
     },
   ) => void;
@@ -977,6 +1064,13 @@ interface ComboboxRootProps<Item> {
    * Defaults to `true` to preserve legacy Combobox behavior.
    */
   fillInputOnItemPress?: boolean;
+  /**
+   * Determines if the combobox enters a modal state when open.
+   * - `true`: user interaction is limited to the combobox: document page scroll is locked and pointer interactions on outside elements are disabled.
+   * - `false`: user interaction with the rest of the document is allowed.
+   * @default false
+   */
+  modal?: boolean;
 }
 
 export type ComboboxRootConditionalProps<Item, Mode extends SelectionMode = 'none'> = Omit<

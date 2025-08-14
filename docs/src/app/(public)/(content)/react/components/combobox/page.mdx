@@ -31,6 +31,7 @@ import { Combobox } from '@base-ui-components/react/combobox';
   </Combobox.Chips>
 
   <Combobox.Portal>
+    <Combobox.Backdrop />
     <Combobox.Positioner>
       <Combobox.Popup>
         <Combobox.Arrow />
@@ -79,3 +80,9 @@ The combobox can allow multiple selections by adding the `multiple` prop to `Com
 `Combobox.Input` can be rendered inside `Combobox.Popup` to create a searchable select menu.
 
 <Demo path="./demos/input-inside-popup" compact />
+
+### Virtualized
+
+Efficiently handle large datasets using a virtualization library like `@tanstack/react-virtual`.
+
+<Demo path="./demos/virtualized" compact />

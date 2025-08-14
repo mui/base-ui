@@ -228,8 +228,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
               setOpen(true, event.nativeEvent, undefined);
             }
 
-            store.set('activeIndex', null);
-            store.set('selectedIndex', null);
+            store.apply({ activeIndex: null, selectedIndex: null });
 
             if (activeIndex !== null) {
               onItemHighlighted(undefined, {

@@ -21,7 +21,7 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
 ) {
   const { render, className, children, ...elementProps } = componentProps;
 
-  const { store, selectionMode, keyboardActiveRef, cols, handleEnterSelection } =
+  const { store, selectionMode, keyboardActiveRef, cols, handleEnterSelection, popupRef } =
     useComboboxRootContext();
   const floatingRootContext = useComboboxFloatingContext();
 
@@ -46,7 +46,8 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
   });
 
   useIsoLayoutEffect(() => {
-    if (hasPositionerContext) {
+    // Only force inline mode when there is no Positioner AND no Popup present
+    if (hasPositionerContext || popupRef.current) {
       return undefined;
     }
 
@@ -54,7 +55,7 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
     return () => {
       store.set('inline', false);
     };
-  }, [hasPositionerContext, store]);
+  }, [hasPositionerContext, store, popupRef]);
 
   // Support "closed template" API: if children is a function, implicitly wrap it
   // with a Combobox.Collection that reads items from context/root.

@@ -1,21 +1,24 @@
 'use client';
 import * as React from 'react';
-import { Autocomplete } from '@base-ui-components/react/autocomplete';
+import { Combobox } from '@base-ui-components/react/combobox';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import styles from './index.module.css';
 import { virtualItems } from './data';
 
-export default function ExampleVirtualizedAutocomplete() {
+export default function ExampleVirtualizedCombobox() {
   const [open, setOpen] = React.useState(false);
   const [searchValue, setSearchValue] = React.useState('');
+  const [queryChangedAfterOpen, setQueryChangedAfterOpen] = React.useState(false);
 
   const scrollElementRef = React.useRef<HTMLDivElement>(null);
 
-  const { contains } = Autocomplete.useFilter({ sensitivity: 'base' });
+  const { contains } = Combobox.useFilter({ sensitivity: 'base' });
 
   const filteredItems = React.useMemo(() => {
-    return virtualItems.filter((item) => contains(item, searchValue));
-  }, [contains, searchValue]);
+    return queryChangedAfterOpen
+      ? virtualItems.filter((item) => contains(item, searchValue))
+      : virtualItems;
+  }, [contains, searchValue, queryChangedAfterOpen]);
 
   const virtualizer = useVirtualizer({
     enabled: open,
@@ -25,6 +28,8 @@ export default function ExampleVirtualizedAutocomplete() {
     overscan: 20,
     paddingStart: 8,
     paddingEnd: 8,
+    scrollPaddingEnd: 8,
+    scrollPaddingStart: 8,
   });
 
   const handleScrollElementRef = React.useCallback(
@@ -41,33 +46,48 @@ export default function ExampleVirtualizedAutocomplete() {
   const totalSizePx = `${totalSize}px`;
 
   return (
-    <Autocomplete.Root
-      items={filteredItems}
+    <Combobox.Root
+      items={virtualItems}
       open={open}
-      onOpenChange={setOpen}
+      onOpenChange={(nextOpen) => {
+        setOpen(nextOpen);
+      }}
       inputValue={searchValue}
-      onInputValueChange={setSearchValue}
-      openOnInputClick
+      onInputValueChange={(value) => {
+        setSearchValue(value);
+        if (open) {
+          setQueryChangedAfterOpen(true);
+        }
+      }}
+      onSelectedValueChange={(value) => {
+        const stringValue = value ?? '';
+        setSearchValue(stringValue);
+      }}
+      onOpenChangeComplete={(nextOpen) => {
+        if (!nextOpen) {
+          setQueryChangedAfterOpen(false);
+        }
+      }}
       virtualized
       onItemHighlighted={(item, { type, index }) => {
         const isStart = index === 0;
         const isEnd = index === filteredItems.length - 1;
-        const shouldScroll = type === 'keyboard' && (isStart || isEnd);
+        const shouldScroll = type === 'none' || (type === 'keyboard' && (isStart || isEnd));
         if (shouldScroll) {
-          virtualizer.scrollToIndex(index, { align: isStart ? 'end' : 'start' });
+          virtualizer.scrollToIndex(index, { align: isEnd ? 'start' : 'end' });
         }
       }}
     >
       <label className={styles.Label}>
-        Search 10,000 items (virtualized)
-        <Autocomplete.Input className={styles.Input} />
+        Search 10,000 items
+        <Combobox.Input className={styles.Input} />
       </label>
 
-      <Autocomplete.Portal>
-        <Autocomplete.Positioner className={styles.Positioner} sideOffset={4}>
-          <Autocomplete.Popup className={styles.Popup}>
-            <Autocomplete.Empty className={styles.Empty}>No items found.</Autocomplete.Empty>
-            <Autocomplete.List className={styles.List}>
+      <Combobox.Portal>
+        <Combobox.Positioner className={styles.Positioner} sideOffset={4}>
+          <Combobox.Popup className={styles.Popup}>
+            <Combobox.Empty className={styles.Empty}>No items found.</Combobox.Empty>
+            <Combobox.List className={styles.List}>
               {filteredItems.length > 0 && (
                 <div
                   role="presentation"
@@ -87,7 +107,7 @@ export default function ExampleVirtualizedAutocomplete() {
                       }
 
                       return (
-                        <Autocomplete.Item
+                        <Combobox.Item
                           key={virtualItem.key}
                           value={item}
                           className={styles.Item}
@@ -102,17 +122,28 @@ export default function ExampleVirtualizedAutocomplete() {
                             transform: `translateY(${virtualItem.start}px)`,
                           }}
                         >
-                          {item}
-                        </Autocomplete.Item>
+                          <Combobox.ItemIndicator className={styles.ItemIndicator}>
+                            <CheckIcon className={styles.ItemIndicatorIcon} />
+                          </Combobox.ItemIndicator>
+                          <div className={styles.ItemText}>{item}</div>
+                        </Combobox.Item>
                       );
                     })}
                   </div>
                 </div>
               )}
-            </Autocomplete.List>
-          </Autocomplete.Popup>
-        </Autocomplete.Positioner>
-      </Autocomplete.Portal>
-    </Autocomplete.Root>
+            </Combobox.List>
+          </Combobox.Popup>
+        </Combobox.Positioner>
+      </Combobox.Portal>
+    </Combobox.Root>
+  );
+}
+
+function CheckIcon(props: React.ComponentProps<'svg'>) {
+  return (
+    <svg fill="currentcolor" width="10" height="10" viewBox="0 0 10 10" {...props}>
+      <path d="M9.1603 1.12218C9.50684 1.34873 9.60427 1.81354 9.37792 2.16038L5.13603 8.66012C5.01614 8.8438 4.82192 8.96576 4.60451 8.99384C4.3871 9.02194 4.1683 8.95335 4.00574 8.80615L1.24664 6.30769C0.939709 6.02975 0.916013 5.55541 1.19372 5.24822C1.47142 4.94102 1.94536 4.91731 2.2523 5.19524L4.36085 7.10461L8.12299 1.33999C8.34934 0.993152 8.81376 0.895638 9.1603 1.12218Z" />
+    </svg>
   );
 }

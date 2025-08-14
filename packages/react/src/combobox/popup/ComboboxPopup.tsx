@@ -101,7 +101,8 @@ export const ComboboxPopup = React.forwardRef(function ComboboxPopup(
     }
 
     return initialFocus;
-  }, [initialFocus, openMethod, popupRef, isAnchorInput, inputRef]);
+  }, [initialFocus, openMethod, isAnchorInput, inputRef, popupRef]);
+
   const resolvedFinalFocus = React.useMemo(() => {
     if (finalFocus != null) {
       return finalFocus;

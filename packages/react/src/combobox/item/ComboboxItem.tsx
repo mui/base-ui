@@ -52,8 +52,7 @@ export const ComboboxItem = React.memo(
       setSelectedValue,
       valuesRef,
       inputRef,
-      registerSelectedItem,
-      keyboardActiveRef,
+      registerItemIndex,
       allowActiveIndexSyncRef,
       onItemHighlighted,
       readOnly,
@@ -113,21 +112,15 @@ export const ComboboxItem = React.memo(
     }, [hasRegistered, index, value, valuesRef]);
 
     useIsoLayoutEffect(() => {
-      if (virtualized) {
-        return undefined;
-      }
-
       if (hasRegistered && value === rootSelectedValue) {
-        registerSelectedItem(index);
+        registerItemIndex(index);
 
         if (selectable && allowActiveIndexSyncRef.current) {
           frame.request(() => {
             itemRef.current?.scrollIntoView?.({ inline: 'nearest', block: 'nearest' });
             store.set('activeIndex', index);
-            onItemHighlighted(value, {
-              type: keyboardActiveRef.current ? 'keyboard' : 'pointer',
-              index,
-            });
+            store.set('selectedIndex', index);
+            onItemHighlighted(value, { type: 'none', index });
             allowActiveIndexSyncRef.current = false;
           });
           return () => {
@@ -135,21 +128,18 @@ export const ComboboxItem = React.memo(
           };
         }
       }
-
       return undefined;
     }, [
       hasRegistered,
       index,
-      registerSelectedItem,
+      registerItemIndex,
       value,
       rootSelectedValue,
       store,
       selectable,
       allowActiveIndexSyncRef,
       onItemHighlighted,
-      keyboardActiveRef,
       frame,
-      virtualized,
     ]);
 
     const state: ComboboxItem.State = React.useMemo(

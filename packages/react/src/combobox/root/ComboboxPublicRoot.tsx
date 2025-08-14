@@ -23,7 +23,7 @@ type ModeFromMultiple<Multiple extends boolean | undefined> = Multiple extends t
 export namespace ComboboxRoot {
   export type Props<Item, Multiple extends boolean | undefined = false> = Omit<
     ComboboxRootInternal.Props<Item, ModeFromMultiple<Multiple>>,
-    'selectionMode' | 'clearInputOnCloseComplete'
+    'selectionMode' | 'clearInputOnCloseComplete' | 'modal'
   > & {
     /**
      * Whether multiple items can be selected.

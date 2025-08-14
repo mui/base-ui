@@ -3,6 +3,7 @@ import * as React from 'react';
 import type { VirtualElement } from '@floating-ui/react-dom';
 import { useStore } from '@base-ui-components/utils/store';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { inertValue } from '@base-ui-components/utils/inertValue';
 import {
   useComboboxFloatingContext,
   useComboboxRootContext,
@@ -17,6 +18,8 @@ import { DROPDOWN_COLLISION_AVOIDANCE } from '../../utils/constants';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { selectors } from '../store';
 import { useComboboxDefaultAnchor } from './ComboboxDefaultAnchorContext';
+import { InternalBackdrop } from '../../utils/InternalBackdrop';
+import { useScrollLock } from '../../utils/useScrollLock';
 
 /**
  * Positions the popup against the trigger.
@@ -46,7 +49,7 @@ export const ComboboxPositioner = React.forwardRef(function ComboboxPositioner(
     ...elementProps
   } = componentProps;
 
-  const { store } = useComboboxRootContext();
+  const { store, modal } = useComboboxRootContext();
   const { filteredItems } = useComboboxDerivedItemsContext();
   const floatingRootContext = useComboboxFloatingContext();
   const keepMounted = useComboboxPortalContext();
@@ -54,6 +57,7 @@ export const ComboboxPositioner = React.forwardRef(function ComboboxPositioner(
   const open = useStore(store, selectors.open);
   const mounted = useStore(store, selectors.mounted);
   const empty = filteredItems.length === 0;
+  const openMethod = useStore(store, selectors.openMethod);
 
   const defaultAnchor = useComboboxDefaultAnchor();
   const triggerElement = useStore(store, selectors.triggerElement);
@@ -85,6 +89,13 @@ export const ComboboxPositioner = React.forwardRef(function ComboboxPositioner(
     trackAnchor,
     keepMounted,
     collisionAvoidance,
+  });
+
+  useScrollLock({
+    enabled: open && modal && openMethod !== 'touch',
+    mounted,
+    open,
+    referenceElement: triggerElement,
   });
 
   const defaultProps: HTMLProps = React.useMemo(() => {
@@ -147,6 +158,7 @@ export const ComboboxPositioner = React.forwardRef(function ComboboxPositioner(
 
   return (
     <ComboboxPositionerContext.Provider value={contextValue}>
+      {mounted && modal && <InternalBackdrop inert={inertValue(!open)} cutout={triggerElement} />}
       {element}
     </ComboboxPositionerContext.Provider>
   );

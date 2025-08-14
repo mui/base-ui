@@ -31,6 +31,7 @@ export namespace AutocompleteRoot {
       | 'defaultSelectedValue'
       | 'fillInputOnItemPress'
       | 'openOnInputClick'
+      | 'modal'
     > {
     /**
      * Whether the combobox popup opens when clicking the input.
