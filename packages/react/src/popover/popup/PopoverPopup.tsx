@@ -161,7 +161,7 @@ export namespace PopoverPopup {
 }
 
 function usePrevious<T>(value: T): T | null {
-  const ref = React.useRef<T>(null);
+  const ref = React.useRef<T | null>(null);
   React.useEffect(() => {
     ref.current = value;
   });
@@ -188,9 +188,8 @@ export const PopoverTransitionContainer = React.forwardRef(function PopoverTrans
   const cleanupTimeout = useTimeout();
 
   React.useEffect(() => {
-    setPreviousChildren(prevChildren);
-
     if (activeTrigger && previousActiveTrigger && activeTrigger !== previousActiveTrigger) {
+      setPreviousChildren(prevChildren);
       const offset = calculateRelativePosition(previousActiveTrigger, activeTrigger);
       setNewTriggerOffset(offset);
       cleanupTimeout.start(10, () => {

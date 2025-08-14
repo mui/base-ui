@@ -121,7 +121,7 @@
 .TransitionContainer {
   overflow: hidden;
   position: relative;
-  --animation-duration: 15s;
+  --animation-duration: 0.15s;
 
   [data-previous] {
     display: none;
@@ -130,32 +130,32 @@
 
   &[data-activationdirection~='right'] {
     [data-previous] {
-      animation: slideOutToLeft var(--animation-duration) ease-out forwards;
+      animation: slide-out-to-left var(--animation-duration) ease-out forwards;
       position: absolute;
       display: block;
     }
 
     [data-next] {
-      animation: slideInFromRight var(--animation-duration) ease-out forwards;
+      animation: slide-in-from-right var(--animation-duration) ease-out forwards;
       position: relative;
     }
   }
 
   &[data-activationdirection~='left'] {
     [data-previous] {
-      animation: slideOutToRight var(--animation-duration) ease-out forwards;
+      animation: slide-out-to-right var(--animation-duration) ease-out forwards;
       position: absolute;
       display: block;
     }
 
     [data-next] {
-      animation: slideInFromLeft var(--animation-duration) ease-out forwards;
+      animation: slide-in-from-left var(--animation-duration) ease-out forwards;
       position: relative;
     }
   }
 }
 
-@keyframes slideOutToLeft {
+@keyframes slide-out-to-left {
   from {
     transform: translateX(0);
     opacity: 1;
@@ -167,7 +167,7 @@
   }
 }
 
-@keyframes slideInFromRight {
+@keyframes slide-in-from-right {
   from {
     transform: translateX(30%);
     opacity: 0;
@@ -179,7 +179,7 @@
   }
 }
 
-@keyframes slideOutToRight {
+@keyframes slide-out-to-right {
   from {
     transform: translateX(0);
     opacity: 1;
@@ -191,7 +191,7 @@
   }
 }
 
-@keyframes slideInFromLeft {
+@keyframes slide-in-from-left {
   from {
     transform: translateX(-30%);
     opacity: 0;
