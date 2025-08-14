@@ -42,7 +42,7 @@ describe('<Slider.Thumb />', () => {
     refInstanceof: window.HTMLDivElement,
   }));
 
-  describe('server-side rendering', () => {
+  describe.skipIf(isJSDOM)('server-side rendering', () => {
     it('single thumb', async () => {
       await renderToString(
         <Slider.Root
