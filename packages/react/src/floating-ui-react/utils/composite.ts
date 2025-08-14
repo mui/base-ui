@@ -67,6 +67,7 @@ export function getGridNavigatedIndex(
     event,
     orientation,
     loop,
+    onLoop,
     rtl,
     cols,
     disabledIndices,
@@ -78,6 +79,7 @@ export function getGridNavigatedIndex(
     event: React.KeyboardEvent;
     orientation: 'horizontal' | 'vertical' | 'both';
     loop: boolean;
+    onLoop?: (key: React.KeyboardEvent['key'], prevIndex: number, nextIndex: number) => number;
     rtl: boolean;
     cols: number;
     disabledIndices: DisabledIndices | undefined;
@@ -114,6 +116,9 @@ export function getGridNavigatedIndex(
         } else {
           nextIndex = maxCol > col ? offset : offset - cols;
         }
+        if (onLoop) {
+          nextIndex = onLoop(event.key, prevIndex, nextIndex);
+        }
       }
     }
 
@@ -142,6 +147,9 @@ export function getGridNavigatedIndex(
           amount: cols,
           disabledIndices,
         });
+        if (onLoop) {
+          nextIndex = onLoop(event.key, prevIndex, nextIndex);
+        }
       }
     }
 
@@ -170,12 +178,18 @@ export function getGridNavigatedIndex(
             startingIndex: prevIndex - (prevIndex % cols) - 1,
             disabledIndices,
           });
+          if (onLoop) {
+            nextIndex = onLoop(event.key, prevIndex, nextIndex);
+          }
         }
       } else if (loop) {
         nextIndex = findNonDisabledListIndex(listRef, {
           startingIndex: prevIndex - (prevIndex % cols) - 1,
           disabledIndices,
         });
+        if (onLoop) {
+          nextIndex = onLoop(event.key, prevIndex, nextIndex);
+        }
       }
 
       if (isDifferentGridRow(nextIndex, cols, prevRow)) {
@@ -201,6 +215,9 @@ export function getGridNavigatedIndex(
             decrement: true,
             disabledIndices,
           });
+          if (onLoop) {
+            nextIndex = onLoop(event.key, prevIndex, nextIndex);
+          }
         }
       } else if (loop) {
         nextIndex = findNonDisabledListIndex(listRef, {
@@ -208,6 +225,9 @@ export function getGridNavigatedIndex(
           decrement: true,
           disabledIndices,
         });
+        if (onLoop) {
+          nextIndex = onLoop(event.key, prevIndex, nextIndex);
+        }
       }
 
       if (isDifferentGridRow(nextIndex, cols, prevRow)) {
@@ -226,6 +246,9 @@ export function getGridNavigatedIndex(
                 startingIndex: prevIndex - (prevIndex % cols) - 1,
                 disabledIndices,
               });
+        if (onLoop) {
+          nextIndex = onLoop(event.key, prevIndex, nextIndex);
+        }
       } else {
         nextIndex = prevIndex;
       }

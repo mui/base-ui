@@ -43,6 +43,12 @@ export interface UseCompositeRootParameters {
   orientation?: 'horizontal' | 'vertical' | 'both';
   cols?: number;
   loop?: boolean;
+  onLoop?: (
+    key: React.KeyboardEvent['key'],
+    prevIndex: number,
+    nextIndex: number,
+    elementsRef: React.RefObject<(HTMLDivElement | null)[]>,
+  ) => number;
   highlightedIndex?: number;
   onHighlightedIndexChange?: (index: number) => void;
   dense?: boolean;
@@ -81,6 +87,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
     itemSizes,
     cols = 1,
     loop = true,
+    onLoop,
     dense = false,
     orientation = 'both',
     direction,
@@ -102,6 +109,9 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
 
   const elementsRef = React.useRef<Array<HTMLDivElement | null>>([]);
   const hasSetDefaultIndexRef = React.useRef(false);
+  // Keeps track of whether an element has been focused
+  // Relevant for restoring focus after children are re-rendered
+  const hasFocusedElementRef = React.useRef(false);
 
   const highlightedIndex = externalHighlightedIndex ?? internalHighlightedIndex;
   const onHighlightedIndexChange = useEventCallback((index, shouldScrollIntoView = false) => {
@@ -117,9 +127,12 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
   // https://github.com/mui/base-ui/issues/2101
   useIsoLayoutEffect(() => {
     const activeEl = activeElement(ownerDocument(rootRef.current)) as HTMLDivElement | null;
-    if (elementsRef.current.includes(activeEl)) {
+    if (elementsRef.current.includes(activeEl) || hasFocusedElementRef.current) {
       const focusedItem = elementsRef.current[highlightedIndex];
       if (focusedItem && focusedItem !== activeEl) {
+        if (!hasFocusedElementRef.current) {
+          hasFocusedElementRef.current = true;
+        }
         focusedItem.focus();
       }
     }
@@ -144,6 +157,15 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
     scrollIntoViewIfNeeded(rootRef.current, activeItem, direction, orientation);
   });
 
+  const wrappedOnLoop = useEventCallback(
+    (key: React.KeyboardEvent['key'], prevIndex: number, nextIndex: number) => {
+      if (!onLoop) {
+        return nextIndex;
+      }
+      return onLoop?.(key, prevIndex, nextIndex, elementsRef);
+    },
+  );
+
   const props = React.useMemo<HTMLProps>(
     () => ({
       'aria-orientation': orientation === 'both' ? undefined : orientation,
@@ -154,6 +176,15 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
           return;
         }
         event.target.setSelectionRange(0, event.target.value.length ?? 0);
+      },
+      onBlur(event) {
+        const elements = elementsRef.current;
+        // Reset the focused element ref if blurring outside of the elements
+        if (!elements || (elements && !elements.includes(event.relatedTarget as HTMLDivElement))) {
+          if (hasFocusedElementRef.current) {
+            hasFocusedElementRef.current = false;
+          }
+        }
       },
       onKeyDown(event) {
         const RELEVANT_KEYS = enableHomeAndEndKeys ? ALL_KEYS : ARROW_KEYS;
@@ -240,6 +271,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
                 event,
                 orientation,
                 loop,
+                onLoop: wrappedOnLoop,
                 cols,
                 // treat undefined (empty grid spaces) as disabled indices so we
                 // don't end up in them
@@ -306,8 +338,14 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
         ) {
           if (loop && nextIndex === maxIndex && forwardKeys.includes(event.key)) {
             nextIndex = minIndex;
+            if (onLoop) {
+              nextIndex = onLoop(event.key, highlightedIndex, nextIndex, elementsRef);
+            }
           } else if (loop && nextIndex === minIndex && backwardKeys.includes(event.key)) {
             nextIndex = maxIndex;
+            if (onLoop) {
+              nextIndex = onLoop(event.key, highlightedIndex, nextIndex, elementsRef);
+            }
           } else {
             nextIndex = findNonDisabledListIndex(elementsRef, {
               startingIndex: nextIndex,
@@ -330,6 +368,9 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
           // Wait for FocusManager `returnFocus` to execute.
           queueMicrotask(() => {
             elementsRef.current[nextIndex]?.focus();
+            if (!hasFocusedElementRef.current) {
+              hasFocusedElementRef.current = true;
+            }
           });
         }
       },
@@ -345,6 +386,8 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
       isGrid,
       itemSizes,
       loop,
+      onLoop,
+      wrappedOnLoop,
       mergedRef,
       modifierKeys,
       onHighlightedIndexChange,

@@ -30,6 +30,7 @@ export function CompositeRoot<Metadata extends {}, State extends Record<string, 
     dense,
     itemSizes,
     loop,
+    onLoop,
     cols,
     enableHomeAndEndKeys,
     onMapChange: onMapChangeProp,
@@ -53,6 +54,7 @@ export function CompositeRoot<Metadata extends {}, State extends Record<string, 
     itemSizes,
     cols,
     loop,
+    onLoop,
     dense,
     orientation,
     highlightedIndex: highlightedIndexProp,
@@ -104,6 +106,12 @@ export namespace CompositeRoot {
     orientation?: 'horizontal' | 'vertical' | 'both';
     cols?: number;
     loop?: boolean;
+    onLoop?: (
+      key: React.KeyboardEvent['key'],
+      prevIndex: number,
+      nextIndex: number,
+      elementsRef: React.RefObject<(HTMLDivElement | null)[]>,
+    ) => number;
     highlightedIndex?: number;
     onHighlightedIndexChange?: (index: number) => void;
     itemSizes?: Dimensions[];
