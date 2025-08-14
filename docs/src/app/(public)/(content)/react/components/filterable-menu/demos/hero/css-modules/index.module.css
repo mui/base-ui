@@ -150,6 +150,10 @@
     calc(31.5rem - var(--input-container-height)),
     calc(var(--available-height) - var(--input-container-height))
   );
+
+  &:empty {
+    padding-block: 0;
+  }
 }
 
 .Item {

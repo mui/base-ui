@@ -171,7 +171,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
             setInputValue(event.currentTarget.value, event.nativeEvent, 'input-change');
           }
 
-          if (event.currentTarget.value === '' && !openOnInputClick) {
+          if (event.currentTarget.value === '' && !openOnInputClick && !hasPositionerParent) {
             setOpen(false, event.nativeEvent, undefined);
           }
 
