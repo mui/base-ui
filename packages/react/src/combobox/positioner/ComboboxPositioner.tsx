@@ -60,9 +60,12 @@ export const ComboboxPositioner = React.forwardRef(function ComboboxPositioner(
   const inputElement = useStore(store, selectors.inputElement);
 
   const resolvedAnchor = React.useMemo(() => {
-    if (anchor != null) return anchor;
-    if (defaultAnchor === 'trigger') return triggerElement;
-    // default to input
+    if (anchor != null) {
+      return anchor;
+    }
+    if (defaultAnchor === 'trigger') {
+      return triggerElement;
+    }
     return inputElement;
   }, [anchor, defaultAnchor, triggerElement, inputElement]);
 

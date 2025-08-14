@@ -53,6 +53,7 @@ export interface ComboboxRootContext {
   virtualized: boolean;
   onOpenChangeComplete: (open: boolean) => void;
   openOnInputClick: boolean;
+  itemToString?: (item: any) => string;
 }
 
 export interface ComboboxDerivedItemsContext {

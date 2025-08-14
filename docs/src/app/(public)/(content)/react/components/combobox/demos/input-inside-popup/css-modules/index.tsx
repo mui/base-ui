@@ -4,31 +4,18 @@ import styles from './index.module.css';
 import { countries, type Country } from './data';
 
 export default function ExamplePopoverCombobox() {
-  const [selectedValue, setSelectedValue] = React.useState<Country | null>(null);
-
   const triggerRef = React.useRef<HTMLButtonElement | null>(null);
 
   return (
-    <Combobox.Root
-      items={countries}
-      selectedValue={selectedValue}
-      onSelectedValueChange={(nextValue) => {
-        setSelectedValue(nextValue);
-      }}
-    >
+    <Combobox.Root items={countries}>
       <Combobox.Trigger ref={triggerRef} className={styles.Trigger}>
-        {selectedValue ? selectedValue.value : 'Select country'}
-        <span aria-hidden className={styles.TriggerIcon}>
+        <Combobox.SelectedValue />
+        <Combobox.Icon className={styles.TriggerIcon}>
           <ChevronUpDownIcon />
-        </span>
+        </Combobox.Icon>
       </Combobox.Trigger>
       <Combobox.Portal>
-        <Combobox.Positioner
-          anchor={triggerRef}
-          align="start"
-          sideOffset={4}
-          collisionAvoidance={{ fallbackAxisSide: 'none' }}
-        >
+        <Combobox.Positioner anchor={triggerRef} align="start" sideOffset={4}>
           <Combobox.Popup className={styles.Popup} aria-label="Select country">
             <div className={styles.InputContainer}>
               <Combobox.Input placeholder="e.g. United Kingdom" className={styles.Input} />
@@ -40,7 +27,7 @@ export default function ExamplePopoverCombobox() {
                   <Combobox.ItemIndicator className={styles.ItemIndicator}>
                     <CheckIcon className={styles.ItemIndicatorIcon} />
                   </Combobox.ItemIndicator>
-                  <div className={styles.ItemText}>{country.value}</div>
+                  <div className={styles.ItemText}>{country.label ?? country.value}</div>
                 </Combobox.Item>
               )}
             </Combobox.List>
