@@ -249,6 +249,7 @@ export function ComboboxRoot<Item = any, Mode extends SelectionMode = 'none'>(
   const keyboardActiveRef = React.useRef(true);
   const allowActiveIndexSyncRef = React.useRef(true);
   const closingRef = React.useRef(false);
+  const hadInputClearRef = React.useRef(false);
   const prevQueryRef = React.useRef(query);
 
   const commitValidation = fieldControlValidation.commitValidation;
@@ -324,6 +325,11 @@ export function ComboboxRoot<Item = any, Mode extends SelectionMode = 'none'>(
 
   const setInputValue = useEventCallback(
     (next: string, event: Event | undefined, reason: ValueChangeReason | undefined) => {
+      if (reason === 'input-clear' && selectionMode === 'none' && open) {
+        hadInputClearRef.current = true;
+        // Defer clearing until close transition completes to avoid flicker
+        return;
+      }
       props.onInputValueChange?.(next, event, reason);
       setInputValueUnwrapped(next);
     },
@@ -359,12 +365,29 @@ export function ComboboxRoot<Item = any, Mode extends SelectionMode = 'none'>(
 
     store.set('activeIndex', null);
 
-    // Reset input value to selected value when popup closes without selection in single mode
-    // This happens after the closing animation completes to avoid flicker
+    // If an input-clear was requested while open, perform it here after close completes
+    // to avoid mid-exit flicker.
+    if (selectionMode === 'none' && props.inputValue === undefined && hadInputClearRef.current) {
+      if (inputRef.current && inputRef.current.value !== '') {
+        setInputValue('', undefined, 'input-clear');
+      }
+      hadInputClearRef.current = false;
+    }
+
+    // Single selection mode (uncontrolled input):
+    // - If input is rendered inside the popup, clear it so the next open is blank
+    // - If input is outside the popup, sync it to the selected value
     if (selectionMode === 'single' && props.inputValue === undefined) {
-      const stringVal = stringifyItem(selectedValue as Item, itemToString);
-      if (inputRef.current && inputRef.current.value !== stringVal) {
-        setInputValue(stringVal, undefined, 'item-press');
+      const isInputInsidePopup = contains(popupRef.current, inputRef.current);
+      if (isInputInsidePopup) {
+        if (inputRef.current && inputRef.current.value !== '') {
+          setInputValue('', undefined, 'input-clear');
+        }
+      } else {
+        const stringVal = stringifyItem(selectedValue, itemToString);
+        if (inputRef.current && inputRef.current.value !== stringVal) {
+          setInputValue(stringVal, undefined, 'item-press');
+        }
       }
     }
   });
@@ -389,10 +412,17 @@ export function ComboboxRoot<Item = any, Mode extends SelectionMode = 'none'>(
         }
       }
 
-      // If input value is uncontrolled, keep it in sync for single selection mode
+      // If input value is uncontrolled, keep it in sync for single selection mode.
+      // When the input is inside the popup, do not fill it with the selected value;
+      // it should reopen blank on next open. When the input is outside, sync to selection.
       if (selectionMode === 'single' && props.inputValue === undefined) {
-        const stringVal = stringifyItem(nextValue as Item, itemToString);
-        setInputValue(stringVal, event, reason);
+        const isInputInsidePopup = Boolean(
+          popupRef.current && inputRef.current && popupRef.current.contains(inputRef.current),
+        );
+        if (!isInputInsidePopup) {
+          const stringVal = stringifyItem(nextValue as Item, itemToString);
+          setInputValue(stringVal, event, reason);
+        }
       }
 
       // Clear the uncontrolled input after a selection in multiple-select mode when filtering was used.

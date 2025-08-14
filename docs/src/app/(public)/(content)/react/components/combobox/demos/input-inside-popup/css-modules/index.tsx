@@ -4,7 +4,6 @@ import styles from './index.module.css';
 import { countries, type Country } from './data';
 
 export default function ExamplePopoverCombobox() {
-  const [searchValue, setSearchValue] = React.useState('');
   const [selectedValue, setSelectedValue] = React.useState<Country | null>(null);
 
   const triggerRef = React.useRef<HTMLButtonElement | null>(null);
@@ -15,13 +14,6 @@ export default function ExamplePopoverCombobox() {
       selectedValue={selectedValue}
       onSelectedValueChange={(nextValue) => {
         setSelectedValue(nextValue);
-      }}
-      inputValue={searchValue}
-      onInputValueChange={setSearchValue}
-      onOpenChangeComplete={(open) => {
-        if (!open) {
-          setSearchValue('');
-        }
       }}
     >
       <Combobox.Trigger ref={triggerRef} className={styles.Trigger}>

@@ -6,7 +6,6 @@ import { type Item, type Group, groupedItems } from './data';
 
 export default function ExampleCommandPalette() {
   const [open, setOpen] = React.useState(false);
-  const [searchValue, setSearchValue] = React.useState('');
 
   const { contains } = FilterableMenu.useFilter({ sensitivity: 'base' });
 
@@ -24,25 +23,12 @@ export default function ExampleCommandPalette() {
   }
 
   return (
-    <Dialog.Root
-      open={open}
-      onOpenChange={setOpen}
-      onOpenChangeComplete={(isOpen) => {
-        if (!isOpen) {
-          setSearchValue('');
-        }
-      }}
-    >
+    <Dialog.Root open={open} onOpenChange={setOpen}>
       <Dialog.Trigger className={styles.Button}>Open Command Palette</Dialog.Trigger>
       <Dialog.Portal>
         <Dialog.Backdrop className={styles.Backdrop} />
         <Dialog.Popup className={styles.Popup} aria-label="Command Palette">
-          <FilterableMenu.Root
-            items={groupedItems}
-            inputValue={searchValue}
-            onInputValueChange={setSearchValue}
-            filter={customFilter}
-          >
+          <FilterableMenu.Root items={groupedItems} filter={customFilter}>
             <FilterableMenu.Input
               className={styles.Input}
               placeholder="Search for apps and commands..."

@@ -31,6 +31,8 @@ import { Combobox } from '@base-ui-components/react/combobox';
   <Combobox.Portal>
     <Combobox.Positioner>
       <Combobox.Popup>
+        <Combobox.Arrow />
+
         <Combobox.Status />
         <Combobox.Empty />
 
@@ -66,7 +68,7 @@ import { Combobox } from '@base-ui-components/react/combobox';
 
 ### Multiple select
 
-The combobox can allow multiple selections by adding `selectionMode="multiple"` to `Combobox.Root`, rendering chips with `Combobox.Chip` for each selected value in the input that can be removed.
+The combobox can allow multiple selections by adding the `multiple` prop to `Combobox.Root`. Selection chips are rendered with `Combobox.Chip` inside the input that can be removed.
 
 <Demo path="./demos/multiple" compact />
 
