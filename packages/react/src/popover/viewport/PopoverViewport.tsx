@@ -2,6 +2,7 @@ import * as React from 'react';
 import { useStore } from '@base-ui-components/utils/store';
 import { useTimeout } from '@base-ui-components/utils/useTimeout';
 import { usePrevious } from '@base-ui-components/utils/usePrevious';
+import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useAnimationsFinished } from '../../utils/useAnimationsFinished';
 import { useRenderElement } from '../../utils/useRenderElement';
@@ -26,39 +27,58 @@ export const PopoverViewport = React.forwardRef(function PopoverViewport(
   const activeTrigger = useStore(store, selectors.activeTriggerElement);
   const previousActiveTrigger = usePrevious(activeTrigger);
 
-  const [previousChildren, setPreviousChildren] = React.useState<React.ReactNode>(null);
+  const [previousChildrenHtml, setPreviousChildrenHtml] = React.useState<string | null>(null);
   const [newTriggerOffset, setNewTriggerOffset] = React.useState<Offset | null>(null);
+  const capturedHtmlRef = React.useRef<string | null>(null);
 
-  const prevChildren = usePrevious(children);
-
+  const currentContentRef = React.useRef<HTMLDivElement>(null);
   const nextContainerRef = React.useRef<HTMLDivElement>(null);
   const onAnimationsFinished = useAnimationsFinished(nextContainerRef, true);
   const cleanupTimeout = useTimeout();
 
-  React.useEffect(() => {
-    if (activeTrigger && previousActiveTrigger && activeTrigger !== previousActiveTrigger) {
-      setPreviousChildren(prevChildren);
-      const offset = calculateRelativePosition(previousActiveTrigger, activeTrigger);
-      setNewTriggerOffset(offset);
-      cleanupTimeout.start(10, () => {
-        onAnimationsFinished(() => setPreviousChildren(null));
-      });
+  // Capture HTML continuously when not transitioning
+  useIsoLayoutEffect(() => {
+    if (currentContentRef.current && !previousChildrenHtml) {
+      capturedHtmlRef.current = currentContentRef.current.innerHTML;
     }
-  }, [activeTrigger, prevChildren, onAnimationsFinished, previousActiveTrigger, cleanupTimeout]);
+  });
+
+  // Handle trigger changes
+  if (
+    activeTrigger &&
+    previousActiveTrigger &&
+    activeTrigger !== previousActiveTrigger &&
+    !previousChildrenHtml &&
+    capturedHtmlRef.current
+  ) {
+    setPreviousChildrenHtml(capturedHtmlRef.current);
+    const offset = calculateRelativePosition(previousActiveTrigger, activeTrigger);
+    setNewTriggerOffset(offset);
+    cleanupTimeout.start(10, () => {
+      onAnimationsFinished(() => {
+        setPreviousChildrenHtml(null);
+        capturedHtmlRef.current = null;
+      });
+    });
+  }
 
   let childrenToRender: React.ReactNode;
-  if (previousChildren == null) {
+  if (previousChildrenHtml == null) {
     childrenToRender = (
-      <div data-current key="current">
+      <div data-current ref={currentContentRef} key="current">
         {children}
       </div>
     );
   } else {
     childrenToRender = (
       <React.Fragment>
-        <div data-previous inert key="previous">
-          {previousChildren}
-        </div>
+        <div
+          data-previous
+          inert
+          key="previous"
+          // eslint-disable-next-line react/no-danger
+          dangerouslySetInnerHTML={{ __html: previousChildrenHtml }}
+        />
         <div data-next ref={nextContainerRef} key="current">
           {children}
         </div>
