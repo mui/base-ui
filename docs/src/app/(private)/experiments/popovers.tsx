@@ -224,9 +224,13 @@ function Content({ contentIndex }: { contentIndex: number }) {
       <div className={styles.PopoverSection}>{contents[contentIndex]}</div>
 
       <div className={styles.PopoverSection}>
-        <p>Local state: {localState}</p>
+        <StatefulComponent key={contentIndex} />
+      </div>
+
+      <div className={styles.PopoverSection}>
+        <p>Shared state: {localState}</p>
         <button type="button" onClick={() => setLocalState((s) => s + 1)}>
-          Increment local state
+          Increment shared state
         </button>
       </div>
     </div>
@@ -297,5 +301,20 @@ function PopupIcon(props: React.ComponentProps<'svg'>) {
     >
       <path d="M480-80 373-240H160q-33 0-56.5-23.5T80-320v-480q0-33 23.5-56.5T160-880h640q33 0 56.5 23.5T880-800v480q0 33-23.5 56.5T800-240H587L480-80Zm0-144 64-96h256v-480H160v480h256l64 96Zm0-336Z" />
     </svg>
+  );
+}
+
+function StatefulComponent() {
+  const [state, setState] = React.useState('');
+
+  return (
+    <div>
+      <input
+        type="text"
+        value={state}
+        onChange={(event) => setState(event.target.value)}
+        placeholder="Local state"
+      />
+    </div>
   );
 }

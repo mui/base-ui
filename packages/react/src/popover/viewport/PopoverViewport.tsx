@@ -48,14 +48,18 @@ export const PopoverViewport = React.forwardRef(function PopoverViewport(
 
   let childrenToRender: React.ReactNode;
   if (previousChildren == null) {
-    childrenToRender = <div data-current>{children}</div>;
+    childrenToRender = (
+      <div data-current key="current">
+        {children}
+      </div>
+    );
   } else {
     childrenToRender = (
       <React.Fragment>
-        <div data-previous inert>
+        <div data-previous inert key="previous">
           {previousChildren}
         </div>
-        <div data-next ref={nextContainerRef}>
+        <div data-next ref={nextContainerRef} key="current">
           {children}
         </div>
       </React.Fragment>

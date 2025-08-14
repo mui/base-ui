@@ -125,6 +125,8 @@
   color: var(--color-gray-900);
   transform-origin: var(--transform-origin);
 
+  --animation-duration: 0.15s;
+
   width: var(--popup-width, auto);
   height: var(--popup-height, auto);
 
@@ -133,7 +135,7 @@
 
   transition-property: width, height;
   transition-timing-function: ease-out;
-  transition-duration: 0.15s;
+  transition-duration: var(--animation-duration);
 
   &[data-starting-style],
   &[data-ending-style] {
@@ -157,7 +159,6 @@
 .TransitionContainer {
   overflow: hidden;
   position: relative;
-  --animation-duration: 0.15s;
 
   [data-previous] {
     display: none;
