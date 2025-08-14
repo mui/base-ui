@@ -4,6 +4,7 @@ import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { isReactVersionAtLeast } from '@base-ui-components/utils/reactVersion';
 import { visuallyHidden } from '@base-ui-components/utils/visuallyHidden';
+import { warn } from '@base-ui-components/utils/warn';
 import { formatNumber } from '../../utils/formatNumber';
 import { getStyleHookProps } from '../../utils/getStyleHookProps';
 import { mergeProps } from '../../merge-props';
@@ -136,6 +137,12 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     tabIndex: contextTabIndex,
     values: sliderValues,
   } = useSliderRootContext();
+
+  if (typeof document === 'undefined' && indexProp === undefined && sliderValues.length > 1) {
+    warn(
+      'A `Slider.Thumb` was rendered on the server without an `index` prop, it must be specified for full SSR support.',
+    );
+  }
 
   let renderPropRef = null;
   if (typeof render !== 'function') {
