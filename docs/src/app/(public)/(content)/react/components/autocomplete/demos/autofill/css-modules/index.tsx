@@ -6,16 +6,15 @@ import { tags } from './data';
 export default function ExampleAutofillAutocomplete() {
   const [searchValue, setSearchValue] = React.useState('');
   const [inputHighlightValue, setInputHighlightValue] = React.useState('');
-  const [, setSelectedValue] = React.useState<string | null>(null);
 
-  const filter = Autocomplete.useFilter({ sensitivity: 'base' });
+  const { contains } = Autocomplete.useFilter({ sensitivity: 'base' });
 
   const filteredTags = React.useMemo(() => {
     if (searchValue.trim() === '') {
       return tags;
     }
-    return tags.filter((tag) => filter.contains(tag.label, searchValue));
-  }, [searchValue, filter]);
+    return tags.filter((tag) => contains(tag.label, searchValue));
+  }, [searchValue, contains]);
 
   return (
     <div className={styles.Container}>
@@ -23,7 +22,6 @@ export default function ExampleAutofillAutocomplete() {
         onSelectedValueChange={(nextValue) => {
           setInputHighlightValue('');
           setSearchValue(nextValue ?? '');
-          setSelectedValue(nextValue);
         }}
         inputValue={inputHighlightValue || searchValue}
         onInputValueChange={(nextValue) => {

@@ -40,7 +40,6 @@ export default function ExampleEmojiPicker() {
   const [textValue, setTextValue] = React.useState('');
   const [searchValue, setSearchValue] = React.useState('');
 
-  const triggerRef = React.useRef<HTMLButtonElement | null>(null);
   const textInputRef = React.useRef<HTMLInputElement | null>(null);
 
   function handleInsertEmoji(value: string | null) {
@@ -103,16 +102,11 @@ export default function ExampleEmojiPicker() {
             }
           }}
         >
-          <FilterableMenu.Trigger
-            ref={triggerRef}
-            className={styles.EmojiButton}
-            aria-label="Choose emoji"
-          >
+          <FilterableMenu.Trigger className={styles.EmojiButton} aria-label="Choose emoji">
             😀
           </FilterableMenu.Trigger>
           <FilterableMenu.Portal>
             <FilterableMenu.Positioner
-              anchor={triggerRef}
               className={styles.Positioner}
               sideOffset={4}
               side="top"

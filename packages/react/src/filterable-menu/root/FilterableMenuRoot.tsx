@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import { ComboboxRoot } from '../../combobox/root/ComboboxRoot';
+import { ComboboxDefaultAnchorContext } from '../../combobox/positioner/ComboboxDefaultAnchorContext';
 
 /**
  * Groups all parts of the filterable menu.
@@ -11,7 +12,11 @@ import { ComboboxRoot } from '../../combobox/root/ComboboxRoot';
 export function FilterableMenuRoot<Item = any>(
   props: FilterableMenuRoot.Props<Item>,
 ): React.JSX.Element {
-  return <ComboboxRoot {...props} selectionMode="none" fillInputOnItemPress={false} />;
+  return (
+    <ComboboxDefaultAnchorContext.Provider value="trigger">
+      <ComboboxRoot {...props} selectionMode="none" fillInputOnItemPress={false} />
+    </ComboboxDefaultAnchorContext.Provider>
+  );
 }
 
 export namespace FilterableMenuRoot {

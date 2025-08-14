@@ -7,6 +7,7 @@ export { ComboboxStatus as Status } from './status/ComboboxStatus';
 export { ComboboxPortal as Portal } from './portal/ComboboxPortal';
 export { ComboboxPositioner as Positioner } from './positioner/ComboboxPositioner';
 export { ComboboxPopup as Popup } from './popup/ComboboxPopup';
+export { ComboboxArrow as Arrow } from './arrow/ComboboxArrow';
 export { ComboboxGroup as Group } from './group/ComboboxGroup';
 export { ComboboxGroupLabel as GroupLabel } from './group-label/ComboboxGroupLabel';
 export { ComboboxItem as Item } from './item/ComboboxItem';

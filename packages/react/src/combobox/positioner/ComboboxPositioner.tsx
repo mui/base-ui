@@ -16,6 +16,7 @@ import { useComboboxPortalContext } from '../portal/ComboboxPortalContext';
 import { DROPDOWN_COLLISION_AVOIDANCE } from '../../utils/constants';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { selectors } from '../store';
+import { useComboboxDefaultAnchor } from './ComboboxDefaultAnchorContext';
 
 /**
  * Positions the popup against the trigger.
@@ -54,8 +55,19 @@ export const ComboboxPositioner = React.forwardRef(function ComboboxPositioner(
   const mounted = useStore(store, selectors.mounted);
   const empty = filteredItems.length === 0;
 
+  const defaultAnchor = useComboboxDefaultAnchor();
+  const triggerElement = useStore(store, selectors.triggerElement);
+  const inputElement = useStore(store, selectors.inputElement);
+
+  const resolvedAnchor = React.useMemo(() => {
+    if (anchor != null) return anchor;
+    if (defaultAnchor === 'trigger') return triggerElement;
+    // default to input
+    return inputElement;
+  }, [anchor, defaultAnchor, triggerElement, inputElement]);
+
   const positioning = useAnchorPositioning({
-    anchor,
+    anchor: resolvedAnchor,
     floatingRootContext,
     positionMethod,
     mounted,
@@ -154,7 +166,7 @@ export namespace ComboboxPositioner {
       BaseUIComponentProps<'div', State> {
     /**
      * An element to position the popup against.
-     * By default, the popup will be positioned against the input.
+     * By default, the popup will be positioned against the input. Components may override this via context.
      */
     anchor?:
       | Element

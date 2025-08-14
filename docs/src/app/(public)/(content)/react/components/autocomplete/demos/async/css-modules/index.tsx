@@ -13,16 +13,13 @@ export default function ExampleAsyncAutocomplete() {
   const [searchResults, setSearchResults] = React.useState<Movie[]>([]);
   const [error, setError] = React.useState<string | null>(null);
 
-  const filter = Autocomplete.useFilter({ sensitivity: 'base' });
+  const { contains } = Autocomplete.useFilter({ sensitivity: 'base' });
 
   const filterByTitleOrYear = React.useCallback(
     (movie: Movie, query: string) => {
-      if (!query) {
-        return true;
-      }
-      return filter.contains(movie.title, query) || filter.contains(movie.year.toString(), query);
+      return contains(movie.title, query) || contains(movie.year.toString(), query);
     },
-    [filter],
+    [contains],
   );
 
   React.useEffect(() => {
