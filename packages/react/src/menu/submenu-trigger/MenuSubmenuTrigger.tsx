@@ -8,6 +8,7 @@ import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
 import { useCompositeListItem } from '../../composite/list/useCompositeListItem';
 import { useMenuItem } from '../item/useMenuItem';
 import { useRenderElement } from '../../utils/useRenderElement';
+import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
 
 /**
  * A menu item that opens a submenu.
@@ -39,6 +40,7 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
     disabled,
     allowMouseUpTriggerRef,
   } = useMenuRootContext();
+  const menuPositionerContext = useMenuPositionerContext();
 
   if (parent.type !== 'menu') {
     throw new Error('Base UI: <Menu.SubmenuTrigger> must be placed in <Menu.SubmenuRoot>.');
@@ -72,6 +74,7 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
     typingRef,
     nativeButton,
     itemMetadata,
+    nodeId: menuPositionerContext?.floatingContext.nodeId,
   });
 
   const state: MenuSubmenuTrigger.State = React.useMemo(

@@ -11,6 +11,7 @@ import { MenuRadioItemContext } from './MenuRadioItemContext';
 import { itemMapping } from '../utils/styleHookMapping';
 import { useCompositeListItem } from '../../composite/list/useCompositeListItem';
 import { REGULAR_ITEM, useMenuItem } from '../item/useMenuItem';
+import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
 
 const InnerMenuRadioItem = React.memo(
   React.forwardRef(function InnerMenuRadioItem(
@@ -31,6 +32,7 @@ const InnerMenuRadioItem = React.memo(
       allowMouseUpTriggerRef,
       typingRef,
       nativeButton,
+      nodeId,
       ...elementProps
     } = componentProps;
 
@@ -44,9 +46,17 @@ const InnerMenuRadioItem = React.memo(
       typingRef,
       nativeButton,
       itemMetadata: REGULAR_ITEM,
+      nodeId,
     });
 
-    const state: MenuRadioItem.State = { disabled, highlighted, checked };
+    const state: MenuRadioItem.State = React.useMemo(
+      () => ({
+        disabled,
+        highlighted,
+        checked,
+      }),
+      [disabled, highlighted, checked],
+    );
 
     return useRenderElement('div', componentProps, {
       state,
@@ -93,8 +103,9 @@ export const MenuRadioItem = React.forwardRef(function MenuRadioItem(
   const mergedRef = useMergedRefs(forwardedRef, listItem.ref, itemRef);
 
   const { itemProps, activeIndex, allowMouseUpTriggerRef, typingRef } = useMenuRootContext();
-  const id = useBaseUiId(idProp);
+  const menuPositionerContext = useMenuPositionerContext(true);
 
+  const id = useBaseUiId(idProp);
   const highlighted = listItem.index === activeIndex;
   const { events: menuEvents } = useFloatingTree()!;
 
@@ -140,6 +151,7 @@ export const MenuRadioItem = React.forwardRef(function MenuRadioItem(
         typingRef={typingRef}
         closeOnClick={closeOnClick}
         nativeButton={nativeButton}
+        nodeId={menuPositionerContext?.floatingContext.nodeId}
       />
     </MenuRadioItemContext.Provider>
   );
@@ -155,6 +167,7 @@ interface InnerMenuRadioItemProps extends Omit<MenuRadioItem.Props, 'value'> {
   typingRef: React.RefObject<boolean>;
   closeOnClick: boolean;
   nativeButton: boolean;
+  nodeId: string | undefined;
 }
 
 export namespace MenuRadioItem {
