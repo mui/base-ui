@@ -1,7 +1,6 @@
 import * as React from 'react';
 import { useStore } from '@base-ui-components/utils/store';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
-import { findNonDisabledListIndex, isListIndexDisabled } from '../../floating-ui-react/utils';
 import { useSharedCalendarRootContext } from '../root/SharedCalendarRootContext';
 import { SharedCalendarDayGridBodyContext } from './SharedCalendarDayGridBodyContext';
 import { HTMLProps } from '../../utils/types';
@@ -11,6 +10,10 @@ import { useWeekList } from '../../use-week-list';
 import { selectors } from '../store';
 import { CompositeMetadata } from '../../composite/list/CompositeList';
 import { CompositeRoot } from '../../composite/root/CompositeRoot';
+import { findNonDisabledListIndex, isListIndexDisabled } from '../../floating-ui-react/utils';
+import { ARROW_DOWN, ARROW_LEFT, ARROW_RIGHT, ARROW_UP, VERTICAL_KEYS } from '../../composite/composite';
+
+const BACKWARD_KEYS = new Set([ARROW_UP, ARROW_LEFT]);
 
 export function useSharedCalendarDayGridBody(
   parameters: useSharedCalendarDayGridBody.Parameters,
@@ -98,17 +101,17 @@ export function useSharedCalendarDayGridBody(
       elementsRef: React.RefObject<(HTMLDivElement | null)[]>,
       decrement: boolean,
     ) => {
-      const isHorizontal = eventKey === 'ArrowLeft' || eventKey === 'ArrowRight';
+      const isHorizontal = eventKey === ARROW_LEFT || eventKey === ARROW_RIGHT;
       let newHighlightedIndex = startingIndex;
-      if (eventKey === 'ArrowLeft') {
+      if (eventKey === ARROW_LEFT) {
         // Guess the last cell in the last week
         newHighlightedIndex = weeks.length * 7 - 1;
-      } else if (eventKey === 'ArrowRight') {
+      } else if (eventKey === ARROW_RIGHT) {
         newHighlightedIndex = 0;
-      } else if (eventKey === 'ArrowDown') {
+      } else if (eventKey === ARROW_DOWN) {
         // Guess the same weekday in the first week of next month
         newHighlightedIndex %= 7;
-      } else if (eventKey === 'ArrowUp') {
+      } else if (eventKey === ARROW_UP) {
         // Guess the same weekday in the last week of the previous month
         newHighlightedIndex = weeks.length * 7 - (7 - (startingIndex % 7));
       }
@@ -137,14 +140,13 @@ export function useSharedCalendarDayGridBody(
     onHighlightedIndexChange: setHighlightedIndex,
     onLoop: (event, prevIndex, nextIndex, elementsRef) => {
       event.preventDefault();
-      if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
-        const newWeekDay = elementsRef.current[prevIndex - (event.key === 'ArrowUp' ? 7 : -7)];
+      if (VERTICAL_KEYS.has(event.key)) {
+        const newWeekDay = elementsRef.current[prevIndex - (event.key === ARROW_UP ? 7 : -7)];
         if (newWeekDay && newWeekDay.dataset.disabled !== undefined) {
           return prevIndex;
         }
       }
-      const backwardKeys = ['ArrowUp', 'ArrowLeft'];
-      const decrement = backwardKeys.includes(event.key);
+      const decrement = BACKWARD_KEYS.has(event.key);
       setVisibleDate(adapter.addMonths(visibleDate, decrement ? -1 : 1), false);
       queueMicrotask(() => {
         handleItemLooping(event.key, prevIndex, elementsRef, decrement);
