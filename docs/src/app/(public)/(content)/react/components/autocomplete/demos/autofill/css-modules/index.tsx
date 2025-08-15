@@ -19,10 +19,6 @@ export default function ExampleAutofillAutocomplete() {
   return (
     <div className={styles.Container}>
       <Autocomplete.Root
-        onSelectedValueChange={(nextValue) => {
-          setInputHighlightValue('');
-          setSearchValue(nextValue ?? '');
-        }}
         inputValue={inputHighlightValue || searchValue}
         onInputValueChange={(nextValue) => {
           setInputHighlightValue('');
@@ -52,7 +48,15 @@ export default function ExampleAutofillAutocomplete() {
               <Autocomplete.Popup className={styles.Popup}>
                 <Autocomplete.List>
                   {filteredTags.map((tag) => (
-                    <Autocomplete.Item key={tag.id} value={tag.label} className={styles.Item}>
+                    <Autocomplete.Item
+                      key={tag.id}
+                      value={tag.label}
+                      className={styles.Item}
+                      onClick={() => {
+                        setInputHighlightValue('');
+                        setSearchValue(tag.label ?? '');
+                      }}
+                    >
                       {tag.label}
                     </Autocomplete.Item>
                   ))}

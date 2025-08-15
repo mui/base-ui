@@ -2,16 +2,6 @@ import * as React from 'react';
 import { Autocomplete } from '@base-ui-components/react/autocomplete';
 import styles from './index.module.css';
 
-const initialOptions = ['React', 'Vue', 'Angular', 'Svelte', 'Solid', 'Preact'];
-
-function hasOption(
-  options: string[],
-  inputValue: string,
-  contains: (item: string, query: string) => boolean,
-) {
-  return options.some((option) => contains(option, inputValue));
-}
-
 export default function ExampleAddOptionAutocomplete() {
   const [options, setOptions] = React.useState(initialOptions);
   const [inputValue, setInputValue] = React.useState('');
@@ -31,24 +21,10 @@ export default function ExampleAddOptionAutocomplete() {
   }, [options, showAddOption, inputValue]);
 
   return (
-    <Autocomplete.Root
-      items={items}
-      inputValue={inputValue}
-      onInputValueChange={(value) => {
-        setInputValue(value);
-      }}
-      onSelectedValueChange={(value: string | null) => {
-        setInputValue(value ?? '');
-
-        if (inputValue && !hasOption(options, inputValue, contains)) {
-          setOptions((prev) => [...prev, inputValue]);
-          setInputValue(inputValue);
-        }
-      }}
-    >
+    <Autocomplete.Root items={items} inputValue={inputValue} onInputValueChange={setInputValue}>
       <label className={styles.Label}>
         Choose or add a JavaScript framework
-        <Autocomplete.Input placeholder="e.g. Next.js" className={styles.Input} />
+        <Autocomplete.Input placeholder="e.g. React" className={styles.Input} />
       </label>
 
       <Autocomplete.Portal>
@@ -59,7 +35,19 @@ export default function ExampleAddOptionAutocomplete() {
                 const isAddOption =
                   showAddOption && item.toLowerCase().trim() === inputValue.toLowerCase().trim();
                 return (
-                  <Autocomplete.Item key={item} value={item} className={styles.Item}>
+                  <Autocomplete.Item
+                    key={item}
+                    value={item}
+                    className={styles.Item}
+                    onClick={() => {
+                      setInputValue(item);
+
+                      if (inputValue && !hasOption(options, inputValue, contains)) {
+                        setOptions((prev) => [...prev, inputValue]);
+                        setInputValue(inputValue);
+                      }
+                    }}
+                  >
                     {isAddOption ? `Add "${item}"` : item}
                   </Autocomplete.Item>
                 );
@@ -70,4 +58,14 @@ export default function ExampleAddOptionAutocomplete() {
       </Autocomplete.Portal>
     </Autocomplete.Root>
   );
+}
+
+const initialOptions = ['React', 'Vue', 'Angular', 'Svelte', 'Solid', 'Preact'];
+
+function hasOption(
+  options: string[],
+  inputValue: string,
+  contains: (item: string, query: string) => boolean,
+) {
+  return options.some((option) => contains(option, inputValue));
 }
