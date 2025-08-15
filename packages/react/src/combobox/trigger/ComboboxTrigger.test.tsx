@@ -238,5 +238,21 @@ describe('<Combobox.Trigger />', () => {
       expect(screen.queryByRole('listbox')).not.to.equal(null);
       expect(screen.getByRole('combobox')).toHaveFocus();
     });
+
+    it('does not open on ArrowDown/ArrowUp when reference is a textarea', async () => {
+      const { user } = await render(
+        <Combobox.Root>
+          <Combobox.Trigger>Open</Combobox.Trigger>
+          <textarea aria-label="notes" />
+        </Combobox.Root>,
+      );
+
+      const trigger = screen.getByRole('button', { name: 'Open' });
+      await user.click(trigger);
+      await user.keyboard('{ArrowDown}');
+      expect(screen.queryByRole('listbox')).to.equal(null);
+      await user.keyboard('{ArrowUp}');
+      expect(screen.queryByRole('listbox')).to.equal(null);
+    });
   });
 });

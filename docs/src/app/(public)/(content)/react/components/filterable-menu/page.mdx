@@ -17,11 +17,14 @@ import { FilterableMenu } from '@base-ui-components/react/filterable-menu';
 
 <FilterableMenu.Root>
   <FilterableMenu.Trigger />
+  <FilterableMenu.Textarea />
 
   <FilterableMenu.Portal>
     <FilterableMenu.Backdrop />
     <FilterableMenu.Positioner>
       <FilterableMenu.Popup>
+        <FilterableMenu.Input />
+
         <FilterableMenu.Arrow />
 
         <FilterableMenu.Status />
@@ -48,7 +51,7 @@ import { FilterableMenu } from '@base-ui-components/react/filterable-menu';
 
 ## API reference
 
-<Reference component="FilterableMenu" parts="Root" />
+<Reference component="FilterableMenu" parts="Root, Textarea" />
 <Reference
   component="Combobox"
   parts="Trigger, Icon, Input, List, Portal, Positioner, Popup, Arrow, Status, Empty, Collection, Row, Item, Group, GroupLabel, Separator"
@@ -58,6 +61,8 @@ import { FilterableMenu } from '@base-ui-components/react/filterable-menu';
 
 ### Command palette
 
+Render inside a `Dialog` to create a command palette.
+
 <Demo path="./demos/command-palette" compact />
 
 ### Grid layout
@@ -65,3 +70,9 @@ import { FilterableMenu } from '@base-ui-components/react/filterable-menu';
 Render items in a grid using rows and the `cols` prop.
 
 <Demo path="./demos/grid" compact />
+
+### Mentions textarea
+
+Attach to a `textarea` and insert mentions after typing `@`.
+
+<Demo path="./demos/mentions" compact />

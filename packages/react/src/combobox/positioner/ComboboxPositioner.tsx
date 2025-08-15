@@ -158,7 +158,9 @@ export const ComboboxPositioner = React.forwardRef(function ComboboxPositioner(
 
   return (
     <ComboboxPositionerContext.Provider value={contextValue}>
-      {mounted && modal && <InternalBackdrop inert={inertValue(!open)} cutout={triggerElement} />}
+      {mounted && modal && (
+        <InternalBackdrop inert={inertValue(!open)} cutout={inputElement ?? triggerElement} />
+      )}
       {element}
     </ComboboxPositionerContext.Provider>
   );

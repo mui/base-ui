@@ -49,6 +49,7 @@ import { serializeValue } from '../../utils/serializeValue';
 import { useTransitionStatus } from '../../utils/useTransitionStatus';
 import { EMPTY_ARRAY } from '../../utils/constants';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
+import { HTMLProps } from '../../utils/types';
 
 export function ComboboxRoot<Item = any, Mode extends SelectionMode = 'none'>(
   props: ComboboxRootConditionalProps<Item, Mode>,
@@ -625,25 +626,32 @@ export function ComboboxRoot<Item = any, Mode extends SelectionMode = 'none'>(
     ariaExpanded = open ? 'true' : 'false';
   }
 
-  const role: ElementProps = React.useMemo(
-    () => ({
-      reference: {
-        role: 'combobox',
-        'aria-expanded': ariaExpanded,
-        'aria-haspopup': ariaHasPopup,
-        'aria-controls': open ? listElement?.id : undefined,
-        'aria-autocomplete': 'list',
-        autoComplete: 'off',
-        spellCheck: 'false',
-        autoCorrect: 'off',
-        autoCapitalize: 'off',
-      },
-      floating: {
-        role: 'presentation',
-      },
-    }),
-    [ariaExpanded, ariaHasPopup, listElement?.id, open],
-  );
+  const role: ElementProps = React.useMemo(() => {
+    const isTextarea = (inputElement as HTMLElement | null)?.tagName === 'TEXTAREA';
+    const shouldApplyAria = !isTextarea || open;
+
+    const reference = isTextarea
+      ? {}
+      : ({
+          autoComplete: 'off',
+          spellCheck: 'false',
+          autoCorrect: 'off',
+          autoCapitalize: 'off',
+        } as HTMLProps<HTMLInputElement>);
+
+    if (shouldApplyAria) {
+      reference.role = 'combobox';
+      reference['aria-expanded'] = ariaExpanded;
+      reference['aria-haspopup'] = ariaHasPopup;
+      reference['aria-controls'] = open ? listElement?.id : undefined;
+      reference['aria-autocomplete'] = 'list';
+    }
+
+    return {
+      reference,
+      floating: { role: 'presentation' },
+    };
+  }, [inputElement, open, ariaExpanded, ariaHasPopup, listElement?.id]);
 
   const click = useClick(floatingRootContext, {
     enabled: !readOnly && !disabled && openOnInputClick,
@@ -690,6 +698,8 @@ export function ComboboxRoot<Item = any, Mode extends SelectionMode = 'none'>(
     virtual: true,
     loop: true,
     allowEscape: true,
+    openOnArrowKeyDown:
+      anchorElement === inputElement && (inputElement as HTMLElement | null)?.tagName === 'INPUT',
     focusItemOnOpen: selectionMode !== 'none' && selectedIndex !== null && hasActualSelections,
     cols,
     orientation: cols > 1 ? 'horizontal' : undefined,
