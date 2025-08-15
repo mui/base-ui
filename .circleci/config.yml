@@ -227,12 +227,6 @@ jobs:
             # "If there are multiple matches, the most recently generated cache will be used."
             - typescript-declaration-files-master
       - run:
-          name: Diff declaration files
-          command: |
-            git add -f packages/react/build || echo 'Base UI declarations do not exist'
-            pnpm -r build:types
-            git --no-pager diff
-      - run:
           name: Log defect declaration files
           command: |
             # ignore build failures
