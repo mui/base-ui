@@ -17,14 +17,50 @@ export const PreviewCardTrigger = React.forwardRef(function PreviewCardTrigger(
 ) {
   const { render, className, ...elementProps } = componentProps;
 
-  const { open, triggerProps, setTriggerElement } = usePreviewCardRootContext();
+  const { open, triggerProps, setTriggerElement, coordsRef } = usePreviewCardRootContext();
 
   const state: PreviewCardTrigger.State = React.useMemo(() => ({ open }), [open]);
 
   const element = useRenderElement('a', componentProps, {
     ref: [setTriggerElement, forwardedRef],
     state,
-    props: [triggerProps, elementProps],
+    props: [
+      triggerProps,
+      {
+        onFocus() {
+          coordsRef.current = undefined;
+        },
+        onMouseMove(event) {
+          if (open) {
+            return;
+          }
+
+          const rects = Array.from(event.currentTarget.getClientRects());
+
+          if (rects.length < 2) {
+            return;
+          }
+
+          const hovered = rects.reduce(
+            (best, rect, i) => {
+              const d = Math.hypot(
+                event.clientX - (rect.left + rect.width / 2),
+                event.clientY - (rect.top + rect.height / 2),
+              );
+              return d < best.d ? { i, rect, d } : best;
+            },
+            { i: 0, rect: rects[0], d: Number.POSITIVE_INFINITY },
+          );
+
+          coordsRef.current = {
+            rectIndex: hovered.i,
+            x: event.clientX - hovered.rect.left,
+            y: event.clientY - hovered.rect.top,
+          };
+        },
+      },
+      elementProps,
+    ],
     customStyleHookMapping: triggerOpenStateMapping,
   });
 
