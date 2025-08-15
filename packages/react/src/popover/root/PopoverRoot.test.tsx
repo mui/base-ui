@@ -408,6 +408,101 @@ describe('<Popover.Root />', () => {
     });
   });
 
+  describe('outside press event with backdrops', () => {
+    it('uses intentional outside press with user backdrop (mouse): closes on click, not on mousedown', async () => {
+      const handleOpenChange = spy();
+
+      const { queryByRole } = await render(
+        <Popover.Root defaultOpen onOpenChange={handleOpenChange}>
+          <Popover.Portal>
+            <Popover.Backdrop data-testid="backdrop" />
+            <Popover.Positioner>
+              <Popover.Popup>Content</Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
+        </Popover.Root>,
+      );
+
+      const backdrop = screen.getByTestId('backdrop');
+
+      fireEvent.mouseDown(backdrop);
+      expect(queryByRole('dialog')).not.to.equal(null);
+      expect(handleOpenChange.callCount).to.equal(0);
+
+      fireEvent.click(backdrop);
+      await waitFor(() => {
+        expect(queryByRole('dialog')).to.equal(null);
+      });
+      expect(handleOpenChange.callCount).to.equal(1);
+    });
+
+    it('uses intentional outside press with internal backdrop (modal=true): closes on click, not on mousedown', async () => {
+      const handleOpenChange = spy();
+
+      const { queryByRole } = await render(
+        <Popover.Root defaultOpen onOpenChange={handleOpenChange} modal>
+          <Popover.Portal>
+            <Popover.Positioner>
+              <Popover.Popup>Content</Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
+        </Popover.Root>,
+      );
+
+      const internalBackdrop = document.querySelector('[role="presentation"]') as HTMLElement;
+
+      fireEvent.mouseDown(internalBackdrop);
+      expect(queryByRole('dialog')).not.to.equal(null);
+      expect(handleOpenChange.callCount).to.equal(0);
+
+      fireEvent.click(internalBackdrop);
+      await waitFor(() => {
+        expect(queryByRole('dialog')).to.equal(null);
+      });
+      expect(handleOpenChange.callCount).to.equal(1);
+    });
+  });
+
+  describe.skipIf(isJSDOM)('pointerdown removal', () => {
+    it('moves focus to the popup when a focused child is removed on pointerdown and outside press still dismisses', async () => {
+      function Test() {
+        const [showButton, setShowButton] = React.useState(true);
+        return (
+          <Popover.Root defaultOpen modal="trap-focus">
+            <Popover.Trigger>Toggle</Popover.Trigger>
+            <Popover.Portal>
+              <Popover.Positioner>
+                <Popover.Popup data-testid="popup">
+                  {showButton && (
+                    <button data-testid="remove" onPointerDown={() => setShowButton(false)}>
+                      Remove on pointer down
+                    </button>
+                  )}
+                </Popover.Popup>
+              </Popover.Positioner>
+            </Popover.Portal>
+          </Popover.Root>
+        );
+      }
+
+      const { user } = await render(<Test />);
+
+      const removeButton = screen.getByTestId('remove');
+      fireEvent.pointerDown(removeButton);
+
+      const popup = screen.getByTestId('popup');
+      await waitFor(() => {
+        expect(popup).toHaveFocus();
+      });
+
+      await user.click(document.body);
+
+      await waitFor(() => {
+        expect(screen.queryByRole('dialog')).to.equal(null);
+      });
+    });
+  });
+
   describe('prop: actionsRef', () => {
     it('unmounts the popover when the `unmount` method is called', async () => {
       const actionsRef = {
