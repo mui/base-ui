@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Combobox } from '@base-ui-components/react/combobox';
 import { createRenderer, describeConformance } from '#test-utils';
-import { screen } from '@mui/internal-test-utils';
+import { act, screen } from '@mui/internal-test-utils';
 import { expect } from 'chai';
 import { Field } from '@base-ui-components/react/field';
 import { spy } from 'sinon';
@@ -201,6 +201,42 @@ describe('<Combobox.Trigger />', () => {
 
       expect(handleOpenChange.callCount).to.equal(1);
       expect(handleOpenChange.args[0][0]).to.equal(true);
+    });
+
+    it('opens popup when pressing ArrowDown or ArrowUp', async () => {
+      const { user } = await render(
+        <Combobox.Root>
+          <Combobox.Trigger data-testid="trigger" />
+          <Combobox.Input />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List />
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+      await act(async () => {
+        trigger.focus();
+      });
+
+      await user.keyboard('{ArrowDown}');
+      expect(screen.getByRole('listbox')).not.to.equal(null);
+      expect(screen.getByRole('combobox')).toHaveFocus();
+
+      await user.keyboard('{Escape}');
+      expect(screen.queryByRole('listbox')).to.equal(null);
+
+      await act(async () => {
+        trigger.focus();
+      });
+
+      await user.keyboard('{ArrowUp}');
+      expect(screen.queryByRole('listbox')).not.to.equal(null);
+      expect(screen.getByRole('combobox')).toHaveFocus();
     });
   });
 });
