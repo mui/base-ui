@@ -8,8 +8,8 @@ export default function ExampleSlider() {
       <Slider.Control className={styles.Control}>
         <Slider.Track className={styles.Track}>
           <Slider.Indicator className={styles.Indicator} />
-          <Slider.Thumb className={styles.Thumb} />
-          <Slider.Thumb className={styles.Thumb} />
+          <Slider.Thumb index={0} className={styles.Thumb} />
+          <Slider.Thumb index={1} className={styles.Thumb} />
         </Slider.Track>
       </Slider.Control>
     </Slider.Root>
