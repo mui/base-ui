@@ -238,11 +238,12 @@ export function ComboboxRoot<Item = any, Mode extends SelectionMode = 'none'>(
   } = useOpenInteractionType(open);
 
   const initialList = React.useMemo(() => {
-    if (virtualized && items) {
-      return Array.from({ length: items.length }, () => null);
+    if (virtualized) {
+      const count = Array.isArray(filteredItems) ? filteredItems.length : 0;
+      return Array.from({ length: count }, () => null);
     }
     return [];
-  }, [virtualized, items]);
+  }, [virtualized, filteredItems]);
 
   const listRef = React.useRef<Array<HTMLElement | null>>(initialList);
   const popupRef = React.useRef<HTMLDivElement | null>(null);
@@ -252,32 +253,6 @@ export function ComboboxRoot<Item = any, Mode extends SelectionMode = 'none'>(
   const allowActiveIndexSyncRef = React.useRef(true);
   const hadInputClearRef = React.useRef(false);
   const prevQueryRef = React.useRef(query);
-
-  // Keep a full value map for virtualized lists so offscreen selections and
-  // navigation (e.g., ArrowUp to last item) use the correct indices.
-  // TODO: refactor to an alternative/inexpensive solution for this
-  useIsoLayoutEffect(() => {
-    if (!virtualized) {
-      return;
-    }
-    valuesRef.current = flatItems.slice();
-  }, [virtualized, flatItems]);
-
-  const enabledItemsSet = React.useMemo(() => {
-    if (!items || !virtualized) {
-      return null;
-    }
-    const set = new Set<any>();
-    if (isGrouped) {
-      const groups = filteredItems as ComboboxGroup<ExtractItemType<Item>>[];
-      groups.forEach((group) => {
-        group.items.forEach((it) => set.add(it));
-      });
-    } else {
-      (filteredItems as ExtractItemType<Item>[]).forEach((it) => set.add(it));
-    }
-    return set;
-  }, [items, isGrouped, filteredItems, virtualized]);
 
   const commitValidation = fieldControlValidation.commitValidation;
 
@@ -301,8 +276,19 @@ export function ComboboxRoot<Item = any, Mode extends SelectionMode = 'none'>(
     if (!virtualized) {
       return;
     }
-    listRef.current = initialList;
+    // Drop stray nulls
+    listRef.current = initialList.slice();
+    valuesRef.current.length = initialList.length;
   }, [initialList, virtualized]);
+
+  // Maintain a full value map for virtualized lists so offscreen selections and
+  // navigation use the correct indices even when DOM nodes aren't rendered.
+  useIsoLayoutEffect(() => {
+    if (!virtualized || isGrouped) {
+      return;
+    }
+    valuesRef.current = filteredItems.slice();
+  }, [virtualized, filteredItems, isGrouped]);
 
   useIsoLayoutEffect(() => {
     if (
@@ -688,17 +674,10 @@ export function ComboboxRoot<Item = any, Mode extends SelectionMode = 'none'>(
     focusItemOnOpen: selectionMode !== 'none' && selectedIndex !== null && hasActualSelections,
     cols,
     orientation: cols > 1 ? 'horizontal' : undefined,
-    disabledIndices: virtualized
-      ? (index) => {
-          if (!enabledItemsSet) {
-            return false;
-          }
-          if (index < 0 || index >= flatItems.length) {
-            return true;
-          }
-          return !enabledItemsSet.has(flatItems[index]);
-        }
-      : EMPTY_ARRAY,
+    disabledIndices:
+      virtualized && !isGrouped
+        ? (index) => index < 0 || index >= (Array.isArray(filteredItems) ? filteredItems.length : 0)
+        : EMPTY_ARRAY,
     onNavigate(nextActiveIndex) {
       // Retain the highlight only while actually transitioning out or closed.
       if (nextActiveIndex === null && (!open || transitionStatus === 'ending')) {

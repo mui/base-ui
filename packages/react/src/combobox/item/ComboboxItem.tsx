@@ -5,7 +5,10 @@ import { useLatestRef } from '@base-ui-components/utils/useLatestRef';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { useAnimationFrame } from '@base-ui-components/utils/useAnimationFrame';
 
-import { useComboboxRootContext } from '../root/ComboboxRootContext';
+import {
+  useComboboxRootContext,
+  useComboboxDerivedItemsContext,
+} from '../root/ComboboxRootContext';
 import {
   useCompositeListItem,
   IndexGuessBehavior,
@@ -61,10 +64,15 @@ export const ComboboxItem = React.memo(
     } = useComboboxRootContext();
 
     const storeItems = useStore(store, selectors.items);
+    const { filteredItems: derivedFilteredItems } = useComboboxDerivedItemsContext();
 
     const selectable = selectionMode !== 'none';
     const multiple = selectionMode === 'multiple';
-    const index = virtualized && storeItems ? storeItems.indexOf(value) : listItem.index;
+    const index = virtualized
+      ? derivedFilteredItems
+        ? derivedFilteredItems.indexOf(value)
+        : -1
+      : listItem.index;
 
     const isRow = useComboboxRowContext();
     const active = useStore(store, selectors.isActive, index);
@@ -82,7 +90,7 @@ export const ComboboxItem = React.memo(
     const hasRegistered = listItem.index !== -1;
 
     useIsoLayoutEffect(() => {
-      if (!storeItems || !virtualized) {
+      if (!virtualized) {
         return undefined;
       }
 
@@ -90,13 +98,16 @@ export const ComboboxItem = React.memo(
 
       if (index !== -1) {
         list[index] = itemRef.current;
+        // Keep valuesRef aligned with the filtered list indices in virtualized mode
+        valuesRef.current[index] = value;
         return () => {
           list[index] = null;
+          delete valuesRef.current[index];
         };
       }
 
       return undefined;
-    }, [index, virtualized, listRef, storeItems, initialList]);
+    }, [index, virtualized, listRef, valuesRef, value, initialList]);
 
     useIsoLayoutEffect(() => {
       if (!hasRegistered) {
