@@ -43,6 +43,12 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
 
   const disabled = fieldDisabled || comboboxDisabled || disabledProp;
 
+  const currentPointerTypeRef = React.useRef<PointerEvent['pointerType']>('');
+
+  const trackPointerType = useEventCallback((event: React.PointerEvent) => {
+    currentPointerTypeRef.current = event.pointerType;
+  });
+
   const { buttonRef, getButtonProps } = useButton({
     native: nativeButton,
     disabled,
@@ -72,6 +78,8 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
         'aria-controls': open ? listElement?.id : undefined,
         disabled,
         'aria-readonly': readOnly || undefined,
+        onPointerDown: trackPointerType,
+        onPointerEnter: trackPointerType,
         onMouseDown(event) {
           if (disabled || readOnly) {
             return;
@@ -87,7 +95,10 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
           }
 
           setOpen(!open, event.nativeEvent, undefined);
-          inputRef.current?.focus();
+
+          if (currentPointerTypeRef.current === 'mouse') {
+            inputRef.current?.focus();
+          }
         },
         onKeyDown(event) {
           if (disabled || readOnly) {
