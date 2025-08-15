@@ -1,7 +1,7 @@
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { type UserWorkspaceConfig } from 'vitest/config';
-// eslint-disable-next-line import/extensions
+// eslint-disable-next-line import-x/extensions
 import viteConfig from '@base-ui-components/monorepo-tests/vite.shared.config.mjs';
 
 const CURRENT_DIR = dirname(fileURLToPath(import.meta.url));

@@ -38,7 +38,7 @@ export default defineConfig(
       baseDirectory: dirname,
     }),
     settings: {
-      'import/resolver': {
+      'import-x/resolver': {
         typescript: {
           project: ['tsconfig.json'],
         },
@@ -49,7 +49,7 @@ export default defineConfig(
      * their own groups.
      */
     rules: {
-      'import/export': 'off', // FIXME: Maximum call stack exceeded
+      'import-x/export': 'off', // FIXME: Maximum call stack exceeded
       'no-restricted-imports': [
         'error',
         {
@@ -111,7 +111,7 @@ export default defineConfig(
     extends: createDocsConfig(),
     rules: {
       '@typescript-eslint/no-use-before-define': 'off',
-      'import/extensions': [
+      'import-x/extensions': [
         'error',
         // Ignores extensions in package imports as well as local ts/tsx imports but .mjs is always required
         'ignorePackages',
@@ -136,7 +136,7 @@ export default defineConfig(
       '@typescript-eslint/no-use-before-define': 'off',
       'no-alert': 'off',
       'no-console': 'off',
-      'import/no-relative-packages': 'off',
+      'import-x/no-relative-packages': 'off',
     },
   },
   {
