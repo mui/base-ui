@@ -5,24 +5,29 @@
     "direction": {
       "type": "'horizontal' | 'vertical'",
       "default": "'horizontal'",
-      "description": "Cursor movement direction in the scrub area."
+      "description": "Cursor movement direction in the scrub area.",
+      "detailedType": "'horizontal' | 'vertical' | undefined"
     },
     "pixelSensitivity": {
       "type": "number",
       "default": "2",
-      "description": "Determines how many pixels the cursor must move before the value changes.\nA higher value will make scrubbing less sensitive."
+      "description": "Determines how many pixels the cursor must move before the value changes.\nA higher value will make scrubbing less sensitive.",
+      "detailedType": "number | undefined"
     },
     "teleportDistance": {
       "type": "number",
-      "description": "If specified, determines the distance that the cursor may move from the center\nof the scrub area before it will loop back around."
+      "description": "If specified, determines the distance that the cursor may move from the center\nof the scrub area before it will loop back around.",
+      "detailedType": "number | undefined"
     },
     "className": {
       "type": "string | ((state: NumberField.ScrubArea.State) => string)",
-      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
+      "detailedType": "| string\n| ((state: NumberField.ScrubArea.State) => string)"
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: NumberField.ScrubArea.State) => ReactElement)",
-      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
+      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: NumberField.ScrubArea.State,\n  ) => ReactElement)"
     }
   },
   "dataAttributes": {

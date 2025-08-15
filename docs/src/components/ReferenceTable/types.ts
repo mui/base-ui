@@ -8,6 +8,7 @@ export interface ComponentDef {
 
 export interface PropDef {
   type?: string;
+  expanded?: string;
   default?: string;
   required?: boolean;
   description?: string;
