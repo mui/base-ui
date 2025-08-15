@@ -3,7 +3,7 @@ import { useMergedRefs, useMergedRefsN } from '@base-ui-components/utils/useMerg
 import { isReactVersionAtLeast } from '@base-ui-components/utils/reactVersion';
 import { mergeObjects } from '@base-ui-components/utils/mergeObjects';
 import type { BaseUIComponentProps, ComponentRenderFn, HTMLProps } from './types';
-import { CustomStyleHookMapping, getStyleHookProps } from './getStyleHookProps';
+import { type CustomStyleHookMapping, getStyleHookProps } from './getStyleHookProps';
 import { resolveClassName } from './resolveClassName';
 import { mergeProps, mergePropsN, mergeClassNames } from '../merge-props';
 import { EMPTY_OBJECT } from './constants';

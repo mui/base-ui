@@ -1,6 +1,5 @@
 import * as React from 'react';
-import type { ComponentRenderFn } from '../utils/types';
-import { HTMLProps } from '../utils/types';
+import type { ComponentRenderFn, HTMLProps } from '../utils/types';
 import { useRenderElement } from '../utils/useRenderElement';
 
 /**
