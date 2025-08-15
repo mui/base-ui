@@ -12,9 +12,11 @@ export { useMenuSubmenuRootContext } from './MenuSubmenuRootContext';
  * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
  */
 export function MenuSubmenuRoot(props: MenuSubmenuRoot.Props) {
+  const { closeParentOnEsc = false } = props;
+
   return (
     <MenuSubmenuRootContext.Provider value>
-      <MenuRoot {...props} />
+      <MenuRoot closeParentOnEsc={closeParentOnEsc} {...props} />
     </MenuSubmenuRootContext.Provider>
   );
 }
