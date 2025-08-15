@@ -113,7 +113,7 @@ export const ComboboxPopup = React.forwardRef(function ComboboxPopup(
   return (
     <FloatingFocusManager
       context={floatingRootContext}
-      modal={false}
+      modal={isAnchorInput}
       initialFocus={resolvedInitialFocus}
       returnFocus={resolvedFinalFocus}
     >
