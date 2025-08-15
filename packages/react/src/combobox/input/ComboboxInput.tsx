@@ -86,6 +86,8 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
     [fieldState, open, disabled, readOnly],
   );
 
+  const isComposingRef = React.useRef(false);
+
   function handleKeyDown(event: React.KeyboardEvent<HTMLInputElement>) {
     if (!comboboxChipsContext) {
       return undefined;
@@ -154,6 +156,28 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
         'aria-labelledby': labelId,
         disabled: disabled || undefined,
         readOnly,
+        onCompositionStart() {
+          isComposingRef.current = true;
+        },
+        onCompositionEnd(event: React.CompositionEvent<HTMLInputElement>) {
+          isComposingRef.current = false;
+
+          if (readOnly || disabled) {
+            return;
+          }
+
+          const trimmed = event.currentTarget.value.trim();
+          if (trimmed !== '') {
+            setOpen(true, event.nativeEvent, undefined);
+            store.apply({ activeIndex: null, selectedIndex: null });
+            if (activeIndex !== null) {
+              onItemHighlighted(undefined, {
+                type: keyboardActiveRef.current ? 'keyboard' : 'pointer',
+                index: -1,
+              });
+            }
+          }
+        },
         onFocus() {
           setFocused(true);
         },
@@ -173,6 +197,20 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
 
           if (event.currentTarget.value === '' && !openOnInputClick && !hasPositionerParent) {
             setOpen(false, event.nativeEvent, undefined);
+          }
+
+          if (!readOnly && !disabled && !isComposingRef.current) {
+            const trimmed = event.currentTarget.value.trim();
+            if (trimmed !== '') {
+              setOpen(true, event.nativeEvent, undefined);
+              store.apply({ activeIndex: null, selectedIndex: null });
+              if (activeIndex !== null) {
+                onItemHighlighted(undefined, {
+                  type: keyboardActiveRef.current ? 'keyboard' : 'pointer',
+                  index: -1,
+                });
+              }
+            }
           }
 
           // When the user types, ensure the list resets its highlight so that
@@ -215,27 +253,6 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
             comboboxChipsContext?.chipsRef.current[nextIndex]?.focus();
           } else {
             inputRef.current?.focus();
-          }
-
-          // Printable characters
-          if (
-            !disabled &&
-            (event.key === 'Backspace' ||
-              (event.key.length === 1 && !event.ctrlKey && !event.metaKey && !event.altKey))
-          ) {
-            const inputValueTrimmed = event.currentTarget.value.trim();
-            if (openOnInputClick || event.key !== 'Backspace' || inputValueTrimmed.length > 1) {
-              setOpen(true, event.nativeEvent, undefined);
-            }
-
-            store.apply({ activeIndex: null, selectedIndex: null });
-
-            if (activeIndex !== null) {
-              onItemHighlighted(undefined, {
-                type: keyboardActiveRef.current ? 'keyboard' : 'pointer',
-                index: -1,
-              });
-            }
           }
 
           if (event.key === 'Enter') {
