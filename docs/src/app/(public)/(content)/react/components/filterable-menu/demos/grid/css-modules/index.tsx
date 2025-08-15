@@ -79,6 +79,11 @@ export default function ExampleEmojiPicker() {
           cols={COLUMNS}
           open={pickerOpen}
           onOpenChange={setPickerOpen}
+          onOpenChangeComplete={(open) => {
+            if (!open) {
+              setSearchValue('');
+            }
+          }}
           inputValue={searchValue}
           onInputValueChange={(nextInputValue, event, reason) => {
             if (reason !== 'item-press') {
