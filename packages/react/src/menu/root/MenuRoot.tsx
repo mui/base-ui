@@ -103,7 +103,8 @@ export const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
         type: 'menubar',
         context: menubarContext,
       };
-    } else if (contextMenuContext) {
+      // Making sure it's not a Menu nested inside a ContextMenuTrigger. ContextMenu parentContext is always undefined (ContextMenuRoot is instantiated with `<MenuRootContext.Provider value={undefined}>`)
+    } else if (contextMenuContext && !parentContext) {
       parent = {
         type: 'context-menu',
         context: contextMenuContext,

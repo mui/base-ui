@@ -2,6 +2,7 @@
 import * as React from 'react';
 import { ContextMenu } from '@base-ui-components/react/context-menu';
 import { Menu } from '@base-ui-components/react/menu';
+import { Popover } from '@base-ui-components/react/popover';
 
 export default function ContextMenuExperiment() {
   return (
@@ -248,6 +249,107 @@ export default function ContextMenuExperiment() {
                 <ContextMenu.Separator className="my-1 h-px bg-gray-200" />
                 <ContextMenu.Item className="text-red-600 cursor-default px-3 py-2 text-sm hover:bg-gray-100">
                   Delete
+                </ContextMenu.Item>
+              </ContextMenu.Popup>
+            </ContextMenu.Positioner>
+          </ContextMenu.Portal>
+        </ContextMenu.Root>
+      </section>
+
+      {/* Scenario 4: [FINAL BOSS ⚔️] Nested context menu with a menu inside */}
+      <section className="space-y-4">
+        <h2 className="text-xl font-semibold">
+          4. [FINAL BOSS ⚔️] Nested context menus, popover with a menu and a context menu inside
+        </h2>
+        <p className="text-gray-600">
+          Right-click the outer box, then right-click the inner box. Inside the inner context menu,
+          open the popover, then open the menu inside the popover, then right-click the context menu
+          inside the popover.
+        </p>
+
+        <ContextMenu.Root>
+          <ContextMenu.Trigger className="border-cyan-300 bg-cyan-50 rounded-lg border-2 p-8">
+            <div className="text-center">
+              <span className="text-cyan-700 block font-medium">Outer Context Menu</span>
+              <span className="text-cyan-600 block text-sm">Right-click me</span>
+
+              <ContextMenu.Root>
+                <ContextMenu.Trigger className="border-cyan-300 bg-cyan-50 rounded-lg border-2 p-8 flex flex-col items-center justify-center mt-4">
+                  <div className="text-center">
+                    <span className="text-cyan-700 block font-medium">Inner Context Menu</span>
+                    <span className="text-cyan-600 block text-sm">Right-click me</span>
+
+                    <Popover.Root>
+                      <Popover.Trigger className="flex p-4 items-center justify-center rounded-md border border-gray-200 bg-gray-50 text-gray-900 select-none hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 active:bg-gray-100 data-[popup-open]:bg-gray-100 mt-2">
+                        Open popover
+                      </Popover.Trigger>
+                      <Popover.Portal>
+                        <Popover.Positioner sideOffset={8}>
+                          <Popover.Popup
+                            onContextMenu={(e) => {
+                              e.stopPropagation();
+                            }}
+                            className="origin-[var(--transform-origin)] rounded-lg bg-[canvas] px-6 py-4 text-gray-900 shadow-lg shadow-gray-200 outline outline-1 outline-gray-200 transition-[transform,scale,opacity] data-[ending-style]:scale-90 data-[ending-style]:opacity-0 data-[starting-style]:scale-90 data-[starting-style]:opacity-0 dark:shadow-none dark:-outline-offset-1 dark:outline-gray-300"
+                          >
+                            <div className="text-base text-gray-600 flex flex-col gap-2">
+                              <Menu.Root>
+                                <Menu.Trigger className="inline-flex cursor-default items-center gap-2 rounded border border-gray-300 px-3 py-1.5 text-sm text-gray-800 hover:bg-gray-50">
+                                  Open Actions Menu
+                                </Menu.Trigger>
+                                <Menu.Portal>
+                                  <Menu.Positioner className="outline-none" side="top">
+                                    <Menu.Popup className="min-w-[180px] rounded-md border border-gray-200 bg-white py-2 shadow-lg">
+                                      <Menu.Item className="cursor-default px-3 py-2 text-sm hover:bg-gray-100">
+                                        Menu Action
+                                      </Menu.Item>
+                                    </Menu.Popup>
+                                  </Menu.Positioner>
+                                </Menu.Portal>
+                              </Menu.Root>
+
+                              <ContextMenu.Root>
+                                <ContextMenu.Trigger className="border-red-300 bg-red-50 mt-4 inline-block rounded border-2 p-4">
+                                  <span className="text-red-700 block font-medium">
+                                    Popover Context Menu
+                                  </span>
+                                  <span className="text-red-600 block text-sm">
+                                    Right-click me!
+                                  </span>
+                                </ContextMenu.Trigger>
+                                <ContextMenu.Portal>
+                                  <ContextMenu.Positioner className="outline-none">
+                                    <ContextMenu.Popup className="min-w-[180px] rounded-md border border-gray-200 bg-white py-2 shadow-lg">
+                                      <ContextMenu.Item className="cursor-default px-3 py-2 text-sm hover:bg-gray-100">
+                                        Popover context Action 1
+                                      </ContextMenu.Item>
+                                    </ContextMenu.Popup>
+                                  </ContextMenu.Positioner>
+                                </ContextMenu.Portal>
+                              </ContextMenu.Root>
+                            </div>
+                          </Popover.Popup>
+                        </Popover.Positioner>
+                      </Popover.Portal>
+                    </Popover.Root>
+                  </div>
+                </ContextMenu.Trigger>
+                <ContextMenu.Portal>
+                  <ContextMenu.Positioner className="outline-none">
+                    <ContextMenu.Popup className="min-w-[220px] rounded-md border border-gray-200 bg-white py-2 shadow-lg">
+                      <ContextMenu.Item className="cursor-default px-3 py-2 text-sm hover:bg-gray-100">
+                        Inner Action
+                      </ContextMenu.Item>
+                    </ContextMenu.Popup>
+                  </ContextMenu.Positioner>
+                </ContextMenu.Portal>
+              </ContextMenu.Root>
+            </div>
+          </ContextMenu.Trigger>
+          <ContextMenu.Portal>
+            <ContextMenu.Positioner className="outline-none">
+              <ContextMenu.Popup className="min-w-[220px] rounded-md border border-gray-200 bg-white py-2 shadow-lg">
+                <ContextMenu.Item className="cursor-default px-3 py-2 text-sm hover:bg-gray-100">
+                  Outer Action
                 </ContextMenu.Item>
               </ContextMenu.Popup>
             </ContextMenu.Positioner>
