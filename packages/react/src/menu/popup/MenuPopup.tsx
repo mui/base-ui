@@ -98,10 +98,8 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
     ],
   });
 
-  const finalTriggerElement = { current: triggerElement, ...finalFocus };
-
   let returnFocus = parent.type === undefined || parent.type === 'context-menu';
-  if (parent.type === 'menubar' && lastOpenChangeReason !== 'outside-press') {
+  if (triggerElement || (parent.type === 'menubar' && lastOpenChangeReason !== 'outside-press')) {
     returnFocus = true;
   }
 
@@ -110,7 +108,7 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
       context={floatingContext}
       modal={false}
       disabled={!mounted}
-      returnFocus={finalTriggerElement || returnFocus}
+      returnFocus={finalFocus || returnFocus}
       initialFocus={parent.type === 'menu' ? -1 : 0}
       restoreFocus
     >
