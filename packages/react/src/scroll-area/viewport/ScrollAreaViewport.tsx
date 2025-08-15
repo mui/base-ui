@@ -13,6 +13,8 @@ import { MIN_THUMB_SIZE } from '../constants';
 import { clamp } from '../../utils/clamp';
 import { styleDisableScrollbar } from '../../utils/styles';
 import { onVisible } from '../utils/onVisible';
+import { scrollAreaStyleHookMapping } from '../root/styleHooks';
+import type { ScrollAreaRoot } from '../root/ScrollAreaRoot';
 
 /**
  * The actual scrollable container of the scroll area.
@@ -40,6 +42,8 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
     hiddenState,
     handleScroll,
     setHovering,
+    setOverflowEdges,
+    overflowEdges,
   } = useScrollAreaRootContext();
 
   const direction = useDirection();
@@ -162,6 +166,31 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
         cornerHidden,
       };
     });
+
+    const nextOverflowEdges = {
+      xStart:
+        direction === 'rtl'
+          ? !scrollbarXHidden && scrollLeft < 0
+          : !scrollbarXHidden && scrollLeft > 0,
+      xEnd:
+        direction === 'rtl'
+          ? !scrollbarXHidden && scrollLeft > -(scrollableContentWidth - viewportWidth)
+          : !scrollbarXHidden && scrollLeft < scrollableContentWidth - viewportWidth,
+      yStart: !scrollbarYHidden && scrollTop > 0,
+      yEnd: !scrollbarYHidden && scrollTop < scrollableContentHeight - viewportHeight,
+    };
+
+    setOverflowEdges((prev) => {
+      if (
+        prev.xStart === nextOverflowEdges.xStart &&
+        prev.xEnd === nextOverflowEdges.xEnd &&
+        prev.yStart === nextOverflowEdges.yStart &&
+        prev.yEnd === nextOverflowEdges.yEnd
+      ) {
+        return prev;
+      }
+      return nextOverflowEdges;
+    });
   });
 
   useIsoLayoutEffect(() => {
@@ -246,9 +275,23 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
     onKeyDown: handleUserInteraction,
   };
 
+  const viewportState: ScrollAreaViewport.State = React.useMemo(
+    () => ({
+      hasOverflowX: !hiddenState.scrollbarXHidden,
+      hasOverflowY: !hiddenState.scrollbarYHidden,
+      overflowXStart: overflowEdges.xStart,
+      overflowXEnd: overflowEdges.xEnd,
+      overflowYStart: overflowEdges.yStart,
+      overflowYEnd: overflowEdges.yEnd,
+    }),
+    [hiddenState.scrollbarXHidden, hiddenState.scrollbarYHidden, overflowEdges],
+  );
+
   const element = useRenderElement('div', componentProps, {
     ref: [forwardedRef, viewportRef],
+    state: viewportState,
     props: [props, elementProps],
+    customStyleHookMapping: scrollAreaStyleHookMapping,
   });
 
   const contextValue: ScrollAreaViewportContext = React.useMemo(
@@ -268,5 +311,5 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
 export namespace ScrollAreaViewport {
   export interface Props extends BaseUIComponentProps<'div', State> {}
 
-  export interface State {}
+  export interface State extends ScrollAreaRoot.State {}
 }
