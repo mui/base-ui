@@ -32,6 +32,7 @@ export namespace AutocompleteRoot {
       | 'onSelectedValueChange'
       | 'fillInputOnItemPress'
       | 'modal'
+      | 'clearInputOnCloseComplete'
       // Custom JSDoc
       | 'openOnInputClick'
     > {

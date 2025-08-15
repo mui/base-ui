@@ -1,6 +1,7 @@
 export { AutocompleteRoot as Root } from './root/AutocompleteRoot';
 
 export { ComboboxInput as Input } from '../combobox/input/ComboboxInput';
+export { ComboboxIcon as Icon } from '../combobox/icon/ComboboxIcon';
 export { ComboboxList as List } from '../combobox/list/ComboboxList';
 export { ComboboxStatus as Status } from '../combobox/status/ComboboxStatus';
 export { ComboboxPortal as Portal } from '../combobox/portal/ComboboxPortal';

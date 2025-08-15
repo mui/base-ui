@@ -42,13 +42,13 @@ export default function ExampleVirtualizedAutocomplete() {
 
   return (
     <Autocomplete.Root
+      virtualized
       items={filteredItems}
       open={open}
       onOpenChange={setOpen}
       inputValue={searchValue}
       onInputValueChange={setSearchValue}
       openOnInputClick
-      virtualized
       onItemHighlighted={(item, { type, index }) => {
         const isStart = index === 0;
         const isEnd = index === filteredItems.length - 1;

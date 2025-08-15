@@ -77,6 +77,7 @@ export function ComboboxRoot<Item = any, Mode extends SelectionMode = 'none'>(
     virtualized = false,
     fillInputOnItemPress = true,
     modal = false,
+    clearInputOnCloseComplete = false,
   } = props;
 
   const { clearErrors } = useFormContext();
@@ -460,6 +461,14 @@ export function ComboboxRoot<Item = any, Mode extends SelectionMode = 'none'>(
         setInputValue('', undefined, 'input-clear');
       }
       hadInputClearRef.current = false;
+    }
+
+    // When no selection state is tracked, optionally clear the input value after close completes
+    // so external consumers (e.g., FilterableMenu) don't need to handle it manually.
+    if (selectionMode === 'none' && clearInputOnCloseComplete) {
+      if (inputRef.current && inputRef.current.value !== '') {
+        setInputValue('', undefined, 'input-clear');
+      }
     }
 
     // Single selection mode:
@@ -1060,6 +1069,12 @@ interface ComboboxRootProps<Item> {
    * @default false
    */
   modal?: boolean;
+  /**
+   * INTERNAL: When `selectionMode` is `none`, clears the input value after close animation completes.
+   * Useful for wrappers like FilterableMenu so they don't need to reset externally.
+   * @default false
+   */
+  clearInputOnCloseComplete?: boolean;
 }
 
 export type ComboboxRootConditionalProps<Item, Mode extends SelectionMode = 'none'> = Omit<

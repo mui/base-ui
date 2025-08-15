@@ -21,6 +21,7 @@ export function FilterableMenuRoot<Item = any>(
         selectionMode="none"
         fillInputOnItemPress={false}
         openOnInputClick={false}
+        clearInputOnCloseComplete
         modal={modal}
       />
     </ComboboxDefaultAnchorContext.Provider>
@@ -38,6 +39,7 @@ export namespace FilterableMenuRoot {
       | 'itemToString'
       | 'itemToValue'
       | 'openOnInputClick'
+      | 'clearInputOnCloseComplete'
       | 'name'
       | 'required'
       | 'inputRef'

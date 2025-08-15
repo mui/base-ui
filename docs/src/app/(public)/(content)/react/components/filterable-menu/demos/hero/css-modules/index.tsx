@@ -4,26 +4,18 @@ import { FilterableMenu } from '@base-ui-components/react/filterable-menu';
 import styles from './index.module.css';
 
 export default function ExampleFilterableMenu() {
-  const [searchValue, setSearchValue] = React.useState('');
-
   return (
-    <FilterableMenu.Root
-      items={ITEMS}
-      inputValue={searchValue}
-      onInputValueChange={setSearchValue}
-      onOpenChangeComplete={(open) => {
-        if (!open) {
-          setSearchValue('');
-        }
-      }}
-    >
+    <FilterableMenu.Root items={ITEMS}>
       <FilterableMenu.Trigger className={styles.Button}>
-        Options <ChevronDownIcon className={styles.ButtonIcon} />
+        Options
+        <FilterableMenu.Icon>
+          <ChevronDownIcon className={styles.ButtonIcon} />
+        </FilterableMenu.Icon>
       </FilterableMenu.Trigger>
       <FilterableMenu.Portal>
         <FilterableMenu.Positioner className={styles.Positioner} sideOffset={8}>
           <FilterableMenu.Popup className={styles.Popup} aria-label="Options Menu">
-            <FilterableMenu.Arrow className={styles.Arrow} data-side="bottom">
+            <FilterableMenu.Arrow className={styles.Arrow}>
               <ArrowSvg />
             </FilterableMenu.Arrow>
 

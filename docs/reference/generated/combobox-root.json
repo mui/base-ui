@@ -27,6 +27,12 @@
       "description": "A ref to imperative actions.\n- `unmount`: When specified, the combobox will not be unmounted when closed.\nInstead, the `unmount` function must be called to unmount the combobox manually.\nUseful when the combobox's animation is controlled by an external library.",
       "detailedType": "React.RefObject<Combobox.Root.Actions> | undefined"
     },
+    "clearInputOnCloseComplete": {
+      "type": "boolean",
+      "default": "false",
+      "description": "INTERNAL: When `selectionMode` is `none`, clears the input value after close animation completes.\nUseful for wrappers like FilterableMenu so they don't need to reset externally.",
+      "detailedType": "boolean | undefined"
+    },
     "cols": {
       "type": "number",
       "default": "1",

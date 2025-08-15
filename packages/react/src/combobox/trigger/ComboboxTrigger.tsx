@@ -9,6 +9,7 @@ import { useComboboxRootContext } from '../root/ComboboxRootContext';
 import { selectors } from '../store';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
+import { stopEvent } from '../../floating-ui-react/utils';
 
 /**
  * A button that opens the popup.
@@ -86,6 +87,13 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
           }
           setOpen(!open, event.nativeEvent, undefined);
           inputRef.current?.focus();
+        },
+        onKeyDown(event) {
+          if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+            stopEvent(event);
+            setOpen(true, event.nativeEvent, undefined);
+            inputRef.current?.focus();
+          }
         },
       },
       elementProps,

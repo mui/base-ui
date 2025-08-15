@@ -1,6 +1,7 @@
 export { FilterableMenuRoot as Root } from './root/FilterableMenuRoot';
 
 export { ComboboxInput as Input } from '../combobox/input/ComboboxInput';
+export { ComboboxIcon as Icon } from '../combobox/icon/ComboboxIcon';
 export { ComboboxTrigger as Trigger } from '../combobox/trigger/ComboboxTrigger';
 export { ComboboxList as List } from '../combobox/list/ComboboxList';
 export { ComboboxStatus as Status } from '../combobox/status/ComboboxStatus';

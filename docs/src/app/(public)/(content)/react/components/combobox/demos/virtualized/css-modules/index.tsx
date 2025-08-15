@@ -47,11 +47,10 @@ export default function ExampleVirtualizedCombobox() {
 
   return (
     <Combobox.Root
+      virtualized
       items={virtualItems}
       open={open}
-      onOpenChange={(nextOpen) => {
-        setOpen(nextOpen);
-      }}
+      onOpenChange={setOpen}
       inputValue={searchValue}
       onInputValueChange={(value) => {
         setSearchValue(value);
@@ -68,7 +67,6 @@ export default function ExampleVirtualizedCombobox() {
           setQueryChangedAfterOpen(false);
         }
       }}
-      virtualized
       onItemHighlighted={(item, { type, index }) => {
         const isStart = index === 0;
         const isEnd = index === filteredItems.length - 1;
