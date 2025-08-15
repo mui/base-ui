@@ -63,16 +63,11 @@ export const ComboboxItem = React.memo(
       listRef,
     } = useComboboxRootContext();
 
-    const storeItems = useStore(store, selectors.items);
-    const { filteredItems: derivedFilteredItems } = useComboboxDerivedItemsContext();
+    const { flatFilteredItems } = useComboboxDerivedItemsContext();
 
     const selectable = selectionMode !== 'none';
     const multiple = selectionMode === 'multiple';
-    const index = virtualized
-      ? derivedFilteredItems
-        ? derivedFilteredItems.indexOf(value)
-        : -1
-      : listItem.index;
+    const index = virtualized ? flatFilteredItems.indexOf(value) : listItem.index;
 
     const isRow = useComboboxRowContext();
     const active = useStore(store, selectors.isActive, index);
@@ -95,14 +90,15 @@ export const ComboboxItem = React.memo(
       }
 
       const list = listRef.current;
+      const values = valuesRef.current;
 
       if (index !== -1) {
         list[index] = itemRef.current;
         // Keep valuesRef aligned with the filtered list indices in virtualized mode
-        valuesRef.current[index] = value;
+        values[index] = value;
         return () => {
-          list[index] = null;
-          delete valuesRef.current[index];
+          delete list[index];
+          delete values[index];
         };
       }
 

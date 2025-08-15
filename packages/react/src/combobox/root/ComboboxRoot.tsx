@@ -189,6 +189,17 @@ export function ComboboxRoot<Item = any, Mode extends SelectionMode = 'none'>(
     return flatItems.filter((item) => filter(item, query, itemToString));
   }, [items, flatItems, query, filter, isGrouped, itemToString]);
 
+  const flatFilteredItems: ExtractItemType<Item>[] = React.useMemo(() => {
+    if (!filteredItems || !virtualized) {
+      return [];
+    }
+    if (isGrouped) {
+      const groups = filteredItems as ComboboxGroup<ExtractItemType<Item>>[];
+      return groups.flatMap((g) => g.items);
+    }
+    return filteredItems as ExtractItemType<Item>[];
+  }, [filteredItems, isGrouped, virtualized]);
+
   const store = useRefWithInit(
     () =>
       new Store<StoreState>({
@@ -239,11 +250,10 @@ export function ComboboxRoot<Item = any, Mode extends SelectionMode = 'none'>(
 
   const initialList = React.useMemo(() => {
     if (virtualized) {
-      const count = Array.isArray(filteredItems) ? filteredItems.length : 0;
-      return Array.from({ length: count }, () => null);
+      return Array.from({ length: flatFilteredItems.length }, () => null);
     }
     return [];
-  }, [virtualized, filteredItems]);
+  }, [virtualized, flatFilteredItems]);
 
   const listRef = React.useRef<Array<HTMLElement | null>>(initialList);
   const popupRef = React.useRef<HTMLDivElement | null>(null);
@@ -284,11 +294,11 @@ export function ComboboxRoot<Item = any, Mode extends SelectionMode = 'none'>(
   // Maintain a full value map for virtualized lists so offscreen selections and
   // navigation use the correct indices even when DOM nodes aren't rendered.
   useIsoLayoutEffect(() => {
-    if (!virtualized || isGrouped) {
+    if (!virtualized) {
       return;
     }
-    valuesRef.current = filteredItems.slice();
-  }, [virtualized, filteredItems, isGrouped]);
+    valuesRef.current = flatFilteredItems.slice();
+  }, [virtualized, flatFilteredItems]);
 
   useIsoLayoutEffect(() => {
     if (
@@ -674,10 +684,9 @@ export function ComboboxRoot<Item = any, Mode extends SelectionMode = 'none'>(
     focusItemOnOpen: selectionMode !== 'none' && selectedIndex !== null && hasActualSelections,
     cols,
     orientation: cols > 1 ? 'horizontal' : undefined,
-    disabledIndices:
-      virtualized && !isGrouped
-        ? (index) => index < 0 || index >= (Array.isArray(filteredItems) ? filteredItems.length : 0)
-        : EMPTY_ARRAY,
+    disabledIndices: virtualized
+      ? (index) => index < 0 || index >= flatFilteredItems.length
+      : EMPTY_ARRAY,
     onNavigate(nextActiveIndex) {
       // Retain the highlight only while actually transitioning out or closed.
       if (nextActiveIndex === null && (!open || transitionStatus === 'ending')) {
@@ -805,8 +814,9 @@ export function ComboboxRoot<Item = any, Mode extends SelectionMode = 'none'>(
     () => ({
       query,
       filteredItems,
+      flatFilteredItems,
     }),
-    [query, filteredItems],
+    [query, filteredItems, flatFilteredItems],
   );
 
   const serializedValue = React.useMemo(() => {

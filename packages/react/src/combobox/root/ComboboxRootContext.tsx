@@ -54,15 +54,13 @@ export interface ComboboxRootContext {
   onOpenChangeComplete: (open: boolean) => void;
   openOnInputClick: boolean;
   itemToString?: (item: any) => string;
-  /**
-   * Whether the combobox behaves modally when open.
-   */
   modal: boolean;
 }
 
 export interface ComboboxDerivedItemsContext {
   query: string;
   filteredItems: any[];
+  flatFilteredItems: any[];
 }
 
 export const ComboboxRootContext = React.createContext<ComboboxRootContext | undefined>(undefined);
