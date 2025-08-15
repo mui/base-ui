@@ -111,7 +111,7 @@
       "detailedType": "| (GroupItem | Item)[]\n| GroupItem\n| Item\n| null\n| undefined"
     },
     "selectionMode": {
-      "type": "'none' | 'multiple' | 'single'",
+      "type": "'none' | 'single' | 'multiple'",
       "default": "'none'",
       "description": "How the combobox should remember the selected value.\n- `single`: Remembers the last selected value.\n- `multiple`: Remember all selected values.\n- `none`: Do not remember the selected value.",
       "detailedType": "SelectionMode | undefined"

@@ -12,7 +12,7 @@ import { ComboboxDefaultAnchorContext } from '../../combobox/positioner/Combobox
 export function FilterableMenuRoot<Item = any>(
   props: FilterableMenuRoot.Props<Item>,
 ): React.JSX.Element {
-  const { openOnInputClick = false, modal = true, ...rest } = props;
+  const { modal = true, ...rest } = props;
 
   return (
     <ComboboxDefaultAnchorContext.Provider value="trigger">
@@ -20,7 +20,7 @@ export function FilterableMenuRoot<Item = any>(
         {...rest}
         selectionMode="none"
         fillInputOnItemPress={false}
-        openOnInputClick={openOnInputClick}
+        openOnInputClick={false}
         modal={modal}
       />
     </ComboboxDefaultAnchorContext.Provider>
@@ -38,11 +38,8 @@ export namespace FilterableMenuRoot {
       | 'itemToString'
       | 'itemToValue'
       | 'openOnInputClick'
-    > {
-    /**
-     * Whether the combobox popup opens when clicking the input.
-     * @default false
-     */
-    openOnInputClick?: boolean;
-  }
+      | 'name'
+      | 'required'
+      | 'inputRef'
+    > {}
 }

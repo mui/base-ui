@@ -29,9 +29,11 @@ export namespace AutocompleteRoot {
       | 'selectionMode'
       | 'selectedValue'
       | 'defaultSelectedValue'
+      | 'onSelectedValueChange'
       | 'fillInputOnItemPress'
-      | 'openOnInputClick'
       | 'modal'
+      // Custom JSDoc
+      | 'openOnInputClick'
     > {
     /**
      * Whether the combobox popup opens when clicking the input.

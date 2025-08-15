@@ -2,11 +2,6 @@
   "name": "FilterableMenuRoot",
   "description": "Groups all parts of the filterable menu.\nDoesn't render its own HTML element.",
   "props": {
-    "name": {
-      "type": "string",
-      "description": "Identifies the field when a form is submitted.",
-      "detailedType": "string | undefined"
-    },
     "defaultOpen": {
       "type": "boolean",
       "default": "false",
@@ -80,12 +75,6 @@
       "description": "Callback fired when the selected value of the combobox changes.",
       "detailedType": "| ((\n    value: GroupItem | Item | null,\n    event: Event | undefined,\n    reason: string | undefined,\n  ) => void)\n| undefined"
     },
-    "openOnInputClick": {
-      "type": "boolean",
-      "default": "false",
-      "description": "Whether the combobox popup opens when clicking the input.",
-      "detailedType": "boolean | undefined"
-    },
     "virtualized": {
       "type": "boolean",
       "default": "false",
@@ -103,17 +92,6 @@
       "default": "false",
       "description": "Whether the user should be unable to choose a different option from the combobox popup.",
       "detailedType": "boolean | undefined"
-    },
-    "required": {
-      "type": "boolean",
-      "default": "false",
-      "description": "Whether the user must choose a value before submitting a form.",
-      "detailedType": "boolean | undefined"
-    },
-    "inputRef": {
-      "type": "RefObject<HTMLInputElement>",
-      "description": "A ref to the hidden input element used for form submission.",
-      "detailedType": "React.RefObject<HTMLInputElement> | undefined"
     },
     "id": {
       "type": "string",
