@@ -132,8 +132,15 @@ jobs:
       - install_js:
           react-version: << parameters.react-version >>
       - run:
-          name: 'Prettier'
-          command: pnpm prettier --check
+          name: '`pnpm prettier` changes committed?'
+          command: |
+            # #target-branch-reference
+            if [[ $(git diff --name-status master | grep pnpm-lock) == "" ]];
+            then
+                pnpm prettier --check
+            else
+                pnpm prettier:check
+            fi
       - run:
           name: ESLint
           command: pnpm eslint:ci
