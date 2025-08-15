@@ -137,6 +137,12 @@ export function useSharedCalendarDayGridBody(
     onHighlightedIndexChange: setHighlightedIndex,
     onLoop: (event, prevIndex, nextIndex, elementsRef) => {
       event.preventDefault();
+      if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
+        const newWeekDay = elementsRef.current[prevIndex - (event.key === 'ArrowUp' ? 7 : -7)];
+        if (newWeekDay && newWeekDay.dataset.disabled !== undefined) {
+          return prevIndex;
+        }
+      }
       const backwardKeys = ['ArrowUp', 'ArrowLeft'];
       const decrement = backwardKeys.includes(event.key);
       setVisibleDate(adapter.addMonths(visibleDate, decrement ? -1 : 1), false);
