@@ -4,22 +4,7 @@ interface Filter {
   endsWith: (item: string, query: string) => boolean;
 }
 
-const collatorCache = new Map<string, Intl.Collator>();
 const filterCache = new Map<string, Filter>();
-
-function getCollator(options: Intl.CollatorOptions = {}) {
-  const optionsString = JSON.stringify(options);
-  const cachedCollator = collatorCache.get(optionsString);
-
-  if (cachedCollator) {
-    return cachedCollator;
-  }
-
-  const collator = new Intl.Collator(undefined, options);
-  collatorCache.set(optionsString, collator);
-
-  return collator;
-}
 
 function getFilter(options: Intl.CollatorOptions = {}): Filter {
   const optionsString = JSON.stringify(options);
@@ -29,7 +14,7 @@ function getFilter(options: Intl.CollatorOptions = {}): Filter {
     return cachedFilter;
   }
 
-  const collator = getCollator(options);
+  const collator = new Intl.Collator(undefined, options);
 
   const filter: Filter = {
     contains(item: string, query: string) {
