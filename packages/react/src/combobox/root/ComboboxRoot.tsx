@@ -56,7 +56,7 @@ export function ComboboxRoot<Item = any, Mode extends SelectionMode = 'none'>(
   const {
     id: idProp,
     onOpenChangeComplete: onOpenChangeCompleteProp,
-    defaultSelectedValue,
+    defaultSelectedValue = null,
     selectedValue: selectedValueProp,
     onSelectedValueChange,
     defaultInputValue = '',

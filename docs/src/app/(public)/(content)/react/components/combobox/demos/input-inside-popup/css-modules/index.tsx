@@ -7,7 +7,7 @@ export default function ExamplePopoverCombobox() {
   const triggerRef = React.useRef<HTMLButtonElement | null>(null);
 
   return (
-    <Combobox.Root items={countries}>
+    <Combobox.Root items={countries} defaultSelectedValue={countries[0]}>
       <Combobox.Trigger ref={triggerRef} className={styles.Trigger}>
         <Combobox.SelectedValue />
         <Combobox.Icon className={styles.TriggerIcon}>
