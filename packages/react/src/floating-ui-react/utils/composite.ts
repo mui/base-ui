@@ -11,21 +11,21 @@ export function isDifferentGridRow(index: number, cols: number, prevRow: number)
 }
 
 export function isIndexOutOfListBounds(
-  listRef: React.MutableRefObject<Array<HTMLElement | null>>,
+  listRef: React.RefObject<Array<HTMLElement | null>>,
   index: number,
 ) {
   return index < 0 || index >= listRef.current.length;
 }
 
 export function getMinListIndex(
-  listRef: React.MutableRefObject<Array<HTMLElement | null>>,
+  listRef: React.RefObject<Array<HTMLElement | null>>,
   disabledIndices: DisabledIndices | undefined,
 ) {
   return findNonDisabledListIndex(listRef, { disabledIndices });
 }
 
 export function getMaxListIndex(
-  listRef: React.MutableRefObject<Array<HTMLElement | null>>,
+  listRef: React.RefObject<Array<HTMLElement | null>>,
   disabledIndices: DisabledIndices | undefined,
 ) {
   return findNonDisabledListIndex(listRef, {
@@ -36,7 +36,7 @@ export function getMaxListIndex(
 }
 
 export function findNonDisabledListIndex(
-  listRef: React.MutableRefObject<Array<HTMLElement | null>>,
+  listRef: React.RefObject<Array<HTMLElement | null>>,
   {
     startingIndex = -1,
     decrement = false,
@@ -62,7 +62,7 @@ export function findNonDisabledListIndex(
 }
 
 export function getGridNavigatedIndex(
-  listRef: React.MutableRefObject<Array<HTMLElement | null>>,
+  listRef: React.RefObject<Array<HTMLElement | null>>,
   {
     event,
     orientation,
@@ -89,64 +89,165 @@ export function getGridNavigatedIndex(
 ) {
   let nextIndex = prevIndex;
 
-  if (event.key === ARROW_UP) {
-    if (stop) {
-      stopEvent(event);
+  // ---------------------------------------------------------------------------
+  // Detect row structure based on DOM. This works when items are grouped inside
+  // elements that declare `role="row"` (e.g., Combobox.Row). We build a matrix
+  // where each entry is the array of item indices for that visual row. The
+  // algorithm gracefully falls back to regular `cols`-based handling when no
+  // row structure can be detected.
+  // ---------------------------------------------------------------------------
+  const rows: number[][] = [];
+  const rowIndexMap: Record<number, number> = {};
+  let hasRoleRow = false;
+  {
+    let currentRowEl: Element | null = null;
+    let currentRowIndex = -1;
+
+    listRef.current.forEach((el, idx) => {
+      if (el == null) {
+        return;
+      }
+      const rowEl = el.closest('[role="row"]');
+      if (rowEl) {
+        hasRoleRow = true;
+      }
+      if (rowEl !== currentRowEl || currentRowIndex === -1) {
+        currentRowEl = rowEl;
+        currentRowIndex += 1;
+        rows[currentRowIndex] = [];
+      }
+      rows[currentRowIndex].push(idx);
+      rowIndexMap[idx] = currentRowIndex;
+    });
+  }
+
+  const hasDomRows = hasRoleRow && rows.length > 0 && rows.some((row) => row.length !== cols);
+
+  function navigateVertically(direction: 'up' | 'down') {
+    if (!hasDomRows || prevIndex === -1) {
+      return undefined;
     }
+    const currentRow = rowIndexMap[prevIndex];
+    if (currentRow == null) {
+      return undefined;
+    }
+    const colInRow = rows[currentRow].indexOf(prevIndex);
 
-    if (prevIndex === -1) {
-      nextIndex = maxIndex;
-    } else {
-      nextIndex = findNonDisabledListIndex(listRef, {
-        startingIndex: nextIndex,
-        amount: cols,
-        decrement: true,
-        disabledIndices,
-      });
-
-      if (loop && (prevIndex - cols < minIndex || nextIndex < 0)) {
-        const col = prevIndex % cols;
-        const maxCol = maxIndex % cols;
-        const offset = maxIndex - (maxCol - col);
-
-        if (maxCol === col) {
-          nextIndex = maxIndex;
-        } else {
-          nextIndex = maxCol > col ? offset : offset - cols;
-        }
+    let nextRow = direction === 'up' ? currentRow - 1 : currentRow + 1;
+    if (loop) {
+      if (nextRow < 0) {
+        nextRow = rows.length - 1;
+      } else if (nextRow >= rows.length) {
+        nextRow = 0;
       }
     }
 
-    if (isIndexOutOfListBounds(listRef, nextIndex)) {
-      nextIndex = prevIndex;
+    const visited = new Set<number>();
+    while (nextRow >= 0 && nextRow < rows.length && !visited.has(nextRow)) {
+      visited.add(nextRow);
+      const targetRow = rows[nextRow];
+      if (targetRow.length === 0) {
+        nextRow = direction === 'up' ? nextRow - 1 : nextRow + 1;
+        continue;
+      }
+      const clampedCol = Math.min(colInRow, targetRow.length - 1);
+      // Start from the preferred column, fallback leftwards until first
+      // enabled item is found.
+      for (let col = clampedCol; col >= 0; col -= 1) {
+        const candidate = targetRow[col];
+        if (!isListIndexDisabled(listRef, candidate, disabledIndices)) {
+          return candidate;
+        }
+      }
+      // Row had no enabled items, move to next row in the same direction.
+      nextRow = direction === 'up' ? nextRow - 1 : nextRow + 1;
+
+      if (loop) {
+        if (nextRow < 0) {
+          nextRow = rows.length - 1;
+        } else if (nextRow >= rows.length) {
+          nextRow = 0;
+        }
+      }
+    }
+    return undefined;
+  }
+
+  if (event.key === ARROW_UP) {
+    const domBasedCandidate = navigateVertically('up');
+    if (domBasedCandidate !== undefined) {
+      if (stop) {
+        stopEvent(event);
+      }
+      nextIndex = domBasedCandidate;
+    } else {
+      // fallback to original logic
+      if (stop) {
+        stopEvent(event);
+      }
+
+      if (prevIndex === -1) {
+        nextIndex = maxIndex;
+      } else {
+        nextIndex = findNonDisabledListIndex(listRef, {
+          startingIndex: nextIndex,
+          amount: cols,
+          decrement: true,
+          disabledIndices,
+        });
+
+        if (loop && (prevIndex - cols < minIndex || nextIndex < 0)) {
+          const col = prevIndex % cols;
+          const maxCol = maxIndex % cols;
+          const offset = maxIndex - (maxCol - col);
+
+          if (maxCol === col) {
+            nextIndex = maxIndex;
+          } else {
+            nextIndex = maxCol > col ? offset : offset - cols;
+          }
+        }
+      }
+
+      if (isIndexOutOfListBounds(listRef, nextIndex)) {
+        nextIndex = prevIndex;
+      }
     }
   }
 
   if (event.key === ARROW_DOWN) {
-    if (stop) {
-      stopEvent(event);
-    }
-
-    if (prevIndex === -1) {
-      nextIndex = minIndex;
+    const domBasedCandidate = navigateVertically('down');
+    if (domBasedCandidate !== undefined) {
+      if (stop) {
+        stopEvent(event);
+      }
+      nextIndex = domBasedCandidate;
     } else {
-      nextIndex = findNonDisabledListIndex(listRef, {
-        startingIndex: prevIndex,
-        amount: cols,
-        disabledIndices,
-      });
+      if (stop) {
+        stopEvent(event);
+      }
 
-      if (loop && prevIndex + cols > maxIndex) {
+      if (prevIndex === -1) {
+        nextIndex = minIndex;
+      } else {
         nextIndex = findNonDisabledListIndex(listRef, {
-          startingIndex: (prevIndex % cols) - cols,
+          startingIndex: prevIndex,
           amount: cols,
           disabledIndices,
         });
-      }
-    }
 
-    if (isIndexOutOfListBounds(listRef, nextIndex)) {
-      nextIndex = prevIndex;
+        if (loop && prevIndex + cols > maxIndex) {
+          nextIndex = findNonDisabledListIndex(listRef, {
+            startingIndex: (prevIndex % cols) - cols,
+            amount: cols,
+            disabledIndices,
+          });
+        }
+      }
+
+      if (isIndexOutOfListBounds(listRef, nextIndex)) {
+        nextIndex = prevIndex;
+      }
     }
   }
 
@@ -320,7 +421,7 @@ export function getGridCellIndices(
 }
 
 export function isListIndexDisabled(
-  listRef: React.MutableRefObject<Array<HTMLElement | null>>,
+  listRef: React.RefObject<Array<HTMLElement | null>>,
   index: number,
   disabledIndices?: DisabledIndices,
 ) {
