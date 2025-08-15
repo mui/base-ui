@@ -85,10 +85,15 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
           if (disabled || readOnly) {
             return;
           }
+
           setOpen(!open, event.nativeEvent, undefined);
           inputRef.current?.focus();
         },
         onKeyDown(event) {
+          if (disabled || readOnly) {
+            return;
+          }
+
           if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
             stopEvent(event);
             setOpen(true, event.nativeEvent, undefined);

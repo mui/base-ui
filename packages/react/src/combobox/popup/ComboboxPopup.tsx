@@ -134,14 +134,14 @@ export namespace ComboboxPopup {
 
   export interface Props extends BaseUIComponentProps<'div', State> {
     /**
-     * Determines the element to focus when the combobox popup is opened.
+     * Determines the element to focus when the popup is opened.
      * By default, the first focusable element is focused.
      */
     initialFocus?:
       | React.RefObject<HTMLElement | null>
       | ((interactionType: InteractionType) => React.RefObject<HTMLElement | null>);
     /**
-     * Determines the element to focus when the combobox popup is closed.
+     * Determines the element to focus when the popup is closed.
      * By default, focus returns to the trigger.
      */
     finalFocus?: React.RefObject<HTMLElement | null>;
