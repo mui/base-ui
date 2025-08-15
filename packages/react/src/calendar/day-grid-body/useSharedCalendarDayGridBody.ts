@@ -135,12 +135,13 @@ export function useSharedCalendarDayGridBody(
     onMapChange: setItemMap,
     highlightedIndex,
     onHighlightedIndexChange: setHighlightedIndex,
-    onLoop: (eventKey, prevIndex, nextIndex, elementsRef) => {
+    onLoop: (event, prevIndex, nextIndex, elementsRef) => {
+      event.preventDefault();
       const backwardKeys = ['ArrowUp', 'ArrowLeft'];
-      const decrement = backwardKeys.includes(eventKey);
+      const decrement = backwardKeys.includes(event.key);
       setVisibleDate(adapter.addMonths(visibleDate, decrement ? -1 : 1), false);
       queueMicrotask(() => {
-        handleItemLooping(eventKey, prevIndex, elementsRef, decrement);
+        handleItemLooping(event.key, prevIndex, elementsRef, decrement);
       });
       // Return existing index to avoid `composite` handling this highlight update
       return prevIndex;

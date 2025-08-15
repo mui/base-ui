@@ -107,7 +107,7 @@ export namespace CompositeRoot {
     cols?: number;
     loop?: boolean;
     onLoop?: (
-      key: React.KeyboardEvent['key'],
+      event: React.KeyboardEvent,
       prevIndex: number,
       nextIndex: number,
       elementsRef: React.RefObject<(HTMLDivElement | null)[]>,

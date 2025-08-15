@@ -44,7 +44,7 @@ export interface UseCompositeRootParameters {
   cols?: number;
   loop?: boolean;
   onLoop?: (
-    key: React.KeyboardEvent['key'],
+    event: React.KeyboardEvent,
     prevIndex: number,
     nextIndex: number,
     elementsRef: React.RefObject<(HTMLDivElement | null)[]>,
@@ -158,11 +158,11 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
   });
 
   const wrappedOnLoop = useEventCallback(
-    (key: React.KeyboardEvent['key'], prevIndex: number, nextIndex: number) => {
+    (event: React.KeyboardEvent, prevIndex: number, nextIndex: number) => {
       if (!onLoop) {
         return nextIndex;
       }
-      return onLoop?.(key, prevIndex, nextIndex, elementsRef);
+      return onLoop?.(event, prevIndex, nextIndex, elementsRef);
     },
   );
 
@@ -339,12 +339,12 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
           if (loop && nextIndex === maxIndex && forwardKeys.includes(event.key)) {
             nextIndex = minIndex;
             if (onLoop) {
-              nextIndex = onLoop(event.key, highlightedIndex, nextIndex, elementsRef);
+              nextIndex = onLoop(event, highlightedIndex, nextIndex, elementsRef);
             }
           } else if (loop && nextIndex === minIndex && backwardKeys.includes(event.key)) {
             nextIndex = maxIndex;
             if (onLoop) {
-              nextIndex = onLoop(event.key, highlightedIndex, nextIndex, elementsRef);
+              nextIndex = onLoop(event, highlightedIndex, nextIndex, elementsRef);
             }
           } else {
             nextIndex = findNonDisabledListIndex(elementsRef, {

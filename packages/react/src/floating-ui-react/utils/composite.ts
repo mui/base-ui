@@ -79,7 +79,7 @@ export function getGridNavigatedIndex(
     event: React.KeyboardEvent;
     orientation: 'horizontal' | 'vertical' | 'both';
     loop: boolean;
-    onLoop?: (key: React.KeyboardEvent['key'], prevIndex: number, nextIndex: number) => number;
+    onLoop?: (event: React.KeyboardEvent, prevIndex: number, nextIndex: number) => number;
     rtl: boolean;
     cols: number;
     disabledIndices: DisabledIndices | undefined;
@@ -117,7 +117,7 @@ export function getGridNavigatedIndex(
           nextIndex = maxCol > col ? offset : offset - cols;
         }
         if (onLoop) {
-          nextIndex = onLoop(event.key, prevIndex, nextIndex);
+          nextIndex = onLoop(event, prevIndex, nextIndex);
         }
       }
     }
@@ -148,7 +148,7 @@ export function getGridNavigatedIndex(
           disabledIndices,
         });
         if (onLoop) {
-          nextIndex = onLoop(event.key, prevIndex, nextIndex);
+          nextIndex = onLoop(event, prevIndex, nextIndex);
         }
       }
     }
@@ -179,7 +179,7 @@ export function getGridNavigatedIndex(
             disabledIndices,
           });
           if (onLoop) {
-            nextIndex = onLoop(event.key, prevIndex, nextIndex);
+            nextIndex = onLoop(event, prevIndex, nextIndex);
           }
         }
       } else if (loop) {
@@ -188,7 +188,7 @@ export function getGridNavigatedIndex(
           disabledIndices,
         });
         if (onLoop) {
-          nextIndex = onLoop(event.key, prevIndex, nextIndex);
+          nextIndex = onLoop(event, prevIndex, nextIndex);
         }
       }
 
@@ -216,7 +216,7 @@ export function getGridNavigatedIndex(
             disabledIndices,
           });
           if (onLoop) {
-            nextIndex = onLoop(event.key, prevIndex, nextIndex);
+            nextIndex = onLoop(event, prevIndex, nextIndex);
           }
         }
       } else if (loop) {
@@ -226,7 +226,7 @@ export function getGridNavigatedIndex(
           disabledIndices,
         });
         if (onLoop) {
-          nextIndex = onLoop(event.key, prevIndex, nextIndex);
+          nextIndex = onLoop(event, prevIndex, nextIndex);
         }
       }
 
@@ -247,7 +247,7 @@ export function getGridNavigatedIndex(
                 disabledIndices,
               });
         if (onLoop) {
-          nextIndex = onLoop(event.key, prevIndex, nextIndex);
+          nextIndex = onLoop(event, prevIndex, nextIndex);
         }
       } else {
         nextIndex = prevIndex;
