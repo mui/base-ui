@@ -626,8 +626,7 @@ export function useDismiss(
 
   const handlePressedInside = useEventCallback((event: React.MouseEvent) => {
     const target = getTarget(event.nativeEvent) as Element | null;
-    const isRightClick = event.button === 2;
-    if (!contains(elements.floating, target) || isRightClick) {
+    if (!contains(elements.floating, target) && event.button !== 0) {
       return;
     }
     endedOrStartedInsideRef.current = true;
