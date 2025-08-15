@@ -87,6 +87,6 @@
     "unist-util-visit": "^5.0.0",
     "webpack-bundle-analyzer": "^4.10.2",
     "yargs": "^17.7.2",
-    "zod": "^3.25.76"
+    "zod": "^4.0.17"
   }
 }
