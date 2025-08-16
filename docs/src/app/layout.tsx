@@ -63,7 +63,7 @@ export const metadata: Metadata = {
       },
       {
         rel: 'icon',
-        type: 'svg+xml',
+        type: 'image/svg+xml',
         url:
           process.env.NODE_ENV !== 'production' ? '/static/favicon-dev.svg' : '/static/favicon.svg',
       },
