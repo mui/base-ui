@@ -7,7 +7,6 @@ import { NpmIcon } from '../icons/NpmIcon';
 import { Logo } from './Logo';
 import { SkipNav } from './SkipNav';
 
-const VERSION = process.env.LIB_VERSION;
 export const HEADER_HEIGHT = 48;
 
 export function Header() {
@@ -18,7 +17,6 @@ export function Header() {
         <NextLink href="/" className="HeaderLogoLink">
           <Logo aria-label="Base UI" />
         </NextLink>
-
         <div className="flex gap-6 max-show-side-nav:hidden">
           <NextLink href="/careers/design-engineer" className="HeaderLink">
             Careers
@@ -29,14 +27,13 @@ export function Header() {
             rel="noopener"
           >
             <NpmIcon />
-            {VERSION}
+            {process.env.LIB_VERSION}
           </a>
           <a className="HeaderLink" href="https://github.com/mui/base-ui" rel="noopener">
             <GitHubIcon />
             GitHub
           </a>
         </div>
-
         <div className="flex show-side-nav:hidden">
           <MobileNav.Root>
             <MobileNav.Trigger className="HeaderButton">
@@ -62,7 +59,6 @@ export function Header() {
                     </MobileNav.List>
                   </MobileNav.Section>
                 ))}
-
                 <MobileNav.Section>
                   <MobileNav.Heading>Resources</MobileNav.Heading>
                   <MobileNav.List>
@@ -78,7 +74,7 @@ export function Header() {
                       <NpmIcon />
                       <span className="flex flex-grow-1 items-baseline justify-between">
                         npm package
-                        <span className="text-md text-gray-600">{VERSION}</span>
+                        <span className="text-md text-gray-600">{process.env.LIB_VERSION}</span>
                       </span>
                     </MobileNav.Item>
                     <MobileNav.Item href="https://github.com/mui/base-ui" rel="noopener">

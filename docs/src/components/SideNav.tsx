@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import clsx from 'clsx';
-import NextLink from 'next/link';
+import NextLink, { LinkProps as NextLinkProps } from 'next/link';
 import { usePathname } from 'next/navigation';
 import { ScrollArea } from '@base-ui-components/react/scroll-area';
 import scrollIntoView from 'scroll-into-view-if-needed';
@@ -34,10 +34,6 @@ export function List(props: React.ComponentProps<'ul'>) {
   return <ul {...props} className={clsx('SideNavList', props.className)} />;
 }
 
-export function Label(props: React.ComponentProps<'span'>) {
-  return <span {...props} className={clsx('SideNavLabel', props.className)} />;
-}
-
 export function Badge(props: React.ComponentProps<'span'>) {
   return <span {...props} className={clsx('SideNavBadge', props.className)} />;
 }
@@ -51,9 +47,13 @@ interface ItemProps extends React.ComponentProps<'li'> {
 
 const SCROLL_MARGIN = 48;
 
-export function Item({ children, href, external, ...props }: ItemProps) {
+export function Item(props: ItemProps) {
+  const { children, className, href, external, ...other } = props;
   const ref = React.useRef<HTMLLIElement>(null);
   const pathname = usePathname();
+  // By default, Next.js prefetches all the links as soon as they enter the viewport. For a side nav, it spams
+  // requests to the CDN for nothing. Instead, wait for the user to hover link.
+  const [prefetch, setPrefetch] = React.useState<NextLinkProps['prefetch']>(false);
   const active = pathname === href;
   const rem = React.useRef(16);
 
@@ -89,19 +89,29 @@ export function Item({ children, href, external, ...props }: ItemProps) {
   const LinkComponent = external ? 'a' : NextLink;
 
   return (
-    <li ref={ref} {...props} className={clsx('SideNavItem', props.className)}>
+    <li ref={ref} {...other} className={clsx('SideNavItem', className)}>
       <LinkComponent
-        aria-current={active ? 'page' : undefined}
-        data-active={active || undefined}
         className="SideNavLink"
         href={href}
-        scroll={external ? undefined : !active}
-        onClick={() => {
-          // Scroll to top smoothly when clicking on the currently active item
-          if (active) {
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-          }
-        }}
+        {...(external
+          ? {}
+          : {
+              scroll: !active,
+              prefetch,
+              onMouseEnter: () => {
+                setPrefetch('auto');
+              },
+            })}
+        {...(active
+          ? {
+              'aria-current': true,
+              'data-active': true,
+              onClick: () => {
+                // Scroll to top smoothly when clicking on the currently active item
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              },
+            }
+          : {})}
       >
         {children}
       </LinkComponent>
