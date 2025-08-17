@@ -355,6 +355,16 @@ export function ComboboxRoot<Item = any, Mode extends SelectionMode = 'none'>(
 
   const setInputValue = useEventCallback(
     (next: string, event: Event | undefined, reason: ValueChangeReason | undefined) => {
+      // If user is typing, ensure we don't auto-highlight on open due to a race
+      // with the post-open effect that sets this flag.
+      if (reason === 'input-change') {
+        const hasQuery = String(next).trim() !== '';
+        if (hasQuery) {
+          setQueryChangedAfterOpen(true);
+          // Prevent initial selectedIndex -> activeIndex sync on typed opens.
+          allowActiveIndexSyncRef.current = false;
+        }
+      }
       if (reason === 'input-clear' && selectionMode === 'none' && open) {
         hadInputClearRef.current = true;
         // Defer clearing until close transition completes to avoid flicker
@@ -675,13 +685,6 @@ export function ComboboxRoot<Item = any, Mode extends SelectionMode = 'none'>(
     },
   });
 
-  const hasActualSelections = React.useMemo(() => {
-    if (multiple) {
-      return Array.isArray(selectedValue) && selectedValue.length > 0;
-    }
-    return Boolean(selectedValue);
-  }, [multiple, selectedValue]);
-
   useIsoLayoutEffect(() => {
     if (!open || selectedIndex === null) {
       return;
@@ -705,7 +708,9 @@ export function ComboboxRoot<Item = any, Mode extends SelectionMode = 'none'>(
     allowEscape: true,
     openOnArrowKeyDown:
       anchorElement === inputElement && (inputElement as HTMLElement | null)?.tagName === 'INPUT',
-    focusItemOnOpen: selectionMode !== 'none' && selectedIndex !== null && hasActualSelections,
+    // Use 'auto' so arrow key openings highlight appropriately without requiring a prior selection,
+    // but disable when the user has typed after opening to avoid auto-highlighting on type-open.
+    focusItemOnOpen: queryChangedAfterOpen || selectionMode === 'none' ? false : 'auto',
     cols,
     orientation: cols > 1 ? 'horizontal' : undefined,
     disabledIndices: virtualized

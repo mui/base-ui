@@ -123,8 +123,6 @@ export const ComboboxItem = React.memo(
 
         if (selectable && allowActiveIndexSyncRef.current) {
           frame.request(() => {
-            itemRef.current?.scrollIntoView?.({ inline: 'nearest', block: 'nearest' });
-            store.apply({ activeIndex: index, selectedIndex: index });
             onItemHighlighted(value, { type: 'none', index });
             allowActiveIndexSyncRef.current = false;
           });
@@ -138,7 +136,6 @@ export const ComboboxItem = React.memo(
       registerItemIndex,
       value,
       rootSelectedValue,
-      store,
       selectable,
       allowActiveIndexSyncRef,
       onItemHighlighted,
