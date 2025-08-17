@@ -56,6 +56,7 @@
     opacity 150ms;
   max-height: var(--available-height);
   overflow-y: auto;
+  scroll-padding-block: 0.25rem;
 
   &[data-starting-style],
   &[data-ending-style] {
@@ -138,7 +139,7 @@
   grid-template-columns: 0.75rem 1fr;
   cursor: default;
   user-select: none;
-  scroll-margin-block: 1.5rem;
+  scroll-margin-block: 1rem;
 
   [data-side='none'] & {
     font-size: 1rem;
