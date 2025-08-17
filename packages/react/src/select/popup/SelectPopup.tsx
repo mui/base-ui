@@ -304,6 +304,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
     handleScrollArrowVisibility,
     alignItemWithTriggerActive,
     setControlledAlignItemWithTrigger,
+    scrollArrowFrame,
   ]);
 
   React.useEffect(() => {

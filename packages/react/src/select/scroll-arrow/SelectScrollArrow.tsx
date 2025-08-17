@@ -109,12 +109,10 @@ export const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
           } else {
             store.set('scrollDownArrowVisible', shouldShowDown);
           }
+        } else if (direction === 'up') {
+          store.set('scrollUpArrowVisible', !isScrolledToTop);
         } else {
-          if (direction === 'up') {
-            store.set('scrollUpArrowVisible', !isScrolledToTop);
-          } else {
-            store.set('scrollDownArrowVisible', !isScrolledToBottom);
-          }
+          store.set('scrollDownArrowVisible', !isScrolledToBottom);
         }
 
         if (
