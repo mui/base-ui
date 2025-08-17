@@ -57,9 +57,6 @@ export const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
     hidden: !mounted,
     'aria-hidden': true,
     children: direction === 'up' ? '▲' : '▼',
-    style: {
-      position: 'absolute',
-    },
     onMouseMove(event) {
       if ((event.movementX === 0 && event.movementY === 0) || timeout.isStarted()) {
         return;

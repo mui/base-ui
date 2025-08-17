@@ -177,7 +177,7 @@
 }
 
 .ScrollArrow {
-  position: sticky !important;
+  position: sticky;
   width: 100%;
   background: canvas;
   z-index: 1;
