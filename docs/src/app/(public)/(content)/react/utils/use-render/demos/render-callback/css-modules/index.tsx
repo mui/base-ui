@@ -11,7 +11,7 @@ interface CounterState {
 interface CounterProps extends useRender.ComponentProps<'button', CounterState> {}
 
 function Counter(props: CounterProps) {
-  const { render = <button />, ...otherProps } = props;
+  const { render, ...otherProps } = props;
 
   const [count, setCount] = React.useState(0);
   const odd = count % 2 === 1;
@@ -32,6 +32,7 @@ function Counter(props: CounterProps) {
   };
 
   const element = useRender({
+    defaultTag: 'button',
     render,
     state,
     props: mergeProps<'button'>(defaultProps, otherProps),
