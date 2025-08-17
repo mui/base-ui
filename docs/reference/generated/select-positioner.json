@@ -14,6 +14,12 @@
       "example": "```jsx\n<Positioner\n  collisionAvoidance={{\n    side: 'shift',\n    align: 'shift',\n    fallbackAxisSide: 'none',\n  }}\n/>\n```",
       "detailedType": "| {\n    side?: 'none' | 'flip'\n    align?: 'shift' | 'none' | 'flip'\n    fallbackAxisSide?: 'none' | 'start' | 'end'\n  }\n| {\n    side?: 'shift' | 'none'\n    align?: 'shift' | 'none'\n    fallbackAxisSide?: 'none' | 'start' | 'end'\n  }\n| undefined"
     },
+    "scrollArrows": {
+      "type": "'auto' | 'always'",
+      "default": "'auto'",
+      "description": "Determines when to allow the scroll arrows to render.\n- `auto`: Only renders the scroll arrows when `alignItemWithTrigger` is `true` and not in fallback.\n- `always`: Always render the scroll arrows.",
+      "detailedType": "'auto' | 'always' | undefined"
+    },
     "align": {
       "type": "Align",
       "default": "'center'",
