@@ -64,7 +64,7 @@ export function useControlled<T = unknown>({
           ].join('\n'),
         );
       }
-    }, [defaultProp]);
+    }, [JSON.stringify(defaultProp)]);
   }
 
   const setValueIfUncontrolled = React.useCallback((newValue: React.SetStateAction<T>) => {
