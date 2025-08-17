@@ -15,15 +15,29 @@ export function useRender<
 >(
   params: useRender.Parameters<State, RenderedElementType, Enabled>,
 ): useRender.ReturnValue<Enabled> {
-  const renderParams = params as useRender.Parameters<State, RenderedElementType, Enabled> & {
+  const { dataset, ...otherParams } = params;
+  
+  const renderParams = otherParams as useRender.Parameters<State, RenderedElementType, Enabled> & {
     disableStyleHooks: boolean;
   };
   renderParams.disableStyleHooks = true;
+  
+  if (dataset) {
+    renderParams.props = { ...renderParams.props, ...dataset };
+  }
 
   return useRenderElement(undefined, renderParams, renderParams);
 }
 
 export namespace useRender {
+  /**
+   * Dataset attributes that can be applied to the rendered element.
+   * All keys must start with 'data-' prefix.
+   */
+  export type DatasetProps = {
+    [K in `data-${string}`]?: string | number | boolean | undefined;
+  };
+
   export type RenderProp<State = Record<string, unknown>> =
     | ComponentRenderFn<React.HTMLAttributes<any>, State>
     | React.ReactElement<Record<string, unknown>>;
@@ -71,6 +85,11 @@ export namespace useRender {
      * internal ones.
      */
     props?: Record<string, unknown>;
+    /**
+     * Dataset attributes to be applied to the rendered element.
+     * All keys must start with 'data-' prefix.
+     */
+    dataset?: DatasetProps;
     /**
      * If `false`, the hook will skip most of its internal logic and return `null`.
      * This is useful for rendering a component conditionally.
