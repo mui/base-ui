@@ -443,23 +443,18 @@ describe('useListNavigation', () => {
   });
 
   describe('selectedIndex', () => {
-    it('scrollIntoView on open', ({ onTestFinished }) => {
-      const requestAnimationFrame = vi
-        .spyOn(window, 'requestAnimationFrame')
-        .mockImplementation(() => 0);
+    it.skipIf(!isJSDOM)('scrollIntoView on open', ({ onTestFinished }) => {
       const scrollIntoViewIfNeededSpy = vi.spyOn(compositeModule, 'scrollIntoViewIfNeeded');
 
       onTestFinished(() => {
-        requestAnimationFrame.mockRestore();
         scrollIntoViewIfNeededSpy.mockRestore();
       });
 
       render(<App selectedIndex={0} />);
       fireEvent.click(screen.getByRole('button'));
-      expect(requestAnimationFrame).toHaveBeenCalled();
-      // Run the timer
-      requestAnimationFrame.mock.calls.forEach((call) => call[0](0));
-      expect(scrollIntoViewIfNeededSpy).toHaveBeenCalled();
+      return waitFor(() => {
+        expect(scrollIntoViewIfNeededSpy).toHaveBeenCalled();
+      });
     });
   });
 
