@@ -135,15 +135,12 @@ export function scrollIntoViewIfNeeded(
       if (shouldScroll) {
         targetY = elementCenter - visibleHeight / 2 - containerStyles.scrollPaddingTop;
       }
-    } else {
-      if (elementTop < visibleTop) {
-        // overflow upwards, align top edges
-        targetY = elementTop - containerStyles.scrollPaddingTop;
-      } else if (elementBottom > visibleBottom) {
-        // overflow downwards, align bottom edges
-        targetY =
-          elementBottom - scrollContainer.clientHeight + containerStyles.scrollPaddingBottom;
-      }
+    } else if (elementTop < visibleTop) {
+      // overflow upwards, align top edges
+      targetY = elementTop - containerStyles.scrollPaddingTop;
+    } else if (elementBottom > visibleBottom) {
+      // overflow downwards, align bottom edges
+      targetY = elementBottom - scrollContainer.clientHeight + containerStyles.scrollPaddingBottom;
     }
   }
 
