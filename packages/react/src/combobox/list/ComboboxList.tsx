@@ -59,8 +59,14 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
 
   // Support "closed template" API: if children is a function, implicitly wrap it
   // with a Combobox.Collection that reads items from context/root.
-  const resolvedChildren =
-    typeof children === 'function' ? <ComboboxCollection>{children}</ComboboxCollection> : children;
+  // Ensures this component's `popupProps` subscription does not cause <Combobox.Item>
+  // to re-render on every active index change.
+  const resolvedChildren = React.useMemo(() => {
+    if (typeof children === 'function') {
+      return <ComboboxCollection>{children}</ComboboxCollection>;
+    }
+    return children;
+  }, [children]);
 
   return useRenderElement('div', componentProps, {
     ref: [forwardedRef, setListElement, hasPositionerContext ? null : setPositionerElement],
