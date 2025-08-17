@@ -1,0 +1,193 @@
+import * as React from 'react';
+import { Combobox } from '@base-ui-components/react/combobox';
+import { Dialog } from '@base-ui-components/react/dialog';
+import styles from './index.module.css';
+import { initialLabels, type LabelItem } from './data';
+
+function itemToString(item: LabelItem) {
+  return item.value;
+}
+
+export default function ExampleCreatableCombobox() {
+  const containerRef = React.useRef<HTMLDivElement | null>(null);
+  const id = React.useId();
+
+  const [labels, setLabels] = React.useState<LabelItem[]>(initialLabels);
+  const [selected, setSelected] = React.useState<LabelItem[]>([]);
+  const [query, setQuery] = React.useState('');
+
+  const [openDialog, setOpenDialog] = React.useState(false);
+  const createInputRef = React.useRef<HTMLInputElement | null>(null);
+  const pendingQueryRef = React.useRef('');
+
+  function handleCreateSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const input = createInputRef.current;
+    const value = input ? input.value.trim() : '';
+    if (!value) {
+      return;
+    }
+    const newItem: LabelItem = { id: value.toLowerCase().replace(/\s+/g, '-'), value };
+    setLabels((prev) => [...prev, newItem]);
+    setSelected((prev) => [...prev, newItem]);
+    setOpenDialog(false);
+  }
+
+  const lowered = query.trim().toLocaleLowerCase();
+  const hasMatches =
+    lowered === '' || labels.some((l) => l.value.toLocaleLowerCase().includes(lowered));
+  const itemsForView: Array<LabelItem> = hasMatches
+    ? labels
+    : [{ creatable: query, id: `create:${lowered}`, value: `Create "${query}"` }];
+
+  return (
+    <React.Fragment>
+      <Combobox.Root
+        items={itemsForView}
+        multiple
+        onSelectedValueChange={(next) => {
+          const last = next[next.length - 1];
+          if (last && last.creatable) {
+            pendingQueryRef.current = last.creatable;
+            setOpenDialog(true);
+            return;
+          }
+          const clean = next.filter((i) => !i.creatable);
+          setSelected(clean);
+        }}
+        selectedValue={selected}
+        itemToString={itemToString}
+        onInputValueChange={setQuery}
+      >
+        <div className={styles.Container}>
+          <label className={styles.Label} htmlFor={id}>
+            Labels
+          </label>
+          <Combobox.Chips className={styles.Chips} ref={containerRef}>
+            <Combobox.SelectedValue>
+              {(value: LabelItem[]) => (
+                <React.Fragment>
+                  {value.map((label) => (
+                    <Combobox.Chip key={label.id} className={styles.Chip} aria-label={label.value}>
+                      {label.value}
+                      <Combobox.ChipRemove className={styles.ChipRemove} aria-label="Remove">
+                        <XIcon />
+                      </Combobox.ChipRemove>
+                    </Combobox.Chip>
+                  ))}
+                  <Combobox.Input
+                    id={id}
+                    placeholder={value.length > 0 ? '' : 'e.g. bug'}
+                    className={styles.Input}
+                  />
+                </React.Fragment>
+              )}
+            </Combobox.SelectedValue>
+          </Combobox.Chips>
+        </div>
+
+        <Combobox.Portal>
+          <Combobox.Positioner className={styles.Positioner} sideOffset={4} anchor={containerRef}>
+            <Combobox.Popup className={styles.Popup}>
+              <Combobox.Empty className={styles.Empty}>No labels found.</Combobox.Empty>
+              <Combobox.List>
+                {(item: LabelItem) =>
+                  item.creatable ? (
+                    <Combobox.Item key={item.id} className={styles.Item} value={item}>
+                      <span className={styles.ItemIndicator}>
+                        <PlusIcon className={styles.CreateIcon} />
+                      </span>
+                      <div className={styles.ItemText}>Create "{item.creatable}"</div>
+                    </Combobox.Item>
+                  ) : (
+                    <Combobox.Item key={item.id} className={styles.Item} value={item}>
+                      <Combobox.ItemIndicator className={styles.ItemIndicator}>
+                        <CheckIcon className={styles.ItemIndicatorIcon} />
+                      </Combobox.ItemIndicator>
+                      <div className={styles.ItemText}>{item.value}</div>
+                    </Combobox.Item>
+                  )
+                }
+              </Combobox.List>
+            </Combobox.Popup>
+          </Combobox.Positioner>
+        </Combobox.Portal>
+      </Combobox.Root>
+
+      <Dialog.Root open={openDialog} onOpenChange={setOpenDialog}>
+        <Dialog.Portal>
+          <Dialog.Backdrop className={styles.Backdrop} />
+          <Dialog.Popup className={styles.DialogPopup} initialFocus={createInputRef}>
+            <Dialog.Title className={styles.Title}>Create new label</Dialog.Title>
+            <Dialog.Description className={styles.Description}>
+              Add a new label to select.
+            </Dialog.Description>
+            <form onSubmit={handleCreateSubmit}>
+              <input
+                ref={createInputRef}
+                className={styles.TextField}
+                placeholder="Label name"
+                defaultValue={pendingQueryRef.current}
+              />
+              <div className={styles.Actions}>
+                <Dialog.Close className={styles.Button}>Cancel</Dialog.Close>
+                <button type="submit" className={styles.Button}>
+                  Create
+                </button>
+              </div>
+            </form>
+          </Dialog.Popup>
+        </Dialog.Portal>
+      </Dialog.Root>
+    </React.Fragment>
+  );
+}
+
+function CheckIcon(props: React.ComponentProps<'svg'>) {
+  return (
+    <svg fill="currentcolor" width="10" height="10" viewBox="0 0 10 10" {...props}>
+      <path d="M9.1603 1.12218C9.50684 1.34873 9.60427 1.81354 9.37792 2.16038L5.13603 8.66012C5.01614 8.8438 4.82192 8.96576 4.60451 8.99384C4.3871 9.02194 4.1683 8.95335 4.00574 8.80615L1.24664 6.30769C0.939709 6.02975 0.916013 5.55541 1.19372 5.24822C1.47142 4.94102 1.94536 4.91731 2.2523 5.19524L4.36085 7.10461L8.12299 1.33999C8.34934 0.993152 8.81376 0.895638 9.1603 1.12218Z" />
+    </svg>
+  );
+}
+
+function PlusIcon(props: React.ComponentProps<'svg'>) {
+  return (
+    <svg
+      width="12"
+      height="12"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden
+      {...props}
+    >
+      <path d="M12 5v14" />
+      <path d="M5 12h14" />
+    </svg>
+  );
+}
+
+function XIcon(props: React.ComponentProps<'svg'>) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width={16}
+      height={16}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden
+      {...props}
+    >
+      <path d="M18 6 6 18" />
+      <path d="m6 6 12 12" />
+    </svg>
+  );
+}
