@@ -21,7 +21,7 @@ export const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
   const { render, className, direction, keepMounted = false, ...elementProps } = componentProps;
 
   const { store, popupRef, listRef } = useSelectRootContext();
-  const { side, alignItemWithTriggerActive } = useSelectPositionerContext();
+  const { side } = useSelectPositionerContext();
 
   const selector =
     direction === 'up' ? selectors.scrollUpArrowVisible : selectors.scrollDownArrowVisible;
@@ -61,11 +61,7 @@ export const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
       position: 'absolute',
     },
     onMouseMove(event) {
-      if (
-        (event.movementX === 0 && event.movementY === 0) ||
-        !alignItemWithTriggerActive ||
-        timeout.isStarted()
-      ) {
+      if ((event.movementX === 0 && event.movementY === 0) || timeout.isStarted()) {
         return;
       }
 
@@ -84,10 +80,44 @@ export const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
           Math.round(popupElement.scrollTop + popupElement.clientHeight) >=
           popupElement.scrollHeight;
 
-        if (direction === 'up') {
-          store.set('scrollUpArrowVisible', !isScrolledToTop);
-        } else if (direction === 'down') {
-          store.set('scrollDownArrowVisible', !isScrolledToBottom);
+        const list = listRef.current;
+
+        // Update visibility based on the first/last actual items (ignores sticky arrows and labels).
+        if (list.length > 0) {
+          const firstItem = list.find((item) => item != null);
+          let lastItem: HTMLElement | undefined;
+          for (let i = list.length - 1; i >= 0; i -= 1) {
+            const item = list[i];
+            if (item) {
+              lastItem = item;
+              break;
+            }
+          }
+
+          if (!firstItem || !lastItem) {
+            return;
+          }
+
+          const firstItemTop = firstItem.offsetTop;
+          const lastItemBottom = lastItem.offsetTop + lastItem.offsetHeight;
+
+          const viewportTop = popupElement.scrollTop;
+          const viewportBottom = popupElement.scrollTop + popupElement.clientHeight;
+
+          const shouldShowUp = viewportTop > firstItemTop + 1;
+          const shouldShowDown = viewportBottom < lastItemBottom - 1;
+
+          if (direction === 'up') {
+            store.set('scrollUpArrowVisible', shouldShowUp);
+          } else {
+            store.set('scrollDownArrowVisible', shouldShowDown);
+          }
+        } else {
+          if (direction === 'up') {
+            store.set('scrollUpArrowVisible', !isScrolledToTop);
+          } else {
+            store.set('scrollDownArrowVisible', !isScrolledToBottom);
+          }
         }
 
         if (
@@ -118,9 +148,14 @@ export const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
             }
 
             const targetIndex = Math.max(0, firstVisibleIndex - 1);
-            const targetItem = items[targetIndex];
-            if (targetIndex < firstVisibleIndex && targetItem) {
-              popupElement.scrollTop = targetItem.offsetTop - scrollArrowHeight;
+            if (targetIndex < firstVisibleIndex) {
+              const targetItem = items[targetIndex];
+              if (targetItem) {
+                popupElement.scrollTop = Math.max(0, targetItem.offsetTop - scrollArrowHeight);
+              }
+            } else {
+              // Already at the first item; ensure we reach the absolute top to account for group labels.
+              popupElement.scrollTop = 0;
             }
           } else {
             let lastVisibleIndex = items.length - 1;
@@ -148,6 +183,9 @@ export const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
                   popupElement.clientHeight +
                   scrollArrowHeight;
               }
+            } else {
+              // Already at the last item; ensure we reach the true bottom.
+              popupElement.scrollTop = popupElement.scrollHeight - popupElement.clientHeight;
             }
           }
         }

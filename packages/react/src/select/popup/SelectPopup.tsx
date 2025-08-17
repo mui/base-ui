@@ -7,6 +7,7 @@ import { isMouseWithinBounds } from '@base-ui-components/utils/isMouseWithinBoun
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { useStore } from '@base-ui-components/utils/store';
+import { useAnimationFrame } from '@base-ui-components/utils/useAnimationFrame';
 import { FloatingFocusManager } from '../../floating-ui-react';
 import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import { useSelectRootContext } from '../root/SelectRootContext';
@@ -43,6 +44,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
   const {
     store,
     popupRef,
+    listRef,
     onOpenChangeComplete,
     setOpen,
     valueRef,
@@ -51,8 +53,14 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
     highlightTimeout,
     multiple,
   } = useSelectRootContext();
-  const { side, align, context, alignItemWithTriggerActive, setControlledAlignItemWithTrigger } =
-    useSelectPositionerContext();
+  const {
+    side,
+    align,
+    context,
+    alignItemWithTriggerActive,
+    setControlledAlignItemWithTrigger,
+    scrollArrows,
+  } = useSelectPositionerContext();
 
   const open = useStore(store, selectors.open);
   const mounted = useStore(store, selectors.mounted);
@@ -89,21 +97,47 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
   const initialPlacedRef = React.useRef(false);
   const originalPositionerStylesRef = React.useRef<React.CSSProperties>({});
 
+  const scrollArrowFrame = useAnimationFrame();
+
+  const allowScrollArrows =
+    scrollArrows === 'always' || (scrollArrows === 'auto' && alignItemWithTriggerActive);
+
   const handleScrollArrowVisibility = useEventCallback(() => {
-    if (!alignItemWithTriggerActive || !popupRef.current) {
+    const popupElement = popupRef.current;
+    if (!popupElement || !allowScrollArrows) {
       return;
     }
 
-    const isScrolledToTop = popupRef.current.scrollTop < 1;
-    const isScrolledToBottom =
-      popupRef.current.scrollTop + popupRef.current.clientHeight >=
-      popupRef.current.scrollHeight - 1;
-
-    if (scrollUpArrowVisible !== !isScrolledToTop) {
-      store.set('scrollUpArrowVisible', !isScrolledToTop);
+    // Determine visibility based on the first/last actual items, not container extremes.
+    const list = listRef.current;
+    const firstItem = list.find((item) => item != null);
+    let lastItem: HTMLElement | undefined;
+    for (let i = list.length - 1; i >= 0; i -= 1) {
+      const item = list[i];
+      if (item) {
+        lastItem = item;
+        break;
+      }
     }
-    if (scrollDownArrowVisible !== !isScrolledToBottom) {
-      store.set('scrollDownArrowVisible', !isScrolledToBottom);
+
+    if (!firstItem || !lastItem) {
+      return;
+    }
+
+    const firstItemTop = firstItem.offsetTop;
+    const lastItemBottom = lastItem.offsetTop + lastItem.offsetHeight;
+
+    const viewportTop = popupElement.scrollTop;
+    const viewportBottom = popupElement.scrollTop + popupElement.clientHeight;
+
+    const shouldShowUp = viewportTop > firstItemTop + 1;
+    const shouldShowDown = viewportBottom < lastItemBottom - 1;
+
+    if (scrollUpArrowVisible !== shouldShowUp) {
+      store.set('scrollUpArrowVisible', shouldShowUp);
+    }
+    if (scrollDownArrowVisible !== shouldShowDown) {
+      store.set('scrollDownArrowVisible', shouldShowDown);
     }
   });
 
@@ -143,14 +177,14 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
   useIsoLayoutEffect(() => {
     const popupElement = popupRef.current;
 
-    if (
-      !mounted ||
-      !alignItemWithTriggerActive ||
-      !triggerElement ||
-      !positionerElement ||
-      !popupRef.current ||
-      !popupElement
-    ) {
+    if (!mounted || !triggerElement || !positionerElement || !popupElement) {
+      return;
+    }
+
+    if (!alignItemWithTriggerActive) {
+      initialPlacedRef.current = true;
+      // Avoid affecting layout for item.scrollIntoView()
+      scrollArrowFrame.request(handleScrollArrowVisibility);
       return;
     }
 
@@ -311,16 +345,11 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
       });
     },
     onScroll(event) {
-      if (
-        !alignItemWithTriggerActive ||
-        !positionerElement ||
-        !popupRef.current ||
-        !initialPlacedRef.current
-      ) {
+      if (!positionerElement || !popupRef.current || !initialPlacedRef.current) {
         return;
       }
 
-      if (reachedMaxHeightRef.current) {
+      if (reachedMaxHeightRef.current || !alignItemWithTriggerActive) {
         handleScrollArrowVisibility();
         return;
       }
@@ -389,7 +418,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
       defaultProps,
       {
         style: transitionStatus === 'starting' ? DISABLED_TRANSITIONS_STYLE.style : undefined,
-        className: alignItemWithTriggerActive ? styleDisableScrollbar.className : undefined,
+        className: allowScrollArrows ? styleDisableScrollbar.className : undefined,
       },
       elementProps,
     ],
@@ -408,10 +437,6 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
 export namespace SelectPopup {
   export interface Props extends BaseUIComponentProps<'div', State> {
     children?: React.ReactNode;
-    /**
-     * @ignore
-     */
-    id?: string;
   }
 
   export interface State {

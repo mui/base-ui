@@ -45,6 +45,7 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
     trackAnchor = true,
     alignItemWithTrigger = true,
     collisionAvoidance = DROPDOWN_COLLISION_AVOIDANCE,
+    scrollArrows = 'auto',
     ...elementProps
   } = componentProps;
 
@@ -69,7 +70,7 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
   }
 
   useIsoLayoutEffect(() => {
-    if (!alignItemWithTrigger || !mounted) {
+    if (!mounted) {
       if (selectors.scrollUpArrowVisible(store.state)) {
         store.set('scrollUpArrowVisible', false);
       }
@@ -77,7 +78,7 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
         store.set('scrollDownArrowVisible', false);
       }
     }
-  }, [store, mounted, alignItemWithTrigger]);
+  }, [store, mounted]);
 
   React.useImperativeHandle(alignItemWithTriggerActiveRef, () => alignItemWithTriggerActive);
 
@@ -193,8 +194,15 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
       side: renderedSide,
       alignItemWithTriggerActive,
       setControlledAlignItemWithTrigger,
+      scrollArrows,
     }),
-    [positioning, renderedSide, alignItemWithTriggerActive, setControlledAlignItemWithTrigger],
+    [
+      positioning,
+      renderedSide,
+      alignItemWithTriggerActive,
+      setControlledAlignItemWithTrigger,
+      scrollArrows,
+    ],
   );
 
   return (
@@ -223,5 +231,12 @@ export namespace SelectPositioner {
      * @default true
      */
     alignItemWithTrigger?: boolean;
+    /**
+     * Determines when to allow the scroll arrows to render.
+     * - `auto`: Only renders the scroll arrows when `alignItemWithTrigger` is `true` and not in fallback.
+     * - `always`: Always render the scroll arrows.
+     * @default 'auto'
+     */
+    scrollArrows?: 'auto' | 'always';
   }
 }

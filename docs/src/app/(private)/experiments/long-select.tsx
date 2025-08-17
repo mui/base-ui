@@ -16,22 +16,30 @@ export default function ExampleSelect() {
         </Select.Icon>
       </Select.Trigger>
       <Select.Portal>
-        <Select.Positioner className={styles.Positioner} sideOffset={8}>
-          <Select.ScrollUpArrow className={styles.ScrollArrow} />
+        <Select.Positioner className={styles.Positioner} sideOffset={8} scrollArrows="always">
           <Select.Popup className={styles.Popup}>
-            <Select.Arrow className={styles.Arrow}>
-              <ArrowSvg />
-            </Select.Arrow>
-            {countries.map((country) => (
-              <Select.Item key={country.code} className={styles.Item} value={country.code}>
-                <Select.ItemIndicator className={styles.ItemIndicator}>
-                  <CheckIcon className={styles.ItemIndicatorIcon} />
-                </Select.ItemIndicator>
-                <Select.ItemText className={styles.ItemText}>{country.name}</Select.ItemText>
-              </Select.Item>
-            ))}
+            <div role="presentation" className={styles.PopupScroll}>
+              <div aria-hidden style={{ height: 75 }}>
+                Start
+              </div>
+              <Select.ScrollUpArrow className={styles.ScrollArrow} />
+              <Select.Arrow className={styles.Arrow}>
+                <ArrowSvg />
+              </Select.Arrow>
+              {countries.map((country) => (
+                <Select.Item key={country.code} className={styles.Item} value={country.code}>
+                  <Select.ItemIndicator className={styles.ItemIndicator}>
+                    <CheckIcon className={styles.ItemIndicatorIcon} />
+                  </Select.ItemIndicator>
+                  <Select.ItemText className={styles.ItemText}>{country.name}</Select.ItemText>
+                </Select.Item>
+              ))}
+              <div aria-hidden style={{ height: 75 }}>
+                End
+              </div>
+              <Select.ScrollDownArrow className={styles.ScrollArrow} />
+            </div>
           </Select.Popup>
-          <Select.ScrollDownArrow className={styles.ScrollArrow} />
         </Select.Positioner>
       </Select.Portal>
       <div style={{ width: 1, height: 2000 }} />
