@@ -181,15 +181,15 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
       return;
     }
 
-    if (!alignItemWithTriggerActive) {
-      initialPlacedRef.current = true;
-      // Avoid affecting layout for item.scrollIntoView()
-      scrollArrowFrame.request(handleScrollArrowVisibility);
-      return;
-    }
-
     // Wait for `selectedItemTextRef.current` to be set.
     queueMicrotask(() => {
+      if (!alignItemWithTriggerActive) {
+        initialPlacedRef.current = true;
+        // Avoid affecting layout for item.scrollIntoView()
+        scrollArrowFrame.request(handleScrollArrowVisibility);
+        return;
+      }
+
       const positionerStyles = getComputedStyle(positionerElement);
       const popupStyles = getComputedStyle(popupElement);
 
