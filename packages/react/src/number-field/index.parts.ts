@@ -5,5 +5,3 @@ export { NumberFieldDecrement as Decrement } from './decrement/NumberFieldDecrem
 export { NumberFieldInput as Input } from './input/NumberFieldInput';
 export { NumberFieldScrubArea as ScrubArea } from './scrub-area/NumberFieldScrubArea';
 export { NumberFieldScrubAreaCursor as ScrubAreaCursor } from './scrub-area-cursor/NumberFieldScrubAreaCursor';
-
-export { formatNumber, formatNumberMaxPrecision, getFormatter } from '../utils/formatNumber';
