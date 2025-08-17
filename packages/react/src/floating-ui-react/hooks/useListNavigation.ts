@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { isHTMLElement } from '@floating-ui/utils/dom';
+import { getOverflowAncestors, isElement, isHTMLElement } from '@floating-ui/utils/dom';
 import { useLatestRef } from '@base-ui-components/utils/useLatestRef';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
@@ -27,6 +27,8 @@ import { useFloatingParentNodeId, useFloatingTree } from '../components/Floating
 import type { Dimensions, ElementProps, FloatingRootContext } from '../types';
 import { enqueueFocus } from '../utils/enqueueFocus';
 import { ARROW_UP, ARROW_DOWN, ARROW_RIGHT, ARROW_LEFT } from '../utils/constants';
+import { scrollIntoViewIfNeeded } from '../../composite/composite';
+import { useDirection } from '../../direction-provider/DirectionContext';
 
 export const ESCAPE = 'Escape';
 
@@ -287,6 +289,7 @@ export function useListNavigation(
 
   const parentId = useFloatingParentNodeId();
   const tree = useFloatingTree();
+  const direction = useDirection();
 
   useIsoLayoutEffect(() => {
     context.dataRef.current.orientation = orientation;
@@ -360,17 +363,28 @@ export function useListNavigation(
         scrollIntoViewOptions &&
         // eslint-disable-next-line @typescript-eslint/no-use-before-define
         item &&
-        (forceScrollIntoView || !isPointerModalityRef.current) &&
-        (selectedIndexRef.current == null || forceSyncFocusRef.current);
+        (forceScrollIntoView || !isPointerModalityRef.current);
 
       if (shouldScrollIntoView) {
-        // JSDOM doesn't support `.scrollIntoView()` but it's widely supported
-        // by all browsers.
-        waitedItem.scrollIntoView?.(
-          typeof scrollIntoViewOptions === 'boolean'
-            ? { block: 'nearest', inline: 'nearest' }
-            : scrollIntoViewOptions,
-        );
+        const overflowAncestor =
+          getOverflowAncestors(waitedItem).find((ancestor) => {
+            if (!isElement(ancestor)) {
+              return false;
+            }
+            const { overflow, overflowX, overflowY } = getComputedStyle(ancestor);
+            return /auto|scroll|overlay/.test(overflow + overflowX + overflowY);
+          }) || floatingFocusElement;
+        if (isHTMLElement(overflowAncestor)) {
+          scrollIntoViewIfNeeded(
+            overflowAncestor,
+            waitedItem,
+            direction,
+            orientation,
+            // Align to center on first open, otherwise align to the edge.
+            // This prevents scroll arrows from sometimes overlapping the item on initial open.
+            selectedIndexRef.current == null || forceSyncFocusRef.current ? 'edge' : 'center',
+          );
+        }
       }
     });
   });

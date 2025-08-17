@@ -57,6 +57,7 @@ export function scrollIntoViewIfNeeded(
   element: HTMLElement | null,
   direction: TextDirection,
   orientation: 'horizontal' | 'vertical' | 'both',
+  alignment: 'edge' | 'center' = 'edge',
 ) {
   if (!scrollContainer || !element || !element.scrollTo) {
     return;
@@ -73,51 +74,40 @@ export function scrollIntoViewIfNeeded(
     const containerStyles = getStyles(scrollContainer);
     const elementStyles = getStyles(element);
 
-    if (direction === 'ltr') {
-      if (
-        elementOffsetLeft + element.offsetWidth + elementStyles.scrollMarginRight >
-        scrollContainer.scrollLeft +
-          scrollContainer.clientWidth -
-          containerStyles.scrollPaddingRight
-      ) {
-        // overflow to the right, scroll to align right edges
-        targetX =
-          elementOffsetLeft +
-          element.offsetWidth +
-          elementStyles.scrollMarginRight -
-          scrollContainer.clientWidth +
-          containerStyles.scrollPaddingRight;
-      } else if (
-        elementOffsetLeft - elementStyles.scrollMarginLeft <
-        scrollContainer.scrollLeft + containerStyles.scrollPaddingLeft
-      ) {
-        // overflow to the left, scroll to align left edges
-        targetX =
-          elementOffsetLeft - elementStyles.scrollMarginLeft - containerStyles.scrollPaddingLeft;
-      }
-    }
+    const visibleLeft = scrollContainer.scrollLeft + containerStyles.scrollPaddingLeft;
+    const visibleRight =
+      scrollContainer.scrollLeft + scrollContainer.clientWidth - containerStyles.scrollPaddingRight;
+    const elementLeft = elementOffsetLeft - elementStyles.scrollMarginLeft;
+    const elementRight = elementOffsetLeft + element.offsetWidth + elementStyles.scrollMarginRight;
 
-    if (direction === 'rtl') {
-      if (
-        elementOffsetLeft - elementStyles.scrollMarginRight <
-        scrollContainer.scrollLeft + containerStyles.scrollPaddingLeft
-      ) {
-        // overflow to the left, scroll to align left edges
-        targetX =
-          elementOffsetLeft - elementStyles.scrollMarginLeft - containerStyles.scrollPaddingLeft;
-      } else if (
-        elementOffsetLeft + element.offsetWidth + elementStyles.scrollMarginRight >
-        scrollContainer.scrollLeft +
-          scrollContainer.clientWidth -
-          containerStyles.scrollPaddingRight
-      ) {
-        // overflow to the right, scroll to align right edges
-        targetX =
-          elementOffsetLeft +
-          element.offsetWidth +
-          elementStyles.scrollMarginRight -
-          scrollContainer.clientWidth +
-          containerStyles.scrollPaddingRight;
+    if (alignment === 'center') {
+      const elementCenter = (elementLeft + elementRight) / 2;
+      const visibleWidth =
+        scrollContainer.clientWidth -
+        (containerStyles.scrollPaddingLeft + containerStyles.scrollPaddingRight);
+      const shouldScroll = elementLeft < visibleLeft || elementRight > visibleRight;
+      if (shouldScroll) {
+        targetX = elementCenter - visibleWidth / 2 - containerStyles.scrollPaddingLeft;
+      }
+    } else {
+      if (direction === 'ltr') {
+        if (elementRight > visibleRight) {
+          // overflow to the right, scroll to align right edges
+          targetX = elementRight - scrollContainer.clientWidth + containerStyles.scrollPaddingRight;
+        } else if (elementLeft < visibleLeft) {
+          // overflow to the left, scroll to align left edges
+          targetX = elementLeft - containerStyles.scrollPaddingLeft;
+        }
+      }
+
+      if (direction === 'rtl') {
+        if (elementLeft < visibleLeft) {
+          // overflow to the left, scroll to align left edges
+          targetX = elementLeft - containerStyles.scrollPaddingLeft;
+        } else if (elementRight > visibleRight) {
+          // overflow to the right, scroll to align right edges
+          targetX = elementRight - scrollContainer.clientWidth + containerStyles.scrollPaddingRight;
+        }
       }
     }
   }
@@ -127,23 +117,33 @@ export function scrollIntoViewIfNeeded(
     const containerStyles = getStyles(scrollContainer);
     const elementStyles = getStyles(element);
 
-    if (
-      elementOffsetTop - elementStyles.scrollMarginTop <
-      scrollContainer.scrollTop + containerStyles.scrollPaddingTop
-    ) {
-      // overflow upwards, align top edges
-      targetY = elementOffsetTop - elementStyles.scrollMarginTop - containerStyles.scrollPaddingTop;
-    } else if (
-      elementOffsetTop + element.offsetHeight + elementStyles.scrollMarginBottom >
-      scrollContainer.scrollTop + scrollContainer.clientHeight - containerStyles.scrollPaddingBottom
-    ) {
-      // overflow downwards, align bottom edges
-      targetY =
-        elementOffsetTop +
-        element.offsetHeight +
-        elementStyles.scrollMarginBottom -
-        scrollContainer.clientHeight +
-        containerStyles.scrollPaddingBottom;
+    const visibleTop = scrollContainer.scrollTop + containerStyles.scrollPaddingTop;
+    const visibleBottom =
+      scrollContainer.scrollTop +
+      scrollContainer.clientHeight -
+      containerStyles.scrollPaddingBottom;
+    const elementTop = elementOffsetTop - elementStyles.scrollMarginTop;
+    const elementBottom =
+      elementOffsetTop + element.offsetHeight + elementStyles.scrollMarginBottom;
+
+    if (alignment === 'center') {
+      const elementCenter = (elementTop + elementBottom) / 2;
+      const visibleHeight =
+        scrollContainer.clientHeight -
+        (containerStyles.scrollPaddingTop + containerStyles.scrollPaddingBottom);
+      const shouldScroll = elementTop < visibleTop || elementBottom > visibleBottom;
+      if (shouldScroll) {
+        targetY = elementCenter - visibleHeight / 2 - containerStyles.scrollPaddingTop;
+      }
+    } else {
+      if (elementTop < visibleTop) {
+        // overflow upwards, align top edges
+        targetY = elementTop - containerStyles.scrollPaddingTop;
+      } else if (elementBottom > visibleBottom) {
+        // overflow downwards, align bottom edges
+        targetY =
+          elementBottom - scrollContainer.clientHeight + containerStyles.scrollPaddingBottom;
+      }
     }
   }
 
