@@ -2,6 +2,12 @@
   "name": "NavigationMenuLink",
   "description": "A link in the navigation menu that can be used to navigate to a different page or section.\nRenders an `<a>` element.",
   "props": {
+    "active": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Whether the link is the currently active page.",
+      "detailedType": "boolean | undefined"
+    },
     "className": {
       "type": "string | ((state: NavigationMenu.Link.State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",

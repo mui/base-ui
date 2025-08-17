@@ -6,7 +6,7 @@ describe('<NavigationMenu.List />', () => {
   const { render } = createRenderer();
 
   describeConformance(<NavigationMenu.List />, () => ({
-    refInstanceof: window.HTMLDivElement,
+    refInstanceof: window.HTMLUListElement,
     render(node) {
       return render(<NavigationMenu.Root>{node}</NavigationMenu.Root>);
     },
