@@ -15,13 +15,6 @@ export default function ExampleAsyncAutocomplete() {
 
   const { contains } = Autocomplete.useFilter({ sensitivity: 'base' });
 
-  const filterByTitleOrYear = React.useCallback(
-    (movie: Movie, query: string) => {
-      return contains(movie.title, query) || contains(movie.year.toString(), query);
-    },
-    [contains],
-  );
-
   React.useEffect(() => {
     if (!searchValue) {
       setSearchResults([]);
@@ -36,7 +29,7 @@ export default function ExampleAsyncAutocomplete() {
 
     async function fetchMovies() {
       try {
-        const results = await searchMovies(searchValue, filterByTitleOrYear);
+        const results = await searchMovies(searchValue, contains);
         if (!ignore) {
           setSearchResults(results);
         }
@@ -58,7 +51,7 @@ export default function ExampleAsyncAutocomplete() {
       clearTimeout(timeoutId);
       ignore = true;
     };
-  }, [searchValue, filterByTitleOrYear]);
+  }, [searchValue, contains]);
 
   let status: React.ReactNode = `${searchResults.length} result${searchResults.length === 1 ? '' : 's'} found`;
   if (isLoading) {
@@ -82,7 +75,7 @@ export default function ExampleAsyncAutocomplete() {
       inputValue={searchValue}
       onInputValueChange={setSearchValue}
       itemToString={itemToString}
-      filter={filterByTitleOrYear}
+      filter={null}
     >
       <label className={styles.Label}>
         Search movies by name or year
@@ -114,7 +107,7 @@ export default function ExampleAsyncAutocomplete() {
 
 async function searchMovies(
   query: string,
-  filter: (movie: Movie, query: string) => boolean,
+  filter: (item: string, query: string) => boolean,
 ): Promise<Movie[]> {
   // Simulate network delay
   await new Promise((resolve) => {
@@ -126,5 +119,7 @@ async function searchMovies(
     throw new Error('Network error');
   }
 
-  return top100Movies.filter((movie) => filter(movie, query));
+  return top100Movies.filter(
+    (movie) => filter(movie.title, query) || filter(movie.year.toString(), query),
+  );
 }

@@ -55,9 +55,9 @@
       "detailedType": "boolean | undefined"
     },
     "filter": {
-      "type": "((item: GroupItem | Item, query: string, itemToString: ((item: GroupItem | Item) => string) | undefined) => boolean)",
+      "type": "((item: GroupItem | Item, query: string, itemToString: ((item: GroupItem | Item) => string) | undefined) => boolean) | null",
       "description": "Filter function used to match items vs input query.\nThe `itemToString` function is provided to help convert items to strings for comparison.",
-      "detailedType": "| ((\n    item: GroupItem | Item,\n    query: string,\n    itemToString:\n      | ((item: GroupItem | Item) => string)\n      | undefined,\n  ) => boolean)\n| undefined"
+      "detailedType": "| ((\n    item: GroupItem | Item,\n    query: string,\n    itemToString:\n      | ((item: GroupItem | Item) => string)\n      | undefined,\n  ) => boolean)\n| null\n| undefined"
     },
     "inputValue": {
       "type": "string | number | string[]",

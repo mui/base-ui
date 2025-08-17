@@ -3,20 +3,6 @@
 /* eslint-disable react-hooks/rules-of-hooks, react-hooks/exhaustive-deps */
 import * as React from 'react';
 
-/**
- * Safely stringifies a value for use in useEffect dependencies.
- * Falls back to reference comparison for circular structures.
- */
-function safeStringifyForDeps(value: unknown): string | unknown {
-  try {
-    return JSON.stringify(value);
-  } catch {
-    // If JSON.stringify fails (e.g., circular structure),
-    // return the original value for reference comparison
-    return value;
-  }
-}
-
 export interface UseControlledProps<T = unknown> {
   /**
    * Holds the component value when it's controlled.
@@ -78,7 +64,7 @@ export function useControlled<T = unknown>({
           ].join('\n'),
         );
       }
-    }, [safeStringifyForDeps(defaultProp)]);
+    }, [defaultProp]);
   }
 
   const setValueIfUncontrolled = React.useCallback((newValue: React.SetStateAction<T>) => {

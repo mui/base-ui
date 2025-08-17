@@ -51,6 +51,8 @@ import { EMPTY_ARRAY } from '../../utils/constants';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
 import { HTMLProps } from '../../utils/types';
 
+const DEFAULT_FILTER_OPTIONS = { sensitivity: 'base' } as const;
+
 export function ComboboxRoot<Item = any, Mode extends SelectionMode = 'none'>(
   props: ComboboxRootConditionalProps<Item, Mode>,
 ): React.JSX.Element {
@@ -116,10 +118,13 @@ export function ComboboxRoot<Item = any, Mode extends SelectionMode = 'none'>(
 
   const [queryChangedAfterOpen, setQueryChangedAfterOpen] = React.useState(false);
 
-  const collatorFilter = useFilter({ sensitivity: 'base' });
+  const collatorFilter = useFilter(DEFAULT_FILTER_OPTIONS);
 
   const filter = React.useMemo(() => {
-    if (filterProp) {
+    if (filterProp === null) {
+      return () => true;
+    }
+    if (filterProp !== undefined) {
       return filterProp;
     }
     if (selectionMode === 'single' && !queryChangedAfterOpen) {
@@ -1049,11 +1054,13 @@ interface ComboboxRootProps<Item> {
    * Filter function used to match items vs input query.
    * The `itemToString` function is provided to help convert items to strings for comparison.
    */
-  filter?: (
-    item: ExtractItemType<Item>,
-    query: string,
-    itemToString?: (item: ExtractItemType<Item>) => string,
-  ) => boolean;
+  filter?:
+    | null
+    | ((
+        item: ExtractItemType<Item>,
+        query: string,
+        itemToString?: (item: ExtractItemType<Item>) => string,
+      ) => boolean);
   /**
    * Function to convert an item to a string for display in the combobox.
    */

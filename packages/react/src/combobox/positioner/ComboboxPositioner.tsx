@@ -63,15 +63,14 @@ export const ComboboxPositioner = React.forwardRef(function ComboboxPositioner(
   const triggerElement = useStore(store, selectors.triggerElement);
   const inputElement = useStore(store, selectors.inputElement);
 
-  const resolvedAnchor = React.useMemo(() => {
-    if (anchor != null) {
-      return anchor;
-    }
-    if (defaultAnchor === 'trigger') {
-      return triggerElement;
-    }
-    return inputElement;
-  }, [anchor, defaultAnchor, triggerElement, inputElement]);
+  let resolvedAnchor = anchor;
+  if (anchor != null) {
+    resolvedAnchor = anchor;
+  } else if (defaultAnchor === 'trigger') {
+    resolvedAnchor = triggerElement;
+  } else {
+    resolvedAnchor = inputElement;
+  }
 
   const positioning = useAnchorPositioning({
     anchor: resolvedAnchor,
@@ -99,19 +98,18 @@ export const ComboboxPositioner = React.forwardRef(function ComboboxPositioner(
   });
 
   const defaultProps: HTMLProps = React.useMemo(() => {
-    const hiddenStyles: React.CSSProperties = {};
+    const style: React.CSSProperties = {
+      ...positioning.positionerStyles,
+    };
 
     if (!open) {
-      hiddenStyles.pointerEvents = 'none';
+      style.pointerEvents = 'none';
     }
 
     return {
       role: 'presentation',
       hidden: !mounted,
-      style: {
-        ...positioning.positionerStyles,
-        ...hiddenStyles,
-      },
+      style,
     };
   }, [open, mounted, positioning.positionerStyles]);
 

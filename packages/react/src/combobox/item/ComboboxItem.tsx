@@ -94,7 +94,6 @@ export const ComboboxItem = React.memo(
 
       if (index !== -1) {
         list[index] = itemRef.current;
-        // Keep valuesRef aligned with the filtered list indices in virtualized mode
         values[index] = value;
         return () => {
           delete list[index];
@@ -125,14 +124,11 @@ export const ComboboxItem = React.memo(
         if (selectable && allowActiveIndexSyncRef.current) {
           frame.request(() => {
             itemRef.current?.scrollIntoView?.({ inline: 'nearest', block: 'nearest' });
-            store.set('activeIndex', index);
-            store.set('selectedIndex', index);
+            store.apply({ activeIndex: index, selectedIndex: index });
             onItemHighlighted(value, { type: 'none', index });
             allowActiveIndexSyncRef.current = false;
           });
-          return () => {
-            frame.cancel();
-          };
+          return frame.cancel;
         }
       }
       return undefined;
