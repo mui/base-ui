@@ -56,7 +56,7 @@
     opacity 150ms;
   max-height: var(--available-height);
   overflow-y: auto;
-  scroll-padding-block: 0.25rem;
+  scroll-padding-block: 0.5rem;
 
   &[data-starting-style],
   &[data-ending-style] {

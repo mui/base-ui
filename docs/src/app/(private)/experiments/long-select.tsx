@@ -5,7 +5,7 @@ import styles from './long-select.module.css';
 
 export default function ExampleSelect() {
   return (
-    <Select.Root defaultValue="af">
+    <Select.Root>
       <div style={{ width: 1, height: 2000 }} />
       <Select.Trigger className={styles.Select}>
         <Select.Value>

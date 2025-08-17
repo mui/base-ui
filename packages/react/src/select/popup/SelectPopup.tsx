@@ -71,6 +71,8 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
   const scrollUpArrowVisible = useStore(store, selectors.scrollUpArrowVisible);
   const scrollDownArrowVisible = useStore(store, selectors.scrollDownArrowVisible);
 
+  const scrollArrowFrame = useAnimationFrame();
+
   useOpenChangeComplete({
     open,
     ref: popupRef,
@@ -96,8 +98,6 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
   const maxHeightRef = React.useRef(0);
   const initialPlacedRef = React.useRef(false);
   const originalPositionerStylesRef = React.useRef<React.CSSProperties>({});
-
-  const scrollArrowFrame = useAnimationFrame();
 
   const allowScrollArrows =
     scrollArrows === 'always' || (scrollArrows === 'auto' && alignItemWithTriggerActive);
@@ -183,7 +183,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
 
     if (!alignItemWithTriggerActive) {
       initialPlacedRef.current = true;
-      handleScrollArrowVisibility();
+      scrollArrowFrame.request(handleScrollArrowVisibility);
       return;
     }
 

@@ -357,13 +357,11 @@ export function useListNavigation(
 
       const scrollIntoViewOptions = scrollItemIntoViewRef.current;
       const shouldScrollIntoView =
-        // eslint-disable-next-line @typescript-eslint/no-use-before-define
         scrollIntoViewOptions &&
-        // Let `FloatingFocusManager` handle the first scroll on open using the native
-        // .focus() scroll. It will center the item in the viewport.
-        forceSyncFocusRef.current &&
+        // eslint-disable-next-line @typescript-eslint/no-use-before-define
         item &&
-        (forceScrollIntoView || !isPointerModalityRef.current);
+        (forceScrollIntoView || !isPointerModalityRef.current) &&
+        (selectedIndexRef.current == null || forceSyncFocusRef.current);
 
       if (shouldScrollIntoView) {
         // JSDOM doesn't support `.scrollIntoView()` but it's widely supported
