@@ -43,8 +43,15 @@ export function stringifyItem(item: any | null | undefined, itemToString?: (item
   if (itemToString && item != null) {
     return itemToString(item) ?? '';
   }
-  if (item != null && typeof item === 'object' && 'value' in item) {
-    return String(item.value);
+  if (item && typeof item === 'object') {
+    // Prefer human-readable labels when available for matching/display.
+    // Falls back to `value` for objects that only provide a machine value.
+    if ('label' in item && item.label != null) {
+      return String(item.label);
+    }
+    if ('value' in item) {
+      return String(item.value);
+    }
   }
   return serializeValue(item);
 }
