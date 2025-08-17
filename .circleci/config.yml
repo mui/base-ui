@@ -139,7 +139,7 @@ jobs:
             then
                 pnpm prettier --check
             else
-                pnpm prettier:check
+                pnpm exec prettier --check . --ignore-path .lintignore
             fi
       - run:
           name: ESLint
