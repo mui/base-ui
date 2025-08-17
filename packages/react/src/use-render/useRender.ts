@@ -2,6 +2,7 @@ import * as React from 'react';
 import type { ComponentRenderFn } from '../utils/types';
 import { HTMLProps } from '../utils/types';
 import { useRenderElement } from '../utils/useRenderElement';
+import { CustomStyleHookMapping } from '../utils/getStyleHookProps';
 
 /**
  * Renders a Base UI element.
@@ -15,29 +16,22 @@ export function useRender<
 >(
   params: useRender.Parameters<State, RenderedElementType, Enabled>,
 ): useRender.ReturnValue<Enabled> {
-  const { dataset, ...otherParams } = params;
-  
-  const renderParams = otherParams as useRender.Parameters<State, RenderedElementType, Enabled> & {
+  const { stateAttributesMapping, ...renderParams } = params as useRender.Parameters<
+    State,
+    RenderedElementType,
+    Enabled
+  > & {
     disableStyleHooks: boolean;
   };
-  renderParams.disableStyleHooks = true;
-  
-  if (dataset) {
-    renderParams.props = { ...renderParams.props, ...dataset };
-  }
+  renderParams.disableStyleHooks = false;
 
-  return useRenderElement(undefined, renderParams, renderParams);
+  return useRenderElement(undefined, renderParams, {
+    ...renderParams,
+    customStyleHookMapping: stateAttributesMapping,
+  });
 }
 
 export namespace useRender {
-  /**
-   * Dataset attributes that can be applied to the rendered element.
-   * All keys must start with 'data-' prefix.
-   */
-  export type DatasetProps = {
-    [K in `data-${string}`]?: string | number | boolean | undefined;
-  };
-
   export type RenderProp<State = Record<string, unknown>> =
     | ComponentRenderFn<React.HTMLAttributes<any>, State>
     | React.ReactElement<Record<string, unknown>>;
@@ -76,8 +70,15 @@ export namespace useRender {
     ref?: React.Ref<RenderedElementType> | React.Ref<RenderedElementType>[];
     /**
      * The state of the component, passed as the second argument to the `render` callback.
+     * State properties are automatically converted to data-* attributes.
      */
     state?: State;
+    /**
+     * Custom mapping for converting state properties to data-* attributes.
+     * @example
+     * { isActive: (value) => (value ? { 'data-is-active': '' } : null) }
+     */
+    stateAttributesMapping?: CustomStyleHookMapping<State>;
     /**
      * Props to be spread on the rendered element.
      * They are merged with the internal props of the component, so that event handlers
@@ -85,11 +86,6 @@ export namespace useRender {
      * internal ones.
      */
     props?: Record<string, unknown>;
-    /**
-     * Dataset attributes to be applied to the rendered element.
-     * All keys must start with 'data-' prefix.
-     */
-    dataset?: DatasetProps;
     /**
      * If `false`, the hook will skip most of its internal logic and return `null`.
      * This is useful for rendering a component conditionally.

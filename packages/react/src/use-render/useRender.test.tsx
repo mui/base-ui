@@ -70,15 +70,14 @@ describe('useRender', () => {
     });
   });
 
-  describe('dataset', () => {
-    it('applies dataset attributes to the rendered element', async () => {
+  describe('state to data attributes', () => {
+    it('converts state to data attributes automatically', async () => {
       function TestComponent() {
         const element = useRender({
-          render: <button />,
-          dataset: {
-            'data-testid': 'submit-button',
-            'data-active': true,
-            'data-index': 42,
+          render: <button type="button" />,
+          state: {
+            active: true,
+            index: 42,
           },
         });
         return element;
@@ -87,18 +86,17 @@ describe('useRender', () => {
       const { container } = await render(<TestComponent />);
       const button = container.firstElementChild;
 
-      expect(button).to.have.attribute('data-testid', 'submit-button');
-      expect(button).to.have.attribute('data-active', 'true');
+      expect(button).to.have.attribute('data-active', '');
       expect(button).to.have.attribute('data-index', '42');
     });
 
-    it('handles undefined values in dataset', async () => {
+    it('handles undefined values in state', async () => {
       function TestComponent() {
         const element = useRender({
           render: <div />,
-          dataset: {
-            'data-defined': 'value',
-            'data-undefined': undefined,
+          state: {
+            defined: 'value',
+            notDefined: undefined,
           },
         });
         return element;
@@ -108,16 +106,15 @@ describe('useRender', () => {
       const div = container.firstElementChild;
 
       expect(div).to.have.attribute('data-defined', 'value');
-      expect(div).not.to.have.attribute('data-undefined');
+      expect(div).not.to.have.attribute('data-notdefined');
     });
 
-    it('merges dataset with existing props', async () => {
+    it('merges state-based data attributes with existing props', async () => {
       function TestComponent() {
         const element = useRender({
-          render: <button />,
-          dataset: {
-            'data-testid': 'my-button',
-            'data-form': 'login',
+          render: <button type="button" />,
+          state: {
+            form: 'login',
           },
           props: {
             className: 'btn-primary',
@@ -131,7 +128,6 @@ describe('useRender', () => {
       const { container } = await render(<TestComponent />);
       const button = container.firstElementChild;
 
-      expect(button).to.have.attribute('data-testid', 'my-button');
       expect(button).to.have.attribute('data-form', 'login');
 
       expect(button).to.have.attribute('class', 'btn-primary');
@@ -140,15 +136,15 @@ describe('useRender', () => {
       expect(button).to.have.attribute('data-existing', 'prop');
     });
 
-    it('dataset overrides data attributes from props', async () => {
+    it('props override state-based data attributes', async () => {
       function TestComponent() {
         const element = useRender({
-          render: <button />,
-          dataset: {
-            'data-testid': 'from-dataset',
+          render: <button type="button" />,
+          state: {
+            active: true,
           },
           props: {
-            'data-testid': 'from-props',
+            'data-active': 'false',
           },
         });
         return element;
@@ -157,14 +153,14 @@ describe('useRender', () => {
       const { container } = await render(<TestComponent />);
       const button = container.firstElementChild;
 
-      expect(button).to.have.attribute('data-testid', 'from-dataset');
+      expect(button).to.have.attribute('data-active', 'false');
     });
 
-    it('handles empty dataset', async () => {
+    it('handles empty state', async () => {
       function TestComponent() {
         const element = useRender({
           render: <span />,
-          dataset: {},
+          state: {},
           props: {
             className: 'test-class',
           },
@@ -185,11 +181,11 @@ describe('useRender', () => {
       }
     });
 
-    it('handles undefined dataset', async () => {
+    it('handles undefined state', async () => {
       function TestComponent() {
         const element = useRender({
           render: <div />,
-          dataset: undefined,
+          state: undefined,
           props: {
             className: 'test-class',
             'data-from-props': 'value',
@@ -205,13 +201,13 @@ describe('useRender', () => {
       expect(div).to.have.attribute('data-from-props', 'value');
     });
 
-    it('converts boolean values to string in dataset', async () => {
+    it('converts boolean values in state to data attributes', async () => {
       function TestComponent() {
         const element = useRender({
-          render: <button />,
-          dataset: {
-            'data-active': true,
-            'data-disabled': false,
+          render: <button type="button" />,
+          state: {
+            active: true,
+            disabled: false,
           },
         });
         return element;
@@ -220,18 +216,18 @@ describe('useRender', () => {
       const { container } = await render(<TestComponent />);
       const button = container.firstElementChild;
 
-      expect(button).to.have.attribute('data-active', 'true');
-      expect(button).to.have.attribute('data-disabled', 'false');
+      expect(button).to.have.attribute('data-active', '');
+      expect(button).not.to.have.attribute('data-disabled');
     });
 
-    it('converts number values to string in dataset', async () => {
+    it('converts number values in state to data attributes', async () => {
       function TestComponent() {
         const element = useRender({
           render: <div />,
-          dataset: {
-            'data-count': 0,
-            'data-index': 42,
-            'data-percentage': 99.9,
+          state: {
+            count: 0,
+            index: 42,
+            percentage: 99.9,
           },
         });
         return element;
@@ -240,9 +236,35 @@ describe('useRender', () => {
       const { container } = await render(<TestComponent />);
       const div = container.firstElementChild;
 
-      expect(div).to.have.attribute('data-count', '0');
+      expect(div).not.to.have.attribute('data-count');
       expect(div).to.have.attribute('data-index', '42');
       expect(div).to.have.attribute('data-percentage', '99.9');
+    });
+
+    it('supports custom stateAttributesMapping for kebab-case conversion', async () => {
+      function TestComponent() {
+        const element = useRender({
+          render: <button type="button" />,
+          state: {
+            isActive: true,
+            itemCount: 5,
+            userName: 'John',
+          },
+          stateAttributesMapping: {
+            isActive: (value) => (value ? { 'data-is-active': '' } : null),
+            itemCount: (value) => ({ 'data-item-count': value.toString() }),
+            userName: (value) => ({ 'data-user-name': value }),
+          },
+        });
+        return element;
+      }
+
+      const { container } = await render(<TestComponent />);
+      const button = container.firstElementChild;
+
+      expect(button).to.have.attribute('data-is-active', '');
+      expect(button).to.have.attribute('data-item-count', '5');
+      expect(button).to.have.attribute('data-user-name', 'John');
     });
   });
 });
