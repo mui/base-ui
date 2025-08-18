@@ -13,7 +13,7 @@
   padding-left: 0.875rem;
   margin: 0;
   border: 1px solid var(--color-gray-200);
-  width: 20rem;
+  width: 16rem;
   height: 2.5rem;
   border-radius: 0.375rem;
   font-family: inherit;
@@ -21,6 +21,10 @@
   background-color: canvas;
   color: var(--color-gray-900);
   outline: none;
+
+  @media (min-width: 500px) {
+    width: 20rem;
+  }
 
   &:focus {
     border-color: var(--color-blue);

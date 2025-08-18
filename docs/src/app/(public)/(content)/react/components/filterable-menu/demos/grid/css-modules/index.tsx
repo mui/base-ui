@@ -101,12 +101,7 @@ export default function ExampleEmojiPicker() {
             😀
           </FilterableMenu.Trigger>
           <FilterableMenu.Portal>
-            <FilterableMenu.Positioner
-              className={styles.Positioner}
-              sideOffset={4}
-              side="top"
-              align="end"
-            >
+            <FilterableMenu.Positioner className={styles.Positioner} sideOffset={4} align="end">
               <FilterableMenu.Popup className={styles.Popup} aria-label="Select emoji">
                 <div className={styles.InputContainer}>
                   <FilterableMenu.Input placeholder="Search emojis…" className={styles.Input} />
