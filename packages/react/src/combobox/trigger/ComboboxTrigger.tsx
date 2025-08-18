@@ -96,7 +96,7 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
 
           setOpen(!open, event.nativeEvent, undefined);
 
-          if (currentPointerTypeRef.current === 'mouse') {
+          if (currentPointerTypeRef.current !== 'touch') {
             inputRef.current?.focus();
           }
         },

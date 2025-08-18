@@ -398,10 +398,10 @@ export function ComboboxRoot<Item = any, Mode extends SelectionMode = 'none'>(
       const index = suppliedIndex ?? valuesRef.current.indexOf(selectedValue as Item);
       const hasIndex = index !== -1;
 
-      // Always clear the selected index when nothing is selected.
-      if (selectedValue == null) {
+      // Clear the selected index when nothing is selected or the value is not present.
+      if (selectedValue == null || !hasIndex) {
         store.set('selectedIndex', null);
-      } else if (allowActiveIndexSyncRef.current && hasIndex) {
+      } else if (allowActiveIndexSyncRef.current) {
         // Otherwise, sync only when synchronization is enabled.
         store.set('selectedIndex', index);
       }
