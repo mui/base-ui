@@ -50,6 +50,7 @@ import { useTransitionStatus } from '../../utils/useTransitionStatus';
 import { EMPTY_ARRAY } from '../../utils/constants';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
 import { HTMLProps } from '../../utils/types';
+import { useValueChanged } from './utils/useValueChanged';
 
 const DEFAULT_FILTER_OPTIONS = { sensitivity: 'base' } as const;
 
@@ -269,7 +270,9 @@ export function ComboboxRoot<Item = any, Mode extends SelectionMode = 'none'>(
   const keyboardActiveRef = React.useRef(true);
   const allowActiveIndexSyncRef = React.useRef(true);
   const hadInputClearRef = React.useRef(false);
-  const prevQueryRef = React.useRef(query);
+
+  const queryRef = React.useRef(query);
+  const selectedValueRef = React.useRef(selectedValue);
 
   const commitValidation = fieldControlValidation.commitValidation;
 
@@ -307,51 +310,28 @@ export function ComboboxRoot<Item = any, Mode extends SelectionMode = 'none'>(
     valuesRef.current = flatFilteredItems.slice();
   }, [virtualized, flatFilteredItems]);
 
-  useIsoLayoutEffect(() => {
-    if (
-      prevQueryRef.current === query ||
-      !open ||
-      query === '' ||
-      query === String(defaultInputValue).toLocaleLowerCase()
-    ) {
+  useValueChanged(queryRef, query, () => {
+    if (!open || query === '' || query === String(defaultInputValue).toLocaleLowerCase()) {
       return;
     }
-
     setQueryChangedAfterOpen(true);
-  }, [open, query, defaultInputValue]);
+  });
 
-  useIsoLayoutEffect(() => {
-    prevQueryRef.current = query;
-  }, [query]);
-
-  const prevValueRef = React.useRef(selectedValue);
-
-  useIsoLayoutEffect(() => {
-    if (prevValueRef.current === selectedValue) {
-      return;
-    }
-
+  useValueChanged(selectedValueRef, selectedValue, () => {
     clearErrors(name);
     commitValidation?.(selectedValue, true);
-
     if (validationMode === 'onChange') {
       commitValidation?.(selectedValue);
     }
-  }, [selectedValue, commitValidation, clearErrors, name, validationMode]);
+    updateValue(selectedValue);
+  });
 
   useIsoLayoutEffect(() => {
     const hasValue = multiple
       ? Array.isArray(selectedValue) && selectedValue.length > 0
       : selectedValue !== null && selectedValue !== undefined && selectedValue !== '';
     setFilled(hasValue);
-    if (prevValueRef.current !== selectedValue) {
-      updateValue(selectedValue);
-    }
-  }, [setFilled, updateValue, selectedValue, multiple]);
-
-  useIsoLayoutEffect(() => {
-    prevValueRef.current = selectedValue;
-  }, [selectedValue]);
+  }, [setFilled, selectedValue, multiple]);
 
   const setInputValue = useEventCallback(
     (next: string, event: Event | undefined, reason: ValueChangeReason | undefined) => {
@@ -428,6 +408,14 @@ export function ComboboxRoot<Item = any, Mode extends SelectionMode = 'none'>(
     }
   });
 
+  useIsoLayoutEffect(() => {
+    if (!hasRegisteredRef.current) {
+      return;
+    }
+
+    registerItemIndex(undefined);
+  }, [selectedValue, registerItemIndex]);
+
   const handleUnmount = useEventCallback(() => {
     allowActiveIndexSyncRef.current = true;
     listRef.current = initialList;
@@ -438,9 +426,7 @@ export function ComboboxRoot<Item = any, Mode extends SelectionMode = 'none'>(
     resetOpenInteractionType();
     onItemHighlighted(undefined, { type: 'none', index: -1 });
 
-    store.apply({
-      activeIndex: null,
-    });
+    store.set('activeIndex', null);
 
     // Restore selectedIndex back to its real value after the popup closes.
     // It may have been set to null while filtering or typing to avoid
@@ -578,14 +564,6 @@ export function ComboboxRoot<Item = any, Mode extends SelectionMode = 'none'>(
   );
 
   React.useImperativeHandle(props.actionsRef, () => ({ unmount: handleUnmount }), [handleUnmount]);
-
-  useIsoLayoutEffect(() => {
-    if (!hasRegisteredRef.current) {
-      return;
-    }
-
-    registerItemIndex(undefined);
-  }, [selectedValue, registerItemIndex]);
 
   const handleEnterSelection = useEventCallback((event: Event) => {
     if (activeIndex === null) {
