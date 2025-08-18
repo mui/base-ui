@@ -1258,7 +1258,9 @@ describe('<Menu.Root />', () => {
 
       const submenu = getByTestId('submenu');
 
-      await userEvent.unhover(menu);
+      // Use fireEvent to bypass pointer-events checks during safe-polygon pointer events mutation
+      fireEvent.mouseMove(menu);
+      fireEvent.mouseLeave(menu);
       await userEvent.hover(submenu);
 
       await waitFor(() => {
