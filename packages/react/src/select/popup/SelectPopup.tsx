@@ -11,7 +11,7 @@ import { FloatingFocusManager } from '../../floating-ui-react';
 import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import { popupStateMapping } from '../../utils/popupStateMapping';
-import type { Side } from '../../utils/useAnchorPositioning';
+import type { Side, Align } from '../../utils/useAnchorPositioning';
 import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import { useSelectPositionerContext } from '../positioner/SelectPositionerContext';
@@ -416,7 +416,7 @@ export namespace SelectPopup {
 
   export interface State {
     side: Side | 'none';
-    align: 'start' | 'end' | 'center';
+    align: Align;
     open: boolean;
     transitionStatus: TransitionStatus;
   }

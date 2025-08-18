@@ -202,6 +202,9 @@
   display: grid;
   list-style: none;
   grid-template-columns: 1fr;
+  padding: 0;
+  margin: 0;
+  list-style: none;
 
   @media (min-width: 640px) {
     grid-template-columns: 12rem 12rem;
@@ -213,9 +216,13 @@
   flex-direction: column;
   justify-content: center;
   max-width: 400px;
+  padding: 0;
+  margin: 0;
+  list-style: none;
 }
 
 .LinkCard {
+  box-sizing: border-box;
   position: relative;
   display: block;
   width: 100%;
@@ -225,6 +232,8 @@
   text-decoration: none;
   color: inherit;
   text-align: left;
+  border: none;
+  background-color: transparent;
 
   &[data-popup-open] {
     background-color: var(--color-gray-50);
