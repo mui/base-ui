@@ -121,7 +121,7 @@ export function resolveDependencies(packageName: string): Record<string, string>
     case '@base-ui-components/utils': {
       const version =
         COMMIT_REF === undefined || SOURCE_CODE_REPO !== 'https://github.com/mui/base-ui'
-          ? 'latest'
+          ? 'latest' // #npm-tag-reference
           : `https://pkg.pr.new/mui/base-ui/${packageName}@${COMMIT_REF}`;
       return { [packageName]: version };
     }
