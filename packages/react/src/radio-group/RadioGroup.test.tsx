@@ -174,13 +174,12 @@ describe('<RadioGroup />', () => {
   it.skipIf(isJSDOM)(
     'should return null when no radio is selected (matching native behavior)',
     async () => {
-      let formData: FormData;
-
       await render(
         <form
           onSubmit={(event) => {
             event.preventDefault();
-            formData = new FormData(event.currentTarget);
+            const formData = new FormData(event.currentTarget);
+            expect(formData.get('test-group')).to.equal(null);
           }}
         >
           <RadioGroup name="test-group">
@@ -193,44 +192,45 @@ describe('<RadioGroup />', () => {
 
       const submitButton = screen.getByRole('button');
       submitButton.click();
-
-      expect(formData!.get('test-group')).to.equal(null);
     },
   );
 
-  it.skipIf(isJSDOM)('should include the radio value in the form submission', async () => {
-    let formData: FormData;
-
+  it.skipIf(isJSDOM)('should return null in form data when no radio is selected', async () => {
     await render(
-      <form
-        onSubmit={(event) => {
-          event.preventDefault();
-          formData = new FormData(event.currentTarget);
-        }}
-      >
+      <form data-testid="form">
         <RadioGroup name="group">
           <Radio.Root value="a" />
           <Radio.Root value="b" />
           <Radio.Root value="c" />
         </RadioGroup>
-        <button type="submit">Submit</button>
       </form>,
     );
 
-    const [radioA] = screen.getAllByRole('radio');
-    const submitButton = screen.getByRole('button');
+    const form = screen.getByTestId('form') as HTMLFormElement;
+    const formData = new FormData(form);
+    expect(formData.get('group')).to.equal(null);
+  });
 
-    submitButton.click();
+  it.skipIf(isJSDOM)('should include selected radio value in form data', async () => {
+    await render(
+      <form data-testid="form">
+        <RadioGroup name="group">
+          <Radio.Root value="a" data-testid="radio-a" />
+          <Radio.Root value="b" />
+          <Radio.Root value="c" />
+        </RadioGroup>
+      </form>,
+    );
 
-    expect(formData!.get('group')).to.equal(null);
+    const radio = screen.getByTestId('radio-a');
+    const form = screen.getByTestId('form') as HTMLFormElement;
 
     await act(async () => {
-      radioA.click();
+      radio.click();
     });
 
-    submitButton.click();
-
-    expect(formData!.get('group')).to.equal('a');
+    const formData = new FormData(form);
+    expect(formData.get('group')).to.equal('a');
   });
 
   it('should automatically select radio upon navigation', async () => {
