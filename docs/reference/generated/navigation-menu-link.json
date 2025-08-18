@@ -19,6 +19,10 @@
       "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: NavigationMenu.Link.State,\n  ) => ReactElement)"
     }
   },
-  "dataAttributes": {},
+  "dataAttributes": {
+    "data-active": {
+      "description": "Present when the link is the currently active page."
+    }
+  },
   "cssVariables": {}
 }
