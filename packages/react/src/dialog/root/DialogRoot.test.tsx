@@ -189,7 +189,7 @@ describe('<Dialog.Root />', () => {
         await user.click(document.querySelector('[data-backdrop]') as HTMLElement);
 
         expect(handleOpenChange.callCount).to.equal(1);
-        expect(handleOpenChange.firstCall.args[2]).to.equal('outside-press');
+        expect(handleOpenChange.firstCall.args[2].reason).to.equal('outside-press');
       });
 
       it('does not change open state on non-main button clicks', async () => {
