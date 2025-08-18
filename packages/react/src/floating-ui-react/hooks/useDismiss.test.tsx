@@ -46,19 +46,20 @@ function App(
   const [open, setOpen] = React.useState(true);
   const { refs, context } = useFloating({
     open,
-    onOpenChange(open, _, reason) {
-      setOpen(open);
+    onOpenChange(openArg, _event, data) {
+      setOpen(openArg);
+      const reason = data?.reason;
       if (props.outsidePress) {
         expect(reason).toBe('outside-press');
       } else if (props.escapeKey) {
         expect(reason).toBe('escape-key');
-        if (!open) {
+        if (!openArg) {
           props.onClose?.();
         }
       } else if (props.referencePress) {
-        expect(reason).toBe('reference-press');
+        expect(reason).toBe('trigger-press');
       } else if (props.ancestorScroll) {
-        expect(reason).toBe('ancestor-scroll');
+        expect(reason).toBe('none');
       }
     },
   });

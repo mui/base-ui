@@ -13,7 +13,6 @@ import type {
   FloatingContext,
   FloatingRootContext,
   FloatingTreeType,
-  OpenChangeReason,
   SafePolygonOptions,
 } from '../types';
 import { createBaseUIEventData } from '../../utils/createBaseUIEvent';
@@ -186,7 +185,7 @@ export function useHover(context: FloatingRootContext, props: UseHoverProps = {}
   }, [elements.floating, open, onOpenChange, enabled, handleCloseRef, isHoverOpen]);
 
   const closeWithDelay = React.useCallback(
-    (event: Event, runElseBranch = true, reason: OpenChangeReason = 'hover') => {
+    (event: Event, runElseBranch = true) => {
       const closeDelay = getDelay(delayRef.current, 'close', pointerTypeRef.current);
       if (closeDelay && !handlerRef.current) {
         timeout.start(closeDelay, () =>
@@ -279,7 +278,7 @@ export function useHover(context: FloatingRootContext, props: UseHoverProps = {}
             clearPointerEvents();
             cleanupMouseMoveHandler();
             if (!isClickLikeOpenEvent()) {
-              closeWithDelay(event, true, 'safe-polygon');
+              closeWithDelay(event, true);
             }
           },
         });
