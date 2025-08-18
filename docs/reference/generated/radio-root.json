@@ -10,26 +10,31 @@
     "nativeButton": {
       "type": "boolean",
       "default": "true",
-      "description": "Whether the component renders a native `<button>` element when replacing it\nvia the `render` prop.\nSet to `false` if the rendered element is not a button (e.g. `<div>`)."
+      "description": "Whether the component renders a native `<button>` element when replacing it\nvia the `render` prop.\nSet to `false` if the rendered element is not a button (e.g. `<div>`).",
+      "detailedType": "boolean | undefined"
     },
     "disabled": {
       "type": "boolean",
       "default": "false",
-      "description": "Whether the component should ignore user interaction."
+      "description": "Whether the component should ignore user interaction.",
+      "detailedType": "boolean | undefined"
     },
     "readOnly": {
       "type": "boolean",
       "default": "false",
-      "description": "Whether the user should be unable to select the radio button."
+      "description": "Whether the user should be unable to select the radio button.",
+      "detailedType": "boolean | undefined"
     },
     "required": {
       "type": "boolean",
       "default": "false",
-      "description": "Whether the user must choose a value before submitting a form."
+      "description": "Whether the user must choose a value before submitting a form.",
+      "detailedType": "boolean | undefined"
     },
     "inputRef": {
       "type": "Ref<HTMLInputElement>",
-      "description": "A ref to access the hidden input element."
+      "description": "A ref to access the hidden input element.",
+      "detailedType": "React.Ref<HTMLInputElement> | undefined"
     },
     "className": {
       "type": "string | ((state: Radio.Root.State) => string)",
@@ -37,7 +42,8 @@
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: Radio.Root.State) => ReactElement)",
-      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
+      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Radio.Root.State,\n  ) => ReactElement)"
     }
   },
   "dataAttributes": {

@@ -95,19 +95,10 @@ export default function App() {
               </Toolbar.Button>
             </Toolbar.Group>
 
-            <Toolbar.Input
-              className={styles.input.Input}
-              defaultValue={inputDefaultValue}
-            />
+            <Toolbar.Input className={styles.input.Input} defaultValue={inputDefaultValue} />
           </Toolbar.Root>
         </DirectionProvider>
-        <textarea
-          className={styles.toolbar.Textarea}
-          name=""
-          id=""
-          rows={8}
-          defaultValue={TEXT}
-        />
+        <textarea className={styles.toolbar.Textarea} name="" id="" rows={8} defaultValue={TEXT} />
       </div>
     </React.Fragment>
   );

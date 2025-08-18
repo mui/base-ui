@@ -4,24 +4,29 @@
   "props": {
     "defaultValue": {
       "type": "string[]",
-      "description": "Names of the checkboxes in the group that should be initially ticked.\n\nTo render a controlled checkbox group, use the `value` prop instead."
+      "description": "Names of the checkboxes in the group that should be initially ticked.\n\nTo render a controlled checkbox group, use the `value` prop instead.",
+      "detailedType": "string[] | undefined"
     },
     "value": {
       "type": "string[]",
-      "description": "Names of the checkboxes in the group that should be ticked.\n\nTo render an uncontrolled checkbox group, use the `defaultValue` prop instead."
+      "description": "Names of the checkboxes in the group that should be ticked.\n\nTo render an uncontrolled checkbox group, use the `defaultValue` prop instead.",
+      "detailedType": "string[] | undefined"
     },
     "onValueChange": {
       "type": "((value: string[], event: Event) => void)",
-      "description": "Event handler called when a checkbox in the group is ticked or unticked.\nProvides the new value as an argument."
+      "description": "Event handler called when a checkbox in the group is ticked or unticked.\nProvides the new value as an argument.",
+      "detailedType": "| ((value: string[], event: Event) => void)\n| undefined"
     },
     "allValues": {
       "type": "string[]",
-      "description": "Names of all checkboxes in the group. Use this when creating a parent checkbox."
+      "description": "Names of all checkboxes in the group. Use this when creating a parent checkbox.",
+      "detailedType": "string[] | undefined"
     },
     "disabled": {
       "type": "boolean",
       "default": "false",
-      "description": "Whether the component should ignore user interaction."
+      "description": "Whether the component should ignore user interaction.",
+      "detailedType": "boolean | undefined"
     },
     "className": {
       "type": "string | ((state: Checkbox.Group.State) => string)",
@@ -29,7 +34,8 @@
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: Checkbox.Group.State) => ReactElement)",
-      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
+      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Checkbox.Group.State,\n  ) => ReactElement)"
     }
   },
   "dataAttributes": {

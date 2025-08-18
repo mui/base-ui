@@ -132,7 +132,7 @@
         bottom: 1px;
         right: -1px;
         width: 1.25rem;
-        background-image: linear-gradient(to right, transparent, var(--color-content));
+        background-image: linear-gradient(to right, transparent, var(--scrollable-gradient-color));
         animation: accordion-overscroll-overlay 500ms;
       }
 
@@ -167,5 +167,12 @@
     &::-webkit-scrollbar {
       display: none;
     }
+  }
+
+  .AccordionScrollable:has(pre) .AccordionScrollableInner {
+    min-height: unset;
+    padding: 0;
+    gap: 0;
+    padding-right: 0.5rem;
   }
 }

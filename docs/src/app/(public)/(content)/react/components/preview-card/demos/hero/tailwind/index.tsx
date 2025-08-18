@@ -29,9 +29,8 @@ export default function ExamplePreviewCard() {
               alt="Station Hofplein signage in Rotterdam, Netherlands"
             />
             <p className="text-sm text-pretty text-gray-900">
-              <strong>Typography</strong> is the art and science of arranging type to
-              make written language clear, visually appealing, and effective in
-              communication.
+              <strong>Typography</strong> is the art and science of arranging type to make written
+              language clear, visually appealing, and effective in communication.
             </p>
           </PreviewCard.Popup>
         </PreviewCard.Positioner>
