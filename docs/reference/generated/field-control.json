@@ -3,11 +3,13 @@
   "description": "The form control to label and validate.\nRenders an `<input>` element.\n\nYou can omit this part and use any Base UI input component instead. For example,\n[Input](https://base-ui.com/react/components/input), [Checkbox](https://base-ui.com/react/components/checkbox),\nor [Select](https://base-ui.com/react/components/select), among others, will work with Field out of the box.",
   "props": {
     "defaultValue": {
-      "type": "string | number | string[]"
+      "type": "string | number | string[]",
+      "detailedType": "string | number | string[] | undefined"
     },
     "onValueChange": {
       "type": "((value: string, event: Event) => void)",
-      "description": "Callback fired when the `value` changes. Use when controlled."
+      "description": "Callback fired when the `value` changes. Use when controlled.",
+      "detailedType": "((value: string, event: Event) => void) | undefined"
     },
     "className": {
       "type": "string | ((state: Field.Root.State) => string)",
@@ -15,7 +17,8 @@
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: Field.Root.State) => ReactElement)",
-      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
+      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Field.Root.State,\n  ) => ReactElement)"
     }
   },
   "dataAttributes": {

@@ -49,6 +49,8 @@ export default defineConfig(
      * their own groups.
      */
     rules: {
+      // @TODO: Remove this once we move away from namespaces
+      '@typescript-eslint/no-namespace': 'off',
       'import/export': 'off', // FIXME: Maximum call stack exceeded
       'no-restricted-imports': [
         'error',

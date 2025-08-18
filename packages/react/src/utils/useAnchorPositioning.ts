@@ -289,17 +289,17 @@ export function useAnchorPositioning(
         const transformY = arrowY + arrowHeight / 2;
         const shiftY = Math.abs(middlewareData.shift?.y || 0);
         const halfAnchorHeight = rects.reference.height / 2;
-        const isOverlappingAnchor =
-          shiftY >
-          (typeof sideOffset === 'function'
+        const sideOffsetValue =
+          typeof sideOffset === 'function'
             ? sideOffset(getOffsetData(state, sideParam, isRtl))
-            : sideOffset);
+            : sideOffset;
+        const isOverlappingAnchor = shiftY > sideOffsetValue;
 
         const adjacentTransformOrigin = {
-          top: `${transformX}px calc(100% + ${sideOffset}px)`,
-          bottom: `${transformX}px ${-sideOffset}px`,
-          left: `calc(100% + ${sideOffset}px) ${transformY}px`,
-          right: `${-sideOffset}px ${transformY}px`,
+          top: `${transformX}px calc(100% + ${sideOffsetValue}px)`,
+          bottom: `${transformX}px ${-sideOffsetValue}px`,
+          left: `calc(100% + ${sideOffsetValue}px) ${transformY}px`,
+          right: `${-sideOffsetValue}px ${transformY}px`,
         }[currentRenderedSide];
         const overlapTransformOrigin = `${transformX}px ${rects.reference.y + halfAnchorHeight - y}px`;
 
@@ -491,10 +491,23 @@ export namespace useAnchorPositioning {
      * Also accepts a function that returns the distance to read the dimensions of the anchor
      * and positioner elements, along with its side and alignment.
      *
+     * The function takes a `data` object parameter with the following properties:
      * - `data.anchor`: the dimensions of the anchor element with properties `width` and `height`.
      * - `data.positioner`: the dimensions of the positioner element with properties `width` and `height`.
      * - `data.side`: which side of the anchor element the positioner is aligned against.
      * - `data.align`: how the positioner is aligned relative to the specified side.
+     *
+     * @example
+     * ```jsx
+     * <Positioner
+     *   sideOffset={({ side, align, anchor, positioner }) => {
+     *     return side === 'top' || side === 'bottom'
+     *       ? anchor.height
+     *       : anchor.width;
+     *   }}
+     * />
+     * ```
+     *
      * @default 0
      */
     sideOffset?: number | OffsetFunction;
@@ -502,16 +515,29 @@ export namespace useAnchorPositioning {
      * How to align the popup relative to the specified side.
      * @default 'center'
      */
-    align?: 'start' | 'end' | 'center';
+    align?: Align;
     /**
      * Additional offset along the alignment axis in pixels.
      * Also accepts a function that returns the offset to read the dimensions of the anchor
      * and positioner elements, along with its side and alignment.
      *
+     * The function takes a `data` object parameter with the following properties:
      * - `data.anchor`: the dimensions of the anchor element with properties `width` and `height`.
      * - `data.positioner`: the dimensions of the positioner element with properties `width` and `height`.
      * - `data.side`: which side of the anchor element the positioner is aligned against.
      * - `data.align`: how the positioner is aligned relative to the specified side.
+     *
+     * @example
+     * ```jsx
+     * <Positioner
+     *   alignOffset={({ side, align, anchor, positioner }) => {
+     *     return side === 'top' || side === 'bottom'
+     *       ? anchor.width
+     *       : anchor.height;
+     *   }}
+     * />
+     * ```
+     *
      * @default 0
      */
     alignOffset?: number | OffsetFunction;
@@ -545,6 +571,18 @@ export namespace useAnchorPositioning {
     trackAnchor?: boolean;
     /**
      * Determines how to handle collisions when positioning the popup.
+     *
+     * @example
+     * ```jsx
+     * <Positioner
+     *   collisionAvoidance={{
+     *     side: 'shift',
+     *     align: 'shift',
+     *     fallbackAxisSide: 'none',
+     *   }}
+     * />
+     * ```
+     *
      */
     collisionAvoidance?: CollisionAvoidance;
   }
