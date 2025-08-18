@@ -3,7 +3,7 @@
   "extends": ["github>mui/mui-public//renovate/default"],
   "schedule": "* 2-6 * * 5",
   "lockFileMaintenance": {
-    "schedule": "* 0-5 3 * *"
+    "schedule": "* 0-4 4 * *"
   },
   "packageRules": [
     {
