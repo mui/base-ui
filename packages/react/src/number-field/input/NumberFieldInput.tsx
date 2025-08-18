@@ -1,7 +1,8 @@
 'use client';
 import * as React from 'react';
-import { formatNumber, formatNumberMaxPrecision } from '@base-ui-components/utils/formatNumber';
+import { formatNumber } from '@base-ui-components/utils/formatNumber';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
+import { formatNumberMaxPrecision } from '../utils/formatNumber';
 import { stopEvent } from '../../floating-ui-react/utils';
 import { useNumberFieldRootContext } from '../root/NumberFieldRootContext';
 import type { BaseUIComponentProps } from '../../utils/types';

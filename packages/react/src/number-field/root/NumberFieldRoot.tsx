@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { formatNumber, formatNumberMaxPrecision } from '@base-ui-components/utils/formatNumber';
+import { formatNumber } from '@base-ui-components/utils/formatNumber';
 import { useControlled } from '@base-ui-components/utils/useControlled';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { useTimeout } from '@base-ui-components/utils/useTimeout';
@@ -15,6 +15,7 @@ import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import type { BaseUIComponentProps } from '../../utils/types';
 import type { FieldRoot } from '../../field/root/FieldRoot';
 import { styleHookMapping } from '../utils/styleHooks';
+import { formatNumberMaxPrecision } from '../utils/formatNumber';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { getNumberLocaleDetails, PERCENTAGES } from '../utils/parse';
 import { useBaseUiId } from '../../utils/useBaseUiId';
