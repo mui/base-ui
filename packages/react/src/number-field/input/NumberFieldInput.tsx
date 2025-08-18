@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { formatNumber, formatNumberMaxPrecision } from '@base-ui-components/utils/formatNumber';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { stopEvent } from '../../floating-ui-react/utils';
 import { useNumberFieldRootContext } from '../root/NumberFieldRootContext';
@@ -14,7 +15,6 @@ import { styleHookMapping } from '../utils/styleHooks';
 import { useField } from '../../field/useField';
 import { useFormContext } from '../../form/FormContext';
 import { useRenderElement } from '../../utils/useRenderElement';
-import { formatNumber, formatNumberMaxPrecision } from '../../utils/formatNumber';
 
 const customStyleHookMapping = {
   ...fieldValidityMapping,

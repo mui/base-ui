@@ -1,4 +1,4 @@
-export const cache = new Map<string, Intl.NumberFormat>();
+const cache = new Map<string, Intl.NumberFormat>();
 
 export function getFormatter(locale?: Intl.LocalesArgument, options?: Intl.NumberFormatOptions) {
   const optionsString = JSON.stringify({ locale, options });

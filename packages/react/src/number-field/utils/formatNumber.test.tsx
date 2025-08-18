@@ -3,7 +3,7 @@ import {
   formatNumber,
   formatNumberMaxPrecision,
   getFormatter,
-} from '@base-ui-components/react/utils';
+} from '@base-ui-components/utils/formatNumber';
 
 describe('Base UI exported utilities', () => {
   it('should expose formatting utilities', () => {
