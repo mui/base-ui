@@ -5,6 +5,7 @@ import { type InteractionType } from '@base-ui-components/utils/useEnhancedClick
 import type { DialogRoot } from '../root/DialogRoot';
 import { HTMLProps } from '../../utils/types';
 import { COMPOSITE_KEYS } from '../../composite/composite';
+import { BaseUIEventData } from '../../utils/createBaseUIEvent';
 
 export function useDialogPopup(parameters: useDialogPopup.Parameters): useDialogPopup.ReturnValue {
   const {
@@ -76,8 +77,8 @@ export namespace useDialogPopup {
      */
     setOpen: (
       open: boolean,
-      event: Event | undefined,
-      reason: DialogRoot.OpenChangeReason | undefined,
+      event: Event,
+      data: BaseUIEventData<DialogRoot.OpenChangeReason>,
     ) => void;
     /**
      * The id of the title element associated with the dialog.

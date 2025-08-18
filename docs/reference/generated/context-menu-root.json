@@ -14,9 +14,9 @@
       "detailedType": "boolean | undefined"
     },
     "onOpenChange": {
-      "type": "((open: boolean, event: Event | undefined, reason: Menu.Root.OpenChangeReason | undefined) => void)",
+      "type": "((open: boolean, event: Event, data: BaseUIEventData<Menu.Root.OpenChangeReason>) => void)",
       "description": "Event handler called when the menu is opened or closed.",
-      "detailedType": "| ((\n    open: boolean,\n    event: Event | undefined,\n    reason: Menu.Root.OpenChangeReason | undefined,\n  ) => void)\n| undefined"
+      "detailedType": "| ((\n    open: boolean,\n    event: Event,\n    data: BaseUIEventData<Menu.Root.OpenChangeReason>,\n  ) => void)\n| undefined"
     },
     "actionsRef": {
       "type": "RefObject<Menu.Root.Actions>",

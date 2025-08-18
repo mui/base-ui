@@ -18,6 +18,7 @@ import { InternalBackdrop } from '../../utils/InternalBackdrop';
 import { useMenuPortalContext } from '../portal/MenuPortalContext';
 import { DROPDOWN_COLLISION_AVOIDANCE } from '../../utils/constants';
 import { useContextMenuRootContext } from '../../context-menu/root/ContextMenuRootContext';
+import { createBaseUIEventData, createSimpleBaseUIEvent } from '../../utils/createBaseUIEvent';
 
 /**
  * Positions the menu popup against the trigger.
@@ -136,7 +137,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
           setHoverEnabled(false);
         }
         if (event.nodeId !== nodeId && event.parentNodeId === parentNodeId) {
-          setOpen(false, undefined, 'sibling-open');
+          setOpen(false, createSimpleBaseUIEvent(), createBaseUIEventData('sibling-open'));
         }
       } else if (event.parentNodeId === nodeId) {
         setHoverEnabled(true);

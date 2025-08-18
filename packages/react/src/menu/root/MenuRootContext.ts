@@ -4,6 +4,7 @@ import type { FloatingRootContext } from '../../floating-ui-react';
 import type { MenuParent, MenuRoot } from './MenuRoot';
 import { HTMLProps } from '../../utils/types';
 import { TransitionStatus } from '../../utils/useTransitionStatus';
+import { BaseUIEventData } from '../../utils/createBaseUIEvent';
 
 export interface MenuRootContext {
   disabled: boolean;
@@ -19,11 +20,7 @@ export interface MenuRootContext {
   mounted: boolean;
   open: boolean;
   popupRef: React.RefObject<HTMLElement | null>;
-  setOpen: (
-    open: boolean,
-    event: Event | undefined,
-    reason: MenuRoot.OpenChangeReason | undefined,
-  ) => void;
+  setOpen: (open: boolean, event: Event, data: BaseUIEventData<MenuRoot.OpenChangeReason>) => void;
   positionerRef: React.RefObject<HTMLElement | null>;
   setPositionerElement: (element: HTMLElement | null) => void;
   triggerElement: HTMLElement | null;

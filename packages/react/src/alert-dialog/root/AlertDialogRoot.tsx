@@ -3,6 +3,7 @@ import * as React from 'react';
 import type { DialogRoot } from '../../dialog/root/DialogRoot';
 import { AlertDialogRootContext } from './AlertDialogRootContext';
 import { useDialogRoot } from '../../dialog/root/useDialogRoot';
+import { BaseUIEventData } from '../../utils/createBaseUIEvent';
 
 /**
  * Groups all parts of the alert dialog.
@@ -58,11 +59,7 @@ export namespace AlertDialogRoot {
     /**
      * Event handler called when the dialog is opened or closed.
      */
-    onOpenChange?: (
-      open: boolean,
-      event: Event | undefined,
-      reason: OpenChangeReason | undefined,
-    ) => void;
+    onOpenChange?: (open: boolean, event: Event, data: BaseUIEventData<OpenChangeReason>) => void;
     /**
      * A ref to imperative actions.
      * - `unmount`: When specified, the dialog will not be unmounted when closed.

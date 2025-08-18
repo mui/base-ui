@@ -7,6 +7,7 @@ import { SelectRootContext, SelectFloatingContext } from './SelectRootContext';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { serializeValue } from '../utils/serialize';
 import { BaseOpenChangeReason } from '../../utils/types';
+import { BaseUIEventData } from '../../utils/createBaseUIEvent';
 
 /**
  * Groups all parts of the select.
@@ -214,8 +215,8 @@ interface SelectRootProps<Value> {
    */
   onOpenChange?: (
     open: boolean,
-    event: Event | undefined,
-    reason: SelectRoot.OpenChangeReason | undefined,
+    event: Event,
+    data: BaseUIEventData<SelectRoot.OpenChangeReason>,
   ) => void;
   /**
    * Event handler called after any animations complete when the select menu is opened or closed.

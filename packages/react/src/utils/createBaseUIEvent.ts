@@ -1,7 +1,7 @@
 import type { PreventBaseUIHandlerOptions, BaseOpenChangeReason } from './types';
 
-export interface BaseUIEventData<Reason> {
-  reason: BaseOpenChangeReason | Reason;
+export interface BaseUIEventData<Reason extends string = BaseOpenChangeReason> {
+  reason: Reason;
   preventBaseUIHandler: (options?: PreventBaseUIHandlerOptions) => void;
   baseUIHandlerPrevented: false | PreventBaseUIHandlerOptions;
 }
@@ -10,8 +10,8 @@ export interface BaseUIEventData<Reason> {
  * Creates a Base UI event data object with the given reason and utilities
  * for preventing the framework's default handler.
  */
-export function createBaseUIEventData<Reason>(
-  reason: BaseOpenChangeReason | Reason,
+export function createBaseUIEventData<Reason extends string = BaseOpenChangeReason>(
+  reason: Reason,
 ): BaseUIEventData<Reason> {
   let preventedOptions: PreventBaseUIHandlerOptions | false = false;
   return {

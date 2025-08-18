@@ -4,17 +4,14 @@ import type { InteractionType } from '@base-ui-components/utils/useEnhancedClick
 import type { FloatingRootContext } from '../../floating-ui-react';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import type { BaseOpenChangeReason, HTMLProps } from '../../utils/types';
+import { BaseUIEventData } from '../../utils/createBaseUIEvent';
 
 export type PopoverOpenChangeReason = BaseOpenChangeReason | 'close-press';
 
 export interface PopoverRootContext {
   open: boolean;
   openOnHover: boolean;
-  setOpen: (
-    open: boolean,
-    event: Event | undefined,
-    reason: PopoverOpenChangeReason | undefined,
-  ) => void;
+  setOpen: (open: boolean, event: Event, data: BaseUIEventData<PopoverOpenChangeReason>) => void;
   triggerElement: Element | null;
   setTriggerElement: (el: Element | null) => void;
   positionerElement: HTMLElement | null;

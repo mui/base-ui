@@ -19,6 +19,7 @@ import { contains } from '../../floating-ui-react/utils';
 import { mergeProps } from '../../merge-props';
 import { useButton } from '../../use-button';
 import type { FieldRoot } from '../../field/root/FieldRoot';
+import { createBaseUIEventData } from '../../utils/createBaseUIEvent';
 
 const BOUNDARY_OFFSET = 2;
 
@@ -132,7 +133,7 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
         setFocused(true);
         // The popup element shouldn't obscure the focused trigger.
         if (open && alignItemWithTriggerActiveRef.current) {
-          setOpen(false, event.nativeEvent, 'focus-out');
+          setOpen(false, event.nativeEvent, createBaseUIEventData('focus-out'));
         }
 
         // Saves a re-render on initial click: `forceMount === true` mounts
@@ -163,7 +164,7 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
         keyboardActiveRef.current = true;
 
         if (event.key === 'ArrowDown') {
-          setOpen(true, event.nativeEvent, 'list-navigation');
+          setOpen(true, event.nativeEvent, createBaseUIEventData('list-navigation'));
         }
       },
       onMouseDown(event) {
@@ -200,7 +201,7 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
             return;
           }
 
-          setOpen(false, mouseEvent, 'cancel-open');
+          setOpen(false, mouseEvent, createBaseUIEventData('cancel-open'));
         }
 
         // Firefox can fire this upon mousedown

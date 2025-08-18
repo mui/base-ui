@@ -3,14 +3,11 @@ import * as React from 'react';
 import type { FloatingRootContext } from '../../floating-ui-react';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import type { BaseOpenChangeReason, HTMLProps } from '../../utils/types';
+import { BaseUIEventData } from '../../utils/createBaseUIEvent';
 
 export interface PreviewCardRootContext {
   open: boolean;
-  setOpen: (
-    open: boolean,
-    event: Event | undefined,
-    reason: BaseOpenChangeReason | undefined,
-  ) => void;
+  setOpen: (open: boolean, event: Event, data: BaseUIEventData<BaseOpenChangeReason>) => void;
   setTriggerElement: (el: Element | null) => void;
   positionerElement: HTMLElement | null;
   setPositionerElement: (el: HTMLElement | null) => void;

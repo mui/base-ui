@@ -24,7 +24,11 @@ import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useTransitionStatus } from '../../utils/useTransitionStatus';
 import { selectors, State } from '../store';
 import type { SelectRootContext } from './SelectRootContext';
-import type { BaseUIEventData } from '../../utils/createBaseUIEvent';
+import {
+  createSimpleBaseUIEvent,
+  isEventPrevented,
+  type BaseUIEventData,
+} from '../../utils/createBaseUIEvent';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useFormContext } from '../../form/FormContext';
 import { useField } from '../../field/useField';
@@ -222,12 +226,13 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
   }, [value]);
 
   const setOpen = useEventCallback(
-    (
-      nextOpen: boolean,
-      event: Event | undefined,
-      reason: SelectRoot.OpenChangeReason | undefined,
-    ) => {
-      params.onOpenChange?.(nextOpen, event, reason);
+    (nextOpen: boolean, event: Event, data: BaseUIEventData<SelectRoot.OpenChangeReason>) => {
+      params.onOpenChange?.(nextOpen, event, data);
+
+      if (isEventPrevented(data)) {
+        return;
+      }
+
       setOpenUnwrapped(nextOpen);
 
       // The active index will sync to the last selected index on the next open.
@@ -352,8 +357,8 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
 
   const floatingContext = useFloatingRootContext({
     open,
-    onOpenChange(nextOpen, event, data?: BaseUIEventData) {
-      setOpen(nextOpen, event, data?.reason);
+    onOpenChange(nextOpen, event, data) {
+      setOpen(nextOpen, event || createSimpleBaseUIEvent(), data);
     },
     elements: {
       reference: triggerElement,

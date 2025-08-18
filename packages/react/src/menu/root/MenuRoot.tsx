@@ -27,7 +27,11 @@ import { useDirection } from '../../direction-provider/DirectionContext';
 import { useScrollLock } from '../../utils/useScrollLock';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
 import { type BaseOpenChangeReason } from '../../utils/types';
-import type { BaseUIEventData } from '../../utils/createBaseUIEvent';
+import {
+  createSimpleBaseUIEvent,
+  isEventPrevented,
+  type BaseUIEventData,
+} from '../../utils/createBaseUIEvent';
 import {
   ContextMenuRootContext,
   useContextMenuRootContext,
@@ -223,12 +227,16 @@ export const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
   const allowTouchToCloseTimeout = useTimeout();
 
   const setOpen = useEventCallback(
-    (
-      nextOpen: boolean,
-      event: Event | undefined,
-      reason: MenuRoot.OpenChangeReason | undefined,
-    ) => {
+    (nextOpen: boolean, event: Event, data: BaseUIEventData<MenuRoot.OpenChangeReason>) => {
+      const reason = data?.reason;
+
       if (open === nextOpen) {
+        return;
+      }
+
+      onOpenChange?.(nextOpen, event, data);
+
+      if (isEventPrevented(data)) {
         return;
       }
 
@@ -274,7 +282,6 @@ export const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
       const isDismissClose = !nextOpen && (reason === 'escape-key' || reason == null);
 
       function changeState() {
-        onOpenChange?.(nextOpen, event, reason);
         setOpenUnwrapped(nextOpen);
         setLastOpenChangeReason(reason ?? null);
         openEventRef.current = event ?? null;
@@ -337,8 +344,8 @@ export const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
       floating: positionerElement,
     },
     open,
-    onOpenChange(openValue, eventValue, dataValue?: BaseUIEventData) {
-      setOpen(openValue, eventValue, dataValue?.reason as MenuRoot.OpenChangeReason | undefined);
+    onOpenChange(openValue, eventValue, dataValue) {
+      setOpen(openValue, eventValue || createSimpleBaseUIEvent(), dataValue);
     },
   });
 
@@ -578,11 +585,7 @@ export namespace MenuRoot {
     /**
      * Event handler called when the menu is opened or closed.
      */
-    onOpenChange?: (
-      open: boolean,
-      event: Event | undefined,
-      reason: OpenChangeReason | undefined,
-    ) => void;
+    onOpenChange?: (open: boolean, event: Event, data: BaseUIEventData<OpenChangeReason>) => void;
     /**
      * Event handler called after any animations complete when the menu is closed.
      */
