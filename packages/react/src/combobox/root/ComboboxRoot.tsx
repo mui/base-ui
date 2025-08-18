@@ -368,53 +368,59 @@ export function ComboboxRoot<Item = any, Mode extends SelectionMode = 'none'>(
 
   const hasRegisteredRef = React.useRef(false);
 
-  const registerItemIndex = useEventCallback((suppliedIndex: number | undefined) => {
-    if (suppliedIndex !== undefined) {
-      hasRegisteredRef.current = true;
+  const syncSelectedState = useEventCallback(() => {
+    if (!hasRegisteredRef.current || selectionMode === 'none') {
+      return;
     }
+
+    if (multiple) {
+      const currentValue = Array.isArray(selectedValue) ? selectedValue : [];
+      const lastValue = currentValue[currentValue.length - 1];
+      const lastIndex = lastValue !== undefined ? valuesRef.current.indexOf(lastValue) : -1;
+
+      let computedSelectedIndex = store.state.selectedIndex;
+      if (computedSelectedIndex === null) {
+        computedSelectedIndex = lastIndex === -1 ? null : lastIndex;
+      }
+
+      store.set('selectedIndex', computedSelectedIndex);
+    } else {
+      const index = valuesRef.current.indexOf(selectedValue);
+      const hasIndex = index !== -1;
+
+      if (selectedValue == null || !hasIndex) {
+        store.set('selectedIndex', null);
+      } else if (allowActiveIndexSyncRef.current) {
+        store.set('selectedIndex', index);
+      }
+    }
+  });
+
+  const registerItemIndex = useEventCallback((index: number) => {
+    hasRegisteredRef.current = true;
 
     if (selectionMode === 'none') {
       return;
     }
 
     if (multiple) {
-      const currentValue = selectedValue as Item[];
-      const selectedIndices: number[] = [];
-
-      if (Array.isArray(currentValue)) {
-        currentValue.forEach((val) => {
-          const index = valuesRef.current.indexOf(val);
-          if (index !== -1) {
-            selectedIndices.push(index);
-          }
-        });
-      }
-
-      store.set(
-        'selectedIndex',
-        selectedIndices.length > 0 ? selectedIndices[selectedIndices.length - 1] : null,
-      );
-    } else {
-      const index = suppliedIndex ?? valuesRef.current.indexOf(selectedValue as Item);
-      const hasIndex = index !== -1;
-
-      // Clear the selected index when nothing is selected or the value is not present.
-      if (selectedValue == null || !hasIndex) {
-        store.set('selectedIndex', null);
-      } else if (allowActiveIndexSyncRef.current) {
-        // Otherwise, sync only when synchronization is enabled.
-        store.set('selectedIndex', index);
-      }
-    }
-  });
-
-  useIsoLayoutEffect(() => {
-    if (!hasRegisteredRef.current) {
+      // Keep `selectedIndex` in sync once an item reports its index.
+      syncSelectedState();
       return;
     }
 
-    registerItemIndex(undefined);
-  }, [selectedValue, registerItemIndex]);
+    // Single selection: prefer the supplied index to avoid relying on filtered values.
+    if (selectedValue == null) {
+      store.set('selectedIndex', null);
+      return;
+    }
+    if (allowActiveIndexSyncRef.current) {
+      store.set('selectedIndex', index);
+    }
+  });
+
+  // Keep store in sync whenever `selectedValue` changes after registration.
+  useIsoLayoutEffect(syncSelectedState, [selectedValue, syncSelectedState]);
 
   const handleUnmount = useEventCallback(() => {
     allowActiveIndexSyncRef.current = true;
