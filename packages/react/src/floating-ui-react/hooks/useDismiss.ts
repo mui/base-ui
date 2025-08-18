@@ -647,6 +647,7 @@ export function useDismiss(
       onPointerDownCapture: handleCaptureInside,
       onMouseDownCapture: handleCaptureInside,
       onClickCapture: handleCaptureInside,
+      onMouseUpCapture: handleCaptureInside,
     }),
     [closeOnEscapeKeyDown, handlePressedInside, handleCaptureInside],
   );
