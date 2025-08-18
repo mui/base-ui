@@ -58,7 +58,7 @@ function DelayUntilRepeat() {
 function Volume() {
   return (
     <Slider.Root
-      defaultValue={0}
+      defaultValue={30}
       min={0}
       max={100}
       step={1}
@@ -82,7 +82,7 @@ function Volume() {
 function Brightness() {
   return (
     <Slider.Root
-      defaultValue={0}
+      defaultValue={30}
       min={0}
       max={100}
       step={1}
@@ -145,7 +145,7 @@ function TemperatureRange() {
       step={0.5}
       orientation="vertical"
       className={verticalStyles.Root}
-      aria-labelledby="label-3"
+      aria-labelledby="label-4"
       format={{
         style: 'unit',
         unit: 'celsius',
@@ -162,8 +162,42 @@ function TemperatureRange() {
           <Slider.Thumb className={verticalStyles.Thumb} />
         </Slider.Track>
       </Slider.Control>
-      <span className={verticalStyles.Label} id="label-3">
+      <span className={verticalStyles.Label} id="label-4">
         Temperature Range
+      </span>
+    </Slider.Root>
+  );
+}
+
+function Hue() {
+  return (
+    <Slider.Root
+      defaultValue={60}
+      min={0}
+      max={360}
+      step={1}
+      orientation="vertical"
+      className={verticalStyles.Root}
+      aria-labelledby="label-5"
+      format={{
+        style: 'unit',
+        unit: 'degree',
+        unitDisplay: 'narrow',
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0,
+      }}
+      inverted
+      style={{ width: '18rem' }}
+    >
+      <Slider.Value className={verticalStyles.Value} />
+      <Slider.Control className={verticalStyles.Control}>
+        <Slider.Track className={verticalStyles.Track}>
+          <Slider.Indicator className={verticalStyles.Indicator} />
+          <Slider.Thumb className={verticalStyles.Thumb} />
+        </Slider.Track>
+      </Slider.Control>
+      <span className={verticalStyles.Label} id="label-5">
+        Hue
       </span>
     </Slider.Root>
   );
@@ -184,9 +218,10 @@ export default function App() {
           alignItems: 'flex-start',
         }}
       >
+        <Hue />
+        <Brightness />
         <DelayUntilRepeat />
         <Volume />
-        <Brightness />
         <PriceRange />
         <TemperatureRange />
       </div>

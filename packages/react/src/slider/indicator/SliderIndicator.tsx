@@ -41,7 +41,7 @@ export const SliderIndicator = React.forwardRef(function SliderIndicator(
 ) {
   const { render, className, ...elementProps } = componentProps;
 
-  const { max, min, orientation, state, values } = useSliderRootContext();
+  const { max, min, inverted, orientation, state, values } = useSliderRootContext();
 
   const percentageValues = valueArrayToPercentages(values.slice(), min, max);
 
@@ -55,7 +55,7 @@ export const SliderIndicator = React.forwardRef(function SliderIndicator(
   } else if (orientation === 'vertical') {
     style = {
       position: 'absolute',
-      bottom: 0,
+      [inverted ? 'top' : 'bottom']: 0,
       height: `${percentageValues[0]}%`,
       width: 'inherit',
     };
