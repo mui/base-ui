@@ -3,9 +3,15 @@
   "extends": ["github>mui/mui-public//renovate/default"],
   "schedule": "* 2-6 * * 5",
   "lockFileMaintenance": {
-    "schedule": "* 0-5 3 * *"
+    "schedule": "* 0-4 4 * *"
   },
   "packageRules": [
+    {
+      "matchDepTypes": ["devDependencies"],
+      "matchUpdateTypes": ["minor", "patch", "pin", "digest"],
+      "automerge": true,
+      "minimumReleaseAge": "3 days"
+    },
     {
       "groupName": "Floating UI",
       "description": "Update Floating UI as soon as the new version is released",
@@ -20,6 +26,13 @@
       "groupName": "MUI public packages",
       "matchPackageNames": ["@mui/*", "!@mui/internal-*", "!@mui/docs"],
       "allowedVersions": "!/-dev/"
+    },
+    {
+      "matchDepTypes": ["devDependencies"],
+      "matchUpdateTypes": ["minor", "patch", "pin", "digest"],
+      "matchPackageNames": ["@mui/*"],
+      "automerge": true,
+      "minimumReleaseAge": "1 minute"
     },
     {
       "groupName": "Types",

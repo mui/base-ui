@@ -21,14 +21,15 @@
   const direction = getComputedStyle(list).direction;
 
   const left = activeTab.offsetLeft - list.clientLeft;
+  const { width: rectWidth, height: rectHeight } = activeTab.getBoundingClientRect();
+  const width = Math.floor(rectWidth);
+  const height = Math.floor(rectHeight);
   const right =
     direction === 'ltr'
-      ? list.scrollWidth - activeTab.offsetLeft - activeTab.offsetWidth - list.clientLeft
+      ? list.scrollWidth - activeTab.offsetLeft - width - list.clientLeft
       : activeTab.offsetLeft - list.clientLeft;
   const top = activeTab.offsetTop - list.clientTop;
-  const bottom = list.scrollHeight - activeTab.offsetTop - activeTab.offsetHeight - list.clientTop;
-  const width = activeTab.offsetWidth;
-  const height = activeTab.offsetHeight;
+  const bottom = list.scrollHeight - activeTab.offsetTop - height - list.clientTop;
 
   function setProp(name, value) {
     indicator.style.setProperty(`--active-tab-${name}`, `${value}px`);

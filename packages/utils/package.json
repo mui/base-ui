@@ -9,25 +9,23 @@
   },
   "license": "MIT",
   "exports": {
-    "./*": "./src/*.ts",
-    "./store": "./src/store/index.ts"
+    "./store": "./src/store/index.ts",
+    "./*": "./src/*.ts"
   },
   "type": "commonjs",
   "scripts": {
     "prebuild": "rimraf --glob build build-tests \"*.tsbuildinfo\"",
-    "build": "pnpm build:node && pnpm build:stable && pnpm build:types && pnpm build:copy-files && pnpm build:manifest",
-    "build:node": "node ../../scripts/build.mjs node --cjsDir ./cjs",
-    "build:stable": "node ../../scripts/build.mjs stable --cjsDir ./cjs",
-    "build:types": "tsx ../../scripts/buildTypes.mts --copy build/cjs",
-    "build:copy-files": "node ../../scripts/copyFiles.mjs ./.npmignore:./.npmignore",
+    "build": "code-infra build --cjsOutDir cjs && pnpm build:copy-files && pnpm build:manifest",
+    "build:stable": "code-infra build --bundle esm --buildTypes false",
+    "build:copy-files": "code-infra copy-files .npmignore",
     "build:manifest": "tsx ../../scripts/createPackageManifest.mts -p .",
-    "test:package": "publint --pack pnpm && attw --pack ./build --exclude-entrypoints package.json",
+    "test:package": "publint --pack pnpm run ./build && attw --pack ./build --exclude-entrypoints package.json --exclude-entrypoints esm --exclude-entrypoints cjs",
     "release": "pnpm build && pnpm publish",
     "test": "cross-env NODE_ENV=test VITEST_ENV=jsdom vitest",
     "typescript": "tsc -b tsconfig.json"
   },
   "dependencies": {
-    "@babel/runtime": "^7.28.2",
+    "@babel/runtime": "^7.28.3",
     "@floating-ui/utils": "^0.2.10",
     "reselect": "^5.1.1",
     "use-sync-external-store": "^1.5.0"
