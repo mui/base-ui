@@ -4,9 +4,26 @@ export type HTMLProps<T = any> = React.HTMLAttributes<T> & {
   ref?: React.Ref<T> | undefined;
 };
 
+export type BaseOpenChangeReason =
+  | 'trigger-press'
+  | 'trigger-hover'
+  | 'trigger-focus'
+  | 'focus-out'
+  | 'escape-key'
+  | 'outside-press'
+  | 'list-navigation'
+  | 'item-press'
+  | 'cancel-open'
+  | 'none';
+
+export interface PreventBaseUIHandlerOptions {
+  allowPreventDefault?: boolean;
+  allowStopPropagation?: boolean;
+}
+
 export type BaseUIEvent<E extends React.SyntheticEvent<Element, Event>> = E & {
-  preventBaseUIHandler: () => void;
-  readonly baseUIHandlerPrevented?: boolean;
+  preventBaseUIHandler: (options?: PreventBaseUIHandlerOptions) => void;
+  readonly baseUIHandlerPrevented?: PreventBaseUIHandlerOptions;
 };
 
 type WithPreventBaseUIHandler<T> = T extends (event: infer E) => any

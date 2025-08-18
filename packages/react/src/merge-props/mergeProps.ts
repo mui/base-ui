@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { mergeObjects } from '@base-ui-components/utils/mergeObjects';
-import type { BaseUIEvent, WithBaseUIEvent } from '../utils/types';
+import type { BaseUIEvent, PreventBaseUIHandlerOptions, WithBaseUIEvent } from '../utils/types';
 
 type ElementType = React.ElementType;
 type PropsOf<T extends React.ElementType> = WithBaseUIEvent<React.ComponentPropsWithRef<T>>;
@@ -200,8 +200,8 @@ function mergeEventHandlers(ourHandler: Function | undefined, theirHandler: Func
 }
 
 export function makeEventPreventable<T extends React.SyntheticEvent>(event: BaseUIEvent<T>) {
-  event.preventBaseUIHandler = () => {
-    (event.baseUIHandlerPrevented as boolean) = true;
+  event.preventBaseUIHandler = (options: PreventBaseUIHandlerOptions = {}) => {
+    (event.baseUIHandlerPrevented as PreventBaseUIHandlerOptions) = options;
   };
 
   return event;

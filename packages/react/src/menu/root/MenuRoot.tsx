@@ -26,10 +26,8 @@ import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useDirection } from '../../direction-provider/DirectionContext';
 import { useScrollLock } from '../../utils/useScrollLock';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
-import {
-  type BaseOpenChangeReason,
-  translateOpenChangeReason,
-} from '../../utils/translateOpenChangeReason';
+import { type BaseOpenChangeReason } from '../../utils/types';
+import type { BaseUIEventData } from '../../utils/createBaseUIEvent';
 import {
   ContextMenuRootContext,
   useContextMenuRootContext,
@@ -339,8 +337,8 @@ export const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
       floating: positionerElement,
     },
     open,
-    onOpenChange(openValue, eventValue, reasonValue) {
-      setOpen(openValue, eventValue, translateOpenChangeReason(reasonValue));
+    onOpenChange(openValue, eventValue, dataValue?: BaseUIEventData) {
+      setOpen(openValue, eventValue, dataValue?.reason as MenuRoot.OpenChangeReason | undefined);
     },
   });
 

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import type { BaseOpenChangeReason } from '../../utils/translateOpenChangeReason';
+import { type BaseOpenChangeReason } from '../../utils/types';
 
 export interface ContextMenuRootContext {
   anchor: { getBoundingClientRect: () => DOMRect };

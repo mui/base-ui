@@ -6,7 +6,7 @@ import { useSelectRoot } from './useSelectRoot';
 import { SelectRootContext, SelectFloatingContext } from './SelectRootContext';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { serializeValue } from '../utils/serialize';
-import { BaseOpenChangeReason } from '../../utils/translateOpenChangeReason';
+import { BaseOpenChangeReason } from '../../utils/types';
 
 /**
  * Groups all parts of the select.

@@ -24,6 +24,7 @@ import {
 
 import { useFloatingTree } from '../components/FloatingTree';
 import type { ElementProps, FloatingRootContext } from '../types';
+import { createBaseUIEventData, isStopPropagationAllowed } from '../../utils/createBaseUIEvent';
 import { createAttribute } from '../utils/createAttribute';
 
 type PressType = 'intentional' | 'sloppy';
@@ -189,8 +190,6 @@ export function useDismiss(
       const children = tree ? getNodeChildren(tree.nodesRef.current, nodeId) : [];
 
       if (!escapeKeyBubbles) {
-        event.stopPropagation();
-
         if (children.length > 0) {
           let shouldDismiss = true;
 
@@ -206,7 +205,13 @@ export function useDismiss(
         }
       }
 
-      onOpenChange(false, isReactEvent(event) ? event.nativeEvent : event, 'escape-key');
+      const baseUIEventData = createBaseUIEventData('escape-key');
+
+      onOpenChange(false, isReactEvent(event) ? event.nativeEvent : event, baseUIEventData);
+
+      if (!escapeKeyBubbles && isStopPropagationAllowed(baseUIEventData)) {
+        event.stopPropagation();
+      }
     },
   );
 
@@ -348,7 +353,7 @@ export function useDismiss(
       }
     }
 
-    onOpenChange(false, event, 'outside-press');
+    onOpenChange(false, event, createBaseUIEventData('outside-press'));
   });
 
   const handlePointerDown = useEventCallback((event: PointerEvent) => {
@@ -465,7 +470,7 @@ export function useDismiss(
     const compositionTimeout = new Timeout();
 
     function onScroll(event: Event) {
-      onOpenChange(false, event, 'ancestor-scroll');
+      onOpenChange(false, event, createBaseUIEventData('none'));
     }
 
     function handleCompositionStart() {
@@ -612,11 +617,11 @@ export function useDismiss(
       onKeyDown: closeOnEscapeKeyDown,
       ...(referencePress && {
         [bubbleHandlerKeys[referencePressEvent]]: (event: React.SyntheticEvent) => {
-          onOpenChange(false, event.nativeEvent, 'reference-press');
+          onOpenChange(false, event.nativeEvent, createBaseUIEventData('trigger-press'));
         },
         ...(referencePressEvent !== 'intentional' && {
           onClick(event) {
-            onOpenChange(false, event.nativeEvent, 'reference-press');
+            onOpenChange(false, event.nativeEvent, createBaseUIEventData('trigger-press'));
           },
         }),
       }),

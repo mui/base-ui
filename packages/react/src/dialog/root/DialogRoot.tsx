@@ -3,7 +3,7 @@ import * as React from 'react';
 import { DialogRootContext, useOptionalDialogRootContext } from './DialogRootContext';
 import { DialogContext } from '../utils/DialogContext';
 import { useDialogRoot } from './useDialogRoot';
-import { BaseOpenChangeReason } from '../../utils/translateOpenChangeReason';
+import { type BaseOpenChangeReason } from '../../utils/types';
 
 /**
  * Groups all parts of the dialog.

@@ -11,14 +11,13 @@ import {
   type FloatingRootContext,
 } from '../../floating-ui-react';
 import { activeElement, contains } from '../../floating-ui-react/utils';
-import type { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import {
   NavigationMenuRootContext,
   NavigationMenuTreeContext,
   useNavigationMenuRootContext,
 } from './NavigationMenuRootContext';
-import type { BaseOpenChangeReason } from '../../utils/translateOpenChangeReason';
+import { type BaseUIComponentProps, BaseOpenChangeReason } from '../../utils/types';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useTransitionStatus } from '../../utils/useTransitionStatus';
 import { setFixedSize } from '../utils/setFixedSize';

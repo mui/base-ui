@@ -16,6 +16,7 @@ import type {
   OpenChangeReason,
   SafePolygonOptions,
 } from '../types';
+import { createBaseUIEventData } from '../../utils/createBaseUIEvent';
 import { createAttribute } from '../utils/createAttribute';
 
 const safePolygonIdentifier = createAttribute('safe-polygon');
@@ -173,7 +174,7 @@ export function useHover(context: FloatingRootContext, props: UseHoverProps = {}
 
     function onLeave(event: MouseEvent) {
       if (isHoverOpen()) {
-        onOpenChange(false, event, 'hover');
+        onOpenChange(false, event, createBaseUIEventData('trigger-hover'));
       }
     }
 
@@ -188,10 +189,12 @@ export function useHover(context: FloatingRootContext, props: UseHoverProps = {}
     (event: Event, runElseBranch = true, reason: OpenChangeReason = 'hover') => {
       const closeDelay = getDelay(delayRef.current, 'close', pointerTypeRef.current);
       if (closeDelay && !handlerRef.current) {
-        timeout.start(closeDelay, () => onOpenChange(false, event, reason));
+        timeout.start(closeDelay, () =>
+          onOpenChange(false, event, createBaseUIEventData('trigger-hover')),
+        );
       } else if (runElseBranch) {
         timeout.clear();
-        onOpenChange(false, event, reason);
+        onOpenChange(false, event, createBaseUIEventData('trigger-hover'));
       }
     },
     [delayRef, onOpenChange, timeout],
@@ -241,11 +244,11 @@ export function useHover(context: FloatingRootContext, props: UseHoverProps = {}
       if (openDelay) {
         timeout.start(openDelay, () => {
           if (!openRef.current) {
-            onOpenChange(true, event, 'hover');
+            onOpenChange(true, event, createBaseUIEventData('trigger-hover'));
           }
         });
       } else if (!open) {
-        onOpenChange(true, event, 'hover');
+        onOpenChange(true, event, createBaseUIEventData('trigger-hover'));
       }
     }
 
@@ -485,7 +488,7 @@ export function useHover(context: FloatingRootContext, props: UseHoverProps = {}
 
         function handleMouseMove() {
           if (!blockMouseMoveRef.current && !openRef.current) {
-            onOpenChange(true, nativeEvent, 'hover');
+            onOpenChange(true, nativeEvent, createBaseUIEventData('trigger-hover'));
           }
         }
 

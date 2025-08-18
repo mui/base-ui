@@ -12,13 +12,11 @@ import {
 } from '../../floating-ui-react';
 import { PreviewCardRootContext } from './PreviewCardContext';
 import { CLOSE_DELAY, OPEN_DELAY } from '../utils/constants';
-import {
-  translateOpenChangeReason,
-  type BaseOpenChangeReason,
-} from '../../utils/translateOpenChangeReason';
+import type { BaseUIEventData } from '../../utils/createBaseUIEvent';
 import { useFocusWithDelay } from '../../utils/interactions/useFocusWithDelay';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useTransitionStatus } from '../../utils/useTransitionStatus';
+import { BaseOpenChangeReason } from '../../utils/types';
 
 /**
  * Groups all parts of the preview card.
@@ -108,8 +106,8 @@ export function PreviewCardRoot(props: PreviewCardRoot.Props) {
       floating: positionerElement,
     },
     open,
-    onOpenChange(openValue, eventValue, reasonValue) {
-      setOpen(openValue, eventValue, translateOpenChangeReason(reasonValue));
+    onOpenChange(openValue, eventValue, dataValue?: BaseUIEventData) {
+      setOpen(openValue, eventValue, dataValue?.reason as BaseOpenChangeReason | undefined);
     },
   });
 

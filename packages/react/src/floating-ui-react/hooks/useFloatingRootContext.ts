@@ -3,18 +3,14 @@ import { isElement } from '@floating-ui/utils/dom';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { useId } from '@base-ui-components/utils/useId';
 
-import type {
-  FloatingRootContext,
-  ReferenceElement,
-  ContextData,
-  OpenChangeReason,
-} from '../types';
+import type { FloatingRootContext, ReferenceElement, ContextData } from '../types';
+import type { BaseUIEventData } from '../../utils/createBaseUIEvent';
 import { createEventEmitter } from '../utils/createEventEmitter';
 import { useFloatingParentNodeId } from '../components/FloatingTree';
 
 export interface UseFloatingRootContextOptions {
   open?: boolean;
-  onOpenChange?: (open: boolean, event?: Event, reason?: OpenChangeReason) => void;
+  onOpenChange?: (open: boolean, event: Event | undefined, data: BaseUIEventData) => void;
   elements: {
     reference: Element | null;
     floating: HTMLElement | null;
@@ -47,10 +43,10 @@ export function useFloatingRootContext(
   );
 
   const onOpenChange = useEventCallback(
-    (newOpen: boolean, event?: Event, reason?: OpenChangeReason) => {
+    (newOpen: boolean, event: Event | undefined, data: BaseUIEventData) => {
       dataRef.current.openEvent = newOpen ? event : undefined;
-      events.emit('openchange', { open: newOpen, event, reason, nested });
-      onOpenChangeProp?.(newOpen, event, reason);
+      events.emit('openchange', { open: newOpen, event, data, nested });
+      onOpenChangeProp?.(newOpen, event, data);
     },
   );
 

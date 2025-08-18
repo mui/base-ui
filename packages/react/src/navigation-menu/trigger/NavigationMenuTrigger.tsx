@@ -25,16 +25,18 @@ import {
   isOutsideEvent,
   stopEvent,
 } from '../../floating-ui-react/utils';
-import type { BaseUIComponentProps, NativeButtonProps, HTMLProps } from '../../utils/types';
+import type {
+  BaseUIComponentProps,
+  NativeButtonProps,
+  HTMLProps,
+  BaseOpenChangeReason,
+} from '../../utils/types';
 import { useNavigationMenuItemContext } from '../item/NavigationMenuItemContext';
 import {
   useNavigationMenuRootContext,
   useNavigationMenuTreeContext,
 } from '../root/NavigationMenuRootContext';
-import {
-  BaseOpenChangeReason,
-  translateOpenChangeReason,
-} from '../../utils/translateOpenChangeReason';
+import type { BaseUIEventData } from '../../utils/createBaseUIEvent';
 import { PATIENT_CLICK_THRESHOLD } from '../../utils/constants';
 import { FocusGuard } from '../../utils/FocusGuard';
 import { pressableTriggerOpenStateMapping } from '../../utils/popupStateMapping';
@@ -274,8 +276,12 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
 
   const context = useFloatingRootContext({
     open,
-    onOpenChange(openValue, eventValue, reasonValue) {
-      handleOpenChange(openValue, eventValue, translateOpenChangeReason(reasonValue));
+    onOpenChange(openValue, eventValue, dataValue?: BaseUIEventData) {
+      handleOpenChange(
+        openValue,
+        eventValue,
+        dataValue?.reason as BaseOpenChangeReason | undefined,
+      );
     },
     elements: {
       reference: triggerElement,

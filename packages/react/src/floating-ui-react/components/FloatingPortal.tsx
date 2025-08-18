@@ -12,14 +12,13 @@ import {
   getNextTabbable,
   isOutsideEvent,
 } from '../utils';
-
-import type { OpenChangeReason } from '../types';
+import { createBaseUIEventData } from '../../utils/createBaseUIEvent';
 import { createAttribute } from '../utils/createAttribute';
 
 type FocusManagerState = {
   modal: boolean;
   open: boolean;
-  onOpenChange(open: boolean, event?: Event, reason?: OpenChangeReason): void;
+  onOpenChange(open: boolean, event?: Event, data?: { reason?: string }): void;
   domReference: Element | null;
   closeOnFocusOut: boolean;
 } | null;
@@ -268,7 +267,11 @@ export function FloatingPortal(props: FloatingPortalProps): React.JSX.Element {
               nextTabbable?.focus();
 
               if (focusManagerState?.closeOnFocusOut) {
-                focusManagerState?.onOpenChange(false, event.nativeEvent, 'focus-out');
+                focusManagerState?.onOpenChange(
+                  false,
+                  event.nativeEvent,
+                  createBaseUIEventData('focus-out'),
+                );
               }
             }
           }}

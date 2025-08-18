@@ -1,6 +1,6 @@
 import * as React from 'react';
 import type { FloatingRootContext } from '../../floating-ui-react';
-import type { BaseOpenChangeReason } from '../../utils/translateOpenChangeReason';
+import type { BaseOpenChangeReason } from '../../utils/types';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 
 export interface NavigationMenuRootContext {

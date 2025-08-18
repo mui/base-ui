@@ -10,7 +10,6 @@ import {
   useFloatingRootContext,
   useInteractions,
   useRole,
-  type OpenChangeReason as FloatingUIOpenChangeReason,
 } from '../../floating-ui-react';
 import { getTarget } from '../../floating-ui-react/utils';
 import { useScrollLock } from '../../utils/useScrollLock';
@@ -18,7 +17,7 @@ import { useTransitionStatus, type TransitionStatus } from '../../utils/useTrans
 import type { RequiredExcept, HTMLProps } from '../../utils/types';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
-import { translateOpenChangeReason } from '../../utils/translateOpenChangeReason';
+import type { BaseUIEventData } from '../../utils/createBaseUIEvent';
 import { type DialogRoot } from './DialogRoot';
 
 export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.ReturnValue {
@@ -91,9 +90,9 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
   const handleFloatingUIOpenChange = (
     nextOpen: boolean,
     event: Event | undefined,
-    reason: FloatingUIOpenChangeReason | undefined,
+    data?: BaseUIEventData,
   ) => {
-    setOpen(nextOpen, event, translateOpenChangeReason(reason));
+    setOpen(nextOpen, event, data?.reason as DialogRoot.OpenChangeReason | undefined);
   };
 
   const context = useFloatingRootContext({

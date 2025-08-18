@@ -2,12 +2,15 @@
 import * as React from 'react';
 import type { FloatingRootContext } from '../../floating-ui-react';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
-import type { HTMLProps } from '../../utils/types';
-import type { BaseOpenChangeReason as OpenChangeReason } from '../../utils/translateOpenChangeReason';
+import type { BaseOpenChangeReason, HTMLProps } from '../../utils/types';
 
 export interface PreviewCardRootContext {
   open: boolean;
-  setOpen: (open: boolean, event: Event | undefined, reason: OpenChangeReason | undefined) => void;
+  setOpen: (
+    open: boolean,
+    event: Event | undefined,
+    reason: BaseOpenChangeReason | undefined,
+  ) => void;
   setTriggerElement: (el: Element | null) => void;
   positionerElement: HTMLElement | null;
   setPositionerElement: (el: HTMLElement | null) => void;
