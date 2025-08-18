@@ -1,5 +1,9 @@
 import { expect } from 'chai';
-import { formatNumber, formatNumberMaxPrecision, getFormatter } from '@base-ui-components/react/utils';
+import {
+  formatNumber,
+  formatNumberMaxPrecision,
+  getFormatter,
+} from '@base-ui-components/react/utils';
 
 describe('Base UI exported utilities', () => {
   it('should expose formatting utilities', () => {
