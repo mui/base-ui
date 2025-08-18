@@ -62,7 +62,7 @@ export const mdxComponents: MDXComponents = {
   strong: (props) => <strong className="font-medium" {...props} />,
   figure: (props) => {
     if ('data-rehype-pretty-code-figure' in props) {
-      return <CodeBlock.Root className="mt-5 mb-6" {...props} />;
+      return <CodeBlock.Root {...props} />;
     }
 
     return <figure {...props} />;

@@ -636,7 +636,7 @@ export function useDismiss(
 
   const handlePressedInside = useEventCallback((event: React.MouseEvent) => {
     const target = getTarget(event.nativeEvent) as Element | null;
-    if (!contains(elements.floating, target)) {
+    if (!contains(elements.floating, target) || event.button !== 0) {
       return;
     }
     endedOrStartedInsideRef.current = true;
@@ -657,6 +657,7 @@ export function useDismiss(
       onPointerDownCapture: handleCaptureInside,
       onMouseDownCapture: handleCaptureInside,
       onClickCapture: handleCaptureInside,
+      onMouseUpCapture: handleCaptureInside,
     }),
     [closeOnEscapeKeyDown, handlePressedInside, handleCaptureInside],
   );
