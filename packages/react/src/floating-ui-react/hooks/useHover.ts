@@ -461,7 +461,6 @@ export function useHover(context: FloatingRootContext, props: UseHoverProps = {}
       cleanupMouseMoveHandler();
       timeout.clear();
       restTimeout.clear();
-      clearPointerEvents();
     };
   }, [
     enabled,
