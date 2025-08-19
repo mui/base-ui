@@ -39,6 +39,7 @@ export function CompositeRoot<Metadata extends {}, State extends Record<string, 
     disabledIndices,
     modifierKeys,
     highlightItemOnHover = false,
+    tag = 'div',
     ...elementProps
   } = componentProps;
 
@@ -74,7 +75,7 @@ export function CompositeRoot<Metadata extends {}, State extends Record<string, 
     },
   );
 
-  const element = useRenderElement('div', componentProps, {
+  const element = useRenderElement(tag, componentProps, {
     state,
     ref: refs,
     props: [defaultProps, ...props, elementProps],

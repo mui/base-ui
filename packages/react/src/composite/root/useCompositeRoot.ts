@@ -3,9 +3,6 @@ import * as React from 'react';
 import { isElementDisabled } from '@base-ui-components/utils/isElementDisabled';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
-import { ownerDocument } from '@base-ui-components/utils/owner';
-import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
-import { activeElement } from '../../floating-ui-react/utils';
 import type { TextDirection } from '../../direction-provider/DirectionContext';
 import {
   ALL_KEYS,
@@ -121,22 +118,6 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
       scrollIntoViewIfNeeded(rootRef.current, newActiveItem, direction, orientation);
     }
   });
-
-  // Ensure external controlled updates moves focus to the highlighted item
-  // if focus is currently inside the list.
-  // https://github.com/mui/base-ui/issues/2101
-  useIsoLayoutEffect(() => {
-    const activeEl = activeElement(ownerDocument(rootRef.current)) as HTMLDivElement | null;
-    if (elementsRef.current.includes(activeEl) || hasFocusedElementRef.current) {
-      const focusedItem = elementsRef.current[highlightedIndex];
-      if (focusedItem && focusedItem !== activeEl) {
-        if (!hasFocusedElementRef.current) {
-          hasFocusedElementRef.current = true;
-        }
-        focusedItem.focus();
-      }
-    }
-  }, [highlightedIndex]);
 
   const onMapChange = useEventCallback((map: Map<Element, CompositeMetadata<any>>) => {
     if (map.size === 0 || hasSetDefaultIndexRef.current) {
