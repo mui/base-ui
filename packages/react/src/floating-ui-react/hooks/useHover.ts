@@ -466,7 +466,7 @@ export function useHover(context: FloatingRootContext, props: UseHoverProps = {}
 
   React.useEffect(() => {
     return clearPointerEvents;
-  }, []);
+  }, [clearPointerEvents]);
 
   const reference: ElementProps['reference'] = React.useMemo(() => {
     function setPointerRef(event: React.PointerEvent) {
