@@ -107,8 +107,17 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
   const role = useRole(context);
   const click = useClick(context);
   const dismiss = useDismiss(context, {
-    outsidePressEvent: () =>
-      internalBackdropRef.current || backdropRef.current ? 'intentional' : 'sloppy',
+    outsidePressEvent() {
+      if (internalBackdropRef.current || backdropRef.current) {
+        return 'intentional';
+      }
+      // Ensure `aria-hidden` on outside elements is removed immediately
+      // on outside press when trapping focus.
+      return {
+        mouse: modal === 'trap-focus' ? 'sloppy' : 'intentional',
+        touch: 'sloppy',
+      };
+    },
     outsidePress(event) {
       if (event.button !== 0) {
         return false;

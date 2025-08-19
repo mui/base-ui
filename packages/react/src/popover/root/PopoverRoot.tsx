@@ -164,10 +164,12 @@ function PopoverRootComponent({ props }: { props: PopoverRoot.Props }) {
     stickIfOpen,
   });
   const dismiss = useDismiss(floatingContext, {
-    outsidePressEvent: () =>
-      internalBackdropRef.current || backdropRef.current
-        ? { mouse: 'intentional', touch: 'sloppy' }
-        : 'sloppy',
+    outsidePressEvent: {
+      // Ensure `aria-hidden` on outside elements is removed immediately
+      // on outside press when trapping focus.
+      mouse: modal === 'trap-focus' ? 'sloppy' : 'intentional',
+      touch: 'sloppy',
+    },
   });
   const role = useRole(floatingContext);
 

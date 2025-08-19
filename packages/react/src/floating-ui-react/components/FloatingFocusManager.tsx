@@ -466,10 +466,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
   const mergedAfterGuardRef = useMergedRefs(afterGuardRef, portalContext?.afterInsideRef);
 
   React.useEffect(() => {
-    if (disabled) {
-      return undefined;
-    }
-    if (!floating) {
+    if (disabled || !floating || !open) {
       return undefined;
     }
 
@@ -503,6 +500,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
       cleanup();
     };
   }, [
+    open,
     disabled,
     domReference,
     floating,
