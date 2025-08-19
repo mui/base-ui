@@ -223,12 +223,5 @@ export namespace SelectPositioner {
      * @default true
      */
     alignItemWithTrigger?: boolean;
-    /**
-     * Determines when to allow the scroll arrows to render.
-     * - `auto`: Only renders the scroll arrows when `alignItemWithTrigger` is `true` and not in fallback.
-     * - `always`: Always render the scroll arrows.
-     * @default 'auto'
-     */
-    scrollArrows?: 'auto' | 'always';
   }
 }
