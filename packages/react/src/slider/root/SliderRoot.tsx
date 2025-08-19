@@ -14,7 +14,7 @@ import { useRenderElement } from '../../utils/useRenderElement';
 import { clamp } from '../../utils/clamp';
 import { areArraysEqual } from '../../utils/areArraysEqual';
 import { activeElement } from '../../floating-ui-react/utils';
-import { CompositeList, type CompositeMetadata } from '../../composite/list/CompositeList';
+import { CompositeList } from '../../composite/list/CompositeList';
 import type { FieldRoot } from '../../field/root/FieldRoot';
 import { useField } from '../../field/useField';
 import { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
@@ -23,7 +23,6 @@ import { useFormContext } from '../../form/FormContext';
 import { asc } from '../utils/asc';
 import { getSliderValue } from '../utils/getSliderValue';
 import { validateMinimumDistance } from '../utils/validateMinimumDistance';
-import type { ThumbMetadata } from '../thumb/SliderThumb';
 import { sliderStyleHookMapping } from './styleHooks';
 import { SliderRootContext } from './SliderRootContext';
 
@@ -119,9 +118,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
   // - The active state isn't transferred when inversing a range slider.
   const [active, setActive] = React.useState(-1);
   const [dragging, setDragging] = React.useState(false);
-  const [thumbMap, setThumbMap] = React.useState(
-    () => new Map<Node, CompositeMetadata<ThumbMetadata> | null>(),
-  );
+  const [thumbMap, setThumbMap] = React.useState(() => new Map<Node, null>());
 
   useField({
     id,

@@ -97,7 +97,6 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
   } = componentProps;
 
   const id = useBaseUiId(idProp);
-  const inputId = id; // `${id}-input`;
 
   const {
     active: activeIndex,
@@ -135,23 +134,14 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
   const thumbRef = React.useRef<HTMLElement>(null);
 
   useIsoLayoutEffect(() => {
-    setControlId(inputId);
+    setControlId(id);
 
     return () => {
       setControlId(undefined);
     };
-  }, [controlId, inputId, setControlId]);
+  }, [controlId, id, setControlId]);
 
-  const thumbMetadata = React.useMemo(
-    () => ({
-      inputId,
-    }),
-    [inputId],
-  );
-
-  const { ref: listItemRef, index: compositeIndex } = useCompositeListItem<ThumbMetadata>({
-    metadata: thumbMetadata,
-  });
+  const { ref: listItemRef, index: compositeIndex } = useCompositeListItem();
 
   const index = indexProp ?? compositeIndex;
 
@@ -317,10 +307,6 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
 
   return element;
 });
-
-export interface ThumbMetadata {
-  inputId: string | undefined;
-}
 
 export namespace SliderThumb {
   export interface State extends SliderRoot.State {}
