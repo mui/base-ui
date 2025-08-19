@@ -2,6 +2,7 @@
 import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { visuallyHidden } from '@base-ui-components/utils/visuallyHidden';
+import { warn } from '@base-ui-components/utils/warn';
 import { formatNumber } from '../../utils/formatNumber';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useBaseUiId } from '../../utils/useBaseUiId';
@@ -87,6 +88,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     getAriaLabel: getAriaLabelProp,
     getAriaValueText: getAriaValueTextProp,
     id: idProp,
+    index: indexProp,
     onBlur: onBlurProp,
     onFocus: onFocusProp,
     onKeyDown: onKeyDownProp,
@@ -117,6 +119,12 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     values: sliderValues,
   } = useSliderRootContext();
 
+  if (typeof document === 'undefined' && indexProp === undefined && sliderValues.length > 1) {
+    warn(
+      'A `Slider.Thumb` was rendered on the server without an `index` prop, it must be specified for full SSR support.',
+    );
+  }
+
   const disabled = disabledProp || contextDisabled;
 
   const externalTabIndex = tabIndexProp ?? contextTabIndex;
@@ -141,9 +149,11 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     [inputId],
   );
 
-  const { ref: listItemRef, index } = useCompositeListItem<ThumbMetadata>({
+  const { ref: listItemRef, index: compositeIndex } = useCompositeListItem<ThumbMetadata>({
     metadata: thumbMetadata,
   });
+
+  const index = indexProp ?? compositeIndex;
 
   const thumbValue = sliderValues[index];
 
@@ -336,5 +346,19 @@ export namespace SliderThumb {
      * @returns {string}
      */
     getAriaValueText?: ((formattedValue: string, value: number, index: number) => string) | null;
+    /**
+     * The index of the thumb which corresponds to the index of its value in the
+     * `value` or `defaultValue` array.
+     * This prop is required to support server-side rendering for range sliders
+     * with multiple thumbs.
+     * @example
+     * ```tsx
+     * <Slider.Root value={[10, 20]}>
+     *   <Slider.Thumb index={0} />
+     *   <Slider.Thumb index={1} />
+     * </Slider.Root>
+     * ```
+     */
+    index?: number | undefined;
   }
 }
