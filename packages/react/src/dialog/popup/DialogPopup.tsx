@@ -72,9 +72,8 @@ export const DialogPopup = React.forwardRef(function DialogPopup(
 
   const mergedRef = useMergedRefs(forwardedRef, popupRef);
 
-  const { popupProps, resolvedInitialFocus } = useDialogPopup({
+  const { popupProps } = useDialogPopup({
     descriptionElementId,
-    initialFocus,
     mounted,
     setOpen,
     openMethod,
@@ -82,6 +81,22 @@ export const DialogPopup = React.forwardRef(function DialogPopup(
     setPopupElement,
     titleElementId,
   });
+
+  // Default initial focus logic:
+  // If opened by touch, focus the popup element to prevent the virtual keyboard from opening
+  // (this is required for Android specifically as iOS handles this automatically).
+  const defaultInitialFocus = React.useCallback(
+    (interactionType: InteractionType) => {
+      if (interactionType === 'touch') {
+        return popupRef;
+      }
+
+      return 0;
+    },
+    [popupRef],
+  );
+
+  const resolvedInitialFocus = initialFocus === undefined ? defaultInitialFocus : initialFocus;
 
   const nestedDialogOpen = nestedOpenDialogCount > 0;
 
@@ -117,6 +132,7 @@ export const DialogPopup = React.forwardRef(function DialogPopup(
       )}
       <FloatingFocusManager
         context={floatingRootContext}
+        openInteractionType={openMethod || ''}
         disabled={!mounted}
         closeOnFocusOut={dismissible}
         initialFocus={resolvedInitialFocus}
@@ -136,13 +152,14 @@ export namespace DialogPopup {
      * By default, the first focusable element is focused.
      */
     initialFocus?:
+      | null
       | React.RefObject<HTMLElement | null>
-      | ((interactionType: InteractionType) => React.RefObject<HTMLElement | null>);
+      | ((interactionType: InteractionType) => HTMLElement | null | void);
     /**
      * Determines the element to focus when the dialog is closed.
      * By default, focus returns to the trigger.
      */
-    finalFocus?: React.RefObject<HTMLElement | null>;
+    finalFocus?: null | React.RefObject<HTMLElement | null> | (() => HTMLElement | null | void);
   }
 
   export interface State {

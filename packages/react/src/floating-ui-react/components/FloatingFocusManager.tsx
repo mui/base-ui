@@ -7,6 +7,7 @@ import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { visuallyHidden } from '@base-ui-components/utils/visuallyHidden';
 import { useTimeout } from '@base-ui-components/utils/useTimeout';
+import type { InteractionType } from '@base-ui-components/utils/useEnhancedClickHandler';
 import { FocusGuard } from '../../utils/FocusGuard';
 import {
   activeElement,
@@ -107,6 +108,10 @@ export interface FloatingFocusManagerProps {
    */
   context: FloatingRootContext;
   /**
+   * The interaction type that opened the component (e.g., 'keyboard', 'mouse', 'touch').
+   */
+  openInteractionType?: InteractionType;
+  /**
    * Whether or not the focus manager should be disabled. Useful to delay focus
    * management until after a transition completes or some other conditional
    * state.
@@ -123,7 +128,13 @@ export interface FloatingFocusManagerProps {
    * specified by the `order`) or a ref.
    * @default 0
    */
-  initialFocus?: number | React.RefObject<HTMLElement | null>;
+  initialFocus?:
+    | number
+    | React.RefObject<HTMLElement | null>
+    | null
+    | ((
+        interactionType: InteractionType,
+      ) => number | React.RefObject<HTMLElement | null> | HTMLElement | null | void);
   /**
    * Determines if focus should be returned to the reference element once the
    * floating element closes/unmounts (or if that is not available, the
@@ -132,7 +143,11 @@ export interface FloatingFocusManagerProps {
    * It can be also set to a ref to explicitly control the element to return focus to.
    * @default true
    */
-  returnFocus?: boolean | React.RefObject<HTMLElement | null>;
+  returnFocus?:
+    | boolean
+    | React.RefObject<HTMLElement | null>
+    | null
+    | (() => boolean | React.RefObject<HTMLElement | null> | HTMLElement | null | void);
   /**
    * Determines if focus should be restored to the nearest tabbable element if
    * focus inside the floating element is lost (such as due to the removal of
@@ -179,6 +194,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     modal = true,
     closeOnFocusOut = true,
     getInsideElements: getInsideElementsProp = () => [],
+    openInteractionType = '',
   } = props;
   const {
     open,
@@ -202,6 +218,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
   const orderRef = useLatestRef(order);
   const initialFocusRef = useLatestRef(initialFocus);
   const returnFocusRef = useLatestRef(returnFocus);
+  const openInteractionTypeRef = useLatestRef(openInteractionType);
 
   const tree = useFloatingTree();
   const portalContext = usePortalContext();
@@ -507,14 +524,33 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     // Wait for any layout effect state setters to execute to set `tabIndex`.
     queueMicrotask(() => {
       const focusableElements = getTabbableElements(floatingFocusElement);
-      const initialFocusValue = initialFocusRef.current;
-      const elToFocus =
-        (typeof initialFocusValue === 'number'
-          ? focusableElements[initialFocusValue]
-          : initialFocusValue.current) || floatingFocusElement;
+      const initialFocusValueOrFn = initialFocusRef.current;
+      const resolvedInitialFocus =
+        typeof initialFocusValueOrFn === 'function'
+          ? initialFocusValueOrFn(openInteractionTypeRef.current)
+          : initialFocusValueOrFn;
+      const normalizedInitialFocus = resolvedInitialFocus ?? 0;
+      const ignoreResolvedInitialFocus =
+        resolvedInitialFocus == null ||
+        (typeof normalizedInitialFocus === 'number' && normalizedInitialFocus < 0);
+
+      if (ignoreResolvedInitialFocus) {
+        return;
+      }
+
+      let elToFocus: FocusableElement | null | undefined;
+      if (typeof normalizedInitialFocus === 'number') {
+        elToFocus = focusableElements[normalizedInitialFocus];
+      } else if (normalizedInitialFocus && 'current' in normalizedInitialFocus) {
+        elToFocus = (normalizedInitialFocus as React.RefObject<HTMLElement | null>).current;
+      } else {
+        elToFocus = normalizedInitialFocus;
+      }
+      elToFocus = elToFocus || floatingFocusElement;
+
       const focusAlreadyInsideFloatingEl = contains(floatingFocusElement, previouslyFocusedElement);
 
-      if (!ignoreInitialFocus && !focusAlreadyInsideFloatingEl && open) {
+      if (!ignoreResolvedInitialFocus && !focusAlreadyInsideFloatingEl && open) {
         enqueueFocus(elToFocus, {
           preventScroll: elToFocus === floatingFocusElement,
         });
@@ -527,6 +563,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     ignoreInitialFocus,
     getTabbableElements,
     initialFocusRef,
+    openInteractionTypeRef,
   ]);
 
   useIsoLayoutEffect(() => {
@@ -595,12 +632,27 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     }
 
     function getReturnElement() {
-      if (typeof returnFocusRef.current === 'boolean') {
+      const returnFocusValueOrFn = returnFocusRef.current;
+      const resolvedReturnFocusValue =
+        typeof returnFocusValueOrFn === 'function' ? returnFocusValueOrFn() : returnFocusValueOrFn;
+      const ignoreResolvedReturnFocus = resolvedReturnFocusValue === undefined;
+
+      if (typeof resolvedReturnFocusValue === 'boolean') {
         const el = domReference || getPreviouslyFocusedElement();
         return el && el.isConnected ? el : fallbackEl;
       }
 
-      return returnFocusRef.current.current || fallbackEl;
+      if (ignoreResolvedReturnFocus) {
+        return null;
+      }
+
+      if (resolvedReturnFocusValue && 'current' in resolvedReturnFocusValue) {
+        return (
+          (resolvedReturnFocusValue as React.RefObject<HTMLElement | null>).current || fallbackEl
+        );
+      }
+
+      return resolvedReturnFocusValue || fallbackEl;
     }
 
     return () => {
@@ -615,6 +667,10 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
           ));
 
       const returnElement = getReturnElement();
+
+      if (returnElement == null) {
+        return;
+      }
 
       queueMicrotask(() => {
         // This is `returnElement`, if it's tabbable, or its first tabbable child.

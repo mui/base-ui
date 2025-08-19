@@ -106,7 +106,7 @@ describe('<AlertDialog.Popup />', () => {
       function TestComponent() {
         const input2Ref = React.useRef<HTMLInputElement>(null);
 
-        const getRef = React.useCallback(() => input2Ref, []);
+        const getRef = React.useCallback(() => input2Ref.current, []);
 
         return (
           <div>
@@ -138,6 +138,56 @@ describe('<AlertDialog.Popup />', () => {
       await waitFor(() => {
         const input2 = getByTestId('input-2');
         expect(input2).to.toHaveFocus();
+      });
+    });
+
+    it('should not move focus when initialFocus is null', async () => {
+      function TestComponent() {
+        return (
+          <div>
+            <AlertDialog.Root>
+              <AlertDialog.Backdrop />
+              <AlertDialog.Trigger>Open</AlertDialog.Trigger>
+              <AlertDialog.Portal>
+                <AlertDialog.Popup data-testid="dialog" initialFocus={null}>
+                  <input data-testid="input-1" />
+                </AlertDialog.Popup>
+              </AlertDialog.Portal>
+            </AlertDialog.Root>
+          </div>
+        );
+      }
+
+      const { getByText, user } = await render(<TestComponent />);
+      const trigger = getByText('Open');
+      await user.click(trigger);
+      await waitFor(() => {
+        expect(trigger).toHaveFocus();
+      });
+    });
+
+    it('should not move focus when initialFocus returns null', async () => {
+      function TestComponent() {
+        return (
+          <div>
+            <AlertDialog.Root>
+              <AlertDialog.Backdrop />
+              <AlertDialog.Trigger>Open</AlertDialog.Trigger>
+              <AlertDialog.Portal>
+                <AlertDialog.Popup data-testid="dialog" initialFocus={() => null}>
+                  <input data-testid="input-1" />
+                </AlertDialog.Popup>
+              </AlertDialog.Portal>
+            </AlertDialog.Root>
+          </div>
+        );
+      }
+
+      const { getByText, user } = await render(<TestComponent />);
+      const trigger = getByText('Open');
+      await user.click(trigger);
+      await waitFor(() => {
+        expect(trigger).toHaveFocus();
       });
     });
   });
@@ -205,6 +255,86 @@ describe('<AlertDialog.Popup />', () => {
 
       await waitFor(() => {
         expect(inputToFocus).toHaveFocus();
+      });
+    });
+
+    it('should support function returning element for finalFocus when closed', async () => {
+      function TestComponent() {
+        const inputRef = React.useRef<HTMLInputElement>(null);
+        const getEl = React.useCallback(() => inputRef.current, []);
+        return (
+          <div>
+            <AlertDialog.Root>
+              <AlertDialog.Backdrop />
+              <AlertDialog.Trigger>Open</AlertDialog.Trigger>
+              <AlertDialog.Portal>
+                <AlertDialog.Popup finalFocus={getEl}>
+                  <AlertDialog.Close>Close</AlertDialog.Close>
+                </AlertDialog.Popup>
+              </AlertDialog.Portal>
+            </AlertDialog.Root>
+            <input data-testid="input-to-focus" ref={inputRef} />
+          </div>
+        );
+      }
+
+      const { getByText, getByTestId, user } = await render(<TestComponent />);
+      await user.click(getByText('Open'));
+      await user.click(getByText('Close'));
+      await waitFor(() => {
+        expect(getByTestId('input-to-focus')).toHaveFocus();
+      });
+    });
+
+    it('should not move focus when finalFocus is null', async () => {
+      function TestComponent() {
+        return (
+          <div>
+            <AlertDialog.Root>
+              <AlertDialog.Backdrop />
+              <AlertDialog.Trigger>Open</AlertDialog.Trigger>
+              <AlertDialog.Portal>
+                <AlertDialog.Popup finalFocus={null}>
+                  <AlertDialog.Close>Close</AlertDialog.Close>
+                </AlertDialog.Popup>
+              </AlertDialog.Portal>
+            </AlertDialog.Root>
+          </div>
+        );
+      }
+
+      const { getByText, user } = await render(<TestComponent />);
+      const trigger = getByText('Open');
+      await user.click(trigger);
+      await user.click(getByText('Close'));
+      await waitFor(() => {
+        expect(trigger).not.toHaveFocus();
+      });
+    });
+
+    it('should not move focus when finalFocus returns null', async () => {
+      function TestComponent() {
+        return (
+          <div>
+            <AlertDialog.Root>
+              <AlertDialog.Backdrop />
+              <AlertDialog.Trigger>Open</AlertDialog.Trigger>
+              <AlertDialog.Portal>
+                <AlertDialog.Popup finalFocus={() => null}>
+                  <AlertDialog.Close>Close</AlertDialog.Close>
+                </AlertDialog.Popup>
+              </AlertDialog.Portal>
+            </AlertDialog.Root>
+          </div>
+        );
+      }
+
+      const { getByText, user } = await render(<TestComponent />);
+      const trigger = getByText('Open');
+      await user.click(trigger);
+      await user.click(getByText('Close'));
+      await waitFor(() => {
+        expect(trigger).not.toHaveFocus();
       });
     });
   });
