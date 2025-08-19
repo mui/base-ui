@@ -40,10 +40,10 @@ export function Header() {
         <div className="flex show-side-nav:hidden">
           <MobileNav.Root>
             <MobileNav.Trigger className="HeaderButton">
-              <div className="flex w-4 flex-col items-center gap-1">
-                <div className="h-0.5 w-3.5 bg-current" />
-                <div className="h-0.5 w-3.5 bg-current" />
-              </div>
+              <span className="flex w-4 flex-col items-center gap-1">
+                <span className="h-0.5 w-3.5 bg-current" />
+                <span className="h-0.5 w-3.5 bg-current" />
+              </span>
               Navigation
             </MobileNav.Trigger>
             <MobileNav.Portal>
