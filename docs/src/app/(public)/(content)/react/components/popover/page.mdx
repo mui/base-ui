@@ -128,16 +128,7 @@ const demoPopover = Popover.createHandle<{ text: string }>();
 
 Since the popup part is reused between triggers, its position and dimensions can be animated.
 To animate the position, apply CSS transitions to the `left`, `right`, `top`, and `bottom` properties of the **Positioner**.
-To animate dimensions, target the `width` and `height` properties of the **Popup**.
-
-The popover also supports transitions between different content.
-Wrap the content you wish to transition in the `Viewport` part and apply transition styles to it.
-The `Viewport` is only necessary for content animations.
-It renders a `div` with a `data-activationdirection` attribute set to `left`, `right`, `down`, or `up`, indicating the new trigger's position relative to the previous one.
-This allows for direction-aware transitions.
-
-<Demo path="./demos/detached-triggers-full" />
-**Popup's** `width` and `height` properties to animate dimensions.
+Target the **Popup's** `width` and `height` properties to animate dimensions.
 
 The popover also supports transitions between content.
 Wrap the content you wish to transition in the `Viewport` part and apply the transition styles to it.
