@@ -53,8 +53,15 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
     highlightTimeout,
     multiple,
   } = useSelectRootContext();
-  const { side, align, context, alignItemWithTriggerActive, setControlledAlignItemWithTrigger } =
-    useSelectPositionerContext();
+  const {
+    side,
+    align,
+    context,
+    alignItemWithTriggerActive,
+    setControlledAlignItemWithTrigger,
+    scrollDownArrowRef,
+    scrollUpArrowRef,
+  } = useSelectPositionerContext();
 
   const open = useStore(store, selectors.open);
   const mounted = useStore(store, selectors.mounted);
@@ -178,6 +185,15 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
       return;
     }
 
+    // Avoid affecting layout for the `scrollIntoViewIfNeeded` call if the scroll arrow
+    // styles use `position: sticky`.
+    if (scrollDownArrowRef.current) {
+      scrollDownArrowRef.current.style.position = 'absolute';
+    }
+    if (scrollUpArrowRef.current) {
+      scrollUpArrowRef.current.style.position = 'absolute';
+    }
+
     // Wait for `selectedItemTextRef.current` to be set.
     queueMicrotask(() => {
       const positionerStyles = getComputedStyle(positionerElement);
@@ -276,6 +292,13 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
         reachedMaxHeightRef.current = true;
       }
 
+      if (scrollDownArrowRef.current) {
+        scrollDownArrowRef.current.style.position = '';
+      }
+      if (scrollUpArrowRef.current) {
+        scrollUpArrowRef.current.style.position = '';
+      }
+
       handleScrollArrowVisibility();
 
       // Avoid the `onScroll` event logic from triggering before the popup is placed.
@@ -295,6 +318,8 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
     alignItemWithTriggerActive,
     setControlledAlignItemWithTrigger,
     scrollArrowFrame,
+    scrollDownArrowRef,
+    scrollUpArrowRef,
   ]);
 
   React.useEffect(() => {

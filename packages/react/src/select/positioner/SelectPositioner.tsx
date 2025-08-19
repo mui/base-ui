@@ -60,6 +60,9 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
   const positionerElement = useStore(store, selectors.positionerElement);
   const triggerElement = useStore(store, selectors.triggerElement);
 
+  const scrollUpArrowRef = React.useRef<HTMLDivElement | null>(null);
+  const scrollDownArrowRef = React.useRef<HTMLDivElement | null>(null);
+
   const [controlledAlignItemWithTrigger, setControlledAlignItemWithTrigger] =
     React.useState(alignItemWithTrigger);
   const alignItemWithTriggerActive = mounted && controlledAlignItemWithTrigger && !touchModality;
@@ -193,6 +196,8 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
       side: renderedSide,
       alignItemWithTriggerActive,
       setControlledAlignItemWithTrigger,
+      scrollUpArrowRef,
+      scrollDownArrowRef,
     }),
     [positioning, renderedSide, alignItemWithTriggerActive, setControlledAlignItemWithTrigger],
   );
