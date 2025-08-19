@@ -121,10 +121,9 @@ jobs:
             const labels = issue.labels.map(label => label.name);
 
             // Check if this is a bug/regression or a feature
-            const isBug = labels.some(label =>
-              label.includes('bug 🐛') || label.includes('regression 🐛'));
+            const isNewFeature = labels.some(label => label.includes('new feature'));
 
-            const typeText = isBug ? 'fix' : 'feature';
+            const typeText = isNewFeature ? 'feature' : 'fix';
 
             const commentBody = `This ${typeText} will be available in the next npm release of Base UI.
 
