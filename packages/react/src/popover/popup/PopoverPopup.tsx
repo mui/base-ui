@@ -105,6 +105,7 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
       disabled={!mounted || openReason === 'trigger-hover'}
       initialFocus={resolvedInitialFocus}
       returnFocus={finalFocus}
+      restoreFocus="popup"
     >
       {element}
     </FloatingFocusManager>
