@@ -3,7 +3,6 @@ import { expect } from 'chai';
 import { screen, flushMicrotasks } from '@mui/internal-test-utils';
 import { NavigationMenu } from '@base-ui-components/react/navigation-menu';
 import { createRenderer, describeConformance } from '#test-utils';
-import { screen } from '@mui/internal-test-utils';
 
 describe('<NavigationMenu.Link />', () => {
   const { render } = createRenderer();
@@ -69,7 +68,10 @@ describe('<NavigationMenu.Link />', () => {
           </NavigationMenu.List>
         </NavigationMenu.Root>,
       );
-      expect(screen.getByRole('link', { name: 'active' })).toHaveAttribute('aria-current', 'page');
+      expect(screen.getByRole('link', { name: 'active' })).to.have.attribute(
+        'aria-current',
+        'page',
+      );
     });
 
     it('when `false`, does not render with aria-current="page"', async () => {
@@ -84,7 +86,7 @@ describe('<NavigationMenu.Link />', () => {
           </NavigationMenu.List>
         </NavigationMenu.Root>,
       );
-      expect(screen.getByRole('link', { name: 'inactive' })).not.toHaveAttribute('aria-current');
+      expect(screen.getByRole('link', { name: 'inactive' })).not.to.have.attribute('aria-current');
     });
   });
 });
