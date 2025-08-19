@@ -16,7 +16,7 @@ export default function ExampleSelect() {
         </Select.Icon>
       </Select.Trigger>
       <Select.Portal>
-        <Select.Positioner className={styles.Positioner} sideOffset={8} scrollArrows="always">
+        <Select.Positioner className={styles.Positioner} sideOffset={8}>
           <Select.Popup className={styles.Popup}>
             <div role="presentation" className={styles.PopupScroll}>
               <div aria-hidden style={{ height: 75 }}>

@@ -53,14 +53,8 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
     highlightTimeout,
     multiple,
   } = useSelectRootContext();
-  const {
-    side,
-    align,
-    context,
-    alignItemWithTriggerActive,
-    setControlledAlignItemWithTrigger,
-    scrollArrows,
-  } = useSelectPositionerContext();
+  const { side, align, context, alignItemWithTriggerActive, setControlledAlignItemWithTrigger } =
+    useSelectPositionerContext();
 
   const open = useStore(store, selectors.open);
   const mounted = useStore(store, selectors.mounted);
@@ -99,12 +93,9 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
   const initialPlacedRef = React.useRef(false);
   const originalPositionerStylesRef = React.useRef<React.CSSProperties>({});
 
-  const allowScrollArrows =
-    scrollArrows === 'always' || (scrollArrows === 'auto' && alignItemWithTriggerActive);
-
   const handleScrollArrowVisibility = useEventCallback(() => {
     const popupElement = popupRef.current;
-    if (!popupElement || !allowScrollArrows) {
+    if (!popupElement) {
       return;
     }
 
@@ -418,7 +409,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
       defaultProps,
       {
         style: transitionStatus === 'starting' ? DISABLED_TRANSITIONS_STYLE.style : undefined,
-        className: allowScrollArrows ? styleDisableScrollbar.className : undefined,
+        className: alignItemWithTriggerActive ? styleDisableScrollbar.className : undefined,
       },
       elementProps,
     ],

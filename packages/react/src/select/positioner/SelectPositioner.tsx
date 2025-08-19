@@ -45,7 +45,6 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
     trackAnchor = true,
     alignItemWithTrigger = true,
     collisionAvoidance = DROPDOWN_COLLISION_AVOIDANCE,
-    scrollArrows = 'auto',
     ...elementProps
   } = componentProps;
 
@@ -194,15 +193,8 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
       side: renderedSide,
       alignItemWithTriggerActive,
       setControlledAlignItemWithTrigger,
-      scrollArrows,
     }),
-    [
-      positioning,
-      renderedSide,
-      alignItemWithTriggerActive,
-      setControlledAlignItemWithTrigger,
-      scrollArrows,
-    ],
+    [positioning, renderedSide, alignItemWithTriggerActive, setControlledAlignItemWithTrigger],
   );
 
   return (
