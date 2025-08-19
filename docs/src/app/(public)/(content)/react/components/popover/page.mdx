@@ -67,7 +67,7 @@ const demoPopover = Popover.createHandle();
 A single popover can be opened by multiple trigger elements. You can achieve this by using the same `handle` for several detached triggers, or by placing multiple `Popover.Trigger` components inside a single `Popover.Root`.
 
 ```jsx title="multiple triggers within root part"
-<Popover.Root handle={demoPopover}>
+<Popover.Root>
   <Popover.Trigger>Trigger 1</Popover.Trigger>
   <Popover.Trigger>Trigger 2</Popover.Trigger>
   ...
