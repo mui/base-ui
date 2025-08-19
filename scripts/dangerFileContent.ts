@@ -18,8 +18,6 @@ Bundle size will be reported once [CircleCI build #${circleCIBuildNumber}](${cir
 // These functions are no longer needed as they've been moved to the prSizeDiff.js module
 
 async function reportBundleSize() {
-  // eslint-disable-next-line no-console
-  console.log(JSON.stringify(danger.github.pr, null, 2));
   let markdownContent = `## Bundle size report\n\n`;
 
   if (!process.env.CIRCLE_BUILD_NUM) {
