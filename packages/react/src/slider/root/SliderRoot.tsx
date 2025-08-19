@@ -327,6 +327,8 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
     customStyleHookMapping: sliderStyleHookMapping,
   });
 
+  const inputId = useBaseUiId();
+
   return (
     <SliderRootContext.Provider value={contextValue}>
       <CompositeList elementsRef={thumbRefs} onMapChange={setThumbMap}>
@@ -335,10 +337,11 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
           values.map((value, index) => {
             return (
               <input
-                key={`${name}-input-${index}`}
+                key={`${inputId}-${index}`}
                 {...fieldControlValidation.getInputValidationProps({
                   disabled,
-                  name,
+                  name: name || undefined,
+                  id: name ? undefined : `${inputId}-${index}`,
                   ref: inputRef,
                   value,
                   onFocus: handleHiddenInputFocus,
@@ -353,7 +356,8 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
           <input
             {...fieldControlValidation.getInputValidationProps({
               disabled,
-              name,
+              name: name || undefined,
+              id: name ? undefined : inputId,
               ref: inputRef,
               value: valueUnwrapped,
               onFocus: handleHiddenInputFocus,

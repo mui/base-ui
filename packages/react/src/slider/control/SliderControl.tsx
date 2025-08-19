@@ -225,7 +225,7 @@ export const SliderControl = React.forwardRef(function SliderControl(
     if (activeEl == null || !control.contains(activeEl) || activeThumbIndex !== thumbIndex) {
       setActive(thumbIndex);
       thumbRefs.current?.[thumbIndex]
-        ?.querySelector<HTMLInputElement>('input[type="range"]')
+        // ?.querySelector<HTMLInputElement>('input[type="range"]')
         ?.focus();
     }
   });

@@ -23,9 +23,9 @@
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "render": {
-      "type": "((props: ComponentPropsWithRef<HTMLAttributes<HTMLDivElement>, HTMLDivElement>, inputProps: ComponentPropsWithRef<InputHTMLAttributes<HTMLInputElement>, HTMLInputElement>, state: Slider.Thumb.State) => ReactElement) | ReactElement & { ref: Ref<Element> }",
+      "type": "ReactElement | ((props: HTMLProps, state: Slider.Thumb.State) => ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
-      "detailedType": "| ((\n    props: ComponentPropsWithRef<\n      HTMLAttributes<HTMLDivElement>,\n      HTMLDivElement\n    >,\n    inputProps: ComponentPropsWithRef<\n      InputHTMLAttributes<HTMLInputElement>,\n      HTMLInputElement\n    >,\n    state: Slider.Thumb.State,\n  ) => ReactElement)\n| (ReactElement & { ref: Ref<Element> })"
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Slider.Thumb.State,\n  ) => ReactElement)"
     }
   },
   "dataAttributes": {

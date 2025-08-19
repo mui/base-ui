@@ -132,7 +132,7 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
 
   describe('ARIA attributes', () => {
     it('it has the correct aria attributes', async () => {
-      const { container, getByRole, getByTestId } = await render(
+      const { getByRole, getByTestId } = await render(
         <Slider.Root defaultValue={30} aria-labelledby="labelId" data-testid="root">
           <Slider.Value />
           <Slider.Control>
@@ -146,7 +146,6 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
 
       const root = getByTestId('root');
       const slider = getByRole('slider');
-      const input = container.querySelector('input');
 
       expect(root).to.have.attribute('aria-labelledby', 'labelId');
 
@@ -154,9 +153,7 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
       expect(slider).to.have.attribute('aria-valuemin', '0');
       expect(slider).to.have.attribute('aria-valuemax', '100');
       expect(slider).to.have.attribute('aria-orientation', 'horizontal');
-
-      expect(input).to.have.attribute('aria-labelledby', 'labelId');
-      expect(input).to.have.attribute('aria-valuenow', '30');
+      expect(slider).to.have.attribute('aria-labelledby', 'labelId');
     });
 
     it('should update aria-valuenow', async () => {
@@ -166,10 +163,10 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
         slider.focus();
       });
 
-      fireEvent.change(slider, { target: { value: 51 } });
+      fireEvent.keyDown(slider, { key: ARROW_RIGHT });
       expect(slider).to.have.attribute('aria-valuenow', '51');
 
-      fireEvent.change(slider, { target: { value: 52 } });
+      fireEvent.keyDown(slider, { key: ARROW_RIGHT });
       expect(slider).to.have.attribute('aria-valuenow', '52');
     });
 
@@ -179,8 +176,8 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
       const thumbOne = getByTestId('thumb-0');
       const thumbTwo = getByTestId('thumb-1');
 
-      expect(thumbOne.querySelector('input')).to.have.attribute('aria-valuetext', '44 start range');
-      expect(thumbTwo.querySelector('input')).to.have.attribute('aria-valuetext', '50 end range');
+      expect(thumbOne).to.have.attribute('aria-valuetext', '44 start range');
+      expect(thumbTwo).to.have.attribute('aria-valuetext', '50 end range');
     });
   });
 
@@ -331,20 +328,20 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
       expect(sliderOutput).to.have.attribute('data-orientation', 'horizontal');
     });
 
-    it.skipIf(isJSDOM || !/WebKit/.test(window.navigator.userAgent))(
-      'does not set the orientation via appearance for WebKit browsers',
-      async () => {
-        await render(<TestSlider orientation="vertical" />);
+    // it.skipIf(isJSDOM || !/WebKit/.test(window.navigator.userAgent))(
+    //   'does not set the orientation via appearance for WebKit browsers',
+    //   async () => {
+    //     await render(<TestSlider orientation="vertical" />);
 
-        const slider = screen.getByRole('slider');
+    //     const slider = screen.getByRole('slider');
 
-        expect(slider).to.have.property('tagName', 'INPUT');
-        expect(slider).to.have.property('type', 'range');
-        // Only relevant if we implement `[role="slider"]` with `input[type="range"]`
-        // We're not setting this by default because it changes horizontal keyboard navigation in WebKit: https://issues.chromium.org/issues/40739626
-        expect(slider).not.toHaveComputedStyle({ webkitAppearance: 'slider-vertical' });
-      },
-    );
+    //     expect(slider).to.have.property('tagName', 'INPUT');
+    //     expect(slider).to.have.property('type', 'range');
+    //     // Only relevant if we implement `[role="slider"]` with `input[type="range"]`
+    //     // We're not setting this by default because it changes horizontal keyboard navigation in WebKit: https://issues.chromium.org/issues/40739626
+    //     expect(slider).not.toHaveComputedStyle({ webkitAppearance: 'slider-vertical' });
+    //   },
+    // );
 
     it.skipIf(isJSDOM || isWebKit)('should report the right position', async () => {
       const handleValueChange = spy();
@@ -382,8 +379,8 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
 
   describe('prop: step', () => {
     it('supports non-integer values', async () => {
-      const { getByRole } = await render(
-        <TestSlider defaultValue={0.2} min={-100} max={100} step={0.00000001} />,
+      const { getByRole, setProps } = await render(
+        <TestSlider value={0.2} min={-100} max={100} step={0.00000001} />,
       );
       const slider = getByRole('slider');
 
@@ -391,13 +388,13 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
         slider.focus();
       });
 
-      fireEvent.change(slider, { target: { value: '51.1' } });
+      await setProps({ value: 51.1 });
       expect(slider).to.have.attribute('aria-valuenow', '51.1');
 
-      fireEvent.change(slider, { target: { value: '0.00000005' } });
+      await setProps({ value: 0.00000005 });
       expect(slider).to.have.attribute('aria-valuenow', '5e-8');
 
-      fireEvent.change(slider, { target: { value: '1e-7' } });
+      await setProps({ value: 1e-7 });
       expect(slider).to.have.attribute('aria-valuenow', '1e-7');
     });
 
@@ -523,12 +520,11 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
       const slider = getByRole('slider');
 
       expect(slider).to.have.attribute('aria-valuemax', String(MAX));
-      expect(slider).to.have.attribute('max', String(MAX));
     });
 
     it('should not go more than the max', async () => {
-      const { getByRole } = await render(
-        <TestSlider defaultValue={150} step={100} max={MAX} min={150} />,
+      const { getByRole, setProps } = await render(
+        <TestSlider value={150} step={100} max={MAX} min={150} />,
       );
 
       const slider = getByRole('slider');
@@ -536,7 +532,7 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
         slider.focus();
       });
 
-      fireEvent.change(slider, { target: { value: String(MAX + 100) } });
+      await setProps({ value: MAX + 100 });
       expect(slider).to.have.attribute('aria-valuenow', String(MAX));
     });
 
@@ -599,7 +595,6 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
       const slider = getByRole('slider');
 
       expect(slider).to.have.attribute('aria-valuemin', String(MIN));
-      expect(slider).to.have.attribute('min', String(MIN));
     });
 
     it('should use min as the step origin', async () => {
@@ -615,15 +610,15 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
     });
 
     it('should not go less than the min', async () => {
-      const { getByRole } = await render(
-        <TestSlider defaultValue={150} step={100} max={750} min={MIN} />,
+      const { getByRole, setProps } = await render(
+        <TestSlider value={150} step={100} max={750} min={MIN} />,
       );
       const slider = getByRole('slider');
       await act(async () => {
         slider.focus();
       });
 
-      fireEvent.change(slider, { target: { value: String(MIN - 100) } });
+      await setProps({ value: MIN - 100 });
       expect(slider).to.have.attribute('aria-valuenow', String(MIN));
     });
   });
@@ -707,7 +702,7 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
         slider.focus();
       });
 
-      fireEvent.change(slider, { target: { value: 23 } });
+      fireEvent.keyDown(slider, { key: ARROW_UP });
       expect(handleValueChange.callCount).to.equal(2);
       expect(handleValueCommitted.callCount).to.equal(2);
     });
@@ -1163,11 +1158,7 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
       await act(async () => {
         slider.focus();
       });
-      fireEvent.change(slider, {
-        target: {
-          value: 4,
-        },
-      });
+      fireEvent.keyDown(slider, { key: ARROW_UP });
 
       expect(handleValueChange.callCount).to.equal(1);
       const target = handleValueChange.firstCall.returnValue;
@@ -1949,7 +1940,7 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
     });
 
     it('[data-dirty]', async () => {
-      const { container } = await render(
+      await render(
         <Field.Root>
           <Slider.Root data-testid="root">
             <Slider.Control>
@@ -1960,17 +1951,21 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
       );
 
       const root = screen.getByTestId('root');
-      const input = container.querySelector<HTMLInputElement>('input')!;
+      const slider = screen.getByRole('slider');
 
       expect(root).not.to.have.attribute('data-dirty');
 
-      fireEvent.change(input, { target: { value: 'value' } });
+      await act(async () => {
+        slider.focus();
+      });
+
+      fireEvent.keyDown(slider, { key: ARROW_RIGHT });
 
       expect(root).to.have.attribute('data-dirty', '');
     });
 
     it('[data-focused]', async () => {
-      const { container } = await render(
+      await render(
         <Field.Root>
           <Slider.Root data-testid="root">
             <Slider.Control>
@@ -1981,15 +1976,19 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
       );
 
       const root = screen.getByTestId('root');
-      const input = container.querySelector<HTMLInputElement>('input')!;
+      const slider = screen.getByRole('slider');
 
       expect(root).not.to.have.attribute('data-focused');
 
-      fireEvent.focus(input);
+      await act(async () => {
+        slider.focus();
+      });
 
       expect(root).to.have.attribute('data-focused', '');
 
-      fireEvent.blur(input);
+      await act(async () => {
+        slider.blur();
+      });
 
       expect(root).not.to.have.attribute('data-focused');
     });
@@ -2041,14 +2040,14 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
     });
 
     it('prop: validationMode=onChange', async () => {
-      const { container } = await render(
+      await render(
         <Field.Root
           validationMode="onChange"
           validate={(value) => {
             return value === 1 ? 'error' : null;
           }}
         >
-          <Slider.Root>
+          <Slider.Root defaultValue={0}>
             <Slider.Control>
               <Slider.Thumb data-testid="thumb" />
             </Slider.Control>
@@ -2056,12 +2055,16 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
         </Field.Root>,
       );
 
-      const input = container.querySelector<HTMLInputElement>('input')!;
-      expect(input).not.to.have.attribute('aria-invalid');
+      const slider = screen.getByRole('slider');
 
-      fireEvent.change(input, { target: { value: '1' } });
+      expect(slider).not.to.have.attribute('aria-invalid');
+
+      await act(async () => {
+        slider.focus();
+      });
+      fireEvent.keyDown(slider, { key: ARROW_RIGHT });
       await flushMicrotasks();
-      expect(input).to.have.attribute('aria-invalid', 'true');
+      expect(slider).to.have.attribute('aria-invalid', 'true');
     });
 
     it('prop: validationMode=onBlur', async () => {
@@ -2072,7 +2075,7 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
             return value === 1 ? 'error' : null;
           }}
         >
-          <Slider.Root>
+          <Slider.Root defaultValue={0}>
             <Slider.Control>
               <Slider.Thumb data-testid="thumb" />
             </Slider.Control>
@@ -2081,13 +2084,18 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
         </Field.Root>,
       );
 
-      const input = screen.getByRole('slider');
-      expect(input).not.to.have.attribute('aria-invalid');
+      const slider = screen.getByRole('slider');
+      expect(slider).not.to.have.attribute('aria-invalid');
+      await act(async () => {
+        slider.focus();
+      });
+      fireEvent.keyDown(slider, { key: ARROW_RIGHT });
 
-      fireEvent.change(input, { target: { value: '1' } });
-      fireEvent.blur(screen.getByTestId('thumb'));
+      await act(async () => {
+        slider.blur();
+      });
       await flushMicrotasks();
-      expect(input).to.have.attribute('aria-invalid', 'true');
+      expect(slider).to.have.attribute('aria-invalid', 'true');
     });
 
     it('Field.Label', async () => {
