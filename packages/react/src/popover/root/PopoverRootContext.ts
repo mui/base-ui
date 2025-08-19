@@ -13,6 +13,8 @@ export interface PopoverRootContext {
     target: HTMLElement | undefined,
   ) => void;
   popupRef: React.RefObject<HTMLElement | null>;
+  backdropRef: React.RefObject<HTMLDivElement | null>;
+  internalBackdropRef: React.RefObject<HTMLDivElement | null>;
   onOpenChangeComplete: ((open: boolean) => void) | undefined;
   store: PopoverStore<unknown>;
 }

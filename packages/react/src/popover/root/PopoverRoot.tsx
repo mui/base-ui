@@ -36,6 +36,9 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
     handle,
   } = props;
 
+  const backdropRef = React.useRef<HTMLDivElement | null>(null);
+  const internalBackdropRef = React.useRef<HTMLDivElement | null>(null);
+
   const [activeTriggerState, setActiveTriggerState] = useControlled({
     controlled: openProp,
     default: defaultOpenProp,
@@ -198,7 +201,14 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
     },
   });
 
-  const dismiss = useDismiss(floatingContext);
+  const dismiss = useDismiss(floatingContext, {
+    outsidePressEvent: {
+      // Ensure `aria-hidden` on outside elements is removed immediately
+      // on outside press when trapping focus.
+      mouse: modal === 'trap-focus' ? 'sloppy' : 'intentional',
+      touch: 'sloppy',
+    },
+  });
   const role = useRole(floatingContext);
 
   const { getReferenceProps, getFloatingProps, getTriggerProps } = useInteractions([dismiss, role]);
@@ -217,6 +227,8 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
     () => ({
       setOpen,
       popupRef,
+      backdropRef,
+      internalBackdropRef,
       onOpenChangeComplete,
       store,
     }),
