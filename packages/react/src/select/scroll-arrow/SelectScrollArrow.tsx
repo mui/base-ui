@@ -1,7 +1,9 @@
 'use client';
 import * as React from 'react';
 import { useTimeout } from '@base-ui-components/utils/useTimeout';
+import { useAnimationFrame } from '@base-ui-components/utils/useAnimationFrame';
 import { useStore } from '@base-ui-components/utils/store';
+import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import { useSelectPositionerContext } from '../positioner/SelectPositionerContext';
@@ -29,9 +31,25 @@ export const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
   const visible = useStore(store, selector);
 
   const timeout = useTimeout();
+  const layoutFrame = useAnimationFrame();
+
   const scrollArrowRef = React.useRef<HTMLDivElement | null>(null);
 
   const { mounted, transitionStatus, setMounted } = useTransitionStatus(visible);
+
+  useIsoLayoutEffect(() => {
+    const scrollArrow = scrollArrowRef.current;
+    if (!visible || !scrollArrow) {
+      return;
+    }
+
+    // Avoid affecting layout for the `scrollIntoViewIfNeeded` call if the scroll arrow
+    // styles use `position: sticky`.
+    scrollArrow.style.position = 'absolute';
+    layoutFrame.request(() => {
+      scrollArrow.style.position = '';
+    });
+  }, [visible, layoutFrame]);
 
   useOpenChangeComplete({
     open: visible,
