@@ -39,3 +39,110 @@ import { Popover } from '@base-ui-components/react/popover';
   component="Popover"
   parts="Root, Trigger, Backdrop, Portal, Positioner, Popup, Arrow, Title, Description, Close, Viewport"
 />
+
+## Examples
+
+### Detached triggers
+
+A popover can be controlled by a trigger located either inside or outside the `Popover.Root` component. For simple, one-off interactions, place the `Popover.Trigger` inside `Popover.Root`, as shown in the example at the top of this page.
+
+However, if defining the popover's content next to its trigger is not practical, you can use a detached trigger. This involves placing the `Popover.Trigger` outside of `Popover.Root` and linking them with a `handle` created by the `Popover.createHandle()` function.
+
+```jsx title="detached triggers"
+const demoPopover = Popover.createHandle();
+
+<Popover.Trigger handle={demoPopover}>
+  Trigger
+</Popover.Trigger>
+
+<Popover.Root handle={demoPopover}>
+  ...
+</Popover.Root>
+```
+
+<Demo path="./demos/detached-triggers-simple" />
+
+### Multiple triggers
+
+A single popover can be opened by multiple trigger elements. You can achieve this by using the same `handle` for several detached triggers, or by placing multiple `Popover.Trigger` components inside a single `Popover.Root`.
+
+```jsx title="multiple triggers within root part"
+<Popover.Root handle={demoPopover}>
+  <Popover.Trigger>Trigger 1</Popover.Trigger>
+  <Popover.Trigger>Trigger 2</Popover.Trigger>
+  ...
+</Popover.Root>
+```
+
+```jsx title="multiple detached triggers"
+const demoPopover = Popover.createHandle();
+
+<Popover.Trigger handle={demoPopover}>
+  Trigger 1
+</Popover.Trigger>
+
+<Popover.Trigger handle={demoPopover}>
+  Trigger 2
+</Popover.Trigger>
+
+<Popover.Root handle={demoPopover}>
+  ...
+</Popover.Root>
+```
+
+The popover can render different content depending on which trigger opened it. This is achieved by passing a `payload` to the `Popover.Trigger` and using the function-as-a-child pattern in `Popover.Root`.
+
+The payload can be strongly typed by providing a type argument to the `createHandle` function:
+
+```jsx title="detached triggers with payload"
+const demoPopover = Popover.createHandle<{ text: string }>();
+
+<Popover.Trigger handle={demoPopover} payload={{ text: 'Trigger 1' }}>
+  Trigger 1
+</Popover.Trigger>
+
+<Popover.Trigger handle={demoPopover} payload={{ text: 'Trigger 2' }}>
+  Trigger 2
+</Popover.Trigger>
+
+<Popover.Root handle={demoPopover}>
+  {({ payload }) => (
+    <Popover.Portal>
+      <Popover.Positioner sideOffset={8}>
+        <Popover.Popup className={styles.Popup}>
+          <Popover.Arrow className={styles.Arrow}>
+            <ArrowSvg />
+          </Popover.Arrow>
+          <Popover.Title className={styles.Title}>Popover</Popover.Title>
+          {payload !== undefined && (
+            <Popover.Description className={styles.Description}>
+              This has been opened by {payload.text}
+            </Popover.Description>
+          )}
+        </Popover.Popup>
+      </Popover.Positioner>
+    </Popover.Portal>
+  )}
+</Popover.Root>
+```
+
+Since the popup part is reused between triggers, its position and dimensions can be animated.
+To animate the position, apply CSS transitions to the `left`, `right`, `top`, and `bottom` properties of the **Positioner**.
+To animate dimensions, target the `width` and `height` properties of the **Popup**.
+
+The popover also supports transitions between different content.
+Wrap the content you wish to transition in the `Viewport` part and apply transition styles to it.
+The `Viewport` is only necessary for content animations.
+It renders a `div` with a `data-activationdirection` attribute set to `left`, `right`, `down`, or `up`, indicating the new trigger's position relative to the previous one.
+This allows for direction-aware transitions.
+
+<Demo path="./demos/detached-triggers-full" />
+**Popup's** `width` and `height` properties to animate dimensions.
+
+The popover also supports transitions between content.
+Wrap the content you wish to transition in the `Viewport` part and apply the transition styles to it.
+The `Viewport` part is only required if you want to animate the content.
+It renders an element (`div` by default) with a `data-activationdirection` attribute set to `left` | `right` | `down` | `up` and a children divs marked with `data-current` (when no transition is active) or `data-next` and `data-previous`.
+The `data-activationdirection` attribute specifies the position of the new trigger relative to the previous one, which can be used to apply different styles based on the direction of the transition.
+
+<Demo path="./demos/detached-triggers-full" />
