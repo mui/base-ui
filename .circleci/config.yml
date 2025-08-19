@@ -299,9 +299,6 @@ jobs:
     <<: *default-job
     steps:
       - checkout
-      - run: |
-          git remote get-url origin
-          git remote get-url upstream
       - install_js:
           react-version: << parameters.react-version >>
       - run:
