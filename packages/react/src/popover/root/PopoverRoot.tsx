@@ -51,6 +51,8 @@ function PopoverRootComponent({ props }: { props: PopoverRoot.Props }) {
   const [positionerElement, setPositionerElement] = React.useState<HTMLElement | null>(null);
   const [openReason, setOpenReason] = React.useState<PopoverOpenChangeReason | null>(null);
   const [stickIfOpen, setStickIfOpen] = React.useState(true);
+  const backdropRef = React.useRef<HTMLDivElement | null>(null);
+  const internalBackdropRef = React.useRef<HTMLDivElement | null>(null);
 
   const popupRef = React.useRef<HTMLElement>(null);
   const stickIfOpenTimeout = useTimeout();
@@ -172,7 +174,9 @@ function PopoverRootComponent({ props }: { props: PopoverRoot.Props }) {
   });
   const dismiss = useDismiss(floatingContext, {
     outsidePressEvent: {
-      mouse: 'intentional',
+      // Ensure `aria-hidden` on outside elements is removed immediately
+      // on outside press when trapping focus.
+      mouse: modal === 'trap-focus' ? 'sloppy' : 'intentional',
       touch: 'sloppy',
     },
   });
@@ -196,6 +200,8 @@ function PopoverRootComponent({ props }: { props: PopoverRoot.Props }) {
       setTitleId,
       descriptionId,
       setDescriptionId,
+      backdropRef,
+      internalBackdropRef,
       triggerProps: mergeProps(getReferenceProps(), triggerProps),
       popupProps: getFloatingProps(),
       floatingRootContext: floatingContext,

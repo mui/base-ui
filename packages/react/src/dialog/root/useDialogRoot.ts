@@ -111,21 +111,31 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
   const role = useRole(context);
   const click = useClick(context);
   const dismiss = useDismiss(context, {
-    outsidePressEvent: 'intentional',
+    outsidePressEvent() {
+      if (internalBackdropRef.current || backdropRef.current) {
+        return 'intentional';
+      }
+      // Ensure `aria-hidden` on outside elements is removed immediately
+      // on outside press when trapping focus.
+      return {
+        mouse: modal === 'trap-focus' ? 'sloppy' : 'intentional',
+        touch: 'sloppy',
+      };
+    },
     outsidePress(event) {
       if (event.button !== 0) {
         return false;
       }
       const target = getTarget(event) as Element | null;
       if (isTopmost && dismissible) {
-        const backdrop = target as HTMLDivElement | null;
+        const eventTarget = target as Element | null;
         // Only close if the click occurred on the dialog's owning backdrop.
         // This supports multiple modal dialogs that aren't nested in the React tree:
         // https://github.com/mui/base-ui/issues/1320
         if (modal) {
-          return backdrop
-            ? internalBackdropRef.current === backdrop || backdropRef.current === backdrop
-            : false;
+          return internalBackdropRef.current || backdropRef.current
+            ? internalBackdropRef.current === eventTarget || backdropRef.current === eventTarget
+            : true;
         }
         return true;
       }

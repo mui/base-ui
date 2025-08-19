@@ -49,6 +49,7 @@ export const NavigationMenuList = React.forwardRef(function NavigationMenuList(
       props={[defaultProps, elementProps]}
       loop={false}
       orientation={orientation}
+      tag="ul"
       stopEventPropagation
     />
   );
@@ -62,5 +63,5 @@ export namespace NavigationMenuList {
     open: boolean;
   }
 
-  export interface Props extends BaseUIComponentProps<'div', State> {}
+  export interface Props extends BaseUIComponentProps<'ul', State> {}
 }

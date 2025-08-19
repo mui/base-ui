@@ -17,6 +17,8 @@ export interface PopoverRootContext {
   positionerElement: HTMLElement | null;
   setPositionerElement: (el: HTMLElement | null) => void;
   popupRef: React.RefObject<HTMLElement | null>;
+  backdropRef: React.RefObject<HTMLDivElement | null>;
+  internalBackdropRef: React.RefObject<HTMLDivElement | null>;
   delay: number;
   closeDelay: number;
   instantType: 'dismiss' | 'click' | undefined;
