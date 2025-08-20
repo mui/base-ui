@@ -77,17 +77,13 @@ describe('<Menu.Popup />', () => {
         );
       }
 
-      const { getByText, getByTestId } = await render(<TestComponent />);
+      const { getByText, getByTestId, findByText, user } = await render(<TestComponent />);
 
       const trigger = getByText('Open');
-      await act(async () => {
-        trigger.click();
-      });
+      await user.click(trigger);
 
-      const closeButton = getByText('Close');
-      await act(async () => {
-        closeButton.click();
-      });
+      const closeButton = await findByText('Close');
+      await user.click(closeButton);
 
       const inputToFocus = getByTestId('input-to-focus');
 
@@ -117,12 +113,12 @@ describe('<Menu.Popup />', () => {
         );
       }
 
-      const { getByText, getByTestId, user } = await render(<TestComponent />);
+      const { getByText, getByTestId, findByText, user } = await render(<TestComponent />);
 
       const trigger = getByText('Open');
       await user.click(trigger);
 
-      const closeButton = getByText('Close');
+      const closeButton = await findByText('Close');
       await user.click(closeButton);
 
       await waitFor(() => {
@@ -148,11 +144,11 @@ describe('<Menu.Popup />', () => {
         );
       }
 
-      const { getByText, user } = await render(<TestComponent />);
+      const { getByText, user, findByText } = await render(<TestComponent />);
       const trigger = getByText('Open');
 
       await user.click(trigger);
-      await user.click(getByText('Close'));
+      await user.click(await findByText('Close'));
 
       await waitFor(() => {
         expect(trigger).not.toHaveFocus();
@@ -177,11 +173,11 @@ describe('<Menu.Popup />', () => {
         );
       }
 
-      const { getByText, user } = await render(<TestComponent />);
+      const { getByText, user, findByText } = await render(<TestComponent />);
       const trigger = getByText('Open');
 
       await user.click(trigger);
-      await user.click(getByText('Close'));
+      await user.click(await findByText('Close'));
 
       await waitFor(() => {
         expect(trigger).not.toHaveFocus();
