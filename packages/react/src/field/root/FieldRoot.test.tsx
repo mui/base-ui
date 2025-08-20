@@ -795,4 +795,54 @@ describe('<Field.Root />', () => {
       });
     });
   });
+
+  describe('defaultValue behavior', () => {
+    it('should not reset to defaultValue when input value is programmatically changed and then focused', async () => {
+      const inputRef = React.createRef<HTMLInputElement>();
+
+      await render(
+        <Field.Root>
+          <Field.Control ref={inputRef} defaultValue="foo" data-testid="input" />
+        </Field.Root>
+      );
+
+      const input = screen.getByTestId('input') as HTMLInputElement;
+      
+      expect(input.value).to.equal('foo');
+      
+      if (inputRef.current) {
+        inputRef.current.value = '';
+      }
+      
+      expect(input.value).to.equal('');
+      
+      fireEvent.focus(input);
+      
+      expect(input.value).to.equal('');
+    });
+
+    it('should not reset to defaultValue when input value is programmatically changed to non-empty value and then focused', async () => {
+      const inputRef = React.createRef<HTMLInputElement>();
+
+      await render(
+        <Field.Root>
+          <Field.Control ref={inputRef} defaultValue="foo" data-testid="input" />
+        </Field.Root>
+      );
+
+      const input = screen.getByTestId('input') as HTMLInputElement;
+      
+      expect(input.value).to.equal('foo');
+      
+      if (inputRef.current) {
+        inputRef.current.value = 'abc';
+      }
+      
+      expect(input.value).to.equal('abc');
+      
+      fireEvent.focus(input);
+      
+      expect(input.value).to.equal('abc');
+    });
+  });
 });
