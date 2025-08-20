@@ -2,13 +2,7 @@
 import * as React from 'react';
 import { Slider } from '@base-ui-components/react/slider';
 import '../../../../demo-theme.css';
-import macStyles from './inset.mac.module.css';
-import nativeStyles from './inset.native.module.css';
-
-const styles = {
-  mac: macStyles,
-  native: nativeStyles,
-};
+import styles from './inset.module.css';
 
 export default function InsetSliders() {
   return (
@@ -21,20 +15,11 @@ export default function InsetSliders() {
         gap: '2rem',
       }}
     >
-      <Slider.Root className={styles.mac.Slider} defaultValue={25}>
-        <Slider.Control className={styles.mac.Control}>
-          <Slider.Track className={styles.mac.Track}>
-            <Slider.Indicator className={styles.mac.Indicator} />
-            <Slider.Thumb className={styles.mac.Thumb} />
-          </Slider.Track>
-        </Slider.Control>
-      </Slider.Root>
-
-      <Slider.Root className={styles.native.Slider} defaultValue={25}>
-        <Slider.Control className={styles.native.Control}>
-          <Slider.Track className={styles.native.Track}>
-            <Slider.Indicator className={styles.native.Indicator} />
-            <Slider.Thumb className={styles.native.Thumb} />
+      <Slider.Root className={styles.Slider} defaultValue={25} inset>
+        <Slider.Control className={styles.Control}>
+          <Slider.Track className={styles.Track}>
+            <Slider.Indicator className={styles.Indicator} />
+            <Slider.Thumb className={styles.Thumb} />
           </Slider.Track>
         </Slider.Control>
       </Slider.Root>

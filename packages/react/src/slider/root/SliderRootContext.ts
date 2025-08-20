@@ -18,6 +18,7 @@ export interface SliderRootContext {
     index: number,
     event: React.KeyboardEvent | React.ChangeEvent,
   ) => void;
+  inset: boolean;
   labelId?: string;
   /**
    * The large step value of the slider when incrementing or decrementing while the shift key is held,
