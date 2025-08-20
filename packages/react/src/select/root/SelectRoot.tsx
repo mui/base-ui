@@ -7,7 +7,7 @@ import { SelectRootContext, SelectFloatingContext } from './SelectRootContext';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { serializeValue } from '../utils/serialize';
 import { BaseOpenChangeReason } from '../../utils/types';
-import { BaseUIEventData } from '../../utils/createBaseUIEvent';
+import { type BaseUIEventData, createBaseUIEventData } from '../../utils/createBaseUIEvent';
 
 /**
  * Groups all parts of the select.
@@ -127,7 +127,10 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
 
                   if (exactValue != null) {
                     setDirty(exactValue !== validityData.initialValue);
-                    rootContext.setValue?.(exactValue, event.nativeEvent);
+                    rootContext.setValue?.(
+                      exactValue,
+                      createBaseUIEventData('none', event.nativeEvent),
+                    );
 
                     if (validationMode === 'onChange') {
                       rootContext.fieldControlValidation.commitValidation(exactValue);
@@ -195,7 +198,7 @@ interface SelectRootProps<Value> {
   /**
    * Callback fired when the value of the select changes. Use when controlled.
    */
-  onValueChange?: (value: Value, event: Event | undefined) => void;
+  onValueChange?: (value: Value, data: BaseUIEventData<'none'>) => void;
   /**
    * The uncontrolled value of the select when it’s initially rendered.
    *
@@ -280,7 +283,7 @@ export type SelectRootConditionalProps<Value, Multiple extends boolean | undefin
   /**
    * Callback fired when the value of the select changes. Use when controlled.
    */
-  onValueChange?: (value: SelectValueType<Value, Multiple>, event: Event | undefined) => void;
+  onValueChange?: (value: SelectValueType<Value, Multiple>, data: BaseUIEventData<'none'>) => void;
 };
 
 export namespace SelectRoot {

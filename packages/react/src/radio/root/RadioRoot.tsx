@@ -16,6 +16,7 @@ import { customStyleHookMapping } from '../utils/customStyleHookMapping';
 import { useRadioGroupContext } from '../../radio-group/RadioGroupContext';
 import { RadioRootContext } from './RadioRootContext';
 import { EMPTY_OBJECT } from '../../utils/constants';
+import { createBaseUIEventData } from '../../utils/createBaseUIEvent';
 
 /**
  * Represents the radio button itself.
@@ -45,7 +46,6 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
     required: requiredRoot,
     checkedValue,
     setCheckedValue,
-    onValueChange,
     touched,
     setTouched,
     fieldControlValidation,
@@ -137,18 +137,17 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
           return;
         }
 
+        const data = createBaseUIEventData('none', event.nativeEvent);
         setFieldTouched(true);
         setDirty(value !== validityData.initialValue);
-        setCheckedValue(value);
         setFilled(true);
-        onValueChange?.(value, event.nativeEvent);
+        setCheckedValue(value, data);
       },
     }),
     [
       checked,
       disabled,
       id,
-      onValueChange,
       readOnly,
       ref,
       required,

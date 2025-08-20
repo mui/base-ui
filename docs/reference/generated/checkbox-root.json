@@ -21,9 +21,9 @@
       "detailedType": "boolean | undefined"
     },
     "onCheckedChange": {
-      "type": "((checked: boolean, event: Event) => void)",
+      "type": "((checked: boolean, data: BaseUIEventData<'none'>) => void)",
       "description": "Event handler called when the checkbox is ticked or unticked.",
-      "detailedType": "| ((checked: boolean, event: Event) => void)\n| undefined"
+      "detailedType": "| ((\n    checked: boolean,\n    data: BaseUIEventData<'none'>,\n  ) => void)\n| undefined"
     },
     "indeterminate": {
       "type": "boolean",

@@ -11,6 +11,11 @@ import { TabsRootContext } from './TabsRootContext';
 import { tabsStyleHookMapping } from './styleHooks';
 import type { TabsTab } from '../tab/TabsTab';
 import type { TabsPanel } from '../panel/TabsPanel';
+import {
+  BaseUIEventData,
+  createBaseUIEventData,
+  isEventPrevented,
+} from '../../utils/createBaseUIEvent';
 
 /**
  * Groups the tabs and the corresponding panels.
@@ -59,9 +64,16 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
       activationDirection: TabsTab.ActivationDirection,
       event: Event | undefined,
     ) => {
+      const data = createBaseUIEventData('none', event);
+
+      onValueChangeProp?.(newValue, data);
+
+      if (isEventPrevented(data)) {
+        return;
+      }
+
       setValue(newValue);
       setTabActivationDirection(activationDirection);
-      onValueChangeProp?.(newValue, event);
     },
   );
 
@@ -217,6 +229,6 @@ export namespace TabsRoot {
     /**
      * Callback invoked when new value is being set.
      */
-    onValueChange?: (value: TabsTab.Value, event?: Event) => void;
+    onValueChange?: (value: TabsTab.Value, data: BaseUIEventData<'none'>) => void;
   }
 }

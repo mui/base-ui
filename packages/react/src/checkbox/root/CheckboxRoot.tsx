@@ -18,6 +18,7 @@ import { useField } from '../../field/useField';
 import { useFormContext } from '../../form/FormContext';
 import { useCheckboxGroupContext } from '../../checkbox-group/CheckboxGroupContext';
 import { CheckboxRootContext } from './CheckboxRootContext';
+import { BaseUIEventData, createBaseUIEventData } from '../../utils/createBaseUIEvent';
 
 const EMPTY = {};
 export const PARENT_CHECKBOX = 'data-parent';
@@ -203,11 +204,12 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
         }
 
         const nextChecked = event.target.checked;
+        const data = createBaseUIEventData('none', event.nativeEvent);
 
         setDirty(nextChecked !== validityData.initialValue);
         setCheckedState(nextChecked);
-        groupOnChange?.(nextChecked, event.nativeEvent);
-        onCheckedChange(nextChecked, event.nativeEvent);
+        groupOnChange?.(nextChecked, data);
+        onCheckedChange(nextChecked, data);
         clearErrors(name);
 
         if (!groupContext) {
@@ -225,7 +227,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
             ? [...groupValue, value]
             : groupValue.filter((item) => item !== value);
 
-          setGroupValue(nextGroupValue, event.nativeEvent);
+          setGroupValue(nextGroupValue, data);
           setFilled(nextGroupValue.length > 0);
 
           if (validationMode === 'onChange') {
@@ -369,7 +371,7 @@ export namespace CheckboxRoot {
      * @param {boolean} checked The new checked state.
      * @param {Event} event The corresponding event that initiated the change.
      */
-    onCheckedChange?: (checked: boolean, event: Event) => void;
+    onCheckedChange?: (checked: boolean, data: BaseUIEventData<'none'>) => void;
     /**
      * Whether the user should be unable to tick or untick the checkbox.
      * @default false

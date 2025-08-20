@@ -21,7 +21,7 @@ import { type BaseUIComponentProps, BaseOpenChangeReason } from '../../utils/typ
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useTransitionStatus } from '../../utils/useTransitionStatus';
 import { setFixedSize } from '../utils/setFixedSize';
-import { BaseUIEventData } from '../../utils/createBaseUIEvent';
+import { BaseUIEventData, isEventPrevented } from '../../utils/createBaseUIEvent';
 
 /**
  * Groups all parts of the navigation menu.
@@ -100,6 +100,10 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot(
 
       if (nextValue !== value) {
         onValueChange?.(nextValue, data);
+      }
+
+      if (isEventPrevented(data)) {
+        return;
       }
 
       setValueUnwrapped(nextValue);

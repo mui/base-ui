@@ -18,14 +18,14 @@
       "detailedType": "number | number[] | undefined"
     },
     "onValueChange": {
-      "type": "((value: number | number[], event: Event, activeThumbIndex: number) => void)",
+      "type": "((value: number | number[], data: BaseUIEventData<'none'>, activeThumbIndex: number) => void)",
       "description": "Callback function that is fired when the slider's value changed.",
-      "detailedType": "| ((\n    value: number | number[],\n    event: Event,\n    activeThumbIndex: number,\n  ) => void)\n| undefined"
+      "detailedType": "| ((\n    value: number | number[],\n    data: BaseUIEventData<'none'>,\n    activeThumbIndex: number,\n  ) => void)\n| undefined"
     },
     "onValueCommitted": {
-      "type": "((value: number | number[], event: Event) => void)",
+      "type": "((value: number | number[], data: BaseUIEventData<'none'>) => void)",
       "description": "Callback function that is fired when the `pointerup` is triggered.",
-      "detailedType": "| ((value: number | number[], event: Event) => void)\n| undefined"
+      "detailedType": "| ((\n    value: number | number[],\n    data: BaseUIEventData<'none'>,\n  ) => void)\n| undefined"
     },
     "locale": {
       "type": "Intl.LocalesArgument",

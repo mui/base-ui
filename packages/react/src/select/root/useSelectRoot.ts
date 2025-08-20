@@ -24,7 +24,11 @@ import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useTransitionStatus } from '../../utils/useTransitionStatus';
 import { selectors, State } from '../store';
 import type { SelectRootContext } from './SelectRootContext';
-import { isEventPrevented, type BaseUIEventData } from '../../utils/createBaseUIEvent';
+import {
+  createBaseUIEventData,
+  isEventPrevented,
+  type BaseUIEventData,
+} from '../../utils/createBaseUIEvent';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useFormContext } from '../../form/FormContext';
 import { useField } from '../../field/useField';
@@ -270,8 +274,13 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
 
   React.useImperativeHandle(params.actionsRef, () => ({ unmount: handleUnmount }), [handleUnmount]);
 
-  const setValue = useEventCallback((nextValue: any, event?: Event) => {
-    params.onValueChange?.(nextValue, event);
+  const setValue = useEventCallback((nextValue: any, data: BaseUIEventData<'none'>) => {
+    params.onValueChange?.(nextValue, data);
+
+    if (isEventPrevented(data)) {
+      return;
+    }
+
     setValueUnwrapped(nextValue);
   });
 
@@ -401,7 +410,7 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
       if (open) {
         store.set('activeIndex', index);
       } else {
-        setValue(valuesRef.current[index]);
+        setValue(valuesRef.current[index], createBaseUIEventData('none', new Event('none')));
       }
     },
     onTypingChange(typing) {
