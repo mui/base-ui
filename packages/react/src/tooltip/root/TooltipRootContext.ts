@@ -9,7 +9,7 @@ export type TooltipOpenChangeReason = BaseOpenChangeReason | 'disabled';
 
 export interface TooltipRootContext {
   open: boolean;
-  setOpen: (open: boolean, event: Event, data: BaseUIEventData) => void;
+  setOpen: (open: boolean, data: BaseUIEventData) => void;
   setTriggerElement: (el: Element | null) => void;
   positionerElement: HTMLElement | null;
   setPositionerElement: (el: HTMLElement | null) => void;

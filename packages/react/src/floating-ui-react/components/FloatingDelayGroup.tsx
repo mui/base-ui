@@ -14,7 +14,7 @@ interface ContextValue {
   timeout: Timeout;
   currentIdRef: React.MutableRefObject<any>;
   currentContextRef: React.MutableRefObject<{
-    onOpenChange: (open: boolean, event: Event, data: BaseUIEventData<any>) => void;
+    onOpenChange: (open: boolean, data: BaseUIEventData<any>) => void;
     setIsInstantPhase: (value: boolean) => void;
   } | null>;
 }
@@ -195,7 +195,7 @@ export function useDelayGroup(
       timeout.clear();
       setIsInstantPhase(true);
       prevContext?.setIsInstantPhase(true);
-      prevContext?.onOpenChange(false, new Event('base-ui'), createBaseUIEventData('none'));
+      prevContext?.onOpenChange(false, createBaseUIEventData('none', new Event('base-ui')));
     } else {
       setIsInstantPhase(false);
       prevContext?.setIsInstantPhase(false);

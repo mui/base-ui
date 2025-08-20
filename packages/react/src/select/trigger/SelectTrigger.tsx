@@ -133,7 +133,7 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
         setFocused(true);
         // The popup element shouldn't obscure the focused trigger.
         if (open && alignItemWithTriggerActiveRef.current) {
-          setOpen(false, event.nativeEvent, createBaseUIEventData('focus-out'));
+          setOpen(false, createBaseUIEventData('focus-out', event.nativeEvent));
         }
 
         // Saves a re-render on initial click: `forceMount === true` mounts
@@ -164,7 +164,7 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
         keyboardActiveRef.current = true;
 
         if (event.key === 'ArrowDown') {
-          setOpen(true, event.nativeEvent, createBaseUIEventData('list-navigation'));
+          setOpen(true, createBaseUIEventData('list-navigation', event.nativeEvent));
         }
       },
       onMouseDown(event) {
@@ -201,7 +201,7 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
             return;
           }
 
-          setOpen(false, mouseEvent, createBaseUIEventData('cancel-open'));
+          setOpen(false, createBaseUIEventData('cancel-open', mouseEvent));
         }
 
         // Firefox can fire this upon mousedown

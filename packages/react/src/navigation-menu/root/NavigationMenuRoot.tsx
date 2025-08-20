@@ -21,6 +21,7 @@ import { type BaseUIComponentProps, BaseOpenChangeReason } from '../../utils/typ
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useTransitionStatus } from '../../utils/useTransitionStatus';
 import { setFixedSize } from '../utils/setFixedSize';
+import { BaseUIEventData } from '../../utils/createBaseUIEvent';
 
 /**
  * Groups all parts of the navigation menu.
@@ -55,7 +56,7 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot(
   // Derive open state from value being non-nullish
   const open = value != null;
 
-  const closeReasonRef = React.useRef<BaseOpenChangeReason | undefined>(undefined);
+  const closeReasonRef = React.useRef<NavigationMenuRoot.OpenChangeReason | undefined>(undefined);
   const rootRef = React.useRef<HTMLDivElement | null>(null);
 
   const [positionerElement, setPositionerElement] = React.useState<HTMLElement | null>(null);
@@ -85,9 +86,9 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot(
   }, [value]);
 
   const setValue = useEventCallback(
-    (nextValue: any, event: Event | undefined, reason: BaseOpenChangeReason | undefined) => {
+    (nextValue: any, data: BaseUIEventData<NavigationMenuRoot.OpenChangeReason>) => {
       if (!nextValue) {
-        closeReasonRef.current = reason;
+        closeReasonRef.current = data.reason;
         setActivationDirection(null);
         setFloatingRootContext(undefined);
 
@@ -98,7 +99,7 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot(
       }
 
       if (nextValue !== value) {
-        onValueChange?.(nextValue, event, reason);
+        onValueChange?.(nextValue, data);
       }
 
       setValueUnwrapped(nextValue);
@@ -303,11 +304,7 @@ export namespace NavigationMenuRoot {
     /**
      * Callback fired when the value changes.
      */
-    onValueChange?: (
-      value: any,
-      event: Event | undefined,
-      reason: BaseOpenChangeReason | undefined,
-    ) => void;
+    onValueChange?: (value: any, data: OpenChangeData) => void;
     /**
      * How long to wait before opening the navigation menu. Specified in milliseconds.
      * @default 50
@@ -333,4 +330,7 @@ export namespace NavigationMenuRoot {
      */
     unmount: () => void;
   }
+
+  export type OpenChangeData = BaseUIEventData<OpenChangeReason>;
+  export type OpenChangeReason = BaseOpenChangeReason | 'link-press';
 }

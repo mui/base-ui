@@ -49,7 +49,7 @@ export function useFocusWithDelay(
       onFocus(event) {
         const { nativeEvent } = event;
         timeout.start(delay ?? 0, () => {
-          onOpenChange(true, nativeEvent, createBaseUIEventData('trigger-focus'));
+          onOpenChange(true, createBaseUIEventData('trigger-focus', nativeEvent));
         });
       },
       onBlur(event) {
@@ -81,7 +81,7 @@ export function useFocusWithDelay(
             return;
           }
 
-          onOpenChange(false, nativeEvent, createBaseUIEventData('focus-out'));
+          onOpenChange(false, createBaseUIEventData('focus-out', nativeEvent));
         });
       },
     }),

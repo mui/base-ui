@@ -173,7 +173,7 @@ export function useHover(context: FloatingRootContext, props: UseHoverProps = {}
 
     function onLeave(event: MouseEvent) {
       if (isHoverOpen()) {
-        onOpenChange(false, event, createBaseUIEventData('trigger-hover'));
+        onOpenChange(false, createBaseUIEventData('trigger-hover', event));
       }
     }
 
@@ -189,11 +189,11 @@ export function useHover(context: FloatingRootContext, props: UseHoverProps = {}
       const closeDelay = getDelay(delayRef.current, 'close', pointerTypeRef.current);
       if (closeDelay && !handlerRef.current) {
         timeout.start(closeDelay, () =>
-          onOpenChange(false, event, createBaseUIEventData('trigger-hover')),
+          onOpenChange(false, createBaseUIEventData('trigger-hover', event)),
         );
       } else if (runElseBranch) {
         timeout.clear();
-        onOpenChange(false, event, createBaseUIEventData('trigger-hover'));
+        onOpenChange(false, createBaseUIEventData('trigger-hover', event));
       }
     },
     [delayRef, onOpenChange, timeout],
@@ -243,11 +243,11 @@ export function useHover(context: FloatingRootContext, props: UseHoverProps = {}
       if (openDelay) {
         timeout.start(openDelay, () => {
           if (!openRef.current) {
-            onOpenChange(true, event, createBaseUIEventData('trigger-hover'));
+            onOpenChange(true, createBaseUIEventData('trigger-hover', event));
           }
         });
       } else if (!open) {
-        onOpenChange(true, event, createBaseUIEventData('trigger-hover'));
+        onOpenChange(true, createBaseUIEventData('trigger-hover', event));
       }
     }
 
@@ -483,7 +483,7 @@ export function useHover(context: FloatingRootContext, props: UseHoverProps = {}
 
         function handleMouseMove() {
           if (!blockMouseMoveRef.current && !openRef.current) {
-            onOpenChange(true, nativeEvent, createBaseUIEventData('trigger-hover'));
+            onOpenChange(true, createBaseUIEventData('trigger-hover', nativeEvent));
           }
         }
 

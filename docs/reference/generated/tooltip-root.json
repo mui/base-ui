@@ -14,9 +14,9 @@
       "detailedType": "boolean | undefined"
     },
     "onOpenChange": {
-      "type": "((open: boolean, event: Event, data: BaseUIEventData<TooltipOpenChangeReason>) => void)",
+      "type": "((open: boolean, data: Tooltip.Root.OpenChangeData) => void)",
       "description": "Event handler called when the tooltip is opened or closed.",
-      "detailedType": "| ((\n    open: boolean,\n    event: Event,\n    data: BaseUIEventData<TooltipOpenChangeReason>,\n  ) => void)\n| undefined"
+      "detailedType": "| ((\n    open: boolean,\n    data: Tooltip.Root.OpenChangeData,\n  ) => void)\n| undefined"
     },
     "actionsRef": {
       "type": "RefObject<Tooltip.Root.Actions>",

@@ -161,17 +161,14 @@ export interface SettingsPanelProps<Settings> extends React.HTMLAttributes<HTMLD
 
 function SettingsPopup(props: React.PropsWithChildren<{}>) {
   const [open, setOpen] = React.useState(false);
-  const handleOpenChange = React.useCallback(
-    (nextOpen: boolean, event: Event, data: { reason: string }) => {
-      const reason = data.reason;
-      if (!nextOpen && (reason === 'outside-press' || reason === 'focus-out')) {
-        return;
-      }
+  const handleOpenChange = React.useCallback((nextOpen: boolean, data: { reason: string }) => {
+    const reason = data.reason;
+    if (!nextOpen && (reason === 'outside-press' || reason === 'focus-out')) {
+      return;
+    }
 
-      setOpen(nextOpen);
-    },
-    [],
-  );
+    setOpen(nextOpen);
+  }, []);
 
   return (
     <Popover.Root open={open} onOpenChange={handleOpenChange}>

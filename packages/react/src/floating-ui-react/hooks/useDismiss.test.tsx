@@ -46,7 +46,7 @@ function App(
   const [open, setOpen] = React.useState(true);
   const { refs, context } = useFloating({
     open,
-    onOpenChange(openArg, _event, data) {
+    onOpenChange(openArg, data) {
       setOpen(openArg);
       const reason = data?.reason;
       if (props.outsidePress) {

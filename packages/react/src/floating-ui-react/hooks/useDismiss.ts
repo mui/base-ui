@@ -214,9 +214,10 @@ export function useDismiss(
         }
       }
 
-      const baseUIEventData = createBaseUIEventData('escape-key');
+      const native = isReactEvent(event) ? event.nativeEvent : event;
+      const baseUIEventData = createBaseUIEventData('escape-key', native);
 
-      onOpenChange(false, isReactEvent(event) ? event.nativeEvent : event, baseUIEventData);
+      onOpenChange(false, baseUIEventData);
 
       if (!escapeKeyBubbles && isStopPropagationAllowed(baseUIEventData)) {
         event.stopPropagation();
@@ -356,7 +357,7 @@ export function useDismiss(
         }
       }
 
-      onOpenChange(false, event, createBaseUIEventData('outside-press'));
+      onOpenChange(false, createBaseUIEventData('outside-press', event));
     },
   );
 
@@ -481,7 +482,7 @@ export function useDismiss(
     const compositionTimeout = new Timeout();
 
     function onScroll(event: Event) {
-      onOpenChange(false, event, createBaseUIEventData('none'));
+      onOpenChange(false, createBaseUIEventData('none', event));
     }
 
     function handleCompositionStart() {
@@ -627,11 +628,11 @@ export function useDismiss(
       onKeyDown: closeOnEscapeKeyDown,
       ...(referencePress && {
         [bubbleHandlerKeys[referencePressEvent]]: (event: React.SyntheticEvent) => {
-          onOpenChange(false, event.nativeEvent, createBaseUIEventData('trigger-press'));
+          onOpenChange(false, createBaseUIEventData('trigger-press', event.nativeEvent));
         },
         ...(referencePressEvent !== 'intentional' && {
           onClick(event) {
-            onOpenChange(false, event.nativeEvent, createBaseUIEventData('trigger-press'));
+            onOpenChange(false, createBaseUIEventData('trigger-press', event.nativeEvent));
           },
         }),
       }),

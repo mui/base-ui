@@ -128,7 +128,7 @@ export const SelectItem = React.memo(
         setValue(nextValue, event);
       } else {
         setValue(value, event);
-        setOpen(false, event, createBaseUIEventData('item-press'));
+        setOpen(false, createBaseUIEventData('item-press', event));
       }
     }
 

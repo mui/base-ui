@@ -53,7 +53,7 @@ export const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
     });
 
     allowMouseUpRef.current = false;
-    actionsRef.current?.setOpen(true, event, createBaseUIEventData('trigger-press'));
+    actionsRef.current?.setOpen(true, createBaseUIEventData('trigger-press', event));
 
     allowMouseUpTimeout.start(LONG_PRESS_DELAY, () => {
       allowMouseUpRef.current = true;
@@ -82,7 +82,7 @@ export const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
           return;
         }
 
-        actionsRef.current?.setOpen(false, mouseEvent, { reason: 'cancel-open' } as any);
+        actionsRef.current?.setOpen(false, createBaseUIEventData('cancel-open', mouseEvent));
       },
       { once: true },
     );

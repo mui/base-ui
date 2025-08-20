@@ -131,7 +131,7 @@ export function useFocus(context: FloatingRootContext, props: UseFocusProps = {}
           }
         }
 
-        onOpenChange(true, event.nativeEvent, createBaseUIEventData('trigger-focus'));
+        onOpenChange(true, createBaseUIEventData('trigger-focus', event.nativeEvent));
       },
       onBlur(event) {
         blockFocusRef.current = false;
@@ -171,7 +171,7 @@ export function useFocus(context: FloatingRootContext, props: UseFocusProps = {}
             return;
           }
 
-          onOpenChange(false, nativeEvent, createBaseUIEventData('trigger-focus'));
+          onOpenChange(false, createBaseUIEventData('trigger-focus', nativeEvent));
         });
       },
     }),

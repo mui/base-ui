@@ -17,11 +17,7 @@ import { useTransitionStatus, type TransitionStatus } from '../../utils/useTrans
 import type { RequiredExcept, HTMLProps } from '../../utils/types';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
-import {
-  createSimpleBaseUIEvent,
-  isEventPrevented,
-  type BaseUIEventData,
-} from '../../utils/createBaseUIEvent';
+import { isEventPrevented, type BaseUIEventData } from '../../utils/createBaseUIEvent';
 import { type DialogRoot } from './DialogRoot';
 
 export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.ReturnValue {
@@ -62,8 +58,8 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
   } = useOpenInteractionType(open);
 
   const setOpen = useEventCallback(
-    (nextOpen: boolean, event: Event, data: BaseUIEventData<DialogRoot.OpenChangeReason>) => {
-      onOpenChangeParameter?.(nextOpen, event, data);
+    (nextOpen: boolean, data: BaseUIEventData<DialogRoot.OpenChangeReason>) => {
+      onOpenChangeParameter?.(nextOpen, data);
 
       if (isEventPrevented(data)) {
         return;
@@ -92,18 +88,10 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
 
   React.useImperativeHandle(params.actionsRef, () => ({ unmount: handleUnmount }), [handleUnmount]);
 
-  const handleFloatingUIOpenChange = (
-    nextOpen: boolean,
-    event: Event | undefined,
-    data: BaseUIEventData<DialogRoot.OpenChangeReason>,
-  ) => {
-    setOpen(nextOpen, event || createSimpleBaseUIEvent(), data);
-  };
-
   const context = useFloatingRootContext({
     elements: { reference: triggerElement, floating: popupElement },
     open,
-    onOpenChange: handleFloatingUIOpenChange,
+    onOpenChange: setOpen,
   });
   const [ownNestedOpenDialogs, setOwnNestedOpenDialogs] = React.useState(0);
   const isTopmost = ownNestedOpenDialogs === 0;
@@ -248,11 +236,7 @@ export namespace useDialogRoot {
     /**
      * Event handler called when the dialog is opened or closed.
      */
-    onOpenChange?: (
-      open: boolean,
-      event: Event,
-      data: BaseUIEventData<DialogRoot.OpenChangeReason>,
-    ) => void;
+    onOpenChange?: (open: boolean, data: BaseUIEventData<DialogRoot.OpenChangeReason>) => void;
     /**
      * Event handler called after any animations complete when the dialog is opened or closed.
      */
@@ -310,11 +294,7 @@ export namespace useDialogRoot {
     /**
      * Event handler called when the dialog is opened or closed.
      */
-    setOpen: (
-      open: boolean,
-      event: Event,
-      data: BaseUIEventData<DialogRoot.OpenChangeReason>,
-    ) => void;
+    setOpen: (open: boolean, data: BaseUIEventData<DialogRoot.OpenChangeReason>) => void;
     /**
      * Whether the dialog is currently open.
      */

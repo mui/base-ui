@@ -15,7 +15,7 @@ export default function ExampleTooltip() {
         }}
       >
         <Tooltip.Root
-          onOpenChange={(open, event, data) => {
+          onOpenChange={(open, data) => {
             if (data.reason === 'trigger-press') {
               data.preventBaseUIHandler();
             }
@@ -37,7 +37,7 @@ export default function ExampleTooltip() {
         </Tooltip.Root>
 
         <Tooltip.Root
-          onOpenChange={(open, event, data) => {
+          onOpenChange={(open, data) => {
             if (data.reason === 'escape-key') {
               data.preventBaseUIHandler({ allowStopPropagation: false });
             }

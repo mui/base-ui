@@ -213,11 +213,7 @@ interface SelectRootProps<Value> {
   /**
    * Event handler called when the select menu is opened or closed.
    */
-  onOpenChange?: (
-    open: boolean,
-    event: Event,
-    data: BaseUIEventData<SelectRoot.OpenChangeReason>,
-  ) => void;
+  onOpenChange?: (open: boolean, data: SelectRoot.OpenChangeData) => void;
   /**
    * Event handler called after any animations complete when the select menu is opened or closed.
    */
@@ -299,5 +295,6 @@ export namespace SelectRoot {
     unmount: () => void;
   }
 
+  export type OpenChangeData = BaseUIEventData<OpenChangeReason>;
   export type OpenChangeReason = BaseOpenChangeReason | 'window-resize';
 }

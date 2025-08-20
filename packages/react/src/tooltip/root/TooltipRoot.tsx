@@ -21,7 +21,6 @@ import { useTooltipProviderContext } from '../provider/TooltipProviderContext';
 import {
   BaseUIEventData,
   createBaseUIEventData,
-  createSimpleBaseUIEvent,
   isEventPrevented,
 } from '../../utils/createBaseUIEvent';
 
@@ -63,18 +62,14 @@ export function TooltipRoot(props: TooltipRoot.Props) {
 
   const open = !disabled && openState;
 
-  function setOpenUnwrapped(
-    nextOpen: boolean,
-    event: Event,
-    data: BaseUIEventData<TooltipOpenChangeReason>,
-  ) {
+  function setOpenUnwrapped(nextOpen: boolean, data: BaseUIEventData<TooltipOpenChangeReason>) {
     const reason = data.reason;
 
     const isHover = reason === 'trigger-hover';
     const isFocusOpen = nextOpen && reason === 'trigger-focus';
     const isDismissClose = !nextOpen && (reason === 'trigger-press' || reason === 'escape-key');
 
-    onOpenChange?.(nextOpen, event, data);
+    onOpenChange?.(nextOpen, data);
 
     if (isEventPrevented(data)) {
       return;
@@ -102,11 +97,7 @@ export function TooltipRoot(props: TooltipRoot.Props) {
   const setOpen = useEventCallback(setOpenUnwrapped);
 
   if (openState && disabled) {
-    setOpenUnwrapped(
-      false,
-      createSimpleBaseUIEvent(),
-      createBaseUIEventData<TooltipOpenChangeReason>('disabled'),
-    );
+    setOpenUnwrapped(false, createBaseUIEventData<TooltipOpenChangeReason>('disabled'));
   }
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
@@ -135,9 +126,7 @@ export function TooltipRoot(props: TooltipRoot.Props) {
       floating: positionerElement,
     },
     open,
-    onOpenChange(openValue, eventValue, dataValue) {
-      setOpen(openValue, eventValue || new Event('base-ui'), dataValue);
-    },
+    onOpenChange: setOpen,
   });
 
   const providerContext = useTooltipProviderContext();
@@ -264,11 +253,7 @@ export namespace TooltipRoot {
     /**
      * Event handler called when the tooltip is opened or closed.
      */
-    onOpenChange?: (
-      open: boolean,
-      event: Event,
-      data: BaseUIEventData<TooltipOpenChangeReason>,
-    ) => void;
+    onOpenChange?: (open: boolean, data: OpenChangeData) => void;
     /**
      * Event handler called after any animations complete when the tooltip is opened or closed.
      */
@@ -311,5 +296,6 @@ export namespace TooltipRoot {
     unmount: () => void;
   }
 
+  export type OpenChangeData = BaseUIEventData<TooltipOpenChangeReason>;
   export type OpenChangeReason = TooltipOpenChangeReason;
 }

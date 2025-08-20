@@ -7,7 +7,7 @@ import { BaseUIEventData } from '../../utils/createBaseUIEvent';
 
 export interface PreviewCardRootContext {
   open: boolean;
-  setOpen: (open: boolean, event: Event, data: BaseUIEventData<BaseOpenChangeReason>) => void;
+  setOpen: (open: boolean, data: BaseUIEventData<BaseOpenChangeReason>) => void;
   setTriggerElement: (el: Element | null) => void;
   positionerElement: HTMLElement | null;
   setPositionerElement: (el: HTMLElement | null) => void;

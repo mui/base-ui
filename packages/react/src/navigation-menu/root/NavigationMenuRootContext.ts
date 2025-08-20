@@ -1,12 +1,13 @@
 import * as React from 'react';
 import type { FloatingRootContext } from '../../floating-ui-react';
-import type { BaseOpenChangeReason } from '../../utils/types';
+import type { BaseUIEventData } from '../../utils/createBaseUIEvent';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
+import type { NavigationMenuRoot } from './NavigationMenuRoot';
 
 export interface NavigationMenuRootContext {
   open: boolean;
   value: any;
-  setValue: (value: any, event?: Event, reason?: BaseOpenChangeReason) => void;
+  setValue: (value: any, data: BaseUIEventData<NavigationMenuRoot.OpenChangeReason>) => void;
   transitionStatus: TransitionStatus;
   mounted: boolean;
   popupElement: HTMLElement | null;

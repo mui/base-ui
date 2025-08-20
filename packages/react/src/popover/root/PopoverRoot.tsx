@@ -17,11 +17,7 @@ import {
 import { useTransitionStatus } from '../../utils/useTransitionStatus';
 import { OPEN_DELAY } from '../utils/constants';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
-import {
-  createSimpleBaseUIEvent,
-  isEventPrevented,
-  type BaseUIEventData,
-} from '../../utils/createBaseUIEvent';
+import { isEventPrevented, type BaseUIEventData } from '../../utils/createBaseUIEvent';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { PATIENT_CLICK_THRESHOLD } from '../../utils/constants';
 import { useScrollLock } from '../../utils/useScrollLock';
@@ -99,12 +95,13 @@ function PopoverRootComponent({ props }: { props: PopoverRoot.Props }) {
   }, [stickIfOpenTimeout, open]);
 
   const setOpen = useEventCallback(
-    (nextOpen: boolean, event: Event, data: BaseUIEventData<PopoverOpenChangeReason>) => {
+    (nextOpen: boolean, data: BaseUIEventData<PopoverOpenChangeReason>) => {
       const isHover = data.reason === 'trigger-hover';
-      const isKeyboardClick = data.reason === 'trigger-press' && (event as MouseEvent).detail === 0;
+      const isKeyboardClick =
+        data.reason === 'trigger-press' && (data.event as MouseEvent).detail === 0;
       const isDismissClose = !nextOpen && (data.reason === 'escape-key' || data.reason === 'none');
 
-      onOpenChange?.(nextOpen, event, data);
+      onOpenChange?.(nextOpen, data);
 
       if (isEventPrevented(data)) {
         return;
@@ -145,9 +142,7 @@ function PopoverRootComponent({ props }: { props: PopoverRoot.Props }) {
       floating: positionerElement,
     },
     open,
-    onOpenChange(openValue, eventValue, dataValue) {
-      setOpen(openValue, eventValue || createSimpleBaseUIEvent(), dataValue);
-    },
+    onOpenChange: setOpen,
   });
 
   useScrollLock({
@@ -282,7 +277,7 @@ export namespace PopoverRoot {
     /**
      * Event handler called when the popover is opened or closed.
      */
-    onOpenChange?: (open: boolean, event: Event, data: BaseUIEventData<OpenChangeReason>) => void;
+    onOpenChange?: (open: boolean, data: OpenChangeData) => void;
     /**
      * Event handler called after any animations complete when the popover is opened or closed.
      */
@@ -332,5 +327,6 @@ export namespace PopoverRoot {
     unmount: () => void;
   }
 
+  export type OpenChangeData = BaseUIEventData<OpenChangeReason>;
   export type OpenChangeReason = PopoverOpenChangeReason;
 }

@@ -590,7 +590,7 @@ export function useListNavigation(
         stopEvent(event);
       }
 
-      onOpenChange(false, event.nativeEvent, createBaseUIEventData('list-navigation'));
+      onOpenChange(false, createBaseUIEventData('list-navigation', event.nativeEvent));
 
       if (isHTMLElement(elements.domReference)) {
         if (virtual) {
@@ -790,7 +790,7 @@ export function useListNavigation(
         // Close submenu on Shift+Tab
         if (event.key === 'Tab' && event.shiftKey && open && !virtual) {
           stopEvent(event);
-          onOpenChange(false, event.nativeEvent, createBaseUIEventData('list-navigation'));
+          onOpenChange(false, createBaseUIEventData('list-navigation', event.nativeEvent));
 
           if (isHTMLElement(elements.domReference)) {
             elements.domReference.focus();
@@ -871,7 +871,7 @@ export function useListNavigation(
               indexRef.current = getMinListIndex(listRef, disabledIndicesRef.current);
               onNavigate();
             } else {
-              onOpenChange(true, event.nativeEvent, createBaseUIEventData('list-navigation'));
+              onOpenChange(true, createBaseUIEventData('list-navigation', event.nativeEvent));
             }
           }
 
@@ -886,7 +886,7 @@ export function useListNavigation(
           stopEvent(event);
 
           if (!open && openOnArrowKeyDown) {
-            onOpenChange(true, event.nativeEvent, createBaseUIEventData('list-navigation'));
+            onOpenChange(true, createBaseUIEventData('list-navigation', event.nativeEvent));
           } else {
             commonOnKeyDown(event);
           }

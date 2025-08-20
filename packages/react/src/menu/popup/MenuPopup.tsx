@@ -13,7 +13,7 @@ import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping'
 import { transitionStatusMapping } from '../../utils/styleHookMapping';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { EMPTY_OBJECT, DISABLED_TRANSITIONS_STYLE } from '../../utils/constants';
-import { createBaseUIEventData, createSimpleBaseUIEvent } from '../../utils/createBaseUIEvent';
+import { createBaseUIEventData } from '../../utils/createBaseUIEvent';
 
 const customStyleHookMapping: CustomStyleHookMapping<MenuPopup.State> = {
   ...baseMapping,
@@ -64,11 +64,7 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
       domEvent: Event | undefined;
       reason: MenuRoot.OpenChangeReason;
     }) {
-      setOpen(
-        false,
-        event.domEvent || createSimpleBaseUIEvent(),
-        createBaseUIEventData(event.reason),
-      );
+      setOpen(false, createBaseUIEventData(event.reason, event.domEvent));
     }
 
     menuEvents.on('close', handleClose);

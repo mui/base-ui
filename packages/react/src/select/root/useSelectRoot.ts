@@ -24,11 +24,7 @@ import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useTransitionStatus } from '../../utils/useTransitionStatus';
 import { selectors, State } from '../store';
 import type { SelectRootContext } from './SelectRootContext';
-import {
-  createSimpleBaseUIEvent,
-  isEventPrevented,
-  type BaseUIEventData,
-} from '../../utils/createBaseUIEvent';
+import { isEventPrevented, type BaseUIEventData } from '../../utils/createBaseUIEvent';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useFormContext } from '../../form/FormContext';
 import { useField } from '../../field/useField';
@@ -226,8 +222,8 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
   }, [value]);
 
   const setOpen = useEventCallback(
-    (nextOpen: boolean, event: Event, data: BaseUIEventData<SelectRoot.OpenChangeReason>) => {
-      params.onOpenChange?.(nextOpen, event, data);
+    (nextOpen: boolean, data: BaseUIEventData<SelectRoot.OpenChangeReason>) => {
+      params.onOpenChange?.(nextOpen, data);
 
       if (isEventPrevented(data)) {
         return;
@@ -357,9 +353,7 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
 
   const floatingContext = useFloatingRootContext({
     open,
-    onOpenChange(nextOpen, event, data) {
-      setOpen(nextOpen, event || createSimpleBaseUIEvent(), data);
-    },
+    onOpenChange: setOpen,
     elements: {
       reference: triggerElement,
       floating: positionerElement,

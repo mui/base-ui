@@ -100,13 +100,13 @@ describe('<AlertDialog.Root />', () => {
       await user.click(openButton);
 
       expect(handleOpenChange.callCount).to.equal(1);
-      expect(handleOpenChange.firstCall.args[2].reason).to.equal('trigger-press');
+      expect(handleOpenChange.firstCall.args[1].reason).to.equal('trigger-press');
 
       const closeButton = screen.getByText('Close');
       await user.click(closeButton);
 
       expect(handleOpenChange.callCount).to.equal(2);
-      expect(handleOpenChange.secondCall.args[2].reason).to.equal('close-press');
+      expect(handleOpenChange.secondCall.args[1].reason).to.equal('close-press');
     });
 
     it('calls onOpenChange with the reason for change when pressed Esc while the dialog is open', async () => {
@@ -126,7 +126,7 @@ describe('<AlertDialog.Root />', () => {
       await user.keyboard('[Escape]');
 
       expect(handleOpenChange.callCount).to.equal(1);
-      expect(handleOpenChange.firstCall.args[2].reason).to.equal('escape-key');
+      expect(handleOpenChange.firstCall.args[1].reason).to.equal('escape-key');
     });
   });
 

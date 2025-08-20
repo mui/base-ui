@@ -406,7 +406,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
           relatedTarget !== getPreviouslyFocusedElement()
         ) {
           preventReturnFocusRef.current = true;
-          onOpenChange(false, event, createBaseUIEventData('focus-out'));
+          onOpenChange(false, createBaseUIEventData('focus-out', event));
         }
       });
     }

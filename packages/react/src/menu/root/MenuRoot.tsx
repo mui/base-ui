@@ -27,11 +27,7 @@ import { useDirection } from '../../direction-provider/DirectionContext';
 import { useScrollLock } from '../../utils/useScrollLock';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
 import { type BaseOpenChangeReason } from '../../utils/types';
-import {
-  createSimpleBaseUIEvent,
-  isEventPrevented,
-  type BaseUIEventData,
-} from '../../utils/createBaseUIEvent';
+import { isEventPrevented, type BaseUIEventData } from '../../utils/createBaseUIEvent';
 import {
   ContextMenuRootContext,
   useContextMenuRootContext,
@@ -227,23 +223,24 @@ export const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
   const allowTouchToCloseTimeout = useTimeout();
 
   const setOpen = useEventCallback(
-    (nextOpen: boolean, event: Event, data: BaseUIEventData<MenuRoot.OpenChangeReason>) => {
-      const reason = data?.reason;
+    (nextOpen: boolean, data: BaseUIEventData<MenuRoot.OpenChangeReason>) => {
+      const reason = data.reason;
 
       if (open === nextOpen) {
         return;
       }
 
-      onOpenChange?.(nextOpen, event, data);
+      onOpenChange?.(nextOpen, data);
 
       if (isEventPrevented(data)) {
         return;
       }
 
+      const nativeEvent = data.event as Event;
       if (
         nextOpen === false &&
-        event?.type === 'click' &&
-        (event as PointerEvent).pointerType === 'touch' &&
+        nativeEvent?.type === 'click' &&
+        (nativeEvent as PointerEvent).pointerType === 'touch' &&
         !allowTouchToCloseRef.current
       ) {
         return;
@@ -277,14 +274,14 @@ export const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
 
       const isKeyboardClick =
         (reason === 'trigger-press' || reason === 'item-press') &&
-        (event as MouseEvent).detail === 0 &&
-        event?.isTrusted;
+        (nativeEvent as MouseEvent).detail === 0 &&
+        nativeEvent?.isTrusted;
       const isDismissClose = !nextOpen && (reason === 'escape-key' || reason == null);
 
       function changeState() {
         setOpenUnwrapped(nextOpen);
         setLastOpenChangeReason(reason ?? null);
-        openEventRef.current = event ?? null;
+        openEventRef.current = data.event ?? null;
       }
 
       if (reason === 'trigger-hover') {
@@ -344,9 +341,7 @@ export const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
       floating: positionerElement,
     },
     open,
-    onOpenChange(openValue, eventValue, dataValue) {
-      setOpen(openValue, eventValue || createSimpleBaseUIEvent(), dataValue);
-    },
+    onOpenChange: setOpen,
   });
 
   const hover = useHover(floatingRootContext, {
@@ -585,7 +580,7 @@ export namespace MenuRoot {
     /**
      * Event handler called when the menu is opened or closed.
      */
-    onOpenChange?: (open: boolean, event: Event, data: BaseUIEventData<OpenChangeReason>) => void;
+    onOpenChange?: (open: boolean, data: OpenChangeData) => void;
     /**
      * Event handler called after any animations complete when the menu is closed.
      */
@@ -643,6 +638,7 @@ export namespace MenuRoot {
     unmount: () => void;
   }
 
+  export type OpenChangeData = BaseUIEventData<OpenChangeReason>;
   export type OpenChangeReason = BaseOpenChangeReason | 'sibling-open';
 
   export type Orientation = 'horizontal' | 'vertical';

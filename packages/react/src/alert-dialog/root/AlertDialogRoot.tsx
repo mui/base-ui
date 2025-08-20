@@ -59,7 +59,7 @@ export namespace AlertDialogRoot {
     /**
      * Event handler called when the dialog is opened or closed.
      */
-    onOpenChange?: (open: boolean, event: Event, data: BaseUIEventData<OpenChangeReason>) => void;
+    onOpenChange?: (open: boolean, data: OpenChangeData) => void;
     /**
      * A ref to imperative actions.
      * - `unmount`: When specified, the dialog will not be unmounted when closed.
@@ -71,5 +71,6 @@ export namespace AlertDialogRoot {
 
   export type Actions = DialogRoot.Actions;
 
+  export type OpenChangeData = BaseUIEventData<OpenChangeReason>;
   export type OpenChangeReason = DialogRoot.OpenChangeReason;
 }

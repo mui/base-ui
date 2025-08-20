@@ -35,9 +35,9 @@
       "detailedType": "boolean | undefined"
     },
     "onOpenChange": {
-      "type": "((open: boolean, event: Event, data: BaseUIEventData<Select.Root.OpenChangeReason>) => void)",
+      "type": "((open: boolean, data: Select.Root.OpenChangeData) => void)",
       "description": "Event handler called when the select menu is opened or closed.",
-      "detailedType": "| ((\n    open: boolean,\n    event: Event,\n    data: BaseUIEventData<Select.Root.OpenChangeReason>,\n  ) => void)\n| undefined"
+      "detailedType": "| ((\n    open: boolean,\n    data: Select.Root.OpenChangeData,\n  ) => void)\n| undefined"
     },
     "actionsRef": {
       "type": "RefObject<Select.Root.Actions>",

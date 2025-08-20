@@ -25,18 +25,13 @@ import {
   isOutsideEvent,
   stopEvent,
 } from '../../floating-ui-react/utils';
-import type {
-  BaseUIComponentProps,
-  NativeButtonProps,
-  HTMLProps,
-  BaseOpenChangeReason,
-} from '../../utils/types';
+import type { BaseUIComponentProps, NativeButtonProps, HTMLProps } from '../../utils/types';
 import { useNavigationMenuItemContext } from '../item/NavigationMenuItemContext';
 import {
   useNavigationMenuRootContext,
   useNavigationMenuTreeContext,
 } from '../root/NavigationMenuRootContext';
-import type { BaseUIEventData } from '../../utils/createBaseUIEvent';
+import { createBaseUIEventData, type BaseUIEventData } from '../../utils/createBaseUIEvent';
 import { PATIENT_CLICK_THRESHOLD } from '../../utils/constants';
 import { FocusGuard } from '../../utils/FocusGuard';
 import { pressableTriggerOpenStateMapping } from '../../utils/popupStateMapping';
@@ -47,6 +42,7 @@ import { NavigationMenuPositionerCssVars } from '../positioner/NavigationMenuPos
 import { CompositeItem } from '../../composite/item/CompositeItem';
 import { useButton } from '../../use-button';
 import { getCssDimensions } from '../../utils/getCssDimensions';
+import { NavigationMenuRoot } from '../root/NavigationMenuRoot';
 
 const TRIGGER_IDENTIFIER = 'data-base-ui-navigation-menu-trigger';
 const DEFAULT_SIZE = { width: 0, height: 0 };
@@ -231,10 +227,9 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
 
   function handleOpenChange(
     nextOpen: boolean,
-    event: Event | undefined,
-    reason: BaseOpenChangeReason | undefined,
+    data: BaseUIEventData<NavigationMenuRoot.OpenChangeReason>,
   ) {
-    const isHover = reason === 'trigger-hover';
+    const isHover = data.reason === 'trigger-hover';
 
     if (!interactionsEnabled) {
       return;
@@ -260,9 +255,9 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
       }
 
       if (nextOpen) {
-        setValue(itemValue, event, reason);
+        setValue(itemValue, data);
       } else {
-        setValue(null, event, reason);
+        setValue(null, data);
         setPointerType('');
       }
     }
@@ -276,13 +271,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
 
   const context = useFloatingRootContext({
     open,
-    onOpenChange(openValue, eventValue, dataValue?: BaseUIEventData) {
-      handleOpenChange(
-        openValue,
-        eventValue,
-        dataValue?.reason as BaseOpenChangeReason | undefined,
-      );
-    },
+    onOpenChange: handleOpenChange,
     elements: {
       reference: triggerElement,
       floating: positionerElement || viewportElement,
@@ -349,8 +338,10 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
       if (value != null) {
         setValue(
           itemValue,
-          event.nativeEvent,
-          event.type === 'mouseenter' ? 'trigger-hover' : 'trigger-press',
+          createBaseUIEventData(
+            event.type === 'mouseenter' ? 'trigger-hover' : 'trigger-press',
+            event.nativeEvent,
+          ),
         );
       }
     });
@@ -405,7 +396,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
       const openVertical = orientation === 'vertical' && event.key === 'ArrowRight';
 
       if (openHorizontal || openVertical) {
-        setValue(itemValue, event.nativeEvent, 'list-navigation');
+        setValue(itemValue, createBaseUIEventData('list-navigation', event.nativeEvent));
         handleOpenEvent(event);
         stopEvent(event);
       }
@@ -422,7 +413,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
           { popupElement, rootRef, tree, nodeId },
         )
       ) {
-        setValue(null, event.nativeEvent, 'focus-out');
+        setValue(null, createBaseUIEventData('focus-out', event.nativeEvent));
       }
     },
   };
@@ -474,7 +465,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
                 nextTabbable?.focus();
 
                 if (!contains(rootRef.current, nextTabbable)) {
-                  setValue(null, event.nativeEvent, 'focus-out');
+                  setValue(null, createBaseUIEventData('focus-out', event.nativeEvent));
                 }
               }
             }}

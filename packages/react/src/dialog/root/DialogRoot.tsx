@@ -4,6 +4,7 @@ import { DialogRootContext, useOptionalDialogRootContext } from './DialogRootCon
 import { DialogContext } from '../utils/DialogContext';
 import { useDialogRoot } from './useDialogRoot';
 import { type BaseOpenChangeReason } from '../../utils/types';
+import { BaseUIEventData } from '../../utils/createBaseUIEvent';
 
 /**
  * Groups all parts of the dialog.
@@ -67,5 +68,6 @@ export namespace DialogRoot {
     unmount: () => void;
   }
 
+  export type OpenChangeData = BaseUIEventData<OpenChangeReason>;
   export type OpenChangeReason = BaseOpenChangeReason | 'close-press';
 }

@@ -31,7 +31,7 @@ export const PopoverClose = React.forwardRef(function PopoverClose(
     props: [
       {
         onClick(event) {
-          setOpen(false, event.nativeEvent, createBaseUIEventData('close-press'));
+          setOpen(false, createBaseUIEventData('close-press', event.nativeEvent));
         },
       },
       elementProps,

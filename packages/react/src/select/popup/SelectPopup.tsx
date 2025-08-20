@@ -281,7 +281,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
     const win = ownerWindow(positionerElement);
 
     function handleResize(event: Event) {
-      setOpen(false, event, createBaseUIEventData('window-resize'));
+      setOpen(false, createBaseUIEventData('window-resize', event));
     }
 
     win.addEventListener('resize', handleResize);

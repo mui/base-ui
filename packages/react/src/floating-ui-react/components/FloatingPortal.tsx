@@ -18,7 +18,7 @@ import { createAttribute } from '../utils/createAttribute';
 type FocusManagerState = {
   modal: boolean;
   open: boolean;
-  onOpenChange(open: boolean, event?: Event, data?: { reason?: string }): void;
+  onOpenChange(open: boolean, data?: { reason?: string; event?: Event }): void;
   domReference: Element | null;
   closeOnFocusOut: boolean;
 } | null;
@@ -269,8 +269,7 @@ export function FloatingPortal(props: FloatingPortalProps): React.JSX.Element {
               if (focusManagerState?.closeOnFocusOut) {
                 focusManagerState?.onOpenChange(
                   false,
-                  event.nativeEvent,
-                  createBaseUIEventData('focus-out'),
+                  createBaseUIEventData('focus-out', event.nativeEvent),
                 );
               }
             }

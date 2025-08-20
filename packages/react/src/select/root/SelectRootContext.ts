@@ -15,11 +15,7 @@ export interface SelectRootContext {
   required: boolean;
   multiple: boolean;
   setValue: (nextValue: any, event?: Event) => void;
-  setOpen: (
-    open: boolean,
-    event: Event,
-    data: BaseUIEventData<SelectRoot.OpenChangeReason>,
-  ) => void;
+  setOpen: (open: boolean, data: BaseUIEventData<SelectRoot.OpenChangeReason>) => void;
   listRef: React.MutableRefObject<Array<HTMLElement | null>>;
   popupRef: React.MutableRefObject<HTMLDivElement | null>;
   getItemProps: (

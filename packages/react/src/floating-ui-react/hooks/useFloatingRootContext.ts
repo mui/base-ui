@@ -10,7 +10,7 @@ import { useFloatingParentNodeId } from '../components/FloatingTree';
 
 export interface UseFloatingRootContextOptions {
   open?: boolean;
-  onOpenChange?: (open: boolean, event: Event | undefined, data: BaseUIEventData) => void;
+  onOpenChange?: (open: boolean, data: BaseUIEventData) => void;
   elements: {
     reference: Element | null;
     floating: HTMLElement | null;
@@ -42,13 +42,11 @@ export function useFloatingRootContext(
     elementsProp.reference,
   );
 
-  const onOpenChange = useEventCallback(
-    (newOpen: boolean, event: Event | undefined, data: BaseUIEventData) => {
-      dataRef.current.openEvent = newOpen ? event : undefined;
-      events.emit('openchange', { open: newOpen, event, data, nested });
-      onOpenChangeProp?.(newOpen, event, data);
-    },
-  );
+  const onOpenChange = useEventCallback((newOpen: boolean, data: BaseUIEventData) => {
+    dataRef.current.openEvent = newOpen ? data.event : undefined;
+    events.emit('openchange', { open: newOpen, event: data.event, data, nested });
+    onOpenChangeProp?.(newOpen, data);
+  });
 
   const refs = React.useMemo(
     () => ({

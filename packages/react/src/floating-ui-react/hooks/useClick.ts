@@ -87,7 +87,7 @@ export function useClick(context: FloatingRootContext, props: UseClickProps = {}
         // Wait until focus is set on the element. This is an alternative to
         // `event.preventDefault()` to avoid :focus-visible from appearing when using a pointer.
         frame.request(() => {
-          onOpenChange(nextOpen, nativeEvent, createBaseUIEventData('trigger-press'));
+          onOpenChange(nextOpen, createBaseUIEventData('trigger-press', nativeEvent));
         });
       },
       onClick(event) {
@@ -114,7 +114,7 @@ export function useClick(context: FloatingRootContext, props: UseClickProps = {}
               openEventType === 'keyup'
             : true)
         );
-        onOpenChange(nextOpen, event.nativeEvent, createBaseUIEventData('trigger-press'));
+        onOpenChange(nextOpen, createBaseUIEventData('trigger-press', event.nativeEvent));
       },
       onKeyDown() {
         pointerTypeRef.current = undefined;

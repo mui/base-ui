@@ -4,6 +4,7 @@ export interface BaseUIEventData<Reason extends string = BaseOpenChangeReason> {
   reason: Reason;
   preventBaseUIHandler: (options?: PreventBaseUIHandlerOptions) => void;
   baseUIHandlerPrevented: false | PreventBaseUIHandlerOptions;
+  event: Event;
 }
 
 /**
@@ -12,10 +13,12 @@ export interface BaseUIEventData<Reason extends string = BaseOpenChangeReason> {
  */
 export function createBaseUIEventData<Reason extends string = BaseOpenChangeReason>(
   reason: Reason,
+  event: Event | undefined = new Event('base-ui'),
 ): BaseUIEventData<Reason> {
   let preventedOptions: PreventBaseUIHandlerOptions | false = false;
   return {
     reason,
+    event,
     preventBaseUIHandler(options: PreventBaseUIHandlerOptions = {}) {
       preventedOptions = options;
     },
@@ -23,10 +26,6 @@ export function createBaseUIEventData<Reason extends string = BaseOpenChangeReas
       return preventedOptions;
     },
   };
-}
-
-export function createSimpleBaseUIEvent(): Event {
-  return new Event('base-ui');
 }
 
 export function isEventPrevented(data: BaseUIEventData<any>) {

@@ -284,7 +284,7 @@ describe.skipIf(!isJSDOM)('useHover', () => {
       const [isOpen, setIsOpen] = React.useState(false);
       const { refs, context } = useFloating({
         open: isOpen,
-        onOpenChange(nextOpen, _event, data) {
+        onOpenChange(nextOpen, data) {
           setIsOpen(nextOpen);
           expect(data?.reason).toBe('trigger-hover');
         },

@@ -20,7 +20,7 @@ export interface MenuRootContext {
   mounted: boolean;
   open: boolean;
   popupRef: React.RefObject<HTMLElement | null>;
-  setOpen: (open: boolean, event: Event, data: BaseUIEventData<MenuRoot.OpenChangeReason>) => void;
+  setOpen: (open: boolean, data: BaseUIEventData<MenuRoot.OpenChangeReason>) => void;
   positionerRef: React.RefObject<HTMLElement | null>;
   setPositionerElement: (element: HTMLElement | null) => void;
   triggerElement: HTMLElement | null;

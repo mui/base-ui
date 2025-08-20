@@ -1512,7 +1512,7 @@ describe('<Menu.Root />', () => {
       expect(openChangeSpy.callCount).to.equal(2);
       expect(openChangeSpy.firstCall.args[0]).to.equal(true);
       expect(openChangeSpy.lastCall.args[0]).to.equal(false);
-      expect(openChangeSpy.lastCall.args[2].reason).to.equal('item-press');
+      expect(openChangeSpy.lastCall.args[1].reason).to.equal('item-press');
     });
 
     it('closes the menu on click, drag outside, release', async () => {
@@ -1551,7 +1551,7 @@ describe('<Menu.Root />', () => {
       expect(openChangeSpy.callCount).to.equal(2);
       expect(openChangeSpy.firstCall.args[0]).to.equal(true);
       expect(openChangeSpy.lastCall.args[0]).to.equal(false);
-      expect(openChangeSpy.lastCall.args[2].reason).to.equal('cancel-open');
+      expect(openChangeSpy.lastCall.args[1].reason).to.equal('cancel-open');
     });
   });
 });

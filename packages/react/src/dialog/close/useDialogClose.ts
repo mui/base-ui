@@ -12,7 +12,7 @@ export function useDialogClose(params: useDialogClose.Parameters): useDialogClos
 
   const handleClick = useEventCallback((event: React.MouseEvent) => {
     if (open) {
-      setOpen(false, event.nativeEvent, createBaseUIEventData('close-press'));
+      setOpen(false, createBaseUIEventData('close-press', event.nativeEvent));
     }
   });
 
@@ -43,11 +43,7 @@ export namespace useDialogClose {
     /**
      * Event handler called when the dialog is opened or closed.
      */
-    setOpen: (
-      open: boolean,
-      event: Event,
-      data: BaseUIEventData<DialogRoot.OpenChangeReason>,
-    ) => void;
+    setOpen: (open: boolean, data: BaseUIEventData<DialogRoot.OpenChangeReason>) => void;
     /**
      * Whether the component renders a native `<button>` element when replacing it
      * via the `render` prop.
