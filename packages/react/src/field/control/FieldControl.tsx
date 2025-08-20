@@ -118,7 +118,7 @@ export const FieldControl = React.forwardRef(function FieldControl(
         'aria-labelledby': labelId,
         ...(isControlled ? { value } : { defaultValue }),
         onChange(event) {
-          if (isControlled) {
+          if (value != null) {
             setValue(event.currentTarget.value, event.nativeEvent);
           }
 
