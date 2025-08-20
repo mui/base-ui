@@ -11,6 +11,7 @@ import { getOffset } from '../utils/getOffset';
 import { ScrollAreaScrollbarDataAttributes } from '../scrollbar/ScrollAreaScrollbarDataAttributes';
 import { styleDisableScrollbar } from '../../utils/styles';
 import { useBaseUiId } from '../../utils/useBaseUiId';
+import { contains } from '../../floating-ui-react/utils';
 
 interface Size {
   width: number;
@@ -185,7 +186,7 @@ export const ScrollAreaRoot = React.forwardRef(function ScrollAreaRoot(
     setTouchModality(isTouch);
 
     if (!isTouch) {
-      const isTargetRootChild = rootRef.current?.contains(event.target as Element);
+      const isTargetRootChild = contains(rootRef.current, event.target as Element);
       setHovering(!!isTargetRootChild);
     }
   }
