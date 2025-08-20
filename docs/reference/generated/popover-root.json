@@ -14,9 +14,9 @@
       "detailedType": "boolean | undefined"
     },
     "onOpenChange": {
-      "type": "((open: boolean, data: Popover.Root.OpenChangeData) => void)",
+      "type": "((open: boolean, data: Popover.Root.ChangeEventData) => void)",
       "description": "Event handler called when the popover is opened or closed.",
-      "detailedType": "| ((\n    open: boolean,\n    data: Popover.Root.OpenChangeData,\n  ) => void)\n| undefined"
+      "detailedType": "| ((\n    open: boolean,\n    data: Popover.Root.ChangeEventData,\n  ) => void)\n| undefined"
     },
     "actionsRef": {
       "type": "RefObject<Popover.Root.Actions>",

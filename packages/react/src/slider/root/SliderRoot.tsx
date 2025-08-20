@@ -509,7 +509,7 @@ export namespace SliderRoot {
      */
     onValueChange?: (
       value: Value extends number ? number : Value,
-      data: BaseUIEventData<'none'>,
+      data: ChangeEventData,
       activeThumbIndex: number,
     ) => void;
     /**
@@ -521,7 +521,10 @@ export namespace SliderRoot {
      */
     onValueCommitted?: (
       value: Value extends number ? number : Value,
-      data: BaseUIEventData<'none'>,
+      data: ChangeEventData,
     ) => void;
   }
+
+  export type ChangeReason = 'none';
+  export type ChangeEventData = BaseUIEventData<ChangeReason>;
 }

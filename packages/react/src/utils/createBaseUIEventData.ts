@@ -1,4 +1,4 @@
-import type { BaseOpenChangeReason } from './types';
+import type { PopupChangeReason } from './types';
 
 /**
  * Maps an open-change `reason` string to the corresponding native event type.
@@ -9,9 +9,9 @@ export type ReasonToEvent<Reason extends string> = Reason extends 'trigger-press
     ? MouseEvent
     : Reason extends 'outside-press'
       ? MouseEvent | PointerEvent
-      : Reason extends 'item-press'
-        ? MouseEvent | KeyboardEvent | PointerEvent | TouchEvent
-        : Reason extends 'cancel-open' | 'close-press'
+      : Reason extends 'item-press' | 'close-press'
+        ? MouseEvent | KeyboardEvent | PointerEvent
+        : Reason extends 'cancel-open'
           ? MouseEvent
           : Reason extends 'trigger-focus' | 'focus-out'
             ? FocusEvent
@@ -23,7 +23,7 @@ export type ReasonToEvent<Reason extends string> = Reason extends 'trigger-press
  * Discriminated union keyed by the `reason` string literal.
  * Narrows `event` type based on `reason`.
  */
-export type BaseUIEventData<Reason extends string = BaseOpenChangeReason> = {
+export type BaseUIEventData<Reason extends string = PopupChangeReason> = {
   [K in Reason]: {
     reason: K;
     event: ReasonToEvent<K>;
@@ -38,7 +38,7 @@ export type BaseUIEventData<Reason extends string = BaseOpenChangeReason> = {
  * Creates a Base UI event data object with the given reason and utilities
  * for preventing the Base UI's internal event handling.
  */
-export function createBaseUIEventData<Reason extends string = BaseOpenChangeReason>(
+export function createBaseUIEventData<Reason extends string = PopupChangeReason>(
   reason: Reason,
   event?: ReasonToEvent<Reason>,
 ): BaseUIEventData<Reason> {

@@ -4,7 +4,7 @@ import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { useButton } from '../../use-button/useButton';
 import { mergeProps } from '../../merge-props';
 import type { HTMLProps } from '../../utils/types';
-import { BaseUIEventData, createBaseUIEventData } from '../../utils/createBaseUIEventData';
+import { createBaseUIEventData } from '../../utils/createBaseUIEventData';
 import type { DialogRoot } from '../root/DialogRoot';
 
 export function useDialogClose(params: useDialogClose.Parameters): useDialogClose.ReturnValue {
@@ -43,7 +43,7 @@ export namespace useDialogClose {
     /**
      * Event handler called when the dialog is opened or closed.
      */
-    setOpen: (open: boolean, data: BaseUIEventData<DialogRoot.OpenChangeReason>) => void;
+    setOpen: (open: boolean, data: DialogRoot.ChangeEventData) => void;
     /**
      * Whether the component renders a native `<button>` element when replacing it
      * via the `render` prop.

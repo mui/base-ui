@@ -14,9 +14,9 @@
       "detailedType": "boolean | undefined"
     },
     "onOpenChange": {
-      "type": "((open: boolean, data: PreviewCard.Root.OpenChangeData) => void)",
+      "type": "((open: boolean, data: PreviewCard.Root.ChangeEventData) => void)",
       "description": "Event handler called when the preview card is opened or closed.",
-      "detailedType": "| ((\n    open: boolean,\n    data: PreviewCard.Root.OpenChangeData,\n  ) => void)\n| undefined"
+      "detailedType": "| ((\n    open: boolean,\n    data: PreviewCard.Root.ChangeEventData,\n  ) => void)\n| undefined"
     },
     "actionsRef": {
       "type": "RefObject<PreviewCard.Root.Actions>",

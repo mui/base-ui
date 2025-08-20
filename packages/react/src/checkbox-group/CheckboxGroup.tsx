@@ -54,7 +54,7 @@ export const CheckboxGroup = React.forwardRef(function CheckboxGroup(
     state: 'value',
   });
 
-  const setValue = useEventCallback((v: string[], data: BaseUIEventData<'none'>) => {
+  const setValue = useEventCallback((v: string[], data: CheckboxGroup.ChangeEventData) => {
     onValueChange?.(v, data);
 
     if (data.isCanceled) {
@@ -163,7 +163,7 @@ export namespace CheckboxGroup {
      * Event handler called when a checkbox in the group is ticked or unticked.
      * Provides the new value as an argument.
      */
-    onValueChange?: (value: string[], data: BaseUIEventData<'none'>) => void;
+    onValueChange?: (value: string[], data: ChangeEventData) => void;
     /**
      * Names of all checkboxes in the group. Use this when creating a parent checkbox.
      */
@@ -174,4 +174,7 @@ export namespace CheckboxGroup {
      */
     disabled?: boolean;
   }
+
+  export type ChangeReason = 'none';
+  export type ChangeEventData = BaseUIEventData<ChangeReason>;
 }

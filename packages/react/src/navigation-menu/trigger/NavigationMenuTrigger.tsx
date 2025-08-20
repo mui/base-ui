@@ -31,7 +31,7 @@ import {
   useNavigationMenuRootContext,
   useNavigationMenuTreeContext,
 } from '../root/NavigationMenuRootContext';
-import { createBaseUIEventData, type BaseUIEventData } from '../../utils/createBaseUIEventData';
+import { createBaseUIEventData } from '../../utils/createBaseUIEventData';
 import { PATIENT_CLICK_THRESHOLD } from '../../utils/constants';
 import { FocusGuard } from '../../utils/FocusGuard';
 import { pressableTriggerOpenStateMapping } from '../../utils/popupStateMapping';
@@ -225,10 +225,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     }
   }, [isActiveItemRef, open, popupElement, handleValueChange]);
 
-  function handleOpenChange(
-    nextOpen: boolean,
-    data: BaseUIEventData<NavigationMenuRoot.ValueChangeReason>,
-  ) {
+  function handleOpenChange(nextOpen: boolean, data: NavigationMenuRoot.ChangeEventData) {
     const isHover = data.reason === 'trigger-hover';
 
     if (!interactionsEnabled) {

@@ -14,9 +14,9 @@
       "detailedType": "boolean | undefined"
     },
     "onOpenChange": {
-      "type": "((open: boolean, data: BaseUIEventData<Dialog.Root.OpenChangeReason>) => void)",
+      "type": "((open: boolean, data: Dialog.Root.ChangeEventData) => void)",
       "description": "Event handler called when the dialog is opened or closed.",
-      "detailedType": "| ((\n    open: boolean,\n    data: BaseUIEventData<Dialog.Root.OpenChangeReason>,\n  ) => void)\n| undefined"
+      "detailedType": "| ((\n    open: boolean,\n    data: Dialog.Root.ChangeEventData,\n  ) => void)\n| undefined"
     },
     "actionsRef": {
       "type": "RefObject<Dialog.Root.Actions>",

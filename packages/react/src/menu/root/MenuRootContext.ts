@@ -4,7 +4,6 @@ import type { FloatingRootContext } from '../../floating-ui-react';
 import type { MenuParent, MenuRoot } from './MenuRoot';
 import { HTMLProps } from '../../utils/types';
 import { TransitionStatus } from '../../utils/useTransitionStatus';
-import { BaseUIEventData } from '../../utils/createBaseUIEventData';
 
 export interface MenuRootContext {
   disabled: boolean;
@@ -20,14 +19,14 @@ export interface MenuRootContext {
   mounted: boolean;
   open: boolean;
   popupRef: React.RefObject<HTMLElement | null>;
-  setOpen: (open: boolean, data: BaseUIEventData<MenuRoot.OpenChangeReason>) => void;
+  setOpen: (open: boolean, data: MenuRoot.ChangeEventData) => void;
   positionerRef: React.RefObject<HTMLElement | null>;
   setPositionerElement: (element: HTMLElement | null) => void;
   triggerElement: HTMLElement | null;
   setTriggerElement: (element: HTMLElement | null) => void;
   transitionStatus: TransitionStatus;
   allowMouseUpTriggerRef: React.RefObject<boolean>;
-  lastOpenChangeReason: MenuRoot.OpenChangeReason | null;
+  lastOpenChangeReason: MenuRoot.ChangeReason | null;
   instantType: 'dismiss' | 'click' | 'group' | undefined;
   onOpenChangeComplete: ((open: boolean) => void) | undefined;
   setHoverEnabled: React.Dispatch<React.SetStateAction<boolean>>;

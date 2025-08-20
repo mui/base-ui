@@ -1,10 +1,9 @@
 import * as React from 'react';
-import type { BaseUIEventData } from '../../utils/createBaseUIEventData';
 import type { MenuRoot } from '../root/MenuRoot';
 
 export interface MenuRadioGroupContext {
   value: any;
-  setValue: (newValue: any, data: BaseUIEventData<MenuRoot.OpenChangeReason>) => void;
+  setValue: (newValue: any, data: MenuRoot.ChangeEventData) => void;
   disabled: boolean;
 }
 

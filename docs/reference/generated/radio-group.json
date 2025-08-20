@@ -16,9 +16,9 @@
       "description": "The controlled value of the radio item that should be currently selected.\n\nTo render an uncontrolled radio group, use the `defaultValue` prop instead."
     },
     "onValueChange": {
-      "type": "((value: unknown, data: BaseUIEventData) => void)",
+      "type": "((value: unknown, data: Radio.Group.ChangeEventData) => void)",
       "description": "Callback fired when the value changes.",
-      "detailedType": "| ((value: unknown, data: BaseUIEventData) => void)\n| undefined"
+      "detailedType": "| ((\n    value: unknown,\n    data: Radio.Group.ChangeEventData,\n  ) => void)\n| undefined"
     },
     "disabled": {
       "type": "boolean",

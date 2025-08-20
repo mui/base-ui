@@ -540,7 +540,7 @@ export namespace NumberFieldRoot {
     /**
      * Callback fired when the number value changes.
      */
-    onValueChange?: (value: number | null, data: BaseUIEventData<'none'>) => void;
+    onValueChange?: (value: number | null, data: ChangeEventData) => void;
     /**
      * The locale of the input element.
      * Defaults to the user's runtime locale.
@@ -578,6 +578,9 @@ export namespace NumberFieldRoot {
      */
     scrubbing: boolean;
   }
+
+  export type ChangeReason = 'none';
+  export type ChangeEventData = BaseUIEventData<ChangeReason>;
 }
 
 function getControlledInputValue(

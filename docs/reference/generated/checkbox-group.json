@@ -13,9 +13,9 @@
       "detailedType": "string[] | undefined"
     },
     "onValueChange": {
-      "type": "((value: string[], data: BaseUIEventData) => void)",
+      "type": "((value: string[], data: Checkbox.Group.ChangeEventData) => void)",
       "description": "Event handler called when a checkbox in the group is ticked or unticked.\nProvides the new value as an argument.",
-      "detailedType": "| ((value: string[], data: BaseUIEventData) => void)\n| undefined"
+      "detailedType": "| ((\n    value: string[],\n    data: Checkbox.Group.ChangeEventData,\n  ) => void)\n| undefined"
     },
     "allValues": {
       "type": "string[]",

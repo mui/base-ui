@@ -21,12 +21,9 @@ import { type BaseUIEventData } from '../../utils/createBaseUIEventData';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { PATIENT_CLICK_THRESHOLD } from '../../utils/constants';
 import { useScrollLock } from '../../utils/useScrollLock';
-import {
-  PopoverOpenChangeReason,
-  PopoverRootContext,
-  usePopoverRootContext,
-} from './PopoverRootContext';
+import { PopoverRootContext, usePopoverRootContext } from './PopoverRootContext';
 import { mergeProps } from '../../merge-props';
+import type { PopupChangeReason } from '../../utils/types';
 
 function PopoverRootComponent({ props }: { props: PopoverRoot.Props }) {
   const {
@@ -45,7 +42,7 @@ function PopoverRootComponent({ props }: { props: PopoverRoot.Props }) {
   const [descriptionId, setDescriptionId] = React.useState<string>();
   const [triggerElement, setTriggerElement] = React.useState<Element | null>(null);
   const [positionerElement, setPositionerElement] = React.useState<HTMLElement | null>(null);
-  const [openReason, setOpenReason] = React.useState<PopoverOpenChangeReason | null>(null);
+  const [openReason, setOpenReason] = React.useState<PopoverRoot.ChangeReason | null>(null);
   const [stickIfOpen, setStickIfOpen] = React.useState(true);
   const backdropRef = React.useRef<HTMLDivElement | null>(null);
   const internalBackdropRef = React.useRef<HTMLDivElement | null>(null);
@@ -94,47 +91,45 @@ function PopoverRootComponent({ props }: { props: PopoverRoot.Props }) {
     }
   }, [stickIfOpenTimeout, open]);
 
-  const setOpen = useEventCallback(
-    (nextOpen: boolean, data: BaseUIEventData<PopoverOpenChangeReason>) => {
-      const isHover = data.reason === 'trigger-hover';
-      const isKeyboardClick =
-        data.reason === 'trigger-press' && (data.event as MouseEvent).detail === 0;
-      const isDismissClose = !nextOpen && (data.reason === 'escape-key' || data.reason === 'none');
+  const setOpen = useEventCallback((nextOpen: boolean, data: PopoverRoot.ChangeEventData) => {
+    const isHover = data.reason === 'trigger-hover';
+    const isKeyboardClick =
+      data.reason === 'trigger-press' && (data.event as MouseEvent).detail === 0;
+    const isDismissClose = !nextOpen && (data.reason === 'escape-key' || data.reason === 'none');
 
-      onOpenChange?.(nextOpen, data);
+    onOpenChange?.(nextOpen, data);
 
-      if (data.isCanceled) {
-        return;
+    if (data.isCanceled) {
+      return;
+    }
+
+    function changeState() {
+      setOpenUnwrapped(nextOpen);
+
+      if (nextOpen) {
+        setOpenReason(data.reason);
       }
+    }
 
-      function changeState() {
-        setOpenUnwrapped(nextOpen);
+    if (isHover) {
+      // Only allow "patient" clicks to close the popover if it's open.
+      // If they clicked within 500ms of the popover opening, keep it open.
+      setStickIfOpen(true);
+      stickIfOpenTimeout.start(PATIENT_CLICK_THRESHOLD, () => {
+        setStickIfOpen(false);
+      });
 
-        if (nextOpen) {
-          setOpenReason(data.reason);
-        }
-      }
+      ReactDOM.flushSync(changeState);
+    } else {
+      changeState();
+    }
 
-      if (isHover) {
-        // Only allow "patient" clicks to close the popover if it's open.
-        // If they clicked within 500ms of the popover opening, keep it open.
-        setStickIfOpen(true);
-        stickIfOpenTimeout.start(PATIENT_CLICK_THRESHOLD, () => {
-          setStickIfOpen(false);
-        });
-
-        ReactDOM.flushSync(changeState);
-      } else {
-        changeState();
-      }
-
-      if (isKeyboardClick || isDismissClose) {
-        setInstantType(isKeyboardClick ? 'click' : 'dismiss');
-      } else {
-        setInstantType(undefined);
-      }
-    },
-  );
+    if (isKeyboardClick || isDismissClose) {
+      setInstantType(isKeyboardClick ? 'click' : 'dismiss');
+    } else {
+      setInstantType(undefined);
+    }
+  });
 
   const floatingContext = useFloatingRootContext({
     elements: {
@@ -277,7 +272,7 @@ export namespace PopoverRoot {
     /**
      * Event handler called when the popover is opened or closed.
      */
-    onOpenChange?: (open: boolean, data: OpenChangeData) => void;
+    onOpenChange?: (open: boolean, data: ChangeEventData) => void;
     /**
      * Event handler called after any animations complete when the popover is opened or closed.
      */
@@ -327,6 +322,6 @@ export namespace PopoverRoot {
     unmount: () => void;
   }
 
-  export type OpenChangeData = BaseUIEventData<OpenChangeReason>;
-  export type OpenChangeReason = PopoverOpenChangeReason;
+  export type ChangeReason = PopupChangeReason | 'close-press';
+  export type ChangeEventData = BaseUIEventData<ChangeReason>;
 }

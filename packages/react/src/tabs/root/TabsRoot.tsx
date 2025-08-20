@@ -225,6 +225,9 @@ export namespace TabsRoot {
     /**
      * Callback invoked when new value is being set.
      */
-    onValueChange?: (value: TabsTab.Value, data: BaseUIEventData<'none'>) => void;
+    onValueChange?: (value: TabsTab.Value, data: ChangeEventData) => void;
   }
+
+  export type ChangeReason = 'none';
+  export type ChangeEventData = BaseUIEventData<ChangeReason>;
 }

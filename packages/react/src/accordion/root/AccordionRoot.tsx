@@ -9,6 +9,7 @@ import { CompositeList } from '../../composite/list/CompositeList';
 import { useDirection } from '../../direction-provider/DirectionContext';
 import { AccordionRootContext } from './AccordionRootContext';
 import { useRenderElement } from '../../utils/useRenderElement';
+import { createBaseUIEventData, type BaseUIEventData } from '../../utils/createBaseUIEventData';
 
 const rootStyleHookMapping = {
   value: () => null,
@@ -75,19 +76,29 @@ export const AccordionRoot = React.forwardRef(function AccordionRoot(
 
   const handleValueChange = React.useCallback(
     (newValue: number | string, nextOpen: boolean) => {
+      const data = createBaseUIEventData('none');
       if (!openMultiple) {
         const nextValue = value[0] === newValue ? [] : [newValue];
+        onValueChange(nextValue, data);
+        if (data.isCanceled) {
+          return;
+        }
         setValue(nextValue);
-        onValueChange(nextValue);
       } else if (nextOpen) {
         const nextOpenValues = value.slice();
         nextOpenValues.push(newValue);
+        onValueChange(nextOpenValues, data);
+        if (data.isCanceled) {
+          return;
+        }
         setValue(nextOpenValues);
-        onValueChange(nextOpenValues);
       } else {
         const nextOpenValues = value.filter((v) => v !== newValue);
+        onValueChange(nextOpenValues, data);
+        if (data.isCanceled) {
+          return;
+        }
         setValue(nextOpenValues);
-        onValueChange(nextOpenValues);
       }
     },
     [onValueChange, openMultiple, setValue, value],
@@ -202,7 +213,7 @@ export namespace AccordionRoot {
      * Event handler called when an accordion item is expanded or collapsed.
      * Provides the new value as an argument.
      */
-    onValueChange?: (value: AccordionValue) => void;
+    onValueChange?: (value: AccordionValue, event: ChangeEventData) => void;
     /**
      * Whether multiple items can be open at the same time.
      * @default true
@@ -215,4 +226,7 @@ export namespace AccordionRoot {
      */
     orientation?: Orientation;
   }
+
+  export type ChangeReason = 'none';
+  export type ChangeEventData = BaseUIEventData<ChangeReason>;
 }

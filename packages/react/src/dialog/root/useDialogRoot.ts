@@ -17,7 +17,6 @@ import { useTransitionStatus, type TransitionStatus } from '../../utils/useTrans
 import type { RequiredExcept, HTMLProps } from '../../utils/types';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
-import { type BaseUIEventData } from '../../utils/createBaseUIEventData';
 import { type DialogRoot } from './DialogRoot';
 
 export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.ReturnValue {
@@ -57,17 +56,15 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
     reset: resetOpenInteractionType,
   } = useOpenInteractionType(open);
 
-  const setOpen = useEventCallback(
-    (nextOpen: boolean, data: BaseUIEventData<DialogRoot.OpenChangeReason>) => {
-      onOpenChangeParameter?.(nextOpen, data);
+  const setOpen = useEventCallback((nextOpen: boolean, data: DialogRoot.ChangeEventData) => {
+    onOpenChangeParameter?.(nextOpen, data);
 
-      if (data.isCanceled) {
-        return;
-      }
+    if (data.isCanceled) {
+      return;
+    }
 
-      setOpenUnwrapped(nextOpen);
-    },
-  );
+    setOpenUnwrapped(nextOpen);
+  });
 
   const handleUnmount = useEventCallback(() => {
     setMounted(false);
@@ -236,7 +233,7 @@ export namespace useDialogRoot {
     /**
      * Event handler called when the dialog is opened or closed.
      */
-    onOpenChange?: (open: boolean, data: BaseUIEventData<DialogRoot.OpenChangeReason>) => void;
+    onOpenChange?: (open: boolean, data: DialogRoot.ChangeEventData) => void;
     /**
      * Event handler called after any animations complete when the dialog is opened or closed.
      */
@@ -294,7 +291,7 @@ export namespace useDialogRoot {
     /**
      * Event handler called when the dialog is opened or closed.
      */
-    setOpen: (open: boolean, data: BaseUIEventData<DialogRoot.OpenChangeReason>) => void;
+    setOpen: (open: boolean, data: DialogRoot.ChangeEventData) => void;
     /**
      * Whether the dialog is currently open.
      */

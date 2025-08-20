@@ -371,7 +371,7 @@ export namespace CheckboxRoot {
      * @param {boolean} checked The new checked state.
      * @param {Event} event The corresponding event that initiated the change.
      */
-    onCheckedChange?: (checked: boolean, data: BaseUIEventData<'none'>) => void;
+    onCheckedChange?: (checked: boolean, data: ChangeEventData) => void;
     /**
      * Whether the user should be unable to tick or untick the checkbox.
      * @default false
@@ -403,4 +403,7 @@ export namespace CheckboxRoot {
      */
     value?: string;
   }
+
+  export type ChangeReason = 'none';
+  export type ChangeEventData = BaseUIEventData<ChangeReason>;
 }

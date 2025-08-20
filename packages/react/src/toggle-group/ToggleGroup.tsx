@@ -157,7 +157,7 @@ export namespace ToggleGroup {
     /**
      * Callback fired when the pressed states of the toggle group changes.
      */
-    onValueChange?: (groupValue: any[], data: BaseUIEventData<'none'>) => void;
+    onValueChange?: (groupValue: any[], data: ChangeEventData) => void;
     /**
      * Whether the toggle group should ignore user interaction.
      * @default false
@@ -181,4 +181,7 @@ export namespace ToggleGroup {
      */
     toggleMultiple?: boolean;
   }
+
+  export type ChangeReason = 'none';
+  export type ChangeEventData = BaseUIEventData<ChangeReason>;
 }

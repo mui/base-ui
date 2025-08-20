@@ -6,8 +6,8 @@ import { useSelectRoot } from './useSelectRoot';
 import { SelectRootContext, SelectFloatingContext } from './SelectRootContext';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { serializeValue } from '../utils/serialize';
-import { BaseOpenChangeReason } from '../../utils/types';
 import { type BaseUIEventData, createBaseUIEventData } from '../../utils/createBaseUIEventData';
+import { PopupChangeReason } from '../../utils/types';
 
 /**
  * Groups all parts of the select.
@@ -198,7 +198,7 @@ interface SelectRootProps<Value> {
   /**
    * Callback fired when the value of the select changes. Use when controlled.
    */
-  onValueChange?: (value: Value, data: BaseUIEventData<'none'>) => void;
+  onValueChange?: (value: Value, data: SelectRoot.ChangeEventData) => void;
   /**
    * The uncontrolled value of the select when it’s initially rendered.
    *
@@ -216,7 +216,7 @@ interface SelectRootProps<Value> {
   /**
    * Event handler called when the select menu is opened or closed.
    */
-  onOpenChange?: (open: boolean, data: SelectRoot.OpenChangeData) => void;
+  onOpenChange?: (open: boolean, data: SelectRoot.ChangeEventData) => void;
   /**
    * Event handler called after any animations complete when the select menu is opened or closed.
    */
@@ -283,7 +283,10 @@ export type SelectRootConditionalProps<Value, Multiple extends boolean | undefin
   /**
    * Callback fired when the value of the select changes. Use when controlled.
    */
-  onValueChange?: (value: SelectValueType<Value, Multiple>, data: BaseUIEventData<'none'>) => void;
+  onValueChange?: (
+    value: SelectValueType<Value, Multiple>,
+    data: SelectRoot.ChangeEventData,
+  ) => void;
 };
 
 export namespace SelectRoot {
@@ -298,6 +301,6 @@ export namespace SelectRoot {
     unmount: () => void;
   }
 
-  export type OpenChangeData = BaseUIEventData<OpenChangeReason>;
-  export type OpenChangeReason = BaseOpenChangeReason | 'window-resize';
+  export type ChangeReason = PopupChangeReason | 'window-resize';
+  export type ChangeEventData = BaseUIEventData<ChangeReason>;
 }

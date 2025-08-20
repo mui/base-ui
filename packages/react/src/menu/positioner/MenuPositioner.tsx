@@ -136,7 +136,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
       open: boolean;
       nodeId: string;
       parentNodeId: string;
-      reason?: MenuRoot.OpenChangeReason;
+      reason?: MenuRoot.ChangeReason;
     }) {
       if (event.open) {
         if (event.parentNodeId === nodeId) {

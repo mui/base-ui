@@ -73,7 +73,7 @@ export const RadioGroup = React.forwardRef(function RadioGroup(
 
   const onValueChange = useEventCallback(onValueChangeProp);
 
-  const setCheckedValue = useEventCallback((value: unknown, data: BaseUIEventData<'none'>) => {
+  const setCheckedValue = useEventCallback((value: unknown, data: RadioGroup.ChangeEventData) => {
     onValueChange(value, data);
 
     if (data.isCanceled) {
@@ -284,10 +284,13 @@ export namespace RadioGroup {
     /**
      * Callback fired when the value changes.
      */
-    onValueChange?: (value: unknown, data: BaseUIEventData<'none'>) => void;
+    onValueChange?: (value: unknown, data: ChangeEventData) => void;
     /**
      * A ref to access the hidden input element.
      */
     inputRef?: React.Ref<HTMLInputElement>;
   }
+
+  export type ChangeReason = 'none';
+  export type ChangeEventData = BaseUIEventData<ChangeReason>;
 }

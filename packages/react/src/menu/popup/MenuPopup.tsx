@@ -60,10 +60,7 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
   const { events: menuEvents } = useFloatingTree()!;
 
   React.useEffect(() => {
-    function handleClose(event: {
-      domEvent: Event | undefined;
-      reason: MenuRoot.OpenChangeReason;
-    }) {
+    function handleClose(event: { domEvent: Event | undefined; reason: MenuRoot.ChangeReason }) {
       setOpen(false, createBaseUIEventData(event.reason, event.domEvent));
     }
 
