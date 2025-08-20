@@ -19,7 +19,7 @@ import { contains } from '../../floating-ui-react/utils';
 import { mergeProps } from '../../merge-props';
 import { useButton } from '../../use-button';
 import type { FieldRoot } from '../../field/root/FieldRoot';
-import { createBaseUIEventData } from '../../utils/createBaseUIEvent';
+import { createBaseUIEventData } from '../../utils/createBaseUIEventData';
 
 const BOUNDARY_OFFSET = 2;
 

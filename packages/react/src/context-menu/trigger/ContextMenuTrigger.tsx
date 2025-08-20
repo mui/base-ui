@@ -7,7 +7,7 @@ import { contains, getTarget, stopEvent } from '../../floating-ui-react/utils';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useContextMenuRootContext } from '../root/ContextMenuRootContext';
 import { useRenderElement } from '../../utils/useRenderElement';
-import { createBaseUIEventData } from '../../utils/createBaseUIEvent';
+import { createBaseUIEventData } from '../../utils/createBaseUIEventData';
 
 const LONG_PRESS_DELAY = 500;
 

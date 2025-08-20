@@ -4,7 +4,7 @@ import type { FloatingRootContext } from '../../floating-ui-react';
 import type { MenuParent, MenuRoot } from './MenuRoot';
 import { HTMLProps } from '../../utils/types';
 import { TransitionStatus } from '../../utils/useTransitionStatus';
-import { BaseUIEventData } from '../../utils/createBaseUIEvent';
+import { BaseUIEventData } from '../../utils/createBaseUIEventData';
 
 export interface MenuRootContext {
   disabled: boolean;

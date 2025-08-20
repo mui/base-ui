@@ -3,7 +3,7 @@ import * as React from 'react';
 import type { FloatingRootContext } from '../../floating-ui-react';
 import type { BaseOpenChangeReason, HTMLProps } from '../../utils/types';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
-import { BaseUIEventData } from '../../utils/createBaseUIEvent';
+import { BaseUIEventData } from '../../utils/createBaseUIEventData';
 
 export type TooltipOpenChangeReason = BaseOpenChangeReason | 'disabled';
 

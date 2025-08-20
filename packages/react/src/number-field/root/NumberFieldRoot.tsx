@@ -21,11 +21,7 @@ import { useBaseUiId } from '../../utils/useBaseUiId';
 import { CHANGE_VALUE_TICK_DELAY, DEFAULT_STEP, START_AUTO_CHANGE_DELAY } from '../utils/constants';
 import { toValidatedNumber } from '../utils/validate';
 import { EventWithOptionalKeyState } from '../utils/types';
-import {
-  BaseUIEventData,
-  createBaseUIEventData,
-  isEventPrevented,
-} from '../../utils/createBaseUIEvent';
+import { BaseUIEventData, createBaseUIEventData } from '../../utils/createBaseUIEventData';
 import { isReactEvent } from '../../floating-ui-react/utils';
 
 /**
@@ -189,7 +185,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
 
       onValueChange?.(validatedValue, data);
 
-      if (isEventPrevented(data)) {
+      if (data.isCanceled) {
         return;
       }
 

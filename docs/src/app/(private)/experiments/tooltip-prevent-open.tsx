@@ -17,7 +17,7 @@ export default function ExampleTooltip() {
         <Tooltip.Root
           onOpenChange={(open, data) => {
             if (data.reason === 'trigger-press') {
-              data.preventBaseUIHandler();
+              data.cancel();
             }
           }}
         >
@@ -39,7 +39,7 @@ export default function ExampleTooltip() {
         <Tooltip.Root
           onOpenChange={(open, data) => {
             if (data.reason === 'escape-key') {
-              data.preventBaseUIHandler({ allowStopPropagation: false });
+              data.cancelStopPropagation();
             }
           }}
         >

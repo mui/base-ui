@@ -24,11 +24,7 @@ import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useTransitionStatus } from '../../utils/useTransitionStatus';
 import { selectors, State } from '../store';
 import type { SelectRootContext } from './SelectRootContext';
-import {
-  createBaseUIEventData,
-  isEventPrevented,
-  type BaseUIEventData,
-} from '../../utils/createBaseUIEvent';
+import { createBaseUIEventData, type BaseUIEventData } from '../../utils/createBaseUIEventData';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useFormContext } from '../../form/FormContext';
 import { useField } from '../../field/useField';
@@ -229,7 +225,7 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
     (nextOpen: boolean, data: BaseUIEventData<SelectRoot.OpenChangeReason>) => {
       params.onOpenChange?.(nextOpen, data);
 
-      if (isEventPrevented(data)) {
+      if (data.isCanceled) {
         return;
       }
 
@@ -277,7 +273,7 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
   const setValue = useEventCallback((nextValue: any, data: BaseUIEventData<'none'>) => {
     params.onValueChange?.(nextValue, data);
 
-    if (isEventPrevented(data)) {
+    if (data.isCanceled) {
       return;
     }
 

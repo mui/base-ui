@@ -12,7 +12,7 @@ import {
   getNextTabbable,
   isOutsideEvent,
 } from '../utils';
-import { createBaseUIEventData } from '../../utils/createBaseUIEvent';
+import { createBaseUIEventData } from '../../utils/createBaseUIEventData';
 import { createAttribute } from '../utils/createAttribute';
 
 type FocusManagerState = {

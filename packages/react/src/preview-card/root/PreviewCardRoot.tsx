@@ -12,7 +12,7 @@ import {
 } from '../../floating-ui-react';
 import { PreviewCardRootContext } from './PreviewCardContext';
 import { CLOSE_DELAY, OPEN_DELAY } from '../utils/constants';
-import { isEventPrevented, type BaseUIEventData } from '../../utils/createBaseUIEvent';
+import { type BaseUIEventData } from '../../utils/createBaseUIEventData';
 import { useFocusWithDelay } from '../../utils/interactions/useFocusWithDelay';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useTransitionStatus } from '../../utils/useTransitionStatus';
@@ -82,7 +82,7 @@ export function PreviewCardRoot(props: PreviewCardRoot.Props) {
 
       onOpenChange(nextOpen, data);
 
-      if (isEventPrevented(data)) {
+      if (data.isCanceled) {
         return;
       }
 

@@ -27,7 +27,7 @@ import {
   getPreviousTabbable,
 } from '../utils';
 import type { FloatingRootContext } from '../types';
-import { createBaseUIEventData } from '../../utils/createBaseUIEvent';
+import { createBaseUIEventData } from '../../utils/createBaseUIEventData';
 import { createAttribute } from '../utils/createAttribute';
 import { enqueueFocus } from '../utils/enqueueFocus';
 import { markOthers } from '../utils/markOthers';

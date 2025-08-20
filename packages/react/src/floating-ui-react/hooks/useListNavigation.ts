@@ -25,7 +25,7 @@ import {
 
 import { useFloatingParentNodeId, useFloatingTree } from '../components/FloatingTree';
 import type { Dimensions, ElementProps, FloatingRootContext } from '../types';
-import { createBaseUIEventData } from '../../utils/createBaseUIEvent';
+import { createBaseUIEventData } from '../../utils/createBaseUIEventData';
 import { enqueueFocus } from '../utils/enqueueFocus';
 import { ARROW_UP, ARROW_DOWN, ARROW_RIGHT, ARROW_LEFT } from '../utils/constants';
 

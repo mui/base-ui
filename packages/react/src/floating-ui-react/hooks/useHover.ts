@@ -15,7 +15,7 @@ import type {
   FloatingTreeType,
   SafePolygonOptions,
 } from '../types';
-import { createBaseUIEventData } from '../../utils/createBaseUIEvent';
+import { createBaseUIEventData } from '../../utils/createBaseUIEventData';
 import { createAttribute } from '../utils/createAttribute';
 
 const safePolygonIdentifier = createAttribute('safe-polygon');

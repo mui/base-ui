@@ -11,11 +11,7 @@ import { TabsRootContext } from './TabsRootContext';
 import { tabsStyleHookMapping } from './styleHooks';
 import type { TabsTab } from '../tab/TabsTab';
 import type { TabsPanel } from '../panel/TabsPanel';
-import {
-  BaseUIEventData,
-  createBaseUIEventData,
-  isEventPrevented,
-} from '../../utils/createBaseUIEvent';
+import { BaseUIEventData, createBaseUIEventData } from '../../utils/createBaseUIEventData';
 
 /**
  * Groups the tabs and the corresponding panels.
@@ -68,7 +64,7 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
 
       onValueChangeProp?.(newValue, data);
 
-      if (isEventPrevented(data)) {
+      if (data.isCanceled) {
         return;
       }
 

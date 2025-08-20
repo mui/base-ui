@@ -22,7 +22,7 @@ import { useRenderElement } from '../../utils/useRenderElement';
 import { selectors } from '../store';
 import { clearPositionerStyles } from './utils';
 import { DISABLED_TRANSITIONS_STYLE } from '../../utils/constants';
-import { createBaseUIEventData } from '../../utils/createBaseUIEvent';
+import { createBaseUIEventData } from '../../utils/createBaseUIEventData';
 
 const customStyleHookMapping: CustomStyleHookMapping<SelectPopup.State> = {
   ...popupStateMapping,

@@ -12,7 +12,7 @@ import {
 } from '../utils';
 
 import type { ElementProps, FloatingRootContext } from '../types';
-import { createBaseUIEventData } from '../../utils/createBaseUIEvent';
+import { createBaseUIEventData } from '../../utils/createBaseUIEventData';
 import { createAttribute } from '../utils/createAttribute';
 
 const isMacSafari = isMac && isSafari;

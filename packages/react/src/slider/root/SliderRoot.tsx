@@ -9,11 +9,7 @@ import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect
 import { visuallyHidden } from '@base-ui-components/utils/visuallyHidden';
 import { warn } from '@base-ui-components/utils/warn';
 import type { BaseUIComponentProps, Orientation } from '../../utils/types';
-import {
-  createBaseUIEventData,
-  isEventPrevented,
-  type BaseUIEventData,
-} from '../../utils/createBaseUIEvent';
+import { createBaseUIEventData, type BaseUIEventData } from '../../utils/createBaseUIEventData';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { clamp } from '../../utils/clamp';
@@ -182,7 +178,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       const data = createBaseUIEventData('none', clonedEvent);
       onValueChange(newValue, data, thumbIndex);
 
-      if (isEventPrevented(data)) {
+      if (data.isCanceled) {
         return;
       }
 

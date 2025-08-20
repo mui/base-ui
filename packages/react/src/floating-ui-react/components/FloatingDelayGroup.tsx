@@ -4,7 +4,7 @@ import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect
 
 import { getDelay } from '../hooks/useHover';
 import type { FloatingRootContext, Delay } from '../types';
-import { BaseUIEventData, createBaseUIEventData } from '../../utils/createBaseUIEvent';
+import { BaseUIEventData, createBaseUIEventData } from '../../utils/createBaseUIEventData';
 
 interface ContextValue {
   hasProvider: boolean;

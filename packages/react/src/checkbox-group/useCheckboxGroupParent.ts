@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { useBaseUiId } from '../utils/useBaseUiId';
-import { BaseUIEventData } from '../utils/createBaseUIEvent';
+import { BaseUIEventData } from '../utils/createBaseUIEventData';
 
 const EMPTY: string[] = [];
 

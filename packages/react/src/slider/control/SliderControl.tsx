@@ -5,7 +5,7 @@ import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { activeElement } from '../../floating-ui-react/utils';
 import { clamp } from '../../utils/clamp';
 import type { BaseUIComponentProps, Orientation } from '../../utils/types';
-import { createBaseUIEventData } from '../../utils/createBaseUIEvent';
+import { createBaseUIEventData } from '../../utils/createBaseUIEventData';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { valueToPercent } from '../../utils/valueToPercent';
 import { useDirection } from '../../direction-provider/DirectionContext';

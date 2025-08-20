@@ -18,11 +18,7 @@ import { useTransitionStatus } from '../../utils/useTransitionStatus';
 import { OPEN_DELAY } from '../utils/constants';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useTooltipProviderContext } from '../provider/TooltipProviderContext';
-import {
-  BaseUIEventData,
-  createBaseUIEventData,
-  isEventPrevented,
-} from '../../utils/createBaseUIEvent';
+import { BaseUIEventData, createBaseUIEventData } from '../../utils/createBaseUIEventData';
 
 /**
  * Groups all parts of the tooltip.
@@ -71,7 +67,7 @@ export function TooltipRoot(props: TooltipRoot.Props) {
 
     onOpenChange?.(nextOpen, data);
 
-    if (isEventPrevented(data)) {
+    if (data.isCanceled) {
       return;
     }
 

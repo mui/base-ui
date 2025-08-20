@@ -8,7 +8,7 @@ import {
 } from '../root/NavigationMenuRootContext';
 import { isOutsideMenuEvent } from '../utils/isOutsideMenuEvent';
 import { CompositeItem } from '../../composite/item/CompositeItem';
-import { createBaseUIEventData } from '../../utils/createBaseUIEvent';
+import { createBaseUIEventData } from '../../utils/createBaseUIEventData';
 
 /**
  * A link in the navigation menu that can be used to navigate to a different page or section.

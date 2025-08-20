@@ -31,7 +31,7 @@ import {
   useNavigationMenuRootContext,
   useNavigationMenuTreeContext,
 } from '../root/NavigationMenuRootContext';
-import { createBaseUIEventData, type BaseUIEventData } from '../../utils/createBaseUIEvent';
+import { createBaseUIEventData, type BaseUIEventData } from '../../utils/createBaseUIEventData';
 import { PATIENT_CLICK_THRESHOLD } from '../../utils/constants';
 import { FocusGuard } from '../../utils/FocusGuard';
 import { pressableTriggerOpenStateMapping } from '../../utils/popupStateMapping';

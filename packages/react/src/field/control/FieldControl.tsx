@@ -11,11 +11,7 @@ import { useRenderElement } from '../../utils/useRenderElement';
 import { useField } from '../useField';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useFieldControlValidation } from './useFieldControlValidation';
-import {
-  BaseUIEventData,
-  createBaseUIEventData,
-  isEventPrevented,
-} from '../../utils/createBaseUIEvent';
+import { BaseUIEventData, createBaseUIEventData } from '../../utils/createBaseUIEventData';
 
 /**
  * The form control to label and validate.
@@ -98,7 +94,7 @@ export const FieldControl = React.forwardRef(function FieldControl(
   const setValue = useEventCallback((nextValue: string, data: BaseUIEventData<'none'>) => {
     onValueChange?.(nextValue, data);
 
-    if (isEventPrevented(data)) {
+    if (data.isCanceled) {
       return;
     }
 

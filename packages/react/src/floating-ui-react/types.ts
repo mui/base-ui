@@ -4,7 +4,7 @@ import type {
   VirtualElement,
 } from '@floating-ui/react-dom';
 import type * as React from 'react';
-import type { BaseUIEventData } from '../utils/createBaseUIEvent';
+import type { BaseUIEventData } from '../utils/createBaseUIEventData';
 
 import type { ExtendedUserProps } from './hooks/useInteractions';
 

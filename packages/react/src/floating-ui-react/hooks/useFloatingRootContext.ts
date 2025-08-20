@@ -4,7 +4,7 @@ import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { useId } from '@base-ui-components/utils/useId';
 
 import type { FloatingRootContext, ReferenceElement, ContextData } from '../types';
-import type { BaseUIEventData } from '../../utils/createBaseUIEvent';
+import type { BaseUIEventData } from '../../utils/createBaseUIEventData';
 import { createEventEmitter } from '../utils/createEventEmitter';
 import { useFloatingParentNodeId } from '../components/FloatingTree';
 

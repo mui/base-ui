@@ -5,7 +5,7 @@ import type { CompositeMetadata } from '../../composite/list/CompositeList';
 import type { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
 import type { ThumbMetadata } from '../thumb/SliderThumb';
 import type { SliderRoot } from './SliderRoot';
-import type { BaseUIEventData } from '../../utils/createBaseUIEvent';
+import type { BaseUIEventData } from '../../utils/createBaseUIEventData';
 
 export interface SliderRootContext {
   /**

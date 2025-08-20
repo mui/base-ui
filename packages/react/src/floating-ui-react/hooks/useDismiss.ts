@@ -24,7 +24,7 @@ import {
 
 import { useFloatingTree } from '../components/FloatingTree';
 import type { ElementProps, FloatingRootContext } from '../types';
-import { createBaseUIEventData, isStopPropagationAllowed } from '../../utils/createBaseUIEvent';
+import { createBaseUIEventData } from '../../utils/createBaseUIEventData';
 import { createAttribute } from '../utils/createAttribute';
 
 type PressType = 'intentional' | 'sloppy';
@@ -219,7 +219,7 @@ export function useDismiss(
 
       onOpenChange(false, baseUIEventData);
 
-      if (!escapeKeyBubbles && isStopPropagationAllowed(baseUIEventData)) {
+      if (!escapeKeyBubbles && !baseUIEventData.isStopPropagationCanceled) {
         event.stopPropagation();
       }
     },

@@ -18,7 +18,7 @@ import { InternalBackdrop } from '../../utils/InternalBackdrop';
 import { useMenuPortalContext } from '../portal/MenuPortalContext';
 import { DROPDOWN_COLLISION_AVOIDANCE } from '../../utils/constants';
 import { useContextMenuRootContext } from '../../context-menu/root/ContextMenuRootContext';
-import { createBaseUIEventData } from '../../utils/createBaseUIEvent';
+import { createBaseUIEventData } from '../../utils/createBaseUIEventData';
 import type { MenuRoot } from '../root/MenuRoot';
 
 /**

@@ -17,7 +17,7 @@ import { useTransitionStatus, type TransitionStatus } from '../../utils/useTrans
 import type { RequiredExcept, HTMLProps } from '../../utils/types';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
-import { isEventPrevented, type BaseUIEventData } from '../../utils/createBaseUIEvent';
+import { type BaseUIEventData } from '../../utils/createBaseUIEventData';
 import { type DialogRoot } from './DialogRoot';
 
 export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.ReturnValue {
@@ -61,7 +61,7 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
     (nextOpen: boolean, data: BaseUIEventData<DialogRoot.OpenChangeReason>) => {
       onOpenChangeParameter?.(nextOpen, data);
 
-      if (isEventPrevented(data)) {
+      if (data.isCanceled) {
         return;
       }
 

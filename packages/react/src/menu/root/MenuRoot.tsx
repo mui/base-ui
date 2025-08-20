@@ -27,7 +27,7 @@ import { useDirection } from '../../direction-provider/DirectionContext';
 import { useScrollLock } from '../../utils/useScrollLock';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
 import { type BaseOpenChangeReason } from '../../utils/types';
-import { isEventPrevented, type BaseUIEventData } from '../../utils/createBaseUIEvent';
+import { type BaseUIEventData } from '../../utils/createBaseUIEventData';
 import {
   ContextMenuRootContext,
   useContextMenuRootContext,
@@ -232,7 +232,7 @@ export const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
 
       onOpenChange?.(nextOpen, data);
 
-      if (isEventPrevented(data)) {
+      if (data.isCanceled) {
         return;
       }
 

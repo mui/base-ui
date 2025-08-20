@@ -4,7 +4,7 @@ import { DialogRootContext, useOptionalDialogRootContext } from './DialogRootCon
 import { DialogContext } from '../utils/DialogContext';
 import { useDialogRoot } from './useDialogRoot';
 import { type BaseOpenChangeReason } from '../../utils/types';
-import { BaseUIEventData } from '../../utils/createBaseUIEvent';
+import { BaseUIEventData } from '../../utils/createBaseUIEventData';
 
 /**
  * Groups all parts of the dialog.

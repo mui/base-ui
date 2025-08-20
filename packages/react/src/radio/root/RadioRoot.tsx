@@ -16,7 +16,7 @@ import { customStyleHookMapping } from '../utils/customStyleHookMapping';
 import { useRadioGroupContext } from '../../radio-group/RadioGroupContext';
 import { RadioRootContext } from './RadioRootContext';
 import { EMPTY_OBJECT } from '../../utils/constants';
-import { createBaseUIEventData } from '../../utils/createBaseUIEvent';
+import { createBaseUIEventData } from '../../utils/createBaseUIEventData';
 
 /**
  * Represents the radio button itself.

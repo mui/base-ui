@@ -18,7 +18,7 @@ import { useField } from '../../field/useField';
 import { useFormContext } from '../../form/FormContext';
 import { useCheckboxGroupContext } from '../../checkbox-group/CheckboxGroupContext';
 import { CheckboxRootContext } from './CheckboxRootContext';
-import { BaseUIEventData, createBaseUIEventData } from '../../utils/createBaseUIEvent';
+import { BaseUIEventData, createBaseUIEventData } from '../../utils/createBaseUIEventData';
 
 const EMPTY = {};
 export const PARENT_CHECKBOX = 'data-parent';

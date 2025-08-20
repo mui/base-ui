@@ -5,7 +5,7 @@ import type { SelectStore } from '../store';
 import type { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
 import type { HTMLProps } from '../../utils/types';
 import type { SelectRoot } from './SelectRoot';
-import { BaseUIEventData } from '../../utils/createBaseUIEvent';
+import { BaseUIEventData } from '../../utils/createBaseUIEventData';
 
 export interface SelectRootContext {
   store: SelectStore;

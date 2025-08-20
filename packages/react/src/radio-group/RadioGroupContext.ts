@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { NOOP } from '../utils/noop';
 import { useFieldControlValidation } from '../field/control/useFieldControlValidation';
-import type { BaseUIEventData } from '../utils/createBaseUIEvent';
+import type { BaseUIEventData } from '../utils/createBaseUIEventData';
 
 export interface RadioGroupContext {
   disabled: boolean | undefined;

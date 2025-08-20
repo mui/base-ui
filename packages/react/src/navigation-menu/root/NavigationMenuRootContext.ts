@@ -1,6 +1,6 @@
 import * as React from 'react';
 import type { FloatingRootContext } from '../../floating-ui-react';
-import type { BaseUIEventData } from '../../utils/createBaseUIEvent';
+import type { BaseUIEventData } from '../../utils/createBaseUIEventData';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import type { NavigationMenuRoot } from './NavigationMenuRoot';
 

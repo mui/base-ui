@@ -5,7 +5,7 @@ import { type InteractionType } from '@base-ui-components/utils/useEnhancedClick
 import type { DialogRoot } from '../root/DialogRoot';
 import { HTMLProps } from '../../utils/types';
 import { COMPOSITE_KEYS } from '../../composite/composite';
-import { BaseUIEventData } from '../../utils/createBaseUIEvent';
+import { BaseUIEventData } from '../../utils/createBaseUIEventData';
 
 export function useDialogPopup(parameters: useDialogPopup.Parameters): useDialogPopup.ReturnValue {
   const {

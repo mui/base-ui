@@ -17,7 +17,7 @@ import {
 import { useTransitionStatus } from '../../utils/useTransitionStatus';
 import { OPEN_DELAY } from '../utils/constants';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
-import { isEventPrevented, type BaseUIEventData } from '../../utils/createBaseUIEvent';
+import { type BaseUIEventData } from '../../utils/createBaseUIEventData';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { PATIENT_CLICK_THRESHOLD } from '../../utils/constants';
 import { useScrollLock } from '../../utils/useScrollLock';
@@ -103,7 +103,7 @@ function PopoverRootComponent({ props }: { props: PopoverRoot.Props }) {
 
       onOpenChange?.(nextOpen, data);
 
-      if (isEventPrevented(data)) {
+      if (data.isCanceled) {
         return;
       }
 

@@ -5,7 +5,7 @@ import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { MenuRadioGroupContext } from './MenuRadioGroupContext';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
-import { createBaseUIEventData, isEventPrevented } from '../../utils/createBaseUIEvent';
+import { createBaseUIEventData } from '../../utils/createBaseUIEventData';
 import type { MenuRoot } from '../root/MenuRoot';
 
 /**
@@ -42,7 +42,7 @@ export const MenuRadioGroup = React.memo(
 
       onValueChange?.(newValue, data);
 
-      if (isEventPrevented(data)) {
+      if (data.isCanceled) {
         return;
       }
 

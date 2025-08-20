@@ -13,7 +13,7 @@ import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping'
 import { transitionStatusMapping } from '../../utils/styleHookMapping';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { EMPTY_OBJECT, DISABLED_TRANSITIONS_STYLE } from '../../utils/constants';
-import { createBaseUIEventData } from '../../utils/createBaseUIEvent';
+import { createBaseUIEventData } from '../../utils/createBaseUIEventData';
 
 const customStyleHookMapping: CustomStyleHookMapping<MenuPopup.State> = {
   ...baseMapping,

@@ -4,7 +4,7 @@ import type { BaseUIComponentProps, NativeButtonProps } from '../../utils/types'
 import { usePopoverRootContext } from '../root/PopoverRootContext';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useButton } from '../../use-button';
-import { createBaseUIEventData } from '../../utils/createBaseUIEvent';
+import { createBaseUIEventData } from '../../utils/createBaseUIEventData';
 
 /**
  * A button that closes the popover.

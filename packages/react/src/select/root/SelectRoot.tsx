@@ -7,7 +7,7 @@ import { SelectRootContext, SelectFloatingContext } from './SelectRootContext';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { serializeValue } from '../utils/serialize';
 import { BaseOpenChangeReason } from '../../utils/types';
-import { type BaseUIEventData, createBaseUIEventData } from '../../utils/createBaseUIEvent';
+import { type BaseUIEventData, createBaseUIEventData } from '../../utils/createBaseUIEventData';
 
 /**
  * Groups all parts of the select.

@@ -19,7 +19,7 @@ import type { FieldRoot } from '../field/root/FieldRoot';
 import { mergeProps } from '../merge-props';
 
 import { RadioGroupContext } from './RadioGroupContext';
-import { isEventPrevented, type BaseUIEventData } from '../utils/createBaseUIEvent';
+import { type BaseUIEventData } from '../utils/createBaseUIEventData';
 
 const MODIFIER_KEYS = [SHIFT];
 
@@ -76,7 +76,7 @@ export const RadioGroup = React.forwardRef(function RadioGroup(
   const setCheckedValue = useEventCallback((value: unknown, data: BaseUIEventData<'none'>) => {
     onValueChange(value, data);
 
-    if (isEventPrevented(data)) {
+    if (data.isCanceled) {
       return;
     }
 

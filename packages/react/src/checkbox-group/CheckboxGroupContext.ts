@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { useFieldControlValidation } from '../field/control/useFieldControlValidation';
 import { useCheckboxGroupParent } from './useCheckboxGroupParent';
-import { BaseUIEventData } from '../utils/createBaseUIEvent';
+import { BaseUIEventData } from '../utils/createBaseUIEventData';
 
 export interface CheckboxGroupContext {
   value: string[] | undefined;

@@ -3,7 +3,7 @@ import * as React from 'react';
 import type { DialogRoot } from '../../dialog/root/DialogRoot';
 import { AlertDialogRootContext } from './AlertDialogRootContext';
 import { useDialogRoot } from '../../dialog/root/useDialogRoot';
-import { BaseUIEventData } from '../../utils/createBaseUIEvent';
+import { BaseUIEventData } from '../../utils/createBaseUIEventData';
 
 /**
  * Groups all parts of the alert dialog.

@@ -14,7 +14,7 @@ import { useRenderElement } from '../../utils/useRenderElement';
 import { SelectItemContext } from './SelectItemContext';
 import { selectors } from '../store';
 import { useButton } from '../../use-button';
-import { createBaseUIEventData } from '../../utils/createBaseUIEvent';
+import { createBaseUIEventData } from '../../utils/createBaseUIEventData';
 
 /**
  * An individual option in the select menu.

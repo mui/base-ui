@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { type BaseOpenChangeReason } from '../../utils/types';
-import { BaseUIEventData } from '../../utils/createBaseUIEvent';
+import { BaseUIEventData } from '../../utils/createBaseUIEventData';
 
 export interface ContextMenuRootContext {
   anchor: { getBoundingClientRect: () => DOMRect };

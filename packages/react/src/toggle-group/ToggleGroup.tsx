@@ -8,11 +8,7 @@ import { CompositeRoot } from '../composite/root/CompositeRoot';
 import { useToolbarRootContext } from '../toolbar/root/ToolbarRootContext';
 import { ToggleGroupContext } from './ToggleGroupContext';
 import { ToggleGroupDataAttributes } from './ToggleGroupDataAttributes';
-import {
-  BaseUIEventData,
-  createBaseUIEventData,
-  isEventPrevented,
-} from '../utils/createBaseUIEvent';
+import { BaseUIEventData, createBaseUIEventData } from '../utils/createBaseUIEventData';
 
 const customStyleHookMapping = {
   multiple(value: boolean) {
@@ -81,7 +77,7 @@ export const ToggleGroup = React.forwardRef(function ToggleGroup(
 
       onValueChange?.(newGroupValue, data);
 
-      if (isEventPrevented(data)) {
+      if (data.isCanceled) {
         return;
       }
 

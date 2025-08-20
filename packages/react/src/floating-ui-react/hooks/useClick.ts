@@ -4,7 +4,7 @@ import { useAnimationFrame } from '@base-ui-components/utils/useAnimationFrame';
 import { EMPTY_OBJECT } from '../../utils/constants';
 import type { ElementProps, FloatingRootContext } from '../types';
 import { isMouseLikePointerType } from '../utils';
-import { createBaseUIEventData } from '../../utils/createBaseUIEvent';
+import { createBaseUIEventData } from '../../utils/createBaseUIEventData';
 
 export interface UseClickProps {
   /**
