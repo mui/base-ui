@@ -187,7 +187,7 @@ export const ScrollAreaRoot = React.forwardRef(function ScrollAreaRoot(
 
     if (!isTouch) {
       const isTargetRootChild = contains(rootRef.current, event.target as Element);
-      setHovering(!!isTargetRootChild);
+      setHovering(isTargetRootChild);
     }
   }
 
