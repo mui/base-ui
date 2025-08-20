@@ -115,7 +115,7 @@ export const AlertDialogPopup = React.forwardRef(function AlertDialogPopup(
   const defaultInitialFocus = React.useCallback(
     (interactionType: InteractionType) => {
       if (interactionType === 'touch') {
-        return popupRef;
+        return popupRef.current;
       }
 
       return 0;

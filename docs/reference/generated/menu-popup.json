@@ -3,9 +3,9 @@
   "description": "A container for the menu items.\nRenders a `<div>` element.",
   "props": {
     "finalFocus": {
-      "type": "RefObject<HTMLElement | null>",
+      "type": "RefObject<HTMLElement | null> | (() => void | HTMLElement | null) | null",
       "description": "Determines the element to focus when the menu is closed.\nBy default, focus returns to the trigger.",
-      "detailedType": "React.RefObject<HTMLElement | null> | undefined"
+      "detailedType": "| React.RefObject<HTMLElement | null>\n| (() => void | HTMLElement | null)\n| null\n| undefined"
     },
     "id": {
       "type": "string",

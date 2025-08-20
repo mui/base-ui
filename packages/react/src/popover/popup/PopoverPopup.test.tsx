@@ -106,7 +106,7 @@ describe('<Popover.Popup />', () => {
       function TestComponent() {
         const input2Ref = React.useRef<HTMLInputElement>(null);
 
-        const getRef = React.useCallback(() => input2Ref, []);
+        const getRef = React.useCallback(() => input2Ref.current, []);
 
         return (
           <div>
@@ -129,16 +129,111 @@ describe('<Popover.Popup />', () => {
         );
       }
 
-      const { getByText, getByTestId } = await render(<TestComponent />);
+      const { getByText, getByTestId, user } = await render(<TestComponent />);
 
       const trigger = getByText('Open');
-      await act(async () => {
-        trigger.click();
-      });
+      await user.click(trigger);
 
       await waitFor(() => {
         const input2 = getByTestId('input-2');
         expect(input2).to.toHaveFocus();
+      });
+    });
+
+    it('should support element-returning function and no-op via null/void for initialFocus', async () => {
+      function TestComponent() {
+        const input2Ref = React.useRef<HTMLInputElement>(null);
+
+        const getEl = React.useCallback((type: string) => {
+          if (type === 'keyboard') {
+            return input2Ref.current;
+          }
+          return undefined;
+        }, []);
+
+        return (
+          <div>
+            <Popover.Root>
+              <Popover.Trigger>Open</Popover.Trigger>
+              <Popover.Portal>
+                <Popover.Positioner>
+                  <Popover.Popup data-testid="popover" initialFocus={getEl}>
+                    <input data-testid="input-1" />
+                    <input data-testid="input-2" ref={input2Ref} />
+                  </Popover.Popup>
+                </Popover.Positioner>
+              </Popover.Portal>
+            </Popover.Root>
+          </div>
+        );
+      }
+
+      const { getByText, getByTestId, user } = await render(<TestComponent />);
+
+      const trigger = getByText('Open');
+      await user.click(trigger);
+
+      await waitFor(() => {
+        expect(trigger).toHaveFocus();
+      });
+
+      await user.keyboard('{Escape}');
+      await user.keyboard('{Enter}');
+
+      await waitFor(() => {
+        expect(getByTestId('input-2')).toHaveFocus();
+      });
+    });
+
+    it('should not move focus when initialFocus is null', async () => {
+      function TestComponent() {
+        return (
+          <div>
+            <Popover.Root>
+              <Popover.Trigger>Open</Popover.Trigger>
+              <Popover.Portal>
+                <Popover.Positioner>
+                  <Popover.Popup data-testid="popover" initialFocus={null}>
+                    <input data-testid="input-1" />
+                  </Popover.Popup>
+                </Popover.Positioner>
+              </Popover.Portal>
+            </Popover.Root>
+          </div>
+        );
+      }
+
+      const { getByText, user } = await render(<TestComponent />);
+      const trigger = getByText('Open');
+      await user.click(trigger);
+      await waitFor(() => {
+        expect(trigger).toHaveFocus();
+      });
+    });
+
+    it('should not move focus when initialFocus returns null', async () => {
+      function TestComponent() {
+        return (
+          <div>
+            <Popover.Root>
+              <Popover.Trigger>Open</Popover.Trigger>
+              <Popover.Portal>
+                <Popover.Positioner>
+                  <Popover.Popup data-testid="popover" initialFocus={() => null}>
+                    <input data-testid="input-1" />
+                  </Popover.Popup>
+                </Popover.Positioner>
+              </Popover.Portal>
+            </Popover.Root>
+          </div>
+        );
+      }
+
+      const { getByText, user } = await render(<TestComponent />);
+      const trigger = getByText('Open');
+      await user.click(trigger);
+      await waitFor(() => {
+        expect(trigger).toHaveFocus();
       });
     });
   });
@@ -216,6 +311,98 @@ describe('<Popover.Popup />', () => {
 
       await waitFor(() => {
         expect(inputToFocus).toHaveFocus();
+      });
+    });
+
+    it('should focus the element provided to `finalFocus` as a function when closed', async () => {
+      function TestComponent() {
+        const ref = React.useRef<HTMLInputElement>(null);
+        const getRef = React.useCallback(() => ref.current, []);
+        return (
+          <div>
+            <Popover.Root>
+              <Popover.Trigger>Open</Popover.Trigger>
+              <Popover.Portal>
+                <Popover.Positioner>
+                  <Popover.Popup finalFocus={getRef}>
+                    <Popover.Close>Close</Popover.Close>
+                  </Popover.Popup>
+                </Popover.Positioner>
+              </Popover.Portal>
+            </Popover.Root>
+            <input data-testid="input-to-focus" ref={ref} />
+          </div>
+        );
+      }
+
+      const { getByText, getByTestId, user } = await render(<TestComponent />);
+
+      const trigger = getByText('Open');
+      await user.click(trigger);
+
+      const closeButton = getByText('Close');
+      await user.click(closeButton);
+
+      await waitFor(() => {
+        expect(getByTestId('input-to-focus')).toHaveFocus();
+      });
+    });
+
+    it('should not move focus when finalFocus is null', async () => {
+      function TestComponent() {
+        return (
+          <div>
+            <Popover.Root>
+              <Popover.Trigger>Open</Popover.Trigger>
+              <Popover.Portal>
+                <Popover.Positioner>
+                  <Popover.Popup finalFocus={null}>
+                    <Popover.Close>Close</Popover.Close>
+                  </Popover.Popup>
+                </Popover.Positioner>
+              </Popover.Portal>
+            </Popover.Root>
+          </div>
+        );
+      }
+
+      const { getByText, user } = await render(<TestComponent />);
+      const trigger = getByText('Open');
+
+      await user.click(trigger);
+      await user.click(getByText('Close'));
+
+      await waitFor(() => {
+        expect(trigger).not.toHaveFocus();
+      });
+    });
+
+    it('should not move focus when finalFocus returns null', async () => {
+      function TestComponent() {
+        return (
+          <div>
+            <Popover.Root>
+              <Popover.Trigger>Open</Popover.Trigger>
+              <Popover.Portal>
+                <Popover.Positioner>
+                  <Popover.Popup finalFocus={() => null}>
+                    <Popover.Close>Close</Popover.Close>
+                  </Popover.Popup>
+                </Popover.Positioner>
+              </Popover.Portal>
+            </Popover.Root>
+          </div>
+        );
+      }
+
+      const { getByText, user } = await render(<TestComponent />);
+      const trigger = getByText('Open');
+
+      await user.click(trigger);
+      await user.click(getByText('Close'));
+
+      await waitFor(() => {
+        expect(trigger).not.toHaveFocus();
       });
     });
   });

@@ -95,5 +95,97 @@ describe('<Menu.Popup />', () => {
         expect(inputToFocus).toHaveFocus();
       });
     });
+
+    it('should focus the element provided to `finalFocus` as a function when closed', async () => {
+      function TestComponent() {
+        const ref = React.useRef<HTMLInputElement>(null);
+        const getRef = React.useCallback(() => ref.current, []);
+        return (
+          <div>
+            <Menu.Root>
+              <Menu.Trigger>Open</Menu.Trigger>
+              <Menu.Portal>
+                <Menu.Positioner>
+                  <Menu.Popup finalFocus={getRef}>
+                    <Menu.Item>Close</Menu.Item>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+            <input data-testid="input-to-focus" ref={ref} />
+          </div>
+        );
+      }
+
+      const { getByText, getByTestId, user } = await render(<TestComponent />);
+
+      const trigger = getByText('Open');
+      await user.click(trigger);
+
+      const closeButton = getByText('Close');
+      await user.click(closeButton);
+
+      await waitFor(() => {
+        expect(getByTestId('input-to-focus')).toHaveFocus();
+      });
+    });
+
+    it('should not move focus when finalFocus is null', async () => {
+      function TestComponent() {
+        return (
+          <div>
+            <Menu.Root>
+              <Menu.Trigger>Open</Menu.Trigger>
+              <Menu.Portal>
+                <Menu.Positioner>
+                  <Menu.Popup finalFocus={null}>
+                    <Menu.Item>Close</Menu.Item>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+          </div>
+        );
+      }
+
+      const { getByText, user } = await render(<TestComponent />);
+      const trigger = getByText('Open');
+
+      await user.click(trigger);
+      await user.click(getByText('Close'));
+
+      await waitFor(() => {
+        expect(trigger).not.toHaveFocus();
+      });
+    });
+
+    it('should not move focus when finalFocus returns null', async () => {
+      function TestComponent() {
+        return (
+          <div>
+            <Menu.Root>
+              <Menu.Trigger>Open</Menu.Trigger>
+              <Menu.Portal>
+                <Menu.Positioner>
+                  <Menu.Popup finalFocus={() => null}>
+                    <Menu.Item>Close</Menu.Item>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+          </div>
+        );
+      }
+
+      const { getByText, user } = await render(<TestComponent />);
+      const trigger = getByText('Open');
+
+      await user.click(trigger);
+      await user.click(getByText('Close'));
+
+      await waitFor(() => {
+        expect(trigger).not.toHaveFocus();
+      });
+    });
   });
 });

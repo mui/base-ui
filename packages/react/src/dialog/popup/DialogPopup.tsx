@@ -88,7 +88,7 @@ export const DialogPopup = React.forwardRef(function DialogPopup(
   const defaultInitialFocus = React.useCallback(
     (interactionType: InteractionType) => {
       if (interactionType === 'touch') {
-        return popupRef;
+        return popupRef.current;
       }
 
       return 0;
