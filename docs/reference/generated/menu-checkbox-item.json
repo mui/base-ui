@@ -19,9 +19,9 @@
       "detailedType": "boolean | undefined"
     },
     "onCheckedChange": {
-      "type": "((checked: boolean, event: Event) => void)",
+      "type": "((checked: boolean, data: Menu.Root.OpenChangeData) => void)",
       "description": "Event handler called when the checkbox item is ticked or unticked.",
-      "detailedType": "| ((checked: boolean, event: Event) => void)\n| undefined"
+      "detailedType": "| ((\n    checked: boolean,\n    data: Menu.Root.OpenChangeData,\n  ) => void)\n| undefined"
     },
     "onClick": {
       "type": "MouseEventHandler<HTMLElement>",

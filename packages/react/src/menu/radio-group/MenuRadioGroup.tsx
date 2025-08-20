@@ -5,7 +5,7 @@ import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { MenuRadioGroupContext } from './MenuRadioGroupContext';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
-import { createBaseUIEventData } from '../../utils/createBaseUIEventData';
+import { BaseUIEventData } from '../../utils/createBaseUIEventData';
 import type { MenuRoot } from '../root/MenuRoot';
 
 /**
@@ -38,9 +38,7 @@ export const MenuRadioGroup = React.memo(
     const onValueChange = useEventCallback(onValueChangeProp);
 
     const setValue = useEventCallback(
-      (newValue: any, event: MouseEvent | KeyboardEvent | PointerEvent | TouchEvent | Event) => {
-        const data = createBaseUIEventData('item-press', event);
-
+      (newValue: any, data: BaseUIEventData<MenuRoot.OpenChangeReason>) => {
         onValueChange?.(newValue, data);
 
         if (data.isCanceled) {

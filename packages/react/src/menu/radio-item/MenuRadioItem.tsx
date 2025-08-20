@@ -12,6 +12,8 @@ import { itemMapping } from '../utils/styleHookMapping';
 import { useCompositeListItem } from '../../composite/list/useCompositeListItem';
 import { REGULAR_ITEM, useMenuItem } from '../item/useMenuItem';
 import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
+import type { MenuRoot } from '../root/MenuRoot';
+import { createBaseUIEventData, type BaseUIEventData } from '../../utils/createBaseUIEventData';
 
 const InnerMenuRadioItem = React.memo(
   React.forwardRef(function InnerMenuRadioItem(
@@ -68,7 +70,7 @@ const InnerMenuRadioItem = React.memo(
           role: 'menuitemradio',
           'aria-checked': checked,
           onClick: (event: React.MouseEvent) => {
-            setChecked(event.nativeEvent);
+            setChecked(createBaseUIEventData('item-press', event.nativeEvent));
           },
         },
         elementProps,
@@ -124,8 +126,8 @@ export const MenuRadioItem = React.forwardRef(function MenuRadioItem(
   const checked = selectedValue === value;
 
   const setChecked = React.useCallback(
-    (event: Event) => {
-      setSelectedValue(value, event);
+    (data: BaseUIEventData<MenuRoot.OpenChangeReason>) => {
+      setSelectedValue(value, data);
     },
     [setSelectedValue, value],
   );
@@ -163,7 +165,7 @@ interface InnerMenuRadioItemProps extends Omit<MenuRadioItem.Props, 'value'> {
   menuEvents: FloatingEvents;
   allowMouseUpTriggerRef: React.RefObject<boolean>;
   checked: boolean;
-  setChecked: (event: Event) => void;
+  setChecked: (data: BaseUIEventData<MenuRoot.OpenChangeReason>) => void;
   typingRef: React.RefObject<boolean>;
   closeOnClick: boolean;
   nativeButton: boolean;

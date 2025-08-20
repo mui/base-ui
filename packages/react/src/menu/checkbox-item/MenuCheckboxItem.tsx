@@ -12,6 +12,8 @@ import { useBaseUiId } from '../../utils/useBaseUiId';
 import type { BaseUIComponentProps, HTMLProps, NonNativeButtonProps } from '../../utils/types';
 import { itemMapping } from '../utils/styleHookMapping';
 import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
+import { createBaseUIEventData } from '../../utils/createBaseUIEventData';
+import type { MenuRoot } from '../root/MenuRoot';
 
 const InnerMenuCheckboxItem = React.memo(
   React.forwardRef(function InnerMenuCheckboxItem(
@@ -75,8 +77,15 @@ const InnerMenuCheckboxItem = React.memo(
           role: 'menuitemcheckbox',
           'aria-checked': checked,
           onClick: (event: React.MouseEvent) => {
+            const data = createBaseUIEventData('item-press', event.nativeEvent);
+
+            onCheckedChange?.(!checked, data);
+
+            if (data.isCanceled) {
+              return;
+            }
+
             setChecked((currentlyChecked) => !currentlyChecked);
-            onCheckedChange?.(!checked, event.nativeEvent);
           },
         },
         elementProps,
@@ -180,7 +189,7 @@ export namespace MenuCheckboxItem {
     /**
      * Event handler called when the checkbox item is ticked or unticked.
      */
-    onCheckedChange?: (checked: boolean, event: Event) => void;
+    onCheckedChange?: (checked: boolean, data: MenuRoot.OpenChangeData) => void;
     children?: React.ReactNode;
     /**
      * The click handler for the menu item.
