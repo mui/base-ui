@@ -38,6 +38,36 @@ describe('<Menu.Root />', () => {
     expectedPopupRole: 'menu',
   });
 
+  describe('BaseUIEventData', () => {
+    it('onOpenChange cancel() prevents opening while uncontrolled', async () => {
+      const { getByRole } = await render(
+        <Menu.Root
+          onOpenChange={(nextOpen, data) => {
+            if (nextOpen) {
+              data.cancel();
+            }
+          }}
+        >
+          <Menu.Trigger>Open menu</Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.Item>Item</Menu.Item>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>,
+      );
+
+      const trigger = getByRole('button', { name: 'Open menu' });
+      await userEvent.click(trigger);
+
+      await waitFor(() => {
+        expect(screen.queryByRole('menu')).to.equal(null);
+      });
+    });
+  });
+
   describe('keyboard navigation', () => {
     it('changes the highlighted item using the arrow keys', async () => {
       const { getByRole, getByTestId } = await render(

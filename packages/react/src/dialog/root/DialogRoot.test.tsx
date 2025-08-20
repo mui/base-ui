@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
+import { act, fireEvent, screen, waitFor, flushMicrotasks } from '@mui/internal-test-utils';
 import { Dialog } from '@base-ui-components/react/dialog';
 import { createRenderer, isJSDOM, popupConformanceTests } from '#test-utils';
 import { Menu } from '@base-ui-components/react/menu';
@@ -434,6 +434,31 @@ describe('<Dialog.Root />', () => {
 
       // focus guard -> internal backdrop
       expect(popup.previousElementSibling?.previousElementSibling).to.equal(null);
+    });
+  });
+
+  describe('BaseUIEventData', () => {
+    it('onOpenChange cancel() prevents opening while uncontrolled', async () => {
+      const { user } = await render(
+        <Dialog.Root
+          onOpenChange={(nextOpen, data) => {
+            if (nextOpen) {
+              data.cancel();
+            }
+          }}
+        >
+          <Dialog.Trigger>Open</Dialog.Trigger>
+          <Dialog.Portal>
+            <Dialog.Popup>Dialog</Dialog.Popup>
+          </Dialog.Portal>
+        </Dialog.Root>,
+      );
+
+      const openButton = screen.getByText('Open');
+      await user.click(openButton);
+      await flushMicrotasks();
+
+      expect(screen.queryByRole('dialog')).to.equal(null);
     });
   });
 
