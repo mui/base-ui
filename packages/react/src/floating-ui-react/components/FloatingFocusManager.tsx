@@ -7,6 +7,7 @@ import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { visuallyHidden } from '@base-ui-components/utils/visuallyHidden';
 import { useTimeout } from '@base-ui-components/utils/useTimeout';
+import { useAnimationFrame } from '@base-ui-components/utils/useAnimationFrame';
 import { FocusGuard } from '../../utils/FocusGuard';
 import {
   activeElement,
@@ -134,12 +135,16 @@ export interface FloatingFocusManagerProps {
    */
   returnFocus?: boolean | React.RefObject<HTMLElement | null>;
   /**
-   * Determines if focus should be restored to the nearest tabbable element if
-   * focus inside the floating element is lost (such as due to the removal of
-   * the currently focused element from the DOM).
+   * Determines where focus should be restored if focus inside the floating element is lost
+   * (such as due to the removal of the currently focused element from the DOM).
+   *
+   * - `true`: restore to the nearest tabbable element inside the floating tree (previous
+   *   tabbable if possible, otherwise the last tabbable, then the floating element itself)
+   * - `'popup'`: restore directly to the floating element (container) itself
+   * - `false`: do not restore focus
    * @default false
    */
-  restoreFocus?: boolean;
+  restoreFocus?: boolean | 'popup';
   /**
    * Determines if focus is “modal”, meaning focus is fully trapped inside the
    * floating element and outside content cannot be accessed. This includes
@@ -213,6 +218,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
   const tabbableIndexRef = React.useRef(-1);
 
   const blurTimeout = useTimeout();
+  const restoreFocusFrame = useAnimationFrame();
 
   const isInsidePortal = portalContext != null;
   const floatingFocusElement = getFloatingFocusElement(floating);
@@ -352,6 +358,18 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
           // floating tree.
           if (isHTMLElement(floatingFocusElement)) {
             floatingFocusElement.focus();
+            // If explicitly requested to restore focus to the popup container, do not search
+            // for the next/previous tabbable element.
+            if (restoreFocus === 'popup') {
+              // If the element is removed on pointerdown, focus tries to move it,
+              // but since it's removed at the same time, focus gets lost as it
+              // happens after the .focus() call above.
+              // In this case, focus needs to be moved asynchronously.
+              restoreFocusFrame.request(() => {
+                floatingFocusElement.focus();
+              });
+              return;
+            }
           }
 
           const prevTabbableIndex = tabbableIndexRef.current;
@@ -438,6 +456,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     orderRef,
     dataRef,
     blurTimeout,
+    restoreFocusFrame,
   ]);
 
   const beforeGuardRef = React.useRef<HTMLSpanElement | null>(null);
@@ -447,10 +466,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
   const mergedAfterGuardRef = useMergedRefs(afterGuardRef, portalContext?.afterInsideRef);
 
   React.useEffect(() => {
-    if (disabled) {
-      return undefined;
-    }
-    if (!floating) {
+    if (disabled || !floating || !open) {
       return undefined;
     }
 
@@ -484,6 +500,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
       cleanup();
     };
   }, [
+    open,
     disabled,
     domReference,
     floating,
