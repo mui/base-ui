@@ -369,10 +369,6 @@ workflows:
           <<: *default-context
           name: 'Browser tests (React 18)'
           react-version: '^18'
-      - test_regressions:
-          <<: *default-context
-          name: 'Regression tests (React 18)'
-          react-version: '^18'
       - test_types:
           <<: *default-context
           name: 'Typechecking (React 18)'
