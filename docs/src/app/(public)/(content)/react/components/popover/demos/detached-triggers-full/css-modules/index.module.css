@@ -53,6 +53,7 @@
 
 .Popup {
   --animation-duration: 0.15s;
+
   box-sizing: border-box;
   padding: 1rem 1.5rem;
   border-radius: 0.5rem;
@@ -64,7 +65,7 @@
   height: var(--popup-height, auto);
   overflow: hidden;
 
-  transition-property: width, height, opacity;
+  transition-property: width, height, opacity, transform;
   transition-timing-function: ease-out;
   transition-duration: var(--animation-duration);
 
@@ -94,9 +95,16 @@
   [data-previous] {
     display: none;
     pointer-events: none;
+    width: var(--previous-content-width, auto);
+    height: var(--previous-content-height, auto);
   }
 
-  &[data-activationdirection~='right'] {
+  [data-next] {
+    width: var(--popup-width, auto);
+    height: var(--popup-height, auto);
+  }
+
+  &[data-activation-direction~='right'] {
     [data-previous] {
       animation: slide-out-to-left var(--animation-duration) ease-out forwards;
       position: absolute;
@@ -109,7 +117,7 @@
     }
   }
 
-  &[data-activationdirection~='left'] {
+  &[data-activation-direction~='left'] {
     [data-previous] {
       animation: slide-out-to-right var(--animation-duration) ease-out forwards;
       position: absolute;

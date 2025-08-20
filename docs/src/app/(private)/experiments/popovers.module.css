@@ -165,7 +165,7 @@
     pointer-events: none;
   }
 
-  &[data-activationdirection~='right'] {
+  &[data-activation-direction~='right'] {
     [data-previous] {
       animation: slide-out-to-left var(--animation-duration) ease-out forwards;
       position: absolute;
@@ -178,7 +178,7 @@
     }
   }
 
-  &[data-activationdirection~='left'] {
+  &[data-activation-direction~='left'] {
     [data-previous] {
       animation: slide-out-to-right var(--animation-duration) ease-out forwards;
       position: absolute;

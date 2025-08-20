@@ -1,13 +1,23 @@
 import * as React from 'react';
 import { useStore } from '@base-ui-components/utils/store';
-import { useTimeout } from '@base-ui-components/utils/useTimeout';
+import { useAnimationFrame } from '@base-ui-components/utils/useAnimationFrame';
 import { usePrevious } from '@base-ui-components/utils/usePrevious';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
+import { usePopoverRootContext } from '../root/PopoverRootContext';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useAnimationsFinished } from '../../utils/useAnimationsFinished';
 import { useRenderElement } from '../../utils/useRenderElement';
-import { usePopoverRootContext } from '../root/PopoverRootContext';
+import { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
 import { selectors } from '../store';
+
+const customStyleHookMapping: CustomStyleHookMapping<PopoverViewport.State> = {
+  activationDirection: (value) =>
+    value
+      ? {
+          'data-activation-direction': value,
+        }
+      : null,
+};
 
 /**
  * A viewport for displaying content transitions.
@@ -27,23 +37,26 @@ export const PopoverViewport = React.forwardRef(function PopoverViewport(
   const activeTrigger = useStore(store, selectors.activeTriggerElement);
   const previousActiveTrigger = usePrevious(activeTrigger);
 
-  const [previousChildrenHtml, setPreviousChildrenHtml] = React.useState<string | null>(null);
-  const [newTriggerOffset, setNewTriggerOffset] = React.useState<Offset | null>(null);
   const capturedHtmlRef = React.useRef<string | null>(null);
+  const [previousChildrenHtml, setPreviousChildrenHtml] = React.useState<string | null>(null);
 
+  const [newTriggerOffset, setNewTriggerOffset] = React.useState<Offset | null>(null);
   const currentContentRef = React.useRef<HTMLDivElement>(null);
   const nextContainerRef = React.useRef<HTMLDivElement>(null);
   const onAnimationsFinished = useAnimationsFinished(nextContainerRef, true);
-  const cleanupTimeout = useTimeout();
 
-  // Capture HTML continuously when not transitioning
+  const cleanupTimeout = useAnimationFrame();
+
+  // Capture children HTML in a ref when not transitioning.
+  // We can't simply store previous `children` React node, as it might be stateful and doing so would lose this state.
   useIsoLayoutEffect(() => {
     if (currentContentRef.current && !previousChildrenHtml) {
       capturedHtmlRef.current = currentContentRef.current.innerHTML;
     }
   });
 
-  // Handle trigger changes
+  // When a trigger changes, set the captured children HTML to state,
+  // so we can render both new and old content.
   if (
     activeTrigger &&
     previousActiveTrigger &&
@@ -54,7 +67,8 @@ export const PopoverViewport = React.forwardRef(function PopoverViewport(
     setPreviousChildrenHtml(capturedHtmlRef.current);
     const offset = calculateRelativePosition(previousActiveTrigger, activeTrigger);
     setNewTriggerOffset(offset);
-    cleanupTimeout.start(10, () => {
+
+    cleanupTimeout.request(() => {
       onAnimationsFinished(() => {
         setPreviousChildrenHtml(null);
         capturedHtmlRef.current = null;
@@ -65,7 +79,7 @@ export const PopoverViewport = React.forwardRef(function PopoverViewport(
   let childrenToRender: React.ReactNode;
   if (previousChildrenHtml == null) {
     childrenToRender = (
-      <div data-current ref={currentContentRef} key="current">
+      <div data-current ref={currentContentRef}>
         {children}
       </div>
     );
@@ -75,11 +89,10 @@ export const PopoverViewport = React.forwardRef(function PopoverViewport(
         <div
           data-previous
           inert
-          key="previous"
           // eslint-disable-next-line react/no-danger
           dangerouslySetInnerHTML={{ __html: previousChildrenHtml }}
         />
-        <div data-next ref={nextContainerRef} key="current">
+        <div data-next ref={nextContainerRef}>
           {children}
         </div>
       </React.Fragment>
@@ -96,6 +109,7 @@ export const PopoverViewport = React.forwardRef(function PopoverViewport(
     state,
     ref: forwardedRef,
     props: [elementProps, { children: childrenToRender }],
+    customStyleHookMapping,
   });
 });
 
@@ -117,6 +131,12 @@ type Offset = {
   vertical: number;
 };
 
+/**
+ * Returns a string describing the provided offset.
+ * It describes both the horizontal and vertical offset, separated by a space.
+ *
+ * @param offset
+ */
 function getActivationDirection(offset: Offset | null): string | undefined {
   if (!offset) {
     return undefined;
@@ -125,6 +145,16 @@ function getActivationDirection(offset: Offset | null): string | undefined {
   return `${getValueWithTolerance(offset.horizontal, 5, 'right', 'left')} ${getValueWithTolerance(offset.vertical, 5, 'down', 'up')}`;
 }
 
+/**
+ * Returns a label describing the value (positive/negative) trating values
+ * within tolarance as zero.
+ *
+ * @param value Value to check
+ * @param tolerance Tolerance to treat the value as zero.
+ * @param positiveLabel
+ * @param negativeLabel
+ * @returns If 0 < abs(value) < tolerance, returns an empty string. Otherwise returns positiveLabel or negativeLabel.
+ */
 function getValueWithTolerance(
   value: number,
   tolerance: number,
@@ -142,6 +172,9 @@ function getValueWithTolerance(
   return '';
 }
 
+/**
+ * Calculates the relative position between centers of two elements.
+ */
 function calculateRelativePosition(from: HTMLElement, to: HTMLElement): Offset {
   const fromRect = from.getBoundingClientRect();
   const toRect = to.getBoundingClientRect();

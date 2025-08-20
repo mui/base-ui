@@ -16,18 +16,14 @@ export default function PopoverDetachedTriggersFullDemo() {
         1
       </Popover.Trigger>
 
-      <Popover.Trigger
-        className={styles.IconButton}
-        handle={demoPopover}
-        payload={{ text: 'Trigger 2' }}
-      >
+      <Popover.Trigger className={styles.IconButton} handle={demoPopover} payload={{ text: 'T2' }}>
         2
       </Popover.Trigger>
 
       <Popover.Trigger
         className={styles.IconButton}
         handle={demoPopover}
-        payload={{ text: 'Trigger 3' }}
+        payload={{ text: 'The Third Trigger' }}
       >
         3
       </Popover.Trigger>

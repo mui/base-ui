@@ -93,14 +93,16 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
   }, [store, activeTriggerState, mounted]);
 
   useIsoLayoutEffect(() => {
-    if (resolvedTriggerElement != null) {
-      store.set('activeTriggerElement', resolvedTriggerElement);
-      const triggerPayload = triggerElements.get(resolvedTriggerElement);
-      store.set('payload', triggerPayload?.() ?? undefined);
-    } else {
-      store.set('payload', undefined);
+    if (open) {
+      if (resolvedTriggerElement != null) {
+        store.set('activeTriggerElement', resolvedTriggerElement);
+        const triggerPayload = triggerElements.get(resolvedTriggerElement);
+        store.set('payload', triggerPayload?.() ?? undefined);
+      } else {
+        store.set('payload', undefined);
+      }
     }
-  }, [store, resolvedTriggerElement, triggerElements]);
+  }, [store, resolvedTriggerElement, triggerElements, open]);
 
   useIsoLayoutEffect(() => {
     store.set('transitionStatus', transitionStatus);
