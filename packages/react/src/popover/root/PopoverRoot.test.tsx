@@ -6,10 +6,6 @@ import { spy } from 'sinon';
 import { createRenderer, isJSDOM, popupConformanceTests } from '#test-utils';
 import { OPEN_DELAY } from '../utils/constants';
 
-function Root(props: Popover.Root.Props) {
-  return <Popover.Root {...props} />;
-}
-
 describe('<Popover.Root />', () => {
   beforeEach(() => {
     globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
@@ -35,9 +31,9 @@ describe('<Popover.Root />', () => {
 
   it('should render the children', async () => {
     await render(
-      <Root>
+      <Popover.Root>
         <Popover.Trigger>Content</Popover.Trigger>
-      </Root>,
+      </Popover.Root>,
     );
 
     expect(screen.getByText('Content')).not.to.equal(null);
@@ -46,14 +42,14 @@ describe('<Popover.Root />', () => {
   describe('uncontrolled open', () => {
     it('should close when the anchor is clicked twice', async () => {
       await render(
-        <Root>
+        <Popover.Root>
           <Popover.Trigger />
           <Popover.Portal>
             <Popover.Positioner>
               <Popover.Popup>Content</Popover.Popup>
             </Popover.Positioner>
           </Popover.Portal>
-        </Root>,
+        </Popover.Root>,
       );
 
       const anchor = screen.getByRole('button');
@@ -78,7 +74,7 @@ describe('<Popover.Root />', () => {
         const [open, setOpen] = React.useState(false);
 
         return (
-          <Root
+          <Popover.Root
             open={open}
             onOpenChange={(trigger) => {
               handleChange(open);
@@ -91,7 +87,7 @@ describe('<Popover.Root />', () => {
                 <Popover.Popup>Content</Popover.Popup>
               </Popover.Positioner>
             </Popover.Portal>
-          </Root>
+          </Popover.Root>
         );
       }
 
@@ -122,7 +118,7 @@ describe('<Popover.Root />', () => {
         const [open, setOpen] = React.useState(false);
 
         return (
-          <Root
+          <Popover.Root
             open={open}
             onOpenChange={(trigger) => {
               handleChange(open);
@@ -135,7 +131,7 @@ describe('<Popover.Root />', () => {
                 <Popover.Popup>Content</Popover.Popup>
               </Popover.Positioner>
             </Popover.Portal>
-          </Root>
+          </Popover.Root>
         );
       }
 
@@ -158,14 +154,14 @@ describe('<Popover.Root />', () => {
   describe('prop: defaultOpen', () => {
     it('should open when the component is rendered', async () => {
       await render(
-        <Root defaultOpen>
+        <Popover.Root defaultOpen>
           <Popover.Trigger />
           <Popover.Portal>
             <Popover.Positioner>
               <Popover.Popup>Content</Popover.Popup>
             </Popover.Positioner>
           </Popover.Portal>
-        </Root>,
+        </Popover.Root>,
       );
 
       expect(screen.getByText('Content')).not.to.equal(null);
@@ -173,14 +169,14 @@ describe('<Popover.Root />', () => {
 
     it('should not open when the component is rendered and open is controlled', async () => {
       await render(
-        <Root defaultOpen open={false}>
+        <Popover.Root defaultOpen open={false}>
           <Popover.Trigger />
           <Popover.Portal>
             <Popover.Positioner>
               <Popover.Popup>Content</Popover.Popup>
             </Popover.Positioner>
           </Popover.Portal>
-        </Root>,
+        </Popover.Root>,
       );
 
       expect(screen.queryByText('Content')).to.equal(null);
@@ -188,14 +184,14 @@ describe('<Popover.Root />', () => {
 
     it('should not close when the component is rendered and open is controlled', async () => {
       await render(
-        <Root defaultOpen open>
+        <Popover.Root defaultOpen open>
           <Popover.Trigger />
           <Popover.Portal>
             <Popover.Positioner>
               <Popover.Popup>Content</Popover.Popup>
             </Popover.Positioner>
           </Popover.Portal>
-        </Root>,
+        </Popover.Root>,
       );
 
       expect(screen.getByText('Content')).not.to.equal(null);
@@ -203,14 +199,14 @@ describe('<Popover.Root />', () => {
 
     it('should remain uncontrolled', async () => {
       await render(
-        <Root defaultOpen>
+        <Popover.Root defaultOpen>
           <Popover.Trigger data-testid="trigger" />
           <Popover.Portal>
             <Popover.Positioner>
               <Popover.Popup>Content</Popover.Popup>
             </Popover.Positioner>
           </Popover.Portal>
-        </Root>,
+        </Popover.Root>,
       );
 
       expect(screen.getByText('Content')).not.to.equal(null);
@@ -228,14 +224,14 @@ describe('<Popover.Root />', () => {
 
     it('should open after delay with rest type by default', async () => {
       await render(
-        <Root>
+        <Popover.Root>
           <Popover.Trigger openOnHover delay={100} />
           <Popover.Portal>
             <Popover.Positioner>
               <Popover.Popup>Content</Popover.Popup>
             </Popover.Positioner>
           </Popover.Portal>
-        </Root>,
+        </Popover.Root>,
       );
 
       const anchor = screen.getByRole('button');
@@ -260,14 +256,14 @@ describe('<Popover.Root />', () => {
 
     it('should close after delay', async () => {
       await render(
-        <Root>
+        <Popover.Root>
           <Popover.Trigger openOnHover closeDelay={100} />
           <Popover.Portal>
             <Popover.Positioner>
               <Popover.Popup>Content</Popover.Popup>
             </Popover.Positioner>
           </Popover.Portal>
-        </Root>,
+        </Popover.Root>,
       );
 
       const anchor = screen.getByRole('button');
@@ -846,5 +842,378 @@ describe('<Popover.Root />', () => {
 
     expect(screen.queryByTestId('parent-popup')).not.to.equal(null);
     expect(screen.queryByTestId('child-popup')).to.equal(null);
+  });
+
+  describe('multiple triggers within Root', () => {
+    it('should open the popover with any trigger', async () => {
+      const { user } = await render(
+        <Popover.Root>
+          <Popover.Trigger>Trigger 1</Popover.Trigger>
+          <Popover.Trigger>Trigger 2</Popover.Trigger>
+          <Popover.Trigger>Trigger 3</Popover.Trigger>
+
+          <Popover.Portal>
+            <Popover.Positioner>
+              <Popover.Popup>
+                Popover Content
+                <Popover.Close>Close</Popover.Close>
+              </Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
+        </Popover.Root>,
+      );
+
+      const trigger1 = screen.getByRole('button', { name: 'Trigger 1' });
+      const trigger2 = screen.getByRole('button', { name: 'Trigger 2' });
+      const trigger3 = screen.getByRole('button', { name: 'Trigger 3' });
+
+      expect(screen.queryByText('Popover Content')).to.equal(null);
+
+      await user.click(trigger1);
+      expect(screen.getByText('Popover Content')).toBeVisible();
+      await user.click(screen.getByText('Close'));
+      expect(screen.queryByText('Popover Content')).to.equal(null);
+
+      await user.click(trigger2);
+      expect(screen.getByText('Popover Content')).toBeVisible();
+      await user.click(screen.getByText('Close'));
+      expect(screen.queryByText('Popover Content')).to.equal(null);
+
+      await user.click(trigger3);
+      expect(screen.getByText('Popover Content')).toBeVisible();
+      await user.click(screen.getByText('Close'));
+      expect(screen.queryByText('Popover Content')).to.equal(null);
+    });
+
+    it('should open the popover with any trigger', async () => {
+      const { user } = await render(
+        <Popover.Root>
+          <Popover.Trigger>Trigger 1</Popover.Trigger>
+          <Popover.Trigger>Trigger 2</Popover.Trigger>
+          <Popover.Trigger>Trigger 3</Popover.Trigger>
+
+          <Popover.Portal>
+            <Popover.Positioner>
+              <Popover.Popup>
+                Popover Content
+                <Popover.Close>Close</Popover.Close>
+              </Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
+        </Popover.Root>,
+      );
+
+      const trigger1 = screen.getByRole('button', { name: 'Trigger 1' });
+      const trigger2 = screen.getByRole('button', { name: 'Trigger 2' });
+      const trigger3 = screen.getByRole('button', { name: 'Trigger 3' });
+
+      expect(screen.queryByText('Popover Content')).to.equal(null);
+
+      await user.click(trigger1);
+      expect(screen.getByText('Popover Content')).toBeVisible();
+      await user.click(screen.getByText('Close'));
+      expect(screen.queryByText('Popover Content')).to.equal(null);
+
+      await user.click(trigger2);
+      expect(screen.getByText('Popover Content')).toBeVisible();
+      await user.click(screen.getByText('Close'));
+      expect(screen.queryByText('Popover Content')).to.equal(null);
+
+      await user.click(trigger3);
+      expect(screen.getByText('Popover Content')).toBeVisible();
+      await user.click(screen.getByText('Close'));
+      expect(screen.queryByText('Popover Content')).to.equal(null);
+    });
+
+    it('should set the payload and render content based on its value', async () => {
+      const { user } = await render(
+        <Popover.Root>
+          {({ payload }) => (
+            <React.Fragment>
+              <Popover.Trigger payload={1}>Trigger 1</Popover.Trigger>
+              <Popover.Trigger payload={2}>Trigger 2</Popover.Trigger>
+
+              <Popover.Portal>
+                <Popover.Positioner>
+                  <Popover.Popup>
+                    <span data-testid="content">{payload as number}</span>
+                  </Popover.Popup>
+                </Popover.Positioner>
+              </Popover.Portal>
+            </React.Fragment>
+          )}
+        </Popover.Root>,
+      );
+
+      const trigger1 = screen.getByRole('button', { name: 'Trigger 1' });
+      const trigger2 = screen.getByRole('button', { name: 'Trigger 2' });
+
+      await user.click(trigger1);
+      expect(screen.getByTestId('content').textContent).to.equal('1');
+
+      await user.click(trigger2);
+      expect(screen.getByTestId('content').textContent).to.equal('2');
+    });
+
+    it('should reuse the popup and positioner DOM nodes when switching triggers', async () => {
+      const { user } = await render(
+        <Popover.Root>
+          {({ payload }) => (
+            <React.Fragment>
+              <Popover.Trigger payload={1}>Trigger 1</Popover.Trigger>
+              <Popover.Trigger payload={2}>Trigger 2</Popover.Trigger>
+
+              <Popover.Portal>
+                <Popover.Positioner data-testid="positioner">
+                  <Popover.Popup data-testid="popup">
+                    <span>{payload as number}</span>
+                  </Popover.Popup>
+                </Popover.Positioner>
+              </Popover.Portal>
+            </React.Fragment>
+          )}
+        </Popover.Root>,
+      );
+
+      const trigger1 = screen.getByRole('button', { name: 'Trigger 1' });
+      const trigger2 = screen.getByRole('button', { name: 'Trigger 2' });
+
+      await user.click(trigger1);
+      const popupElement = screen.getByTestId('popup');
+      const positionerElement = screen.getByTestId('positioner');
+
+      await user.click(trigger2);
+      expect(screen.getByTestId('popup')).to.equal(popupElement);
+      expect(screen.getByTestId('positioner')).to.equal(positionerElement);
+    });
+
+    it('should allow controlling the popover state programmatically', async () => {
+      function Test() {
+        const [trigger1, setTrigger1] = React.useState<HTMLElement | null>(null);
+        const [trigger2, setTrigger2] = React.useState<HTMLElement | null>(null);
+        const [activeTrigger, setActiveTrigger] = React.useState<HTMLElement | null>(null);
+
+        return (
+          <div>
+            <Popover.Root
+              open={activeTrigger}
+              onOpenChange={(nextOpen, event, reason, trigger) => setActiveTrigger(trigger)}
+            >
+              {({ payload }) => (
+                <React.Fragment>
+                  <Popover.Trigger payload={1} ref={setTrigger1}>
+                    Trigger 1
+                  </Popover.Trigger>
+                  <Popover.Trigger payload={2} ref={setTrigger2}>
+                    Trigger 2
+                  </Popover.Trigger>
+
+                  <Popover.Portal>
+                    <Popover.Positioner>
+                      <Popover.Popup>
+                        <span data-testid="content">{payload as number}</span>
+                      </Popover.Popup>
+                    </Popover.Positioner>
+                  </Popover.Portal>
+                </React.Fragment>
+              )}
+            </Popover.Root>
+            <button onClick={() => setActiveTrigger(trigger1)}>Open Trigger 1</button>
+            <button onClick={() => setActiveTrigger(trigger2)}>Open Trigger 2</button>
+            <button onClick={() => setActiveTrigger(null)}>Close</button>
+          </div>
+        );
+      }
+
+      const { user } = await render(<Test />);
+      await user.click(screen.getByRole('button', { name: 'Open Trigger 1' }));
+      expect(screen.getByTestId('content').textContent).to.equal('1');
+      await user.click(screen.getByRole('button', { name: 'Open Trigger 2' }));
+      expect(screen.getByTestId('content').textContent).to.equal('2');
+      await user.click(screen.getByRole('button', { name: 'Close' }));
+      expect(screen.queryByTestId('content')).to.equal(null);
+    });
+  });
+
+  describe('multiple detached triggers', () => {
+    it('should open the popover with any trigger', async () => {
+      const testPopover = Popover.createHandle();
+      const { user } = await render(
+        <div>
+          <Popover.Trigger handle={testPopover}>Trigger 1</Popover.Trigger>
+          <Popover.Trigger handle={testPopover}>Trigger 2</Popover.Trigger>
+          <Popover.Trigger handle={testPopover}>Trigger 3</Popover.Trigger>
+
+          <Popover.Root handle={testPopover}>
+            <Popover.Portal>
+              <Popover.Positioner>
+                <Popover.Popup>
+                  Popover Content
+                  <Popover.Close>Close</Popover.Close>
+                </Popover.Popup>
+              </Popover.Positioner>
+            </Popover.Portal>
+          </Popover.Root>
+        </div>,
+      );
+
+      const trigger1 = screen.getByRole('button', { name: 'Trigger 1' });
+      const trigger2 = screen.getByRole('button', { name: 'Trigger 2' });
+      const trigger3 = screen.getByRole('button', { name: 'Trigger 3' });
+
+      expect(screen.queryByText('Popover Content')).to.equal(null);
+
+      await user.click(trigger1);
+      expect(screen.getByText('Popover Content')).toBeVisible();
+      await user.click(screen.getByText('Close'));
+      expect(screen.queryByText('Popover Content')).to.equal(null);
+
+      await user.click(trigger2);
+      expect(screen.getByText('Popover Content')).toBeVisible();
+      await user.click(screen.getByText('Close'));
+      expect(screen.queryByText('Popover Content')).to.equal(null);
+
+      await user.click(trigger3);
+      expect(screen.getByText('Popover Content')).toBeVisible();
+      await user.click(screen.getByText('Close'));
+      expect(screen.queryByText('Popover Content')).to.equal(null);
+    });
+
+    it('should set the payload and render content based on its value', async () => {
+      const testPopover = Popover.createHandle<number>();
+      const { user } = await render(
+        <div>
+          <Popover.Trigger handle={testPopover} payload={1}>
+            Trigger 1
+          </Popover.Trigger>
+          <Popover.Trigger handle={testPopover} payload={2}>
+            Trigger 2
+          </Popover.Trigger>
+
+          <Popover.Root handle={testPopover}>
+            {({ payload }) => (
+              <Popover.Portal>
+                <Popover.Positioner>
+                  <Popover.Popup>
+                    <span data-testid="content">{payload as number}</span>
+                  </Popover.Popup>
+                </Popover.Positioner>
+              </Popover.Portal>
+            )}
+          </Popover.Root>
+        </div>,
+      );
+
+      const trigger1 = screen.getByRole('button', { name: 'Trigger 1' });
+      const trigger2 = screen.getByRole('button', { name: 'Trigger 2' });
+
+      await user.click(trigger1);
+      expect(screen.getByTestId('content').textContent).to.equal('1');
+
+      await user.click(trigger2);
+      expect(screen.getByTestId('content').textContent).to.equal('2');
+    });
+
+    it('should reuse the popup and positioner DOM nodes when switching triggers', async () => {
+      const testPopover = Popover.createHandle<number>();
+      const { user } = await render(
+        <React.Fragment>
+          <Popover.Trigger handle={testPopover} payload={1}>
+            Trigger 1
+          </Popover.Trigger>
+          <Popover.Trigger handle={testPopover} payload={2}>
+            Trigger 2
+          </Popover.Trigger>
+
+          <Popover.Root handle={testPopover}>
+            {({ payload }) => (
+              <Popover.Portal>
+                <Popover.Positioner data-testid="positioner">
+                  <Popover.Popup data-testid="popup">
+                    <span>{payload as number}</span>
+                  </Popover.Popup>
+                </Popover.Positioner>
+              </Popover.Portal>
+            )}
+          </Popover.Root>
+        </React.Fragment>,
+      );
+
+      const trigger1 = screen.getByRole('button', { name: 'Trigger 1' });
+      const trigger2 = screen.getByRole('button', { name: 'Trigger 2' });
+
+      await user.click(trigger1);
+      const popupElement = screen.getByTestId('popup');
+      const positionerElement = screen.getByTestId('positioner');
+
+      await user.click(trigger2);
+      expect(screen.getByTestId('popup')).to.equal(popupElement);
+      expect(screen.getByTestId('positioner')).to.equal(positionerElement);
+    });
+
+    it('should allow controlling the popover state programmatically', async () => {
+      const testPopover = Popover.createHandle<number>();
+      function Test() {
+        const [trigger1, setTrigger1] = React.useState<HTMLElement | null>(null);
+        const [trigger2, setTrigger2] = React.useState<HTMLElement | null>(null);
+        const [activeTrigger, setActiveTrigger] = React.useState<HTMLElement | null>(null);
+
+        return (
+          <div style={{ margin: 50 }}>
+            <Popover.Trigger handle={testPopover} payload={1} ref={setTrigger1}>
+              Trigger 1
+            </Popover.Trigger>
+            <Popover.Trigger handle={testPopover} payload={2} ref={setTrigger2}>
+              Trigger 2
+            </Popover.Trigger>
+
+            <Popover.Root
+              open={activeTrigger}
+              onOpenChange={(nextOpen, event, reason, trigger) => setActiveTrigger(trigger)}
+              handle={testPopover}
+            >
+              {({ payload }) => (
+                <Popover.Portal>
+                  <Popover.Positioner data-testid="positioner" side="bottom" align="start">
+                    <Popover.Popup>
+                      <span data-testid="content">{payload}</span>
+                    </Popover.Popup>
+                  </Popover.Positioner>
+                </Popover.Portal>
+              )}
+            </Popover.Root>
+
+            <button onClick={() => setActiveTrigger(trigger1)}>Open Trigger 1</button>
+            <button onClick={() => setActiveTrigger(trigger2)}>Open Trigger 2</button>
+            <button onClick={() => setActiveTrigger(null)}>Close</button>
+          </div>
+        );
+      }
+
+      const { user } = await render(<Test />);
+
+      const trigger1 = screen.getByRole('button', { name: 'Trigger 1' });
+      const trigger2 = screen.getByRole('button', { name: 'Trigger 2' });
+
+      await user.click(screen.getByRole('button', { name: 'Open Trigger 1' }));
+      expect(screen.getByTestId('content').textContent).to.equal('1');
+
+      await waitFor(() => {
+        expect(screen.getByTestId('positioner').getBoundingClientRect().left).to.equal(
+          trigger1.getBoundingClientRect().left,
+        );
+      });
+
+      await user.click(screen.getByRole('button', { name: 'Open Trigger 2' }));
+      expect(screen.getByTestId('content').textContent).to.equal('2');
+      await waitFor(() => {
+        expect(screen.getByTestId('positioner').getBoundingClientRect().left).to.equal(
+          trigger2.getBoundingClientRect().left,
+        );
+      });
+
+      await user.click(screen.getByRole('button', { name: 'Close' }));
+      expect(screen.queryByTestId('content')).to.equal(null);
+    });
   });
 });
