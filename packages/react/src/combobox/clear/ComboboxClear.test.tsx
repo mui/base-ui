@@ -66,6 +66,31 @@ describe('<Combobox.Clear />', () => {
     expect(document.activeElement).to.equal(input);
   });
 
+  it('does not dismiss the popup on click (outsidePress is blocked)', async () => {
+    const { user } = await render(
+      <Combobox.Root defaultOpen defaultSelectedValue="a">
+        <Combobox.Input data-testid="input" />
+        <Combobox.Clear data-testid="clear" />
+        <Combobox.Portal>
+          <Combobox.Positioner>
+            <Combobox.Popup>
+              <Combobox.List>
+                <Combobox.Item value="a">a</Combobox.Item>
+                <Combobox.Item value="b">b</Combobox.Item>
+              </Combobox.List>
+            </Combobox.Popup>
+          </Combobox.Positioner>
+        </Combobox.Portal>
+      </Combobox.Root>,
+    );
+
+    expect(screen.getByRole('listbox')).not.to.equal(null);
+
+    await user.click(screen.getByTestId('clear'));
+
+    expect(screen.getByRole('listbox')).not.to.equal(null);
+  });
+
   it('is disabled when root disabled and does nothing on click', async () => {
     await render(
       <Combobox.Root defaultSelectedValue="a" disabled>

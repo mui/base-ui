@@ -270,6 +270,8 @@ export function ComboboxRoot<Item = any, Mode extends SelectionMode = 'none'>(
   const keyboardActiveRef = React.useRef(true);
   const allowActiveIndexSyncRef = React.useRef(true);
   const hadInputClearRef = React.useRef(false);
+  const chipsContainerRef = React.useRef<HTMLDivElement | null>(null);
+  const clearRef = React.useRef<HTMLButtonElement | null>(null);
 
   const queryRef = React.useRef(query);
   const selectedValueRef = React.useRef(selectedValue);
@@ -665,7 +667,11 @@ export function ComboboxRoot<Item = any, Mode extends SelectionMode = 'none'>(
       anchorElement !== inputElement ? { mouse: 'intentional', touch: 'sloppy' } : undefined,
     outsidePress(event) {
       const target = getTarget(event) as Element | null;
-      return !contains(triggerElement, target);
+      return (
+        !contains(triggerElement, target) &&
+        !contains(clearRef.current, target) &&
+        !contains(chipsContainerRef.current, target)
+      );
     },
   });
 
@@ -777,6 +783,8 @@ export function ComboboxRoot<Item = any, Mode extends SelectionMode = 'none'>(
       inputRef,
       keyboardActiveRef,
       allowActiveIndexSyncRef,
+      chipsContainerRef,
+      clearRef,
       store,
       getItemProps,
       registerItemIndex,

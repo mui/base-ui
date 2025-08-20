@@ -103,6 +103,10 @@ export const ComboboxChip = React.forwardRef(function ComboboxChip(
         'aria-disabled': disabled || undefined,
         'aria-readonly': readOnly || undefined,
         onKeyDown(event) {
+          if (disabled || readOnly) {
+            return;
+          }
+
           const nextIndex = handleKeyDown(event);
 
           ReactDOM.flushSync(() => {
@@ -116,7 +120,7 @@ export const ComboboxChip = React.forwardRef(function ComboboxChip(
           }
         },
         onMouseDown(event) {
-          if (disabled) {
+          if (disabled || readOnly) {
             return;
           }
           event.preventDefault();

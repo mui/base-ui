@@ -29,6 +29,8 @@ export interface ComboboxRootContext {
   inputRef: React.RefObject<HTMLInputElement | null>;
   keyboardActiveRef: React.RefObject<boolean>;
   allowActiveIndexSyncRef: React.RefObject<boolean>;
+  chipsContainerRef: React.RefObject<HTMLDivElement | null>;
+  clearRef: React.RefObject<HTMLButtonElement | null>;
   store: ComboboxStore;
   getItemProps: (
     props?: HTMLProps & { active?: boolean; selected?: boolean },

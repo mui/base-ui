@@ -147,7 +147,7 @@ describe('<Combobox.Chip />', () => {
       expect(screen.getByTestId('chip-apple')).not.to.equal(null);
     });
 
-    it('should allow navigation when readOnly but prevent deletion', async () => {
+    it('should prevent navigation when readOnly and also prevent deletion', async () => {
       const { user } = await render(
         <Combobox.Root multiple readOnly defaultSelectedValue={['apple', 'banana']}>
           <Combobox.Input data-testid="input" />
@@ -159,22 +159,49 @@ describe('<Combobox.Chip />', () => {
       );
 
       const chipApple = screen.getByTestId('chip-apple');
-      const chipBanana = screen.getByTestId('chip-banana');
 
       // Focus the first chip
       chipApple.focus();
 
-      // Navigate to the second chip should work
+      // Navigation should be blocked
       await user.keyboard('{ArrowRight}');
-      expect(chipBanana).toHaveFocus();
+      expect(chipApple).toHaveFocus();
 
-      // But deletion should not work
+      // Deletion should be blocked
       await user.keyboard('{Delete}');
       expect(screen.getByTestId('chip-banana')).not.to.equal(null);
     });
   });
 
   describe('interaction behavior', () => {
+    it('does not dismiss the popup when clicking a chip (outsidePress is blocked)', async () => {
+      const { user } = await render(
+        <Combobox.Root multiple defaultOpen defaultSelectedValue={['apple', 'banana']}>
+          <Combobox.Input data-testid="input" />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  <Combobox.Item value="a">a</Combobox.Item>
+                  <Combobox.Item value="b">b</Combobox.Item>
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+          <Combobox.Chips>
+            <Combobox.Chip data-testid="chip-apple">apple</Combobox.Chip>
+            <Combobox.Chip data-testid="chip-banana">banana</Combobox.Chip>
+          </Combobox.Chips>
+        </Combobox.Root>,
+      );
+
+      expect(screen.getByRole('listbox')).not.to.equal(null);
+
+      await user.click(screen.getByTestId('chip-apple'));
+
+      expect(screen.getByRole('listbox')).not.to.equal(null);
+    });
+
     it('should handle keyboard navigation when enabled', async () => {
       const { user } = await render(
         <Combobox.Root multiple defaultSelectedValue={['apple', 'banana', 'cherry']}>
