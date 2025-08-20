@@ -56,7 +56,7 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot(
   // Derive open state from value being non-nullish
   const open = value != null;
 
-  const closeReasonRef = React.useRef<NavigationMenuRoot.OpenChangeReason | undefined>(undefined);
+  const closeReasonRef = React.useRef<NavigationMenuRoot.ValueChangeReason | undefined>(undefined);
   const rootRef = React.useRef<HTMLDivElement | null>(null);
 
   const [positionerElement, setPositionerElement] = React.useState<HTMLElement | null>(null);
@@ -85,30 +85,28 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot(
     setViewportInert(false);
   }, [value]);
 
-  const setValue = useEventCallback(
-    (nextValue: any, data: BaseUIEventData<NavigationMenuRoot.OpenChangeReason>) => {
-      if (!nextValue) {
-        closeReasonRef.current = data.reason;
-        setActivationDirection(null);
-        setFloatingRootContext(undefined);
+  const setValue = useEventCallback((nextValue: any, data: NavigationMenuRoot.ValueChangeData) => {
+    if (!nextValue) {
+      closeReasonRef.current = data.reason;
+      setActivationDirection(null);
+      setFloatingRootContext(undefined);
 
-        if (positionerElement && popupElement) {
-          setFixedSize(popupElement, 'popup');
-          setFixedSize(positionerElement, 'positioner');
-        }
+      if (positionerElement && popupElement) {
+        setFixedSize(popupElement, 'popup');
+        setFixedSize(positionerElement, 'positioner');
       }
+    }
 
-      if (nextValue !== value) {
-        onValueChange?.(nextValue, data);
-      }
+    if (nextValue !== value) {
+      onValueChange?.(nextValue, data);
+    }
 
-      if (data.isCanceled) {
-        return;
-      }
+    if (data.isCanceled) {
+      return;
+    }
 
-      setValueUnwrapped(nextValue);
-    },
-  );
+    setValueUnwrapped(nextValue);
+  });
 
   const handleUnmount = useEventCallback(() => {
     const doc = ownerDocument(rootRef.current);
@@ -308,7 +306,7 @@ export namespace NavigationMenuRoot {
     /**
      * Callback fired when the value changes.
      */
-    onValueChange?: (value: any, data: OpenChangeData) => void;
+    onValueChange?: (value: any, data: ValueChangeData) => void;
     /**
      * How long to wait before opening the navigation menu. Specified in milliseconds.
      * @default 50
@@ -335,6 +333,6 @@ export namespace NavigationMenuRoot {
     unmount: () => void;
   }
 
-  export type OpenChangeData = BaseUIEventData<OpenChangeReason>;
-  export type OpenChangeReason = BaseOpenChangeReason | 'link-press';
+  export type ValueChangeData = BaseUIEventData<ValueChangeReason>;
+  export type ValueChangeReason = BaseOpenChangeReason | 'link-press';
 }
