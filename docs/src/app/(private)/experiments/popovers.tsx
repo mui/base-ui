@@ -208,32 +208,17 @@ function renderPopoverContent(contentIndex: number, settings: Settings) {
           </Popover.Arrow>
           <Popover.Viewport className={styles.TransitionContainer}>
             <Popover.Title className={styles.Title}>Popover {contentIndex}</Popover.Title>
-            <Content contentIndex={contentIndex} />
+            <div>
+              <div className={styles.PopoverSection}>{contents[contentIndex]}</div>
+
+              <div className={styles.PopoverSection}>
+                <StatefulComponent key={contentIndex} />
+              </div>
+            </div>
           </Popover.Viewport>
         </Popover.Popup>
       </Popover.Positioner>
     </Popover.Portal>
-  );
-}
-
-function Content({ contentIndex }: { contentIndex: number }) {
-  const [localState, setLocalState] = React.useState(0);
-
-  return (
-    <div>
-      <div className={styles.PopoverSection}>{contents[contentIndex]}</div>
-
-      <div className={styles.PopoverSection}>
-        <StatefulComponent key={contentIndex} />
-      </div>
-
-      <div className={styles.PopoverSection}>
-        <p>Shared state: {localState}</p>
-        <button type="button" onClick={() => setLocalState((s) => s + 1)}>
-          Increment shared state
-        </button>
-      </div>
-    </div>
   );
 }
 
