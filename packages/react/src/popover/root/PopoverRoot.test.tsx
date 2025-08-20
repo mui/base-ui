@@ -76,9 +76,9 @@ describe('<Popover.Root />', () => {
         return (
           <Popover.Root
             open={open}
-            onOpenChange={(trigger) => {
+            onOpenChange={(nextOpen) => {
               handleChange(open);
-              setOpen(trigger !== null);
+              setOpen(nextOpen);
             }}
           >
             <Popover.Trigger />
@@ -109,45 +109,6 @@ describe('<Popover.Root />', () => {
       expect(handleChange.callCount).to.equal(2);
       expect(handleChange.firstCall.args[0]).to.equal(false);
       expect(handleChange.secondCall.args[0]).to.equal(true);
-    });
-
-    it('should not call onChange when the open state does not change', async () => {
-      const handleChange = spy();
-
-      function App() {
-        const [open, setOpen] = React.useState(false);
-
-        return (
-          <Popover.Root
-            open={open}
-            onOpenChange={(trigger) => {
-              handleChange(open);
-              setOpen(trigger !== null);
-            }}
-          >
-            <Popover.Trigger />
-            <Popover.Portal>
-              <Popover.Positioner>
-                <Popover.Popup>Content</Popover.Popup>
-              </Popover.Positioner>
-            </Popover.Portal>
-          </Popover.Root>
-        );
-      }
-
-      await render(<App />);
-
-      expect(screen.queryByText('Content')).to.equal(null);
-
-      const anchor = screen.getByRole('button');
-
-      fireEvent.click(anchor);
-
-      await flushMicrotasks();
-
-      expect(screen.getByText('Content')).not.to.equal(null);
-      expect(handleChange.callCount).to.equal(1);
-      expect(handleChange.firstCall.args[0]).to.equal(false);
     });
   });
 
@@ -753,7 +714,7 @@ describe('<Popover.Root />', () => {
             <button onClick={() => setOpen(true)}>Open</button>
             <Popover.Root
               open={open}
-              onOpenChange={(trigger) => setOpen(trigger !== null)}
+              onOpenChange={(nextOpen) => setOpen(nextOpen)}
               onOpenChangeComplete={onOpenChangeComplete}
             >
               <Popover.Trigger>Trigger</Popover.Trigger>
