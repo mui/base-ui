@@ -1,4 +1,3 @@
-/* eslint-disable testing-library/no-node-access */
 /* eslint-disable jsx-a11y/role-has-required-aria-props */
 /* eslint-disable no-promise-executor-return */
 /* eslint-disable react/function-component-definition */
