@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { isElement } from '@floating-ui/utils/dom';
 import { ownerDocument } from '@base-ui-components/utils/owner';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { clamp } from '../../utils/clamp';
@@ -7,6 +8,7 @@ import type { BaseUIComponentProps, Orientation } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { valueToPercent } from '../../utils/valueToPercent';
 import { useDirection } from '../../direction-provider/DirectionContext';
+import type { Coords } from '../../floating-ui-react';
 import { useSliderRootContext } from '../root/SliderRootContext';
 import { sliderStyleHookMapping } from '../root/styleHooks';
 import type { SliderRoot } from '../root/SliderRoot';
@@ -16,25 +18,103 @@ import { validateMinimumDistance } from '../utils/validateMinimumDistance';
 
 const INTENTIONAL_DRAG_COUNT_THRESHOLD = 2;
 
-function getClosestThumbIndex(values: readonly number[], currentValue: number, max: number) {
-  let closestIndex;
-  let minDistance;
-  for (let i = 0; i < values.length; i += 1) {
-    const distance = Math.abs(currentValue - values[i]);
-    if (
-      minDistance === undefined ||
-      // when the value is at max, the lowest index thumb has to be dragged
-      // first or it will block higher index thumbs from moving
-      // otherwise consider higher index thumbs to be closest when their values are identical
-      (values[i] === max ? distance < minDistance : distance <= minDistance)
-    ) {
-      closestIndex = i;
-      minDistance = distance;
+function getThumbMidpoint(element: HTMLElement, axis: 'x' | 'y') {
+  const rect = element.getBoundingClientRect();
+  return {
+    x: (rect.left + rect.right) / 2,
+    y: (rect.top + rect.bottom) / 2,
+  }[axis];
+}
+
+function findClosestThumbIndex(
+  fingerPosition: Coords,
+  elem: HTMLElement | null,
+  orientation: Orientation,
+  range: boolean,
+  thumbRefs: React.RefObject<(HTMLElement | null)[]>,
+  values: readonly number[],
+  max: number,
+) {
+  if (elem == null) {
+    return -1;
+  }
+
+  if (!range) {
+    return 0;
+  }
+
+  const eventLandedOnThumb = thumbRefs.current.includes(elem);
+  if (eventLandedOnThumb) {
+    const thumbIndex = thumbRefs.current.indexOf(elem);
+    console.log('landed on thumb');
+    if (thumbIndex === 0) {
+      return thumbIndex;
+    }
+
+    // handle thumbs that overlap at max, the lowest index thumb has to be
+    // dragged first or it will block higher index thumbs from moving
+    // otherwise higher index thumbs will be closest by default when their
+    // values are identical
+    for (let i = thumbIndex; i >= 0; i -= 1) {
+      const prevIndex = i - 1;
+      if (values[prevIndex] !== max) {
+        return i;
+      }
     }
   }
 
+  console.log('landed on control');
+  // horizontal slider:
+  // - controlRect.left
+  // - fingerPosition.x
+  // - thumbRectMidpointX = (thumbRect.right - thumbRect.left) / 2
+
+  // vertical slider:
+  // - controlRect.???
+  // - fingerPosition.y
+  // - thumbRectMidpointY = (thumbRect.bottom - thumbRect.top) / 2
+
+  const axis = orientation === 'horizontal' ? 'x' : 'y';
+  const fingerCoordinate = fingerPosition[axis];
+
+  let closestIndex = -1;
+  let minDistance;
+
+  for (let i = 0; i < thumbRefs.current.length; i += 1) {
+    const item = thumbRefs.current[i];
+    if (isElement(item)) {
+      const midpoint = getThumbMidpoint(item, axis);
+      const distance = Math.abs(fingerCoordinate - midpoint);
+
+      if (minDistance === undefined || distance <= minDistance) {
+        closestIndex = i;
+        minDistance = distance;
+      }
+    }
+  }
   return closestIndex;
 }
+
+// DEPRECATE
+// function legacy_getClosestThumbIndex(values: readonly number[], currentValue: number, max: number) {
+//   let closestIndex;
+//   let minDistance;
+//   for (let i = 0; i < values.length; i += 1) {
+//     const distance = Math.abs(currentValue - values[i]);
+//     if (
+//       minDistance === undefined ||
+//       // when the value is at max, the lowest index thumb has to be dragged
+//       // first or it will block higher index thumbs from moving
+//       // otherwise consider higher index thumbs to be closest when their values are identical
+//       (values[i] === max ? distance < minDistance : distance <= minDistance)
+//     ) {
+//       closestIndex = i;
+//       minDistance = distance;
+//     }
+//   }
+
+//   return closestIndex;
+// }
 
 function getControlOffset(styles: CSSStyleDeclaration | null, orientation: Orientation) {
   if (!styles) {
@@ -56,7 +136,7 @@ function getControlOffset(styles: CSSStyleDeclaration | null, orientation: Orien
 function getFingerPosition(
   event: TouchEvent | PointerEvent | React.PointerEvent,
   touchIdRef: React.RefObject<any>,
-): FingerPosition | null {
+): Coords | null {
   // The event is TouchEvent
   if (touchIdRef.current !== undefined && (event as TouchEvent).changedTouches) {
     const touchEvent = event as TouchEvent;
@@ -96,13 +176,13 @@ export const SliderControl = React.forwardRef(function SliderControl(
     disabled,
     dragging,
     fieldControlValidation,
+    inset,
     lastChangedValueRef,
     max,
     min,
     minStepsBetweenValues,
     onValueCommitted,
     orientation,
-    range,
     registerFieldControlRef,
     setActive,
     setDragging,
@@ -113,6 +193,8 @@ export const SliderControl = React.forwardRef(function SliderControl(
     values,
   } = useSliderRootContext();
 
+  const range = values.length > 1;
+
   const controlRef = React.useRef<HTMLElement>(null);
   const stylesRef = React.useRef<CSSStyleDeclaration | null>(null);
   const setStylesRef = useEventCallback((element: HTMLElement | null) => {
@@ -122,7 +204,6 @@ export const SliderControl = React.forwardRef(function SliderControl(
       }
     }
   });
-  const closestThumbIndexRef = React.useRef<number | null>(null);
   // A number that uniquely identifies the current finger in the touch session.
   const touchIdRef = React.useRef<number | null>(null);
   const moveCountRef = React.useRef(0);
@@ -130,18 +211,18 @@ export const SliderControl = React.forwardRef(function SliderControl(
    * The difference between the value at the finger origin and the value at
    * the center of the thumb scaled down to fit the range [0, 1]
    */
-  const offsetRef = React.useRef(0);
+  const thumbCenterOffsetRef = React.useRef(0);
+  // The offset amount to each side of the control for inset sliders.
+  // This value should be equal to the radius or half the width/height of the thumb.
+  const insetThumbOffsetRef = React.useRef(0);
+
+  const activeThumbIndexRef = React.useRef<number>(-1);
 
   const direction = useDirection();
 
   const getFingerState = useEventCallback(
     (
-      fingerPosition: FingerPosition | null,
-      /**
-       * When `true`, closestThumbIndexRef is updated.
-       * It's `true` when called by touchstart or pointerdown.
-       */
-      shouldCaptureThumbIndex: boolean = false,
+      fingerPosition: Coords | null,
       /**
        * The difference between the value at the finger origin and the value at
        * the center of the thumb scaled down to fit the range [0, 1]
@@ -190,24 +271,19 @@ export const SliderControl = React.forwardRef(function SliderControl(
         };
       }
 
-      if (shouldCaptureThumbIndex) {
-        closestThumbIndexRef.current = getClosestThumbIndex(values, newValue, max) ?? 0;
-      }
-
-      const closestThumbIndex = closestThumbIndexRef.current ?? 0;
       const minValueDifference = minStepsBetweenValues * step;
 
       // Bound the new value to the thumb's neighbours.
       newValue = clamp(
         newValue,
-        values[closestThumbIndex - 1] + minValueDifference || -Infinity,
-        values[closestThumbIndex + 1] - minValueDifference || Infinity,
+        values[activeThumbIndexRef.current - 1] + minValueDifference || -Infinity,
+        values[activeThumbIndexRef.current + 1] - minValueDifference || Infinity,
       );
 
       return {
-        value: replaceArrayItemAtIndex(values, closestThumbIndex, newValue),
+        value: replaceArrayItemAtIndex(values, activeThumbIndexRef.current, newValue),
         valueRescaled,
-        thumbIndex: closestThumbIndex,
+        thumbIndex: activeThumbIndexRef.current,
       };
     },
   );
@@ -229,7 +305,7 @@ export const SliderControl = React.forwardRef(function SliderControl(
       return;
     }
 
-    const finger = getFingerState(fingerPosition, false, offsetRef.current);
+    const finger = getFingerState(fingerPosition, thumbCenterOffsetRef.current);
 
     if (finger == null) {
       return;
@@ -252,7 +328,10 @@ export const SliderControl = React.forwardRef(function SliderControl(
       return;
     }
 
-    const finger = getFingerState(fingerPosition, false);
+    const finger = getFingerState(fingerPosition, 0);
+
+    activeThumbIndexRef.current = -1;
+    insetThumbOffsetRef.current = 0;
 
     if (finger == null) {
       return;
@@ -290,8 +369,18 @@ export const SliderControl = React.forwardRef(function SliderControl(
 
     const fingerPosition = getFingerPosition(nativeEvent, touchIdRef);
 
-    if (fingerPosition != null) {
-      const finger = getFingerState(fingerPosition, true);
+    if (fingerPosition != null && isElement(nativeEvent.target)) {
+      const closestThumbIndex = findClosestThumbIndex(
+        fingerPosition,
+        nativeEvent.target as HTMLElement,
+        orientation,
+        range,
+        thumbRefs,
+        values,
+        max,
+      );
+      activeThumbIndexRef.current = closestThumbIndex;
+      const finger = getFingerState(fingerPosition, 0);
 
       if (finger == null) {
         return;
@@ -308,7 +397,7 @@ export const SliderControl = React.forwardRef(function SliderControl(
   });
 
   const stopListening = useEventCallback(() => {
-    offsetRef.current = 0;
+    thumbCenterOffsetRef.current = 0;
     const doc = ownerDocument(controlRef.current);
     doc.removeEventListener('pointermove', handleTouchMove);
     doc.removeEventListener('pointerup', handleTouchEnd);
@@ -353,15 +442,42 @@ export const SliderControl = React.forwardRef(function SliderControl(
             return;
           }
 
+          if (!controlRef.current) {
+            return;
+          }
+
           // Only handle left clicks
           if (event.button !== 0) {
             return;
           }
 
+          const eventTarget = event.target as HTMLElement;
+
+          const eventLandedOnThumb = thumbRefs.current.includes(eventTarget);
+
           const fingerPosition = getFingerPosition(event, touchIdRef);
 
           if (fingerPosition != null) {
-            const finger = getFingerState(fingerPosition, true);
+            const closestThumbIndex = findClosestThumbIndex(
+              fingerPosition,
+              eventTarget,
+              orientation,
+              range,
+              thumbRefs,
+              values,
+              max,
+            );
+            activeThumbIndexRef.current = closestThumbIndex;
+            if (inset) {
+              const thumbElement = thumbRefs.current[closestThumbIndex];
+              if (isElement(thumbElement)) {
+                const thumbRect = thumbElement.getBoundingClientRect();
+                const side = orientation === 'horizontal' ? 'width' : 'height';
+                insetThumbOffsetRef.current = thumbRect[side] / 2;
+              }
+            }
+
+            const finger = getFingerState(fingerPosition, 0);
 
             if (finger == null) {
               return;
@@ -372,8 +488,8 @@ export const SliderControl = React.forwardRef(function SliderControl(
             // if the event lands on a thumb, don't change the value, just get the
             // percentageValue difference represented by the distance between the click origin
             // and the coordinates of the value on the track area
-            if (thumbRefs.current.includes(event.target as HTMLElement)) {
-              offsetRef.current =
+            if (eventLandedOnThumb) {
+              thumbCenterOffsetRef.current =
                 valueToPercent(values[finger.thumbIndex], min, max) / 100 - finger.valueRescaled;
             } else {
               setValue(finger.value, finger.thumbIndex, event.nativeEvent);
@@ -398,11 +514,6 @@ export const SliderControl = React.forwardRef(function SliderControl(
 
   return element;
 });
-
-export interface FingerPosition {
-  x: number;
-  y: number;
-}
 
 interface FingerState {
   value: number | number[];

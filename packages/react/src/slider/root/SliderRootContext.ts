@@ -9,6 +9,7 @@ export interface SliderRootContext {
    * The index of the active thumb.
    */
   active: number;
+  controlRef: React.RefObject<HTMLElement | null>;
   dragging: boolean;
   disabled: boolean;
   fieldControlValidation: useFieldControlValidation.ReturnValue;
@@ -18,6 +19,7 @@ export interface SliderRootContext {
     index: number,
     event: React.KeyboardEvent | React.ChangeEvent,
   ) => void;
+  inset: boolean;
   labelId?: string;
   /**
    * The large step value of the slider when incrementing or decrementing while the shift key is held,
@@ -52,10 +54,6 @@ export interface SliderRootContext {
    * @default 'horizontal'
    */
   orientation: Orientation;
-  /**
-   * Whether the slider is a range slider.
-   */
-  range: boolean;
   registerFieldControlRef: React.RefCallback<Element> | null;
   setActive: React.Dispatch<React.SetStateAction<number>>;
   setDragging: React.Dispatch<React.SetStateAction<boolean>>;

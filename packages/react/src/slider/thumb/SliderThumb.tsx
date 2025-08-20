@@ -25,6 +25,7 @@ import { valueArrayToPercentages } from '../utils/valueArrayToPercentages';
 import type { SliderRoot } from '../root/SliderRoot';
 import { useSliderRootContext } from '../root/SliderRootContext';
 import { sliderStyleHookMapping } from '../root/styleHooks';
+import { valueToPercent } from '../../utils/valueToPercent';
 
 const PAGE_UP = 'PageUp';
 const PAGE_DOWN = 'PageDown';
@@ -100,10 +101,12 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
 
   const {
     active: activeIndex,
+    controlRef,
     disabled: contextDisabled,
     fieldControlValidation,
     formatOptionsRef,
     handleInputChange,
+    inset,
     labelId,
     largeStep,
     locale,
@@ -118,8 +121,10 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     values: sliderValues,
   } = useSliderRootContext();
 
+  const range = sliderValues.length > 1;
+
   if (process.env.NODE_ENV !== 'production') {
-    if (typeof document === 'undefined' && indexProp === undefined && sliderValues.length > 1) {
+    if (typeof document === 'undefined' && indexProp === undefined && range) {
       warn(
         'A `Slider.Thumb` was rendered on the server without an `index` prop, it must be specified for full SSR support.',
       );
@@ -145,13 +150,32 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
 
   const { ref: listItemRef, index: compositeIndex } = useCompositeListItem();
 
-  const index = indexProp ?? compositeIndex;
+  const index = !range ? 0 : (indexProp ?? compositeIndex);
 
   const thumbValue = sliderValues[index];
 
-  const percentageValues = valueArrayToPercentages(sliderValues.slice(), min, max);
-  // for SSR, don't wait for the index if there's only one thumb
-  const percent = percentageValues.length === 1 ? percentageValues[0] : percentageValues[index];
+  let percent: number | undefined;
+
+  if (inset && index > -1 && controlRef.current != null && thumbRef.current != null) {
+    // adjust `percent`
+    const thumb = thumbRef.current;
+    const thumbRect = thumb.getBoundingClientRect();
+    const control = controlRef.current;
+    const controlRect = control.getBoundingClientRect();
+
+    const side = orientation === 'horizontal' ? 'width' : 'height';
+    const insetThumbOffsetPx = thumbRect[side] / 2;
+    const controlTotalTravelPx = controlRect[side] - thumbRect[side];
+    const valuePercent = valueToPercent(thumbValue, min, max);
+    const thumbOffsetFromControlEdge =
+      insetThumbOffsetPx + (controlTotalTravelPx * valuePercent) / 100;
+    const adjustedPercent = (thumbOffsetFromControlEdge * 100) / controlRect[side];
+    percent = adjustedPercent;
+  } else if (!inset) {
+    const percentageValues = valueArrayToPercentages(sliderValues.slice(), min, max);
+    // for SSR, don't wait for the index if there's only one thumb
+    percent = percentageValues.length === 1 ? percentageValues[0] : percentageValues[index];
+  }
 
   const isRtl = direction === 'rtl';
 
