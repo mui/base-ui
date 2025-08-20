@@ -805,7 +805,7 @@ describe('<Popover.Root />', () => {
     expect(screen.queryByTestId('child-popup')).to.equal(null);
   });
 
-  describe('multiple triggers within Root', () => {
+  describe.skipIf(isJSDOM)('multiple triggers within Root', () => {
     it('should open the popover with any trigger', async () => {
       const { user } = await render(
         <Popover.Root>
@@ -996,7 +996,7 @@ describe('<Popover.Root />', () => {
     });
   });
 
-  describe('multiple detached triggers', () => {
+  describe.skipIf(isJSDOM)('multiple detached triggers', () => {
     it('should open the popover with any trigger', async () => {
       const testPopover = Popover.createHandle();
       const { user } = await render(
