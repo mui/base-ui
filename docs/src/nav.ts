@@ -109,11 +109,6 @@ export const nav: NavGroup[] = [
         href: '/react/components/fieldset',
       },
       {
-        label: 'Filterable Menu',
-        href: '/react/components/filterable-menu',
-        isNew: true,
-      },
-      {
         label: 'Form',
         href: '/react/components/form',
       },

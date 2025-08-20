@@ -11,7 +11,6 @@ export * from './dialog';
 export * from './direction-provider';
 export * from './field';
 export * from './fieldset';
-export * from './filterable-menu';
 export * from './form';
 export * from './input';
 export * from './menu';
