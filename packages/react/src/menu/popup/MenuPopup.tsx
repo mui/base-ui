@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import type { InteractionType } from '@base-ui-components/utils/useEnhancedClickHandler';
 import { FloatingFocusManager, useFloatingTree } from '../../floating-ui-react';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import type { MenuRoot } from '../root/MenuRoot';
@@ -127,7 +128,10 @@ export namespace MenuPopup {
      * Determines the element to focus when the menu is closed.
      * By default, focus returns to the trigger.
      */
-    finalFocus?: null | React.RefObject<HTMLElement | null> | (() => HTMLElement | null | void);
+    finalFocus?:
+      | null
+      | React.RefObject<HTMLElement | null>
+      | ((closeType: InteractionType) => HTMLElement | null | void);
   }
 
   export type State = {

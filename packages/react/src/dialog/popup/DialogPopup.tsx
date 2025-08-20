@@ -132,7 +132,7 @@ export const DialogPopup = React.forwardRef(function DialogPopup(
       )}
       <FloatingFocusManager
         context={floatingRootContext}
-        openInteractionType={openMethod || ''}
+        openInteractionType={openMethod}
         disabled={!mounted}
         closeOnFocusOut={dismissible}
         initialFocus={resolvedInitialFocus}
@@ -155,12 +155,15 @@ export namespace DialogPopup {
     initialFocus?:
       | null
       | React.RefObject<HTMLElement | null>
-      | ((interactionType: InteractionType) => HTMLElement | null | void);
+      | ((openType: InteractionType) => HTMLElement | null | void);
     /**
      * Determines the element to focus when the dialog is closed.
      * By default, focus returns to the trigger.
      */
-    finalFocus?: null | React.RefObject<HTMLElement | null> | (() => HTMLElement | null | void);
+    finalFocus?:
+      | null
+      | React.RefObject<HTMLElement | null>
+      | ((closeType: InteractionType) => HTMLElement | null | void);
   }
 
   export interface State {

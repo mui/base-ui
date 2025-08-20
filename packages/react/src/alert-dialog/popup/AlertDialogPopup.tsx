@@ -130,7 +130,6 @@ export const AlertDialogPopup = React.forwardRef(function AlertDialogPopup(
       {mounted && modal && <InternalBackdrop ref={internalBackdropRef} inert={inertValue(!open)} />}
       <FloatingFocusManager
         context={floatingRootContext}
-        openInteractionType={openMethod || ''}
         disabled={!mounted}
         initialFocus={resolvedInitialFocus}
         returnFocus={finalFocus}
@@ -150,12 +149,15 @@ export namespace AlertDialogPopup {
     initialFocus?:
       | null
       | React.RefObject<HTMLElement | null>
-      | ((interactionType: InteractionType) => HTMLElement | null | void);
+      | ((openType: InteractionType) => HTMLElement | null | void);
     /**
      * Determines the element to focus when the dialog is closed.
      * By default, focus returns to the trigger.
      */
-    finalFocus?: null | React.RefObject<HTMLElement | null> | (() => HTMLElement | null | void);
+    finalFocus?:
+      | null
+      | React.RefObject<HTMLElement | null>
+      | ((closeType: InteractionType) => HTMLElement | null | void);
   }
 
   export interface State {

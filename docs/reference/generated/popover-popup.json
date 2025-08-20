@@ -3,14 +3,14 @@
   "description": "A container for the popover contents.\nRenders a `<div>` element.",
   "props": {
     "initialFocus": {
-      "type": "RefObject<HTMLElement | null> | ((interactionType: InteractionType) => void | HTMLElement | null) | null",
+      "type": "RefObject<HTMLElement | null> | ((openType: InteractionType) => void | HTMLElement | null) | null",
       "description": "Determines the element to focus when the popover is opened.\nBy default, the first focusable element is focused.",
-      "detailedType": "| React.RefObject<HTMLElement | null>\n| ((\n    interactionType: InteractionType,\n  ) => void | HTMLElement | null)\n| null\n| undefined"
+      "detailedType": "| React.RefObject<HTMLElement | null>\n| ((\n    openType: InteractionType,\n  ) => void | HTMLElement | null)\n| null\n| undefined"
     },
     "finalFocus": {
-      "type": "RefObject<HTMLElement | null> | (() => void | HTMLElement | null) | null",
+      "type": "RefObject<HTMLElement | null> | ((closeType: InteractionType) => void | HTMLElement | null) | null",
       "description": "Determines the element to focus when the popover is closed.\nBy default, focus returns to the trigger.",
-      "detailedType": "| React.RefObject<HTMLElement | null>\n| (() => void | HTMLElement | null)\n| null\n| undefined"
+      "detailedType": "| React.RefObject<HTMLElement | null>\n| ((\n    closeType: InteractionType,\n  ) => void | HTMLElement | null)\n| null\n| undefined"
     },
     "className": {
       "type": "string | ((state: Popover.Popup.State) => string)",

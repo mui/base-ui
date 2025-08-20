@@ -101,7 +101,7 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
   return (
     <FloatingFocusManager
       context={positioner.context}
-      openInteractionType={openMethod || ''}
+      openInteractionType={openMethod}
       modal={modal === 'trap-focus'}
       disabled={!mounted || openReason === 'trigger-hover'}
       initialFocus={initialFocusProp}
@@ -132,11 +132,14 @@ export namespace PopoverPopup {
     initialFocus?:
       | null
       | React.RefObject<HTMLElement | null>
-      | ((interactionType: InteractionType) => HTMLElement | null | void);
+      | ((openType: InteractionType) => HTMLElement | null | void);
     /**
      * Determines the element to focus when the popover is closed.
      * By default, focus returns to the trigger.
      */
-    finalFocus?: null | React.RefObject<HTMLElement | null> | (() => HTMLElement | null | void);
+    finalFocus?:
+      | null
+      | React.RefObject<HTMLElement | null>
+      | ((closeType: InteractionType) => HTMLElement | null | void);
   }
 }
