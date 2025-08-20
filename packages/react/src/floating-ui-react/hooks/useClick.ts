@@ -80,8 +80,9 @@ export function useClick(
 
         const openEvent = dataRef.current.openEvent;
         const openEventType = openEvent?.type;
+        const hasClickedOnInactiveTrigger = elements.domReference !== event.currentTarget;
         const nextOpen =
-          (open && elements.domReference !== event.currentTarget) ||
+          (open && hasClickedOnInactiveTrigger) ||
           !(
             open &&
             toggle &&
@@ -109,8 +110,9 @@ export function useClick(
 
         const openEvent = dataRef.current.openEvent;
         const openEventType = openEvent?.type;
+        const hasClickedOnInactiveTrigger = elements.domReference !== event.currentTarget;
         const nextOpen =
-          (open && elements.domReference !== event.currentTarget) ||
+          (open && hasClickedOnInactiveTrigger) ||
           !(
             open &&
             toggle &&

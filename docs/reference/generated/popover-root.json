@@ -11,9 +11,9 @@
       "detailedType": "boolean | HTMLElement | null | undefined"
     },
     "onOpenChange": {
-      "type": "((nextOpen: boolean, event: Event | undefined, reason: Popover.Root.OpenChangeReason | undefined, nextActiveTrigger: HTMLElement | null) => void)",
+      "type": "((open: boolean, event: Event | undefined, reason: Popover.Root.OpenChangeReason | undefined, nextActiveTrigger: HTMLElement | null) => void)",
       "description": "Event handler called when the popover is opened or closed.",
-      "detailedType": "| ((\n    nextOpen: boolean,\n    event: Event | undefined,\n    reason: Popover.Root.OpenChangeReason | undefined,\n    nextActiveTrigger: HTMLElement | null,\n  ) => void)\n| undefined"
+      "detailedType": "| ((\n    open: boolean,\n    event: Event | undefined,\n    reason: Popover.Root.OpenChangeReason | undefined,\n    nextActiveTrigger: HTMLElement | null,\n  ) => void)\n| undefined"
     },
     "actionsRef": {
       "type": "RefObject<Popover.Root.Actions>",

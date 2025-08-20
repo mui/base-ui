@@ -48,7 +48,6 @@ export function useInteractions(propsList: Array<ElementProps | void> = []): Use
     itemDeps,
   );
 
-  // TODO: update other hooks to use this
   const getTriggerProps = React.useCallback(
     (userProps?: React.HTMLProps<Element>) => mergeProps(userProps, propsList, 'trigger'),
     // eslint-disable-next-line react-hooks/exhaustive-deps

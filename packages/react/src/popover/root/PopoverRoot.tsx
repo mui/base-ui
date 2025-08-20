@@ -275,7 +275,7 @@ export namespace PopoverRoot {
      * Event handler called when the popover is opened or closed.
      */
     onOpenChange?: (
-      nextOpen: boolean,
+      open: boolean,
       event: Event | undefined,
       reason: OpenChangeReason | undefined,
       nextActiveTrigger: HTMLElement | null,

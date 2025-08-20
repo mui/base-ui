@@ -105,7 +105,6 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
     () => ({
       props: defaultProps,
       ...positioning,
-      update: positioning.update,
     }),
     [defaultProps, positioning],
   );

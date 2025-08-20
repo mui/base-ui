@@ -102,6 +102,7 @@ export interface UseHoverProps {
   move?: boolean;
   /**
    * Allows to override the element that will trigger the popup.
+   * Wheh it's set, useHover won't read the reference element from the root context.
    * This allows to have multiple triggers per floating element (assuming `useHover` is called per trigger).
    */
   triggerElement?: HTMLElement | null;
@@ -511,11 +512,14 @@ export function useHover(
       onMouseMove(event) {
         const { nativeEvent } = event;
         const trigger = event.currentTarget as Element;
-        const isOverNewTrigger =
+
+        // `true` when there are multiple triggers per floating element and user hovers over the one that
+        // wasn't used to open the floating element.
+        const isOverInactiveTrigger =
           elements.domReference && !elements.domReference.contains(event.target as Element);
 
         function handleMouseMove() {
-          if (!blockMouseMoveRef.current && (!openRef.current || isOverNewTrigger)) {
+          if (!blockMouseMoveRef.current && (!openRef.current || isOverInactiveTrigger)) {
             onOpenChange(true, nativeEvent, 'hover', trigger);
           }
         }
@@ -524,13 +528,13 @@ export function useHover(
           return;
         }
 
-        if ((open && !isOverNewTrigger) || getRestMs(restMsRef.current) === 0) {
+        if ((open && !isOverInactiveTrigger) || getRestMs(restMsRef.current) === 0) {
           return;
         }
 
         // Ignore insignificant movements to account for tremors.
         if (
-          event.target === elements.domReference &&
+          !isOverInactiveTrigger &&
           restTimeoutPendingRef.current &&
           event.movementX ** 2 + event.movementY ** 2 < 2
         ) {
@@ -541,7 +545,7 @@ export function useHover(
 
         if (pointerTypeRef.current === 'touch') {
           handleMouseMove();
-        } else if (isOverNewTrigger) {
+        } else if (isOverInactiveTrigger) {
           handleMouseMove();
         } else {
           restTimeoutPendingRef.current = true;

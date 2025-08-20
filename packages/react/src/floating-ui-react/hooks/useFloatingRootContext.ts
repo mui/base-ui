@@ -42,8 +42,6 @@ export function useFloatingRootContext(
         'instead.',
       );
     }
-
-    // TODO: validate if elements.inactiveReferences is an array of DOM elements
   }
 
   const [positionReference, setPositionReference] = React.useState<ReferenceElement | null>(
