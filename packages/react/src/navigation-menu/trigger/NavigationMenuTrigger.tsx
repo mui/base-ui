@@ -227,7 +227,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
 
   function handleOpenChange(
     nextOpen: boolean,
-    data: BaseUIEventData<NavigationMenuRoot.OpenChangeReason>,
+    data: BaseUIEventData<NavigationMenuRoot.ValueChangeReason>,
   ) {
     const isHover = data.reason === 'trigger-hover';
 
@@ -340,7 +340,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
           itemValue,
           createBaseUIEventData(
             event.type === 'mouseenter' ? 'trigger-hover' : 'trigger-press',
-            event.nativeEvent,
+            event.nativeEvent as any,
           ),
         );
       }

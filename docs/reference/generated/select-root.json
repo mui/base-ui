@@ -19,9 +19,9 @@
       "detailedType": "Value[] | Value | undefined"
     },
     "onValueChange": {
-      "type": "((value: Value[] | Value, data: BaseUIEventData<'none'>) => void)",
+      "type": "((value: Value[] | Value, data: BaseUIEventData) => void)",
       "description": "Callback fired when the value of the select changes. Use when controlled.",
-      "detailedType": "| ((\n    value: Value[] | Value,\n    data: BaseUIEventData<'none'>,\n  ) => void)\n| undefined"
+      "detailedType": "| ((\n    value: Value[] | Value,\n    data: BaseUIEventData,\n  ) => void)\n| undefined"
     },
     "defaultOpen": {
       "type": "boolean",

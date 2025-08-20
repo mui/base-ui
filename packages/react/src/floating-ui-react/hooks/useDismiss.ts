@@ -628,11 +628,11 @@ export function useDismiss(
       onKeyDown: closeOnEscapeKeyDown,
       ...(referencePress && {
         [bubbleHandlerKeys[referencePressEvent]]: (event: React.SyntheticEvent) => {
-          onOpenChange(false, createBaseUIEventData('trigger-press', event.nativeEvent));
+          onOpenChange(false, createBaseUIEventData('trigger-press', event.nativeEvent as any));
         },
         ...(referencePressEvent !== 'intentional' && {
           onClick(event) {
-            onOpenChange(false, createBaseUIEventData('trigger-press', event.nativeEvent));
+            onOpenChange(false, createBaseUIEventData('trigger-press', event.nativeEvent as any));
           },
         }),
       }),

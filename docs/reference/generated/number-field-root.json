@@ -18,9 +18,9 @@
       "detailedType": "number | null | undefined"
     },
     "onValueChange": {
-      "type": "((value: number | null, data: BaseUIEventData<'none'>) => void)",
+      "type": "((value: number | null, data: BaseUIEventData) => void)",
       "description": "Callback fired when the number value changes.",
-      "detailedType": "| ((\n    value: number | null,\n    data: BaseUIEventData<'none'>,\n  ) => void)\n| undefined"
+      "detailedType": "| ((value: number | null, data: BaseUIEventData) => void)\n| undefined"
     },
     "locale": {
       "type": "Intl.LocalesArgument",

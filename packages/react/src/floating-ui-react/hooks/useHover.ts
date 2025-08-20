@@ -185,7 +185,7 @@ export function useHover(context: FloatingRootContext, props: UseHoverProps = {}
   }, [elements.floating, open, onOpenChange, enabled, handleCloseRef, isHoverOpen]);
 
   const closeWithDelay = React.useCallback(
-    (event: Event, runElseBranch = true) => {
+    (event: MouseEvent, runElseBranch = true) => {
       const closeDelay = getDelay(delayRef.current, 'close', pointerTypeRef.current);
       if (closeDelay && !handlerRef.current) {
         timeout.start(closeDelay, () =>

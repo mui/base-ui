@@ -38,27 +38,29 @@ export const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
   const allowMouseUpTimeout = useTimeout();
   const allowMouseUpRef = React.useRef(false);
 
-  const handleLongPress = useEventCallback((x: number, y: number, event: Event) => {
-    const isTouchEvent = event.type.startsWith('touch');
+  const handleLongPress = useEventCallback(
+    (x: number, y: number, event: MouseEvent | TouchEvent) => {
+      const isTouchEvent = event.type.startsWith('touch');
 
-    setAnchor({
-      getBoundingClientRect() {
-        return DOMRect.fromRect({
-          width: isTouchEvent ? 10 : 0,
-          height: isTouchEvent ? 10 : 0,
-          x,
-          y,
-        });
-      },
-    });
+      setAnchor({
+        getBoundingClientRect() {
+          return DOMRect.fromRect({
+            width: isTouchEvent ? 10 : 0,
+            height: isTouchEvent ? 10 : 0,
+            x,
+            y,
+          });
+        },
+      });
 
-    allowMouseUpRef.current = false;
-    actionsRef.current?.setOpen(true, createBaseUIEventData('trigger-press', event));
+      allowMouseUpRef.current = false;
+      actionsRef.current?.setOpen(true, createBaseUIEventData('trigger-press', event));
 
-    allowMouseUpTimeout.start(LONG_PRESS_DELAY, () => {
-      allowMouseUpRef.current = true;
-    });
-  });
+      allowMouseUpTimeout.start(LONG_PRESS_DELAY, () => {
+        allowMouseUpRef.current = true;
+      });
+    },
+  );
 
   const handleContextMenu = useEventCallback((event: React.MouseEvent) => {
     allowMouseUpTriggerRef.current = true;

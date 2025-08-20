@@ -37,17 +37,19 @@ export const MenuRadioGroup = React.memo(
 
     const onValueChange = useEventCallback(onValueChangeProp);
 
-    const setValue = useEventCallback((newValue: any, event: Event) => {
-      const data = createBaseUIEventData('item-press', event);
+    const setValue = useEventCallback(
+      (newValue: any, event: MouseEvent | KeyboardEvent | PointerEvent | TouchEvent | Event) => {
+        const data = createBaseUIEventData('item-press', event);
 
-      onValueChange?.(newValue, data);
+        onValueChange?.(newValue, data);
 
-      if (data.isCanceled) {
-        return;
-      }
+        if (data.isCanceled) {
+          return;
+        }
 
-      setValueUnwrapped(newValue);
-    });
+        setValueUnwrapped(newValue);
+      },
+    );
 
     const state = React.useMemo(() => ({ disabled }), [disabled]);
 

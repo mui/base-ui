@@ -13,9 +13,9 @@
       "detailedType": "any[] | undefined"
     },
     "onValueChange": {
-      "type": "((groupValue: any[], data: BaseUIEventData<'none'>) => void)",
+      "type": "((groupValue: any[], data: BaseUIEventData) => void)",
       "description": "Callback fired when the pressed states of the toggle group changes.",
-      "detailedType": "| ((\n    groupValue: any[],\n    data: BaseUIEventData<'none'>,\n  ) => void)\n| undefined"
+      "detailedType": "| ((groupValue: any[], data: BaseUIEventData) => void)\n| undefined"
     },
     "toggleMultiple": {
       "type": "boolean",
