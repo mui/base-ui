@@ -4,72 +4,88 @@
   "props": {
     "defaultValue": {
       "type": "TemporalNonRangeValue",
-      "description": "The uncontrolled value that should be initially selected.\nTo render a controlled (Range)Calendar, use the `value` prop instead."
+      "description": "The uncontrolled value that should be initially selected.\nTo render a controlled (Range)Calendar, use the `value` prop instead.",
+      "detailedType": "Date | DateTime | null | undefined"
     },
     "value": {
       "type": "TemporalNonRangeValue",
-      "description": "The controlled value that should be selected.\nTo render an uncontrolled (Range)Calendar, use the `defaultValue` prop instead."
+      "description": "The controlled value that should be selected.\nTo render an uncontrolled (Range)Calendar, use the `defaultValue` prop instead.",
+      "detailedType": "Date | DateTime | null | undefined"
     },
     "onValueChange": {
       "type": "((value: TemporalNonRangeValue, context: useSharedCalendarRoot.ValueChangeHandlerContext<validateDate.ReturnValue>) => void)",
-      "description": "Event handler called when the selected value changes.\nProvides the new value as an argument."
+      "description": "Event handler called when the selected value changes.\nProvides the new value as an argument.",
+      "detailedType": "| ((\n    value: TemporalNonRangeValue,\n    context: useSharedCalendarRoot.ValueChangeHandlerContext<validateDate.ReturnValue>,\n  ) => void)\n| undefined"
     },
     "defaultVisibleDate": {
       "type": "Date | DateTime",
-      "description": "The date used to decide which month should be initially displayed in the Day Grid.\nTo render a controlled Calendar, use the `visibleDate` prop instead."
+      "description": "The date used to decide which month should be initially displayed in the Day Grid.\nTo render a controlled Calendar, use the `visibleDate` prop instead.",
+      "detailedType": "Date | DateTime | undefined"
     },
     "isDateUnavailable": {
       "type": "((day: Date | DateTime) => boolean)",
-      "description": "Mark specific dates as unavailable.\nThose dates will not be selectable but they will still be focusable with the keyboard."
+      "description": "Mark specific dates as unavailable.\nThose dates will not be selectable but they will still be focusable with the keyboard.",
+      "detailedType": "((day: Date | DateTime) => boolean) | undefined"
     },
     "maxDate": {
       "type": "Date | DateTime",
-      "description": "Maximal selectable date."
+      "description": "Maximal selectable date.",
+      "detailedType": "Date | DateTime | undefined"
     },
     "minDate": {
       "type": "Date | DateTime",
-      "description": "Minimal selectable date."
+      "description": "Minimal selectable date.",
+      "detailedType": "Date | DateTime | undefined"
     },
     "monthPageSize": {
       "type": "number",
       "default": "1",
-      "description": "The amount of months to move by when navigating.\nThis is mostly useful when displaying multiple day grids."
+      "description": "The amount of months to move by when navigating.\nThis is mostly useful when displaying multiple day grids.",
+      "detailedType": "number | undefined"
     },
     "onVisibleDateChange": {
       "type": "((visibleDate: Date | DateTime) => void)",
-      "description": "Event handler called when the visible date changes.\nProvides the new visible date as an argument."
+      "description": "Event handler called when the visible date changes.\nProvides the new visible date as an argument.",
+      "detailedType": "| ((visibleDate: Date | DateTime) => void)\n| undefined"
     },
     "referenceDate": {
       "type": "Date | DateTime",
       "default": "The closest valid date using the validation props.",
-      "description": "The date used to generate the new value when both `value` and `defaultValue` are empty."
+      "description": "The date used to generate the new value when both `value` and `defaultValue` are empty.",
+      "detailedType": "Date | DateTime | undefined"
     },
     "timezone": {
       "type": "string",
       "default": "The timezone of the `value` or `defaultValue` prop is defined, 'default' otherwise.",
-      "description": "Choose which timezone to use for the value.\nExample: \"default\", \"system\", \"UTC\", \"America/New_York\".\nIf you pass values from other timezones to some props, they will be converted to this timezone before being used."
+      "description": "Choose which timezone to use for the value.\nExample: \"default\", \"system\", \"UTC\", \"America/New_York\".\nIf you pass values from other timezones to some props, they will be converted to this timezone before being used.",
+      "detailedType": "string | undefined"
     },
     "visibleDate": {
       "type": "Date | DateTime",
-      "description": "The date used to decide which month should be displayed in the Day Grid.\nTo render an uncontrolled Calendar, use the `defaultVisibleDate` prop instead."
+      "description": "The date used to decide which month should be displayed in the Day Grid.\nTo render an uncontrolled Calendar, use the `defaultVisibleDate` prop instead.",
+      "detailedType": "Date | DateTime | undefined"
     },
     "disabled": {
       "type": "boolean",
       "default": "false",
-      "description": "Whether the component should ignore user interaction."
+      "description": "Whether the component should ignore user interaction.",
+      "detailedType": "boolean | undefined"
     },
     "readOnly": {
       "type": "boolean",
       "default": "false",
-      "description": "Whether the user should be unable to select a date in the calendar."
+      "description": "Whether the user should be unable to select a date in the calendar.",
+      "detailedType": "boolean | undefined"
     },
     "invalid": {
       "type": "boolean",
-      "description": "Whether the calendar is forcefully marked as invalid."
+      "description": "Whether the calendar is forcefully marked as invalid.",
+      "detailedType": "boolean | undefined"
     },
     "children": {
       "type": "ReactNode | ((parameters: CalendarContext) => ReactNode)",
-      "description": "The children of the component.\nIf a function is provided, it will be called with the public context as its parameter."
+      "description": "The children of the component.\nIf a function is provided, it will be called with the public context as its parameter.",
+      "detailedType": "| React.ReactNode\n| ((parameters: CalendarContext) => ReactNode)"
     },
     "className": {
       "type": "string | ((state: Calendar.Root.State) => string)",
@@ -77,7 +93,8 @@
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: Calendar.Root.State) => ReactElement)",
-      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
+      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Calendar.Root.State,\n  ) => ReactElement)"
     }
   },
   "dataAttributes": {

@@ -5,10 +5,12 @@
     "adapter": {
       "type": "TemporalAdapter",
       "required": true,
-      "description": "The date library adapter."
+      "description": "The date library adapter.",
+      "detailedType": "{}"
     },
     "children": {
-      "type": "ReactNode"
+      "type": "ReactNode",
+      "detailedType": "React.ReactNode"
     }
   },
   "dataAttributes": {},
