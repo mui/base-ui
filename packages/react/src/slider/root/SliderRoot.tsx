@@ -206,8 +206,10 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       return;
     }
 
-    if (min >= max) {
-      warn('Slider `max` must be greater than `min`');
+    if (process.env.NODE_ENV !== 'production') {
+      if (min >= max) {
+        warn('Slider `max` must be greater than `min`.');
+      }
     }
   }, [dragging, min, max, valueProp]);
 
