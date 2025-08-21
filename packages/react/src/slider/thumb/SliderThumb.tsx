@@ -295,6 +295,12 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
             event.preventDefault();
           }
         },
+        onPointerDown() {
+          if (thumbRef.current) {
+            // force re-focus using the pointer to prevent :focus-visible styles
+            thumbRef.current.blur();
+          }
+        },
         role: 'slider',
         style: getThumbStyle(),
         tabIndex: externalTabIndex ?? (disabled ? undefined : 0),

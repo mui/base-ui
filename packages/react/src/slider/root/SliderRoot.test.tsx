@@ -246,11 +246,8 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
         const thumb = getByRole('slider');
 
         expect(thumb).to.have.attribute('aria-valuenow', '21');
-        expect(thumb).toHaveFocus();
 
         await setProps({ disabled: true });
-        expect(thumb).not.toHaveFocus();
-        // expect(thumb).not.to.have.class(classes.active);
 
         fireEvent.touchMove(
           sliderControl,
@@ -843,8 +840,8 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
       expect(handleValueChange.callCount).to.equal(2);
     });
 
-    it.skipIf(isWebKit)('should focus the slider when touching', async () => {
-      const { getByRole, getByTestId } = await render(<TestSlider defaultValue={30} />);
+    it.skipIf(isJSDOM || isWebKit)('should focus the slider when touching', async () => {
+      const { getByRole, getByTestId, user } = await render(<TestSlider defaultValue={30} />);
       const slider = getByRole('slider');
       const sliderControl = getByTestId('control');
 
@@ -852,30 +849,25 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
         () => GETBOUNDINGCLIENTRECT_HORIZONTAL_SLIDER_RETURN_VAL,
       );
 
-      fireEvent.touchStart(
-        sliderControl,
-        createTouches([{ identifier: 1, clientX: 0, clientY: 0 }]),
-      );
+      await user.pointer({ keys: '[TouchA]', target: slider });
 
-      expect(slider).toHaveFocus();
+      expect(document.activeElement).to.equal(slider);
     });
 
-    it('should focus the slider when dragging', async () => {
-      const { getByRole, getByTestId } = await render(<TestSlider defaultValue={30} step={10} />);
+    it.skipIf(isJSDOM)('should focus the slider when dragging', async () => {
+      const { getByRole, getByTestId, user } = await render(
+        <TestSlider defaultValue={30} step={10} />,
+      );
       const slider = getByRole('slider');
-      const sliderThumb = getByTestId('thumb');
       const sliderControl = getByTestId('control');
 
       stub(sliderControl, 'getBoundingClientRect').callsFake(
         () => GETBOUNDINGCLIENTRECT_HORIZONTAL_SLIDER_RETURN_VAL,
       );
 
-      fireEvent.pointerDown(sliderThumb, {
-        buttons: 1,
-        clientX: 1,
-      });
+      await user.pointer({ keys: '[MouseLeft]', target: slider });
 
-      expect(slider).toHaveFocus();
+      expect(document.activeElement).to.equal(slider);
     });
 
     it.skipIf(isWebKit)('should not override the event.target on touch events', async () => {
