@@ -35,10 +35,6 @@
       "minimumReleaseAge": "1 minute"
     },
     {
-      "groupName": "Types",
-      "matchPackageNames": ["@types/*"]
-    },
-    {
       "matchDepTypes": ["engines"],
       "matchFileNames": ["packages/*/package.json"],
       "enabled": false
