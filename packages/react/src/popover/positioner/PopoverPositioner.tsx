@@ -56,11 +56,11 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
   const openReason = useStore(store, selectors.openReason);
   const triggerElement = useStore(store, selectors.activeTriggerElement);
   const modal = useStore(store, selectors.modal);
+  const positionerElement = useStore(store, selectors.positionerElement);
 
-  const positionerRef = React.useRef<HTMLDivElement | null>(null);
   const prevTriggerElementRef = React.useRef<Element | null>(null);
 
-  const runOnceAnimationsFinish = useAnimationsFinished(positionerRef);
+  const runOnceAnimationsFinish = useAnimationsFinished(positionerElement);
 
   const positioning = useAnchorPositioning({
     anchor,
@@ -158,7 +158,7 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
   const element = useRenderElement('div', componentProps, {
     state,
     props: [positioner.props, elementProps],
-    ref: [forwardedRef, setPositionerElement, positionerRef],
+    ref: [forwardedRef, setPositionerElement],
     customStyleHookMapping: popupStateMapping,
   });
 
