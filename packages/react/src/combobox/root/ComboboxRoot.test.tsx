@@ -1268,6 +1268,292 @@ describe('<Combobox.Root />', () => {
     });
   });
 
+  describe('prop: limit', () => {
+    it('limits the number of items displayed when no groups are used', async () => {
+      const items = ['apple', 'banana', 'cherry', 'date', 'elderberry'];
+      await render(
+        <Combobox.Root items={items} limit={3} defaultOpen>
+          <Combobox.Input data-testid="input" />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  {(item) => (
+                    <Combobox.Item key={item} value={item}>
+                      {item}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      // Should only show the first 3 items
+      expect(screen.getByRole('option', { name: 'apple' })).not.to.equal(null);
+      expect(screen.getByRole('option', { name: 'banana' })).not.to.equal(null);
+      expect(screen.getByRole('option', { name: 'cherry' })).not.to.equal(null);
+      expect(screen.queryByRole('option', { name: 'date' })).to.equal(null);
+      expect(screen.queryByRole('option', { name: 'elderberry' })).to.equal(null);
+    });
+
+    it('limits the number of items displayed when groups are used', async () => {
+      const items = [
+        {
+          value: 'citrus',
+          items: ['orange', 'lemon', 'lime'],
+        },
+        {
+          value: 'berries',
+          items: ['strawberry', 'blueberry', 'raspberry'],
+        },
+      ];
+
+      await render(
+        <Combobox.Root items={items} limit={4} defaultOpen>
+          <Combobox.Input data-testid="input" />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  {(group) => (
+                    <Combobox.Group key={group.value} items={group.items}>
+                      <Combobox.GroupLabel>{group.value}</Combobox.GroupLabel>
+                      <Combobox.Collection>
+                        {(item) => (
+                          <Combobox.Item key={item} value={item}>
+                            {item}
+                          </Combobox.Item>
+                        )}
+                      </Combobox.Collection>
+                    </Combobox.Group>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      // Should show first 4 items across groups
+      expect(screen.getByRole('option', { name: 'orange' })).not.to.equal(null);
+      expect(screen.getByRole('option', { name: 'lemon' })).not.to.equal(null);
+      expect(screen.getByRole('option', { name: 'lime' })).not.to.equal(null);
+      expect(screen.getByRole('option', { name: 'strawberry' })).not.to.equal(null);
+      // These should be limited out
+      expect(screen.queryByRole('option', { name: 'blueberry' })).to.equal(null);
+      expect(screen.queryByRole('option', { name: 'raspberry' })).to.equal(null);
+
+      // Group labels should still be visible
+      expect(screen.getByText('citrus')).not.to.equal(null);
+      expect(screen.getByText('berries')).not.to.equal(null);
+    });
+
+    it('respects limit when filtering items', async () => {
+      const items = ['apple', 'apricot', 'avocado', 'banana', 'blueberry'];
+      const { user } = await render(
+        <Combobox.Root items={items} limit={2} defaultOpen>
+          <Combobox.Input data-testid="input" />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  {(item) => (
+                    <Combobox.Item key={item} value={item}>
+                      {item}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByTestId('input');
+
+      // Type 'a' to filter items starting with 'a'
+      await user.type(input, 'a');
+      await flushMicrotasks();
+
+      // Should only show first 2 filtered items
+      expect(screen.getByRole('option', { name: 'apple' })).not.to.equal(null);
+      expect(screen.getByRole('option', { name: 'apricot' })).not.to.equal(null);
+      expect(screen.queryByRole('option', { name: 'avocado' })).to.equal(null);
+      expect(screen.queryByRole('option', { name: 'banana' })).to.equal(null);
+      expect(screen.queryByRole('option', { name: 'blueberry' })).to.equal(null);
+    });
+
+    it('shows all items when limit is -1 (default)', async () => {
+      const items = ['apple', 'banana', 'cherry', 'date', 'elderberry'];
+      await render(
+        <Combobox.Root items={items} limit={-1} defaultOpen>
+          <Combobox.Input data-testid="input" />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  {(item) => (
+                    <Combobox.Item key={item} value={item}>
+                      {item}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      // Should show all items
+      expect(screen.getByRole('option', { name: 'apple' })).not.to.equal(null);
+      expect(screen.getByRole('option', { name: 'banana' })).not.to.equal(null);
+      expect(screen.getByRole('option', { name: 'cherry' })).not.to.equal(null);
+      expect(screen.getByRole('option', { name: 'date' })).not.to.equal(null);
+      expect(screen.getByRole('option', { name: 'elderberry' })).not.to.equal(null);
+    });
+
+    it('handles limit of 0 gracefully', async () => {
+      const items = ['apple', 'banana', 'cherry'];
+      await render(
+        <Combobox.Root items={items} limit={0} defaultOpen>
+          <Combobox.Input data-testid="input" />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  {(item) => (
+                    <Combobox.Item key={item} value={item}>
+                      {item}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      // Should show no items
+      expect(screen.queryByRole('option', { name: 'apple' })).to.equal(null);
+      expect(screen.queryByRole('option', { name: 'banana' })).to.equal(null);
+      expect(screen.queryByRole('option', { name: 'cherry' })).to.equal(null);
+    });
+
+    it('preserves order of items when applying limit across groups', async () => {
+      const items = [
+        {
+          value: 'groupA',
+          items: ['A1', 'A2'],
+        },
+        {
+          value: 'groupB',
+          items: ['B1', 'B2', 'B3'],
+        },
+      ];
+
+      await render(
+        <Combobox.Root items={items} limit={3} defaultOpen>
+          <Combobox.Input data-testid="input" />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  {(group) => (
+                    <Combobox.Group key={group.value} items={group.items}>
+                      <Combobox.GroupLabel>Group {group.value.slice(-1)}</Combobox.GroupLabel>
+                      <Combobox.Collection>
+                        {(item) => (
+                          <Combobox.Item key={item} value={item}>
+                            {item}
+                          </Combobox.Item>
+                        )}
+                      </Combobox.Collection>
+                    </Combobox.Group>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      // Should show first 3 items in order: A1, A2, B1
+      expect(screen.getByRole('option', { name: 'A1' })).not.to.equal(null);
+      expect(screen.getByRole('option', { name: 'A2' })).not.to.equal(null);
+      expect(screen.getByRole('option', { name: 'B1' })).not.to.equal(null);
+      expect(screen.queryByRole('option', { name: 'B2' })).to.equal(null);
+      expect(screen.queryByRole('option', { name: 'B3' })).to.equal(null);
+    });
+
+    it('does not limit items when not using items prop', async () => {
+      await render(
+        <Combobox.Root limit={2} defaultOpen>
+          <Combobox.Input data-testid="input" />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  <Combobox.Item value="apple">apple</Combobox.Item>
+                  <Combobox.Item value="banana">banana</Combobox.Item>
+                  <Combobox.Item value="cherry">cherry</Combobox.Item>
+                  <Combobox.Item value="date">date</Combobox.Item>
+                  <Combobox.Item value="elderberry">elderberry</Combobox.Item>
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      // Should show all items because limit only works with items prop
+      expect(screen.getByRole('option', { name: 'apple' })).not.to.equal(null);
+      expect(screen.getByRole('option', { name: 'banana' })).not.to.equal(null);
+      expect(screen.getByRole('option', { name: 'cherry' })).not.to.equal(null);
+      expect(screen.getByRole('option', { name: 'date' })).not.to.equal(null);
+      expect(screen.getByRole('option', { name: 'elderberry' })).not.to.equal(null);
+    });
+
+    it('updates displayed items when limit changes', async () => {
+      const items = ['apple', 'banana', 'cherry', 'date'];
+      const { setProps } = await render(
+        <Combobox.Root items={items} limit={2} defaultOpen>
+          <Combobox.Input data-testid="input" />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  {(item) => (
+                    <Combobox.Item key={item} value={item}>
+                      {item}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      // Initially shows 2 items
+      expect(screen.getByRole('option', { name: 'apple' })).not.to.equal(null);
+      expect(screen.getByRole('option', { name: 'banana' })).not.to.equal(null);
+      expect(screen.queryByRole('option', { name: 'cherry' })).to.equal(null);
+      expect(screen.queryByRole('option', { name: 'date' })).to.equal(null);
+
+      // Update limit to 3
+      await setProps({ limit: 3 });
+      await flushMicrotasks();
+
+      // Now shows 3 items
+      expect(screen.getByRole('option', { name: 'apple' })).not.to.equal(null);
+      expect(screen.getByRole('option', { name: 'banana' })).not.to.equal(null);
+      expect(screen.getByRole('option', { name: 'cherry' })).not.to.equal(null);
+      expect(screen.queryByRole('option', { name: 'date' })).to.equal(null);
+    });
+  });
+
   describe('controlled and uncontrolled modes', () => {
     it('controls inputValue and calls onInputValueChange on type', async () => {
       const handle = spy();

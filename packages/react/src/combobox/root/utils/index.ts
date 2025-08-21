@@ -17,28 +17,6 @@ export function isGroupedItems(
   return items != null && items.length > 0 && typeof items[0] === 'object' && 'items' in items[0];
 }
 
-export function defaultGroupFilter(
-  group: ComboboxGroup<any>,
-  query: string,
-  itemFilter: (item: any, query: string, itemToString?: (item: any) => string) => boolean,
-  itemToString?: (item: any) => string,
-): ComboboxGroup<any> | null {
-  if (query === '') {
-    return group;
-  }
-
-  const filteredItems = group.items.filter((item) => itemFilter(item, query, itemToString));
-
-  if (filteredItems.length === 0) {
-    return null;
-  }
-
-  return {
-    ...group,
-    items: filteredItems,
-  };
-}
-
 export function stringifyItem(item: any | null | undefined, itemToString?: (item: any) => string) {
   if (itemToString && item != null) {
     return itemToString(item) ?? '';

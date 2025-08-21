@@ -39,7 +39,6 @@ import { useBaseUiId } from '../../utils/useBaseUiId';
 import {
   type ComboboxGroup,
   isGroupedItems,
-  defaultGroupFilter,
   stringifyItem,
   createCollatorItemFilter,
   createSingleSelectionCollatorFilter,
@@ -81,6 +80,7 @@ export function ComboboxRoot<Item = any, Mode extends SelectionMode = 'none'>(
     virtualized = false,
     fillInputOnItemPress = true,
     modal = false,
+    limit = -1,
   } = props;
 
   const { clearErrors } = useFormContext();
@@ -182,19 +182,54 @@ export function ComboboxRoot<Item = any, Mode extends SelectionMode = 'none'>(
 
     if (isGrouped) {
       const groupedItems = items as ComboboxGroup<ExtractItemType<Item>>[];
-      if (query === '') {
-        return groupedItems;
+      const resultingGroups: ComboboxGroup<ExtractItemType<Item>>[] = [];
+      let currentCount = 0;
+
+      for (const group of groupedItems) {
+        if (limit > -1 && currentCount >= limit) {
+          break;
+        }
+
+        // 2. Determine which items from the group are candidates for inclusion.
+        // If there's no query, all items are candidates. Otherwise, filter them.
+        const candidateItems =
+          query === ''
+            ? group.items
+            : group.items.filter((item) => filter(item, query, itemToString));
+
+        if (candidateItems.length === 0) {
+          continue;
+        }
+
+        const remainingLimit = limit > -1 ? limit - currentCount : Infinity;
+        const itemsToTake = candidateItems.slice(0, remainingLimit);
+
+        if (itemsToTake.length > 0) {
+          const newGroup = { ...group, items: itemsToTake };
+          resultingGroups.push(newGroup);
+          currentCount += itemsToTake.length;
+        }
       }
-      return groupedItems
-        .map((group) => defaultGroupFilter(group, query, filter, itemToString))
-        .filter((group): group is ComboboxGroup<ExtractItemType<Item>> => group !== null);
+
+      return resultingGroups;
     }
 
     if (query === '') {
-      return flatItems;
+      return limit > -1 ? flatItems.slice(0, limit) : flatItems;
     }
-    return flatItems.filter((item) => filter(item, query, itemToString));
-  }, [items, flatItems, query, filter, isGrouped, itemToString]);
+
+    const limitedItems: ExtractItemType<Item>[] = [];
+    for (const item of flatItems) {
+      if (limit > -1 && limitedItems.length >= limit) {
+        break;
+      }
+      if (filter(item, query, itemToString)) {
+        limitedItems.push(item);
+      }
+    }
+
+    return limitedItems;
+  }, [items, flatItems, query, filter, isGrouped, itemToString, limit]);
 
   const flatFilteredItems: ExtractItemType<Item>[] = React.useMemo(() => {
     if (!filteredItems || !virtualized) {
@@ -1085,6 +1120,11 @@ interface ComboboxRootProps<Item> {
    * @default false
    */
   clearInputOnCloseComplete?: boolean;
+  /**
+   * The maximum number of items to display in the list.
+   * @default -1
+   */
+  limit?: number;
 }
 
 export type ComboboxRootConditionalProps<Item, Mode extends SelectionMode = 'none'> = Omit<

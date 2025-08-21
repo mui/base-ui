@@ -79,6 +79,12 @@
       "description": "The items to be displayed in the combobox.\nCan be either a flat array of items or an array of groups with items.",
       "detailedType": "| (GroupItem | Item)[]\n| ComboboxGroup<GroupItem | Item>[]\n| undefined"
     },
+    "limit": {
+      "type": "number",
+      "default": "-1",
+      "description": "The maximum number of items to display in the list.",
+      "detailedType": "number | undefined"
+    },
     "modal": {
       "type": "boolean",
       "default": "false",
