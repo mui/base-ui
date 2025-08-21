@@ -55,7 +55,7 @@
     "test:webkit": "cross-env VITEST_ENV=webkit pnpm test:_unit",
     "test:webkit:ui": "pnpm test:webkit --browser.headless=false",
     "test:browsers": "cross-env VITEST_ENV=all-browsers pnpm test:_unit",
-    "test:argos": "code-infra push-argos --folder test/regressions/screenshots/chrome",
+    "test:argos": "code-infra argos-push --folder test/regressions/screenshots/chrome",
     "typescript": "tsc -b tsconfig.json",
     "validate-declarations": "tsx scripts/validateTypescriptDeclarations.mts",
     "inline-scripts": "tsx ./scripts/inlineScripts.mts"
@@ -67,7 +67,7 @@
     "@babel/node": "^7.28.0",
     "@babel/plugin-transform-react-constant-elements": "^7.27.1",
     "@base-ui-components/monorepo-tests": "workspace:*",
-    "@mui/internal-bundle-size-checker": "^1.0.9-canary.13",
+    "@mui/internal-bundle-size-checker": "^1.0.9-canary.27",
     "@mui/internal-code-infra": "^0.0.2-canary.33",
     "@mui/internal-docs-utils": "^2.0.1",
     "@mui/internal-markdown": "^2.0.7",

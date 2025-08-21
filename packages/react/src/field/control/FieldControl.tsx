@@ -90,6 +90,8 @@ export const FieldControl = React.forwardRef(function FieldControl(
     name: 'FieldControl',
     state: 'value',
   });
+  
+  const isControlled = valueProp !== undefined;
 
   const setValue = useEventCallback((nextValue: string, data: BaseUIEventData<'none'>) => {
     onValueChange?.(nextValue, data);
@@ -120,7 +122,7 @@ export const FieldControl = React.forwardRef(function FieldControl(
         name,
         ref: inputRef,
         'aria-labelledby': labelId,
-        value,
+        ...(isControlled ? { value } : { defaultValue }),
         onChange(event) {
           if (value != null) {
             setValue(event.currentTarget.value, createBaseUIEventData('none', event.nativeEvent));
