@@ -81,7 +81,6 @@ export function ComboboxRoot<Item = any, Mode extends SelectionMode = 'none'>(
     virtualized = false,
     fillInputOnItemPress = true,
     modal = false,
-    clearInputOnCloseComplete = false,
   } = props;
 
   const { clearErrors } = useFormContext();
@@ -340,14 +339,14 @@ export function ComboboxRoot<Item = any, Mode extends SelectionMode = 'none'>(
       // If user is typing, ensure we don't auto-highlight on open due to a race
       // with the post-open effect that sets this flag.
       if (reason === 'input-change') {
-        const hasQuery = String(next).trim() !== '';
+        const hasQuery = next.trim() !== '';
         if (hasQuery) {
           setQueryChangedAfterOpen(true);
           // Prevent initial selectedIndex -> activeIndex sync on typed opens.
           allowActiveIndexSyncRef.current = false;
         }
       }
-      if (reason === 'input-clear' && selectionMode === 'none' && open) {
+      if (reason === 'input-clear' && open) {
         hadInputClearRef.current = true;
         // Defer clearing until close transition completes to avoid flicker
         return;
@@ -456,7 +455,7 @@ export function ComboboxRoot<Item = any, Mode extends SelectionMode = 'none'>(
         selectedIndices.length > 0 ? selectedIndices[selectedIndices.length - 1] : null,
       );
     } else {
-      const idx = flatItems.indexOf(selectedValue as any);
+      const idx = flatItems.indexOf(selectedValue);
       if (idx !== -1) {
         registerItemIndex(idx);
       } else {
@@ -466,26 +465,21 @@ export function ComboboxRoot<Item = any, Mode extends SelectionMode = 'none'>(
 
     // If an input-clear was requested while open, perform it here after close completes
     // to avoid mid-exit flicker.
-    if (selectionMode === 'none' && props.inputValue === undefined && hadInputClearRef.current) {
-      if (inputRef.current && inputRef.current.value !== '') {
-        setInputValue('', undefined, 'input-clear');
-      }
+    if (hadInputClearRef.current && inputRef.current && inputRef.current.value !== '') {
+      setInputValue('', undefined, 'input-clear');
       hadInputClearRef.current = false;
     }
 
-    // When no selection state is tracked, optionally clear the input value after close completes
-    // so external consumers (e.g., FilterableMenu) don't need to handle it manually.
-    if (selectionMode === 'none' && clearInputOnCloseComplete) {
-      if (inputRef.current && inputRef.current.value !== '') {
-        setInputValue('', undefined, 'input-clear');
-      }
+    // Multiple selection mode:
+    // If the user typed a filter and didn't select in multiple mode, clear the input
+    // after close completes to avoid mid-exit flicker and start fresh on next open.
+    if (selectionMode === 'multiple' && inputRef.current && inputRef.current.value !== '') {
+      setInputValue('', undefined, 'input-clear');
     }
 
     // Single selection mode:
     // - If input is rendered inside the popup, clear it so the next open is blank
     // - If input is outside the popup, sync it to the selected value
-    // Applies to both controlled and uncontrolled input values so that controlled
-    // consumers can reset the input on close via onInputValueChange.
     if (selectionMode === 'single') {
       const isInputInsidePopup = contains(popupRef.current, inputRef.current);
       if (isInputInsidePopup) {
@@ -495,7 +489,9 @@ export function ComboboxRoot<Item = any, Mode extends SelectionMode = 'none'>(
       } else {
         const stringVal = stringifyItem(selectedValue, itemToString);
         if (inputRef.current && inputRef.current.value !== stringVal) {
-          setInputValue(stringVal, undefined, 'item-press');
+          // If no selection was made, treat this as clearing the typed filter.
+          const reason = stringVal === '' ? 'input-clear' : 'item-press';
+          setInputValue(stringVal, undefined, reason);
         }
       }
     }
@@ -1084,7 +1080,7 @@ interface ComboboxRootProps<Item> {
    */
   modal?: boolean;
   /**
-   * INTERNAL: When `selectionMode` is `none`, clears the input value after close animation completes.
+   * INTERNAL: Clears the input value after close animation completes.
    * Useful for wrappers like FilterableMenu so they don't need to reset externally.
    * @default false
    */

@@ -1049,6 +1049,68 @@ describe('<Combobox.Root />', () => {
       // After selecting while filtering, uncontrolled input clears
       expect(input).to.have.value('');
     });
+
+    it('selectionMode="multiple" clears typed input on close when no selection made', async () => {
+      const onInput = spy();
+      const { user } = await render(
+        <Combobox.Root multiple defaultOpen onInputValueChange={onInput}>
+          <Combobox.Input data-testid="input" />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  <Combobox.Item value="apple">apple</Combobox.Item>
+                  <Combobox.Item value="banana">banana</Combobox.Item>
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByTestId('input');
+      await user.type(input, 'app');
+      await flushMicrotasks();
+
+      // Close without selecting
+      await user.keyboard('{Escape}');
+
+      expect(screen.queryByRole('listbox')).to.equal(null);
+      expect(input).to.have.value('');
+      expect(onInput.lastCall.args[0]).to.equal('');
+      expect(onInput.lastCall.args[2]).to.equal('input-clear');
+    });
+
+    it('selectionMode="single" clears typed input on close when no selection made (input outside popup)', async () => {
+      const onInput = spy();
+      const { user } = await render(
+        <Combobox.Root defaultOpen onInputValueChange={onInput}>
+          <Combobox.Input data-testid="input" />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  <Combobox.Item value="apple">apple</Combobox.Item>
+                  <Combobox.Item value="banana">banana</Combobox.Item>
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByTestId('input');
+      await user.type(input, 'zz');
+      await flushMicrotasks();
+
+      // Close without selecting
+      await user.keyboard('{Escape}');
+
+      expect(screen.queryByRole('listbox')).to.equal(null);
+      expect(input).to.have.value('');
+      expect(onInput.lastCall.args[0]).to.equal('');
+      expect(onInput.lastCall.args[2]).to.equal('input-clear');
+    });
   });
 
   describe('prop: filter', () => {
