@@ -63,11 +63,13 @@
 }
 
 .List {
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
 }
 
 .Item {
+  box-sizing: border-box;
   outline: 0;
   cursor: default;
   user-select: none;

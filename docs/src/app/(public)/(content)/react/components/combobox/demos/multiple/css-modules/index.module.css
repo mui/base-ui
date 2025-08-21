@@ -16,6 +16,7 @@
 }
 
 .Chips {
+  box-sizing: border-box;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -104,6 +105,7 @@
 }
 
 .Trigger {
+  box-sizing: border-box;
   position: absolute;
   right: 0.75rem;
   display: flex;
@@ -164,6 +166,7 @@
 }
 
 .Item {
+  box-sizing: border-box;
   outline: 0;
   cursor: default;
   user-select: none;

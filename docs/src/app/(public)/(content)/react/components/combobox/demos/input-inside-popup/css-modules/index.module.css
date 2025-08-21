@@ -119,6 +119,7 @@
 }
 
 .List {
+  box-sizing: border-box;
   overflow: auto;
   scroll-padding-block: 0.5rem;
   padding-block: 0.5rem;
@@ -134,6 +135,7 @@
 }
 
 .Item {
+  box-sizing: border-box;
   outline: 0;
   cursor: default;
   user-select: none;

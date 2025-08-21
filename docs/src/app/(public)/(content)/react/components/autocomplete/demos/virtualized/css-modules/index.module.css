@@ -55,6 +55,7 @@
 }
 
 .Scroller {
+  box-sizing: border-box;
   height: min(22rem, var(--total-size));
   max-height: var(--available-height);
   overflow: auto;
@@ -72,6 +73,7 @@
 }
 
 .Item {
+  box-sizing: border-box;
   outline: 0;
   cursor: default;
   user-select: none;
