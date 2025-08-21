@@ -15,7 +15,7 @@ export function useAnimationsFinished(
 ) {
   const frame = useAnimationFrame();
 
-  const onAnimationsFinished = useEventCallback(
+  return useEventCallback(
     (
       /**
        * A function to execute once all animations have finished.
@@ -81,6 +81,4 @@ export function useAnimationsFinished(
       }
     },
   );
-
-  return onAnimationsFinished;
 }
