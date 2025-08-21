@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { TemporalAdapterProvider } from '@base-ui-components/react/temporal-adapter-provider';
+import { UnstableTemporalAdapterProvider as TemporalAdapterProvider } from '@base-ui-components/react/temporal-adapter-provider';
 import { UnstableTemporalAdapterDateFns as TemporalAdapterDateFns } from '@base-ui-components/react/temporal-adapter-date-fns';
 import { TemporalAdapter } from '@base-ui-components/react/models';
 import {

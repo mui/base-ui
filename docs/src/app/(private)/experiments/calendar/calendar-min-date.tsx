@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { DateTime } from 'luxon';
-import { TemporalAdapterProvider } from '@base-ui-components/react/temporal-adapter-provider';
+import { UnstableTemporalAdapterProvider as TemporalAdapterProvider } from '@base-ui-components/react/temporal-adapter-provider';
 import { UnstableTemporalAdapterLuxon as TemporalAdapterLuxon } from '@base-ui-components/react/temporal-adapter-luxon';
 import { Calendar } from '@base-ui-components/react/calendar';
 import styles from './calendar.module.css';
