@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { TemporalAdapterLuxon } from '@base-ui-components/react/temporal-adapter-luxon';
+import { UnstableTemporalAdapterLuxon as TemporalAdapterLuxon } from '@base-ui-components/react/temporal-adapter-luxon';
 import { validateDate } from './validateDate';
 
 const adapter = new TemporalAdapterLuxon();

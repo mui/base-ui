@@ -1,1 +1,1 @@
-export { Adapter as TemporalAdapterDateFns } from './index.parts';
+export { Adapter as UnstableTemporalAdapterDateFns } from './index.parts';

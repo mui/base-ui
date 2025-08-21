@@ -1,5 +1,5 @@
 import { fr } from 'date-fns/locale/fr';
-import { TemporalAdapterDateFns } from '@base-ui-components/react/temporal-adapter-date-fns';
+import { UnstableTemporalAdapterDateFns as TemporalAdapterDateFns } from '@base-ui-components/react/temporal-adapter-date-fns';
 import { describeGregorianAdapter } from '#test-utils';
 
 describe('TemporalAdapterDateFns', () => {

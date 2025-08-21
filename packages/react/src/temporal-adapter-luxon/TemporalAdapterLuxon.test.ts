@@ -1,5 +1,5 @@
 import { DateTime, Settings } from 'luxon';
-import { TemporalAdapterLuxon } from '@base-ui-components/react/temporal-adapter-luxon';
+import { UnstableTemporalAdapterLuxon as TemporalAdapterLuxon } from '@base-ui-components/react/temporal-adapter-luxon';
 import { describeGregorianAdapter } from '#test-utils';
 
 describe('TemporalAdapterLuxon', () => {

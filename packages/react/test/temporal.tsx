@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { TemporalAdapterProvider } from '@base-ui-components/react/temporal-adapter-provider';
-import { TemporalAdapterDateFns } from '@base-ui-components/react/temporal-adapter-date-fns';
+import { UnstableTemporalAdapterDateFns as TemporalAdapterDateFns } from '@base-ui-components/react/temporal-adapter-date-fns';
 import { TemporalAdapter } from '@base-ui-components/react/models';
 import {
   createRenderer,

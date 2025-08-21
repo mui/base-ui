@@ -2,7 +2,7 @@
 import * as React from 'react';
 import clsx from 'clsx';
 import { TemporalAdapterProvider } from '@base-ui-components/react/temporal-adapter-provider';
-import { TemporalAdapterLuxon } from '@base-ui-components/react/temporal-adapter-luxon';
+import { UnstableTemporalAdapterLuxon as TemporalAdapterLuxon } from '@base-ui-components/react/temporal-adapter-luxon';
 import { Calendar } from '@base-ui-components/react/calendar';
 import { Separator } from '@base-ui-components/react/separator';
 import styles from './calendar.module.css';

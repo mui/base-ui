@@ -1,1 +1,1 @@
-export { Adapter as TemporalAdapterLuxon } from './index.parts';
+export { Adapter as UnstableTemporalAdapterLuxon } from './index.parts';
