@@ -164,6 +164,7 @@ export function useSharedCalendarDayGridBody(
       }
       const decrement = BACKWARD_KEYS.has(event.key);
       setVisibleDate(adapter.addMonths(visibleDate, decrement ? -1 : 1), false);
+      // Ensure the `handleItemLooping` uses the latest state/render after the visible date update
       queueMicrotask(() => {
         handleItemLooping(event.key, prevIndex, elementsRef, decrement);
       });
