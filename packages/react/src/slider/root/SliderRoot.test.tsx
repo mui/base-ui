@@ -309,21 +309,6 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
       expect(sliderOutput).to.have.attribute('data-orientation', 'horizontal');
     });
 
-    // it.skipIf(isJSDOM || !/WebKit/.test(window.navigator.userAgent))(
-    //   'does not set the orientation via appearance for WebKit browsers',
-    //   async () => {
-    //     await render(<TestSlider orientation="vertical" />);
-
-    //     const slider = screen.getByRole('slider');
-
-    //     expect(slider).to.have.property('tagName', 'INPUT');
-    //     expect(slider).to.have.property('type', 'range');
-    //     // Only relevant if we implement `[role="slider"]` with `input[type="range"]`
-    //     // We're not setting this by default because it changes horizontal keyboard navigation in WebKit: https://issues.chromium.org/issues/40739626
-    //     expect(slider).not.toHaveComputedStyle({ webkitAppearance: 'slider-vertical' });
-    //   },
-    // );
-
     it.skipIf(isJSDOM || isWebKit)('should report the right position', async () => {
       const handleValueChange = spy();
       const { getByTestId } = await render(
@@ -360,23 +345,18 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
 
   describe('prop: step', () => {
     it('supports non-integer values', async () => {
-      const { getByRole, setProps } = await render(
-        <TestSlider value={0.2} min={-100} max={100} step={0.00000001} />,
+      await render(
+        <React.Fragment>
+          <TestSlider value={51.1} min={-100} max={100} step={0.00000001} />
+          <TestSlider value={0.00000005} min={-100} max={100} step={0.00000001} />
+          <TestSlider value={1e-7} min={-100} max={100} step={0.00000001} />
+        </React.Fragment>,
       );
-      const slider = getByRole('slider');
+      const [slider1, slider2, slider3] = screen.getAllByRole('slider');
 
-      await act(async () => {
-        slider.focus();
-      });
-
-      await setProps({ value: 51.1 });
-      expect(slider).to.have.attribute('aria-valuenow', '51.1');
-
-      await setProps({ value: 0.00000005 });
-      expect(slider).to.have.attribute('aria-valuenow', '5e-8');
-
-      await setProps({ value: 1e-7 });
-      expect(slider).to.have.attribute('aria-valuenow', '1e-7');
+      expect(slider1).to.have.attribute('aria-valuenow', '51.1');
+      expect(slider2).to.have.attribute('aria-valuenow', '5e-8');
+      expect(slider3).to.have.attribute('aria-valuenow', '1e-7');
     });
 
     it.skipIf(isJSDOM || isWebKit)('should round value to step precision', async () => {
@@ -492,29 +472,26 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
   });
 
   describe('prop: max', () => {
-    const MAX = 750;
-
     it('should set the max and aria-valuemax on the input', async () => {
-      const { getByRole } = await render(
-        <TestSlider defaultValue={150} step={100} max={MAX} min={150} />,
-      );
+      const { getByRole } = await render(<TestSlider defaultValue={150} step={100} max={750} />);
       const slider = getByRole('slider');
 
-      expect(slider).to.have.attribute('aria-valuemax', String(MAX));
+      expect(slider).to.have.attribute('aria-valuemax', '750');
     });
 
     it('should not go more than the max', async () => {
-      const { getByRole, setProps } = await render(
-        <TestSlider value={150} step={100} max={MAX} min={150} />,
+      const { getByRole, user } = await render(
+        <TestSlider defaultValue={100} step={100} max={200} />,
       );
 
       const slider = getByRole('slider');
-      await act(async () => {
-        slider.focus();
-      });
 
-      await setProps({ value: MAX + 100 });
-      expect(slider).to.have.attribute('aria-valuenow', String(MAX));
+      await user.keyboard('[Tab]');
+
+      await user.keyboard(`[${ARROW_RIGHT}]`);
+      expect(slider).to.have.attribute('aria-valuenow', '200');
+      await user.keyboard(`[${ARROW_RIGHT}]`);
+      expect(slider).to.have.attribute('aria-valuenow', '200');
     });
 
     it.skipIf(isJSDOM || isWebKit)('should reach right edge value', async () => {
@@ -567,40 +544,33 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
   });
 
   describe('prop: min', () => {
-    const MIN = 150;
-
     it('should set the min and aria-valuemin on the input', async () => {
-      const { getByRole } = await render(
-        <TestSlider defaultValue={150} step={100} max={750} min={MIN} />,
-      );
+      const { getByRole } = await render(<TestSlider defaultValue={150} step={100} min={150} />);
       const slider = getByRole('slider');
 
-      expect(slider).to.have.attribute('aria-valuemin', String(MIN));
+      expect(slider).to.have.attribute('aria-valuemin', '150');
     });
 
     it('should use min as the step origin', async () => {
-      const { getByRole } = await render(
-        <TestSlider defaultValue={150} step={100} max={750} min={MIN} />,
-      );
+      const { getByRole } = await render(<TestSlider defaultValue={150} step={100} min={150} />);
       const slider = getByRole('slider');
       await act(async () => {
         slider.focus();
       });
 
-      expect(slider).to.have.attribute('aria-valuenow', String(MIN));
+      expect(slider).to.have.attribute('aria-valuenow', '150');
     });
 
     it('should not go less than the min', async () => {
-      const { getByRole, setProps } = await render(
-        <TestSlider value={150} step={100} max={750} min={MIN} />,
-      );
+      const { getByRole, user } = await render(<TestSlider defaultValue={1} step={1} min={0} />);
       const slider = getByRole('slider');
-      await act(async () => {
-        slider.focus();
-      });
 
-      await setProps({ value: MIN - 100 });
-      expect(slider).to.have.attribute('aria-valuenow', String(MIN));
+      await user.keyboard('[Tab]');
+
+      await user.keyboard(`[${ARROW_LEFT}]`);
+      expect(slider).to.have.attribute('aria-valuenow', '0');
+      await user.keyboard(`[${ARROW_LEFT}]`);
+      expect(slider).to.have.attribute('aria-valuenow', '0');
     });
   });
 
