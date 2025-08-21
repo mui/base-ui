@@ -9,28 +9,38 @@ function itemToString(item: LabelItem) {
 }
 
 export default function ExampleCreatableCombobox() {
-  const containerRef = React.useRef<HTMLDivElement | null>(null);
   const id = React.useId();
 
   const [labels, setLabels] = React.useState<LabelItem[]>(initialLabels);
   const [selected, setSelected] = React.useState<LabelItem[]>([]);
   const [query, setQuery] = React.useState('');
-
   const [openDialog, setOpenDialog] = React.useState(false);
+
+  const containerRef = React.useRef<HTMLDivElement | null>(null);
   const createInputRef = React.useRef<HTMLInputElement | null>(null);
+  const comboboxInputRef = React.useRef<HTMLInputElement | null>(null);
   const pendingQueryRef = React.useRef('');
 
-  function handleCreateSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    const input = createInputRef.current;
+  function handleCreate() {
+    const input = createInputRef.current || comboboxInputRef.current;
     const value = input ? input.value.trim() : '';
     if (!value) {
       return;
     }
     const newItem: LabelItem = { id: value.toLowerCase().replace(/\s+/g, '-'), value };
-    setLabels((prev) => [...prev, newItem]);
-    setSelected((prev) => [...prev, newItem]);
+
+    if (!selected.find((item) => item.value === value)) {
+      setLabels((prev) => [...prev, newItem]);
+      setSelected((prev) => [...prev, newItem]);
+    }
+
     setOpenDialog(false);
+    setQuery('');
+  }
+
+  function handleCreateSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    handleCreate();
   }
 
   const lowered = query.trim().toLocaleLowerCase();
@@ -54,10 +64,17 @@ export default function ExampleCreatableCombobox() {
           }
           const clean = next.filter((i) => !i.creatable);
           setSelected(clean);
+          setQuery('');
         }}
         selectedValue={selected}
         itemToString={itemToString}
+        inputValue={query}
         onInputValueChange={setQuery}
+        onOpenChange={(open, event) => {
+          if (event && 'key' in event && event.key === 'Enter') {
+            handleCreate();
+          }
+        }}
       >
         <div className={styles.Container}>
           <label className={styles.Label} htmlFor={id}>
@@ -76,6 +93,7 @@ export default function ExampleCreatableCombobox() {
                     </Combobox.Chip>
                   ))}
                   <Combobox.Input
+                    ref={comboboxInputRef}
                     id={id}
                     placeholder={value.length > 0 ? '' : 'e.g. bug'}
                     className={styles.Input}
