@@ -3,9 +3,9 @@
   "description": "Renders filtered items.\n\nIf you only need a flat list you can omit this component – pass a function\nchild to `Combobox.List` and it will implicitly wrap it.",
   "props": {
     "children": {
-      "type": "((item: any) => ReactNode)",
+      "type": "((item: any, index: number) => ReactNode)",
       "required": true,
-      "detailedType": "(item: any) => ReactNode"
+      "detailedType": "(item: any, index: number) => ReactNode"
     }
   },
   "dataAttributes": {},

@@ -88,27 +88,25 @@ export const ComboboxPopup = React.forwardRef(function ComboboxPopup(
 
   const triggerRef = useLatestRef(triggerElement);
 
-  const resolvedInitialFocus = React.useMemo(() => {
-    if (initialFocus == null) {
-      if (openMethod === 'touch') {
-        return popupRef;
-      }
-      return isAnchorInput ? -1 : inputRef;
+  let resolvedInitialFocus: number | React.RefObject<HTMLElement | null>;
+  if (initialFocus == null) {
+    if (openMethod === 'touch') {
+      resolvedInitialFocus = popupRef;
+    } else {
+      resolvedInitialFocus = isAnchorInput ? -1 : inputRef;
     }
+  } else if (typeof initialFocus === 'function') {
+    resolvedInitialFocus = initialFocus(openMethod ?? '');
+  } else {
+    resolvedInitialFocus = initialFocus;
+  }
 
-    if (typeof initialFocus === 'function') {
-      return initialFocus(openMethod ?? '');
-    }
-
-    return initialFocus;
-  }, [initialFocus, openMethod, isAnchorInput, inputRef, popupRef]);
-
-  const resolvedFinalFocus = React.useMemo(() => {
-    if (finalFocus != null) {
-      return finalFocus;
-    }
-    return isAnchorInput ? false : triggerRef;
-  }, [finalFocus, isAnchorInput, triggerRef]);
+  let resolvedFinalFocus: boolean | React.RefObject<HTMLElement | null>;
+  if (finalFocus != null) {
+    resolvedFinalFocus = finalFocus;
+  } else {
+    resolvedFinalFocus = isAnchorInput ? false : triggerRef;
+  }
 
   return (
     <FloatingFocusManager

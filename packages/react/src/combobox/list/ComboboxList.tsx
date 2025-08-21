@@ -38,13 +38,6 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
     store.set('listElement', element);
   });
 
-  const handleKeyDown = useEventCallback((event: React.KeyboardEvent<HTMLDivElement>) => {
-    if (event.key === 'Enter') {
-      stopEvent(event);
-      handleEnterSelection(event.nativeEvent);
-    }
-  });
-
   useIsoLayoutEffect(() => {
     // Only force inline mode when there is no Positioner AND no Popup present
     if (hasPositionerContext || popupRef.current) {
@@ -78,7 +71,12 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
         id: floatingRootContext.floatingId,
         role: cols > 1 ? 'grid' : 'listbox',
         'aria-multiselectable': multiple ? 'true' : undefined,
-        onKeyDown: handleKeyDown,
+        onKeyDown(event) {
+          if (event.key === 'Enter') {
+            stopEvent(event);
+            handleEnterSelection(event.nativeEvent);
+          }
+        },
         onKeyDownCapture() {
           keyboardActiveRef.current = true;
         },
@@ -95,6 +93,6 @@ export namespace ComboboxList {
   export interface State {}
 
   export interface Props extends Omit<BaseUIComponentProps<'div', State>, 'children'> {
-    children?: React.ReactNode | ((item: any) => React.ReactNode);
+    children?: React.ReactNode | ((item: any, index: number) => React.ReactNode);
   }
 }

@@ -34,6 +34,7 @@ export const ComboboxItem = React.memo(
       render,
       className,
       value,
+      index: indexProp,
       disabled = false,
       nativeButton = false,
       ...elementProps
@@ -43,6 +44,7 @@ export const ComboboxItem = React.memo(
 
     const textRef = React.useRef<HTMLElement | null>(null);
     const listItem = useCompositeListItem({
+      index: indexProp,
       textRef,
       indexGuessBehavior: IndexGuessBehavior.GuessFromOrder,
     });
@@ -67,7 +69,7 @@ export const ComboboxItem = React.memo(
 
     const selectable = selectionMode !== 'none';
     const multiple = selectionMode === 'multiple';
-    const index = virtualized ? flatFilteredItems.indexOf(value) : listItem.index;
+    const index = indexProp ?? (virtualized ? flatFilteredItems.indexOf(value) : listItem.index);
 
     const isRow = useComboboxRowContext();
     const active = useStore(store, selectors.isActive, index);
@@ -245,7 +247,11 @@ export namespace ComboboxItem {
   export interface Props extends Omit<BaseUIComponentProps<'div', State>, 'id'> {
     children?: React.ReactNode;
     /**
-     * A unique value that identifies this combobox item.
+     * The index of the item in the list. Improves performance when specified by avoiding the need to calculate the index automatically from the DOM.
+     */
+    index?: number;
+    /**
+     * A unique value that identifies this item.
      */
     value?: any;
     /**

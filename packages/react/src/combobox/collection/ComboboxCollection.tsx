@@ -15,18 +15,17 @@ export function ComboboxCollection(props: ComboboxCollection.Props): React.JSX.E
   const { filteredItems } = useComboboxDerivedItemsContext();
   const groupContext = useGroupCollectionContext();
 
-  // If we're inside a group, use the group's items
   const itemsToRender = groupContext ? groupContext.items : filteredItems;
 
   if (!itemsToRender) {
     return null;
   }
 
-  return <React.Fragment>{itemsToRender.map((item) => children(item))}</React.Fragment>;
+  return <React.Fragment>{itemsToRender.map(children)}</React.Fragment>;
 }
 
 export namespace ComboboxCollection {
   export interface Props {
-    children: (item: any) => React.ReactNode;
+    children: (item: any, index: number) => React.ReactNode;
   }
 }

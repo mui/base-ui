@@ -3,8 +3,8 @@
   "description": "The container for the items.\nRenders a `<div>` element.",
   "props": {
     "children": {
-      "type": "ReactNode | ((item: any) => ReactNode)",
-      "detailedType": "React.ReactNode | ((item: any) => ReactNode)"
+      "type": "ReactNode | ((item: any, index: number) => ReactNode)",
+      "detailedType": "| React.ReactNode\n| ((item: any, index: number) => ReactNode)"
     },
     "className": {
       "type": "string | ((state: Combobox.List.State) => string)",

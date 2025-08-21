@@ -4,7 +4,12 @@
   "props": {
     "value": {
       "type": "any",
-      "description": "A unique value that identifies this combobox item."
+      "description": "A unique value that identifies this item."
+    },
+    "index": {
+      "type": "number",
+      "description": "The index of the item in the list. Improves performance when specified by avoiding the need to calculate the index automatically from the DOM.",
+      "detailedType": "number | undefined"
     },
     "nativeButton": {
       "type": "boolean",
