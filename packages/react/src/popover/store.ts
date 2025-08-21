@@ -64,17 +64,15 @@ export class PopoverStore<Payload = undefined> extends Store<State> {
   }
 
   registerTrigger(triggerElement: HTMLElement, getPayload?: () => Payload) {
-    const triggers = this.state.triggers;
+    const triggers = new Map(this.state.triggers);
     triggers.set(triggerElement, getPayload);
-
-    this.set('triggers', new Map(triggers));
+    this.set('triggers', triggers);
   }
 
   unregisterTrigger(triggerElement: HTMLElement) {
-    const triggers = this.state.triggers;
+    const triggers = new Map(this.state.triggers);
     triggers.delete(triggerElement);
-
-    this.set('triggers', new Map(triggers));
+    this.set('triggers', triggers);
   }
 }
 
