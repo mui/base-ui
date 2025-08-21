@@ -16,6 +16,7 @@ import {
   ARROW_LEFT,
   ARROW_RIGHT,
   ARROW_UP,
+  HORIZONTAL_KEYS,
   VERTICAL_KEYS,
 } from '../../composite/composite';
 
@@ -153,6 +154,11 @@ export function useSharedCalendarDayGridBody(
       if (VERTICAL_KEYS.has(event.key)) {
         const newWeekDay = elementsRef.current[prevIndex - (event.key === ARROW_UP ? 7 : -7)];
         if (newWeekDay && newWeekDay.dataset.disabled !== undefined) {
+          return prevIndex;
+        }
+      } else if (HORIZONTAL_KEYS.has(event.key)) {
+        const newDay = elementsRef.current[prevIndex + (event.key === ARROW_LEFT ? -1 : 1)];
+        if (newDay && newDay.dataset.disabled !== undefined) {
           return prevIndex;
         }
       }
