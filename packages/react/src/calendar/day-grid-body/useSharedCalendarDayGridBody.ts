@@ -11,7 +11,13 @@ import { selectors } from '../store';
 import { CompositeMetadata } from '../../composite/list/CompositeList';
 import { CompositeRoot } from '../../composite/root/CompositeRoot';
 import { findNonDisabledListIndex, isListIndexDisabled } from '../../floating-ui-react/utils';
-import { ARROW_DOWN, ARROW_LEFT, ARROW_RIGHT, ARROW_UP, VERTICAL_KEYS } from '../../composite/composite';
+import {
+  ARROW_DOWN,
+  ARROW_LEFT,
+  ARROW_RIGHT,
+  ARROW_UP,
+  VERTICAL_KEYS,
+} from '../../composite/composite';
 
 const BACKWARD_KEYS = new Set([ARROW_UP, ARROW_LEFT]);
 
@@ -126,6 +132,10 @@ export function useSharedCalendarDayGridBody(
       }
       if (newHighlightedIndex > -1) {
         setHighlightedIndex(newHighlightedIndex);
+        const newHighlightedElement = elementsRef.current[newHighlightedIndex];
+        if (newHighlightedElement) {
+          newHighlightedElement.focus();
+        }
       }
     },
   );

@@ -106,9 +106,6 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
 
   const elementsRef = React.useRef<Array<HTMLDivElement | null>>([]);
   const hasSetDefaultIndexRef = React.useRef(false);
-  // Keeps track of whether an element has been focused
-  // Relevant for restoring focus after children are re-rendered
-  const hasFocusedElementRef = React.useRef(false);
 
   const highlightedIndex = externalHighlightedIndex ?? internalHighlightedIndex;
   const onHighlightedIndexChange = useEventCallback((index, shouldScrollIntoView = false) => {
@@ -157,15 +154,6 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
           return;
         }
         event.target.setSelectionRange(0, event.target.value.length ?? 0);
-      },
-      onBlur(event) {
-        const elements = elementsRef.current;
-        // Reset the focused element ref if blurring outside of the elements
-        if (!elements || (elements && !elements.includes(event.relatedTarget as HTMLDivElement))) {
-          if (hasFocusedElementRef.current) {
-            hasFocusedElementRef.current = false;
-          }
-        }
       },
       onKeyDown(event) {
         const RELEVANT_KEYS = enableHomeAndEndKeys ? ALL_KEYS : ARROW_KEYS;
@@ -349,9 +337,6 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
           // Wait for FocusManager `returnFocus` to execute.
           queueMicrotask(() => {
             elementsRef.current[nextIndex]?.focus();
-            if (!hasFocusedElementRef.current) {
-              hasFocusedElementRef.current = true;
-            }
           });
         }
       },
