@@ -21,6 +21,7 @@ export type State = {
   open: boolean;
   mounted: boolean;
   transitionStatus: TransitionStatus;
+  forceMount: boolean;
 
   inline: boolean;
 
@@ -30,6 +31,8 @@ export type State = {
   popupProps: HTMLProps;
   inputProps: HTMLProps;
   triggerProps: HTMLProps;
+  typeaheadTriggerProps: HTMLProps;
+
   anchorElement: HTMLElement | null;
   positionerElement: HTMLElement | null;
   listElement: HTMLElement | null;
@@ -55,6 +58,7 @@ export const selectors = {
 
   open: createSelector((state: State) => state.open),
   mounted: createSelector((state: State) => state.mounted),
+  forceMount: createSelector((state: State) => state.forceMount),
 
   inline: createSelector((state: State) => state.inline),
 
@@ -73,6 +77,8 @@ export const selectors = {
   popupProps: createSelector((state: State) => state.popupProps),
   inputProps: createSelector((state: State) => state.inputProps),
   triggerProps: createSelector((state: State) => state.triggerProps),
+  typeaheadTriggerProps: createSelector((state: State) => state.typeaheadTriggerProps),
+
   anchorElement: createSelector((state: State) => state.anchorElement),
   positionerElement: createSelector((state: State) => state.positionerElement),
   listElement: createSelector((state: State) => state.listElement),

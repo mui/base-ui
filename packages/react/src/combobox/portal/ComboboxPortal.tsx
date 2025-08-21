@@ -17,8 +17,9 @@ export function ComboboxPortal(props: ComboboxPortal.Props) {
 
   const { store } = useComboboxRootContext();
   const mounted = useStore(store, selectors.mounted);
+  const forceMount = useStore(store, selectors.forceMount);
 
-  const shouldRender = mounted || keepMounted;
+  const shouldRender = mounted || keepMounted || forceMount;
   if (!shouldRender) {
     return null;
   }

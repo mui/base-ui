@@ -2,6 +2,7 @@
 import * as React from 'react';
 import { useStore } from '@base-ui-components/utils/store';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useTimeout } from '@base-ui-components/utils/useTimeout';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useButton } from '../../use-button';
@@ -40,8 +41,11 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
   const anchorElement = useStore(store, selectors.anchorElement);
   const listElement = useStore(store, selectors.listElement);
   const triggerProps = useStore(store, selectors.triggerProps);
+  const typeaheadTriggerProps = useStore(store, selectors.typeaheadTriggerProps);
 
   const disabled = fieldDisabled || comboboxDisabled || disabledProp;
+
+  const focusTimeout = useTimeout();
 
   const currentPointerTypeRef = React.useRef<PointerEvent['pointerType']>('');
 
@@ -72,11 +76,12 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
     state,
     props: [
       triggerProps,
+      typeaheadTriggerProps,
       {
+        disabled,
         'aria-expanded': open,
         'aria-haspopup': 'dialog',
         'aria-controls': open ? listElement?.id : undefined,
-        disabled,
         'aria-readonly': readOnly || undefined,
         onPointerDown: trackPointerType,
         onPointerEnter: trackPointerType,
@@ -110,6 +115,15 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
             setOpen(true, event.nativeEvent, undefined);
             inputRef.current?.focus();
           }
+        },
+        onFocus() {
+          if (disabled || readOnly) {
+            return;
+          }
+
+          focusTimeout.start(0, () => {
+            store.set('forceMount', true);
+          });
         },
       },
       elementProps,

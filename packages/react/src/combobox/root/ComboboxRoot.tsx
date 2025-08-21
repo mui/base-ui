@@ -16,6 +16,7 @@ import {
   useInteractions,
   useListNavigation,
   useClick,
+  useTypeahead,
 } from '../../floating-ui-react';
 import { contains, getTarget } from '../../floating-ui-react/utils';
 import {
@@ -154,14 +155,8 @@ export function ComboboxRoot<Item = any, Mode extends SelectionMode = 'none'>(
     state: 'open',
   });
 
-  const query = React.useMemo(() => {
-    if (inputValue === '') {
-      return '';
-    }
-    return String(inputValue).trim().toLocaleLowerCase();
-  }, [inputValue]);
-
-  const isGrouped = React.useMemo(() => isGroupedItems(items), [items]);
+  const query = inputValue === '' ? '' : String(inputValue).trim().toLocaleLowerCase();
+  const isGrouped = isGroupedItems(items);
 
   const flatItems = React.useMemo(() => {
     if (!items) {
@@ -190,8 +185,6 @@ export function ComboboxRoot<Item = any, Mode extends SelectionMode = 'none'>(
           break;
         }
 
-        // 2. Determine which items from the group are candidates for inclusion.
-        // If there's no query, all items are candidates. Otherwise, filter them.
         const candidateItems =
           query === ''
             ? group.items
@@ -254,6 +247,7 @@ export function ComboboxRoot<Item = any, Mode extends SelectionMode = 'none'>(
         items,
         initialList: [],
         mounted: false,
+        forceMount: false,
         transitionStatus: 'idle',
         inline: false,
         activeIndex: null,
@@ -261,6 +255,7 @@ export function ComboboxRoot<Item = any, Mode extends SelectionMode = 'none'>(
         popupProps: {},
         inputProps: {},
         triggerProps: {},
+        typeaheadTriggerProps: {},
         anchorElement: null,
         positionerElement: null,
         listElement: null,
@@ -298,6 +293,7 @@ export function ComboboxRoot<Item = any, Mode extends SelectionMode = 'none'>(
   }, [virtualized, flatFilteredItems]);
 
   const listRef = React.useRef<Array<HTMLElement | null>>(initialList);
+  const labelsRef = React.useRef<Array<string | null>>([]);
   const popupRef = React.useRef<HTMLDivElement | null>(null);
   const valuesRef = React.useRef<Array<any>>([]);
   const inputRef = React.useRef<HTMLInputElement | null>(null);
@@ -309,6 +305,14 @@ export function ComboboxRoot<Item = any, Mode extends SelectionMode = 'none'>(
 
   const queryRef = React.useRef(query);
   const selectedValueRef = React.useRef(selectedValue);
+
+  const initialSelectedValueRef = React.useRef(selectedValue);
+  useIsoLayoutEffect(() => {
+    // Ensure the values and labels are registered for programmatic value changes.
+    if (selectedValue !== initialSelectedValueRef.current) {
+      store.set('forceMount', true);
+    }
+  }, [store, selectedValue]);
 
   const commitValidation = fieldControlValidation.commitValidation;
 
@@ -333,7 +337,7 @@ export function ComboboxRoot<Item = any, Mode extends SelectionMode = 'none'>(
       return;
     }
     // Drop stray nulls
-    listRef.current = initialList.slice();
+    listRef.current.length = initialList.length;
     valuesRef.current.length = initialList.length;
   }, [initialList, virtualized]);
 
@@ -460,7 +464,6 @@ export function ComboboxRoot<Item = any, Mode extends SelectionMode = 'none'>(
 
   const handleUnmount = useEventCallback(() => {
     allowActiveIndexSyncRef.current = true;
-    listRef.current = initialList;
 
     setMounted(false);
     onOpenChangeComplete?.(false);
@@ -754,6 +757,23 @@ export function ComboboxRoot<Item = any, Mode extends SelectionMode = 'none'>(
     },
   });
 
+  const { reference: typeaheadTriggerProps } = useTypeahead(floatingRootContext, {
+    enabled: !open && !readOnly && !disabled && selectionMode === 'single',
+    listRef: labelsRef,
+    activeIndex,
+    selectedIndex,
+    onMatch(index) {
+      if (open) {
+        store.set('activeIndex', index);
+      } else {
+        const nextSelectedValue = valuesRef.current[index];
+        if (nextSelectedValue !== undefined) {
+          setSelectedValue(nextSelectedValue, undefined, undefined);
+        }
+      }
+    },
+  });
+
   const { getReferenceProps, getFloatingProps, getItemProps } = useInteractions([
     role,
     click,
@@ -768,6 +788,7 @@ export function ComboboxRoot<Item = any, Mode extends SelectionMode = 'none'>(
       popupProps: getFloatingProps(),
       inputProps: getReferenceProps(),
       triggerProps,
+      typeaheadTriggerProps,
     });
   });
 
@@ -785,6 +806,7 @@ export function ComboboxRoot<Item = any, Mode extends SelectionMode = 'none'>(
       popupProps: getFloatingProps(),
       inputProps: getReferenceProps(),
       triggerProps,
+      typeaheadTriggerProps,
       openMethod,
     });
   }, [
@@ -801,6 +823,7 @@ export function ComboboxRoot<Item = any, Mode extends SelectionMode = 'none'>(
     getReferenceProps,
     openMethod,
     triggerProps,
+    typeaheadTriggerProps,
   ]);
 
   const hiddenInputRef = useMergedRefs(inputRefProp, fieldControlValidation.inputRef);
@@ -953,7 +976,13 @@ export function ComboboxRoot<Item = any, Mode extends SelectionMode = 'none'>(
     <ComboboxRootContext.Provider value={contextValue}>
       <ComboboxFloatingContext.Provider value={floatingRootContext}>
         <ComboboxDerivedItemsContext.Provider value={itemsContextValue}>
-          {virtualized ? children : <CompositeList elementsRef={listRef}>{children}</CompositeList>}
+          {virtualized ? (
+            children
+          ) : (
+            <CompositeList elementsRef={listRef} labelsRef={labelsRef}>
+              {children}
+            </CompositeList>
+          )}
         </ComboboxDerivedItemsContext.Provider>
       </ComboboxFloatingContext.Provider>
     </ComboboxRootContext.Provider>
