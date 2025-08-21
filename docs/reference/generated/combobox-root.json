@@ -30,7 +30,7 @@
     "clearInputOnCloseComplete": {
       "type": "boolean",
       "default": "false",
-      "description": "INTERNAL: When `selectionMode` is `none`, clears the input value after close animation completes.\nUseful for wrappers like FilterableMenu so they don't need to reset externally.",
+      "description": "INTERNAL: Clears the input value after close animation completes.\nUseful for wrappers like FilterableMenu so they don't need to reset externally.",
       "detailedType": "boolean | undefined"
     },
     "cols": {

@@ -5,7 +5,8 @@ import { useRenderElement } from '../../utils/useRenderElement';
 import { ComboboxRowContext } from './ComboboxRowContext';
 
 /**
- * Displays a single row of items in the list.
+ * Displays a single row of items in a grid list.
+ * Specify `cols` on the root component to indicate the number of columns.
  * Renders a `<div>` element.
  */
 export const ComboboxRow = React.forwardRef(function ComboboxRow(
