@@ -6,7 +6,7 @@ import { SharedCalendarDayGridBodyContext } from './SharedCalendarDayGridBodyCon
 import { HTMLProps } from '../../utils/types';
 import { useTemporalAdapter } from '../../temporal-adapter-provider/TemporalAdapterContext';
 import { TemporalSupportedObject } from '../../models';
-import { useWeekList } from '../../use-week-list';
+import { unstable_useWeekList as useWeekList } from '../../use-week-list';
 import { selectors } from '../store';
 import { CompositeMetadata } from '../../composite/list/CompositeList';
 import { CompositeRoot } from '../../composite/root/CompositeRoot';

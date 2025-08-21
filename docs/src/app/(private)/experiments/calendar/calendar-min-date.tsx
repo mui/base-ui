@@ -9,11 +9,11 @@ import styles from './calendar.module.css';
 const adapter = new TemporalAdapterLuxon();
 
 export default function CalendarMinDate() {
-  const today = React.useMemo(() => DateTime.now(), []);
+  const today = React.useMemo(() => DateTime.now().endOf('month'), []);
 
   return (
     <TemporalAdapterProvider adapter={adapter}>
-      <Calendar.Root className={styles.Root} minDate={today}>
+      <Calendar.Root className={styles.Root} maxDate={today}>
         {({ visibleDate }) => (
           <React.Fragment>
             <header className={styles.Header}>

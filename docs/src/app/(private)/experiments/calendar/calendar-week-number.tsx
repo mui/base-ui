@@ -5,8 +5,8 @@ import { DateTime } from 'luxon';
 import { TemporalAdapterProvider } from '@base-ui-components/react/temporal-adapter-provider';
 import { TemporalAdapterLuxon } from '@base-ui-components/react/temporal-adapter-luxon';
 import { Calendar } from '@base-ui-components/react/calendar';
-import { useDayList } from '@base-ui-components/react/use-day-list';
-import { useWeekList } from '@base-ui-components/react/use-week-list';
+import { unstable_useDayList as useDayList } from '@base-ui-components/react/use-day-list';
+import { unstable_useWeekList as useWeekList } from '@base-ui-components/react/use-week-list';
 import styles from './calendar.module.css';
 
 const adapter = new TemporalAdapterLuxon();

@@ -3,7 +3,7 @@ import * as React from 'react';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { TemporalSupportedObject } from '../../models';
-import { useDayList } from '../../use-day-list';
+import { unstable_useDayList as useDayList } from '../../use-day-list';
 
 /**
  * Groups all cells of a given calendar's day grid row.
