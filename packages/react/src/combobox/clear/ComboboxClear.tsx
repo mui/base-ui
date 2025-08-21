@@ -75,8 +75,8 @@ export const ComboboxClear = React.forwardRef(function ComboboxClear(
           if (disabled || readOnly) {
             return;
           }
-          setInputValue('', event.nativeEvent, 'input-clear');
-          setSelectedValue(undefined, event.nativeEvent, 'input-clear');
+          setInputValue('', event.nativeEvent, 'clear-press');
+          setSelectedValue(undefined, event.nativeEvent, 'clear-press');
           inputRef.current?.focus();
           store.set('activeIndex', null);
         },
