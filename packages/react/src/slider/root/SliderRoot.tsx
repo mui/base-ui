@@ -201,17 +201,18 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
     thumbRefs.current?.[0]?.focus();
   });
 
-  useIsoLayoutEffect(() => {
-    if (valueProp === undefined || dragging) {
-      return;
-    }
+  if (process.env.NODE_ENV !== 'production') {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    useIsoLayoutEffect(() => {
+      if (valueProp === undefined || dragging) {
+        return;
+      }
 
-    if (process.env.NODE_ENV !== 'production') {
       if (min >= max) {
         warn('Slider `max` must be greater than `min`.');
       }
-    }
-  }, [dragging, min, max, valueProp]);
+    }, [dragging, min, max, valueProp]);
+  }
 
   useIsoLayoutEffect(() => {
     const activeEl = activeElement(ownerDocument(sliderRef.current));
