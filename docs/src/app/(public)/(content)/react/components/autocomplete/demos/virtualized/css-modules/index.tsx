@@ -46,8 +46,8 @@ export default function ExampleVirtualizedAutocomplete() {
       items={filteredItems}
       open={open}
       onOpenChange={setOpen}
-      inputValue={searchValue}
-      onInputValueChange={setSearchValue}
+      value={searchValue}
+      onValueChange={setSearchValue}
       openOnInputClick
       onItemHighlighted={(item, { type, index }) => {
         const isStart = index === 0;

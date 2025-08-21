@@ -12,7 +12,7 @@ describe('<Combobox.Clear />', () => {
     button: true,
     render(node) {
       return render(
-        <Combobox.Root defaultSelectedValue="a">
+        <Combobox.Root defaultValue="a">
           <Combobox.Input />
           {node}
         </Combobox.Root>,
@@ -22,7 +22,7 @@ describe('<Combobox.Clear />', () => {
 
   it('renders in single mode when a value is selected', async () => {
     await render(
-      <Combobox.Root defaultSelectedValue="a">
+      <Combobox.Root defaultValue="a">
         <Combobox.Input />
         <Combobox.Clear data-testid="clear" />
       </Combobox.Root>,
@@ -32,7 +32,7 @@ describe('<Combobox.Clear />', () => {
 
   it('does not render in multiple selection mode', async () => {
     await render(
-      <Combobox.Root multiple defaultSelectedValue={['a']}>
+      <Combobox.Root multiple defaultValue={['a']}>
         <Combobox.Input />
         <Combobox.Clear data-testid="clear" />
       </Combobox.Root>,
@@ -43,7 +43,7 @@ describe('<Combobox.Clear />', () => {
 
   it('click clears selected value and focuses input', async () => {
     await render(
-      <Combobox.Root defaultSelectedValue="a">
+      <Combobox.Root defaultValue="a">
         <Combobox.Input data-testid="input" />
         <Combobox.Clear data-testid="clear" />
         <Combobox.Portal>
@@ -68,7 +68,7 @@ describe('<Combobox.Clear />', () => {
 
   it('does not dismiss the popup on click (outsidePress is blocked)', async () => {
     const { user } = await render(
-      <Combobox.Root defaultOpen defaultSelectedValue="a">
+      <Combobox.Root defaultOpen defaultValue="a">
         <Combobox.Input data-testid="input" />
         <Combobox.Clear data-testid="clear" />
         <Combobox.Portal>
@@ -93,7 +93,7 @@ describe('<Combobox.Clear />', () => {
 
   it('is disabled when root disabled and does nothing on click', async () => {
     await render(
-      <Combobox.Root defaultSelectedValue="a" disabled>
+      <Combobox.Root defaultValue="a" disabled>
         <Combobox.Input data-testid="input" />
         <Combobox.Clear data-testid="clear" />
       </Combobox.Root>,
@@ -108,7 +108,7 @@ describe('<Combobox.Clear />', () => {
 
   it('is readOnly when root readOnly and does nothing on click', async () => {
     await render(
-      <Combobox.Root defaultSelectedValue="a" readOnly>
+      <Combobox.Root defaultValue="a" readOnly>
         <Combobox.Input data-testid="input" />
         <Combobox.Clear data-testid="clear" />
       </Combobox.Root>,

@@ -45,8 +45,8 @@ describe('<Combobox.ChipRemove />', () => {
         <Combobox.Root
           multiple
           disabled
-          defaultSelectedValue={['apple', 'banana']}
-          onSelectedValueChange={handleValueChange}
+          defaultValue={['apple', 'banana']}
+          onValueChange={handleValueChange}
         >
           <Combobox.Input data-testid="input" />
           <Combobox.Chips>
@@ -94,8 +94,8 @@ describe('<Combobox.ChipRemove />', () => {
         <Combobox.Root
           multiple
           readOnly
-          defaultSelectedValue={['apple', 'banana']}
-          onSelectedValueChange={handleValueChange}
+          defaultValue={['apple', 'banana']}
+          onValueChange={handleValueChange}
         >
           <Combobox.Input data-testid="input" />
           <Combobox.Chips>
@@ -149,8 +149,8 @@ describe('<Combobox.ChipRemove />', () => {
       const { user } = await render(
         <Combobox.Root
           multiple
-          defaultSelectedValue={['apple', 'banana']}
-          onSelectedValueChange={handleValueChange}
+          defaultValue={['apple', 'banana']}
+          onValueChange={handleValueChange}
         >
           <Combobox.Input data-testid="input" />
           <Combobox.Chips>
@@ -176,7 +176,7 @@ describe('<Combobox.ChipRemove />', () => {
 
     it('should focus input after removing chip', async () => {
       const { user } = await render(
-        <Combobox.Root multiple defaultSelectedValue={['apple']}>
+        <Combobox.Root multiple defaultValue={['apple']}>
           <Combobox.Input data-testid="input" />
           <Combobox.Chips>
             <Combobox.Chip>
@@ -199,7 +199,7 @@ describe('<Combobox.ChipRemove />', () => {
       const handleChipClick = spy();
       const handleRemoveClick = spy();
       const { user } = await render(
-        <Combobox.Root multiple defaultSelectedValue={['apple']}>
+        <Combobox.Root multiple defaultValue={['apple']}>
           <Combobox.Input data-testid="input" />
           <Combobox.Chips>
             <Combobox.Chip onClick={handleChipClick}>
@@ -224,8 +224,8 @@ describe('<Combobox.ChipRemove />', () => {
       const { user } = await render(
         <Combobox.Root
           multiple
-          defaultSelectedValue={['apple', 'banana']}
-          onSelectedValueChange={handleValueChange}
+          defaultValue={['apple', 'banana']}
+          onValueChange={handleValueChange}
         >
           <Combobox.Input data-testid="input" />
           <Combobox.Chips>

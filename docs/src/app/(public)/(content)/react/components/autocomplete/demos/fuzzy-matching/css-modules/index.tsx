@@ -49,8 +49,8 @@ export default function ExampleFuzzyMatchingAutocomplete() {
     <Autocomplete.Root
       items={fuzzyItems}
       filter={fuzzyFilter}
-      inputValue={searchValue}
-      onInputValueChange={setSearchValue}
+      value={searchValue}
+      onValueChange={setSearchValue}
       itemToString={itemToString}
     >
       <label className={styles.Label}>

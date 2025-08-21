@@ -126,7 +126,7 @@ describe('<Combobox.Item />', () => {
 
   it('reflects selected value with aria-selected when reopening', async () => {
     const { user } = await render(
-      <Combobox.Root defaultSelectedValue="two">
+      <Combobox.Root defaultValue="two">
         <Combobox.Input data-testid="input" />
         <Combobox.Portal>
           <Combobox.Positioner>

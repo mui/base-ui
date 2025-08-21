@@ -72,8 +72,8 @@ export default function ExampleAsyncAutocomplete() {
   return (
     <Autocomplete.Root
       items={searchResults}
-      inputValue={searchValue}
-      onInputValueChange={setSearchValue}
+      value={searchValue}
+      onValueChange={setSearchValue}
       itemToString={itemToString}
       filter={null}
     >

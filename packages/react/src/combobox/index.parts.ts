@@ -1,10 +1,11 @@
 export { ComboboxRoot as Root } from './root/ComboboxPublicRoot';
-export { ComboboxSelectedValue as SelectedValue } from './selected-value/ComboboxSelectedValue';
+export { ComboboxValue as Value } from './selected-value/ComboboxValue';
 export { ComboboxInput as Input } from './input/ComboboxInput';
 export { ComboboxTrigger as Trigger } from './trigger/ComboboxTrigger';
 export { ComboboxList as List } from './list/ComboboxList';
 export { ComboboxStatus as Status } from './status/ComboboxStatus';
 export { ComboboxPortal as Portal } from './portal/ComboboxPortal';
+export { ComboboxBackdrop as Backdrop } from './backdrop/ComboboxBackdrop';
 export { ComboboxPositioner as Positioner } from './positioner/ComboboxPositioner';
 export { ComboboxPopup as Popup } from './popup/ComboboxPopup';
 export { ComboboxArrow as Arrow } from './arrow/ComboboxArrow';

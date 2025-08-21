@@ -6,10 +6,10 @@ import { stringifyItem } from '../root/utils';
 import { selectors } from '../store';
 
 /**
- * The currently selected value.
+ * The current value of the combobox.
  * Doesn't render its own HTML element.
  */
-export function ComboboxSelectedValue(props: ComboboxSelectedValue.Props) {
+export function ComboboxValue(props: ComboboxValue.Props) {
   const { children: childrenProp } = props;
 
   const { store, itemToString } = useComboboxRootContext();
@@ -108,7 +108,7 @@ export function ComboboxSelectedValue(props: ComboboxSelectedValue.Props) {
   return stringifyItem(selectedValue, itemToString);
 }
 
-export namespace ComboboxSelectedValue {
+export namespace ComboboxValue {
   export interface State {}
 
   export interface Props {

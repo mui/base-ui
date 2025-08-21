@@ -5,6 +5,7 @@ export { ComboboxIcon as Icon } from '../combobox/icon/ComboboxIcon';
 export { ComboboxList as List } from '../combobox/list/ComboboxList';
 export { ComboboxStatus as Status } from '../combobox/status/ComboboxStatus';
 export { ComboboxPortal as Portal } from '../combobox/portal/ComboboxPortal';
+export { ComboboxBackdrop as Backdrop } from '../combobox/backdrop/ComboboxBackdrop';
 export { ComboboxPositioner as Positioner } from '../combobox/positioner/ComboboxPositioner';
 export { ComboboxPopup as Popup } from '../combobox/popup/ComboboxPopup';
 export { ComboboxArrow as Arrow } from '../combobox/arrow/ComboboxArrow';

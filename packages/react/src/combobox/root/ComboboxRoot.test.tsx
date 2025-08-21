@@ -351,7 +351,7 @@ describe('<Combobox.Root />', () => {
     it('should prevent value changes when readOnly with items', async () => {
       const handleValueChange = spy();
       const { user } = await render(
-        <Combobox.Root readOnly onSelectedValueChange={handleValueChange} defaultOpen>
+        <Combobox.Root readOnly onValueChange={handleValueChange} defaultOpen>
           <Combobox.Input data-testid="input" />
           <Combobox.Portal>
             <Combobox.Positioner>
@@ -382,7 +382,7 @@ describe('<Combobox.Root />', () => {
       const handleValueChange = spy();
 
       const { user } = await render(
-        <Combobox.Root multiple onSelectedValueChange={handleValueChange}>
+        <Combobox.Root multiple onValueChange={handleValueChange}>
           <Combobox.Input />
           <Combobox.List>
             <Combobox.Item value="a">a</Combobox.Item>
@@ -407,7 +407,7 @@ describe('<Combobox.Root />', () => {
 
     it('should create multiple hidden inputs for form submission', async () => {
       const { container } = await render(
-        <Combobox.Root multiple selectedValue={['a', 'b']} name="languages">
+        <Combobox.Root multiple value={['a', 'b']} name="languages">
           <Combobox.Input />
           <Combobox.Portal>
             <Combobox.Positioner>
@@ -432,7 +432,7 @@ describe('<Combobox.Root />', () => {
   describe('multiple selection with disabled state', () => {
     it('should handle disabled state with chips', async () => {
       const { user } = await render(
-        <Combobox.Root multiple disabled defaultSelectedValue={['a', 'b']}>
+        <Combobox.Root multiple disabled defaultValue={['a', 'b']}>
           <Combobox.Input data-testid="input" />
           <Combobox.Chips>
             <Combobox.Chip data-testid="chip-a">
@@ -468,7 +468,7 @@ describe('<Combobox.Root />', () => {
 
     it('should handle readOnly state with chips', async () => {
       const { user } = await render(
-        <Combobox.Root multiple readOnly defaultSelectedValue={['a', 'b']}>
+        <Combobox.Root multiple readOnly defaultValue={['a', 'b']}>
           <Combobox.Input data-testid="input" />
           <Combobox.Chips>
             <Combobox.Chip data-testid="chip-a">
@@ -599,7 +599,7 @@ describe('<Combobox.Root />', () => {
         const items = ['apple', 'banana', 'cherry'];
 
         const { user } = await render(
-          <Combobox.Root items={items} defaultSelectedValue="apple">
+          <Combobox.Root items={items} defaultValue="apple">
             <Combobox.Input data-testid="input" />
             <Combobox.Trigger data-testid="trigger">Open</Combobox.Trigger>
             <Combobox.Portal>
@@ -637,7 +637,7 @@ describe('<Combobox.Root />', () => {
         const items = ['apple', 'banana', 'cherry'];
 
         const { user } = await render(
-          <Combobox.Root items={items} defaultSelectedValue="apple">
+          <Combobox.Root items={items} defaultValue="apple">
             <Combobox.Input data-testid="input" />
             <Combobox.Trigger data-testid="trigger">Open</Combobox.Trigger>
             <Combobox.Portal>
@@ -760,7 +760,7 @@ describe('<Combobox.Root />', () => {
           items={items}
           itemToString={(item) => item.country}
           itemToValue={(item) => item.code}
-          defaultSelectedValue={items[0]}
+          defaultValue={items[0]}
         >
           <Combobox.Input />
           <Combobox.Portal>
@@ -791,7 +791,7 @@ describe('<Combobox.Root />', () => {
           itemToString={(item) => item.country}
           itemToValue={(item) => item.code}
           multiple
-          defaultSelectedValue={[items[0], items[1]]}
+          defaultValue={[items[0], items[1]]}
         >
           <Combobox.Input />
           <Combobox.Portal>
@@ -1612,14 +1612,14 @@ describe('<Combobox.Root />', () => {
       expect(screen.queryByText('alpha')).not.to.equal(null);
     });
 
-    it('controls selectedValue and calls onSelectedValueChange on click', async () => {
+    it('controls value and calls onValueChange on click', async () => {
       const handle = spy();
       function App() {
         const [value, setValue] = React.useState<string | null>(null);
         return (
           <Combobox.Root
-            selectedValue={value}
-            onSelectedValueChange={(v) => {
+            value={value}
+            onValueChange={(v) => {
               setValue(v as string | null);
               handle(v);
             }}
@@ -1676,15 +1676,11 @@ describe('<Combobox.Root />', () => {
       expect(input).to.have.value('typed');
     });
 
-    it('fires correct reasons for onSelectedValueChange and onInputValueChange when clearing', async () => {
+    it('fires correct reasons for onValueChange and onInputValueChange when clearing', async () => {
       const onSelected = spy();
       const onInput = spy();
       const { user } = await render(
-        <Combobox.Root
-          defaultSelectedValue="a"
-          onSelectedValueChange={onSelected}
-          onInputValueChange={onInput}
-        >
+        <Combobox.Root defaultValue="a" onValueChange={onSelected} onInputValueChange={onInput}>
           <Combobox.Input data-testid="input" />
           <Combobox.Clear data-testid="clear" />
           <Combobox.Portal>
@@ -1712,7 +1708,7 @@ describe('<Combobox.Root />', () => {
     it('fires input-change reason when hidden input changes (autofill)', async () => {
       const onSelected = spy();
       const { container } = await render(
-        <Combobox.Root name="auto" onSelectedValueChange={onSelected} defaultOpen>
+        <Combobox.Root name="auto" onValueChange={onSelected} defaultOpen>
           <Combobox.Input />
           <Combobox.Portal>
             <Combobox.Positioner>
@@ -1944,7 +1940,7 @@ describe('<Combobox.Root />', () => {
       it('adds [data-filled] attribute when already filled', async () => {
         await render(
           <Field.Root>
-            <Combobox.Root defaultSelectedValue="1">
+            <Combobox.Root defaultValue="1">
               <Combobox.Input data-testid="input" />
               <Combobox.Portal>
                 <Combobox.Positioner>

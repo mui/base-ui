@@ -1168,7 +1168,7 @@ export type ComboboxRootConditionalProps<Item, Mode extends SelectionMode = 'non
    */
   selectionMode?: Mode;
   /**
-   * The selected value of the combobox.
+   * The selected value of the combobox. Use when controlled.
    */
   selectedValue?: ComboboxValueType<ExtractItemType<Item>, Mode>;
   /**

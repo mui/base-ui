@@ -14,7 +14,7 @@ export default function ExampleMultipleCombobox() {
           Programming languages
         </label>
         <Combobox.Chips className={styles.Chips} ref={containerRef}>
-          <Combobox.SelectedValue>
+          <Combobox.Value>
             {(value: Lang[]) => (
               <React.Fragment>
                 {value.map((language) => (
@@ -36,7 +36,7 @@ export default function ExampleMultipleCombobox() {
                 />
               </React.Fragment>
             )}
-          </Combobox.SelectedValue>
+          </Combobox.Value>
         </Combobox.Chips>
       </div>
 

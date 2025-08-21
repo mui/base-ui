@@ -55,7 +55,7 @@ export default function ExampleCreatableCombobox() {
       <Combobox.Root
         items={itemsForView}
         multiple
-        onSelectedValueChange={(next) => {
+        onValueChange={(next) => {
           const last = next[next.length - 1];
           if (last && last.creatable) {
             pendingQueryRef.current = last.creatable;
@@ -66,7 +66,7 @@ export default function ExampleCreatableCombobox() {
           setSelected(clean);
           setQuery('');
         }}
-        selectedValue={selected}
+        value={selected}
         itemToString={itemToString}
         inputValue={query}
         onInputValueChange={setQuery}
@@ -81,7 +81,7 @@ export default function ExampleCreatableCombobox() {
             Labels
           </label>
           <Combobox.Chips className={styles.Chips} ref={containerRef}>
-            <Combobox.SelectedValue>
+            <Combobox.Value>
               {(value: LabelItem[]) => (
                 <React.Fragment>
                   {value.map((label) => (
@@ -100,7 +100,7 @@ export default function ExampleCreatableCombobox() {
                   />
                 </React.Fragment>
               )}
-            </Combobox.SelectedValue>
+            </Combobox.Value>
           </Combobox.Chips>
         </div>
 

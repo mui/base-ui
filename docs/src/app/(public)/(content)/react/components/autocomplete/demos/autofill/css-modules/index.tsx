@@ -19,8 +19,8 @@ export default function ExampleAutofillAutocomplete() {
   return (
     <div className={styles.Container}>
       <Autocomplete.Root
-        inputValue={inputHighlightValue || searchValue}
-        onInputValueChange={(nextValue) => {
+        value={inputHighlightValue || searchValue}
+        onValueChange={(nextValue) => {
           setInputHighlightValue('');
           setSearchValue(nextValue);
         }}

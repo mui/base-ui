@@ -7,6 +7,21 @@
       "description": "Identifies the field when a form is submitted.",
       "detailedType": "string | undefined"
     },
+    "defaultValue": {
+      "type": "string | number | string[]",
+      "description": "The uncontrolled input value of the autocomplete when it's initially rendered.\n\nTo render a controlled autocomplete, use the `value` prop instead.",
+      "detailedType": "string | number | string[] | undefined"
+    },
+    "value": {
+      "type": "string | number | string[]",
+      "description": "The input value of the autocomplete. Use when controlled.",
+      "detailedType": "string | number | string[] | undefined"
+    },
+    "onValueChange": {
+      "type": "((value: string, event: Event | undefined, reason: string | undefined) => void)",
+      "description": "Callback fired when the input value of the autocomplete changes.",
+      "detailedType": "| ((\n    value: string,\n    event: Event | undefined,\n    reason: string | undefined,\n  ) => void)\n| undefined"
+    },
     "defaultOpen": {
       "type": "boolean",
       "default": "false",
@@ -34,20 +49,10 @@
       "description": "The number of columns the items are rendered in grid layout.",
       "detailedType": "number | undefined"
     },
-    "defaultInputValue": {
-      "type": "string | number | string[]",
-      "description": "The uncontrolled input value when initially rendered.",
-      "detailedType": "string | number | string[] | undefined"
-    },
     "filter": {
       "type": "((item: GroupItem | Item, query: string, itemToString: ((item: GroupItem | Item) => string) | undefined) => boolean) | null",
       "description": "Filter function used to match items vs input query.\nThe `itemToString` function is provided to help convert items to strings for comparison.",
       "detailedType": "| ((\n    item: GroupItem | Item,\n    query: string,\n    itemToString:\n      | ((item: GroupItem | Item) => string)\n      | undefined,\n  ) => boolean)\n| null\n| undefined"
-    },
-    "inputValue": {
-      "type": "string | number | string[]",
-      "description": "The input value of the combobox.",
-      "detailedType": "string | number | string[] | undefined"
     },
     "itemToString": {
       "type": "((item: GroupItem | Item) => string)",
@@ -69,11 +74,6 @@
       "default": "-1",
       "description": "The maximum number of items to display in the list.",
       "detailedType": "number | undefined"
-    },
-    "onInputValueChange": {
-      "type": "((value: string, event: Event | undefined, reason: string | undefined) => void)",
-      "description": "Callback fired when the input value of the combobox changes.",
-      "detailedType": "| ((\n    value: string,\n    event: Event | undefined,\n    reason: string | undefined,\n  ) => void)\n| undefined"
     },
     "onItemHighlighted": {
       "type": "((value: GroupItem | Item | undefined, data: { type: 'none' | 'keyboard' | 'pointer', index: number }) => void)",

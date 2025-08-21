@@ -35,7 +35,7 @@ describe('<Combobox.Chip />', () => {
 
     it('should prevent keyboard navigation when disabled', async () => {
       const { user } = await render(
-        <Combobox.Root multiple disabled defaultSelectedValue={['apple', 'banana']}>
+        <Combobox.Root multiple disabled defaultValue={['apple', 'banana']}>
           <Combobox.Input data-testid="input" />
           <Combobox.Chips>
             <Combobox.Chip data-testid="chip-apple">apple</Combobox.Chip>
@@ -62,8 +62,8 @@ describe('<Combobox.Chip />', () => {
         <Combobox.Root
           multiple
           disabled
-          defaultSelectedValue={['apple', 'banana']}
-          onSelectedValueChange={handleValueChange}
+          defaultValue={['apple', 'banana']}
+          onValueChange={handleValueChange}
         >
           <Combobox.Input data-testid="input" />
           <Combobox.Chips>
@@ -124,8 +124,8 @@ describe('<Combobox.Chip />', () => {
         <Combobox.Root
           multiple
           readOnly
-          defaultSelectedValue={['apple', 'banana']}
-          onSelectedValueChange={handleValueChange}
+          defaultValue={['apple', 'banana']}
+          onValueChange={handleValueChange}
         >
           <Combobox.Input data-testid="input" />
           <Combobox.Chips>
@@ -149,7 +149,7 @@ describe('<Combobox.Chip />', () => {
 
     it('should prevent navigation when readOnly and also prevent deletion', async () => {
       const { user } = await render(
-        <Combobox.Root multiple readOnly defaultSelectedValue={['apple', 'banana']}>
+        <Combobox.Root multiple readOnly defaultValue={['apple', 'banana']}>
           <Combobox.Input data-testid="input" />
           <Combobox.Chips>
             <Combobox.Chip data-testid="chip-apple">apple</Combobox.Chip>
@@ -176,7 +176,7 @@ describe('<Combobox.Chip />', () => {
   describe('interaction behavior', () => {
     it('does not dismiss the popup when clicking a chip (outsidePress is blocked)', async () => {
       const { user } = await render(
-        <Combobox.Root multiple defaultOpen defaultSelectedValue={['apple', 'banana']}>
+        <Combobox.Root multiple defaultOpen defaultValue={['apple', 'banana']}>
           <Combobox.Input data-testid="input" />
           <Combobox.Portal>
             <Combobox.Positioner>
@@ -204,7 +204,7 @@ describe('<Combobox.Chip />', () => {
 
     it('should handle keyboard navigation when enabled', async () => {
       const { user } = await render(
-        <Combobox.Root multiple defaultSelectedValue={['apple', 'banana', 'cherry']}>
+        <Combobox.Root multiple defaultValue={['apple', 'banana', 'cherry']}>
           <Combobox.Input data-testid="input" />
           <Combobox.Chips>
             <Combobox.Chip data-testid="chip-apple">apple</Combobox.Chip>
@@ -245,8 +245,8 @@ describe('<Combobox.Chip />', () => {
       const { user } = await render(
         <Combobox.Root
           multiple
-          defaultSelectedValue={['apple', 'banana']}
-          onSelectedValueChange={handleValueChange}
+          defaultValue={['apple', 'banana']}
+          onValueChange={handleValueChange}
         >
           <Combobox.Input data-testid="input" />
           <Combobox.Chips>

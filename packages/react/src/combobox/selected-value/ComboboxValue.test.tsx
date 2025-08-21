@@ -4,15 +4,13 @@ import { screen } from '@mui/internal-test-utils';
 import { Combobox } from '@base-ui-components/react/combobox';
 import { createRenderer } from '#test-utils';
 
-describe('<Combobox.SelectedValue />', () => {
+describe('<Combobox.Value />', () => {
   const { render } = createRenderer();
 
   it('renders current selected value via function child', async () => {
     await render(
-      <Combobox.Root defaultSelectedValue="b">
-        <Combobox.SelectedValue>
-          {(val) => <div data-testid="value">{val}</div>}
-        </Combobox.SelectedValue>
+      <Combobox.Root defaultValue="b">
+        <Combobox.Value>{(val) => <div data-testid="value">{val}</div>}</Combobox.Value>
         <Combobox.Portal>
           <Combobox.Positioner>
             <Combobox.Popup>
@@ -38,7 +36,7 @@ describe('<Combobox.SelectedValue />', () => {
     await render(
       <Combobox.Root items={items}>
         <Combobox.Trigger>
-          <Combobox.SelectedValue />
+          <Combobox.Value />
         </Combobox.Trigger>
         <Combobox.Portal>
           <Combobox.Positioner>

@@ -119,7 +119,7 @@
     },
     "selectedValue": {
       "type": "(GroupItem | Item)[] | GroupItem | Item | null",
-      "description": "The selected value of the combobox.",
+      "description": "The selected value of the combobox. Use when controlled.",
       "detailedType": "| (GroupItem | Item)[]\n| GroupItem\n| Item\n| null\n| undefined"
     },
     "selectionMode": {
