@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { isElement } from '@floating-ui/utils/dom';
 import { formatNumber } from '../../utils/formatNumber';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
@@ -30,7 +31,7 @@ export const SliderValue = React.forwardRef(function SliderValue(
   const outputFor = React.useMemo(() => {
     let htmlFor = '';
     for (const thumbElement of thumbMap.keys()) {
-      if (thumbElement instanceof Element) {
+      if (isElement(thumbElement)) {
         const id = thumbElement.getAttribute('id');
         htmlFor += `${id} `;
       }
