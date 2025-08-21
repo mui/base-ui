@@ -696,7 +696,6 @@ export function ComboboxRoot<Item = any, Mode extends SelectionMode = 'none'>(
 
   const dismiss = useDismiss(floatingRootContext, {
     enabled: !readOnly && !disabled,
-    bubbles: true,
     outsidePressEvent:
       anchorElement !== inputElement ? { mouse: 'intentional', touch: 'sloppy' } : undefined,
     outsidePress(event) {
