@@ -4,32 +4,32 @@ import { Combobox } from '@base-ui-components/react/combobox';
 <Combobox.Root
   multiple
   // @ts-expect-error – should be an array when in multiple mode
-  defaultSelectedValue="javascript"
-  onSelectedValueChange={(value) => {
+  defaultValue="javascript"
+  onValueChange={(value) => {
     value.pop();
   }}
 />;
 
 <Combobox.Root
   multiple
-  defaultSelectedValue={['javascript', 'typescript']}
-  onSelectedValueChange={(value) => {
+  defaultValue={['javascript', 'typescript']}
+  onValueChange={(value) => {
     value.pop();
   }}
 />;
 
 <Combobox.Root
   // @ts-expect-error – should be a scalar when in single mode
-  defaultSelectedValue={['javascript', 'typescript']}
-  onSelectedValueChange={(value) => {
+  defaultValue={['javascript', 'typescript']}
+  onValueChange={(value) => {
     // @ts-expect-error – value is not an array in single mode
     value.pop();
   }}
 />;
 
 <Combobox.Root
-  defaultSelectedValue="javascript"
-  onSelectedValueChange={(value) => {
+  defaultValue="javascript"
+  onValueChange={(value) => {
     // @ts-expect-error – value is not an array in single mode
     value.pop();
   }}
@@ -37,7 +37,7 @@ import { Combobox } from '@base-ui-components/react/combobox';
 
 <Combobox.Root
   multiple
-  onSelectedValueChange={(value) => {
+  onValueChange={(value) => {
     value.pop();
   }}
 />;
