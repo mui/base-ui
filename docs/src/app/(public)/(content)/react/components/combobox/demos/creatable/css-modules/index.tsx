@@ -27,7 +27,21 @@ export default function ExampleCreatableCombobox() {
     if (!value) {
       return;
     }
-    const newItem: LabelItem = { id: value.toLowerCase().replace(/\s+/g, '-'), value };
+
+    const normalized = value.toLocaleLowerCase();
+    const newId = normalized.replace(/\s+/g, '-');
+    const existing = labels.find(
+      (l) => l.value.trim().toLocaleLowerCase() === normalized || l.id === newId,
+    );
+
+    if (existing) {
+      setSelected((prev) => (prev.some((i) => i.id === existing.id) ? prev : [...prev, existing]));
+      setOpenDialog(false);
+      setQuery('');
+      return;
+    }
+
+    const newItem: LabelItem = { id: newId, value };
 
     if (!selected.find((item) => item.value === value)) {
       setLabels((prev) => [...prev, newItem]);
@@ -43,12 +57,14 @@ export default function ExampleCreatableCombobox() {
     handleCreate();
   }
 
-  const lowered = query.trim().toLocaleLowerCase();
-  const hasMatches =
-    lowered === '' || labels.some((l) => l.value.toLocaleLowerCase().includes(lowered));
-  const itemsForView: Array<LabelItem> = hasMatches
-    ? labels
-    : [{ creatable: query, id: `create:${lowered}`, value: `Create "${query}"` }];
+  const trimmed = query.trim();
+  const lowered = trimmed.toLocaleLowerCase();
+  const exactExists = labels.some((l) => l.value.trim().toLocaleLowerCase() === lowered);
+  // Show the creatable item alongside matches if there's no exact match
+  const itemsForView: Array<LabelItem> =
+    trimmed !== '' && !exactExists
+      ? [...labels, { creatable: trimmed, id: `create:${lowered}`, value: `Create "${trimmed}"` }]
+      : labels;
 
   return (
     <React.Fragment>
@@ -72,6 +88,23 @@ export default function ExampleCreatableCombobox() {
         onInputValueChange={setQuery}
         onOpenChange={(open, event) => {
           if (event && 'key' in event && event.key === 'Enter') {
+            // When pressing Enter:
+            // - If the typed value exactly matches an existing item, add that item to the selected chips
+            // - Otherwise, create a new item
+            if (trimmed === '') {
+              return;
+            }
+
+            const existing = labels.find((l) => l.value.trim().toLocaleLowerCase() === lowered);
+
+            if (existing) {
+              setSelected((prev) =>
+                prev.some((i) => i.id === existing.id) ? prev : [...prev, existing],
+              );
+              setQuery('');
+              return;
+            }
+
             handleCreate();
           }
         }}
