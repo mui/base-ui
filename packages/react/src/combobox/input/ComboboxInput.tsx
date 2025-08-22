@@ -44,7 +44,6 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
     setOpen,
     keyboardActiveRef,
     onItemHighlighted,
-    valuesRef,
     disabled: comboboxDisabled,
     readOnly,
     fieldControlValidation,
@@ -120,6 +119,8 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
             : highlightedChipIndex;
         // If the computed index is negative, treat it as no highlight.
         nextIndex = computedNextIndex >= 0 ? computedNextIndex : undefined;
+        store.apply({ selectedIndex: null, activeIndex: null });
+        onItemHighlighted(undefined, { type: 'keyboard', index: -1 });
       }
       return nextIndex;
     }
@@ -138,6 +139,8 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
       event.currentTarget.value === '' &&
       selectedValue.length > 0
     ) {
+      store.apply({ selectedIndex: null, activeIndex: null });
+      onItemHighlighted(undefined, { type: 'keyboard', index: -1 });
       event.preventDefault();
     }
 
@@ -167,10 +170,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
           }
         },
         onChange(event: React.ChangeEvent<HTMLInputElement>) {
-          // If consumer didn't control value prop, sync with context
-          if (componentProps.value === undefined) {
-            setInputValue(event.currentTarget.value, event.nativeEvent, 'input-change');
-          }
+          setInputValue(event.currentTarget.value, event.nativeEvent, 'input-change');
 
           if (event.currentTarget.value === '' && !openOnInputClick && !hasPositionerParent) {
             setOpen(false, event.nativeEvent, undefined);
@@ -194,7 +194,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
           // virtual focus returns to the input (aria-activedescendant is
           // cleared).
           if (open && activeIndex !== null) {
-            store.set('activeIndex', null);
+            store.apply({ activeIndex: null, selectedIndex: null });
             onItemHighlighted(undefined, {
               type: keyboardActiveRef.current ? 'keyboard' : 'pointer',
               index: -1,
@@ -217,15 +217,10 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
             Array.isArray(selectedValue) &&
             selectedValue.length > 0
           ) {
-            // Removing the last chip via Backspace
-            const removedItem = selectedValue[selectedValue.length - 1];
-            const removedIndex = valuesRef.current.indexOf(removedItem);
-            if (removedIndex !== -1 && activeIndex === removedIndex) {
-              // If the removed item was also the active (highlighted) item, clear highlight
-              store.apply({ selectedIndex: null, activeIndex: null });
-              onItemHighlighted(undefined, { type: 'keyboard', index: -1 });
-            }
             const newValue = selectedValue.slice(0, -1);
+            // If the removed item was also the active (highlighted) item, clear highlight
+            store.apply({ selectedIndex: null, activeIndex: null });
+            onItemHighlighted(undefined, { type: 'keyboard', index: -1 });
             setSelectedValue(newValue, event.nativeEvent, undefined);
             return;
           }

@@ -398,22 +398,67 @@ export function ComboboxRoot<Item = any, Mode extends SelectionMode = 'none'>(
   const hasRegisteredRef = React.useRef(false);
 
   const syncSelectedState = useEventCallback(() => {
-    if (!hasRegisteredRef.current || selectionMode === 'none') {
+    // Allow updates even when nothing registered yet in multiple mode if closed,
+    // so removing chips while the popup is closed keeps indices in sync.
+    if (selectionMode === 'none') {
+      return;
+    }
+
+    const isOpen = store.state.open;
+
+    if (!hasRegisteredRef.current && !(multiple && !isOpen)) {
       return;
     }
 
     if (multiple) {
       const currentValue = Array.isArray(selectedValue) ? selectedValue : [];
+
+      if (!isOpen) {
+        // When closed, compute against the full flatItems list (no DOM items exist).
+        const selectedIndices: number[] = [];
+        currentValue.forEach((val) => {
+          const idx = flatItems.indexOf(val);
+          if (idx !== -1) {
+            selectedIndices.push(idx);
+          }
+        });
+        const nextSelectedIndex =
+          selectedIndices.length > 0 ? selectedIndices[selectedIndices.length - 1] : null;
+        store.apply({ selectedIndex: nextSelectedIndex, activeIndex: null });
+        return;
+      }
+
+      // When open, prefer indices based on the currently rendered values list
+      // and ensure selectedIndex points to a selected item. If it doesn't, move it to the last selected.
       const lastValue = currentValue[currentValue.length - 1];
       const lastIndex = lastValue !== undefined ? valuesRef.current.indexOf(lastValue) : -1;
 
-      let computedSelectedIndex = store.state.selectedIndex;
-      if (computedSelectedIndex === null) {
-        computedSelectedIndex = lastIndex === -1 ? null : lastIndex;
+      const currentSelectedIndex = store.state.selectedIndex;
+      const currentSelectedIsValid =
+        currentSelectedIndex !== null &&
+        currentSelectedIndex >= 0 &&
+        currentSelectedIndex < valuesRef.current.length &&
+        currentValue.includes(valuesRef.current[currentSelectedIndex]);
+
+      let nextIndex: number | null;
+      if (currentSelectedIsValid) {
+        nextIndex = currentSelectedIndex as number;
+      } else if (lastIndex === -1) {
+        nextIndex = null;
+      } else {
+        nextIndex = lastIndex;
       }
 
-      store.set('selectedIndex', computedSelectedIndex);
+      store.set('selectedIndex', nextIndex);
     } else {
+      const isOpenSingle = store.state.open;
+      if (!isOpenSingle) {
+        const idx = flatItems.indexOf(selectedValue);
+        const nextIndex = idx !== -1 ? idx : null;
+        store.apply({ selectedIndex: nextIndex, activeIndex: null });
+        return;
+      }
+
       const index = valuesRef.current.indexOf(selectedValue);
       const hasIndex = index !== -1;
 
@@ -558,18 +603,6 @@ export function ComboboxRoot<Item = any, Mode extends SelectionMode = 'none'>(
         // Reset active index and clear any highlighted item since the list will re-filter.
         store.set('activeIndex', null);
         onItemHighlighted(undefined, { type: 'none', index: -1 });
-      }
-
-      if (selectionMode !== 'none') {
-        if (multiple) {
-          const arr = Array.isArray(selectedValue) ? selectedValue : [];
-          const last = arr[arr.length - 1];
-          const idx = last !== undefined ? valuesRef.current.indexOf(last) : -1;
-          store.set('selectedIndex', idx !== -1 ? idx : null);
-        } else {
-          const idx = valuesRef.current.indexOf(selectedValue);
-          store.set('selectedIndex', idx !== -1 ? idx : null);
-        }
       }
 
       if (selectionMode === 'single' && nextValue != null && reason !== 'input-change') {

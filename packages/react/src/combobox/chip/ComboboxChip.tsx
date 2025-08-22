@@ -21,16 +21,8 @@ export const ComboboxChip = React.forwardRef(function ComboboxChip(
 ) {
   const { render, className, ...elementProps } = componentProps;
 
-  const {
-    inputRef,
-    store,
-    setSelectedValue,
-    setOpen,
-    disabled,
-    readOnly,
-    onItemHighlighted,
-    valuesRef,
-  } = useComboboxRootContext();
+  const { inputRef, store, setSelectedValue, setOpen, disabled, readOnly, onItemHighlighted } =
+    useComboboxRootContext();
   const { setHighlightedChipIndex, chipsRef } = useComboboxChipsContext()!;
 
   const selectedValue = useStore(store, selectors.selectedValue);
@@ -38,11 +30,6 @@ export const ComboboxChip = React.forwardRef(function ComboboxChip(
   const { ref, index } = useCompositeListItem();
 
   function handleKeyDown(event: React.KeyboardEvent<HTMLDivElement>) {
-    if (disabled) {
-      event.preventDefault();
-      return index;
-    }
-
     let nextIndex: number | undefined = index;
 
     if (event.key === 'ArrowLeft') {
@@ -60,24 +47,15 @@ export const ComboboxChip = React.forwardRef(function ComboboxChip(
         nextIndex = undefined;
       }
     } else if (event.key === 'Backspace' || event.key === 'Delete') {
-      if (readOnly) {
-        event.preventDefault();
-        return index;
-      }
-
       const computedNextIndex =
         index >= selectedValue.length - 1 ? selectedValue.length - 2 : index;
       nextIndex = computedNextIndex >= 0 ? computedNextIndex : undefined;
 
       stopEvent(event);
-      // If the removed chip was the active item, clear highlight
-      const activeIndex = store.state.activeIndex;
-      const removedItem = selectedValue[index];
-      const removedIndex = valuesRef.current.indexOf(removedItem);
-      if (removedIndex !== -1 && activeIndex === removedIndex) {
-        store.set('activeIndex', null);
-        onItemHighlighted(undefined, { type: 'keyboard', index: -1 });
-      }
+
+      store.apply({ selectedIndex: null, activeIndex: null });
+      onItemHighlighted(undefined, { type: 'keyboard', index: -1 });
+
       setSelectedValue(
         selectedValue.filter((_: any, i: number) => i !== index),
         event.nativeEvent,

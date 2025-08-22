@@ -90,6 +90,9 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
             return;
           }
 
+          // Ensure items are registered for initial selection highlight.
+          store.set('forceMount', true);
+
           if (anchorElement !== null) {
             event.preventDefault();
           }

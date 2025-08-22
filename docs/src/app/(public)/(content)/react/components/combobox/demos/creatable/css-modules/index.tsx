@@ -28,10 +28,8 @@ export default function ExampleCreatableCombobox() {
     }
 
     const normalized = value.toLocaleLowerCase();
-    const newId = normalized.replace(/\s+/g, '-');
-    const existing = labels.find(
-      (l) => l.value.trim().toLocaleLowerCase() === normalized || l.id === newId,
-    );
+    const baseId = normalized.replace(/\s+/g, '-');
+    const existing = labels.find((l) => l.value.trim().toLocaleLowerCase() === normalized);
 
     if (existing) {
       setSelected((prev) => (prev.some((i) => i.id === existing.id) ? prev : [...prev, existing]));
@@ -40,9 +38,20 @@ export default function ExampleCreatableCombobox() {
       return;
     }
 
-    const newItem: LabelItem = { id: newId, value };
+    // Ensure we don't collide with an existing id (e.g., value "docs" vs. existing id "docs")
+    const existingIds = new Set(labels.map((l) => l.id));
+    let uniqueId = baseId;
+    if (existingIds.has(uniqueId)) {
+      let i = 2;
+      while (existingIds.has(`${baseId}-${i}`)) {
+        i += 1;
+      }
+      uniqueId = `${baseId}-${i}`;
+    }
 
-    if (!selected.find((item) => item.value === value)) {
+    const newItem: LabelItem = { id: uniqueId, value };
+
+    if (!selected.find((item) => item.id === newItem.id)) {
       setLabels((prev) => [...prev, newItem]);
       setSelected((prev) => [...prev, newItem]);
     }
