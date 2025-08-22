@@ -1,7 +1,6 @@
 import * as React from 'react';
 import { Combobox } from '@base-ui-components/react/combobox';
 import styles from './index.module.css';
-import { langs, type Lang } from './data';
 
 export default function ExampleMultipleCombobox() {
   const containerRef = React.useRef<HTMLDivElement | null>(null);
@@ -15,7 +14,7 @@ export default function ExampleMultipleCombobox() {
         </label>
         <Combobox.Chips className={styles.Chips} ref={containerRef}>
           <Combobox.Value>
-            {(value: Lang[]) => (
+            {(value: ProgrammingLanguage[]) => (
               <React.Fragment>
                 {value.map((language) => (
                   <Combobox.Chip
@@ -45,7 +44,7 @@ export default function ExampleMultipleCombobox() {
           <Combobox.Popup className={styles.Popup}>
             <Combobox.Empty className={styles.Empty}>No languages found.</Combobox.Empty>
             <Combobox.List>
-              {(language: Lang) => (
+              {(language: ProgrammingLanguage) => (
                 <Combobox.Item key={language.id} className={styles.Item} value={language}>
                   <Combobox.ItemIndicator className={styles.ItemIndicator}>
                     <CheckIcon className={styles.ItemIndicatorIcon} />
@@ -89,3 +88,22 @@ function XIcon(props: React.ComponentProps<'svg'>) {
     </svg>
   );
 }
+
+interface ProgrammingLanguage {
+  id: string;
+  value: string;
+}
+
+const langs: ProgrammingLanguage[] = [
+  { id: 'js', value: 'JavaScript' },
+  { id: 'ts', value: 'TypeScript' },
+  { id: 'py', value: 'Python' },
+  { id: 'java', value: 'Java' },
+  { id: 'cpp', value: 'C++' },
+  { id: 'cs', value: 'C#' },
+  { id: 'php', value: 'PHP' },
+  { id: 'ruby', value: 'Ruby' },
+  { id: 'go', value: 'Go' },
+  { id: 'rust', value: 'Rust' },
+  { id: 'swift', value: 'Swift' },
+];

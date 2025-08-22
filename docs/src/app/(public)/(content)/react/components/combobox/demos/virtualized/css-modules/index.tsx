@@ -3,7 +3,6 @@ import * as React from 'react';
 import { Combobox } from '@base-ui-components/react/combobox';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import styles from './index.module.css';
-import { virtualItems } from './data';
 
 export default function ExampleVirtualizedCombobox() {
   const [open, setOpen] = React.useState(false);
@@ -146,3 +145,8 @@ function CheckIcon(props: React.ComponentProps<'svg'>) {
     </svg>
   );
 }
+
+const virtualItems = Array.from({ length: 10000 }, (_, i) => {
+  const indexLabel = String(i + 1).padStart(4, '0');
+  return `Item ${indexLabel}`;
+});

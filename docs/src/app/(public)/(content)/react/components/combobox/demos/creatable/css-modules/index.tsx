@@ -2,7 +2,6 @@ import * as React from 'react';
 import { Combobox } from '@base-ui-components/react/combobox';
 import { Dialog } from '@base-ui-components/react/dialog';
 import styles from './index.module.css';
-import { initialLabels, type LabelItem } from './data';
 
 function itemToString(item: LabelItem) {
   return item.value;
@@ -242,3 +241,17 @@ function XIcon(props: React.ComponentProps<'svg'>) {
     </svg>
   );
 }
+
+interface LabelItem {
+  creatable?: string;
+  id: string;
+  value: string;
+}
+
+const initialLabels: LabelItem[] = [
+  { id: 'bug', value: 'bug' },
+  { id: 'docs', value: 'documentation' },
+  { id: 'enhancement', value: 'enhancement' },
+  { id: 'help-wanted', value: 'help wanted' },
+  { id: 'good-first-issue', value: 'good first issue' },
+];

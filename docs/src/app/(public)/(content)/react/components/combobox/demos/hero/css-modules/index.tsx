@@ -1,11 +1,10 @@
 import * as React from 'react';
 import { Combobox } from '@base-ui-components/react/combobox';
 import styles from './index.module.css';
-import { options } from './data';
 
 export default function ExampleCombobox() {
   return (
-    <Combobox.Root items={options}>
+    <Combobox.Root items={fruits}>
       <label className={styles.Label}>
         Choose a fruit
         <Combobox.Input placeholder="e.g. Apple" className={styles.Input} />
@@ -82,3 +81,5 @@ function ChevronDownIcon(props: React.ComponentProps<'svg'>) {
     </svg>
   );
 }
+
+const fruits = ['Apple', 'Banana', 'Orange', 'Pineapple', 'Grape', 'Mango', 'Strawberry'];

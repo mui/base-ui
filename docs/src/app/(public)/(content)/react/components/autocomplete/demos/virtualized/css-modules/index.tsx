@@ -3,7 +3,6 @@ import * as React from 'react';
 import { Autocomplete } from '@base-ui-components/react/autocomplete';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import styles from './index.module.css';
-import { virtualItems } from './data';
 
 export default function ExampleVirtualizedAutocomplete() {
   const [open, setOpen] = React.useState(false);
@@ -117,3 +116,8 @@ export default function ExampleVirtualizedAutocomplete() {
     </Autocomplete.Root>
   );
 }
+
+const virtualItems = Array.from({ length: 10000 }, (_, i) => {
+  const indexLabel = String(i + 1).padStart(4, '0');
+  return `Item ${indexLabel}`;
+});
