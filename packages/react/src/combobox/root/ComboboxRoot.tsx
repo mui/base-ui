@@ -76,6 +76,7 @@ export function ComboboxRoot<Item = any, Mode extends SelectionMode = 'none'>(
     items,
     filter: filterProp,
     openOnInputClick = true,
+    autoHighlight = false,
     itemToString,
     itemToValue,
     virtualized = false,
@@ -387,6 +388,8 @@ export function ComboboxRoot<Item = any, Mode extends SelectionMode = 'none'>(
     }
   }, [setFilled, selectionMode, inputValue, selectedValue, multiple]);
 
+  // (moved below hasRegisteredRef declaration)
+
   const setInputValue = useEventCallback(
     (next: string, event: Event | undefined, reason: ValueChangeReason | undefined) => {
       // If user is typing, ensure we don't auto-highlight on open due to a race
@@ -397,6 +400,13 @@ export function ComboboxRoot<Item = any, Mode extends SelectionMode = 'none'>(
           setQueryChangedAfterOpen(true);
           // Prevent initial selectedIndex -> activeIndex sync on typed opens.
           allowActiveIndexSyncRef.current = false;
+        }
+        if (selectionMode === 'none' && autoHighlight) {
+          if (hasQuery) {
+            store.set('activeIndex', 0);
+          } else {
+            store.set('activeIndex', null);
+          }
         }
       }
       if (reason === 'input-clear' && open) {
@@ -421,6 +431,19 @@ export function ComboboxRoot<Item = any, Mode extends SelectionMode = 'none'>(
   );
 
   const hasRegisteredRef = React.useRef(false);
+
+  // Clear highlight when no rendered items remain, but only after at least
+  // one item has registered to avoid clearing on initial type-before-register.
+  useIsoLayoutEffect(() => {
+    if (selectionMode !== 'none' || !autoHighlight || !open || transitionStatus === 'ending') {
+      return;
+    }
+
+    const valuesLength = valuesRef.current.length;
+    if (valuesLength === 0 && hasRegisteredRef.current && store.state.activeIndex !== null) {
+      store.set('activeIndex', null);
+    }
+  }, [selectionMode, autoHighlight, open, transitionStatus, store]);
 
   const syncSelectedState = useEventCallback(() => {
     // Allow updates even when nothing registered yet in multiple mode if closed,
@@ -503,7 +526,6 @@ export function ComboboxRoot<Item = any, Mode extends SelectionMode = 'none'>(
     }
 
     if (multiple) {
-      // Keep `selectedIndex` in sync once an item reports its index.
       syncSelectedState();
       return;
     }
@@ -535,7 +557,11 @@ export function ComboboxRoot<Item = any, Mode extends SelectionMode = 'none'>(
     // interfering with navigation. On close, ensure it reflects the
     // current selection so initial highlight on next open is correct.
     if (selectionMode === 'none') {
-      store.apply({ activeIndex: null, selectedIndex: null });
+      // Reset highlight; it will only be re-applied on input onChange when there's text.
+      store.apply({
+        activeIndex: null,
+        selectedIndex: null,
+      });
     } else if (multiple) {
       const currentValue = Array.isArray(selectedValue) ? selectedValue : [];
       const selectedIndices: number[] = [];
@@ -759,11 +785,9 @@ export function ComboboxRoot<Item = any, Mode extends SelectionMode = 'none'>(
     selectedIndex,
     virtual: true,
     loop: true,
-    allowEscape: true,
+    allowEscape: !autoHighlight,
     openOnArrowKeyDown:
       anchorElement === inputElement && (inputElement as HTMLElement | null)?.tagName === 'INPUT',
-    // Use 'auto' so arrow key openings highlight appropriately without requiring a prior selection,
-    // but disable when the user has typed after opening to avoid auto-highlighting on type-open.
     focusItemOnOpen:
       queryChangedAfterOpen || selectionMode === 'none' || selectedIndex === null ? false : 'auto',
     cols,
@@ -884,6 +908,7 @@ export function ComboboxRoot<Item = any, Mode extends SelectionMode = 'none'>(
       openOnInputClick,
       itemToString,
       modal,
+      autoHighlight,
     }),
     [
       selectionMode,
@@ -907,6 +932,7 @@ export function ComboboxRoot<Item = any, Mode extends SelectionMode = 'none'>(
       openOnInputClick,
       itemToString,
       modal,
+      autoHighlight,
     ],
   );
 
@@ -1091,6 +1117,11 @@ interface ComboboxRootProps<Item> {
    * @default true
    */
   openOnInputClick?: boolean;
+  /**
+   * Whether to automatically highlight the first item when the popup opens.
+   * @default false
+   */
+  autoHighlight?: boolean;
   /**
    * The input value of the combobox.
    */

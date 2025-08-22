@@ -11,13 +11,21 @@ import { ComboboxRoot } from '../../combobox/root/ComboboxRoot';
 export function AutocompleteRoot<Item = any>(
   props: AutocompleteRoot.Props<Item>,
 ): React.JSX.Element {
-  const { openOnInputClick = false, value, defaultValue, onValueChange, ...rest } = props;
+  const {
+    openOnInputClick = false,
+    value,
+    defaultValue,
+    onValueChange,
+    autoHighlight = false,
+    ...rest
+  } = props;
   return (
     <ComboboxRoot
       {...rest}
       openOnInputClick={openOnInputClick}
       selectionMode="none"
       fillInputOnItemPress
+      autoHighlight={autoHighlight}
       inputValue={value}
       defaultInputValue={defaultValue}
       onInputValueChange={onValueChange}

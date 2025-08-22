@@ -57,6 +57,7 @@ export interface ComboboxRootContext {
   openOnInputClick: boolean;
   itemToString?: (item: any) => string;
   modal: boolean;
+  autoHighlight: boolean;
 }
 
 export interface ComboboxDerivedItemsContext {

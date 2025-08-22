@@ -53,6 +53,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
     openOnInputClick,
     name,
     selectionMode,
+    autoHighlight,
   } = useComboboxRootContext();
   const comboboxChipsContext = useComboboxChipsContext();
   const hasPositionerParent = Boolean(useComboboxPositionerContext(true));
@@ -184,12 +185,15 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
             const trimmed = event.currentTarget.value.trim();
             if (trimmed !== '') {
               setOpen(true, event.nativeEvent, undefined);
-              store.apply({ activeIndex: null, selectedIndex: null });
-              if (activeIndex !== null) {
-                onItemHighlighted(undefined, {
-                  type: keyboardActiveRef.current ? 'keyboard' : 'pointer',
-                  index: -1,
-                });
+              // When autoHighlight is enabled for autocomplete, keep the highlight (will be set to 0 in root).
+              if (!(selectionMode === 'none' && autoHighlight)) {
+                store.apply({ activeIndex: null, selectedIndex: null });
+                if (activeIndex !== null) {
+                  onItemHighlighted(undefined, {
+                    type: keyboardActiveRef.current ? 'keyboard' : 'pointer',
+                    index: -1,
+                  });
+                }
               }
             }
           }
@@ -197,7 +201,11 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
           // When the user types, ensure the list resets its highlight so that
           // virtual focus returns to the input (aria-activedescendant is
           // cleared).
-          if (open && activeIndex !== null) {
+          if (
+            open &&
+            activeIndex !== null &&
+            !(selectionMode === 'none' && autoHighlight && event.currentTarget.value.trim() !== '')
+          ) {
             store.apply({ activeIndex: null, selectedIndex: null });
             onItemHighlighted(undefined, {
               type: keyboardActiveRef.current ? 'keyboard' : 'pointer',

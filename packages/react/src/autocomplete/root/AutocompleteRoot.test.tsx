@@ -13,6 +13,74 @@ describe('<Autocomplete.Root />', () => {
 
   const { render } = createRenderer();
 
+  describe('prop: autoHighlight', () => {
+    it('highlights the first item when typing and keeps it during filtering', async () => {
+      const { user } = await render(
+        <Autocomplete.Root autoHighlight>
+          <Autocomplete.Input />
+          <Autocomplete.Portal>
+            <Autocomplete.Positioner>
+              <Autocomplete.Popup>
+                <Autocomplete.List>
+                  <Autocomplete.Item value="new york">new york</Autocomplete.Item>
+                  <Autocomplete.Item value="new york city">new york city</Autocomplete.Item>
+                  <Autocomplete.Item value="newcastle">newcastle</Autocomplete.Item>
+                </Autocomplete.List>
+              </Autocomplete.Popup>
+            </Autocomplete.Positioner>
+          </Autocomplete.Portal>
+        </Autocomplete.Root>,
+      );
+
+      const input = screen.getByRole('combobox');
+      await user.click(input);
+      await user.type(input, 'new');
+
+      const newYorkOption = screen.getByRole('option', { name: 'new york' });
+      expect(newYorkOption).to.have.attribute('data-highlighted');
+      expect(input.getAttribute('aria-activedescendant')).to.equal(newYorkOption.id);
+
+      // Trailing space should not clear highlight if matches remain
+      await user.type(input, ' ');
+
+      expect(newYorkOption).to.have.attribute('data-highlighted');
+      expect(input.getAttribute('aria-activedescendant')).to.equal(newYorkOption.id);
+    });
+
+    it('does not highlight on open via click or when pressing arrow keys initially', async () => {
+      const { user } = await render(
+        <Autocomplete.Root autoHighlight openOnInputClick>
+          <Autocomplete.Input />
+          <Autocomplete.Portal>
+            <Autocomplete.Positioner>
+              <Autocomplete.Popup>
+                <Autocomplete.List>
+                  <Autocomplete.Item value="apple">apple</Autocomplete.Item>
+                  <Autocomplete.Item value="banana">banana</Autocomplete.Item>
+                </Autocomplete.List>
+              </Autocomplete.Popup>
+            </Autocomplete.Positioner>
+          </Autocomplete.Portal>
+        </Autocomplete.Root>,
+      );
+
+      const input = screen.getByRole('combobox');
+      await user.click(input);
+      // Opening by click alone should not auto-highlight anymore
+      expect(input).not.to.have.attribute('aria-activedescendant');
+
+      // Arrow navigation can move highlight, but until pressed there should be none
+      await user.keyboard('{ArrowDown}');
+      expect(input).to.have.attribute('aria-activedescendant');
+
+      await user.keyboard('{Escape}');
+      await user.click(input);
+      expect(input).not.to.have.attribute('aria-activedescendant');
+      await user.keyboard('{ArrowUp}');
+      expect(input).to.have.attribute('aria-activedescendant');
+    });
+  });
+
   describe('Form', () => {
     const { render: renderFakeTimers, clock } = createRenderer({
       clockOptions: {
