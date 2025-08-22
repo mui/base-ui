@@ -8,8 +8,6 @@ export type State = {
 
   query: string;
 
-  initialList: any[];
-
   filter: (item: any, query: string) => boolean;
 
   // The items provided to the combobox. Can be flat or grouped.
@@ -48,8 +46,6 @@ export const selectors = {
   id: createSelector((state: State) => state.id),
 
   query: createSelector((state: State) => state.query),
-
-  initialList: createSelector((state: State) => state.initialList),
 
   items: createSelector((state: State) => state.items),
 

@@ -75,7 +75,6 @@ export const ComboboxItem = React.memo(
     const active = useStore(store, selectors.isActive, index);
     const matchesSelectedValue = useStore(store, selectors.isSelected, value);
     const rootSelectedValue = useStore(store, selectors.selectedValue);
-    const initialList = useStore(store, selectors.initialList);
 
     const selected = matchesSelectedValue && selectable;
 
@@ -104,7 +103,7 @@ export const ComboboxItem = React.memo(
       }
 
       return undefined;
-    }, [index, virtualized, listRef, valuesRef, value, initialList]);
+    }, [index, virtualized, listRef, valuesRef, value]);
 
     useIsoLayoutEffect(() => {
       if (!hasRegistered) {

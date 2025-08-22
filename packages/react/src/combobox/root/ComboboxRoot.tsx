@@ -158,16 +158,16 @@ export function ComboboxRoot<Item = any, Mode extends SelectionMode = 'none'>(
   const query = inputValue === '' ? '' : String(inputValue).trim().toLocaleLowerCase();
   const isGrouped = isGroupedItems(items);
 
-  const flatItems = React.useMemo(() => {
+  const flatItems: ExtractItemType<Item>[] = React.useMemo(() => {
     if (!items) {
-      return [] as ExtractItemType<Item>[];
+      return [];
     }
 
     if (isGrouped) {
       return (items as ComboboxGroup<ExtractItemType<Item>>[]).flatMap((group) => group.items);
     }
 
-    return items as ExtractItemType<Item>[];
+    return items;
   }, [items, isGrouped]);
 
   const filteredItems = React.useMemo(() => {
@@ -176,7 +176,7 @@ export function ComboboxRoot<Item = any, Mode extends SelectionMode = 'none'>(
     }
 
     if (isGrouped) {
-      const groupedItems = items as ComboboxGroup<ExtractItemType<Item>>[];
+      const groupedItems = items;
       const resultingGroups: ComboboxGroup<ExtractItemType<Item>>[] = [];
       let currentCount = 0;
 
@@ -245,7 +245,6 @@ export function ComboboxRoot<Item = any, Mode extends SelectionMode = 'none'>(
         filter,
         query,
         items,
-        initialList: [],
         mounted: false,
         forceMount: false,
         transitionStatus: 'idle',
@@ -285,14 +284,7 @@ export function ComboboxRoot<Item = any, Mode extends SelectionMode = 'none'>(
     reset: resetOpenInteractionType,
   } = useOpenInteractionType(open);
 
-  const initialList = React.useMemo(() => {
-    if (virtualized) {
-      return Array.from({ length: flatFilteredItems.length }, () => null);
-    }
-    return [];
-  }, [virtualized, flatFilteredItems]);
-
-  const listRef = React.useRef<Array<HTMLElement | null>>(initialList);
+  const listRef = React.useRef<Array<HTMLElement | null>>([]);
   const labelsRef = React.useRef<Array<string | null>>([]);
   const popupRef = React.useRef<HTMLDivElement | null>(null);
   const valuesRef = React.useRef<Array<any>>([]);
@@ -341,18 +333,9 @@ export function ComboboxRoot<Item = any, Mode extends SelectionMode = 'none'>(
       return;
     }
     // Drop stray nulls
-    listRef.current.length = initialList.length;
-    valuesRef.current.length = initialList.length;
-  }, [initialList, virtualized]);
-
-  // Maintain a full value map for virtualized lists so offscreen selections and
-  // navigation use the correct indices even when DOM nodes aren't rendered.
-  useIsoLayoutEffect(() => {
-    if (!virtualized) {
-      return;
-    }
-    valuesRef.current = flatFilteredItems.slice();
-  }, [virtualized, flatFilteredItems]);
+    listRef.current.length = flatFilteredItems.length;
+    valuesRef.current.length = flatFilteredItems.length;
+  }, [flatFilteredItems, virtualized]);
 
   useValueChanged(queryRef, query, () => {
     if (!open || query === '' || query === String(defaultInputValue).toLocaleLowerCase()) {
@@ -828,7 +811,6 @@ export function ComboboxRoot<Item = any, Mode extends SelectionMode = 'none'>(
       mounted,
       transitionStatus,
       items,
-      initialList,
       popupProps: getFloatingProps(),
       inputProps: getReferenceProps(),
       triggerProps,
@@ -844,7 +826,6 @@ export function ComboboxRoot<Item = any, Mode extends SelectionMode = 'none'>(
     mounted,
     transitionStatus,
     items,
-    initialList,
     getFloatingProps,
     getReferenceProps,
     openMethod,
