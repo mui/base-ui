@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { ComboboxRoot } from '../../combobox/root/ComboboxRoot';
+import { ComboboxRootInternal } from '../../combobox/root/ComboboxRootInternal';
 import { ComboboxDefaultAnchorContext } from '../../combobox/positioner/ComboboxDefaultAnchorContext';
 
 /**
@@ -16,7 +16,7 @@ export function FilterableMenuRoot<Item = any>(
 
   return (
     <ComboboxDefaultAnchorContext.Provider value="trigger">
-      <ComboboxRoot
+      <ComboboxRootInternal
         {...rest}
         selectionMode="none"
         fillInputOnItemPress={false}
@@ -31,7 +31,7 @@ export function FilterableMenuRoot<Item = any>(
 export namespace FilterableMenuRoot {
   export interface Props<Item = any>
     extends Omit<
-      ComboboxRoot.Props<Item, 'none'>,
+      ComboboxRootInternal.Props<Item, 'none'>,
       | 'selectionMode'
       | 'selectedValue'
       | 'defaultSelectedValue'

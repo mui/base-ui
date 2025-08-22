@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
-import { ComboboxRoot } from '../../combobox/root/ComboboxRoot';
+import { ComboboxRootInternal } from '../../combobox/root/ComboboxRootInternal';
 import { stringifyItem } from '../../combobox/root/utils';
 import { useFilter as useCollatorFilter } from '../../combobox/root/utils/useFilter';
 
@@ -87,27 +87,28 @@ export function AutocompleteRoot<Item = any>(
     };
   }
 
-  const handleItemHighlighted: NonNullable<ComboboxRoot.Props<Item, 'none'>['onItemHighlighted']> =
-    useEventCallback((highlightedValue, data) => {
-      props.onItemHighlighted?.(highlightedValue, data);
+  const handleItemHighlighted: NonNullable<
+    ComboboxRootInternal.Props<Item, 'none'>['onItemHighlighted']
+  > = useEventCallback((highlightedValue, data) => {
+    props.onItemHighlighted?.(highlightedValue, data);
 
-      if (data.type !== 'keyboard') {
-        return;
-      }
+    if (data.type !== 'keyboard') {
+      return;
+    }
 
-      if (enableInline) {
-        if (highlightedValue == null) {
-          setInlineOverlay('');
-        } else {
-          setInlineOverlay(stringifyItem(highlightedValue, itemToString));
-        }
-      } else {
+    if (enableInline) {
+      if (highlightedValue == null) {
         setInlineOverlay('');
+      } else {
+        setInlineOverlay(stringifyItem(highlightedValue, itemToString));
       }
-    });
+    } else {
+      setInlineOverlay('');
+    }
+  });
 
   return (
-    <ComboboxRoot
+    <ComboboxRootInternal
       {...rest}
       itemToString={itemToString}
       openOnInputClick={openOnInputClick}
@@ -127,7 +128,7 @@ export function AutocompleteRoot<Item = any>(
 export namespace AutocompleteRoot {
   export interface Props<Item = any>
     extends Omit<
-      ComboboxRoot.Props<Item, 'none'>,
+      ComboboxRootInternal.Props<Item, 'none'>,
       | 'selectionMode'
       | 'selectedValue'
       | 'defaultSelectedValue'
@@ -162,14 +163,14 @@ export namespace AutocompleteRoot {
      *
      * To render a controlled autocomplete, use the `value` prop instead.
      */
-    defaultValue?: ComboboxRoot.Props<Item, 'none'>['defaultInputValue'];
+    defaultValue?: ComboboxRootInternal.Props<Item, 'none'>['defaultInputValue'];
     /**
      * The input value of the autocomplete. Use when controlled.
      */
-    value?: ComboboxRoot.Props<Item, 'none'>['inputValue'];
+    value?: ComboboxRootInternal.Props<Item, 'none'>['inputValue'];
     /**
      * Callback fired when the input value of the autocomplete changes.
      */
-    onValueChange?: ComboboxRoot.Props<Item, 'none'>['onInputValueChange'];
+    onValueChange?: ComboboxRootInternal.Props<Item, 'none'>['onInputValueChange'];
   }
 }

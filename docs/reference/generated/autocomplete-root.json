@@ -34,14 +34,14 @@
       "detailedType": "boolean | undefined"
     },
     "onOpenChange": {
-      "type": "((open: boolean, event: Event | undefined, reason: Combobox.Root.OpenChangeReason | undefined) => void)",
+      "type": "((open: boolean, event: Event | undefined, reason: Combobox.RootInternal.OpenChangeReason | undefined) => void)",
       "description": "Event handler called when the combobox popup is opened or closed.",
-      "detailedType": "| ((\n    open: boolean,\n    event: Event | undefined,\n    reason: Combobox.Root.OpenChangeReason | undefined,\n  ) => void)\n| undefined"
+      "detailedType": "| ((\n    open: boolean,\n    event: Event | undefined,\n    reason:\n      | Combobox.RootInternal.OpenChangeReason\n      | undefined,\n  ) => void)\n| undefined"
     },
     "actionsRef": {
-      "type": "RefObject<Combobox.Root.Actions>",
+      "type": "RefObject<Combobox.RootInternal.Actions>",
       "description": "A ref to imperative actions.\n- `unmount`: When specified, the combobox will not be unmounted when closed.\nInstead, the `unmount` function must be called to unmount the combobox manually.\nUseful when the combobox's animation is controlled by an external library.",
-      "detailedType": "React.RefObject<Combobox.Root.Actions> | undefined"
+      "detailedType": "| React.RefObject<Combobox.RootInternal.Actions>\n| undefined"
     },
     "autoHighlight": {
       "type": "boolean",

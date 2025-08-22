@@ -1,7 +1,11 @@
 {
-  "name": "FilterableMenuRoot",
-  "description": "Groups all parts of the filterable menu.\nDoesn't render its own HTML element.",
+  "name": "ComboboxRootInternal",
   "props": {
+    "name": {
+      "type": "string",
+      "description": "Identifies the field when a form is submitted.",
+      "detailedType": "string | undefined"
+    },
     "defaultOpen": {
       "type": "boolean",
       "default": "false",
@@ -35,6 +39,12 @@
       "description": "Whether to automatically highlight the first item when the popup opens.",
       "detailedType": "boolean | undefined"
     },
+    "clearInputOnCloseComplete": {
+      "type": "boolean",
+      "default": "false",
+      "description": "INTERNAL: Clears the input value after close animation completes.\nUseful for wrappers like FilterableMenu so they don't need to reset externally.",
+      "detailedType": "boolean | undefined"
+    },
     "cols": {
       "type": "number",
       "default": "1",
@@ -46,6 +56,16 @@
       "description": "The uncontrolled input value when initially rendered.",
       "detailedType": "string | number | string[] | undefined"
     },
+    "defaultSelectedValue": {
+      "type": "(GroupItem | Item)[] | GroupItem | Item | null",
+      "description": "The uncontrolled selected value of the combobox when it's initially rendered.\n\nTo render a controlled combobox, use the `selectedValue` prop instead.",
+      "detailedType": "| (GroupItem | Item)[]\n| GroupItem\n| Item\n| null\n| undefined"
+    },
+    "fillInputOnItemPress": {
+      "type": "boolean",
+      "description": "INTERNAL: When `selectionMode` is `none`, controls whether selecting an item fills the input.\nDefaults to `true` to preserve legacy Combobox behavior.",
+      "detailedType": "boolean | undefined"
+    },
     "filter": {
       "type": "((item: GroupItem | Item, query: string, itemToString: ((item: GroupItem | Item) => string) | undefined) => boolean) | null",
       "description": "Filter function used to match items vs input query.\nThe `itemToString` function is provided to help convert items to strings for comparison.",
@@ -55,6 +75,16 @@
       "type": "string | number | string[]",
       "description": "The input value of the combobox.",
       "detailedType": "string | number | string[] | undefined"
+    },
+    "itemToString": {
+      "type": "((item: GroupItem | Item) => string)",
+      "description": "Function to convert an item to a string for display in the combobox.",
+      "detailedType": "((item: GroupItem | Item) => string) | undefined"
+    },
+    "itemToValue": {
+      "type": "((item: GroupItem | Item) => string)",
+      "description": "Function to convert an item to its value for form submission.",
+      "detailedType": "((item: GroupItem | Item) => string) | undefined"
     },
     "items": {
       "type": "(GroupItem | Item)[] | (ComboboxGroup<GroupItem | Item>)[]",
@@ -89,9 +119,26 @@
       "detailedType": "((open: boolean) => void) | undefined"
     },
     "onSelectedValueChange": {
-      "type": "((value: GroupItem | Item | null, event: Event | undefined, reason: string | undefined) => void)",
+      "type": "((value: (GroupItem | Item)[] | GroupItem | Item | null, event: Event | undefined, reason: string | undefined) => void)",
       "description": "Callback fired when the selected value of the combobox changes.",
-      "detailedType": "| ((\n    value: GroupItem | Item | null,\n    event: Event | undefined,\n    reason: string | undefined,\n  ) => void)\n| undefined"
+      "detailedType": "| ((\n    value: (GroupItem | Item)[] | GroupItem | Item | null,\n    event: Event | undefined,\n    reason: string | undefined,\n  ) => void)\n| undefined"
+    },
+    "openOnInputClick": {
+      "type": "boolean",
+      "default": "true",
+      "description": "Whether the combobox popup opens when clicking the input.",
+      "detailedType": "boolean | undefined"
+    },
+    "selectedValue": {
+      "type": "(GroupItem | Item)[] | GroupItem | Item | null",
+      "description": "The selected value of the combobox. Use when controlled.",
+      "detailedType": "| (GroupItem | Item)[]\n| GroupItem\n| Item\n| null\n| undefined"
+    },
+    "selectionMode": {
+      "type": "'none' | 'single' | 'multiple'",
+      "default": "'none'",
+      "description": "How the combobox should remember the selected value.\n- `single`: Remembers the last selected value.\n- `multiple`: Remember all selected values.\n- `none`: Do not remember the selected value.",
+      "detailedType": "SelectionMode | undefined"
     },
     "virtualized": {
       "type": "boolean",
@@ -111,6 +158,17 @@
       "description": "Whether the user should be unable to choose a different option from the combobox popup.",
       "detailedType": "boolean | undefined"
     },
+    "required": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Whether the user must choose a value before submitting a form.",
+      "detailedType": "boolean | undefined"
+    },
+    "inputRef": {
+      "type": "RefObject<HTMLInputElement>",
+      "description": "A ref to the hidden input element used for form submission.",
+      "detailedType": "React.RefObject<HTMLInputElement> | undefined"
+    },
     "id": {
       "type": "string",
       "description": "The id of the combobox.",
@@ -118,7 +176,7 @@
     },
     "children": {
       "type": "ReactNode",
-      "detailedType": "React.ReactNode"
+      "detailedType": "React.ReactNode | undefined"
     }
   },
   "dataAttributes": {},

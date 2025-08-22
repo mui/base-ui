@@ -1,10 +1,26 @@
 {
   "name": "ComboboxRoot",
+  "description": "Groups all parts of the combobox.\nDoesn't render its own HTML element.",
   "props": {
     "name": {
       "type": "string",
       "description": "Identifies the field when a form is submitted.",
       "detailedType": "string | undefined"
+    },
+    "defaultValue": {
+      "type": "(GroupItem | Item)[] | GroupItem | Item | null",
+      "description": "The uncontrolled selected value of the combobox when it's initially rendered.\n\nTo render a controlled combobox, use the `value` prop instead.",
+      "detailedType": "| (GroupItem | Item)[]\n| GroupItem\n| Item\n| null\n| undefined"
+    },
+    "value": {
+      "type": "(GroupItem | Item)[] | GroupItem | Item | null",
+      "description": "The selected value of the combobox. Use when controlled.",
+      "detailedType": "| (GroupItem | Item)[]\n| GroupItem\n| Item\n| null\n| undefined"
+    },
+    "onValueChange": {
+      "type": "((value: (GroupItem | Item)[] | GroupItem | Item | null, event: Event | undefined, reason: string | undefined) => void)",
+      "description": "Callback fired when the selected value of the combobox changes.",
+      "detailedType": "| ((\n    value: (GroupItem | Item)[] | GroupItem | Item | null,\n    event: Event | undefined,\n    reason: string | undefined,\n  ) => void)\n| undefined"
     },
     "defaultOpen": {
       "type": "boolean",
@@ -18,31 +34,19 @@
       "detailedType": "boolean | undefined"
     },
     "onOpenChange": {
-      "type": "((open: boolean, event: Event | undefined, reason: Combobox.Root.OpenChangeReason | undefined) => void)",
+      "type": "((open: boolean, event: Event | undefined, reason: Combobox.RootInternal.OpenChangeReason | undefined) => void)",
       "description": "Event handler called when the combobox popup is opened or closed.",
-      "detailedType": "| ((\n    open: boolean,\n    event: Event | undefined,\n    reason: Combobox.Root.OpenChangeReason | undefined,\n  ) => void)\n| undefined"
+      "detailedType": "| ((\n    open: boolean,\n    event: Event | undefined,\n    reason:\n      | Combobox.RootInternal.OpenChangeReason\n      | undefined,\n  ) => void)\n| undefined"
     },
     "actionsRef": {
-      "type": "RefObject<Combobox.Root.Actions>",
+      "type": "RefObject<Combobox.RootInternal.Actions>",
       "description": "A ref to imperative actions.\n- `unmount`: When specified, the combobox will not be unmounted when closed.\nInstead, the `unmount` function must be called to unmount the combobox manually.\nUseful when the combobox's animation is controlled by an external library.",
-      "detailedType": "React.RefObject<Combobox.Root.Actions> | undefined"
-    },
-    "autoComplete": {
-      "type": "'none' | 'list' | 'inline' | 'both'",
-      "default": "'list'",
-      "description": "Controls how the Autocomplete behaves with respect to list filtering and inline autocompletion.\n- `list` (default): items are dynamically filtered based on the input value. The input value does not change based on the active item.\n- `both`: items are dynamically filtered based on the input value, which will temporarily change based on the active item (inline autocompletion).\n- `inline`: items are static (not filtered), and the input value will temporarily change based on the active item (inline autocompletion).\n- `none`: items are static (not filtered), and the input value will not change based on the active item.",
-      "detailedType": "'none' | 'list' | 'inline' | 'both' | undefined"
+      "detailedType": "| React.RefObject<Combobox.RootInternal.Actions>\n| undefined"
     },
     "autoHighlight": {
       "type": "boolean",
       "default": "false",
       "description": "Whether to automatically highlight the first item when the popup opens.",
-      "detailedType": "boolean | undefined"
-    },
-    "clearInputOnCloseComplete": {
-      "type": "boolean",
-      "default": "false",
-      "description": "INTERNAL: Clears the input value after close animation completes.\nUseful for wrappers like FilterableMenu so they don't need to reset externally.",
       "detailedType": "boolean | undefined"
     },
     "cols": {
@@ -55,16 +59,6 @@
       "type": "string | number | string[]",
       "description": "The uncontrolled input value when initially rendered.",
       "detailedType": "string | number | string[] | undefined"
-    },
-    "defaultSelectedValue": {
-      "type": "(GroupItem | Item)[] | GroupItem | Item | null",
-      "description": "The uncontrolled selected value of the combobox when it's initially rendered.\n\nTo render a controlled combobox, use the `selectedValue` prop instead.",
-      "detailedType": "| (GroupItem | Item)[]\n| GroupItem\n| Item\n| null\n| undefined"
-    },
-    "fillInputOnItemPress": {
-      "type": "boolean",
-      "description": "INTERNAL: When `selectionMode` is `none`, controls whether selecting an item fills the input.\nDefaults to `true` to preserve legacy Combobox behavior.",
-      "detailedType": "boolean | undefined"
     },
     "filter": {
       "type": "((item: GroupItem | Item, query: string, itemToString: ((item: GroupItem | Item) => string) | undefined) => boolean) | null",
@@ -97,11 +91,11 @@
       "description": "The maximum number of items to display in the list.",
       "detailedType": "number | undefined"
     },
-    "modal": {
-      "type": "boolean",
+    "multiple": {
+      "type": "boolean | undefined",
       "default": "false",
-      "description": "Determines if the combobox enters a modal state when open.\n- `true`: user interaction is limited to the combobox: document page scroll is locked and pointer interactions on outside elements are disabled.\n- `false`: user interaction with the rest of the document is allowed.",
-      "detailedType": "boolean | undefined"
+      "description": "Whether multiple items can be selected.",
+      "detailedType": "boolean | undefined | undefined"
     },
     "onInputValueChange": {
       "type": "((value: string, event: Event | undefined, reason: string | undefined) => void)",
@@ -118,27 +112,11 @@
       "description": "Event handler called after any animations complete when the combobox popup is opened or closed.",
       "detailedType": "((open: boolean) => void) | undefined"
     },
-    "onSelectedValueChange": {
-      "type": "((value: (GroupItem | Item)[] | GroupItem | Item | null, event: Event | undefined, reason: string | undefined) => void)",
-      "description": "Callback fired when the selected value of the combobox changes.",
-      "detailedType": "| ((\n    value: (GroupItem | Item)[] | GroupItem | Item | null,\n    event: Event | undefined,\n    reason: string | undefined,\n  ) => void)\n| undefined"
-    },
     "openOnInputClick": {
       "type": "boolean",
       "default": "true",
       "description": "Whether the combobox popup opens when clicking the input.",
       "detailedType": "boolean | undefined"
-    },
-    "selectedValue": {
-      "type": "(GroupItem | Item)[] | GroupItem | Item | null",
-      "description": "The selected value of the combobox. Use when controlled.",
-      "detailedType": "| (GroupItem | Item)[]\n| GroupItem\n| Item\n| null\n| undefined"
-    },
-    "selectionMode": {
-      "type": "'none' | 'single' | 'multiple'",
-      "default": "'none'",
-      "description": "How the combobox should remember the selected value.\n- `single`: Remembers the last selected value.\n- `multiple`: Remember all selected values.\n- `none`: Do not remember the selected value.",
-      "detailedType": "SelectionMode | undefined"
     },
     "virtualized": {
       "type": "boolean",
