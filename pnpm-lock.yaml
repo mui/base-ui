@@ -113,8 +113,8 @@ importers:
         specifier: ^1.12.1
         version: 1.12.1(chai@5.2.1)
       chalk:
-        specifier: ^5.5.0
-        version: 5.5.0
+        specifier: ^5.6.0
+        version: 5.6.0
       compression-webpack-plugin:
         specifier: ^11.1.0
         version: 11.1.0(webpack@5.101.2)
@@ -5491,8 +5491,8 @@ packages:
     resolution: {integrity: sha512-Fo07WOYGqMfCWHOzSXOt2CxDbC6skS/jO9ynEcmpANMoPrD+W1r1K6Vx7iNm+AQmETU1Xr2t+n8nzkV9t6xh3w==}
     engines: {node: ^12.17.0 || ^14.13 || >=16.0.0}
 
-  chalk@5.5.0:
-    resolution: {integrity: sha512-1tm8DTaJhPBG3bIkVeZt1iZM9GfSX2lzOeDVZH9R9ffRHpmHvxZ/QhgQH/aDTkswQVt+YHdXAdS/In/30OjCbg==}
+  chalk@5.6.0:
+    resolution: {integrity: sha512-46QrSQFyVSEyYAgQ22hQ+zDa60YHA4fBstHmtSApj1Y5vKtG27fWowW03jCk5KcbXEWPZUIR894aARCA/G1kfQ==}
     engines: {node: ^12.17.0 || ^14.13 || >=16.0.0}
 
   char-regex@1.0.2:
@@ -13402,7 +13402,7 @@ snapshots:
       '@aws-sdk/credential-providers': 3.864.0
       '@octokit/auth-action': 6.0.1
       '@octokit/rest': 22.0.0
-      chalk: 5.5.0
+      chalk: 5.6.0
       env-ci: 11.1.1
       execa: 9.6.0
       fast-glob: 3.3.3
@@ -13448,7 +13448,7 @@ snapshots:
       babel-plugin-transform-inline-environment-variables: 0.4.4
       babel-plugin-transform-react-remove-prop-types: 0.4.24
       babel-plugin-transform-remove-imports: 1.8.0(@babel/core@7.28.3)
-      chalk: 5.5.0
+      chalk: 5.6.0
       eslint: 9.33.0(jiti@2.5.1)
       eslint-config-airbnb: 19.0.4(eslint-plugin-import@2.32.0(eslint@9.33.0(jiti@2.5.1)))(eslint-plugin-jsx-a11y@6.10.2(eslint@9.33.0(jiti@2.5.1)))(eslint-plugin-react-hooks@6.0.0-rc1(eslint@9.33.0(jiti@2.5.1)))(eslint-plugin-react@7.37.5(eslint@9.33.0(jiti@2.5.1)))(eslint@9.33.0(jiti@2.5.1))
       eslint-config-airbnb-base: 15.0.0(eslint-plugin-import@2.32.0(eslint@9.33.0(jiti@2.5.1)))(eslint@9.33.0(jiti@2.5.1))
@@ -16778,7 +16778,7 @@ snapshots:
     dependencies:
       ansi-align: 3.0.1
       camelcase: 7.0.1
-      chalk: 5.5.0
+      chalk: 5.6.0
       cli-boxes: 3.0.0
       string-width: 5.1.2
       type-fest: 2.19.0
@@ -16950,7 +16950,7 @@ snapshots:
 
   chalk@5.0.1: {}
 
-  chalk@5.5.0: {}
+  chalk@5.6.0: {}
 
   char-regex@1.0.2: {}
 
@@ -19958,7 +19958,7 @@ snapshots:
     dependencies:
       ansi-escapes: 7.0.0
       ansi-regex: 6.1.0
-      chalk: 5.5.0
+      chalk: 5.6.0
       cli-highlight: 2.1.11
       cli-table3: 0.6.5
       marked: 9.1.6
