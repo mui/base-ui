@@ -19,7 +19,8 @@ export const ComboboxChipRemove = React.forwardRef(function ComboboxChipRemove(
 ) {
   const { render, className, nativeButton = true, ...elementProps } = componentProps;
 
-  const { store, inputRef, disabled, readOnly, setSelectedValue } = useComboboxRootContext();
+  const { store, inputRef, disabled, readOnly, setSelectedValue, onItemHighlighted, valuesRef } =
+    useComboboxRootContext();
   const { index } = useComboboxChipContext();
 
   const selectedValue = useStore(store, selectors.selectedValue);
@@ -50,6 +51,14 @@ export const ComboboxChipRemove = React.forwardRef(function ComboboxChipRemove(
             return;
           }
           event.stopPropagation();
+          // If the removed chip was the active item, clear highlight
+          const activeIndex = store.state.activeIndex;
+          const removedItem = selectedValue[index];
+          const removedIndex = valuesRef.current.indexOf(removedItem);
+          if (removedIndex !== -1 && activeIndex === removedIndex) {
+            store.set('activeIndex', null);
+            onItemHighlighted(undefined, { type: 'pointer', index: -1 });
+          }
           setSelectedValue(
             selectedValue.filter((_: any, i: number) => i !== index),
             event.nativeEvent,
@@ -64,6 +73,14 @@ export const ComboboxChipRemove = React.forwardRef(function ComboboxChipRemove(
 
           if (event.key === 'Enter' || event.key === ' ') {
             stopEvent(event);
+            // If the removed chip was the active item, clear highlight
+            const activeIndex = store.state.activeIndex;
+            const removedItem = selectedValue[index];
+            const removedIndex = valuesRef.current.indexOf(removedItem);
+            if (removedIndex !== -1 && activeIndex === removedIndex) {
+              store.set('activeIndex', null);
+              onItemHighlighted(undefined, { type: 'keyboard', index: -1 });
+            }
             setSelectedValue(
               selectedValue.filter((_: any, i: number) => i !== index),
               event.nativeEvent,
