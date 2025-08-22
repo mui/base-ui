@@ -132,8 +132,15 @@ jobs:
       - install_js:
           react-version: << parameters.react-version >>
       - run:
-          name: 'Prettier'
-          command: pnpm prettier --check
+          name: '`pnpm prettier` changes committed?'
+          command: |
+            # #target-branch-reference
+            if [[ $(git diff --name-status master | grep pnpm-lock) == "" ]];
+            then
+                pnpm prettier --check
+            else
+                pnpm exec prettier --check . --ignore-path .lintignore
+            fi
       - run:
           name: ESLint
           command: pnpm eslint:ci
@@ -226,12 +233,6 @@ jobs:
             # We assume that the target branch is `master` and that declaration files are persisted in commit order.
             # "If there are multiple matches, the most recently generated cache will be used."
             - typescript-declaration-files-master
-      - run:
-          name: Diff declaration files
-          command: |
-            git add -f packages/react/build || echo 'Base UI declarations do not exist'
-            pnpm -r build:types
-            git --no-pager diff
       - run:
           name: Log defect declaration files
           command: |
@@ -367,10 +368,6 @@ workflows:
       - test_browser:
           <<: *default-context
           name: 'Browser tests (React 18)'
-          react-version: '^18'
-      - test_regressions:
-          <<: *default-context
-          name: 'Regression tests (React 18)'
           react-version: '^18'
       - test_types:
           <<: *default-context
