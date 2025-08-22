@@ -118,10 +118,12 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     values: sliderValues,
   } = useSliderRootContext();
 
-  if (typeof document === 'undefined' && indexProp === undefined && sliderValues.length > 1) {
-    warn(
-      'A `Slider.Thumb` was rendered on the server without an `index` prop, it must be specified for full SSR support.',
-    );
+  if (process.env.NODE_ENV !== 'production') {
+    if (typeof document === 'undefined' && indexProp === undefined && sliderValues.length > 1) {
+      warn(
+        'A `Slider.Thumb` was rendered on the server without an `index` prop, it must be specified for full SSR support.',
+      );
+    }
   }
 
   const disabled = disabledProp || contextDisabled;

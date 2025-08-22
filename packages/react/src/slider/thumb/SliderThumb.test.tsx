@@ -43,8 +43,8 @@ describe('<Slider.Thumb />', () => {
   }));
 
   describe.skipIf(isJSDOM)('server-side rendering', () => {
-    it('single thumb', async () => {
-      await renderToString(
+    it('single thumb', () => {
+      renderToString(
         <Slider.Root
           defaultValue={30}
           style={{
@@ -66,8 +66,8 @@ describe('<Slider.Thumb />', () => {
       );
     });
 
-    it('multiple thumbs', async () => {
-      const { container } = await renderToString(
+    it('multiple thumbs', () => {
+      const { container } = renderToString(
         <Slider.Root
           defaultValue={[30, 40]}
           style={{
