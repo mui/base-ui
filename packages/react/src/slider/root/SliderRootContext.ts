@@ -1,9 +1,7 @@
 'use client';
 import * as React from 'react';
 import type { Orientation } from '../../utils/types';
-import type { CompositeMetadata } from '../../composite/list/CompositeList';
 import type { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
-import type { ThumbMetadata } from '../thumb/SliderThumb';
 import type { SliderRoot } from './SliderRoot';
 
 export interface SliderRootContext {
@@ -20,6 +18,7 @@ export interface SliderRootContext {
     index: number,
     event: React.KeyboardEvent | React.ChangeEvent,
   ) => void;
+  inset: boolean;
   labelId?: string;
   /**
    * The large step value of the slider when incrementing or decrementing while the shift key is held,
@@ -73,7 +72,7 @@ export interface SliderRootContext {
    */
   step: number;
   tabIndex: number | null;
-  thumbMap: Map<Node, CompositeMetadata<ThumbMetadata> | null>;
+  thumbMap: Map<Node, null>;
   thumbRefs: React.RefObject<(HTMLElement | null)[]>;
   /**
    * The value(s) of the slider

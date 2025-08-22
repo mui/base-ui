@@ -29,9 +29,10 @@ export const SliderValue = React.forwardRef(function SliderValue(
 
   const outputFor = React.useMemo(() => {
     let htmlFor = '';
-    for (const thumbMetadata of thumbMap.values()) {
-      if (thumbMetadata?.inputId) {
-        htmlFor += `${thumbMetadata.inputId} `;
+    for (const thumbElement of thumbMap.keys()) {
+      if (thumbElement instanceof Element) {
+        const id = thumbElement.getAttribute('id');
+        htmlFor += `${id} `;
       }
     }
     return htmlFor.trim() === '' ? undefined : htmlFor.trim();

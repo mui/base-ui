@@ -14,7 +14,7 @@ import { useRenderElement } from '../../utils/useRenderElement';
 import { clamp } from '../../utils/clamp';
 import { areArraysEqual } from '../../utils/areArraysEqual';
 import { activeElement } from '../../floating-ui-react/utils';
-import { CompositeList, type CompositeMetadata } from '../../composite/list/CompositeList';
+import { CompositeList } from '../../composite/list/CompositeList';
 import type { FieldRoot } from '../../field/root/FieldRoot';
 import { useField } from '../../field/useField';
 import { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
@@ -23,7 +23,6 @@ import { useFormContext } from '../../form/FormContext';
 import { asc } from '../utils/asc';
 import { getSliderValue } from '../utils/getSliderValue';
 import { validateMinimumDistance } from '../utils/validateMinimumDistance';
-import type { ThumbMetadata } from '../thumb/SliderThumb';
 import { sliderStyleHookMapping } from './styleHooks';
 import { SliderRootContext } from './SliderRootContext';
 
@@ -56,6 +55,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
     disabled: disabledProp = false,
     id: idProp,
     inputRef: inputRefProp,
+    inset = false,
     format,
     largeStep = 10,
     locale,
@@ -119,9 +119,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
   // - The active state isn't transferred when inversing a range slider.
   const [active, setActive] = React.useState(-1);
   const [dragging, setDragging] = React.useState(false);
-  const [thumbMap, setThumbMap] = React.useState(
-    () => new Map<Node, CompositeMetadata<ThumbMetadata> | null>(),
-  );
+  const [thumbMap, setThumbMap] = React.useState(() => new Map<Node, null>());
 
   useField({
     id,
@@ -261,6 +259,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       fieldControlValidation,
       formatOptionsRef,
       handleInputChange,
+      inset,
       labelId: ariaLabelledby,
       largeStep,
       lastChangedValueRef,
@@ -291,6 +290,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       fieldControlValidation,
       formatOptionsRef,
       handleInputChange,
+      inset,
       largeStep,
       lastChangedValueRef,
       locale,
@@ -327,6 +327,8 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
     customStyleHookMapping: sliderStyleHookMapping,
   });
 
+  const inputId = useBaseUiId();
+
   return (
     <SliderRootContext.Provider value={contextValue}>
       <CompositeList elementsRef={thumbRefs} onMapChange={setThumbMap}>
@@ -335,10 +337,11 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
           values.map((value, index) => {
             return (
               <input
-                key={`${name}-input-${index}`}
+                key={`${inputId}-${index}`}
                 {...fieldControlValidation.getInputValidationProps({
                   disabled,
-                  name,
+                  name: name || undefined,
+                  id: name ? undefined : `${inputId}-${index}`,
                   ref: inputRef,
                   value,
                   onFocus: handleHiddenInputFocus,
@@ -353,7 +356,8 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
           <input
             {...fieldControlValidation.getInputValidationProps({
               disabled,
-              name,
+              name: name || undefined,
+              id: name ? undefined : inputId,
               ref: inputRef,
               value: valueUnwrapped,
               onFocus: handleHiddenInputFocus,
@@ -432,6 +436,11 @@ export namespace SliderRoot {
      * A ref to access the hidden input element.
      */
     inputRef?: React.Ref<HTMLInputElement>;
+    /**
+     * When `true`  `Slider.Thumb`s are inset within `Slider.Control`.
+     * @default false
+     */
+    inset?: boolean;
     /**
      * The locale used by `Intl.NumberFormat` when formatting the value.
      * Defaults to the user's runtime locale.
