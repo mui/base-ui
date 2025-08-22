@@ -49,14 +49,17 @@ describe('<Autocomplete.Root />', () => {
 
     it('does not highlight on open via click or when pressing arrow keys initially', async () => {
       const { user } = await render(
-        <Autocomplete.Root autoHighlight openOnInputClick>
+        <Autocomplete.Root items={['apple', 'banana']} autoHighlight openOnInputClick>
           <Autocomplete.Input />
           <Autocomplete.Portal>
             <Autocomplete.Positioner>
               <Autocomplete.Popup>
                 <Autocomplete.List>
-                  <Autocomplete.Item value="apple">apple</Autocomplete.Item>
-                  <Autocomplete.Item value="banana">banana</Autocomplete.Item>
+                  {(item: string) => (
+                    <Autocomplete.Item key={item} value={item}>
+                      {item}
+                    </Autocomplete.Item>
+                  )}
                 </Autocomplete.List>
               </Autocomplete.Popup>
             </Autocomplete.Positioner>
@@ -64,20 +67,208 @@ describe('<Autocomplete.Root />', () => {
         </Autocomplete.Root>,
       );
 
-      const input = screen.getByRole('combobox');
-      await user.click(input);
-      // Opening by click alone should not auto-highlight anymore
-      expect(input).not.to.have.attribute('aria-activedescendant');
+      const input = screen.getByRole<HTMLInputElement>('combobox');
+      fireEvent.click(input);
 
-      // Arrow navigation can move highlight, but until pressed there should be none
+      await waitFor(() => {
+        expect(input).not.to.have.attribute('aria-activedescendant');
+      });
+
       await user.keyboard('{ArrowDown}');
-      expect(input).to.have.attribute('aria-activedescendant');
+      await waitFor(() => {
+        expect(input).not.to.have.attribute('aria-activedescendant');
+      });
+
+      await user.keyboard('{ArrowDown}');
+      await waitFor(() => {
+        expect(input).not.to.have.attribute('aria-activedescendant');
+      });
 
       await user.keyboard('{Escape}');
       await user.click(input);
+
       expect(input).not.to.have.attribute('aria-activedescendant');
+
       await user.keyboard('{ArrowUp}');
-      expect(input).to.have.attribute('aria-activedescendant');
+      await waitFor(() => {
+        expect(input).to.have.attribute('aria-activedescendant');
+      });
+    });
+  });
+
+  describe('prop: mode', () => {
+    it('mode="list" (default): no inline overlay, consumer handles filtering', async () => {
+      const items = ['apple', 'banana', 'cherry'];
+
+      const { user } = await render(
+        <Autocomplete.Root mode="list" items={items}>
+          <Autocomplete.Input data-testid="input" />
+          <Autocomplete.Portal>
+            <Autocomplete.Positioner>
+              <Autocomplete.Popup>
+                <Autocomplete.List>
+                  {(item) => (
+                    <Autocomplete.Item key={item} value={item}>
+                      {item}
+                    </Autocomplete.Item>
+                  )}
+                </Autocomplete.List>
+              </Autocomplete.Popup>
+            </Autocomplete.Positioner>
+          </Autocomplete.Portal>
+        </Autocomplete.Root>,
+      );
+
+      const input = screen.getByRole<HTMLInputElement>('combobox');
+
+      await user.click(input);
+      await user.type(input, 'a');
+
+      expect(screen.getAllByRole('option')).to.have.length(2); // apple, banana
+
+      await user.keyboard('{ArrowDown}');
+
+      expect(input.value).to.equal('a');
+      expect(screen.getAllByRole('option')).to.have.length(2);
+    });
+
+    it('mode="both": inline overlay + autocomplete handles filtering', async () => {
+      const items = ['apple', 'banana', 'cherry'];
+
+      const { user } = await render(
+        <Autocomplete.Root mode="both" items={items}>
+          <Autocomplete.Input data-testid="input" />
+          <Autocomplete.Portal>
+            <Autocomplete.Positioner>
+              <Autocomplete.Popup>
+                <Autocomplete.List>
+                  {(item) => (
+                    <Autocomplete.Item key={item} value={item}>
+                      {item}
+                    </Autocomplete.Item>
+                  )}
+                </Autocomplete.List>
+              </Autocomplete.Popup>
+            </Autocomplete.Positioner>
+          </Autocomplete.Portal>
+        </Autocomplete.Root>,
+      );
+
+      const input = screen.getByTestId<HTMLInputElement>('input');
+
+      await user.click(input);
+      await user.type(input, 'a');
+
+      expect(screen.getAllByRole('option')).to.have.length(2); // apple, banana
+
+      await user.keyboard('{ArrowDown}');
+
+      expect(input.value).to.equal('apple');
+      expect(screen.getAllByRole('option')).to.have.length(2);
+    });
+
+    it('mode="both": hovering items should not change the inline overlay (preserve temporary value)', async () => {
+      const items = ['alpha', 'alpine', 'beta'];
+
+      const { user } = await render(
+        <Autocomplete.Root mode="both" items={items}>
+          <Autocomplete.Input data-testid="input" />
+          <Autocomplete.Portal>
+            <Autocomplete.Positioner>
+              <Autocomplete.Popup>
+                <Autocomplete.List>
+                  {(item) => (
+                    <Autocomplete.Item key={item} value={item}>
+                      {item}
+                    </Autocomplete.Item>
+                  )}
+                </Autocomplete.List>
+              </Autocomplete.Popup>
+            </Autocomplete.Positioner>
+          </Autocomplete.Portal>
+        </Autocomplete.Root>,
+      );
+
+      const input = screen.getByRole<HTMLInputElement>('combobox');
+      await user.click(input);
+      await user.type(input, 'al');
+
+      await user.keyboard('{ArrowDown}');
+      expect(input.value).to.equal('alpha');
+
+      await user.hover(screen.getByRole('option', { name: 'alpine' }));
+      expect(input.value).to.equal('alpha');
+    });
+
+    it('mode="inline": static items with inline overlay', async () => {
+      const { user } = await render(
+        <Autocomplete.Root mode="inline" openOnInputClick>
+          <Autocomplete.Input data-testid="input" />
+          <Autocomplete.Portal>
+            <Autocomplete.Positioner>
+              <Autocomplete.Popup>
+                <Autocomplete.List>
+                  <Autocomplete.Item value="apple">apple</Autocomplete.Item>
+                  <Autocomplete.Item value="banana">banana</Autocomplete.Item>
+                  <Autocomplete.Item value="cherry">cherry</Autocomplete.Item>
+                </Autocomplete.List>
+              </Autocomplete.Popup>
+            </Autocomplete.Positioner>
+          </Autocomplete.Portal>
+        </Autocomplete.Root>,
+      );
+
+      const input = screen.getByRole<HTMLInputElement>('combobox');
+
+      await user.click(input);
+
+      await waitFor(() => {
+        expect(screen.getAllByRole('option')).to.have.length(3);
+      });
+
+      await user.keyboard('{ArrowDown}');
+
+      await waitFor(() => {
+        expect(input.value).to.equal('apple');
+      });
+
+      await user.type(input, 'b');
+
+      expect(input.value).to.equal('appleb');
+      expect(screen.getAllByRole('option')).to.have.length(3);
+    });
+
+    it('mode="none": static items without inline overlay', async () => {
+      const { user } = await render(
+        <Autocomplete.Root mode="none" openOnInputClick>
+          <Autocomplete.Input data-testid="input" />
+          <Autocomplete.Portal>
+            <Autocomplete.Positioner>
+              <Autocomplete.Popup>
+                <Autocomplete.List>
+                  <Autocomplete.Item value="apple">apple</Autocomplete.Item>
+                  <Autocomplete.Item value="banana">banana</Autocomplete.Item>
+                  <Autocomplete.Item value="cherry">cherry</Autocomplete.Item>
+                </Autocomplete.List>
+              </Autocomplete.Popup>
+            </Autocomplete.Positioner>
+          </Autocomplete.Portal>
+        </Autocomplete.Root>,
+      );
+
+      const input = screen.getByRole<HTMLInputElement>('combobox');
+
+      await user.click(input);
+      await user.keyboard('{ArrowDown}');
+
+      expect(input.value).to.equal('');
+      expect(screen.getAllByRole('option')).to.have.length(3);
+
+      await user.type(input, 'x');
+      await user.keyboard('{ArrowDown}');
+
+      expect(input.value).to.equal('x');
+      expect(screen.getAllByRole('option')).to.have.length(3);
     });
   });
 

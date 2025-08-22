@@ -34,6 +34,7 @@ export namespace ComboboxRoot {
     | 'clearInputOnCloseComplete'
     | 'modal'
     | 'fillInputOnItemPress'
+    | 'autoComplete'
     // Different names
     | 'selectionMode'
     | 'defaultSelectedValue'

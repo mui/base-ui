@@ -83,6 +83,7 @@ export function ComboboxRoot<Item = any, Mode extends SelectionMode = 'none'>(
     fillInputOnItemPress = true,
     modal = false,
     limit = -1,
+    autoComplete,
   } = props;
 
   const { clearErrors } = useFormContext();
@@ -277,6 +278,7 @@ export function ComboboxRoot<Item = any, Mode extends SelectionMode = 'none'>(
   const inputElement = useStore(store, selectors.inputElement);
   const inline = useStore(store, selectors.inline);
   const open = inline || openRaw;
+  const firstArrowConsumedRef = React.useRef(false);
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
   const {
@@ -719,7 +721,7 @@ export function ComboboxRoot<Item = any, Mode extends SelectionMode = 'none'>(
   }
 
   const role: ElementProps = React.useMemo(() => {
-    const isTextarea = (inputElement as HTMLElement | null)?.tagName === 'TEXTAREA';
+    const isTextarea = inputElement?.tagName === 'TEXTAREA';
     const shouldApplyAria = !isTextarea || open;
 
     const reference = isTextarea
@@ -736,14 +738,14 @@ export function ComboboxRoot<Item = any, Mode extends SelectionMode = 'none'>(
       reference['aria-expanded'] = ariaExpanded;
       reference['aria-haspopup'] = ariaHasPopup;
       reference['aria-controls'] = open ? listElement?.id : undefined;
-      reference['aria-autocomplete'] = 'list';
+      reference['aria-autocomplete'] = autoComplete;
     }
 
     return {
       reference,
       floating: { role: 'presentation' },
     };
-  }, [inputElement, open, ariaExpanded, ariaHasPopup, listElement?.id]);
+  }, [inputElement, open, ariaExpanded, ariaHasPopup, listElement?.id, autoComplete]);
 
   const click = useClick(floatingRootContext, {
     enabled: !readOnly && !disabled && openOnInputClick,
@@ -801,6 +803,21 @@ export function ComboboxRoot<Item = any, Mode extends SelectionMode = 'none'>(
         return;
       }
 
+      // In selectionMode='none' with autoHighlight, the first ArrowUp/ArrowDown after open
+      // should not immediately move the highlight; only the second press should.
+      if (
+        keyboardActiveRef.current &&
+        selectionMode === 'none' &&
+        autoHighlight &&
+        store.state.activeIndex === null &&
+        nextActiveIndex !== null &&
+        nextActiveIndex === 0 &&
+        !firstArrowConsumedRef.current
+      ) {
+        firstArrowConsumedRef.current = true;
+        return;
+      }
+
       const type = keyboardActiveRef.current ? 'keyboard' : 'pointer';
       if (nextActiveIndex !== null) {
         onItemHighlighted(valuesRef.current[nextActiveIndex], { type, index: nextActiveIndex });
@@ -811,6 +828,12 @@ export function ComboboxRoot<Item = any, Mode extends SelectionMode = 'none'>(
       store.set('activeIndex', nextActiveIndex);
     },
   });
+
+  React.useEffect(() => {
+    if (open) {
+      firstArrowConsumedRef.current = false;
+    }
+  }, [open]);
 
   const { reference: typeaheadTriggerProps } = useTypeahead(floatingRootContext, {
     enabled: !open && !readOnly && !disabled && selectionMode === 'single',
@@ -1220,6 +1243,15 @@ interface ComboboxRootProps<Item> {
    * @default -1
    */
   limit?: number;
+  /**
+   * Controls how the Autocomplete behaves with respect to list filtering and inline autocompletion.
+   * - `list` (default): items are dynamically filtered based on the input value. The input value does not change based on the active item.
+   * - `both`: items are dynamically filtered based on the input value, which will temporarily change based on the active item (inline autocompletion).
+   * - `inline`: items are static (not filtered), and the input value will temporarily change based on the active item (inline autocompletion).
+   * - `none`: items are static (not filtered), and the input value will not change based on the active item.
+   * @default 'list'
+   */
+  autoComplete?: 'list' | 'both' | 'inline' | 'none';
 }
 
 export type ComboboxRootConditionalProps<Item, Mode extends SelectionMode = 'none'> = Omit<

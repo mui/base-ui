@@ -27,6 +27,18 @@
       "description": "A ref to imperative actions.\n- `unmount`: When specified, the combobox will not be unmounted when closed.\nInstead, the `unmount` function must be called to unmount the combobox manually.\nUseful when the combobox's animation is controlled by an external library.",
       "detailedType": "React.RefObject<Combobox.Root.Actions> | undefined"
     },
+    "autoComplete": {
+      "type": "'none' | 'list' | 'inline' | 'both'",
+      "default": "'list'",
+      "description": "Controls how the Autocomplete behaves with respect to list filtering and inline autocompletion.\n- `list` (default): items are dynamically filtered based on the input value. The input value does not change based on the active item.\n- `both`: items are dynamically filtered based on the input value, which will temporarily change based on the active item (inline autocompletion).\n- `inline`: items are static (not filtered), and the input value will temporarily change based on the active item (inline autocompletion).\n- `none`: items are static (not filtered), and the input value will not change based on the active item.",
+      "detailedType": "'none' | 'list' | 'inline' | 'both' | undefined"
+    },
+    "autoHighlight": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Whether to automatically highlight the first item when the popup opens.",
+      "detailedType": "boolean | undefined"
+    },
     "clearInputOnCloseComplete": {
       "type": "boolean",
       "default": "false",
