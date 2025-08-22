@@ -353,27 +353,6 @@ export function ComboboxRoot<Item = any, Mode extends SelectionMode = 'none'>(
     }
 
     updateValue(selectedValue);
-
-    // If in multiple selection mode and the last selected item (which determines
-    // selectedIndex) was removed while it was also the active item, reset the
-    // activeIndex to null to remove the highlight.
-    if (selectionMode === 'multiple') {
-      const prev = selectedValueRef.current;
-      const next = selectedValue;
-
-      if (prev.length > next.length) {
-        const prevLast = prev[prev.length - 1];
-        const wasPrevLastRemoved = !next.includes(prevLast);
-
-        if (wasPrevLastRemoved) {
-          const removedIndex = valuesRef.current.indexOf(prevLast);
-          if (removedIndex !== -1 && activeIndex === removedIndex) {
-            store.set('activeIndex', null);
-            noItemHighlighted();
-          }
-        }
-      }
-    }
   });
 
   useIsoLayoutEffect(() => {
