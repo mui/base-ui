@@ -733,7 +733,8 @@ export function ComboboxRoot<Item = any, Mode extends SelectionMode = 'none'>(
       anchorElement === inputElement && (inputElement as HTMLElement | null)?.tagName === 'INPUT',
     // Use 'auto' so arrow key openings highlight appropriately without requiring a prior selection,
     // but disable when the user has typed after opening to avoid auto-highlighting on type-open.
-    focusItemOnOpen: queryChangedAfterOpen || selectionMode === 'none' ? false : 'auto',
+    focusItemOnOpen:
+      queryChangedAfterOpen || selectionMode === 'none' || selectedIndex === null ? false : 'auto',
     cols,
     orientation: cols > 1 ? 'horizontal' : undefined,
     disabledIndices: virtualized
