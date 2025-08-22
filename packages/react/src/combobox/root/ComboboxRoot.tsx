@@ -97,11 +97,11 @@ export function ComboboxRoot<Item = any, Mode extends SelectionMode = 'none'>(
   const fieldControlValidation = useFieldControlValidation();
 
   const id = useBaseUiId(idProp);
+  const frame = useAnimationFrame();
+
   const disabled = fieldDisabled || disabledProp;
   const name = fieldName ?? nameProp;
   const multiple = selectionMode === 'multiple';
-
-  const frame = useAnimationFrame();
 
   useIsoLayoutEffect(() => {
     setControlId(id);
@@ -321,6 +321,10 @@ export function ComboboxRoot<Item = any, Mode extends SelectionMode = 'none'>(
     setDirty(nextValue !== validityData.initialValue);
   });
 
+  const noItemHighlighted = useEventCallback(() => {
+    onItemHighlighted(undefined, { type: 'none', index: -1 });
+  });
+
   const formValue = selectionMode === 'none' ? inputValue : selectedValue;
 
   useField({
@@ -360,10 +364,33 @@ export function ComboboxRoot<Item = any, Mode extends SelectionMode = 'none'>(
   useValueChanged(selectedValueRef, selectedValue, () => {
     clearErrors(name);
     commitValidation?.(selectedValue, true);
+
     if (validationMode === 'onChange') {
       commitValidation?.(selectedValue);
     }
+
     updateValue(selectedValue);
+
+    // If in multiple selection mode and the last selected item (which determines
+    // selectedIndex) was removed while it was also the active item, reset the
+    // activeIndex to null to remove the highlight.
+    if (selectionMode === 'multiple') {
+      const prev = selectedValueRef.current;
+      const next = selectedValue;
+
+      if (prev.length > next.length) {
+        const prevLast = prev[prev.length - 1];
+        const wasPrevLastRemoved = !next.includes(prevLast);
+
+        if (wasPrevLastRemoved) {
+          const removedIndex = valuesRef.current.indexOf(prevLast);
+          if (removedIndex !== -1 && activeIndex === removedIndex) {
+            store.set('activeIndex', null);
+            noItemHighlighted();
+          }
+        }
+      }
+    }
   });
 
   useIsoLayoutEffect(() => {
@@ -469,16 +496,14 @@ export function ComboboxRoot<Item = any, Mode extends SelectionMode = 'none'>(
     onOpenChangeComplete?.(false);
     setQueryChangedAfterOpen(false);
     resetOpenInteractionType();
-    onItemHighlighted(undefined, { type: 'none', index: -1 });
-
-    store.set('activeIndex', null);
+    noItemHighlighted();
 
     // Restore selectedIndex back to its real value after the popup closes.
     // It may have been set to null while filtering or typing to avoid
     // interfering with navigation. On close, ensure it reflects the
     // current selection so initial highlight on next open is correct.
     if (selectionMode === 'none') {
-      store.set('selectedIndex', null);
+      store.apply({ activeIndex: null, selectedIndex: null });
     } else if (multiple) {
       const currentValue = Array.isArray(selectedValue) ? selectedValue : [];
       const selectedIndices: number[] = [];
@@ -488,16 +513,17 @@ export function ComboboxRoot<Item = any, Mode extends SelectionMode = 'none'>(
           selectedIndices.push(idx);
         }
       });
-      store.set(
-        'selectedIndex',
-        selectedIndices.length > 0 ? selectedIndices[selectedIndices.length - 1] : null,
-      );
+      store.apply({
+        selectedIndex:
+          selectedIndices.length > 0 ? selectedIndices[selectedIndices.length - 1] : null,
+        activeIndex: null,
+      });
     } else {
       const idx = flatItems.indexOf(selectedValue);
       if (idx !== -1) {
         registerItemIndex(idx);
       } else {
-        store.set('selectedIndex', null);
+        store.apply({ activeIndex: null, selectedIndex: null });
       }
     }
 
