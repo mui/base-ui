@@ -78,8 +78,8 @@
   position: sticky;
   z-index: 1;
   top: 0;
-  margin: 0;
-  width: 100%;
+  margin: 0 0.5rem 0 0;
+  width: calc(100% - 0.5rem);
 }
 
 .Item {
