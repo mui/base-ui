@@ -536,58 +536,43 @@ export function ComboboxRoot<Item = any, Mode extends SelectionMode = 'none'>(
 
   const setSelectedValue = useEventCallback(
     (nextValue: Item | Item[], event: Event | undefined, reason: ValueChangeReason | undefined) => {
-      if (selectionMode === 'none' && !multiple && popupRef.current) {
-        if (fillInputOnItemPress) {
-          const stringVal = stringifyItem(nextValue as Item, itemToString);
-          setInputValue(stringVal, event, reason);
-        }
+      // Cast to `any` due to conditional value type (single vs. multiple).
+      // The runtime implementation already ensures the correct value shape.
+      onSelectedValueChange?.(nextValue as any, event, reason);
+      setSelectedValueUnwrapped(nextValue);
+
+      if (selectionMode === 'none' && popupRef.current && fillInputOnItemPress) {
+        setInputValue(stringifyItem(nextValue as Item, itemToString), event, reason);
       }
 
-      // If input value is uncontrolled, keep it in sync for single selection mode.
-      // When the input is inside the popup, do not fill it with the selected value;
-      // it should reopen blank on next open. When the input is outside, sync to selection.
-      if (selectionMode === 'single' && props.inputValue === undefined) {
-        const isInputInsidePopup = Boolean(
-          popupRef.current && inputRef.current && popupRef.current.contains(inputRef.current),
-        );
+      if (selectionMode === 'single') {
+        const isInputInsidePopup = contains(popupRef.current, inputRef.current);
         if (!isInputInsidePopup) {
-          const stringVal = stringifyItem(nextValue as Item, itemToString);
-          setInputValue(stringVal, event, reason);
+          setInputValue(stringifyItem(nextValue as Item, itemToString), event, reason);
         }
       }
 
-      // Clear the uncontrolled input after a selection in multiple-select mode when filtering was used.
       const hadInputValue = inputRef.current ? inputRef.current.value.trim() !== '' : false;
-      if (multiple && props.inputValue === undefined && hadInputValue) {
+      if (multiple && hadInputValue) {
         setInputValue('', event, reason);
         // Reset active index and clear any highlighted item since the list will re-filter.
         store.set('activeIndex', null);
         onItemHighlighted(undefined, { type: 'none', index: -1 });
       }
 
-      // Cast to `any` due to conditional value type (single vs. multiple).
-      // The runtime implementation already ensures the correct value shape.
-      onSelectedValueChange?.(nextValue as any, event, reason);
-      setSelectedValueUnwrapped(nextValue);
-
-      // For virtualized lists in single-selection mode, ensure `selectedIndex`
-      // reflects the newly selected item's index even if its DOM node isn't
-      // currently rendered (outside the virtual window).
-      if (virtualized && !multiple && selectionMode !== 'none') {
-        const index = flatItems.indexOf(nextValue as any);
-        if (index !== -1) {
-          store.set('selectedIndex', index);
+      if (selectionMode !== 'none') {
+        if (multiple) {
+          const arr = Array.isArray(selectedValue) ? selectedValue : [];
+          const last = arr[arr.length - 1];
+          const idx = last !== undefined ? valuesRef.current.indexOf(last) : -1;
+          store.set('selectedIndex', idx !== -1 ? idx : null);
+        } else {
+          const idx = valuesRef.current.indexOf(selectedValue);
+          store.set('selectedIndex', idx !== -1 ? idx : null);
         }
       }
 
-      // Auto-close popup after selection in single mode when open state is uncontrolled
-      // Don't auto-close during autofill to avoid interfering with browser behavior
-      if (
-        selectionMode === 'single' &&
-        props.open === undefined &&
-        nextValue != null &&
-        reason !== 'input-change'
-      ) {
+      if (selectionMode === 'single' && nextValue != null && reason !== 'input-change') {
         setOpen(false, event, 'item-press');
       }
     },
@@ -751,13 +736,9 @@ export function ComboboxRoot<Item = any, Mode extends SelectionMode = 'none'>(
     activeIndex,
     selectedIndex,
     onMatch(index) {
-      if (open) {
-        store.set('activeIndex', index);
-      } else {
-        const nextSelectedValue = valuesRef.current[index];
-        if (nextSelectedValue !== undefined) {
-          setSelectedValue(nextSelectedValue, undefined, undefined);
-        }
+      const nextSelectedValue = valuesRef.current[index];
+      if (nextSelectedValue !== undefined) {
+        setSelectedValue(nextSelectedValue, undefined, undefined);
       }
     },
   });
