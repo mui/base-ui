@@ -297,6 +297,7 @@ export function ComboboxRoot<Item = any, Mode extends SelectionMode = 'none'>(
 
   const queryRef = React.useRef(query);
   const selectedValueRef = React.useRef(selectedValue);
+  const inputValueRef = React.useRef(inputValue);
 
   const initialSelectedValueRef = React.useRef(selectedValue);
   useIsoLayoutEffect(() => {
@@ -345,6 +346,10 @@ export function ComboboxRoot<Item = any, Mode extends SelectionMode = 'none'>(
   });
 
   useValueChanged(selectedValueRef, selectedValue, () => {
+    if (selectionMode === 'none') {
+      return;
+    }
+
     clearErrors(name);
     commitValidation?.(selectedValue, true);
 
@@ -355,12 +360,32 @@ export function ComboboxRoot<Item = any, Mode extends SelectionMode = 'none'>(
     updateValue(selectedValue);
   });
 
+  useValueChanged(inputValueRef, inputValue, () => {
+    if (selectionMode !== 'none') {
+      return;
+    }
+
+    clearErrors(name);
+    commitValidation?.(inputValue, true);
+
+    if (validationMode === 'onChange') {
+      commitValidation?.(inputValue);
+    }
+
+    updateValue(inputValue);
+  });
+
   useIsoLayoutEffect(() => {
-    const hasValue = multiple
-      ? Array.isArray(selectedValue) && selectedValue.length > 0
-      : selectedValue !== null && selectedValue !== undefined && selectedValue !== '';
-    setFilled(hasValue);
-  }, [setFilled, selectedValue, multiple]);
+    if (selectionMode === 'none') {
+      const hasValue = inputValue !== null && inputValue !== undefined && inputValue !== '';
+      setFilled(hasValue);
+    } else {
+      const hasValue = multiple
+        ? Array.isArray(selectedValue) && selectedValue.length > 0
+        : selectedValue !== null && selectedValue !== undefined && selectedValue !== '';
+      setFilled(hasValue);
+    }
+  }, [setFilled, selectionMode, inputValue, selectedValue, multiple]);
 
   const setInputValue = useEventCallback(
     (next: string, event: Event | undefined, reason: ValueChangeReason | undefined) => {
@@ -929,7 +954,7 @@ export function ComboboxRoot<Item = any, Mode extends SelectionMode = 'none'>(
         {...fieldControlValidation.getInputValidationProps({
           onFocus() {
             // Move focus to the trigger element when the hidden input is focused.
-            const referenceElement = inputRef.current || triggerElement;
+            const referenceElement = open && inputRef.current ? inputRef.current : triggerElement;
             referenceElement?.focus();
           },
           // Handle browser autofill.
@@ -940,6 +965,16 @@ export function ComboboxRoot<Item = any, Mode extends SelectionMode = 'none'>(
             }
 
             const nextValue = event.target.value;
+
+            if (selectionMode === 'none') {
+              setDirty(nextValue !== validityData.initialValue);
+              setInputValue(nextValue, event.nativeEvent, 'input-change');
+
+              if (validationMode === 'onChange') {
+                fieldControlValidation.commitValidation(nextValue);
+              }
+              return;
+            }
 
             const exactValue = valuesRef.current.find(
               (v: any) =>
@@ -957,7 +992,7 @@ export function ComboboxRoot<Item = any, Mode extends SelectionMode = 'none'>(
             }
           },
           id,
-          name: multiple ? undefined : name,
+          name: multiple || selectionMode === 'none' ? undefined : name,
           disabled,
           required,
           readOnly,

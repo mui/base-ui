@@ -51,6 +51,8 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
     setInputValue,
     handleEnterSelection,
     openOnInputClick,
+    name,
+    selectionMode,
   } = useComboboxRootContext();
   const comboboxChipsContext = useComboboxChipsContext();
   const hasPositionerParent = Boolean(useComboboxPositionerContext(true));
@@ -158,6 +160,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
         'aria-labelledby': labelId,
         disabled: disabled || undefined,
         readOnly,
+        ...(selectionMode === 'none' && name && { name }),
         onFocus() {
           setFocused(true);
         },
@@ -166,7 +169,8 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
           setFocused(false);
 
           if (validationMode === 'onBlur') {
-            fieldControlValidation.commitValidation(selectedValue);
+            const valueToValidate = selectionMode === 'none' ? inputValue : selectedValue;
+            fieldControlValidation.commitValidation(valueToValidate);
           }
         },
         onChange(event: React.ChangeEvent<HTMLInputElement>) {
