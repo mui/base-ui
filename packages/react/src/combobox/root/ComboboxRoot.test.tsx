@@ -1700,7 +1700,7 @@ describe('<Combobox.Root />', () => {
 
       expect(onInput.lastCall.args[0]).to.equal('');
       expect(onInput.lastCall.args[2]).to.equal('clear-press');
-      expect(onSelected.lastCall.args[0]).to.equal(undefined);
+      expect(onSelected.lastCall.args[0]).to.equal(null);
       expect(onSelected.lastCall.args[2]).to.equal('clear-press');
       expect(input).to.have.value('');
     });

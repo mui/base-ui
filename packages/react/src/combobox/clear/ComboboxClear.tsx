@@ -77,10 +77,14 @@ export const ComboboxClear = React.forwardRef(function ComboboxClear(
             return;
           }
           setInputValue('', event.nativeEvent, 'clear-press');
-          setSelectedValue(undefined, event.nativeEvent, 'clear-press');
+          setSelectedValue(
+            Array.isArray(selectedValue) ? [] : null,
+            event.nativeEvent,
+            'clear-press',
+          );
           store.apply({ activeIndex: null, selectedIndex: null });
-          inputRef.current?.focus();
           onItemHighlighted(undefined, { type: 'none', index: -1 });
+          inputRef.current?.focus();
         },
       },
       elementProps,
