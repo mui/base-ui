@@ -20,6 +20,7 @@ import { DISABLED_TRANSITIONS_STYLE, EMPTY_OBJECT } from '../../utils/constants'
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import { transitionStatusMapping } from '../../utils/styleHookMapping';
 import { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
+import { contains, getTarget } from '../../floating-ui-react/utils';
 
 const customStyleHookMapping: CustomStyleHookMapping<ComboboxPopup.State> = {
   ...popupStateMapping,
@@ -48,6 +49,7 @@ export const ComboboxPopup = React.forwardRef(function ComboboxPopup(
   const anchorElement = useStore(store, selectors.anchorElement);
   const inputElement = useStore(store, selectors.inputElement);
   const triggerElement = useStore(store, selectors.triggerElement);
+  const listElement = useStore(store, selectors.listElement);
 
   const isAnchorInput = anchorElement === inputElement;
   const empty = filteredItems.length === 0;
@@ -80,6 +82,12 @@ export const ComboboxPopup = React.forwardRef(function ComboboxPopup(
     props: [
       {
         tabIndex: -1,
+        onFocus(event) {
+          const target = getTarget(event.nativeEvent) as Element | null;
+          if (!contains(listElement, target)) {
+            inputRef.current?.focus();
+          }
+        },
       },
       transitionStatus === 'starting' ? DISABLED_TRANSITIONS_STYLE : EMPTY_OBJECT,
       elementProps,
