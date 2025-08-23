@@ -103,7 +103,7 @@ export interface UseListNavigationProps {
    * A callback that is called when the user navigates to a new active item,
    * passed in a new `activeIndex`.
    */
-  onNavigate?: (activeIndex: number | null) => void;
+  onNavigate?: (activeIndex: number | null, event: React.SyntheticEvent | undefined) => void;
   /**
    * Whether the Hook is enabled, including all internal Effects and event
    * handlers.
@@ -299,8 +299,8 @@ export function useListNavigation(
   const keyRef = React.useRef<null | string>(null);
   const isPointerModalityRef = React.useRef(true);
 
-  const onNavigate = useEventCallback(() => {
-    onNavigateProp(indexRef.current === -1 ? null : indexRef.current);
+  const onNavigate = useEventCallback((event?: React.SyntheticEvent) => {
+    onNavigateProp(indexRef.current === -1 ? null : indexRef.current, event);
   });
 
   const previousOnNavigateRef = React.useRef(onNavigate);
@@ -508,32 +508,32 @@ export function useListNavigation(
   const hasActiveIndex = activeIndex != null;
 
   const item = React.useMemo(() => {
-    function syncCurrentTarget(currentTarget: HTMLElement | null) {
+    function syncCurrentTarget(currentTarget: HTMLElement | null, event: React.SyntheticEvent) {
       if (!latestOpenRef.current) {
         return;
       }
       const index = listRef.current.indexOf(currentTarget);
       if (index !== -1 && indexRef.current !== index) {
         indexRef.current = index;
-        onNavigate();
+        onNavigate(event);
       }
     }
 
     const itemProps: ElementProps['item'] = {
-      onFocus({ currentTarget }) {
+      onFocus(event) {
         forceSyncFocusRef.current = true;
-        syncCurrentTarget(currentTarget);
+        syncCurrentTarget(event.currentTarget, event);
       },
       onClick: ({ currentTarget }) => currentTarget.focus({ preventScroll: true }), // Safari
-      onMouseMove({ currentTarget }) {
+      onMouseMove(event) {
         forceSyncFocusRef.current = true;
         forceScrollIntoViewRef.current = false;
         if (focusItemOnHover) {
-          syncCurrentTarget(currentTarget);
+          syncCurrentTarget(event.currentTarget, event);
         }
       },
-      onPointerLeave({ pointerType }) {
-        if (!isPointerModalityRef.current || pointerType === 'touch') {
+      onPointerLeave(event) {
+        if (!isPointerModalityRef.current || event.pointerType === 'touch') {
           return;
         }
 
@@ -544,7 +544,7 @@ export function useListNavigation(
         }
 
         indexRef.current = -1;
-        onNavigate();
+        onNavigate(event);
 
         if (!virtual) {
           floatingFocusElementRef.current?.focus({ preventScroll: true });
@@ -610,13 +610,13 @@ export function useListNavigation(
       if (event.key === 'Home') {
         stopEvent(event);
         indexRef.current = minIndex;
-        onNavigate();
+        onNavigate(event);
       }
 
       if (event.key === 'End') {
         stopEvent(event);
         indexRef.current = maxIndex;
-        onNavigate();
+        onNavigate(event);
       }
     }
 
@@ -695,7 +695,7 @@ export function useListNavigation(
 
       if (index != null) {
         indexRef.current = index;
-        onNavigate();
+        onNavigate(event);
       }
 
       if (orientation === 'both') {
@@ -715,7 +715,7 @@ export function useListNavigation(
         indexRef.current = isMainOrientationToEndKey(event.key, orientation, rtl)
           ? minIndex
           : maxIndex;
-        onNavigate();
+        onNavigate(event);
         return;
       }
 
@@ -775,7 +775,7 @@ export function useListNavigation(
         indexRef.current = -1;
       }
 
-      onNavigate();
+      onNavigate(event);
     }
   });
 
@@ -876,7 +876,7 @@ export function useListNavigation(
 
             if (open) {
               indexRef.current = getMinListIndex(listRef, disabledIndicesRef.current);
-              onNavigate();
+              onNavigate(event);
             } else {
               onOpenChange(true, event.nativeEvent, 'list-navigation');
             }
@@ -899,16 +899,16 @@ export function useListNavigation(
           }
 
           if (open) {
-            onNavigate();
+            onNavigate(event);
           }
         }
 
         return undefined;
       },
-      onFocus() {
+      onFocus(event) {
         if (open && !virtual) {
           indexRef.current = -1;
-          onNavigate();
+          onNavigate(event);
         }
       },
       onPointerDown: checkVirtualPointer,

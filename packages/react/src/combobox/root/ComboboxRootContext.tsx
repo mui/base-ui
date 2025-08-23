@@ -33,11 +33,11 @@ export interface ComboboxRootContext {
     item: any,
     info: { type: 'keyboard' | 'pointer' | 'none'; index: number },
   ) => void;
+  forceMount: () => void;
   listRef: React.RefObject<Array<HTMLElement | null>>;
   popupRef: React.RefObject<HTMLDivElement | null>;
   inputRef: React.RefObject<HTMLInputElement | null>;
   keyboardActiveRef: React.RefObject<boolean>;
-  allowActiveIndexSyncRef: React.RefObject<boolean>;
   chipsContainerRef: React.RefObject<HTMLDivElement | null>;
   clearRef: React.RefObject<HTMLButtonElement | null>;
   store: ComboboxStore;
@@ -45,7 +45,6 @@ export interface ComboboxRootContext {
     props?: HTMLProps & { active?: boolean; selected?: boolean },
   ) => Record<string, unknown>;
   valuesRef: React.RefObject<Array<any>>;
-  registerItemIndex: (index: number) => void;
   handleEnterSelection: (event: Event) => void;
   name: string | undefined;
   disabled: boolean;

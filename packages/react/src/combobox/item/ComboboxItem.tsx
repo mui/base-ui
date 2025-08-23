@@ -3,8 +3,6 @@ import * as React from 'react';
 import { useStore } from '@base-ui-components/utils/store';
 import { useLatestRef } from '@base-ui-components/utils/useLatestRef';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
-import { useAnimationFrame } from '@base-ui-components/utils/useAnimationFrame';
-
 import {
   useComboboxRootContext,
   useComboboxDerivedItemsContext,
@@ -57,9 +55,6 @@ export const ComboboxItem = React.memo(
       setSelectedValue,
       valuesRef,
       inputRef,
-      registerItemIndex,
-      allowActiveIndexSyncRef,
-      onItemHighlighted,
       readOnly,
       virtualized,
       listRef,
@@ -75,73 +70,42 @@ export const ComboboxItem = React.memo(
     const active = useStore(store, selectors.isActive, index);
     const matchesSelectedValue = useStore(store, selectors.isSelected, value);
     const rootSelectedValue = useStore(store, selectors.selectedValue);
+    const items = useStore(store, selectors.items);
 
     const selected = matchesSelectedValue && selectable;
 
     const itemRef = React.useRef<HTMLDivElement | null>(null);
     const indexRef = useLatestRef(index);
 
-    const frame = useAnimationFrame();
-
     const hasRegistered = listItem.index !== -1;
-
-    useIsoLayoutEffect(() => {
-      if (!virtualized) {
-        return undefined;
-      }
-
-      const list = listRef.current;
-      const values = valuesRef.current;
-
-      if (index !== -1) {
-        list[index] = itemRef.current;
-        values[index] = value;
-        return () => {
-          delete list[index];
-          delete values[index];
-        };
-      }
-
-      return undefined;
-    }, [index, virtualized, listRef, valuesRef, value]);
 
     useIsoLayoutEffect(() => {
       if (!hasRegistered) {
         return undefined;
       }
 
-      const values = valuesRef.current;
-      values[index] = value;
+      const list = listRef.current;
+      const idx = indexRef.current;
+      list[idx] = itemRef.current;
 
       return () => {
-        delete values[index];
+        delete list[idx];
       };
-    }, [hasRegistered, index, value, valuesRef]);
+    }, [listRef, indexRef, hasRegistered]);
 
     useIsoLayoutEffect(() => {
-      if (hasRegistered && value === rootSelectedValue) {
-        registerItemIndex(index);
-
-        if (selectable && allowActiveIndexSyncRef.current) {
-          frame.request(() => {
-            onItemHighlighted(value, { type: 'none', index });
-            allowActiveIndexSyncRef.current = false;
-          });
-          return frame.cancel;
-        }
+      if (!hasRegistered || items) {
+        return undefined;
       }
-      return undefined;
-    }, [
-      hasRegistered,
-      index,
-      registerItemIndex,
-      value,
-      rootSelectedValue,
-      selectable,
-      allowActiveIndexSyncRef,
-      onItemHighlighted,
-      frame,
-    ]);
+
+      const values = valuesRef.current;
+      const idx = indexRef.current;
+      values[idx] = value;
+
+      return () => {
+        delete values[idx];
+      };
+    }, [hasRegistered, items, value, valuesRef, indexRef]);
 
     const state: ComboboxItem.State = React.useMemo(
       () => ({

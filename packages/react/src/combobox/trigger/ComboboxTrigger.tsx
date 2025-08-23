@@ -35,6 +35,7 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
     disabled: comboboxDisabled,
     readOnly,
     inputRef,
+    forceMount,
   } = useComboboxRootContext();
 
   const open = useStore(store, selectors.open);
@@ -91,7 +92,7 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
           }
 
           // Ensure items are registered for initial selection highlight.
-          store.set('forceMount', true);
+          forceMount();
 
           if (anchorElement !== null) {
             event.preventDefault();
@@ -124,9 +125,7 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
             return;
           }
 
-          focusTimeout.start(0, () => {
-            store.set('forceMount', true);
-          });
+          focusTimeout.start(0, forceMount);
         },
       },
       elementProps,

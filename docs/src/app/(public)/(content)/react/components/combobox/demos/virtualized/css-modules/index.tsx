@@ -67,11 +67,17 @@ export default function ExampleVirtualizedCombobox() {
         }
       }}
       onItemHighlighted={(item, { type, index }) => {
+        if (!item) {
+          return;
+        }
+
         const isStart = index === 0;
         const isEnd = index === filteredItems.length - 1;
         const shouldScroll = type === 'none' || (type === 'keyboard' && (isStart || isEnd));
         if (shouldScroll) {
-          virtualizer.scrollToIndex(index, { align: isEnd ? 'start' : 'end' });
+          queueMicrotask(() => {
+            virtualizer.scrollToIndex(index, { align: isEnd ? 'start' : 'end' });
+          });
         }
       }}
     >

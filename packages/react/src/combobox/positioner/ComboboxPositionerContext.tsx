@@ -9,6 +9,7 @@ export interface ComboboxPositionerContext {
   arrowUncentered: boolean;
   arrowStyles: React.CSSProperties;
   anchorHidden: boolean;
+  isPositioned: boolean;
 }
 
 export const ComboboxPositionerContext = React.createContext<ComboboxPositionerContext | undefined>(

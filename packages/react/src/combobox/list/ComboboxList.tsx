@@ -21,9 +21,10 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
 ) {
   const { render, className, children, ...elementProps } = componentProps;
 
-  const { store, selectionMode, keyboardActiveRef, cols, handleEnterSelection, popupRef } =
+  const { store, selectionMode, keyboardActiveRef, cols, handleEnterSelection, popupRef, listRef } =
     useComboboxRootContext();
   const floatingRootContext = useComboboxFloatingContext();
+  const positioning = useComboboxPositionerContext(true);
 
   const multiple = selectionMode === 'multiple';
   const hasPositionerContext = Boolean(useComboboxPositionerContext(true));
@@ -37,6 +38,19 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
   const setListElement = useEventCallback((element) => {
     store.set('listElement', element);
   });
+
+  const isPositioned = positioning ? positioning.isPositioned : true;
+
+  // Prevent a layout shift flash when scrolling a long list on initial open
+  // over `useListNavigation`'s `scrollItemIntoView`.
+  useIsoLayoutEffect(() => {
+    if (isPositioned && store.state.activeIndex !== null) {
+      listRef.current[store.state.activeIndex]?.scrollIntoView?.({
+        block: 'nearest',
+        inline: 'nearest',
+      });
+    }
+  }, [isPositioned, store, listRef]);
 
   useIsoLayoutEffect(() => {
     // Only force inline mode when there is no Positioner AND no Popup present

@@ -8,7 +8,6 @@ import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
 import { visuallyHidden } from '@base-ui-components/utils/visuallyHidden';
 import { useRefWithInit } from '@base-ui-components/utils/useRefWithInit';
 import { Store, useStore } from '@base-ui-components/utils/store';
-import { useAnimationFrame } from '@base-ui-components/utils/useAnimationFrame';
 import {
   ElementProps,
   useDismiss,
@@ -102,7 +101,6 @@ export function ComboboxRootInternal<Item = any, Mode extends SelectionMode = 'n
   const fieldControlValidation = useFieldControlValidation();
 
   const id = useBaseUiId(idProp);
-  const frame = useAnimationFrame();
 
   const disabled = fieldDisabled || disabledProp;
   const name = fieldName ?? nameProp;
@@ -230,15 +228,12 @@ export function ComboboxRootInternal<Item = any, Mode extends SelectionMode = 'n
   }, [items, flatItems, query, filter, isGrouped, itemToString, limit]);
 
   const flatFilteredItems: ExtractItemType<Item>[] = React.useMemo(() => {
-    if (!filteredItems || !virtualized) {
-      return [];
-    }
     if (isGrouped) {
       const groups = filteredItems as ComboboxGroup<ExtractItemType<Item>>[];
       return groups.flatMap((g) => g.items);
     }
     return filteredItems as ExtractItemType<Item>[];
-  }, [filteredItems, isGrouped, virtualized]);
+  }, [filteredItems, isGrouped]);
 
   const store = useRefWithInit(
     () =>
@@ -295,7 +290,6 @@ export function ComboboxRootInternal<Item = any, Mode extends SelectionMode = 'n
   const valuesRef = React.useRef<Array<any>>([]);
   const inputRef = React.useRef<HTMLInputElement | null>(null);
   const keyboardActiveRef = React.useRef(true);
-  const allowActiveIndexSyncRef = React.useRef(true);
   const hadInputClearRef = React.useRef(false);
   const chipsContainerRef = React.useRef<HTMLDivElement | null>(null);
   const clearRef = React.useRef<HTMLButtonElement | null>(null);
@@ -304,13 +298,21 @@ export function ComboboxRootInternal<Item = any, Mode extends SelectionMode = 'n
   const selectedValueRef = React.useRef(selectedValue);
   const inputValueRef = React.useRef(inputValue);
 
+  const forceMount = useEventCallback(() => {
+    if (items) {
+      labelsRef.current = flatFilteredItems.map((item) => stringifyItem(item, itemToString));
+    } else {
+      store.set('forceMount', true);
+    }
+  });
+
   const initialSelectedValueRef = React.useRef(selectedValue);
   useIsoLayoutEffect(() => {
     // Ensure the values and labels are registered for programmatic value changes.
     if (selectedValue !== initialSelectedValueRef.current) {
-      store.set('forceMount', true);
+      forceMount();
     }
-  }, [store, selectedValue]);
+  }, [forceMount, selectedValue, initialSelectedValueRef]);
 
   const commitValidation = fieldControlValidation.commitValidation;
 
@@ -326,12 +328,13 @@ export function ComboboxRootInternal<Item = any, Mode extends SelectionMode = 'n
       type?: 'none' | 'keyboard' | 'pointer';
     }) => {
       store.apply(options);
+      const type = options.type || 'none';
 
       if (options.activeIndex == null) {
-        onItemHighlighted(undefined, { type: 'none', index: -1 });
+        onItemHighlighted(undefined, { type, index: -1 });
       } else {
         onItemHighlighted(valuesRef.current[options.activeIndex], {
-          type: options.type || 'none',
+          type,
           index: options.activeIndex,
         });
       }
@@ -350,13 +353,11 @@ export function ComboboxRootInternal<Item = any, Mode extends SelectionMode = 'n
   });
 
   useIsoLayoutEffect(() => {
-    if (!virtualized) {
-      return;
+    if (items) {
+      valuesRef.current = flatFilteredItems;
+      listRef.current.length = flatFilteredItems.length;
     }
-    // Drop stray nulls
-    listRef.current.length = flatFilteredItems.length;
-    valuesRef.current.length = flatFilteredItems.length;
-  }, [flatFilteredItems, virtualized]);
+  }, [items, flatFilteredItems]);
 
   useValueChanged(queryRef, query, () => {
     if (!open || query === '' || query === String(defaultInputValue).toLocaleLowerCase()) {
@@ -407,8 +408,6 @@ export function ComboboxRootInternal<Item = any, Mode extends SelectionMode = 'n
     }
   }, [setFilled, selectionMode, inputValue, selectedValue, multiple]);
 
-  // (moved below hasRegisteredRef declaration)
-
   const setInputValue = useEventCallback(
     (next: string, event: Event | undefined, reason: ValueChangeReason | undefined) => {
       // If user is typing, ensure we don't auto-highlight on open due to a race
@@ -417,22 +416,18 @@ export function ComboboxRootInternal<Item = any, Mode extends SelectionMode = 'n
         const hasQuery = next.trim() !== '';
         if (hasQuery) {
           setQueryChangedAfterOpen(true);
-          // Prevent initial selectedIndex -> activeIndex sync on typed opens.
-          allowActiveIndexSyncRef.current = false;
         }
         if (selectionMode === 'none' && autoHighlight) {
-          if (hasQuery) {
-            store.set('activeIndex', 0);
-          } else {
-            store.set('activeIndex', null);
-          }
+          setIndices({ activeIndex: hasQuery ? 0 : null });
         }
       }
+
       if (reason === 'input-clear' && open) {
         hadInputClearRef.current = true;
         // Defer clearing until close transition completes to avoid flicker
         return;
       }
+
       props.onInputValueChange?.(next, event, reason);
       setInputValueUnwrapped(next);
     },
@@ -449,21 +444,6 @@ export function ComboboxRootInternal<Item = any, Mode extends SelectionMode = 'n
     },
   );
 
-  const hasRegisteredRef = React.useRef(false);
-
-  // Clear highlight when no rendered items remain, but only after at least
-  // one item has registered to avoid clearing on initial type-before-register.
-  useIsoLayoutEffect(() => {
-    if (selectionMode !== 'none' || !autoHighlight || !open || transitionStatus === 'ending') {
-      return;
-    }
-
-    const valuesLength = valuesRef.current.length;
-    if (valuesLength === 0 && hasRegisteredRef.current && store.state.activeIndex !== null) {
-      store.set('activeIndex', null);
-    }
-  }, [selectionMode, autoHighlight, open, transitionStatus, store]);
-
   const syncSelectedState = useEventCallback(() => {
     // Allow updates even when nothing registered yet in multiple mode if closed,
     // so removing chips while the popup is closed keeps indices in sync.
@@ -471,35 +451,10 @@ export function ComboboxRootInternal<Item = any, Mode extends SelectionMode = 'n
       return;
     }
 
-    const isOpen = store.state.open;
-
-    if (!hasRegisteredRef.current && !(multiple && !isOpen)) {
-      return;
-    }
-
     if (multiple) {
       const currentValue = Array.isArray(selectedValue) ? selectedValue : [];
-
-      if (!isOpen) {
-        // When closed, compute against the full flatItems list (no DOM items exist).
-        const selectedIndices: number[] = [];
-        currentValue.forEach((val) => {
-          const idx = flatItems.indexOf(val);
-          if (idx !== -1) {
-            selectedIndices.push(idx);
-          }
-        });
-        const nextSelectedIndex =
-          selectedIndices.length > 0 ? selectedIndices[selectedIndices.length - 1] : null;
-        store.apply({ selectedIndex: nextSelectedIndex, activeIndex: null });
-        return;
-      }
-
-      // When open, prefer indices based on the currently rendered values list
-      // and ensure selectedIndex points to a selected item. If it doesn't, move it to the last selected.
       const lastValue = currentValue[currentValue.length - 1];
       const lastIndex = lastValue !== undefined ? valuesRef.current.indexOf(lastValue) : -1;
-
       const currentSelectedIndex = store.state.selectedIndex;
       const currentSelectedIsValid =
         currentSelectedIndex !== null &&
@@ -516,55 +471,18 @@ export function ComboboxRootInternal<Item = any, Mode extends SelectionMode = 'n
         nextIndex = lastIndex;
       }
 
-      store.set('selectedIndex', nextIndex);
+      setIndices({ selectedIndex: nextIndex });
     } else {
-      const isOpenSingle = store.state.open;
-      if (!isOpenSingle) {
-        const idx = flatItems.indexOf(selectedValue);
-        const nextIndex = idx !== -1 ? idx : null;
-        store.apply({ selectedIndex: nextIndex, activeIndex: null });
-        return;
-      }
-
       const index = valuesRef.current.indexOf(selectedValue);
       const hasIndex = index !== -1;
-
-      if (selectedValue == null || !hasIndex) {
-        store.set('selectedIndex', null);
-      } else if (allowActiveIndexSyncRef.current) {
-        store.set('selectedIndex', index);
-      }
+      setIndices({ selectedIndex: selectedValue == null || !hasIndex ? null : index });
     }
   });
 
-  const registerItemIndex = useEventCallback((index: number) => {
-    hasRegisteredRef.current = true;
-
-    if (selectionMode === 'none') {
-      return;
-    }
-
-    if (multiple) {
-      syncSelectedState();
-      return;
-    }
-
-    // Single selection: prefer the supplied index to avoid relying on filtered values.
-    if (selectedValue == null) {
-      store.set('selectedIndex', null);
-      return;
-    }
-    if (allowActiveIndexSyncRef.current) {
-      store.set('selectedIndex', index);
-    }
-  });
-
-  // Keep store in sync whenever `selectedValue` changes after registration.
+  // Keep store in sync whenever `selectedValue` changes.
   useIsoLayoutEffect(syncSelectedState, [selectedValue, syncSelectedState]);
 
   const handleUnmount = useEventCallback(() => {
-    allowActiveIndexSyncRef.current = true;
-
     setMounted(false);
     onOpenChangeComplete?.(false);
     setQueryChangedAfterOpen(false);
@@ -594,11 +512,7 @@ export function ComboboxRootInternal<Item = any, Mode extends SelectionMode = 'n
       });
     } else {
       const idx = flatItems.indexOf(selectedValue);
-      if (idx !== -1) {
-        registerItemIndex(idx);
-      } else {
-        setIndices({ activeIndex: null, selectedIndex: null });
-      }
+      setIndices({ activeIndex: null, selectedIndex: idx !== -1 ? idx : null });
     }
 
     // If an input-clear was requested while open, perform it here after close completes
@@ -653,23 +567,19 @@ export function ComboboxRootInternal<Item = any, Mode extends SelectionMode = 'n
       onSelectedValueChange?.(nextValue as any, event, reason);
       setSelectedValueUnwrapped(nextValue);
 
-      if (selectionMode === 'none' && popupRef.current && fillInputOnItemPress) {
-        setInputValue(stringifyItem(nextValue as Item, itemToString), event, reason);
-      }
+      const shouldFillInput =
+        (selectionMode === 'none' && popupRef.current && fillInputOnItemPress) ||
+        (selectionMode === 'single' && popupRef.current && anchorElement === inputElement);
 
-      if (selectionMode === 'single') {
-        const isInputInsidePopup = contains(popupRef.current, inputRef.current);
-        if (!isInputInsidePopup) {
-          setInputValue(stringifyItem(nextValue as Item, itemToString), event, reason);
-        }
+      if (shouldFillInput) {
+        setInputValue(stringifyItem(nextValue as Item, itemToString), event, reason);
       }
 
       const hadInputValue = inputRef.current ? inputRef.current.value.trim() !== '' : false;
       if (multiple && hadInputValue) {
         setInputValue('', event, reason);
         // Reset active index and clear any highlighted item since the list will re-filter.
-        store.set('activeIndex', null);
-        onItemHighlighted(undefined, { type: 'none', index: -1 });
+        setIndices({ activeIndex: null });
       }
 
       if (selectionMode === 'single' && nextValue != null && reason !== 'input-change') {
@@ -781,35 +691,6 @@ export function ComboboxRootInternal<Item = any, Mode extends SelectionMode = 'n
     },
   });
 
-  useIsoLayoutEffect(() => {
-    if (!open) {
-      return;
-    }
-
-    const selectedIndexState = store.state.selectedIndex;
-    const activeIndexState = store.state.activeIndex;
-
-    if (selectedIndexState !== null) {
-      queueMicrotask(() => {
-        onItemHighlighted(valuesRef.current[selectedIndexState], {
-          type: 'none',
-          index: selectedIndexState,
-        });
-      });
-    }
-
-    const isInline = autoComplete === 'both' || autoComplete === 'inline';
-
-    if (autoHighlight && isInline && activeIndexState !== null) {
-      queueMicrotask(() => {
-        onItemHighlighted(valuesRef.current[activeIndexState], {
-          type: 'none',
-          index: activeIndexState,
-        });
-      });
-    }
-  }, [open, valuesRef, frame, autoHighlight, autoComplete, onItemHighlighted, store]);
-
   const listNavigation = useListNavigation(floatingRootContext, {
     enabled: !readOnly && !disabled,
     listRef,
@@ -827,16 +708,22 @@ export function ComboboxRootInternal<Item = any, Mode extends SelectionMode = 'n
     disabledIndices: virtualized
       ? (index) => index < 0 || index >= flatFilteredItems.length
       : EMPTY_ARRAY,
-    onNavigate(nextActiveIndex) {
+    onNavigate(nextActiveIndex, event) {
       // Retain the highlight only while actually transitioning out or closed.
       if (nextActiveIndex === null && (!open || transitionStatus === 'ending')) {
         return;
       }
 
-      setIndices({
-        activeIndex: nextActiveIndex,
-        type: keyboardActiveRef.current ? 'keyboard' : 'pointer',
-      });
+      if (!event) {
+        setIndices({
+          activeIndex: nextActiveIndex,
+        });
+      } else {
+        setIndices({
+          activeIndex: nextActiveIndex,
+          type: keyboardActiveRef.current ? 'keyboard' : 'pointer',
+        });
+      }
     },
   });
 
@@ -913,12 +800,10 @@ export function ComboboxRootInternal<Item = any, Mode extends SelectionMode = 'n
       valuesRef,
       inputRef,
       keyboardActiveRef,
-      allowActiveIndexSyncRef,
       chipsContainerRef,
       clearRef,
       store,
       getItemProps,
-      registerItemIndex,
       onOpenChangeComplete,
       setOpen,
       setInputValue,
@@ -938,12 +823,12 @@ export function ComboboxRootInternal<Item = any, Mode extends SelectionMode = 'n
       itemToString,
       modal,
       autoHighlight,
+      forceMount,
     }),
     [
       selectionMode,
       store,
       getItemProps,
-      registerItemIndex,
       onOpenChangeComplete,
       setOpen,
       setInputValue,
@@ -963,6 +848,7 @@ export function ComboboxRootInternal<Item = any, Mode extends SelectionMode = 'n
       itemToString,
       modal,
       autoHighlight,
+      forceMount,
     ],
   );
 
@@ -1022,29 +908,39 @@ export function ComboboxRootInternal<Item = any, Mode extends SelectionMode = 'n
 
             const nextValue = event.target.value;
 
-            if (selectionMode === 'none') {
-              setDirty(nextValue !== validityData.initialValue);
-              setInputValue(nextValue, event.nativeEvent, 'input-change');
+            function handleChange() {
+              if (selectionMode === 'none') {
+                setDirty(nextValue !== validityData.initialValue);
+                setInputValue(nextValue, event.nativeEvent, 'input-change');
 
-              if (validationMode === 'onChange') {
-                fieldControlValidation.commitValidation(nextValue);
+                if (validationMode === 'onChange') {
+                  fieldControlValidation.commitValidation(nextValue);
+                }
+                return;
               }
-              return;
+
+              const exactValue = valuesRef.current.find(
+                (v: any) =>
+                  v === nextValue ||
+                  (typeof selectedValue === 'string' &&
+                    nextValue.toLowerCase() === v.toLowerCase()),
+              );
+
+              if (exactValue != null) {
+                setDirty(exactValue !== validityData.initialValue);
+                setSelectedValue?.(exactValue, event.nativeEvent, 'input-change');
+
+                if (validationMode === 'onChange') {
+                  fieldControlValidation.commitValidation(exactValue);
+                }
+              }
             }
 
-            const exactValue = valuesRef.current.find(
-              (v: any) =>
-                v === nextValue ||
-                (typeof selectedValue === 'string' && nextValue.toLowerCase() === v.toLowerCase()),
-            );
-
-            if (exactValue != null) {
-              setDirty(exactValue !== validityData.initialValue);
-              setSelectedValue?.(exactValue, event.nativeEvent, 'input-change');
-
-              if (validationMode === 'onChange') {
-                fieldControlValidation.commitValidation(exactValue);
-              }
+            if (items) {
+              handleChange();
+            } else {
+              forceMount();
+              queueMicrotask(handleChange);
             }
           },
           id,
@@ -1070,7 +966,7 @@ export function ComboboxRootInternal<Item = any, Mode extends SelectionMode = 'n
           {virtualized ? (
             children
           ) : (
-            <CompositeList elementsRef={listRef} labelsRef={labelsRef}>
+            <CompositeList elementsRef={listRef} labelsRef={items ? undefined : labelsRef}>
               {children}
             </CompositeList>
           )}

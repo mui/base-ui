@@ -29,9 +29,9 @@ function App(props: Omit<Partial<UseListNavigationProps>, 'listRef'>) {
       ...props,
       listRef,
       activeIndex,
-      onNavigate(index) {
+      onNavigate(index, event) {
         setActiveIndex(index);
-        props.onNavigate?.(index);
+        props.onNavigate?.(index, event);
       },
     }),
   ]);
