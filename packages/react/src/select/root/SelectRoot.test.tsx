@@ -1375,15 +1375,19 @@ describe('<Select.Root />', () => {
 
       const { user } = await render(<App />);
 
-      const renderExtra = screen.getByTestId('render-extra');
-      await user.click(renderExtra);
-
       const trigger = screen.getByRole('combobox');
       await user.click(trigger);
 
       await waitFor(() => {
         expect(screen.queryByRole('listbox')).not.to.equal(null);
       });
+
+      await user.keyboard('{Escape}');
+
+      const renderExtra = screen.getByTestId('render-extra');
+      await user.click(renderExtra);
+
+      await user.click(trigger);
 
       await user.keyboard('{ArrowDown}');
       await user.keyboard('{ArrowDown}');
