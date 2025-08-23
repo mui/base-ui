@@ -516,11 +516,11 @@ describe('<Combobox.Root />', () => {
               <Combobox.Positioner>
                 <Combobox.Popup>
                   <Combobox.List>
-                    {items.map((item) => (
+                    {(item: string) => (
                       <Combobox.Item key={item} value={item}>
                         {item}
                       </Combobox.Item>
-                    ))}
+                    )}
                   </Combobox.List>
                 </Combobox.Popup>
               </Combobox.Positioner>
@@ -552,11 +552,11 @@ describe('<Combobox.Root />', () => {
               <Combobox.Positioner>
                 <Combobox.Popup>
                   <Combobox.List>
-                    {items.map((item) => (
+                    {(item: string) => (
                       <Combobox.Item key={item} value={item}>
                         {item}
                       </Combobox.Item>
-                    ))}
+                    )}
                   </Combobox.List>
                 </Combobox.Popup>
               </Combobox.Positioner>
@@ -578,11 +578,11 @@ describe('<Combobox.Root />', () => {
               <Combobox.Positioner>
                 <Combobox.Popup>
                   <Combobox.List>
-                    {items.map((item) => (
+                    {(item: string) => (
                       <Combobox.Item key={item} value={item}>
                         {item}
                       </Combobox.Item>
-                    ))}
+                    )}
                   </Combobox.List>
                 </Combobox.Popup>
               </Combobox.Positioner>
@@ -684,11 +684,11 @@ describe('<Combobox.Root />', () => {
               <Combobox.Positioner>
                 <Combobox.Popup>
                   <Combobox.List>
-                    {items.map((item) => (
+                    {(item: string) => (
                       <Combobox.Item key={item} value={item}>
                         {item}
                       </Combobox.Item>
-                    ))}
+                    )}
                   </Combobox.List>
                 </Combobox.Popup>
               </Combobox.Positioner>
@@ -728,11 +728,11 @@ describe('<Combobox.Root />', () => {
             <Combobox.Positioner>
               <Combobox.Popup>
                 <Combobox.List>
-                  {items.map((item) => (
+                  {(item: { country: string; code: string }) => (
                     <Combobox.Item key={item.code} value={item}>
                       {item.country}
                     </Combobox.Item>
-                  ))}
+                  )}
                 </Combobox.List>
               </Combobox.Popup>
             </Combobox.Positioner>
@@ -767,11 +767,11 @@ describe('<Combobox.Root />', () => {
             <Combobox.Positioner>
               <Combobox.Popup>
                 <Combobox.List>
-                  {items.map((item) => (
-                    <Combobox.Item key={item.code} value={item}>
-                      {item.country}
+                  {(item: string) => (
+                    <Combobox.Item key={item} value={item}>
+                      {item}
                     </Combobox.Item>
-                  ))}
+                  )}
                 </Combobox.List>
               </Combobox.Popup>
             </Combobox.Positioner>
@@ -798,11 +798,11 @@ describe('<Combobox.Root />', () => {
             <Combobox.Positioner>
               <Combobox.Popup>
                 <Combobox.List>
-                  {items.map((item) => (
-                    <Combobox.Item key={item.code} value={item}>
-                      {item.country}
+                  {(item: string) => (
+                    <Combobox.Item key={item} value={item}>
+                      {item}
                     </Combobox.Item>
-                  ))}
+                  )}
                 </Combobox.List>
               </Combobox.Popup>
             </Combobox.Positioner>
@@ -828,11 +828,11 @@ describe('<Combobox.Root />', () => {
             <Combobox.Positioner>
               <Combobox.Popup>
                 <Combobox.List>
-                  {items.map((item) => (
+                  {(item: string) => (
                     <Combobox.Item key={item} value={item}>
                       {item}
                     </Combobox.Item>
-                  ))}
+                  )}
                 </Combobox.List>
               </Combobox.Popup>
             </Combobox.Positioner>
@@ -942,22 +942,22 @@ describe('<Combobox.Root />', () => {
       await waitFor(() => expect(screen.getByRole('grid')).not.to.equal(null));
 
       await user.keyboard('{ArrowDown}');
-      await waitFor(() => expect(onItemHighlighted.lastCall?.args?.[0]).to.equal('1'));
+      await waitFor(() => expect(onItemHighlighted.lastCall.args[0]).to.equal('1'));
 
       await user.keyboard('{ArrowRight}');
-      await waitFor(() => expect(onItemHighlighted.lastCall?.args?.[0]).to.equal('2'));
+      await waitFor(() => expect(onItemHighlighted.lastCall.args[0]).to.equal('2'));
 
       await user.keyboard('{ArrowRight}');
-      await waitFor(() => expect(onItemHighlighted.lastCall?.args?.[0]).to.equal('3'));
+      await waitFor(() => expect(onItemHighlighted.lastCall.args[0]).to.equal('3'));
 
       await user.keyboard('{ArrowDown}');
-      await waitFor(() => expect(onItemHighlighted.lastCall?.args?.[0]).to.equal('6'));
+      await waitFor(() => expect(onItemHighlighted.lastCall.args[0]).to.equal('6'));
 
       await user.keyboard('{ArrowLeft}');
-      await waitFor(() => expect(onItemHighlighted.lastCall?.args?.[0]).to.equal('5'));
+      await waitFor(() => expect(onItemHighlighted.lastCall.args[0]).to.equal('5'));
 
       await user.keyboard('{ArrowUp}');
-      await waitFor(() => expect(onItemHighlighted.lastCall?.args?.[0]).to.equal('2'));
+      await waitFor(() => expect(onItemHighlighted.lastCall.args[0]).to.equal('2'));
     });
   });
 
@@ -1212,11 +1212,11 @@ describe('<Combobox.Root />', () => {
             <Combobox.Positioner>
               <Combobox.Popup>
                 <Combobox.List>
-                  {items.map((item) => (
+                  {(item: string) => (
                     <Combobox.Item key={item} value={item}>
                       {item}
                     </Combobox.Item>
-                  ))}
+                  )}
                 </Combobox.List>
               </Combobox.Popup>
             </Combobox.Positioner>

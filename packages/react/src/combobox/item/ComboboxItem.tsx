@@ -67,7 +67,7 @@ export const ComboboxItem = React.memo(
     const index = indexProp ?? (virtualized ? flatFilteredItems.indexOf(value) : listItem.index);
 
     const isRow = useComboboxRowContext();
-    const active = useStore(store, selectors.isActive, index);
+    const highlighted = useStore(store, selectors.isActive, index);
     const matchesSelectedValue = useStore(store, selectors.isSelected, value);
     const rootSelectedValue = useStore(store, selectors.selectedValue);
     const items = useStore(store, selectors.items);
@@ -80,18 +80,17 @@ export const ComboboxItem = React.memo(
     const hasRegistered = listItem.index !== -1;
 
     useIsoLayoutEffect(() => {
-      if (!hasRegistered) {
+      if (!hasRegistered || !virtualized) {
         return undefined;
       }
 
       const list = listRef.current;
-      const idx = indexRef.current;
-      list[idx] = itemRef.current;
+      list[index] = itemRef.current;
 
       return () => {
-        delete list[idx];
+        delete list[index];
       };
-    }, [listRef, indexRef, hasRegistered]);
+    }, [hasRegistered, virtualized, index, listRef]);
 
     useIsoLayoutEffect(() => {
       if (!hasRegistered || items) {
@@ -99,24 +98,23 @@ export const ComboboxItem = React.memo(
       }
 
       const values = valuesRef.current;
-      const idx = indexRef.current;
-      values[idx] = value;
+      values[index] = value;
 
       return () => {
-        delete values[idx];
+        delete values[index];
       };
-    }, [hasRegistered, items, value, valuesRef, indexRef]);
+    }, [hasRegistered, items, index, value, valuesRef]);
 
     const state: ComboboxItem.State = React.useMemo(
       () => ({
         disabled,
         selected,
-        highlighted: active,
+        highlighted,
       }),
-      [disabled, selected, active],
+      [disabled, selected, highlighted],
     );
 
-    const rootProps = getItemProps({ active, selected });
+    const rootProps = getItemProps({ active: highlighted, selected });
     delete rootProps.id;
     delete rootProps.onFocus;
 

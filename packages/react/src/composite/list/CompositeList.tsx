@@ -38,10 +38,6 @@ export function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
 
   const unregister = useEventCallback((node: Element) => {
     map.delete(node);
-    // When the list becomes empty, reset the guess counter so new mounts start at 0.
-    if (map.size === 0) {
-      nextIndexRef.current = 0;
-    }
     lastTickRef.current += 1;
     setMapTick(lastTickRef.current);
   });
