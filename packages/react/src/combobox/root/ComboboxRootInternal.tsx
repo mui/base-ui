@@ -522,6 +522,13 @@ export function ComboboxRootInternal<Item = any, Mode extends SelectionMode = 'n
       hadInputClearRef.current = false;
     }
 
+    // If explicitly requested by a wrapper (e.g., FilterableMenu), clear the input
+    // after close completes regardless of selection mode. This ensures the next open
+    // starts from a blank query without requiring external state resets.
+    if (props.clearInputOnCloseComplete && inputRef.current && inputRef.current.value !== '') {
+      setInputValue('', undefined, 'input-clear');
+    }
+
     // Multiple selection mode:
     // If the user typed a filter and didn't select in multiple mode, clear the input
     // after close completes to avoid mid-exit flicker and start fresh on next open.
