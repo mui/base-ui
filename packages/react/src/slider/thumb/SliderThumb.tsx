@@ -373,7 +373,6 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
       {
         children: (
           <React.Fragment>
-            {/* @ts-ignore */}
             {typeof children === 'function' ? children() : children}
             <input {...inputProps} />
           </React.Fragment>
