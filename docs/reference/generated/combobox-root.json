@@ -30,7 +30,7 @@
     },
     "open": {
       "type": "boolean",
-      "description": "Whether the combobox popup is currently open.",
+      "description": "Whether the popup is currently open.",
       "detailedType": "boolean | undefined"
     },
     "onOpenChange": {
@@ -72,7 +72,7 @@
     },
     "itemToString": {
       "type": "((item: GroupItem | Item) => string)",
-      "description": "Function to convert an item to a string for display in the combobox.",
+      "description": "Function to convert an item to a string for display.",
       "detailedType": "((item: GroupItem | Item) => string) | undefined"
     },
     "itemToValue": {
@@ -82,7 +82,7 @@
     },
     "items": {
       "type": "(GroupItem | Item)[] | (ComboboxGroup<GroupItem | Item>)[]",
-      "description": "The items to be displayed in the combobox.\nCan be either a flat array of items or an array of groups with items.",
+      "description": "The items to be displayed in the list.\nCan be either a flat array of items or an array of groups with items.",
       "detailedType": "| (GroupItem | Item)[]\n| ComboboxGroup<GroupItem | Item>[]\n| undefined"
     },
     "limit": {
@@ -109,13 +109,13 @@
     },
     "onOpenChangeComplete": {
       "type": "((open: boolean) => void)",
-      "description": "Event handler called after any animations complete when the combobox popup is opened or closed.",
+      "description": "Event handler called after any animations complete when the popup is opened or closed.",
       "detailedType": "((open: boolean) => void) | undefined"
     },
     "openOnInputClick": {
       "type": "boolean",
       "default": "true",
-      "description": "Whether the combobox popup opens when clicking the input.",
+      "description": "Whether the popup opens when clicking the input.",
       "detailedType": "boolean | undefined"
     },
     "virtualized": {
@@ -133,7 +133,7 @@
     "readOnly": {
       "type": "boolean",
       "default": "false",
-      "description": "Whether the user should be unable to choose a different option from the combobox popup.",
+      "description": "Whether the user should be unable to choose a different option from the popup.",
       "detailedType": "boolean | undefined"
     },
     "required": {
@@ -144,12 +144,12 @@
     },
     "inputRef": {
       "type": "RefObject<HTMLInputElement>",
-      "description": "A ref to the hidden input element used for form submission.",
+      "description": "A ref to the hidden input element.",
       "detailedType": "React.RefObject<HTMLInputElement> | undefined"
     },
     "id": {
       "type": "string",
-      "description": "The id of the combobox.",
+      "description": "The id of the component.",
       "detailedType": "string | undefined"
     },
     "children": {

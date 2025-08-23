@@ -169,7 +169,7 @@ export function ComboboxRootInternal<Item = any, Mode extends SelectionMode = 'n
     }
 
     if (isGrouped) {
-      return (items as ComboboxGroup<ExtractItemType<Item>>[]).flatMap((group) => group.items);
+      return items.flatMap((group) => group.items);
     }
 
     return items;
@@ -281,7 +281,6 @@ export function ComboboxRootInternal<Item = any, Mode extends SelectionMode = 'n
   const inputElement = useStore(store, selectors.inputElement);
   const inline = useStore(store, selectors.inline);
   const open = inline || openRaw;
-  const firstArrowConsumedRef = React.useRef(false);
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
   const {
@@ -320,9 +319,24 @@ export function ComboboxRootInternal<Item = any, Mode extends SelectionMode = 'n
     setDirty(nextValue !== validityData.initialValue);
   });
 
-  const noItemHighlighted = useEventCallback(() => {
-    onItemHighlighted(undefined, { type: 'none', index: -1 });
-  });
+  const setIndices = useEventCallback(
+    (options: {
+      activeIndex?: number | null;
+      selectedIndex?: number | null;
+      type?: 'none' | 'keyboard' | 'pointer';
+    }) => {
+      store.apply(options);
+
+      if (options.activeIndex == null) {
+        onItemHighlighted(undefined, { type: 'none', index: -1 });
+      } else {
+        onItemHighlighted(valuesRef.current[options.activeIndex], {
+          type: options.type || 'none',
+          index: options.activeIndex,
+        });
+      }
+    },
+  );
 
   const formValue = selectionMode === 'none' ? inputValue : selectedValue;
 
@@ -555,7 +569,6 @@ export function ComboboxRootInternal<Item = any, Mode extends SelectionMode = 'n
     onOpenChangeComplete?.(false);
     setQueryChangedAfterOpen(false);
     resetOpenInteractionType();
-    noItemHighlighted();
 
     // Restore selectedIndex back to its real value after the popup closes.
     // It may have been set to null while filtering or typing to avoid
@@ -563,10 +576,7 @@ export function ComboboxRootInternal<Item = any, Mode extends SelectionMode = 'n
     // current selection so initial highlight on next open is correct.
     if (selectionMode === 'none') {
       // Reset highlight; it will only be re-applied on input onChange when there's text.
-      store.apply({
-        activeIndex: null,
-        selectedIndex: null,
-      });
+      setIndices({ activeIndex: null, selectedIndex: null });
     } else if (multiple) {
       const currentValue = Array.isArray(selectedValue) ? selectedValue : [];
       const selectedIndices: number[] = [];
@@ -576,17 +586,18 @@ export function ComboboxRootInternal<Item = any, Mode extends SelectionMode = 'n
           selectedIndices.push(idx);
         }
       });
-      store.apply({
+
+      setIndices({
+        activeIndex: null,
         selectedIndex:
           selectedIndices.length > 0 ? selectedIndices[selectedIndices.length - 1] : null,
-        activeIndex: null,
       });
     } else {
       const idx = flatItems.indexOf(selectedValue);
       if (idx !== -1) {
         registerItemIndex(idx);
       } else {
-        store.apply({ activeIndex: null, selectedIndex: null });
+        setIndices({ activeIndex: null, selectedIndex: null });
       }
     }
 
@@ -667,8 +678,6 @@ export function ComboboxRootInternal<Item = any, Mode extends SelectionMode = 'n
     },
   );
 
-  React.useImperativeHandle(props.actionsRef, () => ({ unmount: handleUnmount }), [handleUnmount]);
-
   const handleEnterSelection = useEventCallback((event: Event) => {
     if (activeIndex === null) {
       return;
@@ -704,6 +713,8 @@ export function ComboboxRootInternal<Item = any, Mode extends SelectionMode = 'n
       }
     }
   });
+
+  React.useImperativeHandle(props.actionsRef, () => ({ unmount: handleUnmount }), [handleUnmount]);
 
   const floatingRootContext = useFloatingRootContext({
     open: inline ? true : open,
@@ -771,17 +782,33 @@ export function ComboboxRootInternal<Item = any, Mode extends SelectionMode = 'n
   });
 
   useIsoLayoutEffect(() => {
-    if (!open || selectedIndex === null) {
+    if (!open) {
       return;
     }
 
-    frame.request(() => {
-      onItemHighlighted(valuesRef.current[selectedIndex], {
-        type: 'none',
-        index: selectedIndex,
+    const selectedIndexState = store.state.selectedIndex;
+    const activeIndexState = store.state.activeIndex;
+
+    if (selectedIndexState !== null) {
+      queueMicrotask(() => {
+        onItemHighlighted(valuesRef.current[selectedIndexState], {
+          type: 'none',
+          index: selectedIndexState,
+        });
       });
-    });
-  }, [open, selectedIndex, onItemHighlighted, frame]);
+    }
+
+    const isInline = autoComplete === 'both' || autoComplete === 'inline';
+
+    if (autoHighlight && isInline && activeIndexState !== null) {
+      queueMicrotask(() => {
+        onItemHighlighted(valuesRef.current[activeIndexState], {
+          type: 'none',
+          index: activeIndexState,
+        });
+      });
+    }
+  }, [open, valuesRef, frame, autoHighlight, autoComplete, onItemHighlighted, store]);
 
   const listNavigation = useListNavigation(floatingRootContext, {
     enabled: !readOnly && !disabled,
@@ -806,37 +833,12 @@ export function ComboboxRootInternal<Item = any, Mode extends SelectionMode = 'n
         return;
       }
 
-      // In selectionMode='none' with autoHighlight, the first ArrowUp/ArrowDown after open
-      // should not immediately move the highlight; only the second press should.
-      if (
-        keyboardActiveRef.current &&
-        selectionMode === 'none' &&
-        autoHighlight &&
-        store.state.activeIndex === null &&
-        nextActiveIndex !== null &&
-        nextActiveIndex === 0 &&
-        !firstArrowConsumedRef.current
-      ) {
-        firstArrowConsumedRef.current = true;
-        return;
-      }
-
-      const type = keyboardActiveRef.current ? 'keyboard' : 'pointer';
-      if (nextActiveIndex !== null) {
-        onItemHighlighted(valuesRef.current[nextActiveIndex], { type, index: nextActiveIndex });
-      } else {
-        onItemHighlighted(undefined, { type, index: -1 });
-      }
-
-      store.set('activeIndex', nextActiveIndex);
+      setIndices({
+        activeIndex: nextActiveIndex,
+        type: keyboardActiveRef.current ? 'keyboard' : 'pointer',
+      });
     },
   });
-
-  React.useEffect(() => {
-    if (open) {
-      firstArrowConsumedRef.current = false;
-    }
-  }, [open]);
 
   const { reference: typeaheadTriggerProps } = useTypeahead(floatingRootContext, {
     enabled: !open && !readOnly && !disabled && selectionMode === 'single',
@@ -917,11 +919,12 @@ export function ComboboxRootInternal<Item = any, Mode extends SelectionMode = 'n
       store,
       getItemProps,
       registerItemIndex,
-      onItemHighlighted,
       onOpenChangeComplete,
       setOpen,
       setInputValue,
       setSelectedValue,
+      setIndices,
+      onItemHighlighted,
       handleEnterSelection,
       name,
       disabled,
@@ -941,11 +944,12 @@ export function ComboboxRootInternal<Item = any, Mode extends SelectionMode = 'n
       store,
       getItemProps,
       registerItemIndex,
-      onItemHighlighted,
       onOpenChangeComplete,
       setOpen,
       setInputValue,
       setSelectedValue,
+      setIndices,
+      onItemHighlighted,
       handleEnterSelection,
       name,
       disabled,
@@ -1097,7 +1101,7 @@ interface ComboboxRootProps<Item> {
    */
   name?: string;
   /**
-   * The id of the combobox.
+   * The id of the component.
    */
   id?: string;
   /**
@@ -1106,7 +1110,7 @@ interface ComboboxRootProps<Item> {
    */
   required?: boolean;
   /**
-   * Whether the user should be unable to choose a different option from the combobox popup.
+   * Whether the user should be unable to choose a different option from the popup.
    * @default false
    */
   readOnly?: boolean;
@@ -1131,15 +1135,15 @@ interface ComboboxRootProps<Item> {
     reason: ComboboxRootInternal.OpenChangeReason | undefined,
   ) => void;
   /**
-   * Event handler called after any animations complete when the combobox popup is opened or closed.
+   * Event handler called after any animations complete when the popup is opened or closed.
    */
   onOpenChangeComplete?: (open: boolean) => void;
   /**
-   * Whether the combobox popup is currently open.
+   * Whether the popup is currently open.
    */
   open?: boolean;
   /**
-   * Whether the combobox popup opens when clicking the input.
+   * Whether the popup opens when clicking the input.
    * @default true
    */
   openOnInputClick?: boolean;
@@ -1186,7 +1190,7 @@ interface ComboboxRootProps<Item> {
     },
   ) => void;
   /**
-   * A ref to the hidden input element used for form submission.
+   * A ref to the hidden input element.
    */
   inputRef?: React.RefObject<HTMLInputElement>;
   /**
@@ -1195,7 +1199,7 @@ interface ComboboxRootProps<Item> {
    */
   cols?: number;
   /**
-   * The items to be displayed in the combobox.
+   * The items to be displayed in the list.
    * Can be either a flat array of items or an array of groups with items.
    */
   items?: ExtractItemType<Item>[] | ComboboxGroup<ExtractItemType<Item>>[];
@@ -1211,7 +1215,7 @@ interface ComboboxRootProps<Item> {
         itemToString?: (item: ExtractItemType<Item>) => string,
       ) => boolean);
   /**
-   * Function to convert an item to a string for display in the combobox.
+   * Function to convert an item to a string for display.
    */
   itemToString?: (item: ExtractItemType<Item>) => string;
   /**
@@ -1224,11 +1228,6 @@ interface ComboboxRootProps<Item> {
    */
   virtualized?: boolean;
   /**
-   * INTERNAL: When `selectionMode` is `none`, controls whether selecting an item fills the input.
-   * Defaults to `true` to preserve legacy Combobox behavior.
-   */
-  fillInputOnItemPress?: boolean;
-  /**
    * Determines if the combobox enters a modal state when open.
    * - `true`: user interaction is limited to the combobox: document page scroll is locked and pointer interactions on outside elements are disabled.
    * - `false`: user interaction with the rest of the document is allowed.
@@ -1236,18 +1235,12 @@ interface ComboboxRootProps<Item> {
    */
   modal?: boolean;
   /**
-   * INTERNAL: Clears the input value after close animation completes.
-   * Useful for wrappers like FilterableMenu so they don't need to reset externally.
-   * @default false
-   */
-  clearInputOnCloseComplete?: boolean;
-  /**
    * The maximum number of items to display in the list.
    * @default -1
    */
   limit?: number;
   /**
-   * Controls how the Autocomplete behaves with respect to list filtering and inline autocompletion.
+   * Controls how the component behaves with respect to list filtering and inline autocompletion.
    * - `list` (default): items are dynamically filtered based on the input value. The input value does not change based on the active item.
    * - `both`: items are dynamically filtered based on the input value, which will temporarily change based on the active item (inline autocompletion).
    * - `inline`: items are static (not filtered), and the input value will temporarily change based on the active item (inline autocompletion).
@@ -1255,6 +1248,16 @@ interface ComboboxRootProps<Item> {
    * @default 'list'
    */
   autoComplete?: 'list' | 'both' | 'inline' | 'none';
+  /**
+   * INTERNAL: Clears the input value after close animation completes.
+   * Useful for wrappers like FilterableMenu so they don't need to reset externally.
+   * @default false
+   */
+  clearInputOnCloseComplete?: boolean;
+  /**
+   * INTERNAL: When `selectionMode` is `none`, controls whether selecting an item fills the input.
+   */
+  fillInputOnItemPress?: boolean;
 }
 
 export type ComboboxRootConditionalProps<Item, Mode extends SelectionMode = 'none'> = Omit<

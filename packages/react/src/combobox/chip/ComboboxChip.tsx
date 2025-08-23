@@ -21,7 +21,7 @@ export const ComboboxChip = React.forwardRef(function ComboboxChip(
 ) {
   const { render, className, ...elementProps } = componentProps;
 
-  const { inputRef, store, setSelectedValue, setOpen, disabled, readOnly, onItemHighlighted } =
+  const { inputRef, store, setSelectedValue, setOpen, disabled, readOnly, setIndices } =
     useComboboxRootContext();
   const { setHighlightedChipIndex, chipsRef } = useComboboxChipsContext()!;
 
@@ -53,9 +53,7 @@ export const ComboboxChip = React.forwardRef(function ComboboxChip(
 
       stopEvent(event);
 
-      store.apply({ selectedIndex: null, activeIndex: null });
-      onItemHighlighted(undefined, { type: 'keyboard', index: -1 });
-
+      setIndices({ activeIndex: null, selectedIndex: null, type: 'keyboard' });
       setSelectedValue(
         selectedValue.filter((_: any, i: number) => i !== index),
         event.nativeEvent,

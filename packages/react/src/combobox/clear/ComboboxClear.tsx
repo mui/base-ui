@@ -33,7 +33,8 @@ export const ComboboxClear = React.forwardRef(function ComboboxClear(
     disabled: comboboxDisabled,
     readOnly,
     clearRef,
-    onItemHighlighted,
+    setIndices,
+    keyboardActiveRef,
   } = useComboboxRootContext();
   const { disabled: fieldDisabled } = useFieldRootContext();
 
@@ -82,8 +83,11 @@ export const ComboboxClear = React.forwardRef(function ComboboxClear(
             event.nativeEvent,
             'clear-press',
           );
-          store.apply({ activeIndex: null, selectedIndex: null });
-          onItemHighlighted(undefined, { type: 'none', index: -1 });
+          setIndices({
+            activeIndex: null,
+            selectedIndex: null,
+            type: keyboardActiveRef.current ? 'keyboard' : 'pointer',
+          });
           inputRef.current?.focus();
         },
       },

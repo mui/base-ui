@@ -25,14 +25,13 @@ export const FilterableMenuTextarea = React.forwardRef(function FilterableMenuTe
     fieldControlValidation,
     handleEnterSelection,
     setOpen,
-    onItemHighlighted,
+    setIndices,
   } = useComboboxRootContext();
 
   const hasPositionerParent = Boolean(useComboboxPositionerContext(true));
 
   const inputProps = useStore(store, selectors.inputProps);
   const open = useStore(store, selectors.open);
-  const activeIndex = useStore(store, selectors.activeIndex);
 
   const setAnchorElement = useEventCallback((element: Element | null) => {
     // When not inside a Positioner, the reference anchor is this textarea
@@ -52,11 +51,10 @@ export const FilterableMenuTextarea = React.forwardRef(function FilterableMenuTe
       inputProps,
       {
         onChange() {
-          if (open && activeIndex !== null) {
-            store.set('activeIndex', null);
-            onItemHighlighted(undefined, {
-              type: keyboardActiveRef.current ? 'keyboard' : 'pointer',
-              index: -1,
+          if (open && store.state.activeIndex !== null) {
+            setIndices({
+              activeIndex: null,
+              type: keyboardActiveRef.current ? 'pointer' : 'keyboard',
             });
           }
         },
@@ -66,11 +64,13 @@ export const FilterableMenuTextarea = React.forwardRef(function FilterableMenuTe
           // If the menu is open, Enter should select the highlighted item.
           // If nothing is highlighted, close the menu and allow newline.
           if (event.key === 'Enter' && open) {
-            if (activeIndex === null) {
+            stopEvent(event);
+
+            if (store.state.activeIndex === null) {
               setOpen(false, event.nativeEvent, undefined);
               return;
             }
-            stopEvent(event);
+
             handleEnterSelection(event.nativeEvent);
           }
         },

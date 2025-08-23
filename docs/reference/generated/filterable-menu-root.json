@@ -10,7 +10,7 @@
     },
     "open": {
       "type": "boolean",
-      "description": "Whether the combobox popup is currently open.",
+      "description": "Whether the popup is currently open.",
       "detailedType": "boolean | undefined"
     },
     "onOpenChange": {
@@ -26,7 +26,7 @@
     "autoComplete": {
       "type": "'none' | 'list' | 'inline' | 'both'",
       "default": "'list'",
-      "description": "Controls how the Autocomplete behaves with respect to list filtering and inline autocompletion.\n- `list` (default): items are dynamically filtered based on the input value. The input value does not change based on the active item.\n- `both`: items are dynamically filtered based on the input value, which will temporarily change based on the active item (inline autocompletion).\n- `inline`: items are static (not filtered), and the input value will temporarily change based on the active item (inline autocompletion).\n- `none`: items are static (not filtered), and the input value will not change based on the active item.",
+      "description": "Controls how the component behaves with respect to list filtering and inline autocompletion.\n- `list` (default): items are dynamically filtered based on the input value. The input value does not change based on the active item.\n- `both`: items are dynamically filtered based on the input value, which will temporarily change based on the active item (inline autocompletion).\n- `inline`: items are static (not filtered), and the input value will temporarily change based on the active item (inline autocompletion).\n- `none`: items are static (not filtered), and the input value will not change based on the active item.",
       "detailedType": "'none' | 'list' | 'inline' | 'both' | undefined"
     },
     "autoHighlight": {
@@ -58,7 +58,7 @@
     },
     "items": {
       "type": "(GroupItem | Item)[] | (ComboboxGroup<GroupItem | Item>)[]",
-      "description": "The items to be displayed in the combobox.\nCan be either a flat array of items or an array of groups with items.",
+      "description": "The items to be displayed in the list.\nCan be either a flat array of items or an array of groups with items.",
       "detailedType": "| (GroupItem | Item)[]\n| ComboboxGroup<GroupItem | Item>[]\n| undefined"
     },
     "limit": {
@@ -85,7 +85,7 @@
     },
     "onOpenChangeComplete": {
       "type": "((open: boolean) => void)",
-      "description": "Event handler called after any animations complete when the combobox popup is opened or closed.",
+      "description": "Event handler called after any animations complete when the popup is opened or closed.",
       "detailedType": "((open: boolean) => void) | undefined"
     },
     "onSelectedValueChange": {
@@ -108,12 +108,12 @@
     "readOnly": {
       "type": "boolean",
       "default": "false",
-      "description": "Whether the user should be unable to choose a different option from the combobox popup.",
+      "description": "Whether the user should be unable to choose a different option from the popup.",
       "detailedType": "boolean | undefined"
     },
     "id": {
       "type": "string",
-      "description": "The id of the combobox.",
+      "description": "The id of the component.",
       "detailedType": "string | undefined"
     },
     "children": {

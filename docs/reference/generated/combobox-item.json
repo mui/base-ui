@@ -37,6 +37,16 @@
       "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Combobox.Item.State,\n  ) => ReactElement)"
     }
   },
-  "dataAttributes": {},
+  "dataAttributes": {
+    "data-selected": {
+      "description": "Present when the combobox item is selected."
+    },
+    "data-highlighted": {
+      "description": "Present when the combobox item is highlighted."
+    },
+    "data-disabled": {
+      "description": "Present when the combobox item is disabled."
+    }
+  },
   "cssVariables": {}
 }

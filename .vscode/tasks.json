@@ -1,0 +1,33 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "test Autocomplete jsdom",
+			"type": "shell",
+			"command": "pnpm",
+			"args": [
+				"test:jsdom",
+				"Autocomplete",
+				"--no-watch"
+			],
+			"problemMatcher": [
+				"$tsc"
+			],
+			"group": "test"
+		},
+		{
+			"label": "test Autocomplete jsdom (selection)",
+			"type": "shell",
+			"command": "pnpm",
+			"args": [
+				"test:jsdom",
+				"Autocomplete",
+				"--no-watch"
+			],
+			"problemMatcher": [
+				"$tsc"
+			],
+			"group": "test"
+		}
+	]
+}

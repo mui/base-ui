@@ -43,7 +43,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
     setSelectedValue,
     setOpen,
     keyboardActiveRef,
-    onItemHighlighted,
+    setIndices,
     disabled: comboboxDisabled,
     readOnly,
     fieldControlValidation,
@@ -60,7 +60,6 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
 
   const inputProps = useStore(store, selectors.inputProps);
   const open = useStore(store, selectors.open);
-  const activeIndex = useStore(store, selectors.activeIndex);
   const selectedValue = useStore(store, selectors.selectedValue);
   const inputValue = useStore(store, selectors.inputValue);
 
@@ -122,8 +121,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
             : highlightedChipIndex;
         // If the computed index is negative, treat it as no highlight.
         nextIndex = computedNextIndex >= 0 ? computedNextIndex : undefined;
-        store.apply({ selectedIndex: null, activeIndex: null });
-        onItemHighlighted(undefined, { type: 'keyboard', index: -1 });
+        setIndices({ activeIndex: null, selectedIndex: null, type: 'keyboard' });
       }
       return nextIndex;
     }
@@ -142,8 +140,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
       event.currentTarget.value === '' &&
       selectedValue.length > 0
     ) {
-      store.apply({ selectedIndex: null, activeIndex: null });
-      onItemHighlighted(undefined, { type: 'keyboard', index: -1 });
+      setIndices({ activeIndex: null, selectedIndex: null, type: 'keyboard' });
       event.preventDefault();
     }
 
@@ -187,13 +184,11 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
               setOpen(true, event.nativeEvent, undefined);
               // When autoHighlight is enabled for autocomplete, keep the highlight (will be set to 0 in root).
               if (!(selectionMode === 'none' && autoHighlight)) {
-                store.apply({ activeIndex: null, selectedIndex: null });
-                if (activeIndex !== null) {
-                  onItemHighlighted(undefined, {
-                    type: keyboardActiveRef.current ? 'keyboard' : 'pointer',
-                    index: -1,
-                  });
-                }
+                setIndices({
+                  activeIndex: null,
+                  selectedIndex: null,
+                  type: keyboardActiveRef.current ? 'keyboard' : 'pointer',
+                });
               }
             }
           }
@@ -203,18 +198,18 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
           // cleared).
           if (
             open &&
-            activeIndex !== null &&
+            store.state.activeIndex !== null &&
             !(selectionMode === 'none' && autoHighlight && event.currentTarget.value.trim() !== '')
           ) {
-            store.apply({ activeIndex: null, selectedIndex: null });
-            onItemHighlighted(undefined, {
+            setIndices({
+              activeIndex: null,
+              selectedIndex: null,
               type: keyboardActiveRef.current ? 'keyboard' : 'pointer',
-              index: -1,
             });
           }
         },
         onKeyDown(event) {
-          if (readOnly) {
+          if (disabled || readOnly) {
             return;
           }
 
@@ -231,8 +226,11 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
           ) {
             const newValue = selectedValue.slice(0, -1);
             // If the removed item was also the active (highlighted) item, clear highlight
-            store.apply({ selectedIndex: null, activeIndex: null });
-            onItemHighlighted(undefined, { type: 'keyboard', index: -1 });
+            setIndices({
+              activeIndex: null,
+              selectedIndex: null,
+              type: keyboardActiveRef.current ? 'keyboard' : 'pointer',
+            });
             setSelectedValue(newValue, event.nativeEvent, undefined);
             return;
           }
@@ -247,10 +245,15 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
             inputRef.current?.focus();
           }
 
-          if (event.key === 'Enter') {
+          // event.isComposing
+          if (event.which === 229) {
+            return;
+          }
+
+          if (event.key === 'Enter' && open) {
             stopEvent(event);
 
-            if (activeIndex === null) {
+            if (store.state.activeIndex === null) {
               setOpen(false, event.nativeEvent, undefined);
               return;
             }

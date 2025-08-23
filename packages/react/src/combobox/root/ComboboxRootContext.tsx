@@ -24,6 +24,15 @@ export interface ComboboxRootContext {
     event: Event | undefined,
     reason: ValueChangeReason | undefined,
   ) => void;
+  setIndices: (indices: {
+    activeIndex?: number | null;
+    selectedIndex?: number | null;
+    type?: 'keyboard' | 'pointer' | 'none';
+  }) => void;
+  onItemHighlighted: (
+    item: any,
+    info: { type: 'keyboard' | 'pointer' | 'none'; index: number },
+  ) => void;
   listRef: React.RefObject<Array<HTMLElement | null>>;
   popupRef: React.RefObject<HTMLDivElement | null>;
   inputRef: React.RefObject<HTMLInputElement | null>;
@@ -37,13 +46,6 @@ export interface ComboboxRootContext {
   ) => Record<string, unknown>;
   valuesRef: React.RefObject<Array<any>>;
   registerItemIndex: (index: number) => void;
-  onItemHighlighted: (
-    value: any,
-    data: {
-      type: 'keyboard' | 'pointer' | 'none';
-      index: number;
-    },
-  ) => void;
   handleEnterSelection: (event: Event) => void;
   name: string | undefined;
   disabled: boolean;

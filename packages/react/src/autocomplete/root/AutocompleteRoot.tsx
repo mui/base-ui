@@ -87,25 +87,24 @@ export function AutocompleteRoot<Item = any>(
     };
   }
 
-  const handleItemHighlighted: NonNullable<
-    ComboboxRootInternal.Props<Item, 'none'>['onItemHighlighted']
-  > = useEventCallback((highlightedValue, data) => {
-    props.onItemHighlighted?.(highlightedValue, data);
+  const handleItemHighlighted: ComboboxRootInternal.Props<Item, 'none'>['onItemHighlighted'] =
+    useEventCallback((highlightedValue, data) => {
+      props.onItemHighlighted?.(highlightedValue, data);
 
-    if (data.type !== 'keyboard') {
-      return;
-    }
-
-    if (enableInline) {
-      if (highlightedValue == null) {
-        setInlineOverlay('');
-      } else {
-        setInlineOverlay(stringifyItem(highlightedValue, itemToString));
+      if (data.type === 'pointer') {
+        return;
       }
-    } else {
-      setInlineOverlay('');
-    }
-  });
+
+      if (enableInline) {
+        if (highlightedValue == null) {
+          setInlineOverlay('');
+        } else {
+          setInlineOverlay(stringifyItem(highlightedValue, itemToString));
+        }
+      } else {
+        setInlineOverlay('');
+      }
+    });
 
   return (
     <ComboboxRootInternal
@@ -136,16 +135,14 @@ export namespace AutocompleteRoot {
       | 'fillInputOnItemPress'
       | 'modal'
       | 'clearInputOnCloseComplete'
-      // Custom JSDoc
-      | 'openOnInputClick'
       // Different names
-      | 'inputValue'
-      | 'defaultInputValue'
-      | 'onInputValueChange'
-      | 'autoComplete'
+      | 'inputValue' // value
+      | 'defaultInputValue' // defaultValue
+      | 'onInputValueChange' // onValueChange
+      | 'autoComplete' // mode
     > {
     /**
-     * Controls how the Autocomplete behaves with respect to list filtering and inline autocompletion.
+     * Controls how the autocomplete behaves with respect to list filtering and inline autocompletion.
      * - `list` (default): items are dynamically filtered based on the input value. The input value does not change based on the active item.
      * - `both`: items are dynamically filtered based on the input value, which will temporarily change based on the active item (inline autocompletion).
      * - `inline`: items are static (not filtered), and the input value will temporarily change based on the active item (inline autocompletion).
@@ -153,11 +150,6 @@ export namespace AutocompleteRoot {
      * @default 'list'
      */
     mode?: 'list' | 'both' | 'inline' | 'none';
-    /**
-     * Whether the combobox popup opens when clicking the input.
-     * @default false
-     */
-    openOnInputClick?: boolean;
     /**
      * The uncontrolled input value of the autocomplete when it's initially rendered.
      *
