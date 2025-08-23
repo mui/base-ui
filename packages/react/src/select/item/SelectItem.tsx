@@ -40,10 +40,10 @@ export const SelectItem = React.memo(
     const listItem = useCompositeListItem({
       label,
       textRef,
-      indexGuessBehavior:
-        // React 18 fires `React.useState()` callbacks twice in Strict Mode. The
-        // `GuessFromOrder` incrementing logic relies on this not being the case.
-        process.env.NODE_ENV !== 'production' ? undefined : IndexGuessBehavior.GuessFromOrder,
+      indexGuessBehavior: IndexGuessBehavior.GuessFromOrder,
+      // React 18 fires `React.useState()` callbacks twice in Strict Mode. The
+      // `GuessFromOrder` incrementing logic relies on this not being the case.
+      // process.env.NODE_ENV !== 'production' ? undefined : IndexGuessBehavior.GuessFromOrder,
     });
 
     const {

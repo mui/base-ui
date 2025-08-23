@@ -1344,6 +1344,58 @@ describe('<Select.Root />', () => {
 
     clock.withFakeTimers();
 
+    it('navigates correctly when conditionally rendering items', async () => {
+      function App() {
+        const [items, setItems] = React.useState(3);
+        return (
+          <div>
+            <button data-testid="render-extra" onClick={() => setItems(5)}>
+              Render five items
+            </button>
+            <Select.Root>
+              <Select.Trigger>
+                <Select.Value />
+                <Select.Icon />
+              </Select.Trigger>
+              <Select.Portal>
+                <Select.Positioner>
+                  <Select.Popup>
+                    {Array.from({ length: items }).map((_, i) => (
+                      <Select.Item key={i} value={i + 1}>
+                        test {i + 1}
+                      </Select.Item>
+                    ))}
+                  </Select.Popup>
+                </Select.Positioner>
+              </Select.Portal>
+            </Select.Root>
+          </div>
+        );
+      }
+
+      const { user } = await render(<App />);
+
+      const renderExtra = screen.getByTestId('render-extra');
+      await user.click(renderExtra);
+
+      const trigger = screen.getByRole('combobox');
+      await user.click(trigger);
+
+      await waitFor(() => {
+        expect(screen.queryByRole('listbox')).not.to.equal(null);
+      });
+
+      await user.keyboard('{ArrowDown}');
+      await user.keyboard('{ArrowDown}');
+      await user.keyboard('{ArrowDown}');
+      await user.keyboard('{ArrowDown}');
+      await user.keyboard('{ArrowDown}');
+
+      await waitFor(() => {
+        expect(screen.queryByRole('option', { name: 'test 5' })).toHaveFocus();
+      });
+    });
+
     it('skips null items when navigating', async () => {
       function DynamicMenu() {
         const [itemsFiltered, setItemsFiltered] = React.useState(false);
