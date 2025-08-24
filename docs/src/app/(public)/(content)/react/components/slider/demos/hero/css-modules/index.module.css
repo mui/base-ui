@@ -31,8 +31,32 @@
   background-color: white;
   outline: 1px solid var(--color-gray-300);
   user-select: none;
+  appearance: none;
 
   &:focus-visible {
     outline: 2px solid var(--color-blue);
+  }
+
+  &::-moz-range-progress {
+    width: 0;
+    height: 0;
+  }
+
+  &::-moz-range-thumb {
+    width: 1rem;
+    height: 1rem;
+    border-radius: 100%;
+    background-color: white;
+    user-select: none;
+    appearance: none;
+  }
+
+  &::-moz-range-track {
+    width: 0;
+    height: 0;
+  }
+
+  &::-webkit-slider-thumb {
+    display: none;
   }
 }

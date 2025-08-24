@@ -9,7 +9,7 @@ export default function ExampleSlider() {
           <Slider.Indicator className="rounded bg-gray-700 select-none" />
           <Slider.Thumb
             aria-label="Volume"
-            className="size-4 rounded-full bg-white m-0 outline outline-1 outline-gray-300 select-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-800"
+            className="[::-webkit-slider-thumb]:display-none m-0 size-4 appearance-none rounded-full bg-white outline outline-1 outline-gray-300 select-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-800"
           />
         </Slider.Track>
       </Slider.Control>
