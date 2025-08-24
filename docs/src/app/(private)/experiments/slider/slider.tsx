@@ -46,6 +46,7 @@ function DelayUntilRepeat() {
           <Slider.Thumb
             /* getAriaValueText could be used so more meaningful values are announced  */
             className={smallStyles.Thumb}
+            data-my-custom-data-attribute=""
           />
         </Slider.Track>
       </Slider.Control>

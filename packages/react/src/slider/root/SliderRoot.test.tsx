@@ -333,16 +333,8 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
       );
       const slider = getByRole('slider');
 
-      await act(async () => {
-        slider.focus();
-      });
-
       const sliderControl = getByTestId('control');
       stub(sliderControl, 'getBoundingClientRect').callsFake(getHorizontalSliderRect);
-
-      await act(async () => {
-        slider.focus();
-      });
 
       expect(slider).to.have.attribute('aria-valuenow', '0.2');
 
@@ -372,16 +364,8 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
         );
         const slider = getByRole('slider');
 
-        await act(async () => {
-          slider.focus();
-        });
-
         const sliderControl = getByTestId('control');
         stub(sliderControl, 'getBoundingClientRect').callsFake(getHorizontalSliderRect);
-
-        await act(async () => {
-          slider.focus();
-        });
 
         expect(slider).to.have.attribute('aria-valuenow', '2e-8');
 
@@ -406,16 +390,8 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
         );
         const slider = getByRole('slider');
 
-        await act(async () => {
-          slider.focus();
-        });
-
         const sliderControl = getByTestId('control');
         stub(sliderControl, 'getBoundingClientRect').callsFake(getHorizontalSliderRect);
-
-        await act(async () => {
-          slider.focus();
-        });
 
         expect(slider).to.have.attribute('aria-valuenow', '-2e-8');
 
@@ -466,10 +442,6 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
       stub(sliderControl, 'getBoundingClientRect').callsFake(getHorizontalSliderRect);
 
       const slider = getByRole('slider');
-      await act(async () => {
-        slider.focus();
-      });
-
       expect(slider).to.have.attribute('aria-valuenow', '90');
 
       fireEvent.touchStart(
