@@ -62,6 +62,8 @@ export const ComboboxChipRemove = React.forwardRef(function ComboboxChipRemove(
           // If the removed chip was the active item, clear highlight
           const activeIndex = store.state.activeIndex;
           const removedItem = selectedValue[index];
+          // Try current visible list first; if not found, it's filtered out. No need
+          // to clear highlight in that case since it can't equal activeIndex.
           const removedIndex = valuesRef.current.indexOf(removedItem);
           if (removedIndex !== -1 && activeIndex === removedIndex) {
             setIndices({

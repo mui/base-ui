@@ -287,12 +287,24 @@ export function ComboboxRootInternal<Item = any, Mode extends SelectionMode = 'n
   const listRef = React.useRef<Array<HTMLElement | null>>([]);
   const labelsRef = React.useRef<Array<string | null>>([]);
   const popupRef = React.useRef<HTMLDivElement | null>(null);
-  const valuesRef = React.useRef<Array<any>>([]);
   const inputRef = React.useRef<HTMLInputElement | null>(null);
   const keyboardActiveRef = React.useRef(true);
   const hadInputClearRef = React.useRef(false);
   const chipsContainerRef = React.useRef<HTMLDivElement | null>(null);
   const clearRef = React.useRef<HTMLButtonElement | null>(null);
+
+  /**
+   * Contains the currently visible list of item values post-filtering.
+   */
+  const valuesRef = React.useRef<Array<any>>([]);
+  /**
+   * Contains all item values in a stable, unfiltered order.
+   * - When `items` prop is provided, this mirrors the flat items.
+   * - When `items` is not provided, this accumulates values on first mount and
+   *   does not remove them on unmount (due to filtering), providing a stable
+   *   index for selected value tracking.
+   */
+  const allValuesRef = React.useRef<Array<any>>([]);
 
   const queryRef = React.useRef(query);
   const selectedValueRef = React.useRef(selectedValue);
@@ -330,10 +342,15 @@ export function ComboboxRootInternal<Item = any, Mode extends SelectionMode = 'n
       store.apply(options);
       const type = options.type || 'none';
 
-      if (options.activeIndex == null) {
+      if (options.activeIndex === undefined) {
+        return;
+      }
+
+      if (options.activeIndex === null) {
         onItemHighlighted(undefined, { type, index: -1 });
       } else {
-        onItemHighlighted(valuesRef.current[options.activeIndex], {
+        const activeValue = valuesRef.current[options.activeIndex];
+        onItemHighlighted(activeValue, {
           type,
           index: options.activeIndex,
         });
@@ -355,9 +372,10 @@ export function ComboboxRootInternal<Item = any, Mode extends SelectionMode = 'n
   useIsoLayoutEffect(() => {
     if (items) {
       valuesRef.current = flatFilteredItems;
+      allValuesRef.current = flatItems;
       listRef.current.length = flatFilteredItems.length;
     }
-  }, [items, flatFilteredItems]);
+  }, [items, flatFilteredItems, flatItems]);
 
   useValueChanged(queryRef, query, () => {
     if (!open || query === '' || query === String(defaultInputValue).toLocaleLowerCase()) {
@@ -398,13 +416,11 @@ export function ComboboxRootInternal<Item = any, Mode extends SelectionMode = 'n
 
   useIsoLayoutEffect(() => {
     if (selectionMode === 'none') {
-      const hasValue = inputValue !== null && inputValue !== undefined && inputValue !== '';
-      setFilled(hasValue);
+      setFilled(String(inputValue) !== '');
     } else {
-      const hasValue = multiple
-        ? Array.isArray(selectedValue) && selectedValue.length > 0
-        : selectedValue !== null && selectedValue !== undefined && selectedValue !== '';
-      setFilled(hasValue);
+      setFilled(
+        multiple ? Array.isArray(selectedValue) && selectedValue.length > 0 : selectedValue != null,
+      );
     }
   }, [setFilled, selectionMode, inputValue, selectedValue, multiple]);
 
@@ -444,43 +460,29 @@ export function ComboboxRootInternal<Item = any, Mode extends SelectionMode = 'n
     },
   );
 
-  const syncSelectedState = useEventCallback(() => {
-    // Allow updates even when nothing registered yet in multiple mode if closed,
-    // so removing chips while the popup is closed keeps indices in sync.
+  const syncSelectedIndex = useEventCallback(() => {
     if (selectionMode === 'none') {
       return;
     }
 
+    const registry = items ? flatItems : allValuesRef.current;
+
     if (multiple) {
       const currentValue = Array.isArray(selectedValue) ? selectedValue : [];
       const lastValue = currentValue[currentValue.length - 1];
-      const lastIndex = lastValue !== undefined ? valuesRef.current.indexOf(lastValue) : -1;
-      const currentSelectedIndex = store.state.selectedIndex;
-      const currentSelectedIsValid =
-        currentSelectedIndex !== null &&
-        currentSelectedIndex >= 0 &&
-        currentSelectedIndex < valuesRef.current.length &&
-        currentValue.includes(valuesRef.current[currentSelectedIndex]);
-
-      let nextIndex: number | null;
-      if (currentSelectedIsValid) {
-        nextIndex = currentSelectedIndex as number;
-      } else if (lastIndex === -1) {
-        nextIndex = null;
-      } else {
-        nextIndex = lastIndex;
-      }
-
-      setIndices({ selectedIndex: nextIndex });
+      const lastIndex = registry.indexOf(lastValue);
+      setIndices({ selectedIndex: lastIndex === -1 ? null : lastIndex });
     } else {
-      const index = valuesRef.current.indexOf(selectedValue);
-      const hasIndex = index !== -1;
-      setIndices({ selectedIndex: selectedValue == null || !hasIndex ? null : index });
+      const index = registry.indexOf(selectedValue);
+      setIndices({ selectedIndex: index === -1 ? null : index });
     }
   });
 
-  // Keep store in sync whenever `selectedValue` changes.
-  useIsoLayoutEffect(syncSelectedState, [selectedValue, syncSelectedState]);
+  useIsoLayoutEffect(() => {
+    if (!mounted) {
+      syncSelectedIndex();
+    }
+  }, [mounted, selectedValue, syncSelectedIndex]);
 
   const handleUnmount = useEventCallback(() => {
     setMounted(false);
@@ -488,31 +490,10 @@ export function ComboboxRootInternal<Item = any, Mode extends SelectionMode = 'n
     setQueryChangedAfterOpen(false);
     resetOpenInteractionType();
 
-    // Restore selectedIndex back to its real value after the popup closes.
-    // It may have been set to null while filtering or typing to avoid
-    // interfering with navigation. On close, ensure it reflects the
-    // current selection so initial highlight on next open is correct.
     if (selectionMode === 'none') {
-      // Reset highlight; it will only be re-applied on input onChange when there's text.
       setIndices({ activeIndex: null, selectedIndex: null });
-    } else if (multiple) {
-      const currentValue = Array.isArray(selectedValue) ? selectedValue : [];
-      const selectedIndices: number[] = [];
-      currentValue.forEach((val) => {
-        const idx = flatItems.indexOf(val);
-        if (idx !== -1) {
-          selectedIndices.push(idx);
-        }
-      });
-
-      setIndices({
-        activeIndex: null,
-        selectedIndex:
-          selectedIndices.length > 0 ? selectedIndices[selectedIndices.length - 1] : null,
-      });
     } else {
-      const idx = flatItems.indexOf(selectedValue);
-      setIndices({ activeIndex: null, selectedIndex: idx !== -1 ? idx : null });
+      setIndices({ activeIndex: null });
     }
 
     // If an input-clear was requested while open, perform it here after close completes
@@ -595,40 +576,12 @@ export function ComboboxRootInternal<Item = any, Mode extends SelectionMode = 'n
     },
   );
 
-  const handleEnterSelection = useEventCallback((event: Event) => {
+  const handleEnterSelection = useEventCallback(() => {
     if (activeIndex === null) {
       return;
     }
 
-    const highlightedItemElement = listRef.current[activeIndex];
-
-    if (highlightedItemElement) {
-      highlightedItemElement.click();
-    } else {
-      // Fallback for virtualized lists where DOM element might not exist
-      const nextSelectedValue = valuesRef.current[activeIndex];
-
-      if (nextSelectedValue === undefined) {
-        return;
-      }
-
-      if (multiple) {
-        const isSelected =
-          Array.isArray(selectedValue) && selectedValue.includes(nextSelectedValue);
-
-        let nextValue = [];
-        if (isSelected) {
-          nextValue = selectedValue.filter((v) => v !== nextSelectedValue);
-        } else {
-          nextValue = [...selectedValue, nextSelectedValue];
-        }
-
-        setSelectedValue(nextValue, event, 'item-press');
-      } else {
-        setSelectedValue(nextSelectedValue, event, 'item-press');
-        setOpen(false, event, 'item-press');
-      }
-    }
+    listRef.current[activeIndex]?.click();
   });
 
   React.useImperativeHandle(props.actionsRef, () => ({ unmount: handleUnmount }), [handleUnmount]);
@@ -805,6 +758,7 @@ export function ComboboxRootInternal<Item = any, Mode extends SelectionMode = 'n
       listRef,
       popupRef,
       valuesRef,
+      allValuesRef,
       inputRef,
       keyboardActiveRef,
       chipsContainerRef,

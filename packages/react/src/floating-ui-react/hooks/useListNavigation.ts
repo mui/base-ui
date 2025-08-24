@@ -508,11 +508,11 @@ export function useListNavigation(
   const hasActiveIndex = activeIndex != null;
 
   const item = React.useMemo(() => {
-    function syncCurrentTarget(currentTarget: HTMLElement | null, event: React.SyntheticEvent) {
+    function syncCurrentTarget(event: React.SyntheticEvent<any>) {
       if (!latestOpenRef.current) {
         return;
       }
-      const index = listRef.current.indexOf(currentTarget);
+      const index = listRef.current.indexOf(event.currentTarget);
       if (index !== -1 && indexRef.current !== index) {
         indexRef.current = index;
         onNavigate(event);
@@ -522,14 +522,14 @@ export function useListNavigation(
     const itemProps: ElementProps['item'] = {
       onFocus(event) {
         forceSyncFocusRef.current = true;
-        syncCurrentTarget(event.currentTarget, event);
+        syncCurrentTarget(event);
       },
       onClick: ({ currentTarget }) => currentTarget.focus({ preventScroll: true }), // Safari
       onMouseMove(event) {
         forceSyncFocusRef.current = true;
         forceScrollIntoViewRef.current = false;
         if (focusItemOnHover) {
-          syncCurrentTarget(event.currentTarget, event);
+          syncCurrentTarget(event);
         }
       },
       onPointerLeave(event) {

@@ -42,7 +42,7 @@ export default function ExampleVirtualizedAutocomplete() {
   return (
     <Autocomplete.Root
       virtualized
-      items={filteredItems}
+      items={virtualItems}
       open={open}
       onOpenChange={setOpen}
       value={searchValue}
@@ -55,10 +55,10 @@ export default function ExampleVirtualizedAutocomplete() {
 
         const isStart = index === 0;
         const isEnd = index === filteredItems.length - 1;
-        const shouldScroll = type === 'keyboard' && (isStart || isEnd);
+        const shouldScroll = type === 'none' || (type === 'keyboard' && (isStart || isEnd));
         if (shouldScroll) {
           queueMicrotask(() => {
-            virtualizer.scrollToIndex(index, { align: isStart ? 'end' : 'start' });
+            virtualizer.scrollToIndex(index, { align: isEnd ? 'start' : 'end' });
           });
         }
       }}

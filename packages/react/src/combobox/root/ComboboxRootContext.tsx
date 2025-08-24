@@ -45,6 +45,7 @@ export interface ComboboxRootContext {
     props?: HTMLProps & { active?: boolean; selected?: boolean },
   ) => Record<string, unknown>;
   valuesRef: React.RefObject<Array<any>>;
+  allValuesRef: React.RefObject<Array<any>>;
   handleEnterSelection: (event: Event) => void;
   name: string | undefined;
   disabled: boolean;

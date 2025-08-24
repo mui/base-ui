@@ -20,7 +20,7 @@ import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useComboboxRowContext } from '../row/ComboboxRowContext';
 
 /**
- * An individual item in the popup.
+ * An individual item in the list.
  * Renders a `<div>` element.
  */
 export const ComboboxItem = React.memo(
@@ -54,6 +54,7 @@ export const ComboboxItem = React.memo(
       setOpen,
       setSelectedValue,
       valuesRef,
+      allValuesRef,
       inputRef,
       readOnly,
       virtualized,
@@ -97,13 +98,40 @@ export const ComboboxItem = React.memo(
         return undefined;
       }
 
-      const values = valuesRef.current;
-      values[index] = value;
+      const visibleMap = valuesRef.current;
+      visibleMap[index] = value;
+
+      // Stable registry that doesn't depend on filtering. Assume that no
+      // filtering had occurred at this point; otherwise, an `items` prop is
+      // required.
+      if (selectionMode !== 'none') {
+        allValuesRef.current.push(value);
+      }
 
       return () => {
-        delete values[index];
+        delete visibleMap[index];
       };
-    }, [hasRegistered, items, index, value, valuesRef]);
+    }, [hasRegistered, items, index, value, valuesRef, allValuesRef, selectionMode]);
+
+    // When items are uncontrolled (no `items` prop), ensure selectedIndex is
+    // derived from the mounted item whose value matches the selected value.
+    useIsoLayoutEffect(() => {
+      if (!hasRegistered || items) {
+        return;
+      }
+
+      const lastSelectedValue = Array.isArray(rootSelectedValue)
+        ? rootSelectedValue[rootSelectedValue.length - 1]
+        : rootSelectedValue;
+
+      if (lastSelectedValue == null) {
+        return;
+      }
+
+      if (lastSelectedValue === value) {
+        store.apply({ selectedIndex: index });
+      }
+    }, [hasRegistered, items, store, index, value, rootSelectedValue]);
 
     const state: ComboboxItem.State = React.useMemo(
       () => ({
