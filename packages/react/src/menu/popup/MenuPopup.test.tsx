@@ -96,4 +96,90 @@ describe('<Menu.Popup />', () => {
       });
     });
   });
+
+  describe('focus management', () => {
+    it('should focus first focusable item when menu opened via keyboard and first item is disabled', async () => {
+      const { getByRole, user } = await render(
+        <Menu.Root>
+          <Menu.Trigger>Open</Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.Item disabled>Disabled Item</Menu.Item>
+                <Menu.Item>Focusable Item</Menu.Item>
+                <Menu.Item>Another Item</Menu.Item>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>,
+      );
+
+      const trigger = getByRole('button', { name: 'Open' });
+      await act(async () => {
+        trigger.focus();
+      });
+
+      await user.keyboard('{Enter}');
+
+      await waitFor(() => {
+        const focusableItem = getByRole('menuitem', { name: 'Focusable Item' });
+        expect(focusableItem).toHaveFocus();
+      });
+    });
+
+    it('should skip disabled items during arrow key navigation', async () => {
+      const { getByRole, user } = await render(
+        <Menu.Root>
+          <Menu.Trigger>Open</Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.Item>First Item</Menu.Item>
+                <Menu.Item disabled>Disabled Item</Menu.Item>
+                <Menu.Item>Third Item</Menu.Item>
+                <Menu.Item disabled>Another Disabled</Menu.Item>
+                <Menu.Item>Last Item</Menu.Item>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>,
+      );
+
+      const trigger = getByRole('button', { name: 'Open' });
+      await user.click(trigger);
+
+      await waitFor(() => {
+        getByRole('menu');
+      });
+
+      const firstItem = getByRole('menuitem', { name: 'First Item' });
+      const thirdItem = getByRole('menuitem', { name: 'Third Item' });
+      const lastItem = getByRole('menuitem', { name: 'Last Item' });
+
+      await user.keyboard('{ArrowDown}');
+      await waitFor(() => {
+        expect(firstItem).toHaveFocus();
+      });
+
+      await user.keyboard('{ArrowDown}');
+      await waitFor(() => {
+        expect(thirdItem).toHaveFocus();
+      });
+
+      await user.keyboard('{ArrowDown}');
+      await waitFor(() => {
+        expect(lastItem).toHaveFocus();
+      });
+
+      await user.keyboard('{ArrowUp}');
+      await waitFor(() => {
+        expect(thirdItem).toHaveFocus();
+      });
+
+      await user.keyboard('{ArrowUp}');
+      await waitFor(() => {
+        expect(firstItem).toHaveFocus();
+      });
+    });
+  });
 });

@@ -16,6 +16,8 @@ export interface MenuRootContext {
   triggerProps: HTMLProps;
   itemDomElements: React.MutableRefObject<(HTMLElement | null)[]>;
   itemLabels: React.MutableRefObject<(string | null)[]>;
+  disabledIndices: number[];
+  setDisabledIndices: React.Dispatch<React.SetStateAction<number[]>>;
   mounted: boolean;
   open: boolean;
   popupRef: React.RefObject<HTMLElement | null>;

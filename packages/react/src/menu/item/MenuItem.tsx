@@ -70,18 +70,39 @@ export const MenuItem = React.forwardRef(function MenuItem(
   props: MenuItem.Props,
   forwardedRef: React.ForwardedRef<Element>,
 ) {
-  const { id: idProp, label, nativeButton = false, ...other } = props;
+  const { id: idProp, label, nativeButton = false, disabled = false, ...other } = props;
 
   const itemRef = React.useRef<HTMLElement>(null);
   const listItem = useCompositeListItem({ label });
   const mergedRef = useMergedRefs(forwardedRef, listItem.ref, itemRef);
 
-  const { itemProps, activeIndex, allowMouseUpTriggerRef, typingRef } = useMenuRootContext();
+  const {
+    itemProps,
+    activeIndex,
+    allowMouseUpTriggerRef,
+    typingRef,
+    disabledIndices,
+    setDisabledIndices,
+  } = useMenuRootContext();
   const menuPositionerContext = useMenuPositionerContext(true);
   const id = useBaseUiId(idProp);
 
   const highlighted = listItem.index === activeIndex;
   const { events: menuEvents } = useFloatingTree()!;
+
+  React.useLayoutEffect(() => {
+    if (listItem.index === -1) {
+      return;
+    }
+
+    const isCurrentlyDisabled = disabledIndices.includes(listItem.index);
+
+    if (disabled && !isCurrentlyDisabled) {
+      setDisabledIndices((prev) => [...prev, listItem.index].sort((a, b) => a - b));
+    } else if (!disabled && isCurrentlyDisabled) {
+      setDisabledIndices((prev) => prev.filter((i) => i !== listItem.index));
+    }
+  }, [disabled, listItem.index, disabledIndices, setDisabledIndices]);
 
   // This wrapper component is used as a performance optimization.
   // MenuItem reads the context and re-renders the actual MenuItem
@@ -90,6 +111,7 @@ export const MenuItem = React.forwardRef(function MenuItem(
   return (
     <InnerMenuItem
       {...other}
+      disabled={disabled}
       id={id}
       ref={mergedRef}
       highlighted={highlighted}

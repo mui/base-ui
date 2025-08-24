@@ -38,7 +38,6 @@ import { useMenuSubmenuRootContext } from '../submenu-root/MenuSubmenuRootContex
 import { useMixedToggleClickHandler } from '../../utils/useMixedToggleClickHander';
 import { mergeProps } from '../../merge-props';
 
-const EMPTY_ARRAY: never[] = [];
 const EMPTY_REF = { current: false };
 
 /**
@@ -83,6 +82,7 @@ export const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
 
   const itemDomElements = React.useRef<(HTMLElement | null)[]>([]);
   const itemLabels = React.useRef<(string | null)[]>([]);
+  const [disabledIndices, setDisabledIndices] = React.useState<number[]>([]);
 
   const stickIfOpenTimeout = useTimeout();
   const contextMenuContext = useContextMenuRootContext(true);
@@ -406,7 +406,7 @@ export const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
     orientation,
     parentOrientation: parent.type === 'menubar' ? parent.context.orientation : undefined,
     rtl: direction === 'rtl',
-    disabledIndices: EMPTY_ARRAY,
+    disabledIndices,
     onNavigate: setActiveIndex,
     openOnArrowKeyDown: parent.type !== 'context-menu',
   });
@@ -496,6 +496,8 @@ export const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
       triggerProps,
       itemDomElements,
       itemLabels,
+      disabledIndices,
+      setDisabledIndices,
       mounted,
       open,
       popupRef,
@@ -525,6 +527,8 @@ export const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
       triggerProps,
       itemDomElements,
       itemLabels,
+      disabledIndices,
+      setDisabledIndices,
       mounted,
       open,
       positionerRef,
