@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { expect } from 'chai';
-import { stub } from 'sinon';
+import { spy, stub } from 'sinon';
 import { fireEvent, screen } from '@mui/internal-test-utils';
 import { Slider } from '@base-ui-components/react/slider';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
@@ -39,8 +39,89 @@ describe('<Slider.Thumb />', () => {
     render: (node) => {
       return render(<Slider.Root>{node}</Slider.Root>);
     },
-    refInstanceof: window.HTMLDivElement,
+    refInstanceof: window.HTMLInputElement,
   }));
+
+  // AT may use increase/decrease actions to interact with the slider which
+  // works on `input type="range"` via change events, but does not work with
+  // ARIA implementations using `div role="slider"`
+  // see:
+  // - https://issues.chromium.org/issues/40816094
+  // - https://github.com/mui/material-ui/issues/23506
+  describe('change events', () => {
+    it('handles change events', async () => {
+      const handleValueChange = spy();
+      await render(
+        <Slider.Root defaultValue={50} onValueChange={handleValueChange}>
+          <Slider.Control>
+            <Slider.Thumb />
+          </Slider.Control>
+        </Slider.Root>,
+      );
+
+      const slider = screen.getByRole('slider');
+      expect(slider).to.have.attribute('aria-valuenow', '50');
+      fireEvent.change(slider, { target: { value: 51 } });
+      expect(handleValueChange.callCount).to.equal(1);
+      expect(slider).to.have.attribute('aria-valuenow', '51');
+    });
+
+    it('does not change the value beyond min and max', async () => {
+      const handleValueChange = spy();
+      await render(
+        <Slider.Root defaultValue={50} min={40} max={60} onValueChange={handleValueChange}>
+          <Slider.Control>
+            <Slider.Thumb />
+          </Slider.Control>
+        </Slider.Root>,
+      );
+
+      const slider = screen.getByRole('slider');
+      expect(slider).to.have.attribute('aria-valuenow', '50');
+
+      fireEvent.change(slider, { target: { value: 30 } });
+      expect(slider).to.have.attribute('aria-valuenow', '40');
+      expect(handleValueChange.callCount).to.equal(1);
+      fireEvent.change(slider, { target: { value: 30 } });
+      expect(handleValueChange.callCount).to.equal(1);
+
+      fireEvent.change(slider, { target: { value: 70 } });
+      expect(slider).to.have.attribute('aria-valuenow', '60');
+      expect(handleValueChange.callCount).to.equal(2);
+      fireEvent.change(slider, { target: { value: 70 } });
+      expect(handleValueChange.callCount).to.equal(2);
+    });
+
+    it('handles non-integer values', async () => {
+      const handleValueChange = spy();
+      await render(
+        <Slider.Root
+          defaultValue={50}
+          min={-100}
+          max={100}
+          step={0.00000001}
+          onValueChange={handleValueChange}
+        >
+          <Slider.Control>
+            <Slider.Thumb />
+          </Slider.Control>
+        </Slider.Root>,
+      );
+
+      const slider = screen.getByRole('slider');
+      expect(slider).to.have.attribute('aria-valuenow', '50');
+      expect(slider).to.have.attribute('step', '1e-8');
+
+      fireEvent.change(slider, { target: { value: '51.1' } });
+      expect(slider).to.have.attribute('aria-valuenow', '51.1');
+
+      fireEvent.change(slider, { target: { value: 0.00000005 } });
+      expect(slider).to.have.attribute('aria-valuenow', '5e-8');
+
+      fireEvent.change(slider, { target: { value: 1e-7 } });
+      expect(slider).to.have.attribute('aria-valuenow', '1e-7');
+    });
+  });
 
   describe.skipIf(isJSDOM)('server-side rendering', () => {
     it('single thumb', () => {

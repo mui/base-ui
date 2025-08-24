@@ -73,13 +73,13 @@ function getNewValue(
 
 /**
  * The draggable part of the the slider at the tip of the indicator.
- * Renders a `<div>` element.
+ * Renders a `<input type="range">` element.
  *
  * Documentation: [Base UI Slider](https://base-ui.com/react/components/slider)
  */
 export const SliderThumb = React.forwardRef(function SliderThumb(
   componentProps: SliderThumb.Props,
-  forwardedRef: React.ForwardedRef<HTMLDivElement>,
+  forwardedRef: React.ForwardedRef<HTMLInputElement>,
 ) {
   const {
     render,
@@ -180,7 +180,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     } satisfies React.CSSProperties;
   }, [activeIndex, isRtl, orientation, percent, index]);
 
-  const element = useRenderElement('div', componentProps, {
+  const element = useRenderElement('input', componentProps, {
     state,
     ref: [forwardedRef, listItemRef, thumbRef],
     props: [
@@ -207,6 +207,9 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
                 locale,
               ),
         id,
+        onChange(event) {
+          handleInputChange(event.target.valueAsNumber, index, event);
+        },
         onFocus() {
           if (!disabled) {
             setActive(index);
@@ -303,9 +306,10 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
             thumbRef.current.blur();
           }
         },
-        role: 'slider',
+        step,
         style: getThumbStyle(),
         tabIndex: externalTabIndex ?? (disabled ? undefined : 0),
+        type: 'range',
       },
       fieldControlValidation.getValidationProps,
       elementProps,
@@ -319,7 +323,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
 export namespace SliderThumb {
   export interface State extends SliderRoot.State {}
 
-  export interface Props extends BaseUIComponentProps<'div', State> {
+  export interface Props extends BaseUIComponentProps<'input', State> {
     /**
      * Whether the thumb should ignore user interaction.
      * @default false

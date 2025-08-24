@@ -138,6 +138,7 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
       expect(slider).to.have.attribute('aria-valuemax', '100');
       expect(slider).to.have.attribute('aria-orientation', 'horizontal');
       expect(slider).to.have.attribute('aria-labelledby', 'labelId');
+      expect(slider).to.have.attribute('step', '1');
     });
 
     it('should update aria-valuenow', async () => {
