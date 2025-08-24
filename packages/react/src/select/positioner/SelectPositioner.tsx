@@ -48,8 +48,15 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
     ...elementProps
   } = componentProps;
 
-  const { store, listRef, labelsRef, alignItemWithTriggerActiveRef, valuesRef } =
-    useSelectRootContext();
+  const {
+    store,
+    listRef,
+    labelsRef,
+    alignItemWithTriggerActiveRef,
+    valuesRef,
+    initialValueRef,
+    setValue,
+  } = useSelectRootContext();
   const floatingRootContext = useSelectFloatingContext();
 
   const open = useStore(store, selectors.open);
@@ -165,13 +172,14 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
       return;
     }
 
-    if (!store.state.multiple && value !== null) {
+    if (prevSize !== 0 && !store.state.multiple && value !== null) {
       const valueIndex = valuesRef.current.indexOf(value);
       if (valueIndex === -1) {
-        store.apply({
-          label: '',
-          selectedIndex: null,
-        });
+        store.apply({ label: '', selectedIndex: null });
+        const initial = initialValueRef.current;
+        const hasInitial = initial != null && valuesRef.current.includes(initial);
+        const nextValue = hasInitial ? initial : null;
+        setValue(nextValue);
       }
     }
 
