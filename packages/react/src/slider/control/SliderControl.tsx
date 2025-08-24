@@ -243,18 +243,27 @@ export const SliderControl = React.forwardRef(function SliderControl(
       const isVertical = orientation === 'vertical';
 
       const { width, height, bottom, left, right } = control.getBoundingClientRect();
-
       const controlOffset = getControlOffset(stylesRef.current, orientation);
+      const adjustedControlWidth =
+        width - controlOffset.start - insetThumbOffsetRef.current * 2 - controlOffset.end;
+      const adjustedControlHeight =
+        height - controlOffset.start - insetThumbOffsetRef.current * 2 - controlOffset.end;
+      console.log(
+        'control width',
+        width,
+        'insetThumbOffset',
+        insetThumbOffsetRef.current,
+        'adjusted width',
+        adjustedControlWidth,
+      );
 
       // the value at the finger origin scaled down to fit the range [0, 1]
       let valueRescaled = isVertical
-        ? (bottom - controlOffset.end - fingerPosition.y) /
-            (height - controlOffset.start - controlOffset.end) +
-          thumbOffset
+        ? (bottom - controlOffset.end - fingerPosition.y) / adjustedControlHeight + thumbOffset
         : (isRtl
             ? right - controlOffset.start - fingerPosition.x
             : fingerPosition.x - left - controlOffset.start) /
-            (width - controlOffset.start - controlOffset.end) +
+            adjustedControlWidth +
           thumbOffset * (isRtl ? -1 : 1);
 
       valueRescaled = clamp(valueRescaled, 0, 1);
