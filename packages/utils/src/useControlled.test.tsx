@@ -124,7 +124,7 @@ describe('useControlled', () => {
       }).not.toErrorDev();
     });
 
-    it('should not when when an array', () => {
+    it('should not warn when an array', () => {
       function TestComponentArray() {
         useControlled({
           controlled: undefined,
