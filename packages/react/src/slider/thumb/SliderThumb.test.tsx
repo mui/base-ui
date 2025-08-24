@@ -5,32 +5,7 @@ import { fireEvent, screen } from '@mui/internal-test-utils';
 import { Slider } from '@base-ui-components/react/slider';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { isWebKit } from '@base-ui-components/utils/detectBrowser';
-
-type Touches = Array<Pick<Touch, 'identifier' | 'clientX' | 'clientY'>>;
-
-const GETBOUNDINGCLIENTRECT_HORIZONTAL_SLIDER_RETURN_VAL = {
-  width: 1000,
-  height: 10,
-  bottom: 10,
-  left: 0,
-  x: 0,
-  y: 0,
-  top: 0,
-  right: 0,
-  toJSON() {},
-};
-
-function createTouches(touches: Touches) {
-  return {
-    changedTouches: touches.map(
-      (touch) =>
-        new Touch({
-          target: document.body,
-          ...touch,
-        }),
-    ),
-  };
-}
+import { createTouches, getHorizontalSliderRect } from '../utils/test-utils';
 
 describe('<Slider.Thumb />', () => {
   const { render, renderToString } = createRenderer();
@@ -39,7 +14,7 @@ describe('<Slider.Thumb />', () => {
     render: (node) => {
       return render(<Slider.Root>{node}</Slider.Root>);
     },
-    refInstanceof: window.HTMLInputElement,
+    refInstanceof: window.HTMLDivElement,
   }));
 
   // AT may use increase/decrease actions to interact with the slider which
@@ -61,7 +36,7 @@ describe('<Slider.Thumb />', () => {
 
       const slider = screen.getByRole('slider');
       expect(slider).to.have.attribute('aria-valuenow', '50');
-      fireEvent.change(slider, { target: { value: 51 } });
+      fireEvent.change(slider, { target: { value: '51' } });
       expect(handleValueChange.callCount).to.equal(1);
       expect(slider).to.have.attribute('aria-valuenow', '51');
     });
@@ -79,16 +54,16 @@ describe('<Slider.Thumb />', () => {
       const slider = screen.getByRole('slider');
       expect(slider).to.have.attribute('aria-valuenow', '50');
 
-      fireEvent.change(slider, { target: { value: 30 } });
+      fireEvent.change(slider, { target: { value: '30' } });
       expect(slider).to.have.attribute('aria-valuenow', '40');
       expect(handleValueChange.callCount).to.equal(1);
-      fireEvent.change(slider, { target: { value: 30 } });
+      fireEvent.change(slider, { target: { value: '30' } });
       expect(handleValueChange.callCount).to.equal(1);
 
-      fireEvent.change(slider, { target: { value: 70 } });
+      fireEvent.change(slider, { target: { value: '70' } });
       expect(slider).to.have.attribute('aria-valuenow', '60');
       expect(handleValueChange.callCount).to.equal(2);
-      fireEvent.change(slider, { target: { value: 70 } });
+      fireEvent.change(slider, { target: { value: '70' } });
       expect(handleValueChange.callCount).to.equal(2);
     });
 
@@ -115,10 +90,10 @@ describe('<Slider.Thumb />', () => {
       fireEvent.change(slider, { target: { value: '51.1' } });
       expect(slider).to.have.attribute('aria-valuenow', '51.1');
 
-      fireEvent.change(slider, { target: { value: 0.00000005 } });
+      fireEvent.change(slider, { target: { value: '0.00000005' } });
       expect(slider).to.have.attribute('aria-valuenow', '5e-8');
 
-      fireEvent.change(slider, { target: { value: 1e-7 } });
+      fireEvent.change(slider, { target: { value: '1e-7' } });
       expect(slider).to.have.attribute('aria-valuenow', '1e-7');
     });
   });
@@ -174,7 +149,7 @@ describe('<Slider.Thumb />', () => {
 
   /**
    * Browser tests render with 1024px width by default, so most tests here set
-   * the component to `width: 100px` to make the asserted values more readable.
+   * the width to `100px` or `1000px` to make the asserted values more readable.
    */
   describe.skipIf(isJSDOM || isWebKit || typeof Touch === 'undefined')('positioning styles', () => {
     describe('positions the thumb when dragged', () => {
@@ -198,9 +173,7 @@ describe('<Slider.Thumb />', () => {
 
         const thumbStyles = getComputedStyle(getByTestId('thumb'));
 
-        stub(sliderControl, 'getBoundingClientRect').callsFake(
-          () => GETBOUNDINGCLIENTRECT_HORIZONTAL_SLIDER_RETURN_VAL,
-        );
+        stub(sliderControl, 'getBoundingClientRect').callsFake(() => getHorizontalSliderRect(1000));
 
         fireEvent.touchStart(
           sliderControl,
@@ -253,9 +226,7 @@ describe('<Slider.Thumb />', () => {
           thumb2: getComputedStyle(getAllByTestId('thumb')[1]),
         };
 
-        stub(sliderControl, 'getBoundingClientRect').callsFake(
-          () => GETBOUNDINGCLIENTRECT_HORIZONTAL_SLIDER_RETURN_VAL,
-        );
+        stub(sliderControl, 'getBoundingClientRect').callsFake(() => getHorizontalSliderRect(1000));
 
         fireEvent.touchStart(
           sliderControl,
@@ -306,9 +277,7 @@ describe('<Slider.Thumb />', () => {
 
         const computedStyles = getComputedStyle(getByTestId('thumb1'));
 
-        stub(sliderControl, 'getBoundingClientRect').callsFake(
-          () => GETBOUNDINGCLIENTRECT_HORIZONTAL_SLIDER_RETURN_VAL,
-        );
+        stub(sliderControl, 'getBoundingClientRect').callsFake(() => getHorizontalSliderRect(1000));
 
         fireEvent.touchStart(
           sliderControl,

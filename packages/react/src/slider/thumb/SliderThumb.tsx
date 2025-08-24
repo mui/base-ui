@@ -26,6 +26,8 @@ import type { SliderRoot } from '../root/SliderRoot';
 import { useSliderRootContext } from '../root/SliderRootContext';
 import { sliderStyleHookMapping } from '../root/styleHooks';
 
+import { mergeProps } from '../../merge-props';
+
 const PAGE_UP = 'PageUp';
 const PAGE_DOWN = 'PageDown';
 
@@ -73,7 +75,7 @@ function getNewValue(
 
 /**
  * The draggable part of the the slider at the tip of the indicator.
- * Renders a `<input type="range">` element.
+ * Renders a `<div>` element.
  *
  * Documentation: [Base UI Slider](https://base-ui.com/react/components/slider)
  */
@@ -155,16 +157,16 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
 
   const isRtl = direction === 'rtl';
 
+  let writingMode: React.CSSProperties['writingMode'];
+  if (orientation === 'vertical') {
+    writingMode = isRtl ? 'vertical-rl' : 'vertical-lr';
+  }
+
   const getThumbStyle = React.useCallback(() => {
     const isVertical = orientation === 'vertical';
 
     if (!Number.isFinite(percent)) {
       return visuallyHidden;
-    }
-
-    let writingMode: React.CSSProperties['writingMode'];
-    if (isVertical) {
-      writingMode = isRtl ? 'vertical-rl' : 'vertical-lr';
     }
 
     return {
@@ -175,41 +177,53 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
       }[orientation]]: `${percent}%`,
       [isVertical ? 'left' : 'top']: '50%',
       transform: `translate(${(isVertical || !isRtl ? -1 : 1) * 50}%, ${(isVertical ? 1 : -1) * 50}%)`,
-      writingMode,
       zIndex: activeIndex === index ? 1 : undefined,
     } satisfies React.CSSProperties;
   }, [activeIndex, isRtl, orientation, percent, index]);
 
-  const element = useRenderElement('input', componentProps, {
+  const inputProps = mergeProps<'input'>(
+    {
+      'aria-label': typeof getAriaLabelProp === 'function' ? getAriaLabelProp(index) : undefined,
+      'aria-labelledby': labelId,
+      'aria-orientation': orientation,
+      'aria-valuemax': max,
+      'aria-valuemin': min,
+      'aria-valuenow': thumbValue,
+      'aria-valuetext':
+        typeof getAriaValueTextProp === 'function'
+          ? getAriaValueTextProp(
+              formatNumber(thumbValue, locale, formatOptionsRef.current ?? undefined),
+              thumbValue,
+              index,
+            )
+          : elementProps['aria-valuetext'] ||
+            getDefaultAriaValueText(
+              sliderValues,
+              index,
+              formatOptionsRef.current ?? undefined,
+              locale,
+            ),
+      onChange(event) {
+        handleInputChange(event.target.valueAsNumber, index, event);
+      },
+      step,
+      style: {
+        ...visuallyHidden,
+        writingMode,
+      },
+      tabIndex: -1,
+      type: 'range',
+      value: thumbValue ?? '',
+    },
+    fieldControlValidation.getValidationProps,
+  );
+
+  const element = useRenderElement('div', componentProps, {
     state,
     ref: [forwardedRef, listItemRef, thumbRef],
     props: [
       {
-        'aria-disabled': disabled,
-        'aria-label': typeof getAriaLabelProp === 'function' ? getAriaLabelProp(index) : undefined,
-        'aria-labelledby': labelId,
-        'aria-orientation': orientation,
-        'aria-valuemax': max,
-        'aria-valuemin': min,
-        'aria-valuenow': thumbValue,
-        'aria-valuetext':
-          typeof getAriaValueTextProp === 'function'
-            ? getAriaValueTextProp(
-                formatNumber(thumbValue, locale, formatOptionsRef.current ?? undefined),
-                thumbValue,
-                index,
-              )
-            : elementProps['aria-valuetext'] ||
-              getDefaultAriaValueText(
-                sliderValues,
-                index,
-                formatOptionsRef.current ?? undefined,
-                locale,
-              ),
         id,
-        onChange(event) {
-          handleInputChange(event.target.valueAsNumber, index, event);
-        },
         onFocus() {
           if (!disabled) {
             setActive(index);
@@ -306,10 +320,8 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
             thumbRef.current.blur();
           }
         },
-        step,
         style: getThumbStyle(),
         tabIndex: externalTabIndex ?? (disabled ? undefined : 0),
-        type: 'range',
       },
       fieldControlValidation.getValidationProps,
       elementProps,
@@ -317,7 +329,12 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     customStyleHookMapping: sliderStyleHookMapping,
   });
 
-  return element;
+  return (
+    <React.Fragment>
+      {element}
+      <input {...inputProps} />
+    </React.Fragment>
+  );
 });
 
 export namespace SliderThumb {

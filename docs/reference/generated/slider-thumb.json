@@ -1,6 +1,6 @@
 {
   "name": "SliderThumb",
-  "description": "The draggable part of the the slider at the tip of the indicator.\nRenders a `<input type=\"range\">` element.",
+  "description": "The draggable part of the the slider at the tip of the indicator.\nRenders a `<div>` element.",
   "props": {
     "getAriaLabel": {
       "type": "((index: number) => string) | null",
