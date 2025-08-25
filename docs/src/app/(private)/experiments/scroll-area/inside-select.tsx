@@ -23,17 +23,11 @@ export default function ExampleSelect() {
             <ScrollArea.Root className={styles.ScrollArea}>
               <ScrollArea.Viewport className={styles.Viewport} tabIndex={-1}>
                 {[...Array(300)].map((_, i) => (
-                  <Select.Item
-                    key={i + 1}
-                    className={styles.Item}
-                    value={`item-${i + 1}`}
-                  >
+                  <Select.Item key={i + 1} className={styles.Item} value={`item-${i + 1}`}>
                     <Select.ItemIndicator className={styles.ItemIndicator}>
                       <CheckIcon className={styles.ItemIndicatorIcon} />
                     </Select.ItemIndicator>
-                    <Select.ItemText className={styles.ItemText}>
-                      Item {i + 1}
-                    </Select.ItemText>
+                    <Select.ItemText className={styles.ItemText}>Item {i + 1}</Select.ItemText>
                   </Select.Item>
                 ))}
               </ScrollArea.Viewport>

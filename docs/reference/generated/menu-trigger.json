@@ -5,15 +5,18 @@
     "nativeButton": {
       "type": "boolean",
       "default": "true",
-      "description": "Whether the component renders a native `<button>` element when replacing it\nvia the `render` prop.\nSet to `false` if the rendered element is not a button (e.g. `<div>`)."
+      "description": "Whether the component renders a native `<button>` element when replacing it\nvia the `render` prop.\nSet to `false` if the rendered element is not a button (e.g. `<div>`).",
+      "detailedType": "boolean | undefined"
     },
     "disabled": {
       "type": "boolean",
       "default": "false",
-      "description": "Whether the component should ignore user interaction."
+      "description": "Whether the component should ignore user interaction.",
+      "detailedType": "boolean | undefined"
     },
     "children": {
-      "type": "ReactNode"
+      "type": "ReactNode",
+      "detailedType": "React.ReactNode"
     },
     "className": {
       "type": "string | ((state: Menu.Trigger.State) => string)",
@@ -21,7 +24,8 @@
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: Menu.Trigger.State) => ReactElement)",
-      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
+      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Menu.Trigger.State,\n  ) => ReactElement)"
     }
   },
   "dataAttributes": {

@@ -11,7 +11,25 @@ import type { PropDef as BasePropDef } from './types';
 import { TableCode } from '../TableCode';
 import * as ReferenceTableTooltip from './ReferenceTableTooltip';
 
+function ExpandedCode(props: React.ComponentProps<'code'>) {
+  const { className = '', ...rest } = props;
+  const cleaned = className
+    .split(' ')
+    .filter((c) => c !== 'Code')
+    .join(' ');
+  return <code {...rest} className={cleaned} />;
+}
+
+function ExpandedPre(props: React.ComponentProps<'pre'>) {
+  return (
+    <Accordion.Scrollable gradientColor="var(--color-gray-50)">
+      <pre {...props} className="text-xs p-0 m-0" style={{ backgroundColor: 'none' }} />
+    </Accordion.Scrollable>
+  );
+}
+
 interface PropDef extends BasePropDef {
+  detailedType: string;
   example?: string;
 }
 
@@ -73,7 +91,19 @@ export async function PropsReferenceAccordion({ data, name: partName, ...props }
           useMDXComponents: () => ({ code: TableCode }),
         });
 
+        const PropDetailedType = await createMdxComponent(
+          `\`\`\`ts\n${prop.detailedType ?? prop.type}\n\`\`\``,
+          {
+            rehypePlugins: rehypeSyntaxHighlighting,
+            useMDXComponents: () => ({
+              code: ExpandedCode,
+              pre: ExpandedPre,
+            }),
+          },
+        );
+
         const { type: shortPropTypeName, detailedType } = getShortPropType(name, prop.type);
+        const hasExpandedType = Boolean(prop.detailedType);
 
         const ShortPropType = await createMdxComponent(`\`${shortPropTypeName}\``, {
           rehypePlugins: rehypeSyntaxHighlighting,
@@ -121,11 +151,11 @@ export async function PropsReferenceAccordion({ data, name: partName, ...props }
               </Accordion.Scrollable>
               {prop.type && (
                 <Accordion.Scrollable className="flex items-baseline text-sm leading-none break-keep whitespace-nowrap max-xs:hidden">
-                  {detailedType ? (
+                  {hasExpandedType || detailedType ? (
                     <ReferenceTableTooltip.Root delay={300} hoverable={false}>
                       <ReferenceTableTooltip.Trigger render={<ShortPropType />} />
                       <ReferenceTableTooltip.Popup>
-                        <PropType />
+                        {hasExpandedType ? <PropDetailedType /> : <PropType />}
                       </ReferenceTableTooltip.Popup>
                     </ReferenceTableTooltip.Root>
                   ) : (
@@ -181,7 +211,7 @@ export async function PropsReferenceAccordion({ data, name: partName, ...props }
                       <DescriptionList.Term>Type</DescriptionList.Term>
                     </DescriptionList.Separator>
                     <DescriptionList.Details>
-                      <PropType />
+                      <PropDetailedType />
                     </DescriptionList.Details>
                   </DescriptionList.Item>
 

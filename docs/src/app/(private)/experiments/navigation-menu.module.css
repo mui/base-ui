@@ -9,6 +9,9 @@
 .List {
   display: flex;
   position: relative;
+  list-style: none;
+  padding: 0;
+  margin: 0;
 }
 
 .Trigger {
@@ -204,6 +207,8 @@
   display: grid;
   grid-template-columns: 12rem 12rem;
   list-style: none;
+  padding: 0;
+  margin: 0;
 
   @media (max-width: 500px) {
     grid-template-columns: 1fr;
@@ -215,6 +220,9 @@
   flex-direction: column;
   justify-content: center;
   max-width: 400px;
+  padding: 0;
+  margin: 0;
+  list-style: none;
 }
 
 .LinkCard {

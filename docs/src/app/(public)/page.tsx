@@ -25,8 +25,7 @@ export default function Homepage() {
         <div className="HomepageContent">
           <Logo className="mb-8 ml-px" aria-label="Base UI" />
           <h1 className="HomepageHeading">
-            Unstyled UI components for building accessible web apps and design
-            systems.
+            Unstyled UI components for building accessible web apps and design systems.
           </h1>
           <p className="HomepageCaption">
             From the creators of Radix, Floating&nbsp;UI, and Material&nbsp;UI.
@@ -43,8 +42,7 @@ export default function Homepage() {
   );
 }
 
-const description =
-  'Unstyled UI components for building accessible web apps and design systems.';
+const description = 'Unstyled UI components for building accessible web apps and design systems.';
 
 export const metadata: Metadata = {
   description,

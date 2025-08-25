@@ -7,7 +7,7 @@ import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
 import { useRenderElement } from '../../utils/useRenderElement';
 import type { BaseUIComponentProps } from '../../utils/types';
 import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
-import type { Side } from '../../utils/useAnchorPositioning';
+import type { Side, Align } from '../../utils/useAnchorPositioning';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping';
 import { transitionStatusMapping } from '../../utils/styleHookMapping';
@@ -134,7 +134,7 @@ export namespace MenuPopup {
   export type State = {
     transitionStatus: TransitionStatus;
     side: Side;
-    align: 'start' | 'end' | 'center';
+    align: Align;
     /**
      * Whether the menu is currently open.
      */

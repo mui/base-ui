@@ -58,18 +58,14 @@ export const metadata: Metadata = {
       {
         rel: 'icon',
         url:
-          process.env.NODE_ENV !== 'production'
-            ? '/static/favicon-dev.ico'
-            : '/static/favicon.ico',
+          process.env.NODE_ENV !== 'production' ? '/static/favicon-dev.ico' : '/static/favicon.ico',
         sizes: '32x32',
       },
       {
         rel: 'icon',
-        type: 'svg+xml',
+        type: 'image/svg+xml',
         url:
-          process.env.NODE_ENV !== 'production'
-            ? '/static/favicon-dev.svg'
-            : '/static/favicon.svg',
+          process.env.NODE_ENV !== 'production' ? '/static/favicon-dev.svg' : '/static/favicon.svg',
       },
     ],
     apple: [

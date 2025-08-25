@@ -4,16 +4,19 @@
   "props": {
     "className": {
       "type": "string | ((state: Menu.RadioItemIndicator.State) => string)",
-      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
+      "detailedType": "| string\n| ((state: Menu.RadioItemIndicator.State) => string)"
     },
     "keepMounted": {
       "type": "boolean",
       "default": "false",
-      "description": "Whether to keep the HTML element in the DOM when the radio item is inactive."
+      "description": "Whether to keep the HTML element in the DOM when the radio item is inactive.",
+      "detailedType": "boolean | undefined"
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: Menu.RadioItemIndicator.State) => ReactElement)",
-      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
+      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Menu.RadioItemIndicator.State,\n  ) => ReactElement)"
     }
   },
   "dataAttributes": {
