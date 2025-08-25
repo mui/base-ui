@@ -483,6 +483,7 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
       keyboardActiveRef,
       alignItemWithTriggerActiveRef,
       highlightTimeout,
+      initialValueRef,
     }),
     [
       store,
@@ -509,6 +510,7 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
       keyboardActiveRef,
       alignItemWithTriggerActiveRef,
       highlightTimeout,
+      initialValueRef,
     ],
   );
 
