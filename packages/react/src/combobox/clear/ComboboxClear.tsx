@@ -77,17 +77,27 @@ export const ComboboxClear = React.forwardRef(function ComboboxClear(
           if (disabled || readOnly) {
             return;
           }
+
           setInputValue('', event.nativeEvent, 'clear-press');
-          setSelectedValue(
-            Array.isArray(selectedValue) ? [] : null,
-            event.nativeEvent,
-            'clear-press',
-          );
-          setIndices({
-            activeIndex: null,
-            selectedIndex: null,
-            type: keyboardActiveRef.current ? 'keyboard' : 'pointer',
-          });
+
+          if (selectionMode !== 'none') {
+            setSelectedValue(
+              Array.isArray(selectedValue) ? [] : null,
+              event.nativeEvent,
+              'clear-press',
+            );
+            setIndices({
+              activeIndex: null,
+              selectedIndex: null,
+              type: keyboardActiveRef.current ? 'keyboard' : 'pointer',
+            });
+          } else {
+            setIndices({
+              activeIndex: null,
+              type: keyboardActiveRef.current ? 'keyboard' : 'pointer',
+            });
+          }
+
           inputRef.current?.focus();
         },
       },
