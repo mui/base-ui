@@ -175,7 +175,6 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
     if (prevSize !== 0 && !store.state.multiple && value !== null) {
       const valueIndex = valuesRef.current.indexOf(value);
       if (valueIndex === -1) {
-        store.apply({ label: '', selectedIndex: null });
         const initial = initialValueRef.current;
         const hasInitial = initial != null && valuesRef.current.includes(initial);
         const nextValue = hasInitial ? initial : null;
@@ -184,9 +183,9 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
     }
 
     if (prevSize !== 0 && store.state.multiple && Array.isArray(value)) {
-      const next = value.filter((v) => valuesRef.current.includes(v));
-      if (next.length !== value.length || next.some((v) => !value.includes(v))) {
-        setValue(next);
+      const nextValue = value.filter((v) => valuesRef.current.includes(v));
+      if (nextValue.length !== value.length || nextValue.some((v) => !value.includes(v))) {
+        setValue(nextValue);
       }
     }
 
