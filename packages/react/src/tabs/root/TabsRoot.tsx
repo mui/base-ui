@@ -38,7 +38,6 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
 
   // Keep track of whether user provided explicit defaultValue/value
   const hasExplicitValue = React.useRef(valueProp !== undefined || defaultValue !== undefined);
-  const explicitDefaultValue = React.useRef(defaultValue);
 
   const [value, setValue] = useControlled({
     controlled: valueProp,
