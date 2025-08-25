@@ -2,6 +2,57 @@ import * as React from 'react';
 import { Autocomplete } from '@base-ui-components/react/autocomplete';
 import styles from './index.module.css';
 
+const limit = 8;
+
+export default function ExampleAutocompleteLimit() {
+  const [value, setValue] = React.useState('');
+
+  const { contains } = Autocomplete.useFilter({ sensitivity: 'base' });
+
+  const totalMatches = React.useMemo(() => {
+    const trimmed = value.trim();
+    if (!trimmed) {
+      return tags.length;
+    }
+    return tags.filter((t) => contains(t.value, trimmed)).length;
+  }, [value, contains]);
+
+  const moreCount = Math.max(0, totalMatches - limit);
+
+  return (
+    <Autocomplete.Root items={tags} value={value} onValueChange={setValue} limit={limit}>
+      <label className={styles.Label}>
+        Limit results to 8
+        <Autocomplete.Input placeholder="e.g. component" className={styles.Input} />
+      </label>
+
+      <Autocomplete.Portal>
+        <Autocomplete.Positioner className={styles.Positioner} sideOffset={4}>
+          <Autocomplete.Popup className={styles.Popup}>
+            <Autocomplete.Empty className={styles.Empty}>
+              No results found for "{value}"
+            </Autocomplete.Empty>
+
+            <Autocomplete.List>
+              {(tag: Tag) => (
+                <Autocomplete.Item key={tag.id} className={styles.Item} value={tag}>
+                  {tag.value}
+                </Autocomplete.Item>
+              )}
+            </Autocomplete.List>
+
+            <Autocomplete.Status className={styles.Status}>
+              {moreCount > 0
+                ? `Hiding ${moreCount} results (type a more specific query to narrow results)`
+                : null}
+            </Autocomplete.Status>
+          </Autocomplete.Popup>
+        </Autocomplete.Positioner>
+      </Autocomplete.Portal>
+    </Autocomplete.Root>
+  );
+}
+
 interface Tag {
   id: string;
   value: string;
@@ -60,60 +111,3 @@ const tags: Tag[] = [
   { id: 'c-toolbar', value: 'component: toolbar' },
   { id: 'c-tooltip', value: 'component: tooltip' },
 ];
-
-function itemToString(item: Tag): string {
-  return item.value;
-}
-
-export default function ExampleAutocompleteLimit() {
-  const [value, setValue] = React.useState('');
-  const collator = Autocomplete.useFilter({ sensitivity: 'base' });
-  const limit = 8;
-  const totalMatches = React.useMemo(() => {
-    const trimmed = value.trim();
-    if (!trimmed) {
-      return tags.length;
-    }
-    return tags.filter((t) => collator.contains(itemToString(t), trimmed)).length;
-  }, [value, collator]);
-  const moreCount = Math.max(0, totalMatches - limit);
-
-  return (
-    <Autocomplete.Root
-      items={tags}
-      value={value}
-      onValueChange={setValue}
-      limit={limit}
-      itemToString={itemToString}
-    >
-      <label className={styles.Label}>
-        Limit results to 8
-        <Autocomplete.Input placeholder="e.g. component" className={styles.Input} />
-      </label>
-
-      <Autocomplete.Portal>
-        <Autocomplete.Positioner className={styles.Positioner} sideOffset={4}>
-          <Autocomplete.Popup className={styles.Popup}>
-            <Autocomplete.Empty className={styles.Empty}>
-              No results found for "{value}"
-            </Autocomplete.Empty>
-
-            <Autocomplete.List>
-              {(tag: Tag) => (
-                <Autocomplete.Item key={tag.id} className={styles.Item} value={tag}>
-                  {tag.value}
-                </Autocomplete.Item>
-              )}
-            </Autocomplete.List>
-
-            <Autocomplete.Status className={styles.Status}>
-              {moreCount > 0
-                ? `Hiding ${moreCount} results (type a more specific query to narrow results)`
-                : null}
-            </Autocomplete.Status>
-          </Autocomplete.Popup>
-        </Autocomplete.Positioner>
-      </Autocomplete.Portal>
-    </Autocomplete.Root>
-  );
-}
