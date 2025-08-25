@@ -37,12 +37,15 @@ export const PopoverViewport = React.forwardRef(function PopoverViewport(
   const activeTrigger = useStore(store, selectors.activeTriggerElement);
   const previousActiveTrigger = usePrevious(activeTrigger);
 
-  const capturedHtmlRef = React.useRef<string | null>(null);
-  const [previousChildrenHtml, setPreviousChildrenHtml] = React.useState<string | null>(null);
+  const capturedNodeRef = React.useRef<HTMLElement | null>(null);
+  const [previousContentNode, setPreviousContentNode] = React.useState<HTMLElement | null>(null);
 
   const [newTriggerOffset, setNewTriggerOffset] = React.useState<Offset | null>(null);
-  const currentContentRef = React.useRef<HTMLDivElement>(null);
+
+  const currentContainerRef = React.useRef<HTMLDivElement>(null);
   const nextContainerRef = React.useRef<HTMLDivElement>(null);
+  const previousContainerRef = React.useRef<HTMLDivElement>(null);
+
   const onAnimationsFinished = useAnimationsFinished(nextContainerRef, true);
 
   const cleanupTimeout = useAnimationFrame();
@@ -52,11 +55,16 @@ export const PopoverViewport = React.forwardRef(function PopoverViewport(
     height: number;
   } | null>(null);
 
-  // Capture children HTML in a ref when not transitioning.
-  // We can't simply store previous `children` React node, as it might be stateful and doing so would lose this state.
+  // Capture a clone of the current content DOM subtree when not transitioning.
+  // We can't store previous React nodes as they may be stateful; instead we capture DOM clones for visual continuity.
   useIsoLayoutEffect(() => {
-    if (currentContentRef.current && !previousChildrenHtml) {
-      capturedHtmlRef.current = currentContentRef.current.innerHTML;
+    if (currentContainerRef.current && !previousContentNode) {
+      const wrapper = document.createElement('div');
+      const source = currentContainerRef.current;
+      for (const child of Array.from(source.childNodes)) {
+        wrapper.appendChild(child.cloneNode(true));
+      }
+      capturedNodeRef.current = wrapper;
     }
   });
 
@@ -66,12 +74,12 @@ export const PopoverViewport = React.forwardRef(function PopoverViewport(
     activeTrigger &&
     previousActiveTrigger &&
     activeTrigger !== previousActiveTrigger &&
-    !previousChildrenHtml &&
-    capturedHtmlRef.current
+    !previousContentNode &&
+    capturedNodeRef.current
   ) {
     // Capture the current content dimensions, so we can set them on the previous content while transitioning.
     // This makes the previuous content independent of the popup size changes, preventing layout shifts during the transition.
-    const currentContentRect = currentContentRef.current?.getBoundingClientRect();
+    const currentContentRect = currentContainerRef.current?.getBoundingClientRect();
     if (currentContentRect) {
       setPreviousContentDimensions({
         width: currentContentRect.width,
@@ -79,7 +87,8 @@ export const PopoverViewport = React.forwardRef(function PopoverViewport(
       });
     }
 
-    setPreviousChildrenHtml(capturedHtmlRef.current);
+    // Prepare a fresh clone for the previous content snapshot.
+    setPreviousContentNode(capturedNodeRef.current);
 
     // Calculate the relative position between the previous and new trigger,
     // so we can pass it to the style hook for animation purposes.
@@ -88,17 +97,17 @@ export const PopoverViewport = React.forwardRef(function PopoverViewport(
 
     cleanupTimeout.request(() => {
       onAnimationsFinished(() => {
-        setPreviousChildrenHtml(null);
+        setPreviousContentNode(null);
         setPreviousContentDimensions(null);
-        capturedHtmlRef.current = null;
+        capturedNodeRef.current = null;
       });
     });
   }
 
   let childrenToRender: React.ReactNode;
-  if (previousChildrenHtml == null) {
+  if (previousContentNode == null) {
     childrenToRender = (
-      <div data-current ref={currentContentRef}>
+      <div data-current ref={currentContainerRef}>
         {children}
       </div>
     );
@@ -108,13 +117,13 @@ export const PopoverViewport = React.forwardRef(function PopoverViewport(
         <div
           data-previous
           inert
-          // eslint-disable-next-line react/no-danger
-          dangerouslySetInnerHTML={{ __html: previousChildrenHtml }}
+          ref={previousContainerRef}
           style={{
             width: previousContentDimensions?.width,
             height: previousContentDimensions?.height,
             position: 'absolute',
           }}
+          key={'previous'}
         />
         <div data-next ref={nextContainerRef}>
           {children}
@@ -122,6 +131,16 @@ export const PopoverViewport = React.forwardRef(function PopoverViewport(
       </React.Fragment>
     );
   }
+
+  // When previousContentNode is present, imperatively populate the previous container with the cloned children.
+  useIsoLayoutEffect(() => {
+    const container = previousContainerRef.current;
+    if (!container || !previousContentNode) {
+      return;
+    }
+
+    container.replaceChildren(...Array.from(previousContentNode.childNodes));
+  }, [previousContentNode]);
 
   const state = React.useMemo(() => {
     return {
