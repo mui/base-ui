@@ -11,6 +11,7 @@ import { useRenderElement } from '../../utils/useRenderElement';
 import { useField } from '../useField';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useFieldControlValidation } from './useFieldControlValidation';
+import { BaseUIEventData, createBaseUIEventData } from '../../utils/createBaseUIEventData';
 
 /**
  * The form control to label and validate.
@@ -89,12 +90,17 @@ export const FieldControl = React.forwardRef(function FieldControl(
     name: 'FieldControl',
     state: 'value',
   });
-
+  
   const isControlled = valueProp !== undefined;
 
-  const setValue = useEventCallback((nextValue: string, event: Event) => {
+  const setValue = useEventCallback((nextValue: string, data: BaseUIEventData<'none'>) => {
+    onValueChange?.(nextValue, data);
+
+    if (data.isCanceled) {
+      return;
+    }
+
     setValueUnwrapped(nextValue);
-    onValueChange?.(nextValue, event);
   });
 
   useField({
@@ -119,7 +125,7 @@ export const FieldControl = React.forwardRef(function FieldControl(
         ...(isControlled ? { value } : { defaultValue }),
         onChange(event) {
           if (value != null) {
-            setValue(event.currentTarget.value, event.nativeEvent);
+            setValue(event.currentTarget.value, createBaseUIEventData('none', event.nativeEvent));
           }
 
           setDirty(event.currentTarget.value !== validityData.initialValue);
@@ -160,7 +166,7 @@ export namespace FieldControl {
     /**
      * Callback fired when the `value` changes. Use when controlled.
      */
-    onValueChange?: (value: string, event: Event) => void;
+    onValueChange?: (value: string, data: BaseUIEventData<'none'>) => void;
     defaultValue?: React.ComponentProps<'input'>['defaultValue'];
   }
 }

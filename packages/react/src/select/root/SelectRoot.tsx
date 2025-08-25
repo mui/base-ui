@@ -6,7 +6,8 @@ import { useSelectRoot } from './useSelectRoot';
 import { SelectRootContext, SelectFloatingContext } from './SelectRootContext';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { serializeValue } from '../utils/serialize';
-import { BaseOpenChangeReason } from '../../utils/translateOpenChangeReason';
+import { type BaseUIEventData, createBaseUIEventData } from '../../utils/createBaseUIEventData';
+import { PopupChangeReason } from '../../utils/types';
 
 /**
  * Groups all parts of the select.
@@ -126,7 +127,10 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
 
                   if (exactValue != null) {
                     setDirty(exactValue !== validityData.initialValue);
-                    rootContext.setValue?.(exactValue, event.nativeEvent);
+                    rootContext.setValue?.(
+                      exactValue,
+                      createBaseUIEventData('none', event.nativeEvent),
+                    );
 
                     if (validationMode === 'onChange') {
                       rootContext.fieldControlValidation.commitValidation(exactValue);
@@ -194,7 +198,7 @@ interface SelectRootProps<Value> {
   /**
    * Callback fired when the value of the select changes. Use when controlled.
    */
-  onValueChange?: (value: Value, event: Event | undefined) => void;
+  onValueChange?: (value: Value, data: SelectRoot.ChangeEventData) => void;
   /**
    * The uncontrolled value of the select when it’s initially rendered.
    *
@@ -212,11 +216,7 @@ interface SelectRootProps<Value> {
   /**
    * Event handler called when the select menu is opened or closed.
    */
-  onOpenChange?: (
-    open: boolean,
-    event: Event | undefined,
-    reason: SelectRoot.OpenChangeReason | undefined,
-  ) => void;
+  onOpenChange?: (open: boolean, data: SelectRoot.ChangeEventData) => void;
   /**
    * Event handler called after any animations complete when the select menu is opened or closed.
    */
@@ -283,7 +283,10 @@ export type SelectRootConditionalProps<Value, Multiple extends boolean | undefin
   /**
    * Callback fired when the value of the select changes. Use when controlled.
    */
-  onValueChange?: (value: SelectValueType<Value, Multiple>, event: Event | undefined) => void;
+  onValueChange?: (
+    value: SelectValueType<Value, Multiple>,
+    data: SelectRoot.ChangeEventData,
+  ) => void;
 };
 
 export namespace SelectRoot {
@@ -298,5 +301,6 @@ export namespace SelectRoot {
     unmount: () => void;
   }
 
-  export type OpenChangeReason = BaseOpenChangeReason | 'window-resize';
+  export type ChangeReason = PopupChangeReason | 'window-resize';
+  export type ChangeEventData = BaseUIEventData<ChangeReason>;
 }

@@ -13,9 +13,9 @@ import type {
   FloatingContext,
   FloatingRootContext,
   FloatingTreeType,
-  OpenChangeReason,
   SafePolygonOptions,
 } from '../types';
+import { createBaseUIEventData } from '../../utils/createBaseUIEventData';
 import { createAttribute } from '../utils/createAttribute';
 
 const safePolygonIdentifier = createAttribute('safe-polygon');
@@ -173,7 +173,7 @@ export function useHover(context: FloatingRootContext, props: UseHoverProps = {}
 
     function onLeave(event: MouseEvent) {
       if (isHoverOpen()) {
-        onOpenChange(false, event, 'hover');
+        onOpenChange(false, createBaseUIEventData('trigger-hover', event));
       }
     }
 
@@ -185,13 +185,15 @@ export function useHover(context: FloatingRootContext, props: UseHoverProps = {}
   }, [elements.floating, open, onOpenChange, enabled, handleCloseRef, isHoverOpen]);
 
   const closeWithDelay = React.useCallback(
-    (event: Event, runElseBranch = true, reason: OpenChangeReason = 'hover') => {
+    (event: MouseEvent, runElseBranch = true) => {
       const closeDelay = getDelay(delayRef.current, 'close', pointerTypeRef.current);
       if (closeDelay && !handlerRef.current) {
-        timeout.start(closeDelay, () => onOpenChange(false, event, reason));
+        timeout.start(closeDelay, () =>
+          onOpenChange(false, createBaseUIEventData('trigger-hover', event)),
+        );
       } else if (runElseBranch) {
         timeout.clear();
-        onOpenChange(false, event, reason);
+        onOpenChange(false, createBaseUIEventData('trigger-hover', event));
       }
     },
     [delayRef, onOpenChange, timeout],
@@ -241,11 +243,11 @@ export function useHover(context: FloatingRootContext, props: UseHoverProps = {}
       if (openDelay) {
         timeout.start(openDelay, () => {
           if (!openRef.current) {
-            onOpenChange(true, event, 'hover');
+            onOpenChange(true, createBaseUIEventData('trigger-hover', event));
           }
         });
       } else if (!open) {
-        onOpenChange(true, event, 'hover');
+        onOpenChange(true, createBaseUIEventData('trigger-hover', event));
       }
     }
 
@@ -276,7 +278,7 @@ export function useHover(context: FloatingRootContext, props: UseHoverProps = {}
             clearPointerEvents();
             cleanupMouseMoveHandler();
             if (!isClickLikeOpenEvent()) {
-              closeWithDelay(event, true, 'safe-polygon');
+              closeWithDelay(event, true);
             }
           },
         });
@@ -481,7 +483,7 @@ export function useHover(context: FloatingRootContext, props: UseHoverProps = {}
 
         function handleMouseMove() {
           if (!blockMouseMoveRef.current && !openRef.current) {
-            onOpenChange(true, nativeEvent, 'hover');
+            onOpenChange(true, createBaseUIEventData('trigger-hover', nativeEvent));
           }
         }
 

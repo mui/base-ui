@@ -7,6 +7,7 @@ import type { BaseUIComponentProps, NativeButtonProps } from '../utils/types';
 import { useToggleGroupContext } from '../toggle-group/ToggleGroupContext';
 import { useButton } from '../use-button/useButton';
 import { CompositeItem } from '../composite/item/CompositeItem';
+import { BaseUIEventData, createBaseUIEventData } from '../utils/createBaseUIEventData';
 
 /**
  * A two-state button that can be on or off.
@@ -49,9 +50,9 @@ export const Toggle = React.forwardRef(function Toggle(
     state: 'pressed',
   });
 
-  const onPressedChange = useEventCallback((nextPressed: boolean, event: Event) => {
-    groupContext?.setGroupValue?.(value, nextPressed, event);
-    onPressedChangeProp?.(nextPressed, event);
+  const onPressedChange = useEventCallback((nextPressed: boolean, data: Toggle.ChangeEventData) => {
+    groupContext?.setGroupValue?.(value, nextPressed, data.event);
+    onPressedChangeProp?.(nextPressed, data);
   });
 
   const { getButtonProps, buttonRef } = useButton({
@@ -73,8 +74,15 @@ export const Toggle = React.forwardRef(function Toggle(
       'aria-pressed': pressed,
       onClick(event: React.MouseEvent) {
         const nextPressed = !pressed;
+        const data = createBaseUIEventData('none', event.nativeEvent);
+
+        onPressedChange(nextPressed, data);
+
+        if (data.isCanceled) {
+          return;
+        }
+
         setPressedState(nextPressed);
-        onPressedChange(nextPressed, event.nativeEvent);
       },
     },
     elementProps,
@@ -139,11 +147,14 @@ export namespace Toggle {
      * @param {boolean} pressed The new pressed state.
      * @param {Event} event The corresponding event that initiated the change.
      */
-    onPressedChange?: (pressed: boolean, event: Event) => void;
+    onPressedChange?: (pressed: boolean, data: ChangeEventData) => void;
     /**
      * A unique string that identifies the toggle when used
      * inside a toggle group.
      */
     value?: string;
   }
+
+  export type ChangeReason = 'none';
+  export type ChangeEventData = BaseUIEventData<ChangeReason>;
 }

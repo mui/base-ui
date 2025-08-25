@@ -734,4 +734,68 @@ describe('<Tooltip.Root />', () => {
       expect(screen.getByTestId('positioner').style.pointerEvents).to.equal('');
     });
   });
+
+  describe('BaseUIEventData', () => {
+    it('onOpenChange cancel() prevents opening while uncontrolled', async () => {
+      await render(
+        <Root
+          delay={0}
+          onOpenChange={(nextOpen, data) => {
+            if (nextOpen) {
+              data.cancel();
+            }
+          }}
+        >
+          <Tooltip.Trigger />
+          <Tooltip.Portal>
+            <Tooltip.Positioner>
+              <Tooltip.Popup>Content</Tooltip.Popup>
+            </Tooltip.Positioner>
+          </Tooltip.Portal>
+        </Root>,
+      );
+
+      const trigger = screen.getByRole('button');
+      fireEvent.pointerDown(trigger, { pointerType: 'mouse' });
+      fireEvent.mouseEnter(trigger);
+      fireEvent.mouseMove(trigger);
+
+      await flushMicrotasks();
+
+      expect(screen.queryByText('Content')).to.equal(null);
+    });
+
+    it('cancelStopPropagation() prevents stopPropagation on Escape while still closing', async () => {
+      const stopPropagationSpy = spy(Event.prototype as any, 'stopPropagation');
+
+      await render(
+        <Root
+          defaultOpen
+          delay={0}
+          onOpenChange={(nextOpen, data) => {
+            if (!nextOpen && data.reason === 'escape-key') {
+              data.cancelStopPropagation();
+            }
+          }}
+        >
+          <Tooltip.Portal>
+            <Tooltip.Positioner>
+              <Tooltip.Popup>Content</Tooltip.Popup>
+            </Tooltip.Positioner>
+          </Tooltip.Portal>
+        </Root>,
+      );
+
+      expect(screen.getByText('Content')).not.to.equal(null);
+
+      fireEvent.keyDown(document.body, { key: 'Escape' });
+
+      await waitFor(() => {
+        expect(screen.queryByText('Content')).to.equal(null);
+      });
+
+      expect(stopPropagationSpy.called).to.equal(false);
+      stopPropagationSpy.restore();
+    });
+  });
 });

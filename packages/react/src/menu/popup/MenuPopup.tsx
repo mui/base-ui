@@ -13,6 +13,7 @@ import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping'
 import { transitionStatusMapping } from '../../utils/styleHookMapping';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { EMPTY_OBJECT, DISABLED_TRANSITIONS_STYLE } from '../../utils/constants';
+import { createBaseUIEventData } from '../../utils/createBaseUIEventData';
 
 const customStyleHookMapping: CustomStyleHookMapping<MenuPopup.State> = {
   ...baseMapping,
@@ -59,11 +60,8 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
   const { events: menuEvents } = useFloatingTree()!;
 
   React.useEffect(() => {
-    function handleClose(event: {
-      domEvent: Event | undefined;
-      reason: MenuRoot.OpenChangeReason | undefined;
-    }) {
-      setOpen(false, event.domEvent, event.reason);
+    function handleClose(event: { domEvent: Event | undefined; reason: MenuRoot.ChangeReason }) {
+      setOpen(false, createBaseUIEventData(event.reason, event.domEvent));
     }
 
     menuEvents.on('close', handleClose);

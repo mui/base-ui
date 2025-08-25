@@ -11,17 +11,17 @@ import {
   type FloatingRootContext,
 } from '../../floating-ui-react';
 import { activeElement, contains } from '../../floating-ui-react/utils';
-import type { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import {
   NavigationMenuRootContext,
   NavigationMenuTreeContext,
   useNavigationMenuRootContext,
 } from './NavigationMenuRootContext';
-import type { BaseOpenChangeReason } from '../../utils/translateOpenChangeReason';
+import type { BaseUIComponentProps, PopupChangeReason } from '../../utils/types';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useTransitionStatus } from '../../utils/useTransitionStatus';
 import { setFixedSize } from '../utils/setFixedSize';
+import { BaseUIEventData } from '../../utils/createBaseUIEventData';
 
 /**
  * Groups all parts of the navigation menu.
@@ -56,7 +56,7 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot(
   // Derive open state from value being non-nullish
   const open = value != null;
 
-  const closeReasonRef = React.useRef<BaseOpenChangeReason | undefined>(undefined);
+  const closeReasonRef = React.useRef<NavigationMenuRoot.ChangeReason | undefined>(undefined);
   const rootRef = React.useRef<HTMLDivElement | null>(null);
 
   const [positionerElement, setPositionerElement] = React.useState<HTMLElement | null>(null);
@@ -85,26 +85,28 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot(
     setViewportInert(false);
   }, [value]);
 
-  const setValue = useEventCallback(
-    (nextValue: any, event: Event | undefined, reason: BaseOpenChangeReason | undefined) => {
-      if (!nextValue) {
-        closeReasonRef.current = reason;
-        setActivationDirection(null);
-        setFloatingRootContext(undefined);
+  const setValue = useEventCallback((nextValue: any, data: NavigationMenuRoot.ChangeEventData) => {
+    if (!nextValue) {
+      closeReasonRef.current = data.reason;
+      setActivationDirection(null);
+      setFloatingRootContext(undefined);
 
-        if (positionerElement && popupElement) {
-          setFixedSize(popupElement, 'popup');
-          setFixedSize(positionerElement, 'positioner');
-        }
+      if (positionerElement && popupElement) {
+        setFixedSize(popupElement, 'popup');
+        setFixedSize(positionerElement, 'positioner');
       }
+    }
 
-      if (nextValue !== value) {
-        onValueChange?.(nextValue, event, reason);
-      }
+    if (nextValue !== value) {
+      onValueChange?.(nextValue, data);
+    }
 
-      setValueUnwrapped(nextValue);
-    },
-  );
+    if (data.isCanceled) {
+      return;
+    }
+
+    setValueUnwrapped(nextValue);
+  });
 
   const handleUnmount = useEventCallback(() => {
     const doc = ownerDocument(rootRef.current);
@@ -304,11 +306,7 @@ export namespace NavigationMenuRoot {
     /**
      * Callback fired when the value changes.
      */
-    onValueChange?: (
-      value: any,
-      event: Event | undefined,
-      reason: BaseOpenChangeReason | undefined,
-    ) => void;
+    onValueChange?: (value: any, data: ChangeEventData) => void;
     /**
      * How long to wait before opening the navigation menu. Specified in milliseconds.
      * @default 50
@@ -334,4 +332,7 @@ export namespace NavigationMenuRoot {
      */
     unmount: () => void;
   }
+
+  export type ChangeReason = PopupChangeReason | 'link-press';
+  export type ChangeEventData = BaseUIEventData<ChangeReason>;
 }

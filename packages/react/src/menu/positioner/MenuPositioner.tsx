@@ -18,6 +18,7 @@ import { InternalBackdrop } from '../../utils/InternalBackdrop';
 import { useMenuPortalContext } from '../portal/MenuPortalContext';
 import { DROPDOWN_COLLISION_AVOIDANCE } from '../../utils/constants';
 import { useContextMenuRootContext } from '../../context-menu/root/ContextMenuRootContext';
+import { createBaseUIEventData } from '../../utils/createBaseUIEventData';
 import type { MenuRoot } from '../root/MenuRoot';
 
 /**
@@ -135,14 +136,14 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
       open: boolean;
       nodeId: string;
       parentNodeId: string;
-      reason?: MenuRoot.OpenChangeReason;
+      reason?: MenuRoot.ChangeReason;
     }) {
       if (event.open) {
         if (event.parentNodeId === nodeId) {
           setHoverEnabled(false);
         }
         if (event.nodeId !== nodeId && event.parentNodeId === parentNodeId) {
-          setOpen(false, undefined, 'sibling-open');
+          setOpen(false, createBaseUIEventData('sibling-open'));
         }
       } else if (event.parentNodeId === nodeId) {
         // Re-enable hover on the parent when a child closes, except when the child
@@ -172,7 +173,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
       }
 
       if (triggerElement && event.target && triggerElement !== event.target) {
-        setOpen(false, undefined, 'sibling-open');
+        setOpen(false, createBaseUIEventData('sibling-open'));
       }
     }
 

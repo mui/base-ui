@@ -14,6 +14,7 @@ import { useRenderElement } from '../../utils/useRenderElement';
 import { SelectItemContext } from './SelectItemContext';
 import { selectors } from '../store';
 import { useButton } from '../../use-button';
+import { createBaseUIEventData } from '../../utils/createBaseUIEventData';
 
 /**
  * An individual option in the select menu.
@@ -124,10 +125,10 @@ export const SelectItem = React.memo(
         const nextValue = selected
           ? currentValue.filter((v) => v !== value)
           : [...currentValue, value];
-        setValue(nextValue, event);
+        setValue(nextValue, createBaseUIEventData('none', event));
       } else {
-        setValue(value, event);
-        setOpen(false, event, 'item-press');
+        setValue(value, createBaseUIEventData('none', event));
+        setOpen(false, createBaseUIEventData('item-press', event));
       }
     }
 

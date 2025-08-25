@@ -3,18 +3,14 @@ import { isElement } from '@floating-ui/utils/dom';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { useId } from '@base-ui-components/utils/useId';
 
-import type {
-  FloatingRootContext,
-  ReferenceElement,
-  ContextData,
-  OpenChangeReason,
-} from '../types';
+import type { FloatingRootContext, ReferenceElement, ContextData } from '../types';
+import type { BaseUIEventData } from '../../utils/createBaseUIEventData';
 import { createEventEmitter } from '../utils/createEventEmitter';
 import { useFloatingParentNodeId } from '../components/FloatingTree';
 
 export interface UseFloatingRootContextOptions {
   open?: boolean;
-  onOpenChange?: (open: boolean, event?: Event, reason?: OpenChangeReason) => void;
+  onOpenChange?: (open: boolean, data: BaseUIEventData) => void;
   elements: {
     reference: Element | null;
     floating: HTMLElement | null;
@@ -46,13 +42,11 @@ export function useFloatingRootContext(
     elementsProp.reference,
   );
 
-  const onOpenChange = useEventCallback(
-    (newOpen: boolean, event?: Event, reason?: OpenChangeReason) => {
-      dataRef.current.openEvent = newOpen ? event : undefined;
-      events.emit('openchange', { open: newOpen, event, reason, nested });
-      onOpenChangeProp?.(newOpen, event, reason);
-    },
-  );
+  const onOpenChange = useEventCallback((newOpen: boolean, data: BaseUIEventData) => {
+    dataRef.current.openEvent = newOpen ? data.event : undefined;
+    events.emit('openchange', { open: newOpen, event: data.event, data, nested });
+    onOpenChangeProp?.(newOpen, data);
+  });
 
   const refs = React.useMemo(
     () => ({

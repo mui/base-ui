@@ -328,6 +328,37 @@ describe('<Select.Root />', () => {
     });
   });
 
+  describe('BaseUIEventData', () => {
+    it('onOpenChange cancel() prevents opening while uncontrolled', async () => {
+      await render(
+        <Select.Root
+          onOpenChange={(nextOpen, data) => {
+            if (nextOpen) {
+              data.cancel();
+            }
+          }}
+        >
+          <Select.Trigger data-testid="trigger">
+            <Select.Value />
+          </Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup>
+                <Select.Item value="a">a</Select.Item>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+      fireEvent.click(trigger);
+      await flushMicrotasks();
+
+      expect(screen.queryByRole('listbox')).to.equal(null);
+    });
+  });
+
   it('should handle browser autofill', async () => {
     const { container } = await render(
       <Select.Root name="select">

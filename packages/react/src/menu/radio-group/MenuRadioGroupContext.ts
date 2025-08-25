@@ -1,8 +1,9 @@
 import * as React from 'react';
+import type { MenuRoot } from '../root/MenuRoot';
 
 export interface MenuRadioGroupContext {
   value: any;
-  setValue: (newValue: any, event: Event) => void;
+  setValue: (newValue: any, data: MenuRoot.ChangeEventData) => void;
   disabled: boolean;
 }
 

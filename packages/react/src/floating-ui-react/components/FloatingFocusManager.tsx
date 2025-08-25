@@ -26,7 +26,8 @@ import {
   getNextTabbable,
   getPreviousTabbable,
 } from '../utils';
-import type { FloatingRootContext, OpenChangeReason } from '../types';
+import type { FloatingRootContext } from '../types';
+import { createBaseUIEventData } from '../../utils/createBaseUIEventData';
 import { createAttribute } from '../utils/createAttribute';
 import { enqueueFocus } from '../utils/enqueueFocus';
 import { markOthers } from '../utils/markOthers';
@@ -405,7 +406,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
           relatedTarget !== getPreviouslyFocusedElement()
         ) {
           preventReturnFocusRef.current = true;
-          onOpenChange(false, event, 'focus-out');
+          onOpenChange(false, createBaseUIEventData('focus-out', event));
         }
       });
     }
@@ -559,20 +560,20 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     // Dismissing via outside press should always ignore `returnFocus` to
     // prevent unwanted scrolling.
     function onOpenChangeLocal({
-      reason,
+      data,
       event,
       nested,
     }: {
       open: boolean;
-      reason: OpenChangeReason;
+      data: { reason?: string } | undefined;
       event: Event;
       nested: boolean;
     }) {
-      if (['hover', 'safe-polygon'].includes(reason) && event.type === 'mouseleave') {
+      if (data?.reason === 'trigger-hover' && event.type === 'mouseleave') {
         preventReturnFocusRef.current = true;
       }
 
-      if (reason !== 'outside-press') {
+      if (data?.reason !== 'outside-press') {
         return;
       }
 
