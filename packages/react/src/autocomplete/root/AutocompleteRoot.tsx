@@ -140,6 +140,8 @@ export namespace AutocompleteRoot {
       | 'defaultInputValue' // defaultValue
       | 'onInputValueChange' // onValueChange
       | 'autoComplete' // mode
+      // Custom JSDoc
+      | 'actionsRef'
     > {
     /**
      * Controls how the autocomplete behaves with respect to list filtering and inline autocompletion.
@@ -164,5 +166,18 @@ export namespace AutocompleteRoot {
      * Callback fired when the input value of the autocomplete changes.
      */
     onValueChange?: ComboboxRootInternal.Props<Item, 'none'>['onInputValueChange'];
+    /**
+     * A ref to imperative actions.
+     * - `unmount`: When specified, the combobox will not be unmounted when closed.
+     * Instead, the `unmount` function must be called to unmount the combobox manually.
+     * Useful when the combobox's animation is controlled by an external library.
+     */
+    actionsRef?: React.RefObject<AutocompleteRoot.Actions>;
   }
+
+  export type State = ComboboxRootInternal.State;
+
+  export type Actions = ComboboxRootInternal.Actions;
+
+  export type OpenChangeReason = ComboboxRootInternal.OpenChangeReason;
 }

@@ -25,7 +25,7 @@
     "defaultOpen": {
       "type": "boolean",
       "default": "false",
-      "description": "Whether the combobox popup is initially open.\n\nTo render a controlled combobox popup, use the `open` prop instead.",
+      "description": "Whether the popup is initially open.\n\nTo render a controlled popup, use the `open` prop instead.",
       "detailedType": "boolean | undefined"
     },
     "open": {
@@ -35,13 +35,13 @@
     },
     "onOpenChange": {
       "type": "((open: boolean, event: Event | undefined, reason: Combobox.RootInternal.OpenChangeReason | undefined) => void)",
-      "description": "Event handler called when the combobox popup is opened or closed.",
+      "description": "Event handler called when the popup is opened or closed.",
       "detailedType": "| ((\n    open: boolean,\n    event: Event | undefined,\n    reason:\n      | Combobox.RootInternal.OpenChangeReason\n      | undefined,\n  ) => void)\n| undefined"
     },
     "actionsRef": {
-      "type": "RefObject<Combobox.RootInternal.Actions>",
+      "type": "RefObject<Autocomplete.Root.Actions>",
       "description": "A ref to imperative actions.\n- `unmount`: When specified, the combobox will not be unmounted when closed.\nInstead, the `unmount` function must be called to unmount the combobox manually.\nUseful when the combobox's animation is controlled by an external library.",
-      "detailedType": "| React.RefObject<Combobox.RootInternal.Actions>\n| undefined"
+      "detailedType": "| React.RefObject<Autocomplete.Root.Actions>\n| undefined"
     },
     "autoHighlight": {
       "type": "boolean",

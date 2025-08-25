@@ -977,14 +977,18 @@ interface ComboboxRootProps<Item> {
    */
   disabled?: boolean;
   /**
-   * Whether the combobox popup is initially open.
+   * Whether the popup is initially open.
    *
-   * To render a controlled combobox popup, use the `open` prop instead.
+   * To render a controlled popup, use the `open` prop instead.
    * @default false
    */
   defaultOpen?: boolean;
   /**
-   * Event handler called when the combobox popup is opened or closed.
+   * Whether the popup is currently open.
+   */
+  open?: boolean;
+  /**
+   * Event handler called when the popup is opened or closed.
    */
   onOpenChange?: (
     open: boolean,
@@ -995,10 +999,6 @@ interface ComboboxRootProps<Item> {
    * Event handler called after any animations complete when the popup is opened or closed.
    */
   onOpenChangeComplete?: (open: boolean) => void;
-  /**
-   * Whether the popup is currently open.
-   */
-  open?: boolean;
   /**
    * Whether the popup opens when clicking the input.
    * @default true
