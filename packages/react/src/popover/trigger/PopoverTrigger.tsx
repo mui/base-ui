@@ -107,15 +107,21 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
     return payload;
   });
 
+  const registeredTriggerRef = React.useRef<HTMLElement | null>(null);
   const registerTrigger = React.useCallback(
-    (element: HTMLElement) => {
-      store.registerTrigger(element, getPayload);
-      setTriggerElement(element);
+    (element: HTMLElement | null) => {
+      if (element != null) {
+        store.registerTrigger(element, getPayload);
+        setTriggerElement(element);
+        registeredTriggerRef.current = element;
+      } else {
+        if (registeredTriggerRef.current) {
+          store.unregisterTrigger(registeredTriggerRef.current);
+          registeredTriggerRef.current = null;
+        }
 
-      return () => {
-        store.unregisterTrigger(element);
         setTriggerElement(null);
-      };
+      }
     },
     [getPayload, store],
   );
