@@ -29,7 +29,7 @@ const contents = [
   </React.Fragment>,
   <p>Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>,
   <p>Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.</p>,
-  <p>Ex ea commodo consequat.</p>,
+  <p>Lorem</p>,
   <React.Fragment>
     <p>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat.</p>
     <p>
@@ -206,7 +206,7 @@ function renderPopoverContent(contentIndex: number, settings: Settings) {
           <Popover.Arrow className={styles.Arrow}>
             <ArrowSvg />
           </Popover.Arrow>
-          <Popover.Viewport className={styles.TransitionContainer}>
+          <Popover.Viewport className={styles.Viewport}>
             <Popover.Title className={styles.Title}>Popover {contentIndex}</Popover.Title>
             <div>
               <div className={styles.PopoverSection}>{contents[contentIndex]}</div>

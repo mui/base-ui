@@ -47,6 +47,11 @@ export const PopoverViewport = React.forwardRef(function PopoverViewport(
 
   const cleanupTimeout = useAnimationFrame();
 
+  const [previousContentDimensions, setPreviousContentDimensions] = React.useState<{
+    width: number;
+    height: number;
+  } | null>(null);
+
   // Capture children HTML in a ref when not transitioning.
   // We can't simply store previous `children` React node, as it might be stateful and doing so would lose this state.
   useIsoLayoutEffect(() => {
@@ -64,13 +69,27 @@ export const PopoverViewport = React.forwardRef(function PopoverViewport(
     !previousChildrenHtml &&
     capturedHtmlRef.current
   ) {
+    // Capture the current content dimensions, so we can set them on the previous content while transitioning.
+    // This makes the previuous content independent of the popup size changes, preventing layout shifts during the transition.
+    const currentContentRect = currentContentRef.current?.getBoundingClientRect();
+    if (currentContentRect) {
+      setPreviousContentDimensions({
+        width: currentContentRect.width,
+        height: currentContentRect.height,
+      });
+    }
+
     setPreviousChildrenHtml(capturedHtmlRef.current);
+
+    // Calculate the relative position between the previous and new trigger,
+    // so we can pass it to the style hook for animation purposes.
     const offset = calculateRelativePosition(previousActiveTrigger, activeTrigger);
     setNewTriggerOffset(offset);
 
     cleanupTimeout.request(() => {
       onAnimationsFinished(() => {
         setPreviousChildrenHtml(null);
+        setPreviousContentDimensions(null);
         capturedHtmlRef.current = null;
       });
     });
@@ -91,6 +110,11 @@ export const PopoverViewport = React.forwardRef(function PopoverViewport(
           inert
           // eslint-disable-next-line react/no-danger
           dangerouslySetInnerHTML={{ __html: previousChildrenHtml }}
+          style={{
+            width: previousContentDimensions?.width,
+            height: previousContentDimensions?.height,
+            position: 'absolute',
+          }}
         />
         <div data-next ref={nextContainerRef}>
           {children}

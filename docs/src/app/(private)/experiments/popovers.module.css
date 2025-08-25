@@ -108,7 +108,7 @@
 .Positioner {
   --spring-transition: linear(0, 0.808 15.1%, 0.963 19.7%, 1.047 24.6%, 1.071 31.7%, 0.996 57%, 1);
 
-  transition-property: transform, top, left, right, bottom;
+  transition-property: top, left, right, bottom;
   transition-timing-function: var(--spring-transition);
   transition-duration: 0.5s;
 
@@ -118,22 +118,22 @@
 }
 
 .Popup {
+  --animation-duration: 0.15s;
+  --popup-horizontal-padding: 1.5rem;
+
   box-sizing: border-box;
-  padding: 1rem 1.5rem;
+  padding: 1rem var(--popup-horizontal-padding);
   border-radius: 0.5rem;
   background-color: canvas;
   color: var(--color-gray-900);
   transform-origin: var(--transform-origin);
 
-  --animation-duration: 0.15s;
-
   width: var(--popup-width, auto);
   height: var(--popup-height, auto);
-
   max-width: 500px;
   overflow: hidden;
 
-  transition-property: width, height;
+  transition-property: width, height, opacity, transform;
   transition-timing-function: ease-out;
   transition-duration: var(--animation-duration);
 
@@ -156,38 +156,30 @@
   }
 }
 
-.TransitionContainer {
-  overflow: hidden;
+.Viewport {
   position: relative;
 
-  [data-previous] {
-    display: none;
-    pointer-events: none;
+  [data-next] {
+    width: calc(var(--popup-width) - 2 * var(--popup-horizontal-padding));
   }
 
   &[data-activation-direction~='right'] {
     [data-previous] {
       animation: slide-out-to-left var(--animation-duration) ease-out forwards;
-      position: absolute;
-      display: block;
     }
 
     [data-next] {
       animation: slide-in-from-right var(--animation-duration) ease-out forwards;
-      position: relative;
     }
   }
 
   &[data-activation-direction~='left'] {
     [data-previous] {
       animation: slide-out-to-right var(--animation-duration) ease-out forwards;
-      position: absolute;
-      display: block;
     }
 
     [data-next] {
       animation: slide-in-from-left var(--animation-duration) ease-out forwards;
-      position: relative;
     }
   }
 }

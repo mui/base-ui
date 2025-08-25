@@ -42,29 +42,36 @@
 .Positioner {
   --spring-transition: linear(0, 0.808 15.1%, 0.963 19.7%, 1.047 24.6%, 1.071 31.7%, 0.996 57%, 1);
 
-  transition-property: transform, top, left, right, bottom;
+  transition-property: top, left, right, bottom;
   transition-timing-function: var(--spring-transition);
   transition-duration: 0.5s;
 
+  /* Disable transitions when data-instant is set (used for the initial positioning of the popup) */
   &[data-instant] {
     transition: none;
   }
 }
 
 .Popup {
+  /* Extracted to a variable to sync the size change with content transition animations */
   --animation-duration: 0.15s;
+  --popup-horizontal-padding: 1.5rem;
 
   box-sizing: border-box;
-  padding: 1rem 1.5rem;
+  padding: 1rem var(--popup-horizontal-padding);
   border-radius: 0.5rem;
   background-color: canvas;
   color: var(--color-gray-900);
   transform-origin: var(--transform-origin);
 
+  /* These are required to make the size animations work */
   width: var(--popup-width, auto);
   height: var(--popup-height, auto);
+
+  max-width: 500px;
   overflow: hidden;
 
+  /* width and height are essential for the resize animation; opacity and transform handle the enter/exit animation */
   transition-property: width, height, opacity, transform;
   transition-timing-function: ease-out;
   transition-duration: var(--animation-duration);
@@ -89,44 +96,32 @@
 }
 
 .Viewport {
-  overflow: hidden;
+  /* Required to clip the overflowing content during the slide in/out animations */
   position: relative;
 
-  [data-previous] {
-    display: none;
-    pointer-events: none;
-    width: var(--previous-content-width, auto);
-    height: var(--previous-content-height, auto);
-  }
-
   [data-next] {
-    width: var(--popup-width, auto);
-    height: var(--popup-height, auto);
+    /* This freezes the width of the new content while transitioning in.
+       Width is set to the content area of the parent popup (--popup-width measures the border-box) */
+    width: calc(var(--popup-width) - 2 * var(--popup-horizontal-padding));
   }
 
   &[data-activation-direction~='right'] {
     [data-previous] {
-      animation: slide-out-to-left var(--animation-duration) ease-out forwards;
-      position: absolute;
-      display: block;
+      animation: slide-out-to-left var(--animation-duration) ease-out;
     }
 
     [data-next] {
-      animation: slide-in-from-right var(--animation-duration) ease-out forwards;
-      position: relative;
+      animation: slide-in-from-right var(--animation-duration) ease-out;
     }
   }
 
   &[data-activation-direction~='left'] {
     [data-previous] {
-      animation: slide-out-to-right var(--animation-duration) ease-out forwards;
-      position: absolute;
-      display: block;
+      animation: slide-out-to-right var(--animation-duration) ease-out;
     }
 
     [data-next] {
-      animation: slide-in-from-left var(--animation-duration) ease-out forwards;
-      position: relative;
+      animation: slide-in-from-left var(--animation-duration) ease-out;
     }
   }
 }
