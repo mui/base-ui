@@ -202,16 +202,9 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
   });
 
   if (process.env.NODE_ENV !== 'production') {
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    useIsoLayoutEffect(() => {
-      if (valueProp === undefined || dragging) {
-        return;
-      }
-
-      if (min >= max) {
-        warn('Slider `max` must be greater than `min`.');
-      }
-    }, [dragging, min, max, valueProp]);
+    if (min >= max) {
+      warn('Slider `max` must be greater than `min`.');
+    }
   }
 
   useIsoLayoutEffect(() => {
