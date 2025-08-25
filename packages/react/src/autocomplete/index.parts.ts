@@ -1,5 +1,4 @@
 export { AutocompleteRoot as Root } from './root/AutocompleteRoot';
-export { AutocompleteTextarea as Textarea } from './textarea/AutocompleteTextarea';
 
 export { ComboboxInput as Input } from '../combobox/input/ComboboxInput';
 export { ComboboxIcon as Icon } from '../combobox/icon/ComboboxIcon';

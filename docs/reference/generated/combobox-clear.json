@@ -18,6 +18,12 @@
       "type": "string | ((state: Combobox.Clear.State) => string)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
+    "keepMounted": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Whether the component should remain mounted in the DOM when not visible.",
+      "detailedType": "boolean | undefined"
+    },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: Combobox.Clear.State) => ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
