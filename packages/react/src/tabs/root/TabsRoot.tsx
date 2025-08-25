@@ -24,7 +24,7 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
 ) {
   const {
     className,
-    defaultValue = 0,
+    defaultValue,
     onValueChange: onValueChangeProp,
     orientation = 'horizontal',
     render,
@@ -36,9 +36,13 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
 
   const tabPanelRefs = React.useRef<(HTMLElement | null)[]>([]);
 
+  // Keep track of whether user provided explicit defaultValue/value
+  const hasExplicitValue = React.useRef(valueProp !== undefined || defaultValue !== undefined);
+  const explicitDefaultValue = React.useRef(defaultValue);
+
   const [value, setValue] = useControlled({
     controlled: valueProp,
-    default: defaultValue,
+    default: defaultValue ?? 0, // Use 0 as fallback, but we'll adjust this based on disabled state
     name: 'Tabs',
     state: 'value',
   });
@@ -52,6 +56,40 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
 
   const [tabActivationDirection, setTabActivationDirection] =
     React.useState<TabsTab.ActivationDirection>('none');
+
+  // Effect to set the default value to the first non-disabled tab
+  // when no explicit value/defaultValue was provided
+  React.useEffect(() => {
+    // Only run this logic if user didn't provide explicit value/defaultValue
+    if (hasExplicitValue.current || tabMap.size === 0) {
+      return;
+    }
+
+    // Find the first non-disabled tab
+    const tabEntries = Array.from(tabMap.entries());
+    let firstNonDisabledValue: TabsTab.Value | null = null;
+
+    for (const [, tabMetadata] of tabEntries) {
+      if (tabMetadata && !tabMetadata.disabled) {
+        firstNonDisabledValue = tabMetadata.value ?? tabMetadata.index ?? 0;
+        break;
+      }
+    }
+
+    // If all tabs are disabled, log a warning and keep the current value
+    if (firstNonDisabledValue === null) {
+      console.warn(
+        'Base UI Tabs: All tabs are disabled. This may lead to accessibility issues. ' +
+        'Consider enabling at least one tab or providing an explicit `value` prop.'
+      );
+      return;
+    }
+
+    // Only update if we found a different value
+    if (firstNonDisabledValue !== value) {
+      setValue(firstNonDisabledValue);
+    }
+  }, [tabMap, value, setValue]);
 
   const onValueChange = useEventCallback(
     (
@@ -206,7 +244,8 @@ export namespace TabsRoot {
     /**
      * The default value. Use when the component is not controlled.
      * When the value is `null`, no Tab will be selected.
-     * @default 0
+     * When not provided, defaults to the first non-disabled tab. If all tabs are disabled, defaults to the first tab and shows a warning.
+     * @default first non-disabled tab (or 0 if all tabs are disabled)
      */
     defaultValue?: TabsTab.Value;
     /**

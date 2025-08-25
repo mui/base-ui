@@ -1221,4 +1221,155 @@ describe('<Tabs.Root />', () => {
       expect(secondTab).to.have.attribute('aria-selected', 'false');
     });
   });
+
+  describe('disabled tab handling', () => {
+    it('should select the first non-disabled tab by default when defaultValue is not provided', async () => {
+      const { getAllByRole } = await render(
+        <Tabs.Root>
+          <Tabs.List>
+            <Tabs.Tab value={0} disabled data-testid="tab-0">Tab 0</Tabs.Tab>
+            <Tabs.Tab value={1} data-testid="tab-1">Tab 1</Tabs.Tab>
+            <Tabs.Tab value={2} disabled data-testid="tab-2">Tab 2</Tabs.Tab>
+            <Tabs.Tab value={3} data-testid="tab-3">Tab 3</Tabs.Tab>
+          </Tabs.List>
+          <Tabs.Panel value={0}>Panel 0</Tabs.Panel>
+          <Tabs.Panel value={1}>Panel 1</Tabs.Panel>
+          <Tabs.Panel value={2}>Panel 2</Tabs.Panel>
+          <Tabs.Panel value={3}>Panel 3</Tabs.Panel>
+        </Tabs.Root>,
+      );
+
+      const tabs = getAllByRole('tab');
+      
+      // The first non-disabled tab (tab 1) should be selected
+      expect(tabs[1]).to.have.attribute('aria-selected', 'true');
+      expect(tabs[0]).to.have.attribute('aria-selected', 'false');
+      expect(tabs[2]).to.have.attribute('aria-selected', 'false');
+      expect(tabs[3]).to.have.attribute('aria-selected', 'false');
+    });
+
+    it('should select the first non-disabled tab when first two tabs are disabled', async () => {
+      const { getAllByRole } = await render(
+        <Tabs.Root>
+          <Tabs.List>
+            <Tabs.Tab value={0} disabled data-testid="tab-0">Tab 0</Tabs.Tab>
+            <Tabs.Tab value={1} disabled data-testid="tab-1">Tab 1</Tabs.Tab>
+            <Tabs.Tab value={2} data-testid="tab-2">Tab 2</Tabs.Tab>
+            <Tabs.Tab value={3} data-testid="tab-3">Tab 3</Tabs.Tab>
+          </Tabs.List>
+          <Tabs.Panel value={0}>Panel 0</Tabs.Panel>
+          <Tabs.Panel value={1}>Panel 1</Tabs.Panel>
+          <Tabs.Panel value={2}>Panel 2</Tabs.Panel>
+          <Tabs.Panel value={3}>Panel 3</Tabs.Panel>
+        </Tabs.Root>,
+      );
+
+      const tabs = getAllByRole('tab');
+      
+      // The first non-disabled tab (tab 2) should be selected
+      expect(tabs[2]).to.have.attribute('aria-selected', 'true');
+      expect(tabs[0]).to.have.attribute('aria-selected', 'false');
+      expect(tabs[1]).to.have.attribute('aria-selected', 'false');
+      expect(tabs[3]).to.have.attribute('aria-selected', 'false');
+    });
+
+    it('should still honor explicit defaultValue even if it points to a disabled tab', async () => {
+      const { getAllByRole } = await render(
+        <Tabs.Root defaultValue={0}>
+          <Tabs.List>
+            <Tabs.Tab value={0} disabled data-testid="tab-0">Tab 0</Tabs.Tab>
+            <Tabs.Tab value={1} data-testid="tab-1">Tab 1</Tabs.Tab>
+            <Tabs.Tab value={2} data-testid="tab-2">Tab 2</Tabs.Tab>
+          </Tabs.List>
+          <Tabs.Panel value={0}>Panel 0</Tabs.Panel>
+          <Tabs.Panel value={1}>Panel 1</Tabs.Panel>
+          <Tabs.Panel value={2}>Panel 2</Tabs.Panel>
+        </Tabs.Root>,
+      );
+
+      const tabs = getAllByRole('tab');
+      
+      // The explicitly set disabled tab should be selected
+      expect(tabs[0]).to.have.attribute('aria-selected', 'true');
+      expect(tabs[1]).to.have.attribute('aria-selected', 'false');
+      expect(tabs[2]).to.have.attribute('aria-selected', 'false');
+    });
+
+    it('should still honor explicit value prop even if it points to a disabled tab', async () => {
+      const { getAllByRole } = await render(
+        <Tabs.Root value={0}>
+          <Tabs.List>
+            <Tabs.Tab value={0} disabled data-testid="tab-0">Tab 0</Tabs.Tab>
+            <Tabs.Tab value={1} data-testid="tab-1">Tab 1</Tabs.Tab>
+            <Tabs.Tab value={2} data-testid="tab-2">Tab 2</Tabs.Tab>
+          </Tabs.List>
+          <Tabs.Panel value={0}>Panel 0</Tabs.Panel>
+          <Tabs.Panel value={1}>Panel 1</Tabs.Panel>
+          <Tabs.Panel value={2}>Panel 2</Tabs.Panel>
+        </Tabs.Root>,
+      );
+
+      const tabs = getAllByRole('tab');
+      
+      // The explicitly set disabled tab should be selected
+      expect(tabs[0]).to.have.attribute('aria-selected', 'true');
+      expect(tabs[1]).to.have.attribute('aria-selected', 'false');
+      expect(tabs[2]).to.have.attribute('aria-selected', 'false');
+    });
+
+    it('should handle the case when all tabs are disabled by showing a warning', async () => {
+      const originalWarn = console.warn;
+      const warnings: any[] = [];
+      console.warn = (...args: any[]) => warnings.push(args);
+      
+      const { getAllByRole } = await render(
+        <Tabs.Root>
+          <Tabs.List>
+            <Tabs.Tab value={0} disabled data-testid="tab-0">Tab 0</Tabs.Tab>
+            <Tabs.Tab value={1} disabled data-testid="tab-1">Tab 1</Tabs.Tab>
+            <Tabs.Tab value={2} disabled data-testid="tab-2">Tab 2</Tabs.Tab>
+          </Tabs.List>
+          <Tabs.Panel value={0}>Panel 0</Tabs.Panel>
+          <Tabs.Panel value={1}>Panel 1</Tabs.Panel>
+          <Tabs.Panel value={2}>Panel 2</Tabs.Panel>
+        </Tabs.Root>,
+      );
+
+      const tabs = getAllByRole('tab');
+      
+      // When all tabs are disabled, the warning should be logged
+      await waitFor(() => {
+        expect(warnings.length).to.be.greaterThan(0);
+      });
+
+      expect(warnings[0][0]).to.include('All tabs are disabled');
+      
+      // The first tab should still be selected (fallback behavior)
+      expect(tabs[0]).to.have.attribute('aria-selected', 'true');
+
+      console.warn = originalWarn;
+    });
+
+    it('should handle tabs with numeric indices correctly', async () => {
+      const { getAllByRole } = await render(
+        <Tabs.Root>
+          <Tabs.List>
+            <Tabs.Tab disabled>Tab 0</Tabs.Tab>
+            <Tabs.Tab>Tab 1</Tabs.Tab>
+            <Tabs.Tab disabled>Tab 2</Tabs.Tab>
+          </Tabs.List>
+          <Tabs.Panel>Panel 0</Tabs.Panel>
+          <Tabs.Panel>Panel 1</Tabs.Panel>
+          <Tabs.Panel>Panel 2</Tabs.Panel>
+        </Tabs.Root>,
+      );
+
+      const tabs = getAllByRole('tab');
+      
+      // The first non-disabled tab (index 1) should be selected
+      expect(tabs[1]).to.have.attribute('aria-selected', 'true');
+      expect(tabs[0]).to.have.attribute('aria-selected', 'false');
+      expect(tabs[2]).to.have.attribute('aria-selected', 'false');
+    });
+  });
 });
