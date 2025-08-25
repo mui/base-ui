@@ -5,6 +5,12 @@ import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect
 
 let boundDataGaListener = false;
 
+declare global {
+  interface Window {
+    dataLayer: unknown[];
+  }
+}
+
 /**
  * basically just a `useAnalytics` hook.
  * However, it needs the redux store which is created
@@ -21,13 +27,11 @@ export const GoogleAnalytics = React.memo(function GoogleAnalytics(props: Google
   } = props;
 
   useIsoLayoutEffect(() => {
-    // @ts-expect-error
     window.dataLayer = window.dataLayer || [];
 
-    function gtag(...args: unknown[]) {
-      // @ts-expect-error
-      window.dataLayer.push([...args]);
-    }
+    const gtag: Gtag.Gtag = function gtag(command, ...args) {
+      window.dataLayer.push([command, ...args]);
+    };
 
     window.gtag = gtag;
 

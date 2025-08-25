@@ -31,8 +31,7 @@ export function contains(parent?: Element | null, child?: Element | null) {
       if (parent === next) {
         return true;
       }
-      // @ts-ignore
-      next = next.parentNode || next.host;
+      next = (next.parentNode as Element) || (next as unknown as ShadowRoot).host;
     }
   }
 

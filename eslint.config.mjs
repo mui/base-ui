@@ -82,21 +82,6 @@ export default defineConfig(
       `**/*${EXTENSION_TEST_FILE}`,
     ],
     extends: createTestConfig({ useMocha: false }),
-    rules: {
-      // tests are not driven by assistive technology
-      // add `jsx-a11y` rules once you encounter them in tests
-      'jsx-a11y/click-events-have-key-events': 'off',
-      'jsx-a11y/control-has-associated-label': 'off',
-      'jsx-a11y/iframe-has-title': 'off',
-      'jsx-a11y/label-has-associated-control': 'off',
-      'jsx-a11y/mouse-events-have-key-events': 'off',
-      'jsx-a11y/no-noninteractive-tabindex': 'off',
-      'jsx-a11y/no-static-element-interactions': 'off',
-      'jsx-a11y/tabindex-no-positive': 'off',
-
-      // In tests this is generally intended.
-      'react/button-has-type': 'off',
-    },
   },
   baseSpecRules,
   {
