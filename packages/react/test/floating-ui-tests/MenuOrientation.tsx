@@ -273,7 +273,7 @@ export const MenuComponent = React.forwardRef<
                   )}
                   style={{
                     ...floatingStyles,
-                    // @ts-ignore
+                    // @ts-expect-error css var
                     '--cols': cols,
                     // eslint-disable-next-line no-nested-ternary
                     visibility: !keepMounted ? undefined : isOpen ? 'visible' : 'hidden',

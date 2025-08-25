@@ -158,7 +158,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       // This allows seamless integration with the most popular form libraries.
       // https://github.com/mui/material-ui/issues/13485#issuecomment-676048492
       // Clone the event to not override `target` of the original event.
-      // @ts-ignore The nativeEvent is function, not object
+      // @ts-expect-error The nativeEvent is function, not object
       const clonedEvent = new event.constructor(event.type, event);
 
       Object.defineProperty(clonedEvent, 'target', {
@@ -213,12 +213,11 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
 
   useIsoLayoutEffect(() => {
     const activeEl = activeElement(ownerDocument(sliderRef.current));
-    if (disabled && sliderRef.current?.contains(activeEl)) {
+    if (disabled && activeEl && sliderRef.current?.contains(activeEl)) {
       // This is necessary because Firefox and Safari will keep focus
       // on a disabled element:
       // https://codesandbox.io/p/sandbox/mui-pr-22247-forked-h151h?file=/src/App.js
-      // @ts-ignore
-      activeEl.blur();
+      (activeEl as HTMLElement).blur();
     }
   }, [disabled]);
 
