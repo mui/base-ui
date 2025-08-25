@@ -24,7 +24,7 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
 ) {
   const {
     className,
-    defaultValue = 0,
+    defaultValue,
     onValueChange: onValueChangeProp,
     orientation = 'horizontal',
     render,
@@ -36,13 +36,6 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
 
   const tabPanelRefs = React.useRef<(HTMLElement | null)[]>([]);
 
-  const [value, setValue] = useControlled({
-    controlled: valueProp,
-    default: defaultValue,
-    name: 'Tabs',
-    state: 'value',
-  });
-
   const [tabPanelMap, setTabPanelMap] = React.useState(
     () => new Map<Node, CompositeMetadata<TabsPanel.Metadata> | null>(),
   );
@@ -50,8 +43,55 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
     () => new Map<Node, CompositeMetadata<TabsTab.Metadata> | null>(),
   );
 
+  const [value, setValue] = useControlled({
+    controlled: valueProp,
+    default: defaultValue ?? 0,
+    name: 'Tabs',
+    state: 'value',
+  });
+
+  const hasSetInitialValueRef = React.useRef(false);
+
+  // Set the initial value based on disabled tabs once tabs are registered
+  React.useEffect(() => {
+    // Only run this logic if no explicit value/defaultValue was provided
+    // and we haven't already set the initial value
+    if (valueProp !== undefined || defaultValue !== undefined || hasSetInitialValueRef.current) {
+      return;
+    }
+
+    if (tabMap.size > 0) {
+      hasSetInitialValueRef.current = true;
+
+      // Create array of tab metadata from tabMap
+      const tabs = Array.from(tabMap.values())
+        .filter(Boolean)
+        .sort((a, b) => (a!.index ?? 0) - (b!.index ?? 0));
+
+      if (tabs.length > 0) {
+        // Check if all tabs are disabled
+        const allDisabled = tabs.every(tab => tab!.metadata?.disabled);
+        if (allDisabled) {
+          console.warn('All tabs are disabled. The first tab will be selected.');
+          // Keep value at 0, no need to change
+        } else {
+          // Find first non-disabled tab
+          const firstNonDisabledTab = tabs.find(tab => !tab!.metadata?.disabled);
+          if (firstNonDisabledTab) {
+            const newValue = firstNonDisabledTab.metadata?.value ?? firstNonDisabledTab.index ?? 0;
+            if (newValue !== 0) { // Only change if different from current default
+              setValue(newValue);
+            }
+          }
+        }
+      }
+    }
+  }, [tabMap.size, valueProp, defaultValue, setValue]);
+
   const [tabActivationDirection, setTabActivationDirection] =
     React.useState<TabsTab.ActivationDirection>('none');
+
+
 
   const onValueChange = useEventCallback(
     (
@@ -206,6 +246,7 @@ export namespace TabsRoot {
     /**
      * The default value. Use when the component is not controlled.
      * When the value is `null`, no Tab will be selected.
+     * When not provided, defaults to 0. The composite system will automatically highlight the first non-disabled tab for keyboard navigation.
      * @default 0
      */
     defaultValue?: TabsTab.Value;

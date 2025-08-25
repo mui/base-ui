@@ -4,6 +4,7 @@ import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import { CompositeRoot } from '../../composite/root/CompositeRoot';
+import { CompositeMetadata } from '../../composite/list/CompositeList';
 import { tabsStyleHookMapping } from '../root/styleHooks';
 import { useTabsRootContext } from '../root/TabsRootContext';
 import type { TabsRoot } from '../root/TabsRoot';
@@ -40,6 +41,9 @@ export const TabsList = React.forwardRef(function TabsList(
   } = useTabsRootContext();
 
   const [highlightedTabIndex, setHighlightedTabIndex] = React.useState(0);
+  const [tabMap, setTabMapInternal] = React.useState(
+    () => new Map<Node, CompositeMetadata<TabsTab.Metadata> | null>(),
+  );
 
   const tabsListRef = React.useRef<HTMLElement>(null);
 
@@ -56,6 +60,15 @@ export const TabsList = React.forwardRef(function TabsList(
       onValueChange(newValue, activationDirection, event);
     }
   });
+
+  // Combine the tab map updates to send to both local state and parent
+  const handleTabMapChange = React.useCallback(
+    (newMap: Map<Node, CompositeMetadata<TabsTab.Metadata> | null>) => {
+      setTabMapInternal(newMap);
+      setTabMap(newMap);
+    },
+    [setTabMap],
+  );
 
   const state: TabsList.State = React.useMemo(
     () => ({
@@ -103,7 +116,7 @@ export const TabsList = React.forwardRef(function TabsList(
         loop={loop}
         orientation={orientation}
         onHighlightedIndexChange={setHighlightedTabIndex}
-        onMapChange={setTabMap}
+        onMapChange={handleTabMapChange}
         disabledIndices={EMPTY_ARRAY}
       />
     </TabsListContext.Provider>
