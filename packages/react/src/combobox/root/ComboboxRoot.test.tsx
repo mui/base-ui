@@ -1106,7 +1106,7 @@ describe('<Combobox.Root />', () => {
       // Close without selecting
       await user.keyboard('{Escape}');
 
-      expect(screen.queryByRole('listbox')).to.equal(null);
+      await waitFor(() => expect(screen.queryByRole('listbox')).to.equal(null));
       expect(input).to.have.value('');
       expect(onInput.lastCall.args[0]).to.equal('');
       expect(onInput.lastCall.args[2]).to.equal('input-clear');
