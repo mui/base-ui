@@ -8,16 +8,18 @@ import type {
   ReferenceElement,
   ContextData,
   OpenChangeReason,
+  OpenChangeCallback,
 } from '../types';
 import { createEventEmitter } from '../utils/createEventEmitter';
 import { useFloatingParentNodeId } from '../components/FloatingTree';
 
 export interface UseFloatingRootContextOptions {
   open?: boolean;
-  onOpenChange?: (open: boolean, event?: Event, reason?: OpenChangeReason) => void;
+  onOpenChange?: OpenChangeCallback;
   elements: {
     reference: Element | null;
     floating: HTMLElement | null;
+    triggers?: Element[];
   };
 }
 
@@ -47,10 +49,15 @@ export function useFloatingRootContext(
   );
 
   const onOpenChange = useEventCallback(
-    (newOpen: boolean, event?: Event, reason?: OpenChangeReason) => {
+    (
+      newOpen: boolean,
+      event: Event | undefined,
+      reason: OpenChangeReason | undefined,
+      triggerElement: Element | undefined,
+    ) => {
       dataRef.current.openEvent = newOpen ? event : undefined;
-      events.emit('openchange', { open: newOpen, event, reason, nested });
-      onOpenChangeProp?.(newOpen, event, reason);
+      events.emit('openchange', { open: newOpen, event, reason, nested, triggerElement });
+      onOpenChangeProp?.(newOpen, event, reason, triggerElement);
     },
   );
 
@@ -66,8 +73,9 @@ export function useFloatingRootContext(
       reference: positionReference || elementsProp.reference || null,
       floating: elementsProp.floating || null,
       domReference: elementsProp.reference as Element | null,
+      triggers: elementsProp.triggers ?? [],
     }),
-    [positionReference, elementsProp.reference, elementsProp.floating],
+    [positionReference, elementsProp.reference, elementsProp.floating, elementsProp.triggers],
   );
 
   return React.useMemo<FloatingRootContext>(
@@ -82,4 +90,27 @@ export function useFloatingRootContext(
     }),
     [open, onOpenChange, elements, events, floatingId, refs],
   );
+}
+
+export function getEmptyContext(): FloatingRootContext {
+  return {
+    open: false,
+    onOpenChange: () => {},
+    dataRef: { current: {} },
+    elements: {
+      floating: null,
+      reference: null,
+      domReference: null,
+      triggers: [],
+    },
+    events: {
+      on: () => {},
+      off: () => {},
+      emit: () => {},
+    },
+    floatingId: '',
+    refs: {
+      setPositionReference: () => {},
+    },
+  };
 }
