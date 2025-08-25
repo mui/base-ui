@@ -14,8 +14,14 @@
     },
     "state": {
       "type": "Record<string, unknown>",
-      "description": "The state of the component, passed as the second argument to the `render` callback.",
+      "description": "The state of the component, passed as the second argument to the `render` callback.\nState properties are automatically converted to data-* attributes.",
       "detailedType": "Record<string, unknown> | undefined"
+    },
+    "stateAttributesMapping": {
+      "type": "CustomStyleHookMapping<Record<string, unknown>>",
+      "description": "Custom mapping for converting state properties to data-* attributes.",
+      "example": "{ isActive: (value) => (value ? { 'data-is-active': '' } : null) }",
+      "detailedType": "{} | undefined"
     },
     "props": {
       "type": "Record<string, unknown>",
