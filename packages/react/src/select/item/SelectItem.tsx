@@ -3,6 +3,7 @@ import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { useLatestRef } from '@base-ui-components/utils/useLatestRef';
 import { isMouseWithinBounds } from '@base-ui-components/utils/isMouseWithinBounds';
+import { useTimeout } from '@base-ui-components/utils/useTimeout';
 import { useStore } from '@base-ui-components/utils/store';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import {
@@ -53,9 +54,10 @@ export const SelectItem = React.memo(
       valuesRef,
       registerItemIndex,
       keyboardActiveRef,
-      highlightTimeout,
       multiple,
     } = useSelectRootContext();
+
+    const highlightTimeout = useTimeout();
 
     const highlighted = useStore(store, selectors.isActive, listItem.index);
     const selected = useStore(store, selectors.isSelected, listItem.index, value);

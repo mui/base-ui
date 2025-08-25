@@ -4,7 +4,6 @@ import { useOnFirstRender } from '@base-ui-components/utils/useOnFirstRender';
 import { useControlled } from '@base-ui-components/utils/useControlled';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
-import { useTimeout } from '@base-ui-components/utils/useTimeout';
 import { warn } from '@base-ui-components/utils/warn';
 import { useLatestRef } from '@base-ui-components/utils/useLatestRef';
 import { useStore, Store } from '@base-ui-components/utils/store';
@@ -100,8 +99,6 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
   });
   const hasRegisteredRef = React.useRef(false);
   const alignItemWithTriggerActiveRef = React.useRef(false);
-
-  const highlightTimeout = useTimeout();
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
 
@@ -482,7 +479,6 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
       onOpenChangeComplete,
       keyboardActiveRef,
       alignItemWithTriggerActiveRef,
-      highlightTimeout,
     }),
     [
       store,
@@ -508,7 +504,6 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
       onOpenChangeComplete,
       keyboardActiveRef,
       alignItemWithTriggerActiveRef,
-      highlightTimeout,
     ],
   );
 

@@ -1,5 +1,4 @@
 import * as React from 'react';
-import type { Timeout } from '@base-ui-components/utils/useTimeout';
 import { useFloatingRootContext, type FloatingRootContext } from '../../floating-ui-react';
 import type { SelectStore } from '../store';
 import type { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
@@ -44,7 +43,6 @@ export interface SelectRootContext {
   onOpenChangeComplete?: (open: boolean) => void;
   keyboardActiveRef: React.MutableRefObject<boolean>;
   alignItemWithTriggerActiveRef: React.RefObject<boolean>;
-  highlightTimeout: Timeout;
 }
 
 export const SelectRootContext = React.createContext<SelectRootContext | null>(null);
