@@ -70,6 +70,7 @@
     transition: none;
     transform: none;
     opacity: 1;
+    scroll-padding-block: 1rem;
   }
 
   @media (prefers-color-scheme: light) {
@@ -141,7 +142,7 @@
   cursor: default;
   -webkit-user-select: none;
   user-select: none;
-  scroll-margin-block: 1rem;
+  scroll-margin-block: 0.5rem;
 
   @media (pointer: coarse) {
     padding-block: 0.625rem;
