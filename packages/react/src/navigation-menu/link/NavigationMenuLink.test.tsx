@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { expect } from 'chai';
-import { screen, flushMicrotasks } from '@mui/internal-test-utils';
+import { screen, flushMicrotasks, waitFor } from '@mui/internal-test-utils';
 import { NavigationMenu } from '@base-ui-components/react/navigation-menu';
 import { createRenderer, describeConformance } from '#test-utils';
 
@@ -51,7 +51,7 @@ describe('<NavigationMenu.Link />', () => {
     const link = screen.getByRole('link', { name: 'Link 1' });
     await user.click(link);
 
-    expect(screen.queryByTestId('popup-1')).to.equal(null);
+    await waitFor(() => expect(screen.queryByTestId('popup-1')).to.equal(null));
     expect(trigger).to.have.attribute('aria-expanded', 'false');
   });
 
