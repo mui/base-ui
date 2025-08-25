@@ -35,6 +35,9 @@ export const NavigationMenuLink = React.forwardRef(function NavigationMenuLink(
   const defaultProps: HTMLProps = {
     'aria-current': active ? 'page' : undefined,
     tabIndex: undefined,
+    onClick(event) {
+      setValue(null, event.nativeEvent, 'link-press');
+    },
     onBlur(event) {
       if (
         positionerElement &&

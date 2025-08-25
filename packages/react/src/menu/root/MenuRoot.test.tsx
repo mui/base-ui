@@ -733,58 +733,7 @@ describe('<Menu.Root />', () => {
   });
 
   describe('prop: closeParentOnEsc', () => {
-    it('closes the parent menu when the Escape key is pressed by default', async () => {
-      const { getByRole, queryByRole, user } = await render(
-        <Menu.Root>
-          <Menu.Trigger>Open</Menu.Trigger>
-          <Menu.Portal>
-            <Menu.Positioner>
-              <Menu.Popup>
-                <Menu.Item>1</Menu.Item>
-                <Menu.SubmenuRoot>
-                  <Menu.SubmenuTrigger>2</Menu.SubmenuTrigger>
-                  <Menu.Portal>
-                    <Menu.Positioner>
-                      <Menu.Popup>
-                        <Menu.Item>2.1</Menu.Item>
-                        <Menu.Item>2.2</Menu.Item>
-                      </Menu.Popup>
-                    </Menu.Positioner>
-                  </Menu.Portal>
-                </Menu.SubmenuRoot>
-              </Menu.Popup>
-            </Menu.Positioner>
-          </Menu.Portal>
-        </Menu.Root>,
-      );
-
-      const trigger = getByRole('button', { name: 'Open' });
-      await act(async () => {
-        trigger.focus();
-      });
-
-      await user.keyboard('[ArrowDown]');
-      await waitFor(() => {
-        expect(getByRole('menuitem', { name: '1' })).toHaveFocus();
-      });
-
-      await user.keyboard('[ArrowDown]');
-      await waitFor(() => {
-        expect(getByRole('menuitem', { name: '2' })).toHaveFocus();
-      });
-
-      await user.keyboard('[ArrowRight]');
-      await waitFor(() => {
-        expect(getByRole('menuitem', { name: '2.1' })).toHaveFocus();
-      });
-
-      await user.keyboard('[Escape]');
-      await flushMicrotasks();
-
-      expect(queryByRole('menu', { hidden: false })).to.equal(null);
-    });
-
-    it('does not close the parent menu when the Escape key is pressed if `closeParentOnEsc=false`', async () => {
+    it('does not close the parent menu when the Escape key is pressed by default', async () => {
       const { getByRole, queryAllByRole, user } = await render(
         <Menu.Root>
           <Menu.Trigger>Open</Menu.Trigger>
@@ -792,7 +741,7 @@ describe('<Menu.Root />', () => {
             <Menu.Positioner>
               <Menu.Popup id="parent-menu">
                 <Menu.Item>1</Menu.Item>
-                <Menu.SubmenuRoot closeParentOnEsc={false}>
+                <Menu.SubmenuRoot>
                   <Menu.SubmenuTrigger>2</Menu.SubmenuTrigger>
                   <Menu.Portal>
                     <Menu.Positioner>
@@ -838,6 +787,57 @@ describe('<Menu.Root />', () => {
 
       expect(menus[0].id).to.equal('parent-menu');
     });
+
+    it('closes the parent menu when the Escape key is pressed  if `closeParentOnEsc=true`', async () => {
+      const { getByRole, queryByRole, user } = await render(
+        <Menu.Root>
+          <Menu.Trigger>Open</Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.Item>1</Menu.Item>
+                <Menu.SubmenuRoot closeParentOnEsc>
+                  <Menu.SubmenuTrigger>2</Menu.SubmenuTrigger>
+                  <Menu.Portal>
+                    <Menu.Positioner>
+                      <Menu.Popup>
+                        <Menu.Item>2.1</Menu.Item>
+                        <Menu.Item>2.2</Menu.Item>
+                      </Menu.Popup>
+                    </Menu.Positioner>
+                  </Menu.Portal>
+                </Menu.SubmenuRoot>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>,
+      );
+
+      const trigger = getByRole('button', { name: 'Open' });
+      await act(async () => {
+        trigger.focus();
+      });
+
+      await user.keyboard('[ArrowDown]');
+      await waitFor(() => {
+        expect(getByRole('menuitem', { name: '1' })).toHaveFocus();
+      });
+
+      await user.keyboard('[ArrowDown]');
+      await waitFor(() => {
+        expect(getByRole('menuitem', { name: '2' })).toHaveFocus();
+      });
+
+      await user.keyboard('[ArrowRight]');
+      await waitFor(() => {
+        expect(getByRole('menuitem', { name: '2.1' })).toHaveFocus();
+      });
+
+      await user.keyboard('[Escape]');
+      await flushMicrotasks();
+
+      expect(queryByRole('menu', { hidden: false })).to.equal(null);
+    });
   });
 
   describe('prop: modal', () => {
@@ -868,7 +868,6 @@ describe('<Menu.Root />', () => {
 
       const positioner = screen.getByTestId('positioner');
 
-      // eslint-disable-next-line testing-library/no-node-access
       expect(positioner.previousElementSibling).to.have.attribute('role', 'presentation');
     });
 
@@ -899,7 +898,6 @@ describe('<Menu.Root />', () => {
 
       const positioner = screen.getByTestId('positioner');
 
-      // eslint-disable-next-line testing-library/no-node-access
       expect(positioner.previousElementSibling).to.equal(null);
     });
   });

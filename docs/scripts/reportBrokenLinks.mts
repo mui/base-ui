@@ -106,10 +106,7 @@ async function getLinksAndAnchors(
 
   let rawLinks: Set<string> = new Set();
 
-  const {
-    tableOfContents,
-    // @ts-ignore https://github.com/mdx-js/mdx/issues/2463
-  } = await evaluate(mdxSource, {
+  const { tableOfContents } = await evaluate(mdxSource, {
     ...jsxRuntime,
     remarkPlugins: [remarkGfm],
     rehypePlugins: [
