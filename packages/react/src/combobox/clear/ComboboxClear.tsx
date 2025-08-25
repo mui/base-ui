@@ -7,6 +7,12 @@ import { useRenderElement } from '../../utils/useRenderElement';
 import { selectors } from '../store';
 import { useButton } from '../../use-button';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
+import { TransitionStatus, useTransitionStatus } from '../../utils/useTransitionStatus';
+import { transitionStatusMapping } from '../../utils/styleHookMapping';
+import { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
+import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
+
+const customStyleHookMapping: CustomStyleHookMapping<ComboboxClear.State> = transitionStatusMapping;
 
 /**
  * Clears the value when clicked.
@@ -21,6 +27,7 @@ export const ComboboxClear = React.forwardRef(function ComboboxClear(
     className,
     disabled: disabledProp = false,
     nativeButton = true,
+    keepMounted = false,
     ...elementProps
   } = componentProps;
 
@@ -40,31 +47,53 @@ export const ComboboxClear = React.forwardRef(function ComboboxClear(
 
   const open = useStore(store, selectors.open);
   const selectedValue = useStore(store, selectors.selectedValue);
+  const inputValue = useStore(store, selectors.inputValue);
 
-  const shouldRender = selectionMode === 'single' ? Boolean(selectedValue) : false;
+  let visible = false;
+  if (selectionMode === 'none') {
+    visible = inputValue !== '';
+  } else if (selectionMode === 'single') {
+    visible = selectedValue != null;
+  } else {
+    visible = Array.isArray(selectedValue) && selectedValue.length > 0;
+  }
 
   const disabled = fieldDisabled || comboboxDisabled || disabledProp;
 
   const { buttonRef, getButtonProps } = useButton({
     native: nativeButton,
     disabled,
-    focusableWhenDisabled: true,
   });
+
+  const { mounted, transitionStatus, setMounted } = useTransitionStatus(visible);
 
   const state: ComboboxClear.State = React.useMemo(
     () => ({
       disabled,
       open,
+      transitionStatus,
     }),
-    [disabled, open],
+    [disabled, open, transitionStatus],
   );
+
+  useOpenChangeComplete({
+    open: visible,
+    ref: clearRef,
+    onComplete() {
+      if (!visible) {
+        setMounted(false);
+      }
+    },
+  });
 
   const element = useRenderElement('button', componentProps, {
     state,
-    enabled: shouldRender,
+    enabled: visible,
     ref: [forwardedRef, buttonRef, clearRef],
     props: [
       {
+        hidden: !mounted,
+        children: 'x',
         disabled,
         'aria-readonly': readOnly || undefined,
         onMouseDown(event) {
@@ -104,8 +133,10 @@ export const ComboboxClear = React.forwardRef(function ComboboxClear(
       elementProps,
       getButtonProps,
     ],
+    customStyleHookMapping,
   });
 
+  const shouldRender = keepMounted || mounted;
   if (!shouldRender) {
     return null;
   }
@@ -123,6 +154,7 @@ export namespace ComboboxClear {
      * Whether the component should ignore user interaction.
      */
     disabled: boolean;
+    transitionStatus: TransitionStatus;
   }
 
   export interface Props extends BaseUIComponentProps<'button', State> {
@@ -138,5 +170,10 @@ export namespace ComboboxClear {
      * @default false
      */
     disabled?: boolean;
+    /**
+     * Whether the component should remain mounted in the DOM when not visible.
+     * @default false
+     */
+    keepMounted?: boolean;
   }
 }
