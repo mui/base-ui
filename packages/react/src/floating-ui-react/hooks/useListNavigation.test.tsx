@@ -12,6 +12,7 @@ import { Main as EmojiPicker } from '../../../test/floating-ui-tests/EmojiPicker
 import { Main as ListboxFocus } from '../../../test/floating-ui-tests/ListboxFocus';
 import { Main as NestedMenu } from '../../../test/floating-ui-tests/Menu';
 import { HorizontalMenu } from '../../../test/floating-ui-tests/MenuOrientation';
+import * as compositeModule from '../../composite/composite';
 
 /* eslint-disable testing-library/no-unnecessary-act */
 
@@ -442,25 +443,18 @@ describe('useListNavigation', () => {
   });
 
   describe('selectedIndex', () => {
-    it('scrollIntoView on open', ({ onTestFinished }) => {
-      const requestAnimationFrame = vi
-        .spyOn(window, 'requestAnimationFrame')
-        .mockImplementation(() => 0);
-      const scrollIntoView = vi.fn();
-      const originalScrollIntoView = HTMLElement.prototype.scrollIntoView;
-      HTMLElement.prototype.scrollIntoView = scrollIntoView;
+    it.skipIf(!isJSDOM)('scrollIntoView on open', ({ onTestFinished }) => {
+      const scrollIntoViewIfNeededSpy = vi.spyOn(compositeModule, 'scrollIntoViewIfNeeded');
 
       onTestFinished(() => {
-        requestAnimationFrame.mockRestore();
-        HTMLElement.prototype.scrollIntoView = originalScrollIntoView;
+        scrollIntoViewIfNeededSpy.mockRestore();
       });
 
       render(<App selectedIndex={0} />);
       fireEvent.click(screen.getByRole('button'));
-      expect(requestAnimationFrame).toHaveBeenCalled();
-      // Run the timer
-      requestAnimationFrame.mock.calls.forEach((call) => call[0](0));
-      expect(scrollIntoView).toHaveBeenCalled();
+      return waitFor(() => {
+        expect(scrollIntoViewIfNeededSpy).toHaveBeenCalled();
+      });
     });
   });
 

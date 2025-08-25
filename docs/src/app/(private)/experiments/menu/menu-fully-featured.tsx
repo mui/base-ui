@@ -55,7 +55,13 @@ export default function MenuFullyFeatured() {
             side={settings.side}
             align={settings.align}
           >
-            <Menu.Popup className={classes.Popup}>
+            <Menu.Popup
+              className={classes.Popup}
+              style={{
+                overflowY: 'auto',
+                maxHeight: 'var(--available-height)',
+              }}
+            >
               <Menu.Arrow className={classes.Arrow}>
                 <ArrowIcon />
               </Menu.Arrow>

@@ -56,6 +56,7 @@
     opacity 150ms;
   max-height: var(--available-height);
   overflow-y: auto;
+  scroll-padding-block: 0.5rem;
 
   &[data-starting-style],
   &[data-ending-style] {
@@ -138,7 +139,7 @@
   grid-template-columns: 0.75rem 1fr;
   cursor: default;
   user-select: none;
-  scroll-margin-block: 1.5rem;
+  scroll-margin-block: 1rem;
 
   [data-side='none'] & {
     font-size: 1rem;
@@ -177,12 +178,18 @@
 }
 
 .ScrollArrow {
+  position: sticky;
   width: 100%;
-  background: white;
+  background: canvas;
   z-index: 1;
   text-align: center;
   cursor: default;
   border-radius: 0.375rem;
+  height: 1rem;
+  font-size: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
   &::before {
     content: '';
@@ -193,16 +200,10 @@
   }
 
   &[data-direction='up'] {
-    &::before {
-      top: -100%;
-    }
+    top: -0.25rem;
   }
 
   &[data-direction='down'] {
-    bottom: 0;
-
-    &::before {
-      bottom: -100%;
-    }
+    bottom: -0.25rem;
   }
 }
