@@ -4,6 +4,7 @@ import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import { CompositeRoot } from '../../composite/root/CompositeRoot';
+import { CompositeMetadata } from '../../composite/list/CompositeList';
 import { tabsStyleHookMapping } from '../root/styleHooks';
 import { useTabsRootContext } from '../root/TabsRootContext';
 import type { TabsRoot } from '../root/TabsRoot';
@@ -40,6 +41,29 @@ export const TabsList = React.forwardRef(function TabsList(
   } = useTabsRootContext();
 
   const [highlightedTabIndex, setHighlightedTabIndex] = React.useState(0);
+  const [tabMap, setTabMapInternal] = React.useState(
+    () => new Map<Node, CompositeMetadata<TabsTab.Metadata> | null>(),
+  );
+
+  // Calculate disabled indices from tab metadata
+  const disabledIndices = React.useMemo(() => {
+    const output: number[] = [];
+    for (const tabMetadata of tabMap.values()) {
+      if (tabMetadata?.disabled && tabMetadata.index !== undefined) {
+        output.push(tabMetadata.index);
+      }
+    }
+    return output;
+  }, [tabMap]);
+
+  // Combine the tab map updates to send to both local state and parent
+  const handleTabMapChange = React.useCallback(
+    (newMap: Map<Node, CompositeMetadata<TabsTab.Metadata> | null>) => {
+      setTabMapInternal(newMap);
+      setTabMap(newMap);
+    },
+    [setTabMap],
+  );
 
   const tabsListRef = React.useRef<HTMLElement>(null);
 
@@ -103,8 +127,8 @@ export const TabsList = React.forwardRef(function TabsList(
         loop={loop}
         orientation={orientation}
         onHighlightedIndexChange={setHighlightedTabIndex}
-        onMapChange={setTabMap}
-        disabledIndices={EMPTY_ARRAY}
+        onMapChange={handleTabMapChange}
+        disabledIndices={disabledIndices}
       />
     </TabsListContext.Provider>
   );
