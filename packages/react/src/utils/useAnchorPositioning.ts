@@ -125,7 +125,17 @@ export function useAnchorPositioning(
     shiftCrossAxis = false,
     nodeId,
     adaptiveOrigin,
+    lockSide = false,
   } = params;
+
+  // Only flips upon mount so size changes or scrolling don't flip the popup.
+  const [lockedSide, setLockedSide] = React.useState<PhysicalSide | null>(null);
+
+  if (!mounted && lockedSide !== null) {
+    setLockedSide(null);
+  }
+
+  const computedLockedSide = lockSide ? lockedSide : null;
 
   const collisionAvoidanceSide = collisionAvoidance.side || 'flip';
   const collisionAvoidanceAlign = collisionAvoidance.align || 'flip';
@@ -139,16 +149,18 @@ export function useAnchorPositioning(
   const direction = useDirection();
   const isRtl = direction === 'rtl';
 
-  const side = (
-    {
-      top: 'top',
-      right: 'right',
-      bottom: 'bottom',
-      left: 'left',
-      'inline-end': isRtl ? 'left' : 'right',
-      'inline-start': isRtl ? 'right' : 'left',
-    } satisfies Record<Side, PhysicalSide>
-  )[sideParam];
+  const side =
+    computedLockedSide ||
+    (
+      {
+        top: 'top',
+        right: 'right',
+        bottom: 'bottom',
+        left: 'left',
+        'inline-end': isRtl ? 'left' : 'right',
+        'inline-start': isRtl ? 'right' : 'left',
+      } satisfies Record<Side, PhysicalSide>
+    )[sideParam];
 
   const placement = align === 'center' ? side : (`${side}-${align}` as Placement);
 
@@ -161,7 +173,7 @@ export function useAnchorPositioning(
   // Since the size() padding is smaller than the flip() padding, flip() will take precedence.
   let sizeCollisionPadding: Padding | undefined;
   const epsilon = -0.01;
-  const bias = 0.5;
+  const bias = 1;
   const biasTop = side === 'bottom' ? bias : epsilon;
   const biasBottom = side === 'top' ? bias : epsilon;
   const biasLeft = side === 'right' ? bias : epsilon;
@@ -231,7 +243,7 @@ export function useAnchorPositioning(
     !shiftDisabled && (sticky || shiftCrossAxis || collisionAvoidanceSide === 'shift');
 
   const flipMiddleware =
-    collisionAvoidanceSide === 'none'
+    collisionAvoidanceSide === 'none' || computedLockedSide
       ? null
       : flip({
           ...commonCollisionProps,
@@ -450,6 +462,10 @@ export function useAnchorPositioning(
   const renderedAlign = getAlignment(renderedPlacement) || 'center';
   const anchorHidden = Boolean(middlewareData.hide?.referenceHidden);
 
+  if (isPositioned && lockedSide === null) {
+    setLockedSide(renderedSide);
+  }
+
   const arrowStyles = React.useMemo(
     () => ({
       position: 'absolute' as const,
@@ -469,6 +485,7 @@ export function useAnchorPositioning(
       arrowUncentered,
       side: logicalRenderedSide,
       align: renderedAlign,
+      physicalSide: renderedSide,
       anchorHidden,
       refs,
       context,
@@ -482,6 +499,7 @@ export function useAnchorPositioning(
       arrowUncentered,
       logicalRenderedSide,
       renderedAlign,
+      renderedSide,
       anchorHidden,
       refs,
       context,
@@ -631,6 +649,11 @@ export namespace useAnchorPositioning {
     adaptiveOrigin?: Middleware;
     collisionAvoidance: CollisionAvoidance;
     shiftCrossAxis?: boolean;
+    /**
+     * Whether the chosen side upon mount is locked until the component is unmounted.
+     * @default false
+     */
+    lockSide?: boolean;
   }
 
   export interface ReturnValue {
@@ -640,6 +663,7 @@ export namespace useAnchorPositioning {
     arrowUncentered: boolean;
     side: Side;
     align: Align;
+    physicalSide: PhysicalSide;
     anchorHidden: boolean;
     refs: ReturnType<typeof useFloating>['refs'];
     context: FloatingContext;
