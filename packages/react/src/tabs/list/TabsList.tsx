@@ -45,17 +45,6 @@ export const TabsList = React.forwardRef(function TabsList(
     () => new Map<Node, CompositeMetadata<TabsTab.Metadata> | null>(),
   );
 
-  // Calculate disabled indices from tab metadata
-  const disabledIndices = React.useMemo(() => {
-    const output: number[] = [];
-    for (const tabMetadata of tabMap.values()) {
-      if (tabMetadata?.disabled && tabMetadata.index !== undefined) {
-        output.push(tabMetadata.index);
-      }
-    }
-    return output;
-  }, [tabMap]);
-
   // Combine the tab map updates to send to both local state and parent
   const handleTabMapChange = React.useCallback(
     (newMap: Map<Node, CompositeMetadata<TabsTab.Metadata> | null>) => {
@@ -128,7 +117,7 @@ export const TabsList = React.forwardRef(function TabsList(
         orientation={orientation}
         onHighlightedIndexChange={setHighlightedTabIndex}
         onMapChange={handleTabMapChange}
-        disabledIndices={disabledIndices}
+        disabledIndices={EMPTY_ARRAY}
       />
     </TabsListContext.Provider>
   );
