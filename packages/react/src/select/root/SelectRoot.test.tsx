@@ -1564,7 +1564,7 @@ describe('<Select.Root />', () => {
         expect(screen.getByRole('listbox')).toBeVisible();
       });
 
-      const options = screen.getAllByRole('option');
+      const options = await screen.findAllByRole('option');
       options.forEach((opt) => {
         expect(opt).not.to.have.attribute('data-selected');
       });
@@ -1624,7 +1624,7 @@ describe('<Select.Root />', () => {
 
       await user.click(trigger);
 
-      const options = screen.getAllByRole('option');
+      const options = await screen.findAllByRole('option');
       options.forEach((opt) => {
         expect(opt).not.to.have.attribute('data-selected');
       });
@@ -1675,7 +1675,8 @@ describe('<Select.Root />', () => {
       await user.click(screen.getByTestId('remove-c'));
 
       await user.click(trigger);
-      const options = screen.getAllByRole('option');
+
+      const options = await screen.findAllByRole('option');
       options.forEach((opt) => {
         expect(opt).not.to.have.attribute('data-selected');
       });
@@ -1734,9 +1735,10 @@ describe('<Select.Root />', () => {
       await user.click(screen.getByTestId('remove-c'));
 
       await user.click(trigger);
-      await flushMicrotasks();
 
-      expect(screen.getByRole('option', { name: 'a' })).to.have.attribute('data-selected', '');
+      await waitFor(() => {
+        expect(screen.getByRole('option', { name: 'a' })).to.have.attribute('data-selected', '');
+      });
       expect(screen.queryByRole('option', { name: 'c' })).to.equal(null);
 
       // Remove the last selected item; selection should become empty
@@ -1744,7 +1746,7 @@ describe('<Select.Root />', () => {
 
       await user.click(trigger);
 
-      const options = screen.getAllByRole('option');
+      const options = await screen.findAllByRole('option');
       options.forEach((opt) => {
         expect(opt).not.to.have.attribute('data-selected');
       });
