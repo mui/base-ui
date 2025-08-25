@@ -868,7 +868,6 @@ describe('<Menu.Root />', () => {
 
       const positioner = screen.getByTestId('positioner');
 
-      // eslint-disable-next-line testing-library/no-node-access
       expect(positioner.previousElementSibling).to.have.attribute('role', 'presentation');
     });
 
@@ -899,7 +898,6 @@ describe('<Menu.Root />', () => {
 
       const positioner = screen.getByTestId('positioner');
 
-      // eslint-disable-next-line testing-library/no-node-access
       expect(positioner.previousElementSibling).to.equal(null);
     });
   });
@@ -1258,7 +1256,9 @@ describe('<Menu.Root />', () => {
 
       const submenu = getByTestId('submenu');
 
-      await userEvent.unhover(menu);
+      // Use fireEvent to bypass pointer-events checks during safe-polygon pointer events mutation
+      fireEvent.mouseMove(menu);
+      fireEvent.mouseLeave(menu);
       await userEvent.hover(submenu);
 
       await waitFor(() => {
@@ -1266,6 +1266,86 @@ describe('<Menu.Root />', () => {
       });
       await waitFor(() => {
         expect(getByTestId('submenu')).not.to.equal(null);
+      });
+    });
+
+    it('keeps the parent submenu open after a third-level submenu closes due to sibling hover', async () => {
+      const { getByRole, getByTestId } = await render(
+        <Menu.Root openOnHover delay={0}>
+          <Menu.Trigger>Open</Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner data-testid="menu">
+              <Menu.Popup>
+                <Menu.SubmenuRoot delay={0}>
+                  <Menu.SubmenuTrigger>Level 1</Menu.SubmenuTrigger>
+                  <Menu.Portal>
+                    <Menu.Positioner data-testid="submenu-1">
+                      <Menu.Popup>
+                        <Menu.Item data-testid="parent-item">Parent Sibling</Menu.Item>
+                        <Menu.SubmenuRoot delay={0}>
+                          <Menu.SubmenuTrigger>Level 2</Menu.SubmenuTrigger>
+                          <Menu.Portal>
+                            <Menu.Positioner data-testid="submenu-2">
+                              <Menu.Popup>
+                                <Menu.Item>Child Item</Menu.Item>
+                              </Menu.Popup>
+                            </Menu.Positioner>
+                          </Menu.Portal>
+                        </Menu.SubmenuRoot>
+                      </Menu.Popup>
+                    </Menu.Positioner>
+                  </Menu.Portal>
+                </Menu.SubmenuRoot>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>,
+      );
+
+      const trigger = getByRole('button', { name: 'Open' });
+
+      await act(async () => {
+        trigger.focus();
+      });
+
+      await userEvent.hover(trigger);
+
+      await waitFor(() => {
+        expect(getByTestId('menu')).not.to.equal(null);
+      });
+
+      // Open first-level submenu
+      const level1Trigger = getByRole('menuitem', { name: 'Level 1' });
+      await userEvent.hover(level1Trigger);
+
+      await waitFor(() => {
+        expect(getByTestId('submenu-1')).not.to.equal(null);
+      });
+
+      // Open second-level submenu
+      const level2Trigger = getByRole('menuitem', { name: 'Level 2' });
+      await userEvent.hover(level2Trigger);
+
+      await waitFor(() => {
+        expect(getByTestId('submenu-2')).not.to.equal(null);
+      });
+
+      // Hover a sibling item in the parent submenu to close the second-level submenu
+      const parentSibling = getByRole('menuitem', { name: 'Parent Sibling' });
+      // Use fireEvent to bypass pointer-events checks during safe-polygon pointer events mutation
+      fireEvent.mouseMove(parentSibling);
+
+      await waitFor(() => {
+        expect(() => getByTestId('submenu-2')).to.throw();
+      });
+
+      // Now unhover the parent submenu container; it should remain open
+      const submenu1 = getByTestId('submenu-1');
+      fireEvent.mouseLeave(submenu1);
+
+      // Parent submenu should still be open
+      await waitFor(() => {
+        expect(getByTestId('submenu-1')).not.to.equal(null);
       });
     });
   });
