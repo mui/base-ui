@@ -54,21 +54,28 @@ export function useAnimationsFinished(
               return;
             }
 
-            Promise.all(element.getAnimations().map((anim) => anim.finished)).then(() => {
-              if (signal != null && signal.aborted) {
-                return;
-              }
+            Promise.all(element.getAnimations().map((anim) => anim.finished))
+              .then(() => {
+                if (signal != null && signal.aborted) {
+                  return;
+                }
 
-              // Synchronously flush the unmounting of the component so that the browser doesn't
-              // paint: https://github.com/mui/base-ui/issues/979
-              ReactDOM.flushSync(fnToExecute);
-            }).catch(() => {
-                if (element.getAnimations().length > 0 && element.getAnimations().some((anim) => anim.pending || anim.playState !== 'finished')) {
-                // Sometimes animations can be aborted because a property they depend on changes while the animation plays.
-                // In such cases, we need to re-check if any new animations have started.
-                exec();
-              }
-            });
+                // Synchronously flush the unmounting of the component so that the browser doesn't
+                // paint: https://github.com/mui/base-ui/issues/979
+                ReactDOM.flushSync(fnToExecute);
+              })
+              .catch(() => {
+                if (
+                  element.getAnimations().length > 0 &&
+                  element
+                    .getAnimations()
+                    .some((anim) => anim.pending || anim.playState !== 'finished')
+                ) {
+                  // Sometimes animations can be aborted because a property they depend on changes while the animation plays.
+                  // In such cases, we need to re-check if any new animations have started.
+                  exec();
+                }
+              });
           }
 
           // `open: true` animations need to wait for the next tick to be detected
