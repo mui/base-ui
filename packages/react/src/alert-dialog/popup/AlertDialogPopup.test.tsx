@@ -36,7 +36,7 @@ describe('<AlertDialog.Popup />', () => {
     expect(dialog).to.have.attribute('role', 'alertdialog');
   });
 
-  describe('prop: initial focus', () => {
+  describe('prop: initialFocus', () => {
     it('should focus the first focusable element within the popup by default', async () => {
       const { getByText, getByTestId } = await render(
         <div>
@@ -192,7 +192,7 @@ describe('<AlertDialog.Popup />', () => {
     });
   });
 
-  describe('prop: final focus', () => {
+  describe('prop: finalFocus', () => {
     it('should focus the trigger by default when closed', async () => {
       const { getByText, user } = await render(
         <div>
