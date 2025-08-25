@@ -57,6 +57,4 @@ function getFilter(options: Intl.CollatorOptions = {}): Filter {
 /**
  * Matches items against a query using `Intl.Collator` for robust string matching.
  */
-export function useFilter(options: Intl.CollatorOptions = {}) {
-  return getFilter(options);
-}
+export const useFilter = getFilter;
