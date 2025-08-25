@@ -36,19 +36,19 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
 
   const tabPanelRefs = React.useRef<(HTMLElement | null)[]>([]);
 
-  const [value, setValue] = useControlled({
-    controlled: valueProp,
-    default: defaultValue ?? 0,
-    name: 'Tabs',
-    state: 'value',
-  });
-
   const [tabPanelMap, setTabPanelMap] = React.useState(
     () => new Map<Node, CompositeMetadata<TabsPanel.Metadata> | null>(),
   );
   const [tabMap, setTabMap] = React.useState(
     () => new Map<Node, CompositeMetadata<TabsTab.Metadata> | null>(),
   );
+
+  const [value, setValue] = useControlled({
+    controlled: valueProp,
+    default: defaultValue ?? 0,
+    name: 'Tabs',
+    state: 'value',
+  });
 
   const [tabActivationDirection, setTabActivationDirection] =
     React.useState<TabsTab.ActivationDirection>('none');

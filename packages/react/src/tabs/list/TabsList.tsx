@@ -45,15 +45,6 @@ export const TabsList = React.forwardRef(function TabsList(
     () => new Map<Node, CompositeMetadata<TabsTab.Metadata> | null>(),
   );
 
-  // Combine the tab map updates to send to both local state and parent
-  const handleTabMapChange = React.useCallback(
-    (newMap: Map<Node, CompositeMetadata<TabsTab.Metadata> | null>) => {
-      setTabMapInternal(newMap);
-      setTabMap(newMap);
-    },
-    [setTabMap],
-  );
-
   const tabsListRef = React.useRef<HTMLElement>(null);
 
   const detectActivationDirection = useActivationDirectionDetector(
@@ -69,6 +60,45 @@ export const TabsList = React.forwardRef(function TabsList(
       onValueChange(newValue, activationDirection, event);
     }
   });
+
+  // Combine the tab map updates to send to both local state and parent
+  const handleTabMapChange = React.useCallback(
+    (newMap: Map<Node, CompositeMetadata<TabsTab.Metadata> | null>) => {
+      setTabMapInternal(newMap);
+      setTabMap(newMap);
+
+      // Trigger initial tab activation if no explicit defaultValue/value was provided
+      // and the tabs have finished registering
+      if (value === 0 && newMap.size > 0) { // 0 is the default from useControlled
+        // Create array of tab metadata from tabMap
+        const tabs = Array.from(newMap.values())
+          .filter(Boolean)
+          .sort((a, b) => (a!.index ?? 0) - (b!.index ?? 0));
+
+        if (tabs.length > 0) {
+          // Check if all tabs are disabled
+          const allDisabled = tabs.every(tab => tab!.metadata?.disabled);
+          if (allDisabled) {
+            console.warn('All tabs are disabled. The first tab will be selected.');
+            // Keep value at 0, no need to change
+          } else {
+            // Find first non-disabled tab
+            const firstNonDisabledTab = tabs.find(tab => !tab!.metadata?.disabled);
+            if (firstNonDisabledTab) {
+              const newValue = firstNonDisabledTab.metadata?.value ?? firstNonDisabledTab.index ?? 0;
+              if (newValue !== 0) { // Only trigger if different from current value
+                // Use a microtask to ensure this runs after the composite highlighting is set
+                queueMicrotask(() => {
+                  onTabActivation(newValue, new Event('activation'));
+                });
+              }
+            }
+          }
+        }
+      }
+    },
+    [setTabMap, value, onTabActivation],
+  );
 
   const state: TabsList.State = React.useMemo(
     () => ({
