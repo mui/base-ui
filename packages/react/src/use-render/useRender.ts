@@ -20,7 +20,7 @@ export function useRender<
   };
   renderParams.disableStyleHooks = true;
 
-  return useRenderElement(undefined, renderParams, renderParams);
+  return useRenderElement(renderParams.defaultTag, renderParams, renderParams);
 }
 
 export namespace useRender {
@@ -55,7 +55,7 @@ export namespace useRender {
     /**
      * The React element or a function that returns one to override the default element.
      */
-    render: RenderProp<State>;
+    render?: RenderProp<State>;
     /**
      * The ref to apply to the rendered element.
      */
@@ -77,6 +77,11 @@ export namespace useRender {
      * @default true
      */
     enabled?: Enabled;
+    /**
+     * The default tag to use for the rendered element.
+     * @default 'div'
+     */
+    defaultTag?: keyof React.JSX.IntrinsicElements;
   }
 
   export type ReturnValue<Enabled extends boolean | undefined> = Enabled extends false
