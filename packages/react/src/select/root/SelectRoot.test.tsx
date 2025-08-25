@@ -1683,6 +1683,73 @@ describe('<Select.Root />', () => {
   });
 
   describe('prop: multiple', () => {
+    it('removes selections that no longer exist', async () => {
+      function Test() {
+        const [items, setItems] = React.useState(['a', 'b', 'c']);
+        return (
+          <div>
+            <Select.Root multiple defaultValue={['a', 'c']}>
+              <Select.Trigger data-testid="trigger">
+                <Select.Value />
+              </Select.Trigger>
+              <Select.Portal>
+                <Select.Positioner>
+                  <Select.Popup>
+                    {items.map((it) => (
+                      <Select.Item key={it} value={it}>
+                        {it}
+                      </Select.Item>
+                    ))}
+                  </Select.Popup>
+                </Select.Positioner>
+              </Select.Portal>
+            </Select.Root>
+            <button
+              data-testid="remove-a"
+              onClick={() => setItems((prev) => prev.filter((i) => i !== 'a'))}
+            >
+              Remove A
+            </button>
+            <button
+              data-testid="remove-c"
+              onClick={() => setItems((prev) => prev.filter((i) => i !== 'c'))}
+            >
+              Remove C
+            </button>
+          </div>
+        );
+      }
+
+      const { user } = await render(<Test />);
+
+      const trigger = screen.getByTestId('trigger');
+      await user.click(trigger);
+
+      await waitFor(() => {
+        expect(screen.getByRole('option', { name: 'a' })).to.have.attribute('data-selected', '');
+      });
+      expect(screen.getByRole('option', { name: 'c' })).to.have.attribute('data-selected', '');
+
+      // Remove one of the selected items; remaining selection should persist
+      await user.click(screen.getByTestId('remove-c'));
+
+      await user.click(trigger);
+      await flushMicrotasks();
+
+      expect(screen.getByRole('option', { name: 'a' })).to.have.attribute('data-selected', '');
+      expect(screen.queryByRole('option', { name: 'c' })).to.equal(null);
+
+      // Remove the last selected item; selection should become empty
+      await user.click(screen.getByTestId('remove-a'));
+
+      await user.click(trigger);
+
+      const options = screen.getAllByRole('option');
+      options.forEach((opt) => {
+        expect(opt).not.to.have.attribute('data-selected');
+      });
+    });
+
     it('should allow multiple selections when multiple is true', async () => {
       const handleValueChange = spy();
 

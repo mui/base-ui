@@ -183,6 +183,13 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
       }
     }
 
+    if (prevSize !== 0 && store.state.multiple && Array.isArray(value)) {
+      const next = value.filter((v) => valuesRef.current.includes(v));
+      if (next.length !== value.length || next.some((v) => !value.includes(v))) {
+        setValue(next);
+      }
+    }
+
     if (open && alignItemWithTriggerActive) {
       store.apply({
         scrollUpArrowVisible: false,
