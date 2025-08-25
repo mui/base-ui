@@ -377,6 +377,59 @@ export function ComboboxRootInternal<Item = any, Mode extends SelectionMode = 'n
     }
   }, [items, flatFilteredItems, flatItems]);
 
+  // When the available items change, ensure the selected value(s) remain valid.
+  // - Single: if current selection is removed, fall back to defaultSelectedValue if it exists in the list; else null.
+  // - Multiple: drop any removed selections.
+  useIsoLayoutEffect(() => {
+    if (!items || selectionMode === 'none') {
+      return;
+    }
+
+    const registry = flatItems;
+
+    if (multiple) {
+      const current = Array.isArray(selectedValue) ? selectedValue : EMPTY_ARRAY;
+      const next = current.filter((v) => registry.includes(v));
+      if (next.length !== current.length) {
+        setSelectedValueUnwrapped(next);
+      }
+      return;
+    }
+
+    const isStillPresent = selectedValue == null ? true : registry.includes(selectedValue);
+    if (isStillPresent) {
+      return;
+    }
+
+    let fallback = null;
+    if (
+      defaultSelectedValue != null &&
+      registry.includes(defaultSelectedValue as ExtractItemType<Item>)
+    ) {
+      fallback = defaultSelectedValue;
+    }
+    setSelectedValueUnwrapped(fallback);
+
+    // Keep the input text in sync when the input is rendered outside the popup.
+    const isInputInsidePopup = contains(popupRef.current, inputRef.current);
+    if (!isInputInsidePopup) {
+      const stringVal = stringifyItem(fallback, itemToString);
+      if (inputRef.current && inputRef.current.value !== stringVal) {
+        setInputValueUnwrapped(stringVal);
+      }
+    }
+  }, [
+    items,
+    flatItems,
+    multiple,
+    selectionMode,
+    selectedValue,
+    defaultSelectedValue,
+    setSelectedValueUnwrapped,
+    setInputValueUnwrapped,
+    itemToString,
+  ]);
+
   useValueChanged(queryRef, query, () => {
     if (!open || query === '' || query === String(defaultInputValue).toLocaleLowerCase()) {
       return;

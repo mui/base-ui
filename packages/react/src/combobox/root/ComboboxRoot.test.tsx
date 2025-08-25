@@ -1555,6 +1555,55 @@ describe('<Combobox.Root />', () => {
   });
 
   describe('controlled and uncontrolled modes', () => {
+    it('resets selection to defaultValue when selected item is removed; or null if default is also removed', async () => {
+      const items = ['a', 'b', 'c'];
+
+      const { user, setProps } = await render(
+        <Combobox.Root items={items} defaultValue="a">
+          <Combobox.Input data-testid="input" />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  {(item: string) => (
+                    <Combobox.Item key={item} value={item}>
+                      {item}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByTestId('input');
+      await user.click(input);
+      await waitFor(() => expect(screen.getByRole('listbox')).not.to.equal(null));
+      await user.click(screen.getByRole('option', { name: 'c' }));
+
+      // Selected is now 'c'
+      await user.click(input);
+      await waitFor(() => expect(screen.getByRole('listbox')).not.to.equal(null));
+      expect(screen.getByRole('option', { name: 'c' })).to.have.attribute('aria-selected', 'true');
+
+      // Remove 'c' from the items; expect fallback to defaultValue 'a'
+      await setProps({ items: ['a', 'b'] });
+
+      await user.click(input);
+      await waitFor(() => expect(screen.getByRole('listbox')).not.to.equal(null));
+      expect(screen.getByRole('option', { name: 'a' })).to.have.attribute('aria-selected', 'true');
+
+      // Now remove defaultValue 'a'
+      await setProps({ items: ['b'] });
+      await user.click(input);
+      await waitFor(() => expect(screen.getByRole('listbox')).not.to.equal(null));
+      expect(screen.getByRole('option', { name: 'b' })).not.to.have.attribute(
+        'aria-selected',
+        'true',
+      );
+    });
+
     it('controls inputValue and calls onInputValueChange on type', async () => {
       const handle = spy();
       const { user, setProps } = await render(
