@@ -56,6 +56,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
     disabled: disabledProp = false,
     id: idProp,
     inputRef: inputRefProp,
+    inverted = false,
     format,
     largeStep = 10,
     locale,
@@ -231,10 +232,11 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       activeThumbIndex: active,
       disabled,
       dragging,
-      orientation,
+      inverted,
       max,
       min,
       minStepsBetweenValues,
+      orientation,
       step,
       values,
     }),
@@ -243,6 +245,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       active,
       disabled,
       dragging,
+      inverted,
       max,
       min,
       minStepsBetweenValues,
@@ -260,6 +263,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       fieldControlValidation,
       formatOptionsRef,
       handleInputChange,
+      inverted,
       labelId: ariaLabelledby,
       largeStep,
       lastChangedValueRef,
@@ -290,6 +294,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       fieldControlValidation,
       formatOptionsRef,
       handleInputChange,
+      inverted,
       largeStep,
       lastChangedValueRef,
       locale,
@@ -431,6 +436,10 @@ export namespace SliderRoot {
      * A ref to access the hidden input element.
      */
     inputRef?: React.Ref<HTMLInputElement>;
+    /**
+     * @default false
+     */
+    inverted?: boolean;
     /**
      * The locale used by `Intl.NumberFormat` when formatting the value.
      * Defaults to the user's runtime locale.
