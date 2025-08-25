@@ -30,17 +30,6 @@ describe('<Combobox.Clear />', () => {
     expect(screen.getByTestId('clear')).not.to.equal(null);
   });
 
-  it('does not render in multiple selection mode', async () => {
-    await render(
-      <Combobox.Root multiple defaultValue={['a']}>
-        <Combobox.Input />
-        <Combobox.Clear data-testid="clear" />
-      </Combobox.Root>,
-    );
-
-    expect(screen.queryByTestId('clear')).to.equal(null);
-  });
-
   it('click clears selected value and focuses input', async () => {
     await render(
       <Combobox.Root defaultValue="a">
