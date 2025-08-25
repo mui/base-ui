@@ -29,6 +29,7 @@
     "./accordion": "./src/accordion/index.ts",
     "./alert-dialog": "./src/alert-dialog/index.ts",
     "./avatar": "./src/avatar/index.ts",
+    "./calendar": "./src/calendar/index.ts",
     "./checkbox": "./src/checkbox/index.ts",
     "./checkbox-group": "./src/checkbox-group/index.ts",
     "./collapsible": "./src/collapsible/index.ts",
@@ -56,6 +57,9 @@
     "./slider": "./src/slider/index.ts",
     "./switch": "./src/switch/index.ts",
     "./tabs": "./src/tabs/index.ts",
+    "./temporal-adapter-date-fns": "./src/temporal-adapter-date-fns/index.ts",
+    "./temporal-adapter-luxon": "./src/temporal-adapter-luxon/index.ts",
+    "./temporal-adapter-provider": "./src/temporal-adapter-provider/index.ts",
     "./toast": "./src/toast/index.ts",
     "./toggle": "./src/toggle/index.ts",
     "./toggle-group": "./src/toggle-group/index.ts",
@@ -63,7 +67,9 @@
     "./tooltip": "./src/tooltip/index.ts",
     "./unstable-no-ssr": "./src/unstable-no-ssr/index.ts",
     "./unstable-use-media-query": "./src/unstable-use-media-query/index.ts",
-    "./use-render": "./src/use-render/index.ts"
+    "./use-day-list": "./src/use-day-list/index.ts",
+    "./use-render": "./src/use-render/index.ts",
+    "./use-week-list": "./src/use-week-list/index.ts"
   },
   "imports": {
     "#test-utils": "./test/index.ts"
@@ -90,19 +96,23 @@
     "use-sync-external-store": "^1.5.0"
   },
   "devDependencies": {
+    "@date-fns/tz": "1.2.0",
     "@mui/internal-test-utils": "^2.0.10",
     "@testing-library/react": "^16.3.0",
     "@testing-library/user-event": "^14.6.1",
     "@types/chai": "^4.3.20",
     "@types/chai-dom": "^1.11.3",
+    "@types/luxon": "^3.6.2",
     "@types/react": "^19.1.10",
     "@types/react-dom": "^19.1.7",
     "@types/sinon": "^17.0.4",
     "@types/use-sync-external-store": "^1.5.0",
     "chai": "^4.5.0",
+    "date-fns": "^4.1.0",
     "clsx": "^2.1.1",
     "fs-extra": "^11.3.1",
     "lodash": "^4.17.21",
+    "luxon": "^3.7.1",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "react-router": "^7.8.1",
@@ -113,11 +123,19 @@
   },
   "peerDependencies": {
     "@types/react": "^17 || ^18 || ^19",
+    "date-fns": "^4.0.0",
+    "luxon": "^3.0.2",
     "react": "^17 || ^18 || ^19",
     "react-dom": "^17 || ^18 || ^19"
   },
   "peerDependenciesMeta": {
     "@types/react": {
+      "optional": true
+    },
+    "date-fns": {
+      "optional": true
+    },
+    "luxon": {
       "optional": true
     }
   },
