@@ -8,7 +8,7 @@ export default function ExampleSlider() {
       <Slider.Control className={styles.Control}>
         <Slider.Track className={styles.Track}>
           <Slider.Indicator className={styles.Indicator} />
-          <Slider.Thumb className={styles.Thumb} />
+          <Slider.Thumb aria-label="Volume" className={styles.Thumb} />
         </Slider.Track>
       </Slider.Control>
     </Slider.Root>

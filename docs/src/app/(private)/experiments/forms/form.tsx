@@ -60,7 +60,8 @@ async function submitForm(event: React.FormEvent<HTMLFormElement>, values: Value
   const entries = Object.fromEntries(formData as any);
 
   entries['number-field'] = values.numberField;
-  entries.slider = Number(entries.slider);
+  entries.slider = parseFloat(formData.get('slider') as string);
+  entries['range-slider'] = formData.getAll('range-slider').map((v) => parseFloat(v as string));
   entries['multi-select'] = formData.getAll('multi-select');
 
   const result = schema.safeParse(entries);

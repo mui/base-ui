@@ -63,9 +63,14 @@
   background-color: white;
   box-shadow: 0px 0px 3px 0px var(--color-gray-300);
   user-select: none;
+  appearance: none;
 
   &:focus-visible {
     outline: 2px solid var(--color-blue);
+  }
+
+  &::-webkit-slider-thumb {
+    display: none;
   }
 
   &[data-dragging] {
