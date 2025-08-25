@@ -9,8 +9,8 @@ import { useButton } from '../../use-button';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 
 /**
- * Clears the input and selected value when clicked.
- * Only renders when in single select mode and the input value is not empty.
+ * Clears the value when clicked.
+ * Renders a `<button>` element.
  */
 export const ComboboxClear = React.forwardRef(function ComboboxClear(
   componentProps: ComboboxClear.Props,
