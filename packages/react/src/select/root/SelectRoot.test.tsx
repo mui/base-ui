@@ -296,6 +296,41 @@ describe('<Select.Root />', () => {
 
       expect(screen.getByRole('listbox', { hidden: false })).toBeVisible();
     });
+
+    it('should select an item and close when clicked while opened by default', async () => {
+      const handleValueChange = spy();
+
+      const { user } = await render(
+        <Select.Root defaultOpen onValueChange={handleValueChange}>
+          <Select.Trigger data-testid="trigger">
+            <Select.Value data-testid="value" />
+          </Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup>
+                <Select.Item value="a">a</Select.Item>
+                <Select.Item value="b">b</Select.Item>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>,
+      );
+
+      expect(screen.queryByRole('listbox')).toBeVisible();
+
+      const optionB = screen.getByRole('option', { name: 'b' });
+
+      fireEvent.mouseMove(optionB);
+      await user.click(optionB);
+      await flushMicrotasks();
+
+      expect(handleValueChange.callCount).to.equal(1);
+      expect(handleValueChange.args[0][0]).to.equal('b');
+
+      await waitFor(() => {
+        expect(screen.queryByRole('listbox')).to.equal(null);
+      });
+    });
   });
 
   describe('prop: onOpenChange', () => {

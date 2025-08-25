@@ -32,7 +32,6 @@ export interface SelectRootContext {
   selectionRef: React.MutableRefObject<{
     allowUnselectedMouseUp: boolean;
     allowSelectedMouseUp: boolean;
-    allowSelect: boolean;
   }>;
   selectedItemTextRef: React.MutableRefObject<HTMLSpanElement | null>;
   fieldControlValidation: ReturnType<typeof useFieldControlValidation>;
