@@ -632,7 +632,7 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
     it('should enforce a minimum difference between range slider values', async () => {
       const handleValueChange = spy();
 
-      const { getByTestId } = await render(
+      await render(
         <TestRangeSlider
           onValueChange={handleValueChange}
           defaultValue={[44, 50]}
@@ -641,28 +641,27 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
         />,
       );
 
-      const thumbOne = getByTestId('thumb-0');
-      const thumbTwo = getByTestId('thumb-1');
+      const [input1, input2] = screen.getAllByRole('slider');
 
       await act(async () => {
-        thumbOne.focus();
+        input1.focus();
       });
 
-      fireEvent.keyDown(thumbOne, { key: 'ArrowUp' });
+      fireEvent.keyDown(input1, { key: 'ArrowUp' });
       expect(handleValueChange.callCount).to.equal(1);
       expect(handleValueChange.args[0][0]).to.deep.equal([46, 50]);
-      fireEvent.keyDown(thumbOne, { key: 'ArrowUp' });
+      fireEvent.keyDown(input1, { key: 'ArrowUp' });
       expect(handleValueChange.callCount).to.equal(1);
 
       await act(async () => {
-        thumbTwo.focus();
+        input2.focus();
       });
 
-      fireEvent.keyDown(thumbTwo, { key: 'ArrowUp' });
+      fireEvent.keyDown(input2, { key: 'ArrowUp' });
       expect(handleValueChange.callCount).to.equal(2);
       expect(handleValueChange.args[1][0]).to.deep.equal([46, 52]);
-      fireEvent.keyDown(thumbTwo, { key: 'ArrowDown' });
-      fireEvent.keyDown(thumbTwo, { key: 'ArrowDown' });
+      fireEvent.keyDown(input2, { key: 'ArrowDown' });
+      fireEvent.keyDown(input2, { key: 'ArrowDown' });
       expect(handleValueChange.callCount).to.equal(3);
       expect(handleValueChange.args[2][0]).to.deep.equal([46, 50]);
     });
@@ -1260,7 +1259,7 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
               const input = screen.getByRole('slider');
 
               await user.keyboard('[Tab]');
-              expect(screen.getByTestId('thumb')).toHaveFocus();
+              expect(input).toHaveFocus();
 
               await user.keyboard(`[${key}]`);
               expect(handleValueChange.callCount).to.equal(1);
@@ -1293,7 +1292,7 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
               const input = screen.getByRole('slider');
 
               await user.keyboard('[Tab]');
-              expect(screen.getByTestId('thumb')).toHaveFocus();
+              expect(input).toHaveFocus();
 
               await user.keyboard(`{Shift>}{${key}}`);
               expect(handleValueChange.callCount).to.equal(1);
@@ -1327,7 +1326,7 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
               const input = screen.getByRole('slider');
 
               await user.keyboard('[Tab]');
-              expect(screen.getByTestId('thumb')).toHaveFocus();
+              expect(input).toHaveFocus();
 
               await user.keyboard(`{Shift>}{${key}}`);
               expect(handleValueChange.callCount).to.equal(1);
@@ -1361,7 +1360,7 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
               const input = screen.getByRole('slider');
 
               await user.keyboard('[Tab]');
-              expect(screen.getByTestId('thumb')).toHaveFocus();
+              expect(input).toHaveFocus();
 
               await user.keyboard(`[${key}]`);
               expect(handleValueChange.callCount).to.equal(1);
@@ -1394,7 +1393,7 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
               const input = screen.getByRole('slider');
 
               await user.keyboard('[Tab]');
-              expect(screen.getByTestId('thumb')).toHaveFocus();
+              expect(input).toHaveFocus();
 
               await user.keyboard(`{Shift>}{${key}}`);
               expect(handleValueChange.callCount).to.equal(1);
@@ -1428,7 +1427,7 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
               const input = screen.getByRole('slider');
 
               await user.keyboard('[Tab]');
-              expect(screen.getByTestId('thumb')).toHaveFocus();
+              expect(input).toHaveFocus();
 
               await user.keyboard(`{Shift>}{${key}}`);
               expect(handleValueChange.callCount).to.equal(1);
@@ -1463,7 +1462,7 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
               const input = screen.getByRole('slider');
 
               await user.keyboard('[Tab]');
-              expect(screen.getByTestId('thumb')).toHaveFocus();
+              expect(input).toHaveFocus();
 
               await user.keyboard(`[${END}]`);
               expect(handleValueChange.callCount).to.equal(1);
@@ -1480,8 +1479,8 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
                       <Slider.Control>
                         <Slider.Track>
                           <Slider.Indicator />
-                          <Slider.Thumb data-testid="thumb1" />
-                          <Slider.Thumb data-testid="thumb2" />
+                          <Slider.Thumb />
+                          <Slider.Thumb />
                         </Slider.Track>
                       </Slider.Control>
                     </Slider.Root>
@@ -1489,11 +1488,10 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
                 </div>,
               );
 
-              const thumb1 = screen.getByTestId('thumb1');
-              const thumb2 = screen.getByTestId('thumb2');
+              const [input1, input2] = screen.getAllByRole('slider');
 
               await user.keyboard('[Tab]');
-              expect(thumb1).toHaveFocus();
+              expect(input1).toHaveFocus();
 
               await user.keyboard(`[${END}]`);
               expect(handleValueChange.callCount).to.equal(1);
@@ -1502,7 +1500,7 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
               expect(handleValueChange.callCount).to.equal(1);
 
               await user.keyboard('[Tab]');
-              expect(thumb2).toHaveFocus();
+              expect(input2).toHaveFocus();
 
               await user.keyboard(`[${END}]`);
               expect(handleValueChange.callCount).to.equal(2);
@@ -1536,7 +1534,7 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
               const input = screen.getByRole('slider');
 
               await user.keyboard('[Tab]');
-              expect(screen.getByTestId('thumb')).toHaveFocus();
+              expect(input).toHaveFocus();
 
               await user.keyboard(`[${HOME}]`);
               expect(handleValueChange.callCount).to.equal(1);
@@ -1553,8 +1551,8 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
                       <Slider.Control>
                         <Slider.Track>
                           <Slider.Indicator />
-                          <Slider.Thumb data-testid="thumb1" />
-                          <Slider.Thumb data-testid="thumb2" />
+                          <Slider.Thumb />
+                          <Slider.Thumb />
                         </Slider.Track>
                       </Slider.Control>
                     </Slider.Root>
@@ -1562,12 +1560,11 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
                 </div>,
               );
 
-              const thumb1 = screen.getByTestId('thumb1');
-              const thumb2 = screen.getByTestId('thumb2');
+              const [input1, input2] = screen.getAllByRole('slider');
 
               await user.keyboard('[Tab]');
               await user.keyboard('[Tab]');
-              expect(thumb2).toHaveFocus();
+              expect(input2).toHaveFocus();
 
               await user.keyboard(`[${HOME}]`);
               expect(handleValueChange.callCount).to.equal(1);
@@ -1576,7 +1573,7 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
               expect(handleValueChange.callCount).to.equal(1);
 
               await user.keyboard('{Shift>}{Tab}');
-              expect(thumb1).toHaveFocus();
+              expect(input1).toHaveFocus();
 
               await user.keyboard(`[${HOME}]`);
               expect(handleValueChange.callCount).to.equal(2);
@@ -1610,7 +1607,7 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
               const input = screen.getByRole('slider');
 
               await user.keyboard('[Tab]');
-              expect(screen.getByTestId('thumb')).toHaveFocus();
+              expect(input).toHaveFocus();
 
               await user.keyboard('[PageUp]');
               expect(handleValueChange.callCount).to.equal(1);
@@ -1644,7 +1641,7 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
               const input = screen.getByRole('slider');
 
               await user.keyboard('[Tab]');
-              expect(screen.getByTestId('thumb')).toHaveFocus();
+              expect(input).toHaveFocus();
 
               await user.keyboard('[PageUp]');
               expect(handleValueChange.callCount).to.equal(1);
@@ -1679,7 +1676,7 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
               const input = screen.getByRole('slider');
 
               await user.keyboard('[Tab]');
-              expect(screen.getByTestId('thumb')).toHaveFocus();
+              expect(input).toHaveFocus();
 
               await user.keyboard('[PageDown]');
               expect(handleValueChange.callCount).to.equal(1);
@@ -1713,7 +1710,7 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
               const input = screen.getByRole('slider');
 
               await user.keyboard('[Tab]');
-              expect(screen.getByTestId('thumb')).toHaveFocus();
+              expect(input).toHaveFocus();
 
               await user.keyboard('[PageDown]');
               expect(handleValueChange.callCount).to.equal(1);
@@ -1745,11 +1742,13 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
         }
         const { user } = await render(<App />);
 
-        expect(screen.getByRole('slider')).to.have.attribute('aria-valuenow', '5.4698');
+        const input = screen.getByRole('slider');
+
+        expect(input).to.have.attribute('aria-valuenow', '5.4698');
         await user.keyboard('[Tab]');
-        expect(screen.getByTestId('thumb')).toHaveFocus();
+        expect(input).toHaveFocus();
         await user.keyboard(`[${ARROW_RIGHT}]`);
-        expect(screen.getByRole('slider')).to.have.attribute('aria-valuenow', '6');
+        expect(input).to.have.attribute('aria-valuenow', '6');
       });
     });
   });
@@ -1837,7 +1836,7 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
       expect(screen.getByTestId('error')).to.have.text('test');
 
       await user.keyboard('[Tab]');
-      expect(screen.getByTestId('thumb')).toHaveFocus();
+      expect(slider).toHaveFocus();
 
       await user.keyboard(`{Shift>}{ArrowRight}`);
 
@@ -1933,17 +1932,17 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
         <Field.Root>
           <Slider.Root data-testid="root">
             <Slider.Control>
-              <Slider.Thumb data-testid="thumb" />
+              <Slider.Thumb />
             </Slider.Control>
           </Slider.Root>
         </Field.Root>,
       );
 
       const root = screen.getByTestId('root');
-      const thumb = screen.getByTestId('thumb');
+      const input = screen.getByRole('slider');
 
-      fireEvent.focus(thumb);
-      fireEvent.blur(thumb);
+      fireEvent.focus(input);
+      fireEvent.blur(input);
 
       expect(root).to.have.attribute('data-touched', '');
     });
@@ -2000,7 +1999,7 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
           <Field.Root validate={() => 'error'}>
             <Slider.Root>
               <Slider.Control>
-                <Slider.Thumb data-testid="thumb" />
+                <Slider.Thumb />
               </Slider.Control>
             </Slider.Root>
             <Field.Error data-testid="error" />
@@ -2010,9 +2009,8 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
         const input = screen.getByRole('slider');
         expect(input).not.to.have.attribute('aria-invalid');
 
-        const thumb = screen.getByTestId('thumb');
-        fireEvent.focus(thumb);
-        fireEvent.blur(thumb);
+        fireEvent.focus(input);
+        fireEvent.blur(input);
         await flushMicrotasks();
         expect(input).to.have.attribute('aria-invalid', 'true');
       });
@@ -2023,7 +2021,7 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
           <Field.Root validate={validateSpy}>
             <Slider.Root defaultValue={[5, 12]}>
               <Slider.Control>
-                <Slider.Thumb data-testid="thumb" />
+                <Slider.Thumb />
                 <Slider.Thumb />
               </Slider.Control>
             </Slider.Root>
@@ -2031,9 +2029,9 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
           </Field.Root>,
         );
 
-        const thumb = screen.getByTestId('thumb');
-        fireEvent.focus(thumb);
-        fireEvent.blur(thumb);
+        const [input] = screen.getAllByRole('slider');
+        fireEvent.focus(input);
+        fireEvent.blur(input);
         await flushMicrotasks();
         expect(validateSpy.callCount).to.equal(1);
         expect(validateSpy.args[0][0]).to.deep.equal([5, 12]);
@@ -2085,7 +2083,7 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
       expect(input).not.to.have.attribute('aria-invalid');
 
       fireEvent.change(input, { target: { value: '1' } });
-      fireEvent.blur(screen.getByTestId('thumb'));
+      fireEvent.blur(input);
       await flushMicrotasks();
       expect(input).to.have.attribute('aria-invalid', 'true');
     });

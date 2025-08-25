@@ -409,6 +409,7 @@ export const SliderControl = React.forwardRef(function SliderControl(
           doc.addEventListener('pointermove', handleTouchMove, { passive: true });
           doc.addEventListener('pointerup', handleTouchEnd);
         },
+        tabIndex: -1,
       },
       elementProps,
     ],

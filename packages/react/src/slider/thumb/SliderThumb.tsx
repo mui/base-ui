@@ -208,6 +208,52 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
       [SliderThumbDataAttributes.index]: index,
       className: resolveClassName(className, state),
       id,
+      ref: mergedThumbRef,
+      style: getThumbStyle(),
+      tabIndex: -1,
+    },
+    styleHooks,
+    elementProps,
+  );
+
+  let cssWritingMode: React.CSSProperties['writingMode'];
+  if (orientation === 'vertical') {
+    cssWritingMode = isRtl ? 'vertical-rl' : 'vertical-lr';
+  }
+
+  const inputProps = mergeProps<'input'>(
+    {
+      'aria-label':
+        typeof getAriaLabelProp === 'function'
+          ? getAriaLabelProp(index)
+          : elementProps['aria-label'],
+      'aria-labelledby': labelId,
+      'aria-orientation': orientation,
+      'aria-valuemax': max,
+      'aria-valuemin': min,
+      'aria-valuenow': thumbValue,
+      'aria-valuetext':
+        typeof getAriaValueTextProp === 'function'
+          ? getAriaValueTextProp(
+              formatNumber(thumbValue, locale, formatOptionsRef.current ?? undefined),
+              thumbValue,
+              index,
+            )
+          : elementProps['aria-valuetext'] ||
+            getDefaultAriaValueText(
+              sliderValues,
+              index,
+              formatOptionsRef.current ?? undefined,
+              locale,
+            ),
+      [SliderThumbDataAttributes.index as string]: index,
+      disabled,
+      id: inputId,
+      max,
+      min,
+      onChange(event: React.ChangeEvent<HTMLInputElement>) {
+        handleInputChange(event.target.valueAsNumber, index, event);
+      },
       onFocus() {
         setActive(index);
         setFocused(true);
@@ -296,52 +342,6 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
           event.preventDefault();
         }
       },
-      ref: mergedThumbRef,
-      style: getThumbStyle(),
-      tabIndex: externalTabIndex ?? (disabled ? undefined : 0),
-    },
-    styleHooks,
-    elementProps,
-  );
-
-  let cssWritingMode: React.CSSProperties['writingMode'];
-  if (orientation === 'vertical') {
-    cssWritingMode = isRtl ? 'vertical-rl' : 'vertical-lr';
-  }
-
-  const inputProps = mergeProps<'input'>(
-    {
-      'aria-label':
-        typeof getAriaLabelProp === 'function'
-          ? getAriaLabelProp(index)
-          : elementProps['aria-label'],
-      'aria-labelledby': labelId,
-      'aria-orientation': orientation,
-      'aria-valuemax': max,
-      'aria-valuemin': min,
-      'aria-valuenow': thumbValue,
-      'aria-valuetext':
-        typeof getAriaValueTextProp === 'function'
-          ? getAriaValueTextProp(
-              formatNumber(thumbValue, locale, formatOptionsRef.current ?? undefined),
-              thumbValue,
-              index,
-            )
-          : elementProps['aria-valuetext'] ||
-            getDefaultAriaValueText(
-              sliderValues,
-              index,
-              formatOptionsRef.current ?? undefined,
-              locale,
-            ),
-      [SliderThumbDataAttributes.index as string]: index,
-      disabled,
-      id: inputId,
-      max,
-      min,
-      onChange(event: React.ChangeEvent<HTMLInputElement>) {
-        handleInputChange(event.target.valueAsNumber, index, event);
-      },
       step,
       style: {
         ...visuallyHidden,
@@ -350,7 +350,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
         height: '100%',
         writingMode: cssWritingMode,
       },
-      tabIndex: -1,
+      tabIndex: externalTabIndex ?? undefined,
       type: 'range',
       value: thumbValue ?? '',
     },
