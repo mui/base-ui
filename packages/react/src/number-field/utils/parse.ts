@@ -1,4 +1,4 @@
-import { getFormatter } from '../../utils/formatNumber';
+import { getFormatter } from '@base-ui-components/utils/formatNumber';
 
 export const HAN_NUMERALS = ['零', '一', '二', '三', '四', '五', '六', '七', '八', '九'];
 export const ARABIC_NUMERALS = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
