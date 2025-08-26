@@ -37,6 +37,7 @@ import {
 import { useMenuSubmenuRootContext } from '../submenu-root/MenuSubmenuRootContext';
 import { useMixedToggleClickHandler } from '../../utils/useMixedToggleClickHander';
 import { mergeProps } from '../../merge-props';
+import { useFloatingParentNodeId } from '../../floating-ui-react/components/FloatingTree';
 
 const EMPTY_ARRAY: never[] = [];
 const EMPTY_REF = { current: false };
@@ -87,6 +88,9 @@ export const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
   const stickIfOpenTimeout = useTimeout();
   const contextMenuContext = useContextMenuRootContext(true);
   const isSubmenu = useMenuSubmenuRootContext();
+  const nested = useFloatingParentNodeId() != null;
+
+  let floatingEvents: ReturnType<typeof useFloatingRootContext>['events'];
 
   let parent: MenuParent;
   {
@@ -230,6 +234,8 @@ export const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
       event: Event | undefined,
       reason: MenuRoot.OpenChangeReason | undefined,
     ) => {
+      floatingEvents?.emit('openchange', { open: nextOpen, event, reason, nested });
+
       if (open === nextOpen) {
         return;
       }
@@ -342,7 +348,10 @@ export const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
     onOpenChange(openValue, eventValue, reasonValue) {
       setOpen(openValue, eventValue, translateOpenChangeReason(reasonValue));
     },
+    noEmit: true,
   });
+
+  floatingEvents = floatingRootContext.events;
 
   const hover = useHover(floatingRootContext, {
     enabled:

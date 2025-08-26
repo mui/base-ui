@@ -7,6 +7,7 @@ import {
   FloatingRootContext,
   useClick,
   useDismiss,
+  useFloatingParentNodeId,
   useFloatingRootContext,
   useInteractions,
   useRole,
@@ -52,11 +53,16 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
   const [popupElement, setPopupElement] = React.useState<HTMLElement | null>(null);
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
+
   const {
     openMethod,
     triggerProps,
     reset: resetOpenInteractionType,
   } = useOpenInteractionType(open);
+
+  const nested = useFloatingParentNodeId() != null;
+
+  let floatingEvents: ReturnType<typeof useFloatingRootContext>['events'];
 
   const setOpen = useEventCallback(
     (
@@ -64,6 +70,7 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
       event: Event | undefined,
       reason: DialogRoot.OpenChangeReason | undefined,
     ) => {
+      floatingEvents?.emit('openchange', { open: nextOpen, event, reason, nested });
       onOpenChangeParameter?.(nextOpen, event, reason);
       setOpenUnwrapped(nextOpen);
     },
@@ -100,7 +107,11 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
     elements: { reference: triggerElement, floating: popupElement },
     open,
     onOpenChange: handleFloatingUIOpenChange,
+    noEmit: true,
   });
+
+  floatingEvents = context.events;
+
   const [ownNestedOpenDialogs, setOwnNestedOpenDialogs] = React.useState(0);
   const isTopmost = ownNestedOpenDialogs === 0;
 
