@@ -23,7 +23,7 @@ export function testRenderProp(
     function Wrapper(props, forwardedRef) {
       return (
         <div data-testid="base-ui-wrapper">
-          {/* @ts-ignore */}
+          {/* @ts-expect-error complex type */}
           <Element ref={forwardedRef} {...props} data-testid="wrapped" />
         </div>
       );

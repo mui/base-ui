@@ -109,7 +109,7 @@ function CssAnimationDialogDemo({ keepMounted, modal, dismissible }: DemoProps) 
   );
 }
 
-// @ts-ignore
+// @ts-expect-error To be used later
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 function ReactSpringDialogDemo({ keepMounted, modal, dismissible }: DemoProps) {
   const [open, setOpen] = React.useState(false);
@@ -170,7 +170,6 @@ function ReactSpringTransition(props: { open: boolean; children?: React.ReactEle
   }, [api, open, mounted, setMounted]);
 
   return mounted ? (
-    /* @ts-ignore springAnimated.div props type does not include children and errors in React 19 */
     <springAnimated.div style={springs} className={classes.springWrapper}>
       {children}
     </springAnimated.div>

@@ -12,13 +12,12 @@ export const HEADER_HEIGHT = 48;
 
 export function Header() {
   return (
-    <div className="Header">
+    <header className="Header">
       <div className="HeaderInner">
         <SkipNav>Skip to contents</SkipNav>
         <NextLink href="/" className="HeaderLogoLink">
           <Logo aria-label="Base UI" />
         </NextLink>
-
         <div className="flex gap-6 max-show-side-nav:hidden">
           <NextLink href="/careers/design-engineer" className="HeaderLink">
             Careers
@@ -36,7 +35,6 @@ export function Header() {
             GitHub
           </a>
         </div>
-
         <div className="flex show-side-nav:hidden">
           <MobileNav.Root>
             <MobileNav.Trigger className="HeaderButton">
@@ -62,7 +60,6 @@ export function Header() {
                     </MobileNav.List>
                   </MobileNav.Section>
                 ))}
-
                 <MobileNav.Section>
                   <MobileNav.Heading>Resources</MobileNav.Heading>
                   <MobileNav.List>
@@ -92,6 +89,6 @@ export function Header() {
           </MobileNav.Root>
         </div>
       </div>
-    </div>
+    </header>
   );
 }
