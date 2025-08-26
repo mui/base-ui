@@ -13,6 +13,7 @@ import {
   useRole,
   FloatingTree,
   safePolygon,
+  useFloatingParentNodeId,
 } from '../../floating-ui-react';
 import { useTransitionStatus } from '../../utils/useTransitionStatus';
 import { OPEN_DELAY } from '../utils/constants';
@@ -49,6 +50,10 @@ function PopoverRootComponent({ props }: { props: PopoverRoot.Props }) {
 
   const popupRef = React.useRef<HTMLElement>(null);
   const stickIfOpenTimeout = useTimeout();
+
+  const nested = useFloatingParentNodeId() != null;
+
+  let floatingEvents: ReturnType<typeof useFloatingRootContext>['events'];
 
   const [open, setOpenUnwrapped] = useControlled({
     controlled: externalOpen,
@@ -104,6 +109,8 @@ function PopoverRootComponent({ props }: { props: PopoverRoot.Props }) {
       if (eventDetails.isCanceled) {
         return;
       }
+        
+      floatingEvents?.emit('openchange', { open: nextOpen, event, reason, nested });
 
       function changeState() {
         setOpenUnwrapped(nextOpen);
@@ -142,6 +149,8 @@ function PopoverRootComponent({ props }: { props: PopoverRoot.Props }) {
     open,
     onOpenChange: setOpen,
   });
+
+  floatingEvents = floatingContext.events;
 
   useScrollLock({
     enabled: open && modal === true && openReason !== 'trigger-hover' && openMethod !== 'touch',

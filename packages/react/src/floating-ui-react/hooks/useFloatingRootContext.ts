@@ -16,6 +16,10 @@ export interface UseFloatingRootContextOptions {
     reference: Element | null;
     floating: HTMLElement | null;
   };
+  /**
+   * Whether to prevent the auto-emitted `openchange` event.
+   */
+  noEmit?: boolean;
 }
 
 export function useFloatingRootContext(
@@ -45,16 +49,16 @@ export function useFloatingRootContext(
 
   const onOpenChange = useEventCallback((newOpen: boolean, eventDetails: BaseUIEventDetails) => {
     dataRef.current.openEvent = newOpen ? eventDetails.event : undefined;
-
-    const details: FloatingUIOpenChangeDetails = {
-      open: newOpen,
-      reason: eventDetails.reason,
-      nativeEvent: eventDetails.event,
-      nested,
-    };
-
-    events.emit('openchange', details);
-    onOpenChangeProp?.(newOpen, eventDetails);
+    if (!options.noEmit) {
+      const details: FloatingUIOpenChangeDetails = {
+        open: newOpen,
+        reason: eventDetails.reason,
+        nativeEvent: eventDetails.event,
+        nested,
+      };
+      events.emit('openchange', { open: newOpen, event, reason, nested });
+    }
+    onOpenChangeProp?.(newOpen, event, reason);
   });
 
   const refs = React.useMemo(
