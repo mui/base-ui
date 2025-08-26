@@ -43,6 +43,7 @@ export interface SelectRootContext {
   onOpenChangeComplete?: (open: boolean) => void;
   keyboardActiveRef: React.MutableRefObject<boolean>;
   alignItemWithTriggerActiveRef: React.RefObject<boolean>;
+  initialValueRef: React.MutableRefObject<any>;
 }
 
 export const SelectRootContext = React.createContext<SelectRootContext | null>(null);

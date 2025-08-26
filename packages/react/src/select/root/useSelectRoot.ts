@@ -479,6 +479,7 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
       onOpenChangeComplete,
       keyboardActiveRef,
       alignItemWithTriggerActiveRef,
+      initialValueRef,
     }),
     [
       store,

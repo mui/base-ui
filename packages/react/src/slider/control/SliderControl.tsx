@@ -240,8 +240,7 @@ export const SliderControl = React.forwardRef(function SliderControl(
     moveCountRef.current += 1;
 
     // Cancel move in case some other element consumed a pointerup event and it was not fired.
-    // @ts-ignore buttons doesn't not exists on touch event
-    if (nativeEvent.type === 'pointermove' && nativeEvent.buttons === 0) {
+    if (nativeEvent.type === 'pointermove' && (nativeEvent as PointerEvent).buttons === 0) {
       // eslint-disable-next-line @typescript-eslint/no-use-before-define
       handleTouchEnd(nativeEvent);
       return;

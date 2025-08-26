@@ -1,4 +1,3 @@
-/* eslint-disable testing-library/no-node-access */
 import * as React from 'react';
 import { expect } from 'chai';
 import { spy } from 'sinon';

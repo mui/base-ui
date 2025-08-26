@@ -13,6 +13,7 @@ import {
   useRole,
   FloatingTree,
   safePolygon,
+  useFloatingParentNodeId,
 } from '../../floating-ui-react';
 import { useTransitionStatus } from '../../utils/useTransitionStatus';
 import { OPEN_DELAY } from '../utils/constants';
@@ -47,9 +48,15 @@ function PopoverRootComponent({ props }: { props: PopoverRoot.Props }) {
   const [positionerElement, setPositionerElement] = React.useState<HTMLElement | null>(null);
   const [openReason, setOpenReason] = React.useState<PopoverOpenChangeReason | null>(null);
   const [stickIfOpen, setStickIfOpen] = React.useState(true);
+  const backdropRef = React.useRef<HTMLDivElement | null>(null);
+  const internalBackdropRef = React.useRef<HTMLDivElement | null>(null);
 
   const popupRef = React.useRef<HTMLElement>(null);
   const stickIfOpenTimeout = useTimeout();
+
+  const nested = useFloatingParentNodeId() != null;
+
+  let floatingEvents: ReturnType<typeof useFloatingRootContext>['events'];
 
   const [open, setOpenUnwrapped] = useControlled({
     controlled: externalOpen,
@@ -94,6 +101,8 @@ function PopoverRootComponent({ props }: { props: PopoverRoot.Props }) {
 
   const setOpen = useEventCallback(
     (nextOpen: boolean, event: Event | undefined, reason: PopoverOpenChangeReason | undefined) => {
+      floatingEvents?.emit('openchange', { open: nextOpen, event, reason, nested });
+
       const isHover = reason === 'trigger-hover';
       const isKeyboardClick = reason === 'trigger-press' && (event as MouseEvent).detail === 0;
       const isDismissClose = !nextOpen && (reason === 'escape-key' || reason == null);
@@ -137,7 +146,10 @@ function PopoverRootComponent({ props }: { props: PopoverRoot.Props }) {
     onOpenChange(openValue, eventValue, reasonValue) {
       setOpen(openValue, eventValue, translateOpenChangeReason(reasonValue));
     },
+    noEmit: true,
   });
+
+  floatingEvents = floatingContext.events;
 
   useScrollLock({
     enabled: open && modal === true && openReason !== 'trigger-hover' && openMethod !== 'touch',
@@ -163,7 +175,9 @@ function PopoverRootComponent({ props }: { props: PopoverRoot.Props }) {
   });
   const dismiss = useDismiss(floatingContext, {
     outsidePressEvent: {
-      mouse: 'intentional',
+      // Ensure `aria-hidden` on outside elements is removed immediately
+      // on outside press when trapping focus.
+      mouse: modal === 'trap-focus' ? 'sloppy' : 'intentional',
       touch: 'sloppy',
     },
   });
@@ -187,6 +201,8 @@ function PopoverRootComponent({ props }: { props: PopoverRoot.Props }) {
       setTitleId,
       descriptionId,
       setDescriptionId,
+      backdropRef,
+      internalBackdropRef,
       triggerProps: mergeProps(getReferenceProps(), triggerProps),
       popupProps: getFloatingProps(),
       floatingRootContext: floatingContext,

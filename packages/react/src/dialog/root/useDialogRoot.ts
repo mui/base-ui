@@ -7,6 +7,7 @@ import {
   FloatingRootContext,
   useClick,
   useDismiss,
+  useFloatingParentNodeId,
   useFloatingRootContext,
   useInteractions,
   useRole,
@@ -52,11 +53,16 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
   const [popupElement, setPopupElement] = React.useState<HTMLElement | null>(null);
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
+
   const {
     openMethod,
     triggerProps,
     reset: resetOpenInteractionType,
   } = useOpenInteractionType(open);
+
+  const nested = useFloatingParentNodeId() != null;
+
+  let floatingEvents: ReturnType<typeof useFloatingRootContext>['events'];
 
   const setOpen = useEventCallback(
     (
@@ -64,6 +70,7 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
       event: Event | undefined,
       reason: DialogRoot.OpenChangeReason | undefined,
     ) => {
+      floatingEvents?.emit('openchange', { open: nextOpen, event, reason, nested });
       onOpenChangeParameter?.(nextOpen, event, reason);
       setOpenUnwrapped(nextOpen);
     },
@@ -100,28 +107,42 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
     elements: { reference: triggerElement, floating: popupElement },
     open,
     onOpenChange: handleFloatingUIOpenChange,
+    noEmit: true,
   });
+
+  floatingEvents = context.events;
+
   const [ownNestedOpenDialogs, setOwnNestedOpenDialogs] = React.useState(0);
   const isTopmost = ownNestedOpenDialogs === 0;
 
   const role = useRole(context);
   const click = useClick(context);
   const dismiss = useDismiss(context, {
-    outsidePressEvent: 'intentional',
+    outsidePressEvent() {
+      if (internalBackdropRef.current || backdropRef.current) {
+        return 'intentional';
+      }
+      // Ensure `aria-hidden` on outside elements is removed immediately
+      // on outside press when trapping focus.
+      return {
+        mouse: modal === 'trap-focus' ? 'sloppy' : 'intentional',
+        touch: 'sloppy',
+      };
+    },
     outsidePress(event) {
       if (event.button !== 0) {
         return false;
       }
       const target = getTarget(event) as Element | null;
       if (isTopmost && dismissible) {
-        const backdrop = target as HTMLDivElement | null;
+        const eventTarget = target as Element | null;
         // Only close if the click occurred on the dialog's owning backdrop.
         // This supports multiple modal dialogs that aren't nested in the React tree:
         // https://github.com/mui/base-ui/issues/1320
         if (modal) {
-          return backdrop
-            ? internalBackdropRef.current === backdrop || backdropRef.current === backdrop
-            : false;
+          return internalBackdropRef.current || backdropRef.current
+            ? internalBackdropRef.current === eventTarget || backdropRef.current === eventTarget
+            : true;
         }
         return true;
       }
