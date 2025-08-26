@@ -120,6 +120,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
   const sliderRef = React.useRef<HTMLElement>(null);
   const controlRef = React.useRef<HTMLElement>(null);
   const thumbRefs = React.useRef<(HTMLElement | null)[]>([]);
+  const pressedInputRef = React.useRef<HTMLInputElement>(null);
   const inputRef = useMergedRefs(inputRefProp, fieldControlValidation.inputRef);
   const lastChangedValueRef = React.useRef<number | readonly number[] | null>(null);
   const formatOptionsRef = useLatestRef(format);
@@ -272,6 +273,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       disabled,
       dragging,
       fieldControlValidation,
+      pressedInputRef,
       formatOptionsRef,
       handleInputChange,
       labelId: ariaLabelledby,
@@ -300,6 +302,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       disabled,
       dragging,
       fieldControlValidation,
+      pressedInputRef,
       formatOptionsRef,
       handleInputChange,
       largeStep,

@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import * as React from 'react';
 import { spy, stub } from 'sinon';
-import { act, flushMicrotasks, fireEvent, screen } from '@mui/internal-test-utils';
+import { act, flushMicrotasks, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import {
   DirectionProvider,
   type TextDirection,
@@ -804,7 +804,9 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
         clientX: 1,
       });
 
-      expect(slider).toHaveFocus();
+      await waitFor(() => {
+        expect(slider).toHaveFocus();
+      });
     });
 
     it.skipIf(isWebKit)('should not override the event.target on touch events', async () => {
