@@ -20,44 +20,61 @@ export type ReasonToEvent<Reason extends string> = Reason extends 'trigger-press
               : Event;
 
 /**
- * Discriminated union keyed by the `reason` string literal.
- * Narrows `event` type based on `reason`.
+ * Details of custom events emitted by Base UI components.
  */
-export type BaseUIEventData<Reason extends string = PopupChangeReason> = {
+export type BaseUIEventDetails<Reason extends string = PopupChangeReason> = {
   [K in Reason]: {
+    /**
+     * The reason for the event.
+     */
     reason: K;
+    /**
+     * The native event associated with the custom event.
+     */
     event: ReasonToEvent<K>;
+    /**
+     * Cancels Base UI from handling the event.
+     */
     cancel: () => void;
-    cancelStopPropagation: () => void;
+    /**
+     * Allows the event to propagate in cases where Base UI will stop the propagation.
+     */
+    allowPropagation: () => void;
+    /**
+     * Indicates whether the event has been canceled.
+     */
     isCanceled: boolean;
-    isStopPropagationCanceled: boolean;
+    /**
+     * Indicates whether the event is allowed to propagate.
+     */
+    isPropagationAllowed: boolean;
   };
 }[Reason];
 
 /**
- * Creates a Base UI event data object with the given reason and utilities
- * for preventing the Base UI's internal event handling.
+ * Creates a Base UI event details object with the given reason and utilities
+ * for preventing Base UI's internal event handling.
  */
-export function createBaseUIEventData<Reason extends string = PopupChangeReason>(
+export function createBaseUIEventDetails<Reason extends string = PopupChangeReason>(
   reason: Reason,
   event?: ReasonToEvent<Reason>,
-): BaseUIEventData<Reason> {
+): BaseUIEventDetails<Reason> {
   let canceled = false;
-  let stopPropagationCanceled = false;
+  let allowPropagation = false;
   return {
     reason,
     event: (event ?? new Event('base-ui')) as ReasonToEvent<Reason>,
     cancel() {
       canceled = true;
     },
-    cancelStopPropagation() {
-      stopPropagationCanceled = true;
+    allowPropagation() {
+      allowPropagation = true;
     },
     get isCanceled() {
       return canceled;
     },
-    get isStopPropagationCanceled() {
-      return stopPropagationCanceled;
+    get isPropagationAllowed() {
+      return allowPropagation;
     },
   };
 }

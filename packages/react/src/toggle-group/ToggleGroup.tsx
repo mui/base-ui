@@ -8,7 +8,7 @@ import { CompositeRoot } from '../composite/root/CompositeRoot';
 import { useToolbarRootContext } from '../toolbar/root/ToolbarRootContext';
 import { ToggleGroupContext } from './ToggleGroupContext';
 import { ToggleGroupDataAttributes } from './ToggleGroupDataAttributes';
-import { BaseUIEventData, createBaseUIEventData } from '../utils/createBaseUIEventData';
+import { BaseUIEventDetails, createBaseUIEventDetails } from '../utils/createBaseUIEventDetails';
 
 const customStyleHookMapping = {
   multiple(value: boolean) {
@@ -73,7 +73,7 @@ export const ToggleGroup = React.forwardRef(function ToggleGroup(
       newGroupValue = nextPressed ? [newValue] : [];
     }
     if (Array.isArray(newGroupValue)) {
-      const data = createBaseUIEventData('none', event);
+      const data = createBaseUIEventDetails('none', event);
 
       onValueChange?.(newGroupValue, data);
 
@@ -157,7 +157,7 @@ export namespace ToggleGroup {
     /**
      * Callback fired when the pressed states of the toggle group changes.
      */
-    onValueChange?: (groupValue: any[], data: ChangeEventData) => void;
+    onValueChange?: (groupValue: any[], eventDetails: ChangeEventDetails) => void;
     /**
      * Whether the toggle group should ignore user interaction.
      * @default false
@@ -182,6 +182,6 @@ export namespace ToggleGroup {
     toggleMultiple?: boolean;
   }
 
-  export type ChangeReason = 'none';
-  export type ChangeEventData = BaseUIEventData<ChangeReason>;
+  export type ChangeEventReason = 'none';
+  export type ChangeEventDetails = BaseUIEventDetails<ChangeEventReason>;
 }

@@ -18,7 +18,7 @@ import { InternalBackdrop } from '../../utils/InternalBackdrop';
 import { useMenuPortalContext } from '../portal/MenuPortalContext';
 import { DROPDOWN_COLLISION_AVOIDANCE } from '../../utils/constants';
 import { useContextMenuRootContext } from '../../context-menu/root/ContextMenuRootContext';
-import { createBaseUIEventData } from '../../utils/createBaseUIEventData';
+import { createBaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
 import type { MenuRoot } from '../root/MenuRoot';
 
 /**
@@ -136,21 +136,21 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
       open: boolean;
       nodeId: string;
       parentNodeId: string;
-      reason?: MenuRoot.ChangeReason;
+      details: MenuRoot.ChangeEventDetails;
     }) {
       if (event.open) {
         if (event.parentNodeId === nodeId) {
           setHoverEnabled(false);
         }
         if (event.nodeId !== nodeId && event.parentNodeId === parentNodeId) {
-          setOpen(false, createBaseUIEventData('sibling-open'));
+          setOpen(false, createBaseUIEventDetails('sibling-open'));
         }
       } else if (event.parentNodeId === nodeId) {
         // Re-enable hover on the parent when a child closes, except when the child
         // closed due to hovering a different sibling item in this parent (sibling-open).
         // Keeping hover disabled in that scenario prevents the parent from closing
         // immediately when the pointer then leaves it.
-        if (event.reason !== 'sibling-open') {
+        if (event.details.reason !== 'sibling-open') {
           setHoverEnabled(true);
         }
       }
@@ -173,7 +173,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
       }
 
       if (triggerElement && event.target && triggerElement !== event.target) {
-        setOpen(false, createBaseUIEventData('sibling-open'));
+        setOpen(false, createBaseUIEventDetails('sibling-open'));
       }
     }
 

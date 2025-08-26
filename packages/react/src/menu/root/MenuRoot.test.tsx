@@ -38,7 +38,7 @@ describe('<Menu.Root />', () => {
     expectedPopupRole: 'menu',
   });
 
-  describe('BaseUIEventData', () => {
+  describe('BaseUIEventDetails', () => {
     it('onOpenChange cancel() prevents opening while uncontrolled', async () => {
       const { getByRole } = await render(
         <Menu.Root

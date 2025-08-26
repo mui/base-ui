@@ -4,7 +4,7 @@ import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect
 
 import { getDelay } from '../hooks/useHover';
 import type { FloatingRootContext, Delay } from '../types';
-import { BaseUIEventData, createBaseUIEventData } from '../../utils/createBaseUIEventData';
+import { BaseUIEventDetails, createBaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
 
 interface ContextValue {
   hasProvider: boolean;
@@ -14,7 +14,7 @@ interface ContextValue {
   timeout: Timeout;
   currentIdRef: React.MutableRefObject<any>;
   currentContextRef: React.MutableRefObject<{
-    onOpenChange: (open: boolean, data: BaseUIEventData<any>) => void;
+    onOpenChange: (open: boolean, eventDetails: BaseUIEventDetails<any>) => void;
     setIsInstantPhase: (value: boolean) => void;
   } | null>;
 }
@@ -195,7 +195,7 @@ export function useDelayGroup(
       timeout.clear();
       setIsInstantPhase(true);
       prevContext?.setIsInstantPhase(true);
-      prevContext?.onOpenChange(false, createBaseUIEventData('none', new Event('base-ui')));
+      prevContext?.onOpenChange(false, createBaseUIEventDetails('none', new Event('base-ui')));
     } else {
       setIsInstantPhase(false);
       prevContext?.setIsInstantPhase(false);

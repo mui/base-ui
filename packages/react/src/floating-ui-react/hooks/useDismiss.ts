@@ -24,7 +24,7 @@ import {
 
 import { useFloatingTree } from '../components/FloatingTree';
 import type { ElementProps, FloatingRootContext } from '../types';
-import { createBaseUIEventData } from '../../utils/createBaseUIEventData';
+import { createBaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
 import { createAttribute } from '../utils/createAttribute';
 
 type PressType = 'intentional' | 'sloppy';
@@ -215,11 +215,11 @@ export function useDismiss(
       }
 
       const native = isReactEvent(event) ? event.nativeEvent : event;
-      const baseUIEventData = createBaseUIEventData('escape-key', native);
+      const eventDetails = createBaseUIEventDetails('escape-key', native);
 
-      onOpenChange(false, baseUIEventData);
+      onOpenChange(false, eventDetails);
 
-      if (!escapeKeyBubbles && !baseUIEventData.isStopPropagationCanceled) {
+      if (!escapeKeyBubbles && !eventDetails.isPropagationAllowed) {
         event.stopPropagation();
       }
     },
@@ -357,7 +357,7 @@ export function useDismiss(
         }
       }
 
-      onOpenChange(false, createBaseUIEventData('outside-press', event));
+      onOpenChange(false, createBaseUIEventDetails('outside-press', event));
     },
   );
 
@@ -482,7 +482,7 @@ export function useDismiss(
     const compositionTimeout = new Timeout();
 
     function onScroll(event: Event) {
-      onOpenChange(false, createBaseUIEventData('none', event));
+      onOpenChange(false, createBaseUIEventDetails('none', event));
     }
 
     function handleCompositionStart() {
@@ -628,11 +628,14 @@ export function useDismiss(
       onKeyDown: closeOnEscapeKeyDown,
       ...(referencePress && {
         [bubbleHandlerKeys[referencePressEvent]]: (event: React.SyntheticEvent) => {
-          onOpenChange(false, createBaseUIEventData('trigger-press', event.nativeEvent as any));
+          onOpenChange(false, createBaseUIEventDetails('trigger-press', event.nativeEvent as any));
         },
         ...(referencePressEvent !== 'intentional' && {
           onClick(event) {
-            onOpenChange(false, createBaseUIEventData('trigger-press', event.nativeEvent as any));
+            onOpenChange(
+              false,
+              createBaseUIEventDetails('trigger-press', event.nativeEvent as any),
+            );
           },
         }),
       }),

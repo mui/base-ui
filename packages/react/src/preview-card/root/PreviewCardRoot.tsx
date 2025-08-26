@@ -12,7 +12,7 @@ import {
 } from '../../floating-ui-react';
 import { PreviewCardRootContext } from './PreviewCardContext';
 import { CLOSE_DELAY, OPEN_DELAY } from '../utils/constants';
-import { type BaseUIEventData } from '../../utils/createBaseUIEventData';
+import { type BaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
 import { useFocusWithDelay } from '../../utils/interactions/useFocusWithDelay';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useTransitionStatus } from '../../utils/useTransitionStatus';
@@ -73,36 +73,39 @@ export function PreviewCardRoot(props: PreviewCardRoot.Props) {
 
   React.useImperativeHandle(actionsRef, () => ({ unmount: handleUnmount }), [handleUnmount]);
 
-  const setOpen = useEventCallback((nextOpen: boolean, data: PreviewCardRoot.ChangeEventData) => {
-    const isHover = data.reason === 'trigger-hover';
-    const isFocusOpen = nextOpen && data.reason === 'trigger-focus';
-    const isDismissClose =
-      !nextOpen && (data.reason === 'trigger-press' || data.reason === 'escape-key');
+  const setOpen = useEventCallback(
+    (nextOpen: boolean, eventDetails: PreviewCardRoot.ChangeEventDetails) => {
+      const isHover = eventDetails.reason === 'trigger-hover';
+      const isFocusOpen = nextOpen && eventDetails.reason === 'trigger-focus';
+      const isDismissClose =
+        !nextOpen &&
+        (eventDetails.reason === 'trigger-press' || eventDetails.reason === 'escape-key');
 
-    onOpenChange(nextOpen, data);
+      onOpenChange(nextOpen, eventDetails);
 
-    if (data.isCanceled) {
-      return;
-    }
+      if (eventDetails.isCanceled) {
+        return;
+      }
 
-    function changeState() {
-      setOpenUnwrapped(nextOpen);
-    }
+      function changeState() {
+        setOpenUnwrapped(nextOpen);
+      }
 
-    if (isHover) {
-      // If a hover reason is provided, we need to flush the state synchronously. This ensures
-      // `node.getAnimations()` knows about the new state.
-      ReactDOM.flushSync(changeState);
-    } else {
-      changeState();
-    }
+      if (isHover) {
+        // If a hover reason is provided, we need to flush the state synchronously. This ensures
+        // `node.getAnimations()` knows about the new state.
+        ReactDOM.flushSync(changeState);
+      } else {
+        changeState();
+      }
 
-    if (isFocusOpen || isDismissClose) {
-      setInstantTypeState(isFocusOpen ? 'focus' : 'dismiss');
-    } else if (data.reason === 'trigger-hover') {
-      setInstantTypeState(undefined);
-    }
-  });
+      if (isFocusOpen || isDismissClose) {
+        setInstantTypeState(isFocusOpen ? 'focus' : 'dismiss');
+      } else if (eventDetails.reason === 'trigger-hover') {
+        setInstantTypeState(undefined);
+      }
+    },
+  );
 
   const context = useFloatingRootContext({
     elements: {
@@ -192,7 +195,7 @@ export namespace PreviewCardRoot {
     /**
      * Event handler called when the preview card is opened or closed.
      */
-    onOpenChange?: (open: boolean, data: ChangeEventData) => void;
+    onOpenChange?: (open: boolean, eventDetails: ChangeEventDetails) => void;
     /**
      * Event handler called after any animations complete when the preview card is opened or closed.
      */
@@ -220,6 +223,6 @@ export namespace PreviewCardRoot {
     unmount: () => void;
   }
 
-  export type ChangeReason = PopupChangeReason;
-  export type ChangeEventData = BaseUIEventData<ChangeReason>;
+  export type ChangeEventReason = PopupChangeReason;
+  export type ChangeEventDetails = BaseUIEventDetails<ChangeEventReason>;
 }

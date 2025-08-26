@@ -328,7 +328,7 @@ describe('<Select.Root />', () => {
     });
   });
 
-  describe('BaseUIEventData', () => {
+  describe('BaseUIEventDetails', () => {
     it('onOpenChange cancel() prevents opening while uncontrolled', async () => {
       await render(
         <Select.Root

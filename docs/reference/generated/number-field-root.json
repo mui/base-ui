@@ -18,9 +18,9 @@
       "detailedType": "number | null | undefined"
     },
     "onValueChange": {
-      "type": "((value: number | null, data: NumberField.Root.ChangeEventData) => void)",
+      "type": "((value: number | null, eventDetails: NumberField.Root.ChangeEventDetails) => void)",
       "description": "Callback fired when the number value changes.",
-      "detailedType": "| ((\n    value: number | null,\n    data: NumberField.Root.ChangeEventData,\n  ) => void)\n| undefined"
+      "detailedType": "| ((\n    value: number | null,\n    eventDetails: NumberField.Root.ChangeEventDetails,\n  ) => void)\n| undefined"
     },
     "locale": {
       "type": "Intl.LocalesArgument",

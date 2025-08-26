@@ -3,7 +3,7 @@ import type { MenuRoot } from '../root/MenuRoot';
 
 export interface MenuRadioGroupContext {
   value: any;
-  setValue: (newValue: any, data: MenuRoot.ChangeEventData) => void;
+  setValue: (newValue: any, eventDetails: MenuRoot.ChangeEventDetails) => void;
   disabled: boolean;
 }
 

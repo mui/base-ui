@@ -8,7 +8,7 @@ import {
 } from '../root/NavigationMenuRootContext';
 import { isOutsideMenuEvent } from '../utils/isOutsideMenuEvent';
 import { CompositeItem } from '../../composite/item/CompositeItem';
-import { createBaseUIEventData } from '../../utils/createBaseUIEventData';
+import { createBaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
 
 /**
  * A link in the navigation menu that can be used to navigate to a different page or section.
@@ -37,7 +37,7 @@ export const NavigationMenuLink = React.forwardRef(function NavigationMenuLink(
     'aria-current': active ? 'page' : undefined,
     tabIndex: undefined,
     onClick(event) {
-      setValue(null, event.nativeEvent, 'link-press');
+      setValue(null, createBaseUIEventDetails('link-press', event.nativeEvent));
     },
     onBlur(event) {
       if (
@@ -51,7 +51,7 @@ export const NavigationMenuLink = React.forwardRef(function NavigationMenuLink(
           { popupElement, rootRef, tree, nodeId },
         )
       ) {
-        setValue(null, createBaseUIEventData('focus-out', event.nativeEvent));
+        setValue(null, createBaseUIEventDetails('focus-out', event.nativeEvent));
       }
     },
   };

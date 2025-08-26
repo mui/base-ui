@@ -15,9 +15,9 @@ export default function ExampleTooltip() {
         }}
       >
         <Tooltip.Root
-          onOpenChange={(open, data) => {
-            if (data.reason === 'trigger-press') {
-              data.cancel();
+          onOpenChange={(open, eventDetails) => {
+            if (eventDetails.reason === 'trigger-press') {
+              eventDetails.cancel();
             }
           }}
         >
@@ -37,9 +37,9 @@ export default function ExampleTooltip() {
         </Tooltip.Root>
 
         <Tooltip.Root
-          onOpenChange={(open, data) => {
-            if (data.reason === 'escape-key') {
-              data.cancelStopPropagation();
+          onOpenChange={(open, eventDetails) => {
+            if (eventDetails.reason === 'escape-key') {
+              eventDetails.allowPropagation();
             }
           }}
         >

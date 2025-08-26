@@ -5,7 +5,7 @@ import type { SelectStore } from '../store';
 import type { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
 import type { HTMLProps } from '../../utils/types';
 import type { SelectRoot } from './SelectRoot';
-import { BaseUIEventData } from '../../utils/createBaseUIEventData';
+import { BaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
 
 export interface SelectRootContext {
   store: SelectStore;
@@ -14,8 +14,8 @@ export interface SelectRootContext {
   readOnly: boolean;
   required: boolean;
   multiple: boolean;
-  setValue: (nextValue: any, data: BaseUIEventData<'none'>) => void;
-  setOpen: (open: boolean, data: SelectRoot.ChangeEventData) => void;
+  setValue: (nextValue: any, eventDetails: BaseUIEventDetails<'none'>) => void;
+  setOpen: (open: boolean, eventDetails: SelectRoot.ChangeEventDetails) => void;
   listRef: React.MutableRefObject<Array<HTMLElement | null>>;
   popupRef: React.MutableRefObject<HTMLDivElement | null>;
   getItemProps: (

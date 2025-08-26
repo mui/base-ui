@@ -19,7 +19,7 @@ import type { FieldRoot } from '../field/root/FieldRoot';
 import { mergeProps } from '../merge-props';
 
 import { RadioGroupContext } from './RadioGroupContext';
-import { type BaseUIEventData } from '../utils/createBaseUIEventData';
+import { type BaseUIEventDetails } from '../utils/createBaseUIEventDetails';
 
 const MODIFIER_KEYS = [SHIFT];
 
@@ -73,15 +73,17 @@ export const RadioGroup = React.forwardRef(function RadioGroup(
 
   const onValueChange = useEventCallback(onValueChangeProp);
 
-  const setCheckedValue = useEventCallback((value: unknown, data: RadioGroup.ChangeEventData) => {
-    onValueChange(value, data);
+  const setCheckedValue = useEventCallback(
+    (value: unknown, eventDetails: RadioGroup.ChangeEventDetails) => {
+      onValueChange(value, eventDetails);
 
-    if (data.isCanceled) {
-      return;
-    }
+      if (eventDetails.isCanceled) {
+        return;
+      }
 
-    setCheckedValueUnwrapped(value);
-  });
+      setCheckedValueUnwrapped(value);
+    },
+  );
 
   const controlRef = React.useRef<HTMLElement>(null);
   const registerControlRef = useEventCallback((element: HTMLElement | null) => {
@@ -284,13 +286,13 @@ export namespace RadioGroup {
     /**
      * Callback fired when the value changes.
      */
-    onValueChange?: (value: unknown, data: ChangeEventData) => void;
+    onValueChange?: (value: unknown, eventDetails: ChangeEventDetails) => void;
     /**
      * A ref to access the hidden input element.
      */
     inputRef?: React.Ref<HTMLInputElement>;
   }
 
-  export type ChangeReason = 'none';
-  export type ChangeEventData = BaseUIEventData<ChangeReason>;
+  export type ChangeEventReason = 'none';
+  export type ChangeEventDetails = BaseUIEventDetails<ChangeEventReason>;
 }

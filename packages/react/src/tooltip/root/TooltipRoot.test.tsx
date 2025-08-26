@@ -735,7 +735,7 @@ describe('<Tooltip.Root />', () => {
     });
   });
 
-  describe('BaseUIEventData', () => {
+  describe('BaseUIEventDetails', () => {
     it('onOpenChange cancel() prevents opening while uncontrolled', async () => {
       await render(
         <Root
@@ -774,7 +774,7 @@ describe('<Tooltip.Root />', () => {
           delay={0}
           onOpenChange={(nextOpen, data) => {
             if (!nextOpen && data.reason === 'escape-key') {
-              data.cancelStopPropagation();
+              data.allowPropagation();
             }
           }}
         >

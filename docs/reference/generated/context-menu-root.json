@@ -14,9 +14,9 @@
       "detailedType": "boolean | undefined"
     },
     "onOpenChange": {
-      "type": "((open: boolean, data: Menu.Root.ChangeEventData) => void)",
+      "type": "((open: boolean, eventDetails: Menu.Root.ChangeEventDetails) => void)",
       "description": "Event handler called when the menu is opened or closed.",
-      "detailedType": "| ((\n    open: boolean,\n    data: Menu.Root.ChangeEventData,\n  ) => void)\n| undefined"
+      "detailedType": "| ((\n    open: boolean,\n    eventDetails: Menu.Root.ChangeEventDetails,\n  ) => void)\n| undefined"
     },
     "actionsRef": {
       "type": "RefObject<Menu.Root.Actions>",

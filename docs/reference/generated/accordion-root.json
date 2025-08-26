@@ -13,9 +13,9 @@
       "detailedType": "any[] | undefined"
     },
     "onValueChange": {
-      "type": "((value: any[], event: Accordion.Root.ChangeEventData) => void)",
+      "type": "((value: any[], eventDetails: Accordion.Root.ChangeEventDetails) => void)",
       "description": "Event handler called when an accordion item is expanded or collapsed.\nProvides the new value as an argument.",
-      "detailedType": "| ((\n    value: any[],\n    event: Accordion.Root.ChangeEventData,\n  ) => void)\n| undefined"
+      "detailedType": "| ((\n    value: any[],\n    eventDetails: Accordion.Root.ChangeEventDetails,\n  ) => void)\n| undefined"
     },
     "hiddenUntilFound": {
       "type": "boolean",

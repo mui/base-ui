@@ -385,7 +385,7 @@ describe('<PreviewCard.Root />', () => {
     });
   });
 
-  describe('BaseUIEventData', () => {
+  describe('BaseUIEventDetails', () => {
     it('onOpenChange cancel() prevents opening while uncontrolled', async () => {
       await render(
         <Root

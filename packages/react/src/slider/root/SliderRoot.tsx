@@ -9,7 +9,10 @@ import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect
 import { visuallyHidden } from '@base-ui-components/utils/visuallyHidden';
 import { warn } from '@base-ui-components/utils/warn';
 import type { BaseUIComponentProps, Orientation } from '../../utils/types';
-import { createBaseUIEventData, type BaseUIEventData } from '../../utils/createBaseUIEventData';
+import {
+  createBaseUIEventDetails,
+  type BaseUIEventDetails,
+} from '../../utils/createBaseUIEventDetails';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { clamp } from '../../utils/clamp';
@@ -78,14 +81,14 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
   const onValueChange = useEventCallback(
     onValueChangeProp as (
       value: number | number[],
-      data: BaseUIEventData<'none'>,
+      data: BaseUIEventDetails<'none'>,
       activeThumbIndex: number,
     ) => void,
   );
   const onValueCommitted = useEventCallback(
     onValueCommittedProp as (
       value: number | readonly number[],
-      data: BaseUIEventData<'none'>,
+      data: BaseUIEventDetails<'none'>,
     ) => void,
   );
 
@@ -175,7 +178,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
 
       lastChangedValueRef.current = newValue;
 
-      const data = createBaseUIEventData('none', clonedEvent);
+      const data = createBaseUIEventDetails('none', clonedEvent);
       onValueChange(newValue, data, thumbIndex);
 
       if (data.isCanceled) {
@@ -199,7 +202,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
         setTouched(true);
 
         const nextValue = lastChangedValueRef.current ?? newValue;
-        onValueCommitted(nextValue, createBaseUIEventData('none', event.nativeEvent));
+        onValueCommitted(nextValue, createBaseUIEventDetails('none', event.nativeEvent));
         clearErrors(name);
 
         if (validationMode === 'onChange') {
@@ -508,7 +511,7 @@ export namespace SliderRoot {
      */
     onValueChange?: (
       value: Value extends number ? number : Value,
-      data: ChangeEventData,
+      eventDetails: ChangeEventDetails,
       activeThumbIndex: number,
     ) => void;
     /**
@@ -520,10 +523,10 @@ export namespace SliderRoot {
      */
     onValueCommitted?: (
       value: Value extends number ? number : Value,
-      data: ChangeEventData,
+      eventDetails: ChangeEventDetails,
     ) => void;
   }
 
-  export type ChangeReason = 'none';
-  export type ChangeEventData = BaseUIEventData<ChangeReason>;
+  export type ChangeEventReason = 'none';
+  export type ChangeEventDetails = BaseUIEventDetails<ChangeEventReason>;
 }

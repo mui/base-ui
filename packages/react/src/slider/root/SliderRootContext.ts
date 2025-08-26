@@ -5,7 +5,7 @@ import type { CompositeMetadata } from '../../composite/list/CompositeList';
 import type { useFieldControlValidation } from '../../field/control/useFieldControlValidation';
 import type { ThumbMetadata } from '../thumb/SliderThumb';
 import type { SliderRoot } from './SliderRoot';
-import type { BaseUIEventData } from '../../utils/createBaseUIEventData';
+import type { BaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
 
 export interface SliderRootContext {
   /**
@@ -49,7 +49,10 @@ export interface SliderRootContext {
   /**
    * Function to be called when drag ends and the pointer is released.
    */
-  onValueCommitted: (newValue: number | readonly number[], data: BaseUIEventData<'none'>) => void;
+  onValueCommitted: (
+    newValue: number | readonly number[],
+    data: BaseUIEventDetails<'none'>,
+  ) => void;
   /**
    * The component orientation.
    * @default 'horizontal'

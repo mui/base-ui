@@ -56,15 +56,17 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
     reset: resetOpenInteractionType,
   } = useOpenInteractionType(open);
 
-  const setOpen = useEventCallback((nextOpen: boolean, data: DialogRoot.ChangeEventData) => {
-    onOpenChangeParameter?.(nextOpen, data);
+  const setOpen = useEventCallback(
+    (nextOpen: boolean, eventDetails: DialogRoot.ChangeEventDetails) => {
+      onOpenChangeParameter?.(nextOpen, eventDetails);
 
-    if (data.isCanceled) {
-      return;
-    }
+      if (eventDetails.isCanceled) {
+        return;
+      }
 
-    setOpenUnwrapped(nextOpen);
-  });
+      setOpenUnwrapped(nextOpen);
+    },
+  );
 
   const handleUnmount = useEventCallback(() => {
     setMounted(false);
@@ -233,7 +235,7 @@ export namespace useDialogRoot {
     /**
      * Event handler called when the dialog is opened or closed.
      */
-    onOpenChange?: (open: boolean, data: DialogRoot.ChangeEventData) => void;
+    onOpenChange?: (open: boolean, eventDetails: DialogRoot.ChangeEventDetails) => void;
     /**
      * Event handler called after any animations complete when the dialog is opened or closed.
      */
@@ -291,7 +293,7 @@ export namespace useDialogRoot {
     /**
      * Event handler called when the dialog is opened or closed.
      */
-    setOpen: (open: boolean, data: DialogRoot.ChangeEventData) => void;
+    setOpen: (open: boolean, eventDetails: DialogRoot.ChangeEventDetails) => void;
     /**
      * Whether the dialog is currently open.
      */

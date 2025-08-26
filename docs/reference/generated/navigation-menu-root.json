@@ -13,9 +13,9 @@
       "description": "The controlled value of the navigation menu item that should be currently open.\nWhen non-nullish, the menu will be open. When nullish, the menu will be closed.\n\nTo render an uncontrolled navigation menu, use the `defaultValue` prop instead."
     },
     "onValueChange": {
-      "type": "((value: any, data: NavigationMenu.Root.ChangeEventData) => void)",
+      "type": "((value: any, eventDetails: NavigationMenu.Root.ChangeEventDetails) => void)",
       "description": "Callback fired when the value changes.",
-      "detailedType": "| ((\n    value: any,\n    data: NavigationMenu.Root.ChangeEventData,\n  ) => void)\n| undefined"
+      "detailedType": "| ((\n    value: any,\n    eventDetails: NavigationMenu.Root.ChangeEventDetails,\n  ) => void)\n| undefined"
     },
     "actionsRef": {
       "type": "RefObject<NavigationMenu.Root.Actions>",

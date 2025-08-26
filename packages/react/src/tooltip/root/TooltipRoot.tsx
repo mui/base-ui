@@ -18,7 +18,7 @@ import { useTransitionStatus } from '../../utils/useTransitionStatus';
 import { OPEN_DELAY } from '../utils/constants';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useTooltipProviderContext } from '../provider/TooltipProviderContext';
-import { BaseUIEventData, createBaseUIEventData } from '../../utils/createBaseUIEventData';
+import { BaseUIEventDetails, createBaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
 import type { PopupChangeReason } from '../../utils/types';
 
 /**
@@ -59,16 +59,16 @@ export function TooltipRoot(props: TooltipRoot.Props) {
 
   const open = !disabled && openState;
 
-  function setOpenUnwrapped(nextOpen: boolean, data: TooltipRoot.ChangeEventData) {
-    const reason = data.reason;
+  function setOpenUnwrapped(nextOpen: boolean, eventDetails: TooltipRoot.ChangeEventDetails) {
+    const reason = eventDetails.reason;
 
     const isHover = reason === 'trigger-hover';
     const isFocusOpen = nextOpen && reason === 'trigger-focus';
     const isDismissClose = !nextOpen && (reason === 'trigger-press' || reason === 'escape-key');
 
-    onOpenChange?.(nextOpen, data);
+    onOpenChange?.(nextOpen, eventDetails);
 
-    if (data.isCanceled) {
+    if (eventDetails.isCanceled) {
       return;
     }
 
@@ -94,7 +94,7 @@ export function TooltipRoot(props: TooltipRoot.Props) {
   const setOpen = useEventCallback(setOpenUnwrapped);
 
   if (openState && disabled) {
-    setOpenUnwrapped(false, createBaseUIEventData('disabled'));
+    setOpenUnwrapped(false, createBaseUIEventDetails('disabled'));
   }
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
@@ -250,7 +250,7 @@ export namespace TooltipRoot {
     /**
      * Event handler called when the tooltip is opened or closed.
      */
-    onOpenChange?: (open: boolean, data: ChangeEventData) => void;
+    onOpenChange?: (open: boolean, eventDetails: ChangeEventDetails) => void;
     /**
      * Event handler called after any animations complete when the tooltip is opened or closed.
      */
@@ -293,6 +293,6 @@ export namespace TooltipRoot {
     unmount: () => void;
   }
 
-  export type ChangeReason = PopupChangeReason | 'disabled';
-  export type ChangeEventData = BaseUIEventData<ChangeReason>;
+  export type ChangeEventReason = PopupChangeReason | 'disabled';
+  export type ChangeEventDetails = BaseUIEventDetails<ChangeEventReason>;
 }

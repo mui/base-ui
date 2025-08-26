@@ -4,7 +4,7 @@ import { useAnimationFrame } from '@base-ui-components/utils/useAnimationFrame';
 import { EMPTY_OBJECT } from '../../utils/constants';
 import type { ElementProps, FloatingRootContext } from '../types';
 import { isMouseLikePointerType } from '../utils';
-import { createBaseUIEventData } from '../../utils/createBaseUIEventData';
+import { createBaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
 
 export interface UseClickProps {
   /**
@@ -87,7 +87,7 @@ export function useClick(context: FloatingRootContext, props: UseClickProps = {}
         // Wait until focus is set on the element. This is an alternative to
         // `event.preventDefault()` to avoid :focus-visible from appearing when using a pointer.
         frame.request(() => {
-          onOpenChange(nextOpen, createBaseUIEventData('trigger-press', nativeEvent));
+          onOpenChange(nextOpen, createBaseUIEventDetails('trigger-press', nativeEvent));
         });
       },
       onClick(event) {
@@ -114,7 +114,7 @@ export function useClick(context: FloatingRootContext, props: UseClickProps = {}
               openEventType === 'keyup'
             : true)
         );
-        onOpenChange(nextOpen, createBaseUIEventData('trigger-press', event.nativeEvent));
+        onOpenChange(nextOpen, createBaseUIEventDetails('trigger-press', event.nativeEvent));
       },
       onKeyDown() {
         pointerTypeRef.current = undefined;

@@ -7,7 +7,7 @@ import type { BaseUIComponentProps, NativeButtonProps } from '../utils/types';
 import { useToggleGroupContext } from '../toggle-group/ToggleGroupContext';
 import { useButton } from '../use-button/useButton';
 import { CompositeItem } from '../composite/item/CompositeItem';
-import { BaseUIEventData, createBaseUIEventData } from '../utils/createBaseUIEventData';
+import { BaseUIEventDetails, createBaseUIEventDetails } from '../utils/createBaseUIEventDetails';
 
 /**
  * A two-state button that can be on or off.
@@ -50,10 +50,12 @@ export const Toggle = React.forwardRef(function Toggle(
     state: 'pressed',
   });
 
-  const onPressedChange = useEventCallback((nextPressed: boolean, data: Toggle.ChangeEventData) => {
-    groupContext?.setGroupValue?.(value, nextPressed, data.event);
-    onPressedChangeProp?.(nextPressed, data);
-  });
+  const onPressedChange = useEventCallback(
+    (nextPressed: boolean, eventDetails: Toggle.ChangeEventDetails) => {
+      groupContext?.setGroupValue?.(value, nextPressed, eventDetails.event);
+      onPressedChangeProp?.(nextPressed, eventDetails);
+    },
+  );
 
   const { getButtonProps, buttonRef } = useButton({
     disabled,
@@ -74,7 +76,7 @@ export const Toggle = React.forwardRef(function Toggle(
       'aria-pressed': pressed,
       onClick(event: React.MouseEvent) {
         const nextPressed = !pressed;
-        const data = createBaseUIEventData('none', event.nativeEvent);
+        const data = createBaseUIEventDetails('none', event.nativeEvent);
 
         onPressedChange(nextPressed, data);
 
@@ -147,7 +149,7 @@ export namespace Toggle {
      * @param {boolean} pressed The new pressed state.
      * @param {Event} event The corresponding event that initiated the change.
      */
-    onPressedChange?: (pressed: boolean, data: ChangeEventData) => void;
+    onPressedChange?: (pressed: boolean, eventDetails: ChangeEventDetails) => void;
     /**
      * A unique string that identifies the toggle when used
      * inside a toggle group.
@@ -155,6 +157,6 @@ export namespace Toggle {
     value?: string;
   }
 
-  export type ChangeReason = 'none';
-  export type ChangeEventData = BaseUIEventData<ChangeReason>;
+  export type ChangeEventReason = 'none';
+  export type ChangeEventDetails = BaseUIEventDetails<ChangeEventReason>;
 }

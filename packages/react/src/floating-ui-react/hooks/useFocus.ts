@@ -12,7 +12,7 @@ import {
 } from '../utils';
 
 import type { ElementProps, FloatingRootContext } from '../types';
-import { createBaseUIEventData } from '../../utils/createBaseUIEventData';
+import { createBaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
 import { createAttribute } from '../utils/createAttribute';
 
 const isMacSafari = isMac && isSafari;
@@ -95,8 +95,8 @@ export function useFocus(context: FloatingRootContext, props: UseFocusProps = {}
       return undefined;
     }
 
-    function onOpenChangeLocal({ data }: { data: { reason?: string } }) {
-      if (data?.reason === 'trigger-press' || data?.reason === 'escape-key') {
+    function onOpenChangeLocal({ details }: { details: { reason?: string } }) {
+      if (details?.reason === 'trigger-press' || details?.reason === 'escape-key') {
         blockFocusRef.current = true;
       }
     }
@@ -131,7 +131,7 @@ export function useFocus(context: FloatingRootContext, props: UseFocusProps = {}
           }
         }
 
-        onOpenChange(true, createBaseUIEventData('trigger-focus', event.nativeEvent));
+        onOpenChange(true, createBaseUIEventDetails('trigger-focus', event.nativeEvent));
       },
       onBlur(event) {
         blockFocusRef.current = false;
@@ -171,7 +171,7 @@ export function useFocus(context: FloatingRootContext, props: UseFocusProps = {}
             return;
           }
 
-          onOpenChange(false, createBaseUIEventData('trigger-focus', nativeEvent));
+          onOpenChange(false, createBaseUIEventDetails('trigger-focus', nativeEvent));
         });
       },
     }),

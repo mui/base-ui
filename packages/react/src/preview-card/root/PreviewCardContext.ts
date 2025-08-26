@@ -7,7 +7,7 @@ import type { PreviewCardRoot } from './PreviewCardRoot';
 
 export interface PreviewCardRootContext {
   open: boolean;
-  setOpen: (open: boolean, data: PreviewCardRoot.ChangeEventData) => void;
+  setOpen: (open: boolean, eventDetails: PreviewCardRoot.ChangeEventDetails) => void;
   setTriggerElement: (el: Element | null) => void;
   positionerElement: HTMLElement | null;
   setPositionerElement: (el: HTMLElement | null) => void;

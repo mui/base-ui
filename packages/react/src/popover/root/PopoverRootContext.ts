@@ -9,7 +9,7 @@ import type { PopoverRoot } from './PopoverRoot';
 export interface PopoverRootContext {
   open: boolean;
   openOnHover: boolean;
-  setOpen: (open: boolean, data: PopoverRoot.ChangeEventData) => void;
+  setOpen: (open: boolean, eventDetails: PopoverRoot.ChangeEventDetails) => void;
   triggerElement: Element | null;
   setTriggerElement: (el: Element | null) => void;
   positionerElement: HTMLElement | null;
@@ -31,7 +31,7 @@ export interface PopoverRootContext {
   triggerProps: HTMLProps;
   popupProps: HTMLProps;
   openMethod: InteractionType | null;
-  openReason: PopoverRoot.ChangeReason | null;
+  openReason: PopoverRoot.ChangeEventReason | null;
   onOpenChangeComplete: ((open: boolean) => void) | undefined;
   modal: boolean | 'trap-focus';
 }

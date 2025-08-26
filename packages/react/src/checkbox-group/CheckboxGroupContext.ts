@@ -2,12 +2,12 @@
 import * as React from 'react';
 import { useFieldControlValidation } from '../field/control/useFieldControlValidation';
 import { useCheckboxGroupParent } from './useCheckboxGroupParent';
-import { BaseUIEventData } from '../utils/createBaseUIEventData';
+import { BaseUIEventDetails } from '../utils/createBaseUIEventDetails';
 
 export interface CheckboxGroupContext {
   value: string[] | undefined;
   defaultValue: string[] | undefined;
-  setValue: (value: string[], data: BaseUIEventData<'none'>) => void;
+  setValue: (value: string[], eventDetails: BaseUIEventDetails<'none'>) => void;
   allValues: string[] | undefined;
   parent: useCheckboxGroupParent.ReturnValue;
   disabled: boolean;

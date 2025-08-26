@@ -3,11 +3,11 @@ import * as React from 'react';
 import type { FloatingRootContext } from '../../floating-ui-react';
 import type { HTMLProps } from '../../utils/types';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
-import { BaseUIEventData } from '../../utils/createBaseUIEventData';
+import { BaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
 
 export interface TooltipRootContext {
   open: boolean;
-  setOpen: (open: boolean, data: BaseUIEventData) => void;
+  setOpen: (open: boolean, eventDetails: BaseUIEventDetails) => void;
   setTriggerElement: (el: Element | null) => void;
   positionerElement: HTMLElement | null;
   setPositionerElement: (el: HTMLElement | null) => void;

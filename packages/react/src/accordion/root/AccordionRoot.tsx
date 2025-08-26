@@ -9,7 +9,10 @@ import { CompositeList } from '../../composite/list/CompositeList';
 import { useDirection } from '../../direction-provider/DirectionContext';
 import { AccordionRootContext } from './AccordionRootContext';
 import { useRenderElement } from '../../utils/useRenderElement';
-import { createBaseUIEventData, type BaseUIEventData } from '../../utils/createBaseUIEventData';
+import {
+  createBaseUIEventDetails,
+  type BaseUIEventDetails,
+} from '../../utils/createBaseUIEventDetails';
 
 const rootStyleHookMapping = {
   value: () => null,
@@ -76,7 +79,7 @@ export const AccordionRoot = React.forwardRef(function AccordionRoot(
 
   const handleValueChange = React.useCallback(
     (newValue: number | string, nextOpen: boolean) => {
-      const data = createBaseUIEventData('none');
+      const data = createBaseUIEventDetails('none');
       if (!openMultiple) {
         const nextValue = value[0] === newValue ? [] : [newValue];
         onValueChange(nextValue, data);
@@ -213,7 +216,7 @@ export namespace AccordionRoot {
      * Event handler called when an accordion item is expanded or collapsed.
      * Provides the new value as an argument.
      */
-    onValueChange?: (value: AccordionValue, event: ChangeEventData) => void;
+    onValueChange?: (value: AccordionValue, eventDetails: ChangeEventDetails) => void;
     /**
      * Whether multiple items can be open at the same time.
      * @default true
@@ -227,6 +230,6 @@ export namespace AccordionRoot {
     orientation?: Orientation;
   }
 
-  export type ChangeReason = 'none';
-  export type ChangeEventData = BaseUIEventData<ChangeReason>;
+  export type ChangeEventReason = 'none';
+  export type ChangeEventDetails = BaseUIEventDetails<ChangeEventReason>;
 }

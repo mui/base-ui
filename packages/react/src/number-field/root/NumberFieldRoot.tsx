@@ -21,7 +21,7 @@ import { useBaseUiId } from '../../utils/useBaseUiId';
 import { CHANGE_VALUE_TICK_DELAY, DEFAULT_STEP, START_AUTO_CHANGE_DELAY } from '../utils/constants';
 import { toValidatedNumber } from '../utils/validate';
 import { EventWithOptionalKeyState } from '../utils/types';
-import { BaseUIEventData, createBaseUIEventData } from '../../utils/createBaseUIEventData';
+import { BaseUIEventDetails, createBaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
 import { isReactEvent } from '../../floating-ui-react/utils';
 
 /**
@@ -172,7 +172,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
         nativeEvent = isReactEvent(event) ? event.nativeEvent : event;
       }
 
-      const data = createBaseUIEventData('none', nativeEvent);
+      const data = createBaseUIEventDetails('none', nativeEvent);
       const validatedValue = toValidatedNumber(unvalidatedValue, {
         step: dir ? getStepAmount(eventWithOptionalKeyState) * dir : undefined,
         format: formatOptionsRef.current,
@@ -540,7 +540,7 @@ export namespace NumberFieldRoot {
     /**
      * Callback fired when the number value changes.
      */
-    onValueChange?: (value: number | null, data: ChangeEventData) => void;
+    onValueChange?: (value: number | null, eventDetails: ChangeEventDetails) => void;
     /**
      * The locale of the input element.
      * Defaults to the user's runtime locale.
@@ -579,8 +579,8 @@ export namespace NumberFieldRoot {
     scrubbing: boolean;
   }
 
-  export type ChangeReason = 'none';
-  export type ChangeEventData = BaseUIEventData<ChangeReason>;
+  export type ChangeEventReason = 'none';
+  export type ChangeEventDetails = BaseUIEventDetails<ChangeEventReason>;
 }
 
 function getControlledInputValue(

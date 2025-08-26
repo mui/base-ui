@@ -16,7 +16,7 @@ import { customStyleHookMapping } from '../utils/customStyleHookMapping';
 import { useRadioGroupContext } from '../../radio-group/RadioGroupContext';
 import { RadioRootContext } from './RadioRootContext';
 import { EMPTY_OBJECT } from '../../utils/constants';
-import { createBaseUIEventData } from '../../utils/createBaseUIEventData';
+import { createBaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
 
 /**
  * Represents the radio button itself.
@@ -137,7 +137,7 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
           return;
         }
 
-        const data = createBaseUIEventData('none', event.nativeEvent);
+        const data = createBaseUIEventDetails('none', event.nativeEvent);
         setFieldTouched(true);
         setDirty(value !== validityData.initialValue);
         setFilled(true);

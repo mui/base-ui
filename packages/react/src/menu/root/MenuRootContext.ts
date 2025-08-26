@@ -19,14 +19,14 @@ export interface MenuRootContext {
   mounted: boolean;
   open: boolean;
   popupRef: React.RefObject<HTMLElement | null>;
-  setOpen: (open: boolean, data: MenuRoot.ChangeEventData) => void;
+  setOpen: (open: boolean, eventDetails: MenuRoot.ChangeEventDetails) => void;
   positionerRef: React.RefObject<HTMLElement | null>;
   setPositionerElement: (element: HTMLElement | null) => void;
   triggerElement: HTMLElement | null;
   setTriggerElement: (element: HTMLElement | null) => void;
   transitionStatus: TransitionStatus;
   allowMouseUpTriggerRef: React.RefObject<boolean>;
-  lastOpenChangeReason: MenuRoot.ChangeReason | null;
+  lastOpenChangeReason: MenuRoot.ChangeEventReason | null;
   instantType: 'dismiss' | 'click' | 'group' | undefined;
   onOpenChangeComplete: ((open: boolean) => void) | undefined;
   setHoverEnabled: React.Dispatch<React.SetStateAction<boolean>>;

@@ -12,7 +12,7 @@ import {
   getNextTabbable,
   isOutsideEvent,
 } from '../utils';
-import { createBaseUIEventData } from '../../utils/createBaseUIEventData';
+import { createBaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
 import { createAttribute } from '../utils/createAttribute';
 
 type FocusManagerState = {
@@ -269,7 +269,7 @@ export function FloatingPortal(props: FloatingPortalProps): React.JSX.Element {
               if (focusManagerState?.closeOnFocusOut) {
                 focusManagerState?.onOpenChange(
                   false,
-                  createBaseUIEventData('focus-out', event.nativeEvent),
+                  createBaseUIEventDetails('focus-out', event.nativeEvent),
                 );
               }
             }
