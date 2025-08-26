@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { useStore } from '@base-ui-components/utils/store';
 import { useComboboxRootContext } from '../root/ComboboxRootContext';
-import { stringifyItem } from '../root/utils';
+import { isGroupedItems, stringifyItem } from '../root/utils';
 import { selectors } from '../store';
 
 /**
@@ -21,19 +21,14 @@ export function ComboboxValue(props: ComboboxValue.Props) {
   const memoizedItemDerivatives = React.useMemo(() => {
     if (isChildrenPropDefined || !Array.isArray(items)) {
       return {
-        flatItems: undefined,
-        hasPairs: false,
-        valueToLabel: undefined,
-        nullItemLabel: undefined,
+        flatItems: undefined as any[] | undefined,
+        valueToLabel: undefined as Map<any, React.ReactNode> | undefined,
+        nullItemLabel: undefined as React.ReactNode | undefined,
       };
     }
 
-    const flatItems =
-      items.length > 0 && typeof items[0] === 'object' && items[0] && 'items' in items[0]
-        ? (items as Array<{ items: any[] }>).flatMap((group) => group.items)
-        : items;
+    const flatItems = isGroupedItems(items) ? items.flatMap((g) => g.items) : items;
 
-    let hasPairs = false;
     let valueToLabel: Map<any, React.ReactNode> | undefined;
     let nullItemLabel: React.ReactNode | undefined;
 
@@ -57,10 +52,7 @@ export function ComboboxValue(props: ComboboxValue.Props) {
           }
 
           if (hasLabelKey) {
-            hasPairs = true;
-            if (!valueToLabel) {
-              valueToLabel = new Map();
-            }
+            valueToLabel ??= new Map();
             if (!valueToLabel.has(item.value)) {
               valueToLabel.set(item.value, item.label);
             }
@@ -71,7 +63,6 @@ export function ComboboxValue(props: ComboboxValue.Props) {
 
     return {
       flatItems,
-      hasPairs,
       valueToLabel,
       nullItemLabel,
     };
@@ -85,8 +76,13 @@ export function ComboboxValue(props: ComboboxValue.Props) {
     return childrenProp;
   }
 
-  if (selectedValue && typeof selectedValue === 'object' && 'label' in selectedValue) {
-    return selectedValue.label;
+  if (
+    selectedValue &&
+    typeof selectedValue === 'object' &&
+    'label' in selectedValue &&
+    (selectedValue as any).label != null
+  ) {
+    return (selectedValue as any).label as React.ReactNode;
   }
 
   if (Array.isArray(items)) {
@@ -96,11 +92,7 @@ export function ComboboxValue(props: ComboboxValue.Props) {
 
     // When a value is selected and items are value/label pairs, render label.
     // e.g. items: [{ value: 'uk', label: 'United Kingdom' }], selectedValue: 'uk' → 'United Kingdom'
-    if (
-      selectedValue != null &&
-      memoizedItemDerivatives.hasPairs &&
-      memoizedItemDerivatives.valueToLabel?.has(selectedValue)
-    ) {
+    if (selectedValue != null && memoizedItemDerivatives.valueToLabel?.has(selectedValue)) {
       return memoizedItemDerivatives.valueToLabel.get(selectedValue);
     }
   }

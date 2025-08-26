@@ -14,7 +14,13 @@ export interface ComboboxGroup<Item = any> {
 export function isGroupedItems(
   items: (any | ComboboxGroup<any>)[] | undefined,
 ): items is ComboboxGroup<any>[] {
-  return items != null && items.length > 0 && typeof items[0] === 'object' && 'items' in items[0];
+  return (
+    items != null &&
+    items.length > 0 &&
+    typeof items[0] === 'object' &&
+    items[0] != null &&
+    'items' in (items[0] as object)
+  );
 }
 
 export function stringifyItem(item: any | null | undefined, itemToString?: (item: any) => string) {
