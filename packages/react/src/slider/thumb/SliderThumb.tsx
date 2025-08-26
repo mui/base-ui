@@ -104,8 +104,6 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     getAriaLabel: getAriaLabelProp,
     getAriaValueText: getAriaValueTextProp,
     id: idProp,
-    onBlur: onBlurProp,
-    onFocus: onFocusProp,
     onKeyDown: onKeyDownProp,
     tabIndex: tabIndexProp,
     ...elementProps
