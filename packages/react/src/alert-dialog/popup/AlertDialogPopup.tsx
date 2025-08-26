@@ -143,6 +143,10 @@ export namespace AlertDialogPopup {
     /**
      * Determines the element to focus when the dialog is opened.
      * By default, the first focusable element is focused.
+     *
+     * - `null`: Do not focus any element.
+     * - `RefObject`: Focus the ref element. Falls back to default behavior when `null`.
+     * - `function`: Return the element to focus. Called with the interaction type (`mouse`, `touch`, `pen`, or `keyboard`) that caused the open. Falls back to default behavior when `null` is returned, or does nothing when `void` is returned.
      */
     initialFocus?:
       | null
@@ -151,6 +155,10 @@ export namespace AlertDialogPopup {
     /**
      * Determines the element to focus when the dialog is closed.
      * By default, focus returns to the trigger.
+     *
+     * - `null`: Do not focus any element.
+     * - `RefObject`: Focus the ref element. Falls back to default behavior when `null`.
+     * - `function`: Return the element to focus. Called with the interaction type (`mouse`, `touch`, `pen`, or `keyboard`) that caused the close. Falls back to default behavior when `null` is returned, or does nothing when `void` is returned.
      */
     finalFocus?:
       | null

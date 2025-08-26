@@ -4,12 +4,12 @@
   "props": {
     "initialFocus": {
       "type": "RefObject<HTMLElement | null> | ((openType: InteractionType) => void | HTMLElement | null) | null",
-      "description": "Determines the element to focus when the popover is opened.\nBy default, the first focusable element is focused.",
+      "description": "Determines the element to focus when the popover is opened.\nBy default, the first focusable element is focused.\n\n- `null`: Do not focus any element.\n- `RefObject`: Focus the ref element. Falls back to default behavior when `null`.\n- `function`: Return the element to focus. Called with the interaction type (`mouse`, `touch`, `pen`, or `keyboard`) that caused the open. Falls back to default behavior when `null` is returned, or does nothing when `void` is returned.",
       "detailedType": "| React.RefObject<HTMLElement | null>\n| ((\n    openType: InteractionType,\n  ) => void | HTMLElement | null)\n| null\n| undefined"
     },
     "finalFocus": {
       "type": "RefObject<HTMLElement | null> | ((closeType: InteractionType) => void | HTMLElement | null) | null",
-      "description": "Determines the element to focus when the popover is closed.\nBy default, focus returns to the trigger.",
+      "description": "Determines the element to focus when the popover is closed.\nBy default, focus returns to the trigger.\n\n- `null`: Do not focus any element.\n- `RefObject`: Focus the ref element. Falls back to default behavior when `null`.\n- `function`: Return the element to focus. Called with the interaction type (`mouse`, `touch`, `pen`, or `keyboard`) that caused the close. Falls back to default behavior when `null` is returned, or does nothing when `void` is returned.",
       "detailedType": "| React.RefObject<HTMLElement | null>\n| ((\n    closeType: InteractionType,\n  ) => void | HTMLElement | null)\n| null\n| undefined"
     },
     "className": {

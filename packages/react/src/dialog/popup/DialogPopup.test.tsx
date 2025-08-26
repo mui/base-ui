@@ -454,7 +454,7 @@ describe('<Dialog.Popup />', () => {
       await user.click(getByText('Open'));
 
       await waitFor(() => {
-        expect(getByText('Close')).toBeVisible();
+        expect(getByTestId('initial-outside')).toHaveFocus();
       });
 
       await user.click(getByText('Close'));
@@ -490,7 +490,7 @@ describe('<Dialog.Popup />', () => {
       await user.click(getByText('Open'));
 
       await waitFor(() => {
-        expect(getByText('Close')).toBeVisible();
+        expect(getByTestId('initial-outside')).toHaveFocus();
       });
 
       await user.click(getByText('Close'));
