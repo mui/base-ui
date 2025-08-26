@@ -88,6 +88,7 @@ export const ComboboxPositioner = React.forwardRef(function ComboboxPositioner(
     trackAnchor,
     keepMounted,
     collisionAvoidance,
+    lazyFlip: true,
   });
 
   useScrollLock({

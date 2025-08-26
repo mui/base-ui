@@ -125,7 +125,14 @@ export function useAnchorPositioning(
     shiftCrossAxis = false,
     nodeId,
     adaptiveOrigin,
+    lazyFlip = false,
   } = params;
+
+  const [mountSide, setMountSide] = React.useState<PhysicalSide | null>(null);
+
+  if (!mounted && mountSide !== null) {
+    setMountSide(null);
+  }
 
   const collisionAvoidanceSide = collisionAvoidance.side || 'flip';
   const collisionAvoidanceAlign = collisionAvoidance.align || 'flip';
@@ -139,16 +146,18 @@ export function useAnchorPositioning(
   const direction = useDirection();
   const isRtl = direction === 'rtl';
 
-  const side = (
-    {
-      top: 'top',
-      right: 'right',
-      bottom: 'bottom',
-      left: 'left',
-      'inline-end': isRtl ? 'left' : 'right',
-      'inline-start': isRtl ? 'right' : 'left',
-    } satisfies Record<Side, PhysicalSide>
-  )[sideParam];
+  const side =
+    mountSide ||
+    (
+      {
+        top: 'top',
+        right: 'right',
+        bottom: 'bottom',
+        left: 'left',
+        'inline-end': isRtl ? 'left' : 'right',
+        'inline-start': isRtl ? 'right' : 'left',
+      } satisfies Record<Side, PhysicalSide>
+    )[sideParam];
 
   const placement = align === 'center' ? side : (`${side}-${align}` as Placement);
 
@@ -450,6 +459,17 @@ export function useAnchorPositioning(
   const renderedAlign = getAlignment(renderedPlacement) || 'center';
   const anchorHidden = Boolean(middlewareData.hide?.referenceHidden);
 
+  /**
+   * Locks the flip (makes it "sticky") so it doesn't prefer a given placement
+   * and flips back lazily, not eagerly. Ideal for filtered lists that change
+   * the size of the popup dynamically to avoid unwanted flipping when typing.
+   */
+  useIsoLayoutEffect(() => {
+    if (lazyFlip && mounted && isPositioned) {
+      setMountSide(renderedSide);
+    }
+  }, [lazyFlip, mounted, isPositioned, renderedSide]);
+
   const arrowStyles = React.useMemo(
     () => ({
       position: 'absolute' as const,
@@ -633,6 +653,7 @@ export namespace useAnchorPositioning {
     adaptiveOrigin?: Middleware;
     collisionAvoidance: CollisionAvoidance;
     shiftCrossAxis?: boolean;
+    lazyFlip?: boolean;
   }
 
   export interface ReturnValue {
