@@ -52,20 +52,22 @@ export default function Popovers() {
 
   const [singleTriggerOpen, setSingleTriggerOpen] = React.useState(false);
 
-  const [secondTrigger, setSecondTrigger] = React.useState<HTMLButtonElement | null>(null);
-  const [multipleTriggerOpen, setMultipleTriggerOpen] = React.useState<HTMLElement | null>(null);
+  const [controlledWithinRootOpen, setControlledWithinRootOpen] = React.useState(false);
+  const [controlledWithinRootTriggerId, setControlledWithinRootTriggerId] = React.useState<
+    string | null
+  >(null);
 
-  const [secondDetachedTrigger, setSecondDetachedTrigger] = React.useState<HTMLElement | null>(
-    null,
-  );
-  const [detachedTriggerOpen, setDetachedTriggerOpen] = React.useState<HTMLElement | null>(null);
+  const [controlledDetachedOpen, setControlledDetachedOpen] = React.useState(false);
+  const [controlledDetachedTriggerId, setControlledDetachedTriggerId] = React.useState<
+    string | null
+  >(null);
 
   return (
     <div className={styles.Page}>
       <h1>Popovers</h1>
       <h2>Uncontrolled, single trigger</h2>
       <div className={styles.Container}>
-        <Popover.Root>
+        <Popover.Root defaultOpen>
           <StyledTrigger />
           {renderPopoverContent(0, settings)}
         </Popover.Root>
@@ -110,13 +112,17 @@ export default function Popovers() {
       <h2>Controlled, multiple triggers within Root</h2>
       <div className={styles.Container}>
         <Popover.Root
-          open={multipleTriggerOpen}
-          onOpenChange={(open, event, reason, trigger) => setMultipleTriggerOpen(trigger)}
+          open={controlledWithinRootOpen}
+          onOpenChange={(open, event, reason, triggerId) => {
+            setControlledWithinRootOpen(open);
+            setControlledWithinRootTriggerId(triggerId);
+          }}
+          triggerId={controlledWithinRootTriggerId ?? undefined}
         >
           {({ payload }) => (
             <React.Fragment>
               <StyledTrigger payload={0} />
-              <StyledTrigger payload={1} ref={setSecondTrigger} />
+              <StyledTrigger payload={1} id="within-root-second-trigger" />
               <StyledTrigger payload={2} />
               {renderPopoverContent(payload as number, settings)}
             </React.Fragment>
@@ -125,7 +131,10 @@ export default function Popovers() {
         <button
           type="button"
           className={styles.Button}
-          onClick={() => setMultipleTriggerOpen(secondTrigger)}
+          onClick={() => {
+            setControlledWithinRootOpen(true);
+            setControlledWithinRootTriggerId('within-root-second-trigger');
+          }}
         >
           Open externally (2nd trigger)
         </button>
@@ -145,18 +154,25 @@ export default function Popovers() {
       <div className={styles.Container}>
         <StyledPopover
           handle={popover2}
-          open={detachedTriggerOpen}
-          onOpenChange={(open, event, reason, trigger) => setDetachedTriggerOpen(trigger)}
+          open={controlledDetachedOpen}
+          triggerId={controlledDetachedTriggerId ?? undefined}
+          onOpenChange={(open, event, reason, triggerId) => {
+            setControlledDetachedOpen(open);
+            setControlledDetachedTriggerId(triggerId);
+          }}
         />
         <StyledTrigger handle={popover2} payload={0} />
-        <StyledTrigger handle={popover2} payload={1} ref={setSecondDetachedTrigger} />
+        <StyledTrigger handle={popover2} payload={1} id="detached-second-trigger" />
         <StyledTrigger handle={popover2} payload={2} />
         <StyledTrigger handle={popover2} payload={3} />
         <StyledTrigger handle={popover2} payload={4} />
         <button
           type="button"
           className={styles.Button}
-          onClick={() => setDetachedTriggerOpen(secondDetachedTrigger)}
+          onClick={() => {
+            setControlledDetachedOpen(true);
+            setControlledDetachedTriggerId('detached-second-trigger');
+          }}
         >
           Open externally (2nd trigger)
         </button>
@@ -167,7 +183,7 @@ export default function Popovers() {
 
 type StyledPopoverProps<Payload> = Pick<
   Popover.Root.Props<Payload>,
-  'handle' | 'open' | 'onOpenChange'
+  'handle' | 'open' | 'onOpenChange' | 'triggerId'
 >;
 
 function StyledTrigger<Payload>(
@@ -188,11 +204,11 @@ function StyledTrigger<Payload>(
 }
 
 function StyledPopover(props: StyledPopoverProps<number>) {
-  const { handle, open, onOpenChange } = props;
+  const { handle, open, onOpenChange, triggerId } = props;
   const { settings } = useExperimentSettings<Settings>();
 
   return (
-    <Popover.Root handle={handle} open={open} onOpenChange={onOpenChange}>
+    <Popover.Root handle={handle} open={open} onOpenChange={onOpenChange} triggerId={triggerId}>
       {({ payload }) => payload !== undefined && renderPopoverContent(payload, settings)}
     </Popover.Root>
   );

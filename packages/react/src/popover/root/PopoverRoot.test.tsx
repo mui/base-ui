@@ -950,22 +950,25 @@ describe('<Popover.Root />', () => {
 
     it('should allow controlling the popover state programmatically', async () => {
       function Test() {
-        const [trigger1, setTrigger1] = React.useState<HTMLElement | null>(null);
-        const [trigger2, setTrigger2] = React.useState<HTMLElement | null>(null);
-        const [activeTrigger, setActiveTrigger] = React.useState<HTMLElement | null>(null);
+        const [open, setOpen] = React.useState(false);
+        const [activeTrigger, setActiveTrigger] = React.useState<string | null>(null);
 
         return (
           <div>
             <Popover.Root
-              open={activeTrigger}
-              onOpenChange={(nextOpen, event, reason, trigger) => setActiveTrigger(trigger)}
+              open={open}
+              triggerId={activeTrigger}
+              onOpenChange={(nextOpen, event, reason, triggerId) => {
+                setActiveTrigger(triggerId);
+                setOpen(nextOpen);
+              }}
             >
               {({ payload }) => (
                 <React.Fragment>
-                  <Popover.Trigger payload={1} ref={setTrigger1}>
+                  <Popover.Trigger payload={1} id="trigger-1">
                     Trigger 1
                   </Popover.Trigger>
-                  <Popover.Trigger payload={2} ref={setTrigger2}>
+                  <Popover.Trigger payload={2} id="trigger-2">
                     Trigger 2
                   </Popover.Trigger>
 
@@ -979,9 +982,23 @@ describe('<Popover.Root />', () => {
                 </React.Fragment>
               )}
             </Popover.Root>
-            <button onClick={() => setActiveTrigger(trigger1)}>Open Trigger 1</button>
-            <button onClick={() => setActiveTrigger(trigger2)}>Open Trigger 2</button>
-            <button onClick={() => setActiveTrigger(null)}>Close</button>
+            <button
+              onClick={() => {
+                setOpen(true);
+                setActiveTrigger('trigger-1');
+              }}
+            >
+              Open Trigger 1
+            </button>
+            <button
+              onClick={() => {
+                setOpen(true);
+                setActiveTrigger('trigger-2');
+              }}
+            >
+              Open Trigger 2
+            </button>
+            <button onClick={() => setOpen(false)}>Close</button>
           </div>
         );
       }
@@ -1115,22 +1132,25 @@ describe('<Popover.Root />', () => {
     it('should allow controlling the popover state programmatically', async () => {
       const testPopover = Popover.createHandle<number>();
       function Test() {
-        const [trigger1, setTrigger1] = React.useState<HTMLElement | null>(null);
-        const [trigger2, setTrigger2] = React.useState<HTMLElement | null>(null);
-        const [activeTrigger, setActiveTrigger] = React.useState<HTMLElement | null>(null);
+        const [open, setOpen] = React.useState(false);
+        const [activeTrigger, setActiveTrigger] = React.useState<string | null>(null);
 
         return (
           <div style={{ margin: 50 }}>
-            <Popover.Trigger handle={testPopover} payload={1} ref={setTrigger1}>
+            <Popover.Trigger handle={testPopover} payload={1} id="trigger-1">
               Trigger 1
             </Popover.Trigger>
-            <Popover.Trigger handle={testPopover} payload={2} ref={setTrigger2}>
+            <Popover.Trigger handle={testPopover} payload={2} id="trigger-2">
               Trigger 2
             </Popover.Trigger>
 
             <Popover.Root
-              open={activeTrigger}
-              onOpenChange={(nextOpen, event, reason, trigger) => setActiveTrigger(trigger)}
+              open={open}
+              onOpenChange={(nextOpen, event, reason, trigger) => {
+                setActiveTrigger(trigger);
+                setOpen(nextOpen);
+              }}
+              triggerId={activeTrigger}
               handle={testPopover}
             >
               {({ payload }) => (
@@ -1144,9 +1164,23 @@ describe('<Popover.Root />', () => {
               )}
             </Popover.Root>
 
-            <button onClick={() => setActiveTrigger(trigger1)}>Open Trigger 1</button>
-            <button onClick={() => setActiveTrigger(trigger2)}>Open Trigger 2</button>
-            <button onClick={() => setActiveTrigger(null)}>Close</button>
+            <button
+              onClick={() => {
+                setOpen(true);
+                setActiveTrigger('trigger-1');
+              }}
+            >
+              Open Trigger 1
+            </button>
+            <button
+              onClick={() => {
+                setOpen(true);
+                setActiveTrigger('trigger-2');
+              }}
+            >
+              Open Trigger 2
+            </button>
+            <button onClick={() => setOpen(false)}>Close</button>
           </div>
         );
       }

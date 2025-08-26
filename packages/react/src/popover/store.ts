@@ -8,14 +8,20 @@ import { getEmptyContext } from '../floating-ui-react/hooks/useFloatingRootConte
 
 const EMPTY_OBJ = {};
 
+type TriggerMap<Payload = unknown> = Map<
+  string,
+  { element: HTMLElement; getPayload?: (() => Payload) | undefined }
+>;
+
 export type State = {
   modal: boolean | 'trap-focus';
 
   open: boolean;
-  activeTriggerElement: HTMLElement | null;
+  mounted: boolean;
+  activeTriggerId: string | null;
   positionerElement: HTMLElement | null;
   popupElement: HTMLElement | null;
-  triggers: Map<HTMLElement, (() => unknown) | undefined>;
+  triggers: TriggerMap;
 
   instantType: 'dismiss' | 'click' | undefined;
   transitionStatus: TransitionStatus;
@@ -38,11 +44,12 @@ export type State = {
 function createInitialState<Payload>(): State {
   return {
     open: false,
+    mounted: false,
     modal: false,
-    activeTriggerElement: null,
+    activeTriggerId: null,
     positionerElement: null,
     popupElement: null,
-    triggers: new Map<HTMLElement, (() => Payload) | undefined>(),
+    triggers: new Map<string, { element: HTMLElement; getPayload?: (() => Payload) | undefined }>(),
     instantType: undefined,
     transitionStatus: 'idle',
     openMethod: null,
@@ -63,15 +70,15 @@ export class PopoverStore<Payload = undefined> extends Store<State> {
     super({ ...createInitialState<Payload>(), ...initialState });
   }
 
-  registerTrigger(triggerElement: HTMLElement, getPayload?: () => Payload) {
+  registerTrigger(triggerId: string, triggerElement: HTMLElement, getPayload?: () => Payload) {
     const triggers = new Map(this.state.triggers);
-    triggers.set(triggerElement, getPayload);
+    triggers.set(triggerId, { element: triggerElement, getPayload });
     this.set('triggers', triggers);
   }
 
-  unregisterTrigger(triggerElement: HTMLElement) {
+  unregisterTrigger(triggerId: string) {
     const triggers = new Map(this.state.triggers);
-    triggers.delete(triggerElement);
+    triggers.delete(triggerId);
     this.set('triggers', triggers);
   }
 }
@@ -82,9 +89,14 @@ export function createPopoverHandle<Payload = undefined>(): PopoverStore<Payload
 
 export const selectors = {
   open: createSelector((state: State) => state.open),
-  mounted: createSelector((state: State) => state.activeTriggerElement !== null),
+  mounted: createSelector((state: State) => state.mounted),
 
-  activeTriggerElement: createSelector((state: State) => state.activeTriggerElement),
+  activeTriggerId: createSelector((state: State) => state.activeTriggerId),
+  activeTriggerElement: createSelector((state: State) =>
+    state.activeTriggerId != null
+      ? (state.triggers.get(state.activeTriggerId)?.element ?? null)
+      : null,
+  ),
   positionerElement: createSelector((state: State) => state.positionerElement),
   popupElement: createSelector((state: State) => state.popupElement),
   triggers: createSelector((state: State) => state.triggers),

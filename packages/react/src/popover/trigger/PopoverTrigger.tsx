@@ -17,6 +17,7 @@ import { safePolygon, useClick, useHover, useInteractions } from '../../floating
 import { OPEN_DELAY } from '../utils/constants';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
 import { PopoverStore, selectors } from '../store';
+import { useBaseUiId } from '../../utils/useBaseUiId';
 
 /**
  * A button that opens the popover.
@@ -38,6 +39,7 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
     openOnHover = false,
     delay = OPEN_DELAY,
     closeDelay = 0,
+    id: idProp,
     ...elementProps
   } = componentProps;
 
@@ -54,6 +56,8 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
       'Base UI: PopoverTrigger must be either used within a PopoverRoot component or have the `handle` prop set.',
     );
   }
+
+  const id = useBaseUiId(idProp);
 
   const floatingContext = useStore(store, selectors.floatingRootContext);
   const open = useStore(store, selectors.open);
@@ -107,23 +111,28 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
     return payload;
   });
 
-  const registeredTriggerRef = React.useRef<HTMLElement | null>(null);
+  const registeredId = React.useRef<string>(null);
   const registerTrigger = React.useCallback(
     (element: HTMLElement | null) => {
+      if (id == null) {
+        throw new Error('Base UI: PopoverTrigger must have an `id` prop specified.');
+      }
+
       if (element != null) {
-        store.registerTrigger(element, getPayload);
+        store.registerTrigger(id, element, getPayload);
         setTriggerElement(element);
-        registeredTriggerRef.current = element;
+        // Keeping track of the registered id in case it changes.
+        registeredId.current = id;
       } else {
-        if (registeredTriggerRef.current) {
-          store.unregisterTrigger(registeredTriggerRef.current);
-          registeredTriggerRef.current = null;
+        if (registeredId.current != null) {
+          store.unregisterTrigger(registeredId.current);
+          registeredId.current = null;
         }
 
         setTriggerElement(null);
       }
     },
-    [getPayload, store],
+    [getPayload, store, id],
   );
 
   const state: PopoverTrigger.State = React.useMemo(
@@ -159,7 +168,7 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
       localProps.getReferenceProps(),
       isTriggerActive ? rootActiveTriggerProps : rootInactiveTriggerProps,
       interactionTypeTriggerProps,
-      { [CLICK_TRIGGER_IDENTIFIER as string]: '' },
+      { [CLICK_TRIGGER_IDENTIFIER as string]: '', id },
       elementProps,
       getButtonProps,
     ],
@@ -198,6 +207,11 @@ export namespace PopoverTrigger {
        * A payload to pass to the popover when it is opened.
        */
       payload?: Payload;
+      /**
+       * Id of the trigger. In addition to being forwarded to the rendered element,
+       * it is also used to specify the active trigger for the popover in controlled mode (with the PopoverRoot `triggerId` prop).
+       */
+      id?: string;
       /**
        * Whether the popover should also open when the trigger is hovered.
        * @default false
