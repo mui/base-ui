@@ -999,9 +999,7 @@ type ExtractItemType<Item> = Item extends ComboboxGroup<infer GroupItem>[]
 
 type SelectionMode = 'single' | 'multiple' | 'none';
 
-type ComboboxValueType<Item, Mode extends SelectionMode> = Mode extends 'multiple'
-  ? Item[]
-  : Item | null;
+type ComboboxValueType<Item, Mode extends SelectionMode> = Mode extends 'multiple' ? Item[] : Item;
 
 interface ComboboxRootProps<Item> {
   children?: React.ReactNode;
@@ -1190,7 +1188,7 @@ export type ComboboxRootConditionalProps<Item, Mode extends SelectionMode = 'non
    *
    * To render a controlled combobox, use the `selectedValue` prop instead.
    */
-  defaultSelectedValue?: ComboboxValueType<ExtractItemType<Item>, Mode>;
+  defaultSelectedValue?: ComboboxValueType<ExtractItemType<Item>, Mode> | null;
   /**
    * Callback fired when the selected value of the combobox changes.
    */

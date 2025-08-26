@@ -1,5 +1,6 @@
 export { AutocompleteRoot as Root } from './root/AutocompleteRoot';
 
+export { ComboboxTrigger as Trigger } from '../combobox/trigger/ComboboxTrigger';
 export { ComboboxInput as Input } from '../combobox/input/ComboboxInput';
 export { ComboboxIcon as Icon } from '../combobox/icon/ComboboxIcon';
 export { ComboboxClear as Clear } from '../combobox/clear/ComboboxClear';

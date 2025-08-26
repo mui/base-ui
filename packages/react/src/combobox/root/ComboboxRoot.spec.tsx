@@ -3,7 +3,7 @@ import { Combobox } from '@base-ui-components/react/combobox';
 
 <Combobox.Root
   multiple
-  // @ts-expect-error – should be an array when in multiple mode
+  // @ts-expect-error
   defaultValue="javascript"
   onValueChange={(value) => {
     value.pop();
@@ -19,10 +19,11 @@ import { Combobox } from '@base-ui-components/react/combobox';
 />;
 
 <Combobox.Root
-  // @ts-expect-error – should be a scalar when in single mode
+  multiple={false}
+  // @ts-expect-error
   defaultValue={['javascript', 'typescript']}
   onValueChange={(value) => {
-    // @ts-expect-error – value is not an array in single mode
+    // @ts-expect-error
     value.pop();
   }}
 />;
@@ -30,7 +31,7 @@ import { Combobox } from '@base-ui-components/react/combobox';
 <Combobox.Root
   defaultValue="javascript"
   onValueChange={(value) => {
-    // @ts-expect-error – value is not an array in single mode
+    // @ts-expect-error
     value.pop();
   }}
 />;
@@ -43,6 +44,45 @@ import { Combobox } from '@base-ui-components/react/combobox';
 />;
 
 function App() {
-  const [mode, setMode] = React.useState<'single' | 'multiple'>('single');
-  return <Combobox.Root multiple={mode === 'multiple'} />;
+  const [multiple, setMultiple] = React.useState(false);
+  return (
+    <Combobox.Root
+      multiple={multiple}
+      onValueChange={(value) => {
+        value.pop();
+      }}
+    />
+  );
+}
+
+<Combobox.Root
+  defaultValue="test"
+  onValueChange={(value) => {
+    value.length;
+  }}
+/>;
+
+function App2() {
+  const [value, setValue] = React.useState('a');
+  return (
+    <Combobox.Root
+      value={value}
+      onValueChange={(newValue) => {
+        newValue.length;
+      }}
+    />
+  );
+}
+
+function App3() {
+  const [value, setValue] = React.useState<string | null>('a');
+  return (
+    <Combobox.Root
+      value={value}
+      onValueChange={(newValue) => {
+        // @ts-expect-error
+        newValue.length;
+      }}
+    />
+  );
 }
