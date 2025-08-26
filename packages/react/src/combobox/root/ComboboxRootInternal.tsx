@@ -85,7 +85,7 @@ export function ComboboxRootInternal<Item = any, Mode extends SelectionMode = 'n
     fillInputOnItemPress = true,
     modal = false,
     limit = -1,
-    autoComplete,
+    autoComplete = 'list',
   } = props;
 
   const { clearErrors } = useFormContext();
@@ -151,7 +151,7 @@ export function ComboboxRootInternal<Item = any, Mode extends SelectionMode = 'n
     state: 'value',
   });
 
-  const [openRaw, setOpenUnwrapped] = useControlled({
+  const [open, setOpenUnwrapped] = useControlled({
     controlled: props.open,
     default: props.defaultOpen,
     name: 'Combobox',
@@ -241,7 +241,7 @@ export function ComboboxRootInternal<Item = any, Mode extends SelectionMode = 'n
         id,
         selectedValue,
         inputValue,
-        open: openRaw,
+        open,
         filter,
         query,
         items,
@@ -275,7 +275,6 @@ export function ComboboxRootInternal<Item = any, Mode extends SelectionMode = 'n
   const triggerElement = useStore(store, selectors.triggerElement);
   const inputElement = useStore(store, selectors.inputElement);
   const inline = useStore(store, selectors.inline);
-  const open = inline || openRaw;
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
   const {
@@ -658,17 +657,17 @@ export function ComboboxRootInternal<Item = any, Mode extends SelectionMode = 'n
   }
 
   const role: ElementProps = React.useMemo(() => {
-    const isTextarea = inputElement?.tagName === 'TEXTAREA';
-    const shouldApplyAria = !isTextarea || open;
+    const isPlainInput = inputElement?.tagName === 'INPUT';
+    const shouldApplyAria = isPlainInput || open;
 
-    const reference = isTextarea
-      ? {}
-      : ({
+    const reference = isPlainInput
+      ? ({
           autoComplete: 'off',
           spellCheck: 'false',
           autoCorrect: 'off',
           autoCapitalize: 'off',
-        } as HTMLProps<HTMLInputElement>);
+        } as HTMLProps<HTMLInputElement>)
+      : {};
 
     if (shouldApplyAria) {
       reference.role = 'combobox';

@@ -25,18 +25,16 @@ export const ComboboxChips = React.forwardRef(function ComboboxChips(
     undefined,
   );
 
+  if (open && highlightedChipIndex !== undefined) {
+    setHighlightedChipIndex(undefined);
+  }
+
   const chipsRef = React.useRef<Array<HTMLButtonElement | null>>([]);
 
   const element = useRenderElement('div', componentProps, {
     ref: [forwardedRef, chipsContainerRef],
     props: elementProps,
   });
-
-  React.useEffect(() => {
-    if (open) {
-      setHighlightedChipIndex(undefined);
-    }
-  }, [open]);
 
   const contextValue: ComboboxChipsContext = React.useMemo(
     () => ({

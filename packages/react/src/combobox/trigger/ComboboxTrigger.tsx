@@ -57,7 +57,6 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
   const { buttonRef, getButtonProps } = useButton({
     native: nativeButton,
     disabled,
-    focusableWhenDisabled: true,
   });
 
   const state: ComboboxTrigger.State = React.useMemo(
@@ -81,7 +80,6 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
       {
         disabled,
         'aria-expanded': open,
-        'aria-haspopup': 'dialog',
         'aria-controls': open ? listElement?.id : undefined,
         'aria-readonly': readOnly || undefined,
         onPointerDown: trackPointerType,

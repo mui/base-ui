@@ -28,7 +28,7 @@ describe('<Combobox.Trigger />', () => {
       );
 
       const trigger = screen.getByTestId('trigger');
-      expect(trigger).to.have.attribute('aria-disabled', 'true');
+      expect(trigger).to.have.attribute('disabled');
     });
 
     it('should inherit disabled state from ComboboxRoot', async () => {
@@ -39,7 +39,7 @@ describe('<Combobox.Trigger />', () => {
       );
 
       const trigger = screen.getByTestId('trigger');
-      expect(trigger).to.have.attribute('aria-disabled', 'true');
+      expect(trigger).to.have.attribute('disabled');
     });
 
     it('should inherit disabled state from Field.Root', async () => {
@@ -52,7 +52,7 @@ describe('<Combobox.Trigger />', () => {
       );
 
       const trigger = screen.getByTestId('trigger');
-      expect(trigger).to.have.attribute('aria-disabled', 'true');
+      expect(trigger).to.have.attribute('disabled');
     });
 
     it('should not open popup when disabled', async () => {
@@ -90,7 +90,7 @@ describe('<Combobox.Trigger />', () => {
       );
 
       const trigger = screen.getByTestId('trigger');
-      expect(trigger).to.have.attribute('aria-disabled', 'true');
+      expect(trigger).to.have.attribute('disabled');
     });
   });
 

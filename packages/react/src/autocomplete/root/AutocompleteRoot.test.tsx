@@ -13,6 +13,35 @@ describe('<Autocomplete.Root />', () => {
 
   const { render } = createRenderer();
 
+  it('should handle browser autofill', async () => {
+    const { container } = await render(
+      <Field.Root name="auto">
+        <Autocomplete.Root defaultValue="">
+          <Autocomplete.Input data-testid="input" />
+          <Autocomplete.Portal>
+            <Autocomplete.Positioner>
+              <Autocomplete.Popup>
+                <Autocomplete.List>
+                  <Autocomplete.Item value="alpha">alpha</Autocomplete.Item>
+                  <Autocomplete.Item value="beta">beta</Autocomplete.Item>
+                </Autocomplete.List>
+              </Autocomplete.Popup>
+            </Autocomplete.Positioner>
+          </Autocomplete.Portal>
+        </Autocomplete.Root>
+      </Field.Root>,
+    );
+
+    // Hidden inputs are rendered without a name for selectionMode='none', but Field provides the form input.
+    // Simulate browser autofill by changing the hidden field control input for this Field.
+    const hidden = container.querySelector('input[aria-hidden="true"]');
+    fireEvent.change(hidden!, { target: { value: 'beta' } });
+    await flushMicrotasks();
+
+    const input = screen.getByTestId<HTMLInputElement>('input');
+    expect(input.value).to.equal('beta');
+  });
+
   describe('prop: autoHighlight', () => {
     it('highlights the first item when typing and keeps it during filtering', async () => {
       const { user } = await render(
@@ -451,35 +480,6 @@ describe('<Autocomplete.Root />', () => {
 
       expect(submitted).to.equal('appl');
     });
-  });
-
-  it('should handle browser autofill', async () => {
-    const { container } = await render(
-      <Field.Root name="auto">
-        <Autocomplete.Root defaultValue="">
-          <Autocomplete.Input data-testid="input" />
-          <Autocomplete.Portal>
-            <Autocomplete.Positioner>
-              <Autocomplete.Popup>
-                <Autocomplete.List>
-                  <Autocomplete.Item value="alpha">alpha</Autocomplete.Item>
-                  <Autocomplete.Item value="beta">beta</Autocomplete.Item>
-                </Autocomplete.List>
-              </Autocomplete.Popup>
-            </Autocomplete.Positioner>
-          </Autocomplete.Portal>
-        </Autocomplete.Root>
-      </Field.Root>,
-    );
-
-    // Hidden inputs are rendered without a name for selectionMode='none', but Field provides the form input.
-    // Simulate browser autofill by changing the hidden field control input for this Field.
-    const hidden = container.querySelector('input[aria-hidden="true"]');
-    fireEvent.change(hidden!, { target: { value: 'beta' } });
-    await flushMicrotasks();
-
-    const input = screen.getByTestId<HTMLInputElement>('input');
-    expect(input.value).to.equal('beta');
   });
 
   describe('Field', () => {
