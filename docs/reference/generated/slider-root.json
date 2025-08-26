@@ -36,11 +36,6 @@
       "type": "RefObject<HTMLDivElement>",
       "detailedType": "React.RefObject<HTMLDivElement> | undefined"
     },
-    "tabIndex": {
-      "type": "number",
-      "description": "Optional tab index attribute for the thumb components.",
-      "detailedType": "number | undefined"
-    },
     "step": {
       "type": "number",
       "default": "1",

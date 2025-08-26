@@ -43,6 +43,23 @@ describe('<Slider.Thumb />', () => {
     });
   });
 
+  describe('prop: tabIndex', async () => {
+    it('can be removed from the tab sequence', async () => {
+      const { user } = await render(
+        <Slider.Root defaultValue={50}>
+          <Slider.Control>
+            <Slider.Thumb tabIndex={-1} />
+          </Slider.Control>
+        </Slider.Root>,
+      );
+
+      expect(screen.getByRole('slider')).to.have.property('tabIndex', -1);
+      expect(document.body).toHaveFocus();
+      await user.keyboard('[Tab]');
+      expect(document.body).toHaveFocus();
+    });
+  });
+
   describe('events', () => {
     describe.skipIf(isJSDOM)('focus and blur', () => {
       it('single thumb', async () => {

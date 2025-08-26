@@ -12,6 +12,21 @@
       "description": "Accepts a function which returns a string value that provides a user-friendly name for the current value of the slider.\nThis is important for screen reader users.",
       "detailedType": "| ((\n    formattedValue: string,\n    value: number,\n    index: number,\n  ) => string)\n| null\n| undefined"
     },
+    "onBlur": {
+      "type": "FocusEventHandler<HTMLInputElement>",
+      "description": "A blur handler forwarded to the `input`.",
+      "detailedType": "| React.FocusEventHandler<HTMLInputElement>\n| undefined"
+    },
+    "onFocus": {
+      "type": "FocusEventHandler<HTMLInputElement>",
+      "description": "A focus handler forwarded to the `input`.",
+      "detailedType": "| React.FocusEventHandler<HTMLInputElement>\n| undefined"
+    },
+    "tabIndex": {
+      "type": "number",
+      "description": "Optional tab index attribute forwarded to the `input`",
+      "detailedType": "number | undefined"
+    },
     "disabled": {
       "type": "boolean",
       "default": "false",

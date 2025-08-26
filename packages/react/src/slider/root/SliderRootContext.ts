@@ -72,7 +72,6 @@ export interface SliderRootContext {
    * @default 1
    */
   step: number;
-  tabIndex: number | null;
   thumbMap: Map<Node, CompositeMetadata<ThumbMetadata> | null>;
   thumbRefs: React.RefObject<(HTMLElement | null)[]>;
   /**

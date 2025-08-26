@@ -133,7 +133,6 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     setActive,
     state,
     step,
-    tabIndex: contextTabIndex,
     values: sliderValues,
   } = useSliderRootContext();
 
@@ -143,8 +142,6 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
   }
 
   const disabled = disabledProp || contextDisabled;
-
-  const externalTabIndex = tabIndexProp ?? contextTabIndex;
 
   const direction = useDirection();
   const { controlId, setControlId, setTouched, setFocused, validationMode } = useFieldRootContext();
@@ -349,7 +346,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
         height: '100%',
         writingMode: cssWritingMode,
       },
-      tabIndex: externalTabIndex ?? undefined,
+      tabIndex: tabIndexProp ?? undefined,
       type: 'range',
       value: thumbValue ?? '',
     },
@@ -392,7 +389,8 @@ export interface ThumbMetadata {
 export namespace SliderThumb {
   export interface State extends SliderRoot.State {}
 
-  export interface Props extends Omit<BaseUIComponentProps<'div', State>, 'render'> {
+  export interface Props
+    extends Omit<BaseUIComponentProps<'div', State>, 'onBlur' | 'onFocus' | 'render'> {
     /**
      * Whether the thumb should ignore user interaction.
      * @default false
@@ -414,6 +412,14 @@ export namespace SliderThumb {
      */
     getAriaValueText?: ((formattedValue: string, value: number, index: number) => string) | null;
     /**
+     * A blur handler forwarded to the `input`.
+     */
+    onBlur?: React.FocusEventHandler<HTMLInputElement>;
+    /**
+     * A focus handler forwarded to the `input`.
+     */
+    onFocus?: React.FocusEventHandler<HTMLInputElement>;
+    /**
      * Allows you to replace the component’s HTML element
      * with a different tag, or compose it with another component.
      *
@@ -426,5 +432,9 @@ export namespace SliderThumb {
           state: State,
         ) => React.ReactElement)
       | (React.ReactElement & { ref: React.Ref<Element> });
+    /**
+     * Optional tab index attribute forwarded to the `input`
+     */
+    tabIndex?: number;
   }
 }
