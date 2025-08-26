@@ -211,7 +211,7 @@ describe('<Popover.Popup />', () => {
       });
     });
 
-    it('should not move focus when initialFocus returns null', async () => {
+    it('should default focus when initialFocus returns null', async () => {
       function TestComponent() {
         return (
           <div>
@@ -229,11 +229,10 @@ describe('<Popover.Popup />', () => {
         );
       }
 
-      const { getByText, user } = await render(<TestComponent />);
-      const trigger = getByText('Open');
-      await user.click(trigger);
+      const { getByText, getByTestId, user } = await render(<TestComponent />);
+      await user.click(getByText('Open'));
       await waitFor(() => {
-        expect(trigger).toHaveFocus();
+        expect(getByTestId('input-1')).toHaveFocus();
       });
     });
   });
@@ -377,7 +376,7 @@ describe('<Popover.Popup />', () => {
       });
     });
 
-    it('should not move focus when finalFocus returns null', async () => {
+    it('should move focus to the trigger when finalFocus returns null', async () => {
       function TestComponent() {
         return (
           <div>
@@ -402,11 +401,11 @@ describe('<Popover.Popup />', () => {
       await user.click(getByText('Close'));
 
       await waitFor(() => {
-        expect(trigger).not.toHaveFocus();
+        expect(trigger).toHaveFocus();
       });
     });
 
-    it('should support element-returning function and no-op via null/void for finalFocus based on closeType', async () => {
+    it('should support element-returning function and default via null + no-op via void for finalFocus based on closeType', async () => {
       function TestComponent() {
         const inputRef = React.useRef<HTMLInputElement>(null);
         const getEl = React.useCallback((type: string) => {
@@ -437,14 +436,11 @@ describe('<Popover.Popup />', () => {
 
       const trigger = getByText('Open');
 
-      // Close via pointer: should NOT move focus to final-input (no-op)
+      // Close via pointer: null => default, should move focus to trigger
       await user.click(trigger);
       await user.click(getByText('Close'));
       await waitFor(() => {
-        expect(getByTestId('final-input')).not.toHaveFocus();
-      });
-      await waitFor(() => {
-        expect(trigger).not.toHaveFocus();
+        expect(trigger).toHaveFocus();
       });
 
       // Close via keyboard: should move focus to final-input

@@ -166,7 +166,7 @@ describe('<AlertDialog.Popup />', () => {
       });
     });
 
-    it('should not move focus when initialFocus returns null', async () => {
+    it('should default focus when initialFocus returns null', async () => {
       function TestComponent() {
         return (
           <div>
@@ -183,11 +183,10 @@ describe('<AlertDialog.Popup />', () => {
         );
       }
 
-      const { getByText, user } = await render(<TestComponent />);
-      const trigger = getByText('Open');
-      await user.click(trigger);
+      const { getByText, getByTestId, user } = await render(<TestComponent />);
+      await user.click(getByText('Open'));
       await waitFor(() => {
-        expect(trigger).toHaveFocus();
+        expect(getByTestId('input-1')).toHaveFocus();
       });
     });
   });
@@ -312,7 +311,7 @@ describe('<AlertDialog.Popup />', () => {
       });
     });
 
-    it('should not move focus when finalFocus returns null', async () => {
+    it('should move focus to the trigger when finalFocus returns null', async () => {
       function TestComponent() {
         return (
           <div>
@@ -334,7 +333,7 @@ describe('<AlertDialog.Popup />', () => {
       await user.click(trigger);
       await user.click(getByText('Close'));
       await waitFor(() => {
-        expect(trigger).not.toHaveFocus();
+        expect(trigger).toHaveFocus();
       });
     });
   });

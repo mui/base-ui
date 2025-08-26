@@ -595,10 +595,20 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
         typeof initialFocusValueOrFn === 'function'
           ? initialFocusValueOrFn(openInteractionTypeRef.current || '')
           : initialFocusValueOrFn;
-      const normalizedInitialFocus = resolvedInitialFocus ?? 0;
+
+      // If the prop was explicitly set to null, do nothing.
+      if (initialFocusValueOrFn === null) {
+        return;
+      }
+
+      // If a function returned undefined/void, do nothing.
+      if (resolvedInitialFocus === undefined) {
+        return;
+      }
+
+      const normalizedInitialFocus = resolvedInitialFocus ?? 0; // null => default
       const ignoreResolvedInitialFocus =
-        resolvedInitialFocus == null ||
-        (typeof normalizedInitialFocus === 'number' && normalizedInitialFocus < 0);
+        typeof normalizedInitialFocus === 'number' && normalizedInitialFocus < 0;
 
       if (ignoreResolvedInitialFocus) {
         return;
@@ -608,11 +618,11 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
       if (typeof normalizedInitialFocus === 'number') {
         elToFocus = focusableElements[normalizedInitialFocus];
       } else if (normalizedInitialFocus && 'current' in normalizedInitialFocus) {
-        elToFocus = (normalizedInitialFocus as React.RefObject<HTMLElement | null>).current;
+        elToFocus = normalizedInitialFocus.current;
       } else {
-        elToFocus = normalizedInitialFocus;
+        elToFocus = normalizedInitialFocus as HTMLElement | null | undefined;
       }
-      elToFocus = elToFocus || floatingFocusElement;
+      elToFocus = elToFocus || focusableElements[0] || floatingFocusElement;
 
       const focusAlreadyInsideFloatingEl = contains(floatingFocusElement, previouslyFocusedElement);
 
@@ -709,21 +719,28 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
           ? returnFocusValueOrFn(closeTypeRef.current)
           : returnFocusValueOrFn;
 
+      // If the prop was explicitly set to null, do nothing.
+      if (returnFocusValueOrFn === null) {
+        return null;
+      }
+
+      // If a function returned undefined/void, do nothing.
+      if (resolvedReturnFocusValue === undefined) {
+        return null;
+      }
+
       if (typeof resolvedReturnFocusValue === 'boolean') {
         const el = domReference || getPreviouslyFocusedElement();
         return el && el.isConnected ? el : fallbackEl;
       }
 
-      // `null` returns will use the `fallbackEl`
-      if (resolvedReturnFocusValue === undefined) {
-        return null;
-      }
+      const fallback = domReference || getPreviouslyFocusedElement() || fallbackEl;
 
       if (resolvedReturnFocusValue && 'current' in resolvedReturnFocusValue) {
-        return resolvedReturnFocusValue.current || fallbackEl;
+        return resolvedReturnFocusValue.current || fallback;
       }
 
-      return resolvedReturnFocusValue || fallbackEl;
+      return resolvedReturnFocusValue || fallback;
     }
 
     return () => {
