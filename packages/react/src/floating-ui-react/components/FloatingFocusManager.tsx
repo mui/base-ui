@@ -708,21 +708,19 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
         typeof returnFocusValueOrFn === 'function'
           ? returnFocusValueOrFn(closeTypeRef.current)
           : returnFocusValueOrFn;
-      const ignoreResolvedReturnFocus = resolvedReturnFocusValue === undefined;
 
       if (typeof resolvedReturnFocusValue === 'boolean') {
         const el = domReference || getPreviouslyFocusedElement();
         return el && el.isConnected ? el : fallbackEl;
       }
 
-      if (ignoreResolvedReturnFocus) {
+      // `null` returns will use the `fallbackEl`
+      if (resolvedReturnFocusValue === undefined) {
         return null;
       }
 
       if (resolvedReturnFocusValue && 'current' in resolvedReturnFocusValue) {
-        return (
-          (resolvedReturnFocusValue as React.RefObject<HTMLElement | null>).current || fallbackEl
-        );
+        return resolvedReturnFocusValue.current || fallbackEl;
       }
 
       return resolvedReturnFocusValue || fallbackEl;
@@ -741,7 +739,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
 
       const returnElement = getReturnElement();
 
-      if (returnElement == null) {
+      if (!returnElement) {
         return;
       }
 
