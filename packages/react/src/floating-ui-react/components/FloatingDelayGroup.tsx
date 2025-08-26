@@ -195,7 +195,7 @@ export function useDelayGroup(
       timeout.clear();
       setIsInstantPhase(true);
       prevContext?.setIsInstantPhase(true);
-      prevContext?.onOpenChange(false, createBaseUIEventDetails('none', new Event('base-ui')));
+      prevContext?.onOpenChange(false, createBaseUIEventDetails('none'));
     } else {
       setIsInstantPhase(false);
       prevContext?.setIsInstantPhase(false);

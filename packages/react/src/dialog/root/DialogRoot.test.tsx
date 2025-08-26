@@ -441,9 +441,9 @@ describe('<Dialog.Root />', () => {
     it('onOpenChange cancel() prevents opening while uncontrolled', async () => {
       const { user } = await render(
         <Dialog.Root
-          onOpenChange={(nextOpen, data) => {
+          onOpenChange={(nextOpen, eventDetails) => {
             if (nextOpen) {
-              data.cancel();
+              eventDetails.cancel();
             }
           }}
         >

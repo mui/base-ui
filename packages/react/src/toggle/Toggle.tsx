@@ -76,11 +76,11 @@ export const Toggle = React.forwardRef(function Toggle(
       'aria-pressed': pressed,
       onClick(event: React.MouseEvent) {
         const nextPressed = !pressed;
-        const data = createBaseUIEventDetails('none', event.nativeEvent);
+        const details = createBaseUIEventDetails('none', event.nativeEvent);
 
-        onPressedChange(nextPressed, data);
+        onPressedChange(nextPressed, details);
 
-        if (data.isCanceled) {
+        if (details.isCanceled) {
           return;
         }
 

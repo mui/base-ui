@@ -76,12 +76,12 @@ const InnerMenuCheckboxItem = React.memo(
         {
           role: 'menuitemcheckbox',
           'aria-checked': checked,
-          onClick: (event: React.MouseEvent) => {
-            const data = createBaseUIEventDetails('item-press', event.nativeEvent);
+          onClick(event: React.MouseEvent) {
+            const details = createBaseUIEventDetails('item-press', event.nativeEvent);
 
-            onCheckedChange?.(!checked, data);
+            onCheckedChange?.(!checked, details);
 
-            if (data.isCanceled) {
+            if (details.isCanceled) {
               return;
             }
 

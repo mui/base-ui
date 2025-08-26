@@ -60,11 +60,11 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
       activationDirection: TabsTab.ActivationDirection,
       event: Event | undefined,
     ) => {
-      const data = createBaseUIEventDetails('none', event);
+      const details = createBaseUIEventDetails('none', event);
 
-      onValueChangeProp?.(newValue, data);
+      onValueChangeProp?.(newValue, details);
 
-      if (data.isCanceled) {
+      if (details.isCanceled) {
         return;
       }
 

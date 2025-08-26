@@ -288,7 +288,7 @@ export type SelectRootConditionalProps<Value, Multiple extends boolean | undefin
    */
   onValueChange?: (
     value: SelectValueType<Value, Multiple>,
-    data: SelectRoot.ChangeEventDetails,
+    eventDetails: SelectRoot.ChangeEventDetails,
   ) => void;
 };
 

@@ -73,11 +73,11 @@ export const ToggleGroup = React.forwardRef(function ToggleGroup(
       newGroupValue = nextPressed ? [newValue] : [];
     }
     if (Array.isArray(newGroupValue)) {
-      const data = createBaseUIEventDetails('none', event);
+      const details = createBaseUIEventDetails('none', event);
 
-      onValueChange?.(newGroupValue, data);
+      onValueChange?.(newGroupValue, details);
 
-      if (data.isCanceled) {
+      if (details.isCanceled) {
         return;
       }
 

@@ -332,9 +332,9 @@ describe('<Select.Root />', () => {
     it('onOpenChange cancel() prevents opening while uncontrolled', async () => {
       await render(
         <Select.Root
-          onOpenChange={(nextOpen, data) => {
+          onOpenChange={(nextOpen, eventDetails) => {
             if (nextOpen) {
-              data.cancel();
+              eventDetails.cancel();
             }
           }}
         >

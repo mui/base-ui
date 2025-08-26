@@ -172,7 +172,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
         nativeEvent = isReactEvent(event) ? event.nativeEvent : event;
       }
 
-      const data = createBaseUIEventDetails('none', nativeEvent);
+      const details = createBaseUIEventDetails('none', nativeEvent);
       const validatedValue = toValidatedNumber(unvalidatedValue, {
         step: dir ? getStepAmount(eventWithOptionalKeyState) * dir : undefined,
         format: formatOptionsRef.current,
@@ -183,9 +183,9 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
         small: eventWithOptionalKeyState?.altKey ?? false,
       });
 
-      onValueChange?.(validatedValue, data);
+      onValueChange?.(validatedValue, details);
 
-      if (data.isCanceled) {
+      if (details.isCanceled) {
         return;
       }
 

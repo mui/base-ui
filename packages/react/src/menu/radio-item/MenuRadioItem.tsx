@@ -69,7 +69,7 @@ const InnerMenuRadioItem = React.memo(
         {
           role: 'menuitemradio',
           'aria-checked': checked,
-          onClick: (event: React.MouseEvent) => {
+          onClick(event: React.MouseEvent) {
             setChecked(createBaseUIEventDetails('item-press', event.nativeEvent));
           },
         },
@@ -126,8 +126,8 @@ export const MenuRadioItem = React.forwardRef(function MenuRadioItem(
   const checked = selectedValue === value;
 
   const setChecked = React.useCallback(
-    (data: MenuRoot.ChangeEventDetails) => {
-      setSelectedValue(value, data);
+    (eventDetails: MenuRoot.ChangeEventDetails) => {
+      setSelectedValue(value, eventDetails);
     },
     [setSelectedValue, value],
   );

@@ -389,9 +389,9 @@ describe('<PreviewCard.Root />', () => {
     it('onOpenChange cancel() prevents opening while uncontrolled', async () => {
       await render(
         <Root
-          onOpenChange={(nextOpen, data) => {
+          onOpenChange={(nextOpen, eventDetails) => {
             if (nextOpen) {
-              data.cancel();
+              eventDetails.cancel();
             }
           }}
         >

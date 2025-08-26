@@ -204,13 +204,18 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
         }
 
         const nextChecked = event.target.checked;
-        const data = createBaseUIEventDetails('none', event.nativeEvent);
+        const details = createBaseUIEventDetails('none', event.nativeEvent);
 
+        groupOnChange?.(nextChecked, details);
+        onCheckedChange(nextChecked, details);
+
+        if (details.isCanceled) {
+          return;
+        }
+
+        clearErrors(name);
         setDirty(nextChecked !== validityData.initialValue);
         setCheckedState(nextChecked);
-        groupOnChange?.(nextChecked, data);
-        onCheckedChange(nextChecked, data);
-        clearErrors(name);
 
         if (!groupContext) {
           setFilled(nextChecked);
@@ -227,7 +232,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
             ? [...groupValue, value]
             : groupValue.filter((item) => item !== value);
 
-          setGroupValue(nextGroupValue, data);
+          setGroupValue(nextGroupValue, details);
           setFilled(nextGroupValue.length > 0);
 
           if (validationMode === 'onChange') {

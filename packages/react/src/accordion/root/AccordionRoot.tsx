@@ -79,26 +79,26 @@ export const AccordionRoot = React.forwardRef(function AccordionRoot(
 
   const handleValueChange = React.useCallback(
     (newValue: number | string, nextOpen: boolean) => {
-      const data = createBaseUIEventDetails('none');
+      const details = createBaseUIEventDetails('none');
       if (!openMultiple) {
         const nextValue = value[0] === newValue ? [] : [newValue];
-        onValueChange(nextValue, data);
-        if (data.isCanceled) {
+        onValueChange(nextValue, details);
+        if (details.isCanceled) {
           return;
         }
         setValue(nextValue);
       } else if (nextOpen) {
         const nextOpenValues = value.slice();
         nextOpenValues.push(newValue);
-        onValueChange(nextOpenValues, data);
-        if (data.isCanceled) {
+        onValueChange(nextOpenValues, details);
+        if (details.isCanceled) {
           return;
         }
         setValue(nextOpenValues);
       } else {
         const nextOpenValues = value.filter((v) => v !== newValue);
-        onValueChange(nextOpenValues, data);
-        if (data.isCanceled) {
+        onValueChange(nextOpenValues, details);
+        if (details.isCanceled) {
           return;
         }
         setValue(nextOpenValues);

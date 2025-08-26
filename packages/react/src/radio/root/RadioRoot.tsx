@@ -137,11 +137,16 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
           return;
         }
 
-        const data = createBaseUIEventDetails('none', event.nativeEvent);
+        const details = createBaseUIEventDetails('none', event.nativeEvent);
+
+        if (details.isCanceled) {
+          return;
+        }
+
         setFieldTouched(true);
         setDirty(value !== validityData.initialValue);
         setFilled(true);
-        setCheckedValue(value, data);
+        setCheckedValue(value, details);
       },
     }),
     [

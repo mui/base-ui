@@ -55,7 +55,7 @@ export function useControlled<T = unknown>({
 
     React.useEffect(() => {
       // Object.is() is not equivalent to the === operator.
-      // See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/is for more eventDetails.
+      // See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/is for more details.
       if (!isControlled && !Object.is(defaultValue, defaultProp)) {
         console.error(
           [

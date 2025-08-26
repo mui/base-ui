@@ -632,10 +632,7 @@ export function useDismiss(
         },
         ...(referencePressEvent !== 'intentional' && {
           onClick(event) {
-            onOpenChange(
-              false,
-              createBaseUIEventDetails('trigger-press', event.nativeEvent as any),
-            );
+            onOpenChange(false, createBaseUIEventDetails('trigger-press', event.nativeEvent));
           },
         }),
       }),

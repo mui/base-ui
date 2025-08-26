@@ -178,10 +178,11 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
 
       lastChangedValueRef.current = newValue;
 
-      const data = createBaseUIEventDetails('none', clonedEvent);
-      onValueChange(newValue, data, thumbIndex);
+      const details = createBaseUIEventDetails('none', clonedEvent);
 
-      if (data.isCanceled) {
+      onValueChange(newValue, details, thumbIndex);
+
+      if (details.isCanceled) {
         return;
       }
 

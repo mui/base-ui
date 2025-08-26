@@ -42,9 +42,9 @@ describe('<Menu.Root />', () => {
     it('onOpenChange cancel() prevents opening while uncontrolled', async () => {
       const { getByRole } = await render(
         <Menu.Root
-          onOpenChange={(nextOpen, data) => {
+          onOpenChange={(nextOpen, eventDetails) => {
             if (nextOpen) {
-              data.cancel();
+              eventDetails.cancel();
             }
           }}
         >

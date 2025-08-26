@@ -408,7 +408,7 @@ export function useSelectRoot<Value, Multiple extends boolean | undefined>(
       if (open) {
         store.set('activeIndex', index);
       } else {
-        setValue(valuesRef.current[index], createBaseUIEventDetails('none', new Event('none')));
+        setValue(valuesRef.current[index], createBaseUIEventDetails('none'));
       }
     },
     onTypingChange(typing) {

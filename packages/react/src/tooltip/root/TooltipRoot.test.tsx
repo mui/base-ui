@@ -740,9 +740,9 @@ describe('<Tooltip.Root />', () => {
       await render(
         <Root
           delay={0}
-          onOpenChange={(nextOpen, data) => {
+          onOpenChange={(nextOpen, eventDetails) => {
             if (nextOpen) {
-              data.cancel();
+              eventDetails.cancel();
             }
           }}
         >
@@ -765,16 +765,16 @@ describe('<Tooltip.Root />', () => {
       expect(screen.queryByText('Content')).to.equal(null);
     });
 
-    it('cancelStopPropagation() prevents stopPropagation on Escape while still closing', async () => {
+    it('allowPropagation() prevents stopPropagation on Escape while still closing', async () => {
       const stopPropagationSpy = spy(Event.prototype as any, 'stopPropagation');
 
       await render(
         <Root
           defaultOpen
           delay={0}
-          onOpenChange={(nextOpen, data) => {
-            if (!nextOpen && data.reason === 'escape-key') {
-              data.allowPropagation();
+          onOpenChange={(nextOpen, eventDetails) => {
+            if (!nextOpen && eventDetails.reason === 'escape-key') {
+              eventDetails.allowPropagation();
             }
           }}
         >
