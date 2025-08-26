@@ -36,7 +36,7 @@ import { usePortalContext } from './FloatingPortal';
 import { useFloatingTree } from './FloatingTree';
 import { CLICK_TRIGGER_IDENTIFIER } from '../../utils/constants';
 
-function getEventType(event: Event, lastPointerType?: InteractionType): InteractionType {
+function getEventType(event: Event, lastInteractionType?: InteractionType): InteractionType {
   const win = ownerWindow(event.target);
   if (event instanceof win.KeyboardEvent) {
     return 'keyboard';
@@ -44,7 +44,7 @@ function getEventType(event: Event, lastPointerType?: InteractionType): Interact
   if (event instanceof win.FocusEvent) {
     // Focus events can be caused by a preceding pointer interaction (e.g., focusout on outside press).
     // Prefer the last known pointer type if provided, else treat as keyboard.
-    return lastPointerType || 'keyboard';
+    return lastInteractionType || 'keyboard';
   }
   if ('pointerType' in event) {
     return (event.pointerType as React.PointerEvent['pointerType']) || 'keyboard';
@@ -54,7 +54,7 @@ function getEventType(event: Event, lastPointerType?: InteractionType): Interact
   }
   if (event instanceof win.MouseEvent) {
     // onClick events may not contain pointer events, and will fall through to here
-    return lastPointerType || (event.detail === 0 ? 'keyboard' : 'mouse');
+    return lastInteractionType || (event.detail === 0 ? 'keyboard' : 'mouse');
   }
   return '';
 }

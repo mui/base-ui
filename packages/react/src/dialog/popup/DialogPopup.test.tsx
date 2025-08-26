@@ -456,6 +456,11 @@ describe('<Dialog.Popup />', () => {
       const { getByText, getByTestId, user } = await render(<TestComponent />);
 
       await user.click(getByText('Open'));
+
+      await waitFor(() => {
+        expect(getByText('Close')).toBeVisible();
+      });
+
       await user.click(getByText('Close'));
 
       await waitFor(() => {
@@ -487,6 +492,11 @@ describe('<Dialog.Popup />', () => {
       const { getByText, getByTestId, user } = await render(<TestComponent />);
 
       await user.click(getByText('Open'));
+
+      await waitFor(() => {
+        expect(getByText('Close')).toBeVisible();
+      });
+
       await user.click(getByText('Close'));
 
       await waitFor(() => {
