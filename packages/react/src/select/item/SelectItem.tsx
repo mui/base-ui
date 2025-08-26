@@ -213,9 +213,7 @@ export const SelectItem = React.memo(
           return;
         }
 
-        if (!selected) {
-          commitSelection(event.nativeEvent);
-        }
+        commitSelection(event.nativeEvent);
       },
     };
 
