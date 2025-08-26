@@ -116,24 +116,7 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
     referenceElement: positionerElement,
   });
 
-  const handleUnmount = useEventCallback(() => {
-    setMounted(false);
-    store.apply({ stickIfOpen: true, openReason: null, activeTriggerId: null });
-    onOpenChangeComplete?.(false);
-  });
-
-  useOpenChangeComplete({
-    enabled: !props.actionsRef,
-    open,
-    ref: popupRef,
-    onComplete() {
-      if (!open) {
-        handleUnmount();
-      }
-    },
-  });
-
-  React.useImperativeHandle(props.actionsRef, () => ({ unmount: handleUnmount }), [handleUnmount]);
+  const preventUnmountingRef = React.useRef(false);
 
   React.useEffect(() => {
     if (!open) {
@@ -153,7 +136,9 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
 
     function changeState() {
       const newTriggerId = trigger?.id ?? null;
-      onOpenChange?.(nextOpen, event, reason, nextOpen ? (trigger?.id ?? null) : null);
+      const options = new PopoverRoot.OpenChangeOptions();
+      onOpenChange?.(nextOpen, event, reason, nextOpen ? (trigger?.id ?? null) : null, options);
+      preventUnmountingRef.current = options.isUnmountingPrevented;
       setOpenState(nextOpen);
       setTriggerId(newTriggerId);
 
@@ -184,6 +169,33 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
       store.set('instantType', undefined);
     }
   });
+
+  const handleUnmount = useEventCallback(() => {
+    setMounted(false);
+    store.apply({ stickIfOpen: true, openReason: null, activeTriggerId: null, mounted: false });
+    onOpenChangeComplete?.(false);
+  });
+
+  const handleImperativeClose = React.useCallback(() => {
+    setOpen(false, undefined, 'imperative-action', undefined);
+  }, [setOpen]);
+
+  useOpenChangeComplete({
+    enabled: !preventUnmountingRef.current,
+    open,
+    ref: popupRef,
+    onComplete() {
+      if (!open) {
+        handleUnmount();
+      }
+    },
+  });
+
+  React.useImperativeHandle(
+    props.actionsRef,
+    () => ({ unmount: handleUnmount, close: handleImperativeClose }),
+    [handleUnmount, handleImperativeClose],
+  );
 
   const floatingContext = useFloatingRootContext({
     elements: {
@@ -284,6 +296,7 @@ export namespace PopoverRoot {
       event: Event | undefined,
       reason: OpenChangeReason | undefined,
       activeTriggerId: string | null,
+      options: OpenChangeOptions,
     ) => void;
     /**
      * Event handler called after any animations complete when the popover is opened or closed.
@@ -301,7 +314,7 @@ export namespace PopoverRoot {
      * Instead, the `unmount` function must be called to unmount the popover manually.
      * Useful when the popover's animation is controlled by an external library.
      */
-    actionsRef?: React.RefObject<Actions>;
+    actionsRef?: React.RefObject<Actions | null>;
     /**
      * Determines if the popover enters a modal state when open.
      * - `true`: user interaction is limited to the popover: document page scroll is locked, and pointer interactions on outside elements are disabled.
@@ -324,6 +337,19 @@ export namespace PopoverRoot {
 
   export interface Actions {
     unmount: () => void;
+    close: () => void;
+  }
+
+  export class OpenChangeOptions {
+    #isUnmountingPrevented: boolean = false;
+
+    get isUnmountingPrevented() {
+      return this.#isUnmountingPrevented;
+    }
+
+    preventUnmountOnClose() {
+      this.#isUnmountingPrevented = true;
+    }
   }
 
   export type ChildRenderFunction<Payload> = ({

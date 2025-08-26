@@ -471,11 +471,17 @@ describe('<Popover.Root />', () => {
       const actionsRef = {
         current: {
           unmount: spy(),
+          close: spy(),
         },
       };
 
       const { user } = await render(
-        <Popover.Root actionsRef={actionsRef}>
+        <Popover.Root
+          actionsRef={actionsRef}
+          onOpenChange={(open, event, reason, trigger, options) => {
+            options.preventUnmountOnClose();
+          }}
+        >
           <Popover.Trigger>Open</Popover.Trigger>
           <Popover.Portal>
             <Popover.Positioner>
@@ -502,6 +508,28 @@ describe('<Popover.Root />', () => {
 
       await waitFor(() => {
         expect(screen.queryByRole('dialog')).to.equal(null);
+      });
+    });
+
+    it('closes the popover when the `close` method is called', async () => {
+      const actionsRef = React.createRef<Popover.Root.Actions>();
+      await render(
+        <Popover.Root defaultOpen actionsRef={actionsRef}>
+          <Popover.Trigger>Open</Popover.Trigger>
+          <Popover.Portal>
+            <Popover.Positioner>
+              <Popover.Popup>Content</Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
+        </Popover.Root>,
+      );
+
+      await act(async () => {
+        actionsRef.current!.close();
+      });
+
+      await waitFor(() => {
+        expect(screen.queryByText('Content')).to.equal(null);
       });
     });
   });

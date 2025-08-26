@@ -3,7 +3,7 @@ import * as React from 'react';
 import type { BaseOpenChangeReason } from '../../utils/translateOpenChangeReason';
 import type { PopoverStore } from '../store';
 
-export type PopoverOpenChangeReason = BaseOpenChangeReason | 'close-press';
+export type PopoverOpenChangeReason = BaseOpenChangeReason | 'close-press' | 'imperative-action';
 
 export interface PopoverRootContext {
   setOpen: (
