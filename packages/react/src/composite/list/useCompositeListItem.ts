@@ -4,6 +4,7 @@ import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect
 import { useCompositeListContext } from './CompositeListContext';
 
 export interface UseCompositeListItemParameters<Metadata> {
+  index?: number;
   label?: string | null;
   metadata?: Metadata;
   textRef?: React.RefObject<HTMLElement | null>;
@@ -29,23 +30,24 @@ export enum IndexGuessBehavior {
 export function useCompositeListItem<Metadata>(
   params: UseCompositeListItemParameters<Metadata> = {},
 ): UseCompositeListItemReturnValue {
-  const { label, metadata, textRef, indexGuessBehavior } = params;
+  const { label, metadata, textRef, indexGuessBehavior, index: externalIndex } = params;
 
   const { register, unregister, subscribeMapChange, elementsRef, labelsRef, nextIndexRef } =
     useCompositeListContext();
 
   const indexRef = React.useRef(-1);
   const [index, setIndex] = React.useState<number>(
-    indexGuessBehavior === IndexGuessBehavior.GuessFromOrder
-      ? () => {
-          if (indexRef.current === -1) {
-            const newIndex = nextIndexRef.current;
-            nextIndexRef.current += 1;
-            indexRef.current = newIndex;
+    externalIndex ??
+      (indexGuessBehavior === IndexGuessBehavior.GuessFromOrder
+        ? () => {
+            if (indexRef.current === -1) {
+              const newIndex = nextIndexRef.current;
+              nextIndexRef.current += 1;
+              indexRef.current = newIndex;
+            }
+            return indexRef.current;
           }
-          return indexRef.current;
-        }
-      : -1,
+        : -1),
   );
 
   const componentRef = React.useRef<Element | null>(null);
@@ -69,6 +71,10 @@ export function useCompositeListItem<Metadata>(
   );
 
   useIsoLayoutEffect(() => {
+    if (externalIndex != null) {
+      return undefined;
+    }
+
     const node = componentRef.current;
     if (node) {
       register(node, metadata);
@@ -77,9 +83,13 @@ export function useCompositeListItem<Metadata>(
       };
     }
     return undefined;
-  }, [register, unregister, metadata]);
+  }, [externalIndex, register, unregister, metadata]);
 
   useIsoLayoutEffect(() => {
+    if (externalIndex != null) {
+      return undefined;
+    }
+
     return subscribeMapChange((map) => {
       const i = componentRef.current ? map.get(componentRef.current)?.index : null;
 
@@ -87,7 +97,7 @@ export function useCompositeListItem<Metadata>(
         setIndex(i);
       }
     });
-  }, [subscribeMapChange, setIndex]);
+  }, [externalIndex, subscribeMapChange, setIndex]);
 
   return React.useMemo(
     () => ({

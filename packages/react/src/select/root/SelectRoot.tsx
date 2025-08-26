@@ -5,8 +5,8 @@ import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
 import { useSelectRoot } from './useSelectRoot';
 import { SelectRootContext, SelectFloatingContext } from './SelectRootContext';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
-import { serializeValue } from '../utils/serialize';
-import { BaseOpenChangeReason } from '../../utils/translateOpenChangeReason';
+import { serializeValue } from '../../utils/serializeValue';
+import type { BaseOpenChangeReason } from '../../utils/translateOpenChangeReason';
 
 /**
  * Groups all parts of the select.

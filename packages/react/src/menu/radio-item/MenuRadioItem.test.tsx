@@ -455,6 +455,8 @@ describe('<Menu.RadioItem />', () => {
     expect(handleValueChange.args[0][0]).to.equal('two');
 
     fireEvent.keyDown(item2, { key: 'ArrowDown' });
-    expect(item1).toHaveFocus();
+    await waitFor(() => {
+      expect(item1).toHaveFocus();
+    });
   });
 });

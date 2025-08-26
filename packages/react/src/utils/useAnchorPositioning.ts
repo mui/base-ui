@@ -125,7 +125,14 @@ export function useAnchorPositioning(
     shiftCrossAxis = false,
     nodeId,
     adaptiveOrigin,
+    lazyFlip = false,
   } = params;
+
+  const [mountSide, setMountSide] = React.useState<PhysicalSide | null>(null);
+
+  if (!mounted && mountSide !== null) {
+    setMountSide(null);
+  }
 
   const collisionAvoidanceSide = collisionAvoidance.side || 'flip';
   const collisionAvoidanceAlign = collisionAvoidance.align || 'flip';
@@ -139,22 +146,58 @@ export function useAnchorPositioning(
   const direction = useDirection();
   const isRtl = direction === 'rtl';
 
-  const side = (
-    {
-      top: 'top',
-      right: 'right',
-      bottom: 'bottom',
-      left: 'left',
-      'inline-end': isRtl ? 'left' : 'right',
-      'inline-start': isRtl ? 'right' : 'left',
-    } satisfies Record<Side, PhysicalSide>
-  )[sideParam];
+  const side =
+    mountSide ||
+    (
+      {
+        top: 'top',
+        right: 'right',
+        bottom: 'bottom',
+        left: 'left',
+        'inline-end': isRtl ? 'left' : 'right',
+        'inline-start': isRtl ? 'right' : 'left',
+      } satisfies Record<Side, PhysicalSide>
+    )[sideParam];
 
   const placement = align === 'center' ? side : (`${side}-${align}` as Placement);
 
   const commonCollisionProps = {
     boundary: collisionBoundary === 'clipping-ancestors' ? 'clippingAncestors' : collisionBoundary,
     padding: collisionPadding,
+  } as const;
+
+  // Ensure the popup flips if it's been limited by its --available-height and it resizes.
+  // Since the size() padding is smaller than the flip() padding, flip() will take precedence.
+  let sizeCollisionPadding: Padding | undefined;
+  const epsilon = -0.01;
+  const bias = 1;
+  const biasTop = side === 'bottom' ? bias : epsilon;
+  const biasBottom = side === 'top' ? bias : epsilon;
+  const biasLeft = side === 'right' ? bias : epsilon;
+  const biasRight = side === 'left' ? bias : epsilon;
+
+  if (typeof collisionPadding === 'number') {
+    sizeCollisionPadding = {
+      // Create a bias to `bottom`. On iOS when the mobile software keyboard opens,
+      // the input is exactly centered in the viewport, but this can cause it to
+      // flip to the top undesirably.
+      top: collisionPadding + biasTop,
+      right: collisionPadding + biasRight,
+      bottom: collisionPadding + biasBottom,
+      left: collisionPadding + biasLeft,
+    };
+  } else if (collisionPadding) {
+    sizeCollisionPadding = {
+      top: (collisionPadding.top || 0) + biasTop,
+      right: (collisionPadding.right || 0) + biasRight,
+      bottom: (collisionPadding.bottom || 0) + biasBottom,
+      left: (collisionPadding.left || 0) + biasLeft,
+    };
+  }
+
+  const sizeCollisionProps = {
+    boundary: commonCollisionProps.boundary,
+    padding: sizeCollisionPadding,
   } as const;
 
   // Using a ref assumes that the arrow element is always present in the DOM for the lifetime of the
@@ -250,7 +293,7 @@ export function useAnchorPositioning(
 
   middleware.push(
     size({
-      ...commonCollisionProps,
+      ...sizeCollisionProps,
       apply({ elements: { floating }, rects: { reference }, availableWidth, availableHeight }) {
         Object.entries({
           '--available-width': `${availableWidth}px`,
@@ -416,6 +459,17 @@ export function useAnchorPositioning(
   const renderedAlign = getAlignment(renderedPlacement) || 'center';
   const anchorHidden = Boolean(middlewareData.hide?.referenceHidden);
 
+  /**
+   * Locks the flip (makes it "sticky") so it doesn't prefer a given placement
+   * and flips back lazily, not eagerly. Ideal for filtered lists that change
+   * the size of the popup dynamically to avoid unwanted flipping when typing.
+   */
+  useIsoLayoutEffect(() => {
+    if (lazyFlip && mounted && isPositioned) {
+      setMountSide(renderedSide);
+    }
+  }, [lazyFlip, mounted, isPositioned, renderedSide]);
+
   const arrowStyles = React.useMemo(
     () => ({
       position: 'absolute' as const,
@@ -435,6 +489,7 @@ export function useAnchorPositioning(
       arrowUncentered,
       side: logicalRenderedSide,
       align: renderedAlign,
+      physicalSide: renderedSide,
       anchorHidden,
       refs,
       context,
@@ -448,6 +503,7 @@ export function useAnchorPositioning(
       arrowUncentered,
       logicalRenderedSide,
       renderedAlign,
+      renderedSide,
       anchorHidden,
       refs,
       context,
@@ -597,6 +653,7 @@ export namespace useAnchorPositioning {
     adaptiveOrigin?: Middleware;
     collisionAvoidance: CollisionAvoidance;
     shiftCrossAxis?: boolean;
+    lazyFlip?: boolean;
   }
 
   export interface ReturnValue {
@@ -606,6 +663,7 @@ export namespace useAnchorPositioning {
     arrowUncentered: boolean;
     side: Side;
     align: Align;
+    physicalSide: PhysicalSide;
     anchorHidden: boolean;
     refs: ReturnType<typeof useFloating>['refs'];
     context: FloatingContext;

@@ -67,6 +67,11 @@ export const nav: NavGroup[] = [
         href: '/react/components/alert-dialog',
       },
       {
+        label: 'Autocomplete',
+        href: '/react/components/autocomplete',
+        isNew: true,
+      },
+      {
         label: 'Avatar',
         href: '/react/components/avatar',
       },
@@ -81,6 +86,11 @@ export const nav: NavGroup[] = [
       {
         label: 'Collapsible',
         href: '/react/components/collapsible',
+      },
+      {
+        label: 'Combobox',
+        href: '/react/components/combobox',
+        isNew: true,
       },
       {
         label: 'Context Menu',
