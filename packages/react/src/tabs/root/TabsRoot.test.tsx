@@ -1227,10 +1227,18 @@ describe('<Tabs.Root />', () => {
       const { getAllByRole } = await render(
         <Tabs.Root>
           <Tabs.List>
-            <Tabs.Tab value={0} disabled data-testid="tab-0">Tab 0</Tabs.Tab>
-            <Tabs.Tab value={1} data-testid="tab-1">Tab 1</Tabs.Tab>
-            <Tabs.Tab value={2} disabled data-testid="tab-2">Tab 2</Tabs.Tab>
-            <Tabs.Tab value={3} data-testid="tab-3">Tab 3</Tabs.Tab>
+            <Tabs.Tab value={0} disabled data-testid="tab-0">
+              Tab 0
+            </Tabs.Tab>
+            <Tabs.Tab value={1} data-testid="tab-1">
+              Tab 1
+            </Tabs.Tab>
+            <Tabs.Tab value={2} disabled data-testid="tab-2">
+              Tab 2
+            </Tabs.Tab>
+            <Tabs.Tab value={3} data-testid="tab-3">
+              Tab 3
+            </Tabs.Tab>
           </Tabs.List>
           <Tabs.Panel value={0}>Panel 0</Tabs.Panel>
           <Tabs.Panel value={1}>Panel 1</Tabs.Panel>
@@ -1240,7 +1248,7 @@ describe('<Tabs.Root />', () => {
       );
 
       const tabs = getAllByRole('tab');
-      
+
       // The first non-disabled tab (tab 1) should be selected
       expect(tabs[1]).to.have.attribute('aria-selected', 'true');
       expect(tabs[0]).to.have.attribute('aria-selected', 'false');
@@ -1252,10 +1260,18 @@ describe('<Tabs.Root />', () => {
       const { getAllByRole } = await render(
         <Tabs.Root>
           <Tabs.List>
-            <Tabs.Tab value={0} disabled data-testid="tab-0">Tab 0</Tabs.Tab>
-            <Tabs.Tab value={1} disabled data-testid="tab-1">Tab 1</Tabs.Tab>
-            <Tabs.Tab value={2} data-testid="tab-2">Tab 2</Tabs.Tab>
-            <Tabs.Tab value={3} data-testid="tab-3">Tab 3</Tabs.Tab>
+            <Tabs.Tab value={0} disabled data-testid="tab-0">
+              Tab 0
+            </Tabs.Tab>
+            <Tabs.Tab value={1} disabled data-testid="tab-1">
+              Tab 1
+            </Tabs.Tab>
+            <Tabs.Tab value={2} data-testid="tab-2">
+              Tab 2
+            </Tabs.Tab>
+            <Tabs.Tab value={3} data-testid="tab-3">
+              Tab 3
+            </Tabs.Tab>
           </Tabs.List>
           <Tabs.Panel value={0}>Panel 0</Tabs.Panel>
           <Tabs.Panel value={1}>Panel 1</Tabs.Panel>
@@ -1265,7 +1281,7 @@ describe('<Tabs.Root />', () => {
       );
 
       const tabs = getAllByRole('tab');
-      
+
       // The first non-disabled tab (tab 2) should be selected
       expect(tabs[2]).to.have.attribute('aria-selected', 'true');
       expect(tabs[0]).to.have.attribute('aria-selected', 'false');
@@ -1277,9 +1293,15 @@ describe('<Tabs.Root />', () => {
       const { getAllByRole } = await render(
         <Tabs.Root defaultValue={0}>
           <Tabs.List>
-            <Tabs.Tab value={0} disabled data-testid="tab-0">Tab 0</Tabs.Tab>
-            <Tabs.Tab value={1} data-testid="tab-1">Tab 1</Tabs.Tab>
-            <Tabs.Tab value={2} data-testid="tab-2">Tab 2</Tabs.Tab>
+            <Tabs.Tab value={0} disabled data-testid="tab-0">
+              Tab 0
+            </Tabs.Tab>
+            <Tabs.Tab value={1} data-testid="tab-1">
+              Tab 1
+            </Tabs.Tab>
+            <Tabs.Tab value={2} data-testid="tab-2">
+              Tab 2
+            </Tabs.Tab>
           </Tabs.List>
           <Tabs.Panel value={0}>Panel 0</Tabs.Panel>
           <Tabs.Panel value={1}>Panel 1</Tabs.Panel>
@@ -1288,7 +1310,7 @@ describe('<Tabs.Root />', () => {
       );
 
       const tabs = getAllByRole('tab');
-      
+
       // The explicitly set disabled tab should be selected
       expect(tabs[0]).to.have.attribute('aria-selected', 'true');
       expect(tabs[1]).to.have.attribute('aria-selected', 'false');
@@ -1299,9 +1321,15 @@ describe('<Tabs.Root />', () => {
       const { getAllByRole } = await render(
         <Tabs.Root value={0}>
           <Tabs.List>
-            <Tabs.Tab value={0} disabled data-testid="tab-0">Tab 0</Tabs.Tab>
-            <Tabs.Tab value={1} data-testid="tab-1">Tab 1</Tabs.Tab>
-            <Tabs.Tab value={2} data-testid="tab-2">Tab 2</Tabs.Tab>
+            <Tabs.Tab value={0} disabled data-testid="tab-0">
+              Tab 0
+            </Tabs.Tab>
+            <Tabs.Tab value={1} data-testid="tab-1">
+              Tab 1
+            </Tabs.Tab>
+            <Tabs.Tab value={2} data-testid="tab-2">
+              Tab 2
+            </Tabs.Tab>
           </Tabs.List>
           <Tabs.Panel value={0}>Panel 0</Tabs.Panel>
           <Tabs.Panel value={1}>Panel 1</Tabs.Panel>
@@ -1310,7 +1338,7 @@ describe('<Tabs.Root />', () => {
       );
 
       const tabs = getAllByRole('tab');
-      
+
       // The explicitly set disabled tab should be selected
       expect(tabs[0]).to.have.attribute('aria-selected', 'true');
       expect(tabs[1]).to.have.attribute('aria-selected', 'false');
@@ -1321,13 +1349,19 @@ describe('<Tabs.Root />', () => {
       const originalWarn = console.warn;
       const warnings: any[] = [];
       console.warn = (...args: any[]) => warnings.push(args);
-      
+
       const { getAllByRole } = await render(
         <Tabs.Root>
           <Tabs.List>
-            <Tabs.Tab value={0} disabled data-testid="tab-0">Tab 0</Tabs.Tab>
-            <Tabs.Tab value={1} disabled data-testid="tab-1">Tab 1</Tabs.Tab>
-            <Tabs.Tab value={2} disabled data-testid="tab-2">Tab 2</Tabs.Tab>
+            <Tabs.Tab value={0} disabled data-testid="tab-0">
+              Tab 0
+            </Tabs.Tab>
+            <Tabs.Tab value={1} disabled data-testid="tab-1">
+              Tab 1
+            </Tabs.Tab>
+            <Tabs.Tab value={2} disabled data-testid="tab-2">
+              Tab 2
+            </Tabs.Tab>
           </Tabs.List>
           <Tabs.Panel value={0}>Panel 0</Tabs.Panel>
           <Tabs.Panel value={1}>Panel 1</Tabs.Panel>
@@ -1336,14 +1370,14 @@ describe('<Tabs.Root />', () => {
       );
 
       const tabs = getAllByRole('tab');
-      
+
       // When all tabs are disabled, the warning should be logged
       await waitFor(() => {
         expect(warnings.length).to.be.greaterThan(0);
       });
 
       expect(warnings[0][0]).to.include('All tabs are disabled');
-      
+
       // The first tab should still be selected (fallback behavior)
       expect(tabs[0]).to.have.attribute('aria-selected', 'true');
 
@@ -1365,7 +1399,7 @@ describe('<Tabs.Root />', () => {
       );
 
       const tabs = getAllByRole('tab');
-      
+
       // The first non-disabled tab (index 1) should be selected
       expect(tabs[1]).to.have.attribute('aria-selected', 'true');
       expect(tabs[0]).to.have.attribute('aria-selected', 'false');

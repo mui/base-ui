@@ -70,16 +70,17 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
 
       if (tabs.length > 0) {
         // Check if all tabs are disabled
-        const allDisabled = tabs.every(tab => tab!.metadata?.disabled);
+        const allDisabled = tabs.every((tab) => tab!.disabled);
         if (allDisabled) {
           console.warn('All tabs are disabled. The first tab will be selected.');
           // Keep value at 0, no need to change
         } else {
           // Find first non-disabled tab
-          const firstNonDisabledTab = tabs.find(tab => !tab!.metadata?.disabled);
+          const firstNonDisabledTab = tabs.find((tab) => !tab!.disabled);
           if (firstNonDisabledTab) {
-            const newValue = firstNonDisabledTab.metadata?.value ?? firstNonDisabledTab.index ?? 0;
-            if (newValue !== 0) { // Only change if different from current default
+            const newValue = firstNonDisabledTab.value ?? firstNonDisabledTab.index ?? 0;
+            if (newValue !== 0) {
+              // Only change if different from current default
               setValue(newValue);
             }
           }
@@ -90,8 +91,6 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
 
   const [tabActivationDirection, setTabActivationDirection] =
     React.useState<TabsTab.ActivationDirection>('none');
-
-
 
   const onValueChange = useEventCallback(
     (
