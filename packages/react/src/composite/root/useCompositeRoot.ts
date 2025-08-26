@@ -121,15 +121,8 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
     // Set the default highlighted index of an arbitrary composite item.
     const activeIndex = activeItem ? sortedElements.indexOf(activeItem) : -1;
 
-    let indexToHighlight = activeIndex;
-
-    // If no active item is found, find the first non-disabled item
-    if (activeIndex === -1) {
-      indexToHighlight = findNonDisabledListIndex(elementsRef, { disabledIndices });
-    }
-
-    if (indexToHighlight !== -1) {
-      onHighlightedIndexChange(indexToHighlight);
+    if (activeIndex !== -1) {
+      onHighlightedIndexChange(activeIndex);
     }
 
     scrollIntoViewIfNeeded(rootRef.current, activeItem, direction, orientation);
