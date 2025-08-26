@@ -17,6 +17,7 @@ import type {
 } from '../types';
 import { createBaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
 import { createAttribute } from '../utils/createAttribute';
+import { FloatingUIOpenChangeDetails } from '../../utils/types';
 
 const safePolygonIdentifier = createAttribute('safe-polygon');
 
@@ -145,8 +146,8 @@ export function useHover(context: FloatingRootContext, props: UseHoverProps = {}
       return undefined;
     }
 
-    function onOpenChangeLocal({ open: newOpen }: { open: boolean }) {
-      if (!newOpen) {
+    function onOpenChangeLocal(details: FloatingUIOpenChangeDetails) {
+      if (!details.open) {
         timeout.clear();
         restTimeout.clear();
         blockMouseMoveRef.current = true;

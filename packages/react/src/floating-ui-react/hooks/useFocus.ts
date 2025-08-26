@@ -14,6 +14,7 @@ import {
 import type { ElementProps, FloatingRootContext } from '../types';
 import { createBaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
 import { createAttribute } from '../utils/createAttribute';
+import { FloatingUIOpenChangeDetails } from '../../utils/types';
 
 const isMacSafari = isMac && isSafari;
 
@@ -95,8 +96,8 @@ export function useFocus(context: FloatingRootContext, props: UseFocusProps = {}
       return undefined;
     }
 
-    function onOpenChangeLocal({ details }: { details: { reason?: string } }) {
-      if (details?.reason === 'trigger-press' || details?.reason === 'escape-key') {
+    function onOpenChangeLocal(details: FloatingUIOpenChangeDetails) {
+      if (details.reason === 'trigger-press' || details.reason === 'escape-key') {
         blockFocusRef.current = true;
       }
     }

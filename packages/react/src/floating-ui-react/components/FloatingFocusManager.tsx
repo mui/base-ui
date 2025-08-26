@@ -34,6 +34,7 @@ import { markOthers } from '../utils/markOthers';
 import { usePortalContext } from './FloatingPortal';
 import { useFloatingTree } from './FloatingTree';
 import { CLICK_TRIGGER_IDENTIFIER } from '../../utils/constants';
+import { FloatingUIOpenChangeDetails } from '../../utils/types';
 
 const LIST_LIMIT = 20;
 let previouslyFocusedElements: Element[] = [];
@@ -559,29 +560,20 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
 
     // Dismissing via outside press should always ignore `returnFocus` to
     // prevent unwanted scrolling.
-    function onOpenChangeLocal({
-      details,
-      event,
-      nested,
-    }: {
-      open: boolean;
-      details: { reason?: string } | undefined;
-      event: Event;
-      nested: boolean;
-    }) {
-      if (details?.reason === 'trigger-hover' && event.type === 'mouseleave') {
+    function onOpenChangeLocal(details: FloatingUIOpenChangeDetails) {
+      if (details.reason === 'trigger-hover' && details.nativeEvent.type === 'mouseleave') {
         preventReturnFocusRef.current = true;
       }
 
-      if (details?.reason !== 'outside-press') {
+      if (details.reason !== 'outside-press') {
         return;
       }
 
-      if (nested) {
+      if (details.nested) {
         preventReturnFocusRef.current = false;
       } else if (
-        isVirtualClick(event as MouseEvent) ||
-        isVirtualPointerEvent(event as PointerEvent)
+        isVirtualClick(details.nativeEvent as MouseEvent) ||
+        isVirtualPointerEvent(details.nativeEvent as PointerEvent)
       ) {
         preventReturnFocusRef.current = false;
       } else {
