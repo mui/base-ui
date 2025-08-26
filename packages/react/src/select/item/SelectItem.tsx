@@ -162,11 +162,9 @@ export const SelectItem = React.memo(
         selectionRef.current = {
           allowSelectedMouseUp: false,
           allowUnselectedMouseUp: false,
-          allowSelect: true,
         };
       },
       onKeyDown(event) {
-        selectionRef.current.allowSelect = true;
         lastKeyRef.current = event.key;
         store.set('activeIndex', indexRef.current);
       },
@@ -186,10 +184,8 @@ export const SelectItem = React.memo(
           return;
         }
 
-        if (selectionRef.current.allowSelect) {
-          lastKeyRef.current = null;
-          commitSelection(event.nativeEvent);
-        }
+        lastKeyRef.current = null;
+        commitSelection(event.nativeEvent);
       },
       onPointerEnter(event) {
         pointerTypeRef.current = event.pointerType;
@@ -219,11 +215,7 @@ export const SelectItem = React.memo(
           return;
         }
 
-        if (selectionRef.current.allowSelect || !selected) {
-          commitSelection(event.nativeEvent);
-        }
-
-        selectionRef.current.allowSelect = true;
+        commitSelection(event.nativeEvent);
       },
     };
 
