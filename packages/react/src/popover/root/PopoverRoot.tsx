@@ -13,6 +13,7 @@ import {
   useRole,
   FloatingTree,
   safePolygon,
+  useFloatingParentNodeId,
 } from '../../floating-ui-react';
 import { useTransitionStatus } from '../../utils/useTransitionStatus';
 import { OPEN_DELAY } from '../utils/constants';
@@ -52,6 +53,10 @@ function PopoverRootComponent({ props }: { props: PopoverRoot.Props }) {
 
   const popupRef = React.useRef<HTMLElement>(null);
   const stickIfOpenTimeout = useTimeout();
+
+  const nested = useFloatingParentNodeId() != null;
+
+  let floatingEvents: ReturnType<typeof useFloatingRootContext>['events'];
 
   const [open, setOpenUnwrapped] = useControlled({
     controlled: externalOpen,
@@ -96,6 +101,8 @@ function PopoverRootComponent({ props }: { props: PopoverRoot.Props }) {
 
   const setOpen = useEventCallback(
     (nextOpen: boolean, event: Event | undefined, reason: PopoverOpenChangeReason | undefined) => {
+      floatingEvents?.emit('openchange', { open: nextOpen, event, reason, nested });
+
       const isHover = reason === 'trigger-hover';
       const isKeyboardClick = reason === 'trigger-press' && (event as MouseEvent).detail === 0;
       const isDismissClose = !nextOpen && (reason === 'escape-key' || reason == null);
@@ -139,7 +146,10 @@ function PopoverRootComponent({ props }: { props: PopoverRoot.Props }) {
     onOpenChange(openValue, eventValue, reasonValue) {
       setOpen(openValue, eventValue, translateOpenChangeReason(reasonValue));
     },
+    noEmit: true,
   });
+
+  floatingEvents = floatingContext.events;
 
   useScrollLock({
     enabled: open && modal === true && openReason !== 'trigger-hover' && openMethod !== 'touch',

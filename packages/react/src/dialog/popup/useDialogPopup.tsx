@@ -7,42 +7,11 @@ import { HTMLProps } from '../../utils/types';
 import { COMPOSITE_KEYS } from '../../composite/composite';
 
 export function useDialogPopup(parameters: useDialogPopup.Parameters): useDialogPopup.ReturnValue {
-  const {
-    descriptionElementId,
-    initialFocus,
-    mounted,
-    openMethod,
-    ref,
-    setPopupElement,
-    titleElementId,
-  } = parameters;
+  const { descriptionElementId, mounted, ref, setPopupElement, titleElementId } = parameters;
 
   const popupRef = React.useRef<HTMLElement>(null);
 
   const handleRef = useMergedRefs(ref, popupRef, setPopupElement);
-
-  // Default initial focus logic:
-  // If opened by touch, focus the popup element to prevent the virtual keyboard from opening
-  // (this is required for Android specifically as iOS handles this automatically).
-  const defaultInitialFocus = React.useCallback((interactionType: InteractionType) => {
-    if (interactionType === 'touch') {
-      return popupRef;
-    }
-
-    return 0;
-  }, []);
-
-  const resolvedInitialFocus = React.useMemo(() => {
-    if (initialFocus == null) {
-      return defaultInitialFocus(openMethod ?? '');
-    }
-
-    if (typeof initialFocus === 'function') {
-      return initialFocus(openMethod ?? '');
-    }
-
-    return initialFocus;
-  }, [defaultInitialFocus, initialFocus, openMethod]);
 
   const popupProps: HTMLProps = {
     'aria-labelledby': titleElementId ?? undefined,
@@ -60,7 +29,6 @@ export function useDialogPopup(parameters: useDialogPopup.Parameters): useDialog
 
   return {
     popupProps,
-    resolvedInitialFocus,
   };
 }
 
@@ -106,6 +74,5 @@ export namespace useDialogPopup {
 
   export interface ReturnValue {
     popupProps: HTMLProps;
-    resolvedInitialFocus: React.RefObject<HTMLElement | null> | number;
   }
 }
