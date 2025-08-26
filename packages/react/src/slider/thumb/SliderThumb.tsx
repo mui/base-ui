@@ -1,15 +1,12 @@
 'use client';
 import * as React from 'react';
-import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
-import { isReactVersionAtLeast } from '@base-ui-components/utils/reactVersion';
 import { visuallyHidden } from '@base-ui-components/utils/visuallyHidden';
-import { formatNumber } from '../../utils/formatNumber';
-import { getStyleHookProps } from '../../utils/getStyleHookProps';
-import { mergeProps } from '../../merge-props';
-import { resolveClassName } from '../../utils/resolveClassName';
 import { BaseUIComponentProps } from '../../utils/types';
+import { formatNumber } from '../../utils/formatNumber';
+import { mergeProps } from '../../merge-props';
 import { useBaseUiId } from '../../utils/useBaseUiId';
+import { useRenderElement } from '../../utils/useRenderElement';
 import {
   ARROW_DOWN,
   ARROW_UP,
@@ -27,6 +24,7 @@ import { roundValueToStep } from '../utils/roundValueToStep';
 import { valueArrayToPercentages } from '../utils/valueArrayToPercentages';
 import type { SliderRoot } from '../root/SliderRoot';
 import { useSliderRootContext } from '../root/SliderRootContext';
+import { sliderStyleHookMapping } from '../root/styleHooks';
 import { SliderThumbDataAttributes } from './SliderThumbDataAttributes';
 
 const PAGE_UP = 'PageUp';
@@ -42,19 +40,6 @@ const ALL_KEYS = new Set([
   PAGE_UP,
   PAGE_DOWN,
 ]);
-
-function defaultRender(
-  props: React.ComponentPropsWithRef<'div'>,
-  inputProps: React.ComponentPropsWithRef<'input'>,
-) {
-  const { children, ...thumbProps } = props;
-  return (
-    <div {...thumbProps}>
-      {children}
-      <input {...inputProps} />
-    </div>
-  );
-}
 
 function getDefaultAriaValueText(
   values: readonly number[],
@@ -98,7 +83,8 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const {
-    render: renderProp,
+    render,
+    children: childrenProp,
     className,
     'aria-describedby': ariaDescribedByProp,
     'aria-label': ariaLabelProp,
@@ -107,6 +93,8 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     getAriaLabel: getAriaLabelProp,
     getAriaValueText: getAriaValueTextProp,
     id: idProp,
+    onBlur: onBlurProp,
+    onFocus: onFocusProp,
     onKeyDown: onKeyDownProp,
     tabIndex: tabIndexProp,
     ...elementProps
@@ -114,8 +102,6 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
 
   const id = useBaseUiId(idProp);
   const inputId = `${id}-input`;
-
-  const render = renderProp ?? defaultRender;
 
   const {
     active: activeIndex,
@@ -135,11 +121,6 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     step,
     values: sliderValues,
   } = useSliderRootContext();
-
-  let renderPropRef = null;
-  if (typeof render !== 'function') {
-    renderPropRef = isReactVersionAtLeast(19) ? (render.props as any).ref : render.ref;
-  }
 
   const disabled = disabledProp || contextDisabled;
 
@@ -167,8 +148,6 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     metadata: thumbMetadata,
   });
 
-  const mergedThumbRef = useMergedRefs(renderPropRef, forwardedRef, listItemRef, thumbRef);
-
   const thumbValue = sliderValues[index];
 
   const percentageValues = valueArrayToPercentages(sliderValues.slice(), min, max);
@@ -195,24 +174,6 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
       zIndex: activeIndex === index ? 1 : undefined,
     } satisfies React.CSSProperties;
   }, [activeIndex, isRtl, orientation, percent, index]);
-
-  const styleHooks = React.useMemo(
-    () => getStyleHookProps({ disabled, dragging: index !== -1 && activeIndex === index }),
-    [activeIndex, disabled, index],
-  );
-
-  const thumbProps = mergeProps(
-    {
-      [SliderThumbDataAttributes.index]: index,
-      className: resolveClassName(className, state),
-      id,
-      ref: mergedThumbRef,
-      style: getThumbStyle(),
-      tabIndex: -1,
-    },
-    styleHooks,
-    elementProps,
-  );
 
   let cssWritingMode: React.CSSProperties['writingMode'];
   if (orientation === 'vertical') {
@@ -242,7 +203,6 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
               formatOptionsRef.current ?? undefined,
               locale,
             ),
-      [SliderThumbDataAttributes.index as string]: index,
       disabled,
       id: inputId,
       max,
@@ -353,33 +313,34 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     fieldControlValidation.getValidationProps,
   );
 
-  if (typeof render === 'function') {
-    return render(thumbProps, inputProps, state);
-  }
-
-  const { children: renderPropsChildren, ...otherRenderProps } =
-    render.props as React.PropsWithChildren<unknown>;
-
-  const children = thumbProps.children ?? renderPropsChildren;
-
-  return React.cloneElement(
-    render,
-    mergeProps(
-      thumbProps,
-      {
-        children: (
-          <React.Fragment>
-            {typeof children === 'function' ? children() : children}
-            <input {...inputProps} />
-          </React.Fragment>
-        ),
-      },
-      otherRenderProps,
-      {
-        ref: thumbProps.ref,
-      },
-    ),
+  const children = childrenProp ? (
+    <React.Fragment>
+      {childrenProp}
+      <input {...inputProps} />
+    </React.Fragment>
+  ) : (
+    <input {...inputProps} />
   );
+
+  const element = useRenderElement('div', componentProps, {
+    state,
+    ref: [forwardedRef, listItemRef, thumbRef],
+    props: [
+      {
+        [SliderThumbDataAttributes.index as string]: index,
+        children,
+        id,
+        onBlur: onBlurProp,
+        onFocus: onFocusProp,
+        style: getThumbStyle(),
+        tabIndex: -1,
+      },
+      elementProps,
+    ],
+    customStyleHookMapping: sliderStyleHookMapping,
+  });
+
+  return element;
 });
 
 export interface ThumbMetadata {
@@ -389,8 +350,7 @@ export interface ThumbMetadata {
 export namespace SliderThumb {
   export interface State extends SliderRoot.State {}
 
-  export interface Props
-    extends Omit<BaseUIComponentProps<'div', State>, 'onBlur' | 'onFocus' | 'render'> {
+  export interface Props extends Omit<BaseUIComponentProps<'div', State>, 'onBlur' | 'onFocus'> {
     /**
      * Whether the thumb should ignore user interaction.
      * @default false
@@ -419,19 +379,6 @@ export namespace SliderThumb {
      * A focus handler forwarded to the `input`.
      */
     onFocus?: React.FocusEventHandler<HTMLInputElement>;
-    /**
-     * Allows you to replace the component’s HTML element
-     * with a different tag, or compose it with another component.
-     *
-     * Accepts a `ReactElement` or a function that returns the element to render.
-     */
-    render?:
-      | ((
-          props: React.ComponentPropsWithRef<'div'>,
-          inputProps: React.ComponentPropsWithRef<'input'>,
-          state: State,
-        ) => React.ReactElement)
-      | (React.ReactElement & { ref: React.Ref<Element> });
     /**
      * Optional tab index attribute forwarded to the `input`
      */

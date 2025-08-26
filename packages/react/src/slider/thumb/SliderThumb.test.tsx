@@ -17,13 +17,6 @@ describe('<Slider.Thumb />', () => {
     refInstanceof: window.HTMLDivElement,
   }));
 
-  // AT (e.g. Android Talkback) may use increase/decrease actions to interact
-  // with the slider which works on `input type="range"` via change events, but
-  // not pure ARIA implementations using `div role="slider"`. The `input`
-  // element(s) must be the only focusable element(s).
-  // See:
-  // - https://issues.chromium.org/issues/40816094
-  // - https://github.com/mui/material-ui/issues/23506
   describe('ARIA attributes', () => {
     ['aria-label', 'aria-labelledby', 'aria-describedby'].forEach((attr) => {
       it(`forwards ${attr} to the input`, async () => {
@@ -43,23 +36,13 @@ describe('<Slider.Thumb />', () => {
     });
   });
 
-  describe('prop: tabIndex', async () => {
-    it('can be removed from the tab sequence', async () => {
-      const { user } = await render(
-        <Slider.Root defaultValue={50}>
-          <Slider.Control>
-            <Slider.Thumb tabIndex={-1} />
-          </Slider.Control>
-        </Slider.Root>,
-      );
-
-      expect(screen.getByRole('slider')).to.have.property('tabIndex', -1);
-      expect(document.body).toHaveFocus();
-      await user.keyboard('[Tab]');
-      expect(document.body).toHaveFocus();
-    });
-  });
-
+  // AT (e.g. Android Talkback) may use increase/decrease actions to interact
+  // with the slider which works on `input type="range"` via change events, but
+  // not pure ARIA implementations using `div role="slider"`. The `input`
+  // element(s) must be the only focusable element(s).
+  // See:
+  // - https://issues.chromium.org/issues/40816094
+  // - https://github.com/mui/material-ui/issues/23506
   describe('events', () => {
     describe.skipIf(isJSDOM)('focus and blur', () => {
       it('single thumb', async () => {
@@ -197,6 +180,73 @@ describe('<Slider.Thumb />', () => {
         fireEvent.change(slider, { target: { value: '1e-7' } });
         expect(slider).to.have.attribute('aria-valuenow', '1e-7');
       });
+    });
+  });
+
+  describe('prop: tabIndex', async () => {
+    it('can be removed from the tab sequence', async () => {
+      const { user } = await render(
+        <Slider.Root defaultValue={50}>
+          <Slider.Control>
+            <Slider.Thumb tabIndex={-1} />
+          </Slider.Control>
+        </Slider.Root>,
+      );
+
+      expect(screen.getByRole('slider')).to.have.property('tabIndex', -1);
+      expect(document.body).toHaveFocus();
+      await user.keyboard('[Tab]');
+      expect(document.body).toHaveFocus();
+    });
+  });
+
+  describe('prop: children', async () => {
+    it('renders the nested input as a sibling to children', async () => {
+      await render(
+        <Slider.Root defaultValue={50}>
+          <Slider.Control>
+            <Slider.Thumb data-testid="thumb">
+              <span data-testid="child" />
+            </Slider.Thumb>
+          </Slider.Control>
+        </Slider.Root>,
+      );
+
+      const thumb = screen.getByTestId('thumb');
+      expect(thumb.querySelector('input[type="range"]')).to.equal(screen.getByRole('slider'));
+      expect(thumb.querySelector('[data-testid="child"]')).to.equal(screen.getByTestId('child'));
+    });
+
+    it('renders the nested input when using the short form render prop', async () => {
+      await render(
+        <Slider.Root defaultValue={50}>
+          <Slider.Control>
+            <Slider.Thumb render={<div data-testid="thumb" />}>
+              <span data-testid="child" />
+            </Slider.Thumb>
+          </Slider.Control>
+        </Slider.Root>,
+      );
+
+      const thumb = screen.getByTestId('thumb');
+      expect(thumb.querySelector('input[type="range"]')).to.equal(screen.getByRole('slider'));
+      expect(thumb.querySelector('[data-testid="child"]')).to.equal(screen.getByTestId('child'));
+    });
+
+    it('renders the nested input when using the long form render prop', async () => {
+      await render(
+        <Slider.Root defaultValue={50}>
+          <Slider.Control>
+            <Slider.Thumb render={(props) => <div data-testid="thumb" {...props} />}>
+              <span data-testid="child" />
+            </Slider.Thumb>
+          </Slider.Control>
+        </Slider.Root>,
+      );
+
+      const thumb = screen.getByTestId('thumb');
+      expect(thumb.querySelector('input[type="range"]')).to.equal(screen.getByRole('slider'));
+      expect(thumb.querySelector('[data-testid="child"]')).to.equal(screen.getByTestId('child'));
     });
   });
 
