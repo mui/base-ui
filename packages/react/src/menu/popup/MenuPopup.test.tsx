@@ -155,7 +155,7 @@ describe('<Menu.Popup />', () => {
       });
     });
 
-    it('should not move focus when finalFocus returns null', async () => {
+    it('should move focus to trigger when finalFocus returns null', async () => {
       function TestComponent() {
         return (
           <div>
@@ -180,7 +180,7 @@ describe('<Menu.Popup />', () => {
       await user.click(await findByText('Close'));
 
       await waitFor(() => {
-        expect(trigger).not.toHaveFocus();
+        expect(trigger).toHaveFocus();
       });
     });
   });
