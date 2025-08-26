@@ -24,6 +24,25 @@ describe('<Slider.Thumb />', () => {
   // See:
   // - https://issues.chromium.org/issues/40816094
   // - https://github.com/mui/material-ui/issues/23506
+  describe('ARIA attributes', () => {
+    ['aria-label', 'aria-labelledby', 'aria-describedby'].forEach((attr) => {
+      it(`forwards ${attr} to the input`, async () => {
+        await render(
+          <Slider.Root defaultValue={50}>
+            <Slider.Control>
+              <Slider.Thumb
+                {...{
+                  [attr]: 'test',
+                }}
+              />
+            </Slider.Control>
+          </Slider.Root>,
+        );
+        expect(screen.getByRole('slider')).to.have.attribute(attr, 'test');
+      });
+    });
+  });
+
   describe('events', () => {
     describe.skipIf(isJSDOM)('focus and blur', () => {
       it('single thumb', async () => {

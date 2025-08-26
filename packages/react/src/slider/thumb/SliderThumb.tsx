@@ -89,7 +89,7 @@ function getNewValue(
 
 /**
  * The draggable part of the the slider at the tip of the indicator.
- * Renders a `<div>` element.
+ * Renders a `<div>` element and a nested `<input type="range">`.
  *
  * Documentation: [Base UI Slider](https://base-ui.com/react/components/slider)
  */
@@ -100,6 +100,9 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
   const {
     render: renderProp,
     className,
+    'aria-describedby': ariaDescribedByProp,
+    'aria-label': ariaLabelProp,
+    'aria-labelledby': ariaLabelledByProp,
     disabled: disabledProp = false,
     getAriaLabel: getAriaLabelProp,
     getAriaValueText: getAriaValueTextProp,
@@ -222,10 +225,9 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
   const inputProps = mergeProps<'input'>(
     {
       'aria-label':
-        typeof getAriaLabelProp === 'function'
-          ? getAriaLabelProp(index)
-          : elementProps['aria-label'],
-      'aria-labelledby': labelId,
+        typeof getAriaLabelProp === 'function' ? getAriaLabelProp(index) : ariaLabelProp,
+      'aria-labelledby': ariaLabelledByProp ?? labelId,
+      'aria-describedby': ariaDescribedByProp,
       'aria-orientation': orientation,
       'aria-valuemax': max,
       'aria-valuemin': min,
@@ -237,8 +239,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
               thumbValue,
               index,
             )
-          : elementProps['aria-valuetext'] ||
-            getDefaultAriaValueText(
+          : getDefaultAriaValueText(
               sliderValues,
               index,
               formatOptionsRef.current ?? undefined,

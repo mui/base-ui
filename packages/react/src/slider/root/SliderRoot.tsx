@@ -50,7 +50,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
   Value extends number | readonly number[],
 >(componentProps: SliderRoot.Props<Value>, forwardedRef: React.ForwardedRef<HTMLDivElement>) {
   const {
-    'aria-labelledby': ariaLabelledbyProp,
+    'aria-labelledby': ariaLabelledByProp,
     className,
     defaultValue,
     disabled: disabledProp = false,
@@ -95,7 +95,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
 
   const fieldControlValidation = useFieldControlValidation();
 
-  const ariaLabelledby = ariaLabelledbyProp ?? labelId;
+  const ariaLabelledby = ariaLabelledByProp ?? labelId;
   const disabled = fieldDisabled || disabledProp;
   const name = fieldName ?? nameProp ?? '';
 
