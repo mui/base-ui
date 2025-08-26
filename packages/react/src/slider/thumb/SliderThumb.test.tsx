@@ -59,6 +59,9 @@ describe('<Slider.Thumb />', () => {
         expect(input).to.equal(container.querySelector<HTMLInputElement>('input[type="range"]'));
 
         await user.keyboard('[Tab]');
+        // We assert above that the tabbable elements of the slider are
+        // input[type="range"] because TalkBack doesn't simulate keyboard events for increments
+        // or decrements (proof: https://issues.chromium.org/issues/40816094). Instead, it triggers change events on those native slider inputs.
         expect(input).toHaveFocus();
         expect(focusAndBlurSpy.callCount).to.equal(1);
         expect(focusAndBlurSpy.firstCall.returnValue).to.equal(input);
