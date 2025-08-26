@@ -15,7 +15,12 @@ import {
 import { getTarget } from '../../floating-ui-react/utils';
 import { useScrollLock } from '../../utils/useScrollLock';
 import { useTransitionStatus, type TransitionStatus } from '../../utils/useTransitionStatus';
-import type { RequiredExcept, HTMLProps } from '../../utils/types';
+import type {
+  RequiredExcept,
+  HTMLProps,
+  FloatingUIOpenChangeDetails,
+  PopupChangeReason,
+} from '../../utils/types';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { type DialogRoot } from './DialogRoot';
@@ -69,8 +74,15 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
       if (eventDetails.isCanceled) {
         return;
       }
-      
-      floatingEvents?.emit('openchange', { open: nextOpen, event, reason, nested });
+
+      const details: FloatingUIOpenChangeDetails = {
+        open: nextOpen,
+        nativeEvent: eventDetails.event,
+        reason: eventDetails.reason as PopupChangeReason,
+        nested,
+      };
+
+      floatingEvents?.emit('openchange', details);
 
       setOpenUnwrapped(nextOpen);
     },

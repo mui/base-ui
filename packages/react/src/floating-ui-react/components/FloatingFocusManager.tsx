@@ -658,9 +658,9 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     // prevent unwanted scrolling.
     function onOpenChangeLocal(details: FloatingUIOpenChangeDetails) {
       if (!details.open) {
-        closeTypeRef.current = getEventType(event, lastInteractionTypeRef.current);
+        closeTypeRef.current = getEventType(details.nativeEvent, lastInteractionTypeRef.current);
       }
-      
+
       if (details.reason === 'trigger-hover' && details.nativeEvent.type === 'mouseleave') {
         preventReturnFocusRef.current = true;
       }

@@ -56,9 +56,9 @@ export function useFloatingRootContext(
         nativeEvent: eventDetails.event,
         nested,
       };
-      events.emit('openchange', { open: newOpen, event, reason, nested });
+      events.emit('openchange', details);
     }
-    onOpenChangeProp?.(newOpen, event, reason);
+    onOpenChangeProp?.(newOpen, eventDetails);
   });
 
   const refs = React.useMemo(

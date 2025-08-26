@@ -26,7 +26,7 @@ import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useDirection } from '../../direction-provider/DirectionContext';
 import { useScrollLock } from '../../utils/useScrollLock';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
-import type { PopupChangeReason } from '../../utils/types';
+import type { FloatingUIOpenChangeDetails, PopupChangeReason } from '../../utils/types';
 import type { BaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
 import {
   ContextMenuRootContext,
@@ -239,8 +239,15 @@ export const MenuRoot: React.FC<MenuRoot.Props> = function MenuRoot(props) {
       if (eventDetails.isCanceled) {
         return;
       }
-      
-      floatingEvents?.emit('openchange', { open: nextOpen, event, reason, nested });
+
+      const details: FloatingUIOpenChangeDetails = {
+        open: nextOpen,
+        nativeEvent: eventDetails.event,
+        reason: eventDetails.reason as PopupChangeReason,
+        nested,
+      };
+
+      floatingEvents?.emit('openchange', details);
 
       const nativeEvent = eventDetails.event as Event;
       if (

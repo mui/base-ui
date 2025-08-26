@@ -24,7 +24,7 @@ import { PATIENT_CLICK_THRESHOLD } from '../../utils/constants';
 import { useScrollLock } from '../../utils/useScrollLock';
 import { PopoverRootContext, usePopoverRootContext } from './PopoverRootContext';
 import { mergeProps } from '../../merge-props';
-import type { PopupChangeReason } from '../../utils/types';
+import type { FloatingUIOpenChangeDetails, PopupChangeReason } from '../../utils/types';
 
 function PopoverRootComponent({ props }: { props: PopoverRoot.Props }) {
   const {
@@ -109,8 +109,15 @@ function PopoverRootComponent({ props }: { props: PopoverRoot.Props }) {
       if (eventDetails.isCanceled) {
         return;
       }
-        
-      floatingEvents?.emit('openchange', { open: nextOpen, event, reason, nested });
+
+      const details: FloatingUIOpenChangeDetails = {
+        open: nextOpen,
+        nativeEvent: eventDetails.event,
+        reason: eventDetails.reason as PopupChangeReason,
+        nested,
+      };
+
+      floatingEvents?.emit('openchange', details);
 
       function changeState() {
         setOpenUnwrapped(nextOpen);
