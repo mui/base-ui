@@ -87,7 +87,7 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
         }
       }
     }
-  }, [tabMap.size, valueProp, defaultValue, setValue]);
+  }, [tabMap, valueProp, defaultValue, setValue]);
 
   const [tabActivationDirection, setTabActivationDirection] =
     React.useState<TabsTab.ActivationDirection>('none');

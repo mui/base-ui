@@ -41,7 +41,7 @@ export const TabsList = React.forwardRef(function TabsList(
   } = useTabsRootContext();
 
   const [highlightedTabIndex, setHighlightedTabIndex] = React.useState(0);
-  const [tabMap, setTabMapInternal] = React.useState(
+  const [, setTabMapInternal] = React.useState(
     () => new Map<Node, CompositeMetadata<TabsTab.Metadata> | null>(),
   );
 
