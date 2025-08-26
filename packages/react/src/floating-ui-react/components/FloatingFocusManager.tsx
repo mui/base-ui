@@ -746,6 +746,8 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
       queueMicrotask(() => {
         // This is `returnElement`, if it's tabbable, or its first tabbable child.
         const tabbableReturnElement = getFirstTabbableElement(returnElement);
+        const hasExplicitReturnFocus = typeof returnFocusRef.current !== 'boolean';
+
         if (
           // eslint-disable-next-line react-hooks/exhaustive-deps
           returnFocusRef.current &&
@@ -754,7 +756,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
           // If the focus moved somewhere else after mount, avoid returning focus
           // since it likely entered a different element which should be
           // respected: https://github.com/floating-ui/floating-ui/issues/2607
-          (tabbableReturnElement !== activeEl && activeEl !== doc.body
+          (!hasExplicitReturnFocus && tabbableReturnElement !== activeEl && activeEl !== doc.body
             ? isFocusInsideFloatingTree
             : true)
         ) {

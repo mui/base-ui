@@ -431,6 +431,68 @@ describe('<Dialog.Popup />', () => {
         expect(getByTestId('final-input')).toHaveFocus();
       });
     });
+
+    it('respects finalFocus when initialFocus points outside the popup', async () => {
+      function TestComponent() {
+        const initialRef = React.useRef<HTMLInputElement>(null);
+        const finalRef = React.useRef<HTMLInputElement>(null);
+        return (
+          <div>
+            <input data-testid="initial-outside" ref={initialRef} />
+            <Dialog.Root>
+              <Dialog.Backdrop />
+              <Dialog.Trigger>Open</Dialog.Trigger>
+              <Dialog.Portal>
+                <Dialog.Popup initialFocus={initialRef} finalFocus={finalRef}>
+                  <Dialog.Close>Close</Dialog.Close>
+                </Dialog.Popup>
+              </Dialog.Portal>
+            </Dialog.Root>
+            <input data-testid="final-outside" ref={finalRef} />
+          </div>
+        );
+      }
+
+      const { getByText, getByTestId, user } = await render(<TestComponent />);
+
+      await user.click(getByText('Open'));
+      await user.click(getByText('Close'));
+
+      await waitFor(() => {
+        expect(getByTestId('final-outside')).toHaveFocus();
+      });
+    });
+
+    it('moves final focus to trigger if initialFocus points outside the popup and finalFocus is not specified', async () => {
+      function TestComponent() {
+        const initialRef = React.useRef<HTMLInputElement>(null);
+        const finalRef = React.useRef<HTMLInputElement>(null);
+        return (
+          <div>
+            <input data-testid="initial-outside" ref={initialRef} />
+            <Dialog.Root>
+              <Dialog.Backdrop />
+              <Dialog.Trigger>Open</Dialog.Trigger>
+              <Dialog.Portal>
+                <Dialog.Popup initialFocus={initialRef}>
+                  <Dialog.Close>Close</Dialog.Close>
+                </Dialog.Popup>
+              </Dialog.Portal>
+            </Dialog.Root>
+            <input data-testid="final-outside" ref={finalRef} />
+          </div>
+        );
+      }
+
+      const { getByText, getByTestId, user } = await render(<TestComponent />);
+
+      await user.click(getByText('Open'));
+      await user.click(getByText('Close'));
+
+      await waitFor(() => {
+        expect(getByTestId('final-outside')).not.toHaveFocus();
+      });
+    });
   });
 
   describe.skipIf(isJSDOM)('nested dialog count', () => {
